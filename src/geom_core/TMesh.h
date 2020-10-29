@@ -511,7 +511,6 @@ public:
 
     virtual vec3d CompPnt( const vec3d & uw_pnt );
     virtual void FindIJ( const vec3d & uw_pnt, int &start_u, int &start_v );
-    virtual vec3d CompUW( const vec3d & pnt, const int & start_u, const int & start_v );
 
     static void StressTest();
     static double Rand01();

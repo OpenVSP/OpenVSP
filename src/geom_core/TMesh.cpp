@@ -1489,19 +1489,6 @@ vec3d TTri::CompPnt( const vec3d & uw_pnt )
 
 vec3d TTri::CompUW( const vec3d & pnt )
 {
-    if ( m_TMesh )  // Do interpolation based on original regular grid
-    {
-        if ( m_TMesh->m_UWPnts.size() != 0 )
-        {
-            int start_u, start_v;
-            vec3d center = ComputeCenterUW();
-
-            m_TMesh->FindIJ( center, start_u, start_v );
-
-            return m_TMesh->CompUW( pnt, start_u, start_v );
-        }
-    }
-
     vec3d w = BarycentricWeights( m_N0->m_Pnt, m_N1->m_Pnt, m_N2->m_Pnt, pnt );
     vec3d uw = w.v[0] * m_N0->m_UWPnt + w.v[1] * m_N1->m_UWPnt + w.v[2] * m_N2->m_UWPnt;
 
@@ -3907,34 +3894,6 @@ void TMesh::FindIJ( const vec3d & uw_pnt, int &start_u, int &start_v )
             break;
         }
     }
-}
-
-vec3d TMesh::CompUW( const vec3d & pnt, const int & start_u, const int & start_v )
-{
-    vec3d uw0;
-
-    uw0 = m_UWPnts[start_u][start_v];
-
-    double u0 = uw0.x();
-    double v0 = uw0.y();
-
-    double du = m_UWPnts[start_u + 1][start_v].x() - u0;
-    double dv = m_UWPnts[start_u][start_v + 1].y() - v0;
-
-    if ( du < .001 )
-        printf( "Small du! %g\n", du );
-
-    if ( dv < .001 )
-        printf( "Small dv! %g\n", dv );
-
-
-    vec2d uw_01 = MapToPlane( pnt, m_XYZPnts[start_u][start_v],
-       m_XYZPnts[start_u + 1][start_v] - m_XYZPnts[start_u][start_v],
-       m_XYZPnts[start_u][start_v + 1] - m_XYZPnts[start_u][start_v]);
-
-    vec3d uw = vec3d( u0 + uw_01.x() * du, v0 + uw_01.y() * dv, 0 );
-
-    return uw;
 }
 
 void CreateTMeshVecFromPts( Geom * geom,
