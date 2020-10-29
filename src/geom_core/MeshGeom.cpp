@@ -1178,6 +1178,8 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
 
 
     int nwake = wakes.size();
+
+    m_PolyVec.resize( nwake );
     fprintf( file_id, "%d\n", nwake );
 
     for ( iwake = 0; iwake < nwake; iwake++ )
@@ -1185,10 +1187,13 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
         int iprt = 0;
         int iwe;
         int nwe = wakes[iwake].size();
+        m_PolyVec[iwake].resize( nwe + 1 );
         fprintf( file_id, "%d ", nwe + 1 );
+
         for ( iwe = 0; iwe < nwe; iwe++ )
         {
             fprintf( file_id, "%d", wakes[iwake][iwe].m_N0->m_ID + 1 + offset );
+            m_PolyVec[iwake][iwe] = wakes[iwake][iwe].m_N0->m_Pnt;
 
             if ( iprt < 9 )
             {
@@ -1201,7 +1206,8 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
                 iprt = 0;
             }
         }
-        fprintf( file_id, "%d\n", wakes[iwake][iwe-1].m_N1->m_ID + 1 + offset );
+        fprintf( file_id, "%d\n", wakes[iwake][iwe - 1].m_N1->m_ID + 1 + offset );
+        m_PolyVec[iwake][iwe] = wakes[iwake][iwe - 1].m_N1->m_Pnt;
     }
 
     return ( offset + m_IndexedNodeVec.size() );
