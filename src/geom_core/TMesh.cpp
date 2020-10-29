@@ -156,9 +156,14 @@ TMesh* TEdge::GetParTMesh()
     return GetParTri()->GetTMeshPtr();
 }
 
+// Sort edges in increasing U (du > 0), unless du is large, then flip.
+// For the case of a periodic wake (duct), one edge must close the curve and its u parameter
+// will jump from nearly the largest parameter back to zero.  Detect the large positive jump
+// and reverse the sort in this case.
 void TEdge::SortNodesByU()
 {
-    if ( m_N1->m_UWPnt.x() < m_N0->m_UWPnt.x() )
+    double du = m_N1->m_UWPnt.x() - m_N0->m_UWPnt.x();
+    if ( ( du < 0 && du > -1 ) || du > 1 )
     {
         TNode * ntmp = m_N1;
         m_N1 = m_N0;
