@@ -23,6 +23,7 @@
 #include "StlHelper.h"
 
 #include "SubSurfaceMgr.h"
+#include "Util.h"
 
 //==== Constructor =====//
 MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -1086,21 +1087,21 @@ bool OrderWakeEdges ( TEdge &a, TEdge &b )
     return false;
 }
 
-bool EqualWakeNodes ( TNode *a, TNode *b )
+bool AboutEqualWakeNodes ( TNode *a, TNode *b )
 {
-    if ( ( a->m_Pnt.y() == b->m_Pnt.y() )
-         && ( a->m_Pnt.x() == b->m_Pnt.x() )
-         && ( a->m_Pnt.z() == b->m_Pnt.z() )
-         && ( a->m_UWPnt.x() == b->m_UWPnt.x() )
-         && ( a->m_UWPnt.y() == b->m_UWPnt.y() ) ) return true;
+    if ( aboutequal( a->m_Pnt.y(), b->m_Pnt.y() )
+      && aboutequal( a->m_Pnt.x(), b->m_Pnt.x() )
+      && aboutequal( a->m_Pnt.z(), b->m_Pnt.z() )
+      && aboutequal( a->m_UWPnt.x(), b->m_UWPnt.x() )
+      && aboutequal( a->m_UWPnt.y(), b->m_UWPnt.y() ) ) return true;
 
     return false;
 }
 
-bool EqualWakeEdges ( TEdge &a, TEdge &b )
+bool AboutEqualWakeEdges ( TEdge &a, TEdge &b )
 {
-    if ( EqualWakeNodes( a.m_N0, b.m_N0 )
-      && EqualWakeNodes( a.m_N1, b.m_N1 ) ) return true;
+    if ( AboutEqualWakeNodes( a.m_N0, b.m_N0 )
+      && AboutEqualWakeNodes( a.m_N1, b.m_N1 ) ) return true;
 
     return false;
 }
@@ -1137,7 +1138,8 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
     sort( wakeedges.begin(), wakeedges.end(), OrderWakeEdges );
 
     vector < TEdge >::iterator it;
-    it = unique( wakeedges.begin(), wakeedges.end(), EqualWakeEdges );
+    it = unique( wakeedges.begin(), wakeedges.end(), AboutEqualWakeEdges );
+
     wakeedges.resize( distance( wakeedges.begin(), it ) );
 
     list < TEdge > wlist( wakeedges.begin(), wakeedges.end() );
@@ -1156,14 +1158,14 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
 
         while ( wit != wlist.end() )
         {
-            if ( EqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
+            if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
             {
                 wakes[iwake].push_back( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( EqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
+            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
             {
                 wakes[iwake].push_front( *wit );
                 wlist.erase( wit );
