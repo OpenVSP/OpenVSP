@@ -13,6 +13,8 @@
 
 #else
 
+#include <sys/wait.h>
+
 #include <fcntl.h>
 #include <csignal>
 #endif

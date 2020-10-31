@@ -2,6 +2,7 @@
 #include "OpenGLHeaders.h"
 
 #include "stb_image.h"
+#include <string.h>
 
 namespace VSPGraphic
 {

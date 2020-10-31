@@ -7,6 +7,7 @@
 
 #include "stb_image_write.h"
 #include "LayoutMgr.h"
+#include <string.h>
 
 #include <assert.h>
 
