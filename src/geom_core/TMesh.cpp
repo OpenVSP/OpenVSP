@@ -3920,7 +3920,7 @@ void CreateTMeshVecFromPts( Geom * geom,
         flipnormal = !flipnormal;
     }
 
-    BuildTMeshTris( TMeshVec[itmesh], flipnormal, GetWMax(itmesh) );
+    BuildTMeshTris( TMeshVec[itmesh], flipnormal, wmax );
 
 }
 
