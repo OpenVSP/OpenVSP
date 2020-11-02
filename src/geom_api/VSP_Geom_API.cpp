@@ -1213,7 +1213,7 @@ void SetAnalysisInputDefaults( const string & analysis )
 {
     if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "SetIntAnalysisInput::Invalid Analysis ID " + analysis );
+        ErrorMgr.AddError( VSP_INVALID_ID, "SetAnalysisInputDefaults::Invalid Analysis ID " + analysis );
     }
     else
     {
