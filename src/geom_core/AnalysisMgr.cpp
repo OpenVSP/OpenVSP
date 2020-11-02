@@ -1300,6 +1300,13 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "Rho",                VSPAEROMgr.m_Rho.Get()                ) );
         m_Inputs.Add( NameValData( "ReCref",             VSPAEROMgr.m_ReCref.Get()             ) );
 
+        m_Inputs.Add( NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          ) );
+        m_Inputs.Add( NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                ) );
+        m_Inputs.Add( NameValData( "MaxTurnToggle",     VSPAEROMgr.m_MaxTurnToggle.Get()        ) );
+        m_Inputs.Add( NameValData( "MaxTurnAngle",      VSPAEROMgr.m_MaxTurnAngle.Get()         ) );
+        m_Inputs.Add( NameValData( "FarDistToggle",     VSPAEROMgr.m_FarDistToggle.Get()        ) );
+        m_Inputs.Add( NameValData( "FarDist",           VSPAEROMgr.m_FarDist.Get()              ) );
+
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
         m_Inputs.Add( NameValData( "WingID",            " "                                  ) );
@@ -1586,6 +1593,44 @@ string VSPAEROSinglePointAnalysis::Execute()
             VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
         }
 
+        int clMaxToggleOrig = VSPAEROMgr.m_ClMaxToggle.Get();
+        double clMaxOrig = VSPAEROMgr.m_ClMax.Get();
+        int maxTurnToggleOrig = VSPAEROMgr.m_MaxTurnToggle.Get();
+        double maxTurnAngleOrig = VSPAEROMgr.m_MaxTurnAngle.Get();
+        int farDistToggleOrig = VSPAEROMgr.m_FarDistToggle.Get();
+        double farDistOrig = VSPAEROMgr.m_FarDist.Get();
+
+        nvd = m_Inputs.FindPtr( "ClmaxToggle", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ClMaxToggle.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Clmax", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ClMax.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "MaxTurnToggle", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_MaxTurnToggle.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "MaxTurnAngle", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_MaxTurnAngle.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "FarDistToggle", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FarDistToggle.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "FarDist", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FarDist.Set( nvd->GetDouble( 0 ) );
+        }
+
         // Unsteady Parms
         bool rotateBladesFlagOrig = VSPAEROMgr.m_RotateBladesFlag.Get();
         bool actuatorDiskFlagOrig = VSPAEROMgr.m_ActuatorDiskFlag.Get();
@@ -1722,6 +1767,13 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_Rho.Set( rhoOrig );
         VSPAEROMgr.m_ReCref.Set( reCrefOrig );
 
+        VSPAEROMgr.m_ClMaxToggle.Set( clMaxToggleOrig );
+        VSPAEROMgr.m_ClMax.Set( clMaxOrig );
+        VSPAEROMgr.m_MaxTurnToggle.Set( maxTurnToggleOrig );
+        VSPAEROMgr.m_MaxTurnAngle.Set( maxTurnAngleOrig );
+        VSPAEROMgr.m_FarDistToggle.Set( farDistToggleOrig );
+        VSPAEROMgr.m_FarDist.Set( farDistOrig );
+
         // Unsteady Parms
         VSPAEROMgr.m_RotateBladesFlag.Set( rotateBladesFlagOrig );
         VSPAEROMgr.m_ActuatorDiskFlag.Set( actuatorDiskFlagOrig );
@@ -1769,6 +1821,13 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "Vinf",               VSPAEROMgr.m_Vinf.Get()               ) );
         m_Inputs.Add( NameValData( "Rho",                VSPAEROMgr.m_Rho.Get()                ) );
         m_Inputs.Add( NameValData( "ReCref",             VSPAEROMgr.m_ReCref.Get()             ) );
+
+        m_Inputs.Add( NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          ) );
+        m_Inputs.Add( NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                ) );
+        m_Inputs.Add( NameValData( "MaxTurnToggle",     VSPAEROMgr.m_MaxTurnToggle.Get()        ) );
+        m_Inputs.Add( NameValData( "MaxTurnAngle",      VSPAEROMgr.m_MaxTurnAngle.Get()         ) );
+        m_Inputs.Add( NameValData( "FarDistToggle",     VSPAEROMgr.m_FarDistToggle.Get()        ) );
+        m_Inputs.Add( NameValData( "FarDist",           VSPAEROMgr.m_FarDist.Get()              ) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
@@ -2092,6 +2151,44 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
         }
 
+        int clMaxToggleOrig = VSPAEROMgr.m_ClMaxToggle.Get();
+        double clMaxOrig = VSPAEROMgr.m_ClMax.Get();
+        int maxTurnToggleOrig = VSPAEROMgr.m_MaxTurnToggle.Get();
+        double maxTurnAngleOrig = VSPAEROMgr.m_MaxTurnAngle.Get();
+        int farDistToggleOrig = VSPAEROMgr.m_FarDistToggle.Get();
+        double farDistOrig = VSPAEROMgr.m_FarDist.Get();
+
+        nvd = m_Inputs.FindPtr( "ClmaxToggle", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ClMaxToggle.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Clmax", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ClMax.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "MaxTurnToggle", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_MaxTurnToggle.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "MaxTurnAngle", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_MaxTurnAngle.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "FarDistToggle", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FarDistToggle.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "FarDist", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FarDist.Set( nvd->GetDouble( 0 ) );
+        }
+
         // Unsteady Parms
         bool rotateBladesFlagOrig = VSPAEROMgr.m_RotateBladesFlag.Get();
         bool actuatorDiskFlagOrig = VSPAEROMgr.m_ActuatorDiskFlag.Get();
@@ -2229,6 +2326,13 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_Vinf.Set( vingOrig );
         VSPAEROMgr.m_Rho.Set( rhoOrig );
         VSPAEROMgr.m_ReCref.Set( reCrefOrig );
+
+        VSPAEROMgr.m_ClMaxToggle.Set( clMaxToggleOrig );
+        VSPAEROMgr.m_ClMax.Set( clMaxOrig );
+        VSPAEROMgr.m_MaxTurnToggle.Set( maxTurnToggleOrig );
+        VSPAEROMgr.m_MaxTurnAngle.Set( maxTurnAngleOrig );
+        VSPAEROMgr.m_FarDistToggle.Set( farDistToggleOrig );
+        VSPAEROMgr.m_FarDist.Set( farDistOrig );
 
         // Unsteady Parms
         VSPAEROMgr.m_RotateBladesFlag.Set( rotateBladesFlagOrig );
