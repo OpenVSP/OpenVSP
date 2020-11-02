@@ -1095,6 +1095,7 @@ string ProjectionMgrSingleton::MakeMeshGeom()
         {
             mesh_geom->m_TMeshVec[i] = m_SolutionTMeshVec[i];
         }
+        mesh_geom->m_SurfDirty = true;
         mesh_geom->Update();
 
         vehiclePtr->SetActiveGeom( id );

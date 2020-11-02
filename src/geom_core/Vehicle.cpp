@@ -4351,6 +4351,7 @@ string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int 
     }
     MeshGeom* mesh_ptr = ( MeshGeom* )geom;
     mesh_ptr->FlattenTMeshVec();
+    mesh_ptr->m_SurfDirty = true;
     mesh_ptr->Update();
     return id;
 }
@@ -4429,6 +4430,7 @@ string Vehicle::MassPropsAndFlatten( int set, int numSlices, bool hidegeom, bool
     MeshGeom* mesh_ptr = ( MeshGeom* )geom;
     mesh_ptr->FlattenTMeshVec();
     mesh_ptr->FlattenSliceVec();
+    mesh_ptr->m_SurfDirty = true;
     mesh_ptr->Update();
     return id;
 }
@@ -4475,6 +4477,7 @@ string Vehicle::PSliceAndFlatten( int set, int numSlices, vec3d axis, bool autoB
     MeshGeom* mesh_ptr = ( MeshGeom* )geom;
     mesh_ptr->FlattenTMeshVec();
     mesh_ptr->FlattenSliceVec();
+    mesh_ptr->m_SurfDirty = true;
     mesh_ptr->Update();
     return id;
 }

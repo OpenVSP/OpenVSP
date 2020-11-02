@@ -377,6 +377,7 @@ string WaveDragSingleton::WaveDragSlice( int set, int numSlices, int numRots, do
 
         mesh_ptr->FlattenTMeshVec();
         mesh_ptr->FlattenSliceVec();
+        mesh_ptr->m_SurfDirty = true;
         mesh_ptr->Update();
     }
     else
