@@ -16,7 +16,7 @@
 #include "ScriptMgr.h"
 
 #include "Parm.h"
-#include "Matrix.h"
+#include "Matrix4d.h"
 #include "VSP_Geom_API.h"
 #include "CustomGeom.h"
 #include "AdvLinkMgr.h"

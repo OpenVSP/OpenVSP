@@ -14,7 +14,7 @@
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "Vec3d.h"
-#include "Matrix.h"
+#include "Matrix4d.h"
 #include "BndBox.h"
 #include "DrawObj.h"
 #include "VspSurf.h"

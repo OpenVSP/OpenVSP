@@ -12,7 +12,7 @@
 #define VSP_SURF_H
 
 #include "Vec3d.h"
-#include "Matrix.h"
+#include "Matrix4d.h"
 #include "VspCurve.h"
 #include "BndBox.h"
 #include "XferSurf.h"

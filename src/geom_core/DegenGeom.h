@@ -12,7 +12,7 @@
 #include <vector>
 #include "Vec3d.h"
 #include "Vec2d.h"
-#include "Matrix.h"
+#include "Matrix4d.h"
 #include "SubSurface.h"
 #include "ResultsMgr.h"
 

@@ -10,7 +10,7 @@
 #ifndef VSP_1D_CURVE_H
 #define VSP_1D_CURVE_H
 
-#include "Matrix.h"
+#include "Matrix4d.h"
 #include "BndBox.h"
 
 #include <vector>

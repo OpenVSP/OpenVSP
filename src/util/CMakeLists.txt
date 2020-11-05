@@ -27,7 +27,7 @@ Cluster.cpp
 DrawObj.cpp
 DXFUtil.cpp
 FileUtil.cpp
-Matrix.cpp
+Matrix4d.cpp
 MessageMgr.cpp
 PntNodeMerge.cpp
 ProcessUtil.cpp
@@ -55,7 +55,7 @@ DrawObj.h
 DXFUtil.h
 FileUtil.h
 GuiDeviceEnums.h
-Matrix.h
+Matrix4d.h
 MessageMgr.h
 PntNodeMerge.h
 ProcessUtil.h

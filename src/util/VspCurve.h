@@ -11,7 +11,7 @@
 #ifndef VSP_CURVE_H
 #define VSP_CURVE_H
 
-#include "Matrix.h"
+#include "Matrix4d.h"
 #include "Vec3d.h"
 #include "BndBox.h"
 
