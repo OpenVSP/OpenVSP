@@ -719,6 +719,7 @@ protected:
     vector<int> m_SurfCopyIndx;
     vector< Matrix4d > m_TransMatVec; // Vector of transformation matrixes
     vector< Matrix4d > m_FeaTransMatVec; // Vector of transformation matrixes
+    vector< bool > m_FlipNormalVec;
     vector<DrawObj> m_WireShadeDrawObj_vec;
     vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;

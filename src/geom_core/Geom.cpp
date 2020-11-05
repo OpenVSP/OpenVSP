@@ -1302,7 +1302,9 @@ void Geom::UpdateSymmAttach()
     m_SurfIndxVec.clear();
     m_SurfSymmMap.clear();
     m_SurfCopyIndx.clear();
+    m_FlipNormalVec.clear();
     m_SurfIndxVec.resize( num_surf, -1 );
+    m_FlipNormalVec.resize( num_surf, false );
     m_SurfSymmMap.resize( num_surf );
     m_SurfCopyIndx.resize( num_surf );
 
@@ -1310,6 +1312,7 @@ void Geom::UpdateSymmAttach()
     for ( int i = 0 ; i < ( int )num_main ; i++ )
     {
         m_SurfIndxVec[i] = i;
+        m_FlipNormalVec[i] = GetMainFlipNormal( i );
         m_SurfSymmMap[ m_SurfIndxVec[i] ].push_back( i );
         m_SurfCopyIndx[i] = 0;
     }
@@ -1406,6 +1409,7 @@ void Geom::UpdateSymmAttach()
                     for ( int k = 0 ; k < m_SymRotN() - 1 ; k++ )
                     {
                         m_SurfIndxVec[j + k * numAddSurfs] = m_SurfIndxVec[j - currentIndex];
+                        m_FlipNormalVec[j + k * numAddSurfs] = m_FlipNormalVec[j - currentIndex];
                         m_SurfCopyIndx[j + k * numAddSurfs] = m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].size();
                         m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
                         m_TransMatVec[j + k * numAddSurfs].initMat( m_TransMatVec[j - currentIndex].data() );
@@ -1420,6 +1424,8 @@ void Geom::UpdateSymmAttach()
                 }
                 else
                 {
+                    m_FlipNormalVec[j] = m_FlipNormalVec[j - currentIndex];
+                    m_FlipNormalVec[j] = !m_FlipNormalVec[j];
                     m_SurfIndxVec[j] = m_SurfIndxVec[j - currentIndex];
                     m_SurfCopyIndx[j] = m_SurfSymmMap[ m_SurfIndxVec[j] ].size();
                     m_SurfSymmMap[ m_SurfIndxVec[ j ] ].push_back( j );
@@ -3668,7 +3674,7 @@ int Geom::GetMainSurfType( int indx ) const
 
 bool Geom::GetFlipNormal( int indx ) const
 {
-    return GetMainFlipNormal( m_SurfIndxVec[indx] );
+    return m_FlipNormalVec[indx];
 }
 
 bool Geom::GetMainFlipNormal( int indx ) const
