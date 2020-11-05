@@ -4443,9 +4443,7 @@ void Geom::WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma
 //==== Create TMesh Vector ====//
 vector< TMesh* > Geom::CreateTMeshVec()
 {
-    vector<VspSurf> surf_vec;
-    GetSurfVec( surf_vec );
-    return CreateTMeshVec( surf_vec );
+    return CreateTMeshVec( m_SurfVec );
 }
 
 vector< TMesh* > Geom::CreateTMeshVec( vector<VspSurf> &surf_vec )

@@ -363,6 +363,9 @@ public:
 
     virtual VspSurf* GetMainSurfPtr( int indx );
 
+    // TODO: Audit calls to GetSurfVec to see if making a copy is actually needed (i.e. does the call site need to make
+    //  changes that will then be thrown out?)  If not, this can be changed to reurn a reference or pointer as an
+    //  optimization.
     virtual void GetSurfVec( vector<VspSurf> &surf_vec )
     {
         surf_vec = m_SurfVec;
