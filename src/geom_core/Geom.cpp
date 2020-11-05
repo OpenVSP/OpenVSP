@@ -1175,56 +1175,53 @@ void Geom::GetUWTess01( int indx, vector < double > &u, vector < double > &w )
     }
 }
 
-// CreateTMeshVec
-// GetUWTess01 -- exposed to API
+// ver. A
+// Legacy wrapper calls that do not require uw_pnts.  Could eliminate by putting dummy uw_pnts in each call location.
+//
+// Called from:
+// Geom::CreateGeomResults
+// Geom::WritePLOT3DFileExtents
+// Geom::WritePLOT3DFileXYZ
+// Geom::WritePMARCGeomFile
+// Geom::WritePovRay
+// Geom::WriteX3D
+// Geom::WriteXSecFile
+void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen )
+{
+    vector< vector< vec3d > > uw_pnts;
+    UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
+}
+
+// ver. B
+// Legacy wrapper calls that assume m_SurfVec and need uw_pnts.
+//
+// Called from:
+// Geom::CreateTMeshVec
+// Geom::GetUWTess01
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
                             vector< vector< vec3d > > &uw_pnts, bool degen )
 {
     UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
 }
 
-// CreateGeomResults
-// WritePLOT3DFileExtents
-// WritePLOT3DfileXYZ
-// WritePMARCGeomFile
-// WritePovRay
-// WriteX3D
-// WriteXSecFile
-void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen )
-{
-    UpdateTesselate( m_SurfVec, indx, pnts, norms, degen );
-}
-
-// ExportSurfacePatches
-void Geom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
-{
-    UpdateSplitTesselate( m_SurfVec, indx, pnts, norms );
-}
-
-// UpdateTesselate
-// CreateDegenGeom
+// ver. C
+// Low-level version that allows passing an arbitrary surf_vec as an argument.  Designed to be called for
+// m_MainSurfVec or m_SurfVec interchangably.
+//
+// Called from:
+// Geom::CreateDegenGeom
+// Geom::UpdateTesselate ver A
+// Geom::UpdateTesselate ver B
+//
+// Overridden by:
+// XXXGeom::UpdateTesselate to provide base functionality.
 void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
                             vector< vector< vec3d > > &uw_pnts, bool degen )
 {
     surf_vec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
-// UpdateTesselate
-void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen )
-{
-    vector< vector< vec3d > > uw_pnts;
-    UpdateTesselate( surf_vec, indx, pnts, norms, uw_pnts, degen );
-}
-
-// New UST that works on tess instead.
-// UpdateDrawObj
-void Geom::UpdateSplitTesselate( int indx, SimpleTess & tess )
-{
-    UpdateSplitTesselate( m_MainSurfVec, indx, tess.m_pnts, tess.m_norms );
-}
-
-// UpdateSplitTessellate
-void Geom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
+void Geom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms)
 {
     surf_vec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess() );
 }
@@ -2569,7 +2566,7 @@ void Geom::UpdateMainTessVec( bool firstonly )
 
     for ( int i = 0 ; i < nmain ; i++ )
     {
-        UpdateSplitTesselate( i, m_MainTessVec[i] );
+        UpdateSplitTesselate( m_MainSurfVec, i, m_MainTessVec[i].m_pnts, m_MainTessVec[i].m_norms );
 
         bool fn = m_MainSurfVec[i].GetFlipNormal();
         m_MainTessVec[i].m_FlipNormal = fn;
@@ -4859,7 +4856,7 @@ void Geom::ExportSurfacePatches( vector<string> &surf_res_ids )
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
         vector< vector< vector< vec3d > > > pnts, norms;
-        UpdateSplitTesselate(i, pnts, norms);
+        UpdateSplitTesselate( m_SurfVec, i, pnts, norms );
 
         // Add a results entity for each patch to the surface
         Results* res = ResultsMgr.CreateResults( "Surface" );

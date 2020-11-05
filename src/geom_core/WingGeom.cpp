@@ -2182,7 +2182,8 @@ void WingGeom::CalculateMeshMetrics()
     m_MaxGrowth = maxrat;
 }
 
-void WingGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
+void WingGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
+                                vector< vector< vec3d > > &uw_pnts, bool degen )
 {
     vector < int > tessvec;
     vector < double > rootc;
