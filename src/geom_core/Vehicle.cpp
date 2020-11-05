@@ -2488,9 +2488,6 @@ void Vehicle::WriteVSPGeomFile( const string &file_name, int write_set )
         }
     }
 
-    // Coincident point data.
-    fprintf( file_id, "%d\n", 0 );
-
     offset = 0;
     // Wake line data.
     for ( i = 0; i < ( int ) geom_vec.size(); i++ )

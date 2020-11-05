@@ -1572,9 +1572,6 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
             }
 
-            // Coincident point data.
-            fprintf( fp, "%d\n", 0 );
-
             int nwake = wakes.size();
             // Wake line data.
             fprintf( fp, "%d\n", nwake );
