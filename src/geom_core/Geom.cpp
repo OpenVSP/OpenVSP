@@ -1042,16 +1042,6 @@ void Geom::Update( bool fullupdate )
         }
     }
 
-
-    if ( m_XFormDirty )
-        printf( "Updating %s position.\n", m_Name.c_str() );
-
-    if ( m_SurfDirty )
-        printf( "Updating %s surface.\n", m_Name.c_str() );
-
-    if ( m_TessDirty )
-        printf( "Updating %s tess.\n", m_Name.c_str() );
-
     m_UpdateBlock = true;
 
     m_LateUpdateFlag = false;
