@@ -3,13 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 # include the CTest framework
 include(CTest)
 
-FIND_PACKAGE(SWIG)
-
-IF( SWIG_FOUND )
-	INCLUDE(${SWIG_USE_FILE})
-	FIND_PACKAGE(PythonLibs)
-ENDIF( SWIG_FOUND )
-
 # CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of
 # the cache entry storing the find_library result.  Use the
 # value if it was set by the project or user.
@@ -18,6 +11,8 @@ if(DEFINED LIBXML2_LIBRARY AND NOT DEFINED LIBXML2_LIBRARIES)
 endif()
 
 IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
+
+	MESSAGE( STATUS "Configuring Python API" )
 
 	INCLUDE_DIRECTORIES( ${VSP_SOURCE_DIR}
 		${PYTHON_INCLUDE_PATH}

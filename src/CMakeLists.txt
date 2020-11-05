@@ -80,10 +80,43 @@ ENDIF()
 
 ADD_SUBDIRECTORY( geom_api )
 ADD_SUBDIRECTORY( vsp )
-ADD_SUBDIRECTORY( python_api )
 
 ADD_SUBDIRECTORY( vsp_aero )
 
+FIND_PACKAGE( SWIG )
+
+IF( SWIG_FOUND )
+	INCLUDE( ${SWIG_USE_FILE})
+ELSE( SWIG_FOUND )
+	MESSAGE( "SWIG not found, skipping API configurations" )
+ENDIF( SWIG_FOUND )
+
+IF( SWIG_FOUND )
+	FIND_PACKAGE( PythonLibs )
+	if ( PYTHONLIBS_FOUND )
+		ADD_SUBDIRECTORY( python_api )
+	ELSE(PYTHONLIBS_FOUND)
+		MESSAGE( STATUS "Python not found, API will not be compiled" )
+	ENDIF( PYTHONLIBS_FOUND )
+	
+	# Note that for the MATLAB API to be built succesfully, the unreleased 
+	# MATLAB branch of SWIG must be compiled first. CMAKE must then be pointed
+	# the executable using the SWIG_EXECUTABLE entry. Last, MATLAB must be 
+	# installed. Note, this has only been tested on 64 Bit Windows, so additional
+	# modifications may be required for other operating systems. If you find this 
+	# to be the case, please consider contributing findings to the public repository.
+	
+	IF( VSP_ENABLE_MATLAB_API )
+		FIND_PACKAGE( Matlab REQUIRED MX_LIBRARY )
+	
+		IF(MATLAB_FOUND)		
+			ADD_SUBDIRECTORY( matlab_api )
+		ELSE(MATLAB_FOUND)
+			MESSAGE("MATLAB not found... MATLAB API will NOT be built.")
+		ENDIF(MATLAB_FOUND)
+	ENDIF()
+
+ENDIF( SWIG_FOUND )
 
 SET( CPACK_PACKAGE_NAME OpenVSP )
 SET( CPACK_PACKAGE_VERSION_MAJOR ${VSPVER_MAJOR} )
