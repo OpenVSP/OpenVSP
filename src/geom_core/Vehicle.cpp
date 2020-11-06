@@ -500,7 +500,7 @@ bool Vehicle::CheckForVSPAERO( const string & path )
             "\tExpected here: %s\n"
             "\tFile: %s \tLine: %d\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
-            path_file,
+            path_file.c_str(),
             __FILE__, __LINE__ );
         ret_val = false;
     }
@@ -518,7 +518,7 @@ bool Vehicle::CheckForVSPAERO( const string & path )
             "\tExpected here: %s\n"
             "\tFile: %s \tLine: %d\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
-            path_file,
+            path_file.c_str(),
             __FILE__, __LINE__ );
         ret_val = false;
     }
@@ -536,7 +536,7 @@ bool Vehicle::CheckForVSPAERO( const string & path )
             "\tExpected here: %s\n"
             "\tFile: %s \tLine: %d\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
-            path_file,
+            path_file.c_str(),
             __FILE__, __LINE__ );
         ret_val = false;
     }
