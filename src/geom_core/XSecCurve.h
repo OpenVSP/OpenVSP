@@ -446,8 +446,8 @@ public:
     virtual vector< vec3d > GetCtrlPntVec( bool non_dimensional = false );
 
     // Functions to set the control point vector, parameterization, and G1 enforcement vector
-    virtual void SetPntVecs( vector < double > u_vec, vector < double > x_pnt_vec, vector < double > y_pnt_vec, vector < bool > g1_vec = {}, bool force_update = true );
-    virtual void SetPntVecs( vector < double > u_vec, vector < vec3d > pnt_vec, vector < bool > g1_vec = {}, bool force_update = true );
+    virtual void SetPntVecs( vector < double > u_vec, vector < double > x_pnt_vec, vector < double > y_pnt_vec, vector < bool > g1_vec = {}, vector < bool > fix_u_vec = {}, bool force_update = true );
+    virtual void SetPntVecs( vector < double > u_vec, vector < vec3d > pnt_vec, vector < bool > g1_vec = {}, vector < bool > fix_u_vec = {}, bool force_update = true );
 
     // Move a control point of input index to a new 2D location. If the point moving is 
     // cubic Bezier and located on the curve, the neighboring points will move with it. 
@@ -465,7 +465,7 @@ public:
 
     // Append a new point to the parameter vectors (i.e. m_XParmVec). Note, this does not ensure 
     // proper parameterization
-    virtual void AddPt( double default_u = 0.0, double default_x = 0.0, double default_y = 0.0, bool default_g1 = false );
+    virtual void AddPt( double default_u = 0.0, double default_x = 0.0, double default_y = 0.0, bool default_g1 = false, bool default_fix_u = false );
 
     // Delete the currently selected point, or the input index. Intermediate cubic bezier control
     // points can not be deleted.
@@ -491,6 +491,7 @@ public:
     virtual vector < double > GetXVec();
     virtual vector < double > GetYVec();
     virtual vector < bool > GetG1Vec();
+    virtual vector < bool > GetFixedUVec();
 
     // Split the curve at the current u (0-1) value or input value
     virtual int Split01();
@@ -531,6 +532,7 @@ public:
     vector < FractionParm* > m_XParmVec; // vector of control point x coordinates
     vector < FractionParm* > m_YParmVec; // vector of control point y coordinates
     vector < BoolParm* > m_EnforceG1Vec; // indicates whether or not to enforce G1 continuity for each CEDIT point on the curve,
+    vector < BoolParm* > m_FixedUVec; // vector that identifies if ach index of m_UParmVec is held constant. This is mainly used for reparameterization
 
 protected:
 
