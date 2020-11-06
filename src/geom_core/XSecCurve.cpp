@@ -260,6 +260,17 @@ void XSecCurve::OffsetCurve( double offset_val )
 
 }
 
+void XSecCurve::CopyBackgroundSettings( XSecCurve* xsc )
+{
+    m_XSecImageW.Set( xsc->m_XSecImageW.Get() );
+    m_XSecImageH.Set( xsc->m_XSecImageH.Get() );
+    m_XSecImageXOffset.Set( xsc->m_XSecImageXOffset.Get() );
+    m_XSecImageYOffset.Set( xsc->m_XSecImageYOffset.Get() );
+    m_XSecImagePreserveAR.Set( xsc->m_XSecImagePreserveAR.Get() );
+    m_XSecImageFlag.Set( xsc->m_XSecImageFlag.Get() );
+    m_ImageFile = xsc->GetImageFile();
+}
+
 //==== Parm Changed ====//
 void XSecCurve::ParmChanged( Parm* parm_ptr, int type )
 {

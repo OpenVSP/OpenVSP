@@ -154,6 +154,7 @@ public:
 
     virtual void SetImageFile( const string & file ) { m_ImageFile = file; }
     virtual string GetImageFile() { return m_ImageFile; }
+    virtual void CopyBackgroundSettings( XSecCurve* xsc );
 
 protected:
 
