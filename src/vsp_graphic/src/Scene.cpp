@@ -232,8 +232,8 @@ void Scene::preSelectBox(int x1, int y1, int x2, int y2)
 {
     _preselected.clear();
 
-    int w = abs( x2 - x1 );
-    int h = abs( y2 - y1 );
+    int w = std::abs( x2 - x1 );
+    int h = std::abs( y2 - y1 );
 
     int x, y;
 
