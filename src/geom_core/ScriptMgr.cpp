@@ -8003,6 +8003,99 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ConvertXSecToEdit( const string& in geom_id, const int& in indx = 0 )", asFUNCTION( vsp::ConvertXSecToEdit ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
+    doc_struct.comment = R"(
+/*!
+    Get the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the 
+    U parameter of the control point constant when performing an equal arc length reparameterization of the curve. 
+    \code{.cpp}
+    // Add Wing
+    string wid = AddGeom( "WING" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( wid, 0 );
+
+    ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+    // Identify XSec 1
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    array < bool > fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+
+    fixed_u_vec[3] = true; // change a flag
+    
+    SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
+
+    ReparameterizeEditXSec( xsec_1 );
+    \endcode
+    \sa SetEditXSecFixedUVec, ReparameterizeEditXSec
+    \param [in] xsec_id XSec ID
+    \return Array of bool values for each control point
+*/)";
+    r = se->RegisterGlobalFunction( "array<bool>@ GetEditXSecFixedUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecFixedUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the 
+    U parameter of the control point constant when performing an equal arc length reparameterization of the curve. 
+    \code{.cpp}
+    // Add Wing
+    string wid = AddGeom( "WING" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( wid, 0 );
+
+    ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+    // Identify XSec 1
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    array < bool > fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+
+    fixed_u_vec[3] = true; // change a flag
+    
+    SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
+
+    ReparameterizeEditXSec( xsec_1 );
+    \endcode
+    \sa GetEditXSecFixedUVec, ReparameterizeEditXSec
+    \param [in] xsec_id XSec ID
+    \param [in] fixed_u_vec Array of fixed U flags
+*/)";
+    r = se->RegisterGlobalFunction( "void SetEditXSecFixedUVec( const string& in xsec_id, array<bool>@ fixed_u_vec )", asMETHOD( ScriptMgrSingleton, SetEditXSecFixedUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Perform an equal arc length repareterization on an EditCurveXSec. The reparameterization is performed between 
+    specific U values if the Fixed U flag is true. This allows corners, such as at 0.25, 0.5, and 0.75 U, to be held
+    constant while everything between them is reparameterized. 
+    \code{.cpp}
+    // Add Wing
+    string wid = AddGeom( "WING" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( wid, 0 );
+
+    ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+
+    // Identify XSec 1
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    array < bool > fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+
+    fixed_u_vec[3] = true; // change a flag
+    
+    SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
+
+    ReparameterizeEditXSec( xsec_1 );
+    \endcode
+    \sa SetEditXSecFixedUVec, GetEditXSecFixedUVec
+    \param [in] xsec_id XSec ID
+*/)";
+    r = se->RegisterGlobalFunction( "void ReparameterizeEditXSec( const string& in xsec_id )", asFUNCTION( vsp::ReparameterizeEditXSec ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
     //==== Specialized Geom Functions ====//
     group = "SpecializedGeom";
     doc_struct.group = group.c_str();
@@ -12111,6 +12204,33 @@ void ScriptMgrSingleton::SetEditXSecPnts( const string & xsec_id, CScriptArray* 
     }
 
     vsp::SetEditXSecPnts( xsec_id, new_u_vec, control_pnt_vec );
+}
+
+CScriptArray* ScriptMgrSingleton::GetEditXSecFixedUVec( const std::string& xsec_id )
+{
+    vector < bool > temp_vec = vsp::GetEditXSecFixedUVec( xsec_id );
+
+    m_ProxyIntArray.clear();
+    m_ProxyIntArray.resize( temp_vec.size() );
+    for ( size_t i = 0; i < temp_vec.size(); i++ )
+    {
+        // Cast bool to int
+        m_ProxyIntArray[i] = (int)temp_vec[i];
+    }
+
+    return GetProxyIntArray();
+}
+
+void ScriptMgrSingleton::SetEditXSecFixedUVec( const string & xsec_id, CScriptArray* fixed_u_vec )
+{
+    vector < bool > new_fixed_u_vec( fixed_u_vec->GetSize() );
+
+    for ( int i = 0; i < (int)fixed_u_vec->GetSize(); i++ )
+    {
+        new_fixed_u_vec[i] = *(bool*)( fixed_u_vec->At( i ) );
+    }
+
+    vsp::SetEditXSecFixedUVec( xsec_id, new_fixed_u_vec );
 }
 
 //==== Variable Preset Functions ====//

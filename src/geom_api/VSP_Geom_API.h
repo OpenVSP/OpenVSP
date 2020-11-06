@@ -287,11 +287,14 @@ extern void EditXSecInitShape( const std::string & xsec_id );
 extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype );
 extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
 extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, const bool non_dimensional = true );
-extern void SetEditXSecPnts( const std::string & xsec_id, vector < double > u_vec, vector < vec3d > control_pts );
+extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double > u_vec, std::vector < vec3d > control_pts );
 extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
 extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
 extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d & new_pnt );
 extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0 );
+extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
+extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool > fixed_u_vec );
+extern void ReparameterizeEditXSec( const std::string & xsec_id );
 
 //======================== Sets ================================//
 extern int GetNumSets();

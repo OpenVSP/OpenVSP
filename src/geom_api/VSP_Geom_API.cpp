@@ -4934,6 +4934,81 @@ void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
     }
 }
 
+vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFixedUVec::Can't Find XSec " + xsec_id );
+        return vector < bool > {};
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetFixedUVec::XSec Not XS_EDIT_CURVE Type" );
+        return vector < bool > {};
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    ErrorMgr.NoError();
+    return edit_xs->GetFixedUVec();
+}
+
+void SetEditXSecFixedUVec( const std::string& xsec_id, vector < bool > fixed_u_vec )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFixedUVec::Can't Find XSec " + xsec_id );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetFixedUVec::XSec Not XS_EDIT_CURVE Type" );
+        return;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    if ( edit_xs->GetNumPts() != fixed_u_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetFixedUVec:Size of fixed_u_vec Not Equal to Number of Control Points" );
+        return;
+    }
+
+    for ( size_t i = 0; i < fixed_u_vec.size(); i++ )
+    {
+        edit_xs->m_FixedUVec[i]->Set( fixed_u_vec[i] );
+    }
+    ErrorMgr.NoError();
+}
+
+void ReparameterizeEditXSec( const std::string & xsec_id )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReparameterizeEditXSec::Can't Find XSec " + xsec_id );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReparameterizeEditXSec::XSec Not XS_EDIT_CURVE Type" );
+        return;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    edit_xs->ReparameterizeEqualArcLength();
+    ErrorMgr.NoError();
+}
+
 //===================================================================//
 //===============       Set Functions            ===================//
 //===================================================================//
