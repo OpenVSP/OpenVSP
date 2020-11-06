@@ -21,6 +21,7 @@ public:
     {
         TEST_ADD( APITestSuiteCFDMesh::TestCFDHalfMesh )
         TEST_ADD( APITestSuiteCFDMesh::TestSurfaceIntersection )
+        TEST_ADD( APITestSuiteCFDMesh::CFDMeshAnalysisTest)
     }
 
 private:
@@ -30,6 +31,7 @@ private:
     int  GetFileSize( string file_name );
     void RunAnalysis( vector < string > file_1, vector < string > file_2 );
     void RunScaleTest( double scale_value, double test_compare_percent );
+    void CFDMeshAnalysisTest();
 };
 
 #endif // !defined(VSPAPITESTSUITECFDMESH__INCLUDED_)

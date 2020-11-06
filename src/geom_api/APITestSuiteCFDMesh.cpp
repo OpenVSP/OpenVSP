@@ -254,3 +254,62 @@ int APITestSuiteCFDMesh::GetFileSize( string file_name )
     in_file.close();
     return fileSize;
 }
+
+void APITestSuiteCFDMesh::CFDMeshAnalysisTest()
+{
+    //Set up for test
+    printf("APITestSuiteCFDMesh::CFDMeshAnalysisTest() \n");
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+
+    //Add and edit Geometry
+    printf( "\tGenerating geometry\n" );
+    string pod_id = vsp::AddGeom( "POD" );
+    string wing_id = vsp::AddGeom( "WING" );
+    vsp::SetParmValUpdate( wing_id, "X_Rel_Location", "XForm", 3.0 );
+
+    //Get analysis type
+    string analysis_name = "CfdMeshAnalysis";
+
+    // Set Defaults
+    vsp::SetAnalysisInputDefaults( analysis_name );
+
+    //Set Inputs
+    vector < double > baseNums{ 0.5 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "BaseLen", baseNums, 0 );
+    vector < double > minNums{ 0.1 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "MinLen", minNums, 0 );
+    vector < double > maxGapNums{ 0.005 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "MaxGap", maxGapNums, 0 );
+    vector < double > nCircSegNums{ 16.0 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "NCircSeg", nCircSegNums, 0 );
+    vector < double > growthRationNums{ 1.3 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "GrowthRatio", growthRationNums, 0 );
+    vector < double > relCurveTolNums{ 0.01 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
+
+    //Set Files to be Generated
+    vector < string > stl_file_name { "Example_Test_STL.stl" };
+    vsp::SetStringAnalysisInput( analysis_name, "STLFileName", stl_file_name );
+    vector < string > poly_file_name{ "Example_Test_POLY.poly" };
+    vsp::SetStringAnalysisInput( analysis_name, "POLYFileName", poly_file_name );
+    vector < string > tri_file_name{ "Example_Test_TRI.tri" };
+    vsp::SetStringAnalysisInput( analysis_name, "TRIFileName", tri_file_name );
+    vector < string > facet_file_name{ "Example_Test_FACET.facet" };
+    vsp::SetStringAnalysisInput( analysis_name, "FACETFileName", facet_file_name );
+    vector < string > obj_file_name{ "Example_Test_OBJ.obj" };
+    vsp::SetStringAnalysisInput( analysis_name, "OBJFileName", obj_file_name );
+    vector < string > gmsh_file_name{ "Example_Test_GMSH.gmsh" };
+    vsp::SetStringAnalysisInput( analysis_name, "GMSHFileName", gmsh_file_name );
+
+    // list inputs, type, and current values
+    vsp::PrintAnalysisInputs( analysis_name );
+
+    printf( "\tExecuting Analysis\n" );
+    string resid = vsp::ExecAnalysis( analysis_name );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+    
+}
