@@ -2035,7 +2035,7 @@ void ParasiteDragScreen::SetupRowLabel( int subsurfFlag, const string &lastID, i
     m_TableCompNamesLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH * 2 + 20 );
     string label = GetComponentTableLabel( subsurfFlag, lastID, index );
     m_TableCompNamesLayout.AddButton( m_labels[index], label.c_str() );
-    m_labels[index].GetFlButton()->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    m_labels[index].GetFlButton()->align( Fl_Align( FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP ) );
 }
 
 void ParasiteDragScreen::SetupSwet( int index, double swet )

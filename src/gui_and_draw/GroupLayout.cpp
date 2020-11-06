@@ -454,7 +454,7 @@ void GroupLayout::AddButton( ToggleButton& tbutton, const char* label )
     Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight );
     flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
-    flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    flbutton->align( Fl_Align( FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP ) );
     flbutton->copy_label( label );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->copy_label( label );
@@ -477,7 +477,7 @@ void GroupLayout::AddButton( CheckButtonBit& cbutton, const char* label, int val
     Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, label );
     flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
-    flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    flbutton->align( Fl_Align( FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP ) );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->copy_label( label );
     m_Group->add( flbutton );
@@ -1609,7 +1609,7 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
     Fl_Light_Button* splitpickbutton = new Fl_Light_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Split Pick" );
     splitpickbutton->labelfont( FL_HELVETICA_BOLD );
     splitpickbutton->labelsize( 12 );
-    splitpickbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    splitpickbutton->align( Fl_Align( FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP ) );
     splitpickbutton->copy_label( "Split Pick" );
     splitpickbutton->labelcolor( FL_DARK_BLUE );
     m_Group->add( splitpickbutton );
@@ -1640,7 +1640,7 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
     Fl_Light_Button* deletetoggle = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Del Pick" );
     deletetoggle->labelfont( FL_HELVETICA_BOLD );
     deletetoggle->labelsize( 12 );
-    deletetoggle->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    deletetoggle->align( Fl_Align( FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_WRAP ) );
     deletetoggle->copy_label( "Del Pick" );
     deletetoggle->labelcolor( FL_DARK_BLUE );
     m_Group->add( deletetoggle );
