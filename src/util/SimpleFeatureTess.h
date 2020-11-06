@@ -5,7 +5,7 @@
 using std::vector;
 
 #include "Vec3d.h"
-#include "Matrix.h"
+#include "Matrix4d.h"
 #include "BndBox.h"
 
 class SimpleFeatureTess
