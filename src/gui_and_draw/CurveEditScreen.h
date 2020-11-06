@@ -13,8 +13,9 @@
 
 #include "ScreenMgr.h"
 #include "ScreenBase.h"
+#include "MainGLWindow.h"
 
-class CurveEditScreen : public BasicScreen
+class CurveEditScreen : public TabScreen
 {
 public:
     CurveEditScreen( ScreenMgr* mgr );
@@ -25,16 +26,47 @@ public:
     virtual void CloseCallBack( Fl_Widget* w );
     virtual void GuiDeviceCallBack( GuiDevice* d );
 
-private:
-
     XSecCurve* GetXSecCurve();
 
-    GroupLayout m_MainLayout;
-    GroupLayout m_GenLayout;
+    void UpdateDrawObj();
+    void LoadDrawObjs( vector< DrawObj* >& draw_obj_vec );
 
+    void SetDeleteActive( bool flag )                   { m_DeleteActive = flag; }
+    bool GetDeleteActive()                              { return m_DeleteActive; }
+
+    void SetSplitActive( bool flag )                    { m_SplitActive = flag; }
+    bool GetSplitActive()                               { return m_SplitActive; }
+
+    void SetFreezeAxis( bool flag )                     { m_FreezeAxis = flag; }
+    void SetUpdateIndexSelector( bool flag )            { m_UpdateIndexSelector = flag; }
+
+    // Restricts the index selecttor from cycling through intermediate control 
+    // points. If an intermediate control point is selected, the delete button
+    // is deactivated
+    void UpdateIndexSelector( int index, bool skip_intermediate = true );
+
+private:
+
+    void UpdateAxisLimits(); // Update axis display to match zoom, scale, pan, etc.
+    void RedrawXYSliders( int num_pts, int curve_type );
+
+    GroupLayout m_MainLayout;
+    GroupLayout m_XSecLayout;
+    GroupLayout m_DrawLayout;
+    GroupLayout m_BackgroundImageLayout;
+    GroupLayout m_PtLayout;
+
+    // XSec editor area GUI elements
+    VSPGUI::EditXSecWindow* m_XSecGlWin;
+    Ca_X_Axis* m_XAxis;
+    Ca_Y_Axis* m_YAxis;
+
+    Fl_Scroll* m_PtScroll;
+
+    // XSec Tab GUI Elements
     Choice m_ShapeChoice;
     TriggerButton m_InitShapeButton;
-    Choice m_SymChoice;
+    ToggleButton m_SymToggle;
     ToggleButton m_ClosedCurveToggle;
 
     TriggerButton m_ReparameterizeButton;
@@ -42,12 +74,70 @@ private:
     SliderAdjRangeInput m_WidthSlider;
     SliderAdjRangeInput m_HeightSlider;
 
-    ToggleButton m_PreserveARToggle;
+    SliderAdjRangeInput m_SplitPtSlider;
+    TriggerButton m_SplitButton;
+    TriggerButton m_DelButton;
+    ToggleButton m_DelPickButton;
+    ToggleButton m_SplitPickButton;
+    IndexSelector m_PntSelector;
+    Choice m_ConvertChoice;
+    TriggerButton m_ConvertButton;
+    StringOutput m_CurveType;
+
+    ToggleButton m_PreserveXSecARToggle;
     ToggleButton m_AbsDimToggle;
 
-    SliderAdjRangeInput m_SelectedUSlider;
+    // Draw Tab GUI Elements
+    ColorPicker m_ColorPicker;
+    SliderAdjRangeInput m_PointSizeSlider;
+    SliderAdjRangeInput m_LineThicknessSlider;
 
-    XSecCurveEditor m_CurveEditor;
+    ToggleButton m_BorderToggle;
+    ToggleButton m_AxisToggle;
+    ToggleButton m_GridToggle;
+
+    // GEU controls for background image
+    ToggleButton m_ImageToggle;
+    StringOutput m_ImageFileOutput;
+    TriggerButton m_ImageFileSelect;
+
+    SliderAdjRangeInput m_ImageWScale;
+    SliderAdjRangeInput m_ImageHScale;
+    ToggleButton m_PreserveImageAspect;
+
+    SliderAdjRangeInput m_ImageXOffset;
+    SliderAdjRangeInput m_ImageYOffset;
+
+    TriggerButton m_CopyDrawToAllXSec;
+    TriggerButton m_ResetDefaultBackground;
+    TriggerButton m_ResetViewButton;
+
+    // Draw Objects for XSec
+    DrawObj m_XSecCurveDrawObj;
+    DrawObj m_XSecCtrlPntsDrawObj;
+    DrawObj m_CEDITTangentLineDrawObj;
+    DrawObj m_CEDITTangentPntDrawObj;
+    DrawObj m_CurrentPntDrawObj;
+
+    // Vector of sliders to match the curve parameter vectors
+    vector < vector < SliderAdjRangeInput > > m_SliderVecVec;
+    vector < CheckButton > m_EnforceG1Vec;
+    vector < CheckButton > m_FixedUCheckVec;
+
+    bool m_FreezeAxis; // Restrict the canvas from resizing when performing a click and drag operation
+
+    // Flags to delete or split after the curve is clicked on
+    bool m_DeleteActive;
+    bool m_SplitActive;
+
+    // Keeps track of previous curve type. If changed, redraw sliders
+    int m_PrevCurveType;
+
+    // Variables to help with CEDIT point selection restrictions
+    int m_PrevIndex; // Maintains the previously selected point index
+    bool m_UpdateIndexSelector; // Flag used to indiate if the index selector should be updated
+
+    int m_GlWinWidth;
 
 };
 

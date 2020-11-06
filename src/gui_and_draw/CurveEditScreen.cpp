@@ -10,81 +10,294 @@
 #include "BORGeom.h"
 #include "WingGeom.h"
 
-using namespace vsp;
+#include "GraphicEngine.h"
+#include "Display.h"
+#include "Viewport.h"
+#include "Camera.h"
+#include "Background.h"
+#include "GraphicSingletons.h"
 
+#include "Util.h"
 
 //==== Constructor ====//
-CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 760, "Edit Curve" )
+CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 610, "Edit Curve", 180, 425 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+
+    Fl_Group* xsec_tab = AddTab( "Curve" );
+    Fl_Group* draw_tab = AddTab( "Display" );
+
+    xsec_tab->show();
+
+    //==== XSec Tab ====//
+    Fl_Group* xsec_group = AddSubGroup( xsec_tab, 5 );
+    m_XSecLayout.SetGroupAndScreen( xsec_group, this );
 
     m_MainLayout.ForceNewLine();
     m_MainLayout.AddY( 7 );
     m_MainLayout.AddX( 5 );
 
-    m_FLTK_Window->resizable( 0 ); // Don't resize so plot AR is fixed
+    m_XSecLayout.AddDividerBox( "General" );
+    m_XSecLayout.SetFitWidthFlag( false );
+    m_XSecLayout.SetSameLineFlag( true );
 
-    m_MainLayout.AddSubGroupLayout( m_GenLayout, m_MainLayout.GetRemainX() - 5,
-        m_MainLayout.GetRemainY() - 5 );
-
-    m_GenLayout.SetFitWidthFlag( false );
-    m_GenLayout.SetSameLineFlag( true );
+    m_XSecLayout.SetChoiceButtonWidth( m_XSecLayout.GetRemainX() / 3 );
+    m_XSecLayout.SetSliderWidth( m_XSecLayout.GetRemainX() / 3 );
+    m_XSecLayout.SetButtonWidth( m_XSecLayout.GetRemainX() / 3 );
 
     m_ShapeChoice.AddItem( "Circle" );
     m_ShapeChoice.AddItem( "Ellipse" );
     m_ShapeChoice.AddItem( "Rectangle" );
-    m_GenLayout.AddChoice( m_ShapeChoice, "Shape" );
+    m_XSecLayout.AddChoice( m_ShapeChoice, "Shape" );
 
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 3 );
+    m_XSecLayout.AddButton( m_InitShapeButton, "Init Shape" );
+    m_XSecLayout.ForceNewLine();
 
-    m_GenLayout.AddButton( m_InitShapeButton, "Init" );
-    m_GenLayout.AddButton( m_ClosedCurveToggle, "Close Curve" );
-    m_GenLayout.AddButton( m_AbsDimToggle, "View Abs" ); // Absolute dimensions flag
+    m_XSecLayout.AddButton( m_ClosedCurveToggle, "Close Curve" );
+    m_XSecLayout.AddButton( m_AbsDimToggle, "View Abs" ); // Absolute dimensions flag
+    m_XSecLayout.AddButton( m_SymToggle, "R-L Symmetry" );
 
-    m_GenLayout.ForceNewLine();
+    m_XSecLayout.ForceNewLine();
+    m_XSecLayout.AddYGap();
 
-    m_SymChoice.AddItem( "NONE" );
-    m_SymChoice.AddItem( "SYM R-L" );
-    //m_SymChoice.AddItem( "SYM T-B" );
-    m_GenLayout.AddChoice( m_SymChoice, "Sym" );
+    m_XSecLayout.SetSameLineFlag( true );
+    m_XSecLayout.SetFitWidthFlag( false );
 
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
+    m_XSecLayout.SetInputWidth( m_XSecLayout.GetRemainX() - m_XSecLayout.GetButtonWidth() );
+    m_XSecLayout.AddOutput( m_CurveType, "Current Type:" );
 
-    m_GenLayout.AddButton( m_ReparameterizeButton, "Reparameterize" );
-    m_GenLayout.AddButton( m_PreserveARToggle, "Preserve AR" );
+    m_XSecLayout.ForceNewLine();
 
-    m_GenLayout.ForceNewLine();
+    m_ConvertChoice.AddItem( "Linear" );
+    m_ConvertChoice.AddItem( "Spline (PCHIP)" );
+    m_ConvertChoice.AddItem( "Cubic Bezier" );
 
-    m_GenLayout.AddYGap();
+    m_XSecLayout.AddChoice( m_ConvertChoice, "Convert to:" );
 
-    m_GenLayout.SetFitWidthFlag( false );
-    m_GenLayout.SetSameLineFlag( true );
+    m_XSecLayout.AddButton( m_ConvertButton, "Convert" );
+    m_XSecLayout.ForceNewLine();
+    m_XSecLayout.AddYGap();
 
-    int button_w = 75;
-    int gap_w = 4;
+    m_XSecLayout.SetFitWidthFlag( true );
+    m_XSecLayout.SetSameLineFlag( false );
+
+    m_XSecLayout.AddDividerBox( "Scale XSec" );
+
+    m_XSecLayout.InitWidthHeightVals();
+    m_XSecLayout.SetButtonWidth( m_XSecLayout.GetRemainX() / 3 );
+
+    m_XSecLayout.AddButton( m_PreserveXSecARToggle, "Preserve Aspect Ratio" );
+    m_XSecLayout.AddSlider( m_WidthSlider, "Width", 10, "%5.3f" );
+    m_XSecLayout.AddSlider( m_HeightSlider, "Height", 10, "%5.3f" );
+
+    m_XSecLayout.AddYGap();
+    m_XSecLayout.SetSameLineFlag( false );
+    m_XSecLayout.SetFitWidthFlag( true );
+
+    m_XSecLayout.AddButton( m_ReparameterizeButton, "Reparameterize by Arc Length" );
+
+    m_XSecLayout.AddYGap();
+
+    //==== Add Split Button ====//
+    m_XSecLayout.AddDividerBox( "Split Curve" );
+
+    m_XSecLayout.AddSlider( m_SplitPtSlider, "U Parameter", 1, "%3.2f");
+
+    m_XSecLayout.SetSameLineFlag( true );
+    m_XSecLayout.SetFitWidthFlag( false );
+
+    m_XSecLayout.SetButtonWidth( m_XSecLayout.GetRemainX() / 2 );
+
+    m_XSecLayout.AddButton( m_SplitButton, "Split U" );
+    m_XSecLayout.AddButton( m_SplitPickButton, "Split Pick" );
+
+    m_XSecLayout.ForceNewLine();
+    m_XSecLayout.SetSameLineFlag( false );
+    m_XSecLayout.SetFitWidthFlag( true );
+
+    m_XSecLayout.AddYGap();
+
+    //==== Add Delete Button and Toggle ====//
+    m_XSecLayout.AddDividerBox( "Selected Point" );
+    m_XSecLayout.SetFitWidthFlag( true );
+    m_XSecLayout.InitWidthHeightVals();
+
+    m_XSecLayout.AddIndexSelector( m_PntSelector, NULL );
+
+    m_XSecLayout.AddYGap();
+
+    m_XSecLayout.AddDividerBox( "Delete Point" );
+
+    m_XSecLayout.SetSameLineFlag( true );
+    m_XSecLayout.SetFitWidthFlag( false );
+    m_XSecLayout.SetButtonWidth( m_XSecLayout.GetRemainX() / 2 );
+    m_XSecLayout.AddButton( m_DelButton, "Delete Selected" );
+    m_XSecLayout.AddButton( m_DelPickButton, "Delete Pick" );
+    m_XSecLayout.ForceNewLine();
+    m_XSecLayout.AddYGap();
+
+    //==== Draw Tab ====//
+    Fl_Group* draw_group = AddSubGroup( draw_tab, 5 );
+    m_DrawLayout.SetGroupAndScreen( draw_group, this );
+
+    m_DrawLayout.AddDividerBox( "Line Color" );
+
+    m_DrawLayout.AddColorPicker( m_ColorPicker );
+
+    m_DrawLayout.AddYGap();
+    m_DrawLayout.SetButtonWidth( m_DrawLayout.GetRemainX() / 4 );
+
+    m_DrawLayout.AddSlider( m_PointSizeSlider, "Point Size", 10, "%7.4f" );
+    m_DrawLayout.AddSlider( m_LineThicknessSlider, "Line Thick", 10, "%7.4f" );
+
+    m_DrawLayout.AddYGap();
+
+    m_DrawLayout.AddDividerBox( "Background" );
     
-    m_GenLayout.SetButtonWidth( button_w );
+    m_DrawLayout.SetSameLineFlag( true );
+    m_DrawLayout.SetFitWidthFlag( false );
+    m_DrawLayout.SetButtonWidth( m_DrawLayout.GetRemainX() / 3 );
 
-    int slider_w = ( m_GenLayout.GetRemainX() / 2 ) - button_w - ( gap_w / 2 ) - m_GenLayout.GetInputWidth() - 2 * m_GenLayout.GetRangeButtonWidth();
-    m_GenLayout.SetSliderWidth( slider_w );
+    m_DrawLayout.AddButton( m_BorderToggle, "Border" );
+    m_DrawLayout.AddButton( m_AxisToggle, "Axis" );
+    m_DrawLayout.AddButton( m_GridToggle, "Grid" );
 
-    m_GenLayout.AddSlider( m_WidthSlider, "Width", 10, "%5.3f" );
-    m_GenLayout.AddX( gap_w );
-    m_GenLayout.AddSlider( m_HeightSlider, "Height", 10, "%5.3f" );
+    m_BorderToggle.GetFlButton()->value( 1 );
+    m_AxisToggle.GetFlButton()->value( 1 );
+    m_GridToggle.GetFlButton()->value( 1 );
 
-    m_GenLayout.ForceNewLine();
-    m_GenLayout.AddYGap();
+    m_DrawLayout.ForceNewLine();
+    m_DrawLayout.AddYGap();
+    m_DrawLayout.SetSameLineFlag( false );
+    m_DrawLayout.SetFitWidthFlag( true );
 
-    m_GenLayout.SetFitWidthFlag( true );
-    m_GenLayout.SetSameLineFlag( false );
+    m_DrawLayout.AddButton( m_ImageToggle, "Image" );
+    m_ImageToggle.GetFlButton()->value( 0 );
 
-    //==== Add Curve Point Editor ====//
-    m_GenLayout.InitWidthHeightVals();
+    m_DrawLayout.AddYGap();
 
-    m_GenLayout.SetCanvasHeight( 300 );
+    m_DrawLayout.AddSubGroupLayout( m_BackgroundImageLayout, m_DrawLayout.GetRemainX(), m_DrawLayout.GetRemainY() - 2 * m_DrawLayout.GetStdHeight() );
 
-    m_GenLayout.AddCurveEditor( m_CurveEditor );
+    m_BackgroundImageLayout.SetFitWidthFlag( false );
+    m_BackgroundImageLayout.SetSameLineFlag( true );
+
+    m_BackgroundImageLayout.SetInputWidth( m_BackgroundImageLayout.GetRemainX() - 80 );
+    m_BackgroundImageLayout.SetButtonWidth( 50 );
+    m_BackgroundImageLayout.AddOutput( m_ImageFileOutput, "File:" );
+    m_BackgroundImageLayout.SetButtonWidth( 30 );
+    m_BackgroundImageLayout.AddButton( m_ImageFileSelect, "..." );
+    m_BackgroundImageLayout.ForceNewLine();
+    m_BackgroundImageLayout.AddYGap();
+
+    m_BackgroundImageLayout.SetFitWidthFlag( true );
+    m_BackgroundImageLayout.SetSameLineFlag( false );
+
+    m_BackgroundImageLayout.AddButton( m_PreserveImageAspect, "Preserve Aspect" );
+    m_PreserveImageAspect.GetFlButton()->value( 1 );
+
+    m_BackgroundImageLayout.AddYGap();
+    m_BackgroundImageLayout.SetButtonWidth( m_BackgroundImageLayout.GetRemainX() / 4 );
+    m_BackgroundImageLayout.SetInputWidth( 50 );
+
+    m_BackgroundImageLayout.AddSlider( m_ImageWScale, "W Scale", 1.0, "%7.3f" );
+    m_BackgroundImageLayout.AddSlider( m_ImageHScale, "H Scale", 1.0, "%7.3f" );
+
+    m_BackgroundImageLayout.AddYGap();
+
+    m_BackgroundImageLayout.AddSlider( m_ImageXOffset, "X Offset", 0.500, "%7.3f" );
+    m_BackgroundImageLayout.AddSlider( m_ImageYOffset, "Y Offset", 0.500, "%7.3f" );
+
+    m_DrawLayout.AddY( m_BackgroundImageLayout.GetH() );
+
+    m_DrawLayout.AddButton( m_CopyDrawToAllXSec, "Copy Settings to All XSecs" );
+
+    m_DrawLayout.SetSameLineFlag( true );
+    m_DrawLayout.SetFitWidthFlag( false );
+    m_DrawLayout.SetButtonWidth( m_DrawLayout.GetRemainX() / 2 );
+
+    m_DrawLayout.AddButton( m_ResetDefaultBackground, "Reset Background" );
+    m_DrawLayout.AddButton( m_ResetViewButton, "Reset Zoom && Pan" );
+
+    m_DrawLayout.ForceNewLine();
+
+    //==== XSec Editor Window ====//
+
+    int hxaxis = 25;
+    int wyaxis = 50;
+    int border = 10;
+    int window_x = m_MainLayout.GetX() + m_XSecLayout.GetW() + 5 + wyaxis;
+    int window_y = m_MainLayout.GetY() + 5;
+
+    m_GlWinWidth = m_MainLayout.GetW() - ( m_XSecLayout.GetW() + 2 * border + wyaxis ); // Same width and height
+
+    m_XSecGlWin = new VSPGUI::EditXSecWindow( window_x, window_y, m_GlWinWidth, m_GlWinWidth, m_ScreenMgr );
+
+    m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
+    m_XSecGlWin->getGraphicEngine()->getDisplay()->getViewport()->showGridOverlay( true );
+
+    m_FLTK_Window->resizable( m_MainLayout.GetGroup() );
+    m_FLTK_Window->resizable( m_XSecGlWin );
+
+    // Placeholder Canvas pointer - required for Ca_X_Axis and Ca_Y_Axis but not shown in GUI
+    // The canvas is hidden behind the VspGlWindow
+    Vsp_Canvas* canvas = new Vsp_Canvas( window_x, window_y, m_GlWinWidth, m_GlWinWidth, "" );
+    Vsp_Canvas::current( canvas );
+    m_MainLayout.GetGroup()->add( canvas );
+    m_MainLayout.GetGroup()->add( m_XSecGlWin ); // must come after canvas is added to group for callback to register correctly
+
+    m_XAxis = new Ca_X_Axis( window_x - wyaxis, window_y + m_GlWinWidth, m_GlWinWidth, hxaxis, "" );
+    m_XAxis->labelsize( 14 );
+    m_XAxis->align( Fl_Align( FL_ALIGN_LEFT ) );
+    m_XAxis->minimum( 0 );
+    m_XAxis->maximum( 1 );
+    m_XAxis->label_format( "%g" );
+    m_XAxis->minor_grid_color( fl_gray_ramp( 20 ) );
+    m_XAxis->major_grid_color( fl_gray_ramp( 15 ) );
+    m_XAxis->label_grid_color( fl_gray_ramp( 10 ) );
+    m_XAxis->grid_visible( CA_MINOR_GRID | CA_MAJOR_GRID | CA_LABEL_GRID );
+    m_XAxis->major_step( 10 );
+    m_XAxis->label_step( 10 );
+    m_XAxis->axis_color( FL_BLACK );
+    m_XAxis->axis_align( CA_BOTTOM );
+    m_MainLayout.GetGroup()->add( m_XAxis );
+
+    m_YAxis = new Ca_Y_Axis( window_x - wyaxis, window_y, wyaxis, m_GlWinWidth, "" );
+    m_YAxis->labelsize( 14 );
+    m_YAxis->align( Fl_Align( FL_ALIGN_TOP ) );
+    m_YAxis->minimum( 0 );
+    m_YAxis->maximum( 1 );
+    m_YAxis->label_format( "%g" );
+    m_YAxis->minor_grid_color( fl_gray_ramp( 20 ) );
+    m_YAxis->major_grid_color( fl_gray_ramp( 15 ) );
+    m_YAxis->label_grid_color( fl_gray_ramp( 10 ) );
+    m_YAxis->grid_visible( CA_MINOR_GRID | CA_MAJOR_GRID | CA_LABEL_GRID );
+    m_YAxis->major_step( 10 );
+    m_YAxis->label_step( 10 );
+    m_YAxis->axis_color( FL_BLACK );
+    m_YAxis->axis_align( CA_LEFT );
+    m_MainLayout.GetGroup()->add( m_YAxis );
+
+    m_MainLayout.AddY( m_XSecLayout.GetH() + 40 );
+
+    //==== Control Point List ====//
+    m_MainLayout.AddSubGroupLayout( m_PtLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() - 5 );
+    m_PtLayout.AddDividerBox( "Control Points" );
+
+    m_PtScroll = m_PtLayout.AddFlScroll( m_PtLayout.GetRemainY() );
+    m_PtScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_PtScroll->box( FL_BORDER_BOX );
+
+    //==== Initialize Member Variables ====//
+    m_FreezeAxis = false;
+    m_DeleteActive = false;
+    m_SplitActive = false;
+
+    m_UpdateIndexSelector = false;
+
+    m_PrevIndex = 0;
+    m_PrevCurveType = 0;
+    m_SliderVecVec.resize( 3 ); // X, Y, & U
 }
 
 //==== Deconstructor ====//
@@ -95,9 +308,16 @@ CurveEditScreen::~CurveEditScreen()
 //==== Show Curve Edit Screen ====//
 void CurveEditScreen::Show()
 {
-    if ( Update() )
+    if( m_FLTK_Window )
     {
         m_FLTK_Window->show();
+    }
+
+    if ( m_XSecGlWin )
+    {
+        m_XSecGlWin->show();
+
+        m_XSecGlWin->InitZoom();
     }
 }
 
@@ -170,9 +390,11 @@ bool CurveEditScreen::Update()
 {
     assert( m_ScreenMgr );
 
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
     XSecCurve* xsc = GetXSecCurve();
 
-    if ( !xsc || xsc->GetType() != XS_EDIT_CURVE )
+    if ( !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE || !veh )
     {
         Hide();
         return false;
@@ -182,38 +404,430 @@ bool CurveEditScreen::Update()
     assert( edit_curve_xs );
  
     m_ShapeChoice.Update( edit_curve_xs->m_ShapeType.GetID() );
-    m_SymChoice.Update( edit_curve_xs->m_SymType.GetID() );
+    m_SymToggle.Update( edit_curve_xs->m_SymType.GetID() );
     m_ClosedCurveToggle.Update( edit_curve_xs->m_CloseFlag.GetID() );
 
     m_WidthSlider.Update( edit_curve_xs->m_Width.GetID() );
     m_HeightSlider.Update( edit_curve_xs->m_Height.GetID() );
 
     m_AbsDimToggle.Update( edit_curve_xs->m_AbsoluteFlag.GetID() );
-    m_PreserveARToggle.Update( edit_curve_xs->m_PreserveARFlag.GetID() );
+    m_PreserveXSecARToggle.Update( edit_curve_xs->m_PreserveARFlag.GetID() );
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
 
     if ( geom_ptr && ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE || geom_ptr->GetType().m_Type == PROP_GEOM_TYPE ) )
     {
-        m_PreserveARToggle.Deactivate();
+        m_PreserveXSecARToggle.Deactivate();
         edit_curve_xs->m_PreserveARFlag.Set( false );
     }
     else
     {
-        m_PreserveARToggle.Activate();
+        m_PreserveXSecARToggle.Activate();
     }
 
-    m_CurveEditor.Update( edit_curve_xs );
+    if( m_XSecGlWin )
+    {
+        VSPGraphic::Viewport* viewport = m_XSecGlWin->getGraphicEngine()->getDisplay()->getViewport();
+        assert( viewport );
+
+        m_XSecGlWin->clear();
+
+        if( m_UpdateIndexSelector )
+        {
+            UpdateIndexSelector( m_PntSelector.GetIndex() );
+        }
+
+        edit_curve_xs->SetSelectPntID( m_PntSelector.GetIndex() );
+        m_PntSelector.SetMinMaxLimits( 0, edit_curve_xs->GetNumPts() - 1 );
+
+        UpdateDrawObj();
+
+        if ( m_DeleteActive )
+        {
+            m_DelPickButton.GetFlButton()->set();
+        }
+        else
+        {
+            m_DelPickButton.GetFlButton()->clear();
+        }
+
+        if ( m_SplitActive )
+        {
+            m_SplitPickButton.GetFlButton()->set();
+        }
+        else
+        {
+            m_SplitPickButton.GetFlButton()->clear();
+        }
+
+        unsigned int n = edit_curve_xs->GetNumPts();
+
+        m_SplitPtSlider.Update( edit_curve_xs->m_SplitU.GetID() );
+        m_ConvertChoice.Update( edit_curve_xs->m_ConvType.GetID() );
+
+        switch( edit_curve_xs->m_CurveType() )
+        {
+        case vsp::LINEAR:
+            m_CurveType.Update( "Linear" );
+            break;
+        case vsp::PCHIP:
+            m_CurveType.Update( "Spline (PCHIP)" );
+            break;
+        case vsp::CEDIT:
+            m_CurveType.Update( "Cubic Bezier" );
+            break;
+        }
+
+        if( n != m_SliderVecVec[0].size() || m_PrevCurveType != edit_curve_xs->m_CurveType() )
+        {
+            RedrawXYSliders( n, edit_curve_xs->m_CurveType() );
+        }
+        else if ( m_GlWinWidth != m_XSecGlWin->pixel_w() )
+        {
+            // Increase slider width if window is resized
+            RedrawXYSliders( n, edit_curve_xs->m_CurveType() );
+            m_GlWinWidth = m_XSecGlWin->pixel_w();
+        }
+
+        for( int i = 0; i < n; i++ )
+        {
+            FractionParm* fp = edit_curve_xs->m_XParmVec[i];
+            if( fp )
+            {
+                fp->SetRefVal( edit_curve_xs->GetWidth() );
+
+                if( edit_curve_xs->m_AbsoluteFlag.Get() )
+                {
+                    fp->SetDisplayResultFlag( true );
+                }
+                else
+                {
+                    fp->SetDisplayResultFlag( false );
+                }
+
+                m_SliderVecVec[0][i].Update( fp->GetID() );
+            }
+
+            fp = edit_curve_xs->m_YParmVec[i];
+            if( fp )
+            {
+                fp->SetRefVal( edit_curve_xs->GetHeight() );
+
+                if( edit_curve_xs->m_AbsoluteFlag.Get() )
+                {
+                    fp->SetDisplayResultFlag( true );
+                }
+                else
+                {
+                    fp->SetDisplayResultFlag( false );
+                }
+
+                m_SliderVecVec[1][i].Update( fp->GetID() );
+            }
+
+            Parm* p = edit_curve_xs->m_UParmVec[i];
+            if( p )
+            {
+                m_SliderVecVec[2][i].Update( p->GetID() );
+            }
+
+            if( edit_curve_xs->m_CurveType() == vsp::CEDIT )
+            {
+                BoolParm* bp = edit_curve_xs->m_EnforceG1Vec[i];
+                if( bp )
+                {
+                    m_EnforceG1Vec[i].Update( bp->GetID() );
+                }
+            }
+
+            BoolParm* fixed_u = edit_curve_xs->m_FixedUVec[i];
+            if( fixed_u )
+            {
+                m_FixedUCheckVec[i].Update( fixed_u->GetID() );
+            }
+
+            if( i == m_PntSelector.GetIndex() )
+            {
+                m_SliderVecVec[0][i].SetLabelColor( FL_YELLOW );
+                m_SliderVecVec[1][i].SetLabelColor( FL_YELLOW );
+                m_SliderVecVec[2][i].SetLabelColor( FL_YELLOW );
+            }
+            else
+            {
+                m_SliderVecVec[0][i].ResetLabelColor();
+                m_SliderVecVec[1][i].ResetLabelColor();
+                m_SliderVecVec[2][i].ResetLabelColor();
+            }
+        }
+
+        m_PrevCurveType = edit_curve_xs->m_CurveType();
+        m_PrevIndex = m_PntSelector.GetIndex();
+
+        // Update Display Tab Settings
+        m_ColorPicker.Update( veh->GetXSecLineColor() );
+
+        m_PointSizeSlider.Update( edit_curve_xs->m_XSecPointSize.GetID() );
+        m_LineThicknessSlider.Update( edit_curve_xs->m_XSecLineThickness.GetID() );
+
+        m_ImageToggle.Update( edit_curve_xs->m_XSecImageFlag.GetID() );
+        m_ImageFileOutput.Update( StringUtil::truncateFileName( edit_curve_xs->GetImageFile(), 40 ).c_str() );
+
+        // Update Scale and Offset in Background
+        m_ImageWScale.Update( edit_curve_xs->m_XSecImageW.GetID() );
+        m_ImageHScale.Update( edit_curve_xs->m_XSecImageH.GetID() );
+
+        if( edit_curve_xs->m_XSecImageFlag() )
+        {
+            m_BackgroundImageLayout.GetGroup()->activate();
+
+            if( ( viewport->getBackground()->getBackgroundMode() != VSPGraphic::Common::VSP_BACKGROUND_IMAGE || 
+                ( VSPGraphic::GlobalTextureRepo()->getTextureID( edit_curve_xs->GetImageFile().c_str() ) != viewport->getBackground()->getTextureID() ) ) &&
+                edit_curve_xs->GetImageFile().size() > 0 )
+            {
+                viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
+                viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( edit_curve_xs->GetImageFile().c_str() ) );
+            }
+        }
+        else
+        {
+            m_BackgroundImageLayout.GetGroup()->deactivate();
+
+            if( viewport->getBackground()->getBackgroundMode() == VSPGraphic::Common::VSP_BACKGROUND_IMAGE )
+            {
+                viewport->getBackground()->removeImage();
+                viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_COLOR );
+            }
+        }
+
+        viewport->getBackground()->scaleW( (float)edit_curve_xs->m_XSecImageW.Get() );
+
+        m_PreserveImageAspect.Update( edit_curve_xs->m_XSecImagePreserveAR.GetID() );
+        viewport->getBackground()->preserveAR( (bool)edit_curve_xs->m_XSecImagePreserveAR.Get() );
+
+        if( edit_curve_xs->m_XSecImagePreserveAR() )
+        {
+            edit_curve_xs->m_XSecImageH.Set( viewport->getBackground()->getScaleH() );
+            m_ImageHScale.Deactivate();
+        }
+        else
+        {
+            viewport->getBackground()->scaleH( (float)edit_curve_xs->m_XSecImageH.Get() );
+            m_ImageHScale.Activate();
+        }
+
+        m_ImageXOffset.Update( edit_curve_xs->m_XSecImageXOffset.GetID() );
+        m_ImageYOffset.Update( edit_curve_xs->m_XSecImageYOffset.GetID() );
+
+        viewport->getBackground()->offsetX( (float)edit_curve_xs->m_XSecImageXOffset.Get() );
+        viewport->getBackground()->offsetY( (float)edit_curve_xs->m_XSecImageYOffset.Get() );
+
+        m_XSecGlWin->update();
+        m_XSecGlWin->redraw();
+    }
+
+    m_UpdateIndexSelector = true;
+
+    m_FLTK_Window->redraw();
 
     return true;
 }
 
+void CurveEditScreen::UpdateDrawObj()
+{
+    assert( m_ScreenMgr );
+
+    VSPGraphic::Viewport* viewport = m_XSecGlWin->getGraphicEngine()->getDisplay()->getViewport();
+    assert( viewport );
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    XSecCurve* xsc = GetXSecCurve();
+
+    if ( !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE )
+    {
+        Hide();
+        return;
+    }
+
+    EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
+    assert( edit_curve_xs );
+
+    double w = edit_curve_xs->GetWidth();
+    double h = edit_curve_xs->GetHeight();
+
+    VspCurve crv = edit_curve_xs->GetBaseEditCurve();
+    crv.OffsetX( -0.5 * w );
+    vec3d color = veh->GetXSecLineColor() / 255.; // normalize
+
+    // Note, the absolute coordinates of the control points are always plotted, but the 
+    // axes are adjusted according to the user's preference of absolute or nondimensionalized.
+    // This allows the true 3D shape to always be shown
+    vector < vec3d > control_pts = edit_curve_xs->GetCtrlPntVec( false );
+
+    int ndata = control_pts.size();
+
+    double point_size = edit_curve_xs->m_XSecPointSize.Get();
+    double line_thick = edit_curve_xs->m_XSecLineThickness.Get();
+
+#ifdef __APPLE__
+    point_size *= 2;
+    line_thick *= 2;
+#endif
+
+    if ( w == 0 && h == 0 )
+    {
+        vector< vec3d > pts( 1, vec3d( 0, 0, 0 ) );
+        m_XSecCurveDrawObj.m_PntVec = pts;
+        m_XSecCurveDrawObj.m_PointSize = 5.0;
+        m_XSecCurveDrawObj.m_PointColor = color;
+        m_XSecCurveDrawObj.m_Type = DrawObj::VSP_POINTS;
+    }
+    else
+    {
+        vector< vec3d > pts;
+        crv.TessAdapt( pts, 1e-3, 10 );
+
+        m_XSecCurveDrawObj.m_PntVec = pts;
+        m_XSecCurveDrawObj.m_LineWidth = line_thick;
+        m_XSecCurveDrawObj.m_LineColor = color;
+        m_XSecCurveDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
+
+        m_CEDITTangentLineDrawObj.m_PntVec.clear();
+        m_CEDITTangentPntDrawObj.m_PntVec.clear();
+
+        if ( edit_curve_xs->m_CurveType.Get() == vsp::CEDIT )
+        {
+            m_CEDITTangentLineDrawObj.m_Type = DrawObj::VSP_LINE_LOOP;
+            m_CEDITTangentLineDrawObj.m_LineWidth = line_thick;
+            m_CEDITTangentLineDrawObj.m_Visible = true;
+            m_CEDITTangentLineDrawObj.m_LineColor = DrawObj::ColorWheel( 240 );
+
+            m_CEDITTangentPntDrawObj.m_Type = DrawObj::VSP_POINTS;
+            m_CEDITTangentPntDrawObj.m_PointSize = point_size;
+            m_CEDITTangentPntDrawObj.m_Visible = true;
+            m_CEDITTangentPntDrawObj.m_PointColor = DrawObj::ColorWheel( 120 );
+
+            int nseg = ( ndata - 1 ) / 3;
+
+            vector < vec3d > end( nseg + 1 ); // Cubic segment endpoints
+            vector < vec3d > mid( 2 * nseg ); // Cubic segment midpoints
+
+            int imid = 0;
+            int iend = 0;
+
+            for ( int i = 0; i < ndata; i++ )
+            {
+                if ( ( i % 3 ) == 0 )
+                {
+                    end[iend] = control_pts[i];
+                    iend++;
+
+                    if ( i != 0 )
+                    {
+                        m_CEDITTangentLineDrawObj.m_PntVec.push_back( control_pts[i - 1] );
+                        m_CEDITTangentLineDrawObj.m_PntVec.push_back( control_pts[i] );
+                    }
+
+                    if ( i != ndata - 1 )
+                    {
+                        m_CEDITTangentLineDrawObj.m_PntVec.push_back( control_pts[i] );
+                        m_CEDITTangentLineDrawObj.m_PntVec.push_back( control_pts[i + 1] );
+                    }
+                }
+                else
+                {
+                    mid[imid] = control_pts[i];
+                    imid++;
+                }
+            }
+
+            m_CEDITTangentPntDrawObj.m_PntVec = mid;
+        }
+
+        m_XSecCtrlPntsDrawObj.m_PntVec = control_pts;
+        m_XSecCtrlPntsDrawObj.m_Type = DrawObj::VSP_POINTS;
+        m_XSecCtrlPntsDrawObj.m_PointSize = point_size;
+        m_XSecCtrlPntsDrawObj.m_PointColor = vec3d( 0, 0, 0 );
+
+        if( !m_FreezeAxis && m_XSecGlWin )
+        {
+            UpdateAxisLimits();
+        }
+    }
+
+    m_XSecCurveDrawObj.m_GeomChanged = true;
+    m_XSecCurveDrawObj.m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
+    m_XSecCurveDrawObj.m_GeomID = "XSEC_" + edit_curve_xs->GetID() + "_CURVE";
+
+    m_XSecCtrlPntsDrawObj.m_GeomChanged = true;
+    m_XSecCtrlPntsDrawObj.m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
+    m_XSecCtrlPntsDrawObj.m_GeomID = "XSEC_" + edit_curve_xs->GetID() + "_PNTS";
+
+    m_CEDITTangentPntDrawObj.m_GeomChanged = true;
+    m_CEDITTangentPntDrawObj.m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
+    m_CEDITTangentPntDrawObj.m_GeomID = "CEDIT_" + edit_curve_xs->GetID() + "_PNTS";
+
+    m_CEDITTangentLineDrawObj.m_GeomChanged = true;
+    m_CEDITTangentLineDrawObj.m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
+    m_CEDITTangentLineDrawObj.m_GeomID = "CEDIT_" + edit_curve_xs->GetID() + "_LINES";
+
+    m_CurrentPntDrawObj.m_GeomChanged = true;
+    m_CurrentPntDrawObj.m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
+    m_CurrentPntDrawObj.m_GeomID = "SELECT_" + edit_curve_xs->GetID() + "_PNT";
+    m_CurrentPntDrawObj.m_PointSize = edit_curve_xs->m_XSecPointSize.Get();
+
+    // Identify the selected point
+    int selected_id = m_PntSelector.GetIndex();
+    if ( selected_id >= 0 && selected_id < ndata )
+    {
+        m_CurrentPntDrawObj.m_Visible = true;
+        m_CurrentPntDrawObj.m_PntVec = vector < vec3d >{ control_pts[selected_id] };
+
+        vector < double > u_vec = edit_curve_xs->GetUVec();
+
+        if ( edit_curve_xs->m_SymType.Get() == vsp::SYM_RL && 
+             selected_id >= 0 && selected_id < u_vec.size() &&
+             u_vec[selected_id] > 0.25 && u_vec[selected_id] < 0.75 )
+        {
+            m_CurrentPntDrawObj.m_PointColor = vec3d( 192 / 255., 192 / 255., 192 / 255. );
+        }
+        else
+        {
+            m_CurrentPntDrawObj.m_PointColor = vec3d( 1, 1, 0 );
+        }
+    }
+    else
+    {
+        m_CurrentPntDrawObj.m_PntVec.clear();
+        m_CurrentPntDrawObj.m_Visible = false;
+    }
+}
+
+void CurveEditScreen::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
+{
+    //::LoadDrawObjs( draw_obj_vec );
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    draw_obj_vec.push_back( &m_XSecCurveDrawObj );
+    draw_obj_vec.push_back( &m_XSecCtrlPntsDrawObj );
+    draw_obj_vec.push_back( &m_CEDITTangentLineDrawObj );
+    draw_obj_vec.push_back( &m_CEDITTangentPntDrawObj );
+    draw_obj_vec.push_back( &m_CurrentPntDrawObj );
+}
+
 void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
+    assert( m_ScreenMgr );
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
     //==== Find EditCurveXSec Ptr ====//
     XSecCurve* xsc = GetXSecCurve();
 
-    if ( !xsc || xsc->GetType() != XS_EDIT_CURVE )
+    if ( !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE || !veh )
     {
         return;
     }
@@ -223,20 +837,367 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
     if ( gui_device == &m_InitShapeButton )
     {
-        edit_curve_xs->InitShape( );
+        edit_curve_xs->InitShape(); // TODO: Force update
     }
     else if ( gui_device == &m_ReparameterizeButton )
     {
         edit_curve_xs->ReparameterizeEqualArcLength();
+        // Force update the parent Geom after reparameterization
+        edit_curve_xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+    }
+    else if ( gui_device == &m_SplitButton )
+    {
+        int new_pnt = edit_curve_xs->Split01();
+        m_PntSelector.SetMinMaxLimits( 0, edit_curve_xs->GetNumPts() - 1 );
+        m_PntSelector.SetIndex( new_pnt );
+    }
+    else if ( gui_device == &m_DelButton )
+    {
+        edit_curve_xs->DeletePt(); // Try to delete currently selected point
+    }
+    else if ( gui_device == &m_ConvertButton )
+    {
+        edit_curve_xs->ConvertTo( edit_curve_xs->m_ConvType() );
+    }
+    else if ( gui_device == &m_DelPickButton )
+    {
+        m_DeleteActive = !m_DeleteActive;
+        if( m_DeleteActive )
+        {
+            m_SplitActive = false;
+        }
+    }
+    else if ( gui_device == &m_SplitPickButton )
+    {
+        m_SplitActive = !m_SplitActive;
+        if( m_SplitActive )
+        {
+            m_DeleteActive = false;
+        }
+    }
+    else if( gui_device == &m_CopyDrawToAllXSec )
+    {
+        Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+        if( !geom_ptr )
+        {
+            return;
+        }
+
+        XSecSurf* xsec_surf = geom_ptr->GetXSecSurf( 0 );
+        if( !xsec_surf )
+        {
+            return;
+        }
+
+        int num_xsec = xsec_surf->NumXSec();
+
+        for( int i = 0; i < num_xsec; i++ )
+        {
+            XSec* other_xsec = xsec_surf->FindXSec( i );
+            XSecCurve* other_xsc = other_xsec->GetXSecCurve();
+
+            other_xsc->CopyBackgroundSettings( xsc );
+        }
+    }
+    else
+    {
+        // Identify event in PntLayout. Set current index to row that 
+        // corresponds to the event.
+        string parm_id = gui_device->GetParmID();
+
+        for( size_t j = 0; j < edit_curve_xs->m_XParmVec.size(); j++ )
+        {
+            if( !strcmp( parm_id.c_str(), edit_curve_xs->m_XParmVec[j]->GetID().c_str() ) || 
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_YParmVec[j]->GetID().c_str() )  || 
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_UParmVec[j]->GetID().c_str() ) || 
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_EnforceG1Vec[j]->GetID().c_str() ) || 
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_FixedUVec[j]->GetID().c_str() ) )
+            {
+                m_PntSelector.SetIndex( j );
+                break;
+            }
+        }
+    }
+
+    if( m_XSecGlWin )
+    {
+        VSPGraphic::Viewport* viewport = m_XSecGlWin->getGraphicEngine()->getDisplay()->getViewport();
+
+        if( gui_device == &m_ResetViewButton )
+        {
+            m_XSecGlWin->relativePan( 0, 0 );
+            m_XSecGlWin->InitZoom();
+        }
+        else if( gui_device == &m_ColorPicker )
+        {
+            veh->SetXSecLineColor( m_ColorPicker.GetColor() );
+        }
+        else if( gui_device == &m_BorderToggle )
+        {
+            viewport->showBorders( (bool)m_BorderToggle.GetFlButton()->value() );
+        }
+        else if( gui_device == &m_AxisToggle )
+        {
+            viewport->showXYZArrows( (bool)m_AxisToggle.GetFlButton()->value() );
+        }
+        else if( gui_device == &m_GridToggle )
+        {
+            viewport->showGridOverlay( (bool)m_GridToggle.GetFlButton()->value() );
+        }
+        else if( gui_device == &m_ImageToggle )
+        {
+            if( m_ImageToggle.GetFlButton()->value() )
+            {
+                viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
+
+                if( edit_curve_xs->GetImageFile().compare( "" ) != 0 )
+                {
+                    viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( edit_curve_xs->GetImageFile().c_str() ) );
+                }
+            }
+            else
+            {
+                viewport->getBackground()->removeImage();
+                viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_COLOR );
+            }
+        }
+        else if( gui_device == &m_ImageFileSelect )
+        {
+            std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                "Select Image File", "*.{jpg,png,tga,bmp,gif}", false );
+
+            if( !fileName.empty() )
+            {
+                if( m_ImageToggle.GetFlButton()->value() )
+                {
+                    viewport->getBackground()->removeImage();
+                    viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( fileName.c_str() ) );
+                }
+
+                edit_curve_xs->SetImageFile( fileName );
+            }
+        }
+        else if( gui_device == &m_ResetDefaultBackground )
+        {
+            viewport->getBackground()->reset();
+            edit_curve_xs->m_XSecImageFlag.Set( false );
+            edit_curve_xs->SetImageFile( "" );
+            edit_curve_xs->m_XSecImagePreserveAR.Set( true );
+
+            veh->SetXSecLineColor( vec3d( 0, 0, 0 ) );
+
+            // Reset Scale & Offset
+            edit_curve_xs->m_XSecImageW.Set( viewport->getBackground()->getScaleW() );
+            edit_curve_xs->m_XSecImageH.Set( viewport->getBackground()->getScaleH() );
+
+            edit_curve_xs->m_XSecImageXOffset.Set( viewport->getBackground()->getOffsetX() );
+            edit_curve_xs->m_XSecImageYOffset.Set( viewport->getBackground()->getOffsetY() );
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
-
 
 void CurveEditScreen::CloseCallBack( Fl_Widget *w )
 {
     assert( m_ScreenMgr );
 
     Hide();
+}
+
+void CurveEditScreen::UpdateAxisLimits()
+{
+    //==== Find EditCurveXSec Ptr ====//
+    XSecCurve* xsc = GetXSecCurve();
+
+    if( !m_XSecGlWin ||!xsc || xsc->GetType() != vsp::XS_EDIT_CURVE )
+    {
+        return;
+    }
+
+    EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
+    assert( edit_curve_xs );
+
+    float zoom = m_XSecGlWin->getRelativeZoomValue();
+    glm::vec2 pan = m_XSecGlWin->getPanValues();
+    double gl_w = m_XSecGlWin->pixel_w();
+    double gl_h = m_XSecGlWin->pixel_h();
+
+    double scale_w = 1;
+    double scale_h = 1;
+
+    if( !edit_curve_xs->m_AbsoluteFlag() )
+    {
+        scale_w = edit_curve_xs->GetWidth();
+        scale_h = edit_curve_xs->GetHeight();
+    }
+
+    m_XAxis->minimum( ( -0.5 * gl_w * zoom - pan.x ) / scale_w );
+    m_XAxis->maximum( ( 0.5 * gl_w * zoom - pan.x ) / scale_w );
+
+    m_YAxis->minimum( ( -0.5 * gl_h * zoom - pan.y ) / scale_h );
+    m_YAxis->maximum( ( 0.5 * gl_h * zoom - pan.y ) / scale_h );
+
+    // Identify tick values to align grid
+    double x_tick_value, y_tick_value;
+    int x_tick_order, y_tick_order;
+    double x_interval = 0;
+    double y_interval = 0;
+    int x_tick_index = -1;
+    int y_tick_index = -1;
+
+    vector < double > x_tick_vec, y_tick_vec;
+
+    while( m_XAxis->next_tick( x_tick_index, x_tick_value, x_tick_order, x_interval ) )
+    {
+        x_tick_vec.push_back( x_tick_value * scale_w );
+    }
+    while( m_YAxis->next_tick( y_tick_index, y_tick_value, y_tick_order, y_interval ) )
+    {
+        y_tick_vec.push_back( y_tick_value * scale_h );
+    }
+
+    m_XSecGlWin->getGraphicEngine()->getDisplay()->getViewport()->setGridVals( x_tick_vec, y_tick_vec );
+}
+
+void CurveEditScreen::RedrawXYSliders( int num_pts, int curve_type )
+{
+    int num_sliders = (int)m_SliderVecVec.size();
+
+    m_PtScroll->clear();
+    m_PtLayout.SetGroup( m_PtScroll );
+    m_PtLayout.InitWidthHeightVals();
+
+    for( int i = 0; i < m_SliderVecVec.size(); i++ )
+    {
+        m_SliderVecVec[i].clear();
+        m_SliderVecVec[i].resize( num_pts );
+    }
+
+    m_EnforceG1Vec.clear();
+    m_EnforceG1Vec.resize( num_pts );
+
+    m_FixedUCheckVec.clear();
+    m_FixedUCheckVec.resize( num_pts );
+
+    int gap_w = 4;
+    int input_w = 50;
+    int range_button_w = 10;
+    int button_w = 35;
+    int scroll_w = 15;
+    int fix_u_w = 55;
+
+    m_PtLayout.SetButtonWidth( button_w );
+    m_PtLayout.SetInputWidth( input_w );
+
+    m_PtLayout.SetSameLineFlag( true );
+    m_PtLayout.SetFitWidthFlag( false );
+
+    if( curve_type == vsp::CEDIT )
+    {
+        int check_button_w = 45;
+        int slider_w = ( m_PtLayout.GetRemainX() - ( fix_u_w + scroll_w + check_button_w + num_sliders * button_w + 2 * num_sliders * range_button_w + num_sliders * gap_w + num_sliders * input_w ) ) / num_sliders;
+        m_PtLayout.SetSliderWidth( slider_w );
+
+        for( int n = 0; n < num_pts; n++ )
+        {
+            m_PtLayout.SetButtonWidth( button_w );
+
+            for( int i = 0; i < num_sliders; i++ )
+            {
+                m_PtLayout.AddSlider( m_SliderVecVec[i][n], "AUTO_UPDATE", 2, "%9.4f" );
+
+                if( i != num_sliders - 1 )
+                {
+                    m_PtLayout.AddX( gap_w );
+                }
+            }
+
+            m_PtLayout.SetButtonWidth( check_button_w );
+            m_PtLayout.AddButton( m_EnforceG1Vec[n], "G1" );
+            m_PtLayout.SetButtonWidth( fix_u_w );
+            m_PtLayout.AddButton( m_FixedUCheckVec[n], "Fix U" );
+            m_PtLayout.ForceNewLine();
+        }
+    }
+    else
+    {
+        int fix_u_w = 55;
+        int slider_w = ( m_PtLayout.GetRemainX() - ( fix_u_w + scroll_w + num_sliders * button_w + 2 * num_sliders * range_button_w + num_sliders * gap_w + num_sliders * input_w ) ) / num_sliders;
+        m_PtLayout.SetSliderWidth( slider_w );
+
+        for( int n = 0; n < num_pts; n++ )
+        {
+            m_PtLayout.SetButtonWidth( button_w );
+
+            for( int i = 0; i < num_sliders; i++ )
+            {
+                m_PtLayout.AddSlider( m_SliderVecVec[i][n], "AUTO_UPDATE", 2, "%9.4f" );
+
+                if( i != m_SliderVecVec.size() - 1 )
+                {
+                    m_PtLayout.AddX( gap_w );
+                }
+            }
+
+            m_PtLayout.SetButtonWidth( fix_u_w );
+            m_PtLayout.AddButton( m_FixedUCheckVec[n], "Fix U" );
+            m_PtLayout.ForceNewLine();
+        }
+    }
+}
+
+void CurveEditScreen::UpdateIndexSelector( int index, bool skip_intermediate )
+{
+    //==== Find EditCurveXSec Ptr ====//
+    XSecCurve* xsc = GetXSecCurve();
+
+    if ( !m_XSecGlWin || !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE )
+    {
+        return;
+    }
+
+    EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
+    assert( edit_curve_xs );
+
+    // Don't cycle through intermediate Cubic Bezier points
+    if( edit_curve_xs->m_CurveType.Get() == vsp::CEDIT && index % 3 != 0 && skip_intermediate )
+    {
+        if( index == m_PrevIndex + 1 )
+        {
+            if( ( index + 1 ) % 3 == 0 )
+            {
+                index = index + 1;
+            }
+            else
+            {
+                index = index + 2;
+            }
+        }
+        else if( index == m_PrevIndex - 1 )
+        {
+            if( ( index - 1 ) % 3 == 0 )
+            {
+                index = index - 1;
+            }
+            else
+            {
+                index = index - 2;
+            }
+        }
+    }
+
+    m_PntSelector.SetIndex( index );
+    m_PntSelector.SetMinMaxLimits( 0, edit_curve_xs->GetNumPts() - 1 );
+
+    if( ( edit_curve_xs->m_CurveType.Get() == vsp::CEDIT && index % 3 != 0 ) ||
+        ( index == m_PntSelector.GetMinIndex() ) ||
+        ( index == m_PntSelector.GetMaxIndex() ) )
+    {
+        m_DelButton.Deactivate();
+    }
+    else
+    {
+        m_DelButton.Activate();
+    }
 }
