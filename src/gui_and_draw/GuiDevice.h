@@ -1236,11 +1236,11 @@ protected:
 };
 
 // Base class for curve editing canvas
-class CurveEditor : public GuiDevice
+class PCurveEditor : public GuiDevice
 {
 public:
 
-    CurveEditor();
+    PCurveEditor();
 
     // Initialize the member GUI devices and set their callbacks
     virtual void Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button* spbutton, Fl_Button* convbutton, Fl_Button* delbutton, Fl_Light_Button* delpickbutton, Fl_Light_Button* splitpickbutton, GroupLayout* ptlayout );
@@ -1264,7 +1264,11 @@ public:
     // and when a type conversion is performed
     virtual void RedrawXYSliders( int num_pts, int curve_type );
 
-    virtual int GetCurveEditorType() { return m_CurveEditType; }
+    // Search for a point index within radius 'r' to the input pixel location
+    virtual int ihit( int mx, int my, int r );
+
+    virtual void Update( PCurve *curve );
+    virtual void Update( PCurve *curve, PCurve *curveb, string labelb );
 
     // GUI devices for the curve editor
     SliderAdjRangeInput m_SplitPtSlider;
@@ -1277,13 +1281,6 @@ public:
     Fl_Button* m_ConvertButton;
     StringOutput m_CurveType;
 
-    enum CURVE_EDITOR_TYPE
-    {
-        GENERAL_EDIT,
-        PCURVE_EDIT,
-        XSEC_EDIT
-    };
-
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr ) {}
@@ -1292,6 +1289,8 @@ protected:
     // points. If an intermediate control point is selected, the delete button
     // is deactivated
     virtual void UpdateIndexSelector( int curve_type );
+
+    virtual void Update();
 
     int m_LastHit; // Index of the previously selected point
 
@@ -1317,55 +1316,9 @@ protected:
     bool m_CallbackFlag; // Flag that indicates if a Callback was issued prior to Update
     bool m_UpdateIndexSelector; // Flag used to indiate if the index selector should be updated
 
-    int m_CurveEditType; // Enum that represents the curve editor type 
-};
-
-// Curve editing GUI class for PCurve
-class PCurveEditor : public CurveEditor
-{
-public:
-
-    PCurveEditor();
-
-    virtual void DeviceCB( Fl_Widget* w );
-
-    virtual void Update( PCurve *curve );
-    virtual void Update( PCurve *curve, PCurve *curveb, string labelb );
-
-    // Search for a point index within radius 'r' to the input pixel location
-    virtual int ihit( int mx, int my, int r );
-
-
-protected:
-
     PCurve *m_Curve;
     PCurve *m_CurveB;
     string m_LabelB;
-
-    virtual void Update();
-
-};
-
-// Curve editing GUI class for EditCurveXSec
-class XSecCurveEditor : public CurveEditor
-{
-public:
-
-    XSecCurveEditor();
-
-    virtual void DeviceCB( Fl_Widget* w );
-
-    virtual void Update( EditCurveXSec *curve );
-
-    // Search for a point index within radius 'r' to the input pixel location
-    virtual int ihit( int mx, int my, int r );
-
-protected:
-
-    EditCurveXSec* m_XSec;
-
-    virtual void Update();
-
 };
 
 class ColResizeBrowser : public Fl_Browser

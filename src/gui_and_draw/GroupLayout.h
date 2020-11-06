@@ -165,7 +165,7 @@ public:
     void AddSkinHeader( SkinHeader & skin_header, bool addcontchoice = true );
     void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0, string text = string() );
     
-    void AddCurveEditor( CurveEditor& curve_editor );
+    void AddPCurveEditor( PCurveEditor& curve_editor );
 
     Fl_Browser* AddFlBrowser( int height );
     ColResizeBrowser* AddColResizeBrowser( int* width_array_ptr, size_t num_col, int height );

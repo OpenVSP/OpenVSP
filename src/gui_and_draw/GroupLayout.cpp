@@ -1528,7 +1528,7 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w, string te
 }
 
 //==== Add Curve Editor ====//
-void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
+void GroupLayout::AddPCurveEditor( PCurveEditor& curve_editor )
 {
     assert( m_Group && m_Screen );
 
@@ -1548,11 +1548,7 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
     curve_editor.m_ConvertChoice.AddItem( "Linear" );
     curve_editor.m_ConvertChoice.AddItem( "Spline (PCHIP)" );
     curve_editor.m_ConvertChoice.AddItem( "Cubic Bezier" );
-    if ( curve_editor.GetCurveEditorType() == curve_editor.PCURVE_EDIT )
-    {
-        // generic XSecs do not support Approximate Cubic Bezier conversion at this time
-        curve_editor.m_ConvertChoice.AddItem( "Approximate Cubic Bezier" );
-    }
+    curve_editor.m_ConvertChoice.AddItem( "Approximate Cubic Bezier" );
 
     m_ChoiceButtonWidth = 0;
     AddChoice( curve_editor.m_ConvertChoice, "Convert to:", GetW() / 2 + m_ButtonWidth );
@@ -1571,22 +1567,9 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
 
     AddY( 25 );
 
-    if ( curve_editor.GetCurveEditorType() == curve_editor.XSEC_EDIT ) // Force the aspect ratio to be 1
-    {
-        int x_prev = GetX();
-        int x_shift = max( 0.0, ( m_W - ( min( canvas_w, m_CanvasHeight ) + 80 ) ) / 2.0 );
-        AddX( x_shift );
-        canvas = AddCanvas( min( canvas_w, m_CanvasHeight ) + 60, min( canvas_w, m_CanvasHeight ) + 30, 0, 1, 0, 1, "", "X", "Y" );
-        SetX( x_prev );
+    canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y" );
 
-        split_label = "U Split";
-    }
-    else
-    {
-        canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y" );
-
-        split_label = "r/R Split";
-    }
+    split_label = "r/R Split";
 
     AddY( 25 );
 

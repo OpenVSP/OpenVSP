@@ -3417,10 +3417,10 @@ void GeomPicker::ClearIncludeType()
 }
 
 //=====================================================================//
-//===========             Curve Editor                 ===========//
+//===========             PCurve Editor                 ===========//
 //=====================================================================//
 
-CurveEditor::CurveEditor()
+PCurveEditor::PCurveEditor()
 {
     m_canvas = NULL;
     m_PtLayout = NULL;
@@ -3442,10 +3442,13 @@ CurveEditor::CurveEditor()
 
     m_PrevIndex = 0;
     m_PrevCurveType = 0;
-    m_CurveEditType = GENERAL_EDIT;
+
+    m_Curve = NULL;
+    m_CurveB = NULL;
+    m_SliderVecVec.resize( 2 );
 }
 
-void CurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button* spbutton, Fl_Button* convbutton, Fl_Button* delbutton, Fl_Light_Button* delpickbutton, Fl_Light_Button* splitpickbutton, GroupLayout* ptlayout )
+void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button* spbutton, Fl_Button* convbutton, Fl_Button* delbutton, Fl_Light_Button* delpickbutton, Fl_Light_Button* splitpickbutton, GroupLayout* ptlayout )
 {
     GuiDevice::Init( screen );
 
@@ -3466,31 +3469,7 @@ void CurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscro
     m_ConvertButton->callback( StaticDeviceCB, this );
 }
 
-void CurveEditor::DeviceCB( Fl_Widget* w )
-{
-    if ( w == m_DelPickButton )
-    {
-        m_DeleteActive = !m_DeleteActive;
-        if ( m_DeleteActive )
-        {
-            m_SplitActive = false;
-        }
-    }
-    else if ( w == m_SplitPickButton )
-    {
-        m_SplitActive = !m_SplitActive;
-        if ( m_SplitActive )
-        {
-            m_DeleteActive = false;
-        }
-    }
-
-    m_CallbackFlag = true;
-
-    m_Screen->GuiDeviceCallBack( this );
-}
-
-void CurveEditor::PlotData( vector< double > x_data, vector < double > y_data, int curve_type, Fl_Color highlight_color )
+void PCurveEditor::PlotData( vector< double > x_data, vector < double > y_data, int curve_type, Fl_Color highlight_color )
 {
     assert( x_data.size() == y_data.size() );
 
@@ -3565,7 +3544,7 @@ void CurveEditor::PlotData( vector< double > x_data, vector < double > y_data, i
     }
 }
 
-void CurveEditor::UpdateAxisLimits( vector< double > x_data, vector < double > y_data, bool mag_round )
+void PCurveEditor::UpdateAxisLimits( vector< double > x_data, vector < double > y_data, bool mag_round )
 {
     double xmin, xmax, ymin, ymax;
 
@@ -3621,7 +3600,7 @@ void CurveEditor::UpdateAxisLimits( vector< double > x_data, vector < double > y
     m_canvas->current_y()->maximum( oversize * ymax );
 }
 
-void CurveEditor::RedrawXYSliders( int num_pts, int curve_type )
+void PCurveEditor::RedrawXYSliders( int num_pts, int curve_type )
 {
     int num_sliders = (int)m_SliderVecVec.size();
 
@@ -3642,10 +3621,6 @@ void CurveEditor::RedrawXYSliders( int num_pts, int curve_type )
     int input_w = 50;
     int range_button_w = 10;
     int button_w = 45;
-    if ( m_CurveEditType == XSEC_EDIT ) // XSecCurveEditor
-    {
-        button_w -= 10;
-    }
     int scroll_w = 15;
 
     m_PtLayout->SetButtonWidth( button_w );
@@ -3701,7 +3676,7 @@ void CurveEditor::RedrawXYSliders( int num_pts, int curve_type )
     }
 }
 
-bool CurveEditor::hittest( int mx, int my, double datax, double datay, int r )
+bool PCurveEditor::hittest( int mx, int my, double datax, double datay, int r )
 {
     if ( m_canvas )
     {
@@ -3716,7 +3691,7 @@ bool CurveEditor::hittest( int mx, int my, double datax, double datay, int r )
     return false;
 }
 
-void CurveEditor::UpdateIndexSelector( int curve_type )
+void PCurveEditor::UpdateIndexSelector( int curve_type )
 {
     // Don't cycle through intermediate Cubic Bezier points
     int new_index = m_PntSelector.GetIndex();
@@ -3759,18 +3734,6 @@ void CurveEditor::UpdateIndexSelector( int curve_type )
     {
         m_DelButton->activate();
     }
-}
-
-//=====================================================================//
-//===========            PCurve Editor                      ===========//
-//=====================================================================//
-
-PCurveEditor::PCurveEditor() : CurveEditor()
-{
-    m_Curve = NULL;
-    m_CurveB = NULL;
-    m_CurveEditType = PCURVE_EDIT;
-    m_SliderVecVec.resize( 2 );
 }
 
 void PCurveEditor::DeviceCB( Fl_Widget* w )
@@ -3848,8 +3811,26 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
     {
         m_Curve->ConvertTo( m_Curve->m_ConvType() );
     }
+    else if ( w == m_DelPickButton )
+    {
+        m_DeleteActive = !m_DeleteActive;
+        if ( m_DeleteActive )
+        {
+            m_SplitActive = false;
+        }
+    }
+    else if ( w == m_SplitPickButton )
+    {
+        m_SplitActive = !m_SplitActive;
+        if ( m_SplitActive )
+        {
+            m_DeleteActive = false;
+        }
+    }
 
-    CurveEditor::DeviceCB( w );
+    m_CallbackFlag = true;
+
+    m_Screen->GuiDeviceCallBack( this );
 }
 
 void PCurveEditor::Update( PCurve *curve, PCurve *curveb, string labelb )
@@ -4021,371 +4002,6 @@ int PCurveEditor::ihit( int mx, int my, int r )
 {
     vector < double > xdata = m_Curve->GetTVec();
     vector < double > ydata = m_Curve->GetValVec();
-
-    for ( int i = 0; i < xdata.size(); i++ )
-    {
-        if ( hittest( mx, my, xdata[i], ydata[i], r ) )
-        {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-//=====================================================================//
-//===========             XSec Curve Editor                 ===========//
-//=====================================================================//
-
-XSecCurveEditor::XSecCurveEditor() : CurveEditor()
-{
-    m_XSec = NULL;
-    m_CurveEditType = XSEC_EDIT;
-    m_SliderVecVec.resize( 3 ); // X, Y, and U
-}
-
-void XSecCurveEditor::DeviceCB( Fl_Widget* w )
-{
-    if ( Fl::event_inside( m_canvas ) )
-    {
-    }
-
-    if ( !m_XSec )
-    {
-        return;
-    }
-
-    if ( w == m_canvas )
-    {
-        m_UpdateIndexSelector = false; // Don't update the index selector if a point on the canvas is selected
-
-        int x = Fl::event_x();
-        int y = Fl::event_y();
-
-        if ( Fl::event() == FL_PUSH )
-        {
-            m_LastHit = ihit( x, y, 5 );
-
-            if ( m_LastHit != -1 )
-            {
-                m_XSec->SetSelectPntID( m_LastHit );
-                m_PntSelector.SetIndex( m_LastHit );
-            }
-
-            if ( m_DeleteActive )
-            {
-                m_DeleteActive = false;
-
-                if ( m_LastHit >= 0 )
-                {
-                    m_XSec->DeletePt( m_LastHit );
-                }
-            }
-
-            if ( m_SplitActive )
-            {
-                m_SplitActive = false;
-
-                double sx = m_canvas->current_x()->value( x );
-                double sy = m_canvas->current_y()->value( y );
-
-                // Scale by width and height
-                vec3d split_pnt;
-                if ( m_XSec->m_AbsoluteFlag() )
-                {
-                    split_pnt = vec3d( sx, sy, 0.0 );
-                }
-                else
-                {
-                    split_pnt = vec3d( sx * m_XSec->GetWidth(), sy * m_XSec->GetHeight(), 0.0 );
-                }
-
-                double u_curve;
-                VspCurve base_curve = m_XSec->GetBaseEditCurve();
-                base_curve.OffsetX( -0.5 * m_XSec->GetWidth() );
-                base_curve.FindNearest01( u_curve, split_pnt );
-
-                m_XSec->m_SplitU = u_curve;
-                int new_pnt = m_XSec->Split01();
-                m_PntSelector.SetMinMaxLimits( 0, m_XSec->GetNumPts() - 1 );
-                m_PntSelector.SetIndex( new_pnt );
-            }
-        }
-
-        if ( Fl::event() == FL_DRAG && m_LastHit != -1 )
-        {
-            if ( m_XSec->m_AbsoluteFlag() )
-            {
-                m_XSec->MovePnt( m_canvas->current_x()->value( x ) / m_XSec->GetWidth(), m_canvas->current_y()->value( y ) / m_XSec->GetHeight() );
-            }
-            else
-            {
-                m_XSec->MovePnt( m_canvas->current_x()->value( x ), m_canvas->current_y()->value( y ) );
-            }
-
-            m_FreezeAxis = true;
-        }
-
-        if ( Fl::event() == FL_RELEASE )
-        {
-            m_FreezeAxis = false;
-            m_XSec->ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update the parent Geom once the point is released
-        }
-
-        Update();
-    }
-    else if ( w == m_SplitButton )
-    {
-        int new_pnt = m_XSec->Split01();
-        m_PntSelector.SetMinMaxLimits( 0, m_XSec->GetNumPts() - 1 );
-        m_PntSelector.SetIndex( new_pnt );
-    }
-    else if ( w == m_DelButton )
-    {
-        m_XSec->DeletePt(); // Try to delete currently selected point
-    }
-    else if ( w == m_ConvertButton )
-    {
-        m_XSec->ConvertTo( m_XSec->m_ConvType() );
-    }
-
-    CurveEditor::DeviceCB( w );
-}
-
-void XSecCurveEditor::Update( EditCurveXSec *xsec )
-{
-    m_XSec = xsec;
-    Update();
-}
-
-void XSecCurveEditor::Update()
-{
-    if ( m_XSec && m_canvas )
-    {
-        Vsp_Canvas::current( m_canvas );
-        m_canvas->clear();
-
-        if ( m_UpdateIndexSelector )
-        {
-            UpdateIndexSelector( m_XSec->m_CurveType() );
-        }
-
-        m_XSec->SetSelectPntID( m_PntSelector.GetIndex() );
-        m_PntSelector.SetMinMaxLimits( 0, m_XSec->GetNumPts() - 1 );
-
-        vector < vec3d > curve_pnts;
-
-        // The base curve is shifted by 1/2 width before XSecCurve::Update(), which shifts the final curve
-        // back by 1/2 width.  Since we are using the base curve, we must shift it back.
-        VspCurve base_curve = m_XSec->GetBaseEditCurve();
-        base_curve.OffsetX( -0.5 * m_XSec->GetWidth() );
-        base_curve.TessAdapt( curve_pnts, 1e-3, 10 );
-
-        int n_pts =(int)curve_pnts.size();
-
-        vector < double > xt( n_pts );
-        vector < double > yt( n_pts );
-
-        for ( size_t i = 0; i < n_pts; i++ )
-        {
-            if ( m_XSec->m_AbsoluteFlag() ) // Scale the points
-            {
-                xt[i] = curve_pnts[i].x();
-                yt[i] = curve_pnts[i].y();
-            }
-            else
-            {
-                xt[i] = curve_pnts[i].x() / m_XSec->m_Width();
-                yt[i] = curve_pnts[i].y() / m_XSec->m_Height();
-            }
-        }
-
-        m_DelPickButton->value( m_DeleteActive );
-        m_SplitPickButton->value( m_SplitActive );
-
-        // Add the data to the plot
-        AddPointLine( xt, yt, 2, FL_BLUE );
-
-        m_canvas->HideSecondaryY();
-
-        vector < vec3d > control_pts = m_XSec->GetCtrlPntVec( !m_XSec->m_AbsoluteFlag() );
-        int ndata = (int)control_pts.size();
-        vector < double > xdata( ndata );
-        vector < double > ydata( ndata );
-
-        for ( size_t i = 0; i < ndata; i++ )
-        {
-            xdata[i] = control_pts[i].x();
-            ydata[i] = control_pts[i].y();
-        }
-
-        Fl_Color color = FL_YELLOW;
-
-        if ( m_XSec->m_SymType.Get() == vsp::SYM_RL )
-        {
-            int selected_id = m_PntSelector.GetIndex();
-            vector < double > u_vec = m_XSec->GetUVec();
-
-            if ( selected_id >= 0 && selected_id < u_vec.size() &&
-                 u_vec[selected_id] > 0.25 && u_vec[selected_id] < 0.75 )
-            {
-                color = FL_LIGHT1;
-            }
-        }
-
-        PlotData( xdata, ydata, m_XSec->m_CurveType(), color );
-
-        if ( !m_FreezeAxis )
-        {
-            vector < double > all_x_data = xt;
-            all_x_data.insert( all_x_data.end(), xdata.begin(), xdata.end() );
-            vector < double > all_y_data = yt;
-            all_y_data.insert( all_y_data.end(), ydata.begin(), ydata.end() );
-
-            UpdateAxisLimits( all_x_data, all_y_data, false );
-
-            double ar = 1; // aspect ratio
-
-            if ( !m_XSec->m_AbsoluteFlag() )
-            {
-                double y_scale = ( m_canvas->current_y()->maximum() - m_canvas->current_y()->minimum() ) * m_XSec->GetHeight();
-                double x_scale = ( m_canvas->current_x()->maximum() - m_canvas->current_x()->minimum() ) * m_XSec->GetWidth();
-                ar = y_scale / x_scale;
-
-                m_canvas->current_x()->copy_label( "X/W" );
-                m_canvas->current_y()->copy_label( "Y/H" );
-            }
-            else
-            {
-                double x_scale = m_canvas->current_x()->maximum() - m_canvas->current_x()->minimum();
-                double y_scale = m_canvas->current_y()->maximum() - m_canvas->current_y()->minimum();
-                ar = y_scale / x_scale;
-
-                // Note: without space padding the non-dimensional label (X/W) can be seen
-                m_canvas->current_x()->copy_label( "  X  " );
-                m_canvas->current_y()->copy_label( "  Y  " );
-            }
-
-            if ( ar > 1.0 )
-            {
-                m_canvas->current_x()->minimum( ar * m_canvas->current_x()->minimum() );
-                m_canvas->current_x()->maximum( ar * m_canvas->current_x()->maximum() );
-            }
-            else
-            {
-                m_canvas->current_y()->minimum( m_canvas->current_y()->minimum() / ar );
-                m_canvas->current_y()->maximum( m_canvas->current_y()->maximum() / ar );
-            }
-        }
-
-        unsigned int n = m_XSec->GetNumPts();
-
-        m_SplitPtSlider.Update( m_XSec->m_SplitU.GetID() );
-        m_ConvertChoice.Update( m_XSec->m_ConvType.GetID() );
-
-        switch ( m_XSec->m_CurveType() )
-        {
-            case vsp::LINEAR:
-                m_CurveType.Update( "Linear" );
-                break;
-            case vsp::PCHIP:
-                m_CurveType.Update( "Spline (PCHIP)" );
-                break;
-            case vsp::CEDIT:
-                m_CurveType.Update( "Cubic Bezier" );
-                break;
-        }
-
-        if ( n != m_SliderVecVec[0].size() || m_PrevCurveType != m_XSec->m_CurveType() )
-        {
-            RedrawXYSliders( n, m_XSec->m_CurveType() );
-        }
-
-        for ( int i = 0; i < n; i++ )
-        {
-            FractionParm* fp = m_XSec->m_XParmVec[i];
-            if ( fp )
-            {
-                fp->SetRefVal( m_XSec->GetWidth() );
-
-                if ( m_XSec->m_AbsoluteFlag.Get() )
-                {
-                    fp->SetDisplayResultFlag( true );
-                }
-                else
-                {
-                    fp->SetDisplayResultFlag( false );
-                }
-
-                m_SliderVecVec[0][i].Update( fp->GetID() );
-            }
-
-            fp = m_XSec->m_YParmVec[i];
-            if ( fp )
-            {
-                fp->SetRefVal( m_XSec->GetHeight() );
-
-                if ( m_XSec->m_AbsoluteFlag.Get() )
-                {
-                    fp->SetDisplayResultFlag( true );
-                }
-                else
-                {
-                    fp->SetDisplayResultFlag( false );
-                }
-
-                m_SliderVecVec[1][i].Update( fp->GetID() );
-            }
-
-            Parm* p = m_XSec->m_UParmVec[i];
-            if ( p )
-            {
-                m_SliderVecVec[2][i].Update( p->GetID() );
-            }
-
-            if ( m_XSec->m_CurveType() == vsp::CEDIT )
-            {
-                BoolParm* bp = m_XSec->m_EnforceG1Vec[i];
-                if ( bp )
-                {
-                    m_EnforceG1Vec[i].Update( bp->GetID() );
-                }
-            }
-
-            if ( i == m_PntSelector.GetIndex() )
-            {
-                m_SliderVecVec[0][i].SetLabelColor( FL_YELLOW );
-                m_SliderVecVec[1][i].SetLabelColor( FL_YELLOW );
-                m_SliderVecVec[2][i].SetLabelColor( FL_YELLOW );
-            }
-            else
-            {
-                m_SliderVecVec[0][i].ResetLabelColor();
-                m_SliderVecVec[1][i].ResetLabelColor();
-                m_SliderVecVec[2][i].ResetLabelColor();
-            }
-        }
-
-        m_PrevCurveType = m_XSec->m_CurveType();
-        m_PrevIndex = m_PntSelector.GetIndex();
-    }
-
-    m_CallbackFlag = false;
-    m_UpdateIndexSelector = true;
-}
-
-int XSecCurveEditor::ihit( int mx, int my, int r )
-{
-    vector < vec3d > control_pts = m_XSec->GetCtrlPntVec( !m_XSec->m_AbsoluteFlag() );
-    int ndata = (int)control_pts.size();
-    vector < double > xdata( ndata );
-    vector < double > ydata( ndata );
-
-    for ( size_t i = 0; i < ndata; i++ )
-    {
-        xdata[i] = control_pts[i].x();
-        ydata[i] = control_pts[i].y();
-    }
 
     for ( int i = 0; i < xdata.size(); i++ )
     {
