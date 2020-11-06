@@ -523,6 +523,10 @@ public:
     BoolParm m_AbsoluteFlag;
     BoolParm m_PreserveARFlag;
 
+    // Parms for XSec background image in GUI
+    Parm m_XSecPointSize;
+    Parm m_XSecLineThickness;
+
     vector < Parm* > m_UParmVec; // vector of U (0-1) values for each control point (in reallity 0-4 for XSec curves; T)
     vector < FractionParm* > m_XParmVec; // vector of control point x coordinates
     vector < FractionParm* > m_YParmVec; // vector of control point y coordinates
