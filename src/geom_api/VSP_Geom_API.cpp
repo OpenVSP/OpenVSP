@@ -4050,9 +4050,9 @@ std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsi
 
         double u, v;
 
-        if ( abs( theta ) <= FLT_EPSILON || abs( theta - 2.0 * PI ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0 or 2*pi)
+        if ( std::abs( theta ) <= FLT_EPSILON || std::abs( theta - 2.0 * PI ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0 or 2*pi)
         {
-            if ( abs( tau ) <= FLT_EPSILON ) // Joukowski airfoil (cusped trailing edge: tau = 0.0 )
+            if ( std::abs( tau ) <= FLT_EPSILON ) // Joukowski airfoil (cusped trailing edge: tau = 0.0 )
             {
                 doublec uv = ( ell / a ) * exp( 2.0 * i * beta ) * cos( alpha + beta );
                 u = uv.real();

@@ -1193,11 +1193,11 @@ double ConformalSpine::FindUGivenLengthAlongSpine( double length ) const
 
         if ( length >= length_0 && length <= length_1 )
         {
-            if ( abs( length_0 - length ) <= FLT_EPSILON )
+            if ( std::abs( length_0 - length ) <= FLT_EPSILON )
             {
                 u = u_0;
             }
-            else if ( abs( length_1 - length ) <= FLT_EPSILON )
+            else if ( std::abs( length_1 - length ) <= FLT_EPSILON )
             {
                 u = u_1;
             }

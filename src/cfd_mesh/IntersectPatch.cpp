@@ -124,14 +124,14 @@ void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersect
     double zero_tol = 1e-15;
     for ( size_t i = 0; i < 3; i++ )
     {
-        if ( abs( a0[i] ) < zero_tol ) a0[i] = 0;
-        if ( abs( a1[i] ) < zero_tol ) a1[i] = 0;
-        if ( abs( a2[i] ) < zero_tol ) a2[i] = 0;
-        if ( abs( a3[i] ) < zero_tol ) a3[i] = 0;
-        if ( abs( b0[i] ) < zero_tol ) b0[i] = 0;
-        if ( abs( b1[i] ) < zero_tol ) b1[i] = 0;
-        if ( abs( b2[i] ) < zero_tol ) b2[i] = 0;
-        if ( abs( b3[i] ) < zero_tol ) b3[i] = 0;
+        if ( std::abs( a0[i] ) < zero_tol ) a0[i] = 0;
+        if ( std::abs( a1[i] ) < zero_tol ) a1[i] = 0;
+        if ( std::abs( a2[i] ) < zero_tol ) a2[i] = 0;
+        if ( std::abs( a3[i] ) < zero_tol ) a3[i] = 0;
+        if ( std::abs( b0[i] ) < zero_tol ) b0[i] = 0;
+        if ( std::abs( b1[i] ) < zero_tol ) b1[i] = 0;
+        if ( std::abs( b2[i] ) < zero_tol ) b2[i] = 0;
+        if ( std::abs( b3[i] ) < zero_tol ) b3[i] = 0;
     }
 
     //==== Tri A1 and B1 ====//

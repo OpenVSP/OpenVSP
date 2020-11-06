@@ -3868,7 +3868,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
     }
 
     // Adjust Tessellation
-    if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
+    if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && std::abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
     {
         m_TessW.Set( m_TessW() * veh->m_AFWTessFactor() );
     }
@@ -4021,7 +4021,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
     }
 
     // Restore Tessellation
-    if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
+    if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && std::abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
     {
         m_TessW.Set( m_TessW.GetLastVal() );
     }

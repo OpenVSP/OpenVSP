@@ -697,7 +697,7 @@ int PCurve::Split( const double & tsplit )
 
     for( size_t i = 0; i < tvec.size(); i++ )
     {
-        if( abs( tsplit - tvec[i] ) < FLT_EPSILON )
+        if( std::abs( tsplit - tvec[i] ) < FLT_EPSILON )
         {
             return m_SelectPntID; // Do not split identical U values
         }
@@ -1214,7 +1214,7 @@ void PCurve::EnforceG1( int new_index )
                 double next_val = curr_pnt.y() + avg_m * ( next_pnt.x() - curr_pnt.x() );
                 m_ValParmVec[next_ind]->Set( next_val );
             }
-            else if ( abs( prev_m - next_m ) > FLT_EPSILON )
+            else if ( std::abs( prev_m - next_m ) > FLT_EPSILON )
             {
                 if ( m_EnforceG1Next )
                 {

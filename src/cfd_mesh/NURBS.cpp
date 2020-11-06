@@ -269,7 +269,7 @@ void NURBS_Surface::InitNURBSSurf( Surf* surface )
 
     surface->GetSurfCore()->CompCurvature( u_mid, w_mid, ka, kg, k1, k2 );
 
-    if ( abs( k1 ) < FLT_EPSILON && abs( k2 ) < FLT_EPSILON )
+    if ( std::abs( k1 ) < FLT_EPSILON && std::abs( k2 ) < FLT_EPSILON )
     {
         // Both principal curvatures are 0
         m_IsPlanar = true;

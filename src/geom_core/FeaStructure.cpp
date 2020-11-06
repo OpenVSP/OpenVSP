@@ -1500,84 +1500,84 @@ VspSurf FeaSlice::ComputeSliceSurf()
                 // Resize for Y rotation
                 if ( m_YRot() > 0 )
                 {
-                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z - 2 * z_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z - 2 * z_off ) ) )
                     {
-                        del_z_plus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_z_plus += std::abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
                     }
                     else
                     {
-                        del_z_plus += abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z + 2 * z_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z + 2 * z_off ) ) )
                     {
-                        del_z_minus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_z_minus += std::abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
                     }
                     else
                     {
-                        del_z_minus += abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
                     }
                 }
                 else
                 {
-                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z - 2 * z_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z - 2 * z_off ) ) )
                     {
-                        del_z_plus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_z_plus += std::abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
                     }
                     else
                     {
-                        del_z_plus += abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z + 2 * z_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z + 2 * z_off ) ) )
                     {
-                        del_z_minus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_z_minus += std::abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
                     }
                     else
                     {
-                        del_z_minus += abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
                     }
                 }
 
                 // Resize for Z rotation
                 if ( m_ZRot() > 0 )
                 {
-                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y - 2 * y_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y - 2 * y_off ) ) )
                     {
-                        del_y_minus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_y_minus += std::abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                     }
                     else
                     {
-                        del_y_minus += abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_y_minus += std::abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y + 2 * y_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y + 2 * y_off ) ) )
                     {
-                        del_y_plus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_y_plus += std::abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                     }
                     else
                     {
-                        del_y_plus += abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_y_plus += std::abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
                     }
                 }
                 else
                 {
-                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y + 2 * y_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y + 2 * y_off ) ) )
                     {
-                        del_y_plus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_y_plus += std::abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                     }
                     else
                     {
-                        del_y_plus += abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_y_plus += std::abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y - 2 * y_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y - 2 * y_off ) ) )
                     {
-                        del_y_minus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_y_minus += std::abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                     }
                     else
                     {
-                        del_y_minus += abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_y_minus += std::abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
                     }
                 }
 
@@ -1598,84 +1598,84 @@ VspSurf FeaSlice::ComputeSliceSurf()
                 // Resize for Y rotation
                 if ( m_YRot() > 0 )
                 {
-                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x - 2 * x_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x - 2 * x_off ) ) )
                     {
-                        del_x_minus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_x_minus += std::abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
                     }
                     else
                     {
-                        del_x_minus += abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_x_minus += std::abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x + 2 * x_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x + 2 * x_off ) ) )
                     {
-                        del_x_plus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_x_plus += std::abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
                     }
                     else
                     {
-                        del_x_plus += abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_x_plus += std::abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
                     }
                 }
                 else
                 {
-                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x + 2 * x_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x + 2 * x_off ) ) )
                     {
-                        del_x_plus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_x_plus += std::abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
                     }
                     else
                     {
-                        del_x_plus += abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_x_plus += std::abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x - 2 * x_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x - 2 * x_off ) ) )
                     {
-                        del_x_minus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                        del_x_minus += std::abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
                     }
                     else
                     {
-                        del_x_minus += abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                        del_x_minus += std::abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
                     }
                 }
 
                 // Resize for X rotation
                 if ( m_XRot() > 0 )
                 {
-                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y - 2 * y_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y - 2 * y_off ) ) )
                     {
-                        del_y_plus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_y_plus += std::abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
                     }
                     else
                     {
-                        del_y_plus += abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_y_plus += std::abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y + 2 * y_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y + 2 * y_off ) ) )
                     {
-                        del_y_minus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_y_minus += std::abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
                     }
                     else
                     {
-                        del_y_minus += abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_y_minus += std::abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
                     }
                 }
                 else
                 {
-                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y - 2 * y_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y - 2 * y_off ) ) )
                     {
-                        del_y_plus += abs( ( del_z -2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_y_plus += std::abs( ( del_z -2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
                     }
                     else
                     {
-                        del_y_plus += abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_y_plus += std::abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y + 2 * y_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y + 2 * y_off ) ) )
                     {
-                        del_y_minus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_y_minus += std::abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
                     }
                     else
                     {
-                        del_y_minus += abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_y_minus += std::abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
                     }
                 }
 
@@ -1696,84 +1696,84 @@ VspSurf FeaSlice::ComputeSliceSurf()
                 // Resize for Z rotation
                 if ( m_ZRot() > 0 )
                 {
-                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x - 2 * x_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x - 2 * x_off ) ) )
                     {
-                        del_x_plus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_x_plus += std::abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                     }
                     else
                     {
-                        del_x_plus += abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_x_plus += std::abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x + 2 * x_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x + 2 * x_off ) ) )
                     {
-                        del_x_minus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_x_minus += std::abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                     }
                     else
                     {
-                        del_x_minus += abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_x_minus += std::abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
                     }
                 }
                 else 
                 {
-                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x - 2 * x_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x - 2 * x_off ) ) )
                     {
-                        del_x_plus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_x_plus += std::abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                     }
                     else
                     {
-                        del_x_plus += abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_x_plus += std::abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x + 2 * x_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x + 2 * x_off ) ) )
                     {
-                        del_x_minus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                        del_x_minus += std::abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                     }
                     else
                     {
-                        del_x_minus += abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                        del_x_minus += std::abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
                     }
                 }
 
                 // Resize for X rotation
                 if ( m_XRot() > 0 )
                 {
-                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z - 2 * z_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z - 2 * z_off ) ) )
                     {
-                        del_z_plus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_z_plus += std::abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
                     }
                     else
                     {
-                        del_z_plus += abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z + 2 * z_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z + 2 * z_off ) ) )
                     {
-                        del_z_minus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_z_minus += std::abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
                     }
                     else
                     {
-                        del_z_minus += abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
                     }
                 }
                 else
                 {
-                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z - 2 * z_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z - 2 * z_off ) ) )
                     {
-                        del_z_plus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_z_plus += std::abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
                     }
                     else
                     {
-                        del_z_plus += abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_z_plus += std::abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
                     }
 
-                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z + 2 * z_off ) ) )
+                    if ( std::abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z + 2 * z_off ) ) )
                     {
-                        del_z_minus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                        del_z_minus += std::abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
                     }
                     else
                     {
-                        del_z_minus += abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                        del_z_minus += std::abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
                     }
                 }
 
@@ -2063,7 +2063,7 @@ void FeaSpar::ComputePlanarSurf()
         // Normal vector to wing chord line
         vec3d normal_vec;
 
-        if ( abs( inner_edge_vec.mag() - 1.0 ) <= FLT_EPSILON )
+        if ( std::abs( inner_edge_vec.mag() - 1.0 ) <= FLT_EPSILON )
         {
             normal_vec = cross( inner_edge_vec, lead_edge_vec );
         }
@@ -2209,51 +2209,51 @@ void FeaSpar::ComputePlanarSurf()
             {
                 if ( theta > max_angle_inner_le )
                 {
-                    if ( abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( min_lead_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( min_lead_edge - max_lead_edge ).mag() <= FLT_EPSILON )
                     {
                         length_spar_in += length_spar_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - max_lead_edge ).mag();
-                        length_spar_in += abs( perp_dist / sin( theta + beta_le ) );
+                        length_spar_in += std::abs( perp_dist / sin( theta + beta_le ) );
                     }
                 }
                 else
                 {
-                    if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
                     {
                         length_spar_in += length_spar_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
-                        length_spar_in += abs( perp_dist / cos( theta + alpha_0 ) );
+                        length_spar_in += std::abs( perp_dist / cos( theta + alpha_0 ) );
                     }
                 }
 
                 if ( theta > max_angle_outer_te )
                 {
-                    if ( abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( min_trail_edge - max_trail_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( min_trail_edge - max_trail_edge ).mag() <= FLT_EPSILON )
                     {
                         length_spar_out += length_spar_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - max_trail_edge ).mag();
-                        length_spar_out += abs( perp_dist / sin( theta - beta_te ) );
+                        length_spar_out += std::abs( perp_dist / sin( theta - beta_te ) );
                     }
                 }
                 else
                 {
-                    if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
                     {
                         length_spar_out += length_spar_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
-                        length_spar_out += abs( perp_dist / cos( theta + alpha_0 ) );
+                        length_spar_out += std::abs( perp_dist / cos( theta + alpha_0 ) );
                     }
                 }
             }
@@ -2261,51 +2261,51 @@ void FeaSpar::ComputePlanarSurf()
             {
                 if ( theta < max_angle_inner_te )
                 {
-                    if ( abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( max_trail_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( max_trail_edge - min_trail_edge ).mag() <= FLT_EPSILON )
                     {
                         length_spar_in += length_spar_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( max_trail_edge - min_trail_edge ).mag();
-                        length_spar_in += abs( perp_dist / sin( theta - beta_te ) );
+                        length_spar_in += std::abs( perp_dist / sin( theta - beta_te ) );
                     }
                 }
                 else
                 {
-                    if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
                     {
                         length_spar_in += length_spar_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
-                        length_spar_in += abs( perp_dist / cos( theta + alpha_0 ) );
+                        length_spar_in += std::abs( perp_dist / cos( theta + alpha_0 ) );
                     }
                 }
 
                 if ( theta < max_angle_outer_le )
                 {
-                    if ( abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( max_lead_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( max_lead_edge - min_lead_edge ).mag() <= FLT_EPSILON )
                     {
                         length_spar_out += length_spar_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( max_lead_edge - min_lead_edge ).mag();
-                        length_spar_out += abs( perp_dist / sin( theta + beta_le ) );
+                        length_spar_out += std::abs( perp_dist / sin( theta + beta_le ) );
                     }
                 }
                 else
                 {
-                    if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
                     {
                         length_spar_out += length_spar_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
-                        length_spar_out += abs( perp_dist / cos( theta + alpha_0 ) );
+                        length_spar_out += std::abs( perp_dist / cos( theta + alpha_0 ) );
                     }
                 }
             }
@@ -2914,49 +2914,49 @@ VspSurf FeaRib::ComputeRibSurf()
             {
                 if ( m_TotRot <= max_angle_inner_le )
                 {
-                    if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
                     {
                         length_rib_le += length_rib_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
-                        length_rib_le += abs( perp_dist / sin( m_TotRot ) );
+                        length_rib_le += std::abs( perp_dist / sin( m_TotRot ) );
                     }
                 }
                 else
                 {
-                    if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
+                    if ( std::abs( sin( phi_le ) ) <= FLT_EPSILON )
                     {
                         length_rib_le += length_rib_0;
                     }
                     else
                     {
-                        length_rib_le += abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                        length_rib_le += std::abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
                     }
                 }
 
                 if ( m_TotRot <= max_angle_outer_te )
                 {
-                    if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
                     {
                         length_rib_te += length_rib_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
-                        length_rib_te += abs( perp_dist / sin( m_TotRot ) );
+                        length_rib_te += std::abs( perp_dist / sin( m_TotRot ) );
                     }
                 }
                 else
                 {
-                    if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
+                    if ( std::abs( sin( phi_te ) ) <= FLT_EPSILON )
                     {
                         length_rib_te += length_rib_0;
                     }
                     else
                     {
-                        length_rib_te += abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                        length_rib_te += std::abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
                     }
                 }
             }
@@ -2964,49 +2964,49 @@ VspSurf FeaRib::ComputeRibSurf()
             {
                 if ( m_TotRot >= max_angle_inner_te )
                 {
-                    if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
                     {
                         length_rib_te += length_rib_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
-                        length_rib_te += abs( perp_dist / sin( m_TotRot ) );
+                        length_rib_te += std::abs( perp_dist / sin( m_TotRot ) );
                     }
                 }
                 else
                 {
-                    if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
+                    if ( std::abs( sin( phi_te ) ) <= FLT_EPSILON )
                     {
                         length_rib_te += length_rib_0;
                     }
                     else
                     {
-                        length_rib_te += abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                        length_rib_te += std::abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
                     }
                 }
 
                 if ( m_TotRot >= max_angle_outer_le )
                 {
-                    if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
+                    if ( std::abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
                     {
                         length_rib_le += length_rib_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
-                        length_rib_le += abs( perp_dist / sin( m_TotRot ) );
+                        length_rib_le += std::abs( perp_dist / sin( m_TotRot ) );
                     }
                 }
                 else
                 {
-                    if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
+                    if ( std::abs( sin( phi_le ) ) <= FLT_EPSILON )
                     {
                         length_rib_le += length_rib_0;
                     }
                     else
                     {
-                        length_rib_le += abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                        length_rib_le += std::abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
                     }
                 }
             }

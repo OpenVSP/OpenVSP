@@ -493,7 +493,7 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
         {
             for ( size_t j = i + 1; j < (int)all_norm_vec.size(); j++ )
             {
-                if ( ( abs( abs( dot( all_norm_vec[i], all_norm_vec[j] ) ) - 1.0 ) <= FLT_EPSILON ) && ( all_norm_vec[j].mag() >= FLT_EPSILON ) && ( all_norm_vec[i].mag() >= FLT_EPSILON ) )
+                if ( ( std::abs( std::abs( dot( all_norm_vec[i], all_norm_vec[j] ) ) - 1.0 ) <= FLT_EPSILON ) && ( all_norm_vec[j].mag() >= FLT_EPSILON ) && ( all_norm_vec[i].mag() >= FLT_EPSILON ) )
                 {
                     vec3d pntA = all_surf_vec[i].CompPnt01( 0.5, 0.5 );
                     vec3d pntB = all_surf_vec[j].CompPnt01( 0.5, 0.5 );
@@ -1574,7 +1574,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
             // Check for magicV parm
             bool magicV = false;
 
-            if ( ( ( abs( abs( ( *c )->m_SurfA->GetSurfCore()->GetMaxW() - ( *c )->m_SurfB->GetSurfCore()->GetMinW() ) - 2 * TMAGIC ) <= FLT_EPSILON ) )
+            if ( ( ( std::abs( std::abs( ( *c )->m_SurfA->GetSurfCore()->GetMaxW() - ( *c )->m_SurfB->GetSurfCore()->GetMinW() ) - 2 * TMAGIC ) <= FLT_EPSILON ) )
                  && ( ( dist( min_max_A, min_min_B ) <= FLT_EPSILON ) && ( dist( max_max_A, max_min_B ) <= FLT_EPSILON ) ) )
             {
                 magicV = true;
@@ -1662,11 +1662,11 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
 
                                 for ( size_t uw = 0; uw < uw_curve.size() - 1; uw++ )
                                 {
-                                    if ( abs( uw_curve[uw][0] - uw_curve.back()[0] ) > FLT_EPSILON )
+                                    if ( std::abs( uw_curve[uw][0] - uw_curve.back()[0] ) > FLT_EPSILON )
                                     {
                                         const_u_curve = false;
                                     }
-                                    if ( abs( uw_curve[uw][1] - uw_curve.back()[1] ) > FLT_EPSILON )
+                                    if ( std::abs( uw_curve[uw][1] - uw_curve.back()[1] ) > FLT_EPSILON )
                                     {
                                         const_w_curve = false;
                                     }
@@ -1761,8 +1761,8 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
 
                                         // Check that the endpoints of the subsurface edge are not equal and the edge is a constant U or W curve
                                         if ( (dist( corner0, corner1 ) > FLT_EPSILON ) && 
-                                            ( ( const_u_curve && abs( uw_pnt0[0] - uw_pnt1[0] ) <= FLT_EPSILON ) ||
-                                            ( const_w_curve && abs( uw_pnt0[1] - uw_pnt1[1] ) <= FLT_EPSILON ) ) )
+                                            ( ( const_u_curve && std::abs( uw_pnt0[0] - uw_pnt1[0] ) <= FLT_EPSILON ) ||
+                                            ( const_w_curve && std::abs( uw_pnt0[1] - uw_pnt1[1] ) <= FLT_EPSILON ) ) )
                                         {
                                             // Check if a split point lies on subsurface edge
                                             int k = 0;
@@ -1772,13 +1772,13 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                                 bool split_on_ss_edge = false;
 
                                                 // Check if the split point lies on the subsurface edge 
-                                                if ( const_w_curve && ( ( abs( split_uw_vec[k][1] - uw_pnt0[1] ) <= FLT_EPSILON ) || ( closedW && ( abs( 0.0 - uw_pnt0[1] ) <= FLT_EPSILON ) ) ) &&
+                                                if ( const_w_curve && ( ( std::abs( split_uw_vec[k][1] - uw_pnt0[1] ) <= FLT_EPSILON ) || ( closedW && ( std::abs( 0.0 - uw_pnt0[1] ) <= FLT_EPSILON ) ) ) &&
                                                     ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
                                                         ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) )
                                                 {
                                                     split_on_ss_edge = true;
                                                 }
-                                                else if ( const_u_curve && ( ( abs( split_uw_vec[k][0] - uw_pnt0[0] ) <= FLT_EPSILON ) || ( closedU && ( abs( 0.0 - uw_pnt0[0] ) <= FLT_EPSILON ) ) ) &&
+                                                else if ( const_u_curve && ( ( std::abs( split_uw_vec[k][0] - uw_pnt0[0] ) <= FLT_EPSILON ) || ( closedU && ( std::abs( 0.0 - uw_pnt0[0] ) <= FLT_EPSILON ) ) ) &&
                                                     ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
                                                         ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) )
                                                 {
@@ -1820,7 +1820,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                                 {
                                                     split_on_ss_edge = false;
 
-                                                    if ( const_w_curve && ( ( abs( split_uw_vec[n][1] - uw_pnt0[1] ) <= FLT_EPSILON ) || ( closedW && ( abs( 0.0 - uw_pnt0[1] ) <= FLT_EPSILON ) ) ) &&
+                                                    if ( const_w_curve && ( ( std::abs( split_uw_vec[n][1] - uw_pnt0[1] ) <= FLT_EPSILON ) || ( closedW && ( std::abs( 0.0 - uw_pnt0[1] ) <= FLT_EPSILON ) ) ) &&
                                                         ( ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
                                                             ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) &&
                                                             ( ( split_uw_vec[n][0] >= uw_pnt0[0] && split_uw_vec[n][0] <= uw_pnt1[0] ) ||
@@ -1828,7 +1828,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                                     {
                                                         split_on_ss_edge = true;
                                                     }
-                                                    else if ( const_u_curve && ( ( abs( split_uw_vec[n][0] - uw_pnt0[0] ) <= FLT_EPSILON ) || ( closedU && ( abs( 0.0 - uw_pnt0[0] ) <= FLT_EPSILON ) ) ) &&
+                                                    else if ( const_u_curve && ( ( std::abs( split_uw_vec[n][0] - uw_pnt0[0] ) <= FLT_EPSILON ) || ( closedU && ( std::abs( 0.0 - uw_pnt0[0] ) <= FLT_EPSILON ) ) ) &&
                                                         ( ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
                                                             ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) &&
                                                                 ( ( split_uw_vec[n][1] >= uw_pnt0[1] && split_uw_vec[n][1] <= uw_pnt1[1] ) ||

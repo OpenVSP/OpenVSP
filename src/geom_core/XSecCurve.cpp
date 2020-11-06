@@ -432,7 +432,7 @@ void XSecCurve::CloseTE( bool wingtype )
     double dx = plow[0] - ple[0];
     double dy = pup[1] - plow[1] - thick;
 
-    if ( wingtype && m_TECloseType() != CLOSE_NONE && abs( dx ) > FLT_EPSILON )
+    if ( wingtype && m_TECloseType() != CLOSE_NONE && std::abs( dx ) > FLT_EPSILON )
     {
         if ( m_TECloseType() == CLOSE_SKEWLOW ||
              m_TECloseType() == CLOSE_SKEWUP  ||
@@ -594,7 +594,7 @@ void XSecCurve::CloseTE( bool wingtype )
         d = d * div;
     }
 
-    if ( m_TECloseType() != CLOSE_NONE && abs( dx ) > FLT_EPSILON )
+    if ( m_TECloseType() != CLOSE_NONE && std::abs( dx ) > FLT_EPSILON )
     {
 
         if ( m_TECloseAbsRel() == ABS )
@@ -662,7 +662,7 @@ void XSecCurve::CloseLE( bool wingtype )
     double dx = pte[0] - ple[0];
     double dy = thick;
 
-    if ( m_LECloseType() != CLOSE_NONE && abs( dx ) > FLT_EPSILON )
+    if ( m_LECloseType() != CLOSE_NONE && std::abs( dx ) > FLT_EPSILON )
     {
         piecewise_curve_type::rotation_matrix_type mat;
         mat.setIdentity();
@@ -747,7 +747,7 @@ void XSecCurve::CloseLE( bool wingtype )
         d = d * div;
     }
 
-    if ( m_LECloseType() != CLOSE_NONE && abs( dx ) > FLT_EPSILON )
+    if ( m_LECloseType() != CLOSE_NONE && std::abs( dx ) > FLT_EPSILON )
     {
 
         if ( m_LECloseAbsRel() == ABS )
@@ -3809,7 +3809,7 @@ int EditCurveXSec::Split01( double u_split )
 
     for( size_t i = 0; i < u_vec.size(); i++ )
     {
-        if( abs( u_split - u_vec[i] ) < FLT_EPSILON )
+        if( std::abs( u_split - u_vec[i] ) < FLT_EPSILON )
         {
             return m_SelectPntID; // Do not split identical U values
         }
@@ -4012,7 +4012,7 @@ void EditCurveXSec::EnforceG1( int new_index )
             next_to_center_vec.normalize();
             prev_to_center_vec.normalize();
 
-            if ( abs( curr_pnt.x() - prev_pnt.x() ) < FLT_EPSILON && abs( curr_pnt.x() - next_pnt.x() ) < FLT_EPSILON )
+            if ( std::abs( curr_pnt.x() - prev_pnt.x() ) < FLT_EPSILON && std::abs( curr_pnt.x() - next_pnt.x() ) < FLT_EPSILON )
             {
                 continue; // Do nothing if both vertical
             }
@@ -4048,7 +4048,7 @@ void EditCurveXSec::EnforceG1( int new_index )
                 m_YParmVec[prev_ind]->Set( m_YParmVec[i]->Get() );
                 m_YParmVec[next_ind]->Set( m_YParmVec[i]->Get() );
             }
-            else if ( ( abs( prev_theta - next_theta ) > FLT_EPSILON ) ) 
+            else if ( ( std::abs( prev_theta - next_theta ) > FLT_EPSILON ) )
             {
                 // Identify the "master" vector and extend it to find the new point
                 if ( m_EnforceG1Next )
