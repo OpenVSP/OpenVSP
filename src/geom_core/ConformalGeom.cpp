@@ -419,7 +419,7 @@ void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double off
         if (rib_vec[i].use_right_fp())
         {
             double del_offset = orig_offset_r[i] - change_offset_r[i];
-            if (fabs(del_offset) > DBL_EPSILON)
+            if (std::abs(del_offset) > DBL_EPSILON)
             {
                 double target_del_offset = orig_offset_r[i] - offset;
                 double target_del_scale = del_scale * (target_del_offset / del_offset);
@@ -441,7 +441,7 @@ void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double off
         if ( rib_vec[i+1].use_left_fp() )
         {
             double del_offset = orig_offset_l[i] - change_offset_l[i];
-            if (fabs(del_offset) > DBL_EPSILON)
+            if (std::abs(del_offset) > DBL_EPSILON)
             {
                 double target_del_offset = orig_offset_l[i] - offset;
                 double target_del_scale = del_scale * (target_del_offset / del_offset);
@@ -464,10 +464,10 @@ void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double off
     {
         double off_r = ComputeAvgOffset( surf, ref_surf, double(i) + u_r );
         double off_l = ComputeAvgOffset( surf, ref_surf, double(i) + u_l );
-        double err_r = fabs( off_r - offset);
-        double err_l = fabs( off_l - offset);
-        double orig_err_r = fabs( orig_offset_r[i] - offset );
-        double orig_err_l = fabs( orig_offset_l[i] - offset );
+        double err_r = std::abs( off_r - offset);
+        double err_l = std::abs( off_l - offset);
+        double orig_err_r = std::abs( orig_offset_r[i] - offset );
+        double orig_err_l = std::abs( orig_offset_l[i] - offset );
 
         if ( err_r > orig_err_r && rib_vec[i].use_right_fp() )
         {
@@ -833,22 +833,22 @@ void ConformalGeom::TrimV( VspSurf & surf )
     {
         if ( m_V1TrimFlag() )
         {
-            if ( fabs( pmap[i] - tb1 )  < DBL_EPSILON )
+            if ( std::abs( pmap[i] - tb1 )  < DBL_EPSILON )
             {
                 b1 = i;
             }
-            if ( fabs( pmap[i] - te1 )  < DBL_EPSILON )
+            if ( std::abs( pmap[i] - te1 )  < DBL_EPSILON )
             {
                 e1 = i;
             }
         }
         if ( m_V2TrimFlag() )
         {
-            if ( fabs( pmap[i] - tb2 )  < DBL_EPSILON )
+            if ( std::abs( pmap[i] - tb2 )  < DBL_EPSILON )
             {
                 b2 = i;
             }
-            if ( fabs( pmap[i] - te2 )  < DBL_EPSILON )
+            if ( std::abs( pmap[i] - te2 )  < DBL_EPSILON )
             {
                 e2 = i;
             }
@@ -1028,7 +1028,7 @@ double ConformalGeom::ComputeMaxOffsetError( VspSurf & surf, VspSurf &  ref_surf
 
         for ( int j = 0 ; j < (int)dist_vec.size() ; j++ )
         {
-            double err = fabs( dist_vec[j] - offset );
+            double err = std::abs( dist_vec[j] - offset );
             if ( err > max_err )
                 max_err = err;
             sum_err += err;

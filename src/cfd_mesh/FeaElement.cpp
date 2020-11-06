@@ -14,15 +14,15 @@
 
 string GetFeaFormat( double input )
 {
-    if ( fabs( input ) < 10.0 )
+    if ( std::abs( input ) < 10.0 )
     {
         return string( "%8.5f" );
     }
-    else if ( fabs( input ) < 100.0 )
+    else if ( std::abs( input ) < 100.0 )
     {
         return string( "%8.4f" );
     }
-    else if ( fabs( input ) < 10000.0 )
+    else if ( std::abs( input ) < 10000.0 )
     {
         return string( "%8.3f" );
     }
@@ -89,11 +89,11 @@ void FeaNode::WriteNASTRAN( FILE* fp )
     double y = m_Pnt.y();
     double z = m_Pnt.z();
 
-    if ( fabs( x ) < 10.0 )
+    if ( std::abs( x ) < 10.0 )
     {
         fprintf( fp, "%8.5f,", x );
     }
-    else if ( fabs( x ) < 100.0 )
+    else if ( std::abs( x ) < 100.0 )
     {
         fprintf( fp, "%8.4f,", x );
     }
@@ -102,11 +102,11 @@ void FeaNode::WriteNASTRAN( FILE* fp )
         fprintf( fp, "%8.3f,", x );
     }
 
-    if ( fabs( y ) < 10.0 )
+    if ( std::abs( y ) < 10.0 )
     {
         fprintf( fp, "%8.5f,", y );
     }
-    else if ( fabs( y ) < 100.0 )
+    else if ( std::abs( y ) < 100.0 )
     {
         fprintf( fp, "%8.4f,", y );
     }
@@ -115,11 +115,11 @@ void FeaNode::WriteNASTRAN( FILE* fp )
         fprintf( fp, "%8.3f,", y );
     }
 
-    if ( fabs( z ) < 10.0 )
+    if ( std::abs( z ) < 10.0 )
     {
         fprintf( fp, "%8.5f\n", z );
     }
-    else if ( fabs( z ) < 100.0 )
+    else if ( std::abs( z ) < 100.0 )
     {
         fprintf( fp, "%8.4f\n", z );
     }
