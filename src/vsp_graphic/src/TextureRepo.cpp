@@ -41,4 +41,17 @@ Texture2D * TextureRepo::get2DTexture( const char * fileName )
 
     return texture;
 }
+
+unsigned int TextureRepo::getTextureID( const char * fileName )
+{
+    std::string fn = fileName;
+    for ( int i = 0; i < (int)_textureRepo.size(); i++ )
+    {
+        if ( _textureRepo[i].fileName == fn )
+        {
+            return _textureRepo[i].texture->getTextureID();
+        }
+    }
+    return 0; // Indicates texture has not been created
+}
 }

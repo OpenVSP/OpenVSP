@@ -113,6 +113,7 @@ public:
     float getScaleH();
     float getOffsetX();
     float getOffsetY();
+    unsigned int getTextureID();
 
 protected:
     virtual void _predraw();
@@ -146,6 +147,7 @@ private:
 
     TextureMgr * _textureMgr;
     unsigned int _texId;
+    unsigned int _2DTextureID; // ID of Texture2d in _textureMgr
 
     Common::VSPenum _mode;
 };

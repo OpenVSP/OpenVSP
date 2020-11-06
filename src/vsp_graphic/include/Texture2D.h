@@ -43,6 +43,11 @@ namespace VSPGraphic
             return _imHeight;
         }
 
+        unsigned int getTextureID()
+        {
+            return _textureID;
+        }
+
     protected:
         /*!
         * Initialize Texture2D.

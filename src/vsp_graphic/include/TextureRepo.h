@@ -31,6 +31,8 @@ public:
     */
     Texture2D * get2DTexture( const char * fileName );
 
+    unsigned int getTextureID( const char * fileName );
+
 private:
     struct TextureInfo
     {

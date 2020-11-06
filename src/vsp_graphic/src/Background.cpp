@@ -44,6 +44,8 @@ Background::Background() : Renderable()
     _textureMgr = new TextureMgr();
     _texId = 0xFFFFFFFF;
 
+    _2DTextureID = 0;
+
     _keepAR = true;
     _hasChanged = true;
 
@@ -112,6 +114,7 @@ void Background::attachImage( Texture2D * texture )
     removeImage();
 
     _texId = _textureMgr->add( texture );
+    _2DTextureID = texture->getTextureID();
 
     _imWidth = texture->getImWidth();
     _imHeight = texture->getImHeight();
@@ -209,6 +212,11 @@ float Background::getOffsetX()
 float Background::getOffsetY()
 {
     return _offsetY;
+}
+
+unsigned int Background::getTextureID()
+{
+    return _2DTextureID;
 }
 
 void Background::setWidthHeight( int w, int h)
