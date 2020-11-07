@@ -115,8 +115,40 @@ GeomBase::~GeomBase()
 
 }
 
+// SetDirtyFlags is a bit of an abomination.
+// This implements the magic logic to allow more fine grained Geom::Update().  Essentially, it classifies each Parm
+// changed (called from ParmChanged) by the kind of effect it has.  For now, there are three groups:
+//
+// XForm - position, orientation, symmetry, attachment of Geom
+// Surf - everything else (requires re-lofting m_MainSurfVec)
+// Tess - tessellation resolution (requires re-tessellation)
+//
+// This works in conjunction with strategic caching.  m_MainSurfVec, m_SurfVec, m_MainTessVec, m_TessVec are all
+// cached to allow minimal updates according to the classified dirty flags.
+//
+// In the future, additional groups may be added.  In particular, a group that only updates the OpenGL visualization,
+// or possibly handles SubSurface updating.
+//
+// So far, this is pretty clever and elegant.  It would have been great to have this foresight at the start and to
+// better design around this sort of thing.  However, it is instead a band-aid being retrofitted into a complex system.
+//
+// The 'abomoination' is in using string matching of Parm names and Group names as the means of classification.  This
+// is inherently fragile and implements policy at a low level (GeomBase) for information that won't be implemented
+// until a much higher level (where are these Parms created, named, etc?).  A better approach from the start would be
+// to set up some enums for the flag types and then add a property to each Parm to allow it to be classified where
+// it is created (or init'ed).  It may still be reasonable to change over to that kind of approach in the future.
+// An even more elegant approach would be to use the Geom class hierarchy to implement the appropriate UpdateXX()
+// methods and pair them with the corresponding Parms at each level.  Changing to that sort of design is not possible
+// to do in a way that is compatible with files created by EncodeXML (file format change).
+//
+// Rob McDonald 11/6/2020
+//
 void GeomBase::SetDirtyFlags( Parm* parm_ptr )
 {
+    if ( !parm_ptr )
+    {
+        return;
+    }
 
     string gname = parm_ptr->GetGroupName();
     string pname = parm_ptr->GetName();

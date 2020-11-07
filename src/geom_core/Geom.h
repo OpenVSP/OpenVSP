@@ -189,7 +189,6 @@ public:
     }
 
     virtual void Update( bool fullupdate = true )           {}
-    void SetDirtyFlags( Parm* parm_ptr );
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void ForceUpdate();
@@ -240,6 +239,8 @@ public:
     bool m_TessDirty;
 
 protected:
+
+    void SetDirtyFlags( Parm* parm_ptr );
 
     Vehicle* m_Vehicle;
 
