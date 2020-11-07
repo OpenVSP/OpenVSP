@@ -161,9 +161,9 @@ void GeomBase::ParmChanged( Parm* parm_ptr, int type )
     if ( parm_ptr )
     {
         m_UpdatedParmVec.push_back( parm_ptr->GetID() );
-    }
 
-    SetDirtyFlags( parm_ptr );
+        SetDirtyFlags( parm_ptr );
+    }
 
     if ( type == Parm::SET )
     {
