@@ -45,14 +45,18 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		${UTIL_INCLUDE_DIR}/Vec3d.h
 	)
 
-	SET_SOURCE_FILES_PROPERTIES(vsp.i PROPERTIES CPLUSPLUS ON)
+	set(I_FILES 
+        ${CMAKE_SOURCE_DIR}/src/geom_api/vsp.i
+        )
+
+	SET_SOURCE_FILES_PROPERTIES(${I_FILES} PROPERTIES CPLUSPLUS ON)
 
 	IF (${CMAKE_VERSION} VERSION_LESS "3.8.0")
-		SWIG_ADD_MODULE( vsp python vsp.i )
+		SWIG_ADD_MODULE( vsp python ${I_FILES} )
 	ELSE()
 		SWIG_ADD_LIBRARY( vsp
 		LANGUAGE python
-		SOURCES vsp.i )
+		SOURCES ${I_FILES} )
 	ENDIF()
 
 	IF( APPLE )
@@ -96,61 +100,5 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 	INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/test.py DESTINATION python/openvsp/openvsp/tests )
 	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py DESTINATION python/openvsp)
 	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml DESTINATION python/openvsp/conda-recipe)
-
-	IF( NOT VSP_NO_GRAPHICS )
-
-		SET( SWIG_MODULE_vsp_g_EXTRA_DEPS
-			${UTIL_INCLUDE_DIR}/Defines.h
-			${GEOM_API_INCLUDE_DIR}/APIDefines.h
-			${GEOM_API_INCLUDE_DIR}/APIErrorMgr.h
-			${GEOM_API_INCLUDE_DIR}/VSP_Geom_API.h
-			${GEOM_CORE_INCLUDE_DIR}/SWIGDefines.h
-			${UTIL_INCLUDE_DIR}/Vec3d.h
-		)
-
-		SET_SOURCE_FILES_PROPERTIES(vsp_g.i PROPERTIES CPLUSPLUS ON)
-
-		IF (${CMAKE_VERSION} VERSION_LESS "3.8.0")
-			SWIG_ADD_MODULE( vsp_g python vsp_g.i )
-		ELSE()
-			SWIG_ADD_LIBRARY( vsp_g
-			LANGUAGE python
-			SOURCES vsp_g.i )
-		ENDIF()
-
-		IF( APPLE )
-			SET( PY_LIB "" )
-			SET_TARGET_PROPERTIES(_vsp_g PROPERTIES LINK_FLAGS "-undefined dynamic_lookup" )
-		ELSE()
-			SET( PY_LIB ${PYTHON_LIBRARIES} )
-		ENDIF()
-
-		SWIG_LINK_LIBRARIES( vsp_g
-			geom_api_g
-			geom_core
-			gui_and_draw
-			cfd_mesh
-			triangle
-			util
-			tritri
-			clipper
-			Angelscript
-			xmlvsp
-			sixseries
-			cartesian
-			wavedragEL
-			pinocchio
-			${CPPTEST_LIBRARIES}
-			${LIBXML2_LIBRARIES}
-			${FLTK_LIBRARIES}
-			${OPENGL_LIBRARIES}
-			${WINSOCK_LIBRARIES}
-			${PY_LIB}
-			${CMINPACK_LIBRARIES}
-			${STEPCODE_LIBRARIES}
-			${LIBIGES_LIBRARIES}
-		)
-
-	ENDIF()
 
 ENDIF(SWIG_FOUND AND PYTHONLIBS_FOUND)

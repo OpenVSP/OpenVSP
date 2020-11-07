@@ -55,8 +55,7 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
 	SET(CMAKE_SWIG_FLAGS "-verbose")
 	
 	set(I_FILES 
-        ${CMAKE_SOURCE_DIR}/src/matlab_api/vsp.i
-        #${CMAKE_SOURCE_DIR}/src/matlab_api/vsp_common.i
+        ${CMAKE_SOURCE_DIR}/src/geom_api/vsp.i
         )
 	
 	SET_SOURCE_FILES_PROPERTIES(${I_FILES} PROPERTIES CPLUSPLUS ON)
@@ -122,8 +121,6 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
 	install (FILES ${CMAKE_SOURCE_DIR}/src/matlab_api/APITestSuite_test.m DESTINATION ${CMAKE_INSTALL_PREFIX}/matlab_api)
 	install (FILES ${CMAKE_SOURCE_DIR}/src/matlab_api/APITestSuiteVSPAERO_test.m DESTINATION ${CMAKE_INSTALL_PREFIX}/matlab_api)
 	install (FILES ${CMAKE_SOURCE_DIR}/src/matlab_api/assert_delta.m DESTINATION ${CMAKE_INSTALL_PREFIX}/matlab_api)
-
-	# NOT VSP_NO_GRAPHICS considerations?
 
 ENDIF(SWIG_FOUND AND MATLAB_FOUND)
 
