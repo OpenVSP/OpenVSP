@@ -1408,7 +1408,28 @@ bool FeaPartEditScreen::Update()
                         m_SparTipChordSlider.Update( spar->m_PercentTipChord.GetID() );
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );
 
-                        if( spar->m_UsePercentChord() )
+                        if ( spar->m_AbsRelParmFlag() == vsp::REL )
+                        {
+                            if ( !spar->m_UsePercentChord() )
+                            {
+                                m_SparPosSlider.Activate();
+                                spar->m_RelCenterLocation.Activate();
+                                spar->m_AbsCenterLocation.Deactivate();
+                            }
+                            m_SparPosSlider.Update( 1, spar->m_RelCenterLocation.GetID(), spar->m_AbsCenterLocation.GetID() );
+                        }
+                        else
+                        {
+                            if ( !spar->m_UsePercentChord() )
+                            {
+                                m_SparPosSlider.Activate();
+                                spar->m_AbsCenterLocation.Activate();
+                                spar->m_RelCenterLocation.Deactivate();
+                            }
+                            m_SparPosSlider.Update( 2, spar->m_RelCenterLocation.GetID(), spar->m_AbsCenterLocation.GetID() );
+                        }
+
+                        if ( spar->m_UsePercentChord() )
                         {
                             m_SparPosSlider.Deactivate();
                             m_SparThetaSlider.Deactivate();
@@ -1417,29 +1438,9 @@ bool FeaPartEditScreen::Update()
                         }
                         else
                         {
-                            m_SparPosSlider.Activate();
                             m_SparThetaSlider.Activate();
                             m_SparRootChordSlider.Deactivate();
                             m_SparTipChordSlider.Deactivate();
-                        }
-
-                        if ( spar->m_AbsRelParmFlag() == vsp::REL )
-                        {
-                            if ( !spar->m_UsePercentChord() )
-                            {
-                                spar->m_RelCenterLocation.Activate();
-                            }
-                            spar->m_AbsCenterLocation.Deactivate();
-                            m_SparPosSlider.Update( 1, spar->m_RelCenterLocation.GetID(), spar->m_AbsCenterLocation.GetID() );
-                        }
-                        else
-                        {
-                            spar->m_RelCenterLocation.Deactivate();
-                            if ( !spar->m_UsePercentChord() )
-                            {
-                                spar->m_AbsCenterLocation.Activate();
-                            }
-                            m_SparPosSlider.Update( 2, spar->m_RelCenterLocation.GetID(), spar->m_AbsCenterLocation.GetID() );
                         }
 
                         m_SparTrimToBBoxToggle.Update( spar->m_BndBoxTrimFlag.GetID() );
