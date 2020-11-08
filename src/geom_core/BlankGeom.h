@@ -32,9 +32,6 @@ public:
     BoolParm m_PointMassFlag;
     Parm     m_PointMass;
 
-    vec3d m_BlankOrigin;
-    vector < vec3d > m_BlankAxis;
-
 protected:
 
 };

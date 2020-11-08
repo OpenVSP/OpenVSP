@@ -61,27 +61,28 @@ void BlankGeom::UpdateDrawObj()
         axlen = veh->m_AxisLength();
     }
 
-    m_BlankOrigin = m_ModelMatrix.getTranslation();
+    vec3d blankOrigin = m_ModelMatrix.getTranslation();
 
-    m_BlankAxis.clear();
-    m_BlankAxis.resize( 3 );
+    vector < vec3d > blankAxis;
+    blankAxis.clear();
+    blankAxis.resize( 3 );
     for ( int i = 0; i < 3; i++ )
     {
         vec3d pt = vec3d( 0.0, 0.0, 0.0 );
         pt.v[i] = axlen;
-        m_BlankAxis[i] = m_ModelMatrix.xform( pt );
+        blankAxis[i] = m_ModelMatrix.xform( pt );
     }
 
     m_HighlightDrawObj.m_PntVec.resize(1);
-    m_HighlightDrawObj.m_PntVec[0] = m_BlankOrigin;
+    m_HighlightDrawObj.m_PntVec[0] = blankOrigin;
     m_HighlightDrawObj.m_PointSize = 10.0;
 
     m_FeatureDrawObj_vec.clear();
     m_FeatureDrawObj_vec.resize( 3 );
     for ( int i = 0; i < 3; i++ )
     {
-        m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_BlankOrigin );
-        m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_BlankAxis[i] );
+        m_FeatureDrawObj_vec[i].m_PntVec.push_back( blankOrigin );
+        m_FeatureDrawObj_vec[i].m_PntVec.push_back( blankAxis[i] );
         vec3d c;
         c.v[i] = 1.0;
         m_FeatureDrawObj_vec[i].m_LineColor = c;
