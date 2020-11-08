@@ -883,25 +883,89 @@ Wedge::Wedge( ) : Airfoil( )
     m_Type = XS_WEDGE;
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.5, 0.0, 1.0 );
 
+    m_ThickLocLow.Init( "ThickLocLow", m_GroupName, this, 0.5, 0.0, 1.0 );
+
+    m_FlatUp.Init( "FlatUp", m_GroupName, this, 0.0, 0.0, 1.0 );
+    m_FlatLow.Init( "FlatLow", m_GroupName, this, 0.0, 0.0, 1.0 );
+
+    m_ZCamber.Init( "ZCamber", m_GroupName, this, 0.0, 0.0, 1.0 );
+
+    m_UForeUp.Init( "UForeUp", m_GroupName, this, 0.75, 0.5, 1.0 );
+    m_UForeLow.Init( "UForeLow", m_GroupName, this, 0.25, 0.0, 0.5 );
+
+    m_DuUp.Init( "DuUp", m_GroupName, this, 0.1, 0.001, 0.5 );
+    m_DuLow.Init( "DuLow", m_GroupName, this, 0.1, 0.001, 0.5 );
+
+    m_SymmThick.Init( "SymmThick", m_GroupName, this, true, 0, 1 );
+
 }
 
 //==== Update ====//
 void Wedge::Update()
 {
-    vector<vec3d> pt( 4 );
-    vector<double> u( 5 );
-    double x_apex( m_ThickLoc() ), y_apex( m_ThickChord() / 2 );
+    if ( m_SymmThick() )
+    {
+        m_ThickLocLow = m_ThickLoc();
+        m_FlatLow = m_FlatUp();
+    }
 
-    pt[0].set_xyz( 1, 0, 0 );
-    pt[1].set_xyz( x_apex, -y_apex, 0 );
-    pt[2].set_xyz( 0, 0, 0 );
-    pt[3].set_xyz( x_apex, y_apex, 0 );
+    m_FlatUp.SetUpperLimit( 1.0 - m_ThickLoc() );
+    m_FlatLow.SetUpperLimit( 1.0 - m_ThickLocLow() );
 
-    u[0] = 0;
-    u[1] = 1;
-    u[2] = 2;
-    u[3] = 3;
-    u[4] = 4;
+    m_DuUp.SetUpperLimit( 1.0 - m_UForeUp() );
+    m_DuLow.SetUpperLimit( 0.5 - m_UForeLow() );
+
+    double halfthick = m_ThickChord() / 2.0;
+
+    int npt = 4;
+
+    bool flatlow = false;
+    if ( m_FlatLow() > 0.001 )
+    {
+        flatlow = true;
+        npt++;
+    }
+
+    bool flatup = false;
+    if ( m_FlatUp() > 0.001 )
+    {
+        flatup = true;
+        npt++;
+    }
+
+    vector<vec3d> pt( npt );
+    vector<double> u( npt + 1 );
+
+    // Position the points
+    int ipt = 0;
+    pt[ipt].set_xyz( 1, 0, 0 ); ipt++;
+    if ( flatlow )
+    {
+        pt[ipt].set_xyz( m_ThickLocLow() + m_FlatLow(), -halfthick + m_ZCamber(), 0 ); ipt++;
+    }
+    pt[ipt].set_xyz(m_ThickLocLow(), -halfthick + m_ZCamber(), 0 ); ipt++;
+    pt[ipt].set_xyz( 0, 0, 0 ); ipt++;
+    pt[ipt].set_xyz(m_ThickLoc(), halfthick + m_ZCamber(), 0 ); ipt++;
+    if ( flatup )
+    {
+        pt[ipt].set_xyz( m_ThickLoc() + m_FlatUp(), halfthick + m_ZCamber(), 0 ); ipt++;
+    }
+
+    // Assign the U parameters
+    ipt = 0;
+    u[ipt] = 0; ipt++;
+    if ( flatlow )
+    {
+        u[ipt] = ( m_UForeLow() - m_DuLow() ) * 4.0; ipt++;
+    }
+    u[ipt] = m_UForeLow() * 4.0; ipt++;
+    u[ipt] = 2; ipt++;
+    u[ipt] = m_UForeUp() * 4.0; ipt++;
+    if ( flatup )
+    {
+        u[ipt] = ( m_UForeUp() + m_DuUp() ) * 4.0; ipt++;
+    }
+    u[ipt] = 4; ipt++;
 
     // build the wedge
     m_Curve.InterpolateLinear( pt, u, true );

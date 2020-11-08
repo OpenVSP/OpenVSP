@@ -315,6 +315,17 @@ public:
     virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_ThickLoc;
+    Parm m_ThickLocLow;
+    Parm m_FlatUp;
+    Parm m_FlatLow;
+    Parm m_ZCamber;
+
+    Parm m_UForeUp;
+    Parm m_DuUp;
+    Parm m_UForeLow;
+    Parm m_DuLow;
+
+    BoolParm m_SymmThick;
 
 protected:
 
