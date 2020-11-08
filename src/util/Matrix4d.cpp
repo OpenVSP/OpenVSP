@@ -313,6 +313,15 @@ vec3d Matrix4d::getAngles() const
     return angles * RAD_2_DEG;
 }
 
+vec3d Matrix4d::getTranslation() const
+{
+    vec3d out;
+    out[0] = mat[12];
+    out[1] = mat[13];
+    out[2] = mat[14];
+    return out;
+}
+
 void Matrix4d::loadXZRef()
 {
     setIdentity( mat );

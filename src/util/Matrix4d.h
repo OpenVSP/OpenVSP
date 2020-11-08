@@ -58,6 +58,7 @@ public:
     vec3d xformnorm( const vec3d & in ) const;
     void xformnormvec( std::vector < vec3d > & in ) const;
     vec3d getAngles() const;
+    vec3d getTranslation() const;
 
     void buildXForm( const vec3d & pos, const vec3d & rot, const vec3d & cent_rot );
 
