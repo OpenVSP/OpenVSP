@@ -47,7 +47,10 @@ void BlankGeom::UpdateSurf()
     {
         m_PointMass.Deactivate();
     }
+}
 
+void BlankGeom::UpdateDrawObj()
+{
     UpdateXForm();
 
     double axlen = 1.0;
@@ -68,10 +71,7 @@ void BlankGeom::UpdateSurf()
         pt.v[i] = axlen;
         m_BlankAxis[i] = m_ModelMatrix.xform( pt );
     }
-}
 
-void BlankGeom::UpdateDrawObj()
-{
     m_HighlightDrawObj.m_PntVec.resize(1);
     m_HighlightDrawObj.m_PntVec[0] = m_BlankOrigin;
     m_HighlightDrawObj.m_PointSize = 10.0;
