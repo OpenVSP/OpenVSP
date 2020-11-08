@@ -162,7 +162,16 @@ protected:
     GroupLayout m_WedgeGroup;
     SliderAdjRangeInput m_WedgeChordSlider;
     SliderAdjRangeInput m_WedgeThickChordSlider;
+    SliderAdjRangeInput m_WedgeZCamberSlider;
+    ToggleButton m_WedgeSymmThickButton;
     SliderAdjRangeInput m_WedgeThickLocSlider;
+    SliderAdjRangeInput m_WedgeThickLocLowSlider;
+    SliderAdjRangeInput m_WedgeFlatUpSlider;
+    SliderAdjRangeInput m_WedgeFlatLowSlider;
+    SliderAdjRangeInput m_WedgeUForeUpSlider;
+    SliderAdjRangeInput m_WedgeUForeLowSlider;
+    SliderAdjRangeInput m_WedgeDuUpSlider;
+    SliderAdjRangeInput m_WedgeDuLowSlider;
 
     GroupLayout m_FuseFileGroup;
     TriggerButton m_ReadFuseFileButton;
