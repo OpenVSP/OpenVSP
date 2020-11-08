@@ -51,8 +51,6 @@ void BlankGeom::UpdateSurf()
 
 void BlankGeom::UpdateDrawObj()
 {
-    UpdateXForm();
-
     double axlen = 1.0;
 
     Vehicle *veh = VehicleMgr.GetVehicle();
