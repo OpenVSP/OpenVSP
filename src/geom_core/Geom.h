@@ -259,7 +259,7 @@ public:
     GeomXForm( Vehicle* vehicle_ptr );
     virtual ~GeomXForm();
 
-    virtual void Update( bool fullupdate = true );
+    virtual void UpdateXForm();
     virtual void ComposeModelMatrix();
     virtual Matrix4d ComposeAttachMatrix();
     virtual void SetCenter( double x, double y, double z )      { m_Center.set_xyz( x, y, z ); }

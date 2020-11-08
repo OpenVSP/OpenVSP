@@ -469,7 +469,7 @@ GeomXForm::~GeomXForm()
 }
 
 //==== Update ====//
-void GeomXForm::UpdateXForm( bool fullupdate )
+void GeomXForm::UpdateXForm()
 {
     DeactivateXForms();
     ComposeModelMatrix();
@@ -1089,7 +1089,7 @@ void Geom::Update( bool fullupdate )
         UpdateSurf();       // Must be implemented by subclass.
 
     if ( m_XFormDirty )
-        GeomXForm::UpdateXForm();
+        UpdateXForm();
 
     if ( m_SurfDirty )
         UpdateEndCaps();

@@ -48,7 +48,7 @@ void BlankGeom::UpdateSurf()
         m_PointMass.Deactivate();
     }
 
-    GeomXForm::UpdateXForm();
+    UpdateXForm();
 
     double axlen = 1.0;
 
