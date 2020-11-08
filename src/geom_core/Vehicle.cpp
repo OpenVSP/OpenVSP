@@ -4525,7 +4525,7 @@ string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile
                     if ( BGeom->m_PointMassFlag() )
                     {
                         TetraMassProp* pm = new TetraMassProp(); // Deleted by mesh_ptr
-                        pm->SetPointMass( BGeom->m_PointMass(), BGeom->m_BlankOrigin );
+                        pm->SetPointMass( BGeom->m_PointMass(), BGeom->getModelMatrix().getTranslation() );
                         pm->m_CompId = BGeom->GetID();
                         mesh_ptr->AddPointMass( pm );
                     }
@@ -5183,7 +5183,7 @@ void Vehicle::CreateDegenGeom( int set )
                     DegenPtMass pm;
                     pm.name = g->GetName();
                     pm.mass = g->m_PointMass();
-                    pm.x = g->m_BlankOrigin;
+                    pm.x = g->getModelMatrix().getTranslation();
                     pm.geom_id = g->GetID();
                     m_DegenPtMassVec.push_back( pm );
                 }

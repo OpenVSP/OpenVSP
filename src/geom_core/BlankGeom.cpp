@@ -58,7 +58,7 @@ void BlankGeom::UpdateSurf()
         axlen = veh->m_AxisLength();
     }
 
-    m_BlankOrigin = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
+    m_BlankOrigin = m_ModelMatrix.getTranslation();
 
     m_BlankAxis.clear();
     m_BlankAxis.resize( 3 );
