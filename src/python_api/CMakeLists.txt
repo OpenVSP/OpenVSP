@@ -46,7 +46,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 	)
 
 	set(I_FILES 
-        ${CMAKE_SOURCE_DIR}/src/geom_api/vsp.i
+        ../geom_api/vsp.i
         )
 
 	SET_SOURCE_FILES_PROPERTIES(${I_FILES} PROPERTIES CPLUSPLUS ON)
