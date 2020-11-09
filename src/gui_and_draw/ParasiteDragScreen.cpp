@@ -114,6 +114,9 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_MainTableScrollGroup = m_TableLayout.AddFlScroll( drag_table_height );
     m_MainTableScrollGroup->type( Fl_Scroll::BOTH );
 
+
+    m_TableLayout.SetFitWidthFlag( false );
+
     // Save Callbacks to Perform Update on Slide Event
     m_MainScrollbarCB = m_MainTableScrollGroup->scrollbar.callback();
     m_MainTableScrollGroup->scrollbar.callback( staticScreenCB, this );
