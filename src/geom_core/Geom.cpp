@@ -180,6 +180,10 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
         // This captures wings, propellers, and bodies of revolution clustering
         m_TessDirty = true;
     }
+    else if ( gname == string("BBox") )
+    {
+        // Don't dirty anything, BBox Parms are output Parms and should not trigger updates.
+    }
     else
     {
         m_SurfDirty = true;
