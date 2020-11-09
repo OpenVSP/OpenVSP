@@ -188,7 +188,7 @@ public:
         m_Type = type;
     }
 
-    virtual void Update( bool fullupdate = true )           {}
+    virtual void Update( bool fullupdate = true ) = 0;
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void ForceUpdate();
