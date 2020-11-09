@@ -78,6 +78,7 @@ protected:
     virtual void EnforceOrder( StackXSec* xs, int indx, int policy );
 
     vector<int> m_TessUVec;
+    virtual void UpdateTessUVec();
 
     bool m_Closed;
 

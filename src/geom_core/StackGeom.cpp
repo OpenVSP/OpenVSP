@@ -101,11 +101,29 @@ void StackGeom::ChangeID( string id )
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
-//==== Update Fuselage And Cross Section Placement ====//
-void StackGeom::UpdateSurf()
+void StackGeom::UpdateTessUVec()
 {
     m_TessUVec.clear();
 
+    unsigned int nxsec = m_XSecSurf.NumXSec();
+
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        StackXSec* xs = ( StackXSec* ) m_XSecSurf.FindXSec( i );
+
+        if ( xs )
+        {
+            if ( i > 0 )
+            {
+                m_TessUVec.push_back( xs->m_SectTessU() );
+            }
+        }
+    }
+}
+
+//==== Update Fuselage And Cross Section Placement ====//
+void StackGeom::UpdateSurf()
+{
     unsigned int nxsec = m_XSecSurf.NumXSec();
 
     if ( m_OrderPolicy() == STACK_LOOP )
@@ -151,11 +169,6 @@ void StackGeom::UpdateSurf()
             xs->SetGroupDisplaySuffix( i );
 
             rib_vec[i] = xs->GetRib( first, last );
-
-            if ( i > 0 )
-            {
-                m_TessUVec.push_back( xs->m_SectTessU() );
-            }
         }
     }
 
@@ -188,6 +201,7 @@ void StackGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< ve
         tessvec.push_back( m_CapUMinTess() );
     }
 
+    UpdateTessUVec();
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );
@@ -210,6 +224,7 @@ void StackGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vecto
         tessvec.push_back( m_CapUMinTess() );
     }
 
+    UpdateTessUVec();
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );

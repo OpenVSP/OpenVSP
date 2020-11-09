@@ -252,6 +252,7 @@ protected:
     DrawObj m_HighlightWingSecDrawObj;
 
     vector<int> m_TessUVec;
+    virtual void UpdateTessUVec();
     vector<int> m_UMergeVec;
 
     vector < double > m_RootClusterVec;

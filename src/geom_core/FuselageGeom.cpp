@@ -102,11 +102,30 @@ void FuselageGeom::ChangeID( string id )
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
-//==== Update Fuselage And Cross Section Placement ====//
-void FuselageGeom::UpdateSurf()
+void FuselageGeom::UpdateTessUVec()
 {
     m_TessUVec.clear();
 
+    unsigned int nxsec = m_XSecSurf.NumXSec();
+
+    //==== Update XSec Location/Rotation ====//
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        FuseXSec* xs = ( FuseXSec* ) m_XSecSurf.FindXSec( i );
+
+        if ( xs )
+        {
+            if ( i > 0 )
+            {
+                m_TessUVec.push_back( xs->m_SectTessU() );
+            }
+        }
+    }
+}
+
+//==== Update Fuselage And Cross Section Placement ====//
+void FuselageGeom::UpdateSurf()
+{
     unsigned int nxsec = m_XSecSurf.NumXSec();
 
     if ( m_OrderPolicy() == FUSE_LOOP )
@@ -156,11 +175,6 @@ void FuselageGeom::UpdateSurf()
             else if( i == (nxsec-1) ) last = true;
 
             rib_vec[i] = xs->GetRib( first, last );
-
-            if ( i > 0 )
-            {
-                m_TessUVec.push_back( xs->m_SectTessU() );
-            }
         }
     }
 
@@ -191,6 +205,7 @@ void FuselageGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector<
         tessvec.push_back( m_CapUMinTess() );
     }
 
+    UpdateTessUVec();
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );
@@ -213,6 +228,7 @@ void FuselageGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, ve
         tessvec.push_back( m_CapUMinTess() );
     }
 
+    UpdateTessUVec();
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );

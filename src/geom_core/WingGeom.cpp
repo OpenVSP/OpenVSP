@@ -1656,6 +1656,26 @@ void WingGeom::InsertWingSect( int index  )
     }
 }
 
+void WingGeom::UpdateTessUVec()
+{
+    m_TessUVec.clear();
+
+    unsigned int nxsec = m_XSecSurf.NumXSec();
+
+    //==== Load End Points for Each Section ====//
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        WingSect* ws = ( WingSect* ) m_XSecSurf.FindXSec( i );
+        if ( ws )
+        {
+            if ( i > 0 )
+            {
+                m_TessUVec.push_back( ws->m_SectTessU() );
+            }
+        }
+    }
+}
+
 //==== Update Wing And Cross Section Placement ====//
 void WingGeom::UpdateSurf()
 {
@@ -1700,7 +1720,6 @@ void WingGeom::UpdateSurf()
 
 
     // clear the u tessellation vector
-    m_TessUVec.clear();
     m_RootClusterVec.clear();
     m_TipClusterVec.clear();
     m_UMergeVec.clear();
@@ -1838,7 +1857,6 @@ void WingGeom::UpdateSurf()
 
             if ( i > 0 )
             {
-                m_TessUVec.push_back( ws->m_SectTessU() );
                 m_RootClusterVec.push_back( ws->m_RootCluster() );
                 m_TipClusterVec.push_back( ws->m_TipCluster() );
             }
@@ -2198,6 +2216,7 @@ void WingGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vec
         umerge.push_back( 1 );
     }
 
+    UpdateTessUVec();
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );
@@ -2233,6 +2252,7 @@ void WingGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector
         umerge.push_back( 1 );
     }
 
+    UpdateTessUVec();
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );
