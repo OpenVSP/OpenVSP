@@ -1586,6 +1586,15 @@ void Geom::UpdateChildren( bool fullupdate )
                 child->m_XFormDirty = true;
             }
 
+            // If the child is a Conformal
+            if ( child->GetType().m_Type == CONFORMAL_GEOM_TYPE )
+            {
+                if ( m_UpdateSurf )
+                {
+                    child->m_SurfDirty = true;
+                }
+            }
+
             // Ignore the abs location values and only use rel values for children so a child
             // with abs button selected stays attached to parent if the parent moves
             child->m_ignoreAbsFlag = true;
