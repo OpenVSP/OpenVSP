@@ -229,6 +229,7 @@ protected:
     virtual void UpdateSurf();
     virtual void UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
     virtual void UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
+    virtual void UpdatePreTess();
     virtual void UpdateDrawObj();
     virtual void MatchWingSections();
 
@@ -252,7 +253,6 @@ protected:
     DrawObj m_HighlightWingSecDrawObj;
 
     vector<int> m_TessUVec;
-    virtual void UpdateTessUVec();
     vector<int> m_UMergeVec;
 
     vector < double > m_RootClusterVec;

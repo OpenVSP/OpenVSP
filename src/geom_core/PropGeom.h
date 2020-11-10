@@ -227,8 +227,9 @@ protected:
 
     virtual void UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
     virtual void UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
+    virtual void UpdatePreTess();
 
-    virtual void CalculateMeshMetrics( const vector < double > &u_pseudo );
+    virtual void CalculateMeshMetrics();
 
     DrawObj m_ArrowLinesDO;
     DrawObj m_ArrowHeadDO;
@@ -237,6 +238,8 @@ protected:
     VspSurf m_FoilSurf;
 
     bool m_ExportMainSurf;
+
+    vector < double > m_UPseudo;
 
 };
 #endif // !defined(VSPPROPGEOM__INCLUDED_)

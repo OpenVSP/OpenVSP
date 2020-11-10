@@ -103,6 +103,6 @@ protected:
 
 
     vector<int> m_TessUVec;
-    virtual void UpdateTessUVec();
+    virtual void UpdatePreTess();
 };
 #endif // !defined(VSPPODGEOM__INCLUDED_)

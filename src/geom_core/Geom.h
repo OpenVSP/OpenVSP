@@ -698,6 +698,8 @@ protected:
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
 
+    virtual void UpdatePreTess()   {};
+
     virtual void UpdateMainTessVec( bool firstonly = false );
     virtual void UpdateTessVec();
 

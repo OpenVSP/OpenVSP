@@ -101,7 +101,7 @@ void StackGeom::ChangeID( string id )
     m_XSecSurf.SetParentContainer( GetID() );
 }
 
-void StackGeom::UpdateTessUVec()
+void StackGeom::UpdatePreTess()
 {
     m_TessUVec.clear();
 
@@ -201,7 +201,6 @@ void StackGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< ve
         tessvec.push_back( m_CapUMinTess() );
     }
 
-    UpdateTessUVec();
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );
@@ -224,7 +223,6 @@ void StackGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vecto
         tessvec.push_back( m_CapUMinTess() );
     }
 
-    UpdateTessUVec();
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );

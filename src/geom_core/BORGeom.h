@@ -62,6 +62,7 @@ protected:
     virtual void UpdateSurf();
 
     virtual void UpdateDrawObj();
+    virtual void UpdatePreTess();
 
     double m_Xoff;
 

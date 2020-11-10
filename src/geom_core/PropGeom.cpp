@@ -1038,7 +1038,8 @@ void PropGeom::UpdateSurf()
 
         vector< VspCurve > crv_vec( npseudo );
         vector < rib_data_type > rib_vec( npseudo );
-        vector < double > u_pseudo( npseudo );
+        m_UPseudo.clear();
+        m_UPseudo.resize( npseudo );
         for ( int i = 0; i < npseudo; i++ )
         {
             // Assume linear interpolation means linear u/r relationship.
@@ -1117,8 +1118,8 @@ void PropGeom::UpdateSurf()
             pp.Update();
 
             rib_vec[i].set_f( pp.GetCurve().GetCurve() );
-            // u_pseudo is 0-1 out the span of the blade.
-            u_pseudo[i] = ( r - rfirst ) / ( rlast - rfirst );
+            // m_UPseudo is 0-1 out the span of the blade.
+            m_UPseudo[i] = (r - rfirst ) / (rlast - rfirst );
         }
 
         // This surface linearly interpolates the airfoil sections without
@@ -1126,21 +1127,19 @@ void PropGeom::UpdateSurf()
         // These sections can be extracted (as u-const curves) and then
         // transformed to their final position before skinning.
         m_FoilSurf = VspSurf();
-        m_FoilSurf.SkinC0( crv_vec, u_pseudo, false );
+        m_FoilSurf.SkinC0(crv_vec, m_UPseudo, false );
 
         m_MainSurfVec.reserve( m_Nblade() + 1 );
         m_MainSurfVec.resize( 1 );
 
         m_MainSurfVec[0].SetMagicVParm( false );
-        m_MainSurfVec[0].SkinCubicSpline( rib_vec, u_pseudo, tdisc, false );
+        m_MainSurfVec[0].SkinCubicSpline(rib_vec, m_UPseudo, tdisc, false );
 
         m_MainSurfVec[0].SetMagicVParm( true );
         m_MainSurfVec[0].SetSurfType( PROP_SURF );
-        m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
         m_MainSurfVec[0].SetSurfCfdType( vsp::CFD_NORMAL );  // Make sure set to default, can be updated later.
 
         m_FoilSurf.SetMagicVParm( true );
-        m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
 
         m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
 
@@ -1172,8 +1171,6 @@ void PropGeom::UpdateSurf()
 
             m_MainSurfVec[i].Transform( rot );
         }
-
-        CalculateMeshMetrics( u_pseudo );
     }
 
     // Build disk surface.
@@ -1226,7 +1223,7 @@ void PropGeom::UpdateMainTessVec()
     }
 }
 
-void PropGeom::CalculateMeshMetrics( const vector < double > &u_pseudo  )
+void PropGeom::CalculateMeshMetrics()
 {
     std::vector<double> vcheck( 8 );
 
@@ -1265,9 +1262,9 @@ void PropGeom::CalculateMeshMetrics( const vector < double > &u_pseudo  )
         double v1 = vcheck[ i ];
         double v2 = vcheck[ i + 1 ];
 
-        for ( int j = 0; j < u_pseudo.size(); j++ )
+        for ( int j = 0; j < m_UPseudo.size(); j++ )
         {
-            double u = u_pseudo[ j ];
+            double u = m_UPseudo[ j ];
 
             double d = dist( m_MainSurfVec[0].CompPnt( u, v1 ), m_MainSurfVec[0].CompPnt( u, v2 ) );
             mind = min( mind, d );
@@ -1695,6 +1692,14 @@ void PropGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector
 
     surf_vec[indx].SetRootTipClustering( rootc, tipc );
     surf_vec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), umerge );
+}
+
+void PropGeom::UpdatePreTess()
+{
+    m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
+    m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
+
+    CalculateMeshMetrics();
 }
 
 string PropGeom::BuildBEMResults()

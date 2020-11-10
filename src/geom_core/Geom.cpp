@@ -1135,6 +1135,7 @@ void Geom::Update( bool fullupdate )
     // Tessellate MainSurfVec
     if ( m_SurfDirty || m_TessDirty )
     {
+        UpdatePreTess();
         UpdateMainTessVec();
         UpdateMainDegenGeomPreview();
     }
