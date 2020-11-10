@@ -236,6 +236,8 @@ void PtCloudGeom::InitPts()
     UpdateBBox();
     UniquePts();
 
+    m_SurfDirty = true;
+
     unsigned int n = m_Pts.size();
     m_Selected.assign( n, false );
     m_Hidden.assign( n, false );
