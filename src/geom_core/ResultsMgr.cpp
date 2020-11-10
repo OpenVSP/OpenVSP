@@ -406,18 +406,10 @@ void Results::WriteMassProp( const string & file_name )
         fprintf( fid, "\n" );
         fprintf( fid, "Name\tMass\tcgX\tcgY\tcgZ\tIxx\tIyy\tIzz\tIxy\tIxz\tIyz\tVolume\n" );
 
-        int total_items = Find( "Total_Items" ).GetInt( 0 );
-
-        for ( int i = 0 ; i < total_items ; i++ )
+        for ( int i = 0 ; i < num_comps; i++ )
         {
             string comp_Id = Find( "Comp_ID" ).GetString( i );
             string comp_name = Find( "Comp_Name" ).GetString( i );
-
-            if ( comp_Id == "" && comp_name == "" )
-            {
-                comp_name = "BlankGeom";
-            }
-
             double comp_mass = Find( "Comp_Mass" ).GetDouble( i );
             vec3d comp_cg = Find( "Comp_CG" ).GetVec3d( i );
             double compIxx = Find( "Comp_Ixx" ).GetDouble( i );
