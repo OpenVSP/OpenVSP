@@ -217,6 +217,31 @@ protected:
 
 };
 
+class EditXSecWindow : public VspGlWindow
+{
+public:
+
+    EditXSecWindow( int x, int y, int w, int h, ScreenMgr* mgr );
+
+    virtual int handle( int fl_event );
+
+    virtual void update();
+
+    void InitZoom(); // centers pan values and resets scale for zoom
+
+private:
+
+    // Search for a point index within radius 'r_test' to the input pixel location
+    int ihit( int mx, int my, double r_test );
+
+    double hitdist( int mx, int my, double datax, double datay );
+
+    // Convert pixel in XSec editor to equivalent coordinate 
+    vec3d PixelToCoord( int x_pix, int y_pix );
+
+    int m_LastHit; // Index of the previously selected point
+
 };
 }
+
 #endif

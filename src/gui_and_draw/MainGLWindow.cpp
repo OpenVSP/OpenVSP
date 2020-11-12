@@ -36,6 +36,8 @@
 #include "WaveDragScreen.h"
 #include "VSPAEROScreen.h"
 #include "MeasureMgr.h"
+#include "CurveEditScreen.h"
+#include "BORGeom.h"
 
 #pragma warning(disable:4244)
 
@@ -2196,4 +2198,307 @@ void VspGlWindow::_sendFeedback( std::vector<Selectable *> listOfSelected )
         _sendFeedback( listOfSelected[i] );
     }
 }
+
+//**********************************************************************//
+//*************************** EditXSecWindow ***************************//
+//**********************************************************************//
+
+EditXSecWindow::EditXSecWindow( int x, int y, int w, int h, ScreenMgr* mgr )
+    : VspGlWindow( x, y, w, h, mgr, DrawObj::VSP_EDIT_CURVE_SCREEN )
+{
+    m_LastHit = -1;
+    m_noRotate = true;
+}
+
+void EditXSecWindow::update()
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+
+    if ( vPtr )
+    {
+        make_current();
+
+        // Get Render Objects from Vehicle.
+        vector<DrawObj*> drawObjs = vPtr->GetDrawObjs();
+
+        // Load Render Objects for Curve Edit Screen
+        CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+        if ( curve_editor )
+        {
+            curve_editor->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Objects to Renderer.
+        _update( drawObjs ); // VspGlWindow
+    }
+}
+
+int EditXSecWindow::handle( int fl_event )
+{
+    int ret_val = VspGlWindow::handle( fl_event );
+
+    CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+    if ( !curve_editor )
+    {
+        return ret_val;
+    }
+
+    XSecCurve* xsc = curve_editor->GetXSecCurve();
+
+    if ( !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE )
+    {
+        return ret_val;
+    }
+
+    EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
+    assert( edit_curve_xs );
+
+    bool update_flag = false;
+
+    vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
+
+    double sx = coord.x();
+    double sy = coord.y();
+
+    if ( fl_event == FL_PUSH )
+    {
+        update_flag = true;
+
+        // Diameter of point + 10% considered "hit" 
+        double hit_r = 1.2 * edit_curve_xs->m_XSecPointSize.Get() / 2;
+
+#ifdef __APPLE__
+        hit_r *= 2;
+#endif
+
+        m_LastHit = ihit( m_mouse_x, m_mouse_y, hit_r );
+
+        if ( m_LastHit != -1 )
+        {
+            edit_curve_xs->SetSelectPntID( m_LastHit );
+            curve_editor->UpdateIndexSelector( m_LastHit, false );
+        }
+
+        if ( curve_editor->GetDeleteActive() )
+        {
+            curve_editor->SetDeleteActive( false );
+
+            if ( m_LastHit >= 0 )
+            {
+                edit_curve_xs->DeletePt( m_LastHit );
+            }
+        }
+
+        if ( curve_editor->GetSplitActive() )
+        {
+            curve_editor->SetSplitActive( false );
+
+            // Scale by width and height
+            vec3d split_pnt;
+            if ( edit_curve_xs->m_AbsoluteFlag() )
+            {
+                split_pnt = vec3d( sx, sy, 0.0 );
+            }
+            else
+            {
+                split_pnt = vec3d( sx * edit_curve_xs->GetWidth(), sy * edit_curve_xs->GetHeight(), 0.0 );
+            }
+
+            double u_curve;
+            VspCurve base_curve = edit_curve_xs->GetBaseEditCurve();
+            base_curve.OffsetX( -0.5 * edit_curve_xs->GetWidth() );
+            base_curve.FindNearest01( u_curve, split_pnt );
+
+            edit_curve_xs->m_SplitU = u_curve;
+            int new_pnt = edit_curve_xs->Split01();
+            curve_editor->UpdateIndexSelector( new_pnt );
+        }
+    }
+    else if ( fl_event == FL_DRAG && m_LastHit != -1 )
+    {
+        update_flag = true;
+
+        if ( edit_curve_xs->m_AbsoluteFlag() )
+        {
+            edit_curve_xs->MovePnt( sx / edit_curve_xs->GetWidth(), sy / edit_curve_xs->GetHeight() );
+        }
+        else
+        {
+            edit_curve_xs->MovePnt( sx, sy );
+        }
+
+        curve_editor->SetFreezeAxis( true );
+    }
+    else if ( fl_event == FL_RELEASE )
+    {
+        update_flag = true;
+
+        curve_editor->SetFreezeAxis( false );
+        // Force update the parent Geom once the point is released
+        edit_curve_xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+    }
+
+    if ( update_flag )
+    {
+        // Don't update the index selector if a point on the canvas is selected
+        curve_editor->SetUpdateIndexSelector( false );
+
+        curve_editor->Update();
+    }
+
+    return ret_val;
+}
+
+
+vec3d EditXSecWindow::PixelToCoord( int x_pix, int y_pix )
+{
+    vec3d coord;
+
+    //==== Find EditCurveXSec Ptr ====//
+    CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+    if ( !curve_editor )
+    {
+        return coord;
+    }
+
+    XSecCurve* xsc = curve_editor->GetXSecCurve();
+
+    if ( !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE )
+    {
+        return coord;
+    }
+
+    EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
+    assert( edit_curve_xs );
+
+    float zoom = getRelativeZoomValue();
+    glm::vec2 pan = getPanValues();
+    double w = pixel_w();
+    double h = pixel_h();
+
+    double scale_w = 1;
+    double scale_h = 1;
+
+    if ( !edit_curve_xs->m_AbsoluteFlag() )
+    {
+        scale_w = edit_curve_xs->GetWidth();
+        scale_h = edit_curve_xs->GetHeight();
+    }
+
+    // Convert pixels to coordinates
+    coord.set_x( ( ( zoom * w ) * ( ( x_pix / w ) - 0.5 ) - pan.x ) / scale_w );
+    coord.set_y( ( ( zoom * h ) * ( ( y_pix / h ) - 0.5 ) - pan.y ) / scale_h );
+
+    return coord;
+}
+
+int EditXSecWindow::ihit( int mx, int my, double r_test )
+{
+    //==== Find EditCurveXSec Ptr ====//
+    CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+    if ( !curve_editor )
+    {
+        return -1;
+    }
+
+    XSecCurve* xsc = curve_editor->GetXSecCurve();
+
+    if ( !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE )
+    {
+        return -1;
+    }
+
+    EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
+    assert( edit_curve_xs );
+
+    vector < vec3d > control_pts = edit_curve_xs->GetCtrlPntVec( false );
+    int ndata = (int)control_pts.size();
+    vector < double > xdata( ndata );
+    vector < double > ydata( ndata );
+
+    for ( size_t i = 0; i < ndata; i++ )
+    {
+        xdata[i] = control_pts[i].x();
+        ydata[i] = control_pts[i].y();
+    }
+
+    double min_dist = 1e9;
+    int i_hit = -1;
+
+    for ( int i = 0; i < xdata.size(); i++ )
+    {
+        double dist_out = hitdist( mx, my, xdata[i], ydata[i] );
+        if ( dist_out < min_dist )
+        {
+            min_dist = dist_out;
+
+            if ( dist_out < r_test )
+            {
+                i_hit = i;
+            }
+        }
+    }
+
+    return i_hit;
+}
+
+double EditXSecWindow::hitdist( int mx, int my, double datax, double datay )
+{
+    float zoom = getRelativeZoomValue();
+    glm::vec2 pan = getPanValues();
+    double w = pixel_w();
+    double h = pixel_h();
+
+    // Convert datax and datay into pixels
+    double pixel_x = w * ( ( ( datax + pan.x ) / ( zoom * w ) ) + 0.5 );
+    double pixel_y = h * ( ( ( datay + pan.y ) / ( zoom * h ) ) + 0.5 );
+
+    double dx = std::abs( pixel_x - mx );
+    double dy = std::abs( pixel_y - my );
+
+    double dist_out = std::sqrt( dx * dx + dy * dy );
+
+    return dist_out;
+}
+
+void EditXSecWindow::InitZoom()
+{
+    assert( m_ScreenMgr );
+
+    VSPGraphic::Viewport* viewport = getGraphicEngine()->getDisplay()->getViewport();
+    assert( viewport );
+
+    //==== Find EditCurveXSec Ptr ====//
+    CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+    if ( !curve_editor )
+    {
+        return;
+    }
+
+    XSecCurve* xsc = curve_editor->GetXSecCurve();
+
+    if ( !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE )
+    {
+        return;
+    }
+
+    EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
+    assert( edit_curve_xs );
+
+    double gl_w = pixel_w();
+    double gl_h = pixel_h();
+    float oz;
+
+    double wh = max( edit_curve_xs->GetWidth(), edit_curve_xs->GetHeight() );
+    oz = ( 1.5 * wh ) * ( gl_w < gl_h ? 1.f / gl_w : 1.f / gl_h );
+
+    getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( oz );
+}
+
 } // Close out namespace VSPGUI
+
