@@ -69,6 +69,7 @@ VspGlWindow::VspGlWindow( int x, int y, int w, int h, ScreenMgr * mgr, DrawObj::
     m_ScreenMgr = mgr;
 
     m_hasSetSize = false;
+    m_noRotate = false;
 
 #ifdef __APPLE__
 #if FL_API_VERSION >= 10304
@@ -1792,7 +1793,7 @@ void VspGlWindow::OnDrag( int x, int y )
             }
             m_prevMetaLB = glm::vec2( x, y );
         }
-        else
+        else if ( !m_noRotate )
         {
             // LB
             if( m_prevLB != glm::vec2( 0xFFFFFFFF ) )

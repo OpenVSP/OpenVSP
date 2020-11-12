@@ -141,8 +141,6 @@ private:
     static void _loadXSecData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
     static void _loadMarkData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
 
-    void _update( std::vector<DrawObj *> objects );
-
     void _setLighting( DrawObj * drawObj );
 
     void _setClipping( DrawObj * drawObj );
@@ -165,7 +163,6 @@ private:
 
 private:
     VSPGraphic::GraphicEngine * m_GEngine;
-    ScreenMgr * m_ScreenMgr;
 
     struct TextureID
     {
@@ -193,9 +190,6 @@ private:
     };
     std::vector<ID> m_ids;
 
-    int m_mouse_x;
-    int m_mouse_y;
-
     DrawObj::ScreenEnum m_LinkedScreen;
 
     bool m_initialized;
@@ -211,6 +205,18 @@ private:
     glm::vec2 m_prevMetaLB;
     glm::vec2 m_startShiftLB;
     glm::vec2 m_prevLBRB;
+
+protected:
+
+    void _update( std::vector<DrawObj*> objects );
+
+    ScreenMgr* m_ScreenMgr;
+    int m_mouse_x;
+    int m_mouse_y;
+    bool m_noRotate; // Flag to enable/disable rotations
+
+};
+
 };
 }
 #endif
