@@ -932,6 +932,8 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set )
         }
     }
 
+    mesh_geom->m_SurfDirty = true;
+
     SetActiveGeom( id );
     return id;
 }
