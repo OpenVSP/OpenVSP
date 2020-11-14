@@ -1427,6 +1427,10 @@ void FileAirfoil::ReadV2File( xmlNodePtr &root )
         }
         free(arr);
     }
+
+    MakeCurve();
+    m_BaseThickness.Set( CalculateThick() );
+    m_ThickChord.Set( m_BaseThickness() );
 }
 
 //==========================================================================//
