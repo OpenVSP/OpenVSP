@@ -1777,11 +1777,22 @@ void WingGeom::UpdateSurf()
                 else
                 {
                     CircleXSec* cir = dynamic_cast < CircleXSec* > ( xsc );
+                    RoundedRectXSec* rect = dynamic_cast < RoundedRectXSec* > ( xsc );
                     if ( cir )
                     {
                         width_parm->Set( 1.0 );
                         utc = ws->GetUntransformedCurve();
                         width_parm->Set( w );
+                    }
+                    else if ( rect )
+                    {
+                        double h = xsc->GetHeight();
+                        double r = rect->m_Radius();
+                        xsc->SetWidthHeight( 1.0, h/w );
+                        rect->m_Radius = r / w;
+                        utc = ws->GetUntransformedCurve();
+                        xsc->SetWidthHeight( w, h );
+                        rect->m_Radius = r;
                     }
                     else
                     {
