@@ -24,6 +24,7 @@
 #include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 #include "eli/geom/intersect/distance_angle_surface.hpp"
+#include "eli/geom/intersect/intersect_axis_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
@@ -283,6 +284,48 @@ void VspSurf::GuessDistanceAngle( double &du, double &dw, const vec3d &udir, con
 
         du = d * ( cos( theta ) / udir.mag() - k * dn );
     }
+}
+
+double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d &outpt ) const
+{
+    surface_point_type p, p0;
+    p0 << inpt.x(), inpt.y(), inpt.z();
+
+    double idist = eli::geom::intersect::intersect( u_out, w_out, p, m_Surface, p0, idir );
+
+    outpt = p;
+    return idist;
+}
+
+double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d &outpt ) const
+{
+    surface_point_type p, p0;
+    p0 << inpt.x(), inpt.y(), inpt.z();
+
+    double idist = eli::geom::intersect::intersect( u_out, w_out, p, m_Surface, p0, idir, u0, w0 );
+
+    outpt = p;
+    return idist;
+}
+
+double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d &outpt) const
+{
+    double idist = ProjectPt( inpt, idir, u_out, w_out, outpt );
+
+    u_out = u_out / GetUMax();
+    w_out = w_out / GetWMax();
+
+    return idist;
+}
+
+double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d & outpt ) const
+{
+    double idist = ProjectPt( inpt, idir, u0 * GetUMax(), w0 * GetWMax(), u_out, w_out, outpt );
+
+    u_out = u_out / GetUMax();
+    w_out = w_out / GetWMax();
+
+    return idist;
 }
 
 void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const

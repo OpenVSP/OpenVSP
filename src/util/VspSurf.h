@@ -114,6 +114,12 @@ public:
     void FindDistanceAngle( double &u, double &w, const vec3d &pt, const vec3d &dir, const double &d, const double &theta, const double &u0, const double &w0 ) const;
     void GuessDistanceAngle( double &du, double &dw, const vec3d &udir, const vec3d & wdir, const double &d, const double &theta ) const;
 
+    double ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d & outpt ) const;
+    double ProjectPt( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d & outpt ) const;
+
+    double ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d & outpt ) const;
+    double ProjectPt01( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d & outpt ) const;
+
     void GetUConstCurve( VspCurve &c, const double &u ) const;
     void GetWConstCurve( VspCurve &c, const double &w ) const;
 
