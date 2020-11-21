@@ -6661,13 +6661,13 @@ void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01::Invalid surf index " + to_string( surf_indx ) );
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjVecPnt01::Invalid surf index " + to_string( surf_indx ) );
             return;
         }
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjVecPnt01::Can't Find Geom " + geom_id );
         return;
     }
     ErrorMgr.NoError();
@@ -6702,19 +6702,19 @@ void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const 
             }
             else
             {
-                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01Guess::Invalid surf index " + to_string( surf_indx ) );
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjVecPnt01Guess::Invalid surf index " + to_string( surf_indx ) );
                 return;
             }
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01Guess::Input size mismatch." );
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjVecPnt01Guess::Input size mismatch." );
             return;
         }
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01Guess::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjVecPnt01Guess::Can't Find Geom " + geom_id );
         return;
     }
     ErrorMgr.NoError();
