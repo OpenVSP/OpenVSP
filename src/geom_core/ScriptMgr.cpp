@@ -10054,7 +10054,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [out] ws Output array of the closest W (0 - 1) surface coordinate for each 3D input point
     \param [out] ds Output array of distances for each 3D point and the closest point of the surface
 */)";
-    r = se->RegisterGlobalFunction( "void ProjVecPnt01(const string & in geom_id, int & in surf_indx, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    r = se->RegisterGlobalFunction( "void ProjVecPnt01(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
@@ -10113,7 +10113,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [out] ws Output array of the closest W (0 - 1) surface coordinate for each 3D input point
     \param [out] ds Output array of distances for each 3D point and the closest point of the surface
 */)";
-    r = se->RegisterGlobalFunction( "void ProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    r = se->RegisterGlobalFunction( "void ProjVecPnt01Guess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
     //=== Register Measure Functions ===//
@@ -12136,7 +12136,7 @@ void ScriptMgrSingleton::CompVecCurvature01(const string &geom_id, const int &su
     FillDoubleArray( out_kgs, kgs );
 }
 
-void ScriptMgrSingleton::ProjVecPnt01(const string &geom_id, int &surf_indx, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
+void ScriptMgrSingleton::ProjVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
 {
     vector < vec3d > in_pts;
 
@@ -12157,7 +12157,7 @@ void ScriptMgrSingleton::ProjVecPnt01(const string &geom_id, int &surf_indx, CSc
     FillDoubleArray( out_ds, ds );
 }
 
-void ScriptMgrSingleton::ProjVecPnt01Guess(const string &geom_id, int &surf_indx, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
+void ScriptMgrSingleton::ProjVecPnt01Guess(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
 {
     vector < vec3d > in_pts;
 
