@@ -83,6 +83,7 @@ public:
     CScriptArray* GetProxyDoubleMatArray();
 
     static void FillDoubleArray( vector < double > & in, CScriptArray* out );
+    static void FillVec3dArray( vector < vec3d > & in, CScriptArray* out );
 
     //==== Common Types =====//
     asITypeInfo* m_IntArrayType;

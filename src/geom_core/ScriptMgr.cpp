@@ -11415,6 +11415,15 @@ void ScriptMgrSingleton::FillDoubleArray( vector < double > & in, CScriptArray* 
     }
 }
 
+void ScriptMgrSingleton::FillVec3dArray( vector < vec3d > & in, CScriptArray* out )
+{
+    out->Resize( in.size() );
+    for ( int i = 0 ; i < ( int )in.size() ; i++ )
+    {
+        out->SetValue( i, &in[i] );
+    }
+}
+
 //==== Wrappers For API Functions That Return Vectors ====//
 CScriptArray* ScriptMgrSingleton::GetGeomTypes()
 {
