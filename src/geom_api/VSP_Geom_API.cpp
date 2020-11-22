@@ -6495,6 +6495,78 @@ double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const ve
     return dmin;
 }
 
+double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, double &u_out, double &w_out, vec3d &p_out)
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    double idmin = -1;
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AxisProjPnt01::Can't Find Geom " + geom_id );
+        return idmin;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AxisProjPnt01::Invalid Surface Index " + to_string( surf_indx ) );
+        return idmin;
+    }
+
+    idmin = geom->GetSurfPtr( surf_indx )->ProjectPt01( pt, iaxis, u_out, w_out, p_out );
+
+    ErrorMgr.NoError();
+
+    return idmin;
+}
+
+double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out)
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    double idmin = std::numeric_limits<double>::max();
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AxisProjPnt01I::Can't Find Geom " + geom_id );
+        return idmin;
+    }
+
+    idmin = vPtr->AxisProjPnt01I( geom_id, iaxis, pt, surf_indx_out, u_out, w_out, p_out );
+
+    ErrorMgr.NoError();
+
+    return idmin;
+}
+
+double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out, vec3d &p_out)
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    double idmin = std::numeric_limits<double>::max();
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AxisProjPnt01Guess::Can't Find Geom " + geom_id );
+        return idmin;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AxisProjPnt01Guess::Invalid Surface Index " + to_string( surf_indx ) );
+        return idmin;
+    }
+
+    idmin = geom->GetSurfPtr( surf_indx )->ProjectPt01( pt, iaxis, clamp( u0, 0.0, 1.0 ), clamp( w0, 0.0, 1.0 ), u_out, w_out, p_out );
+
+    ErrorMgr.NoError();
+
+    return idmin;
+}
+
 vector < vec3d > CompVecPnt01( const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws )
 {
     Vehicle* veh = GetVehicle();
@@ -6715,6 +6787,96 @@ void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const 
     else
     {
         ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjVecPnt01Guess::Can't Find Geom " + geom_id );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < vec3d > &pt_out_vec, std::vector < double > &d_out_vec)
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    u_out_vec.resize( 0 );
+    w_out_vec.resize( 0 );
+    pt_out_vec.resize( 0 );
+    d_out_vec.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+
+        if ( surf )
+        {
+            u_out_vec.resize( pts.size() );
+            w_out_vec.resize( pts.size() );
+            pt_out_vec.resize( pts.size() );
+            d_out_vec.resize( pts.size() );
+
+            for ( int i = 0; i < pts.size(); i++ )
+            {
+                d_out_vec[i] = surf->ProjectPt01( pts[i], iaxis, u_out_vec[i], w_out_vec[i], pt_out_vec[i] );
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AxisProjVecPnt01::Invalid surf index " + to_string( surf_indx ) );
+            return;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AxisProjVecPnt01::Can't Find Geom " + geom_id );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, const std::vector < double > &u0s, const std::vector < double > &w0s, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < vec3d > &pt_out_vec, std::vector < double > &d_out_vec )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    u_out_vec.resize( 0 );
+    w_out_vec.resize( 0 );
+    pt_out_vec.resize( 0 );
+    d_out_vec.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        if ( pts.size() == u0s.size() && pts.size() == w0s.size() )
+        {
+            VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
+
+            if ( surf )
+            {
+                u_out_vec.resize( pts.size() );
+                w_out_vec.resize( pts.size() );
+                pt_out_vec.resize( pts.size() );
+                d_out_vec.resize( pts.size() );
+
+                for ( int i = 0; i < pts.size(); i++ )
+                {
+                    d_out_vec[i] = surf->ProjectPt01( pts[i], iaxis, clamp( u0s[i], 0.0, 1.0 ), clamp( w0s[i], 0.0, 1.0 ), u_out_vec[i], w_out_vec[i], pt_out_vec[i] );
+                }
+            }
+            else
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AxisProjVecPnt01Guess::Invalid surf index " + to_string( surf_indx ) );
+                return;
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AxisProjVecPnt01Guess::Input size mismatch." );
+            return;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AxisProjVecPnt01Guess::Can't Find Geom " + geom_id );
         return;
     }
     ErrorMgr.NoError();

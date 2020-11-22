@@ -9891,6 +9891,131 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Project an input 3D coordinate point onto a surface along a specified axis.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.
+
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double u = 0.12345;
+    double w = 0.67890;
+
+    vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w );
+    vec3d pt = surf_pt;
+
+    pt.offset_y( -5.0 );
+
+    double u_out, w_out;
+    vec3d p_out;
+
+    double idist = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt, u_out, w_out, p_out);
+
+    Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out );
+    Print( "3D Offset ", false);
+	Print( surf_pt - p_out );
+    \endcode
+    \sa AxisProjPnt01Guess, AxisProjPnt01I, AxisProjVecPnt01, AxisProjVecPnt01Guess
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+    \param [in] pt Input 3D coordinate point
+    \param [out] u_out Output closest U (0 - 1) surface coordinate
+    \param [out] w_out Output closest W (0 - 1) surface coordinate
+    \param [out] p_out Output 3D coordinate point
+    \return Axis aligned distance between the 3D point and the projected point on the surface
+*/)";
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, double & out u_out, double & out w_ou, vec3d & out p_out )", asFUNCTION(vsp::AxisProjPnt01), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Project an input 3D coordinate point onto a Geom along a specified axis.  The intersecting surface index is also returned.  If the axis-aligned ray from the point intersects the Geom multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the Geom, the original point is returned and -1 is returned in the other output parameters.
+
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double u = 0.12345;
+    double w = 0.67890;
+
+    vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w );
+    vec3d pt = surf_pt;
+
+    pt.offset_y( -5.0 );
+
+    double u_out, w_out;
+    vec3d p_out;
+    int surf_indx_out;
+
+    double idist = AxisProjPnt01I( geom_id, Y_DIR, pt, surf_indx_out, u_out, w_out, p_out);
+
+    Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out );
+    Print( "3D Offset ", false);
+	Print( surf_pt - p_out );
+    \endcode
+    \sa AxisProjPnt01, AxisProjPnt01Guess, AxisProjVecPnt01, AxisProjVecPnt01Guess
+    \param [in] geom_id Parent Geom ID
+    \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+    \param [in] pt Input 3D coordinate point
+    \param [out] surf_indx_out Output main surface index from the parent Geom
+    \param [out] u_out Output closest U (0 - 1) surface coordinate
+    \param [out] w_out Output closest W (0 - 1) surface coordinate
+    \param [out] p_out Output 3D coordinate point
+    \return Axis aligned distance between the 3D point and the projected point on the surface
+*/)";
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01I( const string & in geom_id, const int & in iaxis, const vec3d & in pt, int & out surf_indx_out, double & out u_out, double & out w_out, vec3d & out p_out )", asFUNCTION(vsp::AxisProjPnt01I), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Project an input 3D coordinate point onto a surface along a specified axis given an initial guess of surface parameter.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.  The surface parameter guess should allow this call to be faster than calling AxisProjPnt01 without a guess.
+
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double u = 0.12345;
+    double w = 0.67890;
+
+    vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w );
+    vec3d pt = surf_pt;
+
+    pt.offset_y( -5.0 );
+
+    // Construct initial guesses near actual parameters
+    double u0 = u + 0.01234;
+    double w0 = w - 0.05678;
+
+    double u_out, w_out;
+    vec3d p_out;
+
+    d = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0, u_out, w_out, p_out);
+
+    Print( "Dist " + d + " u " + uout + " w " + wout );
+    \endcode
+    \sa AxisProjPnt01, AxisProjPnt01I, AxisProjVecPnt01, AxisProjVecPnt01Guess
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+    \param [in] pt Input 3D coordinate point
+    \param [in] u0 Input U (0 - 1) surface coordinate guess
+    \param [in] w0 Input W (0 - 1) surface coordinate guess
+    \param [out] u Output closest U (0 - 1) surface coordinate
+    \param [out] w Output closest W (0 - 1) surface coordinate
+    \param [out] p_out Output 3D coordinate point
+    \return Distance between the 3D point and the closest point of the surface
+*/)";
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01Guess( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, const double & in u0, const double & in w0, double & out u_out, double & out w_out, vec3d & out p_out )", asFUNCTION(vsp::AxisProjPnt01Guess), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Get the surface coordinate point of each intersection of the tesselated wireframe for a particular surface
     \code{.cpp}
     // Add Pod Geom
@@ -10114,6 +10239,136 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [out] ds Output array of distances for each 3D point and the closest point of the surface
 */)";
     r = se->RegisterGlobalFunction( "void ProjVecPnt01Guess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Project an input array of 3D coordinate points onto a surface along a specified axis.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.
+
+
+    \code{.cpp}
+       // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+    int surf_indx = 0;
+
+    int n = 5;
+
+    array<double> uvec, wvec;
+
+    uvec.resize( n );
+    wvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        uvec[i] = (i+1)*1.0/(n+1);
+
+        wvec[i] = (n-i)*1.0/(n+1);
+    }
+
+    array< vec3d > ptvec = CompVecPnt01( geom_id, surf_indx, uvec, wvec );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        ptvec[i].offset_y( -5.0 );
+    }
+
+    array<double> uoutv, woutv, doutv;
+    array< vec3d > poutv;
+
+    AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, poutv, doutv );
+
+    // Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
+    // the pod from the originally computed point.  I.e. there were multiple solutions and the original point
+    // is not the closest intersection point.  We could offset those points in the +Y direction instead of -Y.
+    for( int i = 0 ; i < n ; i++ )
+    {
+	    Print( i, false );
+	    Print( "U delta ", false );
+	    Print( uvec[i] - uoutv[i], false );
+	    Print( "W delta ", false );
+	    Print( wvec[i] - woutv[i] );
+    }
+
+    \endcode
+    \sa AxisProjPnt01, AxisProjPnt01Guess, AxisProjPnt01I, AxisProjVecPnt01Guess
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+    \param [in] pts Input array of 3D coordinate points
+    \param [out] us Output array of the closest U (0 - 1) surface coordinate for each 3D input point
+    \param [out] ws Output array of the closest W (0 - 1) surface coordinate for each 3D input point
+    \param [out] ps_out Output array of 3D coordinate point
+    \param [out] ds Output array of axis distances for each 3D point and the projected point of the surface
+*/)";
+    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01(const string & in geom_id, const int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<vec3d>@ ps_out, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Project an input array of 3D coordinate points onto a surface along a specified axis given initial guess arrays of surface parameter.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.  The surface parameter guess should allow this call to be faster than calling AxisProjVecPnt01 without a guess.
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+    int surf_indx = 0;
+
+    int n = 5;
+
+    array<double> uvec, wvec;
+
+    uvec.resize( n );
+    wvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        uvec[i] = (i+1)*1.0/(n+1);
+
+        wvec[i] = (n-i)*1.0/(n+1);
+    }
+
+    array< vec3d > ptvec = CompVecPnt01( geom_id, surf_indx, uvec, wvec );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        ptvec[i].offset_y( -5.0 );
+    }
+
+    array<double> uoutv, woutv, doutv, u0v, w0v;
+    array< vec3d > poutv;
+
+    u0v.resize( n );
+    w0v.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        u0v[i] = uvec[i] + 0.01234;
+        w0v[i] = wvec[i] - 0.05678;
+    }
+
+    AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v,  uoutv, woutv, poutv, doutv );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+	    Print( i, false );
+	    Print( "U delta ", false );
+	    Print( uvec[i] - uoutv[i], false );
+	    Print( "W delta ", false );
+	    Print( wvec[i] - woutv[i] );
+    }
+
+    \endcode
+    \sa AxisProjPnt01, AxisProjPnt01Guess, AxisProjPnt01I, AxisProjVecPnt01
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] iaxis Axis direction to project point along (X_DIR, Y_DIR, or Z_DIR)
+    \param [in] pts Input array of 3D coordinate points
+    \param [in] u0s Input array of U (0 - 1) surface coordinate guesses
+    \param [in] w0s Input array of W (0 - 1) surface coordinate guesses
+    \param [out] us Output array of the closest U (0 - 1) surface coordinate for each 3D input point
+    \param [out] ws Output array of the closest W (0 - 1) surface coordinate for each 3D input point
+    \param [out] ps_out Output array of 3D coordinate point
+    \param [out] ds Output array of axis distances for each 3D point and the projected point of the surface
+*/)";
+    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<vec3d>@ ps_out, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
     //=== Register Measure Functions ===//
@@ -12190,6 +12445,66 @@ void ScriptMgrSingleton::ProjVecPnt01Guess(const string &geom_id, const int &sur
     FillDoubleArray( out_us, us );
     FillDoubleArray( out_ws, ws );
     FillDoubleArray( out_ds, ds );
+}
+
+void ScriptMgrSingleton::AxisProjVecPnt01(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ps_out, CScriptArray* ds )
+{
+    vector < vec3d > in_pts;
+
+    in_pts.resize( pts->GetSize() );
+    for ( int i = 0 ; i < ( int )pts->GetSize() ; i++ )
+    {
+        in_pts[i] = * ( vec3d* )( pts->At( i ) );
+    }
+
+    vector < double > out_us;
+    vector < double > out_ws;
+    vector < double > out_ds;
+    vector < vec3d > out_pts;
+
+    vsp::AxisProjVecPnt01( geom_id, surf_indx, iaxis, in_pts, out_us, out_ws, out_pts, out_ds );
+
+    FillDoubleArray( out_us, us );
+    FillDoubleArray( out_ws, ws );
+    FillDoubleArray( out_ds, ds );
+    FillVec3dArray( out_pts, ps_out );
+}
+
+void ScriptMgrSingleton::AxisProjVecPnt01Guess(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ps_out, CScriptArray* ds )
+{
+    vector < vec3d > in_pts;
+
+    in_pts.resize( pts->GetSize() );
+    for ( int i = 0 ; i < ( int )pts->GetSize() ; i++ )
+    {
+        in_pts[i] = * ( vec3d* )( pts->At( i ) );
+    }
+
+    vector < double > in_u0s;
+    in_u0s.resize( u0s->GetSize() );
+    for ( int i = 0 ; i < ( int )u0s->GetSize() ; i++ )
+    {
+        in_u0s[i] = * ( double* )( u0s->At( i ) );
+    }
+
+    vector < double > in_w0s;
+    in_w0s.resize( w0s->GetSize() );
+    for ( int i = 0 ; i < ( int )w0s->GetSize() ; i++ )
+    {
+        in_w0s[i] = * ( double* )( w0s->At( i ) );
+    }
+
+    vector < double > out_us;
+    vector < double > out_ws;
+    vector < double > out_ds;
+    vector < vec3d > out_pts;
+
+    vsp::AxisProjVecPnt01Guess( geom_id, surf_indx, iaxis, in_pts, in_u0s, in_w0s, out_us, out_ws, out_pts,out_ds );
+
+    FillDoubleArray( out_us, us );
+    FillDoubleArray( out_ws, ws );
+    FillDoubleArray( out_ds, ds );
+    FillVec3dArray( out_pts, ps_out );
 }
 
 void ScriptMgrSingleton::GetUWTess01(const string &geom_id, int &surf_indx, CScriptArray* us, CScriptArray* ws )
