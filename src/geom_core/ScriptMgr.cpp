@@ -9651,14 +9651,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Calculate the 3D coordinate equivalent for the input surface coordinate point
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int surf_indx = 0;
 
     double u = 0.12345;
     double w = 0.67890;
 
-    vec3d pnt = CompPnt01( pid, surf_indx, u, w );
+    vec3d pnt = CompPnt01( geom_id, surf_indx, u, w );
 
     Print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' );
     \endcode
@@ -9676,14 +9676,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Calculate the normal vector on the specified surface at input surface coordinate
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int surf_indx = 0;
 
     double u = 0.12345;
     double w = 0.67890;
 
-    vec3d norm = CompNorm01( pid, surf_indx, u, w );
+    vec3d norm = CompNorm01( geom_id, surf_indx, u, w );
 
     Print( "Point: ( " + norm.x() + ', ' + norm.y() + ', ' + norm.z() + ' )' );
     \endcode
@@ -9701,14 +9701,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Calculate the vector tangent to the specified surface at input surface coordinate in the U direction
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int surf_indx = 0;
 
     double u = 0.12345;
     double w = 0.67890;
 
-    vec3d tanu = CompTanU01( pid, surf_indx, u, w );
+    vec3d tanu = CompTanU01( geom_id, surf_indx, u, w );
 
     Print( "Point: ( " + tanu.x() + ', ' + tanu.y() + ', ' + tanu.z() + ' )' );
     \endcode
@@ -9726,14 +9726,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Calculate the vector tangent to the specified surface at input surface coordinate in the W direction
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int surf_indx = 0;
 
     double u = 0.12345;
     double w = 0.67890;
 
-    vec3d tanw = CompTanW01( pid, surf_indx, u, w );
+    vec3d tanw = CompTanW01( geom_id, surf_indx, u, w );
 
     Print( "Point: ( " + tanw.x() + ', ' + tanw.y() + ', ' + tanw.z() + ' )' );
     \endcode
@@ -9751,13 +9751,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Determine the curvature of a specified surface at the input surface coordinate point
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int surf_indx = 0;
 
     double k1, k2, ka, kg;
 
-    CompCurvature01( pid, surf_indx, u, w, k1, k2, ka, kg );
+    CompCurvature01( geom_id, surf_indx, u, w, k1, k2, ka, kg );
 
     Print( "Curvature : k1 " + k1 + " k2 " + k2 + " ka " + ka + " kg " + kg );
     \endcode
@@ -9779,23 +9779,23 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     3D point and the closest point of the surface.
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int surf_indx = 0;
 
     double u = 0.12345;
     double w = 0.67890;
 
-    vec3d pnt = CompPnt01( pid, surf_indx, u, w );
+    vec3d pnt = CompPnt01( geom_id, surf_indx, u, w );
 
-    vec3d norm = CompNorm01( gid, surf_indx, u, w );
+    vec3d norm = CompNorm01( geom_id, surf_indx, u, w );
 
     double uout, wout;
 
     // Offset point from surface
     pnt = pnt + norm;
 
-    double d = ProjPnt01( pid, surf_indx, pnt, uout, wout );
+    double d = ProjPnt01( geom_id, surf_indx, pnt, uout, wout );
 
     Print( "Dist " + d + " u " + uout + " w " + wout );
     \endcode
@@ -9816,16 +9816,16 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     the closest point and the input.
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int surf_indx = 0;
 
     double u = 0.12345;
     double w = 0.67890;
 
-    vec3d pnt = CompPnt01( pid, surf_indx, u, w );
+    vec3d pnt = CompPnt01( geom_id, surf_indx, u, w );
 
-    vec3d norm = CompNorm01( gid, surf_indx, u, w );
+    vec3d norm = CompNorm01( geom_id, surf_indx, u, w );
 
     double uout, wout;
 
@@ -9834,14 +9834,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Offset point from surface
     pnt = pnt + norm;
 
-    d = ProjPnt01I( pid, pnt, surf_indx_out, uout, wout );
+    d = ProjPnt01I( geom_id, pnt, surf_indx_out, uout, wout );
 
     Print( "Dist " + d + " u " + uout + " w " + wout + " surf_index " + surf_indx_out );
     \endcode
     \sa ProjPnt01, ProjPnt01Guess
     \param [in] geom_id Parent Geom ID
     \param [in] pt Input 3D coordinate point
-    \param [in] surf_indx Output main surface index from the parent Geom
+    \param [out] surf_indx Output main surface index from the parent Geom
     \param [out] u Output closest U (0 - 1) surface coordinat
     \param [out] w Output closest W (0 - 1) surface coordinat
     \return Distance between the 3D point and the closest point of the surface
@@ -9856,23 +9856,23 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     a potential decrease in computation time compared to ProjPnt01.
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int surf_indx = 0;
 
     double u = 0.12345;
     double w = 0.67890;
 
-    vec3d pnt = CompPnt01( pid, surf_indx, u, w );
+    vec3d pnt = CompPnt01( geom_id, surf_indx, u, w );
 
-    vec3d norm = CompNorm01( gid, surf_indx, u, w );
+    vec3d norm = CompNorm01( geom_id, surf_indx, u, w );
 
     double uout, wout;
 
     // Offset point from surface
     pnt = pnt + norm;
 
-    d = ProjPnt01Guess( pid, surf_indx, pnt, u + 0.1, w + 0.1, uout, wout );
+    d = ProjPnt01Guess( geom_id, surf_indx, pnt, u + 0.1, w + 0.1, uout, wout );
 
     Print( "Dist " + d + " u " + uout + " w " + wout );
     \endcode
@@ -9894,13 +9894,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Get the surface coordinate point of each intersection of the tesselated wireframe for a particular surface
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int surf_indx = 0;
 
     array<double> utess, wtess;
 
-    GetUWTess01( pid, surf_indx, utess, wtess );
+    GetUWTess01( geom_id, surf_indx, utess, wtess );
     \endcode
     \param [in] geom_id Parent Geom ID
     \param [in] surf_indx Main surface index from the parent Geom
@@ -9915,7 +9915,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Determine 3D coordinate for each surface coordinate point in the input arrays
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int n = 5;
 
@@ -9931,7 +9931,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
         wvec[i] = (n-i)*1.0/(n+1);
     }
 
-    array< vec3d > ptvec = CompVecPnt01( pid, 0, uvec, wvec );
+    array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec );
     \endcode
     \param [in] geom_id Parent Geom ID
     \param [in] surf_indx Main surface index from the parent Geom
@@ -9947,7 +9947,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Determine the normal vector on a surface for each surface coordinate point in the input arrays
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int n = 5;
 
@@ -9963,7 +9963,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
         wvec[i] = (n-i)*1.0/(n+1);
     }
 
-    array< vec3d > normvec = CompVecNorm01( pid, 0, uvec, wvec );
+    array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec );
     \endcode
     \param [in] geom_id Parent Geom ID
     \param [in] surf_indx Main surface index from the parent Geom
@@ -9979,7 +9979,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Determine the curvature of a specified surface at each surface coordinate point in the input arrays
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int n = 5;
 
@@ -9997,7 +9997,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     array<double> k1vec, k2vec, kavec, kgvec;
 
-    CompVecCurvature01( pid, 0, uvec, wvec, k1vec, k2vec, kavec, kgvec );
+    CompVecCurvature01( geom_id, 0, uvec, wvec, k1vec, k2vec, kavec, kgvec );
     \endcode
     \param [in] geom_id Parent Geom ID
     \param [in] surf_indx Main surface index from the parent Geom
@@ -10017,7 +10017,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     3D point and the closest point of the surface.
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int n = 5;
 
@@ -10033,9 +10033,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
         wvec[i] = (n-i)*1.0/(n+1);
     }
 
-    array< vec3d > ptvec = CompVecPnt01( pid, 0, uvec, wvec );
+    array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec );
 
-    array< vec3d > normvec = CompVecNorm01( gid, 0, uvec, wvec );
+    array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec );
 
     for( int i = 0 ; i < n ; i++ )
     {
@@ -10044,7 +10044,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     array<double> uoutv, woutv, doutv;
 
-    ProjVecPnt01( pid, 0, ptvec, uoutv, woutv, doutv );
+    ProjVecPnt01( geom_id, 0, ptvec, uoutv, woutv, doutv );
     \endcode
     \sa ProjVecPnt01Guess
     \param [in] geom_id Parent Geom ID
@@ -10064,7 +10064,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     coordinate, offering a potential decrease in computation time compared to ProjVecPnt01.
     \code{.cpp}
     // Add Pod Geom
-    string pid = AddGeom( "POD", "" );
+    string geom_id = AddGeom( "POD", "" );
 
     int n = 5;
 
@@ -10080,9 +10080,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
         wvec[i] = (n-i)*1.0/(n+1);
     }
 
-    array< vec3d > ptvec = CompVecPnt01( pid, 0, uvec, wvec );
+    array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec );
 
-    array< vec3d > normvec = CompVecNorm01( gid, 0, uvec, wvec );
+    array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec );
 
     for( int i = 0 ; i < n ; i++ )
     {
@@ -10101,7 +10101,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
         w0v[i] = wvec[i] - 0.05678;
     }
 
-    ProjVecPnt01Guess( pid, 0, ptvec, u0v,  w0v,  uoutv, woutv, doutv );
+    ProjVecPnt01Guess( geom_id, 0, ptvec, u0v,  w0v,  uoutv, woutv, doutv );
     \endcode
     \sa ProjVecPnt01, 
     \param [in] geom_id Parent Geom ID
