@@ -1277,7 +1277,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_CapUMaxOption.SetDescript("Type of End Cap on Wing Tip");
     m_CapUMaxOption.Parm::Set(FLAT_END_CAP);
 
-    m_ActiveAirfoil.Init( "ActiveXSec", "Index", this, 0, 0, 1e6 );
+    m_ActiveAirfoil.Init( "ActiveAirfoil", "Index", this, 0, 0, 1e6 );
 
     //==== Init Parms ====//
     m_TessU = 16;
