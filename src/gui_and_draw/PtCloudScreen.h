@@ -16,8 +16,15 @@ public:
     virtual bool Update();
 
     virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
 protected:
+    GroupLayout m_ProjectLayout;
+    TriggerButton m_ProjectButton;
+
+    Choice m_DirChoice;
+    GeomPicker m_GeomPicker;
+    Choice m_SurfChoice;
 
 };
 

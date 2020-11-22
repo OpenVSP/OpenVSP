@@ -436,3 +436,31 @@ void PtCloudGeom::GetSelectedPoints( vector < vec3d > &selpts )
         }
     }
 }
+
+void PtCloudGeom::ProjectPts( string geomid, int surfid, int idir )
+{
+    Matrix4d transMat = GetTotalTransMat();
+    Matrix4d invMat = transMat;
+    invMat.affineInverse();
+
+    Geom* g = m_Vehicle->FindGeom( geomid );
+
+    if ( g )
+    {
+        VspSurf *surf = g->GetSurfPtr( surfid );
+
+        for ( int i = 0 ; i < ( int )m_Pts.size() ; i++ )
+        {
+            vec3d pin = transMat.xform( m_Pts[i] );
+            vec3d pout;
+
+            double u, w;
+            surf->ProjectPt( pin, idir, u, w, pout );
+
+            m_Pts[i] = invMat.xform( pout );
+        }
+    }
+
+    m_SurfDirty = true;
+    Update();
+}
