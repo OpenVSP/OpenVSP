@@ -2485,29 +2485,24 @@ void Vehicle::WriteOBJFile( const string & file_name, int write_set )
 
 /*
 nnode                        // Number of nodes
-x1 y1 z1 nx1 ny1 nz1 u1 v1   // position, normal, parametric UV coordinate and any other node-centered data desired
-x2...
+x1 y1 z1                     // Nodal position.  Also any future single-valued node-centered data that we desire to add.
+x2 y2 z2
 ...
-xnnode...                    // last node
-nface                        // Number of faces (mostly tris, but support polygons)
-n1 i11 i12 i13... i1n        // number of points, index 1, 2, ... n for each face, right hand rule ordering for normals facing out.
-n2...
+xnnode ynnode znnode         // Last node
+nface                        // Number of faces (currently only tris, but support polygons)
+n1 i11 i12 i13...i1n         // Number of points, index 1, 2, ... n for each face, right hand rule ordering for normals facing out.
+n2 i21 i22 i23...i2n
 ...
-nnface...                    // Last polygon face
-t1                           // Tag number for face 1.  Also any other face-centered data that we desire to add.
-t2                           // Likely to include UV of polygon center
+nnface in1 in2... inn        // Last polygon face
+t1 u11 v11 u12 v12...u1n v1n // Tag number for face 1 followed by multi-valued nodal data -- currently parametric UV coordinate.
+t2 u21 v21 u22 v22...u2n v2n // Also any other face-centered data that we desire to add.
 ...
-tnface                       // last tag and face-centered data
-ncoincident                  // Number of coincident point sets (could simplify to pairs only, but that might get messy)
-n1 i11 i12 i13...i1n         // Number of coincident points in set, index list of coincident points.
-n2...
-...
-nncoincident...              // last coincident set
+tnface un1 vn2...unn vnn     // Last tag, multi-valued nodal and face-centered data
 nwake                        // Number of wake lines
-n1 i11 i12 i13 i14 i15...i1n // Number of points in wake line, points in chain-order
-n2...
+n1 i11 i12 i13 i14...i1n     // Number of points in wake line, indices in chain-order.  Typically line wrapped at ten indices per line.
+n2 i21 i22 i13 i24...i2n
 ...
-nnwake...                    // Last wake line
+nnwake in1 in2 in3 in4...inn // Last wake line
 */
 
 //==== Write VSPGeom File ====//
