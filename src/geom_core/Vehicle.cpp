@@ -5457,6 +5457,50 @@ double Vehicle::ProjPnt01I(const std::string &geom_id, const vec3d & pt, int &su
     return dmin;
 }
 
+double Vehicle::AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out )
+{
+    double idmin = std::numeric_limits<double>::max();
+
+    bool converged = false;
+
+    Geom * geom = FindGeom( geom_id );
+
+    if ( geom )
+    {
+        int nsurf = geom->GetNumTotalSurfs();
+        for ( int i = 0; i < nsurf; i++ )
+        {
+            double utest, wtest;
+            vec3d ptest;
+
+            double id = geom->GetSurfPtr( i )->ProjectPt01( pt, iaxis, utest, wtest, ptest );
+
+            if ( id >= 0 && id < idmin )
+            {
+                idmin = id;
+                u_out = utest;
+                w_out = wtest;
+                p_out = ptest;
+                surf_indx_out = i;
+                converged = true;
+            }
+        }
+    }
+
+    if ( converged )
+    {
+        return idmin;
+    }
+
+    u_out = -1;
+    w_out = -1;
+    p_out = pt;
+    surf_indx_out = -1;
+    idmin = -1;
+
+    return idmin;
+}
+
 // Method to add pnts and normals to results managers for all surfaces
 // in the selected set
 string Vehicle::ExportSurfacePatches( int set )
