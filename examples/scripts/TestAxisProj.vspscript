@@ -1,0 +1,112 @@
+void main()
+{
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double u = 0.12345;
+    double w = 0.67890;
+
+    vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w );
+    vec3d pt = surf_pt;
+
+    pt.offset_y( -5.0 );
+
+    double u_out, w_out;
+    vec3d p_out;
+
+    double idist = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt, u_out, w_out, p_out);
+
+    Print( "AxisProjPnt01" );
+	Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out );
+    Print( "3D Offset ", false);
+	Print( surf_pt - p_out );
+
+
+    int surf_indx_out;
+
+    idist = AxisProjPnt01I( geom_id, Y_DIR, pt, surf_indx_out, u_out, w_out, p_out);
+
+    Print( "AxisProjPnt01I" );
+	Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out );
+    Print( "3D Offset ", false);
+	Print( surf_pt - p_out );
+
+
+    double u0 = u + 0.01234;
+    double w0 = w - 0.05678;
+
+    Print( "AxisProjPnt01Guess" );
+    idist = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0, u_out, w_out, p_out);
+
+    Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out );
+    Print( "3D Offset ", false);
+	Print( surf_pt - p_out );
+
+
+    Print( "Vector Tests" );
+    int n = 5;
+
+    array<double> uvec, wvec;
+
+    uvec.resize( n );
+    wvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        uvec[i] = (i+1)*1.0/(n+1);
+
+        wvec[i] = (n-i)*1.0/(n+1);
+    }
+
+    array< vec3d > ptvec = CompVecPnt01( geom_id, surf_indx, uvec, wvec );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        ptvec[i].offset_y( -5.0 );
+    }
+
+    array<double> uoutv, woutv, doutv;
+    array< vec3d > poutv;
+
+
+    AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, poutv, doutv );
+
+    // Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
+    // the pod from the originally computed point.  I.e. there were multiple solutions and the original point
+    // is not the closest intersection point.  We could offset those points in the +Y direction instead of -Y.
+
+    Print( "AxisProjVecPnt01" );
+    for( int i = 0 ; i < n ; i++ )
+    {
+	    Print( i, false );
+	    Print( "U delta ", false );
+	    Print( uvec[i] - uoutv[i], false );
+	    Print( "W delta ", false );
+	    Print( wvec[i] - woutv[i] );
+    }
+
+
+    array<double> u0v, w0v;
+    u0v.resize( n );
+    w0v.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        u0v[i] = uvec[i] + 0.01234;
+        w0v[i] = wvec[i] - 0.05678;
+    }
+
+    AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v, uoutv, woutv, poutv, doutv );
+
+    Print( "AxisProjVecPnt01Guess" );
+    for( int i = 0 ; i < n ; i++ )
+    {
+	    Print( i, false );
+	    Print( "U delta ", false );
+	    Print( uvec[i] - uoutv[i], false );
+	    Print( "W delta ", false );
+	    Print( wvec[i] - woutv[i] );
+    }
+}
