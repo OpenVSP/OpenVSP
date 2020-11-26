@@ -1,0 +1,135 @@
+name: CMake Build Matrix
+
+on:
+  push:
+    branches: build
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    env:
+      BUILD_ARCH: ${{ matrix.config.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - {
+            name: "Windows 64",
+            os: windows-2019,
+            arch: x64,
+          }
+        - {
+            name: "Windows 32",
+            os: windows-2019,
+            arch: Win32,
+          }
+        - {
+            name: "Ubuntu 18.04",
+            os: ubuntu-18.04,
+            arch: x64,
+          }
+        - {
+            name: "Ubuntu 20.04",
+            os: ubuntu-20.04,
+            arch: x64,
+          }
+        - {
+            name: "macOS 10.15",
+            os: macos-10.15,
+            arch: x64,
+          }
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name:  Install Linux
+      if: runner.os == 'Linux'
+      shell: bash
+      run:   sudo apt-get install python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base
+
+    - name:  Install Windows
+      if: runner.os == 'Windows'
+      shell: cmd
+      run:   choco install -y swig --version 4.0.1
+
+    - name:  Install MacOS
+      if: runner.os == 'macos'
+      shell: bash
+      run:   brew install swig gcc@10
+
+    - name:  Build Linux
+      if: runner.os == 'Linux'
+      shell: bash
+      run:   |
+        mkdir build buildlibs artifacts
+        cd $GITHUB_WORKSPACE/buildlibs;
+        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DVSP_USE_SYSTEM_CPPTEST=false ../Libraries;
+        make -j2;
+        cd $GITHUB_WORKSPACE/build;
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs ../src;
+        make -j2 package;
+        DEBFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-Linux.deb;
+        VSPVER=$(ls $DEBFILE | awk 'BEGIN { FS = "-" } ; { print $2 }');
+        UVER=$(lsb_release -sr);
+        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-Ubuntu-${UVER}_amd64_${GITHUB_SHA}.deb;
+        cp $DEBFILE $DEPLOY_FILE;
+        cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
+        ls $DEPLOY_FILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1);
+        export DEPLOY_FILE;
+
+    - name:  Build Windows
+      if: runner.os == 'Windows'
+      shell: bash
+      run:   |
+        mkdir build buildlibs artifacts
+        cd $GITHUB_WORKSPACE\\buildlibs;
+        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A $BUILD_ARCH ..\\Libraries;
+
+        cmake --build . --config Release -j 2 ;
+        cd $GITHUB_WORKSPACE\\build;
+
+        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A $BUILD_ARCH ..\\src;
+
+        # -DPYTHON_INCLUDE_DIR=%PYTHON%/include ^
+        # -DPYTHON_LIBRARY=%PYTHON%/libs/python%PYTHON_VERSION%.lib ^
+
+        cmake --build . --target package --config Release -j 2 ;
+
+        ZIPFILE=OpenVSP*.zip;
+
+        VSPVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
+        WINVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $3 }' | awk 'BEGIN { FS = "." } ; { print $1 }' )
+        DEPLOY_FILE=OpenVSP-${VSPVER}-${WINVER}_${GITHUB_SHA}.zip;
+        cp $ZIPFILE $DEPLOY_FILE;
+        cp $DEPLOY_FILE $GITHUB_WORKSPACE\\artifacts
+        ls $DEPLOY_FILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1);
+        export DEPLOY_FILE;
+
+    - name:  Build MacOS
+      if: runner.os == 'macos'
+      shell: bash
+      run:   |
+        mkdir build buildlibs artifacts
+        cd $GITHUB_WORKSPACE/buildlibs;
+        cmake -DCMAKE_BUILD_TYPE=Release ../Libraries;
+        make -j2;
+        cd $GITHUB_WORKSPACE/build;
+        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCXX_OMP_COMPILER=/usr/local/bin/g++-10 -DC_OMP_COMPILER=/usr/local/bin/gcc-10 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
+        make -j2 package;
+        ZIPFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-MacOS.zip;
+        VSPVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
+        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-MacOS_${GITHUB_SHA}.zip;
+        cp $ZIPFILE $DEPLOY_FILE;
+        cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
+        ls $DEPLOY_FILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1);
+        export DEPLOY_FILE;
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        path: ${{ github.workspace }}/artifacts
