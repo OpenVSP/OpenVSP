@@ -882,22 +882,31 @@ Wedge::Wedge( ) : Airfoil( )
 {
     m_Type = XS_WEDGE;
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.5, 0.0, 1.0 );
+    m_ThickLoc.SetDescript( "X/C location of first max thickness location on top surface." );
 
     m_ThickLocLow.Init( "ThickLocLow", m_GroupName, this, 0.5, 0.0, 1.0 );
+    m_ThickLocLow.SetDescript( "X/C location of first max thickness location on lower surface." );
 
     m_FlatUp.Init( "FlatUp", m_GroupName, this, 0.0, 0.0, 1.0 );
+    m_FlatUp.SetDescript( "X/C extent of flat on upper surface." );
     m_FlatLow.Init( "FlatLow", m_GroupName, this, 0.0, 0.0, 1.0 );
+    m_FlatUp.SetDescript( "X/C extent of flat on lower surface." );
 
     m_ZCamber.Init( "ZCamber", m_GroupName, this, 0.0, 0.0, 1.0 );
+    m_ZCamber.SetDescript( "Z/C height of camber curve." );
 
     m_UForeUp.Init( "UForeUp", m_GroupName, this, 0.75, 0.5, 1.0 );
+    m_UForeUp.SetDescript( "U location of forward upper surface corner." );
     m_UForeLow.Init( "UForeLow", m_GroupName, this, 0.25, 0.0, 0.5 );
+    m_UForeLow.SetDescript( "U location of forward lower surface corner." );
 
     m_DuUp.Init( "DuUp", m_GroupName, this, 0.1, 0.001, 0.5 );
+    m_DuUp.SetDescript( "U extent of upper surface flat." );
     m_DuLow.Init( "DuLow", m_GroupName, this, 0.1, 0.001, 0.5 );
+    m_DuLow.SetDescript( "U extent of lower surface flat." );
 
     m_SymmThick.Init( "SymmThick", m_GroupName, this, true, 0, 1 );
-
+    m_SymmThick.SetDescript( "Flag to set symmetrical thickness distribution parameters." );
 }
 
 //==== Update ====//
