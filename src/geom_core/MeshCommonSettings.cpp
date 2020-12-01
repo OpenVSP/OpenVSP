@@ -74,8 +74,11 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportIntersect", this, false, 0, 1 );
 
-    m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, 0, NUM_SETS + 2 );
+    m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, vsp::SET_NONE, NUM_SETS + 2 );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
+
+    m_SelectedDegenSetIndex.Init( "DegenSet", "Global", this, vsp::SET_NONE, vsp::SET_NONE, NUM_SETS + 2 );
+    m_SelectedDegenSetIndex.SetDescript( "Selected degen set for operation" );
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportIntersect", this, false, 0, 1 );
 
@@ -238,8 +241,11 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_FarZLocation.Init( "FarZLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
     m_FarZLocation.SetDescript( "Far field Z location" );
 
-    m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, 0, NUM_SETS + 2 );
+    m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, vsp::SET_NONE, NUM_SETS + 2 );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
+
+    m_SelectedDegenSetIndex.Init( "DegenSet", "Global", this, vsp::SET_NONE, vsp::SET_NONE, NUM_SETS + 2 );
+    m_SelectedDegenSetIndex.SetDescript( "Selected set for degen operation" );
 
     m_ExportFileFlags[ vsp::CFD_DAT_FILE_NAME ].Init( "DAT_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_KEY_FILE_NAME ].Init( "KEY_Export", "ExportCFD", this, true, 0, 1 );

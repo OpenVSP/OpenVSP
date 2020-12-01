@@ -87,6 +87,7 @@ public:
 
     vector <BoolParm> m_ExportFileFlags;
     IntParm m_SelectedSetIndex;
+    IntParm m_SelectedDegenSetIndex;
 
     BoolParm m_XYZIntCurveFlag;
 
@@ -154,6 +155,7 @@ public:
     BoolParm m_DrawWakeFlag;
 
     IntParm m_SelectedSetIndex;
+    IntParm m_SelectedDegenSetIndex;
 
     BoolParm m_ExportFileFlags[vsp::CFD_NUM_FILE_NAMES];
     BoolParm m_XYZIntCurveFlag;

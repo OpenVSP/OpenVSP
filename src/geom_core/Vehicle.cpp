@@ -3195,17 +3195,27 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
     fclose( pov_file );
 }
 
-void Vehicle::FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs )
+void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs )
 {
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     int icomp = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        if( geom_vec[i]->GetSetFlag( write_set ) )
+        bool innormalset = geom_vec[i]->GetSetFlag(normal_set );
+        bool indegenset = geom_vec[i]->GetSetFlag( degen_set );
+        if( innormalset || indegenset )
         {
             vector<VspSurf> surf_vec;
-            surf_vec = geom_vec[i]->GetSurfVecConstRef();
+
+            if ( innormalset )
+            {
+                surf_vec = geom_vec[i]->GetSurfVecConstRef();
+            }
+            else // indegenset
+            {
+                surf_vec = geom_vec[i]->GetDegenSurfVecConstRef();
+            }
 
             for ( int j = 0; j < ( int )surf_vec.size(); j++ )
             {

@@ -81,6 +81,7 @@ protected:
     TriggerButton m_GlobSrcAdjustRadRhtRht;
 
     Choice m_UseSet;
+    Choice m_UseDegenSet;
 
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;

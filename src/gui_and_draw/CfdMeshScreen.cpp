@@ -113,6 +113,7 @@ void CfdMeshScreen::CreateGlobalTab()
 
     m_GlobalTabLayout.SetChoiceButtonWidth(m_GlobalTabLayout.GetRemainX() / 2.0);
     m_GlobalTabLayout.AddChoice(m_UseSet, "Use Set");
+    m_GlobalTabLayout.AddChoice(m_UseDegenSet, "DegenUse Set");
 
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.SetButtonWidth( 175.0 );
@@ -932,16 +933,20 @@ void CfdMeshScreen::UpdateWakesTab()
 void CfdMeshScreen::LoadSetChoice()
 {
     m_UseSet.ClearItems();
+    m_UseDegenSet.ClearItems();
 
-    vector< string > set_name_vec = m_Vehicle->GetSetNameVec();
+    vector< string > set_name_vec = m_Vehicle->GetSetNameVec( true );
 
     for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
     {
-        m_UseSet.AddItem( set_name_vec[i].c_str() );
+        m_UseSet.AddItem( set_name_vec[i].c_str(), i - 1 );
+        m_UseDegenSet.AddItem( set_name_vec[i].c_str(), i - 1 );
     }
 
     m_UseSet.UpdateItems();
     m_UseSet.SetVal( m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex() );
+    m_UseDegenSet.UpdateItems();
+    m_UseDegenSet.SetVal( m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex() );
 }
 
 void CfdMeshScreen::AddOutputText( const string &text )
@@ -1058,6 +1063,10 @@ void CfdMeshScreen::GuiDeviceGlobalTabCallback( GuiDevice* device )
     else if ( device == &m_UseSet )
     {
         m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex = m_UseSet.GetVal();
+    }
+    else if ( device == &m_UseDegenSet )
+    {
+        m_Vehicle->GetCfdSettingsPtr()->m_SelectedDegenSetIndex = m_UseDegenSet.GetVal();
     }
 }
 

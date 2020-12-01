@@ -87,7 +87,7 @@ void APITestSuiteCFDMesh::TestCFDHalfMesh()
     printf( "\tComputing full mesh...\n" );
     seconds before_full_mesh_test = duration_cast < seconds > ( system_clock::now().time_since_epoch() );
 
-    vsp::ComputeCFDMesh( vsp::SET_ALL, vsp::CFD_STL_TYPE );
+    vsp::ComputeCFDMesh( vsp::SET_ALL, vsp::SET_NONE, vsp::CFD_STL_TYPE );
 
     seconds after_full_mesh_test = duration_cast < seconds > ( system_clock::now().time_since_epoch() );
     printf( "\tMesh complete\n" );
@@ -102,7 +102,7 @@ void APITestSuiteCFDMesh::TestCFDHalfMesh()
     printf( "\tComputing half mesh...\n" );
     seconds before_half_mesh_test = duration_cast < seconds > ( system_clock::now().time_since_epoch() );
 
-    vsp::ComputeCFDMesh( vsp::SET_ALL, vsp::CFD_STL_TYPE );
+    vsp::ComputeCFDMesh( vsp::SET_ALL, vsp::SET_NONE, vsp::CFD_STL_TYPE );
 
     seconds after_half_mesh_test = duration_cast < seconds > ( system_clock::now().time_since_epoch() );
     printf( "\tMesh complete\n" );

@@ -673,7 +673,7 @@ void AddDefaultSources()
 }
 
 /// Compute the CFD Mesh
-void ComputeCFDMesh( int set, int file_export_types )
+void ComputeCFDMesh( int set, int degenset, int file_export_types )
 {
     Update();
     Vehicle* veh = GetVehicle();
@@ -702,6 +702,7 @@ void ComputeCFDMesh( int set, int file_export_types )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_VSPGEOM_FILE_NAME, true );
 
     veh->GetCfdSettingsPtr()->m_SelectedSetIndex = set;
+    veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex = degenset;
     CfdMeshMgr.GenerateMesh();
     ErrorMgr.NoError();
 }

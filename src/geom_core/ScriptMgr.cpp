@@ -4570,13 +4570,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
    Print( "\tComputing CFDMesh..." );
 
-    ComputeCFDMesh( SET_ALL, CFD_FACET_TYPE );
+    ComputeCFDMesh( SET_ALL, SET_NONE, CFD_FACET_TYPE );
     \endcode
     \sa COMPUTATION_FILE_TYPE
     \param [in] set Set index (i.e. SET_ALL)
+    \param [in] set DegenSet index (i.e. SET_NONE)
     \param [in] file_type CFD Mesh file type to export (supports XOR i.e CFD_SRF_TYPE & CFD_STL_TYPE)
 */)";
-    r = se->RegisterGlobalFunction( "void ComputeCFDMesh( int set, int file_type )", vspFUNCTION( vsp::ComputeCFDMesh ), vspCALL_CDECL, doc_struct );
+    r = se->RegisterGlobalFunction( "void ComputeCFDMesh( int set, int degenset, int file_type )", vspFUNCTION( vsp::ComputeCFDMesh ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(

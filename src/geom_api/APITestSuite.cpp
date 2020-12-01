@@ -539,7 +539,7 @@ void APITestSuite::TestFacetExport()
 
     printf( "\tComputing CFDMesh..." );
 
-    vsp::ComputeCFDMesh( vsp::SET_ALL, vsp::CFD_FACET_TYPE );
+    vsp::ComputeCFDMesh( vsp::SET_ALL, vsp::SET_NONE, vsp::CFD_FACET_TYPE );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     printf( "COMPLETE\n" );

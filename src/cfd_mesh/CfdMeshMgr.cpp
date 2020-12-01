@@ -473,7 +473,7 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
         Geom* geom = m_Vehicle->FindGeom( geomVec[g] );
         if ( geom )
         {
-            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex ) )
+            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex ) || geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedDegenSetIndex ) )
             {
                 geom->UpdateSources();
                 vector< BaseSimpleSource* > sVec = geom->GetCfdMeshSimpSourceVec();

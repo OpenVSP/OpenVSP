@@ -235,7 +235,7 @@ public:
         return m_VehProjectVec3d[dir_index];
     }
 
-    void FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs );
+    void FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &xfersurfs );
     //==== Computation File Names ====//
     string getExportFileName( int type );
     void setExportFileName( int type, string f_name );

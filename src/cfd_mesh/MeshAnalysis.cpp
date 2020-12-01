@@ -41,6 +41,7 @@ void CfdMeshAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "GenerateHalfMesh", veh->GetCfdSettingsPtr()->m_HalfMeshFlag() ) );
 
         m_Inputs.Add( NameValData( "SelectedSetIndex", veh->GetCfdSettingsPtr()->m_SelectedSetIndex() ) );
+        m_Inputs.Add( NameValData( "SelectedDegenSetIndex", veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex() ) );
 
         // File Outputs
         m_Inputs.Add( NameValData( "STLFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get() ) );
@@ -123,6 +124,10 @@ string CfdMeshAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "SelectedSetIndex", 0 );
         if( nvd ) veh->GetCfdSettingsPtr()->m_SelectedSetIndex.Set( nvd->GetInt( 0 ) );
 
+        int selectedDegenSetIndexOrig = veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex();
+        nvd = m_Inputs.FindPtr( "SelectedDegenSetIndex", 0 );
+        if( nvd ) veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.Set( nvd->GetInt( 0 ) );
+
         // File Outputs
         bool stlFileFlagOrig = veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get();
         nvd = m_Inputs.FindPtr( "STLFileFlag", 0 );
@@ -192,6 +197,7 @@ string CfdMeshAnalysis::Execute()
         veh->GetCfdSettingsPtr()->m_HalfMeshFlag.Set( generateHalfMeshOrig );
 
         veh->GetCfdSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
+        veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex.Set( selectedDegenSetIndexOrig );
 
         // File Outputs
         veh->GetCfdSettingsPtr()->SetFileExportFlag( vsp::CFD_STL_FILE_NAME, stlFileFlagOrig );
@@ -601,6 +607,7 @@ void SurfaceIntersectionAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "IntersectSubSurfs", veh->GetISectSettingsPtr()->m_IntersectSubSurfs() ) );
         m_Inputs.Add( NameValData( "RelCurveTol", veh->GetISectSettingsPtr()->m_RelCurveTol() ) );
         m_Inputs.Add( NameValData( "SelectedSetIndex", veh->GetISectSettingsPtr()->m_SelectedSetIndex() ) );
+        m_Inputs.Add( NameValData( "SelectedDegenSetIndex", veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex() ) );
 
         // CAD Export
         m_Inputs.Add( NameValData( "CADLabelDelim", veh->GetISectSettingsPtr()->m_CADLabelDelim() ) );
@@ -655,6 +662,10 @@ string SurfaceIntersectionAnalysis::Execute()
         int selectedSetIndexOrig = veh->GetISectSettingsPtr()->m_SelectedSetIndex();
         nvd = m_Inputs.FindPtr( "SelectedSetIndex", 0 );
         if( nvd ) veh->GetISectSettingsPtr()->m_SelectedSetIndex.Set( nvd->GetInt( 0 ) );
+
+        int selectedDegenSetIndexOrig = veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex();
+        nvd = m_Inputs.FindPtr( "SelectedDegenSetIndex", 0 );
+        if( nvd ) veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex.Set( nvd->GetInt( 0 ) );
 
         // CAD Export
         int cadLabelDelimOrig = veh->GetISectSettingsPtr()->m_CADLabelDelim();
@@ -742,6 +753,7 @@ string SurfaceIntersectionAnalysis::Execute()
         veh->GetISectSettingsPtr()->m_IntersectSubSurfs.Set( intersectSubSurfsOrig );
         veh->GetISectSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
         veh->GetISectSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
+        veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex.Set( selectedDegenSetIndexOrig );
 
         // CAD Export
         veh->GetISectSettingsPtr()->m_CADLabelDelim.Set( cadLabelDelimOrig );

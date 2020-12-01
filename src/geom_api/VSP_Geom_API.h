@@ -78,7 +78,7 @@ extern std::string ComputeCompGeom( int set, bool half_mesh, int file_export_typ
 extern std::string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto_bnd,
                                  double start_bnd = 0, double end_bnd = 0 );
 extern void ComputeDegenGeom( int set, int file_export_types );
-extern void ComputeCFDMesh( int set, int file_export_types );
+extern void ComputeCFDMesh( int set, int degenset, int file_export_types );
 extern void SetCFDMeshVal( int type, double val );
 extern void SetCFDWakeFlag( const std::string & geom_id, bool flag );
 extern void DeleteAllCFDSources();

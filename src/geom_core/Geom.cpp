@@ -3795,6 +3795,11 @@ int Geom::GetNumSymFlags() const
     return numSymFlags;
 }
 
+const vector<VspSurf> & Geom::GetDegenSurfVecConstRef()
+{
+    return GetSurfVecConstRef();
+}
+
 int Geom::GetSurfType( int indx ) const
 {
     return GetMainSurfType( m_SurfIndxVec[indx] );
