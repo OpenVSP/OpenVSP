@@ -138,3 +138,9 @@ double linterp( double a, double b, double frac )
 {
     return a + frac * ( b - a );
 }
+
+// Version of (int)( x + 0.5 ) truncation-based conversion that also works for negative values.
+int toint( double x )
+{
+    return x >= 0 ? (int)( x + 0.5 ) : (int)( x - 0.5 );
+}
