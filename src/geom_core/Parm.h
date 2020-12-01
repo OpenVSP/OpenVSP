@@ -18,6 +18,7 @@
 
 #include "XmlUtil.h"
 #include "GuiDeviceEnums.h"
+#include "VspUtil.h"
 
 using std::string;
 using std::map;
@@ -233,7 +234,7 @@ public:
 
     int Get() const
     {
-        return ( int )( m_Val + 0.5 );
+        return toint( m_Val );
     }
     int operator () () const
     {
