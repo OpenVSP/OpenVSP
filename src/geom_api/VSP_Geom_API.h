@@ -199,8 +199,6 @@ extern std::string GetFeaPartName( const std::string & part_id );
 extern int GetFeaPartType( const std::string & part_id );
 extern std::vector< std::string > GetFeaPartIDVec( const std::string & fea_struct_id );
 extern std::vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_struct_id );
-extern vector< std::string > GetFeaPartIDVec( const std::string & fea_struct_id );
-extern vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_struct_id );
 extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std::string& perpendicular_spar_id );
 extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
 extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_ind, int type );
