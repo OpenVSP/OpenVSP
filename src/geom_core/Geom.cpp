@@ -3797,7 +3797,17 @@ int Geom::GetNumSymFlags() const
 
 const vector<VspSurf> & Geom::GetDegenSurfVecConstRef()
 {
-    return GetSurfVecConstRef();
+    vector<VspSurf> surf_vec;
+    surf_vec = GetSurfVecConstRef();
+
+    vector<VspSurf> degen_surf_vec;
+    degen_surf_vec.resize( surf_vec.size() );
+    for ( int i = 0; i < surf_vec.size(); i++ )
+    {
+        // degen_surf_vec[i].DegenCamberSurf( surf_vec[i] );
+        degen_surf_vec[i].DegenPlanarSurf( surf_vec[i] );
+    }
+    return degen_surf_vec;
 }
 
 int Geom::GetSurfType( int indx ) const
