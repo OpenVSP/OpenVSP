@@ -54,6 +54,7 @@ VspSurf::VspSurf()
     m_HalfBOR = false;
     m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
+    m_ThickSurf = true;
     m_SkinType = SKIN_NONE;
 
     m_FeaOrientationType = vsp::FEA_ORIENT_OML_U;
@@ -2244,6 +2245,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         xsurf.m_SurfCfdType = m_SurfCfdType;
         xsurf.m_FeaOrientationType = m_FeaOrientationType;
         xsurf.m_FeaOrientation = m_FeaOrientation;
+        xsurf.m_ThickSurf = m_ThickSurf;
         xsurf.m_CompIndx = comp_ind;
         xsurf.m_FeaPartSurfNum = part_surf_num;
         xfersurfs.push_back( xsurf );
@@ -2462,6 +2464,7 @@ void VspSurf::DegenCamberSurf()
     m_Surface.sum( s1, s2);
     m_Surface.scale( 0.5 );
 
+    m_ThickSurf = false;
     FlipNormal();
 }
 
@@ -2483,4 +2486,5 @@ void VspSurf::DegenPlanarSurf()
     param[1] = vmid;
 
     SkinC0( crvs, param, false );
+    m_ThickSurf = false;
 }

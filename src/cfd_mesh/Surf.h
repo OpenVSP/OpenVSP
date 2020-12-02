@@ -250,6 +250,16 @@ public:
         return m_SurfVspType;
     }
 
+    //Getter/Setter Surface thick flag
+    void SetSurfaceThickSurf( bool thicksurf )
+    {
+        m_ThickSurf = thicksurf;
+    }
+    bool GetSurfaceThickSurf()
+    {
+        return m_ThickSurf;
+    }
+
     virtual void SetSymPlaneFlag( bool flag );
     bool GetSymPlaneFlag()
     {
@@ -322,6 +332,7 @@ protected:
 
     int m_SurfCfdType;
     int m_SurfVspType;
+    bool m_ThickSurf;
 
     SurfCore m_SurfCore;
 

@@ -2809,9 +2809,10 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
             bool aInThisB = aInB[c];
 
             int bType = m_SurfVec[b]->GetSurfaceCfdType();
+            bool bThick = m_SurfVec[b]->GetSurfaceThickSurf();
 
             // Can make absolute decisions about deleting a triangle or not in the cases below
-            if ( aInThisB )
+            if ( aInThisB && bThick )
             {
                 // Trim Symmetry plane
                 if ( symPlane && m_SurfVec[b]->GetFarFlag() &&
@@ -2866,8 +2867,9 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
         {
             bool aInThisB = aInB[c];
             int bType = m_SurfVec[b]->GetSurfaceCfdType();
+            bool bThick = m_SurfVec[b]->GetSurfaceThickSurf();
 
-            if ( aInThisB )
+            if ( aInThisB && bThick )
             {
                 if ( ( aType == vsp::CFD_NEGATIVE || aType == vsp::CFD_STRUCTURE ) && bType == vsp::CFD_NORMAL )
                 {

@@ -114,6 +114,9 @@ public:
     int GetSurfCfdType() const { return m_SurfCfdType; }
     void SetSurfCfdType( int type ) { m_SurfCfdType = type; }
 
+    bool GetThickSurf() { return m_ThickSurf; }
+    void SetThickSurf( bool thicksurf ) { m_ThickSurf = thicksurf; }
+
     double FindNearest( double &u, double &w, const vec3d &pt ) const;
     double FindNearest( double &u, double &w, const vec3d &pt, const double &u0, const double &w0 ) const;
 
@@ -318,6 +321,7 @@ protected:
     int m_FeaOrientationType;
     vec3d m_FeaOrientation;
 
+    bool m_ThickSurf;
     piecewise_surface_type m_Surface;
 
     vector < double > m_UFeature;
