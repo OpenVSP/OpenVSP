@@ -298,6 +298,9 @@ public:
         return m_FeaOrientation;
     }
 
+    void DegenCamberSurf();
+    void DegenPlanarSurf();
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
