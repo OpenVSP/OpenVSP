@@ -92,10 +92,6 @@ protected:
 
     DrawObj m_PrimaryLineDO;
 
-    vec3d m_BaseOrigin;
-    vector < vec3d > m_BaseAxis;
-    vec3d m_JointOrigin;
-    vector < vec3d > m_JointAxis;
     Matrix4d m_JointMatrix;
 
     vec3d m_PrimEndpt;

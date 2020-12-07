@@ -104,8 +104,9 @@ void HingeGeom::UpdateSurf()
     // Update m_ModelMatrix translations -- ignore rotations for now.
     UpdateXForm();
     // Evaluate hinge base point.
-    m_BaseOrigin = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
-    m_PrimEndpt = m_BaseOrigin;
+    vec3d baseOrigin;
+    baseOrigin = m_ModelMatrix.xform(vec3d(0.0, 0.0, 0.0 ) );
+    m_PrimEndpt = baseOrigin;
 
     // Ensure secondary and primary directions are different.
     if ( m_PrimaryDir() == m_SecondaryDir() )
@@ -182,7 +183,7 @@ void HingeGeom::UpdateSurf()
                 m_PrimZOffRel = tpt.z();
             }
             m_PrimEndpt = endpt;
-            prim = endpt - m_BaseOrigin;
+            prim = endpt - baseOrigin;
             prim.normalize();
         }
         else // All the surface attached types
@@ -232,7 +233,7 @@ void HingeGeom::UpdateSurf()
                     }
 
                     m_PrimEndpt = surfpt + off;
-                    prim = m_PrimEndpt - m_BaseOrigin;
+                    prim = m_PrimEndpt - baseOrigin;
                     prim.normalize();
                 }
                 else if ( m_PrimaryType() == UDIR )
@@ -368,29 +369,6 @@ void HingeGeom::UpdateSurf()
         m_PrimZVecRel = dirs[ m_PrimaryDir() ].z();
     }
 
-
-    double axlen = 1.0;
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        axlen = veh->m_AxisLength();
-    }
-
-    // Evaluate points for visualization.
-    m_JointOrigin = m_JointMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
-
-    m_BaseAxis.clear();
-    m_BaseAxis.resize( 3 );
-    m_JointAxis.clear();
-    m_JointAxis.resize( 3 );
-    for ( int i = 0; i < 3; i++ )
-    {
-        vec3d pt = vec3d( 0.0, 0.0, 0.0 );
-        pt.v[i] = axlen;
-        m_BaseAxis[i] = m_ModelMatrix.xform( pt );
-        m_JointAxis[i] = m_JointMatrix.xform( pt );
-    }
 }
 
 void HingeGeom::UpdateMotionFlagsLimits()
@@ -441,16 +419,30 @@ void HingeGeom::UpdateDrawObj()
         axlen = veh->m_AxisLength();
     }
 
+    // Evaluate points for visualization.
+    vec3d jointOrigin = m_JointMatrix.xform(vec3d(0.0, 0.0, 0.0 ) );
+    vec3d baseOrigin = m_ModelMatrix.xform(vec3d(0.0, 0.0, 0.0 ) );
+
+    vector < vec3d > baseAxis(3);
+    vector < vec3d > jointAxis(3);
+    for ( int i = 0; i < 3; i++ )
+    {
+        vec3d pt = vec3d( 0.0, 0.0, 0.0 );
+        pt.v[i] = axlen;
+        baseAxis[i] = m_ModelMatrix.xform(pt );
+        jointAxis[i] = m_JointMatrix.xform(pt );
+    }
+
     m_HighlightDrawObj.m_PntVec.resize(1);
-    m_HighlightDrawObj.m_PntVec[0] = m_BaseOrigin;
+    m_HighlightDrawObj.m_PntVec[0] = baseOrigin;
     m_HighlightDrawObj.m_PointSize = 10.0;
 
     m_FeatureDrawObj_vec.clear();
     m_FeatureDrawObj_vec.resize( 6 );
     for ( int i = 0; i < 3; i++ )
     {
-        m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_BaseOrigin );
-        m_FeatureDrawObj_vec[i].m_PntVec.push_back( m_BaseAxis[i] );
+        m_FeatureDrawObj_vec[i].m_PntVec.push_back(baseOrigin );
+        m_FeatureDrawObj_vec[i].m_PntVec.push_back(baseAxis[i] );
         vec3d c;
         c.v[i] = 1.0;
         m_FeatureDrawObj_vec[i].m_LineColor = c;
@@ -472,7 +464,7 @@ void HingeGeom::UpdateDrawObj()
     for ( int i = 0; i < 3; i++ )
     {
         int k = i + 3;
-        MakeDashedLine( m_JointOrigin, m_JointAxis[i], 8, m_FeatureDrawObj_vec[k].m_PntVec );
+        MakeDashedLine(jointOrigin, jointAxis[i], 8, m_FeatureDrawObj_vec[k].m_PntVec );
         vec3d c;
         c.v[i] = 1.0;
         m_FeatureDrawObj_vec[k].m_LineColor = c;
@@ -484,12 +476,12 @@ void HingeGeom::UpdateDrawObj()
 
     if ( m_JointRotateFlag.Get() )
     {
-        vec3d u = m_BaseAxis[ m_PrimaryDir() ] - m_BaseOrigin;
-        MakeCircleArrow( m_BaseOrigin + 0.6 * u, u, 0.5 * axlen, m_MotionLinesDO, m_MotionArrowsDO );
+        vec3d u = baseAxis[ m_PrimaryDir() ] - baseOrigin;
+        MakeCircleArrow(baseOrigin + 0.6 * u, u, 0.5 * axlen, m_MotionLinesDO, m_MotionArrowsDO );
     }
     if ( m_JointTranslateFlag.Get() )
     {
-        MakeArrowhead( m_BaseAxis[ m_PrimaryDir() ], m_BaseAxis[ m_PrimaryDir() ] - m_BaseOrigin, 0.5 * axlen * 0.5, m_MotionArrowsDO.m_PntVec );
+        MakeArrowhead(baseAxis[ m_PrimaryDir() ], baseAxis[ m_PrimaryDir() ] - baseOrigin, 0.5 * axlen * 0.5, m_MotionArrowsDO.m_PntVec );
     }
 
     m_PrimaryLineDO.m_PntVec.clear();
@@ -497,7 +489,7 @@ void HingeGeom::UpdateDrawObj()
 
     if ( m_PrimaryType() == POINT3D || m_PrimaryType() == SURFPT )
     {
-        m_PrimaryLineDO.m_PntVec.push_back( m_BaseOrigin );
+        m_PrimaryLineDO.m_PntVec.push_back(baseOrigin );
         m_PrimaryLineDO.m_PntVec.push_back( m_PrimEndpt );
         m_PrimaryLineDO.m_LineWidth = 2.0;
         m_PrimaryLineDO.m_Type = DrawObj::VSP_LINES;
