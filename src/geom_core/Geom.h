@@ -179,6 +179,9 @@ public:
     GeomBase( Vehicle* vehicle_ptr );           // Default Constructor
     virtual ~GeomBase();                        // Destructor
 
+    // Only used internally.  Do not need to move to API.
+    enum { NONE, XFORM, TESS, SURF };
+
     virtual GeomType GetType()
     {
         return m_Type;
@@ -237,6 +240,8 @@ public:
     bool m_SurfDirty;
     bool m_UpdateSurf;
     bool m_TessDirty;
+
+    void SetDirtyFlag( int dflag );
 
 protected:
 

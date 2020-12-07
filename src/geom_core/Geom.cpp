@@ -191,6 +191,22 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
 
 }
 
+void GeomBase::SetDirtyFlag( int dflag )
+{
+    if ( dflag == XFORM )
+    {
+        m_XFormDirty = true;
+    }
+    else if ( dflag == TESS )
+    {
+        m_TessDirty = true;
+    }
+    else if ( dflag == SURF )
+    {
+        m_SurfDirty = true;
+    }
+}
+
 //==== Parm Changed ====//
 void GeomBase::ParmChanged( Parm* parm_ptr, int type )
 {
