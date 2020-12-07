@@ -87,7 +87,7 @@ public:
     void Update( bool fullupdate = true );
     void UpdateManagers();
     void UpdateGeom( const string &geom_id );
-    void ForceUpdate();
+    void ForceUpdate( int dirtyflag = GeomBase::NONE );
     static void UpdateGui();
     static void RunScript( const string & file_name, const string & function_name = "void main()" );
 

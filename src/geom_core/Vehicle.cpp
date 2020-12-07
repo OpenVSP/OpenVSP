@@ -586,7 +586,7 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
 
     if ( parm_ptr == &m_AxisLength )
     {
-        ForceUpdate();
+        ForceUpdate( GeomBase::XFORM );
     }
 
     UpdateGui();
@@ -638,7 +638,7 @@ void Vehicle::UpdateGeom( const string &geom_id )
     }
 }
 
-void Vehicle::ForceUpdate()
+void Vehicle::ForceUpdate( int dirtyflag )
 {
     for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
     {
@@ -646,6 +646,10 @@ void Vehicle::ForceUpdate()
         if ( g_ptr )
         {
             g_ptr->SetLateUpdateFlag( true );
+            if ( dirtyflag != GeomBase::NONE )
+            {
+                g_ptr->SetDirtyFlag( dirtyflag );
+            }
         }
     }
     Update();
