@@ -774,7 +774,7 @@ void CurveEditScreen::UpdateDrawObj()
     m_CurrentPntDrawObj.m_GeomChanged = true;
     m_CurrentPntDrawObj.m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
     m_CurrentPntDrawObj.m_GeomID = "SELECT_" + edit_curve_xs->GetID() + "_PNT";
-    m_CurrentPntDrawObj.m_PointSize = edit_curve_xs->m_XSecPointSize.Get();
+    m_CurrentPntDrawObj.m_PointSize = point_size;
 
     // Identify the selected point
     int selected_id = m_PntSelector.GetIndex();
