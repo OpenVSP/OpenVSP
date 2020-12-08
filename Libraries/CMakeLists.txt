@@ -58,6 +58,10 @@ IF( NOT VSP_NO_GRAPHICS )
 	ENDIF()
 ENDIF()
 
+IF( NOT VSP_USE_SYSTEM_TRIANGLE )
+	INCLUDE( External_Triangle )
+ENDIF()
+
 # Set targeted variables in file to be read by VSP's CMake
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/VSP_Libraries_Config.cmake.in
