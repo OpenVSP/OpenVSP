@@ -16,6 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        python-version: [3.6] # 2.7
         config:
         - {
             name: "Windows 64",
@@ -50,7 +51,9 @@ jobs:
     - name:  Install Linux
       if: runner.os == 'Linux'
       shell: bash
-      run:   sudo apt-get install python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base
+      run:   |
+        sudo apt-get update
+        sudo apt-get install python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip
 
     - name:  Install Windows
       if: runner.os == 'Windows'
@@ -131,6 +134,23 @@ jobs:
         cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
         
         ls $DEPLOY_FILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1)
+
+    - name: Generate Documentation
+      if: matrix.config.os == 'ubuntu-20.04'
+      shell: bash
+      run:    |
+        cd build
+        cd vsp
+        ./vsp -doc
+
+        cp ../Doxyfile .
+        doxygen Doxyfile
+
+        cd doc
+        zip -r html.zip html
+
+        cp html.zip $GITHUB_WORKSPACE/artifacts
+        ls html.zip && (echo "DOC GEN SUCCESSFUL" && exit 0) || (echo "DOC GEN FAILED" && exit 1)
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v2
