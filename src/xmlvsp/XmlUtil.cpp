@@ -569,7 +569,12 @@ vector< double > XmlUtil::ExtractVectorDoubleNode( xmlNodePtr root, const char *
 vec2d XmlUtil::ExtractVec2dNode( xmlNodePtr root, const char * name )
 {
     vector< double > temp_vec = ExtractVectorDoubleNode( root, name );
-    vec2d ret_vec2d(temp_vec[0], temp_vec[1]);
+    vec2d ret_vec2d;
+
+    if ( temp_vec.size() == 2 )
+    {
+        ret_vec2d.set_xy( temp_vec[0], temp_vec[1] );
+    }
 
     return ret_vec2d;
 }
@@ -578,7 +583,12 @@ vec2d XmlUtil::ExtractVec2dNode( xmlNodePtr root, const char * name )
 vec3d XmlUtil::ExtractVec3dNode( xmlNodePtr root, const char * name )
 {
     vector< double > temp_vec = ExtractVectorDoubleNode( root, name );
-    vec3d ret_vec3d(temp_vec[0], temp_vec[1], temp_vec[2]);
+    vec3d ret_vec3d;
+
+    if ( temp_vec.size() == 3 )
+    {
+        ret_vec3d.set_xyz( temp_vec[0], temp_vec[1], temp_vec[2] );
+    }
 
     return ret_vec3d;
 }
