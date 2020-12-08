@@ -326,7 +326,7 @@ public:
     }
 
     virtual vec3d GetXSecLineColor()                    { return m_XSecLineColor; }
-    virtual void SetXSecLineColor( vec3d color );
+    virtual void SetXSecLineColor( vec3d color )        { m_XSecLineColor = color; }
 
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
@@ -515,7 +515,8 @@ protected:
     // Class to handle group transformations
     GroupTransformations m_GroupTransformations;
 
-    vec3d m_XSecLineColor; // Color of lines in XSecViewScreen
+    // Color of lines in XSecViewScreen
+    vec3d m_XSecLineColor;
 
 private:
 

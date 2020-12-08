@@ -5004,14 +5004,13 @@ void GeomXSec::UpdateDrawObj()
 
         VspCurve crv = axs->GetUntransformedCurve();
         crv.Transform( mat );
-        vec3d color = m_Vehicle->GetXSecLineColor() / 255.; // normalize
 
         if( w == 0 && h == 0 )
         {
             vector< vec3d > pts( 1, vec3d( 0, 0, 0 ) );
             m_CurrentXSecDrawObj.m_PntVec = pts;
             m_CurrentXSecDrawObj.m_PointSize = 5.0;
-            m_CurrentXSecDrawObj.m_PointColor = color;
+            m_CurrentXSecDrawObj.m_PointColor = vec3d( 0, 0, 0 );
             m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_POINTS;
         }
         else
@@ -5020,7 +5019,7 @@ void GeomXSec::UpdateDrawObj()
             crv.TessAdapt( pts, 1e-2, 10 );
             m_CurrentXSecDrawObj.m_PntVec = pts;
             m_CurrentXSecDrawObj.m_LineWidth = 1.5;
-            m_CurrentXSecDrawObj.m_LineColor = color;
+            // Set color in LoadDrawObj for proper update behavior
             m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
         }
     }
@@ -5066,6 +5065,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
         m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
+        m_CurrentXSecDrawObj.m_LineColor = m_Vehicle->GetXSecLineColor() / 255.; // normalize
         draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
     }
 }
