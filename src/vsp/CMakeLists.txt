@@ -55,7 +55,6 @@ IF( NOT VSP_NO_GRAPHICS )
 		geom_core
 		geom_api_g
 		cfd_mesh
-		triangle
 		xmlvsp
 		sixseries
 		util
@@ -74,6 +73,7 @@ IF( NOT VSP_NO_GRAPHICS )
         ${STEPCODE_LIBRARIES}
 		${LINUX_LIBS}
 		${LIBIGES_LIBRARIES}
+		${TRIANGLE_LIBRARIES}
 	)
 
 	INSTALL( TARGETS vsp RUNTIME DESTINATION . )
@@ -96,7 +96,6 @@ IF( NOT VSP_NO_GRAPHICS )
 		gui_and_draw
 		geom_core
 		cfd_mesh
-		triangle
 		util
 		tritri
 		clipper
@@ -114,6 +113,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		${CMINPACK_LIBRARIES}
 		${STEPCODE_LIBRARIES}
 		${LIBIGES_LIBRARIES}
+		${TRIANGLE_LIBRARIES}
 	)
 
 #	INSTALL( TARGETS apitest_g RUNTIME DESTINATION . )
@@ -134,7 +134,6 @@ TARGET_LINK_LIBRARIES(apitest
 	geom_api
 	geom_core
 	cfd_mesh
-	triangle
 	xmlvsp
 	sixseries
 	util
@@ -149,6 +148,7 @@ TARGET_LINK_LIBRARIES(apitest
 	${CMINPACK_LIBRARIES}
 	${STEPCODE_LIBRARIES}
 	${LIBIGES_LIBRARIES}
+	${TRIANGLE_LIBRARIES}
 )
 
 IF( VSP_INSTALL_API_TEST )
@@ -166,7 +166,6 @@ TARGET_LINK_LIBRARIES(vspscript
 	geom_core
 	geom_api
 	cfd_mesh
-	triangle
 	xmlvsp
 	sixseries
 	util
@@ -181,6 +180,7 @@ TARGET_LINK_LIBRARIES(vspscript
 	${CMINPACK_LIBRARIES}
 	${STEPCODE_LIBRARIES}
 	${LIBIGES_LIBRARIES}
+	${TRIANGLE_LIBRARIES}
 )
 
 INSTALL( TARGETS vspscript RUNTIME DESTINATION . )

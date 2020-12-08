@@ -70,7 +70,6 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		geom_api
 		geom_core
 		cfd_mesh
-		triangle
 		xmlvsp
 		sixseries
 		util
@@ -86,6 +85,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		${CMINPACK_LIBRARIES}
 		${STEPCODE_LIBRARIES}
 		${LIBIGES_LIBRARIES}
+		${TRIANGLE_LIBRARIES}
 	)
 
 	CONFIGURE_FILE(packages/openvsp/setup.py.in python/packages/openvsp/setup.py)
