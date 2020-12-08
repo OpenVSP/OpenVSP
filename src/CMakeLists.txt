@@ -230,9 +230,6 @@ INSTALL( DIRECTORY ../examples/vspaero_ex/ DESTINATION vspaero_ex )
 INSTALL( FILES ../LICENSE DESTINATION . )
 INSTALL( FILES ../README.md DESTINATION . )
 INSTALL( FILES ../vspIcon.png DESTINATION .)
-IF( DOXYGEN_FOUND )
-    INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile DESTINATION .)
-ENDIF( DOXYGEN_FOUND )
 
 # Potentially redundant, but needed if src is used as project root.
 INCLUDE( CTest )
