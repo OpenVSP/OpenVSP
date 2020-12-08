@@ -32,12 +32,6 @@
 #include <list>
 using namespace std;            //jrg windows??
 
-extern "C"
-{
-    void triangulate( const char *, struct triangulateio *, struct triangulateio *,
-                      struct triangulateio * );
-}
-
 class TEdge;
 class TTri;
 class TBndBox;

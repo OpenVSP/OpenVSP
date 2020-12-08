@@ -30,11 +30,6 @@ class SimpleGridDensity;
 #include <list>
 using namespace std;
 
-extern "C"
-{
-    void triangulate( const char *, struct triangulateio *, struct triangulateio *,
-                      struct triangulateio * );
-}
 
 class MeshSeg
 {

@@ -21,11 +21,14 @@
 
 #include "tri_tri_intersect.h"
 
-#include "triangle.h"
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
 #include "PntNodeMerge.h"
 #include "VspCurve.h" // for #define TMAGIC
+
+#include "triangle.h"
+#include "triangle_api.h"
+
 
 #include <math.h>
 
@@ -1955,8 +1958,12 @@ void TTri::TriangulateSplit( int flattenAxis )
     int i, j;
 
     //==== Dump Into Triangle ====//
-    struct triangulateio in;
-    struct triangulateio out;
+    context* ctx;
+    triangleio in, out;
+    int tristatus = TRI_NULL;
+
+    // init
+    ctx = triangle_context_create();
 
     memset( &in, 0, sizeof( in ) ); // Load Zeros
     memset( &out, 0, sizeof( out ) );
@@ -2098,49 +2105,60 @@ void TTri::TriangulateSplit( int flattenAxis )
 
         if ( !dupFlag )
         {
+            char cmdline[] = "zpQ";
+
             //==== Constrained Delaunay Trianglulation ====//
-            triangulate ( "zpQ", &in, &out, ( struct triangulateio * ) NULL );
+            tristatus = triangle_context_options( ctx, cmdline );
+            if ( tristatus != TRI_OK ) printf( "triangle_context_options Error\n" );
+
+            // Triangulate the polygon
+            tristatus = triangle_mesh_create( ctx, &in );
+            if ( tristatus != TRI_OK ) printf( "triangle_mesh_create Error\n" );
         }
 //fprintf(fp, "Triangulate in = %d out = %d \n", in.numberofpoints, out.numberofpoints );
     }
 
-
-    //==== Load Triangles if No New Point Created ====//
-    cnt = 0;
-    for ( i = 0 ; i < out.numberoftriangles ; i++ )
+    if ( tristatus == TRI_OK )
     {
-        if ( out.trianglelist[cnt]   < ( int )m_NVec.size() &&
-                out.trianglelist[cnt + 1] < ( int )m_NVec.size() &&
-                out.trianglelist[cnt + 2] < ( int )m_NVec.size() )
-        {
-            TTri* t = new TTri();
-            t->m_N0 = m_NVec[out.trianglelist[cnt]];
-            t->m_N1 = m_NVec[out.trianglelist[cnt + 1]];
-            t->m_N2 = m_NVec[out.trianglelist[cnt + 2]];
-            t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
-            t->m_Norm = m_Norm;
-            m_SplitVec.push_back( t );
-        }
-        else
-        {
-            /* jrg problem - look into...
-                        printf("\n");
-                        printf("m\n");
-                        printf("c red\n");
-                        printf("%12.8f, %12.8f, %12.8f \n", n0->pnt.x(), n0->pnt.y(), n0->pnt.z());
-                        printf("%12.8f, %12.8f, %12.8f \n", n1->pnt.x(), n1->pnt.y(), n1->pnt.z());
-                        printf("%12.8f, %12.8f, %12.8f \n", n2->pnt.x(), n2->pnt.y(), n2->pnt.z());
-                        printf("c blue\n");
-                        for ( j = 0 ; j < iSectEdgeVec.size() ; j++ )
-                        {
-                            printf("m\n");
-                            printf("%12.8f, %12.8f, %12.8f \n", iSectEdgeVec[j]->n0->pnt.x(), iSectEdgeVec[j]->n0->pnt.y(), iSectEdgeVec[j]->n0->pnt.z());
-                            printf("%12.8f, %12.8f, %12.8f \n", iSectEdgeVec[j]->n0->pnt.x(), iSectEdgeVec[j]->n1->pnt.y(), iSectEdgeVec[j]->n1->pnt.z());
-                        }
-            */
+        triangle_mesh_copy( ctx, &out, 1, 1 );
 
+        //==== Load Triangles if No New Point Created ====//
+        cnt = 0;
+        for ( i = 0; i < out.numberoftriangles; i++ )
+        {
+            if ( out.trianglelist[cnt] < (int)m_NVec.size() &&
+                out.trianglelist[cnt + 1] < (int)m_NVec.size() &&
+                out.trianglelist[cnt + 2] < (int)m_NVec.size() )
+            {
+                TTri* t = new TTri();
+                t->m_N0 = m_NVec[out.trianglelist[cnt]];
+                t->m_N1 = m_NVec[out.trianglelist[cnt + 1]];
+                t->m_N2 = m_NVec[out.trianglelist[cnt + 2]];
+                t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
+                t->m_Norm = m_Norm;
+                m_SplitVec.push_back( t );
+            }
+            else
+            {
+                /* jrg problem - look into...
+                            printf("\n");
+                            printf("m\n");
+                            printf("c red\n");
+                            printf("%12.8f, %12.8f, %12.8f \n", n0->pnt.x(), n0->pnt.y(), n0->pnt.z());
+                            printf("%12.8f, %12.8f, %12.8f \n", n1->pnt.x(), n1->pnt.y(), n1->pnt.z());
+                            printf("%12.8f, %12.8f, %12.8f \n", n2->pnt.x(), n2->pnt.y(), n2->pnt.z());
+                            printf("c blue\n");
+                            for ( j = 0 ; j < iSectEdgeVec.size() ; j++ )
+                            {
+                                printf("m\n");
+                                printf("%12.8f, %12.8f, %12.8f \n", iSectEdgeVec[j]->n0->pnt.x(), iSectEdgeVec[j]->n0->pnt.y(), iSectEdgeVec[j]->n0->pnt.z());
+                                printf("%12.8f, %12.8f, %12.8f \n", iSectEdgeVec[j]->n0->pnt.x(), iSectEdgeVec[j]->n1->pnt.y(), iSectEdgeVec[j]->n1->pnt.z());
+                            }
+                */
+
+            }
+            cnt += 3;
         }
-        cnt += 3;
     }
 
     //==== Free Local Memory ====//
@@ -2173,6 +2191,27 @@ void TTri::TriangulateSplit( int flattenAxis )
     {
         free( out.segmentmarkerlist );
     }
+
+    //free( in.pointlist );
+    //free( in.pointattributelist );
+    //free( in.pointmarkerlist );
+
+    //free( in.trianglelist );
+    //free( in.triangleattributelist );
+    //free( in.trianglearealist );
+    //free( in.neighborlist );
+
+    //free( in.segmentlist );
+    //free( in.segmentmarkerlist );
+
+    //free( in.holelist );
+    //free( in.regionlist );
+
+    //free( in.edgelist );
+    //free( in.edgemarkerlist );
+
+    // cleanup
+    triangle_context_destroy( ctx );
 }
 
 int TTri::OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t )

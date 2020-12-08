@@ -13,6 +13,7 @@
 #include "MeshGeom.h"
 
 #include "triangle.h"
+#include "triangle_api.h"
 
 //==== Constructor ====//
 ProjectionMgrSingleton::ProjectionMgrSingleton()
@@ -900,8 +901,12 @@ void ProjectionMgrSingleton::Triangulate()
 
 
     //==== Dump Into Triangle ====//
-    struct triangulateio in;
-    struct triangulateio out;
+    context* ctx;
+    triangleio in, out;
+    int tristatus = TRI_NULL;
+
+    // init
+    ctx = triangle_context_create();
 
     memset( &in, 0, sizeof( in ) ); // Load Zeros
     memset( &out, 0, sizeof( out ) );
@@ -959,57 +964,67 @@ void ProjectionMgrSingleton::Triangulate()
     }
 
 
-    triangulate ( "zpQ", &in, &out, ( struct triangulateio * ) NULL );
+    char cmdline[] = "zpQ";
 
-    vector < vec3d > outpts;
-    outpts.resize( out.numberofpoints );
+    //==== Constrained Delaunay Trianglulation ====//
+    tristatus = triangle_context_options( ctx, cmdline );
+    if ( tristatus != TRI_OK ) printf( "triangle_context_options Error\n" );
 
-    for ( int i = 0; i < out.numberofpoints; i++ )
+    // Triangulate the polygon
+    tristatus = triangle_mesh_create( ctx, &in );
+    if ( tristatus != TRI_OK ) printf( "triangle_mesh_create Error\n" );
+
+    if ( tristatus == TRI_OK )
     {
-        outpts[i] = vec3d( x, out.pointlist[2*i], out.pointlist[2*i + 1] );
-    }
+        triangle_mesh_copy( ctx, &out, 1, 1 );
 
+        vector < vec3d > outpts;
+        outpts.resize( out.numberofpoints );
 
-
-
-    TMesh* tMesh = new TMesh();
-    m_SolutionTMeshVec.push_back( tMesh );
-
-    //==== Load Triangles if No New Point Created ====//
-    ptcnt = 0;
-    for ( int i = 0 ; i < out.numberoftriangles ; i++ )
-    {
-        TTri* tPtr = new TTri();
-
-        //==== Put Nodes Into Tri ====//
-        tPtr->m_N0 = new TNode();
-        tPtr->m_N1 = new TNode();
-        tPtr->m_N2 = new TNode();
-
-        tPtr->m_N0->m_Pnt = outpts[ out.trianglelist[ptcnt] ];
-        tPtr->m_N1->m_Pnt = outpts[ out.trianglelist[ptcnt + 1] ];
-        tPtr->m_N2->m_Pnt = outpts[ out.trianglelist[ptcnt + 2] ];
-
-        tMesh->m_NVec.push_back( tPtr->m_N0 );
-        tMesh->m_NVec.push_back( tPtr->m_N1 );
-        tMesh->m_NVec.push_back( tPtr->m_N2 );
-
-        //tPtr->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
-        tPtr->m_Norm = vec3d( -1, 0, 0 );
-
-        vec3d c = tPtr->ComputeCenter();
-        vec2d c2d = vec2d( c.y(), c.z() );
-
-        if ( PtInHole( c2d ) )
+        for ( int i = 0; i < out.numberofpoints; i++ )
         {
-            delete tPtr;
-        }
-        else
-        {
-            tMesh->m_TVec.push_back( tPtr );
+            outpts[i] = vec3d( x, out.pointlist[2 * i], out.pointlist[2 * i + 1] );
         }
 
-        ptcnt += 3;
+        TMesh* tMesh = new TMesh();
+        m_SolutionTMeshVec.push_back( tMesh );
+
+        //==== Load Triangles if No New Point Created ====//
+        ptcnt = 0;
+        for ( int i = 0; i < out.numberoftriangles; i++ )
+        {
+            TTri* tPtr = new TTri();
+
+            //==== Put Nodes Into Tri ====//
+            tPtr->m_N0 = new TNode();
+            tPtr->m_N1 = new TNode();
+            tPtr->m_N2 = new TNode();
+
+            tPtr->m_N0->m_Pnt = outpts[out.trianglelist[ptcnt]];
+            tPtr->m_N1->m_Pnt = outpts[out.trianglelist[ptcnt + 1]];
+            tPtr->m_N2->m_Pnt = outpts[out.trianglelist[ptcnt + 2]];
+
+            tMesh->m_NVec.push_back( tPtr->m_N0 );
+            tMesh->m_NVec.push_back( tPtr->m_N1 );
+            tMesh->m_NVec.push_back( tPtr->m_N2 );
+
+            //tPtr->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
+            tPtr->m_Norm = vec3d( -1, 0, 0 );
+
+            vec3d c = tPtr->ComputeCenter();
+            vec2d c2d = vec2d( c.y(), c.z() );
+
+            if ( PtInHole( c2d ) )
+            {
+                delete tPtr;
+            }
+            else
+            {
+                tMesh->m_TVec.push_back( tPtr );
+            }
+
+            ptcnt += 3;
+        }
     }
 
     //==== Free Local Memory ====//
@@ -1043,7 +1058,8 @@ void ProjectionMgrSingleton::Triangulate()
         free( out.segmentmarkerlist );
     }
 
-
+    // cleanup
+    triangle_context_destroy( ctx );
 
 }
 

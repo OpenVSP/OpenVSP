@@ -10,9 +10,9 @@
 #define _USE_MATH_DEFINES
 #include "Mesh.h"
 #include "Surf.h"
-#include "triangle.h"
 #include "Util.h"
-
+#include <triangle.h>
+#include <triangle_api.h>
 
 bool LongEdgePairLengthCompare( const pair< Edge*, double >& a, const pair< Edge*, double >& b )
 {
@@ -1576,8 +1576,12 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
 
     //==== Dump Into Triangle ====//
-    struct triangulateio in;
-    struct triangulateio out;
+    context* ctx;
+    triangleio in, out;
+    int tristatus = TRI_NULL;
+
+    // init
+    ctx = triangle_context_create();
 
     memset( &in, 0, sizeof( in ) ); // Load Zeros
     memset( &out, 0, sizeof( out ) );
@@ -1655,8 +1659,14 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
     sprintf( str, "zpYYQa%8.6fq20", uw_tri_area );
-//  sprintf(str, "zpYYQ" );
-    triangulate ( str, &in, &out, ( struct triangulateio * ) NULL );
+
+    //==== Constrained Delaunay Trianglulation ====//
+    tristatus = triangle_context_options( ctx, str );
+    if ( tristatus != TRI_OK ) printf( "triangle_context_options Error\n" );
+
+    // Triangulate the polygon
+    tristatus = triangle_mesh_create( ctx, &in );
+    if ( tristatus != TRI_OK ) printf( "triangle_mesh_create Error\n" );
 
 #ifdef DEBUG_CFD_MESH
     sprintf( str, "%sUWTriMeshOut%d.dat", cfdMeshMgrPtr->m_DebugDir.get_char_star(), namecnt );
@@ -1730,129 +1740,134 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     //==== Clear All Node, Edge, Tri Data ====//
     Clear();
 
-    //==== Create Nodes ====//
-    vector< Node* > nodeVec;
-    for ( i = 0 ; i < out.numberofpoints ; i++ )
+    if ( tristatus == TRI_OK )
     {
-        double u = out.pointlist[i * 2];
-        double w = out.pointlist[i * 2 + 1];
-        double su = 1.0 / m_Surf->GetUScale( w / VspdW );
-        double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
-        vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW);
-        vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
-        nodeVec.push_back( AddNode( pnt, uw ) );
-    }
+        triangle_mesh_copy( ctx, &out, 1, 1 );
 
-    //==== Load Triangles if No New Point Created ====//
-    cnt = 0;
-    for ( i = 0 ; i < out.numberoftriangles ; i++ )
-    {
-        Node* n0 = nodeVec[out.trianglelist[cnt]];
-        Node* n1;
-        Node* n2;
-
-        if( !m_Surf->GetFlipFlag() )
+        //==== Create Nodes ====//
+        vector< Node* > nodeVec;
+        for ( i = 0; i < out.numberofpoints; i++ )
         {
-            n1 = nodeVec[out.trianglelist[cnt + 1]];
-            n2 = nodeVec[out.trianglelist[cnt + 2]];
-        }
-        else
-        {
-            n1 = nodeVec[out.trianglelist[cnt + 2]];
-            n2 = nodeVec[out.trianglelist[cnt + 1]];
+            double u = out.pointlist[i * 2];
+            double w = out.pointlist[i * 2 + 1];
+            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
+            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
+            vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW );
+            vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
+            nodeVec.push_back( AddNode( pnt, uw ) );
         }
 
-        cnt += 3;
+        //==== Load Triangles if No New Point Created ====//
+        cnt = 0;
+        for ( i = 0; i < out.numberoftriangles; i++ )
+        {
+            Node* n0 = nodeVec[out.trianglelist[cnt]];
+            Node* n1;
+            Node* n2;
 
-        Edge* e0 = FindEdge( n0, n1 );
-        if ( !e0 )
-        {
-            e0 = AddEdge( n0, n1 );
-        }
-
-        Edge* e1 = FindEdge( n1, n2 );
-        if ( !e1 )
-        {
-            e1 = AddEdge( n1, n2 );
-        }
-
-        Edge* e2 = FindEdge( n2, n0 );
-        if ( !e2 )
-        {
-            e2 = AddEdge( n2, n0 );
-        }
-
-        Tri* tri = AddTri( n0, n1, n2, e0, e1, e2 );
-
-        if      ( e0->t0 == NULL )
-        {
-            e0->t0 = tri;
-        }
-        else if ( e0->t1 == NULL )
-        {
-            e0->t1 = tri;
-        }
-        else
-        {
-            assert( 0 );
-        }
-
-        if      ( e1->t0 == NULL )
-        {
-            e1->t0 = tri;
-        }
-        else if ( e1->t1 == NULL )
-        {
-            e1->t1 = tri;
-        }
-        else
-        {
-            assert( 0 );
-        }
-
-        if      ( e2->t0 == NULL )
-        {
-            e2->t0 = tri;
-        }
-        else if ( e2->t1 == NULL )
-        {
-            e2->t1 = tri;
-        }
-        else
-        {
-            assert( 0 );
-        }
-
-    }
-
-    //==== Fix The Exterior Edges ====//
-    list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
-    {
-        if ( ( *e )->t0 == NULL || ( *e )->t1 == NULL )
-        {
-//          (*e)->ridge = true;
-            ( *e )->border = true;
-            ( *e )->n0->fixed = true;
-            ( *e )->n1->fixed = true;
-        }
-    }
-
-    for ( j = 0 ; j < ( int )segs_indexes.size() ; j++ )
-    {
-        Node* n0 = nodeVec[segs_indexes[j].m_Index[0]];
-        Node* n1 = nodeVec[segs_indexes[j].m_Index[1]];
-
-        for ( int k = 0 ; k < ( int )n0->edgeVec.size() ; k++ )
-        {
-            Node* ne0 = n0->edgeVec[k]->n0;
-            Node* ne1 = n0->edgeVec[k]->n1;
-
-            if ( ( ne0 == n0 && ne1 == n1 ) || ( ne0 == n1 && ne1 == n0 ) )
+            if ( !m_Surf->GetFlipFlag() )
             {
-                n0->edgeVec[k]->border = true;
-                n0->fixed = true;
-                n1->fixed = true;
+                n1 = nodeVec[out.trianglelist[cnt + 1]];
+                n2 = nodeVec[out.trianglelist[cnt + 2]];
+            }
+            else
+            {
+                n1 = nodeVec[out.trianglelist[cnt + 2]];
+                n2 = nodeVec[out.trianglelist[cnt + 1]];
+            }
+
+            cnt += 3;
+
+            Edge* e0 = FindEdge( n0, n1 );
+            if ( !e0 )
+            {
+                e0 = AddEdge( n0, n1 );
+            }
+
+            Edge* e1 = FindEdge( n1, n2 );
+            if ( !e1 )
+            {
+                e1 = AddEdge( n1, n2 );
+            }
+
+            Edge* e2 = FindEdge( n2, n0 );
+            if ( !e2 )
+            {
+                e2 = AddEdge( n2, n0 );
+            }
+
+            Tri* tri = AddTri( n0, n1, n2, e0, e1, e2 );
+
+            if ( e0->t0 == NULL )
+            {
+                e0->t0 = tri;
+            }
+            else if ( e0->t1 == NULL )
+            {
+                e0->t1 = tri;
+            }
+            else
+            {
+                assert( 0 );
+            }
+
+            if ( e1->t0 == NULL )
+            {
+                e1->t0 = tri;
+            }
+            else if ( e1->t1 == NULL )
+            {
+                e1->t1 = tri;
+            }
+            else
+            {
+                assert( 0 );
+            }
+
+            if ( e2->t0 == NULL )
+            {
+                e2->t0 = tri;
+            }
+            else if ( e2->t1 == NULL )
+            {
+                e2->t1 = tri;
+            }
+            else
+            {
+                assert( 0 );
+            }
+
+        }
+
+        //==== Fix The Exterior Edges ====//
+        list< Edge* >::iterator e;
+        for ( e = edgeList.begin(); e != edgeList.end(); ++e )
+        {
+            if ( ( *e )->t0 == NULL || ( *e )->t1 == NULL )
+            {
+                //          (*e)->ridge = true;
+                ( *e )->border = true;
+                ( *e )->n0->fixed = true;
+                ( *e )->n1->fixed = true;
+            }
+        }
+
+        for ( j = 0; j < (int)segs_indexes.size(); j++ )
+        {
+            Node* n0 = nodeVec[segs_indexes[j].m_Index[0]];
+            Node* n1 = nodeVec[segs_indexes[j].m_Index[1]];
+
+            for ( int k = 0; k < (int)n0->edgeVec.size(); k++ )
+            {
+                Node* ne0 = n0->edgeVec[k]->n0;
+                Node* ne1 = n0->edgeVec[k]->n1;
+
+                if ( ( ne0 == n0 && ne1 == n1 ) || ( ne0 == n1 && ne1 == n0 ) )
+                {
+                    n0->edgeVec[k]->border = true;
+                    n0->fixed = true;
+                    n1->fixed = true;
+                }
             }
         }
     }
@@ -1887,6 +1902,8 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         free( out.segmentmarkerlist );
     }
 
+    // cleanup
+    triangle_context_destroy( ctx );
 }
 
 void Mesh::RemoveInteriorTrisEdgesNodes()
