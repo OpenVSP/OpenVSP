@@ -1,7 +1,7 @@
 # - Try to find the Triangle library
 #
 
-find_path( TRIANGLE_INCLUDE_DIR triangle.h 
+find_path( TRIANGLE_INCLUDE_DIR triangle.h
     HINTS
         ${TRIANGLE_INSTALL_DIR}/include
         ${TRIANGLE_INSTALL_DIR}
@@ -12,7 +12,7 @@ find_path( TRIANGLE_INCLUDE_DIR triangle.h
         ${CMAKE_INSTALL_PREFIX}/include
         DOC "The directory where triangle.h resides")
 
-find_path( TRIANGLE_API_INCLUDE_DIR triangle_api.h 
+find_path( TRIANGLE_API_INCLUDE_DIR triangle_api.h
     HINTS
         ${TRIANGLE_INSTALL_DIR}/include
         ${TRIANGLE_INSTALL_DIR}

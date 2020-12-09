@@ -98,18 +98,18 @@ IF( SWIG_FOUND )
 	ELSE(PYTHONLIBS_FOUND)
 		MESSAGE( STATUS "Python not found, API will not be compiled" )
 	ENDIF( PYTHONLIBS_FOUND )
-	
-	# Note that for the MATLAB API to be built succesfully, the unreleased 
+
+	# Note that for the MATLAB API to be built succesfully, the unreleased
 	# MATLAB branch of SWIG must be compiled first. CMAKE must then be pointed
-	# the executable using the SWIG_EXECUTABLE entry. Last, MATLAB must be 
+	# the executable using the SWIG_EXECUTABLE entry. Last, MATLAB must be
 	# installed. Note, this has only been tested on 64 Bit Windows, so additional
-	# modifications may be required for other operating systems. If you find this 
+	# modifications may be required for other operating systems. If you find this
 	# to be the case, please consider contributing findings to the public repository.
-	
+
 	IF( VSP_ENABLE_MATLAB_API )
 		FIND_PACKAGE( Matlab REQUIRED MX_LIBRARY )
-	
-		IF(MATLAB_FOUND)		
+
+		IF(MATLAB_FOUND)
 			ADD_SUBDIRECTORY( matlab_api )
 		ELSE(MATLAB_FOUND)
 			MESSAGE("MATLAB not found... MATLAB API will NOT be built.")
