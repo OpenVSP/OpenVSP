@@ -3504,15 +3504,11 @@ void EditCurveXSec::ReparameterizeEqualArcLength()
 {
     vector < double > u_vec = GetUVec();
     int npt = (int)u_vec.size();
-    int nseg;
+    int nseg = npt - 1;
 
     if ( m_CurveType() == vsp::CEDIT )
     {
         nseg = ( npt - 1 ) / 3;
-    }
-    else
-    {
-        nseg = npt - 1;
     }
 
     // Calculate total arc length
@@ -3520,91 +3516,78 @@ void EditCurveXSec::ReparameterizeEqualArcLength()
     double tot_len = m_BaseEditCurve.CompLength( tol );
 
     // Identify length of each section between fixed U values
-    vector < double > seg_len_vec, seg_du_vec;
+    vector < double > seg_len_vec;
     double seg_len = 0;
-    int i_u_prev = 0;
+    int i_seg_prev = 0;
 
     for ( size_t i = 0; i < nseg; i++ )
     {
-        int i_fix_u = i + 1;
-
-        if ( m_CurveType() == vsp::CEDIT )
-        {
-            i_fix_u = i_fix_u * 3;
-        }
-
-        if ( m_SymType() == vsp::SYM_RL && ( m_UParmVec[i_fix_u]->Get() > 0.25 && m_UParmVec[i_fix_u]->Get() <= 0.75 ) )
-        {
-            i_u_prev = i_fix_u;
-            continue;
-        }
-
         // Get length of curve segment
         curve_segment_type c;
         double len = 0;
         m_BaseEditCurve.GetCurve().get( c, i );
         eli::geom::curve::length( len, c, tol );
 
-        seg_len += len;
-
-        if ( ( m_FixedUVec[i_fix_u]->Get() || ( int)i == nseg - 1 ) || // Accound for symmetry (forced u at 0.25 and 0.75) 
-            ( m_SymType() == vsp::SYM_RL && m_UParmVec[i_fix_u]->Get() == 0.25 ) )
-        {
-            seg_len_vec.push_back( seg_len );
-            seg_du_vec.push_back( m_UParmVec[i_fix_u]->Get() - m_UParmVec[i_u_prev]->Get() );
-            seg_len = 0;
-            i_u_prev = i_fix_u;
-        }
+        seg_len_vec.push_back( len );
     }
 
-    int istart, iend;
-    int u = 0;
+    double u_prev = 0;
 
     for ( size_t i = 0; i < nseg; i++ )
     {
+        int iend = i + 1;
+
         if( m_CurveType() == vsp::CEDIT )
         {
-            istart = i * 3;
             iend = ( i + 1 ) * 3;
-        }
-        else
-        {
-            istart = i;
-            iend = i + 1;
         }
 
         if ( m_SymType() == vsp::SYM_RL && ( m_UParmVec[iend]->Get() > 0.25 && m_UParmVec[iend]->Get() <= 0.75 ) )
         {
             continue;
         }
-        else if ( m_FixedUVec[iend]->Get() )
+        else if ( m_FixedUVec[iend]->Get() || ( m_SymType() == vsp::SYM_RL && m_UParmVec[iend]->Get() == 0.25 ) || ( iend == npt - 1 ) )
         {
-            // Skip if the U parameter is "fixed"
-            u++;
-            continue;
-        }
+            double du_seg = u_vec[iend] - u_prev;
 
-        // Get length of curve segment
-        curve_segment_type c;
-        double len = 0;
-        m_BaseEditCurve.GetCurve().get( c, i );
-        eli::geom::curve::length( len, c, tol );
+            double seg_len = 0;
 
-        if ( iend == npt - 1 )
-        {
-            u_vec[iend] = 1.0; // Avoid floating point precision errors from calculation
-        }
-        else
-        {
-            u_vec[iend] = u_vec[istart] + ( len / seg_len_vec[u] ) * seg_du_vec[u];
-        }
+            for ( size_t j = i_seg_prev; j <= i; j++ )
+            {
+                seg_len += seg_len_vec[j];
+            }
 
-        if ( m_CurveType() == vsp::CEDIT )
-        {
-            // Keep intermediate points valid.
-            double dt = u_vec[iend] - u_vec[istart];
-            u_vec[iend - 1] = u_vec[iend] - ( dt / 3.0 );
-            u_vec[istart + 1] = u_vec[istart] + ( dt / 3.0 );
+            for ( size_t j = i_seg_prev; j <= i; j++ )
+            {
+                int jstart = j;
+                int jend = j + 1;
+
+                if ( m_CurveType() == vsp::CEDIT )
+                {
+                    jstart = j * 3;
+                    jend = ( j + 1 ) * 3;
+                }
+
+                if ( jend == npt - 1 )
+                {
+                    u_vec[jend] = 1.0; // Avoid floating point precision errors from calculation
+                }
+                else
+                {
+                    u_vec[jend] = u_vec[jstart] + ( seg_len_vec[j] / seg_len ) * du_seg;
+                }
+
+                if ( m_CurveType() == vsp::CEDIT )
+                {
+                    // Keep intermediate points valid.
+                    double dt = u_vec[jend] - u_vec[jstart];
+                    u_vec[jend - 1] = u_vec[jend] - ( dt / 3.0 );
+                    u_vec[jstart + 1] = u_vec[jstart] + ( dt / 3.0 );
+                }
+            }
+
+            i_seg_prev = i + 1;
+            u_prev = u_vec[iend];
         }
     }
 
