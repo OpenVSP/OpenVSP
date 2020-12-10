@@ -2255,8 +2255,6 @@ int EditXSecWindow::handle( int fl_event )
     EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
     assert( edit_curve_xs );
 
-    bool update_flag = false;
-
     vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
 
     double sx = coord.x();
@@ -2264,8 +2262,6 @@ int EditXSecWindow::handle( int fl_event )
 
     if ( fl_event == FL_PUSH )
     {
-        update_flag = true;
-
         // Diameter of point + 10% considered "hit" 
         double hit_r = 1.2 * edit_curve_xs->m_XSecPointSize.Get() / 2;
 
@@ -2318,8 +2314,6 @@ int EditXSecWindow::handle( int fl_event )
     }
     else if ( fl_event == FL_DRAG && m_LastHit != -1 )
     {
-        update_flag = true;
-
         if ( edit_curve_xs->m_AbsoluteFlag() )
         {
             edit_curve_xs->MovePnt( sx / edit_curve_xs->GetWidth(), sy / edit_curve_xs->GetHeight() );
@@ -2333,14 +2327,12 @@ int EditXSecWindow::handle( int fl_event )
     }
     else if ( fl_event == FL_RELEASE )
     {
-        update_flag = true;
-
         curve_editor->SetFreezeAxis( false );
         // Force update the parent Geom once the point is released
         edit_curve_xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
     }
 
-    if ( update_flag )
+    if ( fl_event == FL_RELEASE || fl_event == FL_DRAG || fl_event == FL_PUSH )
     {
         // Don't update the index selector if a point on the canvas is selected
         curve_editor->SetUpdateIndexSelector( false );
