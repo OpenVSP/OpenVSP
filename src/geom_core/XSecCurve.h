@@ -146,6 +146,7 @@ public:
 
     // XSec Background Parms
     BoolParm m_XSecImagePreserveAR;
+    BoolParm m_XSecLockImageFlag;
     BoolParm m_XSecImageFlag;
     FractionParm m_XSecImageW;
     FractionParm m_XSecImageH;

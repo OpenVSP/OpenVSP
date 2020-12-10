@@ -190,12 +190,18 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 610, "
     m_BackgroundImageLayout.ForceNewLine();
     m_BackgroundImageLayout.AddYGap();
 
-    m_BackgroundImageLayout.SetFitWidthFlag( true );
-    m_BackgroundImageLayout.SetSameLineFlag( false );
+    m_BackgroundImageLayout.SetFitWidthFlag( false );
+    m_BackgroundImageLayout.SetSameLineFlag( true );
+    m_BackgroundImageLayout.SetButtonWidth( m_BackgroundImageLayout.GetRemainX() / 2 );
 
     m_BackgroundImageLayout.AddButton( m_PreserveImageAspect, "Preserve Aspect" );
     m_PreserveImageAspect.GetFlButton()->value( 1 );
+    m_BackgroundImageLayout.AddButton( m_LockImageToggle, "Lock Image" );
+    m_LockImageToggle.GetFlButton()->value( 0 );
 
+    m_BackgroundImageLayout.SetFitWidthFlag( true );
+    m_BackgroundImageLayout.SetSameLineFlag( false );
+    m_BackgroundImageLayout.ForceNewLine();
     m_BackgroundImageLayout.AddYGap();
     m_BackgroundImageLayout.SetButtonWidth( m_BackgroundImageLayout.GetRemainX() / 4 );
     m_BackgroundImageLayout.SetInputWidth( 50 );
@@ -296,6 +302,12 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 610, "
     m_PrevIndex = 0;
     m_PrevCurveType = 0;
     m_SliderVecVec.resize( 3 ); // X, Y, & U
+
+    m_ImageZoomOffset = -1;
+    m_ImageXOffsetOrig = 0;
+    m_ImageYOffsetOrig = 0;
+    m_ImageWOrig = 1;
+    m_ImageHOrig = 1;
 }
 
 //==== Deconstructor ====//
@@ -566,9 +578,6 @@ bool CurveEditScreen::Update()
         m_ImageFileOutput.Update( StringUtil::truncateFileName( edit_curve_xs->GetImageFile(), 40 ).c_str() );
 
         // Update Scale and Offset in Background
-        m_ImageWScale.Update( edit_curve_xs->m_XSecImageW.GetID() );
-        m_ImageHScale.Update( edit_curve_xs->m_XSecImageH.GetID() );
-
         if( edit_curve_xs->m_XSecImageFlag() )
         {
             m_BackgroundImageLayout.GetGroup()->activate();
@@ -592,24 +601,68 @@ bool CurveEditScreen::Update()
             }
         }
 
-        viewport->getBackground()->scaleW( (float)edit_curve_xs->m_XSecImageW.Get() );
-
         m_PreserveImageAspect.Update( edit_curve_xs->m_XSecImagePreserveAR.GetID() );
-        viewport->getBackground()->preserveAR( (bool)edit_curve_xs->m_XSecImagePreserveAR.Get() );
+        m_LockImageToggle.Update( edit_curve_xs->m_XSecLockImageFlag.GetID() );
 
-        if( edit_curve_xs->m_XSecImagePreserveAR() )
+        if ( edit_curve_xs->m_XSecLockImageFlag() )
         {
-            edit_curve_xs->m_XSecImageH.Set( viewport->getBackground()->getScaleH() );
-            m_ImageHScale.Deactivate();
+            // Update the image offset and size to follow zoom and pan events
+            glm::vec2 pan = m_XSecGlWin->getPanValues();
+            double gl_w = m_XSecGlWin->pixel_w();
+            double gl_h = m_XSecGlWin->pixel_h();
+            double zoom = m_XSecGlWin->getRelativeZoomValue();
+
+            if ( m_ImageZoomOffset < 0 )
+            {
+                m_ImageZoomOffset = zoom; // Initialization when reloading a model (can't set to zoom in constructor)
+            }
+
+            edit_curve_xs->m_XSecImageXOffset.Set( ( m_ImageXOffsetOrig * m_ImageZoomOffset / zoom ) + ( 2 * ( pan.x - m_ImagePanOffset.x ) / ( zoom * gl_w ) ) );
+            edit_curve_xs->m_XSecImageYOffset.Set( ( m_ImageYOffsetOrig * m_ImageZoomOffset / zoom ) + ( 2 * ( pan.y - m_ImagePanOffset.y ) / ( zoom * gl_h ) ) );
+
+            edit_curve_xs->m_XSecImageW.Set( m_ImageWOrig * m_ImageZoomOffset / zoom );
+            edit_curve_xs->m_XSecImageH.Set( m_ImageHOrig * m_ImageZoomOffset / zoom );
+
+            edit_curve_xs->m_XSecImageW.Deactivate();
+            edit_curve_xs->m_XSecImagePreserveAR.Deactivate();
+            edit_curve_xs->m_XSecImageXOffset.Deactivate();
+            edit_curve_xs->m_XSecImageYOffset.Deactivate();
         }
         else
         {
-            viewport->getBackground()->scaleH( (float)edit_curve_xs->m_XSecImageH.Get() );
-            m_ImageHScale.Activate();
+            edit_curve_xs->m_XSecImageW.Activate();
+            edit_curve_xs->m_XSecImagePreserveAR.Activate();
+            edit_curve_xs->m_XSecImageXOffset.Activate();
+            edit_curve_xs->m_XSecImageYOffset.Activate();
         }
 
         m_ImageXOffset.Update( edit_curve_xs->m_XSecImageXOffset.GetID() );
         m_ImageYOffset.Update( edit_curve_xs->m_XSecImageYOffset.GetID() );
+
+        m_ImageWScale.Update( edit_curve_xs->m_XSecImageW.GetID() );
+
+        viewport->getBackground()->scaleW( (float)edit_curve_xs->m_XSecImageW.Get() );
+        viewport->getBackground()->preserveAR( (bool)edit_curve_xs->m_XSecImagePreserveAR.Get() );
+
+        if ( edit_curve_xs->m_XSecImagePreserveAR() )
+        {
+            edit_curve_xs->m_XSecImageH.Set( viewport->getBackground()->getScaleH() );
+        }
+        else
+        {
+            viewport->getBackground()->scaleH( (float)edit_curve_xs->m_XSecImageH.Get() );
+        }
+
+        if ( edit_curve_xs->m_XSecImagePreserveAR() || edit_curve_xs->m_XSecLockImageFlag() )
+        {
+            edit_curve_xs->m_XSecImageH.Deactivate();
+        }
+        else
+        {
+            edit_curve_xs->m_XSecImageH.Activate();
+        }
+
+        m_ImageHScale.Update( edit_curve_xs->m_XSecImageH.GetID() );
 
         viewport->getBackground()->offsetX( (float)edit_curve_xs->m_XSecImageXOffset.Get() );
         viewport->getBackground()->offsetY( (float)edit_curve_xs->m_XSecImageYOffset.Get() );
@@ -870,6 +923,16 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         {
             m_DeleteActive = false;
         }
+    }
+    else if ( gui_device == &m_LockImageToggle )
+    {
+        m_ImageZoomOffset = m_XSecGlWin->getRelativeZoomValue();
+        m_ImagePanOffset = m_XSecGlWin->getPanValues();
+
+        m_ImageWOrig = edit_curve_xs->m_XSecImageW.Get();
+        m_ImageHOrig = edit_curve_xs->m_XSecImageH.Get();
+        m_ImageXOffsetOrig = edit_curve_xs->m_XSecImageXOffset.Get();
+        m_ImageYOffsetOrig = edit_curve_xs->m_XSecImageYOffset.Get();
     }
     else if( gui_device == &m_CopyDrawToAllXSec )
     {

@@ -107,6 +107,7 @@ XSecCurve::XSecCurve()
     // Background Image Parms
     m_XSecImagePreserveAR.Init( "XSecImagePreserveAR", ( m_GroupName + "_Background" ), this, true, false, true );
     m_XSecImageFlag.Init( "XSecImageFlag", ( m_GroupName + "_Background" ), this, false, false, true );
+    m_XSecLockImageFlag.Init( "XSecLockImageFlag", ( m_GroupName + "_Background" ), this, false, false, true );
     m_XSecImageW.Init( "XSecImageW", ( m_GroupName + "_Background" ), this, 1.0, -1.0e12, 1.0e12 );
     m_XSecImageH.Init( "XSecImageH", ( m_GroupName + "_Background" ), this, 1.0, -1.0e12, 1.0e12 );
     m_XSecImageXOffset.Init( "XSecImageXOffset", ( m_GroupName + "_Background" ), this, 0.0, -1.0e12, 1.0e12 );

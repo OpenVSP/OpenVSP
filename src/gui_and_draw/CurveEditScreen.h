@@ -97,6 +97,7 @@ private:
 
     // GEU controls for background image
     ToggleButton m_ImageToggle;
+    ToggleButton m_LockImageToggle;
     StringOutput m_ImageFileOutput;
     TriggerButton m_ImageFileSelect;
 
@@ -136,6 +137,15 @@ private:
     int m_PrevIndex; // Maintains the previously selected point index
 
     int m_GlWinWidth;
+
+    // Variables for fixed image option - scale and position is updated
+    // to follow zoom and pan events
+    double m_ImageZoomOffset;
+    glm::vec2 m_ImagePanOffset;
+    double m_ImageWOrig;
+    double m_ImageHOrig;
+    double m_ImageXOffsetOrig;
+    double m_ImageYOffsetOrig;
 
 };
 
