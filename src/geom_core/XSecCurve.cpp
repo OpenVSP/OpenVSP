@@ -104,13 +104,13 @@ XSecCurve::XSecCurve()
     m_DeltaY.Init( "DeltaY", m_GroupName, this, 0, -1e3, 1e3 );
     m_ShiftLE.Init( "ShiftLE", m_GroupName, this, 0, -1.9, 1.9 );
 
-    m_XSecImagePreserveAR.Init( "XSecImagePreserveAR", ( m_GroupName + "_Background" ), NULL, true, false, true );
-    m_XSecImageFlag.Init( "XSecImageFlag", ( m_GroupName + "_Background" ), NULL, false, false, true );
-    m_XSecImageW.Init( "XSecImageW", ( m_GroupName + "_Background" ), NULL, 1.0, -1.0e12, 1.0e12 );
-    m_XSecImageH.Init( "XSecImageH", ( m_GroupName + "_Background" ), NULL, 1.0, -1.0e12, 1.0e12 );
-    m_XSecImageXOffset.Init( "XSecImageXOffset", ( m_GroupName + "_Background" ), NULL, 0.0, -1.0e12, 1.0e12 );
-    m_XSecImageYOffset.Init( "XSecImageYOffset", ( m_GroupName + "_Background" ), NULL, 0.0, -1.0e12, 1.0e12 );
-
+    // Background Image Parms
+    m_XSecImagePreserveAR.Init( "XSecImagePreserveAR", ( m_GroupName + "_Background" ), this, true, false, true );
+    m_XSecImageFlag.Init( "XSecImageFlag", ( m_GroupName + "_Background" ), this, false, false, true );
+    m_XSecImageW.Init( "XSecImageW", ( m_GroupName + "_Background" ), this, 1.0, -1.0e12, 1.0e12 );
+    m_XSecImageH.Init( "XSecImageH", ( m_GroupName + "_Background" ), this, 1.0, -1.0e12, 1.0e12 );
+    m_XSecImageXOffset.Init( "XSecImageXOffset", ( m_GroupName + "_Background" ), this, 0.0, -1.0e12, 1.0e12 );
+    m_XSecImageYOffset.Init( "XSecImageYOffset", ( m_GroupName + "_Background" ), this, 0.0, -1.0e12, 1.0e12 );
 
     m_FakeWidth = 1.0;
     m_UseFakeWidth = false;
@@ -393,13 +393,15 @@ xmlNodePtr XSecCurve::EncodeXml(  xmlNodePtr & node  )
 
 xmlNodePtr XSecCurve::DecodeXml( xmlNodePtr & node )
 {
-    if( node )
-    {
-        m_ImageFile = XmlUtil::FindString( node, "ImageFile", string() );
-    }
     ParmContainer::DecodeXml( node );
 
-    return node;
+    xmlNodePtr xscrv_node = XmlUtil::GetNode( node, "XSecCurve", 0 );
+    if( xscrv_node )
+    {
+        m_ImageFile = XmlUtil::FindString( xscrv_node, "ImageFile", m_ImageFile );
+    }
+
+    return xscrv_node;
 }
 
 
