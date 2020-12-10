@@ -293,8 +293,6 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 610, "
     m_DeleteActive = false;
     m_SplitActive = false;
 
-    m_UpdateIndexSelector = false;
-
     m_PrevIndex = 0;
     m_PrevCurveType = 0;
     m_SliderVecVec.resize( 3 ); // X, Y, & U
@@ -431,11 +429,6 @@ bool CurveEditScreen::Update()
         assert( viewport );
 
         m_XSecGlWin->clear();
-
-        if( m_UpdateIndexSelector )
-        {
-            UpdateIndexSelector( m_PntSelector.GetIndex() );
-        }
 
         edit_curve_xs->SetSelectPntID( m_PntSelector.GetIndex() );
         m_PntSelector.SetMinMaxLimits( 0, edit_curve_xs->GetNumPts() - 1 );
@@ -624,8 +617,6 @@ bool CurveEditScreen::Update()
         m_XSecGlWin->update();
         m_XSecGlWin->redraw();
     }
-
-    m_UpdateIndexSelector = true;
 
     m_FLTK_Window->redraw();
 
@@ -859,6 +850,10 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_ConvertButton )
     {
         edit_curve_xs->ConvertTo( edit_curve_xs->m_ConvType() );
+    }
+    else if ( gui_device == &m_PntSelector )
+    {
+        UpdateIndexSelector( m_PntSelector.GetIndex() );
     }
     else if ( gui_device == &m_DelPickButton )
     {

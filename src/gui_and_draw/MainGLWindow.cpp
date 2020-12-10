@@ -2334,9 +2334,6 @@ int EditXSecWindow::handle( int fl_event )
 
     if ( fl_event == FL_RELEASE || fl_event == FL_DRAG || fl_event == FL_PUSH )
     {
-        // Don't update the index selector if a point on the canvas is selected
-        curve_editor->SetUpdateIndexSelector( false );
-
         curve_editor->Update();
     }
 

@@ -38,7 +38,6 @@ public:
     bool GetSplitActive()                               { return m_SplitActive; }
 
     void SetFreezeAxis( bool flag )                     { m_FreezeAxis = flag; }
-    void SetUpdateIndexSelector( bool flag )            { m_UpdateIndexSelector = flag; }
 
     // Restricts the index selecttor from cycling through intermediate control 
     // points. If an intermediate control point is selected, the delete button
@@ -135,7 +134,6 @@ private:
 
     // Variables to help with CEDIT point selection restrictions
     int m_PrevIndex; // Maintains the previously selected point index
-    bool m_UpdateIndexSelector; // Flag used to indiate if the index selector should be updated
 
     int m_GlWinWidth;
 
