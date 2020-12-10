@@ -115,7 +115,7 @@ private:
     // Draw Objects for XSec
     DrawObj m_XSecCurveDrawObj;
     DrawObj m_XSecCtrlPntsDrawObj;
-    DrawObj m_CEDITTangentLineDrawObj;
+    vector < DrawObj > m_CEDITTangentLineDrawObj;
     DrawObj m_CEDITTangentPntDrawObj;
     DrawObj m_CurrentPntDrawObj;
 

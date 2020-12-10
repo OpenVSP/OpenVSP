@@ -692,15 +692,11 @@ void CurveEditScreen::UpdateDrawObj()
         m_XSecCurveDrawObj.m_LineColor = color;
         m_XSecCurveDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
 
-        m_CEDITTangentLineDrawObj.m_PntVec.clear();
+        m_CEDITTangentLineDrawObj.clear();
         m_CEDITTangentPntDrawObj.m_PntVec.clear();
 
         if ( edit_curve_xs->m_CurveType.Get() == vsp::CEDIT )
         {
-            m_CEDITTangentLineDrawObj.m_Type = DrawObj::VSP_LINE_LOOP;
-            m_CEDITTangentLineDrawObj.m_LineWidth = line_thick;
-            m_CEDITTangentLineDrawObj.m_Visible = true;
-            m_CEDITTangentLineDrawObj.m_LineColor = DrawObj::ColorWheel( 240 );
 
             m_CEDITTangentPntDrawObj.m_Type = DrawObj::VSP_POINTS;
             m_CEDITTangentPntDrawObj.m_PointSize = point_size;
@@ -709,30 +705,36 @@ void CurveEditScreen::UpdateDrawObj()
 
             int nseg = ( ndata - 1 ) / 3;
 
-            vector < vec3d > end( nseg + 1 ); // Cubic segment endpoints
-            vector < vec3d > mid( 2 * nseg ); // Cubic segment midpoints
+            m_CEDITTangentLineDrawObj.resize( nseg + 1 );
 
+            vector < vec3d > mid( 2 * nseg ); // Cubic segment midpoints
             int imid = 0;
-            int iend = 0;
 
             for ( int i = 0; i < ndata; i++ )
             {
                 if ( ( i % 3 ) == 0 )
                 {
-                    end[iend] = control_pts[i];
-                    iend++;
+                    int iseg = i / 3;
 
                     if ( i != 0 )
                     {
-                        m_CEDITTangentLineDrawObj.m_PntVec.push_back( control_pts[i - 1] );
-                        m_CEDITTangentLineDrawObj.m_PntVec.push_back( control_pts[i] );
+                        m_CEDITTangentLineDrawObj[iseg].m_PntVec.push_back( control_pts[i - 1] );
+                        m_CEDITTangentLineDrawObj[iseg].m_PntVec.push_back( control_pts[i] );
                     }
 
                     if ( i != ndata - 1 )
                     {
-                        m_CEDITTangentLineDrawObj.m_PntVec.push_back( control_pts[i] );
-                        m_CEDITTangentLineDrawObj.m_PntVec.push_back( control_pts[i + 1] );
+                        m_CEDITTangentLineDrawObj[iseg].m_PntVec.push_back( control_pts[i] );
+                        m_CEDITTangentLineDrawObj[iseg].m_PntVec.push_back( control_pts[i + 1] );
                     }
+
+                    m_CEDITTangentLineDrawObj[iseg].m_Type = DrawObj::VSP_LINES;
+                    m_CEDITTangentLineDrawObj[iseg].m_LineWidth = 0.75 * line_thick; // 3/4 as thick
+                    m_CEDITTangentLineDrawObj[iseg].m_Visible = true;
+                    m_CEDITTangentLineDrawObj[iseg].m_LineColor = DrawObj::ColorWheel( 240 );
+                    m_CEDITTangentLineDrawObj[iseg].m_GeomChanged = true;
+                    m_CEDITTangentLineDrawObj[iseg].m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
+                    m_CEDITTangentLineDrawObj[iseg].m_GeomID = "CEDIT_" + edit_curve_xs->GetID() + "_LINE_" + std::to_string( i );
                 }
                 else
                 {
@@ -766,10 +768,6 @@ void CurveEditScreen::UpdateDrawObj()
     m_CEDITTangentPntDrawObj.m_GeomChanged = true;
     m_CEDITTangentPntDrawObj.m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
     m_CEDITTangentPntDrawObj.m_GeomID = "CEDIT_" + edit_curve_xs->GetID() + "_PNTS";
-
-    m_CEDITTangentLineDrawObj.m_GeomChanged = true;
-    m_CEDITTangentLineDrawObj.m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
-    m_CEDITTangentLineDrawObj.m_GeomID = "CEDIT_" + edit_curve_xs->GetID() + "_LINES";
 
     m_CurrentPntDrawObj.m_GeomChanged = true;
     m_CurrentPntDrawObj.m_Screen = DrawObj::VSP_EDIT_CURVE_SCREEN;
@@ -814,7 +812,10 @@ void CurveEditScreen::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
 
     draw_obj_vec.push_back( &m_XSecCurveDrawObj );
     draw_obj_vec.push_back( &m_XSecCtrlPntsDrawObj );
-    draw_obj_vec.push_back( &m_CEDITTangentLineDrawObj );
+    for ( size_t i = 0; i < m_CEDITTangentLineDrawObj.size(); i++ )
+    {
+        draw_obj_vec.push_back( &m_CEDITTangentLineDrawObj[i] );
+    }
     draw_obj_vec.push_back( &m_CEDITTangentPntDrawObj );
     draw_obj_vec.push_back( &m_CurrentPntDrawObj );
 }
