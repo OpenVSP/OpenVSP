@@ -126,18 +126,17 @@
    to the public domain from NASA TM X 3069 September, 1974.
    Converted to C using F2C.
    
-   - [Triangle by Jonathan Shewchuk](http://www.cs.cmu.edu/~quake/triangle.html)
-   2D Delaunay triangulator.  This routine has been included in
-   this distribution.
+   - [Triangle by Jonathan Shewchuk](http://www.cs.cmu.edu/~quake/triangle.html) 
+   2D Delaunay triangulator.  
+   		- [CMake Library](https://github.com/wo80/Triangle) version used by OpenVSP
    
-   - [tri_tri_intersect by Philippe Guigue and Olivier Devillers] (https://github.com/erich666/jgt-code/tree/master/Volume_08/Number_1/Guigue2003) - Fast and Robust Triangle-Triangle Overlap Test using Orientation Predicates.
-	This code is an upgrade of the fast triangle-triangle 
-	intersection routines routines developed by Tomas Möller
-	and included with earlier versions of OpenVSP. While largely
-	based on Möller's algorithms, this code is more numerically
-	robust and efficient.
+   - [tri_tri_intersect by Philippe Guigue and Olivier Devillers](https://github.com/erich666/jgt-code/tree/master/Volume_08/Number_1/Guigue2003) - Fast and Robust Triangle-Triangle Overlap Test using Orientation Predicates.
+	An upgraded version of Tomas Möller's fast triangle-triangle 
+	intersection routines included with earlier versions of 
+	OpenVSP. While largely based on Möller's algorithms, 
+	this code is more numerically robust and efficient.
       
-	  - Old URL: (https://web.archive.org/web/20120118225810/http://jgt.akpeters.com/papers/GuigueDevillers03/)
+	  - [Old URL](https://web.archive.org/web/20120118225810/http://jgt.akpeters.com/papers/GuigueDevillers03/)
 		
       - Philippe Guigue, Olivier Devillers, "Fast and Robust Triangle-Triangle 
 	  Overlap Test using Orientation Predicates", Journal of Graphics Tools, 
@@ -256,6 +255,9 @@
       - `LIBIGES_INSTALL_DIR`
       - `STEPCODE_INSTALL_DIR`
       - `EXPRPARSE_INSTALL_DIR`
+      - `TRIANGLE_INSTALL_DIR`
+
+   - `VSP_ENABLE_MATLAB_API` -- Set this variable to ON to compile the OpenVSP MATLAB API. To be successful, `SWIG_EXECUTABLE` must be set to the swig executable compiled off of the unreleased MATLAB branch of SWIG. 
 
 ##### Libraries & SuperProject project variables:
 
@@ -274,3 +276,4 @@
       - `VSP_USE_SYSTEM_LIBIGES`
       - `VSP_USE_SYSTEM_STEPCODE`
       - `VSP_USE_SYSTEM_EXPRPARSE`
+      - `VSP_USE_SYSTEM_TRIANGLE`
