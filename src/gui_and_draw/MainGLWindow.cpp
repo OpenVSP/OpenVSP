@@ -2260,7 +2260,7 @@ int EditXSecWindow::handle( int fl_event )
     double sx = coord.x();
     double sy = coord.y();
 
-    if ( fl_event == FL_PUSH )
+    if ( fl_event == FL_PUSH && !Fl::event_button2() )
     {
         // Diameter of point + 10% considered "hit" 
         double hit_r = 1.2 * edit_curve_xs->m_XSecPointSize.Get() / 2;
