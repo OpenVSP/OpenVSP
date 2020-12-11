@@ -224,7 +224,7 @@ void VORTEX::Velocity(float xyz_1[3], float xyz_2[3], float xyz_p[3], float Mach
 
     /* get (ub,vb,wb) in rotated coordinate system */
 
-    ds = SQR(xs) + ( SQR(t) + SQR(beta_2) )*SQR(zobar);
+    ds = SQR(xs) + ( SQR(t) + beta_2 )*SQR(zobar);
 
     d1 = SQR(y1) + SQR(zobar);
 
