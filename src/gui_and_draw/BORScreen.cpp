@@ -147,6 +147,7 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_RoundedRectGroup.AddSlider( m_RRWidthSlider,  "Width", 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddSlider( m_RRSkewSlider, "Skew", 2, "%6.5f");
+    m_RoundedRectGroup.AddSlider( m_RRVSkewSlider, "VSkew", 2, "%6.5f" );
     m_RoundedRectGroup.AddSlider( m_RRKeystoneSlider, "Keystone", 1, "%6.5f");
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddSlider( m_RRRadiusSlider, "Radius", 10, "%6.5f" );
@@ -808,6 +809,7 @@ bool BORScreen::Update()
             m_RRKeyCornerButton.Update( rect_xs->m_KeyCornerParm.GetID() );
             m_RRSkewSlider.Update( rect_xs->m_Skew.GetID() );
             m_RRKeystoneSlider.Update( rect_xs->m_Keystone.GetID() );
+            m_RRVSkewSlider.Update( rect_xs->m_VSkew.GetID() );
         }
         else if ( xsc->GetType() == vsp::XS_GENERAL_FUSE )
         {
