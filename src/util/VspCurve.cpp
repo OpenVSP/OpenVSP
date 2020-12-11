@@ -1639,7 +1639,7 @@ vector < BezierSegment > VspCurve::GetBezierSegments()
     return seg_vec;
 }
 
-double VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, double r, bool keycorner )
+double VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, double vsk, double r, bool keycorner )
 {
     VspCurve edge;
     vector<vec3d> pt;
@@ -1652,8 +1652,9 @@ double VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk
     double wt2 = 0.5 * wt;
     double wb2 = 0.5 * wb;
     double w2 = 0.5 * w;
-    double off = sk * w2;
+    double w_off = sk * w2;
     double h2 = 0.5 * h;
+    double h_off = vsk * h2;
 
     if ( r > wt2 )
     {
@@ -1696,14 +1697,14 @@ double VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk
         u.resize( 9 );
 
         // set the segment points
-        pt[0].set_xyz( w,                0, 0 );
-        pt[1].set_xyz( w2 + wb2 - off, -h2, 0 );
-        pt[2].set_xyz( w2 - off,       -h2, 0 );
-        pt[3].set_xyz( w2 - wb2 - off, -h2, 0 );
-        pt[4].set_xyz( 0,                0, 0 );
-        pt[5].set_xyz( w2 - wt2 + off,  h2, 0 );
-        pt[6].set_xyz( w2 + off,        h2, 0 );
-        pt[7].set_xyz( w2 + wt2 + off,  h2, 0 );
+        pt[0].set_xyz( w,                 h_off,        0 );
+        pt[1].set_xyz( w2 + wb2 - w_off, -h2 + h_off,   0 );
+        pt[2].set_xyz( w2 - w_off,       -h2,           0 );
+        pt[3].set_xyz( w2 - wb2 - w_off, -h2 - h_off,   0 );
+        pt[4].set_xyz( 0,                -h_off,        0 );
+        pt[5].set_xyz( w2 - wt2 + w_off,  h2 - h_off,   0 );
+        pt[6].set_xyz( w2 + w_off,        h2,           0 );
+        pt[7].set_xyz( w2 + wt2 + w_off,  h2 + h_off,   0 );
 
         // set the corresponding parameters
         u[0] = 0;

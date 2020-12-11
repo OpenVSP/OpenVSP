@@ -322,6 +322,7 @@ public:
     Parm m_Skew;
     Parm m_Keystone;
     BoolParm m_KeyCornerParm;
+    Parm m_VSkew;
 };
 
 //==========================================================================//

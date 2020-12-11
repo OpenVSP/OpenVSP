@@ -1754,15 +1754,16 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
     m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
-    m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -10, 10);
+    m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -1e6, 1e6 );
     m_Keystone.Init("RoundRect_Keystone", m_GroupName, this, 0.5, 0.0, 1.0 );
     m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, true, 0, 1 );
+    m_VSkew.Init( "RoundRect_VSkew", m_GroupName, this, 0.0, -1e6, 1e6 );
 }
 
 //==== Update Geometry ====//
 void RoundedRectXSec::Update()
 {
-    double r = m_Curve.CreateRoundedRectangle( m_Width(), m_Height(), m_Keystone(), m_Skew(), m_Radius(), m_KeyCornerParm() );
+    double r = m_Curve.CreateRoundedRectangle( m_Width(), m_Height(), m_Keystone(), m_Skew(), m_VSkew(), m_Radius(), m_KeyCornerParm() );
     m_Radius.Set( r );
 
     XSecCurve::Update();
@@ -1810,6 +1811,7 @@ void RoundedRectXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
     {
         INTERP_PARM( s, e, frac, m_Radius );
         INTERP_PARM( s, e, frac, m_Skew );
+        INTERP_PARM( s, e, frac, m_VSkew );
         INTERP_PARM( s, e, frac, m_Keystone );
     }
     XSecCurve::Interp( start, end, frac );
