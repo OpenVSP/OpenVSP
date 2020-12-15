@@ -1124,7 +1124,9 @@ void Geom::Update( bool fullupdate )
         UpdateFlags();  // Needs to be after m_MainSurfVec is populated, but before m_SurfVec
     }
 
-    if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
+    // Sets cluster parameters on m_MainSurfVec[0] for wings etc.
+    // Needs to be before m_MainSurfVec is copied to m_SurfVec.
+    if ( m_SurfDirty || m_TessDirty )
     {
         UpdatePreTess();
     }
