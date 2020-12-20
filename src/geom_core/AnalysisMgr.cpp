@@ -2276,6 +2276,9 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_NoiseUnits.Set( nvd->GetInt( 0 ) );
         }
 
+        //==== Compute Geometry ====//
+        VSPAEROMgr.ComputeGeometry();
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
 
