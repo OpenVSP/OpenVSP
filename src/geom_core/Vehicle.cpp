@@ -4647,6 +4647,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
             else
             {
                 SetActiveGeom( id );
+                new_geom->m_SurfDirty = true;
                 new_geom->Update();
             }
         }
@@ -4680,6 +4681,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
                 else
                 {
                     SetActiveGeom( id );
+                    prop->m_SurfDirty = true;
                     prop->Update();
                 }
             }
@@ -4741,6 +4743,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
             if ( new_geom )
             {
                 new_geom->ReadXSec( fp );
+                new_geom->m_SurfDirty = true;
             }
         }
         fclose( fp );
@@ -4805,6 +4808,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
             if ( new_geom )
             {
                 new_geom->ReadP3D( fp, ni[c], nj[c], nk[c] );
+                new_geom->m_SurfDirty = true;
             }
         }
         fclose( fp );
@@ -4853,6 +4857,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
             else
             {
                 SetActiveGeom( id );
+                new_geom->m_SurfDirty = true;
                 new_geom->Update();
             }
         }
@@ -4994,6 +4999,7 @@ string Vehicle::ImportV2File( const string & file_name )
                 {
                     add_geoms.push_back( id );
                     geom->ReadV2File( comp_node );
+                    geom->m_SurfDirty = true;
 
                     if ( geom->GetParentID().compare( "NONE" ) == 0 )
                     {
