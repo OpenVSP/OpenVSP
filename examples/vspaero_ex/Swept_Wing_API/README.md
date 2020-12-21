@@ -169,18 +169,22 @@ At any point, the `Print()` function may be used to print messages or variables 
        Update();
        ```
 
-4. Now that the geometry has been created, we shall save it in the .vsp3 and DegenGeom formats using the functions `WriteVSPFile()` and `ComputeDegenGeom()`. The vsp3 file is named **TR1208-API.vsp3** and the DegenGeom file **TR1208-API_DegenGeom.csv**.
+4. Now that the geometry has been created, we shall save it in the .vsp3 format using the function `WriteVSPFile()`. The vsp3 file is named **TR1208-API.vsp3**. A CompGeom analysis also has to be performed to generate the DegenGeom file required for later VSPAero analyses. We clear our history using the function `ClearVSPModel()` and start afresh by reading the vsp3 file and performing the CompGeom analysis. The block used to perform the compgeom analysis is similar to the VSPAERO Sweep analysis explained in the next step.
    ```C
-   // Save as vsp3 and DegenGeom format
+   // Save as vsp3 file and start afresh
    WriteVSPFile("TR1208-API.vsp3", SET_ALL);
-   SetComputationFileName(DEGEN_GEOM_CSV_TYPE, "TR1208-API_DegenGeom.csv");
-   ComputeDegenGeom(SET_ALL, DEGEN_GEOM_CSV_TYPE);
+   ClearVSPModel();
+   ReadVSPFile("TR1208-API.vsp3");
+
+   // Run CompGeom to generate geometry
+   string compGeom = "VSPAEROComputeGeometry";
+   setAnalysisInputDefaults(compGeom);
+   string compGeom_results = ExecAnalysis(compGeom);
    ```
 
-5. To perform the VSPAero analysis, we first read in the **TR1208-API.vsp3** file using `ReadVSPFile()` and then set the type of analysis. All available analyses are exposed through the Analysis Manager functions which help setup and run various types of analyses. Invoking `SetAnalysisInputDefaults()` sets parameters to their default values. To browse alternate types of analyses, use `ListAnalysis()` as described in the documentation.
+5. To perform the VSPAero analysis, we first set the type of analysis. All available analyses are exposed through the Analysis Manager functions which help setup and run various types of analyses. Invoking `SetAnalysisInputDefaults()` sets parameters to their default values. To browse alternate types of analyses, use `ListAnalysis()` as described in the documentation.
    ```C
    // Alpha Sweep analysis using VSPAero
-   ReadVSPFile("TR1208-API.vsp3");
    string myAnalysis = "VSPAEROSweep";
    SetAnalysisInputDefaults(myAnalysis);
    ```

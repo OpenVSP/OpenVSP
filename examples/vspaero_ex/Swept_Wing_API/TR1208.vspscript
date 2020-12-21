@@ -10,6 +10,7 @@ void main()
 
   // Set parameters wing section
   SetDriverGroup(myWing, 1, SPAN_WSECT_DRIVER, TAPER_WSECT_DRIVER, ROOTC_WSECT_DRIVER);
+
   SetParmVal(myWing, "SectTess_U", "XSec_1", 20);
   SetParmVal(myWing, "Span", "XSec_1", 63.63);
   SetParmVal(myWing, "Taper", "XSec_1", 0.45);
@@ -27,14 +28,11 @@ void main()
   ChangeXSecShape(xsec_surf, 1, XS_FILE_AIRFOIL);
   string xsec1 = GetXSec(xsec_surf, 1);
   ReadFileAirfoil(xsec1, "NACA63A012.af");
-
   Update();
 
-  // Save as vsp3 and DegenGeom format
+  // Save as vsp3 file and start afresh
   WriteVSPFile("TR1208-API.vsp3", SET_ALL);
-  SetComputationFileName(DEGEN_GEOM_CSV_TYPE, "TR1208-API_DegenGeom.csv");
-  ComputeDegenGeom(SET_ALL, DEGEN_GEOM_CSV_TYPE);
-
+  ClearVSPModel();
   ReadVSPFile("TR1208-API.vsp3");
 
   // Run CompGeom to generate geometry
