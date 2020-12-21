@@ -540,8 +540,9 @@ enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),
               }; // Symmetry Flags
 
 enum SYM_XSEC_TYP { SYM_NONE,
-                    SYM_RL // Right/Left Symmetry
-                    //SYM_TB  // Top/Bottom Symmetry
+                    SYM_RL, // Right/Left Symmetry
+                    SYM_TB,  // Top/Bottom Symmetry
+                    SYM_ALL
                   };
 
 enum TEMP_UNITS { TEMP_UNIT_K = 0,

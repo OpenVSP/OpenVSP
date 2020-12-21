@@ -1643,13 +1643,17 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "SYM_FLAG", "SYM_NUM_TYPES", SYM_NUM_TYPES, "/*!< Number of symmetry types */" );
     assert( r >= 0 );
 
-    doc_struct.comment = "/*! Symmetry enum for XS_EDIT_CURVE type XSecs. */";
+    doc_struct.comment = "/*! Symmetry enum for Rounded Rectangle and Edit Curve type XSecs. */";
 
     r = se->RegisterEnum( "SYM_XSEC_TYPE", doc_struct );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_NONE", SYM_NONE, "/*!< No symmetry */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_RL", SYM_RL, "/*!< Right-left symmetry */" );
+    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_RL", SYM_RL, "/*!< Right-left symmetry: right is mirrored to the left */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_TB", SYM_TB, "/*!< Top-bottom symmetry: top is mirrored to the bottom */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_ALL", SYM_ALL, "/*!< All symmetry with top right as primary */" );
 
     doc_struct.comment = "/*! Enum that describes units for temperature. */";
 
