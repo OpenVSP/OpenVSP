@@ -35,8 +35,14 @@ void main()
   SetComputationFileName(DEGEN_GEOM_CSV_TYPE, "TR1208-API_DegenGeom.csv");
   ComputeDegenGeom(SET_ALL, DEGEN_GEOM_CSV_TYPE);
 
-  // Alpha Sweep analysis using VSPAero
   ReadVSPFile("TR1208-API.vsp3");
+
+  // Run CompGeom to generate geometry
+  string compGeom = "VSPAEROComputeGeometry";
+  SetAnalysisInputDefaults(compGeom);
+  string compGeom_results = ExecAnalysis(compGeom);
+
+  // Alpha Sweep analysis using VSPAero
   string myAnalysis = "VSPAEROSweep";
   SetAnalysisInputDefaults(myAnalysis);
 
@@ -46,7 +52,7 @@ void main()
   // Set inputs for VSPAero
   array<int> analysis_method(1, VORTEX_LATTICE);
   SetIntAnalysisInput(myAnalysis, "AnalysisMethod", analysis_method);
-  
+
   array<double> Sref(1, 2121.68);
   SetDoubleAnalysisInput(myAnalysis, "Sref", Sref);
 
