@@ -66,6 +66,11 @@ void main()
   array<int> AlphaNpts(1, nAlpha);
   SetIntAnalysisInput(myAnalysis, "AlphaNpts", AlphaNpts);
 
+  // Run CompGeom to generate geometry
+  string compGeom = "VSPAEROComputeGeometry";
+  SetAnalysisInputDefaults(compGeom);
+  string compGeom_results = ExecAnalysis(compGeom);
+
   // Run analysis and write results to CSV file
   string allResults = ExecAnalysis(myAnalysis);
   WriteResultsCSVFile(allResults, "Results.csv");
