@@ -193,6 +193,26 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_RoundedRectGroup.AddSlider( m_RRKeystoneSlider, "Keystone", 1, "%6.5f");
     m_RoundedRectGroup.AddYGap();
 
+    m_RoundedRectGroup.SetSameLineFlag( true );
+    m_RoundedRectGroup.SetFitWidthFlag( false );
+    m_RoundedRectGroup.SetButtonWidth( m_RoundedRectGroup.GetRemainX() / 5 );
+
+    m_RoundedRectGroup.AddLabel( "Symmetry:", m_RoundedRectGroup.GetRemainX() / 5 );
+    m_RoundedRectGroup.AddButton( m_RRRadNoSymToggle, "None" );
+    m_RoundedRectGroup.AddButton( m_RRRadRLSymToggle, "R//L" );
+    m_RoundedRectGroup.AddButton( m_RRRadTBSymToggle, "T//B" );
+    m_RoundedRectGroup.AddButton( m_RRRadAllSymToggle, "All" );
+
+    m_RRRadSymRadioGroup.Init( this );
+    m_RRRadSymRadioGroup.AddButton( m_RRRadNoSymToggle.GetFlButton() );
+    m_RRRadSymRadioGroup.AddButton( m_RRRadRLSymToggle.GetFlButton() );
+    m_RRRadSymRadioGroup.AddButton( m_RRRadTBSymToggle.GetFlButton() );
+    m_RRRadSymRadioGroup.AddButton( m_RRRadAllSymToggle.GetFlButton() );
+
+    m_RoundedRectGroup.ForceNewLine();
+    m_RoundedRectGroup.SetSameLineFlag( false );
+    m_RoundedRectGroup.SetFitWidthFlag( true );
+
     m_RoundedRectGroup.AddSlider( m_RRRadiusTRSlider, "TR Radius", 10, "%6.5f" );
     m_RoundedRectGroup.AddSlider( m_RRRadiusTLSlider, "TL Radius", 10, "%6.5f" );
     m_RoundedRectGroup.AddSlider( m_RRRadiusBLSlider, "BL Radius", 10, "%6.5f" );
@@ -787,6 +807,7 @@ bool FuselageScreen::Update()
 
                 m_RRHeightSlider.Update( rect_xs->m_Height.GetID() );
                 m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
+                m_RRRadSymRadioGroup.Update( rect_xs->m_RadiusSymmetryType.GetID() );
                 m_RRRadiusBRSlider.Update( rect_xs->m_RadiusBR.GetID() );
                 m_RRRadiusBLSlider.Update( rect_xs->m_RadiusBL.GetID() );
                 m_RRRadiusTLSlider.Update( rect_xs->m_RadiusTL.GetID() );
@@ -795,6 +816,31 @@ bool FuselageScreen::Update()
                 m_RRSkewSlider.Update( rect_xs->m_Skew.GetID() );
                 m_RRKeystoneSlider.Update( rect_xs->m_Keystone.GetID() );
                 m_RRVSkewSlider.Update( rect_xs->m_VSkew.GetID() );
+
+                if ( rect_xs->m_RadiusSymmetryType.Get() == vsp::SYM_NONE )
+                {
+                    m_RRRadiusBRSlider.Activate();
+                    m_RRRadiusBLSlider.Activate();
+                    m_RRRadiusTLSlider.Activate();
+                }
+                else if ( rect_xs->m_RadiusSymmetryType.Get() == vsp::SYM_RL )
+                {
+                    m_RRRadiusBRSlider.Activate();
+                    m_RRRadiusBLSlider.Deactivate();
+                    m_RRRadiusTLSlider.Deactivate();
+                }
+                else if ( rect_xs->m_RadiusSymmetryType.Get() == vsp::SYM_TB )
+                {
+                    m_RRRadiusBRSlider.Deactivate();
+                    m_RRRadiusTLSlider.Activate();
+                    m_RRRadiusBLSlider.Deactivate();
+                }
+                else if ( rect_xs->m_RadiusSymmetryType.Get() == vsp::SYM_ALL )
+                {
+                    m_RRRadiusBRSlider.Deactivate();
+                    m_RRRadiusBLSlider.Deactivate();
+                    m_RRRadiusTLSlider.Deactivate();
+                }
             }
             else if ( xsc->GetType() == XS_GENERAL_FUSE )
             {

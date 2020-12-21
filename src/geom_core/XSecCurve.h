@@ -318,6 +318,7 @@ public:
 
     Parm m_Width;
     Parm m_Height;
+    IntParm m_RadiusSymmetryType;
     Parm m_RadiusBR;
     Parm m_RadiusBL;
     Parm m_RadiusTL;

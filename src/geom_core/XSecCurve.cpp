@@ -1753,6 +1753,7 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
+    m_RadiusSymmetryType.Init( "RoundedRect_RadiusSymmetryType", m_GroupName, this, vsp::SYM_ALL, vsp::SYM_NONE, vsp::SYM_ALL );
     m_RadiusBR.Init( "RoundRectXSec_RadiusBR", m_GroupName, this, 0.2, 0.0, 1.0e12 );
     m_RadiusBL.Init( "RoundRectXSec_RadiusBL", m_GroupName, this, 0.2, 0.0, 1.0e12 );
     m_RadiusTL.Init( "RoundRectXSec_RadiusTL", m_GroupName, this, 0.2, 0.0, 1.0e12 );
@@ -1771,6 +1772,22 @@ void RoundedRectXSec::Update()
     double r3 = m_RadiusTL();
     double r4 = m_RadiusTR();
 
+    if ( m_RadiusSymmetryType() == vsp::SYM_ALL )
+    {
+        r1 = r4;
+        r2 = r4;
+        r3 = r4;
+    }
+    else if ( m_RadiusSymmetryType() == vsp::SYM_TB )
+    {
+        r2 = r3;
+        r1 = r4;
+    }
+    else if ( m_RadiusSymmetryType() == vsp::SYM_RL )
+    {
+        r2 = r1;
+        r3 = r4;
+    }
 
     m_Curve.CreateRoundedRectangle( m_Width(), m_Height(), m_Keystone(), m_Skew(), m_VSkew(), r1, r2, r3, r4, m_KeyCornerParm() );
     m_RadiusBR.Set( r1 );

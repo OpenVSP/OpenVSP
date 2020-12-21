@@ -110,6 +110,11 @@ protected:
     GroupLayout m_RoundedRectGroup;
     SliderAdjRangeInput m_RRHeightSlider;
     SliderAdjRangeInput m_RRWidthSlider;
+    ToggleButton m_RRRadNoSymToggle;
+    ToggleButton m_RRRadRLSymToggle;
+    ToggleButton m_RRRadTBSymToggle;
+    ToggleButton m_RRRadAllSymToggle;
+    ToggleRadioGroup m_RRRadSymRadioGroup;
     SliderAdjRangeInput m_RRRadiusBRSlider; // Bottom Right
     SliderAdjRangeInput m_RRRadiusBLSlider; // Bottom Left
     SliderAdjRangeInput m_RRRadiusTLSlider; // Top Left
