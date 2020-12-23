@@ -2312,7 +2312,7 @@ int EditXSecWindow::handle( int fl_event )
             curve_editor->UpdateIndexSelector( new_pnt );
         }
     }
-    else if ( fl_event == FL_DRAG && m_LastHit != -1 )
+    else if ( fl_event == FL_DRAG && m_LastHit != -1 && !Fl::event_button2() )
     {
         if ( edit_curve_xs->m_AbsoluteFlag() )
         {
