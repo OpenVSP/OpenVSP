@@ -1083,7 +1083,8 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
 
     //==== Write Tris ====//
     fprintf( fp, "# Part 2 - facet list\n" );
-    fprintf( fp, "%d 0\n", tri_cnt );
+    // <# of facets> <boundary markers (0 or 1)> 
+    fprintf( fp, "%d 1\n", tri_cnt );
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
@@ -1097,8 +1098,11 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
             int ind1 = pntShift[i0] + 1;
             int ind2 = pntShift[i1] + 1;
             int ind3 = pntShift[i2] + 1;
+            int tag = SubSurfaceMgr.GetTag( sTriVec[t].m_Tags );
 
-            fprintf( fp, "1\n" );
+	    // <# of polygons> [# of holes] [boundary marker] 
+            fprintf( fp, "1 0 %d\n", tag );
+	    // <# of corners> <corner 1> <corner 2> <corner 3>
             fprintf( fp, "3 %d %d %d\n", ind1, ind2, ind3 );
         }
     }
