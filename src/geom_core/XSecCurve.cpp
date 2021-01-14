@@ -2404,8 +2404,8 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
     m_PreserveARFlag.Init( "PreserveARFlag", m_GroupName, this, false, false, true );
     m_PreserveARFlag.SetDescript( "Flag to preserve width to height aspect ratio" );
 
-    m_XSecPointSize.Init( "XSecPointSize", ( m_GroupName + "_Background" ), NULL, 8.0, 1e-4, 1e4 );
-    m_XSecLineThickness.Init( "XSecLineThickness", ( m_GroupName + "_Background" ), NULL, 1.5, 1e-4, 1e4 );
+    m_XSecPointSize.Init( "XSecPointSize", ( m_GroupName + "_Background" ), this, 8.0, 1e-4, 1e4 );
+    m_XSecLineThickness.Init( "XSecLineThickness", ( m_GroupName + "_Background" ), this, 1.5, 1e-4, 1e4 );
 
     m_XSecPointColorFlag.Init( "XSecPointColorFlag", ( m_GroupName + "_Background" ), this, false, false, true );
     m_XSecPointColorFlag.SetDescript( "Flag to color XSec points" );
