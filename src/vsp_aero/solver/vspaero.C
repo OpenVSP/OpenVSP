@@ -1607,7 +1607,9 @@ void LoadCaseFile(void)
              // Control groupname
              
              fgets( ControlSurfaceGroup_[i].Name(), 200, case_file );
-             
+
+             ControlSurfaceGroup_[i].Name()[strcspn( ControlSurfaceGroup_[i].Name(), "\n" )] = 0; // Remove '\n'
+
              printf("ControlSurfaceGroup_[%d].Name(): %s \n",i,ControlSurfaceGroup_[i].Name());
              
              // List of control surfaces in this group
