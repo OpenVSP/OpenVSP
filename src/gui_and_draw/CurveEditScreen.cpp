@@ -342,6 +342,15 @@ void CurveEditScreen::Show()
 
         m_XSecGlWin->InitZoom();
     }
+
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    geom_ptr->m_SurfDirty = true; // Ensures width/height parms are deactivated
 }
 
 //==== Get the Active XSec Curve ====//
