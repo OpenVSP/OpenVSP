@@ -2093,7 +2093,13 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
             double perWetVol = m_TMeshVec[i]->m_GuessVol / guessTotalWetVol;
             m_TMeshVec[i]->m_WetVol += perWetVol * ( leftOver );
 
-            if ( m_TMeshVec[i]->m_WetVol > m_TMeshVec[i]->m_TheoVol )
+            int neg_vol_mult = 1; // Negative volume multiplier
+            if ( m_TMeshVec[i]->m_SurfCfdType == vsp::CFD_NEGATIVE )
+            {
+                neg_vol_mult = -1;
+            }
+
+            if ( neg_vol_mult * m_TMeshVec[i]->m_WetVol > neg_vol_mult * m_TMeshVec[i]->m_TheoVol )
             {
                 m_TMeshVec[i]->m_WetVol = m_TMeshVec[i]->m_TheoVol;
             }
