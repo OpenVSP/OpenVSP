@@ -3717,8 +3717,8 @@ void VSP_SOLVER::Solve(int Case)
     
     if ( !TimeAccurate_ ) {
 
-                          //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789          
-       FPRINTF(StatusFile_,"  Iter      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz   CDtrefftz     T/QS \n");
+                          //123456789 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123          
+       FPRINTF(StatusFile_,"  Iter         Mach           AoA          Beta            CL           CDo           CDi         CDtot            CS           L/D             E           CFx           CFy           CFz           CMx           CMy           CMz       CDtrefftz      T/QS \n");
    
     }
     
@@ -3726,22 +3726,22 @@ void VSP_SOLVER::Solve(int Case)
        
        if ( TimeAnalysisType_ == HEAVE_ANALYSIS ) {
                  
-                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  
-          FPRINTF(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz   CDtrefftz     T/QS      H   \n");
+                             //1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123    
+          FPRINTF(StatusFile_,"     Time          Mach           AoA          Beta            CL           CDo           CDi         CDtot            CS           L/D             E           CFx            CFy          CFz           CMx           CMy           CMz       CDtrefftz      T/QS             H    \n");
 
        }
        
        else if ( TimeAnalysisType_ == P_ANALYSIS || TimeAnalysisType_ == Q_ANALYSIS ||  TimeAnalysisType_ == R_ANALYSIS ) {
          
-                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789        
-          FPRINTF(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz   CDtrefftz     T/QS  UnstdyAng  \n");
+                             //1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
+          FPRINTF(StatusFile_,"     Time          Mach           AoA          Beta            CL           CDo           CDi         CDtot            CS           L/D             E           CFx            CFy          CFz           CMx           CMy           CMz       CDtrefftz       T/QS        UnstdyAng  \n");
 
        }
        
        else {
 
-                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
-          FPRINTF(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz   CDtrefftz     T/QS  \n");
+                             //1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
+          FPRINTF(StatusFile_,"     Time          Mach           AoA          Beta            CL           CDo           CDi         CDtot            CS           L/D             E           CFx            CFy          CFz           CMx           CMy           CMz       CDtrefftz       T/QS\n");
       
        }
    
@@ -13242,8 +13242,8 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     
     // Write out column labels
     
-                    // 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
-    FPRINTF(LoadFile_,"   Wing       S        Xavg      Yavg      Zavg     Chord     V/Vref      Cl        Cd        Cs        Cx        Cy       Cz        Cmx       Cmy       Cmz \n");
+                    // 123456789 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 
+    FPRINTF(LoadFile_, "   Wing       S            Xavg          Yavg           Zavg          Chord        V/Vref          Cl            Cd            Cs            Cx            Cy           Cz            Cmx           Cmy           Cmz \n");
 
     TotalLift = 0.;  
 
@@ -13275,7 +13275,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
         
           for ( k = 1 ; k <= NumberOfStations ; k++ ) {
 
-             FPRINTF(LoadFile_,"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+              FPRINTF(LoadFile_, "%9d % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E \n",
                      i,
                      SpanLoadData(i).Span_S(k),                    
                      SpanLoadData(i).Span_Xavg(k),
@@ -13304,8 +13304,8 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     
     FPRINTF(LoadFile_,"\n\n\n");
 
-                    // 123456789 123456789012345678901234567890123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789   
-    FPRINTF(LoadFile_,"Comp      Component-Name                             Mach       AoA      Beta       CL        CDi       CS       CFx       CFy       CFz       Cmx       Cmy       Cmz \n");
+                    // 1234567890123 123456789012345678901234567890123456789 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123   
+    FPRINTF(LoadFile_, "Comp         Component-Name                             Mach           AoA          Beta            CL             CDi           CS            CFx           CFy           CFz         Cmx           Cmy           Cmz \n");
 
     for ( i = StartOfSpanLoadDataSets_ ; i <= NumberOfSpanLoadDataSets_ ; i++ ) { 
           
@@ -13364,7 +13364,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
              
           }
            
-          FPRINTF(LoadFile_,"%-9d %-40s %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+          FPRINTF(LoadFile_, "%-9d %-40s % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E \n",
                   i,
                   DumChar,
                   Mach_,
@@ -13408,7 +13408,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
              
           }
 
-          FPRINTF(LoadFile_,"%-9d %-40s %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+          FPRINTF(LoadFile_,"%-9d %-40s % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E \n",
                   i,
                   DumChar,
                   Mach_,
@@ -18257,7 +18257,7 @@ void VSP_SOLVER::OutputStatusFile(int Case)
 
     if ( !TimeAccurate_ ) {
        
-       FPRINTF(StatusFile_,"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+        FPRINTF(StatusFile_, "%9d % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E\n",
                i,
                Mach_,
                FLOAT(AngleOfAttack_/TORAD),
@@ -18315,7 +18315,7 @@ void VSP_SOLVER::OutputStatusFile(int Case)
 
        if ( TimeAnalysisType_ == HEAVE_ANALYSIS ) {
           
-          FPRINTF(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+           FPRINTF(StatusFile_, "% 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E\n",
                   CurrentTime_,
                   Mach_,
                   FLOAT(AngleOfAttack_/TORAD),
@@ -18341,7 +18341,7 @@ void VSP_SOLVER::OutputStatusFile(int Case)
        
        else if ( TimeAnalysisType_ == P_ANALYSIS || TimeAnalysisType_ == Q_ANALYSIS || TimeAnalysisType_ == R_ANALYSIS ) {
           
-          FPRINTF(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+            FPRINTF(StatusFile_, "%9.5lf % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E\n",
                   CurrentTime_,
                   Mach_,
                   FLOAT(AngleOfAttack_/TORAD),
@@ -18375,7 +18375,7 @@ void VSP_SOLVER::OutputStatusFile(int Case)
           
           if ( Case == 0 ) {
           
-             FPRINTF(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+              FPRINTF(StatusFile_, "%9.5lf % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E\n",
                      Time,
                      Mach_,
                      FLOAT(AngleOfAttack_/TORAD),
@@ -18419,7 +18419,7 @@ void VSP_SOLVER::OutputStatusFile(int Case)
              FPRINTF(StatusFile_,"\n\n\n");
              FPRINTF(StatusFile_,"Average Data: \n\n");
                               
-             FPRINTF(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+             FPRINTF(StatusFile_,"%9.5lf % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E\n",
                      Time,
                      Mach_,
                      FLOAT(AngleOfAttack_/TORAD),
