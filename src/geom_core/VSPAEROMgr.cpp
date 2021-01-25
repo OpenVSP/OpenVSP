@@ -1668,7 +1668,7 @@ Optional input of logFile allows outputting to a log file or the console
 string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 {
     Update(); // Force update to ensure correct number of unstead groups, actuator disks, etc when run though the API.
-    UpdateFilenames();
+    UpdateFilenames(); // Do we really need this? is also called by Update() moments before
 
     if ( m_DegenGeomVec.size() == 0 )
     {
@@ -2306,10 +2306,10 @@ int VSPAEROMgrSingleton::WaitForFile( string filename )
     // Wait until the results show up on the file system
     int n_wait = 0;
     // wait no more than 5 seconds = (50*100)/1000
-    while ( ( !FileExist( filename ) ) & ( n_wait < 50 ) )
+    while ( ( !FileExist( filename ) ) & ( n_wait < 100 ) )
     {
         n_wait++;
-        SleepForMilliseconds( 100 );
+        SleepForMilliseconds( 50 );
     }
     SleepForMilliseconds( 100 );  //additional wait for file
 

@@ -1374,7 +1374,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
         VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
 
-        //    Regerence area, length parameters
+        //    Reference area, length parameters
         int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
         string WingIDOrig    = VSPAEROMgr.m_RefGeomID;
         double srefOrig    = VSPAEROMgr.m_Sref.Get();
@@ -1727,7 +1727,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
         VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
 
-        //    Regerence area, length parameters
+        //    Reference area, length parameters
         VSPAEROMgr.m_RefFlag.Set( refFlagOrig );
         VSPAEROMgr.m_RefGeomID = WingIDOrig;
         VSPAEROMgr.m_Sref.Set( srefOrig );
