@@ -2855,8 +2855,8 @@ void VSP_SOLVER::Solve(int Case)
     
     if ( !TimeAccurate_ ) {
 
-                          //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789          
-       fprintf(StatusFile_,"  Iter      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS \n");
+                          //123456789 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123          
+       fprintf(StatusFile_,"  Iter         Mach           AoA          Beta            CL           CDo           CDi         CDtot            CS           L/D             E           CFx           CFy           CFz           CMx           CMy           CMz          T/QS \n");
    
     }
     
@@ -2864,22 +2864,22 @@ void VSP_SOLVER::Solve(int Case)
        
        if ( TimeAnalysisType_ == HEAVE_ANALYSIS ) {
                  
-                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789     
-          fprintf(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS      H       CL_Un     CDi_Un    CS_Un     CFx_Un     CFy_Un    CFz_Un   CMx_Un    CMy_Un    CMz_Un \n");
+                             //1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123     
+          fprintf(StatusFile_,"     Time          Mach           AoA          Beta            CL           CDo           CDi         CDtot            CS           L/D             E           CFx            CFy          CFz           CMx           CMy           CMz          T/QS             H         CL_Un        CDi_Un         CS_Un        CFx_Un        CFy_Un        CFz_Un        CMx_Un        CMy_Un        CMz_Un \n");
 
        }
        
        else if ( TimeAnalysisType_ == P_ANALYSIS || TimeAnalysisType_ == Q_ANALYSIS ||  TimeAnalysisType_ == R_ANALYSIS ) {
          
-                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789          
-          fprintf(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS  UnstdyAng   CL_Un     CDi_Un    CS_Un     CFx_Un     CFy_Un    CFz_Un   CMx_Un    CMy_Un    CMz_Un \n");
+                             //1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123          
+          fprintf(StatusFile_,"     Time          Mach           AoA          Beta            CL           CDo           CDi         CDtot            CS           L/D             E           CFx            CFy          CFz           CMx           CMy           CMz          T/QS      UnstdyAng        CL_Un        CDi_Un         CS_Un        CFx_Un        CFy_Un        CFz_Un        CMx_Un        CMy_Un        CMz_Un \n");
 
        }
        
        else {
 
-                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789
-          fprintf(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS    CL_Un     CDi_Un    CS_Un     CFx_Un     CFy_Un    CFz_Un   CMx_Un    CMy_Un    CMz_Un \n");
+                             //1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
+          fprintf(StatusFile_,"     Time          Mach           AoA          Beta            CL           CDo           CDi         CDtot            CS           L/D             E           CFx            CFy          CFz           CMx           CMy           CMz          T/QS         CL_Un        CDi_Un         CS_Un        CFx_Un        CFy_Un        CFz_Un        CMx_Un        CMy_Un        CMz_Un  \n");
       
        }
    
@@ -10305,8 +10305,8 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     
     // Write out column labels
     
-                    // 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
-    fprintf(LoadFile_,"   Wing       S        Yavg     Chord     V/Vref      Cl        Cd        Cs        Cx        Cy       Cz        Cmx       Cmy       Cmz \n");
+                    // 123456789 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 
+    fprintf(LoadFile_,"   Wing           S          Yavg         Chord        V/Vref            Cl            Cd            Cs            Cx            Cy            Cz           Cmx           Cmy           Cmz \n");
 
     TotalLift = 0.;  
 
@@ -10318,7 +10318,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
               
           for ( k = 1 ; k <= NumberOfStations ; k++ ) {
 
-             fprintf(LoadFile_,"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+             fprintf(LoadFile_,"%9d % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E \n",
                      i,
                      VSPGeom().VSP_Surface(i).s(k),                    
                      Span_Yavg_[i][k],
@@ -10344,8 +10344,8 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     
     fprintf(LoadFile_,"\n\n\n");
 
-                    // 123456789 123456789012345678901234567890123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789   
-    fprintf(LoadFile_,"Comp      Component-Name                             Mach       AoA      Beta       CL        CDi       CS       CFx       CFy       CFz       Cmx       Cmy       Cmz \n");
+                    // 1234567890123 123456789012345678901234567890123456789 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123   
+    fprintf(LoadFile_,"Comp          Component-Name                               Mach           AoA          Beta            CL           CDi            CS           CFx           CFy           CFz           Cmx           Cmy           Cmz \n");
 
     for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
      
@@ -10381,7 +10381,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
           CMy /= 0.5*Sref_*Cref_;
           CMz /= 0.5*Sref_*Bref_;
           
-          fprintf(LoadFile_,"%-9d %-40s %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+          fprintf(LoadFile_,"%-9d %-40s % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E \n",
                   i,
                   VSPGeom().VSP_Surface(i).ComponentName(),
                   Mach_,
@@ -10403,7 +10403,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
         
           k = 1;
     
-          fprintf(LoadFile_,"%-9d %-40s %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+          fprintf(LoadFile_,"%-9d %-40s % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E \n",
                   i,
                   VSPGeom().VSP_Surface(i).ComponentName(),
                   Mach_,
@@ -15230,7 +15230,7 @@ void VSP_SOLVER::OutputStatusFile(void)
 
     if ( !TimeAccurate_ ) {
        
-       fprintf(StatusFile_,"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+       fprintf(StatusFile_, "%9d % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E\n",
                i,
                Mach_,
                AngleOfAttack_/TORAD,
@@ -15266,7 +15266,7 @@ void VSP_SOLVER::OutputStatusFile(void)
 
        if ( TimeAnalysisType_ == HEAVE_ANALYSIS ) {
           
-          fprintf(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+            fprintf(StatusFile_, "% 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E\n",
                   CurrentTime_,
                   Mach_,
                   AngleOfAttack_/TORAD,
@@ -15300,7 +15300,7 @@ void VSP_SOLVER::OutputStatusFile(void)
        
        else if ( TimeAnalysisType_ == P_ANALYSIS || TimeAnalysisType_ == Q_ANALYSIS || TimeAnalysisType_ == R_ANALYSIS ) {
           
-          fprintf(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+            fprintf(StatusFile_, "% 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E\n",
                   CurrentTime_,
                   Mach_,
                   AngleOfAttack_/TORAD,
@@ -15338,7 +15338,7 @@ void VSP_SOLVER::OutputStatusFile(void)
           
           if ( NoiseAnalysis_ ) Time = CurrentNoiseTime_;
           
-          fprintf(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+          fprintf(StatusFile_, "% 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E\n",
                   Time,
                   Mach_,
                   AngleOfAttack_/TORAD,

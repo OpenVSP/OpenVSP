@@ -2137,8 +2137,8 @@ void Solve(void)
 
     }    
 
-                     //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789   
-    fprintf(PolarFile,"  Beta      Mach       AoA      Re/1e6     CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       CMl       CMm       CMn \n");
+                     //1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123
+    fprintf(PolarFile,"     Beta          Mach           AoA        Re/1e6            CL           CDo           CDi         CDtot            CS           L/D             E           CFx           CFy           CFz           CMx           CMy           CMz           CMl           CMm           CMn \n");
 
     // Write out polars, not these are written out in a different order than they were calculated above - we group them by Re number
     
@@ -2156,7 +2156,7 @@ void Solve(void)
    
                 E = ( CLForCase[Case] *CLForCase[Case] / ( PI * AR) ) / CDForCase[Case];
                 
-                fprintf(PolarFile,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",             
+                fprintf(PolarFile,"% 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E % 9E \n",
                         BetaList_[i],
                         MachList_[j],
                         AoAList_[k],
