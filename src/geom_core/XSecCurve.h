@@ -516,7 +516,7 @@ public:
     virtual string GetHeightParmID() { return m_Height.GetID(); }
 
     BoolParm m_CloseFlag;
-    IntParm m_SymType;
+    BoolParm m_SymType;
     IntParm m_ShapeType;
     Parm m_Width;
     Parm m_Height;
