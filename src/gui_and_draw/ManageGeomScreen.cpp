@@ -604,6 +604,7 @@ void ManageGeomScreen::SetGeomDisplayChoice( int type )
         if ( geom_vec[i] && type != 4 )
         {
             geom_vec[i]->m_GuiDraw.SetDisplayType( type );
+            geom_vec[i]->ResetGeomChangedFlag( true ); // Redraw the wire mesh
         }
     }
 

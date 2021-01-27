@@ -3105,11 +3105,11 @@ void Geom::ReadV2File( xmlNodePtr &root )
 */
 }
 
-void Geom::ResetGeomChangedFlag()
+void Geom::ResetGeomChangedFlag( bool flag )
 {
     for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
     {
-        m_WireShadeDrawObj_vec[i].m_GeomChanged = false;
+        m_WireShadeDrawObj_vec[i].m_GeomChanged = flag;
     }
 }
 

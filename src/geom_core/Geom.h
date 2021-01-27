@@ -418,7 +418,7 @@ public:
     /*
     * Reset m_GeomChanged flag in DrawObj to false.
     */
-    virtual void ResetGeomChangedFlag();
+    virtual void ResetGeomChangedFlag( bool flag = false );
 
     virtual vec3d CompPnt01(const double &u, const double &w);
     virtual vec3d CompPnt01(const int &indx, const double &u, const double &w);
