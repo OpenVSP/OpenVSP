@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6] # 2.7
+        python-version: [3.6] # specify more python versions here (i.e. 3.9)
         config:
         - {
             name: "Windows 64",
@@ -86,7 +86,7 @@ jobs:
         DEBFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-Linux.deb
         VSPVER=$(ls $DEBFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
         UVER=$(lsb_release -sr)
-        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-Ubuntu-${UVER}_amd64_${GITHUB_SHA}.deb
+        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-Ubuntu-${UVER}_amd64-Python${{ matrix.python-version }}_${GITHUB_SHA}.deb
         
         cp $DEBFILE $DEPLOY_FILE
         cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
@@ -133,7 +133,7 @@ jobs:
         
         ZIPFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-MacOS.zip
         VSPVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
-        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-MacOS_${GITHUB_SHA}.zip
+        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-MacOS-Python${{ matrix.python-version }}_${GITHUB_SHA}.zip
         
         cp $ZIPFILE $DEPLOY_FILE
         cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
