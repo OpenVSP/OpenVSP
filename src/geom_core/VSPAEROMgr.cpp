@@ -1687,10 +1687,8 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         // is not called from the main VSP thread
         MessageData errMsgData;
         errMsgData.m_String = "VSPAEROSolverMessage";
-        errMsgData.m_StringVec.emplace_back( string( "Error: No Geometry in VSPAERO Set\n" ) );
+        errMsgData.m_StringVec.emplace_back( string( "Error: No Geometry in DegenGeom Vector\n" ) );
         MessageMgr::getInstance().SendAll( errMsgData );
-
-        return string();
     }
 
     if ( m_CpSliceFlag() )
