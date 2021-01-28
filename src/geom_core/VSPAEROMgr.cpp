@@ -713,6 +713,17 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
 
         vector <string> currgeomvec = veh->GetGeomSet( m_GeomSet() );
 
+        // Ensure that a deleted component is still not in the DegenGeom vector
+        vector < Geom* > geom_ptr_vec = veh->FindGeomVec( currgeomvec );
+        vector < DegenGeom > degen_vec;
+        for ( size_t k = 0; k < m_DegenGeomVec.size(); ++k )
+        {
+            if ( std::find( geom_ptr_vec.begin(), geom_ptr_vec.end(), m_DegenGeomVec[k].getParentGeom() ) != geom_ptr_vec.end() )
+            {
+                degen_vec.push_back( m_DegenGeomVec[k] );
+            }
+        }
+
         for ( size_t i = 0; i < currgeomvec.size(); ++i )
         {
             Geom* geom = veh->FindGeom(currgeomvec[i]);
@@ -730,13 +741,13 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                             {
                                 contained = true;
                                 temp.push_back(m_RotorDiskVec[j]);
-                                for (size_t k = 0; k < m_DegenGeomVec.size(); ++k)
+                                for (size_t k = 0; k < degen_vec.size(); ++k)
                                 {
-                                    if (m_DegenGeomVec[k].getParentGeom()->GetID().compare(m_RotorDiskVec[j]->m_ParentGeomId) == 0)
+                                    if ( degen_vec[k].getParentGeom()->GetID().compare(m_RotorDiskVec[j]->m_ParentGeomId) == 0)
                                     {
                                         int indxToSearch = k + temp.back()->m_ParentGeomSurfNdx;
-                                        temp.back()->m_XYZ = m_DegenGeomVec[indxToSearch].getDegenDisk().x;
-                                        temp.back()->m_Normal = m_DegenGeomVec[indxToSearch].getDegenDisk().nvec * -1.0;
+                                        temp.back()->m_XYZ = degen_vec[indxToSearch].getDegenDisk().x;
+                                        temp.back()->m_Normal = degen_vec[indxToSearch].getDegenDisk().nvec * -1.0;
                                         if ( geom->GetFlipNormal( iSubsurf ) ) temp.back()->m_FlipNormalFlag = true;
                                         break;
                                     }
@@ -1891,10 +1902,6 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     // ==== MonitorSolverProcess ==== //
                     MonitorSolver( logFile );
 
-                    // Clear DegenGeom vec to prevent UpdateRotorDisks finding a 
-                    // disk that has been deleted from the Geom browser
-                    m_DegenGeomVec.clear();
-
                     // Check if the kill solver flag has been raised, if so clean up and return
                     //  note: we could have exited the IsRunning loop if the process was killed
                     if( m_SolverProcessKill )
@@ -2156,10 +2163,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         // ==== MonitorSolverProcess ==== //
         MonitorSolver( logFile );
-
-        // Clear DegenGeom vec to prevent UpdateRotorDisks finding a 
-        // disk that has been deleted from the Geom browser
-        m_DegenGeomVec.clear();
 
         // Check if the kill solver flag has been raised, if so clean up and return
         //  note: we could have exited the IsRunning loop if the process was killed
