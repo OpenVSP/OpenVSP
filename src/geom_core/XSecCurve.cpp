@@ -89,7 +89,7 @@ XSecCurve::XSecCurve()
     m_LETrimThickChord.SetDescript( "T/C to trim leading edge" );
 
     m_TECapType.Init( "TE_Cap_Type", "Cap", this, FLAT_END_CAP, FLAT_END_CAP, NUM_END_CAP_OPTIONS - 1 );
-    m_TECapLength.Init( "TE_Cap_Length", "Cap", this, 1, 0, 20 );
+    m_TECapLength.Init( "TE_Cap_Length", "Cap", this, 1, -20, 20 );
     m_TECapOffset.Init( "TE_Cap_Offset", "Cap", this, 0, -20, 20 );
     m_TECapStrength.Init( "TE_Cap_Strength", "Cap", this, 0.5, 0, 1);
 
