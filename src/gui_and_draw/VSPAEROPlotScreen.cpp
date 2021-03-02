@@ -643,17 +643,7 @@ void VSPAEROPlotScreen::SetDefaultView()
     }
     else
     {
-        switch ( analysis_type )
-        {
-            case vsp::VORTEX_LATTICE:
-                m_LoadDistTab->show();
-                break;
-            case vsp::PANEL:
-                m_ConvergenceTab->show();
-                break;
-            default:
-                break;
-        }
+        m_LoadDistTab->show();
     }
 
     m_SelectDefaultData = true;
@@ -734,8 +724,7 @@ bool VSPAEROPlotScreen::Update()
     // note that only VSPAEROMgr clear alls VSPAERO_* results from the results manager each time it's run all analyses in the results 'should' have the same analysis method
     resultName = "VSPAERO_Load";
     res = ResultsMgr.FindResults( resultName, 0 );
-    // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
-    if ( res && res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
+    if ( res )
     {
         m_LoadDistTab->activate();
 
@@ -1344,31 +1333,27 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
         Results* res = ResultsMgr.FindResults( resultName, iCase );
         if( res )
         {
-            // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
-            if ( res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
+            char strbuf[1024];
+            ConstructFlowConditionString( strbuf, res, false );
+            m_LoadDistFlowConditionBrowser->add( strbuf );
+            if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.LOAD_SELECT_TYPE )
             {
-                char strbuf[1024];
-                ConstructFlowConditionString( strbuf, res, false );
-                m_LoadDistFlowConditionBrowser->add( strbuf );
-                if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.LOAD_SELECT_TYPE )
-                {
-                    if ( m_SelectDefaultData )   //select ALL flow conditions
-                    {
-                        m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                        m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                    }
-                    else if ( iCase < wasSelected.size() && wasSelected[iCase] ) // restore original row selections
-                    {
-                        m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                        m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                    }
-                }
-                else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.BLADE_SELECT_TYPE )
+                if ( m_SelectDefaultData )   //select ALL flow conditions
                 {
                     m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                    m_LoadDistFlowConditionBrowser->select( iCase + 1 );
-                    break; // Only list the first flow condition, since the others are ignored in teh group and rotor output files
+                    m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
                 }
+                else if ( iCase < wasSelected.size() && wasSelected[iCase] ) // restore original row selections
+                {
+                    m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                    m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                }
+            }
+            else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.BLADE_SELECT_TYPE )
+            {
+                m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                m_LoadDistFlowConditionBrowser->select( iCase + 1 );
+                break; // Only list the first flow condition, since the others are ignored in teh group and rotor output files
             }
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
@@ -1841,24 +1826,20 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
 
     if( res && load_res )
     {
-        // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
-        if ( load_res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
+        vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
+        for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
         {
-            vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
-            for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
+            if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &
+                    ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
+                    ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
+                    ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )  &
+                    ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &
+                    ( strcmp( dataNames[iDataName].c_str(), "Station" ) != 0 ) &
+                    ( strcmp( dataNames[iDataName].c_str(), "Group_Name" ) != 0 ) &
+                    ( strcmp( dataNames[iDataName].c_str(), "Rotor_Num" ) != 0 ) &
+                    ( strcmp( dataNames[iDataName].c_str(), "Blade_Num" ) != 0 ) )
             {
-                if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &
-                        ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
-                        ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
-                        ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )  &
-                        ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &
-                        ( strcmp( dataNames[iDataName].c_str(), "Station" ) != 0 ) &
-                        ( strcmp( dataNames[iDataName].c_str(), "Group_Name" ) != 0 ) &
-                        ( strcmp( dataNames[iDataName].c_str(), "Rotor_Num" ) != 0 ) &
-                        ( strcmp( dataNames[iDataName].c_str(), "Blade_Num" ) != 0 ) )
-                {
-                    m_LoadDistYDataBrowser->add( dataNames[iDataName].c_str() );
-                }
+                m_LoadDistYDataBrowser->add( dataNames[iDataName].c_str() );
             }
         }
     }
