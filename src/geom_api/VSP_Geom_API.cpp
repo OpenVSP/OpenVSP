@@ -946,7 +946,7 @@ void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex)
     }
 
     VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
-    int max_cs_index = VSPAEROMgr.GetAvailableCSVec().size();
+    int max_cs_index = VSPAEROMgr.GetActiveCSVec().size();
 
     if ( selected.size() == 0 || selected.size() > max_cs_index )
     {
