@@ -452,6 +452,13 @@ void XSecSurf::ChangeXSecShape( int index, int type )
         m_XSecIDDeque.erase( m_XSecIDDeque.begin() + index + 1 );
         vector_remove_val( m_XSecPtrVec, xs );
         delete xs;
+        
+        XSecCurve* xsc = nxs->GetXSecCurve();
+
+        if ( xsc )
+        {
+            xsc->Update();
+        }
     }
 }
 
