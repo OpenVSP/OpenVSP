@@ -345,6 +345,8 @@ namespace asDocgen
                              //We format the function name and add it to the stram object to write to file
                              codeFile << "void" << tempCaptureString << "_UT()" <<  "\n{";
 
+                             std::string temp_function_name = tempCaptureString;
+
                              //Then we push the captured string in the vector so we can check it for those dam repeats
                              capturedFunctionStrings.push_back( tempCaptureString );
 
@@ -365,6 +367,8 @@ namespace asDocgen
                                     extractCommentsTempString = extractTargetString( target, target2, tempCaptureString );
                                     //Cut out what we dont want 
                                     tempCaptureString.erase( targetLocation, extractCommentsTempString.length() + target2.length());
+
+                                    tempCaptureString.insert( targetLocation, ( "    Print( \"" + temp_function_name + "\" );\n    VSPRenew();\n" ) ); // Print function name and call renew for each function
                                 }
 
                                 target = R"(\endcode)";
