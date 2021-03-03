@@ -772,13 +772,27 @@ vector <double> VarPresetMgrSingleton::GetParmVals( const string &group_name, co
 //==== Get Setting Names ====//
 vector <string> VarPresetMgrSingleton::GetSettingNames( int group_index )
 {
-    return m_PresetVec[group_index].GetSettingNameVec();
+    if ( group_index >= 0 && group_index < m_PresetVec.size() )
+    {
+        return m_PresetVec[group_index].GetSettingNameVec();
+    }
+    else
+    {
+        return vector < string > {};
+    }
 }
 
 vector <string> VarPresetMgrSingleton::GetSettingNames( const string & group_name )
 {
     int group_index = vector_find_val( GetGroupNames(), group_name );
-    return GetSettingNames( group_index );
+    if ( group_index >= 0 )
+    {
+        return GetSettingNames( group_index );
+    }
+    else
+    {
+        return vector < string > {};
+    }
 }
 
 //==== Get Group Names ====//
