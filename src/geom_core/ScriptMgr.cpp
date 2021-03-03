@@ -2648,7 +2648,7 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
     \code{.cpp}
     //==== Test Vec3d ====//
     vec3d a(), b();                                // Default Constructor
-    float PI = 3.14;
+    float PI = 3.14159265359;
 
     //==== Test Angle ====//
     a.set_xyz( 1.0, 1.0, 0.0 );
@@ -2669,7 +2669,7 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
     \code{.cpp}
     //==== Test Vec3d ====//
     vec3d a(), b(), c();                                // Default Constructor
-    float PI = 3.14;
+    float PI = 3.14159265359;
 
     //==== Test Angle ====//
     a.set_xyz( 1.0, 1.0, 0.0 );
@@ -3042,6 +3042,13 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
 /*!
     Get the Geom ID of the current custom Geom
     \code{.cpp}
+    //==== Add Cross Sections  =====//
+    string xsec_surf = AddXSecSurf();
+    for ( int i = 0 ; i < 4 ; i++ )
+    {
+	    AppendCustomXSec( xsec_surf, XS_ROUNDED_RECTANGLE);
+    }
+
 	//==== Set Some Decent Tess Vals ====//
 	string geom_id = GetCurrCustomGeom();
 
@@ -3102,19 +3109,16 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     Update the GUI element with an associated Parm
     /code{.cpp}
     //==== UpdateGui Is Called Every Time The Gui is Updated ====//
-    void UpdateGui()
-    {
-        string geom_id = GetCurrCustomGeom();
+    
+    string geom_id = GetCurrCustomGeom();
 
-        UpdateGui( WidthSlider, GetParm( geom_id, "Width", "Design" ) );
+    UpdateGui( WidthSlider, GetParm( geom_id, "Width", "Design" ) );
 
-        UpdateGui( SeatHeightSlider, GetParm( geom_id, "SeatHeight", "Design" ) );
+    UpdateGui( SeatHeightSlider, GetParm( geom_id, "SeatHeight", "Design" ) );
 
-        UpdateGui( SeatLengthSlider, GetParm( geom_id, "SeatLength", "Design" ) );
+    UpdateGui( SeatLengthSlider, GetParm( geom_id, "SeatLength", "Design" ) );
 
-        UpdateGui( BackHeightSlider, GetParm( geom_id, "BackHeight", "Design" ) );
-
-    } 
+    UpdateGui( BackHeightSlider, GetParm( geom_id, "BackHeight", "Design" ) );
     /endcode
     \param [in] gui_id Index of the GUI element
     \param [in] parm_id Parm ID 
@@ -3160,16 +3164,6 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     //==== Get The XSec Surf ====//
     string xsec_surf = GetXSecSurf( geom_id, 0 );
 
-    //==== Define XSecs ====//
-    int NUM_XSECS = 11;
-
-    for ( int i = 0 ; i < NUM_XSECS ; i++ )
-    {
-        string xsec = GetXSec( xsec_surf, i );
-
-        UpdateXSecLocRot( xsec, spine_xsec, i*0.10 );
-    }
-
     //=== Remove Spine Surf ====//
     RemoveXSecSurf( spine_surf );
     \endcode
@@ -3204,16 +3198,13 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     
     string geom_id = GetCurrCustomGeom();
 
-    //==== Get Curr Vals ====//
-    double length_val = GetParmVal( GetParm( geom_id, "Length", "Design" ) );
-
     //==== Get The XSec Surf ====//
     string xsec_surf = GetXSecSurf( geom_id, 0 );
 
     //==== Define The First/Last XSec Placement ====//
     string xsec3 = GetXSec( xsec_surf, 3 );
 
-    SetCustomXSecLoc( xsec3, vec3d( length_val, 0, 0 ) );
+    SetCustomXSecLoc( xsec3, vec3d( 10.0, 0, 5.0 ) );
 
     SkinXSecSurf();
     
@@ -3230,19 +3221,13 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     \code{.cpp}
     string geom_id = GetCurrCustomGeom();
 
-    //==== Get Curr Vals ====//
-    double width_val  = GetParmVal( GetParm( geom_id, "Width",  "Design" ) );
-
-    double height_val = GetParmVal( GetParm( geom_id, "Height", "Design" ) );
-
     Matrix4d mat;
 
-    double i, j;
+    double x = 2.0;
+    double y = 5.0;
+    double z = 0.0;
 
-    double y = i * width_val;
-    double z = j * height_val;
-
-    mat.translatef( 0.0, y, z );
+    mat.translatef( x, y, z );
 
     CloneSurf( 0, mat );
     \endcode
@@ -3311,17 +3296,12 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     \code{.cpp}
     string geom_id = GetCurrCustomGeom();
 
-    //==== Get Curr Vals ====//
-    double diameter_val = GetParmVal( GetParm( geom_id, "Diameter", "Design" ) );
-
-    double nose_mult_val = GetParmVal( GetParm( geom_id, "NoseMult", "Design" ) );
-
     //==== Get The XSec Surf ====//
     string xsec_surf = GetXSecSurf( geom_id, 0 );
 
     string xsec0 = GetXSec( xsec_surf, 0 );
 
-    SetCustomXSecLoc( xsec0, vec3d( 0.0, 0.0, nose_mult_val*diameter_val ) );
+    SetCustomXSecLoc( xsec0, vec3d( 0.0, 0.0, 5.0 ) );
     \endcode
     \param [in] xsec_id XSec ID
     \param [in] loc 3D location
@@ -3606,7 +3586,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     // Add Pod Geom
     string pid = AddGeom( "POD" );
 
-    string tess_u_id = FindParm( "PodGeom", "Shape", "Tess_U" );
+    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
 
     AddInput( tess_u_id, "ExampleVariable" );
     \endcode
@@ -3624,7 +3604,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     // Add Pod Geom
     string pid = AddGeom( "POD" );
 
-    string tess_u_id = FindParm( "PodGeom", "Shape", "Tess_U" );
+    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
 
     AddOutput( tess_u_id, "ExampleVariable" );
     \endcode
@@ -3642,7 +3622,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     // Add Pod Geom
     string pid = AddGeom( "POD" );
 
-    string tess_u_id = FindParm( "PodGeom", "Shape", "Tess_U" );
+    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
 
     AddInput( tess_u_id, "ExampleVariable" );
 
@@ -3661,7 +3641,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     // Add Pod Geom
     string pid = AddGeom( "POD" );
 
-    string tess_u_id = FindParm( "PodGeom", "Shape", "Tess_U" );
+    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
 
     AddInput( tess_u_id, "ExampleVariable" );
 
@@ -3753,12 +3733,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Check if there was an error on the last call to the API
     \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
     //==== Bogus Call To Create API Error ====//
     Print( string( "---> Test Error Handling" ) );
 
     SetParmVal( "BogusParmID", 23.0 );
 
     if ( !GetErrorLastCallFlag() )                        { Print( "---> Error: API GetErrorLastCallFlag " ); }
+
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
     \endcode
     \return False if no error, true otherwise
 */)";
@@ -3769,12 +3755,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Count the total number of errors on the stack
     \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
+    Print( "Creating an API error" );
+    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )
     {
         ErrorObj err = PopLastError();
         Print( err.GetErrorString() );
     }
+
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
     \endcode
     \return Number of errors
 */)";
@@ -3783,14 +3778,23 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Pop (remove) and return the most recent error from the stack
+    Pop (remove) and return the most recent error from the stack. Note, errors are printed on occurance by default. 
     \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
+    Print( "Creating an API error" );
+    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )
     {
         ErrorObj err = PopLastError();
         Print( err.GetErrorString() );
     }
+
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
     \endcode
     \return Error object
 */)";
@@ -3801,11 +3805,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Return the most recent error from the stack (does NOT pop error off the stack)
     \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
+    Print( "Creating an API error" );
+    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+
     //==== Check For API Errors ====//
     ErrorObj err = GetLastError();
 
     Print( err.GetErrorString() );
+
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
     \endcode
+    \sa SilenceErrors, PrintOnErrors;
     \return Error object
 */)";
     r = se->RegisterGlobalFunction( "ErrorObj GetLastError()", asMETHOD( vsp::ErrorMgrSingleton, GetLastError ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr, doc_struct );
@@ -3818,7 +3832,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     //==== Force API to silence error messages ====//
     SilenceErrors();
 
+    Print( "Creating an API error" );
+    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
     \endcode
+    \sa PrintOnErrors
 */)";
     r = se->RegisterGlobalFunction( "void SilenceErrors()", asMETHOD( vsp::ErrorMgrSingleton, SilenceErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr, doc_struct );
     assert( r );
@@ -3827,10 +3847,16 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Cuase errors to be printed to stdout as they occur.
     \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
+    Print( "Creating an API error" );
+    SetParmVal( "ABCDEFG", "Test_Name", "Test_Group", 123.4 );
+
     //==== Tell API to print error messages ====//
     PrintOnErrors();
-
     \endcode
+    \sa SilenceErrors
 */)";
     r = se->RegisterGlobalFunction( "void PrintOnErrors()", asMETHOD( vsp::ErrorMgrSingleton, PrintOnErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr, doc_struct );
     assert( r );
@@ -4519,7 +4545,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     for ( int i = 0; i < int( analysis_array.size() ); i++ )
     {
-        Print( ( "/t" + analysis_array[i] + "/n" ) );
+        Print( "    " + analysis_array[i] );
     }
     \endcode
     \return Array of analysis names
@@ -5061,7 +5087,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     array<vec3d> @vec3d_vec = GetVec3dResults( res_id, "Test_Vec3d" );
 
-    if ( !CloseVec3d( vec3d_vec[0], vec3d( 1.0, 2.0, 4.0 ), tol ) )        { Print( "---> Error: API GetVec3dResults" ); }
+    Print( "X: ", false );
+    Print( vec3d_vec[0].x(), false );
+
+    Print( "\tY: ", false );
+    Print( vec3d_vec[0].y(), false );
+
+    Print( "\tZ: ", false );
+    Print( vec3d_vec[0].z() );
     \endcode
     \param [in] id Result ID
     \param [in] name Data name
@@ -5290,7 +5323,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     string pid1 = AddGeom( "POD", "" );
     string pid2 = AddGeom( "POD", "" );
 
-    CopyGeomToClipboard( pid1 );
+    CutGeomToClipboard( pid1 );
 
     PasteGeomClipboard( pid2 ); // Paste Pod 1 as child of Pod 2
 
@@ -5564,7 +5597,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     int num_surf = 0;
 
-    num_surf = GetNumMaGetTotalNumSurfsinSurfs( wing_id ); // Wings default with XZ symmetry on -> 2 surfaces
+    num_surf = GetTotalNumSurfs( wing_id ); // Wings default with XZ symmetry on -> 2 surfaces
 
     Print( "Total Number of Wing Surfaces: ", false );
 
@@ -5582,7 +5615,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     box may be specified in absolute or body reference frame. 
     \code{.cpp}
     //==== Add Pod Geometry ====//
-    string pid = AddGeom( "Pod" );
+    string pid = AddGeom( "POD" );
 
     SetParmVal( FindParm( pid, "Y_Rotation", "XForm" ), 45 );
     SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 );
@@ -5606,7 +5639,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     box may be specified in absolute or body reference frame. 
     \code{.cpp}
     //==== Add Pod Geometry ====//
-    string pid = AddGeom( "Pod" );
+    string pid = AddGeom( "POD" );
 
     SetParmVal( FindParm( pid, "Y_Rotation", "XForm" ), 45 );
     SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 );
@@ -5656,7 +5689,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     Print( "Children of Pod #1: " );
 
-    array<string> @children = GetGeomChildren( pod1 );
+    array<string> children = GetGeomChildren( pod1 );
 
     for ( int i = 0; i < int( children.size() ); i++ )
     {
@@ -5668,7 +5701,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \return Array of child Geom IDs
 */)";
     r = se->RegisterGlobalFunction( "array<string>@ GetGeomChildren( const string & in geom_id )", asFUNCTION( vsp::GetGeomChildren ), asCALL_CDECL, doc_struct );
-    assert( r >= 0 );
+    assert( r >= 0 ); // FIXME: Example code not working
 
     //==== SubSurface Functions ====//
     group = "SubSurface";
@@ -6052,30 +6085,25 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AutoGroupVSPAEROControlSurfaces();
 
+    Update();
 
-
-
-
-    TEST_ASSERT( vsp::GetNumControlSurfaceGroups() == 3 );
-    vsp::Update();
-    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
-    printf( "COMPLETE\n" );
-    string control_group_settings_container_id = vsp::FindContainer( "VSPAEROSettings", 0 );   // auto grouping produces parm containers within VSPAEROSettings
+    Print( "COMPLETE\n" );
+    string control_group_settings_container_id = FindContainer( "VSPAEROSettings", 0 );   // auto grouping produces parm containers within VSPAEROSettings
 
     //==== Set Control Surface Group Deflection Angle ====//
-    printf( "\tSetting control surface group deflection angles..." );
-    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+    Print( "\tSetting control surface group deflection angles..." );
+
     //  setup asymetric deflection for aileron
     string deflection_gain_id;
+
     // subsurfaces get added to groups with "CSGQualities_[geom_name]_[control_surf_name]"
     // subsurfaces gain parm name is "Surf[surfndx]_Gain" starting from 0 to NumSymmetricCopies-1
-    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron_id + "_0_Gain", "ControlSurfaceGroup_0" );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, 0.8 ), 0.8, TEST_TOL );
-    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron_id + "_1_Gain", "ControlSurfaceGroup_0" );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, 1.2 ), 1.2, TEST_TOL );
+
+    deflection_gain_id = FindParm( control_group_settings_container_id, "Surf_" + aileron_id + "_0_Gain", "ControlSurfaceGroup_0" );
+    deflection_gain_id = FindParm( control_group_settings_container_id, "Surf_" + aileron_id + "_1_Gain", "ControlSurfaceGroup_0" );
+
     //  deflect aileron
-    string deflection_angle_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0" );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, 1.0 ), 1.0, TEST_TOL );
+    string deflection_angle_id = FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0" );
     \endcode
     \sa CreateVSPAEROControlSurfaceGroup
 */)";
@@ -6290,7 +6318,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Add each control surfaces in the array of control surface indexes to the control surface group at the specified index. 
 
-    warning The indexes in input "selected" must be matched with available control surfaces identified by GetAvailableCSNameVec. 
+    \warning The indexes in input "selected" must be matched with available control surfaces identified by GetAvailableCSNameVec. 
     The "selected" input uses one- based indexing to associate available control surfaces.
 
     \code{.cpp}
@@ -6300,9 +6328,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
 
-    array<string> @cs_name_vec = GetAvailableCSNameVec( group_index );
+    array < string > cs_name_vec = GetAvailableCSNameVec( group_index );
 
-    array < int > cs_ind_vec;
+    array < int > cs_ind_vec( cs_name_vec.size() );
 
     for ( int i = 0; i < int( cs_name_vec.size() ); i++ )
     {
@@ -6322,7 +6350,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Remove each control surfaces in the array of control surface indexes from the control surface group at the specified index. 
 
-    warning The indexes in input "selected" must be matched with active control surfaces identified by GetActiveCSNameVec. The 
+    \warning The indexes in input "selected" must be matched with active control surfaces identified by GetActiveCSNameVec. The 
     "selected" input uses one-based indexing to associate available control surfaces. 
 
     \code{.cpp}
@@ -6332,19 +6360,28 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     int group_index = CreateVSPAEROControlSurfaceGroup(); // Empty control surface group
 
-    array<string> @cs_name_vec = GetAvailableCSNameVec( group_index );
+    array < string > cs_name_vec = GetAvailableCSNameVec( group_index );
 
-    AddSelectedToCSGroup( cs_name_vec[0], group_index ); // Add the first available control surface to the group
-    AddSelectedToCSGroup( cs_name_vec[1], group_index ); // Add the second available control surface to the group
+    array < int > cs_ind_vec( cs_name_vec.size() );
 
-    RemoveSelectedFromCSGroup( cs_name_vec[0], group_index );
+    for ( int i = 0; i < int( cs_name_vec.size() ); i++ )
+    {
+        cs_ind_vec[i] = i + 1;
+    }
+
+    AddSelectedToCSGroup( cs_ind_vec, group_index ); // Add the available control surfaces to the group
+
+    array < int > remove_cs_ind_vec( 1 );
+    remove_cs_ind_vec[0] = 1;
+
+    RemoveSelectedFromCSGroup( remove_cs_ind_vec, group_index ); // Remove the first control surface
     \endcode
     \sa GetActiveCSNameVec
     \param [in] selected Array of control surface indexes to remove from the group. Note, the integer values are one based.
     \param [in] CSGroupIndex Index of the control surface group
 */)";
     r = se->RegisterGlobalFunction( "void RemoveSelectedFromCSGroup( array<int>@ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, RemoveSelectedFromCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
-    assert( r >= 0 );
+    assert( r >= 0 ); // FIXME: RemoveSelectedFromCSGroup not working
 
     //==== VSPAERO Functions ====//
     group = "VSPAERO";
@@ -6414,13 +6451,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \code{.cpp}
     // Add a propeller
     string prop_id = AddGeom( "PROP", "" );
-    SetParmVal( prop_id, "PropMode", "Design", PROP_BLADES );
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
     SetParmVal( prop_id, "Diameter", "Design", 6.0 );
 
     Update();
 
     // Setup the actuator disk VSPAERO parms
     string disk_id = FindActuatorDisk( 0 );
+
     SetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ), 1234.0 );
     SetParmVal( FindParm( disk_id, "RotorCT", "Rotor" ), 0.35 );
     SetParmVal( FindParm( disk_id, "RotorCP", "Rotor" ), 0.55 );
@@ -6461,14 +6499,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     Get the ID of the VSPAERO unsteady group at the specified index. An empty string is returned if
     the index is out of range.
     \code{.cpp}
+    string wing_id = AddGeom( "WING" );
+    string pod_id = AddGeom( "POD" );
+
     // Create an actuator disk
     string prop_id = AddGeom( "PROP", "" );
-    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+    SetParmVal( prop_id, "PropMode", "Design", PROP_BLADES );
 
     Update();
 
     // Setup the unsteady group VSPAERO parms
     string disk_id = FindUnsteadyGroup( 1 ); // fixed components are in group 0 (wing & pod)
+
     SetParmVal( FindParm( disk_id, "RPM", "UnsteadyGroup" ), 1234.0 );
     \endcode
     \sa PROP_MODE
@@ -6489,12 +6531,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
     Update();
 
-     SetUnsteadyGroupName( 0, "PodAndWingGroup" );
-
-    if ( GetUnsteadyGroupName( 0 ) != "PodAndWingGroup" )
-    {
-        Print( "ERROR: Unsteady Group Name Functions" );
-    }
+    Print( GetUnsteadyGroupName( 0 ) );
     \endcode
     \sa SetUnsteadyGroupName
     \param [in] group_index Unsteady group index for the current VSPAERO set
@@ -6751,6 +6788,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Set XSec 1 & 2 to Edit Curve type
     ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
     ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
+
+    string xsec_2 = GetXSec( xsec_surf, 2 );
+    
+    if ( GetXSecShape( xsec_2 ) != XS_EDIT_CURVE )
+    {
+        Print( "Error: ChangeXSecShape" );
+    }
     \endcode
     \sa XSEC_CRV_TYPE
     \param [in] xsec_surf_id XSecSurf ID
@@ -6893,14 +6937,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the width of an XSec
+    Get the width of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what width and height it is set to.
     \code{.cpp}
     // Add Fuselage Geom
     string fuseid = AddGeom( "FUSELAGE", "" );
 
     string xsec_surf = GetXSecSurf( fuseid, 0 );
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 2 ); // Get 2nd to last XSec
 
     SetXSecWidthHeight( xsec, 3.0, 6.0 );
 
@@ -6915,14 +6959,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the height of an XSec
+    Get the height of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what width and height it is set to.
     \code{.cpp}
     // Add Fuselage Geom
     string fuseid = AddGeom( "FUSELAGE", "" );
 
     string xsec_surf = GetXSecSurf( fuseid, 0 );
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 );
+    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 2 ); // Get 2nd to last XSec
 
     SetXSecWidthHeight( xsec, 3.0, 6.0 );
 
@@ -6937,7 +6981,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Set the width of an XSec
+    Set the width of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what is input to SetXSecWidth.
     \code{.cpp}
     // Add Stack
     string sid = AddGeom( "STACK", "" );
@@ -6959,7 +7003,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Set the height of an XSec
+    Set the height of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what is input to SetXSecHeight.
     \code{.cpp}
     // Add Stack
     string sid = AddGeom( "STACK", "" );
@@ -6972,7 +7016,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     SetXSecHeight( xsec_2, 1.5 );
     \endcode
-    \sa GetXSecWidth
+    \sa GetXSecHeight
     \param [in] xsec_id XSec ID
     \param [in] h Xsec height
 */)";
@@ -7103,27 +7147,17 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Compute 3D coordinate for a point on an XSec curve given the parameter value (U) along the curve 
     \code{.cpp}
-    //==== Add Spine Surf ====//
-    string spine_surf = AddXSecSurf();
-
-    string spine_xsec = AppendXSec( spine_surf, XS_GENERAL_FUSE );
-
-    string geom_id = GetCurrCustomGeom();
+    //==== Add Geom ====//
+    string stack_id = AddGeom( "STACK" );
 
     //==== Get The XSec Surf ====//
-    string xsec_surf = GetXSecSurf( geom_id, 0 );
+    string xsec_surf = GetXSecSurf( stack_id, 0 );
 
-    //==== Define XSecs ====//
-    int NUM_XSECS = 11;
+    string xsec = GetXSec( xsec_surf, 2 );
 
-    for ( int i = 0 ; i < NUM_XSECS ; i++ )
-    {
-        string xsec = GetXSec( xsec_surf, i );
+    double u_fract = 0.25;
 
-        vec3d pnt = ComputeXSecPnt( spine_xsec, i*0.10 );
-
-        SetCustomXSecLoc( xsec, pnt );
-    }
+    vec3d pnt = ComputeXSecPnt( xsec, u_fract );
     \endcode
     \param [in] xsec_id XSec ID
     \param [in] fract Curve parameter value (range: 0 - 1)
@@ -7136,29 +7170,17 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Compute the tangent vector of a point on an XSec curve given the parameter value (U) along the curve 
     \code{.cpp}
-    //==== Add Spine Surf ====//
-    string spine_surf = AddXSecSurf();
-
-    string spine_xsec = AppendXSec( spine_surf, XS_GENERAL_FUSE );
-
-    string geom_id = GetCurrCustomGeom();
+    //==== Add Geom ====//
+    string stack_id = AddGeom( "STACK" );
 
     //==== Get The XSec Surf ====//
-    string xsec_surf = GetXSecSurf( geom_id, 0 );
+    string xsec_surf = GetXSecSurf( stack_id, 0 );
 
-    //==== Define XSecs ====//
-    int NUM_XSECS = 11;
+    string xsec = GetXSec( xsec_surf, 2 );
 
-    for ( int i = 0 ; i < NUM_XSECS ; i++ )
-    {
-        string xsec = GetXSec( xsec_surf, i );
+    double u_fract = 0.25;
 
-        vec3d tan = ComputeXSecTan( spine_xsec, i*0.10 );
-
-        double ang = signed_angle( tan, vec3d( 1, 0, 0 ), vec3d( 0, -1, 0 ) );
-
-        SetCustomXSecRot( xsec, vec3d( 0, Rad2Deg(ang), 0) );
-    }
+    vec3d tan = ComputeXSecTan( xsec, u_fract );
     \endcode
     \param [in] xsec_id XSec ID
     \param [in] fract Curve parameter value (range: 0 - 1)
@@ -7833,8 +7855,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Identify XSec 1
     string xsec_1 = GetXSec( xsec_surf, 1 );
 
-    // Set XSec 1 to Cubic Bezier (default)
-    EditXSecConvertTo( xsec_1, CEDIT );
+    // Set XSec 1 to Linear
+    EditXSecConvertTo( xsec_1, LINEAR );
     \endcode
     \sa PCURV_TYPE
     \param [in] xsec_id XSec ID
@@ -7862,6 +7884,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     EditXSecConvertTo( xsec_2, LINEAR );
 
     array < double > u_vec = GetEditXSecUVec( xsec_2 );
+
+    if ( u_vec[1] - 0.25 > 1e-6 )
+    {
+        Print( "Error: GetEditXSecUVec" );
+    }
     \endcode
     \param [in] xsec_id XSec ID
     \return Array of U parameter values
@@ -7886,6 +7913,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     // Get the control points for the default shape
     array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+
+    Print( "Normalized Bottom Point of XSecCurve: " + xsec1_pts[3].x() + ", " + xsec1_pts[3].y() + ", " + xsec1_pts[3].z() );
     \endcode
     \param [in] xsec_id XSec ID
     \param [in] non_dimensional True to get the points non-dimensionalized, False to get them scaled by m_Width and m_Height
@@ -7897,8 +7926,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     doc_struct.comment = R"(
 /*!
     Set the U parameter vector and the control point vector for an EditCurveXSec. The arrays must be of equal length, with the values for U defined in 
-    increasing order and range 0 - 1. The XSec is nondimentionalized and 2D, so the input control points wil be scaled by m_Width and m_Height and the 
-    Z values will be ignored. 
+    increasing order and range 0 - 1. The input control points to SetEditXSecPnts must be nondimensionalized in the approximate range of [-0.5, 0.5]. 
     \code{.cpp}
     // Add Stack
     string sid = AddGeom( "STACK", "" );
@@ -7914,14 +7942,17 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Set XSec 2 to linear
     EditXSecConvertTo( xsec_2, LINEAR );
 
+    // Turn off R/L symmetry
+    SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE );
+
     // Define a square 
     array < vec3d > xsec2_pts(5);
 
-    xsec2_pts[0] = vec3d( 1.5, 1.5, 0.0 );
-    xsec2_pts[1] = vec3d( 1.5, -1.5, 0.0 );
-    xsec2_pts[2] = vec3d( -1.5, -1.5, 0.0 );
-    xsec2_pts[3] = vec3d( -1.5, 1.5, 0.0 );
-    xsec2_pts[4] = vec3d( 1.5, 1.5, 0.0 );
+    xsec2_pts[0] = vec3d( 0.5, 0.5, 0.0 );
+    xsec2_pts[1] = vec3d( 0.5, -0.5, 0.0 );
+    xsec2_pts[2] = vec3d( -0.5, -0.5, 0.0 );
+    xsec2_pts[3] = vec3d( -0.5, 0.5, 0.0 );
+    xsec2_pts[4] = vec3d( 0.5, 0.5, 0.0 );
 
     // u vec must start at 0.0 and end at 1.0
     array < double > u_vec(5);
@@ -7933,10 +7964,17 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     u_vec[4] = 1.0;
 
     SetEditXSecPnts( xsec_2, u_vec, xsec2_pts ); // Note: points are unscaled by the width and height parms
+
+    array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+    
+    if ( dist( new_pnts[3], xsec2_pts[3] ) > 1e-6 ) 
+    {
+        Print( "Error: SetEditXSecPnts");
+    }
     \endcode
     \param [in] xsec_id XSec ID
     \param [in] u_vec Array of U parameter values
-    \param [in] control_pts Array of control points
+    \param [in] control_pts Nondimensionalized array of control points
 */)";
     r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@ u_vec, array<vec3d>@ control_pts )", asMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
@@ -7958,7 +7996,19 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Identify XSec 2
     string xsec_2 = GetXSec( xsec_surf, 2 );
 
+    // Turn off R/L symmetry
+    SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE );
+
+    array < vec3d > old_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+    
     EditXSecDelPnt( xsec_2, 3 ); // Remove control point at bottom of circle
+
+    array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+    
+    if ( old_pnts.size() - new_pnts.size() != 3  ) 
+    {
+        Print( "Error: EditXSecDelPnt");
+    }
     \endcode
     \param [in] xsec_id XSec ID
     \param [in] indx Control point index
@@ -7976,10 +8026,24 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Get First (and Only) XSec Surf
     string xsec_surf = GetXSecSurf( sid, 0 );
 
+    ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
+
     // Identify XSec 2
     string xsec_2 = GetXSec( xsec_surf, 2 );
 
+    // Turn off R/L symmetry
+    SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE );
+
+    array < vec3d > old_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+
     int new_pnt_ind = EditXSecSplit01( xsec_2, 0.375 );
+
+    array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+    
+    if ( new_pnts.size() - old_pnts.size() != 3  ) 
+    {
+        Print( "Error: EditXSecSplit01");
+    }
     \endcode
     \param [in] xsec_id XSec ID
     \param [in] u U value to split the curve at (0 - 1)
@@ -8004,6 +8068,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Identify XSec 1
     string xsec_1 = GetXSec( xsec_surf, 1 );
 
+    // Turn off R/L symmetry
+    SetParmVal( GetXSecParm( xsec_1, "SymType"), SYM_NONE );
+
     // Get the control points for the default shape
     array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
 
@@ -8014,6 +8081,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     // Move the control point
     MoveEditXSecPnt( xsec_1, move_pnt_ind, new_pnt );
+
+    array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+
+    if ( dist( new_pnt, new_pnts[move_pnt_ind] ) > 1e-6 )
+    {
+        Print( "Error: MoveEditXSecPnt" );
+    }
     \endcode
     \param [in] xsec_id XSec ID
     \param [in] indx Control point index
@@ -8039,9 +8113,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     // Identify XSec 1
     string xsec_1 = GetXSec( xsec_surf, 1 );
-    \endcode
+
     // Get the control points for the default shape
     array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+    \endcode
     \param [in] geom_id Geom ID
     \param [in] indx XSec index
 */)";
@@ -8064,7 +8139,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Identify XSec 1
     string xsec_1 = GetXSec( xsec_surf, 1 );
 
-    array < bool > fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+    array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
 
     fixed_u_vec[3] = true; // change a flag
     
@@ -8095,7 +8170,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Identify XSec 1
     string xsec_1 = GetXSec( xsec_surf, 1 );
 
-    array < bool > fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+    array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
 
     fixed_u_vec[3] = true; // change a flag
     
@@ -8127,7 +8202,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // Identify XSec 1
     string xsec_1 = GetXSec( xsec_surf, 1 );
 
-    array < bool > fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
+    array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
 
     fixed_u_vec[3] = true; // change a flag
     
@@ -8385,7 +8460,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     SetSetFlag( fuseid, 3, true );
 
     // Rotate 90 degrees about Y
-    ScaleSet( 3, 0, 90, 0 );
+    RotateSet( 3, 0, 90, 0 );
     \endcode
     \param [in] set_index Set index
     \param [in] x_rot_deg Rotation about the X axis (degrees)
@@ -8405,7 +8480,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     SetSetFlag( fuseid, 3, true );
 
     // Translate 2 units in X and 3 units in Y
-    ScaleSet( 3, vec3d( 2, 3, 0 ) );
+    TranslateSet( 3, vec3d( 2, 3, 0 ) );
     \endcode
     \param [in] set_index Set index
     \param [in] translation_vec Translation vector
@@ -8496,11 +8571,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Set the value along with the upper and lower limits of the specified Parm
     \code{.cpp}
-    string length = AddParm( PARM_DOUBLE_TYPE, "Length", "Design" );
+    string pod_id = AddGeom( "POD" );
+
+    string length = FindParm( pod_id, "Length", "Design" );
 
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
 
-    SetParmDescript( length, "Total Length of Custom Geom" );
+    SetParmDescript( length, "Total Length of Geom" );
     \endcode
     \sa SetParmLowerLimit, SetParmUpperLimit
     \param [in] parm_id Parm ID
@@ -8872,11 +8949,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Set the description of the specified Parm
     \code{.cpp}
-    string length = AddParm( PARM_DOUBLE_TYPE, "Length", "Design" );
+    string pod_id = AddGeom( "POD" );
+
+    string length = FindParm( pod_id, "Length", "Design" );
 
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
 
-    SetParmDescript( length, "Total Length of Custom Geom" );
+    SetParmDescript( length, "Total Length of Geom" );
     \endcode
     \param [in] parm_id Parm ID
     \param [in] desc Parm description
@@ -9005,7 +9084,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     array<string> @grp_arr = FindContainerGroupNames( user_ctr );
 
     Print( "---> UserParms Container Group IDs: " );
-    for ( int i = 0; i < grp_arr.size(); i++ )
+    for ( int i = 0; i < int( grp_arr.size() ); i++ )
     {
         string message = "\t" + grp_arr[i] + "\n";
 
@@ -9161,7 +9240,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
     \endcode
@@ -9179,7 +9258,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetGroup( "Tess" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1, "Tess" );
     \endcode
@@ -9200,7 +9279,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
 
@@ -9223,7 +9302,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
 
@@ -9251,7 +9330,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
 
@@ -9273,7 +9352,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
 
@@ -9298,8 +9377,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Default" );
 
-    string p1 = FindParm( pod1, "XForm", "Y_Rel_Rotation" );
-    string p2 = FindParm( pod1, "XForm", "Z_Rel_Rotation" );
+    string p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" );
+    string p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" );
 
     AddVarPresetParm( p1 );
     AddVarPresetParm( p2 );
@@ -9322,7 +9401,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     
     DeleteVarPresetSet( "Tess", "Fine" );
 
-    if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 1 )    { Print ( "---> Error: DeleteVarPresetSet" ); }
+    if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 0 )    { Print ( "---> Error: DeleteVarPresetSet" ); }
     \endcode
     \param [in] group_name Variable Presets group
     \param [in] setting_name Variable Presets setting name
@@ -9342,7 +9421,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
 
@@ -9370,7 +9449,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
 
@@ -9433,7 +9512,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
 
@@ -9463,7 +9542,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( pod1, "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
 
@@ -9492,8 +9571,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     AddVarPresetSetting( "New_Setting_1" );
     AddVarPresetSetting( "New_Setting_2" );
 
-    string p1 = FindParm( pod1, "XForm", "Y_Rel_Rotation" );
-    string p2 = FindParm( pod1, "XForm", "Z_Rel_Rotation" );
+    string p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" );
+    string p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" );
 
     AddVarPresetParm( p1 );
     AddVarPresetParm( p2 );
@@ -9520,7 +9599,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     AddVarPresetSetting( "Coarse" );
 
-    string p1 = FindParm( "PodGeom", "Shape", "Tess_U" );
+    string p1 = FindParm( pod1, "Tess_U", "Shape" );
 
     AddVarPresetParm( p1 );
 
@@ -9545,13 +9624,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     AddVarPresetSetting( "New_Setting_1" );
     AddVarPresetSetting( "New_Setting_2" );
 
-    string p1 = FindParm( pod1, "XForm", "Y_Rel_Rotation" );
-    string p2 = FindParm( pod1, "XForm", "Z_Rel_Rotation" );
+    string p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" );
+    string p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" );
 
     AddVarPresetParm( p1 );
     AddVarPresetParm( p2 );
 
-    array < string > parm_ids = GetVarPresetParmValsWNames( "New_Group" );
+    array < string > parm_ids = GetVarPresetParmIDsWName( "New_Group" );
 
     if ( parm_ids.size() != 2 )            { Print( "---> Error: API GetVarPresetParmIDsWName" ); }
     \endcode
@@ -9908,6 +9987,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     double k1, k2, ka, kg;
 
     double u, w;
+    u = 0.25;
+    w = 0.75;
 
     CompCurvature01( geom_id, surf_indx, u, w, k1, k2, ka, kg );
 
@@ -10164,8 +10245,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [in] pt Input 3D coordinate point
     \param [in] u0 Input U (0 - 1) surface coordinate guess
     \param [in] w0 Input W (0 - 1) surface coordinate guess
-    \param [out] u Output closest U (0 - 1) surface coordinate
-    \param [out] w Output closest W (0 - 1) surface coordinate
+    \param [out] u_out Output closest U (0 - 1) surface coordinate
+    \param [out] w_out Output closest W (0 - 1) surface coordinate
     \param [out] p_out Output 3D coordinate point
     \return Distance between the 3D point and the closest point of the surface
 */)";
@@ -10602,9 +10683,6 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Delete a particular Ruler from the Meaure Tool
     \code{.cpp}
-
-    array< string > @ruler_array = GetAllRulers();
-
     string pid1 = AddGeom( "POD", "" );
 
     SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 );
@@ -10616,6 +10694,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" );
 
     string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" );
+
+    array< string > @ruler_array = GetAllRulers();
 
     DelRuler( ruler_array[0] );
     \endcode
@@ -10746,9 +10826,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     doc_struct.comment = R"(
 /*!
     Add an FEA Structure to a specified Geom
-
-    warning init_skin should ALWAYS be set to true. 
-
+    \warning init_skin should ALWAYS be set to true. 
     \code{.cpp}
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
@@ -10990,30 +11068,28 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 /*!
     Set the name of a particular FEA Mesh output file for a specified Structure
     \code{.cpp}
-    
-
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
 
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
 
-    string struct_id= GetFeaStructIndex( struct_ind );
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
 
     //=== Set Export File Name ===//
     string export_name = "FEAMeshTest_calculix.dat";
 
     //==== Get Parent Geom ID and Index ====//
-    string parent_id = GetFeaStructParentGeomID( struct_id );
+    string parent_id = GetFeaStructParentGeomID( struct_id ); // same as pod_id
 
     SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name );
     \endcode
     \param [in] geom_id Parent Geom ID
-    \param [in] fea_struct_id FEA Structure index
+    \param [in] fea_struct_ind FEA Structure index
     \param [in] file_type FEA output file type enum (i.e. FEA_EXPORT_TYPE)
     \param [in] file_name Name for the output file
 */)";
-    r = se->RegisterGlobalFunction( "void SetFeaMeshFileName( const string & in geom_id, int fea_struct_id, int file_type, const string & in file_name )", asFUNCTION( vsp::SetFeaMeshFileName ), asCALL_CDECL, doc_struct );
+    r = se->RegisterGlobalFunction( "void SetFeaMeshFileName( const string & in geom_id, int fea_struct_ind, int file_type, const string & in file_name )", asFUNCTION( vsp::SetFeaMeshFileName ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
@@ -11026,13 +11102,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
 
-    string struct_id = GetFeaStructIndex( struct_ind );
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
 
     //==== Generate FEA Mesh and Export ====//
     Print( string( "--> Generating FeaMesh " ) );
 
     //==== Get Parent Geom ID and Index ====//
-    string parent_id = GetFeaStructParentGeomID( struct_id );
+    string parent_id = GetFeaStructParentGeomID( struct_id ); // same as pod_id
 
     ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME );
     // Could also call ComputeFeaMesh ( struct_id, FEA_CALCULIX_FILE_NAME );
@@ -11055,7 +11131,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
 
-    struct_ind = GetFeaStructIndex( struct_id );
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
 
     //==== Generate FEA Mesh and Export ====//
     Print( string( "--> Generating FeaMesh " ) );
@@ -11139,7 +11215,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     Update();
 
-    if ( bulkhead_id != GetFeaPartID( struct_id, 0 ) ) // These should be equivalent
+    if ( bulkhead_id != GetFeaPartID( struct_id, 1 ) ) // These should be equivalent (index 0 is skin)
     {
         Print( "Error: GetFeaPartID" );
     }
@@ -11214,10 +11290,16 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
 
+    //==== Add Slice ====//
+    string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
     //==== Add LineArray ====//
     string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+    
+    //==== Add Rectangle ====//
+    string rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE );
 
-    if ( SS_LINE_ARRAY != GetFeaSubSurfIndex( line_array_id ) ) // These should be equivalent
+    if ( 1 != GetFeaSubSurfIndex( rect_id ) ) // These should be equivalent
     {
         Print( "Error: GetFeaSubSurfIndex" );
     }
@@ -11266,9 +11348,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
     string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME );
 
-    if ( NumFeaParts( struct_id ) != 2 )
+    if ( NumFeaParts( struct_id ) != 3 ) // Includes FeaSkin
     {
-        Print( "Error: NumFeaSubSurfs" );
+        Print( "Error: NumFeaParts" );
     }
     \endcode
     \sa GetFeaPartIDVec
@@ -11598,7 +11680,7 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
 /*!
     Get the maximum of two values -> (x > y ) ? x : y
     \code{.cpp}
-    double max_val = Min( 1.0, 2.0 );
+    double max_val = Max( 1.0, 2.0 );
 
     if ( abs( 2.0 - max_val ) > 1e-6 ) { Print( "Error: Max" ); }
     \endcode
@@ -11674,7 +11756,7 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     \code{.cpp}
     if ( !CheckForVSPAERO( GetVSPExePath() ) )
     {
-        string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5"; // Note, may need to change to forward slashes
+        string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5";
         SetVSPAEROPath( vspaero_path );
     }
     \endcode
@@ -11708,7 +11790,7 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     if only one or two VSPAERO executables are found. An error message will indicate the executables that are missing. This may be 
     acceptable, as only the Solver is needed in all cases. The Viewer and Slicer may not be needed. 
     \code{.cpp}
-    string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5"; // Note, may need to change to forward slashes
+    string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5";
 
     if ( CheckForVSPAERO( vspaero_path ) )
     {
@@ -11745,6 +11827,8 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     string pod_id = AddGeom( "POD" );
 
     SetParmVal( pod_id, "Y_Rel_Location", "XForm", 2.0 );
+
+    VSPRenew();
 
     if ( FindGeoms().size() != 0 ) { Print( "ERROR: VSPRenew" ); }
     \endcode
