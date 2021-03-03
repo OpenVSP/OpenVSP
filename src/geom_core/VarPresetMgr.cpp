@@ -419,7 +419,7 @@ void VarPresetMgrSingleton::SetWorkingParmID( const string & parm_id )
 bool VarPresetMgrSingleton::CheckForEmpty( int curGroupIndex, int curSettingIndex )
 {
     // If there aren't any existing groups or settings, return
-    if ( curSettingIndex == -1 && curGroupIndex == -1 )
+    if ( curSettingIndex == -1 || curGroupIndex == -1 )
     {
         return true;
     }
