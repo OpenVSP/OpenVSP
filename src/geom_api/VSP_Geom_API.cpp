@@ -2915,7 +2915,7 @@ void DeleteFeaSubSurf( const string & geom_id, int fea_struct_ind, const string 
 int GetFeaSubSurfIndex( const string & ss_id )
 {
     int index = StructureMgr.GetFeaSubSurfIndex( ss_id );
-    if ( !index )
+    if ( index < 0 )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaSubSurfIndex::Can't Find FeaSubSurf " + ss_id );
         return index;
