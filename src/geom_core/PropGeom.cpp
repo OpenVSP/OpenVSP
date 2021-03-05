@@ -1608,10 +1608,12 @@ void PropGeom::EnforceOrder( PropXSec* xs, int indx )
     }
     else
     {
+        double tol = 1e-6;
         PropXSec* priorxs = ( PropXSec* ) m_XSecSurf.FindXSec( indx - 1 );
         PropXSec* nextxs = ( PropXSec* ) m_XSecSurf.FindXSec( indx + 1 );
-        double lower = priorxs->m_RadiusFrac();
-        double upper = nextxs->m_RadiusFrac();
+        // Apply tolerance to avoid degenerate surfaces
+        double lower = priorxs->m_RadiusFrac() + tol;
+        double upper = nextxs->m_RadiusFrac() - tol;
         xs->m_RadiusFrac.SetLowerUpperLimits( lower , upper );
     }
 }
