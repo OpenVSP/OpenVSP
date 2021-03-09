@@ -20,28 +20,43 @@ THE SOFTWARE.
 
 # OpenVSP Python Packages
 
+## Background
 
-The python packages included extend the OpenVSP Python API.
+This repository of Python packages is designed to assist in the analysis of
+aircraft, with a special interest in VTOL aircraft.  These packages extend the
+OpenVSP Python API.
 
-### Installation Instructions
-1. Make sure the vsp shared library (`_vsp.so` or `_vsp.pyd`) and python wrapper `vsp.py` from
-the OpenVSP distribution built for your operating system and python environment have been placed in `openvsp\openvsp\`.
+## Installation
 
-2. Build the `bg2charm_thick` fortran utility
-    ```
-    cd CHARM/charm/charm_fortran_utilities/build
-    gfortran -o bg2charm_thick ../src/bg2charm_thick.f
-    ```
+Before installation, ensure you have installed Python via Anaconda or
+Miniconda.  Conda is required for the environment management utilized in this
+repository.  When installing via Anaconda or Miniconda, pip should also be
+installed, but it is worth verifying that this has been done.
 
-    * On Windows with MinGW, you likely want to force the use of static libraries to prevent problems finding them later.
-        ```
-        gfortran -static -o bg2charm_thick.exe ../src/bg2charm_thick.f
-        ```
+### Windows Installation Only
 
-3. Install the python packages (you should start in the directory this README file)
-    ```bash
-    pip install -r requirements.txt # If you are not going to modify the packages
-    ```
-    ```bash
-    pip install -r requirements-dev.txt # If you want to modify the python packages
-    ```
+1. Open a Windows PowerShell
+2. Navigate to the location of this README.md file
+3. Execute `./setup.ps1`
+
+### Mac OS and Linux Installation (via BASH)
+
+1. Open a terminal window and navigate to the location of this README.md file
+2. Execute `conda env create -f ./environment.yml
+3. Execute `conda activate vsppytools`
+4. Execute `pip install -r requirements-dev.txt`
+
+   Note: Can install `requirements.txt` if you are not going to modify the Python
+   packages.
+
+## Uninstall Directions
+
+To uninstall the vsppytools packages, simply invoke `pip uninstall -r
+requirements-uninstall.txt`
+
+## OpenVSP to CHARM Automation
+
+Instructions for setting up the OpenVSP to CHARM automation process can be found
+in the CHARM Python package [README](./CHARM/README.md).  Ensure that this
+installation process above has been completed successfully before setting up the
+CHARM automation.
