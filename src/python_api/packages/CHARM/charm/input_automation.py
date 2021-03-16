@@ -22,7 +22,7 @@ import utilities.units as u
 from utilities.files import RunManager
 from utilities.transformations import TransMatrix
 import logging
-import utilities.logging as ul
+import utilities.uberlogging as ul
 import openvsp as vsp
 import degen_geom as dg
 import numpy as np
@@ -39,10 +39,12 @@ from typing import Union
 
 # Find default fortran executables
 DEFAULT_BG2CHARM = os.path.join(os.path.dirname(__file__), "charm_fortran_utilities", "bin")
-for g in glob.glob(os.path.join(DEFAULT_BG2CHARM, "bg2charm*")):
-    if sys.platform in g:
-        DEFAULT_BG2CHARM = g
-        break
+g = glob.glob(os.path.join(DEFAULT_BG2CHARM, "bg2charm*"))
+if sys.platform in ['linux', 'win32', 'darwin']:  # Allowed system platform identifiers
+    DEFAULT_BG2CHARM = g[0]
+else:
+    raise ValueError("Detected platform not tested for use with CHARM Automation.  Add sys.platform string output to "
+                     "list of platform identifiers in charm_automation.py script and use at your own risk.")
 
 
 class AirfoilDataLocation(Enum):
@@ -366,7 +368,7 @@ class CharmRotorSettings:
         self.__flap_defl = flap_defl
 
 
-class CharmRotorSettingsCollection(collections.MutableMapping, CharmRotorSettings):
+class CharmRotorSettingsCollection(collections.abc.MutableMapping, CharmRotorSettings):
     """
     Allows a collection of rotors settings to be treated like
     a single rotor setting
