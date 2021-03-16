@@ -138,9 +138,9 @@ class CharmRotorSettings:
         :param initial_collective: initial rotor collective in degrees
         :param ct: thrust coefficient of rotor (T/(rho*pi*R^2*(R*Omega)^2))
         :param default_airfoil_opts: default airfoil options, used if airfoil_opts are not specified
-        :param merge_wings: if true, touching symmetric wings are merged into one rotor component, otherwise they are treated
-            as separate rotors. If merging is disabled, make sure the rotor wake template settings are specified to not
-            shed root vortices
+        :param merge_wings: if true, touching symmetric wings are merged into one rotor component, otherwise they are
+            treated as separate rotors. If merging is disabled, make sure the rotor wake template settings are specified
+            to not shed root vortices
         :param nspan_override: if not none it will be used to override the nspan field
             in the generated blade geometry file
         :param airfoil_opts: if not none, this is a list of airfoil options corresponding to
@@ -705,7 +705,7 @@ def create_charm_blade_geom_file_from_propeller(prop_dg: dg.DegenComponent, unit
     # to swap the x/z axes before running the CHARM utility
     # z is positive in the down direction
 
-    data = [] # lex ley lez tex tey tez toc
+    data = []  # lex ley lez tex tey tez toc
     for i in range(leading_edge_charm.shape[1]):
         row = [leading_edge_charm[1, i], leading_edge_charm[2, i], leading_edge_charm[0, i],
                trailing_edge_charm[1, i], trailing_edge_charm[2, i], trailing_edge_charm[0, i],
@@ -990,8 +990,8 @@ def create_rigid_blade_dynamics_file(radius, unit_factor=u.in2ft, iaero=1, irvfl
     Creates a rigid blade geometry file for degenerate propeller component
     :param radius: radius of propeller (span of wing)
     :param unit_factor: conversion factor to convert to feet
-    :param iaero: value of IAERO variable in blade dyanmics file. Controls used for computing lift on rotor.
-    :param irvflo: value of IRVFLO variable in blade dyanmics file. Controls used for computing reverse flow lift on rotor.
+    :param iaero: value of IAERO variable in blade dynamics file. Controls used for computing lift on rotor.
+    :param irvflo: value of IRVFLO var in blade dynamics file. Controls used for computing reverse flow lift on rotor.
     :param isv66: boolean, set to True if running CHARM v6.6
     :param isrotor: boolean, True if rotor, False if wing, used to determine ISTFLO input value
     :return:
@@ -1674,7 +1674,7 @@ def create_trim_file_from_template(trim_template, trim_settings: CharmTrimSettin
 
 def build_run_characteristics_file_from_template(rotor_files, template_filename=None, template_file=None, num_psi=None,
                                                  velocity=None, rotation_rates=None, pitch=None, weight=None, cg=None,
-                                                 fuselage_data=None, atmos_data: CharmAtmosphereData=None, nrev=None,
+                                                 fuselage_data=None, atmos_data: CharmAtmosphereData = None, nrev=None,
                                                  convgVec=None, sframe=None, smode=None, az_sym=None, **kwargs):
     """
     Uses a template run characteristics file to create a run characteristic file that is updated with
@@ -1932,7 +1932,7 @@ def read_run_characteristics_template(template_filename=None, template_file=None
 
 
 def build_charm_input_files(degen_mgr: dg.DegenGeomMgr, case_name,
-                            rotor_settings: CharmRotorSettingsCollection=None,
+                            rotor_settings: CharmRotorSettingsCollection = None,
                             wing_settings=None,
                             unit_factor=u.in2ft, run_char_template=None, run_char_filename=None,
                             velocity=None, trim_settings=None, **kwargs):
@@ -1965,8 +1965,8 @@ def build_charm_input_files(degen_mgr: dg.DegenGeomMgr, case_name,
         num_psi = _determine_num_psi(base_num_psi=run_char_vars['NPSI'], num_blades_list=num_blades_list)
 
         files_to_write, rotor_files = create_rotor_file_list(degen_mgr=degen_mgr,
-                                                         settings=rotor_settings, num_psi=num_psi,
-                                                         unit_factor=unit_factor, **kwargs)
+                                                             settings=rotor_settings, num_psi=num_psi,
+                                                             unit_factor=unit_factor, **kwargs)
 
     if wing_settings is not None:
         wing_infos = create_all_wing_infos(degen_mgr=degen_mgr, settings=wing_settings)
@@ -2026,8 +2026,8 @@ def create_scan_grid(xpnts=None, ypnts=None, zpnts=None):
                 for j in range(nd2):
                     indices = [i, j, igrid]
                     f.write("{:12.3f}{:12.3f}{:12.3f}\n".format(xpnts[indices[shift % 3]],
-                                                              ypnts[indices[(shift+1) % 3]],
-                                                              zpnts[indices[(shift+2) % 3]]))
+                                                                ypnts[indices[(shift+1) % 3]],
+                                                                zpnts[indices[(shift+2) % 3]]))
         return f.getvalue()
 
 
