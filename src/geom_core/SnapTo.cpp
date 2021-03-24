@@ -370,7 +370,15 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
     }
 
     //==== Best Soln is v_out ====//
-    parm_ptr->Set( v_out );
+    if ( std::abs( parm_ptr->Get() - v_out ) < DBL_EPSILON )
+    {
+        geom_ptr->ParmChanged( parm_ptr, Parm::SET );
+    }
+    else
+    {
+        parm_ptr->Set( v_out );
+    }
+
     veh->Update( true );
 
     m_CollisionMinDist = FindMinDistance( geom_id, other_tmesh_vec, iflag );
