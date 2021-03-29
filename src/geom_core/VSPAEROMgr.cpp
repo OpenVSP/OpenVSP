@@ -5545,18 +5545,18 @@ xmlNodePtr UnsteadyGroup::DecodeXml( xmlNodePtr& node )
 
 void UnsteadyGroup::ParmChanged( Parm* parm_ptr, int type )
 {
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
     // Identify if unsteady prop RPM is changed. If so, update it to be the "master" that 
     // all other unsteady prop RPM will be set to
     if ( VSPAEROMgr.m_RotateBladesFlag() && VSPAEROMgr.m_UniformPropRPMFlag() &&
          &m_RPM == parm_ptr && m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )
     {
         VSPAEROMgr.SetCurrentUnsteadyGroupIndex( m_ID );
-    }
-
-    if ( type == Parm::SET )
-    {
-        m_LateUpdateFlag = true;
-        return;
     }
 
     Update();
