@@ -4314,16 +4314,22 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
     // Make sure the fixed compomnet group is always first
     if ( m_UnsteadyGroupVec.size() > NumUnsteadyRotorGroups() && m_UnsteadyGroupVec[0]->m_GeomPropertyType() != UnsteadyGroup::GEOM_FIXED )
     {
-        vector < UnsteadyGroup* >::const_iterator iter;
-        for ( iter = m_UnsteadyGroupVec.begin(); iter != m_UnsteadyGroupVec.end(); ++iter )
+        UnsteadyGroup* fixed_group = NULL;
+        size_t fixed_group_index = -1;
+        for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
         {
-            if ( ( *iter )->m_GeomPropertyType() == UnsteadyGroup::GEOM_FIXED )
+            if ( m_UnsteadyGroupVec[i]->m_GeomPropertyType() == UnsteadyGroup::GEOM_FIXED )
             {
-                UnsteadyGroup* group = ( *iter );
-                m_UnsteadyGroupVec.erase( iter );
-                m_UnsteadyGroupVec.insert( m_UnsteadyGroupVec.begin(), group );
+                fixed_group = m_UnsteadyGroupVec[i];
+                fixed_group_index = i;
                 break;
             }
+        }
+
+        if ( fixed_group && fixed_group_index >= 0 )
+        {
+            m_UnsteadyGroupVec.erase( m_UnsteadyGroupVec.begin() + fixed_group_index );
+            m_UnsteadyGroupVec.insert( m_UnsteadyGroupVec.begin(), fixed_group );
         }
     }
 

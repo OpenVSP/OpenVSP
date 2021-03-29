@@ -1052,7 +1052,7 @@ int MeshGeom::WriteVSPGeomParts( FILE* file_id  )
 
 // Wake edges are created such that N0.u < N1.u.
 // This comparitor sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
-bool OrderWakeEdges ( TEdge &a, TEdge &b )
+bool OrderWakeEdges ( const TEdge &a, const TEdge &b )
 {
     if ( sgn( a.m_N0->m_Pnt.y() ) < sgn( b.m_N0->m_Pnt.y() ) ) return true;
     if ( sgn( b.m_N0->m_Pnt.y() ) < sgn( a.m_N0->m_Pnt.y() ) ) return false;
@@ -1098,7 +1098,7 @@ bool AboutEqualWakeNodes ( TNode *a, TNode *b )
     return false;
 }
 
-bool AboutEqualWakeEdges ( TEdge &a, TEdge &b )
+bool AboutEqualWakeEdges ( const TEdge &a, const TEdge &b )
 {
     if ( AboutEqualWakeNodes( a.m_N0, b.m_N0 )
       && AboutEqualWakeNodes( a.m_N1, b.m_N1 ) ) return true;
