@@ -817,6 +817,9 @@ string Vehicle::AddGeom( const GeomType & type )
                     errMsgData.m_StringVec.push_back( string( "Error:  Conformal component not supported for this parent type." ) );
 
                     MessageMgr::getInstance().SendAll( errMsgData );
+
+                    DeleteGeom( geom_id );
+                    return "NONE";
                 }
             }
             else
@@ -827,6 +830,9 @@ string Vehicle::AddGeom( const GeomType & type )
                 errMsgData.m_StringVec.push_back( string( "Error:  Conformal component not supported for this parent type." ) );
 
                 MessageMgr::getInstance().SendAll( errMsgData );
+
+                DeleteGeom( geom_id );
+                return "NONE";
             }
 
         }
