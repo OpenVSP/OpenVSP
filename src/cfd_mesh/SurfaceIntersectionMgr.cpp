@@ -11,6 +11,7 @@
 #include "Util.h"
 #include "SubSurfaceMgr.h"
 #include "StringUtil.h"
+#include <cfloat>  //For DBL_EPSILON
 
 #include "eli/geom/intersect/intersect_surface.hpp"
 

@@ -15,6 +15,7 @@
 #include "CfdMeshMgr.h"
 #include "SubSurfaceMgr.h"
 #include "IntersectPatch.h"
+#include <cfloat>  //For DBL_EPSILON
 
 Surf::Surf()
 {

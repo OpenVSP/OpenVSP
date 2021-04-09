@@ -8,6 +8,7 @@
 #include "SnapTo.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include <cfloat>  //For DBL_EPSILON
 
 SnapTo::SnapTo() : ParmContainer()
 {

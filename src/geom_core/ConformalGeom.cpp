@@ -10,6 +10,7 @@
 #include "ConformalGeom.h"
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
+#include <cfloat>  //For DBL_EPSILON
 
 using namespace vsp;
 

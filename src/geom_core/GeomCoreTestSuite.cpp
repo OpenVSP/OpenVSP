@@ -7,7 +7,7 @@
 
 #include "GeomCoreTestSuite.h"
 #include "MeshGeom.h"
-
+#include <cfloat>  //For DBL_EPSILON
 
 //==== Test GeomXForm ====//
 void GeomCoreTestSuite::GeomXFormTest()
