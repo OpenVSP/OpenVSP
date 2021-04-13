@@ -4123,6 +4123,13 @@ void ColResizeBrowser::draw()
     }
 }
 
+void ColResizeBrowser::change_cursor( Fl_Cursor newcursor )
+{
+    if ( newcursor == m_LastCursor ) return;
+    window()->cursor( newcursor );
+    m_LastCursor = newcursor;
+}
+
 int ColResizeBrowser::which_col_near_mouse() 
 {
     int X, Y, W, H;

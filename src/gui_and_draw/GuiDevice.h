@@ -1377,11 +1377,7 @@ private:
 
     // CHANGE CURSOR
     //     Does nothing if cursor already set to value specified.
-    void change_cursor( Fl_Cursor newcursor ) {
-        if ( newcursor == m_LastCursor ) return;
-        window()->cursor( newcursor );
-        m_LastCursor = newcursor;
-    }
+    void change_cursor( Fl_Cursor newcursor );
 
     // RETURN THE COLUMN MOUSE IS 'NEAR'
     //     Returns -1 if none.
