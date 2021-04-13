@@ -285,6 +285,28 @@ void ExportFile( const string & file_name, int write_set_index, int file_type )
     ErrorMgr.NoError();
 }
 
+void SetBEMPropID( const string & prop_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( prop_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBEMPropID::Can't Find Geom " + prop_id );
+        return;
+    }
+    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBEMPropID::Geom is not a propeller " + prop_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast <PropGeom*> ( geom_ptr );
+    if ( prop_ptr )
+    {
+        veh->m_BEMPropID = prop_id;
+    }
+}
+
 //===================================================================//
 //======================== Design Files =============================//
 //===================================================================//

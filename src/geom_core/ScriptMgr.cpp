@@ -4131,6 +4131,23 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string ImportFile( const string & in file_name, int file_type, const string & in parent )", asFUNCTION( vsp::ImportFile ), asCALL_CDECL, doc_struct );
     assert( r >= 0 ); // TODO: Example
 
+    doc_struct.comment = R"(
+/*!
+    Set the ID of the propeller to be exported to a BEM file. Call this function before ExportFile.
+    \code{.cpp}
+    //==== Add Prop Geometry ====//
+    string prop_id = AddGeom( "PROP" );
+
+    SetBEMPropID( prop_id );
+
+    ExportFile( "ExampleBEM.bem", SET_ALL, EXPORT_BEM );
+    \endcode
+    \sa EXPORT_TYPE, ExportFile
+    \param [in] prop_id Propeller Geom ID
+*/)";
+    r = se->RegisterGlobalFunction( "void SetBEMPropID( const string & in prop_id )", asFUNCTION( vsp::SetBEMPropID ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
     //==== Design File Functions ====//
     group = "DesignFile";
     doc_struct.group = group.c_str();

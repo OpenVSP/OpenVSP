@@ -553,6 +553,8 @@ void BEMAnalysis::SetDefaults()
     if ( veh )
     {
         m_Inputs.Add( NameValData( "PropID", veh->m_BEMPropID ) );
+        m_Inputs.Add( NameValData( "ExportBEMFlag", false ) );
+        m_Inputs.Add( NameValData( "BEMFileName", "" ) );
     }
 }
 
@@ -564,7 +566,8 @@ string BEMAnalysis::Execute()
 
     if ( veh )
     {
-        string propid;
+        string propid, file_name;
+        int export_flag = 0;
 
         NameValData *nvd = NULL;
 
@@ -572,6 +575,18 @@ string BEMAnalysis::Execute()
         if ( nvd )
         {
             propid = nvd->GetString( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "ExportBEMFlag", 0 );
+        if ( nvd )
+        {
+            export_flag = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "BEMFileName", 0 );
+        if ( nvd )
+        {
+            file_name = nvd->GetString( 0 );
         }
 
         Geom* geom = veh->FindGeom( propid );
@@ -582,6 +597,12 @@ string BEMAnalysis::Execute()
             if ( pgeom )
             {
                 res = pgeom->BuildBEMResults();
+                Results* resptr = ResultsMgr.FindResultsPtr( res );
+
+                if ( export_flag && resptr )
+                {
+                    resptr->WriteBEMFile( file_name );
+                }
             }
         }
     }

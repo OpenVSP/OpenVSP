@@ -56,6 +56,8 @@ extern void InsertVSPFile( const std::string & file_name, const std::string & pa
 extern void ExportFile( const std::string & file_name, int write_set_index, int file_type );
 extern std::string ImportFile( const std::string & file_name, int file_type, const std::string & parent );
 
+extern void SetBEMPropID( const string & prop_id );
+
 //======================== Design Files ================================//
 
 extern void ReadApplyDESFile( const std::string & file_name );
