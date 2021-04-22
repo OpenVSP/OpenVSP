@@ -52,7 +52,7 @@ else()
 endif()
 
 ExternalProject_Add(LIBXML2
-  URL ${CMAKE_SOURCE_DIR}/libxml2-2.9.9.tar.gz
+  URL ${CMAKE_SOURCE_DIR}/libxml2-2.9.10.tar.gz
   SOURCE_DIR ${libxml2_source}
   INSTALL_DIR ${libxml2_install}
   BUILD_IN_SOURCE 1
