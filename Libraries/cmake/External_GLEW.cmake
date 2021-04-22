@@ -1,7 +1,7 @@
 # An external project for GLEW, The OpenGL Extension Wrangler Library
 # http://glew.sourceforge.net/
 
-set( glew_version "1.7.0" )
+set( glew_version "2.1.0" )
 
 set( glew_file glew-${glew_version}.tgz )
 
