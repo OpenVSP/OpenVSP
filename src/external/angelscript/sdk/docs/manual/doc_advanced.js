@@ -11,6 +11,7 @@ var doc_advanced =
       [ "With a secondary thread", "doc_adv_timeout.html#doc_adv_timeout_2", null ]
     ] ],
     [ "Garbage collection", "doc_gc.html", [
+      [ "Callback for detected circular references", "doc_gc.html#doc_gc_circcallback", null ],
       [ "Garbage collection and multi-threading", "doc_gc.html#doc_gc_threads", null ]
     ] ],
     [ "Multithreading", "doc_adv_multithread.html", [

@@ -7,8 +7,6 @@ var doc_samples =
     [ "Events", "doc_samples_events.html", null ],
     [ "Include directive", "doc_samples_incl.html", null ],
     [ "Generic compiler", "doc_samples_asbuild.html", null ],
-    [ "Commandline runner", "doc_samples_asrun.html", [
-      [ "Global functions available to scripts", "doc_samples_asrun.html#doc_samples_asrun_funcs", null ]
-    ] ],
-    [ "Game", "doc_samples_game.html", null ]
+    [ "Game", "doc_samples_game.html", null ],
+    [ "Command line runner", "doc_samples_asrun.html", "doc_samples_asrun" ]
 ];

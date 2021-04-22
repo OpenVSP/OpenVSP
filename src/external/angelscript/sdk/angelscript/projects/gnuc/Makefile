@@ -87,6 +87,15 @@ else
 	CXXFLAGS += -Wall -fPIC -fno-strict-aliasing
 endif
 
+## Detect if targetting ARM CPU and if so tell assembler to accept implicit IT constructs in thumb mode
+GCC_ARCH := $(shell $(CXX) -dumpmachine)
+$(info GCC ARCH: $(GCC_ARCH))
+ifneq (,$(findstring arm-,$(GCC_ARCH)))
+	CXXFLAGS += -Wa,-mimplicit-it=thumb
+else ifneq (,$(findstring armv7-, $(GCC_ARCH)))
+	CXXFLAGS += -Wa,-mimplicit-it=thumb
+endif
+
 ## toolchain
 AR ?= ar
 RANLIB ?= ranlib
@@ -145,7 +154,7 @@ all: shared static
 
 shared: $(LIBDIR)/$(SHLIB) $(LIBDIR)/$(LIBNAME).so
 
-static: $(LIBDIR)/$(ARLIB)
+static: $(LIBDIR) $(OBJDIR) $(LIBDIR)/$(ARLIB)
 
 $(OBJDIR):
 	mkdir -p "$(OBJDIR)"

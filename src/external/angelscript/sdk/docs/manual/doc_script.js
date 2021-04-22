@@ -8,7 +8,8 @@ var doc_script =
       [ "Loops: while / do-while / for", "doc_script_statements.html#while", null ],
       [ "Loop control: break / continue", "doc_script_statements.html#break", null ],
       [ "Return statement", "doc_script_statements.html#return", null ],
-      [ "Statement blocks", "doc_script_statements.html#block", null ]
+      [ "Statement blocks", "doc_script_statements.html#block", null ],
+      [ "Try-catch blocks", "doc_script_statements.html#try", null ]
     ] ],
     [ "Expressions", "doc_expressions.html", [
       [ "Assignments", "doc_expressions.html#assignment", null ],
@@ -36,15 +37,19 @@ var doc_script =
     [ "Object handles", "doc_script_handle.html", [
       [ "General usage", "doc_script_handle.html#doc_script_handle_1", null ],
       [ "Object life times", "doc_script_handle.html#doc_script_handle_2", null ],
-      [ "Object relations and polymorphing", "doc_script_handle.html#doc_script_handle_3", null ]
+      [ "Object relations and polymorphing", "doc_script_handle.html#doc_script_handle_3", null ],
+      [ "Const handles", "doc_script_handle.html#doc_script_handle_4", null ]
     ] ],
     [ "Shared script entities", "doc_script_shared.html", [
       [ "How to declare shared entities", "doc_script_shared.html#doc_script_shared_1", null ],
+      [ "External shared entities", "doc_script_shared.html#doc_script_shared_external", null ],
       [ "What can be shared", "doc_script_shared.html#doc_script_shared_2", null ]
     ] ],
     [ "Operator precedence", "doc_operator_precedence.html", [
       [ "Unary operators", "doc_operator_precedence.html#unary", null ],
       [ "Binary and ternary operators", "doc_operator_precedence.html#binary", null ]
     ] ],
-    [ "Reserved keywords and tokens", "doc_reserved_keywords.html", null ]
+    [ "Reserved keywords and tokens", "doc_reserved_keywords.html", null ],
+    [ "Script language grammar", "doc_script_bnf.html", null ],
+    [ "Standard library", "doc_script_stdlib.html", "doc_script_stdlib" ]
 ];

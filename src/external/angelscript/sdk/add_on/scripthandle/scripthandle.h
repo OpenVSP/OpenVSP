@@ -39,6 +39,10 @@ public:
 	// Get the reference
 	void *GetRef();
 
+	// GC callback
+	void EnumReferences(asIScriptEngine *engine);
+	void ReleaseReferences(asIScriptEngine *engine);
+
 protected:
 	// These functions need to have access to protected
 	// members in order to call them from the script engine

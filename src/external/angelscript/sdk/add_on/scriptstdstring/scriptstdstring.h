@@ -22,25 +22,20 @@
 // Compilation settings
 //
 
-// The use of the string pool can improve performance quite drastically
-// for scripts that work with a lot of literal string constants. 
-//
-//  1 = on
-//  0 = off
-
-#ifndef AS_USE_STRINGPOOL
-#define AS_USE_STRINGPOOL 1
-#endif
-
 // Sometimes it may be desired to use the same method names as used by C++ STL.
 // This may for example reduce time when converting code from script to C++ or
 // back.
 //
 //  0 = off
 //  1 = on
-
 #ifndef AS_USE_STLNAMES
 #define AS_USE_STLNAMES 0
+#endif
+
+// Some prefer to use property accessors to get/set the length of the string
+// This option registers the accessors instead of the method length()
+#ifndef AS_USE_ACCESSORS
+#define AS_USE_ACCESSORS 0
 #endif
 
 BEGIN_AS_NAMESPACE

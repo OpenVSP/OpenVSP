@@ -2,7 +2,8 @@ var doc_addon_application =
 [
     [ "Script builder", "doc_addon_build.html", [
       [ "Public C++ interface", "doc_addon_build.html#doc_addon_build_1", [
-        [ "The include callback signature", "doc_addon_build.html#doc_addon_build_1_1", null ]
+        [ "The include callback signature", "doc_addon_build.html#doc_addon_build_1_1", null ],
+        [ "The pragma callback signature", "doc_addon_build.html#doc_addon_build_1_2", null ]
       ] ],
       [ "Include directives", "doc_addon_build.html#doc_addon_build_2", null ],
       [ "Conditional programming", "doc_addon_build.html#doc_addon_build_condition", null ],
@@ -13,8 +14,8 @@ var doc_addon_application =
       [ "Public script interface", "doc_addon_ctxmgr.html#doc_addon_ctxmgr_2", null ]
     ] ],
     [ "Debugger", "doc_addon_debugger.html", [
-      [ "Public C++ interface", "doc_addon_debugger.html#doc_addon_ctxmgr_1", null ],
-      [ "Example usage", "doc_addon_debugger.html#doc_addon_debugger_1", null ]
+      [ "Public C++ interface", "doc_addon_debugger.html#doc_addon_debugger_1", null ],
+      [ "Example usage", "doc_addon_debugger.html#doc_addon_debugger_2", null ]
     ] ],
     [ "Serializer", "doc_addon_serializer.html", [
       [ "Public C++ interface", "doc_addon_serializer.html#doc_addon_serializer_1", null ],

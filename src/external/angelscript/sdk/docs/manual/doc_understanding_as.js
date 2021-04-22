@@ -1,6 +1,23 @@
 var doc_understanding_as =
 [
-    [ "Topics", "doc_understanding_as.html#doc_understading_as_1", null ],
+    [ "Versions", "doc_versions.html", [
+      [ "History", "doc_versions.html#doc_versions_milestones", [
+        [ "2003 - Birth and first public release", "doc_versions.html#doc_versions_2003", null ],
+        [ "2005 - Version 2, sand box, object handles, script classes, and garbage collection", "doc_versions.html#doc_versions_2005", null ],
+        [ "2006 - Script interface", "doc_versions.html#doc_versions_2006", null ],
+        [ "2009 - Inheritance, template types, operator overloads, and JIT compilation", "doc_versions.html#doc_versions_2009", null ],
+        [ "2010 - Function pointers", "doc_versions.html#doc_versions_2010", null ],
+        [ "2011 - Automatic garbage collection and debugging", "doc_versions.html#doc_versions_2011", null ],
+        [ "2012 - Namespaces and mixins", "doc_versions.html#doc_versions_2012", null ],
+        [ "2013 - Improved template types, delegates, weak references, and initialization lists", "doc_versions.html#doc_versions_2013", null ],
+        [ "2014 - Named arguments and auto", "doc_versions.html#doc_versions_2014", null ],
+        [ "2015 - Anonymous functions", "doc_versions.html#doc_versions_2015", null ],
+        [ "2016 - Child funcdefs", "doc_versions.html#doc_versions_2016", null ],
+        [ "2017 - external keyword and anonymous initialization lists", "doc_versions.html#doc_versions_2017", null ],
+        [ "2018 - Try-catch statements and explicit constructors", "doc_versions.html#doc_versions_2018", null ],
+        [ "2019 - Explicit property keyword", "doc_versions.html#doc_versions_2019", null ]
+      ] ]
+    ] ],
     [ "Script modules", "doc_module.html", [
       [ "Single module versus multiple modules", "doc_module.html#doc_module_single_vs_multi", null ],
       [ "Exchanging information between modules", "doc_module.html#doc_module_exchange", null ]
@@ -14,12 +31,6 @@ var doc_understanding_as =
       [ "Function pointers", "doc_as_vs_cpp_types.html#doc_as_vc_cpp_types_6", null ],
       [ "Parameter references", "doc_as_vs_cpp_types.html#doc_as_vs_cpp_types_4", null ]
     ] ],
-    [ "The string type", "doc_strings.html", [
-      [ "Unicode vs ASCII", "doc_strings.html#doc_strings_1", null ],
-      [ "Multiline string literals", "doc_strings.html#doc_string_2", null ],
-      [ "Character literals", "doc_strings.html#doc_string_3", null ]
-    ] ],
-    [ "Arrays", "doc_arrays.html", null ],
     [ "Object handles to the application", "doc_obj_handle.html", [
       [ "Managing the reference counter in functions", "doc_obj_handle.html#doc_obj_handle_3", null ],
       [ "Auto handles can make it easier", "doc_obj_handle.html#doc_obj_handle_4", null ]

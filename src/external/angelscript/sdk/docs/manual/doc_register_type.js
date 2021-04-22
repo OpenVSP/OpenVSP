@@ -17,8 +17,11 @@ var doc_register_type =
     [ "Registering operator behaviours", "doc_reg_opbeh.html", [
       [ "Operator overloads", "doc_reg_opbeh.html#doc_reg_opbeh_1", null ]
     ] ],
-    [ "Registering object methods", "doc_reg_objmeth.html", null ],
+    [ "Registering object methods", "doc_reg_objmeth.html", [
+      [ "Composite members", "doc_reg_objmeth.html#doc_reg_objmeth_composite", null ]
+    ] ],
     [ "Registering object properties", "doc_reg_objprop.html", [
+      [ "Composite members", "doc_reg_objprop.html#doc_reg_objprop_composite", null ],
       [ "Property accessors", "doc_reg_objprop.html#doc_reg_objprop_accessor", null ]
     ] ]
 ];
