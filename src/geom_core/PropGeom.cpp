@@ -1714,7 +1714,12 @@ void PropGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector
 void PropGeom::UpdatePreTess()
 {
     m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
-    m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
+
+    int nsurf = GetNumMainSurfs();
+    for ( int i = 0; i < nsurf; i++ )
+    {
+        m_MainSurfVec[i].SetClustering( m_LECluster(), m_TECluster() );
+    }
 
     CalculateMeshMetrics();
 }
