@@ -15,7 +15,7 @@ FIND_PATH(CMINPACK_INCLUDE_DIR cminpack.h PATHS
    PATH_SUFFIXES cminpack cminpack-1
 )
 
-SET(CMINPACK_NAMES ${CMINPACK_NAMES} cminpack minpack)
+SET(CMINPACK_NAMES ${CMINPACK_NAMES} cminpack minpack cminpack_s cminpack_d cminpack_s_d)
 
 FIND_LIBRARY(CMINPACK_LIBRARY
    NAMES ${CMINPACK_NAMES} PATHS
