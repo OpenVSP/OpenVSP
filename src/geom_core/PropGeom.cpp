@@ -1713,6 +1713,7 @@ void PropGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector
 
 void PropGeom::UpdatePreTess()
 {
+    // Update clustering before symmetry is appied for m_SurfVec
     m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
 
     int nsurf = GetNumMainSurfs();

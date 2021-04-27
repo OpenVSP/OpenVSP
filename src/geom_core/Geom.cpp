@@ -1124,6 +1124,11 @@ void Geom::Update( bool fullupdate )
         UpdateFlags();  // Needs to be after m_MainSurfVec is populated, but before m_SurfVec
     }
 
+    if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
+    {
+        UpdatePreTess();
+    }
+
     if ( m_XFormDirty || m_SurfDirty )
     {
         UpdateSymmAttach();  // Needs to happen for both XForm and Surf updates.
@@ -1151,7 +1156,6 @@ void Geom::Update( bool fullupdate )
     // Tessellate MainSurfVec
     if ( m_SurfDirty || m_TessDirty )
     {
-        UpdatePreTess();
         UpdateMainTessVec();
         UpdateMainDegenGeomPreview();
     }

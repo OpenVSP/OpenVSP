@@ -2252,6 +2252,10 @@ void WingGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector
 
 void WingGeom::UpdatePreTess()
 {
+    // Update clustering before symmetry is appied for m_SurfVec
+    m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
+    m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
+
     m_TessUVec.clear();
     m_RootClusterVec.clear();
     m_TipClusterVec.clear();
@@ -2272,9 +2276,6 @@ void WingGeom::UpdatePreTess()
             }
         }
     }
-
-    m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
-    m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
 
     CalculateMeshMetrics();
 }
