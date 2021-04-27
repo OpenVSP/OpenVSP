@@ -597,6 +597,7 @@ void WireGeom::ReadP3D( FILE* fp, int ni, int nj, int nk )
 
     m_InvertFlag = CheckInverted();
 
+    SetDirtyFlag( GeomBase::SURF );
     Update();
 }
 
@@ -632,6 +633,7 @@ void WireGeom::ReadXSec( FILE* fp )
 
     m_InvertFlag = CheckInverted();
 
+    SetDirtyFlag( GeomBase::SURF );
     Update();
 }
 
