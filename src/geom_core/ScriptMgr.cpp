@@ -3008,11 +3008,16 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
 
     string group = "CustomGeom";
     doc_struct.group = group.c_str();
+    doc_struct.export_api_test = false;
 
     string group_description = R"(
     \brief This functions grouped here are used to create and manipulate Custom Components. Custom components
-    are defined in *.vspscript files included in the /"Custom Scripts/" directory. Examples of Custom Components
-    are available in the directory for reference. \n\n
+    are defined in *.vsppart files included in the /"Custom Scripts/" directory. Examples of Custom Components
+    are available in the directory for reference. OpenVSP looks in 3 locations for the /"Custom Scripts/" folder, 
+    where Custom Components are loaded: the root directory, the VSP executable direcotry, and the home directory. 
+    Note, these functions are specific to defining Custom Components and can't be called from standard API scripts
+    (i.e. *.vspscript). However, a Custom Component can be created as a *.vsppart file and then accessed through
+    secondary API scripts. \n\n
     \ref index "Click here to return to the main page" )";
     se->AddGroup( group.c_str(), "Custom Geometry Functions", group_description.c_str() );
 

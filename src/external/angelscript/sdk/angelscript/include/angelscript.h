@@ -652,6 +652,7 @@ struct asDocInfo
 {
     const char* comment = NULL;
     const char* group = NULL;
+    bool export_api_test = true;
 };
 
 // Interface declarations

@@ -39,7 +39,7 @@ namespace asDocgen
     };
 
     std::map<string, ScriptTypeComment> typeComments;
-    std::map<string, string> globalComments;
+    std::map<string, asDocInfo> globalFunctionMap;
     std::map<string, std::map<string, string>> enumeratorComments;
     std::map<string, string> enumerationComment;
     std::map<string, string> globalPropertyComments;
@@ -49,7 +49,6 @@ namespace asDocgen
     std::map<string, string> groupDescriptions;
 
     std::map<string, ScriptTypeComment> typeGroups;
-    std::map<string, string> globalGroups;
     std::map<string, std::map<string, string>> enumeratorGroups;
     std::map<string, string> enumerationGroups;
     std::map<string, string> globalPropertyGroups;
@@ -81,9 +80,9 @@ namespace asDocgen
         }
     }
 
-    void AddGlobalFunctionComment( const string& decl, const string& comment )
+    void AddGlobalFunction( const string& decl, asDocInfo doc_info )
     {
-        globalComments[decl] = comment;
+        globalFunctionMap[decl] = doc_info;
     }
 
     void AddGlobalPropertyComment( const string& decl, const string& comment )
@@ -147,11 +146,6 @@ namespace asDocgen
         }
     }
 
-    void AddGlobalFunctionGroup( const string& decl, const string& group )
-    {
-        globalGroups[decl] = group;
-    }
-
     void AddGlobalPropertyGroup( const string& decl, const string& group )
     {
         globalPropertyGroups[decl] = group;
@@ -178,7 +172,6 @@ namespace asDocgen
     void ClearComments()
     {
         typeComments.clear();
-        globalComments.clear();
         enumeratorComments.clear();
         enumerationComment.clear();
         globalPropertyComments.clear();
@@ -189,7 +182,6 @@ namespace asDocgen
     void ClearGroups()
     {
         typeGroups.clear();
-        globalGroups.clear();
         enumeratorGroups.clear();
         enumerationGroups.clear();
         globalPropertyGroups.clear();
@@ -268,7 +260,7 @@ namespace asDocgen
         return tempCaptureString;
     }
 
-    //Pulls names of functions and comments from mapped data and uses them to help format tand write the functions a file
+    //Pulls names of functions and comments from mapped data and uses them to help format and write the API unit test file
     void CreateAPITestDoc(std::vector<string> globalFunctions)
     {
         int targetLocation = 0;
@@ -289,9 +281,9 @@ namespace asDocgen
         //if not we skip that function (for now?)
         for ( unsigned int i = 0; i < globalFunctions.size(); ++i )
         {
-            if ( globalComments.count( globalFunctions[i] ) )
+            if ( globalFunctionMap.count( globalFunctions[i] ) && globalFunctionMap[globalFunctions[i]].export_api_test )
             {
-                 tempCaptureString = globalComments[globalFunctions[i]];
+                 tempCaptureString = globalFunctionMap[globalFunctions[i]].comment;
 
                  target = R"(\code{.cpp})";
 
@@ -323,72 +315,66 @@ namespace asDocgen
          
         for ( unsigned int i = 0; i < globalFunctions.size(); ++i )
         {
-            if ( globalComments.count( globalFunctions[i] ) )
+            if ( globalFunctionMap.count( globalFunctions[i] ) && globalFunctionMap[globalFunctions[i]].export_api_test )
             {
+                tempCaptureString = globalFunctionMap[globalFunctions[i]].comment;
 
-                tempCaptureString = globalComments[globalFunctions[i]];
-
-                 target = R"(\code{.cpp})";
+                target = R"(\code{.cpp})";
 
                 //if target is in string then we want to get the function name and the code comments/docs
-                if ( CheckForTarget(tempCaptureString, target ))
+                if ( CheckForTarget(tempCaptureString, target ) && globalFunctionMap.count( globalFunctions[i] ) )
                 {
-                    
-                    if ( globalComments.count( globalFunctions[i] ) )
+                    //We use this to get function names from strings
+                    tempCaptureString = extractTargetString( " ", "(", globalFunctions[i] );
+
+                    //We check to make sure extracted function name is not a repeat, if so we dont add anthing to codeFile
+                    if ( ! ( std::find(capturedFunctionStrings.begin(), capturedFunctionStrings.end(), tempCaptureString) != capturedFunctionStrings.end() ))
                     {
-                        //We use this to get function names from strings
-                         tempCaptureString = extractTargetString( " ", "(", globalFunctions[i] );
+                        //We format the function name and add it to the stram object to write to file
+                        codeFile << "void" << tempCaptureString << "_UT()" <<  "\n{";
 
-                         //We check to make sure extracted function name is not a repeat, if so we dont add anthing to codeFile
-                         if ( ! ( std::find(capturedFunctionStrings.begin(), capturedFunctionStrings.end(), tempCaptureString) != capturedFunctionStrings.end() ))
-                         {
-                             //We format the function name and add it to the stram object to write to file
-                             codeFile << "void" << tempCaptureString << "_UT()" <<  "\n{";
+                        std::string temp_function_name = tempCaptureString;
 
-                             std::string temp_function_name = tempCaptureString;
+                        //Then we push the captured string in the vector so we can check it for those dam repeats
+                        capturedFunctionStrings.push_back( tempCaptureString );
 
-                             //Then we push the captured string in the vector so we can check it for those dam repeats
-                             capturedFunctionStrings.push_back( tempCaptureString );
+                        //This is where we have to strip out parts of the comments that are not actual code
+                        if ( globalFunctionMap.count( globalFunctions[i] ) )
+                        {
+                            tempCaptureString = globalFunctionMap[globalFunctions[i]].comment;
 
-                            //This is where we have to strip out parts of the comments that are not actual code
-                            if ( globalComments.count( globalFunctions[i] ) )
+                            target = R"(/*!)";
+                            target2 = R"(\code{.cpp})";
+
+                            //Here we erase the target up to a specific length (all comments after target)
+                            if ( CheckForTarget( tempCaptureString, target ) &&  CheckForTarget( tempCaptureString, target2 ))
                             {
-         
-                                tempCaptureString = globalComments[globalFunctions[i]];
+                                targetLocation = tempCaptureString.find( target, 0 );
+                                //Get the stuff we want to exract after the target (comments) using target2
+                                extractCommentsTempString = extractTargetString( target, target2, tempCaptureString );
+                                //Cut out what we dont want 
+                                tempCaptureString.erase( targetLocation, extractCommentsTempString.length() + target2.length());
 
-                                target = R"(/*!)";
-                                target2 = R"(\code{.cpp})";
-
-                                //Here we erase the target up to a specific length (all comments after target)
-                                if ( CheckForTarget( tempCaptureString, target ) &&  CheckForTarget( tempCaptureString, target2 ))
-                                {
-                                    targetLocation = tempCaptureString.find( target, 0 );
-                                    //Get the stuff we want to exract after the target (comments) using target2
-                                    extractCommentsTempString = extractTargetString( target, target2, tempCaptureString );
-                                    //Cut out what we dont want 
-                                    tempCaptureString.erase( targetLocation, extractCommentsTempString.length() + target2.length());
-
-                                    tempCaptureString.insert( targetLocation, ( "    Print( \"" + temp_function_name + "\" );\n    VSPRenew();\n" ) ); // Print function name and call renew for each function
-                                }
-
-                                target = R"(\endcode)";
-                        
-                                //Little different with this one, we erase everything after the target
-                                if ( CheckForTarget( tempCaptureString, target ) )
-                                {
-                                    targetLocation = tempCaptureString.find( target, 0 );
-                                    tempCaptureString.erase( targetLocation );
-                                }
-                     
-                                //close up function block
-                                codeFile << tempCaptureString <<"\n}\n\n";
- 
+                                tempCaptureString.insert( targetLocation, ( "    Print( \"" + temp_function_name + "\" );\n    VSPRenew();\n" ) ); // Print function name and call renew for each function
                             }
-                         }
+
+                            target = R"(\endcode)";
+                        
+                            //Little different with this one, we erase everything after the target
+                            if ( CheckForTarget( tempCaptureString, target ) )
+                            {
+                                targetLocation = tempCaptureString.find( target, 0 );
+                                tempCaptureString.erase( targetLocation );
+                            }
+                     
+                            //close up function block
+                            codeFile << tempCaptureString <<"\n}\n\n";
+                        }
                     }
                 }
-            }      
+            }
         }
+
         codeFile.close();
     }
 
@@ -829,12 +815,12 @@ not working correctly, or poorly documented.
 
         for ( unsigned int i = 0; i < globalFunctions.size(); ++i )
         {
-            if ( globalGroups.count( globalFunctions[i] ) )
+            if ( globalFunctionMap.count( globalFunctions[i] ) )
             {
                 comment_str = R"(
 /*! 
     \ingroup )";
-                comment_str += globalGroups[globalFunctions[i]];
+                comment_str += globalFunctionMap[globalFunctions[i]].group;
                 comment_str += R"(
 */ )";
                 comment_str += "\n";
@@ -842,9 +828,9 @@ not working correctly, or poorly documented.
                 outfile << comment_str;
             }
 
-            if ( globalComments.count( globalFunctions[i] ) )
+            if ( globalFunctionMap.count( globalFunctions[i] ) )
             {
-                outfile << globalComments[globalFunctions[i]] << endl;
+                outfile << globalFunctionMap[globalFunctions[i]].comment << endl;
             }
             outfile << globalFunctions[i] << ";" << endl;
         }
@@ -867,7 +853,7 @@ not working correctly, or poorly documented.
 
         ClearComments();
         ClearGroups();
-
+        globalFunctionMap.clear();
     }
 
 };
