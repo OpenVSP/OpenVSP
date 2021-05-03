@@ -1,7 +1,7 @@
 #include <iostream>  // cout
 #include <assert.h>  // assert()
 #include <string.h>  // strstr()
-#ifdef _LINUX_
+#ifdef __linux__
 	#include <sys/time.h>
 	#include <stdio.h>
 	#include <termios.h>
@@ -18,11 +18,11 @@
 
 using namespace std;
 
-#ifdef _LINUX_
+#ifdef __linux__
 
 #define UINT unsigned int 
 typedef unsigned int DWORD;
-int ch;
+int g_ch;
 // Linux doesn't have timeGetTime(), this essentially does the same
 // thing, except this is milliseconds since Epoch (Jan 1st 1970) instead
 // of system start. It will work the same though...
@@ -38,7 +38,7 @@ DWORD timeGetTime()
 // of the curses library.
 int getch() 
 {
-	return ch;
+	return g_ch;
 }
 // kbhit() for linux
 int kbhit() 
@@ -61,7 +61,9 @@ int kbhit()
 
 	if(ch != EOF) 
 	{
-		ungetc(ch, stdin);
+		// Don't put the char back on the stream
+		//ungetc(ch, stdin);
+		g_ch = ch;
 		return 1;
 	}
 

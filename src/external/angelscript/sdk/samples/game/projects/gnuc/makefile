@@ -30,7 +30,7 @@ DELETER = rm -f
 all: $(BIN)
 
 $(BIN): $(OBJ)
-	$(CXX) $(LDFLAGS) -o $(BIN) $(OBJ) -langelscript -lpthread -L../../../../angelscript/lib
+	$(CXX) $(LDFLAGS) -o $(BIN) $(OBJ) -static -langelscript -dynamic -lpthread -L../../../../angelscript/lib
 	@echo -------------------------------------------------------------------
 	@echo Done.
 

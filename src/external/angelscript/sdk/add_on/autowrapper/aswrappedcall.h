@@ -551,12 +551,9 @@ struct Id {
 template <typename T>
 Id<T> id(T /*fn_ptr*/) { return Id<T>(); }
 
-// On some versions of GNUC it is necessary to use the template keyword as disambiguator,
-// on others the template keyword gives an error, hence the need for the following define.
-// MSVC on the other hand seems to accept both with or without the template keyword.
-#if defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)) 
-	// GNUC 4.4.3 doesn't need the template keyword, and 
-	// hopefully upcoming versions won't need it either
+// On GNUC it is necessary to use the template keyword as disambiguator.
+// MSVC seems to accept both with or without the template keyword.
+#if defined(__GNUC__) 
 	#define TMPL template
 #else
 	#define TMPL
@@ -568,7 +565,7 @@ Id<T> id(T /*fn_ptr*/) { return Id<T>(); }
 #define WRAP_OBJ_LAST(name)       (::gw::id(name).TMPL ol< name >())
 
 #define WRAP_FN_PR(name, Parameters, ReturnType)             asFUNCTION((::gw::Wrapper<ReturnType (*)Parameters>::TMPL f< name >))
-#define WRAP_MFN_PR(ClassType, name, Parameters, ReturnType) asFUNCTION((::gw::Wrapper<ReturnType (ClassType::*)Parameters>::TMPL f< &ClassType::name >))
+#define WRAP_MFN_PR(ClassType, name, Parameters, ReturnType) asFUNCTION((::gw::Wrapper<ReturnType (ClassType::*)Parameters>::TMPL f< AS_METHOD_AMBIGUITY_CAST(ReturnType (ClassType::*)Parameters)(&ClassType::name) >))
 #define WRAP_OBJ_FIRST_PR(name, Parameters, ReturnType)      asFUNCTION((::gw::ObjFirst<ReturnType (*)Parameters>::TMPL f< name >))
 #define WRAP_OBJ_LAST_PR(name, Parameters, ReturnType)       asFUNCTION((::gw::ObjLast<ReturnType (*)Parameters>::TMPL f< name >))
 

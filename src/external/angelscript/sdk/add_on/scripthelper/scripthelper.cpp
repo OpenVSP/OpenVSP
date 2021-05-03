@@ -5,6 +5,7 @@
 #include <fstream>
 #include <set>
 #include <stdlib.h>
+#include "../autowrapper/aswrappedcall.h"
 
 using namespace std;
 
@@ -980,8 +981,16 @@ void RegisterExceptionRoutines(asIScriptEngine *engine)
 	// The string type must be available
 	assert(engine->GetTypeInfoByDecl("string"));
 
-	r = engine->RegisterGlobalFunction("void throw(const string &in)", asFUNCTION(ScriptThrow), asCALL_CDECL); assert(r >= 0);
-	r = engine->RegisterGlobalFunction("string getExceptionInfo()", asFUNCTION(ScriptGetExceptionInfo), asCALL_CDECL); assert(r >= 0);
+	if (strstr(asGetLibraryOptions(), "AS_MAX_PORTABILITY") == 0)
+	{
+		r = engine->RegisterGlobalFunction("void throw(const string &in)", asFUNCTION(ScriptThrow), asCALL_CDECL); assert(r >= 0);
+		r = engine->RegisterGlobalFunction("string getExceptionInfo()", asFUNCTION(ScriptGetExceptionInfo), asCALL_CDECL); assert(r >= 0);
+	}
+	else
+	{
+		r = engine->RegisterGlobalFunction("void throw(const string &in)", WRAP_FN(ScriptThrow), asCALL_GENERIC); assert(r >= 0);
+		r = engine->RegisterGlobalFunction("string getExceptionInfo()", WRAP_FN(ScriptGetExceptionInfo), asCALL_GENERIC); assert(r >= 0);
+	}
 }
 
 END_AS_NAMESPACE

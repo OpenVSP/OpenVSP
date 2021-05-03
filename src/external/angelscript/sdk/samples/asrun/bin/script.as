@@ -1,3 +1,4 @@
+#!asrun
 #pragma debug // This turns on debugging, same as the command line argument -d
 
 /*

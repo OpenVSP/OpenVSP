@@ -1,7 +1,7 @@
 # Tutoral GCC Makefile
 
 CXX = g++
-CXXFLAGS = -ggdb -I../../../../angelscript/include -D_LINUX_
+CXXFLAGS = -ggdb -I../../../../angelscript/include
 SRCDIR = ../../source
 OBJDIR = obj
 
@@ -14,7 +14,7 @@ DELETER = rm -f
 all: $(BIN)
 
 $(BIN): $(OBJ)
-	$(CXX) -o $(BIN) $(OBJ) -langelscript  -L../../../../angelscript/lib -lpthread
+	$(CXX) -o $(BIN) $(OBJ) -static -langelscript -dynamic -L../../../../angelscript/lib -lpthread
 	@echo -------------------------------------------------------------------
 	@echo Done.
 

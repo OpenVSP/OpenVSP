@@ -9,7 +9,7 @@
 #include <crtdbg.h>
 #endif
 
-#ifdef _LINUX_ 
+#ifdef __linux__ 
 	#include <sys/time.h>
 	#include <stdio.h>
 	#include <termios.h>
@@ -25,7 +25,7 @@
 
 using namespace std;
 
-#ifdef _LINUX_
+#ifdef __linux__
 
 #define UINT unsigned int 
 typedef unsigned int DWORD;

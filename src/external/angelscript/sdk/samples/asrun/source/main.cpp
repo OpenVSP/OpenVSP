@@ -4,7 +4,15 @@
 #include <vector>
 #include <stdlib.h>  // system()
 #include <stdio.h>
+
+#if defined(_MSC_VER) && !defined(_WIN32_WCE) && !defined(__S3E__)
 #include <direct.h>  // _chdir()
+#endif
+#if defined(__S3E__) || defined(__APPLE__) || defined(__GNUC__)
+#include <unistd.h> // chdir()
+#define _chdir(x) chdir(x)
+#endif
+
 #include <sstream>   // stringstream
 #include <angelscript.h>
 #include "../../../add_on/scriptbuilder/scriptbuilder.h"
@@ -612,7 +620,7 @@ int ExecSystemCmd(const string &str)
 	MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, bufUTF16, 10000);
 	return _wsystem(bufUTF16);
 #else
-	return system(cmd.c_str());
+	return system(str.c_str());
 #endif
 }
 

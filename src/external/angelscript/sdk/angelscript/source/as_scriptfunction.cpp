@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2020 Andreas Jonsson
+   Copyright (c) 2003-2021 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -1720,6 +1720,21 @@ bool asCScriptFunction::IsExplicit() const
 bool asCScriptFunction::IsProperty() const
 {
 	return traits.GetTrait(asTRAIT_PROPERTY);
+}
+
+// internal
+bool asCScriptFunction::IsFactory() const
+{
+	if (objectType) return false;
+	
+	asCObjectType* type = CastToObjectType(returnType.GetTypeInfo());
+	if (type == 0) return false;
+
+	if (type->name != name) return false;
+
+	if (type->nameSpace != nameSpace) return false;
+	
+	return true;
 }
 
 END_AS_NAMESPACE

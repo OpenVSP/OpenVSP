@@ -15,6 +15,61 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
+<h2>Version 2.35.1 WIP - 2021/04/15</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed invalid bytecode sequence on calling method on explicit temporary object of value type (Thanks Alexander Orefkov)
+<li>Fixed freeze in compiler when compiling script that declared the same interface twice and inherited from another (Thanks Jarrett Chisholm)
+<li>Fixed a problem with lambdas declared within shared functions not being considered shared (Thanks Phong Ba)
+<li>Fixed invalid bytecode sequence on creating a delegate from a lambda (Thanks Phong Ba)
+<li>Declaring arrays using the type[] syntax will now properly add implicit handle for the type when needed (Thanks Quentin Cosendey)
+<li>Fixed crash if attempting to call CreateScriptObjectCopy with an asITypeInfo for a script function (Thanks HoShiMin)
+<li>Fixed error in compilation of ternary condition operator with regards to deferred arguments (Thanks Polyák István)
+<li>Fixed compilation error in C++Builder with older compiler (Thanks Savas Savvides)
+<li>Added more sanity checks in LoadByteCode to avoid crash on invalid stream data (Thanks LeonMrBonnie)
+<li>Compiler didn't give an error on declaring mixin classes abstract or external (Thanks Dantrell B)
+<li>Fixed crash when instantiating shared class after original module was discarded (Thanks Miss)
+<li>Fixed problem on 64bit platforms with unsafe references and value types smaller than 8 bytes (Thanks Polyak Istvan)
+<li>Fixed assert failure in compiler on implicit conversion between unsigned integer types of different sizes (Thanks Miss)
+</ul>
+<li>Library
+<ul>
+<li>Library can be compiled without C++11 support again (Thanks BaiYang)
+<li>Added config and cmake changes to make the library buildable for Mac M1 (Thanks David Carlier)
+<li>asIScriptModule::CompileFunction now also invokes JIT compiler if set (Thanks gjl)
+<li>asIScriptModule::GetImportedFunctionDeclaration now includes the namespace (Thanks Phong Ba)
+</ul>
+<li>Script language
+<ul>
+<li>Ternary condition operator is now able to implicitly convert the types in the expressions to a common type (Thanks _Vicious_)
+</ul>
+<li>Virtual machine
+<ul>
+<li>Changed asBC_REFCPY and asBC_RefCpyV to avoid reading from uninitialized memory when used for value types
+<li>asBC_CallPtr is now able to work with imported functions too (Thanks Phong Ba)
+</ul>
+<li>Add-ons &amp; Samples
+<ul>
+<li>Fixed compilation errors in asrun sample on non-Windows platforms (Thanks Steve Schow)
+<li>Fixed compilation error in filesystem add-on on Linux (Thanks Wipe)
+<li>Fixed datetime add-on to properly handle timezones with day-light-savings in a portable way (Thanks Wipe)
+<li>Added gnuc makefile for asrun sample
+<li>Added generic calling convention bindings for script exception routines add-on (Thanks gjl)
+<li>Fixed problem in script builder that caused it to fail to recognize meta data on members of shared classes (Thanks noizex)
+<li>Script builder can not gather meta data on members of interfaces too
+<li>Fixed WRAP_MFN_PR when used with method without overload in derived class on MSVC (Thanks 1vanK)
+<li>Script builder now removes lines starting with #! to support shebang interpreter directives
+<li>Fixed the samples concurrent and events on Linux (Thanks Dantrell B)
+<li>Fixed WRAP_MFN on gnuc when used within templated functions (Thanks vballDrummer)
+</ul>
+<li>Project
+<ul>
+<li>Added support for arm64 in meson project (Thanks Guillaume Gardet)
+</ul>
+</ul>
+
 <h2>Version 2.35.0 - 2020/12/05</h2>
 
 <ul>
