@@ -1153,18 +1153,21 @@ void Geom::Update( bool fullupdate )
         }
     }
 
-    // Tessellate MainSurfVec
-    if ( m_SurfDirty || m_TessDirty )
+    if ( fullupdate )
     {
-        UpdateMainTessVec();
-        UpdateMainDegenGeomPreview();
-    }
+        // Tessellate MainSurfVec
+        if ( m_SurfDirty || m_TessDirty )
+        {
+            UpdateMainTessVec();
+            UpdateMainDegenGeomPreview();
+        }
 
-    // Copy Tessellation for symmetry and XForm
-    if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
-    {
-        UpdateTessVec();
-        UpdateDegenGeomPreview();
+        // Copy Tessellation for symmetry and XForm
+        if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
+        {
+            UpdateTessVec();
+            UpdateDegenGeomPreview();
+        }
     }
 
     if ( m_XFormDirty || m_SurfDirty )
