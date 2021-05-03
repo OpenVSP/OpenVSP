@@ -8,6 +8,7 @@
 #include "PropScreen.h"
 #include "ScreenMgr.h"
 #include "PropGeom.h"
+#include "ParmMgr.h"
 
 using namespace vsp;
 
@@ -1714,7 +1715,23 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             if ( edit_xsec )
             {
                 m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
-                propeller_ptr->Update( false ); // Needed to deactivate width & height parms
+
+                // Deactivate width Parm without updating entire surface
+                string width_id = edit_xsec->GetWidthParmID();
+                Parm* width_parm = ParmMgr.FindParm( width_id );
+
+                if ( width_parm )
+                {
+                    width_parm->Deactivate();
+                }
+
+                string height_id = edit_xsec->GetHeightParmID();
+                Parm* height_parm = ParmMgr.FindParm( height_id );
+
+                if ( height_parm )
+                {
+                    height_parm->Deactivate();
+                }
             }
         }
     }

@@ -7,6 +7,7 @@
 
 #include "WingScreen.h"
 #include "ScreenMgr.h"
+#include "ParmMgr.h"
 
 using namespace vsp;
 
@@ -1676,7 +1677,15 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             if ( edit_xsec )
             {
                 m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
-                wing_ptr->Update( false ); // Needed to deactivate width parm
+
+                // Deactivate width Parm without updating entire surface
+                string width_id = edit_xsec->GetWidthParmID();
+                Parm* width_parm = ParmMgr.FindParm( width_id );
+
+                if ( width_parm )
+                {
+                    width_parm->Deactivate();
+                }
             }
         }
     }
