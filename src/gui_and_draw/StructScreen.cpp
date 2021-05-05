@@ -2542,9 +2542,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_WikiLinkButton )
     {
-#ifdef  __APPLE__
+#if     defined(__APPLE__)
         system( "open http://www.openvsp.org/wiki/doku.php?id=feamesh" );
-#elif   WIN32
+#elif   defined(_WIN32) || defined(WIN32) 
         ShellExecute( NULL, "open", "http://www.openvsp.org/wiki/doku.php?id=feamesh",
                       NULL, NULL, SW_SHOWNORMAL );
 #else

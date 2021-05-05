@@ -1160,9 +1160,9 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_EqnDocumentation )
     {
-#ifdef  __APPLE__
+#if     defined(__APPLE__)
         system( "open http://www.openvsp.org/wiki/doku.php?id=parasitedrag" );
-#elif   WIN32
+#elif   defined(_WIN32) || defined(WIN32) 
         ShellExecute( NULL, "open", "http://www.openvsp.org/wiki/doku.php?id=parasitedrag",
                       NULL, NULL, SW_SHOWNORMAL );
 #else
