@@ -295,7 +295,12 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_RoundedRectGroup.AddSlider( m_RRVSkewSlider, "VSkew", 10, "%6.5f" );
     m_RoundedRectGroup.AddSlider( m_RRKeystoneSlider, "Keystone", 10, "%6.5f");
     m_RoundedRectGroup.AddYGap();
-    m_RoundedRectGroup.AddSlider( m_RRRadiusSlider, "Radius", 10, "%6.5f" );
+
+    m_RoundedRectGroup.AddSlider( m_RRRadiusTRSlider, "TR Radius", 10, "%6.5f" );
+    m_RoundedRectGroup.AddSlider( m_RRRadiusTLSlider, "TL Radius", 10, "%6.5f" );
+    m_RoundedRectGroup.AddSlider( m_RRRadiusBLSlider, "BL Radius", 10, "%6.5f" );
+    m_RoundedRectGroup.AddSlider( m_RRRadiusBRSlider, "BR Radius", 10, "%6.5f" );
+
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddButton( m_RRKeyCornerButton, "Key Corner" );
 
@@ -1063,7 +1068,10 @@ bool WingScreen::Update()
 
                 m_RRHeightSlider.Update( rect_xs->m_Height.GetID() );
                 m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
-                m_RRRadiusSlider.Update( rect_xs->m_Radius.GetID() );
+                m_RRRadiusBRSlider.Update( rect_xs->m_RadiusBR.GetID() );
+                m_RRRadiusBLSlider.Update( rect_xs->m_RadiusBL.GetID() );
+                m_RRRadiusTLSlider.Update( rect_xs->m_RadiusTL.GetID() );
+                m_RRRadiusTRSlider.Update( rect_xs->m_RadiusTR.GetID() );
                 m_RRKeyCornerButton.Update( rect_xs->m_KeyCornerParm.GetID() );
                 m_RRSkewSlider.Update( rect_xs->m_Skew.GetID() );
                 m_RRKeystoneSlider.Update( rect_xs->m_Keystone.GetID() );

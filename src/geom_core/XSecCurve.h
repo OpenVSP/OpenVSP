@@ -318,7 +318,10 @@ public:
 
     Parm m_Width;
     Parm m_Height;
-    Parm m_Radius;
+    Parm m_RadiusBR;
+    Parm m_RadiusBL;
+    Parm m_RadiusTL;
+    Parm m_RadiusTR;
     Parm m_Skew;
     Parm m_Keystone;
     BoolParm m_KeyCornerParm;

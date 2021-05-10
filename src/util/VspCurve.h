@@ -155,7 +155,7 @@ public:
 
     vector < BezierSegment > GetBezierSegments();
 
-    double CreateRoundedRectangle( double w, double h, double k, double sk, double vsk, double r, bool keycorner = true );
+    void CreateRoundedRectangle( double w, double h, double k, double sk, double vsk, double & r1, double & r2, double & r3, double & r4, bool keycorner = true );
 
     void ToCubic( double tol = 0.1 );
 

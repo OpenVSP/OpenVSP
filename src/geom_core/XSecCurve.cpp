@@ -1753,7 +1753,10 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 
     m_Height.Init( "RoundedRect_Height", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Width.Init( "RoundedRect_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
-    m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
+    m_RadiusBR.Init( "RoundRectXSec_RadiusBR", m_GroupName, this, 0.2, 0.0, 1.0e12 );
+    m_RadiusBL.Init( "RoundRectXSec_RadiusBL", m_GroupName, this, 0.2, 0.0, 1.0e12 );
+    m_RadiusTL.Init( "RoundRectXSec_RadiusTL", m_GroupName, this, 0.2, 0.0, 1.0e12 );
+    m_RadiusTR.Init( "RoundRectXSec_Radius", m_GroupName, this, 0.2, 0.0, 1.0e12 ); // Primary radius if SYM_ALL
     m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -1e6, 1e6 );
     m_Keystone.Init("RoundRect_Keystone", m_GroupName, this, 0.5, 0.0, 1.0 );
     m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, true, 0, 1 );
@@ -1763,8 +1766,17 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 //==== Update Geometry ====//
 void RoundedRectXSec::Update()
 {
-    double r = m_Curve.CreateRoundedRectangle( m_Width(), m_Height(), m_Keystone(), m_Skew(), m_VSkew(), m_Radius(), m_KeyCornerParm() );
-    m_Radius.Set( r );
+    double r1 = m_RadiusBR();
+    double r2 = m_RadiusBL();
+    double r3 = m_RadiusTL();
+    double r4 = m_RadiusTR();
+
+
+    m_Curve.CreateRoundedRectangle( m_Width(), m_Height(), m_Keystone(), m_Skew(), m_VSkew(), r1, r2, r3, r4, m_KeyCornerParm() );
+    m_RadiusBR.Set( r1 );
+    m_RadiusBL.Set( r2 );
+    m_RadiusTL.Set( r3 );
+    m_RadiusTR.Set( r4 );
 
     XSecCurve::Update();
     return;
@@ -1782,7 +1794,10 @@ void RoundedRectXSec::SetScale( double scale )
 {
     XSecCurve::SetScale( scale );
 
-    m_Radius.Set( m_Radius() * scale );
+    m_RadiusBR.Set( m_RadiusBR() * scale );
+    m_RadiusBL.Set( m_RadiusBL() * scale );
+    m_RadiusTL.Set( m_RadiusTL() * scale );
+    m_RadiusTR.Set( m_RadiusTR() * scale );
 }
 
 void RoundedRectXSec::ReadV2FileFuse2( xmlNodePtr &root )
@@ -1793,11 +1808,11 @@ void RoundedRectXSec::ReadV2FileFuse2( xmlNodePtr &root )
 
     if ( v2type == FuselageGeom::V2_FXS_RND_BOX )
     {
-        m_Radius = XmlUtil::FindDouble( root, "Corner_Radius", m_Radius() );
+        m_RadiusTR = XmlUtil::FindDouble( root, "Corner_Radius", m_RadiusTR() );
     }
     else
     {
-        m_Radius = 0.0;
+        m_RadiusTR = 0.0;
     }
 }
 
@@ -1809,7 +1824,10 @@ void RoundedRectXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
 
     if ( s && e )
     {
-        INTERP_PARM( s, e, frac, m_Radius );
+        INTERP_PARM( s, e, frac, m_RadiusBR );
+        INTERP_PARM( s, e, frac, m_RadiusBL );
+        INTERP_PARM( s, e, frac, m_RadiusTL );
+        INTERP_PARM( s, e, frac, m_RadiusTR );
         INTERP_PARM( s, e, frac, m_Skew );
         INTERP_PARM( s, e, frac, m_VSkew );
         INTERP_PARM( s, e, frac, m_Keystone );

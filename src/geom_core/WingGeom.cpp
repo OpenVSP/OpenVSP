@@ -1787,12 +1787,12 @@ void WingGeom::UpdateSurf()
                     else if ( rect )
                     {
                         double h = xsc->GetHeight();
-                        double r = rect->m_Radius();
+                        double r = rect->m_RadiusTR();
                         xsc->SetWidthHeight( 1.0, h/w );
-                        rect->m_Radius = r / w;
+                        rect->m_RadiusTR = r / w;
                         utc = ws->GetUntransformedCurve();
                         xsc->SetWidthHeight( w, h );
-                        rect->m_Radius = r;
+                        rect->m_RadiusTR = r;
                     }
                     else
                     {
