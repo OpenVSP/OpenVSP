@@ -30,3 +30,11 @@ ExternalProject_Add( FLTK
 )
 ExternalProject_Get_Property( FLTK INSTALL_DIR )
 SET( FLTK_INSTALL_DIR ${INSTALL_DIR} )
+
+IF( APPLE )
+	ExternalProject_Add_Step( FLTK PostInstall
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${INSTALL_DIR}/FLTK
+		COMMAND ${CMAKE_COMMAND} -E rename ${INSTALL_DIR}/FLTK.framework ${INSTALL_DIR}/FLTK/.framework
+		DEPENDEES install
+	)
+ENDIF()
