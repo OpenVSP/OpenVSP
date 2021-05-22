@@ -666,7 +666,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady()
     vsp::SetDoubleAnalysisInput( analysis_name, "bref", bref );
     std::vector< double > cref; cref.push_back( 3 );
     vsp::SetDoubleAnalysisInput( analysis_name, "cref", cref );
-    std::vector< int > ref_flag; ref_flag.push_back( 3 );
+    std::vector< int > ref_flag; ref_flag.push_back( 0 );
     vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag );
     //    freestream parameters
     std::vector< double > alpha; alpha.push_back( 4.0 );
