@@ -63,6 +63,13 @@ public:
     virtual void offsetY( float offset );
 
     /*!
+    * Set a flag to flip X coordinates of the image
+    *
+    * val - flag to flip X coordinates.
+    */
+    virtual void flipX( bool val );
+
+    /*!
     * Attach Image to Background.
     *
     * texture - Texture image.
@@ -144,6 +151,8 @@ private:
 
     int _imWidth;
     int _imHeight;
+
+    bool _flipX;
 
     TextureMgr * _textureMgr;
     unsigned int _texId;

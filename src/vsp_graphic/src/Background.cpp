@@ -49,6 +49,8 @@ Background::Background() : Renderable()
     _keepAR = true;
     _hasChanged = true;
 
+    _flipX - false;
+
     _mode = Common::VSP_BACKGROUND_COLOR;
 
     setMeshColor( 0.95f, 0.95f, 0.95f, 1.0f );
@@ -106,6 +108,12 @@ void Background::offsetX( float offset )
 void Background::offsetY( float offset )
 {
     _offsetY = offset;
+    _hasChanged = true;
+}
+
+void Background::flipX( bool val )
+{
+    _flipX = val;
     _hasChanged = true;
 }
 
@@ -291,7 +299,7 @@ void Background::_build()
         {
             if( _mode == Common::VSP_BACKGROUND_IMAGE )
             {
-                _background.push_back( _coord[i].x * _scaleX * sw + _offsetX );
+                _background.push_back( ( _flipX ? -1 : 1 ) * _coord[i].x * _scaleX * sw + _offsetX );
                 _background.push_back( _coord[i].y * _scaleY * sh + _offsetY );
                 _background.push_back( _coord[i].z );
             }
