@@ -341,6 +341,7 @@ void APITestSuite::TestAnalysesWithPod()
     // Execute
     printf( "\n\t\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
 
     // Get & Display Results

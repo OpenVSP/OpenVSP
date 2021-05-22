@@ -240,6 +240,7 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeom()
     // Execute
     printf( "\n\t\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
 
     // Get & Display Results
@@ -271,7 +272,8 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     }
 
     printf( "\t\tExecuting Comp Geom..." );
-    vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
+    string results_id = vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
 
     // Find All Control Surface IDs to be used in Gain Parm Names
@@ -315,7 +317,8 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     vector <int> num_wake_iter;
     num_wake_iter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", num_wake_iter );
-    string results_id = vsp::ExecAnalysis( analysis_name );
+    results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
 
     // Check for within 5% of v3.13 Rolling Moment
@@ -338,6 +341,7 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     printf( "\n\t\tExecuting..." );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", num_wake_iter );
     results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
 
     // Check for within 5% of v3.11 Rolling Moment
@@ -390,6 +394,7 @@ void APITestSuiteVSPAERO::TestVSPAeroComputeGeomPanel()
     // Execute
     printf( "\n\t\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -465,6 +470,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     // Execute
     printf( "\n\t\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -534,6 +540,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     // Execute
     printf( "\n\t\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -610,6 +617,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     // Execute
     printf( "\n\t\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -689,6 +697,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady()
     // Execute
     printf( "\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -778,6 +787,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     // Execute
     printf( "\n\t\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -869,6 +879,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     // Execute
     printf( "\n\t\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -957,6 +968,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     // Execute
     printf( "\tExecuting...\n" );
     string compgeom_resid = vsp::ExecAnalysis( compgeom_name );
+    TEST_ASSERT( compgeom_resid.size() > 0 );
     printf( "COMPLETE\n" );
 
     // Get & Display Results
@@ -997,6 +1009,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     // Execute
     printf( "\tExecuting...\n" );
     string results_id = vsp::ExecAnalysis( analysis_name  );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -1118,6 +1131,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     // Execute
     printf( "\tExecuting...\n" );
     string compgeom_resid = vsp::ExecAnalysis( compgeom_name );
+    TEST_ASSERT( compgeom_resid.size() > 0 );
     printf( "COMPLETE\n" );
 
     // Get & Display Results
@@ -1158,6 +1172,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     // Execute
     printf( "\tExecuting...\n" );
     string results_id = vsp::ExecAnalysis( analysis_name  );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -1271,6 +1286,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     // Execute
     printf( "\tExecuting...\n" );
     string compgeom_resid = vsp::ExecAnalysis( compgeom_name );
+    TEST_ASSERT( compgeom_resid.size() > 0 );
     printf( "COMPLETE\n" );
 
     // Get & Display Results
@@ -1324,6 +1340,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     // Execute
     printf( "\tExecuting...\n" );
     string results_id = vsp::ExecAnalysis( analysis_name  );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -1709,6 +1726,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCpSlicer()
     // Execute
     printf( "\n\t\tExecuting..." );
     string results_id = vsp::ExecAnalysis( analysis_name );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 

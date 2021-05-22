@@ -178,6 +178,7 @@ void APITestSuiteMassProp::TestSolidCylinder()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -372,6 +373,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -566,6 +568,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -743,6 +746,7 @@ void APITestSuiteMassProp::TestSphere()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -913,6 +917,7 @@ void APITestSuiteMassProp::TestSolidCone()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -1100,6 +1105,7 @@ void APITestSuiteMassProp::TestShellCone()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -1297,6 +1303,7 @@ void APITestSuiteMassProp::TestRectangularPrism()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
+    TEST_ASSERT( results_id.size() > 0 );
     printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
