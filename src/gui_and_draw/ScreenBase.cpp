@@ -2042,11 +2042,18 @@ XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 600, "
     m_ImageLayout.ForceNewLine();
     m_ImageLayout.AddYGap();
 
-    m_ImageLayout.SetFitWidthFlag( true );
-    m_ImageLayout.SetSameLineFlag( false );
+    m_ImageLayout.SetFitWidthFlag( false );
+    m_ImageLayout.SetSameLineFlag( true );
+    m_ImageLayout.SetButtonWidth( m_ImageLayout.GetRemainX() / 2 );
 
     m_ImageLayout.AddButton( m_PreserveAspect, "Preserve Aspect" );
+    m_ImageLayout.AddButton( m_FlipImageToggle, "Flip Image" );
+    m_ImageLayout.ForceNewLine();
+
+    m_ImageLayout.SetFitWidthFlag( true );
+    m_ImageLayout.SetSameLineFlag( false );
     m_ImageLayout.AddYGap();
+
     m_ImageLayout.SetButtonWidth( 60 );
     m_ImageLayout.SetInputWidth( 50 );
     m_ImageLayout.AddSlider( m_WScale, "W Scale", 1.0, "%7.3f" );
@@ -2125,6 +2132,9 @@ bool XSecViewScreen::Update()
 
     m_PreserveAspect.Update( xs->GetXSecCurve()->m_XSecImagePreserveAR.GetID() );
     viewport->getBackground()->preserveAR( (bool)xs->GetXSecCurve()->m_XSecImagePreserveAR.Get() );
+
+    m_FlipImageToggle.Update( xs->GetXSecCurve()->m_XSecFlipImageFlag.GetID() );
+    viewport->getBackground()->flipX( (bool)xs->GetXSecCurve()->m_XSecFlipImageFlag.Get() );
 
     if ( xs->GetXSecCurve()->m_XSecImagePreserveAR() )
     {

@@ -152,6 +152,7 @@ public:
     FractionParm m_XSecImageH;
     FractionParm m_XSecImageXOffset;
     FractionParm m_XSecImageYOffset;
+    BoolParm m_XSecFlipImageFlag;
 
     virtual void SetImageFile( const string & file ) { m_ImageFile = file; }
     virtual string GetImageFile() { return m_ImageFile; }

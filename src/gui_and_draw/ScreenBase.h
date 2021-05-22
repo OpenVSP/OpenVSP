@@ -470,6 +470,7 @@ protected:
     SliderAdjRangeInput m_WScale;
     SliderAdjRangeInput m_HScale;
     ToggleButton m_PreserveAspect;
+    ToggleButton m_FlipImageToggle;
 
     SliderAdjRangeInput m_XOffset;
     SliderAdjRangeInput m_YOffset;

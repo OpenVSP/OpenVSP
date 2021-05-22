@@ -104,6 +104,7 @@ private:
     SliderAdjRangeInput m_ImageWScale;
     SliderAdjRangeInput m_ImageHScale;
     ToggleButton m_PreserveImageAspect;
+    ToggleButton m_FlipImageToggle;
 
     SliderAdjRangeInput m_ImageXOffset;
     SliderAdjRangeInput m_ImageYOffset;

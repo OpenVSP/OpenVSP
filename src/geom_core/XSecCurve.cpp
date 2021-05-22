@@ -112,6 +112,7 @@ XSecCurve::XSecCurve()
     m_XSecImageH.Init( "XSecImageH", ( m_GroupName + "_Background" ), this, 1.0, -1.0e12, 1.0e12 );
     m_XSecImageXOffset.Init( "XSecImageXOffset", ( m_GroupName + "_Background" ), this, 0.0, -1.0e12, 1.0e12 );
     m_XSecImageYOffset.Init( "XSecImageYOffset", ( m_GroupName + "_Background" ), this, 0.0, -1.0e12, 1.0e12 );
+    m_XSecFlipImageFlag.Init( "XSecFlipImageFlag", ( m_GroupName + "_Background" ), this, false, false, true );
 
     m_FakeWidth = 1.0;
     m_UseFakeWidth = false;
@@ -270,6 +271,7 @@ void XSecCurve::CopyBackgroundSettings( XSecCurve* xsc )
     m_XSecImagePreserveAR.Set( xsc->m_XSecImagePreserveAR.Get() );
     m_XSecImageFlag.Set( xsc->m_XSecImageFlag.Get() );
     m_ImageFile = xsc->GetImageFile();
+    m_XSecFlipImageFlag = xsc->m_XSecFlipImageFlag();
 }
 
 //==== Parm Changed ====//
@@ -2404,6 +2406,7 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
 
     m_XSecPointSize.Init( "XSecPointSize", ( m_GroupName + "_Background" ), NULL, 8.0, 1e-4, 1e4 );
     m_XSecLineThickness.Init( "XSecLineThickness", ( m_GroupName + "_Background" ), NULL, 1.5, 1e-4, 1e4 );
+
 
     m_SelectPntID = 0;
     m_EnforceG1Next = true;
