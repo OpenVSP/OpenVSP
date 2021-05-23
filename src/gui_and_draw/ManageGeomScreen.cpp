@@ -601,7 +601,7 @@ void ManageGeomScreen::SetGeomDisplayChoice( int type )
     vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
     for ( int i = 0; i < (int)geom_vec.size(); i++ )
     {
-        if ( geom_vec[i] && type != 4 )
+        if ( geom_vec[i] && type <= vsp::DISPLAY_TYPE::DISPLAY_DEGEN_CAMBER )
         {
             geom_vec[i]->m_GuiDraw.SetDisplayType( type );
             geom_vec[i]->ResetGeomChangedFlag( true ); // Redraw the wire mesh
