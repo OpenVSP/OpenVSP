@@ -430,6 +430,10 @@ protected:
 };
 
 //==== Toggle Button ====//
+// WARNING: Updating a ToggleButton with an IntParm when the range of the IntParm 
+// is 0 to 1 will cause the button to initially appear Off when the Parm value is 
+// 1. If this is the case, the IntParm should be changed to a BoolParm if the 
+// ToggleButton is not part of a ToggleRadioGroup.
 class ToggleButton : public GuiDevice
 {
 public:
