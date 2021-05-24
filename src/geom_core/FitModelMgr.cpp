@@ -973,7 +973,7 @@ int FitModelMgrSingleton::Optimize()
     int info = lmder1( fcn, NULL, m, nvar, x, y, fjac, ldfjac, tol, ipvt, wa, lwa );
 
     XtoParm( x );
-    VehicleMgr.GetVehicle()->ForceUpdate( GeomBase::TESS ); // Update tesselation to ensure Geom is drawn properly 
+    VehicleMgr.GetVehicle()->ForceUpdate( GeomBase::SURF ); // Update tesselation to ensure Geom is drawn properly
 
     m_ParmPtrVec.clear();
     m_TargetGeomPtrVec.clear();
