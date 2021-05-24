@@ -82,17 +82,7 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_PickPtsLayout.AddDividerBox( "Target Points" );
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *target_col_widths = new int[8]; // 8 columns
-
-    // Initial column widths & keep the memory address
-    target_col_widths[0] = 90;
-    target_col_widths[1] = 42;
-    target_col_widths[2] = 42;
-    target_col_widths[3] = 42;
-    target_col_widths[4] = 42;
-    target_col_widths[5] = 42;
-    target_col_widths[6] = 42;
-    target_col_widths[7] = 50;
+    static int target_col_widths[] = { 90, 42, 42, 42, 42, 42, 42, 50, 0 };  // widths for each column
 
     int browser_h = 150;
     m_TargetPtBrowser = m_PickPtsLayout.AddColResizeBrowser( target_col_widths, 8, browser_h );
@@ -180,12 +170,9 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_PickVarLayout.AddDividerBox( "Variable List" );
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *var_col_widths = new int[3]; // 3 columns
+    static int var_col_widths[] = {120, 160, 120, 0};
 
     // Initial column widths & keep the memory address
-    var_col_widths[0] = 120;
-    var_col_widths[1] = 160;
-    var_col_widths[2] = 120;
 
     browser_h = 265;
     m_VarBrowser = m_PickVarLayout.AddColResizeBrowser( var_col_widths, 3, browser_h );

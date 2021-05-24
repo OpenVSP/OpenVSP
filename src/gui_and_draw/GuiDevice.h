@@ -1331,7 +1331,6 @@ public:
 
     ColResizeBrowser( int X, int Y, int W, int H, const char* L = 0 );
 
-    ~ColResizeBrowser()         { if ( m_Widths ) delete m_Widths; }
 
     // GET/SET COLUMN SEPARATOR LINE COLOR
     Fl_Color GetColSepColor() const {
