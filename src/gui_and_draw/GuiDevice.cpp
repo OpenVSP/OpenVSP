@@ -4033,6 +4033,7 @@ ColResizeBrowser::ColResizeBrowser( int X, int Y, int W, int H, const char* L ) 
     m_DragCol = -1;
     m_Widths = NULL;
     m_NumCol = 0;
+    m_HPos = 0;
 }
 
 int ColResizeBrowser::handle( int e )
@@ -4061,6 +4062,7 @@ int ColResizeBrowser::handle( int e )
                 // CLICKED ON RESIZER? START DRAGGING
                 m_DragCol = whichcol;
                 change_cursor( FL_CURSOR_DEFAULT );
+                m_HPos = hposition(); // Save  horizontal scroll position
                 return 1;   // eclipse event from Fl_Browser's handle()
             }               // (prevents FL_PUSH from selecting item)
             break;
@@ -4083,7 +4085,6 @@ int ColResizeBrowser::handle( int e )
                     {
                         m_Widths[m_DragCol] = 2;
                     }
-                    recalc_hscroll();
                     redraw();
                 }
                 return 1;   // eclipse event from Fl_Browser's handle()
@@ -4096,6 +4097,7 @@ int ColResizeBrowser::handle( int e )
             {
                 m_DragCol = -1;                         // disable drag mode
                 change_cursor( FL_CURSOR_DEFAULT );     // ensure normal cursor
+                recalc_hscroll();
                 return 1;        // eclipse event
             }
             ret = 1;
@@ -4169,5 +4171,6 @@ void ColResizeBrowser::recalc_hscroll()
     int size = textsize();
     textsize( size + 1 );   // XXX: changing textsize() briefly triggers
     textsize( size );       // XXX: recalc Fl_Browser's scrollbars
+    hposition( m_HPos );    // Set  horizontal scroll position
     redraw();
 }

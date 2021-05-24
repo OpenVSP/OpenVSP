@@ -1392,6 +1392,7 @@ private:
     int       m_DragCol;         // col# user is dragging (-1 = not dragging)
     int*      m_Widths;          // pointer to user's width[] array
     size_t    m_NumCol;          // number of columns
+    int       m_HPos;            // Horizontal scroll position
 
 };
 
