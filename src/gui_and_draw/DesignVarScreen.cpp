@@ -125,6 +125,7 @@ bool DesignVarScreen::Update()
     m_XDDMGroup.Update( DesignVarMgr.m_WorkingXDDMType.GetID() );
 
     //==== Update Parm Browser ====//
+    int h_pos = m_VarBrowser->hposition();
     m_VarBrowser->clear();
 
     m_VarBrowser->column_char( ':' );         // use : as the column character
@@ -158,6 +159,8 @@ bool DesignVarScreen::Update()
     {
         m_VarBrowser->select( index + 2 );
     }
+
+    m_VarBrowser->hposition( h_pos );
 
     // Parameter GUI got out of sync.  Probably from File->New or similar.
     if ( m_NVarLast != num_vars )

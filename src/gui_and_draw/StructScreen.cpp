@@ -1034,6 +1034,7 @@ void StructScreen::UpdateStructBrowser()
 {
     //==== Structure Browser ====//
     int scroll_pos = m_StructureSelectBrowser->position();
+    int h_pos = m_StructureSelectBrowser->hposition();
     m_StructureSelectBrowser->clear();
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
@@ -1077,12 +1078,14 @@ void StructScreen::UpdateStructBrowser()
     }
 
     m_StructureSelectBrowser->position( scroll_pos );
+    m_StructureSelectBrowser->hposition( h_pos );
 }
 
 void StructScreen::UpdateFeaPartBrowser()
 {
     //==== FeaPart Browser ====//
     int scroll_pos = m_FeaPartSelectBrowser->position();
+    int h_pos = m_FeaPartSelectBrowser->hposition();
     m_FeaPartSelectBrowser->clear();
 
     m_FeaPartSelectBrowser->column_char( ':' );
@@ -1212,6 +1215,7 @@ void StructScreen::UpdateFeaPartBrowser()
     }
 
     m_FeaPartSelectBrowser->position( scroll_pos );
+    m_FeaPartSelectBrowser->hposition( h_pos );
 }
 
 void StructScreen::UpdateDrawPartBrowser()
@@ -1341,6 +1345,7 @@ void StructScreen::UpdateFeaPropertyBrowser()
 {
     //==== FeaPart Browser ====//
     int scroll_pos = m_FeaPropertySelectBrowser->position();
+    int h_pos = m_FeaPropertySelectBrowser->hposition();
     m_FeaPropertySelectBrowser->clear();
 
     m_FeaPropertySelectBrowser->column_char( ':' );
@@ -1384,6 +1389,7 @@ void StructScreen::UpdateFeaPropertyBrowser()
     }
 
     m_FeaPropertySelectBrowser->position( scroll_pos );
+    m_FeaPropertySelectBrowser->hposition( h_pos );
 }
 
 void StructScreen::UpdateFeaPropertyChoice()

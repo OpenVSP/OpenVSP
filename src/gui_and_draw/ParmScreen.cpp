@@ -123,6 +123,8 @@ bool ParmScreen::Update()
     }
 
     //==== Display Link Parms ====//
+    int to_h_pos = m_LinkToBrowser->hposition();
+    int from_h_pos = m_LinkFromBrowser->hposition();
     m_LinkToBrowser->clear();
     m_LinkFromBrowser->clear();
 
@@ -159,6 +161,9 @@ bool ParmScreen::Update()
             m_LinkFromBrowser->add( str );
         }
     }
+
+    m_LinkToBrowser->hposition( to_h_pos );
+    m_LinkFromBrowser->hposition( from_h_pos );
 
     //==== Show Names of Adv Links ====//
     vector< string > input_links;

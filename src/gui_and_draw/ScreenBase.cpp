@@ -1009,6 +1009,7 @@ bool GeomScreen::Update()
     }
 
     //==== SubSurfBrowser ====//
+    int h_pos = m_SubSurfBrowser->hposition();
     m_SubSurfBrowser->clear();
 
     m_SubSurfBrowser->column_char( ':' );
@@ -1065,6 +1066,7 @@ bool GeomScreen::Update()
         m_SubSurfBrowser->select( SubSurfaceMgr.GetCurrSurfInd() + 2 );
     }
 
+    m_SubSurfBrowser->hposition( h_pos );
 
     return true;
 }

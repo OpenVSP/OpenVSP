@@ -223,6 +223,7 @@ bool ParmLinkScreen::Update()
     }
 
     //==== Update Link Browser ====//
+    int h_pos = m_LinkBrowser->hposition();
     m_LinkBrowser->clear();
     m_LinkBrowser->column_char( ':' );        // use : as the column character
 
@@ -251,6 +252,8 @@ bool ParmLinkScreen::Update()
     {
         m_LinkBrowser->select( index + 2 );
     }
+
+    m_LinkBrowser->hposition( h_pos );
 
     m_FLTK_Window->redraw();
 

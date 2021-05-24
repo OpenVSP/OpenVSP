@@ -896,6 +896,7 @@ void ParasiteDragScreen::UpdateExcresTab()
 
     // Update Excres Browser
     char str[256];
+    int h_pos = m_ExcresBrowser->hposition();
     m_ExcresBrowser->clear();
     m_ExcresBrowser->column_char( ':' );
 
@@ -936,6 +937,8 @@ void ParasiteDragScreen::UpdateExcresTab()
         sprintf( str, formatString.c_str(), excres_name.c_str(), excres_type.c_str(), excres_val );
         m_ExcresBrowser->add( str );
     }
+
+    m_ExcresBrowser->hposition( h_pos );
 
     for ( size_t i = 0; i < excresVec.size(); ++i )
     {

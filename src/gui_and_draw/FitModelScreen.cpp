@@ -311,6 +311,7 @@ bool FitModelScreen::Update()
     m_SelBoxButton.Update( FitModelMgr.m_SelectBoxFlag.GetID() );
 
     // Update Fixed target point browser
+    int h_pos = m_TargetPtBrowser->hposition();
     m_TargetPtBrowser->clear();
 
     m_TargetPtBrowser->column_char( ':' );         // use : as the column character
@@ -360,6 +361,8 @@ bool FitModelScreen::Update()
         m_TargetPtBrowser->select( index + 2 );
     }
 
+    m_TargetPtBrowser->hposition( h_pos );
+
     sprintf( str, "%d", num_fix );
     m_NTgtOutput.Update( str );
 
@@ -380,6 +383,7 @@ bool FitModelScreen::Update()
     m_ParmTreePicker.Update( FitModelMgr.GetVarVec() );
 
     //==== Update Parm Browser ====//
+    h_pos = m_VarBrowser->hposition();
     m_VarBrowser->clear();
 
     m_VarBrowser->column_char( ':' );         // use : as the column character
@@ -402,6 +406,8 @@ bool FitModelScreen::Update()
     {
         m_VarBrowser->select( index + 2 );
     }
+
+    m_VarBrowser->hposition( h_pos );
 
     sprintf( str, "%d", num_vars );
     m_NVarOutput.Update( str );

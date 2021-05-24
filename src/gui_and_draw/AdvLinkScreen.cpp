@@ -216,6 +216,8 @@ bool AdvLinkScreen::Update()
     }
 
     //==== Input and Output Browsers ====//
+    int input_h_pos = m_InputBrowser->hposition();
+    int output_h_pos = m_OutputBrowser->hposition();
     m_InputBrowser->clear();
     m_OutputBrowser->clear();
     if ( edit_link )
@@ -256,6 +258,9 @@ bool AdvLinkScreen::Update()
             m_OutputBrowser->select( m_OutputBrowserSelect + 2 );
         }
     }
+
+    m_InputBrowser->hposition( input_h_pos );
+    m_OutputBrowser->hposition( output_h_pos );
 
     if ( edit_link )
     {
