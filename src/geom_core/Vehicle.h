@@ -199,18 +199,20 @@ public:
     }
 
     //=== Export Files ===//
-    void ExportFile( const string & file_name, int write_set, int file_type );
+    // Return Mesh Geom ID if the export generates a mesh, otherwise return an 
+    // empty string. This facilitates deleting the generated mesh from the API.
+    string ExportFile( const string & file_name, int write_set, int file_type );
     bool WriteXMLFile( const string & file_name, int set );
     void WriteXSecFile( const string & file_name, int write_set );
     void WritePLOT3DFile( const string & file_name, int write_set );
-    void WriteSTLFile( const string & file_name, int write_set );
-    void WriteTaggedMSSTLFile( const string & file_name, int write_set );
-    void WriteFacetFile( const string & file_name, int write_set );
-    void WriteTRIFile( const string & file_name, int write_set );
-    void WriteOBJFile( const string & file_name, int write_set );
-    void WriteVSPGeomFile( const string & file_name, int write_set );
-    void WriteNascartFiles( const string & file_name, int write_set );
-    void WriteGmshFile( const string & file_name, int write_set );
+    string WriteSTLFile( const string & file_name, int write_set );
+    string WriteTaggedMSSTLFile( const string & file_name, int write_set );
+    string WriteFacetFile( const string & file_name, int write_set );
+    string WriteTRIFile( const string & file_name, int write_set );
+    string WriteOBJFile( const string & file_name, int write_set );
+    string WriteVSPGeomFile( const string & file_name, int write_set );
+    string WriteNascartFiles( const string & file_name, int write_set );
+    string WriteGmshFile( const string & file_name, int write_set );
     void WriteX3DFile( const string & file_name, int write_set );
     static void WriteX3DMaterial( xmlNodePtr node, Material * material );
     void WriteX3DViewpoints( xmlNodePtr node );
