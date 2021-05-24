@@ -121,10 +121,9 @@ void ManageViewScreen::Show()
     {
         VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
+        // Get OpenGL Pixel width/height
         m_ViewportSizeXValue.Set( glwin->pixel_w() );
         m_ViewportSizeYValue.Set( glwin->pixel_h() );
-
-        double factor = glwin->pixel_w()/glwin->w();
 
         //===== Set current COR =====//
         glm::vec3 currentCOR = glwin->getCOR();
@@ -141,8 +140,9 @@ void ManageViewScreen::Show()
 
         UpdateRotations();
 
-        m_windowDX = main->GetFlWindow()->w() - m_ViewportSizeXValue.Get()/factor;
-        m_windowDY = main->GetFlWindow()->h() - m_ViewportSizeYValue.Get()/factor;
+        // Save differences in FLTK pixels
+        m_windowDX = main->GetFlWindow()->w() - glwin->w();
+        m_windowDY = main->GetFlWindow()->h() - glwin->h();
     }
 
     m_FLTK_Window->show();
@@ -164,7 +164,7 @@ bool ManageViewScreen::Update()
 
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
-    double factor = glwin->pixel_w()/glwin->w();
+    double factor = glwin->pixels_per_unit();
 
     // Added padding to screen
     if (m_ViewportSizeXValue.Get()/factor > Fl::w() - 10)
