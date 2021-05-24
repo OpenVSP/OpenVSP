@@ -1165,11 +1165,8 @@ void Geom::Update( bool fullupdate )
         }
 
         // Copy Tessellation for symmetry and XForm
-        if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
-        {
-            UpdateTessVec();
-            UpdateDegenGeomPreview();
-        }
+        UpdateTessVec();
+        UpdateDegenGeomPreview();
     }
 
     if ( m_XFormDirty || m_SurfDirty )
@@ -1179,10 +1176,7 @@ void Geom::Update( bool fullupdate )
 
     if ( fullupdate )
     {
-        if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
-        {
-            UpdateDrawObj();  // Needs to happen for both XForm and Surf updates.
-        }
+        UpdateDrawObj();
     }
 
     m_UpdateXForm = false;
