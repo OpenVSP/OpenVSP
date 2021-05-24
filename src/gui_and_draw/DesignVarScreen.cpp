@@ -68,13 +68,8 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "
     m_PickLayout.AddDividerBox( "Variable List" );
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *col_widths = new int[4]; // 4 columns
-
-    // Initial column widths & keep the memory address
-    col_widths[0] = 86;
-    col_widths[1] = 86;
-    col_widths[2] = 86;
-    col_widths[3] = 40;
+    // Last column width must be 0
+    static int col_widths[] = { 86, 86, 86, 40, 0 }; // widths for each column
 
     int browser_h = 200;
     m_VarBrowser = m_PickLayout.AddColResizeBrowser( col_widths, 4, browser_h );

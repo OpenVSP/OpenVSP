@@ -499,13 +499,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfLayout.SetGroupAndScreen( subsurf_group, this );
     m_SubSurfLayout.AddDividerBox( "Sub-Surface List" );
 
-    // Pointer for the widths of each column in the browser to support resizing
-    int *col_widths = new int[3]; // 3 columns
-
-    // Initial column widths & keep the memory address
-    col_widths[0] = m_SubSurfLayout.GetW() / 2;
-    col_widths[1] = m_SubSurfLayout.GetW() / 3;
-    col_widths[2] = m_SubSurfLayout.GetW() / 6;
+    // Initial column widths
+    static int col_widths[] = { m_SubSurfLayout.GetW() / 2, m_SubSurfLayout.GetW() / 3, m_SubSurfLayout.GetW() / 6 }; // 3 columns
 
     int browser_h = 100;
     m_SubSurfBrowser = m_SubSurfLayout.AddColResizeBrowser( col_widths, 3, browser_h );

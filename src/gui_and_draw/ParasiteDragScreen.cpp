@@ -437,13 +437,8 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_ExcrescenceListLayout.SetChoiceButtonWidth( TYPICAL_INPUT_WIDTH );
     m_ExcrescenceListLayout.AddDividerBox( "Excrescence List" );
 
-    // Pointer for the widths of each column in the browser to support resizing
-    int* col_widths = new int[3]; // 3 columns
-
-    // Initial column widths & keep the memory address
-    col_widths[0] = 115;
-    col_widths[1] = 111;
-    col_widths[2] = 60;
+    // Initial column widths
+    static int col_widths[] = { 115, 111, 60, 0 }; // 3 columns
 
     m_ExcresBrowser = m_ExcrescenceListLayout.AddColResizeBrowser( col_widths, 3, excrescence_browser_height );
     m_ExcresBrowser->callback( staticScreenCB, this );

@@ -123,16 +123,8 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
     m_GenLayout.AddDividerBox( "Parm Link List" );
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *col_widths = new int[7]; // 7 columns
-
-    // Initial column widths & keep the memory address
-    col_widths[0] = 90;
-    col_widths[1] = 90;
-    col_widths[2] = 105;
-    col_widths[3] = 20;
-    col_widths[4] = 90;
-    col_widths[5] = 90;
-    col_widths[6] = 105;
+    // Last column width must be 0
+    static int col_widths[] = { 90, 90, 105, 20, 90, 90, 105, 0 }; // widths for each column
 
     m_LinkBrowser = m_GenLayout.AddColResizeBrowser( col_widths, 7, 310 );
     m_LinkBrowser->callback( staticScreenCB, this );

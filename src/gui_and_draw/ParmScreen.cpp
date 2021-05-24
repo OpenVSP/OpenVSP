@@ -47,19 +47,11 @@ ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 250, "Parm" )
     m_LinkLayout.AddDividerBox( "Link To" );
 
     int width = ( m_LinkLayout.GetRemainX() - 10 ) / 3;
-    static int widths[] = { width, width, width, 0 }; // widths for each column
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *to_col_widths = new int[3]; // 3 columns
-    int *from_col_widths = new int[3]; // 3 columns
-
-    // Initial column widths & keep the memory address
-    to_col_widths[0] = width;
-    to_col_widths[1] = width;
-    to_col_widths[2] = width;
-    from_col_widths[0] = width;
-    from_col_widths[1] = width;
-    from_col_widths[2] = width;
+    // Last column width must be 0
+    static int to_col_widths[] = { width, width, width, 0 }; // widths for each column
+    static int from_col_widths[] = { width, width, width, 0 }; // widths for each column
 
     m_LinkToBrowser = m_LinkLayout.AddColResizeBrowser( to_col_widths, 3, 75 );
     m_LinkToBrowser->callback( staticScreenCB, this );

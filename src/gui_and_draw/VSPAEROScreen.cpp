@@ -438,12 +438,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CpSlicerLayout.SetFitWidthFlag( true );
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *cp_col_widths = new int[3]; // 3 columns
-
-    // Initial column widths & keep the memory address
-    cp_col_widths[0] = ( m_CpSlicerLayout.GetW() / 3 ) + 10;
-    cp_col_widths[1] = m_CpSlicerLayout.GetW() / 3;
-    cp_col_widths[2] = ( m_CpSlicerLayout.GetW() / 3 ) + 10;
+    // Last column width must be 0
+    static int cp_col_widths[] = { ( m_CpSlicerLayout.GetW() / 3 ) + 10, m_CpSlicerLayout.GetW() / 3, ( m_CpSlicerLayout.GetW() / 3 ) + 10, 0 }; // widths for each column
 
     int CpBrowserHeight = 55;
     m_CpSliceBrowser = m_CpSlicerLayout.AddColResizeBrowser( cp_col_widths, 3, CpBrowserHeight );
@@ -617,17 +613,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_PropElemLayout.AddDividerBox( "Rotor Disk Element Settings" );
 
-    // Pointer for the widths of each column in the browser to support resizing
-    int *prop_col_widths = new int[7]; // 7 columns
-
-    // Initial column widths & keep the memory address
-    prop_col_widths[0] = 0.12 * VSPAERO_SCREEN_WIDTH;
-    prop_col_widths[1] = 0.2 * VSPAERO_SCREEN_WIDTH;
-    prop_col_widths[2] = 0.12 * VSPAERO_SCREEN_WIDTH;
-    prop_col_widths[3] = 0.12 * VSPAERO_SCREEN_WIDTH;
-    prop_col_widths[4] = 0.12 * VSPAERO_SCREEN_WIDTH;
-    prop_col_widths[5] = 0.12 * VSPAERO_SCREEN_WIDTH;
-    prop_col_widths[6] = 0.12 * VSPAERO_SCREEN_WIDTH;
+    // Initial column widths
+    static int prop_col_widths[] = { 73, 122, 73, 73, 73, 73, 73, 73, 0 };
 
     m_PropElemBrowser = m_PropElemLayout.AddColResizeBrowser( prop_col_widths, 7, prop_elem_browser_h );
     m_PropElemBrowser->callback( staticScreenCB, this );
@@ -739,12 +726,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_UnsteadyGroupRightLayout.AddDividerBox( "Propellers" );
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *unsteady_col_widths = new int[3]; // 3 columns
-
-    // Initial column widths & keep the memory address
-    unsteady_col_widths[0] = 0.21 * VSPAERO_SCREEN_WIDTH;
-    unsteady_col_widths[1] = 0.17 * VSPAERO_SCREEN_WIDTH;
-    unsteady_col_widths[2] = 0.12 * VSPAERO_SCREEN_WIDTH;
+    // Last column width must be 0
+    static int unsteady_col_widths[] = { 128, 104, 73, 0 }; // widths for each column
 
     int UnsteadyBrowserHeight = 125;
     m_UnsteadyGroupBrowser = m_UnsteadyGroupRightLayout.AddColResizeBrowser( unsteady_col_widths, 3, UnsteadyBrowserHeight );

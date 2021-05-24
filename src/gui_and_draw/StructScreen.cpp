@@ -117,12 +117,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_StructureTabLayout.AddDividerBox( "Structure Selection" );
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *struct_col_widths = new int[3]; // 3 columns
-
-    // Initial column widths & keep the memory address
-    struct_col_widths[0] = 172;
-    struct_col_widths[1] = 151;
-    struct_col_widths[2] = 86;
+    // Last column width must be 0
+    static int struct_col_widths[] = { 172, 151, 86, 0 }; // widths for each column
 
     int browser_h = 150;
     m_StructureSelectBrowser = m_StructureTabLayout.AddColResizeBrowser( struct_col_widths, 3, browser_h );
@@ -219,15 +215,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_PartTabLayout.AddY( browser_h );
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *part_col_widths = new int[6]; // 6 columns
-
-    // Initial column widths & keep the memory address
-    part_col_widths[0] = 86;
-    part_col_widths[1] = 65;
-    part_col_widths[2] = 43;
-    part_col_widths[3] = 86;
-    part_col_widths[4] = 43;
-    part_col_widths[5] = 86;
+    // Last column width must be 0
+    static int part_col_widths[] = { 86, 65, 43, 86, 43, 86, 0 }; // widths for each column
 
     m_FeaPartSelectBrowser = m_FeaPartBrowserLayout.AddColResizeBrowser( part_col_widths, 6, browser_h );
     m_FeaPartSelectBrowser->callback( staticScreenCB, this );
@@ -385,13 +374,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_PropertyTabLayout.AddSubGroupLayout( m_PropertyEditGroup, m_PropertyTabLayout.GetW(), m_PropertyTabLayout.GetRemainY() );
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *prop_col_widths = new int[4]; // 4 columns
-
-    // Initial column widths & keep the memory address
-    prop_col_widths[0] = 130;
-    prop_col_widths[1] = 70;
-    prop_col_widths[2] = 80;
-    prop_col_widths[3] = 130;
+    // Last column width must be 0
+    static int prop_col_widths[] = { 130, 70, 80, 130, 0 }; // widths for each column
 
     m_FeaPropertySelectBrowser = m_PropertyEditGroup.AddColResizeBrowser( prop_col_widths, 4, browser_h - 20 );
     m_FeaPropertySelectBrowser->callback( staticScreenCB, this );

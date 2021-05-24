@@ -78,13 +78,8 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_InputGroup.AddDividerBox("Input Parms");
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *in_col_widths = new int[4]; // 4 columns
-
-    // Initial column widths & keep the memory address
-    in_col_widths[0] = 160;
-    in_col_widths[1] = 85;
-    in_col_widths[2] = 80;
-    in_col_widths[3] = 85;
+    // Last column width must be 0
+    static int in_col_widths[] = { 160, 85, 80, 85, 0 }; // widths for each column
 
     m_InputBrowser = m_InputGroup.AddColResizeBrowser( in_col_widths, 4, 100 );
     m_InputBrowser->callback( staticScreenCB, this );
@@ -99,13 +94,8 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_OutputGroup.AddDividerBox("Output Parms");
 
     // Pointer for the widths of each column in the browser to support resizing
-    int *out_col_widths = new int[4]; // 4 columns
-
-    // Initial column widths & keep the memory address
-    out_col_widths[0] = 160;
-    out_col_widths[1] = 85;
-    out_col_widths[2] = 80;
-    out_col_widths[3] = 85;
+    // Last column width must be 0
+    static int out_col_widths[] = { 160, 85, 80, 85, 0 }; // widths for each column
 
     m_OutputBrowser = m_OutputGroup.AddColResizeBrowser( out_col_widths, 4, 100 );
     m_OutputBrowser->callback( staticScreenCB, this );
