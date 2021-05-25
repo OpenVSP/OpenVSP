@@ -1452,8 +1452,14 @@ void VspSurf::SplitTesselate( const vector<int> &num_u, int num_v, std::vector< 
 // Also called by SplitTess below.
 void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const
 {
-    unsigned int nu = u.size();
-    unsigned int nv = v.size();
+    if ( u.size() == 0 || v.size() == 0 )
+    {
+        printf( "ERROR: Empty U or V vectors \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
+        return;
+    }
+
+    unsigned int nu = (unsigned int)u.size();
+    unsigned int nv = (unsigned int)v.size();
 
     vector < vector < surface_point_type > > ptmat, nmat;
 
@@ -1516,6 +1522,11 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
 // Splits at split lines, returning 3D vectors of results for patches.
 void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double> &vsplit, const vector<double> &u, const vector<double> &v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms ) const
 {
+    if ( usplit.size() == 0 || vsplit.size() == 0 )
+    {
+        printf( "ERROR: Empty U or V split \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
+        return;
+    }
     vector < int > iusplit;
     iusplit.resize( usplit.size() );
 
