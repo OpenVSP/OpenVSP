@@ -227,14 +227,14 @@ void APITestSuiteCFDMesh::RunScaleTest( double scale_value, double test_compare_
     }
 
     //Iges files results
-    printf( "Scale value: %Lf IGES before %d, IGES after %d \n", scale_value, iges_file_size_before_scale, iges_file_size_after_scale );
+    printf( "Scale value: %f%% IGES before %d, IGES after %d \n", scale_value, iges_file_size_before_scale, iges_file_size_after_scale );
     double iges_dif = 100 * ( ( iges_file_size_after_scale - iges_file_size_before_scale ) / (double)iges_file_size_before_scale );
-    printf( "IGES difference %Lf%%\n", iges_dif );
+    printf( "IGES difference %f%%\n", iges_dif );
 
     //Step files results
-    printf( "Scale value: %Lf STEP before %d, STEP after %d \n", scale_value, step_file_size_before_scale, step_file_size_after_scale );
+    printf( "Scale value: %f%% STEP before %d, STEP after %d \n", scale_value, step_file_size_before_scale, step_file_size_after_scale );
     double step_dif = 100 * ( ( step_file_size_after_scale - step_file_size_before_scale ) / (double)step_file_size_before_scale );
-    printf( "STEP difference %Lf%%\n", step_dif );
+    printf( "STEP difference %f%%\n", step_dif );
 
     //Testing if file size is within acceptible range
     TEST_ASSERT( abs( iges_dif ) <= test_compare_percent );
