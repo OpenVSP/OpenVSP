@@ -1005,7 +1005,7 @@ void VspSurf::CompCurvature01( double u01, double v01, double& k1, double& k2, d
 
 void VspSurf::ResetUSkip()
 {
-    piecewise_surface_type::index_type ip, jp, nupatch, nwpatch;
+    piecewise_surface_type::index_type ip, nupatch, nwpatch;
 
     nupatch = m_Surface.number_u_patches();
     nwpatch = m_Surface.number_v_patches();

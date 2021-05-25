@@ -423,7 +423,6 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             id = 0xFFFFFFFF;
         }
 
-        Renderable * rObj;
         VSPGraphic::Entity * eObj;
 
         switch( objects[i]->m_Type )

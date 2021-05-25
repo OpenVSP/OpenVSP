@@ -980,7 +980,6 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     // Initialize Variables
     vector<double>::const_iterator it;
     double toc;
-    double longF, FR, Area;
     vector <double> hVec, wVec;
     double formfactor = 1.0;
 
