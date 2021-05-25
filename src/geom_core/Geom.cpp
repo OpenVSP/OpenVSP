@@ -3485,7 +3485,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-void Geom::SetColor( int r, int g, int b )
+void Geom::SetColor( double r, double g, double b )
 {
     m_GuiDraw.SetWireColor( r, g, b );
 }

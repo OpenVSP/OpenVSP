@@ -350,7 +350,7 @@ public:
     virtual void LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec );
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    virtual void SetColor( int r, int g, int b );
+    virtual void SetColor( double r, double g, double b );
     virtual vec3d GetColor();
 
     virtual void SetMaterialToDefault();
