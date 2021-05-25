@@ -49,7 +49,7 @@ Background::Background() : Renderable()
     _keepAR = true;
     _hasChanged = true;
 
-    _flipX - false;
+    _flipX = false;
 
     _mode = Common::VSP_BACKGROUND_COLOR;
 
