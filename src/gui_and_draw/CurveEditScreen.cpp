@@ -747,19 +747,14 @@ void CurveEditScreen::UpdateDrawObj()
 
     int ndata = control_pts.size();
 
-    double point_size = edit_curve_xs->m_XSecPointSize.Get();
-    double line_thick = edit_curve_xs->m_XSecLineThickness.Get();
+    double point_size = m_XSecGlWin->pixels_per_unit() * edit_curve_xs->m_XSecPointSize.Get();
+    double line_thick = m_XSecGlWin->pixels_per_unit() *edit_curve_xs->m_XSecLineThickness.Get();
     int point_color = 361; // DrawObj::ColorWheel( 361 ) will return black (0, 0, 0)
 
     if ( edit_curve_xs->m_XSecPointColorFlag.Get() )
     {
         point_color = edit_curve_xs->m_XSecPointColorWheel.Get();
     }
-
-#ifdef __APPLE__
-    point_size *= 2;
-    line_thick *= 2;
-#endif
 
     if ( w == 0 && h == 0 )
     {
