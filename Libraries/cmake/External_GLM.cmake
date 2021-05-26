@@ -1,5 +1,5 @@
 ExternalProject_Add( GLM
-	URL ${CMAKE_SOURCE_DIR}/glm-0.9.9.5.zip
+	URL ${CMAKE_SOURCE_DIR}/glm-0.9.9.8.zip
 	UPDATE_COMMAND ""
 	CONFIGURE_COMMAND ""
 	BUILD_COMMAND ""
