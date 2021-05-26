@@ -74,7 +74,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_PersistenceLayout.AddX( m_ComponentLabelLayout.GetW() );
 
     // Set up Table Labels Layout in Persistent Space to the Right
-    m_PersistenceLayout.AddSubGroupLayout( m_MainTableLabelsLayout, DRAG_TABLE_WIDTH - m_ComponentLabelLayout.GetW(), m_PersistenceLayout.GetStdHeight() );
+    m_PersistenceLayout.AddSubGroupLayout( m_MainTableLabelsLayout, DRAG_TABLE_WIDTH - m_ComponentLabelLayout.GetW(), layoutHeight - EXECUTE_LAYOUT_HEIGHT );
 
     // Create Scroll Group for Table Labels
     m_MainTableLabelsScrollGroup = m_MainTableLabelsLayout.AddFlScroll( m_PersistenceLayout.GetStdHeight() * 2 );
@@ -82,7 +82,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_PersistenceLayout.AddX( m_MainTableLabelsLayout.GetW() );
 
     // Set up Const Table Labels Layout in Persistnet Space to the Right
-    m_PersistenceLayout.AddSubGroupLayout( m_ConstantTableLabelsLayout, DRAG_TABLE_PERSISTENT_WIDTH, m_PersistenceLayout.GetStdHeight() * 2 );
+    m_PersistenceLayout.AddSubGroupLayout( m_ConstantTableLabelsLayout, DRAG_TABLE_PERSISTENT_WIDTH, layoutHeight - EXECUTE_LAYOUT_HEIGHT );
 
     // Create Scroll Group for Const Labels
     m_ConstTableLabelsScrollGroup = m_ConstantTableLabelsLayout.AddFlScroll( m_PersistenceLayout.GetStdHeight() * 2 );
@@ -91,7 +91,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_PersistenceLayout.AddX( -( m_MainTableLabelsLayout.GetW() + m_ComponentLabelLayout.GetW() ) );
 
     // Set up Table Labels Layout in Persistent Space to the Right
-    m_PersistenceLayout.AddSubGroupLayout( m_TableCompNamesLayout, TYPICAL_INPUT_WIDTH * 2 + 20, m_PersistenceLayout.GetStdHeight() );
+    m_PersistenceLayout.AddSubGroupLayout( m_TableCompNamesLayout, TYPICAL_INPUT_WIDTH * 2 + 20, layoutHeight - EXECUTE_LAYOUT_HEIGHT );
 
     // Create Scroll Group for Table Labels
     m_MainTableCompNamesScrollGroup = m_TableCompNamesLayout.AddFlScroll( drag_table_height - 15 );
@@ -128,7 +128,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_PersistenceLayout.AddX( m_TableLayout.GetW() );
 
     // Set up Constant View Layout
-    m_PersistenceLayout.AddSubGroupLayout( m_ConstantViewLayout, DRAG_TABLE_PERSISTENT_WIDTH, layoutHeight );
+    m_PersistenceLayout.AddSubGroupLayout( m_ConstantViewLayout, DRAG_TABLE_PERSISTENT_WIDTH, layoutHeight - EXECUTE_LAYOUT_HEIGHT );
 
     // Create Scroll Group for Constant Table Rows
     m_ConstantTableScrollGroup = m_ConstantViewLayout.AddFlScroll( drag_table_height - 15 );
