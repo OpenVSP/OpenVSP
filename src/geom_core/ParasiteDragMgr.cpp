@@ -2113,7 +2113,7 @@ double ParasiteDragMgrSingleton::GetGeometryCD()
     double sum = 0;
     for ( int i = 0; i < m_geo_CD.size(); i++ )
     {
-        if ( !m_geo_masterRow[i] )
+        if ( m_geo_masterRow[i] )
         {
             if ( m_geo_CD[i] > 0.0 )
             {
