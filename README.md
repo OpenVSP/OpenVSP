@@ -103,8 +103,10 @@
    library is used to access any modern OpenGL features.  GRAPHICS_ONLY
 
    - [libIGES](http://github.com/cbernardo/libIGES) - Library for working with
-   IGES files.  This is a very new library and is not likely to be packaged on
-   any system.
+   IGES files.  This is not likely to be packaged on any system.  OpenVSP
+   uses a version modified by [Rob McDonald](https://github.com/ramcdona/libIGES) 
+   or [Justin Gravett](https://github.com/justingravett/libIGES.git) for CMake 
+   2.8 compatibility
 
    - [STEPcode](http://stepcode.github.io/) - Library for working with STEP 
    standard files.  Based on an old library developed by NIST.  This is a
