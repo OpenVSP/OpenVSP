@@ -106,8 +106,8 @@
    IGES files.  This is a very new library and is not likely to be packaged on
    any system.
 
-   - [STEPcode](http://stepcode.org) - Library for working with STEP standard
-   files.  Based on an old library developed by NIST.  This is a
+   - [STEPcode](http://stepcode.github.io/) - Library for working with STEP 
+   standard files.  Based on an old library developed by NIST.  This is a
    relatively new library, in constant development.  Not likely
    to be packaged on any system.
 
