@@ -343,6 +343,11 @@ string ParmContainer::FindParm( int group_ind, int parm_ind  )
 //==== Find Parm ID Given GroupName and Parm Name ====//
 string ParmContainer::FindParm( const string& parm_name, const string& group_name  )
 {
+    if ( ParmMgr.GetDirtyFlag() )
+    {
+        LinkMgr.BuildLinkableParmData();
+    }
+
     string id;
     map< string, vector< string > >::iterator iter;
     iter = m_GroupParmMap.find( group_name );

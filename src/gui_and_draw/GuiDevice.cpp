@@ -2345,7 +2345,10 @@ void ParmPicker::Update( )
     int i;
     char str[256];
 
-    LinkMgr.BuildLinkableParmData();
+    if ( ParmMgr.GetDirtyFlag() )
+    {
+        LinkMgr.BuildLinkableParmData();
+    }
 
     if( m_ParmIDChoice.size() == 0 )
     {
@@ -2754,7 +2757,10 @@ void ParmTreePicker::UpdateParmTree()
 
     ResetFlag( true );
 
-    LinkMgr.BuildLinkableParmData();
+    if ( ParmMgr.GetDirtyFlag() )
+    {
+        LinkMgr.BuildLinkableParmData();
+    }
 
     vector< string > containerVec;
     LinkMgr.GetAllContainerVec( containerVec );
