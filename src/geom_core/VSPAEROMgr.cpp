@@ -3513,6 +3513,15 @@ string VSPAEROMgrSingleton::ComputeCpSlices( FILE * logFile )
 {
     string resID = string();
 
+    UpdateFilenames();
+
+    if ( !FileExist( m_AdbFile ) )
+    {
+        fprintf( stderr, "\nError: Aerothermal database (*.adb) file not found. "
+            "Execute VSPAERO before running the CpSlicer\n" );
+        return resID;
+    }
+
     CreateCutsFile();
 
     resID = ExecuteCpSlicer( logFile );
