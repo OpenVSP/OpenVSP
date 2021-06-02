@@ -403,18 +403,23 @@ void WaveDragScreen::CallBack( Fl_Widget* w )
     if ( w == m_SubSurfFlowBrowser )
     {
         int curr_index = m_SubSurfFlowBrowser->value();
-        bool flag = !!m_SubSurfFlowBrowser->checked( curr_index );
-
         vector< SubSurface* > subsurf_vec = SubSurfaceMgr.GetSubSurfs();
-        string curr_ID = subsurf_vec[curr_index-1]->GetID();
 
-        if ( flag )
+        if ( (int)subsurf_vec.size() > 0 && curr_index >= 1 && curr_index <= (int)subsurf_vec.size() )
         {
-            WaveDragMgr.m_SSFlow_vec.push_back( curr_ID );
-        }
-        else
-        {
-            vector_remove_val( WaveDragMgr.m_SSFlow_vec, curr_ID );
+
+            bool flag = !!m_SubSurfFlowBrowser->checked( curr_index );
+
+            string curr_ID = subsurf_vec[curr_index - 1]->GetID();
+
+            if ( flag )
+            {
+                WaveDragMgr.m_SSFlow_vec.push_back( curr_ID );
+            }
+            else
+            {
+                vector_remove_val( WaveDragMgr.m_SSFlow_vec, curr_ID );
+            }
         }
     }
     else if ( w == m_canvas )
