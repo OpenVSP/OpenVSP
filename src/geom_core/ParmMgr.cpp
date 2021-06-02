@@ -21,6 +21,7 @@ ParmMgrSingleton::ParmMgrSingleton()
     m_ChangeCnt = 0;
     m_LastUndoFlag = false;
     m_LastReset = "";
+    m_DirtyFlag = true;
 }
 
 //==== Add Parm To Map ====//
