@@ -6549,7 +6549,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \endcode
     \sa SetUnsteadyGroupName
     \param [in] group_index Unsteady group index for the current VSPAERO set
-    \param [in] name Name to set the for the unsteady group
+    \return Unsteady group name
 */)";
     r = se->RegisterGlobalFunction( "string GetUnsteadyGroupName( int group_index )", asFUNCTION( vsp::GetUnsteadyGroupName ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
@@ -8431,8 +8431,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     if ( flag_value != true)                      { Print( "---> Error: API CopyPasteSet " ); }
     \endcode
-    \param [in] copy_Index Copy Index
-    \param [in] paste_Index Paste Index
+    \param [in] copyIndex Copy Index
+    \param [in] pasteIndex Paste Index
 */)";
     r = se->RegisterGlobalFunction( "void CopyPasteSet(  int copyIndex, int pasteIndex  )", asFUNCTION( vsp::CopyPasteSet ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
@@ -10177,7 +10177,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [out] p_out Output 3D coordinate point
     \return Axis aligned distance between the 3D point and the projected point on the surface
 */)";
-    r = se->RegisterGlobalFunction( "double AxisProjPnt01( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, double & out u_out, double & out w_ou, vec3d & out p_out )", asFUNCTION(vsp::AxisProjPnt01), asCALL_CDECL, doc_struct );
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, double & out u_out, double & out w_out, vec3d & out p_out )", asFUNCTION(vsp::AxisProjPnt01), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
