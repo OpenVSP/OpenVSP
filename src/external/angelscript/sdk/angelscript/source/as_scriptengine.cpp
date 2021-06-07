@@ -3102,7 +3102,9 @@ int asCScriptEngine::RegisterGlobalFunction(const char *declaration, const asSFu
 {
     int reg_id = asCScriptEngine::RegisterGlobalFunction( declaration, funcPointer, callConv, auxiliary );
     std::string format_decl = GetGlobalFunctionByIndex( GetGlobalFunctionCount() - 1 )->GetDeclaration( false, true, true );  // Object name, namespace, parm names
-    asDocgen::AddGlobalFunction( format_decl, doc_info );
+    asDocgen::AddGlobalFunctionComment( format_decl, doc_info.comment );
+    asDocgen::AddGlobalFunctionGroup( format_decl, doc_info.group );
+    asDocgen::AddGlobalFunctionTestFlag( format_decl, doc_info.export_api_test );
 
     return reg_id;
 }
@@ -3111,7 +3113,9 @@ int asCScriptEngine::RegisterGlobalFunction(const char *declaration, const asSFu
 {
     int reg_id = asCScriptEngine::RegisterGlobalFunction( declaration, funcPointer, callConv );
     std::string format_decl = GetGlobalFunctionByIndex( GetGlobalFunctionCount() - 1 )->GetDeclaration( false, true, true );  // Object name, namespace, parm names
-    asDocgen::AddGlobalFunction( format_decl, doc_info );
+    asDocgen::AddGlobalFunctionComment( format_decl, doc_info.comment );
+    asDocgen::AddGlobalFunctionGroup( format_decl, doc_info.group );
+    asDocgen::AddGlobalFunctionTestFlag( format_decl, doc_info.export_api_test );
 
     return reg_id;
 }

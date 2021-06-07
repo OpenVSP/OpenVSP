@@ -39,16 +39,18 @@ namespace asDocgen
     };
 
     std::map<string, ScriptTypeComment> typeComments;
-    std::map<string, asDocInfo> globalFunctionMap;
+    std::map<string, string> globalComments;
     std::map<string, std::map<string, string>> enumeratorComments;
     std::map<string, string> enumerationComment;
     std::map<string, string> globalPropertyComments;
+    std::map<string, bool> globalTestFlags;
 
     std::map<string, string> skippedComments;
     std::map<string, string> groupTitles;
     std::map<string, string> groupDescriptions;
 
     std::map<string, ScriptTypeComment> typeGroups;
+    std::map<string, string> globalGroups;
     std::map<string, std::map<string, string>> enumeratorGroups;
     std::map<string, string> enumerationGroups;
     std::map<string, string> globalPropertyGroups;
@@ -80,9 +82,9 @@ namespace asDocgen
         }
     }
 
-    void AddGlobalFunction( const string& decl, asDocInfo doc_info )
+    void AddGlobalFunctionComment( const string& decl, const string& comment )
     {
-        globalFunctionMap[decl] = doc_info;
+        globalComments[decl] = comment;
     }
 
     void AddGlobalPropertyComment( const string& decl, const string& comment )
@@ -146,6 +148,16 @@ namespace asDocgen
         }
     }
 
+    void AddGlobalFunctionGroup( const string& decl, const string& group )
+    {
+        globalGroups[decl] = group;
+    }
+
+    void AddGlobalFunctionTestFlag( const string& decl, bool flag )
+    {
+        globalTestFlags[decl] = flag;
+    }
+
     void AddGlobalPropertyGroup( const string& decl, const string& group )
     {
         globalPropertyGroups[decl] = group;
@@ -172,6 +184,7 @@ namespace asDocgen
     void ClearComments()
     {
         typeComments.clear();
+        globalComments.clear();
         enumeratorComments.clear();
         enumerationComment.clear();
         globalPropertyComments.clear();
@@ -182,6 +195,7 @@ namespace asDocgen
     void ClearGroups()
     {
         typeGroups.clear();
+        globalGroups.clear();
         enumeratorGroups.clear();
         enumerationGroups.clear();
         globalPropertyGroups.clear();
@@ -281,9 +295,9 @@ namespace asDocgen
         //if not we skip that function (for now?)
         for ( unsigned int i = 0; i < globalFunctions.size(); ++i )
         {
-            if ( globalFunctionMap.count( globalFunctions[i] ) && globalFunctionMap[globalFunctions[i]].export_api_test )
+            if ( globalComments.count( globalFunctions[i] ) && globalTestFlags[globalFunctions[i]] )
             {
-                 tempCaptureString = globalFunctionMap[globalFunctions[i]].comment;
+                 tempCaptureString = globalComments[globalFunctions[i]];
 
                  target = R"(\code{.cpp})";
 
@@ -315,14 +329,14 @@ namespace asDocgen
          
         for ( unsigned int i = 0; i < globalFunctions.size(); ++i )
         {
-            if ( globalFunctionMap.count( globalFunctions[i] ) && globalFunctionMap[globalFunctions[i]].export_api_test )
+            if ( globalComments.count( globalFunctions[i] ) && globalTestFlags[globalFunctions[i]] )
             {
-                tempCaptureString = globalFunctionMap[globalFunctions[i]].comment;
+                tempCaptureString = globalComments[globalFunctions[i]];
 
                 target = R"(\code{.cpp})";
 
                 //if target is in string then we want to get the function name and the code comments/docs
-                if ( CheckForTarget(tempCaptureString, target ) && globalFunctionMap.count( globalFunctions[i] ) )
+                if ( CheckForTarget(tempCaptureString, target ) && globalComments.count( globalFunctions[i] ) )
                 {
                     //We use this to get function names from strings
                     tempCaptureString = extractTargetString( " ", "(", globalFunctions[i] );
@@ -339,9 +353,9 @@ namespace asDocgen
                         capturedFunctionStrings.push_back( tempCaptureString );
 
                         //This is where we have to strip out parts of the comments that are not actual code
-                        if ( globalFunctionMap.count( globalFunctions[i] ) )
+                        if ( globalComments.count( globalFunctions[i] ) )
                         {
-                            tempCaptureString = globalFunctionMap[globalFunctions[i]].comment;
+                            tempCaptureString = globalComments[globalFunctions[i]];
 
                             target = R"(/*!)";
                             target2 = R"(\code{.cpp})";
@@ -815,12 +829,12 @@ not working correctly, or poorly documented.
 
         for ( unsigned int i = 0; i < globalFunctions.size(); ++i )
         {
-            if ( globalFunctionMap.count( globalFunctions[i] ) )
+            if ( globalGroups.count( globalFunctions[i] ) )
             {
                 comment_str = R"(
 /*! 
     \ingroup )";
-                comment_str += globalFunctionMap[globalFunctions[i]].group;
+                comment_str += globalGroups[globalFunctions[i]];
                 comment_str += R"(
 */ )";
                 comment_str += "\n";
@@ -828,9 +842,9 @@ not working correctly, or poorly documented.
                 outfile << comment_str;
             }
 
-            if ( globalFunctionMap.count( globalFunctions[i] ) )
+            if ( globalComments.count( globalFunctions[i] ) )
             {
-                outfile << globalFunctionMap[globalFunctions[i]].comment << endl;
+                outfile << globalComments[globalFunctions[i]] << endl;
             }
             outfile << globalFunctions[i] << ";" << endl;
         }
@@ -849,11 +863,10 @@ not working correctly, or poorly documented.
         outfile << "\n";
 
         outfile.close();
-        
 
         ClearComments();
         ClearGroups();
-        globalFunctionMap.clear();
+
     }
 
 };
