@@ -617,7 +617,7 @@ string BEMAnalysis::Execute()
 void CompGeomAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
-    m_Inputs.Add( NameValData( "Set", 0 ) );
+    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL ) );
     m_Inputs.Add( NameValData( "HalfMeshFlag", 0 ) );
     m_Inputs.Add( NameValData( "SubSurfFlag", 1 ) );
 
@@ -638,13 +638,13 @@ string CompGeomAnalysis::Execute()
 
     if ( veh )
     {
-        int geomSet = 0;
+        int geomSet = vsp::SET_ALL;
         int halfMeshFlag = 0;
         int subSurfFlag = 1;
 
         NameValData *nvd = NULL;
 
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
@@ -707,7 +707,7 @@ string DegenGeomAnalysis::Execute()
         bool write_mfile = write_mfile_orig;
 
         NameValData *nvd;
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             set_num = nvd->GetInt( 0 );
@@ -800,7 +800,7 @@ string EmintonLordAnalysis::Execute()
 void MassPropAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
-    m_Inputs.Add( NameValData( "Set", 0 ) );
+    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL ) );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
@@ -821,12 +821,12 @@ string MassPropAnalysis::Execute()
 
     if ( veh )
     {
-        int geomSet = 0;
+        int geomSet = vsp::SET_ALL;
         int numMassSlice = 20;
 
         NameValData *nvd = NULL;
 
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
@@ -860,7 +860,7 @@ void PlanarSliceAnalysis::SetDefaults()
 
     m_Inputs.Clear();
 
-    m_Inputs.Add( NameValData( "Set", 0 ) );
+    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL ) );
     m_Inputs.Add( NameValData( "NumSlices", veh->m_NumPlanerSlices.Get() ) );
 
     vec3d norm;
@@ -880,7 +880,7 @@ string PlanarSliceAnalysis::Execute()
 
     if ( veh )
     {
-        int geomSet = 0;
+        int geomSet = vsp::SET_ALL;
         int numSlice = 10;
         vec3d axis( 1.0, 0.0, 0.0 );
         bool autobnd = true;
@@ -888,7 +888,7 @@ string PlanarSliceAnalysis::Execute()
 
         NameValData *nvd = NULL;
 
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
@@ -952,8 +952,8 @@ void ProjectionAnalysis::SetDefaults()
     m_Inputs.Add( NameValData( "BoundaryType", vsp::NO_BOUNDARY ) );
     m_Inputs.Add( NameValData( "DirectionType", vsp::X_PROJ ) );
 
-    m_Inputs.Add( NameValData( "TargetSet", 0 ) );
-    m_Inputs.Add( NameValData( "BoundarySet", 0 ) );
+    m_Inputs.Add( NameValData( "TargetSet", vsp::SET_ALL ) );
+    m_Inputs.Add( NameValData( "BoundarySet", vsp::SET_ALL ) );
 
     m_Inputs.Add( NameValData( "TargetGeomID", "" ) );
     m_Inputs.Add( NameValData( "BoundaryGeomID", "" ) );
@@ -988,14 +988,14 @@ string ProjectionAnalysis::Execute()
         directionType = nvd->GetInt( 0 );
     }
 
-    int targetSet = 0;
+    int targetSet = vsp::SET_ALL;
     nvd = m_Inputs.FindPtr( "TargetSet", 0 );
     if ( nvd )
     {
         targetSet = nvd->GetInt( 0 );
     }
 
-    int boundarySet = 0;
+    int boundarySet = vsp::SET_ALL;
     nvd = m_Inputs.FindPtr( "BoundarySet", 0 );
     if ( nvd )
     {
@@ -1102,7 +1102,7 @@ string SurfacePatchAnalysis::Execute()
         int set = vsp::SET_ALL;
 
         NameValData *nvd = NULL;
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             set = nvd->GetInt( 0 );
@@ -1146,7 +1146,7 @@ string WaveDragAnalysis::Execute()
 
         NameValData *nvd = NULL;
 
-        nvd = m_Inputs.FindPtr( "Set", 0 );
+        nvd = m_Inputs.FindPtr( "Set", vsp::SET_ALL );
         if ( nvd )
         {
             set = nvd->GetInt( 0 );
