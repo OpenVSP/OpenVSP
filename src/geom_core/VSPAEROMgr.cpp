@@ -853,7 +853,10 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
             }
             // Remove Deleted Sub Surfaces and Sub Surfaces with Parent Geoms That No Longer Exist
             Geom* parent = VehicleMgr.GetVehicle()->FindGeom( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].parentGeomId );
-            SubSurface* ss = parent->GetSubSurf( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID );
+
+            SubSurface* ss = NULL;
+            if ( parent ) ss = parent->GetSubSurf( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID );
+
             if ( !parent || !ss || ( ss && parent->GetNumSymmCopies() <= m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect ) )
             {
                 m_ControlSurfaceGroupVec[i]->RemoveSubSurface( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID,
