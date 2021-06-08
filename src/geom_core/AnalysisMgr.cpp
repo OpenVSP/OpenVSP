@@ -618,6 +618,7 @@ void CompGeomAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
     m_Inputs.Add( NameValData( "Set", vsp::SET_ALL ) );
+    m_Inputs.Add( NameValData( "DegenSet", vsp::SET_NONE ) );
     m_Inputs.Add( NameValData( "HalfMeshFlag", 0 ) );
     m_Inputs.Add( NameValData( "SubSurfFlag", 1 ) );
 
@@ -639,6 +640,7 @@ string CompGeomAnalysis::Execute()
     if ( veh )
     {
         int geomSet = vsp::SET_ALL;
+        int degenSet = vsp::SET_NONE;
         int halfMeshFlag = 0;
         int subSurfFlag = 1;
 
@@ -648,6 +650,12 @@ string CompGeomAnalysis::Execute()
         if ( nvd )
         {
             geomSet = nvd->GetInt( 0 );
+        }
+
+        nvd = m_Inputs.FindPtr( "DegenSet", vsp::SET_NONE );
+        if ( nvd )
+        {
+            degenSet = nvd->GetInt( 0 );
         }
 
         nvd = m_Inputs.FindPtr( "HalfMeshFlag", 0 );
@@ -668,7 +676,7 @@ string CompGeomAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "WriteDragTSVFlag", 0 );
         veh->setExportDragBuildTsvFile( !!nvd->GetInt( 0 ) );
 
-        string geom = veh->CompGeomAndFlatten( geomSet, halfMeshFlag, subSurfFlag );
+        string geom = veh->CompGeomAndFlatten( geomSet, halfMeshFlag, subSurfFlag, degenSet );
 
         res = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
     }
