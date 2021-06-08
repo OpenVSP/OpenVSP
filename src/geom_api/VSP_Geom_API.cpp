@@ -280,7 +280,7 @@ string ImportFile( const string & file_name, int file_type, const string & paren
 
 string ExportFile( const string & file_name, int write_set_index, int file_type )
 {
-    string mesh_id = GetVehicle()->ExportFile( file_name, write_set_index, file_type );
+    string mesh_id = GetVehicle()->ExportFile( file_name, write_set_index, vsp::SET_NONE, file_type );
 
     ErrorMgr.NoError();
     return mesh_id;

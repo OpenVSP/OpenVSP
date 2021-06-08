@@ -201,7 +201,7 @@ public:
     //=== Export Files ===//
     // Return Mesh Geom ID if the export generates a mesh, otherwise return an 
     // empty string. This facilitates deleting the generated mesh from the API.
-    string ExportFile( const string & file_name, int write_set, int file_type );
+    string ExportFile( const string & file_name, int write_set, int degen_set, int file_type );
     bool WriteXMLFile( const string & file_name, int set );
     void WriteXSecFile( const string & file_name, int write_set );
     void WritePLOT3DFile( const string & file_name, int write_set );

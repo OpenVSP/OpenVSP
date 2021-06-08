@@ -31,7 +31,7 @@ public:
 
     void LoadSetChoice();
 
-    void ExportFile( string &newfile, int write_set, int type );
+    void ExportFile( string &newfile, int write_set, int degen_set, int type );
 
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
@@ -47,6 +47,7 @@ protected:
     GroupLayout m_GenLayout;
 
     Choice m_ExportSetChoice;
+    Choice m_DegenSetChoice;
 
     TriggerButton m_XSecButton;
     TriggerButton m_Plot3DButton;
@@ -72,6 +73,7 @@ protected:
     TriggerButton m_CustomScriptButton;
 
     int m_SelectedSetIndex;
+    int m_DegenSetIndex;
 };
 
 

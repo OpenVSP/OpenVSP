@@ -5097,7 +5097,7 @@ void Vehicle::SetApplyAbsIgnoreFlag( const vector< string > &g_vec, bool val )
 }
 
 //==== Import File Methods ====//
-string Vehicle::ExportFile( const string & file_name, int write_set, int file_type )
+string Vehicle::ExportFile( const string & file_name, int write_set, int degen_set, int file_type )
 {
     string mesh_id = string();
 
