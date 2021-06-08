@@ -19,16 +19,17 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 180, 25 + 2*20 + 22*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 200, 25 + 2*20 + 22*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = DEFAULT_SET;
+    m_DegenSetIndex = vsp::SET_NONE;
 
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_MainLayout.AddX( 5 );
     m_MainLayout.AddY( 25 );
     m_MainLayout.AddSubGroupLayout( m_GenLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() );
 
-    m_GenLayout.SetChoiceButtonWidth( 50 );
+    m_GenLayout.SetChoiceButtonWidth( 100 );
 
     m_GenLayout.AddDividerBox( "Export Set" );
     m_GenLayout.AddYGap();
@@ -94,11 +95,11 @@ void ExportScreen::LoadSetChoice()
     m_ExportSetChoice.ClearItems();
     m_DegenSetChoice.ClearItems();
 
-    vector <string> setVec = veh->GetSetNameVec();
+    vector <string> setVec = veh->GetSetNameVec( true );
     for ( int i = 0; i < setVec.size(); i++ )
     {
-        m_ExportSetChoice.AddItem( setVec[i] );
-        m_DegenSetChoice.AddItem( setVec[i] );
+        m_ExportSetChoice.AddItem( setVec[i], i - 1 );
+        m_DegenSetChoice.AddItem( setVec[i], i - 1 );
     }
     m_ExportSetChoice.UpdateItems();
     m_DegenSetChoice.UpdateItems();
@@ -349,6 +350,10 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             veh->m_SVGSet.Set( m_SelectedSetIndex );
         }
+    }
+    else if (  device == &m_DegenSetChoice )
+    {
+        m_DegenSetIndex = m_DegenSetChoice.GetVal();
     }
     else if ( device == &m_CustomScriptButton )
     {
