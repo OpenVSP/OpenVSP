@@ -2397,7 +2397,7 @@ double WingGeom::ComputeTotalProjSpan()
     vector< WingSect* > ws_vec = GetWingSectVec();
     for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
     {
-            ts += ws_vec[i]->m_Span()*cos( ws_vec[i]->m_Dihedral() * DEG_2_RAD);
+            ts += ws_vec[i]->m_Span()*cos( GetSumDihedral( i ) * DEG_2_RAD);
     }
 
     if ( GetSymFlag() != 0 )
