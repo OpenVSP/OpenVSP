@@ -2544,7 +2544,7 @@ nnwake in1 in2 in3 in4...inn // Last wake line
 */
 
 //==== Write VSPGeom File ====//
-string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set )
+string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int degen_set )
 {
     string mesh_id = string();
 
@@ -2557,7 +2557,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set )
     // Add a new mesh if one does not exist
     if ( !ExistMesh( write_set ) )
     {
-        mesh_id = AddMeshGeom( write_set );
+        mesh_id = AddMeshGeom( write_set, degen_set );
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
             Geom *geom_ptr = FindGeom( mesh_id );
@@ -5140,7 +5140,7 @@ string Vehicle::ExportFile( const string & file_name, int write_set, int degen_s
     }
     else if ( file_type == EXPORT_VSPGEOM )
     {
-        mesh_id = WriteVSPGeomFile( file_name, write_set );
+        mesh_id = WriteVSPGeomFile( file_name, write_set, degen_set );
     }
     else if ( file_type == EXPORT_NASCART )
     {
