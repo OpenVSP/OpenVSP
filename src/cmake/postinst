@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e;
 echo "Setting up symlinks ...";
+mkdir -p /usr/local/bin;
 ln -nsf /opt/OpenVSP/vsp /usr/local/bin/vsp;
 ln -nsf /opt/OpenVSP/vspaero /usr/local/bin/vspaero;
 ln -nsf /opt/OpenVSP/vspscript /usr/local/bin/vspscript;
