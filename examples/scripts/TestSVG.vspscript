@@ -58,10 +58,8 @@ void TestSVG()
 
     string geom_id = FindContainer( "Vehicle", 0 );
 
-    //==== Manually Add Scale Bar ====//
-    SetParmVal( FindParm( geom_id, "ScaleFlag", "SVGSettings" ), MANUAL );
+    //==== Set Units ====//
     SetParmVal( FindParm( geom_id, "LenUnit", "SVGSettings" ), LEN_FT );
-    SetParmVal( FindParm( geom_id, "Scale", "SVGSettings" ), 30.0 );
 
     //==== Default 4 View SVG Export ====//
 
