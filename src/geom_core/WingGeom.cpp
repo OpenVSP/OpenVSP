@@ -1317,7 +1317,29 @@ void WingGeom::Update( bool fullupdate )
 {
     m_ActiveAirfoil.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
 
+    bool xform_dirty = m_XFormDirty; // Save value before it's reset in GeomXSec::Update
+
     GeomXSec::Update( fullupdate );
+
+    // Update so that m_XFormDirty (symmetry) causes total parameters to update. 
+    // This should be called after Geom::Update to avoid triggering an additional 
+    // m_SurfDirty update after the m_XForDirty update
+    if ( xform_dirty )
+    {
+        UpdateTotalParameters();
+    }
+}
+
+//==== Update Total Span, Area, etc. =====//
+void WingGeom::UpdateTotalParameters()
+{
+    //==== Load Totals ====//
+    m_TotalSpan = ComputeTotalSpan();
+    m_TotalProjSpan = ComputeTotalProjSpan();
+    m_TotalChord = ComputeTotalChord();
+    m_TotalArea = ComputeTotalArea();
+
+    m_TotalAR = m_TotalProjSpan() * m_TotalProjSpan() / m_TotalArea();
 }
 
 //==== Change IDs =====//
@@ -2088,12 +2110,7 @@ void WingGeom::UpdateSurf()
     m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
 
     //==== Load Totals ====//
-    m_TotalSpan = ComputeTotalSpan();
-    m_TotalProjSpan = ComputeTotalProjSpan();
-    m_TotalChord = ComputeTotalChord();
-    m_TotalArea = ComputeTotalArea();
-
-    m_TotalAR = m_TotalProjSpan() * m_TotalProjSpan() / m_TotalArea() ;
+    UpdateTotalParameters();
 }
 
 void WingGeom::CalculateMeshMetrics()

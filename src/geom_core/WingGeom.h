@@ -239,6 +239,7 @@ protected:
     virtual double ComputeTotalProjSpan();
     virtual double ComputeTotalChord();
     virtual double ComputeTotalArea();
+    virtual void UpdateTotalParameters();
     virtual void UpdateTotalSpan();
     virtual void UpdateTotalProjSpan();
     virtual void UpdateTotalChord();
