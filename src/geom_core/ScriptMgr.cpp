@@ -4169,11 +4169,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \endcode
     \sa EXPORT_TYPE
     \param [in] file_name Export file name
-    \param [in] write_set_index Set index to export (i.e. SET_ALL)
+    \param [in] thick_set Set index to export (i.e. SET_ALL)
     \param [in] file_type File type enum (i.e. EXPORT_IGES)
+    \param [in] file_type File type enum (i.e. EXPORT_VSPGEOM)
     \return Mesh Geom ID if the export generates a mesh
 */)";
-    r = se->RegisterGlobalFunction( "string ExportFile( const string & in file_name, int write_set_index, int file_type )", asFUNCTION( vsp::ExportFile ), asCALL_CDECL, doc_struct );
+    r = se->RegisterGlobalFunction( "string ExportFile( const string & in file_name, int thick_set, int file_type, int thin_set = -1 )", asFUNCTION( vsp::ExportFile ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(

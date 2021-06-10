@@ -53,7 +53,7 @@ extern std::string GetVSPFileName();
 extern void ClearVSPModel();
 extern void InsertVSPFile( const std::string & file_name, const std::string & parent_geom_id );
 
-extern std::string ExportFile( const std::string & file_name, int write_set_index, int file_type );
+extern std::string ExportFile( const std::string & file_name, int thick_set, int file_type, int thin_set = vsp::SET_NONE );
 extern std::string ThickThinExportFile( const std::string & file_name, int thick_set, int thin_set, int file_type );
 extern std::string ImportFile( const std::string & file_name, int file_type, const std::string & parent );
 

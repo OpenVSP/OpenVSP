@@ -278,9 +278,9 @@ string ImportFile( const string & file_name, int file_type, const string & paren
     return veh->ImportFile( file_name, file_type );
 }
 
-string ExportFile( const string & file_name, int write_set_index, int file_type )
+string ExportFile( const string & file_name, int thick_set, int file_type, int thin_set )
 {
-    string mesh_id = GetVehicle()->ExportFile( file_name, write_set_index, vsp::SET_NONE, file_type );
+    string mesh_id = GetVehicle()->ExportFile( file_name, thick_set, thin_set, file_type );
 
     ErrorMgr.NoError();
     return mesh_id;
