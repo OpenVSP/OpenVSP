@@ -416,6 +416,8 @@ void TestAPIScript()
     if ( double_arr.size() != 1 )                                    { Print( "---> Error: API ComputeMassProps" ); }
     CutGeomToClipboard( mass_res_id );
 
+    ClearVSPModel();
+
     //==== Test Comp Geom ====//
     Print( string( "---> Test Comp Geom" ) );
     gid1 = AddGeom( "POD", "" );
