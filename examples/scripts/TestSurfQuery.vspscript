@@ -122,12 +122,12 @@ void main()
     array<double> wtess;
     GetUWTess01( gid, surf_indx, utess, wtess );
 
-    for( int i = 0 ; i < utess.size() ; i++ )
+    for( uint i = 0 ; i < utess.size() ; i++ )
     {
         Print( "utess: " + utess[i] );
     }
 
-    for( int j = 0 ; j < wtess.size() ; j++ )
+    for( uint j = 0 ; j < wtess.size() ; j++ )
     {
         Print( "wtess: " + wtess[j] );
     }
