@@ -387,6 +387,12 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     vector < double > vv1( v1, v1 + sizeof( v1 ) / sizeof( v1[0] ) );
     m_ChordCurve.InitCurve( tv1, vv1 );
 
+    // Prevent negative values in m_Chord
+    for ( size_t i = 0; i < m_ChordCurve.m_ValParmVec.size(); i++ )
+    {
+        m_ChordCurve.m_ValParmVec[i]->SetLowerLimit( 1e-8 );
+    }
+
     m_TwistCurve.SetParentContainer( GetID() );
     m_TwistCurve.SetDispNames( "r/R", "Twist" );
     m_TwistCurve.SetParmNames( "r", "tw" );
