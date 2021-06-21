@@ -93,6 +93,15 @@ public:
     void SortLinksByA();
     void SortLinksByB();
 
+    void SetFreezeUpdateFlag( bool flag )
+    {
+        m_FreezeUpdateFlag = flag;
+    }
+    bool GetFreezeUpdateFlag() const
+    {
+        return m_FreezeUpdateFlag;
+    }
+
 private:
 
     LinkMgrSingleton();
@@ -106,6 +115,8 @@ private:
     Link *m_WorkingLink;
 
     static bool m_firsttime;
+
+    bool m_FreezeUpdateFlag; // Flag to disable updating links when ParmChanged is called. This prevents geoms not being updated properly on XML import
 
     deque< Link* > m_LinkVec;
 

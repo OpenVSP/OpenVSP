@@ -1882,6 +1882,9 @@ int Vehicle::ReadXMLFile( const string & file_name )
 {
     string lastreset = ParmMgr.ResetRemapID();
 
+    // Disable link updates when until all geoms are loaded
+    LinkMgr.SetFreezeUpdateFlag( true );
+
     //==== Read Xml File ====//
     xmlDocPtr doc;
 
@@ -1931,6 +1934,9 @@ int Vehicle::ReadXMLFile( const string & file_name )
     ParmMgr.ResetRemapID( lastreset );
 
     Update();
+    AdvLinkMgr.ForceUpdate();
+
+    LinkMgr.SetFreezeUpdateFlag( false );
 
     m_FileOpenVersion = -1;
     return 0;

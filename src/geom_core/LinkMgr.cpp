@@ -23,7 +23,7 @@ LinkMgrSingleton::LinkMgrSingleton()
     m_NumPredefinedUserParms = 16;
     m_UserParms.SetNumPredefined( m_NumPredefinedUserParms );
     m_UserParms.Renew(m_NumPredefinedUserParms);
-
+    m_FreezeUpdateFlag = false;
 }
 
 void LinkMgrSingleton::Init()
@@ -387,6 +387,9 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
     //==== Find Parm Ptr ===//
     Parm* parm_ptr = ParmMgr.FindParm( pid );
     if ( !parm_ptr )
+        return;
+
+    if ( m_FreezeUpdateFlag )
         return;
 
     //==== Check For Advanced Links ====//
