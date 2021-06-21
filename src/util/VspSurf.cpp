@@ -1320,7 +1320,7 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         }
         if ( degen )
         {
-            vtess[j] = vabsmax;
+            vtess[ nv - 1 ] = vabsmax;
         }
 
         if ( degen ) // DegenGeom, don't tessellate blunt TE or LE.
