@@ -2575,6 +2575,15 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                 geom_ptr->Update();
             }
             HideAllExcept( mesh_id );
+            // Below, we are going to write out _all_ MeshGeoms in write_set.
+            // AddMeshGeom above will create a MeshGeom in write_set if write_set >= SET_FIRST_USER.
+            // Otherwise, the new MeshGeom will be in SET_SHOWN.
+            // HideAllExcept should ensure that the new MeshGeom is the only thing in SET_SHOWN.
+            // If (for example) write_set is SET_NONE and degen_set contains the geometry, then
+            // this will cause trouble.
+            // By changing write_set to SET_SHOWN for this code path, we make sure anything created
+            // through AddMeshGeom will get written.
+            write_set = vsp::SET_SHOWN;
         }
     }
 
