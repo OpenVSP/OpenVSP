@@ -6,7 +6,7 @@ include Makefile.COMMON
                
 VSPAERO_OPT =  'CCFLAGS = -O3 -funroll-loops -funroll-all-loops \
                      -Wunused ' \
-         'LDC = clang++' \
+         'LDC = clang++-4.0' \
          'LDF = gfortran' \
          'DEFINES = ' \
          'INCDIRS = -I/usr/local/include -I/usr/include/tcl '\
@@ -15,13 +15,13 @@ VSPAERO_OPT =  'CCFLAGS = -O3 -funroll-loops -funroll-all-loops \
          'LIBS =  '\
          'PROGRAM = $(VSPAERO_EXE)'       
 
-################################# VIEWER Code ##############################
+################################# CBVIEWER Code ##############################       
 
 VIEWER_OPT =  'CCFLAGS = -DNDEBUG -DDO_GRAPHICS -O2 -Wall -fno-exceptions  -DOCTREE_DO_GRAPHICS' \
           'LDC = g++' \
           'DEFINES = ' \
-          'INCDIRS = -I/usr/local/include -I../Libs/fltk-1.3.2 '\
-          'OBJS = '\
+          'INCDIRS = -I/usr/local/include -I../Libs/fltk-1.3.2 -I../Libs/libtiff'\
+          'OBJS = ../Libs/libtiff/*.o'\
           'LIBDIRS = -L/usr/local/lib -L/lib -L/usr/lib -L/usr/include \
                      -L../libs/fltk-3.2/lib' \
           'LIBS = ../Libs/fltk-1.3.2/lib/libfltk_gl.a -L/usr/X11R6/lib \

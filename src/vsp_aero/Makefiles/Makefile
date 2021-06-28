@@ -34,7 +34,7 @@ linux:
 	@echo '     '
 	@echo '     '
 	@echo '     '
-	
+
 linux-clang:
 	@echo '     '
 	@echo 'Updating VSPAERO for linux on intel                '
@@ -59,9 +59,9 @@ clean   :
 	@echo '     '
 	@echo ' *** Removing executables, object files... '
 	@echo '     '
-	@cd $(VSPAERO_DIR)       	     ; rm -rf *.o
-	@cd $(VIEWER_DIR)       	     ; rm -rf *.o
-	@cd ../bin           ; rm -rf $(CBAERO_EXE)      	$(CBAERO_EXE).exe      	      	
+	@cd $(VSPAERO_SOLVER_DIR)       	     ; rm -rf *.o
+	@cd $(VSPAERO_ADJOINT_DIR)       	  ; rm -rf *.o
+	@cd $(VIEWER_DIR)       	     		  ; rm -rf *.o
 	
 	
 	

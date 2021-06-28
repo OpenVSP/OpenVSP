@@ -5,9 +5,10 @@
 ################################################################################
 
 all:
-	@cd $(VSPAERO_DIR)      		; make -f MAKE_VSPAERO $(VSPAERO_OPT)
-	@cd $(VIEWER_DIR)     	 		; make -f MAKE_VIEWER  $(VIEWER_OPT)
-	@cd $(SLICER_DIR)     	 		; make -f MAKE_SLICER  $(SLICER_OPT)
+	@cd $(VSPAERO_SOLVER_DIR)      		; make -f MAKE_VSPAERO $(VSPAERO_SOLVER_OPT)
+	@cd $(VSPAERO_ADJOINT_DIR)      		; make -f MAKE_VSPAERO $(VSPAERO_ADJOINT_OPT)
+	@cd $(VIEWER_DIR)     	 				; make -f MAKE_VIEWER  $(VIEWER_OPT)
+	@cd $(SLICER_DIR)     	 				; make -f MAKE_SLICER  $(SLICER_OPT)
 	
 	@echo '     '
 	@echo '     '

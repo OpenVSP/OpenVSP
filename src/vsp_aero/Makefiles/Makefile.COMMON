@@ -1,6 +1,6 @@
 ################################################################################      
 #                                                                              #
-#                         VSPAERO Common Definitions                           #
+#                         VSPAERO Common Definitions                       #
 #                                                                              #
 # Makefile created by David Kinney                                             #
 # NASA Ames Research Center                                                    #
@@ -12,9 +12,10 @@ SHELL = /bin/sh
 
 # LOCATIONS OF SOURCE CODE
 
-VSPAERO_DIR      	= ../solver
-VIEWER_DIR      	= ../viewer
-SLICER_DIR      	= ../slicer
+VSPAERO_SOLVER_DIR      	= ../Solver/SOLVER
+VSPAERO_ADJOINT_DIR      	= ../Solver/ADJOINT
+VIEWER_DIR      	= ../Viewer
+SLICER_DIR      	= ../Slicer
 
 # WHERE THIS MAKEFILE IS LOCATED
 
@@ -22,6 +23,7 @@ EXEDIR = ./
 
 # EXECUTABLE NAMES
 
-VSPAERO_EXE      	= vspaero
-VIEWER_EXE      	= vspviewer
-SLICER_EXE		= vspslicer
+VSPAERO_SOLVER_EXE      	= vspaero
+VSPAERO_ADJOINT_EXE      	= vspaero_adjoint
+VIEWER_EXE      	= viewer
+SLICER_EXE			= slicer
