@@ -30,6 +30,8 @@ C_SRCS	=	    vspaero_viewer.C    \
 		VSP_Edge.C		\
 		VSP_Agglom.C		\
 		FEM_Node.C		\
+      Optimization_Node.C \
+		stb.C			\
                 quat.C
           
         

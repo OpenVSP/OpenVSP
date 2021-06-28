@@ -7,6 +7,10 @@
 #ifdef DO_GRAPHICS
 
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stddef.h>
 //#include "utils.H"
 
 #ifdef WIN32
@@ -14,6 +18,8 @@
 #endif
 
 #ifdef __APPLE__
+
+#include <OpenGL/glu.h>
 
 #else
 

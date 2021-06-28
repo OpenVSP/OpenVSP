@@ -311,6 +311,10 @@ void GL_VIEWER::LoadInitialData(char *name)
        
        LoadBeam3DFEMData();
        
+       // Load in ADJOINT and gradient data
+       
+      // LoadAdjointandGradients();
+       
     }
     
     // Load in the degen geometry data if it exists
@@ -777,7 +781,7 @@ void GL_VIEWER::LoadMeshData(void)
        BIO.fread(&(ControlSurface[i].HingeNode1[0]), f_size, 1, adb_file); ControlSurface[i].HingeNode1[0] -= GeometryXShift;      
        BIO.fread(&(ControlSurface[i].HingeNode1[1]), f_size, 1, adb_file); ControlSurface[i].HingeNode1[1] -= GeometryYShift;       
        BIO.fread(&(ControlSurface[i].HingeNode1[2]), f_size, 1, adb_file); ControlSurface[i].HingeNode1[2] -= GeometryZShift;            
-                        
+                       
        BIO.fread(&(ControlSurface[i].HingeNode2[0]), f_size, 1, adb_file); ControlSurface[i].HingeNode2[0] -= GeometryXShift;      
        BIO.fread(&(ControlSurface[i].HingeNode2[1]), f_size, 1, adb_file); ControlSurface[i].HingeNode2[1] -= GeometryYShift;       
        BIO.fread(&(ControlSurface[i].HingeNode2[2]), f_size, 1, adb_file); ControlSurface[i].HingeNode2[2] -= GeometryZShift;  
@@ -802,7 +806,7 @@ void GL_VIEWER::LoadMeshData(void)
        
        ControlSurface[i].DeflectionAngle = 0.;
                             
-    }     
+    }
     
     // Mark all the loops on a control surface
     
@@ -814,10 +818,12 @@ void GL_VIEWER::LoadMeshData(void)
         
     }
     
+    printf("NumberOfControlSurfaces: %d \n",NumberOfControlSurfaces);
+    
     for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
        
        for ( j = 1 ; j <= ControlSurface[i].NumberOfLoops ; j++ ) {
-
+          
           ControlSurfaceLoop[ControlSurface[i].LoopList[j]] = i;
 
        }       
@@ -1137,28 +1143,65 @@ void GL_VIEWER::LoadSolutionCaseList(void)
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::MakeMovie(void)
+void GL_VIEWER::MakeMovie(char *FileName)
 {
 
     int i;
-    char DumChar[200];
+    char DumChar[2000], Command[2000], Path[2000];
 
-    // Get the user selected case
+    // Delete any old png files
+    
+    sprintf(Command,"rm -rf ./MoviePNGFiles");
+    system(Command);
+    
+    // Create a sub directory to store all the movie files in
+    
+    sprintf(Command,"mkdir ./MoviePNGFiles");
+    system(Command);
+    
+    sprintf(Path,"./MoviePNGFiles/");
 
     for ( i = 1 ; i <= NumberOfADBCases_ ; i++ ) {
        
+       printf("Saving video frame %d of %d \r",i,NumberOfADBCases_);
+
        LoadExistingSolutionData(i);
 
        if ( !UserSetPlotLimits ) FindSolutionMinMax();
        
+       sprintf(DumChar,"%s.%d",FileName,i);
+       
        Draw();
+
+    // vui->CommentOutput->value("Test");
+      
+    // vui->CommentOutput->redraw();
+      
+    // vui->LoadSolutionCase->value(i);
+    
+    // vui->LoadSolutionCase->redraw();
+   
+    // vui->MainView->redraw();
        
-       sprintf(DumChar,"%d",i);
+    // vui->OutputPanel->redraw();
        
-       WriteTiffFile(DumChar);
+       WritePNGFile(Path,DumChar);
        
     }
-       
+    
+    // Now run ffpmeg
+    // 10 fps
+    // list of input file names
+    // video codec is libx264
+    // output file name
+    // -y means it will over write any existing (previous) file with that name
+    
+    printf("Running ffmpeg to create video \n");
+    
+    sprintf(Command,"ffmpeg -r 10 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4",Path,file_name,FileName,file_name,FileName);
+
+    system(Command);
+      
 }
 
 
@@ -1521,6 +1564,51 @@ void GL_VIEWER::LoadBeam3DFEMData(void)
 
     }    
 
+}
+
+/*##############################################################################
+#                                                                              #
+#                   GL_VIEWER LoadAdjointandGradients                          #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::LoadAdjointandGradients(void)
+{
+
+    int i, DumInt;
+    char OptFileName[2000], DumChar[2000];
+    FILE *OptFile;
+    
+    sprintf(OptFileName,"%s.gradient",file_name);
+    
+    // If an optimization solution exists... load it in
+    
+    if ( (OptFile = fopen(OptFileName,"r")) != NULL ) {
+     
+       printf("Reading in a adjoint optimization filen \n");
+       
+       fscanf(OptFile,"%d",&DumInt);
+       
+       OptimizationData_.SizeList(DumInt);
+       
+       fgets(DumChar,2000,OptFile);
+       
+       for ( i = 1 ; i <= OptimizationData_.NumberOfOptNodes() ; i++ ) {
+          
+          fscanf(OptFile,"%lf %lf %lf %lf %lf %lf \n",
+           &(OptimizationData_.x(i)),
+           &(OptimizationData_.y(i)),
+           &(OptimizationData_.z(i)),
+           &(OptimizationData_.dFdx(i)),
+           &(OptimizationData_.dFdy(i)),
+           &(OptimizationData_.dFdz(i)));
+           
+       }
+       
+       fclose(OptFile);
+       
+    }      
+    
 }
 
 /*##############################################################################
@@ -3386,9 +3474,7 @@ void GL_VIEWER::DrawWireFrame(void)
 
        SurfaceID = TriList[j].surface_id;
        
-       if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
-       if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
-       if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
+       SurfID = SurfaceID;
        
        if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
@@ -3413,7 +3499,7 @@ void GL_VIEWER::DrawWireFrame(void)
              RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
              RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
              RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
-          
+        
           }     
 
           glBegin(GL_TRIANGLES);
@@ -3672,23 +3758,90 @@ void GL_VIEWER::DrawWakes(void)
 
     NumberNodes = NumberOfSubVortexNodes_ - 1;
     
-    if ( TimeAccurate_ ) NumberNodes = NumberOfSubVortexNodes_;
+    if ( TimeAccurate_ ) NumberNodes = MAX(0, NumberOfSubVortexNodes_ - 1);
     
-    if ( DrawWakesToInfinityIsOn ) NumberNodes = NumberOfSubVortexNodes_;
+   //     if ( TimeAccurate_ ) NumberNodes = NumberOfSubVortexNodes_;
 
-    if ( 1 ) {
-             
-       for ( i = 1 ; i <= NumberOfTrailingVortexEdges_; i++ ) {
+    if ( DrawWakesToInfinityIsOn ) NumberNodes = NumberOfSubVortexNodes_;
+     
+    for ( i = 1 ; i <= NumberOfTrailingVortexEdges_; i++ ) {
+
+       SurfID = WingWake_[i];
+
+       if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
  
-          SurfID = WingWake_[i];
+          if ( DrawWakeLinesIsOn ) {
+                 
+             glBegin(GL_LINE_STRIP);
+                 
+                for ( j = 1 ; j <= NumberNodes; j++ ) {
+                   
+                   Alpha = 1.;
+                   
+                   Alpha = (float) j / (float) (NumberOfSubVortexNodes_-1);
+                   
+                   Alpha = 1. - pow(Alpha,0.5);
+                   
+                   Alpha = MAX(Alpha,0.1);
+                   
+                   rgb[0] = 0.;
+                   rgb[1] = 0.;
+                   rgb[2] = 0.;
+                   rgb[3] = Alpha;
+                       
+                   glColor4fv(rgb);
+                       
+                   if ( DrawWakesColored_ == 1 ) SetTagSurfaceColor(WingWake_[i], MaxWings_, Alpha);
+                   
+                   if ( DrawWakesColored_ == 2 ) { percent_to_rgb(SWake_[i],rgb,0); glColor4fv(rgb); };
    
-          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
-    
-             if ( DrawWakeLinesIsOn ) {
-                    
+                   vec[0] = XWake_[i][j];
+                   vec[1] = YWake_[i][j];
+                   vec[2] = ZWake_[i][j];
+                      
+                   glVertex3fv(vec);
+      
+                }
+                
+             glEnd();
+             
+          }
+          
+          if ( DrawWakePointsIsOn ) {
+             
+             rgb[0] = 0.;
+             rgb[1] = 0.;
+             rgb[2] = 0.;
+             rgb[3] = 0.5;
+         
+             glColor4fv(rgb);
+             glPointSize(2.);
+                 
+             glBegin(GL_POINTS);
+   
+                for ( j = 1 ; j <= NumberNodes; j++ ) {
+   
+                   vec[0] = XWake_[i][j];
+                   vec[1] = YWake_[i][j];
+                   vec[2] = ZWake_[i][j];
+                      
+                   glVertex3fv(vec);
+      
+                }
+                
+                glVertex3fv(vec);                
+             
+             glEnd();
+             
+          }
+                 
+          if ( DrawReflectedGeometryIsOn ) {
+   
+             if ( DrawWakeLinesIsOn ) { 
+                
                 glBegin(GL_LINE_STRIP);
-                    
-                   for ( j = 1 ; j <= NumberNodes; j++ ) {
+                 
+                for ( j = 1 ; j <= NumberNodes; j++ ) {
                       
                       Alpha = 1.;
                       
@@ -3708,15 +3861,17 @@ void GL_VIEWER::DrawWakes(void)
                       if ( DrawWakesColored_ == 1 ) SetTagSurfaceColor(WingWake_[i], MaxWings_, Alpha);
                       
                       if ( DrawWakesColored_ == 2 ) { percent_to_rgb(SWake_[i],rgb,0); glColor4fv(rgb); };
-      
+         
                       vec[0] = XWake_[i][j];
                       vec[1] = YWake_[i][j];
                       vec[2] = ZWake_[i][j];
-                         
-                      glVertex3fv(vec);
-         
-                   }
                    
+                      vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+                   
+                      glVertex3fv(vec);
+      
+                   }
+                
                 glEnd();
                 
              }
@@ -3727,10 +3882,10 @@ void GL_VIEWER::DrawWakes(void)
                 rgb[1] = 0.;
                 rgb[2] = 0.;
                 rgb[3] = 0.5;
-            
+             
                 glColor4fv(rgb);
                 glPointSize(2.);
-                    
+                                
                 glBegin(GL_POINTS);
       
                    for ( j = 1 ; j <= NumberNodes; j++ ) {
@@ -3738,6 +3893,8 @@ void GL_VIEWER::DrawWakes(void)
                       vec[0] = XWake_[i][j];
                       vec[1] = YWake_[i][j];
                       vec[2] = ZWake_[i][j];
+                      
+                      vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
                          
                       glVertex3fv(vec);
          
@@ -3747,85 +3904,12 @@ void GL_VIEWER::DrawWakes(void)
                 
                 glEnd();
                 
-             }
-                    
-             if ( DrawReflectedGeometryIsOn ) {
-      
-                if ( DrawWakeLinesIsOn ) { 
-                   
-                   glBegin(GL_LINE_STRIP);
-                    
-                   for ( j = 1 ; j <= NumberNodes; j++ ) {
-                         
-                         Alpha = 1.;
-                         
-                         Alpha = (float) j / (float) (NumberOfSubVortexNodes_-1);
-                         
-                         Alpha = 1. - pow(Alpha,0.5);
-                         
-                         Alpha = MAX(Alpha,0.1);
-                         
-                         rgb[0] = 0.;
-                         rgb[1] = 0.;
-                         rgb[2] = 0.;
-                         rgb[3] = Alpha;
-                             
-                         glColor4fv(rgb);
-                             
-                         if ( DrawWakesColored_ == 1 ) SetTagSurfaceColor(WingWake_[i], MaxWings_, Alpha);
-                         
-                         if ( DrawWakesColored_ == 2 ) { percent_to_rgb(SWake_[i],rgb,0); glColor4fv(rgb); };
-            
-                         vec[0] = XWake_[i][j];
-                         vec[1] = YWake_[i][j];
-                         vec[2] = ZWake_[i][j];
-                      
-                         vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
-                      
-                         glVertex3fv(vec);
-         
-                      }
-                   
-                   glEnd();
-                   
-                }
-                
-                if ( DrawWakePointsIsOn ) {
-                   
-                   rgb[0] = 0.;
-                   rgb[1] = 0.;
-                   rgb[2] = 0.;
-                   rgb[3] = 0.5;
-                
-                   glColor4fv(rgb);
-                   glPointSize(2.);
-                                   
-                   glBegin(GL_POINTS);
-         
-                      for ( j = 1 ; j <= NumberNodes; j++ ) {
-         
-                         vec[0] = XWake_[i][j];
-                         vec[1] = YWake_[i][j];
-                         vec[2] = ZWake_[i][j];
-                         
-                         vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
-                            
-                         glVertex3fv(vec);
-            
-                      }
-                      
-                      glVertex3fv(vec);                
-                   
-                   glEnd();
-                   
-                }                
-      
-             } 
-              
-          }  
-              
-       }
-
+             }                
+   
+          } 
+           
+       }  
+           
     }
 
     glDisable(GL_POLYGON_OFFSET_LINE);
@@ -4171,9 +4255,7 @@ void GL_VIEWER::DrawShadedSurface(void)
 
        SurfaceID = TriList[j].surface_id;
        
-       if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
-       if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
-       if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
+       SurfID = SurfaceID;
 
        if ( ComGeom2PanelTag[SurfID] != 0 &&
                  DrawComGeomTagsIsOn &&
@@ -4231,7 +4313,7 @@ void GL_VIEWER::DrawShadedSurface(void)
           vec3[2] = NodeList[node3].z;             
           
           if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
-
+ 
              RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
              RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
              RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
@@ -4719,9 +4801,7 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
 
           SurfaceID = TriList[j].surface_id;
        
-          if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
+          SurfID = SurfaceID;
                
           if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
@@ -4816,9 +4896,7 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
 
           SurfaceID = TriList[j].surface_id;
        
-          if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
+          SurfID = SurfaceID;
         
           if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
@@ -4939,10 +5017,8 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
 
           SurfaceID = TriList[j].surface_id;
        
-          if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
-            
+          SurfID = SurfaceID;
+ 
           if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
              node[0] = TriList[j].node1;
@@ -5055,9 +5131,7 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
 
           SurfaceID = TriList[j].surface_id;
        
-          if ( TriList[j].surface_type == WING_SURFACE   ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == BODY_SURFACE   ) SurfID = SurfaceID;
-          if ( TriList[j].surface_type == CART3D_SURFACE ) SurfID = SurfaceID;
+          SurfID = SurfaceID;
         
           if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
@@ -6739,14 +6813,14 @@ void GL_VIEWER::SwapSurfaceNormals(void)
 
 /*##############################################################################
 #                                                                              #
-#                          GL_VIEWER WriteTiffFile                             #
+#                          GL_VIEWER WritePNGFile                              #
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::WriteTiffFile(char *FileName)
+void GL_VIEWER::WritePNGFile(char *FileName)
 {
-#ifdef _TIFFIO_
-    int width, height;
+
+    int width, height, DumInt;
     char rgbstr[256];
 
     if ( FileName != NULL ) {
@@ -6755,29 +6829,30 @@ void GL_VIEWER::WriteTiffFile(char *FileName)
 
        flush(); glFlush ();
 
-       // Now right to tiff file
+       // Now write to png file
 
-       sprintf(rgbstr,"%s.%s.tiff",file_name,FileName);
+       sprintf(rgbstr,"%s.%s.png",file_name,FileName);
        width = w();
        height = h();
-       WriteTiff( rgbstr, "CBVIEWER", 0, 0, width, height, COMPRESSION_NONE );
+       
+       WritePNG( rgbstr, ( char * ) "VSPVIEWER", 0, 0, width, height, 0 );
 
        fflush(NULL);
 
     }
-#endif
+
 }
 
 /*##############################################################################
 #                                                                              #
-#                          GL_VIEWER WriteMovieFrame                           #
+#                          GL_VIEWER WritePNGFile                              #
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::WriteMovieFrame(char *FileName)
+void GL_VIEWER::WritePNGFile(char *Path, char *FileName)
 {
 
-    int width, height;
+    int width, height, DumInt;
     char rgbstr[256];
 
     if ( FileName != NULL ) {
@@ -6786,14 +6861,14 @@ void GL_VIEWER::WriteMovieFrame(char *FileName)
 
        flush(); glFlush ();
 
-       // Now right to tiff file
+       // Now write to png file
 
-       sprintf(rgbstr,"%s.tiff",FileName);
+       sprintf(rgbstr,"%s%s.%s.png",Path,file_name,FileName);
        width = w();
        height = h();
-#ifdef _TIFFIO_
-       WriteTiff( rgbstr, "CBVIEWER", 0, 0, width, height, COMPRESSION_NONE );
-#endif
+       
+       WritePNG( rgbstr, ( char * )"VSPVIEWER", 0, 0, width, height, 0 );
+
        fflush(NULL);
 
     }
@@ -6802,58 +6877,43 @@ void GL_VIEWER::WriteMovieFrame(char *FileName)
 
 /*##############################################################################
 #                                                                              #
-#                          GL_VIEWER WriteTiff                                 #
+#                          GL_VIEWER WritePNG                                  #
 #                                                                              #
 ##############################################################################*/
 
-int GL_VIEWER::WriteTiff(char *filename, char *description,
-                         int x, int y, int width, int height, int compression)
+int GL_VIEWER::WritePNG(char *filename, char *description,
+                        int x, int y, int width, int height, int compression)
 {
-#ifdef _TIFFIO_
-  TIFF *file;
-  GLubyte *image, *p;
-  int i;
 
-  file = TIFFOpen(filename, "w");
-  if (file == NULL) {
-    return 1;
-  }
-  image = (GLubyte *) malloc(width * height * sizeof(GLubyte) * 3);
+    GLubyte *image, *flipped_image, *SrcLine, *DestLine;
+    int i, DumInt, ScanLength;
+    
+    image = (GLubyte *) malloc(width * height * sizeof(GLubyte) * 4);
+    flipped_image = (GLubyte *) malloc(width * height * sizeof(GLubyte) * 4);
 
-  // OpenGL's default 4 byte pack alignment would leave extra bytes at the
-  // end of each image row so that each full row contained a number of bytes
-  // divisible by 4.  Ie, an RGB row with 3 pixels and 8-bit componets would
-  // be laid out like "RGBRGBRGBxxx" where the last three "xxx" bytes exist
-  // just to pad the row out to 12 bytes (12 is divisible by 4). To make sure
-  // the rows are packed as tight as possible (no row padding), set the pack
-  // alignment to 1.
-
-  glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
-  glReadPixels(x, y, width, height, GL_RGB, GL_UNSIGNED_BYTE, image);
-  TIFFSetField(file, TIFFTAG_IMAGEWIDTH, (uint32) width);
-  TIFFSetField(file, TIFFTAG_IMAGELENGTH, (uint32) height);
-  TIFFSetField(file, TIFFTAG_BITSPERSAMPLE, 8);
-  TIFFSetField(file, TIFFTAG_COMPRESSION, compression);
-  TIFFSetField(file, TIFFTAG_PHOTOMETRIC, PHOTOMETRIC_RGB);
-  TIFFSetField(file, TIFFTAG_SAMPLESPERPIXEL, 3);
-  TIFFSetField(file, TIFFTAG_PLANARCONFIG, PLANARCONFIG_CONTIG);
-  TIFFSetField(file, TIFFTAG_ROWSPERSTRIP, 1);
-  TIFFSetField(file, TIFFTAG_IMAGEDESCRIPTION, description);
-  p = image;
-  for (i = height - 1; i >= 0; i--) {
-    if (TIFFWriteScanline(file, p, i, 0) < 0) {
-      free(image); image = NULL;
-      TIFFClose(file);
-      return 1;
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    
+    glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, image);
+    
+    ScanLength = 4 * width;
+    
+    for ( i = 0 ; i < height ; i++ ) {
+       
+        SrcLine = &image[ i * ScanLength ];
+        
+       DestLine = &flipped_image[(height - i - 1) * ScanLength ];
+       
+       memcpy(  DestLine, SrcLine, ScanLength );
+       
     }
-    p += width * sizeof(GLubyte) * 3;
-  }
-  TIFFClose(file);
-  if ( image != NULL) free(image);
+    
+    DumInt = stbi_write_png(filename, width, height, 4, &flipped_image[0], width*4);
+    
+    if ( image != NULL ) free(image);
 
-#endif
-  return 0;
+    if ( flipped_image != NULL ) free(flipped_image);
+
+    return 0;
 
 }
 

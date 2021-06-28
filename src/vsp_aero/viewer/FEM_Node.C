@@ -95,6 +95,8 @@ FEM_NODE& FEM_NODE::operator=(const FEM_NODE &FEMNode)
 
     int i;
     
+    NumberOfFEMNodes_ = FEMNode.NumberOfFEMNodes_;
+    
     SizeList(NumberOfFEMNodes_);
     
     for ( i = 1 ; i <= NumberOfFEMNodes_ ; i ++ ) {

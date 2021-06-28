@@ -7,7 +7,7 @@ class viewerUI {open
   Function {viewerUI()} {open
   } {
     Fl_Window mainWindow {
-      label {VSPAERO Viewer 6.0.3} open selected
+      label {VSPAERO Viewer 6.2.0} open selected
       private xywh {735 302 1160 710} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
@@ -149,7 +149,7 @@ glviewer->redraw();}
           xywh {0 0 70 21}
         } {
           MenuItem FileMenuSaveAsTiff {
-            label {Tiff File}
+            label {PNG File}
             callback {const char *val;
 char dum[80];
 sprintf(dum,"");
@@ -157,10 +157,24 @@ val = fl_input("File Name:",dum);
 if ( val != NULL ) {
 
 sprintf(dum,"%s",val);
-glviewer->WriteTiffFile(dum);
+glviewer->WritePNGFile(dum);
 
 }}
             xywh {15 15 100 20}
+          }
+          MenuItem FileMenuSaveAsMoviePNG {
+            label {Movie File}
+            callback {const char *val;
+char dum[80];
+sprintf(dum,"");
+val = fl_input("File Name:",dum);
+if ( val != NULL ) {
+
+   sprintf(dum,"%s",val);
+   glviewer->MakeMovie(dum);
+
+}}
+            xywh {25 25 100 20}
           }
         }
         MenuItem FileMenuPickQuit {

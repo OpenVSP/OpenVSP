@@ -11,6 +11,7 @@ IF( NOT VSP_NO_GRAPHICS )
   INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${STB_INCLUDE_DIR}
     ${FLTK_INCLUDE_DIR}
   )
 
@@ -32,6 +33,7 @@ IF( NOT VSP_NO_GRAPHICS )
     VSP_Wing.C
     binaryio.C
     FEM_Node.C
+    Optimization_Node.C
     glf.C
     glviewer.C
     quat.C
@@ -56,6 +58,7 @@ IF( NOT VSP_NO_GRAPHICS )
     VSP_Wing.H
     binaryio.H
     FEM_Node.H
+    Optimization_Node.H
     glf.H
     glviewer.H
     quat.H
@@ -68,6 +71,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
   TARGET_LINK_LIBRARIES(vspviewer
     viewerscreens
+    stb_image
     ${FLTK_LIBRARIES}
     ${OPENGL_LIBRARIES}
   )

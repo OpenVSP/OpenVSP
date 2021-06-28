@@ -153,7 +153,7 @@ void TAG_LIST_GROUP::WriteFile(char *PathName, char *GeometryName)
 
     for ( i = 1 ; i <= NumberOfTagLists_; i++ ) {
 
-       fprintf(TagListGroupFile,"%s.taglist\n",
+       fprintf(TagListGroupFile,"%s.taglist %s\n",
         GeometryName,
         TagRegionListList_[i].TagListName());
 
