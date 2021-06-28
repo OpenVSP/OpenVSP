@@ -101,7 +101,7 @@ void MATPRECON::Size(int NumberOfVortexLoops)
     
     A_->size(NumberOfVortexLoops_,NumberOfVortexLoops_);
     
-    x_ = new double[NumberOfVortexLoops_ + 1];
+    x_ = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
     
     VortexLoopList_ = new int[NumberOfVortexLoops_ + 1];
 

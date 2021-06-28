@@ -16,6 +16,7 @@
 #include "VSP_Node.H"
 #include "VSP_Loop.H"
 #include "quat.H"
+#include "utils.H"
 
 #define INT_BOUNDARY_EDGE 1
 #define VLM_BOUNDARY_EDGE 2  
@@ -69,24 +70,32 @@ private:
     VSP_EDGE *Child1_;
     VSP_EDGE *Child2_;
     
-    double ReferenceLength_;
+    VSPAERO_DOUBLE ReferenceLength_;
     
     int EdgeWasUsedForLoop_;
     
     int WakeNode_;
     
-    double Sigma_;
-    double S_;
-    double T_;
-    double Length_;
-    double Forces_[3];
-    double Trefftz_Forces_[3];
-    double Unsteady_Forces_[3];
-    double InducedForces_[3];
-    double MinCoreWidth_;
-    double CoreWidth_;
-    double FreeStreamDirection_[3];
-    double FreeStreamMagnitude_;
+    VSPAERO_DOUBLE Sigma_;
+    VSPAERO_DOUBLE S_;
+    VSPAERO_DOUBLE T_;
+    VSPAERO_DOUBLE Length_;
+
+    VSPAERO_DOUBLE Forces_[3];
+    VSPAERO_DOUBLE ForcesNM1_[3];
+    VSPAERO_DOUBLE Unsteady_Forces_[3];
+    
+    VSPAERO_DOUBLE LocalForces_[3];
+    VSPAERO_DOUBLE LocalForcesNM1_[3];    
+    VSPAERO_DOUBLE Unsteady_LocalForces[3];
+    
+    VSPAERO_DOUBLE Trefftz_Forces_[3];
+    
+    VSPAERO_DOUBLE InducedForces_[3];
+    
+    VSPAERO_DOUBLE MinCoreWidth_;
+    VSPAERO_DOUBLE CoreWidth_;
+    VSPAERO_DOUBLE FreeStreamDirection_[3];
      
     // Vortex solution data
     
@@ -97,45 +106,44 @@ private:
     int DegenWing_;
     int DegenBody_;
     int Cart3DSurface_;
-    int Node_;
     int ComponentID_;
 
     // Edge nodes - true geometry (camber line, or actual)
     
-    double X1_;
-    double Y1_;
-    double Z1_;
+    VSPAERO_DOUBLE X1_;
+    VSPAERO_DOUBLE Y1_;
+    VSPAERO_DOUBLE Z1_;
     
-    double X2_;
-    double Y2_;
-    double Z2_;
+    VSPAERO_DOUBLE X2_;
+    VSPAERO_DOUBLE Y2_;
+    VSPAERO_DOUBLE Z2_;
 
     // Edge centroid
     
-    double XYZc_[3];
+    VSPAERO_DOUBLE XYZc_[3];
 
     VSP_NODE VortexCentroid_;
 
     // Edge direction vector
     
-    double Vec_[3];
-    double u_;
-    double v_;
-    double w_;
+    VSPAERO_DOUBLE Vec_[3];
+    VSPAERO_DOUBLE u_;
+    VSPAERO_DOUBLE v_;
+    VSPAERO_DOUBLE w_;
     
     // Edge Normal
     
-    double Normal_[3];
+    VSPAERO_DOUBLE Normal_[3];
     
     // Distance tolerances for velocity evaluations
    
-    double Tolerance_1_;
-    double Tolerance_2_;
-    double Tolerance_4_;
+    VSPAERO_DOUBLE Tolerance_1_;
+    VSPAERO_DOUBLE Tolerance_2_;
+    VSPAERO_DOUBLE Tolerance_4_;
     
     // Local grid spacing estimate
 
-    double LocalSpacing_;
+    VSPAERO_DOUBLE LocalSpacing_;
     
     // Mach number and Beta
     
@@ -143,27 +151,27 @@ private:
     
     static double Kappa_;
 
-    double Beta2_;
+    VSPAERO_DOUBLE Beta2_;
 
     // KT value
     
-    double KTFact_;
+    VSPAERO_DOUBLE KTFact_;
 
     // Flag dermining which loops are down wind of this vortex edge
     
     int VortexLoop1IsDownWind_;
     int VortexLoop2IsDownWind_;
     
-    double VortexLoop1DownWindWeight_;
-    double VortexLoop2DownWindWeight_;
+    VSPAERO_DOUBLE VortexLoop1DownWindWeight_;
+    VSPAERO_DOUBLE VortexLoop2DownWindWeight_;
 
     // Circulation strength
     
-    double Gamma_;
+    VSPAERO_DOUBLE Gamma_;
     
     // Edge matrix coefficients
     
-    double EdgeCoef_[2];
+    VSPAERO_DOUBLE EdgeCoef_[2];
 
     // Setup routines
     
@@ -171,21 +179,26 @@ private:
 
     // Induced velocities
     
-    void OldBoundVortex(double xyz_p[3], double q[3]);
-    void NewBoundVortex(double xyz_p[3], double q[3]);
-    double Fint(double &a, double &b, double &c, double &d, double &s);
-    double Gint(double &a, double &b, double &c, double &d, double &s);
+    void OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+    void NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+    VSPAERO_DOUBLE Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s);
+    VSPAERO_DOUBLE Gint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s);
     
-    void FindLineConicIntersection(double &Xp, double &Yp, double &Zp,
-                                   double &X1, double &Y1, double &Z1,
-                                   double &Xd, double &Yd, double &Zd,
-                                   double &t1, double &t2);    
-                                   
+    void FindLineConicIntersection(VSPAERO_DOUBLE &Xp, VSPAERO_DOUBLE &Yp, VSPAERO_DOUBLE &Zp,
+                                   VSPAERO_DOUBLE &X1, VSPAERO_DOUBLE &Y1, VSPAERO_DOUBLE &Z1,
+                                   VSPAERO_DOUBLE &Xd, VSPAERO_DOUBLE &Yd, VSPAERO_DOUBLE &Zd,
+                                   VSPAERO_DOUBLE &t1, VSPAERO_DOUBLE &t2);    
+                                                    
     // Airfoil data
 
-    double ThicknessToChord_;
-    double LocationOfMaxThickness_;
-    double RadiusToChord_;                                   
+    VSPAERO_DOUBLE ThicknessToChord_;
+    VSPAERO_DOUBLE LocationOfMaxThickness_;
+    VSPAERO_DOUBLE RadiusToChord_;            
+    
+    // Velocities
+
+    VSPAERO_DOUBLE Velocity_[3];
+    VSPAERO_DOUBLE DownWash_Velocity_[3];                                 
 
 public:
 
@@ -228,10 +241,10 @@ public:
     
     int &WakeNode(void) { return WakeNode_; };
     
-    double &Sigma(void) { return Sigma_; };
-    double &S(void) { return S_; };
-    double &T(void) { return T_; };    
-    double &Length(void) { return Length_; };
+    VSPAERO_DOUBLE &Sigma(void) { return Sigma_; };
+    VSPAERO_DOUBLE &S(void) { return S_; };
+    VSPAERO_DOUBLE &T(void) { return T_; };    
+    VSPAERO_DOUBLE &Length(void) { return Length_; };
     
     int &EdgeType(void) { return EdgeType_; };
     int &IsTrailingEdge(void) { return IsTrailingEdge_; };
@@ -250,14 +263,13 @@ public:
     VSP_EDGE &Child1(void) { return *Child1_; };
     VSP_EDGE &Child2(void) { return *Child2_; };
     
-    double &ReferenceLength(void) { return ReferenceLength_; };
+    VSPAERO_DOUBLE &ReferenceLength(void) { return ReferenceLength_; };
 
     // Accesss to Vortex edge data
 
     int &DegenWing(void) { return DegenWing_; };
     int &DegenBody(void) { return DegenBody_; };
     int &Cart3DSurface(void) { return Cart3DSurface_; };
-    int &Node(void) { return Node_; };
     int &ComponentID(void) { return ComponentID_; };
     
     // Solver routines
@@ -266,105 +278,132 @@ public:
                                
     void Update(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };
 
-    void InducedVelocity(double xyz_p[3], double q[3]);
+    void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
     
-    void InducedVelocity(double xyz_p[3], double q[3], double CoreWidth);
+    void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CoreWidth);
     
-    void CalculateForces(VSP_LOOP &VortexLoop);
-
-    void CalculateInducedForces(VSP_LOOP &VortexLoop);
+    void CalculateForces(void);
    
-    void CalculateTrefftzForces(double FreeStream[3]);
+    void CalculateTrefftzForces(VSPAERO_DOUBLE WakeInducedVelocity[3]);
 
-    double GeneralizedPrincipalPartOfDownWash(void);
+    VSPAERO_DOUBLE GeneralizedPrincipalPartOfDownWash(void);
     
-    double &MinCoreWidth(void) { return MinCoreWidth_; };
+    VSPAERO_DOUBLE &MinCoreWidth(void) { return MinCoreWidth_; };
     
     // Access to Mach number
     
-    void SetMach(double Mach);
+    void SetMach(VSPAERO_DOUBLE Mach);
 
     double Mach(void) { return Mach_; };
 
-    double &KTFact(void) { return KTFact_; };
+    VSPAERO_DOUBLE &KTFact(void) { return KTFact_; };
 
     // Down wind vortex loops
     
     int &VortexLoop1IsDownWind(void) { return VortexLoop1IsDownWind_; };
     int &VortexLoop2IsDownWind(void) { return VortexLoop2IsDownWind_; };
     
-    double &VortexLoop1DownWindWeight(void) { return VortexLoop1DownWindWeight_; };
-    double &VortexLoop2DownWindWeight(void) { return VortexLoop2DownWindWeight_; };
+    VSPAERO_DOUBLE &VortexLoop1DownWindWeight(void) { return VortexLoop1DownWindWeight_; };
+    VSPAERO_DOUBLE &VortexLoop2DownWindWeight(void) { return VortexLoop2DownWindWeight_; };
     
     // Access to the circulation strength
     
-    double &Gamma(void) { return Gamma_; };
+    VSPAERO_DOUBLE &Gamma(void) { return Gamma_; };
     
     // Access to the edge matrix coefficients
 
-    double &EdgeCoef(int i) { return EdgeCoef_[i]; };
+    VSPAERO_DOUBLE &EdgeCoef(int i) { return EdgeCoef_[i]; };
     
-    // Access to the forces
+    // Access to the total steady and unstready forces
     
-    double &Fx(void) { return Forces_[0]; };
-    double &Fy(void) { return Forces_[1]; };
-    double &Fz(void) { return Forces_[2]; };
-    
-    double &Induced_Fx(void) { return InducedForces_[0]; };
-    double &Induced_Fy(void) { return InducedForces_[1]; };
-    double &Induced_Fz(void) { return InducedForces_[2]; };
+    VSPAERO_DOUBLE &Fx(void) { return Forces_[0]; };
+    VSPAERO_DOUBLE &Fy(void) { return Forces_[1]; };
+    VSPAERO_DOUBLE &Fz(void) { return Forces_[2]; };
 
-    double &Trefftz_Fx(void) { return Trefftz_Forces_[0]; };
-    double &Trefftz_Fy(void) { return Trefftz_Forces_[1]; };
-    double &Trefftz_Fz(void) { return Trefftz_Forces_[2]; };
- 
-    double &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
-    double &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
-    double &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };    
+    VSPAERO_DOUBLE &FxNM1(void) { return ForcesNM1_[0]; };
+    VSPAERO_DOUBLE &FyNM1(void) { return ForcesNM1_[1]; };
+    VSPAERO_DOUBLE &FzNM1(void) { return ForcesNM1_[2]; };
+        
+    VSPAERO_DOUBLE &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
+    VSPAERO_DOUBLE &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
+    VSPAERO_DOUBLE &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };   
+
+    // Access to the local steady and unsteady forces
     
+    VSPAERO_DOUBLE &Local_Fx(void) { return LocalForces_[0]; };
+    VSPAERO_DOUBLE &Local_Fy(void) { return LocalForces_[1]; };
+    VSPAERO_DOUBLE &Local_Fz(void) { return LocalForces_[2]; };
+
+    VSPAERO_DOUBLE &Local_FxNM1(void) { return LocalForcesNM1_[0]; };
+    VSPAERO_DOUBLE &Local_FyNM1(void) { return LocalForcesNM1_[1]; };
+    VSPAERO_DOUBLE &Local_FzNM1(void) { return LocalForcesNM1_[2]; };
+        
+    VSPAERO_DOUBLE &Unsteady_Local_Fx(void) { return Unsteady_LocalForces[0]; };
+    VSPAERO_DOUBLE &Unsteady_Local_Fy(void) { return Unsteady_LocalForces[1]; };
+    VSPAERO_DOUBLE &Unsteady_Local_Fz(void) { return Unsteady_LocalForces[2]; };    
+      
+    // Access to the Trefftz plane (kinda) forces
+    
+    VSPAERO_DOUBLE &Trefftz_Fx(void) { return Trefftz_Forces_[0]; };
+    VSPAERO_DOUBLE &Trefftz_Fy(void) { return Trefftz_Forces_[1]; };
+    VSPAERO_DOUBLE &Trefftz_Fz(void) { return Trefftz_Forces_[2]; };
+          
     // Access to local spacing
     
-    double &LocalSpacing(void) { return LocalSpacing_; };
+    VSPAERO_DOUBLE &LocalSpacing(void) { return LocalSpacing_; };
     
     // Acess to the ends of the edge
     
-    double X1(void) { return X1_; };
-    double Y1(void) { return Y1_; };
-    double Z1(void) { return Z1_; };
+    VSPAERO_DOUBLE X1(void) { return X1_; };
+    VSPAERO_DOUBLE Y1(void) { return Y1_; };
+    VSPAERO_DOUBLE Z1(void) { return Z1_; };
     
-    double X2(void) { return X2_; };
-    double Y2(void) { return Y2_; };
-    double Z2(void) { return Z2_; };
+    VSPAERO_DOUBLE X2(void) { return X2_; };
+    VSPAERO_DOUBLE Y2(void) { return Y2_; };
+    VSPAERO_DOUBLE Z2(void) { return Z2_; };
     
     // Access to the center of the edge
     
-    double Xc(void) { return XYZc_[0]; };
-    double Yc(void) { return XYZc_[1]; };
-    double Zc(void) { return XYZc_[2]; };
+    VSPAERO_DOUBLE Xc(void) { return XYZc_[0]; };
+    VSPAERO_DOUBLE Yc(void) { return XYZc_[1]; };
+    VSPAERO_DOUBLE Zc(void) { return XYZc_[2]; };
     
-    double *xyz_c(void) { return XYZc_; };
+    VSPAERO_DOUBLE *xyz_c(void) { return XYZc_; };
     
     VSP_NODE &VortexCentroid(void) { return VortexCentroid_; };
 
     // Vortex unit vector
     
-    double *Vec(void) { return Vec_; };    
+    VSPAERO_DOUBLE *Vec(void) { return Vec_; };    
     
     // Normal
     
-    double *Normal(void) { return Normal_; };
+    VSPAERO_DOUBLE *Normal(void) { return Normal_; };
     
     // Airfoil data
     
-    double &ThicknessToChord(void) { return ThicknessToChord_; };
-    double &LocationOfMaxThickness(void ) { return LocationOfMaxThickness_; };
-    double &RadiusToChord(void) { return RadiusToChord_; };        
+    VSPAERO_DOUBLE &ThicknessToChord(void) { return ThicknessToChord_; };
+    VSPAERO_DOUBLE &LocationOfMaxThickness(void ) { return LocationOfMaxThickness_; };
+    VSPAERO_DOUBLE &RadiusToChord(void) { return RadiusToChord_; };        
 
+    // Local total velocity, includes downwash
+    
+    VSPAERO_DOUBLE &U(void) { return Velocity_[0]; };
+    VSPAERO_DOUBLE &V(void) { return Velocity_[1]; };
+    VSPAERO_DOUBLE &W(void) { return Velocity_[2]; };
+    
+    VSPAERO_DOUBLE *Velocity(void) { return Velocity_; };
+    
+    // Just the down wash velocity
+    
+    VSPAERO_DOUBLE &DownWash_U(void) { return DownWash_Velocity_[0]; };
+    VSPAERO_DOUBLE &DownWash_V(void) { return DownWash_Velocity_[1]; };
+    VSPAERO_DOUBLE &DownWash_W(void) { return DownWash_Velocity_[2]; };
+   
     // Update geometry
     
-    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
-
-
+    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+    
 };
 
 #endif

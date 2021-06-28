@@ -49,24 +49,24 @@ private:
     
     // Control surface bounding box
     
-    double u_min_, u_max_;
-    double v_min_, v_max_;
+    VSPAERO_DOUBLE u_min_, u_max_;
+    VSPAERO_DOUBLE v_min_, v_max_;
     
     // XYZ coordinates of control surface box
     
     int NumberOfNodes_;
-    double **UV_NodeList_;
-    double **XYZ_NodeList_;
+    VSPAERO_DOUBLE **UV_NodeList_;
+    VSPAERO_DOUBLE **XYZ_NodeList_;
 
     // Hinge line
     
-    double HingeNode_1_[3];
-    double HingeNode_2_[3];
-    double HingeVec_[3];
+    VSPAERO_DOUBLE HingeNode_1_[3];
+    VSPAERO_DOUBLE HingeNode_2_[3];
+    VSPAERO_DOUBLE HingeVec_[3];
     
     // Deflection Angle
     
-    double DeflectionAngle_;
+    VSPAERO_DOUBLE DeflectionAngle_;
     
 public:
 
@@ -83,10 +83,10 @@ public:
     
     // Control surface bounding box
     
-    double &u_min(void) { return u_min_; };
-    double &u_max(void) { return u_max_; };
-    double &v_min(void) { return v_min_; };
-    double &v_max(void) { return v_max_; };
+    VSPAERO_DOUBLE &u_min(void) { return u_min_; };
+    VSPAERO_DOUBLE &u_max(void) { return u_max_; };
+    VSPAERO_DOUBLE &v_min(void) { return v_min_; };
+    VSPAERO_DOUBLE &v_max(void) { return v_max_; };
     
     // Access the list of affected vortex loops
     
@@ -100,33 +100,33 @@ public:
     
     int NumberOfNodes(void) { return NumberOfNodes_; };
     
-    double *XYZ_Node(int i) { return XYZ_NodeList_[i]; };
+    VSPAERO_DOUBLE *XYZ_Node(int i) { return XYZ_NodeList_[i]; };
     
-    double &XYZ_Node_1(int i) { return XYZ_NodeList_[1][i]; };
-    double &XYZ_Node_2(int i) { return XYZ_NodeList_[2][i]; };
-    double &XYZ_Node_3(int i) { return XYZ_NodeList_[3][i]; };
-    double &XYZ_Node_4(int i) { return XYZ_NodeList_[4][i]; };
+    VSPAERO_DOUBLE &XYZ_Node_1(int i) { return XYZ_NodeList_[1][i]; };
+    VSPAERO_DOUBLE &XYZ_Node_2(int i) { return XYZ_NodeList_[2][i]; };
+    VSPAERO_DOUBLE &XYZ_Node_3(int i) { return XYZ_NodeList_[3][i]; };
+    VSPAERO_DOUBLE &XYZ_Node_4(int i) { return XYZ_NodeList_[4][i]; };
     
-    double *UV_Node(int i) { return UV_NodeList_[i]; };
+    VSPAERO_DOUBLE *UV_Node(int i) { return UV_NodeList_[i]; };
     
-    double &UV_Node_1(int i) { return UV_NodeList_[1][i]; };
-    double &UV_Node_2(int i) { return UV_NodeList_[2][i]; };
-    double &UV_Node_3(int i) { return UV_NodeList_[3][i]; };
-    double &UV_Node_4(int i) { return UV_NodeList_[4][i]; };    
+    VSPAERO_DOUBLE &UV_Node_1(int i) { return UV_NodeList_[1][i]; };
+    VSPAERO_DOUBLE &UV_Node_2(int i) { return UV_NodeList_[2][i]; };
+    VSPAERO_DOUBLE &UV_Node_3(int i) { return UV_NodeList_[3][i]; };
+    VSPAERO_DOUBLE &UV_Node_4(int i) { return UV_NodeList_[4][i]; };    
 
     // Hinge line  
     
-    double &HingeNode_1(int i) { return HingeNode_1_[i]; };
-    double &HingeNode_2(int i) { return HingeNode_2_[i]; };
-    double &HingeVec(int i) { return HingeVec_[i]; };
+    VSPAERO_DOUBLE &HingeNode_1(int i) { return HingeNode_1_[i]; };
+    VSPAERO_DOUBLE &HingeNode_2(int i) { return HingeNode_2_[i]; };
+    VSPAERO_DOUBLE &HingeVec(int i) { return HingeVec_[i]; };
     
     // Rotate a normal vector
     
-    void RotateNormal(double *Normal);
+    void RotateNormal(VSPAERO_DOUBLE *Normal);
     
     // Check to see if a tri is inside this control surface
     
-    int TriInside(double *UV);
+    int TriInside(VSPAERO_DOUBLE *UV);
     
     // Name
     
@@ -146,7 +146,7 @@ public:
     
     // Deflection angle
     
-    double &DeflectionAngle(void) { return DeflectionAngle_; };
+    VSPAERO_DOUBLE &DeflectionAngle(void) { return DeflectionAngle_; };
     
     // Control group
     

@@ -24,7 +24,7 @@ private:
     
     MATRIX *A_;
 
-    double *x_;
+    VSPAERO_DOUBLE *x_;
 
 public:
 
@@ -42,7 +42,7 @@ public:
 
     MATRIX &A(void) { return *A_; };
 
-    double &x(int i) { return x_[i]; };
+    VSPAERO_DOUBLE &x(int i) { return x_[i]; };
     
     void LU(void) { A_->LU(); };
 

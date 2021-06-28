@@ -16,6 +16,8 @@ SEARCH::SEARCH(void)
 {
 
     root_ = NULL;
+    
+    Tolerance_ = 1.e9;
 
 }
 
@@ -43,7 +45,7 @@ SEARCH::~SEARCH(void)
 SEARCH::SEARCH(const SEARCH &Search)
 {
    
-    printf("Copy not implemented for SEARCH class! \n");
+    PRINTF("Copy not implemented for SEARCH class! \n");
     exit(1);
      
 }
@@ -81,6 +83,55 @@ void SEARCH::CreateSearchTree(VORTEX_TRAIL &Trail, int NumberOfNodes)
        root_->node[i].xyz[0] = Trail.VortexEdge(i).Xc();
        root_->node[i].xyz[1] = Trail.VortexEdge(i).Yc();
        root_->node[i].xyz[2] = Trail.VortexEdge(i).Zc();  
+       
+       root_->node[i].id = i;
+
+    }
+
+    // now create the rest of the tree - this is a recursive process 
+
+    if ( root_->number_of_nodes > 8 ) create_tree_leafs(root_);
+
+}
+
+/*##############################################################################
+
+                        Function CreateSearchTree
+
+Function Description:
+
+The function creates a binary tree for searching a list of xyz points... 
+originally setup for search CFD meshes... 
+
+##############################################################################*/
+
+void SEARCH::CreateSearchTree(VSP_GRID &Grid)
+{
+
+    int i, Node1, Node2;
+    
+    leafs_ = 0;
+
+    // create and initialize the root level of the tree
+
+    root_ = new SEARCH_LEAF;
+
+    root_->sort_direction = 0;
+
+    root_->number_of_nodes = Grid.NumberOfEdges();;
+
+    root_->node = new SURFACE_NODE[root_->number_of_nodes + 1];
+
+    for ( i = 1 ; i <= Grid.NumberOfEdges() ; i++ ) {
+
+       Node1 = Grid.EdgeList(i).Node1();
+       Node2 = Grid.EdgeList(i).Node2();
+       
+       root_->node[i].xyz[0] = 0.5*( Grid.NodeList(Node1).x() + Grid.NodeList(Node2).x() );
+       root_->node[i].xyz[1] = 0.5*( Grid.NodeList(Node1).y() + Grid.NodeList(Node2).y() );
+       root_->node[i].xyz[2] = 0.5*( Grid.NodeList(Node1).z() + Grid.NodeList(Node2).z() );
+
+       root_->node[i].id = i;
 
     }
 
@@ -109,7 +160,7 @@ void SEARCH::create_tree_leafs(SEARCH_LEAF *root)
 {
 
     int i, *perm, dir, icut;
-    double Xmin, Ymin, Xmax, Ymax, Zmin, Zmax, MaxLength, Length[3];
+    VSPAERO_DOUBLE Xmin, Ymin, Xmax, Ymax, Zmin, Zmax, MaxLength, Length[3];
     SEARCH_LEAF  *left, *right;
     SURFACE_NODE *temp_node;
 
@@ -121,9 +172,39 @@ void SEARCH::create_tree_leafs(SEARCH_LEAF *root)
     
     root->right = right = NULL;
 
-    // sort direction 
+    // sort the root nodes in increasing x, y, or z direction 
 
-    dir = root->sort_direction;
+    perm = merge_sort(root);
+
+    temp_node = new SURFACE_NODE[root->number_of_nodes + 1];
+
+    for ( i = 1 ; i <= root->number_of_nodes ; i++ ) {
+
+       temp_node[perm[i]] = root->node[i];
+
+    }
+
+    // find dividing point in list for left and right leaves 
+
+    icut = root->number_of_nodes/2;
+
+    while ( ( temp_node[icut].xyz[root->sort_direction] == temp_node[icut+1].xyz[root->sort_direction] ) &&
+            icut < root->number_of_nodes ) {
+
+       icut++;
+
+    }
+
+    if ( icut == root->number_of_nodes ) {
+
+       while ( ( temp_node[icut].xyz[root->sort_direction] == temp_node[icut+1].xyz[root->sort_direction] ) &&
+               icut > 1 ) {
+
+          icut--;
+
+       }
+
+    }
 
     // find min/max 
     
@@ -148,50 +229,16 @@ void SEARCH::create_tree_leafs(SEARCH_LEAF *root)
     Length[1] = Ymax - Ymin;
     Length[2] = Zmax - Zmin;
     
-    // Sort in the max length direction
+    // Sort in the max length direction on next pass
     
     MaxLength = Length[0]; dir = 0;
   
     if ( Length[1] > MaxLength ) { MaxLength = Length[1] ; dir = 1; };
     if ( Length[2] > MaxLength ) { MaxLength = Length[2] ; dir = 2; };
-      
-    // sort the root nodes in increasing x, y, or z direction 
-
-    perm = merge_sort(root);
-
-    temp_node = new SURFACE_NODE[root->number_of_nodes + 1];
-
-    for ( i = 1 ; i <= root->number_of_nodes ; i++ ) {
-
-       temp_node[perm[i]] = root->node[i];
-
-    }
-
-    // find dividing point in list for left and right leaves 
-
-    icut = root->number_of_nodes/2;
-
-    while ( ( temp_node[icut].xyz[dir] == temp_node[icut+1].xyz[dir] ) &&
-            icut < root->number_of_nodes ) {
-
-       icut++;
-
-    }
-
-    if ( icut == root->number_of_nodes ) {
-
-       while ( ( temp_node[icut].xyz[dir] == temp_node[icut+1].xyz[dir] ) &&
-               icut > 1 ) {
-
-          icut--;
-
-       }
-
-    }
-
-    if ( icut > 1 && icut < root->number_of_nodes) {
+  
+    if ( icut > 1 && icut < root->number_of_nodes ) {
        
-       root->cut_off_value = temp_node[icut].xyz[dir];
+       root->cut_off_value = temp_node[icut].xyz[root->sort_direction];
        
        // left leaf 
        
@@ -205,7 +252,7 @@ void SEARCH::create_tree_leafs(SEARCH_LEAF *root)
    
        left->node = new SURFACE_NODE[left->number_of_nodes + 1];
    
-       for ( i = 1 ; i <= icut ; i++ ) {
+       for ( i = 1 ; i <= left->number_of_nodes ; i++ ) {
    
           left->node[i] = temp_node[i];
    
@@ -228,7 +275,7 @@ void SEARCH::create_tree_leafs(SEARCH_LEAF *root)
           right->node[i] = temp_node[icut + i];
    
        }
-       
+              
     }
 
     // free up some space 
@@ -287,7 +334,7 @@ int *SEARCH::merge_sort(SEARCH_LEAF *root)
 
     if ( list_1 == NULL || list_2 == NULL ) {
 
-       printf("Memory allocation failed in merge_sort! \n");
+       PRINTF("Memory allocation failed in merge_sort! \n");
 
        exit(1);
 
@@ -377,7 +424,7 @@ void SEARCH::merge_lists(int *list_1, int *list_2, int list_length, SEARCH_LEAF 
     int   list_1_front, list_1_end;
     int   list_2_front, list_2_end;
     int   new_list_front, i;
-    float x_1, x_2;
+    VSPAERO_DOUBLE x_1, x_2;
 
     // front position of new permutation vector 
 
@@ -511,7 +558,7 @@ Coded By: David J. Kinney
 int SEARCH::SearchTree_(SEARCH_LEAF *root, TEST_NODE &node)
 {
 
-    float ds;
+    VSPAERO_DOUBLE ds;
 
     // Don't search a NULL list 
 
@@ -531,7 +578,7 @@ int SEARCH::SearchTree_(SEARCH_LEAF *root, TEST_NODE &node)
 
        ds = SQR(node.xyz[root->sort_direction] - root->cut_off_value);
 
-       if ( ds <= node.distance ) {
+       if ( ds <= node.distance || node.xyz[root->sort_direction] == root->cut_off_value ) {
 
           SearchTree_(root->right,node);
 
@@ -545,7 +592,7 @@ int SEARCH::SearchTree_(SEARCH_LEAF *root, TEST_NODE &node)
 
        ds = SQR(node.xyz[root->sort_direction] - root->cut_off_value);
 
-       if ( ds <= node.distance ) {
+       if ( ds <= node.distance || node.xyz[root->sort_direction] == root->cut_off_value ) {
 
           SearchTree_(root->left,node);
 
@@ -601,7 +648,7 @@ Coded By: David J. Kinney
 void SEARCH::test_node(SURFACE_NODE &snode, TEST_NODE &tnode)
 {
 
-    double a_dist;
+    VSPAERO_DOUBLE a_dist;
 
     // get absolute distance 
 
@@ -612,6 +659,8 @@ void SEARCH::test_node(SURFACE_NODE &snode, TEST_NODE &tnode)
     if ( a_dist <= tnode.distance ) {
 
        tnode.distance = a_dist;
+       
+       tnode.id = snode.id;
 
        tnode.found = 1;
 

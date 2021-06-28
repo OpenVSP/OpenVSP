@@ -70,17 +70,17 @@ void FEM_NODE::SizeList(int NumberOfFEMNodes)
     if ( delta_phiz_ != NULL ) delete [] delta_phiz_;
     
     
-    x_ = new double[NumberOfFEMNodes_ + 1];
-    y_ = new double[NumberOfFEMNodes_ + 1];     
-    z_ = new double[NumberOfFEMNodes_ + 1];     
+    x_ = new VSPAERO_DOUBLE[NumberOfFEMNodes_ + 1];
+    y_ = new VSPAERO_DOUBLE[NumberOfFEMNodes_ + 1];     
+    z_ = new VSPAERO_DOUBLE[NumberOfFEMNodes_ + 1];     
                 
-    delta_xv_ = new double[NumberOfFEMNodes_ + 1];  
-    delta_yv_ = new double[NumberOfFEMNodes_ + 1];  
-    delta_zv_ = new double[NumberOfFEMNodes_ + 1];   
+    delta_xv_ = new VSPAERO_DOUBLE[NumberOfFEMNodes_ + 1];  
+    delta_yv_ = new VSPAERO_DOUBLE[NumberOfFEMNodes_ + 1];  
+    delta_zv_ = new VSPAERO_DOUBLE[NumberOfFEMNodes_ + 1];   
     
-    delta_phix_ = new double[NumberOfFEMNodes_ + 1]; 
-    delta_phiy_ = new double[NumberOfFEMNodes_ + 1]; 
-    delta_phiz_ = new double[NumberOfFEMNodes_ + 1];
+    delta_phix_ = new VSPAERO_DOUBLE[NumberOfFEMNodes_ + 1]; 
+    delta_phiy_ = new VSPAERO_DOUBLE[NumberOfFEMNodes_ + 1]; 
+    delta_phiz_ = new VSPAERO_DOUBLE[NumberOfFEMNodes_ + 1];
     
 }
 
@@ -146,7 +146,7 @@ FEM_NODE::~FEM_NODE(void)
 #                                                                              #
 ##############################################################################*/
 
-double FEM_NODE::x(double s) 
+VSPAERO_DOUBLE FEM_NODE::x(VSPAERO_DOUBLE s) 
 {
    
    return InterpolateFunction_(y_, x_, s);
@@ -159,7 +159,7 @@ double FEM_NODE::x(double s)
 #                                                                              #
 ##############################################################################*/
 
-double FEM_NODE::z(double s) 
+VSPAERO_DOUBLE FEM_NODE::z(VSPAERO_DOUBLE s) 
 {
    
    return InterpolateFunction_(y_, z_, s);
@@ -172,7 +172,7 @@ double FEM_NODE::z(double s)
 #                                                                              #
 ##############################################################################*/
 
-double FEM_NODE::delta_xv(double s) 
+VSPAERO_DOUBLE FEM_NODE::delta_xv(VSPAERO_DOUBLE s) 
 {
    
    return InterpolateFunction_(y_, delta_xv_, s);
@@ -185,7 +185,7 @@ double FEM_NODE::delta_xv(double s)
 #                                                                              #
 ##############################################################################*/
 
-double FEM_NODE::delta_yv(double s) 
+VSPAERO_DOUBLE FEM_NODE::delta_yv(VSPAERO_DOUBLE s) 
 {
    
    return InterpolateFunction_(y_, delta_yv_, s);
@@ -198,7 +198,7 @@ double FEM_NODE::delta_yv(double s)
 #                                                                              #
 ##############################################################################*/
 
-double FEM_NODE::delta_zv(double s) 
+VSPAERO_DOUBLE FEM_NODE::delta_zv(VSPAERO_DOUBLE s) 
 {
    
    return InterpolateFunction_(y_, delta_zv_, s);
@@ -211,7 +211,7 @@ double FEM_NODE::delta_zv(double s)
 #                                                                              #
 ##############################################################################*/
 
-double FEM_NODE::delta_phix(double s) 
+VSPAERO_DOUBLE FEM_NODE::delta_phix(VSPAERO_DOUBLE s) 
 {
    
    return InterpolateFunction_(y_, delta_phix_, s);
@@ -224,7 +224,7 @@ double FEM_NODE::delta_phix(double s)
 #                                                                              #
 ##############################################################################*/
 
-double FEM_NODE::delta_phiy(double s) 
+VSPAERO_DOUBLE FEM_NODE::delta_phiy(VSPAERO_DOUBLE s) 
 {
    
    return InterpolateFunction_(y_, delta_phiy_, s);
@@ -237,7 +237,7 @@ double FEM_NODE::delta_phiy(double s)
 #                                                                              #
 ##############################################################################*/
 
-double FEM_NODE::delta_phiz(double s) 
+VSPAERO_DOUBLE FEM_NODE::delta_phiz(VSPAERO_DOUBLE s) 
 {
    
    return InterpolateFunction_(y_, delta_phiz_, s);
@@ -250,11 +250,11 @@ double FEM_NODE::delta_phiz(double s)
 #                                                                              #
 ##############################################################################*/
 
-double FEM_NODE::InterpolateFunction_(double *x, double *f, double s) 
+VSPAERO_DOUBLE FEM_NODE::InterpolateFunction_(VSPAERO_DOUBLE *x, VSPAERO_DOUBLE *f, VSPAERO_DOUBLE s) 
 {
    
    int i;
-   double m;
+   VSPAERO_DOUBLE m;
    
    // S below lower bound
    
@@ -292,7 +292,7 @@ double FEM_NODE::InterpolateFunction_(double *x, double *f, double s)
       
    }
    
-   printf("How did I get here! \n");fflush(NULL);
+   PRINTF("How did I get here! \n");fflush(NULL);
    exit(1);
    
 }   

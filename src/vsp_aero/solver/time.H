@@ -15,5 +15,6 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include "utils.H"
 
-double myclock(void);
+VSPAERO_DOUBLE myclock(void);

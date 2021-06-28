@@ -53,25 +53,24 @@ C_OBJS		= $(C_SRCS:.C=.o)
 
 all:	msg1 $(C_OBJS) 
 	@echo " "
-	@echo " "
 	@rm -rf ../bin/$(PROGRAM)
 	@rm -rf ../bin/$(PROGRAM).exe
-	$(LDC) $(CCFLAGS) $(INCDIRS) $(LIBDIRS) $(C_OBJS) $(F_OBJS) $(OBJS) $(LIBS) -o ../bin/$(PROGRAM)
+	$(LDC) $(CCFLAGS) $(INCDIRS) $(LIBDIRS) $(C_OBJS) $(F_OBJS) $(OBJS) $(LIBS) -o ../../bin/$(PROGRAM)
 
 msg1:
 	@echo " "
 	@echo " "
-	@echo  "Compiling VSPAERO code"
+	@echo  "Compiling VSPAERO SOLVER code"
 
 msg2:
 	@echo " "
 	@echo " "
-	@echo  "Final link to create VSPAERO executable..."
+	@echo  "Final link to create VSPAERO SOLVER executable..."
 
+.C.o:
+		$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $^ -o $@
 
-%.o: %.C
-		$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $*.C
-
+#%.o: %.C
 #.C.o:
 #		@$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $*.C
 #		@$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $*.C -o OBJECTS/$*.o

@@ -12,6 +12,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include "utils.H"
 
 // Definition of the FEM_NODE class
 
@@ -23,17 +24,17 @@ private:
     
     int NumberOfFEMNodes_;
 
-    double *x_;
-    double *y_;         
-    double *z_;
-    double *delta_xv_;
-    double *delta_yv_;
-    double *delta_zv_; 
-    double *delta_phix_; 
-    double *delta_phiy_; 
-    double *delta_phiz_;
+    VSPAERO_DOUBLE *x_;
+    VSPAERO_DOUBLE *y_;         
+    VSPAERO_DOUBLE *z_;
+    VSPAERO_DOUBLE *delta_xv_;
+    VSPAERO_DOUBLE *delta_yv_;
+    VSPAERO_DOUBLE *delta_zv_; 
+    VSPAERO_DOUBLE *delta_phix_; 
+    VSPAERO_DOUBLE *delta_phiy_; 
+    VSPAERO_DOUBLE *delta_phiz_;
     
-    double InterpolateFunction_(double *x, double *f, double s);
+    VSPAERO_DOUBLE InterpolateFunction_(VSPAERO_DOUBLE *x, VSPAERO_DOUBLE *f, VSPAERO_DOUBLE s);
 
 public:
 
@@ -52,28 +53,28 @@ public:
     
     int NumberOfFEMNodes(void) { return NumberOfFEMNodes_; };
 
-    double &x(int i) { return x_[i]; };
-    double &y(int i) { return y_[i]; };
-    double &z(int i) { return z_[i]; };
+    VSPAERO_DOUBLE &x(int i) { return x_[i]; };
+    VSPAERO_DOUBLE &y(int i) { return y_[i]; };
+    VSPAERO_DOUBLE &z(int i) { return z_[i]; };
 
-    double &delta_xv(int i) { return delta_xv_[i]; };
-    double &delta_yv(int i) { return delta_yv_[i]; };
-    double &delta_zv(int i) { return delta_zv_[i]; };
+    VSPAERO_DOUBLE &delta_xv(int i) { return delta_xv_[i]; };
+    VSPAERO_DOUBLE &delta_yv(int i) { return delta_yv_[i]; };
+    VSPAERO_DOUBLE &delta_zv(int i) { return delta_zv_[i]; };
     
-    double &delta_phix(int i) { return delta_phix_[i]; };
-    double &delta_phiy(int i) { return delta_phiy_[i]; };
-    double &delta_phiz(int i) { return delta_phiz_[i]; };    
+    VSPAERO_DOUBLE &delta_phix(int i) { return delta_phix_[i]; };
+    VSPAERO_DOUBLE &delta_phiy(int i) { return delta_phiy_[i]; };
+    VSPAERO_DOUBLE &delta_phiz(int i) { return delta_phiz_[i]; };    
     
-    double x(double s);
-    double z(double s);
+    VSPAERO_DOUBLE x(VSPAERO_DOUBLE s);
+    VSPAERO_DOUBLE z(VSPAERO_DOUBLE s);
     
-    double delta_xv(double s);
-    double delta_yv(double s);
-    double delta_zv(double s);
+    VSPAERO_DOUBLE delta_xv(VSPAERO_DOUBLE s);
+    VSPAERO_DOUBLE delta_yv(VSPAERO_DOUBLE s);
+    VSPAERO_DOUBLE delta_zv(VSPAERO_DOUBLE s);
     
-    double delta_phix(double s);
-    double delta_phiy(double s);
-    double delta_phiz(double s);
+    VSPAERO_DOUBLE delta_phix(VSPAERO_DOUBLE s);
+    VSPAERO_DOUBLE delta_phiy(VSPAERO_DOUBLE s);
+    VSPAERO_DOUBLE delta_phiz(VSPAERO_DOUBLE s);
     
 };
 

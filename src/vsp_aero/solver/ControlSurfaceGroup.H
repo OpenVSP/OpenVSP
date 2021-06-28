@@ -32,11 +32,11 @@ private:
     
     // Control surface deflection sign
     
-    double *ControlSurface_DeflectionDirection_;
+    VSPAERO_DOUBLE *ControlSurface_DeflectionDirection_;
     
     // Control surface deflection
     
-    double ControlSurface_DeflectionAngle_;
+    VSPAERO_DOUBLE ControlSurface_DeflectionAngle_;
     
 public:
 
@@ -65,11 +65,11 @@ public:
     
     // Control surface deflection sign
     
-    double &ControlSurface_DeflectionDirection(int i) { return ControlSurface_DeflectionDirection_[i]; };
+    VSPAERO_DOUBLE &ControlSurface_DeflectionDirection(int i) { return ControlSurface_DeflectionDirection_[i]; };
     
     // Control surface deflection angle
     
-    double &ControlSurface_DeflectionAngle(void) { return ControlSurface_DeflectionAngle_; };
+    VSPAERO_DOUBLE &ControlSurface_DeflectionAngle(void) { return ControlSurface_DeflectionAngle_; };
     
 };
 

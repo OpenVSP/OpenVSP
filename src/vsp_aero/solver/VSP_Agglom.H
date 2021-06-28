@@ -17,6 +17,7 @@
 #include "VSP_Loop.H"
 #include "VSP_Grid.H"
 #include "VSP_Surface.H"
+#include "Search.H"
 
 #define CORNER_BC        1
 #define TE_EDGE_BC       2
@@ -67,8 +68,8 @@ private:
     int NumberOfEdgesInQueue_;
     int NextBestEdgeOnFront_;
     
-    double GoodQuadAngle_;
-    double WorstQuadAngle_;
+    VSPAERO_DOUBLE GoodQuadAngle_;
+    VSPAERO_DOUBLE WorstQuadAngle_;
     
     // Scratch arrays
     
@@ -76,6 +77,10 @@ private:
     int *DidThisLoop_;
     int *LoopListStack_;
     int StackSize_;
+    
+    // Fast search data structure
+    
+    SEARCH *Search_;
 
     // Agglomeration Routines
     
@@ -84,6 +89,8 @@ private:
     int *NodeOnSurfaceBorder_;
    
     void InitializeFront_(void);
+    
+    int FindMatchingSymmetryEdge_(int Edge);
     
     int NextAgglomerationEdge_(void);
 
@@ -132,22 +139,22 @@ private:
     void FindNeighborLoopOnEdge_(VSP_GRID &ThisGrid, int Tri, int Edge, 
                                  int &NeighborTri, int &Node1, int &Node2);
 
-    double CalculateQuadQuality_(VSP_GRID &ThisGrid, int Node1,
+    VSPAERO_DOUBLE CalculateQuadQuality_(VSP_GRID &ThisGrid, int Node1,
                                  int Node2, int Node3, int Node4);    
                                  
     int BadTriangle_(VSP_GRID &ThisGrid, int Loop, int &MinEdge);
     
     int BadQuad_(VSP_GRID &ThisGrid, int Loop, int LoopList[2]);
     
-    double CalculateAspectRatioOld_(VSP_GRID &ThisGrid, int Loop);
+    VSPAERO_DOUBLE CalculateAspectRatioOld_(VSP_GRID &ThisGrid, int Loop);
     
-    int LoopsAreCoplanar_(VSP_GRID &ThisGrid, int Loop1, int Loop2, double MaxAngle);
+    int LoopsAreCoplanar_(VSP_GRID &ThisGrid, int Loop1, int Loop2, VSPAERO_DOUBLE MaxAngle);
     
-    int EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, double MaxAngle);
+    int EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPAERO_DOUBLE MaxAngle);
 
-    int MergedLoopsAreConvex_(VSP_GRID &ThisGrid, int Loop1, int Loop2, double MaxAngle);
+    int MergedLoopsAreConvex_(VSP_GRID &ThisGrid, int Loop1, int Loop2, VSPAERO_DOUBLE MaxAngle);
     
-    double CalculateLoopAngle_(VSP_GRID &ThisGrid, int Loop, int Node);
+    VSPAERO_DOUBLE CalculateLoopAngle_(VSP_GRID &ThisGrid, int Loop, int Node);
                                   
     // Initialization
     

@@ -4,6 +4,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+
 #ifndef UTILS_H
 #define UTILS_H
 
@@ -13,6 +14,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <assert.h>
+#include "VSPAERO_TYPES.H"
 
 // Some common asserts
 
@@ -24,78 +26,71 @@
 
 struct bounding_box
 {
-    double x_min;
-    double x_max;
-    double y_min;
-    double y_max;
-    double z_min;
-    double z_max;
+    VSPAERO_DOUBLE x_min;
+    VSPAERO_DOUBLE x_max;
+    VSPAERO_DOUBLE y_min;
+    VSPAERO_DOUBLE y_max;
+    VSPAERO_DOUBLE z_min;
+    VSPAERO_DOUBLE z_max;
     
-    double Length_Squared;
+    VSPAERO_DOUBLE Length_Squared;
 };
 
 typedef struct bounding_box BBOX;
 
 // Some common utilities
 
-void vector_cross(float *vec1, float *vec2, float *cross);
-void vector_cross(double *vec1, double *vec2, double *cross);
-void vector_cross(long double *vec1, long double *vec2, long double *cross);
+void vector_cross(VSPAERO_DOUBLE *vec1, VSPAERO_DOUBLE *vec2, VSPAERO_DOUBLE *cross);
 
-float vector_dot(float *vec1, float *vec2);
-double vector_dot(double *vec1, double *vec2);
-long double vector_dot(long double *vec1, long double *vec2);
+VSPAERO_DOUBLE vector_dot(VSPAERO_DOUBLE *vec1, VSPAERO_DOUBLE *vec2);
 
 void zero_int_array(int *array, int size);
-void zero_float_array(float *array, int size);
-void zero_double_array(double *array, int size);
+void zero_double_array(VSPAERO_DOUBLE *array, int size);
 
 void zero_array(int *array, int size);
-void zero_array(float *array, int size);
-void zero_array(double *array, int size);
-void zero_array(long double *array, int size);
+void zero_array(VSPAERO_DOUBLE *array, int size);
 
 int* resize_int_array(int *array, int size, int new_size);
-float* resize_float_array(float *array, int size, int new_size);
-double* resize_double_array(double *array, int size, int new_size);
+VSPAERO_DOUBLE* resize_double_array(VSPAERO_DOUBLE *array, int size, int new_size);
 
-void in_sphere(float xyz[4][3], float xyz_in[3], float &radius_in);
-void circ_sphere(float xyz[4][3], float xyz_out[3], float &radius_out);
-void get_normals(float xyz[4][3], float normals[4][3]);
-void determinant(float mat[4][4], float *det_matrix);
+void in_sphere(VSPAERO_DOUBLE xyz[4][3], VSPAERO_DOUBLE xyz_in[3], VSPAERO_DOUBLE &radius_in);
+void circ_sphere(VSPAERO_DOUBLE xyz[4][3], VSPAERO_DOUBLE xyz_out[3], VSPAERO_DOUBLE &radius_out);
+void get_normals(VSPAERO_DOUBLE xyz[4][3], VSPAERO_DOUBLE normals[4][3]);
+void determinant(VSPAERO_DOUBLE mat[4][4], VSPAERO_DOUBLE *det_matrix);
 
-int tri_seg_int(float *p1, float *p2, float *p3, float *p4, float *p5, float *tt,
-                float *uu, float *ww);
+int tri_seg_int(VSPAERO_DOUBLE *p1, VSPAERO_DOUBLE *p2, VSPAERO_DOUBLE *p3, VSPAERO_DOUBLE *p4, VSPAERO_DOUBLE *p5,
+                VSPAERO_DOUBLE *tt, VSPAERO_DOUBLE *uu, VSPAERO_DOUBLE *ww);
 
-int tri_seg_int(double *p1, double *p2, double *p3, double *p4, double *p5,
-                double *tt, double *uu, double *ww);
-
-int prl_seg_int(float *p1, float *p2, float *p3, float *p4, float *p5, float *tt,
-                float *uu, float *ww);
+int prl_seg_int(VSPAERO_DOUBLE *p1, VSPAERO_DOUBLE *p2, VSPAERO_DOUBLE *p3, VSPAERO_DOUBLE *p4, VSPAERO_DOUBLE *p5, VSPAERO_DOUBLE *tt,
+                VSPAERO_DOUBLE *uu, VSPAERO_DOUBLE *ww);
 
 int compare_boxes(BBOX &box1, BBOX &box2);
 
-int inside_box(BBOX &box, double xyz[3]);
+int inside_box(BBOX &box, VSPAERO_DOUBLE xyz[3]);
 
-double calculate_box_overlap(BBOX &box1, BBOX &box2);
+VSPAERO_DOUBLE calculate_box_overlap(BBOX &box1, BBOX &box2);
 
-double box_distance_ratio(BBOX &box, double xyz[3]);
+VSPAERO_DOUBLE box_distance_ratio(BBOX &box, VSPAERO_DOUBLE xyz[3]);
 
 void box_calculate_size(BBOX &box);
 
-int lines_intersect(float *u, float *v, float *p, float *q, float &t1, float &t2,
-                    float &ds1, float &ds2 );
+int lines_intersect(VSPAERO_DOUBLE *u, VSPAERO_DOUBLE *v, VSPAERO_DOUBLE *p, VSPAERO_DOUBLE *q, VSPAERO_DOUBLE &t1, VSPAERO_DOUBLE &t2,
+                    VSPAERO_DOUBLE &ds1, VSPAERO_DOUBLE &ds2 );
 
-int asearch(float value, const float * array, int dim, float &sa, int &bound);
-float conesa(const float &mach, const float &cone_angle) ;
+int asearch(VSPAERO_DOUBLE value, const VSPAERO_DOUBLE * array, int dim, VSPAERO_DOUBLE &sa, int &bound);
+VSPAERO_DOUBLE conesa(const VSPAERO_DOUBLE &mach, const VSPAERO_DOUBLE &cone_angle) ;
 
-int Intersect2DLines(float *u, float *v, float *p, float *q, float Epsilson);
-int Intersect2DLines(float *u, float *v, float *p, float *q, float &t1, float &t2);
-int CheckIfInsideTri(float *x, float *y, float *p, float Eps);
+int Intersect2DLines(VSPAERO_DOUBLE *u, VSPAERO_DOUBLE *v, VSPAERO_DOUBLE *p, VSPAERO_DOUBLE *q, VSPAERO_DOUBLE Epsilson);
+int CheckIfInsideTri(VSPAERO_DOUBLE *x, VSPAERO_DOUBLE *y, VSPAERO_DOUBLE *p, VSPAERO_DOUBLE Eps);
 
-int Intersect2DLines(double *u, double *v, double *p, double *q, double Epsilson);
-int Intersect2DLines(double *u, double *v, double *p, double *q, double &t1, double &t2);
-int CheckIfInsideTri(double *x, double *y, double *p, double Eps);
+int Intersect2DLines(VSPAERO_DOUBLE *u, VSPAERO_DOUBLE *v, VSPAERO_DOUBLE *p, VSPAERO_DOUBLE *q, VSPAERO_DOUBLE Epsilson);
+int CheckIfInsideTri(VSPAERO_DOUBLE *x, VSPAERO_DOUBLE *y, VSPAERO_DOUBLE *p, VSPAERO_DOUBLE Eps);
+
+int PointIsBetweenPlanes(VSPAERO_DOUBLE *Plane_1_Normal, VSPAERO_DOUBLE *Plane_1_Point,
+                         VSPAERO_DOUBLE *Plane_2_Normal, VSPAERO_DOUBLE *Plane_2_Point,
+                         VSPAERO_DOUBLE *Point);
+VSPAERO_DOUBLE PointIsOnRightSideOfPlane(VSPAERO_DOUBLE *PlaneNormal, VSPAERO_DOUBLE *PlanePoint, VSPAERO_DOUBLE *Point);
+int PlaneSegmentIntersection(VSPAERO_DOUBLE *PlaneNormal, VSPAERO_DOUBLE *PlanePoint, VSPAERO_DOUBLE *LinePoint_1, VSPAERO_DOUBLE *LinePoint_2, VSPAERO_DOUBLE &s);
 
 // Some commonly used math operations and fixed constants
 
@@ -103,43 +98,27 @@ int CheckIfInsideTri(double *x, double *y, double *p, double Eps);
 #define PI 3.141592
 #endif
 
-#define ABS(a)   ( (a)<0 ? -(a) : (a) )
+int ABS(int a);
 
-#define SQR(a) ( (a)*(a) )
+VSPAERO_DOUBLE ABS(VSPAERO_DOUBLE a);
 
-#define SGN(a) ( (a)<0 ? (-1) : (1) )
+VSPAERO_DOUBLE SQR(VSPAERO_DOUBLE a);
 
-#define MIN(a,b) ( (a)<=(b) ? (a) : (b) )
-#define MAX(a,b) ( (a)>=(b) ? (a) : (b) )
+int SGN(int a);
 
-#define MIN3(a,b,c) ( MIN( MIN( (a),(b) ) , (c) ) )
-#define MAX3(a,b,c) ( MAX( MAX( (a),(b) ) , (c) ) )
+VSPAERO_DOUBLE SGN(VSPAERO_DOUBLE a);
 
-#define MIN4(a,b,c,d) ( MIN( MIN( (a),(b) ) , MIN( (c),(d) ) ) )
-#define MAX4(a,b,c,d) ( MAX( MAX( (a),(b) ) , MAX( (c),(d) ) ) )
+int MIN(int a, int b);
+int MAX(int a, int b);
 
-#define MIN5(a,b,c,d,e) ( MIN( MIN( MIN((a),(b)) , MIN((c),(d)) ), (e) ) )
-#define MAX5(a,b,c,d,e) ( MAX( MAX( MAX((a),(b)) , MAX((c),(d)) ), (e) ) )
+VSPAERO_DOUBLE MIN(VSPAERO_DOUBLE a, VSPAERO_DOUBLE b);
+VSPAERO_DOUBLE MAX(VSPAERO_DOUBLE a, VSPAERO_DOUBLE b);
 
-#define MIN6(a,b,c,d,e,f) ( MIN( MIN( MIN( MIN((a),(b)) , MIN((c),(d)) ), (e) ), (f) ) )
-#define MAX6(a,b,c,d,e,f) ( MAX( MAX( MAX( MAX((a),(b)) , MAX((c),(d)) ), (e) ), (f) ) )
+int MIN3(int a, int b, int c);
+int MAX3(int a, int b, int c);
 
-#define PASS(a) ( (a)>0 ? 1 : 0 )
-
-#define THREE(a) ( (a)*(a)*(a)             )
-
-#define FOUR(a)  ( (a)*(a)*(a)*(a)         )
-
-#define FIVE(a)  ( (a)*(a)*(a)*(a)*(a)     )
-
-#define SIX(a)   ( (a)*(a)*(a)*(a)*(a)*(a) )
-
-#define CUBE(a)  ( (a)*(a)*(a)             )
-
-#define CONSTANT_PT 1
-#define CONSTANT_PH 2
-#define CONSTANT_PS 3
-#define CONSTANT_HS 4
+VSPAERO_DOUBLE MIN3(VSPAERO_DOUBLE a, VSPAERO_DOUBLE b, VSPAERO_DOUBLE c);
+VSPAERO_DOUBLE MAX3(VSPAERO_DOUBLE a, VSPAERO_DOUBLE b, VSPAERO_DOUBLE c);
 
 #include "matrix.H"
 

@@ -13,6 +13,7 @@
 #include <math.h>
 #include <assert.h>
 #include "matrix.H"
+#include "utils.H"
 
 // Definition of the GRADIENT class
 
@@ -33,9 +34,9 @@ private:
     MATRIX AA_;
     MATRIX At_;
     
-    double *x_;
-    double *b_;
-    double Gradient_[3];
+    VSPAERO_DOUBLE *x_;
+    VSPAERO_DOUBLE *b_;
+    VSPAERO_DOUBLE Gradient_[3];
 
 public:
 
@@ -60,16 +61,16 @@ public:
     
     int &LoopList(int i) { return LoopList_[i]; };
  
-    double &dv_dx(void) { return Gradient_[0]; };
-    double &dv_dy(void) { return Gradient_[1]; };
-    double &dv_dz(void) { return Gradient_[2]; };
+    VSPAERO_DOUBLE &dv_dx(void) { return Gradient_[0]; };
+    VSPAERO_DOUBLE &dv_dy(void) { return Gradient_[1]; };
+    VSPAERO_DOUBLE &dv_dz(void) { return Gradient_[2]; };
     
-    double *Vector(void) { return Gradient_; };
+    VSPAERO_DOUBLE *Vector(void) { return Gradient_; };
 
     MATRIX &At(void) { return At_; };
     MATRIX &AA(void) { return AA_; };
     
-    double &b(int i) { return b_[i]; };
+    VSPAERO_DOUBLE &b(int i) { return b_[i]; };
     
     void LU(void) { AA_.LU(); };
     void Solve(void);

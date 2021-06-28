@@ -18,6 +18,7 @@ void VSP_AGGLOM::Initialize_(void)
 
     FineGrid_ = NULL;
     CoarseGrid_ = NULL;
+    Search_ = NULL;
  
     // Agglomeration data
     
@@ -101,7 +102,7 @@ VSP_AGGLOM::VSP_AGGLOM(const VSP_AGGLOM &agglom)
 
     // Not implemented!
     
-    printf("Copying of agglom objects not implemented! \n");
+    PRINTF("Copying of agglom objects not implemented! \n");
     
 }
 
@@ -124,13 +125,19 @@ VSP_GRID* VSP_AGGLOM::SimplifyMesh_(VSP_GRID &Grid)
     
  //   FineGrid_ = DeleteDuplicateNodes_(*FineGrid_);
 
+    // Create fast search of edge list
+    
+    Search_ = new SEARCH;
+
+    Search_->CreateSearchTree(FineGrid());
+        
     // Initialize the front
     
     InitializeFront_();    
     
     // Merge bad cells together to get rid of slivers
   
-    if ( FineGrid().SurfaceType() == CART3D_SURFACE ) CleanUpMesh_();
+    if ( FineGrid().SurfaceType() == CART3D_SURFACE || FineGrid().SurfaceType() == VSPGEOM_SURFACE ) CleanUpMesh_();
 
     // Merge as many tris into quads as possible
    
@@ -144,6 +151,10 @@ VSP_GRID* VSP_AGGLOM::SimplifyMesh_(VSP_GRID &Grid)
 
     CheckMesh_(CoarseGrid());
 
+    // Delete up the search tree
+    
+    delete Search_;
+    
     // Return pointer to the coarse mesh
       
     return CoarseGrid_;
@@ -164,12 +175,18 @@ VSP_GRID* VSP_AGGLOM::MergeHighAspectRatioQuads_(VSP_GRID &Grid)
     FineGrid_ = &Grid;
     
     CheckMesh_(FineGrid());
-   
+
+    // Create fast search of edge list
+    
+    Search_ = new SEARCH;
+
+    Search_->CreateSearchTree(FineGrid());
+       
     // Initialize the front
     
     InitializeFront_();    
     
-    if ( FineGrid().SurfaceType() == CART3D_SURFACE ) CleanUpHighAspectRatioQuads_();
+    if ( FineGrid().SurfaceType() == CART3D_SURFACE || FineGrid().SurfaceType() == VSPGEOM_SURFACE ) CleanUpHighAspectRatioQuads_();
 
     // Create the course mesh data
 
@@ -179,6 +196,10 @@ VSP_GRID* VSP_AGGLOM::MergeHighAspectRatioQuads_(VSP_GRID &Grid)
 
     CheckMesh_(CoarseGrid());
 
+    // Delete search tree
+    
+    delete Search_;
+    
     // Return pointer to the coarse mesh
       
     return CoarseGrid_;
@@ -200,8 +221,14 @@ VSP_GRID* VSP_AGGLOM::Agglomerate_(VSP_GRID &Grid)
     
     CheckMesh_(FineGrid());
 
-    // Initialize the front
+    // Create fast search of edge list
     
+    Search_ = new SEARCH;
+
+    Search_->CreateSearchTree(FineGrid());
+        
+    // Initialize the front
+        
     InitializeFront_();
     
     NextBestEdgeOnFront_ = NextAgglomerationEdge_();
@@ -215,7 +242,7 @@ VSP_GRID* VSP_AGGLOM::Agglomerate_(VSP_GRID &Grid)
        NextBestEdgeOnFront_ = NextAgglomerationEdge_();
               
     }
-    
+        
     // Clean up stray loops
     
     MergeSmallLoops_();
@@ -234,6 +261,10 @@ VSP_GRID* VSP_AGGLOM::Agglomerate_(VSP_GRID &Grid)
     
     CheckMesh_(CoarseGrid());
     
+    // Delete the search tree
+    
+    delete Search_;
+
     // Return pointer to the coarse mesh
            
     return CoarseGrid_;
@@ -249,7 +280,7 @@ VSP_GRID* VSP_AGGLOM::Agglomerate_(VSP_GRID &Grid)
 void VSP_AGGLOM::InitializeFront_(void)
 {
 
-    int i, NumberOfSurfaces, Loop1, Loop2, j, Done, *SurfaceExists;
+    int i, k, NumberOfSurfaces, Loop1, Loop2, j, Done, *SurfaceExists;
 
     // Allocate space for the front list. This will contain the currently unused
     // edges on the agglomeration front.
@@ -358,7 +389,7 @@ void VSP_AGGLOM::InitializeFront_(void)
     CoarseNodeList_ = new int[FineGrid().NumberOfNodes() + 1];
     
     zero_int_array(CoarseNodeList_, FineGrid().NumberOfNodes());
-    
+
     // Insert edges into the front list
 
     NumberOfEdgesOnTE_       = 0;
@@ -382,6 +413,22 @@ void VSP_AGGLOM::InitializeFront_(void)
        
              NumberOfEdgesOnTE_++;
              
+             k = FindMatchingSymmetryEdge_(i);
+             
+             if ( k != 0 ) {
+                
+                if ( FineGrid().EdgeList(k).IsTrailingEdge()  ) {
+                   
+                   EdgeIsOnFront_[k] = TE_EDGE_BC;
+                   
+                   FrontEdgeQueue_[++NextEdgeInQueue_] = k;
+                   
+                   NumberOfEdgesOnTE_++;    
+                   
+                }
+                
+             }            
+             
           }
        
        }        
@@ -402,6 +449,22 @@ void VSP_AGGLOM::InitializeFront_(void)
        
              NumberOfEdgesOnLE_++;
              
+             k = FindMatchingSymmetryEdge_(i);
+             
+             if ( k != 0 ) {
+                
+                if ( FineGrid().EdgeList(k).IsLeadingEdge()  ) {
+                   
+                   EdgeIsOnFront_[k] = LE_EDGE_BC;
+                   
+                   FrontEdgeQueue_[++NextEdgeInQueue_] = k;
+                   
+                   NumberOfEdgesOnLE_++;    
+                   
+                }
+                
+             }
+                          
           }
        
        }    
@@ -421,7 +484,23 @@ void VSP_AGGLOM::InitializeFront_(void)
              FrontEdgeQueue_[++NextEdgeInQueue_] = i;
        
              NumberOfEdgesOnBoundary_++;
+            
+             k = FindMatchingSymmetryEdge_(i);
              
+             if ( k != 0 ) {
+                
+                if ( FineGrid().EdgeList(k).IsBoundaryEdge()  ) {
+                   
+                   EdgeIsOnFront_[k] = BOUNDARY_EDGE_BC;
+                   
+                   FrontEdgeQueue_[++NextEdgeInQueue_] = k;
+                   
+                   NumberOfEdgesOnBoundary_++;    
+                   
+                }
+                
+             }
+                          
           }
        
        }  
@@ -532,6 +611,84 @@ void VSP_AGGLOM::InitializeFront_(void)
 
 /*##############################################################################
 #                                                                              #
+#                        VSP_AGGLOM FindMatchingSymmetryEdge_                  #              
+#                                                                              #
+##############################################################################*/
+
+int VSP_AGGLOM::FindMatchingSymmetryEdge_(int Edge)
+{
+return 0;  
+    int Node1, Node2;
+    VSPAERO_DOUBLE Tolerance;
+    TEST_NODE Node;
+  
+    Tolerance = 1.e-8;
+
+    Node1 = FineGrid().EdgeList(Edge).Node1();
+    Node2 = FineGrid().EdgeList(Edge).Node2();
+    
+    Node.xyz[0] =  0.5*( FineGrid().NodeList(Node1).x() + FineGrid().NodeList(Node2).x() );
+    Node.xyz[1] = -0.5*( FineGrid().NodeList(Node1).y() + FineGrid().NodeList(Node2).y() );
+    Node.xyz[2] =  0.5*( FineGrid().NodeList(Node1).z() + FineGrid().NodeList(Node2).z() );
+    
+    Node.distance = 1.e9;
+    
+    Node.found = 0;
+    
+   // Search_->Tolerance() = Tolerance;
+ 
+    Search_->SearchTree(Node);
+
+ //   if ( Node.found && Node.id != Edge && EdgeIsOnFront_[Node.id] == 0 && sqrt(Node.distance) <= Tolerance ) {
+    if ( Node.found && Node.id != Edge && EdgeIsOnFront_[Node.id] == 0 ) {
+
+       return Node.id;
+    }
+/*        
+ 
+    // Brute force search
+    
+    while ( i <= FineGrid().NumberOfEdges() ) {
+       
+       if ( EdgeIsOnFront_[i] == 0 ) {
+
+          Node1 = FineGrid().EdgeList(i).Node1();
+          Node2 = FineGrid().EdgeList(i).Node2();
+          
+          X2c[0] = 0.5*( FineGrid().NodeList(Node1).x() + FineGrid().NodeList(Node2).x() );
+          X2c[1] = 0.5*( FineGrid().NodeList(Node1).y() + FineGrid().NodeList(Node2).y() );
+          X2c[2] = 0.5*( FineGrid().NodeList(Node1).z() + FineGrid().NodeList(Node2).z() );
+                 
+          if ( i != Edge && X1c[1] * X2c[1] < 0. ) {
+   
+             Distance = pow(X2c[0] - X1c[0],2.) + pow(X2c[1] + X1c[1],2.) + pow(X2c[2] - X1c[2],2.);
+             
+             Distance = sqrt(Distance);
+   
+             if ( Distance <= Epsilon ) {
+                
+                PRINTF("Looking for opposite of edge: %d \n",Edge);
+                PRINTF("Brute force: %d .... and SearchTree: %d \n",i,Node.id);
+                if ( Node.found ) PRINTF("Distance: %f ... adist: %f \n",Distance,sqrt(Node.distance));
+                
+                return i;
+             
+             }
+                       
+          }
+          
+       }
+       
+       i++;
+       
+    }  
+*/
+    return 0;
+   
+}
+
+/*##############################################################################
+#                                                                              #
 #                           VSP_AGGLOM NextAgglomerationEdge_                  #              
 #                                                                              #
 ##############################################################################*/
@@ -560,7 +717,7 @@ void VSP_AGGLOM::MergeVortexLoopsOld_(void)
 
     int i, j, k, p, Side, Loop, Loop1, Loop2, Loop3, Edge, MergedLoop, NewLoop;
     int LoopA, LoopB, LoopC, LoopD, LoopE, Bad;
-    double Area;
+    VSPAERO_DOUBLE Area;
 
     // Check each side of this edge
         
@@ -886,8 +1043,8 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
 {
 
     int MaxNode, Edge, Hits, MinLoop, MergedLoop; 
-    int Side, Loop, Loop2, jLoop, i, j, k, Node, Node1, Node2, MaxLoops, AgglomLoops;
-    double Vec[3], Distance, MinDistance, MaxDistance, Weight, AverageWeight;
+    int Side, Loop, Loop2, jLoop, i, j, k, p, Node, Node1, Node2, MaxLoops, AgglomLoops;
+    VSPAERO_DOUBLE Vec[3], Distance, MinDistance, MaxDistance, Weight, AverageWeight;
         
     // Check each side
 
@@ -1024,6 +1181,16 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
                          
                          FrontEdgeQueue_[++NumberOfEdgesInQueue_] = Edge;
                          
+                         p = FindMatchingSymmetryEdge_(Edge);
+                         
+                         if ( p != 0 ) {
+                            
+                           EdgeIsOnFront_[p] = INTERIOR_EDGE_BC;
+                           
+                           FrontEdgeQueue_[++NumberOfEdgesInQueue_] = p;    
+                           
+                         }                        
+                         
                       }
                       
                    }
@@ -1045,7 +1212,17 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
                    EdgeIsOnFront_[Edge] = INTERIOR_EDGE_BC;
                    
                    FrontEdgeQueue_[++NumberOfEdgesInQueue_] = Edge;
+                  
+                   p = FindMatchingSymmetryEdge_(Edge);
                    
+                   if ( p != 0 ) {
+                      
+                     EdgeIsOnFront_[p] = INTERIOR_EDGE_BC;
+                     
+                     FrontEdgeQueue_[++NumberOfEdgesInQueue_] = p;    
+                     
+                   }     
+                                            
                 }
                 
              }
@@ -1111,6 +1288,16 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
                    
                    FrontEdgeQueue_[++NumberOfEdgesInQueue_] = Edge;
                    
+                   p = FindMatchingSymmetryEdge_(Edge);
+                   
+                   if ( p != 0 ) {
+                      
+                     EdgeIsOnFront_[p] = INTERIOR_EDGE_BC;
+                     
+                     FrontEdgeQueue_[++NumberOfEdgesInQueue_] = p;    
+                     
+                   }   
+                                      
                 }
                 
              }
@@ -1128,7 +1315,17 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
                    EdgeIsOnFront_[Edge] = INTERIOR_EDGE_BC;
                    
                    FrontEdgeQueue_[++NumberOfEdgesInQueue_] = Edge;
+                 
+                   p = FindMatchingSymmetryEdge_(Edge);
                    
+                   if ( p != 0 ) {
+                      
+                     EdgeIsOnFront_[p] = INTERIOR_EDGE_BC;
+                     
+                     FrontEdgeQueue_[++NumberOfEdgesInQueue_] = p;    
+                     
+                   }   
+                                      
                 }
                 
              }
@@ -1251,7 +1448,7 @@ void VSP_AGGLOM::MergeSmallLoops_(void)
  
     }
     
-    //printf("Fixed %d loops out of %d \n",p,q);
+    //PRINTF("Fixed %d loops out of %d \n",p,q);
 
 }
 
@@ -1388,7 +1585,7 @@ void VSP_AGGLOM::CheckLoopQuality_(void)
                 
              if ( IsInteriorLoop ) {
           
-printf("...............................Interior loop! \n"); fflush(NULL);
+PRINTF("...............................Interior loop! \n"); fflush(NULL);
           
                 VortexLoopWasAgglomerated_[Loop1] = -Loop2;
                 
@@ -1429,8 +1626,8 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
     int NumberOfCoarseGridNodes, NumberOfCoarseGridEdges, NumberOfCoarseGridLoops;
     int *KuttaNode, NumberOfKuttaNodes, *EdgeDirection;
     int *NumberOfFineGridLoops, *NumberOfEdgesForLoop;
-    int NumberOfLoopNodes, *NodeListForLoop, InList;
-    double Area, Mag, Xb, Yb, Zb;
+    int NumberOfLoopNodes, *NodeListForLoop, InList, Found;
+    VSPAERO_DOUBLE Area, Mag, Xb, Yb, Zb, x1, y1, z1, x2, y2, z2, Length;
     
     // Create a list of the fine edges still in use on the coarse grid
        
@@ -1593,13 +1790,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        CoarseGrid().LoopList(i).Nx() = 0.;
        CoarseGrid().LoopList(i).Ny() = 0.;
        CoarseGrid().LoopList(i).Nz() = 0.; 
-       
-       // Local Flat Plate Normal
-       
-       CoarseGrid().LoopList(i).NxFlatPlate() = 0.;
-       CoarseGrid().LoopList(i).NyFlatPlate() = 0.;
-       CoarseGrid().LoopList(i).NzFlatPlate() = 0.;
-       
+   
        // Camber
        
        CoarseGrid().LoopList(i).Camber() = 0.;
@@ -1659,13 +1850,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        CoarseGrid().LoopList(Next).Nx() += Area*FineGrid().LoopList(i).Nx();
        CoarseGrid().LoopList(Next).Ny() += Area*FineGrid().LoopList(i).Ny();
        CoarseGrid().LoopList(Next).Nz() += Area*FineGrid().LoopList(i).Nz();
-       
-       // Local Camber Line Normal
-       
-       CoarseGrid().LoopList(Next).NxFlatPlate() += Area*FineGrid().LoopList(i).NxFlatPlate();
-       CoarseGrid().LoopList(Next).NyFlatPlate() += Area*FineGrid().LoopList(i).NyFlatPlate();
-       CoarseGrid().LoopList(Next).NzFlatPlate() += Area*FineGrid().LoopList(i).NzFlatPlate();
-       
+  
        // Camber
        
        CoarseGrid().LoopList(Next).Camber() += Area*FineGrid().LoopList(i).Camber();
@@ -1729,13 +1914,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        CoarseGrid().LoopList(i).Nx() /= Mag;
        CoarseGrid().LoopList(i).Ny() /= Mag;
        CoarseGrid().LoopList(i).Nz() /= Mag;
-      
-       // Local Flat Plate Normal
-       
-       CoarseGrid().LoopList(i).NxFlatPlate() /= Area;
-       CoarseGrid().LoopList(i).NyFlatPlate() /= Area;
-       CoarseGrid().LoopList(i).NzFlatPlate() /= Area;
-       
+
        // Camber
        
        CoarseGrid().LoopList(i).Camber() /= Area;   
@@ -1892,8 +2071,83 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
           CoarseGrid().LoopList(i).Node(j) = NodeListForLoop[j];
              
        }
-
+       
+       // Sort out the UV values on the coarse grid
+       
+       for ( j = 1 ; j <= CoarseGrid().LoopList(i).NumberOfNodes() ; j++ ) {
+          
+          Node = CoarseGrid().LoopList(i).Node(j);
+       
+          Found = 0;
+          
+          k = 1;
+          
+          while ( k <= CoarseGrid().LoopList(i).NumberOfFineGridLoops() && !Found ) {
+             
+             Loop = CoarseGrid().LoopList(i).FineGridLoop(k);
+             
+             for ( p = 1 ; p <= FineGrid().LoopList(Loop).NumberOfNodes() ; p++ ) {
+       
+                if ( CoarseNodeList_[FineGrid().LoopList(Loop).Node(p)] == Node ) {
+                   
+                   CoarseGrid().LoopList(i).U_Node(j) = FineGrid().LoopList(Loop).U_Node(p);
+                   CoarseGrid().LoopList(i).V_Node(j) = FineGrid().LoopList(Loop).V_Node(p);
+         
+                   Found = 1;
+                   
+                }
+                
+             }
+             
+             k++;
+             
+          }
+          
+          if ( !Found ) {
+             
+             PRINTF("Error in determing UV surface mapping during agglomeration! \n");
+             fflush(NULL);
+             exit(1);
+             
+          }
+          
+       }
+      
     } 
+    
+    // Recalculate the loop length using the nodal data
+    
+    for ( k = 1 ; k <= CoarseGrid().NumberOfLoops() ; k++ ) {
+    
+       Length = 0.;
+       
+       for ( i = 1 ; i <= CoarseGrid().LoopList(k).NumberOfNodes() ; i++ ) {
+          
+          Node1 =  CoarseGrid().LoopList(k).Node(i);
+          
+          x1 = CoarseGrid().NodeList(Node1).x();
+          y1 = CoarseGrid().NodeList(Node1).y();
+          z1 = CoarseGrid().NodeList(Node1).z();
+       
+          for ( j = 1 ; j <= CoarseGrid().LoopList(k).NumberOfNodes() ; j++ ) {
+       
+             Node2 = CoarseGrid().LoopList(k).Node(j);
+       
+             x2 = CoarseGrid().NodeList(Node2).x();
+             y2 = CoarseGrid().NodeList(Node2).y();
+             z2 = CoarseGrid().NodeList(Node2).z();
+       
+             Length = MAX(Length,sqrt( pow(x1-x2,2.) + pow(y1-y2,2.) + pow(z1-z2,2.) ));
+             
+          }
+          
+       }
+       
+       CoarseGrid().LoopList(k).Length() = MAX(Length, CoarseGrid().LoopList(k).Length());
+       
+    }
+
+    
 
 /*     
     // Create a list of nodes for each loop
@@ -2109,7 +2363,7 @@ VSP_GRID* VSP_AGGLOM::DeleteDuplicateNodes_(VSP_GRID &Grid)
    
     int i, j, NumberOfNodes, NumberOfEdges, NumberOfLoops;
     int *NodeIsUsed, *EdgeIsUsed, *NodePerm, Node1, Node2, Node3; 
-    double dS, Epsilon;
+    VSPAERO_DOUBLE dS, Epsilon;
     VSP_GRID *NewGrid;
     
     NodeIsUsed = new int[Grid.NumberOfNodes() + 1];
@@ -2196,7 +2450,7 @@ VSP_GRID* VSP_AGGLOM::DeleteDuplicateNodes_(VSP_GRID &Grid)
    
     if ( NumberOfEdges == Grid.NumberOfEdges() ) return &Grid;
         
-    printf("Found %d unique edges out of: %d \n",NumberOfEdges, Grid.NumberOfEdges());
+    PRINTF("Found %d unique edges out of: %d \n",NumberOfEdges, Grid.NumberOfEdges());
                 
     // Create new coarse mesh
     
@@ -2463,7 +2717,7 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
                                     
                                     if ( StackSize + 1 > CoarseGrid().NumberOfEdges() ) {
                                        
-                                       printf("wtf! \n");fflush(NULL);
+                                       PRINTF("wtf! \n");fflush(NULL);
                                        exit(1);
                                        
                                     }
@@ -2508,10 +2762,10 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
              
              if ( CoarseGrid().LoopList(Loop).NumberOfEdges() - NumberOfEdgesMerged <= 2 ) {
                 
-                printf("CoarseGrid().LoopList(Loop).NumberOfEdges(): %d \n",CoarseGrid().LoopList(Loop).NumberOfEdges());
-                printf("NumberOfEdgesMerged: %d \n",NumberOfEdgesMerged);
+                PRINTF("CoarseGrid().LoopList(Loop).NumberOfEdges(): %d \n",CoarseGrid().LoopList(Loop).NumberOfEdges());
+                PRINTF("NumberOfEdgesMerged: %d \n",NumberOfEdgesMerged);
                 
-                printf("Merged down to just 2 edges... wtf! \n");fflush(NULL);
+                PRINTF("Merged down to just 2 edges... wtf! \n");fflush(NULL);
                 exit(1);
                 
              }
@@ -2695,8 +2949,8 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
              
              else {
                 
-                printf("wtf! \n");
-                printf("EdgeIsMerged[i].Side is not 0, 1, or 2! \n");
+                PRINTF("wtf! \n");
+                PRINTF("EdgeIsMerged[i].Side is not 0, 1, or 2! \n");
                 fflush(NULL);
                 exit(1);
                 
@@ -2775,8 +3029,8 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
        
        if ( NumberOfLoopEdges < 3 ) {
           
-          printf("NumberOfLoopEdges: %d for Loop: %d \n",NumberOfLoopEdges,i);fflush(NULL);
-          printf("NumberOfLoopEdges for original mesh was: %d \n",CoarseGrid().LoopList(i).NumberOfEdges());
+          PRINTF("NumberOfLoopEdges: %d for Loop: %d \n",NumberOfLoopEdges,i);fflush(NULL);
+          PRINTF("NumberOfLoopEdges for original mesh was: %d \n",CoarseGrid().LoopList(i).NumberOfEdges());
 
        }
        
@@ -2872,7 +3126,7 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
     int Node1, Node2, Node3, Node4, NodeA, NodeB;
     int NumberOfLoopsMerged, BestNeighborLoop;   
     int *LoopOnTrailingEdge;     
-    double Angle, BestAngle, Dot;
+    VSPAERO_DOUBLE Angle, BestAngle, Dot;
 
     GoodQuadAngle_  = 100.*TORAD;
     WorstQuadAngle_ = 135.*TORAD;
@@ -2883,7 +3137,7 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
 
     zero_int_array(LoopOnTrailingEdge, FineGrid().NumberOfLoops());
 
-    if ( FineGrid().SurfaceType() == CART3D_SURFACE  ) {
+    if ( FineGrid().SurfaceType() == CART3D_SURFACE || FineGrid().SurfaceType() == VSPGEOM_SURFACE ) {
        
        for ( Loop = 1 ; Loop <= FineGrid().NumberOfLoops() ; Loop++ ) {
           
@@ -3051,11 +3305,11 @@ void VSP_AGGLOM::CheckMesh_(VSP_GRID &ThisGrid)
    
           if ( 0&&Loop1 == Loop2 ) {
              
-             printf("Edge: %d is messed up! \n",i);
+             PRINTF("Edge: %d is messed up! \n",i);
              
-             printf("Loop1,2: %d %d \n",Loop1,Loop2);
+             PRINTF("Loop1,2: %d %d \n",Loop1,Loop2);
              
-             printf("Node 1,2: %d %d --> xyz: %f %f %f .. %f %f %f \n",
+             PRINTF("Node 1,2: %d %d --> xyz: %f %f %f .. %f %f %f \n",
              ThisGrid.EdgeList(i).Node1(),
              ThisGrid.EdgeList(i).Node2(),
              ThisGrid.NodeList(ThisGrid.EdgeList(i).Node1()).x(),
@@ -3134,8 +3388,8 @@ void VSP_AGGLOM::CleanUpFans_(void)
     int i, j, Loop, Node, Node1, Node2, Node3, iNode;
     int NodeA, NodeB, NodeC, CurrentLoop, Done, MinLoop;
     int *NumberOfLoopsForNode, **NodeToLoopList, *LoopList, StackSize, Next;
-    double **NodeToLoopAngleList, MinAngle;
-    double LimitAngle, TotalAngle, MinArea, MaxArea, AspectRatio;
+    VSPAERO_DOUBLE **NodeToLoopAngleList, MinAngle;
+    VSPAERO_DOUBLE LimitAngle, TotalAngle, MinArea, MaxArea, AspectRatio;
 
     // Create a node to loop tri list
     
@@ -3143,7 +3397,7 @@ void VSP_AGGLOM::CleanUpFans_(void)
     
     NodeToLoopList = new int*[FineGrid().NumberOfNodes() + 1];
     
-    NodeToLoopAngleList = new double*[FineGrid().NumberOfNodes() + 1];
+    NodeToLoopAngleList = new VSPAERO_DOUBLE*[FineGrid().NumberOfNodes() + 1];
     
     zero_int_array(NumberOfLoopsForNode, FineGrid().NumberOfNodes());
     
@@ -3163,7 +3417,7 @@ void VSP_AGGLOM::CleanUpFans_(void)
        
        NodeToLoopList[i] = new int[NumberOfLoopsForNode[i] + 1];
        
-       NodeToLoopAngleList[i] = new double[NumberOfLoopsForNode[i] + 1];
+       NodeToLoopAngleList[i] = new VSPAERO_DOUBLE[NumberOfLoopsForNode[i] + 1];
        
     }
     
@@ -3282,7 +3536,7 @@ void VSP_AGGLOM::CleanUpFans_(void)
                    
                    else {
                                       
-                      printf("wtf... starting loop is messed up! \n");fflush(NULL);
+                      PRINTF("wtf... starting loop is messed up! \n");fflush(NULL);
                       exit(1);
                       
                    }
@@ -3321,7 +3575,7 @@ void VSP_AGGLOM::CleanUpFans_(void)
                          
                          else {
                                             
-                            printf("wtf... next loop is messed up! \n");fflush(NULL);
+                            PRINTF("wtf... next loop is messed up! \n");fflush(NULL);
                             exit(1);
                             
                          }                   
@@ -3418,7 +3672,7 @@ void VSP_AGGLOM::CleanUpHighAspectRatioTris_(void)
  
     int Case, Done, Edge, Loop, CurrentLoop, NeighborLoop, MinEdge;
     int LoopList[2], EdgeList[2];
-    double MaxAR;
+    VSPAERO_DOUBLE MaxAR;
     
     MaxAR = 10.;
     
@@ -3453,7 +3707,7 @@ void VSP_AGGLOM::CleanUpHighAspectRatioTris_(void)
              
              else {
                 
-                printf("wtf... something went wrong in the high AR code... \n");fflush(NULL);
+                PRINTF("wtf... something went wrong in the high AR code... \n");fflush(NULL);
                 
                 exit(1);
                 
@@ -3489,16 +3743,16 @@ void VSP_AGGLOM::CleanUpHighAspectRatioTris_(void)
                    
                    else {
                       
-                      printf("wtf with the neighbor loop! \n");fflush(NULL);
-                      printf("Case: %d \n",Case);
-                      printf("LoopList[%d]: %d \n",Case,LoopList[Case]);
-                      printf("Loop: %d \n",Loop);
-                      printf("CurrentLoop: %d \n",CurrentLoop);
-                      printf("Edge: %d \n",Edge);
-                      printf("EdgeList[0]: %d \n",EdgeList[0]);
-                      printf("EdgeList[1]: %d \n",EdgeList[1]);
-                      printf("FineGrid().EdgeList(%d).Loop1(): %d \n",Edge,FineGrid().EdgeList(Edge).Loop1());
-                      printf("FineGrid().EdgeList(%d).Loop2(): %d \n",Edge,FineGrid().EdgeList(Edge).Loop2());
+                      PRINTF("wtf with the neighbor loop! \n");fflush(NULL);
+                      PRINTF("Case: %d \n",Case);
+                      PRINTF("LoopList[%d]: %d \n",Case,LoopList[Case]);
+                      PRINTF("Loop: %d \n",Loop);
+                      PRINTF("CurrentLoop: %d \n",CurrentLoop);
+                      PRINTF("Edge: %d \n",Edge);
+                      PRINTF("EdgeList[0]: %d \n",EdgeList[0]);
+                      PRINTF("EdgeList[1]: %d \n",EdgeList[1]);
+                      PRINTF("FineGrid().EdgeList(%d).Loop1(): %d \n",Edge,FineGrid().EdgeList(Edge).Loop1());
+                      PRINTF("FineGrid().EdgeList(%d).Loop2(): %d \n",Edge,FineGrid().EdgeList(Edge).Loop2());
                       
                       exit(1);
                       
@@ -3549,7 +3803,7 @@ void VSP_AGGLOM::CleanUpHighAspectRatioTris_(void)
                                   
                                   else {
                                      
-                                     printf("wtf... something went wrong in the high AR code... \n");fflush(NULL);
+                                     PRINTF("wtf... something went wrong in the high AR code... \n");fflush(NULL);
                                      
                                      exit(1);
                                      
@@ -3559,12 +3813,12 @@ void VSP_AGGLOM::CleanUpHighAspectRatioTris_(void)
                                   
                                   if ( EdgeList[Case] == 0 ) {
                                      
-                                     printf("wtf! \n");fflush(NULL);
+                                     PRINTF("wtf! \n");fflush(NULL);
                                      
-                                     printf("Edge: %d \n",Edge);
-                                     printf("FineGrid().LoopList(NeighborLoop).Edge1(): %d \n",FineGrid().LoopList(NeighborLoop).Edge1());
-                                     printf("FineGrid().LoopList(NeighborLoop).Edge2(): %d \n",FineGrid().LoopList(NeighborLoop).Edge2());
-                                     printf("FineGrid().LoopList(NeighborLoop).Edge3(): %d \n",FineGrid().LoopList(NeighborLoop).Edge3());
+                                     PRINTF("Edge: %d \n",Edge);
+                                     PRINTF("FineGrid().LoopList(NeighborLoop).Edge1(): %d \n",FineGrid().LoopList(NeighborLoop).Edge1());
+                                     PRINTF("FineGrid().LoopList(NeighborLoop).Edge2(): %d \n",FineGrid().LoopList(NeighborLoop).Edge2());
+                                     PRINTF("FineGrid().LoopList(NeighborLoop).Edge3(): %d \n",FineGrid().LoopList(NeighborLoop).Edge3());
                                      
                                      exit(1);
                                      
@@ -3651,7 +3905,7 @@ void VSP_AGGLOM::CleanUpHighAspectRatioQuads_(void)
        
     }
     
-    printf("Merged %d high aspect ratio quads \n",FixedOne);
+    PRINTF("Merged %d high aspect ratio quads \n",FixedOne);
 
 }
 
@@ -3666,11 +3920,11 @@ void VSP_AGGLOM::CleanUpSmallAreaLoops_(void)
  
     int i, j, Done, BestLoop, Loop, NeighborLoop,  NodeA, NodeB, MergedLoop;
     int Iter, SmallLoop;
-    double Area, *MergedLoopArea, MaxRatio, Vec[3], EdgeLength, MaxLength;
+    VSPAERO_DOUBLE Area, *MergedLoopArea, MaxRatio, Vec[3], EdgeLength, MaxLength;
     
     // Calculate areas for new merged loops
     
-    MergedLoopArea = new double[FineGrid().NumberOfLoops() + 1];
+    MergedLoopArea = new VSPAERO_DOUBLE[FineGrid().NumberOfLoops() + 1];
     
     MaxRatio = 100.;
     
@@ -3972,12 +4226,12 @@ void VSP_AGGLOM::FindNeighborLoopOnEdge_(VSP_GRID &ThisGrid, int Loop, int Edge,
 #                                                                              #
 ##############################################################################*/
 
-double VSP_AGGLOM::CalculateQuadQuality_(VSP_GRID &ThisGrid, int Node1,
+VSPAERO_DOUBLE VSP_AGGLOM::CalculateQuadQuality_(VSP_GRID &ThisGrid, int Node1,
                                          int Node2, int Node3, int Node4)
 {
 
-    double Vec1[3], Vec2[3], Vec3[3], Vec4[3], Vec5[3], Vec6[3], Mag, Angle[4];
-    double MaxAngle;
+    VSPAERO_DOUBLE Vec1[3], Vec2[3], Vec3[3], Vec4[3], Vec5[3], Vec6[3], Mag, Angle[4];
+    VSPAERO_DOUBLE MaxAngle;
     
     // Vec 1
     
@@ -4083,7 +4337,7 @@ int VSP_AGGLOM::BadTriangle_(VSP_GRID &ThisGrid, int Loop, int &MinEdge)
 {
    
     int i, Edge, Node1, Node2;
-    double Vec[3], Distance, MinDist, MaxDist, AspectRatio;
+    VSPAERO_DOUBLE Vec[3], Distance, MinDist, MaxDist, AspectRatio;
     
     MinEdge = 0;
     
@@ -4133,7 +4387,7 @@ int VSP_AGGLOM::BadQuad_(VSP_GRID &ThisGrid, int Loop, int LoopList[2])
 {
    
     int i, Edge, Edge1, Edge2, Node1, Node2, MinEdge, OppEdge, Done, Hits;
-    double Vec[3], Length[5], MinLength;
+    VSPAERO_DOUBLE Vec[3], Length[5], MinLength;
    return 0;
     if ( ThisGrid.LoopList(Loop).NumberOfEdges() != 4 ) return 0.;
     
@@ -4218,7 +4472,7 @@ int VSP_AGGLOM::BadQuad_(VSP_GRID &ThisGrid, int Loop, int LoopList[2])
 
     if ( Hits != 2 ) {
        
-       printf("wtf! \n");fflush(NULL);
+       PRINTF("wtf! \n");fflush(NULL);
        exit(1);
        
     }
@@ -4233,11 +4487,11 @@ int VSP_AGGLOM::BadQuad_(VSP_GRID &ThisGrid, int Loop, int LoopList[2])
 #                                                                              #
 ##############################################################################*/
 
-double VSP_AGGLOM::CalculateAspectRatioOld_(VSP_GRID &ThisGrid, int Loop)
+VSPAERO_DOUBLE VSP_AGGLOM::CalculateAspectRatioOld_(VSP_GRID &ThisGrid, int Loop)
 {
    
     int i, Edge, Node1, Node2;
-    double Vec[3], Distance[4], S, AspectRatio;
+    VSPAERO_DOUBLE Vec[3], Distance[4], S, AspectRatio;
     
     for ( i = 1 ; i <= 3 ; i++ ) {
        
@@ -4268,10 +4522,10 @@ double VSP_AGGLOM::CalculateAspectRatioOld_(VSP_GRID &ThisGrid, int Loop)
 #                                                                              #
 ##############################################################################*/
 
-int VSP_AGGLOM::LoopsAreCoplanar_(VSP_GRID &ThisGrid, int Loop1, int Loop2, double MaxAngle)
+int VSP_AGGLOM::LoopsAreCoplanar_(VSP_GRID &ThisGrid, int Loop1, int Loop2, VSPAERO_DOUBLE MaxAngle)
 {
    
-    double Dot, Angle;
+    VSPAERO_DOUBLE Dot, Angle;
     
     Dot = vector_dot(ThisGrid.LoopList(Loop1).Normal(), ThisGrid.LoopList(Loop2).Normal());
     
@@ -4293,11 +4547,11 @@ int VSP_AGGLOM::LoopsAreCoplanar_(VSP_GRID &ThisGrid, int Loop1, int Loop2, doub
 #                                                                              #
 ##############################################################################*/
 
-int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, double MaxAngle)
+int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPAERO_DOUBLE MaxAngle)
 {
    
     int Node0, Node1, Node2, NodeA, NodeB;
-    double Vec1[3], Vec2[3], Dot, Angle;
+    VSPAERO_DOUBLE Vec1[3], Vec2[3], Dot, Angle;
     
     Node1 = ThisGrid.EdgeList(Edge1).Node1();
     Node2 = ThisGrid.EdgeList(Edge1).Node2();
@@ -4339,7 +4593,7 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, doub
     
     else {
        
-       printf("Could not find common node for the given 2 edges! \n");fflush(NULL);
+       PRINTF("Could not find common node for the given 2 edges! \n");fflush(NULL);
        
        exit(1);
        
@@ -4385,14 +4639,14 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, doub
 #                                                                              #
 ##############################################################################*/
 
-int VSP_AGGLOM::MergedLoopsAreConvex_(VSP_GRID &ThisGrid, int Loop1, int Loop2, double MaxAngle)
+int VSP_AGGLOM::MergedLoopsAreConvex_(VSP_GRID &ThisGrid, int Loop1, int Loop2, VSPAERO_DOUBLE MaxAngle)
 {
    
     int i, Edge, NumberOfCommonEdges, Node1, Node2, NodeA, NodeB;
     int NumBoundaryNodes, BoundaryNode[2], BoundaryEdgeList[4];
     int LoopA, LoopB, LoopC, LoopD;
     int *TempEdgeList_, *TempNodeList_;
-    double Vec1[3], Vec2[3], Dot, Angle;
+    VSPAERO_DOUBLE Vec1[3], Vec2[3], Dot, Angle;
 
     LoopA = MIN(Loop1,Loop2);
     LoopB = MAX(Loop1,Loop2);
@@ -4456,7 +4710,7 @@ int VSP_AGGLOM::MergedLoopsAreConvex_(VSP_GRID &ThisGrid, int Loop1, int Loop2, 
        
     }    
        
-    printf("Number of boundary nodes: %d \n",NumBoundaryNodes);
+    PRINTF("Number of boundary nodes: %d \n",NumBoundaryNodes);
     
     
 delete [] TempEdgeList_;
@@ -4637,11 +4891,11 @@ delete [] TempEdgeList_;
 #                                                                              #
 ##############################################################################*/
 
-double VSP_AGGLOM::CalculateLoopAngle_(VSP_GRID &ThisGrid, int Loop, int Node)
+VSPAERO_DOUBLE VSP_AGGLOM::CalculateLoopAngle_(VSP_GRID &ThisGrid, int Loop, int Node)
 {
    
     int Node1, Node2, Node3;
-    double Vec1[3], Vec2[3], Mag1, Mag2, Dot, Angle;
+    VSPAERO_DOUBLE Vec1[3], Vec2[3], Mag1, Mag2, Dot, Angle;
 
     Node1 = ThisGrid.LoopList(Loop).Node1();
     Node2 = ThisGrid.LoopList(Loop).Node2();
@@ -4685,7 +4939,7 @@ double VSP_AGGLOM::CalculateLoopAngle_(VSP_GRID &ThisGrid, int Loop, int Node)
     
     else {
        
-       printf("wtf... no matching node! \n");fflush(NULL);
+       PRINTF("wtf... no matching node! \n");fflush(NULL);
        exit(1);
        
     }

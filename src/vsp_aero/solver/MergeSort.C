@@ -43,7 +43,7 @@ MERGESORT::MERGESORT(const MERGESORT &MergeSort)
 
     // Not implemented
 
-    printf("Copy not implemented for MERGESORT class! \n");
+    PRINTF("Copy not implemented for MERGESORT class! \n");
 
     exit(1);
 

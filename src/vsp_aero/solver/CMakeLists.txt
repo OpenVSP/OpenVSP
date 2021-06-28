@@ -68,6 +68,7 @@ if(BUILD_VSPAERO)
   InteractionLoop.C
   RotorDisk.C
   SpanLoadData.C
+  SpanLoadRotorData.C
   VSP_Agglom.C
   VSP_Edge.C
   VSP_Geom.C
@@ -76,9 +77,7 @@ if(BUILD_VSPAERO)
   VSP_Node.C
   VSP_Solver.C
   VSP_Surface.C
-  Vortex.C
   VortexSheetInteractionLoop.C
-  VortexSheetInteractionStreamLine.C
   VortexSheetVortex_To_VortexInteractionSet.C
   Vortex_Bound.C
   Vortex_Sheet.C
@@ -91,6 +90,7 @@ if(BUILD_VSPAERO)
   SearchLeaf.C
   time.C
   utils.C
+  VSPAERO_TYPES.C
   vspaero.C
   WOPWOP.C
   binaryio.H
@@ -104,6 +104,7 @@ if(BUILD_VSPAERO)
   InteractionLoop.H
   RotorDisk.H
   SpanLoadData.H
+  SpanLoadRotorData.H
   VSPAERO_OMP.H
   VSP_Agglom.H
   VSP_Edge.H
@@ -113,9 +114,7 @@ if(BUILD_VSPAERO)
   VSP_Node.H
   VSP_Solver.H
   VSP_Surface.H
-  Vortex.H
   VortexSheetInteractionLoop.H
-  VortexSheetInteractionStreamLine.H
   VortexSheetVortex_To_VortexInteractionSet.H
   Vortex_Bound.H
   Vortex_Sheet.H
@@ -128,6 +127,7 @@ if(BUILD_VSPAERO)
   SearchLeaf.H
   time.H
   utils.H
+  VSPAERO_TYPES.H
   WOPWOP.H
   )
 

@@ -16,36 +16,95 @@ SPAN_LOAD_DATA::SPAN_LOAD_DATA(void)
 {
 
     NumberOfSpanStations_ = 0;
-
-    NumberOfTimeSamples_ = 0;
-
-    ActualTimeSamples_ = 0;
     
-    SurfaceID_ = 0;
-    
-    Span_Cno_ = NULL;
-    Span_Cso_ = NULL;   
-    Span_Cto_ = NULL;
-    Span_Cqo_ = NULL;
-    Span_Cpo_ = NULL;  
+    // Viscous forces
+      
+    Span_Cxo_ = NULL;
+    Span_Cyo_ = NULL;
+    Span_Czo_ = NULL;  
+              
+    // Inviscid forces
+                
+    Span_Cx_ = NULL;
+    Span_Cy_ = NULL;
+    Span_Cz_ = NULL;
 
+    // Trefftz, induced drag, forces
+    
+    Span_Cxi_ = NULL; 
+    Span_Cyi_ = NULL;
+    Span_Czi_ = NULL;  
+    
+    // Viscous moments
+      
+    Span_Cmxo_ = NULL; 
+    Span_Cmyo_ = NULL;
+    Span_Cmzo_ = NULL;
+          
+    // Inviscid moments
+          
+    Span_Cmx_ = NULL;  
+    Span_Cmy_ = NULL;
+    Span_Cmz_ = NULL;   
+    
+    // Trefftz, induced drag, moments
+
+    Span_Cmxi_ = NULL; 
+    Span_Cmyi_ = NULL;
+    Span_Cmzi_ = NULL;
+    
+    // Lift, drag, normal, spanwise forces
+            
     Span_Cn_ = NULL;
-    Span_Cs_ = NULL;   
-    Span_Ct_ = NULL;
-    Span_Cq_ = NULL;
-    Span_Cp_ = NULL;  
+    Span_Cl_ = NULL;
+    Span_Cs_ = NULL;
+    Span_Cd_ = NULL;
     
-    Time_ = NULL;
+    // Span Min Cp
     
-    XYZ_QC_[0] = NULL;
-    XYZ_QC_[1] = NULL;
-    XYZ_QC_[2] = NULL;
+    Span_CpMin_ = NULL;
     
-    RotationAngle_ = NULL;
-    Span_S_ = NULL;
+    // Geometrical information
+    
+    Span_XLE_ = NULL;
+    Span_YLE_ = NULL;
+    Span_ZLE_ = NULL;    
+        
+    Span_XTE_ = NULL;
+    Span_YTE_ = NULL;
+    Span_ZTE_ = NULL;    
+    
+    Span_XLE_Def_ = NULL;
+    Span_YLE_Def_ = NULL;
+    Span_ZLE_Def_ = NULL;    
+        
+    Span_XTE_Def_ = NULL;
+    Span_YTE_Def_ = NULL;
+    Span_ZTE_Def_ = NULL;    
+        
+    Span_Xavg_ = NULL;
+    Span_Yavg_ = NULL;
+    Span_Zavg_ = NULL;
+
+    Span_Svec_ = NULL;    
+    
+    Span_Nvec_ = NULL;
+    
     Span_Area_ = NULL;
+    
     Span_Chord_ = NULL;
+    
+    Span_S_ = NULL;
+    
+    Span_S_Def_ = NULL;
+        
     Local_Velocity_ = NULL;
+    
+    StallFact_ = NULL;
+    
+    IsStalled_ = NULL;
+    
+    IsARotor_ = 0;
 
 }
 
@@ -57,36 +116,133 @@ SPAN_LOAD_DATA::SPAN_LOAD_DATA(void)
 
 SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
 {
-
-    if ( Span_Cno_ != NULL ) delete [] Span_Cno_;
-    if ( Span_Cso_ != NULL ) delete [] Span_Cso_;  
-    if ( Span_Cto_ != NULL ) delete [] Span_Cto_;
-    if ( Span_Cqo_ != NULL ) delete [] Span_Cqo_;
-    if ( Span_Cpo_ != NULL ) delete [] Span_Cpo_; 
-                          
-    if ( Span_Cn_  != NULL ) delete [] Span_Cn_;
-    if ( Span_Cs_  != NULL ) delete [] Span_Cs_;
-    if ( Span_Ct_  != NULL ) delete [] Span_Ct_;  
-    if ( Span_Cq_  != NULL ) delete [] Span_Cq_;
-    if ( Span_Cp_  != NULL ) delete [] Span_Cp_;  
-
-    if ( Time_           != NULL ) delete [] Time_;   
-    if ( XYZ_QC_[0]      != NULL ) delete [] XYZ_QC_[0];   
-    if ( XYZ_QC_[1]      != NULL ) delete [] XYZ_QC_[1];   
-    if ( XYZ_QC_[2]      != NULL ) delete [] XYZ_QC_[2];
-    if ( RotationAngle_  != NULL ) delete [] RotationAngle_;   
-    if ( Span_S_         != NULL ) delete [] Span_S_;        
-    if ( Span_Area_      != NULL ) delete [] Span_Area_;     
-    if ( Span_Chord_     != NULL ) delete [] Span_Chord_;    
-    if ( Local_Velocity_ != NULL ) delete [] Local_Velocity_;
+       
+    int i;
     
-    SurfaceID_ = 0;
+    // Viscous forces
+      
+    if ( Span_Cxo_ != NULL ) delete [] Span_Cxo_;
+    if ( Span_Cyo_ != NULL ) delete [] Span_Cyo_;
+    if ( Span_Czo_ != NULL ) delete [] Span_Czo_;
+              
+    // Inviscid forces
+                
+    if ( Span_Cx_ != NULL ) delete [] Span_Cx_;
+    if ( Span_Cy_ != NULL ) delete [] Span_Cy_;
+    if ( Span_Cz_ != NULL ) delete [] Span_Cz_;
+
+    // Trefftz, induced drag, forces
     
+    if ( Span_Cxi_ != NULL ) delete [] Span_Cxi_; 
+    if ( Span_Cyi_ != NULL ) delete [] Span_Cyi_;
+    if ( Span_Czi_ != NULL ) delete [] Span_Czi_; 
+    
+    // Viscous moments
+      
+    if ( Span_Cmxo_ != NULL ) delete [] Span_Cmxo_; 
+    if ( Span_Cmyo_ != NULL ) delete [] Span_Cmyo_;
+    if ( Span_Cmzo_ != NULL ) delete [] Span_Cmzo_;
+          
+    // Inviscid moments
+          
+    if ( Span_Cmx_ != NULL ) delete [] Span_Cmx_;  
+    if ( Span_Cmy_ != NULL ) delete [] Span_Cmy_;
+    if ( Span_Cmz_ != NULL ) delete [] Span_Cmz_;
+
+    // Trefftz, induced drag, moments
+
+    if ( Span_Cmxi_ != NULL ) delete [] Span_Cmxi_; 
+    if ( Span_Cmyi_ != NULL ) delete [] Span_Cmyi_;
+    if ( Span_Cmzi_ != NULL ) delete [] Span_Cmzi_;
+    
+    // Lift, drag, normal, spanwise forces
+            
+    if ( Span_Cn_ != NULL ) delete [] Span_Cn_; 
+    if ( Span_Cl_ != NULL ) delete [] Span_Cl_; 
+    if ( Span_Cs_ != NULL ) delete [] Span_Cs_; 
+    if ( Span_Cd_ != NULL ) delete [] Span_Cd_; 
+    
+    // Span Min Cp
+
+    if ( Span_CpMin_ != NULL ) delete [] Span_CpMin_; 
+        
+    // Geometrical information
+    
+    if ( Span_XLE_ == NULL ) delete [] Span_XLE_;
+    if ( Span_YLE_ == NULL ) delete [] Span_YLE_;
+    if ( Span_ZLE_ == NULL ) delete [] Span_ZLE_;   
+
+    if ( Span_XTE_ == NULL ) delete [] Span_XTE_;
+    if ( Span_YTE_ == NULL ) delete [] Span_YTE_;
+    if ( Span_ZTE_ == NULL ) delete [] Span_ZTE_;       
+
+    if ( Span_XLE_Def_ == NULL ) delete [] Span_XLE_Def_;
+    if ( Span_YLE_Def_ == NULL ) delete [] Span_YLE_Def_;
+    if ( Span_ZLE_Def_ == NULL ) delete [] Span_ZLE_Def_;   
+
+    if ( Span_XTE_Def_ == NULL ) delete [] Span_XTE_Def_;
+    if ( Span_YTE_Def_ == NULL ) delete [] Span_YTE_Def_;
+    if ( Span_ZTE_Def_ == NULL ) delete [] Span_ZTE_Def_;     
+        
+    if ( Span_Xavg_ != NULL ) delete [] Span_Xavg_;
+    if ( Span_Yavg_ != NULL ) delete [] Span_Yavg_;
+    if ( Span_Zavg_ != NULL ) delete [] Span_Zavg_;
+
+    if ( Span_Svec_ != NULL ) delete [] Span_Svec_;    
+
+    if ( Span_Svec_ != NULL ) {
+
+       for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+                 
+          delete [] Span_Svec_[i];
+          
+       }
+       
+       delete Span_Svec_;
+       
+    }
+
+    if ( Span_Nvec_ != NULL ) delete [] Span_Nvec_;    
+
+    if ( Span_Nvec_ != NULL ) {
+
+       for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+                 
+          delete [] Span_Nvec_[i];
+          
+       }
+       
+       delete Span_Nvec_;
+       
+    }
+        
+    if ( Span_Area_ != NULL ) delete [] Span_Area_;
+    
+    if ( Span_Chord_ != NULL ) delete [] Span_Chord_;
+    
+    if ( Span_S_ != NULL ) delete [] Span_S_;
+    
+    if ( Span_S_Def_ != NULL ) delete [] Span_S_Def_;
+    
+    if ( Local_Velocity_ != NULL ) {
+
+       for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
+                 
+          delete [] Local_Velocity_[i];
+          
+       }
+       
+       delete Local_Velocity_;
+       
+    }
+
+    if ( StallFact_ != NULL ) delete [] StallFact_;
+    
+    if ( IsStalled_ != NULL ) delete [] IsStalled_;
+
     NumberOfSpanStations_ = 0;
-
-    NumberOfTimeSamples_ = 0;
-
-    ActualTimeSamples_ = 0;
+    
+    IsARotor_ = 0;
 
 }
 
@@ -114,91 +270,116 @@ SPAN_LOAD_DATA::SPAN_LOAD_DATA(const SPAN_LOAD_DATA &SPAN_LOAD_DATA)
 SPAN_LOAD_DATA &SPAN_LOAD_DATA::operator=(const SPAN_LOAD_DATA &SpanLoadData)
 {
 
-    int i;
+    int i, j;
     
-    SurfaceID_ = SpanLoadData.SurfaceID_;
-
-    if ( Span_Cno_ != NULL ) delete [] Span_Cno_;
-    if ( Span_Cso_ != NULL ) delete [] Span_Cso_;  
-    if ( Span_Cto_ != NULL ) delete [] Span_Cto_;
-    if ( Span_Cqo_ != NULL ) delete [] Span_Cqo_;
-    if ( Span_Cpo_ != NULL ) delete [] Span_Cpo_; 
-                          
-    if ( Span_Cn_  != NULL ) delete [] Span_Cn_;
-    if ( Span_Cs_  != NULL ) delete [] Span_Cs_;
-    if ( Span_Ct_  != NULL ) delete [] Span_Ct_;  
-    if ( Span_Cq_  != NULL ) delete [] Span_Cq_;
-    if ( Span_Cp_  != NULL ) delete [] Span_Cp_;  
-
-    if ( Time_           != NULL ) delete [] Time_;   
-    if ( XYZ_QC_[0]      != NULL ) delete [] XYZ_QC_[0];   
-    if ( XYZ_QC_[1]      != NULL ) delete [] XYZ_QC_[1];   
-    if ( XYZ_QC_[2]      != NULL ) delete [] XYZ_QC_[2];   
-    if ( RotationAngle_  != NULL ) delete [] RotationAngle_;                           
-    if ( Span_S_         != NULL ) delete [] Span_S_;        
-    if ( Span_Area_      != NULL ) delete [] Span_Area_;     
-    if ( Span_Chord_     != NULL ) delete [] Span_Chord_;    
-    if ( Local_Velocity_ != NULL ) delete [] Local_Velocity_;
-
-    NumberOfSpanStations_ = SpanLoadData.NumberOfSpanStations_;
+    Size(SpanLoadData.NumberOfSpanStations_);
     
-    NumberOfTimeSamples_ = SpanLoadData.NumberOfTimeSamples_;
+    ZeroAll();
     
-    ActualTimeSamples_ = SpanLoadData.ActualTimeSamples_;
-    
-    Span_Cno_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cso_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cto_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cqo_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cpo_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-                                                                         
-    Span_Cn_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cs_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Ct_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cq_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cp_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cp_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    
-    Time_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-
-    XYZ_QC_[0] = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    XYZ_QC_[1] = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    XYZ_QC_[2] = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-
-    RotationAngle_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_S_         = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Area_      = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Chord_     = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Local_Velocity_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-
-    for ( i = 1 ; i <= NumberOfSpanStations_*MAX(ActualTimeSamples_,NumberOfTimeSamples_) ; i++ ) {
-
-       Span_Cno_[i]       = SpanLoadData.Span_Cno_[i];
-       Span_Cso_[i]       = SpanLoadData.Span_Cso_[i];    
-       Span_Cto_[i]       = SpanLoadData.Span_Cto_[i];                                           
-       Span_Cqo_[i]       = SpanLoadData.Span_Cqo_[i];
-       Span_Cpo_[i]       = SpanLoadData.Span_Cpo_[i];
+    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
        
-       Span_Cn_[i]        = SpanLoadData.Span_Cn_[i];
-       Span_Cs_[i]        = SpanLoadData.Span_Cs_[i];    
-       Span_Ct_[i]        = SpanLoadData.Span_Ct_[i];                                           
-       Span_Cq_[i]        = SpanLoadData.Span_Cq_[i];
-       Span_Cp_[i]        = SpanLoadData.Span_Cp_[i];
+       // Viscous forces
+         
+       Span_Cxo_[i] = SpanLoadData.Span_Cxo_[i];
+       Span_Cyo_[i] = SpanLoadData.Span_Cyo_[i];
+       Span_Czo_[i] = SpanLoadData.Span_Czo_[i];
+                 
+       // Inviscid forces
+                   
+       Span_Cx_[i] = SpanLoadData.Span_Cx_[i];
+       Span_Cy_[i] = SpanLoadData.Span_Cy_[i];
+       Span_Cz_[i] = SpanLoadData.Span_Cz_[i];
+  
+       // Trefftz, induced drag, forces
+       
+       Span_Cxi_[i] = SpanLoadData.Span_Cxi_[i]; 
+       Span_Cyi_[i] = SpanLoadData.Span_Cyi_[i];
+       Span_Czi_[i] = SpanLoadData.Span_Czi_[i]; 
+       
+       // Viscous moments
+         
+       Span_Cmxo_[i] = SpanLoadData.Span_Cmxo_[i];
+       Span_Cmyo_[i] = SpanLoadData.Span_Cmyo_[i];
+       Span_Cmzo_[i] = SpanLoadData.Span_Cmzo_[i];
+             
+       // Inviscid moments
         
-       XYZ_QC_[0][i]      = SpanLoadData.XYZ_QC_[0][i];
-       XYZ_QC_[1][i]      = SpanLoadData.XYZ_QC_[1][i];
-       XYZ_QC_[2][i]      = SpanLoadData.XYZ_QC_[2][i];
+       Span_Cmx_[i] = SpanLoadData.Span_Cmx_[i];
+       Span_Cmy_[i] = SpanLoadData.Span_Cmy_[i];
+       Span_Cmz_[i] = SpanLoadData.Span_Cmz_[i];
+        
+       // Trefftz, induced drag, moments
        
-       Time_[i]           = SpanLoadData.Time_[i];
+       Span_Cmxi_[i] = SpanLoadData.Span_Cmxi_[i];
+       Span_Cmyi_[i] = SpanLoadData.Span_Cmyi_[i];
+       Span_Cmzi_[i] = SpanLoadData.Span_Cmzi_[i];
        
-       RotationAngle_[i]  = SpanLoadData.RotationAngle_[i];
-     
-       Span_S_[i]         = SpanLoadData.Span_S_[i];        
-       Span_Area_[i]      = SpanLoadData.Span_Area_[i];     
-       Span_Chord_[i]     = SpanLoadData.Span_Chord_[i];    
-       Local_Velocity_[i] = SpanLoadData.Local_Velocity_[i];
+       // Lift, drag, normal, spanwise forces
+               
+       Span_Cn_[i] = SpanLoadData.Span_Cn_[i];
+       Span_Cl_[i] = SpanLoadData.Span_Cl_[i];
+       Span_Cs_[i] = SpanLoadData.Span_Cs_[i];
+       Span_Cd_[i] = SpanLoadData.Span_Cd_[i];
        
-    }
+       // Span Min Cp
+
+       Span_CpMin_[i] = SpanLoadData.Span_CpMin_[i];
+
+       // Geometrical information
+
+       Span_XLE_[i] = SpanLoadData.Span_XLE_[i];
+       Span_YLE_[i] = SpanLoadData.Span_YLE_[i];
+       Span_ZLE_[i] = SpanLoadData.Span_ZLE_[i];   
+              
+       Span_XTE_[i] = SpanLoadData.Span_XTE_[i];
+       Span_YTE_[i] = SpanLoadData.Span_YTE_[i];
+       Span_ZTE_[i] = SpanLoadData.Span_ZTE_[i];   
+
+       Span_XLE_Def_[i] = SpanLoadData.Span_XLE_Def_[i];
+       Span_YLE_Def_[i] = SpanLoadData.Span_YLE_Def_[i];
+       Span_ZLE_Def_[i] = SpanLoadData.Span_ZLE_Def_[i];   
+              
+       Span_XTE_Def_[i] = SpanLoadData.Span_XTE_Def_[i];
+       Span_YTE_Def_[i] = SpanLoadData.Span_YTE_Def_[i];
+       Span_ZTE_Def_[i] = SpanLoadData.Span_ZTE_Def_[i];   
+                  
+       Span_Xavg_[i] = SpanLoadData.Span_Xavg_[i];
+       Span_Yavg_[i] = SpanLoadData.Span_Yavg_[i];
+       Span_Zavg_[i] = SpanLoadData.Span_Zavg_[i];
+
+       for ( j = 0 ; j <= 2 ; j++ ) {
+                
+          Span_Svec_[i][j] = SpanLoadData.Span_Svec_[i][j];
+          
+       }
+
+       for ( j = 0 ; j <= 2 ; j++ ) {
+                
+          Span_Nvec_[i][j] = SpanLoadData.Span_Nvec_[i][j];
+          
+       }
+                     
+       Span_Area_[i] = SpanLoadData.Span_Area_[i];
+       
+       Span_Chord_[i] = SpanLoadData.Span_Chord_[i];
+       
+       Span_S_[i] = SpanLoadData.Span_S_[i];
+
+       Span_S_Def_[i] = SpanLoadData.Span_S_Def_[i];
+
+       for ( j = 0 ; j <= 3 ; j++ ) {
+                
+          Local_Velocity_[i][j] = SpanLoadData.Local_Velocity_[i][j];
+          
+       }
+       
+       StallFact_[i] = SpanLoadData.StallFact_[i];
+       
+       IsStalled_[i] = SpanLoadData.IsStalled_[i];
+       
+    }       
+    
+    IsARotor_ = SpanLoadData.IsARotor_;
         
     return *this;
 
@@ -206,244 +387,424 @@ SPAN_LOAD_DATA &SPAN_LOAD_DATA::operator=(const SPAN_LOAD_DATA &SpanLoadData)
 
 /*##############################################################################
 #                                                                              #
-#                  SPAN_LOAD_DATA SizeSpanLoadingList                          #
+#                            SPAN_LOAD_DATA Size                               #
 #                                                                              #
 ##############################################################################*/
 
-void SPAN_LOAD_DATA::SizeSpanLoadingList(void)
+void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
 {
 
     int i;
-    
-    if ( Span_Cno_ != NULL ) delete [] Span_Cno_;
-    if ( Span_Cso_ != NULL ) delete [] Span_Cso_;  
-    if ( Span_Cto_ != NULL ) delete [] Span_Cto_;
-    if ( Span_Cqo_ != NULL ) delete [] Span_Cqo_;
-    if ( Span_Cpo_ != NULL ) delete [] Span_Cpo_; 
-                          
-    if ( Span_Cn_  != NULL ) delete [] Span_Cn_;
-    if ( Span_Cs_  != NULL ) delete [] Span_Cs_;
-    if ( Span_Ct_  != NULL ) delete [] Span_Ct_;  
-    if ( Span_Cq_  != NULL ) delete [] Span_Cq_;
-    if ( Span_Cp_  != NULL ) delete [] Span_Cp_;  
 
-    if ( Time_           != NULL ) delete [] Time_;                                                          
-    if ( XYZ_QC_[0]      != NULL ) delete [] XYZ_QC_[0];   
-    if ( XYZ_QC_[1]      != NULL ) delete [] XYZ_QC_[1];   
-    if ( XYZ_QC_[2]      != NULL ) delete [] XYZ_QC_[2];
-    if ( RotationAngle_  != NULL ) delete [] RotationAngle_;                           
-    if ( Span_S_         != NULL ) delete [] Span_S_;        
-    if ( Span_Area_      != NULL ) delete [] Span_Area_;     
-    if ( Span_Chord_     != NULL ) delete [] Span_Chord_;    
-    if ( Local_Velocity_ != NULL ) delete [] Local_Velocity_;
+    NumberOfSpanStations_ = NumberOfSpanStations;
     
-    NumberOfTimeSamples_ = MAX(NumberOfTimeSamples_, 1);
+    // Viscous forces
+      
+    Span_Cxo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cyo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Czo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+              
+    // Inviscid forces
+                
+    Span_Cx_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cy_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cz_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+  
+    // Trefftz, induced drag, forces
     
-    if ( NumberOfSpanStations_ == 0 ) {
+    Span_Cxi_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1]; 
+    Span_Cyi_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Czi_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1]; 
+    
+    // Viscous moments
+      
+    Span_Cmxo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cmyo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cmzo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+          
+    // Inviscid moments
+     
+    Span_Cmx_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cmy_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cmz_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+      
+    // Trefftz, induced drag, moments
+
+    Span_Cmxi_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cmyi_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cmzi_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    
+    // Lift, drag, normal, spanwise forces
+            
+    Span_Cn_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cl_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cs_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cd_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    
+    // Span Min Cp
+    
+    Span_CpMin_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    
+    // Geometrical information
+
+    Span_XLE_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_YLE_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_ZLE_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1]; 
+        
+    Span_XTE_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_YTE_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_ZTE_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1]; 
+
+    Span_XLE_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_YLE_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_ZLE_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1]; 
+        
+    Span_XTE_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_YTE_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_ZTE_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1]; 
+               
+    Span_Xavg_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Yavg_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Zavg_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+
+    Span_Svec_ = new VSPAERO_DOUBLE*[NumberOfSpanStations_ + 1];
+
+    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+              
+       Span_Svec_[i] = new VSPAERO_DOUBLE[3];
        
-       printf("Error in setting up storage for span loading information! \n");
+    }
+    
+    Span_Nvec_= new VSPAERO_DOUBLE*[NumberOfSpanStations_ + 1];
+    
+    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+              
+       Span_Nvec_[i] = new VSPAERO_DOUBLE[3];
        
-       printf("NumberOfSpanStations_: %d \n",NumberOfSpanStations_);
-       
-       fflush(NULL);exit(1);
+    }
+            
+    Span_Area_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    
+    Span_Chord_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    
+    Span_S_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+
+    Span_S_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+
+    Local_Velocity_ = new VSPAERO_DOUBLE*[NumberOfSpanStations_ + 1];
+    
+    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+              
+       Local_Velocity_[i] = new VSPAERO_DOUBLE[4];
        
     }
 
-    ActualTimeSamples_ = 0;
+    // Stall Flag
 
-    Span_Cno_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cso_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cto_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cqo_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cpo_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-                                                                         
-    Span_Cn_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cs_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Ct_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cq_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cp_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Cp_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-
-    Time_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
+    StallFact_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     
-    XYZ_QC_[0] = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    XYZ_QC_[1] = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    XYZ_QC_[2] = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-
-    RotationAngle_  = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_S_         = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Area_      = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Span_Chord_     = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-    Local_Velocity_ = new double[NumberOfSpanStations_*(NumberOfTimeSamples_ + 5)];
-
-    for ( i = 0 ; i <= NumberOfSpanStations_*NumberOfTimeSamples_ ; i++ ) {
-
-       Span_Cno_[i]       = 0.;
-       Span_Cso_[i]       = 0.;    
-       Span_Cto_[i]       = 0.;                                           
-       Span_Cqo_[i]       = 0.;
-       Span_Cpo_[i]       = 0.;
-       
-       Span_Cn_[i]        = 0.;
-       Span_Cs_[i]        = 0.;    
-       Span_Ct_[i]        = 0.;                                           
-       Span_Cq_[i]        = 0.;
-       Span_Cp_[i]        = 0.;
-
-       XYZ_QC_[0][i]      = 0.;
-       XYZ_QC_[1][i]      = 0.;
-       XYZ_QC_[2][i]      = 0.;
-       
-       Time_[i]           = 0.;
-       
-       RotationAngle_[i]  = 0.;
-
-       Span_S_[i]         = 0.;
-       Span_Area_[i]      = 0.;
-       Span_Chord_[i]     = 0.;
-       Local_Velocity_[i] = 0.;
-       
-    }
+    IsStalled_ = new int[NumberOfSpanStations_ + 1];
+    
+    
+    ZeroAll();
 
 }
 
 /*##############################################################################
 #                                                                              #
-#               SPAN_LOAD_DATA CalculateAverageForcesAndMoments                #
+#                       SPAN_LOAD_DATA ZeroAll                                 #
 #                                                                              #
 ##############################################################################*/
 
-void SPAN_LOAD_DATA::CalculateAverageForcesAndMoments(void)
+void SPAN_LOAD_DATA::ZeroAll(void)
 {
 
     int i, j;
 
     for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+       
+       // Viscous forces
+         
+       Span_Cxo_[i] = 0.;
+       Span_Cyo_[i] = 0.;
+       Span_Czo_[i] = 0.;
+                 
+       // Inviscid forces
+                   
+       Span_Cx_[i] = 0.;
+       Span_Cy_[i] = 0.;
+       Span_Cz_[i] = 0.;
 
-             Span_Cno_[i] = 0.;
-             Span_Cso_[i] = 0.;
-             Span_Cto_[i] = 0.;
-             Span_Cqo_[i] = 0.;
-             Span_Cpo_[i] = 0.;
-                        
-              Span_Cn_[i] = 0.;
-              Span_Cs_[i] = 0.;
-              Span_Ct_[i] = 0.;
-              Span_Cq_[i] = 0.;
-              Span_Cp_[i] = 0.;
-                            
-            XYZ_QC_[0][i] = 0.;
-            XYZ_QC_[1][i] = 0.;
-            XYZ_QC_[2][i] = 0.;
-            
-                 Time_[i] = 0.;
+       // Trefftz, induced drag, forces
        
-        RotationAngle_[i] = 0.;
-                                   
-               Span_S_[i] = 0.;
-            Span_Area_[i] = 0.;
-           Span_Chord_[i] = 0.;
-       Local_Velocity_[i] = 0.;
+       Span_Cxi_[i] = 0.;
+       Span_Cyi_[i] = 0.;
+       Span_Czi_[i] = 0.;
        
-    }
-    
-    for ( j = 1 ; j <= ActualTimeSamples_ ; j++ ) {
-       
-       for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+       // Viscous moments
+         
+       Span_Cmxo_[i] = 0.;
+       Span_Cmyo_[i] = 0.;
+       Span_Cmzo_[i] = 0.;
+             
+       // Inviscid moments
+        
+       Span_Cmx_[i] = 0.;
+       Span_Cmy_[i] = 0.;
+       Span_Cmz_[i] = 0.;
    
-                Span_Cno_[i] +=       Span_Cno_[j*NumberOfSpanStations_ + i];
-                Span_Cso_[i] +=       Span_Cso_[j*NumberOfSpanStations_ + i];
-                Span_Cto_[i] +=       Span_Cto_[j*NumberOfSpanStations_ + i];
-                Span_Cqo_[i] +=       Span_Cqo_[j*NumberOfSpanStations_ + i];
-                Span_Cpo_[i] +=       Span_Cpo_[j*NumberOfSpanStations_ + i];
-                                               
-                 Span_Cn_[i] +=        Span_Cn_[j*NumberOfSpanStations_ + i]; 
-                 Span_Cs_[i] +=        Span_Cs_[j*NumberOfSpanStations_ + i];
-                 Span_Ct_[i] +=        Span_Ct_[j*NumberOfSpanStations_ + i];
-                 Span_Cq_[i] +=        Span_Cq_[j*NumberOfSpanStations_ + i]; 
-                 Span_Cp_[i] +=        Span_Cp_[j*NumberOfSpanStations_ + i]; 
-                                                
-                  Span_S_[i] +=         Span_S_[j*NumberOfSpanStations_ + i];     
-               Span_Area_[i] +=      Span_Area_[j*NumberOfSpanStations_ + i];  
-              Span_Chord_[i] +=     Span_Chord_[j*NumberOfSpanStations_ + i];   
-          Local_Velocity_[i] += Local_Velocity_[j*NumberOfSpanStations_ + i]; 
+       // Trefftz, induced drag, moments
+       
+       Span_Cmxi_[i] = 0.;
+       Span_Cmyi_[i] = 0.;
+       Span_Cmzi_[i] = 0.;
+       
+       // Lift, drag, normal, spanwise forces
+               
+       Span_Cn_[i] = 0.;
+       Span_Cl_[i] = 0.;
+       Span_Cs_[i] = 0.;
+       Span_Cd_[i] = 0.;
+       
+       // Span Min Cp
+       
+       Span_CpMin_[i] = 0.;
+           
+       // Geometrical information       
+    
+       Span_XLE_[i] = 0.;
+       Span_YLE_[i] = 0.;
+       Span_ZLE_[i] = 0.;
+           
+       Span_XTE_[i] = 0.;
+       Span_YTE_[i] = 0.;
+       Span_ZTE_[i] = 0.;
+
+       Span_XLE_Def_[i] = 0.;
+       Span_YLE_Def_[i] = 0.;
+       Span_ZLE_Def_[i] = 0.;
+           
+       Span_XTE_Def_[i] = 0.;
+       Span_YTE_Def_[i] = 0.;
+       Span_ZTE_Def_[i] = 0.;
+              
+       Span_Xavg_[i] = 0.;
+       Span_Yavg_[i] = 0.;
+       Span_Zavg_[i] = 0.;
+
+       for ( j = 0 ; j <= 2 ; j++ ) {
+                
+          Span_Svec_[i][j] = 0.;
           
        }
        
-    }
-
-    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
-
-             Span_Cno_[i] /= ActualTimeSamples_;
-             Span_Cso_[i] /= ActualTimeSamples_;
-             Span_Cto_[i] /= ActualTimeSamples_;
-             Span_Cqo_[i] /= ActualTimeSamples_;
-             Span_Cpo_[i] /= ActualTimeSamples_;
+       for ( j = 0 ; j <= 2 ; j++ ) {
+                
+          Span_Nvec_[i][j] = 0.;
+          
+       }       
               
-              Span_Cn_[i] /= ActualTimeSamples_;
-              Span_Cs_[i] /= ActualTimeSamples_;
-              Span_Ct_[i] /= ActualTimeSamples_;
-              Span_Cq_[i] /= ActualTimeSamples_;
-              Span_Cp_[i] /= ActualTimeSamples_;
-                                  
-               Span_S_[i] /= ActualTimeSamples_;
-            Span_Area_[i] /= ActualTimeSamples_;
-           Span_Chord_[i] /= ActualTimeSamples_;
-       Local_Velocity_[i] /= ActualTimeSamples_;
+       Span_Area_[i] = 0.;
        
-    }
+       Span_Chord_[i] = 0.;
+       
+       Span_S_[i] = 0.;
+       
+       Span_S_Def_[i] = 0.;
+
+       for ( j = 0 ; j <= 3 ; j++ ) {
+                
+          Local_Velocity_[i][j] = 0.;
+          
+       }
+       
+       // Stall Flag
+       
+       StallFact_[i] = 0.;
+       
+       IsStalled_[i] = 0;
+
+    }       
     
 }
- 
+
 /*##############################################################################
 #                                                                              #
-#                      SPAN_LOAD_DATA ZeroForcesAndMoments                     #
+#                    SPAN_LOAD_DATA ZeroForcesAndMoments                       #
 #                                                                              #
 ##############################################################################*/
 
 void SPAN_LOAD_DATA::ZeroForcesAndMoments(void)
 {
 
-    int i;
+    int i, j;
 
-    for ( i = 0 ; i <= NumberOfSpanStations_*MAX(ActualTimeSamples_,NumberOfTimeSamples_) ; i++ ) {
-
-             Span_Cno_[i] = 0.;
-             Span_Cso_[i] = 0.;
-             Span_Cto_[i] = 0.;
-             Span_Cqo_[i] = 0.;
-             Span_Cpo_[i] = 0.;
-                        
-              Span_Cn_[i] = 0.;
-              Span_Cs_[i] = 0.;
-              Span_Ct_[i] = 0.;
-              Span_Cq_[i] = 0.;
-              Span_Cp_[i] = 0.;
-                            
-            XYZ_QC_[0][i] = 0.;
-            XYZ_QC_[1][i] = 0.;
-            XYZ_QC_[2][i] = 0.;
-            
-                 Time_[i] = 0.;
+    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
        
-        RotationAngle_[i] = 0.;
-                                   
-               Span_S_[i] = 0.;
-            Span_Area_[i] = 0.;
-           Span_Chord_[i] = 0.;
-       Local_Velocity_[i] = 0.;
-       
-    }
-    
-    ActualTimeSamples_ = 0;
+       // Viscous forces
+         
+       Span_Cxo_[i] = 0.;
+       Span_Cyo_[i] = 0.;
+       Span_Czo_[i] = 0.;
+                 
+       // Inviscid forces
+                   
+       Span_Cx_[i] = 0.;
+       Span_Cy_[i] = 0.;
+       Span_Cz_[i] = 0.;
   
+       // Trefftz, induced drag, forces
+       
+       Span_Cxi_[i] = 0.;
+       Span_Cyi_[i] = 0.;
+       Span_Czi_[i] = 0.;
+       
+       // Viscous moments
+         
+       Span_Cmxo_[i] = 0.;
+       Span_Cmyo_[i] = 0.;
+       Span_Cmzo_[i] = 0.;
+             
+       // Inviscid moments
+        
+       Span_Cmx_[i] = 0.;
+       Span_Cmy_[i] = 0.;
+       Span_Cmz_[i] = 0.;
+    
+       // Trefftz, induced drag, moments
+       
+       Span_Cmxi_[i] = 0.;
+       Span_Cmyi_[i] = 0.;
+       Span_Cmzi_[i] = 0.;
+       
+       // Lift, drag, normal, spanwise forces
+               
+       Span_Cn_[i] = 0.;
+       Span_Cl_[i] = 0.;
+       Span_Cs_[i] = 0.;
+       Span_Cd_[i] = 0.;
+              
+       // Span Min Cp
+       
+       Span_CpMin_[i] = 0.;       
+       
+       // Geometrical information
+       
+       Span_Xavg_[i] = 0.;
+       Span_Yavg_[i] = 0.;
+       Span_Zavg_[i] = 0.;
+              
+       // Area
+       
+       Span_Area_[i] = 0.;
+              
+       // Velocity
+       
+       for ( j = 0 ; j <= 3 ; j++ ) {
+                
+          Local_Velocity_[i][j] = 0.;
+          
+       }
+       
+       // Stall Flag
+        
+       StallFact_[i] = 0.;
+       
+       IsStalled_[i] = 0.;
+
+    }     
+    
 }
 
+/*##############################################################################
+#                                                                              #
+#                    SPAN_LOAD_DATA UpdateGeometryLocation                     #
+#                                                                              #
+##############################################################################*/
+
+void SPAN_LOAD_DATA::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat)
+{
 
 
+    int i;
+    QUAT Vec;
 
+    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
 
+       // Leading edge location
+       
+       Vec(0) = Span_XLE_[i] - OVec[0];
+       Vec(1) = Span_YLE_[i] - OVec[1];
+       Vec(2) = Span_ZLE_[i] - OVec[2];   
+     
+       Vec = Quat * Vec * InvQuat;
 
+       Span_XLE_[i] = Vec(0) + OVec[0] + TVec[0];
+       Span_YLE_[i] = Vec(1) + OVec[1] + TVec[1];
+       Span_ZLE_[i] = Vec(2) + OVec[2] + TVec[2];      
 
+       // Trailing edge location
+       
+       Vec(0) = Span_XTE_[i] - OVec[0];
+       Vec(1) = Span_YTE_[i] - OVec[1];
+       Vec(2) = Span_ZTE_[i] - OVec[2];   
+       
+       Vec = Quat * Vec * InvQuat;
 
+       Span_XTE_[i] = Vec(0) + OVec[0] + TVec[0];
+       Span_YTE_[i] = Vec(1) + OVec[1] + TVec[1];
+       Span_ZTE_[i] = Vec(2) + OVec[2] + TVec[2];      
+
+       // Defelected Leading edge location
+       
+       Vec(0) = Span_XLE_Def_[i] - OVec[0];
+       Vec(1) = Span_YLE_Def_[i] - OVec[1];
+       Vec(2) = Span_ZLE_Def_[i] - OVec[2];   
+       
+       Vec = Quat * Vec * InvQuat;
+
+       Span_XLE_Def_[i] = Vec(0) + OVec[0] + TVec[0];
+       Span_YLE_Def_[i] = Vec(1) + OVec[1] + TVec[1];
+       Span_ZLE_Def_[i] = Vec(2) + OVec[2] + TVec[2];      
+
+       // Deflected Trailing edge location
+       
+       Vec(0) = Span_XTE_Def_[i] - OVec[0];
+       Vec(1) = Span_YTE_Def_[i] - OVec[1];
+       Vec(2) = Span_ZTE_Def_[i] - OVec[2];   
+
+       Vec = Quat * Vec * InvQuat;
+
+       Span_XTE_Def_[i] = Vec(0) + OVec[0] + TVec[0];
+       Span_YTE_Def_[i] = Vec(1) + OVec[1] + TVec[1];
+       Span_ZTE_Def_[i] = Vec(2) + OVec[2] + TVec[2];     
+                     
+       // Direction vector 
+
+       Vec(0) = Span_Svec_[i][0];
+       Vec(1) = Span_Svec_[i][1];
+       Vec(2) = Span_Svec_[i][2];
+       
+       Vec = Quat * Vec * InvQuat;
+       
+       Span_Svec_[i][0] = Vec(0); 
+       Span_Svec_[i][1] = Vec(1); 
+       Span_Svec_[i][2] = Vec(2);    
+       
+       // Normal vector
+       
+       Vec(0) = Span_Nvec_[i][0];
+       Vec(1) = Span_Nvec_[i][1];
+       Vec(2) = Span_Nvec_[i][2];
+       Vec(3) = 0.;
+       
+       Vec = Quat * Vec * InvQuat;
+
+       Span_Nvec_[i][0] = Vec(0); 
+       Span_Nvec_[i][1] = Vec(1); 
+       Span_Nvec_[i][2] = Vec(2);    
+                     
+    }    
+
+}
 

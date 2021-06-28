@@ -15,101 +15,102 @@
 COMPONENT_GROUP::COMPONENT_GROUP(void)
 {
 
-    // Just zero the quat
-
+    
     NumberOfComponents_ = 0;
-    
-    GeometryIsFixed_ = 0;
-    
-    GeometryIsDynamic_ = 0;
-    
-    GeometryIsARotor_ = 0;
-    
-    GeometryHasWings_ = 0;
-    
-    GeometryHasBodies_ = 0;
-    
+   
     ComponentList_ = NULL;
     
-    SpanLoadData_ = NULL;
+    GeometryIsFixed_   = 0;
+    GeometryIsDynamic_ = 0;
+    GeometryIsARotor_  = 0;
+    GeometryHasWings_  = 0;
+    GeometryHasBodies_ = 0;
+        
+    OVec_[0] = OVec_[0] = OVec_[0] = 0.;
+    RVec_[0] = RVec_[0] = RVec_[0] = 0.;
+    TVec_[0] = TVec_[0] = TVec_[0] = 0.;
     
-    OVec_[0] = OVec_[1] = OVec_[2] = 0.;
-    RVec_[0] = RVec_[1] = RVec_[2] = 0.;
-    TVec_[0] = TVec_[1] = TVec_[2] = 0.;
+    UserInputVelocity_[0] = UserInputVelocity_[1] = UserInputVelocity_[2] = 0.;
 
-    Velocity_[0] = Velocity_[1] = Velocity_[2] = 0.;
-    
-    Acceleration_[0] = Acceleration_[1] = Acceleration_[2] = 0.;
+    UserInputAcceleration_[0] = UserInputAcceleration_[1] = UserInputAcceleration_[2] = 0.;
     
     Mass_ = 0.;
-    
+
     Ixx_ = 0.;
-    
     Iyy_ = 0.;
-    
     Izz_ = 0.;
-    
     Ixy_ = 0.;
-    
     Ixz_ = 0.;
-    
     Iyz_ = 0.;
-        
-    Omega_ = 0.;
-    
-    Angle_  = 0.;
-    
-    TimeStep_ = 0.;
-    
-    RotorDiameter_ = 0.;
-    
-    AngleMax_= 0.;
-    
-    Quat_(0) = Quat_(1) = Quat_(2) = 0.;
-    
-    InvQuat_(0) = InvQuat_(1) = InvQuat_(2) = 0.;
-    
-    WQuat_(0) = WQuat_(1) = WQuat_(2) = 0.;
-    
-    TotalRotationAngle_ = 0.;
+
+    Omega_                    = 0.;
+    Angle_                    = 0.;
+    TimeStep_                 = 0.;
+    CurrentTime_              = 0.;
+    RotorDiameter_            = 0.;
+    AngleMax_                 = 0.;
+    TotalRotationAngle_       = 0.;
+    StartDynamicAnalysisTime_ = 0.;
+
+    // Integrated forces
     
     NumberOfTimeSamples_ = 0;
     
+    StartAveragingTimeStep_ = 0;
+    
     StartAveragingTime_ = 0.;
-    
-    Cx_[0]   = Cx_[1]   = 0.;
-    Cy_[0]   = Cy_[1]   = 0.;
-    Cz_[0]   = Cz_[1]   = 0.;
-                        
-    Cmx_[0]  = Cmx_[1]  = 0.;
-    Cmy_[0]  = Cmy_[1]  = 0.;
-    Cmz_[0]  = Cmz_[1]  = 0.;
-                        
-    CL_[0]   = CL_[1]   = 0.;
-    CD_[0]   = CD_[1]   = 0.;
-    CS_[0]   = CS_[1]   = 0.;
-                        
-    Cxo_[0]  = Cxo_[1]  = 0.;
-    Cyo_[0]  = Cyo_[1]  = 0.;
-    Czo_[0]  = Czo_[1]  = 0.;
-                        
-    Cmxo_[0] = Cmxo_[1] = 0.;
-    Cmyo_[0] = Cmyo_[1] = 0.;
-    Cmzo_[0] = Cmzo_[1] = 0.;
-                        
-    CLo_[0]  = CLo_[1]  = 0.;
-    CDo_[0]  = CDo_[1]  = 0.;
-    CSo_[0]  = CSo_[1]  = 0.; 
-    
-    Vref_ = 0.;
-    Sref_ = 0.;
-    Cref_ = 0.;
-    Bref_ = 0.;
 
-    NumberOfSurfaces_ = 0;
+    Cxo_[0] = Cxo_[1] = Cxo_[2] = 0.;
+    Cyo_[0] = Cyo_[1] = Cyo_[2] = 0.;
+    Czo_[0] = Czo_[1] = Czo_[2] = 0.;
+    
+    Cx_[0] = Cx_[1] = Cx_[2] = 0.;
+    Cy_[0] = Cy_[1] = Cy_[2] = 0.;
+    Cz_[0] = Cz_[1] = Cz_[2] = 0.;
+
+    Cmxo_[0] = Cmxo_[1] = Cmxo_[2] = 0.;
+    Cmyo_[0] = Cmyo_[1] = Cmyo_[2] = 0.;
+    Cmzo_[0] = Cmzo_[1] = Cmzo_[2] = 0.;
+
+    Cmx_[0] = Cmx_[1] = Cmx_[2] = 0.;
+    Cmy_[0] = Cmy_[1] = Cmy_[2] = 0.;
+    Cmz_[0] = Cmz_[1] = Cmz_[2] = 0.;
+
+    CL_[0] = CL_[1] = CL_[2] = 0.;
+    CD_[0] = CD_[1] = CD_[2] = 0.;
+    CS_[0] = CS_[1] = CS_[2] = 0.;
+
+    CLo_[0] = CLo_[1] = CLo_[2] = 0.;
+    CDo_[0] = CDo_[1] = CDo_[2] = 0.;
+    CSo_[0] = CSo_[1] = CSo_[2] = 0.;
+    
+    // Free stream conditions
+    
+    Density_ = 0.;
+    Vref_    = 0.;
+    Sref_    = 0.;
+    Bref_    = 0.;  
+    Cref_    = 0.;  
+    
+    // Spanwise forces and moments, for wings and rotors
+    
+    NumberOfLiftingSurfaces_ = 0;
     
     SpanLoadData_ = NULL;
+
+    // Size and intialize matrices, vectors
     
+                MassMatrix_.size(3,3);
+             InertiaMatrix_.size(3,3);
+      InertiaMatrixInverse_.size(3,3);       
+            RotationMatrix_.size(3,3);
+     RotationMatrixInverse_.size(3,3);      
+                  OmegaDot_.size(3);
+            LinearMomentum_.size(3);            
+           AngularMomentum_.size(3);           
+                  Velocity_.size(3);            
+              Acceleration_.size(3);    
+                  
 }
 
 /*##############################################################################
@@ -127,7 +128,7 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
     
     NumberOfComponents_ = 0;
     
-    NumberOfSurfaces_ = 0;    
+    NumberOfLiftingSurfaces_ = 0;    
     
     GeometryIsFixed_ = 0;
     
@@ -143,9 +144,9 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
     RVec_[0] = RVec_[1] = RVec_[2] = 0.;
     TVec_[0] = TVec_[1] = TVec_[2] = 0.;
 
-    Velocity_[0] = Velocity_[1] = Velocity_[2] = 0.;
+    UserInputVelocity_[0] = UserInputVelocity_[1] = UserInputVelocity_[2] = 0.;
     
-    Acceleration_[0] = Acceleration_[1] = Acceleration_[2] = 0.;
+    UserInputAcceleration_[0] = UserInputAcceleration_[1] = UserInputAcceleration_[2] = 0.;
     
     Mass_ = 0.;
     
@@ -203,7 +204,7 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
                         
     CLo_[0]  = CLo_[1]  = 0.;
     CDo_[0]  = CDo_[1]  = 0.;
-    CSo_[0]  = CSo_[1]  = 0.; 
+    CSo_[0]  = CSo_[1]  = 0.;
 
 }
 
@@ -243,11 +244,11 @@ COMPONENT_GROUP &COMPONENT_GROUP::operator=(const COMPONENT_GROUP &ComponentGrou
        
     }
     
-    NumberOfSurfaces_ = ComponentGroup.NumberOfSurfaces_;
+    NumberOfLiftingSurfaces_ = ComponentGroup.NumberOfLiftingSurfaces_;
     
-    SizeSpanLoadingList(NumberOfSurfaces_);
+    SizeSpanLoadingList(NumberOfLiftingSurfaces_);
     
-    for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
+    for ( i = 1 ; i <= NumberOfLiftingSurfaces_ ; i++ ) {
        
        SpanLoadData_[i] = ComponentGroup.SpanLoadData_[i];
        
@@ -275,13 +276,13 @@ COMPONENT_GROUP &COMPONENT_GROUP::operator=(const COMPONENT_GROUP &ComponentGrou
     TVec_[1] = ComponentGroup.TVec_[1];
     TVec_[2] = ComponentGroup.TVec_[2];
  
-    Velocity_[0] = ComponentGroup.Velocity_[0];
-    Velocity_[1] = ComponentGroup.Velocity_[1];
-    Velocity_[2] = ComponentGroup.Velocity_[2];
+    UserInputVelocity_[0] = ComponentGroup.UserInputVelocity_[0];
+    UserInputVelocity_[1] = ComponentGroup.UserInputVelocity_[1];
+    UserInputVelocity_[2] = ComponentGroup.UserInputVelocity_[2];
     
-    Acceleration_[0] = ComponentGroup.Acceleration_[0];
-    Acceleration_[1] = ComponentGroup.Acceleration_[1];
-    Acceleration_[2] = ComponentGroup.Acceleration_[2];
+    UserInputAcceleration_[0] = ComponentGroup.UserInputAcceleration_[0];
+    UserInputAcceleration_[1] = ComponentGroup.UserInputAcceleration_[1];
+    UserInputAcceleration_[2] = ComponentGroup.UserInputAcceleration_[2];
     
     Mass_ = ComponentGroup.Mass_;
     
@@ -367,6 +368,17 @@ COMPONENT_GROUP &COMPONENT_GROUP::operator=(const COMPONENT_GROUP &ComponentGrou
     CDo_[1]  = ComponentGroup.CDo_[1];
     CSo_[1]  = ComponentGroup.CSo_[1];
         
+                MassMatrix_ = ComponentGroup.MassMatrix_;
+             InertiaMatrix_ = ComponentGroup.InertiaMatrix_;
+      InertiaMatrixInverse_ = ComponentGroup.InertiaMatrixInverse_;    
+            RotationMatrix_ = ComponentGroup.RotationMatrix_;
+     RotationMatrixInverse_ = ComponentGroup.RotationMatrixInverse_;   
+                  OmegaDot_ = ComponentGroup.OmegaDot_;
+            LinearMomentum_ = ComponentGroup.LinearMomentum_;     
+           AngularMomentum_ = ComponentGroup.AngularMomentum_;       
+                  Velocity_ = ComponentGroup.Velocity_;        
+              Acceleration_ = ComponentGroup.Acceleration_;       
+      
     return *this;
 
 }
@@ -397,12 +409,12 @@ void COMPONENT_GROUP::SizeList(int NumberOfComponents)
 #                                                                              #
 ##############################################################################*/
 
-void COMPONENT_GROUP::SizeSpanLoadingList(int NumberOfSurfaces)
+void COMPONENT_GROUP::SizeSpanLoadingList(int NumberOfLiftingSurfaces)
 {
 
-    NumberOfSurfaces_ = NumberOfSurfaces;
+    NumberOfLiftingSurfaces_ = NumberOfLiftingSurfaces;
     
-    SpanLoadData_ = new SPAN_LOAD_DATA[NumberOfSurfaces + 1];
+    SpanLoadData_ = new SPAN_LOAD_ROTOR_DATA[NumberOfLiftingSurfaces + 1];
 
 }           
             
@@ -412,7 +424,7 @@ void COMPONENT_GROUP::SizeSpanLoadingList(int NumberOfSurfaces)
 #                                                                              #
 ##############################################################################*/
 
-void COMPONENT_GROUP::Update(double TimeStep, double CurrentTime)
+void COMPONENT_GROUP::Update(VSPAERO_DOUBLE TimeStep, VSPAERO_DOUBLE CurrentTime)
 {
 
             
@@ -446,7 +458,7 @@ void COMPONENT_GROUP::Update(double TimeStep, double CurrentTime)
     
     else {
        
-       printf("Unknown dynamic or rotor state \n");fflush(NULL);
+       PRINTF ("Unknown dynamic or rotor state \n");fflush(NULL);
        exit(1);
        
     }
@@ -462,20 +474,21 @@ void COMPONENT_GROUP::Update(double TimeStep, double CurrentTime)
 void COMPONENT_GROUP::UpdateSteadyRates(void)
 {
 
-    QUAT Omega, DQuatDt;
-
+    QUAT Omega;
+    
     // Angular rate
    
     Omega(0) = Omega_ * RVec_[0];
     Omega(1) = Omega_ * RVec_[1];
     Omega(2) = Omega_ * RVec_[2];
+    Omega(3) = 0.;
 
     // Quaternion for this rotation, and it's inverse
     
     Angle_ = Omega_ * TimeStep_;
 
     Quat_.FormRotationQuat(RVec_,Angle_);
-    
+   
     InvQuat_ = Quat_;
    
     InvQuat_.FormInverse();   
@@ -485,16 +498,14 @@ void COMPONENT_GROUP::UpdateSteadyRates(void)
     if ( CurrentTime_ > 0. ) TotalRotationAngle_ += Angle_;
  
     // Quaternion rates
-    
-    DQuatDt = Omega * Quat_;
-    
-    WQuat_ = DQuatDt * InvQuat_; // There is a factor of 1/2 missing here, but it gets multiplied away later
-    
+
+    WQuat_ = Omega * Quat_ * InvQuat_;
+        
     // Translation vector
 
-    TVec_[0] = Velocity_[0] * TimeStep_;
-    TVec_[1] = Velocity_[1] * TimeStep_;
-    TVec_[2] = Velocity_[2] * TimeStep_;
+    TVec_[0] = UserInputVelocity_[0] * TimeStep_;
+    TVec_[1] = UserInputVelocity_[1] * TimeStep_;
+    TVec_[2] = UserInputVelocity_[2] * TimeStep_;
 
 }
 
@@ -507,8 +518,8 @@ void COMPONENT_GROUP::UpdateSteadyRates(void)
 void COMPONENT_GROUP::UpdatePeriodicRates(void)
 {
 
-    double AngularRate, DeltaAngle;
-    QUAT Omega, DQuatDt;
+    VSPAERO_DOUBLE AngularRate, DeltaAngle;
+    QUAT Omega;
     
     // Calculate angle
 
@@ -521,12 +532,11 @@ void COMPONENT_GROUP::UpdatePeriodicRates(void)
     // Calculate instantaneous angular rate
     
     AngularRate = AngleMax_*TORAD*cos(Omega_ * CurrentTime_)*Omega_;
-   
-   // AngularRate = DeltaAngle/TimeStep_;
 
     Omega(0) = AngularRate * RVec_[0];
     Omega(1) = AngularRate * RVec_[1];
     Omega(2) = AngularRate * RVec_[2];
+    Omega(3) = 0.;
             
     // Quaternion for this rotation, and it's inverse
 
@@ -537,16 +547,14 @@ void COMPONENT_GROUP::UpdatePeriodicRates(void)
     InvQuat_.FormInverse();   
  
     // Quaternion rates
-    
-    DQuatDt = Omega * Quat_;
-    
-    WQuat_ = DQuatDt * InvQuat_; // There is a factor of 1/2 missing here, but it gets multiplied away later
-    
+
+    WQuat_ = Omega * Quat_ * InvQuat_; 
+
     // Translation vector
 
-    TVec_[0] = Velocity_[0] * TimeStep_;
-    TVec_[1] = Velocity_[1] * TimeStep_;
-    TVec_[2] = Velocity_[2] * TimeStep_;
+    TVec_[0] = UserInputVelocity_[0] * TimeStep_;
+    TVec_[1] = UserInputVelocity_[1] * TimeStep_;
+    TVec_[2] = UserInputVelocity_[2] * TimeStep_;
 
 }
 
@@ -559,157 +567,151 @@ void COMPONENT_GROUP::UpdatePeriodicRates(void)
 void COMPONENT_GROUP::UpdateDynamicSystem(void)
 {
 
-    double Dot;
-    QUAT Omega, DQuatDt;
-    MATRIX Force(3), Moment(3);
+    VSPAERO_DOUBLE Dot;
+    QUAT Omega, DQuat, InvDQuat_, Half, dTime, Mass, Inertia;
+    MATRIX Force(3), Moment(3), OmegaVec(3);
 
-    Mass_ = 2000./32.2; //slugs
+    dTime.Init(TimeStep_);
     
-    Ixx_ =  20.*Mass_;
-    Iyy_ =  80.*Mass_;
-    Izz_ =  80.*Mass_;
-    Ixy_ =   0.*Mass_;
-    Ixz_ =   0.*Mass_;
-    Iyz_ =   0.*Mass_;
-    
-    // Calculate forces and moments
-    
-    Density_ = 0.0021;
-    Vref_ = 540.;
-    Sref_ = 823.210124;
-    Cref_ = 8.434377;
-    Bref_ = 85.291011;
+    Half.Init(0.5);
 
-    Force(1) = Cx_[0] * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
-    Force(2) = Cy_[0] * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
-    Force(3) = Cz_[0] * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
+    // User specified accelerations
     
-    Force(3) -= Mass_ * 32.2;
-        
+    Force(1) = Mass_ * UserInputAcceleration_[0];
+    Force(2) = Mass_ * UserInputAcceleration_[1];
+    Force(3) = Mass_ * UserInputAcceleration_[2];
+
+    // Aerodynamic Forces
+    
+    Force(1) += Cx_[0] * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
+    Force(2) += Cy_[0] * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
+    Force(3) += Cz_[0] * 0.5 * Density_ * Sref_ * Vref_ * Vref_;
+
+    if ( CurrentTime_ < StartDynamicAnalysisTime_ ) {
+       
+       Force(1) = 0.;
+       Force(2) = 0.;
+       Force(3) = 0.;
+
+    }
+       
+    // Linear momentum
+    
+    LinearMomentum_(1) += TimeStep_ * Force(1);
+    LinearMomentum_(2) += TimeStep_ * Force(2);
+    LinearMomentum_(3) += TimeStep_ * Force(3);
+
+    // Velocity
+    
+    Velocity_(1) = LinearMomentum_(1) / Mass_;
+    Velocity_(2) = LinearMomentum_(2) / Mass_;
+    Velocity_(3) = LinearMomentum_(3) / Mass_;
+
+    // Translations
+    
+    TVec_[0] = Velocity_(1) * TimeStep_;
+    TVec_[1] = Velocity_(2) * TimeStep_;
+    TVec_[2] = Velocity_(3) * TimeStep_;
+
+    // Moments
+
     Moment(1) = Cmx_[0] * 0.5 * Density_ * Bref_ * Sref_ * Vref_ * Vref_;
     Moment(2) = Cmy_[0] * 0.5 * Density_ * Cref_ * Sref_ * Vref_ * Vref_;
     Moment(3) = Cmz_[0] * 0.5 * Density_ * Bref_ * Sref_ * Vref_ * Vref_;
 
-if ( CurrentTime_ < 64.*TimeStep_ ) {
+    if ( CurrentTime_ < StartDynamicAnalysisTime_ ) {
+       
+       Moment(1) = 0.;
+       Moment(2) = 0.;
+       Moment(3) = 0.;
 
-Force(1) = 0.;
-Force(2) = 0.;
-Force(3) = 0.;
+    }
+    
+    // Angular momentum
+    
+    AngularMomentum_(1) += TimeStep_ * Moment(1);
+    AngularMomentum_(2) += TimeStep_ * Moment(2);
+    AngularMomentum_(3) += TimeStep_ * Moment(3);
+    
+    OmegaVec = InertiaMatrixInverse_ * AngularMomentum_;
 
-Moment(1) = 0.;
-Moment(2) = 0.;
-Moment(3) = 0.;
+    Omega(0) = OmegaVec(1);
+    Omega(1) = OmegaVec(2);
+    Omega(2) = OmegaVec(3);
+    Omega(3) = 0.;
+    
+    // Update quaternion tracking overall rotation of geometry
 
-}
+    DQuat = dTime * Half * Omega * TotalQuat_;
 
-Moment.print("Moment");
+    TotalQuat_ = TotalQuat_ + DQuat;
 
-    // Mass and Inertia matrices
+    // Calculate the quat for just the change over the current timestep
 
-    I_(1,1) =  Ixx_; I_(1,2) = -Ixy_; I_(1,3) =  Ixz_;
-    I_(2,1) = -Ixy_; I_(2,2) =  Iyy_; I_(2,3) = -Iyz_;
-    I_(3,1) = -Ixz_; I_(3,2) = -Ixy_; I_(3,3) =  Izz_;
-I_.print("I_");      
-    M_(1,1) = Mass_; M_(1,2) =    0.; M_(1,3) =    0.;
-    M_(2,1) =    0.; M_(2,2) = Mass_; M_(2,3) =    0.;
-    M_(3,1) =    0.; M_(3,2) =    0.; M_(3,3) = Mass_;
-M_.print("M_");  
-    //
-    //
-    //
-    //
-    //
+    Dot = sqrt( DQuat(0)*DQuat(0) + DQuat(1)*DQuat(1) + DQuat(2)*DQuat(2) + DQuat(3)*DQuat(3) );
         
-    // Need to do transformation from body to inertial axes of I_
-    
-    //
-    //
-    //
-    //
-    //
-    
-    // Calculate angular acceleration
-
-    OmegaDot_ = Moment / I_;
-
-OmegaDot_.print("OmegaDot_");
-    
-    // Update angular rates
-    
-    RVec_[0] *= Omega_;
-    RVec_[1] *= Omega_;
-    RVec_[2] *= Omega_;
-    
-    RVec_[0] += OmegaDot_(1) * TimeStep_;
-    RVec_[1] += OmegaDot_(2) * TimeStep_;
-    RVec_[2] += OmegaDot_(3) * TimeStep_;
-
-    Dot = sqrt(vector_dot(RVec_,RVec_));
-    
     if ( Dot > 0. ) {
        
-       RVec_[0] /= Dot;
-       RVec_[1] /= Dot;
-       RVec_[2] /= Dot;
-    
+       RVec_[0] = DQuat(0)/Dot;
+       RVec_[1] = DQuat(1)/Dot;
+       RVec_[2] = DQuat(2)/Dot;
+
     }
     
     else {
        
        RVec_[0] = 1.;
-       RVec_[1] = 0.;
-       RVec_[2] = 0.;
-              
+       RVec_[1] = 1.;
+       RVec_[2] = 1.;
+       
+       Dot = 0.;
+       
     }
     
-    Omega_ = sqrt(OmegaDot_(1)*OmegaDot_(1) + OmegaDot_(2)*OmegaDot_(2) + OmegaDot_(3)*OmegaDot_(3))*TimeStep_;
-    
-    // Calculate linear accelerations
-    
-Force.print("Force");
-  
-    VDot_ = Force / M_;
+    Quat_.FormRotationQuat(RVec_, Dot);
 
-VDot_.print("VDot_");
-    
-    // Update velocity
-    
-    Velocity_[0] += VDot_(1) * TimeStep_;
-    Velocity_[1] += VDot_(2) * TimeStep_;
-    Velocity_[2] += VDot_(3) * TimeStep_;
-
-printf("Velocity: %f %f %f \n",Velocity_[0], Velocity_[1], Velocity_[2]);      
-    // Update translation vector
-    
-    TVec_[0] = Velocity_[0] * TimeStep_;
-    TVec_[1] = Velocity_[1] * TimeStep_;
-    TVec_[2] = Velocity_[2] * TimeStep_;
-
-printf("TVec_: %f %f %f \n",TVec_[0], TVec_[1], TVec_[2]);      
-
-    // Current angle change over this time step
-
-    Angle_ = Omega_;
-
-printf("Angle_: %f \n",Angle_);
-
-    // Quaternion for this rotation, and it's inverse
-printf("RVec_: %f %f %f \n",RVec_[0],RVec_[1],RVec_[2]);
-printf("OVec_: %f %f %f \n",OVec_[0],OVec_[1],OVec_[2]);
-
-    Quat_.FormRotationQuat(RVec_,Angle_);
-    
     InvQuat_ = Quat_;
-   
+
     InvQuat_.FormInverse();   
- 
-    // Quaternion rates
+
+    // Quaternion rates, again for the current time step
     
-    DQuatDt = Omega * Quat_;
+    WQuat_ = Omega * DQuat * InvDQuat_; 
     
-    WQuat_ = DQuatDt * InvQuat_; // There is a factor of 1/2 missing here, but it gets multiplied away later
+    // Update inertia matrix
+    
+    QuatToMatrix(TotalQuat_, RotationMatrix_, RotationMatrixInverse_);
+    
+    InertiaMatrixInverse_ = RotationMatrix_ * InertiaMatrixInverse_ * RotationMatrixInverse_;
 
 }
+
+/*##############################################################################
+#                                                                              #
+#                      COMPONENT_GROUP QuatToMatrix                            #
+#                                                                              #
+##############################################################################*/
+
+void COMPONENT_GROUP::QuatToMatrix(QUAT &Quat, MATRIX &Matrix, MATRIX &Inverse)
+{
+   
+   VSPAERO_DOUBLE Qx, Qy, Qz, s;
+   
+   Qx = Quat(0);
+   Qy = Quat(1);
+   Qz = Quat(2);
+    s = Quat(3);
+    
+   Matrix(1,1) = 1. - 2.*Qy*Qy - 2.*Qz*Qz;      Matrix(1,2) =      2.*Qx*Qy - 2.* s*Qz;      Matrix(1,3) =      2.*Qx*Qz + 2.* s*Qy;
+   
+   Matrix(2,1) =      2.*Qx*Qy + 2.* s*Qz;      Matrix(2,2) = 1. - 2.*Qx*Qx - 2.*Qz*Qz;      Matrix(2,3) =      2.*Qy*Qz - 2.* s*Qx;
+                      
+   Matrix(3,1) =      2.*Qx*Qz - 2.* s*Qy;      Matrix(3,2) =      2.*Qy*Qz + 2.* s*Qx;      Matrix(3,3) = 1. - 2.*Qx*Qx - 2.*Qy*Qy;
+   
+   Inverse = Matrix.transpose();
+      
+}
+
 
 /*##############################################################################
 #                                                                              #
@@ -722,47 +724,50 @@ void COMPONENT_GROUP::WriteData(FILE *File)
 
     int i;
 
-    fprintf(File,"GroupName = %s \n",GroupName_);
+    FPRINTF  (File,"GroupName = %s \n",GroupName_);
     
-    fprintf(File,"NumberOfComponents = %d \n",NumberOfComponents_);
+    FPRINTF  (File,"NumberOfComponents = %d \n",NumberOfComponents_);
  
     for ( i = 1 ; i <= NumberOfComponents_ ; i++ ) {
        
-       fprintf(File,"%d \n",ComponentList_[i]);
+       FPRINTF  (File,"%d \n",ComponentList_[i]);
        
     }
     
-    fprintf(File,"GeometryIsFixed = %d \n",GeometryIsFixed_);
+    FPRINTF  (File,"GeometryIsFixed = %d \n",GeometryIsFixed_);
     
-    fprintf(File,"GeometryIsDynamic = %d \n",GeometryIsDynamic_);
+    FPRINTF  (File,"GeometryIsDynamic = %d \n",GeometryIsDynamic_);
     
-    fprintf(File,"GeometryIsARotor = %d \n",GeometryIsARotor_);
+    FPRINTF  (File,"GeometryIsARotor = %d \n",GeometryIsARotor_);
     
-    fprintf(File,"RotorDiameter = %f \n",RotorDiameter_);
+    FPRINTF  (File,"RotorDiameter = %f \n",RotorDiameter_);
     
-    fprintf(File,"OVec = %lf %lf %lf \n",OVec_[0], OVec_[1], OVec_[2]);
+    FPRINTF  (File,"OVec = %lf %lf %lf \n",OVec_[0], OVec_[1], OVec_[2]);
     
-    fprintf(File,"RVec = %lf %lf %lf \n",RVec_[0], RVec_[1], RVec_[2]);
+    FPRINTF  (File,"RVec = %lf %lf %lf \n",RVec_[0], RVec_[1], RVec_[2]);
     
-    fprintf(File,"Velocity = %lf %lf %lf \n",Velocity_[0], Velocity_[1], Velocity_[2]);
+    FPRINTF  (File,"Velocity = %lf %lf %lf \n",UserInputVelocity_[0], UserInputVelocity_[1], UserInputVelocity_[2]);
 
-    fprintf(File,"Acceleration = %lf %lf %lf \n",Acceleration_[0], Acceleration_[1], Acceleration_[2]);
+    FPRINTF  (File,"Acceleration = %lf %lf %lf \n",UserInputAcceleration_[0], UserInputAcceleration_[1], UserInputAcceleration_[2]);
 
-    fprintf(File,"Omega = %lf \n",Omega_);
+    FPRINTF  (File,"Omega = %lf \n",Omega_);
     
-    fprintf(File,"Mass = %lf \n",Mass_);
+    FPRINTF  (File,"Mass = %lf \n",Mass_);
     
-    fprintf(File,"Ixx = %lf \n",Ixx_);
+    FPRINTF  (File,"Ixx = %lf \n",Ixx_);
                   
-    fprintf(File,"Iyy = %lf \n",Iyy_);
+    FPRINTF  (File,"Iyy = %lf \n",Iyy_);
                   
-    fprintf(File,"Izz = %lf \n",Izz_);
+    FPRINTF  (File,"Izz = %lf \n",Izz_);
                   
-    fprintf(File,"Ixy = %lf \n",Ixy_);
+    FPRINTF  (File,"Ixy = %lf \n",Ixy_);
                   
-    fprintf(File,"Ixz = %lf \n",Ixz_);
+    FPRINTF  (File,"Ixz = %lf \n",Ixz_);
                   
-    fprintf(File,"Iyz = %lf \n",Iyz_);
+    FPRINTF  (File,"Iyz = %lf \n",Iyz_);
+
+    FPRINTF  (File,"StartAnalysisTime = %lf \n",StartDynamicAnalysisTime_);
+
 
 }
 
@@ -776,14 +781,18 @@ void COMPONENT_GROUP::LoadData(FILE *File)
 {
 
     int i;
-    
+    fpos_t LineLocation;
+    char DumChar[2000];   
+              
+    // Parse the group data file              
+              
     fscanf(File,"GroupName = %s \n",GroupName_);
     
-    printf("GroupName_: %s \n",GroupName_);
+    PRINTF ("GroupName_: %s \n",GroupName_);
 
     fscanf(File,"NumberOfComponents = %d \n",&NumberOfComponents_);
     
-    printf("NumberOfComponents: %d \n",NumberOfComponents_);
+    PRINTF ("NumberOfComponents: %d \n",NumberOfComponents_);
 
     SizeList(NumberOfComponents_);
     
@@ -795,37 +804,37 @@ void COMPONENT_GROUP::LoadData(FILE *File)
     
     fscanf(File,"GeometryIsFixed = %d \n",&GeometryIsFixed_);
     
-    printf("GeometryIsFixed: %d \n",GeometryIsFixed_);
+    PRINTF ("GeometryIsFixed: %d \n",GeometryIsFixed_);
     
     fscanf(File,"GeometryIsDynamic = %d \n",&GeometryIsDynamic_);
     
-    printf("GeometryIsDynamic_: %d \n",GeometryIsDynamic_);
+    PRINTF ("GeometryIsDynamic_: %d \n",GeometryIsDynamic_);
     
     fscanf(File,"GeometryIsARotor = %d \n",&GeometryIsARotor_);
     
-    printf("GeometryIsARotor_: %d \n",GeometryIsARotor_);    
+    PRINTF ("GeometryIsARotor_: %d \n",GeometryIsARotor_);    
     
     fscanf(File,"RotorDiameter = %lf \n",&RotorDiameter_);
 
-    printf("RotorDiameter_: %f \n",RotorDiameter_);
+    PRINTF ("RotorDiameter_: %f \n",RotorDiameter_);
 
     fscanf(File,"OVec = %lf %lf %lf \n",&(OVec_[0]),&(OVec_[1]),&(OVec_[2]));
 
-    printf("OVec: %f %f %f\n",(OVec_[0]),(OVec_[1]),(OVec_[2]));
+    PRINTF ("OVec: %f %f %f\n",(OVec_[0]),(OVec_[1]),(OVec_[2]));
     
     fscanf(File,"RVec = %lf %lf %lf \n",&(RVec_[0]),&(RVec_[1]),&(RVec_[2]));
     
-    printf("RVec_: %f %f %f\n",(RVec_[0]),(RVec_[1]),(RVec_[2]));
+    PRINTF ("RVec_: %f %f %f\n",(RVec_[0]),(RVec_[1]),(RVec_[2]));
     
-    fscanf(File,"Velocity = %lf %lf %lf \n",&(Velocity_[0]),&(Velocity_[1]),&(Velocity_[2]));
+    fscanf(File,"Velocity = %lf %lf %lf \n",&(UserInputVelocity_[0]),&(UserInputVelocity_[1]),&(UserInputVelocity_[2]));
 
-    printf("Velocity: %f %f %f\n",(Velocity_[0]),(Velocity_[1]),(Velocity_[2]));
+    PRINTF ("Velocity: %f %f %f\n",(UserInputVelocity_[0]),(UserInputVelocity_[1]),(UserInputVelocity_[2]));
 
-    fscanf(File,"Acceleration = %lf %lf %lf \n",&(Acceleration_[0]), &(Acceleration_[1]), &(Acceleration_[2]));
+    fscanf(File,"Acceleration = %lf %lf %lf \n",&(UserInputAcceleration_[0]), &(UserInputAcceleration_[1]), &(UserInputAcceleration_[2]));
 
     fscanf(File,"Omega = %lf \n",&Omega_);
     
-    printf("Omega: %f \n",Omega_);
+    PRINTF ("Omega: %f \n",Omega_);
     
     fscanf(File,"Mass = %lf \n",&Mass_);
     
@@ -841,6 +850,28 @@ void COMPONENT_GROUP::LoadData(FILE *File)
                   
     fscanf(File,"Iyz = %lf \n",&Iyz_);
     
+    // Version 6.x stuff...
+    
+    fgetpos(File,&LineLocation);
+    
+    if ( fgets(DumChar,2000,File) != NULL ) {
+       
+       if ( strncmp(DumChar,"StartAnalysisTime",17) == 0 ) {
+          
+          sscanf(DumChar,"StartAnalysisTime = %lf \n",&StartDynamicAnalysisTime_);
+          
+          PRINTF ("StartAnalysisTime: %f \n",StartDynamicAnalysisTime_);
+          
+       }
+       
+       else {
+          
+          fsetpos(File,&LineLocation);
+          
+       }
+       
+    }
+    
     if ( GeometryIsFixed_ ) {
        
        Omega_ = 0.;
@@ -849,26 +880,36 @@ void COMPONENT_GROUP::LoadData(FILE *File)
        
        RVec_[0] = RVec_[1] = RVec_[2] = 1.;
        
-       Velocity_[0] = Velocity_[1] = Velocity_[2] = 0.;
-       
-    }
-    
-    if ( GeometryIsDynamic_ ) {
-       
-              M_.size(3,3);
-              I_.size(3,3);
-       OmegaDot_.size(3);
-           XDot_.size(3);
-           VDot_.size(3);
-       
-       M_(1,1) = M_(2,2) = M_(3,3) = Mass_;
-       
-       I_(1,1) = Ixx_;  I_(1,2) = Ixy_;  I_(1,3) = Ixz_;
-       I_(1,1) = Ixy_;  I_(1,2) = Iyy_;  I_(1,3) = Iyz_;
-       I_(1,1) = Ixz_;  I_(1,2) = Iyz_;  I_(1,3) = Izz_;
+       Velocity_(1) = Velocity_(2) = Velocity_(3) = 0.;
        
     }
 
+    // Initialize matrices, vectors
+
+    MassMatrix_(1,1) = MassMatrix_(2,2) = MassMatrix_(3,3) = Mass_;
+     
+    InertiaMatrix_(1,1) =  Ixx_;  InertiaMatrix_(1,2) = -Ixy_;  InertiaMatrix_(1,3) = -Ixz_;
+    InertiaMatrix_(2,1) = -Ixy_;  InertiaMatrix_(2,2) =  Iyy_;  InertiaMatrix_(2,3) = -Iyz_;
+    InertiaMatrix_(3,1) = -Ixz_;  InertiaMatrix_(3,2) = -Iyz_;  InertiaMatrix_(3,3) =  Izz_;
+
+    InertiaMatrixInverse_ = InertiaMatrix_.inverse();
+
+           OmegaDot_(1) =        OmegaDot_(2) =        OmegaDot_(3) = 0.;
+    AngularMomentum_(1) = AngularMomentum_(2) = AngularMomentum_(3) = 0.;
+           Velocity_(1) =        Velocity_(2) =        Velocity_(3) = 0.;
+       Acceleration_(1) =    Acceleration_(2) =    Acceleration_(3) = 0.;
+          
+    LinearMomentum_(1) = Mass_ * UserInputVelocity_[0];
+    LinearMomentum_(2) = Mass_ * UserInputVelocity_[1];
+    LinearMomentum_(3) = Mass_ * UserInputVelocity_[2];
+    
+    // Initialize total quat
+
+    TotalQuat_(0) = 0.;
+    TotalQuat_(1) = 0.;
+    TotalQuat_(2) = 0.;
+    TotalQuat_(3) = 1.;
+   
 }
 
 /*##############################################################################
@@ -908,7 +949,7 @@ void COMPONENT_GROUP::ZeroAverageForcesAndMoments(void)
     CDo_[0]  = CDo_[1]  = 0.;
     CSo_[0]  = CSo_[1]  = 0.; 
 
-    for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
+    for ( i = 1 ; i <= NumberOfLiftingSurfaces_ ; i++ ) {
        
        SpanLoadData_[i].ZeroForcesAndMoments();
        

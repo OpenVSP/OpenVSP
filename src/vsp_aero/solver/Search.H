@@ -14,6 +14,7 @@
 #include "utils.H"
 #include "SearchLeaf.H"
 #include "Vortex_Trail.H"
+#include "VSP_Grid.H"
 
 class VORTEX_TRAIL;
 
@@ -43,6 +44,8 @@ private:
 
     void test_node(SURFACE_NODE &SURFACE_NODE, TEST_NODE &TEST_NODE);
 
+    VSPAERO_DOUBLE Tolerance_;
+    
 public:
 
     SEARCH(void);
@@ -52,6 +55,10 @@ public:
     int SearchTree(TEST_NODE &node) { return SearchTree_(root_, node); };
 
     void CreateSearchTree(VORTEX_TRAIL &Trail, int NumberOfNodes);
+
+    void CreateSearchTree(VSP_GRID &Grid);
+    
+    VSPAERO_DOUBLE &Tolerance(void) { return Tolerance_; };
 
 };
 

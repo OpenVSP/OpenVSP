@@ -118,12 +118,12 @@ ROTOR_DISK& ROTOR_DISK::operator=(const ROTOR_DISK &RotorDisk)
 #                                                                              #
 ##############################################################################*/
 
-void ROTOR_DISK::VelocityPotential(double xyz[3], double q[5])
+void ROTOR_DISK::VelocityPotential(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5])
 {
 
-    double Vh, z, r, vec[3], rvec[3], tvec[3], mag;
-    double Velocity_X, Velocity_R, Velocity_T, Omega, PhiTotal;
-    double Phi_D, Phi_D_z;
+    VSPAERO_DOUBLE Vh, z, r, vec[3], rvec[3], tvec[3], mag;
+    VSPAERO_DOUBLE Velocity_X, Velocity_R, Velocity_T, Omega, PhiTotal;
+    VSPAERO_DOUBLE Phi_D, Phi_D_z;
  
     vec[0] = xyz[0] - RotorXYZ_[0];
     vec[1] = xyz[1] - RotorXYZ_[1];
@@ -141,19 +141,27 @@ void ROTOR_DISK::VelocityPotential(double xyz[3], double q[5])
     
     r = sqrt(vector_dot(rvec,rvec));
     
-    rvec[0] /= r;
-    rvec[1] /= r;
-    rvec[2] /= r;
+    if ( r > 0. ) {
     
+       rvec[0] /= r;
+       rvec[1] /= r;
+       rvec[2] /= r;
+       
+    }
+
     // Angular velocity direction
     
     vector_cross(RotorNormal_, rvec, tvec);
 
     mag = sqrt(vector_dot(tvec,tvec));
     
-    tvec[0] /= mag;
-    tvec[1] /= mag;
-    tvec[2] /= mag;  
+    if ( mag > 0. ) {
+    
+       tvec[0] /= mag;
+       tvec[1] /= mag;
+       tvec[2] /= mag;  
+       
+    }
 
     // Hover velocity
     
@@ -181,9 +189,9 @@ void ROTOR_DISK::VelocityPotential(double xyz[3], double q[5])
     
     Velocity_T = 0.;
     
- //   printf("Velocity_X: %lf \n",Velocity_X);
- //   printf("Velocity_R: %lf \n",Velocity_R);
-  //  printf("Velocity_T: %lf \n",Velocity_T);
+ //   PRINTF("Velocity_X: %lf \n",Velocity_X);
+ //   PRINTF("Velocity_R: %lf \n",Velocity_R);
+  //  PRINTF("Velocity_T: %lf \n",Velocity_T);
     
     // Convert to xyz coordinates
     
@@ -193,7 +201,7 @@ void ROTOR_DISK::VelocityPotential(double xyz[3], double q[5])
     
     q[3] = PhiTotal;
     
-  //  printf("z: %lf ... Velocity_T * tvec[1]: %lf \n", xyz[2], Velocity_T * tvec[1]);
+  //  PRINTF("z: %lf ... Velocity_T * tvec[1]: %lf \n", xyz[2], Velocity_T * tvec[1]);
 
 }
 
@@ -203,14 +211,14 @@ void ROTOR_DISK::VelocityPotential(double xyz[3], double q[5])
 #                                                                              #
 ##############################################################################*/
 
-void ROTOR_DISK::Velocity(double xyz[3], double q[5])
+void ROTOR_DISK::Velocity(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5])
 {
 
-    double z, r, zp;
-    double Term1, Term2, Vh, alpha, sinf, f, vec[3], rvec[3], tvec[3], mag;
-    double Velocity_X, Velocity_R, Velocity_T, Omega, VxR0, Delta_Cp, Fact;
-    double eta_mom, eta_prop, CT_h, CP_h, Sigma_Cd, Sigma_Cl, Vo, TotalVinfMag;
-    double RotorWakeNormal[3];
+    VSPAERO_DOUBLE z, r, zp;
+    VSPAERO_DOUBLE Term1, Term2, Vh, alpha, sinf, f, vec[3], rvec[3], tvec[3], mag;
+    VSPAERO_DOUBLE Velocity_X, Velocity_R, Velocity_T, Omega, VxR0, Delta_Cp, Fact;
+    VSPAERO_DOUBLE eta_mom, eta_prop, CT_h, CP_h, Sigma_Cd, Sigma_Cl, Vo, TotalVinfMag;
+    VSPAERO_DOUBLE RotorWakeNormal[3];
     
     // Local free stream velocity normal to rotor
             
@@ -265,6 +273,8 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
     
     mag = sqrt(vector_dot(rvec,rvec));
     
+    mag = MAX(mag,1.e-9);
+    
     rvec[0] /= mag;
     rvec[1] /= mag;
     rvec[2] /= mag;
@@ -275,25 +285,25 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
 
     mag = sqrt(vector_dot(tvec,tvec));
     
+    mag = MAX(mag,1.e-9);
+    
     tvec[0] /= mag;
     tvec[1] /= mag;
     tvec[2] /= mag;  
-    
-    mag = MAX(mag,1.e-9);
-    
+        
     // Radial Velocity
     
  //   Vh = sqrt(RotorThrust()/(2.*Density_*RotorArea()));
     
     Vh = -0.5*VinfMag_ + sqrt( pow(0.5*VinfMag_,2.) + RotorThrust()/(2.*Density_*RotorArea()) );
 
-// printf("Vh: %lf ... Vh/VinfMag_: %lf  ...Thrust: %lf \n",Vh,Vh/VinfMag_,RotorThrust());
+// PRINTF("Vh: %lf ... Vh/VinfMag_: %lf  ...Thrust: %lf \n",Vh,Vh/VinfMag_,RotorThrust());
     
-//    printf("RotorThrust(): %lf \n",RotorThrust());
-  //  printf("Density: %lf \n",Density_);
-   // printf("RotorArea(): %lf \n",RotorArea());
+//    PRINTF("RotorThrust(): %lf \n",RotorThrust());
+  //  PRINTF("Density: %lf \n",Density_);
+   // PRINTF("RotorArea(): %lf \n",RotorArea());
     
-  //  printf("Vh: %lf \n",Vh);
+  //  PRINTF("Vh: %lf \n",Vh);
   
     VxR0 = 0.;
 
@@ -403,7 +413,7 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
     
 //    Velocity_X *= Omega * r / ( pow(Omega*r,2.) + pow(VinfMag_+Vh,2.) );
     
-//    printf("z, r/Ra, Vx/(2.*Vh): %lf %lf %lf \n",z, r/RotorRadius_,Velocity_X/(2.*Vh));
+//    PRINTF("z, r/Ra, Vx/(2.*Vh): %lf %lf %lf \n",z, r/RotorRadius_,Velocity_X/(2.*Vh));
 
 //if ( r <= RotorHubRadius_ ) Velocity_X = 0.;
  
@@ -416,22 +426,22 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
 
     Vh = -0.5*VinfMag_ + sqrt( pow(0.5*VinfMag_,2.) + RotorThrust()/(2.*Density_*RotorArea()) );
 /*
-printf("RotorThrust: %lf \n",RotorThrust());
-printf("RotorPower: %lf \n",RotorPower()/550.);
-printf("RotorRPM_: %lf \n",RotorRPM_);
-printf("Rotor_CP_: %lf \n",Rotor_CP_);
-printf("Rotor_CT_: %lf \n",Rotor_CT_);
-printf("RotorArea(): %lf \n",RotorArea());
-printf("Density_: %lf \n",Density_);
-printf("VinfMag_: %lf \n",VinfMag_);
-printf("Vh: %lf \n",Vh);
+PRINTF("RotorThrust: %lf \n",RotorThrust());
+PRINTF("RotorPower: %lf \n",RotorPower()/550.);
+PRINTF("RotorRPM_: %lf \n",RotorRPM_);
+PRINTF("Rotor_CP_: %lf \n",Rotor_CP_);
+PRINTF("Rotor_CT_: %lf \n",Rotor_CT_);
+PRINTF("RotorArea(): %lf \n",RotorArea());
+PRINTF("Density_: %lf \n",Density_);
+PRINTF("VinfMag_: %lf \n",VinfMag_);
+PRINTF("Vh: %lf \n",Vh);
 */
 
     if ( r <= RotorHubRadius_ ) q[0] = q[1] = q[2] = q[3] = q[4] = 0.; 
     
-//    printf("x,r,t: %lf %lf %lf \n",Velocity_X, Velocity_R, Velocity_T);
+//    PRINTF("x,r,t: %lf %lf %lf \n",Velocity_X, Velocity_R, Velocity_T);
 
-  //  printf("z: %lf ... Velocity_T * tvec[1]: %lf \n", xyz[2], Velocity_T * tvec[1]);
+  //  PRINTF("z: %lf ... Velocity_T * tvec[1]: %lf \n", xyz[2], Velocity_T * tvec[1]);
   
 
 }
@@ -446,7 +456,7 @@ void ROTOR_DISK::CalculateRotorGeometry(void)
 {
  
     int i;
-    double DTheta, Theta, s[3], t[3], r[3], mag, XYZo[3], XYZp[3];
+    VSPAERO_DOUBLE DTheta, Theta, s[3], t[3], r[3], mag, XYZo[3], XYZp[3];
     QUAT Quat, InvQuat, Vec1, Vec2, Vec3;
     
     // Random vector
@@ -696,19 +706,19 @@ void ROTOR_DISK::Write_STP_Data(FILE *InputFile)
 
     // Write out STP file data
 
-    fprintf(InputFile,"%lf %lf %lf \n",RotorXYZ_[0], RotorXYZ_[1], RotorXYZ_[2]);
+    FPRINTF(InputFile,"%lf %lf %lf \n",RotorXYZ_[0], RotorXYZ_[1], RotorXYZ_[2]);
     
-    fprintf(InputFile,"%lf %lf %lf \n",RotorNormal_[0], RotorNormal_[1], RotorNormal_[2]);
+    FPRINTF(InputFile,"%lf %lf %lf \n",RotorNormal_[0], RotorNormal_[1], RotorNormal_[2]);
     
-    fprintf(InputFile,"%lf \n",RotorRadius_);
+    FPRINTF(InputFile,"%lf \n",RotorRadius_);
 
-    fprintf(InputFile,"%lf \n",RotorHubRadius_);
+    FPRINTF(InputFile,"%lf \n",RotorHubRadius_);
     
-    fprintf(InputFile,"%lf \n",RotorRPM_);
+    FPRINTF(InputFile,"%lf \n",RotorRPM_);
   
-    fprintf(InputFile,"%lf \n",Rotor_CT_);
+    FPRINTF(InputFile,"%lf \n",Rotor_CT_);
     
-    fprintf(InputFile,"%lf \n",Rotor_CP_);
+    FPRINTF(InputFile,"%lf \n",Rotor_CP_);
    
 }
 
@@ -731,23 +741,23 @@ void ROTOR_DISK::Write_Binary_STP_Data(FILE *InputFile)
     
     // Write out STP file data
 
-    fwrite(&(RotorXYZ_[0]), d_size, 1, InputFile); 
-    fwrite(&(RotorXYZ_[1]), d_size, 1, InputFile); 
-    fwrite(&(RotorXYZ_[2]), d_size, 1, InputFile); 
+    FWRITE(&(RotorXYZ_[0]), d_size, 1, InputFile); 
+    FWRITE(&(RotorXYZ_[1]), d_size, 1, InputFile); 
+    FWRITE(&(RotorXYZ_[2]), d_size, 1, InputFile); 
     
-    fwrite(&(RotorNormal_[0]), d_size, 1, InputFile); 
-    fwrite(&(RotorNormal_[1]), d_size, 1, InputFile); 
-    fwrite(&(RotorNormal_[2]), d_size, 1, InputFile); 
+    FWRITE(&(RotorNormal_[0]), d_size, 1, InputFile); 
+    FWRITE(&(RotorNormal_[1]), d_size, 1, InputFile); 
+    FWRITE(&(RotorNormal_[2]), d_size, 1, InputFile); 
     
-    fwrite(&(RotorRadius_), d_size, 1, InputFile); 
+    FWRITE(&(RotorRadius_), d_size, 1, InputFile); 
     
-    fwrite(&(RotorHubRadius_), d_size, 1, InputFile); 
+    FWRITE(&(RotorHubRadius_), d_size, 1, InputFile); 
      
-    fwrite(&(RotorRPM_), d_size, 1, InputFile); 
+    FWRITE(&(RotorRPM_), d_size, 1, InputFile); 
       
-    fwrite(&(Rotor_CT_), d_size, 1, InputFile); 
+    FWRITE(&(Rotor_CT_), d_size, 1, InputFile); 
     
-    fwrite(&(Rotor_CP_), d_size, 1, InputFile); 
+    FWRITE(&(Rotor_CP_), d_size, 1, InputFile); 
 
 }
 
@@ -778,19 +788,19 @@ void ROTOR_DISK::Load_STP_Data(FILE *InputFile)
     
     // Echo inputs
 
-    printf("RotorXYZ:       %10.5lf %10.5lf %10.5lf \n",RotorXYZ_[0], RotorXYZ_[1], RotorXYZ_[2]);
+    PRINTF("RotorXYZ:       %10.5lf %10.5lf %10.5lf \n",RotorXYZ_[0], RotorXYZ_[1], RotorXYZ_[2]);
     
-    printf("RotorNormal:    %10.5lf %10.5lf %10.5lf \n",RotorNormal_[0], RotorNormal_[1], RotorNormal_[2]);
+    PRINTF("RotorNormal:    %10.5lf %10.5lf %10.5lf \n",RotorNormal_[0], RotorNormal_[1], RotorNormal_[2]);
     
-    printf("RotorRadius:    %10.5f \n",RotorRadius_);
+    PRINTF("RotorRadius:    %10.5f \n",RotorRadius_);
     
-    printf("RotorHubRadius: %10.5lf \n",RotorHubRadius_);
+    PRINTF("RotorHubRadius: %10.5lf \n",RotorHubRadius_);
     
-    printf("RotorRPM:       %10.5lf \n",RotorRPM_);
+    PRINTF("RotorRPM:       %10.5lf \n",RotorRPM_);
     
-    printf("Rotor_CT:       %10.5lf \n",Rotor_CT_);
+    PRINTF("Rotor_CT:       %10.5lf \n",Rotor_CT_);
     
-    printf("Rotor_CP:       %10.5lf \n",Rotor_CP_);
+    PRINTF("Rotor_CP:       %10.5lf \n",Rotor_CP_);
 
       
 }
@@ -814,23 +824,23 @@ void ROTOR_DISK::Read_Binary_STP_Data(FILE *InputFile)
     
     // Write out STP file data
 
-    fread(&(RotorXYZ_[0]), d_size, 1, InputFile); 
-    fread(&(RotorXYZ_[1]), d_size, 1, InputFile); 
-    fread(&(RotorXYZ_[2]), d_size, 1, InputFile); 
+    FREAD(&(RotorXYZ_[0]), d_size, 1, InputFile); 
+    FREAD(&(RotorXYZ_[1]), d_size, 1, InputFile); 
+    FREAD(&(RotorXYZ_[2]), d_size, 1, InputFile); 
     
-    fread(&(RotorNormal_[0]), d_size, 1, InputFile); 
-    fread(&(RotorNormal_[1]), d_size, 1, InputFile); 
-    fread(&(RotorNormal_[2]), d_size, 1, InputFile); 
+    FREAD(&(RotorNormal_[0]), d_size, 1, InputFile); 
+    FREAD(&(RotorNormal_[1]), d_size, 1, InputFile); 
+    FREAD(&(RotorNormal_[2]), d_size, 1, InputFile); 
     
-    fread(&(RotorRadius_), d_size, 1, InputFile); 
+    FREAD(&(RotorRadius_), d_size, 1, InputFile); 
 
-    fread(&(RotorHubRadius_), d_size, 1, InputFile); 
+    FREAD(&(RotorHubRadius_), d_size, 1, InputFile); 
      
-    fread(&(RotorRPM_), d_size, 1, InputFile); 
+    FREAD(&(RotorRPM_), d_size, 1, InputFile); 
       
-    fread(&(Rotor_CT_), d_size, 1, InputFile); 
+    FREAD(&(Rotor_CT_), d_size, 1, InputFile); 
     
-    fread(&(Rotor_CP_), d_size, 1, InputFile); 
+    FREAD(&(Rotor_CP_), d_size, 1, InputFile); 
 
 }
 
@@ -845,7 +855,7 @@ void ROTOR_DISK::Skip_Read_Binary_STP_Data(FILE *InputFile)
  
     int i_size, c_size, d_size;
     
-    double DumDouble;
+    VSPAERO_DOUBLE DumDouble;
 
     // Sizeof int and float
 
@@ -855,23 +865,23 @@ void ROTOR_DISK::Skip_Read_Binary_STP_Data(FILE *InputFile)
     
     // Write out STP file data
 
-    fread(&DumDouble, d_size, 1, InputFile); 
-    fread(&DumDouble, d_size, 1, InputFile); 
-    fread(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
     
-    fread(&DumDouble, d_size, 1, InputFile); 
-    fread(&DumDouble, d_size, 1, InputFile); 
-    fread(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
     
-    fread(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
 
-    fread(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
      
-    fread(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
       
-    fread(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
     
-    fread(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, InputFile); 
 
 }
 
@@ -881,7 +891,7 @@ void ROTOR_DISK::Skip_Read_Binary_STP_Data(FILE *InputFile)
 #                                                                              #
 ##############################################################################*/
 
-void ROTOR_DISK::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+void ROTOR_DISK::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat)
 {
 
     QUAT Vec;

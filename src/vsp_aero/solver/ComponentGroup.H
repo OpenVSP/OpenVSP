@@ -16,7 +16,7 @@
 #include "quat.H"
 #include "matrix.H"
 #include "WOPWOP.H"
-#include "SpanLoadData.H"
+#include "SpanLoadRotorData.H"
 
 #define STEADY_RATES   1
 #define PERIODIC_RATES 2
@@ -39,86 +39,98 @@ private:
     
     WOPWOP WopWop_;
     
-    double OVec_[3];
-    double RVec_[3];
-    double TVec_[3];
+    VSPAERO_DOUBLE OVec_[3];
+    VSPAERO_DOUBLE RVec_[3];
+    VSPAERO_DOUBLE TVec_[3];
     
-    double Velocity_[3];
-    double Acceleration_[3];
-    double Mass_;
-    double Ixx_;
-    double Iyy_;
-    double Izz_;
-    double Ixy_;
-    double Ixz_;
-    double Iyz_;
-    double Omega_;
-    double Angle_;
-    double TimeStep_;
-    double CurrentTime_;
-    double RotorDiameter_;
-    double AngleMax_;
-    double TotalRotationAngle_;
+    VSPAERO_DOUBLE UserInputVelocity_[3];
+    VSPAERO_DOUBLE UserInputAcceleration_[3];
+
+    VSPAERO_DOUBLE Mass_;
+    VSPAERO_DOUBLE Ixx_;
+    VSPAERO_DOUBLE Iyy_;
+    VSPAERO_DOUBLE Izz_;
+    VSPAERO_DOUBLE Ixy_;
+    VSPAERO_DOUBLE Ixz_;
+    VSPAERO_DOUBLE Iyz_;
+    VSPAERO_DOUBLE Omega_;
+    VSPAERO_DOUBLE Angle_;
+    VSPAERO_DOUBLE TimeStep_;
+    VSPAERO_DOUBLE CurrentTime_;
+    VSPAERO_DOUBLE RotorDiameter_;
+    VSPAERO_DOUBLE AngleMax_;
+    VSPAERO_DOUBLE TotalRotationAngle_;
+    VSPAERO_DOUBLE StartDynamicAnalysisTime_;
     
     // Integrated forces
     
     int NumberOfTimeSamples_;
     
     int StartAveragingTimeStep_;
-    double StartAveragingTime_;
+    VSPAERO_DOUBLE StartAveragingTime_;
 
-    double Cxo_[2];
-    double Cyo_[2];
-    double Czo_[2];
+    VSPAERO_DOUBLE Cxo_[2];
+    VSPAERO_DOUBLE Cyo_[2];
+    VSPAERO_DOUBLE Czo_[2];
     
-    double Cx_[2];
-    double Cy_[2];
-    double Cz_[2];
+    VSPAERO_DOUBLE Cx_[2];
+    VSPAERO_DOUBLE Cy_[2];
+    VSPAERO_DOUBLE Cz_[2];
 
-    double Cmxo_[2];
-    double Cmyo_[2];
-    double Cmzo_[2];
+    VSPAERO_DOUBLE Cmxo_[2];
+    VSPAERO_DOUBLE Cmyo_[2];
+    VSPAERO_DOUBLE Cmzo_[2];
 
-    double Cmx_[2];
-    double Cmy_[2];
-    double Cmz_[2];
+    VSPAERO_DOUBLE Cmx_[2];
+    VSPAERO_DOUBLE Cmy_[2];
+    VSPAERO_DOUBLE Cmz_[2];
 
-    double CL_[2];
-    double CD_[2];
-    double CS_[2];
+    VSPAERO_DOUBLE CL_[2];
+    VSPAERO_DOUBLE CD_[2];
+    VSPAERO_DOUBLE CS_[2];
 
-    double CLo_[2];
-    double CDo_[2];
-    double CSo_[2];
+    VSPAERO_DOUBLE CLo_[2];
+    VSPAERO_DOUBLE CDo_[2];
+    VSPAERO_DOUBLE CSo_[2];
     
     // Free stream conditions
     
-    double Density_;
-    double Vref_;
-    double Sref_;
-    double Bref_;  
-    double Cref_;  
+    VSPAERO_DOUBLE Density_;
+    VSPAERO_DOUBLE Vref_;
+    VSPAERO_DOUBLE Sref_;
+    VSPAERO_DOUBLE Bref_;  
+    VSPAERO_DOUBLE Cref_;  
     
     // Spanwise forces and moments, for wings and rotors
     
-    int NumberOfSurfaces_;
+    int NumberOfLiftingSurfaces_;
     
-    SPAN_LOAD_DATA *SpanLoadData_;
+    SPAN_LOAD_ROTOR_DATA *SpanLoadData_;
     
-    MATRIX M_;
-    MATRIX I_;
+    MATRIX MassMatrix_;
+    MATRIX InertiaMatrix_;
+    MATRIX InertiaMatrixInverse_;
+    MATRIX RotationMatrix_;
+    MATRIX RotationMatrixInverse_;
     MATRIX OmegaDot_;
+    MATRIX LinearMomentum_;
+    MATRIX AngularMomentum_;
     MATRIX XDot_;
     MATRIX VDot_;
+    MATRIX Velocity_;
+    MATRIX Acceleration_;
+        
+    QUAT TotalQuat_; // Total quat ... full rotation over all time
+    QUAT Quat_;      // Current quat, just rotation over current time step
+    QUAT InvQuat_;   // Inverse of current quat
+    QUAT WQuat_;     // Rate derivative of current quat, for velocities
     
-    QUAT Quat_;
-    QUAT InvQuat_;
-    QUAT WQuat_;
-
     void UpdateSteadyRates(void);
     void UpdatePeriodicRates(void);
     void UpdateDynamicSystem(void);
-
+    
+    void QuatToMatrix(QUAT &Quat, MATRIX &Matrix, MATRIX &Inverse);
+    
 public:
 
     COMPONENT_GROUP(void);
@@ -145,63 +157,63 @@ public:
 
     WOPWOP &WopWop(void) { return WopWop_; };
     
-    double &RotorDiameter(void) { return RotorDiameter_; };
+    VSPAERO_DOUBLE &RotorDiameter(void) { return RotorDiameter_; };
     
-    double &AngleMax(void) { return AngleMax_; };
+    VSPAERO_DOUBLE &AngleMax(void) { return AngleMax_; };
     
     // Integrated forces and moments
     
-    double &Cxo(void) { return Cxo_[0]; };
-    double &Cyo(void) { return Cyo_[0]; };
-    double &Czo(void) { return Czo_[0]; };
+    VSPAERO_DOUBLE &Cxo(void) { return Cxo_[0]; };
+    VSPAERO_DOUBLE &Cyo(void) { return Cyo_[0]; };
+    VSPAERO_DOUBLE &Czo(void) { return Czo_[0]; };
         
-    double &Cx(void) { return Cx_[0]; };
-    double &Cy(void) { return Cy_[0]; };
-    double &Cz(void) { return Cz_[0]; };
+    VSPAERO_DOUBLE &Cx(void) { return Cx_[0]; };
+    VSPAERO_DOUBLE &Cy(void) { return Cy_[0]; };
+    VSPAERO_DOUBLE &Cz(void) { return Cz_[0]; };
 
-    double &Cmxo(void) { return Cmxo_[0]; };
-    double &Cmyo(void) { return Cmyo_[0]; };
-    double &Cmzo(void) { return Cmzo_[0]; };
+    VSPAERO_DOUBLE &Cmxo(void) { return Cmxo_[0]; };
+    VSPAERO_DOUBLE &Cmyo(void) { return Cmyo_[0]; };
+    VSPAERO_DOUBLE &Cmzo(void) { return Cmzo_[0]; };
     
-    double &Cmx(void) { return Cmx_[0]; };
-    double &Cmy(void) { return Cmy_[0]; };
-    double &Cmz(void) { return Cmz_[0]; };
+    VSPAERO_DOUBLE &Cmx(void) { return Cmx_[0]; };
+    VSPAERO_DOUBLE &Cmy(void) { return Cmy_[0]; };
+    VSPAERO_DOUBLE &Cmz(void) { return Cmz_[0]; };
 
-    double &CLo(void) { return CLo_[0]; };
-    double &CDo(void) { return CDo_[0]; };
-    double &CSo(void) { return CSo_[0]; };        
+    VSPAERO_DOUBLE &CLo(void) { return CLo_[0]; };
+    VSPAERO_DOUBLE &CDo(void) { return CDo_[0]; };
+    VSPAERO_DOUBLE &CSo(void) { return CSo_[0]; };        
 
-    double &CL(void) { return CL_[0]; };
-    double &CD(void) { return CD_[0]; };
-    double &CS(void) { return CS_[0]; };
+    VSPAERO_DOUBLE &CL(void) { return CL_[0]; };
+    VSPAERO_DOUBLE &CD(void) { return CD_[0]; };
+    VSPAERO_DOUBLE &CS(void) { return CS_[0]; };
         
     // Average integrated forces and moments
     
-    double &CxoAvg(void) { return Cxo_[1]; };
-    double &CyoAvg(void) { return Cyo_[1]; };
-    double &CzoAvg(void) { return Czo_[1]; };
+    VSPAERO_DOUBLE &CxoAvg(void) { return Cxo_[1]; };
+    VSPAERO_DOUBLE &CyoAvg(void) { return Cyo_[1]; };
+    VSPAERO_DOUBLE &CzoAvg(void) { return Czo_[1]; };
     
-    double &CxAvg(void) { return Cx_[1]; };
-    double &CyAvg(void) { return Cy_[1]; };
-    double &CzAvg(void) { return Cz_[1]; };
+    VSPAERO_DOUBLE &CxAvg(void) { return Cx_[1]; };
+    VSPAERO_DOUBLE &CyAvg(void) { return Cy_[1]; };
+    VSPAERO_DOUBLE &CzAvg(void) { return Cz_[1]; };
 
-    double &CmxoAvg(void) { return Cmxo_[1]; };
-    double &CmyoAvg(void) { return Cmyo_[1]; };
-    double &CmzoAvg(void) { return Cmzo_[1]; };
+    VSPAERO_DOUBLE &CmxoAvg(void) { return Cmxo_[1]; };
+    VSPAERO_DOUBLE &CmyoAvg(void) { return Cmyo_[1]; };
+    VSPAERO_DOUBLE &CmzoAvg(void) { return Cmzo_[1]; };
     
-    double &CmxAvg(void) { return Cmx_[1]; };
-    double &CmyAvg(void) { return Cmy_[1]; };
-    double &CmzAvg(void) { return Cmz_[1]; };
+    VSPAERO_DOUBLE &CmxAvg(void) { return Cmx_[1]; };
+    VSPAERO_DOUBLE &CmyAvg(void) { return Cmy_[1]; };
+    VSPAERO_DOUBLE &CmzAvg(void) { return Cmz_[1]; };
 
-    double &CLoAvg(void) { return CLo_[1]; };
-    double &CDoAvg(void) { return CDo_[1]; };
-    double &CSoAvg(void) { return CSo_[1]; };      
+    VSPAERO_DOUBLE &CLoAvg(void) { return CLo_[1]; };
+    VSPAERO_DOUBLE &CDoAvg(void) { return CDo_[1]; };
+    VSPAERO_DOUBLE &CSoAvg(void) { return CSo_[1]; };      
 
-    double &CLAvg(void) { return CL_[1]; };
-    double &CDAvg(void) { return CD_[1]; };
-    double &CSAvg(void) { return CS_[1]; };
+    VSPAERO_DOUBLE &CLAvg(void) { return CL_[1]; };
+    VSPAERO_DOUBLE &CDAvg(void) { return CD_[1]; };
+    VSPAERO_DOUBLE &CSAvg(void) { return CS_[1]; };
         
-    double &StartAveragingTime(void) { return StartAveragingTime_; };
+    VSPAERO_DOUBLE &StartAveragingTime(void) { return StartAveragingTime_; };
     
     void ZeroAverageForcesAndMoments(void);
     void UpdateAverageForcesAndMoments(void);
@@ -209,40 +221,39 @@ public:
 
     // Free stream conditions
     
-    double Density(void) { return Density_; };
-    double Vref(void) { return Vref_; };
-    double Sref(void) { return Sref_; };
-    double Bref(void) { return Bref_; };
-    double Cref(void) { return Cref_; };    
+    VSPAERO_DOUBLE &Density(void) { return Density_; };
+    VSPAERO_DOUBLE &Vref(void) { return Vref_; };
+    VSPAERO_DOUBLE &Sref(void) { return Sref_; };
+    VSPAERO_DOUBLE &Bref(void) { return Bref_; };
+    VSPAERO_DOUBLE &Cref(void) { return Cref_; };    
         
     // Spanwise forces and moments, for wings and rotors
     
-    void SizeSpanLoadingList(int NumberOfSurfaces);
+    void SizeSpanLoadingList(int NumberOfLiftingSurfaces);
     
-    int NumberOfSurfaces(void) { return NumberOfSurfaces_; };
+    int NumberOfLiftingSurfaces(void) { return NumberOfLiftingSurfaces_; };
     
-    SPAN_LOAD_DATA &SpanLoadData(int i) { return SpanLoadData_[i]; };
+    SPAN_LOAD_ROTOR_DATA &SpanLoadData(int i) { return SpanLoadData_[i]; };
     
     // Geometry, orientation, rotation information
         
-    double &OVec(int i) { return OVec_[i]; };
-    double *OVec(void) { return OVec_; };
+    VSPAERO_DOUBLE &OVec(int i) { return OVec_[i]; };
+    VSPAERO_DOUBLE *OVec(void) { return OVec_; };
 
-    double &RVec(int i) { return RVec_[i]; };
-    double *RVec(void) { return RVec_; };
+    VSPAERO_DOUBLE &RVec(int i) { return RVec_[i]; };
+    VSPAERO_DOUBLE *RVec(void) { return RVec_; };
 
-    double TVec(int i) { return TVec_[i]; };
+    VSPAERO_DOUBLE TVec(int i) { return TVec_[i]; };
     
-    double &Velocity(int i ) { return Velocity_[i]; };
-    double *Velocity(void) { return Velocity_; };    
+    VSPAERO_DOUBLE &Velocity(int i ) { return Velocity_(i+1); };
         
-    double &Omega(void) { return Omega_; };   
+    VSPAERO_DOUBLE &Omega(void) { return Omega_; };   
     
-    double Period(void) { return ABS(2.*PI/Omega_); };
+    VSPAERO_DOUBLE Period(void) { return ABS(2.*PI/Omega_); };
     
-    double &TotalRotationAngle(void) { return TotalRotationAngle_; };
-    
-    double Angle(void) { return Angle_; }; 
+    VSPAERO_DOUBLE &TotalRotationAngle(void) { return TotalRotationAngle_; };
+        
+    VSPAERO_DOUBLE Angle(void) { return Angle_; }; 
        
     QUAT &Quat(void) { return Quat_; };
     QUAT &InvQuat(void) { return InvQuat_; };
@@ -250,7 +261,7 @@ public:
     
     void SizeList(int NumberOfComponents);
 
-    void Update(double TimeStep, double CurrentTime);
+    void Update(VSPAERO_DOUBLE TimeStep, VSPAERO_DOUBLE CurrentTime);
     
     void WriteData(FILE *File);
     void LoadData(FILE *File);

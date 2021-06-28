@@ -63,7 +63,7 @@ SEARCH_LEAF::~SEARCH_LEAF(void)
 SEARCH_LEAF::SEARCH_LEAF(const SEARCH_LEAF &SearchLeaf)
 {
    
-    printf("Copy not implemented for SEARCH_LEAF class! \n");
+    PRINTF("Copy not implemented for SEARCH_LEAF class! \n");
     exit(1);
      
 }

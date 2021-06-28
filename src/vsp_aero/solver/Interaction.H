@@ -7,6 +7,8 @@
 #ifndef INTERACTION_CLASSES_H
 #define INTERACTION_CLASSES_H
 
+#include "utils.H"
+
 class LOOP_ENTRY {
 
 public:
@@ -37,7 +39,7 @@ public:
    int Sheet;
    int Level;
    int SheetID;
-   double Distance;
+   VSPAERO_DOUBLE Distance;
 
 };
 
@@ -62,7 +64,7 @@ public:
    int Edge;
    int Level;
    int EdgeID;
-   double Distance;
+   VSPAERO_DOUBLE Distance;
    
 };
 

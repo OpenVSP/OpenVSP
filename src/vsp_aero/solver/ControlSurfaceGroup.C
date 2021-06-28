@@ -71,7 +71,7 @@ void CONTROL_SURFACE_GROUP::SizeList(int NumberOfControlSurfaces)
     
     // Control surface deflection sign
     
-    ControlSurface_DeflectionDirection_ = new double[NumberOfControlSurfaces + 1];
+    ControlSurface_DeflectionDirection_ = new VSPAERO_DOUBLE[NumberOfControlSurfaces + 1];
 
 }
 
@@ -92,7 +92,7 @@ CONTROL_SURFACE_GROUP& CONTROL_SURFACE_GROUP::operator=(const CONTROL_SURFACE_GR
     
     for ( i = 1 ; i <= NumberOfControlSurfaces_ ; i++ ) {
        
-       sprintf(ControlSurface_Name_[i],"%s",ControlSurface.ControlSurface_Name_[i]);
+       SPRINTF(ControlSurface_Name_[i],"%s",ControlSurface.ControlSurface_Name_[i]);
        
        ControlSurface_DeflectionDirection_[i] = ControlSurface.ControlSurface_DeflectionDirection_[i];
 

@@ -115,11 +115,11 @@ size_t BINARYIO::fread(float *Word, int WordSize, int NumWords , FILE *File)
 
 /*##############################################################################
 #                                                                              #
-#                              BINARYIO fread (double)                         #
+#                     BINARYIO fread (VSPAERO_DOUBLE)                          #
 #                                                                              #
 ##############################################################################*/
 
-size_t BINARYIO::fread(double *Word, int WordSize, int NumWords , FILE *File)
+size_t BINARYIO::fread(VSPAERO_DOUBLE *Word, int WordSize, int NumWords , FILE *File)
 {
 
     int i;
@@ -329,7 +329,7 @@ void BINARYIO::SwapFloat(float &Word)
 #                                                                              #
 ##############################################################################*/
 
-void BINARYIO::SwapDouble(double &Word)
+void BINARYIO::SwapDouble(VSPAERO_DOUBLE &Word)
 {
 
     SwapBytes((char*)(&Word),sizeof(double));

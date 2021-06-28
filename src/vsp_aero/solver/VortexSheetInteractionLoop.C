@@ -21,7 +21,7 @@ VORTEX_SHEET_LOOP_INTERACTION_ENTRY::VORTEX_SHEET_LOOP_INTERACTION_ENTRY(void)
     
     Loop_ = 0;
     
-    TrailingVortexEdge_ = 0;
+    TrailingVortex_ = 0;
 
     NumberOfVortexSheets_ = 0;
     
@@ -50,7 +50,7 @@ VORTEX_SHEET_LOOP_INTERACTION_ENTRY::~VORTEX_SHEET_LOOP_INTERACTION_ENTRY(void)
     
     Loop_ = 0;
     
-    TrailingVortexEdge_ = 0;
+    TrailingVortex_ = 0;
 
     NumberOfVortexSheets_ = 0;
     
@@ -98,7 +98,7 @@ void VORTEX_SHEET_LOOP_INTERACTION_ENTRY::DeleteList(void)
     
     Loop_ = 0;
     
-    TrailingVortexEdge_ = 0;
+    TrailingVortex_ = 0;
 
     NumberOfVortexSheets_ = 0;
  
@@ -132,7 +132,7 @@ VORTEX_SHEET_LOOP_INTERACTION_ENTRY &VORTEX_SHEET_LOOP_INTERACTION_ENTRY::operat
     
     Loop_ = VortexLoopInteractionEntry.Loop_;
     
-    TrailingVortexEdge_ = VortexLoopInteractionEntry.TrailingVortexEdge_;
+    TrailingVortex_ = VortexLoopInteractionEntry.TrailingVortex_;
 
     NumberOfVortexSheets_ = VortexLoopInteractionEntry.NumberOfVortexSheets_;
     

@@ -159,11 +159,11 @@ void VSP_GRID::SizeKuttaNodeList(int NumberOfKuttaNodes)
     zero_int_array(ComponentIDForKuttaNode_ ,NumberOfKuttaNodes_);
     zero_int_array(KuttaNodeIsOnWingTip_ ,NumberOfKuttaNodes_);
     
-    WakeTrailingEdgeX_ = new double[NumberOfKuttaNodes_ + 1];
-    WakeTrailingEdgeY_ = new double[NumberOfKuttaNodes_ + 1];
-    WakeTrailingEdgeZ_ = new double[NumberOfKuttaNodes_ + 1];       
+    WakeTrailingEdgeX_ = new VSPAERO_DOUBLE[NumberOfKuttaNodes_ + 1];
+    WakeTrailingEdgeY_ = new VSPAERO_DOUBLE[NumberOfKuttaNodes_ + 1];
+    WakeTrailingEdgeZ_ = new VSPAERO_DOUBLE[NumberOfKuttaNodes_ + 1];       
     
-    KuttaNodeSoverB_ = new double[NumberOfKuttaNodes_ + 1];       
+    KuttaNodeSoverB_ = new VSPAERO_DOUBLE[NumberOfKuttaNodes_ + 1];       
 
 }
 
@@ -176,7 +176,7 @@ void VSP_GRID::SizeKuttaNodeList(int NumberOfKuttaNodes)
 VSP_GRID::VSP_GRID(const VSP_GRID &VSPGrid)
 {
 
-    printf("Copy not implemented for VSP_GRID! \n");
+    PRINTF("Copy not implemented for VSP_GRID! \n");
 
     exit(1);
 
@@ -215,7 +215,7 @@ void VSP_GRID::CalculateTriNormalsAndCentroids(void)
 {
  
     int i, Node1, Node2, Node3;
-    double vec1[3], vec2[3], vec3[3], mag;
+    VSPAERO_DOUBLE vec1[3], vec2[3], vec3[3], mag;
     
     for ( i = 1 ; i <= NumberOfLoops_ ; i++ ) {
      
@@ -241,7 +241,7 @@ void VSP_GRID::CalculateTriNormalsAndCentroids(void)
        vec3[1] /= mag;
        vec3[2] /= mag;
        
-       if ( mag <= 0. ) printf("Mag: %lf \n",mag);
+       if ( mag <= 0. ) PRINTF("Mag: %lf \n",mag);
        
        LoopList(i).Nx() = vec3[0];
        LoopList(i).Ny() = vec3[1];
@@ -284,10 +284,10 @@ void VSP_GRID::CreateTriEdges(void)
     int i, j, k, nod1, nod2, noda, nodb, start_edge, Node1, Node2, Edge;
     int level, edge_to_node[4][3], nod_list[4], Tri1, Tri2, Node;
     int max_edge, new_edge, *jump_pnt;
-    double x1, y1, z1, x2, y2, z2, Normal[3], Dot;
+    VSPAERO_DOUBLE x1, y1, z1, x2, y2, z2, Normal[3], Dot;
     EDGE_ENTRY *list, *tlist;
 
-    if ( Verbose_ ) printf("Finding tri edges... \n");
+    if ( Verbose_ ) PRINTF("Finding tri edges... \n");
 
     // Make space for a linked list of edges
 
@@ -613,9 +613,9 @@ void VSP_GRID::CreateTriEdges(void)
 
     }
 
-    if ( Verbose_ ) printf("Number of nodes: %d \n",NumberOfNodes());
-    if ( Verbose_ ) printf("Number of tris: %d \n",NumberOfTris());
-    if ( Verbose_ ) printf("Number of edges is: %d \n",NumberOfEdges());
+    if ( Verbose_ ) PRINTF("Number of nodes: %d \n",NumberOfNodes());
+    if ( Verbose_ ) PRINTF("Number of tris: %d \n",NumberOfTris());
+    if ( Verbose_ ) PRINTF("Number of edges is: %d \n",NumberOfEdges());
 
     // Free up the scratch space
 
@@ -811,9 +811,10 @@ void VSP_GRID::CreateTriEdges(void)
 void VSP_GRID::CalculateUpwindEdges(void)
 {
  
-   int j, k,  Edge, Node1, Node2, TotalUpwind;
-   double xVec[3], Vec[3], *Flux, TotalFlux, LoopNormal[3], Normal[3], Mag;
-   double Ds, DsMin, DsMax;
+   int i, j, k, Edge, Node1, Node2, TotalUpwind;
+   VSPAERO_DOUBLE xVec[3], Vec[3], *Flux, TotalFlux, LoopNormal[3], Normal[3], Mag;
+   VSPAERO_DOUBLE Ds, DsMin, DsMax;
+   VSPAERO_DOUBLE x1, y1, z1, x2, y2, z2, Length;
    
    // Loop over triangles and determine which nodes, and then edges are upwind
    
@@ -827,7 +828,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
        LoopNormal[1] = LoopList(k).Ny();
        LoopNormal[2] = LoopList(k).Nz();
             
-       Flux = new double[LoopList(k).NumberOfEdges() + 1];
+       Flux = new VSPAERO_DOUBLE[LoopList(k).NumberOfEdges() + 1];
 
        TotalFlux = 0.;
 
@@ -897,15 +898,15 @@ void VSP_GRID::CalculateUpwindEdges(void)
 
        if (0&& TotalUpwind == 0 ) {
         
-          printf("wtf! \n");
+          PRINTF("wtf! \n");
        
-          printf("TotalUpwind: %d \n",TotalUpwind);
+          PRINTF("TotalUpwind: %d \n",TotalUpwind);
      
-          printf("TotalFlux: %lf \n",TotalFlux);
+          PRINTF("TotalFlux: %lf \n",TotalFlux);
           
-          printf("LoopNormal: %lf %lf %lf \n",LoopNormal[0],LoopNormal[1],LoopNormal[2]);
+          PRINTF("LoopNormal: %lf %lf %lf \n",LoopNormal[0],LoopNormal[1],LoopNormal[2]);
           
-          printf("LoopList(k).NumberOfEdges(): %d \n",LoopList(k).NumberOfEdges());
+          PRINTF("LoopList(k).NumberOfEdges(): %d \n",LoopList(k).NumberOfEdges());
             
           exit(1);
         
@@ -917,6 +918,32 @@ void VSP_GRID::CalculateUpwindEdges(void)
     
        LoopList(k).Length() = sqrt(LoopList(k).Area());
        
+       Length = 0.;
+       
+       for ( i = 1 ; i <= LoopList(k).NumberOfNodes() ; i++ ) {
+          
+          Node1 = LoopList(k).Node(i);
+          
+          x1 = NodeList(Node1).x();
+          y1 = NodeList(Node1).y();
+          z1 = NodeList(Node1).z();
+    
+          for ( j = 1 ; j <= LoopList(k).NumberOfNodes() ; j++ ) {
+
+             Node2 = LoopList(k).Node(j);
+
+             x2 = NodeList(Node2).x();
+             y2 = NodeList(Node2).y();
+             z2 = NodeList(Node2).z();
+       
+             Length = MAX(Length,sqrt( pow(x1-x2,2.) + pow(y1-y2,2.) + pow(z1-z2,2.) ));
+             
+          }
+          
+       }
+     
+       LoopList(k).Length() = MAX(Length, LoopList(k).Length());
+
        // Calculate smallest edge length for cell
 
        DsMin = 1.e9;
@@ -951,7 +978,7 @@ void VSP_GRID::CreateUpwindEdgeData(void)
     int j, k, Done, Case, Node1, Node2;
     int Loop1, Loop2;
     int VortexLoop1IsDownWind, VortexLoop2IsDownWind;
-    double VortexLoop1DownWindWeight, VortexLoop2DownWindWeight;
+    VSPAERO_DOUBLE VortexLoop1DownWindWeight, VortexLoop2DownWindWeight;
 
     VSP_NODE VSP_Node1, VSP_Node2;
     
@@ -1141,7 +1168,7 @@ void VSP_GRID::WriteMesh(char *FileName)
 
        // No VSP degen file... exit
 
-       printf("Could not open %s mesh file for write... \n", FileName);fflush(NULL);
+       PRINTF("Could not open %s mesh file for write... \n", FileName);fflush(NULL);
 
        exit(1);
 
@@ -1149,25 +1176,25 @@ void VSP_GRID::WriteMesh(char *FileName)
     
     // Header
     
-    fprintf(MeshFile,"%d %d %d \n", NumberOfNodes_, NumberOfLoops_, 0); 
+    FPRINTF(MeshFile,"%d %d %d \n", NumberOfNodes_, NumberOfLoops_, 0); 
     
     // XYZ data
     
     for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
 
-       fprintf(MeshFile,"%lf \n",NodeList(i).x());
+       FPRINTF(MeshFile,"%lf \n",NodeList(i).x());
        
     }    
 
     for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
 
-       fprintf(MeshFile,"%lf \n",NodeList(i).y());
+       FPRINTF(MeshFile,"%lf \n",NodeList(i).y());
        
     }    
     
     for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
 
-       fprintf(MeshFile,"%lf \n",NodeList(i).z());
+       FPRINTF(MeshFile,"%lf \n",NodeList(i).z());
        
     }    
     
@@ -1175,7 +1202,7 @@ void VSP_GRID::WriteMesh(char *FileName)
     
     for ( i = 1 ; i <= NumberOfLoops_ ; i++ ) {
 
-      fprintf(MeshFile,"%d %d %d \n",
+      FPRINTF(MeshFile,"%d %d %d \n",
               LoopList(i).Node1(),
               LoopList(i).Node2(),
               LoopList(i).Node3());
@@ -1184,7 +1211,7 @@ void VSP_GRID::WriteMesh(char *FileName)
 
     for ( i = 1 ; i <= NumberOfLoops_ ; i++ ) {
 
-      fprintf(MeshFile,"%d %d \n", LoopList(i).SurfaceID(), LoopList(i).SurfaceID());
+      FPRINTF(MeshFile,"%d %d \n", LoopList(i).SurfaceID(), LoopList(i).SurfaceID());
        
     }
 
@@ -1196,7 +1223,7 @@ void VSP_GRID::WriteMesh(char *FileName)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_GRID::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup)
+void VSP_GRID::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup)
 {
  
     int i;

@@ -25,7 +25,7 @@ private:
 
     int Level_;
     int Loop_;
-    int TrailingVortexEdge_;
+    int TrailingVortex_;
 
     int NumberOfVortexSheets_;
         
@@ -50,7 +50,7 @@ public:
     
     int &Edge(void) { return Loop_; }; // Doubles as Edge storage... depends on context
     
-    int &TrailingVortexEdge(void) { return TrailingVortexEdge_; };
+    int &TrailingVortex(void) { return TrailingVortex_; };
 
     int NumberOfVortexSheets(void) { return NumberOfVortexSheets_; };
     

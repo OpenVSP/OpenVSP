@@ -13,39 +13,121 @@
 #include <string.h>
 #include <assert.h>
 #include "utils.H"
+#include "quat.H"
 
 class SPAN_LOAD_DATA {
 
 private:
 
-    int SurfaceID_;
-    
-    // Spanwise forces and moments, for wings and rotors
-    
     int NumberOfSpanStations_;
-    int NumberOfTimeSamples_;
-    int ActualTimeSamples_;
     
-    double *Span_Cno_; // Local viscous 2d normal     force coefficient
-    double *Span_Cso_; // Local viscous 2d tangential force coefficient
-    double *Span_Cto_; // Local viscous 2d thrust     force coefficient
-    double *Span_Cqo_; // Local viscous 2d torque           coefficient   
-    double *Span_Cpo_; // Local viscous 2d power            coefficient   
+    // Viscous forces
+      
+    VSPAERO_DOUBLE *Span_Cxo_;
+    VSPAERO_DOUBLE *Span_Cyo_;
+    VSPAERO_DOUBLE *Span_Czo_;  
+              
+    // Inviscid forces
+                
+    VSPAERO_DOUBLE *Span_Cx_;
+    VSPAERO_DOUBLE *Span_Cy_;
+    VSPAERO_DOUBLE *Span_Cz_;
 
-    double *Span_Cn_;  // Local inviscid 2d normal     force coefficient
-    double *Span_Cs_;  // Local inviscid 2d tangential force coefficient    
-    double *Span_Ct_;  // Local inviscid 2d thrust     force coefficient
-    double *Span_Cq_;  // Local inviscid 2d torque           coefficient    
-    double *Span_Cp_;  // Local inviscid 2d power            coefficient
+    // Trefftz, induced drag, forces
     
-    double *Time_;
-    double *XYZ_QC_[3];
-    double *RotationAngle_;
-    double *Span_S_;
-    double *Span_Area_;
-    double *Span_Chord_;
-    double *Local_Velocity_;
+    VSPAERO_DOUBLE *Span_Cxi_; 
+    VSPAERO_DOUBLE *Span_Cyi_;
+    VSPAERO_DOUBLE *Span_Czi_;  
+    
+    // Viscous moments
+      
+    VSPAERO_DOUBLE *Span_Cmxo_; 
+    VSPAERO_DOUBLE *Span_Cmyo_;
+    VSPAERO_DOUBLE *Span_Cmzo_;
+          
+    // Inviscid moments
+          
+    VSPAERO_DOUBLE *Span_Cmx_;  
+    VSPAERO_DOUBLE *Span_Cmy_;
+    VSPAERO_DOUBLE *Span_Cmz_;
 
+    // Trefftz, induced drag, moments
+
+    VSPAERO_DOUBLE *Span_Cmxi_; 
+    VSPAERO_DOUBLE *Span_Cmyi_;
+    VSPAERO_DOUBLE *Span_Cmzi_;
+    
+    // Lift, drag, normal, spanwise forces
+            
+    VSPAERO_DOUBLE *Span_Cn_;
+    VSPAERO_DOUBLE *Span_Cl_;
+    VSPAERO_DOUBLE *Span_Cs_;
+    VSPAERO_DOUBLE *Span_Cd_;
+    
+    // Mininum Local Cp
+
+    VSPAERO_DOUBLE *Span_CpMin_;    
+    
+    // Geometrical information
+    
+    VSPAERO_DOUBLE *Span_XLE_;
+    VSPAERO_DOUBLE *Span_YLE_;
+    VSPAERO_DOUBLE *Span_ZLE_;
+        
+    VSPAERO_DOUBLE *Span_XTE_;
+    VSPAERO_DOUBLE *Span_YTE_;
+    VSPAERO_DOUBLE *Span_ZTE_;
+    
+    VSPAERO_DOUBLE *Span_XLE_Def_;
+    VSPAERO_DOUBLE *Span_YLE_Def_;
+    VSPAERO_DOUBLE *Span_ZLE_Def_;
+        
+    VSPAERO_DOUBLE *Span_XTE_Def_;
+    VSPAERO_DOUBLE *Span_YTE_Def_;
+    VSPAERO_DOUBLE *Span_ZTE_Def_;
+        
+    VSPAERO_DOUBLE *Span_Xavg_;
+    VSPAERO_DOUBLE *Span_Yavg_;
+    VSPAERO_DOUBLE *Span_Zavg_;
+
+    VSPAERO_DOUBLE **Span_Svec_;    
+    
+    VSPAERO_DOUBLE **Span_Nvec_;
+    
+    VSPAERO_DOUBLE *Span_Area_;
+    
+    VSPAERO_DOUBLE *Span_Chord_;
+    
+    VSPAERO_DOUBLE *Span_S_;
+
+    VSPAERO_DOUBLE *Span_S_Def_;
+    
+    // Root LE, TE, and Quarter chord
+    
+    VSPAERO_DOUBLE Root_LE_[3];
+    VSPAERO_DOUBLE Root_TE_[3];
+    VSPAERO_DOUBLE Root_QC_[3];
+    
+    // Tip LE, TE, and Quarter chord
+    
+    VSPAERO_DOUBLE Tip_LE_[3];
+    VSPAERO_DOUBLE Tip_TE_[3];
+    VSPAERO_DOUBLE Tip_QC_[3];    
+    
+    // Local Velocity
+    
+    VSPAERO_DOUBLE **Local_Velocity_;
+    
+    // Stall flag
+    
+    VSPAERO_DOUBLE *StallFact_;
+    
+    int *IsStalled_;
+    
+    // Rotor flag
+    
+    int IsARotor_;
+    
 public:
 
     SPAN_LOAD_DATA(void);
@@ -53,70 +135,123 @@ public:
     SPAN_LOAD_DATA(const SPAN_LOAD_DATA &SPAN_LOAD_DATA);
 
     SPAN_LOAD_DATA& operator=(const SPAN_LOAD_DATA &SPAN_LOAD_DATA);
-    
-    int &SurfaceID(void) { return SurfaceID_; };
 
-    // Spanwise forces and moments, for wings and rotors
-    
-    void SetNumberOfSpanStations(int NumberOfSpanStations) { NumberOfSpanStations_ = NumberOfSpanStations; };
-    void SetNumberOfNumberOfTimeSamples(int NumberOfTimeSamples) { NumberOfTimeSamples_ = NumberOfTimeSamples; };
-    
-    void SizeSpanLoadingList(void);
-    
-    int NumberOfSpanStations(void) { return NumberOfSpanStations_; };
-    int NumberOfTimeSamples(void) { return NumberOfTimeSamples_; };
-    
-    // Access span loading data
-    
-    double &Span_Cno(int TimeStep, int SpanStation) { return Span_Cno_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Span_Cso(int TimeStep, int SpanStation) { return Span_Cso_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Span_Cto(int TimeStep, int SpanStation) { return Span_Cto_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Span_Cqo(int TimeStep, int SpanStation) { return Span_Cqo_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Span_Cpo(int TimeStep, int SpanStation) { return Span_Cpo_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-           
-    double &Span_Cn(int TimeStep, int SpanStation) { return Span_Cn_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Span_Cs(int TimeStep, int SpanStation) { return Span_Cs_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Span_Ct(int TimeStep, int SpanStation) { return Span_Ct_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Span_Cq(int TimeStep, int SpanStation) { return Span_Cq_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Span_Cp(int TimeStep, int SpanStation) { return Span_Cp_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
- 
-    double &X_QC(int TimeStep, int SpanStation) { return XYZ_QC_[0][TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Y_QC(int TimeStep, int SpanStation) { return XYZ_QC_[1][TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Z_QC(int TimeStep, int SpanStation) { return XYZ_QC_[2][TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    
-    double &RotationAngle(int TimeStep, int SpanStation) { return RotationAngle_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
+    void Size(int NumberOfSpanStations);
 
-    double &Time(int TimeStep, int SpanStation) { return Time_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-   
-    double         &Span_S(int TimeStep, int SpanStation) { return         Span_S_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double      &Span_Area(int TimeStep, int SpanStation) { return      Span_Area_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double     &Span_Chord(int TimeStep, int SpanStation) { return     Span_Chord_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-    double &Local_Velocity(int TimeStep, int SpanStation) { return Local_Velocity_[TimeStep*NumberOfSpanStations_ + SpanStation]; };
-                           
-    // Access averaged span loading data
-    
-    double &Span_Cno(int SpanStation) { return Span_Cno_[SpanStation]; };
-    double &Span_Cso(int SpanStation) { return Span_Cso_[SpanStation]; };
-    double &Span_Cto(int SpanStation) { return Span_Cto_[SpanStation]; };
-    double &Span_Cqo(int SpanStation) { return Span_Cqo_[SpanStation]; };
-    double &Span_Cpo(int SpanStation) { return Span_Cpo_[SpanStation]; };
-           
-    double &Span_Cn(int SpanStation) { return Span_Cn_[SpanStation]; };
-    double &Span_Cs(int SpanStation) { return Span_Cs_[SpanStation]; };
-    double &Span_Ct(int SpanStation) { return Span_Ct_[SpanStation]; };
-    double &Span_Cq(int SpanStation) { return Span_Cq_[SpanStation]; };
-    double &Span_Cp(int SpanStation) { return Span_Cp_[SpanStation]; };
- 
-    double         &Span_S(int SpanStation) { return         Span_S_[SpanStation]; };
-    double      &Span_Area(int SpanStation) { return      Span_Area_[SpanStation]; };
-    double     &Span_Chord(int SpanStation) { return     Span_Chord_[SpanStation]; };
-    double &Local_Velocity(int SpanStation) { return Local_Velocity_[SpanStation]; };
-        
-    int &ActualTimeSamples(void) { return ActualTimeSamples_; };
-
-    void CalculateAverageForcesAndMoments(void);
-
+    void ZeroAll(void);
     void ZeroForcesAndMoments(void);
+
+    int NumberOfSpanStations(void) { return NumberOfSpanStations_ ; };
+    
+    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+    
+    // Viscous forces
+      
+    VSPAERO_DOUBLE &Span_Cxo(int i) { return Span_Cxo_[i]; };
+    VSPAERO_DOUBLE &Span_Cyo(int i) { return Span_Cyo_[i]; };
+    VSPAERO_DOUBLE &Span_Czo(int i) { return Span_Czo_[i]; };
+              
+    // Inviscid forces
+                
+    VSPAERO_DOUBLE &Span_Cx(int i) { return Span_Cx_[i]; };
+    VSPAERO_DOUBLE &Span_Cy(int i) { return Span_Cy_[i]; };
+    VSPAERO_DOUBLE &Span_Cz(int i) { return Span_Cz_[i]; };
+           
+    // Trefftz, induced drag, forces
+    
+    VSPAERO_DOUBLE &Span_Cxi(int i) { return Span_Cxi_[i]; }; 
+    VSPAERO_DOUBLE &Span_Cyi(int i) { return Span_Cyi_[i]; };
+    VSPAERO_DOUBLE &Span_Czi(int i) { return Span_Czi_[i]; };  
+    
+    // Viscous moments
+      
+    VSPAERO_DOUBLE &Span_Cmxo(int i) { return Span_Cmxo_[i]; }; 
+    VSPAERO_DOUBLE &Span_Cmyo(int i) { return Span_Cmyo_[i]; };
+    VSPAERO_DOUBLE &Span_Cmzo(int i) { return Span_Cmzo_[i]; };
+          
+    // Inviscid moments
+          
+    VSPAERO_DOUBLE &Span_Cmx(int i) { return Span_Cmx_[i]; };  
+    VSPAERO_DOUBLE &Span_Cmy(int i) { return Span_Cmy_[i]; };
+    VSPAERO_DOUBLE &Span_Cmz(int i) { return Span_Cmz_[i]; };
+             
+    // Trefftz, induced drag, moments
+
+    VSPAERO_DOUBLE &Span_Cmxi(int i) { return Span_Cmxi_[i]; }; 
+    VSPAERO_DOUBLE &Span_Cmyi(int i) { return Span_Cmyi_[i]; };
+    VSPAERO_DOUBLE &Span_Cmzi(int i) { return Span_Cmzi_[i]; };
+    
+    // Lift, drag, normal, spanwise forces
+            
+    VSPAERO_DOUBLE &Span_Cn(int i) { return Span_Cn_[i]; };
+    VSPAERO_DOUBLE &Span_Cl(int i) { return Span_Cl_[i]; };
+    VSPAERO_DOUBLE &Span_Cs(int i) { return Span_Cs_[i]; };
+    VSPAERO_DOUBLE &Span_Cd(int i) { return Span_Cd_[i]; };
+    
+    // Mininum Local Cp
+    
+    VSPAERO_DOUBLE &Span_CpMin(int i) { return Span_CpMin_[i]; };
+    
+    // Geometrical information
+    
+    VSPAERO_DOUBLE &Span_XLE( int i) { return Span_XLE_[i]; };
+    VSPAERO_DOUBLE &Span_YLE( int i) { return Span_YLE_[i]; };
+    VSPAERO_DOUBLE &Span_ZLE( int i) { return Span_ZLE_[i]; };
+    
+    VSPAERO_DOUBLE &Span_XTE( int i) { return Span_XTE_[i]; };
+    VSPAERO_DOUBLE &Span_YTE( int i) { return Span_YTE_[i]; };
+    VSPAERO_DOUBLE &Span_ZTE( int i) { return Span_ZTE_[i]; };
+
+    VSPAERO_DOUBLE &Span_XLE_Def( int i) { return Span_XLE_Def_[i]; };
+    VSPAERO_DOUBLE &Span_YLE_Def( int i) { return Span_YLE_Def_[i]; };
+    VSPAERO_DOUBLE &Span_ZLE_Def( int i) { return Span_ZLE_Def_[i]; };
+    
+    VSPAERO_DOUBLE &Span_XTE_Def( int i) { return Span_XTE_Def_[i]; };
+    VSPAERO_DOUBLE &Span_YTE_Def( int i) { return Span_YTE_Def_[i]; };
+    VSPAERO_DOUBLE &Span_ZTE_Def( int i) { return Span_ZTE_Def_[i]; };
+        
+    VSPAERO_DOUBLE &Span_Xavg(int i) { return Span_Xavg_[i]; };
+    VSPAERO_DOUBLE &Span_Yavg(int i) { return Span_Yavg_[i]; };
+    VSPAERO_DOUBLE &Span_Zavg(int i) { return Span_Zavg_[i]; };
+    
+    VSPAERO_DOUBLE &Span_Area(int i) { return Span_Area_[i]; };
+    
+    VSPAERO_DOUBLE &Span_Chord(int i) { return Span_Chord_[i]; };
+    
+    VSPAERO_DOUBLE &Span_S(int i) { return Span_S_[i]; };
+
+    VSPAERO_DOUBLE &Span_S_Def(int i) { return Span_S_Def_[i]; };
+
+    VSPAERO_DOUBLE *Span_Svec(int i) { return Span_Svec_[i]; };
+    
+    VSPAERO_DOUBLE *Span_Nvec(int i) { return Span_Nvec_[i]; };
+
+    // Root LE, TE, and Quarter chord
+    
+    VSPAERO_DOUBLE &Root_LE(int i) { return Root_LE_[i]; };
+    VSPAERO_DOUBLE &Root_TE(int i) { return Root_TE_[i]; };
+    VSPAERO_DOUBLE &Root_QC(int i) { return Root_QC_[i]; };
+    
+    // Tip LE, TE, and Quarter chord
+    
+    VSPAERO_DOUBLE &Tip_LE(int i) { return Tip_LE_[i]; };
+    VSPAERO_DOUBLE &Tip_TE(int i) { return Tip_TE_[i]; };
+    VSPAERO_DOUBLE &Tip_QC(int i) { return Tip_QC_[i]; };  
+    
+    // Local velocity
+    
+    VSPAERO_DOUBLE *Span_Local_Velocity(int i) { return Local_Velocity_[i]; };
+    
+    // Stall Flag
+    
+    VSPAERO_DOUBLE &StallFact(int i) { return StallFact_[i]; };
+     
+    int &IsStalled(int i) { return IsStalled_[i]; };
+    
+    // Rotor Flag
+    
+    int &IsARotor(void) { return IsARotor_; };
+     
 
 };
 

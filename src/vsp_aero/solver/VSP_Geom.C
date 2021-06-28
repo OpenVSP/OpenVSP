@@ -92,17 +92,22 @@ VSP_GEOM::~VSP_GEOM(void)
 #                                                                              #
 ##############################################################################*/
 
-int VSP_GEOM::ReadFile(char *FileName)
+void VSP_GEOM::ReadFile(char *FileName, int &ModelType, int &SurfaceType)
 {
  
-    char VSP_File_Name[2000];
+    char Degen_File_Name[2000];
+    char CART3D_File_Name[2000];
+    char VSPGEOM_File_Name[2000];
+    
     FILE *File;
      
     // VSP Degen file
 
-    sprintf(VSP_File_Name,"%s.csv",FileName);
+    SPRINTF(Degen_File_Name,"%s.csv",FileName);
+    SPRINTF(CART3D_File_Name,"%s.tri",FileName);
+    SPRINTF(VSPGEOM_File_Name,"%s.vspgeom",FileName);
 
-    if ( (File = fopen(VSP_File_Name,"r")) != NULL ) {
+    if ( (File = fopen(Degen_File_Name,"r")) != NULL ) {
         
        fclose(File);
        
@@ -110,34 +115,50 @@ int VSP_GEOM::ReadFile(char *FileName)
        
        ModelType_ = VLM_MODEL;
        
+       SurfaceType_ = DEGEN_SURFACE;
+       
     }       
     
     // CART3D file
     
+    else if ( (File = fopen(CART3D_File_Name,"r")) != NULL ) {
+
+      fclose(File);
+      
+      Read_CART3D_File(FileName);
+      
+      ModelType_ = PANEL_MODEL;
+      
+      SurfaceType_ = CART3D_SURFACE;
+          
+    }
+
+    // VSPGEOM file
+    
     else {
-       
-       sprintf(VSP_File_Name,"%s.tri",FileName);
-       
-       if ( (File = fopen(VSP_File_Name,"r")) != NULL ) {
+ 
+       if ( (File = fopen(VSPGEOM_File_Name,"r")) != NULL ) {
 
           fclose(File);
        
-          Read_CART3D_File(FileName);
+          Read_VSPGEOM_File(FileName);
           
           ModelType_ = PANEL_MODEL;
           
+          SurfaceType_ = VSPGEOM_SURFACE;
+                    
        }
        
        else {
 
-          printf("Could not load %s VSP Degen Geometry or CART3D Tri file... \n", FileName);fflush(NULL);
+          printf("Could not load %s VSP Degen Geometry, CART3D Tri, or VSPGEOM Tri file... \n", FileName);fflush(NULL);
 
           exit(1);
           
        }
               
     }
-    
+        
     printf("NumberOfSurfaces_: %d \n",NumberOfSurfaces_);    
 
     // Load in FEM analysis data
@@ -147,9 +168,19 @@ int VSP_GEOM::ReadFile(char *FileName)
     // Create meshes for the VSP geometries
     
     MeshGeom();
-      
-    return ModelType_;
-      
+    
+    // If this is a VSPGEOM, determine if it's a VLM or PANEL model
+    
+    if ( SurfaceType_ == VSPGEOM_SURFACE ) {
+       
+       DetermineModelType();
+       
+    }
+    
+    ModelType = ModelType_;
+    
+    SurfaceType = SurfaceType_;
+            
 }
 
 /*##############################################################################
@@ -171,7 +202,7 @@ void VSP_GEOM::LoadFEMDeformationData(char *FileName)
        
        if ( VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) {
  
-          sprintf(FEM_File_Name,"%s.Surface.%d.dfm",FileName,i);
+          SPRINTF(FEM_File_Name,"%s.Surface.%d.dfm",FileName,i);
        
           // If a deformation solution exists... load it in
           
@@ -204,10 +235,10 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 
     int Done;
     char VSP_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
-    double Diam, x, y, z, nx, ny, nz;
+    VSPAERO_DOUBLE Diam, x, y, z, nx, ny, nz;
     FILE *Cart3D_File, *VSP_Degen_File;
  
-    sprintf(VSP_File_Name,"%s.tri",FileName);
+    SPRINTF(VSP_File_Name,"%s.tri",FileName);
     
     if ( (Cart3D_File = fopen(VSP_File_Name,"r")) == NULL ) {
 
@@ -243,7 +274,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
         
     // Read in the cart3d geometry
 
-    sprintf(Name,"CART3D");
+    SPRINTF(Name,"CART3D");
 
     VSP_Surface(1).ReadCart3DDataFromFile(Name,Cart3D_File);
     
@@ -255,7 +286,159 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
     
     // Now see if a degen file exists
 
-    sprintf(VSP_Degen_File_Name,"%s_DegenGeom.csv",FileName);
+    SPRINTF(VSP_Degen_File_Name,"%s_DegenGeom.csv",FileName);
+
+    if ( (VSP_Degen_File = fopen(VSP_Degen_File_Name,"r")) != NULL ) {
+
+       // See if any rotors are defined
+       
+       NumberOfRotors_ = 0;
+       
+       Done = 0;
+       
+       while ( !Done ) {
+        
+          if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
+          
+          if ( strncmp(DumChar,"DISK",4) == 0 ) NumberOfRotors_++;
+          
+       }        
+          
+       if ( NumberOfRotors_ > 0 ) {
+          
+          rewind(VSP_Degen_File);  
+       
+          RotorDisk_ = new ROTOR_DISK[NumberOfRotors_ + 1];
+          
+          NumberOfRotors_ = 0;
+          
+          Done = 0;
+          
+          while ( !Done ) {
+        
+             if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
+          
+             if ( strncmp(DumChar,"DISK",4) == 0 ) {
+                
+                NumberOfRotors_++;
+                
+                fgets(DumChar,1000,VSP_Degen_File);  
+                fgets(DumChar,1000,VSP_Degen_File);  
+                fgets(DumChar,1000,VSP_Degen_File);  
+                fgets(DumChar,1000,VSP_Degen_File);  
+             
+                sscanf(DumChar,"%lf, %lf, %lf, %lf, %lf, %lf, %lf",
+                       &Diam,
+                       &x,
+                       &y,
+                       &z,
+                       &nx,
+                       &ny,
+                       &nz);
+                
+                // VSP supplied information
+                       
+                RotorDisk(NumberOfRotors_).Radius() = 0.5*Diam;
+   
+                RotorDisk(NumberOfRotors_).XYZ(0) = x;
+                RotorDisk(NumberOfRotors_).XYZ(1) = y;
+                RotorDisk(NumberOfRotors_).XYZ(2) = z;
+   
+                RotorDisk(NumberOfRotors_).Normal(0) = -nx;
+                RotorDisk(NumberOfRotors_).Normal(1) = -ny;
+                RotorDisk(NumberOfRotors_).Normal(2) = -nz;
+                
+                // Some defaults
+                
+                RotorDisk(NumberOfRotors_).CT() = 0.400;
+                RotorDisk(NumberOfRotors_).CP() = 0.600;
+                RotorDisk(NumberOfRotors_).RPM() = 2000.;
+                
+             }
+             
+          }
+          
+       }
+       
+       printf("Found: %d Rotors \n",NumberOfRotors_);
+       
+       rewind(VSP_Degen_File);  
+              
+       // Now search for control surface hinges
+       
+       // Close file
+       
+       fclose(VSP_Degen_File);
+       
+    }    
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_GEOM Read_VSPGEOM_File                           #
+#                                                                              #
+##############################################################################*/
+
+void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
+{
+
+    int Done;
+    char VSPGEOM_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
+    VSPAERO_DOUBLE Diam, x, y, z, nx, ny, nz;
+    FILE *VSPGEOM_File, *VSP_Degen_File;
+ 
+    SPRINTF(VSPGEOM_File_Name,"%s.vspgeom",FileName);
+    
+    if ( (VSPGEOM_File = fopen(VSPGEOM_File_Name,"r")) == NULL ) {
+
+       printf("Could not load %s VSPGEOM file... \n", VSPGEOM_File_Name);fflush(NULL);
+
+       exit(1);
+
+    }    
+         
+    // Now size the surface list
+    
+    NumberOfDegenWings_     = 0;
+    NumberOfDegenBodies_    = 0;
+    NumberOfSurfaces_       = 1;
+    
+    VSP_Surface_ = new VSP_SURFACE[NumberOfSurfaces_ + 1];
+
+    // If this is a ground effects analysis, set flag
+    
+    if ( DoGroundEffectsAnalysis_ ) {
+
+       VSP_Surface(1).DoGroundEffectsAnalysis() = 1;
+      
+       VSP_Surface(1).GroundEffectsRotationAngle() = VehicleRotationAngleVector(1);
+      
+       VSP_Surface(1).GroundEffectsCGLocation(0) = VehicleRotationAxisLocation(0);
+       VSP_Surface(1).GroundEffectsCGLocation(1) = VehicleRotationAxisLocation(1);
+       VSP_Surface(1).GroundEffectsCGLocation(2) = VehicleRotationAxisLocation(2);
+
+       VSP_Surface(1).GroundEffectsHeightAboveGround() = HeightAboveGround();
+
+    }
+        
+    // Read in the geometry
+
+    printf("1... \n");fflush(NULL);
+
+    SPRINTF(Name,"VSPGEOM");
+
+    VSP_Surface(1).ReadVSPGeomDataFromFile(Name,VSPGEOM_File);
+    
+    NumberOfCart3dSurfaces_ = NumberOfSurfacePatches_ = VSP_Surface(1).NumberOfSurfacePatches();
+
+    NumberOfComponents_ = NumberOfCart3dSurfaces_;
+
+    fclose(VSPGEOM_File);
+ 
+    // Now see if a degen file exists
+
+    SPRINTF(VSP_Degen_File_Name,"%s_DegenGeom.csv",FileName);
 
     if ( (VSP_Degen_File = fopen(VSP_Degen_File_Name,"r")) != NULL ) {
 
@@ -355,7 +538,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     int i, Wing, Done, NumberOfBodySets, BodySet, Surface, GeomIDFlags, SymCopyNdxFlags;
     int TotalNumberOfWings, TotalNumberOfBodies;
     int *ReadInThisWing, *ReadInThisBody, ComponentID, SurfFlag ;
-    double Diam, x, y, z, nx, ny, nz, Epsilon, MinVal, MaxVal;
+    VSPAERO_DOUBLE Diam, x, y, z, nx, ny, nz, Epsilon, MinVal, MaxVal;
     char VSP_File_Name[2000], DumChar[2000], Type[2000], Name[2000];
     char GeomID[2000], LastGeomID[2000], SurfNdx[2000], LastSurfNdx[2000];
     char MainSurfNdx[2000], SymCopyNdx[2000], LastSymCopyNdx[2000];
@@ -372,11 +555,11 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     
     SymCopyNdxFlags = 0;
     
-    sprintf(Comma,",");
+    SPRINTF(Comma,",");
     
     // Open degen file
 
-    sprintf(VSP_File_Name,"%s.csv",FileName);
+    SPRINTF(VSP_File_Name,"%s.csv",FileName);
 
     if ( (VSP_Degen_File = fopen(VSP_File_Name,"r")) == NULL ) {
 
@@ -712,9 +895,9 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
  
     // Read in the wing data
     
-    sprintf(LastGeomID," ");
+    SPRINTF(LastGeomID," ");
     
-    sprintf(LastSymCopyNdx," ");
+    SPRINTF(LastSymCopyNdx," ");
     
     Surface = 0;
 
@@ -734,20 +917,20 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           Surface++;
 
-          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
-          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);       
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  SPRINTF(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(Name,"%s",Next);       
           
           SurfFlag = 0;
                        
           if ( GeomIDFlags ) {
         
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(DumChar,    "%s",Next);    
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,     "%s",Next);
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(DumChar,    "%s",Next);    
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(GeomID,     "%s",Next);
 
              if ( SymCopyNdxFlags ) {
                 
-                Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(MainSurfNdx,"%s",Next);
-                Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(SymCopyNdx, "%s",Next);
+                Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(MainSurfNdx,"%s",Next);
+                Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(SymCopyNdx, "%s",Next);
                 
              }
 
@@ -757,7 +940,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           else {
              
-              sprintf(GeomID,"%s",Name);
+              SPRINTF(GeomID,"%s",Name);
               
           }
 
@@ -767,9 +950,9 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           if ( strcmp(LastGeomID,GeomID) != 0 || ( strcmp(LastGeomID,GeomID) == 0 && strcmp(LastSymCopyNdx,SymCopyNdx) != 0 ) ) ComponentID++;
           
-          sprintf(LastGeomID,"%s",GeomID);
+          SPRINTF(LastGeomID,"%s",GeomID);
           
-          sprintf(LastSymCopyNdx,"%s",SymCopyNdx);
+          SPRINTF(LastSymCopyNdx,"%s",SymCopyNdx);
           
           VSP_Surface(Surface).ComponentID() = ComponentID;
           
@@ -779,9 +962,9 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
         
     // Read in the body data
 
-    sprintf(LastGeomID," ");
+    SPRINTF(LastGeomID," ");
     
-    sprintf(LastSurfNdx," ");
+    SPRINTF(LastSurfNdx," ");
         
     for ( BodySet = 1 ; BodySet <= NumberOfBodySets ; BodySet++ ) {
         
@@ -811,19 +994,19 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           Surface++;
             
-          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
-          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);   
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  SPRINTF(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(Name,"%s",Next);   
           
           if ( GeomIDFlags ) {
                  
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(SurfNdx,"%s",Next);
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next);
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(SurfNdx,"%s",Next);
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(GeomID,"%s",Next);
              
           }
           
           else {
              
-             sprintf(GeomID,"%s",Name);
+             SPRINTF(GeomID,"%s",Name);
              
           } 
 
@@ -835,9 +1018,9 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           if ( strcmp(LastGeomID,GeomID) != 0 || ( strcmp(LastGeomID,GeomID) == 0 && strcmp(LastSurfNdx,SurfNdx) != 0 ) ) ComponentID++;
           
-          sprintf(LastGeomID,"%s",GeomID);
+          SPRINTF(LastGeomID,"%s",GeomID);
           
-          sprintf(LastSurfNdx,"%s",SurfNdx);
+          SPRINTF(LastSurfNdx,"%s",SurfNdx);
           
           VSP_Surface(Surface).ComponentID() = ComponentID;
 
@@ -869,19 +1052,19 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           Surface++;
    
-          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
-          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);       
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  SPRINTF(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(Name,"%s",Next);       
           
           if ( GeomIDFlags ) {
              
              Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next); 
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(GeomID,"%s",Next); 
              
           }
           
           else {
              
-             sprintf(GeomID,"%s",Name);
+             SPRINTF(GeomID,"%s",Name);
              
           }
              
@@ -891,7 +1074,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
           
-          sprintf(LastGeomID,"%s",GeomID);
+          SPRINTF(LastGeomID,"%s",GeomID);
           
           VSP_Surface(Surface).ComponentID() = ComponentID;
           
@@ -923,19 +1106,19 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
        
           Surface++;
        
-          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
-          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);   
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  SPRINTF(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(Name,"%s",Next);   
           
           if ( GeomIDFlags ) {
                   
              Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next); 
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(GeomID,"%s",Next); 
              
           }
           
           else {
              
-             sprintf(GeomID,"%s",Name);
+             SPRINTF(GeomID,"%s",Name);
              
           }
           
@@ -945,7 +1128,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
           
-          sprintf(LastGeomID,"%s",GeomID);
+          SPRINTF(LastGeomID,"%s",GeomID);
           
           VSP_Surface(Surface).ComponentID() = ComponentID;         
            
@@ -977,19 +1160,19 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
                
           Surface++;
                       
-          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
-          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);    
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  SPRINTF(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(Name,"%s",Next);    
           
           if ( GeomIDFlags ) {
                            
              Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next); 
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  SPRINTF(GeomID,"%s",Next); 
 
           }
           
           else {
              
-             sprintf(GeomID,"%s",Name);
+             SPRINTF(GeomID,"%s",Name);
              
           }
           
@@ -999,7 +1182,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
           
-          sprintf(LastGeomID,"%s",GeomID);
+          SPRINTF(LastGeomID,"%s",GeomID);
           
           VSP_Surface(Surface).ComponentID() = ComponentID;   
           
@@ -1031,13 +1214,14 @@ void VSP_GEOM::MeshGeom(void)
  
     int i, Surface, NumberOfNodes, NumberOfLoops, NumberOfEdges, NumberOfKuttaNodes;
     int MaxNumberOfGridLevels, NodeOffSet, Done;
-    double AreaTotal;
+    VSPAERO_DOUBLE AreaTotal;
   
     // Loop over the surface and create a mesh for each
 
     for ( Surface = 1 ; Surface <= NumberOfSurfaces_ ; Surface++ ) {
      
-       if ( VSP_Surface(Surface).SurfaceType() != CART3D_SURFACE ) {
+       if ( VSP_Surface(Surface).SurfaceType() != CART3D_SURFACE &&
+            VSP_Surface(Surface).SurfaceType() != VSPGEOM_SURFACE ) {
          
           VSP_Surface(Surface).CreateMesh(Surface);
          
@@ -1118,7 +1302,7 @@ void VSP_GEOM::MeshGeom(void)
         
           NumberOfKuttaNodes++;
           
-          if ( VSP_Surface(Surface).SurfaceType() != CART3D_SURFACE ) {
+          if ( VSP_Surface(Surface).SurfaceType() != CART3D_SURFACE && VSP_Surface(Surface).SurfaceType() != VSPGEOM_SURFACE ) {
           
              Grid().KuttaNode(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().KuttaNode(i) + NodeOffSet;
 
@@ -1163,7 +1347,21 @@ void VSP_GEOM::MeshGeom(void)
     }
     
     printf("NumberOfKuttaNodes: %d \n",NumberOfKuttaNodes);
+
+#ifdef AUTODIFF
+
+    // Start recording here to get partials wrt mesh 
+
+    adept::Stack *AutoDiffStack;
     
+    AutoDiffStack = adept::active_stack();
+
+    AutoDiffStack->continue_recording();
+    
+    AutoDiffStack->new_recording();
+      
+#endif
+      
     Grid().CalculateTriNormalsAndCentroids();
     
     Grid().CreateTriEdges();
@@ -1171,10 +1369,10 @@ void VSP_GEOM::MeshGeom(void)
     Grid().CalculateUpwindEdges();   
     
     Grid().CreateUpwindEdgeData();
-    
+
     for ( Surface = 1 ; Surface <= NumberOfSurfaces_ ; Surface++ ) {
      
-       if ( VSP_Surface(Surface).SurfaceType() == CART3D_SURFACE ) {
+       if ( VSP_Surface(Surface).SurfaceType() == CART3D_SURFACE || VSP_Surface(Surface).SurfaceType() == VSPGEOM_SURFACE ) {
          
           // Copy over edge data
           
@@ -1282,7 +1480,60 @@ void VSP_GEOM::MeshGeom(void)
     // Find vortex loops lying within any control surface regions
     
     FindControlSurfaceVortexLoops();
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                          VSP_GEOM DetermineModelType                         #
+#                                                                              #
+##############################################################################*/
+
+void VSP_GEOM::DetermineModelType(void)
+{
+   
+    int i, Done, Node1, Node2, Tri1, Tri2;
+    VSPAERO_DOUBLE y, Epsilon;
     
+    Epsilon = 0.01; // Yeah, this needs more work...
+    
+    ModelType_ = PANEL_MODEL;
+    
+    Done = 0;
+    
+    i = 1;
+    
+    while (i <= Grid().NumberOfEdges() && !Done ) {
+       
+       Node1 = Grid().EdgeList(i).Node1();
+       Node2 = Grid().EdgeList(i).Node2();
+
+       Tri1 = Grid().EdgeList(i).Tri1();
+       Tri2 = Grid().EdgeList(i).Tri2();
+       
+       if ( Tri1 == Tri2 ) {
+          
+          y = 0.5*( Grid().NodeList(Node1).y() +  Grid().NodeList(Node2).y() );
+          
+          if ( y > Epsilon ) {
+             
+             ModelType_ = VLM_MODEL;
+             
+             Done = 1;
+             
+             
+             
+          }
+          
+       }
+       
+       i++;
+       
+    }
+    
+    if ( ModelType_ == VLM_MODEL   ) printf("Model is a VSPGEOM VLM geometry \n");fflush(NULL);
+    if ( ModelType_ == PANEL_MODEL ) printf("Model is a VSPGEOM Panel geometry \n");fflush(NULL);
+
 }
 
 /*##############################################################################
@@ -1316,7 +1567,6 @@ void VSP_GEOM::CreateComponentBBoxData(void)
     for ( i = 1 ; i <= Grid().NumberOfLoops() ; i++ ) {
        
        c = Grid().LoopList(i).ComponentID();
-
        
        for ( j = 1 ; j <= Grid().LoopList(i).NumberOfNodes() ; j++ ) {
           

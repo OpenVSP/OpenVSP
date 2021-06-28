@@ -16,8 +16,9 @@ QUAT::QUAT(void)
 {
 
     // Just zero the quat
-
-    Vec_[0] = Vec_[1] = Vec_[2] = Vec_[3] = 0.;
+    // Vec_[0 - 2] are the vector components, Vec_[3] is the scalar
+ 
+    Vec_[0] = Vec_[1] = Vec_[2] = Vec_[3] = 0.; 
 
 }
 
@@ -86,7 +87,7 @@ QUAT &QUAT::operator=(const QUAT &quat)
 #                                                                              #
 ##############################################################################*/
 
-double &QUAT::operator()(int i)
+VSPAERO_DOUBLE &QUAT::operator()(int i)
 {
 
     return (Vec_[i]);
@@ -99,7 +100,7 @@ double &QUAT::operator()(int i)
 #                                                                              #
 ##############################################################################*/
 
-const double& QUAT::operator()(int i) const
+const VSPAERO_DOUBLE& QUAT::operator()(int i) const
 {
 
     return (Vec_[i]);
@@ -164,7 +165,7 @@ QUAT operator*(const QUAT &quat1, const QUAT &quat2)
 {
 
     int i;
-    double Vec1[3], Vec2[3], Vec3[3], a1, a2, dot;
+    VSPAERO_DOUBLE Vec1[3], Vec2[3], Vec3[3], a1, a2, dot;
     QUAT Quat;
 
     for ( i = 0 ; i <= 2 ; i++ ) {
@@ -221,11 +222,11 @@ void QUAT::FormInverse(void)
 #                                                                              #
 ##############################################################################*/
 
-void QUAT::FormRotationQuat(double *Vec, double Theta)
+void QUAT::FormRotationQuat(VSPAERO_DOUBLE *Vec, VSPAERO_DOUBLE Theta)
 {
 
     int i;
-    double Dot, SinHalfTheta;
+    VSPAERO_DOUBLE Dot, SinHalfTheta;
     QUAT Quat;
 
     // Create the pure part along the normalized vector
@@ -242,4 +243,22 @@ void QUAT::FormRotationQuat(double *Vec, double Theta)
 
     (*this)(3) = cos(0.5*Theta);
 
+}
+
+
+/*##############################################################################
+#                                                                              #
+#                              QUAT print                                      #
+#                                                                              #
+##############################################################################*/
+
+void QUAT::print(char *name)
+{
+
+    PRINTF("%s\n",name);
+    PRINTF(" s: %f \n",Vec_[3]);
+    PRINTF("qi: %f \n",Vec_[0]);
+    PRINTF("qj: %f \n",Vec_[1]);
+    PRINTF("qk: %f \n",Vec_[2]);
+    
 }

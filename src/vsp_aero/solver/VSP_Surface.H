@@ -27,6 +27,8 @@
 #define DEGEN_WING_SURFACE   1
 #define DEGEN_BODY_SURFACE   2
 #define CART3D_SURFACE       3
+#define VSPGEOM_SURFACE      4
+#define DEGEN_SURFACE        5
 
 // Simple kutta node structure
 
@@ -85,24 +87,24 @@ private:
     
     // XYZ coordinates
 
-    double *x_;
-    double *y_;
-    double *z_;
+    VSPAERO_DOUBLE *x_;
+    VSPAERO_DOUBLE *y_;
+    VSPAERO_DOUBLE *z_;
     
     // Normals, for wire frame geometry
     
-    double *Nx_;
-    double *Ny_;
-    double *Nz_;
+    VSPAERO_DOUBLE *Nx_;
+    VSPAERO_DOUBLE *Ny_;
+    VSPAERO_DOUBLE *Nz_;
     
     // Area
     
-    double *Area_;
+    VSPAERO_DOUBLE *Area_;
     
     // UV coordinates
     
-    double *u_;
-    double *v_;
+    VSPAERO_DOUBLE *u_;
+    VSPAERO_DOUBLE *v_;
     
     // Number of nodes in I and J directions for flat plate model
     
@@ -111,30 +113,30 @@ private:
     
     // XYZ coordinates
     
-    double *x_plate_;
-    double *y_plate_;
-    double *z_plate_;
+    VSPAERO_DOUBLE *x_plate_;
+    VSPAERO_DOUBLE *y_plate_;
+    VSPAERO_DOUBLE *z_plate_;
     
     // UV coordinates
     
-    double *u_plate_;
-    double *v_plate_;
+    VSPAERO_DOUBLE *u_plate_;
+    VSPAERO_DOUBLE *v_plate_;
    
     // Surface normals.. these define the camber line normal
     
-    double *Nx_Camber_;
-    double *Ny_Camber_;
-    double *Nz_Camber_;
+    VSPAERO_DOUBLE *Nx_Camber_;
+    VSPAERO_DOUBLE *Ny_Camber_;
+    VSPAERO_DOUBLE *Nz_Camber_;
     
     // Flat plate normal 
     
-    double *Nx_FlatPlateNormal_;
-    double *Ny_FlatPlateNormal_;
-    double *Nz_FlatPlateNormal_;
+    VSPAERO_DOUBLE *Nx_FlatPlateNormal_;
+    VSPAERO_DOUBLE *Ny_FlatPlateNormal_;
+    VSPAERO_DOUBLE *Nz_FlatPlateNormal_;
     
     // Camber 
     
-    double *Camber_;
+    VSPAERO_DOUBLE *Camber_;
     
     // Control surface subsurface bouding boxes
     
@@ -142,7 +144,7 @@ private:
     int NumberOfControlSurfaces_;
     CONTROL_SURFACE *ControlSurface_;
     
-    void LocateHingeLine(double *up, double *wp, int *HingeNode);
+    void LocateHingeLine(VSPAERO_DOUBLE *up, VSPAERO_DOUBLE *wp, int *HingeNode);
 
     // Initialize
     
@@ -151,120 +153,120 @@ private:
         
     // Access to wire frame surface data - xyz, u, v, etc...
     
-    double &x(int i) { return x_[i]; };
-    double &y(int i) { return y_[i]; };
-    double &z(int i) { return z_[i]; };
-    double &u(int i) { return u_[i]; };
-    double &v(int i) { return v_[i]; };
+    VSPAERO_DOUBLE &x(int i) { return x_[i]; };
+    VSPAERO_DOUBLE &y(int i) { return y_[i]; };
+    VSPAERO_DOUBLE &z(int i) { return z_[i]; };
+    VSPAERO_DOUBLE &u(int i) { return u_[i]; };
+    VSPAERO_DOUBLE &v(int i) { return v_[i]; };
 
-    double &x(int i, int j) { return x_[(i-1)*NumGeomJ_ + j]; };
-    double &y(int i, int j) { return y_[(i-1)*NumGeomJ_ + j]; };
-    double &z(int i, int j) { return z_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE &x(int i, int j) { return x_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE &y(int i, int j) { return y_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE &z(int i, int j) { return z_[(i-1)*NumGeomJ_ + j]; };
 
-    double &Nx(int i, int j) { return Nx_[(i-1)*NumGeomJ_ + j]; };
-    double &Ny(int i, int j) { return Ny_[(i-1)*NumGeomJ_ + j]; };
-    double &Nz(int i, int j) { return Nz_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE &Nx(int i, int j) { return Nx_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE &Ny(int i, int j) { return Ny_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE &Nz(int i, int j) { return Nz_[(i-1)*NumGeomJ_ + j]; };
         
-    double &u(int i, int j) { return u_[(i-1)*NumGeomJ_ + j]; };
-    double &v(int i, int j) { return v_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE &u(int i, int j) { return u_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE &v(int i, int j) { return v_[(i-1)*NumGeomJ_ + j]; };
     
-    double &Area(int i, int j) { return Area_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE &Area(int i, int j) { return Area_[(i-1)*NumGeomJ_ + j]; };
 
     // Access to flat plate representation
 
-    double &x_plate(int i) { return x_plate_[i]; };
-    double &y_plate(int i) { return y_plate_[i]; };
-    double &z_plate(int i) { return z_plate_[i]; };
+    VSPAERO_DOUBLE &x_plate(int i) { return x_plate_[i]; };
+    VSPAERO_DOUBLE &y_plate(int i) { return y_plate_[i]; };
+    VSPAERO_DOUBLE &z_plate(int i) { return z_plate_[i]; };
 
-    double &Nx_Camber(int i) { return Nx_Camber_[i]; };
-    double &Ny_Camber(int i) { return Ny_Camber_[i]; };
-    double &Nz_Camber(int i) { return Nz_Camber_[i]; };
+    VSPAERO_DOUBLE &Nx_Camber(int i) { return Nx_Camber_[i]; };
+    VSPAERO_DOUBLE &Ny_Camber(int i) { return Ny_Camber_[i]; };
+    VSPAERO_DOUBLE &Nz_Camber(int i) { return Nz_Camber_[i]; };
     
-    double &u_plate(int i) { return u_plate_[i]; };
-    double &v_plate(int i) { return v_plate_[i]; };
+    VSPAERO_DOUBLE &u_plate(int i) { return u_plate_[i]; };
+    VSPAERO_DOUBLE &v_plate(int i) { return v_plate_[i]; };
     
-    double &Camber(int i) { return Camber_[i]; };
+    VSPAERO_DOUBLE &Camber(int i) { return Camber_[i]; };
          
-    double &x_plate(int i, int j) { return x_plate_[(i-1)*NumPlateJ_ + j]; };
-    double &y_plate(int i, int j) { return y_plate_[(i-1)*NumPlateJ_ + j]; };
-    double &z_plate(int i, int j) { return z_plate_[(i-1)*NumPlateJ_ + j]; };
+    VSPAERO_DOUBLE &x_plate(int i, int j) { return x_plate_[(i-1)*NumPlateJ_ + j]; };
+    VSPAERO_DOUBLE &y_plate(int i, int j) { return y_plate_[(i-1)*NumPlateJ_ + j]; };
+    VSPAERO_DOUBLE &z_plate(int i, int j) { return z_plate_[(i-1)*NumPlateJ_ + j]; };
 
-    double &Nx_Camber(int i, int j) { return Nx_Camber_[(i-1)*NumPlateJ_ + j]; };
-    double &Ny_Camber(int i, int j) { return Ny_Camber_[(i-1)*NumPlateJ_ + j]; };
-    double &Nz_Camber(int i, int j) { return Nz_Camber_[(i-1)*NumPlateJ_ + j]; };
+    VSPAERO_DOUBLE &Nx_Camber(int i, int j) { return Nx_Camber_[(i-1)*NumPlateJ_ + j]; };
+    VSPAERO_DOUBLE &Ny_Camber(int i, int j) { return Ny_Camber_[(i-1)*NumPlateJ_ + j]; };
+    VSPAERO_DOUBLE &Nz_Camber(int i, int j) { return Nz_Camber_[(i-1)*NumPlateJ_ + j]; };
     
-    double &u_plate(int i, int j) { return u_plate_[(i-1)*NumPlateJ_ + j]; };
-    double &v_plate(int i, int j) { return v_plate_[(i-1)*NumPlateJ_ + j]; };
+    VSPAERO_DOUBLE &u_plate(int i, int j) { return u_plate_[(i-1)*NumPlateJ_ + j]; };
+    VSPAERO_DOUBLE &v_plate(int i, int j) { return v_plate_[(i-1)*NumPlateJ_ + j]; };
     
-    double &Camber(int i, int j) { return Camber_[(i-1)*NumPlateJ_ + j]; };
+    VSPAERO_DOUBLE &Camber(int i, int j) { return Camber_[(i-1)*NumPlateJ_ + j]; };
 
     // Original leading and trailing edge locations
     
-    double *xLE_;
-    double *yLE_;
-    double *zLE_;
+    VSPAERO_DOUBLE *xLE_;
+    VSPAERO_DOUBLE *yLE_;
+    VSPAERO_DOUBLE *zLE_;
 
-    double *xTE_;
-    double *yTE_;
-    double *zTE_;
+    VSPAERO_DOUBLE *xTE_;
+    VSPAERO_DOUBLE *yTE_;
+    VSPAERO_DOUBLE *zTE_;
     
     // Deformed Leading and trailing edges
     
-    double *xLE_Def_;
-    double *yLE_Def_;
-    double *zLE_Def_;
+    VSPAERO_DOUBLE *xLE_Def_;
+    VSPAERO_DOUBLE *yLE_Def_;
+    VSPAERO_DOUBLE *zLE_Def_;
 
-    double *xTE_Def_;
-    double *yTE_Def_;
-    double *zTE_Def_;   
+    VSPAERO_DOUBLE *xTE_Def_;
+    VSPAERO_DOUBLE *yTE_Def_;
+    VSPAERO_DOUBLE *zTE_Def_;   
     
     // Arc length along wing quarter chord, from root to top
     
-    double *s_;
+    VSPAERO_DOUBLE *s_;
     
     // Deformed Arc length along wing quarter chord, from root to top
     
-    double *s_Def_;    
+    VSPAERO_DOUBLE *s_Def_;    
         
     // Local chord
     
-    double *LocalChord_;
+    VSPAERO_DOUBLE *LocalChord_;
     
     // Root LE, TE, and Quarter chord
     
-    double Root_LE_[3];
-    double Root_TE_[3];
-    double Root_QC_[3];
+    VSPAERO_DOUBLE Root_LE_[3];
+    VSPAERO_DOUBLE Root_TE_[3];
+    VSPAERO_DOUBLE Root_QC_[3];
     
     // Tip LE, TE, and Quarter chord
     
-    double Tip_LE_[3];
-    double Tip_TE_[3];
-    double Tip_QC_[3];    
+    VSPAERO_DOUBLE Tip_LE_[3];
+    VSPAERO_DOUBLE Tip_TE_[3];
+    VSPAERO_DOUBLE Tip_QC_[3];    
 
     // Average chord
     
-    double AverageChord_;
+    VSPAERO_DOUBLE AverageChord_;
 
     // Thickness to chord
         
-    double *ThicknessToChord_;
+    VSPAERO_DOUBLE *ThicknessToChord_;
     
     // Location of maximum thickness to chord
     
-    double *LocationOfMaxThickness_;
+    VSPAERO_DOUBLE *LocationOfMaxThickness_;
     
     // Radius to chord ratio
     
-    double *RadiusToChord_;
+    VSPAERO_DOUBLE *RadiusToChord_;
 
     // Wetted area
     
-    double WettedArea_;
+    VSPAERO_DOUBLE WettedArea_;
     
     // Zero lift drag
     
-    double CDo_;
+    VSPAERO_DOUBLE CDo_;
                 
     // VSP Grid
     
@@ -295,12 +297,15 @@ private:
     
     // Find sharp trailing edges
     
-    void FindSharpEdges(void);
+    void FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList);
 
     int SurfaceAtNodeIsConvex(int Node);
     
     int **NodeToTriList_;
     int  *NumberOfTrisForNode_;
+    
+    int **NodeToEdgeList_;
+    int  *NumberOfEdgesForNode_;
             
     // FEM data
 
@@ -310,14 +315,14 @@ private:
     
     // Control surface routines
     
-    void Interpolate_XYZ_From_UV(double u, double v, double *xyz); 
+    void Interpolate_XYZ_From_UV(VSPAERO_DOUBLE u, VSPAERO_DOUBLE v, VSPAERO_DOUBLE *xyz); 
     
     // Ground effects data
     
     int DoGroundEffectsAnalysis_;
-    double GroundEffectsRotationAngle_;
-    double GroundEffectsCGLocation_[3];
-    double GroundEffectsHeightAboveGround_;
+    VSPAERO_DOUBLE GroundEffectsRotationAngle_;
+    VSPAERO_DOUBLE GroundEffectsCGLocation_[3];
+    VSPAERO_DOUBLE GroundEffectsHeightAboveGround_;
     
     void RotateGeometry_About_Y_Axis(void);    
     
@@ -338,24 +343,24 @@ public:
     int Surface_NumI(void) { return NumGeomI_; };
     int Surface_NumJ(void) { return NumGeomJ_; };
         
-    double Surface_x(int i) { return x_[i]; };
-    double Surface_y(int i) { return y_[i]; };
-    double Surface_z(int i) { return z_[i]; };
-    double Surface_u(int i) { return u_[i]; };
-    double Surface_v(int i) { return v_[i]; };
+    VSPAERO_DOUBLE Surface_x(int i) { return x_[i]; };
+    VSPAERO_DOUBLE Surface_y(int i) { return y_[i]; };
+    VSPAERO_DOUBLE Surface_z(int i) { return z_[i]; };
+    VSPAERO_DOUBLE Surface_u(int i) { return u_[i]; };
+    VSPAERO_DOUBLE Surface_v(int i) { return v_[i]; };
 
-    double Surface_x(int i, int j) { return x_[(i-1)*NumGeomJ_ + j]; };
-    double Surface_y(int i, int j) { return y_[(i-1)*NumGeomJ_ + j]; };
-    double Surface_z(int i, int j) { return z_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE Surface_x(int i, int j) { return x_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE Surface_y(int i, int j) { return y_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE Surface_z(int i, int j) { return z_[(i-1)*NumGeomJ_ + j]; };
 
-    double Surface_Nx(int i, int j) { return Nx_[(i-1)*NumGeomJ_ + j]; };
-    double Surface_Ny(int i, int j) { return Ny_[(i-1)*NumGeomJ_ + j]; };
-    double Surface_Nz(int i, int j) { return Nz_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE Surface_Nx(int i, int j) { return Nx_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE Surface_Ny(int i, int j) { return Ny_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE Surface_Nz(int i, int j) { return Nz_[(i-1)*NumGeomJ_ + j]; };
         
-    double Surface_u(int i, int j) { return u_[(i-1)*NumGeomJ_ + j]; };
-    double Surface_v(int i, int j) { return v_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE Surface_u(int i, int j) { return u_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE Surface_v(int i, int j) { return v_[(i-1)*NumGeomJ_ + j]; };
     
-    double Surface_Area(int i, int j) { return Area_[(i-1)*NumGeomJ_ + j]; };
+    VSPAERO_DOUBLE Surface_Area(int i, int j) { return Area_[(i-1)*NumGeomJ_ + j]; };
     
     // Access to the number of nodes in each direction
     
@@ -363,65 +368,65 @@ public:
 
     // Leading and trailing edges
     
-    double xLE(int i) { return xLE_[i]; };
-    double yLE(int i) { return yLE_[i]; };
-    double zLE(int i) { return zLE_[i]; };
+    VSPAERO_DOUBLE xLE(int i) { return xLE_[i]; };
+    VSPAERO_DOUBLE yLE(int i) { return yLE_[i]; };
+    VSPAERO_DOUBLE zLE(int i) { return zLE_[i]; };
 
-    double xTE(int i) { return xTE_[i]; };
-    double yTE(int i) { return yTE_[i]; };
-    double zTE(int i) { return zTE_[i]; };
+    VSPAERO_DOUBLE xTE(int i) { return xTE_[i]; };
+    VSPAERO_DOUBLE yTE(int i) { return yTE_[i]; };
+    VSPAERO_DOUBLE zTE(int i) { return zTE_[i]; };
     
     // Deformed leading and trailing edges
     
-    double xLE_Def(int i) { return xLE_Def_[i]; };
-    double yLE_Def(int i) { return yLE_Def_[i]; };
-    double zLE_Def(int i) { return zLE_Def_[i]; };
+    VSPAERO_DOUBLE xLE_Def(int i) { return xLE_Def_[i]; };
+    VSPAERO_DOUBLE yLE_Def(int i) { return yLE_Def_[i]; };
+    VSPAERO_DOUBLE zLE_Def(int i) { return zLE_Def_[i]; };
 
-    double xTE_Def(int i) { return xTE_Def_[i]; };
-    double yTE_Def(int i) { return yTE_Def_[i]; };
-    double zTE_Def(int i) { return zTE_Def_[i]; };    
+    VSPAERO_DOUBLE xTE_Def(int i) { return xTE_Def_[i]; };
+    VSPAERO_DOUBLE yTE_Def(int i) { return yTE_Def_[i]; };
+    VSPAERO_DOUBLE zTE_Def(int i) { return zTE_Def_[i]; };    
  
     // Flat plate normal
     
-    double NxQC(int i) { return Nx_FlatPlateNormal_[i]; };
-    double NyQC(int i) { return Ny_FlatPlateNormal_[i]; };
-    double NzQC(int i) { return Nz_FlatPlateNormal_[i]; };
+    VSPAERO_DOUBLE NxQC(int i) { return Nx_FlatPlateNormal_[i]; };
+    VSPAERO_DOUBLE NyQC(int i) { return Ny_FlatPlateNormal_[i]; };
+    VSPAERO_DOUBLE NzQC(int i) { return Nz_FlatPlateNormal_[i]; };
  
     // Arc length along wing, from root to top
     
-    double s(int i) { return s_[i]; };
+    VSPAERO_DOUBLE s(int i) { return s_[i]; };
     
     // Deformed Arc length along wing, from root to top
     
-    double s_Def(int i) { return s_Def_[i]; };
+    VSPAERO_DOUBLE s_Def(int i) { return s_Def_[i]; };
         
     // Local chord 
     
-    double LocalChord(int i) { return LocalChord_[i]; };
+    VSPAERO_DOUBLE LocalChord(int i) { return LocalChord_[i]; };
     
     // Average chord
     
-    double AverageChord(void) { return AverageChord_; };
+    VSPAERO_DOUBLE AverageChord(void) { return AverageChord_; };
     
     // Root LE, TE, and Quarter chord
     
-    double Root_LE(int i ) { return Root_LE_[i]; };
-    double Root_TE(int i ) { return Root_TE_[i]; };
-    double Root_QC(int i ) { return Root_QC_[i]; };
+    VSPAERO_DOUBLE Root_LE(int i ) { return Root_LE_[i]; };
+    VSPAERO_DOUBLE Root_TE(int i ) { return Root_TE_[i]; };
+    VSPAERO_DOUBLE Root_QC(int i ) { return Root_QC_[i]; };
     
     // Tip LE, TE, and Quarter chord
     
-    double Tip_LE(int i ) { return Tip_LE_[i]; };
-    double Tip_TE(int i ) { return Tip_TE_[i]; };
-    double Tip_QC(int i ) { return Tip_QC_[i]; };  
+    VSPAERO_DOUBLE Tip_LE(int i ) { return Tip_LE_[i]; };
+    VSPAERO_DOUBLE Tip_TE(int i ) { return Tip_TE_[i]; };
+    VSPAERO_DOUBLE Tip_QC(int i ) { return Tip_QC_[i]; };  
 
     // Wetted area
     
-    double WettedArea(void) { return WettedArea_; };
+    VSPAERO_DOUBLE WettedArea(void) { return WettedArea_; };
     
     // Zero lift drag
     
-    double &CDo(void) { return CDo_; };
+    VSPAERO_DOUBLE &CDo(void) { return CDo_; };
 
     // Create triangulated mesh
     
@@ -439,6 +444,8 @@ public:
     void GetComponentBBox(FILE *VSP_Degen_File, BBOX &WingBox);
     
     void ReadCart3DDataFromFile(char *Name, FILE *CART3D_File);
+    void ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File);
+
     void ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File);
     void ReadBodyDataFromFile(char *Name, int Case, FILE *VSP_Degen_File);
     
@@ -469,14 +476,14 @@ public:
     
     // FEM data
     
-    void FEMUnDeformGeometry(double xyz_p[3]);
+    void FEMUnDeformGeometry(VSPAERO_DOUBLE xyz_p[3]);
     
     // Ground effects analysis
     
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
-    double &GroundEffectsRotationAngle(void) { return GroundEffectsRotationAngle_; };
-    double &GroundEffectsCGLocation(int i) { return GroundEffectsCGLocation_[i]; };
-    double &GroundEffectsHeightAboveGround(void) { return GroundEffectsHeightAboveGround_; };
+    VSPAERO_DOUBLE &GroundEffectsRotationAngle(void) { return GroundEffectsRotationAngle_; };
+    VSPAERO_DOUBLE &GroundEffectsCGLocation(int i) { return GroundEffectsCGLocation_[i]; };
+    VSPAERO_DOUBLE &GroundEffectsHeightAboveGround(void) { return GroundEffectsHeightAboveGround_; };
 
     // Control surfaces
     
@@ -486,7 +493,7 @@ public:
     
     // Update geometry location
     
-    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
+    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

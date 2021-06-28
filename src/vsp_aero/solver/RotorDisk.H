@@ -26,33 +26,33 @@ private:
 
     // Function data
 
-    double Density_;
-    double Vinf_[3];
+    VSPAERO_DOUBLE Density_;
+    VSPAERO_DOUBLE Vinf_[3];
     
-    double RotorXYZ_[3];
-    double RotorNormal_[3];
+    VSPAERO_DOUBLE RotorXYZ_[3];
+    VSPAERO_DOUBLE RotorNormal_[3];
     
-    double RotorRadius_;
-    double RotorHubRadius_;
-    double RotorRPM_;
+    VSPAERO_DOUBLE RotorRadius_;
+    VSPAERO_DOUBLE RotorHubRadius_;
+    VSPAERO_DOUBLE RotorRPM_;
     
-    double Rotor_JRatio_;
-    double Rotor_CT_;
-    double Rotor_CP_;
+    VSPAERO_DOUBLE Rotor_JRatio_;
+    VSPAERO_DOUBLE Rotor_CT_;
+    VSPAERO_DOUBLE Rotor_CP_;
     
-    double VinfMag_;
+    VSPAERO_DOUBLE VinfMag_;
 
-    double Rotor_JRatio(void) { return ABS(VinfMag_) / ( 2. * ABS(RotorRPM_) * RotorRadius_ /60. ); };
+    VSPAERO_DOUBLE Rotor_JRatio(void) { return ABS(VinfMag_) / ( 2. * ABS(RotorRPM_) * RotorRadius_ /60. ); };
 
-    double RotorArea(void) { return PI*RotorRadius_*RotorRadius_; };
+    VSPAERO_DOUBLE RotorArea(void) { return PI*RotorRadius_*RotorRadius_; };
     
-    double RotorThrustOverArea(void) { return RotorThrust() / RotorArea(); };
+    VSPAERO_DOUBLE RotorThrustOverArea(void) { return RotorThrust() / RotorArea(); };
     
-    double RotorRadiusXYZ_[NUM_ROTOR_NODES+1][3];
+    VSPAERO_DOUBLE RotorRadiusXYZ_[NUM_ROTOR_NODES+1][3];
     
-    double RotorDirectionVectorXYZ_[5][3];
+    VSPAERO_DOUBLE RotorDirectionVectorXYZ_[5][3];
 
-    double RotorDirectionVectorNormal_[5][3];
+    VSPAERO_DOUBLE RotorDirectionVectorNormal_[5][3];
     
 public:
 
@@ -65,23 +65,23 @@ public:
 
     // Initialize rotor inputs
     
-    double &Density(void) { return Density_; };
-    double &Vinf(int i) { return Vinf_[i]; };
+    VSPAERO_DOUBLE &Density(void) { return Density_; };
+    VSPAERO_DOUBLE &Vinf(int i) { return Vinf_[i]; };
     
-    double &Radius(void) { return RotorRadius_; };
-    double &HubRadius(void) { return RotorHubRadius_; };
-    double &RPM(void) { return RotorRPM_; };
+    VSPAERO_DOUBLE &Radius(void) { return RotorRadius_; };
+    VSPAERO_DOUBLE &HubRadius(void) { return RotorHubRadius_; };
+    VSPAERO_DOUBLE &RPM(void) { return RotorRPM_; };
 
-    double &CT(void) { return Rotor_CT_; };
-    double &CP(void) { return Rotor_CP_; };
+    VSPAERO_DOUBLE &CT(void) { return Rotor_CT_; };
+    VSPAERO_DOUBLE &CP(void) { return Rotor_CP_; };
         
-    double &XYZ(int i) { return RotorXYZ_[i]; };
-    double &Normal(int i) { return RotorNormal_[i]; };
+    VSPAERO_DOUBLE &XYZ(int i) { return RotorXYZ_[i]; };
+    VSPAERO_DOUBLE &Normal(int i) { return RotorNormal_[i]; };
     
     // Calculate velocity induced by rotor
     
-    void Velocity(double xyz[3], double q[5]);
-    void VelocityPotential(double xyz[3], double q[5]);
+    void Velocity(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5]);
+    void VelocityPotential(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5]);
     
     // Initialize
     
@@ -93,17 +93,17 @@ public:
     
     // Rotor tip geometry
     
-    double RotorRadiusXYZ(int i, int j) { return RotorRadiusXYZ_[i][j]; };
+    VSPAERO_DOUBLE RotorRadiusXYZ(int i, int j) { return RotorRadiusXYZ_[i][j]; };
     
-    double RotorDirectionVectorXYZ(int i, int j) { return RotorDirectionVectorXYZ_[i][j]; };
+    VSPAERO_DOUBLE RotorDirectionVectorXYZ(int i, int j) { return RotorDirectionVectorXYZ_[i][j]; };
 
-    double RotorDirectionVectorNormal(int i, int j) { return RotorDirectionVectorNormal_[i][j]; };
+    VSPAERO_DOUBLE RotorDirectionVectorNormal(int i, int j) { return RotorDirectionVectorNormal_[i][j]; };
         
     // Rotor thrust and power
 
-    double RotorThrust(void) { return Rotor_CT_ * Density_ * pow(ABS(RotorRPM_)/60.,2.) * pow(2.*RotorRadius_,4.); };
+    VSPAERO_DOUBLE RotorThrust(void) { return Rotor_CT_ * Density_ * pow(ABS(RotorRPM_)/60.,2.) * pow(2.*RotorRadius_,4.); };
     
-    double RotorPower(void) { return Rotor_CP_ * Density_ * pow(ABS(RotorRPM_)/60.,3.) * pow(2.*RotorRadius_,5.); };
+    VSPAERO_DOUBLE RotorPower(void) { return Rotor_CP_ * Density_ * pow(ABS(RotorRPM_)/60.,3.) * pow(2.*RotorRadius_,5.); };
     
     // File I/O
     
@@ -116,7 +116,7 @@ public:
     
     // Geometry update
     
-    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
+    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
 
     
 };

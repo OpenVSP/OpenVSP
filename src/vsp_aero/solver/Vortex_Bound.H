@@ -34,7 +34,7 @@ private:
     
     int CurrentTimeStep_;
 
-    double TimeStep_;
+    VSPAERO_DOUBLE TimeStep_;
     
     // Starting vortex list
     
@@ -46,15 +46,15 @@ private:
     
     // Starting vortex gammas
     
-    double *Gamma_;
+    VSPAERO_DOUBLE *Gamma_;
  
     // Induced Velocity calculation
     
-    double CoreSize_;
+    VSPAERO_DOUBLE CoreSize_;
 
-    void InducedVelocity_(double xyz_p[3], double q[3]);
+    void InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
     
-    void InducedVelocity_(double xyz_p[3], double q[3], double CoreSize);
+    void InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CoreSize);
 
 public:
 
@@ -81,13 +81,13 @@ public:
 
     void UpdateGamma(void);
     
-    void InducedVelocity(double xyz_p[3], double q[3]);
+    void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
     
-    void InducedVelocity(double xyz_p[3], double q[3], double CorSize);
+    void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CorSize);
    
     // Bound vortex strengths at finest level
      
-    double &Gamma(int i) { return Gamma_[i]; };
+    VSPAERO_DOUBLE &Gamma(int i) { return Gamma_[i]; };
      
     // Solution parameters
     
@@ -97,7 +97,7 @@ public:
 
     int &CurrentTimeStep(void) { return CurrentTimeStep_; };
     
-    double &TimeStep(void) { return TimeStep_; };
+    VSPAERO_DOUBLE &TimeStep(void) { return TimeStep_; };
 
 };
 

@@ -12,6 +12,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include "utils.H"
 
 // Definition of the BINARYIO class
 
@@ -25,7 +26,7 @@ private:
     int SwapOnWrite_;
 
     void SwapFloat(float &Word);
-    void SwapDouble(double &Word);    
+    void SwapDouble(VSPAERO_DOUBLE &Word);    
     void SwapInt(int &Word);
     void SwapChar(char &Word);
 

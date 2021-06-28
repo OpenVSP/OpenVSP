@@ -22,7 +22,9 @@ VSP_LOOP::VSP_LOOP(void)
     NumberOfFineGridLoops_ = 0;
     
     NodeList_ = NULL;
-
+    
+    UVNodeList_ = NULL;
+  
     EdgeList_ = NULL;
     
     EdgeDirection_ = NULL;
@@ -36,9 +38,7 @@ VSP_LOOP::VSP_LOOP(void)
     XYZc_[0] = XYZc_[1] = XYZc_[2] = 0.;
 
     Normal_[0] = Normal_[1] = Normal_[2] = 0.;
-    
-    FlatPlateNormal_[0] = FlatPlateNormal_[1] = FlatPlateNormal_[2] = 0.;
-    
+
     Velocity_[0] = Velocity_[1] = Velocity_[2] = 0.;
     
     Force_[0] = Force_[1] = Force_[2] = 0.;
@@ -90,7 +90,7 @@ VSP_LOOP::VSP_LOOP(void)
 VSP_LOOP::VSP_LOOP(const VSP_LOOP &VSPTri)
 {
 
-    printf("Copy not implemented for VSP_NODE! \n");
+    PRINTF("Copy not implemented for VSP_NODE! \n");
 
     exit(1);
 
@@ -116,9 +116,14 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
     for ( i = 0 ; i < NumberOfNodes_ ; i++ ) {
      
        NodeList_[i] = VSPTri.NodeList_[i];
-       
+
     }
-    
+
+    for ( i = 0 ; i < 2*NumberOfNodes_ ; i++ ) {
+
+       UVNodeList_[i] = VSPTri.UVNodeList_[i];
+       
+    }    
     // Copy over edge list
  
     NumberOfEdges_ = VSPTri.NumberOfEdges_;
@@ -157,10 +162,6 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
     Normal_[0]              = VSPTri.Normal_[0];
     Normal_[1]              = VSPTri.Normal_[1];
     Normal_[2]              = VSPTri.Normal_[2]; 
-    
-    FlatPlateNormal_[0]     = VSPTri.FlatPlateNormal_[0];
-    FlatPlateNormal_[1]     = VSPTri.FlatPlateNormal_[1];
-    FlatPlateNormal_[2]     = VSPTri.FlatPlateNormal_[2];
 
     XYZc_[0]                = VSPTri.XYZc_[0];
     XYZc_[1]                = VSPTri.XYZc_[1];
@@ -233,6 +234,7 @@ VSP_LOOP::~VSP_LOOP(void)
     if ( NumberOfNodes_ != 0 ) {
        
        delete [] NodeList_;
+       delete [] UVNodeList_;
        
        NumberOfNodes_ = 0;
        
@@ -260,12 +262,20 @@ void VSP_LOOP::SizeNodeList(int NumberOfNodes)
 
     NodeList_ = new int[NumberOfNodes_ + 1];
     
+    UVNodeList_ = new VSPAERO_DOUBLE[2*NumberOfNodes_ + 1];
+    
     for ( i = 0 ; i <= NumberOfNodes_ ; i++ ) {
        
        NodeList_[i] = 0;
-       
+ 
     }
 
+    for ( i = 0 ; i <= 2*NumberOfNodes_ ; i++ ) {
+      
+       UVNodeList_[i] = 0.;
+       
+    }
+    
 }
 
 /*##############################################################################
@@ -296,7 +306,7 @@ void VSP_LOOP::SizeEdgeList(int NumberOfEdges)
     EdgeIsUpwind_ = new int[NumberOfEdges_ + 1];
     EdgeDirection_ = new int[NumberOfEdges_ + 1];
     
-    EdgeUpwindWeight_ = new double[NumberOfEdges_ + 1];
+    EdgeUpwindWeight_ = new VSPAERO_DOUBLE[NumberOfEdges_ + 1];
     
     zero_int_array(EdgeList_, NumberOfEdges_);
     zero_int_array(EdgeIsUpwind_, NumberOfEdges_);
@@ -329,7 +339,7 @@ void VSP_LOOP::SizeFineGridLoopList(int NumberOfLoops)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_LOOP::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+void VSP_LOOP::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat)
 {
 
     QUAT Vec;
@@ -357,18 +367,6 @@ void VSP_LOOP::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QU
     Normal_[0] = Vec(0);
     Normal_[1] = Vec(1);
     Normal_[2] = Vec(2);
- 
-    // Update flat plate normal
-    
-    Vec(0) = FlatPlateNormal_[0];
-    Vec(1) = FlatPlateNormal_[1];
-    Vec(2) = FlatPlateNormal_[2];
-
-    Vec = Quat * Vec * InvQuat;
-    
-    FlatPlateNormal_[0] = Vec(0);
-    FlatPlateNormal_[1] = Vec(1);
-    FlatPlateNormal_[2] = Vec(2);
     
     // Update bounding box min
     

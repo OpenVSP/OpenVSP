@@ -42,6 +42,10 @@ private:
     
     int ModelType_;
     
+    // Surface type
+    
+    int SurfaceType_;
+    
     // Symmetry flag
     
     int DoSymmetryPlaneSolve_;
@@ -96,6 +100,7 @@ private:
     // I/O
     
     void Read_CART3D_File(char *FileName);
+    void Read_VSPGEOM_File(char *FileName);
     void Read_VSP_Degen_File(char *FileName);
     
     // FEM Analysis
@@ -106,11 +111,11 @@ private:
     
     int DoGroundEffectsAnalysis_;
     
-    double VehicleRotationAngleVector_[3];
+    VSPAERO_DOUBLE VehicleRotationAngleVector_[3];
     
-    double VehicleRotationAxisLocation_[3];
+    VSPAERO_DOUBLE VehicleRotationAxisLocation_[3];
     
-    double HeightAboveGround_;
+    VSPAERO_DOUBLE HeightAboveGround_;
     
     // Control surface routines
     
@@ -119,6 +124,7 @@ private:
     // Coarse grid information routines
     
     void OutputCoarseGridInfo(void);
+    
     int CalculateNumberOfFineLoops(int Level, VSP_LOOP &Loop);
 
 public:
@@ -135,7 +141,7 @@ public:
     
     // Read in the VSP degenerate geometry file
     
-    int ReadFile(char *FileName);
+    void ReadFile(char *FileName, int& ModelType, int& SurfaceType);
     
     // FEM
 
@@ -151,7 +157,9 @@ public:
     // Meshing
     
     void MeshGeom(void);
-
+    
+    void DetermineModelType(void);
+    
     // Access to data
     
     int NumberOfComponents(void) { return NumberOfComponents_; };
@@ -185,11 +193,11 @@ public:
     
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
     
-    double &VehicleRotationAngleVector(int i) { return VehicleRotationAngleVector_[i]; };
+    VSPAERO_DOUBLE &VehicleRotationAngleVector(int i) { return VehicleRotationAngleVector_[i]; };
     
-    double &VehicleRotationAxisLocation(int i) { return VehicleRotationAxisLocation_[i]; };
+    VSPAERO_DOUBLE &VehicleRotationAxisLocation(int i) { return VehicleRotationAxisLocation_[i]; };
     
-    double &HeightAboveGround(void) { return HeightAboveGround_; };
+    VSPAERO_DOUBLE &HeightAboveGround(void) { return HeightAboveGround_; };
     
     
 };

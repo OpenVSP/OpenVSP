@@ -67,6 +67,8 @@ private:
     int NumberOfSubVortices_;
     
     int TimeAccurate_;
+        
+    int QuasiTimeAccurate_;
     
     int TimeAnalysisType_;
     
@@ -74,27 +76,29 @@ private:
 
     int CurrentTimeStep_;
     
-    double Vinf_;
+    int IsARotor_;
     
-    double FreeStreamVelocity_[3];
+    VSPAERO_DOUBLE Vinf_;
     
-    double TimeStep_;
+    VSPAERO_DOUBLE FreeStreamVelocity_[3];
+    
+    VSPAERO_DOUBLE TimeStep_;
 
-    double **TrailingGamma_;
+    VSPAERO_DOUBLE **TrailingGamma_;
     
-    double **StartingGamma_;
+    VSPAERO_DOUBLE **StartingGamma_;
         
-    double *VortexTrailingGamma1_;
+    VSPAERO_DOUBLE *VortexTrailingGamma1_;
     
-    double *VortexTrailingGamma2_;
+    VSPAERO_DOUBLE *VortexTrailingGamma2_;
     
-    double ***TrailingGammaListForLevel_;
+    VSPAERO_DOUBLE ***TrailingGammaListForLevel_;
 
-    double &StartingGamma(int i) { return StartingGamma_[0][i]; };
+    VSPAERO_DOUBLE &StartingGamma(int i) { return StartingGamma_[0][i]; };
 
-    double CoreSize_;
+    VSPAERO_DOUBLE CoreSize_;
     
-    double Distance_;
+    VSPAERO_DOUBLE Distance_;
     
     static double FarAway_;
 
@@ -148,15 +152,15 @@ private:
     
     // Velocity calculations
     
-    double Span_;
+    VSPAERO_DOUBLE Span_;
     
-    void CreateTrailingVortexInteractionList(VORTEX_SHEET &VortexSheet, double xyz_p[3]);
+    void CreateTrailingVortexInteractionList(VORTEX_SHEET &VortexSheet, VSPAERO_DOUBLE xyz_p[3]);
 
-    void CreateVortexSheetInteractionList(VORTEX_SHEET &VortexSheet, double xyz_p[3]);
+    void CreateVortexSheetInteractionList(VORTEX_SHEET &VortexSheet, VSPAERO_DOUBLE xyz_p[3]);
 
-    void StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, double xyz_p[3], double dq[3]);
+    void StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE dq[3]);
     
-    void StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, double xyz_p[3], double dq[3], double CoreSize);
+    void StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE dq[3], VSPAERO_DOUBLE CoreSize);
     
     void UpdateGeometryLocation(void);
 
@@ -207,7 +211,7 @@ public:
     
     int TotalNumberOfVortexSheets(void) { return TotalNumberOfVortexSheets_; };
     
-    VORTEX_TRAIL& TrailingVortexEdge(int i) { return *(TrailingVortexList_[i]); };
+    VORTEX_TRAIL& TrailingVortex(int i) { return *(TrailingVortexList_[i]); };
 
     // Left and right trailing vortices
     
@@ -218,10 +222,10 @@ public:
     
     // Set left and right vortex strengths for injection
     
-    void SetVortexGammas(double *Gamma1, double *Gamma2) { VortexTrailingGamma1_ = Gamma1 ; VortexTrailingGamma2_ = Gamma2; };
+    void SetVortexGammas(VSPAERO_DOUBLE *Gamma1, VSPAERO_DOUBLE *Gamma2) { VortexTrailingGamma1_ = Gamma1 ; VortexTrailingGamma2_ = Gamma2; };
 
-    double &TrailingGamma1(int i) { return VortexTrailingGamma1_[i]; };
-    double &TrailingGamma2(int i) { return VortexTrailingGamma2_[i]; };
+    VSPAERO_DOUBLE &TrailingGamma1(int i) { return VortexTrailingGamma1_[i]; };
+    VSPAERO_DOUBLE &TrailingGamma2(int i) { return VortexTrailingGamma2_[i]; };
 
     // Vortex sheet children
     
@@ -247,25 +251,29 @@ public:
     
     // Distance to evaluation point
     
-    double &Distance(void) { return Distance_; };
+    VSPAERO_DOUBLE &Distance(void) { return Distance_; };
     
     // Span
     
-    double Span(void) { return Span_; };
+    VSPAERO_DOUBLE Span(void) { return Span_; };
     
     // Time accurate data
     
     int &TimeAccurate(void) { return TimeAccurate_; };
     
+    int &QuasiTimeAccurate(void) { return QuasiTimeAccurate_; };
+    
     int &TimeAnalysisType(void ) { return TimeAnalysisType_; };
 
     int &CurrentTimeStep(void) { return CurrentTimeStep_; };
     
-    double &Vinf(void) { return Vinf_; };
+    int &IsARotor(void) { return IsARotor_; };
     
-    double &FreeStreamVelocity(int i) { return FreeStreamVelocity_[i]; };
+    VSPAERO_DOUBLE &Vinf(void) { return Vinf_; };
     
-    double &TimeStep(void) { return TimeStep_; };
+    VSPAERO_DOUBLE &FreeStreamVelocity(int i) { return FreeStreamVelocity_[i]; };
+    
+    VSPAERO_DOUBLE &TimeStep(void) { return TimeStep_; };
 
     // Induced velocity from this vortex sheet
     
@@ -273,9 +281,9 @@ public:
     
     int &IsPeriodic(void) { return IsPeriodic_; };
 
-    int FarAway(double xyz_p[3]);
+    int FarAway(VSPAERO_DOUBLE xyz_p[3]);
     
-    double Distance(double xyz_p[3]);
+    VSPAERO_DOUBLE Distance(VSPAERO_DOUBLE xyz_p[3]);
         
     void SaveVortexState(void);
     
@@ -283,33 +291,35 @@ public:
     
     void UpdateConvectedDistance(void);
     
-    VORTEX_SHEET_ENTRY *CreateInteractionSheetList(double xyz_p[3], int &NumberOfEvaluatedSheets);
+    VORTEX_SHEET_ENTRY *CreateInteractionSheetList(VSPAERO_DOUBLE xyz_p[3], int &NumberOfEvaluatedSheets);
     
-    void InducedVelocity(double xyz_p[3], double q[3]);
+    void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
     
-    void InducedVelocity(double xyz_p[3], double q[3], double xyz_te[3]);
+    void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE xyz_te[3]);
     
-    void InducedKuttaVelocity(double xyz_p[3], double q[3]);    
+    void InducedKuttaVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);    
 
-    void InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, double xyz_p[3], double q[3]);
+    void InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
 
-    void InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, double xyz_p[3], double xyz_te[3], double q[3]);
+    void InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE xyz_te[3], VSPAERO_DOUBLE q[3]);
  
-    void InducedKuttaVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, double xyz_p[3], double q[3]);
+    void InducedKuttaVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
    
-    double StartingGamma(int i, int j) { return StartingGamma_[i][j]; };
+    VSPAERO_DOUBLE StartingGamma(int i, int j) { return StartingGamma_[i][j]; };
  
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
     
-    double UpdateWakeLocation(void);
+    VSPAERO_DOUBLE UpdateWakeLocation(void);
     
-    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
+    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
 
+    void UpdateRotorFlags(int *ComponentInThisGroup);
+  
     void ZeroEdgeVelocities(void);
 
     void ProlongateEdgeVelocities(void);
     
-    double CoreSize(void) { return CoreSize_; };
+    VSPAERO_DOUBLE CoreSize(void) { return CoreSize_; };
     
     double &FarAwayRatio(void) { return FarAway_; };
 
@@ -326,6 +336,11 @@ public:
     int &NumberOfCommonNodesForTE(int i) { return NumberOfCommonNodesForTE_[i]; };
        
     COMMON_VORTEX_SHEET &CommonTEList(int i) { return CommonTEList_[i]; };      
+    
+    // Wake Damping
+    
+    void TurnWakeDampingOn(void);
+    void TurnWakeDampingOff(void);
     
 };
 

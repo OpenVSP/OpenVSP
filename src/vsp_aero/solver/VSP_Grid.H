@@ -46,7 +46,7 @@ private:
     
     int ComponentID_;
 
-    double MinLoopArea_;
+    VSPAERO_DOUBLE MinLoopArea_;
         
     // Wake data
 
@@ -58,11 +58,11 @@ private:
     int *ComponentIDForKuttaNode_;
     int *KuttaNodeIsOnWingTip_;
         
-    double *WakeTrailingEdgeX_;
-    double *WakeTrailingEdgeY_;
-    double *WakeTrailingEdgeZ_;    
+    VSPAERO_DOUBLE *WakeTrailingEdgeX_;
+    VSPAERO_DOUBLE *WakeTrailingEdgeY_;
+    VSPAERO_DOUBLE *WakeTrailingEdgeZ_;    
     
-    double *KuttaNodeSoverB_;
+    VSPAERO_DOUBLE *KuttaNodeSoverB_;
 
 public:
 
@@ -156,11 +156,11 @@ public:
     int &WingSurfaceForKuttaNodeIsPeriodic(int i) { return WingSurfaceForKuttaNodeIsPeriodic_[i]; };
     int &KuttaNodeIsOnWingTip(int i) { return KuttaNodeIsOnWingTip_[i]; };
     
-    double &WakeTrailingEdgeX(int i) { return WakeTrailingEdgeX_[i]; };
-    double &WakeTrailingEdgeY(int i) { return WakeTrailingEdgeY_[i]; };
-    double &WakeTrailingEdgeZ(int i) { return WakeTrailingEdgeZ_[i]; };
+    VSPAERO_DOUBLE &WakeTrailingEdgeX(int i) { return WakeTrailingEdgeX_[i]; };
+    VSPAERO_DOUBLE &WakeTrailingEdgeY(int i) { return WakeTrailingEdgeY_[i]; };
+    VSPAERO_DOUBLE &WakeTrailingEdgeZ(int i) { return WakeTrailingEdgeZ_[i]; };
     
-    double &KuttaNodeSoverB(int i) { return KuttaNodeSoverB_[i]; };
+    VSPAERO_DOUBLE &KuttaNodeSoverB(int i) { return KuttaNodeSoverB_[i]; };
     
     // Surface type
     
@@ -183,7 +183,7 @@ public:
     void CalculateUpwindEdges(void);
     void CreateUpwindEdgeData(void);
     
-    double &MinLoopArea(void) { return MinLoopArea_; };
+    VSPAERO_DOUBLE &MinLoopArea(void) { return MinLoopArea_; };
 
     // Write out mesh
     
@@ -191,7 +191,7 @@ public:
     
     // Geometry update
     
-    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
+    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
 
 };
 

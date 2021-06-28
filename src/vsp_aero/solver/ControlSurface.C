@@ -93,13 +93,13 @@ void CONTROL_SURFACE::SizeNodeList(int NumberOfNodes)
            
     NumberOfNodes_ = NumberOfNodes;
 
-    XYZ_NodeList_ = new double*[NumberOfNodes + 1];
-     UV_NodeList_ = new double*[NumberOfNodes + 1];
+    XYZ_NodeList_ = new VSPAERO_DOUBLE*[NumberOfNodes + 1];
+     UV_NodeList_ = new VSPAERO_DOUBLE*[NumberOfNodes + 1];
     
     for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
        
-       XYZ_NodeList_[i] = new double[3];
-        UV_NodeList_[i] = new double[3];
+       XYZ_NodeList_[i] = new VSPAERO_DOUBLE[3];
+        UV_NodeList_[i] = new VSPAERO_DOUBLE[3];
        
     }
   
@@ -133,11 +133,11 @@ CONTROL_SURFACE& CONTROL_SURFACE::operator=(const CONTROL_SURFACE &ControlSurfac
 
     int i;
     
-    sprintf(Name_,"%s",ControlSurface.Name_);
+    SPRINTF(Name_,"%s",ControlSurface.Name_);
     
     NumberOfLoops_ = ControlSurface.NumberOfLoops_;
     
-    sprintf(TypeName_,"%s",ControlSurface.TypeName_);
+    SPRINTF(TypeName_,"%s",ControlSurface.TypeName_);
     
     Type_ = ControlSurface.Type_;
 
@@ -206,10 +206,10 @@ CONTROL_SURFACE::~CONTROL_SURFACE(void)
 #                                                                              #
 ##############################################################################*/
 
-void CONTROL_SURFACE::RotateNormal(double *Normal) 
+void CONTROL_SURFACE::RotateNormal(VSPAERO_DOUBLE *Normal) 
 {
    
-    double Angle;
+    VSPAERO_DOUBLE Angle;
     QUAT Quat, InvQuat, Vec;
    
     // Modify angle ... assume lift ~ cos (alpha) * sin (alpha)... so add in
@@ -247,11 +247,11 @@ void CONTROL_SURFACE::RotateNormal(double *Normal)
 #                                                                              #
 ##############################################################################*/
 
-int CONTROL_SURFACE::TriInside(double *UV) 
+int CONTROL_SURFACE::TriInside(VSPAERO_DOUBLE *UV) 
 {
   
     int i, j, Intersect;
-    double Uint;
+    VSPAERO_DOUBLE Uint;
  
     // Check bounding box
     

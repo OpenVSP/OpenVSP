@@ -70,7 +70,7 @@ VORTEX_BOUND::VORTEX_BOUND(const VORTEX_BOUND &Bound_Vortex)
 VORTEX_BOUND& VORTEX_BOUND::operator=(const VORTEX_BOUND &Bound_Vortex)
 {
 
-    printf("VORTEX_BOUND operator= not implemented! \n");fflush(NULL);
+    PRINTF("VORTEX_BOUND operator= not implemented! \n");fflush(NULL);
     
     exit(1);
     
@@ -147,7 +147,7 @@ void VORTEX_BOUND::Setup(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Trail2)
 
     BoundVortexList_ = new VSP_EDGE[NumberOfStartingVortices_ + 1];
      
-    Gamma_ = new double[NumberOfStartingVortices_ + 1];
+    Gamma_ = new VSPAERO_DOUBLE[NumberOfStartingVortices_ + 1];
 
     for ( i = 1 ; i <= NumberOfStartingVortices_ ; i++ ) {
 
@@ -175,7 +175,7 @@ void VORTEX_BOUND::Setup(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Trail2)
 #                                                                              #
 ##############################################################################*/
 
-void VORTEX_BOUND::InducedVelocity(double xyz_p[3], double q[3])
+void VORTEX_BOUND::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 {
    
    CoreSize_ = 0.;
@@ -190,7 +190,7 @@ void VORTEX_BOUND::InducedVelocity(double xyz_p[3], double q[3])
 #                                                                              #
 ##############################################################################*/
 
-void VORTEX_BOUND::InducedVelocity(double xyz_p[3], double q[3], double CoreSize)
+void VORTEX_BOUND::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CoreSize)
 {
    
    CoreSize_ = CoreSize;
@@ -205,11 +205,11 @@ void VORTEX_BOUND::InducedVelocity(double xyz_p[3], double q[3], double CoreSize
 #                                                                              #
 ##############################################################################*/
 
-void VORTEX_BOUND::InducedVelocity_(double xyz_p[3], double q[3])
+void VORTEX_BOUND::InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 {
  
     int i, NumVortices;
-    double dq[3];
+    VSPAERO_DOUBLE dq[3];
 
     NumVortices = MIN(CurrentTimeStep_ , NumberOfStartingVortices_);
 
@@ -226,7 +226,7 @@ void VORTEX_BOUND::InducedVelocity_(double xyz_p[3], double q[3])
        q[2] += dq[2];
 
     }      
-//printf("q: %f %f %f \n",q[0],q[1],q[2]);    
+//PRINTF("q: %f %f %f \n",q[0],q[1],q[2]);    
     
 // Uncomment to make unsteady wake go away... well, part of it anyway
 // q[0] = q[1] = q[2] = 0.;

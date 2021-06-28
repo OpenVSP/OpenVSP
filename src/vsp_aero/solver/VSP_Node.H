@@ -12,6 +12,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include "utils.H"
 #include "quat.H"
 
 // Definition of the VSP_NODE class
@@ -29,12 +30,12 @@ private:
     
     int ComponentID_;
 
-    double x_;
-    double y_;
-    double z_;
+    VSPAERO_DOUBLE x_;
+    VSPAERO_DOUBLE y_;
+    VSPAERO_DOUBLE z_;
     
-    double dGamma_;
-    double Area_;
+    VSPAERO_DOUBLE dGamma_;
+    VSPAERO_DOUBLE Area_;
     
     // Agglomeration data
     
@@ -52,9 +53,9 @@ public:
 
     // Accesss to node data
 
-    double &x(void) { return x_; };
-    double &y(void) { return y_; };
-    double &z(void) { return z_; };
+    VSPAERO_DOUBLE &x(void) { return x_; };
+    VSPAERO_DOUBLE &y(void) { return y_; };
+    VSPAERO_DOUBLE &z(void) { return z_; };
     
     int &IsTrailingEdgeNode(void) { return IsTrailingEdgeNode_; };
     int &IsLeadingEdgeNode(void) { return IsLeadingEdgeNode_; };
@@ -63,14 +64,14 @@ public:
     
     int &ComponentID(void) { return ComponentID_; };
     
-    double &dGamma(void) { return dGamma_; };
+    VSPAERO_DOUBLE &dGamma(void) { return dGamma_; };
     
-    double &Area(void) { return Area_; };
+    VSPAERO_DOUBLE &Area(void) { return Area_; };
     
     int &CoarseGridNode(void) { return CoarseGridNode_; };
     int &FineGridNode(void) { return FineGridNode_; };
     
-    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
+    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

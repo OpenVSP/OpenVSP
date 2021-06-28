@@ -73,7 +73,7 @@ VSP_NODE& VSP_NODE::operator=(const VSP_NODE &VSPNode)
 VSP_NODE::~VSP_NODE(void)
 {
 
-    // Nothing to do... double woohoo!
+    // Nothing to do... VSPAERO_DOUBLE woohoo!
 
 }
 
@@ -83,7 +83,7 @@ VSP_NODE::~VSP_NODE(void)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_NODE::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+void VSP_NODE::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat)
 {
 
     QUAT Vec;

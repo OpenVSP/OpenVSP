@@ -17,7 +17,9 @@ class SURFACE_NODE {
 
 public:
 
-    double xyz[3];
+    int id;
+
+    VSPAERO_DOUBLE xyz[3];
 
 };
 
@@ -26,10 +28,11 @@ class TEST_NODE {
 
 public:
 
-    double xyz[3];
-    double distance;
+    VSPAERO_DOUBLE xyz[3];
+    VSPAERO_DOUBLE distance;
     
     int found;
+    int id;
 
 };
 
@@ -46,7 +49,7 @@ public:
     int number_of_nodes;
     int level;
     
-    double cut_off_value;
+    VSPAERO_DOUBLE cut_off_value;
     
     SURFACE_NODE *node;
     

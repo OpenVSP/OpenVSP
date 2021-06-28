@@ -73,16 +73,17 @@ void VSP_EDGE::init(void)
     Sigma_ = 0.;
     Length_ = 0.;
     
-             Forces_[0] =          Forces_[1] =          Forces_[2] = 0.;
-     Trefftz_Forces_[0] =  Trefftz_Forces_[1] =  Trefftz_Forces_[2] = 0.;
-    Unsteady_Forces_[0] = Unsteady_Forces_[1] = Unsteady_Forces_[2] = 0.;
-      InducedForces_[0] =   InducedForces_[1] =   InducedForces_[2] = 0.;
+                 Forces_[0] =              Forces_[1] =              Forces_[2] = 0.;
+         Trefftz_Forces_[0] =      Trefftz_Forces_[1] =      Trefftz_Forces_[2] = 0.;
+        Unsteady_Forces_[0] =     Unsteady_Forces_[1] =     Unsteady_Forces_[2] = 0.;
+          InducedForces_[0] =       InducedForces_[1] =       InducedForces_[2] = 0.;
+            LocalForces_[0] =         LocalForces_[1] =         LocalForces_[2] = 0.;
+    Unsteady_LocalForces[0] = Unsteady_LocalForces[1] = Unsteady_LocalForces[2] = 0.;
      
     Verbose_ = 0;
  
     DegenWing_ = 0;
     DegenBody_ = 0;
-    Node_ = 0;
 
     X1_ = 0.;
     Y1_ = 0.;
@@ -156,6 +157,8 @@ VSP_EDGE::VSP_EDGE(const VSP_EDGE &VSPEdge)
 VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
 {
  
+    int i;
+    
     // Nodal data
     
     Node1_          = VSPEdge.Node1_;         
@@ -206,7 +209,6 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     DegenWing_      = VSPEdge.DegenWing_;
     DegenBody_      = VSPEdge.DegenBody_;
     Cart3DSurface_  = VSPEdge.Cart3DSurface_;
-    Node_           = VSPEdge.Node_;
     
     // XYZ of end points
     
@@ -288,6 +290,19 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     Normal_[0] = VSPEdge.Normal_[0];
     Normal_[1] = VSPEdge.Normal_[1];
     Normal_[2] = VSPEdge.Normal_[2];
+    
+    // Forces
+    
+    for ( i = 0 ; i <= 2 ; i++ ) {
+       
+                    Forces_[i] = VSPEdge.Forces_[i];
+               LocalForces_[i] = VSPEdge.LocalForces_[i];
+            Trefftz_Forces_[i] = VSPEdge.Trefftz_Forces_[i];
+           Unsteady_Forces_[i] = VSPEdge.Unsteady_Forces_[i];
+             InducedForces_[i] = VSPEdge.InducedForces_[i];       
+       Unsteady_LocalForces[i] = VSPEdge.Unsteady_LocalForces[i];
+       
+    }
         
     return *this;
     
@@ -365,9 +380,17 @@ void VSP_EDGE::Setup_(VSP_NODE &Node1, VSP_NODE &Node2)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::SetMach(double Mach) {
+void VSP_EDGE::SetMach(VSPAERO_DOUBLE Mach) {
+
+#ifdef AUTODIFF
+
+    Mach_ = Mach.value();
+
+#else
 
     Mach_ = Mach;
+
+#endif
 
     if ( Mach_ < 1. ) {
    
@@ -389,7 +412,7 @@ void VSP_EDGE::SetMach(double Mach) {
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::InducedVelocity(double xyz_p[3], double q[3]) {
+void VSP_EDGE::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]) {
 
     CoreWidth_ = 0.;
     
@@ -403,7 +426,7 @@ void VSP_EDGE::InducedVelocity(double xyz_p[3], double q[3]) {
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::InducedVelocity(double xyz_p[3], double q[3], double CoreWidth) {
+void VSP_EDGE::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CoreWidth) {
 
     // Offset distance for vortex core model
     // This is my implementation of Scully's model...
@@ -423,17 +446,17 @@ void VSP_EDGE::InducedVelocity(double xyz_p[3], double q[3], double CoreWidth) {
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::NewBoundVortex(double xyz_p[3], double q[3])
+void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 {
 
     int NoInfluence;
-    double Xp, Yp, Zp;
-    double U2, U4;
-    double V2, V4;
-    double W2, W4;
-    double C_Gamma;
-    double a, b, c, d, dx, dy, dz;
-    double s1, s2, F, F1, F2;
+    VSPAERO_DOUBLE Xp, Yp, Zp;
+    VSPAERO_DOUBLE U2, U4;
+    VSPAERO_DOUBLE V2, V4;
+    VSPAERO_DOUBLE W2, W4;
+    VSPAERO_DOUBLE C_Gamma;
+    VSPAERO_DOUBLE a, b, c, d, dx, dy, dz;
+    VSPAERO_DOUBLE s1, s2, F, F1, F2;
 
     Beta2_ = 1. - SQR(KTFact_*Mach_);
 
@@ -540,18 +563,18 @@ void VSP_EDGE::NewBoundVortex(double xyz_p[3], double q[3])
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::OldBoundVortex(double xyz_p[3], double q[3])
+void VSP_EDGE::OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 {
 
     int NoInfluence;
-    double Beta_2;
-    double Xp, Yp, Zp;
-    double Up, U1, U2, U3, U4;
-    double Vp, V1, V2, V3, V4;
-    double Wp, W1, W2, W3, W4;
-    double Kappa, C_Gamma;
-    double a, b, c, d, u, v, w, dx, dy, dz;
-    double s1, s2, F, F1, F2, G, G1, G2, Arg1, Arg2, Eps;
+    VSPAERO_DOUBLE Beta_2;
+    VSPAERO_DOUBLE Xp, Yp, Zp;
+    VSPAERO_DOUBLE Up, U1, U2, U3, U4;
+    VSPAERO_DOUBLE Vp, V1, V2, V3, V4;
+    VSPAERO_DOUBLE Wp, W1, W2, W3, W4;
+    VSPAERO_DOUBLE Kappa, C_Gamma;
+    VSPAERO_DOUBLE a, b, c, d, u, v, w, dx, dy, dz;
+    VSPAERO_DOUBLE s1, s2, F, F1, F2, G, G1, G2, Arg1, Arg2, Eps;
 
     Eps = 0.99;
     
@@ -702,10 +725,10 @@ void VSP_EDGE::OldBoundVortex(double xyz_p[3], double q[3])
 #                                                                              #
 ##############################################################################*/
 
-double VSP_EDGE::Fint(double &a, double &b, double &c, double &d, double &s)
+VSPAERO_DOUBLE VSP_EDGE::Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s)
 {
  
-    double R, F, Denom;
+    VSPAERO_DOUBLE R, F, Denom;
 
     R = a + b*s + c*s*s;
 
@@ -725,10 +748,10 @@ double VSP_EDGE::Fint(double &a, double &b, double &c, double &d, double &s)
 #                                                                              #
 ##############################################################################*/
 
-double VSP_EDGE::Gint(double &a, double &b, double &c, double &d, double &s)
+VSPAERO_DOUBLE VSP_EDGE::Gint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s)
 {
    
-    double R, G, Denom;
+    VSPAERO_DOUBLE R, G, Denom;
     
     R = a + b*s + c*s*s;
 
@@ -748,16 +771,16 @@ double VSP_EDGE::Gint(double &a, double &b, double &c, double &d, double &s)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::FindLineConicIntersection(double &Xp, double &Yp, double &Zp,
-                                         double &X1, double &Y1, double &Z1,
-                                         double &Xd, double &Yd, double &Zd,
-                                         double &t1, double &t2)
+void VSP_EDGE::FindLineConicIntersection(VSPAERO_DOUBLE &Xp, VSPAERO_DOUBLE &Yp, VSPAERO_DOUBLE &Zp,
+                                         VSPAERO_DOUBLE &X1, VSPAERO_DOUBLE &Y1, VSPAERO_DOUBLE &Z1,
+                                         VSPAERO_DOUBLE &Xd, VSPAERO_DOUBLE &Yd, VSPAERO_DOUBLE &Zd,
+                                         VSPAERO_DOUBLE &t1, VSPAERO_DOUBLE &t2)
 {
  
     int Solved;
-    double Xi1, Xi2, Xi, Yi, Zi, Xo, Yo, Zo, Normal[3], Vec[3], Dot;
-    double A, B, C, Aq, Bq, Cq;
-    double Tol, Delta, v1, v2;
+    VSPAERO_DOUBLE Xi1, Xi2, Xi, Yi, Zi, Xo, Yo, Zo, Normal[3], Vec[3], Dot;
+    VSPAERO_DOUBLE A, B, C, Aq, Bq, Cq;
+    VSPAERO_DOUBLE Tol, Delta, v1, v2;
      
     Tol = 1.e-8;
     
@@ -881,10 +904,10 @@ void VSP_EDGE::FindLineConicIntersection(double &Xp, double &Yp, double &Zp,
 #                                                                              #
 ##############################################################################*/
 
-double VSP_EDGE::GeneralizedPrincipalPartOfDownWash(void)
+VSPAERO_DOUBLE VSP_EDGE::GeneralizedPrincipalPartOfDownWash(void)
 {
  
-    double Beta_2, T, Ws, Mag, Theta, Arg;
+    VSPAERO_DOUBLE Beta_2, T, Ws, Mag, Theta, Arg;
     
     Beta_2 = 1. - SQR(Mach_);
     
@@ -912,93 +935,16 @@ double VSP_EDGE::GeneralizedPrincipalPartOfDownWash(void)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::CalculateForces(VSP_LOOP &VortexLoop)
+void VSP_EDGE::CalculateForces(void)
 {
-    
-    double Dot;
-    
+
     // Full forces
     
-    vector_cross(VortexLoop.Velocity(), Vec_, Forces_);
+    vector_cross(Velocity_, Vec_, Forces_);
 
     Forces_[0] *= Length_*Gamma_;
     Forces_[1] *= Length_*Gamma_;
     Forces_[2] *= Length_*Gamma_;
-
-    // Replace velocity aligned forces in full force calculation with those
-    // calculated using the induced formulation - for subsonic flows only
-        
-    if ( Mach_ < 1. ) {
-    
-       // Calculate induced forces... note, FreeStreamDirection_ is calculated in 
-       // this call!
-       
-       CalculateInducedForces(VortexLoop); 
-
-       Dot = vector_dot(FreeStreamDirection_, Forces_);
-    
-       Forces_[0] -= Dot * FreeStreamDirection_[0];
-       Forces_[1] -= Dot * FreeStreamDirection_[1];
-       Forces_[2] -= Dot * FreeStreamDirection_[2];
-       
-       Forces_[0] += InducedForces_[0];
-       Forces_[1] += InducedForces_[1];
-       Forces_[2] += InducedForces_[2];
-       
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                         VSP_EDGE CalculateInducedForces                      #
-#                                                                              #
-##############################################################################*/
-
-void VSP_EDGE::CalculateInducedForces(VSP_LOOP &VortexLoop)
-{
-   
-    double Dot;
-    
-    // Induced forces
-    
-    vector_cross(VortexLoop.DownWash_Velocity(), Vec_, InducedForces_);
-    
-    InducedForces_[0] *= Length_*Gamma_;
-    InducedForces_[1] *= Length_*Gamma_;
-    InducedForces_[2] *= Length_*Gamma_;
-    
-    // Local free stream direction
-    
-    FreeStreamDirection_[0] = VortexLoop.LocalFreeStreamVelocity()[0];
-    FreeStreamDirection_[1] = VortexLoop.LocalFreeStreamVelocity()[1];
-    FreeStreamDirection_[2] = VortexLoop.LocalFreeStreamVelocity()[2];
-    
-    FreeStreamMagnitude_ = sqrt(vector_dot(FreeStreamDirection_,FreeStreamDirection_));
-    
-    if ( FreeStreamMagnitude_ > 0. ) {
-    
-       FreeStreamDirection_[0] /= FreeStreamMagnitude_;
-       FreeStreamDirection_[1] /= FreeStreamMagnitude_;
-       FreeStreamDirection_[2] /= FreeStreamMagnitude_;
-       
-    }
-    
-    else {
-       
-       FreeStreamDirection_[0] = 0.;
-       FreeStreamDirection_[1] = 0.;    
-       FreeStreamDirection_[2] = 0.; 
-       
-    }
-
-    // Component of forces in local free stream direction
-    
-    Dot = vector_dot(InducedForces_, FreeStreamDirection_);
-
-    InducedForces_[0] = Dot * FreeStreamDirection_[0];
-    InducedForces_[1] = Dot * FreeStreamDirection_[1];
-    InducedForces_[2] = Dot * FreeStreamDirection_[2];
 
 }
 
@@ -1008,10 +954,10 @@ void VSP_EDGE::CalculateInducedForces(VSP_LOOP &VortexLoop)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::CalculateTrefftzForces(double FreeStream[3])
+void VSP_EDGE::CalculateTrefftzForces(VSPAERO_DOUBLE WakeInducedVelocity[3])
 {
 
-    vector_cross(FreeStream, Vec_, Trefftz_Forces_);
+    vector_cross(WakeInducedVelocity, Vec_, Trefftz_Forces_);
    
     Trefftz_Forces_[0] *= -Length_*Gamma_;
     Trefftz_Forces_[1] *= -Length_*Gamma_;
@@ -1025,7 +971,7 @@ void VSP_EDGE::CalculateTrefftzForces(double FreeStream[3])
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+void VSP_EDGE::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat)
 {
 
     QUAT Vec;

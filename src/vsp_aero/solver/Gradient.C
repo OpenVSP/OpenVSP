@@ -63,11 +63,11 @@ void GRADIENT::SizeList(int NumberOfLoops, int NumberOfEquations, int NumberOfDe
         
     At_.size(NumberOfDegreesOfFreedom, NumberOfEquations);
     
-    x_ = new double[NumberOfDegreesOfFreedom + 1];
+    x_ = new VSPAERO_DOUBLE[NumberOfDegreesOfFreedom + 1];
     
     zero_double_array(x_, NumberOfDegreesOfFreedom);
     
-    b_ = new double[NumberOfEquations + 1];
+    b_ = new VSPAERO_DOUBLE[NumberOfEquations + 1];
     
     zero_double_array(b_, NumberOfEquations);
     

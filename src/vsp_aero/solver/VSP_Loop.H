@@ -26,6 +26,8 @@ private:
     int NumberOfNodes_;
     int *NodeList_;
 
+    VSPAERO_DOUBLE *UVNodeList_;
+    
     int NumberOfEdges_;
     int *EdgeList_;
     int *EdgeDirection_;
@@ -33,7 +35,7 @@ private:
     // Upwind edge weights
    
     int *EdgeIsUpwind_;    
-    double *EdgeUpwindWeight_;
+    VSPAERO_DOUBLE *EdgeUpwindWeight_;
 
     int SurfaceID_;
     int ComponentID_;
@@ -43,44 +45,38 @@ private:
     
     int SpanStation_;
 
-    double Area_;
+    VSPAERO_DOUBLE Area_;
     
-    double Length_;
+    VSPAERO_DOUBLE Length_;
     
-    double RefLength_;
+    VSPAERO_DOUBLE RefLength_;
     
-    double CentroidOffSet_;
+    VSPAERO_DOUBLE CentroidOffSet_;
 
     // Triangle Normal
     
-    double Normal_[3];
-    
-    // Local Camber Line Normal
-    
-    double FlatPlateNormal_[3];
+    VSPAERO_DOUBLE Normal_[3];
 
     // Centroid
     
-    double XYZc_[3];
+    VSPAERO_DOUBLE XYZc_[3];
     
     // UV Centroid
     
-    double UVc_[2];
+    VSPAERO_DOUBLE UVc_[2];
     
     // Camber at centroid
     
-    double Camber_;
+    VSPAERO_DOUBLE Camber_;
 
     // Solution data
     
-    double Gamma_;
-    double dCp_;
-    double dCp_Unsteady_;
-    double Velocity_[3];
-    double DownWash_Velocity_[3];    
-    double Force_[3];
-    double NormalForce_;
-    double KTFact_;
+    VSPAERO_DOUBLE Gamma_;
+    VSPAERO_DOUBLE dCp_;
+    VSPAERO_DOUBLE dCp_Unsteady_;
+    VSPAERO_DOUBLE Force_[3];
+    VSPAERO_DOUBLE NormalForce_;
+    VSPAERO_DOUBLE KTFact_;
     
     int SurfaceType_;
     int DegenBodyID_;
@@ -89,9 +85,9 @@ private:
     
     // Airfoil data
 
-    double ThicknessToChord_;
-    double LocationOfMaxThickness_;
-    double RadiusToChord_;      
+    VSPAERO_DOUBLE ThicknessToChord_;
+    VSPAERO_DOUBLE LocationOfMaxThickness_;
+    VSPAERO_DOUBLE RadiusToChord_;      
     
     // Agglomeration data
     
@@ -104,9 +100,11 @@ private:
     
     int LoopUsed_;
     
-    // Local free stream velocity
-    
-    double LocalFreeStreamVelocity_[5];
+    // Velocities
+
+    VSPAERO_DOUBLE LocalFreeStreamVelocity_[5];
+    VSPAERO_DOUBLE Velocity_[3];
+    VSPAERO_DOUBLE DownWash_Velocity_[3];        
 
 public:
 
@@ -126,6 +124,18 @@ public:
     int &Node3(void) { return NodeList_[2]; };
     int &Node4(void) { return NodeList_[3]; };
     int &Node(int i) { return NodeList_[i-1]; };
+
+    // UV Parameters
+    
+    VSPAERO_DOUBLE &U_Node1(void) { return UVNodeList_[0]; };
+    VSPAERO_DOUBLE &U_Node2(void) { return UVNodeList_[2]; };
+    VSPAERO_DOUBLE &U_Node3(void) { return UVNodeList_[4]; };
+    VSPAERO_DOUBLE &U_Node(int i) { return UVNodeList_[2*i-2]; };
+
+    VSPAERO_DOUBLE &V_Node1(void) { return UVNodeList_[1]; };
+    VSPAERO_DOUBLE &V_Node2(void) { return UVNodeList_[3]; };
+    VSPAERO_DOUBLE &V_Node3(void) { return UVNodeList_[5]; };    
+    VSPAERO_DOUBLE &V_Node(int i) { return UVNodeList_[2*i-1]; };
 
     // Access to edge data
     
@@ -149,11 +159,11 @@ public:
     int &Edge4IsUpWind(void) { return EdgeIsUpwind_[3]; };
     int &EdgeIsUpWind(int i) { return EdgeIsUpwind_[i-1]; };
 
-    double &Edge1UpwindWeight(void) { return EdgeUpwindWeight_[0]; };
-    double &Edge2UpwindWeight(void) { return EdgeUpwindWeight_[1]; };
-    double &Edge3UpwindWeight(void) { return EdgeUpwindWeight_[2]; };
-    double &Edge4UpwindWeight(void) { return EdgeUpwindWeight_[3]; };
-    double &EdgeUpwindWeight(int i) { return EdgeUpwindWeight_[i-1]; };
+    VSPAERO_DOUBLE &Edge1UpwindWeight(void) { return EdgeUpwindWeight_[0]; };
+    VSPAERO_DOUBLE &Edge2UpwindWeight(void) { return EdgeUpwindWeight_[1]; };
+    VSPAERO_DOUBLE &Edge3UpwindWeight(void) { return EdgeUpwindWeight_[2]; };
+    VSPAERO_DOUBLE &Edge4UpwindWeight(void) { return EdgeUpwindWeight_[3]; };
+    VSPAERO_DOUBLE &EdgeUpwindWeight(int i) { return EdgeUpwindWeight_[i-1]; };
    
     int &SurfaceID(void) { return SurfaceID_; };
     int &ComponentID(void) { return ComponentID_; };    
@@ -162,60 +172,44 @@ public:
     int &VortexLoop(void) { return VortexLoop_; };
     
     int &SpanStation(void) { return SpanStation_; };
+    int &VortexSheet(void) { return DegenWingID_; }; // We are VSPAERO_DOUBLE book keeping DegenWingID_
     
-    double &Area(void) { return Area_; };
+    VSPAERO_DOUBLE &Area(void) { return Area_; };
     
-    double &Length(void) { return Length_; };
+    VSPAERO_DOUBLE &Length(void) { return Length_; };
     
-    double &RefLength(void) { return RefLength_; };
+    VSPAERO_DOUBLE &RefLength(void) { return RefLength_; };
     
-    double &CentroidOffSet(void) { return CentroidOffSet_; };
+    VSPAERO_DOUBLE &CentroidOffSet(void) { return CentroidOffSet_; };
 
-    double &Nx(void) { return Normal_[0]; };
-    double &Ny(void) { return Normal_[1]; };
-    double &Nz(void) { return Normal_[2]; };
-    double *Normal(void) { return Normal_; };
+    VSPAERO_DOUBLE &Nx(void) { return Normal_[0]; };
+    VSPAERO_DOUBLE &Ny(void) { return Normal_[1]; };
+    VSPAERO_DOUBLE &Nz(void) { return Normal_[2]; };
+    VSPAERO_DOUBLE *Normal(void) { return Normal_; };
 
-    double &NxFlatPlate(void) { return FlatPlateNormal_[0]; };
-    double &NyFlatPlate(void) { return FlatPlateNormal_[1]; };
-    double &NzFlatPlate(void) { return FlatPlateNormal_[2]; };
-    double *FlatPlateNormal(void) { return FlatPlateNormal_; };
+    VSPAERO_DOUBLE &Camber(void) { return Camber_; };
     
-    double &Camber(void) { return Camber_; };
+    VSPAERO_DOUBLE &Xc(void) { return XYZc_[0]; };
+    VSPAERO_DOUBLE &Yc(void) { return XYZc_[1]; };
+    VSPAERO_DOUBLE &Zc(void) { return XYZc_[2]; };
+    VSPAERO_DOUBLE *xyz_c(void) { return XYZc_; };
     
-    double &Xc(void) { return XYZc_[0]; };
-    double &Yc(void) { return XYZc_[1]; };
-    double &Zc(void) { return XYZc_[2]; };
-    double *xyz_c(void) { return XYZc_; };
+    VSPAERO_DOUBLE &Uc(void) { return UVc_[0]; };
+    VSPAERO_DOUBLE &Vc(void) { return UVc_[1]; };
+    VSPAERO_DOUBLE *UVc(void) { return UVc_; };    
     
-    double &Uc(void) { return UVc_[0]; };
-    double &Vc(void) { return UVc_[1]; };
-    double *UVc(void) { return UVc_; };    
-    
-    double &U(void) { return Velocity_[0]; };
-    double &V(void) { return Velocity_[1]; };
-    double &W(void) { return Velocity_[2]; };
-    
-    double *Velocity(void) { return Velocity_; };
-    
-    double &DownWash_U(void) { return DownWash_Velocity_[0]; };
-    double &DownWash_V(void) { return DownWash_Velocity_[1]; };
-    double &DownWash_W(void) { return DownWash_Velocity_[2]; };
-    
-    double *DownWash_Velocity(void) { return DownWash_Velocity_; };
-
-    double &Gamma(void) { return Gamma_; };
-    double &dCp(void) { return dCp_; };
-    double &dCp_Unsteady(void) { return dCp_Unsteady_; };
+    VSPAERO_DOUBLE &Gamma(void) { return Gamma_; };
+    VSPAERO_DOUBLE &dCp(void) { return dCp_; };
+    VSPAERO_DOUBLE &dCp_Unsteady(void) { return dCp_Unsteady_; };
   
-    double &Fx(void) { return Force_[0]; };
-    double &Fy(void) { return Force_[1]; };
-    double &Fz(void) { return Force_[2]; };
-    double *Force(void) { return Force_; };
+    VSPAERO_DOUBLE &Fx(void) { return Force_[0]; };
+    VSPAERO_DOUBLE &Fy(void) { return Force_[1]; };
+    VSPAERO_DOUBLE &Fz(void) { return Force_[2]; };
+    VSPAERO_DOUBLE *Force(void) { return Force_; };
     
-    double &NormalForce(void) { return NormalForce_; };
+    VSPAERO_DOUBLE &NormalForce(void) { return NormalForce_; };
     
-    double &KTFact(void) { return KTFact_; };
+    VSPAERO_DOUBLE &KTFact(void) { return KTFact_; };
     
     int &SurfaceType(void) { return SurfaceType_; };
     int &DegenBodyID(void) { return DegenBodyID_; };
@@ -224,9 +218,9 @@ public:
     
     // Airfoil data
     
-    double &ThicknessToChord(void) { return ThicknessToChord_; };
-    double &LocationOfMaxThickness(void ) { return LocationOfMaxThickness_; };
-    double &RadiusToChord(void) { return RadiusToChord_; };    
+    VSPAERO_DOUBLE &ThicknessToChord(void) { return ThicknessToChord_; };
+    VSPAERO_DOUBLE &LocationOfMaxThickness(void ) { return LocationOfMaxThickness_; };
+    VSPAERO_DOUBLE &RadiusToChord(void) { return RadiusToChord_; };    
         
     // Agglomeration data
     
@@ -243,10 +237,28 @@ public:
    
     // Local free stream velocity
     
-    double &LocalFreeStreamVelocity(int i) { return LocalFreeStreamVelocity_[i]; };
-    double *LocalFreeStreamVelocity(void) { return LocalFreeStreamVelocity_; };
-       
-    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
+    VSPAERO_DOUBLE &LocalFreeStreamVelocity(int i) { return LocalFreeStreamVelocity_[i]; };
+    VSPAERO_DOUBLE *LocalFreeStreamVelocity(void) { return LocalFreeStreamVelocity_; };
+
+    // Local total velocity, includes downwash
+    
+    VSPAERO_DOUBLE &U(void) { return Velocity_[0]; };
+    VSPAERO_DOUBLE &V(void) { return Velocity_[1]; };
+    VSPAERO_DOUBLE &W(void) { return Velocity_[2]; };
+    
+    VSPAERO_DOUBLE *Velocity(void) { return Velocity_; };
+    
+    // Just the down wash velocity
+    
+    VSPAERO_DOUBLE &DownWash_U(void) { return DownWash_Velocity_[0]; };
+    VSPAERO_DOUBLE &DownWash_V(void) { return DownWash_Velocity_[1]; };
+    VSPAERO_DOUBLE &DownWash_W(void) { return DownWash_Velocity_[2]; };
+    
+    VSPAERO_DOUBLE *DownWash_Velocity(void) { return DownWash_Velocity_; };
+    
+    // Update the geometry
+           
+    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

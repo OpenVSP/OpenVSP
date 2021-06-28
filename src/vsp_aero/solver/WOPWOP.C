@@ -182,7 +182,7 @@ FILE *WOPWOP::OpenLoadingGeometryFile(int i, char *FileName, FILE **File)
     
     if ( (File[i] = fopen(FileName, "wb")) == NULL ) {
 
-       printf("Could not open the PSUWopWop file: %s for output! \n",FileName);
+       PRINTF ("Could not open the PSUWopWop file: %s for output! \n",FileName);
 
        exit(1);
 
@@ -205,7 +205,7 @@ FILE *WOPWOP::OpenLoadingFile(int i, char *FileName, FILE **File)
     
     if ( (File[i] = fopen(FileName, "wb")) == NULL ) {
 
-       printf("Could not open the PSUWopWop file: %s for output! \n",FileName);
+       PRINTF ("Could not open the PSUWopWop file: %s for output! \n",FileName);
 
        exit(1);
 
@@ -228,7 +228,7 @@ FILE *WOPWOP::OpenThicknessGeometryFile(int i, char *FileName, FILE **File)
     
     if ( (File[i] = fopen(FileName, "wb")) == NULL ) {
 
-       printf("Could not open the PSUWopWop file: %s for output! \n",FileName);
+       PRINTF ("Could not open the PSUWopWop file: %s for output! \n",FileName);
 
        exit(1);
 
@@ -251,7 +251,7 @@ FILE *WOPWOP::OpenBPMFile(char *FileName)
     
     if ( (BPMFile_ = fopen(FileName, "wb")) == NULL ) {
 
-       printf("Could not open the PSUWopWop file: %s for output! \n",FileName);
+       PRINTF ("Could not open the PSUWopWop file: %s for output! \n",FileName);
 
        exit(1);
 

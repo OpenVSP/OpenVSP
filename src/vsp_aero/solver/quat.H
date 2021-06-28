@@ -18,7 +18,7 @@ class QUAT {
 
 private:
 
-    double Vec_[4];
+    VSPAERO_DOUBLE Vec_[4]; // Vec_[0 - 2] are the vector components, Vec_[3] is the scalar
 
 public:
 
@@ -28,9 +28,9 @@ public:
 
     QUAT& operator=(const QUAT &quat);
 
-    double& operator()(int i);
+    VSPAERO_DOUBLE& operator()(int i);
 
-    const double& operator()(int i) const;
+    const VSPAERO_DOUBLE& operator()(int i) const;
 
     friend QUAT operator+(const QUAT &quat1, const QUAT &quat2);
     friend QUAT operator-(const QUAT &quat1, const QUAT &quat2);
@@ -38,8 +38,14 @@ public:
 
     void FormInverse(void);
 
-    void FormRotationQuat(double *Vec, double Theta);
+    void FormRotationQuat(VSPAERO_DOUBLE *Vec, VSPAERO_DOUBLE Theta);
+    
+    void Init(VSPAERO_DOUBLE A) { Vec_[0] = 0. ; Vec_[1] = 0. ; Vec_[2] = 0. ; Vec_[3] = A; };
+    void Init(VSPAERO_DOUBLE A, VSPAERO_DOUBLE B, VSPAERO_DOUBLE C, VSPAERO_DOUBLE D) { Vec_[0] = A ; Vec_[1] = B ; Vec_[2] = C ; Vec_[3] = D; };
+    void Init(VSPAERO_DOUBLE Vec[4]) { Vec_[0] = Vec[0] ; Vec_[1] = Vec[1] ; Vec_[2] = Vec[2] ; Vec_[3] = Vec[3]; };
 
+    void print(char *name);
+    
 };
 
 #endif
