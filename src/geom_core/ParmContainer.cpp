@@ -290,6 +290,10 @@ void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec, bool displayn
         m_GroupNames.push_back( iter->first );
         sort( iter->second.begin(), iter->second.end(), ParmNameCompare );
     }
+
+    // Rebuild Parm Links. Could also call LinkMgr.BuildLinkableParmData(), but this allows the links 
+    // to just be rebuild once after this function is iteratively called when saving or loading a model.
+    ParmMgr.SetDirtyFlag( true ); 
 }
 
 void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec )
