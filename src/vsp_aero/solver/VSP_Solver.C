@@ -2913,16 +2913,22 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
        
        MaxNumberOfComponents = 0;
        
-       for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+      //for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+      //
+      //   for ( j = 1 ; j <= VortexSheet(k).NumberOfTrailingVortices() ; j++ ) {
+      //      
+      //      MaxNumberOfComponents = MAX(MaxNumberOfComponents,VSPGeom().Grid(1).NodeList(Node1).ComponentID());
+      //
+      //   }
+      //   
+      //}
+
+       for ( k = 1 ; k <= VSPGeom().Grid(1).NumberOfNodes() ; k++ ) {
        
-          for ( j = 1 ; j <= VortexSheet(k).NumberOfTrailingVortices() ; j++ ) {
-             
-             MaxNumberOfComponents = MAX(MaxNumberOfComponents,VSPGeom().Grid(1).NodeList(Node1).ComponentID());
-             
-          }
-          
+          MaxNumberOfComponents = MAX(MaxNumberOfComponents,VSPGeom().Grid(1).NodeList(k).ComponentID());
+
        }
-              
+                     
        NumberOfVortexSheetsForComponent = new int[MaxNumberOfComponents + 1];
        
        MaxNumberOfVortexSheetsForComponent = new int[MaxNumberOfComponents + 1];
@@ -9875,6 +9881,18 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                       // Number of Equati
 
     r = new VSPAERO_DOUBLE[Neq + 1];
 
+    // Check for case were we come in converged already
+    
+    for ( i = 0; i < Neq; i++ ) {
+
+      r[i] = RightHandSide[i] - r[i];
+   
+    }
+
+    rho = sqrt(VectorDot(Neq,r,r));
+
+    if ( rho <=rho_tol && rho <= ErrorMax ) return;
+          
     // Outer iterative loop
     
     Iter = 0;
@@ -9904,7 +9922,7 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                       // Number of Equati
       if ( Iter == 0 ) rho_zero = rho;
 
       if ( Iter == 0 ) rho_tol = rho * ErrorReduction;
-      
+    
       rho_ratio = rho / rho_zero;
     
       if ( Verbose && Iter == 0 && !TimeAccurate_ ) PRINTF("Wake Iter: %5d / %-5d ... GMRES Iter: %5d ... Red: %10.5f / %-10.5f ...  Max: %10.5f / %-10.5f \r",CurrentWakeIteration_, WakeIterations_, 0,FLOAT(log10(rho_ratio)),FLOAT(log10(ErrorReduction)), FLOAT(log10(rho)), FLOAT(log10(ErrorMax))); fflush(NULL);
