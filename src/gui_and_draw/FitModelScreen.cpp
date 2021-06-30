@@ -312,6 +312,7 @@ bool FitModelScreen::Update()
 
     // Update Fixed target point browser
     int h_pos = m_TargetPtBrowser->hposition();
+    int v_pos = m_TargetPtBrowser->position();
     m_TargetPtBrowser->clear();
 
     m_TargetPtBrowser->column_char( ':' );         // use : as the column character
@@ -362,6 +363,7 @@ bool FitModelScreen::Update()
     }
 
     m_TargetPtBrowser->hposition( h_pos );
+    m_TargetPtBrowser->position( v_pos );
 
     sprintf( str, "%d", num_fix );
     m_NTgtOutput.Update( str );
@@ -384,6 +386,7 @@ bool FitModelScreen::Update()
 
     //==== Update Parm Browser ====//
     h_pos = m_VarBrowser->hposition();
+    v_pos = m_VarBrowser->position();
     m_VarBrowser->clear();
 
     m_VarBrowser->column_char( ':' );         // use : as the column character
@@ -408,6 +411,7 @@ bool FitModelScreen::Update()
     }
 
     m_VarBrowser->hposition( h_pos );
+    m_VarBrowser->position( v_pos );
 
     sprintf( str, "%d", num_vars );
     m_NVarOutput.Update( str );

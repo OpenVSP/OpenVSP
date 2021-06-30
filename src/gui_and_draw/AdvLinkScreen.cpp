@@ -208,6 +208,8 @@ bool AdvLinkScreen::Update()
     //==== Input and Output Browsers ====//
     int input_h_pos = m_InputBrowser->hposition();
     int output_h_pos = m_OutputBrowser->hposition();
+    int input_v_pos = m_InputBrowser->position();
+    int output_v_pos = m_OutputBrowser->position();
     m_InputBrowser->clear();
     m_OutputBrowser->clear();
     if ( edit_link )
@@ -251,6 +253,8 @@ bool AdvLinkScreen::Update()
 
     m_InputBrowser->hposition( input_h_pos );
     m_OutputBrowser->hposition( output_h_pos );
+    m_InputBrowser->position( input_v_pos );
+    m_OutputBrowser->position( output_v_pos );
 
     if ( edit_link )
     {

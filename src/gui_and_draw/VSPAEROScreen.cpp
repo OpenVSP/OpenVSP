@@ -1577,6 +1577,7 @@ void VSPAEROScreen::UpdatePropElemBrowser()
 {
     char str[256];
     int h_pos = m_PropElemBrowser->hposition();
+    int v_pos = m_PropElemBrowser->position();
     m_PropElemBrowser->clear();
 
     m_PropElemBrowser->column_char(':');         // use : as the column character
@@ -1598,6 +1599,7 @@ void VSPAEROScreen::UpdatePropElemBrowser()
     SelectPropBrowser(VSPAEROMgr.GetCurrentRotorDiskIndex() + 2);
 
     m_PropElemBrowser->hposition( h_pos );
+    m_PropElemBrowser->position( v_pos );
 }
 
 void VSPAEROScreen::UpdateControlSurfaceBrowsers()
@@ -2025,6 +2027,7 @@ void VSPAEROScreen::UpdateCpSliceBrowser()
 {
     char str[256];
     int h_pos = m_CpSliceBrowser->hposition();
+    int v_pos = m_CpSliceBrowser->position();
     m_CpSliceBrowser->clear();
 
     m_CpSliceBrowser->column_char( ':' );         // use : as the column character
@@ -2046,6 +2049,7 @@ void VSPAEROScreen::UpdateCpSliceBrowser()
     SelectCpSliceBrowser( VSPAEROMgr.GetCurrentCpSliceIndex() + 2 );
 
     m_CpSliceBrowser->hposition( h_pos );
+    m_CpSliceBrowser->position( v_pos );
 }
 
 void VSPAEROScreen::SelectCpSliceBrowser( int cur_index )
@@ -2130,6 +2134,7 @@ void VSPAEROScreen::UpdateUnsteadyGroups()
 void VSPAEROScreen::UpdateUnsteadyGroupBrowser()
 {
     int h_pos = m_UnsteadyGroupBrowser->hposition();
+    int v_pos = m_UnsteadyGroupBrowser->position();
     m_UnsteadyGroupBrowser->clear();
 
     m_UnsteadyGroupBrowser->column_char( ':' );         // use : as the column character
@@ -2167,6 +2172,7 @@ void VSPAEROScreen::UpdateUnsteadyGroupBrowser()
     }
 
     m_UnsteadyGroupBrowser->hposition( h_pos );
+    m_UnsteadyGroupBrowser->position( v_pos );
 }
 void VSPAEROScreen::SelectUnsteadyGroupBrowser( int cur_index )
 {

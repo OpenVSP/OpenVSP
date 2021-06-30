@@ -1005,6 +1005,7 @@ bool GeomScreen::Update()
 
     //==== SubSurfBrowser ====//
     int h_pos = m_SubSurfBrowser->hposition();
+    int v_pos = m_SubSurfBrowser->position();
     m_SubSurfBrowser->clear();
 
     m_SubSurfBrowser->column_char( ':' );
@@ -1062,6 +1063,7 @@ bool GeomScreen::Update()
     }
 
     m_SubSurfBrowser->hposition( h_pos );
+    m_SubSurfBrowser->position( v_pos );
 
     return true;
 }
