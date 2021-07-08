@@ -61,7 +61,9 @@ void VSP_SURFACE::init(void)
     ComponentID_ = 0;
     
     Case_ = 0;
-        
+
+    SPRINTF(ComponentName_," ");
+
 }
 
 /*##############################################################################
@@ -438,7 +440,13 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File)
     fscanf(VSPGeom_File,"%d",&NumNodes);
 
     PRINTF("NumNodes: %d \n",NumNodes);
+        
+    // Estimate the maximum number of grid levels
     
+    MaxNumberOfGridLevels_ = 4*(int) ( log(1.0 * NumNodes) / log(4.0) );
+    
+    PRINTF("MaxNumberOfGridLevels_: %d \n",MaxNumberOfGridLevels_);
+        
     Grid_ = new VSP_GRID*[MaxNumberOfGridLevels_ + 1];
     
     // Calculate total number of nodes and tris, including the wake
@@ -472,12 +480,6 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File)
     fscanf(VSPGeom_File,"%d",&NumTris);
 
     PRINTF("NumTris: %d \n",NumTris);    
-        
-    // Estimate the maximum number of grid levels
-    
-    MaxNumberOfGridLevels_ = 4*(int) ( log(0.5 * NumTris) / log(4.0) );
-    
-    PRINTF("MaxNumberOfGridLevels_: %d \n",MaxNumberOfGridLevels_);
 
     Grid().SizeTriList(NumTris);
     
