@@ -2599,6 +2599,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
 
         // Sectional distribution table
         int nSectionalDataTableCols = 16;
+        int nCompDataTableCols = 14;
         if ( data_string_array.size() == nSectionalDataTableCols && !sectional_data_complete && !isdigit( data_string_array[0][0] ) )
         {
             //discard the header row and read the next line assuming that it is numeric
@@ -2704,8 +2705,9 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
             sectional_data_complete = true;
 
         } // end sectional table read
-        else if ( data_string_array.size() == nSectionalDataTableCols && sectional_data_complete && !isdigit( data_string_array[0][0] ) )
+        else if ( data_string_array.size() == nCompDataTableCols && sectional_data_complete && data_string_array[0].find( "Comp" ) != std::string::npos )
         {
+            // "Comp" section of *.lod file
             res = ResultsMgr.CreateResults( "VSPAERO_Comp_Load" );
             res_id_vector.push_back( res->GetID() );
 
@@ -2729,23 +2731,34 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
             std::vector<double> Cmz;
 
             // read the data rows
-            while ( data_string_array.size() == nSectionalDataTableCols )
+            while ( ( data_string_array.size() >= nCompDataTableCols - 1 ) && ( data_string_array.size() <= nCompDataTableCols ) )
             {
                 // Store the raw data
-                Comp.push_back( std::stoi( data_string_array[0] ) );
-                Comp_Name.push_back( data_string_array[1] );
-                Mach.push_back( std::stod( data_string_array[2] ) );
-                AoA.push_back( std::stod( data_string_array[3] ) );
-                Beta.push_back( std::stod( data_string_array[4] ) );
-                CL.push_back( std::stod( data_string_array[5] ) );
-                CDi.push_back( std::stod( data_string_array[6] ) );
-                Cs.push_back( std::stod( data_string_array[7] ) );
-                CFx.push_back( std::stod( data_string_array[8] ) );
-                CFy.push_back( std::stod( data_string_array[9] ) );
-                CFz.push_back( std::stod( data_string_array[10] ) );
-                Cmx.push_back( std::stod( data_string_array[11] ) );
-                Cmy.push_back( std::stod( data_string_array[12] ) );
-                Cmz.push_back( std::stod( data_string_array[13] ) );
+                size_t j = 0;
+                Comp.push_back( std::stoi( data_string_array[j++] ) );
+
+                if ( data_string_array.size() == nCompDataTableCols - 1 )
+                {
+                    // Condition if no body-type componenets in *.vspgeom input
+                    Comp_Name.push_back( "NONE" );
+                }
+                else
+                {
+                    Comp_Name.push_back( data_string_array[j++] );
+                }
+
+                Mach.push_back( std::stod( data_string_array[j++] ) );
+                AoA.push_back( std::stod( data_string_array[j++] ) );
+                Beta.push_back( std::stod( data_string_array[j++] ) );
+                CL.push_back( std::stod( data_string_array[j++] ) );
+                CDi.push_back( std::stod( data_string_array[j++] ) );
+                Cs.push_back( std::stod( data_string_array[j++] ) );
+                CFx.push_back( std::stod( data_string_array[j++] ) );
+                CFy.push_back( std::stod( data_string_array[j++] ) );
+                CFz.push_back( std::stod( data_string_array[j++] ) );
+                Cmx.push_back( std::stod( data_string_array[j++] ) );
+                Cmy.push_back( std::stod( data_string_array[j++] ) );
+                Cmz.push_back( std::stod( data_string_array[j++] ) );
 
                 // Read the next line and loop
                 data_string_array = ReadDelimLine( fp, seps );
