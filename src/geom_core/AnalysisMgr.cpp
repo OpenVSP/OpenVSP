@@ -1310,25 +1310,25 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
     {
 
         //Case Setup
-        m_Inputs.Add( NameValData( "GeomSet",            VSPAEROMgr.m_GeomSet.Get()            ) );
-        m_Inputs.Add( NameValData( "AnalysisMethod",     VSPAEROMgr.m_AnalysisMethod.Get()     ) );
-        m_Inputs.Add( NameValData( "NCPU",               VSPAEROMgr.m_NCPU.Get()               ) );
-        m_Inputs.Add( NameValData( "FixedWakeFlag",      VSPAEROMgr.m_FixedWakeFlag.Get()      ) );
-        m_Inputs.Add( NameValData( "WakeNumIter",        VSPAEROMgr.m_WakeNumIter.Get()        ) );
-        m_Inputs.Add( NameValData( "NumWakeNodes",       VSPAEROMgr.m_NumWakeNodes.Get()       ) );
-        m_Inputs.Add( NameValData( "UnsteadyType",       VSPAEROMgr.m_StabilityType.Get()      ) );
-        m_Inputs.Add( NameValData( "Precondition",       VSPAEROMgr.m_Precondition.Get()       ) );
-        m_Inputs.Add( NameValData( "KTCorrection",       VSPAEROMgr.m_KTCorrection.Get()       ) );
-        m_Inputs.Add( NameValData( "Symmetry",           VSPAEROMgr.m_Symmetry.Get()           ) );
-        m_Inputs.Add( NameValData( "BatchModeFlag",      VSPAEROMgr.m_BatchModeFlag.Get()      ) );
-        m_Inputs.Add( NameValData( "2DFEMFlag",          VSPAEROMgr.m_Write2DFEMFlag.Get()     ) );
-        m_Inputs.Add( NameValData( "FromSteadyState",    VSPAEROMgr.m_FromSteadyState.Get()    ) );
-        m_Inputs.Add( NameValData( "GroundEffectToggle", VSPAEROMgr.m_GroundEffectToggle.Get() ) );
-        m_Inputs.Add( NameValData( "GroundEffect",       VSPAEROMgr.m_GroundEffect.Get()       ) );
-        m_Inputs.Add( NameValData( "Vinf",               VSPAEROMgr.m_Vinf.Get()               ) );
-        m_Inputs.Add( NameValData( "Rho",                VSPAEROMgr.m_Rho.Get()                ) );
-        m_Inputs.Add( NameValData( "ReCref",             VSPAEROMgr.m_ReCref.Get()             ) );
+        m_Inputs.Add( NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                      ) );
+        m_Inputs.Add( NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()               ) );
         m_Inputs.Add( NameValData( "ExperimentalInputFormatFlag",   VSPAEROMgr.m_ExperimentalInputFormatFlag.Get()  ) );
+        m_Inputs.Add( NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                         ) );
+        m_Inputs.Add( NameValData( "FixedWakeFlag",                 VSPAEROMgr.m_FixedWakeFlag.Get()                ) );
+        m_Inputs.Add( NameValData( "WakeNumIter",                   VSPAEROMgr.m_WakeNumIter.Get()                  ) );
+        m_Inputs.Add( NameValData( "NumWakeNodes",                  VSPAEROMgr.m_NumWakeNodes.Get()                 ) );
+        m_Inputs.Add( NameValData( "UnsteadyType",                  VSPAEROMgr.m_StabilityType.Get()                ) );
+        m_Inputs.Add( NameValData( "Precondition",                  VSPAEROMgr.m_Precondition.Get()                 ) );
+        m_Inputs.Add( NameValData( "KTCorrection",                  VSPAEROMgr.m_KTCorrection.Get()                 ) );
+        m_Inputs.Add( NameValData( "Symmetry",                      VSPAEROMgr.m_Symmetry.Get()                     ) );
+        m_Inputs.Add( NameValData( "BatchModeFlag",                 VSPAEROMgr.m_BatchModeFlag.Get()                ) );
+        m_Inputs.Add( NameValData( "2DFEMFlag",                     VSPAEROMgr.m_Write2DFEMFlag.Get()               ) );
+        m_Inputs.Add( NameValData( "FromSteadyState",               VSPAEROMgr.m_FromSteadyState.Get()              ) );
+        m_Inputs.Add( NameValData( "GroundEffectToggle",            VSPAEROMgr.m_GroundEffectToggle.Get()           ) );
+        m_Inputs.Add( NameValData( "GroundEffect",                  VSPAEROMgr.m_GroundEffect.Get()                 ) );
+        m_Inputs.Add( NameValData( "Vinf",                          VSPAEROMgr.m_Vinf.Get()                         ) );
+        m_Inputs.Add( NameValData( "Rho",                           VSPAEROMgr.m_Rho.Get()                          ) );
+        m_Inputs.Add( NameValData( "ReCref",                        VSPAEROMgr.m_ReCref.Get()                       ) );
 
         m_Inputs.Add( NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          ) );
         m_Inputs.Add( NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                ) );
@@ -1405,11 +1405,11 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
 
         //    Regerence area, length parameters
-        int refFlagOrig    = VSPAEROMgr.m_RefFlag.Get();
-        string WingIDOrig    = VSPAEROMgr.m_RefGeomID;
-        double srefOrig    = VSPAEROMgr.m_Sref.Get();
-        double brefOrig    = VSPAEROMgr.m_bref.Get();
-        double crefOrig    = VSPAEROMgr.m_cref.Get();
+        int refFlagOrig     = VSPAEROMgr.m_RefFlag.Get();
+        string WingIDOrig   = VSPAEROMgr.m_RefGeomID;
+        double srefOrig     = VSPAEROMgr.m_Sref.Get();
+        double brefOrig     = VSPAEROMgr.m_bref.Get();
+        double crefOrig     = VSPAEROMgr.m_cref.Get();
         nvd = m_Inputs.FindPtr( "RefFlag", 0 );
         if ( nvd )
         {
@@ -1467,11 +1467,11 @@ string VSPAEROSinglePointAnalysis::Execute()
         }
 
         //    Mass properties
-        int cgGeomSetOrig    = VSPAEROMgr.m_CGGeomSet.Get();
-        int numMassSliceOrig = VSPAEROMgr.m_NumMassSlice.Get();
-        double xcgOrig        = VSPAEROMgr.m_Xcg.Get();
-        double ycgOrig        = VSPAEROMgr.m_Ycg.Get();
-        double zcgOrig        = VSPAEROMgr.m_Zcg.Get();
+        int cgGeomSetOrig       = VSPAEROMgr.m_CGGeomSet.Get();
+        int numMassSliceOrig    = VSPAEROMgr.m_NumMassSlice.Get();
+        double xcgOrig          = VSPAEROMgr.m_Xcg.Get();
+        double ycgOrig          = VSPAEROMgr.m_Ycg.Get();
+        double zcgOrig          = VSPAEROMgr.m_Zcg.Get();
         nvd = m_Inputs.FindPtr( "CGGeomSet", 0 );
         if ( nvd )
         {
@@ -1629,12 +1629,12 @@ string VSPAEROSinglePointAnalysis::Execute()
             VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
         }
 
-        int clMaxToggleOrig = VSPAEROMgr.m_ClMaxToggle.Get();
-        double clMaxOrig = VSPAEROMgr.m_ClMax.Get();
-        int maxTurnToggleOrig = VSPAEROMgr.m_MaxTurnToggle.Get();
+        int clMaxToggleOrig     = VSPAEROMgr.m_ClMaxToggle.Get();
+        double clMaxOrig        = VSPAEROMgr.m_ClMax.Get();
+        int maxTurnToggleOrig   = VSPAEROMgr.m_MaxTurnToggle.Get();
         double maxTurnAngleOrig = VSPAEROMgr.m_MaxTurnAngle.Get();
-        int farDistToggleOrig = VSPAEROMgr.m_FarDistToggle.Get();
-        double farDistOrig = VSPAEROMgr.m_FarDist.Get();
+        int farDistToggleOrig   = VSPAEROMgr.m_FarDistToggle.Get();
+        double farDistOrig      = VSPAEROMgr.m_FarDist.Get();
 
         nvd = m_Inputs.FindPtr( "ClmaxToggle", 0 );
         if ( nvd )
@@ -1668,20 +1668,20 @@ string VSPAEROSinglePointAnalysis::Execute()
         }
 
         // Unsteady Parms
-        bool rotateBladesFlagOrig = VSPAEROMgr.m_RotateBladesFlag.Get();
-        bool actuatorDiskFlagOrig = VSPAEROMgr.m_ActuatorDiskFlag.Get();
-        bool hoverRampFlagOrig = VSPAEROMgr.m_HoverRampFlag.Get();
-        double hoverRamp = VSPAEROMgr.m_HoverRamp.Get();
-        int numTimeStepOrig = VSPAEROMgr.m_NumTimeSteps.Get();
-        double timeStepSizeOrig = VSPAEROMgr.m_TimeStepSize.Get();
+        bool rotateBladesFlagOrig   = VSPAEROMgr.m_RotateBladesFlag.Get();
+        bool actuatorDiskFlagOrig   = VSPAEROMgr.m_ActuatorDiskFlag.Get();
+        bool hoverRampFlagOrig      = VSPAEROMgr.m_HoverRampFlag.Get();
+        double hoverRamp            = VSPAEROMgr.m_HoverRamp.Get();
+        int numTimeStepOrig         = VSPAEROMgr.m_NumTimeSteps.Get();
+        double timeStepSizeOrig     = VSPAEROMgr.m_TimeStepSize.Get();
         double autoTimeStepFlagOrig = VSPAEROMgr.m_AutoTimeStepFlag.Get();
-        int autoTimeNumRevsOrig = VSPAEROMgr.m_AutoTimeNumRevs.Get();
-        double machrefOrig = VSPAEROMgr.m_Machref.Get();
-        double vrefOrig = VSPAEROMgr.m_Vref.Get();
-        bool manualVrefOrig = VSPAEROMgr.m_ManualVrefFlag.Get();
-        bool noiseCalcFlagOrig = VSPAEROMgr.m_NoiseCalcFlag.Get();
-        int noiseCalcTypeOrig = VSPAEROMgr.m_NoiseCalcType.Get();
-        int noiseUnitsOrig = VSPAEROMgr.m_NoiseUnits.Get();
+        int autoTimeNumRevsOrig     = VSPAEROMgr.m_AutoTimeNumRevs.Get();
+        double machrefOrig          = VSPAEROMgr.m_Machref.Get();
+        double vrefOrig             = VSPAEROMgr.m_Vref.Get();
+        bool manualVrefOrig         = VSPAEROMgr.m_ManualVrefFlag.Get();
+        bool noiseCalcFlagOrig      = VSPAEROMgr.m_NoiseCalcFlag.Get();
+        int noiseCalcTypeOrig       = VSPAEROMgr.m_NoiseCalcType.Get();
+        int noiseUnitsOrig          = VSPAEROMgr.m_NoiseUnits.Get();
 
         nvd = m_Inputs.FindPtr( "RotateBladesFlag", 0 );
         if ( nvd )
@@ -1840,25 +1840,25 @@ void VSPAEROSweepAnalysis::SetDefaults()
     {
 
         //Case Setup
-        m_Inputs.Add( NameValData( "GeomSet",            VSPAEROMgr.m_GeomSet.Get()            ) );
-        m_Inputs.Add( NameValData( "AnalysisMethod",     VSPAEROMgr.m_AnalysisMethod.Get()     ) );
-        m_Inputs.Add( NameValData( "NCPU",               VSPAEROMgr.m_NCPU.Get()               ) );
-        m_Inputs.Add( NameValData( "FixedWakeFlag",      VSPAEROMgr.m_FixedWakeFlag.Get()      ) );
-        m_Inputs.Add( NameValData( "WakeNumIter",        VSPAEROMgr.m_WakeNumIter.Get()        ) );
-        m_Inputs.Add( NameValData( "NumWakeNodes",       VSPAEROMgr.m_NumWakeNodes.Get()       ) );
-        m_Inputs.Add( NameValData( "UnsteadyType",       VSPAEROMgr.m_StabilityType.Get()      ) );
-        m_Inputs.Add( NameValData( "Precondition",       VSPAEROMgr.m_Precondition.Get()       ) );
-        m_Inputs.Add( NameValData( "BatchModeFlag",      VSPAEROMgr.m_BatchModeFlag.Get()      ) );
-        m_Inputs.Add( NameValData( "Symmetry",           VSPAEROMgr.m_Symmetry.Get()           ) );
-        m_Inputs.Add( NameValData( "2DFEMFlag",          VSPAEROMgr.m_Write2DFEMFlag.Get()     ) );
-        m_Inputs.Add( NameValData( "KTCorrection",       VSPAEROMgr.m_KTCorrection.Get()       ) );
-        m_Inputs.Add( NameValData( "FromSteadyState",    VSPAEROMgr.m_FromSteadyState.Get()    ) );
-        m_Inputs.Add( NameValData( "GroundEffectToggle", VSPAEROMgr.m_GroundEffectToggle.Get() ) );
-        m_Inputs.Add( NameValData( "GroundEffect",       VSPAEROMgr.m_GroundEffect.Get()       ) );
-        m_Inputs.Add( NameValData( "Vinf",               VSPAEROMgr.m_Vinf.Get()               ) );
-        m_Inputs.Add( NameValData( "Rho",                VSPAEROMgr.m_Rho.Get()                ) );
-        m_Inputs.Add( NameValData( "ReCref",             VSPAEROMgr.m_ReCref.Get()             ) );
+        m_Inputs.Add( NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        ) );
+        m_Inputs.Add( NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()                 ) );
         m_Inputs.Add( NameValData( "ExperimentalInputFormatFlag",   VSPAEROMgr.m_ExperimentalInputFormatFlag.Get()    ) );
+        m_Inputs.Add( NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                           ) );
+        m_Inputs.Add( NameValData( "FixedWakeFlag",                 VSPAEROMgr.m_FixedWakeFlag.Get()                  ) );
+        m_Inputs.Add( NameValData( "WakeNumIter",                   VSPAEROMgr.m_WakeNumIter.Get()                    ) );
+        m_Inputs.Add( NameValData( "NumWakeNodes",                  VSPAEROMgr.m_NumWakeNodes.Get()                   ) );
+        m_Inputs.Add( NameValData( "UnsteadyType",                  VSPAEROMgr.m_StabilityType.Get()                  ) );
+        m_Inputs.Add( NameValData( "Precondition",                  VSPAEROMgr.m_Precondition.Get()                   ) );
+        m_Inputs.Add( NameValData( "BatchModeFlag",                 VSPAEROMgr.m_BatchModeFlag.Get()                  ) );
+        m_Inputs.Add( NameValData( "Symmetry",                      VSPAEROMgr.m_Symmetry.Get()                       ) );
+        m_Inputs.Add( NameValData( "2DFEMFlag",                     VSPAEROMgr.m_Write2DFEMFlag.Get()                 ) );
+        m_Inputs.Add( NameValData( "KTCorrection",                  VSPAEROMgr.m_KTCorrection.Get()                   ) );
+        m_Inputs.Add( NameValData( "FromSteadyState",               VSPAEROMgr.m_FromSteadyState.Get()                ) );
+        m_Inputs.Add( NameValData( "GroundEffectToggle",            VSPAEROMgr.m_GroundEffectToggle.Get()             ) );
+        m_Inputs.Add( NameValData( "GroundEffect",                  VSPAEROMgr.m_GroundEffect.Get()                   ) );
+        m_Inputs.Add( NameValData( "Vinf",                          VSPAEROMgr.m_Vinf.Get()                           ) );
+        m_Inputs.Add( NameValData( "Rho",                           VSPAEROMgr.m_Rho.Get()                            ) );
+        m_Inputs.Add( NameValData( "ReCref",                        VSPAEROMgr.m_ReCref.Get()                         ) );
 
         m_Inputs.Add( NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          ) );
         m_Inputs.Add( NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                ) );
@@ -1876,7 +1876,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
         //Moment center
         //TODO add flag to indentify if this is manual or computed
-        m_Inputs.Add( NameValData( "CGGeomSet",           VSPAEROMgr.m_CGGeomSet.Get()         ) );
+        m_Inputs.Add( NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         ) );
         m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      ) );
         m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               ) );
         m_Inputs.Add( NameValData( "Ycg",               VSPAEROMgr.m_Ycg.Get()               ) );
@@ -1893,22 +1893,22 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "MachEnd",           VSPAEROMgr.m_MachEnd.Get()           ) );
         m_Inputs.Add( NameValData( "MachNpts",          VSPAEROMgr.m_MachNpts.Get()          ) );
 
-        m_Inputs.Add( NameValData( "RotateBladesFlag",  VSPAEROMgr.m_RotateBladesFlag.Get() ) );
-        m_Inputs.Add( NameValData( "ActuatorDiskFlag",  VSPAEROMgr.m_ActuatorDiskFlag.Get() ) );
+        m_Inputs.Add( NameValData( "RotateBladesFlag",  VSPAEROMgr.m_RotateBladesFlag.Get()  ) );
+        m_Inputs.Add( NameValData( "ActuatorDiskFlag",  VSPAEROMgr.m_ActuatorDiskFlag.Get()  ) );
 
         // Unsteady Parms
-        m_Inputs.Add( NameValData( "HoverRampFlag",     VSPAEROMgr.m_HoverRampFlag.Get() ) );
-        m_Inputs.Add( NameValData( "HoverRamp",         VSPAEROMgr.m_HoverRamp.Get() ) );
-        m_Inputs.Add( NameValData( "NumTimeSteps",      VSPAEROMgr.m_NumTimeSteps.Get() ) );
-        m_Inputs.Add( NameValData( "TimeStepSize",      VSPAEROMgr.m_TimeStepSize.Get() ) );
+        m_Inputs.Add( NameValData( "HoverRampFlag",     VSPAEROMgr.m_HoverRampFlag.Get()    ) );
+        m_Inputs.Add( NameValData( "HoverRamp",         VSPAEROMgr.m_HoverRamp.Get()        ) );
+        m_Inputs.Add( NameValData( "NumTimeSteps",      VSPAEROMgr.m_NumTimeSteps.Get()     ) );
+        m_Inputs.Add( NameValData( "TimeStepSize",      VSPAEROMgr.m_TimeStepSize.Get()     ) );
         m_Inputs.Add( NameValData( "AutoTimeStepFlag",  VSPAEROMgr.m_AutoTimeStepFlag.Get() ) );
-        m_Inputs.Add( NameValData( "AutoTimeNumRevs",   VSPAEROMgr.m_AutoTimeNumRevs.Get() ) );
-        m_Inputs.Add( NameValData( "Machref",           VSPAEROMgr.m_Machref.Get() ) );
-        m_Inputs.Add( NameValData( "Vref",              VSPAEROMgr.m_Vref.Get() ) );
-        m_Inputs.Add( NameValData( "ManualVrefFlag",    VSPAEROMgr.m_ManualVrefFlag.Get() ) );
-        m_Inputs.Add( NameValData( "NoiseCalcFlag",     VSPAEROMgr.m_NoiseCalcFlag.Get() ) );
-        m_Inputs.Add( NameValData( "NoiseCalcType",     VSPAEROMgr.m_NoiseCalcType.Get() ) );
-        m_Inputs.Add( NameValData( "NoiseUnits",        VSPAEROMgr.m_NoiseUnits.Get() ) );
+        m_Inputs.Add( NameValData( "AutoTimeNumRevs",   VSPAEROMgr.m_AutoTimeNumRevs.Get()  ) );
+        m_Inputs.Add( NameValData( "Machref",           VSPAEROMgr.m_Machref.Get()          ) );
+        m_Inputs.Add( NameValData( "Vref",              VSPAEROMgr.m_Vref.Get()             ) );
+        m_Inputs.Add( NameValData( "ManualVrefFlag",    VSPAEROMgr.m_ManualVrefFlag.Get()   ) );
+        m_Inputs.Add( NameValData( "NoiseCalcFlag",     VSPAEROMgr.m_NoiseCalcFlag.Get()    ) );
+        m_Inputs.Add( NameValData( "NoiseCalcType",     VSPAEROMgr.m_NoiseCalcType.Get()    ) );
+        m_Inputs.Add( NameValData( "NoiseUnits",        VSPAEROMgr.m_NoiseUnits.Get()       ) );
     }
     else
     {
@@ -2003,11 +2003,11 @@ string VSPAEROSweepAnalysis::Execute()
         }
 
         //    Mass properties
-        int cgGeomSetOrig    = VSPAEROMgr.m_CGGeomSet.Get();
-        int numMassSliceOrig = VSPAEROMgr.m_NumMassSlice.Get();
-        double xcgOrig        = VSPAEROMgr.m_Xcg.Get();
-        double ycgOrig        = VSPAEROMgr.m_Ycg.Get();
-        double zcgOrig        = VSPAEROMgr.m_Zcg.Get();
+        int cgGeomSetOrig       = VSPAEROMgr.m_CGGeomSet.Get();
+        int numMassSliceOrig    = VSPAEROMgr.m_NumMassSlice.Get();
+        double xcgOrig          = VSPAEROMgr.m_Xcg.Get();
+        double ycgOrig          = VSPAEROMgr.m_Ycg.Get();
+        double zcgOrig          = VSPAEROMgr.m_Zcg.Get();
         nvd = m_Inputs.FindPtr( "CGGeomSet", 0 );
         if ( nvd )
         {
@@ -2035,14 +2035,14 @@ string VSPAEROSweepAnalysis::Execute()
         }
 
         //    Freestream parameters (Alpha, Beta, Mach)
-        double alphaStartOrig    = VSPAEROMgr.m_AlphaStart.Get();
-        double alphaEndOrig    = VSPAEROMgr.m_AlphaEnd.Get();
-        int alphaNptsOrig        = VSPAEROMgr.m_AlphaNpts.Get();
+        double alphaStartOrig   = VSPAEROMgr.m_AlphaStart.Get();
+        double alphaEndOrig     = VSPAEROMgr.m_AlphaEnd.Get();
+        int alphaNptsOrig       = VSPAEROMgr.m_AlphaNpts.Get();
         double betaStartOrig    = VSPAEROMgr.m_BetaStart.Get();
-        double betaEndOrig    = VSPAEROMgr.m_BetaEnd.Get();
+        double betaEndOrig      = VSPAEROMgr.m_BetaEnd.Get();
         int betaNptsOrig        = VSPAEROMgr.m_BetaNpts.Get();
         double machStartOrig    = VSPAEROMgr.m_MachStart.Get();
-        double machEndOrig    = VSPAEROMgr.m_MachEnd.Get();
+        double machEndOrig      = VSPAEROMgr.m_MachEnd.Get();
         int machNptsOrig        = VSPAEROMgr.m_MachNpts.Get();
         nvd = m_Inputs.FindPtr( "AlphaStart", 0 );
         if ( nvd )
@@ -2195,12 +2195,12 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
         }
 
-        int clMaxToggleOrig = VSPAEROMgr.m_ClMaxToggle.Get();
-        double clMaxOrig = VSPAEROMgr.m_ClMax.Get();
-        int maxTurnToggleOrig = VSPAEROMgr.m_MaxTurnToggle.Get();
+        int clMaxToggleOrig     = VSPAEROMgr.m_ClMaxToggle.Get();
+        double clMaxOrig        = VSPAEROMgr.m_ClMax.Get();
+        int maxTurnToggleOrig   = VSPAEROMgr.m_MaxTurnToggle.Get();
         double maxTurnAngleOrig = VSPAEROMgr.m_MaxTurnAngle.Get();
-        int farDistToggleOrig = VSPAEROMgr.m_FarDistToggle.Get();
-        double farDistOrig = VSPAEROMgr.m_FarDist.Get();
+        int farDistToggleOrig   = VSPAEROMgr.m_FarDistToggle.Get();
+        double farDistOrig      = VSPAEROMgr.m_FarDist.Get();
 
         nvd = m_Inputs.FindPtr( "ClmaxToggle", 0 );
         if ( nvd )
@@ -2234,20 +2234,20 @@ string VSPAEROSweepAnalysis::Execute()
         }
 
         // Unsteady Parms
-        bool rotateBladesFlagOrig = VSPAEROMgr.m_RotateBladesFlag.Get();
-        bool actuatorDiskFlagOrig = VSPAEROMgr.m_ActuatorDiskFlag.Get();
-        bool hoverRampFlagOrig = VSPAEROMgr.m_HoverRampFlag.Get();
-        double hoverRamp = VSPAEROMgr.m_HoverRamp.Get();
-        int numTimeStepOrig = VSPAEROMgr.m_NumTimeSteps.Get();
-        double timeStepSizeOrig =VSPAEROMgr.m_TimeStepSize.Get();
+        bool rotateBladesFlagOrig   = VSPAEROMgr.m_RotateBladesFlag.Get();
+        bool actuatorDiskFlagOrig   = VSPAEROMgr.m_ActuatorDiskFlag.Get();
+        bool hoverRampFlagOrig      = VSPAEROMgr.m_HoverRampFlag.Get();
+        double hoverRamp            = VSPAEROMgr.m_HoverRamp.Get();
+        int numTimeStepOrig         = VSPAEROMgr.m_NumTimeSteps.Get();
+        double timeStepSizeOrig     = VSPAEROMgr.m_TimeStepSize.Get();
         double autoTimeStepFlagOrig = VSPAEROMgr.m_AutoTimeStepFlag.Get();
-        int autoTimeNumRevsOrig = VSPAEROMgr.m_AutoTimeNumRevs.Get();
-        double machrefOrig = VSPAEROMgr.m_Machref.Get();
-        double vrefOrig = VSPAEROMgr.m_Vref.Get();
-        bool manualVrefOrig = VSPAEROMgr.m_ManualVrefFlag.Get();
-        bool noiseCalcFlagOrig = VSPAEROMgr.m_NoiseCalcFlag.Get();
-        int noiseCalcTypeOrig = VSPAEROMgr.m_NoiseCalcType.Get();
-        int noiseUnitsOrig = VSPAEROMgr.m_NoiseUnits.Get();
+        int autoTimeNumRevsOrig     = VSPAEROMgr.m_AutoTimeNumRevs.Get();
+        double machrefOrig          = VSPAEROMgr.m_Machref.Get();
+        double vrefOrig             = VSPAEROMgr.m_Vref.Get();
+        bool manualVrefOrig         = VSPAEROMgr.m_ManualVrefFlag.Get();
+        bool noiseCalcFlagOrig      = VSPAEROMgr.m_NoiseCalcFlag.Get();
+        int noiseCalcTypeOrig       = VSPAEROMgr.m_NoiseCalcType.Get();
+        int noiseUnitsOrig          = VSPAEROMgr.m_NoiseUnits.Get();
 
         nvd = m_Inputs.FindPtr( "RotateBladesFlag", 0 );
         if ( nvd )
