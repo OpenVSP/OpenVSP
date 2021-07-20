@@ -241,7 +241,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Advanced Case Setup Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
         m_AdvancedLeftLayout.GetW(),
-        8 * m_AdvancedLeftLayout.GetStdHeight() );
+        9 * m_AdvancedLeftLayout.GetStdHeight() + m_AdvancedLeftLayout.GetGapHeight() );
     m_AdvancedLeftLayout.AddY( m_AdvancedCaseSetupLayout.GetH() );
 
     m_AdvancedCaseSetupLayout.AddDividerBox( "Advanced Case Setup" );
@@ -274,6 +274,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
     m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
+
+    m_AdvancedCaseSetupLayout.AddButton( m_EnableExperimentalFormat, "Use Experimental File Format" );
+    m_AdvancedCaseSetupLayout.AddYGap();
 
     m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
     m_AdvancedCaseSetupLayout.SetInputWidth( 50 );
@@ -1045,11 +1048,33 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_DegenFileButton )
         {
-            veh->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select degen geom CSV output file.", "*.csv" ) );
+            int file_type = vsp::DEGEN_GEOM_CSV_TYPE;
+            string file_ext = "*.csv";
+            string message = "Select degen geom CSV output file.";
+
+            if ( VSPAEROMgr.m_ExperimentalInputFormatFlag() )
+            {
+                file_type = vsp::VSPAERO_VSPGEOM_TYPE;
+                file_ext = "*.vspgeom";
+                message = "Select degen geom VSPGEOM output file.";
+            }
+
+            veh->setExportFileName( file_type, m_ScreenMgr->GetSelectFileScreen()->FileChooser( message.c_str(), file_ext.c_str() ) );
         }
         else if( device == &m_CompGeomFileButton )
         {
-            veh->setExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE, m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp geom TRI output file.", "*.tri" ) );
+            int file_type = vsp::VSPAERO_PANEL_TRI_TYPE;
+            string file_ext = "*.tri";
+            string message = "Select comp geom TRI output file.";
+
+            if ( VSPAEROMgr.m_ExperimentalInputFormatFlag() )
+            {
+                file_type = vsp::VSPAERO_VSPGEOM_TYPE;
+                file_ext = "*.vspgeom";
+                message = "Select comp geom VSPGEOM output file.";
+            }
+
+            veh->setExportFileName( file_type, m_ScreenMgr->GetSelectFileScreen()->FileChooser( message.c_str(), file_ext.c_str() ) );
         }
         else if ( device == &m_LoadExistingResultsButton )
         {
@@ -1354,8 +1379,17 @@ void VSPAEROScreen::UpdateCGDevices()
 void VSPAEROScreen::UpdateAdvancedTabDevices()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-    m_DegenFileName.Update(veh->getExportFileName(vsp::DEGEN_GEOM_CSV_TYPE));
-    m_CompGeomFileName.Update(veh->getExportFileName(vsp::VSPAERO_PANEL_TRI_TYPE));
+
+    if ( VSPAEROMgr.m_ExperimentalInputFormatFlag.Get() )
+    {
+        m_DegenFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
+        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
+    }
+    else
+    {
+        m_DegenFileName.Update( veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE ) );
+        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE ) );
+    }
 
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
     m_BatchCalculationToggle.Update(VSPAEROMgr.m_BatchModeFlag.GetID());
@@ -1363,6 +1397,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_KTCorrectionToggle.Update( VSPAEROMgr.m_KTCorrection.GetID() );
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
+    m_EnableExperimentalFormat.Update( VSPAEROMgr.m_ExperimentalInputFormatFlag.GetID() );
 
     // Wake Options
     m_FixedWakeToggle.Update( VSPAEROMgr.m_FixedWakeFlag.GetID() );
