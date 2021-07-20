@@ -803,6 +803,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_VSPGEOM_TYPE", CFD_VSPGEOM_TYPE, "/*!< CFD Mesh VSPGEOM file type */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "VSPAERO_VSPGEOM_TYPE", VSPAERO_VSPGEOM_TYPE, "/*!< VSPAERO VSPGEOM file type */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum used to identify delimiter type. */";
 

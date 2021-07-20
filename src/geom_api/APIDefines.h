@@ -168,6 +168,7 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_CURV_TYPE       = 2097152,
                                 CFD_PLOT3D_TYPE     = 4194304,
                                 CFD_VSPGEOM_TYPE    = 8388608,
+                                VSPAERO_VSPGEOM_TYPE = 16777216,
                             };
 
 enum DELIM_TYPE { DELIM_COMMA,

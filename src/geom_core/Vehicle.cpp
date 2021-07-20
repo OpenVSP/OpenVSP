@@ -4413,6 +4413,10 @@ string Vehicle::getExportFileName( int type )
     {
         doreturn = true;
     }
+    else if ( type == VSPAERO_VSPGEOM_TYPE )
+    {
+        doreturn = true;
+    }
 
     if( doreturn )
     {
@@ -4477,6 +4481,10 @@ void Vehicle::setExportFileName( int type, string f_name )
     {
         doset = true;
     }
+    else if ( type == VSPAERO_VSPGEOM_TYPE )
+    {
+        doset = true;
+    }
 
     if( doset )
     {
@@ -4486,8 +4494,8 @@ void Vehicle::setExportFileName( int type, string f_name )
 
 void Vehicle::resetExportFileNames()
 {
-    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_Slice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv", "_WaveDrag.txt", ".tri", "_ParasiteBuildUp.csv" };
-    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE, WAVE_DRAG_TXT_TYPE, VSPAERO_PANEL_TRI_TYPE, DRAG_BUILD_CSV_TYPE };
+    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_Slice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv", "_WaveDrag.txt", ".tri", "_ParasiteBuildUp.csv", "_VSPGeom.vspgeom" };
+    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE, WAVE_DRAG_TXT_TYPE, VSPAERO_PANEL_TRI_TYPE, DRAG_BUILD_CSV_TYPE, VSPAERO_VSPGEOM_TYPE };
     const int ntype = ( sizeof(types) / sizeof(types[0]) );
     int pos;
 
