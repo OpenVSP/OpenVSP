@@ -1328,6 +1328,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "Vinf",               VSPAEROMgr.m_Vinf.Get()               ) );
         m_Inputs.Add( NameValData( "Rho",                VSPAEROMgr.m_Rho.Get()                ) );
         m_Inputs.Add( NameValData( "ReCref",             VSPAEROMgr.m_ReCref.Get()             ) );
+        m_Inputs.Add( NameValData( "ExperimentalInputFormatFlag",   VSPAEROMgr.m_ExperimentalInputFormatFlag.Get()  ) );
 
         m_Inputs.Add( NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          ) );
         m_Inputs.Add( NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                ) );
@@ -1524,6 +1525,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_MachNpts.Set( 1 );                    // note: this is NOT an input
 
         //Case Setup
+        bool experimentalFlagOrig    = VSPAEROMgr.m_ExperimentalInputFormatFlag.Get();
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
         bool fixedWakeFlagOrig       = VSPAEROMgr.m_FixedWakeFlag.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
@@ -1541,6 +1543,11 @@ string VSPAEROSinglePointAnalysis::Execute()
         double rhoOrig               = VSPAEROMgr.m_Rho.Get();
         double reCrefOrig            = VSPAEROMgr.m_ReCref.Get();
 
+        nvd = m_Inputs.FindPtr( "ExperimentalInputFormatFlag" );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "NCPU", 0 );
         if ( nvd )
         {
@@ -1779,6 +1786,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_MachNpts.Set(machNptsOrig);        // note this is NOT an input
 
         //    Case Setup
+        VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( experimentalFlagOrig );
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
@@ -1850,6 +1858,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "Vinf",               VSPAEROMgr.m_Vinf.Get()               ) );
         m_Inputs.Add( NameValData( "Rho",                VSPAEROMgr.m_Rho.Get()                ) );
         m_Inputs.Add( NameValData( "ReCref",             VSPAEROMgr.m_ReCref.Get()             ) );
+        m_Inputs.Add( NameValData( "ExperimentalInputFormatFlag",   VSPAEROMgr.m_ExperimentalInputFormatFlag.Get()    ) );
 
         m_Inputs.Add( NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          ) );
         m_Inputs.Add( NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                ) );
@@ -2084,6 +2093,7 @@ string VSPAEROSweepAnalysis::Execute()
         //Case Setup
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
         bool fixedWakeFlagOrig       = VSPAEROMgr.m_FixedWakeFlag.Get();
+        bool experimentalFlagOrig    = VSPAEROMgr.m_ExperimentalInputFormatFlag.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
         int numWakeNodesOrig         = VSPAEROMgr.m_NumWakeNodes.Get();
         int stabilityTypeOrig        = VSPAEROMgr.m_StabilityType.Get();
@@ -2108,6 +2118,11 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_FixedWakeFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ExperimentalInputFormatFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NCPU.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
         if ( nvd )
@@ -2342,6 +2357,7 @@ string VSPAEROSweepAnalysis::Execute()
         //    Case Setup
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
+        VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( experimentalFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
         VSPAEROMgr.m_StabilityType.Set( stabilityTypeOrig );
         VSPAEROMgr.m_Precondition.Set( preconditionOrig );
