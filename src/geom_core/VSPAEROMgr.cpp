@@ -189,6 +189,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
     m_Write2DFEMFlag.SetDescript( "Toggle File Write for 2D FEM" );
+    m_ExperimentalInputFormatFlag.Init( "ExperimentalInputFormatFlag", groupname, this, false, false, true );
+    m_ExperimentalInputFormatFlag.SetDescript( "Flag to Use Experimental VSPGeom Input File Format" );
     m_ClMax.Init( "Clmax", groupname, this, -1, -1, 1e3 );
     m_ClMax.SetDescript( "Cl Max of Aircraft" );
     m_ClMaxToggle.Init( "ClmaxToggle", groupname, this, false, false, true );
@@ -557,6 +559,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     m_ModelNameBase     = string();
     m_DegenFileFull     = string();
     m_CompGeomFileFull  = string();     // TODO this is set from the get export name
+    m_VSPGeomFileFull   = string();
     m_SetupFile         = string();
     m_AdbFile           = string();
     m_HistoryFile       = string();
@@ -580,18 +583,39 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     {
         // Generate the base name based on the vsp3filename without the extension
         int pos = -1;
-        switch ( m_AnalysisMethod.Get() )
-        {
-        case vsp::VORTEX_LATTICE:
-            // The base_name is dependent on the DegenFileName
-            // TODO extra "_DegenGeom" is added to the m_ModelBase
-            m_DegenFileFull = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
 
-            m_ModelNameBase = m_DegenFileFull;
-            pos = m_ModelNameBase.find( ".csv" );
+        if ( m_ExperimentalInputFormatFlag() )
+        {
+            m_VSPGeomFileFull = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
+            m_CompGeomFileFull = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
+
+            m_ModelNameBase = m_VSPGeomFileFull;
+            pos = m_ModelNameBase.find( ".vspgeom" );
             if ( pos >= 0 )
             {
                 m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
+            }
+        }
+
+        switch ( m_AnalysisMethod.Get() )
+        {
+        case vsp::VORTEX_LATTICE:
+            if ( m_ExperimentalInputFormatFlag() )
+            {
+                m_DegenFileFull = m_ModelNameBase + string( "_DegenGeom.csv" );
+            }
+            else
+            {
+                // The base_name is dependent on the DegenFileName
+                // TODO extra "_DegenGeom" is added to the m_ModelBase
+                m_DegenFileFull = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
+
+                m_ModelNameBase = m_DegenFileFull;
+                pos = m_ModelNameBase.find( ".csv" );
+                if ( pos >= 0 )
+                {
+                    m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
+                }
             }
 
             m_CompGeomFileFull  = string(); //This file is not used for vortex lattice analysis
@@ -634,13 +658,20 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             break;
 
         case vsp::PANEL:
-            m_CompGeomFileFull = veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE );
-
-            m_ModelNameBase = m_CompGeomFileFull;
-            pos = m_ModelNameBase.find( ".tri" );
-            if ( pos >= 0 )
+            if ( m_ExperimentalInputFormatFlag() )
             {
-                m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
+                m_CompGeomFileFull = m_ModelNameBase + string( ".tri" );
+            }
+            else
+            {
+                m_CompGeomFileFull = veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE );
+
+                m_ModelNameBase = m_CompGeomFileFull;
+                pos = m_ModelNameBase.find( ".tri" );
+                if ( pos >= 0 )
+                {
+                    m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
+                }
             }
 
             m_DegenFileFull     = m_ModelNameBase + string( "_DegenGeom.csv" );
@@ -1069,7 +1100,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     // Cleanup previously created meshGeom IDs created from VSPAEROMgr
     Geom* last_mesh = veh->FindGeom( m_LastPanelMeshGeomId );
     vector < string > geom_vec = veh->GetGeomSet( m_GeomSet() );
-    if ( last_mesh && m_AnalysisMethod() == vsp::VORTEX_LATTICE )
+    if ( last_mesh && m_AnalysisMethod() == vsp::VORTEX_LATTICE && !m_ExperimentalInputFormatFlag() )
     {
         veh->ShowOnlySet( m_GeomSet() );
     }
@@ -1078,11 +1109,20 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     {
         // Support mesh generated outside of VSPAERO if it is the only Geom in the set
         Geom* geom = veh->FindGeom( geom_vec[0] );
-        if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
+        // Can't generate VLM VSPGeom file from existing MeshGeom (i.e. imported *.tri file)
+        if ( geom->GetType().m_Type == MESH_GEOM_TYPE && !( m_ExperimentalInputFormatFlag() && m_AnalysisMethod() == vsp::VORTEX_LATTICE ) )
         {
             last_mesh = geom;
             m_LastPanelMeshGeomId = geom_vec[0];
         }
+    }
+    
+    if ( ( last_mesh && ( geom_vec.size() != 1 && last_mesh->GetID() != geom_vec[0] ) ) &&
+        ( m_AnalysisMethod() == vsp::PANEL || m_ExperimentalInputFormatFlag() ) )
+    {
+        // Remove the previous mesh, which has been updated
+        veh->DeleteGeomVec( vector< string >{ m_LastPanelMeshGeomId } );
+        last_mesh = NULL;
     }
 
     m_DegenGeomVec.clear();
@@ -1101,10 +1141,29 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     UpdateFilenames();
 
+    int halfFlag = 0;
+
+    if ( m_Symmetry() )
+    {
+        halfFlag = 1;
+    }
+
     // Note: while in panel mode the degen file required by vspaero is
     // dependent on the tri filename and not necessarily what the current
     // setting is for the vsp::DEGEN_GEOM_CSV_TYPE
     string degenGeomFile_orig = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
+
+    if ( m_ExperimentalInputFormatFlag() && m_AnalysisMethod() == vsp::VORTEX_LATTICE )
+    {
+        m_LastPanelMeshGeomId = veh->WriteVSPGeomFile( m_VSPGeomFileFull, -1, m_GeomSet(), halfFlag );
+
+        WaitForFile( m_VSPGeomFileFull );
+        if ( !FileExist( m_VSPGeomFileFull ) )
+        {
+            fprintf( stderr, "WARNING: VSPGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_VSPGeomFileFull.c_str(), __FILE__, __LINE__ );
+        }
+    }
+
     veh->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, m_DegenFileFull );
 
     veh->WriteDegenGeomFile();
@@ -1120,37 +1179,38 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         fprintf( stderr, "WARNING: DegenGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_DegenFileFull.c_str(), __FILE__, __LINE__ );
     }
 
+    int mesh_set = m_GeomSet();
+
     // Generate *.tri geometry file for Panel method
     if ( m_AnalysisMethod.Get() == vsp::PANEL )
     {
-        // Compute intersected and trimmed geometry
-        int halfFlag = 0;
-
-        if ( m_Symmetry() )
+        if ( !last_mesh )
         {
-            halfFlag = 1;
-        }
-
-        if ( !last_mesh || !( geom_vec.size() == 1 && last_mesh->GetID() == geom_vec[0] ) )
-        {
-            if ( last_mesh )
-            {
-                // Remove the previous mesh, which has been updated
-                veh->DeleteGeomVec( vector< string >{ m_LastPanelMeshGeomId } );
-            }
-
-            // No previous mesh available, or new mesh is required
+            // Compute intersected and trimmed geometry
             m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag );
+            mesh_set = vsp::SET_SHOWN; // Only MeshGeom is shown after geometry is computed
         }
 
-        // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
-        veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_SHOWN );
-        WaitForFile( m_CompGeomFileFull );
-        if ( !FileExist( m_CompGeomFileFull ) )
+        if ( m_ExperimentalInputFormatFlag() )
         {
-            fprintf( stderr, "WARNING: CompGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_CompGeomFileFull.c_str(), __FILE__, __LINE__ );
+            // Write out mesh to *.vspgeom file. Only the MeshGeom is shown
+            veh->WriteVSPGeomFile( m_VSPGeomFileFull, mesh_set, -1 );
+            WaitForFile( m_VSPGeomFileFull );
+            if ( !FileExist( m_VSPGeomFileFull ) )
+            {
+                fprintf( stderr, "WARNING: VSPGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_VSPGeomFileFull.c_str(), __FILE__, __LINE__ );
+            }
         }
-
+        else
+        {
+            // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
+            veh->WriteTRIFile( m_CompGeomFileFull, mesh_set );
+            WaitForFile( m_CompGeomFileFull );
+            if ( !FileExist( m_CompGeomFileFull ) )
+            {
+                fprintf( stderr, "WARNING: CompGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_CompGeomFileFull.c_str(), __FILE__, __LINE__ );
+            }
+        }
     }
 
     // Clear previous results
