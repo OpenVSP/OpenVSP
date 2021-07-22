@@ -621,7 +621,7 @@ int MeshGeom::ReadTriFile( const char * file_name )
 }
 
 //==== Build Indexed Mesh ====//
-void MeshGeom::BuildIndexedMesh( int partOffset )
+void MeshGeom::BuildIndexedMesh( int partOffset, bool half_flag )
 {
     int m, s, t;
 
@@ -750,6 +750,12 @@ void MeshGeom::BuildIndexedMesh( int partOffset )
                     ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
                     ttri->m_N1->m_ID != ttri->m_N2->m_ID )
             {
+                if ( half_flag && ( ( ( ttri->m_N0->GetXYZPnt() + ttri->m_N1->GetXYZPnt() + ttri->m_N2->GetXYZPnt() ) / 3. ).y() < 0 ) )
+                {
+                    // Don't keep tris with enter with -Y component
+                    continue;
+                }
+
                 goodTriVec.push_back( ttri );
             }
         }

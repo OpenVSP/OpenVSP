@@ -210,7 +210,7 @@ public:
     string WriteFacetFile( const string & file_name, int write_set );
     string WriteTRIFile( const string & file_name, int write_set );
     string WriteOBJFile( const string & file_name, int write_set );
-    string WriteVSPGeomFile( const string & file_name, int write_set, int degen_set );
+    string WriteVSPGeomFile( const string & file_name, int write_set, int degen_set, bool half_flag = false );
     string WriteNascartFiles( const string & file_name, int write_set );
     string WriteGmshFile( const string & file_name, int write_set );
     void WriteX3DFile( const string & file_name, int write_set );

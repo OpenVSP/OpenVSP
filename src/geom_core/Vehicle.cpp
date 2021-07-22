@@ -2550,7 +2550,7 @@ nnwake in1 in2 in3 in4...inn // Last wake line
 */
 
 //==== Write VSPGeom File ====//
-string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int degen_set )
+string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int degen_set, bool half_flag )
 {
     string mesh_id = string();
 
@@ -2606,7 +2606,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            mg->BuildIndexedMesh( num_parts );
+            mg->BuildIndexedMesh( num_parts, half_flag );
             num_parts += mg->GetNumIndexedParts();
             num_pnts += mg->GetNumIndexedPnts();
             num_tris += mg->GetNumIndexedTris();
