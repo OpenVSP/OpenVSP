@@ -2555,7 +2555,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     string mesh_id = string();
 
     vector< Geom * > geom_vec = FindGeomVec( GetGeomVec( false ) );
-    if ( !geom_vec[0] )
+    if ( geom_vec.size() == 0 || !geom_vec[0] )
     {
         return mesh_id;
     }
