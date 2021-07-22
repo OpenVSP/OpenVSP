@@ -2560,8 +2560,9 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         return mesh_id;
     }
 
-    // Add a new mesh if one does not exist
-    if ( !ExistMesh( write_set ) )
+    // Add a new mesh if one does not exist in either set
+    if ( ( write_set >= 0 && !ExistMesh( write_set ) ) ||
+         ( degen_set >= 0 && !ExistMesh( degen_set ) ) )
     {
         mesh_id = AddMeshGeom( write_set, degen_set );
         if ( mesh_id.compare( "NONE" ) != 0 )
@@ -2603,7 +2604,8 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
     for ( i = 0; i < ( int ) geom_vec.size(); i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) )
+            && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
             mg->BuildIndexedMesh( num_parts, half_flag );
@@ -2618,7 +2620,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     //==== Dump Points ====//
     for ( i = 0; i < ( int ) geom_vec.size(); i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
              geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
@@ -2634,7 +2636,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     //==== Dump Tris ====//
     for ( i = 0; i < ( int ) geom_vec.size(); i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
              geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
@@ -2644,7 +2646,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
     for ( i = 0; i < ( int ) geom_vec.size(); i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
              geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
@@ -2656,7 +2658,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     // Wake line data.
     for ( i = 0; i < ( int ) geom_vec.size(); i++ )
     {
-        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
              geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
