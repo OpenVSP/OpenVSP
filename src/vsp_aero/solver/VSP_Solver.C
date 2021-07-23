@@ -17401,7 +17401,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
  
                 OverLap = calculate_box_overlap(VSPGeom().BBoxForComponent(ComponentID), VSPGeom().BBoxForComponent(VSPGeom().Grid(Level).LoopList(Loop).ComponentID()));
 
-                if ( OverLap > Tolerance ) {
+                if ( OverLap > 0. ) {
 
                    if ( ABS(NormalDistance) <= Tolerance ) AddEdges = 0;
                    
