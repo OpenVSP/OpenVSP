@@ -60,7 +60,7 @@ int cppexecv( const string &cmd, const vector< string > &options )
 
     argv[0] = cmd.c_str();
 
-    for ( int i = 0;  i < narg + 1;  i++ )
+    for ( int i = 0;  i < narg;  i++ )
     {
         argv[i+1] = options[i].c_str();
     }
