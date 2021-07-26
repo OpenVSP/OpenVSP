@@ -60,29 +60,29 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     
     StartAveragingTime_ = 0.;
 
-    Cxo_[0] = Cxo_[1] = Cxo_[2] = 0.;
-    Cyo_[0] = Cyo_[1] = Cyo_[2] = 0.;
-    Czo_[0] = Czo_[1] = Czo_[2] = 0.;
+    Cxo_[0] = Cxo_[1] = 0.;
+    Cyo_[0] = Cyo_[1] = 0.;
+    Czo_[0] = Czo_[1] = 0.;
     
-    Cx_[0] = Cx_[1] = Cx_[2] = 0.;
-    Cy_[0] = Cy_[1] = Cy_[2] = 0.;
-    Cz_[0] = Cz_[1] = Cz_[2] = 0.;
+    Cx_[0] = Cx_[1] = 0.;
+    Cy_[0] = Cy_[1] = 0.;
+    Cz_[0] = Cz_[1] = 0.;
 
-    Cmxo_[0] = Cmxo_[1] = Cmxo_[2] = 0.;
-    Cmyo_[0] = Cmyo_[1] = Cmyo_[2] = 0.;
-    Cmzo_[0] = Cmzo_[1] = Cmzo_[2] = 0.;
+    Cmxo_[0] = Cmxo_[1] = 0.;
+    Cmyo_[0] = Cmyo_[1] = 0.;
+    Cmzo_[0] = Cmzo_[1] = 0.;
 
-    Cmx_[0] = Cmx_[1] = Cmx_[2] = 0.;
-    Cmy_[0] = Cmy_[1] = Cmy_[2] = 0.;
-    Cmz_[0] = Cmz_[1] = Cmz_[2] = 0.;
+    Cmx_[0] = Cmx_[1] = 0.;
+    Cmy_[0] = Cmy_[1] = 0.;
+    Cmz_[0] = Cmz_[1] = 0.;
 
-    CL_[0] = CL_[1] = CL_[2] = 0.;
-    CD_[0] = CD_[1] = CD_[2] = 0.;
-    CS_[0] = CS_[1] = CS_[2] = 0.;
+    CL_[0] = CL_[1] = 0.;
+    CD_[0] = CD_[1] = 0.;
+    CS_[0] = CS_[1] = 0.;
 
-    CLo_[0] = CLo_[1] = CLo_[2] = 0.;
-    CDo_[0] = CDo_[1] = CDo_[2] = 0.;
-    CSo_[0] = CSo_[1] = CSo_[2] = 0.;
+    CLo_[0] = CLo_[1] = 0.;
+    CDo_[0] = CDo_[1] = 0.;
+    CSo_[0] = CSo_[1] = 0.;
     
     // Free stream conditions
     
