@@ -384,6 +384,7 @@ public:
     Parm m_AlphaStart, m_AlphaEnd; IntParm m_AlphaNpts;
     Parm m_BetaStart, m_BetaEnd; IntParm m_BetaNpts;
     Parm m_MachStart, m_MachEnd; IntParm m_MachNpts;
+    Parm m_ReCrefStart, m_ReCrefEnd; IntParm m_ReCrefNpts;
 
     // Solver settings
     IntParm m_NCPU;
@@ -394,7 +395,6 @@ public:
     // Other Setup Parameters
     Parm m_Vinf;
     Parm m_Rho;
-    Parm m_ReCref;
     Parm m_Machref;
     Parm m_Vref;
     BoolParm m_ManualVrefFlag;
@@ -508,7 +508,7 @@ protected:
     string m_LastPanelMeshGeomId;
 
     static int WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
-    void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec );
+    void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec );
 
     void MonitorSolver( FILE * logFile );
     bool m_SolverProcessKill;
