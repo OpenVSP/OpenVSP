@@ -1290,7 +1290,7 @@ void VSPAEROPlotScreen::UpdateConvergenceFlowConditionBrowser()
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res, false );
+            ConstructFlowConditionString( strbuf, res, false, true );
             m_ConvergenceFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
@@ -1334,7 +1334,7 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res, false );
+            ConstructFlowConditionString( strbuf, res, false, false );
             m_LoadDistFlowConditionBrowser->add( strbuf );
             if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.LOAD_SELECT_TYPE )
             {
@@ -1455,7 +1455,7 @@ void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res, false );
+            ConstructFlowConditionString( strbuf, res, false, true );
             m_SweepFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
@@ -1561,7 +1561,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
         if ( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res, false );
+            ConstructFlowConditionString( strbuf, res, false, true );
             m_UnsteadyFlowConditionBrowser->add( strbuf );
             if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgr.HISTORY_SELECT_TYPE )
             {
@@ -1667,7 +1667,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
     m_UnsteadySelectBrowser->position( scrollPos );
 }
 
-void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId )
+void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId, bool include_recref )
 {
     if( strbuf && res )
     {
@@ -1677,6 +1677,7 @@ void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * r
         double alpha = 0;
         double beta = 0;
         double mach = 0;
+        double recref = 0;
 
         nvd = res->FindPtr( "FC_AoA_" );
         if( nvd )
@@ -1699,15 +1700,32 @@ void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * r
             mach = dataVector[dataVector.size() - 1];
         }
 
-        if( includeResultId )
+        nvd = res->FindPtr( "FC_ReCref_" );
+        if ( nvd )
         {
-            sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g, resID=%s", alpha, beta, mach, res->GetID().c_str() );
+            dataVector = nvd->GetDoubleData();
+            recref = dataVector[dataVector.size() - 1];
+
+            if ( includeResultId )
+            {
+                sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g, Re=%.2g, resID=%s", alpha, beta, mach, recref, res->GetID().c_str() );
+            }
+            else
+            {
+                sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g, Re=%.2g", alpha, beta, mach, recref );
+            }
         }
         else
         {
-            sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g", alpha, beta, mach );
+            if ( includeResultId )
+            {
+                sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g, resID=%s", alpha, beta, mach, res->GetID().c_str() );
+            }
+            else
+            {
+                sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g", alpha, beta, mach );
+            }
         }
-
     }
 }
 
@@ -2680,7 +2698,7 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                         AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
 
                         char strbuf[100];
-                        ConstructFlowConditionString( strbuf, res, false );
+                        ConstructFlowConditionString( strbuf, res, false, true );
                         string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
                         m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
                         m_ConvergenceiPlot++;
@@ -2846,7 +2864,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
                     }
 
                     char strbuf[100];
-                    ConstructFlowConditionString( strbuf, res, false );
+                    ConstructFlowConditionString( strbuf, res, false, false );
                     legendstr = strbuf;
                 }
                 else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
@@ -2989,7 +3007,7 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
                         }
                         else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
                         {
-                            ConstructFlowConditionString( strbuf, res, false );
+                            ConstructFlowConditionString( strbuf, res, false, true );
                             legendstr = strbuf;
                         }
 
