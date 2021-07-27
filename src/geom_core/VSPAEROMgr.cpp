@@ -1683,6 +1683,8 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
 
 void VSPAEROMgrSingleton::ClearAllPreviousResults()
 {
+    ClearCpSliceResults();
+
     while ( ResultsMgr.GetNumResults( "VSPAERO_History" ) > 0 )
     {
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_History",  0 ) );
@@ -1805,10 +1807,6 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         MessageMgr::getInstance().SendAll( errMsgData );
     }
 
-    if ( m_CpSliceFlag() )
-    {
-        ClearCpSliceResults();
-    }
     if ( m_BatchModeFlag.Get() )
     {
         return ComputeSolverBatch( logFile );
@@ -3987,9 +3985,9 @@ void VSPAEROMgrSingleton::ClearCpSliceResults()
     {
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "CpSlicer_Case", 0 ) );
     }
-    while ( ResultsMgr.GetNumResults( "CpSlicer_Wrapper" ) > 0 )
+    while ( ResultsMgr.GetNumResults( "CpSlice_Wrapper" ) > 0 )
     {
-        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "CpSlicer_Wrapper", 0 ) );
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "CpSlice_Wrapper", 0 ) );
     }
 }
 
