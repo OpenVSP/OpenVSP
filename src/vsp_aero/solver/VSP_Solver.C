@@ -3625,12 +3625,14 @@ void VSP_SOLVER::Solve(int Case)
     InitializeFreeStream();
     
     // Recalculate interaction lists if Mach crossed over Mach = 1
-    
-    if ( LastMach_ < 0. || Mach_ >= 1. && LastMach_ <  1. || Mach_ <  1. && LastMach_ >= 1 ) {
-       
-       PRINTF("Updating interaction lists due to subsonic / supersonic Mach change \n");
-       
-       if ( !DumpGeom_ ) CreateSurfaceVorticesInteractionList(0);
+
+    if ( ( LastMach_ < 0.                 ) ||
+         ( Mach_ >= 1. && LastMach_ <  1. ) ||
+         ( Mach_ <  1. && LastMach_ >= 1. ) ) {
+
+        if ( LastMach_ > 0. ) PRINTF("Updating interaction lists due to subsonic / supersonic Mach change \n");
+
+        if ( !DumpGeom_ ) CreateSurfaceVorticesInteractionList(0);
 
     }
   
