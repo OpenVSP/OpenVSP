@@ -2524,8 +2524,8 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
         bool unsteady_prop = false;
         bool unsteady_pqr = false;
-        int num_unsteady_prop_col = 27; // TODO: Why is unsteady angle not included in unsteady analysis???
-        int num_unsteady_pqr_col = 28;
+        int num_unsteady_prop_col = 19;
+        int num_unsteady_pqr_col = 20;
 
         if ( data_string_array.size() == num_unsteady_prop_col )
         {
@@ -2560,17 +2560,9 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
             std::vector<double> CMx;
             std::vector<double> CMy;
             std::vector<double> CMz;
+            std::vector<double> CDtrefftz;
             std::vector<double> ToQS;
             std::vector<double> UnstdAng;
-            std::vector<double> CL_Un;
-            std::vector<double> CDi_Un;
-            std::vector<double> CS_Un;
-            std::vector<double> CFx_Un;
-            std::vector<double> CFy_Un;
-            std::vector<double> CFz_Un;
-            std::vector<double> CMx_Un;
-            std::vector<double> CMy_Un;
-            std::vector<double> CMz_Un;
 
             while ( data_string_array.size() >= wake_iter_table_columns )
             {
@@ -2608,23 +2600,12 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
                 if ( unsteady_prop || unsteady_pqr ) // Additional columns for unsteady analysis
                 {
-                    int data_index = 18;
+                    CDtrefftz.push_back( std::stod( data_string_array[18] ) );
 
                     if ( unsteady_pqr )
                     {
-                        UnstdAng.push_back( std::stod( data_string_array[data_index] ) );
-                        data_index += 1;
+                        UnstdAng.push_back( std::stod( data_string_array[19] ) );
                     }
-
-                    CL_Un.push_back( std::stod( data_string_array[data_index] ) );
-                    CDi_Un.push_back( std::stod( data_string_array[data_index + 1] ) );
-                    CS_Un.push_back( std::stod( data_string_array[data_index + 2] ) );
-                    CFx_Un.push_back( std::stod( data_string_array[data_index + 3] ) );
-                    CFy_Un.push_back( std::stod( data_string_array[data_index + 4] ) );
-                    CFz_Un.push_back( std::stod( data_string_array[data_index + 5] ) );
-                    CMx_Un.push_back( std::stod( data_string_array[data_index + 6] ) );
-                    CMy_Un.push_back( std::stod( data_string_array[data_index + 7] ) );
-                    CMz_Un.push_back( std::stod( data_string_array[data_index + 8] ) );
                 }
 
                 data_string_array = ReadDelimLine( fp, seps );
@@ -2661,19 +2642,12 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
                 if ( unsteady_prop || unsteady_pqr )
                 {
+                    res->Add( NameValData( "CDtrefftz", CDtrefftz ) );
+
                     if ( unsteady_pqr )
                     {
                         res->Add( NameValData( "UnstdyAng", UnstdAng ) );
                     }
-                    res->Add( NameValData( "CL_Un", CL_Un ) );
-                    res->Add( NameValData( "CDi_Un", CDi_Un ) );
-                    res->Add( NameValData( "CS_Un", CS_Un ) );
-                    res->Add( NameValData( "CFx_Un", CFx_Un ) );
-                    res->Add( NameValData( "CFy_Un", CFy_Un ) );
-                    res->Add( NameValData( "CFz_Un", CFz_Un ) );
-                    res->Add( NameValData( "CMx_Un", CMx_Un ) );
-                    res->Add( NameValData( "CMy_Un", CMy_Un ) );
-                    res->Add( NameValData( "CMz_Un", CMz_Un ) );
                 }
             }
 
@@ -4969,9 +4943,9 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
     size_t last_index = filename.find_last_not_of( "0123456789" );
     int group_num = stoi( filename.substr( last_index + 1 ) );
 
-    //"   Time        Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD        CLo        CDo        CLi        CDi"
+    // Time        Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD         CS        CLo        CDo        CSo        CLi        CDi        CSi
     std::vector<string> data_string_array;
-    int num_data_col = 25;
+    int num_data_col = 28;
 
     // Read in all of the data into the results manager
     char seps[] = " :,\t\n";
@@ -5001,7 +4975,7 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
             // Raw data vectors
             std::vector < double > Time, Cx, Cy, Cz, Cxo, Cyo, Czo, Cxi, Cyi, Czi;
             std::vector < double > Cmx, Cmy, Cmz, Cmxo, Cmyo, Cmzo, Cmxi, Cmyi, Cmzi;
-            std::vector < double > CL, CD, CLo, CDo, CLi, CDi;
+            std::vector < double > CL, CD, CLo, CDo, CLi, CDi, CS, CSo, CSi;
 
             // read the data rows
             while ( data_string_array.size() == num_data_col ) //&& data_string_array[0].find( "Comp" ) == std::string::npos
@@ -5028,10 +5002,13 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
                 Cmzi.push_back( std::stod( data_string_array[18] ) );
                 CL.push_back( std::stod( data_string_array[19] ) );
                 CD.push_back( std::stod( data_string_array[20] ) );
-                CLo.push_back( std::stod( data_string_array[21] ) );
-                CDo.push_back( std::stod( data_string_array[22] ) );
-                CLi.push_back( std::stod( data_string_array[23] ) );
-                CDi.push_back( std::stod( data_string_array[24] ) );
+                CS.push_back( std::stod( data_string_array[21] ) );
+                CLo.push_back( std::stod( data_string_array[22] ) );
+                CDo.push_back( std::stod( data_string_array[23] ) );
+                CSo.push_back( std::stod( data_string_array[24] ) );
+                CLi.push_back( std::stod( data_string_array[25] ) );
+                CDi.push_back( std::stod( data_string_array[26] ) );
+                CSi.push_back( std::stod( data_string_array[27] ) );
 
                 // Read the next line and loop
                 data_string_array = ReadDelimLine( fp, seps );
@@ -5059,10 +5036,13 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
             res->Add( NameValData( "Cmzi", Cmzi ) );
             res->Add( NameValData( "CL", CL ) );
             res->Add( NameValData( "CD", CD ) );
+            res->Add( NameValData( "CS", CS ) );
             res->Add( NameValData( "CLo", CLo ) );
             res->Add( NameValData( "CDo", CDo ) );
+            res->Add( NameValData( "CSo", CSo ) );
             res->Add( NameValData( "CLi", CLi ) );
             res->Add( NameValData( "CDi", CDi ) );
+            res->Add( NameValData( "CDi", CSi ) );
 
         } //end for while !feof(fp)
     }
@@ -5094,8 +5074,8 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
     size_t last_index = filename.find_last_not_of( "0123456789" );
     int rotor_num = stoi( filename.substr( last_index + 1 ) );
 
-    // Time       Diameter     RPM       Thrust    Thrusto    Thrusti     Moment     Momento    Momenti      J          CT         CQ         CP        EtaP       CT_H       CQ_H       CP_H       FOM        Angle
-    int num_tot_history_data_col = 19;
+    // Time       Diameter     RPM       Thrust    Thrusto    Thrusti     Power      Powero     Poweri     Moment     Momento    Momenti      J          CT         CQ         CP        EtaP       CT_H       CQ_H       CP_H       FOM        Angle
+    int num_tot_history_data_col = 22;
 
     // Station     S       Chord     Area      V/Vref   Diameter    RPM      TipVel       CNo_H         CSo_H         CTo_H         CQo_H         CPo_H         CN_H          CS_H          CT_H          CQ_H          CP_H
     int num_load_avg_data_col = 18;
@@ -5164,7 +5144,7 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
             if ( data_string_array.size() == num_tot_history_data_col )
             {
                 // Raw data vectors
-                std::vector < double > Time, Diameter, RPM, Thrust, Thrusto, Thrusti, Moment, Momento, Momenti;
+                std::vector < double > Time, Diameter, RPM, Thrust, Thrusto, Thrusti, Moment, Momento, Momenti, Power, Powero, Poweri;
                 std::vector < double > J, CT, CQ, CP, EtaP; // Prop coefficients
                 std::vector < double > CT_H, CQ_H, CP_H, FOM, Angle; // Rotor coefficients
 
@@ -5178,19 +5158,22 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
                     Thrust.push_back( std::stod( data_string_array[3] ) );
                     Thrusto.push_back( std::stod( data_string_array[4] ) );
                     Thrusti.push_back( std::stod( data_string_array[5] ) );
-                    Moment.push_back( std::stod( data_string_array[6] ) );
-                    Momento.push_back( std::stod( data_string_array[7] ) );
-                    Momenti.push_back( std::stod( data_string_array[8] ) );
-                    J.push_back( std::stod( data_string_array[9] ) );
-                    CT.push_back( std::stod( data_string_array[10] ) );
-                    CQ.push_back( std::stod( data_string_array[11] ) );
-                    CP.push_back( std::stod( data_string_array[12] ) );
-                    EtaP.push_back( std::stod( data_string_array[13] ) );
-                    CT_H.push_back( std::stod( data_string_array[14] ) );
-                    CQ_H.push_back( std::stod( data_string_array[15] ) );
-                    CP_H.push_back( std::stod( data_string_array[16] ) );
-                    FOM.push_back( std::stod( data_string_array[17] ) );
-                    Angle.push_back( std::stod( data_string_array[18] ) );
+                    Power.push_back( std::stod( data_string_array[6] ) );
+                    Powero.push_back( std::stod( data_string_array[7] ) );
+                    Poweri.push_back( std::stod( data_string_array[8] ) );
+                    Moment.push_back( std::stod( data_string_array[9] ) );
+                    Momento.push_back( std::stod( data_string_array[10] ) );
+                    Momenti.push_back( std::stod( data_string_array[11] ) );
+                    J.push_back( std::stod( data_string_array[12] ) );
+                    CT.push_back( std::stod( data_string_array[13] ) );
+                    CQ.push_back( std::stod( data_string_array[14] ) );
+                    CP.push_back( std::stod( data_string_array[15] ) );
+                    EtaP.push_back( std::stod( data_string_array[16] ) );
+                    CT_H.push_back( std::stod( data_string_array[17] ) );
+                    CQ_H.push_back( std::stod( data_string_array[18] ) );
+                    CP_H.push_back( std::stod( data_string_array[19] ) );
+                    FOM.push_back( std::stod( data_string_array[20] ) );
+                    Angle.push_back( std::stod( data_string_array[21] ) );
 
                     // Read the next line and loop
                     data_string_array = ReadDelimLine( fp, seps );
@@ -5203,6 +5186,9 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
                 res->Add( NameValData( "Thrust", Thrust ) );
                 res->Add( NameValData( "Thrusto", Thrusto ) );
                 res->Add( NameValData( "Thrusti", Thrusti ) );
+                res->Add( NameValData( "Power", Power ) );
+                res->Add( NameValData( "Powero", Powero ) );
+                res->Add( NameValData( "Poweri", Poweri ) );
                 res->Add( NameValData( "Moment", Moment ) );
                 res->Add( NameValData( "Momento", Momento ) );
                 res->Add( NameValData( "Momenti", Momenti ) );
