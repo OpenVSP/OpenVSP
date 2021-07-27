@@ -195,16 +195,19 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Flow Condition
     m_RightColumnLayout.AddSubGroupLayout( m_FlowCondLayout,
         m_RightColumnLayout.GetW(),
-        4 * m_RightColumnLayout.GetStdHeight() );
+        5 * m_RightColumnLayout.GetStdHeight() );
     m_RightColumnLayout.AddY( m_FlowCondLayout.GetH() );
 
     m_FlowCondLayout.AddDividerBox( "Flow Condition" );
     m_FlowCondLayout.SetSameLineFlag( false );
     m_FlowCondLayout.SetFitWidthFlag( true );
 
+    m_FlowCondLayout.SetButtonWidth( m_FlowCondLayout.GetButtonWidth() + 10 );
+
     m_FlowCondLayout.AddInputEvenSpacedVector( m_AlphaStartInput, m_AlphaEndInput, m_AlphaNptsInput, "Alpha", "%7.3f" );
     m_FlowCondLayout.AddInputEvenSpacedVector( m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput, "Beta", "%7.3f" );
     m_FlowCondLayout.AddInputEvenSpacedVector( m_MachStartInput, m_MachEndInput, m_MachNptsInput, "Mach", "%7.3f" );
+    m_FlowCondLayout.AddInputEvenSpacedVector( m_ReCrefStartInput, m_ReCrefEndInput, m_ReCrefNptsInput, "ReCref", "%g" );
 
     m_RightColumnLayout.AddYGap();
 
@@ -395,7 +398,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Advanced Flow
     m_AdvancedRightLayout.AddSubGroupLayout( m_FlowCondLayout,
                                              m_AdvancedRightLayout.GetW(),
-                                             6 * m_AdvancedRightLayout.GetStdHeight() + 5 );
+                                             5 * m_AdvancedRightLayout.GetStdHeight() + 5 );
     m_AdvancedRightLayout.AddY( m_FlowCondLayout.GetH() );
 
     m_FlowCondLayout.AddDividerBox( "Advanced Flow Conditions" );
@@ -419,7 +422,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_FlowCondLayout.AddYGap();
 
     m_FlowCondLayout.AddSlider( m_RhoSlider, "Rho", 1, "%2.5g" );
-    m_FlowCondLayout.AddSlider( m_ReCrefSlider, "ReCref", 1e6, "%7.3g" );
 
     m_AdvancedRightLayout.AddSubGroupLayout( m_CpSlicerLayout,
                                              m_AdvancedRightLayout.GetW(),
@@ -444,7 +446,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Last column width must be 0
     static int cp_col_widths[] = { ( m_CpSlicerLayout.GetW() / 3 ) + 10, m_CpSlicerLayout.GetW() / 3, ( m_CpSlicerLayout.GetW() / 3 ) + 10, 0 }; // widths for each column
 
-    int CpBrowserHeight = 55;
+    int CpBrowserHeight = 75;
     m_CpSliceBrowser = m_CpSlicerLayout.AddColResizeBrowser( cp_col_widths, 3, CpBrowserHeight );
     m_CpSliceBrowser->callback( staticScreenCB, this );
 
@@ -1525,6 +1527,18 @@ void VSPAEROScreen::UpdateFlowConditionDevices()
     {
         m_MachEndInput.Activate();
     }
+    // ReCref
+    m_ReCrefStartInput.Update( VSPAEROMgr.m_ReCrefStart.GetID() );
+    m_ReCrefEndInput.Update( VSPAEROMgr.m_ReCrefEnd.GetID() );
+    m_ReCrefNptsInput.Update( VSPAEROMgr.m_ReCrefNpts.GetID() );
+    if ( VSPAEROMgr.m_ReCrefNpts.Get() == 1 )
+    {
+        m_ReCrefEndInput.Deactivate();
+    }
+    else if ( VSPAEROMgr.m_ReCrefNpts.Get() > 1 )
+    {
+        m_ReCrefEndInput.Activate();
+    }
 }
 
 void VSPAEROScreen::UpdateVSPAEROButtons()
@@ -1695,7 +1709,6 @@ void VSPAEROScreen::UpdateOtherSetupParms()
 {
     m_VinfSlider.Update( VSPAEROMgr.m_Vinf.GetID() );
     m_RhoSlider.Update( VSPAEROMgr.m_Rho.GetID() );
-    m_ReCrefSlider.Update( VSPAEROMgr.m_ReCref.GetID() );
     m_ActivateVRefToggle.Update( VSPAEROMgr.m_ManualVrefFlag.GetID() );
     m_VRefSlider.Update( VSPAEROMgr.m_Vref.GetID() );
     m_MachRefSlider.Update( VSPAEROMgr.m_Machref.GetID() );
@@ -1724,6 +1737,15 @@ void VSPAEROScreen::UpdateOtherSetupParms()
         m_BetaNptsInput.Activate();
         m_MachNptsInput.Activate();
         m_StabilityTypeChoice.Activate();
+    }
+
+    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType.Get() >= vsp::STABILITY_P_ANALYSIS )
+    {
+        m_ReCrefNptsInput.Deactivate();
+    }
+    else
+    {
+        m_ReCrefNptsInput.Activate();
     }
 
     if ( VSPAEROMgr.m_RotateBladesFlag.Get() || VSPAEROMgr.m_ActuatorDiskFlag.Get() || VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_OFF )
