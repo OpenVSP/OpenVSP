@@ -831,6 +831,39 @@ void Results::WriteBEMFile( const string & file_name )
     }
 }
 
+// Copy a NameValData pointer to this Result
+void Results::Copy( NameValData* nvd )
+{
+    switch ( nvd->GetType() )
+    {
+        case ( vsp::DOUBLE_DATA ):
+        {
+            Add( ( NameValData( nvd->GetName(), nvd->GetDoubleData() ) ) );
+            break;
+        }
+        case ( vsp::INT_DATA ):
+        {
+            Add( ( NameValData( nvd->GetName(), nvd->GetIntData() ) ) );
+            break;
+        }
+        case ( vsp::STRING_DATA ):
+        {
+            Add( ( NameValData( nvd->GetName(), nvd->GetStringData() ) ) );
+            break;
+        }
+        case ( vsp::DOUBLE_MATRIX_DATA ):
+        {
+            Add( ( NameValData( nvd->GetName(), nvd->GetDoubleMatData() ) ) );
+            break;
+        }
+        case ( vsp::VEC3D_DATA ):
+        {
+            Add( ( NameValData( nvd->GetName(), nvd->GetVec3dData() ) ) );
+            break;
+        }
+    }
+}
+
 //======================================================================================//
 //======================================================================================//
 //======================================================================================//

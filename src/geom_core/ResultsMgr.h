@@ -169,6 +169,8 @@ public:
     void WriteWaveDragFile( const string & file_name );
     void WriteBEMFile( const string & file_name );
 
+    void Copy( NameValData* nvd );
+
     time_t GetTimestamp()
     {
         return m_Timestamp;
