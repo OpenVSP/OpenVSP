@@ -18363,7 +18363,7 @@ void VSP_SOLVER::OutputStatusFile(int Case)
           
           if ( Case == 0 ) {
           
-             FPRINTF(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+             FPRINTF(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
                      Time,
                      Mach_,
                      FLOAT(AngleOfAttack_/TORAD),
