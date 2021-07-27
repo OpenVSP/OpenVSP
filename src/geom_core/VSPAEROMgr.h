@@ -353,6 +353,7 @@ public:
     string m_SetupFile;
     string m_AdbFile;
     string m_HistoryFile;
+    string m_PolarFile;
     string m_LoadFile;
     string m_StabFile;
     string m_CutsFile;
@@ -514,7 +515,8 @@ protected:
     bool m_SolverProcessKill;
 
     // helper functions for VSPAERO files
-    void ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    void ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref );
+    void ReadPolarFile( string filename, vector <string> &res_id_vector, double recref );
     void ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType );
     static vector <string> ReadDelimLine( FILE * fp, char * delimeters );

@@ -567,6 +567,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     m_SetupFile         = string();
     m_AdbFile           = string();
     m_HistoryFile       = string();
+    m_PolarFile         = string();
     m_LoadFile          = string();
     m_StabFile          = string();
     m_CutsFile          = string();
@@ -626,6 +627,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
             m_AdbFile           = m_ModelNameBase + string( ".adb" );
             m_HistoryFile       = m_ModelNameBase + string( ".history" );
+            m_PolarFile         = m_ModelNameBase + string( ".polar" );
             m_LoadFile          = m_ModelNameBase + string( ".lod" );
 
             if ( m_StabilityType() == vsp::STABILITY_P_ANALYSIS )
@@ -682,6 +684,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
             m_AdbFile           = m_ModelNameBase + string( ".adb" );
             m_HistoryFile       = m_ModelNameBase + string( ".history" );
+            m_PolarFile         = m_ModelNameBase + string( ".polar" );
             m_LoadFile          = m_ModelNameBase + string( ".lod" );
 
             if ( m_StabilityType() == vsp::STABILITY_P_ANALYSIS )
@@ -1560,13 +1563,27 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
 
     if ( FileExist( m_HistoryFile ) )
     {
-        ReadHistoryFile( m_HistoryFile, res_id_vec, ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod() );
+        ReadHistoryFile( m_HistoryFile, res_id_vec, ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod(), m_ReCrefStart() );
     }
     else
     {
         data.m_StringVec = vector < string >{ "Error: VSPAERO History file " + m_HistoryFile + " not found \n" };
         MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
         no_errors = false;
+    }
+
+    if ( m_PreviousStabilityType == vsp::STABILITY_OFF )
+    {
+        if ( FileExist( m_PolarFile ) )
+        {
+            ReadPolarFile( m_HistoryFile, res_id_vec, m_ReCrefStart() );
+        }
+        else
+        {
+            data.m_StringVec = vector < string >{ "Error: VSPAERO Polar file " + m_PolarFile + " not found \n" };
+            MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+            no_errors = false;
+        }
     }
 
     if ( FileExist( m_LoadFile ) )
@@ -1669,6 +1686,10 @@ void VSPAEROMgrSingleton::ClearAllPreviousResults()
     while ( ResultsMgr.GetNumResults( "VSPAERO_History" ) > 0 )
     {
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_History",  0 ) );
+    }
+    while ( ResultsMgr.GetNumResults( "VSPAERO_Polar" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Polar", 0 ) );
     }
     while ( ResultsMgr.GetNumResults( "VSPAERO_Load" ) > 0 )
     {
@@ -1813,6 +1834,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
         string adbFileName = m_AdbFile;
         string historyFileName = m_HistoryFile;
+        string polarFileName = m_PolarFile;
         string loadFileName = m_LoadFile;
         string stabFileName = m_StabFile;
         string modelNameBase = m_ModelNameBase;
@@ -1826,6 +1848,8 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
         bool noise_flag = m_NoiseCalcFlag.Get();
         int noise_type = m_NoiseCalcType.Get();
         int noise_unit = m_NoiseUnits.Get();
+        
+        double recref = m_ReCrefStart.Get();
 
         // Save analysis type for Cp Slicer
         m_CpSliceAnalysisType = analysisMethod;
@@ -2011,7 +2035,12 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
                         //====== Read in all of the results ======//
                         // read the files if there is new data that has not successfully been read in yet
-                        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
+                        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod, recref );
+
+                        if ( stabilityType == vsp::STABILITY_OFF )
+                        {
+                            ReadPolarFile( polarFileName, res_id_vector, recref ); // Must be after *.history file is read to generate results for multiple ReCref values
+                        }
 
                         ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
 
@@ -2089,6 +2118,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         string adbFileName = m_AdbFile;
         string historyFileName = m_HistoryFile;
+        string polarFileName = m_PolarFile;
         string loadFileName = m_LoadFile;
         string stabFileName = m_StabFile;
         string modelNameBase = m_ModelNameBase;
@@ -2103,6 +2133,8 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         bool noise_flag = m_NoiseCalcFlag.Get();
         int noise_type = m_NoiseCalcType.Get();
         int noise_unit = m_NoiseUnits.Get();
+
+        double recref = m_ReCrefStart.Get();
 
         // Save analysis type for Cp Slicer
         m_CpSliceAnalysisType = analysisMethod;
@@ -2131,6 +2163,10 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         if ( FileExist( historyFileName ) )
         {
             remove( historyFileName.c_str() );
+        }
+        if ( FileExist( polarFileName ) )
+        {
+            remove( polarFileName.c_str() );
         }
         if ( FileExist( loadFileName ) )
         {
@@ -2274,7 +2310,12 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         }
 
         //====== Read in all of the results ======//
-        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
+        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod, recref );
+
+        if ( stabilityType == vsp::STABILITY_OFF )
+        {
+            ReadPolarFile( polarFileName, res_id_vector, recref ); // Must be after *.history file is read to generate results for multiple ReCref values
+        }
 
         ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
 
@@ -2435,7 +2476,7 @@ line 4407 - void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, double recref )
 {
     //TODO return success or failure
     FILE *fp = NULL;
@@ -2471,6 +2512,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 return;
             }
 
+            res->Add( NameValData( "FC_ReCref_", recref ) );
         }
 
         //READ wake iteration table
@@ -2642,6 +2684,237 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
     } //end feof loop to read entire history file
 
     fclose ( fp );
+
+    return;
+}
+
+/*******************************************************
+Read .polar file output from VSPAERO
+See: VSP_Solver.C in vspaero project
+*******************************************************/
+void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_id_vector, double recref )
+{
+    FILE *fp = NULL;
+    bool read_success = false;
+    WaitForFile( filename );
+    fp = fopen( filename.c_str(), "r" );
+    if ( fp == NULL )
+    {
+        fprintf( stderr, "ERROR %d: Could not open Polar file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_PolarFile.c_str(), __FILE__, __LINE__ );
+        return;
+    }
+
+    Results* res = NULL;
+
+    std::vector<string> table_column_names;
+    std::vector<string> data_string_array;
+
+    int num_polar_col = 21; // number of columns in the file
+
+    double tol = 1e-8; // tolerance for comparing values to account for machine precision errors
+    int num_history_res = ResultsMgr.GetNumResults( "VSPAERO_History" );
+
+    // Read in all of the data into the results manager
+    char seps[] = " :,\t\n";
+    while ( !feof( fp ) )
+    {
+        data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
+
+        if ( num_polar_col == data_string_array.size() )
+        {
+            if ( data_string_array[0].find( "Beta" ) != std::string::npos )
+            {
+                res = ResultsMgr.CreateResults( "VSPAERO_Polar" );
+
+                if ( res )
+                {
+                    data_string_array = ReadDelimLine( fp, seps );
+
+                    std::vector<double> Beta;
+                    std::vector<double> Mach;
+                    std::vector<double> Alpha;
+                    std::vector<double> Re_1e6;
+                    std::vector<double> CL;
+                    std::vector<double> CDo;
+                    std::vector<double> CDi;
+                    std::vector<double> CDtot;
+                    std::vector<double> CS;
+                    std::vector<double> L_D;
+                    std::vector<double> E;
+                    std::vector<double> CFx;
+                    std::vector<double> CFy;
+                    std::vector<double> CFz;
+                    std::vector<double> CMx;
+                    std::vector<double> CMy;
+                    std::vector<double> CMz;
+                    std::vector<double> CMl;
+                    std::vector<double> CMm;
+                    std::vector<double> CMn;
+                    std::vector<double> Fopt;
+
+                    while ( num_polar_col == data_string_array.size() )
+                    {
+                        Beta.push_back( std::stod( data_string_array[0] ) );
+                        Mach.push_back( std::stod( data_string_array[1] ) );
+                        Alpha.push_back( std::stod( data_string_array[2] ) );
+                        Re_1e6.push_back( std::stod( data_string_array[3] ) );
+                        CL.push_back( std::stod( data_string_array[4] ) );
+                        CDo.push_back( std::stod( data_string_array[5] ) );
+                        CDi.push_back( std::stod( data_string_array[6] ) );
+                        CDtot.push_back( std::stod( data_string_array[7] ) );
+                        CS.push_back( std::stod( data_string_array[8] ) );
+                        L_D.push_back( std::stod( data_string_array[9] ) );
+                        E.push_back( std::stod( data_string_array[10] ) );
+                        CFx.push_back( std::stod( data_string_array[11] ) );
+                        CFy.push_back( std::stod( data_string_array[12] ) );
+                        CFz.push_back( std::stod( data_string_array[13] ) );
+                        CMx.push_back( std::stod( data_string_array[14] ) );
+                        CMy.push_back( std::stod( data_string_array[15] ) );
+                        CMz.push_back( std::stod( data_string_array[16] ) );
+                        CMl.push_back( std::stod( data_string_array[17] ) );
+                        CMm.push_back( std::stod( data_string_array[18] ) );
+                        CMn.push_back( std::stod( data_string_array[19] ) );
+                        Fopt.push_back( std::stod( data_string_array[20] ) );
+
+                        if ( ( abs( ( 1e6 * Re_1e6.back() ) - recref ) > tol ) && num_history_res > 0 )
+                        {
+                            // Find histroy result with matching mach, beta, and alpha
+                            for ( size_t i = 0; i < num_history_res; i++ )
+                            {
+                                Results* history_res = ResultsMgr.FindResults( "VSPAERO_History", i );
+
+                                if ( !history_res )
+                                {
+                                    continue;
+                                }
+
+                                NameValData* mach_ptr = history_res->FindPtr( "FC_Mach_" );
+                                NameValData* alpha_ptr = history_res->FindPtr( "Alpha" );
+                                NameValData* beta_ptr = history_res->FindPtr( "FC_Beta_" );
+
+                                if ( !mach_ptr || !alpha_ptr || !beta_ptr )
+                                {
+                                    continue;
+                                }
+
+                                double mach = mach_ptr->GetDouble( 0 );
+                                double alpha = alpha_ptr->GetDouble( 0 );
+                                double beta = beta_ptr->GetDouble( 0 );
+
+                                if ( mach <= ( 0.001 + tol ) )
+                                {
+                                    // Mach is reported as 0 in the polar but 0.001 in the history file
+                                    mach = 0;
+                                }
+
+                                if ( ( abs( mach - Mach.back() ) < tol ) && ( abs( alpha - Alpha.back() ) < tol ) && ( abs( beta - Beta.back() ) < tol ) )
+                                {
+                                    // Generate new *.history results for mulitple ReCref inputs since VSPAERO only outputs a result for the first ReCref
+                                    Results* new_history_res = ResultsMgr.CreateResults( "VSPAERO_History" );
+                                    res_id_vector.push_back( new_history_res->GetID() );
+
+                                    new_history_res->Add( NameValData( "FC_ReCref_", ( 1e6 * Re_1e6.back() ) ) );
+
+                                    int num_wake = (int)alpha_ptr->GetDoubleData().size();
+
+                                    NameValData* cdo_ptr = history_res->FindPtr( "CDo" );
+                                    NameValData* cdtot_ptr = history_res->FindPtr( "CDtot" );
+                                    NameValData* l_d_ptr = history_res->FindPtr( "L/D" );
+
+                                    vector < string > data_names = history_res->GetAllDataNames();
+
+                                    // Copy ReCref dependent results from polar to history file. Copy non-dependent results from 
+                                    // history case that matches alpha, beta, and mach
+                                    for ( size_t j = 0; j < data_names.size(); j++ )
+                                    {
+                                        // Calculate wake iteration convergence differences - ReCref scales CDo, CDtot, and L_D
+                                        if ( cdo_ptr && strcmp( data_names[j].c_str(), "CDo" ) == 0 )
+                                        {
+                                            vector < double > history_cdo_vec = cdo_ptr->GetDoubleData();
+                                            vector < double > cdo_vec( num_wake, CDo.back() );
+
+                                            for ( size_t k = 0; k < history_cdo_vec.size() - 1; k++ )
+                                            {
+                                                cdo_vec[k] = cdo_vec[k] - ( history_cdo_vec.back() - history_cdo_vec[k] );
+                                            }
+
+                                            new_history_res->Add( ( NameValData( data_names[j].c_str(), cdo_vec ) ) );
+                                        }
+                                        else if ( cdtot_ptr && strcmp( data_names[j].c_str(), "CDtot" ) == 0 )
+                                        {
+                                            vector < double > history_ctot_vec = cdtot_ptr->GetDoubleData();
+                                            vector < double > ctot_vec( num_wake, CDtot.back() );
+
+                                            for ( size_t k = 0; k < history_ctot_vec.size() - 1; k++ )
+                                            {
+                                                ctot_vec[k] = ctot_vec[k] - ( history_ctot_vec.back() - history_ctot_vec[k] );
+                                            }
+
+                                            new_history_res->Add( ( NameValData( data_names[j].c_str(), ctot_vec ) ) );
+                                        }
+                                        else if ( l_d_ptr && strcmp( data_names[j].c_str(), "L/D" ) == 0 )
+                                        {
+                                            vector < double > history_l_d_vec = l_d_ptr->GetDoubleData();
+                                            vector < double > ld_vec( num_wake, L_D.back() );
+
+                                            for ( size_t k = 0; k < history_l_d_vec.size() - 1; k++ )
+                                            {
+                                                ld_vec[k] = ld_vec[k] - ( history_l_d_vec.back() - history_l_d_vec[k] );
+                                            }
+
+                                            new_history_res->Add( ( NameValData( data_names[j].c_str(), ld_vec ) ) );
+                                        }
+                                        else if ( strcmp( data_names[j].c_str(), "FC_ReCref_" ) != 0 )
+                                        {
+                                            NameValData* nvd = history_res->FindPtr( data_names[j] );
+                                            if ( !nvd )
+                                            {
+                                                continue;
+                                            }
+
+                                            new_history_res->Copy( nvd );
+                                        }
+                                    }
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        data_string_array = ReadDelimLine( fp, seps );
+                    }
+
+                    res->Add( NameValData( "Beta", Beta ) );
+                    res->Add( NameValData( "Mach", Mach ) );
+                    res->Add( NameValData( "Alpha", Alpha ) );
+                    res->Add( NameValData( "Re_1e6", Re_1e6 ) );
+                    res->Add( NameValData( "CL", CL ) );
+                    res->Add( NameValData( "CDo", CDo ) );
+                    res->Add( NameValData( "CDi", CDi ) );
+                    res->Add( NameValData( "CDtot", CDtot ) );
+                    res->Add( NameValData( "CS", CS ) );
+                    res->Add( NameValData( "L_D", L_D ) );
+                    res->Add( NameValData( "E", E ) );
+                    res->Add( NameValData( "CFx", CFx ) );
+                    res->Add( NameValData( "CFy", CFy ) );
+                    res->Add( NameValData( "CFz", CFz ) );
+                    res->Add( NameValData( "CMx", CMx ) );
+                    res->Add( NameValData( "CMy", CMy ) );
+                    res->Add( NameValData( "CMz", CMz ) );
+                    res->Add( NameValData( "CMl", CMl ) );
+                    res->Add( NameValData( "CMm", CMm ) );
+                    res->Add( NameValData( "CMn", CMn ) );
+                    res->Add( NameValData( "Fopt", Fopt ) );
+
+                    // Add results at the end to keep new VSPAERO_HIstory results together in the CSV export
+                    res_id_vector.push_back( res->GetID() );
+                }
+            }
+        }
+
+    } //end for while !feof(fp)
+
+    std::fclose( fp );
 
     return;
 }
