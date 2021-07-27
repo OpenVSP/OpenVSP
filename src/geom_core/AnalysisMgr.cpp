@@ -1328,7 +1328,9 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "GroundEffect",                  VSPAEROMgr.m_GroundEffect.Get()                 ) );
         m_Inputs.Add( NameValData( "Vinf",                          VSPAEROMgr.m_Vinf.Get()                         ) );
         m_Inputs.Add( NameValData( "Rho",                           VSPAEROMgr.m_Rho.Get()                          ) );
-        m_Inputs.Add( NameValData( "ReCref",                        VSPAEROMgr.m_ReCref.Get()                       ) );
+        m_Inputs.Add( NameValData( "ReCref",                        VSPAEROMgr.m_ReCrefStart.Get()                  ) );
+        m_Inputs.Add( NameValData( "ReCrefEnd",                     VSPAEROMgr.m_ReCrefEnd.Get()                    ) );
+        m_Inputs.Add( NameValData( "ReCrefNpts",                    VSPAEROMgr.m_ReCrefNpts.Get()                   ) );
 
         m_Inputs.Add( NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          ) );
         m_Inputs.Add( NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                ) );
@@ -1541,7 +1543,9 @@ string VSPAEROSinglePointAnalysis::Execute()
         double groundEffectOrig      = VSPAEROMgr.m_GroundEffect.Get();
         double vingOrig              = VSPAEROMgr.m_Vinf.Get();
         double rhoOrig               = VSPAEROMgr.m_Rho.Get();
-        double reCrefOrig            = VSPAEROMgr.m_ReCref.Get();
+        double reCrefStartOrig       = VSPAEROMgr.m_ReCrefStart.Get();
+        double reCrefEndOrig         = VSPAEROMgr.m_ReCrefEnd.Get();
+        int reCrefNptsOrig           = VSPAEROMgr.m_ReCrefNpts.Get();
 
         nvd = m_Inputs.FindPtr( "ExperimentalInputFormatFlag" );
         if ( nvd )
@@ -1626,7 +1630,17 @@ string VSPAEROSinglePointAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "ReCref", 0 );
         if ( nvd )
         {
-            VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
+            VSPAEROMgr.m_ReCrefStart.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ReCrefEnd", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ReCrefEnd.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ReCrefNpts", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ReCrefNpts.Set( nvd->GetInt( 0 ) );
         }
 
         int clMaxToggleOrig     = VSPAEROMgr.m_ClMaxToggle.Get();
@@ -1802,7 +1816,9 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_GroundEffect.Set( groundEffectOrig );
         VSPAEROMgr.m_Vinf.Set( vingOrig );
         VSPAEROMgr.m_Rho.Set( rhoOrig );
-        VSPAEROMgr.m_ReCref.Set( reCrefOrig );
+        VSPAEROMgr.m_ReCrefStart.Set( reCrefStartOrig );
+        VSPAEROMgr.m_ReCrefEnd.Set( reCrefEndOrig );
+        VSPAEROMgr.m_ReCrefNpts.Set( reCrefNptsOrig );
 
         VSPAEROMgr.m_ClMaxToggle.Set( clMaxToggleOrig );
         VSPAEROMgr.m_ClMax.Set( clMaxOrig );
@@ -1858,7 +1874,9 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "GroundEffect",                  VSPAEROMgr.m_GroundEffect.Get()                   ) );
         m_Inputs.Add( NameValData( "Vinf",                          VSPAEROMgr.m_Vinf.Get()                           ) );
         m_Inputs.Add( NameValData( "Rho",                           VSPAEROMgr.m_Rho.Get()                            ) );
-        m_Inputs.Add( NameValData( "ReCref",                        VSPAEROMgr.m_ReCref.Get()                         ) );
+        m_Inputs.Add( NameValData( "ReCref",                        VSPAEROMgr.m_ReCrefStart.Get()                  ) );
+        m_Inputs.Add( NameValData( "ReCrefEnd",                     VSPAEROMgr.m_ReCrefEnd.Get()                    ) );
+        m_Inputs.Add( NameValData( "ReCrefNpts",                    VSPAEROMgr.m_ReCrefNpts.Get()                   ) );
 
         m_Inputs.Add( NameValData( "ClmaxToggle",       VSPAEROMgr.m_ClMaxToggle.Get()          ) );
         m_Inputs.Add( NameValData( "Clmax",             VSPAEROMgr.m_ClMax.Get()                ) );
@@ -2107,7 +2125,9 @@ string VSPAEROSweepAnalysis::Execute()
         double groundEffectOrig      = VSPAEROMgr.m_GroundEffect.Get();
         double vingOrig              = VSPAEROMgr.m_Vinf.Get();
         double rhoOrig               = VSPAEROMgr.m_Rho.Get();
-        double reCrefOrig            = VSPAEROMgr.m_ReCref.Get();
+        double reCrefStartOrig       = VSPAEROMgr.m_ReCrefStart.Get();
+        double reCrefEndOrig         = VSPAEROMgr.m_ReCrefEnd.Get();
+        int reCrefNptsOrig           = VSPAEROMgr.m_ReCrefNpts.Get();
 
         nvd = m_Inputs.FindPtr( "NCPU", 0 );
         if ( nvd )
@@ -2192,7 +2212,17 @@ string VSPAEROSweepAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "ReCref", 0 );
         if ( nvd )
         {
-            VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
+            VSPAEROMgr.m_ReCrefStart.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ReCrefEnd", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ReCrefEnd.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ReCrefNpts", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ReCrefNpts.Set( nvd->GetInt( 0 ) );
         }
 
         int clMaxToggleOrig     = VSPAEROMgr.m_ClMaxToggle.Get();
@@ -2370,7 +2400,9 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_GroundEffect.Set( groundEffectOrig );
         VSPAEROMgr.m_Vinf.Set( vingOrig );
         VSPAEROMgr.m_Rho.Set( rhoOrig );
-        VSPAEROMgr.m_ReCref.Set( reCrefOrig );
+        VSPAEROMgr.m_ReCrefStart.Set( reCrefStartOrig );
+        VSPAEROMgr.m_ReCrefEnd.Set( reCrefEndOrig );
+        VSPAEROMgr.m_ReCrefNpts.Set( reCrefNptsOrig );
 
         VSPAEROMgr.m_ClMaxToggle.Set( clMaxToggleOrig );
         VSPAEROMgr.m_ClMax.Set( clMaxOrig );
