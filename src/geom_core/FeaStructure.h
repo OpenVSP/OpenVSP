@@ -209,7 +209,7 @@ public:
 
     VspSurf* GetMainSurf();
 
-    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     IntParm m_MainSurfIndx;
     IntParm m_IncludedElements;
@@ -361,7 +361,7 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     Parm m_PosU;
     Parm m_PosW;
@@ -392,7 +392,7 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight )    {}; // Do nothing for skins
 
-    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     BoolParm m_RemoveSkinFlag;
 
@@ -414,7 +414,7 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     Parm m_Aradius;
     Parm m_Bradius;
@@ -452,7 +452,7 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     int GetNumRibs()
     {
@@ -505,7 +505,7 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     int GetNumSlices()
     {

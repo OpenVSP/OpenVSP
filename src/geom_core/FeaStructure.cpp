@@ -829,13 +829,14 @@ void FeaStructure::BuildSuppressList()
 
 bool FeaStructure::PtsOnAnyPlanarPart( const vector < vec3d > &pnts )
 {
+    double minlen = m_FeaGridDensity.m_MinLen();
     // Loop over all parts.
     for ( int i  = 0; i < m_FeaPartVec.size(); i++ )
     {
         FeaPart* p = m_FeaPartVec[i];
         if ( p )
         {
-            if ( p->PtsOnPlanarPart( pnts ) )
+            if ( p->PtsOnPlanarPart( pnts, minlen ) )
             {
                 return true;
             }
@@ -1178,9 +1179,9 @@ VspSurf* FeaPart::GetMainSurf()
     return retsurf;
 }
 
-bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
+bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
 {
-    double tol = 1.0e-6;
+    double tol = minlen / 10.0;
 
     VspSurf surf = m_FeaPartSurfVec[surf_ind];
 
@@ -3403,7 +3404,7 @@ void FeaFixPoint::UpdateDrawObjs( int id, bool highlight )
     }
 }
 
-bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
+bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
 {
     return false;
 }
@@ -3452,7 +3453,7 @@ void FeaSkin::BuildSkinSurf()
     }
 }
 
-bool FeaSkin::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
+bool FeaSkin::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
 {
     return false;
 }
@@ -3723,7 +3724,7 @@ void FeaDome::UpdateDrawObjs( int id, bool highlight )
     }
 }
 
-bool FeaDome::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
+bool FeaDome::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
 {
     return false;
 }
@@ -4061,11 +4062,11 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
     return fearib;
 }
 
-bool FeaRibArray::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
+bool FeaRibArray::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
 {
     for ( size_t i = 0; i < m_NumRibs; i++ )
     {
-        if ( FeaPart::PtsOnPlanarPart( pnts, i * m_SymmIndexVec.size() ) )
+        if ( FeaPart::PtsOnPlanarPart( pnts, minlen, i * m_SymmIndexVec.size() ) )
         {
             return true;
         }
@@ -4450,11 +4451,11 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
     return slice;
 }
 
-bool FeaSliceArray::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
+bool FeaSliceArray::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
 {
     for ( size_t i = 0; i < m_NumSlices; i++ )
     {
-        if ( FeaPart::PtsOnPlanarPart( pnts, i * m_SymmIndexVec.size() ) )
+        if ( FeaPart::PtsOnPlanarPart( pnts, minlen, i * m_SymmIndexVec.size() ) )
         {
             return true;
         }
