@@ -619,7 +619,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Initial column widths
     static int prop_col_widths[] = { 73, 122, 73, 73, 73, 73, 73, 73, 0 };
 
-    m_PropElemBrowser = m_PropElemLayout.AddColResizeBrowser( prop_col_widths, 7, prop_elem_browser_h );
+    m_PropElemBrowser = m_PropElemLayout.AddColResizeBrowser( prop_col_widths, 8, prop_elem_browser_h );
     m_PropElemBrowser->callback( staticScreenCB, this );
 
     input_width = 60;
