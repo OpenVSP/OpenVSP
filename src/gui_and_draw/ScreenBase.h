@@ -113,6 +113,7 @@ public:
     virtual ~BasicScreen();
 
     virtual void SetTitle( const string& title );
+    string GetTitle();
 
     virtual bool Update()
     {
