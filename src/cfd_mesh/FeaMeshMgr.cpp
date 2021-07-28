@@ -2468,7 +2468,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         rewind( temp );
 
         // Allocate memory to contain the whole file:
-        char * buffer = (char*)malloc( sizeof( char )*lSize );
+        char * buffer = (char*)malloc( sizeof( char )*lSize + 1 );
         if ( buffer == NULL )
         {
             addOutputText( "WriteNASTRAN memory error\n" );
@@ -2476,6 +2476,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
         // Copy the file into the buffer:
         size_t result = fread( buffer, 1, lSize, temp );
+        buffer[ result ] = '\0';
         if ( result != lSize )
         {
             addOutputText( "WriteNASTRAN reading error\n" );
