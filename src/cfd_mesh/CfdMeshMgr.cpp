@@ -901,7 +901,7 @@ void CfdMeshMgrSingleton::ExportFiles()
 
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME ) )
     {
-        SubSurfaceMgr.WriteKeyFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TKEY_FILE_NAME ) );
+        SubSurfaceMgr.WriteTKeyFile(GetCfdSettingsPtr()->GetExportFileName(vsp::CFD_TKEY_FILE_NAME));
     }
 
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME ) )

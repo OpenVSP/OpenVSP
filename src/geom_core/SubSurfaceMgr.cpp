@@ -274,7 +274,7 @@ void SubSurfaceMgrSingleton::BuildSingleTagMap()
 }
 
 //==== Write Key File ====//
-void SubSurfaceMgrSingleton::WriteKeyFile( const string & file_name )
+void SubSurfaceMgrSingleton::WriteTKeyFile(const string & file_name )
 {
     // figure out basename
     string base_name = file_name;

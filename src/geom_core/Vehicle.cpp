@@ -2433,7 +2433,7 @@ string Vehicle::WriteTRIFile( const string & file_name, int write_set )
 
     //==== Write Out tag key file ====//
 
-    SubSurfaceMgr.WriteKeyFile( file_name );
+    SubSurfaceMgr.WriteTKeyFile(file_name);
 
     return mesh_id;
 }
@@ -2670,7 +2670,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
     //==== Write Out tag key file ====//
 
-    SubSurfaceMgr.WriteKeyFile( file_name );
+    SubSurfaceMgr.WriteTKeyFile(file_name);
 
     return mesh_id;
 
@@ -2769,7 +2769,7 @@ string Vehicle::WriteNascartFiles( const string & file_name, int write_set )
 
     SubSurfaceMgr.WriteNascartKeyFile( key_name );
 
-    SubSurfaceMgr.WriteKeyFile( file_name );
+    SubSurfaceMgr.WriteTKeyFile(file_name);
 
     return mesh_id;
 
