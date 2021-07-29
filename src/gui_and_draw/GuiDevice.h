@@ -1140,7 +1140,8 @@ public:
     Fl_Button* maxButtonR,
     Fl_Input* inputL,
     Fl_Input* inputR,
-    VspButton* parm_button,
+    VspButton* parm_button_L,
+    VspButton* parm_button_R,
     double range, const char* format);
 
     virtual void Update( const string& parmL_id, const string& setL_id, const string& eq_id, const string& setR_id, const string& parmR_id );
@@ -1166,7 +1167,8 @@ protected:
     Input  m_InputL;
     Input  m_InputR;
 
-    ParmButton m_ParmButton;
+    ParmButton m_ParmButtonL;
+    ParmButton m_ParmButtonR;
 };
 
 class SkinHeader : public GuiDevice

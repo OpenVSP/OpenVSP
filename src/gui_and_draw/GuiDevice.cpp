@@ -3049,7 +3049,8 @@ void SkinControl::Init( VspScreen* screen,
         Fl_Button* maxButtonR,
         Fl_Input* inputL,
         Fl_Input* inputR,
-        VspButton* parm_button,
+        VspButton* parm_button_L,
+        VspButton* parm_button_R,
         double range, const char* format)
 {
     GuiDevice::Init( screen );
@@ -3064,7 +3065,8 @@ void SkinControl::Init( VspScreen* screen,
     m_InputL.Init( screen, inputL, format );
     m_InputR.Init( screen, inputR, format );
 
-    m_ParmButton.Init( screen, parm_button );
+    m_ParmButtonL.Init( screen, parm_button_L );
+    m_ParmButtonR.Init( screen, parm_button_R );
 }
 
 
@@ -3081,7 +3083,8 @@ void SkinControl::Update( const string& parmL_id, const string& setL_id, const s
     m_SliderR.Update( parmR_id );
     m_InputR.Update( parmR_id );
 
-    m_ParmButton.Update( parmL_id );
+    m_ParmButtonL.Update( parmL_id );
+    m_ParmButtonR.Update( parmR_id );
 
     Parm* setL = ParmMgr.FindParm( setL_id );
     Parm* eq = ParmMgr.FindParm( eq_id );
@@ -3114,7 +3117,8 @@ void SkinControl::Activate()
     m_SliderR.Activate();
     m_InputR.Activate();
 
-    m_ParmButton.Activate();
+    m_ParmButtonL.Activate();
+    m_ParmButtonR.Activate();
 }
 
 void SkinControl::Deactivate()
@@ -3128,7 +3132,8 @@ void SkinControl::Deactivate()
     m_SliderR.Deactivate();
     m_InputR.Deactivate();
 
-    m_ParmButton.Deactivate();
+    m_ParmButtonL.Deactivate();
+    m_ParmButtonR.Deactivate();
 }
 
 void SkinControl::DeactivateLeft()
