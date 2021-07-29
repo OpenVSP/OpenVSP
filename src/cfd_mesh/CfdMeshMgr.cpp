@@ -1606,6 +1606,8 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
             fclose( fp );
         }
+
+        SubSurfaceMgr.WriteVSPGEOMKeyFile( vspgeom_fn );
     }
 }
 
@@ -3727,6 +3729,7 @@ void CfdMeshMgrSingleton::SubTagTris()
         string geom_id = surf->GetGeomID();
         string id = geom_id + to_string( (long long) surf->GetUnmergedCompID() );
         string name;
+        string exportid;
 
         geom_comp_map[geom_id].insert( surf->GetUnmergedCompID() );
 
@@ -3764,13 +3767,15 @@ void CfdMeshMgrSingleton::SubTagTris()
             }
             else if ( geom_ptr )
             {
-                name = geom_ptr->GetName() + to_string( (long long)geom_comp_map[geom_id].size() );
+                name = geom_ptr->GetName() + "_Surf" + to_string( (long long)geom_comp_map[geom_id].size() - 1 );
+                exportid = geom_id + "_Surf" + to_string( (long long)geom_comp_map[geom_id].size() - 1 );
                 if ( surf->GetWakeFlag() ) name = geom_ptr->GetName()
                                                  + to_string( (long long)comp_num_map[ surf->GetUnmergedCompID() ] )
                                                  + "_Wake";
             }
 
             SubSurfaceMgr.m_CompNames.push_back(name);
+            SubSurfaceMgr.m_CompIDs.push_back(exportid);
         }
 
         surf->SetBaseTag( tag_map[id] );
@@ -3779,6 +3784,7 @@ void CfdMeshMgrSingleton::SubTagTris()
 
     SetSimpSubSurfTags( tag_number );
     SubSurfaceMgr.BuildCompNameMap();
+    SubSurfaceMgr.BuildCompIDMap();
 }
 
 void CfdMeshMgrSingleton::SetSimpSubSurfTags( int tag_offset )
@@ -3790,6 +3796,7 @@ void CfdMeshMgrSingleton::SetSimpSubSurfTags( int tag_offset )
         m_SimpleSubSurfaceVec[i].m_Tag = tag_offset + i + 1;
         // map tag number to surface name
         SubSurfaceMgr.m_TagNames[m_SimpleSubSurfaceVec[i].m_Tag] = m_SimpleSubSurfaceVec[i].GetName();
+        SubSurfaceMgr.m_TagIDs[m_SimpleSubSurfaceVec[i].m_Tag] = m_SimpleSubSurfaceVec[i].GetSSID();
     }
 }
 

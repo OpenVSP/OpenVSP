@@ -53,6 +53,10 @@ public:
     {
         return m_CompID;
     }
+    string GetSSID()
+    {
+        return m_SSID;
+    }
 
     int m_Tag;
     int m_TestType;
