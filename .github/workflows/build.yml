@@ -63,7 +63,7 @@ jobs:
     - name:  Install Windows
       if: runner.os == 'Windows'
       shell: cmd
-      run:   choco install -y swig --version 4.0.1
+      run:   choco install -y swig
 
     - name:  Install MacOS
       if: runner.os == 'macos'
