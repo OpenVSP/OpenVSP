@@ -74,6 +74,7 @@ public:
     std::map< std::vector<int>, int > GetSingleTagMap() { return m_SingleTagMap; }
 
     // Write Tag Key File
+    void WriteVSPGEOMKeyFile(const string & file_name );
     void WriteTKeyFile(const string & file_name );
 
     // Write Nascart Key File

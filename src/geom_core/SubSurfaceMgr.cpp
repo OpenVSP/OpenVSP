@@ -274,6 +274,98 @@ void SubSurfaceMgrSingleton::BuildSingleTagMap()
 }
 
 //==== Write Key File ====//
+void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
+{
+    // figure out basename
+    string base_name = file_name;
+    std::string::size_type loc = base_name.find_last_of( "." );
+    if ( loc != base_name.npos )
+    {
+        base_name = base_name.substr( 0, loc );
+    }
+    string key_name = base_name + ".vkey";
+
+    FILE* fid = fopen( key_name.c_str(), "w" );
+    if ( !fid )
+    {
+        return;
+    }
+
+    // Write Out Header Information
+    fprintf( fid, "# VSPGEOM Tag Key File\n" );
+    fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
+    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
+    fprintf( fid, "\n" );
+    fprintf( fid, "# tag#,geom#,surf#,gname,gid,ssname1,ssname2,...,ssid1,ssid2,...\n" );
+
+    // Build GeomID set to have unique integer index instead of GeomID.
+    std::set< string, greater< string > > gids;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        string id_list = GetTagIDs( m_TagKeys[i] );
+        int pos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, pos );
+        gids.insert( gid );
+    }
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        int tag = GetTag( m_TagKeys[i] );
+
+        string comp_list = GetTagNames( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        int spos = comp_list.find( "_Surf" );
+
+        string gname = comp_list.substr( 0, spos );
+
+        string snum, ssnames, ssids;
+
+        // Find position of first comma
+        int cpos = comp_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
+            ssnames = comp_list.substr( cpos );
+        }
+        else
+        {
+            snum = comp_list.substr( spos + 5 );
+        }
+
+        string id_list = GetTagIDs( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        spos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, spos );
+
+        // Find position of first comma
+        cpos = id_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            ssids = id_list.substr( cpos );
+        }
+
+        // Lookup Geom number
+        int gnum = distance( gids.begin(), gids.find( gid ) );
+
+        // Write tag number and surface list to file
+        fprintf( fid, "%d,%d,%s,%s,%s", tag , gnum, snum.c_str(), gname.c_str(), gid.c_str() );
+
+        // Write subsurface information if there is any
+        if( !ssnames.empty() )
+        {
+            fprintf( fid, "%s%s\n", ssnames.c_str(), ssids.c_str() );
+        }
+        else
+        {
+            fprintf( fid, "\n" );
+        }
+    }
+    fclose( fid );
+}
+
+//==== Write Key File ====//
 void SubSurfaceMgrSingleton::WriteTKeyFile(const string & file_name )
 {
     // figure out basename

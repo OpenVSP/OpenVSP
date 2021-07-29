@@ -2670,7 +2670,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
     //==== Write Out tag key file ====//
 
-    SubSurfaceMgr.WriteTKeyFile(file_name);
+    SubSurfaceMgr.WriteVSPGEOMKeyFile(file_name);
 
     return mesh_id;
 
