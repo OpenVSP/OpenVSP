@@ -5,6 +5,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "glviewer.H"
+#include <FL/fl_ask.H>
 
 /*##############################################################################
 #                                                                              #
@@ -1149,14 +1150,47 @@ void GL_VIEWER::MakeMovie(char *FileName)
     int i;
     char DumChar[2000], Command[2000], Path[2000];
 
-    // Delete any old png files
-    
-    sprintf(Command,"rm -rf ./MoviePNGFiles");
+    // Check for ffmpeg  & delete any old png files
+#ifdef WIN32
+    system( " ffmpeg -h > temp.txt" );
+
+    // Get size of temp file
+    FILE * fp = fopen( "temp.txt", "r" );
+    fseek( fp, 0L, SEEK_END );
+    size_t sz = ftell( fp );
+
+    fclose( fp );
+    system( "del temp.txt" );
+
+    if ( sz == 0 )
+    {
+        fl_alert( "ERROR: ffmpeg not found in the VSPViewer directory or system PATH" );
+        return;
+    }
+
+    // rm may not be available on Windows 
+    sprintf( Command, "rd /s /q MoviePNGFiles" );
+#else
+    // Check for ffmpeg
+    if ( system( "which ffmpeg > /dev/null 2>&1" ) )
+    {
+        // Command not available
+        fl_alert( "ERROR: ffmpeg not found in the VSPViewer directory or system PATH" );
+        return;
+    }
+
+    sprintf( Command, "rm -rf ./MoviePNGFiles" );
+#endif
+
     system(Command);
     
     // Create a sub directory to store all the movie files in
-    
-    sprintf(Command,"mkdir ./MoviePNGFiles");
+#ifdef WIN32
+    sprintf( Command, "mkdir MoviePNGFiles" );
+#else
+    sprintf( Command, "mkdir ./MoviePNGFiles" );
+#endif
+
     system(Command);
     
     sprintf(Path,"./MoviePNGFiles/");
