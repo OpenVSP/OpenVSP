@@ -127,8 +127,15 @@ if(BUILD_VSPAERO)
   WOPWOP.H
   )
 
-  TARGET_LINK_LIBRARIES(vspaero
-  )
+  if(OPENMP_FOUND)
+    TARGET_INCLUDE_DIRECTORIES( vspaero PRIVATE
+        ${OpenMP_CXX_INCLUDE_DIR}
+    )
+
+    TARGET_LINK_LIBRARIES(vspaero
+        ${OpenMP_CXX_LIBRARIES}
+    )
+  endif()
 
   if ( NOT EP_BUILD )
 
