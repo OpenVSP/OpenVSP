@@ -2520,24 +2520,22 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
         2   0.00000   1.00000   0.00000   0.03329   0.00364   0.00009   0.00373  -0.00000   8.93494 394.87228  -0.00049  -0.00000   0.03328  -0.00000  -0.09834  -0.00000   0.00000
         ...
         */
-        int wake_iter_table_columns = 18;
-
-        bool unsteady_prop = false;
-        bool unsteady_pqr = false;
-        int num_unsteady_prop_col = 19;
+        int wake_iter_table_columns = 19;
         int num_unsteady_pqr_col = 20;
+        bool unsteady_flag = false;
+        bool unsteady_pqr = false;
 
-        if ( data_string_array.size() == num_unsteady_prop_col )
-        {
-            unsteady_prop = true;
-        }
-        else if ( data_string_array.size() == num_unsteady_pqr_col )
+        if ( data_string_array.size() == num_unsteady_pqr_col )
         {
             unsteady_pqr = true;
         }
 
         if( data_string_array.size() >= wake_iter_table_columns )
         {
+            if ( strcmp( data_string_array[0].c_str(), "Time" ) == 0 )
+            {
+                unsteady_flag = true;
+            }
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
 
@@ -2566,7 +2564,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
             while ( data_string_array.size() >= wake_iter_table_columns )
             {
-                if ( unsteady_prop || unsteady_pqr )
+                if ( unsteady_flag )
                 {
                     time.push_back( std::stod( data_string_array[0] ) );
                 }
@@ -2597,15 +2595,11 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 CMz.push_back(      std::stod( data_string_array[16] ) );
 
                 ToQS.push_back(     std::stod( data_string_array[17] ) );
+                CDtrefftz.push_back( std::stod( data_string_array[18] ) );
 
-                if ( unsteady_prop || unsteady_pqr ) // Additional columns for unsteady analysis
+                if ( unsteady_pqr ) // Additional columns for pqr analysis
                 {
-                    CDtrefftz.push_back( std::stod( data_string_array[18] ) );
-
-                    if ( unsteady_pqr )
-                    {
-                        UnstdAng.push_back( std::stod( data_string_array[19] ) );
-                    }
+                    UnstdAng.push_back( std::stod( data_string_array[19] ) );
                 }
 
                 data_string_array = ReadDelimLine( fp, seps );
@@ -2614,7 +2608,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
             //add to the results manager
             if ( res )
             {
-                if ( unsteady_prop || unsteady_pqr )
+                if ( unsteady_flag || unsteady_pqr )
                 {
                     res->Add( NameValData( "Time", time ) );
                 }
@@ -2639,15 +2633,11 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 res->Add( NameValData( "CMy", CMy ) );
                 res->Add( NameValData( "CMz", CMz ) );
                 res->Add( NameValData( "T/QS", ToQS ) );
+                res->Add( NameValData( "CDtrefftz", CDtrefftz ) );
 
-                if ( unsteady_prop || unsteady_pqr )
+                if ( unsteady_pqr )
                 {
-                    res->Add( NameValData( "CDtrefftz", CDtrefftz ) );
-
-                    if ( unsteady_pqr )
-                    {
-                        res->Add( NameValData( "UnstdyAng", UnstdAng ) );
-                    }
+                    res->Add( NameValData( "UnstdyAng", UnstdAng ) );
                 }
             }
 
@@ -2952,7 +2942,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
             std::vector<int> WingId;
             std::vector<double> S;
             std::vector<double> Xavg;
-            std::vector<double> Yavg;
+            std::vector<double> Yavg; // FIXME: Not found in file any more???
             std::vector<double> Zavg;
             std::vector<double> Chord;
             std::vector<double> VoVref;
@@ -3021,11 +3011,11 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
             res->Add( NameValData( "WingId", WingId ) );
             res->Add( NameValData( "S", S ) );
             res->Add( NameValData( "Xavg", Xavg ) );
-            res->Add( NameValData( "Yavg", Yavg ) );
+            res->Add( NameValData( "Yavg", Yavg ) ); // FIXME: Not found in file any more??
             res->Add( NameValData( "Zavg", Zavg ) );
             res->Add( NameValData( "Chord", Chord ) );
             res->Add( NameValData( "V/Vref", VoVref ) );
-            res->Add( NameValData( "cl", Cl ) );
+            res->Add( NameValData( "cl", Cl ) ); // FIXME: Not found in file any more??
             res->Add( NameValData( "cd", Cd ) );
             res->Add( NameValData( "cs", Cs ) );
             res->Add( NameValData( "cx", Cx ) );
