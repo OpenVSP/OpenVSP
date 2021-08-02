@@ -3342,13 +3342,11 @@ class HersheyVV : VV_Base
             PrintResults( rid );
             WriteResultsCSVFile( rid, fname_res );
 
-            // Get Result ID Vec (History and Load ResultIDs)
-            array<string> rid_vec = GetStringResults( rid, "ResultsVec" );
-            if ( rid_vec.length() > 0 )
+            // Get Load Result ID
+            string load_rid = FindLatestResultsID( "VSPAERO_Load" );
+            if ( load_rid != "" )
             {
                 // Lift Distribution:
-                string load_rid = rid_vec[1];
-                
                 span_loc_data[u] = GetDoubleResults( load_rid, "Yavg" );
                 cl_dist_data[u] = GetDoubleResults( load_rid, "cl" );
                 cd_dist_data[u] = GetDoubleResults( load_rid, "cd" );
@@ -3549,13 +3547,11 @@ class HersheyVV : VV_Base
             PrintResults( rid );
             WriteResultsCSVFile( rid, fname_res );
 
-            // Get Result ID Vec (History and Load ResultIDs)
-            array<string> rid_vec = GetStringResults( rid, "ResultsVec" );
-            if ( rid_vec.length() > 0 )
+            // Get Load Result ID
+            string load_rid = FindLatestResultsID( "VSPAERO_Load" );
+            if ( load_rid != "" )
             {
                 // Lift Distribution:
-                string load_rid = rid_vec[1];
-                
                 span_loc_data[w] = GetDoubleResults( load_rid, "Yavg" );
                 cl_dist_data[w] = GetDoubleResults( load_rid, "cl" );
                 cd_dist_data[w] = GetDoubleResults( load_rid, "cd" );
@@ -3999,13 +3995,11 @@ class HersheyVV : VV_Base
             PrintResults( rid );
             WriteResultsCSVFile( rid, fname_res );
 
-            // Get Result ID Vec (History and Load ResultIDs)
-            array<string> rid_vec = GetStringResults( rid, "ResultsVec" );
-            if ( rid_vec.length() > 0 )
+            // Get Load Result ID
+            string load_rid = FindLatestResultsID( "VSPAERO_Load" );
+            if ( load_rid != "" )
             {
                 // Lift Distribution:
-                string load_rid = rid_vec[1];
-                
                 span_loc_data[t] = GetDoubleResults( load_rid, "Yavg" );
                 cl_dist_data[t] = GetDoubleResults( load_rid, "cl" );
                 cd_dist_data[t] = GetDoubleResults( load_rid, "cd" );
@@ -4161,13 +4155,11 @@ class HersheyVV : VV_Base
             PrintResults( rid );
             WriteResultsCSVFile( rid, fname_res );
 
-            // Get Result ID Vec (History and Load ResultIDs)
-            array<string> rid_vec = GetStringResults( rid, "ResultsVec" );
-            if ( rid_vec.length() > 0 )
+            // Get Load Result ID
+            string load_rid = FindLatestResultsID( "VSPAERO_Load" );
+            if ( load_rid != "" )
             {
                 // Lift Distribution:
-                string load_rid = rid_vec[1];
-                
                 wake_span_loc_data[i] = GetDoubleResults( load_rid, "Yavg" );
                 wake_cl_dist_data[i] = GetDoubleResults( load_rid, "cl" );
             }
@@ -4376,13 +4368,11 @@ class HersheyVV : VV_Base
                 PrintResults( rid );
                 WriteResultsCSVFile( rid, fname_res );
 
-                // Get Result ID Vec (History and Load ResultIDs)
-                array<string> rid_vec = GetStringResults( rid, "ResultsVec" );
-                if ( rid_vec.length() > 0 )
+                // Get Load Result ID
+                string load_rid = FindLatestResultsID( "VSPAERO_Load" );
+                if ( load_rid != "" )
                 {
                     // Lift Distribution:
-                    string load_rid = rid_vec[1];
-                    
                     span_loc_data[i] = GetDoubleResults( load_rid, "Yavg" );
                     cl_dist_data[i] = GetDoubleResults( load_rid, "cl" );
                 }
