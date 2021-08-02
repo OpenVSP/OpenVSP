@@ -615,7 +615,7 @@ void VSP_SOLVER::Setup(void)
              
           }
           
-          // Panel
+          // Panel or VSPGEOM/VLM
           
           else {
 
@@ -693,7 +693,7 @@ void VSP_SOLVER::Setup(void)
              
                 ComponentGroupList_[c].SpanLoadData(CompSurfs).SurfaceID() = Found;
              
-               // Do this later...   ComponentGroupList_[c].SpanLoadData(CompSurfs).SetNumberOfSpanStations(...);   
+                // Do this later...   ComponentGroupList_[c].SpanLoadData(CompSurfs).SetNumberOfSpanStations(...);   
              
              }                         
                                      
@@ -1002,11 +1002,9 @@ void VSP_SOLVER::Setup(void)
    
     // VLM model
     
-    printf("ModelType_ is: %d \n",ModelType_);
-    
     if ( ModelType_ == VLM_MODEL ) {
        
-       printf("Model type: VLM \n");
+       PRINTF("Model type: VLM \n");
  
        NumberOfKelvinConstraints_ = 0;
 
@@ -1020,7 +1018,7 @@ void VSP_SOLVER::Setup(void)
     
     else if ( ModelType_ == PANEL_MODEL ) {
        
-       printf("Model type: PANEL \n");       
+       PRINTF("Model type: PANEL \n");       
        
        DetermineNumberOfKelvinConstrains();
     
@@ -1110,7 +1108,6 @@ void VSP_SOLVER::Setup(void)
        }
 
     }
-printf("6... \n");fflush(NULL);
   
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
 
@@ -3625,14 +3622,14 @@ void VSP_SOLVER::Solve(int Case)
     InitializeFreeStream();
     
     // Recalculate interaction lists if Mach crossed over Mach = 1
-
-    if ( ( LastMach_ < 0.                 ) ||
+    
+    if ( ( LastMach_ < 0.                 ) || 
          ( Mach_ >= 1. && LastMach_ <  1. ) ||
          ( Mach_ <  1. && LastMach_ >= 1. ) ) {
-
-        if ( LastMach_ > 0. ) PRINTF("Updating interaction lists due to subsonic / supersonic Mach change \n");
-
-        if ( !DumpGeom_ ) CreateSurfaceVorticesInteractionList(0);
+  
+       if ( LastMach_ > 0. ) PRINTF("Updating interaction lists due to subsonic / supersonic Mach change \n");
+       
+       if ( !DumpGeom_ ) CreateSurfaceVorticesInteractionList(0);
 
     }
   
@@ -9658,13 +9655,13 @@ void VSP_SOLVER::CreateAdjointMatrix(void)
      
           AdjointMatrix_(i,j) = Residual_[j];
           
-          printf("AdjointMatrix_(%d,%d): %f \n",i,j,AdjointMatrix_(i,j));
+          PRINTF("AdjointMatrix_(%d,%d): %f \n",i,j,AdjointMatrix_(i,j));
 
        }
 
     }
     
-    printf("\n\n\n");
+    PRINTF("\n\n\n");
     
     // Do matrix-vector product
 
@@ -13277,7 +13274,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
        if ( NumberOfStations > 1 ) {
         
           for ( k = 1 ; k <= NumberOfStations ; k++ ) {
-          
+
              FPRINTF(LoadFile_,"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
                      i,
                      SpanLoadData(i).Span_S(k),                    
@@ -13311,7 +13308,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     FPRINTF(LoadFile_,"Comp      Component-Name                             Mach       AoA      Beta       CL        CDi       CS       CFx       CFy       CFz       Cmx       Cmy       Cmz \n");
 
     for ( i = StartOfSpanLoadDataSets_ ; i <= NumberOfSpanLoadDataSets_ ; i++ ) { 
-           
+          
        NumberOfStations = SpanLoadData(i).NumberOfSpanStations();
   
        if ( NumberOfStations > 1 ) {
@@ -13346,8 +13343,18 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
           CMz /= 0.5*Sref_*Bref_;
           
           if ( ModelType_ == VLM_MODEL ) {
+   
+             if ( SurfaceType_ != VSPGEOM_SURFACE ) {
+                
+                SPRINTF(DumChar,"%s",VSPGeom().VSP_Surface(i).ComponentName());
+                
+             }
              
-             SPRINTF(DumChar,"%s",VSPGeom().VSP_Surface(i).ComponentName());
+             else {
+                
+                SPRINTF(DumChar,"%s",VSPGeom().VSP_Surface(1).ComponentName());
+                
+             }                
              
           }
           
@@ -13356,7 +13363,7 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
              SPRINTF(DumChar,"Wake-Sheet-%-d",i);
              
           }
-             
+           
           FPRINTF(LoadFile_,"%-9d %-40s %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
                   i,
                   DumChar,
@@ -13380,8 +13387,18 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
           k = 1;
           
           if ( ModelType_ == VLM_MODEL ) {
+       
+             if ( SurfaceType_ != VSPGEOM_SURFACE ) {
+                
+                SPRINTF(DumChar,"%s",VSPGeom().VSP_Surface(i).ComponentName());
+
+             }
              
-             SPRINTF(DumChar,"%s",VSPGeom().VSP_Surface(i).ComponentName());
+             else {
+                
+                SPRINTF(DumChar,"%s",VSPGeom().VSP_Surface(1).ComponentName());
+                
+             }                  
              
           }
           
@@ -15462,7 +15479,6 @@ void VSP_SOLVER::InterpolateInTime(VSPAERO_DOUBLE Time, VSPAERO_DOUBLE **ArrayIn
          // Quintic Hermite Spline
          
          else if ( NoiseInterpolation_ == NOISE_QUINTIC_HERMITE_INTERPOLATION ) {
-   printf("4... \n");fflush(NULL);      
             
             for ( i = 1 ; i <= NumValues ; i++ ) {
                
@@ -15864,8 +15880,6 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(int LoopType)
     // Backwards sweep
     
     if ( LoopType == FIXED_LOOPS ) PRINTF("Backward sweep... \n");
-
-printf("NumberOfThreads_: %d \n",NumberOfThreads_);
 
     CommonEdgeList = new LOOP_ENTRY*[NumberOfThreads_ + 1];
     
@@ -17386,13 +17400,13 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
           if ( Level == 1 || ( Test <= Distance && !inside_box(VSPGeom().Grid(Level).LoopList(Loop).BoundBox(), xyz) ) ) {
    
              AddEdges = 1;
-         
+
              // Check for nearly planar, and close, panels on different surfaces - VLM
    
              Ratio = Distance / ( VSPGeom().Grid(Level).LoopList(Loop).Length() + VSPGeom().Grid(Level).LoopList(Loop).CentroidOffSet() );
            
              if ( ComponentID > 0 && ComponentID != VSPGeom().Grid(Level).LoopList(Loop).ComponentID() && Ratio <= 2. ) {
-            
+
                 // Calculate normal distance
    
                 NormalDistance = ABS(vector_dot(Vec,VSPGeom().Grid(Level).LoopList(Loop).Normal()));
@@ -17406,11 +17420,11 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
                 if ( OverLap > 0. ) {
 
                    if ( ABS(NormalDistance) <= Tolerance ) AddEdges = 0;
-                   
-                }
 
+                }
+                
              }
-             
+                          
              // Check for near planar, and close, panels with opposite pointing normals - typical trailing edges
              
              Ratio = Distance / VSPGeom().Grid(Level).LoopList(Loop).Length();
@@ -17635,8 +17649,6 @@ int VSP_SOLVER::NodeIsInsideLoop(VSP_LOOP &Loop, VSPAERO_DOUBLE xyz[3])
    for ( i = 1 ; i <= Loop.NumberOfEdges() ; i++ ) {
   
       Edge = Loop.Edge(i);
-      
-      
       
    }   
    
@@ -18363,7 +18375,7 @@ void VSP_SOLVER::OutputStatusFile(int Case)
           
           if ( Case == 0 ) {
           
-             FPRINTF(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+             FPRINTF(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
                      Time,
                      Mach_,
                      FLOAT(AngleOfAttack_/TORAD),
