@@ -1016,10 +1016,11 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     // Get & Display Results
     vsp::PrintResults( results_id );
 
-    vector<string>res_id = vsp::GetStringResults( results_id, "ResultsVec" , 0 );
+    string history_res= vsp::FindLatestResultsID( "VSPAERO_History" );
+    string load_res = vsp::FindLatestResultsID( "VSPAERO_Load" );
 
-    vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
-    vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
+    vector<double> CL = vsp::GetDoubleResults( history_res, "CL", 0 );
+    vector<double> cl = vsp::GetDoubleResults( load_res, "cl", 0 );
 
     printf( "   CL: " );
     for ( unsigned int i = 0; i < CL.size(); i++ )
@@ -1179,10 +1180,11 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     // Get & Display Results
     vsp::PrintResults( results_id );
 
-    vector<string>res_id = vsp::GetStringResults( results_id, "ResultsVec", 0 );
+    string history_res = vsp::FindLatestResultsID( "VSPAERO_History" );
+    string load_res = vsp::FindLatestResultsID( "VSPAERO_Load" );
 
-    vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
-    vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
+    vector<double> CL = vsp::GetDoubleResults( history_res, "CL", 0 );
+    vector<double> cl = vsp::GetDoubleResults( load_res, "cl", 0 );
 
     printf( "   CL: " );
     for ( unsigned int i = 0; i < CL.size(); i++ )
