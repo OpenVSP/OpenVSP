@@ -2150,7 +2150,7 @@ string VSPAEROSweepAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "ExperimentalInputFormatFlag", 0 );
         if ( nvd )
         {
-            VSPAEROMgr.m_NCPU.Set( nvd->GetInt( 0 ) );
+            VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
         if ( nvd )
