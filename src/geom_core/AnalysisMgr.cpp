@@ -1255,6 +1255,7 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get() ) );
         m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get() ) );
         m_Inputs.Add( NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get() ) );
+        m_Inputs.Add( NameValData( "ExperimentalInputFormatFlag", VSPAEROMgr.m_ExperimentalInputFormatFlag.Get() ) );
     }
     else
     {
@@ -1288,6 +1289,13 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_Symmetry.Set( nvd->GetInt( 0 ) );
         }
 
+        bool experimentalFileOrig = VSPAEROMgr.m_ExperimentalInputFormatFlag.Get();
+        nvd = m_Inputs.FindPtr( "ExperimentalInputFormatFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( nvd->GetInt( 0 ) );
+        }
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeGeometry();
 
@@ -1295,7 +1303,7 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
         VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
-
+        VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( experimentalFileOrig );
     }
     
     return resId;
