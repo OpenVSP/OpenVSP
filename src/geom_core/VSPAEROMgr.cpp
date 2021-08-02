@@ -1235,9 +1235,16 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     res->Add( NameValData( "GeometrySet", m_GeomSet() ) );
     res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get() ) );
     res->Add( NameValData( "DegenGeomFileName", m_DegenFileFull ) );
-    if ( m_AnalysisMethod.Get() == vsp::PANEL )
+    if ( m_AnalysisMethod.Get() == vsp::PANEL || m_ExperimentalInputFormatFlag.Get() )
     {
-        res->Add( NameValData( "CompGeomFileName", m_CompGeomFileFull ) );
+        if ( m_ExperimentalInputFormatFlag.Get() )
+        {
+            res->Add( NameValData( "VSPGeomFileName", m_VSPGeomFileFull ) );
+        }
+        else
+        {
+            res->Add( NameValData( "CompGeomFileName", m_CompGeomFileFull ) );
+        }
         res->Add( NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId ) );
     }
     else
