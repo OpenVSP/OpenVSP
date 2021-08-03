@@ -18,7 +18,6 @@ VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "
 {
     //==== Variables ====//
     m_NVarLast = 0;
-    m_menuUpdateFlag = 1;
 
     // Hidden Var Tree Tab until complete
     //Fl_Group* tree_tab = AddTab( "Var Tree" );
@@ -184,11 +183,11 @@ bool VarPresetScreen::Update()
     m_SettingInput.Update( VarPresetMgr.GetActiveSettingText() );
 
     // ==== Update Menus ==== //
-    if ( m_menuUpdateFlag == 1 || VarPresetMgr.GetGroupNames().size() > m_GroupChoice.GetItems().size() )
-    {
-        RebuildMenus( VarPresetMgr.GetActiveGroupIndex() );
-        m_menuUpdateFlag = 0;
-    }
+    // This used to only update when a flag to update it was set or the 
+    // number of variable presets changed. THis was not working so was simplified
+    // to update the manues evey iteration. The additional time is negligable and 
+    // this is consistent with updates for other menu items. 
+    RebuildMenus( VarPresetMgr.GetActiveGroupIndex() );
 
     if ( VarPresetMgr.GetPresetVec().empty() )
     {
@@ -304,6 +303,9 @@ void VarPresetScreen::RebuildMenus( int g_index )
     int s_index;
     vector < Preset > m_PresetVec = VarPresetMgr.GetPresetVec();
 
+    m_GroupChoice.ClearItems();
+    m_SettingChoice.ClearItems();
+
     if ( m_PresetVec.size() != 0 || g_index != -1 )
     {
         if ( g_index == -1 )
@@ -317,31 +319,23 @@ void VarPresetScreen::RebuildMenus( int g_index )
         }
 
         // Add Item to Apply Lists
-        m_GroupChoice.ClearItems();
         for ( int i = 0; i < m_PresetVec.size(); i++ )
         {
             m_GroupChoice.AddItem( m_PresetVec[i].GetGroupName() );
             if ( i ==  g_index )
             {
-                m_SettingChoice.ClearItems();
                 for ( int j = 0; j < m_PresetVec[i].GetNumSet(); j++ )
                 {
                     m_SettingChoice.AddItem( m_PresetVec[i].GetSettingName(j) );
                 }
-                m_SettingChoice.UpdateItems();
-                m_SettingChoice.SetVal( s_index ) ;
             }
         }
+
+        m_SettingChoice.UpdateItems();
+        m_SettingChoice.SetVal( s_index );
+
         m_GroupChoice.UpdateItems();
         m_GroupChoice.SetVal( g_index );
-    }
-    else
-    {
-        //cout << "Clearing All Items from Lists." << endl;
-        m_GroupChoice.ClearItems();
-        m_GroupChoice.UpdateItems();
-        m_SettingChoice.ClearItems();
-        m_SettingChoice.UpdateItems();
     }
 }
 
@@ -450,6 +444,14 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
     }
 
     //====Preset Edits Related ====//
+    else if ( device == &m_GroupChoice )
+    {
+        VarPresetMgr.GroupChange( m_GroupChoice.GetVal() );
+    }
+    else if ( device == &m_SettingChoice )
+    {
+        VarPresetMgr.SettingChange( m_SettingChoice.GetVal() );
+    }
     else if ( device == &m_AddGroupButton )
     {
         if ( !m_GroupInput.GetString().empty() )
@@ -457,8 +459,6 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
             // Get Strings from TextInput
             string groupText = m_GroupInput.GetString();
             VarPresetMgr.AddGroup( groupText );
-
-            m_menuUpdateFlag = 1;
         }
     }
     else if ( device == &m_AddSettingButton )
@@ -468,7 +468,6 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
             // Get Strings from TextInput
             string settingText = m_SettingInput.GetString();
             VarPresetMgr.AddSetting( settingText );
-            m_menuUpdateFlag = 1;
         }
     }
     else if ( device == &m_DeleteButton )

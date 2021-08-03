@@ -890,7 +890,8 @@ xmlNodePtr VarPresetMgrSingleton::DecodeXml( xmlNodePtr & node )
 
     if ( m_CurGroupIndex >= 0 && m_CurSettingIndex >= 0 )
     {
-        // Assign Current Setting Name
+        // Assign Current Group and Setting Name
+        m_CurGroupText = m_PresetVec[m_CurGroupIndex].GetGroupName();
         m_CurSettingText = m_PresetVec[ m_CurGroupIndex ].GetSettingName( m_CurSettingIndex );
         m_PresetVec[ m_CurGroupIndex ].SetCurSetName( m_CurSettingText );
     }

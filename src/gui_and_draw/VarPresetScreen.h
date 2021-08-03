@@ -46,7 +46,6 @@ public:
 protected:
 
     int m_NVarLast;
-    int m_menuUpdateFlag;
 
     GroupLayout m_ChangeStateLayout;
     GroupLayout m_PickLayout;
