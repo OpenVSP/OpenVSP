@@ -268,14 +268,12 @@ bool VarPresetMgrSingleton::AddCurrVar()
         return false;
     }
 
-    if ( CheckForDuplicateVar( m_WorkingParmID ) )
+    if ( CheckForDuplicateParm( m_WorkingParmID ) )
     {
         return false;
     }
 
-    AddVar( m_WorkingParmID );
-
-    return true;
+    return AddVar( m_WorkingParmID );
 }
 
 //==== Check For Duplicate Variable  ====//

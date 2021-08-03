@@ -5799,7 +5799,10 @@ void AddVarPresetSetting( const string &setting_name )
 
 void AddVarPresetParm( const string &parm_ID )
 {
-    VarPresetMgr.AddVar( parm_ID );
+    if ( !VarPresetMgr.AddVar( parm_ID ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_ID );
+    }
     VarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
@@ -5808,7 +5811,10 @@ void AddVarPresetParm( const string &parm_ID )
 void AddVarPresetParm( const string &parm_ID, const string &group_name )
 {
     VarPresetMgr.GroupChange( group_name );
-    VarPresetMgr.AddVar( parm_ID );
+    if ( !VarPresetMgr.AddVar( parm_ID ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_ID );
+    }
     VarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
