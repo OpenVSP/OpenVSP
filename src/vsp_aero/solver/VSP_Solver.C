@@ -12208,7 +12208,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
 
              // Chordwise integrated forces
              
-             if ( Mach_ < 1. ) {
+             if ( ModelType_ != VLM_MODEL ) {
                                 
                 // Forces
                 
