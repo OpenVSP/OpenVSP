@@ -177,6 +177,11 @@ WingScreen.h
 WireScreen.h
 )
 
+IF( ${NOREGEXP} )
+  TARGET_COMPILE_DEFINITIONS(gui_and_draw PRIVATE
+    NOREGEXP=${NOREGEXP}
+  )
+ENDIF()
 
 ADD_DEPENDENCIES(gui_and_draw
 geom_core
