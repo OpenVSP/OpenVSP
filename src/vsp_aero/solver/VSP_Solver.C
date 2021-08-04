@@ -1897,8 +1897,8 @@ void VSP_SOLVER::InitializeFreeStream(void)
     if ( KarmanTsienCorrection_  && ModelType_ == VLM_MODEL ) {
        
       for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
-       
-          SurfaceVortexEdge(j).KTFact() = 1.125;
+
+          if ( Mach_ * 1.125 < 0.9 ) SurfaceVortexEdge(j).KTFact() = 1.125;
           
        }
        
