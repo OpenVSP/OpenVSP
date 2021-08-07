@@ -53,7 +53,7 @@
    main platforms.  For Windows, we require Visual Studio 2010 Express
    or newer.  For Mac OSX or Linux/BSD, we support LLVM and GCC.
 
-   - [CMake 2.8](http://www.cmake.org) - Cross-platform build system.  CMake
+   - [CMake 3.1](http://www.cmake.org) - Cross-platform build system.  CMake
    generates platform-native build files which control compilation of
    OpenVSP.  CMake is available as a standard package on most Linux
    systems and binary installers are available for many other platforms
