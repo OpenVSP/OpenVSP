@@ -238,11 +238,11 @@ void TestVSPAeroSharpTrailingEdge()
     // Get & Display Results
     PrintResults( rid );
 
-    array<string> results_names = GetAllDataNames( rid );
-    array<string>res_id = GetStringResults( rid, results_names[1] , 0 ); // Note: first result name is "AnalysisDurationSec"
+    string history_res = FindLatestResultsID( "VSPAERO_History" );
+    string load_res = FindLatestResultsID( "VSPAERO_Load" );
 
-    array<double> CL = GetDoubleResults( res_id[0], "CL", 0 );
-    array<double> cl = GetDoubleResults( res_id[1], "cl", 0 );
+    array<double> CL = GetDoubleResults( history_res, "CL", 0 );
+    array<double> cl = GetDoubleResults( load_res, "cl", 0 );
 
     Print( "CL at 0 angle of attack: ", false );
 
@@ -377,11 +377,11 @@ void TestVSPAeroBluntTrailingEdge()
     // Get & Display Results
     PrintResults( rid );
 
-    array<string> results_names = GetAllDataNames( rid );
-    array<string>res_id = GetStringResults( rid, results_names[1] , 0 ); // Note: first result name is "AnalysisDurationSec"
+    string history_res = FindLatestResultsID( "VSPAERO_History" );
+    string load_res = FindLatestResultsID( "VSPAERO_Load" );
 
-    array<double> CL = GetDoubleResults( res_id[0], "CL", 0 );
-    array<double> cl = GetDoubleResults( res_id[1], "cl", 0 );
+    array<double> CL = GetDoubleResults( history_res, "CL", 0 );
+    array<double> cl = GetDoubleResults( load_res, "cl", 0 );
 
     Print( "CL at 0 angle of attack: ", false );
 
