@@ -49,6 +49,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Python ${{ matrix.python-version }}
+      if: runner.os != 'Linux'
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
@@ -75,26 +76,18 @@ jobs:
       shell: bash
       run:   |
         mkdir build buildlibs artifacts
-
-        # Identify the directories for the specified Python versions.
-        # This avoids GitHub actions defaulting to use the latest version
-        PYTHON_INC=$pythonLocation/include
-        PYTHON_LIB=$pythonLocation/lib/libpython*m.so # TODO: Verify this is the correct version number
-        echo "Python Library: " $PYTHON_LIB
-        echo "Python Include Directory: " $PYTHON_INC
-        
         cd $GITHUB_WORKSPACE/buildlibs
         cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DVSP_USE_SYSTEM_CPPTEST=false ../Libraries
         make -j2
         
         cd $GITHUB_WORKSPACE/build
-        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DPYTHON_LIBRARY=$PYTHON_LIB -DPYTHON_INCLUDE_DIR=$PYTHON_INC ../src
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs ../src
         make -j2 package
         
         DEBFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-Linux.deb
         VSPVER=$(ls $DEBFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
         UVER=$(lsb_release -sr)
-        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-Ubuntu-${UVER}_amd64-Python${{ matrix.python-version }}_${GITHUB_SHA}.deb
+        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-Ubuntu-${UVER}_amd64_${GITHUB_SHA}.deb
         
         cp $DEBFILE $DEPLOY_FILE
         cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
@@ -106,24 +99,13 @@ jobs:
       shell: bash
       run:   |
         mkdir build buildlibs artifacts
-        
-        # Identify the directories for the specified Python versions.
-        # This avoids GitHub actions defaulting to use the latest version
-        TEMP=${{ matrix.python-version }}
-        PYTHON_VER=${TEMP/.} # Remove period from version string
-        
-        PYTHON_INC=$pythonLocation\\include
-        PYTHON_LIB=$pythonLocation\\libs\\python$PYTHON_VER.lib
-        echo "Python Library: " $PYTHON_LIB
-        echo "Python Include Directory: " $PYTHON_INC
-        
         cd $GITHUB_WORKSPACE\\buildlibs
         cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A $BUILD_ARCH ..\\Libraries
 
         cmake --build . --config Release -j 2
         cd $GITHUB_WORKSPACE\\build
 
-        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -DPYTHON_LIBRARY=$PYTHON_LIB -DPYTHON_INCLUDE_DIR=$PYTHON_INC -A $BUILD_ARCH ..\\src
+        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A $BUILD_ARCH ..\\src
 
         cmake --build . --target package --config Release -j 2 
 
@@ -142,20 +124,12 @@ jobs:
       shell: bash
       run:   |
         mkdir build buildlibs artifacts
-
-        # Identify the directories for the specified Python versions.
-        # This avoids GitHub actions defaulting to use the latest version
-        PYTHON_INC=$pythonLocation/include
-        PYTHON_LIB=$pythonLocation/lib/libpython${{ matrix.python-version }}m.dylib # TODO: Verify this is the correct lib file
-        echo "Python Library: " $PYTHON_LIB
-        echo "Python Include Directory: " $PYTHON_INC
-        
         cd $GITHUB_WORKSPACE/buildlibs
         cmake -DCMAKE_BUILD_TYPE=Release ../Libraries
         make -j2
         
         cd $GITHUB_WORKSPACE/build
-        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCXX_OMP_COMPILER=/usr/local/bin/g++-10 -DPYTHON_LIBRARY=$PYTHON_LIB -DPYTHON_INCLUDE_DIR=$PYTHON_INC -DC_OMP_COMPILER=/usr/local/bin/gcc-10 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
+        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCXX_OMP_COMPILER=/usr/local/bin/g++-10 -DC_OMP_COMPILER=/usr/local/bin/gcc-10 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
         make -j2 package
         
         ZIPFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-MacOS.zip
