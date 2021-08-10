@@ -22,21 +22,31 @@ jobs:
             name: "Windows 64",
             os: windows-2019,
             arch: x64,
+            python-arch: x64,
+          }
+        - {
+            name: "Windows 32",
+            os: windows-2019,
+            arch: Win32,
+            python-arch: x86,
           }
         - {
             name: "Ubuntu 18.04",
             os: ubuntu-18.04,
             arch: x64,
+            python-arch: x64,
           }
         - {
             name: "Ubuntu 20.04",
             os: ubuntu-20.04,
             arch: x64,
+            python-arch: x64,
           }
         - {
             name: "macOS 10.15",
             os: macos-10.15,
             arch: x64,
+            python-arch: x64,
           }
 
     steps:
@@ -48,6 +58,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+        architecture: ${{ matrix.config.python-arch }}
 
     - name:  Install Linux
       if: runner.os == 'Linux'
@@ -102,7 +113,7 @@ jobs:
 
         cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A $BUILD_ARCH ..\\src
 
-        cmake --build . --target package --config Release -j 2 
+        cmake --build . --target package --config Release -j 2
 
         ZIPFILE=OpenVSP*.zip
         VSPVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
