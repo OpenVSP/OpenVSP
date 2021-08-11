@@ -61,7 +61,7 @@ VSPAERO_DOUBLE UnsteadyHMax_;
 VSPAERO_DOUBLE HeightAboveGround_;
 VSPAERO_DOUBLE BladeRPM_;
 
-#define MAXRUNCASES 1000
+#define MAXRUNCASES 100000
 
 // Number of Machs, AoAs, and Betas
 

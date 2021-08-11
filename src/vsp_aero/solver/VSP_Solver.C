@@ -1893,17 +1893,19 @@ void VSP_SOLVER::InitializeFreeStream(void)
     if ( Mach_ >= 1. ) FarAway_ = 9999999.;
 
     // Turn on KT correction
-    
-    if ( KarmanTsienCorrection_  && ModelType_ == VLM_MODEL ) {
-       
-      for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
 
-          if ( Mach_ * 1.125 < 0.9 ) SurfaceVortexEdge(j).KTFact() = 1.125;
-          
+    if ( KarmanTsienCorrection_  && ModelType_ == VLM_MODEL ) {
+
+       for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+
+          // if ( Mach_ * 1.125 < 0.9 ) SurfaceVortexEdge(j).KTFact() = 1.125;
+
+          SurfaceVortexEdge(j).KTFact() = MAX(1.,MIN(1.125, 0.90/Mach_));
+
        }
-       
+
        RestrictKTFactorFromGrid(1);
-       
+
     }
     
     // Limits on max velocity, and min/max pressures
