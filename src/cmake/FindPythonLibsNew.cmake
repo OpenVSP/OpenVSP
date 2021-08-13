@@ -233,6 +233,15 @@ else()
   endif()
 endif()
 
+string( FIND ${PYTHON_INCLUDE_DIR} "python.app/Contents" spos )
+
+if( NOT spos EQUAL -1 )
+  math( EXPR epos "${spos} + 20" )
+  string( SUBSTRING ${PYTHON_INCLUDE_DIR} 0 ${spos} PIDBegin )
+  string( SUBSTRING ${PYTHON_INCLUDE_DIR} ${epos} -1 PIDEnd )
+  string( CONCAT PYTHON_INCLUDE_DIR ${PIDBegin} ${PIDEnd} )
+endif()
+
 mark_as_advanced(PYTHON_LIBRARY PYTHON_INCLUDE_DIR)
 
 # We use PYTHON_INCLUDE_DIR, PYTHON_LIBRARY and PYTHON_DEBUG_LIBRARY for the
