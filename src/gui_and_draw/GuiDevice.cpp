@@ -366,9 +366,12 @@ void Input::SetValAndLimits( Parm* parm_ptr )
     {
         FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
 
-        if ( fp->GetDisplayResultsFlag() )
+        if ( fp )
         {
-            new_val = fp->GetResult();
+            if ( fp->GetDisplayResultsFlag() )
+            {
+                new_val = fp->GetResult();
+            }
         }
     }
 
@@ -409,9 +412,12 @@ void Input::DeviceCB( Fl_Widget* w )
             if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
             {
                 FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
-                if ( fp->GetDisplayResultsFlag() )
+                if ( fp )
                 {
-                    new_val /= fp->GetRefVal(); // Unscale result to set m_Val
+                    if ( fp->GetDisplayResultsFlag() )
+                    {
+                        new_val /= fp->GetRefVal(); // Unscale result to set m_Val
+                    }
                 }
             }
             parm_ptr->SetFromDevice(new_val);
@@ -670,10 +676,13 @@ void SliderAdjRange::SetValAndLimits( Parm* parm_ptr )
     {
         FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
 
-        if ( fp->GetDisplayResultsFlag() )
+        if ( fp )
         {
-            scale = fp->GetRefVal();
-            new_val = fp->GetResult();
+            if ( fp->GetDisplayResultsFlag() )
+            {
+                scale = fp->GetRefVal();
+                new_val = fp->GetResult();
+            }
         }
     }
 
@@ -714,9 +723,12 @@ void SliderAdjRange::DeviceCB( Fl_Widget* w )
         if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
         {
             FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
-            if ( fp->GetDisplayResultsFlag() )
+            if ( fp )
             {
-                new_val /= fp->GetRefVal();  // Unscale result to set m_Val
+                if ( fp->GetDisplayResultsFlag() )
+                {
+                    new_val /= fp->GetRefVal();  // Unscale result to set m_Val
+                }
             }
         }
         parm_ptr->SetFromDevice( new_val, drag_flag );
@@ -1125,13 +1137,20 @@ void CheckButton::SetValAndLimits( Parm* p )
 
     BoolParm* bparm = dynamic_cast< BoolParm* >( p );
     assert( bparm );
-    if ( bparm->Get() )
+    if ( bparm )
     {
-        m_Button->value( 1 );
+        if ( bparm->Get() )
+        {
+            m_Button->value( 1 );
+        }
+        else
+        {
+            m_Button->value( 0 );
+        }
     }
     else
     {
-        m_Button->value( 0 );
+        printf("Error: Non-BoolParm %s associated with CheckButton.\n", p->GetName().c_str() );
     }
 }
 
@@ -1202,6 +1221,10 @@ void CheckButtonBit::SetValAndLimits( Parm* p )
             m_Button->clear();
         }
     }
+    else
+    {
+        printf("Error: Non-IntParm %s associated with CheckButtonBit.\n", p->GetName().c_str() );
+    }
 }
 
 //==== Callback ====//
@@ -1214,20 +1237,23 @@ void CheckButtonBit::DeviceCB( Fl_Widget* w )
     }
     IntParm* int_parm_ptr = dynamic_cast< IntParm* >( parm_ptr );
     assert( int_parm_ptr );
-    if ( w == m_Button )
+    if ( int_parm_ptr )
     {
-        int new_val;
-
-        if ( m_Button->value() )
+        if ( w == m_Button )
         {
-            new_val = int_parm_ptr->Get() | m_value;    // Add Flag
-        }
-        else
-        {
-            new_val = int_parm_ptr->Get() & ~m_value;    // Remove Flag
-        }
+            int new_val;
 
-        int_parm_ptr->SetFromDevice( new_val );
+            if ( m_Button->value() )
+            {
+                new_val = int_parm_ptr->Get() | m_value;    // Add Flag
+            }
+            else
+            {
+                new_val = int_parm_ptr->Get() & ~m_value;    // Remove Flag
+            }
+
+            int_parm_ptr->SetFromDevice( new_val );
+        }
     }
 
     m_Screen->GuiDeviceCallBack( this );
@@ -1265,10 +1291,17 @@ void RadioButton::SetValAndLimits( Parm* p )
         return;
     }
 
-    BoolParm* iparm = dynamic_cast< BoolParm* >( p );
-    if ( iparm->Get() == m_value )
+    BoolParm* bparm = dynamic_cast< BoolParm* >( p );
+    if ( bparm )
     {
-        m_Button->setonly();
+        if (bparm->Get() == m_value )
+        {
+            m_Button->setonly();
+        }
+    }
+    else
+    {
+        printf("Error: Non-BoolParm %s associated with RadioButton.\n", p->GetName().c_str() );
     }
 }
 
@@ -1338,6 +1371,10 @@ void ToggleButton::SetValAndLimits( Parm* p )
         {
             m_Button->clear();
         }
+    }
+    else
+    {
+        printf("Error: Non-BoolParm %s associated with ToggleButton.\n", p->GetName().c_str() );
     }
 }
 
@@ -1625,6 +1662,7 @@ void Choice::SetValAndLimits( Parm* p )
     assert( iparm );
     if ( !iparm )
     {
+        printf("Error: Non-IntParm %s associated with Choice.\n", p->GetName().c_str() );
         return;
     }
 
@@ -1853,14 +1891,21 @@ void FractParmSlider::SetValAndLimits( Parm* parm_ptr )
     FractionParm* fract_parm_ptr = dynamic_cast< FractionParm* > ( parm_ptr );
     assert( fract_parm_ptr );
 
-    double new_val = fract_parm_ptr->GetResult();
-
-    if ( CheckValUpdate( new_val ) )
+    if ( fract_parm_ptr )
     {
-        sprintf( m_Str, m_Format.c_str(), new_val );
-        m_ResultFlInput->value( m_Str );
+        double new_val = fract_parm_ptr->GetResult();
+
+        if ( CheckValUpdate( new_val ) )
+        {
+            sprintf( m_Str, m_Format.c_str(), new_val );
+            m_ResultFlInput->value( m_Str );
+        }
+        m_LastVal = new_val;
     }
-    m_LastVal = new_val;
+    else
+    {
+        printf("Error: Non-FractionParm %s associated with FractParmSlider.\n", parm_ptr->GetName().c_str() );
+    }
 }
 
 //==== CallBack ====//
@@ -1889,7 +1934,14 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
             FractionParm* fract_parm_ptr = dynamic_cast< FractionParm* > ( parm_ptr );
             assert( fract_parm_ptr );
 
-            fract_parm_ptr->SetResultFromDevice( new_val );
+            if ( fract_parm_ptr )
+            {
+                fract_parm_ptr->SetResultFromDevice( new_val );
+            }
+            else
+            {
+                printf("Error: Non-FractionParm %s associated with FractParmSlider.\n", parm_ptr->GetName().c_str() );
+            }
 #ifndef NOREGEXP
         }
 #endif
