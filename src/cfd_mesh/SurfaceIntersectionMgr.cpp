@@ -1205,6 +1205,18 @@ void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool
     }
 }
 
+Surf* SurfaceIntersectionSingleton::FindSurf( int surf_id )
+{
+    for ( size_t i = 0; i < m_SurfVec.size(); i++ )
+    {
+        if ( m_SurfVec[i]->GetSurfID() == surf_id )
+        {
+            return m_SurfVec[i];
+        }
+    }
+    return NULL;
+}
+
 void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int len_unit,
                                                   bool label_id, bool label_surf_num, bool label_split_num,
                                                   bool label_name, string label_delim )
@@ -1221,38 +1233,41 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
 
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
+        // Match NURBS_Surface to index in m_SurfVec using m_SurfID. 
+        Surf* current_surf = FindSurf( m_NURBSSurfVec[si].m_SurfID );
+
         string label;
 
-        if ( label_id )
+        if ( label_id && current_surf )
         {
-            label = m_SurfVec[si]->GetGeomID();
+            label = current_surf->GetGeomID();
         }
 
-        if ( label_name )
+        if ( label_name && current_surf )
         {
             if ( label.size() > 0 )
             {
                 label.append( label_delim );
             }
 
-            if ( m_SurfVec[si]->GetFeaPartIndex() >= 0 )
+            if ( current_surf->GetFeaPartIndex() >= 0 )
             {
                 // FEA Part
-                label.append( m_CompIDNameMap[m_SurfVec[si]->GetFeaPartIndex()] );
+                label.append( m_CompIDNameMap[current_surf->GetFeaPartIndex()] );
             }
             else
             {
-                label.append( m_CompIDNameMap[m_SurfVec[si]->GetCompID()] );
+                label.append( m_CompIDNameMap[current_surf->GetCompID()] );
             }
         }
 
-        if ( label_surf_num )
+        if ( label_surf_num && current_surf )
         {
             if ( label.size() > 0 )
             {
                 label.append( label_delim );
             }
-            label.append( to_string( m_SurfVec[si]->GetMainSurfID() ) );
+            label.append( to_string( current_surf->GetMainSurfID() ) );
         }
 
         if ( label_split_num )
@@ -1305,38 +1320,41 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
+        // Match NURBS_Surface to index in m_SurfVec using m_SurfID. 
+        Surf* current_surf = FindSurf( m_NURBSSurfVec[si].m_SurfID );
+
         string label;
 
-        if ( label_id )
+        if ( label_id && current_surf )
         {
-            label = m_SurfVec[si]->GetGeomID();
+            label = current_surf->GetGeomID();
         }
 
-        if ( label_name )
+        if ( label_name && current_surf )
         {
             if ( label.size() > 0 )
             {
                 label.append( label_delim );
             }
 
-            if ( m_SurfVec[si]->GetFeaPartIndex() >= 0 )
+            if ( current_surf->GetFeaPartIndex() >= 0 )
             {
                 // FEA Part
-                label.append( m_CompIDNameMap[m_SurfVec[si]->GetFeaPartIndex()] );
+                label.append( m_CompIDNameMap[current_surf->GetFeaPartIndex()] );
             }
             else
             {
-                label.append( m_CompIDNameMap[m_SurfVec[si]->GetCompID()] );
+                label.append( m_CompIDNameMap[current_surf->GetCompID()] );
             }
         }
 
-        if ( label_surf_num )
+        if ( label_surf_num && current_surf )
         {
             if ( label.size() > 0 )
             {
                 label.append( label_delim );
             }
-            label.append( to_string( m_SurfVec[si]->GetMainSurfID() ) );
+            label.append( to_string( current_surf->GetMainSurfID() ) );
         }
 
         if ( label_split_num )

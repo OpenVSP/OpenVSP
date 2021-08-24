@@ -245,6 +245,8 @@ public:
     virtual void ExportFiles();
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
 
+    virtual Surf* FindSurf( int surf_id ); // Find surface given surf ID
+
     virtual void DeleteDuplicateSurfs();
     virtual void BuildGrid();
 
