@@ -1,12 +1,28 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
+if( APPLE )
+  set( CMAKE_FIND_LIBRARY_SUFFIXES_ORIG ${CMAKE_FIND_LIBRARY_SUFFIXES} )
+  set( CMAKE_FIND_LIBRARY_SUFFIXES ".a;.tbd;.dylib;.so" )
+  MESSAGE( STATUS "Forcing static linking on GCC and APPLE for VSPAERO Solver")
+endif()
+
 FIND_PACKAGE( OpenMP )
+
+if( APPLE )
+  set( CMAKE_FIND_LIBRARY_SUFFIXES "${CMAKE_FIND_LIBRARY_SUFFIXES_ORIG}" )
+endif()
+
+MESSAGE( STATUS "OPENMP_FOUND = ${OPENMP_FOUND}" )
+MESSAGE( STATUS "OpenMP_CXX_INCLUDE_DIR = ${OpenMP_CXX_INCLUDE_DIR}" )
+MESSAGE( STATUS "OpenMP_CXX_LIBRARIES = ${OpenMP_CXX_LIBRARIES}" )
 
 if(OPENMP_FOUND AND NOT CXX_OMP_COMPILER)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -DVSPAERO_OPENMP")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DVSPAERO_OPENMP")
 
   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND APPLE)
+    # Historically was here to force OpenMP static.  Might not be needed anymore,
+    # not sure if these are included with default MacOS.
     set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
   endif()
 
