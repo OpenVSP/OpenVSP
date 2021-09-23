@@ -275,7 +275,7 @@ void VspGlWindow::update()
             fitModelScreen->LoadDrawObjs( drawObjs );
         }
 
-        // Load Render Objects from fitModelScreen.
+        // Load Render Objects from massPropScreen.
         MassPropScreen* massPropScreen = dynamic_cast<MassPropScreen*>
             ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MASS_PROP_SCREEN ) );
         if ( massPropScreen )
@@ -291,7 +291,7 @@ void VspGlWindow::update()
             cfdScreen->LoadDrawObjs( drawObjs );
         }
 
-        // Load Render Objects from CfdMeshScreen.
+        // Load Render Objects from SurfaceIntersectionScreen.
         SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
         ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_SURFACE_INTERSECTION_SCREEN ) );
         if( surfScreen )
