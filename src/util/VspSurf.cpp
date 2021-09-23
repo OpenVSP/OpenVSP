@@ -2081,6 +2081,40 @@ void SplitSurfsW( vector< piecewise_surface_type > &surfvec, const vector < doub
     }
 }
 
+void VspSurf::TrimU( double u, bool before )
+{
+    piecewise_surface_type s1, s2;
+
+    m_Surface.split_u( s1, s2, u );
+
+    if ( before )
+    {
+        m_Surface = s1;
+    }
+    else
+    {
+        s2.set_u0( 0.0 );
+        m_Surface = s2;
+    }
+}
+
+void VspSurf::TrimV( double v, bool before )
+{
+    piecewise_surface_type s1, s2;
+
+    m_Surface.split_v( s1, s2, v );
+
+    if ( before )
+    {
+        m_Surface = s1;
+    }
+    else
+    {
+        s2.set_v0( 0.0 );
+        m_Surface = s2;
+    }
+}
+
 // Check for degenerate patches by looking for coincident corners and edges.
 // This will return false for normal watertight surfaces, so it should only be
 // used to test patches from split surfaces.
