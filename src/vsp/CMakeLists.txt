@@ -50,6 +50,7 @@ IF( NOT VSP_NO_GRAPHICS )
     set_target_properties( vsp PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 
     TARGET_LINK_LIBRARIES(vsp
+        gui_interface_g
         gui_and_draw
         geom_core
         geom_api_g
@@ -91,6 +92,7 @@ IF( NOT VSP_NO_GRAPHICS )
 
     TARGET_LINK_LIBRARIES(apitest_g
         geom_api_g
+        gui_interface_g
         gui_and_draw
         geom_core
         cfd_mesh
