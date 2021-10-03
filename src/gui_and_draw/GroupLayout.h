@@ -36,7 +36,7 @@ public:
 
 //  GroupLayout creates and arranges Fltk gui widgets in an input Fl_Group.
 //  The widgets are sized and placed in the group in the order they are added.
-//  The created Fltk widgets are used to initalize the GuiDevices.
+//  The created Fltk widgets are used to initialize the GuiDevices.
 //  GroupLayout maintains a current location and default sizes used to build the GuiDevices.
 
 //  The layout starts in the upper left hand corner.
@@ -126,7 +126,7 @@ public:
     int GetCanvasHeight()               { return m_CanvasHeight; }
     void SetCanvasHeight( int h )       { m_CanvasHeight = h; }
 
-    //==== Add FLTK Widgets and Initalize GUI Devices ====//
+    //==== Add FLTK Widgets and Initialize GUI Devices ====//
     Fl_Box* AddDividerBox( const string& text, int used_w = 0 );
     void AddResizeBox( );
 

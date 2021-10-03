@@ -177,7 +177,7 @@ void SurfPatch::find_closest_uw_planar_approx( const vec3d& pnt_in, double uw[2]
     // Calculate normalized surface coordinates of the intersection point
     vec2d close_uw_01 = MapToPlane( pnt_in, a0, u_vec, w_vec );
 
-    // Scale the normalized local surface cordinates [0, 1] by the patch U and W range
+    // Scale the normalized local surface coordinates [0, 1] by the patch U and W range
     double u_range = u_max - u_min;
     double w_range = w_max - w_min;
 

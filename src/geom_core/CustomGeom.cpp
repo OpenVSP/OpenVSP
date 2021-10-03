@@ -689,7 +689,7 @@ void CustomGeom::AddUpdateGui( const GuiUpdate & gu )
     m_UpdateGuiVec.push_back( gu );
 }
 
-//==== Match Parm to GUI by Execting UpdateGui Script ====//
+//==== Match Parm to GUI by Executing UpdateGui Script ====//
 vector< GuiUpdate > CustomGeom::GetGuiUpdateVec()
 {
     m_UpdateGuiVec.clear();
@@ -714,7 +714,7 @@ vector< GuiUpdate > CustomGeom::GetGuiUpdateVec()
     return m_UpdateGuiVec;
 }
 
-//==== Add A Gui Tigger Event ====//
+//==== Add A Gui Trigger Event ====//
 void CustomGeom::AddGuiTriggerEvent( int index )
 {
     if ( m_TriggerVec.size() != m_GuiDefVec.size() )
@@ -728,7 +728,7 @@ void CustomGeom::AddGuiTriggerEvent( int index )
     }
 }
 
-//==== Check and Clear A Tigger Event ====//
+//==== Check and Clear A Trigger Event ====//
 bool CustomGeom::CheckClearTriggerEvent( int index )
 {
     bool trigger = false;

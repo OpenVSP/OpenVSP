@@ -158,7 +158,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_ExecuteLayout.AddButton( m_export, "Export to *.csv" );
     m_ExecuteLayout.ForceNewLine();
 
-    // Add Final Ouputs
+    // Add Final Outputs
     m_ConstantViewLayout.SetSameLineFlag( true );
     m_ConstantViewLayout.SetFitWidthFlag( false );
     m_ConstantViewLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH - 10 );
@@ -484,7 +484,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_TextBuffer->append( "S_wet \t\t : \t Wetted Area of Geometry, Calculated through DegenGeom \n" );
     m_TextBuffer->append( "L_ref \t\t : \t Reference Length of Geometry, Calculated through Length of Bounding Box in X direction or Chord on a Wing\n" );
     m_TextBuffer->append( "t/c or l/d \t : \t Thickness to Chord Ratio or Fineness Ratio, respectively \n" );
-    m_TextBuffer->append( "FF Equation \t : \t Choosen Form Factor Equation for Internal Calculations \n" );
+    m_TextBuffer->append( "FF Equation \t : \t Chosen Form Factor Equation for Internal Calculations \n" );
     m_TextBuffer->append( "FF \t\t : \t Form Factor of Specific Geometry \n" );
     m_TextBuffer->append( "Re \t\t : \t Reynolds Number for the component \n" );
     m_TextBuffer->append( "% Lam \t\t : \t % Laminar of Flow over Specific Geometry \n" );
@@ -495,12 +495,12 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_TextBuffer->append( "% Total \t : \t Total Percentage of the Drag Contribution of Specific Geometry \n" );
     m_TextBuffer->append( "\n" );
     m_TextBuffer->append( "-- Excrescence Table Quantities -- \n" );
-    m_TextBuffer->append( "Excres. Type \t : \t Choosen type of excrescence (Drag Counts, CD, % of C_D Geom, Drag Area ) \n" );
+    m_TextBuffer->append( "Excres. Type \t : \t Chosen type of excrescence (Drag Counts, CD, % of C_D Geom, Drag Area ) \n" );
     m_TextBuffer->append( "Excres. Input \t : \t User Input Value for Excrescence of Described Type \n" );
     m_TextBuffer->append( "\n" );
     m_TextBuffer->append( "-- User Input Options -- \n" );
-    m_TextBuffer->append( "Lam. Cf Eqn \t : \t Choosen Laminar Equation from Documented List at Link Below \n" );
-    m_TextBuffer->append( "Turb. Cf Eqn \t : \t Choosen Turbulent Equation from Documented List at Link Below \n" );
+    m_TextBuffer->append( "Lam. Cf Eqn \t : \t Chosen Laminar Equation from Documented List at Link Below \n" );
+    m_TextBuffer->append( "Turb. Cf Eqn \t : \t Chosen Turbulent Equation from Documented List at Link Below \n" );
     m_TextBuffer->append( "Spec. Method \t : \t Which Inputs Are to be Used to Determine Re/L and Mach \n" );
     sprintf( str, "Vinf \t\t : \t %s \n", ParasiteDragMgr.m_Vinf.GetDescript().c_str() );
     m_TextBuffer->append( str );

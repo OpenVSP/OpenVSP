@@ -8,7 +8,7 @@ void main()
 
     // Note: Parm Group for SubSurfaces in the form: "SS_" + type + "_" + count (initialized at 1)
     Print( string("Add SS_Line\n") );
-    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
     SetParmVal( wid, "Const_Line_Value", "SubSurface_1", 0.4 );     // Change Loc
     
     // Get and list all Parm info for SS_Line

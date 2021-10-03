@@ -1358,7 +1358,7 @@ void VspGlWindow::_updateTextures( DrawObj * drawObj )
                 float U = ( float )( drawObjTexList[i].U * -1.f * UScale );
                 float W = ( float )( drawObjTexList[i].W * WScale );
 
-                // Update Texture Properities.
+                // Update Texture Properties.
                 entity->getTextureMgr()->translate( texBufferID, U, W );
                 entity->getTextureMgr()->scale( texBufferID, UScale, WScale );
                 entity->getTextureMgr()->transparentize( texBufferID, drawObjTexList[i].Transparency );

@@ -902,7 +902,7 @@ void ConformalGeom::TrimV( VspSurf & surf )
         }
     }
 
-    //==== Find Used Patchs  ====//
+    //==== Find Used Patches  ====//
     vector< int > used_patch_vec;
     for ( int i = 0 ; i < nvpatch ; i++ )
     {

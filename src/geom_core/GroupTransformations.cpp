@@ -57,7 +57,7 @@ void GroupTransformations::ParmChanged( Parm * parm, int type )
     m_Vehicle->ParmChanged( parm, type );
 }
 
-// ==== Applys transformations to active geoms ==== //
+// ==== Applies transformations to active geoms ==== //
 void GroupTransformations::Update()
 {
     // Turn off the late update flag
@@ -114,7 +114,7 @@ void GroupTransformations::Update()
             delta_zrot = m_GroupZRot.Get();
         }
 
-        // Apply the deltas to stored orignal x,y,z
+        // Apply the deltas to stored original x,y,z
         new_x = m_oldVarVals[i][0] + delta_x;
         new_y = m_oldVarVals[i][1] + delta_y;
         new_z = m_oldVarVals[i][2] + delta_z;

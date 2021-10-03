@@ -31,7 +31,7 @@ HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Hinge" 
 
     m_BaseOrientationLayout.AddDividerBox( "Vectors" );
 
-    // Indivdual SubSurface Parameters
+    // Individual SubSurface Parameters
     m_PrimaryDirLayout.SetGroupAndScreen( AddSubGroup( orient_tab, 5 ), this );
     m_PrimaryDirLayout.SetY( m_BaseOrientationLayout.GetY() );
 

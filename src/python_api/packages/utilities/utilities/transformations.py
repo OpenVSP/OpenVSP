@@ -87,7 +87,7 @@ class TransMatrix:
 
     def apply_rotations(self, vector):
         """
-        Applys rotations to input vector
+        Applies rotations to input vector
         :param vector: column vectors
         :return: vectors rotated by transmat
         """
@@ -96,7 +96,7 @@ class TransMatrix:
 
     def apply_translations(self, vector):
         """
-        Applys translations to input vector
+        Applies translations to input vector
         :param vector: column vector
         :return: translations apply to column vector
         """
@@ -105,7 +105,7 @@ class TransMatrix:
 
     def apply_transformation(self, vector):
         """
-        Applys transformations to input vector
+        Applies transformations to input vector
         :param vector: column vector
         :return: transformed column vector
         """
@@ -115,7 +115,7 @@ class TransMatrix:
     def get_inverse_transform(self):
         """
         Returns a transformation matrix that will result in the inverse
-        of this tranformation matrix
+        of this transformation matrix
         :return: inverse transformation matrix
         """
 

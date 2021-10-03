@@ -204,7 +204,7 @@ Vehicle::Vehicle()
     m_NumPlanerSlices.SetDescript( "Number of planar slices used to display mesh" );
 
     m_AutoBoundsFlag.Init( "AutoBoundsFlag", "PSlice", this, true, false, true );
-    m_AutoBoundsFlag.SetDescript( "Automaticly sets Planar Start and End locations" );
+    m_AutoBoundsFlag.SetDescript( "Automatically sets Planar Start and End locations" );
 
     m_PlanarAxisType.Init( "PlanarAxisType", "PSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
     m_PlanarAxisType.SetDescript( "Selects from X,Y,Z Axis for Planar Slice" );

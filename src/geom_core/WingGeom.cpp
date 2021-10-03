@@ -2269,7 +2269,7 @@ void WingGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector
 
 void WingGeom::UpdatePreTess()
 {
-    // Update clustering before symmetry is appied for m_SurfVec
+    // Update clustering before symmetry is applied for m_SurfVec
     m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
     m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
 

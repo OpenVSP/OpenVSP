@@ -160,7 +160,7 @@ function TestVSPAeroCreateModel(~)
     % //==== Set Control Surface Group Deflection Angle ====% //
     fprintf( '\tSetting control surface group deflection angles...' );
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
-    % //  setup asymetric deflection for aileron
+    % //  setup asymmetric deflection for aileron
     % // subsurfaces get added to groups with 'CSGQualities_[geom_name]_[control_surf_name]'
     % // subsurfaces gain parm name is 'Surf[surfndx]_Gain' starting from 0 to NumSymmetricCopies-1
     deflection_gain_id = vsp.FindParm( control_group_settings_container_id, ['Surf_' aileron_id '_0_Gain'], 'ControlSurfaceGroup_0' );
@@ -893,7 +893,7 @@ function TestVSPAeroSharpTrailingEdge_test(~)
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
     % //==== Setup export filenames ====% //
-    % // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    % // Execution of one of these methods is required to properly set the export filenames for creation of vspaero input files and execution commands
     fname_sharptrailingedge = 'apitest_VSPAeroSharpTrailingEdge.vsp3';
     fprintf( '\tSetting export name: %s\n', fname_sharptrailingedge );
     vsp.SetVSP3FileName( fname_sharptrailingedge );  % // this still needs to be done even if a call to WriteVSPFile is made
@@ -1047,7 +1047,7 @@ function TestVSPAeroBluntTrailingEdge_test(~)
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
     % //==== Setup export filenames ====% //
-    % // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    % // Execution of one of these methods is required to properly set the export filenames for creation of vspaero input files and execution commands
     fname_blunttrailingedge = 'apitest_VSPAeroBluntTrailingEdge.vsp3';
     fprintf( '\tSetting export name: %s\n', fname_blunttrailingedge );
     vsp.SetVSP3FileName( fname_blunttrailingedge );  % // this still needs to be done even if a call to WriteVSPFile is made
@@ -1193,7 +1193,7 @@ function TestVSPAeroSupersonicDeltaWing_test(~)
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
     % //==== Setup export filenames ====% //
-    % // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    % // Execution of one of these methods is required to properly set the export filenames for creation of vspaero input files and execution commands
     fname_deltawing = 'apitest_VSPAeroSupersonicDeltaWing.vsp3';
     fprintf( '\tSetting export name: %s\n', fname_deltawing );
     vsp.SetVSP3FileName( fname_deltawing );  % // this still needs to be done even if a call to WriteVSPFile is made

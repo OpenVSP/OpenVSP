@@ -2307,7 +2307,7 @@ void CfdMeshMgrSingleton::TessellateChains()
     //  //  printf("Zero Length Chain\n");
     //  //}
 
-    //  ////==== Compute Total Distance Betwee Points ====//
+    //  ////==== Compute Total Distance Between Points ====//
     //  //double total_dist = 0;
     //  //for ( int i = 0 ; i < (*c)->m_TessVec.size() ; i++ )
     //  //{
