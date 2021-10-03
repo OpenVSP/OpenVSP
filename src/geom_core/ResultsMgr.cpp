@@ -22,13 +22,13 @@ NameValData::NameValData()
     Init( "Undefined" );
 }
 
-//==== Construtor With Name =====//
+//==== Constructor With Name =====//
 NameValData::NameValData( const string & name )
 {
     Init( name );
 }
 
-//==== Construtors With Name & Data =====//
+//==== Constructors With Name & Data =====//
 NameValData::NameValData( const string & name, const int & i_data )
 {
     Init( name, vsp::INT_DATA );

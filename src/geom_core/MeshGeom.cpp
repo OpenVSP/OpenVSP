@@ -2521,7 +2521,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     string filename = m_Vehicle->getExportFileName( vsp::SLICE_TXT_TYPE );
     res->WriteSliceFile( filename );
 
-    //==== TransForm Slices and Mesh to Match Orignal Coord Sys ====//
+    //==== TransForm Slices and Mesh to Match Original Coord Sys ====//
     TransformMeshVec( m_SliceVec, TransMat );
     TransformMeshVec( m_TMeshVec, TransMat );
 }

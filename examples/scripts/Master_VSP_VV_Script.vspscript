@@ -4174,7 +4174,7 @@ class HersheyVV : VV_Base
             ClearVSPModel();
         }
         
-        // Get Approximate LLT Cl distribution (number of points should be the same accross all wake iteration cases)
+        // Get Approximate LLT Cl distribution (number of points should be the same across all wake iteration cases)
         array<vec3d> wake_cl_dist_theo = GetHersheyBarLiftDist( int(100), Deg2Rad(m_AlphaVec[0]), Vinf, (2*m_halfAR[x]), false );
         
         // Const AR, WTess, TC, and UTess, vary wake iterations Lift Distribution Study
@@ -4387,7 +4387,7 @@ class HersheyVV : VV_Base
                 ClearVSPModel();
             }
             
-            // Get Approximate LLT Cl distribution (number of points should be the same accross all advanced settings cases)
+            // Get Approximate LLT Cl distribution (number of points should be the same across all advanced settings cases)
             array<vec3d> cl_dist_theo = GetHersheyBarLiftDist( int(100), Deg2Rad(m_AlphaVec[0]), Vinf, (2*m_halfAR[x]), false );
             
             // Const AR, WTess, TC, and UTess, vary advanced settings Lift Distribution Study
@@ -4847,7 +4847,7 @@ class SweepVV : VV_Base
             }
         }
         
-        // Compute average error accross all AR for each Sweep case
+        // Compute average error across all AR for each Sweep case
         for ( uint8 s = 0; s < num_Sweep; s++ )
         {
             Avg_Cla_Error_VLM[s] = (Avg_Cla_Error_VLM[s] / num_AR ) * 100;

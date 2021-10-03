@@ -163,7 +163,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     //==== Set Control Surface Group Deflection Angle ====//
     printf( "\tSetting control surface group deflection angles..." );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
-    //  setup asymetric deflection for aileron
+    //  setup asymmetric deflection for aileron
     string deflection_gain_id;
     // subsurfaces get added to groups with "CSGQualities_[geom_name]_[control_surf_name]"
     // subsurfaces gain parm name is "Surf[surfndx]_Gain" starting from 0 to NumSymmetricCopies-1
@@ -942,7 +942,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Setup export filenames ====//
-    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    // Execution of one of these methods is required to properly set the export filenames for creation of vspaero input files and execution commands
     string fname_sharptrailingedge = "apitest_VSPAeroSharpTrailingEdge.vsp3";
     printf( "\tSetting export name: %s\n", fname_sharptrailingedge.c_str( ) );
     vsp::SetVSP3FileName( fname_sharptrailingedge );  // this still needs to be done even if a call to WriteVSPFile is made
@@ -1106,7 +1106,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Setup export filenames ====//
-    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    // Execution of one of these methods is required to properly set the export filenames for creation of vspaero input files and execution commands
     string fname_blunttrailingedge = "apitest_VSPAeroBluntTrailingEdge.vsp3";
     printf( "\tSetting export name: %s\n", fname_blunttrailingedge.c_str( ) );
     vsp::SetVSP3FileName( fname_blunttrailingedge );  // this still needs to be done even if a call to WriteVSPFile is made
@@ -1262,7 +1262,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Setup export filenames ====//
-    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    // Execution of one of these methods is required to properly set the export filenames for creation of vspaero input files and execution commands
     string fname_deltawing = "apitest_VSPAeroSupersonicDeltaWing.vsp3";
     printf( "\tSetting export name: %s\n", fname_deltawing.c_str( ) );
     vsp::SetVSP3FileName( fname_deltawing );  // this still needs to be done even if a call to WriteVSPFile is made

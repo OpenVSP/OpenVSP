@@ -107,7 +107,7 @@ public:
 
     string m_FarGeomID;
 
-    double m_FarXScale; // Check FractionParm to double is apprpriate data conversion
+    double m_FarXScale; // Check FractionParm to double is appropriate data conversion
     double m_FarYScale;
     double m_FarZScale;
 

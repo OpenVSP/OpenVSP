@@ -1246,7 +1246,7 @@ void FeaSlice::Update()
     {
         m_FeaPartSurfVec[0] = ComputeSliceSurf();
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be defined in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
         {
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
@@ -2353,7 +2353,7 @@ void FeaSpar::ComputePlanarSurf()
             m_FeaPartSurfVec[0].FlipNormal();
         }
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be defined in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
         {
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
@@ -2404,7 +2404,7 @@ void FeaRib::Update()
         GetRibPerU();
         m_FeaPartSurfVec[0] = ComputeRibSurf();
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be defined in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
         {
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
@@ -3618,7 +3618,7 @@ void FeaDome::BuildDomeSurf()
 
         m_FeaPartSurfVec[0].BuildFeatureLines();
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be defined in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
         {
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];

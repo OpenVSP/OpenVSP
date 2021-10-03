@@ -69,7 +69,7 @@ public:
 
     bool m_FlipNormalFlag;
 
-    //identifing information for vsp model
+    //identifying information for vsp model
     string m_ParentGeomId;
     unsigned int m_ParentGeomSurfNdx;
 

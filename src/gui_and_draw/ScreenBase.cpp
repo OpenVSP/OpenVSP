@@ -537,7 +537,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSCommonGroup.AddDividerBox( "Sub-Surface Parameters" );
     m_SSCommonGroup.AddInput( m_SubNameInput, "Name" );
 
-    // Indivdual SubSurface Parameters
+    // Individual SubSurface Parameters
 
     //==== SSLine ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSLineGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );

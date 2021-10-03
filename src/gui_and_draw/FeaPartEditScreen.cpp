@@ -27,7 +27,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_CurFeaPartDispGroup = NULL;
 
-    // Indivdual FeaPart Parameters:
+    // Individual FeaPart Parameters:
     int start_y = m_GenLayout.GetY();
 
     //==== FeaSkin ====//

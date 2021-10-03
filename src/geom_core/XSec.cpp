@@ -308,7 +308,7 @@ void XSec::GetBasis( double t, Matrix4d &basis )
     basis.postMult( rmat.data() );
 }
 
-// Given a position along a curve t, and a desired surfce angle theta, calculate
+// Given a position along a curve t, and a desired surface angle theta, calculate
 // the tangent and normal unit vectors that will be required by the surface
 // skinning algorithm.
 

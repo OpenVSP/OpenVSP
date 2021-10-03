@@ -775,7 +775,7 @@ void ISegChain::Intersect( Surf* surfPtr, ISegChain* B )
 void ISegChain::AddSplit( Surf* surfPtr, int index, vec2d int_pnt )
 {
     //jrg 9/27
-    //==== Check if chain allready has a point there =====//
+    //==== Check if chain already has a point there =====//
     //double tol = 0.00001;
     //if ( surfPtr == m_SurfA )
     //{

@@ -21,7 +21,7 @@
 //              Match SCurves to create ICurves.  Create wakes surfs.
 //
 //  Intersect: Intersect all surfaces.  Intersect Y Slice Plane.
-//      Surf::Intersect - subdivide in to patchs, keep splitting till planer, intersect.
+//      Surf::Intersect - subdivide in to patches, keep splitting till planer, intersect.
 //          CfdMeshMgr::AddIntersectionSeg - Create intersection points and segments.
 //
 //      CfdMeshMgr::LoadBorderCurves: Tesselate border curves, build border chains.

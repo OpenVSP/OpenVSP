@@ -3744,7 +3744,7 @@ bool ParasiteDragMgrSingleton::IsNotZeroLineItem( int index )
     // OR
     // Sub surface is NOT Zero Drag
 
-    // If incorporated, swet is added to choosen ancestor
+    // If incorporated, swet is added to chosen ancestor
     // Main surf will never be a zero line item
     // Custom types can have several geom types in them
     // If Geom list is expanded all components use their individual swets

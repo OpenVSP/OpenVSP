@@ -1990,7 +1990,7 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
     bool stillExpanding = true;
     bool expandFront = true;
     bool firstIter = true;
-    // A minumum of 2 results is needed, since the the first result will be a point at the 
+    // A minimum of 2 results is needed, since the the first result will be a point at the 
     // query location but already used by the adjacent segment. Additional results might not
     // be needed but are added just to be safe. The effect on speed should be negligible. 
     const size_t num_results = 4;

@@ -48,7 +48,7 @@ public:
     // Flag indicating the curve is a sub-surface curve
     bool m_SubSurfFlag;
 
-    // Vector of points decribing the curve
+    // Vector of points describing the curve
     vector < vec3d > m_PntVec;
 
     // Parent surface indexes
@@ -101,7 +101,7 @@ public:
     void SetPntVec( const vector < vec3d >& pnt_vec );
 
     // Get the Type 126 NURBS curve pointer for each ordered curve in the loop.
-    // If the Type 126 entitiy is not yet defined, WriteIGESEdge is called.
+    // If the Type 126 entity is not yet defined, WriteIGESEdge is called.
     vector < DLL_IGES_ENTITY_126* > GetIGESEdges( IGESutil* iges );
 
     // Write the NURBS loop to IGES and trim the parent 128 type entity to form a

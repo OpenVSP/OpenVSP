@@ -553,7 +553,7 @@ bool VarPresetMgrSingleton::SavePreset()
 
 void VarPresetMgrSingleton::ApplySetting()
 {
-    //cout << "Setting Change Has Occured -----------------------------------------" << endl;
+    //cout << "Setting Change Has Occurred -----------------------------------------" << endl;
     int group_index = GetActiveGroupIndex();
 
     // Group Contains at least 1 Setting
@@ -581,7 +581,7 @@ void VarPresetMgrSingleton::ApplySetting()
 //==== Setting Change ====//
 void VarPresetMgrSingleton::SettingChange( int set_index )
 {
-    //cout << "Setting Change Has Occured -----------------------------------------" << endl;
+    //cout << "Setting Change Has Occurred -----------------------------------------" << endl;
     int group_index = GetActiveGroupIndex();
 
     // Group Contains at least 1 Setting
@@ -610,7 +610,7 @@ void VarPresetMgrSingleton::SettingChange( const string & set_name )
 //==== Group Change ====//
 void VarPresetMgrSingleton::GroupChange( int group_index )
 {
-    //cout << "Group Change Has Occured -------------------------------" << endl;
+    //cout << "Group Change Has Occurred -------------------------------" << endl;
     // Get Current Group Index and Text
     m_CurGroupIndex = group_index;
     m_CurGroupText = m_PresetVec[ m_CurGroupIndex ].GetGroupName();
@@ -804,7 +804,7 @@ vector <string> VarPresetMgrSingleton::GetGroupNames()
     return vec;
 }
 
-//==== Check For Repeat Parmeters ====//
+//==== Check For Repeat Parameters ====//
 // Checks for Repeat Parameters across all groups
 bool VarPresetMgrSingleton::CheckForDuplicateParm( const string & p_ID )
 {

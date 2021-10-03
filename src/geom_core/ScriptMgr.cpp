@@ -233,7 +233,7 @@ string ScriptMgrSingleton::ReadScriptFromMemory( const string &  module_name, co
         dup_cnt++;
     }
 
-    //==== Make Sure Not Dupicate Of Any Other Module ====//
+    //==== Make Sure Not Duplicate Of Any Other Module ====//
     for ( iter = m_ModuleContentMap.begin() ; iter != m_ModuleContentMap.end() ; iter++ )
     {
         if ( iter->second == script_content )
@@ -621,7 +621,7 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_Z_SCALE", CFD_FAR_Z_SCALE, "/*!<  Far field Z scale */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_LOC_MAN_FLAG", CFD_FAR_LOC_MAN_FLAG, "/*!< Far field locaion flag: centered or manual */" );
+    r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_LOC_MAN_FLAG", CFD_FAR_LOC_MAN_FLAG, "/*!< Far field locaiton flag: centered or manual */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_LOC_X", CFD_FAR_LOC_X, "/*!< Far field X location */" );
     assert( r >= 0 );
@@ -2395,7 +2395,7 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
     
     doc_struct.comment = R"(
 /*!
-    Reflect the vec3d accross the XY plane
+    Reflect the vec3d across the XY plane
     \code{.cpp}
     //==== Test Vec3d ====//
     vec3d a(), b();                                // Default Constructor
@@ -2412,7 +2412,7 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
     
     doc_struct.comment = R"(
 /*!
-    Reflect the vec3d accross the XZ plane
+    Reflect the vec3d across the XZ plane
     \code{.cpp}
     //==== Test Vec3d ====//
     vec3d a(), b();                                // Default Constructor
@@ -2429,7 +2429,7 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
     
     doc_struct.comment = R"(
 /*!
-    Reflect the vec3d accross the YZ plane
+    Reflect the vec3d across the YZ plane
     \code{.cpp}
     //==== Test Vec3d ====//
     vec3d a(), b();                                // Default Constructor
@@ -2797,7 +2797,7 @@ void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Create a 4x4 indentity matrix
+    Create a 4x4 identity matrix
     \code{.cpp}
     //==== Test Matrix4d ====//
     Matrix4d m();                            // Default Constructor
@@ -2921,7 +2921,7 @@ void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
 
     vec3d a = m.xform( vec3d( 1.0, 2.0, 3.0 ) );
     \endcode
-    \param [in] v Tranformation vector
+    \param [in] v Transformation vector
 */)";
     r = se->RegisterObjectMethod( "Matrix4d", "vec3d xform( const vec3d & in v )", asMETHOD( Matrix4d, xform ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
@@ -5781,7 +5781,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
     // Note: Parm Group for SubSurfaces in the form: "SS_" + type + "_" + count (initialized at 1)
-    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
 
     SetParmVal( wid, "Const_Line_Value", "SubSurface_1", 0.4 );     // Change Location
     \endcode
@@ -5800,7 +5800,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
     string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
 
     Print("Delete SS_Line\n");
@@ -5825,7 +5825,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
     string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
 
     Print("Delete SS_Line\n");
@@ -5973,7 +5973,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
     string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
 
     int ind = GetSubSurfIndex( ss_rec_id );
@@ -5994,7 +5994,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
     string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
 
     array<string> id_vec = GetSubSurfIDVec( wid );
@@ -6036,7 +6036,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
     string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
 
     int num_ss = GetNumSubSurf( wid );
@@ -6057,7 +6057,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
     string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
 
     array<string> id_vec = GetSubSurfIDVec( wid );
@@ -6092,7 +6092,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Surface Line
 
     // Get and list all Parm info for SS_Line
     array<string> parm_id_vec = GetSubSurfParmIDs( ss_line_id );
@@ -6155,7 +6155,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     //==== Set Control Surface Group Deflection Angle ====//
     Print( "\tSetting control surface group deflection angles..." );
 
-    //  setup asymetric deflection for aileron
+    //  setup asymmetric deflection for aileron
     string deflection_gain_id;
 
     // subsurfaces get added to groups with "CSGQualities_[geom_name]_[control_surf_name]"
@@ -10081,7 +10081,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Update any refernce geometry, atmospheric properties, excressences, etc. in the Parasite Drag Tool
+    Update any reference geometry, atmospheric properties, excressences, etc. in the Parasite Drag Tool
 */)";
     r = se->RegisterGlobalFunction( "void UpdateParasiteDrag()", asFUNCTION( vsp::UpdateParasiteDrag ), asCALL_CDECL, doc_struct );
     assert( r >= 0 ); // TODO: Example
@@ -10122,7 +10122,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [in] atmos_type Atmospheric model enum (i.e. ATMOS_TYPE_HERRINGTON_1966)
     \param [out] temp output Temperature
     \param [out] pres output Pressure
-    \param [out] pres_ratio Ouput pressure ratio
+    \param [out] pres_ratio Output pressure ratio
     \param [out] rho_ratio Output density ratio
 */)";
     r = se->RegisterGlobalFunction( "void CalcAtmosphere( const double & in alt, const double & in delta_temp, const int & in atmos_type, double & out temp, double & out pres, double & out pres_ratio, double & out rho_ratio )", asFUNCTION( vsp::CalcAtmosphere ), asCALL_CDECL, doc_struct );
@@ -11880,7 +11880,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Add an FEA Material the FEA Mesh material library. Materials are available accross all Geoms and Structures. 
+    Add an FEA Material the FEA Mesh material library. Materials are available across all Geoms and Structures. 
     \code{.cpp}
     //==== Create FeaMaterial ====//
     string mat_id = AddFeaMaterial();
@@ -11894,7 +11894,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Add aa FEA Property the FEA Mesh property library. Properties are available accross all Geoms and Structures. Currently only beam and 
+    Add aa FEA Property the FEA Mesh property library. Properties are available across all Geoms and Structures. Currently only beam and 
     shell properties are available. Note FEA_SHELL_AND_BEAM is not a valid property type.
     \code{.cpp}
     //==== Create FeaProperty ====//

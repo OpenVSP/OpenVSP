@@ -123,7 +123,7 @@ void UpdateSurf()
         }
 
         //==== Reset Trigger ====//
-        SetParmVal( preset_trigger_parm, 0 );          // Reset Tigger
+        SetParmVal( preset_trigger_parm, 0 );          // Reset Trigger
     }
     
     //==== Get Curr Vals ====//

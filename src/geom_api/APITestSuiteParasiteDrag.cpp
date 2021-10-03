@@ -42,7 +42,7 @@ void APITestSuiteParasiteDrag::TestParasiteDragCreateModel()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     //==== Setup export filenames ====//
-    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    // Execution of one of these methods is required to properly set the export filenames for creation of vspaero input files and execution commands
     m_vspfname_for_parasitedragtests = "apitest_TestParasiteDrag.vsp3";
     printf( "\tSetting export name: %s\n", m_vspfname_for_parasitedragtests.c_str() );
     vsp::SetVSP3FileName( m_vspfname_for_parasitedragtests );  // this still needs to be done even if a call to WriteVSPFile is made
@@ -354,7 +354,7 @@ void APITestSuiteParasiteDrag::TestSubSurfaceHandling()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Setup export filenames ====//
-    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    // Execution of one of these methods is required to properly set the export filenames for creation of vspaero input files and execution commands
     string name = "apitest_TestParasiteDragSubSurfaceHandling.vsp3";
     printf( "\tSetting export name: %s\n", name.c_str() );
     vsp::SetVSP3FileName( name );  // this still needs to be done even if a call to WriteVSPFile is made
@@ -443,7 +443,7 @@ void APITestSuiteParasiteDrag::TestGeometryGrouping()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Setup export filenames ====//
-    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    // Execution of one of these methods is required to properly set the export filenames for creation of vspaero input files and execution commands
     string name = "apitest_TestParasiteDragGeometryGrouping.vsp3";
     printf( "\tSetting export name: %s\n", name.c_str() );
     vsp::SetVSP3FileName( name );  // this still needs to be done even if a call to WriteVSPFile is made

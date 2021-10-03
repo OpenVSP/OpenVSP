@@ -1989,7 +1989,7 @@ void TTri::TriangulateSplit( int flattenAxis )
     in.edgemarkerlist = NULL;
     in.segmentmarkerlist = NULL;
 
-    //==== Load Points into Traingle Struct ====//
+    //==== Load Points into Triangle Struct ====//
     in.numberofpoints = m_NVec.size();
 
 

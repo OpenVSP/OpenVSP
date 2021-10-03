@@ -1,5 +1,5 @@
 // CppTest requires a config.h file to provide system-dependent
-// configuration information.  Inspection of this sytem reveals
+// configuration information.  Inspection of this system reveals
 // that only three variables are actually referenced.
 //
 // Choosing to not define these three variables forces CppTest

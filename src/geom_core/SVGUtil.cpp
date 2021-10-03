@@ -80,7 +80,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
         break;
     }
 
-    // Establish new coordinate sytem with scale bar aligned with feature lines
+    // Establish new coordinate system with scale bar aligned with feature lines
     double xtrans_right = scale * 2 + scalevec.x();
     double xtrans_left = scale * 2;
     double ytrans = scale * 3.75;

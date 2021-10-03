@@ -24,7 +24,7 @@ class VspSubGlWindow : public Fl_Gl_Window
 public:
     /*
     * Constructor.
-    * Parmeters are left upper corner position of the window (x, y) and
+    * Parameters are left upper corner position of the window (x, y) and
     * window's width and height (w, h).
     *
     * drawObjScreen - specific drawObj screen to link.
