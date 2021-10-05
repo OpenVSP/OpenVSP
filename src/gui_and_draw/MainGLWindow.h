@@ -160,6 +160,7 @@ private:
     void OnRelease( int x, int y );
     int OnKeyup( int x, int y );
     int OnKeydown();
+    void OnWheelScroll( int dx, int dy );
 
 private:
     VSPGraphic::GraphicEngine * m_GEngine;

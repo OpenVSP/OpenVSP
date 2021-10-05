@@ -199,6 +199,13 @@ public:
     virtual void zoom( int px, int py, int cx, int cy );
 
     /*!
+    * Zoom in or out.
+    *
+    * dx, dy - mouse scroll change.
+    */
+    virtual void zoom( int dx, int dy );
+
+    /*!
      * Get Relative Zoom Value
      */
     virtual float getRelativeZoomValue();

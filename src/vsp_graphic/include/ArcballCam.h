@@ -106,6 +106,13 @@ public:
     void zoom( int px, int py, int cx, int cy );
 
     /*!
+    * Zoom in or out.
+    *
+    * dx, dy - mouse scroll change.
+    */
+    void zoom( int dx, int dy );
+
+    /*!
     * Zoom in or out relative to a point in world space.
     *
     * zoomvalue - amount to zoom in or out.  Positive zooms out,

@@ -180,6 +180,9 @@ int VspGlWindow::handle( int fl_event )
     m_mouse_x = x;
     m_mouse_y = y;
 
+    int dx = Fl::event_dx();
+    int dy = Fl::event_dy();
+
     switch( fl_event )
     {
     case FL_ENTER:
@@ -203,6 +206,7 @@ int VspGlWindow::handle( int fl_event )
         return 1;
 
     case FL_MOUSEWHEEL:
+        OnWheelScroll( dx, dy );
         return 1;
 
     case FL_MOVE:
@@ -2052,6 +2056,18 @@ int VspGlWindow::OnKeydown()
     redraw();
 
     return handled;
+}
+
+void VspGlWindow::OnWheelScroll(int dx, int dy )
+{
+    VSPGraphic::Display * display = m_GEngine->getDisplay();
+
+    display->zoom( dx * 0.5, dy * 0.5 );
+
+    ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+    viewScreen->UpdateZoom();
 }
 
 void VspGlWindow::_sendFeedback( Selectable * selected )
