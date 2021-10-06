@@ -1,4 +1,4 @@
-prop.inp: Prop Run Char File
+test_rctrim.inp: Test Trim Run Char File
 NROTOR  IMKS
    2      0 
 PATHNAME
@@ -17,8 +17,8 @@ INPUT FILENAMES for Forward Left rotor
  none
 SSPD       RHO
 1116.45    .002378
-SFRAME  SMODE
-  1       0
+SFRAME   SMODE
+  2        1
  U      V    W        P   Q   R
  220.00 0.0 0.0     0.0 0.0 0.0
 NPSI    NREV    CONVG1    CONVG2   CONVG3   MREV
@@ -44,9 +44,7 @@ ISURF
 ISHIP
   0
 IRECON   NOISE
-  1        -4
-NCHDRC   NPSIRC   IVROLL  CDRMIN
-  1       360       1      .01
+  0        0
 NLS
  0
 NAC
@@ -62,10 +60,11 @@ OMCG
 TRIMFILENAME
  trim.inp
 WEIGHT
- 0.0
+ 7000.0
 CGAC
- 0.  0.  0.
+ 1.  2.  3.
 KACR
  1
 NTRAJ
  0
+ 

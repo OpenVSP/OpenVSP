@@ -1,0 +1,23 @@
+trim.inp: Trim template file
+Fx   Fy   Fz   Mx   My   Mz                                                                   Aircraft forces and moments to trim
+ 1    1    1    1    1    1                                                                   
+Fx   Fy   Fz   Mx   My   Mz                                                                   Optional trim values (default is 0)
+0.0  0.0  0.0  0.0  0.0  0.0                                                                  
+Fx    Fy    Fz    Mx    My    Mz                                                              Trim tolerance (fraction of weight)
+.0002 .0002 .0002 .0002 .0002 .0002                                                           
+Coll Lat Long Pedal Throttle Tilt Flap1 Flap2 Elev Rudder Addl                                Pilot controls
+ 1    1   1    1     0        0    0     0     0    0      0                                   
+Roll Pitch Sideslip                                                                           Attitude controls used to trim
+ 1    1     0                                                                                 
+Number of aerodynamic components (rotors and wings) used to trim                              
+2                                                                                             
+Comp RPM Coll Lat Long Tilt Flaps(4) Controls used by each aero component                     
+ 1    0   1    2   3    0    0    0   0   0                                                   Aero Component 1: Main rotor
+ 2    0   4    0   0    0    0    0   0   0                                                   Aero Component 2: Tail rotor
+Ctrl Zero Coll  Lat  Long  Pedal  Throttle Tilt Flap1 Flap2 Elev Rudder Addl Mixer: Component/Pilot control gains
+ 1    0.0  1.0  0.0  0.0   0.0     0.0     0.0  0.0   0.0   0.0  0.0    0.0                   Rotor 1 Col 1:1 with Pilot Col Stick
+ 2    0.0  0.0  1.0  0.0   0.0     0.0     0.0  0.0   0.0   0.0  0.0    0.0                   Rotor 1 Lat 1:1 with Pilot Lat Stick
+ 3    0.0  0.0  0.0  1.0   0.0     0.0     0.0  0.0   0.0   0.0  0.0    0.0                   Rotor 1 Lon 1:1 with Pilot Lon Stick
+ 4    0.0  0.0  0.0  0.0   1.0     0.0     0.0  0.0   0.0   0.0  0.0    0.0                   Rotor 2 Col 1:1 with Pilot Pedal
+Initial Pilot Control Settings Based on the Gains Above
+          20.0  0.0  0.0   0.0     0.0     0.0  0.0   0.0   0.0  0.0    0.0
