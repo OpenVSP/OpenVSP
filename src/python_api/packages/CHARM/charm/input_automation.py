@@ -1469,7 +1469,7 @@ def build_default_trim_settings(trim_template=None) -> CharmTrimSettings:
         if line_init_labels == 0:
             raise ValueError("RegEx for 'Initial' not found in trim input file.")
         data = trim_template[i].split()
-        default_settings.cntrl_gains[i-line_cntrl_gains, :] = np.array(data)
+        default_settings.cntrl_gains[i-line_cntrl_gains, :] = np.array(data[0:13])
 
     return default_settings
 
@@ -1759,7 +1759,7 @@ def build_run_characteristics_file_from_template(rotor_files, template_filename=
     vel_expr = re.compile(r"(^|\s)U\s+V\s+W\s")
     pitch_expr = re.compile(r"(^|\s)YAW\s*\(\s*IAC\s*\)\s*,\s*PITCH\s*\(\s*IAC\s*\)\s*,\s*ROLL\s*\(\s*IAC\s*\)")
     weight_expr = re.compile(r"(^|\s)WEIGHT")
-    cg_expr = re.compile(r"(^|\s)\(CGAC")
+    cg_expr = re.compile(r"(^|\s)\(?CGAC")
     atmo_expr = re.compile(r"(^\s*)SSPD\s+RHO")
     num_pitches_found = 0
     for line_num in range(len(run_char_file)):
@@ -1862,7 +1862,7 @@ def read_run_characteristics_template(template_filename=None, template_file=None
     sframe_expr = re.compile(r"(^|\s)SFRAME\s+")
     vel_expr = re.compile(r"(^|\s)U\s+V\s+W\s")
     weight_expr = re.compile(r"(^|\s)WEIGHT")
-    cg_expr = re.compile(r"(^|\s)\(CGAC")
+    cg_expr = re.compile(r"(^|\s)\(?CGAC")
     file_list = []
     for line_num in range(len(run_char_file)):
         line = run_char_file[line_num]
