@@ -28,6 +28,6 @@ setup(
     license='MIT',
     author='Uber Technologies, Inc.',
     author_email='',
-    install_requires=['utilities', 'scipy', 'numpy', 'matplotlib', 'pandas'],
+    install_requires=['utilities', 'scipy', 'numpy', 'matplotlib', 'pandas', 'fortranformat'],
     description='Python package to automate working with CHARM'
 )

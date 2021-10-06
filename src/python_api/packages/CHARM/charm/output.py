@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 import os
-from charm.input_automation import *
+from charm.input_automation import *  # noqa
 import numpy as np
 import utilities.units as u
 import matplotlib.pyplot as plt
@@ -28,8 +28,8 @@ from collections import namedtuple
 from enum import Enum
 import pandas as pd
 from typing import List
-import utilities.collections as uc
 import utilities.simple_rotor_calcs as src
+import fortranformat as ff
 
 RotorTuple = namedtuple("RotorTuple", "shaft_thrust_total shaft_power_total shaft_h_force shaft_y_force \
                                        shaft_roll_mom shaft_pitch_mom shaft_yaw_mom \
@@ -464,7 +464,8 @@ class CharmPerfData:
                 meta_data_variablenames[1] = 'rotor'
                 for irotor in range(num_rotors):
                     line = f.readline()  # variable values line
-                    data = uc.split_on_indices(line, [9, 14, 19, 30, 40, 50, 62, 74, 85])
+                    reader = ff.FortranRecordReader("(I9, 2I5, F11.2, F10.2, E10.4, F12.4, F12.3, 2E11.3)")
+                    data = reader.read(line)
                     charm_rotor_num = int(data[0])
                     num_psi = int(data[1])
                     num_radial_locs = int(data[2])
