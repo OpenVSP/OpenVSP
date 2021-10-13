@@ -2097,27 +2097,35 @@ bool XSecViewScreen::Update()
         return false;
     }
 
+    XSecCurve* xsc = xs->GetXSecCurve();
+
+    if( !xsc )
+    {
+        Hide();
+        return false;
+    }
+
     VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
 
     m_ColorPicker.Update( veh->GetXSecLineColor() );
 
-    m_Image.Update( xs->GetXSecCurve()->m_XSecImageFlag.GetID() );
-    m_FileOutput.Update( StringUtil::truncateFileName( xs->GetXSecCurve()->GetImageFile(), 40 ).c_str() );
+    m_Image.Update( xsc->m_XSecImageFlag.GetID() );
+    m_FileOutput.Update( StringUtil::truncateFileName( xsc->GetImageFile(), 40 ).c_str() );
 
     // Update Scale and Offset in Background
-    m_WScale.Update( xs->GetXSecCurve()->m_XSecImageW.GetID() );
-    m_HScale.Update( xs->GetXSecCurve()->m_XSecImageH.GetID() );
+    m_WScale.Update( xsc->m_XSecImageW.GetID() );
+    m_HScale.Update( xsc->m_XSecImageH.GetID() );
 
-    if ( xs->GetXSecCurve()->m_XSecImageFlag() )
+    if ( xsc->m_XSecImageFlag() )
     {
         m_ImageLayout.GetGroup()->activate();
 
         if ( ( viewport->getBackground()->getBackgroundMode() != VSPGraphic::Common::VSP_BACKGROUND_IMAGE ||
-            ( VSPGraphic::GlobalTextureRepo()->getTextureID( xs->GetXSecCurve()->GetImageFile().c_str() ) != viewport->getBackground()->getTextureID() ) ) &&
-            xs->GetXSecCurve()->GetImageFile().size() > 0 )
+            ( VSPGraphic::GlobalTextureRepo()->getTextureID( xsc->GetImageFile().c_str() ) != viewport->getBackground()->getTextureID() ) ) &&
+            xsc->GetImageFile().size() > 0 )
         {
             viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
-            viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( xs->GetXSecCurve()->GetImageFile().c_str() ) );
+            viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( xsc->GetImageFile().c_str() ) );
         }
     }
     else
@@ -2131,30 +2139,30 @@ bool XSecViewScreen::Update()
         }
     }
 
-    viewport->getBackground()->scaleW( (float)xs->GetXSecCurve()->m_XSecImageW.Get() );
+    viewport->getBackground()->scaleW( (float)xsc->m_XSecImageW.Get() );
 
-    m_PreserveAspect.Update( xs->GetXSecCurve()->m_XSecImagePreserveAR.GetID() );
-    viewport->getBackground()->preserveAR( (bool)xs->GetXSecCurve()->m_XSecImagePreserveAR.Get() );
+    m_PreserveAspect.Update( xsc->m_XSecImagePreserveAR.GetID() );
+    viewport->getBackground()->preserveAR( (bool)xsc->m_XSecImagePreserveAR.Get() );
 
-    m_FlipImageToggle.Update( xs->GetXSecCurve()->m_XSecFlipImageFlag.GetID() );
-    viewport->getBackground()->flipX( (bool)xs->GetXSecCurve()->m_XSecFlipImageFlag.Get() );
+    m_FlipImageToggle.Update( xsc->m_XSecFlipImageFlag.GetID() );
+    viewport->getBackground()->flipX( (bool)xsc->m_XSecFlipImageFlag.Get() );
 
-    if ( xs->GetXSecCurve()->m_XSecImagePreserveAR() )
+    if ( xsc->m_XSecImagePreserveAR() )
     {
-        xs->GetXSecCurve()->m_XSecImageH.Set( viewport->getBackground()->getScaleH() );
+        xsc->m_XSecImageH.Set( viewport->getBackground()->getScaleH() );
         m_HScale.Deactivate();
     }
     else
     {
-        viewport->getBackground()->scaleH( (float)xs->GetXSecCurve()->m_XSecImageH.Get() );
+        viewport->getBackground()->scaleH( (float)xsc->m_XSecImageH.Get() );
         m_HScale.Activate();
     }
 
-    m_XOffset.Update( xs->GetXSecCurve()->m_XSecImageXOffset.GetID() );
-    m_YOffset.Update( xs->GetXSecCurve()->m_XSecImageYOffset.GetID() );
+    m_XOffset.Update( xsc->m_XSecImageXOffset.GetID() );
+    m_YOffset.Update( xsc->m_XSecImageYOffset.GetID() );
 
-    viewport->getBackground()->offsetX( (float)xs->GetXSecCurve()->m_XSecImageXOffset.Get() );
-    viewport->getBackground()->offsetY( (float)xs->GetXSecCurve()->m_XSecImageYOffset.Get() );
+    viewport->getBackground()->offsetX( (float)xsc->m_XSecImageXOffset.Get() );
+    viewport->getBackground()->offsetY( (float)xsc->m_XSecImageYOffset.Get() );
 
     m_GlWin->update();
     m_GlWin->redraw();
@@ -2198,6 +2206,14 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
+    XSecCurve* xsc = xs->GetXSecCurve();
+
+    if( !xsc )
+    {
+        Hide();
+        return;
+    }
+
     VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
 
     if ( device == &m_ColorPicker )
@@ -2210,9 +2226,9 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
 
-            if ( xs->GetXSecCurve()->GetImageFile().compare( "" ) != 0 )
+            if ( xsc->GetImageFile().compare( "" ) != 0 )
             {
-                viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( xs->GetXSecCurve()->GetImageFile().c_str() ) );
+                viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( xsc->GetImageFile().c_str() ) );
             }
         }
         else
@@ -2234,24 +2250,24 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
                 viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( fileName.c_str() ) );
             }
 
-            xs->GetXSecCurve()->SetImageFile( fileName );
+            xsc->SetImageFile( fileName );
         }
     }
     else if ( device == &m_ResetDefaults )
     {
         viewport->getBackground()->reset();
-        xs->GetXSecCurve()->m_XSecImageFlag.Set( false );
-        xs->GetXSecCurve()->SetImageFile( "" );
-        xs->GetXSecCurve()->m_XSecImagePreserveAR.Set( true );
+        xsc->m_XSecImageFlag.Set( false );
+        xsc->SetImageFile( "" );
+        xsc->m_XSecImagePreserveAR.Set( true );
 
         veh->SetXSecLineColor( vec3d( 0, 0, 0 ) );
 
         // Reset Scale & Offset
-        xs->GetXSecCurve()->m_XSecImageW.Set( viewport->getBackground()->getScaleW() );
-        xs->GetXSecCurve()->m_XSecImageH.Set( viewport->getBackground()->getScaleH() );
+        xsc->m_XSecImageW.Set( viewport->getBackground()->getScaleW() );
+        xsc->m_XSecImageH.Set( viewport->getBackground()->getScaleH() );
 
-        xs->GetXSecCurve()->m_XSecImageXOffset.Set( viewport->getBackground()->getOffsetX() );
-        xs->GetXSecCurve()->m_XSecImageYOffset.Set( viewport->getBackground()->getOffsetY() );
+        xsc->m_XSecImageXOffset.Set( viewport->getBackground()->getOffsetX() );
+        xsc->m_XSecImageYOffset.Set( viewport->getBackground()->getOffsetY() );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
