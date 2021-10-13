@@ -1537,8 +1537,6 @@ void PointXSec::UpdateCurve()
     else
     {
         m_Curve.SetCurve( c );
-
-        XSecCurve::UpdateCurve();
     }
 }
 //==========================================================================//
@@ -1590,8 +1588,6 @@ void CircleXSec::UpdateCurve()
     {
         c.reverse();
         m_Curve.SetCurve( c );
-
-        XSecCurve::UpdateCurve();
     }
 }
 
@@ -1637,8 +1633,6 @@ void EllipseXSec::UpdateCurve()
     {
         c.reverse();
         m_Curve.SetCurve( c );
-
-        XSecCurve::UpdateCurve();
     }
 }
 
@@ -1713,8 +1707,6 @@ void SuperXSec::UpdateCurve()
     {
         c.reverse();
         m_Curve.InterpolateEqArcLenPCHIP( c );
-
-        XSecCurve::UpdateCurve();
     }
 }
 
@@ -1794,9 +1786,6 @@ void RoundedRectXSec::UpdateCurve()
     m_RadiusBL.Set( r2 );
     m_RadiusTL.Set( r3 );
     m_RadiusTR.Set( r4 );
-
-    XSecCurve::UpdateCurve();
-    return;
 }
 
 //==== Build Box of Even Spaced Points ====//
@@ -1952,8 +1941,6 @@ void GeneralFuseXSec::UpdateCurve()
         m_Curve.RoundJoint( m_CornerRad() * m_Height(), 2 );
         m_Curve.RoundJoint( m_CornerRad() * m_Height(), 0 );
     }
-
-    XSecCurve::UpdateCurve();
 }
 
 void GeneralFuseXSec::ReadV2FileFuse2( xmlNodePtr &root )
@@ -2107,8 +2094,6 @@ void FileXSec::UpdateCurve()
     }
 
     m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
-
-    XSecCurve::UpdateCurve();
 }
 
 //==== Encode XML ====//
@@ -2842,8 +2827,6 @@ void EditCurveXSec::UpdateCurve()
     UpdateG1Parms();
 
     EnforcePtOrder();
-
-    XSecCurve::UpdateCurve();
 }
 
 void EditCurveXSec::EnforceClosure()
@@ -4368,7 +4351,6 @@ void InterpXSec::UpdateCurve()
 {
     m_Curve.MatchThick( m_Height() / m_Width() );
     m_Curve.Scale( m_Width() );
-    XSecCurve::UpdateCurve();
 }
 
 //==== Set Width and Height ====//
