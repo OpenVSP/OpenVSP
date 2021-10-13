@@ -34,6 +34,7 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void Update();
+    virtual void UpdateCurve() {};
 
     virtual void SetGroupDisplaySuffix( int num );
 
@@ -187,7 +188,7 @@ public:
 
     PointXSec( );
 
-    virtual void Update();
+    virtual void UpdateCurve();
 
 };
 
@@ -201,7 +202,7 @@ public:
 
     CircleXSec( );
 
-    virtual void Update();
+    virtual void UpdateCurve();
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -230,7 +231,7 @@ public:
 
     EllipseXSec( );
 
-    virtual void Update();
+    virtual void UpdateCurve();
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -259,7 +260,7 @@ public:
 
     SuperXSec( );
 
-    virtual void Update();
+    virtual void UpdateCurve();
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -296,7 +297,7 @@ public:
 
     RoundedRectXSec( );
 
-    virtual void Update();
+    virtual void UpdateCurve();
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -339,7 +340,7 @@ public:
 
     GeneralFuseXSec( );
 
-    virtual void Update();
+    virtual void UpdateCurve();
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -380,7 +381,7 @@ public:
 
     FileXSec( );
 
-    virtual void Update();
+    virtual void UpdateCurve();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -433,7 +434,7 @@ public:
 
     EditCurveXSec();
 
-    virtual void Update();
+    virtual void UpdateCurve();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr& node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr& node );
@@ -583,7 +584,7 @@ public:
 
     InterpXSec( );
 
-    virtual void Update();
+    virtual void UpdateCurve();
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()

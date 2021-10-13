@@ -304,6 +304,8 @@ void XSecCurve::ParmChanged( Parm* parm_ptr, int type )
 //==== Update ====//
 void XSecCurve::Update()
 {
+    UpdateCurve();
+
     m_BaseEditCurve = m_Curve; // Baseline VspCurve to initialize an EditCurveXSec with 
 
     m_TETrimX.SetUpperLimit( 0.999 * GetWidth() );
@@ -1512,7 +1514,7 @@ PointXSec::PointXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void PointXSec::Update()
+void PointXSec::UpdateCurve()
 {
     piecewise_curve_type c;
     curve_point_type pt;
@@ -1536,7 +1538,7 @@ void PointXSec::Update()
     {
         m_Curve.SetCurve( c );
 
-        XSecCurve::Update();
+        XSecCurve::UpdateCurve();
     }
 }
 //==========================================================================//
@@ -1563,7 +1565,7 @@ void CircleXSec::OffsetCurve( double off )
 }
 
 //==== Update Geometry ====//
-void CircleXSec::Update()
+void CircleXSec::UpdateCurve()
 {
     piecewise_curve_type c;
     piecewise_circle_creator pcc( 4 );
@@ -1589,7 +1591,7 @@ void CircleXSec::Update()
         c.reverse();
         m_Curve.SetCurve( c );
 
-        XSecCurve::Update();
+        XSecCurve::UpdateCurve();
     }
 }
 
@@ -1609,7 +1611,7 @@ EllipseXSec::EllipseXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void EllipseXSec::Update()
+void EllipseXSec::UpdateCurve()
 {
     piecewise_curve_type c;
     piecewise_ellipse_creator pec( 4 );
@@ -1636,7 +1638,7 @@ void EllipseXSec::Update()
         c.reverse();
         m_Curve.SetCurve( c );
 
-        XSecCurve::Update();
+        XSecCurve::UpdateCurve();
     }
 }
 
@@ -1674,7 +1676,7 @@ SuperXSec::SuperXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void SuperXSec::Update()
+void SuperXSec::UpdateCurve()
 {
     piecewise_curve_type c;
     piecewise_superellipse_creator psc( 16 );
@@ -1712,7 +1714,7 @@ void SuperXSec::Update()
         c.reverse();
         m_Curve.InterpolateEqArcLenPCHIP( c );
 
-        XSecCurve::Update();
+        XSecCurve::UpdateCurve();
     }
 }
 
@@ -1763,7 +1765,7 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void RoundedRectXSec::Update()
+void RoundedRectXSec::UpdateCurve()
 {
     double r1 = m_RadiusBR();
     double r2 = m_RadiusBL();
@@ -1793,7 +1795,7 @@ void RoundedRectXSec::Update()
     m_RadiusTL.Set( r3 );
     m_RadiusTR.Set( r4 );
 
-    XSecCurve::Update();
+    XSecCurve::UpdateCurve();
     return;
 }
 
@@ -1879,7 +1881,7 @@ void GeneralFuseXSec::SetWidthHeight( double w, double h )
 }
 
 //==== Update Geometry ====//
-void GeneralFuseXSec::Update()
+void GeneralFuseXSec::UpdateCurve()
 {
     double x, y;
     //==== Top Control Points ====//
@@ -1951,7 +1953,7 @@ void GeneralFuseXSec::Update()
         m_Curve.RoundJoint( m_CornerRad() * m_Height(), 0 );
     }
 
-    XSecCurve::Update();
+    XSecCurve::UpdateCurve();
 }
 
 void GeneralFuseXSec::ReadV2FileFuse2( xmlNodePtr &root )
@@ -2020,7 +2022,7 @@ void FileXSec::SetWidthHeight( double w, double h )
 }
 
 //==== Update Geometry ====//
-void FileXSec::Update()
+void FileXSec::UpdateCurve()
 {
     //==== Scale File Points ====//
     vector< vec3d > scaled_file_pnts;
@@ -2106,7 +2108,7 @@ void FileXSec::Update()
 
     m_Curve.InterpolatePCHIP( scaled_file_pnts, arclen, true );
 
-    XSecCurve::Update();
+    XSecCurve::UpdateCurve();
 }
 
 //==== Encode XML ====//
@@ -2788,7 +2790,7 @@ void EditCurveXSec::AddPt( double default_u, double default_x, double default_y,
 }
 
 //==== Update Geometry ====//
-void EditCurveXSec::Update()
+void EditCurveXSec::UpdateCurve()
 {
     if ( m_UParmVec.empty() )
     {
@@ -2837,13 +2839,11 @@ void EditCurveXSec::Update()
 
     m_Curve.OffsetX( 0.5 * m_Width() ); // Shift by 1/2 width (all XSec types are centered at (m_Width/2, 0, 0))
 
-    XSecCurve::Update(); // Note, this will add TE and LE Bezier Segments if Wing or BOR type
-
     UpdateG1Parms();
 
     EnforcePtOrder();
 
-    return;
+    XSecCurve::UpdateCurve();
 }
 
 void EditCurveXSec::EnforceClosure()
@@ -4364,11 +4364,11 @@ InterpXSec::InterpXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void InterpXSec::Update()
+void InterpXSec::UpdateCurve()
 {
     m_Curve.MatchThick( m_Height() / m_Width() );
     m_Curve.Scale( m_Width() );
-    XSecCurve::Update();
+    XSecCurve::UpdateCurve();
 }
 
 //==== Set Width and Height ====//
