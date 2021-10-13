@@ -80,6 +80,7 @@ public:
     virtual void SetUseFakeWidth( double b )                           { m_UseFakeWidth = b; }
 
     virtual void SetForceWingType( double f )                          { m_ForceWingType = f; }
+    virtual bool DetermineWingType();
 
     virtual double ComputeArea();
 

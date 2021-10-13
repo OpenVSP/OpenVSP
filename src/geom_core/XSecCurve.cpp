@@ -306,37 +306,11 @@ void XSecCurve::Update()
 {
     m_TETrimX.SetUpperLimit( 0.999 * GetWidth() );
 
-    bool wingtype = false;
-
-    ParmContainer* pc = GetParentContainerPtr();
-
-    XSec* xs = dynamic_cast< XSec* > (pc);
-
-    if ( xs )
-    {
-        if ( xs->GetType() == XSEC_WING || xs->GetType() == XSEC_PROP )
-        {
-            wingtype = true;
-        }
-    }
-    else
-    {
-        BORGeom* bg = dynamic_cast< BORGeom* > (pc);
-
-        if ( bg )
-        {
-            wingtype = true;
-        }
-    }
-
-    if ( m_ForceWingType )
-    {
-        wingtype = true;
-    }
-
     UpdateCurve();
 
     m_BaseEditCurve = m_Curve; // Baseline VspCurve to initialize an EditCurveXSec with
+
+    bool wingtype = DetermineWingType();
 
     // Order of these curve modifiers matters.
     CloseTE( wingtype );
@@ -421,6 +395,39 @@ void XSecCurve::CopyFrom( XSecCurve* from_crv )
 
     xmlFreeNode( root );
     ParmMgr.ResetRemapID( lastreset );
+}
+
+bool XSecCurve::DetermineWingType()
+{
+    bool wingtype = false;
+
+    ParmContainer* pc = GetParentContainerPtr();
+
+    XSec* xs = dynamic_cast< XSec* > (pc);
+
+    if ( xs )
+    {
+        if ( xs->GetType() == XSEC_WING || xs->GetType() == XSEC_PROP )
+        {
+            wingtype = true;
+        }
+    }
+    else
+    {
+        BORGeom* bg = dynamic_cast< BORGeom* > (pc);
+
+        if ( bg )
+        {
+            wingtype = true;
+        }
+    }
+
+    if ( m_ForceWingType )
+    {
+        wingtype = true;
+    }
+
+    return wingtype;
 }
 
 //==== Compute Area ====//
