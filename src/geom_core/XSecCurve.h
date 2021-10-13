@@ -34,7 +34,7 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void Update();
-    virtual void UpdateCurve() {};
+    virtual void UpdateCurve() = 0;
 
     virtual void SetGroupDisplaySuffix( int num );
 

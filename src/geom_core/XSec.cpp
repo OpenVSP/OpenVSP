@@ -22,7 +22,7 @@ XSec::XSec( XSecCurve *xsc )
     if ( xsc == NULL )
     {
         //==== Create A Default Curve ====//
-        xsc = new XSecCurve();
+        xsc = new CircleXSec();
     }
 
     m_XSCurve = xsc;
