@@ -19,6 +19,7 @@
 #include "GraphicSingletons.h"
 #include "StructureMgr.h"
 #include "WingGeom.h"
+#include "BORGeom.h"
 
 using namespace vsp;
 
@@ -2085,19 +2086,28 @@ bool XSecViewScreen::Update()
         return false;
     }
 
+    XSecCurve* xsc = NULL;
+
     Geom* geom = geom_vec[0];
     GeomXSec* geom_xsec = dynamic_cast<GeomXSec*>( geom );
-    assert( geom_xsec );
-
-    XSec* xs = geom_xsec->GetXSec( geom_xsec->m_ActiveXSec() );
-
-    if( !xs )
+    if ( geom_xsec )
     {
-        Hide();
-        return false;
+        XSec* xs = geom_xsec->GetXSec( geom_xsec->m_ActiveXSec() );
+
+        if( !xs )
+        {
+            Hide();
+            return false;
+        }
+
+        xsc = xs->GetXSecCurve();
     }
 
-    XSecCurve* xsc = xs->GetXSecCurve();
+    BORGeom* bg = dynamic_cast< BORGeom* > ( geom );
+    if ( bg )
+    {
+        xsc = bg->GetXSecCurve();
+    }
 
     if( !xsc )
     {
@@ -2194,19 +2204,28 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
+    XSecCurve* xsc = NULL;
+
     Geom* geom = geom_vec[0];
     GeomXSec* geom_xsec = dynamic_cast<GeomXSec*>( geom );
-    assert( geom_xsec );
-
-    XSec* xs = geom_xsec->GetXSec( geom_xsec->m_ActiveXSec() );
-
-    if( !xs )
+    if ( geom_xsec )
     {
-        Hide();
-        return;
+        XSec* xs = geom_xsec->GetXSec( geom_xsec->m_ActiveXSec() );
+
+        if( !xs )
+        {
+            Hide();
+            return;
+        }
+
+        xsc = xs->GetXSecCurve();
     }
 
-    XSecCurve* xsc = xs->GetXSecCurve();
+    BORGeom* bg = dynamic_cast< BORGeom* > ( geom );
+    if ( bg )
+    {
+        xsc = bg->GetXSecCurve();
+    }
 
     if( !xsc )
     {
