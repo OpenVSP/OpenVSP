@@ -304,10 +304,6 @@ void XSecCurve::ParmChanged( Parm* parm_ptr, int type )
 //==== Update ====//
 void XSecCurve::Update()
 {
-    UpdateCurve();
-
-    m_BaseEditCurve = m_Curve; // Baseline VspCurve to initialize an EditCurveXSec with 
-
     m_TETrimX.SetUpperLimit( 0.999 * GetWidth() );
 
     bool wingtype = false;
@@ -337,6 +333,10 @@ void XSecCurve::Update()
     {
         wingtype = true;
     }
+
+    UpdateCurve();
+
+    m_BaseEditCurve = m_Curve; // Baseline VspCurve to initialize an EditCurveXSec with
 
     // Order of these curve modifiers matters.
     CloseTE( wingtype );
