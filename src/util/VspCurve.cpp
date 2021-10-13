@@ -1195,6 +1195,11 @@ double VspCurve::CompLength( double tol ) const
     return len;
 }
 
+double VspCurve::CompArea( int idir, int jdir ) const
+{
+    return m_Curve.area( idir, jdir );
+}
+
 //===== Tesselate =====//
 void VspCurve::TesselateNoCorner( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout )
 {
