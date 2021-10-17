@@ -2273,9 +2273,9 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
     r = se->RegisterObjectMethod( "vec3d", "void scale_x(double scale)", asMETHOD( vec3d, scale_x ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
-	doc_struct.comment = R"(
+    doc_struct.comment = R"(
 /*!
-	Scale the Y coordinate of the vec3d
+    Scale the Y coordinate of the vec3d
     \code{.cpp}
     //==== Test Vec3d ====//
     vec3d a();                                // Default Constructor
@@ -2285,7 +2285,7 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
 
     a.scale_y( 2.0 );
     \endcode
-	\param [in] scale Scaling factor for the Y value
+    \param [in] scale Scaling factor for the Y value
 */)";
     r = se->RegisterObjectMethod( "vec3d", "void scale_y(double scale)", asMETHOD( vec3d, scale_y ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
@@ -3057,15 +3057,15 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     string xsec_surf = AddXSecSurf();
     for ( int i = 0 ; i < 4 ; i++ )
     {
-	    AppendCustomXSec( xsec_surf, XS_ROUNDED_RECTANGLE);
+        AppendCustomXSec( xsec_surf, XS_ROUNDED_RECTANGLE);
     }
 
-	//==== Set Some Decent Tess Vals ====//
-	string geom_id = GetCurrCustomGeom();
+    //==== Set Some Decent Tess Vals ====//
+    string geom_id = GetCurrCustomGeom();
 
-	SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 33 );
+    SetParmVal( GetParm( geom_id, "Tess_U",  "Shape" ), 33 );
 
-	SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 13 );
+    SetParmVal( GetParm( geom_id, "Tess_W",  "Shape" ), 13 );
     \endcode
     \return Geom ID
 */)";
@@ -3477,17 +3477,17 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     Append an XSec to the current custom Geom. This function is identical to AppendCustomXSec.
     \code{.cpp}
     //==== Add Cross Sections  =====//
-	string xsec_surf = AddXSecSurf();
+    string xsec_surf = AddXSecSurf();
 
-	AppendXSec( xsec_surf, XS_POINT);
+    AppendXSec( xsec_surf, XS_POINT);
 
-	AppendXSec( xsec_surf, XS_CIRCLE );
+    AppendXSec( xsec_surf, XS_CIRCLE );
 
-	AppendXSec( xsec_surf, XS_CIRCLE );
+    AppendXSec( xsec_surf, XS_CIRCLE );
 
-	AppendXSec( xsec_surf, XS_ELLIPSE );
+    AppendXSec( xsec_surf, XS_ELLIPSE );
 
-	AppendXSec( xsec_surf, XS_POINT);
+    AppendXSec( xsec_surf, XS_POINT);
     \endcode
     \sa XSEC_CRV_TYPE, AppendCustomXSec
     \param [in] xsec_surf_id XSecSurf ID
@@ -3505,17 +3505,17 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     Append an XSec to the current custom Geom. This function is identical to AppendXSec.
     \code{.cpp}
     //==== Add Cross Sections  =====//
-	string xsec_surf = AddXSecSurf();
+    string xsec_surf = AddXSecSurf();
 
-	AppendCustomXSec( xsec_surf, XS_POINT);
+    AppendCustomXSec( xsec_surf, XS_POINT);
 
-	AppendCustomXSec( xsec_surf, XS_CIRCLE );
+    AppendCustomXSec( xsec_surf, XS_CIRCLE );
 
-	AppendCustomXSec( xsec_surf, XS_CIRCLE );
+    AppendCustomXSec( xsec_surf, XS_CIRCLE );
 
-	AppendCustomXSec( xsec_surf, XS_ELLIPSE );
+    AppendCustomXSec( xsec_surf, XS_ELLIPSE );
 
-	AppendCustomXSec( xsec_surf, XS_POINT);
+    AppendCustomXSec( xsec_surf, XS_POINT);
     \endcode
     \sa XSEC_CRV_TYPE, AppendXSec
     \param [in] xsec_surf_id XSecSurf ID
@@ -10168,7 +10168,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out );
     Print( "3D Offset ", false);
-	Print( surf_pt - p_out );
+    Print( surf_pt - p_out );
     \endcode
     \sa AxisProjPnt01Guess, AxisProjPnt01I, AxisProjVecPnt01, AxisProjVecPnt01Guess
     \param [in] geom_id Parent Geom ID
@@ -10209,7 +10209,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out );
     Print( "3D Offset ", false);
-	Print( surf_pt - p_out );
+    Print( surf_pt - p_out );
     \endcode
     \sa AxisProjPnt01, AxisProjPnt01Guess, AxisProjVecPnt01, AxisProjVecPnt01Guess
     \param [in] geom_id Parent Geom ID
@@ -10538,11 +10538,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     // is not the closest intersection point.  We could offset those points in the +Y direction instead of -Y.
     for( int i = 0 ; i < n ; i++ )
     {
-	    Print( i, false );
-	    Print( "U delta ", false );
-	    Print( uvec[i] - uoutv[i], false );
-	    Print( "W delta ", false );
-	    Print( wvec[i] - woutv[i] );
+        Print( i, false );
+        Print( "U delta ", false );
+        Print( uvec[i] - uoutv[i], false );
+        Print( "W delta ", false );
+        Print( wvec[i] - woutv[i] );
     }
 
     \endcode
@@ -10604,11 +10604,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     for( int i = 0 ; i < n ; i++ )
     {
-	    Print( i, false );
-	    Print( "U delta ", false );
-	    Print( uvec[i] - uoutv[i], false );
-	    Print( "W delta ", false );
-	    Print( wvec[i] - woutv[i] );
+        Print( i, false );
+        Print( "U delta ", false );
+        Print( uvec[i] - uoutv[i], false );
+        Print( "W delta ", false );
+        Print( wvec[i] - woutv[i] );
     }
 
     \endcode

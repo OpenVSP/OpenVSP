@@ -16,9 +16,9 @@ namespace std {
     %template(IntVector)    vector<int>;
     %template(DoubleVector) vector<double>;
     %template(StringVector) vector<string>;
-	%template(DoubleVecVec)  vector< vector<double> >;
-	%template(Vec3dVec) vector<vec3d>;
-	%template(Matrix4dVec) vector<Matrix4d>;
+    %template(DoubleVecVec)  vector< vector<double> >;
+    %template(Vec3dVec) vector<vec3d>;
+    %template(Matrix4dVec) vector<Matrix4d>;
 }
 
 %apply std::vector<vec3d> &INPUT { std::vector<vec3d> & pnt_vec };

@@ -461,7 +461,7 @@ void Vehicle::SetupPaths()
 
     if( !CheckForFile( m_ExePath, m_VSPAEROCmd ) )
     {
-		printf("VSPAERO solver not found in %s.\n", m_ExePath.c_str());
+        printf("VSPAERO solver not found in %s.\n", m_ExePath.c_str());
     }
     if( !CheckForFile( m_ExePath, m_VIEWERCmd ) )
     {

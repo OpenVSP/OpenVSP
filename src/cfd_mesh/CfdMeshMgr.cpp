@@ -1100,9 +1100,9 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
             int ind3 = pntShift[i2] + 1;
             int tag = SubSurfaceMgr.GetTag( sTriVec[t].m_Tags );
 
-	    // <# of polygons> [# of holes] [boundary marker] 
+            // <# of polygons> [# of holes] [boundary marker]
             fprintf( fp, "1 0 %d\n", tag );
-	    // <# of corners> <corner 1> <corner 2> <corner 3>
+            // <# of corners> <corner 1> <corner 2> <corner 3>
             fprintf( fp, "3 %d %d %d\n", ind1, ind2, ind3 );
         }
     }
