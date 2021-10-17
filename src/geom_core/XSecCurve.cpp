@@ -1521,7 +1521,7 @@ PointXSec::PointXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void PointXSec::UpdateCurve()
+void PointXSec::UpdateCurve( bool updateParms )
 {
     piecewise_curve_type c;
     curve_point_type pt;
@@ -1570,7 +1570,7 @@ void CircleXSec::OffsetCurve( double off )
 }
 
 //==== Update Geometry ====//
-void CircleXSec::UpdateCurve()
+void CircleXSec::UpdateCurve( bool updateParms )
 {
     piecewise_curve_type c;
     piecewise_circle_creator pcc( 4 );
@@ -1614,7 +1614,7 @@ EllipseXSec::EllipseXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void EllipseXSec::UpdateCurve()
+void EllipseXSec::UpdateCurve( bool updateParms )
 {
     piecewise_curve_type c;
     piecewise_ellipse_creator pec( 4 );
@@ -1677,7 +1677,7 @@ SuperXSec::SuperXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void SuperXSec::UpdateCurve()
+void SuperXSec::UpdateCurve( bool updateParms )
 {
     piecewise_curve_type c;
     piecewise_superellipse_creator psc( 16 );
@@ -1764,7 +1764,7 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void RoundedRectXSec::UpdateCurve()
+void RoundedRectXSec::UpdateCurve( bool updateParms )
 {
     double r1 = m_RadiusBR();
     double r2 = m_RadiusBL();
@@ -1789,10 +1789,14 @@ void RoundedRectXSec::UpdateCurve()
     }
 
     m_Curve.CreateRoundedRectangle( m_Width(), m_Height(), m_Keystone(), m_Skew(), m_VSkew(), r1, r2, r3, r4, m_KeyCornerParm() );
-    m_RadiusBR.Set( r1 );
-    m_RadiusBL.Set( r2 );
-    m_RadiusTL.Set( r3 );
-    m_RadiusTR.Set( r4 );
+
+    if ( updateParms )
+    {
+        m_RadiusBR.Set( r1 );
+        m_RadiusBL.Set( r2 );
+        m_RadiusTL.Set( r3 );
+        m_RadiusTR.Set( r4 );
+    }
 }
 
 //==== Build Box of Even Spaced Points ====//
@@ -1877,7 +1881,7 @@ void GeneralFuseXSec::SetWidthHeight( double w, double h )
 }
 
 //==== Update Geometry ====//
-void GeneralFuseXSec::UpdateCurve()
+void GeneralFuseXSec::UpdateCurve( bool updateParms )
 {
     double x, y;
     //==== Top Control Points ====//
@@ -2016,7 +2020,7 @@ void FileXSec::SetWidthHeight( double w, double h )
 }
 
 //==== Update Geometry ====//
-void FileXSec::UpdateCurve()
+void FileXSec::UpdateCurve( bool updateParms )
 {
     //==== Scale File Points ====//
     vector< vec3d > scaled_file_pnts;
@@ -2782,7 +2786,7 @@ void EditCurveXSec::AddPt( double default_u, double default_x, double default_y,
 }
 
 //==== Update Geometry ====//
-void EditCurveXSec::UpdateCurve()
+void EditCurveXSec::UpdateCurve( bool updateParms )
 {
     if ( m_UParmVec.empty() )
     {
@@ -4356,7 +4360,7 @@ InterpXSec::InterpXSec( ) : XSecCurve( )
 }
 
 //==== Update Geometry ====//
-void InterpXSec::UpdateCurve()
+void InterpXSec::UpdateCurve( bool updateParms )
 {
     m_Curve.MatchThick( m_Height() / m_Width() );
     m_Curve.Scale( m_Width() );

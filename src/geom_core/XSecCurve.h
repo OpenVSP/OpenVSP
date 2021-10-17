@@ -34,7 +34,7 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void Update();
-    virtual void UpdateCurve() = 0;
+    virtual void UpdateCurve( bool updateParms = true ) = 0;
 
     virtual void SetGroupDisplaySuffix( int num );
 
@@ -189,7 +189,7 @@ public:
 
     PointXSec( );
 
-    virtual void UpdateCurve();
+    virtual void UpdateCurve( bool updateParms = true );
 
 };
 
@@ -203,7 +203,7 @@ public:
 
     CircleXSec( );
 
-    virtual void UpdateCurve();
+    virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -232,7 +232,7 @@ public:
 
     EllipseXSec( );
 
-    virtual void UpdateCurve();
+    virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -261,7 +261,7 @@ public:
 
     SuperXSec( );
 
-    virtual void UpdateCurve();
+    virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -298,7 +298,7 @@ public:
 
     RoundedRectXSec( );
 
-    virtual void UpdateCurve();
+    virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -341,7 +341,7 @@ public:
 
     GeneralFuseXSec( );
 
-    virtual void UpdateCurve();
+    virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
@@ -382,7 +382,7 @@ public:
 
     FileXSec( );
 
-    virtual void UpdateCurve();
+    virtual void UpdateCurve( bool updateParms = true );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -435,7 +435,7 @@ public:
 
     EditCurveXSec();
 
-    virtual void UpdateCurve();
+    virtual void UpdateCurve( bool updateParms = true );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr& node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr& node );
@@ -585,7 +585,7 @@ public:
 
     InterpXSec( );
 
-    virtual void UpdateCurve();
+    virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
     virtual double GetWidth()
