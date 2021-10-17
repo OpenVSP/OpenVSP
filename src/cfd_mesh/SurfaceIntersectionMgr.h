@@ -208,7 +208,7 @@ public:
     ~SurfaceIntersectionSingleton() override;
     virtual void CleanUp();
 
-    void RegisterAnalysis();
+    virtual void RegisterAnalysis();
 
     virtual void IntersectSurfaces();
 
