@@ -3397,12 +3397,13 @@ void EditCurveXSec::ConvertTo( int newtype )
                 case vsp::CEDIT:
                 {
                     vector < bool > prev_g1_vec = GetG1Vec();
-                    m_BaseEditCurve.ToCubic(); // Promote the curve
+                    VspCurve crv = m_BaseEditCurve;
+                    crv.ToCubic(); // Promote the curve
 
                     vector < double > t_vec;
                     vector < vec3d> ctrl_pts;
 
-                    m_BaseEditCurve.GetCubicControlPoints( ctrl_pts, t_vec );
+                    crv.GetCubicControlPoints( ctrl_pts, t_vec );
 
                     vector < bool > new_g1_vec( ctrl_pts.size() );
                     vector < double > u_vec( t_vec.size() );
@@ -4188,15 +4189,16 @@ int EditCurveXSec::Split01( double u_split )
         break;
         case vsp::CEDIT:
         {
+            VspCurve crv = m_BaseEditCurve;
             vector < bool > prev_g1_vec = GetG1Vec();
             vector < bool > prev_fix_u_vec = GetFixedUVec();
-            m_BaseEditCurve.Split( 4.0 * u_split );
+            crv.Split( 4.0 * u_split );
 
             u_vec.clear();
             vector < double > t_vec;
             vector < vec3d > ctrl_pnts;
 
-            m_BaseEditCurve.GetCubicControlPoints( ctrl_pnts, t_vec );
+            crv.GetCubicControlPoints( ctrl_pnts, t_vec );
 
             u_vec.resize( t_vec.size() );
             vector < bool > new_g1_vec( ctrl_pnts.size() );
