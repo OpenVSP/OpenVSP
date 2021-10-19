@@ -425,9 +425,7 @@ void XSecCurve::CopyFrom( XSecCurve* from_crv )
 double XSecCurve::ComputeArea()
 {
     VspCurve curve = GetCurve();
-    vector<vec3d> pnts;
-    curve.TessAdapt( pnts, 1e-3, 10 );
-    return poly_area( pnts );
+    return std::abs( curve.CompArea( vsp::X_DIR, vsp::Y_DIR ) );
 }
 
 void XSecCurve::CloseTE( bool wingtype )
