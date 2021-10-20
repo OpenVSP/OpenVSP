@@ -306,6 +306,14 @@ void XSecCurve::Update()
 {
     m_TETrimX.SetUpperLimit( 0.999 * GetWidth() );
 
+    // Get projection cosine for projected area computation.
+    double pcos = 1.0;
+    ParmContainer* pc = GetParentContainerPtr();
+    XSec* xs = dynamic_cast< XSec* > (pc);
+    if ( xs )
+    {
+        pcos = xs->GetProjectionCosine();
+    }
     UpdateCurve();
 
     m_BaseEditCurve = m_Curve; // Baseline VspCurve to initialize an EditCurveXSec with
