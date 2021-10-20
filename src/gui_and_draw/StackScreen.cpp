@@ -770,7 +770,6 @@ bool StackScreen::Update()
 
                 m_SuperXSecDriverGroupBank.SetDriverGroup( &super_xs->m_DriverGroup );
                 vector< string > parm_ids = super_xs->GetDriverParms();
-                super_xs->m_DriverGroup.UpdateGroup( parm_ids );
                 m_SuperXSecDriverGroupBank.Update( parm_ids );
 
                 m_SuperMSlider.Update( super_xs->m_M.GetID() );
@@ -800,7 +799,6 @@ bool StackScreen::Update()
 
                 m_CircleXSecDriverGroupBank.SetDriverGroup( &circle_xs->m_DriverGroup );
                 vector< string > parm_ids = circle_xs->GetDriverParms();
-                circle_xs->m_DriverGroup.UpdateGroup( parm_ids );
                 m_CircleXSecDriverGroupBank.Update( parm_ids );
             }
             else if ( xsc->GetType() == XS_ELLIPSE )
@@ -811,7 +809,6 @@ bool StackScreen::Update()
 
                 m_EllipseXSecDriverGroupBank.SetDriverGroup( &ellipse_xs->m_DriverGroup );
                 vector< string > parm_ids = ellipse_xs->GetDriverParms();
-                ellipse_xs->m_DriverGroup.UpdateGroup( parm_ids );
                 m_EllipseXSecDriverGroupBank.Update( parm_ids );
             }
             else if ( xsc->GetType() == XS_ROUNDED_RECTANGLE )
@@ -822,7 +819,6 @@ bool StackScreen::Update()
 
                 m_RRXSecDriverGroupBank.SetDriverGroup( &rect_xs->m_DriverGroup );
                 vector< string > parm_ids = rect_xs->GetDriverParms();
-                rect_xs->m_DriverGroup.UpdateGroup( parm_ids );
                 m_RRXSecDriverGroupBank.Update( parm_ids );
 
                 m_RRRadSymRadioGroup.Update( rect_xs->m_RadiusSymmetryType.GetID() );

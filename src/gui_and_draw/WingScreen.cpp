@@ -1001,7 +1001,7 @@ bool WingScreen::Update()
 
         m_WingDriverGroupBank.SetDriverGroup( &wing_sect->m_DriverGroup );
         vector< string > parm_ids = wing_sect->GetDriverParms();
-        wing_sect->m_DriverGroup.UpdateGroup( parm_ids );
+        //wing_sect->m_DriverGroup.UpdateGroup( parm_ids );
         m_WingDriverGroupBank.Update( parm_ids );
 
         m_SweepSlider.Update( wing_sect->m_Sweep.GetID() );
