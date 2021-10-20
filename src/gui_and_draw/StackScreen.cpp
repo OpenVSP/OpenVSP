@@ -12,9 +12,17 @@
 using namespace vsp;
 
 //==== Constructor ====//
-StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" )
+StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630+75, "Stack" )
 {
     m_CurrDisplayGroup = NULL;
+
+    vector < string > xsec_driver_labels;
+    xsec_driver_labels.resize( vsp::NUM_XSEC_DRIVER );
+    xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = string( "Width" );
+    xsec_driver_labels[vsp::HEIGHT_XSEC_DRIVER] = "Height";
+    xsec_driver_labels[vsp::AREA_XSEC_DRIVER] = "Area";
+    xsec_driver_labels[vsp::PROJAREA_XSEC_DRIVER] = "Proj Area";
+    xsec_driver_labels[vsp::HWRATIO_XSEC_DRIVER] = "H/W Ratio";
 
     Fl_Group* design_tab = AddTab( "Design", 3 );
 
@@ -156,8 +164,8 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
 
     //==== Super XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_SuperGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_SuperGroup.AddSlider( m_SuperHeightSlider, "Height", 10, "%6.5f" );
-    m_SuperGroup.AddSlider( m_SuperWidthSlider,  "Width", 10, "%6.5f" );
+    m_SuperXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_SuperGroup.AddDriverGroupBank( m_SuperXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
     m_SuperGroup.AddYGap();
     m_SuperGroup.AddSlider( m_SuperMaxWidthLocSlider, "MaxWLoc", 2, "%6.5f" );
     m_SuperGroup.AddYGap();
@@ -170,17 +178,18 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
 
     //==== Circle XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_CircleGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_CircleGroup.AddSlider(  m_DiameterSlider, "Diameter", 10, "%6.5f" );
+    m_CircleXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_CircleGroup.AddDriverGroupBank( m_CircleXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
 
     //==== Ellipse XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_EllipseGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_EllipseGroup.AddSlider(  m_EllipseHeightSlider, "Height", 10, "%6.5f" );
-    m_EllipseGroup.AddSlider(  m_EllipseWidthSlider, "Width", 10, "%6.5f" );
+    m_EllipseXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_EllipseGroup.AddDriverGroupBank( m_EllipseXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
 
     //==== Rounded Rect ====//
     m_XSecLayout.AddSubGroupLayout( m_RoundedRectGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_RoundedRectGroup.AddSlider( m_RRHeightSlider, "Height", 10, "%6.5f" );
-    m_RoundedRectGroup.AddSlider( m_RRWidthSlider,  "Width", 10, "%6.5f" );
+    m_RRXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_RoundedRectGroup.AddDriverGroupBank( m_RRXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddSlider( m_RRSkewSlider, "Skew", 10, "%6.5f" );
     m_RoundedRectGroup.AddSlider( m_RRVSkewSlider, "VSkew", 10, "%6.5f" );
@@ -758,8 +767,12 @@ bool StackScreen::Update()
 
                 SuperXSec* super_xs = dynamic_cast< SuperXSec* >( xsc );
                 assert( super_xs );
-                m_SuperHeightSlider.Update( super_xs->m_Height.GetID() );
-                m_SuperWidthSlider.Update( super_xs->m_Width.GetID() );
+
+                m_SuperXSecDriverGroupBank.SetDriverGroup( &xsc->m_DriverGroup );
+                vector< string > parm_ids = xsc->GetDriverParms();
+                xsc->m_DriverGroup.UpdateGroup( parm_ids );
+                m_SuperXSecDriverGroupBank.Update( parm_ids );
+
                 m_SuperMSlider.Update( super_xs->m_M.GetID() );
                 m_SuperNSlider.Update( super_xs->m_N.GetID() );
                 m_SuperToggleSym.Update( super_xs->m_TopBotSym.GetID() );
@@ -785,15 +798,21 @@ bool StackScreen::Update()
                 CircleXSec* circle_xs = dynamic_cast< CircleXSec* >( xsc );
                 assert( circle_xs );
 
-                m_DiameterSlider.Update( circle_xs->m_Diameter.GetID() );
+                m_CircleXSecDriverGroupBank.SetDriverGroup( &xsc->m_DriverGroup );
+                vector< string > parm_ids = xsc->GetDriverParms();
+                xsc->m_DriverGroup.UpdateGroup( parm_ids );
+                m_CircleXSecDriverGroupBank.Update( parm_ids );
             }
             else if ( xsc->GetType() == XS_ELLIPSE )
             {
                 DisplayGroup( & m_EllipseGroup );
 
                 EllipseXSec* ellipse_xs = dynamic_cast< EllipseXSec* >( xsc );
-                m_EllipseHeightSlider.Update( ellipse_xs->m_Height.GetID() );
-                m_EllipseWidthSlider.Update( ellipse_xs->m_Width.GetID() );
+
+                m_EllipseXSecDriverGroupBank.SetDriverGroup( &xsc->m_DriverGroup );
+                vector< string > parm_ids = xsc->GetDriverParms();
+                xsc->m_DriverGroup.UpdateGroup( parm_ids );
+                m_EllipseXSecDriverGroupBank.Update( parm_ids );
             }
             else if ( xsc->GetType() == XS_ROUNDED_RECTANGLE )
             {
@@ -801,8 +820,11 @@ bool StackScreen::Update()
                 RoundedRectXSec* rect_xs = dynamic_cast< RoundedRectXSec* >( xsc );
                 assert( rect_xs );
 
-                m_RRHeightSlider.Update( rect_xs->m_Height.GetID() );
-                m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
+                m_RRXSecDriverGroupBank.SetDriverGroup( &xsc->m_DriverGroup );
+                vector< string > parm_ids = xsc->GetDriverParms();
+                xsc->m_DriverGroup.UpdateGroup( parm_ids );
+                m_RRXSecDriverGroupBank.Update( parm_ids );
+
                 m_RRRadSymRadioGroup.Update( rect_xs->m_RadiusSymmetryType.GetID() );
                 m_RRRadiusBRSlider.Update( rect_xs->m_RadiusBR.GetID() );
                 m_RRRadiusBLSlider.Update( rect_xs->m_RadiusBL.GetID() );
