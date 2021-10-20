@@ -26,6 +26,22 @@ using std::string;
 
 class Geom;
 class EditCurveXSec;
+class XSecCurve;
+
+//==== XSecCurve Driver Group ====//
+class XSecCurveDriverGroup : public DriverGroup
+{
+public:
+    XSecCurveDriverGroup();
+
+    virtual void UpdateGroup( vector< string > parmIDs );
+    virtual bool ValidDrivers( vector< int > choices );
+
+    XSecCurve *m_Parent;
+
+    double m_pcos;
+    double m_prevArea;
+};
 
 class XSecCurve : public ParmContainer
 {
@@ -156,6 +172,15 @@ public:
     FractionParm m_XSecImageXOffset;
     FractionParm m_XSecImageYOffset;
     BoolParm m_XSecFlipImageFlag;
+
+
+    virtual vector< string > GetDriverParms();
+    XSecCurveDriverGroup m_DriverGroup;
+
+
+    Parm m_Area;
+    Parm m_ProjArea;
+    Parm m_HWRatio;
 
     virtual void SetImageFile( const string & file ) { m_ImageFile = file; }
     virtual string GetImageFile() { return m_ImageFile; }

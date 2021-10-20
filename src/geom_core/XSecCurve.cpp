@@ -14,6 +14,7 @@
 #include "FuselageGeom.h"
 #include "BORGeom.h"
 #include "Util.h"
+#include "StlHelper.h"
 #include "eli/geom/curve/length.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
@@ -32,6 +33,8 @@ using namespace vsp;
 //==== Default Constructor ====//
 XSecCurve::XSecCurve()
 {
+    m_DriverGroup.m_Parent = this;
+
     m_GroupName = "XSecCurve";
     m_GroupSuffix = -1;
 
@@ -113,6 +116,15 @@ XSecCurve::XSecCurve()
     m_XSecImageXOffset.Init( "XSecImageXOffset", ( m_GroupName + "_Background" ), this, 0.0, -1.0e12, 1.0e12 );
     m_XSecImageYOffset.Init( "XSecImageYOffset", ( m_GroupName + "_Background" ), this, 0.0, -1.0e12, 1.0e12 );
     m_XSecFlipImageFlag.Init( "XSecFlipImageFlag", ( m_GroupName + "_Background" ), this, false, false, true );
+
+    m_Area.Init( "Area", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Area.SetDescript( "XSec Area" );
+
+    m_ProjArea.Init( "ProjArea", m_GroupName, this, 0, -1e12, 1e12 );
+    m_ProjArea.SetDescript( "XSec Projected area" );
+
+    m_HWRatio.Init( "HWRatio", m_GroupName, this, 0, 0, 1e12 );
+    m_HWRatio.SetDescript( "XSec H/W Ratio" );
 
     m_FakeWidth = 1.0;
     m_UseFakeWidth = false;
@@ -314,7 +326,29 @@ void XSecCurve::Update()
     {
         pcos = xs->GetProjectionCosine();
     }
+    m_DriverGroup.m_pcos = pcos;
+
+    // Reconcile height, width, area, proj_area, and hwratio.
+    // Potentially involves an iterative solution when area is a driver.
+    // May include lofting the curve.
+    m_DriverGroup.UpdateGroup( GetDriverParms() );
+
     UpdateCurve();
+
+    if ( m_Type != XS_POINT )
+    {
+        m_Area = m_Curve.CompArea( vsp::Y_DIR, vsp::X_DIR );
+        m_ProjArea = m_Area() * pcos;
+        m_HWRatio = GetHeight() / GetWidth();
+
+        m_DriverGroup.m_prevArea = m_Area();
+    }
+    else
+    {
+        m_Area = 0.0;
+        m_ProjArea = 0.0;
+        m_HWRatio = 1.0;
+    }
 
     m_BaseEditCurve = m_Curve; // Baseline VspCurve to initialize an EditCurveXSec with
 
@@ -348,6 +382,20 @@ void XSecCurve::Update()
     }
 
     m_LateUpdateFlag = false;
+}
+
+//==== Get Driver Parms ====//
+vector< string > XSecCurve::GetDriverParms()
+{
+    vector< string > parm_ids;
+    parm_ids.resize( vsp::NUM_XSEC_DRIVER );
+    parm_ids[ vsp::WIDTH_XSEC_DRIVER ] = GetWidthParmID();
+    parm_ids[ vsp::HEIGHT_XSEC_DRIVER ] = GetHeightParmID();
+    parm_ids[ vsp::AREA_XSEC_DRIVER ] = m_Area.GetID();
+    parm_ids[ vsp::PROJAREA_XSEC_DRIVER ] = m_ProjArea.GetID();
+    parm_ids[ vsp::HWRATIO_XSEC_DRIVER ] = m_HWRatio.GetID();
+
+    return parm_ids;
 }
 
 //==== Get Curve ====//
@@ -4424,4 +4472,139 @@ void InterpXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
 
     srf.GetUConstCurve( m_Curve, frac );
 
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+XSecCurveDriverGroup::XSecCurveDriverGroup() : DriverGroup( NUM_XSEC_DRIVER, 2 )
+{
+    m_Parent = NULL;
+    m_CurrChoices[0] = WIDTH_XSEC_DRIVER;
+    m_CurrChoices[1] = HEIGHT_XSEC_DRIVER;
+
+    m_pcos = 1.0;
+    m_prevArea = -1.0;
+}
+
+void XSecCurveDriverGroup::UpdateGroup( vector< string > parmIDs )
+{
+    vector< bool > uptodate( m_Nvar, false );
+
+    for( int i = 0; i < m_Nchoice; i++ )
+    {
+        uptodate[m_CurrChoices[i]] = true;
+    }
+
+    if( uptodate[WIDTH_XSEC_DRIVER] && uptodate[HEIGHT_XSEC_DRIVER] )
+    {
+        // fast path
+    }
+    else
+    {
+        Parm* width = ParmMgr.FindParm( parmIDs[WIDTH_XSEC_DRIVER] );
+        Parm* height = ParmMgr.FindParm( parmIDs[HEIGHT_XSEC_DRIVER] );
+        Parm* area = ParmMgr.FindParm( parmIDs[AREA_XSEC_DRIVER] );
+        Parm* projarea = ParmMgr.FindParm( parmIDs[PROJAREA_XSEC_DRIVER] );
+        Parm* hwratio = ParmMgr.FindParm( parmIDs[HWRATIO_XSEC_DRIVER] );
+
+        // If projected area is a driver, calculate area using projection cosine.
+        // Work as-if area was a driver from here on.
+        if ( uptodate[PROJAREA_XSEC_DRIVER] )
+        {
+            area->Set( projarea->Get() / m_pcos );
+            uptodate[AREA_XSEC_DRIVER] = true;
+        }
+
+        // Area is a driver, first time through, use Height and Width as-is.
+        if ( uptodate[AREA_XSEC_DRIVER] && m_prevArea < 0 )
+        {
+            uptodate[WIDTH_XSEC_DRIVER] = true;
+            uptodate[HEIGHT_XSEC_DRIVER] = true;
+        }
+        else if ( uptodate[AREA_XSEC_DRIVER] ) // Area is a driver, may need iteration.
+        {
+            int iter = 0;
+            double tol = 1e-6 * area->Get();
+            double err = 100 * tol;
+
+            while ( err > tol && iter < 10 )
+            {
+                if( uptodate[HWRATIO_XSEC_DRIVER] )
+                {
+                    double scale = sqrt( area->Get() / m_prevArea );
+                    width->Set( scale * width->Get() );
+                    height->Set( width->Get() * hwratio->Get() );
+                }
+                else if( uptodate[WIDTH_XSEC_DRIVER] )
+                {
+                    double scale = area->Get() / m_prevArea;
+                    height->Set( scale * height->Get() );
+                }
+                else if( uptodate[HEIGHT_XSEC_DRIVER] )
+                {
+                    double scale = area->Get() / m_prevArea;
+                    width->Set( scale * width->Get() );
+                }
+
+                // Minimal curve math update.
+                m_Parent->UpdateCurve( false );
+                double newarea = m_Parent->AreaNoUpdate();
+
+                err = std::abs( newarea - area->Get() );
+
+                m_prevArea = newarea;
+                iter++;
+            }
+
+            printf( " Converged in %d iterations to %g.\n", iter, err );
+
+            uptodate[WIDTH_XSEC_DRIVER] = true;
+            uptodate[HEIGHT_XSEC_DRIVER] = true;
+        }
+        else  // Area is not a driver, cases should be algebraic.
+        {
+            if( !uptodate[WIDTH_XSEC_DRIVER] )
+            {
+                if( uptodate[HEIGHT_XSEC_DRIVER] && uptodate[HWRATIO_XSEC_DRIVER] )
+                {
+                    width->Set( height->Get() / hwratio->Get() );
+                    uptodate[WIDTH_XSEC_DRIVER] = true;
+                }
+            }
+
+            if( !uptodate[HEIGHT_XSEC_DRIVER] )
+            {
+                if( uptodate[WIDTH_XSEC_DRIVER] && uptodate[HWRATIO_XSEC_DRIVER] )
+                {
+                    height->Set( width->Get() * hwratio->Get() );
+                    uptodate[HEIGHT_XSEC_DRIVER] = true;
+                }
+            }
+        }
+    }
+}
+
+bool XSecCurveDriverGroup::ValidDrivers( vector< int > choices )
+{
+    // Check for duplicate selections.
+    for( int i = 0; i < (int)choices.size() - 1; i++ )
+    {
+        for( int j = i + 1; j < (int)choices.size(); j++ )
+        {
+            if( choices[i] == choices[j] )
+            {
+                return false;
+            }
+        }
+    }
+
+    if( vector_contains_val( choices, ( int ) AREA_XSEC_DRIVER ) &&
+        vector_contains_val( choices, ( int ) PROJAREA_XSEC_DRIVER ) )
+    {
+        return false;
+    }
+
+    return true;
 }
