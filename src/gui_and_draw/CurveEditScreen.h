@@ -83,7 +83,6 @@ private:
     TriggerButton m_ConvertButton;
     StringOutput m_CurveType;
 
-    ToggleButton m_PreserveXSecARToggle;
     ToggleButton m_AbsDimToggle;
 
     // Draw Tab GUI Elements

@@ -2502,9 +2502,6 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
     m_AbsoluteFlag.Init( "AbsoluteFlag", m_GroupName, this, false, false, true );
     m_AbsoluteFlag.SetDescript( "Flag indicating if control points are non-dimensional or absolute" );
 
-    m_PreserveARFlag.Init( "PreserveARFlag", m_GroupName, this, false, false, true );
-    m_PreserveARFlag.SetDescript( "Flag to preserve width to height aspect ratio" );
-
     m_XSecPointSize.Init( "XSecPointSize", ( m_GroupName + "_Background" ), this, 8.0, 1e-4, 1e4 );
     m_XSecLineThickness.Init( "XSecLineThickness", ( m_GroupName + "_Background" ), this, 1.5, 1e-4, 1e4 );
 
@@ -2516,8 +2513,6 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
 
     m_SelectPntID = 0;
     m_EnforceG1Next = true;
-
-    m_AspectRatio = 1.0;
 }
 
 void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
@@ -2531,11 +2526,6 @@ void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
             EnforceG1( (int)i );
             break;
         }
-    }
-
-    if ( parm_ptr == dynamic_cast<Parm*> ( &m_PreserveARFlag ) )
-    {
-        m_AspectRatio = GetWidth() / GetHeight();
     }
 
     if ( m_CurveType() == vsp::CEDIT )
@@ -2590,15 +2580,7 @@ void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
         }
     }
 
-    if ( type != Parm::SET )
-    {
-        if ( parm_ptr == &m_Height && m_PreserveARFlag() )
-        {
-            // Enforce AR preservation if height is set from API
-            m_Width.Set( m_Height() * m_AspectRatio );
-        }
-    }
-    else
+    if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;
 
@@ -2649,10 +2631,6 @@ xmlNodePtr EditCurveXSec::DecodeXml( xmlNodePtr & node )
     }
 
     XSecCurve::DecodeXml( node );
-
-    // Must be done after the parms are decoded. Otherwise they are calculated when the 
-    // m_PreserveARFlag is decoded, but width has not been (alphabetical decode order)
-    m_AspectRatio = GetWidth() / GetHeight();
 
     return node;
 }
@@ -2861,11 +2839,6 @@ void EditCurveXSec::UpdateCurve( bool updateParms )
         InitShape(); // Must always have a valid curve
     }
 
-    if ( m_PreserveARFlag() )
-    {
-        m_Height.Set( m_Width() / m_AspectRatio );
-    }
-    
     ClearPtOrder();
 
     EnforcePtOrder();

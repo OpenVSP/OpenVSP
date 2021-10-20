@@ -557,7 +557,6 @@ public:
     IntParm m_ConvType;
     Parm m_SplitU;
     BoolParm m_AbsoluteFlag;
-    BoolParm m_PreserveARFlag;
 
     // Parms for XSec background image in GUI
     Parm m_XSecPointSize;
@@ -595,9 +594,6 @@ protected:
     int m_SelectPntID; // Index of the currently selected control point
 
     bool m_EnforceG1Next; // Flag to indicate if G1 should be enforced with the next or previous point
-
-    // Aspect ratio of m_Width to m_Height
-    double m_AspectRatio;
 
 };
 

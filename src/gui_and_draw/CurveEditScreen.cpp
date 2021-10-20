@@ -87,7 +87,6 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615, "
     m_XSecLayout.InitWidthHeightVals();
     m_XSecLayout.SetButtonWidth( m_XSecLayout.GetRemainX() / 3 );
 
-    m_XSecLayout.AddButton( m_PreserveXSecARToggle, "Preserve Aspect Ratio" );
     m_XSecLayout.AddSlider( m_WidthSlider, "Width", 10, "%5.3f" );
     m_XSecLayout.AddSlider( m_HeightSlider, "Height", 10, "%5.3f" );
 
@@ -443,19 +442,8 @@ bool CurveEditScreen::Update()
     m_HeightSlider.Update( edit_curve_xs->m_Height.GetID() );
 
     m_AbsDimToggle.Update( edit_curve_xs->m_AbsoluteFlag.GetID() );
-    m_PreserveXSecARToggle.Update( edit_curve_xs->m_PreserveARFlag.GetID() );
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
-
-    if ( geom_ptr && ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE || geom_ptr->GetType().m_Type == PROP_GEOM_TYPE ) )
-    {
-        m_PreserveXSecARToggle.Deactivate();
-        edit_curve_xs->m_PreserveARFlag.Set( false );
-    }
-    else
-    {
-        m_PreserveXSecARToggle.Activate();
-    }
 
     if( m_XSecGlWin )
     {
