@@ -115,8 +115,7 @@ protected:
     SliderAdjRangeInput m_RRVSkewSlider;
 
     GroupLayout m_GenGroup;
-    SliderAdjRangeInput m_GenHeightSlider;
-    SliderAdjRangeInput m_GenWidthSlider;
+    DriverGroupBank m_GenXSecDriverGroupBank;
     SliderAdjRangeInput m_GenMaxWidthLocSlider;
     SliderAdjRangeInput m_GenCornerRadSlider;
     SliderAdjRangeInput m_GenTopTanAngleSlider;

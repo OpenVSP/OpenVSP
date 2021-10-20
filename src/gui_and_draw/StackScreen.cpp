@@ -225,8 +225,8 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630+75, "Stac
 
     //==== General Fuse XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_GenGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_GenGroup.AddSlider( m_GenHeightSlider, "Height", 10, "%6.5f" );
-    m_GenGroup.AddSlider( m_GenWidthSlider, "Width", 10, "%6.5f" );
+    m_GenXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_GenGroup.AddDriverGroupBank( m_GenXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
     m_GenGroup.AddYGap();
     m_GenGroup.AddSlider( m_GenMaxWidthLocSlider, "MaxWLoc", 1, "%6.5f" );
     m_GenGroup.AddSlider( m_GenCornerRadSlider, "CornerRad", 1, "%6.5f" );
@@ -862,8 +862,10 @@ bool StackScreen::Update()
                 GeneralFuseXSec* gen_xs = dynamic_cast< GeneralFuseXSec* >( xsc );
                 assert( gen_xs );
 
-                m_GenHeightSlider.Update( gen_xs->m_Height.GetID() );
-                m_GenWidthSlider.Update( gen_xs->m_Width.GetID() );
+                m_GenXSecDriverGroupBank.SetDriverGroup( &gen_xs->m_DriverGroup );
+                vector< string > parm_ids = gen_xs->GetDriverParms();
+                m_GenXSecDriverGroupBank.Update( parm_ids );
+
                 m_GenMaxWidthLocSlider.Update( gen_xs->m_MaxWidthLoc.GetID() );
                 m_GenCornerRadSlider.Update( gen_xs->m_CornerRad.GetID() );
                 m_GenTopTanAngleSlider.Update( gen_xs->m_TopTanAngle.GetID() );
