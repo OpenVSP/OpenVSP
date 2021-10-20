@@ -20,7 +20,7 @@
 #include "Util.h"
 
 //==== Constructor ====//
-CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615, "Edit Curve", 180, 425 )
+CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17, "Edit Curve", 180, 425 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -87,8 +87,16 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615, "
     m_XSecLayout.InitWidthHeightVals();
     m_XSecLayout.SetButtonWidth( m_XSecLayout.GetRemainX() / 3 );
 
-    m_XSecLayout.AddSlider( m_WidthSlider, "Width", 10, "%5.3f" );
-    m_XSecLayout.AddSlider( m_HeightSlider, "Height", 10, "%5.3f" );
+    vector < string > xsec_driver_labels;
+    xsec_driver_labels.resize( vsp::NUM_XSEC_DRIVER );
+    xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = string( "Width" );
+    xsec_driver_labels[vsp::HEIGHT_XSEC_DRIVER] = "Height";
+    xsec_driver_labels[vsp::AREA_XSEC_DRIVER] = "Area";
+    xsec_driver_labels[vsp::PROJAREA_XSEC_DRIVER] = "Proj Area";
+    xsec_driver_labels[vsp::HWRATIO_XSEC_DRIVER] = "H/W Ratio";
+
+    m_XSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_XSecLayout.AddDriverGroupBank( m_XSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
 
     m_XSecLayout.AddYGap();
     m_XSecLayout.SetSameLineFlag( false );
@@ -438,8 +446,9 @@ bool CurveEditScreen::Update()
     m_SymToggle.Update( edit_curve_xs->m_SymType.GetID() );
     m_ClosedCurveToggle.Update( edit_curve_xs->m_CloseFlag.GetID() );
 
-    m_WidthSlider.Update( edit_curve_xs->m_Width.GetID() );
-    m_HeightSlider.Update( edit_curve_xs->m_Height.GetID() );
+    m_XSecDriverGroupBank.SetDriverGroup( &edit_curve_xs->m_DriverGroup );
+    vector< string > parm_ids = edit_curve_xs->GetDriverParms();
+    m_XSecDriverGroupBank.Update( parm_ids );
 
     m_AbsDimToggle.Update( edit_curve_xs->m_AbsoluteFlag.GetID() );
 

@@ -70,8 +70,8 @@ private:
 
     TriggerButton m_ReparameterizeButton;
 
-    SliderAdjRangeInput m_WidthSlider;
-    SliderAdjRangeInput m_HeightSlider;
+    XSecCurveDriverGroup m_DefaultXSecDriverGroup;
+    DriverGroupBank m_XSecDriverGroupBank;
 
     SliderAdjRangeInput m_SplitPtSlider;
     TriggerButton m_SplitButton;
