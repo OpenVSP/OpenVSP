@@ -83,6 +83,7 @@ public:
     virtual bool DetermineWingType();
 
     virtual double ComputeArea();
+    virtual double AreaNoUpdate();
 
     virtual void CloseTE( bool wingtype );
     virtual void CloseLE( bool wingtype );

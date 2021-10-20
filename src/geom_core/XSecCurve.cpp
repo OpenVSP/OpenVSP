@@ -445,6 +445,18 @@ double XSecCurve::ComputeArea()
     return std::abs( curve.CompArea( vsp::X_DIR, vsp::Y_DIR ) );
 }
 
+// This calculates the area of an XSecCurve based on the current value
+// of m_Curve without calling Update() to ensure the curve is up-to-date.
+//
+// Most callers should call ComputeArea() which ensures a curve is up-to-date
+// before calculating the area.  However, in the context of the nonlinear
+// solver used when area is a driver, we want to calculate the area
+// mid-update (and obviusly without triggering an update).
+double XSecCurve::AreaNoUpdate()
+{
+    return std::abs( m_Curve.CompArea( vsp::X_DIR, vsp::Y_DIR ) );
+}
+
 void XSecCurve::CloseTE( bool wingtype )
 {
     if ( m_Type ==  XS_POINT )
