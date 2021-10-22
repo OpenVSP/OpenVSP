@@ -55,6 +55,7 @@ protected:
     SliderAdjRangeInput m_FeatherAxisSlider;
 
     ToggleButton m_ReverseToggle;
+    ToggleButton m_CylindricalSectionsToggle;
 
     SliderAdjRangeInput m_AFLimitSlider;
     Output m_AFOutput;

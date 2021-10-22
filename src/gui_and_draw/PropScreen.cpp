@@ -41,6 +41,8 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400+40, 700, "Propel
 
     m_DesignLayout.AddSlider( m_NBladeSlider, "Num Blades", 100, "%5.0f" );
 
+    m_DesignLayout.AddButton( m_CylindricalSectionsToggle, "Cylindrical Foils" );
+
     m_DesignLayout.SetFitWidthFlag( false );
     m_DesignLayout.SetSameLineFlag( true );
     m_DesignLayout.SetButtonWidth( 45 );
@@ -934,6 +936,7 @@ bool PropScreen::Update()
     m_PropRotateSlider.Update( propeller_ptr->m_Rotate.GetID() );
 
     m_ReverseToggle.Update( propeller_ptr->m_ReverseFlag.GetID() );
+    m_CylindricalSectionsToggle.Update( propeller_ptr->m_CylindricalSectionsFlag.GetID() );
 
     m_Beta34Slider.Update( propeller_ptr->m_Beta34.GetID() );
     m_FeatherSlider.Update( propeller_ptr->m_Feather.GetID() );

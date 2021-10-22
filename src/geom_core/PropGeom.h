@@ -47,6 +47,8 @@ public:
     double m_Feather;
     double m_ZRotate;
 
+    bool m_CurveSection;
+
     double m_Radius;
     double m_Rake;
     double m_Skew;
@@ -161,6 +163,7 @@ public:
     Parm m_Beta34;
     Parm m_Feather;
     IntParm m_UseBeta34Flag;
+    BoolParm m_CylindricalSectionsFlag;
 
     Parm m_Precone;
 

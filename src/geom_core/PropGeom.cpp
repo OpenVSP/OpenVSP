@@ -41,6 +41,8 @@ PropPositioner::PropPositioner()
     m_Feather = 0.0;
     m_ZRotate = 0.0;
 
+    m_CurveSection = false;
+
     m_Radius = 0.0;
     m_Rake = 0.0;
     m_Skew = 0.0;
@@ -109,6 +111,13 @@ void PropPositioner::Update()
     mat.translatef( 0, 0, m_Reverse * m_Chord * ( 0.5 - m_Construct ) );
 
     m_TransformedCurve.Transform( mat );
+
+    // Project prop curve onto cylinder surface in current location.  After blade lofting,
+    // but before rigid body motion positioning.
+    if ( m_CurveSection )
+    {
+        m_TransformedCurve.ProjectOntoCylinder( m_Radius, true, 1e-6 * m_Chord );
+    }
 
     mat.loadIdentity();  // Reset to handle rigid body motion of lofted prop sections.
 
@@ -297,6 +306,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_ReverseFlag.Init( "ReverseFlag", "Design", this, false, 0, 1 );
     m_ReverseFlag.SetDescript( "Flag to reverse propeller rotation direction" );
+
+    m_CylindricalSectionsFlag.Init( "CylindricalSectionsFlag", "Design", this, false, 0, 1 );
+    m_CylindricalSectionsFlag.SetDescript( "Flag to project airfoil sections onto cylinder of rotation" );
 
     m_AFLimit.Init( "AFLimit", "Design", this, 0.2, 0, 1 );
     m_AFLimit.SetDescript( "Lower limit of activity factor integration" );
@@ -1012,6 +1024,8 @@ void PropGeom::UpdateSurf()
                 double r = xs->m_RadiusFrac();
                 double w = m_ChordCurve.Comp( r ) * radius;
 
+                xs->m_PropPos.m_CurveSection = m_CylindricalSectionsFlag();
+
                 // Set up prop positioner for highlight curves - not lofting.
                 xs->m_PropPos.m_ParentProp = GetXSecSurf( 0 );
                 xs->m_PropPos.m_Radius = r * radius;
@@ -1096,6 +1110,8 @@ void PropGeom::UpdateSurf()
 
             pp.m_ParentProp = this->GetXSecSurf( 0 );
             pp.m_Radius = r * radius;
+
+            pp.m_CurveSection = m_CylindricalSectionsFlag();
 
             pp.m_Chord = w;
             pp.m_Twist = m_TwistCurve.Comp( r );
