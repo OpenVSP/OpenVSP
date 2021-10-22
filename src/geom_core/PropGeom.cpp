@@ -532,58 +532,60 @@ void PropGeom::UpdateDrawObj()
     m_ArrowLinesDO.m_PntVec.clear();
     m_ArrowHeadDO.m_PntVec.clear();
 
+    double axlen = 1.0;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        axlen = veh->m_AxisLength();
+    }
+
+    double rev = 1.0;
+    if ( m_ReverseFlag() )
+    {
+        rev = -1.0;
+    }
+
+    double data[16];
+    m_ModelMatrix.getMat( data );
+
+    vec3d cen( 0, 0, 0 );
+    vec3d rotdir( -1, 0, 0 );
+    vec3d thrustdir( -1, 0, 0 );
+    rotdir = rotdir * rev;
+
+    cen = m_ModelMatrix.xform( cen );
+    rotdir = m_ModelMatrix.xform( rotdir ) - cen;
+    thrustdir = m_ModelMatrix.xform( thrustdir ) - cen;
+
+    Matrix4d mat;
+    mat.loadIdentity();
+    mat.rotateX( -rev * m_Rotate() );
+    mat.rotateZ( m_Precone() );
+    mat.postMult( data );
+
+    vec3d pmid = mat.xform( m_FoldAxOrigin );
+    vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection * axlen / 2.0 );
+    vec3d ptend = mat.xform( m_FoldAxOrigin - m_FoldAxDirection * axlen / 2.0 );
+
+    vec3d dir = ptend - ptstart;
+    dir.normalize();
+
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
-        double axlen = 1.0;
-
-        Vehicle *veh = VehicleMgr.GetVehicle();
-        if ( veh )
-        {
-            axlen = veh->m_AxisLength();
-        }
-
-        double rev = 1.0;
-        if ( m_ReverseFlag() )
-        {
-            rev = -1.0;
-        }
-
-        double data[16];
-        m_ModelMatrix.getMat( data );
-
-        vec3d cen( 0, 0, 0 );
-        vec3d rotdir( -1, 0, 0 );
-        vec3d thrustdir( -1, 0, 0 );
-        rotdir = rotdir * rev;
-
-        cen = m_ModelMatrix.xform( cen );
-        rotdir = m_ModelMatrix.xform( rotdir ) - cen;
-        thrustdir = m_ModelMatrix.xform( thrustdir ) - cen;
-
-        Matrix4d mat;
-        mat.loadIdentity();
-        mat.rotateX( -rev * m_Rotate() );
-        mat.rotateZ( m_Precone() );
-        mat.postMult( data );
-
-        vec3d pmid = mat.xform( m_FoldAxOrigin );
-        vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection * axlen / 2.0 );
-        vec3d ptend = mat.xform( m_FoldAxOrigin - m_FoldAxDirection * axlen / 2.0 );
-
-
-        vec3d dir = ptend - ptstart;
-        dir.normalize();
-
-
-
         m_ArrowLinesDO.m_PntVec.push_back( ptstart );
         m_ArrowLinesDO.m_PntVec.push_back( ptend );
-        m_ArrowLinesDO.m_PntVec.push_back( cen );
-        m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
+    }
 
-        MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
+    m_ArrowLinesDO.m_PntVec.push_back( cen );
+    m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
+
+    MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
+    MakeCircleArrow( cen, rotdir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+    {
         MakeCircleArrow( pmid, dir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
-        MakeCircleArrow( cen, rotdir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
     }
 }
 
@@ -600,8 +602,7 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         GeomXSec::LoadDrawObjs( draw_obj_vec );
     }
 
-    if ( m_PropMode() <= PROP_MODE::PROP_BOTH  &&
-         ( ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID ) ) )
+    if ( ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID ) )
     {
         m_ArrowHeadDO.m_GeomID = m_ID + "Arrows";
         m_ArrowHeadDO.m_LineWidth = 1.0;
