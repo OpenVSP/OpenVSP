@@ -174,6 +174,7 @@ public:
     };
 
     string m_GroupName;
+    bool m_ReverseFlag; // Flag to flip the RPM but leave the normal vector unchanged
 
     IntParm m_GeomPropertyType;
     Parm m_RotorDia;

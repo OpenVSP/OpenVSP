@@ -5894,6 +5894,7 @@ UnsteadyGroup::UnsteadyGroup( void ) : ParmContainer()
     m_Iyz.SetDescript( "Iyz of unsteady group" );
 
     m_SelectedCompIndex = -1;
+    m_ReverseFlag = false;
 }
 
 UnsteadyGroup::~UnsteadyGroup( void )
@@ -5997,13 +5998,13 @@ void UnsteadyGroup::Update()
                 Matrix4d trans_mat = trans_mat_vec[( surf_index - 1 ) * num_main_surf]; // Translations for the specific symmetric copy
 
                 vec3d cen( 0, 0, 0 );
-                vec3d rotdir( 1, 0, 0 );
+                vec3d rotdir( -1, 0, 0 );
 
-                // Identify if the normal vector is flipped (due to symmetry or reversing the prop)
-                if ( geom->GetFlipNormal( ( surf_index - 1 ) * num_main_surf ) )
-                {
-                    rotdir.set_x( -1 );
-                }
+                // Identify if the normal vector is flipped and use it to flip the sign of RPM but calculate 
+                // the normal vector from the transformation matrix (which will consider symmetry)
+                // Note inverse of GetFlipNormal is used because Props are flipped by default
+                // see (m_XSecSurf.GetFlipUD() in UpdateSurf() in PropGeom)
+                m_ReverseFlag = !geom->GetFlipNormal( ( surf_index - 1 ) * num_main_surf );
 
                 o_vec = trans_mat.xform( cen );
                 r_vec = trans_mat.xform( rotdir ) - o_vec;
@@ -6079,6 +6080,10 @@ int UnsteadyGroup::WriteGroup( FILE* group_file )
     }
 
     double omega = m_RPM() * PI / 30;
+    if ( m_ReverseFlag )
+    {
+        omega *= -1;
+    }
 
     fprintf( group_file, "GeometryIsFixed = %d\n", geom_fixed );
     fprintf( group_file, "GeometryIsDynamic = %d\n", geom_dynamic );
