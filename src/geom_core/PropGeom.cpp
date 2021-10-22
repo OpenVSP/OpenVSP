@@ -85,19 +85,8 @@ void PropPositioner::Update()
 
     mat.loadIdentity();
 
-    // Propeller rotation first because order is reversed.
-    mat.rotateX( -m_Reverse * m_PropRot );
 
-    mat.rotateZ( m_Precone );
-
-    mat.translatef( m_FoldOrigin.x(), m_FoldOrigin.y(), m_FoldOrigin.z() );
-    mat.rotate( m_FoldAngle * PI / 180.0, m_FoldDirection );
-    mat.translatef( -m_FoldOrigin.x(), -m_FoldOrigin.y(), -m_FoldOrigin.z() );
-
-
-    mat.translatef( 0, 0, m_RootChord * m_FeatherOffset );
-
-    mat.rotateY( m_Reverse * m_Feather );
+    // Position section for prop shaping.
 
     double xb = m_RootChord * ( 0.5 - m_FeatherAxis );
     mat.translatef( xb * sin( m_RootTwist * PI / 180.0), 0, m_Reverse * xb * cos( m_RootTwist * PI / 180.0) );
@@ -118,6 +107,24 @@ void PropPositioner::Update()
     mat.rotateZ( m_ZRotate ); // About chord
 
     mat.translatef( 0, 0, m_Reverse * m_Chord * ( 0.5 - m_Construct ) );
+
+    m_TransformedCurve.Transform( mat );
+
+    mat.loadIdentity();  // Reset to handle rigid body motion of lofted prop sections.
+
+    // Propeller rotation first because order is reversed.
+    mat.rotateX( -m_Reverse * m_PropRot );
+
+    mat.rotateZ( m_Precone );
+
+    mat.translatef( m_FoldOrigin.x(), m_FoldOrigin.y(), m_FoldOrigin.z() );
+    mat.rotate( m_FoldAngle * PI / 180.0, m_FoldDirection );
+    mat.translatef( -m_FoldOrigin.x(), -m_FoldOrigin.y(), -m_FoldOrigin.z() );
+
+
+    mat.translatef( 0, 0, m_RootChord * m_FeatherOffset );
+
+    mat.rotateY( m_Reverse * m_Feather );
 
     m_TransformedCurve.Transform( mat );
 }
