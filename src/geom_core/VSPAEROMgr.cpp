@@ -785,8 +785,21 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                                     {
                                         int indxToSearch = k + temp.back()->m_ParentGeomSurfNdx;
                                         temp.back()->m_XYZ = degen_vec[indxToSearch].getDegenDisk().x;
-                                        temp.back()->m_Normal = degen_vec[indxToSearch].getDegenDisk().nvec * -1.0;
-                                        if ( geom->GetFlipNormal( iSubsurf ) ) temp.back()->m_FlipNormalFlag = true;
+                                        // Get flag to flip normal vector but don't actually flip the normal vector. Instead flip the sign of RPM
+                                        temp.back()->m_FlipNormalFlag = geom->GetFlipNormal( iSubsurf );
+
+                                        // Identify normal vector before it has been flipped. 
+                                        // Alternatively, we could get the normal vector from degen_vec[indxToSearch].getDegenDisk().nvec 
+                                        // and flip it. Note, for unsteady propellers we flip the normal vector but keep the sign of RPM
+                                        // if the Prop is reversed
+                                        vector < Matrix4d > trans_mat_vec = geom->GetTransMatVec();
+                                        Matrix4d trans_mat = trans_mat_vec[iSubsurf]; // Translations for the specific symmetric copy
+
+                                        vec3d rotdir( 1, 0, 0 );
+
+                                        vec3d r_vec = trans_mat.xform( rotdir ) - temp.back()->m_XYZ;
+                                        temp.back()->m_Normal = r_vec;
+
                                         break;
                                     }
                                 }

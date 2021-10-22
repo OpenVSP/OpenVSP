@@ -1221,6 +1221,11 @@ void PropGeom::UpdateSurf()
         m_CapUMinSuccess[ idisk ] = false;
         m_CapUMaxSuccess[ idisk ] = false;
 
+        if ( m_ReverseFlag() )
+        {
+            m_MainSurfVec[idisk].FlipNormal();
+        }
+
         if ( m_PropMode() == PROP_MODE::PROP_DISK )
         {
             // Provide fake mesh metric values.
