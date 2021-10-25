@@ -3692,7 +3692,7 @@ void PCurveEditor::RedrawXYSliders( int num_pts, int curve_type )
     m_EnforceG1Vec.resize( num_pts );
 
     int gap_w = 4;
-    int input_w = 50;
+    int input_w = 50+10;
     int range_button_w = 10;
     int button_w = 45;
     int scroll_w = 15;
@@ -3715,7 +3715,7 @@ void PCurveEditor::RedrawXYSliders( int num_pts, int curve_type )
 
             for ( int i = 0; i < num_sliders; i++ )
             {
-                m_PtLayout->AddSlider( m_SliderVecVec[i][n], "AUTO_UPDATE", 2, "%9.4f" );
+                m_PtLayout->AddSlider( m_SliderVecVec[i][n], "AUTO_UPDATE", 2, "%11.6f" );
 
                 if ( i != num_sliders - 1 )
                 {
@@ -3737,7 +3737,7 @@ void PCurveEditor::RedrawXYSliders( int num_pts, int curve_type )
         {
             for ( int i = 0; i < num_sliders; i++ )
             {
-                m_PtLayout->AddSlider( m_SliderVecVec[i][n], "AUTO_UPDATE", 2, "%9.4f" );
+                m_PtLayout->AddSlider( m_SliderVecVec[i][n], "AUTO_UPDATE", 2, "%11.6f" );
 
                 if ( i != m_SliderVecVec.size() - 1 )
                 {
