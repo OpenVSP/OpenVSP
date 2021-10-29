@@ -251,8 +251,6 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
 extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
-extern void ChangeBORXSecShape( const string & geom_id, int type );
-extern int GetBORXSecShape( const string & geom_id );
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
 extern void SetAirfoilPnts( const std::string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
 extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
@@ -277,6 +275,30 @@ extern void DemoteCSTUpper( const std::string& xsec_id );
 extern void DemoteCSTLower( const std::string& xsec_id );
 extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg );
 
+//======================== BOR Functions ======================//
+extern void ChangeBORXSecShape( const string & bor_id, int type );
+extern int GetBORXSecShape( const string & bor_id );
+extern std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std::string& file_name );
+extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pnt_vec );
+extern vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract );
+extern vec3d ComputeBORXSecTan( const std::string& bor_id, double fract );
+extern void ReadBORFileAirfoil( const std::string& bor_id, const std::string& file_name );
+extern void SetBORAirfoilPnts( const std::string& bor_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
+extern std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id );
+extern std::vector<vec3d> GetBORAirfoilLowerPnts( const std::string& bor_id );
+extern std::vector<double> GetBORUpperCSTCoefs( const std::string& bor_id );
+extern std::vector<double> GetBORLowerCSTCoefs( const std::string& bor_id );
+extern int GetBORUpperCSTDegree( const std::string& bor_id );
+extern int GetBORLowerCSTDegree( const std::string& bor_id );
+extern void SetBORUpperCST( const std::string& bor_id, int deg, const std::vector<double> &coefs );
+extern void SetBORLowerCST( const std::string& bor_id, int deg, const std::vector<double> &coefs );
+extern void PromoteBORCSTUpper( const std::string& bor_id );
+extern void PromoteBORCSTLower( const std::string& bor_id );
+extern void DemoteBORCSTUpper( const std::string& bor_id );
+extern void DemoteBORCSTLower( const std::string& bor_id );
+extern void FitBORAfCST( const std::string & bor_id, int deg );
+
+//======================== FoilSurf Functions ======================//
 extern void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u );
 extern void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u );
 extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double &foilsurf_u );
