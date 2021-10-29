@@ -540,52 +540,60 @@ void PropGeom::UpdateDrawObj()
         axlen = veh->m_AxisLength();
     }
 
-    double rev = 1.0;
-    if ( m_ReverseFlag() )
+    for ( int i = 0; i < GetNumSymmCopies(); i++)
     {
-        rev = -1.0;
-    }
+        double data[16];
+        m_ModelMatrix.getMat( data );
 
-    double data[16];
-    m_ModelMatrix.getMat( data );
+        Matrix4d trans_mat = m_TransMatVec[i * GetNumMainSurfs()]; // Translations for the specific symmetric copy
 
-    vec3d cen( 0, 0, 0 );
-    vec3d rotdir( -1, 0, 0 );
-    vec3d thrustdir( -1, 0, 0 );
-    rotdir = rotdir * rev;
+        vec3d cen( 0, 0, 0 );
+        vec3d rotdir( -1, 0, 0 );
+        vec3d thrustdir( -1, 0, 0 );
 
-    cen = m_ModelMatrix.xform( cen );
-    rotdir = m_ModelMatrix.xform( rotdir ) - cen;
-    thrustdir = m_ModelMatrix.xform( thrustdir ) - cen;
+        double rev = 1.0;
+        if ( !m_FlipNormalVec[i * GetNumMainSurfs()] )
+        {
+            // Note inverse of m_FipNormalVec is used because Props are flipped by 
+            // default (m_XSecSurf.GetFlipUD() in UpdateSurf())
+            rev = -1.0;
+        }
 
-    Matrix4d mat;
-    mat.loadIdentity();
-    mat.rotateX( -rev * m_Rotate() );
-    mat.rotateZ( m_Precone() );
-    mat.postMult( data );
+        rotdir = rotdir * rev;
 
-    vec3d pmid = mat.xform( m_FoldAxOrigin );
-    vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection * axlen / 2.0 );
-    vec3d ptend = mat.xform( m_FoldAxOrigin - m_FoldAxDirection * axlen / 2.0 );
+        cen = trans_mat.xform( cen );
+        rotdir = trans_mat.xform( rotdir ) - cen;
+        thrustdir = trans_mat.xform( thrustdir ) - cen;
 
-    vec3d dir = ptend - ptstart;
-    dir.normalize();
+        Matrix4d mat;
+        mat.loadIdentity();
+        mat.rotateX( -1 * m_Rotate() );
+        mat.rotateZ( m_Precone() );
+        mat.postMult( trans_mat );
 
-    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
-    {
-        m_ArrowLinesDO.m_PntVec.push_back( ptstart );
-        m_ArrowLinesDO.m_PntVec.push_back( ptend );
-    }
+        vec3d pmid = mat.xform( m_FoldAxOrigin );
+        vec3d ptstart = mat.xform( m_FoldAxOrigin + rev * m_FoldAxDirection * axlen / 2.0 );
+        vec3d ptend = mat.xform( m_FoldAxOrigin - rev * m_FoldAxDirection * axlen / 2.0 );
 
-    m_ArrowLinesDO.m_PntVec.push_back( cen );
-    m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
+        vec3d dir = ptend - ptstart;
+        dir.normalize();
 
-    MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
-    MakeCircleArrow( cen, rotdir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+        if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+        {
+            m_ArrowLinesDO.m_PntVec.push_back( ptstart );
+            m_ArrowLinesDO.m_PntVec.push_back( ptend );
+        }
 
-    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
-    {
-        MakeCircleArrow( pmid, dir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+        m_ArrowLinesDO.m_PntVec.push_back( cen );
+        m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
+
+        MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
+        MakeCircleArrow( cen, rotdir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+
+        if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+        {
+            MakeCircleArrow( pmid, dir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+        }
     }
 }
 
