@@ -550,13 +550,13 @@ SkinXSec::SkinXSec( XSecCurve *xsc ) : XSec( xsc)
     m_TopLRStrengthEq.Init( "TopLRStrengthEq", m_GroupName, this, 0, 0, 1 );
     m_TopLRCurveEq.Init( "TopLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
-    m_TopLAngle.Init( "TopLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_TopLSlew.Init( "TopLSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_TopLAngle.Init( "TopLAngle", m_GroupName, this,  0.0, -360.0, 360.0 );
+    m_TopLSlew.Init( "TopLSlew", m_GroupName, this,  0.0, -360.0, 360.0 );
     m_TopLStrength.Init( "TopLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_TopLCurve.Init( "TopLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
-    m_TopRAngle.Init( "TopRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_TopRSlew.Init( "TopRSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_TopRAngle.Init( "TopRAngle", m_GroupName, this,  0.0, -360.0, 360.0 );
+    m_TopRSlew.Init( "TopRSlew", m_GroupName, this,  0.0, -360.0, 360.0 );
     m_TopRStrength.Init( "TopRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_TopRCurve.Init( "TopRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
@@ -579,13 +579,13 @@ SkinXSec::SkinXSec( XSecCurve *xsc ) : XSec( xsc)
     m_RightLRStrengthEq.Init( "RightLRStrengthEq", m_GroupName, this, 0, 0, 1 );
     m_RightLRCurveEq.Init( "RightLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
-    m_RightLAngle.Init( "RightLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_RightLSlew.Init( "RightLSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_RightLAngle.Init( "RightLAngle", m_GroupName, this,  0.0, -360.0, 360.0 );
+    m_RightLSlew.Init( "RightLSlew", m_GroupName, this,  0.0, -360.0, 360.0 );
     m_RightLStrength.Init( "RightLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_RightLCurve.Init( "RightLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
-    m_RightRAngle.Init( "RightRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_RightRSlew.Init( "RightRSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_RightRAngle.Init( "RightRAngle", m_GroupName, this,  0.0, -360.0, 360.0 );
+    m_RightRSlew.Init( "RightRSlew", m_GroupName, this,  0.0, -360.0, 360.0 );
     m_RightRStrength.Init( "RightRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_RightRCurve.Init( "RightRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
@@ -608,13 +608,13 @@ SkinXSec::SkinXSec( XSecCurve *xsc ) : XSec( xsc)
     m_BottomLRStrengthEq.Init( "BottomLRStrengthEq", m_GroupName, this, 0, 0, 1 );
     m_BottomLRCurveEq.Init( "BottomLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
-    m_BottomLAngle.Init( "BottomLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_BottomLSlew.Init( "BottomLSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_BottomLAngle.Init( "BottomLAngle", m_GroupName, this,  0.0, -360.0, 360.0 );
+    m_BottomLSlew.Init( "BottomLSlew", m_GroupName, this,  0.0, -360.0, 360.0 );
     m_BottomLStrength.Init( "BottomLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_BottomLCurve.Init( "BottomLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
-    m_BottomRAngle.Init( "BottomRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_BottomRSlew.Init( "BottomRSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_BottomRAngle.Init( "BottomRAngle", m_GroupName, this,  0.0, -360.0, 360.0 );
+    m_BottomRSlew.Init( "BottomRSlew", m_GroupName, this,  0.0, -360.0, 360.0 );
     m_BottomRStrength.Init( "BottomRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_BottomRCurve.Init( "BottomRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
@@ -637,13 +637,13 @@ SkinXSec::SkinXSec( XSecCurve *xsc ) : XSec( xsc)
     m_LeftLRStrengthEq.Init( "LeftLRStrengthEq", m_GroupName, this, 0, 0, 1 );
     m_LeftLRCurveEq.Init( "LeftLRCurveEq", m_GroupName, this, 0, 0, 1 );
 
-    m_LeftLAngle.Init( "LeftLAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_LeftLSlew.Init( "LeftLSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_LeftLAngle.Init( "LeftLAngle", m_GroupName, this,  0.0, -360.0, 360.0 );
+    m_LeftLSlew.Init( "LeftLSlew", m_GroupName, this,  0.0, -360.0, 360.0 );
     m_LeftLStrength.Init( "LeftLStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_LeftLCurve.Init( "LeftLCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 
-    m_LeftRAngle.Init( "LeftRAngle", m_GroupName, this,  0.0, -180.0, 180.0 );
-    m_LeftRSlew.Init( "LeftRSlew", m_GroupName, this,  0.0, -180.0, 180.0 );
+    m_LeftRAngle.Init( "LeftRAngle", m_GroupName, this,  0.0, -360.0, 360.0 );
+    m_LeftRSlew.Init( "LeftRSlew", m_GroupName, this,  0.0, -360.0, 360.0 );
     m_LeftRStrength.Init( "LeftRStrength", m_GroupName, this,  1.0, 0.0, 1e12 );
     m_LeftRCurve.Init( "LeftRCurve", m_GroupName, this,  0.0, -1e12, 1e12 );
 }
