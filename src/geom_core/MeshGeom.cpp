@@ -2354,7 +2354,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
-    MergeRemoveOpenMeshes( &info );
+    MergeRemoveOpenMeshes( &info, false );
 
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "Slice" );
