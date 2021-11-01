@@ -107,6 +107,7 @@ public:
     virtual void WriteStl( FILE* pov_file );
     virtual void WriteStl( FILE* stl_file, int tag );
 
+    virtual void InitIndexedMesh( const vector < TMesh* > &meshvec, int & offset );
     virtual void BuildIndexedMesh( int partOffset, bool half_flag = false );
     virtual int  GetNumIndexedPnts()
     {

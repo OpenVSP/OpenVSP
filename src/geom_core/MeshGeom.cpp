@@ -620,77 +620,61 @@ int MeshGeom::ReadTriFile( const char * file_name )
     return 1;
 }
 
+void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec, int & offset )
+{
+    //==== Find All Exterior and Split Tris =====//
+    for ( int m = 0 ; m < meshvec.size() ; m++ )
+    {
+        for ( int t = 0 ; t < ( int )meshvec[m]->m_TVec.size() ; t++ )
+        {
+            TTri* tri = meshvec[m]->m_TVec[t];
+            if ( tri->m_SplitVec.size() )
+            {
+                for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+                {
+                    if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
+                    {
+                        char str[80];
+                        sprintf( str, "%d", offset );
+                        tri->m_SplitVec[s]->m_ID = string( str );
+                        m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
+                    }
+                }
+            }
+            else if ( !tri->m_IgnoreTriFlag )
+            {
+                char str[80];
+                sprintf( str, "%d", offset );
+                tri->m_ID = string( str );
+                m_IndexedTriVec.push_back( tri );
+            }
+        }
+        offset++;
+    }
+}
+
 //==== Build Indexed Mesh ====//
 void MeshGeom::BuildIndexedMesh( int partOffset, bool half_flag )
 {
-    int m, s, t;
-
     m_IndexedTriVec.clear();
     m_IndexedNodeVec.clear();
 
-    int mTMesh = (int) m_TMeshVec.size();
+    partOffset++;
 
-    //==== Find All Exterior and Split Tris =====//
-    for ( m = 0 ; m < mTMesh ; m++ )
+    if ( m_ViewMeshFlag() )
     {
-        for ( t = 0 ; t < ( int )m_TMeshVec[m]->m_TVec.size() ; t++ )
-        {
-            TTri* tri = m_TMeshVec[m]->m_TVec[t];
-            if ( tri->m_SplitVec.size() )
-            {
-                for ( s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
-                {
-                    if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
-                    {
-                        char str[80];
-                        sprintf( str, "%d", partOffset + m + 1 );
-                        tri->m_SplitVec[s]->m_ID = string( str );
-                        m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
-                    }
-                }
-            }
-            else if ( !tri->m_IgnoreTriFlag )
-            {
-                char str[80];
-                sprintf( str, "%d", partOffset + m + 1 );
-                tri->m_ID = string( str );
-                m_IndexedTriVec.push_back( tri );
-            }
-        }
+        InitIndexedMesh( m_TMeshVec, partOffset );
     }
 
-    for ( m = 0; m < m_SliceVec.size(); m++ )
+    if ( m_ViewSliceFlag() )
     {
-        for ( t = 0 ; t < ( int )m_SliceVec[m]->m_TVec.size() ; t++ )
-        {
-            TTri* tri = m_SliceVec[m]->m_TVec[t];
-            if ( tri->m_SplitVec.size() )
-            {
-                for ( s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
-                {
-                    if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
-                    {
-                        char str[80];
-                        sprintf( str, "%d", partOffset + m + 1 + mTMesh );
-                        tri->m_SplitVec[s]->m_ID = string( str );
-                        m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
-                    }
-                }
-            }
-            else if ( !tri->m_IgnoreTriFlag )
-            {
-                char str[80];
-                sprintf( str, "%d", partOffset + m + 1 + mTMesh );
-                tri->m_ID = string( str );
-                m_IndexedTriVec.push_back( tri );
-            }
-        }
+        InitIndexedMesh( m_SliceVec, partOffset );
     }
 
     //==== Collect All Points ====//
     vector< TNode* > allNodeVec;
     allNodeVec.reserve( m_IndexedTriVec.size() * 3 );
-    for ( t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         m_IndexedTriVec[t]->m_N0->m_ID = ( int )allNodeVec.size();
         allNodeVec.push_back( m_IndexedTriVec[t]->m_N0 );
@@ -741,7 +725,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset, bool half_flag )
     vector< TTri* > goodTriVec;
     goodTriVec.reserve( m_IndexedTriVec.size() );
     //==== Write Out Tris ====//
-    for ( t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         TTri* ttri = m_IndexedTriVec[t];
         if( ttri )
