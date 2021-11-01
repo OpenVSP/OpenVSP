@@ -200,7 +200,7 @@ Vehicle::Vehicle()
     m_DrawCgFlag.Init( "DrawCgFlag", "MassProperties", this, true, false, true );
     m_DrawCgFlag.SetDescript( "Adds red center point to mesh" );
 
-    m_NumPlanerSlices.Init( "NumPlanerSlices", "PSlice", this, 10, 3, 100 );
+    m_NumPlanerSlices.Init( "NumPlanerSlices", "PSlice", this, 10, 1, 100 );
     m_NumPlanerSlices.SetDescript( "Number of planar slices used to display mesh" );
 
     m_AutoBoundsFlag.Init( "AutoBoundsFlag", "PSlice", this, true, false, true );

@@ -142,6 +142,11 @@ bool PSliceScreen::Update()
         m_EndLocSlider.Deactivate();
     }
 
+    if ( veh->m_NumPlanerSlices() == 1 )
+    {
+        m_EndLocSlider.Deactivate();
+    }
+
     m_FLTK_Window->redraw();
     return false;
 }

@@ -2406,7 +2406,6 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
         b.Update( m_TMeshVec[i]->m_TBox.m_Box );
     }
     m_BBox = b;
-    //update_xformed_bbox();            // Load Xform BBox
 
     double xMin;
     double xMax;
@@ -2421,15 +2420,15 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
         xMax = end + 0.0001;
     }
 
-    //==== Build Slice Mesh Object =====//
-    // MJW: Mandating 3 slices is a preference. 2 is just fine, and sometimes necessary.
-    //if ( numSlices < 3 )
-    //{
-        //numSlices = 3;
-    //}
-
     vec3d norm( 1, 0, 0 );
 
+    double dxSlice = 1.0;
+    if ( numSlices > 1 )
+    {
+        dxSlice = ( xMax - xMin ) / ( double )( numSlices - 1 );
+    }
+
+    vector< double > loc_vec;
     for ( s = 0 ; s < numSlices ; s++ )
     {
         TMesh* tm = new TMesh();
@@ -2438,7 +2437,8 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
         tm->m_ThickSurf = false;
         tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
 
-        double x = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
+        double x = xMin + ( double )s * dxSlice;
+        loc_vec.push_back( x );
 
         double ydel = 1.02 * ( m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 ) );
         double ys   = m_BBox.GetMin( 1 ) - 0.01 * ydel;
@@ -2505,14 +2505,11 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
 
     TransMat.affineInverse();
 
-    vector< double > loc_vec;
     vector< double > area_vec;
     vector < vec3d > AreaCenter;
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
-        double x = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
         m_SliceVec[s]->ComputeWetArea();
-        loc_vec.push_back( x );
         area_vec.push_back( m_SliceVec[s]->m_WetArea );
         AreaCenter.push_back( TransMat.xform( m_SliceVec[s]->m_AreaCenter ) );
     }
