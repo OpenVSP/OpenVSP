@@ -418,6 +418,8 @@ xmlNodePtr XSecCurve::EncodeXml(  xmlNodePtr & node  )
     {
         XmlUtil::AddIntNode( xsec_node, "Type", m_Type );
 
+        m_DriverGroup.EncodeXml( xsec_node );
+
         if( m_ImageFile.size() > 0 )
         {
             XmlUtil::AddStringNode( xsec_node, "ImageFile", m_ImageFile );
@@ -433,6 +435,7 @@ xmlNodePtr XSecCurve::DecodeXml( xmlNodePtr & node )
     xmlNodePtr xscrv_node = XmlUtil::GetNode( node, "XSecCurve", 0 );
     if( xscrv_node )
     {
+        m_DriverGroup.DecodeXml( xscrv_node );
         m_ImageFile = XmlUtil::FindString( xscrv_node, "ImageFile", m_ImageFile );
     }
 
