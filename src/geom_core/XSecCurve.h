@@ -39,7 +39,6 @@ public:
 
     XSecCurve *m_Parent;
 
-    double m_pcos;
     double m_prevArea;
 };
 

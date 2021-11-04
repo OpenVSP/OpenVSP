@@ -4459,7 +4459,6 @@ XSecCurveDriverGroup::XSecCurveDriverGroup() : DriverGroup( NUM_XSEC_DRIVER, 2 )
     m_CurrChoices[0] = WIDTH_XSEC_DRIVER;
     m_CurrChoices[1] = HEIGHT_XSEC_DRIVER;
 
-    m_pcos = 1.0;
     m_prevArea = -1.0;
 }
 
