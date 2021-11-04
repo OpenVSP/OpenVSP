@@ -385,7 +385,7 @@ public:
     virtual void UpdateGroup( vector< string > parmIDs ) = 0;
     virtual bool ValidDrivers( vector< int > choices ) = 0;
 
-    void SetChoices( const vector< int > &choices )      { m_CurrChoices = choices; }
+    void SetChoices( const vector< int > &choices );
     vector< int > GetChoices()                    { return m_CurrChoices; }
     int GetNchoice() const                        { return m_Nchoice; }
     int GetNvar() const                           { return m_Nvar; }

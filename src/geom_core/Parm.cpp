@@ -718,7 +718,18 @@ DriverGroup::~DriverGroup()
 
 void DriverGroup::SetChoice( int choice, int grpid )
 {
-    m_CurrChoices[choice] = grpid;
+    if ( choice < m_CurrChoices.size() )
+    {
+        m_CurrChoices[choice] = grpid;
+    }
+}
+
+void DriverGroup::SetChoices( const vector< int > &choices )
+{
+    for ( int i = 0; i < choices.size() && i < m_CurrChoices.size(); i++ )
+    {
+        m_CurrChoices[i] = choices[i];
+    }
 }
 
 //==== Encode Data To XML Data Structure ====//
@@ -726,8 +737,6 @@ void DriverGroup::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar *)m_Name.c_str(), NULL );
 
-    XmlUtil::AddIntNode( dnode, "NumVar", m_Nvar );
-    XmlUtil::AddIntNode( dnode, "NumChoices", m_Nchoice );
     XmlUtil::AddVectorIntNode( dnode, "ChoiceVec", m_CurrChoices );
 }
 
@@ -737,9 +746,8 @@ void DriverGroup::DecodeXml( xmlNodePtr & node )
     xmlNodePtr n = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
     if ( n )
     {
-        m_Nvar = XmlUtil::FindInt( n, "NumVar", m_Nvar );
-        m_Nchoice = XmlUtil::FindInt( n, "NumChoices", m_Nvar );
-        m_CurrChoices = XmlUtil::ExtractVectorIntNode( n, "ChoiceVec" );
+        vector< int > tmp = XmlUtil::ExtractVectorIntNode( n, "ChoiceVec" );
+        SetChoices( tmp );
     }
 }
 
