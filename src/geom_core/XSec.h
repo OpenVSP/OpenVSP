@@ -75,10 +75,7 @@ public:
 
     virtual void SetScale( double scale );
 
-    virtual double GetProjectionCosine()
-    {
-        return 1.0;
-    }
+    virtual double GetProjectionCosine();
 
     virtual void GetBasis( double t, Matrix4d &basis );
     virtual void GetTanNormVec( double t, double theta, double phi, vec3d &tangent, vec3d &normal );

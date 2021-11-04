@@ -58,6 +58,8 @@ public:
         m_FlipUD = flip;
     }
 
+    int GetPrincipalDirection() { return m_PrincipalDir; }
+
     void GetBasicTransformation( double w, Matrix4d &mat );
     static void GetBasicTransformation( int pdir, int wdir, int wshift, bool flip, double w, Matrix4d &mat );
 
