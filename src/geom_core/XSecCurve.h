@@ -32,14 +32,29 @@ class XSecCurve;
 class XSecCurveDriverGroup : public DriverGroup
 {
 public:
-    XSecCurveDriverGroup();
-
-    virtual void UpdateGroup( vector< string > parmIDs );
-    virtual bool ValidDrivers( vector< int > choices );
+    XSecCurveDriverGroup( int Nvar, int Nchoice );
 
     XSecCurve *m_Parent;
 
     double m_prevArea;
+};
+
+class HWXSecCurveDriverGroup : public XSecCurveDriverGroup
+{
+public:
+    HWXSecCurveDriverGroup();
+
+    virtual void UpdateGroup( vector< string > parmIDs );
+    virtual bool ValidDrivers( vector< int > choices );
+};
+
+class DXSecCurveDriverGroup : public XSecCurveDriverGroup
+{
+public:
+    DXSecCurveDriverGroup();
+
+    virtual void UpdateGroup( vector< string > parmIDs );
+    virtual bool ValidDrivers( vector< int > choices );
 };
 
 class XSecCurve : public ParmContainer
@@ -241,6 +256,8 @@ public:
     }
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Diameter.GetID(); }
+
+    virtual vector< string > GetDriverParms();
 
     virtual void OffsetCurve( double off );
 

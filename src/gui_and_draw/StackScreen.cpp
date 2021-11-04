@@ -18,10 +18,15 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630+75, "Stac
 
     vector < string > xsec_driver_labels;
     xsec_driver_labels.resize( vsp::NUM_XSEC_DRIVER );
-    xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = string( "Width" );
-    xsec_driver_labels[vsp::HEIGHT_XSEC_DRIVER] = "Height";
+    xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = "Width";
     xsec_driver_labels[vsp::AREA_XSEC_DRIVER] = "Area";
+    xsec_driver_labels[vsp::HEIGHT_XSEC_DRIVER] = "Height";
     xsec_driver_labels[vsp::HWRATIO_XSEC_DRIVER] = "H/W Ratio";
+
+    vector < string > circ_xsec_driver_labels;
+    circ_xsec_driver_labels.resize( vsp::CIRCLE_NUM_XSEC_DRIVER );
+    circ_xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = "Diameter";
+    circ_xsec_driver_labels[vsp::AREA_XSEC_DRIVER] = "Area";
 
     Fl_Group* design_tab = AddTab( "Design", 3 );
 
@@ -177,8 +182,8 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630+75, "Stac
 
     //==== Circle XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_CircleGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_CircleXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
-    m_CircleGroup.AddDriverGroupBank( m_CircleXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
+    m_CircleXSecDriverGroupBank.SetDriverGroup( &m_CircleXSecDriverGroup );
+    m_CircleGroup.AddDriverGroupBank( m_CircleXSecDriverGroupBank, circ_xsec_driver_labels, 10, "%6.5f" );
 
     //==== Ellipse XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_EllipseGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );

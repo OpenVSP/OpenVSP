@@ -33,7 +33,7 @@ using namespace vsp;
 //==== Default Constructor ====//
 XSecCurve::XSecCurve()
 {
-    m_DriverGroup = new XSecCurveDriverGroup();
+    m_DriverGroup = new HWXSecCurveDriverGroup();
 
     XSecCurveDriverGroup *xscdg = dynamic_cast< XSecCurveDriverGroup* > ( m_DriverGroup );
     if ( xscdg )
@@ -1623,6 +1623,21 @@ void PointXSec::UpdateCurve( bool updateParms )
 //==== Constructor ====//
 CircleXSec::CircleXSec( ) : XSecCurve( )
 {
+    if( m_DriverGroup )
+    {
+        // m_DriverGroup was initialized in the XSecCurve() constructor.  However, we want to use a different
+        // DriverGroup type for Circle.
+        delete m_DriverGroup;
+    }
+
+    m_DriverGroup = new DXSecCurveDriverGroup();
+
+    XSecCurveDriverGroup *xscdg = dynamic_cast< XSecCurveDriverGroup* > ( m_DriverGroup );
+    if ( xscdg )
+    {
+        xscdg->m_Parent = this;
+    }
+
     m_Type = XS_CIRCLE;
     m_Diameter.Init( "Circle_Diameter", m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_Diameter.SetDescript( "Diameter of Circle Cross-Section" );
@@ -1632,6 +1647,17 @@ CircleXSec::CircleXSec( ) : XSecCurve( )
 void CircleXSec::SetWidthHeight( double w, double h )
 {
     m_Diameter  = ( w + h ) / 2.0;
+}
+
+//==== Get Driver Parms ====//
+vector< string > CircleXSec::GetDriverParms()
+{
+    vector< string > parm_ids;
+    parm_ids.resize( vsp::CIRCLE_NUM_XSEC_DRIVER );
+    parm_ids[ vsp::WIDTH_XSEC_DRIVER ] = GetWidthParmID();
+    parm_ids[ vsp::AREA_XSEC_DRIVER ] = m_Area.GetID();
+
+    return parm_ids;
 }
 
 void CircleXSec::OffsetCurve( double off )
@@ -4453,16 +4479,20 @@ void InterpXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
 //==========================================================================//
 //==========================================================================//
 
-XSecCurveDriverGroup::XSecCurveDriverGroup() : DriverGroup( NUM_XSEC_DRIVER, 2 )
+XSecCurveDriverGroup::XSecCurveDriverGroup( int Nvar, int Nchoice ) : DriverGroup( Nvar, Nchoice )
 {
     m_Parent = NULL;
-    m_CurrChoices[0] = WIDTH_XSEC_DRIVER;
-    m_CurrChoices[1] = HEIGHT_XSEC_DRIVER;
 
     m_prevArea = -1.0;
 }
 
-void XSecCurveDriverGroup::UpdateGroup( vector< string > parmIDs )
+HWXSecCurveDriverGroup::HWXSecCurveDriverGroup() : XSecCurveDriverGroup( NUM_XSEC_DRIVER, 2 )
+{
+    m_CurrChoices[0] = WIDTH_XSEC_DRIVER;
+    m_CurrChoices[1] = HEIGHT_XSEC_DRIVER;
+}
+
+void HWXSecCurveDriverGroup::UpdateGroup( vector< string > parmIDs )
 {
     vector< bool > uptodate( m_Nvar, false );
 
@@ -4482,13 +4512,14 @@ void XSecCurveDriverGroup::UpdateGroup( vector< string > parmIDs )
         Parm* area = ParmMgr.FindParm( parmIDs[AREA_XSEC_DRIVER] );
         Parm* hwratio = ParmMgr.FindParm( parmIDs[HWRATIO_XSEC_DRIVER] );
 
-        // Area is a driver, first time through, use Height and Width as-is.
+        // Area is a driver, first time through, calculate m_prevArea
         if ( uptodate[AREA_XSEC_DRIVER] && m_prevArea < 0 )
         {
-            uptodate[WIDTH_XSEC_DRIVER] = true;
-            uptodate[HEIGHT_XSEC_DRIVER] = true;
+            m_Parent->UpdateCurve( false );
+            m_prevArea = m_Parent->AreaNoUpdate();
         }
-        else if ( uptodate[AREA_XSEC_DRIVER] ) // Area is a driver, may need iteration.
+
+        if ( uptodate[AREA_XSEC_DRIVER] ) // Area is a driver, may need iteration.
         {
             int iter = 0;
             double tol = 1e-6 * area->Get();
@@ -4523,8 +4554,6 @@ void XSecCurveDriverGroup::UpdateGroup( vector< string > parmIDs )
                 iter++;
             }
 
-            printf( " Converged in %d iterations to %g.\n", iter, err );
-
             uptodate[WIDTH_XSEC_DRIVER] = true;
             uptodate[HEIGHT_XSEC_DRIVER] = true;
         }
@@ -4551,7 +4580,7 @@ void XSecCurveDriverGroup::UpdateGroup( vector< string > parmIDs )
     }
 }
 
-bool XSecCurveDriverGroup::ValidDrivers( vector< int > choices )
+bool HWXSecCurveDriverGroup::ValidDrivers( vector< int > choices )
 {
     // Check for duplicate selections.
     for( int i = 0; i < (int)choices.size() - 1; i++ )
@@ -4565,5 +4594,66 @@ bool XSecCurveDriverGroup::ValidDrivers( vector< int > choices )
         }
     }
 
+    return true;
+}
+
+DXSecCurveDriverGroup::DXSecCurveDriverGroup() : XSecCurveDriverGroup( CIRCLE_NUM_XSEC_DRIVER, 1 )
+{
+    m_CurrChoices[0] = WIDTH_XSEC_DRIVER;
+}
+
+void DXSecCurveDriverGroup::UpdateGroup( vector< string > parmIDs )
+{
+    vector< bool > uptodate( m_Nvar, false );
+
+    for( int i = 0; i < m_Nchoice; i++ )
+    {
+        uptodate[m_CurrChoices[i]] = true;
+    }
+
+    if( uptodate[WIDTH_XSEC_DRIVER] )
+    {
+        // fast path
+    }
+    else
+    {
+        Parm* width = ParmMgr.FindParm( parmIDs[WIDTH_XSEC_DRIVER] );
+        Parm* area = ParmMgr.FindParm( parmIDs[AREA_XSEC_DRIVER] );
+
+        // Area is a driver, first time through, calculate m_prevArea
+        if ( uptodate[AREA_XSEC_DRIVER] && m_prevArea < 0 )
+        {
+            m_Parent->UpdateCurve( false );
+            m_prevArea = m_Parent->AreaNoUpdate();
+        }
+
+        if ( uptodate[AREA_XSEC_DRIVER] ) // Area is a driver, may need iteration.
+        {
+            int iter = 0;
+            double tol = 1e-6 * area->Get();
+            double err = 100 * tol;
+
+            while ( err > tol && iter < 10 )
+            {
+                double scale = sqrt( area->Get() / m_prevArea );
+                width->Set( scale * width->Get() );
+
+                // Minimal curve math update.
+                m_Parent->UpdateCurve( false );
+                double newarea = m_Parent->AreaNoUpdate();
+
+                err = std::abs( newarea - area->Get() );
+
+                m_prevArea = newarea;
+                iter++;
+            }
+
+            uptodate[WIDTH_XSEC_DRIVER] = true;
+        }
+    }
+}
+
+bool DXSecCurveDriverGroup::ValidDrivers( vector< int > choices )
+{
     return true;
 }

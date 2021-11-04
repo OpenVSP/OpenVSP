@@ -685,11 +685,12 @@ enum XSEC_CRV_TYPE {XS_UNDEFINED = -1,
                     XS_NUM_TYPES
                    };
 
-enum XSEC_DRIVERS { WIDTH_XSEC_DRIVER,
+enum XSEC_DRIVERS { WIDTH_XSEC_DRIVER,     // First two are used for Circle.  Others are used for general XSecCurves
+                    AREA_XSEC_DRIVER,      // Area must be second entry.
                     HEIGHT_XSEC_DRIVER,
-                    AREA_XSEC_DRIVER,
                     HWRATIO_XSEC_DRIVER,
-                    NUM_XSEC_DRIVER
+                    NUM_XSEC_DRIVER,
+                    CIRCLE_NUM_XSEC_DRIVER = 2
                   };
 
 enum XSEC_SIDES_TYPE {  XSEC_BOTH_SIDES,

@@ -76,7 +76,8 @@ protected:
     TriggerButton m_ConvertCEDITButton;
     GroupLayout m_ConvertCEDITGroup;
 
-    XSecCurveDriverGroup m_DefaultXSecDriverGroup;
+    HWXSecCurveDriverGroup m_DefaultXSecDriverGroup;
+    DXSecCurveDriverGroup m_CircleXSecDriverGroup;
 
     GroupLayout m_EditCEDITGroup;
     TriggerButton m_EditCEDITButton;
