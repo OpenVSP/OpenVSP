@@ -47,6 +47,7 @@ class XSecCurve : public ParmContainer
 {
 public:
     XSecCurve();
+    ~XSecCurve();
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void Update();
@@ -175,7 +176,7 @@ public:
 
 
     virtual vector< string > GetDriverParms();
-    XSecCurveDriverGroup m_DriverGroup;
+    DriverGroup *m_DriverGroup;
 
 
     Parm m_Area;

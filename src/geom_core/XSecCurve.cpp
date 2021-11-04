@@ -33,7 +33,13 @@ using namespace vsp;
 //==== Default Constructor ====//
 XSecCurve::XSecCurve()
 {
-    m_DriverGroup.m_Parent = this;
+    m_DriverGroup = new XSecCurveDriverGroup();
+
+    XSecCurveDriverGroup *xscdg = dynamic_cast< XSecCurveDriverGroup* > ( m_DriverGroup );
+    if ( xscdg )
+    {
+        xscdg->m_Parent = this;
+    }
 
     m_GroupName = "XSecCurve";
     m_GroupSuffix = -1;
@@ -128,6 +134,11 @@ XSecCurve::XSecCurve()
     m_ForceWingType = false;
 
     m_yscale = 1.0;
+}
+
+XSecCurve::~XSecCurve()
+{
+    delete m_DriverGroup;
 }
 
 //==== Convert Any XSec to Cubic Bezier Edit Curve ====//
@@ -318,7 +329,7 @@ void XSecCurve::Update()
     // Reconcile height, width, area, and hwratio.
     // Potentially involves an iterative solution when area is a driver.
     // May include lofting the curve.
-    m_DriverGroup.UpdateGroup( GetDriverParms() );
+    m_DriverGroup->UpdateGroup( GetDriverParms() );
 
     UpdateCurve();
 
@@ -327,7 +338,11 @@ void XSecCurve::Update()
         m_Area = m_Curve.CompArea( vsp::Y_DIR, vsp::X_DIR );
         m_HWRatio = GetHeight() / GetWidth();
 
-        m_DriverGroup.m_prevArea = m_Area();
+        XSecCurveDriverGroup *xscdg = dynamic_cast< XSecCurveDriverGroup* > ( m_DriverGroup );
+        if ( xscdg )
+        {
+            xscdg->m_prevArea = m_Area();
+        }
     }
     else
     {
@@ -402,7 +417,7 @@ xmlNodePtr XSecCurve::EncodeXml(  xmlNodePtr & node  )
     {
         XmlUtil::AddIntNode( xsec_node, "Type", m_Type );
 
-        m_DriverGroup.EncodeXml( xsec_node );
+        m_DriverGroup->EncodeXml( xsec_node );
 
         if( m_ImageFile.size() > 0 )
         {
@@ -419,7 +434,7 @@ xmlNodePtr XSecCurve::DecodeXml( xmlNodePtr & node )
     xmlNodePtr xscrv_node = XmlUtil::GetNode( node, "XSecCurve", 0 );
     if( xscrv_node )
     {
-        m_DriverGroup.DecodeXml( xscrv_node );
+        m_DriverGroup->DecodeXml( xscrv_node );
         m_ImageFile = XmlUtil::FindString( xscrv_node, "ImageFile", m_ImageFile );
     }
 

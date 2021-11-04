@@ -767,7 +767,7 @@ bool StackScreen::Update()
                 SuperXSec* super_xs = dynamic_cast< SuperXSec* >( xsc );
                 assert( super_xs );
 
-                m_SuperXSecDriverGroupBank.SetDriverGroup( &super_xs->m_DriverGroup );
+                m_SuperXSecDriverGroupBank.SetDriverGroup( super_xs->m_DriverGroup );
                 vector< string > parm_ids = super_xs->GetDriverParms();
                 m_SuperXSecDriverGroupBank.Update( parm_ids );
 
@@ -796,7 +796,7 @@ bool StackScreen::Update()
                 CircleXSec* circle_xs = dynamic_cast< CircleXSec* >( xsc );
                 assert( circle_xs );
 
-                m_CircleXSecDriverGroupBank.SetDriverGroup( &circle_xs->m_DriverGroup );
+                m_CircleXSecDriverGroupBank.SetDriverGroup( circle_xs->m_DriverGroup );
                 vector< string > parm_ids = circle_xs->GetDriverParms();
                 m_CircleXSecDriverGroupBank.Update( parm_ids );
             }
@@ -806,7 +806,7 @@ bool StackScreen::Update()
 
                 EllipseXSec* ellipse_xs = dynamic_cast< EllipseXSec* >( xsc );
 
-                m_EllipseXSecDriverGroupBank.SetDriverGroup( &ellipse_xs->m_DriverGroup );
+                m_EllipseXSecDriverGroupBank.SetDriverGroup( ellipse_xs->m_DriverGroup );
                 vector< string > parm_ids = ellipse_xs->GetDriverParms();
                 m_EllipseXSecDriverGroupBank.Update( parm_ids );
             }
@@ -816,7 +816,7 @@ bool StackScreen::Update()
                 RoundedRectXSec* rect_xs = dynamic_cast< RoundedRectXSec* >( xsc );
                 assert( rect_xs );
 
-                m_RRXSecDriverGroupBank.SetDriverGroup( &rect_xs->m_DriverGroup );
+                m_RRXSecDriverGroupBank.SetDriverGroup( rect_xs->m_DriverGroup );
                 vector< string > parm_ids = rect_xs->GetDriverParms();
                 m_RRXSecDriverGroupBank.Update( parm_ids );
 
@@ -861,7 +861,7 @@ bool StackScreen::Update()
                 GeneralFuseXSec* gen_xs = dynamic_cast< GeneralFuseXSec* >( xsc );
                 assert( gen_xs );
 
-                m_GenXSecDriverGroupBank.SetDriverGroup( &gen_xs->m_DriverGroup );
+                m_GenXSecDriverGroupBank.SetDriverGroup( gen_xs->m_DriverGroup );
                 vector< string > parm_ids = gen_xs->GetDriverParms();
                 m_GenXSecDriverGroupBank.Update( parm_ids );
 

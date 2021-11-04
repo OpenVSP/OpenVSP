@@ -445,7 +445,7 @@ bool CurveEditScreen::Update()
     m_SymToggle.Update( edit_curve_xs->m_SymType.GetID() );
     m_ClosedCurveToggle.Update( edit_curve_xs->m_CloseFlag.GetID() );
 
-    m_XSecDriverGroupBank.SetDriverGroup( &edit_curve_xs->m_DriverGroup );
+    m_XSecDriverGroupBank.SetDriverGroup( edit_curve_xs->m_DriverGroup );
     vector< string > parm_ids = edit_curve_xs->GetDriverParms();
     m_XSecDriverGroupBank.Update( parm_ids );
 
