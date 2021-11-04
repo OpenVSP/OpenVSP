@@ -117,10 +117,10 @@ XSecCurve::XSecCurve()
     m_XSecImageYOffset.Init( "XSecImageYOffset", ( m_GroupName + "_Background" ), this, 0.0, -1.0e12, 1.0e12 );
     m_XSecFlipImageFlag.Init( "XSecFlipImageFlag", ( m_GroupName + "_Background" ), this, false, false, true );
 
-    m_Area.Init( "Area", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Area.Init( "Area", m_GroupName, this, 0, 0, 1e12 );
     m_Area.SetDescript( "XSec Area" );
 
-    m_ProjArea.Init( "ProjArea", m_GroupName, this, 0, -1e12, 1e12 );
+    m_ProjArea.Init( "ProjArea", m_GroupName, this, 0, 0, 1e12 );
     m_ProjArea.SetDescript( "XSec Projected area" );
 
     m_HWRatio.Init( "HWRatio", m_GroupName, this, 0, 0, 1e12 );
