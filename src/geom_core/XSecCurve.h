@@ -179,7 +179,6 @@ public:
 
 
     Parm m_Area;
-    Parm m_ProjArea;
     Parm m_HWRatio;
 
     virtual void SetImageFile( const string & file ) { m_ImageFile = file; }
