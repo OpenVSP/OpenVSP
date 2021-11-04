@@ -92,7 +92,6 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = string( "Width" );
     xsec_driver_labels[vsp::HEIGHT_XSEC_DRIVER] = "Height";
     xsec_driver_labels[vsp::AREA_XSEC_DRIVER] = "Area";
-    xsec_driver_labels[vsp::PROJAREA_XSEC_DRIVER] = "Proj Area";
     xsec_driver_labels[vsp::HWRATIO_XSEC_DRIVER] = "H/W Ratio";
 
     m_XSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );

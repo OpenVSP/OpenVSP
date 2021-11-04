@@ -688,7 +688,6 @@ enum XSEC_CRV_TYPE {XS_UNDEFINED = -1,
 enum XSEC_DRIVERS { WIDTH_XSEC_DRIVER,
                     HEIGHT_XSEC_DRIVER,
                     AREA_XSEC_DRIVER,
-                    PROJAREA_XSEC_DRIVER,
                     HWRATIO_XSEC_DRIVER,
                     NUM_XSEC_DRIVER
                   };
