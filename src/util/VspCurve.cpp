@@ -1798,26 +1798,13 @@ void VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, 
     if ( round_curve )
     {
         vector < double > r_vec{ r1, r2, r3, r4 };
-        int i = 1;
-
-        for ( size_t r = 0; r < r_vec.size(); r++ )
+        // Iterate backwards to avoid adjusting node indices for added corners.
+        for ( int r = r_vec.size() - 1; r >= 0; r-- )
         {
             if ( r_vec[r] > 1e-12 )
             {
-                RoundJoint( r_vec[r], i );
-
-                // Indexing adjustments when rounding with max values
-                if ( r_vec[r] != wt2 && r_vec[r] != wb2 && r_vec[r] != h2 )
-                {
-                    i += 1;
-                }
-                else if ( r_vec[r] == wt2 && r_vec[r] == wb2 && r_vec[r] == h2 )
-                {
-                    i -= 1;
-                }
+                bool rtn = RoundJoint( r_vec[r], ( 2 * r ) + 1 );
             }
-
-            i += 2;
         }
     }
 }
