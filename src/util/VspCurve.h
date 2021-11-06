@@ -53,7 +53,6 @@ public:
     bool IsClosed() const;
 
     void RoundJoint( double rad, int i );
-    void RoundAllJoints( double rad );
 
     void Modify( int type, bool le, double len, double off, double str );
 
