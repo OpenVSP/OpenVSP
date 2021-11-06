@@ -1656,58 +1656,6 @@ void VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, 
     double h2 = 0.5 * h;
     double h_off = vsk * h2;
 
-    if ( r1 > wt2 )
-    {
-        r1 = wt2;
-    }
-    if ( r1 > wb2 )
-    {
-        r1 = wb2;
-    }
-    if ( r1 > h2 )
-    {
-        r1 = h2;
-    }
-
-    if ( r2 > wt2 )
-    {
-        r2 = wt2;
-    }
-    if ( r2 > wb2 )
-    {
-        r2 = wb2;
-    }
-    if ( r2 > h2 )
-    {
-        r2 = h2;
-    }
-
-    if ( r3 > wt2 )
-    {
-        r3 = wt2;
-    }
-    if ( r3 > wb2 )
-    {
-        r3 = wb2;
-    }
-    if ( r3 > h2 )
-    {
-        r3 = h2;
-    }
-
-    if ( r4 > wt2 )
-    {
-        r4 = wt2;
-    }
-    if ( r4 > wb2 )
-    {
-        r4 = wb2;
-    }
-    if ( r4 > h2 )
-    {
-        r4 = h2;
-    }
-
     // catch special cases of degenerate cases
     if ( ( w2 == 0 ) || ( h2 == 0 ) )
     {
