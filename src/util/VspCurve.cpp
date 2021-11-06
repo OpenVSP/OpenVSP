@@ -244,9 +244,8 @@ void octave_print( int figno, const piecewise_curve_type &pc )
 }
 #endif
 
-void VspCurve::RoundJoint( double rad, int i )
+bool VspCurve::RoundJoint( double rad, int i )
 {
-    m_Curve.round( rad, i );
     return m_Curve.round( rad, i );
 }
 
