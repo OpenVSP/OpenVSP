@@ -972,6 +972,11 @@ bool Mesh::ValidCollapse( Edge* edge )
     Edge* e0a = ta->FindEdge( n0, na );
     Edge* e1a = ta->FindEdge( n1, na );
 
+    if ( !e0a || ! e1a )
+    {
+        return false;
+    }
+
     Tri* ta0 = e0a->OtherTri( ta );
     Tri* ta1 = e1a->OtherTri( ta );
 
