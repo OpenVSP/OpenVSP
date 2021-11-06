@@ -2608,7 +2608,7 @@ void Geom::UpdateDegenDrawObj()
 // multiple blades.
 void Geom::UpdateMainTessVec( bool firstonly )
 {
-    double tol = 1e-2;
+    double tol = 1e-3;
 
     int nmain = GetNumMainSurfs();
 
