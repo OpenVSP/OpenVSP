@@ -121,25 +121,9 @@ void AdvLinkMgrSingleton::CheckLinks()
 
     check_links_stamp = ParmMgr.GetNumParmChanges();
 
-    deque< int > del_indices;
     for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
     {
-        if ( !m_LinkVec[i]->ValidParms() )
-        {
-            del_indices.push_front( i );
-        }
-    }
-
-    if ( del_indices.size() )
-    {
-        m_EditLinkIndex = -1;
-        m_ActiveLink = NULL;
-    }
-
-    for ( int i = 0 ; i < ( int )del_indices.size() ; i++ )
-    {
-        AdvLink* del_link = m_LinkVec[ del_indices[i] ];
-        DelLink( del_link );
+        m_LinkVec[i]->ValidateParms();
     }
 }
 

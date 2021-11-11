@@ -56,7 +56,7 @@ public:
     void SetValidScriptFlag( bool flag )                            { m_ValidScript = flag; }
     bool ValidScript()                                              { return m_ValidScript; }
     string GetScriptErrors()                                        { return m_ScriptErrors; }
-    bool ValidParms();
+    bool ValidateParms();
 
     void AddVar( const VarDef & pd, bool input_flag );
     void DeleteVar( int index, bool input_flag );

@@ -51,19 +51,47 @@ AdvLink::~AdvLink()
 
 }
 
-bool AdvLink::ValidParms()
+bool AdvLink::ValidateParms()
 {
+    // Check if Parms still exist. If not, delete the variable and issue a warning to the user.
+    bool all_valid_flag = true;
+
+    vector < VarDef > valid_input_vars;
     for ( int i = 0 ; i < (int)m_InputVars.size() ; i++ )
     {
-        if ( !ParmMgr.FindParm( m_InputVars[i].m_ParmID ) )
-            return false;
+        if ( ParmMgr.FindParm( m_InputVars[i].m_ParmID ) )
+        {
+            valid_input_vars.push_back( m_InputVars[i] );
+        }
+        else
+        {
+            fprintf( stderr, "WARNING: Advanced Link Input Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName, m_OutputVars[i].m_ParmID );
+            all_valid_flag = false;
+        }
     }
+
+    m_InputVars.clear();
+    m_InputVars = valid_input_vars;
+
+    vector < VarDef > valid_output_vars;
+
     for ( int i = 0 ; i < (int)m_OutputVars.size() ; i++ )
     {
-        if ( !ParmMgr.FindParm( m_OutputVars[i].m_ParmID ) )
-            return false;
+        if ( ParmMgr.FindParm( m_OutputVars[i].m_ParmID ) )
+        {
+            valid_output_vars.push_back( m_OutputVars[i] );
+        }
+        else
+        {
+            fprintf( stderr, "WARNING: Advanced Link Output Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName, m_OutputVars[i].m_ParmID );
+            all_valid_flag = false;
+        }
     }
-    return true;
+
+    m_OutputVars.clear();
+    m_OutputVars = valid_output_vars;
+
+    return all_valid_flag;
 }
 
 bool AdvLink::DuplicateVarName( const string & name )
