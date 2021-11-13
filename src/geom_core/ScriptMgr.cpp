@@ -5717,8 +5717,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [in] geom_id Geom ID
     \return Array of child Geom IDs
 */)";
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomChildren( const string & in geom_id )", asFUNCTION( vsp::GetGeomChildren ), asCALL_CDECL, doc_struct );
-    assert( r >= 0 ); // FIXME: Example code not working
+    r = se->RegisterGlobalFunction( "array<string>@ GetGeomChildren( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomChildren ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
 
     //==== SubSurface Functions ====//
     group = "SubSurface";
@@ -11986,6 +11986,12 @@ CScriptArray* ScriptMgrSingleton::FindGeomsWithName( const string & name )
 CScriptArray* ScriptMgrSingleton::GetGeomParmIDs( const string & geom_id )
 {
     m_ProxyStringArray = vsp::GetGeomParmIDs( geom_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetGeomChildren( const string & geom_id )
+{
+    m_ProxyStringArray = vsp::GetGeomChildren( geom_id );
     return GetProxyStringArray();
 }
 

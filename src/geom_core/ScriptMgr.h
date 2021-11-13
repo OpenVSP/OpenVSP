@@ -144,6 +144,7 @@ private:
     CScriptArray* FindGeoms();
     CScriptArray* FindGeomsWithName( const string & name );
     CScriptArray* GetGeomParmIDs( const string & geom_id );
+    CScriptArray* GetGeomChildren( const string & geom_id );
     CScriptArray* GetSubSurfIDVec( const string & geom_id );
     CScriptArray* GetAllSubSurfIDs();
     CScriptArray* GetSubSurf( const string & geom_id, const string & name );
