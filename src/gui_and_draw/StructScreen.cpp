@@ -2791,7 +2791,11 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                     }
                 }
 
-                int first_selection = m_SelectedPartIndexVec[0];
+                int first_selection = -1;
+                if ( m_SelectedPartIndexVec.size() > 0 )
+                {
+                    first_selection = m_SelectedPartIndexVec[0];
+                }
 
                 while ( m_SelectedPartIndexVec.size() > 0 )
                 {
@@ -2814,11 +2818,14 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                     m_SelectedPartIndexVec = temp_index_vec;
                 }
 
-                if ( structvec[StructureMgr.GetCurrStructIndex()]->ValidFeaPartInd( first_selection - 1 ) )
+                if ( first_selection != -1 )
                 {
-                    m_SelectedPartIndexVec.clear();
-                    m_SelectedPartIndexVec.push_back( first_selection - 1 );
-                    StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
+                    if ( structvec[StructureMgr.GetCurrStructIndex()]->ValidFeaPartInd( first_selection - 1 ) )
+                    {
+                        m_SelectedPartIndexVec.clear();
+                        m_SelectedPartIndexVec.push_back( first_selection - 1 );
+                        StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
+                    }
                 }
             }
         }
