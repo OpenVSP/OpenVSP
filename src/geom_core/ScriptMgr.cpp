@@ -8241,15 +8241,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ReparameterizeEditXSec( const string& in xsec_id )", asFUNCTION( vsp::ReparameterizeEditXSec ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
-    //==== Specialized Geom Functions ====//
-    group = "SpecializedGeom";
+    //==== BOR Functions ====//
+    group = "BOR";
     doc_struct.group = group.c_str();
 
     group_description = R"(
-    \brief These API functions are used with Geoms that need specialized treatment. Body of Recolution
-    components are one example, which only have a single XSec to be defined from. \n\n
+    \brief This group of API functions provides capabilities related to the body of revolution (BOR) geometry type in OpenVSP. \n\n
     \ref index "Click here to return to the main page" )";
-    se->AddGroup( group.c_str(), "Specialized Geometry Functions", group_description.c_str() );
+    se->AddGroup( group.c_str(), "BOR Functions", group_description.c_str() );
 
     doc_struct.comment = R"(
 /*!
@@ -8285,6 +8284,281 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 */)";
     r = se->RegisterGlobalFunction( "int GetBORXSecShape( const string & in geom_id )", asFUNCTION( vsp::GetBORXSecShape ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set the coordinate points for a specific BOR. The BOR XSecCurve must be of type XS_FILE_FUSE.
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_FILE_FUSE );
+
+    array< vec3d > @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" );
+    \endcode
+    \param [in] bor_id Geom ID of BOR
+    \param [in] file_name Fuselage XSec file name
+    \return Array of coordinate points read from the file and set to the XSec
+*/)";
+    r = se->RegisterGlobalFunction( "array<vec3d>@ ReadBORFileXSec(const string& in bor_id, const string& in file_name )", asMETHOD( ScriptMgrSingleton, ReadBORFileXSec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set the coordinate points for a specific BOR. The BOR XSecCurve must be of type XS_FILE_FUSE.
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_FILE_FUSE );
+
+    array< vec3d > @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" );
+
+    if ( vec_array.size() > 0 )
+    {
+        vec_array[1] = vec_array[1] * 2.0;
+        vec_array[3] = vec_array[3] * 2.0;
+
+        SetBORXSecPnts( bor_id, vec_array );
+    }
+    \endcode
+    \param [in] bor_id Geom ID of BOR
+    \param [in] pnt_arr Array of XSec coordinate points
+*/)";
+    r = se->RegisterGlobalFunction( "void SetBORXSecPnts( const string& in bor_id, array<vec3d>@ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetBORXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Compute 3D coordinate for a point on a BOR XSecCurve given the parameter value (U) along the curve
+    \code{.cpp}
+    //==== Add Geom ====//
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    double u_fract = 0.25;
+
+    vec3d pnt = ComputeBORXSecPnt( bor_id, u_fract );
+    \endcode
+    \param [in] bor_id Geom ID of BOR
+    \param [in] fract Curve parameter value (range: 0 - 1)
+    \return 3D coordinate point
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d ComputeBORXSecPnt( const string& in bor_id, double fract )", asFUNCTION( vsp::ComputeBORXSecPnt ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Compute the tangent vector of a point on a BOR XSecCurve given the parameter value (U) along the curve
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    double u_fract = 0.25;
+
+    vec3d tan = ComputeBORXSecTan( bor_id, u_fract );
+    \endcode
+    \param [in] bor_id Geom ID of BOR
+    \param [in] fract Curve parameter value (range: 0 - 1)
+    \return Tangent vector
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d ComputeBORXSecTan( const string& in bor_id, double fract )", asFUNCTION( vsp::ComputeBORXSecTan ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Read in shape from airfoil file and set to the specified BOR XSecCurve. The XSecCurve must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with *.af or *.dat extensions.
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+    ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+    \endcode
+    \param [in] bor_id Geom ID of BOR
+    \param [in] file_name Airfoil XSec file name
+*/)";
+    r = se->RegisterGlobalFunction( "void ReadBORFileAirfoil( const string& in bor_id, const string& in file_name )", asFUNCTION( vsp::ReadBORFileAirfoil ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set the upper and lower points for an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL.
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+    ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+    array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id );
+
+    array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id );
+
+    for ( int i = 0 ; i < int( up_array.size() ) ; i++ )
+    {
+        up_array[i].scale_y( 2.0 );
+
+        low_array[i].scale_y( 0.5 );
+    }
+
+    SetBORAirfoilPnts( bor_id, up_array, low_array );
+    \endcode
+    \param [in] bor_id Geom ID of BOR
+    \param [in] up_pnt_vec Array of points defining the upper surface of the airfoil
+    \param [in] low_pnt_vec Array of points defining the lower surface of the airfoil
+*/)";
+    r = se->RegisterGlobalFunction( "void SetBORAirfoilPnts( const string& in bor_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the coordinate points for the upper surface of an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+    ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+    array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id );
+    \endcode
+    \sa SetAirfoilPnts
+    \param [in] bor_id Geom ID of BOR
+    \return Array of coordinate points for the upper airfoil surface
+*/)";
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetBORAirfoilUpperPnts(const string& in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the coordinate points for the lower surface of an airfoil of a BOR. The XSecCurve must be of type XS_FILE_AIRFOIL
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+    ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+    array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id );
+    \endcode
+    \sa SetAirfoilPnts
+    \param [in] bor_id Geom ID of BOR
+    \return Array of coordinate points for the lower airfoil surface
+*/)";
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetBORAirfoilLowerPnts(const string& in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the CST coefficients for the upper surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa SetUpperCST
+    \param [in] bor_id Geom ID of BOR
+    \return Array of CST coefficients for the upper airfoil surface
+*/)";
+    r = se->RegisterGlobalFunction( "array<double>@ GetBORUpperCSTCoefs( const string & in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORUpperCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 ); // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Get the CST coefficients for the lower surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa SetLowerCST
+    \param [in] bor_id Geom ID of BOR
+    \return Array of CST coefficients for the lower airfoil surface
+*/)";
+    r = se->RegisterGlobalFunction( "array<double>@ GetBORLowerCSTCoefs( const string & in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORLowerCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );  // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Get the CST degree for the upper surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa SetUpperCST
+    \param [in] bor_id Geom ID of BOR
+    \return CST Degree for upper airfoil surface
+*/)";
+    r = se->RegisterGlobalFunction( "int GetBORUpperCSTDegree( const string& in bor_id )", asFUNCTION( vsp::GetBORUpperCSTDegree ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );  // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Get the CST degree for the lower surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa SetLowerCST
+    \param [in] bor_id Geom ID of BOR
+    \return CST Degree for lower airfoil surface
+*/)";
+    r = se->RegisterGlobalFunction( "int GetBORLowerCSTDegree( const string& in bor_id )", asFUNCTION( vsp::GetBORLowerCSTDegree ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );  // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Set the CST degree and coefficients for the upper surface of an airfoil of a BOR. The number of coefficients should be one more than the CST degree. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa GetUpperCSTDegree, GetUpperCSTCoefs
+    \param [in] bor_id Geom ID of BOR
+    \param [in] deg CST degree of upper airfoil surface
+    \param [in] coeff_arr Array of CST coefficients for the upper airfoil surface
+*/)";
+    r = se->RegisterGlobalFunction( "void SetBORUpperCST( const string& in bor_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetBORUpperCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );  // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Set the CST degree and coefficients for the lower surface of an airfoil of a BOR. The number of coefficients should be one more than the CST degree. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa GetLowerCSTDegree, GetLowerCSTCoefs
+    \param [in] bor_id Geom ID of BOR
+    \param [in] deg CST degree of lower airfoil surface
+    \param [in] coeff_arr Array of CST coefficients for the lower airfoil surface
+*/)";
+    r = se->RegisterGlobalFunction( "void SetBORLowerCST( const string& in bor_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetBORLowerCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );  // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Promote the CST for the upper airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa GetUpperCSTDegree
+    \param [in] bor_id Geom ID of BOR
+*/)";
+    r = se->RegisterGlobalFunction( "void PromoteBORCSTUpper( const string& in bor_id )", asFUNCTION( vsp::PromoteBORCSTUpper ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );  // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Promote the CST for the lower airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa GetLowerCSTDegree
+    \param [in] bor_id Geom ID of BOR
+*/)";
+    r = se->RegisterGlobalFunction( "void PromoteBORCSTLower( const string& in bor_id )", asFUNCTION( vsp::PromoteBORCSTLower ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );  // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Demote the CST for the upper airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa GetUpperCSTDegree
+    \param [in] bor_id Geom ID of BOR
+*/)";
+    r = se->RegisterGlobalFunction( "void DemoteBORCSTUpper( const string& in bor_id )", asFUNCTION( vsp::DemoteBORCSTUpper ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );  // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Demote the CST for the lower airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
+    \sa GetLowerCSTDegree
+    \param [in] bor_id Geom ID of BOR
+*/)";
+    r = se->RegisterGlobalFunction( "void DemoteBORCSTLower( const string& in bor_id )", asFUNCTION( vsp::DemoteBORCSTLower ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );  // TODO: Example
+
+    doc_struct.comment = R"(
+/*!
+    Fit a CST airfoil for an existing airfoil of a BOR of type XS_FOUR_SERIES, XS_SIX_SERIES, XS_FOUR_DIGIT_MOD, XS_FIVE_DIGIT, XS_FIVE_DIGIT_MOD, XS_ONE_SIX_SERIES, or XS_FILE_AIRFOIL.
+    \param [in] bor_id Geom ID of BOR
+    \param [in] deg CST degree
+*/)";
+    r = se->RegisterGlobalFunction( "void FitBORAfCST( const string& in bor_id, int deg )", asFUNCTION( vsp::FitBORAfCST ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );  // TODO: Example
 
     //==== Sets Functions ====//
     group = "Sets";
@@ -12107,6 +12381,24 @@ CScriptArray* ScriptMgrSingleton::GetAirfoilLowerPnts( const string& xsec_id )
     return GetProxyVec3dArray();
 }
 
+CScriptArray* ScriptMgrSingleton::ReadBORFileXSec( const string& bor_id, const string& file_name )
+{
+    m_ProxyVec3dArray = vsp::ReadBORFileXSec( bor_id, file_name );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetBORAirfoilUpperPnts( const string& bor_id )
+{
+    m_ProxyVec3dArray = vsp::GetBORAirfoilUpperPnts( bor_id );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetBORAirfoilLowerPnts( const string& bor_id )
+{
+    m_ProxyVec3dArray = vsp::GetBORAirfoilLowerPnts( bor_id );
+    return GetProxyVec3dArray();
+}
+
 CScriptArray* ScriptMgrSingleton::GetGeomSetAtIndex( int index )
 {
     m_ProxyStringArray = vsp::GetGeomSetAtIndex( index );
@@ -12233,6 +12525,18 @@ CScriptArray* ScriptMgrSingleton::GetLowerCSTCoefs( const string & xsec_id )
     return GetProxyDoubleArray();
 }
 
+CScriptArray* ScriptMgrSingleton::GetBORUpperCSTCoefs( const string & bor_id )
+{
+    m_ProxyDoubleArray = vsp::GetBORUpperCSTCoefs( bor_id );
+    return GetProxyDoubleArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetBORLowerCSTCoefs( const string & bor_id )
+{
+    m_ProxyDoubleArray = vsp::GetBORLowerCSTCoefs( bor_id );
+    return GetProxyDoubleArray();
+}
+
 void ScriptMgrSingleton::DeleteGeomVec( CScriptArray* del_arr )
 {
     vector < string > del_vec;
@@ -12274,6 +12578,36 @@ void ScriptMgrSingleton::SetAirfoilPnts( const string& xsec_id, CScriptArray* up
     }
 
     vsp::SetAirfoilPnts( xsec_id, up_pnt_vec, low_pnt_vec );
+}
+
+void ScriptMgrSingleton::SetBORXSecPnts( const string& bor_id, CScriptArray* pnt_arr )
+{
+    vector< vec3d > pnt_vec;
+    pnt_vec.resize( pnt_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )pnt_arr->GetSize() ; i++ )
+    {
+        pnt_vec[i] = * ( vec3d* )( pnt_arr->At( i ) );
+    }
+    vsp::SetBORXSecPnts( bor_id, pnt_vec );
+}
+
+void ScriptMgrSingleton::SetBORAirfoilPnts( const string& bor_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr )
+{
+    vector< vec3d > up_pnt_vec;
+    up_pnt_vec.resize( up_pnt_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )up_pnt_arr->GetSize() ; i++ )
+    {
+        up_pnt_vec[i] = * ( vec3d* )( up_pnt_arr->At( i ) );
+    }
+
+    vector< vec3d > low_pnt_vec;
+    low_pnt_vec.resize( low_pnt_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )low_pnt_arr->GetSize() ; i++ )
+    {
+        low_pnt_vec[i] = * ( vec3d* )( low_pnt_arr->At( i ) );
+    }
+
+    vsp::SetBORAirfoilPnts( bor_id, up_pnt_vec, low_pnt_vec );
 }
 
 CScriptArray* ScriptMgrSingleton::GetAirfoilCoordinates( const std::string & geom_id, const double &foilsurf_u )
@@ -12370,6 +12704,32 @@ void ScriptMgrSingleton::SetLowerCST( const string& xsec_id, int deg, CScriptArr
     }
 
     vsp::SetLowerCST( xsec_id, deg, coefs_vec );
+}
+
+void ScriptMgrSingleton::SetBORUpperCST( const string& bor_id, int deg, CScriptArray* coefs_arr )
+{
+    vector < double > coefs_vec;
+
+    coefs_vec.resize( coefs_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )coefs_arr->GetSize() ; i++ )
+    {
+        coefs_vec[i] = * ( double* )( coefs_arr->At( i ) );
+    }
+
+    vsp::SetBORUpperCST( bor_id, deg, coefs_vec );
+}
+
+void ScriptMgrSingleton::SetBORLowerCST( const string& bor_id, int deg, CScriptArray* coefs_arr )
+{
+    vector < double > coefs_vec;
+
+    coefs_vec.resize( coefs_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )coefs_arr->GetSize() ; i++ )
+    {
+        coefs_vec[i] = * ( double* )( coefs_arr->At( i ) );
+    }
+
+    vsp::SetBORLowerCST( bor_id, deg, coefs_vec );
 }
 
 //==== Edit Curve XSec Functions ====//
