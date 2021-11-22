@@ -65,7 +65,7 @@ bool AdvLink::ValidateParms()
         }
         else
         {
-            fprintf( stderr, "WARNING: Advanced Link Input Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName, m_OutputVars[i].m_ParmID );
+            fprintf( stderr, "WARNING: Advanced Link Input Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName.c_str(), m_OutputVars[i].m_ParmID.c_str() );
             all_valid_flag = false;
         }
     }
@@ -83,7 +83,7 @@ bool AdvLink::ValidateParms()
         }
         else
         {
-            fprintf( stderr, "WARNING: Advanced Link Output Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName, m_OutputVars[i].m_ParmID );
+            fprintf( stderr, "WARNING: Advanced Link Output Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName.c_str(), m_OutputVars[i].m_ParmID.c_str() );
             all_valid_flag = false;
         }
     }
