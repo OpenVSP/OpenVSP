@@ -4497,6 +4497,9 @@ void InterpXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
         crv_vec[1].Scale( 1.0 / wc );
     }
 
+    crv_vec[0].ToBinaryCubic( true, 1e-6 );
+    crv_vec[1].ToBinaryCubic( true, 1e-6 );
+
     VspSurf srf;
     srf.SkinC0( crv_vec, false );
 
