@@ -12,7 +12,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630+75, "Stack" )
+StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 640+75, "Stack" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -356,6 +356,8 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630+75, "Stac
     m_WedgeGroup.AddSlider( m_WedgeUForeLowSlider, "U Fwd Low", 1, "%7.5f" );
     m_WedgeGroup.AddSlider( m_WedgeDuUpSlider, "dU Flat Up", 1, "%7.5f" );
     m_WedgeGroup.AddSlider( m_WedgeDuLowSlider, "dU Flat Low", 1, "%7.5f" );
+    m_WedgeGroup.AddYGap();
+    m_WedgeGroup.AddButton( m_WedgeInvertButton, "Invert Airfoil" );
 
     //==== Fuse File ====//
     m_XSecLayout.AddSubGroupLayout( m_FuseFileGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
@@ -949,6 +951,7 @@ bool StackScreen::Update()
                 m_WedgeUForeLowSlider.Update( we_xs->m_UForeLow.GetID() );
                 m_WedgeDuUpSlider.Update( we_xs->m_DuUp.GetID() );
                 m_WedgeDuLowSlider.Update( we_xs->m_DuLow.GetID() );
+                m_WedgeInvertButton.Update( we_xs->m_Invert.GetID() );
 
                 if ( we_xs->m_SymmThick() )
                 {

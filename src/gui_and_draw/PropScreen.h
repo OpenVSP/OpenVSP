@@ -182,6 +182,7 @@ protected:
     SliderAdjRangeInput m_WedgeUForeLowSlider;
     SliderAdjRangeInput m_WedgeDuUpSlider;
     SliderAdjRangeInput m_WedgeDuLowSlider;
+    CheckButton m_WedgeInvertButton;
 
     GroupLayout m_FuseFileGroup;
     TriggerButton m_ReadFuseFileButton;
