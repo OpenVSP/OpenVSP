@@ -1011,7 +1011,7 @@ void PCurve::SetDispNames( const string & xname, const string & yname )
 
 void PCurve::SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype, vector < bool > g1vec )
 {
-    ConvertTo( newtype );
+    m_CurveType = newtype;
     InitCurve( tvec, valvec, g1vec );
     RenameParms();
 }
