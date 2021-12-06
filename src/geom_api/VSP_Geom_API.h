@@ -365,6 +365,7 @@ extern std::string FindContainer( const std::string & name, int index );
 extern std::string GetContainerName( const std::string & parm_container_id );
 extern std::vector<std::string> FindContainerGroupNames( const std::string & parm_container_id );
 extern std::vector<std::string> FindContainerParmIDs( const std::string & parm_container_id );
+extern std::string GetVehicleID();
 
 //======================== Snap To Functions ======================//
 extern double ComputeMinClearanceDistance( const std::string & geom_id, int set  = SET_ALL );

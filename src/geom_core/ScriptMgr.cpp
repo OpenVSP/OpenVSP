@@ -9427,6 +9427,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<string>@ FindContainerParmIDs( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
+    doc_struct.comment = R"(
+/*!
+    Get the ID of the Vehicle Parm Container
+    \code{.cpp}
+    //===== Get Vehicle Parm Container ID ====//
+    string veh_id = GetVehicleID();
+    \endcode
+    \return Vehicle ID
+*/)";
+    r = se->RegisterGlobalFunction( "string GetVehicleID()", asFUNCTION( vsp::GetVehicleID ), asCALL_CDECL, doc_struct);
+    assert( r >= 0 );
+
     //=== Register Snap To Functions ====//
     group = "SnapTo";
     doc_struct.group = group.c_str();

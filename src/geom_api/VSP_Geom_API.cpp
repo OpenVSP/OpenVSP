@@ -6557,6 +6557,13 @@ vector< string > FindContainerParmIDs( const string & parm_container_id )
     return parm_vec;
 }
 
+string GetVehicleID()
+{
+    Vehicle* veh = GetVehicle();
+
+    ErrorMgr.NoError();
+    return veh->GetID();
+}
 
 //===================================================================//
 //===============           Snap To Functions          ==============//
