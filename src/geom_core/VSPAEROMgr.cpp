@@ -2614,8 +2614,8 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 CMy.push_back(      std::stod( data_string_array[15] ) );
                 CMz.push_back(      std::stod( data_string_array[16] ) );
 
-                ToQS.push_back(     std::stod( data_string_array[17] ) );
-                CDtrefftz.push_back( std::stod( data_string_array[18] ) );
+                CDtrefftz.push_back( std::stod( data_string_array[17] ) );
+                ToQS.push_back(      std::stod( data_string_array[18] ) );
 
                 if ( unsteady_pqr ) // Additional columns for pqr analysis
                 {
