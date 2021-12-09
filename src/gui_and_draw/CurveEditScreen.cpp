@@ -916,7 +916,19 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
     if ( gui_device == &m_InitShapeButton )
     {
-        edit_curve_xs->InitShape(); // TODO: Force update
+        edit_curve_xs->InitShape();
+
+        Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+
+        if ( !geom_ptr )
+        {
+            return;
+        }
+
+        // Set tess dirty flag and update. This fixes an issue where the XSec is drawn detatched 
+        // from the parent Geom surface since the surface was not updated
+        geom_ptr->m_SurfDirty = true;
+        geom_ptr->Update();
     }
     else if ( gui_device == &m_ReparameterizeButton )
     {
