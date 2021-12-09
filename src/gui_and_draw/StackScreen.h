@@ -171,9 +171,8 @@ protected:
     SliderAdjRangeInput m_WedgeDuLowSlider;
 
     GroupLayout m_FuseFileGroup;
+    DriverGroupBank m_FuseFileXSecDriverGroupBank;
     TriggerButton m_ReadFuseFileButton;
-    SliderAdjRangeInput m_FileHeightSlider;
-    SliderAdjRangeInput m_FileWidthSlider;
 
     GroupLayout m_AfFileGroup;
     TriggerButton m_AfReadFileButton;

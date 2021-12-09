@@ -361,8 +361,8 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630+75, "Stac
     m_XSecLayout.AddSubGroupLayout( m_FuseFileGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
     m_FuseFileGroup.AddButton( m_ReadFuseFileButton, "Read File" );
     m_FuseFileGroup.AddYGap();
-    m_FuseFileGroup.AddSlider( m_FileHeightSlider, "Height", 10, "%7.3f" );
-    m_FuseFileGroup.AddSlider( m_FileWidthSlider, "Width", 10, "%7.3f" );
+    m_FuseFileXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_FuseFileGroup.AddDriverGroupBank( m_FuseFileXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
 
     //==== Airfoil File ====//
     m_XSecLayout.AddSubGroupLayout( m_AfFileGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
@@ -962,8 +962,9 @@ bool StackScreen::Update()
                 FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
                 assert( file_xs );
 
-                m_FileHeightSlider.Update( file_xs->m_Height.GetID() );
-                m_FileWidthSlider.Update( file_xs->m_Width.GetID() );
+                m_FuseFileXSecDriverGroupBank.SetDriverGroup( file_xs->m_DriverGroup );
+                vector< string > parm_ids = file_xs->GetDriverParms();
+                m_FuseFileXSecDriverGroupBank.Update( parm_ids );
             }
             else if ( xsc->GetType() == XS_FILE_AIRFOIL )
             {
