@@ -300,7 +300,7 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630+75, "Stac
     m_FourSeriesGroup.SetFitWidthFlag( true );
     m_FourSeriesGroup.AddCounter( m_FourDegreeCounter, "Degree", 125 );
 
-    //==== Sex Series AF ====//
+    //==== Six Series AF ====//
     m_XSecLayout.AddSubGroupLayout( m_SixSeriesGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
     m_SixSeriesGroup.AddOutput( m_SixNameOutput, "Name" );
     m_SixSeriesGroup.AddYGap();
