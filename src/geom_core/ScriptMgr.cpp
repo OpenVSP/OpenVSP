@@ -1950,6 +1950,23 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_NUM_TYPES", XS_NUM_TYPES, "/*!< Number of XSec types */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum for XSec drivers. */";
+
+    r = se->RegisterEnum( "XSEC_DRIVERS", doc_struct );  // TODO: improve these comments
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_DRIVERS", "WIDTH_XSEC_DRIVER", WIDTH_XSEC_DRIVER, "/*!< Width driver */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_DRIVERS", "AREA_XSEC_DRIVER", AREA_XSEC_DRIVER, "/*!< Area driver */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_DRIVERS", "HEIGHT_XSEC_DRIVER", HEIGHT_XSEC_DRIVER, "/*!< Height driver */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_DRIVERS", "HWRATIO_XSEC_DRIVER", HWRATIO_XSEC_DRIVER, "/*!< Height/width ratio driver */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_DRIVERS", "NUM_XSEC_DRIVER", NUM_XSEC_DRIVER, "/*!< Number of XSec drivers */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_DRIVERS", "CIRCLE_NUM_XSEC_DRIVER", CIRCLE_NUM_XSEC_DRIVER, "/*!< Number of Circle XSec drivers */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum for XSec side types. */";
 
     r = se->RegisterEnum( "XSEC_SIDES_TYPE", doc_struct );  // TODO: improve these comments
@@ -5720,6 +5737,34 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<string>@ GetGeomChildren( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomChildren ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
+    doc_struct.comment = R"(
+/*!
+    Set the driver group for a wing section or a XSecCurve. Care has to be taken when setting these driver groups to ensure a valid combination.
+    \code{.cpp}
+    //==== Add Wing Geometry and Set Parms ====//
+    string wing_id = AddGeom( "WING", "" );
+
+    //==== Set Wing Section Controls ====//
+    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+
+    Update();
+
+    //==== Set Parms ====//
+    SetParmVal( wing_id, "Root_Chord", "XSec_1", 2 );
+    SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 );
+
+    Update();
+    \endcode
+    \sa WING_DRIVERS, XSEC_DRIVERS
+    \param [in] geom_id Geom ID
+    \param [in] section_index Wing section index
+    \param [in] driver_0 First driver enum (i.e. SPAN_WSECT_DRIVER)
+    \param [in] driver_1 Second driver enum (i.e. ROOTC_WSECT_DRIVER)
+    \param [in] driver_2 Third driver enum (i.e. TIPC_WSECT_DRIVER)
+    */)";
+    r = se->RegisterGlobalFunction( "void SetDriverGroup( const string & in geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1)", asFUNCTION( vsp::SetDriverGroup ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
     //==== SubSurface Functions ====//
     group = "SubSurface";
     doc_struct.group = group.c_str();
@@ -6662,43 +6707,6 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \return Number of unsteady rotor groups in the current VSPAERO set
 */)";
     r = se->RegisterGlobalFunction( "int GetNumUnsteadyRotorGroups()", asFUNCTION( vsp::GetNumUnsteadyRotorGroups ), asCALL_CDECL, doc_struct );
-    assert( r >= 0 );
-
-    //==== Wing Sect Functions ====//
-    group = "WingSect";
-    doc_struct.group = group.c_str();
-
-    group_description = R"(
-    \brief API functions for wing sections are grouped here. \n\n
-    \ref index "Click here to return to the main page" )";
-    se->AddGroup( group.c_str(), "Wing Section Functions", group_description.c_str() );
-
-    doc_struct.comment = R"(
-/*!
-    Set the driver group for a wing section. Care has to be taken when setting these driver groups to ensure a valid combination.
-    \code{.cpp}
-    //==== Add Wing Geometry and Set Parms ====//
-    string wing_id = AddGeom( "WING", "" );
-
-    //==== Set Wing Section Controls ====//
-    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
-    
-    Update();
-    
-    //==== Set Parms ====//
-    SetParmVal( wing_id, "Root_Chord", "XSec_1", 2 );
-    SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 );
-
-    Update();
-    \endcode
-    \sa WING_DRIVERS
-    \param [in] geom_id Geom ID
-    \param [in] section_index Wing section index
-    \param [in] driver_0 First driver enum (i.e. SPAN_WSECT_DRIVER)
-    \param [in] driver_1 Second driver enum (i.e. ROOTC_WSECT_DRIVER)
-    \param [in] driver_2 Third driver enum (i.e. TIPC_WSECT_DRIVER)
-*/)";
-    r = se->RegisterGlobalFunction( "void SetDriverGroup( const string & in geom_id, int section_index, int driver_0, int driver_1, int driver_2)", asFUNCTION( vsp::SetDriverGroup ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     //==== XSecSurf Functions ====//

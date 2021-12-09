@@ -222,7 +222,8 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_CONFORMAL_PARENT_UNSUPPORTED,
                     VSP_UNEXPECTED_RESET_REMAP_ID,
                     VSP_INVALID_INPUT_VAL,
-                    VSP_INVALID_CF_EQN
+                    VSP_INVALID_CF_EQN,
+                    VSP_INVALID_DRIVERS
                 };
 
 enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,

@@ -3230,24 +3230,77 @@ void SetDriverGroup( const string & geom_id, int section_index, int driver_0, in
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Can't Find Geom " + geom_id );
         return;
     }
-    else if ( geom_ptr->GetType().m_Type != MS_WING_GEOM_TYPE )
+
+    if ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Geom Type " + geom_id );
+        WingGeom* wg = dynamic_cast<WingGeom*>( geom_ptr );
+        WingSect* ws = wg->GetWingSect( section_index );
+        if ( !ws )
+        {
+            ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Wing Section Index " + to_string( ( long long )section_index ) );
+            return;
+        }
+
+        vector < int > prevchoices = ws->m_DriverGroup.GetChoices();
+
+        ws->m_DriverGroup.SetChoice( 0, driver_0 );
+        ws->m_DriverGroup.SetChoice( 1, driver_1 );
+        ws->m_DriverGroup.SetChoice( 2, driver_2 );
+
+        bool valid = ws->m_DriverGroup.ValidDrivers( ws->m_DriverGroup.GetChoices() );
+        if ( !valid )
+        {
+            ErrorMgr.AddError( VSP_INVALID_DRIVERS, "SetDriverGroup::Invalid wing drivers." );
+            ws->m_DriverGroup.SetChoices( prevchoices );
+            return;
+        }
+
+        ErrorMgr.NoError();
         return;
     }
-
-    WingGeom* wg = dynamic_cast<WingGeom*>( geom_ptr );
-    WingSect* ws = wg->GetWingSect( section_index );
-    if ( !ws )
+    else
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Wing Section Index " + to_string( ( long long )section_index ) );
-        return;
-    }
+        GeomXSec* gxs = dynamic_cast < GeomXSec* > ( geom_ptr );
 
-    ws->m_DriverGroup.SetChoice( 0, driver_0 );
-    ws->m_DriverGroup.SetChoice( 1, driver_1 );
-    ws->m_DriverGroup.SetChoice( 2, driver_2 );
-    ErrorMgr.NoError();
+        XSecCurve* xsc = NULL;
+        if ( gxs ) // Proceed as GeomXSec
+        {
+            xsc = gxs->GetXSec( section_index )->GetXSecCurve();
+        }
+        else
+        {
+            BORGeom* bor = dynamic_cast < BORGeom* > ( geom_ptr );
+            if ( bor ) // Proceed as Body of Revolution
+            {
+                xsc = bor->GetXSecCurve();
+            }
+        }
+
+        if ( xsc ) // Succeeded in getting an XSecCurve
+        {
+            vector < int > prevchoices = xsc->m_DriverGroup->GetChoices();
+
+            // Only driver 0 used for Circles.
+            xsc->m_DriverGroup->SetChoice( 0, driver_0 );
+
+            // Driver 1 used for other XSecCurve types.
+            if ( driver_1 > -1 )
+                xsc->m_DriverGroup->SetChoice( 1, driver_1 );
+
+            bool valid = xsc->m_DriverGroup->ValidDrivers( xsc->m_DriverGroup->GetChoices() );
+            if ( !valid )
+            {
+                ErrorMgr.AddError( VSP_INVALID_DRIVERS, "SetDriverGroup::Invalid XSecCurve drivers." );
+                xsc->m_DriverGroup->SetChoices( prevchoices );
+                return;
+            }
+            ErrorMgr.NoError();
+            return;
+        }
+
+    }
+    ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Geom Type " + geom_id );
+    return;
 }
 
 //===================================================================//

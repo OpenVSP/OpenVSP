@@ -222,8 +222,7 @@ extern void PasteXSec( const std::string & geom_id, int index );
 extern void InsertXSec( const std::string & geom_id, int index, int type );
 
 //======================== Wing Section Functions ===================//
-extern void SetDriverGroup( const std::string & geom_id, int section_index, int driver_0, int driver_1, int driver_2 );
-
+extern void SetDriverGroup( const std::string & geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1 );
 
 //======================== XSecSurf ================================//
 extern std::string GetXSecSurf( const std::string & geom_id, int index );

@@ -27,6 +27,11 @@ void main()
     SetParmVal( sid, "ZDelta", "XSec_3", -1.0 );
     Update();
 
+    SetDriverGroup( sid, 2, AREA_XSEC_DRIVER, HWRATIO_XSEC_DRIVER );
+
+    ChangeXSecShape( xsec_surf, 3, XS_CIRCLE );
+    SetDriverGroup( sid, 3, AREA_XSEC_DRIVER );
+
     string xsec = GetXSec( xsec_surf, 2 );              // Skin Parameters
     SetXSecContinuity( xsec, 1 );
     SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0 );
