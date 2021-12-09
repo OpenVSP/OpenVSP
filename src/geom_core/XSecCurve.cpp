@@ -335,8 +335,22 @@ void XSecCurve::Update()
 
     if ( m_Type != XS_POINT )
     {
-        m_Area = m_Curve.CompArea( vsp::Y_DIR, vsp::X_DIR );
-        m_HWRatio = GetHeight() / GetWidth();
+        if ( !m_DriverGroup->IsDriver( vsp::AREA_XSEC_DRIVER ) )
+        {
+            m_Area = m_Curve.CompArea( vsp::Y_DIR, vsp::X_DIR );
+        }
+
+        if ( !m_DriverGroup->IsDriver( vsp::HWRATIO_XSEC_DRIVER ) )
+        {
+            if ( GetWidth() > 1e-6 * m_Area() )
+            {
+                m_HWRatio = GetHeight() / GetWidth();
+            }
+            else
+            {
+                m_HWRatio = 1.0;
+            }
+        }
 
         XSecCurveDriverGroup *xscdg = dynamic_cast< XSecCurveDriverGroup* > ( m_DriverGroup );
         if ( xscdg )
@@ -4523,25 +4537,67 @@ void HWXSecCurveDriverGroup::UpdateGroup( vector< string > parmIDs )
         {
             int iter = 0;
             double tol = 1e-6 * area->Get();
+            if ( tol < 1e-12 ) tol = 1e-12;
             double err = 100 * tol;
 
-            while ( err > tol && iter < 10 )
+            bool canconverge = true;
+
+            while ( err > tol && iter < 10 && canconverge )
             {
                 if( uptodate[HWRATIO_XSEC_DRIVER] )
                 {
-                    double scale = sqrt( area->Get() / m_prevArea );
-                    width->Set( scale * width->Get() );
-                    height->Set( width->Get() * hwratio->Get() );
+                    if ( m_prevArea == 0 )
+                    {
+                        width->Set( 1.0 );
+                        height->Set( 1.0 );
+                    }
+                    else
+                    {
+                        double scale = sqrt( area->Get() / m_prevArea );
+                        if ( hwratio->Get() == 0 )
+                        {
+                            scale = 1.0;
+                            canconverge = false;
+                        }
+
+                        width->Set( scale * width->Get() );
+                        height->Set( width->Get() * hwratio->Get() );
+                    }
                 }
                 else if( uptodate[WIDTH_XSEC_DRIVER] )
                 {
-                    double scale = area->Get() / m_prevArea;
-                    height->Set( scale * height->Get() );
+                    if ( m_prevArea == 0 )
+                    {
+                        height->Set( 1.0 );
+                    }
+                    else
+                    {
+                        double scale = area->Get() / m_prevArea;
+
+                        if ( width->Get() == 0 )
+                        {
+                            scale = 1.0;
+                            canconverge = false;
+                        }
+                        height->Set( scale * height->Get() );
+                    }
                 }
                 else if( uptodate[HEIGHT_XSEC_DRIVER] )
                 {
-                    double scale = area->Get() / m_prevArea;
-                    width->Set( scale * width->Get() );
+                    if ( m_prevArea == 0 )
+                    {
+                        width->Set( 1.0 );
+                    }
+                    else
+                    {
+                        double scale = area->Get() / m_prevArea;
+                        if ( height->Get() == 0 )
+                        {
+                            scale = 1.0;
+                            canconverge = false;
+                        }
+                        width->Set( scale * width->Get() );
+                    }
                 }
 
                 // Minimal curve math update.
@@ -4631,12 +4687,20 @@ void DXSecCurveDriverGroup::UpdateGroup( vector< string > parmIDs )
         {
             int iter = 0;
             double tol = 1e-6 * area->Get();
+            if ( tol < 1e-12 ) tol = 1e-12;
             double err = 100 * tol;
 
             while ( err > tol && iter < 10 )
             {
-                double scale = sqrt( area->Get() / m_prevArea );
-                width->Set( scale * width->Get() );
+                if ( m_prevArea == 0 )
+                {
+                    width->Set( 1.0 );
+                }
+                else
+                {
+                    double scale = sqrt( area->Get() / m_prevArea );
+                    width->Set( scale * width->Get() );
+                }
 
                 // Minimal curve math update.
                 m_Parent->UpdateCurve( false );
