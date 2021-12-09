@@ -389,6 +389,7 @@ public:
     vector< int > GetChoices()                    { return m_CurrChoices; }
     int GetNchoice() const                        { return m_Nchoice; }
     int GetNvar() const                           { return m_Nvar; }
+    bool IsDriver( int dvar );
 
     void SetName( const string & name )           { m_Name = name; }
     string GetName()                              { return m_Name; }

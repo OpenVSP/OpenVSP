@@ -13,6 +13,7 @@
 #include <cfloat>
 
 #include "Combination.h"
+#include "StlHelper.h"
 
 using std::string;
 
@@ -730,6 +731,11 @@ void DriverGroup::SetChoices( const vector< int > &choices )
     {
         m_CurrChoices[i] = choices[i];
     }
+}
+
+bool DriverGroup::IsDriver( int dvar )
+{
+    return vector_contains_val( m_CurrChoices, dvar );
 }
 
 //==== Encode Data To XML Data Structure ====//
