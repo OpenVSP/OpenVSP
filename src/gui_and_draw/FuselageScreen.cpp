@@ -18,6 +18,18 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
 {
     m_CurrDisplayGroup = NULL;
 
+    vector < string > xsec_driver_labels;
+    xsec_driver_labels.resize( vsp::NUM_XSEC_DRIVER );
+    xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = "Width";
+    xsec_driver_labels[vsp::AREA_XSEC_DRIVER] = "Area";
+    xsec_driver_labels[vsp::HEIGHT_XSEC_DRIVER] = "Height";
+    xsec_driver_labels[vsp::HWRATIO_XSEC_DRIVER] = "H/W Ratio";
+
+    vector < string > circ_xsec_driver_labels;
+    circ_xsec_driver_labels.resize( vsp::CIRCLE_NUM_XSEC_DRIVER );
+    circ_xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = "Diameter";
+    circ_xsec_driver_labels[vsp::AREA_XSEC_DRIVER] = "Area";
+
     Fl_Group* design_tab = AddTab( "Design", 3 );
 
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -162,8 +174,8 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
 
     //==== Super XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_SuperGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_SuperGroup.AddSlider( m_SuperHeightSlider, "Height", 10, "%6.5f" );
-    m_SuperGroup.AddSlider( m_SuperWidthSlider,  "Width", 10, "%6.5f" );
+    m_SuperXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_SuperGroup.AddDriverGroupBank( m_SuperXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
     m_SuperGroup.AddYGap();
     m_SuperGroup.AddSlider( m_SuperMaxWidthLocSlider, "MaxWLoc", 2, "%6.5f" );
     m_SuperGroup.AddYGap();
@@ -176,17 +188,18 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
 
     //==== Circle XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_CircleGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_CircleGroup.AddSlider(  m_DiameterSlider, "Diameter", 10, "%6.5f" );
+    m_CircleXSecDriverGroupBank.SetDriverGroup( &m_CircleXSecDriverGroup );
+    m_CircleGroup.AddDriverGroupBank( m_CircleXSecDriverGroupBank, circ_xsec_driver_labels, 10, "%6.5f" );
 
     //==== Ellipse XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_EllipseGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_EllipseGroup.AddSlider(  m_EllipseHeightSlider, "Height", 10, "%6.5f" );
-    m_EllipseGroup.AddSlider(  m_EllipseWidthSlider, "Width", 10, "%6.5f" );
+    m_EllipseXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_EllipseGroup.AddDriverGroupBank( m_EllipseXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
 
     //==== Rounded Rect ====//
     m_XSecLayout.AddSubGroupLayout( m_RoundedRectGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_RoundedRectGroup.AddSlider( m_RRHeightSlider, "Height", 10, "%6.5f" );
-    m_RoundedRectGroup.AddSlider( m_RRWidthSlider,  "Width", 10, "%6.5f" );
+    m_RRXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_RoundedRectGroup.AddDriverGroupBank( m_RRXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
     m_RoundedRectGroup.AddSlider( m_RRSkewSlider, "Skew", 2, "%6.5f");
     m_RoundedRectGroup.AddSlider( m_RRVSkewSlider, "VSkew", 10, "%6.5f" );
@@ -223,8 +236,8 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
 
     //==== General Fuse XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_GenGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
-    m_GenGroup.AddSlider( m_GenHeightSlider, "Height", 10, "%6.5f" );
-    m_GenGroup.AddSlider( m_GenWidthSlider, "Width", 10, "%6.5f" );
+    m_GenXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_GenGroup.AddDriverGroupBank( m_GenXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
     m_GenGroup.AddYGap();
     m_GenGroup.AddSlider( m_GenMaxWidthLocSlider, "MaxWLoc", 1, "%6.5f" );
     m_GenGroup.AddSlider( m_GenCornerRadSlider, "CornerRad", 1, "%6.5f" );
@@ -355,8 +368,8 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_XSecLayout.AddSubGroupLayout( m_FuseFileGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
     m_FuseFileGroup.AddButton( m_ReadFuseFileButton, "Read File" );
     m_FuseFileGroup.AddYGap();
-    m_FuseFileGroup.AddSlider( m_FileHeightSlider, "Height", 10, "%7.3f" );
-    m_FuseFileGroup.AddSlider( m_FileWidthSlider, "Width", 10, "%7.3f" );
+    m_FuseFileXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+    m_FuseFileGroup.AddDriverGroupBank( m_FuseFileXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
 
     //==== Airfoil File ====//
     m_XSecLayout.AddSubGroupLayout( m_AfFileGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
@@ -763,8 +776,11 @@ bool FuselageScreen::Update()
 
                 SuperXSec* super_xs = dynamic_cast< SuperXSec* >( xsc );
                 assert( super_xs );
-                m_SuperHeightSlider.Update( super_xs->m_Height.GetID() );
-                m_SuperWidthSlider.Update( super_xs->m_Width.GetID() );
+
+                m_SuperXSecDriverGroupBank.SetDriverGroup( super_xs->m_DriverGroup );
+                vector< string > parm_ids = super_xs->GetDriverParms();
+                m_SuperXSecDriverGroupBank.Update( parm_ids );
+
                 m_SuperMSlider.Update( super_xs->m_M.GetID() );
                 m_SuperNSlider.Update( super_xs->m_N.GetID() );
                 m_SuperToggleSym.Update( super_xs->m_TopBotSym.GetID() );
@@ -789,15 +805,19 @@ bool FuselageScreen::Update()
                 CircleXSec* circle_xs = dynamic_cast< CircleXSec* >( xsc );
                 assert( circle_xs );
 
-                m_DiameterSlider.Update( circle_xs->m_Diameter.GetID() );
+                m_CircleXSecDriverGroupBank.SetDriverGroup( circle_xs->m_DriverGroup );
+                vector< string > parm_ids = circle_xs->GetDriverParms();
+                m_CircleXSecDriverGroupBank.Update( parm_ids );
             }
             else if ( xsc->GetType() == XS_ELLIPSE )
             {
                 DisplayGroup( & m_EllipseGroup );
 
                 EllipseXSec* ellipse_xs = dynamic_cast< EllipseXSec* >( xsc );
-                m_EllipseHeightSlider.Update( ellipse_xs->m_Height.GetID() );
-                m_EllipseWidthSlider.Update( ellipse_xs->m_Width.GetID() );
+
+                m_EllipseXSecDriverGroupBank.SetDriverGroup( ellipse_xs->m_DriverGroup );
+                vector< string > parm_ids = ellipse_xs->GetDriverParms();
+                m_EllipseXSecDriverGroupBank.Update( parm_ids );
             }
             else if ( xsc->GetType() == XS_ROUNDED_RECTANGLE )
             {
@@ -805,8 +825,10 @@ bool FuselageScreen::Update()
                 RoundedRectXSec* rect_xs = dynamic_cast< RoundedRectXSec* >( xsc );
                 assert( rect_xs );
 
-                m_RRHeightSlider.Update( rect_xs->m_Height.GetID() );
-                m_RRWidthSlider.Update( rect_xs->m_Width.GetID() );
+                m_RRXSecDriverGroupBank.SetDriverGroup( rect_xs->m_DriverGroup );
+                vector< string > parm_ids = rect_xs->GetDriverParms();
+                m_RRXSecDriverGroupBank.Update( parm_ids );
+
                 m_RRRadSymRadioGroup.Update( rect_xs->m_RadiusSymmetryType.GetID() );
                 m_RRRadiusBRSlider.Update( rect_xs->m_RadiusBR.GetID() );
                 m_RRRadiusBLSlider.Update( rect_xs->m_RadiusBL.GetID() );
@@ -848,8 +870,10 @@ bool FuselageScreen::Update()
                 GeneralFuseXSec* gen_xs = dynamic_cast< GeneralFuseXSec* >( xsc );
                 assert( gen_xs );
 
-                m_GenHeightSlider.Update( gen_xs->m_Height.GetID() );
-                m_GenWidthSlider.Update( gen_xs->m_Width.GetID() );
+                m_GenXSecDriverGroupBank.SetDriverGroup( gen_xs->m_DriverGroup );
+                vector< string > parm_ids = gen_xs->GetDriverParms();
+                m_GenXSecDriverGroupBank.Update( parm_ids );
+
                 m_GenMaxWidthLocSlider.Update( gen_xs->m_MaxWidthLoc.GetID() );
                 m_GenCornerRadSlider.Update( gen_xs->m_CornerRad.GetID() );
                 m_GenTopTanAngleSlider.Update( gen_xs->m_TopTanAngle.GetID() );
@@ -941,8 +965,10 @@ bool FuselageScreen::Update()
                 DisplayGroup( &m_FuseFileGroup );
                 FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
                 assert( file_xs );
-                m_FileHeightSlider.Update( file_xs->m_Height.GetID() );
-                m_FileWidthSlider.Update( file_xs->m_Width.GetID() );
+
+                m_FuseFileXSecDriverGroupBank.SetDriverGroup( file_xs->m_DriverGroup );
+                vector< string > parm_ids = file_xs->GetDriverParms();
+                m_FuseFileXSecDriverGroupBank.Update( parm_ids );
             }
             else if ( xsc->GetType() == XS_FILE_AIRFOIL )
             {

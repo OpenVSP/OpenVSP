@@ -79,14 +79,16 @@ protected:
     TriggerButton m_ConvertCEDITButton;
     GroupLayout m_ConvertCEDITGroup;
 
+    HWXSecCurveDriverGroup m_DefaultXSecDriverGroup;
+    DXSecCurveDriverGroup m_CircleXSecDriverGroup;
+
     GroupLayout m_EditCEDITGroup;
     TriggerButton m_EditCEDITButton;
 
     GroupLayout m_PointGroup;
 
     GroupLayout m_SuperGroup;
-    SliderAdjRangeInput m_SuperHeightSlider;
-    SliderAdjRangeInput m_SuperWidthSlider;
+    DriverGroupBank m_SuperXSecDriverGroupBank;
     SliderAdjRangeInput m_SuperMSlider;
     SliderAdjRangeInput m_SuperNSlider;
     ToggleButton m_SuperToggleSym;
@@ -95,15 +97,13 @@ protected:
     SliderAdjRangeInput m_SuperMaxWidthLocSlider;
 
     GroupLayout m_CircleGroup;
-    SliderAdjRangeInput m_DiameterSlider;
+    DriverGroupBank m_CircleXSecDriverGroupBank;
 
     GroupLayout m_EllipseGroup;
-    SliderAdjRangeInput m_EllipseHeightSlider;
-    SliderAdjRangeInput m_EllipseWidthSlider;
+    DriverGroupBank m_EllipseXSecDriverGroupBank;
 
     GroupLayout m_RoundedRectGroup;
-    SliderAdjRangeInput m_RRHeightSlider;
-    SliderAdjRangeInput m_RRWidthSlider;
+    DriverGroupBank m_RRXSecDriverGroupBank;
     ToggleButton m_RRRadNoSymToggle;
     ToggleButton m_RRRadRLSymToggle;
     ToggleButton m_RRRadTBSymToggle;
@@ -119,8 +119,7 @@ protected:
     SliderAdjRangeInput m_RRVSkewSlider;
 
     GroupLayout m_GenGroup;
-    SliderAdjRangeInput m_GenHeightSlider;
-    SliderAdjRangeInput m_GenWidthSlider;
+    DriverGroupBank m_GenXSecDriverGroupBank;
     SliderAdjRangeInput m_GenMaxWidthLocSlider;
     SliderAdjRangeInput m_GenCornerRadSlider;
     SliderAdjRangeInput m_GenTopTanAngleSlider;
@@ -175,9 +174,8 @@ protected:
     SliderAdjRangeInput m_WedgeDuLowSlider;
 
     GroupLayout m_FuseFileGroup;
+    DriverGroupBank m_FuseFileXSecDriverGroupBank;
     TriggerButton m_ReadFuseFileButton;
-    SliderAdjRangeInput m_FileHeightSlider;
-    SliderAdjRangeInput m_FileWidthSlider;
 
     GroupLayout m_AfFileGroup;
     TriggerButton m_AfReadFileButton;
