@@ -1150,7 +1150,7 @@ void CheckButton::SetValAndLimits( Parm* p )
     }
     else
     {
-        printf("Error: Non-BoolParm %s associated with CheckButton.\n", p->GetName().c_str() );
+        printf("Error: Non-BoolParm %s associated with CheckButton %s.\n", p->GetName().c_str(), m_Button->label() );
     }
 }
 
@@ -1223,7 +1223,7 @@ void CheckButtonBit::SetValAndLimits( Parm* p )
     }
     else
     {
-        printf("Error: Non-IntParm %s associated with CheckButtonBit.\n", p->GetName().c_str() );
+        printf("Error: Non-IntParm %s associated with CheckButtonBit %s.\n", p->GetName().c_str(), m_Button->label() );
     }
 }
 
@@ -1301,7 +1301,7 @@ void RadioButton::SetValAndLimits( Parm* p )
     }
     else
     {
-        printf("Error: Non-BoolParm %s associated with RadioButton.\n", p->GetName().c_str() );
+        printf("Error: Non-BoolParm %s associated with RadioButton %s.\n", p->GetName().c_str(), m_Button->label() );
     }
 }
 
@@ -1374,7 +1374,7 @@ void ToggleButton::SetValAndLimits( Parm* p )
     }
     else
     {
-        printf("Error: Non-BoolParm %s associated with ToggleButton.\n", p->GetName().c_str() );
+        printf("Error: Non-BoolParm %s associated with ToggleButton %s.\n", p->GetName().c_str(), m_Button->label() );
     }
 }
 
@@ -1662,7 +1662,7 @@ void Choice::SetValAndLimits( Parm* p )
     assert( iparm );
     if ( !iparm )
     {
-        printf("Error: Non-IntParm %s associated with Choice.\n", p->GetName().c_str() );
+        printf("Error: Non-IntParm %s associated with Choice %s.\n", p->GetName().c_str(), m_Choice->label() );
         return;
     }
 
