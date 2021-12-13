@@ -184,6 +184,12 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
     {
         // Don't dirty anything, BBox Parms are output Parms and should not trigger updates.
     }
+    else if ( gname == string("Index") )
+    {
+        // Don't dirty anything, only UpdateDrawObj needs to be run.  UDO runs even when no dirty flags are set.
+        // GeomXSec::m_ActiveXSec
+        // WingGeom::m_ActiveAirfoil
+    }
     else
     {
         m_SurfDirty = true;
