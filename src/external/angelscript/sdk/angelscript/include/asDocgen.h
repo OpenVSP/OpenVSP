@@ -40,7 +40,7 @@ namespace asDocgen
 
     std::map<string, ScriptTypeComment> typeComments;
     std::map<string, string> globalComments;
-    std::map<string, std::map<string, string>> enumeratorComments;
+    std::map<string, std::map<string, string> > enumeratorComments;
     std::map<string, string> enumerationComment;
     std::map<string, string> globalPropertyComments;
     std::map<string, bool> globalTestFlags;
@@ -51,7 +51,7 @@ namespace asDocgen
 
     std::map<string, ScriptTypeComment> typeGroups;
     std::map<string, string> globalGroups;
-    std::map<string, std::map<string, string>> enumeratorGroups;
+    std::map<string, std::map<string, string> > enumeratorGroups;
     std::map<string, string> enumerationGroups;
     std::map<string, string> globalPropertyGroups;
 
@@ -416,7 +416,7 @@ namespace asDocgen
 
         std::vector<string> globalProperties;
 
-        std::map<string, std::vector<std::pair<std::string, int>> > enums;
+        std::map<string, std::vector<std::pair<std::string, int> > > enums;
 
         unsigned int funcCount = engine->GetGlobalFunctionCount();
         for ( unsigned int i = 0; i < funcCount; ++i )
@@ -491,7 +491,7 @@ namespace asDocgen
             string enumdef = e->GetName();
             unsigned int count = e->GetEnumValueCount();
 
-            enums[enumdef] = std::vector<std::pair<std::string, int>>();
+            enums[enumdef] = std::vector<std::pair<std::string, int> >();
 
             for ( unsigned int j = 0; j < count; ++j )
             {
