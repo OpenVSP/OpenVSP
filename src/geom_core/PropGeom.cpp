@@ -2266,3 +2266,14 @@ void PropGeom::GetSurfVec( vector<VspSurf> &surf_vec )
         Geom::GetSurfVec( surf_vec );
     }
 }
+
+void PropGeom::ApproxCubicAllPCurves()
+{
+    for ( int i = 0; i < NUM_PROP_PCURVE; i++ )
+    {
+        if ( m_pcurve_vec[i] )
+        {
+            m_pcurve_vec[i]->Approximate();
+        }
+    }
+}

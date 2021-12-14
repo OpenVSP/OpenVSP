@@ -157,6 +157,8 @@ public:
 
     virtual void GetSurfVec( vector<VspSurf> &surf_vec );
 
+    virtual void ApproxCubicAllPCurves();
+
     Parm m_Diameter;
 
     Parm m_Rotate;
