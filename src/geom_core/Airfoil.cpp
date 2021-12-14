@@ -1558,6 +1558,8 @@ void CSTAirfoil::UpdateCurve( bool updateParms )
 
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
 
+    m_ThickChord.Set( CalculateThick() );
+
     Airfoil::UpdateCurve( updateParms );
 }
 
@@ -2065,6 +2067,8 @@ void VKTAirfoil::UpdateCurve( bool updateParms )
     }
 
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
+
+    m_ThickChord.Set( CalculateThick() );
 
     Airfoil::UpdateCurve( updateParms );
 }
