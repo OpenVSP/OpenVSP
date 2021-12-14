@@ -489,26 +489,6 @@ void StackGeom::AddDefaultSources( double base_len )
     }
 }
 
-//==== Drag Parameters ====//
-void StackGeom::LoadDragFactors( DragFactors& drag_factors )
-{
-    double max_xsec_area = 0.000000000001;
-    for ( int i = 0 ; i < ( int )m_XSecSurf.NumXSec() ; i++ )
-    {
-        XSec* xs = m_XSecSurf.FindXSec( i );
-        XSecCurve* xsc = xs->GetXSecCurve();
-        double a = xsc->ComputeArea( );
-        if ( a > max_xsec_area )
-        {
-            max_xsec_area = a;
-        }
-    }
-
-//    drag_factors.m_Length = m_Length();
-    drag_factors.m_MaxXSecArea = max_xsec_area;
-//    drag_factors.m_LengthToDia = m_Length() / dia;
-}
-
 bool StackGeom::IsClosed() const
 {
     return m_Closed;

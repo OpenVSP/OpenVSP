@@ -258,9 +258,7 @@ public:
     void resetExportFileNames();
 
     bool getExportCompGeomCsvFile()                    { return m_exportCompGeomCsvFile(); }
-    bool getExportDragBuildTsvFile()                   { return m_exportDragBuildTsvFile(); }
     void setExportCompGeomCsvFile( bool b )            { m_exportCompGeomCsvFile.Set( b ); }
-    void setExportDragBuildTsvFile( bool b )           { m_exportDragBuildTsvFile.Set( b ); }
 
     bool getExportDegenGeomCsvFile( )                  { return m_exportDegenGeomCsvFile(); }
     bool getExportDegenGeomMFile( )                    { return m_exportDegenGeomMFile(); }
@@ -450,7 +448,6 @@ public:
     BoolParm m_STLExportPropMainSurf;
 
     BoolParm m_exportCompGeomCsvFile;
-    BoolParm m_exportDragBuildTsvFile;
     BoolParm m_exportDegenGeomCsvFile;
     BoolParm m_exportDegenGeomMFile;
 

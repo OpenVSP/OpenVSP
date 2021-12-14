@@ -1463,13 +1463,6 @@ void WingGeom::AddDefaultSources( double base_len )
     }
 }
 
-//==== Drag Parameters ====//
-void WingGeom::LoadDragFactors( DragFactors& drag_factors )
-{
-
-
-}
-
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr WingGeom::EncodeXml( xmlNodePtr & node )
 {

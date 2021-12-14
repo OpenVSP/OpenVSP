@@ -22,7 +22,6 @@
 #include "Vec3d.h"
 #include "Matrix4d.h"
 #include "BndBox.h"
-#include "DragFactors.h"
 #include "XmlUtil.h"
 
 #include <vector>               //jrg windows?? 
@@ -423,7 +422,6 @@ public:
     double m_Density;
     double m_ShellMassArea;
     bool m_ShellFlag;
-    DragFactors m_DragFactors;
 
     double m_TheoArea;
     double m_WetArea;

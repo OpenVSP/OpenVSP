@@ -44,15 +44,6 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "
     m_BorderLayout.AddDividerBox("Parasite Drag Output");
     m_BorderLayout.AddYGap();
 
-    m_BorderLayout.SetFitWidthFlag( false );
-    m_BorderLayout.SetSameLineFlag( true );
-
-    m_BorderLayout.AddButton(m_TsvToggle, ".tsv");
-    m_BorderLayout.AddOutput(m_TsvOutput);
-    m_BorderLayout.AddButton(m_TsvSelect, "...");
-    m_BorderLayout.ForceNewLine();
-    m_BorderLayout.AddYGap();
-
     m_BorderLayout.SetFitWidthFlag( true );
     m_BorderLayout.SetSameLineFlag( false );
 
@@ -134,12 +125,10 @@ bool CompGeomScreen::Update()
 
     //===== Update File Toggle Buttons =====//
     m_CsvToggle.Update( vehiclePtr->m_exportCompGeomCsvFile.GetID() );
-    m_TsvToggle.Update( vehiclePtr->m_exportDragBuildTsvFile.GetID() );
 
     //===== Update File Output Text =====//
     m_TxtOutput.Update( vehiclePtr->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );
     m_CsvOutput.Update( vehiclePtr->getExportFileName( vsp::COMP_GEOM_CSV_TYPE ).c_str() );
-    m_TsvOutput.Update( vehiclePtr->getExportFileName( vsp::DRAG_BUILD_TSV_TYPE ).c_str() );
 
     m_FLTK_Window->redraw();
     return false;
@@ -176,12 +165,6 @@ void CompGeomScreen::GuiDeviceCallBack( GuiDevice* device )
         vehiclePtr->setExportFileName( vsp::COMP_GEOM_CSV_TYPE,
                                        m_ScreenMgr->GetSelectFileScreen()->FileChooser(
                                                "Select comp_geom output file.", "*.csv" ) );
-    }
-    else if ( device == &m_TsvSelect )
-    {
-        vehiclePtr->setExportFileName( vsp::DRAG_BUILD_TSV_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser(
-                                               "Select comp_geom output file.", "*.tsv" ) );
     }
     else if ( device == &m_UseSet )
     {

@@ -19,7 +19,6 @@
 #include "DrawObj.h"
 #include "VspSurf.h"
 #include "TMesh.h"
-#include "DragFactors.h"
 #include "SubSurface.h"
 #include "GridDensity.h"
 #include "ResultsMgr.h"
@@ -526,9 +525,6 @@ public:
     {
         return m_FeaStructVec.size();
     }
-
-    //==== Set Drag Factors ====//
-    virtual void LoadDragFactors( DragFactors& drag_factors )   {};
 
     //===== Degenerate Geometry =====//
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );

@@ -62,9 +62,6 @@ public:
     virtual void Scale();
     virtual void AddDefaultSources( double base_len = 1.0 );
 
-    //==== Set Drag Factors ====//
-    virtual void LoadDragFactors( DragFactors& drag_factors );
-
     virtual void ReadV2File( xmlNodePtr &root );
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
     virtual void ReadV2FileFuse1( xmlNodePtr &root );

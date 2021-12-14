@@ -461,12 +461,6 @@ string ComputeCompGeom( int set, bool half_mesh, int file_export_types )
         veh->setExportCompGeomCsvFile( true );
     }
 
-    veh->setExportDragBuildTsvFile( false );
-    if ( file_export_types & DRAG_BUILD_TSV_TYPE )
-    {
-        veh->setExportDragBuildTsvFile( true );
-    }
-
     string id = veh->CompGeomAndFlatten( set, half_mesh );
 
     if ( id.size() == 0 )

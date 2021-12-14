@@ -106,7 +106,6 @@ ConformalGeom.h
 CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h
-DragFactors.h
 EllipsoidGeom.h
 FeaStructure.h
 FitModelMgr.h

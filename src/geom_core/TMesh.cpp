@@ -503,8 +503,6 @@ void TMesh::CopyAttributes( TMesh* m )
     m_ShellFlag = m->m_ShellFlag;
     m_ShellMassArea = m->m_ShellMassArea;
 
-    m_DragFactors = m->m_DragFactors;
-
     m_SurfType = m->m_SurfType;
 
     m_UWPnts = m->m_UWPnts;
@@ -615,9 +613,6 @@ void TMesh::LoadGeomAttributes( Geom* geomPtr )
 
     //==== Check for Alternate Output Name ====//
     m_NameStr   = geomPtr->GetName();
-
-    geomPtr->LoadDragFactors( m_DragFactors );
-
 }
 
 void TMesh::RemoveIsectEdges()

@@ -140,9 +140,6 @@ public:
     virtual void Scale();
     virtual void AddDefaultSources( double base_len = 1.0 );
 
-    //==== Set Drag Factors ====//
-    virtual void LoadDragFactors( DragFactors& drag_factors );
-
     virtual string BuildBEMResults();
 
     virtual int ReadBEM( const string &file_name );

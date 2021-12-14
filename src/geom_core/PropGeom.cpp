@@ -1631,11 +1631,6 @@ void PropGeom::AddDefaultSources( double base_len )
     AddDefaultSourcesXSec( base_len, m_Diameter(), m_XSecSurf.NumXSec() - 1 );
 }
 
-//==== Drag Parameters ====//
-void PropGeom::LoadDragFactors( DragFactors& drag_factors )
-{
-}
-
 void PropGeom::EnforceOrder( PropXSec* xs, int indx )
 {
     if ( indx == 0 )

@@ -63,9 +63,6 @@ public:
     virtual void Scale();
     virtual void AddDefaultSources( double base_len = 1.0 );
 
-    //==== Set Drag Factors ====//
-    virtual void LoadDragFactors( DragFactors& drag_factors );
-
     IntParm m_OrderPolicy;
 
 protected:

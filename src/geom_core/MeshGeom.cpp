@@ -2196,16 +2196,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
         vector< double > wet_area_vec;
         vector< double > theo_vol_vec;
         vector< double > wet_vol_vec;
-        vector< double > min_chord;
-        vector< double > avg_chord;
-        vector< double > max_chord;
-        vector< double > min_tc;
-        vector< double > avg_tc;
-        vector< double > max_tc;
-        vector< double > avg_sweep;
-        vector< double > length;
-        vector< double > max_area;
-        vector< double > length_dia;
 
         res->Add( NameValData( "Num_Meshes", ( int )m_TMeshVec.size() ) );
         for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
@@ -2216,16 +2206,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
             wet_area_vec.push_back( tmsh->m_WetArea );
             theo_vol_vec.push_back( tmsh->m_TheoVol );
             wet_vol_vec.push_back( tmsh->m_WetVol );
-            min_chord.push_back( tmsh->m_DragFactors.m_MinChord );
-            avg_chord.push_back( tmsh->m_DragFactors.m_AvgChord );
-            max_chord.push_back( tmsh->m_DragFactors.m_MaxChord );
-            min_tc.push_back( tmsh->m_DragFactors.m_MinThickToChord );
-            avg_tc.push_back( tmsh->m_DragFactors.m_AvgThickToChord );
-            max_tc.push_back( tmsh->m_DragFactors.m_MaxThickToChord );
-            avg_sweep.push_back( tmsh->m_DragFactors.m_AvgSweep );
-            length.push_back( tmsh->m_DragFactors.m_Length );
-            max_area.push_back( tmsh->m_DragFactors.m_MaxXSecArea );
-            length_dia.push_back( tmsh->m_DragFactors.m_LengthToDia );
         }
 
         res->Add( NameValData( "Comp_Name", name_vec ) );
@@ -2245,19 +2225,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
         res->Add( NameValData( "Total_Theo_Vol", m_TotalTheoVol ) );
         res->Add( NameValData( "Total_Wet_Vol", m_TotalWetVol ) );
 
-        res->Add( NameValData( "Min_Chord", min_chord ) );
-        res->Add( NameValData( "Avg_Chord", avg_chord ) );
-        res->Add( NameValData( "Max_Chord", max_chord ) );
-
-        res->Add( NameValData( "Min_TC", min_tc ) );
-        res->Add( NameValData( "Avg_TC", avg_tc ) );
-        res->Add( NameValData( "Max_TC", max_tc ) );
-
-        res->Add( NameValData( "Avg_Sweep", avg_sweep ) );
-        res->Add( NameValData( "Length", length ) );
-        res->Add( NameValData( "Max_Area", max_area ) );
-        res->Add( NameValData( "Length_Dia", length_dia ) );
-
         res->Add( NameValData( "Num_Degen_Tris_Removed", info.m_NumDegenerateTriDeleted ) );
         res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
         res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
@@ -2272,13 +2239,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
         {
             string csvfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_CSV_TYPE );
             res->WriteCompGeomCsvFile( csvfn );
-        }
-
-        //==== Write Drag BuildUp File ====//
-        if ( m_Vehicle->getExportDragBuildTsvFile() )
-        {
-            string tsvfn = m_Vehicle->getExportFileName( vsp::DRAG_BUILD_TSV_TYPE );
-            res->WriteDragBuildFile( tsvfn );
         }
 
     }

@@ -454,28 +454,6 @@ void FuselageGeom::AddDefaultSources( double base_len )
     }
 }
 
-//==== Drag Parameters ====//
-void FuselageGeom::LoadDragFactors( DragFactors& drag_factors )
-{
-    double max_xsec_area = 0.000000000001;
-    for ( int i = 0 ; i < ( int )m_XSecSurf.NumXSec() ; i++ )
-    {
-        XSec* xs = m_XSecSurf.FindXSec( i );
-        XSecCurve* xsc = xs->GetXSecCurve();
-        double a = xsc->ComputeArea( );
-        if ( a > max_xsec_area )
-        {
-            max_xsec_area = a;
-        }
-    }
-
-    double dia = 2.0 * sqrt( max_xsec_area / PI );
-
-    drag_factors.m_Length = m_Length();
-    drag_factors.m_MaxXSecArea = max_xsec_area;
-    drag_factors.m_LengthToDia = m_Length() / dia;
-}
-
 void FuselageGeom::EnforceOrder( FuseXSec* xs, int indx, int policy )
 {
     if( policy == FUSE_MONOTONIC )

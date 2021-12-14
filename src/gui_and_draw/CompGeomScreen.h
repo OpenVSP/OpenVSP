@@ -44,15 +44,12 @@ protected:
     GroupLayout m_BorderLayout;
 
     ToggleButton m_CsvToggle;
-    ToggleButton m_TsvToggle;
 
     StringOutput m_TxtOutput;
     StringOutput m_CsvOutput;
-    StringOutput m_TsvOutput;
 
     TriggerButton m_TxtSelect;
     TriggerButton m_CsvSelect;
-    TriggerButton m_TsvSelect;
 
     Choice m_UseSet;
     Choice m_DegenSet;
