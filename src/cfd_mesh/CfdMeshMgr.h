@@ -104,7 +104,7 @@ public:
     ~CfdMeshMgrSingleton() override;
     void CleanUp() override;
 
-    void RegisterAnalysis();
+    virtual void RegisterAnalysis() override;
 
     SimpleMeshCommonSettings* GetSettingsPtr() override
     {

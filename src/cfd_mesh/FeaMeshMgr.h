@@ -158,7 +158,7 @@ public:
         return m_SimpleMaterialVec;
     }
 
-    void RegisterAnalysis();
+    virtual void RegisterAnalysis();
 
 protected:
 
