@@ -215,12 +215,12 @@ public:
 
     enum { SKIN_NONE, SKIN_BODY_REV, SKIN_RIBS };
 
-    int  GetSkinType()                                      { return m_SkinType; }
-    void GetBodyRevCurve( VspCurve & crv )                  { crv = m_BodyRevCurve; }
-    int  GetSkinClosedFlag()                                { return m_SkinClosedFlag; }
-    void GetSkinRibVec( vector< rib_data_type > & ribvec )  { ribvec = m_SkinRibVec; }
-    void GetSkinDegreeVec( vector< int > & degvec )         { degvec = m_SkinDegreeVec; }
-    void GetSkinParmVec( vector< double > & parmvec )       { parmvec = m_SkinParmVec; }
+    int  GetSkinType()                                     const { return m_SkinType; }
+    void GetBodyRevCurve( VspCurve & crv )                 const { crv = m_BodyRevCurve; }
+    int  GetSkinClosedFlag()                               const { return m_SkinClosedFlag; }
+    void GetSkinRibVec( vector< rib_data_type > & ribvec ) const { ribvec = m_SkinRibVec; }
+    void GetSkinDegreeVec( vector< int > & degvec )        const { degvec = m_SkinDegreeVec; }
+    void GetSkinParmVec( vector< double > & parmvec )      const { parmvec = m_SkinParmVec; }
 
     void SetClone( int index, const Matrix4d &mat )
     {
@@ -231,8 +231,8 @@ public:
     {
         return m_CloneIndex != -1;
     }
-    int GetCloneIndex()                                     { return m_CloneIndex; }
-    void GetCloneMat( Matrix4d &mat )                       { mat = m_CloneMat; }
+    int GetCloneIndex()                                    const { return m_CloneIndex; }
+    void GetCloneMat( Matrix4d &mat )                      const { mat = m_CloneMat; }
 
     int GetNumSectU() const;
     int GetNumSectW() const;
