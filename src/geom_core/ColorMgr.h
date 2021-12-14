@@ -26,7 +26,7 @@ public:
     /*!
     * Get Wire Color.
     */
-    Color * GetWireColor();
+    const Color & GetWireColor() const;
 
 public:
     /*!

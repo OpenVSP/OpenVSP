@@ -107,10 +107,10 @@ public:
         m_ColorMgr.SetWireColor( r, g, b, 255 );
     }
 
-    vec3d GetWireColor()
+    vec3d GetWireColor() const
     {
-        Color * wColor = m_ColorMgr.GetWireColor();
-        return vec3d( wColor->m_Red.Get(), wColor->m_Green.Get(), wColor->m_Blue.Get() );
+        Color wColor = m_ColorMgr.GetWireColor();
+        return vec3d( wColor.m_Red.Get(), wColor.m_Green.Get(), wColor.m_Blue.Get() );
     }
 
     void SetMaterialToDefault();
@@ -351,7 +351,7 @@ public:
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void SetColor( double r, double g, double b );
-    virtual vec3d GetColor();
+    virtual vec3d GetColor() const;
 
     virtual void SetMaterialToDefault();
     virtual void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );

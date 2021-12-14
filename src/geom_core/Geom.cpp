@@ -3515,7 +3515,7 @@ void Geom::SetColor( double r, double g, double b )
     m_GuiDraw.SetWireColor( r, g, b );
 }
 
-vec3d Geom::GetColor()
+vec3d Geom::GetColor() const
 {
     return m_GuiDraw.GetWireColor();
 }
