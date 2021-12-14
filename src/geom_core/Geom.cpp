@@ -1258,7 +1258,7 @@ void Geom::GetUWTess01( int indx, vector < double > &u, vector < double > &w )
 // Geom::WritePovRay
 // Geom::WriteX3D
 // Geom::WriteXSecFile
-void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen )
+void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen ) const
 {
     vector< vector< vec3d > > uw_pnts;
     UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
@@ -1271,7 +1271,7 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 // Geom::CreateTMeshVec
 // Geom::GetUWTess01
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
-                            vector< vector< vec3d > > &uw_pnts, bool degen )
+                            vector< vector< vec3d > > &uw_pnts, bool degen ) const
 {
     UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
 }
@@ -1287,13 +1287,13 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 //
 // Overridden by:
 // XXXGeom::UpdateTesselate to provide base functionality.
-void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
-                            vector< vector< vec3d > > &uw_pnts, bool degen )
+void Geom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
+                            vector< vector< vec3d > > &uw_pnts, bool degen ) const
 {
     surf_vec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
-void Geom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms)
+void Geom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms) const
 {
     surf_vec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess() );
 }
@@ -4524,12 +4524,12 @@ void Geom::WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma
 }
 
 //==== Create TMesh Vector ====//
-vector< TMesh* > Geom::CreateTMeshVec()
+vector< TMesh* > Geom::CreateTMeshVec() const
 {
     return CreateTMeshVec( m_SurfVec );
 }
 
-vector< TMesh* > Geom::CreateTMeshVec( vector<VspSurf> &surf_vec )
+vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec ) const
 {
     vector< TMesh* > TMeshVec;
     vector< vector<vec3d> > pnts;
@@ -4547,7 +4547,7 @@ vector< TMesh* > Geom::CreateTMeshVec( vector<VspSurf> &surf_vec )
         {
             if ( m_SurfIndxVec[i] == m_SurfIndxVec[j] )
             {
-                surf_vec[i].FlagDuplicate( &surf_vec[j] );
+                surf_vec[i].FlagDuplicate( surf_vec[j] );
             }
         }
     }

@@ -1669,7 +1669,7 @@ void PropGeom::EnforcePCurveOrder( double rfirst, double rlast )
     }
 }
 
-void PropGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
+void PropGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const
 {
     vector < int > tessvec;
     vector < double > rootc;
@@ -1709,7 +1709,7 @@ void PropGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vec
     surf_vec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen, umerge );
 }
 
-void PropGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
+void PropGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
 {
     vector < int > tessvec;
     vector < double > rootc;

@@ -196,7 +196,7 @@ void FuselageGeom::UpdateSurf()
     }
 }
 
-void FuselageGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
+void FuselageGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const
 {
     vector < int > tessvec;
 
@@ -218,7 +218,7 @@ void FuselageGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector<
     surf_vec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
-void FuselageGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
+void FuselageGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
 {
     vector < int > tessvec;
 

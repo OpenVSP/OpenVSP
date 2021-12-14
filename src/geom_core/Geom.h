@@ -460,8 +460,8 @@ public:
 
     virtual int GetSymFlag() const;
 
-    virtual vector< TMesh* > CreateTMeshVec();
-    vector< TMesh* > CreateTMeshVec( vector<VspSurf> &surf_vec );
+    virtual vector< TMesh* > CreateTMeshVec() const;
+    vector< TMesh* > CreateTMeshVec( const vector<VspSurf> &surf_vec ) const;
 
     virtual BndBox GetBndBox()
     {
@@ -710,11 +710,11 @@ protected:
     virtual void UpdateMainDegenGeomPreview();
     virtual void UpdateDegenGeomPreview();
 
-    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen );
-    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
-    virtual void UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
+    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen ) const;
+    virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const;
+    virtual void UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen ) const;
 
-    virtual void UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
+    virtual void UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const;
 
     vector<VspSurf> m_MainSurfVec;
     vector<VspSurf> m_SurfVec;
