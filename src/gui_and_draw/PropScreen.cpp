@@ -154,8 +154,22 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400+40, 700, "Propel
 
     m_EditCurve = CHORD;
 
+    m_BladeLayout.SetFitWidthFlag( false );
+    m_BladeLayout.SetSameLineFlag( true );
+
     m_BladeLayout.SetChoiceButtonWidth( m_BladeLayout.GetButtonWidth() );
+
+    m_BladeLayout.SetSliderWidth( 0.5 * m_BladeLayout.GetW() - m_BladeLayout.GetButtonWidth() );
     m_BladeLayout.AddChoice( m_CurveChoice, "Curve" );
+    m_BladeLayout.SetButtonWidth( m_BladeLayout.GetRemainX() );
+    m_BladeLayout.AddButton( m_ApproxAllButton, "Approximate All" );
+
+    m_BladeLayout.ForceNewLine();
+
+    m_BladeLayout.InitWidthHeightVals();
+
+    m_BladeLayout.SetSameLineFlag( false );
+    m_BladeLayout.SetFitWidthFlag( true );
 
     m_BladeLayout.AddPCurveEditor( m_CurveEditor );
 
@@ -2011,6 +2025,11 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_CurveChoice )
     {
         m_EditCurve = m_CurveChoice.GetVal();
+    }
+    else if ( gui_device == &m_ApproxAllButton )
+    {
+        propeller_ptr->ApproxCubicAllPCurves();
+        propeller_ptr->Update();
     }
 
     GeomScreen::GuiDeviceCallBack( gui_device );

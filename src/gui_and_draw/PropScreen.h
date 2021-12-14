@@ -352,6 +352,7 @@ protected:
 
     GroupLayout m_BladeLayout;
 
+    TriggerButton m_ApproxAllButton;
     Choice m_CurveChoice;
     int m_EditCurve;
 
