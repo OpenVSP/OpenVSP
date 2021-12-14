@@ -159,6 +159,8 @@ public:
 
     virtual void ApproxCubicAllPCurves();
 
+    virtual void ResetThickness();
+
     Parm m_Diameter;
 
     Parm m_Rotate;

@@ -2277,3 +2277,52 @@ void PropGeom::ApproxCubicAllPCurves()
         }
     }
 }
+
+void PropGeom::ResetThickness()
+{
+    unsigned int nxsec = m_XSecSurf.NumXSec();
+
+    vector < double > rvec( nxsec );
+    vector < double > tcvec( nxsec );
+
+    //==== Update XSec Location/Rotation ====//
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( i );
+
+        if ( xs )
+        {
+            rvec[i] = xs->m_RadiusFrac();
+
+            XSecCurve *xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                Airfoil* af = dynamic_cast < Airfoil* > ( xsc );
+                if ( af )
+                {
+                    FileAirfoil* faf = dynamic_cast < FileAirfoil* > ( af );
+                    if ( faf )
+                    {
+                        tcvec[i] = faf->m_BaseThickness();
+                    }
+                    else
+                    {
+                        tcvec[i] = af->m_ThickChord();
+                    }
+                }
+                else
+                {
+                    string height_id = xsc->GetHeightParmID();
+                    Parm* height_parm = ParmMgr.FindParm( height_id );
+
+                    string width_id = xsc->GetWidthParmID();
+                    Parm* width_parm = ParmMgr.FindParm( width_id );
+
+                    tcvec[i] = height_parm->Get() / width_parm->Get();
+                }
+            }
+        }
+    }
+
+    m_ThickCurve.SetCurve( rvec, tcvec, PCHIP );
+}
