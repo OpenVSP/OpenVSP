@@ -1931,15 +1931,12 @@ int GetGeomVSPSurfCfdType( const string& geom_id, int main_surf_ind )
         return -1;
     }
 
-    vector < VspSurf > surf_vec;
-    geom_ptr->GetMainSurfVec( surf_vec );
-
-    if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
+    if ( main_surf_ind < 0 || main_surf_ind >= geom_ptr->GetNumMainSurfs() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfCfdType::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
     }
 
-    return surf_vec[main_surf_ind].GetSurfCfdType();
+    return geom_ptr->GetMainCFDSurfType( main_surf_ind );
 }
 
 /// Get of the linkable parms ids for this geometry

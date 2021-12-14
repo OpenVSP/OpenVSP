@@ -813,9 +813,7 @@ bool GeomScreen::Update()
 
     // Disable Negative Volume for transparent surfaces. Note, this also is applied
     // to MeshGeoms, Blanks, Humans, and Hinges, since they have m_MainSurfVec.size() == 0
-    vector < VspSurf > surf_vec;
-    geom_ptr->GetMainSurfVec( surf_vec );
-    if ( surf_vec.size() > 0 && surf_vec[0].GetSurfCfdType() != vsp::CFD_TRANSPARENT )
+    if ( geom_ptr->GetNumMainSurfs() > 0 && geom_ptr->GetMainCFDSurfType(0) != vsp::CFD_TRANSPARENT )
     {
         m_NegativeVolumeBtn.Activate();
     }

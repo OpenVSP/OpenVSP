@@ -102,7 +102,7 @@ public:
     int GetSurfType() const { return m_SurfType; }
     void SetSurfType( int type ) { m_SurfType = type; }
 
-    int GetSurfCfdType() { return m_SurfCfdType; }
+    int GetSurfCfdType() const { return m_SurfCfdType; }
     void SetSurfCfdType( int type ) { m_SurfCfdType = type; }
 
     double FindNearest( double &u, double &w, const vec3d &pt ) const;

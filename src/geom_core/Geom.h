@@ -388,6 +388,7 @@ public:
 
     virtual int GetSurfType( int indx ) const;
     virtual int GetMainSurfType( int indx ) const;
+    virtual int GetMainCFDSurfType( int indx ) const;
 
     virtual bool GetFlipNormal( int indx ) const;
     virtual bool GetMainFlipNormal( int indx ) const;

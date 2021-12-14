@@ -3737,6 +3737,11 @@ int Geom::GetMainSurfType( int indx ) const
     return m_MainSurfVec[indx].GetSurfType();
 }
 
+int Geom::GetMainCFDSurfType( int indx ) const
+{
+    return m_MainSurfVec[indx].GetSurfCfdType();
+}
+
 bool Geom::GetFlipNormal( int indx ) const
 {
     return m_FlipNormalVec[indx];

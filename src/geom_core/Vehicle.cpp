@@ -975,9 +975,6 @@ vector < int > Vehicle::GetDegenGeomTypeVec( int set_index )
         if ( geom )
         {
             // Identify the DegenGeom type
-            vector < VspSurf > main_surf_vec;
-            geom->GetMainSurfVec( main_surf_vec );
-
             int surftype = DegenGeom::BODY_TYPE;
             if ( geom->GetMainSurfType(0) == vsp::WING_SURF || geom->GetMainSurfType(0) == vsp::PROP_SURF )
             {
