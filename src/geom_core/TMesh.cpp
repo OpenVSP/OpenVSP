@@ -595,7 +595,7 @@ void TMesh::DecodeTriList( xmlNodePtr & node, int num_tris )
     }
 }
 
-void TMesh::LoadGeomAttributes( Geom* geomPtr )
+void TMesh::LoadGeomAttributes( const Geom* geomPtr )
 {
     /*color       = geomPtr->getColor();
     materialID    = geomPtr->getMaterialID();*/
@@ -3931,7 +3931,7 @@ void TMesh::FindIJ( const vec3d & uw_pnt, int &start_u, int &start_v )
     }
 }
 
-void CreateTMeshVecFromPts( Geom * geom,
+void CreateTMeshVecFromPts( const Geom * geom,
                             vector < TMesh* > & TMeshVec,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & norms,

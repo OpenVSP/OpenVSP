@@ -53,7 +53,7 @@ void XSecSurf::ChangeID( string id )
 }
 
 //==== Find XSec Given ID ====//
-XSec* XSecSurf::FindXSec( string id )
+XSec* XSecSurf::FindXSec( string id ) const
 {
     for ( int i = 0 ; i < ( int )m_XSecPtrVec.size() ; i++ )
     {
@@ -65,11 +65,21 @@ XSec* XSecSurf::FindXSec( string id )
     return NULL;
 }
 
+const XSec* XSecSurf::FindConstXSec( string id ) const
+{
+    return FindXSec( id );
+}
+
 //==== Find XSec Given Index ====//
-XSec* XSecSurf::FindXSec( int index )
+XSec* XSecSurf::FindXSec( int index ) const
 {
     string id = GetXSecID( index );
     return FindXSec( id );
+}
+
+const XSec* XSecSurf::FindConstXSec( int index ) const
+{
+    return FindXSec( index );
 }
 
 //==== Find XSec Index Given ID ====//

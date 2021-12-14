@@ -433,7 +433,7 @@ public:
     double m_WetVol;
     vec3d m_AreaCenter;
 
-    void LoadGeomAttributes( Geom* geomPtr );
+    void LoadGeomAttributes( const Geom* geomPtr );
     int  RemoveDegenerate();
     void RemoveIsectEdges();
     void Intersect( TMesh* tm, bool UWFlag = false );
@@ -529,7 +529,7 @@ protected:
 
 };
 
-void CreateTMeshVecFromPts( Geom * geom,
+void CreateTMeshVecFromPts( const Geom * geom,
                             vector < TMesh* > & TMeshVec,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & norms,

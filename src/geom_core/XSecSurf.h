@@ -28,8 +28,10 @@ public:
     XSecSurf();                                 // Default Constructor
     virtual ~XSecSurf();                        // Destructor
 
-    XSec* FindXSec( string id );
-    XSec* FindXSec( int index );
+    XSec* FindXSec( string id ) const;
+    XSec* FindXSec( int index ) const;
+    const XSec* FindConstXSec( string id ) const;
+    const XSec* FindConstXSec( int index ) const;
     int FindXSecIndex( string id ) const;
     string GetXSecID( int index ) const;
     void ChangeXSecID( string oldID, string newID );
