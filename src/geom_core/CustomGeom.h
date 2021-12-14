@@ -198,7 +198,7 @@ public:
     void RemoveXSecSurf( const string& id );
     void ClearXSecSurfs();
 
-    virtual int GetNumXSecSurfs()                    { return ( int )m_XSecSurfVec.size(); }
+    virtual int GetNumXSecSurfs() const                   { return ( int )m_XSecSurfVec.size(); }
     virtual XSecSurf* GetXSecSurf( int index );
 
     //==== Skin XSecs ====//

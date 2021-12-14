@@ -162,7 +162,7 @@ public:
 
     virtual void SetActiveAirfoilType( int type );
 
-    virtual int GetNumXSecSurfs()                        { return 1; }
+    virtual int GetNumXSecSurfs() const                       { return 1; }
     virtual XSecSurf* GetXSecSurf( int index )            { return &m_XSecSurf; }
 
 

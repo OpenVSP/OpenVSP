@@ -18,7 +18,7 @@ public:
     BlankGeom( Vehicle* vehicle_ptr );
     virtual ~BlankGeom();
 
-    virtual int GetNumMainSurfs()
+    virtual int GetNumMainSurfs() const
     {
         return 0;
     };

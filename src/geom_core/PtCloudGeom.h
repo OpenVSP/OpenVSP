@@ -18,7 +18,7 @@ public:
     PtCloudGeom( Vehicle* vehicle_ptr );
     virtual ~PtCloudGeom();
 
-    virtual int GetNumMainSurfs()
+    virtual int GetNumMainSurfs() const
     {
         return 0;
     };

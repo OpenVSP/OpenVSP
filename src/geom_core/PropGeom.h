@@ -127,7 +127,7 @@ public:
     virtual void InsertXSec( );
     virtual void InsertXSec( int type );
 
-    virtual int GetNumXSecSurfs()
+    virtual int GetNumXSecSurfs() const
     {
         return 1;
     }

@@ -102,7 +102,7 @@ public:
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    virtual int  GetNumXSecSurfs()
+    virtual int  GetNumXSecSurfs() const
     {
         return 0;
     }
@@ -115,7 +115,7 @@ public:
     }
     virtual int GetNumTotalMeshs();
 
-    virtual int GetNumMainSurfs()
+    virtual int GetNumMainSurfs() const
     {
         return 0;
     }

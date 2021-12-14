@@ -18,7 +18,7 @@ public:
     WireGeom( Vehicle* vehicle_ptr );
     virtual ~WireGeom();
 
-    virtual int GetNumMainSurfs()
+    virtual int GetNumMainSurfs() const
     {
         return 0;
     };

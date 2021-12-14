@@ -94,7 +94,7 @@ public:
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    virtual int  GetNumXSecSurfs()
+    virtual int  GetNumXSecSurfs() const
     {
         return 0;
     }
@@ -109,15 +109,15 @@ public:
 
     virtual void InitIndexedMesh( const vector < TMesh* > &meshvec, int & offset );
     virtual void BuildIndexedMesh( int partOffset, bool half_flag = false );
-    virtual int  GetNumIndexedPnts()
+    virtual int  GetNumIndexedPnts() const
     {
         return m_IndexedNodeVec.size();
     }
-    virtual int  GetNumIndexedTris()
+    virtual int  GetNumIndexedTris() const
     {
         return m_IndexedTriVec.size();
     }
-    virtual int  GetNumIndexedParts()
+    virtual int  GetNumIndexedParts() const
     {
         return m_TMeshVec.size();
     }
@@ -172,7 +172,7 @@ public:
     virtual void AddHalfBox();
 
     virtual void UpdateSurf() {}
-    virtual int GetNumMainSurfs()
+    virtual int GetNumMainSurfs() const
     {
         return 0;
     }

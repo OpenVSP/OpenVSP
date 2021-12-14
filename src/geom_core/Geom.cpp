@@ -1046,7 +1046,7 @@ void Geom::SetSetFlag( int index, bool f )
 }
 
 //==== Get Set Flag ====//
-bool Geom::GetSetFlag( int index )
+bool Geom::GetSetFlag( int index ) const
 {
     if ( index >= 0 && index < ( int )m_SetFlags.size() )
     {
@@ -3665,7 +3665,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
 }
 
 //==== Set Sym Flag ====//
-int Geom::GetSymFlag()
+int Geom::GetSymFlag() const
 {
     return m_SymPlanFlag() | m_SymAxFlag();
 }
@@ -3693,18 +3693,18 @@ VspSurf* Geom::GetMainSurfPtr( int indx )
 }
 
 //==== Count Number of Sym Surfaces ====//
-int Geom::GetNumTotalSurfs()
+int Geom::GetNumTotalSurfs() const
 {
     return GetNumSymmCopies() * GetNumMainSurfs();
 }
 
-int Geom::GetNumTotalHrmSurfs()
+int Geom::GetNumTotalHrmSurfs() const
 {
     return GetNumTotalSurfs();
 }
 
 //==== Count Number of Sym Copies of Each Surface ====//
-int Geom::GetNumSymmCopies()
+int Geom::GetNumSymmCopies() const
 {
     int symFlag = GetSymFlag();
     int numSymCopies = 1;
@@ -3726,7 +3726,7 @@ int Geom::GetNumSymmCopies()
 }
 
 //==== Count Number of Sym Flags ====//
-int Geom::GetNumSymFlags()
+int Geom::GetNumSymFlags() const
 {
     int numSymFlags = 0;
     int symFlag = GetSymFlag();

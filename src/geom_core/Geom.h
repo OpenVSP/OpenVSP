@@ -357,7 +357,7 @@ public:
     virtual void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
     virtual Material * GetMaterial();
 
-    virtual bool GetSetFlag( int index );
+    virtual bool GetSetFlag( int index ) const;
     virtual vector< bool > GetSetFlags()
     {
         return m_SetFlags;
@@ -376,15 +376,15 @@ public:
     {
         surf_vec = m_SurfVec;
     }
-    virtual int GetNumMainSurfs()
+    virtual int GetNumMainSurfs() const
     {
         return m_MainSurfVec.size();
     }
     virtual void GetMainSurfVec( vector<VspSurf> &surf_vec )    { surf_vec = m_MainSurfVec; }
-    virtual int GetNumSymFlags();
-    virtual int GetNumTotalSurfs();
-    virtual int GetNumTotalHrmSurfs();
-    virtual int GetNumSymmCopies();
+    virtual int GetNumSymFlags() const;
+    virtual int GetNumTotalSurfs() const;
+    virtual int GetNumTotalHrmSurfs() const;
+    virtual int GetNumSymmCopies() const;
 
     virtual int GetSurfType( int indx ) const;
     virtual int GetMainSurfType( int indx ) const;
@@ -439,7 +439,7 @@ public:
     }
 
     //==== XSec Surfs ====//
-    virtual int GetNumXSecSurfs()
+    virtual int GetNumXSecSurfs() const
     {
         return 0;
     }
@@ -458,7 +458,7 @@ public:
 
     virtual void ReadV2File( xmlNodePtr &root );
 
-    virtual int GetSymFlag();
+    virtual int GetSymFlag() const;
 
     virtual vector< TMesh* > CreateTMeshVec();
     vector< TMesh* > CreateTMeshVec( vector<VspSurf> &surf_vec );
