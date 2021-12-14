@@ -94,7 +94,7 @@ public:
     {
         return m_LastVal;
     }
-    double operator () ()
+    double operator () () const
     {
         return Get();
     }
@@ -232,11 +232,11 @@ public:
 
     int Set( int val );
 
-    int Get()
+    int Get() const
     {
         return ( int )( m_Val + 0.5 );
     }
-    int operator () ()
+    int operator () () const
     {
         return Get();
     }
@@ -336,7 +336,7 @@ public:
     BoolParm();
 
     virtual bool Set( bool val );
-    bool Get()
+    bool Get() const
     {
         if ( m_Val > 0.5 )
         {
@@ -344,7 +344,7 @@ public:
         }
         return false;
     }
-    bool operator () ()
+    bool operator () () const
     {
         return Get();
     }
