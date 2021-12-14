@@ -7058,6 +7058,36 @@ int PCurveSplit( const string & geom_id, const int & pcurveid, const double & ts
     ErrorMgr.NoError();
 }
 
+void ApproximateAllPropellerPCurves( const std::string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ApproximateAllPropellerPCurves::Can't Find Geom " + geom_id );
+        return;
+    }
+    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ApproximateAllPropellerPCurves::Geom not a propeller " + geom_id );
+        return;
+    }
+
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
+
+    if ( prop_ptr )
+    {
+        prop_ptr->ApproxCubicAllPCurves();
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ApproximateAllPropellerPCurves::Geom not a propeller " + geom_id );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
 //===================================================================//
 //===============    Parasite Drag Tool Functions      ==============//
 //===================================================================//

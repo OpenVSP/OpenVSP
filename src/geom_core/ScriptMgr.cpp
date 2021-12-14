@@ -10036,6 +10036,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "int PCurveSplit( const string & in geom_id, const int & in pcurveid, const double & in tsplit )", asFUNCTION( vsp::PCurveSplit ), asCALL_CDECL, doc_struct);
     assert( r >= 0 ); // TODO: Example
 
+    doc_struct.comment = R"(
+/*!
+    Approximate all propeller blade curves with cubic Bezier curves.
+    \code{.cpp}
+    // Add Propeller
+    string prop = AddGeom( "PROP", "" );
+
+    ApproximateAllPropellerPCurves( prop );
+
+    \endcode
+    \param [in] geom_id Geom ID
+    */)";
+    r = se->RegisterGlobalFunction( "void ApproximateAllPropellerPCurves( const string & in geom_id )", asFUNCTION( vsp::ApproximateAllPropellerPCurves ), asCALL_CDECL, doc_struct);
+    assert( r >= 0 );
+
     //=== Register ParasiteDragTool Functions ====//
     group = "ParasiteDrag";
     doc_struct.group = group.c_str();
