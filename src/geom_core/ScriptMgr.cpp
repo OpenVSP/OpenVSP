@@ -10051,6 +10051,23 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ApproximateAllPropellerPCurves( const string & in geom_id )", asFUNCTION( vsp::ApproximateAllPropellerPCurves ), asCALL_CDECL, doc_struct);
     assert( r >= 0 );
 
+    doc_struct.comment = R"(
+/*!
+    Reset propeller T/C curve to match basic thickness of file-type airfoils.  Typically only used for a propeller that
+    has been constructed with file-type airfoils across the blade.  The new thickness curve will be a PCHIP curve
+    with t/c matching the propeller's XSecs -- unless it is a file XSec, then the Base thickness is used.
+    \code{.cpp}
+    // Add Propeller
+    string prop = AddGeom( "PROP", "" );
+
+    ResetPropellerThicknessCurve( prop );
+
+    \endcode
+    \param [in] geom_id Geom ID
+    */)";
+    r = se->RegisterGlobalFunction( "void ResetPropellerThicknessCurve( const string & in geom_id )", asFUNCTION( vsp::ResetPropellerThicknessCurve ), asCALL_CDECL, doc_struct);
+    assert( r >= 0 );
+
     //=== Register ParasiteDragTool Functions ====//
     group = "ParasiteDrag";
     doc_struct.group = group.c_str();

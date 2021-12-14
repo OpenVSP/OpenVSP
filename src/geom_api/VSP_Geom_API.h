@@ -403,6 +403,7 @@ extern std::vector < double > PCurveGetValVec( const std::string & geom_id, cons
 extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const int & indx );
 extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const double & tsplit );
 extern void ApproximateAllPropellerPCurves( const std::string & geom_id );
+extern void ResetPropellerThicknessCurve( const std::string & geom_id );
 
 //======================== VSPAERO Functions ======================//
 extern void AutoGroupVSPAEROControlSurfaces();
