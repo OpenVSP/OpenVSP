@@ -173,11 +173,11 @@ public:
     static bool CapWMax(int capType);
     void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >() );
 
-    void ResetUSkip();
-    void FlagDuplicate( VspSurf *othersurf );
+    void ResetUSkip() const;
+    void FlagDuplicate( const VspSurf &othersurf ) const;
 
     void SetClustering( const double &le, const double &te );
-    void SetRootTipClustering( const vector < double > &root, const vector < double > &tip );
+    void SetRootTipClustering( const vector < double > &root, const vector < double > &tip ) const;
 
     void MakeUTess( const vector<int> &num_u, std::vector<double> &utess, const std::vector<int> & umerge ) const;
     void MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const;
@@ -270,14 +270,8 @@ protected:
     vector < double > m_UFeature;
     vector < double > m_WFeature;
 
-    vector < bool > m_USkip;
-
     double m_LECluster;
     double m_TECluster;
-
-    vector < double > m_RootCluster;
-    vector < double > m_TipCluster;
-
 
     //==== Store Skinning Inputs =====//
     int m_SkinType;
@@ -291,6 +285,12 @@ protected:
     Matrix4d m_CloneMat;
 
     VspSurf *m_FoilSurf;
+
+private:
+    mutable vector < bool > m_USkip;
+
+    mutable vector < double > m_RootCluster;
+    mutable vector < double > m_TipCluster;
 
 };
 #endif

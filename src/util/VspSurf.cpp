@@ -74,7 +74,7 @@ void VspSurf::SetClustering( const double &le, const double &te )
     m_TECluster = te;
 }
 
-void VspSurf::SetRootTipClustering( const vector < double > &root, const vector < double > &tip )
+void VspSurf::SetRootTipClustering( const vector < double > &root, const vector < double > &tip ) const
 {
     m_RootCluster = root;
     m_TipCluster = tip;
@@ -1003,7 +1003,7 @@ void VspSurf::CompCurvature01( double u01, double v01, double& k1, double& k2, d
     CompCurvature( u01 * GetUMax(), v01 * GetWMax(), k1, k2, ka, kg );
 }
 
-void VspSurf::ResetUSkip()
+void VspSurf::ResetUSkip() const
 {
     piecewise_surface_type::index_type ip, nupatch, nwpatch;
 
@@ -1039,7 +1039,7 @@ void VspSurf::SetUSkipLast( bool f )
     }
 }
 
-void VspSurf::FlagDuplicate( VspSurf *othersurf )
+void VspSurf::FlagDuplicate( const VspSurf &othersurf ) const
 {
     piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
 
@@ -1056,8 +1056,8 @@ void VspSurf::FlagDuplicate( VspSurf *othersurf )
         for( jp = 0; jp < nvpatch; ++jp )
         {
 
-            surface_patch_type *patch = m_Surface.get_patch( ip, jp );
-            surface_patch_type *otherpatch = othersurf->m_Surface.get_patch( ip, jp );
+            const surface_patch_type * patch = m_Surface.get_patch( ip, jp );
+            const surface_patch_type * otherpatch = othersurf.m_Surface.get_patch( ip, jp );
 
             if ( patch->abouteq( *otherpatch, tol ) )
             {
@@ -1077,7 +1077,7 @@ void VspSurf::FlagDuplicate( VspSurf *othersurf )
         if ( umatchcnt[ip] == nvpatch )
         {
             m_USkip[ip] = true;
-            othersurf->m_USkip[ip] = true;
+            othersurf.m_USkip[ip] = true;
         }
     }
 
