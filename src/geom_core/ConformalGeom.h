@@ -69,9 +69,9 @@ protected:
 
     virtual bool CheckIfRibIsPoint( rib_data_type & rib );
 
-    virtual void CenterRibCurves( VspSurf & surf, VspSurf &  ref_surf, double offset );
+    virtual void CenterRibCurves( VspSurf & surf, const VspSurf & ref_surf, double offset );
     virtual void OffsetEndRibs( VspSurf & surf, double offset );
-    virtual void AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double offset );
+    virtual void AdjustShape( VspSurf & surf, const VspSurf & ref_surf, double offset );
 
     virtual double FindEndUOffsetCurve( VspSurf & surf, double offset, bool start_flag, curve_type & crv );
     virtual double AdjustForSurfaceDist( const VspSurf & surf, const ConformalSpine & spine, double u, double offset, bool backward_flag );
@@ -83,8 +83,8 @@ protected:
 
     virtual void SetWingTrimParms( VspSurf & surf );
 
-    virtual void FindDists( VspSurf & surf, piecewise_curve_type & curve, double u0, vector< double > & dist_vec );
-    virtual double ComputeAvgOffset( VspSurf & surf, VspSurf &  ref_surf, double u );
+    virtual void FindDists( const VspSurf & surf, piecewise_curve_type & curve, double u0, vector< double > & dist_vec );
+    virtual double ComputeAvgOffset( VspSurf & surf, const VspSurf & ref_surf, double u );
 
     virtual double ComputeMaxOffsetError( VspSurf & surf, VspSurf &  ref_surf, double offset, int num_u, int num_w );
 

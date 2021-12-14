@@ -333,7 +333,7 @@ bool ConformalGeom::CheckIfRibIsPoint( rib_data_type & rib )
 }
 
 //==== Move Rib To Center s ====//
-void ConformalGeom::CenterRibCurves( VspSurf & surf, VspSurf &  ref_surf, double offset )
+void ConformalGeom::CenterRibCurves( VspSurf & surf, const VspSurf & ref_surf, double offset )
 {
     vector< rib_data_type > rib_vec;
     surf.GetSkinRibVec( rib_vec );
@@ -359,7 +359,7 @@ void ConformalGeom::CenterRibCurves( VspSurf & surf, VspSurf &  ref_surf, double
 }
 
 //==== Adjust Tangent to Reshape To Reduce Error ====//
-void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double offset )
+void ConformalGeom::AdjustShape( VspSurf & surf, const VspSurf & ref_surf, double offset )
 {
     vector< rib_data_type > rib_vec;
     surf.GetSkinRibVec( rib_vec );
@@ -968,7 +968,7 @@ void ConformalGeom::CapTrimmedSurf( piecewise_surface_type & psurf, int match_in
 }
 
 //==== Find Distances At Point Along Curve To Surf =====//
-void ConformalGeom::FindDists( VspSurf & surf, piecewise_curve_type & curve, double u0, vector< double > & dist_vec )
+void ConformalGeom::FindDists( const VspSurf & surf, piecewise_curve_type & curve, double u0, vector< double > & dist_vec )
 {
     int num_samps = dist_vec.size();
     if ( num_samps <= 0 )
@@ -985,7 +985,7 @@ void ConformalGeom::FindDists( VspSurf & surf, piecewise_curve_type & curve, dou
     }
 }
 
-double ConformalGeom::ComputeAvgOffset( VspSurf & surf, VspSurf &  ref_surf, double u )
+double ConformalGeom::ComputeAvgOffset( VspSurf & surf, const VspSurf & ref_surf, double u )
 {
     VspCurve crv;
     surf.GetUConstCurve( crv, u );
