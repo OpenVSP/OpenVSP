@@ -466,6 +466,9 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400+40, 700, "Propel
 
     //==== CST Airfoil ====//
     m_XSecLayout.AddSubGroupLayout( m_CSTAirfoilGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
+
+    m_CSTAirfoilGroup.AddOutput( m_CSTThickChordOutput, "T/C", "%7.5f" );
+
     m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius" );
 
     m_CSTAirfoilGroup.AddYGap();
@@ -523,6 +526,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400+40, 700, "Propel
     m_VKTGroup.AddSlider( m_VKTEpsilonSlider, "Epsilon", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTKappaSlider, "Kappa", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTTauSlider, "Tau", 10, "%7.5f" );
+    m_VKTGroup.AddOutput( m_VKTThickChordOutput, "T/C", "%7.5f" );
     m_VKTGroup.AddYGap();
     m_VKTGroup.AddButton( m_VKTInvertButton, "Invert Airfoil" );
     m_VKTGroup.AddYGap();
@@ -1338,6 +1342,7 @@ bool PropScreen::Update()
 
                 m_CSTInvertButton.Update( cst_xs->m_Invert.GetID() );
                 m_CSTContLERadButton.Update( cst_xs->m_ContLERad.GetID() );
+                m_CSTThickChordOutput.Update( cst_xs->m_ThickChord.GetID() );
 
                 if ( ( m_UpCoeffSliderVec.size() != num_up ) || ( m_LowCoeffSliderVec.size() != num_low ) )
                 {
@@ -1379,6 +1384,7 @@ bool PropScreen::Update()
                 m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
                 m_VKTDegreeCounter.Update( vkt_xs->m_FitDegree.GetID() );
                 m_VKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
+                m_VKTThickChordOutput.Update( vkt_xs->m_ThickChord.GetID() );
             }
             else if ( xsc->GetType() == XS_FOUR_DIGIT_MOD )
             {

@@ -169,6 +169,8 @@ protected:
 
     GroupLayout m_CSTAirfoilGroup;
 
+    Output m_CSTThickChordOutput;
+
     SliderAdjRangeInput m_CSTChordSlider;
 
     TriggerButton m_UpDemoteButton;
@@ -198,6 +200,7 @@ protected:
     SliderAdjRangeInput m_VKTKappaSlider;
     SliderAdjRangeInput m_VKTTauSlider;
     CheckButton m_VKTInvertButton;
+    Output m_VKTThickChordOutput;
     TriggerButton m_VKTFitCSTButton;
     Counter m_VKTDegreeCounter;
 
