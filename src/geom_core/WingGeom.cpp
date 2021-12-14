@@ -2318,6 +2318,17 @@ void WingGeom::UpdateDrawObj()
         m_XSecDrawObj_vec[i].m_PntVec = m_XSecSurf.FindXSec( i )->GetDrawLines( relTrans );
         m_XSecDrawObj_vec[i].m_GeomChanged = true;
     }
+}
+
+void WingGeom::UpdateHighlightDrawObj()
+{
+    Matrix4d attachMat;
+    Matrix4d relTrans;
+    attachMat = ComposeAttachMatrix();
+    relTrans = attachMat;
+    relTrans.affineInverse();
+    relTrans.matMult( m_ModelMatrix.data() );
+    relTrans.postMult( attachMat.data() );
 
     m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveAirfoil() )->GetDrawLines( relTrans );
     m_HighlightXSecDrawObj.m_GeomChanged = true;
@@ -2353,7 +2364,6 @@ void WingGeom::UpdateDrawObj()
     oBBox.Update( iBBox );
 
     m_HighlightWingSecDrawObj.m_PntVec = oBBox.GetBBoxDrawLines();
-
 }
 
 void WingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )

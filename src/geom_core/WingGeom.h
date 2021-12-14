@@ -231,6 +231,7 @@ protected:
     virtual void UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
     virtual void UpdatePreTess();
     virtual void UpdateDrawObj();
+    virtual void UpdateHighlightDrawObj();
     virtual void MatchWingSections();
 
     virtual void CalculateMeshMetrics();

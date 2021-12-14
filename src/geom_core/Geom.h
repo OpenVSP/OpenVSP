@@ -180,7 +180,7 @@ public:
     virtual ~GeomBase();                        // Destructor
 
     // Only used internally.  Do not need to move to API.
-    enum { NONE, XFORM, TESS, SURF };
+    enum { NONE, XFORM, TESS, SURF, HIGHLIGHT };
 
     virtual GeomType GetType()
     {
@@ -240,6 +240,7 @@ public:
     bool m_SurfDirty;
     bool m_UpdateSurf;
     bool m_TessDirty;
+    bool m_HighlightDirty;
 
     void SetDirtyFlag( int dflag );
 
@@ -703,6 +704,7 @@ protected:
     virtual void UpdateChildren( bool fullupdate );
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
+    virtual void UpdateHighlightDrawObj()    {};
 
     virtual void UpdatePreTess()   {};
 
@@ -803,6 +805,7 @@ public:
 
 protected:
     virtual void UpdateDrawObj();
+    virtual void UpdateHighlightDrawObj();
 
     XSecSurf m_XSecSurf;
     vector<DrawObj> m_XSecDrawObj_vec;

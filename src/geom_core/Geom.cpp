@@ -107,6 +107,7 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
     m_XFormDirty = true;
     m_SurfDirty = true;
     m_TessDirty = true;
+    m_HighlightDirty = true;
 }
 
 //==== Destructor ====//
@@ -122,6 +123,7 @@ GeomBase::~GeomBase()
 // XForm - position, orientation, symmetry, attachment of Geom
 // Surf - everything else (requires re-lofting m_MainSurfVec)
 // Tess - tessellation resolution (requires re-tessellation)
+// Highlight - active section highlighting
 //
 // This works in conjunction with strategic caching.  m_MainSurfVec, m_SurfVec, m_MainTessVec, m_TessVec are all
 // cached to allow minimal updates according to the classified dirty flags.
@@ -186,7 +188,7 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
     }
     else if ( gname == string("Index") )
     {
-        // Don't dirty anything, only UpdateDrawObj needs to be run.  UDO runs even when no dirty flags are set.
+        m_HighlightDirty = true;
         // GeomXSec::m_ActiveXSec
         // WingGeom::m_ActiveAirfoil
     }
@@ -210,6 +212,10 @@ void GeomBase::SetDirtyFlag( int dflag )
     else if ( dflag == SURF )
     {
         m_SurfDirty = true;
+    }
+    else if ( dflag == HIGHLIGHT )
+    {
+        m_HighlightDirty = true;
     }
 }
 
@@ -1190,6 +1196,11 @@ void Geom::Update( bool fullupdate )
         {
             UpdateDrawObj();  // Needs to happen for both XForm and Surf updates.
         }
+
+        if ( m_XFormDirty || m_SurfDirty || m_HighlightDirty )
+        {
+            UpdateHighlightDrawObj();
+        }
     }
 
     m_UpdateXForm = false;
@@ -1203,6 +1214,8 @@ void Geom::Update( bool fullupdate )
     m_SurfDirty = false;
 
     m_TessDirty = false;
+
+    m_HighlightDirty = false;
 
     UpdateChildren( fullupdate );
 
@@ -5007,6 +5020,17 @@ void GeomXSec::UpdateDrawObj()
         }
         m_XSecDrawObj_vec[i].m_GeomChanged = true;
     }
+}
+
+void GeomXSec::UpdateHighlightDrawObj()
+{
+    Matrix4d attachMat;
+    Matrix4d relTrans;
+    attachMat = ComposeAttachMatrix();
+    relTrans = attachMat;
+    relTrans.affineInverse();
+    relTrans.matMult( m_ModelMatrix.data() );
+    relTrans.postMult( attachMat.data() );
 
     XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec() );
     if ( axs )
