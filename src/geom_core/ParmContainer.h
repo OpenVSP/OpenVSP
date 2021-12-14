@@ -41,16 +41,16 @@ public:
     virtual void AddParm( const string & id );
     virtual void RemoveParm( const string & id );
 
-    virtual string GetParentContainer()             { return m_ParentContainer; }
-    virtual ParmContainer* GetParentContainerPtr();
+    virtual string GetParentContainer() const       { return m_ParentContainer; }
+    virtual ParmContainer* GetParentContainerPtr() const;
 
     virtual void SetLateUpdateFlag( bool flag )     { m_LateUpdateFlag = flag; }
     virtual int GetLatestChangeCnt();
 
-    virtual string GetID()                          { return m_ID; }
+    virtual string GetID() const                    { return m_ID; }
 
     virtual void SetName( const string& name );
-    virtual string GetName()                        { return m_Name; }
+    virtual string GetName() const                  { return m_Name; }
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );

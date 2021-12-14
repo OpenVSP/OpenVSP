@@ -30,8 +30,8 @@ public:
 
     XSec* FindXSec( string id );
     XSec* FindXSec( int index );
-    int FindXSecIndex( string id );
-    string GetXSecID( int index );
+    int FindXSecIndex( string id ) const;
+    string GetXSecID( int index ) const;
     void ChangeXSecID( string oldID, string newID );
     string AddXSec( int type );
     void CutXSec( int index );
@@ -80,14 +80,14 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type ) ;
 
-    int NumXSec()
+    int NumXSec() const
     {
         return m_XSecIDDeque.size();
     }
 
     virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 
-    virtual string GetName();
+    virtual string GetName() const;
 
     static XSecCurve* CreateXSecCurve( int type );
 

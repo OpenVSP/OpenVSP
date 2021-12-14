@@ -109,11 +109,11 @@ public:
 
     virtual void Scale();
 
-    virtual int GetNumMainMeshs()
+    virtual int GetNumMainMeshs() const
     {
         return 1;
     }
-    virtual int GetNumTotalMeshs();
+    virtual int GetNumTotalMeshs() const;
 
     virtual int GetNumMainSurfs() const
     {

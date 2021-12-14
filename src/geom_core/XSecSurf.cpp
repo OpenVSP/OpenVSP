@@ -73,7 +73,7 @@ XSec* XSecSurf::FindXSec( int index )
 }
 
 //==== Find XSec Index Given ID ====//
-int XSecSurf::FindXSecIndex( string ID )
+int XSecSurf::FindXSecIndex( string ID ) const
 {
     for( int i = 0; i < static_cast<int>( m_XSecIDDeque.size() ); i++ )
     {
@@ -86,7 +86,7 @@ int XSecSurf::FindXSecIndex( string ID )
 }
 
 //==== Find XSec ID Given Index ====//
-string XSecSurf::GetXSecID( int index )
+string XSecSurf::GetXSecID( int index ) const
 {
     string id;
     if ( index >= 0 && index < ( int )m_XSecIDDeque.size() )
@@ -632,7 +632,7 @@ void XSecSurf::AddLinkableParms( vector< string > & parm_vec, const string & lin
     }
 }
 
-string XSecSurf::GetName()
+string XSecSurf::GetName() const
 {
     ParmContainer* pc = GetParentContainerPtr();
 

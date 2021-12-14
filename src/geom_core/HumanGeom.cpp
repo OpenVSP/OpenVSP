@@ -1155,7 +1155,7 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 }
 
 //==== Count Number of Sym Surfaces ====//
-int HumanGeom::GetNumTotalMeshs()
+int HumanGeom::GetNumTotalMeshs() const
 {
     return GetNumSymmCopies() * GetNumMainMeshs();
 }

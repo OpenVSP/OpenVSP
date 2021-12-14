@@ -873,7 +873,7 @@ void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 
 }
 
-int WireGeom::GetNumTotalHrmSurfs()
+int WireGeom::GetNumTotalHrmSurfs() const
 {
     return 1;
 }

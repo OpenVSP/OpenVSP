@@ -150,20 +150,20 @@ public:
     void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
     void CompCurvature01( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
 
-    int GetNumUFeature()
+    int GetNumUFeature() const
     {
         return m_UFeature.size();
     }
-    int GetNumWFeature()
+    int GetNumWFeature() const
     {
         return m_WFeature.size();
     }
     void BuildFeatureLines( bool force_xsec_flag = false );
-    vector < double > GetUFeature()
+    vector < double > GetUFeature() const
     {
         return m_UFeature;
     }
-    vector < double > GetWFeature()
+    vector < double > GetWFeature() const
     {
         return m_WFeature;
     }

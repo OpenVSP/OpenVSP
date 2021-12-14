@@ -100,7 +100,7 @@ void ParmContainer::RemoveParm( const string& id )
 }
 
 //==== Return Pointer To Parent Container ====//
-ParmContainer* ParmContainer::GetParentContainerPtr()
+ParmContainer* ParmContainer::GetParentContainerPtr() const
 {
     return ParmMgr.FindParmContainer( m_ParentContainer );
 }

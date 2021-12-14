@@ -40,7 +40,7 @@ public:
 
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
 
-    virtual int GetNumTotalHrmSurfs();
+    virtual int GetNumTotalHrmSurfs() const;
     virtual void WriteXSecFile( int geom_no, FILE* dump_file );
 
     // Scale Transformation Matrix
