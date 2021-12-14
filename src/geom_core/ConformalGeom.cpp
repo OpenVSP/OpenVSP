@@ -1051,7 +1051,7 @@ printf( "Avg_Err = %f   Max_Err = %f\n", avg_err, max_err );
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 //==== Build Spine - Vector of U, Center Points, Distance Along Spine ====//
-void ConformalSpine::Build( VspSurf & surf )
+void ConformalSpine::Build( const VspSurf & surf )
 {
     //===== Clear Data ====//
     m_UVec.clear();

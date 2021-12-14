@@ -105,7 +105,7 @@ public:
     }
     virtual ~ConformalSpine()            {};
 
-    void Build( VspSurf & surf );
+    void Build( const VspSurf & surf );
 
     int GetNumSamps() const               { return m_DistVec.size(); }
     double GetMaxDist() const             { return m_MaxDist; }
