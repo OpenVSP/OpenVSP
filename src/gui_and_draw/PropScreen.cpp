@@ -161,8 +161,9 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400+40, 700, "Propel
 
     m_BladeLayout.SetSliderWidth( 0.5 * m_BladeLayout.GetW() - m_BladeLayout.GetButtonWidth() );
     m_BladeLayout.AddChoice( m_CurveChoice, "Curve" );
-    m_BladeLayout.SetButtonWidth( m_BladeLayout.GetRemainX() );
+    m_BladeLayout.SetButtonWidth( 0.5 * m_BladeLayout.GetRemainX() );
     m_BladeLayout.AddButton( m_ApproxAllButton, "Approximate All" );
+    m_BladeLayout.AddButton( m_ResetThickness, "Reset Thick" );
 
     m_BladeLayout.ForceNewLine();
 
@@ -2029,6 +2030,11 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_ApproxAllButton )
     {
         propeller_ptr->ApproxCubicAllPCurves();
+        propeller_ptr->Update();
+    }
+    else if ( gui_device == &m_ResetThickness )
+    {
+        propeller_ptr->ResetThickness();
         propeller_ptr->Update();
     }
 

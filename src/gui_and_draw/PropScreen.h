@@ -353,6 +353,7 @@ protected:
     GroupLayout m_BladeLayout;
 
     TriggerButton m_ApproxAllButton;
+    TriggerButton m_ResetThickness;
     Choice m_CurveChoice;
     int m_EditCurve;
 
