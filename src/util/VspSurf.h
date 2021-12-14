@@ -171,7 +171,7 @@ public:
     bool CapUMax(int capType, double len, double str, double offset, bool swflag);
     static bool CapWMin(int capType);
     static bool CapWMax(int capType);
-    void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >() );
+    void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >() ) const;
 
     void ResetUSkip() const;
     void FlagDuplicate( const VspSurf &othersurf ) const;
@@ -192,21 +192,21 @@ public:
     void SplitTesselate( int num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const;
     void SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap, const std::vector<int> & umerge = std::vector<int>() ) const;
 
-    void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol );
-    void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol );
+    void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol ) const;
+    void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol ) const;
 
-    void TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pts, double tol, int Nlimit );
-    void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit, int Nadapt = 0 );
+    void TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pts, double tol, int Nlimit ) const;
+    void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit, int Nadapt = 0 ) const;
 
-    void SplitSurfs( vector< piecewise_surface_type > &surfvec, const vector < double > &usuppress, const vector < double > &wsuppress );
-    void SplitSurfs( vector< piecewise_surface_type > &surfvec );
+    void SplitSurfs( vector< piecewise_surface_type > &surfvec, const vector < double > &usuppress, const vector < double > &wsuppress ) const;
+    void SplitSurfs( vector< piecewise_surface_type > &surfvec ) const;
 
-    void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, const string& label, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit );
+    void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, const string& label, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit ) const;
 
-    void ToIGES( IGESutil* iges, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string &labelprefix, bool labelSplitNo, const string &delim );
+    void ToIGES( IGESutil* iges, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string &labelprefix, bool labelSplitNo, const string &delim ) const;
 
     // Apply STEP or IGES settings to this VSPSurf in preparation for export
-    vector < piecewise_surface_type > PrepCADSurfs( bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double >& USplit, const vector < double >& WSplit );
+    vector < piecewise_surface_type > PrepCADSurfs( bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double >& USplit, const vector < double >& WSplit ) const;
 
     void SetUSkipFirst( bool f );
     void SetUSkipLast( bool f );
