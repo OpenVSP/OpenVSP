@@ -2083,7 +2083,7 @@ vec3d GetGeomBBoxMax( const string& geom_id, int main_surf_ind, bool ref_frame_i
     }
 
     vector< VspSurf > surf_vec;
-    geom_ptr->GetSurfVec( surf_vec );
+    surf_vec = geom_ptr->GetSurfVecConstRef();
 
     if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
     {
@@ -2125,7 +2125,7 @@ vec3d GetGeomBBoxMin( const string& geom_id, int main_surf_ind, bool ref_frame_i
     }
 
     vector< VspSurf > surf_vec;
-    geom_ptr->GetSurfVec( surf_vec );
+    surf_vec = geom_ptr->GetSurfVecConstRef();
 
     if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
     {
@@ -4184,7 +4184,7 @@ std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
     }
 
     vector<VspSurf> surf_vec;
-    geom_ptr->GetSurfVec( surf_vec );
+    surf_vec = geom_ptr->GetSurfVecConstRef();
 
     double tol = 1e-2;
 

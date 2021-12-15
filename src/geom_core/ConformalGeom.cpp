@@ -94,7 +94,7 @@ void ConformalGeom::UpdateSurf()
 
     //==== Parent Reference Surfaces  ====//
     vector< VspSurf > parent_surf_vec;
-    parent_geom->GetMainSurfVec( parent_surf_vec );
+    parent_surf_vec = parent_geom->GetMainSurfVecConstRef();
 
     //===== Copy Parent ====//
     vector< string > parent_id_vec;

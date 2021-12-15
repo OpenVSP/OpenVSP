@@ -3791,7 +3791,7 @@ void VSPAEROMgrSingleton::UpdateBBox( vector < DrawObj* > & draw_obj_vec )
         Geom* geom = veh->FindGeom( m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID() );
         if ( geom )
         {
-            geom->GetSurfVec( surf_vec );
+            surf_vec = geom->GetSurfVecConstRef();
             surf_vec[m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetSurfNum()].GetBoundingBox( bb );
             m_BBox.Update( bb );
         }
@@ -4772,7 +4772,7 @@ void VSPAEROMgrSingleton::HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_
                     continue;
                 }
 
-                geom->GetSurfVec( surf_vec );
+                surf_vec = geom->GetSurfVecConstRef();
                 int num_main_surf = geom->GetNumMainSurfs();
 
                 for ( size_t j = 0; j < num_main_surf; j++ )

@@ -369,18 +369,25 @@ public:
 
     virtual VspSurf* GetMainSurfPtr( int indx );
 
-    // TODO: Audit calls to GetSurfVec to see if making a copy is actually needed (i.e. does the call site need to make
-    //  changes that will then be thrown out?)  If not, this can be changed to reurn a reference or pointer as an
-    //  optimization.
-    virtual void GetSurfVec( vector<VspSurf> &surf_vec )
+    virtual const vector<VspSurf> & GetSurfVecConstRef()
     {
-        surf_vec = m_SurfVec;
+        return m_SurfVec;
     }
     virtual int GetNumMainSurfs() const
     {
         return m_MainSurfVec.size();
     }
-    virtual void GetMainSurfVec( vector<VspSurf> &surf_vec )    { surf_vec = m_MainSurfVec; }
+    // Avoid using this method as it makes a complete copy of m_MainSurfVec, which can be expensive.  Particularly
+    // for propellers with a large number of blades.  It should only be used if the caller needs a copy of all surfaces
+    // that will be modified.  Currently the only caller is ConformalGeom.
+    virtual void GetMainSurfVec( vector<VspSurf> &surf_vec )
+    {
+        surf_vec = m_MainSurfVec;
+    }
+    virtual const vector<VspSurf> & GetMainSurfVecConstRef()
+    {
+        return m_MainSurfVec;
+    }
     virtual int GetNumSymFlags() const;
     virtual int GetNumTotalSurfs() const;
     virtual int GetNumTotalHrmSurfs() const;

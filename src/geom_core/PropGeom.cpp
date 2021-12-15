@@ -2238,7 +2238,7 @@ vector< TMesh* > PropGeom::CreateTMeshVec()
     if ( m_ExportMainSurf )
     {
         vector<VspSurf> surf_vec;
-        GetMainSurfVec( surf_vec );
+        surf_vec = GetMainSurfVecConstRef();
 
         TMeshVec = Geom::CreateTMeshVec( surf_vec );
     }
@@ -2250,17 +2250,18 @@ vector< TMesh* > PropGeom::CreateTMeshVec()
     return TMeshVec;
 }
 
-void PropGeom::GetSurfVec( vector<VspSurf> &surf_vec )
+const vector<VspSurf> & PropGeom::GetSurfVecConstRef()
 {
     if ( m_ExportMainSurf )
     {
-        GetMainSurfVec( surf_vec );
+        return GetMainSurfVecConstRef();
     }
     else
     {
-        Geom::GetSurfVec( surf_vec );
+        return Geom::GetSurfVecConstRef();
     }
 }
+
 
 void PropGeom::ApproxCubicAllPCurves()
 {

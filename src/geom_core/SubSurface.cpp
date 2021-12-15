@@ -152,11 +152,10 @@ void SubSurface::UpdateDrawObjs()
     m_SubSurfDO.m_GeomID = m_ID + string( "_ss_line" );
     m_SubSurfDO.m_LineWidth = 3.0;
     m_SubSurfDO.m_Type = DrawObj::VSP_LINES;
-
     if ( geom )
     {
         vector< VspSurf > surf_vec;
-        geom->GetSurfVec( surf_vec );
+        surf_vec = geom->GetSurfVecConstRef();
         int ncopy = geom->GetNumSymmCopies();
 
         m_SubSurfHighlightDO.resize( m_LVec.size()*ncopy, DrawObj() );
@@ -1859,7 +1858,7 @@ void SSControlSurf::UpdateDrawObjs()
     if ( geom )
     {
         vector< VspSurf > surf_vec;
-        geom->GetSurfVec( surf_vec );
+        surf_vec = geom->GetSurfVecConstRef();
         int ncopy = geom->GetNumSymmCopies();
 
         m_HingeDO.m_PntVec.clear();
@@ -2115,7 +2114,7 @@ void SSLineArray::CalcNumLines()
         }
 
         vector< VspSurf > surf_vec;
-        current_geom->GetSurfVec( surf_vec );
+        surf_vec = current_geom->GetSurfVecConstRef();
         VspSurf current_surf = surf_vec[m_MainSurfIndx()];
 
         if ( m_PositiveDirectionFlag() )

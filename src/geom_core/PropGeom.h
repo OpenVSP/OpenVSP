@@ -152,7 +152,7 @@ public:
 
     virtual void SetExportMainSurf( bool b )         { m_ExportMainSurf = b; }
 
-    virtual void GetSurfVec( vector<VspSurf> &surf_vec );
+    virtual const vector<VspSurf> & GetSurfVecConstRef();
 
     virtual void ApproxCubicAllPCurves();
 

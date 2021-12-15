@@ -1724,7 +1724,7 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
     bool color = m_Vehicle->m_DXFColorFlag.Get();
 
     vector<VspSurf> surf_vec;
-    GetSurfVec( surf_vec );
+    surf_vec = GetSurfVecConstRef();
 
     // Bounding box diagonal, used to separate multi-view drawings
     vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
@@ -2046,7 +2046,7 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
     double tol = 10e-2; // Feature line Tessellation tolerance
 
     vector<VspSurf> surf_vec;
-    GetSurfVec( surf_vec );
+    surf_vec = GetSurfVecConstRef();
 
     // Bounding box diagonal, used to separate multi-view drawings
     vec3d shiftvec = svgbox.GetMax() - svgbox.GetMin();
@@ -4919,7 +4919,7 @@ void Geom::AppendWakeData( vector < piecewise_curve_type >& curve_vec, vector < 
     if( m_WakeActiveFlag() )
     {
         vector<VspSurf> surf_vec;
-        GetSurfVec( surf_vec );
+        surf_vec = GetSurfVecConstRef();
 
         for( int i = 0; i < GetNumTotalSurfs(); i++ )
         {

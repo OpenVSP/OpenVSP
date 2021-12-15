@@ -3129,7 +3129,7 @@ void Vehicle::FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs )
         if( geom_vec[i]->GetSetFlag( write_set ) )
         {
             vector<VspSurf> surf_vec;
-            geom_vec[i]->GetSurfVec( surf_vec );
+            surf_vec = geom_vec[i]->GetSurfVecConstRef();
 
             for ( int j = 0; j < ( int )surf_vec.size(); j++ )
             {
@@ -3158,7 +3158,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
         if( geom_vec[i]->GetSetFlag( write_set ) )
         {
             vector<VspSurf> surf_vec;
-            geom_vec[i]->GetSurfVec( surf_vec );
+            surf_vec = geom_vec[i]->GetSurfVecConstRef();
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
@@ -3339,7 +3339,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
         if( geom_vec[i]->GetSetFlag( write_set ) )
         {
             vector<VspSurf> surf_vec;
-            geom_vec[i]->GetSurfVec( surf_vec );
+            surf_vec = geom_vec[i]->GetSurfVecConstRef();
 
             for ( int j = 0; j < surf_vec.size(); j++ )
             {
