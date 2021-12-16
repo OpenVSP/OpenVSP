@@ -1736,24 +1736,21 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
     {
         vector < vector < vec3d > > allflines, allflines1, allflines2, allflines3, allflines4;
 
-        if ( m_GuiDraw.GetDispFeatureFlag() )
+        unsigned int nu = surf_vec[i].GetNumUFeature();
+        unsigned int nw = surf_vec[i].GetNumWFeature();
+        allflines.resize( nu + nw );
+        for ( int j = 0; j < nu; j++ )
         {
-            unsigned int nu = surf_vec[i].GetNumUFeature();
-            unsigned int nw = surf_vec[i].GetNumWFeature();
-            allflines.resize( nu + nw );
-            for ( int j = 0; j < nu; j++ )
-            {
-                surf_vec[i].TessUFeatureLine( j, allflines[j], tol );
+            surf_vec[i].TessUFeatureLine( j, allflines[j], tol );
 
-                // Shift Feature Lines back near the orgin for multi-view case:
-                if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
+            // Shift Feature Lines back near the orgin for multi-view case:
+            if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
+            {
+                for ( unsigned int k = 0; k < allflines[j].size(); k++ )
                 {
-                    for ( unsigned int k = 0; k < allflines[j].size(); k++ )
-                    {
-                        allflines[j][k].offset_x( -to_orgin.x() );
-                        allflines[j][k].offset_y( -to_orgin.y() );
-                        allflines[j][k].offset_z( -to_orgin.z() );
-                    }
+                    allflines[j][k].offset_x( -to_orgin.x() );
+                    allflines[j][k].offset_y( -to_orgin.y() );
+                    allflines[j][k].offset_z( -to_orgin.z() );
                 }
             }
 
@@ -2058,36 +2055,33 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
     {
         vector < vector < vec3d > > allflines, allflines1, allflines2, allflines3, allflines4;
 
-        if( m_GuiDraw.GetDispFeatureFlag() )
+        unsigned int nu = surf_vec[i].GetNumUFeature();
+        unsigned int nw = surf_vec[i].GetNumWFeature();
+        allflines.resize( nw + nu );
+        for( int j = 0; j < nw; j++ )
         {
-            unsigned int nu = surf_vec[i].GetNumUFeature();
-            unsigned int nw = surf_vec[i].GetNumWFeature();
-            allflines.resize( nw + nu );
-            for( int j = 0; j < nw; j++ )
+            surf_vec[i].TessWFeatureLine( j, allflines[ j ], tol );
+
+            // To Do: multiple view ports instead of shifting feature lines in a single view port
+
+            // Shift Feature Lines back near the orgin:
+            for ( unsigned int k = 0; k < allflines[j].size(); k++ )
             {
-                surf_vec[i].TessWFeatureLine( j, allflines[ j ], tol );
-
-                // To Do: multiple view ports instead of shifting feature lines in a single view port
-
-                // Shift Feature Lines back near the orgin:
-                for ( unsigned int k = 0; k < allflines[j].size(); k++ )
-                {
-                    allflines[j][k].offset_x( -to_orgin.x() );
-                    allflines[j][k].offset_y( -to_orgin.y() );
-                    allflines[j][k].offset_z( -to_orgin.z() );
-                }
+                allflines[j][k].offset_x( -to_orgin.x() );
+                allflines[j][k].offset_y( -to_orgin.y() );
+                allflines[j][k].offset_z( -to_orgin.z() );
             }
-            for( int j = 0; j < nu; j++ )
-            {
-                surf_vec[i].TessUFeatureLine( j, allflines[ j + nw ], tol );
+        }
+        for( int j = 0; j < nu; j++ )
+        {
+            surf_vec[i].TessUFeatureLine( j, allflines[ j + nw ], tol );
 
-                // Shift Feature Lines back near the orgin :
-                for ( unsigned int k = 0; k < allflines[j + nw].size(); k++ )
-                {
-                    allflines[j + nw][k].offset_x( -to_orgin.x() );
-                    allflines[j + nw][k].offset_y( -to_orgin.y() );
-                    allflines[j + nw][k].offset_z( -to_orgin.z() );
-                }
+            // Shift Feature Lines back near the orgin :
+            for ( unsigned int k = 0; k < allflines[j + nw].size(); k++ )
+            {
+                allflines[j + nw][k].offset_x( -to_orgin.x() );
+                allflines[j + nw][k].offset_y( -to_orgin.y() );
+                allflines[j + nw][k].offset_z( -to_orgin.z() );
             }
         }
 
