@@ -73,28 +73,23 @@ void main()
     u_vec[4] = 1.0;
 
     SetEditXSecPnts( xsec_2, u_vec, xsec2_pts ); // Note: points are unscaled by the width and height parms
+    
+    SetXSecHeight( xsec_2, 4 ); // Width is 3
 
-	// Demonstrate aspect ratio preservation
-    SetXSecWidthHeight( xsec_2, 1, 2 );
-	SetParmVal( GetXSecParm( xsec_2, "PreserveARFlag"), 1 ); // Sets 1:2 AR
-	
-	// When aspect ratio is preserved, the width input in SetXSecWidthHeight will be ignored. 
-	// Height will set the width based on the assigned aspect ratio. This issue is avoided by 
-	// using SetXSecWidth and SetXSecHeight instead
-	SetXSecHeight( xsec_2, 1 );
-	Update();
-	
-	if ( abs( GetXSecWidth( xsec_2 ) - 0.5 ) > 1e-8 )
-	{
-		Print( "Error SetXSecHeight" );
-	}
-	
-	SetXSecWidth( xsec_2, 0.75 );
-	
-	if ( abs( GetXSecHeight( xsec_2 ) - 1.5 ) > 1e-8 )
-	{
-		Print( "Error SetXSecWidth" );
-	}
+    // Change to width to heigh ratio parameterization to maintain aspect ratio
+    SetDriverGroup( sid, 2, HEIGHT_XSEC_DRIVER, HWRATIO_XSEC_DRIVER ); // Ratio set at 4:3
+
+    // When aspect ratio is preserved, the width input in SetXSecWidthHeight will be ignored. 
+    // Height will set the width based on the assigned aspect ratio. This issue is avoided by 
+    // using SetXSecWidth and SetXSecHeight instead
+    SetXSecHeight( xsec_2, 2 );
+    Update();
+
+    if ( abs( GetXSecWidth( xsec_2 ) - 1.5 ) > 1e-8 )
+    {
+        Print( GetXSecWidth( xsec_2 ) );
+        Print("\n");
+    }
 
     // Split the square halfway along one edge
     int new_pnt_ind = EditXSecSplit01( xsec_2, 0.375 );
