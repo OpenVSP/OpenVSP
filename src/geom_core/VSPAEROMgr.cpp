@@ -345,7 +345,7 @@ void VSPAEROMgrSingleton::Renew()
     m_FarDistToggle.Set( false );
     m_GroundEffectToggle.Set( false );
     m_FromSteadyState.Set( false );
-    m_NumWakeNodes.Set( 0 );
+    m_NumWakeNodes.Set( 64 );
 }
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
