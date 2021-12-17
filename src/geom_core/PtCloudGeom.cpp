@@ -131,11 +131,11 @@ string PtCloudGeom::getFeedbackGroupName()
 }
 
 //==== Get Total Transformation Matrix from Original Points ====//
-Matrix4d PtCloudGeom::GetTotalTransMat()
+Matrix4d PtCloudGeom::GetTotalTransMat() const
 {
     Matrix4d retMat;
-    retMat.initMat( m_ScaleMatrix.data() );
-    retMat.postMult( m_ModelMatrix.data() );
+    retMat.initMat( m_ScaleMatrix );
+    retMat.postMult( m_ModelMatrix );
 
     return retMat;
 }

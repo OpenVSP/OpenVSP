@@ -124,7 +124,7 @@ void SubSurface::LoadPartialColoredDrawObjs( const string & ss_id, int surf_num,
     draw_obj_vec.push_back(&m_SubSurfHighlightDO[surf_num]);
 }
 
-vector< TMesh* > SubSurface::CreateTMeshVec()
+vector< TMesh* > SubSurface::CreateTMeshVec() const
 {
     vector<TMesh*> tmesh_vec;
     tmesh_vec.resize(1);
@@ -569,7 +569,7 @@ vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
     return surf->CompPnt( uw_pnt.x(), uw_pnt.y() );
 }
 
-TMesh* SSLineSeg::CreateTMesh()
+TMesh* SSLineSeg::CreateTMesh() const
 {
     TMesh* tmesh = new TMesh();
 
@@ -578,7 +578,7 @@ TMesh* SSLineSeg::CreateTMesh()
     return tmesh;
 }
 
-void SSLineSeg::AddToTMesh( TMesh* tmesh )
+void SSLineSeg::AddToTMesh( TMesh* tmesh ) const
 {
 
     unsigned int num_cut_lines = 0;

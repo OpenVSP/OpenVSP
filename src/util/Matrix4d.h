@@ -35,14 +35,15 @@ public:
 
     void flipx();
 
-    void getMat( double* m );
-    void matMult( double* m );
-    void postMult( double* m );
-    void matMult( Matrix4d &m );
-    void postMult( Matrix4d & m );
+    void getMat( double* m ) const;
+    void matMult( const double* m );
+    void postMult( const double* m );
+    void matMult( const Matrix4d &m );
+    void postMult( const Matrix4d & m );
 
 
-    void initMat( double* m );
+    void initMat( const double* m );
+    void initMat( const Matrix4d & m );
     void mult( const double in[4], double out[4] ) const;
     double * data()
     {

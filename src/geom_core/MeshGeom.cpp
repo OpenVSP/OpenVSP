@@ -1768,7 +1768,7 @@ void MeshGeom::ApplyScale()
     m_LastScale = m_Scale();
 }
 
-void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat )
+void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat ) const
 {
     // Build Map of nodes
     map< TNode*, int > nodeMap;
@@ -4161,7 +4161,7 @@ void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     }
 }
 
-vector<TMesh*> MeshGeom::CreateTMeshVec()
+vector<TMesh*> MeshGeom::CreateTMeshVec() const
 {
     vector<TMesh*> retTMeshVec;
     retTMeshVec.resize( m_TMeshVec.size() );
@@ -4208,11 +4208,11 @@ void MeshGeom::FlattenSliceVec()
 }
 
 //==== Get Total Transformation Matrix from Original Points ====//
-Matrix4d MeshGeom::GetTotalTransMat()
+Matrix4d MeshGeom::GetTotalTransMat() const
 {
     Matrix4d retMat;
-    retMat.initMat( m_ScaleMatrix.data() );
-    retMat.postMult( m_ModelMatrix.data() );
+    retMat.initMat( m_ScaleMatrix );
+    retMat.postMult( m_ModelMatrix );
 
     return retMat;
 }

@@ -98,7 +98,7 @@ void Matrix4d::rotateZ( const double &ang )
     matMult( tmat );
 }
 
-void Matrix4d::matMult( double* m )
+void Matrix4d::matMult( const double* m )
 {
     double res[16];
 
@@ -112,7 +112,7 @@ void Matrix4d::matMult( double* m )
     memcpy( mat, res, 16 * sizeof( double ) );
 }
 
-void Matrix4d::postMult( double* m )
+void Matrix4d::postMult( const double* m )
 {
     double res[16];
 
@@ -126,28 +126,35 @@ void Matrix4d::postMult( double* m )
     memcpy( mat, res, 16 * sizeof( double ) );
 }
 
-void Matrix4d::matMult( Matrix4d &m )
+void Matrix4d::matMult( const Matrix4d &m )
 {
     double tmat[16];
     m.getMat( tmat );
     matMult( tmat );
 }
 
-void Matrix4d::postMult( Matrix4d & m )
+void Matrix4d::postMult( const Matrix4d & m )
 {
     double tmat[16];
     m.getMat( tmat );
     postMult( tmat );
 }
 
-void Matrix4d::getMat( double* m )
+void Matrix4d::getMat( double* m ) const
 {
     memcpy( m, mat, 16 * sizeof( double ) );
 }
 
-void Matrix4d::initMat( double* m )
+void Matrix4d::initMat( const double* m )
 {
     memcpy( mat, m, 16 * sizeof( double ) );
+}
+
+void Matrix4d::initMat( const Matrix4d & m )
+{
+    double tmat[16];
+    m.getMat( tmat );
+    initMat( tmat );
 }
 
 void Matrix4d::mult( const double in[4], double out[4] ) const

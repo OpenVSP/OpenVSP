@@ -369,7 +369,7 @@ public:
 
     virtual VspSurf* GetMainSurfPtr( int indx );
 
-    virtual const vector<VspSurf> & GetSurfVecConstRef()
+    virtual const vector<VspSurf> & GetSurfVecConstRef() const
     {
         return m_SurfVec;
     }
@@ -380,11 +380,11 @@ public:
     // Avoid using this method as it makes a complete copy of m_MainSurfVec, which can be expensive.  Particularly
     // for propellers with a large number of blades.  It should only be used if the caller needs a copy of all surfaces
     // that will be modified.  Currently the only caller is ConformalGeom.
-    virtual void GetMainSurfVec( vector<VspSurf> &surf_vec )
+    virtual void GetMainSurfVec( vector<VspSurf> &surf_vec ) const
     {
         surf_vec = m_MainSurfVec;
     }
-    virtual const vector<VspSurf> & GetMainSurfVecConstRef()
+    virtual const vector<VspSurf> & GetMainSurfVecConstRef() const
     {
         return m_MainSurfVec;
     }

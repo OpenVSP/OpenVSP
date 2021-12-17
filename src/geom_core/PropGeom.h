@@ -148,11 +148,11 @@ public:
 
     virtual void WriteAirfoilFiles( FILE* meta_fid );
 
-    virtual vector< TMesh* > CreateTMeshVec();
+    virtual vector< TMesh* > CreateTMeshVec() const;
 
     virtual void SetExportMainSurf( bool b )         { m_ExportMainSurf = b; }
 
-    virtual const vector<VspSurf> & GetSurfVecConstRef();
+    virtual const vector<VspSurf> & GetSurfVecConstRef() const;
 
     virtual void ApproxCubicAllPCurves();
 

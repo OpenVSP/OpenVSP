@@ -179,11 +179,11 @@ public:
 
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
 
-    virtual vector< TMesh* > CreateTMeshVec();
+    virtual vector< TMesh* > CreateTMeshVec() const;
     virtual void FlattenTMeshVec();
     virtual void FlattenSliceVec();
-    virtual Matrix4d GetTotalTransMat();
-    virtual void TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat );
+    virtual Matrix4d GetTotalTransMat() const;
+    virtual void TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & TransMat ) const;
 
     virtual vector< string > GetTMeshNames();
     virtual vector< string > GetTMeshIDs();

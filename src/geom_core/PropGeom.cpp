@@ -2231,7 +2231,7 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     }
 }
 
-vector< TMesh* > PropGeom::CreateTMeshVec()
+vector< TMesh* > PropGeom::CreateTMeshVec() const
 {
     vector< TMesh* > TMeshVec;
 
@@ -2250,7 +2250,7 @@ vector< TMesh* > PropGeom::CreateTMeshVec()
     return TMeshVec;
 }
 
-const vector<VspSurf> & PropGeom::GetSurfVecConstRef()
+const vector<VspSurf> & PropGeom::GetSurfVecConstRef() const
 {
     if ( m_ExportMainSurf )
     {

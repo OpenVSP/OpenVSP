@@ -35,8 +35,8 @@ public:
     virtual ~SSLineSeg();
     virtual bool Subtag( TTri* tri ) const;
     virtual bool Subtag( const vec3d & center ) const;
-    virtual TMesh* CreateTMesh();
-    virtual void AddToTMesh( TMesh* tmesh );
+    virtual TMesh* CreateTMesh() const;
+    virtual void AddToTMesh( TMesh* tmesh ) const;
 
     virtual void SetSP0( vec3d pnt )
     {
@@ -125,7 +125,7 @@ public:
     virtual bool Subtag( const vec3d & center );
     virtual void Update();
     virtual void UpdatePolygonPnts();
-    virtual std::vector< TMesh* > CreateTMeshVec(); // Method to create a TMeshVector
+    virtual std::vector< TMesh* > CreateTMeshVec() const; // Method to create a TMeshVector
     virtual void UpdateDrawObjs(); // Method to create lines to draw
     virtual void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
     virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value

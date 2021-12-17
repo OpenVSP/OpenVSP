@@ -1201,7 +1201,7 @@ void HumanGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     }
 }
 
-vector<TMesh*> HumanGeom::CreateTMeshVec()
+vector<TMesh*> HumanGeom::CreateTMeshVec() const
 {
     vector<TMesh*> retTMeshVec;
 

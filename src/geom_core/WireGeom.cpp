@@ -521,11 +521,11 @@ void WireGeom::UpdateDrawObj()
 }
 
 //==== Get Total Transformation Matrix from Original Points ====//
-Matrix4d WireGeom::GetTotalTransMat()
+Matrix4d WireGeom::GetTotalTransMat() const
 {
     Matrix4d retMat;
-    retMat.initMat( m_ScaleMatrix.data() );
-    retMat.postMult( m_ModelMatrix.data() );
+    retMat.initMat( m_ScaleMatrix );
+    retMat.postMult( m_ModelMatrix );
 
     return retMat;
 }
@@ -780,7 +780,7 @@ bool WireGeom::CheckInverted()
 }
 
 //==== Create TMesh Vector ====//
-vector< TMesh* > WireGeom::CreateTMeshVec()
+vector< TMesh* > WireGeom::CreateTMeshVec() const
 {
     vector < TMesh* > tmeshvec;
 

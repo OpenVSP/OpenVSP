@@ -30,7 +30,7 @@ public:
 
     virtual void Scale();
     virtual void UpdateBBox();
-    virtual Matrix4d GetTotalTransMat();
+    virtual Matrix4d GetTotalTransMat()const ;
 
     virtual int ReadPTS( const char* file_name );
 
