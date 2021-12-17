@@ -4358,7 +4358,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \sa SetAnalysisInputDefaults, PrintAnalysisInputs, ExecAnalysis, COMPUTATION_FILE_TYPE
     \param [in] set Set index (i.e. SET_ALL)
     \param [in] half_mesh Flag to ignore surfaces on the negative side of the XZ plane (e.g. symmetry)
-    \param [in] file_export_types CompGeom file type to export (supports XOR i.e. COMP_GEOM_CSV_TYPE & DRAG_BUILD_TSV_TYPE )
+    \param [in] file_export_types CompGeom file type to export (supports XOR i.e. COMP_GEOM_CSV_TYPE & COMP_GEOM_TXT_TYPE )
     \return MeshGeom ID
 */)";
     r = se->RegisterGlobalFunction( "string ComputeCompGeom( int set, bool half_mesh, int file_export_types )", asFUNCTION( vsp::ComputeCompGeom ), asCALL_CDECL, doc_struct );

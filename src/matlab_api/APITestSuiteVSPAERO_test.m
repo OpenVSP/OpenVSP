@@ -394,8 +394,6 @@ function TestVSPAeroComputeGeomPanel_test(~)
     assert(exist(fileName)~=0,sprintf('FILE NOT CREATED\n\tfile: %s',fileName));
     fileName = strrep(m_vspfname_for_vspaerotests,'.vsp3','_CompGeom.txt');
     assert(exist(fileName)~=0,sprintf('FILE NOT CREATED\n\tfile: %s',fileName));
-    fileName = strrep(m_vspfname_for_vspaerotests,'.vsp3','_DragBuild.tsv');
-    assert(exist(fileName)~=0,sprintf('FILE NOT CREATED\n\tfile: %s',fileName));
 
     % Check that the each of the geoms has a non-zero volume
     resID = vsp.FindLatestResultsID( 'Comp_Geom' );
