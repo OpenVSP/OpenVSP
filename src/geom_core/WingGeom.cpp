@@ -1499,26 +1499,6 @@ void WingGeom::ComputeCenter()
     }
 }
 
-//==== Set Active XSec Type ====//
-void WingGeom::SetActiveAirfoilType( int type )
-{
-    XSec* xs = GetXSec( m_ActiveAirfoil() );
-
-    if ( !xs )
-    {
-        return;
-    }
-
-    if ( type == xs->GetXSecCurve()->GetType() )
-    {
-        return;
-    }
-
-    m_XSecSurf.ChangeXSecShape( m_ActiveAirfoil(), type );
-
-    Update();
-}
-
 
 bool WingGeom::IsClosed() const
 {

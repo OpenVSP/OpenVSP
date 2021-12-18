@@ -272,26 +272,6 @@ xmlNodePtr FuselageGeom::DecodeXml( xmlNodePtr & node )
     return fuselage_node;
 }
 
-//==== Set Active XSec Type ====//
-void FuselageGeom::SetActiveXSecType( int type )
-{
-    XSec* xs = GetXSec( m_ActiveXSec() );
-
-    if ( !xs )
-    {
-        return;
-    }
-
-    if ( type == xs->GetXSecCurve()->GetType() )
-    {
-        return;
-    }
-
-    m_XSecSurf.ChangeXSecShape( m_ActiveXSec(), type );
-
-    Update();
-}
-
 //==== Override Geom Cut/Copy/Insert/Paste ====//
 void FuselageGeom::CutXSec( int index )
 {

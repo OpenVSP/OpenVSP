@@ -5173,6 +5173,26 @@ void GeomXSec::AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec
     }
 }
 
+//==== Set Active XSec Type ====//
+void GeomXSec::SetActiveXSecType(int type)
+{
+    XSec* xs = GetXSec(m_ActiveXSec());
+
+    if (!xs)
+    {
+        return;
+    }
+
+    if (type == xs->GetXSecCurve()->GetType())
+    {
+        return;
+    }
+
+    m_XSecSurf.ChangeXSecShape(m_ActiveXSec(), type);
+
+    Update();
+}
+
 void GeomXSec::OffsetXSecs( double off )
 {
     int nxsec = m_XSecSurf.NumXSec();

@@ -41,7 +41,6 @@ public:
     virtual void PasteXSec( int index );
     virtual void InsertXSec( int index, int type );
 
-    virtual void SetActiveXSecType( int type );
     virtual void CutActiveXSec();
     virtual void CopyActiveXSec();
     virtual void PasteActiveXSec();

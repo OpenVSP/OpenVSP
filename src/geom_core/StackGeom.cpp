@@ -270,26 +270,6 @@ xmlNodePtr StackGeom::DecodeXml( xmlNodePtr & node )
     return fuselage_node;
 }
 
-//==== Set Active XSec Type ====//
-void StackGeom::SetActiveXSecType( int type )
-{
-    XSec* xs = GetXSec( m_ActiveXSec() );
-
-    if ( !xs )
-    {
-        return;
-    }
-
-    if ( type == xs->GetXSecCurve()->GetType() )
-    {
-        return;
-    }
-
-    m_XSecSurf.ChangeXSecShape( m_ActiveXSec(), type );
-
-    Update();
-}
-
 //==== Override Geom Cut/Copy/Paste/Insert ====//
 void StackGeom::CutXSec( int index )
 {

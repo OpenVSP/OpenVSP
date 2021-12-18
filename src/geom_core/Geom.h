@@ -802,6 +802,8 @@ public:
     virtual XSec* GetXSec( int index );
     virtual void AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec );
 
+    virtual void SetActiveXSecType(int type);
+
     virtual void OffsetXSecs( double off );
 
     IntParm m_ActiveXSec;

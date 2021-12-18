@@ -160,8 +160,6 @@ public:
 
     virtual int NumXSec()                                { return m_XSecSurf.NumXSec(); }
 
-    virtual void SetActiveAirfoilType( int type );
-
     virtual int GetNumXSecSurfs() const                       { return 1; }
     virtual XSecSurf* GetXSecSurf( int index )            { return &m_XSecSurf; }
 
