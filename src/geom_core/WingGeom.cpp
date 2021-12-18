@@ -1227,8 +1227,6 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Type.m_Name = "Wing";
     m_Type.m_Type = MS_WING_GEOM_TYPE;
 
-    m_ActiveXSec.SetLowerLimit( 1 );
-
     m_Closed = false;
 
     m_XSecSurf.SetParentContainer( GetID() );
@@ -1277,12 +1275,11 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_CapUMaxOption.SetDescript("Type of End Cap on Wing Tip");
     m_CapUMaxOption.Parm::Set(FLAT_END_CAP);
 
-    m_ActiveAirfoil.Init( "ActiveAirfoil", "Index", this, 0, 0, 1e6 );
+    m_ActiveWingSection.Init( "ActiveAirfoil", "Index", this, 1, 1, 1e6 );
 
     //==== Init Parms ====//
     m_TessU = 16;
     m_TessW = 31;
-    m_ActiveXSec = 1;
     m_SymPlanFlag = SYM_XZ;
 
     //==== Wing XSecs ====//
@@ -1315,7 +1312,7 @@ WingGeom::~WingGeom()
 
 void WingGeom::Update( bool fullupdate )
 {
-    m_ActiveAirfoil.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
+    m_ActiveWingSection.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
 
     bool xform_dirty = m_XFormDirty; // Save value before it's reset in GeomXSec::Update
 
@@ -1542,7 +1539,7 @@ WingSect* WingGeom::GetWingSect( int index )
 //==== Override Geom Cut/Copy/Insert/Paste ====//
 void WingGeom::CutXSec( int index )
 {
-    m_ActiveXSec = index;
+    m_ActiveWingSection = index;
     CutWingSect( index );
 }
 void WingGeom::CopyXSec( int index )
@@ -1558,8 +1555,8 @@ void WingGeom::InsertXSec( int index, int type )
     if ( index > 0 && index < m_XSecSurf.NumXSec() )
     {
         string ins_id = m_XSecSurf.InsertXSec(type, index);
-        m_ActiveXSec = index + 1;
-        PasteWingSect( m_ActiveXSec() );
+        m_ActiveWingSection = index + 1;
+        PasteWingSect( m_ActiveWingSection() );
     }
 }
 
@@ -1667,8 +1664,8 @@ void WingGeom::InsertWingSect( int index  )
         int type = xs->GetXSecCurve()->GetType();
 
         string ins_id = m_XSecSurf.InsertXSec(type, index);
-        m_ActiveXSec = index + 1;
-        PasteWingSect( m_ActiveXSec() );
+        m_ActiveWingSection = index + 1;
+        PasteWingSect( m_ActiveWingSection() );
     }
 }
 
@@ -1701,18 +1698,18 @@ void WingGeom::UpdateSurf()
         total_change_flag = true;
     }
 
-    int active_sect = m_ActiveXSec();     // Save Active Section
+    int active_sect = m_ActiveWingSection();     // Save Active Section
 
     //==== Set Temp Active XSec Based On Updated Parms ====//
     if ( total_change_flag )
-        m_ActiveXSec = 1;
+        m_ActiveWingSection = 1;
     else
         SetTempActiveXSec();
 
     //==== Make Sure Chord Match For Adjacent Wing Sections ====//
     MatchWingSections();
 
-    m_ActiveXSec = active_sect;            // Restore Active Section
+    m_ActiveWingSection = active_sect;            // Restore Active Section
 
 
     // clear the u tessellation vector
@@ -2323,16 +2320,16 @@ void WingGeom::UpdateHighlightDrawObj()
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( attachMat.data() );
 
-    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveAirfoil() )->GetDrawLines( relTrans );
+    m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetDrawLines( relTrans );
     m_HighlightXSecDrawObj.m_GeomChanged = true;
 
-    double w = m_XSecSurf.FindXSec( m_ActiveAirfoil() )->GetXSecCurve()->GetWidth();
+    double w = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetXSecCurve()->GetWidth();
 
     Matrix4d mat;
     m_XSecSurf.GetBasicTransformation( Z_DIR, X_DIR, XS_SHIFT_MID, false, 1.0, mat );
     mat.scale( 1.0/w );
 
-    VspCurve crv = m_XSecSurf.FindXSec( m_ActiveAirfoil() )->GetUntransformedCurve();
+    VspCurve crv = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetUntransformedCurve();
     crv.Transform( mat );
 
     vector< vec3d > pts;
@@ -2345,10 +2342,10 @@ void WingGeom::UpdateHighlightDrawObj()
     m_CurrentXSecDrawObj.m_GeomChanged = true;
 
 
-    VspCurve inbd = m_XSecSurf.FindXSec( m_ActiveXSec() - 1 )->GetCurve();
+    VspCurve inbd = m_XSecSurf.FindXSec( m_ActiveWingSection() - 1 )->GetCurve(); // FIXME: Crash when loading a model
     inbd.Transform( relTrans );
 
-    VspCurve outbd = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetCurve();
+    VspCurve outbd = m_XSecSurf.FindXSec( m_ActiveWingSection() )->GetCurve();
     outbd.Transform( relTrans );
 
     BndBox iBBox, oBBox;
@@ -2558,21 +2555,21 @@ void WingGeom::UpdateTotalArea()
 void WingGeom::MatchWingSections()
 {
     //==== Match Section Root/Tip ====//
-    WingSect* active_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveXSec() );
+    WingSect* active_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveWingSection() );
     if ( active_ws )
     {
         active_ws->m_DriverGroup.UpdateGroup( active_ws->GetDriverParms() );
         double active_rc = active_ws->m_RootChord();
         double active_tc = active_ws->m_TipChord();
 
-        if ( m_ActiveXSec() > 0 )
+        if ( m_ActiveWingSection() > 0 )
         {
-            WingSect* inboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveXSec()-1 );
+            WingSect* inboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveWingSection()-1 );
             inboard_ws->ForceChordVal( active_rc, false );
         }
-        if ( m_ActiveXSec() < m_XSecSurf.NumXSec()-1 )
+        if ( m_ActiveWingSection() < m_XSecSurf.NumXSec()-1 )
         {
-            WingSect* outboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveXSec()+1 );
+            WingSect* outboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveWingSection()+1 );
             outboard_ws->ForceChordVal( active_tc, true );
         }
     }
@@ -2596,7 +2593,7 @@ void WingGeom::SetTempActiveXSec()
     }
 
     if ( active_sect_index >= 0 )
-        m_ActiveXSec = active_sect_index;
+        m_ActiveWingSection = active_sect_index;
 }
 
 //==== Get Sum Dihedral ====//

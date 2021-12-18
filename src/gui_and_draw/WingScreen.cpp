@@ -993,8 +993,8 @@ bool WingScreen::Update()
     m_NumSectOutput.Update(  str );
 
     ////==== Wing Section Index Display ====//
-    int ws_index = wing_ptr->m_ActiveXSec();
-    m_SectIndexSelector.Update( wing_ptr->m_ActiveXSec.GetID() );
+    int ws_index = wing_ptr->m_ActiveWingSection();
+    m_SectIndexSelector.Update( wing_ptr->m_ActiveWingSection.GetID() );
 
     WingSect* wing_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( ws_index ));
 
@@ -1027,9 +1027,9 @@ bool WingScreen::Update()
     }
 
     //==== XSec Index Display ===//
-    int xsid = wing_ptr->m_ActiveAirfoil();
-    m_AfIndexSelector.Update( wing_ptr->m_ActiveAirfoil.GetID() );
-    m_AfModIndexSelector.Update( wing_ptr->m_ActiveAirfoil.GetID() );
+    int xsid = wing_ptr->m_ActiveWingSection();
+    m_AfIndexSelector.Update( wing_ptr->m_ActiveWingSection.GetID() );
+    m_AfModIndexSelector.Update( wing_ptr->m_ActiveWingSection.GetID() );
 
     WingSect* ws = ( WingSect* ) wing_ptr->GetXSec( xsid );
     if ( ws )
@@ -1688,31 +1688,31 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
     if ( gui_device == &m_SplitSectButton )
     {
-        int wsid = wing_ptr->m_ActiveXSec();
+        int wsid = wing_ptr->m_ActiveWingSection();
         wing_ptr->SplitWingSect( wsid );
         wing_ptr->Update();
     }
     else if ( gui_device == &m_CutSectButton )
     {
-        int wsid = wing_ptr->m_ActiveXSec();
+        int wsid = wing_ptr->m_ActiveWingSection();
         wing_ptr->CutWingSect( wsid );
         wing_ptr->Update();
     }
     else if ( gui_device == &m_CopySectButton )
     {
-        int wsid = wing_ptr->m_ActiveXSec();
+        int wsid = wing_ptr->m_ActiveWingSection();
         wing_ptr->CopyWingSect( wsid );
         wing_ptr->Update();
     }
     else if ( gui_device == &m_PasteSectButton )
     {
-        int wsid = wing_ptr->m_ActiveXSec();
+        int wsid = wing_ptr->m_ActiveWingSection();
         wing_ptr->PasteWingSect( wsid );
         wing_ptr->Update();
     }
     else if ( gui_device == &m_InsertSectButton )
     {
-        int wsid = wing_ptr->m_ActiveXSec();
+        int wsid = wing_ptr->m_ActiveWingSection();
         wing_ptr->InsertWingSect( wsid );
         wing_ptr->Update();
     }
@@ -1733,7 +1733,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ConvertCEDITButton )
     {
-        XSec* xs = wing_ptr->GetXSec( wing_ptr->m_ActiveAirfoil() );
+        XSec* xs = wing_ptr->GetXSec( wing_ptr->m_ActiveWingSection() );
 
         if ( xs )
         {
@@ -1760,18 +1760,18 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_CopyAfButton   )
     {
-        int afid = wing_ptr->m_ActiveAirfoil();
+        int afid = wing_ptr->m_ActiveWingSection();
         wing_ptr->CopyAirfoil( afid );
     }
     else if ( gui_device == &m_PasteAfButton  )
     {
-        int afid = wing_ptr->m_ActiveAirfoil();
+        int afid = wing_ptr->m_ActiveWingSection();
         wing_ptr->PasteAirfoil(afid);
         wing_ptr->Update();
     }
     else if ( gui_device == &m_ReadFuseFileButton  )
     {
-        int xsid = wing_ptr->m_ActiveAirfoil();
+        int xsid = wing_ptr->m_ActiveWingSection();
         XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1794,7 +1794,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_AfReadFileButton   )
     {
-        int xsid = wing_ptr->m_ActiveAirfoil();
+        int xsid = wing_ptr->m_ActiveWingSection();
         XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1817,7 +1817,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_UpPromoteButton )
     {
-        int xsid = wing_ptr->m_ActiveAirfoil();
+        int xsid = wing_ptr->m_ActiveWingSection();
         XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1839,7 +1839,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_LowPromoteButton )
     {
-        int xsid = wing_ptr->m_ActiveAirfoil();
+        int xsid = wing_ptr->m_ActiveWingSection();
         XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1862,7 +1862,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_UpDemoteButton )
     {
-        int xsid = wing_ptr->m_ActiveAirfoil();
+        int xsid = wing_ptr->m_ActiveWingSection();
         XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1885,7 +1885,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_LowDemoteButton )
     {
-        int xsid = wing_ptr->m_ActiveAirfoil();
+        int xsid = wing_ptr->m_ActiveWingSection();
         XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1915,7 +1915,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
               ( gui_device == &m_FiveModFitCSTButton ) ||
               ( gui_device == &m_OneSixSeriesFitCSTButton ) )
     {
-        int xsid = wing_ptr->m_ActiveAirfoil();
+        int xsid = wing_ptr->m_ActiveWingSection();
         XSec* xs = wing_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1956,7 +1956,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_TestDriverGroupButton )
     {
-        int wsid = wing_ptr->m_ActiveXSec();
+        int wsid = wing_ptr->m_ActiveWingSection();
 
         WingSect* wing_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( wsid ));
 

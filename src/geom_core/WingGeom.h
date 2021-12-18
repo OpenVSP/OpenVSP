@@ -210,7 +210,7 @@ public:
     BoolParm m_RelativeTwistFlag;
     BoolParm m_RotateAirfoilMatchDiedralFlag;
 
-    IntParm m_ActiveAirfoil;
+    IntParm m_ActiveWingSection;
 
     enum { V2_NACA_4_SERIES = 1,
            V2_BICONVEX = 2,

@@ -1728,8 +1728,8 @@ bool BlendScreen::Update()
 
 
     //==== Skin & XSec Index Display ===//
-    int xsid = wing_ptr->m_ActiveAirfoil();
-    m_BlendIndexSelector.Update( wing_ptr->m_ActiveAirfoil.GetID() );
+    int xsid = wing_ptr->m_ActiveXSec();
+    m_BlendIndexSelector.Update( wing_ptr->m_ActiveXSec.GetID() );
 
     BlendWingSect* xs = ( BlendWingSect* ) geomxsec_ptr->GetXSec( xsid );
     if ( xs )
