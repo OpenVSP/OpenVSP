@@ -326,21 +326,6 @@ void XSecCurve::Update()
 {
     m_TETrimX.SetUpperLimit( 0.999 * GetWidth() );
 
-    if ( m_Type == XS_CIRCLE )
-    {
-        // Circle can have invalid drivers if it was recently converted from another XSecCurve type.  A curve that was
-        // previously an ellipse (for example) may have had drivers set to Area and HWRatio.  The conversion calls
-        // XSec::CopyFrom() to transfer parameters as best it can.  This includes a direct transfer of the drivers,
-        // no matter whether they make sense or not.
-        // The reverse conversion is OK because the non-circle driver groups are initialized with Width, Height.  When
-        // converting from a circle, only the first of these is over-written -- either with Width or Area.
-        // Consequently, any combination is valid.
-        if ( !m_DriverGroup->ValidDrivers( m_DriverGroup->GetChoices() ) )
-        {
-            m_DriverGroup->SetChoice( 0, WIDTH_XSEC_DRIVER );
-        }
-    }
-
     // Reconcile height, width, area, and hwratio.
     // Potentially involves an iterative solution when area is a driver.
     // May include lofting the curve.
@@ -1695,6 +1680,21 @@ void CircleXSec::OffsetCurve( double off )
 }
 
 //==== Update Geometry ====//
+void CircleXSec::Update()
+{
+    // Circle can have invalid drivers if it was recently converted from another XSecCurve type.  A curve that was
+    // previously an ellipse (for example) may have had drivers set to Area and HWRatio.  The conversion calls
+    // XSec::CopyFrom() to transfer parameters as best it can.  This includes a direct transfer of the drivers,
+    // no matter whether they make sense or not.
+    // The reverse conversion is OK because the non-circle driver groups are initialized with Width, Height.  When
+    // converting from a circle, only the first of these is over-written -- either with Width or Area.
+    // Consequently, any combination is valid.
+
+    m_DriverGroup->SetChoice( 0, WIDTH_XSEC_DRIVER );
+
+    XSecCurve::Update();
+}
+
 void CircleXSec::UpdateCurve( bool updateParms )
 {
     piecewise_curve_type c;
