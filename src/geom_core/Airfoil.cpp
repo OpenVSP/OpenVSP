@@ -77,6 +77,19 @@ Airfoil::Airfoil( ) : XSecCurve( )
 }
 
 //==== Update ====//
+void Airfoil::Update()
+{
+    // Airfoils can have invalid drivers if it was recently converted from another XSecCurve type.  A curve that was
+    // previously an ellipse (for example) may have had drivers set to Area and HWRatio.  The conversion calls
+    // XSec::CopyFrom() to transfer parameters as best it can.  This includes a direct transfer of the drivers,
+    // no matter whether they make sense or not.
+
+    m_DriverGroup->SetChoice( 0, WIDTH_XSEC_DRIVER );
+    m_DriverGroup->SetChoice( 1, HEIGHT_XSEC_DRIVER );
+
+    XSecCurve::Update();
+}
+
 void Airfoil::UpdateCurve( bool updateParms )
 {
     m_OrigCurve = m_Curve;

@@ -62,6 +62,7 @@ class Airfoil : public XSecCurve
 public:
     Airfoil( );                                                   // Default Constructor
 
+    virtual void Update();
     virtual void UpdateCurve( bool updateParms = true );
 
     //==== Values to Set/Get When Changing Types ====//
