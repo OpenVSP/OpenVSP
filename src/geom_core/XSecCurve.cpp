@@ -4516,6 +4516,7 @@ XSecCurveDriverGroup::XSecCurveDriverGroup( int Nvar, int Nchoice ) : DriverGrou
     m_Parent = NULL;
 
     m_prevArea = -1.0;
+    m_Name = "XSecCurveDriverGroup";
 }
 
 HWXSecCurveDriverGroup::HWXSecCurveDriverGroup() : XSecCurveDriverGroup( NUM_XSEC_DRIVER, 2 )
