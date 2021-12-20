@@ -743,6 +743,8 @@ void DriverGroup::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr dnode = xmlNewChild( node, NULL, ( const xmlChar *)m_Name.c_str(), NULL );
 
+    XmlUtil::AddIntNode( dnode, "NumVar", m_Nvar );
+    XmlUtil::AddIntNode( dnode, "NumChoices", m_Nchoice );
     XmlUtil::AddVectorIntNode( dnode, "ChoiceVec", m_CurrChoices );
 }
 
