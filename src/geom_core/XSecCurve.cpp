@@ -1690,7 +1690,10 @@ void CircleXSec::Update()
     // converting from a circle, only the first of these is over-written -- either with Width or Area.
     // Consequently, any combination is valid.
 
-    m_DriverGroup->SetChoice( 0, WIDTH_XSEC_DRIVER );
+    if ( !m_DriverGroup->ValidDrivers( m_DriverGroup->GetChoices() ) )
+    {
+        m_DriverGroup->SetChoice( 0, WIDTH_XSEC_DRIVER );
+    }
 
     XSecCurve::Update();
 }
