@@ -77,8 +77,6 @@ public:
 
     virtual void ResetWorkingVar();
 
-    IntParm m_WorkingXDDMType;
-
 private:
 
     DesignVarMgrSingleton();

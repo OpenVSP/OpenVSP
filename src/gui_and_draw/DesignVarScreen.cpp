@@ -117,7 +117,8 @@ bool DesignVarScreen::Update()
     //==== Update Parm Picker ====//
     m_ParmPicker.Update();
 
-    m_XDDMGroup.Update( DesignVarMgr.m_WorkingXDDMType.GetID() );
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    m_XDDMGroup.Update( veh->m_WorkingXDDMType.GetID() );
 
     //==== Update Parm Browser ====//
     int h_pos = m_VarBrowser->hposition();
@@ -225,11 +226,12 @@ void DesignVarScreen::Hide()
 void DesignVarScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
     if( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
     {
         string ParmID( Fl::event_text() );
-        DesignVarMgr.AddVar( ParmID, DesignVarMgr.m_WorkingXDDMType.Get() );
+        DesignVarMgr.AddVar( ParmID, veh->m_WorkingXDDMType.Get() );
         RebuildAdjustTab();
     }
     else if (  w == m_VarBrowser )
@@ -242,12 +244,12 @@ void DesignVarScreen::CallBack( Fl_Widget* w )
         if ( dv )
         {
             m_ParmPicker.SetParmChoice( dv->m_ParmID );
-            DesignVarMgr.m_WorkingXDDMType = dv->m_XDDM_Type;
+            veh->m_WorkingXDDMType = dv->m_XDDM_Type;
         }
         else
         {
             m_ParmPicker.SetParmChoice( string() );
-            DesignVarMgr.m_WorkingXDDMType = vsp::XDDM_VAR;
+            veh->m_WorkingXDDMType = vsp::XDDM_VAR;
         }
     }
 

@@ -151,6 +151,8 @@ Vehicle::Vehicle()
     m_SVGView3_rot.Init( "BottomLeftRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
     m_SVGView4_rot.Init( "BottomRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
 
+    m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", this, vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST );
+
     m_AFExportType.Init( "AFExportType", "AirfoilExport", this, vsp::BEZIER_AF_EXPORT, vsp::SELIG_AF_EXPORT, vsp::BEZIER_AF_EXPORT );
     m_AFExportType.SetDescript( "Airfoil Representation Written to File" );
     m_AFWTessFactor.Init( "AFWTessFactor", "AirfoilExport", this, 1.0, 0.01, 100 );
@@ -337,6 +339,8 @@ void Vehicle::Init()
     m_SVGView2_rot.Set( vsp::ROT_0 );
     m_SVGView3_rot.Set( vsp::ROT_0 );
     m_SVGView4_rot.Set( vsp::ROT_0 );
+
+    m_WorkingXDDMType.Set( vsp::XDDM_VAR );
 
     m_STLMultiSolid.Set( false );
     m_STLExportPropMainSurf.Set( false );

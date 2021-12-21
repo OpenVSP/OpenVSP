@@ -437,6 +437,8 @@ public:
     IntParm m_SVGView3_rot;
     IntParm m_SVGView4_rot;
 
+    IntParm m_WorkingXDDMType;
+
     string m_BEMPropID;
 
     IntParm m_AFExportType;

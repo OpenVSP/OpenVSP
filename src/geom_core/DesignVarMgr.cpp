@@ -26,7 +26,6 @@ bool DesignVarNameCompare( const DesignVar *dvA, const DesignVar *dvB )
 //==== Constructor ====//
 DesignVarMgrSingleton::DesignVarMgrSingleton()
 {
-    m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", VehicleMgr.GetVehicle(), vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST );
     Init();
 }
 
@@ -34,14 +33,12 @@ void DesignVarMgrSingleton::Init()
 {
     m_CurrVarIndex = 0;
     m_WorkingParmID = "";
-    m_WorkingXDDMType = vsp::XDDM_VAR;
 }
 
 void DesignVarMgrSingleton::Wype()
 {
     m_CurrVarIndex = int();
     m_WorkingParmID = string();
-    m_WorkingXDDMType = int();
 
     DelAllVars();
     m_VarVec = vector< DesignVar* >();
@@ -83,7 +80,8 @@ bool DesignVarMgrSingleton::AddCurrVar()
         return false;
     }
 
-    AddVar( m_WorkingParmID, m_WorkingXDDMType.Get() );
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    AddVar( m_WorkingParmID, veh->m_WorkingXDDMType.Get() );
 
     return true;
 }
@@ -211,7 +209,8 @@ void DesignVarMgrSingleton::ResetWorkingVar()
     m_CurrVarIndex = -1;
 
     m_WorkingParmID = string();
-    m_WorkingXDDMType = vsp::XDDM_VAR;
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    veh->m_WorkingXDDMType = vsp::XDDM_VAR;
 }
 
 void DesignVarMgrSingleton::SetWorkingParmID( string parm_id )
