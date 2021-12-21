@@ -171,6 +171,18 @@ Vehicle::Vehicle()
     m_YComp.Init( "YComp", "Projection", this, 0.0, -1.0, 1.0 );
     m_ZComp.Init( "ZComp", "Projection", this, 0.0, -1.0, 1.0 );
 
+    m_ViewportSizeXValue.Init( "ViewportX", "AdjustView", this, 0.0, 0, 1.0e12 );
+    m_ViewportSizeYValue.Init( "ViewportY", "AdjustView", this, 0.0, 0, 1.0e12 );
+    m_CORXValue.Init( "CORX", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
+    m_CORYValue.Init( "CORY", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
+    m_CORZValue.Init( "CORZ", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
+    m_PanXPosValue.Init( "PanX", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
+    m_PanYPosValue.Init( "PanY", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
+    m_ZoomValue.Init( "Zoom", "AdjustView", this, 1e-3, 1e-6, 10 );
+    m_XRotationValue.Init( "RotationX", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
+    m_YRotationValue.Init( "RotationY", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
+    m_ZRotationValue.Init( "RotationZ", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
+
     m_AFExportType.Init( "AFExportType", "AirfoilExport", this, vsp::BEZIER_AF_EXPORT, vsp::SELIG_AF_EXPORT, vsp::BEZIER_AF_EXPORT );
     m_AFExportType.SetDescript( "Airfoil Representation Written to File" );
     m_AFWTessFactor.Init( "AFWTessFactor", "AirfoilExport", this, 1.0, 0.01, 100 );

@@ -456,6 +456,19 @@ public:
     Parm m_YComp;
     Parm m_ZComp;
 
+    // ManageViewScreen
+    IntParm m_ViewportSizeXValue;
+    IntParm m_ViewportSizeYValue;
+    Parm m_CORXValue;
+    Parm m_CORYValue;
+    Parm m_CORZValue;
+    Parm m_PanXPosValue;
+    Parm m_PanYPosValue;
+    Parm m_ZoomValue;
+    Parm m_XRotationValue;
+    Parm m_YRotationValue;
+    Parm m_ZRotationValue;
+
     string m_BEMPropID;
 
     IntParm m_AFExportType;

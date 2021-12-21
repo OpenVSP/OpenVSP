@@ -104,26 +104,6 @@ protected:
     int m_windowDX;
     int m_windowDY;
 
-    IntParm m_ViewportSizeXValue;
-    IntParm m_ViewportSizeYValue;
-
-    //===== Center of Rotation Values =====//
-
-    Parm m_CORXValue;
-    Parm m_CORYValue;
-    Parm m_CORZValue;
-
-    Parm m_PanXPosValue;
-    Parm m_PanYPosValue;
-
-    Parm m_ZoomValue;
-
-    //===== Attempt at Euler Angle Rotation =====//
-
-    Parm m_XRotationValue;
-    Parm m_YRotationValue;
-    Parm m_ZRotationValue;
-
 };
 
 #endif
