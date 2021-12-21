@@ -183,14 +183,19 @@ Vehicle::Vehicle()
     m_YRotationValue.Init( "RotationY", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
     m_ZRotationValue.Init( "RotationZ", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
 
-    m_NewRatioValue.Init("Ratio", "Screenshot", this, 1.0, 0.0, 1.0e12);
-    m_NewWidthValue.Init("Width", "Screenshot", this, 1.0, 0.0, 1.0e12);
-    m_NewHeightValue.Init("Height", "Screenshot", this, 1.0, 0.0, 1.0e12);
-    m_TransparentBGFlag.Init("TransparentBGFlag", "Screenshot", this, 1, 0, 1 );
+    m_NewRatioValue.Init( "Ratio", "Screenshot", this, 1.0, 0.0, 1.0e12 );
+    m_NewWidthValue.Init( "Width", "Screenshot", this, 1.0, 0.0, 1.0e12 );
+    m_NewHeightValue.Init( "Height", "Screenshot", this, 1.0, 0.0, 1.0e12 );
+    m_TransparentBGFlag.Init( "TransparentBGFlag", "Screenshot", this, 1, 0, 1 );
 
-    m_UserParmVal.Init("Val", "UserParm", this, 0.0, -1.0e12, 1.0e12 );
-    m_UserParmMin.Init("Min", "UserParm", this, -1.0e5, -1.0e12, 1.0e12 );
-    m_UserParmMax.Init("Max", "UserParm", this, 1.0e5, -1.0e12, 1.0e12 );
+    m_UserParmVal.Init( "Val", "UserParm", this, 0.0, -1.0e12, 1.0e12 );
+    m_UserParmMin.Init( "Min", "UserParm", this, -1.0e5, -1.0e12, 1.0e12 );
+    m_UserParmMax.Init( "Max", "UserParm", this, 1.0e5, -1.0e12, 1.0e12 );
+
+    m_BGWidthScaleValue.Init( "WidthScale", "Background", this, 1.0, -1.0e12, 1.0e12 );
+    m_BGHeightScaleValue.Init( "HeightScale", "Background", this, 1.0, -1.0e12, 1.0e12 );
+    m_BGXOffsetValue.Init( "XOffset", "Background", this, 0.0, -1.0e12, 1.0e12 );
+    m_BGYOffsetValue.Init( "YOffset", "Background", this, 0.0, -1.0e12, 1.0e12 );
 
     m_AFExportType.Init( "AFExportType", "AirfoilExport", this, vsp::BEZIER_AF_EXPORT, vsp::SELIG_AF_EXPORT, vsp::BEZIER_AF_EXPORT );
     m_AFExportType.SetDescript( "Airfoil Representation Written to File" );

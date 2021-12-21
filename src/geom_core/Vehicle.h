@@ -480,6 +480,12 @@ public:
     Parm m_UserParmMin;
     Parm m_UserParmMax;
 
+    // ManageBackgroundScreen
+    FractionParm m_BGWidthScaleValue;
+    FractionParm m_BGHeightScaleValue;
+    FractionParm m_BGXOffsetValue;
+    FractionParm m_BGYOffsetValue;
+
     string m_BEMPropID;
 
     IntParm m_AFExportType;

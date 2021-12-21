@@ -80,11 +80,7 @@ ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_Image.GetFlButton()->value( 0 );
     m_PreserveAspect.GetFlButton()->value( 1 );
 
-    m_WidthScaleValue.Init("WidthScale", "Background", NULL, 1.0, -1.0e12, 1.0e12);
-    m_HeightScaleValue.Init("HeightScale", "Background", NULL, 1.0, -1.0e12, 1.0e12);
 
-    m_XOffsetValue.Init("XOffset", "Background", NULL, 0.0, -1.0e12, 1.0e12);
-    m_YOffsetValue.Init("YOffset", "Background", NULL, 0.0, -1.0e12, 1.0e12);
 }
 
 ManageBackgroundScreen::~ManageBackgroundScreen()
@@ -110,6 +106,8 @@ bool ManageBackgroundScreen::Update()
     {
         return false;
     }
+
+    Vehicle * veh = m_ScreenMgr->GetVehiclePtr();
 
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
@@ -141,24 +139,24 @@ bool ManageBackgroundScreen::Update()
     }
 
     //Update Scale and Offset in Background
-    m_WScale.Update( m_WidthScaleValue.GetID() );
-    m_HScale.Update( m_HeightScaleValue.GetID() );
+    m_WScale.Update( veh->m_BGWidthScaleValue.GetID() );
+    m_HScale.Update( veh->m_BGHeightScaleValue.GetID() );
 
-    viewport->getBackground()->scaleW( (float) m_WidthScaleValue.Get() );
+    viewport->getBackground()->scaleW( (float) veh->m_BGWidthScaleValue.Get() );
     if (m_PreserveAspect.GetFlButton()->value())
     {
-        m_HeightScaleValue.Set( viewport->getBackground()->getScaleH() );
+        veh->m_BGHeightScaleValue.Set(viewport->getBackground()->getScaleH() );
     }
     else
     {
-        viewport->getBackground()->scaleH( (float) m_HeightScaleValue.Get() );
+        viewport->getBackground()->scaleH( (float) veh->m_BGHeightScaleValue.Get() );
     }
 
-    m_XOffset.Update( m_XOffsetValue.GetID() );
-    m_YOffset.Update( m_YOffsetValue.GetID() );
+    m_XOffset.Update( veh->m_BGXOffsetValue.GetID() );
+    m_YOffset.Update( veh->m_BGYOffsetValue.GetID() );
 
-    viewport->getBackground()->offsetX( (float) m_XOffsetValue.Get() );
-    viewport->getBackground()->offsetY( (float) m_YOffsetValue.Get() );
+    viewport->getBackground()->offsetX( (float) veh->m_BGXOffsetValue.Get() );
+    viewport->getBackground()->offsetY( (float) veh->m_BGYOffsetValue.Get() );
 
     m_FLTK_Window->redraw();
     return false;
@@ -207,6 +205,7 @@ void ManageBackgroundScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
+    Vehicle *veh = m_ScreenMgr->GetVehiclePtr();
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
     VSPGraphic::Viewport * viewport = glwin->getGraphicEngine()->getDisplay()->getViewport();
@@ -266,11 +265,11 @@ void ManageBackgroundScreen::GuiDeviceCallBack( GuiDevice* device )
         m_ImageFile = "";
 
         //Reset Scale & Offset
-        m_WidthScaleValue.Set( viewport->getBackground()->getScaleW() );
-        m_HeightScaleValue.Set( viewport->getBackground()->getScaleH() );
+        veh->m_BGWidthScaleValue.Set(viewport->getBackground()->getScaleW() );
+        veh->m_BGHeightScaleValue.Set(viewport->getBackground()->getScaleH() );
 
-        m_XOffsetValue.Set( viewport->getBackground()->getOffsetX() );
-        m_YOffsetValue.Set( viewport->getBackground()->getOffsetY() );
+        veh->m_BGXOffsetValue.Set(viewport->getBackground()->getOffsetX() );
+        veh->m_BGYOffsetValue.Set(viewport->getBackground()->getOffsetY() );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

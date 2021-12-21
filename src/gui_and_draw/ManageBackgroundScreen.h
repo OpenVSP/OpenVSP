@@ -59,10 +59,6 @@ protected:
     TriggerButton m_ResetDefaults;
 
     string m_ImageFile;
-    FractionParm m_WidthScaleValue;
-    FractionParm m_HeightScaleValue;
-    FractionParm m_XOffsetValue;
-    FractionParm m_YOffsetValue;
 
 };
 #endif //MANAGE_BACKGROUND_SCREEN_H
