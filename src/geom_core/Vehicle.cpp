@@ -164,6 +164,13 @@ Vehicle::Vehicle()
     m_SelectOneFlag.Init( "Select_One_Flag", "FitModel", this, false, 0, 1 );
     m_SelectBoxFlag.Init( "Select_Box_Flag", "FitModel", this, false, 0, 1 );
 
+    m_TargetType.Init( "TargetType", "Projection", this, vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_TGT_OPTIONS - 1 );
+    m_BoundaryType.Init( "BoundaryType", "Projection", this, vsp::NO_BOUNDARY, vsp::NO_BOUNDARY, vsp::NUM_PROJ_BNDY_OPTIONS - 1 );
+    m_DirectionType.Init( "DirectionType", "Projection", this, vsp::X_PROJ, vsp::X_PROJ, vsp::NUM_PROJ_DIR_OPTIONS - 1 );
+    m_XComp.Init( "XComp", "Projection", this, 0.0, -1.0, 1.0 );
+    m_YComp.Init( "YComp", "Projection", this, 0.0, -1.0, 1.0 );
+    m_ZComp.Init( "ZComp", "Projection", this, 0.0, -1.0, 1.0 );
+
     m_AFExportType.Init( "AFExportType", "AirfoilExport", this, vsp::BEZIER_AF_EXPORT, vsp::SELIG_AF_EXPORT, vsp::BEZIER_AF_EXPORT );
     m_AFExportType.SetDescript( "Airfoil Representation Written to File" );
     m_AFWTessFactor.Init( "AFWTessFactor", "AirfoilExport", this, 1.0, 0.01, 100 );
@@ -359,6 +366,13 @@ void Vehicle::Init()
     m_WTargetPt.Set( 0 );
     m_SelectOneFlag.Set( false );
     m_SelectBoxFlag.Set( false );
+
+    m_TargetType.Set( vsp::SET_TARGET );
+    m_BoundaryType.Set( vsp::NO_BOUNDARY );
+    m_DirectionType.Set( vsp::X_PROJ );
+    m_XComp.Set( 0.0 );
+    m_YComp.Set( 0.0 );
+    m_ZComp.Set( 0.0 );
 
     m_STLMultiSolid.Set( false );
     m_STLExportPropMainSurf.Set( false );

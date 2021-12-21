@@ -448,6 +448,14 @@ public:
     Parm m_UTargetPt;
     Parm m_WTargetPt;
 
+    // ProjectionMgr
+    IntParm m_TargetType;
+    IntParm m_BoundaryType;
+    IntParm m_DirectionType;
+    Parm m_XComp;
+    Parm m_YComp;
+    Parm m_ZComp;
+
     string m_BEMPropID;
 
     IntParm m_AFExportType;

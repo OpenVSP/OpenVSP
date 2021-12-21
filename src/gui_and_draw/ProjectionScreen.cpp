@@ -233,9 +233,9 @@ bool ProjectionScreen::Update()
 {
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
-    m_BoundaryTypeGroup.Update( ProjectionMgr.m_BoundaryType.GetID() );
-    m_TargetTypeGroup.Update( ProjectionMgr.m_TargetType.GetID() );
-    m_DirectionTypeGroup.Update( ProjectionMgr.m_DirectionType.GetID() );
+    m_BoundaryTypeGroup.Update( vehiclePtr->m_BoundaryType.GetID() );
+    m_TargetTypeGroup.Update( vehiclePtr->m_TargetType.GetID() );
+    m_DirectionTypeGroup.Update( vehiclePtr->m_DirectionType.GetID() );
 
     m_BoundaryGeom.Update();
     m_TargetGeom.Update();
@@ -249,12 +249,12 @@ bool ProjectionScreen::Update()
     LoadSetChoice( m_TargetSet, ProjectionMgr.m_TargetSetIndex );
     LoadSetChoice( m_BoundarySet, ProjectionMgr.m_BoundarySetIndex );
 
-    m_XSlider.Update( ProjectionMgr.m_XComp.GetID() );
-    m_YSlider.Update( ProjectionMgr.m_YComp.GetID() );
-    m_ZSlider.Update( ProjectionMgr.m_ZComp.GetID() );
+    m_XSlider.Update( vehiclePtr->m_XComp.GetID() );
+    m_YSlider.Update( vehiclePtr->m_YComp.GetID() );
+    m_ZSlider.Update( vehiclePtr->m_ZComp.GetID() );
 
 
-    switch ( ProjectionMgr.m_BoundaryType() )
+    switch ( vehiclePtr->m_BoundaryType() )
     {
         case vsp::NO_BOUNDARY:
             m_BoundaryGeom.Deactivate();
@@ -270,7 +270,7 @@ bool ProjectionScreen::Update()
             break;
     }
 
-    if ( ProjectionMgr.m_TargetType() == vsp::SET_TARGET )
+    if ( vehiclePtr->m_TargetType() == vsp::SET_TARGET )
     {
         m_TargetGeom.Deactivate();
         m_TargetSet.Activate();
@@ -281,7 +281,7 @@ bool ProjectionScreen::Update()
         m_TargetSet.Deactivate();
     }
 
-    switch ( ProjectionMgr.m_DirectionType() )
+    switch ( vehiclePtr->m_DirectionType() )
     {
         case vsp::X_PROJ:
         case vsp::Y_PROJ:

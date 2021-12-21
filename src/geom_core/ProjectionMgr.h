@@ -73,14 +73,6 @@ public:
 
     int m_BoundarySetIndex;
 
-    IntParm m_TargetType;
-    IntParm m_BoundaryType;
-    IntParm m_DirectionType;
-
-    Parm m_XComp;
-    Parm m_YComp;
-    Parm m_ZComp;
-
     string m_TargetGeomID;
     string m_BoundaryGeomID;
     string m_DirectionGeomID;

@@ -18,17 +18,6 @@
 //==== Constructor ====//
 ProjectionMgrSingleton::ProjectionMgrSingleton()
 {
-
-    m_TargetType.Init( "TargetType", "Projection", VehicleMgr.GetVehicle(), vsp::SET_TARGET, vsp::SET_TARGET, vsp::NUM_PROJ_TGT_OPTIONS - 1 );
-
-    m_BoundaryType.Init( "BoundaryType", "Projection", VehicleMgr.GetVehicle(), vsp::NO_BOUNDARY, vsp::NO_BOUNDARY, vsp::NUM_PROJ_BNDY_OPTIONS - 1 );
-
-    m_DirectionType.Init( "DirectionType", "Projection", VehicleMgr.GetVehicle(), vsp::X_PROJ, vsp::X_PROJ, vsp::NUM_PROJ_DIR_OPTIONS - 1 );
-
-    m_XComp.Init( "XComp", "Projection", VehicleMgr.GetVehicle(), 0.0, -1.0, 1.0 );
-    m_YComp.Init( "YComp", "Projection", VehicleMgr.GetVehicle(), 0.0, -1.0, 1.0 );
-    m_ZComp.Init( "ZComp", "Projection", VehicleMgr.GetVehicle(), 0.0, -1.0, 1.0 );
-
     m_TargetSetIndex = DEFAULT_SET;
     m_BoundarySetIndex = DEFAULT_SET;
 
@@ -108,34 +97,38 @@ vec3d ProjectionMgrSingleton::GetDirection( int dirtype, string dirid )
 
 void ProjectionMgrSingleton::UpdateDirection()
 {
-    vec3d dir = GetDirection( m_DirectionType(), m_DirectionGeomID );
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    vec3d dir = GetDirection( veh->m_DirectionType(), m_DirectionGeomID );
 
-    switch ( m_DirectionType() )
+    switch ( veh->m_DirectionType() )
     {
         case vsp::X_PROJ:
         case vsp::Y_PROJ:
         case vsp::Z_PROJ:
         case vsp::GEOM_PROJ:
-            m_XComp = dir.x();
-            m_YComp = dir.y();
-            m_ZComp = dir.z();
+            veh->m_XComp = dir.x();
+            veh->m_YComp = dir.y();
+            veh->m_ZComp = dir.z();
             break;
     }
 }
 
 vec3d ProjectionMgrSingleton::GetDirection()
 {
-    vec3d v = vec3d( m_XComp(), m_YComp(), m_ZComp() );
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    vec3d v = vec3d( veh->m_XComp(), veh->m_YComp(), veh->m_ZComp() );
     v.normalize();
     return v;
 }
 
 Results* ProjectionMgrSingleton::Project( )
 {
-    switch ( m_BoundaryType() )
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    switch ( veh->m_BoundaryType() )
     {
         case vsp::NO_BOUNDARY:
-            if ( m_TargetType() == vsp::SET_TARGET )
+            if ( veh->m_TargetType() == vsp::SET_TARGET )
             {
                 return Project( m_TargetSetIndex );
             }
@@ -145,7 +138,7 @@ Results* ProjectionMgrSingleton::Project( )
             }
             break;
         case vsp::SET_BOUNDARY:
-            if ( m_TargetType() == vsp::SET_TARGET )
+            if ( veh->m_TargetType() == vsp::SET_TARGET )
             {
                 return Project( m_TargetSetIndex, m_BoundarySetIndex );
             }
@@ -155,7 +148,7 @@ Results* ProjectionMgrSingleton::Project( )
             }
             break;
         case vsp::GEOM_BOUNDARY:
-            if ( m_TargetType() == vsp::SET_TARGET )
+            if ( veh->m_TargetType() == vsp::SET_TARGET )
             {
                 return Project( m_TargetSetIndex, m_BoundaryGeomID );
             }
