@@ -469,6 +469,12 @@ public:
     Parm m_YRotationValue;
     Parm m_ZRotationValue;
 
+    // ScreenshotScreen
+    FractionParm m_NewRatioValue;
+    IntParm m_NewWidthValue;
+    IntParm m_NewHeightValue;
+    BoolParm m_TransparentBGFlag;
+
     string m_BEMPropID;
 
     IntParm m_AFExportType;

@@ -99,10 +99,6 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 23
 
     MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
 
-    m_NewRatioValue.Init("Ratio", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
-    m_NewWidthValue.Init("Width", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
-    m_NewHeightValue.Init("Height", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
-    m_TransparentBGFlag.Init("TransparentBGFlag", "Screenshot", NULL, 1, 0, 1 );
     m_NewWidth.SetRange( 10.0 );
     m_NewHeight.SetRange( 10.0 );
 
@@ -149,36 +145,37 @@ bool ScreenshotScreen::Update()
     }
 
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
+    Vehicle * veh = m_ScreenMgr->GetVehiclePtr();
 
     //==== Update Current Width and Height ====//
     m_CurrentWidth.Update( std::to_string( glwin->pixel_w() ) );
     m_CurrentHeight.Update( std::to_string( glwin->pixel_h() ) );
 
     //==== First Update Width/Height/Ratio ====//
-    m_NewRatio.Update( m_NewRatioValue.GetID() );
-    m_NewWidth.Update( m_NewWidthValue.GetID() );
-    m_NewHeight.Update( m_NewHeightValue.GetID() );
+    m_NewRatio.Update( veh->m_NewRatioValue.GetID() );
+    m_NewWidth.Update( veh->m_NewWidthValue.GetID() );
+    m_NewHeight.Update( veh->m_NewHeightValue.GetID() );
 
     if ( m_SelectRatio.GetFlButton()->value() )
     {
-        m_NewWidthValue.Set( glwin->pixel_w() * m_NewRatioValue.Get() );
-        m_NewHeightValue.Set( glwin->pixel_h() * m_NewRatioValue.Get() );
+        veh->m_NewWidthValue.Set( glwin->pixel_w() * veh->m_NewRatioValue.Get() );
+        veh->m_NewHeightValue.Set( glwin->pixel_h() * veh->m_NewRatioValue.Get() );
     }
     else if ( m_SelectWidth.GetFlButton()->value() )
     {
-        m_NewRatioValue.Set( ( (float) m_NewWidthValue.Get() ) / ( (float) glwin->pixel_w() ) );
-        m_NewHeightValue.Set( glwin->pixel_h() * m_NewRatioValue.Get() );
+        veh->m_NewRatioValue.Set( ( (float) veh->m_NewWidthValue.Get() ) / ( (float) glwin->pixel_w() ) );
+        veh->m_NewHeightValue.Set( glwin->pixel_h() * veh->m_NewRatioValue.Get() );
     }
     else
     {
-        m_NewRatioValue.Set( ( (float) m_NewHeightValue.Get() ) / ( (float) glwin->pixel_h() ) );
-        m_NewWidthValue.Set( glwin->pixel_w() * m_NewRatioValue.Get() );
+        veh->m_NewRatioValue.Set( ( (float) veh->m_NewHeightValue.Get() ) / ( (float) glwin->pixel_h() ) );
+        veh->m_NewWidthValue.Set( glwin->pixel_w() * veh->m_NewRatioValue.Get() );
     }
 
     //==== Second Update Width/Height/Ratio ====//
-    m_NewRatio.Update( m_NewRatioValue.GetID() );
-    m_NewWidth.Update( m_NewWidthValue.GetID() );
-    m_NewHeight.Update( m_NewHeightValue.GetID() );
+    m_NewRatio.Update( veh->m_NewRatioValue.GetID() );
+    m_NewWidth.Update( veh->m_NewWidthValue.GetID() );
+    m_NewHeight.Update( veh->m_NewHeightValue.GetID() );
 
     //==== Must do deactivation after updating the values ====//
     m_NewRatio.Deactivate();
@@ -198,7 +195,7 @@ bool ScreenshotScreen::Update()
         m_NewHeight.Activate();
     }
 
-    m_TransparentBG.Update( m_TransparentBGFlag.GetID() );
+    m_TransparentBG.Update( veh->m_TransparentBGFlag.GetID() );
 
     m_FLTK_Window->redraw();
     return false;
@@ -228,6 +225,8 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
+    Vehicle * veh = m_ScreenMgr->GetVehiclePtr();
+
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
 
     if ( device == &m_SelectRatio )
@@ -250,11 +249,11 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_SetToCurrentSize )
     {
-        m_NewRatioValue.Set( 1.0 );
+        veh->m_NewRatioValue.Set( 1.0 );
         if ( glwin )
         {
-            m_NewWidthValue.Set( glwin->pixel_w() );
-            m_NewHeightValue.Set( glwin->pixel_h() );
+            veh->m_NewWidthValue.Set( glwin->pixel_w() );
+            veh->m_NewHeightValue.Set( glwin->pixel_h() );
         }
     }
     else if ( device == &m_CapturePNG )
@@ -264,7 +263,7 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if( !fileName.empty() && glwin )
         {
-            glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_TransparentBGFlag.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::PNG );
+            glwin->getGraphicEngine()->dumpScreenImage( fileName, veh->m_NewWidthValue.Get(), veh->m_NewHeightValue.Get(), veh->m_TransparentBGFlag.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::PNG );
         }
     }
     m_ScreenMgr->SetUpdateFlag( true );

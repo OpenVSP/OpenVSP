@@ -57,11 +57,6 @@ protected:
 
     TriggerButton m_CapturePNG;
 
-    FractionParm m_NewRatioValue;
-    IntParm m_NewWidthValue;
-    IntParm m_NewHeightValue;
-    BoolParm m_TransparentBGFlag;
-
     bool m_framebufferSupported;
     bool m_showedOpenGLErrorMessage;
 

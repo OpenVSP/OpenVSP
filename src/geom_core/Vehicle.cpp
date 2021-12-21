@@ -183,6 +183,11 @@ Vehicle::Vehicle()
     m_YRotationValue.Init( "RotationY", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
     m_ZRotationValue.Init( "RotationZ", "AdjustView", this, 0.0, -1.0e12, 1.0e12 );
 
+    m_NewRatioValue.Init("Ratio", "Screenshot", this, 1.0, 0.0, 1.0e12);
+    m_NewWidthValue.Init("Width", "Screenshot", this, 1.0, 0.0, 1.0e12);
+    m_NewHeightValue.Init("Height", "Screenshot", this, 1.0, 0.0, 1.0e12);
+    m_TransparentBGFlag.Init("TransparentBGFlag", "Screenshot", this, 1, 0, 1 );
+
     m_AFExportType.Init( "AFExportType", "AirfoilExport", this, vsp::BEZIER_AF_EXPORT, vsp::SELIG_AF_EXPORT, vsp::BEZIER_AF_EXPORT );
     m_AFExportType.SetDescript( "Airfoil Representation Written to File" );
     m_AFWTessFactor.Init( "AFWTessFactor", "AirfoilExport", this, 1.0, 0.01, 100 );
@@ -385,6 +390,11 @@ void Vehicle::Init()
     m_XComp.Set( 0.0 );
     m_YComp.Set( 0.0 );
     m_ZComp.Set( 0.0 );
+
+    m_NewRatioValue.Set( 1.0 );
+    m_NewWidthValue.Set( 1.0 );
+    m_NewHeightValue.Set( 1.0 );
+    m_TransparentBGFlag.Set( 1 );
 
     m_STLMultiSolid.Set( false );
     m_STLExportPropMainSurf.Set( false );
