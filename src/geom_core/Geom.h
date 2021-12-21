@@ -109,8 +109,8 @@ public:
 
     vec3d GetWireColor() const
     {
-        Color wColor = m_ColorMgr.GetWireColor();
-        return vec3d( wColor.m_Red.Get(), wColor.m_Green.Get(), wColor.m_Blue.Get() );
+        const Color * wColor = m_ColorMgr.GetWireColor();
+        return vec3d( wColor->m_Red.Get(), wColor->m_Green.Get(), wColor->m_Blue.Get() );
     }
 
     void SetMaterialToDefault();

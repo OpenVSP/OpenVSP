@@ -16,9 +16,9 @@ void ColorMgr::SetWireColor( double r, double g, double b, double a )
     m_WireColor.m_Alpha = a;
 }
 
-const Color & ColorMgr::GetWireColor() const
+const Color * ColorMgr::GetWireColor() const
 {
-    return m_WireColor;
+    return &m_WireColor;
 }
 
 xmlNodePtr ColorMgr::EncodeXml( xmlNodePtr & node )
