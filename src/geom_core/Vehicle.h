@@ -437,7 +437,16 @@ public:
     IntParm m_SVGView3_rot;
     IntParm m_SVGView4_rot;
 
+    // DesignVarMgr
     IntParm m_WorkingXDDMType;
+
+    // FitModelMgr
+    BoolParm m_SelectOneFlag;
+    BoolParm m_SelectBoxFlag;
+    IntParm m_UType;
+    IntParm m_WType;
+    Parm m_UTargetPt;
+    Parm m_WTargetPt;
 
     string m_BEMPropID;
 

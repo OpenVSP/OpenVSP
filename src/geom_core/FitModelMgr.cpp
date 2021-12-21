@@ -290,25 +290,10 @@ xmlNodePtr TargetPt::UnwrapXml( xmlNodePtr & node )
 //==== Constructor ====//
 FitModelMgrSingleton::FitModelMgrSingleton()
 {
-    m_UType.Init( "U_Type", "FitModel", VehicleMgr.GetVehicle(), TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE );
-    m_UType.SetDescript( "Target U fixed or free" );
-
-    m_UTargetPt.Init( "U_TargetPt", "FitModel", VehicleMgr.GetVehicle(), 0, 0, 1 );
-    m_UTargetPt.SetDescript( "U Coordinate of Fixed Point" );
-
-    m_WType.Init( "W_Type", "FitModel", VehicleMgr.GetVehicle(), TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE );
-    m_WType.SetDescript( "Target W fixed or free" );
-
-    m_WTargetPt.Init( "W_TargetPt", "FitModel", VehicleMgr.GetVehicle(), 0, 0, 1 );
-    m_WTargetPt.SetDescript( "W Coordinate of Fixed Point" );
-
     m_DistMetric = 0;
 
     m_NumSelected = 0;
     m_LastSelGeom = "NONE";
-    m_SelectOneFlag.Init( "Select_One_Flag", "FitModel", VehicleMgr.GetVehicle(), false, 0, 1 );
-
-    m_SelectBoxFlag.Init( "Select_Box_Flag", "FitModel", VehicleMgr.GetVehicle(), false, 0, 1 );
 
     m_GUIShown = false;
 
@@ -1040,7 +1025,7 @@ void FitModelMgrSingleton::SelectPoint( string gid, int index )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    if ( m_SelectOneFlag() && m_LastSelGeom != "NONE" && m_NumSelected == 1 )
+    if ( veh->m_SelectOneFlag() && m_LastSelGeom != "NONE" && m_NumSelected == 1 )
     {
         Geom *g = veh->FindGeom( m_LastSelGeom );
         PtCloudGeom* pt_cloud = dynamic_cast< PtCloudGeom* >( g );
@@ -1261,7 +1246,9 @@ void FitModelMgrSingleton::ShowAll()
 
 void FitModelMgrSingleton::SetSelectOne()
 {
-    if ( m_SelectOneFlag() )
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh->m_SelectOneFlag() )
     {
         SelectNone();
 
@@ -1278,15 +1265,16 @@ void FitModelMgrSingleton::SetSelectOne()
             m_NumSelected++;
         }
 
-        m_SelectBoxFlag.Set( false );
+        veh->m_SelectBoxFlag.Set( false );
     }
 }
 
 void FitModelMgrSingleton::SetSelectBox()
 {
-    if ( m_SelectBoxFlag() )
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh->m_SelectBoxFlag() )
     {
-        m_SelectOneFlag.Set( false );
+        veh->m_SelectOneFlag.Set( false );
     }
 }
 
@@ -1296,8 +1284,8 @@ void FitModelMgrSingleton::AddSelectedPts( string tgtGeomID )
 
     vector< vec3d > targetCandidates;
 
-    bool ufix = m_UType.Get() == 0;
-    bool wfix = m_WType.Get() == 0;
+    bool ufix = veh->m_UType.Get() == 0;
+    bool wfix = veh->m_WType.Get() == 0;
 
     // If u and w is fixed, only one target can be add each time.
     if ( ufix && wfix )
@@ -1344,16 +1332,16 @@ void FitModelMgrSingleton::AddSelectedPts( string tgtGeomID )
     for ( int i = 0; i < ( int )targetCandidates.size(); i++ )
     {
         vec3d pt = targetCandidates[i];
-        vec2d uw( m_UTargetPt.Get(), m_WTargetPt.Get() );
+        vec2d uw( veh->m_UTargetPt.Get(), veh->m_WTargetPt.Get() );
 
         TargetPt *tpt = new TargetPt();
         tpt->SetPt( pt );
         tpt->SetMatchGeom( tgtGeomID );
         tpt->SetUW( uw );
-        tpt->SetUType( m_UType.Get() );
-        tpt->SetWType( m_WType.Get() );
+        tpt->SetUType( veh->m_UType.Get() );
+        tpt->SetWType( veh->m_WType.Get() );
 
-        Geom* g = VehicleMgr.GetVehicle()->FindGeom( tpt->GetMatchGeom() );
+        Geom* g = veh->FindGeom( tpt->GetMatchGeom() );
 
         tpt->SearchUW( g );
 

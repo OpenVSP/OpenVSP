@@ -153,6 +153,17 @@ Vehicle::Vehicle()
 
     m_WorkingXDDMType.Init( "Working_XDDM_Type", "Design", this, vsp::XDDM_VAR, vsp::XDDM_VAR, vsp::XDDM_CONST );
 
+    m_UType.Init( "U_Type", "FitModel", this, TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE );
+    m_UType.SetDescript( "Target U fixed or free" );
+    m_UTargetPt.Init( "U_TargetPt", "FitModel", this, 0, 0, 1 );
+    m_UTargetPt.SetDescript( "U Coordinate of Fixed Point" );
+    m_WType.Init( "W_Type", "FitModel", this, TargetPt::FREE, TargetPt::FIXED, TargetPt::FREE );
+    m_WType.SetDescript( "Target W fixed or free" );
+    m_WTargetPt.Init( "W_TargetPt", "FitModel", this, 0, 0, 1 );
+    m_WTargetPt.SetDescript( "W Coordinate of Fixed Point" );
+    m_SelectOneFlag.Init( "Select_One_Flag", "FitModel", this, false, 0, 1 );
+    m_SelectBoxFlag.Init( "Select_Box_Flag", "FitModel", this, false, 0, 1 );
+
     m_AFExportType.Init( "AFExportType", "AirfoilExport", this, vsp::BEZIER_AF_EXPORT, vsp::SELIG_AF_EXPORT, vsp::BEZIER_AF_EXPORT );
     m_AFExportType.SetDescript( "Airfoil Representation Written to File" );
     m_AFWTessFactor.Init( "AFWTessFactor", "AirfoilExport", this, 1.0, 0.01, 100 );
@@ -341,6 +352,13 @@ void Vehicle::Init()
     m_SVGView4_rot.Set( vsp::ROT_0 );
 
     m_WorkingXDDMType.Set( vsp::XDDM_VAR );
+
+    m_UType.Set( TargetPt::FREE );
+    m_UTargetPt.Set( 0 );
+    m_WType.Set( TargetPt::FREE );
+    m_WTargetPt.Set( 0 );
+    m_SelectOneFlag.Set( false );
+    m_SelectBoxFlag.Set( false );
 
     m_STLMultiSolid.Set( false );
     m_STLExportPropMainSurf.Set( false );

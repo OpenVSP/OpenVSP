@@ -1618,6 +1618,7 @@ void VspGlWindow::OnPush( int x, int y )
 {
     VSPGraphic::Display * display = m_GEngine->getDisplay();
     display->selectViewport( x, y );
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     if( Fl::event_button1() && Fl::event_button3() )
     {
@@ -1628,7 +1629,7 @@ void VspGlWindow::OnPush( int x, int y )
     {
         bool alltrue = false;
 
-        if( Fl::event_shift() || FitModelMgr.m_SelectBoxFlag() )
+        if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
         {
             FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
                 ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
@@ -1709,6 +1710,7 @@ void VspGlWindow::OnPush( int x, int y )
 void VspGlWindow::OnDrag( int x, int y )
 {
     VSPGraphic::Display * display = m_GEngine->getDisplay();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     if( Fl::event_button1() && Fl::event_button3() )
     {
@@ -1727,7 +1729,7 @@ void VspGlWindow::OnDrag( int x, int y )
     else if( Fl::event_button1() )
     {
         bool alltrue = false;
-        if( Fl::event_shift() || FitModelMgr.m_SelectBoxFlag() )
+        if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
         {
             FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
                 ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
@@ -1844,6 +1846,7 @@ void VspGlWindow::OnDrag( int x, int y )
 void VspGlWindow::OnRelease( int x, int y )
 {
     VSPGraphic::Display * display = m_GEngine->getDisplay();
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     // Reset buttons positions.
     switch( Fl::event_button() )
@@ -1851,7 +1854,7 @@ void VspGlWindow::OnRelease( int x, int y )
     case FL_LEFT_MOUSE:
         m_prevLB = m_prevAltLB = m_prevCtrlLB = glm::vec2( 0xFFFFFFFF );
         m_prevMetaLB = glm::vec2( 0xFFFFFFFF );
-        if( Fl::event_shift() || FitModelMgr.m_SelectBoxFlag() )
+        if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
         {
             FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
                 ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );

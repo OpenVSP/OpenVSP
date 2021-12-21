@@ -275,14 +275,6 @@ public:
     bool Save();
     int Load();
 
-    BoolParm m_SelectOneFlag;
-    BoolParm m_SelectBoxFlag;
-
-    IntParm m_UType;
-    IntParm m_WType;
-    Parm m_UTargetPt;
-    Parm m_WTargetPt;
-
     double m_DistMetric;
 
 private:

@@ -295,20 +295,22 @@ bool FitModelScreen::Update()
     int index;
     char str[256];
 
+    Vehicle * veh = VehicleMgr.GetVehicle();
+
     // Update the number of selected points.
     sprintf( str, "%d", FitModelMgr.GetNumSelected() );
     m_NSelOutput.Update( str );
 
     m_TargetGeomPicker.Update();
 
-    m_UToggleGroup.Update( FitModelMgr.m_UType.GetID() );
-    m_USlider.Update( FitModelMgr.m_UTargetPt.GetID() );
+    m_UToggleGroup.Update( veh->m_UType.GetID() );
+    m_USlider.Update( veh->m_UTargetPt.GetID() );
 
-    m_WToggleGroup.Update( FitModelMgr.m_WType.GetID() );
-    m_WSlider.Update( FitModelMgr.m_WTargetPt.GetID() );
+    m_WToggleGroup.Update( veh->m_WType.GetID() );
+    m_WSlider.Update( veh->m_WTargetPt.GetID() );
 
-    m_SelOneButton.Update( FitModelMgr.m_SelectOneFlag.GetID() );
-    m_SelBoxButton.Update( FitModelMgr.m_SelectBoxFlag.GetID() );
+    m_SelOneButton.Update( veh->m_SelectOneFlag.GetID() );
+    m_SelBoxButton.Update( veh->m_SelectBoxFlag.GetID() );
 
     // Update Fixed target point browser
     int h_pos = m_TargetPtBrowser->hposition();
@@ -326,7 +328,7 @@ bool FitModelScreen::Update()
         TargetPt* tpt = FitModelMgr.GetTargetPt( i );
         if( tpt )
         {
-            Geom* g = VehicleMgr.GetVehicle()->FindGeom( tpt->GetMatchGeom() );
+            Geom* g = veh->FindGeom( tpt->GetMatchGeom() );
             if( g )
             {
                 string ut;
@@ -514,6 +516,7 @@ void FitModelScreen::Hide()
 void FitModelScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
+    Vehicle * veh = VehicleMgr.GetVehicle();
 
     if( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
     {
@@ -528,11 +531,11 @@ void FitModelScreen::CallBack( Fl_Widget* w )
 
         if ( tpt )
         {
-            FitModelMgr.m_UType = tpt->GetUType();
-            FitModelMgr.m_WType = tpt->GetWType();
+            veh->m_UType = tpt->GetUType();
+            veh->m_WType = tpt->GetWType();
 
-            FitModelMgr.m_UTargetPt = tpt->GetUW().x();
-            FitModelMgr.m_WTargetPt = tpt->GetUW().y();
+            veh->m_UTargetPt = tpt->GetUW().x();
+            veh->m_WTargetPt = tpt->GetUW().y();
 
             m_TargetGeomPicker.SetGeomChoice( tpt->GetMatchGeom() );
         }
