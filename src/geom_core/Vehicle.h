@@ -475,6 +475,11 @@ public:
     IntParm m_NewHeightValue;
     BoolParm m_TransparentBGFlag;
 
+    // UserParmScreen
+    Parm m_UserParmVal;
+    Parm m_UserParmMin;
+    Parm m_UserParmMax;
+
     string m_BEMPropID;
 
     IntParm m_AFExportType;

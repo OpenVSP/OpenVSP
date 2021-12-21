@@ -70,9 +70,6 @@ protected:
     string m_NameText;
     string m_GroupText;
     string m_DescText;
-    Parm m_Val;
-    Parm m_Min;
-    Parm m_Max;
 
     int m_UserBrowserSelection;
 

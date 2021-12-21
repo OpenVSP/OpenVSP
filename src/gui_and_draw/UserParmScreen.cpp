@@ -19,10 +19,7 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
     m_NameText = "Default_Name";
     m_GroupText = "Default_Group";
     m_DescText = "Default_Desc";
-    m_Val.Init( "Val", "", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_Min.Init( "Min", "", NULL, -1.0e5, -1.0e12, 1.0e12 );
-    m_Max.Init( "Max", "", NULL,  1.0e5, -1.0e12, 1.0e12 );
- 
+
     //==== Tabs And Groups ====//
     Fl_Group* predef_tab = AddTab( "Predef" );
     Fl_Group* create_tab = AddTab( "Create" );
@@ -106,12 +103,14 @@ bool UserParmScreen::Update()
         m_PredefSliderVec[i].Update( LinkMgr.GetUserParmId( i ) );
     }
 
+    Vehicle *veh = m_ScreenMgr->GetVehiclePtr();
+
     m_ParmNameInput.Update( m_NameText );
     m_ParmGroupInput.Update( m_GroupText );
     m_ParmDescInput.Update( m_DescText );
-    m_ParmValueInput.Update( m_Val.GetID() );
-    m_ParmMinInput.Update( m_Min.GetID() );
-    m_ParmMaxInput.Update( m_Max.GetID() );
+    m_ParmValueInput.Update( veh->m_UserParmVal.GetID() );
+    m_ParmMinInput.Update( veh->m_UserParmMin.GetID() );
+    m_ParmMaxInput.Update( veh->m_UserParmMax.GetID() );
 
     //==== Load User Created Parms ====//
     int num_predef_parms = LinkMgr.GetNumPredefinedUserParms();
@@ -253,15 +252,12 @@ void UserParmScreen::CallBack( Fl_Widget *w )
 
 void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
+    Vehicle *veh = m_ScreenMgr->GetVehiclePtr();
     if ( gui_device == &m_CreateParm )
     {
         int type = vsp::PARM_DOUBLE_TYPE;
         if ( m_ParmTypeChoice.GetVal() == 1 )
             type = vsp::PARM_INT_TYPE;
-
-        m_NameText = m_ParmNameInput.GetString();
-        m_GroupText = m_ParmGroupInput.GetString();
-        m_DescText = m_ParmDescInput.GetString();
 
         string pid = LinkMgr.AddUserParm( type, m_NameText, m_GroupText );
         if ( pid.size() )
@@ -270,8 +266,8 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             if ( pptr )
             {
                 pptr->SetDescript( m_DescText );
-                pptr->SetLowerUpperLimits( m_Min(), m_Max() );
-                pptr->Set( m_Val() );
+                pptr->SetLowerUpperLimits( veh->m_UserParmMin(), veh->m_UserParmMax() );
+                pptr->Set( veh->m_UserParmVal() );
             }
             RebuildAdjustGroup();
         }
@@ -294,6 +290,18 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         LinkMgr.DeleteAllUserParm( );
         RebuildAdjustGroup();
         m_UserBrowserSelection = -1;
+    }
+    else if ( gui_device == &m_ParmNameInput)
+    {
+        m_NameText = m_ParmNameInput.GetString();
+    }
+    else if ( gui_device == &m_ParmGroupInput)
+    {
+        m_GroupText = m_ParmGroupInput.GetString();
+    }
+    else if ( gui_device == &m_ParmDescInput)
+    {
+        m_DescText = m_ParmDescInput.GetString();
     }
     else if ( gui_device == &m_EditParmNameInput ||
               gui_device == &m_EditParmGroupInput ||
