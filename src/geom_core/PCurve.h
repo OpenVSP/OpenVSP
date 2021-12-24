@@ -19,6 +19,7 @@ class PCurve : public ParmContainer
 {
 public:
     PCurve();
+    ~PCurve();
 
     IntParm m_CurveType;
 
