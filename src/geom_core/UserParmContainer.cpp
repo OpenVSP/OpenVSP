@@ -32,6 +32,7 @@ UserParmContainer::UserParmContainer() : ParmContainer()
 //==== Destructor ====//
 UserParmContainer::~UserParmContainer()
 {
+    Wype();
 }
 
 void UserParmContainer::Init(int num_initial_parms)
