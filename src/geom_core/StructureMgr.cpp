@@ -759,27 +759,32 @@ void StructureMgrSingleton::InitFeaProperties()
         }
     }
 
-    // Add default shell and beam property if none currently
-    FeaProperty* default_shell = new FeaProperty();
-
-    if ( default_shell && !shell_prop )
+    if ( !shell_prop )
     {
-        default_shell->SetName( "DefaultShell" );
-        default_shell->m_FeaMaterialIndex.Set( 0 ); // aluminum
-        default_shell->m_FeaPropertyType.Set( vsp::FEA_SHELL );
+        // Add default shell and beam property if none currently
+        FeaProperty* default_shell = new FeaProperty();
 
-        AddFeaProperty( default_shell );
+        if ( default_shell )
+        {
+            default_shell->SetName( "DefaultShell" );
+            default_shell->m_FeaMaterialIndex.Set( 0 ); // aluminum
+            default_shell->m_FeaPropertyType.Set( vsp::FEA_SHELL );
+
+            AddFeaProperty( default_shell );
+        }
     }
 
-    FeaProperty* default_beam = new FeaProperty();
-
-    if ( default_beam && !beam_prop )
+    if ( !beam_prop )
     {
-        default_beam->SetName( "DefaultBeam" );
-        default_beam->m_FeaMaterialIndex.Set( 0 ); // aluminum
-        default_beam->m_FeaPropertyType.Set( vsp::FEA_BEAM );
+        FeaProperty* default_beam = new FeaProperty();
+        if ( default_beam )
+        {
+            default_beam->SetName( "DefaultBeam" );
+            default_beam->m_FeaMaterialIndex.Set( 0 ); // aluminum
+            default_beam->m_FeaPropertyType.Set( vsp::FEA_BEAM );
 
-        AddFeaProperty( default_beam );
+            AddFeaProperty( default_beam );
+        }
     }
 }
 
