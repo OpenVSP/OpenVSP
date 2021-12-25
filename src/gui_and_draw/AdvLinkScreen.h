@@ -24,7 +24,7 @@ class AdvLinkScreen : public BasicScreen
 {
 public:
     AdvLinkScreen( ScreenMgr* mgr );
-    virtual ~AdvLinkScreen()                         {}
+    virtual ~AdvLinkScreen();
     void Show();
     void Hide();
     bool Update();

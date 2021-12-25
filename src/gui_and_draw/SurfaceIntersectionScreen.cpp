@@ -50,6 +50,8 @@ SurfaceIntersectionScreen::SurfaceIntersectionScreen( ScreenMgr* mgr ) : TabScre
 
 SurfaceIntersectionScreen::~SurfaceIntersectionScreen()
 {
+    m_ConsoleDisplay->buffer( NULL );
+    delete m_ConsoleBuffer;
 }
 
 void SurfaceIntersectionScreen::CreateGlobalTab()

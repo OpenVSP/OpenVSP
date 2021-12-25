@@ -1175,7 +1175,7 @@ class SkinHeader : public GuiDevice
 {
 public:
     SkinHeader();
-
+    ~SkinHeader();
 
     virtual void DeviceCB( Fl_Widget *w );
 
@@ -1247,6 +1247,7 @@ class PCurveEditor : public GuiDevice
 public:
 
     PCurveEditor();
+    ~PCurveEditor();
 
     // Initialize the member GUI devices and set their callbacks
     virtual void Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button* spbutton, Fl_Button* convbutton, Fl_Button* delbutton, Fl_Light_Button* delpickbutton, Fl_Light_Button* splitpickbutton, GroupLayout* ptlayout );

@@ -138,6 +138,12 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_CodeBuffer->text( "" );
 }
 
+AdvLinkScreen::~AdvLinkScreen()
+{
+    m_CodeEditor->buffer( NULL );
+    delete m_CodeBuffer;
+}
+
 //==== Update Screen ====//
 bool AdvLinkScreen::Update()
 {

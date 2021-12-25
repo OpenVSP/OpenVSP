@@ -218,6 +218,7 @@ private:
     GroupLayout( GroupLayout const& copy );          // Not Implemented
     GroupLayout& operator=( GroupLayout const& copy ); // Not Implemented
 
+    vector< SliderAdjRangeInput* > m_Slider_Cleanup;
 };
 
 void AddPointLine( const vector <double> & xdata, const vector <double> & ydata, int linewidth, Fl_Color color, int pointsize = 0, int pointstyle = 1 );

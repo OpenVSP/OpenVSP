@@ -86,6 +86,8 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "
 
 CompGeomScreen::~CompGeomScreen()
 {
+    m_TextDisplay->buffer( NULL );
+    delete m_TextBuffer;
 }
 
 void CompGeomScreen::LoadSetChoice( Choice & choice, int selectedindex )

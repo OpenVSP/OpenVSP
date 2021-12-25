@@ -1732,25 +1732,28 @@ void Choice::UpdateItems( bool keepsetting )
         m_Flags.resize( m_Items.size(), 0 );
     }
 
-    // Store index.
-    int savesetting = m_Choice->value();
+    if ( m_Choice )
+    {
+        // Store index.
+        int savesetting = m_Choice->value();
 
-    //==== Add Choice Text ===//
-    m_Choice->clear();
-    for ( int i = 0 ; i < ( int )m_Items.size() ; i++ )
-    {
-        m_Choice->add( m_Items[i].c_str(), 0, 0, 0, m_Flags[i] );
-    }
+        //==== Add Choice Text ===//
+        m_Choice->clear();
+        for ( int i = 0 ; i < ( int )m_Items.size() ; i++ )
+        {
+            m_Choice->add( m_Items[i].c_str(), 0, 0, 0, m_Flags[i] );
+        }
 
-    if( keepsetting )
-    {
-        // Restore index.
-        m_Choice->value( savesetting );
-    }
-    else
-    {
-        // Reset to default index.
-        m_Choice->value( 0 );
+        if( keepsetting )
+        {
+            // Restore index.
+            m_Choice->value( savesetting );
+        }
+        else
+        {
+            // Reset to default index.
+            m_Choice->value( 0 );
+        }
     }
 }
 
@@ -3251,6 +3254,11 @@ SkinHeader::SkinHeader()
     m_ContChoice = NULL;
 }
 
+SkinHeader::~SkinHeader()
+{
+    delete m_ContChoice;
+}
+
 void SkinHeader::Init( VspScreen* screen,
         Choice* cont_choice , const vector< VspButton* > &buttons )
 {
@@ -3520,6 +3528,11 @@ PCurveEditor::PCurveEditor()
     m_Curve = NULL;
     m_CurveB = NULL;
     m_SliderVecVec.resize( 2 );
+}
+
+PCurveEditor::~PCurveEditor()
+{
+    delete m_PtLayout;
 }
 
 void PCurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button* spbutton, Fl_Button* convbutton, Fl_Button* delbutton, Fl_Light_Button* delpickbutton, Fl_Light_Button* splitpickbutton, GroupLayout* ptlayout )

@@ -147,6 +147,13 @@ TabScreen::TabScreen( ScreenMgr* mgr, int w, int h, const string & title, int ba
 //==== Destructor ====//
 TabScreen::~TabScreen()
 {
+    for ( int i = 0; i < m_TabGroupVec.size(); i++ )
+    {
+        delete m_TabGroupVec[i];
+    }
+    m_TabGroupVec.clear();
+
+    delete m_MenuTabs;
 }
 
 Fl_Group* TabScreen::MakeTab( const string& title )

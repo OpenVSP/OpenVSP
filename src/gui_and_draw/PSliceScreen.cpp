@@ -84,6 +84,12 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 450, "Plan
     m_BorderLayout.AddYGap();
 }
 
+PSliceScreen::~PSliceScreen()
+{
+    m_TextDisplay->buffer( NULL );
+    delete m_TextBuffer;
+}
+
 bool PSliceScreen::Update()
 {
     assert( m_ScreenMgr );

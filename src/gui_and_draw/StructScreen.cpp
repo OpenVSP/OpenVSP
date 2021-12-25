@@ -963,6 +963,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
 
 StructScreen::~StructScreen()
 {
+    m_ConsoleDisplay->buffer( NULL );
+    delete m_ConsoleBuffer;
 }
 
 void StructScreen::LoadGeomChoice()

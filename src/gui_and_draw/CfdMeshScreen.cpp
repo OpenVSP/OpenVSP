@@ -52,6 +52,8 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 642, "CFD 
 
 CfdMeshScreen::~CfdMeshScreen()
 {
+    m_ConsoleDisplay->buffer( NULL );
+    delete m_ConsoleBuffer;
 }
 
 void CfdMeshScreen::CreateGlobalTab()

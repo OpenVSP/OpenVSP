@@ -621,6 +621,8 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
 ParasiteDragScreen::~ParasiteDragScreen()
 {
+    m_TextDisplay->buffer( NULL );
+    delete m_TextBuffer;
 }
 
 bool ParasiteDragScreen::Update()

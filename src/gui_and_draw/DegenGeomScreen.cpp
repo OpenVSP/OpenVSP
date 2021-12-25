@@ -71,6 +71,8 @@ DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 365,
 
 DegenGeomScreen::~DegenGeomScreen()
 {
+    m_TextDisplay->buffer( NULL );
+    delete m_TextBuffer;
 }
 
 void DegenGeomScreen::LoadSetChoice()

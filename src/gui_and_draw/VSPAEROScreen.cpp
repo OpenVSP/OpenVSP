@@ -766,6 +766,10 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
 VSPAEROScreen::~VSPAEROScreen()
 {
+    m_SolverDisplay->buffer( NULL );
+    delete m_SolverBuffer;
+    m_ViewerDisplay->buffer( NULL );
+    delete m_ViewerBuffer;
 }
 
 bool VSPAEROScreen::Update()

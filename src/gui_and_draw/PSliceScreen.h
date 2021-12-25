@@ -22,7 +22,7 @@ class PSliceScreen : public BasicScreen
 public:
 
     PSliceScreen( ScreenMgr* mgr );
-    virtual ~PSliceScreen()                          {}
+    virtual ~PSliceScreen();
 
     void Show();
     void Hide();

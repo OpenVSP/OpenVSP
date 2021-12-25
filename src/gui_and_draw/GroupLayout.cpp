@@ -61,6 +61,11 @@ void GroupLayout::InitWidthHeightVals()
 //==== Destructor ====//
 GroupLayout::~GroupLayout()
 {
+    for ( int i = 0; i < m_Slider_Cleanup.size(); i++ )
+    {
+        delete m_Slider_Cleanup[i];
+    }
+    m_Slider_Cleanup.clear();
 }
 
 //==== Hide Group ====//
@@ -1278,6 +1283,7 @@ void GroupLayout::AddDriverGroupBank( DriverGroupBank & dgBank, const vector < s
         AddX( 1 );
 
         sliders[i] = new SliderAdjRangeInput();
+        m_Slider_Cleanup.push_back( sliders[i] );
         AddSlider( *sliders[i], labels[i].c_str(), range, format );
 
         ForceNewLine();
