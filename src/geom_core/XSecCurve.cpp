@@ -13,7 +13,7 @@
 #include "ParmMgr.h"
 #include "FuselageGeom.h"
 #include "BORGeom.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include "StlHelper.h"
 #include "eli/geom/curve/length.hpp"
 

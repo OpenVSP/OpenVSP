@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "ParmMgr.h"
-#include "Util.h"
+#include "VspUtil.h"
 
 using std::map;
 using std::string;

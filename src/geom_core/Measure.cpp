@@ -4,7 +4,7 @@
 #include "LinkMgr.h"
 #include "VSP_Geom_API.h"
 #include "UnitConversion.h"
-#include "Util.h"
+#include "VspUtil.h"
 
 Probe::Probe() : ParmContainer()
 {

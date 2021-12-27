@@ -16,7 +16,7 @@
 #include "AnalysisMgr.h"
 #include "SurfaceIntersectionMgr.h"
 #include "CfdMeshMgr.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include "DesignVarMgr.h"
 #include "VarPresetMgr.h"
 #include "ParasiteDragMgr.h"

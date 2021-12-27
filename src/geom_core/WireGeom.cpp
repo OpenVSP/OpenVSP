@@ -8,7 +8,7 @@
 #include "WireGeom.h"
 #include "Vehicle.h"
 #include "StringUtil.h"
-#include "Util.h"
+#include "VspUtil.h"
 
 //==== Constructor ====//
 WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )

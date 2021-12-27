@@ -17,7 +17,7 @@
 #include "Background.h"
 #include "GraphicSingletons.h"
 
-#include "Util.h"
+#include "VspUtil.h"
 
 //==== Constructor ====//
 CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17, "Edit Curve", 180, 425 )

@@ -14,7 +14,7 @@
 #include "VKTAirfoil.h"
 #include "Cluster.h"
 #include "StlHelper.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include "VehicleMgr.h"
 #include "Vehicle.h"
 

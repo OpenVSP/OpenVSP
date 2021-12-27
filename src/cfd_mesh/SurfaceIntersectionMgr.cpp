@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "SurfaceIntersectionMgr.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include "SubSurfaceMgr.h"
 #include "StringUtil.h"
 #include <cfloat>  //For DBL_EPSILON

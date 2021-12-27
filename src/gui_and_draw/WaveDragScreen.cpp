@@ -11,7 +11,7 @@
 #include "WaveDragScreen.h"
 #include "SubSurfaceMgr.h"
 #include "StlHelper.h"
-#include "Util.h"
+#include "VspUtil.h"
 
 /////////////////// Construction/Destruction /////////////////////////
 

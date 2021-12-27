@@ -18,7 +18,7 @@
 #include "StlHelper.h"
 #include "PntNodeMerge.h"
 #include "Cluster.h"
-#include "Util.h"
+#include "VspUtil.h"
 
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"

@@ -10,7 +10,7 @@
 #include "VSPAEROPlotScreen.h"
 #include "float.h"
 
-#include "Util.h"
+#include "VspUtil.h"
 
 
 //////////////////////////////////////////////////////////////////////

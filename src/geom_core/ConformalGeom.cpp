@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "APIDefines.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include "ConformalGeom.h"
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"

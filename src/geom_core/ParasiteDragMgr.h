@@ -14,7 +14,7 @@
 #include "Parm.h"
 #include "Atmosphere.h"
 #include "UnitConversion.h"
-#include "Util.h"
+#include "VspUtil.h"
 
 #include <string>
 #include <vector>

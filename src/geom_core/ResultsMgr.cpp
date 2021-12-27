@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Vehicle.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include "StlHelper.h"
 
 #ifdef WIN32

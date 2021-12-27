@@ -14,7 +14,7 @@
 //******************************************************************************
 
 #include "BezierCurve.h"
-#include "Util.h"
+#include "VspUtil.h"
 
 #include "eli/geom/curve/length.hpp"
 

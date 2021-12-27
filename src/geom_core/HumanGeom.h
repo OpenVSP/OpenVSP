@@ -20,7 +20,7 @@
 #include "Defines.h"
 #include "Vec3d.h"
 #include "Vec2d.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include "Vsp1DCurve.h"
 #include "ResultsMgr.h"
 

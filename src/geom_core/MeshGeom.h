@@ -21,7 +21,7 @@
 #include "Defines.h"
 #include "Vec2d.h"
 #include "Geom.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include "ResultsMgr.h"
 #include <set>
 #include <map>

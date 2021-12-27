@@ -23,7 +23,7 @@
 #include "StlHelper.h"
 
 #include "SubSurfaceMgr.h"
-#include "Util.h"
+#include "VspUtil.h"
 
 //==== Constructor =====//
 MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )

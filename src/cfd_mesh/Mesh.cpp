@@ -10,7 +10,7 @@
 #define _USE_MATH_DEFINES
 #include "Mesh.h"
 #include "Surf.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include <triangle.h>
 #include <triangle_api.h>
 

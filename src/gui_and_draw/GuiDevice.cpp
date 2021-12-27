@@ -16,7 +16,7 @@
 #include "LinkMgr.h"
 #include "AdvLinkMgr.h"
 #include "StlHelper.h"
-#include "Util.h"
+#include "VspUtil.h"
 #include <cfloat>  //For DBL_EPSILON
 
 // Xlib.h does a horrible '#define Status int' which causes problems for exprparse.
