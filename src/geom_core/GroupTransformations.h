@@ -41,9 +41,6 @@ public:
     // Accepts all values
     virtual void Accept();
 
-    // Initialization function
-    virtual void Init( Vehicle* vehicle );
-
     // Getters and setters
     virtual vec3d GetColor() { return m_GroupColor; }
     virtual void SetColor( const vec3d &color );
@@ -70,9 +67,6 @@ protected:
 
     // Stores original group variable values
     vector< vector< double > > m_oldVarVals;
-
-    // Pointer back to the vehicle that owns this class
-    Vehicle* m_Vehicle;
 
     // Material properties
     Material m_GroupMaterial;

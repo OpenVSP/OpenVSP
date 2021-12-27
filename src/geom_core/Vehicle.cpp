@@ -260,11 +260,6 @@ Vehicle::Vehicle()
     m_PlanarEndLocation.Init( "PlanarEndLocation", "PSlice", this, 10, -1e12, 1e12 );
     m_PlanarEndLocation.SetDescript( "Planar End Location" );
 
-    
-
-    // Initialize the group transformations object
-    m_GroupTransformations.Init( this );
-
     SetupPaths();
     m_VehProjectVec3d.resize( 3 );
     m_ColorCount = 0;
