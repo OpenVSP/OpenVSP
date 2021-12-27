@@ -11,14 +11,14 @@
 GroupTransformations::GroupTransformations()
 {
     // Initialize paramters
-    m_GroupXLoc.Init( "Group_XLoc", "Group", this, 0, -1e12, 1e12 );
-    m_GroupYLoc.Init( "Group_YLoc", "Group", this, 0, -1e12, 1e12 );
-    m_GroupZLoc.Init( "Group_ZLoc", "Group", this, 0, -1e12, 1e12 );
-    m_GroupXRot.Init( "Group_XRot", "Group", this, 0, -360.0, 360.0 );
-    m_GroupYRot.Init( "Group_YRot", "Group", this, 0, -360.0, 360.0 );
-    m_GroupZRot.Init( "Group_ZRot", "Group", this, 0, -360.0, 360.0 );
-    m_GroupScale.Init( "Group_Scale", "Group", this, 1, 1.0e-3, 1.0e3 );
-    m_scaleGroupTranslations.Init( "ScaleGroupTranslations", "Group", this, true, false, true );
+    m_GroupXLoc.Init( "Group_XLoc", "GroupXForm", this, 0, -1e12, 1e12 );
+    m_GroupYLoc.Init( "Group_YLoc", "GroupXForm", this, 0, -1e12, 1e12 );
+    m_GroupZLoc.Init( "Group_ZLoc", "GroupXForm", this, 0, -1e12, 1e12 );
+    m_GroupXRot.Init( "Group_XRot", "GroupXForm", this, 0, -360.0, 360.0 );
+    m_GroupYRot.Init( "Group_YRot", "GroupXForm", this, 0, -360.0, 360.0 );
+    m_GroupZRot.Init( "Group_ZRot", "GroupXForm", this, 0, -360.0, 360.0 );
+    m_GroupScale.Init( "Group_Scale", "GroupXForm", this, 1, 1.0e-3, 1.0e3 );
+    m_scaleGroupTranslations.Init( "ScaleGroupTranslations", "GroupXForm", this, true, false, true );
 
     // Initialize Material and Color
     m_GroupMaterial.SetMaterialToDefault();
