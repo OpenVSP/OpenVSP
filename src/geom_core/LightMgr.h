@@ -10,24 +10,24 @@
 /*!
 * This class keep tracks list of lights.
 */
-class LightMgr
+class LightMgrSingleton
 {
 public:
-    static LightMgr * getInstance()
+    static LightMgrSingleton & getInstance()
     {
-        static LightMgr lightMgr;
-        return &lightMgr;
+        static LightMgrSingleton instance;
+        return instance;
     }
 
 protected:
     /*!
     * Construct a list of lights.
     */
-    LightMgr();
+    LightMgrSingleton();
     /*!
     * Destructor.
     */
-    virtual ~LightMgr();
+    virtual ~LightMgrSingleton();
 
 public:
     /*!
@@ -55,4 +55,7 @@ public:
 private:
     std::vector< Light* > m_Lights;
 };
+
+#define LightMgr LightMgrSingleton::getInstance()
+
 #endif

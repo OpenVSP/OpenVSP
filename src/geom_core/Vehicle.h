@@ -52,21 +52,6 @@
 #define NUM_SETS 20 // Number of sets
 #define DEFAULT_SET vsp::SET_TYPE::SET_SHOWN // Default set index
 
-/*!
-* Centralized place to access all GUI related Parm objects.
-*/
-class VehicleGuiDraw
-{
-public:
-    /*!
-    * Get Lights pointer.
-    */
-    static LightMgr * getLightMgr()
-    {
-        return LightMgr::getInstance();
-    }
-};
-
 //==== Vehicle ====//
 class Vehicle : public ParmContainer
 {
@@ -192,11 +177,6 @@ public:
     //==== Get Script Dir to Write Scripts ====//
     string GetWriteScriptDir()                              { return m_CustomScriptDirs[0]; }
     vector < string > GetCustomScriptDirs()                 { return m_CustomScriptDirs; }
-
-    const VehicleGuiDraw * getVGuiDraw() const
-    {
-        return &m_VGuiDraw;
-    }
 
     //=== Export Files ===//
     // Return Mesh Geom ID if the export generates a mesh, otherwise return an 
@@ -557,8 +537,6 @@ protected:
 
     ClippingMgr m_ClippingMgr;
     SnapTo m_SnapTo;
-
-    VehicleGuiDraw m_VGuiDraw;
 
     // Class to handle group transformations
     GroupTransformations m_GroupTransformations;

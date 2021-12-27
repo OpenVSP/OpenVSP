@@ -1,7 +1,7 @@
 #include "LightMgr.h"
 
 
-LightMgr::LightMgr()
+LightMgrSingleton::LightMgrSingleton()
 {
     for( int i = 0; i < NUMOFLIGHTS; i++ )
     {
@@ -33,7 +33,8 @@ LightMgr::LightMgr()
     m_Lights[2]->m_Diff = 0.5;
     m_Lights[2]->m_Spec = 0.5;
 }
-LightMgr::~LightMgr()
+
+LightMgrSingleton::~LightMgrSingleton()
 {
     for( int i = 0; i < (int)m_Lights.size(); i++ )
     {
@@ -41,7 +42,7 @@ LightMgr::~LightMgr()
     }
 }
 
-Light * LightMgr::Get( unsigned int index )
+Light * LightMgrSingleton::Get(unsigned int index )
 {
     if( index < NUMOFLIGHTS )
     {
@@ -50,12 +51,12 @@ Light * LightMgr::Get( unsigned int index )
     return NULL;
 }
 
-std::vector< Light* > LightMgr::GetVec()
+std::vector< Light* > LightMgrSingleton::GetVec()
 {
     return m_Lights;
 }
 
-xmlNodePtr LightMgr::EncodeXml( xmlNodePtr node )
+xmlNodePtr LightMgrSingleton::EncodeXml(xmlNodePtr node )
 {
     char lightName[256];
 
@@ -71,7 +72,7 @@ xmlNodePtr LightMgr::EncodeXml( xmlNodePtr node )
     return light_root_node;
 }
 
-xmlNodePtr LightMgr::DecodeXml( xmlNodePtr node )
+xmlNodePtr LightMgrSingleton::DecodeXml(xmlNodePtr node )
 {
     char lightName[256];
 

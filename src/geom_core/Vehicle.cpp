@@ -1770,7 +1770,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     ParmContainer::EncodeXml( vehicle_node );
 
     // Encode lighting information.
-    getVGuiDraw()->getLightMgr()->EncodeXml( vehicle_node );
+    LightMgr.EncodeXml( vehicle_node );
 
     // Encode label information.
     MeasureMgr.EncodeXml( vehicle_node );
@@ -1818,7 +1818,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         ParmContainer::DecodeXml( vehicle_node );
 
         // Decode lighting information.
-        getVGuiDraw()->getLightMgr()->DecodeXml( vehicle_node );
+        LightMgr.DecodeXml( vehicle_node );
 
         // Decode label information.
         MeasureMgr.DecodeXml( vehicle_node );
