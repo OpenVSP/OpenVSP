@@ -71,8 +71,6 @@ public:
     void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
     void UnDo();
 
-    static string GenerateID( int length );
-
     string ForceRemapID( const string & oldID, int size );
     string RemapID( const string & oldID, const string & suggestID = "" );
     string ResetRemapID( const string & lastReset = "" );

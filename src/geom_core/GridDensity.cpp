@@ -11,6 +11,7 @@
 #include "Geom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "Util.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -322,7 +323,7 @@ BaseSimpleSource::BaseSimpleSource()
 
     m_SurfIndx = -1;
 
-    m_DrawObjID = ParmMgr.GenerateID( 8 );
+    m_DrawObjID = GenerateRandomID( 8 );
 }
 
 vector< vec3d > BaseSimpleSource::CreateSphere( double rad, const vec3d& loc )

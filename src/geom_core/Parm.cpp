@@ -14,6 +14,7 @@
 
 #include "Combination.h"
 #include "StlHelper.h"
+#include "Util.h"
 
 using std::string;
 
@@ -240,7 +241,7 @@ void Parm::SetLowerUpperLimits( double lower_limit, double upper_limit )
 //==== Generate Unique ID ====//
 string Parm::GenerateID()
 {
-    return ParmMgr.GenerateID( 11 );
+    return GenerateRandomID( 11 );
 }
 
 string Parm::GetContainerID()

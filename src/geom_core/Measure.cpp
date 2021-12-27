@@ -4,6 +4,7 @@
 #include "LinkMgr.h"
 #include "VSP_Geom_API.h"
 #include "UnitConversion.h"
+#include "Util.h"
 
 Probe::Probe() : ParmContainer()
 {
@@ -33,7 +34,7 @@ Probe::Probe() : ParmContainer()
 
     m_Len.Init( "Len", "Measure", this, 1.0, 0.0, 1.0e12 );
 
-    m_LabelDO.m_GeomID = ParmMgr.GenerateID( 4 ) + "_Probe";
+    m_LabelDO.m_GeomID = GenerateRandomID( 4 ) + "_Probe";
     m_LabelDO.m_Type = DrawObj::VSP_PROBE;
     m_LabelDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_LabelDO.m_Probe.Step = DrawObj::VSP_PROBE_STEP_ZERO;
@@ -189,7 +190,7 @@ Ruler::Ruler() : ParmContainer()
 
     m_Distance.Init( "Distance", "Measure", this, 0.0, -1.0e12, 1.0e12 );
 
-    m_LabelDO.m_GeomID = ParmMgr.GenerateID( 4 ) + "_Ruler";
+    m_LabelDO.m_GeomID = GenerateRandomID( 4 ) + "_Ruler";
     m_LabelDO.m_Type = DrawObj::VSP_RULER;
     m_LabelDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_LabelDO.m_Ruler.Step = DrawObj::VSP_RULER_STEP_ZERO;

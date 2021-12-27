@@ -13,6 +13,7 @@
 #include "StringUtil.h"
 #include "StlHelper.h"
 #include "Vehicle.h"
+#include "Util.h"
 
 using std::string;
 
@@ -108,7 +109,7 @@ ParmContainer* ParmContainer::GetParentContainerPtr() const
 //==== Create A Unique ID  =====//
 string ParmContainer::GenerateID()
 {
-    return ParmMgr.GenerateID( 10 );
+    return GenerateRandomID( 10 );
 }
 
 void ParmContainer::ChangeID( string id )

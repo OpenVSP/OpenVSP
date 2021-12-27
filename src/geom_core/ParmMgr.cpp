@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "ParmMgr.h"
+#include "Util.h"
 
 using std::map;
 using std::string;
@@ -183,27 +184,6 @@ void ParmMgrSingleton::UnDo()
     }
 }
 
-//==== Create A Unique ID  =====//
-string ParmMgrSingleton::GenerateID( int length )
-{
-    static bool seed = false;
-    if ( !seed )
-    {
-        seed = true;
-        srand( ( unsigned int )time( NULL ) );
-    }
-
-    static char str[256];
-    for ( int i = 0 ; i < length ; i++ )
-    {
-        str[i] = ( char )( ( rand() % 26 ) + 65 );
-    }
-    string id( str, length );
-
-    return id;
-}
-
-
 //==== Remap oldID into newID avoiding collisions ====//
 
 // RemapID will map an old set of ID's to a new set of ID's.
@@ -256,7 +236,7 @@ string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID
         {
             if ( size != -1 )
             {
-                newID = GenerateID( size );                 //  generate new.
+                newID = GenerateRandomID( size );                 //  generate new.
             }
             else if ( suggestID.compare( "" ) != 0 )        //  suggestion provided
             {
@@ -264,7 +244,7 @@ string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID
             }
             else
             {
-                newID = GenerateID( oldID.size() );    //  generate new.
+                newID = GenerateRandomID( oldID.size() );    //  generate new.
             }
         }
 
@@ -289,7 +269,7 @@ string ParmMgrSingleton::ResetRemapID( const string & lastReset )
 
     m_IDRemap.clear();
 
-    m_LastReset = GenerateID( 3 );
+    m_LastReset = GenerateRandomID( 3 );
     return m_LastReset;
 }
 
