@@ -17,6 +17,7 @@
 #include <libxml/tree.h>
 #include <libxml/nanohttp.h>
 
+#include <functional>
 
 #ifdef WIN32
 #include <direct.h>
@@ -86,22 +87,11 @@ void* CheckVersionNumber( void *threadid )
     char cCurrentPath[FILENAME_MAX];
     GetCurrentDir( cCurrentPath, sizeof( cCurrentPath ) );
 
-    int user_id = 0;
-    int path_len = strlen( cCurrentPath );
-
-    for ( int i = 0 ; i < path_len ; i++ )
-    {
-        srand ( ( unsigned int )cCurrentPath[i] );
-        user_id += rand() % 100000 + 1;
-    }
-
-    // Reset random seed after generating user_id.
-    // +1 is to be sure this isn't called less than zero seconds from before.
-    srand( ( unsigned int )time( NULL ) + 1 );
+    unsigned long user_id = ( unsigned long )std::hash<std::string>{}( string( cCurrentPath ) );
 
     //==== Post User Info To Server ====//
     char poststr[256];
-    sprintf( poststr, "postvar1=%d&postvar2=%d\r\n", user_id, ver_no );
+    sprintf( poststr, "postvar1=%lu&postvar2=%d\r\n", user_id, ver_no );
     int poststrlen = strlen( poststr );
     const char*  headers = "Content-Type: application/x-www-form-urlencoded \n";
 
