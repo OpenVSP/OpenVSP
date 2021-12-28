@@ -30,6 +30,13 @@ protected:
     virtual ~LightMgrSingleton();
 
 public:
+
+    void Init();
+
+    void Wype();
+
+    void Renew();
+
     /*!
     * Get light info at index.  The range of index
     * is defined by the value in NUMOFLIGHTS. Return

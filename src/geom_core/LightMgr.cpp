@@ -3,9 +3,18 @@
 
 LightMgrSingleton::LightMgrSingleton()
 {
+}
+
+LightMgrSingleton::~LightMgrSingleton()
+{
+    Wype();
+}
+
+void LightMgrSingleton::Init()
+{
     for( int i = 0; i < NUMOFLIGHTS; i++ )
     {
-        m_Lights.push_back(new Light());
+        m_Lights.push_back( new Light() );
     }
 
     // Setup default lights.
@@ -34,12 +43,19 @@ LightMgrSingleton::LightMgrSingleton()
     m_Lights[2]->m_Spec = 0.5;
 }
 
-LightMgrSingleton::~LightMgrSingleton()
+void LightMgrSingleton::Wype()
 {
     for( int i = 0; i < (int)m_Lights.size(); i++ )
     {
         delete m_Lights[i];
     }
+    m_Lights.clear();
+}
+
+void LightMgrSingleton::Renew()
+{
+    Wype();
+    Init();
 }
 
 Light * LightMgrSingleton::Get(unsigned int index )

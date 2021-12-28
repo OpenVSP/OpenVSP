@@ -283,6 +283,7 @@ Vehicle::~Vehicle()
 void Vehicle::Init()
 {
     //==== Init Custom Geom and Script Mgr ====//
+    LightMgr.Init();
     CustomGeomMgr.Init();
     ScriptMgr.Init();
     AdvLinkMgr.Init();
@@ -488,6 +489,8 @@ void Vehicle::Wype()
     VSPAEROMgr.Renew();
     MeasureMgr.Renew();
     StructureMgr.Renew();
+
+    LightMgr.Wype();
 }
 
 void Vehicle::SetVSP3FileName( const string & f_name )
