@@ -4,22 +4,26 @@
 //
 
 #include "VspUtil.h"
-#include <ctime>
+#include <random>
+#include <pcg_random.hpp>
 
 //==== Generate A Unique Random String of Length =====//
 string GenerateRandomID( int length )
 {
     static bool seed = false;
+    static pcg64_fast rng;
+
     if ( !seed )
     {
         seed = true;
-        srand( ( unsigned int )time( NULL ) );
+        pcg_extras::seed_seq_from< std::random_device > seed_source;
+        rng.seed( seed_source );
     }
 
     static char str[256];
     for ( int i = 0 ; i < length ; i++ )
     {
-        str[i] = ( char )( ( rand() % 26 ) + 65 );
+        str[i] = ( char )( ( rng() % 26 ) + 65 );
     }
     return string( str, length );
 }
