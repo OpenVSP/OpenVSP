@@ -1111,6 +1111,8 @@ public:
         return m_DriverGroup;
     }
 
+    void EnforceXSecGeomType( int geom_type ); // Called from CurveEditScreen to disable drivers for Wing and Prop
+
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr )      {}

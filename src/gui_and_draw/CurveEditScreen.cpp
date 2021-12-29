@@ -449,6 +449,9 @@ bool CurveEditScreen::Update()
     vector< string > parm_ids = edit_curve_xs->GetDriverParms();
     m_XSecDriverGroupBank.Update( parm_ids );
 
+    Geom* geom = m_ScreenMgr->GetCurrGeom();
+    m_XSecDriverGroupBank.EnforceXSecGeomType( geom->GetType().m_Type );
+
     m_AbsDimToggle.Update( edit_curve_xs->m_AbsoluteFlag.GetID() );
 
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();

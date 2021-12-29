@@ -3061,6 +3061,30 @@ void DriverGroupBank::Update( vector< string > & parm_ids )
     }
 }
 
+void DriverGroupBank::EnforceXSecGeomType( int geom_type )
+{
+    // Force width and height drivers for Wing and Prop and disable other driver options
+
+    // TODO: extend this functionality to the API so users can't adjust width and height 
+    // parameters for Wing or Prop Geom types. 
+    if ( !m_DriverGroup || ( geom_type != MS_WING_GEOM_TYPE && geom_type != PROP_GEOM_TYPE ) )
+    {
+        return;
+    }
+
+    m_Buttons[vsp::AREA_XSEC_DRIVER][0]->deactivate();
+    m_Buttons[vsp::HWRATIO_XSEC_DRIVER][0]->deactivate();
+    m_Buttons[vsp::AREA_XSEC_DRIVER][1]->deactivate();
+    m_Buttons[vsp::HWRATIO_XSEC_DRIVER][1]->deactivate();
+
+    m_Sliders[vsp::WIDTH_XSEC_DRIVER]->Deactivate();
+
+    if (geom_type == PROP_GEOM_TYPE)
+    {
+        m_Sliders[vsp::HEIGHT_XSEC_DRIVER]->Deactivate();
+    }
+}
+
 void DriverGroupBank::Activate()
 {
 
