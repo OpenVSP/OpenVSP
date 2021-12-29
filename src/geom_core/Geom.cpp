@@ -899,9 +899,13 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 
     // Mass Properties
     m_Density.Init( "Density", "Mass_Props", this, 1, 0.0, 1e12 );
+    m_Density.SetDescript("Volumetric density (mass/len^3)");
     m_MassArea.Init( "Mass_Area", "Mass_Props", this, 1, 0.0, 1e12 );
+    m_MassArea.SetDescript("Areal density (mass/len^2)");
     m_MassPrior.Init( "Mass_Prior", "Mass_Props", this, 0, 0, 1e12 );
+    m_MassPrior.SetDescript("Priority for volume overlap.  Highest priority wins.");
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
+    m_ShellFlag.SetDescript("Flag to turn on/off area-based mass contribution");
 
     // Negative Volume Properties
     m_NegativeVolumeFlag.Init( "Negative_Volume_Flag", "Negative_Volume_Props", this, false, 0, 1);
