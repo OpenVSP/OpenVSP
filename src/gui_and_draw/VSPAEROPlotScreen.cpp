@@ -123,7 +123,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     // Plot layout
     int plotWidth = totalWidth - controlWidth - 2 * groupBorderWidth;
     int plotTopBottomMargin = 25;
-    int plotSideMargin = 20;
+    int plotSideMargin = 25;
     m_ConvergenceLayout.AddX( controlWidth + 2 * groupBorderWidth );
     m_ConvergenceLayout.AddSubGroupLayout( m_ConvergencePlotLayout, plotWidth, m_ConvergenceLayout.GetH() - 2 * groupBorderWidth );
     m_ConvergencePlotLayout.AddX( plotSideMargin );
