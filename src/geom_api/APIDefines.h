@@ -611,6 +611,11 @@ enum VSPAERO_STABILITY_TYPE { STABILITY_OFF,
                               STABILITY_IMPULSE // TODO: Implement with later VSPAERO version
                             };
 
+enum VSPAERO_CLMAX_TYPE { CLMAX_OFF,
+                          CLMAX_2D,
+                          CLMAX_CARLSON // Carlson's Pressure Correlation
+                        };
+
 enum VSP_SURF_CFD_TYPE { CFD_NORMAL,
                          CFD_NEGATIVE,
                          CFD_TRANSPARENT,

@@ -1791,6 +1791,17 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     //r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_IMPULSE", STABILITY_IMPULSE );
     //assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum for the VSPAERO stall modeling options (Cl Max VSPAERO input). */";
+
+    r = se->RegisterEnum( "VSPAERO_CLMAX_TYPE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_CLMAX_TYPE", "CLMAX_OFF", CLMAX_OFF, "/*!< Stall modeling off (Cl Max = 0) */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_CLMAX_TYPE", "CLMAX_2D", CLMAX_2D, "/*!< 2D Cl Max stall modeling with user defined value */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_CLMAX_TYPE", "CLMAX_CARLSON", CLMAX_CARLSON, "/*!< Carlson's Pressure Correlation stal model (Cl Max = 999) */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum that is used to describe surfaces in CFD Mesh. */";
 
     r = se->RegisterEnum( "VSP_SURF_CFD_TYPE", doc_struct );
