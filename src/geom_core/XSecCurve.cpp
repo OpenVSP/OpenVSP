@@ -3683,7 +3683,11 @@ void EditCurveXSec::ReparameterizeEqualArcLength()
 
         if ( m_SymType() == vsp::SYM_RL && ( m_UParmVec[iend]->Get() > 0.25 && m_UParmVec[iend]->Get() <= 0.75 ) )
         {
-            continue;
+            if ( m_UParmVec[iend]->Get() == 0.75 )
+            {
+                i_seg_prev = iend; // Set previous index after skipping left half of XSec
+            }
+            continue; // Skip left half of XSec when symmetry is on - EnforceSymmetry will mirror the right side
         }
         else if ( m_FixedUVec[iend]->Get() || ( m_SymType() == vsp::SYM_RL && m_UParmVec[iend]->Get() == 0.25 ) || ( iend == npt - 1 ) )
         {
