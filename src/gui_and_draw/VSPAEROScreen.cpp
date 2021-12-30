@@ -333,15 +333,19 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     int labelwidth = 120;
     int inputwidth = 50;
     m_OtherParmsLayout.AddDividerBox( "Other" );
+    m_OtherParmsLayout.SetButtonWidth( 80 ); // Match with m_NCPUSlider
+    m_OtherParmsLayout.SetInputWidth( 50 );
+    m_OtherParmsLayout.AddChoice( m_ClmaxChoice, "Stall Model" );
+    m_ClmaxChoice.AddItem( "Off", vsp::CLMAX_OFF );
+    m_ClmaxChoice.AddItem( "2D Clmax", vsp::CLMAX_2D );
+    m_ClmaxChoice.AddItem( "Carlson Pressure Correlation", vsp::CLMAX_CARLSON );
+    m_ClmaxChoice.UpdateItems();
+    m_OtherParmsLayout.SetButtonWidth( labelwidth + togglewidth );
+    m_OtherParmsLayout.AddSlider( m_ClmaxSlider, "Clmax", 10, "%2.3f" );
     m_OtherParmsLayout.SetSameLineFlag(true);
     m_OtherParmsLayout.SetFitWidthFlag(false);
     m_OtherParmsLayout.SetInputWidth(inputwidth);
     m_OtherParmsLayout.SetSliderWidth( m_OtherParmsLayout.GetW() - inputwidth - togglewidth - labelwidth - 20 );
-    m_OtherParmsLayout.SetButtonWidth(togglewidth);
-    m_OtherParmsLayout.AddButton( m_ClmaxToggle, "" );
-    m_OtherParmsLayout.SetButtonWidth( labelwidth );
-    m_OtherParmsLayout.AddSlider( m_ClmaxSlider, "Clmax", 10, "%2.3f" );
-    m_OtherParmsLayout.ForceNewLine();
     m_OtherParmsLayout.SetButtonWidth(togglewidth);
     m_OtherParmsLayout.AddButton( m_MaxTurningToggle, "" );
     m_OtherParmsLayout.SetButtonWidth( labelwidth );
@@ -1436,7 +1440,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     }
 
     // Other Set Up Parms
-    m_ClmaxToggle.Update( VSPAEROMgr.m_ClMaxToggle.GetID() );
+    m_ClmaxChoice.Update( VSPAEROMgr.m_ClMaxToggle.GetID() );
     m_ClmaxSlider.Update( VSPAEROMgr.m_ClMax.GetID() );
     m_MaxTurningToggle.Update( VSPAEROMgr.m_MaxTurnToggle.GetID() );
     m_MaxTurningSlider.Update( VSPAEROMgr.m_MaxTurnAngle.GetID() );

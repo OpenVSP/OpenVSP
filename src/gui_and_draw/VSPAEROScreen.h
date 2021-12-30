@@ -197,7 +197,7 @@ protected:
     SliderAdjRangeInput m_NumWakeNodeSlider;
 
     // Other Setup Parms Setup
-    ToggleButton m_ClmaxToggle;
+    Choice m_ClmaxChoice;
     ToggleButton m_MaxTurningToggle;
     ToggleButton m_FarDistToggle;
     ToggleButton m_GroundEffectToggle;

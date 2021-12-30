@@ -197,7 +197,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_ExperimentalInputFormatFlag.SetDescript( "Flag to Use Experimental VSPGeom Input File Format" );
     m_ClMax.Init( "Clmax", groupname, this, -1, -1, 1e3 );
     m_ClMax.SetDescript( "Cl Max of Aircraft" );
-    m_ClMaxToggle.Init( "ClmaxToggle", groupname, this, false, false, true );
+    m_ClMaxToggle.Init( "ClmaxToggle", groupname, this, vsp::CLMAX_OFF, vsp::CLMAX_OFF, vsp::CLMAX_CARLSON );
+    m_ClMaxToggle.SetDescript( "Stall Modeling Option" );
     m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, -1, -1, 360 );
     m_MaxTurnAngle.SetDescript( "Max Turning Angle of Aircraft" );
     m_MaxTurnToggle.Init( "MaxTurnToggle", groupname, this, false, false, true );
@@ -340,7 +341,7 @@ void VSPAEROMgrSingleton::Renew()
 
     m_WakeNumIter.Set( 5 );
 
-    m_ClMaxToggle.Set( false );
+    m_ClMaxToggle.Set( vsp::CLMAX_OFF );
     m_MaxTurnToggle.Set( false );
     m_FarDistToggle.Set( false );
     m_GroundEffectToggle.Set( false );
@@ -508,15 +509,21 @@ void VSPAEROMgrSingleton::UpdateSref()
 
 void VSPAEROMgrSingleton::UpdateSetupParmLimits()
 {
-    if ( m_ClMaxToggle() )
+    if ( m_ClMaxToggle.Get() == vsp::CLMAX_2D )
     {
         m_ClMax.SetLowerLimit( 0.0 );
         m_ClMax.Activate();
     }
-    else
+    else if ( m_ClMaxToggle.Get() == vsp::CLMAX_OFF )
     {
         m_ClMax.SetLowerLimit( -1.0 );
         m_ClMax.Set( -1.0 );
+        m_ClMax.Deactivate();
+    }
+    else if (m_ClMaxToggle.Get() == vsp::CLMAX_CARLSON)
+    {
+        m_ClMax.SetLowerLimit( -999 );
+        m_ClMax.Set( -999 );
         m_ClMax.Deactivate();
     }
 
