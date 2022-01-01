@@ -63,7 +63,7 @@ public:
 
 protected:
     // Helper method that will set all the parameters back to default values
-    virtual void ResetParmeters();
+    virtual void ResetParameters();
 
     // Stores original group variable values
     vector< vector< double > > m_oldVarVals;
