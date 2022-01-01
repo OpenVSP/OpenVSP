@@ -182,7 +182,7 @@ void GroupTransformations::ReInitialize()
         m_oldVarVals[i][6] = geom->m_Scale.Get();
     }
 
-    ResetParmeters();
+    ResetParameters();
 
     // Set Material and Color to defaults
     m_GroupMaterial.SetMaterialToDefault();
@@ -195,7 +195,7 @@ void GroupTransformations::ReInitialize()
 // ==== Calls the reset scale method on all active geoms ==== //
 void GroupTransformations::Reset()
 {
-    ResetParmeters();
+    ResetParameters();
 
     // Update the active geoms with the new values
     Update();
@@ -225,13 +225,13 @@ void GroupTransformations::Accept()
         m_oldVarVals[i][6] = thisGeom->m_Scale.Get();
     }
 
-    ResetParmeters();
+    ResetParameters();
 
     m_LateUpdateFlag = false;
 }
 
 // ==== Helper method that will set all the parameters back to default values ==== //
-void GroupTransformations::ResetParmeters()
+void GroupTransformations::ResetParameters()
 {
     // Set the values
     m_GroupXLoc.Set( 0 );
