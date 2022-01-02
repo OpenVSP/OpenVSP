@@ -41,7 +41,7 @@ namespace vsp
 //===================================================================//
 //===============       Helper Functions            =================//
 //===================================================================//
-//  Get the pointer to Vehicle - this is a helper funtion for the other API
+//  Get the pointer to Vehicle - this is a helper function for the other API
 //  functions
 Vehicle* GetVehicle()
 {
@@ -1328,13 +1328,13 @@ void PrintAnalysisInputs( const string & analysis_name )
 //===================================================================//
 //===============       Results Functions         ===================//
 //===================================================================//
-/// Get all results names avaiable
+/// Get all results names available
 vector<string> GetAllResultsNames()
 {
     return ResultsMgr.GetAllResultsNames();
 }
 
-/// Get all data names avaiable for this result
+/// Get all data names available for this result
 vector< string > GetAllDataNames( const string & results_id )
 {
     if ( !ResultsMgr.ValidResultsID( results_id ) )
@@ -3629,7 +3629,7 @@ vec3d ComputeXSecTan( const string& xsec_id, double fract )
     return pnt;
 }
 
-//==== Reset All XSec Skining Parms ====//
+//==== Reset All XSec Skinning Parms ====//
 void ResetXSecSkinParms( const string& xsec_id )
 {
     XSec* xs = FindXSec( xsec_id );
@@ -3810,7 +3810,7 @@ void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d>
     FILE* af = fopen( file_name.c_str(), "w" );
     if ( !af )
     {
-        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteSeligAirfoilFile::Error writting airfoil file " + airfoil_name );
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteSeligAirfoilFile::Error writing airfoil file " + airfoil_name );
         return;
     }
 
@@ -6384,7 +6384,7 @@ string GetParmContainer( const string & parm_id )
     return p->GetContainerID();
 }
 
-/// Set the parm desciption
+/// Set the parm description
 void SetParmDescript( const string & parm_id, const string & desc )
 {
     Parm* p = ParmMgr.FindParm( parm_id );

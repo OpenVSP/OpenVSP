@@ -83,7 +83,7 @@ class AirfoilFileLocationOpt:
         """
         Specifies name of the airfoil file to retrieve, path should be relative to :attr:`base_directory`.
 
-        The format of this file is the same as the CHARM sectional properites. See the
+        The format of this file is the same as the CHARM sectional properties. See the
         *2-D AIRFOIL SECTION DATA INPUT FILE (nameaf.inp)* of the CHARM user manual for details. The file should
         contain everything below the *COMMENT#1* line in the :code:`K=1,NFOIL` loop. The only modification
         to the format is that the first line should be the maximum thickness/chord value of the airfoil.
@@ -621,7 +621,7 @@ class CharmTrimSettings:
         :param attitude_cntrls: integer list [Roll, Pitch, Sideslip]
         :param num_aero_comps: integer, number of aerodynamic components (rotors and wings) used to trim
         :param aero_comp_cntrls: integer matrix, component control capabilities, rows must equal num_aero_comps
-        :param cntrl_gains: float matrix, control gains connecting pilot controls to componenet controls
+        :param cntrl_gains: float matrix, control gains connecting pilot controls to component controls
         :param template: string, template file name
         :param init_cntrls: float list, initial pilot control inputs
         """
@@ -1407,7 +1407,7 @@ def build_default_trim_settings(trim_template=None) -> CharmTrimSettings:
     trim_template_name = None  # Initialize
     # provided default template current template is empty
     if trim_template is None:
-        trim_template_name = "trim.inp"  # tracking template filname
+        trim_template_name = "trim.inp"  # tracking template filename
         with open(os.path.join(os.path.dirname(__file__), "test", trim_template_name)) as f:
             trim_template = f.readlines()
 

@@ -1041,7 +1041,7 @@ int MeshGeom::WriteVSPGeomParts( FILE* file_id  )
 }
 
 // Wake edges are created such that N0.u < N1.u.
-// This comparitor sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
+// This comparator sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
 bool OrderWakeEdges ( const TEdge &a, const TEdge &b )
 {
     if ( sgn( a.m_N0->m_Pnt.y() ) < sgn( b.m_N0->m_Pnt.y() ) ) return true;
@@ -2563,7 +2563,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         tubeend = endX_global + tubedist * 1.1;
     }
 
-    //==== Flow-Through Accomodation Routine ====//
+    //==== Flow-Through Accommodation Routine ====//
     // Extends designated subsurfaces outside slicing range (flow-through stream tubes)
 
     // Make TMesh* vector for the tubes connecting translated subsurfaces to their parent components
@@ -4251,7 +4251,7 @@ set < string > MeshGeom::GetTMeshPtrIDs()
     return ids;
 }
 
-//==== Subtag All Trianlges ====//
+//==== Subtag All Triangles ====//
 void MeshGeom::SubTagTris( bool tag_subs )
 {
     // Clear out the current Subtag Maps

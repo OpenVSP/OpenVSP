@@ -1479,7 +1479,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
         }
         else
         {
-            // Increase size slighlty to avoid tangency errors in FeaMeshMgr
+            // Increase size slightly to avoid tangency errors in FeaMeshMgr
             del_x_minus = expan;
             del_x_plus = expan;
             del_y_minus = expan;

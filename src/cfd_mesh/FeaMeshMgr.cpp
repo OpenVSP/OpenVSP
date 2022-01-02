@@ -1233,7 +1233,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 {
     for ( size_t n = 0; n < m_NumFeaFixPoints; n++ )
     {
-        // Idenitfy and set FeaFixPoints on border curves
+        // Identify and set FeaFixPoints on border curves
         for ( size_t j = 0; j < m_FixPntSurfIndMap[n].size(); j++ )
         {
             // Only check for FeaFixPoints on two surfaces. Nodes are automatically set for more than two surface intersections
@@ -1321,7 +1321,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 
 void FeaMeshMgrSingleton::CheckFixPointIntersects()
 {
-    // Idenitfy and set FeaFixPoints on intersection curves
+    // Identify and set FeaFixPoints on intersection curves
 
     for ( size_t n = 0; n < m_NumFeaFixPoints; n++ )
     {

@@ -51,7 +51,7 @@ public:
     VSP_NODE(const VSP_NODE &VSPNode);
     VSP_NODE& operator=(const VSP_NODE &VSPNode);
 
-    // Accesss to node data
+    // Access to node data
 
     VSPAERO_DOUBLE &x(void) { return x_; };
     VSPAERO_DOUBLE &y(void) { return y_; };

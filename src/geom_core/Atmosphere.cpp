@@ -91,7 +91,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
     P = ConvertPressure( P, vsp::PRES_UNIT_PA, presunit ); // Into Desired
     m_DeltaT = delta_temp; // Back to input value
 
-    // Assign Class Varibles Appropriate Values
+    // Assign Class Variables Appropriate Values
     m_KEAS = m_A0 * m_Mach * sqrt( m_PressureRatio );
     m_KTAS = m_KEAS / sqrt( 1.0 / m_DensityRatio );
     m_Temp = T; // Converted to Desired
@@ -187,7 +187,7 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
     P = ConvertPressure( P, vsp::PRES_UNIT_INCHHG, presunit ); // Into Desired
     m_DeltaT = delta_temp; // Back to input value
 
-    // Assign Class Varibles Appropriate Values
+    // Assign Class Variables Appropriate Values
     m_KEAS = m_A0 * m_Mach * sqrt( m_PressureRatio );
     m_KTAS = m_KEAS / sqrt( 1.0 / m_DensityRatio );
     m_Temp = T; // Converted to Desired

@@ -16,7 +16,7 @@ function [con, p, uv1, uv2, uv3, wedata, id] = readvspgeom( fname, plotflag )
 %
 %   [t, p, uv1, uv2, uv3, wedata, id] = readvspgeom( fname, plotflag )
 %
-%   Reads in a *.vspgeom file passsed in fname.  If plotflag is true, then
+%   Reads in a *.vspgeom file passed in fname.  If plotflag is true, then
 %   a series of simple plots are generated.  If plotflag is not passed,
 %   the plots are not generated.
 %
@@ -49,7 +49,7 @@ p = ptdata(1:3,:);
 npoly = fscanf(fp, '%d', 1);
 
 % Read in the connectivity.  The file format is designed to support
-% polygons, but currently is only implemented for triangles.  Hense
+% polygons, but currently is only implemented for triangles.  Hence
 % the triangle assumption here.
 condata = fscanf(fp, '%d', [4 npoly]);
 % Number of points in each polygon

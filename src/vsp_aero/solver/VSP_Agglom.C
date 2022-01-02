@@ -471,7 +471,7 @@ void VSP_AGGLOM::InitializeFront_(void)
        
     }
        
-    // Check if edge is on any general boundry
+    // Check if edge is on any general boundary
        
     for ( i = 1 ; i <= FineGrid().NumberOfEdges() ; i++ ) {
               
@@ -2105,7 +2105,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
           
           if ( !Found ) {
              
-             PRINTF("Error in determing UV surface mapping during agglomeration! \n");
+             PRINTF("Error in determining UV surface mapping during agglomeration! \n");
              fflush(NULL);
              exit(1);
              

@@ -1483,7 +1483,7 @@ void VORTEX_TRAIL::SmoothVelocity(VSPAERO_DOUBLE *Velocity)
     c[NumberOfNodes] =  0.;
     d[NumberOfNodes] =  r[NumberOfNodes];   
 
-    // General node... implicity smoothing
+    // General node... implicitly smoothing
 
     Eps = 0.5;
 
@@ -1673,7 +1673,7 @@ void VORTEX_TRAIL::SmoothWake(void)
        c_[NumberOfNodes] =  0.;
        d_[NumberOfNodes] =  r_[NumberOfNodes];   
 
-       // General node... implicity smoothing
+       // General node... implicitly smoothing
 
        Eps = 0.25;
 

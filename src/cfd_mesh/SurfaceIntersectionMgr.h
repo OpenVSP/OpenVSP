@@ -358,7 +358,7 @@ protected:
 
     // Convert each ISegChain into a NURBS curve. The curves are labeled as border 
     // curves or intersection curves. For border curves, a test is performed to 
-    // detemine if they are outside or inside another surface.
+    // determine if they are outside or inside another surface.
     void BuildNURBSCurvesVec();
 
     // Function to get all groups of component IDs. Components that are joined by intersection

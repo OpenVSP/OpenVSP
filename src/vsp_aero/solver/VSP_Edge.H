@@ -209,7 +209,7 @@ public:
     VSP_EDGE(const VSP_EDGE &VSPEdge);
     VSP_EDGE& operator=(const VSP_EDGE &VSPEdge);
 
-    // Accesss to node data
+    // Access to node data
 
     int &Node1(void) { return Node1_; };
     int &Node2(void) { return Node2_; };
@@ -265,7 +265,7 @@ public:
     
     VSPAERO_DOUBLE &ReferenceLength(void) { return ReferenceLength_; };
 
-    // Accesss to Vortex edge data
+    // Access to Vortex edge data
 
     int &DegenWing(void) { return DegenWing_; };
     int &DegenBody(void) { return DegenBody_; };
@@ -352,7 +352,7 @@ public:
     
     VSPAERO_DOUBLE &LocalSpacing(void) { return LocalSpacing_; };
     
-    // Acess to the ends of the edge
+    // Access to the ends of the edge
     
     VSPAERO_DOUBLE X1(void) { return X1_; };
     VSPAERO_DOUBLE Y1(void) { return Y1_; };

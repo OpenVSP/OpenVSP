@@ -115,7 +115,7 @@ public:
     VSP_LOOP(const VSP_LOOP &VSPTri);
     VSP_LOOP& operator=(const VSP_LOOP &VSPTri);
 
-    // Accesss to tri data
+    // Access to tri data
 
     void SizeNodeList(int NumberOfNodes);
     int NumberOfNodes(void) { return NumberOfNodes_; };

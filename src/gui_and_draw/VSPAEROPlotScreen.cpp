@@ -49,7 +49,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     int yDataSelectHeight = 11 * rowHeight;
     int legendHeight = 6 * rowHeight;
     int actionButtonHeight = 6 * rowHeight;          //space reserved for action buttons at the bottom
-    //  remaining space is used for the flow condition borwser
+    //  remaining space is used for the flow condition browser
     int flowConditionSelectHeight = m_ConvergenceLayout.GetH() - 2 * groupBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - groupBorderWidth;
 
     GroupLayout convergenceYDataSelectLayout;
@@ -721,7 +721,7 @@ bool VSPAEROPlotScreen::Update()
 
     // Update load distribution
     // Let's check to see what analysis method was used on the first result found
-    // note that only VSPAEROMgr clear alls VSPAERO_* results from the results manager each time it's run all analyses in the results 'should' have the same analysis method
+    // note that only VSPAEROMgr clear all VSPAERO_* results from the results manager each time it's run all analyses in the results 'should' have the same analysis method
     resultName = "VSPAERO_Load";
     res = ResultsMgr.FindResults( resultName, 0 );
     if ( res )
@@ -1353,7 +1353,7 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
             {
                 m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
                 m_LoadDistFlowConditionBrowser->select( iCase + 1 );
-                break; // Only list the first flow condition, since the others are ignored in teh group and rotor output files
+                break; // Only list the first flow condition, since the others are ignored in the group and rotor output files
             }
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
@@ -1583,7 +1583,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
             {
                 m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
                 m_UnsteadyFlowConditionBrowser->select( iCase + 1 );
-                break; // Only list the first flow condition, since the others are ignored in teh group and rotor output files
+                break; // Only list the first flow condition, since the others are ignored in the group and rotor output files
             }
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)

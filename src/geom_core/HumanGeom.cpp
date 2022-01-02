@@ -1331,7 +1331,7 @@ void HumanGeom::SetupMesh( Pinocchio::Mesh &m )
 
             int ivert = m_half_tris[i][k] + NUM_MESH_VERT;
 
-            if ( m_VertCopySet.count( m_half_tris[i][k] ) )  // This vert is a duplciate.
+            if ( m_VertCopySet.count( m_half_tris[i][k] ) )  // This vert is a duplicate.
             {
                 ivert = m_half_tris[i][k];
             }

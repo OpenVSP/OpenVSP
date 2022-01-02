@@ -188,7 +188,7 @@ public:
     int &QuasiTimeAccurate(void) { return QuasiTimeAccurate_; };
     int &TimeAnalysisType(void ) { return TimeAnalysisType_; };
     
-    // Accesss to Vortex edge data
+    // Access to Vortex edge data
 
     int &Wing(void) { return Wing_; };
     int &Edge(void) { return Edge_; };

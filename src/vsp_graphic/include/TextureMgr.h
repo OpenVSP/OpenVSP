@@ -83,7 +83,7 @@ public:
     */
     virtual void scale( unsigned int id, float sRatio, float tRatio, float rRatio = 1.f );
     /*!
-    * Filp Texture Coordinates.
+    * Flip Texture Coordinates.
     *
     * id - texture id to flip.
     * flipU - flip u or x axis.

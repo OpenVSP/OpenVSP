@@ -8,7 +8,7 @@ include Makefile.COMMON
 
 help:
 	@echo '                                                  '
-	@echo '   *** VSPAERO System Descrition File ***         '
+	@echo '   *** VSPAERO System Description File ***        '
 	@echo '                                                  '
 	@echo '           Code Installation                      ' 
 	@echo '                                                  '

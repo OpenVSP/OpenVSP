@@ -44,7 +44,7 @@ public:
     
     void SizeList(int NumberOfFEMNodes);
 
-    // Accesss to node data
+    // Access to node data
     
     int NumberOfOptNodes(void) { return NumberOfOptNodes_; };
 

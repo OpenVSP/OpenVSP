@@ -518,7 +518,7 @@ std::vector<glm::vec4> TextureMgr::_getLightSwitches()
         }
     }
 
-    // Collecting light informations.
+    // Collecting light information.
     std::vector<bool> lightEnableList = _lights->getLightEnableStatus();
     for( int i = 0; i < ( int )lightEnableList.size(); i++ )
     {

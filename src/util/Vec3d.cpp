@@ -718,7 +718,7 @@ int ray_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& int_pnt1, 
 
     if ( normal.mag() <= 0.0 )
     {
-        //===== Paralle Lines =====//
+        //===== Parallel Lines =====//
         return( 0 );
     }
     else

@@ -171,7 +171,7 @@ void UpdateSurf()
         double z = row*seat_pitch;
         for ( int col = 0 ; col < total_col ; col++ )
         {
-            //==== Dont Clone Inital Seat ====//
+            //==== Dont Clone Initial Seat ====//
             if ( row != 0 || col != 0 )
             {
                 double y = col*(width + seat_gap);

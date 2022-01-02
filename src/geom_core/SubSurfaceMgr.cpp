@@ -223,7 +223,7 @@ void SubSurfaceMgrSingleton::BuildCompIDMap()
     }
 }
 
-//==== Custom Sorting Fuction ====//
+//==== Custom Sorting Function ====//
 bool vector_sort( const vector<int>& a, const vector<int>& b )
 {
     if ( a.size() == b.size() )

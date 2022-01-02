@@ -68,7 +68,7 @@ public:
     *
     * index - index of the save.  Index is zero based.
     * If index is already used, its content will be
-    * overwrited with new camera system.
+    * overwritten with new camera system.
     */
     virtual void save( int index ) = 0;
 

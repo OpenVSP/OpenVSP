@@ -35,11 +35,11 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 370, 
     m_MainLayout.AddY( yPadding );
     m_MainLayout.AddX( borderPaddingWidth );
 
-    //Inserting the m_BorderLayout into m_MainLayout, using remains to get correct allignment
+    //Inserting the m_BorderLayout into m_MainLayout, using remains to get correct alignment
     m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - borderPaddingWidth, m_MainLayout.GetRemainY() - borderPaddingWidth);
     //Length of button is half the width of the border layout
     m_BorderLayout.SetButtonWidth(( m_BorderLayout.GetW() / 2)- borderPaddingWidth );
-    //Adding a input functinality needs a string object type, and a label name to set it
+    //Adding a input functionality needs a string object type, and a label name to set it
     m_BorderLayout.AddInput( m_SetNameInput, "Set Name:" );
 
     //Uses a pre-set value to increase y padding on m_BorderLayout
@@ -50,7 +50,7 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 370, 
     m_BorderLayout.AddSubGroupLayout( m_LeftLayout, ( m_BorderLayout.GetW() / 2)- borderPaddingWidth, m_BorderLayout.GetRemainY() );
     //Adds the divider box/label
     m_LeftLayout.AddDividerBox( "Sets" );
-    //Adds padding to get correct allignment
+    //Adds padding to get correct alignment
     m_BorderLayout.AddX(( m_BorderLayout.GetW() / 2 ) + borderPaddingWidth );
     //Adding the right side subgroup using width and height
     m_BorderLayout.AddSubGroupLayout( m_RightLayout, ( m_BorderLayout.GetW() / 2 ) - borderPaddingWidth, m_BorderLayout.GetRemainY() );

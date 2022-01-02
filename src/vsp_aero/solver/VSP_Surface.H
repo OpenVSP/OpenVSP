@@ -138,7 +138,7 @@ private:
     
     VSPAERO_DOUBLE *Camber_;
     
-    // Control surface subsurface bouding boxes
+    // Control surface subsurface bounding boxes
     
     int MaxNumberOfControlSurfaces_;
     int NumberOfControlSurfaces_;

@@ -659,7 +659,7 @@ double ConformalGeom::AdjustForSurfaceDist( const VspSurf & surf, const Conforma
         return start_u;
     }
 
-    //==== Have Starting and Stoping U's - Use Bisection ====//
+    //==== Have Starting and Stopping U's - Use Bisection ====//
     int num_steps = 6;
     for ( int i = 0 ; i < num_steps ; i++ )
     {

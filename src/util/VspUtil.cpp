@@ -74,7 +74,7 @@ double magroundup( double x )
     321.12      = floor2scale( 321.123456, 0.01 )
     318.        = floor2scale( 321.123456, 6    )   // floor to nearest multiple of 6
     324.        = floor2scale( 321.123456, -6   )   // ceil to nearest multiple of 6 (note the "-" sign or scale)
-    321.123456  = floor2scale( 321.123456, 0    )   // inifinite precision --> return original value
+    321.123456  = floor2scale( 321.123456, 0    )   // infinite precision --> return original value
 */
 double floor2scale( double x, double scale )
 {
@@ -93,7 +93,7 @@ double floor2scale( double x, double scale )
     321.13      = ceil2scale( 321.123456, 0.01 )
     324.        = ceil2scale( 321.123456, 6    )   // ceil to nearest multiple of 6
     318.        = ceil2scale( 321.123456, -6   )   // floor to nearest multiple of 6 (note the "-" sign or scale)
-    321.123456  = ceil2scale( 321.123456, 0    )   // inifinite precision --> return original value
+    321.123456  = ceil2scale( 321.123456, 0    )   // infinite precision --> return original value
 */
 double ceil2scale( double x, double scale )
 {

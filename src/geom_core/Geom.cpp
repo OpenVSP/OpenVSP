@@ -235,7 +235,7 @@ void GeomBase::ParmChanged( Parm* parm_ptr, int type )
         return;
     }
 
-    //==== Check For Interactive Collision Dectection When Alt Key Is Pressed ====//
+    //==== Check For Interactive Collision Detection When Alt Key Is Pressed ====//
     if ( type == Parm::SET_FROM_DEVICE )
     {
         if ( parm_ptr )
@@ -270,7 +270,7 @@ bool GeomBase::UpdatedParm( const string & id )
     return false;
 }
 
-//==== Recusively Load ID and Childrens ID Into Vec  =====//
+//==== Recursively Load ID and Childrens ID Into Vec  =====//
 void GeomBase::LoadIDAndChildren( vector< string > & id_vec, bool check_display_flag )
 {
     id_vec.push_back( m_ID );
@@ -1282,7 +1282,7 @@ void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< v
 
 // ver. C
 // Low-level version that allows passing an arbitrary surf_vec as an argument.  Designed to be called for
-// m_MainSurfVec or m_SurfVec interchangably.
+// m_MainSurfVec or m_SurfVec interchangeably.
 //
 // Called from:
 // Geom::CreateDegenGeom
@@ -3918,7 +3918,7 @@ vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
         }
     }
 
-    // Tessealte along upper and lower V values
+    // Tessellate along upper and lower V values
     foil_curve.Tesselate( Vlow, lower_pnts );
     foil_curve.Tesselate( Vup, upper_pnts );
 
@@ -3990,7 +3990,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
                 {
                     utess_vec.push_back( sec->m_SectTessU() );
 
-                    if ( j > 1 ) // Only inlclude airfoils at start and end of XSec for first XSec
+                    if ( j > 1 ) // Only include airfoils at start and end of XSec for first XSec
                     {
                         num_foil += sec->m_SectTessU() - 1;
                     }
@@ -4039,7 +4039,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
         size_t j = 1;
         if ( i == 0 )
         {
-            j = 0; // Only inlclude airfoils at start and end of XSec for first XSec
+            j = 0; // Only include airfoils at start and end of XSec for first XSec
         }
 
         for ( /* j */; j < utess_vec[i]; j++ )

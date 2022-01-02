@@ -13,7 +13,7 @@
 
 using std::vector;
 
-//====================== Contructor ======================//
+//====================== Constructor ======================//
 SuperEllipse::SuperEllipse()
 {
 

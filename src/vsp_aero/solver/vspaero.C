@@ -94,7 +94,7 @@ VSPAERO_DOUBLE RotationalRate_pList_[MAXRUNCASES];
 VSPAERO_DOUBLE RotationalRate_qList_[MAXRUNCASES];
 VSPAERO_DOUBLE RotationalRate_rList_[MAXRUNCASES];
 
-// Deltas for calculating derivaties
+// Deltas for calculating derivatives
 
 VSPAERO_DOUBLE Delta_AoA_;
 VSPAERO_DOUBLE Delta_Beta_;
@@ -301,7 +301,7 @@ int main(int argc, char **argv)
     
     if ( RotorAnalysisRun_ ) VSP_VLM().RotorAnalysis() = 1;
                
-    // Force farfield distance for wake adaption
+    // Force farfield distance for wake adoption
     
     if ( SetFarDist_ ) VSP_VLM().SetFarFieldDist(FarDist_);
     
@@ -432,9 +432,9 @@ void PrintUsageHelp()
        PRINTF("     -aoa  <A> END     Angle of attack. A is a space delimited list of aoa values.\n");
        PRINTF("     -beta <B> END     Sideslip angle. B is a space delimited list of beta values.\n");
        PRINTF("     -wakeiters <N>    Number of wake iterations to calculate.\n");
-       PRINTF("     -symx             Symetry flag - vehicle is symetric at x=0.\n");
-       PRINTF("     -symy             Symetry flag - vehicle is symetric at y=0 (this is the most common).\n");
-       PRINTF("     -symz             Symetry flag - vehicle is symetric at z=0.\n");
+       PRINTF("     -symx             Symmetry flag - vehicle is symmetric at x=0.\n");
+       PRINTF("     -symy             Symmetry flag - vehicle is symmetric at y=0 (this is the most common).\n");
+       PRINTF("     -symz             Symmetry flag - vehicle is symmetric at z=0.\n");
        PRINTF("\n");
        PRINTF("EXAMPLES:\n");
        PRINTF("Example: Creating a setup file for testModel with mach and alpha sweep matrix\n");

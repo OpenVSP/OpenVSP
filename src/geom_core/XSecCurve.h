@@ -600,7 +600,7 @@ protected:
     // Force the starting and ending control point of the XSec to coincide
     virtual void EnforceClosure();
 
-    // Resets the limits of the parmameter vectors (should be renamed)
+    // Resets the limits of the parameter vectors (should be renamed)
     virtual void ClearPtOrder();
 
     // Enforce G1 continuity for cubic Bezier control points on the curve. The input 

@@ -881,7 +881,7 @@ void VORTEX_SHEET::SetupPlanarVortexSheets(void)
        
     }    
     
-    // Set unqiue sheet ID
+    // Set unique sheet ID
     
     j = 0;
    
@@ -1133,7 +1133,7 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
        
     }  
      
-    // Set unqiue sheet ID
+    // Set unique sheet ID
     
     j = 0;
    

@@ -928,7 +928,7 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             return;
         }
 
-        // Set tess dirty flag and update. This fixes an issue where the XSec is drawn detatched 
+        // Set tess dirty flag and update. This fixes an issue where the XSec is drawn detached 
         // from the parent Geom surface since the surface was not updated
         geom_ptr->m_SurfDirty = true;
         geom_ptr->Update();

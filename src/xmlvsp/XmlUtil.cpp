@@ -66,7 +66,7 @@ xmlNodePtr XmlUtil::GetNodeDbg( xmlNodePtr node, const char * name, int id, cons
         iter_node = iter_node->next;
     }
 
-//  printf("xmlGetNode: Cant find %s in node %s\n", name, node->name );
+//  printf("xmlGetNode: Can't find %s in node %s\n", name, node->name );
     return NULL;
 }
 

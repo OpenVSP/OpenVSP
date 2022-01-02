@@ -64,7 +64,7 @@ private:
     VSPAERO_DOUBLE *Span_Cs_;
     VSPAERO_DOUBLE *Span_Cd_;
     
-    // Mininum Local Cp
+    // Minimum Local Cp
 
     VSPAERO_DOUBLE *Span_CpMin_;    
     
@@ -188,7 +188,7 @@ public:
     VSPAERO_DOUBLE &Span_Cs(int i) { return Span_Cs_[i]; };
     VSPAERO_DOUBLE &Span_Cd(int i) { return Span_Cd_[i]; };
     
-    // Mininum Local Cp
+    // Minimum Local Cp
     
     VSPAERO_DOUBLE &Span_CpMin(int i) { return Span_CpMin_[i]; };
     

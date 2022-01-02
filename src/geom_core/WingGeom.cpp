@@ -708,7 +708,7 @@ void WingSect::UpdateFromWing()
 void WingSect::Update()
 {
     // Update() is empty because it only needs to be called from WingGeom::UpdateSurf().
-    // This empty method is left in place to keep all ohter callers happy.
+    // This empty method is left in place to keep all other callers happy.
 }
 
 //==== Copy position from base class ====//

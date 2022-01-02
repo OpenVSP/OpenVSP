@@ -105,7 +105,7 @@ int* MERGESORT::merge_sort(int NumberOfEdges, VSP_EDGE **EdgeList)
 
     list_2 = new int[NumberOfEdges + 1];
 
-    // intialize the lists
+    // initialize the lists
 
     for ( i = 1 ; i <= NumberOfEdges ; i++ ) {
 

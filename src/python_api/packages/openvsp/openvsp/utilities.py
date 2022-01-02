@@ -261,7 +261,7 @@ def plot_propeller_info(prop_infos, vector_scale=10.0, markersize=2.0, mutation_
 def run_degen_geom(set_index=None, set_name=None):
     """
     Runs degen geom on input set
-    :param set_index: set index, will take precendence if both set index and set name are specified
+    :param set_index: set index, will take precedence if both set index and set name are specified
     :param set_name: name of set, will be used if set index is not specified
     :return: degen geom manager object
     """

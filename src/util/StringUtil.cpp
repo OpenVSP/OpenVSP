@@ -137,7 +137,7 @@ string StringUtil::vec3d_to_string(const vec3d & vec, const char* format)
     return string(buff);
 }
 
-//==== Cound Number of Chars that match c =====//
+//==== Count Number of Chars that match c =====//
 int StringUtil::count_char_matches( string & str, char c )
 {
     int cnt = 0;

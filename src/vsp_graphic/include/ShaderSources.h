@@ -111,7 +111,7 @@ static const char * const vShader_Texture01 =
     // Find Half Vector of reflected light.
     "	vec3 halfVector = gl_LightSource[0].halfVector.xyz;"
 
-    // Calcualte ambient, diffuse, and specular lightings.
+    // Calculate ambient, diffuse, and specular lightings.
     "	vec4 ambient = gl_LightSource[0].ambient * gl_FrontMaterial.ambient + globalAmbient;"
     "	vec4 diffuse = gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse * max(dot(normal, lightDir), 0.0);"
     "	vec4 specular = gl_LightSource[0].specular * gl_FrontMaterial.specular * pow(max(dot(normal, halfVector), 0.0), gl_FrontMaterial.shininess);"

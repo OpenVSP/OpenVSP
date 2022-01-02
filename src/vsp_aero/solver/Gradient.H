@@ -51,7 +51,7 @@ public:
     
     void SizeList(int NumberOfLoops, int NumberOfEquations, int NumberOfDegreesOfFreedom);
 
-    // Accesss to data
+    // Access to data
     
     int NumberOfLoops(void) { return NumberOfLoops_; };
     

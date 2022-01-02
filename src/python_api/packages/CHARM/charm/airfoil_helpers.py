@@ -131,7 +131,7 @@ def create_df_from_charm_af(filename):
     """
     Creates a pandas data from *.inp file
     :param filename: name of file to load data from
-    :return: pandas data frame with mach, aoa, cl, cd, cm parsed from charm formated airfoil file
+    :return: pandas data frame with mach, aoa, cl, cd, cm parsed from charm formatted airfoil file
     """
     from scipy.interpolate import interp1d
 

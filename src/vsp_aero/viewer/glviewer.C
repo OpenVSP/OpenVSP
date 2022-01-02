@@ -475,7 +475,7 @@ void GL_VIEWER::LoadMeshData(void)
        
     }
 
-    // Read in the default in to check on endianess
+    // Read in the default in to check on endianness
 
     BIO.fread(&DumInt, i_size, 1, adb_file);
 
@@ -1303,7 +1303,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
     } 
 
-    // Read in the default text string to check on endianess
+    // Read in the default text string to check on endianness
 
     BIO.fread(&DumInt, i_size, 1, adb_file);
 

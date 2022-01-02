@@ -27,7 +27,7 @@ void main()
 
 void AnalysisExample()
 {
-    // This funtion demonstrates how to use the Surface Intersection Tool through the Analysis Manager
+    // This function demonstrates how to use the Surface Intersection Tool through the Analysis Manager
 
     string analysis_name = "SurfaceIntersection";
     Print( analysis_name );

@@ -2818,7 +2818,7 @@ void EditCurveXSec::InitShape()
 
     vector < double > ctrl_pnts_x( ctrl_pnts.size() );
     vector < double > ctrl_pnts_y( ctrl_pnts.size() );
-    vector < double > u_vec( t_vec.size() ); // Set control pont parameter values (0-4), but show the user (0-1)
+    vector < double > u_vec( t_vec.size() ); // Set control point parameter values (0-4), but show the user (0-1)
 
     for ( size_t i = 0; i < ctrl_pnts.size(); i++ )
     {
@@ -2912,7 +2912,7 @@ void EditCurveXSec::UpdateCurve( bool updateParms )
     EnforceClosure();
 
     vector< vec3d > ctrl_pnts = GetCtrlPntVec( false );
-    vector < double > t_vec = GetTVec(); // Set control pont parameter values (0-4), but show the user (0-1)
+    vector < double > t_vec = GetTVec(); // Set control point parameter values (0-4), but show the user (0-1)
 
     switch ( m_CurveType() )
     {
@@ -2920,7 +2920,7 @@ void EditCurveXSec::UpdateCurve( bool updateParms )
             m_Curve.InterpolateLinear( ctrl_pnts, t_vec, false );
             break;
         case vsp::PCHIP:
-            if ( ctrl_pnts.size() > 3 ) // Note, slighlty different than PCurve
+            if ( ctrl_pnts.size() > 3 ) // Note, slightly different than PCurve
             {
                 m_Curve.InterpolatePCHIP( ctrl_pnts, t_vec, false );
             }
@@ -2983,7 +2983,7 @@ void EditCurveXSec::UpdateG1Parms()
                     {
                         if ( m_SymType() == SYM_RL && ( m_UParmVec[i]->Get() == 0.25 || m_UParmVec[i]->Get() == 0.75 ) )
                         {
-                            // Force horizontal tanget at axis of symmetry
+                            // Force horizontal tangent at axis of symmetry
                             m_YParmVec[i + 1]->Deactivate();
                         }
                         else
@@ -3373,7 +3373,7 @@ void EditCurveXSec::EnforceSymmetry()
                 else if ( ( m_UParmVec[iseg]->Get() <= bottom_u && m_UParmVec[prev_ind]->Get() <= bottom_u && m_UParmVec[next_ind]->Get() <= bottom_u ) ||
                     ( m_UParmVec[iseg]->Get() >= top_u && m_UParmVec[prev_ind]->Get() >= top_u && m_UParmVec[next_ind]->Get() >= top_u ) )
                 {
-                    // Only inlcude this control point if both neighbors are less than 0.25 or greater than 0.75
+                    // Only include this control point if both neighbors are less than 0.25 or greater than 0.75
                     pnt_vec = { m_XParmVec[prev_ind]->Get(), m_YParmVec[prev_ind]->Get(), (double)m_EnforceG1Vec[prev_ind]->Get(), (double)m_FixedUVec[prev_ind]->Get() };
                     sort_vec.push_back( make_pair( m_UParmVec[prev_ind]->Get(), pnt_vec ) );
                     pnt_vec = { m_XParmVec[iseg]->Get(), m_YParmVec[iseg]->Get(), (double)m_EnforceG1Vec[iseg]->Get(), (double)m_FixedUVec[iseg]->Get() };
@@ -4423,7 +4423,7 @@ void EditCurveXSec::EnforceG1( int new_index )
             }
             else if ( m_SymType() == SYM_RL && ( m_UParmVec[i]->Get() == 0.25 || m_UParmVec[i]->Get() == 0.75 ) )
             {
-                // Force horizontal tanget at axis of symmetry
+                // Force horizontal tangent at axis of symmetry
                 m_YParmVec[prev_ind]->Set( m_YParmVec[i]->Get() );
                 m_YParmVec[next_ind]->Set( m_YParmVec[i]->Get() );
             }

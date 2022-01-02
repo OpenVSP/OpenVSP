@@ -333,7 +333,7 @@ void VSP_DEGEN_GEOM::WriteMeshFile(char *FileName)
 
     }
     
-    // Write out coded id to allow us to determine endiannes of files
+    // Write out coded id to allow us to determine endianness of files
 
     DumInt = -123789456; // Version 1 of the ADB file
 

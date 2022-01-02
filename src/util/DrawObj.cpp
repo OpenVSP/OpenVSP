@@ -189,7 +189,7 @@ void MakeDashedLine( const vec3d &pstart, const vec3d &pend, int ndash, vector <
     }
 }
 
-//====================== Contructor ======================//
+//====================== Constructor ======================//
 DrawObj::DrawObj()
 {
     m_GeomID = "Default";

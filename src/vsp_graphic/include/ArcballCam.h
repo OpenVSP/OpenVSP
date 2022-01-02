@@ -142,7 +142,7 @@ public:
     *
     * index - index of the save.  Index is zero based, for now, only
     * limit to four save slots.  If index is already used, its
-    * content will be overwrited with new camera system.
+    * content will be overwritten with new camera system.
     */
     virtual void save( int index );
 

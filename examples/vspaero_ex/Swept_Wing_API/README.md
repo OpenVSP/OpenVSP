@@ -128,7 +128,7 @@ At any point, the `Print()` function may be used to print messages or variables 
        <img height="450" src="Images/GUI_DesignVariables.png"> 
        </p>
 
-       Once the parameter and group names are obtained, the vaue may be set for the parameter using the fourth argument. However, for certain parameters, the values are input using `Enumerators`. Enumerators are simply intuitive names given to the available values. In this case, the enumerators are `SYM_XY`, `SYM_XZ` and `SYM_YZ`. These allow setting the value to `SYM_XZ` instead of a cryptic integer or boolean value. The documentation contains details on all available enumerators.
+       Once the parameter and group names are obtained, the value may be set for the parameter using the fourth argument. However, for certain parameters, the values are input using `Enumerators`. Enumerators are simply intuitive names given to the available values. In this case, the enumerators are `SYM_XY`, `SYM_XZ` and `SYM_YZ`. These allow setting the value to `SYM_XZ` instead of a cryptic integer or boolean value. The documentation contains details on all available enumerators.
 
        ```C
        // Set parameters for geometry

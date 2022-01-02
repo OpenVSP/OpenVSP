@@ -9,7 +9,7 @@ namespace VSPGraphic
 class Texture2D;
 
 /*!
-* Texture repositiory.
+* Texture repository.
 */
 class TextureRepo
 {

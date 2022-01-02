@@ -38,7 +38,7 @@ public:
 
 protected:
 
-    //This is used get user select and compare to exsisting sets. 
+    //This is used get user select and compare to existing sets. 
     //Index gets changed via callbacks and then utilized in updates 
     int m_SelectedSetIndex;
   

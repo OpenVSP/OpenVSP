@@ -496,7 +496,7 @@ public:
     virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void ChangeID( string id );
 
-    //==== Sub Surface Managment Methods ====//
+    //==== Sub Surface Management Methods ====//
     virtual void AddSubSurf( SubSurface* sub_surf )
     {
         m_SubSurfVec.push_back( sub_surf );
