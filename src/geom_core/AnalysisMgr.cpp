@@ -1351,7 +1351,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "cref",              VSPAEROMgr.m_cref.Get()              ) );
 
         //Moment center
-        //TODO add flag to indentify if this is manual or computed
+        //TODO add flag to identify if this is manual or computed
         m_Inputs.Add( NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         ) );
         m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      ) );
         m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               ) );
@@ -1897,7 +1897,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "cref",              VSPAEROMgr.m_cref.Get()              ) );
 
         //Moment center
-        //TODO add flag to indentify if this is manual or computed
+        //TODO add flag to identify if this is manual or computed
         m_Inputs.Add( NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         ) );
         m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      ) );
         m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               ) );

@@ -10,7 +10,7 @@
 // ==== Constructor ==== //
 GroupTransformations::GroupTransformations()
 {
-    // Initialize paramters
+    // Initialize parameters
     m_GroupXLoc.Init( "Group_XLoc", "GroupXForm", this, 0, -1e12, 1e12 );
     m_GroupYLoc.Init( "Group_YLoc", "GroupXForm", this, 0, -1e12, 1e12 );
     m_GroupZLoc.Init( "Group_ZLoc", "GroupXForm", this, 0, -1e12, 1e12 );
@@ -29,7 +29,7 @@ GroupTransformations::~GroupTransformations()
 {
 }
 
-// ==== Handle a changed paramter ==== //
+// ==== Handle a changed parameter ==== //
 void GroupTransformations::ParmChanged( Parm * parm, int type )
 {
     // Check if this was not set from a device
@@ -98,7 +98,7 @@ void GroupTransformations::Update()
         }
 
         // Only apply rotation if either the geom has no active parent or its
-        // rotation coordinate system is not relative to another geometry's rotational coordiante system
+        // rotation coordinate system is not relative to another geometry's rotational coordinate system
         if ( !parent_in_group || ( thisGeom->m_RotAttachFlag.Get() == vsp::ATTACH_ROT_NONE && !thisGeom->IsParentJoint() ))
         {
             delta_xrot = m_GroupXRot.Get();

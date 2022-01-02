@@ -97,7 +97,7 @@ IF( SWIG_FOUND )
 		MESSAGE( STATUS "Python not found, API will not be compiled" )
 	ENDIF( PYTHONLIBS_FOUND )
 
-	# Note that for the MATLAB API to be built succesfully, the unreleased
+	# Note that for the MATLAB API to be built successfully, the unreleased
 	# MATLAB branch of SWIG must be compiled first. CMAKE must then be pointed
 	# the executable using the SWIG_EXECUTABLE entry. Last, MATLAB must be
 	# installed. Note, this has only been tested on 64 Bit Windows, so additional

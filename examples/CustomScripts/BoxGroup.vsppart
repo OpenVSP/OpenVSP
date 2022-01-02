@@ -152,7 +152,7 @@ void UpdateSurf()
     {
         for ( int j = 0 ; j < num_col ; j++ )
         {
-            //==== Dont Clone Inital Box ====//
+            //==== Dont Clone Initial Box ====//
             if ( i != 0 || j != 0 )
             {
                 Matrix4d mat;

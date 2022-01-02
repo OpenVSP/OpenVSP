@@ -118,7 +118,7 @@ string Parm::GetDisplayGroupName()
     return displayName;
 }
 
-//==== Set Val And Check Limts ====//
+//==== Set Val And Check Limits ====//
 bool Parm::SetValCheckLimits( double val )
 {
     //==== Check If Val Has Changed ====//
@@ -353,7 +353,7 @@ int IntParm::Set( int val )
     return ( int )( m_Val + 0.5 );
 }
 
-//==== Set Val And Check Limts ====//
+//==== Set Val And Check Limits ====//
 bool IntParm::SetValCheckLimits( double val )
 {
     //==== Check If Val Has Changed ====//
@@ -396,7 +396,7 @@ LimIntParm::LimIntParm() : IntParm()
     m_Mult = 1;
 }
 
-//==== Set Val And Check Limts ====//
+//==== Set Val And Check Limits ====//
 bool LimIntParm::SetValCheckLimits( double val )
 {
     if ( !IntParm::SetValCheckLimits( val ) )
@@ -430,7 +430,7 @@ PowIntParm::PowIntParm() : IntParm()
     m_Base = 1;
 }
 
-//==== Set Val And Check Limts ====//
+//==== Set Val And Check Limits ====//
 bool PowIntParm::SetValCheckLimits( double val )
 {
     if ( !IntParm::SetValCheckLimits( val ) )
@@ -801,7 +801,7 @@ void DriverGroup::Test( vector< string > parmIDs, double tol )
 
             if( failonce )
             {
-                printf( "Error, driver group mis-calcualted parameters.\n" );
+                printf( "Error, driver group mis-calculated parameters.\n" );
                 printf( " Drivers: " );
                 for( int k = 0; k < m_Nchoice; k++ )
                 {

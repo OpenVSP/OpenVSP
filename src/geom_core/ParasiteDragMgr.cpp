@@ -491,7 +491,7 @@ int ParasiteDragMgrSingleton::CalcRowSize()
                     ++m_RowSize;
                 }
 
-                // Subsurfaces are essentially seperate geometries and as such get their own master row
+                // Subsurfaces are essentially separate geometries and as such get their own master row
                 if ( geom->GetSubSurfVec()[j]->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT )
                 {
                     ++m_RowSize;
@@ -3688,7 +3688,7 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
                     ++temprowsize;
                 }
 
-                // Subsurfaces are essentially seperate geometries and as such get their own master row
+                // Subsurfaces are essentially separate geometries and as such get their own master row
                 if ( geom->GetSubSurfVec()[j]->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT )
                 {
                     ++temprowsize;

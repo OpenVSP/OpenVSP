@@ -76,7 +76,7 @@ void main()
     
     SetXSecHeight( xsec_2, 4 ); // Width is 3
 
-    // Change to width to heigh ratio parameterization to maintain aspect ratio
+    // Change to width to height ratio parameterization to maintain aspect ratio
     SetDriverGroup( sid, 2, HEIGHT_XSEC_DRIVER, HWRATIO_XSEC_DRIVER ); // Ratio set at 4:3
 
     // When aspect ratio is preserved, the width input in SetXSecWidthHeight will be ignored. 

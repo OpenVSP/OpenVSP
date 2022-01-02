@@ -1029,7 +1029,7 @@ void VSPAEROMgrSingleton::AddLinkableParms( vector < string > & linkable_parm_ve
 
 // InitControlSurfaceGroups - creates the initial default grouping for the control surfaces
 //  The initial grouping collects all surface copies of the subsurface into a single group.
-//  For example if a wing is defined with an aileron and that wing is symetrical about the
+//  For example if a wing is defined with an aileron and that wing is symmetrical about the
 //  xz plane there will be a surface copy of the master wing surface as well as a copy of
 //  the subsurface. The two subsurfaces may get deflected differently during analysis
 //  routines and can be identified uniquely by the control_surf.fullname.
@@ -1539,7 +1539,7 @@ void VSPAEROMgrSingleton::ReadSetupFile()
 {
     // Initialize member variables to identify Parms values from previous results
     // Note, this function will only be able to find some information necessary to load
-    // previoous results if the VSPAERO setup file was created after the additional 
+    // previous results if the VSPAERO setup file was created after the additional 
     // information was added.
     m_PreviousStabilityType = -1;
     m_PreviousNumUnsteadyGroups = -1;
@@ -2767,7 +2767,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
 
                         if ( ( abs( ( 1e6 * Re_1e6.back() ) - recref ) > tol ) && num_history_res > 0 )
                         {
-                            // Find histroy result with matching mach, beta, and alpha
+                            // Find history result with matching mach, beta, and alpha
                             for ( size_t i = 0; i < num_history_res; i++ )
                             {
                                 Results* history_res = ResultsMgr.FindResults( "VSPAERO_History", i );
@@ -2798,7 +2798,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
 
                                 if ( ( abs( mach - Mach.back() ) < tol ) && ( abs( alpha - Alpha.back() ) < tol ) && ( abs( beta - Beta.back() ) < tol ) )
                                 {
-                                    // Generate new *.history results for mulitple ReCref inputs since VSPAERO only outputs a result for the first ReCref
+                                    // Generate new *.history results for multiple ReCref inputs since VSPAERO only outputs a result for the first ReCref
                                     Results* new_history_res = ResultsMgr.CreateResults( "VSPAERO_History" );
                                     res_id_vector.push_back( new_history_res->GetID() );
 
@@ -3099,7 +3099,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
 
                 if ( data_string_array.size() == nCompDataTableCols - 1 )
                 {
-                    // Condition if no body-type componenets in *.vspgeom input
+                    // Condition if no body-type components in *.vspgeom input
                     Comp_Name.push_back( "NONE" );
                 }
                 else
@@ -5443,7 +5443,7 @@ VspSurf CpSlice::CreateSurf()
 
 void CpSlice::LoadDrawObj( vector < DrawObj* > &draw_obj_vec, int id, bool highlight )
 {
-    // One DrawObj for plane and one for border. This is done to avoid DrawObj ordering transparancy issues
+    // One DrawObj for plane and one for border. This is done to avoid DrawObj ordering transparency issues
     m_CpSliceDOVec.clear();
     m_CpSliceDOVec.resize( 2 );
 

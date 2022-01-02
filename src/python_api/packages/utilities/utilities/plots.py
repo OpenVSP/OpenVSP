@@ -343,7 +343,7 @@ def makerect(xmin, xmax, ymin, ymax, npts=5):
 
 def add_major_minor_gridlines(ax=None, major_kwargs=None, minor_kwargs=None):
     """
-    Addes major an minor gridlines to a given axis
+    Adds major an minor gridlines to a given axis
     :param ax: axis on which add grid lines, if None the current axis will be used
     :param major_kwargs: dictionary of keyword arguments to format major gridlines
     :param minor_kwargs: dictionary of keyword arguments to format minor gridlines, if none dashed and alpha=0.5 will be used

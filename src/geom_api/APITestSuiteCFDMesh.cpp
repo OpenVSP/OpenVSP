@@ -124,7 +124,7 @@ void APITestSuiteCFDMesh::TestSurfaceIntersection()
     vsp::VSPRenew();
 
     //The test_compare_value is for when comparing file sizes by %
-    //to see if the differance in size is within the test_compare_value
+    //to see if the difference in size is within the test_compare_value
     double test_compare_value = 10; //10%
 
     //Add and edit Geometry
@@ -236,7 +236,7 @@ void APITestSuiteCFDMesh::RunScaleTest( double scale_value, double test_compare_
     double step_dif = 100 * ( ( step_file_size_after_scale - step_file_size_before_scale ) / (double)step_file_size_before_scale );
     printf( "STEP difference %f%%\n", step_dif );
 
-    //Testing if file size is within acceptible range
+    //Testing if file size is within acceptable range
     TEST_ASSERT( abs( iges_dif ) <= test_compare_percent );
     TEST_ASSERT( abs( step_dif ) <= test_compare_percent );
 }

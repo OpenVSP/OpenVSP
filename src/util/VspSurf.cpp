@@ -445,7 +445,7 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm 
     ResetFlipNormal();
     ResetUSkip();
 
-    //==== Store Skining Data ====//
+    //==== Store Skinning Data ====//
     m_SkinType = SKIN_BODY_REV;
     m_BodyRevCurve = input_crv;
 }
@@ -552,7 +552,7 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
     ResetFlipNormal();
     ResetUSkip();
 
-    //==== Store Skining Data ====//
+    //==== Store Skinning Data ====//
     m_SkinType = SKIN_RIBS;
     m_SkinRibVec = ribs;
     m_SkinDegreeVec = degree;

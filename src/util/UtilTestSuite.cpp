@@ -22,7 +22,7 @@ void UtilTestSuite::Vec2dUtilTest()
     vec2d* v4 = new vec2d;
     ( *v4 ) = v1;
 
-    vec2d total = v1 + v2 - v3 + ( *v4 );       // Arithmatic
+    vec2d total = v1 + v2 - v3 + ( *v4 );       // Arithmetic
     delete v4;
     double mag = total.mag();
     TEST_ASSERT_DELTA( mag, 0.0, DBL_EPSILON );
@@ -146,7 +146,7 @@ void UtilTestSuite::StringUtilTest()
     E.insert( 2, "Insert" );            // 2 - Pos
     E.replace( 4, 3, "XXXXXXX" );       // 4 - Pos 3 - Num char to replace
 
-    char ch = E.at( 2 );                // Charcter access
+    char ch = E.at( 2 );                // Character access
     ch = E[3];
 
     char* cstr = new char [E.size() + 1];

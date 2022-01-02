@@ -1741,7 +1741,7 @@ vector< string > Vehicle::GetValidTypeGeoms()
 }
 
 
-//==== Get All Geomtry Types That Are Editable ====//
+//==== Get All Geometry Types That Are Editable ====//
 vector< GeomType > Vehicle::GetEditableGeomTypes()
 {
     vector< GeomType > type_vec;
@@ -1878,7 +1878,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
 
 // DecodeXmlGeomsOnly is a stripped down version of DecodeXml.
 //
-// It is called directly when we 'insert' instead of 'open' a file.  It skips a lot of the auxilary information
+// It is called directly when we 'insert' instead of 'open' a file.  It skips a lot of the auxiliary information
 // contained in the vsp3 file -- instead deferring to that already in the main file.  It attempts to insert
 // all the geometry as well as links & advanced links from the file.
 //
@@ -5677,7 +5677,7 @@ string Vehicle::ExportSurfacePatches( int set )
         {
             if ( geom->GetSetFlag( set ) )
             {
-                // Loop over all surfaces adding points to the results manger
+                // Loop over all surfaces adding points to the results manager
                 Results* res = ResultsMgr.CreateResults( "ComponentSurfaces" );
                 res->Add( NameValData( "name", geom->GetName() ) );
                 res->Add( NameValData( "id", geom->GetID() ) );

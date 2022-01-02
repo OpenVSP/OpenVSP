@@ -129,7 +129,7 @@ void ScriptMgrSingleton::Init( )
 
     se->AddSkipComment( "any", comment_str.c_str() );
 
-    //==== Cache Some Commom Types ====//
+    //==== Cache Some Common Types ====//
     m_IntArrayType    = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<int>" ) );
     assert( m_IntArrayType );
     m_DoubleArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<double>" ) );
@@ -621,7 +621,7 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_Z_SCALE", CFD_FAR_Z_SCALE, "/*!<  Far field Z scale */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_LOC_MAN_FLAG", CFD_FAR_LOC_MAN_FLAG, "/*!< Far field locaiton flag: centered or manual */" );
+    r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_LOC_MAN_FLAG", CFD_FAR_LOC_MAN_FLAG, "/*!< Far field location flag: centered or manual */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_LOC_X", CFD_FAR_LOC_X, "/*!< Far field X location */" );
     assert( r >= 0 );
@@ -3046,7 +3046,7 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
     \brief This functions grouped here are used to create and manipulate Custom Components. Custom components
     are defined in *.vsppart files included in the /"Custom Scripts/" directory. Examples of Custom Components
     are available in the directory for reference. OpenVSP looks in 3 locations for the /"Custom Scripts/" folder, 
-    where Custom Components are loaded: the root directory, the VSP executable direcotry, and the home directory. 
+    where Custom Components are loaded: the root directory, the VSP executable directory, and the home directory. 
     Note, these functions are specific to defining Custom Components and can't be called from standard API scripts
     (i.e. *.vspscript). However, a Custom Component can be created as a *.vsppart file and then accessed through
     secondary API scripts. \n\n
@@ -3762,7 +3762,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     doc_struct.group = group.c_str();
 
     string group_description = R"(
-    \brief Handeling of OpenVSP ErrorObj information is accomplished through this group of API functions. \n\n
+    \brief Handling of OpenVSP ErrorObj information is accomplished through this group of API functions. \n\n
     \ref index "Click here to return to the main page")";
     se->AddGroup( group.c_str(), "API Error Functions", group_description.c_str() );
 
@@ -3815,7 +3815,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Pop (remove) and return the most recent error from the stack. Note, errors are printed on occurance by default. 
+    Pop (remove) and return the most recent error from the stack. Note, errors are printed on occurrence by default. 
     \code{.cpp}
     //==== Force API to silence error messages ====//
     SilenceErrors();
@@ -3882,7 +3882,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Cuase errors to be printed to stdout as they occur.
+    Cause errors to be printed to stdout as they occur.
     \code{.cpp}
     //==== Force API to silence error messages ====//
     SilenceErrors();
@@ -3965,7 +3965,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Set the dispay type of the specified goemetry
+    Set the display type of the specified goemetry
     \code{.cpp}
     string pid = AddGeom( "POD" );                             // Add Pod for testing
 
@@ -4075,7 +4075,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     doc_struct.group = group.c_str();
 
     group_description = R"(
-    \brief This group of funtions provides file input and output interfacing through the API. \n\n
+    \brief This group of functions provides file input and output interfacing through the API. \n\n
     \ref index "Click here to return to the main page" )";
     se->AddGroup( group.c_str(), "File Input and Output Functions", group_description.c_str() );
 
@@ -4541,7 +4541,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [in] l1 Source first edge length
     \param [in] r1 Source first radius
     \param [in] u1 Source first U location
-    \param [in] w1 Source fisrt W location
+    \param [in] w1 Source first W location
     \param [in] l2 Source second edge length
     \param [in] r2 Source second radius
     \param [in] u2 Source second U location
@@ -5251,7 +5251,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Create two sets of test results, each conatining int, string, vec3d, double, and vector< double > data types. 
+    Create two sets of test results, each containing int, string, vec3d, double, and vector< double > data types. 
     \code{.cpp}
     //==== Write Some Fake Test Results =====//
     WriteTestResults();
@@ -5360,7 +5360,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Cut Geom from current location and store on clipboad
+    Cut Geom from current location and store on clipboard
     \code{.cpp}
     //==== Add Pod Geometries ====//
     string pid1 = AddGeom( "POD", "" );
@@ -6459,7 +6459,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     doc_struct.group = group.c_str();
 
     group_description = R"(
-    \brief The following group of functions are specific to VSPAERO. However, their relevence has been 
+    \brief The following group of functions are specific to VSPAERO. However, their relevance has been 
     mostly replaced by Analysis Manager capabilities. \n\n
     \ref index "Click here to return to the main page" )";
     se->AddGroup( group.c_str(), "VSPAERO Functions", group_description.c_str() );
@@ -6862,7 +6862,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     group_description = R"(
     \brief This group of functions provides API control of cross-sections (XSecs). Airfoils are a type of 
-    XSec included in this group as well. API functions for Body of Revolution XSecs are incuded in the 
+    XSec included in this group as well. API functions for Body of Revolution XSecs are included in the 
     Specialized Geometry group. \n\n
     \ref index "Click here to return to the main page" )";
     se->AddGroup( group.c_str(), "XSec and Airfoil Functions", group_description.c_str() );
@@ -7225,7 +7225,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Reset all skining Parms for a specified XSec. Set top, bottom, left, and right strenghts, slew, angle, and curvature to 0. Set all symmetry and equality conditions to false.
+    Reset all skinning Parms for a specified XSec. Set top, bottom, left, and right strengths, slew, angle, and curvature to 0. Set all symmetry and equality conditions to false.
     \code{.cpp}
     string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
 
@@ -8580,7 +8580,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the total number of defined sets. Named sets are used to group compenents and read/write on them. The number of named
+    Get the total number of defined sets. Named sets are used to group components and read/write on them. The number of named
     sets will be 10 for OpenVSP versions up to 3.17.1 and 20 for later versions. 
     \code{.cpp}
     if ( GetNumSets() <= 0 )                            { Print( "---> Error: API GetNumSets " ); }
@@ -10607,7 +10607,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the surface coordinate point of each intersection of the tesselated wireframe for a particular surface
+    Get the surface coordinate point of each intersection of the tessellated wireframe for a particular surface
     \code{.cpp}
     // Add Pod Geom
     string geom_id = AddGeom( "POD", "" );
@@ -12159,7 +12159,7 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     doc_struct.comment = R"(
 /*!
     Check if OpenVSP has been initialized successfully. If not, the OpenVSP instance will be exited. This call should be placed at the 
-    begining of all API scripts.
+    beginning of all API scripts.
     \code{.cpp}
     
     VSPCheckSetup();

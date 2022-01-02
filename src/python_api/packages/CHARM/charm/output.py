@@ -1219,7 +1219,7 @@ def __parse_cq_file(filename, num_rotors):
 
 def __find_line(file: io.IOBase, expr, stop_expr=None):
     """
-    Moves file foward until expression is matched
+    Moves file forward until expression is matched
     :param file: file object
     :param expr: regex
     :param stop_expr: optional expression used to stop search. If this expression is found, then fail to find line

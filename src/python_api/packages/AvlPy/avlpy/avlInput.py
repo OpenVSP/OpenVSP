@@ -46,8 +46,8 @@ class AvlInput:
     def __init__(self, header, surfaces):
         """AVL input file class
 
-        :param AvlHeader header: header to be pre-pended to the input file
-        :param  surfaces: array of AvlSurface objects to append to the input file
+        :param AvlHeader header: header to be prepended to the input file
+        :param surfaces: array of AvlSurface objects to append to the input file
         """
         self.header = header
         self.surfaces = surfaces
@@ -536,7 +536,7 @@ class AvlOutput:
     def parseFiles(self,files):
         """
 
-        :param files: array containg paths to output files
+        :param files: array containing paths to output files
         :return: none
         """
         for f in files:

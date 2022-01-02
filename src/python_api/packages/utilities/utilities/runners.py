@@ -151,7 +151,7 @@ class LatinHypercube(DOE):
         :param seed: numpy.random seed. default is None, which uses the current numpy.random seed
         """
         self.logger = logging.getLogger(__name__)
-        self.logger.info("Initializaing LatinHypercube object.")
+        self.logger.info("Initializing LatinHypercube object.")
         self.bnds = bnds
         self.nCases = npts
         # build LHC runs based on bnds and npts
@@ -174,10 +174,10 @@ class LatinHypercube(DOE):
 
         # now multiply by the bnds for each variable
         for iVar in range(0,nVars):
-            self.logger.debug("Scaling normalized variable to specificied bounds.")
+            self.logger.debug("Scaling normalized variable to specified bounds.")
             cases[:,iVar] = cases[:,iVar]*abs(bnds[iVar][0] - bnds[iVar][1]) + min(bnds[iVar])
 
-        self.logger.debug("Done initializaing LatinHypercube object.")
+        self.logger.debug("Done initializing LatinHypercube object.")
 
         super().__init__(cases)
     @property
@@ -195,7 +195,7 @@ class Random(DOE):
         :param seed: numpy.random seed. default is None, which uses the current numpy.random seed
         """
         self.logger = logging.getLogger(__name__)
-        self.logger.info("Initializaing Random DOE object.")
+        self.logger.info("Initializing Random DOE object.")
         self.bnds = bnds
         if seed is not None:
             np.random.seed(seed)
@@ -211,7 +211,7 @@ class Random(DOE):
             for i in range(0,npts):
                 cases[i,j] = normalizedCases[i,j] * abs(bnds[j][1] - bnds[j][0]) + min(bnds[j])
 
-        self.logger.debug("Done initializaing LatinHypercube object.")
+        self.logger.debug("Done initializing LatinHypercube object.")
         super().__init__(cases)
 
     @property
@@ -228,7 +228,7 @@ class FullFactorial(DOE):
         :param vars: array of arrays of variables. example: ( (0,1,2), (4,6,7,3,2,6),("hello","goodbye") )
         """
         self.logger = logging.getLogger(__name__)
-        self.logger.info("Initializaing FullFactorial variables.")
+        self.logger.info("Initializing FullFactorial variables.")
 
         self.vars = vars
         shape = []

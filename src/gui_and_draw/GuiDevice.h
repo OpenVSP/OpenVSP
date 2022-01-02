@@ -1262,7 +1262,7 @@ public:
     virtual bool hittest( int mx, int my, double datax, double datay, int r );
 
     // Add the curve points to the canvas and connect them. CEDIT intermediate points are
-    // drawn green. The currently seleted point is highlighted red. 
+    // drawn green. The currently selected point is highlighted red. 
     virtual void PlotData( vector< double > x_data, vector < double > y_data, int curve_type, Fl_Color color = FL_YELLOW );
 
     // Identify the min and max limits for the canvas and update accordingly
@@ -1323,7 +1323,7 @@ protected:
     // Variables to help with CEDIT point selection restrictions
     int m_PrevIndex; // Maintains the previously selected point index
     bool m_CallbackFlag; // Flag that indicates if a Callback was issued prior to Update
-    bool m_UpdateIndexSelector; // Flag used to indiate if the index selector should be updated
+    bool m_UpdateIndexSelector; // Flag used to indicate if the index selector should be updated
 
     PCurve *m_Curve;
     PCurve *m_CurveB;

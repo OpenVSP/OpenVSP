@@ -99,7 +99,7 @@ public:
     /*!
     * Zoom current selected camera relative to a point in world space.
     *
-    * delta - Zoom in or out.  Positive zooms out, negtive zooms in.
+    * delta - Zoom in or out.  Positive zooms out, negative zooms in.
     */
     virtual void relativeZoom( float zoomValue );
 

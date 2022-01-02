@@ -78,7 +78,7 @@ void APITestSuite::CopyPasteSetTest()
     //Make a string vector
     vector < string > geom_ids = vsp::FindGeoms();
 
-    //Indexs for copy and paste
+    //Indexes for copy and paste
     const int copy_set_index = 5;
     const int paste_set_index = 6;
 
@@ -222,7 +222,7 @@ void APITestSuite::CopyPasteGeometry()
     TEST_ASSERT( first_pod_id.c_str() != NULL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    //==== Change First Pod Parameters (name, length, finess ratio, y location, x location, symetry) ====//
+    //==== Change First Pod Parameters (name, length, finess ratio, y location, x location, symmetry) ====//
     string pod_name = "Pod";
     vsp::SetGeomName( first_pod_id, pod_name );
     //    test that the parameters got set within the TEST_TOL tolerance
@@ -244,10 +244,10 @@ void APITestSuite::CopyPasteGeometry()
     vsp::SetGeomName( second_pod_id, "Second_Pod" );    // change the name of the second pod to something more descriptive
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    //==== Change Second Pod Parameters (name, y location, z location, symetry) ====//
+    //==== Change Second Pod Parameters (name, y location, z location, symmetry) ====//
     TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Y_Rel_Location", "XForm", 0.0 ), 0.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Z_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL );
-    vsp::SetParmVal( second_pod_id, "Sym_Planar_Flag", "Sym", 0 );    // no symetry
+    vsp::SetParmVal( second_pod_id, "Sym_Planar_Flag", "Sym", 0 );    // no symmetry
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Check Second pod has the same length, finess ratio, and x location as the first ====//
@@ -311,7 +311,7 @@ void APITestSuite::TestAnalysesWithPod()
     TEST_ASSERT( pod_id.c_str() != NULL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    //==== Change Pod Parameters (name, length, finess ratio, y location, x location, symetry) ====//
+    //==== Change Pod Parameters (name, length, finess ratio, y location, x location, symmetry) ====//
     string pod_name = "Pod_Test";
     vsp::SetGeomName( pod_id, pod_name );
     //    test that the parameters got set within the TEST_TOL tolerance
