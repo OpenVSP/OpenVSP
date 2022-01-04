@@ -852,6 +852,17 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         wing_ptr->InsertWingSect( wsid );
         wing_ptr->Update();
     }
+    else if (gui_device == &m_CopyAfButton)
+    {
+        int afid = wing_ptr->m_ActiveXSec();
+        wing_ptr->CopyAirfoil( afid );
+    }
+    else if (gui_device == &m_PasteAfButton)
+    {
+        int afid = wing_ptr->m_ActiveXSec();
+        wing_ptr->PasteAirfoil( afid );
+        wing_ptr->Update();
+    }
 
 
     BlendScreen::GuiDeviceCallBack( gui_device );
