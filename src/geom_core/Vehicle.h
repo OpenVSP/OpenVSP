@@ -82,7 +82,7 @@ public:
     string CreateGeom( const GeomType & type );
     string AddGeom( const GeomType & type );
     string AddGeom( Geom* add_geom );
-    string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE );
+    string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false );
 
     virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
 
@@ -190,7 +190,7 @@ public:
     string WriteFacetFile( const string & file_name, int write_set );
     string WriteTRIFile( const string & file_name, int write_set );
     string WriteOBJFile( const string & file_name, int write_set );
-    string WriteVSPGeomFile( const string & file_name, int write_set, int degen_set, bool half_flag = false );
+    string WriteVSPGeomFile( const string & file_name, int write_set, int degen_set, bool half_flag = false, bool hideset = true, bool suppressdisks = false );
     string WriteNascartFiles( const string & file_name, int write_set );
     string WriteGmshFile( const string & file_name, int write_set );
     void WriteX3DFile( const string & file_name, int write_set );
@@ -251,8 +251,8 @@ public:
     string ImportV2File( const string & file_name );
 
     //Comp Geom
-    string CompGeom( int set, int degenset, int halfFlag, int intSubsFlag = 1 );
-    string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE );
+    string CompGeom( int set, int degenset, int halfFlag, int intSubsFlag = 1, bool hideset = true, bool suppressdisks = false );
+    string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE, bool hideset = true, bool suppressdisks = false );
     string MassProps( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string MassPropsAndFlatten( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );

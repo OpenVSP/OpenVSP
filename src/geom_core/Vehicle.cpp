@@ -937,7 +937,7 @@ string Vehicle::AddGeom( Geom* add_geom )
     return add_id;
 }
 
-string Vehicle::AddMeshGeom( int normal_set, int degen_set )
+string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks )
 {
     ClearActiveGeom();
 
@@ -973,7 +973,14 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set )
                 vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec();
                 for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
                 {
-                    mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
+                    if ( suppressdisks && ( tMeshVec[i]->m_SurfType == vsp::DISK_SURF ) )
+                    {
+                        // Skip actuator disk.
+                    }
+                    else
+                    {
+                        mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
+                    }
                 }
             }
 
@@ -998,7 +1005,14 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set )
                     // Do not combine these loops.  tMeshVec.size() != DegenGeomVec.size()
                     for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
                     {
-                        mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
+                        if ( suppressdisks && ( tMeshVec[i]->m_SurfType == vsp::DISK_SURF ) )
+                        {
+                            // Skip actuator disk.
+                        }
+                        else
+                        {
+                            mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
+                        }
                     }
                 }
             }
@@ -2610,7 +2624,7 @@ nnwake in1 in2 in3 in4...inn // Last wake line
 */
 
 //==== Write VSPGeom File ====//
-string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int degen_set, bool half_flag )
+string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int degen_set, bool half_flag, bool hideset, bool suppressdisks )
 {
     string mesh_id = string();
 
@@ -2624,7 +2638,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     if ( ( write_set >= 0 && !ExistMesh( write_set ) ) ||
          ( degen_set >= 0 && !ExistMesh( degen_set ) ) )
     {
-        mesh_id = AddMeshGeom( write_set, degen_set );
+        mesh_id = AddMeshGeom( write_set, degen_set, suppressdisks );
         if ( mesh_id.compare( "NONE" ) != 0 )
         {
             Geom *geom_ptr = FindGeom( mesh_id );
@@ -2635,7 +2649,12 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
             }
-            HideAllExcept( mesh_id );
+
+            if ( hideset)
+            {
+                HideAllExcept( mesh_id );
+            }
+
             // Below, we are going to write out _all_ MeshGeoms in write_set.
             // AddMeshGeom above will create a MeshGeom in write_set if write_set >= SET_FIRST_USER.
             // Otherwise, the new MeshGeom will be in SET_SHOWN.
@@ -4566,16 +4585,19 @@ void Vehicle::resetExportFileNames()
     }
 }
 
-string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag)
+string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, bool hideset, bool suppressdisks )
 {
 
-    string id = AddMeshGeom( set, degenset );
+    string id = AddMeshGeom( set, degenset, suppressdisks );
     if ( id.compare( "NONE" ) == 0 )
     {
         return id;
     }
 
-    HideAllExcept( id );
+    if ( hideset )
+    {
+        HideAllExcept( id );
+    }
 
     MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
     if ( mesh_ptr == NULL )
@@ -4604,9 +4626,9 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag)
     return id;
 }
 
-string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset )
+string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset, bool hideset, bool suppressdisks )
 {
-    string id = CompGeom( set, degenset, halfFlag, intSubsFlag );
+    string id = CompGeom( set, degenset, halfFlag, intSubsFlag, hideset, suppressdisks );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {
