@@ -4288,7 +4288,7 @@ int EditCurveXSec::Split01( double u_split )
             {
                 new_u_vec.push_back( u_split );
                 new_x_vec.push_back( split_pnt.x() );
-                new_x_vec.push_back( split_pnt.y() );
+                new_y_vec.push_back( split_pnt.y() );
                 new_g1_vec.push_back( false );
                 new_fix_u_vec.push_back( false );
             }
