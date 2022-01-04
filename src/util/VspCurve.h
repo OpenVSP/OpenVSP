@@ -139,6 +139,8 @@ public:
     void ScaleY( double s );
     void ScaleZ( double s );
 
+    void ZeroI( int i );
+
     void ReflectXY();
     void ReflectXZ();
     void ReflectYZ();

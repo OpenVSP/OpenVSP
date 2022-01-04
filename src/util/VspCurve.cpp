@@ -1436,6 +1436,22 @@ void VspCurve::ScaleZ( double s )
     m_Curve.scale_z( s );
 }
 
+void VspCurve::ZeroI( int i )
+{
+    if ( i == 0 )
+    {
+        m_Curve.scale_x( 0.0 );
+    }
+    else if ( i == 1 )
+    {
+        m_Curve.scale_y( 0.0 );
+    }
+    else
+    {
+        m_Curve.scale_z( 0.0 );
+    }
+}
+
 void VspCurve::ReflectXY()
 {
     m_Curve.reflect_xy();
