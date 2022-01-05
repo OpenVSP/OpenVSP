@@ -950,6 +950,20 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         propeller_ptr->InsertXSec( );
     }
+    else if ( gui_device == &m_CurveChoice )
+    {
+        m_EditCurve = m_CurveChoice.GetVal();
+    }
+    else if ( gui_device == &m_ApproxAllButton )
+    {
+        propeller_ptr->ApproxCubicAllPCurves();
+        propeller_ptr->Update();
+    }
+    else if ( gui_device == &m_ResetThickness )
+    {
+        propeller_ptr->ResetThickness();
+        propeller_ptr->Update();
+    }
 
     XSecScreen::GuiDeviceCallBack( gui_device );
 }

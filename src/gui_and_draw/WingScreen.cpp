@@ -863,7 +863,18 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         wing_ptr->PasteAirfoil( afid );
         wing_ptr->Update();
     }
+    else if ( gui_device == &m_TestDriverGroupButton )
+    {
+        int wsid = wing_ptr->m_ActiveWingSection();
 
+        WingSect* wing_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( wsid ));
+
+        if ( wing_sect )
+        {
+            vector< string > parm_ids = wing_sect->GetDriverParms();
+            wing_sect->m_DriverGroup.Test( parm_ids, 1e-4 );
+        }
+    }
 
     BlendScreen::GuiDeviceCallBack( gui_device );
 }
