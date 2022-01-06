@@ -1532,7 +1532,7 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
 
     if ( type == DISK_TYPE )
     {
-        write_degenGeomDiskResultsManger( res );
+        write_degenGeomDiskResultsManager( res );
     }
 
     if( type != MESH_TYPE )
@@ -1576,7 +1576,7 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
     res->Add( NameValData( "hinges", hinge_ids ) );
 }
 
-void DegenGeom::write_degenGeomDiskResultsManger( Results *res )
+void DegenGeom::write_degenGeomDiskResultsManager( Results *res )
 {
     if ( !res ) { return; }
 
