@@ -19128,7 +19128,7 @@ void VSP_SOLVER::CalculateRotorCoefficientsFromForces(VSPAERO_DOUBLE Thrust, VSP
 
     // Revs per second
     
-    n = RPM / 60.;
+    n = fabs( RPM / 60. );
     
     // Advance ratio
     
@@ -19144,7 +19144,7 @@ void VSP_SOLVER::CalculateRotorCoefficientsFromForces(VSPAERO_DOUBLE Thrust, VSP
     
     // Rotor (Helicopter) coefficients
     
-    Omega = 2. * PI * RPM / 60.;
+    Omega = fabs( 2. * PI * RPM / 60. );
     
     Radius = 0.5 * Diameter;
     
