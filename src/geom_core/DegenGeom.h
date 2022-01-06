@@ -321,7 +321,7 @@ public:
     void write_degenHingeLineM_file( FILE* file_id, int ihingeline );
 
     void write_degenGeomResultsManager( vector< string> &degen_results_ids );
-    void write_degenGeomDiskResultsManger( Results * res );
+    void write_degenGeomDiskResultsManager( Results * res );
     void write_degenGeomSurfResultsManager( Results * res );
     void write_degenGeomPlateResultsManager( vector< string > &plate_ids, const DegenPlate &degenPlate );
     void write_degenGeomStickResultsManager( vector< string > &stick_ids, const DegenStick &degenStick );
