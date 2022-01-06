@@ -60,7 +60,7 @@ STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : Basic
     m_LabelDelimChoice.AddItem( "Underscore" );
     m_LabelDelimChoice.AddItem( "Space" );
     m_LabelDelimChoice.AddItem( "None" );
-    m_GenLayout.AddChoice( m_LabelDelimChoice, "Delimeter" );
+    m_GenLayout.AddChoice( m_LabelDelimChoice, "Delimiter" );
 
     m_GenLayout.AddY( 25 );
     m_GenLayout.SetFitWidthFlag( false );
