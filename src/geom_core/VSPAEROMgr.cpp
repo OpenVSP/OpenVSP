@@ -1182,7 +1182,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     if ( m_ExperimentalInputFormatFlag() && m_AnalysisMethod() == vsp::VORTEX_LATTICE )
     {
-        m_LastPanelMeshGeomId = veh->WriteVSPGeomFile( m_VSPGeomFileFull, -1, m_GeomSet(), halfFlag );
+        m_LastPanelMeshGeomId = veh->WriteVSPGeomFile( m_VSPGeomFileFull, -1, m_GeomSet(), halfFlag, false, true );
 
         WaitForFile( m_VSPGeomFileFull );
         if ( !FileExist( m_VSPGeomFileFull ) )
@@ -1214,7 +1214,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         if ( !last_mesh )
         {
             // Compute intersected and trimmed geometry
-            m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag );
+            m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag, 1, vsp::SET_NONE, false, true );
             mesh_set = vsp::SET_SHOWN; // Only MeshGeom is shown after geometry is computed
         }
 
