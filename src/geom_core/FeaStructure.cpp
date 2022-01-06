@@ -3079,10 +3079,10 @@ FeaFixPoint::FeaFixPoint( const string& compID, const string& partID, int type )
     m_ParentFeaPartID = partID;
 
     m_PosU.Init( "PosU", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
-    m_PosU.SetDescript( "Precent U Location" );
+    m_PosU.SetDescript( "Percent U Location" );
 
     m_PosW.Init( "PosW", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
-    m_PosW.SetDescript( "Precent W Location" );
+    m_PosW.SetDescript( "Percent W Location" );
 
     m_FixPointMassFlag.Init( "FixPointMassFlag", "FeaFixPoint", this, false, false, true );
     m_FixPointMassFlag.SetDescript( "Flag to Include Mass of FeaFixPoint" );
