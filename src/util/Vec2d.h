@@ -100,7 +100,7 @@ public:
     friend void encode( double x_min, double y_min, double x_max, double y_max,
                         const vec2d& pnt, int code[4] );
     friend void clip_seg_rect( double x_min, double y_min, double x_max, double y_max,
-                               vec2d& pnt1, vec2d& pnt2, int& visable );
+                               vec2d& pnt1, vec2d& pnt2, int& visible );
 
     friend bool PointInPolygon( const vec2d & R, const std::vector< vec2d > & pnts );
     friend double det( const vec2d & p0, const vec2d & p1, const vec2d & offset );

@@ -268,7 +268,7 @@ void encode( double x_min, double y_min, double x_max, double y_max, const vec2d
 //******* Clip Line Segment To Rectangle ******//
 // Adapted From : Hill, "Computer Graphics", Macmillan Pub., New York, 1990. //
 void clip_seg_rect( double x_min, double y_min, double x_max, double y_max,
-                    vec2d& pnt1, vec2d& pnt2, int& visable )
+                    vec2d& pnt1, vec2d& pnt2, int& visible )
 {
     int c1[4];
     int c2[4];
@@ -286,14 +286,14 @@ void clip_seg_rect( double x_min, double y_min, double x_max, double y_max,
         // Segment Lies Entirely Inside Of Rectangle //
         if ( ( !c1[0] && !c1[1] && !c1[2] && !c1[3] ) && ( !c2[0] && !c2[1] && !c2[2] && !c2[3] ) )
         {
-            visable = 1;
+            visible = 1;
             done = 1;
         }
 
         // Segment Lies Entirely Outside Of Rectangle //
         else if ( ( c1[0] && c2[0] ) || ( c1[1] && c2[1] ) || ( c1[2] && c2[2] ) || ( c1[3] && c2[3] ) )
         {
-            visable = 0;
+            visible = 0;
             done = 1;
         }
 
