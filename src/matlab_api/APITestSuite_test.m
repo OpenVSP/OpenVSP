@@ -146,7 +146,7 @@ function CopyPasteGeometry_test(~)
     assert( ~isempty(first_pod_id) );
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
-    % % //==== Change First Pod Parameters (name, length, finess ratio, y location, x location, symetry) ====//
+    % % //==== Change First Pod Parameters (name, length, finess ratio, y location, x location, symmetry) ====//
     pod_name = 'Pod';
     vsp.SetGeomName( first_pod_id, pod_name );
     % //    test that the parameters got set within the TEST_TOL tolerance
@@ -168,10 +168,10 @@ function CopyPasteGeometry_test(~)
     vsp.SetGeomName( second_pod_id, 'Second_Pod' );    % // change the name of the second pod to something more descriptive
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
-    % % //==== Change Second Pod Parameters (name, y location, z location, symetry) ====//
+    % % //==== Change Second Pod Parameters (name, y location, z location, symmetry) ====//
     assert_delta( vsp.SetParmVal( second_pod_id, 'Y_Rel_Location', 'XForm', 0.0 ), 0.0, TEST_TOL );
     assert_delta( vsp.SetParmVal( second_pod_id, 'Z_Rel_Location', 'XForm', 1.0 ), 1.0, TEST_TOL );
-    vsp.SetParmVal( second_pod_id, 'Sym_Planar_Flag', 'Sym', 0 );    % // no symetry
+    vsp.SetParmVal( second_pod_id, 'Sym_Planar_Flag', 'Sym', 0 );    % // no symmetry
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
     % % //==== Check Second pod has the same length, finess ratio, and x location as the first ====//
@@ -235,7 +235,7 @@ function TestAnalysesWithPod_test(~)
     assert( ~isempty(pod_id) );
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
-    % % //==== Change Pod Parameters (name, length, finess ratio, y location, x location, symetry) ====//
+    % % //==== Change Pod Parameters (name, length, finess ratio, y location, x location, symmetry) ====//
     pod_name = 'Pod_Test';
     vsp.SetGeomName( pod_id, pod_name );
     % //    test that the parameters got set within the TEST_TOL tolerance
