@@ -845,7 +845,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_LabelDelimChoice.AddItem( "Underscore" );
     m_LabelDelimChoice.AddItem( "Space" );
     m_LabelDelimChoice.AddItem( "None" );
-    m_OutputTabLayout.AddChoice( m_LabelDelimChoice, "Delimeter" );
+    m_OutputTabLayout.AddChoice( m_LabelDelimChoice, "Delimiter" );
 
     m_LenUnitChoice.AddItem( "MM" );
     m_LenUnitChoice.AddItem( "CM" );

@@ -520,7 +520,7 @@ protected:
     void ReadPolarFile( string filename, vector <string> &res_id_vector, double recref );
     void ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType );
-    static vector <string> ReadDelimLine( FILE * fp, char * delimeters );
+    static vector <string> ReadDelimLine( FILE * fp, char * delimiters );
     static bool CheckForCaseHeader( std::vector<string> headerStr );
     static bool CheckForResultHeader( std::vector < string > headerstr );
     static int ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );

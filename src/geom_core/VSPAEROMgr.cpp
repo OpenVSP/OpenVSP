@@ -3321,7 +3321,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
     return;
 }
 
-vector <string> VSPAEROMgrSingleton::ReadDelimLine( FILE * fp, char * delimeters )
+vector <string> VSPAEROMgrSingleton::ReadDelimLine( FILE * fp, char * delimiters )
 {
 
     vector <string> dataStringVector;
@@ -3330,11 +3330,11 @@ vector <string> VSPAEROMgrSingleton::ReadDelimLine( FILE * fp, char * delimeters
     char strbuff[1024];                // buffer for entire line in file
     if ( fgets( strbuff, 1024, fp ) != NULL )
     {
-        char * pch = strtok ( strbuff, delimeters );
+        char * pch = strtok ( strbuff, delimiters );
         while ( pch != NULL )
         {
             dataStringVector.push_back( pch );
-            pch = strtok ( NULL, delimeters );
+            pch = strtok ( NULL, delimiters );
         }
     }
 
