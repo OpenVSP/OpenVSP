@@ -940,7 +940,7 @@ void WingSect::ReadV2File( xmlNodePtr &sec_node )
         m_SweepLoc.Set( 1.0 );
     }
 
-    m_Twist = XmlUtil::FindDouble( sec_node, "Twist", m_Twist() );
+    m_Twist = -XmlUtil::FindDouble( sec_node, "Twist", m_Twist() );
     m_TwistLoc = XmlUtil::FindDouble( sec_node, "TwistLoc", m_TwistLoc() );
     m_Dihedral = XmlUtil::FindDouble( sec_node, "Dihedral", m_Dihedral() );
 
