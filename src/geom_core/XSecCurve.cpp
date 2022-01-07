@@ -2501,7 +2501,7 @@ void FileXSec::ReadV2FileFuse2( xmlNodePtr &root )
             vector < vec3d > pnt_vec;
             for ( int i = 0; i < num_pnts; i++ )
             {
-                pnt_vec.push_back( vec3d( arry[i], arrz[i], 0.0 ) );
+                pnt_vec.push_back( vec3d( arry[i] * m_Width() * 0.5, arrz[i] * m_Height() * 0.5, 0.0 ) );
                 if ( std::abs( arrz[i] ) < std::abs( arrz[izzero] ) )
                 {
                     izzero = i;
@@ -2510,7 +2510,7 @@ void FileXSec::ReadV2FileFuse2( xmlNodePtr &root )
             // Mirror points, do not repeat any points.
             for ( int i = num_pnts - 2; i > 0; i-- )
             {
-                pnt_vec.push_back( vec3d( -arry[i], arrz[i], 0.0 ) );
+                pnt_vec.push_back( vec3d( -arry[i] * m_Width() * 0.5, arrz[i] * m_Height() * 0.5, 0.0 ) );
             }
 
             free( arry );
