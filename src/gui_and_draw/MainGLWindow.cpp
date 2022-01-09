@@ -2443,6 +2443,8 @@ int EditXSecWindow::ihit( const vec3d & mpt, double r_test )
     EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
     assert( edit_curve_xs );
 
+    bool symflag = ( edit_curve_xs->m_SymType() == vsp::SYM_RL );
+
     vector < vec3d > control_pts = edit_curve_xs->GetCtrlPntVec( false );
     int ndata = (int)control_pts.size();
 
@@ -2453,14 +2455,17 @@ int EditXSecWindow::ihit( const vec3d & mpt, double r_test )
 
     for ( int i = 0; i < ndata; i++ )
     {
-        double dist_out = dist( cpproj[i], mpt );
-        if ( dist_out < min_dist )
+        if ( !symflag || control_pts[i].x() >= 0 )
         {
-            min_dist = dist_out;
-
-            if ( dist_out < r_test )
+            double dist_out = dist( cpproj[i], mpt );
+            if ( dist_out < min_dist )
             {
-                i_hit = i;
+                min_dist = dist_out;
+
+                if ( dist_out < r_test )
+                {
+                    i_hit = i;
+                }
             }
         }
     }
