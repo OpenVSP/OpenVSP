@@ -76,6 +76,12 @@ void Camera::changeView( Common::VSPenum type )
         rotateSphere( 0.0, - 90.0 * ( M_PI / 180.0 ), - 90.0 * ( M_PI / 180.0 ) );
         break;
 
+    case Common::VSP_CAM_FRONT_YUP:
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0.0, - 90.0 * ( M_PI / 180.0 ), 0.0 );
+        break;
+
     case Common::VSP_CAM_LEFT:
         setCOR( 0.0, 0.0, 0.0 );
         relativePan( 0.0, 0.0 );
