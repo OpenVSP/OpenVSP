@@ -56,6 +56,7 @@ private:
     GroupLayout m_PtLayout;
 
     // XSec editor area GUI elements
+    Choice m_ViewChoice;
     VSPGUI::EditXSecWindow* m_XSecGlWin;
     Ca_X_Axis* m_XAxis;
     Ca_Y_Axis* m_YAxis;

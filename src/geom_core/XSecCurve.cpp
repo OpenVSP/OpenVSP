@@ -2535,6 +2535,9 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
 {
     m_Type = XS_EDIT_CURVE;
 
+    m_View.Init( "View", m_GroupName, this, vsp::VIEW_FRONT, vsp::VIEW_LEFT, vsp::VIEW_NUM_TYPES - 1 );
+    m_View.SetDescript( "View direction" );
+
     m_CloseFlag.Init( "CloseFlag", m_GroupName, this, true, false, true );
     m_CloseFlag.SetDescript( "Closed Curve Flag" );
 

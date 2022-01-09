@@ -252,7 +252,7 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     int wyaxis = 50;
     int border = 10;
     int window_x = m_MainLayout.GetX() + m_XSecLayout.GetW() + 5 + wyaxis;
-    int window_y = m_MainLayout.GetY() + 5;
+    int window_y = m_MainLayout.GetY() + m_MainLayout.GetStdHeight() + 5;
 
     m_GlWinWidth = m_MainLayout.GetW() - ( m_XSecLayout.GetW() + 2 * border + wyaxis ); // Same width and height
 
@@ -302,6 +302,13 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_YAxis->axis_color( FL_BLACK );
     m_YAxis->axis_align( CA_LEFT );
     m_MainLayout.GetGroup()->add( m_YAxis );
+
+    m_ViewChoice.AddItem( "Front", vsp::VIEW_FRONT );
+    m_ViewChoice.AddItem( "Top", vsp::VIEW_TOP );
+    m_ViewChoice.AddItem( "Left", vsp::VIEW_LEFT );
+
+    m_MainLayout.SetX( m_XSecLayout.GetW() + 5 + 10 );
+    m_MainLayout.AddChoice( m_ViewChoice, "View", m_MainLayout.GetX() + 5 );
 
     m_MainLayout.AddY( m_XSecLayout.GetH() + 40 );
 
@@ -440,7 +447,9 @@ bool CurveEditScreen::Update()
 
     EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
     assert( edit_curve_xs );
- 
+
+    m_ViewChoice.Update( edit_curve_xs->m_View.GetID() );
+
     m_ShapeChoice.Update( edit_curve_xs->m_ShapeType.GetID() );
     m_SymToggle.Update( edit_curve_xs->m_SymType.GetID() );
     m_ClosedCurveToggle.Update( edit_curve_xs->m_CloseFlag.GetID() );
@@ -460,6 +469,19 @@ bool CurveEditScreen::Update()
     {
         VSPGraphic::Viewport* viewport = m_XSecGlWin->getGraphicEngine()->getDisplay()->getViewport();
         assert( viewport );
+
+        if ( edit_curve_xs->m_View() == vsp::VIEW_FRONT ) // X,Y
+        {
+            m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
+        }
+        else if ( edit_curve_xs->m_View() == vsp::VIEW_TOP ) // X,Z
+        {
+            m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_LEFT );
+        }
+        else if ( edit_curve_xs->m_View() == vsp::VIEW_LEFT ) // Z,Y
+        {
+            m_XSecGlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_FRONT_YUP );
+        }
 
         m_XSecGlWin->clear();
 

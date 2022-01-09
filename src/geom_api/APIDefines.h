@@ -580,7 +580,8 @@ enum VIEW_TYPE { VIEW_LEFT,
                  VIEW_BOTTOM,
                  VIEW_FRONT,
                  VIEW_REAR,
-                 VIEW_NONE
+                 VIEW_NONE,
+                 VIEW_NUM_TYPES
                };
 
 enum VSPAERO_ANALYSIS_METHOD { VORTEX_LATTICE,

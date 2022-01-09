@@ -565,6 +565,8 @@ public:
     virtual string GetWidthParmID() { return m_Width.GetID(); }
     virtual string GetHeightParmID() { return m_Height.GetID(); }
 
+    IntParm m_View;
+
     BoolParm m_CloseFlag;
     BoolParm m_SymType;
     IntParm m_ShapeType;
