@@ -2269,6 +2269,21 @@ int EditXSecWindow::handle( int fl_event )
 
     vec3d coord = PixelToCoord( m_mouse_x, m_mouse_y );
 
+    int izero = -1;
+    if ( edit_curve_xs->m_View() == vsp::VIEW_FRONT ) // X,Y
+    {
+        izero = 2;
+    }
+    else if ( edit_curve_xs->m_View() == vsp::VIEW_TOP ) // X,Z
+    {
+        izero = 1;
+    }
+    else if ( edit_curve_xs->m_View() == vsp::VIEW_LEFT ) // Z,Y
+    {
+        izero = 0;
+    }
+
+
     double sx = coord.x();
     double sy = coord.y();
 
@@ -2277,7 +2292,8 @@ int EditXSecWindow::handle( int fl_event )
         // Diameter of point + 10% considered "hit" 
         double hit_r = pixels_per_unit() * 1.2 * edit_curve_xs->m_XSecPointSize.Get() / 2;
 
-        m_LastHit = ihit( m_mouse_x, m_mouse_y, hit_r );
+        float zoom = getRelativeZoomValue();
+        m_LastHit = ihit( coord, hit_r * zoom );
 
         if ( m_LastHit != -1 )
         {
@@ -2300,19 +2316,19 @@ int EditXSecWindow::handle( int fl_event )
             curve_editor->SetSplitActive( false );
 
             // Scale by width and height
-            vec3d split_pnt;
-            if ( edit_curve_xs->m_AbsoluteFlag() )
+            vec3d split_pnt = coord;
+            if ( !edit_curve_xs->m_AbsoluteFlag() )
             {
-                split_pnt = vec3d( sx, sy, 0.0 );
-            }
-            else
-            {
-                split_pnt = vec3d( sx * edit_curve_xs->GetWidth(), sy * edit_curve_xs->GetHeight(), 0.0 );
+                split_pnt.scale_x( edit_curve_xs->GetWidth() );
+                split_pnt.scale_y( edit_curve_xs->GetHeight() );
+                split_pnt.scale_z( edit_curve_xs->m_Depth() );
             }
 
             double u_curve;
             VspCurve base_curve = edit_curve_xs->GetBaseEditCurve();
+
             base_curve.OffsetX( -0.5 * edit_curve_xs->GetWidth() );
+            base_curve.ZeroI( izero );
             base_curve.FindNearest01( u_curve, split_pnt );
 
             edit_curve_xs->m_SplitU = u_curve;
@@ -2322,14 +2338,16 @@ int EditXSecWindow::handle( int fl_event )
     }
     else if ( fl_event == FL_DRAG && m_LastHit != -1 && !Fl::event_button2() )
     {
+        // Scale by width and height
+        vec3d move_pnt = coord;
         if ( edit_curve_xs->m_AbsoluteFlag() )
         {
-            edit_curve_xs->MovePnt( sx / edit_curve_xs->GetWidth(), sy / edit_curve_xs->GetHeight() );
+            move_pnt.scale_x( 1.0 / edit_curve_xs->GetWidth() );
+            move_pnt.scale_y( 1.0 / edit_curve_xs->GetHeight() );
+            move_pnt.scale_z( 1.0 / edit_curve_xs->m_Depth() );
         }
-        else
-        {
-            edit_curve_xs->MovePnt( sx, sy );
-        }
+
+        edit_curve_xs->MovePnt( move_pnt, izero );
 
         curve_editor->SetFreezeAxis( true );
     }
@@ -2376,23 +2394,36 @@ vec3d EditXSecWindow::PixelToCoord( int x_pix, int y_pix )
     double w = pixel_w();
     double h = pixel_h();
 
-    double scale_w = 1;
-    double scale_h = 1;
+    // Convert pixels to normalized coordinates
+    double data1 = ( zoom * w ) * ( ( x_pix / w ) - 0.5 ) - pan.x;
+    double data2 = ( zoom * h ) * ( ( y_pix / h ) - 0.5 ) - pan.y;
 
-    if ( !edit_curve_xs->m_AbsoluteFlag() )
+    // Modulate 2D projection into 3D vector
+    if ( edit_curve_xs->m_View() == vsp::VIEW_FRONT ) // X,Y
     {
-        scale_w = edit_curve_xs->GetWidth();
-        scale_h = edit_curve_xs->GetHeight();
+        coord.set_xyz( data1, data2, 0.0 );
+    }
+    else if ( edit_curve_xs->m_View() == vsp::VIEW_TOP ) // X,Z
+    {
+        coord.set_xyz( data1, 0.0, data2 );
+    }
+    else if ( edit_curve_xs->m_View() == vsp::VIEW_LEFT ) // Z,Y
+    {
+        coord.set_xyz( 0.0, data2, data1 );
     }
 
-    // Convert pixels to coordinates
-    coord.set_x( ( ( zoom * w ) * ( ( x_pix / w ) - 0.5 ) - pan.x ) / scale_w );
-    coord.set_y( ( ( zoom * h ) * ( ( y_pix / h ) - 0.5 ) - pan.y ) / scale_h );
+    // Non-dimensionalize coordinates if needed.
+    if ( !edit_curve_xs->m_AbsoluteFlag() )
+    {
+        coord.scale_x( 1.0 / edit_curve_xs->GetWidth() );
+        coord.scale_y( 1.0 / edit_curve_xs->GetHeight() );
+        coord.scale_z( 1.0 / edit_curve_xs->m_Depth() );
+    }
 
     return coord;
 }
 
-int EditXSecWindow::ihit( int mx, int my, double r_test )
+int EditXSecWindow::ihit( const vec3d & mpt, double r_test )
 {
     //==== Find EditCurveXSec Ptr ====//
     CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
@@ -2414,21 +2445,15 @@ int EditXSecWindow::ihit( int mx, int my, double r_test )
 
     vector < vec3d > control_pts = edit_curve_xs->GetCtrlPntVec( false );
     int ndata = (int)control_pts.size();
-    vector < double > xdata( ndata );
-    vector < double > ydata( ndata );
 
-    for ( size_t i = 0; i < ndata; i++ )
-    {
-        xdata[i] = control_pts[i].x();
-        ydata[i] = control_pts[i].y();
-    }
+    vector < vec3d > cpproj = proj_pt_vec( control_pts );
 
     double min_dist = 1e9;
     int i_hit = -1;
 
-    for ( int i = 0; i < xdata.size(); i++ )
+    for ( int i = 0; i < ndata; i++ )
     {
-        double dist_out = hitdist( mx, my, xdata[i], ydata[i] );
+        double dist_out = dist( cpproj[i], mpt );
         if ( dist_out < min_dist )
         {
             min_dist = dist_out;
@@ -2443,23 +2468,57 @@ int EditXSecWindow::ihit( int mx, int my, double r_test )
     return i_hit;
 }
 
-double EditXSecWindow::hitdist( int mx, int my, double datax, double datay )
+vector < vec3d > EditXSecWindow::proj_pt_vec( const vector < vec3d > & pt_in )
 {
-    float zoom = getRelativeZoomValue();
-    glm::vec2 pan = getPanValues();
-    double w = pixel_w();
-    double h = pixel_h();
+    //==== Find EditCurveXSec Ptr ====//
+    CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+    if ( !curve_editor )
+    {
+        return pt_in;
+    }
 
-    // Convert datax and datay into pixels
-    double pixel_x = w * ( ( ( datax + pan.x ) / ( zoom * w ) ) + 0.5 );
-    double pixel_y = h * ( ( ( datay + pan.y ) / ( zoom * h ) ) + 0.5 );
+    XSecCurve* xsc = curve_editor->GetXSecCurve();
 
-    double dx = std::abs( pixel_x - mx );
-    double dy = std::abs( pixel_y - my );
+    if ( !xsc || xsc->GetType() != vsp::XS_EDIT_CURVE )
+    {
+        return pt_in;
+    }
 
-    double dist_out = std::sqrt( dx * dx + dy * dy );
+    EditCurveXSec* edit_curve_xs = dynamic_cast<EditCurveXSec*>( xsc );
 
-    return dist_out;
+    vector < vec3d > pt_out = pt_in;
+
+    int izero = -1;
+    if ( edit_curve_xs->m_View() == vsp::VIEW_FRONT ) // X,Y
+    {
+        izero = 2;
+    }
+    else if ( edit_curve_xs->m_View() == vsp::VIEW_TOP ) // X,Z
+    {
+        izero = 1;
+    }
+    else if ( edit_curve_xs->m_View() == vsp::VIEW_LEFT ) // Z,Y
+    {
+        izero = 0;
+    }
+
+    int npt = pt_in.size();
+    for ( int i = 0; i < npt; i++ )
+    {
+        // Non-dimensionalize control point if needed.
+        if ( !edit_curve_xs->m_AbsoluteFlag() )
+        {
+            pt_out[i].set_x( pt_out[i].x() / edit_curve_xs->GetWidth() );
+            pt_out[i].set_y( pt_out[i].y() / edit_curve_xs->GetHeight() );
+            pt_out[i].set_z( pt_out[i].z() / edit_curve_xs->m_Depth() );
+        }
+
+        // Project into 2D view
+        pt_out[i].v[izero] = 0.0;
+    }
+
+    return pt_out;
 }
 
 void EditXSecWindow::InitZoom()

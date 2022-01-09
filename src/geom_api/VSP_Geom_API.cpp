@@ -5733,6 +5733,7 @@ void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d
     // edit_xs->MovePnt also moves adjacent CEDIT points, so just set parm values directly
     edit_xs->m_XParmVec[indx]->Set( new_pnt.x() );
     edit_xs->m_YParmVec[indx]->Set( new_pnt.y() );
+    edit_xs->m_ZParmVec[indx]->Set( new_pnt.z() );
 
     edit_xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update
 

@@ -74,6 +74,8 @@ private:
     HWXSecCurveDriverGroup m_DefaultXSecDriverGroup;
     DriverGroupBank m_XSecDriverGroupBank;
 
+    SliderAdjRangeInput m_DepthSlider;
+
     SliderAdjRangeInput m_SplitPtSlider;
     TriggerButton m_SplitButton;
     TriggerButton m_DelButton;

@@ -97,6 +97,8 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_XSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
     m_XSecLayout.AddDriverGroupBank( m_XSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
 
+    m_XSecLayout.AddSlider( m_DepthSlider, "Depth", 1, "%3.2f" );
+
     m_XSecLayout.AddYGap();
     m_XSecLayout.SetSameLineFlag( false );
     m_XSecLayout.SetFitWidthFlag( true );
@@ -327,7 +329,7 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
 
     m_PrevIndex = 0;
     m_PrevCurveType = 0;
-    m_SliderVecVec.resize( 3 ); // X, Y, & U
+    m_SliderVecVec.resize( 4 ); // X, Y, Z, & U
 
     m_ImageZoomOffset = -1;
     m_ImageXOffsetOrig = 0;
@@ -458,6 +460,8 @@ bool CurveEditScreen::Update()
     vector< string > parm_ids = edit_curve_xs->GetDriverParms();
     m_XSecDriverGroupBank.Update( parm_ids );
 
+    m_DepthSlider.Update( edit_curve_xs->m_Depth.GetID() );
+
     Geom* geom = m_ScreenMgr->GetCurrGeom();
     m_XSecDriverGroupBank.EnforceXSecGeomType( geom->GetType().m_Type );
 
@@ -573,10 +577,27 @@ bool CurveEditScreen::Update()
                 m_SliderVecVec[1][i].Update( fp->GetID() );
             }
 
+            fp = edit_curve_xs->m_ZParmVec[i];
+            if( fp )
+            {
+                fp->SetRefVal( edit_curve_xs->GetHeight() );
+
+                if( edit_curve_xs->m_AbsoluteFlag.Get() )
+                {
+                    fp->SetDisplayResultFlag( true );
+                }
+                else
+                {
+                    fp->SetDisplayResultFlag( false );
+                }
+
+                m_SliderVecVec[2][i].Update( fp->GetID() );
+            }
+
             Parm* p = edit_curve_xs->m_UParmVec[i];
             if( p )
             {
-                m_SliderVecVec[2][i].Update( p->GetID() );
+                m_SliderVecVec[3][i].Update( p->GetID() );
             }
 
             if( edit_curve_xs->m_CurveType() == vsp::CEDIT )
@@ -599,12 +620,14 @@ bool CurveEditScreen::Update()
                 m_SliderVecVec[0][i].SetLabelColor( FL_YELLOW );
                 m_SliderVecVec[1][i].SetLabelColor( FL_YELLOW );
                 m_SliderVecVec[2][i].SetLabelColor( FL_YELLOW );
+                m_SliderVecVec[3][i].SetLabelColor( FL_YELLOW );
             }
             else
             {
                 m_SliderVecVec[0][i].ResetLabelColor();
                 m_SliderVecVec[1][i].ResetLabelColor();
                 m_SliderVecVec[2][i].ResetLabelColor();
+                m_SliderVecVec[3][i].ResetLabelColor();
             }
         }
 
@@ -1039,7 +1062,8 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         {
             if( !strcmp( parm_id.c_str(), edit_curve_xs->m_XParmVec[j]->GetID().c_str() ) || 
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_YParmVec[j]->GetID().c_str() )  || 
-                !strcmp( parm_id.c_str(), edit_curve_xs->m_UParmVec[j]->GetID().c_str() ) || 
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_ZParmVec[j]->GetID().c_str() )  ||
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_UParmVec[j]->GetID().c_str() ) ||
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_EnforceG1Vec[j]->GetID().c_str() ) || 
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_FixedUVec[j]->GetID().c_str() ) )
             {
