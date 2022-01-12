@@ -323,6 +323,8 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_PtScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
     m_PtScroll->box( FL_BORDER_BOX );
 
+    m_FLTK_Window->resizable(m_PtScroll);
+
     //==== Initialize Member Variables ====//
     m_FreezeAxis = false;
     m_DeleteActive = false;
