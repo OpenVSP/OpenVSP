@@ -97,7 +97,8 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
     m_XSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
     m_XSecLayout.AddDriverGroupBank( m_XSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
 
-    m_XSecLayout.AddSlider( m_DepthSlider, "Depth", 1, "%3.2f" );
+    m_XSecLayout.AddX( 2 * 17 + 1 );
+    m_XSecLayout.AddSlider( m_DepthSlider, "Depth", 1, "%6.5f" );
 
     m_XSecLayout.AddYGap();
     m_XSecLayout.SetSameLineFlag( false );
