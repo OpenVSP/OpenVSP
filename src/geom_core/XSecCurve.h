@@ -480,6 +480,8 @@ public:
 
     virtual void UpdateCurve( bool updateParms = true );
 
+    virtual void SetScale( double scale );
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr& node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr& node );
 

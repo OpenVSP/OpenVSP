@@ -2973,6 +2973,13 @@ void EditCurveXSec::UpdateCurve( bool updateParms )
     EnforcePtOrder();
 }
 
+void EditCurveXSec::SetScale( double scale )
+{
+    XSecCurve::SetScale( scale );
+
+    m_Depth.Set( m_Depth.Get() * scale );
+}
+
 void EditCurveXSec::EnforceClosure()
 {
     if ( m_CloseFlag() )
