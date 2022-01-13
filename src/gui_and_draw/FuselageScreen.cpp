@@ -285,8 +285,8 @@ bool FuselageScreen::Update()
             }
         }
 
-        return true;
     }
+    return true;
 }
 
 void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
