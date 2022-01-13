@@ -330,7 +330,7 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
 
     m_PrevIndex = 0;
     m_PrevCurveType = 0;
-    m_SliderVecVec.resize( 4 ); // X, Y, Z, & U
+    m_SliderVecVec.resize( 5 ); // X, Y, Z, U, & R
 
     m_ImageZoomOffset = -1;
     m_ImageXOffsetOrig = 0;
@@ -601,6 +601,12 @@ bool CurveEditScreen::Update()
                 m_SliderVecVec[3][i].Update( p->GetID() );
             }
 
+            p = edit_curve_xs->m_RParmVec[i];
+            if( p )
+            {
+                m_SliderVecVec[4][i].Update( p->GetID() );
+            }
+
             if( edit_curve_xs->m_CurveType() == vsp::CEDIT )
             {
                 BoolParm* bp = edit_curve_xs->m_EnforceG1Vec[i];
@@ -622,6 +628,7 @@ bool CurveEditScreen::Update()
                 m_SliderVecVec[1][i].SetLabelColor( FL_YELLOW );
                 m_SliderVecVec[2][i].SetLabelColor( FL_YELLOW );
                 m_SliderVecVec[3][i].SetLabelColor( FL_YELLOW );
+                m_SliderVecVec[4][i].SetLabelColor( FL_YELLOW );
             }
             else
             {
@@ -629,6 +636,7 @@ bool CurveEditScreen::Update()
                 m_SliderVecVec[1][i].ResetLabelColor();
                 m_SliderVecVec[2][i].ResetLabelColor();
                 m_SliderVecVec[3][i].ResetLabelColor();
+                m_SliderVecVec[4][i].ResetLabelColor();
             }
         }
 
@@ -1062,8 +1070,9 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         for( size_t j = 0; j < edit_curve_xs->m_XParmVec.size(); j++ )
         {
             if( !strcmp( parm_id.c_str(), edit_curve_xs->m_XParmVec[j]->GetID().c_str() ) || 
-                !strcmp( parm_id.c_str(), edit_curve_xs->m_YParmVec[j]->GetID().c_str() )  || 
-                !strcmp( parm_id.c_str(), edit_curve_xs->m_ZParmVec[j]->GetID().c_str() )  ||
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_YParmVec[j]->GetID().c_str() ) ||
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_ZParmVec[j]->GetID().c_str() ) ||
+                !strcmp( parm_id.c_str(), edit_curve_xs->m_RParmVec[j]->GetID().c_str() ) ||
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_UParmVec[j]->GetID().c_str() ) ||
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_EnforceG1Vec[j]->GetID().c_str() ) || 
                 !strcmp( parm_id.c_str(), edit_curve_xs->m_FixedUVec[j]->GetID().c_str() ) )
