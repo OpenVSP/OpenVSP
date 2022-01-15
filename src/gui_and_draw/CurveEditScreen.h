@@ -125,7 +125,7 @@ private:
     DrawObj m_CurrentPntDrawObj;
 
     // Vector of sliders to match the curve parameter vectors
-    vector < vector < SliderAdjRangeInput > > m_SliderVecVec;
+    vector < vector < Input > > m_InputVecVec;
     vector < CheckButton > m_EnforceG1Vec;
     vector < CheckButton > m_FixedUCheckVec;
 
