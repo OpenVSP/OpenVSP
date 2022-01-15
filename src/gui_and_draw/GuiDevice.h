@@ -232,6 +232,16 @@ public:
         m_ParmButton.SetButtonNameUpdate( flag );
     }
 
+    virtual void SetLabelColor( Fl_Color color )
+    {
+        m_ParmButton.SetLabelColor( color );
+    }
+
+    virtual void ResetLabelColor()
+    {
+        m_ParmButton.ResetLabelColor();
+    }
+
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr );

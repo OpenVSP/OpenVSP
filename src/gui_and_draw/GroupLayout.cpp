@@ -870,6 +870,11 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format 
     NewLineX();
 
     input.Init( m_Screen, flinput, format, button );
+
+    if( strcmp( label, "AUTO_UPDATE" ) == 0 || strcmp( label, "" ) == 0 )
+    {
+        input.SetButtonNameUpdate( true );
+    }
 }
 
 void GroupLayout::AddInputEvenSpacedVector(Input& start_input, Input& end_input, Input& npts_input,const char * label,const char * format)
