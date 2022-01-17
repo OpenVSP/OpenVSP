@@ -973,7 +973,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks )
                 vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec();
                 for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
                 {
-                    if ( suppressdisks && ( tMeshVec[i]->m_SurfType == vsp::DISK_SURF ) )
+                    if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
                     {
                         // Skip actuator disk.
                     }
@@ -1005,7 +1005,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks )
                     // Do not combine these loops.  tMeshVec.size() != DegenGeomVec.size()
                     for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
                     {
-                        if ( suppressdisks && ( tMeshVec[i]->m_SurfType == vsp::DISK_SURF ) )
+                        if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
                         {
                             // Skip actuator disk.
                         }
