@@ -2248,6 +2248,22 @@ void Geom::UpdateDrawObj()
     m_WireShadeDrawObj_vec[2].m_GeomChanged = true;
     m_WireShadeDrawObj_vec[3].m_GeomChanged = true;
 
+    // Pre-calculate and allocate for number of feature line segments.
+    // Identified by profiling as a substantial cost.
+    int numfealineseg = 0;
+    for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
+    {
+        int nfl = m_FeatureTessVec[i].m_ptline.size();
+
+        for( int j = 0; j < nfl; j++ )
+        {
+            int n = m_FeatureTessVec[i].m_ptline[j].size() - 1;
+
+            numfealineseg += 2 * n;
+        }
+    }
+    m_FeatureDrawObj_vec[0].m_PntVec.reserve( numfealineseg );
+
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
@@ -2279,8 +2295,6 @@ void Geom::UpdateDrawObj()
             for( int j = 0; j < nfl; j++ )
             {
                 int n = m_FeatureTessVec[i].m_ptline[j].size() - 1;
-
-                m_FeatureDrawObj_vec[0].m_PntVec.reserve( m_FeatureDrawObj_vec[0].m_PntVec.size() + 2 * n );
 
                 for ( int k = 0; k < n; k++ )
                 {
