@@ -2959,6 +2959,10 @@ void EditCurveXSec::UpdateCurve( bool updateParms )
     // Enforce Closure
     EnforceClosure();
 
+    UpdateG1Parms();
+
+    EnforcePtOrder();
+
     vector < double > t_vec = GetTVec(); // Set control point parameter values (0-4), but show the user (0-1)
 
     if ( m_CurveType() == vsp::LINEAR )
@@ -2985,10 +2989,6 @@ void EditCurveXSec::UpdateCurve( bool updateParms )
     }
 
     m_Curve.OffsetX( 0.5 * m_Width() ); // Shift by 1/2 width (all XSec types are centered at (m_Width/2, 0, 0))
-
-    UpdateG1Parms();
-
-    EnforcePtOrder();
 
     m_UnroundedCurve = m_Curve;
 
