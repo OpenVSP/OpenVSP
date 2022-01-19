@@ -4397,6 +4397,7 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
         geom_vec[i]->AddLinkableContainers( linkable_container_vec );
     }
 
+    m_ClippingMgr.AddLinkableContainers( linkable_container_vec );
     StructureMgr.AddLinkableContainers( linkable_container_vec );
 }
 
