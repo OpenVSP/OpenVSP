@@ -2961,8 +2961,6 @@ void EditCurveXSec::UpdateCurve( bool updateParms )
 
     UpdateG1Parms();
 
-    EnforcePtOrder();
-
     vector < double > t_vec = GetTVec(); // Set control point parameter values (0-4), but show the user (0-1)
 
     if ( m_CurveType() == vsp::LINEAR )
