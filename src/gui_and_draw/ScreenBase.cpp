@@ -2315,7 +2315,7 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         return;
     }
     GeomXSec* xsec_geom_ptr = dynamic_cast<GeomXSec*>(geom_ptr);
-    assert( stackgeom_ptr );
+    assert( xsec_geom_ptr );
     // Note: BOR requires it's own GuiDeviceCallBack because it is not a GeomXSec
 
     if (gui_device == &m_XSecTypeChoice)
