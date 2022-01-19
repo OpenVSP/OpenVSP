@@ -821,7 +821,14 @@ void APITestSuite::TestEditXSec()
     u_vec[3] = 0.75;
     u_vec[4] = 1.0;
 
-    vsp::SetEditXSecPnts( xsec_2, u_vec, xsec2_pts );  // Note: points are unscaled by the width and height parms
+    vector < double > r_vec( 5 );
+    r_vec[0] = 0.0;
+    r_vec[1] = 0.0;
+    r_vec[2] = 0.0;
+    r_vec[3] = 0.0;
+    r_vec[4] = 0.0;
+
+    vsp::SetEditXSecPnts( xsec_2, u_vec, xsec2_pts, r_vec );  // Note: points are unscaled by the width and height parms
 
     vsp::SetXSecWidthHeight( xsec_2, 1.5, 1.5 );
 
@@ -843,7 +850,15 @@ void APITestSuite::TestEditXSec()
     u_vec[4] = 0.5;
     u_vec[5] = 1.0;
 
-    vsp::SetEditXSecPnts( xsec_2, u_vec, xsec2_pts );
+    r_vec.resize( 6 );
+    r_vec[0] = 0.0;
+    r_vec[1] = 0.0;
+    r_vec[2] = 0.0;
+    r_vec[3] = 0.0;
+    r_vec[4] = 0.0;
+    r_vec[5] = 0.0;
+
+    vsp::SetEditXSecPnts( xsec_2, u_vec, xsec2_pts, r_vec );
 
     // Change Positions of XSecs
     TEST_ASSERT_DELTA( vsp::SetParmVal( sid, "XDelta", "XSec_1", 0.0 ), 0.0, TEST_TOL );

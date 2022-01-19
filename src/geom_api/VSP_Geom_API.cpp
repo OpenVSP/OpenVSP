@@ -5637,7 +5637,7 @@ vector < vec3d > GetEditXSecCtrlVec( const std::string& xsec_id, const bool non_
     return edit_xs->GetCtrlPntVec( non_dimensional );
 }
 
-void SetEditXSecPnts( const std::string & xsec_id, vector < double > u_vec, vector < vec3d > control_pts )
+void SetEditXSecPnts( const std::string & xsec_id, vector < double > u_vec, vector < vec3d > control_pts, vector < double > r_vec )
 {
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
@@ -5657,7 +5657,7 @@ void SetEditXSecPnts( const std::string & xsec_id, vector < double > u_vec, vect
 
     ErrorMgr.NoError();
 
-    edit_xs->SetPntVecs( u_vec, control_pts );
+    edit_xs->SetPntVecs( u_vec, control_pts, r_vec );
 }
 
 void EditXSecDelPnt( const std::string & xsec_id, const int & indx )

@@ -7997,7 +7997,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     u_vec[3] = 0.75;
     u_vec[4] = 1.0;
 
-    SetEditXSecPnts( xsec_2, u_vec, xsec2_pts ); // Note: points are unscaled by the width and height parms
+    array < double > r_vec(5);
+
+    r_vec[0] = 0.0;
+    r_vec[1] = 0.0;
+    r_vec[2] = 0.0;
+    r_vec[3] = 0.0;
+    r_vec[4] = 0.0;
+
+    SetEditXSecPnts( xsec_2, u_vec, xsec2_pts, r_vec ); // Note: points are unscaled by the width and height parms
 
     array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
     
@@ -8008,9 +8016,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \endcode
     \param [in] xsec_id XSec ID
     \param [in] u_vec Array of U parameter values
+    \param [in] r_vec Array of R parameter values
     \param [in] control_pts Nondimensionalized array of control points
 */)";
-    r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@ u_vec, array<vec3d>@ control_pts )", asMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@ u_vec, array<vec3d>@ control_pts, array<double>@ r_vec )", asMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
@@ -12800,7 +12809,7 @@ CScriptArray* ScriptMgrSingleton::GetEditXSecCtrlVec( const std::string & xsec_i
     return GetProxyVec3dArray();
 }
 
-void ScriptMgrSingleton::SetEditXSecPnts( const string & xsec_id, CScriptArray* u_vec, CScriptArray* control_pts )
+void ScriptMgrSingleton::SetEditXSecPnts( const string & xsec_id, CScriptArray* u_vec, CScriptArray* control_pts, CScriptArray* r_vec )
 {
     vector < vec3d > control_pnt_vec( control_pts->GetSize() );
 
@@ -12816,7 +12825,14 @@ void ScriptMgrSingleton::SetEditXSecPnts( const string & xsec_id, CScriptArray* 
         new_u_vec[i] = *(double*)( u_vec->At( i ) );
     }
 
-    vsp::SetEditXSecPnts( xsec_id, new_u_vec, control_pnt_vec );
+    vector < double > new_r_vec( r_vec->GetSize() );
+
+    for ( int i = 0; i < (int)r_vec->GetSize(); i++ )
+    {
+        new_r_vec[i] = *(double*)( r_vec->At( i ) );
+    }
+
+    vsp::SetEditXSecPnts( xsec_id, new_u_vec, control_pnt_vec, new_r_vec );
 }
 
 CScriptArray* ScriptMgrSingleton::GetEditXSecFixedUVec( const std::string& xsec_id )

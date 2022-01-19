@@ -308,7 +308,7 @@ extern void EditXSecInitShape( const std::string & xsec_id );
 extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype );
 extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
 extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, const bool non_dimensional = true );
-extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double > u_vec, std::vector < vec3d > control_pts );
+extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double > u_vec, std::vector < vec3d > control_pts, std::vector < double > r_vec );
 extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
 extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
 extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d & new_pnt );
