@@ -330,7 +330,7 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : TabScreen( mgr, 750, 615+17
 
     m_PrevIndex = 0;
     m_PrevCurveType = 0;
-    m_InputVecVec.resize( 5 ); // X, Y, Z, U, & R
+    m_InputVecVec.resize( 5 ); // LINEAR or CEDIT, most common value.
 
     m_ImageZoomOffset = -1;
     m_ImageXOffsetOrig = 0;
@@ -601,10 +601,13 @@ bool CurveEditScreen::Update()
                 m_InputVecVec[3][i].Update( p->GetID() );
             }
 
-            p = edit_curve_xs->m_RParmVec[i];
-            if( p )
+            if( edit_curve_xs->m_CurveType() != vsp::PCHIP )
             {
-                m_InputVecVec[4][i].Update( p->GetID() );
+                p = edit_curve_xs->m_RParmVec[i];
+                if( p )
+                {
+                    m_InputVecVec[4][i].Update( p->GetID() );
+                }
             }
 
             if( edit_curve_xs->m_CurveType() == vsp::CEDIT )
@@ -624,19 +627,17 @@ bool CurveEditScreen::Update()
 
             if( i == m_PntSelector.GetIndex() )
             {
-                m_InputVecVec[0][i].SetLabelColor( FL_YELLOW );
-                m_InputVecVec[1][i].SetLabelColor( FL_YELLOW );
-                m_InputVecVec[2][i].SetLabelColor( FL_YELLOW );
-                m_InputVecVec[3][i].SetLabelColor( FL_YELLOW );
-                m_InputVecVec[4][i].SetLabelColor( FL_YELLOW );
+                for ( int j = 0; j < m_InputVecVec.size(); j++ )
+                {
+                    m_InputVecVec[j][i].SetLabelColor( FL_YELLOW );
+                }
             }
             else
             {
-                m_InputVecVec[0][i].ResetLabelColor();
-                m_InputVecVec[1][i].ResetLabelColor();
-                m_InputVecVec[2][i].ResetLabelColor();
-                m_InputVecVec[3][i].ResetLabelColor();
-                m_InputVecVec[4][i].ResetLabelColor();
+                for ( int j = 0; j < m_InputVecVec.size(); j++ )
+                {
+                    m_InputVecVec[j][i].ResetLabelColor();
+                }
             }
         }
 
@@ -1226,17 +1227,31 @@ void CurveEditScreen::UpdateAxisLimits()
 
 void CurveEditScreen::RedrawXYSliders( int num_pts, int curve_type )
 {
-    int num_inputs = (int)m_InputVecVec.size();
+    int num_inputs;
+    if( curve_type == vsp::PCHIP )
+    {
+        num_inputs = 4; // X, Y, Z, U
+    }
+    else
+    {
+        num_inputs = 5; // X, Y, Z, U, & R
+    }
 
-    m_PtScroll->clear();
-    m_PtLayout.SetGroup( m_PtScroll );
-    m_PtLayout.InitWidthHeightVals();
+    if ( num_inputs != m_InputVecVec.size() )
+    {
+        m_InputVecVec.clear();
+        m_InputVecVec.resize( num_inputs );
+    }
 
-    for( int i = 0; i < m_InputVecVec.size(); i++ )
+    for( int i = 0; i < num_inputs; i++ )
     {
         m_InputVecVec[i].clear();
         m_InputVecVec[i].resize( num_pts );
     }
+
+    m_PtScroll->clear();
+    m_PtLayout.SetGroup( m_PtScroll );
+    m_PtLayout.InitWidthHeightVals();
 
     m_EnforceG1Vec.clear();
     m_EnforceG1Vec.resize( num_pts );
