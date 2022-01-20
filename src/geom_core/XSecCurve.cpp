@@ -3021,6 +3021,11 @@ void EditCurveXSec::SetScale( double scale )
     XSecCurve::SetScale( scale );
 
     m_Depth.Set( m_Depth.Get() * scale );
+
+    for ( int i = 0; i < m_RParmVec.size(); i++ )
+    {
+        m_RParmVec[i]->Set( m_RParmVec[i]->Get() * scale );
+    }
 }
 
 void EditCurveXSec::EnforceClosure()
