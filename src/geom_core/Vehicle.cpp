@@ -4841,7 +4841,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
     else if ( file_type == IMPORT_XSEC_WIRE )
     {
         FILE *fp;
-        char str[256];
+        char str[256] = {};
 
         //==== Make Sure File Exists ====//
         if ( ( fp = fopen( file_name.c_str(), "r" ) ) == ( FILE * )NULL )

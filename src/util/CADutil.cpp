@@ -117,7 +117,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
     {
         STEPcomplex * len_mm = ua_length;
 
-        char lenname[10];
+        char lenname[10] = {};
         lenname[0] = '\0';
         double lenconv = 1.0;
 

@@ -509,7 +509,7 @@ bool PropScreen::Update()
 
     m_AFLimitSlider.Update( propeller_ptr->m_AFLimit.GetID() );
 
-    char str[255];
+    char str[255] = {};
     m_AFOutput.Update( propeller_ptr->m_AF.GetID() );
     m_CLiOutput.Update( propeller_ptr->m_CLi.GetID() );
     m_SolidityOutput.Update( propeller_ptr->m_Solidity.GetID() );

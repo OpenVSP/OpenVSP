@@ -162,7 +162,7 @@ xmlNodePtr MeshGeom::DecodeXml( xmlNodePtr & node )
 int MeshGeom::ReadXSec( const char* file_name )
 {
     FILE *fp;
-    char str[256];
+    char str[256] = {};
 
     //==== Make Sure File Exists ====//
     if ( ( fp = fopen( file_name, "r" ) ) == ( FILE * )NULL )
@@ -2289,7 +2289,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     vec3d tvec = cross( norm_axis, pnt );
     tvec.normalize();
     Matrix4d transMat;
-    double tempMat[16];
+    double tempMat[16] = {};
     tempMat[0] = norm_axis.x();
     tempMat[4] = norm_axis.y();
     tempMat[8] = norm_axis.z();
