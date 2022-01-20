@@ -23,8 +23,8 @@ void WriteSVGHeader( xmlNodePtr root, const BndBox &svgbox )
 
     sprintf( sviewbox, "%f %f %f %f", 0.0, 0.0, x_view, y_view );
 
-    xmlSetProp( root, BAD_CAST "width", BAD_CAST "100\%" );
-    xmlSetProp( root, BAD_CAST "height", BAD_CAST "100\%" );
+    xmlSetProp( root, BAD_CAST "width", BAD_CAST "100%" );
+    xmlSetProp( root, BAD_CAST "height", BAD_CAST "100%" );
     xmlSetProp( root, BAD_CAST "viewBox", BAD_CAST sviewbox );
     xmlSetProp( root, BAD_CAST "xmlns", BAD_CAST "http://www.w3.org/2000/svg" );
     xmlSetProp( root, BAD_CAST "version", BAD_CAST "1.1" );
