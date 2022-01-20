@@ -4492,7 +4492,7 @@ void VSPAEROMgrSingleton::UpdateAutoTimeStep()
     }
     else
     {
-        m_AutoTimeNumRevs.Set( int( ( m_NumTimeSteps() / 20 ) * m_TimeStepSize() / dt ) );
+        m_AutoTimeNumRevs.Set( int( ( m_NumTimeSteps() / 20.0 ) * m_TimeStepSize() / dt ) );
     }
 }
 
