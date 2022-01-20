@@ -2475,7 +2475,7 @@ int VSPAEROMgrSingleton::WaitForFile( string filename )
     // Wait until the results show up on the file system
     int n_wait = 0;
     // wait no more than 5 seconds = (50*100)/1000
-    while ( ( !FileExist( filename ) ) & ( n_wait < 100 ) )
+    while ( ( !FileExist( filename ) ) && ( n_wait < 100 ) )
     {
         n_wait++;
         SleepForMilliseconds( 50 );
