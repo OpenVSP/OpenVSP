@@ -9851,7 +9851,7 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                       // Number of Equati
     int i, j, k, Iter, Done, TotalIterations;
 
     VSPAERO_DOUBLE av, *c, Epsilon, *g, **h, Dot, Mu, *r;
-    VSPAERO_DOUBLE rho, rho_zero, rho_tol, rho_ratio, *s, **v, *y, NowTime;
+    VSPAERO_DOUBLE rho, rho_zero, rho_tol = 0, rho_ratio, *s, **v, *y, NowTime = 0;
     
     Epsilon = 1.0e-03;
     
@@ -9880,7 +9880,7 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                       // Number of Equati
 
     }
 
-    r = new VSPAERO_DOUBLE[Neq + 1];
+    r = new VSPAERO_DOUBLE[Neq + 1] ();
 
     // Check for case were we come in converged already
     
@@ -13157,7 +13157,7 @@ int VSP_SOLVER::SurfaceVortexEdgeIsBetweenPlanes(VSPAERO_DOUBLE *Normal1, VSPAER
   
 
     int Type1, Type2;
-    int N1_P1, N1_P2, N2_P1, N2_P2;
+    int N1_P1 = 0, N1_P2 = 0, N2_P1 = 0, N2_P2 = 0;
     VSPAERO_DOUBLE Point1[3], Point2[3], S1, S2;
     
     // Define the line
@@ -13233,7 +13233,7 @@ int VSP_SOLVER::SurfaceVortexEdgeIsBetweenPlanes(VSPAERO_DOUBLE *Normal1, VSPAER
 void VSP_SOLVER::CalculateSpanWiseLoading(void)
 {
  
-    int i, k, NumSurfs, NumberOfStations;
+    int i, k, NumSurfs, NumberOfStations = 0;
     VSPAERO_DOUBLE TotalLift, CFx, CFy, CFz;
     VSPAERO_DOUBLE CL, CD, CS, CMx, CMy, CMz;
     char DumChar[2000];
@@ -15883,9 +15883,9 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(int LoopType)
     
     if ( LoopType == FIXED_LOOPS ) PRINTF("Backward sweep... \n");
 
-    CommonEdgeList = new LOOP_ENTRY*[NumberOfThreads_ + 1];
+    CommonEdgeList = new LOOP_ENTRY*[NumberOfThreads_ + 1] ();
     
-    EdgeIsCommon = new int*[NumberOfThreads_ + 1];
+    EdgeIsCommon = new int*[NumberOfThreads_ + 1] ();
 
     for ( cpu = 0 ; cpu < NumberOfThreads_ ; cpu++ ) {
        
@@ -22309,7 +22309,7 @@ void VSP_SOLVER::WriteOutPSUWopWopPeggNamelist(void)
 
     int i, k, i_size, c_size, f_size;
     VSPAERO_DOUBLE x1, y1, z1, x2, y2, z2;
-    VSPAERO_DOUBLE BladeArea, BladeRadius, Thrust, BladeCL, RotationSpeed;
+    VSPAERO_DOUBLE BladeArea, BladeRadius = 0, Thrust, BladeCL, RotationSpeed;
        
     // Sizeof int and float
 
@@ -22706,7 +22706,7 @@ void VSP_SOLVER::WriteOutPSUWopWopLoadingGeometryDataForGroup(int c)
     int i_size, c_size, f_size;
     VSPAERO_DOUBLE Translation[3];
     float DumFloat, x, y, z, Time;
-    FILE *WopFile;
+    FILE *WopFile = 0;
 
     // Sizeof int and float
 

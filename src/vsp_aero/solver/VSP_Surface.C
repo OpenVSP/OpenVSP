@@ -670,7 +670,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File)
 void VSP_SURFACE::DoRCMSort(void)
 {
 
-    int i, j, k, l, Tri, Node, iMin, NumberOfTris, NumberOfNodes, Done;
+    int i, j, k, l, Tri, Node, iMin = 0, NumberOfTris, NumberOfNodes, Done;
     int *TriPermArray, *NodePermArray, *NextTri, *TriOnFront, NumberOfTrisOnFront;
     VSPAERO_DOUBLE XMin, Xc;
     VSP_LOOP *TempTriList;

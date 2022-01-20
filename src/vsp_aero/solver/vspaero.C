@@ -1226,8 +1226,8 @@ void LoadCaseFile(void)
     int i, j, NumberOfControlSurfaces, Done;
     VSPAERO_DOUBLE x,y,z, DumDouble, HingeVec[3], RotAngle, DeltaHeight;
     FILE *case_file;
-    char file_name_w_ext[2000], DumChar[2000], DumChar2[2000], Comma[2000], *Next;
-    char SymmetryFlag[2000];
+    char file_name_w_ext[2000] = {}, DumChar[2000] = {}, DumChar2[2000] = {}, Comma[2000] = {}, * Next = 0;
+    char SymmetryFlag[2000] = {};
     QUAT Quat, InvQuat, Vec;
 
     // Delimiters
@@ -2944,7 +2944,7 @@ void UnsteadyStabilityAndControlSolve(void)
 {
 
     int i, j, k, p, pm1, Case, NumCases;
-    char StabFileName[2000];
+    char StabFileName[2000] = {};
     VSPAERO_DOUBLE  CL_damp,  CL_avg;
     VSPAERO_DOUBLE  CD_damp,  CD_avg;
     VSPAERO_DOUBLE  CS_damp,  CS_avg;   
