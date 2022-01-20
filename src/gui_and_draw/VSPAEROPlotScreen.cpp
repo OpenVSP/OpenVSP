@@ -1210,7 +1210,7 @@ void VSPAEROPlotScreen::CallBack( Fl_Widget* w )
             bool oneSelected = false;
             for ( unsigned int iCase = 1; iCase <= m_SweepYDataBrowser->size(); iCase++ )
             {
-                if ( m_SweepYDataBrowser->selected( iCase ) & !oneSelected )
+                if ( m_SweepYDataBrowser->selected( iCase ) && !oneSelected )
                 {
                     oneSelected = true;
                 }
@@ -1238,7 +1238,7 @@ void VSPAEROPlotScreen::CallBack( Fl_Widget* w )
             bool oneSelected = false;
             for ( unsigned int iCase = 1; iCase <= m_SweepXDataBrowser->size(); iCase++ )
             {
-                if ( m_SweepXDataBrowser->selected( iCase ) & !oneSelected )
+                if ( m_SweepXDataBrowser->selected( iCase ) && !oneSelected )
                 {
                     oneSelected = true;
                 }
@@ -1782,11 +1782,11 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
     vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
-        if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "Mach" )     != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "Alpha" )    != 0 )  &
-                ( strcmp( dataNames[iDataName].c_str(), "Beta" )     != 0 )  &
+        if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &&
+                ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &&
+                ( strcmp( dataNames[iDataName].c_str(), "Mach" )     != 0 )  &&
+                ( strcmp( dataNames[iDataName].c_str(), "Alpha" )    != 0 )  &&
+                ( strcmp( dataNames[iDataName].c_str(), "Beta" )     != 0 )  &&
                 ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) )
         {
             m_ConvergenceYDataBrowser->add( dataNames[iDataName].c_str() );
@@ -1825,7 +1825,7 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     m_LoadDistYDataBrowser->clear();
 
     Results* load_res = ResultsMgr.FindResultsPtr( ResultsMgr.FindLatestResultsID( "VSPAERO_Load" ) );
-    Results* res;
+    Results* res = 0;
 
     string resultID, default_res;
 
@@ -1847,14 +1847,14 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
         vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
         for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
         {
-            if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &
-                    ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
-                    ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
-                    ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )  &
-                    ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &
-                    ( strcmp( dataNames[iDataName].c_str(), "Station" ) != 0 ) &
-                    ( strcmp( dataNames[iDataName].c_str(), "Group_Name" ) != 0 ) &
-                    ( strcmp( dataNames[iDataName].c_str(), "Rotor_Num" ) != 0 ) &
+            if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &&
+                    ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &&
+                    ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &&
+                    ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )  &&
+                    ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &&
+                    ( strcmp( dataNames[iDataName].c_str(), "Station" ) != 0 ) &&
+                    ( strcmp( dataNames[iDataName].c_str(), "Group_Name" ) != 0 ) &&
+                    ( strcmp( dataNames[iDataName].c_str(), "Rotor_Num" ) != 0 ) &&
                     ( strcmp( dataNames[iDataName].c_str(), "Blade_Num" ) != 0 ) )
             {
                 m_LoadDistYDataBrowser->add( dataNames[iDataName].c_str() );
@@ -1909,8 +1909,8 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
     {
         for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
         {
-            if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &
-                    ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
+            if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 )   != 0 )  &&
+                    ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &&
                     ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) )
             {
                 m_SweepXDataBrowser->add( dataNames[iDataName].c_str() );
@@ -2151,16 +2151,16 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
     vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
     {
-        if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 ) != 0 )  &
-            ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "Mach" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "Alpha" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "Beta" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &
-             ( strcmp( dataNames[iDataName].c_str(), "Time" ) != 0 ) &
-             ( strcmp( dataNames[iDataName].c_str(), "Group_Num" ) != 0 ) &
-             ( strcmp( dataNames[iDataName].c_str(), "Rotor_Num" ) != 0 ) &
-             ( strcmp( dataNames[iDataName].c_str(), "Group_Name" ) != 0 ) &
+        if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 ) != 0 )  &&
+            ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &&
+             ( strcmp( dataNames[iDataName].c_str(), "Mach" ) != 0 )  &&
+             ( strcmp( dataNames[iDataName].c_str(), "Alpha" ) != 0 )  &&
+             ( strcmp( dataNames[iDataName].c_str(), "Beta" ) != 0 )  &&
+             ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &&
+             ( strcmp( dataNames[iDataName].c_str(), "Time" ) != 0 ) &&
+             ( strcmp( dataNames[iDataName].c_str(), "Group_Num" ) != 0 ) &&
+             ( strcmp( dataNames[iDataName].c_str(), "Rotor_Num" ) != 0 ) &&
+             ( strcmp( dataNames[iDataName].c_str(), "Group_Name" ) != 0 ) &&
              ( strcmp( dataNames[iDataName].c_str(), "RPM" ) != 0 ) ) // FIXME: Figure out why selecting rotor RPM causes the GUI to freeze
         {
             m_UnsteadyYDataBrowser->add( dataNames[iDataName].c_str() );
@@ -2310,7 +2310,7 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
     //Redraw plot if data is available and selected
     bool expandOnly = false;
     int nPolarPoints = m_SweepFlowConditionSelectedResultIDs.size();
-    if ( ( nPolarPoints > 0 ) & ( xDataSetNames.size() > 0 ) & ( yDataSetNames.size() > 0 ) )
+    if ( ( nPolarPoints > 0 ) && ( xDataSetNames.size() > 0 ) && ( yDataSetNames.size() > 0 ) )
     {
         for ( int iXData = 0; iXData < xDataSetNames.size(); iXData++ )
         {
@@ -2393,7 +2393,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
     bool expandOnly = false;
     vector < int > pos_type_vec;
 
-    if ( ( m_CpSliceCaseSelectedResultIDs.size() > 0 ) & ( m_CpSliceCutSelectedResultIDs.size() > 0 ) )
+    if ( ( m_CpSliceCaseSelectedResultIDs.size() > 0 ) && ( m_CpSliceCutSelectedResultIDs.size() > 0 ) )
     {
         for ( size_t iCut = 0; iCut < m_CpSliceCutSelectedResultIDs.size(); iCut++ )
         {
@@ -2771,9 +2771,9 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
     }
     else if ( strcmp( res->GetName().c_str(), "VSPAERO_Load" ) == 0 || strcmp( res->GetName().c_str(), "VSPAERO_Blade_Avg" ) == 0 )
     {
-        NameValData* wingIdResultDataPtr;
-        NameValData* xResultDataPtr;
-        NameValData* yResultDataPtr;
+        NameValData* wingIdResultDataPtr = 0;
+        NameValData* xResultDataPtr = 0;
+        NameValData* yResultDataPtr = 0;
         vector <double> xDoubleData_orig;
         string group_name, y_label;
 
