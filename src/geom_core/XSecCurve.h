@@ -131,7 +131,7 @@ public:
 
     // Convert any XSec into an editable type. This function will default the XSec to 
     // cubic Bezier with symmetry off.
-    static EditCurveXSec* ConvertToEdit( XSecCurve* original_curve );
+    virtual EditCurveXSec* ConvertToEdit();
 
     IntParm m_TECloseType;
     IntParm m_TECloseAbsRel;

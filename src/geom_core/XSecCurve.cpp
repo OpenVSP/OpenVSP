@@ -142,8 +142,10 @@ XSecCurve::~XSecCurve()
 }
 
 //==== Convert Any XSec to Cubic Bezier Edit Curve ====//
-EditCurveXSec* XSecCurve::ConvertToEdit( XSecCurve* orig_curve )
+EditCurveXSec* XSecCurve::ConvertToEdit()
 {
+    XSecCurve* orig_curve = this;
+
     if ( orig_curve->GetType() == vsp::XS_EDIT_CURVE )
     {
         return dynamic_cast<EditCurveXSec*>( orig_curve );
