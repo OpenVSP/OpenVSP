@@ -1983,6 +1983,47 @@ void RoundedRectXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
     XSecCurve::Interp( start, end, frac );
 }
 
+EditCurveXSec* RoundedRectXSec::ConvertToEdit()
+{
+    // Create curve without rounded corners.
+    VspCurve vsp_curve;
+    vsp_curve.CreateRoundedRectangle( m_Width(), m_Height(), m_Keystone(), m_Skew(), m_VSkew(), 0.0, 0.0, 0.0, 0.0, m_KeyCornerParm() );
+
+    vector < vec3d > point_vec;
+    vector < double > param_vec;
+    vsp_curve.GetLinearControlPoints( point_vec, param_vec );
+
+    double offset = GetWidth() / 2;
+
+    vector < double > r_vec( param_vec.size(), 0.0 );
+    for ( size_t i = 0; i < param_vec.size(); i++ )
+    {
+        param_vec[i] = param_vec[i] / 4.0; // Store point parameter (0-1) internally
+        // Shift by 1/2 width and nondimensionalize
+        point_vec[i].set_x( ( point_vec[i].x() - offset ) / max( GetWidth(), 1E-9 ) );
+        point_vec[i].set_y( point_vec[i].y() / max( GetHeight(), 1E-9 ) );
+    }
+
+    r_vec[1] = m_RadiusBR();
+    r_vec[3] = m_RadiusBL();
+    r_vec[5] = m_RadiusTL();
+    r_vec[7] = m_RadiusTR();
+
+    EditCurveXSec* xscrv_ptr = new EditCurveXSec();
+
+    xscrv_ptr->CopyFrom( this );
+    xscrv_ptr->m_SymType.Set( vsp::SYM_NONE );
+    xscrv_ptr->m_CurveType = vsp::LINEAR;
+
+    // Transfer width and height parm values
+    xscrv_ptr->SetWidthHeight( GetWidth(), GetHeight() );
+
+    // Set Bezier control points
+    xscrv_ptr->SetPntVecs( param_vec, point_vec, r_vec );
+
+    return xscrv_ptr;
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//

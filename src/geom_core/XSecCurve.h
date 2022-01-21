@@ -361,6 +361,8 @@ public:
 
     virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
+    virtual EditCurveXSec* ConvertToEdit();
+
     Parm m_Width;
     Parm m_Height;
     IntParm m_RadiusSymmetryType;
