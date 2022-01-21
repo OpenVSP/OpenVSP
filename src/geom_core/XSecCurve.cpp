@@ -144,14 +144,12 @@ XSecCurve::~XSecCurve()
 //==== Convert Any XSec to Cubic Bezier Edit Curve ====//
 EditCurveXSec* XSecCurve::ConvertToEdit()
 {
-    XSecCurve* orig_curve = this;
-
-    if ( orig_curve->GetType() == vsp::XS_EDIT_CURVE )
+    if ( GetType() == vsp::XS_EDIT_CURVE )
     {
-        return dynamic_cast<EditCurveXSec*>( orig_curve );
+        return dynamic_cast<EditCurveXSec*>( this );
     }
 
-    VspCurve vsp_curve = orig_curve->GetBaseEditCurve();
+    VspCurve vsp_curve = GetBaseEditCurve();
 
     // Make the curve more coarse. Force wingtype to false to avoid TMAGIC curve spitting, since 
     // XSecCurve::Update() already does it.
@@ -162,7 +160,7 @@ EditCurveXSec* XSecCurve::ConvertToEdit()
 
     vsp_curve.GetCubicControlPoints( point_vec, param_vec );
 
-    double offset = orig_curve->GetWidth() / 2;
+    double offset = GetWidth() / 2;
 
     vector < double > r_vec( param_vec.size() );
 
@@ -170,19 +168,19 @@ EditCurveXSec* XSecCurve::ConvertToEdit()
     {
         param_vec[i] = param_vec[i] / 4.0; // Store point parameter (0-1) internally
         // Shift by 1/2 width and nondimensionalize
-        point_vec[i].set_x( ( point_vec[i].x() - offset ) / max( orig_curve->GetWidth(), 1E-9 ) );
-        point_vec[i].set_y( point_vec[i].y() / max( orig_curve->GetHeight(), 1E-9 ) );
+        point_vec[i].set_x( ( point_vec[i].x() - offset ) / max( GetWidth(), 1E-9 ) );
+        point_vec[i].set_y( point_vec[i].y() / max( GetHeight(), 1E-9 ) );
         r_vec[i] = 0.0;
     }
 
     EditCurveXSec* xscrv_ptr = new EditCurveXSec();
 
-    xscrv_ptr->CopyFrom( orig_curve );
+    xscrv_ptr->CopyFrom( this );
     xscrv_ptr->m_SymType.Set( vsp::SYM_NONE );
     // TODO: Transfer symmetry and G1 continuity qualities
 
     // Transfer width and height parm values
-    xscrv_ptr->SetWidthHeight( orig_curve->GetWidth(), orig_curve->GetHeight() );
+    xscrv_ptr->SetWidthHeight( GetWidth(), GetHeight() );
 
     // Set Bezier control points
     xscrv_ptr->SetPntVecs( param_vec, point_vec, r_vec );
