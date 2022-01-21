@@ -75,6 +75,8 @@ public:
     void SetCubicControlPoints( const vector < vec3d > & cntrl_pts, const vector < double > & param ); // Specify curve parameterization
     void GetCubicControlPoints( vector< vec3d >& cntrl_pts, vector< double >& param );
 
+    void GetLinearControlPoints( vector< vec3d >& cntrl_pts, vector< double >& param );
+
     const piecewise_curve_type & GetCurve() const;
     void SetCurve( const piecewise_curve_type &c );
     void AppendCurveSegment( curve_segment_type &c );
