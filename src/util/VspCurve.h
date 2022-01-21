@@ -160,7 +160,7 @@ public:
 
     vector < BezierSegment > GetBezierSegments();
 
-    void CreateRoundedRectangle( double w, double h, double k, double sk, double vsk, double & r1, double & r2, double & r3, double & r4, bool keycorner = true );
+    void CreateRoundedRectangle( double w, double h, double k, double sk, double vsk, const double & r1, const double & r2, const double & r3, const double & r4, bool keycorner = true );
 
     void ToCubic( double tol = 0.1 );
 

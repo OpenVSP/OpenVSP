@@ -1719,7 +1719,7 @@ vector < BezierSegment > VspCurve::GetBezierSegments()
     return seg_vec;
 }
 
-void VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, double vsk, double & r1, double & r2, double & r3, double & r4, bool keycorner )
+void VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, double vsk, const double & r1, const double & r2, const double & r3, const double & r4, bool keycorner )
 {
     VspCurve edge;
     vector<vec3d> pt;
