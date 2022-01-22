@@ -184,7 +184,8 @@ enum DIMENSION_SET { SET_3D,
 
 enum DIR_INDEX { X_DIR = 0,
                  Y_DIR = 1,
-                 Z_DIR = 2
+                 Z_DIR = 2,
+                 ALL_DIR = 3
                };
 
 enum DISPLAY_TYPE { DISPLAY_BEZIER,

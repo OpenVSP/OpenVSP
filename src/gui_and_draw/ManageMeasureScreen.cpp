@@ -4,7 +4,7 @@
 #include "VSP_Geom_API.h"
 #include "UnitConversion.h"
 
-ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 700, "Measure" )
+ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 700+35, "Measure" )
 {
     Fl_Group* ruler_tab = AddTab( "Rulers" );
     Fl_Group* ruler_group = AddSubGroup( ruler_tab, 5 );
@@ -64,6 +64,15 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
     m_RulerLayout.AddYGap();
 
     m_RulerLayout.AddDividerBox( "Ruler Control" );
+
+    m_RulerLayout.AddYGap();
+
+    m_RulerDirectionChoice.AddItem( "All", vsp::ALL_DIR );
+    m_RulerDirectionChoice.AddItem( "X", vsp::X_DIR );
+    m_RulerDirectionChoice.AddItem( "Y", vsp::Y_DIR );
+    m_RulerDirectionChoice.AddItem( "Z", vsp::Z_DIR );
+
+    m_RulerLayout.AddChoice( m_RulerDirectionChoice, "Direction" );
 
     m_RulerLayout.AddYGap();
 
@@ -265,6 +274,8 @@ bool ManageMeasureScreen::Update()
 
     if ( ruler )
     {
+        m_RulerDirectionChoice.Update( ruler->m_Component.GetID() );
+
         m_PrecisionSlider.Update( ruler->m_Precision.GetID() );
 
         m_StartGeom.SetGeomChoice( ruler->m_OriginGeomID );

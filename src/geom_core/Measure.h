@@ -112,6 +112,8 @@ public:
 
     BoolParm m_Visible;
 
+    IntParm m_Component;
+
 protected:
 
     DrawObj m_LabelDO;

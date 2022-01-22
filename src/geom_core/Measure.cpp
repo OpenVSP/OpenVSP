@@ -190,6 +190,8 @@ Ruler::Ruler() : ParmContainer()
 
     m_Distance.Init( "Distance", "Measure", this, 0.0, -1.0e12, 1.0e12 );
 
+    m_Component.Init( "Component", "Measure", this, vsp::ALL_DIR, vsp::X_DIR, vsp::ALL_DIR );
+
     m_LabelDO.m_GeomID = GenerateRandomID( 4 ) + "_Ruler";
     m_LabelDO.m_Type = DrawObj::VSP_RULER;
     m_LabelDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -223,6 +225,8 @@ void Ruler::Reset()
     m_ZOffset = 0.0;
 
     m_Precision = 3;
+
+    m_Component = vsp::ALL_DIR;
 }
 
 void Ruler::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -240,6 +244,18 @@ void Ruler::Update()
 
         vec3d delta = end - origin;
 
+        char dir[4] = {'\0',':',' ','\0'}; // set up string with first char null to skip
+        if ( m_Component() != vsp::ALL_DIR )
+        {
+            vec3d mask;
+            mask.v[ m_Component() ] = 1;
+            for ( int i = 0; i < 3; i ++ )
+            {
+                delta.v[i] *= mask.v[i];
+            }
+            dir[0] = 88 + m_Component(); // Set first char to X, Y, Z
+        }
+
         m_DeltaX = delta.x();
         m_DeltaY = delta.y();
         m_DeltaZ = delta.z();
@@ -247,11 +263,12 @@ void Ruler::Update()
         m_Distance = delta.mag();
 
         char str[255];
-        sprintf( str, "%.*f %s", m_Precision(), delta.mag(), LenUnitName( veh->m_MeasureLenUnit() ).c_str() );
+        sprintf( str, "%s%.*f %s", dir, m_Precision(), delta.mag(), LenUnitName( veh->m_MeasureLenUnit() ).c_str() );
 
         m_LabelDO.m_Ruler.Start = origin;
         m_LabelDO.m_Ruler.End = end;
         m_LabelDO.m_Ruler.Label = string( str );
+        m_LabelDO.m_Ruler.Dir = m_Component();
         m_LabelDO.m_GeomChanged = true;
         m_LabelDO.m_Visible = m_Visible();
 

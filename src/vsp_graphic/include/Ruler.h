@@ -52,7 +52,7 @@ public:
     * v2 - finish or end point of ruler.
     * offset - placement of the ruler.
     */
-    void placeRuler( const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec3 &offset, const std::string & lbl );
+    void placeRuler( const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec3 &offset, const std::string & lbl, int dir );
 
 public:
     /*!
@@ -70,6 +70,8 @@ private:
     glm::vec3 _v2;
 
     glm::vec3 _offset;
+
+    int _dir;
 };
 }
 #endif

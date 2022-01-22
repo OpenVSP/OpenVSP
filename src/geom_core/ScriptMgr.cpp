@@ -838,6 +838,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "DIR_INDEX", "Z_DIR", Z_DIR, "/*!< Z direction */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "DIR_INDEX", "ALL_DIR", ALL_DIR, "/*!< All directions */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for selecting the GUI display type for Geoms. */";
 

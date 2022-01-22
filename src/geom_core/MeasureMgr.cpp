@@ -1,4 +1,5 @@
 #include "MeasureMgr.h"
+#include "APIDefines.h"
 
 MeasureMgrSingleton::MeasureMgrSingleton()
 {

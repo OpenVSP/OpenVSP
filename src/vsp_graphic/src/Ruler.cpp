@@ -58,7 +58,7 @@ void Ruler::placeRuler( const glm::vec3 &v1, const glm::vec3 &v2, const std::str
     _label = lbl;
 }
 
-void Ruler::placeRuler( const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec3 &offset, const std::string & lbl )
+void Ruler::placeRuler( const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec3 &offset, const std::string & lbl, int dir )
 {
     reset();
 
@@ -66,6 +66,7 @@ void Ruler::placeRuler( const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec
     _v2 = v2;
     _label = lbl;
     _offset = calculateOffset(_v1, _v2, offset);
+    _dir = dir;
 }
 
 void Ruler::reset()
@@ -94,6 +95,25 @@ void Ruler::_draw()
     {
         rulerStart = _v1 + _offset;
         rulerEnd = _v2 + _offset;
+
+        if ( _dir != 3 ) // 3 means all directions.
+        {
+            glm::vec3 midpt = ( rulerStart + rulerEnd ) * 0.5f;
+
+            for ( int i = 0; i < 3; i++ )
+            {
+                if ( i != _dir )
+                {
+                    rulerStart[i] = midpt[i];
+                    rulerEnd[i] = midpt[i];
+                }
+                else
+                {
+                    rulerStart[i] = _v1[i];
+                    rulerEnd[i] = _v2[i];
+                }
+            }
+        }
 
         glBegin(GL_POINTS);
         glVertex3f(_v1[0], _v1[1], _v1[2]);

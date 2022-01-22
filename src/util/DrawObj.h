@@ -172,6 +172,7 @@ public:
         vec3d End;
         vec3d Offset;
         string Label;
+        int Dir;
     };
 
     /*

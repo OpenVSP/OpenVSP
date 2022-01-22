@@ -904,7 +904,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                     offset = glm::vec3( objects[i]->m_Ruler.Offset.x(),
                         objects[i]->m_Ruler.Offset.y(),
                         objects[i]->m_Ruler.Offset.z() );
-                    ruler->placeRuler( start, end, offset, objects[i]->m_Ruler.Label );
+                    ruler->placeRuler( start, end, offset, objects[i]->m_Ruler.Label, objects[i]->m_Ruler.Dir );
                     break;
 
                 default:

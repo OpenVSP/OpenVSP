@@ -43,6 +43,7 @@ protected:
     GroupLayout m_ProbeLayout;
 
     Choice m_RulerLengthUnitChoice;
+    Choice m_RulerDirectionChoice;
 
     SliderAdjRangeInput m_PrecisionSlider;
 
