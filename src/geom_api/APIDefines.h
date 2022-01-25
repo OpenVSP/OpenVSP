@@ -138,6 +138,17 @@ enum CF_TURB_EQN { CF_TURB_EXPLICIT_FIT_SPALDING = 0,
                    CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH
                  }; // Friction Coefficient Turbulent Eqns ENUM
 
+enum CHEVRON_TYPE { CHEVRON_NONE,
+                    CHEVRON_PARTIAL,
+                    CHEVRON_FULL,
+                    CHEVRON_NUM_TYPES
+                  };
+
+enum CHEVRON_W01_MODES { CHEVRON_W01_SE, // Start and End
+                         CHEVRON_W01_CW, // Center and Width
+                         CHEVRON_W01_NUM_MODES
+                       };
+
 enum COLLISION_ERRORS { COLLISION_OK,
                         COLLISION_INTERSECT_NO_SOLUTION,
                         COLLISION_CLEAR_NO_SOLUTION,

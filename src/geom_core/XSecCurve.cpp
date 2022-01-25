@@ -113,6 +113,44 @@ XSecCurve::XSecCurve()
     m_DeltaY.Init( "DeltaY", m_GroupName, this, 0, -1e3, 1e3 );
     m_ShiftLE.Init( "ShiftLE", m_GroupName, this, 0, -1.9, 1.9 );
 
+    m_ChevronType.Init( "Chevron_Type", "Chevron", this, vsp::CHEVRON_NONE, vsp::CHEVRON_NONE, vsp::CHEVRON_NUM_TYPES - 1 );
+
+    m_ChevNumber.Init( "Number", "Chevron", this, 8, 1, 1e3 );
+
+    m_ChevOnDuty.Init( "On_Duty", "Chevron", this, 0, 0, 1 );
+    m_ChevOffDuty.Init( "Off_Duty", "Chevron", this, 0, 0, 1 );
+
+    m_ChevDirAngleAllSymFlag.Init( "AllSym", "Chevron", this, 1, 0, 1 );
+    m_ChevDirAngleAllSymFlag.SetDescript( "Set all chevron angles equal." );
+    m_ChevDirAngleTBSymFlag.Init( "TBSym", "Chevron", this, 1, 0, 1 );
+    m_ChevDirAngleTBSymFlag.SetDescript( "Set top/bottom chevron angles equal." );
+    m_ChevDirAngleRLSymFlag.Init( "RLSym", "Chevron", this, 1, 0, 1 );
+    m_ChevDirAngleRLSymFlag.SetDescript( "Set left/right chevron angles equal." );
+
+    m_ChevronExtentMode.Init( "W01_Mode", "Chevron", this, vsp::CHEVRON_W01_SE, vsp::CHEVRON_W01_SE, vsp::CHEVRON_W01_NUM_MODES - 1 );
+    m_ChevW01Start.Init( "W01_Start", "Chevron", this, 0, 0, 1 );
+    m_ChevW01End.Init( "W01_End", "Chevron", this, 0.5, 0, 1 );
+    m_ChevW01Center.Init( "W01_Center", "Chevron", this, 0.25, 0, 1 );
+    m_ChevW01Width.Init( "W01_Width", "Chevron", this, 0.5, 0, 1 );
+
+    m_ChevTopAmplitude.Init( "TopAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
+    m_ChevBottomAmplitude.Init( "BottomAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
+    m_ChevRightAmplitude.Init( "LeftAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
+    m_ChevLeftAmplitude.Init( "RightAmplitude", "Chevron", this, 1.0, -1e12, 1e12 );
+
+    m_ChevTopAngle.Init( "Top_Angle", "Chevron", this, 0.0, -360.0, 360.0 );
+    m_ChevBottomAngle.Init( "Bottom_Angle", "Chevron", this, 0.0, -360.0, 360.0 );
+    m_ChevRightAngle.Init( "Right_Angle", "Chevron", this, 0.0, -360.0, 360.0 );
+    m_ChevLeftAngle.Init( "Left_Angle", "Chevron", this, 0.0, -360.0, 360.0 );
+
+    m_ChevTopSlew.Init( "Top_Slew", "Chevron", this, 0.0, -360.0, 360.0 );
+    m_ChevBottomSlew.Init( "Bottom_Slew", "Chevron", this, 0.0, -360.0, 360.0 );
+    m_ChevRightSlew.Init( "Right_Slew", "Chevron", this, 0.0, -360.0, 360.0 );
+    m_ChevLeftSlew.Init( "Left_Slew", "Chevron", this, 0.0, -360.0, 360.0 );
+
+    m_ValleyRad.Init( "Valley_Radius", "Chevron", this, 0.0, 0.0, 1e12 );
+    m_PeakRad.Init( "Peak_Radius", "Chevron", this, 0.0, 0.0, 1e12 );
+
     // Background Image Parms
     m_XSecImagePreserveAR.Init( "XSecImagePreserveAR", ( m_GroupName + "_Background" ), this, true, false, true );
     m_XSecImageFlag.Init( "XSecImageFlag", ( m_GroupName + "_Background" ), this, false, false, true );
@@ -380,6 +418,9 @@ void XSecCurve::Update()
 
     CapTE( wingtype );
     CapLE( wingtype );
+
+    // Apply 3D Chevron modification.
+    Chevron();
 
     if ( m_Type != XS_POINT )
     {
@@ -1509,6 +1550,397 @@ void XSecCurve::CapLE( bool wingtype )
             break;
         case SHARP_END_CAP:
             break;
+    }
+}
+
+void XSecCurve::Chevron()
+{
+    if ( m_ChevronType() == vsp::CHEVRON_NONE ) // Fast path.
+    {
+        m_ChevTopAmplitude.Deactivate();
+        m_ChevBottomAmplitude.Deactivate();
+        m_ChevLeftAmplitude.Deactivate();
+        m_ChevRightAmplitude.Deactivate();
+
+        m_ChevNumber.Deactivate();
+
+        m_ChevOnDuty.Deactivate();
+        m_ChevOffDuty.Deactivate();
+
+        m_PeakRad.Deactivate();
+        m_ValleyRad.Deactivate();
+
+        m_ChevronExtentMode.Deactivate();
+        m_ChevW01Start.Deactivate();
+        m_ChevW01End.Deactivate();
+        m_ChevW01Center.Deactivate();
+        m_ChevW01Width.Deactivate();
+
+        m_ChevTopAngle.Deactivate();
+        m_ChevBottomAngle.Deactivate();
+        m_ChevRightAngle.Deactivate();
+        m_ChevLeftAngle.Deactivate();
+
+        m_ChevTopSlew.Deactivate();
+        m_ChevBottomSlew.Deactivate();
+        m_ChevRightSlew.Deactivate();
+        m_ChevLeftSlew.Deactivate();
+
+        m_ChevDirAngleAllSymFlag.Deactivate();
+        m_ChevDirAngleTBSymFlag.Deactivate();
+        m_ChevDirAngleRLSymFlag.Deactivate();
+        return;
+    }
+    else
+    {
+        m_ChevTopAmplitude.Activate();
+        m_ChevBottomAmplitude.Activate();
+        m_ChevLeftAmplitude.Activate();
+        m_ChevRightAmplitude.Activate();
+
+        m_ChevNumber.Activate();
+
+        m_ChevOnDuty.Activate();
+        m_ChevOffDuty.Activate();
+
+        m_PeakRad.Activate();
+        m_ValleyRad.Activate();
+
+        m_ChevronExtentMode.Activate();
+        m_ChevW01Start.Activate();
+        m_ChevW01End.Activate();
+        m_ChevW01Center.Activate();
+        m_ChevW01Width.Activate();
+
+        m_ChevTopAngle.Activate();
+        m_ChevBottomAngle.Activate();
+        m_ChevRightAngle.Activate();
+        m_ChevLeftAngle.Activate();
+
+        m_ChevTopSlew.Activate();
+        m_ChevBottomSlew.Activate();
+        m_ChevRightSlew.Activate();
+        m_ChevLeftSlew.Activate();
+
+        m_ChevDirAngleAllSymFlag.Activate();
+        m_ChevDirAngleTBSymFlag.Activate();
+        m_ChevDirAngleRLSymFlag.Activate();
+    }
+
+    // Make sure duty cycles can't exceed 1.0.
+    m_ChevOnDuty.SetUpperLimit( 0.999 - m_ChevOffDuty() );
+    m_ChevOffDuty.SetUpperLimit( 0.999 - m_ChevOnDuty() );
+
+    // Do calculations in local doubles because Parms are limited to [0, 1] and negative intermediates are needed.
+    double startW = m_ChevW01Start();
+    double endW = m_ChevW01End();
+    double centerW = m_ChevW01Center();
+    double widthW = m_ChevW01Width();
+
+    if ( m_ChevronType() == vsp::CHEVRON_PARTIAL )
+    {
+        if ( m_ChevronExtentMode() == CHEVRON_W01_SE )
+        {
+            widthW = endW - startW;
+            if (widthW < 0.0 )
+            {
+                widthW = widthW + 1.0;
+            }
+
+            centerW = startW + widthW / 2.0;
+            if (centerW < 0.0 )
+            {
+                centerW = centerW + 1.0;
+            }
+            else if (centerW > 1.0 )
+            {
+                centerW = centerW - 1.0;
+            }
+
+            m_ChevW01Center.Deactivate();
+            m_ChevW01Width.Deactivate();
+        }
+        else if ( m_ChevronExtentMode() == CHEVRON_W01_CW )
+        {
+            startW = centerW - widthW / 2.0;
+            if (startW < 0.0 )
+            {
+                startW = startW + 1.0;
+            }
+
+            endW = centerW + widthW / 2.0;
+            if (endW > 1.0 )
+            {
+                endW = endW - 1.0;
+            }
+            m_ChevW01Start.Deactivate();
+            m_ChevW01End.Deactivate();
+        }
+    }
+    else if ( m_ChevronType() == vsp::CHEVRON_FULL )
+    {
+        endW = startW + 1.0;
+        centerW = 0.5;
+        widthW = 1.0;
+
+        m_ChevronExtentMode.Deactivate();
+        m_ChevW01End.Deactivate();
+        m_ChevW01Center.Deactivate();
+        m_ChevW01Width.Deactivate();
+    }
+
+    // Set parameters to consistent values from calculations.
+    m_ChevW01Start = startW;
+    m_ChevW01End = endW;
+    m_ChevW01Center = centerW;
+    m_ChevW01Width = widthW;
+
+    if ( m_ChevDirAngleAllSymFlag() )
+    {
+        m_ChevBottomAmplitude = m_ChevTopAmplitude();
+        m_ChevLeftAmplitude = m_ChevTopAmplitude();
+        m_ChevRightAmplitude = m_ChevTopAmplitude();
+
+        m_ChevBottomAngle = m_ChevTopAngle();
+        m_ChevRightAngle = m_ChevTopAngle();
+        m_ChevLeftAngle = m_ChevTopAngle();
+
+        m_ChevBottomSlew = m_ChevTopSlew();
+        m_ChevRightSlew = m_ChevTopSlew();
+        m_ChevLeftSlew = m_ChevTopSlew();
+
+        m_ChevBottomAmplitude.Deactivate();
+        m_ChevLeftAmplitude.Deactivate();
+        m_ChevRightAmplitude.Deactivate();
+
+        m_ChevBottomAngle.Deactivate();
+        m_ChevRightAngle.Deactivate();
+        m_ChevLeftAngle.Deactivate();
+
+        m_ChevBottomSlew.Deactivate();
+        m_ChevRightSlew.Deactivate();
+        m_ChevLeftSlew.Deactivate();
+
+        m_ChevDirAngleTBSymFlag.Deactivate();
+        m_ChevDirAngleRLSymFlag.Deactivate();
+    }
+
+    if ( m_ChevDirAngleTBSymFlag() )
+    {
+        m_ChevBottomAmplitude = m_ChevTopAmplitude();
+        m_ChevBottomAngle = m_ChevTopAngle();
+        m_ChevBottomSlew = m_ChevTopSlew();
+
+        m_ChevBottomAmplitude.Deactivate();
+        m_ChevBottomAngle.Deactivate();
+        m_ChevBottomSlew.Deactivate();
+    }
+
+    if ( m_ChevDirAngleRLSymFlag() )
+    {
+        m_ChevLeftAmplitude = m_ChevRightAmplitude();
+        m_ChevLeftAngle = m_ChevRightAngle();
+        m_ChevLeftSlew = m_ChevRightSlew();
+
+        m_ChevLeftAmplitude.Deactivate();
+        m_ChevLeftAngle.Deactivate();
+        m_ChevLeftSlew.Deactivate();
+    }
+
+    // Set up chevron curve as if start is always at 0.0.
+    // This simplifies some of the logic including determing how many points are needed to define curve.
+    int ptpercycle = 2;
+    int peakpercycle = 1;
+    int valleypercycle = 1;
+    if ( m_ChevOnDuty() > 0.0 )
+    {
+        ptpercycle ++;
+        peakpercycle ++;
+    }
+    if ( m_ChevOffDuty() > 0.0 )
+    {
+        ptpercycle += 2;
+        valleypercycle ++;
+    }
+    int npt = m_ChevNumber() * ptpercycle + 1;
+
+    int iextra = 0;
+    if ( m_ChevW01Width() != 1.0 ) // Add one to finish off partial extents
+    {
+        npt ++;
+        iextra ++;
+    }
+
+    vector < vec3d > pts( npt );
+    vector < double > bump( npt, 0.0 );
+    vector < double > ts( npt, 0.0 );
+
+    vector < double > uvalley( valleypercycle * m_ChevNumber() + iextra, -1 );
+    vector < double > upeak( peakpercycle * m_ChevNumber(), -1 );
+
+    double dt = 4.0 * (widthW / m_ChevNumber() ); // Time of full period.
+    double dtoff = dt * m_ChevOffDuty();          // Time off.
+    double dtoff2 = dtoff * 0.5;                  // Half of time off.
+    double dton = dt * m_ChevOnDuty();            // Time on.
+    double dtrise = 0.5 * ( dt - dtoff - dton );  // Time for rise or fall.
+    double t0 = 0.0;
+
+    // First point is set to ts[0] = 0, bump[0] = 0.
+    int ipt = 1;
+    int ivalley = 0;
+    int ipeak = 0;
+    for ( int i = 0; i < m_ChevNumber(); i++ )
+    {
+        if ( m_ChevOffDuty() > 0.0 )
+        {
+            t0 += dtoff2;
+            ts[ipt] = t0;
+            bump[ipt] = 0.0; // Can skip as already off
+            ipt ++;
+        }
+
+        uvalley[ivalley] = t0;
+        ivalley ++;
+
+        t0 += dtrise;
+        ts[ipt] = t0;
+        bump[ipt] = 1.0;
+        ipt ++;
+
+        upeak[ipeak] = t0;
+        ipeak++;
+
+        if ( m_ChevOnDuty() > 0.0 )
+        {
+            t0 += dton;
+            ts[ipt] = t0;
+            bump[ipt] = 1.0;
+            ipt ++;
+            upeak[ipeak] = t0;
+            ipeak++;
+        }
+
+        t0 += dtrise;
+        ts[ipt] = t0;
+        bump[ipt] = 0.0;
+        ipt ++;
+
+        if ( m_ChevOffDuty() > 0.0 )
+        {
+            uvalley[ivalley] = t0;
+            ivalley ++;
+            t0 += dtoff2;
+            ts[ipt] = t0;
+            bump[ipt] = 0.0; // Can skip as already off
+            ipt ++;
+        }
+    }
+
+    if ( m_ChevW01Width() < 1.0 )
+    {
+        if ( m_ChevOffDuty() == 0.0 )
+        {
+            uvalley[ivalley] = t0;
+            ivalley ++;
+        }
+    }
+    ts[npt - 1] = 4.0; // Make sure last point is at 4.0.
+
+    // Spin (shift in W) base curve to start of chevrons.
+    if ( m_ChevW01Start() != 0.0 )
+    {
+        m_Curve.Spin01( m_ChevW01Start() );
+    }
+
+    // Build control curve.
+    vector< curve_point_type > angles(5);
+    angles[0] << m_ChevRightAngle() * PI / 180.0, m_ChevRightSlew() * PI / 180.0, 0.0;
+    angles[1] << m_ChevBottomAngle() * PI / 180.0, -m_ChevBottomSlew() * PI / 180.0, 0.0;
+    angles[2] << m_ChevLeftAngle() * PI / 180.0, -m_ChevLeftSlew() * PI / 180.0, 0.0;
+    angles[3] << m_ChevTopAngle() * PI / 180.0, m_ChevTopSlew() * PI / 180.0, 0.0;
+    angles[4] << angles[0];
+
+    vector< curve_point_type > amplitudes(5);
+    amplitudes[0] << m_ChevRightAmplitude(), 0.0, 0.0;
+    amplitudes[1] << m_ChevBottomAmplitude(), 0.0, 0.0;
+    amplitudes[2] << m_ChevLeftAmplitude(), 0.0, 0.0;
+    amplitudes[3] << m_ChevTopAmplitude(), 0.0, 0.0;
+    amplitudes[4] << amplitudes[0];
+
+    // Set up cubic spline of desired controls
+    piecewise_cubic_spline_creator_type pcc( 4 );
+    piecewise_linear_creator_type plc( 4 );
+    pcc.set_t0( 0 );
+    plc.set_t0( 0 );
+    for ( unsigned int i = 0; i < 4; ++i)
+    {
+        pcc.set_segment_dt( 1.0, i );
+        plc.set_segment_dt( 1.0, i );
+    }
+
+    pcc.set_closed_cubic_spline( angles.begin() );
+    for ( unsigned int i = 0; i < 5; ++i)
+    {
+        plc.set_corner( amplitudes[i], i);
+    }
+
+    // Build control curve.
+    piecewise_curve_type angle_crv;
+    pcc.create( angle_crv );
+    piecewise_curve_type amplitude_crv;
+    plc.create( amplitude_crv );
+
+    for ( int i = 0; i < pts.size(); i++ )
+    {
+        // Parameter on un-shifted curve.
+        double s = ts[i] + 4.0 * m_ChevW01Start();
+        if ( s < 0.0 ) s += 4.0;
+        if ( s > 4.0 ) s -= 4.0;
+
+        curve_point_type angle = angle_crv.f( s );
+        curve_point_type amplitude = amplitude_crv.f( s );
+
+        Matrix4d basis;
+        vec3d dum1, dum2, dir;
+        // Mimic the construction of the skinning angle with a fake circle
+        basis.rotate( 2.0 * PI * s / 4.0, vec3d(0.0, 0.0, 1.0 ) );
+        basis.rotate( -angle.x(), vec3d( 0.0, 1.0, 0.0 ) );
+        basis.rotate( -angle.y(), vec3d( 1.0, 0.0, 0.0 ) );
+
+        // Pull out desired normal and tangent directions.
+        basis.getBasis( dum1, dum2, dir );
+
+        pts[i] = bump[i] * amplitude.x() * dir;
+    }
+
+    VspCurve chevron;
+    chevron.InterpolateLinear( pts, ts, false );
+
+    // Superimpose curves and set result.
+    piecewise_curve_type crv, new_crv, chev_crv;
+    crv = m_Curve.GetCurve();
+    chev_crv = chevron.GetCurve();
+
+    crv.match_pmap( chev_crv ); // Modifies both piecewise curves to have identical pmap.
+    new_crv.sum( crv, chev_crv ); // Promotes segments as needed to required order.
+
+    // Set resultant curve (still shifted to start of chevrons.)
+    m_Curve.SetCurve( new_crv );
+
+    if (m_ValleyRad() != 0 )
+    {
+        m_Curve.RoundJoints( m_ValleyRad(), uvalley );
+    }
+
+    if ( m_PeakRad() != 0 )
+    {
+        m_Curve.RoundJoints( m_PeakRad(), upeak );
+    }
+
+    // Un-do spin to restore curve starting point.
+    if ( m_ChevW01Start() != 0.0 )
+    {
+        m_Curve.Spin01( 1.0 - m_ChevW01Start() );
     }
 }
 

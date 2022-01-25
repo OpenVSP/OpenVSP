@@ -122,7 +122,7 @@ public:
     virtual void TrimLE( bool wingtype );
     virtual void CapTE( bool wingtype );
     virtual void CapLE( bool wingtype );
-
+    virtual void Chevron();
     virtual void RotTransScale();
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
@@ -177,6 +177,41 @@ public:
     Parm m_DeltaX;
     Parm m_DeltaY;
     Parm m_ShiftLE;
+
+    IntParm m_ChevronType;
+
+    Parm m_ChevTopAmplitude;
+    Parm m_ChevBottomAmplitude;
+    Parm m_ChevRightAmplitude;
+    Parm m_ChevLeftAmplitude;
+
+    IntParm m_ChevNumber;
+
+    Parm m_ChevOnDuty;
+    Parm m_ChevOffDuty;
+
+    IntParm m_ChevronExtentMode;
+    Parm m_ChevW01Start;
+    Parm m_ChevW01End;
+    Parm m_ChevW01Center;
+    Parm m_ChevW01Width;
+
+    Parm m_ChevTopAngle;
+    Parm m_ChevBottomAngle;
+    Parm m_ChevRightAngle;
+    Parm m_ChevLeftAngle;
+
+    Parm m_ChevTopSlew;
+    Parm m_ChevBottomSlew;
+    Parm m_ChevRightSlew;
+    Parm m_ChevLeftSlew;
+
+    BoolParm m_ChevDirAngleAllSymFlag;
+    BoolParm m_ChevDirAngleTBSymFlag;
+    BoolParm m_ChevDirAngleRLSymFlag;
+
+    Parm m_ValleyRad;
+    Parm m_PeakRad;
 
     // XSec Background Parms
     BoolParm m_XSecImagePreserveAR;
