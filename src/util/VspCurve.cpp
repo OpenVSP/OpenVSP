@@ -14,6 +14,7 @@
 
 #include "VspCurve.h"
 #include "APIDefines.h"
+#include "StlHelper.h"
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
@@ -247,6 +248,50 @@ void octave_print( int figno, const piecewise_curve_type &pc )
 bool VspCurve::RoundJoint( double rad, int i )
 {
     return m_Curve.round( rad, i );
+}
+
+bool VspCurve::RoundJoint( double rad, double u )
+{
+    vector < double > umap;
+    m_Curve.get_pmap( umap );
+
+    int irnd = vector_find_val( umap, u );
+    if ( irnd > 0 )
+    {
+        return RoundJoint( rad, irnd );
+    }
+    return false;
+}
+
+bool VspCurve::RoundJoints( double rad, vector < double > uvec )
+{
+    vector < double > umap;
+
+    bool retval = true; // Assume all success
+    bool ret;
+
+    for ( int i = 0; i < uvec.size(); i++ )
+    {
+        // Allowing shifting of the curve start means some rounding can wrap-around the start/end point, thereby making
+        // it impossible to guarantee that the first parts of umap go unchanged.  Further complexity is not worthwhile,
+        // it is best to get get_pmap every time.
+        m_Curve.get_pmap( umap );
+        int irnd = vector_find_val( umap, uvec[i], 1e-8 );
+        if ( irnd >= 0 )
+        {
+            ret = RoundJoint( rad, irnd );
+        }
+        else
+        {
+            ret = false;
+        }
+
+        if ( !ret ) // Detect any failure.
+        {
+            retval = false;
+        }
+    }
+    return retval;
 }
 
 void VspCurve::Modify( int type, bool le, double len, double off, double str )
