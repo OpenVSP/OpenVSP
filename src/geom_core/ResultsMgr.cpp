@@ -296,6 +296,21 @@ void Results::WriteCSVFile( FILE* fid )
                         fprintf( fid, ",%.*e", DBL_DIG + 3, iter->second[i].GetDoubleData()[d] );
                     }
                 }
+                else if ( iter->second[i].GetType() == vsp::DOUBLE_MATRIX_DATA )
+                {
+                    vector< vector< double > > current_double_mat_val = iter->second[i].GetDoubleMatData();
+                    for ( unsigned int row = 0; row < current_double_mat_val.size(); row++ )
+                    {
+                        for ( unsigned int col = 0; col < current_double_mat_val[row].size(); col++ )
+                        {
+                            fprintf( fid, ",%.*e", DBL_DIG + 3, current_double_mat_val[row][col] );
+                        }
+                        if ( row < current_double_mat_val.size() - 1 )
+                        {
+                            fprintf( fid, "\n ");
+                        }
+                    }
+                }
                 else if ( iter->second[i].GetType() == vsp::STRING_DATA )
                 {
                     // If this is a "ResultsVec" wrapper result replace result UIDs with result names
@@ -1168,7 +1183,7 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
                 vector<double> current_double_val = GetDoubleResults( results_id, results_names[i_result_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_double_val.size(); j_val++ )
                 {
-                    fprintf( outputStream, "%f ", current_double_val[j_val] );
+                    fprintf( outputStream, "%.*e ", DBL_DIG + 3, current_double_val[j_val] );
                 }
                 break;
             }
@@ -1179,7 +1194,7 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
                 {
                     for ( unsigned int col = 0; col < current_double_mat_val[row].size(); col++ )
                     {
-                        fprintf( outputStream, "%13.6e ", current_double_mat_val[row][col] );
+                        fprintf( outputStream, "%.*e ", DBL_DIG + 3, current_double_mat_val[row][col] );
                     }
                     if ( row < current_double_mat_val.size() - 1 )
                     {
@@ -1211,7 +1226,7 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
                 vector<vec3d> current_vec3d_val = GetVec3dResults( results_id, results_names[i_result_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_vec3d_val.size(); j_val++ )
                 {
-                    fprintf( outputStream, "%f,%f,%f ", current_vec3d_val[j_val].x(), current_vec3d_val[j_val].y(), current_vec3d_val[j_val].z() );
+                    fprintf( outputStream, "%.*e,%.*e,%.*e ", DBL_DIG + 3, current_vec3d_val[j_val].x(), DBL_DIG + 3, current_vec3d_val[j_val].y(), DBL_DIG + 3, current_vec3d_val[j_val].z() );
                 }
                 break;
             }
