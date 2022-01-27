@@ -293,7 +293,7 @@ void Results::WriteCSVFile( FILE* fid )
                 {
                     for ( int d = 0 ; d < ( int )iter->second[i].GetDoubleData().size() ; d++ )
                     {
-                        fprintf( fid, ",%lf", iter->second[i].GetDoubleData()[d] );
+                        fprintf( fid, ",%.*e", DBL_DIG + 3, iter->second[i].GetDoubleData()[d] );
                     }
                 }
                 else if ( iter->second[i].GetType() == vsp::STRING_DATA )
@@ -319,7 +319,7 @@ void Results::WriteCSVFile( FILE* fid )
                     for ( int d = 0 ; d < ( int )iter->second[i].GetVec3dData().size() ; d++ )
                     {
                         vec3d v = iter->second[i].GetVec3dData()[d];
-                        fprintf( fid, ",%lf,%lf,%lf", v.x(), v.y(), v.z() );
+                        fprintf( fid, ",%.*e,%.*e,%.*e", DBL_DIG + 3, v.x(), DBL_DIG + 3, v.y(), DBL_DIG + 3, v.z() );
                     }
                 }
                 fprintf( fid, "\n" );
