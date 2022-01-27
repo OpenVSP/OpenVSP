@@ -4474,7 +4474,7 @@ void VSPAEROMgrSingleton::UpdateAutoTimeStep()
     double NumSteps_1 = 2. * Period / dt + 1;
 
     // Fastest rotor does ABS(NumberOfTimeSteps_) revolutions
-    double NumSteps_2 = std::abs( num_dt ) * 24;
+    double NumSteps_2 = std::abs( num_dt ) * 20;
 
     if ( NumSteps_1 > NumSteps_2 )
     {
@@ -4492,7 +4492,7 @@ void VSPAEROMgrSingleton::UpdateAutoTimeStep()
     }
     else
     {
-        m_AutoTimeNumRevs.Set( int( ( m_NumTimeSteps() / 24 ) * m_TimeStepSize() / dt ) );
+        m_AutoTimeNumRevs.Set( int( ( m_NumTimeSteps() / 20 ) * m_TimeStepSize() / dt ) );
     }
 }
 
