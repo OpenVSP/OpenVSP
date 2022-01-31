@@ -12,7 +12,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
+WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680 + 40, "Wing" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -76,6 +76,40 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_PlanLayout.SetButtonWidth( 200 );
     m_PlanLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width","%6.4g" );
     m_PlanLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio", "%6.3f" );
+
+    m_PlanLayout.AddYGap();
+    m_PlanLayout.AddDividerBox( "Wing Loft Control" );
+
+    m_PlanLayout.SetFitWidthFlag( false );
+    m_PlanLayout.SetSameLineFlag( true );
+    m_PlanLayout.AddLabel( "Twist Reference:", 170 );
+    m_PlanLayout.SetButtonWidth( m_PlanLayout.GetRemainX() / 2 );
+    m_PlanLayout.AddButton( m_TwistRelativeToggle, "Rel" );
+    m_PlanLayout.AddButton( m_TwistAbsoluteToggle, "Abs" );
+    m_PlanLayout.ForceNewLine();
+
+    m_TwistAbsRelToggle.Init( this );
+    m_TwistAbsRelToggle.AddButton( m_TwistAbsoluteToggle.GetFlButton() );
+    m_TwistAbsRelToggle.AddButton( m_TwistRelativeToggle.GetFlButton() );
+
+    m_PlanLayout.SetFitWidthFlag( false );
+    m_PlanLayout.SetSameLineFlag( true );
+    m_PlanLayout.AddLabel( "Dihedral Reference:", 170 );
+    m_PlanLayout.SetButtonWidth( m_PlanLayout.GetRemainX() / 2 );
+    m_PlanLayout.AddButton( m_DihedralRelativeToggle, "Rel" );
+    m_PlanLayout.AddButton( m_DihedralAbsoluteToggle, "Abs" );
+    m_PlanLayout.ForceNewLine();
+
+    m_DihedralAbsRelToggle.Init( this );
+    m_DihedralAbsRelToggle.AddButton( m_DihedralAbsoluteToggle.GetFlButton() );
+    m_DihedralAbsRelToggle.AddButton( m_DihedralRelativeToggle.GetFlButton() );
+
+    m_PlanLayout.SetFitWidthFlag( true );
+    m_PlanLayout.SetSameLineFlag( false );
+
+    m_PlanLayout.AddButton( m_RotateFoilMatchDihedral, "Rotate All Foils To Match Dihedral" );
+    m_PlanLayout.AddButton( m_RotateRootFoilMatchDihedral, "Rotate Wing Root Foil To Match Dihedral" );
+    m_PlanLayout.AddButton( m_CorrectFoil, "Correct Foil Thickness For Dihedral Rotation" );
 
     Fl_Group* sect_tab = AddTab( "Sect", 4 );
     Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
@@ -155,18 +189,6 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_SectionLayout.AddSlider( m_TwistSlider, "Twist", 10, "%6.5f" );
     m_SectionLayout.AddSlider( m_TwistLocSlider, "Twist Loc", 10, "%6.5f" );
 
-    m_SectionLayout.SetFitWidthFlag( false );
-    m_SectionLayout.SetSameLineFlag( true );
-    m_SectionLayout.AddLabel( "Reference:", 170 );
-    m_SectionLayout.SetButtonWidth( m_SectionLayout.GetRemainX() / 2 );
-    m_SectionLayout.AddButton( m_TwistRelativeToggle, "Rel" );
-    m_SectionLayout.AddButton( m_TwistAbsoluteToggle, "Abs" );
-    m_SectionLayout.ForceNewLine();
-
-    m_TwistAbsRelToggle.Init( this );
-    m_TwistAbsRelToggle.AddButton( m_TwistAbsoluteToggle.GetFlButton() );
-    m_TwistAbsRelToggle.AddButton( m_TwistRelativeToggle.GetFlButton() );
-
     m_SectionLayout.SetFitWidthFlag( true );
     m_SectionLayout.SetSameLineFlag( false );
 
@@ -174,22 +196,9 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_SectionLayout.AddDividerBox( "Dihedral" );
     m_SectionLayout.AddSlider( m_DihedralSlider, "Dihedral", 10, "%6.5f" );
 
-
-    m_SectionLayout.SetFitWidthFlag( false );
-    m_SectionLayout.SetSameLineFlag( true );
-    m_SectionLayout.AddLabel( "Reference:", 170 );
-    m_SectionLayout.SetButtonWidth( m_SectionLayout.GetRemainX() / 2 );
-    m_SectionLayout.AddButton( m_DihedralRelativeToggle, "Rel" );
-    m_SectionLayout.AddButton( m_DihedralAbsoluteToggle, "Abs" );
-    m_SectionLayout.ForceNewLine();
-
-    m_DihedralAbsRelToggle.Init( this );
-    m_DihedralAbsRelToggle.AddButton( m_DihedralAbsoluteToggle.GetFlButton() );
-    m_DihedralAbsRelToggle.AddButton( m_DihedralRelativeToggle.GetFlButton() );
-
     m_SectionLayout.SetButtonWidth( m_SectionLayout.GetRemainX() );
     m_SectionLayout.AddYGap();
-    m_SectionLayout.AddButton( m_RotateFoilMatchDihedral, "Rotate Foil To Match Dihedral" );
+    m_SectionLayout.AddButton( m_RotateThisFoilMatchDihedral, "Rotate Section Tip Foil To Match Dihedral" );
     m_SectionLayout.SetButtonWidth( 74 );
 
     // Xsec layout after index selector has been defined in base class
@@ -514,6 +523,7 @@ bool WingScreen::Update()
     {
         m_IncidenceSlider.Update( root_sect->m_Twist.GetID() );
         m_IncidenceLocSlider.Update( root_sect->m_TwistLoc.GetID() );
+        m_RotateRootFoilMatchDihedral.Update( root_sect->m_RotateMatchDiedralFlag.GetID() );
     }
 
     sprintf( str, "       %d", wing_ptr->NumXSec()-1 );
@@ -544,10 +554,14 @@ bool WingScreen::Update()
         m_TwistLocSlider.Update( wing_sect->m_TwistLoc.GetID() );
 
         m_DihedralSlider.Update( wing_sect->m_Dihedral.GetID() );
+
         m_DihedralAbsRelToggle.Update( wing_ptr->m_RelativeDihedralFlag.GetID() );
         m_TwistAbsRelToggle.Update( wing_ptr->m_RelativeTwistFlag.GetID() );
 
         m_RotateFoilMatchDihedral.Update( wing_ptr->m_RotateAirfoilMatchDiedralFlag.GetID() );
+        m_RotateThisFoilMatchDihedral.Update( wing_sect->m_RotateMatchDiedralFlag.GetID() );
+
+        m_CorrectFoil.Update( wing_ptr->m_CorrectAirfoilThicknessFlag.GetID() );
 
         m_SectProjSpanOutput.Update( wing_sect->m_ProjectedSpan.GetID() );
 

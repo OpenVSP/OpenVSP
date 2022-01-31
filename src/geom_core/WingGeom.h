@@ -114,6 +114,7 @@ public:
     Parm m_TwistLoc;
 
     Parm m_Dihedral;
+    BoolParm m_RotateMatchDiedralFlag;
 
     Parm m_ProjectedSpan;
 
@@ -129,6 +130,7 @@ public:
     double m_YCenterRot;
     double m_ZCenterRot;
 
+    double m_ThickScale;
 
 protected:
 
@@ -207,6 +209,7 @@ public:
     BoolParm m_RelativeDihedralFlag;
     BoolParm m_RelativeTwistFlag;
     BoolParm m_RotateAirfoilMatchDiedralFlag;
+    BoolParm m_CorrectAirfoilThicknessFlag;
 
     IntParm m_ActiveWingSection;
 

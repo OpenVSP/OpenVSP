@@ -80,6 +80,18 @@ protected:
     SliderAdjRangeInput m_RootClusterSlider;
     SliderAdjRangeInput m_TipClusterSlider;
 
+    ToggleButton m_TwistAbsoluteToggle;
+    ToggleButton m_TwistRelativeToggle;
+    ToggleRadioGroup m_TwistAbsRelToggle;
+
+    ToggleButton m_RotateFoilMatchDihedral;
+    ToggleButton m_RotateRootFoilMatchDihedral;
+    ToggleButton m_CorrectFoil;
+
+    ToggleButton m_DihedralAbsoluteToggle;
+    ToggleButton m_DihedralRelativeToggle;
+    ToggleRadioGroup m_DihedralAbsRelToggle;
+
     WingDriverGroup m_DefaultWingDriverGroup;
     DriverGroupBank m_WingDriverGroupBank;
 
@@ -93,15 +105,9 @@ protected:
 
     SliderAdjRangeInput m_TwistSlider;
     SliderAdjRangeInput m_TwistLocSlider;
-    ToggleButton m_TwistAbsoluteToggle;
-    ToggleButton m_TwistRelativeToggle;
-    ToggleRadioGroup m_TwistAbsRelToggle;
 
     SliderAdjRangeInput m_DihedralSlider;
-    ToggleButton m_DihedralAbsoluteToggle;
-    ToggleButton m_DihedralRelativeToggle;
-    ToggleRadioGroup m_DihedralAbsRelToggle;
-    ToggleButton m_RotateFoilMatchDihedral;
+    ToggleButton m_RotateThisFoilMatchDihedral;
 
     TriggerButton m_CopyAfButton;
     TriggerButton m_PasteAfButton;
