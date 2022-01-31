@@ -682,9 +682,9 @@ void WingSect::UpdateFromWing()
     tran_mat.translatef( m_XDelta, m_YDelta, m_ZDelta );
 
     Matrix4d rotate_mat;
-    rotate_mat.rotateX( m_XRotate );
-    rotate_mat.rotateY( m_YRotate );
-    rotate_mat.rotateZ( m_ZRotate );
+    rotate_mat.rotateZ( m_ZRotate );  // Not used
+    rotate_mat.rotateY( m_YRotate );  // Twist
+    rotate_mat.rotateX( m_XRotate );  // Dihedral
 
     Matrix4d cent_mat;
     cent_mat.translatef( -m_XCenterRot, -m_YCenterRot, -m_ZCenterRot );
