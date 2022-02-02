@@ -107,6 +107,20 @@ int vector_find_val( const vector< T > & vec, T const & val )
     return -1;
 }
 
+//==== Find Index of Vector Where Val =====//
+template <class T>
+int vector_find_val( const vector< T > & vec, T const & val, T const & tol )
+{
+    for ( int i = 0 ; i < ( int )vec.size() ; i++ )
+    {
+        if ( std::abs( val - vec[i] ) < tol )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 //==== Clamp Value Between Two Vals ====//
 template <typename T>
 T Clamp( const T& value, const T& low, const T& high )
