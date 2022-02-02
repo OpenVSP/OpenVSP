@@ -738,6 +738,30 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH", CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH, "/*!< Heat Transfer White-Christoph turbulent Cf equation. */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum for Chevron curve modification types. */";
+
+    r = se->RegisterEnum( "CHEVRON_TYPE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CHEVRON_TYPE", "CHEVRON_NONE", CHEVRON_NONE, "/*!< No chevron. */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CHEVRON_TYPE", "CHEVRON_PARTIAL", CHEVRON_PARTIAL, "/*!< One or more chevrons of limited extent. */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CHEVRON_TYPE", "CHEVRON_FULL", CHEVRON_FULL, "/*!< Full period of chevrons. */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CHEVRON_TYPE", "CHEVRON_NUM_TYPES", CHEVRON_NUM_TYPES, "/*!< Number of chevron types. */" );
+    assert( r >= 0 );
+
+    doc_struct.comment = "/*! Enum for Chevron W parameter modes. */";
+
+    r = se->RegisterEnum( "CHEVRON_W01_MODES", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CHEVRON_W01_MODES", "CHEVRON_W01_SE", CHEVRON_W01_SE, "/*!< Specify chevron W start and end. */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CHEVRON_W01_MODES", "CHEVRON_W01_CW", CHEVRON_W01_CW, "/*!< Specify chevron W center and width. */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CHEVRON_W01_MODES", "CHEVRON_W01_NUM_MODES", CHEVRON_W01_NUM_MODES, "/*!< Number of chevron W parameter mode types. */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum for Snap To collision error types. */";
 
     r = se->RegisterEnum( "COLLISION_ERRORS", doc_struct );
