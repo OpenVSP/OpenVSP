@@ -56,7 +56,7 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.AddButton( m_OffsetTog, "Offset" );
     m_GenLayout.SetFitWidthFlag( true );
-    m_GenLayout.AddSlider( m_OffsetSlider, "Offset", 100, " %7.3f" );
+    m_GenLayout.AddSlider( m_OffsetSlider, "Offset", 100, " %7.6f" );
     m_GenLayout.ForceNewLine();
     m_GenLayout.SetSameLineFlag( false );
 
@@ -67,7 +67,7 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.AddButton( m_ScaleTog, "Scale" );
     m_GenLayout.SetFitWidthFlag( true );
-    m_GenLayout.AddSlider( m_ScaleSlider, "Scale", 2, " %7.5f" );
+    m_GenLayout.AddSlider( m_ScaleSlider, "Scale", 2, " %7.6f" );
     m_GenLayout.ForceNewLine();
     m_GenLayout.SetSameLineFlag( false );
 
@@ -79,7 +79,7 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.AddButton( m_LowerTog, "Lower" );
     m_GenLayout.SetFitWidthFlag( true );
-    m_GenLayout.AddSlider( m_LowerLimitSlider, "Lower", 10.0, "%7.1f" );
+    m_GenLayout.AddSlider( m_LowerLimitSlider, "Lower", 10.0, "%7.6f" );
     m_GenLayout.ForceNewLine();
     m_GenLayout.SetSameLineFlag( false );
 
@@ -90,7 +90,7 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.AddButton( m_UpperTog, "Upper" );
     m_GenLayout.SetFitWidthFlag( true );
-    m_GenLayout.AddSlider( m_UpperLimitSlider, "Upper", 10.0, "%7.1f" );
+    m_GenLayout.AddSlider( m_UpperLimitSlider, "Upper", 10.0, "%7.6f" );
     m_GenLayout.ForceNewLine();
     m_GenLayout.SetSameLineFlag( false );
 
