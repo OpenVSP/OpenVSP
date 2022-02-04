@@ -260,6 +260,10 @@ public:
     virtual ISeg* CreateSurfaceSeg( Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1  );
 
     virtual void BuildChains();
+
+    void RefineISegChainSeg( ISegChain* c, IPnt* ipnt );
+    void RefineISegChain( ISegChain* c );
+
     virtual void ExpandChain( ISegChain* chain, PNTree* PN_tree );
 
     virtual void BuildCurves();
