@@ -2731,15 +2731,34 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
 {
     if ( true )
     {
+        char str2[256];
+        sprintf( str2, "%s.m", name );
+        FILE* fpmas = fopen( str2, "w" );
+
+        // Scale points to shift precision.
+        double k = 1.0;
+
+        // Shift points to center on point of interest, also helps precision.
+        double xc = 13.526978;
+        double yc = 16.2362945;
+        double zc = 0.44215;
+
+
+        fprintf( fpmas, "clear all; format compact; close all;\n" );
+        fprintf( fpmas, "figure(1); hold on\n" );
+        fprintf( fpmas, "figure(2); hold on\n" );
+        fprintf( fpmas, "figure(3); hold on\n" );
+
+        // Radius applied in Matlab to limit extent of points plotted.
+        fprintf( fpmas, "r0 = 0.01;\n" );
+
         for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         {
             char str[256];
             sprintf( str, "%s%d.m", name, i );
             FILE* fp = fopen( str, "w" );
 
-            fprintf( fp, "clear all; format compact; close all;\n" );
-            fprintf( fp, "figure(1)\n" );
-
+            fprintf( fpmas, "run( '%s' );\n", str );
 
             int cnt = 0;
             list< ISegChain* >::iterator c;
@@ -2750,7 +2769,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
 
                     if ( tessFlag == false )
                     {
-                        fprintf( fp, "x=[" );
+                        fprintf( fp, "u=[" );
                         int j;
                         vec2d uw1, uw2;
                         for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
@@ -2762,7 +2781,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                         uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
                         fprintf( fp, "%f, %f];\n", uw1[0], uw2[0] );
 
-                        fprintf( fp, "y=[" );
+                        fprintf( fp, "w=[" );
                         for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
@@ -2772,7 +2791,61 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                         uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
                         fprintf( fp, "%f, %f];\n", uw1[1], uw2[1] );
 
-                        fprintf( fp, "plot( x, y, 'x-'); hold on;\n" );
+                        fprintf( fp, "figure(1)\n" );
+                        fprintf( fp, "plot( u, w, 'x-'); hold on;\n" );
+                        fprintf( fp, "text( u(round(end/2)), w(round(end/2)), 'Surf: %d Chain: %d' );\n", i, cnt );
+
+                        fprintf( fp, "x=[" );
+                        vec3d pt, pt2;
+                        for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                            pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                            fprintf( fp, "%.19e,", ( pt.x() - xc ) * k );
+                        }
+                        uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                        pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                        uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
+                        pt2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw2[0], uw2[1] );
+                        fprintf( fp, "%.19e %.19e];\n", ( pt.x() - xc ) * k, ( pt2.x() - xc ) * k );
+
+                        fprintf( fp, "y=[" );
+                        for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                            pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                            fprintf( fp, "%.19e,", ( pt.y() - yc ) * k );
+                        }
+                        uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                        pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                        uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
+                        pt2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw2[0], uw2[1] );
+                        fprintf( fp, "%.19e %.19e];\n", ( pt.y() - yc ) * k, ( pt2.y() - yc ) * k );
+
+                        fprintf( fp, "z=[" );
+                        for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                            pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                            fprintf( fp, "%.19e,", ( pt.z() - zc ) * k );
+                        }
+                        uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                        pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                        uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
+                        pt2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw2[0], uw2[1] );
+                        fprintf( fp, "%.19e %.19e];\n", ( pt.z() - zc ) * k, ( pt2.z() - zc ) * k );
+
+                        fprintf( fp, "figure(2)\n" );
+                        fprintf( fp, "plot3( x, y, z, 'x-' ); hold on;\n" );
+                        fprintf( fp, "text( x(round(end/2)), y(round(end/2)), z(round(end/2)), 'Surf: %d Chain: %d' );\n", i, cnt );
+
+                        fprintf( fp, "r = sqrt( x.^2 + y.^2 + z.^2 );\n" );
+                        fprintf( fp, "mask = r < ( r0 * %f );\n", k );
+                        // Expand mask by one point in each direction to provide context -- also makes sure single points get plotted.
+                        fprintf( fp, "mask([false mask(1:end-1)~=mask(2:end)]) = 1;\n" );
+                        fprintf( fp, "mask([mask(1:end-1)~=mask(2:end) false]) = 1;\n" );
+                        fprintf( fp, "figure(3)\n" );
+                        fprintf( fp, "plot3( x(mask), y(mask), z(mask), 'x-' ); hold on;\n" );
                     }
                     else
                     {
@@ -2836,21 +2909,29 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
 
                         fprintf( fp, "figure(2)\n");
                         fprintf( fp, "plot3( x, y, z, 'x-'); hold on;\n" );
-
                     }
                     cnt++;
                 }
             }
-            fprintf( fp, "figure(1)\n");
-            fprintf(fp, "axis off\n" );
-            fprintf(fp, "axis equal\n" );
-
-            fprintf( fp, "figure(2)\n");
-            fprintf(fp, "axis off\n" );
-            fprintf(fp, "axis equal\n" );
-
             fclose( fp );
         }
+
+        fprintf( fpmas, "figure(1)\n");
+        fprintf( fpmas, "axis off\n" );
+        fprintf( fpmas, "axis equal\n" );
+        fprintf( fpmas, "hold off\n" );
+
+        fprintf( fpmas, "figure(2)\n");
+        fprintf( fpmas, "axis off\n" );
+        fprintf( fpmas, "axis equal\n" );
+        fprintf( fpmas, "hold off\n" );
+
+        fprintf( fpmas, "figure(3)\n");
+        fprintf( fpmas, "axis off\n" );
+        fprintf( fpmas, "axis equal\n" );
+        fprintf( fpmas, "hold off\n" );
+
+        fclose( fpmas );
     }
     else
     {
