@@ -181,10 +181,10 @@ void refine_intersect_pt( const vec3d& pt, const SurfPatch &pA, double uwA[2], c
         double u02, w02;
         eli::geom::intersect::minimum_distance( u02, w02, pB.m_Patch, p, guess_uw.x(), guess_uw.y() );
 
-        double u1, w1, u2, w2;
+        double u1, w1, u2, w2, d;
 
 
-        eli::geom::intersect::intersect( u1, w1, u2, w2, pA.m_Patch, pB.m_Patch, p, u01, w01, u02, w02 );
+        int ret = eli::geom::intersect::intersect( u1, w1, u2, w2, d, pA.m_Patch, pB.m_Patch, p, u01, w01, u02, w02 );
 
         uwA[0] = pA.u_min + u1 * ( pA.u_max - pA.u_min );
         uwA[1] = pA.w_min + w1 * ( pA.w_max - pA.w_min );
@@ -202,9 +202,9 @@ void refine_intersect_pt( const vec3d& pt, const SurfPatch &pA, double uwA[2], c
         vec2d uw0B = pB.m_SurfPtr->ClosestUW( pt, ( pB.u_max + pB.u_min ) * 0.5, ( pB.w_max + pB.w_min ) * 0.5 );
 
 
-        double u1, w1, u2, w2;
+        double u1, w1, u2, w2, d;
 
-        eli::geom::intersect::intersect( u1, w1, u2, w2, *( pA.m_SurfPtr->GetSurfCore()->GetSurf() ),
+        int ret = eli::geom::intersect::intersect( u1, w1, u2, w2, d, *( pA.m_SurfPtr->GetSurfCore()->GetSurf() ),
                                         *( pB.m_SurfPtr->GetSurfCore()->GetSurf() ),
                                         p, uw0A.x(), uw0A.y(), uw0B.x(), uw0B.y() );
 
@@ -223,7 +223,7 @@ double refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec
 
     double u1, w1, u2, w2, d;
 
-    d = eli::geom::intersect::intersect( u1, w1, u2, w2, *( sA->GetSurfCore()->GetSurf() ),
+    int ret = eli::geom::intersect::intersect( u1, w1, u2, w2, d, *( sA->GetSurfCore()->GetSurf() ),
                                      *( sB->GetSurfCore()->GetSurf() ),
                                      p, uwA.x(), uwA.y(), uwB.x(), uwB.y() );
 

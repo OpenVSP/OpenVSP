@@ -1955,7 +1955,7 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
         uB = buw->m_UW[0];
         wB = buw->m_UW[1];
 
-        eli::geom::intersect::intersect( uA, wA, uB, wB, dist, *( c->m_SurfA->GetSurfCore()->GetSurf() ),
+        ret = eli::geom::intersect::intersect( uA, wA, uB, wB, dist, *( c->m_SurfA->GetSurfCore()->GetSurf() ),
                                                *( c->m_SurfB->GetSurfCore()->GetSurf() ), first_point,
                                                auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
 
