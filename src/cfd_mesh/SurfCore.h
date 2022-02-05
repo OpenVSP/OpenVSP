@@ -35,7 +35,7 @@ class SurfCore
 {
 public:
 
-    enum { UMIN, UMAX, WMIN, WMAX};
+    enum { UMIN, UMAX, WMIN, WMAX, NOBNDY = -1};
 
     SurfCore();
     virtual ~SurfCore();
@@ -50,6 +50,8 @@ public:
     vec3d CompPnt01( double u, double w ) const;
 
     void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
+
+    int UWPointOnBorder( double u, double w, double tol ) const;
 
     int GetNumUPatches() const
     {

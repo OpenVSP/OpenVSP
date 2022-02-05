@@ -287,6 +287,31 @@ void SurfCore::CompCurvature( double u, double w, double& k1, double& k2, double
     }
 }
 
+int SurfCore::UWPointOnBorder( double u, double w, double tol ) const
+{
+    double umn = m_Surface.get_u0();
+    double wmn = m_Surface.get_v0();
+
+    double umx = m_Surface.get_umax();
+    double wmx = m_Surface.get_vmax();
+
+    int ret = NOBNDY;
+
+    if ( std::abs( u - umn ) < tol )
+        ret = UMIN;
+
+    if ( std::abs( u - umx ) < tol )
+        ret = UMAX;
+
+    if ( std::abs( u - wmn ) < tol )
+        ret = WMIN;
+
+    if ( std::abs( u - wmx ) < tol )
+        ret = WMAX;
+
+    return ret;
+}
+
 bool SurfCore::LessThanY( double val ) const
 {
     piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
