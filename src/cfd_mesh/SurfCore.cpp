@@ -374,8 +374,8 @@ Bezier_curve SurfCore::GetBorderCurve( int iborder ) const
 
         for( jp = 0; jp < nvpatch; ++jp )
         {
-            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
-            double dv = patch->get_vmax() - patch->get_vmin();
+            double u0, du, v0, dv;
+            const surface_patch_type *patch = m_Surface.get_patch( ip, jp, u0, du, v0, dv );
 
             s.resize( patch->degree_v() );
 
@@ -404,8 +404,8 @@ Bezier_curve SurfCore::GetBorderCurve( int iborder ) const
 
         for( ip = 0; ip < nupatch; ++ip )
         {
-            const surface_patch_type *patch = m_Surface.get_patch( ip, jp );
-            double du = patch->get_umax() - patch->get_umin();
+            double u0, du, v0, dv;
+            const surface_patch_type *patch = m_Surface.get_patch( ip, jp, u0, du, v0, dv );
 
             s.resize( patch->degree_u() );
 
