@@ -1692,25 +1692,31 @@ void SurfaceIntersectionSingleton::Intersect()
 
     addOutputText( "BuildChains\n" );
     BuildChains();
+    // DebugWriteChains( "BuildChains", false );
 
     MergeFeaPartSSEdgeOverlap(); // Only applicable to FEA Mesh
 
     addOutputText( "LoadBorderCurves\n" );
     LoadBorderCurves();
+    // DebugWriteChains( "LoadBorderCurves", false );
 
     MergeInteriorChainIPnts();
+    // DebugWriteChains( "MergeInteriorChainIPnts", false );
 
     SetFixPointBorderNodes(); // Only applicable to FEA Mesh
     CheckFixPointIntersects(); // Only applicable to FEA Mesh
 
     addOutputText( "SplitBorderCurves\n" );
     SplitBorderCurves();
+    // DebugWriteChains( "SplitBorderCurves", false );
 
     addOutputText( "IntersectSplitChains\n" );
     IntersectSplitChains();
+    // DebugWriteChains( "IntersectSplitChains", false );
 
     addOutputText( "BuildCurves\n" );
     BuildCurves();
+    // DebugWriteChains( "BuildCurves", false );
 }
 
 void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1 )
