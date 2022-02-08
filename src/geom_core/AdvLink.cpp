@@ -53,6 +53,9 @@ AdvLink::~AdvLink()
 
 bool AdvLink::ValidateParms()
 {
+    MessageData errMsgData;
+    errMsgData.m_String = "Error";
+
     // Check if Parms still exist. If not, delete the variable and issue a warning to the user.
     bool all_valid_flag = true;
 
@@ -65,7 +68,10 @@ bool AdvLink::ValidateParms()
         }
         else
         {
-            fprintf( stderr, "WARNING: Advanced Link Input Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName.c_str(), m_OutputVars[i].m_ParmID.c_str() );
+            errMsgData.m_IntVec.push_back( vsp::VSP_CANT_FIND_PARM );
+            char buf[255];
+            sprintf( buf, "Error: Advanced Link Input Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName.c_str(), m_OutputVars[i].m_ParmID.c_str() );
+            errMsgData.m_StringVec.emplace_back( string( buf ) );
             all_valid_flag = false;
         }
     }
@@ -83,13 +89,21 @@ bool AdvLink::ValidateParms()
         }
         else
         {
-            fprintf( stderr, "WARNING: Advanced Link Output Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName.c_str(), m_OutputVars[i].m_ParmID.c_str() );
+            errMsgData.m_IntVec.push_back( vsp::VSP_CANT_FIND_PARM );
+            char buf[255];
+            sprintf( buf, "Error: Advanced Link Output Variable %s (ID: %s) No Longer Exists\n", m_OutputVars[i].m_VarName.c_str(), m_OutputVars[i].m_ParmID.c_str() );
+            errMsgData.m_StringVec.emplace_back( string( buf ) );
             all_valid_flag = false;
         }
     }
 
     m_OutputVars.clear();
     m_OutputVars = valid_output_vars;
+
+    if ( !all_valid_flag )
+    {
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
 
     return all_valid_flag;
 }
