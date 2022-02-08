@@ -310,16 +310,11 @@ void XSecSurf::CutXSec( int index )
         return;
     }
 
-    //==== Delete Saved XSec ====//
-    XSec* saved_xs = FindXSec( m_SavedXSec );
-    if ( saved_xs )
-    {
-        vector_remove_val( m_XSecPtrVec, saved_xs );
-        delete saved_xs;
-    }
+    CopyXSec( index );
 
-    m_SavedXSec = xs->GetID();
+    vector_remove_val( m_XSecPtrVec, xs );
     m_XSecIDDeque.erase( m_XSecIDDeque.begin() + index );
+    delete xs;
 }
 
 //==== Copy XSec ====//
