@@ -303,6 +303,10 @@ void AdvLinkScreen::Hide()
 //==== Callbacks ====//
 void AdvLinkScreen::CallBack( Fl_Widget *w )
 {
+
+    int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
+    AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
+
     if ( w == m_LinkBrowser )
     {
         int sel = m_LinkBrowser->value();
@@ -316,20 +320,31 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     {
         m_OutputBrowserSelect = m_OutputBrowser->value() - 2;
     }
-    else if ( w == m_InputGroup.GetGroup() )
+    else if ( w == m_InputGroup.GetGroup() || w == m_OutputGroup.GetGroup() )
     {
         if ( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
         {
-            string ParmID( Fl::event_text() );
-            AdvLinkMgr.AddInput( ParmID, m_VarNameInput.GetString() );
-        }
-    }
-    else if ( w == m_OutputGroup.GetGroup() )
-    {
-        if ( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
-        {
-            string ParmID( Fl::event_text() );
-            AdvLinkMgr.AddOutput( ParmID, m_VarNameInput.GetString() );
+            if ( edit_link )
+            {
+                if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) )
+                {
+                    m_ScreenMgr->Alert( "Duplicate Var Name" );
+                }
+                else if ( m_VarNameInput.GetString() == "" )
+                {
+                    m_ScreenMgr->Alert( "Invalid Var Name" );
+                }
+                else if ( w == m_InputGroup.GetGroup() )
+                {
+                    string ParmID( Fl::event_text() );
+                    AdvLinkMgr.AddInput( ParmID, m_VarNameInput.GetString() );
+                }
+                else if ( w == m_OutputGroup.GetGroup() )
+                {
+                    string ParmID( Fl::event_text() );
+                    AdvLinkMgr.AddOutput( ParmID, m_VarNameInput.GetString() );
+                }
+            }
         }
     }
     else
