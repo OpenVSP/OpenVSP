@@ -176,8 +176,7 @@ protected:
     double m_UpperLimit;
 
     bool m_ActiveFlag;
-    bool m_LinkedFlag;
-    bool m_LinkUpdateFlag;
+    bool m_LinkUpdateFlag;  // Used to identify actively updating Parms to prevent circular updates.
     string m_LinkContainerID;
 
     virtual string GenerateID();
