@@ -103,6 +103,7 @@ bool AdvLink::ValidateParms()
     if ( !all_valid_flag )
     {
         MessageMgr::getInstance().SendAll( errMsgData );
+        m_ValidScript = false;
     }
 
     return all_valid_flag;
