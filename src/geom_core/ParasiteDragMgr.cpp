@@ -567,26 +567,23 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
 {
     // Initialize Variablse
     int iSurf = 0;
-    string lastID;
 
     for ( int i = 0; i < m_RowSize; ++i )
     {
         if ( !m_DegenGeomVec.empty() )
         {
             Geom* geom = VehicleMgr.GetVehicle()->FindGeom(m_geo_geomID[i]);
-            // If DegenGeom Exists Calculate Lref
-            if ( m_geo_masterRow[i] )
+            if ( geom )
             {
-                if ( m_geo_subsurfID[i].compare( "" ) == 0 )
+                // If DegenGeom Exists Calculate Lref
+                if ( m_geo_masterRow[i] )
                 {
-                    if ( m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE )
+                    if ( m_geo_subsurfID[i].compare( "" ) == 0 )
                     {
-                        m_geo_lref.push_back( CalcReferenceLength( iSurf ) );
-
-                        lastID = m_geo_geomID[i];
-
-                        if (geom)
+                        if ( m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE )
                         {
+                            m_geo_lref.push_back( CalcReferenceLength( iSurf ) );
+
                             if (geom->GetType().m_Type != PROP_GEOM_TYPE)
                             {
                                 iSurf += geom->GetNumSymmCopies();
@@ -601,24 +598,26 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
                                 }
                             }
                         }
+                        else
+                        {
+                            --i;
+                            iSurf += geom->GetNumSymmCopies();
+                        }
                     }
                     else
                     {
-                        --i;
-                        
-                        if ( geom ) iSurf += geom->GetNumSymmCopies();
-                        
+                        m_geo_lref.push_back( CalcReferenceLength( iSurf - 1 ) );
                     }
                 }
                 else
                 {
-                    m_geo_lref.push_back( CalcReferenceLength( iSurf - 1 ) );
-                    lastID = m_geo_geomID[i];
+                    m_geo_lref.push_back( m_geo_lref[m_geo_lref.size() - 1] );
                 }
             }
             else
             {
-                m_geo_lref.push_back( m_geo_lref[m_geo_lref.size() - 1] );
+                // Else Push Back Default Val
+                m_geo_lref.push_back( -1 );
             }
         }
         else
