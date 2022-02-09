@@ -841,35 +841,67 @@ double ParasiteDragMgrSingleton::CalcPartialTurbulence( double perclam, double r
 
 void ParasiteDragMgrSingleton::Calculate_fineRat_and_toc()
 {
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    char str[256];
+    string newstr;
+    int searchIndex;
+
+    if ( !veh )
+    {
+        return;
+    }
+
     int iSurf = 0;
 
     for ( int i = 0; i < m_RowSize; ++i )
     {
         if ( !m_DegenGeomVec.empty() )
         {
-            // If DegenGeom Exists Calculate Fineness Ratio
-            if ( m_geo_masterRow[i] )
+            Geom* geom = veh->FindGeom( m_geo_geomID[i] );
+            if (geom)
             {
-                if ( m_geo_subsurfID[i].compare( "" ) == 0 )
+                // If DegenGeom Exists Calculate Fineness Ratio
+                if ( m_geo_masterRow[i] )
                 {
-                    if ( m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE )
+                    if ( m_geo_subsurfID[i].compare( "" ) == 0 )
                     {
-                        m_geo_fineRat_or_toc.push_back( CalculateFinessRatioAndTOC( iSurf, i) );
+                        if ( m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE )
+                        {
+                            m_geo_fineRat_or_toc.push_back( CalculateFinessRatioAndTOC( iSurf, i) );
+
+                            if ( geom->GetType().m_Type != PROP_GEOM_TYPE )
+                            {
+                                iSurf += geom->GetNumSymmCopies();
+                            }
+                            else
+                            {
+                                string numBladesID = geom->FindParm( "NumBlade", "Design" );
+                                IntParm* tNumBladeParm = (IntParm*) ParmMgr.FindParm( numBladesID );
+                                if ( tNumBladeParm )
+                                {
+                                    iSurf += tNumBladeParm->Get() * geom->GetNumSymmCopies();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            --i;
+                            iSurf += geom->GetNumSymmCopies();
+                        }
                     }
                     else
                     {
-                        --i;
+                        m_geo_fineRat_or_toc.push_back( CalculateFinessRatioAndTOC( iSurf - 1, i) );
                     }
-                    iSurf += VehicleMgr.GetVehicle()->FindGeom( m_geo_geomID[i] )->GetNumSymmCopies();
                 }
                 else
                 {
-                    m_geo_fineRat_or_toc.push_back( CalculateFinessRatioAndTOC( iSurf - 1, i) );
+                    m_geo_fineRat_or_toc.push_back( m_geo_fineRat_or_toc[m_geo_fineRat_or_toc.size() - 1] );
                 }
             }
             else
             {
-                m_geo_fineRat_or_toc.push_back( m_geo_fineRat_or_toc[m_geo_fineRat_or_toc.size() - 1] );
+                m_geo_fineRat_or_toc.push_back( -1 );
             }
         }
         else
@@ -940,7 +972,24 @@ void ParasiteDragMgrSingleton::Calculate_FF()
                     {
                         --i;
                     }
-                    iSurf += VehicleMgr.GetVehicle()->FindGeom( m_geo_geomID[i] )->GetNumSymmCopies();
+
+                    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_geo_geomID[i] );
+                    if (geom)
+                    {
+                        if ( geom->GetType().m_Type != PROP_GEOM_TYPE )
+                        {
+                            iSurf += geom->GetNumSymmCopies();
+                        }
+                        else
+                        {
+                            string numBladesID = geom->FindParm( "NumBlade", "Design" );
+                            IntParm* tNumBladeParm = (IntParm*) ParmMgr.FindParm( numBladesID );
+                            if ( tNumBladeParm )
+                            {
+                                iSurf += tNumBladeParm->Get() * geom->GetNumSymmCopies();
+                            }
+                        }
+                    }
                 }
                 else
                 {
