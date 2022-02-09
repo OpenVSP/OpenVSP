@@ -10,7 +10,7 @@
 #include "AdvLinkMgr.h"
 #include "ParmMgr.h"
 #include "ScriptMgr.h"
-
+#include "APIErrorMgr.h"
 
 //===== Encode Variable Def =====//
 xmlNodePtr VarDef::EncodeXml( xmlNodePtr & node )
@@ -261,6 +261,20 @@ bool AdvLink::BuildScript()
     if ( m_ScriptModule.size() == 0 )
     {
         m_ScriptErrors = ScriptMgr.GetMessages();
+
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+
+        errMsgData.m_IntVec.push_back( vsp::VSP_ADV_LINK_BUILD_FAIL );
+        errMsgData.m_StringVec.emplace_back( m_ScriptErrors );
+
+        // Temporarially suppress error manager printing because ScriptMgr.ReadScriptFromMemory
+        // will have already dumped the same errors to the console.  We don't want to eliminate
+        // that print site, so instead we silence this one.
+        vsp::ErrorMgr.SilenceErrors();
+        MessageMgr::getInstance().SendAll( errMsgData );
+        vsp::ErrorMgr.PrintOnErrors();
+
         return false;
     }
 

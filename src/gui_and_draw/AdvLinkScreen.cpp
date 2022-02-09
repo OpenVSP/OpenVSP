@@ -473,12 +473,7 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         {
             edit_link->SetScriptCode( m_CodeBuffer->text() );
             bool valid_script = edit_link->BuildScript();
-            if ( !valid_script )
-            {
-                fl_message_title( "Compile Errors" );
-                fl_message( "%s", edit_link->GetScriptErrors().c_str() );
-            }
-            else
+            if ( valid_script )
             {
                 edit_link->ForceUpdate();
             }

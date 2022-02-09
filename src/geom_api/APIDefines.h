@@ -235,7 +235,8 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_UNEXPECTED_RESET_REMAP_ID,
                     VSP_INVALID_INPUT_VAL,
                     VSP_INVALID_CF_EQN,
-                    VSP_INVALID_DRIVERS
+                    VSP_INVALID_DRIVERS,
+                    VSP_ADV_LINK_BUILD_FAIL
                 };
 
 enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,
