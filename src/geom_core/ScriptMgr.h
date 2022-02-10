@@ -102,7 +102,6 @@ public:
     double Deg2Rad( double d )                      { return d*DEG_2_RAD; }
     double Min( double x, double y )                { return  (x < y ) ? x : y; }
     double Max( double x, double y )                { return  (x > y ) ? x : y; }
-    string GetVSPVersion()                          { return VSPVERSION4; }
 
     void GenAPIDocs( const string & file_name )
     {

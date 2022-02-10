@@ -12144,7 +12144,7 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     \endcode
     \return OpenVSP version string (i.e. "OpenVSP 3.17.1")
 */)";
-    r = se->RegisterGlobalFunction( "string GetVSPVersion( )", asMETHOD( ScriptMgrSingleton, GetVSPVersion ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct);
+    r = se->RegisterGlobalFunction( "string GetVSPVersion( )", asFUNCTION( vsp::GetVSPVersion ), asCALL_CDECL, doc_struct);
     assert( r >= 0 );
 
     doc_struct.comment = R"(

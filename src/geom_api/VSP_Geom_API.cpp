@@ -29,6 +29,7 @@
 #include "VKTAirfoil.h"
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
+#include "main.h"
 
 #include "eli/mutil/quad/simpson.hpp"
 
@@ -7959,6 +7960,11 @@ void DelProbe( const string &id )
 void DeleteAllProbes()
 {
     MeasureMgr.DelAllProbes();
+}
+
+string GetVSPVersion()
+{
+    return VSPVERSION4;
 }
 
 string GetVSPExePath()
