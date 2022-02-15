@@ -1980,7 +1980,13 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
         borderA = surfA.UWPointOnBorder( uA, wA, uwtol );
         borderB = surfB.UWPointOnBorder( uB, wB, uwtol );
 
-        if ( borderA == SurfCore::UMIN || borderA == SurfCore::UMAX )
+        if ( borderA == SurfCore::NOBNDY && borderB == SurfCore::NOBNDY )
+        {
+            ret = eli::geom::intersect::intersect(uA, wA, uB, wB, dist, *( surfA.GetSurf() ),
+                                                  *( surfB.GetSurf() ), zero_point,
+                                                  auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+        }
+        else if ( borderA == SurfCore::UMIN || borderA == SurfCore::UMAX )
         {
             Bezier_curve crv;
             if ( borderA == SurfCore::UMIN )
@@ -2058,9 +2064,7 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
         }
         else
         {
-            ret = eli::geom::intersect::intersect(uA, wA, uB, wB, dist, *( surfA.GetSurf() ),
-                                                  *( surfB.GetSurf() ), zero_point,
-                                                  auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+            printf( "Error, impossible condition\n" );
         }
 
         pA = c->m_SurfA->CompPnt( uA, wA );
