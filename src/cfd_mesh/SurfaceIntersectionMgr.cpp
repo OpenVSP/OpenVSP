@@ -1965,29 +1965,26 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
         surface_point_type mid_point;
         mid_point << pmid.x(), pmid.y(), pmid.z();
 
-        surface_point_type zero_point;
-        zero_point << 0.0, 0.0, 0.0;
-
-        SurfCore surfA = *( c->m_SurfA->GetSurfCore() );
-        SurfCore surfB = *( c->m_SurfB->GetSurfCore() );
-
-        surfA.GetSurf()->translate( -mid_point );
-        surfB.GetSurf()->translate( -mid_point );
-
         // uwtol is a distance in u or v coordinates for a point to be considered on the border of a surface.
         // The points are generated through the intersection algorithm and should be fairly broadly spaced.
         double uwtol = 1e-4;
-        borderA = surfA.UWPointOnBorder( uA, wA, uwtol );
-        borderB = surfB.UWPointOnBorder( uB, wB, uwtol );
+        borderA = c->m_SurfA->GetSurfCore()->UWPointOnBorder( uA, wA, uwtol );
+        borderB = c->m_SurfB->GetSurfCore()->UWPointOnBorder( uB, wB, uwtol );
 
         if ( borderA == SurfCore::NOBNDY && borderB == SurfCore::NOBNDY )
         {
-            ret = eli::geom::intersect::intersect(uA, wA, uB, wB, dist, *( surfA.GetSurf() ),
-                                                  *( surfB.GetSurf() ), zero_point,
+            ret = eli::geom::intersect::intersect(uA, wA, uB, wB, dist, *( c->m_SurfA->GetSurfCore()->GetSurf() ),
+                                                  *( c->m_SurfB->GetSurfCore()->GetSurf() ), mid_point,
                                                   auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
         }
         else
         {
+            SurfCore surfA = *( c->m_SurfA->GetSurfCore() );
+            SurfCore surfB = *( c->m_SurfB->GetSurfCore() );
+
+            surfA.GetSurf()->translate( -mid_point );
+            surfB.GetSurf()->translate( -mid_point );
+
             if ( borderA == SurfCore::UMIN || borderA == SurfCore::UMAX )
             {
                 Bezier_curve crv;
