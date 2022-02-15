@@ -1942,10 +1942,6 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
     Puw* auw = ipnt->GetPuw( c->m_SurfA );
     Puw* buw = ipnt->GetPuw( c->m_SurfB );
 
-
-    surface_point_type first_point;
-    first_point << ipnt->m_Pnt.x(), ipnt->m_Pnt.y(), ipnt->m_Pnt.z();
-
     double uA;
     double wA;
     double uB;
@@ -1965,28 +1961,41 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
         vec3d pB = c->m_SurfB->CompPnt( uB, wB );
         dist1 = ( pA - pB ).mag();
 
+        vec3d pmid = 0.5 * ( pA + pB );
+        surface_point_type mid_point;
+        mid_point << pmid.x(), pmid.y(), pmid.z();
+
+        surface_point_type zero_point;
+        zero_point << 0.0, 0.0, 0.0;
+
+        SurfCore surfA = *( c->m_SurfA->GetSurfCore() );
+        SurfCore surfB = *( c->m_SurfB->GetSurfCore() );
+
+        surfA.GetSurf()->translate( -mid_point );
+        surfB.GetSurf()->translate( -mid_point );
+
         // uwtol is a distance in u or v coordinates for a point to be considered on the border of a surface.
         // The points are generated through the intersection algorithm and should be fairly broadly spaced.
         double uwtol = 1e-4;
-        borderA = c->m_SurfA->GetSurfCore()->UWPointOnBorder( uA, wA, uwtol );
-        borderB = c->m_SurfB->GetSurfCore()->UWPointOnBorder( uB, wB, uwtol );
+        borderA = surfA.UWPointOnBorder( uA, wA, uwtol );
+        borderB = surfB.UWPointOnBorder( uB, wB, uwtol );
 
         if ( borderA == SurfCore::UMIN || borderA == SurfCore::UMAX )
         {
             Bezier_curve crv;
             if ( borderA == SurfCore::UMIN )
             {
-                crv = c->m_SurfA->GetSurfCore()->GetBorderCurve( SurfCore::UMIN );
-                uA = c->m_SurfA->GetSurfCore()->GetMinU();
+                crv = surfA.GetBorderCurve( SurfCore::UMIN );
+                uA = surfA.GetMinU();
             }
             else
             {
-                crv = c->m_SurfA->GetSurfCore()->GetBorderCurve( SurfCore::UMAX );
-                uA = c->m_SurfA->GetSurfCore()->GetMaxU();
+                crv = surfA.GetBorderCurve( SurfCore::UMAX );
+                uA = surfA.GetMaxU();
             }
 
             dist = eli::geom::intersect::intersect( uB, wB, wA,
-                                                    *( c->m_SurfB->GetSurfCore()->GetSurf() ),
+                                                    *( surfB.GetSurf() ),
                                                     crv.GetCurve(),
                                                     buw->m_UW[0], buw->m_UW[1], auw->m_UW[1] );
         }
@@ -1995,17 +2004,17 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
             Bezier_curve crv;
             if ( borderA == SurfCore::WMIN )
             {
-                crv = c->m_SurfA->GetSurfCore()->GetBorderCurve( SurfCore::WMIN );
-                wA = c->m_SurfA->GetSurfCore()->GetMinW();
+                crv = surfA.GetBorderCurve( SurfCore::WMIN );
+                wA = surfA.GetMinW();
             }
             else
             {
-                crv = c->m_SurfA->GetSurfCore()->GetBorderCurve( SurfCore::WMAX );
-                wA = c->m_SurfA->GetSurfCore()->GetMaxW();
+                crv = surfA.GetBorderCurve( SurfCore::WMAX );
+                wA = surfA.GetMaxW();
             }
 
             dist = eli::geom::intersect::intersect( uB, wB, uA,
-                                                    *( c->m_SurfB->GetSurfCore()->GetSurf() ),
+                                                    *( surfB.GetSurf() ),
                                                     crv.GetCurve(),
                                                     buw->m_UW[0], buw->m_UW[1], auw->m_UW[0] );
         }
@@ -2014,8 +2023,8 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
             Bezier_curve crv;
             if ( borderB == SurfCore::UMIN )
             {
-                crv = c->m_SurfB->GetSurfCore()->GetBorderCurve( SurfCore::UMIN );
-                uB = c->m_SurfB->GetSurfCore()->GetMinU();
+                crv = surfB.GetBorderCurve( SurfCore::UMIN );
+                uB = surfB.GetMinU();
             }
             else
             {
@@ -2024,7 +2033,7 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
             }
 
             dist = eli::geom::intersect::intersect( uA, wA, wB,
-                                                    *( c->m_SurfA->GetSurfCore()->GetSurf() ),
+                                                    *( surfA.GetSurf() ),
                                                     crv.GetCurve(),
                                                     auw->m_UW[0], auw->m_UW[1], buw->m_UW[1] );
         }
@@ -2033,25 +2042,25 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
             Bezier_curve crv;
             if ( borderB == SurfCore::WMIN )
             {
-                crv = c->m_SurfB->GetSurfCore()->GetBorderCurve( SurfCore::WMIN );
-                wB = c->m_SurfB->GetSurfCore()->GetMinW();
+                crv = surfB.GetBorderCurve( SurfCore::WMIN );
+                wB = surfB.GetMinW();
             }
             else
             {
-                crv = c->m_SurfB->GetSurfCore()->GetBorderCurve( SurfCore::WMAX );
-                wB = c->m_SurfB->GetSurfCore()->GetMaxW();
+                crv = surfB.GetBorderCurve( SurfCore::WMAX );
+                wB = surfB.GetMaxW();
             }
 
             dist = eli::geom::intersect::intersect( uA, wA, uB,
-                                                    *( c->m_SurfA->GetSurfCore()->GetSurf() ),
+                                                    *( surfA.GetSurf() ),
                                                     crv.GetCurve(),
                                                     auw->m_UW[0], auw->m_UW[1], buw->m_UW[0] );
         }
         else
         {
-            ret = eli::geom::intersect::intersect( uA, wA, uB, wB, dist, *( c->m_SurfA->GetSurfCore()->GetSurf() ),
-                                                   *( c->m_SurfB->GetSurfCore()->GetSurf() ), first_point,
-                                                   auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+            ret = eli::geom::intersect::intersect(uA, wA, uB, wB, dist, *( surfA.GetSurf() ),
+                                                  *( surfB.GetSurf() ), zero_point,
+                                                  auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
         }
 
         pA = c->m_SurfA->CompPnt( uA, wA );
