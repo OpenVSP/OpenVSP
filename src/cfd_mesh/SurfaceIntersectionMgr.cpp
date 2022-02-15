@@ -1986,85 +1986,88 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
                                                   *( surfB.GetSurf() ), zero_point,
                                                   auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
         }
-        else if ( borderA == SurfCore::UMIN || borderA == SurfCore::UMAX )
-        {
-            Bezier_curve crv;
-            if ( borderA == SurfCore::UMIN )
-            {
-                crv = surfA.GetBorderCurve( SurfCore::UMIN );
-                uA = surfA.GetMinU();
-            }
-            else
-            {
-                crv = surfA.GetBorderCurve( SurfCore::UMAX );
-                uA = surfA.GetMaxU();
-            }
-
-            dist = eli::geom::intersect::intersect( uB, wB, wA,
-                                                    *( surfB.GetSurf() ),
-                                                    crv.GetCurve(),
-                                                    buw->m_UW[0], buw->m_UW[1], auw->m_UW[1] );
-        }
-        else if ( borderA == SurfCore::WMIN || borderA == SurfCore::WMAX )
-        {
-            Bezier_curve crv;
-            if ( borderA == SurfCore::WMIN )
-            {
-                crv = surfA.GetBorderCurve( SurfCore::WMIN );
-                wA = surfA.GetMinW();
-            }
-            else
-            {
-                crv = surfA.GetBorderCurve( SurfCore::WMAX );
-                wA = surfA.GetMaxW();
-            }
-
-            dist = eli::geom::intersect::intersect( uB, wB, uA,
-                                                    *( surfB.GetSurf() ),
-                                                    crv.GetCurve(),
-                                                    buw->m_UW[0], buw->m_UW[1], auw->m_UW[0] );
-        }
-        else if ( borderB == SurfCore::UMIN || borderB == SurfCore::UMAX )
-        {
-            Bezier_curve crv;
-            if ( borderB == SurfCore::UMIN )
-            {
-                crv = surfB.GetBorderCurve( SurfCore::UMIN );
-                uB = surfB.GetMinU();
-            }
-            else
-            {
-                crv = c->m_SurfB->GetSurfCore()->GetBorderCurve( SurfCore::UMAX );
-                uB = c->m_SurfB->GetSurfCore()->GetMaxU();
-            }
-
-            dist = eli::geom::intersect::intersect( uA, wA, wB,
-                                                    *( surfA.GetSurf() ),
-                                                    crv.GetCurve(),
-                                                    auw->m_UW[0], auw->m_UW[1], buw->m_UW[1] );
-        }
-        else if ( borderB == SurfCore::WMIN || borderB == SurfCore::WMAX )
-        {
-            Bezier_curve crv;
-            if ( borderB == SurfCore::WMIN )
-            {
-                crv = surfB.GetBorderCurve( SurfCore::WMIN );
-                wB = surfB.GetMinW();
-            }
-            else
-            {
-                crv = surfB.GetBorderCurve( SurfCore::WMAX );
-                wB = surfB.GetMaxW();
-            }
-
-            dist = eli::geom::intersect::intersect( uA, wA, uB,
-                                                    *( surfA.GetSurf() ),
-                                                    crv.GetCurve(),
-                                                    auw->m_UW[0], auw->m_UW[1], buw->m_UW[0] );
-        }
         else
         {
-            printf( "Error, impossible condition\n" );
+            if ( borderA == SurfCore::UMIN || borderA == SurfCore::UMAX )
+            {
+                Bezier_curve crv;
+                if ( borderA == SurfCore::UMIN )
+                {
+                    crv = surfA.GetBorderCurve( SurfCore::UMIN );
+                    uA = surfA.GetMinU();
+                }
+                else
+                {
+                    crv = surfA.GetBorderCurve( SurfCore::UMAX );
+                    uA = surfA.GetMaxU();
+                }
+
+                dist = eli::geom::intersect::intersect( uB, wB, wA,
+                                                        *( surfB.GetSurf() ),
+                                                        crv.GetCurve(),
+                                                        buw->m_UW[0], buw->m_UW[1], auw->m_UW[1] );
+            }
+            else if ( borderA == SurfCore::WMIN || borderA == SurfCore::WMAX )
+            {
+                Bezier_curve crv;
+                if ( borderA == SurfCore::WMIN )
+                {
+                    crv = surfA.GetBorderCurve( SurfCore::WMIN );
+                    wA = surfA.GetMinW();
+                }
+                else
+                {
+                    crv = surfA.GetBorderCurve( SurfCore::WMAX );
+                    wA = surfA.GetMaxW();
+                }
+
+                dist = eli::geom::intersect::intersect( uB, wB, uA,
+                                                        *( surfB.GetSurf() ),
+                                                        crv.GetCurve(),
+                                                        buw->m_UW[0], buw->m_UW[1], auw->m_UW[0] );
+            }
+            else if ( borderB == SurfCore::UMIN || borderB == SurfCore::UMAX )
+            {
+                Bezier_curve crv;
+                if ( borderB == SurfCore::UMIN )
+                {
+                    crv = surfB.GetBorderCurve( SurfCore::UMIN );
+                    uB = surfB.GetMinU();
+                }
+                else
+                {
+                    crv = c->m_SurfB->GetSurfCore()->GetBorderCurve( SurfCore::UMAX );
+                    uB = c->m_SurfB->GetSurfCore()->GetMaxU();
+                }
+
+                dist = eli::geom::intersect::intersect( uA, wA, wB,
+                                                        *( surfA.GetSurf() ),
+                                                        crv.GetCurve(),
+                                                        auw->m_UW[0], auw->m_UW[1], buw->m_UW[1] );
+            }
+            else if ( borderB == SurfCore::WMIN || borderB == SurfCore::WMAX )
+            {
+                Bezier_curve crv;
+                if ( borderB == SurfCore::WMIN )
+                {
+                    crv = surfB.GetBorderCurve( SurfCore::WMIN );
+                    wB = surfB.GetMinW();
+                }
+                else
+                {
+                    crv = surfB.GetBorderCurve( SurfCore::WMAX );
+                    wB = surfB.GetMaxW();
+                }
+
+                dist = eli::geom::intersect::intersect( uA, wA, uB,
+                                                        *( surfA.GetSurf() ),
+                                                        crv.GetCurve(),
+                                                        auw->m_UW[0], auw->m_UW[1], buw->m_UW[0] );
+            }
+            else
+            {
+                printf( "Error, impossible condition\n" );
+            }
         }
 
         pA = c->m_SurfA->CompPnt( uA, wA );
