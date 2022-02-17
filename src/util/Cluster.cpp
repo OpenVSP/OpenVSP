@@ -31,22 +31,42 @@ double Cubic_Stretch( const double &t, const double &ds0, const double &ds1 )
 //
 double HypTan_Stretch( const double &t, const double &ds0, const double &ds1 )
 {
-    double a = sqrt( ds1 / ds0 );
-    double b = 1.0 / sqrt( ds0 * ds1 );
+    static double d0 = -1;
+    static double d1 = -1;
+    static double a = -1;
+    static double b = -1;
+    static double hdelta = -1;
+    static double tnh2 = -1;
 
-    double x = t;
+    if ( d0 != ds0 || d1 != ds1 )
+    {
+        d0 = ds0;
+        d1 = ds1;
+        a = sqrt( ds1 / ds0 );
+        b = 1.0 / sqrt( ds0 * ds1 );
+
+        // Avoid singularity at b == 1.0
+        if ( b <= 0.999 )  // b < 1.0
+        {
+            hdelta = 0.5 * asinc( b );
+            tnh2 = tan( hdelta );
+        }
+        else if ( b >= 1.001 )
+        {
+            hdelta = 0.5 * asinhc( b );
+            tnh2 = tanh( hdelta );
+        }
+    }
+
+    double x;
 
     // Avoid singularity at b == 1.0
     if ( b <= 0.999 )  // b < 1.0
     {
-        double hdelta = 0.5 * asinc( b );
-        double tnh2 = tan( hdelta );
         x = 0.5 * ( 1.0 + tan( hdelta * ( 2.0 * t - 1.0 ) ) / tnh2 );
     }
     else if ( b >= 1.001 )
     {
-        double hdelta = 0.5 * asinhc( b );
-        double tnh2 = tanh( hdelta );
         x = 0.5 * ( 1.0 + tanh( hdelta * ( 2.0 * t - 1.0 ) ) / tnh2 );
     }
     else // Handle b near 1.0
