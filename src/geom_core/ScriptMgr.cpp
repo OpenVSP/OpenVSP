@@ -176,11 +176,11 @@ void ScriptMgrSingleton::RunTestScripts()
 }
 
 //==== Read And Execute Script File  ====//
-void ScriptMgrSingleton::ReadExecuteScriptFile( const string &  file_name, const string &  function_name )
+int ScriptMgrSingleton::ReadExecuteScriptFile( const string &  file_name, const string &  function_name )
 {
     string module_name = ReadScriptFromFile( "ReadExecute", file_name );
 
-    ExecuteScript( module_name.c_str(), function_name.c_str() );
+    return ExecuteScript( module_name.c_str(), function_name.c_str(), false, 0.0, false );
 }
 
 vector< string > ScriptMgrSingleton::ReadScriptsFromDir( const string & dir_name, const string & suffix )

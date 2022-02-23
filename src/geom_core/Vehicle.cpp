@@ -719,9 +719,9 @@ void Vehicle::ForceUpdate( int dirtyflag )
 }
 
 //===== Run Script ====//
-void Vehicle::RunScript( const string & file_name, const string & function_name )
+int Vehicle::RunScript( const string & file_name, const string & function_name )
 {
-    ScriptMgr.ReadExecuteScriptFile( file_name, function_name );
+    return ScriptMgr.ReadExecuteScriptFile( file_name, function_name );
 }
 
 

@@ -128,7 +128,7 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr, int &ret )
     if ( scriptModeFlag )
     {
         // Read Script File
-        vPtr->RunScript( script_filename );
+        ret = vPtr->RunScript( script_filename );
         return scriptModeFlag;
     }
     return 0;
