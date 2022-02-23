@@ -167,3 +167,7 @@ INSTALL( FILES ../vspIcon.png DESTINATION .)
 IF( DOXYGEN_FOUND )
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile DESTINATION .)
 ENDIF( DOXYGEN_FOUND )
+
+# Potentially redundant, but needed if src is used as project root.
+INCLUDE( CTest )
+ADD_SUBDIRECTORY( test )

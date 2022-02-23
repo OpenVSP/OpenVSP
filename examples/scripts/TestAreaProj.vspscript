@@ -1,5 +1,7 @@
-void main()
+int main()
 {
+    int failure = 0;
+
     string fid = AddGeom( "POD", "" );
 
     Update();
@@ -49,6 +51,8 @@ void main()
     {
         ErrorObj err = PopLastError();
         Print( err.GetErrorString() );
+        failure++;
     }
 
+    return failure;
 }
