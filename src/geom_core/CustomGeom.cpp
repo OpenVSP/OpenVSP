@@ -1066,9 +1066,9 @@ void CustomGeom::ComputeCenter()
     CustomGeomMgr.SetCurrCustomGeom( GetID() );
 
     //==== Call Script ====//
-    bool success = ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void ComputeCenter()" );
+    int success = ScriptMgr.ExecuteScript( GetScriptModuleName().c_str(), "void ComputeCenter()" );
 
-    if ( success )
+    if ( success == 0 )
         return;
 
     //==== No Custom Script - Use Default ====//
