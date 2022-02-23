@@ -298,8 +298,6 @@ bool ScriptMgrSingleton::RemoveScript( const string &  module_name )
 //==== Execute Function in Module ====//
 int ScriptMgrSingleton::ExecuteScript( const char* module_name, const char* function_name, bool arg_flag, double arg, bool by_decl )
 {
-    int r;
-
     // Find the function that is to be called.
     asIScriptModule *mod = m_ScriptEngine->GetModule( module_name );
 
@@ -331,7 +329,7 @@ int ScriptMgrSingleton::ExecuteScript( const char* module_name, const char* func
     {
         ctx->SetArgDouble( 0, arg );
     }
-    r = ctx->Execute();
+    int r = ctx->Execute();
     if( r != asEXECUTION_FINISHED )
     {
         // The execution didn't complete as expected. Determine what happened.
