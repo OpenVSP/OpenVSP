@@ -17,17 +17,19 @@ int vsp_add_and_get_estatus( unsigned int ecode )
     return exit_status_code;
 }
 
-void vsp_exit()
+void vsp_exit( int ret )
 {
-    int exit_status = vsp_add_and_get_estatus( (unsigned int) ESTATUS_NO_ERRORS );
+    unsigned int uret = ret;
+    int exit_status = vsp_add_and_get_estatus( uret );
     exit( exit_status );
 }
 
 //=====================================================//
 //===== Batch Mode Check - Parse the Command Line =====//
 //=====================================================//
-int batchMode( int argc, char *argv[], Vehicle* vPtr )
+int batchMode( int argc, char *argv[], Vehicle* vPtr, int &ret )
 {
+    ret = 0; // Success
     int i;
     int validFile = 1;
     int scriptModeFlag = 0;

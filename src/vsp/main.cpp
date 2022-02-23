@@ -202,9 +202,10 @@ int main( int argc, char** argv )
     //==== Get Vehicle Ptr ====//
     Vehicle* vPtr = VehicleMgr.GetVehicle();
 
-    if ( batchMode( argc, argv, vPtr ) )
+    int ret;
+    if ( batchMode( argc, argv, vPtr, ret ) )
     {
-        vsp_exit();
+        vsp_exit( ret );
     }
 
     //==== Init Gui ====//

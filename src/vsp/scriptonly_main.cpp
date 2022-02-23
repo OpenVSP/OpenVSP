@@ -15,5 +15,7 @@ int main( int argc, char** argv )
     //==== Get Vehicle Ptr ====//
     Vehicle* vPtr = VehicleMgr.GetVehicle();
 
-    batchMode( argc, argv, vPtr );
+    int ret;
+    batchMode( argc, argv, vPtr, ret );
+    return ret;
 }

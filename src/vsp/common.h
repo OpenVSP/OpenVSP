@@ -10,7 +10,7 @@
 #include "Vehicle.h"
 
 int vsp_add_and_get_estatus( unsigned int ecode );
-void vsp_exit();
-int batchMode( int argc, char *argv[], Vehicle* vPtr );
+void vsp_exit( int ret );
+int batchMode( int argc, char *argv[], Vehicle* vPtr, int &ret );
 
 #endif // VSPCOMMON__INCLUDED_

@@ -27,6 +27,6 @@ enum
 
 
 int vsp_add_and_get_estatus( int ecode );
-void vsp_exit();
+void vsp_exit( int ret );
 
 #endif
