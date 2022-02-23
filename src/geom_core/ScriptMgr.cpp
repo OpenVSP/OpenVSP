@@ -23,6 +23,17 @@
 #include "StringUtil.h"
 #include "FileUtil.h"
 
+// Make sure int32_t is defined.
+#ifdef _MSC_VER
+    #if _MSC_VER >= 1600
+        #include <cstdint>
+    #else
+        typedef __int32 int32_t;
+    #endif
+#else
+    #include <cstdint>
+#endif
+
 using namespace vsp;
 
 //==== Implement a simple message callback function ====//
