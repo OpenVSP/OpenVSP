@@ -3890,7 +3890,7 @@ void Geom::WriteSeligAirfoil( const string & file_name, double foilsurf_u_locati
 
     for ( size_t i = 0; i < ordered_vec.size(); i++ )
     {
-        fprintf( file_id, "%17.16f, %17.16f\n", ordered_vec[i].x(), ordered_vec[i].y() );
+        fprintf( file_id, "%17.16f %17.16f\n", ordered_vec[i].x(), ordered_vec[i].y() );
     }
 
     fclose( file_id );
