@@ -293,7 +293,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
     m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
- 
+
     m_AdvancedCaseSetupLayout.ForceNewLine();
     m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
     m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
@@ -668,7 +668,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_UnsteadyGroupLayout.AddX( m_UnsteadyGroupLeftLayout.GetW() + window_border_width );
     m_UnsteadyGroupLayout.AddSubGroupLayout( m_UnsteadyGroupRightLayout,
-        ( unsteady_group->w() - window_border_width ) / 2, 
+        ( unsteady_group->w() - window_border_width ) / 2,
                                              12 * m_UnsteadyGroupLeftLayout.GetStdHeight() );
 
     m_UnsteadyGroupLeftLayout.AddDividerBox( "Time" );
@@ -689,9 +689,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_UnsteadyGroupLeftLayout.SetSameLineFlag( true );
     m_UnsteadyGroupLeftLayout.SetFitWidthFlag( false );
-    m_UnsteadyGroupLeftLayout.SetSliderWidth( m_UnsteadyGroupLeftLayout.GetRemainX() - 
+    m_UnsteadyGroupLeftLayout.SetSliderWidth( m_UnsteadyGroupLeftLayout.GetRemainX() -
                                               m_UnsteadyGroupLeftLayout.GetButtonWidth() -
-                                              2 * m_UnsteadyGroupLeftLayout.GetRangeButtonWidth() - 
+                                              2 * m_UnsteadyGroupLeftLayout.GetRangeButtonWidth() -
                                               m_UnsteadyGroupLeftLayout.GetInputWidth() );
     m_UnsteadyGroupLeftLayout.AddButton( m_HoverRampToggle, "Hover Ramp" );
     m_UnsteadyGroupLeftLayout.SetButtonWidth( 0 );
@@ -726,7 +726,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_UnsteadyGroupLeftLayout.AddChoice( m_NoiseUnitChoice, "Model Length Unit" );
     m_NoiseUnitChoice.AddItem( "SI" );
-    m_NoiseUnitChoice.AddItem( "Engligh" );
+    m_NoiseUnitChoice.AddItem( "English" );
     m_NoiseUnitChoice.UpdateItems();
 
     m_UnsteadyGroupLeftLayout.ForceNewLine();
@@ -744,7 +744,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_UnsteadyGroupRightLayout.SetButtonWidth( m_UnsteadyGroupRightLayout.GetRemainX() / 3 );
     m_UnsteadyGroupRightLayout.AddSlider( m_RPMSlider, "RPM", 100, "%7.3f" );
-    
+
     m_UnsteadyGroupRightLayout.AddButton( m_UniformRPMToggle, "Uniform RPM" );
 
     m_UnsteadyGroupLayout.AddY( m_UnsteadyGroupLeftLayout.GetH() + window_border_width );
@@ -2275,4 +2275,3 @@ void VSPAEROScreen::UnsteadyGroupBrowserCallback()
 
     VSPAEROMgr.HighlightSelected( VSPAEROMgr.UNSTEADY_GROUP );
 }
-
