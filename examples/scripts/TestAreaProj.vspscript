@@ -6,19 +6,6 @@ int main()
 
     Update();
 
-    int nanalysis = GetNumAnalysis();
-
-    Print( "Number of registered analyses: " + nanalysis );
-    Print( "" );
-
-    array< string > @analysis_array = ListAnalysis();
-
-    for ( int i = 0; i < int( analysis_array.size() ); i++ )
-    {
-        PrintAnalysisInputs( analysis_array[i] );
-        Print( "" );
-    }
-
     // Projected Areas
     array<int> dirtype = GetIntAnalysisInput( "Projection", "DirectionType" );
     dirtype[0] = X_PROJ;
