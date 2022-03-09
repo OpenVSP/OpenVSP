@@ -29,6 +29,10 @@ int main()
     WriteResultsCSVFile( rid, "XProj.csv" );
     DeleteGeomVec( GetStringResults( rid, "Mesh_GeomID" ) );
 
+    array<double> @double_arr = GetDoubleResults( rid, "Area" );
+    if ( !closeTo( double_arr[0], 1.256832229736884132e+00 ) )
+        failure++;
+
     dirtype[0] = Y_PROJ;
     SetIntAnalysisInput( "Projection", "DirectionType", dirtype );
 
@@ -36,6 +40,10 @@ int main()
     PrintResults( rid );
     WriteResultsCSVFile( rid, "YProj.csv" );
     DeleteGeomVec( GetStringResults( rid, "Mesh_GeomID" ) );
+
+    @double_arr = GetDoubleResults( rid, "Area" );
+    if ( !closeTo( double_arr[0], 9.699415664302019735e+00 ) )
+        failure++;
 
     dirtype[0] = Z_PROJ;
     SetIntAnalysisInput( "Projection", "DirectionType", dirtype );
@@ -45,6 +53,9 @@ int main()
     WriteResultsCSVFile( rid, "ZProj.csv" );
     DeleteGeomVec( GetStringResults( rid, "Mesh_GeomID" ) );
 
+    @double_arr = GetDoubleResults( rid, "Area" );
+    if ( !closeTo( double_arr[0], 9.699415664302019735e+00 ) )
+        failure++;
 
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )
