@@ -396,6 +396,14 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_SelAllMenuItem )
     {
         VehicleMgr.GetVehicle()->SetActiveGeomVec( VehicleMgr.GetVehicle()->GetGeomVec() );
+
+        ManageGeomScreen * geomScreen = NULL;
+        geomScreen = dynamic_cast<ManageGeomScreen *>
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
+        if( geomScreen )
+        {
+            geomScreen->ShowHideGeomScreens();
+        }
     }
     else if ( data == &m_PickMenuItem )
     {

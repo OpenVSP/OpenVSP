@@ -540,8 +540,7 @@ void ManageGeomScreen::SelectAll()
 
     LoadActiveGeomOutput();
 
-    m_GeomScreenVec[MULT_GEOM_SCREEN]->Show();
-
+    ShowHideGeomScreens();
 }
 
 //===== Select Geom Set ====//
@@ -557,6 +556,7 @@ void ManageGeomScreen::SelectSet( int set )
     }
 
     LoadActiveGeomOutput();
+    ShowHideGeomScreens();
 }
 
 //==== Load Active Geom IDs and Children ===//
@@ -701,6 +701,8 @@ void ManageGeomScreen::ShowHideGeomScreens()
     {
         m_GeomScreenVec[i]->Show();
     }
+
+    m_GeomScreenVec[MULT_GEOM_SCREEN]->Show();
 }
 
 //==== Show or Hide Subsurface Lines ====//
