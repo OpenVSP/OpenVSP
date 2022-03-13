@@ -1968,6 +1968,7 @@ void SurfaceIntersectionSingleton::BuildChains()
         }
     }
 
+    // DebugWriteChains( "BuildChains_Intermediate", false );
 
     // After the intersection chains are formed, refine them so that the value returned by CompPnt
     // will be the same with respect to each parent surface of the intersection point. Note, this 
