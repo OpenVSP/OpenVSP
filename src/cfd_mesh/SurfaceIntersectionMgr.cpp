@@ -1690,6 +1690,8 @@ void SurfaceIntersectionSingleton::Intersect()
         }
     }
 
+    // WriteISegs();
+
     addOutputText( "BuildChains\n" );
     BuildChains();
     // DebugWriteChains( "BuildChains", false );
@@ -1882,6 +1884,52 @@ ISeg* SurfaceIntersectionSingleton::CreateSurfaceSeg(  Surf* surfA, vec2d & uwA0
     ISeg* iseg01 = new ISeg( surfA, surfB, ipnt0, ipnt1 );
 
     return iseg01;
+}
+
+void SurfaceIntersectionSingleton::WriteISegs()
+{
+    int i;
+    char str2[256];
+    sprintf( str2, "ISegs.m" );
+    FILE* fp = fopen( str2, "w" );
+
+    fprintf( fp, "clear all;\n" );
+    fprintf( fp, "close all;\n" );
+
+    ISeg* seg;
+
+    fprintf( fp, "x=[" );
+    for ( i = 0; i < (int)m_AllIPnts.size()-1; i++ )
+    {
+        seg = m_AllIPnts[i]->m_Segs[0];
+        fprintf( fp, "%f %f;\n", seg->m_IPnt[0]->m_Pnt.x(), seg->m_IPnt[1]->m_Pnt.x() );
+    }
+    seg = m_AllIPnts[i]->m_Segs[0];
+    fprintf( fp, "%f %f];\n\n", seg->m_IPnt[0]->m_Pnt.x(), seg->m_IPnt[1]->m_Pnt.x() );
+
+    fprintf( fp, "y=[" );
+    for ( i = 0; i < (int)m_AllIPnts.size()-1; i++ )
+    {
+        seg = m_AllIPnts[i]->m_Segs[0];
+        fprintf( fp, "%f %f;\n", seg->m_IPnt[0]->m_Pnt.y(), seg->m_IPnt[1]->m_Pnt.y() );
+    }
+    seg = m_AllIPnts[i]->m_Segs[0];
+    fprintf( fp, "%f %f];\n\n", seg->m_IPnt[0]->m_Pnt.y(), seg->m_IPnt[1]->m_Pnt.y() );
+
+    fprintf( fp, "z=[" );
+    for ( i = 0; i < (int)m_AllIPnts.size()-1; i++ )
+    {
+        seg = m_AllIPnts[i]->m_Segs[0];
+        fprintf( fp, "%f %f;\n", seg->m_IPnt[0]->m_Pnt.z(), seg->m_IPnt[1]->m_Pnt.z() );
+    }
+    seg = m_AllIPnts[i]->m_Segs[0];
+    fprintf( fp, "%f %f];\n\n", seg->m_IPnt[0]->m_Pnt.z(), seg->m_IPnt[1]->m_Pnt.z() );
+
+    fprintf( fp, "plot3( x', y', z' );\n" );
+    fprintf( fp, "axis equal;\n" );
+    fprintf( fp, "axis off;\n" );
+
+    fclose( fp );
 }
 
 void SurfaceIntersectionSingleton::BuildChains()

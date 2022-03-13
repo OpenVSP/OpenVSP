@@ -259,6 +259,7 @@ public:
 //  virtual ISeg* CreateSurfaceSeg( Surf* sPtr, vec3d & p0, vec3d & p1, vec2d & uw0, vec2d & uw1 );
     virtual ISeg* CreateSurfaceSeg( Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1  );
 
+    virtual void WriteISegs();
     virtual void BuildChains();
 
     void RefineISegChainSeg( ISegChain* c, IPnt* ipnt );
