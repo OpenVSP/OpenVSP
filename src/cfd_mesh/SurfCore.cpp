@@ -303,10 +303,10 @@ int SurfCore::UWPointOnBorder( double u, double w, double tol ) const
     if ( std::abs( u - umx ) < tol )
         ret = UMAX;
 
-    if ( std::abs( u - wmn ) < tol )
+    if ( std::abs( w - wmn ) < tol )
         ret = WMIN;
 
-    if ( std::abs( u - wmx ) < tol )
+    if ( std::abs( w - wmx ) < tol )
         ret = WMAX;
 
     return ret;
