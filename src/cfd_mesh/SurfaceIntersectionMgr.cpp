@@ -2033,8 +2033,8 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
                 }
                 else
                 {
-                    crv = c->m_SurfB->GetSurfCore()->GetBorderCurve( SurfCore::UMAX );
-                    uB = c->m_SurfB->GetSurfCore()->GetMaxU();
+                    crv = surfB.GetBorderCurve( SurfCore::UMAX );
+                    uB = surfB.GetMaxU();
                 }
 
                 dist = eli::geom::intersect::intersect( uA, wA, wB,
