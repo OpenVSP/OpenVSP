@@ -1995,7 +1995,7 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
     double wA;
     double uB;
     double wB;
-    double dist, dist1, dist2;
+    double dist, dist1, dist2, dist3;
     int ret, borderA, borderB;
 
     if ( auw && buw )
@@ -2119,12 +2119,28 @@ void SurfaceIntersectionSingleton::RefineISegChainSeg( ISegChain* c, IPnt* ipnt 
         pA = c->m_SurfA->CompPnt( uA, wA );
         pB = c->m_SurfB->CompPnt( uB, wB );
         dist2 = ( pA - pB ).mag();
+        vec3d pmid2 = 0.5 * ( pA + pB );
+        dist3 = ( pmid2 - pmid ).mag();
 
+        bool keepnew = true;
         if ( dist2 > dist1 )
         {
-            // printf( "Refine ISegChain point failed d1 %f d %f d2 %f A: %d B: %d\n", dist1, dist, dist2, borderA, borderB );
+            // printf( "1st Refine ISegChain point failed d1 %f d %f d2 %f d3 %f A: %d B: %d\n", dist1, dist, dist2, dist3, borderA, borderB );
+            // printf( "  au %f aw %f bu %f bw %f\n", auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+            // printf( "  %f %f %f\n\n", pmid.x(), pmid.y(), pmid.z() );
+            keepnew = false;
         }
-        else
+
+        // Check if point has moved a significant distance.
+        // if ( dist3 > 1e-3 )
+        {
+            // printf( "2nd Refine ISegChain point failed d1 %f d %f d2 %f d3 %f A: %d B: %d\n", dist1, dist, dist2, dist3, borderA, borderB );
+            // printf( "  au %f aw %f bu %f bw %f\n", auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+            // printf( "  %f %f %f\n\n", pmid.x(), pmid.y(), pmid.z() );
+            // keepnew = false;
+        }
+
+        if ( keepnew )
         {
             auw->m_UW[0] = uA;
             auw->m_UW[1] = wA;
