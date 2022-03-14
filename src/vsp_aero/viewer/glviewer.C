@@ -6,6 +6,7 @@
 
 #include "glviewer.H"
 #include <FL/fl_ask.H>
+#include <cstring>
 
 /*##############################################################################
 #                                                                              #
@@ -280,6 +281,24 @@ void GL_VIEWER::LoadInitialData(char *name)
     // Save the file name
 
     sprintf(file_name,"%s",name);
+
+    char* pathsep = NULL;
+    pathsep = strrchr( file_name, '/' );
+    if ( !pathsep )
+    {
+        pathsep = strrchr( file_name, '\\' );
+    }
+
+    if ( pathsep )
+    {
+        sprintf( file_name_no_path, "%s", pathsep + 1 );
+        sprintf( path, "%.*s", pathsep - file_name, file_name );
+    }
+    else
+    {
+        sprintf( file_name_no_path, "%s", file_name );
+        sprintf( path, "." );
+    }
 
     // Determine if an adb file exists. Add the .adb extension if not already present.
     
@@ -1150,6 +1169,8 @@ void GL_VIEWER::MakeMovie(char *FileName)
     int i;
     char DumChar[2000], Command[2000], Path[2000];
 
+    sprintf(Path,"%s/MoviePNGFiles/", path);
+
     // Check for ffmpeg  & delete any old png files
 #ifdef WIN32
     system( " ffmpeg -h > temp.txt" );
@@ -1169,7 +1190,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
     }
 
     // rm may not be available on Windows 
-    sprintf( Command, "rd /s /q MoviePNGFiles" );
+    sprintf( Command, "rd /s /q %s", Path );
 #else
     // Check for ffmpeg
     if ( system( "which ffmpeg > /dev/null 2>&1" ) )
@@ -1179,21 +1200,16 @@ void GL_VIEWER::MakeMovie(char *FileName)
         return;
     }
 
-    sprintf( Command, "rm -rf ./MoviePNGFiles" );
+    sprintf( Command, "rm -rf %s", Path );
 #endif
 
     system(Command);
-    
+
     // Create a sub directory to store all the movie files in
-#ifdef WIN32
-    sprintf( Command, "mkdir MoviePNGFiles" );
-#else
-    sprintf( Command, "mkdir ./MoviePNGFiles" );
-#endif
+    sprintf( Command, "mkdir %s", Path );
 
     system(Command);
     
-    sprintf(Path,"./MoviePNGFiles/");
 
     for ( i = 1 ; i <= NumberOfADBCases_ ; i++ ) {
        
@@ -1232,7 +1248,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
     
     printf("Running ffmpeg to create video \n");
     
-    sprintf(Command,"ffmpeg -r 10 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4",Path,file_name,FileName,file_name,FileName);
+    sprintf(Command,"ffmpeg -r 10 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4",Path,file_name_no_path,FileName,file_name,FileName);
 
     system(Command);
       
@@ -6897,7 +6913,7 @@ void GL_VIEWER::WritePNGFile(char *Path, char *FileName)
 
        // Now write to png file
 
-       sprintf(rgbstr,"%s%s.%s.png",Path,file_name,FileName);
+       sprintf(rgbstr,"%s%s.%s.png",Path,file_name_no_path,FileName);
        width = w();
        height = h();
        

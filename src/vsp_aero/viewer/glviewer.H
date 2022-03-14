@@ -224,6 +224,8 @@ private:
     SOLUTION_CASE *ADBCaseList_;
 
     char file_name[2000];
+    char file_name_no_path[2000];
+    char path[200];
 
     float Sref;
     float Cref;
