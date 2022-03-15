@@ -23,10 +23,12 @@ Optional Arguments:
     PREFIX (string):
         Path where the environment will be placed at. Can be relative (under
         ${CMAKE_BINARY_DIR}) or absolute.
-    ENV_NAME (string)
+    ENV_NAME (string):
         The name of the virtual environment. Unless otherwise specified, this
         is the same as TARGET.
-
+    WORKING_DIRECTORY (string):
+        The name of the directory to run the pip command in.  Should be the
+        location of the requirements.txt file.
 
 Optional Output Arguments:
     OUT_PYTHON_EXE (output variable):
@@ -40,7 +42,7 @@ Optional Output Arguments:
 #]=============================================================================]
 
 function(CreateVirtualEnvironment TARGET)
-    set(KEYWORD_ARGS REQUIREMENTS_TXT PREFIX ENV_NAME
+    set(KEYWORD_ARGS REQUIREMENTS_TXT PREFIX ENV_NAME WORKING_DIRECTORY
             OUT_PYTHON_EXE OUT_BINARY_DIR OUT_VENV_DIR)
 
     set(MULTI_ARGS SOURCES REQUIREMENTS)
@@ -50,6 +52,10 @@ function(CreateVirtualEnvironment TARGET)
     if (NOT ARG_ENV_NAME)
         set(ARG_ENV_NAME ${TARGET})
     endif ()
+
+    if ( NOT ARG_WORKING_DIRECTORY )
+        set( WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} )
+    endif()
 
     find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
@@ -94,6 +100,7 @@ function(CreateVirtualEnvironment TARGET)
     set(OUTPUT_FILE ${VENV}/environment.txt)
     add_custom_command(
             OUTPUT ${OUTPUT_FILE}
+            WORKING_DIRECTORY ${ARG_WORKING_DIRECTORY}
             COMMAND ${INSTALL_CMD}
             COMMAND ${BIN_DIR}/pip freeze > ${OUTPUT_FILE}
             DEPENDS ${CFG_FILE} ${ARG_SOURCES} ${ARG_REQUIREMENTS_TXT}
