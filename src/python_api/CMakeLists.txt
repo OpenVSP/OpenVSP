@@ -102,4 +102,46 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py DESTINATION python/openvsp)
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml DESTINATION python/openvsp/conda-recipe)
 
+    # Copy python package files to ${CMAKE_BINARY_DIR}/python_pseudo such that a virtual environment can be
+    # built from there.  This brings both generated files (from BINARY_DIR) and source files (from SOURCE_DIR) together
+    # and places them in the expected relative places.
+    add_custom_command( TARGET _vsp POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/packages/
+            ${CMAKE_BINARY_DIR}/python_pseudo )
+
+    add_custom_command(TARGET _vsp POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:_vsp>
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
+
+    add_custom_command(TARGET _vsp POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_BINARY_DIR}/vsp.py
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
+
+    add_custom_command(TARGET _vsp POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp )
+
+    add_custom_command(TARGET _vsp POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/conda-recipe )
+
+    # Create virtual environment with openvsp package installed.
+    CreateVirtualEnvironment( venv
+            REQUIREMENTS_TXT ${CMAKE_BINARY_DIR}/python_pseudo/requirements.txt
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo
+            OUT_PYTHON_EXE PYTHON_VENV_EXE
+            OUT_BINARY_DIR PYTHON_VENV_BIN_DIR
+            OUT_VENV_DIR PYTHON_VENV_DIR )
+
+    # MESSAGE( STATUS "PYTHON_VENV_EXE = ${PYTHON_VENV_EXE}")
+    # MESSAGE( STATUS "PYTHON_VENV_BIN_DIR = ${PYTHON_VENV_BIN_DIR}")
+
+    # Add python test file to CTest to run in virtual environment.
+    ADD_TEST( PyTest ${PYTHON_VENV_EXE} ${CMAKE_CURRENT_SOURCE_DIR}/test.py )
+
 ENDIF(SWIG_FOUND AND PYTHONLIBS_FOUND)
