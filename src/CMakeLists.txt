@@ -92,6 +92,7 @@ ENDIF( SWIG_FOUND )
 IF( SWIG_FOUND )
 	FIND_PACKAGE( PythonLibsNew 3 )
 	if ( PYTHONLIBS_FOUND )
+		INCLUDE( CreateVirtualEnvironment )
 		ADD_SUBDIRECTORY( python_api )
 	ELSE(PYTHONLIBS_FOUND)
 		MESSAGE( STATUS "Python not found, API will not be compiled" )
@@ -116,7 +117,7 @@ IF( SWIG_FOUND )
 
 ENDIF( SWIG_FOUND )
 
-INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
+# INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
 
 SET( CPACK_PACKAGE_NAME OpenVSP )
 SET( CPACK_PACKAGE_VERSION_MAJOR ${VSPVER_MAJOR} )
