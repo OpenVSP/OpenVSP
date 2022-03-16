@@ -17,7 +17,7 @@
 
 #include <FL/Fl.H>
 
-class StackScreen : public SkinScreen
+class StackScreen : public ChevronScreen
 {
 public:
     StackScreen( ScreenMgr* mgr );
@@ -63,47 +63,6 @@ protected:
     SliderAdjRangeInput m_XSecYRotSlider;
     SliderAdjRangeInput m_XSecZRotSlider;
     SliderAdjRangeInput m_XSecSpinSlider;
-
-    // Overall planform tab
-    GroupLayout m_ModifyLayout;
-
-    IndexSelector m_XsecModIndexSelector;
-
-    Choice m_ChevronModeChoice;
-
-    SliderAdjRangeInput m_ChevTopAmpSlider;
-    SliderAdjRangeInput m_ChevBottomAmpSlider;
-    SliderAdjRangeInput m_ChevLeftAmpSlider;
-    SliderAdjRangeInput m_ChevRightAmpSlider;
-
-    SliderInput m_ChevNumberSlider;
-
-    SliderAdjRangeInput m_ChevOnDutySlider;
-    SliderAdjRangeInput m_ChevOffDutySlider;
-
-    Choice m_ChevronExtentModeChoice;
-
-    SliderAdjRangeInput m_ChevW01StartSlider;
-    SliderAdjRangeInput m_ChevW01EndSlider;
-    SliderAdjRangeInput m_ChevW01CenterSlider;
-    SliderAdjRangeInput m_ChevW01WidthSlider;
-
-    SliderAdjRangeInput m_ChevDirTopAngleSlider;
-    SliderAdjRangeInput m_ChevDirBottomAngleSlider;
-    SliderAdjRangeInput m_ChevDirRightAngleSlider;
-    SliderAdjRangeInput m_ChevDirLeftAngleSlider;
-
-    SliderAdjRangeInput m_ChevDirTopSlewSlider;
-    SliderAdjRangeInput m_ChevDirBottomSlewSlider;
-    SliderAdjRangeInput m_ChevDirRightSlewSlider;
-    SliderAdjRangeInput m_ChevDirLeftSlewSlider;
-
-    ToggleButton m_ChevAngleAllSymButton;
-    ToggleButton m_ChevAngleTBSymButton;
-    ToggleButton m_ChevAngleRLSymButton;
-
-    SliderAdjRangeInput m_ChevValleyRadSlider;
-    SliderAdjRangeInput m_ChevPeakRadSlider;
 
 };
 

@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 640, "Fuselage" )
+FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 400, 715, "Fuselage" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -130,7 +130,7 @@ bool FuselageScreen::Update()
         return false;
     }
 
-    SkinScreen::Update();
+    ChevronScreen::Update();
     m_NumUSlider.Deactivate();
 
     FuselageGeom* fuselage_ptr = dynamic_cast< FuselageGeom* >( geom_ptr );
@@ -330,11 +330,11 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         }
     }
 
-    SkinScreen::GuiDeviceCallBack( gui_device );
+    ChevronScreen::GuiDeviceCallBack( gui_device );
 }
 
 //==== Fltk  Callbacks ====//
 void FuselageScreen::CallBack( Fl_Widget *w )
 {
-    SkinScreen::CallBack( w );
+    ChevronScreen::CallBack( w );
 }

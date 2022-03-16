@@ -17,7 +17,7 @@
 
 #include <FL/Fl.H>
 
-class FuselageScreen : public SkinScreen
+class FuselageScreen : public ChevronScreen
 {
 public:
     FuselageScreen( ScreenMgr* mgr );
