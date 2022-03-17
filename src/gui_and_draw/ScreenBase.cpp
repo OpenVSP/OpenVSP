@@ -3016,10 +3016,58 @@ ChevronScreen::ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title
     m_ChevronExtentModeChoice.AddItem( "Center \\/ Width", vsp::CHEVRON_W01_CW );
     m_ModifyLayout.AddChoice( m_ChevronExtentModeChoice, "Mode:" );
 
-    m_ModifyLayout.AddSlider( m_ChevW01StartSlider, "W Start", 1, "%6.5f" );
-    m_ModifyLayout.AddSlider( m_ChevW01EndSlider, "W End", 1, "%6.5f" );
-    m_ModifyLayout.AddSlider( m_ChevW01CenterSlider, "W Center", 1, "%6.5f" );
-    m_ModifyLayout.AddSlider( m_ChevW01WidthSlider, "W Width", 1, "%6.5f" );
+    m_ModifyLayout.SetChoiceButtonWidth( 0 );
+    m_ModifyLayout.SetSameLineFlag( true );
+
+    int sliderw = m_ModifyLayout.GetSliderWidth();
+    m_ModifyLayout.SetSliderWidth( 75 );
+
+    m_ModifyLayout.AddSlider( m_ChevW01StartSlider, "W Start", 1, "%6.5f", m_ModifyLayout.GetSliderWidth() );
+
+    m_ChevW01StartChoice.AddItem( "Free", vsp::W_FREE );
+    m_ChevW01StartChoice.AddItem( "Right 0", vsp::W_RIGHT_0 );
+    m_ChevW01StartChoice.AddItem( "Bottom", vsp::W_BOTTOM );
+    m_ChevW01StartChoice.AddItem( "Left", vsp::W_LEFT );
+    m_ChevW01StartChoice.AddItem( "Top", vsp::W_TOP );
+    m_ChevW01StartChoice.AddItem( "Right 1", vsp::W_RIGHT_1 );
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddChoice( m_ChevW01StartChoice, "W Start:" );
+
+    m_ModifyLayout.ForceNewLine();
+    m_ModifyLayout.SetFitWidthFlag( true );
+
+    m_ModifyLayout.AddSlider( m_ChevW01EndSlider, "W End", 1, "%6.5f", m_ModifyLayout.GetSliderWidth() );
+
+    m_ChevW01EndChoice.AddItem( "Free", vsp::W_FREE );
+    m_ChevW01EndChoice.AddItem( "Right 0", vsp::W_RIGHT_0 );
+    m_ChevW01EndChoice.AddItem( "Bottom", vsp::W_BOTTOM );
+    m_ChevW01EndChoice.AddItem( "Left", vsp::W_LEFT );
+    m_ChevW01EndChoice.AddItem( "Top", vsp::W_TOP );
+    m_ChevW01EndChoice.AddItem( "Right 1", vsp::W_RIGHT_1 );
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddChoice( m_ChevW01EndChoice, "W End:" );
+
+    m_ModifyLayout.ForceNewLine();
+    m_ModifyLayout.SetFitWidthFlag( true );
+
+    m_ModifyLayout.AddSlider( m_ChevW01CenterSlider, "W Center", 1, "%6.5f", m_ModifyLayout.GetSliderWidth() );
+
+    m_ChevW01CenterChoice.AddItem( "Free", vsp::W_FREE );
+    m_ChevW01CenterChoice.AddItem( "Right 0", vsp::W_RIGHT_0 );
+    m_ChevW01CenterChoice.AddItem( "Bottom", vsp::W_BOTTOM );
+    m_ChevW01CenterChoice.AddItem( "Left", vsp::W_LEFT );
+    m_ChevW01CenterChoice.AddItem( "Top", vsp::W_TOP );
+    m_ChevW01CenterChoice.AddItem( "Right 1", vsp::W_RIGHT_1 );
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddChoice( m_ChevW01CenterChoice, "W Center:" );
+
+    m_ModifyLayout.ForceNewLine();
+    m_ModifyLayout.SetSameLineFlag( false );
+    m_ModifyLayout.SetFitWidthFlag( true );
+
+    m_ModifyLayout.AddSlider( m_ChevW01WidthSlider, "W Width", 1, "%6.5f", m_ModifyLayout.GetSliderWidth() );
+
+    m_ModifyLayout.SetSliderWidth( sliderw );
 
     m_ModifyLayout.AddYGap();
 
@@ -3113,8 +3161,11 @@ bool ChevronScreen::Update()
 
             m_ChevronExtentModeChoice.Update( xsc->m_ChevronExtentMode.GetID() );
 
+            m_ChevW01StartChoice.Update( xsc->m_ChevW01StartGuide.GetID() );
             m_ChevW01StartSlider.Update( xsc->m_ChevW01Start.GetID() );
+            m_ChevW01EndChoice.Update( xsc->m_ChevW01EndGuide.GetID() );
             m_ChevW01EndSlider.Update( xsc->m_ChevW01End.GetID() );
+            m_ChevW01CenterChoice.Update( xsc->m_ChevW01CenterGuide.GetID() );
             m_ChevW01CenterSlider.Update( xsc->m_ChevW01Center.GetID() );
             m_ChevW01WidthSlider.Update( xsc->m_ChevW01Width.GetID() );
 

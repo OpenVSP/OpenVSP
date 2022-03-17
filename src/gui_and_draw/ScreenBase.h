@@ -684,8 +684,11 @@ protected:
 
     Choice m_ChevronExtentModeChoice;
 
+    Choice m_ChevW01StartChoice;
     SliderAdjRangeInput m_ChevW01StartSlider;
+    Choice m_ChevW01EndChoice;
     SliderAdjRangeInput m_ChevW01EndSlider;
+    Choice m_ChevW01CenterChoice;
     SliderAdjRangeInput m_ChevW01CenterSlider;
     SliderAdjRangeInput m_ChevW01WidthSlider;
 

@@ -191,8 +191,11 @@ public:
     Parm m_ChevOffDuty;
 
     IntParm m_ChevronExtentMode;
+    IntParm m_ChevW01StartGuide;
     Parm m_ChevW01Start;
+    IntParm m_ChevW01EndGuide;
     Parm m_ChevW01End;
+    IntParm m_ChevW01CenterGuide;
     Parm m_ChevW01Center;
     Parm m_ChevW01Width;
 

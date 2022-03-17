@@ -645,6 +645,14 @@ enum VSP_SURF_TYPE { NORMAL_SURF,
                      NUM_SURF_TYPES,
                    };
 
+enum W_HINT { W_RIGHT_0,
+              W_BOTTOM,
+              W_LEFT,
+              W_TOP,
+              W_RIGHT_1,
+              W_FREE,
+            };
+
 enum WING_BLEND { BLEND_FREE,
                   BLEND_ANGLES,
                   BLEND_MATCH_IN_LE_TRAP,

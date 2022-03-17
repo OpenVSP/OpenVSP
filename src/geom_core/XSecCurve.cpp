@@ -128,8 +128,11 @@ XSecCurve::XSecCurve()
     m_ChevDirAngleRLSymFlag.SetDescript( "Set left/right chevron angles equal." );
 
     m_ChevronExtentMode.Init( "W01_Mode", "Chevron", this, vsp::CHEVRON_W01_SE, vsp::CHEVRON_W01_SE, vsp::CHEVRON_W01_NUM_MODES - 1 );
+    m_ChevW01StartGuide.Init( "W01_Start_Guide", "Chevron", this, vsp::W_FREE, vsp::W_RIGHT_0, vsp::W_FREE );
     m_ChevW01Start.Init( "W01_Start", "Chevron", this, 0, 0, 1 );
+    m_ChevW01EndGuide.Init( "W01_End_Guide", "Chevron", this, vsp::W_FREE, vsp::W_RIGHT_0, vsp::W_FREE );
     m_ChevW01End.Init( "W01_End", "Chevron", this, 0.5, 0, 1 );
+    m_ChevW01CenterGuide.Init( "W01_Center_Guide", "Chevron", this, vsp::W_FREE, vsp::W_RIGHT_0, vsp::W_FREE );
     m_ChevW01Center.Init( "W01_Center", "Chevron", this, 0.25, 0, 1 );
     m_ChevW01Width.Init( "W01_Width", "Chevron", this, 0.5, 0, 1 );
 
@@ -1571,8 +1574,11 @@ void XSecCurve::Chevron()
         m_ValleyRad.Deactivate();
 
         m_ChevronExtentMode.Deactivate();
+        m_ChevW01StartGuide.Deactivate();
         m_ChevW01Start.Deactivate();
+        m_ChevW01EndGuide.Deactivate();
         m_ChevW01End.Deactivate();
+        m_ChevW01CenterGuide.Deactivate();
         m_ChevW01Center.Deactivate();
         m_ChevW01Width.Deactivate();
 
@@ -1607,8 +1613,11 @@ void XSecCurve::Chevron()
         m_ValleyRad.Activate();
 
         m_ChevronExtentMode.Activate();
+        m_ChevW01StartGuide.Activate();
         m_ChevW01Start.Activate();
+        m_ChevW01EndGuide.Activate();
         m_ChevW01End.Activate();
+        m_ChevW01CenterGuide.Activate();
         m_ChevW01Center.Activate();
         m_ChevW01Width.Activate();
 
@@ -1639,6 +1648,15 @@ void XSecCurve::Chevron()
 
     if ( m_ChevronType() == vsp::CHEVRON_PARTIAL )
     {
+        if ( m_ChevW01StartGuide() != vsp::W_FREE )
+            startW = ( (double) m_ChevW01StartGuide() ) / 4.0;
+
+        if ( m_ChevW01EndGuide() != vsp::W_FREE )
+            endW = ( (double) m_ChevW01EndGuide() ) / 4.0;
+
+        if ( m_ChevW01CenterGuide() != vsp::W_FREE )
+            centerW = ( (double) m_ChevW01CenterGuide() ) / 4.0;
+
         if ( m_ChevronExtentMode() == CHEVRON_W01_SE )
         {
             widthW = endW - startW;
@@ -1659,6 +1677,14 @@ void XSecCurve::Chevron()
 
             m_ChevW01Center.Deactivate();
             m_ChevW01Width.Deactivate();
+
+            if ( m_ChevW01StartGuide() != vsp::W_FREE )
+                m_ChevW01Start.Deactivate();
+
+            if ( m_ChevW01EndGuide() != vsp::W_FREE )
+                m_ChevW01End.Deactivate();
+
+            m_ChevW01CenterGuide.Deactivate();
         }
         else if ( m_ChevronExtentMode() == CHEVRON_W01_CW )
         {
@@ -1675,6 +1701,12 @@ void XSecCurve::Chevron()
             }
             m_ChevW01Start.Deactivate();
             m_ChevW01End.Deactivate();
+
+            if ( m_ChevW01CenterGuide() != vsp::W_FREE )
+                m_ChevW01Center.Deactivate();
+
+            m_ChevW01StartGuide.Deactivate();
+            m_ChevW01EndGuide.Deactivate();
         }
     }
     else if ( m_ChevronType() == vsp::CHEVRON_FULL )
@@ -1682,6 +1714,14 @@ void XSecCurve::Chevron()
         endW = startW + 1.0;
         centerW = 0.5;
         widthW = 1.0;
+
+        m_ChevW01StartGuide = vsp::W_RIGHT_0;
+        m_ChevW01EndGuide = vsp::W_RIGHT_1;
+        m_ChevW01CenterGuide = vsp::W_LEFT;
+
+        m_ChevW01StartGuide.Deactivate();
+        m_ChevW01EndGuide.Deactivate();
+        m_ChevW01CenterGuide.Deactivate();
 
         m_ChevronExtentMode.Deactivate();
         m_ChevW01End.Deactivate();
