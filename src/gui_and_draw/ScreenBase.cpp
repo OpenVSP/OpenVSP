@@ -3131,7 +3131,7 @@ bool ChevronScreen::Update()
         return false;
     }
 
-    XSecScreen::Update();
+    SkinScreen::Update();
 
     GeomXSec* geomxsec_ptr = dynamic_cast< GeomXSec* >( geom_ptr );
     assert( geomxsec_ptr );
