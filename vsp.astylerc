@@ -2,7 +2,6 @@
 --pad-oper
 --pad-paren-in
 --add-brackets
---add-one-line-brackets
 --keep-one-line-blocks
 --keep-one-line-statements
 --convert-tabs
