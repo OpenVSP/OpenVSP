@@ -1773,7 +1773,7 @@ def build_run_characteristics_file_from_template(rotor_files, template_filename=
                 current_values[1] = nrev
             if convgVec is not None:
                 current_values[2:-1] = convgVec[:]
-            run_char_file[npsi_line_num] = ("{:1.0f}      "*2 + "{:.6f}   "*3 + "{:1.0f}" + "\n").format(
+            run_char_file[npsi_line_num] = ("{:1.0f}      "*2 + "{:e}   "*3 + "{:1.0f}" + "\n").format(
                 *current_values)
         if re.search(sframe_expr, line):
             sframe_line_num = line_num + 1
