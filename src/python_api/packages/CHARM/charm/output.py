@@ -39,7 +39,7 @@ RotorTuple = namedtuple("RotorTuple", "shaft_thrust_total shaft_power_total shaf
                                        shaft_roll_mom shaft_pitch_mom shaft_yaw_mom \
                                        wind_thrust_total  wind_power_total  wind_x_force  wind_side_force \
                                        aircraft_roll_mom aircraft_pitch_mom aircraft_yaw_mom \
-                                       collective tip_speed fom sigma \
+                                       collective tip_speed fom sigma wind_ideal_ind_power wind_rotor_eff \
                                        aircraft_x_force aircraft_y_force aircraft_z_force")
 
 
@@ -1098,6 +1098,8 @@ def _parse_log_file(log_filename):
         wind_x_force_expr = re.compile(r"(^|\s)X-force \(\+back\)\s+(\S*)\s+(\S*)")
         wind_side_force_expr = re.compile(r"(^|\s)Side force \(\+adv side\)\s+(\S*)\s+(\S*)")
         wind_power_expr = re.compile(r"(^|\s)Total Power \(energy balance\)\s+(\S*)\s+(\S*)")
+        wind_ideal_ind_power_expr = re.compile(r"(^|\s)Ideal Induced Power\s+(\S*)\s(\S*)")
+        wind_rotor_eff_expr = re.compile(r"(^|\s)Rotor efficiency\s+(\S+)")
 
         aircraft_loads_expr = re.compile(r"(^|\s)Hub loads \(aircraft frame\)")
         aircraft_x_force_expr = re.compile(r"(^|\s)Rearward force \(-x-dir\)\s+(\S*)\s+(\S*)")
@@ -1167,6 +1169,12 @@ def _parse_log_file(log_filename):
                 line = __find_line(f, wind_power_expr, integrated_perf_expr)
                 wind_power = float(re.search(wind_power_expr, line).groups()[1])
 
+                line = __find_line(f, wind_ideal_ind_power_expr, integrated_perf_expr)
+                wind_ideal_ind_power = float(re.search(wind_ideal_ind_power_expr, line).groups()[1])
+
+                line = __find_line(f, wind_rotor_eff_expr, integrated_perf_expr)
+                wind_rotor_eff = float(re.search(wind_rotor_eff_expr, line).groups()[1])
+
                 line = __find_line(f, aircraft_loads_expr, integrated_perf_expr)
                 if line != '':
                     line = __find_line(f, aircraft_x_force_expr, integrated_perf_expr)
@@ -1204,7 +1212,7 @@ def _parse_log_file(log_filename):
                         shaft_thrust, shaft_power, shaft_h_force, shaft_y_force, shaft_roll_mom,
                         shaft_pitch_mom, shaft_yaw_mom, wind_thrust, wind_power, wind_x_force, wind_side_force,
                         aircraft_roll_mom, aircraft_pitch_mom, aircraft_yaw_mom, collective, tip_speed, fom,
-                        sigma,
+                        sigma, wind_ideal_ind_power, wind_rotor_eff,
                         aircraft_x_force, aircraft_y_force, aircraft_z_force,
                     )
                 )
