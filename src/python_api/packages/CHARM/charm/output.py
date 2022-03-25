@@ -19,7 +19,11 @@
 # THE SOFTWARE.
 
 import os
-from charm.input_automation import *  # noqa
+# from charm.input_automation import *  # noqa
+from charm.input_automation import read_run_characteristics_template
+import math
+import re
+import io
 import numpy as np
 import utilities.units as u
 import matplotlib.pyplot as plt
@@ -101,7 +105,7 @@ class CharmScanGridFrame:
         # determine x/y plotting dimensions xy, xz, yz
         uniqx = np.unique(self.x)
         uniqy = np.unique(self.y)
-        uniqz = np.unique(self.z)
+        # uniqz = np.unique(self.z)  # Unused at this time, JRW 3/24/2022
 
         self._invert_x = False
         self._invert_y = False
@@ -455,8 +459,8 @@ class CharmPerfData:
             line = f.readline()  # variable values
             data = line.split()
             num_rotors = int(data[0])
-            rho = float(data[1])
-            speed_of_sound = float(data[2])
+            # rho = float(data[1])  # Unused at this time, JRW 3/24/2022
+            # speed_of_sound = float(data[2])  # Unused at this time, JRW 3/24/2022
 
             revolution = 0
 
@@ -488,7 +492,7 @@ class CharmPerfData:
                             line = f.readline()  # variable values
                             try:
                                 row_data = [float(d) for d in line.split()]
-                            except:
+                            except Exception:
                                 f.seek(cur_pos)
                                 skip = True
 
@@ -646,14 +650,14 @@ class CharmRotorResults:
         """
         Total X-force in aircraft frame [lbs] parsed from the log file. Note the sign on this value is changed
         from the log file. Positive value aligned with positive x-body axis (forward) of aircraft
-        
+
         First and last value in the log file for this rotor.
         """
 
         self.fy_aircraft = np.array([result.aircraft_y_force for result in rotor_log_results])
         """
         Total Y-force in aircraft frame [lbs] parsed from the log file.
-        
+
         First and last value in the log file for this rotor.
         """
 
@@ -661,7 +665,7 @@ class CharmRotorResults:
         """
         Total Z-force in aircraft frame [lbs] parsed from the log file. Note the sign on this value is changed from log
         file. Positive value aligned with positive z-body axis (down) of the aircraft
-        
+
         First and last value in the log file for this rotor.
         """
 
@@ -871,7 +875,7 @@ def parse_scan_grid_output(filename, freestream_velocity, num_rotors):
 
             if dim1_remaining > 0:
                 dim1_start_ind = num_grids-dim1_remaining
-                dim1_end_ind = dim1_start_ind + dim1_remaining if dims_available >= dim1_remaining else dim1_start_ind + dims_available
+                dim1_end_ind = dim1_start_ind + dim1_remaining if dims_available >= dim1_remaining else dim1_start_ind + dims_available  # noqa
                 dim1s[dim1_start_ind:dim1_end_ind] = dims[current_dim_start:(dim1_end_ind-dim1_start_ind)]
                 dim1_remaining -= (dim1_end_ind-dim1_start_ind)
                 current_dim_start += (dim1_end_ind-dim1_start_ind)
@@ -879,8 +883,9 @@ def parse_scan_grid_output(filename, freestream_velocity, num_rotors):
 
             if dim2_remaining > 0:
                 dim2_start_ind = num_grids-dim2_remaining
-                dim2_end_ind = dim2_start_ind + dim2_remaining if dims_available >= dim2_remaining else dim2_start_ind + dims_available
-                dim2s[dim2_start_ind:dim2_end_ind] = dims[current_dim_start:current_dim_start+(dim2_end_ind-dim2_start_ind)]
+                dim2_end_ind = dim2_start_ind + dim2_remaining if dims_available >= dim2_remaining else dim2_start_ind + dims_available  # noqa
+                dim2s[dim2_start_ind:dim2_end_ind] = dims[current_dim_start:current_dim_start +
+                                                          (dim2_end_ind-dim2_start_ind)]
                 dim2_remaining -= (dim2_end_ind-dim2_start_ind)
 
         line = f.readline()
@@ -945,7 +950,7 @@ def run_charm(files_to_write, case_name, run=True, print_log_stream=False, run_c
     import subprocess
     import signal
     from utilities.files import RunManager
-    with RunManager(**kwargs) as rd:
+    with RunManager(**kwargs):  # as rd:  # rd unused, commented out by JRW 3/25/2022
         for filename, file_contents in files_to_write.items():
             with open(filename, "w") as f:
                 f.write(file_contents)
