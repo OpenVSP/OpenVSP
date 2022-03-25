@@ -824,7 +824,7 @@ def parse_charm_run(charm_dir, case_name, ignore_perfdat_errors=True):
         with open(case_name + ".log") as f:
             log_contents = f.read()
 
-        rotor_log_results = __parse_log_file(case_name + ".log")
+        rotor_log_results = _parse_log_file(case_name + ".log")
 
         rotor_results = []
         for i in range(num_rotors):
@@ -1058,7 +1058,7 @@ def __parse_omega(rw_filename):
     return omega
 
 
-def __parse_log_file(log_filename):
+def _parse_log_file(log_filename):
     """
     Parses integrated rotor quantities from log file
     :param log_filename: name of the log file
