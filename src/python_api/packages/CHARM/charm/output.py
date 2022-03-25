@@ -49,6 +49,7 @@ class CharmScanGridFrame:
     """
     Class to contain and plot results from a single scan grid
     """
+
     def __init__(self, x, y, z, u, v, w, cp, cp_prime, psis):
         self.x = x
         """
@@ -182,6 +183,7 @@ class CharmScanGridResults:
     """
     Holds all scan grid results frames
     """
+
     def __init__(self, num_psi, num_grids, grids):
         """
         Initializes scan grid results object
@@ -247,6 +249,7 @@ class RotorFrameResults:
     """
     Class to contain results for a single rotor in a particular frame of reference
     """
+
     def __init__(self, az, Fx, Fy, Fz, Mx, My, Mz):
         """
         Initializes rotor frame results
@@ -271,6 +274,7 @@ class CharmCQData:
     """
     Class to contain results from [name]cq.dat file
     """
+
     def __init__(self, ct, cqi, cqp, cqt, coll, cone, a1s, b1s):
         self.ct = ct
         self.cqi = cqi
@@ -711,6 +715,7 @@ class CharmResults:
     """
     Class to hold the results of a charm run
     """
+
     def __init__(self, rotor_results: List[CharmRotorResults], log_file, scan_grid: CharmScanGridResults,
                  aircraft_velocity, perf_data: CharmPerfData):
         """
