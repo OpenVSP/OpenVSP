@@ -1068,7 +1068,7 @@ def _parse_log_file(log_filename):
     with open(log_filename, "r") as f:
         # Count the number of rotors
         rotor_expr = re.compile(r"(^|\s)Rotor:\s+([0-9]+)")
-        first_rotor = __find_line(f, rotor_expr)
+        _ = __find_line(f, rotor_expr)
         num_rotors = 1
         while True:
             # Skip 7 lines
@@ -1092,7 +1092,6 @@ def _parse_log_file(log_filename):
         shaft_roll_mom_expr = re.compile(r"(^|\s)Roll moment  \(about \+x\)\s+(\S*)\s+(\S*)")
         shaft_pitch_mom_expr = re.compile(r"(^|\s)Pitch moment \(about \+y\)\s+(\S*)\s+(\S*)")
         shaft_yaw_mom_expr = re.compile(r"(^|\s)Yaw moment   \(about \+z\)\s+(\S*)\s+(\S*)")
-        shaft_angle_expr = re.compile(r"(^|\s+)Shaft angle (ALPHAS):")
 
         wind_axes_expr = re.compile(r"(^|\s)WIND AXES:")
         wind_thrust_expr = re.compile(r"(^|\s)Lift \(\+up\)\s+(\S*)\s+(\S*)")
