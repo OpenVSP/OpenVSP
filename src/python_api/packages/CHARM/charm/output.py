@@ -632,6 +632,20 @@ class CharmRotorResults:
         First and last value in the log file for this rotor.
         """
 
+        self.ideal_ind_power_wind = np.array([result.wind_ideal_ind_power for result in rotor_log_results])
+        """
+        Ideal induced powers (Energy Balance Method) in wind frame [hp] parsed from the log file.
+
+        First and last value in the log file for this rotor.
+        """
+
+        self.rotor_eff_wind = np.array([result.wind_rotor_eff for result in rotor_log_results])
+        """
+        Rotor efficiency (Energy Balance Method) in wind frame parsed from the log file.
+
+        First and last value in the log file for this rotor.
+        """
+
         self.xforces_wind = np.array([result.wind_x_force for result in rotor_log_results])
         """
         Total X-force in wind frame [lbs] parsed from the log file.
@@ -646,6 +660,8 @@ class CharmRotorResults:
         First and last value in the log file for this rotor.
         """
 
+        # TODO: This needs to be evaluated.  Why parse it at the hub level when it can be done at the aircraft level?
+        # Or, is this just misnamed as aircraft forces and moments pulled from elsewhere?
         self.fx_aircraft = np.array([result.aircraft_x_force*-1.0 for result in rotor_log_results])
         """
         Total X-force in aircraft frame [lbs] parsed from the log file. Note the sign on this value is changed
@@ -661,6 +677,7 @@ class CharmRotorResults:
         First and last value in the log file for this rotor.
         """
 
+        # TODO: Same as above comment...
         self.fz_aircraft = np.array([result.aircraft_z_force*-1.0 for result in rotor_log_results])
         """
         Total Z-force in aircraft frame [lbs] parsed from the log file. Note the sign on this value is changed from log
