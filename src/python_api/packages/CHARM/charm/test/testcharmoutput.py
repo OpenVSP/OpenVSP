@@ -9,7 +9,7 @@ class Test(unittest.TestCase):
     def test_parse_perf_file(self):
         import charm.output as charmo
 
-        perffile = os.path.join(path, "testperf.dat")
+        perffile = os.path.join(path, "test_run", "testperf.dat")
 
         perfdata = charmo.CharmPerfData(filename=perffile)
 
@@ -19,7 +19,7 @@ class Test(unittest.TestCase):
     def test_parse_log_file(self):
         import charm.output as charmo
 
-        rotor_results = charmo._parse_log_file(os.path.join(path, "test.log"))
+        rotor_results = charmo._parse_log_file(os.path.join(path, "test_run", "test.log"))
 
         shaft_thrust_total_exp = 1049.41
         shaft_thrust_total = rotor_results[0][1].shaft_thrust_total
@@ -113,9 +113,23 @@ class Test(unittest.TestCase):
         aircraft_z_force = rotor_results[0][1].aircraft_z_force
         self.assertEqual(aircraft_z_force_exp, aircraft_z_force, msg="Aircraft frame hub Z-force mismatch.")
 
+    def test_parse_charm_run(self):
+        import charm.output as charmo
+
+        results = charmo.parse_charm_run(os.path.join(path, "test_run"), "test")
+
+        rotor_eff_wind_exp = 0.746
+        rotor_eff_wind = results.rotor_results[0].rotor_eff_wind[-1]
+        self.assertEqual(rotor_eff_wind_exp, rotor_eff_wind, msg="Wind frame rotor efficiency mismatch.")
+
+        ideal_ind_power_exp = 101.51
+        ideal_ind_power = results.rotor_results[0].ideal_ind_power_wind[-1]
+        self.assertEqual(ideal_ind_power_exp, ideal_ind_power, msg="Wind frame ")
+
 
 if __name__ == "__main__":
     t = Test()
     # t.test_parse_perf_file()
-    t.test_parse_log_file()
-    # unittest.main(verbosity=2)
+    # t.test_parse_log_file()
+    # t.test_parse_charm_run()
+    unittest.main(verbosity=2)
