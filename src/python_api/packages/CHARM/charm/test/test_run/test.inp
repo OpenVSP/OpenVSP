@@ -1,0 +1,45 @@
+prop.inp: Prop Run Char File
+NROTOR  IMKS
+     1   0
+PATHNAME
+../
+INPUT FILENAMES for Prop_000_000
+  Prop_000_000rw.inp
+  Prop_000bg.inp
+  Prop_000bd.inp
+  Prop_000af.inp
+  none
+SSPD       RHO
+1116.45    .002378
+INFLOW
+  1
+ U      V    W        P   Q   R
+ 29.2931   0.0000  -1.5352   0.0000   0.0000   0.0000 
+NPSI    NREV    CONVG1    CONVG2   CONVG3   MREV
+24      -10      -1.000000e+00   -1.000000e+00   -1.000000e+00   0
+IRST  IFREE  IGPR
+ 0      0      0
+IVOUT   NRS   (ROUT(I),I=1,NRS)
+  4     20  0.15 0.20 0.25 0.30 0.35 0.40 0.45 0.50 0.55 0.60 0.65 0.70 0.75 0.80 0.85 0.90 0.925 0.95 0.975 0.999
+NPRINT   IBLPLT   (IFILPLT(I),I=1,4) 
+  0       -1        3  3  3  3
+IDEBUG (Debug flag)
+  0
+ISCAN (Scan plane flag)
+  0 
+ISTRSS (Stress calculation flag)
+  0
+IFV    IQUIK1
+  2      1
+IFVFW  IFVBL  IFVSU  IFVSC  IFVSC
+  1      1      1      1      1
+ISURF
+  0
+ISHIP
+  0
+IRECON   NOISE
+  0        0
+NCHDRC   NPSIRC   IVROLL  CDRMIN
+  1       360       1      .01
+NLS
+ 0
