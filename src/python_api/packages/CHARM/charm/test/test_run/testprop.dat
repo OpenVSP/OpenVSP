@@ -1,0 +1,2 @@
+ NPROP  NBLADE  RADIUS  CHORD  TAPER  SOLIDITY  TWIST  MTIP   OMEGA  TIPSPEED  VELOCITY  CT-prop  CP-prop     J      ETA      THRUST      POWER      TORQUE    RN-tip
+   1      3       4.00  0.710   1.62    0.183  -42.19  0.542  151.22   604.86     29.29   0.1860   0.1098  0.152    0.258   1049.41     216.91       788.9   1968087.

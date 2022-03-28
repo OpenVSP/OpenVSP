@@ -1,0 +1,739 @@
+ CHARM VERSION 6.6 (02/10/20)
+ Comprehensive Hierarchical Aeromechanics Rotorcraft Model
+ Continuum Dynamics, Inc.
+
+ Date: 20220328   Time: 09:31:31
+
+ 
+ User requested   1 threads
+ User received    1 threads
+ Available are  144 threads
+
+ !!! WARNING !!!
+ !!! You have requested too few quads along the span to !!!
+ !!! properly represent segment 18 of Rotor  1 !!!
+ !!! WARNING !!!
+ !!! You have requested too few quads along the span to !!!
+ !!! properly represent segment 19 of Rotor  1 !!!
+
+ ????????????????????????????????????????????????????
+ ??? WARNING: NLS>0 but no ls.inp file provided   ???
+ ???          Calculation continues with NLS=0    ???
+ ????????????????????????????????????????????????????
+
+ Rotor:  1
+          U-inf:   -1.535
+          W-inf:   29.293
+  Advance ratio:    0.003
+    Shaft angle:  -93.000
+ Sideslip angle  180.000
+
+ *** Rotor 1 ***
+     Modal amplitudes of Mode  1 are fixed around the azimuth at:
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ ----------------------------------------------------- 
+ |          Hierarchical Fast Vortex Method           |
+ | Max number of vortex "source" elements..     20160 |
+ | Max number of "field" points............      1575 |
+ | Max number of total (source + field) pts     21735 |
+ | Max free wake evaluation points.........         0 |
+ | Max free wake source points.............     20160 |
+ | Blade vortex lattice evaluation points             |
+ |   (may include reconstruction)..........      1575 |
+ | Surface panel evaluation points.........         0 |
+ | Scan grid evaluation points.............         0 |
+ | Extra evaluation points.................         0 |
+ | Lifting surface evaluation points.......         0 |
+ | Ship airwake evaluation points..........         0 |
+ -----------------------------------------------------
+
+     Modal amplitudes of Mode 1 are fixed and have been renormalized: 
+     New amplitudes:
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number    1               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     5.00    0.03133     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.19    0.02962     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000    -3.81    0.02062     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000    -1.93    0.02277     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000    -0.86    0.02414     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000    -0.97    0.02356     1
+ ??? Failed to obtain CT after  6 attempts ???
+    Calculation continuing...
+
+
+ Collective =   -0.97 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023563
+ CQ =  0.004246
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+
+        INTEGRATED PERFORMANCE THIS REVOLUTION - ROTOR 1:
+
+
+     Incoming velocity (U,V,W):      1.535     0.000    29.293   ft/s
+                  Flight speed:     29.333 ft/s
+            Tip speed (OMEGAR):    604.859 ft/s
+Advance ratio (inertial frame):      0.048
+   Advance ratio (shaft frame):      0.003
+          Shaft angle (ALPHAS):    -93.000 degs   + back rel. to free stream
+        Sideslip angle (BETAS):    180.000 degs   positive yawed toward
+                                                  the retreating side
+
+                                 lbs/hp      coefficient   last  0 revs
+----------------------------------------------------------------------
+SHAFT AXES:
+
+ Thrust (+up)                    1030.42      0.0235628         0.00
+   Induced                       1039.15      0.0237626
+   Profile                         -8.74     -0.0001998
+
+ H-force (+back)                   -1.25     -0.0000285         0.00
+   Induced                         -0.65     -0.0000149
+   Profile                         -0.59     -0.0000136
+
+ Y-force (+adv side)               -1.24     -0.0000284         0.00
+   Induced                         -0.55     -0.0000125
+   Profile                         -0.70     -0.0000159
+
+ Shaft Power                     204.213      0.0042463        0.000
+   Induced                        183.24      0.0038101        0.000
+   Profile                         20.97      0.0004361        0.000
+
+ Hub loads (shaft frame):  
+   Rearward force (-x-dir)        -1.309     -0.0000299
+   Sideward force (+y-dir)        -0.618     -0.0000141
+   Vertical force (-z-dir)      1030.416      0.0235628
+   Roll moment  (about +x)        13.795      0.0000789
+   Pitch moment (about +y)       -16.004     -0.0000915
+   Yaw moment   (about +z)       738.336      0.0042209
+
+ Lift offsets: 
+   lateral                                  0.0033470
+   longitudinal                            -0.0038829
+
+ Propulsive efficiency (W/OMEGAR)(CT/CP):   0.269
+
+----------------------------------------------------------------------------
+WIND AXES:
+
+ Lift (+up)                       -55.17     -0.0012616
+   Induced                        -55.04     -0.0012586
+   Profile                         -0.13     -0.0000031
+
+ X-force (+back)                -1028.94     -0.0235290
+   Induced                      -1037.70     -0.0237293
+   Profile                          8.76      0.0002003
+
+ Side force (+adv side)            -1.24     -0.0000284
+   Induced                         -0.55     -0.0000125
+   Profile                         -0.70     -0.0000159
+
+ Total Power (energy balance)     204.21      0.0042463
+   Rotor power                    149.34      0.0031052
+    Induced                       127.89      0.0026594
+    Profile                        21.44      0.0004458
+   Parasite power                  54.88      0.0011411
+   Climb power                      0.00      0.0000000
+ Ideal Induced Power               98.57      0.0020496
+ Rotor efficiency                  0.771
+
+ Drag to lift ratio (D/L)        -69.401
+   Rotor                         -50.751
+    Induced                      -43.464
+    Profile                       -7.287
+   Parasite                      -18.650
+   Climb                           0.000
+
+ Rotor equivalent drag (De)      2800.06      0.0640296
+   lift to drag ratio (L/De)       -0.02
+
+ Power to thrust ratio (P/T)       0.198      0.1802101
+   Rotor power                     0.145      0.1317835
+    Induced                        0.124      0.1128623
+    Profile                        0.021      0.0189212
+   Parasite power                  0.053      0.0484266
+   Climb power                     0.000      0.0000000
+
+ Hub loads (aircraft frame):  
+   Rearward force (-x-dir)     -1030.416     -0.0235628
+   Sideward force (+y-dir)        -0.618     -0.0000141
+   Vertical force (-z-dir)        -1.309     -0.0000299
+   Roll moment  (about +x)      -738.336     -0.0042209
+   Pitch moment (about +y)       -16.004     -0.0000915
+   Yaw moment   (about +z)        13.795      0.0000789
+
+ Hub loads (inertial frame):  
+   Rearward force (-x-dir)     -1030.416     -0.0235628
+   Sideward force (+y-dir)        -0.618     -0.0000141
+   Vertical force (-z-dir)        -1.309     -0.0000299
+   Roll moment  (about +x)      -738.336     -0.0042209
+   Pitch moment (about +y)       -16.004     -0.0000915
+   Yaw moment   (about +z)        13.795      0.0000789
+
+-----------------------------------------------------------
+
+  Average blade chord (blade area/span):  0.709500 ft.
+ Solidity = (N/PI*R^2)*INTEGRAL(c(r)dr):  0.150784
+    thrust-weighted --> INTG(c(r)r^2dr):  0.182606
+
+          Collective Pitch:                    -0.97 degrees
+          Lateral Cyclic (A1S):                 0.00 degrees
+          Longitudinal Cyclic (B1S):            0.00 degrees
+
+          Coning angle:                         0.00 degrees
+          Lateral Flapping Angle (b1s):         0.00 degrees
+          Longitudinal Flapping Angle (a1s):    0.00 degrees
+
+          Lag angle:                            0.00 degrees
+          Lateral Lag Angle:                    0.00 degrees
+          Longitudinal Lag Angle:               0.00 degrees
+
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number    1        *
+ *******************************************
+
+
+ **************************************************
+ *********       8466 BCVES at NLOC =  1  *********
+ **************************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number    2               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000    -0.97    0.02018     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     2.02    0.02496     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.42    0.02416     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.30    0.02397     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.32    0.02399     1
+
+ Collective =    1.32 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023994
+ CQ =  0.004476
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   4.0014833E-02  -1.000000    
+ CONVG2 current CONVG2 required:   4.3126754E-04  -1.000000    
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number    2        *
+ *******************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number    3               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.32    0.02397     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.34    0.02400     1
+
+ Collective =    1.34 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023998
+ CQ =  0.004458
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   3.1647459E-04  -1.000000    
+ CONVG2 current CONVG2 required:   4.2486936E-06  -1.000000    
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number    3        *
+ *******************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number    4               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.34    0.02390     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.40    0.02399     1
+
+ Collective =    1.40 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023993
+ CQ =  0.004488
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   1.1182707E-03  -1.000000    
+ CONVG2 current CONVG2 required:   5.5041164E-06  -1.000000    
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number    4        *
+ *******************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number    5               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.40    0.02395     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.43    0.02400     1
+
+ Collective =    1.43 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023997
+ CQ =  0.004499
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   5.0256774E-04  -1.000000    
+ CONVG2 current CONVG2 required:   4.4163316E-06  -1.000000    
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number    5        *
+ *******************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number    6               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.43    0.02398     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.45    0.02400     1
+
+ Collective =    1.45 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023999
+ CQ =  0.004504
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   2.3722462E-04  -1.000000    
+ CONVG2 current CONVG2 required:   1.4677644E-06  -1.000000    
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number    6        *
+ *******************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number    7               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.45    0.02399     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.45    0.02400     1
+
+ Collective =    1.45 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023999
+ CQ =  0.004507
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   1.2235343E-04  -1.000000    
+ CONVG2 current CONVG2 required:   6.3329935E-07  -1.000000    
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number    7        *
+ *******************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number    8               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.45    0.02399     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.46    0.02400     1
+
+ Collective =    1.46 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023999
+ CQ =  0.004508
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   1.2955442E-04  -1.000000    
+ CONVG2 current CONVG2 required:   3.9115548E-08  -1.000000    
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number    8        *
+ *******************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number    9               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.46    0.02399     1
+
+ Collective =    1.46 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023993
+ CQ =  0.004508
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   0.0000000E+00  -1.000000    
+ CONVG2 current CONVG2 required:   6.4000487E-06  -1.000000    
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number    9        *
+ *******************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number   10               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.46    0.02399     1
+ Adjusting collective to move toward  CT =  0.02400
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.47    0.02400     1
+
+ Collective =    1.47 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023999
+ CQ =  0.004510
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   1.2743659E-04  -1.000000    
+ CONVG2 current CONVG2 required:   6.4093620E-06  -1.000000    
+
+ *******************************************
+ *  The wake calculation is beginning now  *
+ *         This is call number   10        *
+ *******************************************
+
+
+ **********************************************************
+ *  The blade dynamics of Rotor 1 is being calculated now *
+ *                 This is call number   11               *
+ **********************************************************
+
+                                                              loops to
+     A1S     B1S   coning    a1s     b1s   collective    CT   converge
+   0.0000  0.0000  0.0000  0.0000  0.0000     1.47    0.02400     1
+
+ Collective =    1.47 degrees.
+ Lateral cyclic (A1S) =    0.00 degrees.
+ Longitudinal cyclic (B1S) =    0.00 degrees.
+ Coning =    0.00 degrees.
+ Lateral flapping (b1s) =    0.00 degrees.
+ Longitudinal Flapping (a1s) =    0.00 degrees.
+ Lag Angle =    0.00 degrees.
+ CT =  0.023997
+ CQ =  0.004510
+
+ Mode  1 magnitudes at each azimuth: 
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+    0.000000   0.000000   0.000000   0.000000   0.000000   0.000000
+
+ CONVG1 current CONVG1 required:   0.0000000E+00  -1.000000    
+ CONVG2 current CONVG2 required:   2.1718442E-06  -1.000000    
+
+ +++ Maximum blade revolutions have been completed +++
+
+
+***** RESULTS AFTER REVOLUTION   10 *****
+
+
+        INTEGRATED PERFORMANCE THIS REVOLUTION - ROTOR 1:
+
+
+     Incoming velocity (U,V,W):      1.535     0.000    29.293   ft/s
+                  Flight speed:     29.333 ft/s
+            Tip speed (OMEGAR):    604.859 ft/s
+Advance ratio (inertial frame):      0.048
+   Advance ratio (shaft frame):      0.003
+          Shaft angle (ALPHAS):    -93.000 degs   + back rel. to free stream
+        Sideslip angle (BETAS):    180.000 degs   positive yawed toward
+                                                  the retreating side
+
+                                 lbs/hp      coefficient   last  4 revs
+----------------------------------------------------------------------
+SHAFT AXES:
+
+ Thrust (+up)                    1049.41      0.0239971      1049.42
+   Induced                       1060.33      0.0242469
+   Profile                        -10.92     -0.0002498
+
+ H-force (+back)                   -1.91     -0.0000438        -1.91
+   Induced                         -1.24     -0.0000285
+   Profile                         -0.67     -0.0000153
+
+ Y-force (+adv side)               -0.76     -0.0000174        -0.77
+   Induced                         -0.65     -0.0000148
+   Profile                         -0.12     -0.0000026
+
+ Shaft Power                     216.906      0.0045102      216.860
+   Induced                        192.52      0.0040031      192.460
+   Profile                         24.39      0.0005071       24.400
+
+ Hub loads (shaft frame):  
+   Rearward force (-x-dir)        -2.508     -0.0000574
+   Sideward force (+y-dir)         0.223      0.0000051
+   Vertical force (-z-dir)      1049.410      0.0239971
+   Roll moment  (about +x)        12.431      0.0000711
+   Pitch moment (about +y)        -9.689     -0.0000554
+   Yaw moment   (about +z)       784.400      0.0044843
+
+ Lift offsets: 
+   lateral                                  0.0029615
+   longitudinal                            -0.0023081
+
+ Propulsive efficiency (W/OMEGAR)(CT/CP):   0.258
+
+----------------------------------------------------------------------------
+WIND AXES:
+
+ Lift (+up)                       -56.83     -0.0012996
+   Induced                        -56.74     -0.0012974
+   Profile                         -0.10     -0.0000022
+
+ X-force (+back)                -1047.87     -0.0239619
+   Induced                      -1058.81     -0.0242122
+   Profile                         10.94      0.0002502
+
+ Side force (+adv side)            -0.76     -0.0000174
+   Induced                         -0.65     -0.0000148
+   Profile                         -0.12     -0.0000026
+
+ Total Power (energy balance)     216.91      0.0045102
+   Rotor power                    161.02      0.0033481
+    Induced                       136.05      0.0028289
+    Profile                        24.97      0.0005193
+   Parasite power                  55.89      0.0011621
+   Climb power                      0.00      0.0000000
+ Ideal Induced Power              101.51      0.0021107
+ Rotor efficiency                  0.746
+
+ Drag to lift ratio (D/L)        -71.560
+   Rotor                         -53.122
+    Induced                      -44.884
+    Profile                       -8.239
+   Parasite                      -18.438
+   Climb                           0.000
+
+ Rotor equivalent drag (De)      3019.13      0.0690392
+   lift to drag ratio (L/De)       -0.02
+
+ Power to thrust ratio (P/T)       0.207      0.1879473
+   Rotor power                     0.153      0.1395223
+    Induced                        0.130      0.1178838
+    Profile                        0.024      0.0216384
+   Parasite power                  0.053      0.0484250
+   Climb power                     0.000      0.0000000
+
+ Hub loads (aircraft frame):  
+   Rearward force (-x-dir)     -1049.410     -0.0239971
+   Sideward force (+y-dir)         0.223      0.0000051
+   Vertical force (-z-dir)        -2.509     -0.0000574
+   Roll moment  (about +x)      -784.400     -0.0044843
+   Pitch moment (about +y)        -9.689     -0.0000554
+   Yaw moment   (about +z)        12.431      0.0000711
+
+ Hub loads (inertial frame):  
+   Rearward force (-x-dir)     -1049.410     -0.0239971
+   Sideward force (+y-dir)         0.223      0.0000051
+   Vertical force (-z-dir)        -2.509     -0.0000574
+   Roll moment  (about +x)      -784.400     -0.0044843
+   Pitch moment (about +y)        -9.689     -0.0000554
+   Yaw moment   (about +z)        12.431      0.0000711
+
+-----------------------------------------------------------
+
+  Average blade chord (blade area/span):  0.709500 ft.
+ Solidity = (N/PI*R^2)*INTEGRAL(c(r)dr):  0.150784
+    thrust-weighted --> INTG(c(r)r^2dr):  0.182606
+
+          Collective Pitch:                     1.47 degrees
+          Lateral Cyclic (A1S):                 0.00 degrees
+          Longitudinal Cyclic (B1S):            0.00 degrees
+
+          Coning angle:                         0.00 degrees
+          Lateral Flapping Angle (b1s):         0.00 degrees
+          Longitudinal Flapping Angle (a1s):    0.00 degrees
+
+          Lag angle:                            0.00 degrees
+          Lateral Lag Angle:                    0.00 degrees
+          Longitudinal Lag Angle:               0.00 degrees
+
+Aircraft 1 loads (inertial frame): 
+ Weight =      0.000 lb
+ Rotor  1 loads:
+   Forward force  (+x-dir)      1049.410 lb
+   Sideward force (+y-dir)         0.223 lb
+   Downward force (+z-dir)         2.509 lb
+   Roll moment  (about +x)      -784.400 ft-lb
+   Pitch moment (about +y)        -9.689 ft-lb
+   Yaw moment   (about +z)        12.431 ft-lb
+ Total aircraft loads:
+   Forward force  (+x-dir)      1049.410 lb
+   Sideward force (+y-dir)         0.223 lb
+   Downward force (+z-dir)         2.509 lb  Weight minus thrust
+   Roll moment  (about +x)      -784.400 ft-lb
+   Pitch moment (about +y)        -9.689 ft-lb
+   Yaw moment   (about +z)        12.431 ft-lb
+
+ END-OF-COMPUTATION.
+ CHARM JOB COMPLETED
+
+real	0m24.601s
+user	0m23.917s
+sys	0m0.489s
