@@ -140,6 +140,7 @@ public:
     void AddSlider(  FractParmSlider& slid_adj_input, const char* label,
                      double range, const char* format );
     void AddSlider( SliderInput & slider_input, const char* label, double range, const char* format, int used_w = 0, bool log_slider = false );
+    void AddLabel( const char* label, int width, int bgcolor = FL_BACKGROUND_COLOR );
     void AddButton(  CheckButton& check_button, const char* label );
     void AddButton(  ToggleButton& toggle_button, const char* label );
     void AddButton(  CheckButtonBit& check_bit_button, const char* label, int val );
@@ -156,7 +157,6 @@ public:
     void AddColorPicker( ColorPicker& picker );
     void AddChoice( Choice & choice, const char* label, int used_w = 0 );
     void AddCounter( Counter & count, const char* label, int used_w = 0 );
-    void AddLabel( const char* label, int width );
     void AddParmPicker( ParmPicker & parm_picker );
     void AddParmTreePicker( ParmTreePicker & parm_tree_picker, int w, int h );
     void AddDriverGroupBank( DriverGroupBank & driver_group, const vector < string > &labels,

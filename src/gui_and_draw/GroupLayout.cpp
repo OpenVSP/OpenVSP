@@ -427,6 +427,21 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     }
 }
 
+//==== Add Label ====//
+void GroupLayout::AddLabel( const char* label, int width, int bgcolor )
+{
+
+    Fl_Button* button = new Fl_Button( m_X, m_Y, width, m_StdHeight );
+    button->copy_label( label );
+    button->box( FL_THIN_UP_BOX );
+    button->labelfont( FL_HELVETICA_BOLD );
+    button->labelsize( 12 );
+    button->labelcolor( FL_BLACK );
+    button->color( bgcolor );
+    m_Group->add( button );
+    AddX( width );
+}
+
 //==== Create & Init Gui CheckButton  ====//
 void GroupLayout::AddButton( CheckButton& cbutton, const char* label )
 {
@@ -1152,21 +1167,6 @@ Fl_Check_Browser* GroupLayout::AddCheckBrowser( int h )
     NewLineX();
 
     return check_browser;
-}
-
-
-//==== Add Label ====//
-void GroupLayout::AddLabel( const char* label, int width )
-{
-
-    Fl_Button* button = new Fl_Button( m_X, m_Y, width, m_StdHeight );
-    button->copy_label( label );
-    button->box( FL_THIN_UP_BOX );
-    button->labelfont( FL_HELVETICA_BOLD );
-    button->labelsize( 12 );
-    button->labelcolor( FL_BLACK );
-    m_Group->add( button );
-    AddX( width );
 }
 
 //==== Add Parameter Picker ====//
