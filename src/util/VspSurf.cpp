@@ -91,6 +91,24 @@ int VspSurf::GetNumSectU() const
     return m_Surface.number_u_patches();
 }
 
+double VspSurf::GetRootCluster( const int &index ) const
+{
+    if ( index >= 0 && index < m_RootCluster.size() )
+    {
+        return m_RootCluster[ index ];
+    }
+    return 1.0;
+}
+
+double VspSurf::GetTipCluster( const int &index ) const
+{
+    if ( index >= 0 && index < m_TipCluster.size() )
+    {
+        return m_TipCluster[ index ];
+    }
+    return 1.0;
+}
+
 int VspSurf::GetNumSectW() const
 {
     return m_Surface.number_v_patches();
@@ -1234,7 +1252,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
             {
                 for ( int isecttess = 0; isecttess < num_u[i] - 1; ++isecttess )
                 {
-                    u[iu] = ustart + du * Cluster(static_cast<double>( isecttess ) / (num_u[i] - 1), m_RootCluster[i], m_TipCluster[i]);
+                    u[iu] = ustart + du * Cluster(static_cast<double>( isecttess ) / (num_u[i] - 1), GetRootCluster( i ), GetTipCluster( i ) );
                     iu++;
                 }
             }
@@ -1285,7 +1303,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
             {
                 for ( int isecttess = 0; isecttess < num_u[iusect] - 1; ++isecttess )
                 {
-                    u[iu] = uumin + du * Cluster( static_cast<double>( isecttess ) / ( num_u[iusect] - 1 ), m_RootCluster[iusect], m_TipCluster[iusect] );
+                    u[iu] = uumin + du * Cluster( static_cast<double>( isecttess ) / ( num_u[iusect] - 1 ), GetRootCluster( iusect ), GetTipCluster( iusect ) );
                     iu++;
                 }
             }

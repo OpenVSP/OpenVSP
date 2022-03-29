@@ -201,6 +201,8 @@ public:
 
     void SetClustering( const double &le, const double &te );
     void SetRootTipClustering( const vector < double > &root, const vector < double > &tip ) const;
+    double GetRootCluster( const int &index ) const;
+    double GetTipCluster( const int &index ) const;
 
     void MakeUTess( const vector<int> &num_u, std::vector<double> &utess, const std::vector<int> & umerge ) const;
     void MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap, bool degen ) const;
