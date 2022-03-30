@@ -206,6 +206,7 @@ public:
     void SplitTesselate( int num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const;
     void SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap, const std::vector<int> & umerge = std::vector<int>() ) const;
 
+    void TessULine( double u, std::vector< vec3d > & pnts, double tol ) const;
     void TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol ) const;
     void TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol ) const;
 

@@ -1691,10 +1691,8 @@ void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double>
     }
 }
 
-void VspSurf::TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol ) const
+void VspSurf::TessULine( double u, std::vector< vec3d > & pnts, double tol ) const
 {
-    double u = m_UFeature[ iu ];
-
     double vmin, vmax;
     vec3d pmin, pmax;
 
@@ -1715,6 +1713,13 @@ void VspSurf::TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol 
         pmin = pmax;
     }
     pnts.push_back( pmax );
+}
+
+void VspSurf::TessUFeatureLine( int iu, std::vector< vec3d > & pnts, double tol ) const
+{
+    double u = m_UFeature[ iu ];
+
+    TessULine( u, pnts, tol );
 }
 
 void VspSurf::TessWFeatureLine( int iw, std::vector< vec3d > & pnts, double tol ) const
