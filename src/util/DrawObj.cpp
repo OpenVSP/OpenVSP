@@ -268,3 +268,60 @@ vec3d DrawObj::ColorWheel( double angle )
     return vec3d( r, g, b );
 
 }
+
+vec3d DrawObj::Color( int color )
+{
+    switch( color ) {
+        case AQUA:
+            return vec3d( 0.0, 1.0, 1.0 );
+            break;
+        case BLACK:
+            return vec3d( 0.0, 0.0, 0.0 );
+            break;
+        case BLUE:
+            return vec3d( 0.0, 0.0, 1.0 );
+            break;
+        case FUCHSIA:
+            return vec3d( 1.0, 0.0, 1.0 );
+            break;
+        case GRAY:
+            return vec3d( 0.5, 0.5, 0.5 );
+            break;
+        case GREEN:
+            return vec3d( 0.0, 0.5, 0.0 );
+            break;
+        case LIME:
+            return vec3d( 0.0, 1.0, 0.0 );
+            break;
+        case MAROON:
+            return vec3d( 0.5, 0.0, 0.0 );
+            break;
+        case NAVY:
+            return vec3d( 0.0, 0.0, 0.5 );
+            break;
+        case OLIVE:
+            return vec3d( 0.5, 0.5, 0.0 );
+            break;
+        case PURPLE:
+            return vec3d( 0.5, 0.0, 0.5 );
+            break;
+        case RED:
+            return vec3d( 1.0, 0.0, 0.0 );
+            break;
+        case SILVER:
+            return vec3d( 0.75, 0.75, 0.75 );
+            break;
+        case TEAL:
+            return vec3d( 0.0, 0.5, 0.5 );
+            break;
+        case WHITE:
+            return vec3d( 1.0, 1.0, 1.0 );
+            break;
+        case YELLOW:
+            return vec3d( 1.0, 1.0, 0.0 );
+            break;
+        default:
+            return vec3d( 0.0, 0.0, 0.0 );
+            break;
+    }
+}

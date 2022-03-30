@@ -64,6 +64,30 @@ public:
     */
 
     static vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
+    static vec3d Color( int color );
+
+    enum COLOR
+    {
+        AQUA,
+        BLACK,
+        BLUE,
+        FUCHSIA,
+        GRAY,
+        GREEN,
+        LIME,
+        MAROON,
+        NAVY,
+        OLIVE,
+        PURPLE,
+        RED,
+        SILVER,
+        TEAL,
+        WHITE,
+        YELLOW,
+        NUM_COLORS,
+        CYAN = AQUA,
+        MAGENTA = FUCHSIA
+    };
 
     enum TypeEnum
     {
