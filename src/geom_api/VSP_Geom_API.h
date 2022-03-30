@@ -253,7 +253,9 @@ extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, d
 extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
-extern void SetAirfoilPnts( const std::string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
+extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< vec3d > & up_pnt_vec );
+extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< vec3d > & low_pnt_vec );
+extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d > & up_pnt_vec, const std::vector< vec3d > & low_pnt_vec );
 extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
 extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
 extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau );
@@ -284,7 +286,9 @@ extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pn
 extern vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract );
 extern vec3d ComputeBORXSecTan( const std::string& bor_id, double fract );
 extern void ReadBORFileAirfoil( const std::string& bor_id, const std::string& file_name );
-extern void SetBORAirfoilPnts( const std::string& bor_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
+extern void SetBORAirfoilUpperPnts( const std::string& bor_id, const std::vector< vec3d > & up_pnt_vec );
+extern void SetBORAirfoilLowerPnts( const std::string& bor_id, const std::vector< vec3d > & low_pnt_vec );
+extern void SetBORAirfoilPnts( const std::string& bor_id, const std::vector< vec3d > & up_pnt_vec, const std::vector< vec3d > & low_pnt_vec );
 extern std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id );
 extern std::vector<vec3d> GetBORAirfoilLowerPnts( const std::string& bor_id );
 extern std::vector<double> GetBORUpperCSTCoefs( const std::string& bor_id );

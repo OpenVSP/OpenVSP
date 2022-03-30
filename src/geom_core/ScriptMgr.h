@@ -197,8 +197,12 @@ private:
     void DeleteGeomVec( CScriptArray* del_arr );
 
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );
+    void SetAirfoilUpperPnts( const string& xsec_id, CScriptArray* up_pnt_arr );
+    void SetAirfoilLowerPnts( const string& xsec_id, CScriptArray* low_pnt_arr );
     void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
     void SetBORXSecPnts( const string& bor_id, CScriptArray* pnt_arr );
+    void SetBORAirfoilUpperPnts( const string& bor_id, CScriptArray* up_pnt_arr );
+    void SetBORAirfoilLowerPnts( const string& bor_id, CScriptArray* low_pnt_arr );
     void SetBORAirfoilPnts( const string& bor_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
 

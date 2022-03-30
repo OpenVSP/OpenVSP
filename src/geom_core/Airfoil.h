@@ -367,6 +367,16 @@ public:
         return m_LowerPnts;
     }
 
+    virtual void SetAirfoilUpperPnts( const vector< vec3d > & up_pnt_vec )
+    {
+        m_UpperPnts = up_pnt_vec;
+    }
+
+    virtual void SetAirfoilLowerPnts( const vector< vec3d > & low_pnt_vec )
+    {
+        m_LowerPnts = low_pnt_vec;
+    }
+
     virtual void SetAirfoilPnts( const vector< vec3d > & up_pnt_vec, const vector< vec3d > & low_pnt_vec )
     {
         m_UpperPnts = up_pnt_vec;

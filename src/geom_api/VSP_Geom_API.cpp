@@ -3780,7 +3780,49 @@ void ReadFileAirfoil( const string& xsec_id, const string& file_name )
     return;
 }
 
-void SetAirfoilPnts( const string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec )
+void SetAirfoilUpperPnts( const string& xsec_id, const std::vector< vec3d > & up_pnt_vec )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetAirfoilUpperPnts::Can't Find XSec " + xsec_id );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        return;
+    }
+
+    FileAirfoil* file_xs = dynamic_cast<FileAirfoil*>( xs->GetXSecCurve() );
+    assert( file_xs );
+    file_xs->SetAirfoilUpperPnts( up_pnt_vec );
+    ErrorMgr.NoError();
+}
+
+void SetAirfoilLowerPnts( const string& xsec_id, const std::vector< vec3d > & low_pnt_vec )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetAirfoilLowerPnts::Can't Find XSec " + xsec_id );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        return;
+    }
+
+    FileAirfoil* file_xs = dynamic_cast<FileAirfoil*>( xs->GetXSecCurve() );
+    assert( file_xs );
+    file_xs->SetAirfoilLowerPnts( low_pnt_vec );
+    ErrorMgr.NoError();
+}
+
+void SetAirfoilPnts( const string& xsec_id, const std::vector< vec3d > & up_pnt_vec, const std::vector< vec3d > & low_pnt_vec )
 {
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
@@ -4953,7 +4995,81 @@ void ReadBORFileAirfoil( const string& bor_id, const string& file_name )
     return;
 }
 
-void SetBORAirfoilPnts( const string& bor_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec )
+void SetBORAirfoilUpperPnts( const string& bor_id, const std::vector< vec3d > & up_pnt_vec )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( bor_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORAirfoilUpperPnts::Can't Find Geom " + bor_id );
+        return;
+    }
+    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetBORAirfoilUpperPnts::Geom " + bor_id + " is not a body of revolution" );
+        return;
+    }
+
+    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+
+    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+
+    if ( !xsc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORAirfoilUpperPnts::Can't Get XSecCurve" );
+        return;
+    }
+
+    if ( xsc->GetType() != XS_FILE_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        return;
+    }
+
+    FileAirfoil* file_xs = dynamic_cast<FileAirfoil*>( xsc );
+    assert( file_xs );
+    file_xs->SetAirfoilUpperPnts( up_pnt_vec );
+    ErrorMgr.NoError();
+}
+
+void SetBORAirfoilLowerPnts( const string& bor_id, const std::vector< vec3d > & low_pnt_vec )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( bor_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORAirfoilLowerPnts::Can't Find Geom " + bor_id );
+        return;
+    }
+    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetBORAirfoilLowerPnts::Geom " + bor_id + " is not a body of revolution" );
+        return;
+    }
+
+    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+
+    XSecCurve* xsc = bor_ptr->GetXSecCurve();
+
+    if ( !xsc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetBORAirfoilLowerPnts::Can't Get XSecCurve" );
+        return;
+    }
+
+    if ( xsc->GetType() != XS_FILE_AIRFOIL )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetBORAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type" );
+        return;
+    }
+
+    FileAirfoil* file_xs = dynamic_cast<FileAirfoil*>( xsc );
+    assert( file_xs );
+    file_xs->SetAirfoilLowerPnts( low_pnt_vec );
+    ErrorMgr.NoError();
+}
+
+void SetBORAirfoilPnts( const string& bor_id, const std::vector< vec3d > & up_pnt_vec, const std::vector< vec3d > & low_pnt_vec )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( bor_id );

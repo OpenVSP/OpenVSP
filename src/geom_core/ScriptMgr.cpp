@@ -7519,6 +7519,66 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Set the upper points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
+    \code{.cpp}
+    // Add Fuselage Geom
+    string fuseid = AddGeom( "FUSELAGE", "" );
+
+    string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+    ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
+
+    array< vec3d > @up_array = GetAirfoilUpperPnts( xsec );
+
+    for ( int i = 0 ; i < int( up_array.size() ) ; i++ )
+    {
+        up_array[i].scale_y( 2.0 );
+    }
+
+    SetAirfoilUpperPnts( xsec, up_array );
+    \endcode
+    \param [in] xsec_id XSec ID
+    \param [in] up_pnt_vec Array of points defining the upper surface of the airfoil
+*/)";
+    r = se->RegisterGlobalFunction( "void SetAirfoilUpperPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set the ower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
+    \code{.cpp}
+    // Add Fuselage Geom
+    string fuseid = AddGeom( "FUSELAGE", "" );
+
+    string xsec_surf = GetXSecSurf( fuseid, 0 );
+
+    ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
+
+    string xsec = GetXSec( xsec_surf, 1 );
+
+    ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
+
+    array< vec3d > @low_array = GetAirfoilLowerPnts( xsec );
+
+    for ( int i = 0 ; i < int( low_array.size() ) ; i++ )
+    {
+        low_array[i].scale_y( 0.5 );
+    }
+
+    SetAirfoilUpperPnts( xsec, up_array );
+    \endcode
+    \param [in] xsec_id XSec ID
+    \param [in] low_pnt_vec Array of points defining the lower surface of the airfoil
+*/)";
+    r = se->RegisterGlobalFunction( "void SetAirfoilLowerPnts( const string& in xsec_id, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Set the upper and lower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
     \code{.cpp}
     // Add Fuselage Geom
@@ -8504,6 +8564,59 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [in] file_name Airfoil XSec file name
 */)";
     r = se->RegisterGlobalFunction( "void ReadBORFileAirfoil( const string& in bor_id, const string& in file_name )", asFUNCTION( vsp::ReadBORFileAirfoil ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set the upper points for an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL.
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+    ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+    array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id );
+
+    for ( int i = 0 ; i < int( up_array.size() ) ; i++ )
+    {
+        up_array[i].scale_y( 2.0 );
+    }
+
+    SetBORAirfoilUpperPnts( bor_id, up_array );
+    \endcode
+    \param [in] bor_id Geom ID of BOR
+    \param [in] up_pnt_vec Array of points defining the upper surface of the airfoil
+*/)";
+    r = se->RegisterGlobalFunction( "void SetBORAirfoilUpperPnts( const string& in bor_id, array<vec3d>@ up_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+
+    doc_struct.comment = R"(
+/*!
+    Set the lower points for an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL.
+    \code{.cpp}
+    // Add Body of Recolution
+    string bor_id = AddGeom( "BODYOFREVOLUTION", "" );
+
+    ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL );
+
+    ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" );
+
+    array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id );
+
+    for ( int i = 0 ; i < int( low_array.size() ) ; i++ )
+    {
+        low_array[i].scale_y( 0.5 );
+    }
+
+    SetBORAirfoilLowerPnts( bor_id, low_array );
+    \endcode
+    \param [in] bor_id Geom ID of BOR
+    \param [in] low_pnt_vec Array of points defining the lower surface of the airfoil
+*/)";
+    r = se->RegisterGlobalFunction( "void SetBORAirfoilLowerPnts( const string& in bor_id, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
@@ -13169,6 +13282,30 @@ void ScriptMgrSingleton::SetXSecPnts( const string& xsec_id, CScriptArray* pnt_a
     vsp::SetXSecPnts( xsec_id, pnt_vec );
 }
 
+void ScriptMgrSingleton::SetAirfoilUpperPnts( const string& xsec_id, CScriptArray* up_pnt_arr )
+{
+    vector< vec3d > up_pnt_vec;
+    up_pnt_vec.resize( up_pnt_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )up_pnt_arr->GetSize() ; i++ )
+    {
+        up_pnt_vec[i] = * ( vec3d* )( up_pnt_arr->At( i ) );
+    }
+
+    vsp::SetAirfoilUpperPnts( xsec_id, up_pnt_vec );
+}
+
+void ScriptMgrSingleton::SetAirfoilLowerPnts( const string& xsec_id, CScriptArray* low_pnt_arr )
+{
+    vector< vec3d > low_pnt_vec;
+    low_pnt_vec.resize( low_pnt_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )low_pnt_arr->GetSize() ; i++ )
+    {
+        low_pnt_vec[i] = * ( vec3d* )( low_pnt_arr->At( i ) );
+    }
+
+    vsp::SetAirfoilLowerPnts( xsec_id, low_pnt_vec );
+}
+
 void ScriptMgrSingleton::SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr )
 {
     vector< vec3d > up_pnt_vec;
@@ -13186,6 +13323,30 @@ void ScriptMgrSingleton::SetBORXSecPnts( const string& bor_id, CScriptArray* pnt
     FillArray( pnt_arr, pnt_vec );
 
     vsp::SetBORXSecPnts( bor_id, pnt_vec );
+}
+
+void ScriptMgrSingleton::SetBORAirfoilUpperPnts( const string& bor_id, CScriptArray* up_pnt_arr )
+{
+    vector< vec3d > up_pnt_vec;
+    up_pnt_vec.resize( up_pnt_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )up_pnt_arr->GetSize() ; i++ )
+    {
+        up_pnt_vec[i] = * ( vec3d* )( up_pnt_arr->At( i ) );
+    }
+
+    vsp::SetBORAirfoilUpperPnts( bor_id, up_pnt_vec );
+}
+
+void ScriptMgrSingleton::SetBORAirfoilLowerPnts( const string& bor_id, CScriptArray* low_pnt_arr )
+{
+    vector< vec3d > low_pnt_vec;
+    low_pnt_vec.resize( low_pnt_arr->GetSize() );
+    for ( int i = 0 ; i < ( int )low_pnt_arr->GetSize() ; i++ )
+    {
+        low_pnt_vec[i] = * ( vec3d* )( low_pnt_arr->At( i ) );
+    }
+
+    vsp::SetBORAirfoilLowerPnts( bor_id, low_pnt_vec );
 }
 
 void ScriptMgrSingleton::SetBORAirfoilPnts( const string& bor_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr )
