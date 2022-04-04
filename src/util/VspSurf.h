@@ -92,6 +92,9 @@ public:
     void RollU( const int &iu ) { m_Surface.roll_u( iu ); }
     void RollW( const int &iw ) { m_Surface.roll_v( iw ); }
 
+    int SplitU( const double &u );
+    int SplitW( const double &w );
+
     bool GetFlipNormal() const { return m_FlipNormal; }
     void FlipNormal() { m_FlipNormal = !m_FlipNormal; }
     void ResetFlipNormal( ) { m_FlipNormal = false; }
