@@ -1997,6 +1997,16 @@ int VspSurf::SplitW( const double &w )
     return vector_find_val( pmap, w );
 }
 
+void VspSurf::JoinU( const VspSurf & sa, const VspSurf & sb )
+{
+    m_Surface.join_u( sa.m_Surface, sb.m_Surface );
+}
+
+void VspSurf::JoinW( const VspSurf & sa, const VspSurf & sb )
+{
+    m_Surface.join_v( sa.m_Surface, sb.m_Surface );
+}
+
 void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec, const vector < double > &usuppress, const vector < double > &wsuppress ) const
 {
     vector < double > usplits = m_UFeature;

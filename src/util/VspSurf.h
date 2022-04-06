@@ -95,6 +95,9 @@ public:
     int SplitU( const double &u );
     int SplitW( const double &w );
 
+    void JoinU( const VspSurf & sa, const VspSurf & sb );
+    void JoinW( const VspSurf & sa, const VspSurf & sb );
+
     bool GetFlipNormal() const { return m_FlipNormal; }
     void FlipNormal() { m_FlipNormal = !m_FlipNormal; }
     void ResetFlipNormal( ) { m_FlipNormal = false; }
