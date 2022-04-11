@@ -210,6 +210,43 @@ enum DRAW_TYPE { GEOM_DRAW_WIRE,
                  GEOM_DRAW_NONE
                };
 
+enum ENGINE_GEOM_IO_TYPE { ENGINE_GEOM_NONE,
+                           ENGINE_GEOM_INLET,
+                           ENGINE_GEOM_INLET_OUTLET,
+                           ENGINE_GEOM_OUTLET,
+                           ENGINE_GEOM_IO_NUM_TYPES
+                         };
+
+enum ENGINE_GEOM_TYPE { ENGINE_GEOM_FLOWTHROUGH,
+                        ENGINE_GEOM_TO_LIP,
+                        ENGINE_GEOM_FLOWPATH,
+                        ENGINE_GEOM_TO_FACE,
+                        ENGINE_GEOM_NUM_TYPES
+                      };
+
+enum ENGINE_LOC_MODE { ENGINE_LOC_INDEX,
+                       ENGINE_LOC_U
+                     };
+
+enum ENGINE_LOC_INDEX { ENGINE_LOC_INLET_LIP,
+                        ENGINE_LOC_INLET_FACE,
+                        ENGINE_LOC_OUTLET_LIP,
+                        ENGINE_LOC_OUTLET_FACE,
+                        ENGINE_LOC_NUM
+                      };
+
+// For inlet, all types are valid.  However, for outlet, only NATIVE through EXTEND are valid.
+// Both inlet and outlet, NATIVE is the default.  By making NATIVE the first entry, the Parm::Init
+// can be used to enforce valid values for both inlet and outlet.
+enum ENGINE_MODE_TYPE { ENGINE_MODE_FLOWTHROUGH,
+                        ENGINE_MODE_FLOWTHROUGH_NEG,
+                        ENGINE_MODE_TO_LIP,
+                        ENGINE_MODE_TO_FACE,
+                        ENGINE_MODE_TO_FACE_NEG,
+                        ENGINE_MODE_EXTEND,
+                        ENGINE_MODE_NUM_TYPES
+                 };
+
 enum ERROR_CODE {   VSP_OK,
                     VSP_INVALID_PTR,
                     VSP_INVALID_TYPE,
