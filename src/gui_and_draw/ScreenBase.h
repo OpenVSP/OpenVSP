@@ -682,6 +682,40 @@ public:
 
 protected:
 
+    Choice m_EngineGeomIOChoice;
+    Choice m_EngineGeomInChoice;
+    Choice m_EngineGeomOutChoice;
+
+    ToggleRadioGroup m_EngineInFaceToggleGroup;
+    ToggleButton m_EngineInFaceUToggle;
+    ToggleButton m_EngineInFaceIndexToggle;
+
+    ToggleRadioGroup m_EngineInLipToggleGroup;
+    ToggleButton m_EngineInLipUToggle;
+    ToggleButton m_EngineInLipIndexToggle;
+
+    ToggleRadioGroup m_EngineOutFaceToggleGroup;
+    ToggleButton m_EngineOutFaceUToggle;
+    ToggleButton m_EngineOutFaceIndexToggle;
+
+    ToggleRadioGroup m_EngineOutLipToggleGroup;
+    ToggleButton m_EngineOutLipUToggle;
+    ToggleButton m_EngineOutLipIndexToggle;
+
+    SliderAdjRangeInput m_EngineInFaceUSlider;
+    SliderAdjRangeInput m_EngineInLipUSlider;
+
+    Counter m_EngineInFaceCounter;
+    Counter m_EngineInLipCounter;
+
+    SliderAdjRangeInput m_EngineOutFaceUSlider;
+    SliderAdjRangeInput m_EngineOutLipUSlider;
+
+    Counter m_EngineOutFaceCounter;
+    Counter m_EngineOutLipCounter;
+
+    Choice m_EngineInModeChoice;
+    Choice m_EngineOutModeChoice;
 };
 
 //==== Chevron Screen ====//
