@@ -11,13 +11,13 @@
 #if !defined(VSPSTACKGEOM__INCLUDED_)
 #define VSPSTACKGEOM__INCLUDED_
 
-#include "Geom.h"
+#include "GeomEngine.h"
 #include "XSec.h"
 #include "XSecCurve.h"
 #include "XSecSurf.h"
 
 //==== Stack Geom ====//
-class StackGeom : public GeomXSec
+class StackGeom : public GeomEngine
 {
 public:
     enum {STACK_FREE, STACK_LOOP, NUM_STACK_POLICY};

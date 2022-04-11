@@ -12,13 +12,13 @@
 #define VSPFUSELAGEGEOM__INCLUDED_
 
 #include "Defines.h"
-#include "Geom.h"
+#include "GeomEngine.h"
 #include "XSec.h"
 #include "XSecCurve.h"
 #include "XSecSurf.h"
 
 //==== Fuselage Geom ====//
-class FuselageGeom : public GeomXSec
+class FuselageGeom : public GeomEngine
 {
 public:
     enum {FUSE_MONOTONIC, FUSE_LOOP, FUSE_FREE, NUM_FUSE_POLICY};

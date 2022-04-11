@@ -46,6 +46,7 @@ FitModelMgr.cpp
 FuselageGeom.cpp
 Geom.cpp
 GeomCoreTestSuite.cpp
+GeomEngine.cpp
 GridDensity.cpp
 GroupTransformations.cpp
 HingeGeom.cpp
@@ -114,6 +115,7 @@ FitModelMgr.h
 FuselageGeom.h
 Geom.h
 GeomCoreTestSuite.h
+GeomEngine.h
 GridDensity.h
 GroupTransformations.h
 HingeGeom.h

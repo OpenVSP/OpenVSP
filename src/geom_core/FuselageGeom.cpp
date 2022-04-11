@@ -11,7 +11,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
+FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
 {
     m_Name = "FuselageGeom";
     m_Type.m_Name = "Fuselage";

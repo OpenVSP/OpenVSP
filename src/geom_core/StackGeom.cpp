@@ -11,7 +11,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
+StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomEngine( vehicle_ptr )
 {
     m_Name = "StackGeom";
     m_Type.m_Name = "Stack";
