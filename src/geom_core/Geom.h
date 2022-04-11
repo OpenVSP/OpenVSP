@@ -710,6 +710,7 @@ protected:
 
     virtual void UpdateSurf() = 0;
     void UpdateEndCaps();
+    virtual void UpdateEngine()   {};
     virtual void UpdateFeatureLines();
     virtual void UpdateFlags();
     virtual void UpdateSymmAttach();
@@ -832,4 +833,5 @@ protected:
 
     DrawObj m_CurrentXSecDrawObj;
 };
+
 #endif // !defined(VSPGEOM__INCLUDED_)

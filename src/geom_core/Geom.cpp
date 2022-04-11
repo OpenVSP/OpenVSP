@@ -1146,6 +1146,9 @@ void Geom::Update( bool fullupdate )
     if ( m_SurfDirty )
         UpdateEndCaps();
 
+    if ( m_SurfDirty )
+        UpdateEngine();
+
     if ( fullupdate )
     {
         if ( m_SurfDirty )
