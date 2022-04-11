@@ -21,9 +21,30 @@ public:
     virtual ~GeomEngine();
 
     virtual void Update( bool fullupdate = true );
+    virtual void UpdateFlags();
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    IntParm m_EngineGeomIOType;
+    IntParm m_EngineGeomInType;
+    IntParm m_EngineGeomOutType;
+
+    IntParm m_EngineInFaceMode;
+    IntParm m_EngineInLipMode;
+    IntParm m_EngineInFaceIndex;
+    IntParm m_EngineInLipIndex;
+    Parm m_EngineInFaceU;
+    Parm m_EngineInLipU;
+
+    IntParm m_EngineOutFaceMode;
+    IntParm m_EngineOutLipMode;
+    IntParm m_EngineOutFaceIndex;
+    IntParm m_EngineOutLipIndex;
+    Parm m_EngineOutFaceU;
+    Parm m_EngineOutLipU;
+
+    IntParm m_EngineInModeType;
+    IntParm m_EngineOutModeType;
 protected:
 
     double roll_t( const double &torig, const double &troll, const double &tmin, const double &tmax );
@@ -33,6 +54,11 @@ protected:
     virtual void UpdateEngine();
 
     virtual void UpdateHighlightDrawObj();
+
+    bool m_engine_spec[ vsp::ENGINE_LOC_NUM ];
+
+    VspSurf m_OrigSurf;
+    vector<DrawObj> m_EngineDrawObj_vec;
 };
 
 #endif // !defined(VSPGEOMENGINE__INCLUDED_)
