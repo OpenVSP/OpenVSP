@@ -66,6 +66,8 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 400, 715,
 
     m_DesignLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
 
+    BuildEngineGUI( m_DesignLayout );
+
     // Xsec layout after index selector has been defined in base class
     m_XSecLayout.SetFitWidthFlag( false );
     m_XSecLayout.SetSameLineFlag( true );
