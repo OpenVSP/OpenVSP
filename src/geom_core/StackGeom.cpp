@@ -191,7 +191,7 @@ void StackGeom::UpdateSurf()
     }
 }
 
-
+/*
 void StackGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen  ) const
 {
     vector < int > tessvec;
@@ -235,6 +235,7 @@ void StackGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx,
 
     surf_vec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess() );
 }
+*/
 
 //==== Compute Rotation Center ====//
 void StackGeom::ComputeCenter()
