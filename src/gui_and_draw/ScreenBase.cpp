@@ -2991,6 +2991,32 @@ void SkinScreen::CallBack( Fl_Widget *w )
     XSecScreen::CallBack( w );
 }
 
+//=====================================================================//
+//=====================================================================//
+//=====================================================================//
+EngineModelScreen::EngineModelScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
+        SkinScreen( mgr, w, h, title )
+{
+}
+
+void EngineModelScreen::BuildEngineGUI( GroupLayout & layout )
+{
+
+}
+
+bool EngineModelScreen::Update( )
+{
+}
+
+void EngineModelScreen::CallBack( Fl_Widget *w )
+{
+    SkinScreen::CallBack( w );
+}
+
+void EngineModelScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    SkinScreen::GuiDeviceCallBack( device );
+}
 
 //=====================================================================//
 //=====================================================================//

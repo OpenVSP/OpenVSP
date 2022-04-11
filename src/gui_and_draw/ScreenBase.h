@@ -662,6 +662,28 @@ protected:
 
 };
 
+//==== Engine Model Screen ====//
+class EngineModelScreen : public SkinScreen
+{
+public:
+    EngineModelScreen( ScreenMgr* mgr, int w, int h, const string & title );
+    virtual ~EngineModelScreen()                               {}
+
+    virtual void BuildEngineGUI( GroupLayout & layout );
+
+    virtual bool Update( );
+    virtual void CallBack( Fl_Widget *w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( static_cast <EngineModelScreen*>( data ) )->CallBack( w ) );
+    }
+
+protected:
+
+};
+
 //==== Chevron Screen ====//
 class ChevronScreen : public SkinScreen
 {
