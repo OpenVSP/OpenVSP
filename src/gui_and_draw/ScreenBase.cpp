@@ -3022,7 +3022,7 @@ void EngineModelScreen::GuiDeviceCallBack( GuiDevice* device )
 //=====================================================================//
 //=====================================================================//
 ChevronScreen::ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
-        SkinScreen( mgr, w, h, title )
+        EngineModelScreen( mgr, w, h, title )
 {
 
     //==== XSec Modifications ====//
@@ -3199,7 +3199,7 @@ bool ChevronScreen::Update()
         return false;
     }
 
-    SkinScreen::Update();
+    EngineModelScreen::Update();
 
     GeomXSec* geomxsec_ptr = dynamic_cast< GeomXSec* >( geom_ptr );
     assert( geomxsec_ptr );
@@ -3260,13 +3260,13 @@ bool ChevronScreen::Update()
 
 void ChevronScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
-    SkinScreen::GuiDeviceCallBack( gui_device );
+    EngineModelScreen::GuiDeviceCallBack( gui_device );
 }
 
 //==== Fltk  Callbacks ====//
 void ChevronScreen::CallBack( Fl_Widget *w )
 {
-    SkinScreen::CallBack( w );
+    EngineModelScreen::CallBack( w );
 }
 
 

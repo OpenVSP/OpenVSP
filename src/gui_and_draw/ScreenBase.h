@@ -685,7 +685,7 @@ protected:
 };
 
 //==== Chevron Screen ====//
-class ChevronScreen : public SkinScreen
+class ChevronScreen : public EngineModelScreen
 {
 public:
     ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title );
