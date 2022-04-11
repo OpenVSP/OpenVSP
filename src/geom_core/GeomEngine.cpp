@@ -36,6 +36,26 @@ void GeomEngine::Update( bool fullupdate )
     GeomXSec::Update( fullupdate );
 }
 
+double GeomEngine::roll_t( const double &torig, const double &troll, const double &tmin, const double &tmax )
+{
+    double t = torig - troll;
+    if ( t < tmin )
+    {
+        t = t + ( tmax - tmin );
+    }
+    return t;
+}
+
+double GeomEngine::unroll_t( const double &t, const double &troll, const double &tmin, const double &tmax )
+{
+    double torig = t + troll;
+    if ( torig > tmax )
+    {
+        torig = torig - ( tmax - tmin );
+    }
+    return torig;
+}
+
 void GeomEngine::UpdateEngine()
 {
 

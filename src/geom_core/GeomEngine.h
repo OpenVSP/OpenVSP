@@ -26,6 +26,9 @@ public:
 
 protected:
 
+    double roll_t( const double &torig, const double &troll, const double &tmin, const double &tmax );
+    double unroll_t( const double &t, const double &troll, const double &tmin, const double &tmax );
+
     virtual void ValidateParms();
     virtual void UpdateEngine();
 
