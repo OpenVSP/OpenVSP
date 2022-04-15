@@ -1849,7 +1849,7 @@ int Choice::ValToIndex( int val )
             return i;
         }
     }
-    return 0;
+    return -1; // Purposefully return invalid value so Address Sanitizer will catch hidden bugs.
 }
 
 int Choice::IndexToVal( int indx )
@@ -1858,7 +1858,7 @@ int Choice::IndexToVal( int indx )
     {
         return m_Vals[indx];
     }
-    return 0;
+    return -1; // Purposefully return invalid value so Address Sanitizer will catch hidden bugs.
 }
 
 
