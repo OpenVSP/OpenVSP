@@ -5,6 +5,7 @@ MeasureMgrSingleton::MeasureMgrSingleton()
 {
     m_CurrRulerIndex = 0;
     m_CurrProbeIndex = 0;
+    m_CurrRSTProbeIndex = 0;
     Init();
 }
 
@@ -25,6 +26,12 @@ void MeasureMgrSingleton::Wype()
         delete m_Probes[i];
     }
     m_Probes.clear();
+
+    for(int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        delete m_RSTProbes[i];
+    }
+    m_RSTProbes.clear();
 }
 
 void MeasureMgrSingleton::Renew()
@@ -89,6 +96,32 @@ string MeasureMgrSingleton::CreateAndAddProbe( const string & geomid, int surfin
     return probe->GetID();
 }
 
+RSTProbe * MeasureMgrSingleton::CreateAndAddRSTProbe()
+{
+    RSTProbe * RSTprobe = new RSTProbe();
+
+    m_RSTProbes.push_back(RSTprobe );
+
+    m_CurrRSTProbeIndex = m_RSTProbes.size() - 1;
+    return RSTprobe;
+}
+
+string MeasureMgrSingleton::CreateAndAddRSTProbe(const string & geomid, int surfindx, double r, double s, double t, const string & name )
+{
+    RSTProbe * RSTprobe = CreateAndAddRSTProbe();
+
+    RSTprobe->m_OriginGeomID = geomid;
+    RSTprobe->m_OriginIndx = surfindx;
+    RSTprobe->m_OriginR = r;
+    RSTprobe->m_OriginS = s;
+    RSTprobe->m_OriginT = t;
+
+    RSTprobe->SetName( name );
+    RSTprobe->m_Stage = STAGE_COMPLETE;
+
+    return RSTprobe->GetID();
+}
+
 Ruler * MeasureMgrSingleton::GetCurrentRuler()
 {
     if ( m_CurrRulerIndex < 0 || m_CurrRulerIndex >= ( int )m_Rulers.size() )
@@ -109,6 +142,16 @@ Probe * MeasureMgrSingleton::GetCurrentProbe()
     return m_Probes[ m_CurrProbeIndex ];
 }
 
+RSTProbe * MeasureMgrSingleton::GetCurrentRSTProbe()
+{
+    if (m_CurrRSTProbeIndex < 0 || m_CurrRSTProbeIndex >= ( int )m_RSTProbes.size() )
+    {
+        return NULL;
+    }
+
+    return m_RSTProbes[ m_CurrRSTProbeIndex ];
+}
+
 std::vector < Ruler * > MeasureMgrSingleton::GetRulerVec()
 {
     return m_Rulers;
@@ -117,6 +160,11 @@ std::vector < Ruler * > MeasureMgrSingleton::GetRulerVec()
 std::vector < Probe * > MeasureMgrSingleton::GetProbeVec()
 {
     return m_Probes;
+}
+
+std::vector < RSTProbe * > MeasureMgrSingleton::GetRSTProbeVec()
+{
+    return m_RSTProbes;
 }
 
 xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
@@ -140,6 +188,15 @@ xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
         sprintf( labelName, "Probe_%d", i );
         xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
         m_Probes[i]->EncodeXml( label_node );
+    }
+
+    XmlUtil::AddIntNode(child_node, "Num_of_RSTprobes", m_RSTProbes.size() );
+
+    for (int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        sprintf( labelName, "RSTprobe_%d", i );
+        xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
+        m_RSTProbes[i]->EncodeXml(label_node );
     }
 
     return child_node;
@@ -183,6 +240,22 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
         }
     }
 
+    int numofRSTprobes = XmlUtil::FindInt( label_root_node, "Num_of_RSTprobes", 0 );
+    for ( int i = 0; i < numofRSTprobes; i++ )
+    {
+        sprintf( labelName, "RSTprobe_%d", i );
+        xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
+        if( label_node )
+        {
+            xmlNodePtr parmcontain_node = XmlUtil::GetNode( label_node, "ParmContainer", 0 );
+            if ( parmcontain_node )
+            {
+                CreateAndAddRSTProbe();
+                GetCurrentRSTProbe()->DecodeXml(label_node );
+            }
+        }
+    }
+
     return label_root_node;
 }
 
@@ -215,6 +288,20 @@ void MeasureMgrSingleton::DeleteInvalid()
         }
     }
     m_Probes = valid_probes;
+
+    std::vector < RSTProbe * > valid_RSTprobes;
+    for(int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        if ( m_RSTProbes[i]->Valid() )
+        {
+            valid_RSTprobes.push_back(m_RSTProbes[i] );
+        }
+        else
+        {
+            delete m_RSTProbes[i];
+        }
+    }
+    m_RSTProbes = valid_RSTprobes;
 }
 
 void MeasureMgrSingleton::Update()
@@ -229,6 +316,11 @@ void MeasureMgrSingleton::Update()
     for( int i = 0; i < ( int )m_Probes.size(); i++ )
     {
         m_Probes[i]->Update();
+    }
+
+    for(int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        m_RSTProbes[i]->Update();
     }
 }
 
@@ -394,6 +486,87 @@ void MeasureMgrSingleton::DelProbe( const string &id )
     DelProbe( idel );
 }
 
+void MeasureMgrSingleton::DelAllRSTProbes()
+{
+    for( int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        delete m_RSTProbes[i];
+    }
+    m_RSTProbes.clear();
+
+    m_CurrRSTProbeIndex = -1;
+}
+
+void MeasureMgrSingleton::ShowAllRSTProbes()
+{
+    for( int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        m_RSTProbes[i]->m_Visible = true;
+    }
+}
+
+void MeasureMgrSingleton::HideAllRSTProbes()
+{
+    for( int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        m_RSTProbes[i]->m_Visible = false;
+    }
+}
+
+RSTProbe * MeasureMgrSingleton::GetRSTProbe(const string &id )
+{
+    for( int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        if (m_RSTProbes[i]->GetID() == id )
+        {
+            return m_RSTProbes[i];
+        }
+    }
+
+    return NULL;
+}
+
+vector < string > MeasureMgrSingleton::GetAllRSTProbes()
+{
+    vector < string > RSTprobeList(m_RSTProbes.size() );
+
+    for( int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        RSTprobeList[i] = m_RSTProbes[i]->GetID();
+    }
+
+    return RSTprobeList;
+}
+
+void MeasureMgrSingleton::DelRSTProbe(const int & i )
+{
+    if ( i < 0 || i >= ( int )m_RSTProbes.size() )
+    {
+        return;
+    }
+
+    RSTProbe* RSTprobe = m_RSTProbes[i];
+
+    m_RSTProbes.erase(m_RSTProbes.begin() + i );
+
+    delete RSTprobe;
+}
+
+void MeasureMgrSingleton::DelRSTProbe(const string &id )
+{
+    int idel = -1;
+    for( int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        if (m_RSTProbes[i]->GetID() == id )
+        {
+            idel = i;
+            break;
+        }
+    }
+
+    DelRSTProbe(idel);
+}
+
 void MeasureMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     UpdateDrawObjs();
@@ -406,6 +579,11 @@ void MeasureMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     for( int i = 0; i < ( int )m_Probes.size(); i++ )
     {
         m_Probes[i]->LoadDrawObjs( draw_obj_vec );
+    }
+
+    for( int i = 0; i < ( int )m_RSTProbes.size(); i++ )
+    {
+        m_RSTProbes[i]->LoadDrawObjs(draw_obj_vec );
     }
 }
 
@@ -499,4 +677,44 @@ void MeasureMgrSingleton::UpdateDrawObjs()
         }
     }
 
+    std::vector < RSTProbe * > RSTprobeList = MeasureMgr.GetRSTProbeVec();
+    for( int i = 0; i < ( int )RSTprobeList.size(); i++ )
+    {
+        // Find out label type.
+        RSTProbe * RSTprobe = RSTprobeList[i];
+
+        vector < DrawObj * > draw_obj_vec;
+        RSTprobe->LoadDrawObjs( draw_obj_vec );
+
+
+        if ( draw_obj_vec.size() > 0 )
+        {
+            DrawObj * match = draw_obj_vec[0];
+            if( !match )
+            {
+                return;
+            }
+
+            // Set label base on type.
+            if( RSTprobe )
+            {
+                match->m_Type = DrawObj::VSP_PROBE;
+
+                // Set label stage.  Load stage data.
+                match->m_Probe.Step = DrawObj::VSP_PROBE_STEP_ZERO;
+
+                if ( RSTprobe->m_Stage == STAGE_ONE )
+                {
+                    match->m_Probe.Step = DrawObj::VSP_PROBE_STEP_ONE;
+                }
+                else if ( RSTprobe->m_Stage == STAGE_COMPLETE )
+                {
+                    match->m_Probe.Step = DrawObj::VSP_PROBE_STEP_COMPLETE;
+
+                    // Load placement info to DrawObj.
+                    match->m_Probe.Len = RSTprobe->m_Len();
+                }
+            }
+        }
+    }
 }

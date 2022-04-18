@@ -25,11 +25,17 @@ public:
     Probe * CreateAndAddProbe();
     string CreateAndAddProbe( const string & geomid, int surfindx, double u, double w, const string & name );
 
+    RSTProbe * CreateAndAddRSTProbe();
+    string CreateAndAddRSTProbe(const string & geomid, int surfindx, double r, double s, double t, const string & name );
+
     Ruler * GetCurrentRuler();
     std::vector < Ruler * > GetRulerVec();
 
     Probe * GetCurrentProbe();
     std::vector < Probe * > GetProbeVec();
+
+    RSTProbe * GetCurrentRSTProbe();
+    std::vector < RSTProbe * > GetRSTProbeVec();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -56,6 +62,16 @@ public:
     void DelProbe( const int &i );
     void DelProbe( const string &id );
 
+    void SetCurrRSTProbeIndex(int i )             { m_CurrRSTProbeIndex = i; }
+    int GetCurrRSTProbeIndex()                   { return m_CurrRSTProbeIndex; }
+    void DelAllRSTProbes();
+    void ShowAllRSTProbes();
+    void HideAllRSTProbes();
+    RSTProbe * GetRSTProbe(const string &id );
+    vector < string > GetAllRSTProbes();
+    void DelRSTProbe(const int &i );
+    void DelRSTProbe(const string &id );
+
     void DeleteInvalid();
     void Update();
 
@@ -63,9 +79,11 @@ private:
 
     std::vector < Ruler * > m_Rulers;
     std::vector < Probe * > m_Probes;
+    std::vector < RSTProbe * > m_RSTProbes;
 
     int m_CurrRulerIndex;
     int m_CurrProbeIndex;
+    int m_CurrRSTProbeIndex;
 
     static void UpdateDrawObjs();
 

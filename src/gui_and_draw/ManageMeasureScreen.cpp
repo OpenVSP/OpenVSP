@@ -14,6 +14,10 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
     Fl_Group* probe_group = AddSubGroup( probe_tab, 5 );
     m_ProbeLayout.SetGroupAndScreen( probe_group, this );
 
+    Fl_Group* RSTprobe_tab = AddTab( "RST Probe" );
+    Fl_Group* RSTprobe_group = AddSubGroup( RSTprobe_tab, 5 );
+    m_RSTProbeLayout.SetGroupAndScreen( RSTprobe_group, this );
+
     m_RulerLayout.SetInputWidth( 100 );
     m_RulerLayout.SetButtonWidth( 75 );
 
@@ -178,8 +182,7 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
 
     m_ProbeLayout.AddYGap();
 
-    m_StartGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
-    m_EndGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_ProbeGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
 
     m_ProbeLayout.AddGeomPicker( m_ProbeGeom, 0, "Geom" );
     m_ProbeLayout.AddChoice( m_ProbeSurfChoice, "Surface" );
@@ -225,6 +228,91 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
     m_ProbeLayout.AddOutput( m_KaOutput, "K Mean", "%6.5g" );
     m_ProbeLayout.AddOutput( m_KgOutput, "K Gaussian", "%6.5g" );
 
+    /* RSTprobe Layout  ***********************************************/
+
+    m_RSTProbeLayout.SetInputWidth( 100 );
+    m_RSTProbeLayout.SetButtonWidth( 75 );
+
+    m_RSTProbeLengthUnitChoice.AddItem( "mm" );
+    m_RSTProbeLengthUnitChoice.AddItem( "cm" );
+    m_RSTProbeLengthUnitChoice.AddItem( "m" );
+    m_RSTProbeLengthUnitChoice.AddItem( "in" );
+    m_RSTProbeLengthUnitChoice.AddItem( "ft" );
+    m_RSTProbeLengthUnitChoice.AddItem( "yd" );
+    m_RSTProbeLengthUnitChoice.AddItem( "Unitless" );
+
+    m_RSTProbeLayout.AddChoice( m_RSTProbeLengthUnitChoice, "Length Unit" );
+
+    m_RSTProbeLayout.SetSameLineFlag( true );
+    m_RSTProbeLayout.SetFitWidthFlag( false );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTProbeLayout.AddInput( m_RSTProbeNameInput, "Name:" );
+
+    m_RSTProbeLayout.SetFitWidthFlag( true );
+    m_RSTProbeLayout.AddButton( m_AddRSTProbeButton, "Add", m_RSTProbeLayout.GetX() );
+
+    m_RSTProbeLayout.ForceNewLine();
+    m_RSTProbeLayout.SetSameLineFlag( false );
+
+    m_RSTProbeBrowser = m_RSTProbeLayout.AddFlBrowser( 75 );
+    m_RSTProbeBrowser->callback( staticScreenCB, this );
+
+
+    m_RSTProbeLayout.SetButtonWidth( m_RSTProbeLayout.GetW() / 2.0 );
+    m_RSTProbeLayout.SetSameLineFlag( true );
+    m_RSTProbeLayout.SetFitWidthFlag( false );
+
+    m_RSTProbeLayout.AddButton( m_RemoveRSTProbeButton, "Delete" );
+    m_RSTProbeLayout.AddButton( m_RemoveAllRSTProbesButton, "Delete All" );
+
+    m_RSTProbeLayout.ForceNewLine();
+
+    m_RSTProbeLayout.AddButton( m_ShowAllRSTProbesButton, "Show All" );
+    m_RSTProbeLayout.AddButton( m_HideAllRSTProbesButton, "Hide All" );
+
+    m_RSTProbeLayout.ForceNewLine();
+    m_RSTProbeLayout.SetSameLineFlag( false );
+    m_RSTProbeLayout.SetFitWidthFlag( true );
+    m_RSTProbeLayout.SetButtonWidth( 75 );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTProbeLayout.AddDividerBox( "Probe Control" );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTProbeGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+
+    m_RSTProbeLayout.AddGeomPicker( m_RSTProbeGeom, 0, "Geom" );
+    m_RSTProbeLayout.AddChoice( m_RSTProbeSurfChoice, "Surface" );
+    m_RSTProbeLayout.AddSlider( m_ProbeRSlider, "R", 1.0, "%5.4f" );
+    m_RSTProbeLayout.AddSlider( m_ProbeSSlider, "S", 1.0, "%5.4f" );
+    m_RSTProbeLayout.AddSlider( m_ProbeTSlider, "T", 1.0, "%5.4f" );
+    m_RSTProbeLayout.AddSlider( m_RSTProbeLenSlider, "Len", 1.0, "%5.2f" );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTProbeLayout.AddButton( m_AttachRSTProbeButton, "Re-Attach" );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTProbeLayout.AddSlider( m_RSTProbePrecisionSlider, "Precision", 10.0, "%5.0f" );
+    m_RSTProbeLayout.AddButton( m_VisibleRSTProbeButton, "Visible" );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTProbeLayout.AddDividerBox( "Results" );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTProbeLayout.AddDividerBox( "Position" );
+
+    m_RSTProbeLayout.AddOutput( m_RSTXOutput, "X", "%6.5g" );
+    m_RSTProbeLayout.AddOutput( m_RSTYOutput, "Y", "%6.5g" );
+    m_RSTProbeLayout.AddOutput( m_RSTZOutput, "Z", "%6.5g" );
+
     ruler_tab->show();
 }
 
@@ -251,6 +339,7 @@ bool ManageMeasureScreen::Update()
 
     m_RulerLengthUnitChoice.Update( vPtr->m_MeasureLenUnit.GetID() );
     m_ProbeLengthUnitChoice.Update( vPtr->m_MeasureLenUnit.GetID() );
+    m_RSTProbeLengthUnitChoice.Update( vPtr->m_MeasureLenUnit.GetID() );
 
     m_RulerBrowser->clear();
     // Add rulers to browser.
@@ -506,6 +595,100 @@ bool ManageMeasureScreen::Update()
 
     m_ProbeGeom.Update();
 
+    std::vector < RSTProbe * > RSTprobes = MeasureMgr.GetRSTProbeVec();
+
+    m_RSTProbeBrowser->clear();
+    // Add probes to browser.
+    for( int i = 0; i < ( int )RSTprobes.size(); i++ )
+    {
+        m_RSTProbeBrowser->add( RSTprobes[i]->GetName().c_str() );
+    }
+
+    index = MeasureMgr.GetCurrRSTProbeIndex();
+    if ( index >= 0 && index < ( int )RSTprobes.size() )
+    {
+        m_RSTProbeBrowser->select( index + 1 );
+    }
+
+
+    m_RSTProbeSurfChoice.ClearItems();
+
+    // Ruler / Text Panel.
+    RSTProbe * RSTprobe = MeasureMgr.GetCurrentRSTProbe();
+
+    if ( RSTprobe )
+    {
+        m_RSTProbeGeom.SetGeomChoice( RSTprobe->m_OriginGeomID );
+
+        m_RSTProbeNameInput.Update( RSTprobe->GetName() );
+
+        m_ProbeRSlider.Update( RSTprobe->m_OriginR.GetID() );
+        m_ProbeSSlider.Update( RSTprobe->m_OriginS.GetID() );
+        m_ProbeTSlider.Update( RSTprobe->m_OriginT.GetID() );
+        m_RSTProbeLenSlider.Update( RSTprobe->m_Len.GetID() );
+
+        m_RSTProbePrecisionSlider.Update( RSTprobe->m_Precision.GetID() );
+
+        m_VisibleRSTProbeButton.Update( RSTprobe->m_Visible.GetID() );
+
+        Geom* geom_start = vPtr->FindGeom( RSTprobe->m_OriginGeomID );
+
+        if ( geom_start )
+        {
+            int nsurf = geom_start->GetNumTotalSurfs();
+            char str[256];
+            for ( int i = 0; i < nsurf; ++i )
+            {
+                sprintf( str, "Surf_%d", i );
+                m_RSTProbeSurfChoice.AddItem( str );
+            }
+            m_RSTProbeSurfChoice.UpdateItems();
+
+
+            if( RSTprobe->m_OriginIndx() < 0 || RSTprobe->m_OriginIndx() >= nsurf )
+            {
+                RSTprobe->m_OriginIndx = 0;
+            }
+            m_RSTProbeSurfChoice.SetVal( RSTprobe->m_OriginIndx() );
+        }
+
+        char str[255];
+        sprintf( str, "%%.%df", RSTprobe->m_Precision() );
+
+        m_RSTXOutput.SetFormat( str );
+        m_RSTYOutput.SetFormat( str );
+        m_RSTZOutput.SetFormat( str );
+
+        string lenunit = LenUnitName( vPtr->m_MeasureLenUnit() );
+        m_RSTXOutput.SetSuffix( lenunit );
+        m_RSTYOutput.SetSuffix( lenunit );
+        m_RSTZOutput.SetSuffix( lenunit );
+
+        char curvunit[255];
+        sprintf( curvunit, "1/%s", lenunit.c_str() );
+
+        m_RSTXOutput.Update( RSTprobe->m_X.GetID() );
+        m_RSTYOutput.Update( RSTprobe->m_Y.GetID() );
+        m_RSTZOutput.Update( RSTprobe->m_Z.GetID() );
+    }
+    else
+    {
+        m_RSTProbeGeom.SetGeomChoice("" );
+
+        m_ProbeRSlider.Update( "" );
+        m_ProbeRSlider.Update( "" );
+        m_ProbeTSlider.Update( "" );
+        m_RSTProbeLenSlider.Update("" );
+
+        m_ProbeNameInput.Update( "" );
+
+        m_RSTXOutput.Update( "" );
+        m_RSTYOutput.Update( "" );
+        m_RSTZOutput.Update( "" );
+   }
+
+    m_RSTProbeGeom.Update();
+
     m_FLTK_Window->redraw();
     return true;
 }
@@ -521,6 +704,11 @@ void ManageMeasureScreen::CallBack( Fl_Widget * w )
     {
         int sel = m_ProbeBrowser->value();
         MeasureMgr.SetCurrProbeIndex( sel - 1 );
+    }
+    else if (w == m_RSTProbeBrowser )
+    {
+        int sel = m_RSTProbeBrowser->value();
+        MeasureMgr.SetCurrRSTProbeIndex(sel - 1);
     }
     else
     {
@@ -652,6 +840,58 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
             probe->m_OriginIndx = m_ProbeSurfChoice.GetVal();
         }
     }
+    else if ( device == &m_AddRSTProbeButton )
+    {
+        MeasureMgr.CreateAndAddRSTProbe();
+    }
+    else if ( device == &m_RemoveRSTProbeButton )
+    {
+        MeasureMgr.DelProbe(MeasureMgr.GetCurrRSTProbeIndex() );
+    }
+    else if ( device == &m_RemoveAllRSTProbesButton )
+    {
+        MeasureMgr.DelAllRSTProbes();
+    }
+    else if ( device == &m_ShowAllRSTProbesButton )
+    {
+        MeasureMgr.ShowAllRSTProbes();
+    }
+    else if ( device == &m_HideAllRSTProbesButton )
+    {
+        MeasureMgr.HideAllRSTProbes();
+    }
+    else if ( device == &m_RSTProbeNameInput )
+    {
+        RSTProbe * RSTprobe = MeasureMgr.GetCurrentRSTProbe();
+        if ( RSTprobe )
+        {
+            RSTprobe->SetName(m_RSTProbeNameInput.GetString() );
+        }
+    }
+    else if ( device == &m_AttachRSTProbeButton )
+    {
+        RSTProbe * RSTprobe = MeasureMgr.GetCurrentRSTProbe();
+        if ( RSTprobe )
+        {
+            RSTprobe->Reset();
+        }
+    }
+    else if ( device == & m_RSTProbeGeom )
+    {
+        RSTProbe * RSTprobe = MeasureMgr.GetCurrentRSTProbe();
+        if ( RSTprobe )
+        {
+            RSTprobe->m_OriginGeomID = m_RSTProbeGeom.GetGeomChoice();
+        }
+    }
+    else if ( device == &m_RSTProbeSurfChoice )
+    {
+        RSTProbe * RSTprobe = MeasureMgr.GetCurrentRSTProbe();
+        if ( RSTprobe )
+        {
+            RSTprobe->m_OriginIndx = m_RSTProbeSurfChoice.GetVal();
+        }
+    }
     else
     {
         return;
@@ -727,6 +967,40 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
         }
     }
 
+    RSTProbe * RSTprobe = MeasureMgr.GetCurrentRSTProbe();
+    if( RSTprobe && veh )
+    {
+        if( RSTprobe->m_Stage == STAGE_ZERO )
+        {
+            RSTprobe->m_Stage = STAGE_ONE;
+            RSTprobe->m_OriginGeomID = targetGeomId;
+
+            int index;
+            double u, w;
+            veh->ProjPnt01I( targetGeomId, placement, index, u, w );
+
+            double r, s, t;
+            r = u;
+            s = w;
+            t = 0.0;
+            if ( w > 0.5 )
+            {
+                s = 1.0 - w;
+                t = 1.0;
+            }
+
+            RSTprobe->m_OriginR = r;
+            RSTprobe->m_OriginS = s;
+            RSTprobe->m_OriginT = t;
+            RSTprobe->m_OriginIndx = index;
+        }
+        else if( RSTprobe->m_Stage == STAGE_ONE )
+        {
+            RSTprobe->m_Stage = STAGE_COMPLETE;
+
+            RSTprobe->SetLenFromPlacement( placement );
+        }
+    }
 
 }
 
@@ -815,6 +1089,59 @@ void ManageMeasureScreen::UpdatePickList()
     {
         vector < DrawObj *> drawobj;
         probe->LoadDrawObjs( drawobj );
+
+        if( drawobj.size() > 0 )
+        {
+            DrawObj * currDrawObj = drawobj[0];
+            if( currDrawObj && currDrawObj->m_Probe.Step == DrawObj::VSP_PROBE_STEP_COMPLETE )
+            {
+                // Do nothing.
+            }
+            else if( currDrawObj && currDrawObj->m_Probe.Step == DrawObj::VSP_PROBE_STEP_ONE )
+            {
+                DrawObj pickDO;
+                pickDO.m_Type = DrawObj::VSP_PICK_LOCATION;
+                pickDO.m_GeomID = PICKLOCHEADER + currDrawObj->m_GeomID;
+                pickDO.m_PickSourceID = "";
+                pickDO.m_FeedbackGroup = getFeedbackGroupName();
+
+                m_PickList.push_back( pickDO );
+            }
+            else if( currDrawObj )
+            {
+                for ( int i = 0; i < ( int ) geom_vec.size(); i++ )
+                {
+                    vector<DrawObj *> geom_drawObj_vec;
+                    geom_vec[i]->LoadMainDrawObjs( geom_drawObj_vec );
+
+                    for ( int j = 0; j < ( int ) geom_drawObj_vec.size(); j++ )
+                    {
+                        if ( geom_drawObj_vec[j]->m_Visible )
+                        {
+                            // Ignore bounding boxes.
+                            if ( geom_drawObj_vec[j]->m_GeomID.compare( 0, string( BBOXHEADER ).size(), BBOXHEADER ) != 0 )
+                            {
+                                DrawObj pickDO;
+                                pickDO.m_Type = DrawObj::VSP_PICK_VERTEX;
+                                pickDO.m_GeomID = PICKVERTEXHEADER + geom_drawObj_vec[j]->m_GeomID;
+                                pickDO.m_PickSourceID = geom_drawObj_vec[j]->m_GeomID;
+                                pickDO.m_FeedbackGroup = getFeedbackGroupName();
+
+                                m_PickList.push_back( pickDO );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    RSTProbe * RSTprobe = MeasureMgr.GetCurrentRSTProbe();
+
+    if ( RSTprobe )
+    {
+        vector < DrawObj *> drawobj;
+        RSTprobe->LoadDrawObjs( drawobj );
 
         if( drawobj.size() > 0 )
         {

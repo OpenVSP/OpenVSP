@@ -66,6 +66,49 @@ protected:
     DrawObj m_LabelDO;
 };
 
+class RSTProbe : public ParmContainer
+{
+public:
+    RSTProbe();
+    virtual ~RSTProbe();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void Reset();
+
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+    virtual void Update();
+    bool Valid();
+
+    virtual void SetLenFromPlacement( const vec3d &placement );
+
+    int m_Stage;
+
+    std::string m_OriginGeomID;
+
+    IntParm m_OriginIndx;
+
+    Parm m_OriginR;
+    Parm m_OriginS;
+    Parm m_OriginT;
+
+    IntParm m_Precision;
+
+    Parm m_X;
+    Parm m_Y;
+    Parm m_Z;
+
+    Parm m_Len;
+
+    BoolParm m_Visible;
+
+protected:
+
+    DrawObj m_LabelDO;
+};
+
 class Ruler : public ParmContainer
 {
 public:

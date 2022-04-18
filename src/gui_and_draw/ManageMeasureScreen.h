@@ -41,6 +41,7 @@ protected:
 
     GroupLayout m_RulerLayout;
     GroupLayout m_ProbeLayout;
+    GroupLayout m_RSTProbeLayout;
 
     Choice m_RulerLengthUnitChoice;
     Choice m_RulerDirectionChoice;
@@ -121,6 +122,37 @@ protected:
     Output m_K2Output;
     Output m_KaOutput;
     Output m_KgOutput;
+
+    TriggerButton m_AddRSTProbeButton;
+    TriggerButton m_RemoveRSTProbeButton;
+    TriggerButton m_RemoveAllRSTProbesButton;
+    TriggerButton m_ShowAllRSTProbesButton;
+    TriggerButton m_HideAllRSTProbesButton;
+
+    Choice m_RSTProbeLengthUnitChoice;
+
+    StringInput m_RSTProbeNameInput;
+
+    TriggerButton m_AttachRSTProbeButton;
+
+    ToggleButton m_VisibleRSTProbeButton;
+
+    Fl_Browser* m_RSTProbeBrowser;
+
+    GeomPicker m_RSTProbeGeom;
+    Choice m_RSTProbeSurfChoice;
+
+    SliderAdjRangeInput m_ProbeRSlider;
+    SliderAdjRangeInput m_ProbeSSlider;
+    SliderAdjRangeInput m_ProbeTSlider;
+
+    SliderAdjRangeInput m_RSTProbeLenSlider;
+
+    SliderAdjRangeInput m_RSTProbePrecisionSlider;
+
+    Output m_RSTXOutput;
+    Output m_RSTYOutput;
+    Output m_RSTZOutput;
 
 private:
 
