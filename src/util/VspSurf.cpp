@@ -2447,16 +2447,16 @@ void VspSurf::MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &pt
     m_Surface.set( patch, 0, 0 );
 }
 
-void VspSurf::DegenCamberSurf()
+void VspSurf::DegenCamberSurf( const VspSurf & parent )
 {
     piecewise_surface_type s, s1, s2;
     double umin, vmin, umax, vmax, vmid;
 
-    m_Surface.get_parameter_min( umin, vmin );
-    m_Surface.get_parameter_max( umax, vmax );
+    parent.m_Surface.get_parameter_min( umin, vmin );
+    parent.m_Surface.get_parameter_max( umax, vmax );
     vmid = ( vmin + vmax ) * 0.5;
 
-    m_Surface.split_v( s1, s2, vmid );
+    parent.m_Surface.split_v( s1, s2, vmid );
 
     s2.reverse_v();
     s2.set_v0( vmin );
@@ -2468,19 +2468,19 @@ void VspSurf::DegenCamberSurf()
     FlipNormal();
 }
 
-void VspSurf::DegenPlanarSurf()
+void VspSurf::DegenPlanarSurf( const VspSurf & parent )
 {
     vector< VspCurve > crvs(2);
     vector<double> param(2);
 
     double umin, vmin, umax, vmax, vmid;
 
-    m_Surface.get_parameter_min( umin, vmin );
-    m_Surface.get_parameter_max( umax, vmax );
+    parent.m_Surface.get_parameter_min( umin, vmin );
+    parent.m_Surface.get_parameter_max( umax, vmax );
     vmid = ( vmin + vmax ) * 0.5;
 
-    GetWConstCurve( crvs[0], vmin );
-    GetWConstCurve( crvs[1], vmid );
+    parent.GetWConstCurve( crvs[0], vmin );
+    parent.GetWConstCurve( crvs[1], vmid );
 
     param[0] = vmin;
     param[1] = vmid;

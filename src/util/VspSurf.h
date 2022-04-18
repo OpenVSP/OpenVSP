@@ -301,8 +301,8 @@ public:
         return m_FeaOrientation;
     }
 
-    void DegenCamberSurf();
-    void DegenPlanarSurf();
+    void DegenCamberSurf( const VspSurf & parent );
+    void DegenPlanarSurf( const VspSurf & parent );
 
 protected:
 
