@@ -5659,6 +5659,21 @@ double Vehicle::AxisProjPnt01I(const std::string &geom_id, const int &iaxis, con
     return idmin;
 }
 
+vec3d Vehicle::CompPntRST( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t )
+{
+    Geom* geom_ptr = FindGeom( geom_id );
+    vec3d ret;
+    if ( geom_ptr )
+    {
+        if ( surf_indx >= 0 && surf_indx < geom_ptr->GetNumTotalSurfs() )
+        {
+            ret = geom_ptr->CompPntRST( surf_indx, r, s, t );
+        }
+    }
+
+    return ret;
+}
+
 // Method to add pnts and normals to results managers for all surfaces
 // in the selected set
 string Vehicle::ExportSurfacePatches( int set )
