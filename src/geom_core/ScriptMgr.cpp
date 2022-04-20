@@ -12351,7 +12351,8 @@ CScriptArray* ScriptMgrSingleton::GetProxyDoubleMatArray()
     return sarr;
 }
 
-void ScriptMgrSingleton::FillDoubleArray( vector < double > & in, CScriptArray* out )
+template < class T >
+void ScriptMgrSingleton::FillArray( vector < T > & in, CScriptArray* out )
 {
     out->Resize( in.size() );
     for ( int i = 0 ; i < ( int )in.size() ; i++ )
@@ -12360,12 +12361,13 @@ void ScriptMgrSingleton::FillDoubleArray( vector < double > & in, CScriptArray* 
     }
 }
 
-void ScriptMgrSingleton::FillVec3dArray( vector < vec3d > & in, CScriptArray* out )
+template < class T >
+void ScriptMgrSingleton::FillArray( CScriptArray* in, vector < T > & out )
 {
-    out->Resize( in.size() );
-    for ( int i = 0 ; i < ( int )in.size() ; i++ )
+    out.resize( in->GetSize() );
+    for ( int i = 0 ; i < ( int )in->GetSize() ; i++ )
     {
-        out->SetValue( i, &in[i] );
+        out[i] = * ( T* ) ( in->At( i ) );
     }
 }
 
@@ -12451,12 +12453,7 @@ CScriptArray* ScriptMgrSingleton::GetAvailableCSNameVec( int CSGroupIndex )
 void ScriptMgrSingleton::AddSelectedToCSGroup( CScriptArray* selected, int CSGroupIndex )
 {
     vector < int > int_vec;
-
-    int_vec.resize( selected->GetSize() );
-    for ( int i = 0; i < (int)selected->GetSize(); i++ )
-    {
-        int_vec[i] = *(int*)( selected->At( i ) );
-    }
+    FillArray( selected, int_vec );
 
     vsp::AddSelectedToCSGroup( int_vec, CSGroupIndex );
 }
@@ -12464,12 +12461,7 @@ void ScriptMgrSingleton::AddSelectedToCSGroup( CScriptArray* selected, int CSGro
 void ScriptMgrSingleton::RemoveSelectedFromCSGroup( CScriptArray* selected, int CSGroupIndex )
 {
     vector < int > int_vec;
-
-    int_vec.resize( selected->GetSize() );
-    for ( int i = 0; i < (int)selected->GetSize(); i++ )
-    {
-        int_vec[i] = *(int*)( selected->At( i ) );
-    }
+    FillArray( selected, int_vec );
 
     vsp::RemoveSelectedFromCSGroup( int_vec, CSGroupIndex );
 }
@@ -12669,12 +12661,7 @@ CScriptArray* ScriptMgrSingleton::GetBORLowerCSTCoefs( const string & bor_id )
 void ScriptMgrSingleton::DeleteGeomVec( CScriptArray* del_arr )
 {
     vector < string > del_vec;
-
-    del_vec.resize( del_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )del_arr->GetSize() ; i++ )
-    {
-        del_vec[i] = * ( string* )( del_arr->At( i ) );
-    }
+    FillArray( del_arr, del_vec );
 
     vsp::DeleteGeomVec( del_vec );
 }
@@ -12682,29 +12669,18 @@ void ScriptMgrSingleton::DeleteGeomVec( CScriptArray* del_arr )
 void ScriptMgrSingleton::SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr )
 {
     vector< vec3d > pnt_vec;
-    pnt_vec.resize( pnt_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )pnt_arr->GetSize() ; i++ )
-    {
-        pnt_vec[i] = * ( vec3d* )( pnt_arr->At( i ) );
-    }
+    FillArray( pnt_arr, pnt_vec );
+
     vsp::SetXSecPnts( xsec_id, pnt_vec );
 }
 
 void ScriptMgrSingleton::SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr )
 {
     vector< vec3d > up_pnt_vec;
-    up_pnt_vec.resize( up_pnt_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )up_pnt_arr->GetSize() ; i++ )
-    {
-        up_pnt_vec[i] = * ( vec3d* )( up_pnt_arr->At( i ) );
-    }
+    FillArray( up_pnt_arr, up_pnt_vec );
 
     vector< vec3d > low_pnt_vec;
-    low_pnt_vec.resize( low_pnt_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )low_pnt_arr->GetSize() ; i++ )
-    {
-        low_pnt_vec[i] = * ( vec3d* )( low_pnt_arr->At( i ) );
-    }
+    FillArray( low_pnt_arr, low_pnt_vec );
 
     vsp::SetAirfoilPnts( xsec_id, up_pnt_vec, low_pnt_vec );
 }
@@ -12712,29 +12688,18 @@ void ScriptMgrSingleton::SetAirfoilPnts( const string& xsec_id, CScriptArray* up
 void ScriptMgrSingleton::SetBORXSecPnts( const string& bor_id, CScriptArray* pnt_arr )
 {
     vector< vec3d > pnt_vec;
-    pnt_vec.resize( pnt_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )pnt_arr->GetSize() ; i++ )
-    {
-        pnt_vec[i] = * ( vec3d* )( pnt_arr->At( i ) );
-    }
+    FillArray( pnt_arr, pnt_vec );
+
     vsp::SetBORXSecPnts( bor_id, pnt_vec );
 }
 
 void ScriptMgrSingleton::SetBORAirfoilPnts( const string& bor_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr )
 {
     vector< vec3d > up_pnt_vec;
-    up_pnt_vec.resize( up_pnt_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )up_pnt_arr->GetSize() ; i++ )
-    {
-        up_pnt_vec[i] = * ( vec3d* )( up_pnt_arr->At( i ) );
-    }
+    FillArray( up_pnt_arr, up_pnt_vec );
 
     vector< vec3d > low_pnt_vec;
-    low_pnt_vec.resize( low_pnt_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )low_pnt_arr->GetSize() ; i++ )
-    {
-        low_pnt_vec[i] = * ( vec3d* )( low_pnt_arr->At( i ) );
-    }
+    FillArray( low_pnt_arr, low_pnt_vec );
 
     vsp::SetBORAirfoilPnts( bor_id, up_pnt_vec, low_pnt_vec );
 }
@@ -12770,11 +12735,7 @@ CScriptArray* ScriptMgrSingleton::GetVKTAirfoilPnts( const int &npts, const doub
 CScriptArray* ScriptMgrSingleton::GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, CScriptArray* xyzdata )
 {
     vector< vec3d > xyz_vec;
-    xyz_vec.resize( xyzdata->GetSize() );
-    for ( int i = 0; i < (int)xyzdata->GetSize(); i++ )
-    {
-        xyz_vec[i] = *(vec3d*)( xyzdata->At( i ) );
-    }
+    FillArray( xyzdata, xyz_vec );
 
     m_ProxyDoubleArray = vsp::GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau, xyz_vec );
 
@@ -12798,11 +12759,7 @@ CScriptArray* ScriptMgrSingleton::GetFeatureLinePnts( const string & geom_id )
 CScriptArray* ScriptMgrSingleton::GetEllipsoidCpDist( CScriptArray* surf_pnt_arr, const vec3d& abc_rad, const vec3d& V_inf )
 {
     vector< vec3d > surf_pnt_vec;
-    surf_pnt_vec.resize( surf_pnt_arr->GetSize() );
-    for ( int i = 0; i < (int)surf_pnt_arr->GetSize(); i++ )
-    {
-        surf_pnt_vec[i] = *(vec3d*)( surf_pnt_arr->At( i ) );
-    }
+    FillArray( surf_pnt_arr, surf_pnt_vec );
 
     m_ProxyDoubleArray = vsp::GetEllipsoidCpDist( surf_pnt_vec, abc_rad, V_inf );
 
@@ -12812,12 +12769,7 @@ CScriptArray* ScriptMgrSingleton::GetEllipsoidCpDist( CScriptArray* surf_pnt_arr
 void ScriptMgrSingleton::SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs_arr )
 {
     vector < double > coefs_vec;
-
-    coefs_vec.resize( coefs_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )coefs_arr->GetSize() ; i++ )
-    {
-        coefs_vec[i] = * ( double* )( coefs_arr->At( i ) );
-    }
+    FillArray( coefs_arr, coefs_vec );
 
     vsp::SetUpperCST( xsec_id, deg, coefs_vec );
 }
@@ -12825,12 +12777,7 @@ void ScriptMgrSingleton::SetUpperCST( const string& xsec_id, int deg, CScriptArr
 void ScriptMgrSingleton::SetLowerCST( const string& xsec_id, int deg, CScriptArray* coefs_arr )
 {
     vector < double > coefs_vec;
-
-    coefs_vec.resize( coefs_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )coefs_arr->GetSize() ; i++ )
-    {
-        coefs_vec[i] = * ( double* )( coefs_arr->At( i ) );
-    }
+    FillArray( coefs_arr, coefs_vec );
 
     vsp::SetLowerCST( xsec_id, deg, coefs_vec );
 }
@@ -12838,12 +12785,7 @@ void ScriptMgrSingleton::SetLowerCST( const string& xsec_id, int deg, CScriptArr
 void ScriptMgrSingleton::SetBORUpperCST( const string& bor_id, int deg, CScriptArray* coefs_arr )
 {
     vector < double > coefs_vec;
-
-    coefs_vec.resize( coefs_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )coefs_arr->GetSize() ; i++ )
-    {
-        coefs_vec[i] = * ( double* )( coefs_arr->At( i ) );
-    }
+    FillArray( coefs_arr, coefs_vec );
 
     vsp::SetBORUpperCST( bor_id, deg, coefs_vec );
 }
@@ -12851,12 +12793,7 @@ void ScriptMgrSingleton::SetBORUpperCST( const string& bor_id, int deg, CScriptA
 void ScriptMgrSingleton::SetBORLowerCST( const string& bor_id, int deg, CScriptArray* coefs_arr )
 {
     vector < double > coefs_vec;
-
-    coefs_vec.resize( coefs_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )coefs_arr->GetSize() ; i++ )
-    {
-        coefs_vec[i] = * ( double* )( coefs_arr->At( i ) );
-    }
+    FillArray( coefs_arr, coefs_vec );
 
     vsp::SetBORLowerCST( bor_id, deg, coefs_vec );
 }
@@ -12878,26 +12815,14 @@ CScriptArray* ScriptMgrSingleton::GetEditXSecCtrlVec( const std::string & xsec_i
 
 void ScriptMgrSingleton::SetEditXSecPnts( const string & xsec_id, CScriptArray* u_vec, CScriptArray* control_pts, CScriptArray* r_vec )
 {
-    vector < vec3d > control_pnt_vec( control_pts->GetSize() );
+    vector < vec3d > control_pnt_vec;
+    FillArray( control_pts, control_pnt_vec );
 
-    for ( int i = 0; i < (int)control_pts->GetSize(); i++ )
-    {
-        control_pnt_vec[i] = *(vec3d*)( control_pts->At( i ) );
-    }
+    vector < double > new_u_vec;
+    FillArray( u_vec, new_u_vec );
 
-    vector < double > new_u_vec( u_vec->GetSize() );
-
-    for ( int i = 0; i < (int)u_vec->GetSize(); i++ )
-    {
-        new_u_vec[i] = *(double*)( u_vec->At( i ) );
-    }
-
-    vector < double > new_r_vec( r_vec->GetSize() );
-
-    for ( int i = 0; i < (int)r_vec->GetSize(); i++ )
-    {
-        new_r_vec[i] = *(double*)( r_vec->At( i ) );
-    }
+    vector < double > new_r_vec;
+    FillArray( r_vec, new_r_vec );
 
     vsp::SetEditXSecPnts( xsec_id, new_u_vec, control_pnt_vec, new_r_vec );
 }
@@ -12919,12 +12844,8 @@ CScriptArray* ScriptMgrSingleton::GetEditXSecFixedUVec( const std::string& xsec_
 
 void ScriptMgrSingleton::SetEditXSecFixedUVec( const string & xsec_id, CScriptArray* fixed_u_vec )
 {
-    vector < bool > new_fixed_u_vec( fixed_u_vec->GetSize() );
-
-    for ( int i = 0; i < (int)fixed_u_vec->GetSize(); i++ )
-    {
-        new_fixed_u_vec[i] = *(bool*)( fixed_u_vec->At( i ) );
-    }
+    vector < bool > new_fixed_u_vec;
+    FillArray( fixed_u_vec, new_fixed_u_vec );
 
     vsp::SetEditXSecFixedUVec( xsec_id, new_fixed_u_vec );
 }
@@ -13026,20 +12947,10 @@ void ScriptMgrSingleton::DeleteVarPresetSet( string group_name, string setting_n
 void ScriptMgrSingleton::SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* t_arr, CScriptArray* val_arr, const int & newtype )
 {
     vector < double > t_vec;
-
-    t_vec.resize( t_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )t_arr->GetSize() ; i++ )
-    {
-        t_vec[i] = * ( double* )( t_arr->At( i ) );
-    }
+    FillArray( t_arr, t_vec );
 
     vector < double > val_vec;
-
-    val_vec.resize( t_arr->GetSize() );
-    for ( int i = 0 ; i < ( int )val_arr->GetSize() ; i++ )
-    {
-        val_vec[i] = * ( double* )( val_arr->At( i ) );
-    }
+    FillArray( val_arr, val_vec );
 
     vsp::SetPCurve( geom_id, pcurveid, t_vec, val_vec, newtype );
 }
@@ -13089,12 +13000,7 @@ CScriptArray* ScriptMgrSingleton::GetFeaPartIDVec( const string & fea_struct_id 
 void ScriptMgrSingleton::SetIntAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )
 {
     vector < int > indata_vec;
-
-    indata_vec.resize( indata->GetSize() );
-    for ( int i = 0 ; i < ( int )indata->GetSize() ; i++ )
-    {
-        indata_vec[i] = * ( int* )( indata->At( i ) );
-    }
+    FillArray( indata, indata_vec );
 
     vsp::SetIntAnalysisInput( analysis, name, indata_vec, index );
 }
@@ -13102,12 +13008,7 @@ void ScriptMgrSingleton::SetIntAnalysisInput( const string& analysis, const stri
 void ScriptMgrSingleton::SetDoubleAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )
 {
     vector < double > indata_vec;
-
-    indata_vec.resize( indata->GetSize() );
-    for ( int i = 0 ; i < ( int )indata->GetSize() ; i++ )
-    {
-        indata_vec[i] = * ( double* )( indata->At( i ) );
-    }
+    FillArray( indata, indata_vec );
 
     vsp::SetDoubleAnalysisInput( analysis, name, indata_vec, index );
 }
@@ -13115,12 +13016,7 @@ void ScriptMgrSingleton::SetDoubleAnalysisInput( const string& analysis, const s
 void ScriptMgrSingleton::SetStringAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )
 {
     vector < string > indata_vec;
-
-    indata_vec.resize( indata->GetSize() );
-    for ( int i = 0 ; i < ( int )indata->GetSize() ; i++ )
-    {
-        indata_vec[i] = * ( string* )( indata->At( i ) );
-    }
+    FillArray( indata, indata_vec );
 
     vsp::SetStringAnalysisInput( analysis, name, indata_vec, index );
 }
@@ -13128,12 +13024,7 @@ void ScriptMgrSingleton::SetStringAnalysisInput( const string& analysis, const s
 void ScriptMgrSingleton::SetVec3dAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )
 {
     vector < vec3d > indata_vec;
-
-    indata_vec.resize( indata->GetSize() );
-    for ( int i = 0 ; i < ( int )indata->GetSize() ; i++ )
-    {
-        indata_vec[i] = * ( vec3d* )( indata->At( i ) );
-    }
+    FillArray( indata, indata_vec );
 
     vsp::SetVec3dAnalysisInput( analysis, name, indata_vec, index );
 }
@@ -13141,18 +13032,10 @@ void ScriptMgrSingleton::SetVec3dAnalysisInput( const string& analysis, const st
 CScriptArray* ScriptMgrSingleton::CompVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws)
 {
     vector < double > in_us;
-    in_us.resize( us->GetSize() );
-    for ( int i = 0 ; i < ( int )us->GetSize() ; i++ )
-    {
-        in_us[i] = * ( double* )( us->At( i ) );
-    }
+    FillArray( us, in_us );
 
     vector < double > in_ws;
-    in_ws.resize( ws->GetSize() );
-    for ( int i = 0 ; i < ( int )ws->GetSize() ; i++ )
-    {
-        in_ws[i] = * ( double* )( ws->At( i ) );
-    }
+    FillArray( ws, in_ws );
 
     m_ProxyVec3dArray = vsp::CompVecPnt01( geom_id, surf_indx, in_us, in_ws );
     return GetProxyVec3dArray();
@@ -13161,18 +13044,10 @@ CScriptArray* ScriptMgrSingleton::CompVecPnt01(const string &geom_id, const int 
 CScriptArray* ScriptMgrSingleton::CompVecNorm01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws)
 {
     vector < double > in_us;
-    in_us.resize( us->GetSize() );
-    for ( int i = 0 ; i < ( int )us->GetSize() ; i++ )
-    {
-        in_us[i] = * ( double* )( us->At( i ) );
-    }
+    FillArray( us, in_us );
 
     vector < double > in_ws;
-    in_ws.resize( ws->GetSize() );
-    for ( int i = 0 ; i < ( int )ws->GetSize() ; i++ )
-    {
-        in_ws[i] = * ( double* )( ws->At( i ) );
-    }
+    FillArray( ws, in_ws );
 
     m_ProxyVec3dArray = vsp::CompVecNorm01( geom_id, surf_indx, in_us, in_ws );
     return GetProxyVec3dArray();
@@ -13181,18 +13056,10 @@ CScriptArray* ScriptMgrSingleton::CompVecNorm01(const string &geom_id, const int
 void ScriptMgrSingleton::CompVecCurvature01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws, CScriptArray* k1s, CScriptArray* k2s, CScriptArray* kas, CScriptArray* kgs)
 {
     vector < double > in_us;
-    in_us.resize( us->GetSize() );
-    for ( int i = 0 ; i < ( int )us->GetSize() ; i++ )
-    {
-        in_us[i] = * ( double* )( us->At( i ) );
-    }
+    FillArray( us, in_us );
 
     vector < double > in_ws;
-    in_ws.resize( ws->GetSize() );
-    for ( int i = 0 ; i < ( int )ws->GetSize() ; i++ )
-    {
-        in_ws[i] = * ( double* )( ws->At( i ) );
-    }
+    FillArray( ws, in_ws );
 
     vector < double > out_k1s;
     vector < double > out_k2s;
@@ -13201,21 +13068,16 @@ void ScriptMgrSingleton::CompVecCurvature01(const string &geom_id, const int &su
 
     vsp::CompVecCurvature01( geom_id, surf_indx, in_us, in_ws, out_k1s, out_k2s, out_kas, out_kgs );
 
-    FillDoubleArray( out_k1s, k1s );
-    FillDoubleArray( out_k2s, k2s );
-    FillDoubleArray( out_kas, kas );
-    FillDoubleArray( out_kgs, kgs );
+    FillArray( out_k1s, k1s );
+    FillArray( out_k2s, k2s );
+    FillArray( out_kas, kas );
+    FillArray( out_kgs, kgs );
 }
 
 void ScriptMgrSingleton::ProjVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
 {
     vector < vec3d > in_pts;
-
-    in_pts.resize( pts->GetSize() );
-    for ( int i = 0 ; i < ( int )pts->GetSize() ; i++ )
-    {
-        in_pts[i] = * ( vec3d* )( pts->At( i ) );
-    }
+    FillArray( pts, in_pts );
 
     vector < double > out_us;
     vector < double > out_ws;
@@ -13223,34 +13085,21 @@ void ScriptMgrSingleton::ProjVecPnt01(const string &geom_id, const int &surf_ind
 
     vsp::ProjVecPnt01( geom_id, surf_indx, in_pts, out_us, out_ws, out_ds );
 
-    FillDoubleArray( out_us, us );
-    FillDoubleArray( out_ws, ws );
-    FillDoubleArray( out_ds, ds );
+    FillArray( out_us, us );
+    FillArray( out_ws, ws );
+    FillArray( out_ds, ds );
 }
 
 void ScriptMgrSingleton::ProjVecPnt01Guess(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
 {
     vector < vec3d > in_pts;
-
-    in_pts.resize( pts->GetSize() );
-    for ( int i = 0 ; i < ( int )pts->GetSize() ; i++ )
-    {
-        in_pts[i] = * ( vec3d* )( pts->At( i ) );
-    }
+    FillArray( pts, in_pts );
 
     vector < double > in_u0s;
-    in_u0s.resize( u0s->GetSize() );
-    for ( int i = 0 ; i < ( int )u0s->GetSize() ; i++ )
-    {
-        in_u0s[i] = * ( double* )( u0s->At( i ) );
-    }
+    FillArray( u0s, in_u0s );
 
     vector < double > in_w0s;
-    in_w0s.resize( w0s->GetSize() );
-    for ( int i = 0 ; i < ( int )w0s->GetSize() ; i++ )
-    {
-        in_w0s[i] = * ( double* )( w0s->At( i ) );
-    }
+    FillArray( w0s, in_w0s );
 
     vector < double > out_us;
     vector < double > out_ws;
@@ -13258,20 +13107,15 @@ void ScriptMgrSingleton::ProjVecPnt01Guess(const string &geom_id, const int &sur
 
     vsp::ProjVecPnt01Guess( geom_id, surf_indx, in_pts, in_u0s, in_w0s, out_us, out_ws, out_ds );
 
-    FillDoubleArray( out_us, us );
-    FillDoubleArray( out_ws, ws );
-    FillDoubleArray( out_ds, ds );
+    FillArray( out_us, us );
+    FillArray( out_ws, ws );
+    FillArray( out_ds, ds );
 }
 
 void ScriptMgrSingleton::AxisProjVecPnt01(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ps_out, CScriptArray* ds )
 {
     vector < vec3d > in_pts;
-
-    in_pts.resize( pts->GetSize() );
-    for ( int i = 0 ; i < ( int )pts->GetSize() ; i++ )
-    {
-        in_pts[i] = * ( vec3d* )( pts->At( i ) );
-    }
+    FillArray( pts, in_pts );
 
     vector < double > out_us;
     vector < double > out_ws;
@@ -13280,35 +13124,22 @@ void ScriptMgrSingleton::AxisProjVecPnt01(const string &geom_id, const int &surf
 
     vsp::AxisProjVecPnt01( geom_id, surf_indx, iaxis, in_pts, out_us, out_ws, out_pts, out_ds );
 
-    FillDoubleArray( out_us, us );
-    FillDoubleArray( out_ws, ws );
-    FillDoubleArray( out_ds, ds );
-    FillVec3dArray( out_pts, ps_out );
+    FillArray( out_us, us );
+    FillArray( out_ws, ws );
+    FillArray( out_ds, ds );
+    FillArray( out_pts, ps_out );
 }
 
 void ScriptMgrSingleton::AxisProjVecPnt01Guess(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ps_out, CScriptArray* ds )
 {
     vector < vec3d > in_pts;
-
-    in_pts.resize( pts->GetSize() );
-    for ( int i = 0 ; i < ( int )pts->GetSize() ; i++ )
-    {
-        in_pts[i] = * ( vec3d* )( pts->At( i ) );
-    }
+    FillArray( pts, in_pts );
 
     vector < double > in_u0s;
-    in_u0s.resize( u0s->GetSize() );
-    for ( int i = 0 ; i < ( int )u0s->GetSize() ; i++ )
-    {
-        in_u0s[i] = * ( double* )( u0s->At( i ) );
-    }
+    FillArray( u0s, in_u0s );
 
     vector < double > in_w0s;
-    in_w0s.resize( w0s->GetSize() );
-    for ( int i = 0 ; i < ( int )w0s->GetSize() ; i++ )
-    {
-        in_w0s[i] = * ( double* )( w0s->At( i ) );
-    }
+    FillArray( w0s, in_w0s );
 
     vector < double > out_us;
     vector < double > out_ws;
@@ -13317,10 +13148,11 @@ void ScriptMgrSingleton::AxisProjVecPnt01Guess(const string &geom_id, const int 
 
     vsp::AxisProjVecPnt01Guess( geom_id, surf_indx, iaxis, in_pts, in_u0s, in_w0s, out_us, out_ws, out_pts,out_ds );
 
-    FillDoubleArray( out_us, us );
-    FillDoubleArray( out_ws, ws );
-    FillDoubleArray( out_ds, ds );
-    FillVec3dArray( out_pts, ps_out );
+    FillArray( out_us, us );
+    FillArray( out_ws, ws );
+    FillArray( out_ds, ds );
+    FillArray( out_pts, ps_out );
+}
 }
 
 void ScriptMgrSingleton::GetUWTess01(const string &geom_id, int &surf_indx, CScriptArray* us, CScriptArray* ws )
@@ -13330,8 +13162,8 @@ void ScriptMgrSingleton::GetUWTess01(const string &geom_id, int &surf_indx, CScr
 
     vsp::GetUWTess01( geom_id, surf_indx, out_us, out_ws );
 
-    FillDoubleArray( out_us, us );
-    FillDoubleArray( out_ws, ws );
+    FillArray( out_us, us );
+    FillArray( out_ws, ws );
 }
 
 //=== Register Measure Functions ===//
