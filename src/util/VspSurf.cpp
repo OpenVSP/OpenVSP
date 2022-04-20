@@ -22,6 +22,7 @@
 
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
+#include "eli/geom/intersect/find_rst_surface.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 #include "eli/geom/intersect/distance_angle_surface.hpp"
 #include "eli/geom/intersect/intersect_axis_surface.hpp"
@@ -284,6 +285,20 @@ void VspSurf::GuessDistanceAngle( double &du, double &dw, const vec3d &udir, con
 
         du = d * ( cos( theta ) / udir.mag() - k * dn );
     }
+}
+
+double VspSurf::FindRST( const vec3d & pt, const double &r0, const double &s0, const double &t0, double &r, double &s, double &t ) const
+{
+    surface_point_type p0;
+    p0 << pt.x(), pt.y(), pt.z();
+    int ret;
+    double dist = eli::geom::intersect::find_rst( r, s, t, m_Surface, p0, r0, s0, t0, ret );
+    return dist;
+}
+
+double VspSurf::FindRST( const vec3d & pt, double &r, double &s, double &t ) const
+{
+    return FindRST( pt, 0.5, 0.25, 0.5, r, s, t );
 }
 
 double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d &outpt ) const
