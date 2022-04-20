@@ -10683,6 +10683,145 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Determine the nearest (R, S, T) volume coordinate for an input (X, Y, Z) 3D coordinate point and calculate the distance between the
+    3D point and the found volume point.
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double r = 0.12;
+    double s = 0.34;
+    double t = 0.56;
+
+    vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
+
+    double rout, sout, tout;
+
+    double d = FindRST( geom_id, surf_indx, pnt, rout, sout, tout );
+
+    Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout );
+    \endcode
+    \sa FindRSTGuess
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] pt Input 3D coordinate point
+    \param [out] r Output closest R (0 - 1.0) volume coordinate
+    \param [out] s Output closest S (0 - 0.5) volume coordinate
+    \param [out] t Output closest T (0 - 1.0) volume coordinate
+    \return Distance between the 3D point and the closest point of the volume
+*/)";
+    r = se->RegisterGlobalFunction( "double FindRST( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, double & out r, double & out s, double & out t )", asFUNCTION(vsp::FindRST), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Determine the nearest (R, S, T) volume coordinate for an input (X, Y, Z) 3D coordinate point given an initial guess of volume coordinates.  Also calculate the distance between the
+    3D point and the found volume point.
+
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double r = 0.12;
+    double s = 0.34;
+    double t = 0.56;
+
+    vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
+
+    double rout, sout, tout;
+
+    double r0 = 0.1;
+    double s0 = 0.3;
+    double t0 = 0.5;
+
+    double d = FindRSTGuess( geom_id, surf_indx, pnt, r0, s0, t0, rout, sout, tout );
+
+    Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout );
+    \endcode
+    \sa FindRST
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] pt Input 3D coordinate point
+    \param [in] r0 Input R (0 - 1.0) volume coordinate guess
+    \param [in] s0 Input S (0 - 0.5) volume coordinate guess
+    \param [in] t0 Input T (0 - 1.0) volume coordinate guess
+    \param [out] r Output closest R (0 - 1.0) volume coordinate
+    \param [out] s Output closest S (0 - 0.5) volume coordinate
+    \param [out] t Output closest T (0 - 1.0) volume coordinate
+    \return Distance between the 3D point and the closest point of the volume
+*/)";
+    r = se->RegisterGlobalFunction( "double FindRSTGuess( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, const double & in r0, const double & in s0, const double & in t0, double & out r, double & out s, double & out t )", asFUNCTION(vsp::FindRSTGuess), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Calculate the (X, Y, Z) coordinate for the input volume (R, S, T) coordinate point
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double r = 0.12;
+    double s = 0.34;
+    double t = 0.56;
+
+    vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
+
+    Print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' );
+    \endcode
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] r R (0 - 1) volume coordinate
+    \param [in] s S (0 - 0.5) volume coordinate
+    \param [in] t T (0 - 1) volume coordinate
+    \return vec3d coordinate point
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d CompPntRST( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t )", asFUNCTION(vsp::CompPntRST), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Determine 3D coordinate for each volume coordinate point in the input arrays
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int n = 5;
+
+    array<double> rvec, svec, tvec;
+
+    rvec.resize( n );
+    svec.resize( n );
+    tvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        rvec[i] = (i+1)*1.0/(n+1);
+
+        svec[i] = (n-i)*0.5/(n+1);
+
+        tvec[i] = (i+1)*1.0/(n+1);
+    }
+
+    array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec );
+    \endcode
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] rs Input array of R (0 - 1.0) volume coordinates
+    \param [in] ss Input array of S (0 - 0.5) volume coordinates
+    \param [in] ts Input array of T (0 - 1.0) volume coordinates
+    \return Array of 3D coordinate points
+*/)";
+    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecPntRST(const string & in geom_id, const int & in surf_indx, array<double>@ rs, array<double>@ ss, array<double>@ ts )", asMETHOD( ScriptMgrSingleton, CompVecPntRST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Get the surface coordinate point of each intersection of the tessellated wireframe for a particular surface
     \code{.cpp}
     // Add Pod Geom
@@ -11036,6 +11175,101 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [out] ds Output array of axis distances for each 3D point and the projected point of the surface
 */)";
     r = se->RegisterGlobalFunction( "void AxisProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<vec3d>@ ps_out, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+   doc_struct.comment = R"(
+/*!
+    Determine the nearest volume coordinates for an input array of 3D coordinate points and calculate the distance between each
+    3D point and the found point in the volume.
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int n = 5;
+
+    array<double> rvec, svec, tvec;
+
+    rvec.resize( n );
+    svec.resize( n );
+    tvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        rvec[i] = (i+1)*1.0/(n+1);
+
+        svec[i] = (n-i)*0.5/(n+1);
+
+        tvec[i] = (i+1)*1.0/(n+1);
+    }
+
+    array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec );
+
+    array<double> routv, soutv, toutv, doutv;
+
+    FindRSTVec( geom_id, 0, ptvec, routv, soutv, toutv, doutv );
+    \endcode
+    \sa FindRSTVecGuess
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] pts Input array of 3D coordinate points
+    \param [out] rs Output array of the closest R (0 - 1.0) volume coordinate for each 3D input point
+    \param [out] ss Output array of the closest S (0 - 0.5) volume coordinate for each 3D input point
+    \param [out] ts Output array of the closest T (0 - 1.0) volume coordinate for each 3D input point
+    \param [out] ds Output array of distances for each 3D point and the closest point of the volume
+*/)";
+    r = se->RegisterGlobalFunction( "void FindRSTVec(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, FindRSTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Determine the nearest volume coordinates for an input array of 3D coordinate points and calculate the distance between each
+    3D point and the closest point of the volume. This function takes an input array of volume coordinate guesses for each 3D
+    coordinate, offering a potential decrease in computation time compared to FindRSTVec.
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int n = 5;
+
+    array<double> rvec, svec, tvec;
+
+    rvec.resize( n );
+    svec.resize( n );
+    tvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        rvec[i] = (i+1)*1.0/(n+1);
+
+        svec[i] = (n-i)*0.5/(n+1);
+
+        tvec[i] = (i+1)*1.0/(n+1);
+    }
+
+    array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec );
+
+    array<double> routv, soutv, toutv, doutv;
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        ptvec[i] = ptvec[i] * 0.9;
+    }
+
+    FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec, routv, soutv, toutv, doutv );
+    \endcode
+    \sa FindRSTVec,
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] pts Input array of 3D coordinate points
+    \param [in] r0s Input array of U (0 - 1.0) volume coordinate guesses
+    \param [in] s0s Input array of S (0 - 0.5) volume coordinate guesses
+    \param [in] t0s Input array of T (0 - 1.0) volume coordinate guesses
+    \param [out] rs Output array of the closest R (0 - 1.0) volume coordinate for each 3D input point
+    \param [out] ss Output array of the closest S (0 - 0.5) volume coordinate for each 3D input point
+    \param [out] ts Output array of the closest T (0 - 1.0) volume coordinate for each 3D input point
+    \param [out] ds Output array of distances for each 3D point and the closest point of the volume
+*/)";
+    r = se->RegisterGlobalFunction( "void FindRSTVecGuess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ r0s, array<double>@ s0s, array<double>@ t0s, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, FindRSTVecGuess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
     //=== Register Measure Functions ===//
@@ -13041,6 +13275,21 @@ CScriptArray* ScriptMgrSingleton::CompVecPnt01(const string &geom_id, const int 
     return GetProxyVec3dArray();
 }
 
+CScriptArray* ScriptMgrSingleton::CompVecPntRST(const string &geom_id, const int &surf_indx, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts)
+{
+    vector < double > in_rs;
+    FillArray( rs, in_rs );
+
+    vector < double > in_ss;
+    FillArray( ss, in_ss );
+
+    vector < double > in_ts;
+    FillArray( ts, in_ts );
+
+    m_ProxyVec3dArray = vsp::CompVecPntRST( geom_id, surf_indx, in_rs, in_ss, in_ts );
+    return GetProxyVec3dArray();
+}
+
 CScriptArray* ScriptMgrSingleton::CompVecNorm01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws)
 {
     vector < double > in_us;
@@ -13153,6 +13402,49 @@ void ScriptMgrSingleton::AxisProjVecPnt01Guess(const string &geom_id, const int 
     FillArray( out_ds, ds );
     FillArray( out_pts, ps_out );
 }
+
+void ScriptMgrSingleton::FindRSTVec(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts, CScriptArray* ds )
+{
+    vector < vec3d > in_pts;
+    FillArray( pts, in_pts );
+
+    vector < double > out_rs;
+    vector < double > out_ss;
+    vector < double > out_ts;
+    vector < double > out_ds;
+
+    vsp::FindRSTVec( geom_id, surf_indx, in_pts, out_rs, out_ss, out_ts, out_ds );
+
+    FillArray( out_rs, rs );
+    FillArray( out_ss, ss );
+    FillArray( out_ts, ts );
+    FillArray( out_ds, ds );
+}
+
+void ScriptMgrSingleton::FindRSTVecGuess(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* r0s, CScriptArray* s0s, CScriptArray* t0s, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts, CScriptArray* ds )
+{
+    vector < vec3d > in_pts;
+    FillArray( pts, in_pts );
+
+    vector < double > in_r0s;
+    vector < double > in_s0s;
+    vector < double > in_t0s;
+
+    FillArray( r0s, in_r0s );
+    FillArray( s0s, in_s0s );
+    FillArray( t0s, in_t0s );
+
+    vector < double > out_rs;
+    vector < double > out_ss;
+    vector < double > out_ts;
+    vector < double > out_ds;
+
+    vsp::FindRSTVecGuess(geom_id, surf_indx, in_pts, in_r0s, in_s0s, in_t0s, out_rs, out_ss, out_ts, out_ds );
+
+    FillArray( out_rs, rs );
+    FillArray( out_ss, ss );
+    FillArray( out_ts, ts );
+    FillArray( out_ds, ds );
 }
 
 void ScriptMgrSingleton::GetUWTess01(const string &geom_id, int &surf_indx, CScriptArray* us, CScriptArray* ws )
