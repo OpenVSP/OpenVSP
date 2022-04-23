@@ -1146,22 +1146,7 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_AddSubSurfButton )
     {
         SubSurface* ssurf = NULL;
-        if ( m_SubSurfChoice.GetVal() == vsp::SS_LINE )
-        {
-            ssurf = geom_ptr->AddSubSurf( vsp::SS_LINE, m_SSCurrMainSurfIndx );
-        }
-        else if ( m_SubSurfChoice.GetVal() == vsp::SS_RECTANGLE )
-        {
-            ssurf = geom_ptr->AddSubSurf( vsp::SS_RECTANGLE, m_SSCurrMainSurfIndx );
-        }
-        else if ( m_SubSurfChoice.GetVal() == vsp::SS_ELLIPSE )
-        {
-            ssurf = geom_ptr->AddSubSurf( vsp::SS_ELLIPSE, m_SSCurrMainSurfIndx );
-        }
-        else if (m_SubSurfChoice.GetVal() == vsp::SS_CONTROL)
-        {
-            ssurf = geom_ptr->AddSubSurf(vsp::SS_CONTROL, m_SSCurrMainSurfIndx);
-        }
+        ssurf = geom_ptr->AddSubSurf( m_SubSurfChoice.GetVal(), m_SSCurrMainSurfIndx );
 
         if ( ssurf )
         {
