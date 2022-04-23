@@ -216,6 +216,10 @@ std::string SubSurface::GetTypeName( int type )
     {
         return string( "Line_Array" );
     }
+    if ( type == vsp::SS_FINITE_LINE )
+    {
+        return string( "Finite_Line" );
+    }
     return string( "NONE" );
 }
 
@@ -2192,4 +2196,50 @@ int SSLineArray::CompNumDrawPnts( Geom* geom )
     }
 
     return -1;
+}
+
+//////////////////////////////////////////////////////
+//=================== SSFiniteLine =====================//
+//////////////////////////////////////////////////////
+
+SSFiniteLine::SSFiniteLine( const string& comp_id, int type ) : SubSurface( comp_id, type )
+{
+    m_UStart.Init( "UStart", "SS_FiniteLine", this, 0.4, 0, 1 );
+    m_UStart.SetDescript( "The U starting location of the finite line" );
+
+    m_UEnd.Init( "UEnd", "SS_FiniteLine", this, 0.6, 0, 1 );
+    m_UEnd.SetDescript( "The U ending location of the finite line" );
+
+    m_WStart.Init( "WStart", "SS_FiniteLine", this, 0.3, 0, 1 );
+    m_WStart.SetDescript( "The W starting location of the finite line" );
+
+    m_WEnd.Init( "WEnd", "SS_FiniteLine", this, 0.3, 0, 1 );
+    m_WEnd.SetDescript( "The W ending location of the finite line" );
+
+    m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::NO, SSLineSeg::NO, SSLineSeg::NO );
+    m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
+
+    m_LVec.resize( 1 );
+}
+
+SSFiniteLine::~SSFiniteLine()
+{
+}
+
+void SSFiniteLine::Update()
+{
+    // Using m_LVec[0] since SSLine should always only have one line segment
+    // Update SSegLine points based on current values
+    m_LVec[0].SetSP0( vec3d( m_UStart(), m_WStart(), 0 ) );
+    m_LVec[0].SetSP1( vec3d( m_UEnd(), m_WEnd(), 0 ) );
+
+    m_LVec[0].m_TestType = m_TestType();
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
+    if ( !geom )
+    {
+        return;
+    }
+    m_LVec[0].Update( geom );
+
+    SubSurface::Update();
 }

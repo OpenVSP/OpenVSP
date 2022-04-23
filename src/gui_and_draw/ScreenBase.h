@@ -342,6 +342,13 @@ public:
 
     SliderAdjRangeInput m_SSConTessSlider;
 
+    // SS_FiniteLine
+    GroupLayout m_SSFLineGroup;
+    SliderAdjRangeInput m_SSFLineUStartSlider;
+    SliderAdjRangeInput m_SSFLineUEndSlider;
+    SliderAdjRangeInput m_SSFLineWStartSlider;
+    SliderAdjRangeInput m_SSFLineWEndSlider;
+
 protected:
     bool m_RotActive;
     string m_GeomTypeName;

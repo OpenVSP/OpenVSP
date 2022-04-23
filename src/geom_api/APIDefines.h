@@ -541,6 +541,7 @@ enum SUBSURF_TYPE { SS_LINE,
                     SS_ELLIPSE,
                     SS_CONTROL,
                     SS_LINE_ARRAY,
+                    SS_FINITE_LINE,
                     SS_NUM_TYPES
                   };
 

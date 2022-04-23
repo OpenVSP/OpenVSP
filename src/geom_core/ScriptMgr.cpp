@@ -1673,6 +1673,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_LINE_ARRAY", SS_LINE_ARRAY, "/*!< Line array sub-surface type */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_FINITE_LINE", SS_FINITE_LINE, "/*!< Finite line sub-surface type */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_NUM_TYPES", SS_NUM_TYPES, "/*!< Number of sub-surface types */" );
     assert( r >= 0 );
 

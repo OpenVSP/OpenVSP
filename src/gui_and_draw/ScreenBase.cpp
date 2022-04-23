@@ -529,6 +529,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ), vsp::SS_ELLIPSE );
 // Only add control surface in WingScreen.
 //    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ), vsp::SS_CONTROL );
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_FINITE_LINE ), vsp::SS_FINITE_LINE );
 
     m_SubSurfLayout.SetChoiceButtonWidth( m_SubSurfLayout.GetRemainX() / 3 );
 
@@ -711,6 +712,19 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConGroup.AddSlider( m_SSConEAngleSlider, "End Angle", 10.0, "%5.4f" );
 
     m_SSConGroup.AddSlider( m_SSConTessSlider, "Num Points", 100, "%5.0f" );
+
+    //==== SSFiniteLine ====//
+    m_SSCommonGroup.AddSubGroupLayout( m_SSFLineGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
+    remain_x = m_SSFLineGroup.GetRemainX();
+
+    m_SSFLineGroup.SetFitWidthFlag( true );
+    m_SSFLineGroup.SetSameLineFlag( false );
+    m_SSFLineGroup.ForceNewLine();
+
+    m_SSFLineGroup.AddSlider( m_SSFLineUStartSlider, "U Start", 1, "%5.4f" );
+    m_SSFLineGroup.AddSlider( m_SSFLineUEndSlider, "U End", 1, "%5.4f" );
+    m_SSFLineGroup.AddSlider( m_SSFLineWStartSlider, "W Start", 1, "%5.4f" );
+    m_SSFLineGroup.AddSlider( m_SSFLineWEndSlider, "W End", 1, "%5.4f" );
 
     m_RotActive = true;
 }
@@ -1007,6 +1021,17 @@ bool GeomScreen::Update()
             m_SSConSurfTypeChoice.Update(sscon->m_SurfType.GetID());
             SubSurfDispGroup(&m_SSConGroup);
         }
+        else if ( subsurf->GetType() == vsp::SS_FINITE_LINE )
+        {
+            SSFiniteLine* ssfline = dynamic_cast< SSFiniteLine* >( subsurf );
+            assert( ssfline );
+
+            m_SSFLineUStartSlider.Update( ssfline->m_UStart.GetID() );
+            m_SSFLineUEndSlider.Update( ssfline->m_UEnd.GetID() );
+            m_SSFLineWStartSlider.Update( ssfline->m_WStart.GetID() );
+            m_SSFLineWEndSlider.Update( ssfline->m_WEnd.GetID() );
+            SubSurfDispGroup( &m_SSFLineGroup );
+        }
     }
     else
     {
@@ -1187,6 +1212,7 @@ void GeomScreen::SubSurfDispGroup( GroupLayout* group )
     m_SSCommonGroup.Hide();
     m_SSEllGroup.Hide();
     m_SSConGroup.Hide();
+    m_SSFLineGroup.Hide();
 
     m_CurSubDispGroup = group;
 

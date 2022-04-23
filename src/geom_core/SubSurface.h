@@ -323,4 +323,23 @@ class SSLineArray : public SubSurface
     int m_NumLines;
 };
 
+class SSFiniteLine : public SubSurface
+{
+public:
+
+    SSFiniteLine( const string& compID, int type = vsp::SS_FINITE_LINE );
+    virtual ~SSFiniteLine();
+
+    Parm m_UStart;
+    Parm m_UEnd;
+    Parm m_WStart;
+    Parm m_WEnd;
+
+    virtual void Update();
+
+protected:
+
+};
+
+
 #endif

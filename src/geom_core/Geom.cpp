@@ -4667,6 +4667,11 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
         ssurf = new SSControlSurf(m_ID);
         ssurf->SetName(string("SS_CONT_" + to_string((long long)m_SubSurfVec.size())));
     }
+    else if ( type == vsp::SS_FINITE_LINE )
+    {
+        ssurf = new SSFiniteLine( m_ID );
+        ssurf->SetName( string( "SS_FLINE_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
 
     if ( ssurf )
     {
