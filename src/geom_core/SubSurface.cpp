@@ -292,14 +292,14 @@ void SubSurface::UpdatePolygonPnts()
 
     m_PolyPntsVec[0].clear();
 
-    int last_ind = m_LVec.size() - 1;
     vec3d pnt;
-    for ( int ls = 0; ls < last_ind + 1; ls++ )
+    int ls;
+    for ( ls = 0; ls < m_LVec.size(); ls++ )
     {
         pnt = m_LVec[ls].GetP0();
         m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
     }
-    pnt = m_LVec[last_ind].GetP1();
+    pnt = m_LVec[ls - 1].GetP1();
     m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
 
     m_PolyPntsReadyFlag = true;
