@@ -1155,6 +1155,30 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_FeaSSLineArrayGroup.AddDividerBox( "Elements" );
 
     m_FeaSSLineArrayGroup.AddChoice( m_FeaSSLineArrayCapPropertyChoice, "Cap Property" );
+
+    //==== SSFiniteLine ====//
+    m_GenLayout.AddSubGroupLayout( m_FeaSSFLineGroup, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
+    m_FeaSSFLineGroup.SetY( start_y );
+
+    m_FeaSSFLineGroup.AddDividerBox( "Finite Line Sub-Surface" );
+
+    m_FeaSSFLineGroup.ForceNewLine();
+    m_FeaSSFLineGroup.SetFitWidthFlag( true );
+    m_FeaSSFLineGroup.SetSameLineFlag( false );
+
+    m_FeaSSFLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
+    m_FeaSSFLineGroup.SetChoiceButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
+
+    m_FeaSSFLineGroup.AddSlider( m_FeaSSFLineUStartSlider, "U Start", 1, "%5.4f" );
+    m_FeaSSFLineGroup.AddSlider( m_FeaSSFLineUEndSlider, "U End", 1, "%5.4f" );
+    m_FeaSSFLineGroup.AddSlider( m_FeaSSFLineWStartSlider, "W Start", 1, "%5.4f" );
+    m_FeaSSFLineGroup.AddSlider( m_FeaSSFLineWEndSlider, "W End", 1, "%5.4f" );
+
+    m_FeaSSFLineGroup.AddYGap();
+
+    m_FeaSSFLineGroup.AddDividerBox( "Elements" );
+
+    m_FeaSSFLineGroup.AddChoice( m_FeaSSFLineCapPropertyChoice, "Cap Property" );
 }
 
 FeaPartEditScreen::~FeaPartEditScreen()
@@ -1948,6 +1972,18 @@ bool FeaPartEditScreen::Update()
 
                         FeaPartDispGroup( &m_FeaSSLineArrayGroup );
                     }
+                    else if ( subsurf->GetType() == vsp::SS_FINITE_LINE )
+                    {
+                        SSFiniteLine* ssfline = dynamic_cast<SSFiniteLine*>( subsurf );
+                        assert( ssfline );
+
+                        m_FeaSSFLineUStartSlider.Update( ssfline->m_UStart.GetID() );
+                        m_FeaSSFLineUEndSlider.Update( ssfline->m_UEnd.GetID() );
+                        m_FeaSSFLineWStartSlider.Update( ssfline->m_WStart.GetID() );
+                        m_FeaSSFLineWEndSlider.Update( ssfline->m_WEnd.GetID() );
+
+                        FeaPartDispGroup( &m_FeaSSFLineGroup );
+                    }
                     else
                     {
                         Hide();
@@ -2036,7 +2072,8 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
               device == &m_FeaSSRecCapPropertyChoice ||
               device == &m_FeaSSEllCapPropertyChoice ||
               device == &m_FeaSSConCapPropertyChoice ||
-              device == &m_FeaSSLineArrayCapPropertyChoice )
+              device == &m_FeaSSLineArrayCapPropertyChoice ||
+              device == &m_FeaSSFLineCapPropertyChoice )
     {
         Choice* selected_choice = dynamic_cast<Choice*>( device );
         assert( selected_choice );
@@ -2240,6 +2277,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
     m_FeaSSEllCapPropertyChoice.ClearItems();
     m_FeaSSConCapPropertyChoice.ClearItems();
     m_FeaSSLineArrayCapPropertyChoice.ClearItems();
+    m_FeaSSFLineCapPropertyChoice.ClearItems();
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -2273,6 +2311,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             m_FeaSSEllCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSConCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSLineArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_FeaSSFLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
             if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
             {
@@ -2300,6 +2339,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_FeaSSEllCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSConCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSLineArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_FeaSSFLineCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
             }
             else if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
             {
@@ -2327,6 +2367,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_FeaSSEllCapPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSConCapPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSLineArrayCapPropertyChoice.SetFlag( i, 0 );
+                m_FeaSSFLineCapPropertyChoice.SetFlag( i, 0 );
             }
         }
 
@@ -2354,6 +2395,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
         m_FeaSSEllCapPropertyChoice.UpdateItems();
         m_FeaSSConCapPropertyChoice.UpdateItems();
         m_FeaSSLineArrayCapPropertyChoice.UpdateItems();
+        m_FeaSSFLineCapPropertyChoice.UpdateItems();
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {
@@ -2399,6 +2441,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                     m_FeaSSEllCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                     m_FeaSSConCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                     m_FeaSSLineArrayCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
+                    m_FeaSSFLineCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                 }
             }
         }
@@ -2567,6 +2610,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
     m_FeaSSEllGroup.Hide();
     m_FeaSSConGroup.Hide();
     m_FeaSSLineArrayGroup.Hide();
+    m_FeaSSFLineGroup.Hide();
 
     m_CurFeaPartDispGroup = group;
 

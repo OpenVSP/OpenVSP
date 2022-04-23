@@ -50,6 +50,7 @@ private:
     GroupLayout m_FeaSSEllGroup;
     GroupLayout m_FeaSSConGroup;
     GroupLayout m_FeaSSLineArrayGroup;
+    GroupLayout m_FeaSSFLineGroup;
 
     //===== General =====//
     StringInput m_FeaPartNameInput;
@@ -320,6 +321,17 @@ private:
     ToggleButton m_FeaSSLineArrayPosDirToggle;
     ToggleRadioGroup m_FeaSSLineArrayPosNegDirToggleGroup;
     TriggerButton m_IndividualizeSSLineArrayButton;
+
+    //===== SSFiniteLine =====//
+
+    Choice m_FeaSSFLineCapPropertyChoice;
+
+    SliderAdjRangeInput m_FeaSSFLineUStartSlider;
+    SliderAdjRangeInput m_FeaSSFLineUEndSlider;
+    SliderAdjRangeInput m_FeaSSFLineWStartSlider;
+    SliderAdjRangeInput m_FeaSSFLineWEndSlider;
+
+
 };
 
 #endif // !defined(FEAPARTEDITSCREEN__INCLUDED_)

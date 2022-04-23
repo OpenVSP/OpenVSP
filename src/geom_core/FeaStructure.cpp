@@ -370,6 +370,11 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
         ssurf = new SSLineArray( m_ParentGeomID );
         ssurf->SetName( string( "SSLineArray" + to_string( m_FeaSubSurfCount ) ) );
     }
+    else if ( type == vsp::SS_FINITE_LINE )
+    {
+        ssurf = new SSFiniteLine( m_ParentGeomID );
+        ssurf->SetName( string( "SSFiniteLine" + to_string( m_FeaSubSurfCount ) ) );
+    }
 
     if ( ssurf )
     {

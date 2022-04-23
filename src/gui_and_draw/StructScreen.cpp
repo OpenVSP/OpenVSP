@@ -1291,6 +1291,7 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE_ARRAY ) );
+                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_FINITE_LINE ) );
 
                     if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
                     {
@@ -2273,7 +2274,8 @@ bool StructScreen::Update()
                             m_GenCapPropertyChoice.Activate();
                         }
 
-                        if ( subsurf->GetType() == vsp::SS_LINE_ARRAY )
+                        if ( subsurf->GetType() == vsp::SS_LINE_ARRAY ||
+                             subsurf->GetType() == vsp::SS_FINITE_LINE )
                         {
                             m_ShellCapToggleGroup.Deactivate();
                         }
@@ -2745,6 +2747,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 {
                     ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_LINE_ARRAY );
                 }
+                else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_FINITE_LINE )
+                {
+                    ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_FINITE_LINE );
+                }
 
                 if ( ssurf )
                 {
@@ -2894,7 +2900,8 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
                     if ( ssurf )
                     {
-                        if ( ssurf->GetType() == vsp::SS_LINE_ARRAY  )
+                        if ( ssurf->GetType() == vsp::SS_LINE_ARRAY ||
+                             ssurf->GetType() == vsp::SS_FINITE_LINE )
                         {
                             ssurf->m_IncludedElements.Set( vsp::FEA_BEAM );
                         }
