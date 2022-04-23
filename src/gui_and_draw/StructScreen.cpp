@@ -1316,6 +1316,8 @@ void StructScreen::UpdateFeaPartChoice()
                         m_FeaPartChoice.SetFlag( 4, FL_MENU_INACTIVE );
                     }
 
+                    // Number of non-subsurface types.  Used as an offset when indexing m_FeaPartChoice, but needing
+                    // to index into subsurface part types.
                     m_NumFeaPartChoices = 7;
 
                     m_FeaPartChoice.UpdateItems();
