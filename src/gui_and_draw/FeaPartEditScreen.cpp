@@ -2026,9 +2026,17 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
         SetFeaPartPropertyIndex( selected_choice );
     }
-    else if ( device == &m_SliceCapPropertyChoice || device == &m_RibCapPropertyChoice || device == &m_SparCapPropertyChoice || device == &m_DomeCapPropertyChoice
-              || device == &m_RibArrayCapPropertyChoice || device == &m_SliceArrayCapPropertyChoice || device == &m_FeaSSLineCapPropertyChoice
-              || device == &m_FeaSSRecCapPropertyChoice || device == &m_FeaSSEllCapPropertyChoice || device == &m_FeaSSConCapPropertyChoice || device == &m_FeaSSLineArrayCapPropertyChoice )
+    else if ( device == &m_SliceCapPropertyChoice ||
+              device == &m_RibCapPropertyChoice ||
+              device == &m_SparCapPropertyChoice ||
+              device == &m_DomeCapPropertyChoice ||
+              device == &m_RibArrayCapPropertyChoice ||
+              device == &m_SliceArrayCapPropertyChoice ||
+              device == &m_FeaSSLineCapPropertyChoice ||
+              device == &m_FeaSSRecCapPropertyChoice ||
+              device == &m_FeaSSEllCapPropertyChoice ||
+              device == &m_FeaSSConCapPropertyChoice ||
+              device == &m_FeaSSLineArrayCapPropertyChoice )
     {
         Choice* selected_choice = dynamic_cast<Choice*>( device );
         assert( selected_choice );
