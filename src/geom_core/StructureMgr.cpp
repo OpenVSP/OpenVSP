@@ -847,43 +847,18 @@ void StructureMgrSingleton::InitFeaMaterials()
 {
     // Note: Parm values set in FeaMaterial::Update()
 
-    FeaMaterial* aluminum_7075_T6 = new FeaMaterial();
+    int nmat = 4;
+    const char *matnames[] = {"Aluminum 7075-T6",
+                              "Aluminum 2024-T3",
+                              "Titanium Ti-6Al-4V",
+                              "AISI 4130 Steel"};
 
-    if ( aluminum_7075_T6 )
+    for ( int i = 0; i < nmat; i++ )
     {
-        aluminum_7075_T6->SetName( "Aluminum 7075-T6" );
-        aluminum_7075_T6->m_UserFeaMaterial = false;
-        aluminum_7075_T6->Update();
-        AddFeaMaterial( aluminum_7075_T6 );
-    }
-
-    FeaMaterial* aluminum_2024_T3 = new FeaMaterial();
-
-    if ( aluminum_2024_T3 )
-    {
-        aluminum_2024_T3->SetName( "Aluminum 2024-T3" );
-        aluminum_2024_T3->m_UserFeaMaterial = false;
-        aluminum_2024_T3->Update();
-        AddFeaMaterial( aluminum_2024_T3 );
-    }
-
-    FeaMaterial* Ti_6Al_4V = new FeaMaterial();
-
-    if ( Ti_6Al_4V )
-    {
-        Ti_6Al_4V->SetName( "Titanium Ti-6Al-4V" );
-        Ti_6Al_4V->m_UserFeaMaterial = false;
-        Ti_6Al_4V->Update();
-        AddFeaMaterial( Ti_6Al_4V );
-    }
-
-    FeaMaterial* steel_4130 = new FeaMaterial();
-
-    if ( steel_4130 )
-    {
-        steel_4130->SetName( "AISI 4130 Steel" );
-        steel_4130->m_UserFeaMaterial = false;
-        steel_4130->Update();
-        AddFeaMaterial( steel_4130 );
+        FeaMaterial* mat = new FeaMaterial();
+        mat->SetName( matnames[i] );
+        mat->m_UserFeaMaterial = false;
+        mat->Update();
+        AddFeaMaterial( mat );
     }
 }
