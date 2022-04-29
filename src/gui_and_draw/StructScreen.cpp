@@ -1615,8 +1615,12 @@ void StructScreen::UpdateFeaMaterialChoice()
 
         for ( int i = 0; i < material_vec.size(); ++i )
         {
-            m_FeaShellMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
-            m_FeaBeamMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
+            m_FeaShellMaterialChoice.AddItem( string( material_vec[i]->GetName() ), i );
+
+            if ( material_vec[i]->m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
+            {
+                m_FeaBeamMaterialChoice.AddItem( string( material_vec[i]->GetName() ), i );
+            }
         }
         m_FeaShellMaterialChoice.UpdateItems();
         m_FeaBeamMaterialChoice.UpdateItems();
