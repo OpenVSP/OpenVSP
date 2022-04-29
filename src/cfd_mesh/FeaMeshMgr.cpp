@@ -2477,7 +2477,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             m_SimpleMaterialVec[i].WriteNASTRAN( temp, i + 1 );
         }
 
-        fprintf( temp, "\nEND DATA\n" );
+        fprintf( temp, "\nENDDATA\n" );
 
         // Obtain file size:
         fseek( temp, 0, SEEK_END );
