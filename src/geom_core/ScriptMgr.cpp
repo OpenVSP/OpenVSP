@@ -1086,6 +1086,17 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FEA_EXPORT_TYPE", "FEA_NUM_FILE_NAMES", FEA_NUM_FILE_NAMES, "/*!< Number of FEA Mesh export type. */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum for FEA material types. */";
+
+    r = se->RegisterEnum( "FEA_MATERIAL_TYPE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_MATERIAL_TYPE", "FEA_ISOTROPIC", FEA_ISOTROPIC, "/*!< Isotropic material */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_MATERIAL_TYPE", "FEA_ENG_ORTHO", FEA_ENG_ORTHO, "/*!< Orthotropic material in engineering parameters */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_MATERIAL_TYPE", "FEA_NUM_MAT_TYPES", FEA_NUM_MAT_TYPES, "/*!< Number of FEA material types */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum for FEA Part element types. */";
 
     r = se->RegisterEnum( "FEA_PART_ELEMENT_TYPE", doc_struct );

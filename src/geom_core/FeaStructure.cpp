@@ -4573,17 +4573,57 @@ string FeaProperty::GetXSecName()
 
 FeaMaterial::FeaMaterial() : ParmContainer()
 {
+    m_FeaMaterialType.Init( "FeaMaterialType", "FeaMaterial", this, vsp::FEA_ISOTROPIC, vsp::FEA_ISOTROPIC, vsp::FEA_NUM_MAT_TYPES - 1 );
+    m_FeaMaterialType.SetDescript( "Fea Material Type" );
+
     m_MassDensity.Init( "MassDensity", "FeaMaterial", this, 1.0, 0.0, 1.0e12 );
     m_MassDensity.SetDescript( "Mass Density of Material" );
 
     m_ElasticModulus.Init( "ElasticModulus", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
     m_ElasticModulus.SetDescript( "Elastic (Young's) Modulus for Material" );
 
-    m_PoissonRatio.Init( "PoissonRatio", "FeaMaterial", this, 0.0, 0.0, 1.0 );
+    m_PoissonRatio.Init( "PoissonRatio", "FeaMaterial", this, 0.0, -1.0, 0.5 );
     m_PoissonRatio.SetDescript( "Poisson's Ratio for Material" );
 
-    m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.0, -1.0, 1.0 );
     m_ThermalExpanCoeff.SetDescript( "Thermal Expansion Coefficient for Material" );
+
+    m_E1.Init( "E1", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_E1.SetDescript( "E1 Elastic (Young's) Modulus for Material" );
+
+    m_E2.Init( "E2", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_E2.SetDescript( "E2 Elastic (Young's) Modulus for Material" );
+
+    m_E3.Init( "E3", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_E3.SetDescript( "E3 Elastic (Young's) Modulus for Material" );
+
+    m_nu12.Init( "nu12", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_nu12.SetDescript( "nu12 Poisson's Ratio for Material" );
+
+    m_nu13.Init( "nu13", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_nu13.SetDescript( "nu13 Poisson's Ratio for Material" );
+
+    m_nu23.Init( "nu23", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_nu23.SetDescript( "nu23 Poisson's Ratio for Material" );
+
+    m_G12.Init( "G12", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_G12.SetDescript( "G12 Shear Modulus for Material" );
+
+    m_G13.Init( "G13", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_G13.SetDescript( "G13 Shear Modulus for Material" );
+
+    m_G23.Init( "G23", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_G23.SetDescript( "G23 Shear Modulus for Material" );
+
+    m_A1.Init( "A1", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A1.SetDescript( "A1 Thermal Expansion Coefficient for Material" );
+
+    m_A2.Init( "A2", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A2.SetDescript( "A2 Thermal Expansion Coefficient for Material" );
+
+    m_A3.Init( "A3", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A3.SetDescript( "A3 Thermal Expansion Coefficient for Material" );
+
 }
 
 FeaMaterial::~FeaMaterial()

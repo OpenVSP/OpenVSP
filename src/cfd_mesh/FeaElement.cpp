@@ -598,10 +598,23 @@ void SimpleFeaMaterial::CopyFrom( FeaMaterial* fea_mat )
 {
     if ( fea_mat )
     {
+        m_FeaMaterialType = fea_mat->m_FeaMaterialType.Get();
         m_MassDensity = fea_mat->m_MassDensity.Get();
         m_ElasticModulus = fea_mat->m_ElasticModulus.Get();
         m_PoissonRatio = fea_mat->m_PoissonRatio.Get();
         m_ThermalExpanCoeff = fea_mat->m_ThermalExpanCoeff.Get();
+        m_E1 = fea_mat->m_E1.Get();
+        m_E2 = fea_mat->m_E2.Get();
+        m_E3 = fea_mat->m_E3.Get();
+        m_nu12 = fea_mat->m_nu12.Get();
+        m_nu13 = fea_mat->m_nu13.Get();
+        m_nu23 = fea_mat->m_nu23.Get();
+        m_G12 = fea_mat->m_G12.Get();
+        m_G13 = fea_mat->m_G13.Get();
+        m_G23 = fea_mat->m_G23.Get();
+        m_A1 = fea_mat->m_A1.Get();
+        m_A2 = fea_mat->m_A2.Get();
+        m_A3 = fea_mat->m_A3.Get();
         m_Name = fea_mat->GetName();
     }
 }

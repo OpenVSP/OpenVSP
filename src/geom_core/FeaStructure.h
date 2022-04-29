@@ -581,6 +581,23 @@ public:
     Parm m_ThermalExpanCoeff;
 
     bool m_UserFeaMaterial;
+
+    IntParm m_FeaMaterialType;
+
+    // Orthotropic material properties
+    Parm m_E1;
+    Parm m_E2;
+    Parm m_E3;
+    Parm m_nu12;
+    Parm m_nu13;
+    Parm m_nu23;
+    Parm m_G12;
+    Parm m_G13;
+    Parm m_G23;
+    Parm m_A1;
+    Parm m_A2;
+    Parm m_A3;
+
 };
 
 #endif // !defined(FEASTRUCTURE_INCLUDED_)

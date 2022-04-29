@@ -295,6 +295,11 @@ enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,
                        FEA_NUM_FILE_NAMES
                      };
 
+enum FEA_MATERIAL_TYPE { FEA_ISOTROPIC,
+                         FEA_ENG_ORTHO,
+                         FEA_NUM_MAT_TYPES
+                       };
+
 enum FEA_PART_ELEMENT_TYPE { FEA_SHELL = 0,
                              FEA_BEAM,
                              FEA_SHELL_AND_BEAM

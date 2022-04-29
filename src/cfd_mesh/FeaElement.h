@@ -243,10 +243,23 @@ class SimpleFeaMaterial
 {
 public:
     SimpleFeaMaterial()    {
+        m_FeaMaterialType = vsp::FEA_ISOTROPIC;
         m_MassDensity = 0;
         m_ElasticModulus = 0;
         m_PoissonRatio = 0;
         m_ThermalExpanCoeff = 0;
+        m_E1 = 0;
+        m_E2 = 0;
+        m_E3 = 0;
+        m_nu12 = 0;
+        m_nu13 = 0;
+        m_nu23 = 0;
+        m_G12 = 0;
+        m_G13 = 0;
+        m_G23 = 0;
+        m_A1 = 0;
+        m_A2 = 0;
+        m_A3 = 0;
     };
     ~SimpleFeaMaterial()    {};
 
@@ -261,6 +274,22 @@ public:
     double m_ElasticModulus;
     double m_PoissonRatio;
     double m_ThermalExpanCoeff;
+
+    int m_FeaMaterialType;
+
+    // Orthotropic material properties
+    double m_E1;
+    double m_E2;
+    double m_E3;
+    double m_nu12;
+    double m_nu13;
+    double m_nu23;
+    double m_G12;
+    double m_G13;
+    double m_G23;
+    double m_A1;
+    double m_A2;
+    double m_A3;
 
 protected:
 
