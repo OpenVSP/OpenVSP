@@ -159,6 +159,9 @@ private:
     Fl_Browser* m_FeaMaterialSelectBrowser;
 
     GroupLayout m_MaterialEditSubGroup;
+
+    Choice m_FeaMaterialTypeChoice;
+
     StringInput m_FeaMaterialNameInput;
 
     SliderAdjRangeInput m_MatDensitySlider;
@@ -168,6 +171,21 @@ private:
     SliderAdjRangeInput m_MatPoissonSlider;
     SliderAdjRangeInput m_MatThermalExCoeffSlider;
     TriggerButton m_MatThermalExCoeffUnit;
+    StringOutput m_MatShearModOutput;
+    TriggerButton m_MatShearModUnit;
+
+    Input m_MatE1Input;
+    Input m_MatE2Input;
+    Input m_MatE3Input;
+    Input m_Matnu12Input;
+    Input m_Matnu13Input;
+    Input m_Matnu23Input;
+    Input m_MatG12Input;
+    Input m_MatG13Input;
+    Input m_MatG23Input;
+    Input m_MatA1Input;
+    Input m_MatA2Input;
+    Input m_MatA3Input;
 
     //===== Property Tab =====//
     GroupLayout* m_CurFeaPropDispGroup;

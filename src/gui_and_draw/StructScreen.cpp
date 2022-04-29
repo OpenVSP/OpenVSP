@@ -26,7 +26,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Mesh", 155 )
+StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "FEA Mesh", 155 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -327,44 +327,102 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
 
     m_MaterialEditSubGroup.AddYGap();
 
+    m_MaterialEditSubGroup.AddChoice( m_FeaMaterialTypeChoice, "Type" );
+    m_FeaMaterialTypeChoice.AddItem( "Isotropic", vsp::FEA_ISOTROPIC );
+    m_FeaMaterialTypeChoice.AddItem( "Orthotropic", vsp::FEA_ENG_ORTHO );
+    m_FeaMaterialTypeChoice.UpdateItems();
+
+    m_MaterialEditSubGroup.AddYGap();
+
     m_MaterialEditSubGroup.AddDividerBox( "Material Properties" );
 
+    m_MaterialEditSubGroup.SetInputWidth( m_MaterialEditSubGroup.GetW() / 6.0 );
+    int button3_w = m_MaterialEditSubGroup.GetW() / 3.0 - m_MaterialEditSubGroup.GetInputWidth();
+    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
+    int unit_w = button3_w;
+
     m_MaterialEditSubGroup.SetSameLineFlag( true );
+
+    char rho[16];
+    int indx = 0;
+    indx += fl_utf8encode( 961, &rho[ indx ] ); // Greek character rho
+    rho[ indx ] = 0;
+
+    m_MaterialEditSubGroup.SetFitWidthFlag( true );
+    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, rho, 1e3, "%5.3g", unit_w );
     m_MaterialEditSubGroup.SetFitWidthFlag( false );
-
-    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() / 3 );
-    m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
-    m_MaterialEditSubGroup.SetInputWidth( m_MaterialEditSubGroup.GetW() / 6 );
-
-    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 1e3, "%5.3g" );
-    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() );
+    m_MaterialEditSubGroup.SetButtonWidth( unit_w );
     m_MaterialEditSubGroup.AddButton( m_MatDensityUnit, "" );
     m_MatDensityUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatDensityUnit.GetFlButton()->labelcolor( FL_BLACK );
 
+    m_MaterialEditSubGroup.AddYGap();
     m_MaterialEditSubGroup.ForceNewLine();
-    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() / 3 );
-    m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
+    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
 
-    m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elastic Modulus", 1e4, "%5.3g" );
-    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() );
+    m_MaterialEditSubGroup.SetFitWidthFlag( true );
+    m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "E", 1e4, "%5.3g", unit_w );
+    m_MaterialEditSubGroup.SetFitWidthFlag( false );
+    m_MaterialEditSubGroup.SetButtonWidth( unit_w );
     m_MaterialEditSubGroup.AddButton( m_MatElasticModUnit, "" );
     m_MatElasticModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatElasticModUnit.GetFlButton()->labelcolor( FL_BLACK );
 
     m_MaterialEditSubGroup.ForceNewLine();
-    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() / 3 );
-    m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
+    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
 
-    m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "Poisson Ratio", 1, "%5.3g" );
+    m_MaterialEditSubGroup.AddInput( m_MatE1Input, "E_1", "%5.3g" );
+    m_MaterialEditSubGroup.AddInput( m_MatE2Input, "E_2", "%5.3g" );
+    m_MaterialEditSubGroup.AddInput( m_MatE3Input, "E_3", "%5.3g" );
+
+    m_MaterialEditSubGroup.AddYGap();
+    m_MaterialEditSubGroup.ForceNewLine();
+
+    m_MaterialEditSubGroup.SetFitWidthFlag( true );
+    m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "nu", 1, "%5.3g" ); // unit_w // Reserve unit space
+    m_MaterialEditSubGroup.SetFitWidthFlag( false );
 
     m_MaterialEditSubGroup.ForceNewLine();
 
-    m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "Thermal Expan Coeff", 10e-5, "%5.3g" );
-    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() );
+    m_MaterialEditSubGroup.AddInput( m_Matnu12Input, "nu_12", "%5.3g", 2.0 * m_MaterialEditSubGroup.GetW() / 3.0 );
+    m_MaterialEditSubGroup.AddInput( m_Matnu13Input, "nu_13", "%5.3g", 2.0 * m_MaterialEditSubGroup.GetW() / 3.0 );
+    m_MaterialEditSubGroup.AddInput( m_Matnu23Input, "nu_23", "%5.3g", 2.0 * m_MaterialEditSubGroup.GetW() / 3.0 );
+
+    m_MaterialEditSubGroup.AddYGap();
+    m_MaterialEditSubGroup.ForceNewLine();
+
+    m_MaterialEditSubGroup.SetFitWidthFlag( true );
+    m_MaterialEditSubGroup.AddOutput( m_MatShearModOutput, "G", unit_w );
+    m_MaterialEditSubGroup.SetFitWidthFlag( false );
+    m_MaterialEditSubGroup.SetButtonWidth( unit_w );
+    m_MaterialEditSubGroup.AddButton( m_MatShearModUnit, "" );
+    m_MatShearModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_MatShearModUnit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_MaterialEditSubGroup.ForceNewLine();
+    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
+
+    m_MaterialEditSubGroup.AddInput( m_MatG12Input, "G_12", "%5.3g" );
+    m_MaterialEditSubGroup.AddInput( m_MatG13Input, "G_13", "%5.3g" );
+    m_MaterialEditSubGroup.AddInput( m_MatG23Input, "G_23", "%5.3g" );
+
+    m_MaterialEditSubGroup.AddYGap();
+    m_MaterialEditSubGroup.ForceNewLine();
+
+    m_MaterialEditSubGroup.SetFitWidthFlag( true );
+    m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "CTE", 10e-5, "%5.3g", unit_w );
+    m_MaterialEditSubGroup.SetFitWidthFlag( false );
+    m_MaterialEditSubGroup.SetButtonWidth( unit_w );
     m_MaterialEditSubGroup.AddButton( m_MatThermalExCoeffUnit, "" );
     m_MatThermalExCoeffUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatThermalExCoeffUnit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_MaterialEditSubGroup.ForceNewLine();
+    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
+
+    m_MaterialEditSubGroup.AddInput( m_MatA1Input, "CTE_1", "%5.3g" );
+    m_MaterialEditSubGroup.AddInput( m_MatA2Input, "CTE_2", "%5.3g" );
+    m_MaterialEditSubGroup.AddInput( m_MatA3Input, "CTE_3", "%5.3g" );
 
     //=== Property Tab ===//
     m_PropertyTabLayout.SetGroupAndScreen( propTabGroup, this );
@@ -1830,6 +1888,7 @@ void StructScreen::UpdateUnitLabels()
         m_MatDensityUnit.GetFlButton()->copy_label( density_unit.c_str() );
         m_MatElasticModUnit.GetFlButton()->copy_label( young_mod_unit.c_str() );
         m_MatThermalExCoeffUnit.GetFlButton()->copy_label( temp_unit.c_str() );
+        m_MatShearModUnit.GetFlButton()->copy_label( young_mod_unit.c_str() );
 
         m_PropThickUnit.GetFlButton()->copy_label( thick_unit.c_str() );
 
@@ -1990,27 +2049,76 @@ bool StructScreen::Update()
             FeaMaterial* fea_mat = StructureMgr.GetFeaMaterialVec()[StructureMgr.GetCurrMaterialIndex()];
             if ( fea_mat )
             {
+                m_FeaMaterialTypeChoice.Update( fea_mat->m_FeaMaterialType.GetID() );
                 m_FeaMaterialNameInput.Update( fea_mat->GetName() );
                 m_MatDensitySlider.Update( fea_mat->m_MassDensity.GetID() );
                 m_MatElasticModSlider.Update( fea_mat->m_ElasticModulus.GetID() );
                 m_MatPoissonSlider.Update( fea_mat->m_PoissonRatio.GetID() );
+
+                char str[256];
+                sprintf( str, "%5.3g", fea_mat->GetShearModulus() );
+                m_MatShearModOutput.Update( str );
+
                 m_MatThermalExCoeffSlider.Update( fea_mat->m_ThermalExpanCoeff.GetID() );
+
+                m_MatE1Input.Update( fea_mat->m_E1.GetID() );
+                m_MatE2Input.Update( fea_mat->m_E2.GetID() );
+                m_MatE3Input.Update( fea_mat->m_E3.GetID() );
+                m_Matnu12Input.Update( fea_mat->m_nu12.GetID() );
+                m_Matnu13Input.Update( fea_mat->m_nu13.GetID() );
+                m_Matnu23Input.Update( fea_mat->m_nu23.GetID() );
+                m_MatG12Input.Update( fea_mat->m_G12.GetID() );
+                m_MatG13Input.Update( fea_mat->m_G13.GetID() );
+                m_MatG23Input.Update( fea_mat->m_G23.GetID() );
+                m_MatA1Input.Update( fea_mat->m_A1.GetID() );
+                m_MatA2Input.Update( fea_mat->m_A2.GetID() );
+                m_MatA3Input.Update( fea_mat->m_A3.GetID() );
+
+                m_FeaMaterialNameInput.Deactivate();
+                m_MatDensitySlider.Deactivate();
+                m_MatElasticModSlider.Deactivate();
+                m_MatPoissonSlider.Deactivate();
+                m_MatShearModOutput.Deactivate();
+                m_MatThermalExCoeffSlider.Deactivate();
+                m_MatE1Input.Deactivate();
+                m_MatE2Input.Deactivate();
+                m_MatE3Input.Deactivate();
+                m_Matnu12Input.Deactivate();
+                m_Matnu13Input.Deactivate();
+                m_Matnu23Input.Deactivate();
+                m_MatG12Input.Deactivate();
+                m_MatG13Input.Deactivate();
+                m_MatG23Input.Deactivate();
+                m_MatA1Input.Deactivate();
+                m_MatA2Input.Deactivate();
+                m_MatA3Input.Deactivate();
 
                 if ( fea_mat->m_UserFeaMaterial )
                 {
                     m_FeaMaterialNameInput.Activate();
                     m_MatDensitySlider.Activate();
-                    m_MatElasticModSlider.Activate();
-                    m_MatPoissonSlider.Activate();
-                    m_MatThermalExCoeffSlider.Activate();
-                }
-                else
-                {
-                    m_FeaMaterialNameInput.Deactivate();
-                    m_MatDensitySlider.Deactivate();
-                    m_MatElasticModSlider.Deactivate();
-                    m_MatPoissonSlider.Deactivate();
-                    m_MatThermalExCoeffSlider.Deactivate();
+                    if ( fea_mat->m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
+                    {
+                        m_MatElasticModSlider.Activate();
+                        m_MatPoissonSlider.Activate();
+                        m_MatShearModOutput.Activate();
+                        m_MatThermalExCoeffSlider.Activate();
+                    }
+                    else
+                    {
+                        m_MatE1Input.Activate();
+                        m_MatE2Input.Activate();
+                        m_MatE3Input.Activate();
+                        m_Matnu12Input.Activate();
+                        m_Matnu13Input.Activate();
+                        m_Matnu23Input.Activate();
+                        m_MatG12Input.Activate();
+                        m_MatG13Input.Activate();
+                        m_MatG23Input.Activate();
+                        m_MatA1Input.Activate();
+                        m_MatA2Input.Activate();
+                        m_MatA3Input.Activate();
+                    }
                 }
             }
         }

@@ -637,5 +637,5 @@ void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id )
 
 double SimpleFeaMaterial::GetShearModulus()
 {
-    return ( m_ElasticModulus / ( 2 * ( m_PoissonRatio + 1 ) ) );
+    return ( m_ElasticModulus / ( 2.0 * ( m_PoissonRatio + 1.0 ) ) );
 }
