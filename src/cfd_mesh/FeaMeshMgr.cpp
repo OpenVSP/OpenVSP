@@ -3439,7 +3439,8 @@ void FeaMeshMgrSingleton::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, in
 {
     if ( set_ids.size() > 0 && Nastran_fid )
     {
-        fprintf( Nastran_fid, "\nSET %d = ", set_num );
+        fprintf( Nastran_fid, "\n$ %d, %s\n", set_num, set_name.c_str() );
+        fprintf( Nastran_fid, "SET %d = ", set_num );
 
         for ( size_t i = 0; i < set_ids.size(); i++ )
         {
