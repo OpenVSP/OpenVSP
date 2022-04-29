@@ -843,7 +843,7 @@ public:
     }
     virtual void DeviceCB( Fl_Widget* w )               {}
 
-    virtual void Init( VspScreen* screen, Fl_Output* output );
+    virtual void Init( VspScreen* screen, Fl_Output* output, Fl_Button* button = NULL );
     virtual void Update( const string & val );
 
     virtual string GetString()

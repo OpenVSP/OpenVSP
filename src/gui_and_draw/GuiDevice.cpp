@@ -2050,7 +2050,7 @@ void StringInput::SetTextFont( Fl_Font font )
 //=====================================================================//
 //===========      String Output                            ===========//
 //=====================================================================//
-void StringOutput::Init( VspScreen* screen, Fl_Output* output )
+void StringOutput::Init( VspScreen* screen, Fl_Output* output, Fl_Button* button )
 {
     GuiDevice::Init( screen );
 
@@ -2058,6 +2058,7 @@ void StringOutput::Init( VspScreen* screen, Fl_Output* output )
     m_Output = output;
 
     AddWidget( output );
+    AddWidget( button );
 }
 
 //==== Update ====//

@@ -793,7 +793,7 @@ void GroupLayout::AddOutput( StringOutput& string_output)
     AddY( m_StdHeight );
     NewLineX();
 
-    string_output.Init( m_Screen, output );
+    string_output.Init( m_Screen, output, NULL );
 }
 
 //==== Create & Init Text Output  ====//
@@ -802,7 +802,7 @@ void GroupLayout::AddOutput( StringOutput& string_output, const char* label, int
     assert( m_Group && m_Screen );
 
     //==== Button ====//
-    AddParmButton( label );
+    VspButton* button = AddParmButton( label );
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
@@ -818,7 +818,7 @@ void GroupLayout::AddOutput( StringOutput& string_output, const char* label, int
     AddY( m_StdHeight );
     NewLineX();
 
-    string_output.Init( m_Screen, output );
+    string_output.Init( m_Screen, output, button );
 }
 
 void GroupLayout::AddOutput( Output& output, const char* label, const char* format, int used_w )
