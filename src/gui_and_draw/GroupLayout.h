@@ -147,7 +147,7 @@ public:
     void AddButton(  ParmButton& parm_button, const char* label );
     void AddButton( RadioButton& radio_button, const char* label, int val = 0);
     void AddInput(  StringInput& string_input, const char* label, int used_w = 0 );
-    void AddInput(  Input& input, const char* label, const char* format  );
+    void AddInput(  Input& input, const char* label, const char* format, int used_w = 0  );
     void AddInputEvenSpacedVector(Input& start_input, Input& end_input, Input& npts_input,const char * label,const char * format);
     void AddOutput( StringOutput& string_output );
     void AddOutput( StringOutput& string_output, const char* label, int used_w = 0 );

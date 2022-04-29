@@ -847,7 +847,7 @@ void GroupLayout::AddOutput( Output& output, const char* label, const char* form
 }
 
 //==== Create & Init Float Input  ====//
-void GroupLayout::AddInput( Input& input, const char* label, const char* format )
+void GroupLayout::AddInput( Input& input, const char* label, const char* format, int used_w )
 {
     assert( m_Group && m_Screen );
 
@@ -855,7 +855,7 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format 
     VspButton* button = AddParmButton( label );
 
     //==== Add Text Input ====//
-    int iw = FitWidth( m_ButtonWidth, m_InputWidth );
+    int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
     Fl_Input* flinput = new Fl_Input( m_X, m_Y, iw, m_StdHeight );
 #ifdef NOREGEXP
     flinput->type( FL_FLOAT_INPUT );
