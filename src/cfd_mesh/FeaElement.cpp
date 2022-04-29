@@ -608,12 +608,30 @@ void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
 {
     if ( m_FeaMaterialType == vsp::FEA_ISOTROPIC )
     {
-        fprintf( fp, "MAT1, %8d, %8.3g, %8.3g, %8.5g, %8.3g, %8.3g\n", mat_id, m_ElasticModulus, GetShearModulus(), m_PoissonRatio, m_MassDensity, m_ThermalExpanCoeff );
+        fprintf( fp, "$ %s\n", m_Name.c_str() );
+        string fmt = "MAT1    ,%8d," + GetFeaFormat( m_ElasticModulus ) + "," +
+                                       GetFeaFormat( GetShearModulus() ) + "," +
+                                       GetFeaFormat( m_PoissonRatio ) + "," +
+                                       GetFeaFormat( m_MassDensity ) + "," +
+                                       GetFeaFormat( m_ThermalExpanCoeff ) + "\n";
+
+        fprintf( fp, fmt.c_str(), mat_id, m_ElasticModulus, GetShearModulus(), m_PoissonRatio, m_MassDensity, m_ThermalExpanCoeff );
     }
     else // vsp::FEA_ENG_ORTHO
     {
+        fprintf( fp, "$ %s\n", m_Name.c_str() );
         // Note that MAT8 is only for shell type elements.
-        fprintf( fp, "MAT8, %8d, %8.3g, %8.3g, %8.5g, %8.3g, %8.3g, %8.3g,\n      , %8.3g, %8.3g\n", mat_id, m_E1, m_E2, m_nu12, m_G12, m_G13, m_G23, m_MassDensity, m_A1, m_A2  );
+        string fmt = "MAT8    ,%8d," + GetFeaFormat( m_E1 ) + "," +
+                                       GetFeaFormat( m_E2 ) + "," +
+                                       GetFeaFormat( m_nu12 ) + "," +
+                                       GetFeaFormat( m_G12 ) + "," +
+                                       GetFeaFormat( m_G13 ) + "," +
+                                       GetFeaFormat( m_G23 ) + ",\n        ," +
+                                       GetFeaFormat( m_MassDensity ) + "," +
+                                       GetFeaFormat( m_A1 ) + "," +
+                                       GetFeaFormat( m_A2 ) + "\n";
+
+        fprintf( fp, fmt.c_str(), mat_id, m_E1, m_E2, m_nu12, m_G12, m_G13, m_G23, m_MassDensity, m_A1, m_A2  );
         // If solid elements are ever added, they will need MAT9 for isotropic materials.
     }
 }
