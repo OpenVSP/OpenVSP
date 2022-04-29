@@ -847,11 +847,30 @@ void StructureMgrSingleton::InitFeaMaterials()
 {
     // Note: Parm values set in FeaMaterial::Update()
 
-    int nmat = 4;
+    int nmat = 15;
     const char *matnames[] = {"Aluminum 7075-T6",
                               "Aluminum 2024-T3",
                               "Titanium Ti-6Al-4V",
-                              "AISI 4130 Steel"};
+                              "AISI 4130 Steel",
+                              "Carbon Epoxy AS4 3501-6 [02 90]s",
+                              "Carbon Epoxy AS4 3501-6 [0 90]2s",
+                              "Carbon Epoxy AS4 3501-6 [0 90 +-45]s",
+                              "Carbon Epoxy AS4 3501-6 [+-30]2s",
+                              "Carbon Epoxy AS4 3501-6 [+-45]2s",
+                              "Carbon Epoxy AS4 3501-6 [+-60]2s",
+                              "Glass Epoxy S2 3501-6 [02 90]s",
+                              "Glass Epoxy S2 3501-6 [0 90]2s",
+                              "Glass Epoxy S2 3501-6 [0 90 +-45]s",
+                              "Balsa LTR",
+                              "Sitka Spruce LTR"};
+
+    // These materials duplicate names above, but have different properties in the source.
+    // Keep these names here in case it gets sorted later and they need to be added.
+    /*
+            "Carbon Epoxy AS4 3501-6 [+-30]2s",
+            "Carbon Epoxy AS4 3501-6 [+-45]2s",
+            "Carbon Epoxy AS4 3501-6 [+-60]2s",
+    */
 
     for ( int i = 0; i < nmat; i++ )
     {

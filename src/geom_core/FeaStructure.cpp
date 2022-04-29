@@ -4704,6 +4704,306 @@ void FeaMaterial::Update()
             m_ElasticModulus.Set( ConvertPressure( 205e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
             m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 13.7e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-�C)
         }
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [02 90]s" ) == 0 )
+        {
+            /*
+            AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
+            AS4 fiber density 1.79 g/cm^3
+            3501-6 resin density 1.265 g/cm^3
+            60.5% fiber volume fraction
+            laminateDensity = ( (1-V) * resinDensity) + (V * fiberDensity)
+            laminateDensity = 1.582625
+            */
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 79.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 44.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 11.4e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.072 );
+            m_nu13.Set( 0.402 );
+            m_nu23.Set( 0.465 );
+            m_G12.Set( ConvertPressure( 6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 5.38e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 3.47e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [0 90]2s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 62.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 62.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 11e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.052 );
+            m_nu13.Set( 0.438 );
+            m_nu23.Set( 0.427 );
+            m_G12.Set( ConvertPressure( 6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 4.22e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 3.95e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [0 90 +-45]s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 46e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 46.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 11.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.296 );
+            m_nu13.Set( 0.318 );
+            m_nu23.Set( 0.317 );
+            m_G12.Set( ConvertPressure( 17.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 4.32e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 3.58e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-30]2s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 47.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 12.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 10.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 1.13 );
+            m_nu13.Set( -0.197 );
+            m_nu23.Set( 0.434 );
+            m_G12.Set( ConvertPressure( 23.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 4.88e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 3.55e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-45]2s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 20.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 20.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 11.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.689 );
+            m_nu13.Set( 0.211 );
+            m_nu23.Set( 0.211 );
+            m_G12.Set( ConvertPressure( 29.4e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 4.11e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 4.11e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-60]2s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 12.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 47.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 12e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.294 );
+            m_nu13.Set( 0.434 );
+            m_nu23.Set( -0.197 );
+            m_G12.Set( ConvertPressure( 23.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 3.55e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 4.88e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [02 90]s" ) == 0 )
+        {
+            /*
+            S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
+            S2 fiber density 2.49 g/cm^3
+            3501-6 resin density 1.265 g/cm^3
+            50% fiber volume fraction
+            laminateDensity = ( (1-V) * resinDensity) + (V * fiberDensity)
+            laminateDensity = 1.8775
+            */
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1878, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 38.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 26.4e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 15.9e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.165 );
+            m_nu13.Set( 0.359 );
+            m_nu23.Set( 0.427 );
+            m_G12.Set( ConvertPressure( 6.76e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 6.33e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 5.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [0 90]2s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1878, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 32.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 32.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 15.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.135 );
+            m_nu13.Set( 0.393 );
+            m_nu23.Set( 0.392 );
+            m_G12.Set( ConvertPressure( 6.76e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 5.72e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 5.59e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [0 90 +-45]s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1878, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 26.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 26.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 16e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.28 );
+            m_nu13.Set( 0.329 );
+            m_nu23.Set( 0.329 );
+            m_G12.Set( ConvertPressure( 10.5e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 5.78e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 5.04e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Balsa LTR" ) == 0 )
+        {
+            // Wood Handbook, Wood as an Engineering Material 2010
+            // Forest Products Laboratory. General Technical Report FPL-GTR-190.
+            // Madison, WI: U.S. Department of Agriculture, Forest Service, Forest Products Laboratory
+            double EL = 1.1 * 3400e6;  // 10% Correction to modulus from bending test.
+            double ET = 0.015 * EL;
+            double ER = 0.046 * EL;
+            double GLR = 0.054 * EL;
+            double GLT = 0.037 * EL;
+            double GRT = 0.005 * EL;
+            double nuLR = 0.229;
+            double nuLT = 0.488;
+            double nuRT = 0.665;
+
+            // Calculate these using equation to ensure consistent values.
+            // Commented value is that given in the reference
+            double nuRL = nuLR * ER / EL; // 0.018;
+            double nuTL = nuLT * ET / EL; // 0.009;
+            double nuTR = nuRT * ET / ER; // 0.231;
+
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 160, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( EL, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( ET, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( ER, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( nuLT );
+            m_nu13.Set( nuLR );
+            m_nu23.Set( nuTR );
+            m_G12.Set( ConvertPressure( GLT, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( GLR, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( GRT, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Sitka Spruce LTR" ) == 0 )
+        {
+            // Elastic properties from NASA TM-104059
+            // Structural Integrity of Wind Tunnel Wooden Fan Blades
+            // Sitka Spruce 8% Moisture content
+            // Density and CTE from MatWeb
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 360, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+
+            double EL = 1772000;
+            double ET = 87000;
+            double ER = 154000;
+            double GLT = 117000;
+            double GLR = 120000;
+            double GRT = 7100;
+
+            double nuLT = 0.441;
+            double nuLR = 0.375;
+            double nuRT = 0.471;
+            // Calculate these using equation to ensure consistent values.
+            // Commented value is that given in the reference
+            double nuRL = nuLR * ER / EL; // 0.034;
+            double nuTL = nuLT * ET / EL; // 0.022;
+            double nuTR = nuRT * ET / ER; // 0.248;
+
+            m_E1.Set( ConvertPressure( EL, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( ET, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( ER, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
+            m_nu12.Set( nuLT );
+            m_nu13.Set( nuLR );
+            m_nu23.Set( nuTR );
+            m_G12.Set( ConvertPressure( GLT, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( GLR, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( GRT, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
+
+            m_A1.Set( ConvertThermalExpanCoeff( 5.4e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 6.3e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 34.1e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        // This group of materials seemed mis-labeled in the handbook.
+        // It duplicates another entry above -- but the values are different.
+        // It is possible that these values apply to S2/3501-6 for the indicated laminate schedules.
+        /*
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-30]2s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 30.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 15.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 14.9e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.545 );
+            m_nu13.Set( 0.136 );
+            m_nu23.Set( 0.406 );
+            m_G12.Set( ConvertPressure( 12.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 6.17e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 5.26e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-45]2s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 19.9e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 19.9e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 16.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.467 );
+            m_nu13.Set( 0.284 );
+            m_nu23.Set( 0.284 );
+            m_G12.Set( ConvertPressure( 14.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 5.67e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 5.67e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-60]2s" ) == 0 )
+        {
+            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_E1.Set( ConvertPressure( 15.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E2.Set( ConvertPressure( 30.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_E3.Set( ConvertPressure( 16.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_nu12.Set( 0.277 );
+            m_nu13.Set( 0.406 );
+            m_nu23.Set( 0.136 );
+            m_G12.Set( ConvertPressure( 12.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G13.Set( ConvertPressure( 5.26e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_G23.Set( ConvertPressure( 6.17e9, vsp::PRES_UNIT_PA, pressure_unit ) ); //  Pa
+            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
+        }
+        */
     }
 }
 
