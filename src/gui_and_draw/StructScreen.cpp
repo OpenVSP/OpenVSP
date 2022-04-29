@@ -1395,18 +1395,13 @@ void StructScreen::UpdateFeaPropertyChoice()
 
         for ( int i = 0; i < property_vec.size(); ++i )
         {
-            m_GenPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_GenCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-
             if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
             {
-                m_GenPropertyChoice.SetFlag( i, 0 );
-                m_GenCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_GenPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
             }
-            else if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
+            else
             {
-                m_GenPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_GenCapPropertyChoice.SetFlag( i, 0 );
+                m_GenCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
             }
         }
 

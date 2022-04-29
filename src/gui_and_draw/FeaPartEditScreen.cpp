@@ -2287,87 +2287,35 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
 
         for ( int i = 0; i < property_vec.size(); ++i )
         {
-            m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_SlicePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_SparPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_DomePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_RibArrayPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_SliceArrayPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSLinePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSRecPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSEllPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSConPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-
-            m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_SliceCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_DomeCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_RibArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_SliceArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-
-            m_FeaSSLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSRecCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSEllCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSConCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSLineArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSFLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-
             if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
             {
-                m_SkinPropertyChoice.SetFlag( i, 0 );
-                m_SlicePropertyChoice.SetFlag( i, 0 );
-                m_RibPropertyChoice.SetFlag( i, 0 );
-                m_SparPropertyChoice.SetFlag( i, 0 );
-                m_DomePropertyChoice.SetFlag( i, 0 );
-                m_RibArrayPropertyChoice.SetFlag( i, 0 );
-                m_SliceArrayPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSLinePropertyChoice.SetFlag( i, 0 );
-                m_FeaSSRecPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSEllPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSConPropertyChoice.SetFlag( i, 0 );
-
-                m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_SliceCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_RibCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_DomeCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_RibArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_SliceArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-
-                m_FeaSSLineCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSRecCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSEllCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSConCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSLineArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSFLineCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_SlicePropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_SparPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_DomePropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_RibArrayPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_SliceArrayPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_FeaSSLinePropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_FeaSSRecPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_FeaSSEllPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_FeaSSConPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
             }
-            else if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
+            else // vsp::FEA_BEAM
             {
-                m_SkinPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_SlicePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_RibPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_SparPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_DomePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_RibArrayPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_SliceArrayPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSLinePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSRecPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSEllPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSConPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_SliceCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_DomeCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_RibArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_SliceArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
 
-                m_SparCapPropertyChoice.SetFlag( i, 0 );
-                m_SliceCapPropertyChoice.SetFlag( i, 0 );
-                m_RibCapPropertyChoice.SetFlag( i, 0 );
-                m_DomeCapPropertyChoice.SetFlag( i, 0 );
-                m_RibArrayCapPropertyChoice.SetFlag( i, 0 );
-                m_SliceArrayCapPropertyChoice.SetFlag( i, 0 );
-
-                m_FeaSSLineCapPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSRecCapPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSEllCapPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSConCapPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSLineArrayCapPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSFLineCapPropertyChoice.SetFlag( i, 0 );
+                m_FeaSSLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_FeaSSRecCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_FeaSSEllCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_FeaSSConCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_FeaSSLineArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
+                m_FeaSSFLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
             }
         }
 
