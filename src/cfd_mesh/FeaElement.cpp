@@ -621,18 +621,41 @@ void SimpleFeaMaterial::CopyFrom( FeaMaterial* fea_mat )
 
 void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
 {
-    fprintf( fp, "MAT1,%8d,%8.3g,%8.3g,%8.5g,%8.3g,%8.3g\n", mat_id, m_ElasticModulus, GetShearModulus(), m_PoissonRatio, m_MassDensity, m_ThermalExpanCoeff );
+    if ( m_FeaMaterialType == vsp::FEA_ISOTROPIC )
+    {
+        fprintf( fp, "MAT1, %8d, %8.3g, %8.3g, %8.5g, %8.3g, %8.3g\n", mat_id, m_ElasticModulus, GetShearModulus(), m_PoissonRatio, m_MassDensity, m_ThermalExpanCoeff );
+    }
+    else // vsp::FEA_ENG_ORTHO
+    {
+        // Note that MAT8 is only for shell type elements.
+        fprintf( fp, "MAT8, %8d, %8.3g, %8.3g, %8.5g, %8.3g, %8.3g, %8.3g,\n      , %8.3g, %8.3g\n", mat_id, m_E1, m_E2, m_nu12, m_G12, m_G13, m_G23, m_MassDensity, m_A1, m_A2  );
+        // If solid elements are ever added, they will need MAT9 for isotropic materials.
+    }
 }
 
 void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id )
 {
-    fprintf( fp, "*MATERIAL, NAME=%s\n", m_Name.c_str() );
-    fprintf( fp, "*DENSITY\n" );
-    fprintf( fp, "%g\n", m_MassDensity );
-    fprintf( fp, "*ELASTIC, TYPE=ISO\n" );
-    fprintf( fp, "%g,%g\n", m_ElasticModulus, m_PoissonRatio );
-    fprintf( fp, "*EXPANSION, TYPE=ISO\n" );
-    fprintf( fp, "%g\n", m_ThermalExpanCoeff );
+    if ( m_FeaMaterialType == vsp::FEA_ISOTROPIC )
+    {
+        fprintf( fp, "*MATERIAL, NAME=%s\n", m_Name.c_str() );
+        fprintf( fp, "*DENSITY\n" );
+        fprintf( fp, "%g\n", m_MassDensity );
+        fprintf( fp, "*ELASTIC, TYPE=ISO\n" );
+        fprintf( fp, "%g, %g\n", m_ElasticModulus, m_PoissonRatio );
+        fprintf( fp, "*EXPANSION, TYPE=ISO\n" );
+        fprintf( fp, "%g\n", m_ThermalExpanCoeff );
+    }
+    else // vsp::FEA_ENG_ORTHO
+    {
+        fprintf( fp, "*MATERIAL, NAME=%s\n", m_Name.c_str() );
+        fprintf( fp, "*DENSITY\n" );
+        fprintf( fp, "%g\n", m_MassDensity );
+        fprintf( fp, "*ELASTIC, TYPE=ENGINEERING CONSTANTS\n" );
+        fprintf( fp, "%g, %g, %g, %g, %g, %g, %g, %g\n", m_E1, m_E2, m_E3, m_nu12, m_nu13, m_nu23, m_G12, m_G13 );
+        fprintf( fp, "%g\n", m_G23 );
+        fprintf( fp, "*EXPANSION, TYPE=ORTHO\n" );
+        fprintf( fp, "%g, %g, %g\n", m_A1, m_A2, m_A3 );
+    }
 }
 
 double SimpleFeaMaterial::GetShearModulus()
