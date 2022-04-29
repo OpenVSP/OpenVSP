@@ -20,8 +20,6 @@
 
 using namespace std;
 
-string GetFeaFormat( double input );
-
 class FeaNodeTag
 {
 public:

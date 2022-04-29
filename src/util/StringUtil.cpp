@@ -199,3 +199,62 @@ string StringUtil::truncateFileName( const string &fn, int len )
     }
     return trunc;
 }
+
+
+string StringUtil::GetFeaFormat( double input )
+{
+    if ( input > 0 ) {
+        if (std::abs(input) < 1.0)
+        {
+            return string("%8.2e");
+        }
+        else if (std::abs(input) < 10.0)
+        {
+            return string("%8.6f");
+        }
+        else if (std::abs(input) < 100.0)
+        {
+            return string("%8.5f");
+        }
+        else if (std::abs(input) < 1000.0)
+        {
+            return string("%8.4f");
+        }
+        else if (std::abs(input) < 10000.0)
+        {
+            return string("%8.3f");
+        }
+        else
+        {
+            return string("%8.3g");
+        }
+    }
+    else
+    {
+        if (std::abs(input) < 1.0)
+        {
+            return string("%8.1e");
+        }
+        else if (std::abs(input) < 10.0)
+        {
+            return string("%8.5f");
+        }
+        else if (std::abs(input) < 100.0)
+        {
+            return string("%8.4f");
+        }
+        else if (std::abs(input) < 1000.0)
+        {
+            return string("%8.3f");
+        }
+        else if (std::abs(input) < 10000.0)
+        {
+            return string("%8.2f");
+        }
+        else
+        {
+            return string("%8.2g");
+        }
+
+    }
+}

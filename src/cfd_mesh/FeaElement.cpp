@@ -11,26 +11,9 @@
 #include "FeaElement.h"
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
+#include "StringUtil.h"
 
-string GetFeaFormat( double input )
-{
-    if ( std::abs( input ) < 10.0 )
-    {
-        return string( "%8.5f" );
-    }
-    else if ( std::abs( input ) < 100.0 )
-    {
-        return string( "%8.4f" );
-    }
-    else if ( std::abs( input ) < 10000.0 )
-    {
-        return string( "%8.3f" );
-    }
-    else
-    {
-        return string( "%8.3g" );
-    }
-}
+using namespace StringUtil;
 
 //////////////////////////////////////////////////////
 //==================== FeaNode =====================//

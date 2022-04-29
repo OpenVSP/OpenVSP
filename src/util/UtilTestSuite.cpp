@@ -665,3 +665,19 @@ void UtilTestSuite::BilinearInterpTest()
     TEST_ASSERT_DELTA( interp_val, 9.8125, DBL_EPSILON );
 
 }
+
+void UtilTestSuite::FormatWidthTest()
+{
+    double v = 1234567890.1234567890;
+
+    string fmt;
+    for ( int i = 0; i < 20; i++ )
+    {
+        fmt = StringUtil::GetFeaFormat( v ) + "\n";
+        printf( fmt.c_str(), v );
+        fmt = StringUtil::GetFeaFormat( -v ) + "\n";
+        printf( fmt.c_str(), -v );
+        v = v / 10;
+    }
+
+}
