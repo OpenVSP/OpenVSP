@@ -467,6 +467,7 @@ void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
 {
     if ( fea_prop )
     {
+        m_Name = fea_prop->GetName();
         m_FeaPropertyType = fea_prop->m_FeaPropertyType.Get();
         m_Thickness = fea_prop->m_Thickness.Get();
         m_CrossSecArea = fea_prop->m_CrossSecArea.Get();
@@ -494,6 +495,7 @@ void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
 
 void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
 {
+    fprintf( fp, "$ %s using %s\n", m_Name.c_str(), m_MaterialName.c_str() );
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
         string format_string = "PSHELL,%8d,%8d," + GetFeaFormat( m_Thickness ) + ",      -1,        ,        ,        ,        ,\n     ,        ,        ,        \n";

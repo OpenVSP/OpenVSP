@@ -236,6 +236,7 @@ protected:
 
     int m_SimpleFeaMatIndex;
     string m_MaterialName;
+    string m_Name;
 };
 
 //=== SimpleFeaMaterial ====//
