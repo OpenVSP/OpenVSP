@@ -66,51 +66,12 @@ int FeaNode::GetIndex()
 
 void FeaNode::WriteNASTRAN( FILE* fp )
 {
-    fprintf( fp, "GRID,%8d,        ,", m_Index );
-
     double x = m_Pnt.x();
     double y = m_Pnt.y();
     double z = m_Pnt.z();
 
-    if ( std::abs( x ) < 10.0 )
-    {
-        fprintf( fp, "%8.5f,", x );
-    }
-    else if ( std::abs( x ) < 100.0 )
-    {
-        fprintf( fp, "%8.4f,", x );
-    }
-    else
-    {
-        fprintf( fp, "%8.3f,", x );
-    }
-
-    if ( std::abs( y ) < 10.0 )
-    {
-        fprintf( fp, "%8.5f,", y );
-    }
-    else if ( std::abs( y ) < 100.0 )
-    {
-        fprintf( fp, "%8.4f,", y );
-    }
-    else
-    {
-        fprintf( fp, "%8.3f,", y );
-    }
-
-    if ( std::abs( z ) < 10.0 )
-    {
-        fprintf( fp, "%8.5f\n", z );
-    }
-    else if ( std::abs( z ) < 100.0 )
-    {
-        fprintf( fp, "%8.4f\n", z );
-    }
-    else
-    {
-        fprintf( fp, "%8.3f\n", z );
-    }
-
+    string fmt = "GRID    ,%8d,        ," + GetFeaFormat( x ) + "," + GetFeaFormat( y ) + "," + GetFeaFormat( z ) + "\n";
+    fprintf( fp, fmt.c_str(), m_Index, x, y, z );
 }
 
 void FeaNode::WriteCalculix( FILE* fp )
@@ -200,7 +161,7 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index )
 
     double theta_material = RAD_2_DEG * signed_angle( x_element, m_Orientation, x_axis );
 
-    string format_string = "CTRIA6,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n      ," + GetFeaFormat( theta_material ) + "\n";
+    string format_string = "CTRIA6  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ," + GetFeaFormat( theta_material ) + "\n";
 
     fprintf( fp, format_string.c_str(), id, property_index + 1,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(),
@@ -281,7 +242,7 @@ void FeaQuad::WriteCalculix( FILE* fp, int id )
 }
 void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
-    fprintf( fp, "CQUAD8,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,+\n+,%8d,%8d\n", id, property_index + 1,
+    fprintf( fp, "CQUAD8  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ,%8d,%8d\n", id, property_index + 1,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(), m_Corners[3]->GetIndex(),
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), m_Mids[3]->GetIndex() );
 }
@@ -364,7 +325,7 @@ void FeaBeam::WriteCalculixNormal( FILE* fp )
 
 void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
-    string format_string = "CBAR,%8d,%8d,%8d,%8d," + GetFeaFormat( m_DispVec.x() ) + "," +
+    string format_string = "CBAR    ,%8d,%8d,%8d,%8d," + GetFeaFormat( m_DispVec.x() ) + "," +
         GetFeaFormat( m_DispVec.y() ) + "," + GetFeaFormat( m_DispVec.z() ) + "\n";
 
     fprintf( fp, format_string.c_str(), id, property_index + 1, m_Corners[0]->GetIndex(), 
@@ -437,7 +398,7 @@ void FeaPointMass::WriteCalculix( FILE* fp, int id )
 void FeaPointMass::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
     // Note: property_index ignored
-    string format_string = "CONM2,%8d,%8d,        ," + GetFeaFormat( m_Mass ) + "\n";
+    string format_string = "CONM2   ,%8d,%8d,        ," + GetFeaFormat( m_Mass ) + "\n";
 
     fprintf( fp, format_string.c_str(), id, m_Corners[0]->GetIndex(), m_Mass );
 }
@@ -480,7 +441,7 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
     fprintf( fp, "$ %s using %s\n", m_Name.c_str(), m_MaterialName.c_str() );
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
-        string format_string = "PSHELL,%8d,%8d," + GetFeaFormat( m_Thickness ) + ",      -1,        ,        ,        ,        ,\n     ,        ,        ,        \n";
+        string format_string = "PSHELL  ,%8d,%8d," + GetFeaFormat( m_Thickness ) + ",      -1,        ,        ,        ,        ,\n        ,        ,        ,        \n";
 
         // Note: For plane strain analysis, material identification number for bending is set to -1
         fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Thickness );
@@ -489,41 +450,41 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
     {
         if ( m_CrossSectType == vsp::FEA_XSEC_GENERAL )
         {
-            string format_string = "PBAR,%8d,%8d," + GetFeaFormat( m_CrossSecArea ) + "," +
+            string format_string = "PBAR    ,%8d,%8d," + GetFeaFormat( m_CrossSecArea ) + "," +
                 GetFeaFormat( m_Izz ) + "," + GetFeaFormat( m_Iyy ) + "," + GetFeaFormat( m_Ixx ) +
-                ",        ,        ,\n    ,        ,        ,        ,        ,        ,        ,        ,        ,\n    ,        ,        ," +
+                ",        ,        ,\n        ,        ,        ,        ,        ,        ,        ,        ,        ,\n        ,        ,        ," +
                 GetFeaFormat( m_Izy ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_CrossSecArea, m_Izz, m_Iyy, m_Ixx, m_Izy );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_CIRC )
         {
-            string format_string = "PBARL,%8d,%8d,        ,     ROD,\n     ," + GetFeaFormat( m_Dim1 ) + "\n";
+            string format_string = "PBARL   ,%8d,%8d,        ,     ROD,\n        ," + GetFeaFormat( m_Dim1 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_PIPE )
         {
-            string format_string = "PBARL,%8d,%8d,        ,    TUBE,\n     ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "\n";
+            string format_string = "PBARL   ,%8d,%8d,        ,    TUBE,\n        ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, 2 * m_Dim2 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_I )
         {
-            string format_string = "PBARL,%8d,%8d,        ,       I,\n     ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "," 
+            string format_string = "PBARL   ,%8d,%8d,        ,       I,\n        ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + ","
                 + GetFeaFormat( m_Dim3 ) + "," + GetFeaFormat( m_Dim4 ) + "," + GetFeaFormat( m_Dim5 ) + "," + GetFeaFormat( m_Dim6 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2, m_Dim3, m_Dim4, m_Dim5, m_Dim6 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_RECT )
         {
-            string format_string = "PBARL,%8d,%8d,        ,     BAR,\n     ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "\n";
+            string format_string = "PBARL   ,%8d,%8d,        ,     BAR,\n        ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_BOX )
         {
-            string format_string = "PBARL,%8d,%8d,        ,     BOX,\n     ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + ","
+            string format_string = "PBARL   ,%8d,%8d,        ,     BOX,\n        ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + ","
                 + GetFeaFormat( m_Dim3 ) + "," + GetFeaFormat( m_Dim4 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2, m_Dim3, m_Dim4 );
