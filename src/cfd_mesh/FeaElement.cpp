@@ -359,8 +359,7 @@ void FeaBeam::WriteCalculix( FILE* fp, int id )
 
 void FeaBeam::WriteCalculixNormal( FILE* fp )
 {
-    string format_string = "%8d,%8d," + GetFeaFormat( m_DispVec.x() ) + "," + GetFeaFormat( m_DispVec.y() ) + "," + GetFeaFormat( m_DispVec.z() ) + "\n";
-    fprintf( fp, format_string.c_str(), m_ElementIndex, m_Corners[0]->GetIndex(), m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
+    fprintf( fp, "%d,%d,%f,%f,%f\n", m_ElementIndex, m_Corners[0]->GetIndex(), m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
 }
 
 void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index )
