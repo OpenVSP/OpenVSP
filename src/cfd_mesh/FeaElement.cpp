@@ -70,7 +70,7 @@ void FeaNode::WriteNASTRAN( FILE* fp )
     double y = m_Pnt.y();
     double z = m_Pnt.z();
 
-    string fmt = "GRID    ,%8d,        ," + GetFeaFormat( x ) + "," + GetFeaFormat( y ) + "," + GetFeaFormat( z ) + "\n";
+    string fmt = "GRID    ,%8d,        ," + NasFmt( x ) + "," + NasFmt( y ) + "," + NasFmt( z ) + "\n";
     fprintf( fp, fmt.c_str(), m_Index, x, y, z );
 }
 
@@ -161,7 +161,7 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index )
 
     double theta_material = RAD_2_DEG * signed_angle( x_element, m_Orientation, x_axis );
 
-    string format_string = "CTRIA6  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ," + GetFeaFormat( theta_material ) + "\n";
+    string format_string = "CTRIA6  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ," + NasFmt( theta_material ) + "\n";
 
     fprintf( fp, format_string.c_str(), id, property_index + 1,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(),
@@ -325,8 +325,8 @@ void FeaBeam::WriteCalculixNormal( FILE* fp )
 
 void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
-    string format_string = "CBAR    ,%8d,%8d,%8d,%8d," + GetFeaFormat( m_DispVec.x() ) + "," +
-        GetFeaFormat( m_DispVec.y() ) + "," + GetFeaFormat( m_DispVec.z() ) + "\n";
+    string format_string = "CBAR    ,%8d,%8d,%8d,%8d," + NasFmt( m_DispVec.x() ) + "," +
+                           NasFmt( m_DispVec.y() ) + "," + NasFmt( m_DispVec.z() ) + "\n";
 
     fprintf( fp, format_string.c_str(), id, property_index + 1, m_Corners[0]->GetIndex(), 
              m_Corners[1]->GetIndex(), m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
@@ -398,7 +398,7 @@ void FeaPointMass::WriteCalculix( FILE* fp, int id )
 void FeaPointMass::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
     // Note: property_index ignored
-    string format_string = "CONM2   ,%8d,%8d,        ," + GetFeaFormat( m_Mass ) + "\n";
+    string format_string = "CONM2   ,%8d,%8d,        ," + NasFmt( m_Mass ) + "\n";
 
     fprintf( fp, format_string.c_str(), id, m_Corners[0]->GetIndex(), m_Mass );
 }
@@ -441,7 +441,7 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
     fprintf( fp, "$ %s using %s\n", m_Name.c_str(), m_MaterialName.c_str() );
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
-        string format_string = "PSHELL  ,%8d,%8d," + GetFeaFormat( m_Thickness ) + ",      -1,        ,        ,        ,        ,\n        ,        ,        ,        \n";
+        string format_string = "PSHELL  ,%8d,%8d," + NasFmt( m_Thickness ) + ",      -1,        ,        ,        ,        ,\n        ,        ,        ,        \n";
 
         // Note: For plane strain analysis, material identification number for bending is set to -1
         fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Thickness );
@@ -450,42 +450,41 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
     {
         if ( m_CrossSectType == vsp::FEA_XSEC_GENERAL )
         {
-            string format_string = "PBAR    ,%8d,%8d," + GetFeaFormat( m_CrossSecArea ) + "," +
-                GetFeaFormat( m_Izz ) + "," + GetFeaFormat( m_Iyy ) + "," + GetFeaFormat( m_Ixx ) +
-                ",        ,        ,\n        ,        ,        ,        ,        ,        ,        ,        ,        ,\n        ,        ,        ," +
-                GetFeaFormat( m_Izy ) + "\n";
+            string format_string = "PBAR    ,%8d,%8d," + NasFmt( m_CrossSecArea ) + "," + NasFmt( m_Izz ) + "," + NasFmt( m_Iyy ) + "," + NasFmt( m_Ixx )
+                   + ",        ,        ,\n        ,        ,        ,        ,        ,        ,        ,        ,        ,\n        ,        ,        ,"
+                   + NasFmt( m_Izy ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_CrossSecArea, m_Izz, m_Iyy, m_Ixx, m_Izy );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_CIRC )
         {
-            string format_string = "PBARL   ,%8d,%8d,        ,     ROD,\n        ," + GetFeaFormat( m_Dim1 ) + "\n";
+            string format_string = "PBARL   ,%8d,%8d,        ,     ROD,\n        ," + NasFmt( m_Dim1 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_PIPE )
         {
-            string format_string = "PBARL   ,%8d,%8d,        ,    TUBE,\n        ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "\n";
+            string format_string = "PBARL   ,%8d,%8d,        ,    TUBE,\n        ," + NasFmt( m_Dim1 ) + "," + NasFmt( m_Dim2 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, 2 * m_Dim2 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_I )
         {
-            string format_string = "PBARL   ,%8d,%8d,        ,       I,\n        ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + ","
-                + GetFeaFormat( m_Dim3 ) + "," + GetFeaFormat( m_Dim4 ) + "," + GetFeaFormat( m_Dim5 ) + "," + GetFeaFormat( m_Dim6 ) + "\n";
+            string format_string = "PBARL   ,%8d,%8d,        ,       I,\n        ," + NasFmt( m_Dim1 ) + "," + NasFmt( m_Dim2 ) + ","
+                                  + NasFmt( m_Dim3 ) + "," + NasFmt( m_Dim4 ) + "," + NasFmt( m_Dim5 ) + "," + NasFmt( m_Dim6 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2, m_Dim3, m_Dim4, m_Dim5, m_Dim6 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_RECT )
         {
-            string format_string = "PBARL   ,%8d,%8d,        ,     BAR,\n        ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "\n";
+            string format_string = "PBARL   ,%8d,%8d,        ,     BAR,\n        ," + NasFmt( m_Dim1 ) + "," + NasFmt( m_Dim2 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_BOX )
         {
-            string format_string = "PBARL   ,%8d,%8d,        ,     BOX,\n        ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + ","
-                + GetFeaFormat( m_Dim3 ) + "," + GetFeaFormat( m_Dim4 ) + "\n";
+            string format_string = "PBARL   ,%8d,%8d,        ,     BOX,\n        ," + NasFmt( m_Dim1 ) + "," + NasFmt( m_Dim2 ) + ","
+                                   + NasFmt( m_Dim3 ) + "," + NasFmt( m_Dim4 ) + "\n";
 
             fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2, m_Dim3, m_Dim4 );
         }
@@ -569,11 +568,11 @@ void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
     if ( m_FeaMaterialType == vsp::FEA_ISOTROPIC )
     {
         fprintf( fp, "$ %s\n", m_Name.c_str() );
-        string fmt = "MAT1    ,%8d," + GetFeaFormat( m_ElasticModulus ) + "," +
-                                       GetFeaFormat( GetShearModulus() ) + "," +
-                                       GetFeaFormat( m_PoissonRatio ) + "," +
-                                       GetFeaFormat( m_MassDensity ) + "," +
-                                       GetFeaFormat( m_ThermalExpanCoeff ) + "\n";
+        string fmt = "MAT1    ,%8d," + NasFmt( m_ElasticModulus ) + "," +
+                                       NasFmt( GetShearModulus() ) + "," +
+                                       NasFmt( m_PoissonRatio ) + "," +
+                                       NasFmt( m_MassDensity ) + "," +
+                                       NasFmt( m_ThermalExpanCoeff ) + "\n";
 
         fprintf( fp, fmt.c_str(), mat_id, m_ElasticModulus, GetShearModulus(), m_PoissonRatio, m_MassDensity, m_ThermalExpanCoeff );
     }
@@ -581,15 +580,15 @@ void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
     {
         fprintf( fp, "$ %s\n", m_Name.c_str() );
         // Note that MAT8 is only for shell type elements.
-        string fmt = "MAT8    ,%8d," + GetFeaFormat( m_E1 ) + "," +
-                                       GetFeaFormat( m_E2 ) + "," +
-                                       GetFeaFormat( m_nu12 ) + "," +
-                                       GetFeaFormat( m_G12 ) + "," +
-                                       GetFeaFormat( m_G13 ) + "," +
-                                       GetFeaFormat( m_G23 ) + ",\n        ," +
-                                       GetFeaFormat( m_MassDensity ) + "," +
-                                       GetFeaFormat( m_A1 ) + "," +
-                                       GetFeaFormat( m_A2 ) + "\n";
+        string fmt = "MAT8    ,%8d," + NasFmt( m_E1 ) + "," +
+                                       NasFmt( m_E2 ) + "," +
+                                       NasFmt( m_nu12 ) + "," +
+                                       NasFmt( m_G12 ) + "," +
+                                       NasFmt( m_G13 ) + "," +
+                                       NasFmt( m_G23 ) + ",\n        ," +
+                                       NasFmt( m_MassDensity ) + "," +
+                                       NasFmt( m_A1 ) + "," +
+                                       NasFmt( m_A2 ) + "\n";
 
         fprintf( fp, fmt.c_str(), mat_id, m_E1, m_E2, m_nu12, m_G12, m_G13, m_G23, m_MassDensity, m_A1, m_A2  );
         // If solid elements are ever added, they will need MAT9 for isotropic materials.

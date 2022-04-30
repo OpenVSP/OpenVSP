@@ -207,7 +207,7 @@ string StringUtil::truncateFileName( const string &fn, int len )
 }
 
 
-string StringUtil::GetFeaFormat( double input )
+string StringUtil::NasFmt( double input )
 {
     double ainput = std::abs( input );
     if ( input > 0 )  // Positive branch

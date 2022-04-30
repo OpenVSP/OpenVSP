@@ -39,7 +39,7 @@ string get_delim( int delim_type );
 
 string truncateFileName( const string &fn, int len );
 
-string GetFeaFormat( double input );
+string NasFmt( double input );
 
 }
 
