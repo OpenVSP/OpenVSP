@@ -113,6 +113,12 @@ void StringUtil::remove_trailing( string & str, char c )
     }
 }
 
+void StringUtil::remove_leading_trailing( string & str, char c )
+{
+    remove_leading( str, c );
+    remove_trailing( str, c );
+}
+
 //==== Convert Int To String =====//
 string StringUtil::int_to_string( int i, const char* format )
 {
