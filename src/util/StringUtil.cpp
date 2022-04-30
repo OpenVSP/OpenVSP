@@ -209,58 +209,79 @@ string StringUtil::truncateFileName( const string &fn, int len )
 
 string StringUtil::GetFeaFormat( double input )
 {
-    if ( input > 0 ) {
-        if (std::abs(input) < 1.0)
+    double ainput = std::abs( input );
+    if ( input > 0 )  // Positive branch
+    {
+        if ( ainput < 0.001 )  // Small magnitude, scientific notation
         {
-            return string("%8.2e");
+            return string( "%8.2e" );
         }
-        else if (std::abs(input) < 10.0)
+        else if ( ainput < 10.0 )
         {
-            return string("%8.6f");
+            return string( "%8.6f" );
         }
-        else if (std::abs(input) < 100.0)
+        else if ( ainput < 100.0 )
         {
-            return string("%8.5f");
+            return string( "%8.5f" );
         }
-        else if (std::abs(input) < 1000.0)
+        else if ( ainput < 1000.0 )
         {
-            return string("%8.4f");
+            return string( "%8.4f" );
         }
-        else if (std::abs(input) < 10000.0)
+        else if ( ainput < 10000.0 )
         {
-            return string("%8.3f");
+            return string( "%8.3f" );
+        }
+        else if ( ainput < 100000.0 )
+        {
+            return string( "%8.2f" );
+        }
+        else if ( ainput < 1000000.0 )
+        {
+            return string( "%8.1f" );
+        }
+        else if ( ainput < 10000000.0 )
+        {
+            return string( "%7.0f." ); // Shrink and pad with decimal
         }
         else
         {
-            return string("%8.3g");
+            return string( "%8.2e" );  // Big magnitude, scientific notation
         }
     }
     else
     {
-        if (std::abs(input) < 1.0)
+        if ( ainput < 0.001 )  // Small magnitude, scientific notation
         {
-            return string("%8.1e");
+            return string( "%8.1e" );
         }
-        else if (std::abs(input) < 10.0)
+        else if ( ainput < 10.0 )
         {
-            return string("%8.5f");
+            return string( "%8.5f" );
         }
-        else if (std::abs(input) < 100.0)
+        else if ( ainput < 100.0 )
         {
-            return string("%8.4f");
+            return string( "%8.4f" );
         }
-        else if (std::abs(input) < 1000.0)
+        else if ( ainput < 1000.0 )
         {
-            return string("%8.3f");
+            return string( "%8.3f" );
         }
-        else if (std::abs(input) < 10000.0)
+        else if ( ainput < 10000.0 )
         {
-            return string("%8.2f");
+            return string( "%8.2f" );
+        }
+        else if ( ainput < 100000.0 )
+        {
+            return string( "%8.1f" );
+        }
+        else if ( ainput < 1000000.0 )
+        {
+            return string( "%7.0f." ); // Shrink and pad with decimal
         }
         else
         {
-            return string("%8.2g");
+            return string( "%8.1e" );
         }
-
     }
 }
