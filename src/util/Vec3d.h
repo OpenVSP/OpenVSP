@@ -250,6 +250,7 @@ public:
     friend vec3d proj_pnt_on_ray( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
     friend vec3d proj_pnt_on_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );
     friend vec3d proj_pnt_to_plane( vec3d& org, vec3d& plane_ln1, vec3d& plane_ln2, vec3d& pnt );
+    friend vec3d proj_vec_to_plane( const vec3d& vec, const vec3d& norm );
     friend int tri_seg_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E,
                                   double& u, double& w, double& t );
     friend int tri_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& E,

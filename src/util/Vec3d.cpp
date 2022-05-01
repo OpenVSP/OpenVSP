@@ -707,6 +707,20 @@ vec3d proj_pnt_to_plane( vec3d& org, vec3d& plane_ln1, vec3d& plane_ln2, vec3d& 
 
 }
 
+vec3d proj_vec_to_plane( const vec3d& vec, const vec3d& norm )
+{
+    double ca = cos_angle( vec, norm );
+
+    if ( std::abs( ca ) == 1.0 )
+    {
+        return vec3d();
+    }
+
+    vec3d along = ca * norm;
+
+    return vec - along;
+}
+
 //******* Find The Point On Line AB nearest to Line CD******//
 //======= NOT TESTED !!!!!!!!!!!!!!! ===//
 int ray_ray_intersect( vec3d& A, vec3d& B, vec3d& C, vec3d& D, vec3d& int_pnt1, vec3d& int_pnt2 )
