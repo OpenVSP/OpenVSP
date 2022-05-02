@@ -142,7 +142,11 @@ void FeaMeshMgrSingleton::LoadSkins()
             // Load Skin XFerSurf to m_SurfVec
             LoadSurfs( skinxfersurfs );
 
-            for ( int j = 0; j < m_SurfVec.size(); j++ )
+            // begin should be zero here, but we copy the logic from AddStructureSurfParts for readability.
+            int begin = m_SurfVec.size() - skinxfersurfs.size();
+            int end = m_SurfVec.size();
+
+            for ( int j = begin; j < end; j++ )
             {
                 m_SurfVec[j]->SetFeaPartIndex( skin_index );
 
@@ -151,6 +155,7 @@ void FeaMeshMgrSingleton::LoadSkins()
                     m_SurfVec[j]->SetIgnoreSurfFlag( true );
                 }
             }
+
         }
     }
 }
