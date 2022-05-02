@@ -1055,6 +1055,11 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         if ( m_SurfVec[tri_surf_ind_vec[i]]->ValidUW( closest_uw ) )
         {
             orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->CompTanU( closest_uw[0], closest_uw[1] );
+
+            // Project orientation vector into plane of element.  Will be trivial for u-direction orientation, but
+            // should allow NASTRAN and CalculiX equivalence for other cases.
+            vec3d norm = m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->CompNorm( closest_uw[0], closest_uw[1] );
+            orient_vec = proj_vec_to_plane( orient_vec, norm );
         }
 
         orient_vec.normalize();
