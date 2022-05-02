@@ -878,6 +878,33 @@ vec3d VspSurf::CompPntRST( double r, double s, double t ) const
     return rtn;
 }
 
+vec3d VspSurf::CompTanR( double r, double s, double t ) const
+{
+    vec3d rtn;
+    surface_point_type p( m_Surface.f_R( r, s, t ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
+}
+
+vec3d VspSurf::CompTanS( double r, double s, double t ) const
+{
+    vec3d rtn;
+    surface_point_type p( m_Surface.f_S( r, s, t ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
+}
+
+vec3d VspSurf::CompTanT( double r, double s, double t ) const
+{
+    vec3d rtn;
+    surface_point_type p( m_Surface.f_T( r, s, t ) );
+
+    rtn.set_xyz( p.x(), p.y(), p.z() );
+    return rtn;
+}
+
 //===== Compute Point On Surf Given  U W =====//
 vec3d VspSurf::CompPnt( double u, double v ) const
 {

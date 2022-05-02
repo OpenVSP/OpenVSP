@@ -133,6 +133,9 @@ public:
     Matrix4d CompTransCoordSys( const double &u, const double &w );
 
     vec3d CompPntRST( double r, double s, double t ) const;
+    vec3d CompTanR( double r, double s, double t ) const;
+    vec3d CompTanS( double r, double s, double t ) const;
+    vec3d CompTanT( double r, double s, double t ) const;
 
     //===== Bezier Funcs ====//
     vec3d CompPnt( double u, double v ) const;

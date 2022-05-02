@@ -437,6 +437,9 @@ public:
     virtual void GetUWTess01( int indx, vector < double > &u, vector < double > &w );
 
     virtual vec3d CompPntRST( const int &indx, const double &r, const double &s, const double &t );
+    virtual vec3d CompTanR( const int &indx, const double &r, const double &s, const double &t );
+    virtual vec3d CompTanS( const int &indx, const double &r, const double &s, const double &t );
+    virtual vec3d CompTanT( const int &indx, const double &r, const double &s, const double &t );
 
     virtual bool CompRotCoordSys( const double &u, const double &w, Matrix4d &rotmat );
     virtual bool CompTransCoordSys( const double &u, const double &w, Matrix4d &transmat );

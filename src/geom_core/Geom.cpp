@@ -3826,6 +3826,21 @@ vec3d Geom::CompPntRST( const int &indx, const double &r, const double &s, const
     return GetSurfPtr( indx )->CompPntRST( r, s, t );
 }
 
+vec3d Geom::CompTanR( const int &indx, const double &r, const double &s, const double &t )
+{
+    return GetSurfPtr( indx )->CompTanR( r, s, t );
+}
+
+vec3d Geom::CompTanS( const int &indx, const double &r, const double &s, const double &t )
+{
+    return GetSurfPtr( indx )->CompTanS( r, s, t );
+}
+
+vec3d Geom::CompTanT( const int &indx, const double &r, const double &s, const double &t )
+{
+    return GetSurfPtr( indx )->CompTanT( r, s, t );
+}
+
 bool Geom::CompRotCoordSys( const double &u, const double &w, Matrix4d &rotMat )
 {
     VspSurf* surf_ptr = GetSurfPtr(0);
