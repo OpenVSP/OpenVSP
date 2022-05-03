@@ -291,14 +291,18 @@ double VspSurf::FindRST( const vec3d & pt, const double &r0, const double &s0, c
 {
     surface_point_type p0;
     p0 << pt.x(), pt.y(), pt.z();
-    int ret;
+    surface_index_type ret;
     double dist = eli::geom::intersect::find_rst( r, s, t, m_Surface, p0, r0, s0, t0, ret );
     return dist;
 }
 
 double VspSurf::FindRST( const vec3d & pt, double &r, double &s, double &t ) const
 {
-    return FindRST( pt, 0.5, 0.25, 0.5, r, s, t );
+    surface_point_type p0;
+    p0 << pt.x(), pt.y(), pt.z();
+    surface_index_type ret;
+    double dist = eli::geom::intersect::find_rst( r, s, t, m_Surface, p0, ret );
+    return dist;
 }
 
 double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d &outpt ) const
