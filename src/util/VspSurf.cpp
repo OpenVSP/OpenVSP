@@ -134,6 +134,8 @@ void VspSurf::Transform( Matrix4d & mat )
 
     m_Surface.rotate( rmat );
     m_Surface.translate( trans );
+
+    m_FeaOrientation = mat.xformnorm( m_FeaOrientation );
 }
 
 void VspSurf::GetBoundingBox( BndBox &bb ) const
