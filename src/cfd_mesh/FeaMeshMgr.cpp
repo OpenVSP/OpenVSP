@@ -2756,19 +2756,20 @@ void FeaMeshMgrSingleton::WriteCalculix()
             {
                 int property_id = m_FeaPartPropertyIndexVec[i];
                 int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
+                string orientation = string( "Orientation Name" );
 
                 if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                 {
                     fprintf( fp, "\n" );
                     sprintf( str, "E%s", m_FeaPartNameVec[i].c_str() );
-                    m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
+                    m_SimplePropertyVec[property_id].WriteCalculix( fp, str, orientation );
                 }
 
                 if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                 {
                     fprintf( fp, "\n" );
                     sprintf( str, "E%s_CAP", m_FeaPartNameVec[i].c_str() );
-                    m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
+                    m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str, orientation );
                 }
             }
         }
@@ -2777,19 +2778,20 @@ void FeaMeshMgrSingleton::WriteCalculix()
         {
             int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
             int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
+            string orientation = string( "Orientation Name" );
 
             if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
             {
                 fprintf( fp, "\n" );
                 sprintf( str, "E%s", m_SimpleSubSurfaceVec[i].GetName().c_str() );
-                m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
+                m_SimplePropertyVec[property_id].WriteCalculix( fp, str, orientation );
             }
 
             if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
             {
                 fprintf( fp, "\n" );
                 sprintf( str, "E%s_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str() );
-                m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
+                m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str, orientation );
             }
         }
 

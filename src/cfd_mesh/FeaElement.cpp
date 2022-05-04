@@ -491,11 +491,11 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
     }
 }
 
-void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET )
+void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const string &ORIENTATION )
 {
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
-        fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+        fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s, ORIENTATION=%s\n", ELSET.c_str(), m_MaterialName.c_str(), ORIENTATION.c_str() );
         fprintf( fp, "%g\n", m_Thickness );
     }
     if ( m_FeaPropertyType == vsp::FEA_BEAM )
