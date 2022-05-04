@@ -300,6 +300,22 @@ enum FEA_MATERIAL_TYPE { FEA_ISOTROPIC,
                          FEA_NUM_MAT_TYPES
                        };
 
+enum FEA_ORIENTATION_TYPE { FEA_ORIENT_GLOBAL_X,
+                            FEA_ORIENT_GLOBAL_Y,
+                            FEA_ORIENT_GLOBAL_Z,
+                            FEA_ORIENT_COMP_X,
+                            FEA_ORIENT_COMP_Y,
+                            FEA_ORIENT_COMP_Z,
+                            FEA_ORIENT_PART_U,
+                            FEA_ORIENT_PART_V,
+                            FEA_ORIENT_OML_U,
+                            FEA_ORIENT_OML_V,
+                            FEA_ORIENT_OML_R,
+                            FEA_ORIENT_OML_S,
+                            FEA_ORIENT_OML_T,
+                            FEA_NUM_ORIENT_TYPES
+                          };
+
 enum FEA_PART_ELEMENT_TYPE { FEA_SHELL = 0,
                              FEA_BEAM,
                              FEA_SHELL_AND_BEAM

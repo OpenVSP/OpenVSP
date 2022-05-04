@@ -1097,6 +1097,39 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FEA_MATERIAL_TYPE", "FEA_NUM_MAT_TYPES", FEA_NUM_MAT_TYPES, "/*!< Number of FEA material types */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum for FEA material orientation types. */";
+
+    r = se->RegisterEnum( "FEA_ORIENTATION_TYPE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_GLOBAL_X", FEA_ORIENT_GLOBAL_X, "/*!< FEA Global X material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_GLOBAL_Y", FEA_ORIENT_GLOBAL_Y, "/*!< FEA Global Y material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_GLOBAL_Z", FEA_ORIENT_GLOBAL_Z, "/*!< FEA Global Z material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_COMP_X", FEA_ORIENT_COMP_X, "/*!< FEA Comp X material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_COMP_Y", FEA_ORIENT_COMP_Y, "/*!< FEA Comp Y material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_COMP_Z", FEA_ORIENT_COMP_Z, "/*!< FEA Comp Z material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_PART_U", FEA_ORIENT_PART_U, "/*!< FEA Part U material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_PART_V", FEA_ORIENT_PART_V, "/*!< FEA Part V material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_OML_U", FEA_ORIENT_OML_U, "/*!< FEA OML U material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_OML_V", FEA_ORIENT_OML_V, "/*!< FEA OML V material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_OML_R", FEA_ORIENT_OML_R, "/*!< FEA OML R material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_OML_S", FEA_ORIENT_OML_S, "/*!< FEA OML S material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_ORIENT_OML_T", FEA_ORIENT_OML_T, "/*!< FEA OML T material orientation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_ORIENTATION_TYPE", "FEA_NUM_ORIENT_TYPES", FEA_NUM_ORIENT_TYPES, "/*!< Number of FEA material orientation types */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum for FEA Part element types. */";
 
     r = se->RegisterEnum( "FEA_PART_ELEMENT_TYPE", doc_struct );
