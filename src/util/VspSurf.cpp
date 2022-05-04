@@ -54,6 +54,9 @@ VspSurf::VspSurf()
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_SkinType = SKIN_NONE;
 
+    m_FeaOrientationType = vsp::FEA_ORIENT_OML_U;
+    m_FeaOrientation = vec3d();
+
     m_CloneIndex = -1;
 
     SetClustering( 1.0, 1.0 );
@@ -2106,6 +2109,8 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         xsurf.m_SurfIndx = surf_ind;
         xsurf.m_SurfType = GetSurfType();
         xsurf.m_SurfCfdType = m_SurfCfdType;
+        xsurf.m_FeaOrientationType = m_FeaOrientationType;
+        xsurf.m_FeaOrientation = m_FeaOrientation;
         xsurf.m_CompIndx = comp_ind;
         xfersurfs.push_back( xsurf );
     }

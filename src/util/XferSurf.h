@@ -16,6 +16,7 @@ typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> pie
 
 #include <string>
 #include <APIDefines.h>
+#include <Vec3d.h>
 using std::string;
 
 class XferSurf
@@ -29,6 +30,8 @@ public:
         m_SurfIndx = 0;
         m_SurfType = vsp::NORMAL_SURF;
         m_SurfCfdType = vsp::CFD_NORMAL;
+        m_FeaOrientationType = vsp::FEA_ORIENT_OML_U;
+        m_FeaOrientation = vec3d();
     };
 
     ~XferSurf()
@@ -42,6 +45,8 @@ public:
     int m_SurfIndx;
     int m_SurfType;
     int m_SurfCfdType;
+    int m_FeaOrientationType;
+    vec3d m_FeaOrientation;
 
     piecewise_surface_type m_Surface;
 };

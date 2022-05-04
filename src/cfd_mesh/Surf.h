@@ -213,6 +213,24 @@ public:
         return m_SurfCfdType;
     }
 
+    void SetFeaOrientationType( int oType )
+    {
+        m_FeaOrientationType = oType;
+    }
+    int GetFeaOrientationType()
+    {
+        return m_FeaOrientationType;
+    }
+
+    void SetFeaOrientation( vec3d o )
+    {
+        m_FeaOrientation = o;
+    }
+    vec3d GetFeaOrientation()
+    {
+        return m_FeaOrientation;
+    }
+
     //Getter/Setter Surface VSP TYPE (NORMAL_SURF, WING_SURF, DISK_SURF, PROP_SURF)
     void SetSurfaceVSPType( int surfVspType )
     {
@@ -315,6 +333,8 @@ protected:
     vector< double > m_WScaleMap;
 
     int m_FeaPartIndex;
+    int m_FeaOrientationType;
+    vec3d m_FeaOrientation;
 
 };
 

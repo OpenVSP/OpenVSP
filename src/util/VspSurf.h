@@ -273,6 +273,11 @@ protected:
     bool m_HalfBOR;
     int m_SurfType;
     int m_SurfCfdType;
+
+    // Possibly shouldn't be here, but seems as good as any place for now.
+    int m_FeaOrientationType;
+    vec3d m_FeaOrientation;
+
     piecewise_surface_type m_Surface;
 
     vector < double > m_UFeature;
