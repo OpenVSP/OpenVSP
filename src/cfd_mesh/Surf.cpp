@@ -1481,3 +1481,27 @@ vec3d Surf::GetFeaElementOrientation( double u, double w )
 
     return orient;
 }
+
+// Compute the per-surface material orientation for CalculiX.  Since no per-element information is available,
+// the per-surface stored orientation is used.
+vec3d Surf::GetFeaElementOrientation()
+{
+    // All COMP_XYZ, OML_UVRST, PART_UV
+    vec3d orient = m_FeaOrientation;
+
+    // Global XYZ are done here as they are independent of the transformations applied to the other orientations.
+    if ( m_FeaOrientationType == vsp::FEA_ORIENT_GLOBAL_X )
+    {
+        orient = vec3d( 1.0, 0, 0 );
+    }
+    else if ( m_FeaOrientationType == vsp::FEA_ORIENT_GLOBAL_Y )
+    {
+        orient = vec3d( 0, 1.0, 0 );
+    }
+    else if ( m_FeaOrientationType == vsp::FEA_ORIENT_GLOBAL_Z )
+    {
+        orient = vec3d( 0, 0, 1.0 );
+    }
+
+    return orient;
+}
