@@ -2555,7 +2555,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         int elem_id = 0;
         char str[256];
 
-        //==== Write FeaParts ====//
+        //==== Write nodes from FeaParts ====//
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
@@ -2575,7 +2575,13 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 }
 
                 fprintf( fp, "\n" );
+            }
+        }
 
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        {
+            if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
+            {
                 if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                 {
                     fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", m_FeaPartNameVec[i].c_str() );
