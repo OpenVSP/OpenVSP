@@ -886,26 +886,12 @@ FeaPart::~FeaPart()
 
 void FeaPart::Update()
 {
-    if ( true )
-    {
+    UpdateSurface();
 
-        UpdateSymmIndex();
+    UpdateSymmParts();
 
-        UpdateSurface();
-
-        if ( GetType() == vsp::FEA_RIB_ARRAY || GetType() == vsp::FEA_SLICE_ARRAY )
-        {
-            // Symmetry handled in UpdateSurface() of array types.
-        }
-        else
-        {
-            UpdateSymmParts();
-        }
-
-        UpdateDrawObjs();
-    }
+    UpdateDrawObjs();
 }
-
 
 // This should really call FeaStructure::ParmChanged, but there is no clear way to get a pointer to the
 // FeaStructure that contains this FeaPart
@@ -951,37 +937,6 @@ void FeaPart::SetDisplaySuffix( int num )
 
 void FeaPart::UpdateSymmParts()
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        Geom* current_geom = veh->FindGeom( m_ParentGeomID );
-        if ( !current_geom || m_FeaPartSurfVec.size() == 0 )
-        {
-            return;
-        }
-
-        vector< VspSurf > surf_vec;
-        surf_vec = current_geom->GetSurfVecConstRef();
-
-        // Get Symmetric Translation Matrix
-        vector<Matrix4d> transMats = current_geom->GetFeaTransMatVec();
-
-        //==== Apply Transformations ====//
-        for ( int i = 1; i < m_SymmIndexVec.size(); i++ )
-        {
-            m_FeaPartSurfVec[i].Transform( transMats[i] ); // Apply total transformation to main FeaPart surface
-
-            if ( surf_vec[i].GetFlipNormal() != m_FeaPartSurfVec[i].GetFlipNormal() )
-            {
-                m_FeaPartSurfVec[i].FlipNormal();
-            }
-        }
-    }
-}
-
-void FeaPart::UpdateSymmIndex()
-{
     m_SymmIndexVec.clear();
     m_FeaPartSurfVec.clear();
 
@@ -993,15 +948,50 @@ void FeaPart::UpdateSymmIndex()
 
     Geom* currgeom = veh->FindGeom( m_ParentGeomID );
 
-    if ( currgeom )
+    if ( !currgeom )
     {
-        currgeom->GetSymmIndexs( m_MainSurfIndx, m_SymmIndexVec );
+        return;
+    }
 
-        int ncopy = currgeom->GetNumSymmCopies();
+    currgeom->GetSymmIndexs( m_MainSurfIndx, m_SymmIndexVec );
 
-        assert( ncopy == m_SymmIndexVec.size() );
+    int nsurf = m_MainFeaPartSurfVec.size();
+    int nsymm = m_SymmIndexVec.size();
 
-        m_FeaPartSurfVec.resize( m_SymmIndexVec.size() );
+    m_FeaPartSurfVec.resize( nsurf * nsymm );
+
+    // Surface vector -- used for checking flipnormal.  Seems wasteful, but it works.
+    vector< VspSurf > surf_vec;
+    surf_vec = currgeom->GetSurfVecConstRef();
+
+    // Translation matrices for all Geom's surfaces.
+    vector<Matrix4d> transMats = currgeom->GetFeaTransMatVec();
+
+    bool flipnormal = surf_vec[ m_SymmIndexVec[0] ].GetFlipNormal();
+
+    for ( size_t i = 0; i < nsurf; i++ )
+    {
+        if ( m_MainFeaPartSurfVec[i].GetFlipNormal() != flipnormal ) // Make sure base copy oriented right.
+        {
+            m_MainFeaPartSurfVec[i].FlipNormal();
+        }
+        m_FeaPartSurfVec[i] = m_MainFeaPartSurfVec[i]; // Initialize first set.
+    }
+
+    for ( size_t i = 0; i < nsurf; i++ )
+    {
+        for ( size_t j = 1; j < nsymm; j++ )
+        {
+            m_FeaPartSurfVec[ nsurf * j + i ] = m_FeaPartSurfVec[ i ]; // Copy from base set.
+
+            flipnormal = surf_vec[ m_SymmIndexVec[j] ].GetFlipNormal();
+            if ( m_FeaPartSurfVec[ nsurf * j + i ].GetFlipNormal() != flipnormal ) // Make sure symmetric copies oriented right.
+            {
+                m_FeaPartSurfVec[ nsurf * j + i ].FlipNormal();
+            }
+
+            m_FeaPartSurfVec[ nsurf * j + i ].Transform( transMats[ m_SymmIndexVec[ j ] ] );
+        }
     }
 }
 
@@ -1276,16 +1266,10 @@ void FeaSlice::UpdateSurface()
 {
     UpdateParmLimits();
 
-    if ( m_FeaPartSurfVec.size() > 0 )
-    {
-        m_FeaPartSurfVec[0] = ComputeSliceSurf();
+    m_MainFeaPartSurfVec.clear();
+    m_MainFeaPartSurfVec.resize( 1 );
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be defined in UpdateSymmParts 
-        for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
-        {
-            m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
-        }
-    }
+    m_MainFeaPartSurfVec[0] = ComputeSliceSurf();
 }
 
 void FeaSlice::UpdateParmLimits()
@@ -1910,7 +1894,7 @@ void FeaSpar::UpdateParms()
     {
         Geom* current_wing = veh->FindGeom( m_ParentGeomID );
 
-        if ( !current_wing || m_FeaPartSurfVec.size() == 0 )
+        if ( !current_wing )
         {
             return;
         }
@@ -1981,16 +1965,19 @@ void FeaSpar::ComputePlanarSurf()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    m_MainFeaPartSurfVec.clear();
+    m_MainFeaPartSurfVec.resize( 1 );
+
     if ( veh )
     {
         Geom* current_wing = veh->FindGeom( m_ParentGeomID );
 
-        if ( !current_wing || m_FeaPartSurfVec.size() == 0 )
+        if ( !current_wing )
         {
             return;
         }
 
-        m_FeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
+        m_MainFeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
 
         WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
         assert( wing );
@@ -2193,7 +2180,7 @@ void FeaSpar::ComputePlanarSurf()
                 double rel_center_location = ( center.x() - sect_bbox.GetMin( 0 ) ) / ( sect_bbox.GetMax( 0 ) - sect_bbox.GetMin( 0 ) );
                 temp_slice->m_RelCenterLocation.Set( rel_center_location );
 
-                m_FeaPartSurfVec[0] = temp_slice->ComputeSliceSurf();
+                m_MainFeaPartSurfVec[0] = temp_slice->ComputeSliceSurf();
 
                 delete temp_slice;
             }
@@ -2351,33 +2338,28 @@ void FeaSpar::ComputePlanarSurf()
             cornerD = outside_edge_f - ( height * wing_z_axis );
 
             // Make Planar Surface
-            m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+            m_MainFeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
 
             // Transform to body coordinate frame
             model_matrix.affineInverse();
-            m_FeaPartSurfVec[0].Transform( model_matrix );
+            m_MainFeaPartSurfVec[0].Transform( model_matrix );
         }
 
         // Set Surface CFD Type: 
         if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
         {
-            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
         }
         else
         {
-            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
+            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
         }
 
-        if ( m_FeaPartSurfVec[0].GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
+        if ( m_MainFeaPartSurfVec[0].GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
         {
-            m_FeaPartSurfVec[0].FlipNormal();
+            m_MainFeaPartSurfVec[0].FlipNormal();
         }
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be defined in UpdateSymmParts 
-        for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
-        {
-            m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
-        }
     }
 }
 
@@ -2413,17 +2395,11 @@ void FeaRib::UpdateSurface()
 {
     UpdateParmLimits();
 
-    if ( m_FeaPartSurfVec.size() > 0 )
-    {
-        GetRibPerU();
-        m_FeaPartSurfVec[0] = ComputeRibSurf();
+    m_MainFeaPartSurfVec.clear();
+    m_MainFeaPartSurfVec.resize( 1 );
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be defined in UpdateSymmParts 
-        for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
-        {
-            m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
-        }
-    }
+    GetRibPerU();
+    m_MainFeaPartSurfVec[0] = ComputeRibSurf();
 }
 
 void FeaRib::UpdateParmLimits()
@@ -3112,7 +3088,7 @@ FeaFixPoint::FeaFixPoint( const string& compID, const string& partID, int type )
 
 void FeaFixPoint::UpdateSurface()
 {
-    m_FeaPartSurfVec.clear(); // FeaFixPoints are not a VspSurf
+    m_MainFeaPartSurfVec.clear(); // FeaFixPoints are not a VspSurf
 }
 
 bool FeaFixPoint::PlaneAtYZero( piecewise_surface_type & surface ) const
@@ -3446,6 +3422,9 @@ void FeaSkin::BuildSkinSurf()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    m_MainFeaPartSurfVec.clear();
+    m_MainFeaPartSurfVec.resize( 1 );
+
     if ( veh )
     {
         Geom* currgeom = veh->FindGeom( m_ParentGeomID );
@@ -3455,15 +3434,9 @@ void FeaSkin::BuildSkinSurf()
             vector< VspSurf > surf_vec;
             surf_vec = currgeom->GetSurfVecConstRef(  );
 
-            m_FeaPartSurfVec[0] = surf_vec[m_SymmIndexVec[0]];
+            m_MainFeaPartSurfVec[0] = surf_vec[m_MainSurfIndx];
 
-            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_NORMAL );
-
-            // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
-            for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
-            {
-                m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
-            }
+            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_NORMAL );
         }
     }
 }
@@ -3527,24 +3500,27 @@ void FeaDome::BuildDomeSurf()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    m_MainFeaPartSurfVec.clear();
+    m_MainFeaPartSurfVec.resize( 1 );
+
     if ( veh )
     {
         Geom* curr_geom = veh->FindGeom( m_ParentGeomID );
 
-        if ( !curr_geom || m_FeaPartSurfVec.size() == 0 )
+        if ( !curr_geom )
         {
             return;
         }
 
-        m_FeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
+        m_MainFeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
 
         if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
         {
-            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
         }
         else
         {
-            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
+            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
         }
 
         // Build unit circle
@@ -3579,12 +3555,12 @@ void FeaDome::BuildDomeSurf()
         }
 
         // Revolve to unit sphere
-        m_FeaPartSurfVec[0].CreateBodyRevolution( stringer );
+        m_MainFeaPartSurfVec[0].CreateBodyRevolution( stringer );
 
         // Scale to ellipsoid
-        m_FeaPartSurfVec[0].ScaleX( m_Aradius() );
-        m_FeaPartSurfVec[0].ScaleY( m_Bradius() );
-        m_FeaPartSurfVec[0].ScaleZ( m_Cradius() );
+        m_MainFeaPartSurfVec[0].ScaleX( m_Aradius() );
+        m_MainFeaPartSurfVec[0].ScaleY( m_Bradius() );
+        m_MainFeaPartSurfVec[0].ScaleZ( m_Cradius() );
 
         // Rotate at orgin and then translate to final location
         Matrix4d rot_mat_x, rot_mat_y, rot_mat_z;
@@ -3596,23 +3572,23 @@ void FeaDome::BuildDomeSurf()
 
         rot_mat_x.loadIdentity();
         rot_mat_x.rotate( DEG_2_RAD * m_XRot(), x_axis );
-        m_FeaPartSurfVec[0].Transform( rot_mat_x );
+        m_MainFeaPartSurfVec[0].Transform( rot_mat_x );
 
         rot_mat_y.loadIdentity();
         rot_mat_y.rotate( DEG_2_RAD * m_YRot(), y_axis );
-        m_FeaPartSurfVec[0].Transform( rot_mat_y );
+        m_MainFeaPartSurfVec[0].Transform( rot_mat_y );
 
         rot_mat_z.loadIdentity();
         rot_mat_z.rotate( DEG_2_RAD * m_ZRot(), z_axis );
-        m_FeaPartSurfVec[0].Transform( rot_mat_z );
+        m_MainFeaPartSurfVec[0].Transform( rot_mat_z );
 
-        m_FeaPartSurfVec[0].OffsetX( m_XLoc() );
-        m_FeaPartSurfVec[0].OffsetY( m_YLoc() );
-        m_FeaPartSurfVec[0].OffsetZ( m_ZLoc() );
+        m_MainFeaPartSurfVec[0].OffsetX( m_XLoc() );
+        m_MainFeaPartSurfVec[0].OffsetY( m_YLoc() );
+        m_MainFeaPartSurfVec[0].OffsetZ( m_ZLoc() );
 
         // Transform to parent geom body coordinate frame
         Matrix4d model_matrix = curr_geom->getModelMatrix();
-        m_FeaPartSurfVec[0].Transform( model_matrix );
+        m_MainFeaPartSurfVec[0].Transform( model_matrix );
 
         if ( m_SpineAttachFlag() )
         {
@@ -3625,18 +3601,12 @@ void FeaDome::BuildDomeSurf()
 
             vec3d spine_center = cs.FindCenterGivenU( m_USpineLoc() * surf_vec[m_MainSurfIndx].GetUMax() );
 
-            m_FeaPartSurfVec[0].OffsetX( spine_center.x() - curr_geom->m_XLoc() );
-            m_FeaPartSurfVec[0].OffsetY( spine_center.y() - curr_geom->m_YLoc() );
-            m_FeaPartSurfVec[0].OffsetZ( spine_center.z() - curr_geom->m_ZLoc() );
+            m_MainFeaPartSurfVec[0].OffsetX( spine_center.x() - curr_geom->m_XLoc() );
+            m_MainFeaPartSurfVec[0].OffsetY( spine_center.y() - curr_geom->m_YLoc() );
+            m_MainFeaPartSurfVec[0].OffsetZ( spine_center.z() - curr_geom->m_ZLoc() );
         }
 
-        m_FeaPartSurfVec[0].BuildFeatureLines();
-
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be defined in UpdateSymmParts 
-        for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
-        {
-            m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
-        }
+        m_MainFeaPartSurfVec[0].BuildFeatureLines();
     }
 }
 
@@ -3788,8 +3758,8 @@ void FeaRibArray::UpdateSurface()
 {
     CalcNumRibs();
 
-    m_FeaPartSurfVec.clear();
-    m_FeaPartSurfVec.resize( m_SymmIndexVec.size() * m_NumRibs );
+    m_MainFeaPartSurfVec.clear();
+    m_MainFeaPartSurfVec.resize( m_NumRibs );
 
     CreateFeaRibArray();
 }
@@ -3988,34 +3958,7 @@ void FeaRibArray::CreateFeaRibArray()
             rib->GetRibPerU();
 
             // Get rib surface
-            VspSurf main_rib_surf = rib->ComputeRibSurf();
-
-            m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_rib_surf;
-
-            if ( m_FeaPartSurfVec[m_SymmIndexVec.size() * i].GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
-            {
-                m_FeaPartSurfVec[m_SymmIndexVec.size() * i].FlipNormal();
-            }
-
-            // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copiesvto be transformed 
-            for ( size_t j = 1; j < m_SymmIndexVec.size(); j++ )
-            {
-                m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j] = m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j - 1];
-            }
-
-            // Get Symmetric Translation Matrix
-            vector<Matrix4d> transMats = current_wing->GetFeaTransMatVec();
-
-            //==== Apply Transformations ====//
-            for ( size_t j = 1; j < m_SymmIndexVec.size(); j++ )
-            {
-                m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].Transform( transMats[j] ); // Apply total transformation to main FeaPart surface
-
-                if ( surf_vec[j].GetFlipNormal() != m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].GetFlipNormal() )
-                {
-                    m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].FlipNormal();
-                }
-            }
+            m_MainFeaPartSurfVec[i] = rib->ComputeRibSurf();
 
             delete rib;
         }
@@ -4165,8 +4108,8 @@ void FeaSliceArray::UpdateSurface()
 {
     CalcNumSlices();
 
-    m_FeaPartSurfVec.clear(); 
-    m_FeaPartSurfVec.resize( m_SymmIndexVec.size() * m_NumSlices );
+    m_MainFeaPartSurfVec.clear();
+    m_MainFeaPartSurfVec.resize( m_NumSlices );
 
     CreateFeaSliceArray();
 }
@@ -4375,34 +4318,7 @@ void FeaSliceArray::CreateFeaSliceArray()
 
             slice->UpdateParmLimits();
 
-            VspSurf main_slice_surf = slice->ComputeSliceSurf();
-
-            m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_slice_surf;
-
-            if ( m_FeaPartSurfVec[m_SymmIndexVec.size() * i].GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
-            {
-                m_FeaPartSurfVec[m_SymmIndexVec.size() * i].FlipNormal();
-            }
-
-            // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copiesvto be transformed 
-            for ( size_t j = 1; j < m_SymmIndexVec.size(); j++ )
-            {
-                m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j] = m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j - 1];
-            }
-
-            // Get Symmetric Translation Matrix
-            vector<Matrix4d> transMats = current_geom->GetFeaTransMatVec();
-
-            //==== Apply Transformations ====//
-            for ( size_t j = 1; j < m_SymmIndexVec.size(); j++ )
-            {
-                m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].Transform( transMats[j] ); // Apply total transformation to main FeaPart surface
-
-                if ( surf_vec[j].GetFlipNormal() != m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].GetFlipNormal() )
-                {
-                    m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].FlipNormal();
-                }
-            }
+            m_MainFeaPartSurfVec[i] = slice->ComputeSliceSurf();
 
             delete slice;
         }

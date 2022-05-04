@@ -175,7 +175,6 @@ public:
     virtual void SetDisplaySuffix( int num );
 
     virtual void UpdateSymmParts();
-    virtual void UpdateSymmIndex();
 
     static string GetTypeName( int type );
 
@@ -231,7 +230,8 @@ protected:
 
     vector < int > m_SymmIndexVec;
 
-    vector < VspSurf > m_FeaPartSurfVec; 
+    vector < VspSurf > m_FeaPartSurfVec;
+    vector < VspSurf > m_MainFeaPartSurfVec;
 
     vector < DrawObj > m_FeaPartDO;
     vector < DrawObj > m_FeaHighlightDO;
