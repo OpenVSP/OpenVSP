@@ -24,22 +24,20 @@ void FeaNode::AddTag( int index )
     //==== Check For Duplicate Tags ====//
     for ( int i = 0; i < (int)m_Tags.size(); i++ )
     {
-        if ( m_Tags[i].m_FeaPartTagIndex == index )
+        if ( m_Tags[i] == index )
         {
             return;
         }
     }
 
-    FeaNodeTag tag;
-    tag.m_FeaPartTagIndex = index;
-    m_Tags.push_back( tag );
+    m_Tags.push_back( index );
 }
 
 bool FeaNode::HasTag( int index )
 {
     for ( int i = 0; i < (int)m_Tags.size(); i++ )
     {
-        if ( m_Tags[i].m_FeaPartTagIndex == index )
+        if ( m_Tags[i] == index )
         {
             return true;
         }
@@ -47,11 +45,11 @@ bool FeaNode::HasTag( int index )
     return false;
 }
 
-bool FeaNode::HasOnlyIndex( int index )
+bool FeaNode::HasOnlyTag( int index )
 {
     for ( int i = 0; i < (int)m_Tags.size(); i++ )
     {
-        if ( m_Tags[i].m_FeaPartTagIndex != index )
+        if ( m_Tags[i] != index )
         {
             return false;
         }

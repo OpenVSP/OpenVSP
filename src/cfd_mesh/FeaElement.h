@@ -20,14 +20,6 @@
 
 using namespace std;
 
-class FeaNodeTag
-{
-public:
-
-    int m_FeaPartTagIndex;
-
-};
-
 class FeaNode
 {
 public:
@@ -52,8 +44,8 @@ public:
 
     void AddTag( int ind );
     bool HasTag( int ind );
-    bool HasOnlyIndex( int ind );
-    vector< FeaNodeTag > m_Tags;
+    bool HasOnlyTag( int ind );
+    vector< int > m_Tags;
 
     void WriteNASTRAN( FILE* fp );
     void WriteCalculix( FILE* fp );

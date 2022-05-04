@@ -2273,7 +2273,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 {
                     if ( m_PntShift[j] >= 0 )
                     {
-                        if ( m_FeaNodeVec[j]->HasOnlyIndex( i ) )
+                        if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
                             m_FeaNodeVec[j]->WriteNASTRAN( temp );
                             grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
@@ -2315,7 +2315,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             {
                 if ( m_PntShift[j] >= 0 )
                 {
-                    if ( m_FeaNodeVec[j]->HasOnlyIndex( i + m_NumFeaParts ) )
+                    if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
                         m_FeaNodeVec[j]->WriteNASTRAN( temp );
                         grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
@@ -2561,7 +2561,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 {
                     if ( m_PntShift[j] >= 0 )
                     {
-                        if ( m_FeaNodeVec[j]->HasOnlyIndex( i ) )
+                        if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
                             m_FeaNodeVec[j]->WriteCalculix( fp );
                         }
@@ -2667,7 +2667,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
             {
                 if ( m_PntShift[j] >= 0 )
                 {
-                    if ( m_FeaNodeVec[j]->HasOnlyIndex( i + m_NumFeaParts ) )
+                    if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
                         m_FeaNodeVec[j]->WriteCalculix( fp );
                     }
