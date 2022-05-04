@@ -206,6 +206,10 @@ public:
     {
         m_FeaPartSurfVec.push_back( fea_surf );
     }
+    virtual int NumFeaPartSurfs()
+    {
+        return m_FeaPartSurfVec.size();
+    }
     virtual void DeleteFeaPartSurf( int ind );
 
     virtual int GetFeaMaterialIndex();

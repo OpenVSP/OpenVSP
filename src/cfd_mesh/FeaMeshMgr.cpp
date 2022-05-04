@@ -66,6 +66,7 @@ void FeaMeshMgrSingleton::CleanUp()
 
     m_FeaPartNameVec.clear();
     m_FeaPartTypeVec.clear();
+    m_FeaPartNumSurfVec.clear();
     m_FeaPartIncludedElementsVec.clear();
     m_FeaPartPropertyIndexVec.clear();
     m_FeaPartCapPropertyIndexVec.clear();
@@ -224,6 +225,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
         m_FeaPartNameVec.resize( m_NumFeaParts );
         m_FeaPartTypeVec.resize( m_NumFeaParts );
+        m_FeaPartNumSurfVec.resize( m_NumFeaParts );
         m_FeaPartIncludedElementsVec.resize( m_NumFeaParts );
         m_FeaPartPropertyIndexVec.resize( m_NumFeaParts );
         m_FeaPartCapPropertyIndexVec.resize( m_NumFeaParts );
@@ -232,6 +234,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
         {
             m_FeaPartNameVec[i] = fea_part_vec[i]->GetName();
             m_FeaPartTypeVec[i] = fea_part_vec[i]->GetType();
+            m_FeaPartNumSurfVec[i] = fea_part_vec[i]->NumFeaPartSurfs();
             m_FeaPartIncludedElementsVec[i] = fea_part_vec[i]->m_IncludedElements.Get();
             m_FeaPartPropertyIndexVec[i] = fea_part_vec[i]->m_FeaPropertyIndex();
             m_FeaPartCapPropertyIndexVec[i] = fea_part_vec[i]->m_CapFeaPropertyIndex();
