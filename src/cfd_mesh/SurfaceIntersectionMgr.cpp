@@ -665,6 +665,7 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, int
 
         surfPtr->SetFeaOrientationType( xfersurfs[i].m_FeaOrientationType );
         surfPtr->SetFeaOrientation( xfersurfs[i].m_FeaOrientation );
+        surfPtr->SetFeaPartSurfNum( xfersurfs[i].m_FeaPartSurfNum );
 
         //Sets whether NORMAL_SURF, WING_SURF, DISK_SURF, PROP_SURF
         surfPtr->SetSurfaceVSPType(xfersurfs[i].m_SurfType);

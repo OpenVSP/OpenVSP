@@ -1153,7 +1153,7 @@ void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid, const
     for ( int p = 0; p < m_FeaPartSurfVec.size(); p++ )
     {
         // CFD_STRUCTURE and CFD_STIFFENER type surfaces have m_CompID starting at -9999
-        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx, compid, xfersurfs, usuppress, wsuppress );
+        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx, compid, p, xfersurfs, usuppress, wsuppress );
     }
 }
 
@@ -3258,7 +3258,7 @@ void FeaFixPoint::IdentifySplitSurfIndex( bool half_mesh_flag, const vector < do
 
         // Split the parent surface
         vector< XferSurf > tempxfersurfs;
-        parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx, 0, tempxfersurfs, usuppress, wsuppress );
+        parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx, 0, 0, tempxfersurfs, usuppress, wsuppress );
 
         // Check if the UW point is on a valid patch (invalid patches are discarded in FetchXFerSurf)
         bool on_valid_patch = false;

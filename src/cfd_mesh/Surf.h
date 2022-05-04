@@ -213,6 +213,15 @@ public:
         return m_SurfCfdType;
     }
 
+    void SetFeaPartSurfNum( int num )
+    {
+        m_FeaPartSurfNum = num;
+    }
+    int GetFeaPartSurfNum()
+    {
+        return m_FeaPartSurfNum;
+    }
+
     void SetFeaOrientationType( int oType )
     {
         m_FeaOrientationType = oType;
@@ -330,9 +339,10 @@ protected:
     vector< double > m_UScaleMap;
     vector< double > m_WScaleMap;
 
-    int m_FeaPartIndex;
-    int m_FeaOrientationType;
-    vec3d m_FeaOrientation;
+    int m_FeaPartIndex; // Which FeaPart in the FeaStructure
+    int m_FeaPartSurfNum; // Which surface in the FeaPart
+    int m_FeaOrientationType; // Which orientation type
+    vec3d m_FeaOrientation; // Surface orientation
 
 };
 
