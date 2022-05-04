@@ -2685,7 +2685,10 @@ void FeaMeshMgrSingleton::WriteCalculix()
                     }
                 }
             }
+        }
 
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
             if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
             {
                 fprintf( fp, "\n" );
