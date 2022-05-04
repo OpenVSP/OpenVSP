@@ -888,9 +888,33 @@ void FeaPart::Update()
 {
     UpdateSurface();
 
+    UpdateFlags();
+
     UpdateSymmParts();
 
     UpdateDrawObjs();
+}
+
+void FeaPart::UpdateFlags()
+{
+    for ( int i = 0; i < m_MainFeaPartSurfVec.size(); i++ )
+    {
+        if ( GetType() == vsp::FEA_SKIN )
+        {
+            m_MainFeaPartSurfVec[ i ].SetSurfCfdType( vsp::CFD_NORMAL );
+        }
+        else
+        {
+            if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+            {
+                m_MainFeaPartSurfVec[ i ].SetSurfCfdType( vsp::CFD_STRUCTURE );
+            }
+            else
+            {
+                m_MainFeaPartSurfVec[ i ].SetSurfCfdType( vsp::CFD_STIFFENER );
+            }
+        }
+    }
 }
 
 // This should really call FeaStructure::ParmChanged, but there is no clear way to get a pointer to the
@@ -967,7 +991,7 @@ void FeaPart::UpdateSymmParts()
     // Translation matrices for all Geom's surfaces.
     vector<Matrix4d> transMats = currgeom->GetFeaTransMatVec();
 
-    bool flipnormal = surf_vec[ m_SymmIndexVec[0] ].GetFlipNormal();
+    bool flipnormal = surf_vec[ m_MainSurfIndx ].GetFlipNormal();
 
     for ( size_t i = 0; i < nsurf; i++ )
     {
@@ -1404,15 +1428,6 @@ VspSurf FeaSlice::ComputeSliceSurf()
         surf_vec = current_geom->GetSurfVecConstRef();
 
         slice_surf = VspSurf(); // Create primary VspSurf
-
-        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
-        {
-            slice_surf.SetSurfCfdType( vsp::CFD_STRUCTURE );
-        }
-        else
-        {
-            slice_surf.SetSurfCfdType( vsp::CFD_STIFFENER );
-        }
 
         // Determine BndBox dimensions prior to rotating and translating
         Matrix4d model_matrix = current_geom->getModelMatrix();
@@ -2344,22 +2359,6 @@ void FeaSpar::ComputePlanarSurf()
             model_matrix.affineInverse();
             m_MainFeaPartSurfVec[0].Transform( model_matrix );
         }
-
-        // Set Surface CFD Type: 
-        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
-        {
-            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
-        }
-        else
-        {
-            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
-        }
-
-        if ( m_MainFeaPartSurfVec[0].GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
-        {
-            m_MainFeaPartSurfVec[0].FlipNormal();
-        }
-
     }
 }
 
@@ -3041,21 +3040,6 @@ VspSurf FeaRib::ComputeRibSurf()
             model_matrix.affineInverse();
             rib_surf.Transform( model_matrix );
         }
-
-        // Set Surface CFD Type: 
-        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
-        {
-            rib_surf.SetSurfCfdType( vsp::CFD_STRUCTURE );
-        }
-        else
-        {
-            rib_surf.SetSurfCfdType( vsp::CFD_STIFFENER );
-        }
-
-        if ( rib_surf.GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
-        {
-            rib_surf.FlipNormal();
-        }
     }
 
     return rib_surf;
@@ -3435,8 +3419,6 @@ void FeaSkin::BuildSkinSurf()
             surf_vec = currgeom->GetSurfVecConstRef(  );
 
             m_MainFeaPartSurfVec[0] = surf_vec[m_MainSurfIndx];
-
-            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_NORMAL );
         }
     }
 }
@@ -3513,15 +3495,6 @@ void FeaDome::BuildDomeSurf()
         }
 
         m_MainFeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
-
-        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
-        {
-            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
-        }
-        else
-        {
-            m_MainFeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
-        }
 
         // Build unit circle
         piecewise_curve_type c, c1, c2;
