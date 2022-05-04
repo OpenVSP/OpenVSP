@@ -13,6 +13,7 @@
 #include "main.h"
 #include "StringUtil.h"
 #include "MeshAnalysis.h"
+#include "StlHelper.h"
 
 //=============================================================//
 //=============================================================//
@@ -1052,39 +1053,50 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             uw_guess.set_y( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidW() );
         }
 
+        FeaTri* tri = new FeaTri;
+        tri->Create( node_vec[all_tri_vec[i].ind0], node_vec[all_tri_vec[i].ind1], node_vec[all_tri_vec[i].ind2] );
+        tri->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
+        tri->SetSurfIndex( tri_surf_ind_vec[i] );
+
         vec2d closest_uw = m_SurfVec[tri_surf_ind_vec[i]]->ClosestUW( avg_pnt, uw_guess[0], uw_guess[1] );
 
         // Determine tangent u-direction for orientation vector at tri midpoint
-        vec3d orient_vec;
-
-        if ( m_SurfVec[tri_surf_ind_vec[i]]->ValidUW( closest_uw ) )
-        {
-            orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->CompTanU( closest_uw[0], closest_uw[1] );
-
-            // Project orientation vector into plane of element.  Will be trivial for u-direction orientation, but
-            // should allow NASTRAN and CalculiX equivalence for other cases.
-            vec3d norm = m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->CompNorm( closest_uw[0], closest_uw[1] );
-            orient_vec = proj_vec_to_plane( orient_vec, norm );
-        }
-
-        orient_vec.normalize();
-
-        FeaTri* tri = new FeaTri;
-        tri->Create( node_vec[all_tri_vec[i].ind0], node_vec[all_tri_vec[i].ind1], node_vec[all_tri_vec[i].ind2], orient_vec );
-        tri->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
+        vec3d orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1] );
 
         // Check for subsurface:
         if ( all_tri_vec[i].m_Tags.size() == 2 )
         {
             // First index of m_Tags is the parent surface. Second index is subsurface index which begins 
             //  from the last FeaPart surface index (FeaFixPoints are not tagged; they are not surfaces)
-            tri->SetFeaSSIndex( all_tri_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1 );
+            int ssindex = all_tri_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1;
+            tri->SetFeaSSIndex( ssindex );
+
+            int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
+            vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
+            int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
+            vec3d defaultorientation = ovec[ surf_num ];
+            orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
         }
         else if ( all_tri_vec[i].m_Tags.size() > 2 )
         {
             //Give priority to first tagged subsurface in the event of overlap
-            tri->SetFeaSSIndex( all_tri_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1 );
+            int ssindex = all_tri_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1;
+            tri->SetFeaSSIndex( ssindex );
+
+            int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
+            vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
+            int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
+            vec3d defaultorientation = ovec[ surf_num ];
+            orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
         }
+
+        // Project orientation vector into plane of element.  Will be trivial for u-direction orientation, but
+        // should allow NASTRAN and CalculiX equivalence for other cases.
+        vec3d norm = m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->CompNorm( closest_uw[0], closest_uw[1] );
+        orient_vec = proj_vec_to_plane( orient_vec, norm );
+
+        orient_vec.normalize();
+        tri->m_Orientation = orient_vec;
 
         m_FeaElementVec.push_back( tri );
         m_NumTris++;
