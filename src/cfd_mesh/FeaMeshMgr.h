@@ -161,6 +161,8 @@ public:
 
     virtual void RegisterAnalysis();
 
+    virtual Surf* GetFeaSurf( int FeaPartID, int surf_num );
+
 protected:
 
     virtual void GetMassUnit();

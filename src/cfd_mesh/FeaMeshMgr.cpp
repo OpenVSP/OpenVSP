@@ -3512,3 +3512,15 @@ void FeaMeshMgrSingleton::RegisterAnalysis()
         }
     }
 }
+
+Surf* FeaMeshMgrSingleton::GetFeaSurf( int FeaPartID, int surf_num )
+{
+    for ( int i = 0; i < m_SurfVec.size(); i++ )
+    {
+        if ( m_SurfVec[i]->GetFeaPartIndex() == FeaPartID && m_SurfVec[i]->GetFeaPartSurfNum() == surf_num )
+        {
+            return m_SurfVec[i];
+        }
+    }
+    return NULL;
+}
