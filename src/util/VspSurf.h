@@ -261,6 +261,22 @@ public:
 
     void MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &ptC, const vec3d &ptD );
 
+    void SetFeaOrientation( int otype, const vec3d &orient )
+    {
+        m_FeaOrientationType = otype;
+        m_FeaOrientation = orient;
+    }
+
+    int GetFeaOrientationType() const
+    {
+        return m_FeaOrientationType;
+    }
+
+    vec3d GetFeaOrientation() const
+    {
+        return m_FeaOrientation;
+    }
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
