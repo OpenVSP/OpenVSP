@@ -1448,21 +1448,26 @@ vec3d Surf::CompPnt01( double u, double w ) const
 // know the U, V coordinates of element centers required to find the local directions used by NASTRAN in some cases.
 vec3d Surf::GetFeaElementOrientation( double u, double w )
 {
+    return GetFeaElementOrientation( u, w, m_FeaOrientationType, m_FeaOrientation );
+}
+
+vec3d Surf::GetFeaElementOrientation( double u, double w, int type, const vec3d & defaultorientation )
+{
     // All COMP_XYZ, OML_UVRST and cases with invalid u, w
-    vec3d orient = m_FeaOrientation;
-    if ( m_FeaOrientationType == vsp::FEA_ORIENT_GLOBAL_X )
+    vec3d orient = defaultorientation;
+    if ( type == vsp::FEA_ORIENT_GLOBAL_X )
     {
         orient = vec3d( 1.0, 0, 0 );
     }
-    else if ( m_FeaOrientationType == vsp::FEA_ORIENT_GLOBAL_Y )
+    else if ( type == vsp::FEA_ORIENT_GLOBAL_Y )
     {
         orient = vec3d( 0, 1.0, 0 );
     }
-    else if ( m_FeaOrientationType == vsp::FEA_ORIENT_GLOBAL_Z )
+    else if ( type == vsp::FEA_ORIENT_GLOBAL_Z )
     {
         orient = vec3d( 0, 0, 1.0 );
     }
-    else if ( m_FeaOrientationType == vsp::FEA_ORIENT_PART_U )
+    else if ( type == vsp::FEA_ORIENT_PART_U )
     {
         vec2d uw = vec2d( u, w );
         if ( ValidUW( uw ) )
@@ -1470,7 +1475,7 @@ vec3d Surf::GetFeaElementOrientation( double u, double w )
             orient = m_SurfCore.CompTanU( u, w );
         }
     }
-    else if ( m_FeaOrientationType == vsp::FEA_ORIENT_PART_V )
+    else if ( type == vsp::FEA_ORIENT_PART_V )
     {
         vec2d uw = vec2d( u, w );
         if ( ValidUW( uw ) )

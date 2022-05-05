@@ -236,6 +236,7 @@ public:
         m_FeaOrientation = o;
     }
     vec3d GetFeaElementOrientation( double u, double w );
+    vec3d GetFeaElementOrientation( double u, double w, int type, const vec3d & defaultorientation );
     vec3d GetFeaElementOrientation();
 
     //Getter/Setter Surface VSP TYPE (NORMAL_SURF, WING_SURF, DISK_SURF, PROP_SURF)
