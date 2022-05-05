@@ -117,7 +117,7 @@ public:
     FeaTri()    {};
     virtual ~FeaTri()    {};
 
-    virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & orientation );
+    virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2 );
     virtual void WriteCalculix( FILE* fp, int id );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );

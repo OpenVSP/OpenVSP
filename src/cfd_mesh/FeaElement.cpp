@@ -125,7 +125,7 @@ void FeaElement::LoadNodes( vector< FeaNode* > & node_vec )
 //==================== FeaTri ======================//
 //////////////////////////////////////////////////////
 
-void FeaTri::Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & orientation )
+void FeaTri::Create( vec3d & p0, vec3d & p1, vec3d & p2 )
 {
     m_ElementType = FEA_TRI_6;
     DeleteAllNodes();
@@ -140,8 +140,6 @@ void FeaTri::Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & orientation )
     m_Mids.push_back( new FeaNode( p01 ) );
     m_Mids.push_back( new FeaNode( p12 ) );
     m_Mids.push_back( new FeaNode( p20 ) );
-
-    m_Orientation = orientation;
 }
 
 void FeaTri::WriteCalculix( FILE* fp, int id )
