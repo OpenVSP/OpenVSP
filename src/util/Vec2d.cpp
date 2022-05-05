@@ -535,3 +535,54 @@ double det( const vec2d & p0, const vec2d & p1, const vec2d & offset )
     return d;
 }
 
+//==== Find the area of a 2D (XY) polygon ===//
+double poly_area( const std::vector< vec2d > & pnt_vec )
+{
+    if ( pnt_vec.size() < 3 )
+    {
+        return 0.0;
+    }
+
+    double total_area = 0.0;
+    for ( int i = 0 ; i < ( int )( pnt_vec.size() - 1 ) ; i++ )
+    {
+        total_area += pnt_vec[i].x() * pnt_vec[i+1].y() - pnt_vec[i+1].x() * pnt_vec[i].y();
+    }
+
+    if ( dist( pnt_vec[0], pnt_vec.back() ) > 1e-7 )
+    {
+        total_area += pnt_vec.back().x() * pnt_vec[0].y() - pnt_vec[0].x() * pnt_vec.back().y();
+    }
+
+    return std::abs( total_area );
+}
+
+vec2d poly_centroid( const std::vector< vec2d > & pnt_vec )
+{
+    vec2d centroid;
+    if ( pnt_vec.size() < 3 )
+    {
+        return centroid;
+    }
+
+    double total_area = 0.0;
+    for ( int i = 0 ; i < ( int )( pnt_vec.size() - 1 ) ; i++ )
+    {
+        double da = pnt_vec[i].x() * pnt_vec[i+1].y() - pnt_vec[i+1].x() * pnt_vec[i].y();
+        total_area += da;
+        vec2d ceni = da * ( pnt_vec[i] + pnt_vec[i+1] ); // Origin point implied.
+        centroid += ceni;
+    }
+
+    if ( dist( pnt_vec[0], pnt_vec.back() ) > 1e-7 )
+    {
+        double da = pnt_vec.back().x() * pnt_vec[0].y() - pnt_vec[0].x() * pnt_vec.back().y();
+        total_area += da;
+        vec2d ceni = da * ( pnt_vec[0] + pnt_vec.back() ); // Origin point implied
+        centroid += ceni;
+    }
+
+    centroid *= (1.0 / (3.0 * total_area ) ); // Divide by 3.0 is to average points in triangle centroid.
+
+    return centroid;
+}

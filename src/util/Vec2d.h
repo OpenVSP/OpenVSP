@@ -108,6 +108,8 @@ public:
 
     friend bool PointInPolygon( const vec2d & R, const std::vector< vec2d > & pnts );
     friend double det( const vec2d & p0, const vec2d & p1, const vec2d & offset );
+    friend double poly_area( const std::vector< vec2d > & pnt_vec );
+    friend vec2d poly_centroid( const std::vector< vec2d > & pnt_vec );
 
 };
 
