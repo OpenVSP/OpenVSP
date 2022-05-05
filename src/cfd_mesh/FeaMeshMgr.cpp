@@ -2809,6 +2809,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
                 for ( int isurf = 0; isurf < surf_num; isurf++ )
                 {
+                    Surf *srf = GetFeaSurf( i, isurf );
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                     {
                         fprintf( fp, "\n" );
@@ -2816,6 +2817,12 @@ void FeaMeshMgrSingleton::WriteCalculix()
                         char ostr[256];
                         sprintf( ostr, "O%s_%d", m_FeaPartNameVec[i].c_str(), isurf );
                         m_SimplePropertyVec[property_id].WriteCalculix( fp, str, ostr );
+
+                        vec3d orient = srf->GetFeaElementOrientation();
+                        // int otype = srf->GetFeaOrientationType();
+                        fprintf( fp, "\n" );
+                        fprintf( fp, "*ORIENTATION, NAME=%s, SYSTEM=RECTANGULAR\n", ostr );
+                        fprintf( fp, "%f,%f,%f,0.0,0.0,1.0\n", orient.x(), orient.y(), orient.z() );
                     }
 
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
@@ -2844,6 +2851,12 @@ void FeaMeshMgrSingleton::WriteCalculix()
                     char ostr[256];
                     sprintf( ostr, "O%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
                     m_SimplePropertyVec[property_id].WriteCalculix( fp, str, ostr );
+
+                    vec3d orient = ovec[isurf];
+                    // int otype = m_SimpleSubSurfaceVec[i].GetFeaOrientationType();
+                    fprintf( fp, "\n" );
+                    fprintf( fp, "*ORIENTATION, NAME=%s, SYSTEM=RECTANGULAR\n", ostr );
+                    fprintf( fp, "%f,%f,%f,0.0,0.0,1.0\n", orient.x(), orient.y(), orient.z() );
                 }
 
                 if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
