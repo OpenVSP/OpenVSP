@@ -436,6 +436,9 @@ public:
     virtual vec3d CompPnt01(const int &indx, const double &u, const double &w);
     virtual void GetUWTess01( int indx, vector < double > &u, vector < double > &w );
 
+    virtual vec3d CompTanU( const int &indx, const double &u, const double &w );
+    virtual vec3d CompTanW( const int &indx, const double &u, const double &w );
+
     virtual vec3d CompPntRST( const int &indx, const double &r, const double &s, const double &t );
     virtual vec3d CompTanR( const int &indx, const double &r, const double &s, const double &t );
     virtual vec3d CompTanS( const int &indx, const double &r, const double &s, const double &t );

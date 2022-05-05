@@ -3821,6 +3821,16 @@ vec3d Geom::CompPnt01(const int &indx, const double &u, const double &w)
     return GetSurfPtr( indx )->CompPnt01( u, w );
 }
 
+vec3d Geom::CompTanU( const int &indx, const double &u, const double &w )
+{
+    return GetSurfPtr( indx )->CompTanU( u, w );
+}
+
+vec3d Geom::CompTanW( const int &indx, const double &u, const double &w )
+{
+    return GetSurfPtr( indx )->CompTanW( u, w );
+}
+
 vec3d Geom::CompPntRST( const int &indx, const double &r, const double &s, const double &t )
 {
     return GetSurfPtr( indx )->CompPntRST( r, s, t );
