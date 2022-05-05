@@ -134,6 +134,12 @@ vec2d operator*( const vec2d& a, double b )
     return ret;
 }
 
+//******* x = b * a ******//
+vec2d operator*( double b, const vec2d& a )
+{
+    return a * b;
+}
+
 //******* x = a * b ******//
 vec2d operator*( const vec2d& a, const vec2d& b )
 {
@@ -158,6 +164,29 @@ vec2d operator/( const vec2d& a, double b )
     return ret;
 }
 
+vec2d& vec2d::operator+=( const vec2d& b )
+{
+    v[0] += b.v[0];
+    v[1] += b.v[1];
+
+    return *this;
+}
+
+vec2d& vec2d::operator-=( const vec2d& b )
+{
+    v[0] -= b.v[0];
+    v[1] -= b.v[1];
+
+    return *this;
+}
+
+vec2d& vec2d::operator*=( double b )
+{
+    v[0] *= b;
+    v[1] *= b;
+
+    return *this;
+}
 
 //******* cout << a ******//
 //ostream& operator<< (ostream& out, const vec2d& a)

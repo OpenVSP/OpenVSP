@@ -80,8 +80,12 @@ public:
     friend vec2d operator+( const vec2d& a, const vec2d& b );
     friend vec2d operator-( const vec2d& a, const vec2d& b );
     friend vec2d operator*( const vec2d& a, double b );
+    friend vec2d operator*( double b, const vec2d& a );
     friend vec2d operator*( const vec2d& a, const vec2d& b );
     friend vec2d operator/( const vec2d& a, double b );
+    vec2d& operator+=( const vec2d& b );
+    vec2d& operator-=( const vec2d& b );
+    vec2d& operator*=( double b );
 
     friend double dist( const vec2d& a, const vec2d& b );
     friend double dist_squared( const vec2d& a, const vec2d& b );
