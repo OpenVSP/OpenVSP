@@ -13856,7 +13856,7 @@ void VSP_SOLVER::WriteFEM2DSolution(void)
 
     for ( j = 1 ; j <= VSPGeom().Grid().NumberOfLoops() ; j++ ) {
 
-       FPRINTF(FEM2DLoadFile_,"%d %f \n", j, VSPGeom().Grid().LoopList(j).dCp()/(0.5*Vref_*Vref_));
+       FPRINTF(FEM2DLoadFile_,"%d %e \n", j, VSPGeom().Grid().LoopList(j).dCp()/(0.5*Vref_*Vref_));
 
     }
 
