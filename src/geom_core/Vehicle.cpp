@@ -3356,7 +3356,6 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
     vector < double > usplit;
     vector < double > wsplit;
 
-    fea_struct->Update();
 
     vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
@@ -3519,7 +3518,6 @@ void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStruc
     vector < double > usplit;
     vector < double > wsplit;
 
-    fea_struct->Update();
 
     vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 

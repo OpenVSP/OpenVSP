@@ -471,14 +471,7 @@ void FeaStructure::UpdateFeaParts()
 {
     for ( unsigned int i = 0; i < m_FeaPartVec.size(); i++ )
     {
-        m_FeaPartVec[i]->UpdateSymmIndex();
         m_FeaPartVec[i]->Update();
-
-        if ( !FeaPartIsFixPoint( i ) && !FeaPartIsArray( i ) )
-        {
-            // Symmetric FixedPoints and Arrays are updated in their respective Update functions
-            m_FeaPartVec[i]->UpdateSymmParts();
-        }
     }
 }
 
@@ -509,9 +502,7 @@ vector < FeaPart* > FeaStructure::InitFeaSkin()
                 feaskin->SetName( string( "Skin" ) );
                 feaskin->m_MainSurfIndx = m_MainSurfIndx;
                 
-                feaskin->UpdateSymmIndex();
                 feaskin->Update();
-                feaskin->UpdateSymmParts();
 
                 m_FeaPartVec.push_back( feaskin );
             }
@@ -886,7 +877,24 @@ FeaPart::~FeaPart()
 
 void FeaPart::Update()
 {
+    if ( true )
+    {
 
+        UpdateSymmIndex();
+
+        UpdateSurface();
+
+        if ( GetType() == vsp::FEA_RIB_ARRAY || GetType() == vsp::FEA_SLICE_ARRAY )
+        {
+            // Symmetry handled in UpdateSurface() of array types.
+        }
+        else
+        {
+            UpdateSymmParts();
+        }
+
+        UpdateDrawObjs();
+    }
 }
 
 void FeaPart::ParmChanged( Parm* parm_ptr, int type )
@@ -1225,11 +1233,10 @@ FeaSlice::FeaSlice( const string& geomID, int type ) : FeaPart( geomID, type )
     m_ZRot.SetDescript( "Rotation About Slice Z Axis" );
 }
 
-void FeaSlice::Update()
+void FeaSlice::UpdateSurface()
 {
     UpdateParmLimits();
 
-    // Must call UpdateSymmIndex before
     if ( m_FeaPartSurfVec.size() > 0 )
     {
         m_FeaPartSurfVec[0] = ComputeSliceSurf();
@@ -1240,7 +1247,6 @@ void FeaSlice::Update()
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
         }
     }
-    // Must call UpdateSymmParts next
 }
 
 void FeaSlice::UpdateParmLimits()
@@ -1851,7 +1857,7 @@ FeaSpar::FeaSpar( const string& geomID, int type ) : FeaSlice( geomID, type )
     m_PercentTipChord.SetDescript( "Starting Location of the Spar as Percentage of Tip Chord" );
 }
 
-void FeaSpar::Update()
+void FeaSpar::UpdateSurface()
 {
     UpdateParms();
     ComputePlanarSurf();
@@ -2368,11 +2374,10 @@ FeaRib::FeaRib( const string& geomID, int type ) : FeaSlice( geomID, type )
     m_MatchDihedralFlag.SetDescript( "Flag to Rotate the Rib with the Dihedral Angle of the Wing" );
 }
 
-void FeaRib::Update()
+void FeaRib::UpdateSurface()
 {
     UpdateParmLimits();
 
-    // Must call UpdateSymmIndex before
     if ( m_FeaPartSurfVec.size() > 0 )
     {
         GetRibPerU();
@@ -2384,7 +2389,6 @@ void FeaRib::Update()
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
         }
     }
-    // Must call UpdateSymmParts next
 }
 
 void FeaRib::UpdateParmLimits()
@@ -3071,7 +3075,7 @@ FeaFixPoint::FeaFixPoint( const string& compID, const string& partID, int type )
     m_BorderFlag = false;
 }
 
-void FeaFixPoint::Update()
+void FeaFixPoint::UpdateSurface()
 {
     m_FeaPartSurfVec.clear(); // FeaFixPoints are not a VspSurf
 }
@@ -3380,7 +3384,7 @@ FeaSkin::FeaSkin( const string& geomID, int type ) : FeaPart( geomID, type )
     m_RemoveSkinFlag.SetDescript( "Flag to Remove Skin Surface and Triangles after Intersections" );
 }
 
-void FeaSkin::Update()
+void FeaSkin::UpdateSurface()
 {
     BuildSkinSurf();
 }
@@ -3459,7 +3463,7 @@ FeaDome::FeaDome( const string& geomID, int type ) : FeaPart( geomID, type )
     m_FlipDirectionFlag.SetDescript( "Flag to Flip the Direction of the FeaDome" );
 }
 
-void FeaDome::Update()
+void FeaDome::UpdateSurface()
 {
     BuildDomeSurf();
 }
@@ -3727,7 +3731,7 @@ FeaRibArray::~FeaRibArray()
 
 }
 
-void FeaRibArray::Update()
+void FeaRibArray::UpdateSurface()
 {
     CalcNumRibs();
 
@@ -3995,9 +3999,7 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
 
         fearib->SetName( string( m_Name + "_Rib" + std::to_string( ind ) ) );
 
-        fearib->UpdateSymmIndex();
         fearib->Update();
-        fearib->UpdateSymmParts();
     }
 
     return fearib;
@@ -4106,7 +4108,7 @@ FeaSliceArray::FeaSliceArray( const string& geomID, int type ) : FeaPart( geomID
     m_NumSlices = 0;
 }
 
-void FeaSliceArray::Update()
+void FeaSliceArray::UpdateSurface()
 {
     CalcNumSlices();
 
@@ -4377,9 +4379,7 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
 
         slice->SetName( string( m_Name + "_Slice" + std::to_string( ind ) ) );
 
-        slice->UpdateSymmIndex();
         slice->Update();
-        slice->UpdateSymmParts();
     }
 
     return slice;

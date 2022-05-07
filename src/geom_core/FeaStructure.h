@@ -164,6 +164,7 @@ public:
     virtual ~FeaPart();
 
     virtual void Update();
+    virtual void UpdateSurface() = 0;
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
@@ -241,7 +242,7 @@ public:
     FeaSlice( const string& geomID, int type = vsp::FEA_SLICE );
     virtual ~FeaSlice()    {};
 
-    virtual void Update();
+    virtual void UpdateSurface();
     virtual void UpdateParmLimits();
 
     virtual VspSurf ComputeSliceSurf();
@@ -276,7 +277,7 @@ public:
     FeaSpar( const string& geomID, int type = vsp::FEA_SPAR );
     virtual ~FeaSpar()    {};
 
-    virtual void Update();
+    virtual void UpdateSurface();
     virtual void UpdateParms();
 
     virtual void ComputePlanarSurf();
@@ -303,7 +304,7 @@ public:
     FeaRib( const string& geomID, int type = vsp::FEA_RIB );
     virtual ~FeaRib()    {};
 
-    virtual void Update();
+    virtual void UpdateSurface();
 
     virtual void UpdateParmLimits();
 
@@ -347,7 +348,7 @@ public:
     FeaFixPoint( const string& geomID, const string& partID, int type = vsp::FEA_FIX_POINT );
     virtual ~FeaFixPoint()    {};
 
-    virtual void Update();
+    virtual void UpdateSurface();
     void IdentifySplitSurfIndex( bool half_mesh_flag, const vector < double > &usuppress, const vector < double > &wsuppress );
     vector < vec3d > GetPntVec(); // Returns the FeaFixPoint 3D coordinate on each parent surface
     vec2d GetUW(); // Returns the FeaFixPoint UW coordinate on main parent surface
@@ -381,7 +382,7 @@ public:
     FeaSkin( const string& geomID, int type = vsp::FEA_SKIN );
     virtual ~FeaSkin()    {};
 
-    virtual void Update();
+    virtual void UpdateSurface();
 
     void BuildSkinSurf();
 
@@ -403,7 +404,7 @@ public:
     FeaDome( const string& geomID, int type = vsp::FEA_DOME );
     virtual ~FeaDome()    {};
 
-    virtual void Update();
+    virtual void UpdateSurface();
 
     void BuildDomeSurf();
 
@@ -436,7 +437,7 @@ public:
     FeaRibArray( const string& geomID, int type = vsp::FEA_RIB_ARRAY );
     virtual ~FeaRibArray();
 
-    virtual void Update();
+    virtual void UpdateSurface();
     void CalcNumRibs();
     void CreateFeaRibArray();
 
@@ -490,7 +491,7 @@ public:
     FeaSliceArray( const string& geomID, int type = vsp::FEA_SLICE_ARRAY );
     virtual ~FeaSliceArray()    {};
 
-    virtual void Update();
+    virtual void UpdateSurface();
     void CreateFeaSliceArray();
     void CalcNumSlices();
 
