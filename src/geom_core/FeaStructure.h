@@ -211,7 +211,7 @@ public:
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
-    IntParm m_MainSurfIndx;
+    int m_MainSurfIndx;
     IntParm m_IncludedElements;
     BoolParm m_DrawFeaPartFlag;
     IntParm m_AbsRelParmFlag;

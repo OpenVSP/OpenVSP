@@ -249,7 +249,7 @@ FeaPart* FeaStructure::AddFeaPart( int type )
 
     if ( feaprt )
     {
-        feaprt->m_MainSurfIndx.Set( m_MainSurfIndx );
+        feaprt->m_MainSurfIndx = m_MainSurfIndx;
         AddFeaPart( feaprt );
     }
 
@@ -507,7 +507,7 @@ vector < FeaPart* > FeaStructure::InitFeaSkin()
             if ( feaskin )
             {
                 feaskin->SetName( string( "Skin" ) );
-                feaskin->m_MainSurfIndx.Set( m_MainSurfIndx );
+                feaskin->m_MainSurfIndx = m_MainSurfIndx;
                 
                 feaskin->UpdateSymmIndex();
                 feaskin->Update();
@@ -855,8 +855,7 @@ FeaPart::FeaPart( const string& geomID, int type )
     m_FeaPartType = type;
     m_ParentGeomID = geomID;
 
-    m_MainSurfIndx.Init( "MainSurfIndx", "FeaPart", this, -1, -1, 1e12 );
-    m_MainSurfIndx.SetDescript( "Surface Index for FeaPart" );
+    m_MainSurfIndx = 0;
 
     m_IncludedElements.Init( "IncludedElements", "FeaPart", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_SHELL_AND_BEAM );
     m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the FeaPart" );
@@ -979,7 +978,7 @@ void FeaPart::UpdateSymmIndex()
 
     if ( currgeom )
     {
-        currgeom->GetSymmIndexs( m_MainSurfIndx(), m_SymmIndexVec );
+        currgeom->GetSymmIndexs( m_MainSurfIndx, m_SymmIndexVec );
 
         int ncopy = currgeom->GetNumSymmCopies();
 
@@ -1041,7 +1040,7 @@ void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid, const
     for ( int p = 0; p < m_FeaPartSurfVec.size(); p++ )
     {
         // CFD_STRUCTURE and CFD_STIFFENER type surfaces have m_CompID starting at -9999
-        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), compid, xfersurfs, usuppress, wsuppress );
+        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx, compid, xfersurfs, usuppress, wsuppress );
     }
 }
 
@@ -1170,7 +1169,7 @@ VspSurf* FeaPart::GetMainSurf()
         Geom *currgeom = veh->FindGeom( m_ParentGeomID );
         if ( currgeom )
         {
-            retsurf = currgeom->GetSurfPtr( m_MainSurfIndx() );
+            retsurf = currgeom->GetSurfPtr( m_MainSurfIndx );
         }
     }
     return retsurf;
@@ -1271,7 +1270,7 @@ void FeaSlice::UpdateParmLimits()
         Matrix4d model_matrix = current_geom->getModelMatrix();
         model_matrix.affineInverse();
 
-        VspSurf orig_surf = surf_vec[m_MainSurfIndx()];
+        VspSurf orig_surf = surf_vec[m_MainSurfIndx];
         orig_surf.Transform( model_matrix );
 
         if ( RefFrameIsBody( m_OrientationPlane() ) )
@@ -1280,7 +1279,7 @@ void FeaSlice::UpdateParmLimits()
         }
         else
         {
-            surf_vec[m_MainSurfIndx()].GetBoundingBox( m_SectBBox );
+            surf_vec[m_MainSurfIndx].GetBoundingBox( m_SectBBox );
         }
 
         double perp_dist = 0.0; // Total distance perpendicular to the FeaSlice plane
@@ -1322,7 +1321,7 @@ void FeaSlice::UpdateParmLimits()
         {
             // Build conformal spine from parent geom
             ConformalSpine cs;
-            cs.Build( surf_vec[m_MainSurfIndx()] );
+            cs.Build( surf_vec[m_MainSurfIndx] );
 
             perp_dist = cs.GetSpineLength();
         }
@@ -1355,9 +1354,9 @@ void FeaSlice::UpdateParmLimits()
         {
             // Build conformal spine from parent geom
             ConformalSpine cs;
-            cs.Build( surf_vec[m_MainSurfIndx()] );
+            cs.Build( surf_vec[m_MainSurfIndx] );
 
-            double u_max = surf_vec[m_MainSurfIndx()].GetUMax();
+            double u_max = surf_vec[m_MainSurfIndx].GetUMax();
             double spine_length = cs.GetSpineLength();
             double length_on_spine = m_RelCenterLocation() * spine_length;
             double per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
@@ -1398,10 +1397,10 @@ VspSurf FeaSlice::ComputeSliceSurf()
         Matrix4d model_matrix = current_geom->getModelMatrix();
         model_matrix.affineInverse();
 
-        VspSurf orig_surf = surf_vec[m_MainSurfIndx()];
+        VspSurf orig_surf = surf_vec[m_MainSurfIndx];
         orig_surf.Transform( model_matrix );
 
-        double u_max = surf_vec[m_MainSurfIndx()].GetUMax();
+        double u_max = surf_vec[m_MainSurfIndx].GetUMax();
 
         vec3d geom_center, cornerA, cornerB, cornerC, cornerD, x_axis, y_axis, z_axis,
             center_to_A, center_to_B, center_to_C, center_to_D;
@@ -1427,7 +1426,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
         {
             // Build conformal spine from parent geom
             ConformalSpine cs;
-            cs.Build( surf_vec[m_MainSurfIndx()] );
+            cs.Build( surf_vec[m_MainSurfIndx] );
 
             double spine_length = cs.GetSpineLength();
 
@@ -1451,7 +1450,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
             x_axis = delta_u_center - m_Center;
             x_axis.normalize();
 
-            vec3d surf_pnt1 = surf_vec[m_MainSurfIndx()].CompPnt01( per_u, 0.0 );
+            vec3d surf_pnt1 = surf_vec[m_MainSurfIndx].CompPnt01( per_u, 0.0 );
 
             z_axis = surf_pnt1 - m_Center;
             z_axis.normalize();
@@ -1460,7 +1459,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
             y_axis.normalize();
 
             VspCurve u_curve;
-            surf_vec[m_MainSurfIndx()].GetU01ConstCurve( u_curve, per_u );
+            surf_vec[m_MainSurfIndx].GetU01ConstCurve( u_curve, per_u );
 
             BndBox xsec_box;
             u_curve.GetBoundingBox( xsec_box );
@@ -1891,7 +1890,7 @@ void FeaSpar::UpdateParms()
         surf_vec = current_wing->GetSurfVecConstRef();
 
         int num_wing_sec = wing->NumXSec();
-        double U_max = surf_vec[m_MainSurfIndx()].GetUMax();
+        double U_max = surf_vec[m_MainSurfIndx].GetUMax();
 
         m_StartWingSection.SetLowerUpperLimits( 1, m_EndWingSection() );
         m_EndWingSection.SetLowerUpperLimits( m_StartWingSection(), num_wing_sec - 1 );
@@ -1932,7 +1931,7 @@ void FeaSpar::UpdateParms()
 
         double u_mid = ( ( m_U_sec_min + m_U_sec_max ) / 2 ) / U_max;
 
-        double chord_length = dist( surf_vec[m_MainSurfIndx()].CompPnt01( u_mid, 0.5 ), surf_vec[m_MainSurfIndx()].CompPnt01( u_mid, 0.0 ) ); // average chord length
+        double chord_length = dist( surf_vec[m_MainSurfIndx].CompPnt01( u_mid, 0.5 ), surf_vec[m_MainSurfIndx].CompPnt01( u_mid, 0.0 ) ); // average chord length
 
         if ( m_AbsRelParmFlag() == vsp::REL )
         {
@@ -1971,7 +1970,7 @@ void FeaSpar::ComputePlanarSurf()
         Matrix4d model_matrix = current_wing->getModelMatrix();
         model_matrix.affineInverse();
 
-        VspSurf orig_surf = surf_vec[m_MainSurfIndx()];
+        VspSurf orig_surf = surf_vec[m_MainSurfIndx];
         orig_surf.Transform( model_matrix );
 
         BndBox wing_bbox;
@@ -2341,7 +2340,7 @@ void FeaSpar::ComputePlanarSurf()
             m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
         }
 
-        if ( m_FeaPartSurfVec[0].GetFlipNormal() != surf_vec[m_MainSurfIndx()].GetFlipNormal() )
+        if ( m_FeaPartSurfVec[0].GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
         {
             m_FeaPartSurfVec[0].FlipNormal();
         }
@@ -2538,7 +2537,7 @@ double FeaRib::GetRibPerU( )
             vector < double > wing_sec_span_vec; // Vector of wing span increasing by each wing section (first section has no length)
             wing_sec_span_vec.push_back( 0.0 );
 
-            double U_max = surf_vec[m_MainSurfIndx()].GetUMax();
+            double U_max = surf_vec[m_MainSurfIndx].GetUMax();
 
             // Init values:
             double span_0 = 0.0;
@@ -2641,7 +2640,7 @@ double FeaRib::GetRibTotalRotation( )
             Matrix4d model_matrix = current_wing->getModelMatrix();
             model_matrix.affineInverse();
 
-            VspSurf orig_surf = surf_vec[m_MainSurfIndx()];
+            VspSurf orig_surf = surf_vec[m_MainSurfIndx];
             orig_surf.Transform( model_matrix );
 
             // Find initial rotation (alpha) to perpendicular edge or spar
@@ -2733,7 +2732,7 @@ VspSurf FeaRib::ComputeRibSurf()
         Matrix4d model_matrix = wing->getModelMatrix();
         model_matrix.affineInverse();
 
-        VspSurf orig_surf = surf_vec[m_MainSurfIndx()];
+        VspSurf orig_surf = surf_vec[m_MainSurfIndx];
         orig_surf.Transform( model_matrix );
 
         BndBox wing_bbox;
@@ -3056,7 +3055,7 @@ VspSurf FeaRib::ComputeRibSurf()
             rib_surf.SetSurfCfdType( vsp::CFD_STIFFENER );
         }
 
-        if ( rib_surf.GetFlipNormal() != surf_vec[m_MainSurfIndx()].GetFlipNormal() )
+        if ( rib_surf.GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
         {
             rib_surf.FlipNormal();
         }
@@ -3201,7 +3200,7 @@ void FeaFixPoint::IdentifySplitSurfIndex( bool half_mesh_flag, const vector < do
 
         // Split the parent surface
         vector< XferSurf > tempxfersurfs;
-        parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs, usuppress, wsuppress );
+        parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx, 0, tempxfersurfs, usuppress, wsuppress );
 
         // Check if the UW point is on a valid patch (invalid patches are discarded in FetchXFerSurf)
         bool on_valid_patch = false;
@@ -3596,9 +3595,9 @@ void FeaDome::BuildDomeSurf()
 
             // Build conformal spine from parent geom
             ConformalSpine cs;
-            cs.Build( surf_vec[m_MainSurfIndx()] );
+            cs.Build( surf_vec[m_MainSurfIndx] );
 
-            vec3d spine_center = cs.FindCenterGivenU( m_USpineLoc() * surf_vec[m_MainSurfIndx()].GetUMax() );
+            vec3d spine_center = cs.FindCenterGivenU( m_USpineLoc() * surf_vec[m_MainSurfIndx].GetUMax() );
 
             m_FeaPartSurfVec[0].OffsetX( spine_center.x() - curr_geom->m_XLoc() );
             m_FeaPartSurfVec[0].OffsetY( spine_center.y() - curr_geom->m_YLoc() );
@@ -3942,7 +3941,7 @@ void FeaRibArray::CreateFeaRibArray()
         surf_vec = current_wing->GetSurfVecConstRef();
 
         BndBox wing_bbox;
-        surf_vec[m_MainSurfIndx()].GetBoundingBox( wing_bbox );
+        surf_vec[m_MainSurfIndx].GetBoundingBox( wing_bbox );
 
         for ( size_t i = 0; i < m_NumRibs; i++ )
         {
@@ -3982,7 +3981,7 @@ void FeaRibArray::CreateFeaRibArray()
 
             m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_rib_surf;
 
-            if ( m_FeaPartSurfVec[m_SymmIndexVec.size() * i].GetFlipNormal() != surf_vec[m_MainSurfIndx()].GetFlipNormal() )
+            if ( m_FeaPartSurfVec[m_SymmIndexVec.size() * i].GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
             {
                 m_FeaPartSurfVec[m_SymmIndexVec.size() * i].FlipNormal();
             }
@@ -4188,7 +4187,7 @@ void FeaSliceArray::CalcNumSlices()
         Matrix4d model_matrix = current_geom->getModelMatrix();
         model_matrix.affineInverse();
 
-        VspSurf orig_surf = surf_vec[m_MainSurfIndx()];
+        VspSurf orig_surf = surf_vec[m_MainSurfIndx];
         orig_surf.Transform( model_matrix );
 
         BndBox geom_bbox;
@@ -4199,7 +4198,7 @@ void FeaSliceArray::CalcNumSlices()
         }
         else
         {
-            surf_vec[m_MainSurfIndx()].GetBoundingBox( geom_bbox );
+            surf_vec[m_MainSurfIndx].GetBoundingBox( geom_bbox );
         }
 
         if ( m_RotationAxis() == vsp::X_DIR )
@@ -4236,7 +4235,7 @@ void FeaSliceArray::CalcNumSlices()
         {
             // Build conformal spine from parent geom
             ConformalSpine cs;
-            cs.Build( surf_vec[m_MainSurfIndx()] );
+            cs.Build( surf_vec[m_MainSurfIndx] );
 
             perp_dist = cs.GetSpineLength();
         }
@@ -4376,7 +4375,7 @@ void FeaSliceArray::CreateFeaSliceArray()
 
             m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_slice_surf;
 
-            if ( m_FeaPartSurfVec[m_SymmIndexVec.size() * i].GetFlipNormal() != surf_vec[m_MainSurfIndx()].GetFlipNormal() )
+            if ( m_FeaPartSurfVec[m_SymmIndexVec.size() * i].GetFlipNormal() != surf_vec[m_MainSurfIndx].GetFlipNormal() )
             {
                 m_FeaPartSurfVec[m_SymmIndexVec.size() * i].FlipNormal();
             }
