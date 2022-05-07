@@ -23,6 +23,8 @@
 
 #define RAYAABB_EPSILON 0.00001f
 
+#include <limits>
+
 bool intersectRayAABB( const double MinB[3], const double MaxB[3], const double origin[3], const double dir[3], double coord[3] )
 {
     bool Inside = true;
@@ -108,4 +110,38 @@ bool intersectRayAABB( const double MinB[3], const double MaxB[3], const double 
 
     return true;
     // ray hits box
+}
+
+#ifndef MAX
+#define MAX(x,y) (((x) < (y)) ? (y):(x))
+#endif
+#ifndef MIN
+#define MIN(x,y) (((x) < (y)) ? (x):(y))
+#endif
+
+// Version of routine that works from inside the AABB.
+bool intersectRayAABB_inside( const double MinB[3], const double MaxB[3], const double origin[3], const double dir[3], double coord[3] )
+{
+    double tmax = std::numeric_limits<double>::infinity();
+    double tmin = -tmax;
+
+    for ( int i = 0; i < 3; i++ )
+    {
+        if ( dir[i] != 0.0 )
+        {
+            double t1 = ( MinB[i] - origin[i] ) / dir[i];
+            double t2 = ( MaxB[i] - origin[i] ) / dir[i];
+
+            tmin = MAX( tmin, MIN( MIN( t1, t2 ), tmax ) );
+            tmax = MIN( tmax, MAX( MAX( t1, t2 ), tmin ) );
+        }
+    }
+
+    double t = ( tmin < 0 ) ? tmax:tmin;
+
+    coord[0] = origin[0] + dir[0] * t;
+    coord[1] = origin[1] + dir[1] * t;
+    coord[2] = origin[2] + dir[2] * t;
+
+    return tmax >= tmin;
 }
