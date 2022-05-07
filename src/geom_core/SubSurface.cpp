@@ -70,6 +70,9 @@ SubSurface::SubSurface( const string& compID, int type )
 
     m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaSubSurface", this, 1, 0, 1e12 ); // Beam property default
     m_CapFeaPropertyIndex.SetDescript( "FeaPropertyIndex for Beam (Cap) Elements" );
+
+    m_FeaOrientationType.Init( "Orientation", "FeaSubSurface", this, vsp::FEA_ORIENT_PART_U, vsp::FEA_ORIENT_GLOBAL_X, vsp::FEA_NUM_ORIENT_TYPES - 1 );
+    m_FeaOrientationType.SetDescript( "Part material orientation type" );
 }
 
 SubSurface::~SubSurface()
@@ -192,8 +195,101 @@ void SubSurface::UpdateDrawObjs()
 
 void SubSurface::Update()
 {
+    UpdateOrientation();
+
     m_PolyPntsReadyFlag = false;
     UpdateDrawObjs();
+}
+
+void SubSurface::UpdateOrientation()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    Geom *geom = veh->FindGeom( m_CompID );
+
+    if ( !geom )
+    {
+        return;
+    }
+
+    vec3d orient;
+    if ( m_FeaOrientationType() == vsp::FEA_ORIENT_GLOBAL_X ||
+         m_FeaOrientationType() == vsp::FEA_ORIENT_GLOBAL_Y ||
+         m_FeaOrientationType() == vsp::FEA_ORIENT_GLOBAL_Z )
+    {
+        orient = vec3d( 0, 0, 0 );
+    }
+    else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_COMP_X )
+    {
+        orient = vec3d( 1.0, 0, 0 );
+        Matrix4d model_matrix = geom->getModelMatrix();
+        orient = model_matrix.xformnorm( orient );
+    }
+    else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_COMP_Y )
+    {
+        orient = vec3d( 0, 1.0, 0 );
+        Matrix4d model_matrix = geom->getModelMatrix();
+        orient = model_matrix.xformnorm( orient );
+    }
+    else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_COMP_Z )
+    {
+        orient = vec3d( 0, 0, 1.0 );
+        Matrix4d model_matrix = geom->getModelMatrix();
+        orient = model_matrix.xformnorm( orient );
+    }
+    else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_R )
+    {
+        orient = geom->CompTanR( m_MainSurfIndx(), 0.5, 0.25, 0.5 );
+    }
+    else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_S )
+    {
+        orient = geom->CompTanS( m_MainSurfIndx(), 0.5, 0.25, 0.5 );
+    }
+    else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_T )
+    {
+        orient = geom->CompTanT( m_MainSurfIndx(), 0.5, 0.25, 0.5 );
+    }
+    else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_U ||
+              m_FeaOrientationType() == vsp::FEA_ORIENT_PART_U )
+    {
+        UpdatePolygonPnts();
+
+        // Control surface subsurfaces can have more than one polygon.  Use the first one either way.
+        vec2d centroid = poly_centroid( m_PolyPntsVec[0] );
+
+        orient = geom->CompTanU( m_MainSurfIndx(), centroid.x(), centroid.y() );
+    }
+    else if ( m_FeaOrientationType() == vsp::FEA_ORIENT_OML_V ||
+              m_FeaOrientationType() == vsp::FEA_ORIENT_PART_V )
+    {
+        UpdatePolygonPnts();
+
+        // Control surface subsurfaces can have more than one polygon.  Use the first one either way.
+        vec2d centroid = poly_centroid( m_PolyPntsVec[0] );
+
+        orient = geom->CompTanW( m_MainSurfIndx(), centroid.x(), centroid.y() );
+    }
+
+    orient.normalize();
+
+    // Fill out symmetrical copies of orientation.
+    int ncopy = geom->GetNumSymmCopies();
+
+    m_FeaOrientationVec.clear();
+    m_FeaOrientationVec.resize( ncopy, orient );
+
+    vector < int > symms;
+    geom->GetSymmIndexs( m_MainSurfIndx(), symms );
+    vector<Matrix4d> transMats = geom->GetFeaTransMatVec();
+    for ( size_t j = 1; j < ncopy; j++ )
+    {
+        m_FeaOrientationVec[j] = transMats[ symms[ j ] ].xformnorm( m_FeaOrientationVec[j] );
+    }
 }
 
 std::string SubSurface::GetTypeName( int type )

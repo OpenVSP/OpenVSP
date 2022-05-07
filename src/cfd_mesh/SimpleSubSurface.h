@@ -45,6 +45,14 @@ public:
     {
         return m_CapFeaPropertyIndex;
     }
+    int GetFeaOrientationType()
+    {
+        return m_FeaOrientationType;
+    }
+    std::vector < vec3d > GetFeaOrientationVec()
+    {
+        return m_FeaOrientationVec;
+    }
     string GetName()
     {
         return m_Name;
@@ -75,6 +83,8 @@ protected:
 
     int m_FeaPropertyIndex;
     int m_CapFeaPropertyIndex;
+    int m_FeaOrientationType;
+    std::vector < vec3d > m_FeaOrientationVec;
 
     std::vector< std::vector< vec2d > > m_PolyPntsVec;
     bool m_PolyPntsReadyFlag;

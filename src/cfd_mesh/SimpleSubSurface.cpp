@@ -28,6 +28,7 @@ SimpleSubSurface::SimpleSubSurface()
     m_Type = vsp::SS_LINE;
     m_FeaPropertyIndex = 0;
     m_CapFeaPropertyIndex = 0;
+    m_FeaOrientationType = vsp::FEA_ORIENT_PART_U;
 }
 
 SimpleSubSurface::~SimpleSubSurface()
@@ -48,6 +49,8 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
         m_IncludedElements = ss->m_IncludedElements.Get();
         m_FeaPropertyIndex = ss->m_FeaPropertyIndex();
         m_CapFeaPropertyIndex = ss->m_CapFeaPropertyIndex();
+        m_FeaOrientationType = ss->m_FeaOrientationType();
+        m_FeaOrientationVec = ss->m_FeaOrientationVec;
 
         ss->PrepareSplitVec();
         m_SplitLVec = ss->GetSplitSegs();
