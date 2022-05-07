@@ -13,6 +13,8 @@
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "StructureMgr.h"
+#include "Vec2d.h"
+#include "VspUtil.h"
 
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 
@@ -554,23 +556,8 @@ vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
     double maxu = surf->GetUMax();
     double maxw = surf->GetWMax();
 
-    if ( uw_pnt.x() < 0.0 )
-    {
-        uw_pnt.set_x( 0.0 );
-    }
-    else if ( uw_pnt.x() > maxu )
-    {
-        uw_pnt.set_x( maxu );
-    }
-
-    if ( uw_pnt.y() < 0.0 )
-    {
-        uw_pnt.set_y( 0.0 );
-    }
-    else if ( uw_pnt.y() > maxw )
-    {
-        uw_pnt.set_y( maxw );
-    }
+    uw_pnt.v[0] = clamp( uw_pnt.v[0], 0.0, maxu );
+    uw_pnt.v[1] = clamp( uw_pnt.v[1], 0.0, maxw );
 
     return surf->CompPnt( uw_pnt.x(), uw_pnt.y() );
 }

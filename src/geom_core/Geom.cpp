@@ -14,6 +14,7 @@
 #include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
 #include "HingeGeom.h"
+#include "VspUtil.h"
 using namespace vsp;
 
 #include <float.h>
@@ -1385,7 +1386,6 @@ void Geom::UpdateFeatureLines( )
 void Geom::UpdateSymmAttach()
 {
     unsigned int num_surf = GetNumTotalSurfs();
-    m_SurfVec.clear();
     m_SurfIndxVec.clear();
     m_SurfSymmMap.clear();
     m_SurfCopyIndx.clear();
@@ -3823,12 +3823,16 @@ vec3d Geom::CompPnt01(const int &indx, const double &u, const double &w)
 
 vec3d Geom::CompTanU( const int &indx, const double &u, const double &w )
 {
-    return GetSurfPtr( indx )->CompTanU( u, w );
+    double uu = clamp( u, 0.0, GetSurfPtr( indx )->GetUMax() );
+    double ww = clamp( w, 0.0, GetSurfPtr( indx )->GetWMax() );
+    return GetSurfPtr( indx )->CompTanU( uu, ww );
 }
 
 vec3d Geom::CompTanW( const int &indx, const double &u, const double &w )
 {
-    return GetSurfPtr( indx )->CompTanW( u, w );
+    double uu = clamp( u, 0.0, GetSurfPtr( indx )->GetUMax() );
+    double ww = clamp( w, 0.0, GetSurfPtr( indx )->GetWMax() );
+    return GetSurfPtr( indx )->CompTanW( uu, ww );
 }
 
 vec3d Geom::CompPntRST( const int &indx, const double &r, const double &s, const double &t )
