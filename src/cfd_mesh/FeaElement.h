@@ -73,6 +73,14 @@ public:
     {
         m_FeaPartIndex = fea_part_index;
     }
+    virtual int GetSurfIndex()
+    {
+        return m_SurfIndex;
+    }
+    virtual void SetSurfIndex( int surf_index )
+    {
+        m_SurfIndex = surf_index;
+    }
     virtual void WriteCalculix( FILE* fp, int id ) = 0;
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index ) = 0;
     virtual void WriteGmsh( FILE* fp, int id , int fea_part_index ) = 0;
@@ -98,6 +106,7 @@ protected:
 
     int m_ElementType;
     int m_FeaPartIndex; // Corresponds to index in FeaStructure m_FeaPartVec
+    int m_SurfIndex; // Corresponds to index in FeaMeshMgr m_SurfVec
     int m_FeaSSIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
 };
 

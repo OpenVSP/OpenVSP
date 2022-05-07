@@ -889,6 +889,8 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                     }
                 }
             }
+
+            int normsurfindx = vector_find_val( m_SurfVec, NormSurf );
             // Define FeaBeam elements
             for ( int j = 1; j < (int)ipntVec.size(); j++ )
             {
@@ -926,6 +928,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 
                 beam->Create( start_pnt, end_pnt, inormVec[j - 1] );
                 beam->SetFeaPartIndex( FeaPartIndex );
+                beam->SetSurfIndex( normsurfindx );
                 beam->SetFeaSSIndex( ssindexVec[j] );
                 m_FeaElementVec.push_back( beam );
                 m_NumBeams++;
