@@ -3412,9 +3412,18 @@ void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 return;
             }
 
-            Update(); // Updating right before drawing ensures the structure is up to date
-
             vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
+            vector < int > active_part_index_vec;
+
+            for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
+            {
+                if ( m_SelectedPartIndexVec[i] < curr_struct->NumFeaParts() )
+                {
+                    active_part_index_vec.push_back( m_SelectedPartIndexVec[i] );
+                }
+            }
+
+            curr_struct->HighlightFeaParts( active_part_index_vec );
 
             for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
             {

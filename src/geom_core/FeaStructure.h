@@ -83,6 +83,7 @@ public:
     FeaPart* GetFeaSkin();
 
     void UpdateFeaSubSurfs();
+    void HighlightFeaParts( vector < int > active_ind_vec );
     void RecolorFeaSubSurfs( vector < int > active_ind_vec );
     SubSurface* AddFeaSubSurf( int type );
     bool ValidFeaSubSurfInd( int ind );
@@ -184,6 +185,7 @@ public:
 
     virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
     virtual void UpdateDrawObjs();
+    virtual void SetDrawObjHighlight ( bool highlight );
 
     virtual int GetType()
     {
@@ -357,6 +359,8 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void UpdateDrawObjs();
+    virtual void SetDrawObjHighlight ( bool highlight );
+
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     Parm m_PosU;

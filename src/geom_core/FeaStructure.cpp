@@ -313,6 +313,20 @@ void FeaStructure::ReorderFeaPart( int ind, int action )
     m_FeaPartVec = new_prt_vec;
 }
 
+//==== Highlight Active FeaParts ====//
+void FeaStructure::HighlightFeaParts( vector < int > active_ind_vec )
+{
+    for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
+    {
+        m_FeaPartVec[i]->SetDrawObjHighlight( false ); // Initially no highlight
+    }
+
+    for ( size_t j = 0; j < active_ind_vec.size(); j++ )
+    {
+        m_FeaPartVec[active_ind_vec[j]]->SetDrawObjHighlight( true );
+    }
+}
+
 //==== Highlight Active Subsurface ====//
 void FeaStructure::RecolorFeaSubSurfs( vector < int > active_ind_vec )
 {
@@ -1131,6 +1145,36 @@ void FeaPart::UpdateDrawObjs()
 
         m_FeaPartDO[j].m_GeomChanged = true;
         m_FeaHighlightDO[j].m_GeomChanged = true;
+    }
+}
+
+void FeaPart::SetDrawObjHighlight( bool highlight )
+{
+    if ( highlight )
+    {
+        for ( unsigned int j = 0; j < m_FeaHighlightDO.size(); j++ )
+        {
+            m_FeaHighlightDO[j].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+            m_FeaHighlightDO[j].m_LineWidth = 3.0;
+        }
+
+        for ( unsigned int j = 0; j < m_FeaPartDO.size(); j++ )
+        {
+            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.67f;
+        }
+    }
+    else
+    {
+        for ( unsigned int j = 0; j < m_FeaHighlightDO.size(); j++ )
+        {
+            m_FeaHighlightDO[j].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+            m_FeaHighlightDO[j].m_LineWidth = 1.0;
+        }
+
+        for ( unsigned int j = 0; j < m_FeaPartDO.size(); j++ )
+        {
+            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.33f;
+        }
     }
 }
 
@@ -3358,6 +3402,24 @@ void FeaFixPoint::UpdateDrawObjs()
             m_FeaPartDO[i].m_PntVec.push_back( fixpt );
 
             m_FeaPartDO[i].m_GeomChanged = true;
+        }
+    }
+}
+
+void FeaFixPoint::SetDrawObjHighlight( bool highlight )
+{
+    if ( highlight )
+    {
+        for ( unsigned int j = 0; j < m_FeaPartDO.size(); j++ )
+        {
+            m_FeaPartDO[j].m_PointColor = vec3d( 1.0, 0.0, 0.0 );
+        }
+    }
+    else
+    {
+        for ( unsigned int j = 0; j < m_FeaPartDO.size(); j++ )
+        {
+            m_FeaPartDO[j].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
         }
     }
 }
