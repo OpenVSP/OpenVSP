@@ -309,10 +309,12 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     MergeCoplanarParts();
 
-    CleanMergeSurfs(); // Must be called before AddStructureParts to prevent FEA Fix Point surface misidentification
-
     addOutputText( "Add Structure Parts\n" );
-    AddStructureParts();
+    AddStructureSurfParts();
+
+    CleanMergeSurfs(); // Must be called before AddStructureFixPoints to prevent FEA Fix Point surface misidentification
+
+    AddStructureFixPoints();
 
     IdentifyCompIDNames();
 
@@ -607,7 +609,7 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
     }
 }
 
-void FeaMeshMgrSingleton::AddStructureParts()
+void FeaMeshMgrSingleton::AddStructureSurfParts()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
 
@@ -621,7 +623,6 @@ void FeaMeshMgrSingleton::AddStructureParts()
         }
         start_surf_id += 1;
 
-        int fix_pnt_cnt = 0;
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         //===== Add FeaParts ====//
@@ -647,7 +648,23 @@ void FeaMeshMgrSingleton::AddStructureParts()
                     m_SurfVec[j]->SetFeaPartIndex( part_index );
                 }
             }
-            else if ( fea_struct->FeaPartIsFixPoint( i ) ) 
+        }
+    }
+}
+
+void FeaMeshMgrSingleton::AddStructureFixPoints()
+{
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+
+    if ( fea_struct )
+    {
+        int fix_pnt_cnt = 0;
+        vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
+
+        //===== Add FeaParts ====//
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
+        {
+            if ( fea_struct->FeaPartIsFixPoint( i ) )
             {
                 //===== Add FixedPoint Data ====//
                 FeaFixPoint* fixpnt = dynamic_cast<FeaFixPoint*>( fea_part_vec[i] );

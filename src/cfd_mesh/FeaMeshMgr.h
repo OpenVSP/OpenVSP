@@ -66,7 +66,8 @@ public:
     virtual void TransferFeaData();
     virtual void TransferSubSurfData();
     virtual void MergeCoplanarParts();
-    virtual void AddStructureParts();
+    virtual void AddStructureSurfParts();
+    virtual void AddStructureFixPoints();
     virtual void SetFixPointSurfaceNodes();
     virtual void SetFixPointBorderNodes();
     virtual void CheckFixPointIntersects();
