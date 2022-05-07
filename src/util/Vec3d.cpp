@@ -1703,3 +1703,8 @@ vec3d slerp( const vec3d& a, const vec3d& b, const double &t )
 
     return retvec;
 }
+
+void printpt( const vec3d & v )
+{
+    printf( "x: %g Y: %g Z: %g\n", v[0], v[1], v[2] );
+}

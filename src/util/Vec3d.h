@@ -1132,6 +1132,7 @@ public:
     friend double pnt_tri_min_dist( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & pnt );
 
     friend vec3d slerp( const vec3d& a, const vec3d& b, const double &t );
+    friend void printpt( const vec3d & v );
 };
 
 /*!
