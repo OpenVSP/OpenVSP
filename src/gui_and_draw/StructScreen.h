@@ -43,6 +43,7 @@ public:
     virtual void UpdateFeaMaterialChoice();
 
     virtual void UpdateGenPropertyIndex( Choice* property_choice );
+//    virtual void UpdateGenOrientationIndex( Choice* orientation_choice );
     virtual void UpdateGenCapPropertyIndex( Choice* property_choice );
 
     virtual void UpdateUnitLabels();
@@ -147,6 +148,7 @@ private:
 
     Choice m_GenPropertyChoice;
     Choice m_GenCapPropertyChoice;
+    Choice m_GenOrientationChoice;
 
     ToggleButton m_ShowFeaPartButton;
     ToggleButton m_HideFeaPartButton;
