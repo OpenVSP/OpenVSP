@@ -108,6 +108,7 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
     m_SurfDirty = true;
     m_TessDirty = true;
     m_HighlightDirty = true;
+    m_FeaDirty = true;
 }
 
 //==== Destructor ====//
@@ -192,6 +193,10 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
         // GeomXSec::m_ActiveXSec
         // WingGeom::m_ActiveAirfoil
     }
+    else if ( gname.substr(0, 3) == string("Fea") )
+    {
+        m_FeaDirty = true;
+    }
     else
     {
         m_SurfDirty = true;
@@ -216,6 +221,10 @@ void GeomBase::SetDirtyFlag( int dflag )
     else if ( dflag == HIGHLIGHT )
     {
         m_HighlightDirty = true;
+    }
+    else if ( dflag == FEA )
+    {
+        m_FeaDirty = true;
     }
 }
 
@@ -1166,9 +1175,12 @@ void Geom::Update( bool fullupdate )
             m_SubSurfVec[i]->Update();  // Can be protected by m_SurfDirty, except for call to UpdateDrawObj - perhaps should be split out.  Some may depend on m_SurfVec, but could be switched to m_MainSurfVec instead.
         }
 
-        for ( int i = 0; i < (int)m_FeaStructVec.size(); i++ )
+        if ( m_XFormDirty || m_SurfDirty || m_FeaDirty ) // Everything except m_TessDirty
         {
-            m_FeaStructVec[i]->Update();  // Possibly can be moved to update path only when FEA GUI is open?
+            for ( int i = 0; i < (int)m_FeaStructVec.size(); i++ )
+            {
+                m_FeaStructVec[i]->Update();
+            }
         }
     }
 
@@ -1220,6 +1232,8 @@ void Geom::Update( bool fullupdate )
     m_TessDirty = false;
 
     m_HighlightDirty = false;
+
+    m_FeaDirty = false;
 
     UpdateChildren( fullupdate );
 
