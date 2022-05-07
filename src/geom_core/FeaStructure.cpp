@@ -57,18 +57,14 @@ void FeaStructure::Update()
 
 void FeaStructure::ParmChanged( Parm* parm_ptr, int type )
 {
-    if ( type == Parm::SET )
-    {
-        m_LateUpdateFlag = true;
-        return;
-    }
-
-    Update();
-
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        veh->ParmChanged( parm_ptr, type );
+        Geom* geom = veh->FindGeom( m_ParentGeomID );
+        if ( geom  )
+        {
+            geom->ParmChanged( parm_ptr, type );
+        }
     }
 }
 
@@ -897,19 +893,19 @@ void FeaPart::Update()
     }
 }
 
+
+// This should really call FeaStructure::ParmChanged, but there is no clear way to get a pointer to the
+// FeaStructure that contains this FeaPart
 void FeaPart::ParmChanged( Parm* parm_ptr, int type )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( type == Parm::SET )
-    {
-        m_LateUpdateFlag = true;
-        return;
-    }
-
     if ( veh )
     {
-        veh->ParmChanged( parm_ptr, type );
+        Geom* geom = veh->FindGeom( m_ParentGeomID );
+        if ( geom  )
+        {
+            geom->ParmChanged( parm_ptr, type );
+        }
     }
 }
 
