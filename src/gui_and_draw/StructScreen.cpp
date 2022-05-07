@@ -2310,9 +2310,6 @@ bool StructScreen::Update()
             m_CurrStructOutput.Update( "" );
         }
 
-        // Update Draw Objects for FeaParts
-        UpdateDrawObjs();
-
         if ( FeaMeshMgr.GetFeaMeshInProgress() )
         {
             m_FeaMeshExportButton.Deactivate();
@@ -3463,62 +3460,5 @@ void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
         // Load Draw Objects for FeaMesh
         FeaMeshMgr.LoadDrawObjs( draw_obj_vec );
-    }
-}
-
-void StructScreen::UpdateDrawObjs()
-{
-    if ( FeaMeshMgr.GetFeaMeshInProgress() == true )
-    {
-        return;
-    }
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    if ( !veh )
-    {
-        return;
-    }
-
-    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
-    {
-        vector < FeaStructure* > totalstructvec = StructureMgr.GetAllFeaStructs();
-
-        FeaStructure* curr_struct = totalstructvec[StructureMgr.GetCurrStructIndex()];
-
-        if ( !curr_struct )
-        {
-            return;
-        }
-
-        int k = 0;
-
-        vector < FeaPart* > curr_part_vec;
-
-        for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
-        {
-            curr_part_vec.push_back( curr_struct->GetFeaPart( m_SelectedPartIndexVec[i] ) );
-        }
-
-        vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
-
-        for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
-        {
-            bool match = false;
-
-            for ( size_t j = 0; j < curr_part_vec.size(); j++ )
-            {
-                if ( partvec[i] == curr_part_vec[j] )
-                {
-                    match = true;
-                }
-            }
-
-            if ( partvec[i]->m_DrawFeaPartFlag() )
-            {
-                partvec[i]->UpdateDrawObjs( k, match );
-                k++;
-            }
-        }
     }
 }

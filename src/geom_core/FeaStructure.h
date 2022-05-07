@@ -182,7 +182,7 @@ public:
     virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector < double >() );
 
     virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
-    virtual void UpdateDrawObjs( int id, bool highlight );
+    virtual void UpdateDrawObjs();
 
     virtual int GetType()
     {
@@ -231,6 +231,7 @@ protected:
     vector < VspSurf > m_FeaPartSurfVec; 
 
     vector < DrawObj > m_FeaPartDO;
+    vector < DrawObj > m_FeaHighlightDO;
 };
 
 class FeaSlice : public FeaPart
@@ -244,8 +245,6 @@ public:
     virtual void UpdateParmLimits();
 
     virtual VspSurf ComputeSliceSurf();
-
-    virtual void UpdateDrawObjs( int id, bool highlight );
 
     virtual void SetSectionBBox( BndBox box )
     {
@@ -281,7 +280,6 @@ public:
     virtual void UpdateParms();
 
     virtual void ComputePlanarSurf();
-    virtual void UpdateDrawObjs( int id, bool highlight );
 
     Parm m_Theta;
     BoolParm m_LimitSparToSectionFlag;
@@ -315,8 +313,6 @@ public:
     double GetRibPerU();
     double GetRibTotalRotation();
     VspSurf ComputeRibSurf();
-
-    virtual void UpdateDrawObjs( int id, bool highlight );
 
     void SetPerpendicularEdgeID( const string & ID )
     {
@@ -359,8 +355,7 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void UpdateDrawObjs( int id, bool highlight );
-
+    virtual void UpdateDrawObjs();
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     Parm m_PosU;
@@ -390,7 +385,7 @@ public:
 
     void BuildSkinSurf();
 
-    virtual void UpdateDrawObjs( int id, bool highlight )    {}; // Do nothing for skins
+    virtual void UpdateDrawObjs()    {}; // Do nothing for skins
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
@@ -412,7 +407,7 @@ public:
 
     void BuildDomeSurf();
 
-    virtual void UpdateDrawObjs( int id, bool highlight );
+    virtual void UpdateDrawObjs();
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
@@ -449,8 +444,6 @@ public:
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-
-    virtual void UpdateDrawObjs( int id, bool highlight );
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
@@ -502,8 +495,6 @@ public:
     void CalcNumSlices();
 
     virtual FeaSlice* AddFeaSlice( double center_location, int ind );
-
-    virtual void UpdateDrawObjs( int id, bool highlight );
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 

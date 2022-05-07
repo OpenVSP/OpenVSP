@@ -67,7 +67,6 @@ public:
     virtual bool Update();
 
     virtual void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
-    virtual void UpdateDrawObjs();
 
     ProcessUtil* getFeaMeshProcess()
     {

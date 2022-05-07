@@ -1056,53 +1056,52 @@ void FeaPart::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
 {
     for ( int i = 0; i < (int)m_FeaPartDO.size(); i++ )
     {
-        draw_obj_vec.push_back( &m_FeaPartDO[i] );
+        draw_obj_vec.push_back( &m_FeaPartDO[ i ] );
+    }
+
+    for ( int i = 0; i < (int)m_FeaHighlightDO.size(); i++ )
+    {
+        draw_obj_vec.push_back( &m_FeaHighlightDO[i] );
     }
 }
 
-void FeaPart::UpdateDrawObjs( int id, bool highlight )
+void FeaPart::UpdateDrawObjs()
 {
     // 2 DrawObj per FeaPart: One for the planar surface and the other for the outline. This is done to avoid
     //  OpenGL transparency ordering issues. 
     m_FeaPartDO.clear();
-    m_FeaPartDO.resize( 2 * m_FeaPartSurfVec.size() );
+    m_FeaPartDO.resize( m_FeaPartSurfVec.size() );
+    m_FeaHighlightDO.clear();
+    m_FeaHighlightDO.resize( m_FeaPartSurfVec.size() );
 
-    for ( unsigned int j = 0; j < 2 * m_FeaPartSurfVec.size(); j += 2 )
+    for ( unsigned int j = 0; j < m_FeaPartSurfVec.size(); j++ )
     {
-        m_FeaPartDO[j].m_GeomID = string( m_Name + "_" + std::to_string( id ) + "_" + std::to_string( j ) );
+        m_FeaPartDO[j].m_GeomID = string( GetID() + "_" + std::to_string( j ) + "_" + m_Name );
         m_FeaPartDO[j].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-        m_FeaPartDO[j + 1].m_GeomID = string( m_Name + "_" + std::to_string( id ) + "_" + std::to_string( j + 1 ) );
-        m_FeaPartDO[j + 1].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_FeaHighlightDO[j].m_GeomID = string( GetID() + "_hl_" + std::to_string( j ) + "_" + m_Name );
+        m_FeaHighlightDO[j].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-        if ( highlight )
-        {
-            m_FeaPartDO[j + 1].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
-            m_FeaPartDO[j + 1].m_LineWidth = 3.0;
-        }
-        else
-        {
-            m_FeaPartDO[j + 1].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
-            m_FeaPartDO[j + 1].m_LineWidth = 1.0;
-        }
+        m_FeaHighlightDO[j].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+        m_FeaHighlightDO[j].m_LineWidth = 1.0;
 
         m_FeaPartDO[j].m_Type = DrawObj::VSP_SHADED_QUADS;
-        m_FeaPartDO[j + 1].m_Type = DrawObj::VSP_LINE_LOOP;
+        m_FeaHighlightDO[j].m_Type = DrawObj::VSP_LINE_LOOP;
 
-        vec3d p00 = m_FeaPartSurfVec[j / 2].CompPnt01( 0, 0 );
-        vec3d p10 = m_FeaPartSurfVec[j / 2].CompPnt01( 1, 0 );
-        vec3d p11 = m_FeaPartSurfVec[j / 2].CompPnt01( 1, 1 );
-        vec3d p01 = m_FeaPartSurfVec[j / 2].CompPnt01( 0, 1 );
+        vec3d p00 = m_FeaPartSurfVec[j].CompPnt01( 0, 0 );
+        vec3d p10 = m_FeaPartSurfVec[j].CompPnt01( 1, 0 );
+        vec3d p11 = m_FeaPartSurfVec[j].CompPnt01( 1, 1 );
+        vec3d p01 = m_FeaPartSurfVec[j].CompPnt01( 0, 1 );
 
         m_FeaPartDO[j].m_PntVec.push_back( p00 );
         m_FeaPartDO[j].m_PntVec.push_back( p10 );
         m_FeaPartDO[j].m_PntVec.push_back( p11 );
         m_FeaPartDO[j].m_PntVec.push_back( p01 );
 
-        m_FeaPartDO[j + 1].m_PntVec.push_back( p00 );
-        m_FeaPartDO[j + 1].m_PntVec.push_back( p10 );
-        m_FeaPartDO[j + 1].m_PntVec.push_back( p11 );
-        m_FeaPartDO[j + 1].m_PntVec.push_back( p01 );
+        m_FeaHighlightDO[j].m_PntVec.push_back( p00 );
+        m_FeaHighlightDO[j].m_PntVec.push_back( p10 );
+        m_FeaHighlightDO[j].m_PntVec.push_back( p11 );
+        m_FeaHighlightDO[j].m_PntVec.push_back( p01 );
 
         // Get new normal
         vec3d quadnorm = cross( p10 - p00, p01 - p00 );
@@ -1122,19 +1121,12 @@ void FeaPart::UpdateDrawObjs( int id, bool highlight )
             m_FeaPartDO[j].m_MaterialInfo.Emission[i] = 0.0f;
         }
 
-        if ( highlight )
-        {
-            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.67f;
-        }
-        else
-        {
-            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.33f;
-        }
+        m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.33f;
 
         m_FeaPartDO[j].m_MaterialInfo.Shininess = 5.0f;
 
         m_FeaPartDO[j].m_GeomChanged = true;
-        m_FeaPartDO[j+ 1].m_GeomChanged = true;
+        m_FeaHighlightDO[j].m_GeomChanged = true;
     }
 }
 
@@ -1828,11 +1820,6 @@ VspSurf FeaSlice::ComputeSliceSurf()
     return slice_surf;
 }
 
-void FeaSlice::UpdateDrawObjs( int id, bool highlight )
-{
-    FeaPart::UpdateDrawObjs( id, highlight );
-}
-
 //////////////////////////////////////////////////////
 //===================== FeaSpar ====================//
 //////////////////////////////////////////////////////
@@ -2351,11 +2338,6 @@ void FeaSpar::ComputePlanarSurf()
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
         }
     }
-}
-
-void FeaSpar::UpdateDrawObjs( int id, bool highlight )
-{
-    FeaPart::UpdateDrawObjs( id, highlight );
 }
 
 //////////////////////////////////////////////////////
@@ -3064,11 +3046,6 @@ VspSurf FeaRib::ComputeRibSurf()
     return rib_surf;
 }
 
-void FeaRib::UpdateDrawObjs( int id, bool highlight )
-{
-    FeaPart::UpdateDrawObjs( id, highlight );
-}
-
 ////////////////////////////////////////////////////
 //================= FeaFixPoint ==================//
 ////////////////////////////////////////////////////
@@ -3357,33 +3334,25 @@ xmlNodePtr FeaFixPoint::DecodeXml( xmlNodePtr & node )
     return fea_prt_node;
 }
 
-void FeaFixPoint::UpdateDrawObjs( int id, bool highlight )
+void FeaFixPoint::UpdateDrawObjs()
 {
     FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
 
     if ( parent_part )
     {
         vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
+        m_FeaPartDO.resize( parent_surf_vec.size() );
 
         for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
         {
-            m_FeaPartDO.resize( parent_surf_vec.size() );
-
             m_FeaPartDO[i].m_PntVec.clear();
 
-            m_FeaPartDO[i].m_GeomID = string( "FeaFixPoint_" + std::to_string( id ) + "_" + std::to_string( i ) );
+            m_FeaPartDO[i].m_GeomID = string( GetID() + "_" + std::to_string( i ) + "_FeaFixPoint" );
             m_FeaPartDO[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
             m_FeaPartDO[i].m_Type = DrawObj::VSP_POINTS;
             m_FeaPartDO[i].m_PointSize = 8.0;
 
-            if ( highlight )
-            {
-                m_FeaPartDO[i].m_PointColor = vec3d( 1.0, 0.0, 0.0 );
-            }
-            else
-            {
-                m_FeaPartDO[i].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
-            }
+            m_FeaPartDO[i].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
 
             vec3d fixpt = parent_surf_vec[i].CompPnt01( m_PosU(), m_PosW() );
             m_FeaPartDO[i].m_PntVec.push_back( fixpt );
@@ -3614,40 +3583,32 @@ void FeaDome::BuildDomeSurf()
     }
 }
 
-void FeaDome::UpdateDrawObjs( int id, bool highlight )
+void FeaDome::UpdateDrawObjs()
 {
     // Two DrawObjs per Dome surface: index j correcponds to the surface (quads) and 
     //  j + 1 corresponds to the cross section feature line at u_max 
 
     m_FeaPartDO.clear();
-    m_FeaPartDO.resize( 2 * m_FeaPartSurfVec.size() );
+    m_FeaPartDO.resize( m_FeaPartSurfVec.size() );
+    m_FeaHighlightDO.clear();
+    m_FeaHighlightDO.resize( m_FeaPartSurfVec.size() );
 
-    for ( size_t j = 0; j < 2 * m_FeaPartSurfVec.size(); j += 2 )
+    for ( size_t j = 0; j < m_FeaPartSurfVec.size(); j++ )
     {
-        m_FeaPartDO[j].m_GeomID = string( m_Name + "_" + std::to_string( id ) + "_" + std::to_string( j ) );
+        m_FeaPartDO[j].m_GeomID = string( GetID() + "_" + std::to_string( j ) + "_" + m_Name );
         m_FeaPartDO[j].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-        m_FeaPartDO[j + 1].m_GeomID = string( m_Name + "_" + std::to_string( id ) + "_" + std::to_string( j + 1 ) );
-        m_FeaPartDO[j + 1].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_FeaHighlightDO[j].m_GeomID = string( GetID() + "_hl_" + std::to_string( j ) + "_" + m_Name );
+        m_FeaHighlightDO[j].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-        if ( highlight )
-        {
-            m_FeaPartDO[j].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
-            m_FeaPartDO[j].m_LineWidth = 3.0;
-            m_FeaPartDO[j + 1].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
-            m_FeaPartDO[j + 1].m_LineWidth = 3.0;
-        }
-        else
-        {
-            m_FeaPartDO[j].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
-            m_FeaPartDO[j].m_LineWidth = 1.0;
-            m_FeaPartDO[j + 1].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
-            m_FeaPartDO[j + 1].m_LineWidth = 1.0;
-        }
+        m_FeaPartDO[j].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+        m_FeaPartDO[j].m_LineWidth = 1.0;
+        m_FeaHighlightDO[j].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+        m_FeaHighlightDO[j].m_LineWidth = 1.0;
 
         // Tesselate the surface (can adjust num_u and num_v Tessellation for smoothness) 
         vector < vector < vec3d > > pnts, norms, uw;
-        m_FeaPartSurfVec[j / 2].Tesselate( 10, 18, pnts, norms, uw, 3, false );
+        m_FeaPartSurfVec[j].Tesselate( 10, 18, pnts, norms, uw, 3, false );
 
         // Define quads for bulkhead surface
         m_FeaPartDO[j].m_Type = DrawObj::VSP_SHADED_QUADS;
@@ -3688,27 +3649,20 @@ void FeaDome::UpdateDrawObjs( int id, bool highlight )
             m_FeaPartDO[j].m_MaterialInfo.Emission[i] = 0.0f;
         }
 
-        if ( highlight )
-        {
-            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.67f;
-        }
-        else
-        {
-            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.33f;
-        }
+        m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.33f;
 
         m_FeaPartDO[j].m_MaterialInfo.Shininess = 5.0f;
 
         // Add points for bulkhead cross section at u_max
-        m_FeaPartDO[j + 1].m_Type = DrawObj::VSP_LINE_LOOP;
+        m_FeaHighlightDO[j].m_Type = DrawObj::VSP_LINE_LOOP;
 
         for ( size_t i = 0; i < pnts[pnts.size() - 1].size(); i++ )
         {
-            m_FeaPartDO[j + 1].m_PntVec.push_back( pnts[pnts.size() - 1][i] );
+            m_FeaHighlightDO[j].m_PntVec.push_back( pnts[pnts.size() - 1][i] );
         }
 
         m_FeaPartDO[j].m_GeomChanged = true;
-        m_FeaPartDO[j + 1].m_GeomChanged = true;
+        m_FeaHighlightDO[j].m_GeomChanged = true;
     }
 }
 
@@ -4107,11 +4061,6 @@ xmlNodePtr FeaRibArray::DecodeXml( xmlNodePtr & node )
     return fea_prt_node;
 }
 
-void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
-{
-    FeaPart::UpdateDrawObjs( id, highlight );
-}
-
 ////////////////////////////////////////////////////
 //================= FeaSliceArray ==================//
 ////////////////////////////////////////////////////
@@ -4446,11 +4395,6 @@ bool FeaSliceArray::PtsOnPlanarPart( const vector < vec3d > & pnts, double minle
         }
     }
     return false;
-}
-
-void FeaSliceArray::UpdateDrawObjs( int id, bool highlight )
-{
-    FeaPart::UpdateDrawObjs( id, highlight );
 }
 
 ////////////////////////////////////////////////////
