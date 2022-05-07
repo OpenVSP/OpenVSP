@@ -278,6 +278,9 @@ private:
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;
 
+    SliderAdjRangeInput m_NodeOffset;
+    SliderAdjRangeInput m_ElementOffset;
+
     //===== Output Items =====//
     ToggleButton m_StlFile;
     ToggleButton m_GmshFile;

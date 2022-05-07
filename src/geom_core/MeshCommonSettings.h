@@ -256,6 +256,9 @@ public:
     BoolParm m_DrawElementOrientVecFlag;
     BoolParm m_XYZIntCurveFlag;
 
+    IntParm m_NodeOffset;
+    IntParm m_ElementOffset;
+
 protected:
 
     // These file names do not get written to file.  They are reset each time

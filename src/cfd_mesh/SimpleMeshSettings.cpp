@@ -260,6 +260,9 @@ SimpleFeaMeshSettings::SimpleFeaMeshSettings()
     m_DrawNodesFlag = false;
     m_DrawElementOrientVecFlag = false;
     m_XYZIntCurveFlag = false;
+
+    m_NodeOffset = 0;
+    m_ElementOffset = 0;
 }
 
 SimpleFeaMeshSettings::~SimpleFeaMeshSettings()
@@ -280,6 +283,9 @@ void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
     m_NumEvenlySpacedPart = settings->m_NumEvenlySpacedPart.Get();
     m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
     m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
+
+    m_NodeOffset = settings->m_NodeOffset.Get();
+    m_ElementOffset = settings->m_ElementOffset.Get();
 
     m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
 

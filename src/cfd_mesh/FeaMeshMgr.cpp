@@ -2233,7 +2233,10 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
 void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 {
-    // Create temporary file to store NASTRAN bulk data. Case control information (SETs) will be 
+    int noffset = m_StructSettings.m_NodeOffset;
+    int eoffset = m_StructSettings.m_ElementOffset;
+
+    // Create temporary file to store NASTRAN bulk data. Case control information (SETs) will be
     //  defined in the *_NASTRAN.dat file prior to the bulk data (elements, gridpoints, etc.)
     FILE* temp = std::tmpfile();
 
@@ -2281,7 +2284,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
-                            m_FeaNodeVec[j]->WriteNASTRAN( temp );
+                            m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                             grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                             max_grid_id = max( max_grid_id, m_FeaNodeVec[j]->m_Index );
                         }
@@ -2296,7 +2299,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                     {
                         if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( i ) )
                         {
-                            m_FeaNodeVec[j]->WriteNASTRAN( temp );
+                            m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                             grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                             max_grid_id = max( max_grid_id, m_FeaNodeVec[j]->m_Index );
                         }
@@ -2306,7 +2309,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
             // Write FEA part node set
             name = m_FeaPartNameVec[i] + "_Gridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name, noffset );
         }
 
         // SubSurface Nodes
@@ -2323,7 +2326,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
-                        m_FeaNodeVec[j]->WriteNASTRAN( temp );
+                        m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                         grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                         max_grid_id = max( max_grid_id, m_FeaNodeVec[j]->m_Index );
                     }
@@ -2332,7 +2335,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
             // Write subsurface node set
             name = m_SimpleSubSurfaceVec[i].GetName() + "_Gridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name, noffset );
         }
 
         // Intersection Nodes
@@ -2347,7 +2350,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             {
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
                 {
-                    m_FeaNodeVec[j]->WriteNASTRAN( temp );
+                    m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                     grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                     max_grid_id = max( max_grid_id, m_FeaNodeVec[j]->m_Index );
                 }
@@ -2356,7 +2359,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
         // Write intersection node set
         name = "Intersection_Gridpoints";
-        WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
+        WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name, noffset );
 
         //==== Remaining Nodes ====//
         fprintf( temp, "\n" );
@@ -2367,12 +2370,12 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
             if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->m_Tags.size() == 0 )
             {
-                m_FeaNodeVec[i]->WriteNASTRAN( temp );
+                m_FeaNodeVec[i]->WriteNASTRAN( temp, noffset );
             }
 
             // Write remaining node set
             name = "Remaining_Gridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name, noffset );
         }
 
         int elem_id = max_grid_id + 1; // First element ID begins after last gridpoint ID
@@ -2398,12 +2401,12 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                     {
                         if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
                         {
-                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id );
+                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
                             shell_elem_id_vec.push_back( elem_id );
                         }
                         else
                         {
-                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id );
+                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
                             beam_elem_id_vec.push_back( elem_id );
                         }
 
@@ -2413,11 +2416,11 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
                 // Write shell element set
                 name = m_FeaPartNameVec[i] + "_ShellElements";
-                WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name );
+                WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
 
                 // Write beam element set
                 name = m_FeaPartNameVec[i] + "_BeamElements";
-                WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name );
+                WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
             }
         }
 
@@ -2435,7 +2438,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 {
                     if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == m_FixPntFeaPartIndexMap[i][0] && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
-                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, -1 ); // property ID ignored for Point Masses
+                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, -1, noffset, eoffset ); // property ID ignored for Point Masses
                         mass_elem_id_vec.push_back( elem_id );
                         elem_id++;
                     }
@@ -2443,7 +2446,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
                 // Write mass element set
                 name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[i][0]] + "_MassElements";
-                WriteNASTRANSet( fp, nkey_fp, set_cnt, mass_elem_id_vec, name );
+                WriteNASTRANSet( fp, nkey_fp, set_cnt, mass_elem_id_vec, name, eoffset );
             }
         }
 
@@ -2465,12 +2468,12 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 {
                     if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
                     {
-                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id );
+                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
                         shell_elem_id_vec.push_back( elem_id );
                     }
                     else
                     {
-                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id );
+                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
                         beam_elem_id_vec.push_back( elem_id );
                     }
 
@@ -2480,11 +2483,11 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
             // Write shell element set
             name = m_SimpleSubSurfaceVec[i].GetName() + "_ShellElements";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name );
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
 
             // Write beam element set
             name = m_SimpleSubSurfaceVec[i].GetName() + "_BeamElements";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name );
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
         }
 
         //==== Properties ====//
@@ -2544,6 +2547,9 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
 void FeaMeshMgrSingleton::WriteCalculix()
 {
+    int noffset = m_StructSettings.m_NodeOffset;
+    int eoffset = m_StructSettings.m_ElementOffset;
+
     string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
@@ -2569,7 +2575,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
-                            m_FeaNodeVec[j]->WriteCalculix( fp );
+                            m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
                         }
                     }
                 }
@@ -2599,7 +2605,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                                  m_SurfVec[m_FeaElementVec[j]->GetSurfIndex()]->GetFeaPartSurfNum() == isurf )
                             {
                                 elem_id++;
-                                m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                                m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
                             }
                         }
                         fprintf( fp, "\n" );
@@ -2617,7 +2623,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                                  m_SurfVec[m_FeaElementVec[j]->GetSurfIndex()]->GetFeaPartSurfNum() == isurf )
                             {
                                 elem_id++;
-                                m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                                m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
                             }
                         }
 
@@ -2634,7 +2640,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                             {
                                 FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
                                 assert( beam );
-                                beam->WriteCalculixNormal( fp );
+                                beam->WriteCalculixNormal( fp, noffset, eoffset );
                             }
                         }
 
@@ -2658,7 +2664,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                          m_FeaNodeVec[j]->m_FixedPointFlag &&
                          m_FeaNodeVec[j]->HasTag( m_FixPntFeaPartIndexMap[i][0] ) )
                     {
-                        m_FeaNodeVec[j]->WriteCalculix( fp );
+                        m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
                     }
                 }
             }
@@ -2675,7 +2681,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                          m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
                         elem_id++;
-                        m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                        m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
                     }
                 }
 
@@ -2700,7 +2706,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
-                        m_FeaNodeVec[j]->WriteCalculix( fp );
+                        m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
                     }
                 }
             }
@@ -2724,7 +2730,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                              m_SurfVec[m_FeaElementVec[j]->GetSurfIndex()]->GetFeaPartSurfNum() == isurf )
                         {
                             elem_id++;
-                            m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                            m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
                         }
                     }
                     fprintf( fp, "\n" );
@@ -2743,7 +2749,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                              m_SurfVec[m_FeaElementVec[j]->GetSurfIndex()]->GetFeaPartSurfNum() == isurf )
                         {
                             elem_id++;
-                            m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                            m_FeaElementVec[j]->WriteCalculix( fp, elem_id, noffset, eoffset );
                         }
                     }
 
@@ -2759,7 +2765,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                         {
                             FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
                             assert( beam );
-                            beam->WriteCalculixNormal( fp );
+                            beam->WriteCalculixNormal( fp, noffset, eoffset );
                         }
                     }
 
@@ -2779,7 +2785,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
                     !m_FeaNodeVec[j]->m_FixedPointFlag )
                 {
-                    m_FeaNodeVec[j]->WriteCalculix( fp );
+                    m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
                 }
             }
         }
@@ -2793,7 +2799,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
             if ( m_PntShift[i] >= 0 &&
                  m_FeaNodeVec[i]->m_Tags.size() == 0 )
             {
-                m_FeaNodeVec[i]->WriteCalculix( fp );
+                m_FeaNodeVec[i]->WriteCalculix( fp, noffset );
             }
         }
 
@@ -2884,6 +2890,9 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
 void FeaMeshMgrSingleton::WriteGmsh()
 {
+    int noffset = m_StructSettings.m_NodeOffset;
+    int eoffset = m_StructSettings.m_ElementOffset;
+
     string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_GMSH_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
@@ -2925,7 +2934,7 @@ void FeaMeshMgrSingleton::WriteGmsh()
         {
             if ( m_PntShift[j] >= 0 )
             {
-                m_FeaNodeVec[j]->WriteGmsh( fp );
+                m_FeaNodeVec[j]->WriteGmsh( fp, noffset );
             }
         }
 
@@ -2943,7 +2952,7 @@ void FeaMeshMgrSingleton::WriteGmsh()
             {
                 if ( m_FeaElementVec[i]->GetFeaPartIndex() == j )
                 {
-                    m_FeaElementVec[i]->WriteGmsh( fp, ele_cnt, j + 1 );
+                    m_FeaElementVec[i]->WriteGmsh( fp, ele_cnt, j + 1, noffset, eoffset );
                     ele_cnt++;
                 }
             }
@@ -3532,7 +3541,7 @@ void FeaMeshMgrSingleton::UpdateDisplaySettings()
     }
 }
 
-void FeaMeshMgrSingleton::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string &set_name )
+void FeaMeshMgrSingleton::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string &set_name, const int &offset )
 {
     if ( set_ids.size() > 0 && Nastran_fid )
     {
@@ -3541,7 +3550,7 @@ void FeaMeshMgrSingleton::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, in
 
         for ( size_t i = 0; i < set_ids.size(); i++ )
         {
-            fprintf( Nastran_fid, "%d", set_ids[i] );
+            fprintf( Nastran_fid, "%d", set_ids[i] + offset );
 
             if ( i != set_ids.size() - 1 )
             {

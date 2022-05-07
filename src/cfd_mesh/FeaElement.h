@@ -47,9 +47,9 @@ public:
     bool HasOnlyTag( int ind );
     vector< int > m_Tags;
 
-    void WriteNASTRAN( FILE* fp );
-    void WriteCalculix( FILE* fp );
-    void WriteGmsh( FILE* fp );
+    void WriteNASTRAN( FILE* fp, int noffset );
+    void WriteCalculix( FILE* fp, int noffset );
+    void WriteGmsh( FILE* fp, int noffset );
 };
 
 class FeaElement
@@ -81,9 +81,9 @@ public:
     {
         m_SurfIndex = surf_index;
     }
-    virtual void WriteCalculix( FILE* fp, int id ) = 0;
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index ) = 0;
-    virtual void WriteGmsh( FILE* fp, int id , int fea_part_index ) = 0;
+    virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset ) = 0;
+    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset ) = 0;
+    virtual void WriteGmsh( FILE* fp, int id , int fea_part_index, int noffset, int eoffset ) = 0;
     virtual double ComputeMass( int property_index ) = 0;
 
     virtual int GetFeaSSIndex()
@@ -118,9 +118,9 @@ public:
     virtual ~FeaTri()    {};
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2 );
-    virtual void WriteCalculix( FILE* fp, int id );
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
-    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );
+    virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset );
+    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
+    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset );
     virtual double ComputeMass( int property_index );
 
     vec3d m_Orientation;
@@ -134,9 +134,9 @@ public:
     virtual ~FeaQuad()    {};
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3 );
-    virtual void WriteCalculix( FILE* fp, int id );
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
-    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );
+    virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset );
+    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
+    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset );
     virtual double ComputeMass( int property_index );
 };
 
@@ -148,10 +148,10 @@ public:
     virtual ~FeaBeam()    {};
 
     virtual void Create( vec3d & p0, vec3d & p1 , vec3d & norm );
-    virtual void WriteCalculix( FILE* fp, int id );
-    virtual void WriteCalculixNormal( FILE* fp );
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
-    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index );
+    virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset );
+    virtual void WriteCalculixNormal( FILE* fp, int noffset, int eoffset );
+    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
+    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset );
     virtual double ComputeMass( int property_index );
 
     vec3d m_DispVec; // Vector from end point in the displacement coordinate system at the end point
@@ -169,9 +169,9 @@ public:
     virtual ~FeaPointMass()    {};
 
     virtual void Create( vec3d & p0, double mass );
-    virtual void WriteCalculix( FILE* fp, int id );
-    virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
-    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index )    {};
+    virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset );
+    virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
+    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset )    {};
     virtual double ComputeMass( int property_index )    
     {
         return m_Mass;

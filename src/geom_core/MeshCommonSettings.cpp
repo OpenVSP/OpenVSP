@@ -464,6 +464,12 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_DrawElementOrientVecFlag.Init( "DrawElementOrientVecFlag", "StructSettings", this, false, false, true );
     m_DrawElementOrientVecFlag.SetDescript( "Flag to Draw FeaElement Orientation Vectors" );
 
+    m_NodeOffset.Init( "NodeOffset", "StructSettings", this, 0, 0, 1e12 );
+    m_NodeOffset.SetDescript( "Offset to add to FEA node ID's for this structure" );
+
+    m_ElementOffset.Init( "ElementOffset", "StructSettings", this, 0, 0, 1e12 );
+    m_ElementOffset.SetDescript( "Offset to add to FEA element ID's for this structure" );
+
     ResetExportFileNames();
 }
 

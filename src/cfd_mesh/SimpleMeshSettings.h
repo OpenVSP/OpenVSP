@@ -149,6 +149,9 @@ public:
     bool m_DrawNodesFlag;
     bool m_DrawElementOrientVecFlag;
 
+    int m_NodeOffset;
+    int m_ElementOffset;
+
 protected:
 
     vector < string > m_ExportFileNames;
