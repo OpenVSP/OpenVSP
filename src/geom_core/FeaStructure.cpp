@@ -979,7 +979,7 @@ void FeaPart::UpdateSymmIndex()
 
     if ( currgeom )
     {
-        m_SymmIndexVec = currgeom->GetSymmIndexs( m_MainSurfIndx() );
+        currgeom->GetSymmIndexs( m_MainSurfIndx(), m_SymmIndexVec );
 
         int ncopy = currgeom->GetNumSymmCopies();
 

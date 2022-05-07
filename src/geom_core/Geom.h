@@ -406,9 +406,12 @@ public:
     virtual double GetWMax( int indx ) const;
     virtual double GetMainWMax( int indx ) const;
 
-    virtual vector < int > & GetSymmIndexs( int imain )
+    virtual void GetSymmIndexs( int imain, vector < int > & symindexs )
     {
-        return m_SurfSymmMap[ imain ];
+        if ( imain >= 0 && imain < m_SurfSymmMap.size() )
+        {
+            symindexs = m_SurfSymmMap[ imain ];
+        }
     }
 
     virtual int GetMainSurfID( int surfnum )

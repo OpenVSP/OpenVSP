@@ -167,7 +167,9 @@ void SubSurface::UpdateDrawObjs()
 
             int isurf = m_MainSurfIndx();
 
-            vector < int > symms = geom->GetSymmIndexs( isurf );
+            vector < int > symms;
+            geom->GetSymmIndexs( isurf, symms );
+
             assert( ncopy == symms.size() );
 
             for ( int s = 0 ; s < ncopy ; s++ )
@@ -1885,7 +1887,9 @@ void SSControlSurf::UpdateDrawObjs()
 
         int isurf = m_MainSurfIndx();
 
-        vector < int > symms = geom->GetSymmIndexs( isurf );
+        vector < int > symms;
+        geom->GetSymmIndexs( isurf, symms );
+
         assert( ncopy == symms.size() );
 
         int npt = m_UWStart01.size();
