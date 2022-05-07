@@ -78,6 +78,8 @@ public:
 
     virtual double GetProjectionCosine();
 
+    virtual void GetSimpleBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir );
+
     virtual void GetBasis( double t, Matrix4d &basis );
     virtual void GetTanNormVec( double t, double theta, double phi, vec3d &tangent, vec3d &normal );
     virtual void GetTanNormCrv( const vector< double > &ts, const vector< double > &thetas,

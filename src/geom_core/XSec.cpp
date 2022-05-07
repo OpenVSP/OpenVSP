@@ -298,6 +298,20 @@ double XSec::GetProjectionCosine()
     return m_Transform.data()[ pdir * 5 ];
 }
 
+void XSec::GetSimpleBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir )
+{
+    Matrix4d basis;
+
+    // Get primary orientation of this XSecSurf
+    XSecSurf* xsecsurf = (XSecSurf*) GetParentContainerPtr();
+    xsecsurf->GetBasicTransformation( 0.0, basis );
+
+    // Transform primary orientation to orientation of this XSec
+    basis.postMult( GetTransform()->data() );
+
+    basis.getBasis( xdir, ydir, zdir );
+}
+
 void XSec::GetBasis( double t, Matrix4d &basis )
 {
     // Get primary orientation of this XSecSurf
