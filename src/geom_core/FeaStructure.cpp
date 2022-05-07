@@ -2041,15 +2041,11 @@ void FeaSpar::ComputePlanarSurf()
 
         double length_spar_0 = dist( inside_edge_pnt, outside_edge_pnt ) / 2; // Initial spar half length
 
-        // Find two points slightly above and below the trailing edge
-        double V_trail_edge_low = V_min + 2 * TMAGIC;
-        double V_trail_edge_up = V_max - 2 * TMAGIC;
+        vec3d foil_mid_up, foil_mid_low;
+        foil_mid_up = orig_surf.CompPnt01( u_mid, 0.75 );
+        foil_mid_low = orig_surf.CompPnt01( u_mid, 0.25 );
 
-        vec3d trail_edge_up, trail_edge_low;
-        trail_edge_up = orig_surf.CompPnt01( u_mid, V_trail_edge_low / V_max );
-        trail_edge_low = orig_surf.CompPnt01( u_mid, V_trail_edge_up / V_max );
-
-        vec3d wing_z_axis = trail_edge_up - trail_edge_low;
+        vec3d wing_z_axis = foil_mid_up - foil_mid_low;
         wing_z_axis.normalize();
 
         // Identify expansion 
