@@ -1244,10 +1244,9 @@ double Surf::GetWScale( double u01 )      // u 0->1
     return wscale;
 }
 
-bool Surf::ValidUW( vec2d & uw )
+bool Surf::ValidUW( vec2d & uw, double slop ) const
 {
     //return true;
-    double slop = 1.0e-4;
     if ( uw[0] < m_SurfCore.GetMinU() - slop )
     {
         return false;

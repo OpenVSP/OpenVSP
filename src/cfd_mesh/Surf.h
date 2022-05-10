@@ -181,7 +181,7 @@ public:
     double GetUScale( double w );
     double GetWScale( double u );
 
-    bool ValidUW( vec2d & uw );
+    bool ValidUW( vec2d & uw, double slop = 1.0e-4 ) const;
 
     bool BorderMatch( Surf* otherSurf );
 
