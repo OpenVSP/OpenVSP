@@ -679,9 +679,6 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                 FeaFixPoint* fixpnt = dynamic_cast<FeaFixPoint*>( fea_part_vec[i] );
                 assert( fixpnt );
 
-                // Identify which surface(s) the fixed point lies on while taking into consideration surface split suppression
-                fixpnt->IdentifySplitSurfIndex( m_StructSettings.m_HalfMeshFlag, fea_struct->GetUSuppress(), fea_struct->GetWSuppress() );
-
                 int part_index = fea_struct->GetFeaPartIndex( fea_part_vec[i] );
                 vector < vec3d > pnt_vec = fixpnt->GetPntVec();
                 vec2d uw = fixpnt->GetUW();
@@ -690,15 +687,14 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                 {
                     // Identify the surface index and coordinate points for the fixed point
                     vector < int > surf_index;
-                    surf_index.resize( fixpnt->m_SplitSurfIndex[j].size() );
-
-                    for ( size_t m = 0; m < fixpnt->m_SplitSurfIndex[j].size(); m++ )
+                    for ( size_t k = 0; k < m_SurfVec.size(); k++ )
                     {
-                        for ( size_t k = 0; k < m_SurfVec.size(); k++ )
+                        if ( m_SurfVec[k]->GetFeaPartIndex() == StructureMgr.GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) &&
+                             m_SurfVec[k]->GetFeaPartSurfNum() == j )
                         {
-                            if ( m_SurfVec[k]->GetSurfID() == fixpnt->m_SplitSurfIndex[j][m] && m_SurfVec[k]->GetFeaPartIndex() == StructureMgr.GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) )
+                            if ( m_SurfVec[k]->ValidUW( uw, 0.0 ) )
                             {
-                                surf_index[m] = k;
+                                surf_index.push_back( k );
                             }
                         }
                     }
