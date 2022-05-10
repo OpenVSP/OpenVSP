@@ -1306,6 +1306,7 @@ bool Mesh::SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw )
     double min_dist = FLT_MAX;
     Node* closest_node = NULL;
     double tol = m_GridDensity->m_MinLen;
+    tol = FLT_MAX;
 
     m_NumFixPointIter++;
 
