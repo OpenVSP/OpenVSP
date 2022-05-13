@@ -708,13 +708,13 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                         m_FixPointMassFlagMap[fix_pnt_cnt].push_back( fixpnt->m_FixPointMassFlag.Get() );
                         m_FixPointMassMap[fix_pnt_cnt].push_back( fixpnt->m_FixPointMass.Get() );
 
-                        if ( fixpnt->m_BorderFlag )
+                        if ( surf_index.size() > 1 )
                         {
                             m_FixPntBorderFlagMap[fix_pnt_cnt].push_back( BORDER_FIX_POINT );
                         }
                         else
                         {
-                            m_FixPntBorderFlagMap[fix_pnt_cnt].push_back( SURFACE_FIX_POINT );
+                            m_FixPntBorderFlagMap[fix_pnt_cnt].push_back( SURFACE_FIX_POINT ); // Possibly re-set in CheckFixPointIntersects()
                         }
                     }
                 }

@@ -3149,7 +3149,6 @@ FeaFixPoint::FeaFixPoint( const string& compID, const string& partID, int type )
 
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property
-    m_BorderFlag = false;
 }
 
 void FeaFixPoint::UpdateSurface()
