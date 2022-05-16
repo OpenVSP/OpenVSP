@@ -11,6 +11,7 @@
 #include "FeaPartEditScreen.h"
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
+#include "StlHelper.h"
 
 FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 475, "FEA Part Edit" )
 {
@@ -815,6 +816,34 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SliceArrayEditLayout.AddChoice( m_SliceArrayPropertyChoice, "Property" );
     m_SliceArrayEditLayout.AddChoice( m_SliceArrayCapPropertyChoice, "Cap Property" );
 
+
+    //==== FeaTrimPart ====//
+    m_GenLayout.AddSubGroupLayout( m_TrimEditLayout, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
+    m_TrimEditLayout.SetY( start_y );
+
+    m_TrimEditLayout.AddDividerBox( "Trim" );
+
+    m_TrimEditLayout.SetFitWidthFlag( true );
+    m_TrimEditLayout.SetSameLineFlag( false );
+
+
+    // Pointer for the widths of each column in the browser to support resizing
+    // Last column width must be 0
+    static int trim_part_col_widths[] = { m_TrimEditLayout.GetW()-100, 100, 0 }; // 2 columns
+
+    m_TrimPartBrowser = m_TrimEditLayout.AddColResizeBrowser( trim_part_col_widths, 2, 200 );
+    m_TrimPartBrowser->callback( staticScreenCB, this );
+
+    m_TrimEditLayout.AddChoice( m_TrimPartChoice, "Trim Part" );
+    m_TrimEditLayout.AddButton( m_FlipTrimDirButton, "Flip Dir" );
+
+
+    m_TrimEditLayout.SetFitWidthFlag( false );
+    m_TrimEditLayout.SetSameLineFlag( true );
+
+    m_TrimEditLayout.AddButton( m_AddTrimPartButton, "Add", m_TrimEditLayout.GetW() * 0.5 );
+    m_TrimEditLayout.AddButton( m_DeleteTrimPartButton, "Delete" );
+
     //=== SubSurfaces ===//
 
     //==== SSLine ====//
@@ -1219,6 +1248,8 @@ bool FeaPartEditScreen::Update()
 
         //==== Update FixPoint Parent Surf Choice ====//
         UpdateFixPointParentChoice();
+
+        UpdateTrimPartChoice();
 
         //===== FeaProperty Update =====//
         UpdateFeaPropertyChoice();
@@ -1719,6 +1750,14 @@ bool FeaPartEditScreen::Update()
                         }
 
                         FeaPartDispGroup( &m_SliceArrayEditLayout );
+                    }
+                    else if ( feaprt->GetType() == vsp::FEA_TRIM )
+                    {
+                        FeaPartTrim* trim = dynamic_cast<FeaPartTrim*>( feaprt );
+                        assert( trim );
+
+
+                        FeaPartDispGroup( &m_TrimEditLayout );
                     }
                     else
                     {
@@ -2239,6 +2278,61 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
+    else if ( device == &m_TrimPartChoice )
+    {
+        m_SelectedTrimPartChoice = m_TrimPartChoice.GetVal();
+        printf( "Trim Part Choice %d\n", m_SelectedTrimPartChoice );
+    }
+    else if ( device == &m_AddTrimPartButton )
+    {
+        printf( "Press Add\n" );
+
+        vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+        {
+            FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+
+            if ( feaprt && feaprt->GetType() == vsp::FEA_TRIM )
+            {
+                FeaPartTrim* trim = dynamic_cast<FeaPartTrim*>( feaprt );
+                assert( trim );
+
+                if ( trim )
+                {
+                    trim->AddTrimPart( m_TrimPartChoiceIDVec[ m_SelectedTrimPartChoice ] );
+                    m_ActiveTrimPartIndex = trim->m_TrimFeaPartIDVec.size() - 1;
+                    trim->Update();
+
+                    printf( "Add %d, %s\nNew active part %d\n", m_SelectedTrimPartChoice, m_TrimPartChoiceIDVec[ m_SelectedTrimPartChoice ].c_str(), m_ActiveTrimPartIndex );
+                }
+            }
+        }
+    }
+    else if ( device == &m_DeleteTrimPartButton )
+    {
+        printf( "Press Delete\n" );
+        vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+        {
+            FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+
+            if ( feaprt && feaprt->GetType() == vsp::FEA_TRIM )
+            {
+                FeaPartTrim* trim = dynamic_cast<FeaPartTrim*>( feaprt );
+                assert( trim );
+
+                if ( trim )
+                {
+                    printf( "Delete %d\n", m_ActiveTrimPartIndex );
+                    trim->DeleteTrimPart( m_ActiveTrimPartIndex );
+                    m_ActiveTrimPartIndex = -1;
+                    trim->Update();
+                }
+            }
+        }
+    }
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -2248,6 +2342,45 @@ void FeaPartEditScreen::CloseCallBack( Fl_Widget *w )
     assert( m_ScreenMgr );
 
     Hide();
+}
+
+void FeaPartEditScreen::CallBack( Fl_Widget* w )
+{
+    assert( m_ScreenMgr );
+
+    if ( w == m_TrimPartBrowser )
+    {
+        m_ActiveTrimPartIndex = m_TrimPartBrowser->value() - 2;
+
+        vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+        {
+            FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+
+            if ( feaprt && feaprt->GetType() == vsp::FEA_TRIM )
+            {
+                FeaPartTrim* trim = dynamic_cast<FeaPartTrim*>( feaprt );
+                assert( trim );
+
+                if ( trim )
+                {
+                    if ( m_ActiveTrimPartIndex >= 0 && m_ActiveTrimPartIndex < trim->m_TrimFeaPartIDVec.size() )
+                    {
+                        int selid = vector_find_val( m_TrimPartChoiceIDVec, trim->m_TrimFeaPartIDVec[ m_ActiveTrimPartIndex ] );
+
+                        if ( selid >= 0 && selid < m_TrimPartChoiceIDVec.size() )
+                        {
+                            m_SelectedTrimPartChoice = selid;
+                        }
+                    }
+                }
+            }
+        }
+
+        printf( "TrimPartBrowser %d\n", m_ActiveTrimPartIndex );
+    }
+
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void FeaPartEditScreen::UpdateFeaPropertyChoice()
@@ -2463,6 +2596,106 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
     }
 }
 
+void FeaPartEditScreen::UpdateTrimPartChoice()
+{
+    //==== FixPoint Parent Surf Choice ====//
+    m_TrimPartChoice.ClearItems();
+    m_TrimPartChoiceIDVec.clear();
+
+    int istruct = StructureMgr.GetCurrStructIndex();
+
+    if ( StructureMgr.ValidTotalFeaStructInd( istruct ) )
+    {
+        vector < FeaStructure * > structVec = StructureMgr.GetAllFeaStructs();
+        FeaStructure * fea_struct = structVec[ istruct ];
+        vector < FeaPart * > feaprt_vec = fea_struct->GetFeaPartVec(); // Does not include subsurfaces
+
+        // Loop over all parts in current structure
+        for ( size_t i = 0; i < feaprt_vec.size(); i++ )
+        {
+            if ( !fea_struct->FeaPartIsFixPoint( i ) &&
+                 !fea_struct->FeaPartIsArray( i ) &&
+                 !fea_struct->FeaPartIsTrim( i ) &&
+                 !fea_struct->FeaPartIsSkin( i ) ) // Possibly could be done differently
+            {
+                m_TrimPartChoice.AddItem( string( feaprt_vec[ i ]->GetName() ) );
+                m_TrimPartChoiceIDVec.push_back( feaprt_vec[ i ]->GetID() );
+            }
+        }
+
+        m_TrimPartChoice.UpdateItems();
+        m_TrimPartChoice.SetVal( m_SelectedTrimPartChoice );
+
+
+        int h_pos = m_TrimPartBrowser->hposition();
+        int v_pos = m_TrimPartBrowser->position();
+
+        m_TrimPartBrowser->clear();
+        m_TrimPartBrowser->column_char( ':' );
+        char str[256];
+        sprintf( str, "@b@.PART:@b@.FLIPDIR" );
+        m_TrimPartBrowser->add( str );
+
+        int ipart = StructureMgr.GetCurrPartIndex();
+        if (  ipart < fea_struct->NumFeaParts() )
+        {
+            FeaPart * feaprt = fea_struct->GetFeaPart( ipart ) ;
+
+            if ( feaprt )
+            {
+                FeaPartTrim * trim = dynamic_cast < FeaPartTrim* > ( feaprt );
+
+                if ( trim )
+                {
+                    vector < BoolParm* > flagvec = trim->m_FlipFlagVec;
+                    vector < string > partids = trim->m_TrimFeaPartIDVec;
+
+                    for ( int itrim = 0; itrim < partids.size(); itrim++ )
+                    {
+                        FeaPart* trim_feaprt = StructureMgr.GetFeaPart( partids[itrim] );
+
+                        if ( trim_feaprt )
+                        {
+                            string flagstr( " " );
+                            if ( flagvec[ itrim ]->Get())
+                            {
+                                flagstr = string( "X" );
+                            }
+
+                            sprintf( str, "%s:%s", trim_feaprt->GetName().c_str(), flagstr.c_str());
+                            m_TrimPartBrowser->add( str );
+                        }
+                        else
+                        {
+                            sprintf( str, "Unset: " );
+                            m_TrimPartBrowser->add( str );
+                        }
+                    }
+
+                    if ( m_ActiveTrimPartIndex >= 0 && m_ActiveTrimPartIndex < partids.size() )
+                    {
+                        m_TrimPartBrowser->select( m_ActiveTrimPartIndex + 2 );
+                    }
+
+                    if ( m_ActiveTrimPartIndex >= 0 && m_ActiveTrimPartIndex< trim->m_FlipFlagVec.size() )
+                    {
+                        printf( "Attempt to Update FlipTrimDirButton size %d index %d\n", trim->m_FlipFlagVec.size(), m_ActiveTrimPartIndex );
+
+                        // More traditional Update stuff.
+                        // trim->m_TrimFeaPartIDVec[ m_ActiveTrimPartIndex ] = m_TrimPartChoiceIDVec[ m_SelectedTrimPartChoice ];
+                        m_FlipTrimDirButton.Update( trim->m_FlipFlagVec[ m_ActiveTrimPartIndex ]->GetID());
+                    }
+                }
+            }
+        }
+
+        m_TrimPartBrowser->hposition( h_pos );
+        m_TrimPartBrowser->position( v_pos );
+
+
+    }
+}
+
 void FeaPartEditScreen::UpdatePerpendicularRibChoice()
 {
     //==== Perpendicular Rib Choice ====//
@@ -2552,6 +2785,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
     m_DomeEditLayout.Hide();
     m_RibArrayEditLayout.Hide();
     m_SliceArrayEditLayout.Hide();
+    m_TrimEditLayout.Hide();
 
     m_FeaSSLineGroup.Hide();
     m_FeaSSRecGroup.Hide();

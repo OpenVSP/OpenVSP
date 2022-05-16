@@ -1351,6 +1351,7 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_DOME ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB_ARRAY ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SLICE_ARRAY ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_TRIM ) );
 
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
@@ -1385,7 +1386,7 @@ void StructScreen::UpdateFeaPartChoice()
 
                     // Number of non-subsurface types.  Used as an offset when indexing m_FeaPartChoice, but needing
                     // to index into subsurface part types.
-                    m_NumFeaPartChoices = 7;
+                    m_NumFeaPartChoices = 8;
 
                     m_FeaPartChoice.UpdateItems();
 
@@ -2920,6 +2921,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 else if ( m_FeaPartChoice.GetVal() == vsp::FEA_SLICE_ARRAY )
                 {
                     feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_SLICE_ARRAY );
+                }
+                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_TRIM )
+                {
+                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_TRIM );
                 }
 
                 if ( feaprt )

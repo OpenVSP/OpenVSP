@@ -25,10 +25,17 @@ public:
     virtual void GuiDeviceCallBack( GuiDevice* device );
     virtual void CloseCallBack( Fl_Widget *w );
 
+    virtual void CallBack( Fl_Widget* w );
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( FeaPartEditScreen* )data )->CallBack( w );
+    }
+
     virtual void FeaPartDispGroup( GroupLayout* group );
     virtual void UpdateFeaPropertyChoice();
     virtual void UpdatePerpendicularRibChoice();
     virtual void UpdateFixPointParentChoice();
+    virtual void UpdateTrimPartChoice();
     virtual void SetFeaPartPropertyIndex( Choice* property_choice );
     virtual void SetCapPropertyIndex( Choice* property_choice );
     virtual void UpdateUnitLabels();
@@ -45,6 +52,7 @@ private:
     GroupLayout m_DomeEditLayout;
     GroupLayout m_RibArrayEditLayout;
     GroupLayout m_SliceArrayEditLayout;
+    GroupLayout m_TrimEditLayout;
     GroupLayout m_FeaSSLineGroup;
     GroupLayout m_FeaSSRecGroup;
     GroupLayout m_FeaSSEllGroup;
@@ -225,6 +233,19 @@ private:
     Choice m_SliceArrayPropertyChoice;
     Choice m_SliceArrayCapPropertyChoice;
     TriggerButton m_IndividualizeSliceArrayButton;
+
+    //===== Trim =====//
+
+    ColResizeBrowser* m_TrimPartBrowser;
+
+    vector < string > m_TrimPartChoiceIDVec;
+    Choice m_TrimPartChoice;
+    ToggleButton m_FlipTrimDirButton;
+    TriggerButton m_AddTrimPartButton;
+    TriggerButton m_DeleteTrimPartButton;
+
+    int m_ActiveTrimPartIndex;
+    int m_SelectedTrimPartChoice;
 
     //===== SubSurfaces =====//
 

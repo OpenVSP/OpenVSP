@@ -328,6 +328,7 @@ enum FEA_PART_TYPE { FEA_SLICE = 0,
                      FEA_DOME,
                      FEA_RIB_ARRAY,
                      FEA_SLICE_ARRAY,
+                     FEA_TRIM,
                      FEA_SKIN,
                      FEA_NUM_TYPES
                    };

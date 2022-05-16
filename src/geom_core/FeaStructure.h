@@ -75,6 +75,8 @@ public:
 
     bool FeaPartIsArray( int ind );
 
+    bool FeaPartIsSkin( int ind );
+    bool FeaPartIsTrim( int ind );
     bool FeaPartIsType( int ind, int type );
 
     void IndividualizeRibArray( int rib_array_ind );
@@ -383,6 +385,31 @@ protected:
     bool PlaneAtYZero( piecewise_surface_type & surface ) const;
     bool LessThanY( piecewise_surface_type & surface, double val ) const;
 
+};
+
+class FeaPartTrim : public FeaPart
+{
+public:
+
+    FeaPartTrim( const string& geomID, int type = vsp::FEA_TRIM );
+    virtual ~FeaPartTrim();
+
+    virtual void UpdateSurface();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void UpdateDrawObjs();
+    virtual void SetDrawObjHighlight ( bool highlight );
+
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
+
+    virtual void AddTrimPart( string partID );
+    virtual void DeleteTrimPart( int indx );
+    virtual void RenameParms();
+
+    vector < BoolParm* > m_FlipFlagVec;
+    vector < string > m_TrimFeaPartIDVec;
 };
 
 class FeaSkin : public FeaPart

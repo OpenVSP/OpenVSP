@@ -242,6 +242,11 @@ FeaPart* FeaStructure::AddFeaPart( int type )
         feaprt = new FeaSliceArray( m_ParentGeomID );
         feaprt->SetName( string( "SliceArray" + std::to_string( m_FeaPartCount ) ) );
     }
+    else if ( type == vsp::FEA_TRIM )
+    {
+        feaprt = new FeaPartTrim( m_ParentGeomID );
+        feaprt->SetName( string( "Trim" + std::to_string( m_FeaPartCount ) ) );
+    }
 
     if ( feaprt )
     {
@@ -483,7 +488,18 @@ void FeaStructure::UpdateFeaParts()
 {
     for ( unsigned int i = 0; i < m_FeaPartVec.size(); i++ )
     {
-        m_FeaPartVec[i]->Update();
+        if ( !FeaPartIsTrim( i ) && !FeaPartIsFixPoint( i ) ) // Update all normal parts first.
+        {
+            m_FeaPartVec[ i ]->Update();
+        }
+    }
+
+    for ( unsigned int i = 0; i < m_FeaPartVec.size(); i++ )
+    {
+        if ( FeaPartIsTrim( i ) || FeaPartIsFixPoint( i ) ) // Update all trim and fix point parts on second pass.
+        {
+            m_FeaPartVec[i]->Update();
+        }
     }
 }
 
@@ -567,6 +583,16 @@ int FeaStructure::GetNumFeaFixPoints()
 bool FeaStructure::FeaPartIsArray( int ind )
 {
     return FeaPartIsType( ind, vsp::FEA_RIB_ARRAY ) || FeaPartIsType( ind, vsp::FEA_SLICE_ARRAY );
+}
+
+bool FeaStructure::FeaPartIsSkin( int ind )
+{
+    return FeaPartIsType( ind, vsp::FEA_SKIN );
+}
+
+bool FeaStructure::FeaPartIsTrim( int ind )
+{
+    return FeaPartIsType( ind, vsp::FEA_TRIM );
 }
 
 bool FeaStructure::FeaPartIsType( int ind, int type )
@@ -888,6 +914,8 @@ FeaPart::~FeaPart()
 
 void FeaPart::Update()
 {
+    m_LateUpdateFlag = false;
+
     UpdateSurface();
 
     UpdateFlags();
@@ -1133,6 +1161,10 @@ string FeaPart::GetTypeName( int type )
     if ( type == vsp::FEA_SLICE_ARRAY )
     {
         return string( "Slice_Array" );
+    }
+    if ( type == vsp::FEA_TRIM )
+    {
+        return string( "Trim" );
     }
 
     return string( "NONE" );
@@ -3332,6 +3364,199 @@ void FeaFixPoint::SetDrawObjHighlight( bool highlight )
 bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
 {
     return false;
+}
+
+////////////////////////////////////////////////////
+//================= FeaPartTrim ==================//
+////////////////////////////////////////////////////
+
+FeaPartTrim::FeaPartTrim( const string& geomID, int type ) : FeaPart( geomID, type )
+{
+
+
+    m_FeaPropertyIndex = -1; // No property
+    m_CapFeaPropertyIndex = -1; // No property
+}
+
+FeaPartTrim::~FeaPartTrim()
+{
+    for ( int i = 0; i < m_FlipFlagVec.size(); i++ )
+    {
+        delete m_FlipFlagVec[i];
+    }
+    m_FlipFlagVec.clear();
+}
+
+void FeaPartTrim::UpdateSurface()
+{
+    m_MainFeaPartSurfVec.clear(); // FeaFixPoints are not a VspSurf
+}
+
+xmlNodePtr FeaPartTrim::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr fea_prt_node = FeaPart::EncodeXml( node );
+
+    if ( fea_prt_node )
+    {
+
+    }
+
+    return fea_prt_node;
+}
+
+xmlNodePtr FeaPartTrim::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr fea_prt_node = FeaPart::DecodeXml( node );
+
+    if ( fea_prt_node )
+    {
+
+    }
+
+    return fea_prt_node;
+}
+
+void FeaPartTrim::UpdateDrawObjs()
+{
+    double axlen = 1.0;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        axlen = veh->m_AxisLength();
+    }
+
+    DrawObj arrowHeadDO;
+    DrawObj arrowLineDO;
+
+    for ( unsigned int ipart = 0; ipart < m_TrimFeaPartIDVec.size(); ipart++ )
+    {
+        FeaPart* parent_part = StructureMgr.GetFeaPart( m_TrimFeaPartIDVec[ipart] );
+
+        if ( parent_part )
+        {
+            vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
+
+            for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
+            {
+                VspSurf s = parent_surf_vec[i];
+
+                vec3d cen = s.CompPnt01( 0.5, 0.5 );
+                vec3d dir = s.CompNorm01( 0.5, 0.5 );
+
+                if ( m_FlipFlagVec[ipart]->Get() )
+                {
+                    dir = -1.0 * dir;
+                }
+
+                arrowLineDO.m_PntVec.push_back( cen );
+                arrowLineDO.m_PntVec.push_back( cen + dir * axlen );
+
+                MakeArrowhead( cen + dir * axlen, dir, 0.25 * axlen, arrowHeadDO.m_PntVec );
+
+            }
+        }
+    }
+
+    arrowHeadDO.m_GeomID = m_ID + "Arrows";
+    arrowHeadDO.m_LineWidth = 1.0;
+    arrowHeadDO.m_Type = DrawObj::VSP_SHADED_TRIS;
+    arrowHeadDO.m_NormVec = vector <vec3d> ( arrowHeadDO.m_PntVec.size() );
+
+    for ( int i = 0; i < 3; i++ )
+    {
+        arrowHeadDO.m_MaterialInfo.Ambient[i] = 0.2f;
+        arrowHeadDO.m_MaterialInfo.Diffuse[i] = 0.1f;
+        arrowHeadDO.m_MaterialInfo.Specular[i] = 0.7f;
+        arrowHeadDO.m_MaterialInfo.Emission[i] = 0.0f;
+    }
+    arrowHeadDO.m_MaterialInfo.Diffuse[3] = 0.5;
+    arrowHeadDO.m_MaterialInfo.Shininess = 5.0;
+
+
+    arrowLineDO.m_GeomID = m_ID + "ALines";
+    arrowLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    arrowLineDO.m_LineWidth = 2.0;
+    arrowLineDO.m_LineColor = vec3d( 0, 0, 0 );
+    arrowLineDO.m_Type = DrawObj::VSP_LINES;
+
+    arrowLineDO.m_GeomChanged = true;
+    arrowHeadDO.m_GeomChanged = true;
+
+    m_FeaPartDO.clear();
+    m_FeaPartDO.push_back( arrowHeadDO );
+    m_FeaPartDO.push_back( arrowLineDO );
+}
+
+void FeaPartTrim::SetDrawObjHighlight( bool highlight )
+{
+    if ( highlight )
+    {
+        for ( unsigned int j = 0; j < m_FeaPartDO.size(); j++ )
+        {
+            m_FeaPartDO[j].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+            m_FeaPartDO[j].m_MaterialInfo.Ambient[0] = 1.0;
+        }
+    }
+    else
+    {
+        for ( unsigned int j = 0; j < m_FeaPartDO.size(); j++ )
+        {
+            m_FeaPartDO[j].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+            m_FeaPartDO[j].m_MaterialInfo.Ambient[0] = 0.2;
+        }
+    }
+}
+
+bool FeaPartTrim::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind )
+{
+    return false;
+}
+
+void FeaPartTrim::AddTrimPart( string partID )
+{
+    BoolParm* bp = dynamic_cast<BoolParm*>( ParmMgr.CreateParm( vsp::PARM_BOOL_TYPE ) );
+    if ( bp )
+    {
+        int i = (int)m_FlipFlagVec.size();
+        char str[15];
+        sprintf( str, "FlipFlag_%d", i );
+        bp->Init( string( str ), "FeaPartTrim", this, false, false, true );
+        bp->SetDescript( "Trim direction flip flag" );
+        m_FlipFlagVec.push_back( bp );
+
+    }
+
+    m_TrimFeaPartIDVec.push_back( partID );
+
+    m_LateUpdateFlag = true;
+    ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+}
+
+void FeaPartTrim::DeleteTrimPart( int indx )
+{
+    if ( indx >= 0 && indx < m_FlipFlagVec.size() )
+    {
+        delete m_FlipFlagVec[ indx ];
+        m_FlipFlagVec.erase( m_FlipFlagVec.begin() + indx );
+
+        m_TrimFeaPartIDVec.erase( m_TrimFeaPartIDVec.begin() + indx );
+
+        RenameParms();
+
+        m_LateUpdateFlag = true;
+        ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+    }
+}
+
+void FeaPartTrim::RenameParms()
+{
+    for ( int i = 0; i < m_FlipFlagVec.size(); i++ )
+    {
+        char str[255];
+        sprintf( str, "FlipFlag_%d", i );
+        m_FlipFlagVec[i]->SetName( string( str ) );
+    }
 }
 
 ////////////////////////////////////////////////////
