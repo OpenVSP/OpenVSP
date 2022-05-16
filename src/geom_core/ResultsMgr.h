@@ -227,7 +227,7 @@ public:
 
     const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
     const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );
-    const vector<vector<double>> & GetDoubleMatResults( const string & id, const string & name, int index = 0 );
+    const vector<vector<double> > & GetDoubleMatResults( const string & id, const string & name, int index = 0 );
     const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );
     const vector<vec3d> & GetVec3dResults( const string & id, const string & name, int index = 0 );
     time_t GetResultsTimestamp( const string & results_id );
