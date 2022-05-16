@@ -75,6 +75,8 @@ public:
 
     bool FeaPartIsArray( int ind );
 
+    bool FeaPartIsType( int ind, int type );
+
     void IndividualizeRibArray( int rib_array_ind );
     void IndividualizeSliceArray( int slice_array_ind );
     void IndividualizeSSLineArray( int ssline_array_ind );

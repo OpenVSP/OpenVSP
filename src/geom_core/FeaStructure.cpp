@@ -547,16 +547,7 @@ string FeaStructure::GetFeaPartName( int ind )
 
 bool FeaStructure::FeaPartIsFixPoint( int ind )
 {
-    FeaPart* fea_part = GetFeaPart( ind );
-
-    if ( fea_part )
-    {
-        if ( fea_part->GetType() == vsp::FEA_FIX_POINT )
-        {
-            return true;
-        }
-    }
-    return false;
+    return FeaPartIsType( ind, vsp::FEA_FIX_POINT );
 }
 
 int FeaStructure::GetNumFeaFixPoints()
@@ -575,11 +566,16 @@ int FeaStructure::GetNumFeaFixPoints()
 
 bool FeaStructure::FeaPartIsArray( int ind )
 {
+    return FeaPartIsType( ind, vsp::FEA_RIB_ARRAY ) || FeaPartIsType( ind, vsp::FEA_SLICE_ARRAY );
+}
+
+bool FeaStructure::FeaPartIsType( int ind, int type )
+{
     FeaPart* fea_part = GetFeaPart( ind );
 
     if ( fea_part )
     {
-        if ( fea_part->GetType() == vsp::FEA_RIB_ARRAY || fea_part->GetType() == vsp::FEA_SLICE_ARRAY )
+        if ( fea_part->GetType() == type )
         {
             return true;
         }
