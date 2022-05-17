@@ -337,7 +337,10 @@ void FeaStructure::RecolorFeaSubSurfs( vector < int > active_ind_vec )
 
     for ( size_t j = 0; j < active_ind_vec.size(); j++ )
     {
-        m_FeaSubSurfVec[active_ind_vec[j]]->SetLineColor( vec3d( 1, 0, 0 ) );
+        if ( active_ind_vec[j] < m_FeaSubSurfVec.size() )
+        {
+            m_FeaSubSurfVec[active_ind_vec[j]]->SetLineColor( vec3d( 1, 0, 0 ) );
+        }
     }
 }
 
