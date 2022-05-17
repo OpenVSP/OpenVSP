@@ -52,10 +52,6 @@
 #if !defined(CfdMeshMgr_CfdMeshMgr__INCLUDED_)
 #define CfdMeshMgr_CfdMeshMgr__INCLUDED_
 
-//#ifndef DEBUG_CFD_MESH
-//#define DEBUG_CFD_MESH
-//#endif
-
 #include "Surf.h"
 #include "Mesh.h"
 #include "SCurve.h"

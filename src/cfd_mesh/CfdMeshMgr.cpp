@@ -13,7 +13,9 @@
 #include "MeshAnalysis.h"
 
 #ifdef DEBUG_CFD_MESH
-#include <direct.h>
+// #include <direct.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #endif
 
 
@@ -26,14 +28,6 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : SurfaceIntersectionSingleton()
     m_MeshInProgress = false;
 
     m_MessageName = "CFDMessage";
-
-#ifdef DEBUG_CFD_MESH
-    m_DebugDir  = Stringc( "MeshDebug/" );
-    _mkdir( m_DebugDir.get_char_star() );
-    m_DebugFile = fopen( "MeshDebug/log.txt", "w" );
-    m_DebugDraw = false;
-#endif
-
 }
 
 CfdMeshMgrSingleton::~CfdMeshMgrSingleton()
@@ -111,8 +105,8 @@ void CfdMeshMgrSingleton::GenerateMesh()
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
     //addOutputText( "Triangle Quality\n");
-    //Stringc qual = CfdMeshMgr.GetQualString();
-    //addOutputText( qual.get_char_star() );
+    //string qual = CfdMeshMgr.GetQualString();
+    //addOutputText( qual.c_str() );
 
     SubSurfaceMgr.BuildSingleTagMap();
 

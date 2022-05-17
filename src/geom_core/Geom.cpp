@@ -3107,8 +3107,8 @@ void Geom::ReadV2File( xmlNodePtr &root )
     {
         xmlNodePtr tex_node = XmlUtil::GetNode( root, "Applied_Texture", i );
 
-        apptex.nameStr = Stringc( XmlUtil::FindString( tex_node, "Name", "Default_Name" ) );
-        apptex.texStr  = Stringc( XmlUtil::FindString( tex_node, "Texture_Name", "Default_Name" ) );
+        apptex.nameStr = string( XmlUtil::FindString( tex_node, "Name", "Default_Name" ) );
+        apptex.texStr  = string( XmlUtil::FindString( tex_node, "Texture_Name", "Default_Name" ) );
         apptex.allSurfFlag  = !!XmlUtil::FindInt( tex_node, "All_Surf_Flag", 0 );
         apptex.surfID  = XmlUtil::FindInt( tex_node, "Surf_ID", 0 );
         apptex.u  = XmlUtil::FindDouble( tex_node, "U", 0.5 );

@@ -18,7 +18,9 @@
 #include "MeshAnalysis.h"
 
 #ifdef DEBUG_CFD_MESH
-#include <direct.h>
+// #include <direct.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #endif
 
 
@@ -387,8 +389,8 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
     m_MessageName = "SurfIntersectMessage";
 
 #ifdef DEBUG_CFD_MESH
-    m_DebugDir  = Stringc( "MeshDebug/" );
-    _mkdir( m_DebugDir.get_char_star() );
+    m_DebugDir  = string( "MeshDebug/" );
+    mkdir( m_DebugDir.c_str(), 0777 );
     m_DebugFile = fopen( "MeshDebug/log.txt", "w" );
     m_DebugDraw = false;
 #endif
@@ -868,7 +870,7 @@ void SurfaceIntersectionSingleton::BuildGrid()
     WakeMgr.AppendWakeSurfs( m_SurfVec );
 
 #ifdef DEBUG_CFD_MESH
-    fprintf( m_DebugFile, "CfdMeshMgr::BuildGrid \n" );
+    fprintf( m_DebugFile, "SurfaceIntersectionSingleton::BuildGrid \n" );
     fprintf( m_DebugFile, "  Num unmatched SCurves = %d \n", num_unmatched );
 
     for ( i = 0 ; i < ( int )m_ICurveVec.size() ; i++ )
@@ -2437,7 +2439,7 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
     }
 
 #ifdef DEBUG_CFD_MESH
-    fprintf( m_DebugFile, "CfdMeshMgr::LoadBorderCurves \n" );
+    fprintf( m_DebugFile, "SurfaceIntersectionSingleton::LoadBorderCurves \n" );
     fprintf( m_DebugFile, "   Total Num Chains = %zu \n", m_ISegChainList.size() );
 
     list< ISegChain* >::iterator c;

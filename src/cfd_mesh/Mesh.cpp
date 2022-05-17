@@ -1517,7 +1517,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
 #ifdef DEBUG_CFD_MESH
     static int namecnt = 0;
-    sprintf( str, "%sMesh_UW%d.dat", cfdMeshMgrPtr->m_DebugDir.get_char_star(), namecnt );
+    sprintf( str, "%sMesh_UW%d.dat", cfdMeshMgrPtr->m_DebugDir.c_str(), namecnt );
 
     FILE* fp = fopen( str, "w" );
     for ( i = 0 ; i < num_edges ; i++ )
@@ -1631,7 +1631,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     if ( tristatus != TRI_OK ) printf( "triangle_mesh_create Error\n" );
 
 #ifdef DEBUG_CFD_MESH
-    sprintf( str, "%sUWTriMeshOut%d.dat", cfdMeshMgrPtr->m_DebugDir.get_char_star(), namecnt );
+    sprintf( str, "%sUWTriMeshOut%d.dat", cfdMeshMgrPtr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
     for ( i = 0 ; i < out.numberoftriangles ; i++ )
     {

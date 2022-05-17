@@ -325,7 +325,7 @@ public:
 
 #ifdef DEBUG_CFD_MESH
     FILE* m_DebugFile;
-    Stringc m_DebugDir;
+    string m_DebugDir;
 
     bool m_DebugDraw;
     vector< vector< vec3d > > m_DebugCurves;

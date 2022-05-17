@@ -866,12 +866,8 @@ bool ISegChain::AddBorderSplit( Puw* uw )
     }
     if ( closest_dist < 0.1 )
     {
-        fprintf( CfdMeshMgr.m_DebugFile, "  Closest_Dist = %12.10f UW =  %12.10f\n",
-                 closest_dist, closest_uw_dist );
-
+        fprintf( CfdMeshMgr.m_DebugFile, "  Closest_Dist = %12.10f\n", closest_dist );
     }
-
-
 #endif
 
 }
