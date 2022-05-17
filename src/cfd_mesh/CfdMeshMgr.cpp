@@ -2240,13 +2240,13 @@ void CfdMeshMgrSingleton::InitMesh( )
 
     if ( PrintProgress )
     {
-        printf( "MatchWakes\n" );
+        addOutputText( "MatchWakes\n" );
     }
     MatchWakes();
 
     if ( PrintProgress )
     {
-        printf( "TessellateChains\n" );
+        addOutputText( "TessellateChains\n" );
     }
     TessellateChains();
 
@@ -2254,7 +2254,7 @@ void CfdMeshMgrSingleton::InitMesh( )
 
     if ( PrintProgress )
     {
-        printf( "MergeBorderEndPoints\n" );
+        addOutputText( "MergeBorderEndPoints\n" );
     }
     MergeBorderEndPoints();
 
@@ -2262,25 +2262,25 @@ void CfdMeshMgrSingleton::InitMesh( )
 
     if ( PrintProgress )
     {
-        printf( "BuildMesh\n" );
+        addOutputText( "BuildMesh\n" );
     }
     BuildMesh();
 
     if ( PrintProgress )
     {
-        printf( "RemoveInteriorTris\n" );
+        addOutputText( "RemoveInteriorTris\n" );
     }
     RemoveInteriorTris();
 
     if ( PrintProgress )
     {
-        printf( "RemoveTrimTris\n" );
+        addOutputText( "RemoveTrimTris\n" );
     }
     RemoveTrimTris();
 
     if ( PrintProgress )
     {
-        printf( "ConnectBorderEdges\n" );
+        addOutputText( "ConnectBorderEdges\n" );
     }
     ConnectBorderEdges( false );        // No Wakes
     ConnectBorderEdges( true );         // Only Wakes
