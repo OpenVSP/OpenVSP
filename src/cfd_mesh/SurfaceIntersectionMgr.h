@@ -219,7 +219,7 @@ public:
     virtual void TransferSubSurfData();
     virtual vector < SimpleSubSurface > GetSimpSubSurfs( string geom_id, int surfnum, int comp_id );
 
-    void addOutputText( const string &str, int output_type = VOCAL_OUTPUT );
+    void addOutputText( string str, int output_type = VOCAL_OUTPUT );
 
 //  virtual void Draw();
 //  virtual void Draw_BBox( BndBox box );

@@ -23,6 +23,9 @@
 #include <sys/types.h>
 #endif
 
+#ifdef DEBUG_CFD_MESH
+#define DEBUG_TIME_OUTPUT
+#endif
 
 //=============================================================//
 Wake::Wake()
@@ -625,10 +628,18 @@ vector< SimpleSubSurface > SurfaceIntersectionSingleton::GetSimpSubSurfs( string
     return ret_vec;
 }
 
-void SurfaceIntersectionSingleton::addOutputText( const string &str, int output_type )
+void SurfaceIntersectionSingleton::addOutputText( string str, int output_type )
 {
     if ( output_type != QUIET_OUTPUT )
     {
+#ifdef DEBUG_TIME_OUTPUT
+        static auto tprev = std::chrono::high_resolution_clock::now();
+        auto tnow = std::chrono::high_resolution_clock::now();
+        char buf[256];
+        sprintf( buf, " %.3f ms\n", std::chrono::duration_cast< std::chrono::microseconds >( tnow - tprev ).count() / 1000.0 );
+        tprev = tnow;
+        str.insert( 0, buf );
+#endif
 
         MessageData data;
         data.m_String = m_MessageName;
