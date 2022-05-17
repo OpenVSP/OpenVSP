@@ -165,7 +165,9 @@ public:
     virtual ~FeaPart();
 
     virtual void Update();
+    virtual void UpdateFlags();
     virtual void UpdateSurface() = 0;
+    virtual void UpdateOrientation();
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
@@ -221,6 +223,7 @@ public:
     Parm m_RelCenterLocation;
     IntParm m_FeaPropertyIndex;
     IntParm m_CapFeaPropertyIndex;
+    IntParm m_OrientationType;
 
 protected:
 

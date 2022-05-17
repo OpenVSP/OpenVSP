@@ -860,6 +860,9 @@ FeaPart::FeaPart( const string& geomID, int type )
     m_IncludedElements.Init( "IncludedElements", "FeaPart", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_SHELL_AND_BEAM );
     m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the FeaPart" );
 
+    m_OrientationType.Init( "Orientation", "FeaPart", this, vsp::FEA_ORIENT_PART_U, vsp::FEA_ORIENT_GLOBAL_X, vsp::FEA_NUM_ORIENT_TYPES - 1 );
+    m_OrientationType.SetDescript( "Part material orientation type" );
+
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaPart", this, true, false, true );
     m_DrawFeaPartFlag.SetDescript( "Flag to Draw FeaPart" );
 
@@ -890,6 +893,8 @@ void FeaPart::Update()
 
     UpdateFlags();
 
+    UpdateOrientation();
+
     UpdateSymmParts();
 
     UpdateDrawObjs();
@@ -914,6 +919,83 @@ void FeaPart::UpdateFlags()
                 m_MainFeaPartSurfVec[ i ].SetSurfCfdType( vsp::CFD_STIFFENER );
             }
         }
+    }
+}
+
+// Compute the part material orientation after main surface creation, before symmetric surfacecopy and transformations
+// and certainly before a mesh has been created.  Consequently, we do not know the U, V coordinates of element centers
+// required to find the local directions used by NASTRAN in some cases.  Instead, in all cases, we will
+// calculate the part-constant direction used by CalculiX.  This will get transformed as symmetric copies are made.
+void FeaPart::UpdateOrientation()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    Geom *parent_geom = veh->FindGeom( m_ParentGeomID );
+
+    if ( !parent_geom )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < m_MainFeaPartSurfVec.size(); i++ )
+    {
+        vec3d orient;
+        if ( m_OrientationType() == vsp::FEA_ORIENT_GLOBAL_X ||
+             m_OrientationType() == vsp::FEA_ORIENT_GLOBAL_Y ||
+             m_OrientationType() == vsp::FEA_ORIENT_GLOBAL_Z )
+        {
+            orient = vec3d( 0, 0, 0 );
+        }
+        else if ( m_OrientationType() == vsp::FEA_ORIENT_COMP_X )
+        {
+            orient = vec3d( 1.0, 0, 0 );
+            Matrix4d model_matrix = parent_geom->getModelMatrix();
+            orient = model_matrix.xformnorm( orient );
+        }
+        else if ( m_OrientationType() == vsp::FEA_ORIENT_COMP_Y )
+        {
+            orient = vec3d( 0, 1.0, 0 );
+            Matrix4d model_matrix = parent_geom->getModelMatrix();
+            orient = model_matrix.xformnorm( orient );
+        }
+        else if ( m_OrientationType() == vsp::FEA_ORIENT_COMP_Z )
+        {
+            orient = vec3d( 0, 0, 1.0 );
+            Matrix4d model_matrix = parent_geom->getModelMatrix();
+            orient = model_matrix.xformnorm( orient );
+        }
+        else if ( m_OrientationType() == vsp::FEA_ORIENT_OML_R ||
+                  m_OrientationType() == vsp::FEA_ORIENT_OML_U ||
+                ( m_OrientationType() == vsp::FEA_ORIENT_PART_U && GetType() == vsp::FEA_SKIN ) )
+        {
+            orient = parent_geom->CompTanR( m_MainSurfIndx, 0.5, 0.25, 0.5 );
+        }
+        else if ( m_OrientationType() == vsp::FEA_ORIENT_OML_S ||
+                  m_OrientationType() == vsp::FEA_ORIENT_OML_V ||
+                ( m_OrientationType() == vsp::FEA_ORIENT_PART_V && GetType() == vsp::FEA_SKIN ) )
+        {
+            orient = parent_geom->CompTanS( m_MainSurfIndx, 0.5, 0.25, 0.5 );
+        }
+        else if ( m_OrientationType() == vsp::FEA_ORIENT_OML_T )
+        {
+            orient = parent_geom->CompTanT( m_MainSurfIndx, 0.5, 0.25, 0.5 );
+        }
+        else if ( m_OrientationType() == vsp::FEA_ORIENT_PART_U )
+        {
+            orient = m_MainFeaPartSurfVec[ i ].CompTanU01( 0.5, 0.5 );
+        }
+        else if ( m_OrientationType() == vsp::FEA_ORIENT_PART_V )
+        {
+            orient = m_MainFeaPartSurfVec[ i ].CompTanW01( 0.5, 0.5 );
+        }
+
+        orient.normalize();
+        m_MainFeaPartSurfVec[ i ].SetFeaOrientation( m_OrientationType(), orient );
     }
 }
 
