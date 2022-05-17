@@ -47,6 +47,10 @@ void CfdMeshMgrSingleton::GenerateMesh()
 {
     m_MeshInProgress = true;
 
+#ifdef DEBUG_TIME_OUTPUT
+    addOutputText( "Init Timer\n" );
+#endif
+
     TransferMeshSettings();
 
     addOutputText( "Fetching Bezier Surfaces\n" );

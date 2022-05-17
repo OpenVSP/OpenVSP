@@ -286,6 +286,10 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 {
     m_FeaMeshInProgress = true;
 
+#ifdef DEBUG_TIME_OUTPUT
+    addOutputText( "Init Timer\n" );
+#endif
+
     TransferMeshSettings();
 
     addOutputText( "Load Surfaces\n" );
