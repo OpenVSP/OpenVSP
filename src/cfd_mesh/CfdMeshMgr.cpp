@@ -2266,6 +2266,12 @@ void CfdMeshMgrSingleton::InitMesh( )
 
     if ( PrintProgress )
     {
+        printf( "RemoveTrimTris\n" );
+    }
+    RemoveTrimTris();
+
+    if ( PrintProgress )
+    {
         printf( "ConnectBorderEdges\n" );
     }
     ConnectBorderEdges( false );        // No Wakes

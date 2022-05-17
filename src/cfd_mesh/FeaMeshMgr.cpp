@@ -325,6 +325,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     AddStructureFixPoints();
 
+    AddStructureTrimPlanes();
+
     IdentifyCompIDNames();
 
     // TODO: Update and Build Domain for Half Mesh?
@@ -637,7 +639,9 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
         //===== Add FeaParts ====//
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
         {
-            if ( !fea_struct->FeaPartIsFixPoint( i ) && fea_part_vec[i]->GetType() != vsp::FEA_SKIN )
+            if ( !fea_struct->FeaPartIsFixPoint( i ) &&
+                 !fea_struct->FeaPartIsSkin( i ) &&
+                 !fea_struct->FeaPartIsTrim( i ) )
             {
                 int part_index = fea_struct->GetFeaPartIndex( fea_part_vec[i] );
                 vector< XferSurf > partxfersurfs;
@@ -721,6 +725,63 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                 fix_pnt_cnt++;
             }
         }
+    }
+}
+
+void FeaMeshMgrSingleton::AddStructureTrimPlanes()
+{
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+
+    if ( fea_struct )
+    {
+        fea_struct->FetchAllTrimPlanes( m_TrimPt, m_TrimNorm );
+    }
+}
+
+bool FeaMeshMgrSingleton::CullPtByTrimGroup( const vec3d &pt, const vector < vec3d > & pplane, const vector < vec3d > & nplane )
+{
+    bool cull = true;
+
+    // Number of planes in this trim group.
+    int numplane = pplane.size();
+    for ( int iplane = 0; iplane < numplane; iplane++ )
+    {
+        vec3d u = pt - pplane[ iplane ];
+        double dp = dot( u, nplane[ iplane ] );
+        if ( dp < 1e-4 )
+        {
+            cull = false;
+        }
+    }
+    return cull;
+}
+
+void FeaMeshMgrSingleton::RemoveTrimTris()
+{
+    list< Tri* >::iterator t;
+    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; ++s ) // every surface
+    {
+        int tri_comp_id = m_SurfVec[ s ]->GetCompID();
+        list < Tri * > triList = m_SurfVec[ s ]->GetMesh()->GetTriList();
+        for ( t = triList.begin(); t != triList.end(); ++t ) // every triangle
+        {
+            vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[ s ] );
+
+            for ( int i = 0; i < m_TrimPt.size(); i++ )
+            {
+                // This seems convoluted, but it needs to be cumulative.
+                if ( CullPtByTrimGroup( cp, m_TrimPt[i], m_TrimNorm[i] ) )
+                {
+                    ( *t )->deleteFlag = true;
+                }
+            }
+        }
+    }
+
+    //==== Remove Tris, Edges and Nodes ====//
+    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
+    {
+        m_SurfVec[s]->GetMesh()->RemoveInteriorTrisEdgesNodes();
     }
 }
 

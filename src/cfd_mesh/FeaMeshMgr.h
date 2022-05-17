@@ -68,6 +68,9 @@ public:
     virtual void MergeCoplanarParts();
     virtual void AddStructureSurfParts();
     virtual void AddStructureFixPoints();
+    virtual void AddStructureTrimPlanes();
+    virtual bool CullPtByTrimGroup( const vec3d &pt, const vector < vec3d > & pplane, const vector < vec3d > & nplane );
+    virtual void RemoveTrimTris();
     virtual void SetFixPointSurfaceNodes();
     virtual void SetFixPointBorderNodes();
     virtual void CheckFixPointIntersects();
@@ -199,6 +202,10 @@ protected:
     map < int, vector < vector < int > > > m_FixPntSurfIndMap; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec (Note: not the surf ID)
     map < int, vector < bool > > m_FixPointMassFlagMap;
     map < int, vector < double > > m_FixPointMassMap;
+
+    // Groups of trimming planes.
+    vector < vector < vec3d > > m_TrimPt;
+    vector < vector < vec3d > > m_TrimNorm;
 
     vector < string > m_DrawBrowserNameVec;
     vector < int > m_DrawBrowserPartIndexVec;

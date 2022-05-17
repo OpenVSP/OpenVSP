@@ -70,6 +70,8 @@ public:
         return m_FeaPartVec.size();
     }
 
+    virtual void FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm );
+
     bool FeaPartIsFixPoint( int ind );
     int GetNumFeaFixPoints();
 
@@ -401,6 +403,8 @@ public:
 
     virtual void UpdateDrawObjs();
     virtual void SetDrawObjHighlight ( bool highlight );
+
+    virtual void FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm );
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 

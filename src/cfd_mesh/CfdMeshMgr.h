@@ -193,6 +193,7 @@ public:
     virtual void BuildMesh();
     virtual void BuildTargetMap( int output_type );
     virtual void RemoveInteriorTris();
+    virtual void RemoveTrimTris() {};  // Implemented for FEAMesh
     virtual void ConnectBorderEdges( bool wakeOnly );
     virtual void MatchBorderEdges( list< Edge* > edgeList );
 

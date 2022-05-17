@@ -561,6 +561,39 @@ string FeaStructure::GetFeaPartName( int ind )
     return name;
 }
 
+void FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm )
+{
+    pt.clear();
+    norm.clear();
+
+    for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
+    {
+        if ( FeaPartIsTrim( i ) )
+        {
+            FeaPartTrim * trim = dynamic_cast< FeaPartTrim * >( m_FeaPartVec[i] );
+
+            if ( trim )
+            {
+                vector < vector < vec3d > > pti;
+                vector < vector < vec3d > > normi;
+
+                trim->FetchTrimPlanes( pti, normi );
+
+                int nadd = pti.size();
+
+                pt.reserve( pt.size() + nadd );
+                norm.reserve( norm.size() + nadd );
+
+                for ( int j = 0; j < nadd; j++ )
+                {
+                    pt.push_back( pti[j] );
+                    norm.push_back( normi[j] );
+                }
+            }
+        }
+    }
+}
+
 bool FeaStructure::FeaPartIsFixPoint( int ind )
 {
     return FeaPartIsType( ind, vsp::FEA_FIX_POINT );
@@ -3504,6 +3537,76 @@ void FeaPartTrim::SetDrawObjHighlight( bool highlight )
         {
             m_FeaPartDO[j].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             m_FeaPartDO[j].m_MaterialInfo.Ambient[0] = 0.2;
+        }
+    }
+}
+
+void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm )
+{
+    // This nested loop is most naturally accessed with ipart as the outer loop.  However, going forward we will
+    // need pt and norm set up with ipart as the inner loop.  First we loop through to check that the referenced
+    // parts all have the same symmetry (which determines the outer loop size).
+
+    // Determine number of symmetrical copies.
+    int nsymm = -1;
+    bool samesize = true;
+    for ( unsigned int ipart = 0; ipart < m_TrimFeaPartIDVec.size(); ipart++ )
+    {
+        FeaPart *parent_part = StructureMgr.GetFeaPart( m_TrimFeaPartIDVec[ ipart ] );
+
+        if ( parent_part )
+        {
+            vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
+
+            if ( nsymm < 0 )
+            {
+                nsymm = parent_surf_vec.size();
+            }
+            else
+            {
+                if ( nsymm != parent_surf_vec.size() )
+                {
+                    printf( "Error, parts used by FEA Trim do not have the same number of symmetrical copies\n" );
+                    samesize = false;
+                }
+            }
+        }
+    }
+
+    if ( samesize )
+    {
+        pt.resize( nsymm );
+        norm.resize( nsymm );
+
+        int npart = m_TrimFeaPartIDVec.size();
+
+        for ( size_t isymm = 0; isymm < nsymm; isymm++ )
+        {
+            pt[isymm].resize( npart );
+            norm[isymm].resize( npart );
+
+            for ( unsigned int ipart = 0; ipart < npart; ipart++ )
+            {
+                FeaPart *parent_part = StructureMgr.GetFeaPart( m_TrimFeaPartIDVec[ ipart ] );
+
+                if ( parent_part )
+                {
+                    vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
+
+                    VspSurf s = parent_surf_vec[isymm];
+
+                    vec3d cen = s.CompPnt01( 0.5, 0.5 );
+                    vec3d dir = s.CompNorm01( 0.5, 0.5 );
+
+                    if ( m_FlipFlagVec[ipart]->Get() )
+                    {
+                        dir = -1.0 * dir;
+                    }
+
+                    pt[isymm][ipart] = cen;
+                    norm[isymm][ipart] = dir;
+                }
+            }
         }
     }
 }
