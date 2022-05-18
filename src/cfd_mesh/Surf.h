@@ -30,7 +30,6 @@
 using namespace std;
 
 class SurfaceIntersectionSingleton;
-class CfdMeshMgrSingleton;
 class SCurve;
 class ISegChain;
 
@@ -174,7 +173,7 @@ public:
         m_PatchVec = pvec;
     }
 
-    void InitMesh( vector< ISegChain* > chains );
+    void InitMesh( vector< ISegChain* > chains, SurfaceIntersectionSingleton *MeshMgr );
 
 
     void BuildDistMap();

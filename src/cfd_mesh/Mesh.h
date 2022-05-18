@@ -17,6 +17,7 @@
 
 class Surf;
 class SimpleGridDensity;
+class SurfaceIntersectionSingleton;
 
 #ifndef WIN32
 #  ifndef NDEBUG
@@ -104,7 +105,7 @@ public:
 
     static void TriangulateBorder( const vector< vec3d > &uw_border );
 
-    void InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes );
+    void InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr );
 
     static void CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes );
 

@@ -866,7 +866,7 @@ void Surf::SetBBox( const vec3d &pmin, const vec3d &pmax )
 }
 
 
-void Surf::InitMesh( vector< ISegChain* > chains )
+void Surf::InitMesh( vector< ISegChain* > chains, SurfaceIntersectionSingleton *MeshMgr )
 {
 
 //static int name_cnt = 0;
@@ -1022,7 +1022,7 @@ void Surf::InitMesh( vector< ISegChain* > chains )
 //isegVec = smallMeshSegVec;
 
 
-    m_Mesh.InitMesh( uwPntVec, isegVec );
+    m_Mesh.InitMesh( uwPntVec, isegVec, MeshMgr );
 }
 
 

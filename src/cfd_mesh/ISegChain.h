@@ -34,7 +34,7 @@ class ISegChain;
 class SharedPnt;
 class ISeg;
 class IPntBin;
-class CfdMeshMgrSingleton;
+class SurfaceIntersectionSingleton;
 
 //==== UW Point on Surface ====//
 class Puw

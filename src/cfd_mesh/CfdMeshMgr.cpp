@@ -2598,7 +2598,7 @@ void CfdMeshMgrSingleton::BuildMesh()
                 surf_chains.push_back( ( *c ) );
             }
         }
-        m_SurfVec[s]->InitMesh( surf_chains );
+        m_SurfVec[s]->InitMesh( surf_chains, this );
     }
 }
 

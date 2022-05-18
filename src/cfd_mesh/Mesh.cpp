@@ -13,6 +13,7 @@
 #include "VspUtil.h"
 #include <triangle.h>
 #include <triangle_api.h>
+#include "SurfaceIntersectionMgr.h"
 
 bool LongEdgePairLengthCompare( const pair< Edge*, double >& a, const pair< Edge*, double >& b )
 {
@@ -1474,7 +1475,7 @@ void Mesh::CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & 
 }
 
 
-void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes )
+void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr )
 {
     assert( m_Surf );
 
