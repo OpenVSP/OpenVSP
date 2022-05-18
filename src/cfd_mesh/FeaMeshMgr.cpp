@@ -740,20 +740,19 @@ void FeaMeshMgrSingleton::AddStructureTrimPlanes()
 
 bool FeaMeshMgrSingleton::CullPtByTrimGroup( const vec3d &pt, const vector < vec3d > & pplane, const vector < vec3d > & nplane )
 {
-    bool cull = true;
-
+    double tol = 0.01 * GetGridDensityPtr()->m_MinLen;
     // Number of planes in this trim group.
     int numplane = pplane.size();
     for ( int iplane = 0; iplane < numplane; iplane++ )
     {
         vec3d u = pt - pplane[ iplane ];
         double dp = dot( u, nplane[ iplane ] );
-        if ( dp < 1e-4 )
+        if ( dp < tol )
         {
-            cull = false;
+            return false;
         }
     }
-    return cull;
+    return true;
 }
 
 void FeaMeshMgrSingleton::RemoveTrimTris()
