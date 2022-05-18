@@ -48,6 +48,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_SolverDisplay = m_ConsoleLayout.AddFlTextDisplay( m_ConsoleLayout.GetRemainY() - 3 * m_ConsoleLayout.GetStdHeight() - window_border_width );
     m_SolverBuffer = new Fl_Text_Buffer;
     m_SolverDisplay->buffer( m_SolverBuffer );
+    m_FLTK_Window->resizable( m_SolverDisplay );
 
     m_ConsoleLayout.SetButtonWidth( m_ConsoleLayout.GetW() / 2 );
 
