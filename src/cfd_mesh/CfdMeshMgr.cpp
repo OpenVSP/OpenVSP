@@ -2555,10 +2555,12 @@ void CfdMeshMgrSingleton::MergeIPntGroups( list< IPntGroup* > & iPntGroupList, d
         list< IPntGroup* >::iterator g;
         for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); ++g )
         {
-            list< IPntGroup* >::iterator h;
-            for ( h = iPntGroupList.begin() ; h != iPntGroupList.end(); ++h )
+            // Start inner loop with next point.  Distance is symmetrical, no need to check both ways.
+            list< IPntGroup* >::iterator h = g;
+            h++;
+            for ( ; h != iPntGroupList.end(); ++h )
             {
-                if ( ( *g ) != ( *h ) )
+                if ( ( *g ) != ( *h ) ) // Not strictly needed, but kept for safety.
                 {
                     double df = ( *g )->GroupDist( ( *h ) );
                     if ( df < nearDistFract )
