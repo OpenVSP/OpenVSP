@@ -762,6 +762,8 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
     {
         for ( int s = 0; s < ( int ) m_SurfVec.size(); ++s ) // every surface
         {
+            bool delSomeTris = false;
+
             list < Tri * > triList = m_SurfVec[ s ]->GetMesh()->GetTriList();
             for ( list < Tri * >::iterator t = triList.begin(); t != triList.end(); ++t ) // every triangle
             {
@@ -773,15 +775,16 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
                     if ( CullPtByTrimGroup( cp, m_TrimPt[ i ], m_TrimNorm[ i ] ) )
                     {
                         ( *t )->deleteFlag = true;
+                        delSomeTris = true;
+                        break; // Once flagged for deletion, don't check further trim groups, go to next tri.
                     }
                 }
             }
-        }
 
-        //==== Remove Tris, Edges and Nodes ====//
-        for ( int s = 0; s < ( int ) m_SurfVec.size(); s++ )
-        {
-            m_SurfVec[ s ]->GetMesh()->RemoveInteriorTrisEdgesNodes();
+            if ( delSomeTris ) // Skip removal if no tris in this m_SurfVec were flagged for deletion.
+            {
+                m_SurfVec[ s ]->GetMesh()->RemoveInteriorTrisEdgesNodes();
+            }
         }
     }
 }
