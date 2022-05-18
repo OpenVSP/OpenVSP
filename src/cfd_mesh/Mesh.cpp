@@ -1518,18 +1518,46 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
 #ifdef DEBUG_CFD_MESH
     static int namecnt = 0;
-    sprintf( str, "%sMesh_UW%d.dat", cfdMeshMgrPtr->m_DebugDir.c_str(), namecnt );
+    FILE* fp;
 
-    FILE* fp = fopen( str, "w" );
+    sprintf( str, "%sMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
+    fp = fopen( str, "w" );
+    fprintf( fp, "u = [" );
     for ( i = 0 ; i < num_edges ; i++ )
     {
         int ind0 = segs_indexes[i].m_Index[0];
         int ind1 = segs_indexes[i].m_Index[1];
+        fprintf( fp, "%f %f", uw_points[ind0].x(), uw_points[ind1].x() );
 
-        fprintf( fp, "MOVE \n" );
-        fprintf( fp, "%f %f\n", uw_points[ind0].x(), uw_points[ind0].y() );
-        fprintf( fp, "%f %f\n", uw_points[ind1].x(), uw_points[ind1].y() );
+        if ( i < num_edges - 1 )
+        {
+            fprintf( fp, ";\n" );
+        }
+        else
+        {
+            fprintf( fp, "];\n" );
+        }
     }
+    fprintf( fp, "v = [" );
+    for ( i = 0 ; i < num_edges ; i++ )
+    {
+        int ind0 = segs_indexes[i].m_Index[0];
+        int ind1 = segs_indexes[i].m_Index[1];
+        fprintf( fp, "%f %f", uw_points[ind0].y(), uw_points[ind1].y() );
+
+        if ( i < num_edges - 1 )
+        {
+            fprintf( fp, ";\n" );
+        }
+        else
+        {
+            fprintf( fp, "];\n" );
+        }
+    }
+    fprintf( fp, "figure ( 1 );\n" );
+    fprintf( fp, "plot( u', v', 'x-' );\n" );
+    fprintf( fp, "axis equal;\n" );
+
     fclose( fp );
 #endif
 
@@ -1631,74 +1659,6 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     tristatus = triangle_mesh_create( ctx, &in );
     if ( tristatus != TRI_OK ) printf( "triangle_mesh_create Error\n" );
 
-#ifdef DEBUG_CFD_MESH
-    sprintf( str, "%sUWTriMeshOut%d.dat", cfdMeshMgrPtr->m_DebugDir.c_str(), namecnt );
-    fp = fopen( str, "w" );
-    for ( i = 0 ; i < out.numberoftriangles ; i++ )
-    {
-        int ind0 = out.trianglelist[i * 3];
-        int ind1 = out.trianglelist[i * 3 + 1];
-        int ind2 = out.trianglelist[i * 3 + 2];
-
-        fprintf( fp, "MOVE \n" );
-        fprintf( fp, "%f %f\n", out.pointlist[ind0 * 2], out.pointlist[ind0 * 2 + 1] );
-        fprintf( fp, "%f %f\n", out.pointlist[ind1 * 2], out.pointlist[ind1 * 2 + 1] );
-        fprintf( fp, "%f %f\n", out.pointlist[ind2 * 2], out.pointlist[ind2 * 2 + 1] );
-        fprintf( fp, "%f %f\n", out.pointlist[ind0 * 2], out.pointlist[ind0 * 2 + 1] );
-
-    }
-    fclose( fp );
-    namecnt++;
-#endif
-
-//    static int namecnt = 0;
-//
-//    sprintf( str, "UWTriMeshOut%d.m", namecnt );
-//    FILE *fp = fopen( str, "w" );
-//    fprintf( fp, "clear all\nformat compact\n" );
-//    fprintf( fp, "t=[" );
-//    for ( i = 0 ; i < out.numberoftriangles ; i++ )
-//    {
-//        int ind0 = out.trianglelist[i * 3] + 1;
-//        int ind1 = out.trianglelist[i * 3 + 1] + 1;
-//        int ind2 = out.trianglelist[i * 3 + 2] + 1;
-//
-//        fprintf( fp, "%d, %d, %d", ind0, ind1, ind2 );
-//
-//        if ( i < out.numberoftriangles - 1 )
-//            fprintf( fp, ";\n" );
-//        else
-//            fprintf( fp, "];\n" );
-//    }
-//
-//    fprintf( fp, "x=[" );
-//    for ( i = 0; i < out.numberofpoints; i++ )
-//    {
-//        fprintf( fp, "%f", out.pointlist[i * 2] );
-//
-//        if ( i < out.numberofpoints - 1 )
-//            fprintf( fp, ";\n" );
-//        else
-//            fprintf( fp, "];\n" );
-//
-//    }
-//
-//    fprintf( fp, "y=[" );
-//    for ( i = 0; i < out.numberofpoints; i++ )
-//    {
-//        fprintf( fp, "%f", out.pointlist[i * 2 + 1] );
-//
-//        if ( i < out.numberofpoints - 1 )
-//            fprintf( fp, ";\n" );
-//        else
-//            fprintf( fp, "];\n" );
-//
-//    }
-//
-//    fprintf( fp, "triplot(t,x,y)\n" );
-//
-//    fclose( fp );
-//    namecnt++;
 
     //==== Clear All Node, Edge, Tri Data ====//
     Clear();
@@ -1834,6 +1794,155 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
             }
         }
     }
+
+#ifdef DEBUG_CFD_MESH
+        sprintf( str, "%sUWTriMeshOut%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
+        fp = fopen( str, "w" );
+        fprintf( fp, "clear all\nformat compact\n" );
+        fprintf( fp, "t = [" );
+        for ( i = 0 ; i < out.numberoftriangles ; i++ )
+        {
+            int ind0 = out.trianglelist[i * 3] + 1;
+            int ind1 = out.trianglelist[i * 3 + 1] + 1;
+            int ind2 = out.trianglelist[i * 3 + 2] + 1;
+
+            fprintf( fp, "%d, %d, %d", ind0, ind1, ind2 );
+
+            if ( i < out.numberoftriangles - 1 )
+                fprintf( fp, ";\n" );
+            else
+                fprintf( fp, "];\n" );
+        }
+
+        fprintf( fp, "uprm = [" );
+        for ( i = 0; i < out.numberofpoints; i++ )
+        {
+            fprintf( fp, "%f", out.pointlist[i * 2] );
+
+            if ( i < out.numberofpoints - 1 )
+                fprintf( fp, ";\n" );
+            else
+                fprintf( fp, "];\n" );
+
+        }
+
+        fprintf( fp, "wprm = [" );
+        for ( i = 0; i < out.numberofpoints; i++ )
+        {
+            fprintf( fp, "%f", out.pointlist[i * 2 + 1] );
+
+            if ( i < out.numberofpoints - 1 )
+                fprintf( fp, ";\n" );
+            else
+                fprintf( fp, "];\n" );
+
+        }
+
+        fprintf( fp, "u = [" );
+        for ( i = 0; i < out.numberofpoints; i++ )
+        {
+            double u = out.pointlist[i * 2];
+            double w = out.pointlist[i * 2 + 1];
+            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
+            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
+            double uu = su * u + VspMinU;
+
+            fprintf( fp, "%f", uu );
+
+            if ( i < out.numberofpoints - 1 )
+                fprintf( fp, ";\n" );
+            else
+                fprintf( fp, "];\n" );
+        }
+
+        fprintf( fp, "w = [" );
+        for ( i = 0; i < out.numberofpoints; i++ )
+        {
+            double u = out.pointlist[i * 2];
+            double w = out.pointlist[i * 2 + 1];
+            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
+            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
+            double ww = sw * w + VspMinW;
+
+            fprintf( fp, "%f", ww );
+
+            if ( i < out.numberofpoints - 1 )
+                fprintf( fp, ";\n" );
+            else
+                fprintf( fp, "];\n" );
+        }
+
+        fprintf( fp, "x = [" );
+        for ( i = 0; i < out.numberofpoints; i++ )
+        {
+            double u = out.pointlist[i * 2];
+            double w = out.pointlist[i * 2 + 1];
+            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
+            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
+            vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW );
+            vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
+
+            fprintf( fp, "%f", pnt.x() );
+
+            if ( i < out.numberofpoints - 1 )
+                fprintf( fp, ";\n" );
+            else
+                fprintf( fp, "];\n" );
+        }
+
+        fprintf( fp, "y = [" );
+        for ( i = 0; i < out.numberofpoints; i++ )
+        {
+            double u = out.pointlist[i * 2];
+            double w = out.pointlist[i * 2 + 1];
+            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
+            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
+            vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW );
+            vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
+
+            fprintf( fp, "%f", pnt.y() );
+
+            if ( i < out.numberofpoints - 1 )
+                fprintf( fp, ";\n" );
+            else
+                fprintf( fp, "];\n" );
+        }
+
+        fprintf( fp, "z = [" );
+        for ( i = 0; i < out.numberofpoints; i++ )
+        {
+            double u = out.pointlist[i * 2];
+            double w = out.pointlist[i * 2 + 1];
+            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
+            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
+            vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW );
+            vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
+
+            fprintf( fp, "%f", pnt.z() );
+
+            if ( i < out.numberofpoints - 1 )
+                fprintf( fp, ";\n" );
+            else
+                fprintf( fp, "];\n" );
+        }
+
+        fprintf( fp, "figure( 2 )\n" );
+        fprintf( fp, "triplot( t, uprm, wprm )\n" );
+        fprintf( fp, "axis equal\n" );
+
+        fprintf( fp, "figure( 3 )\n" );
+        fprintf( fp, "triplot( t, u, w )\n" );
+        fprintf( fp, "axis equal\n" );
+
+        fprintf( fp, "figure( 4 )\n" );
+        fprintf( fp, "trimesh( t, x, y, z )\n" );
+        fprintf( fp, "axis equal\n" );
+
+        fclose( fp );
+        namecnt++;
+#endif
+
+
 
     //==== Free Local Memory ====//
     if ( in.pointlist )
