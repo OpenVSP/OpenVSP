@@ -758,30 +758,31 @@ bool FeaMeshMgrSingleton::CullPtByTrimGroup( const vec3d &pt, const vector < vec
 
 void FeaMeshMgrSingleton::RemoveTrimTris()
 {
-    list< Tri* >::iterator t;
-    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; ++s ) // every surface
+    if ( m_TrimPt.size() > 0 ) // Skip if there are no trim groups.
     {
-        int tri_comp_id = m_SurfVec[ s ]->GetCompID();
-        list < Tri * > triList = m_SurfVec[ s ]->GetMesh()->GetTriList();
-        for ( t = triList.begin(); t != triList.end(); ++t ) // every triangle
+        for ( int s = 0; s < ( int ) m_SurfVec.size(); ++s ) // every surface
         {
-            vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[ s ] );
-
-            for ( int i = 0; i < m_TrimPt.size(); i++ )
+            list < Tri * > triList = m_SurfVec[ s ]->GetMesh()->GetTriList();
+            for ( list < Tri * >::iterator t = triList.begin(); t != triList.end(); ++t ) // every triangle
             {
-                // This seems convoluted, but it needs to be cumulative.
-                if ( CullPtByTrimGroup( cp, m_TrimPt[i], m_TrimNorm[i] ) )
+                vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[ s ] );
+
+                for ( int i = 0; i < m_TrimPt.size(); i++ )
                 {
-                    ( *t )->deleteFlag = true;
+                    // This seems convoluted, but it needs to be cumulative.
+                    if ( CullPtByTrimGroup( cp, m_TrimPt[ i ], m_TrimNorm[ i ] ) )
+                    {
+                        ( *t )->deleteFlag = true;
+                    }
                 }
             }
         }
-    }
 
-    //==== Remove Tris, Edges and Nodes ====//
-    for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
-    {
-        m_SurfVec[s]->GetMesh()->RemoveInteriorTrisEdgesNodes();
+        //==== Remove Tris, Edges and Nodes ====//
+        for ( int s = 0; s < ( int ) m_SurfVec.size(); s++ )
+        {
+            m_SurfVec[ s ]->GetMesh()->RemoveInteriorTrisEdgesNodes();
+        }
     }
 }
 
