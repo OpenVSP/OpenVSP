@@ -1344,49 +1344,51 @@ void StructScreen::UpdateFeaPartChoice()
 
                 if ( currgeom )
                 {
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SLICE ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_DOME ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB_ARRAY ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SLICE_ARRAY ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_TRIM ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SLICE ), vsp::FEA_SLICE );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ), vsp::FEA_RIB );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ), vsp::FEA_SPAR );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ), vsp::FEA_FIX_POINT );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_DOME ), vsp::FEA_DOME );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB_ARRAY ), vsp::FEA_RIB_ARRAY );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SLICE_ARRAY ), vsp::FEA_SLICE_ARRAY );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_TRIM ), vsp::FEA_TRIM );
 
-                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
-                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
-                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
-                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ) );
-                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE_ARRAY ) );
-                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_FINITE_LINE ) );
+                    // Number of non-subsurface types.  Used as an offset when indexing m_FeaPartChoice, but needing
+                    // to index into subsurface part types.
+                    m_FeaPartChoiceSubSurfOffset = vsp::FEA_NUM_TYPES;
+
+                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ), vsp::SS_LINE + m_FeaPartChoiceSubSurfOffset );
+                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ), vsp::SS_RECTANGLE + m_FeaPartChoiceSubSurfOffset  );
+                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ), vsp::SS_ELLIPSE + m_FeaPartChoiceSubSurfOffset  );
+                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ), vsp::SS_CONTROL + m_FeaPartChoiceSubSurfOffset  );
+                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE_ARRAY ), vsp::SS_LINE_ARRAY + m_FeaPartChoiceSubSurfOffset  );
+                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_FINITE_LINE ), vsp::SS_FINITE_LINE + m_FeaPartChoiceSubSurfOffset  );
 
                     if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
                     {
-                        m_FeaPartChoice.SetFlag( 1, 0 ); // FEA_RIB
-                        m_FeaPartChoice.SetFlag( 2, 0 ); // FEA_SPAR
-                        m_FeaPartChoice.SetFlag( 5, 0 ); // FEA_RIB_ARRAY
-                        m_FeaPartChoice.SetFlag( 10, 0 ); // SS_CONTROL
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_RIB, 0 ); // FEA_RIB
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_SPAR, 0 ); // FEA_SPAR
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_RIB_ARRAY, 0 ); // FEA_RIB_ARRAY
+                        m_FeaPartChoice.SetFlagByVal( vsp::SS_CONTROL + m_FeaPartChoiceSubSurfOffset, 0 ); // SS_CONTROL
                     }
                     else
                     {
-                        m_FeaPartChoice.SetFlag( 1, FL_MENU_INACTIVE );
-                        m_FeaPartChoice.SetFlag( 2, FL_MENU_INACTIVE );
-                        m_FeaPartChoice.SetFlag( 5, FL_MENU_INACTIVE );
-                        m_FeaPartChoice.SetFlag( 10, FL_MENU_INACTIVE );
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_RIB, FL_MENU_INACTIVE );
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_SPAR, FL_MENU_INACTIVE );
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_RIB_ARRAY, FL_MENU_INACTIVE );
+                        m_FeaPartChoice.SetFlagByVal( vsp::SS_CONTROL + m_FeaPartChoiceSubSurfOffset, FL_MENU_INACTIVE );
                     }
 
                     if ( currgeom->GetType().m_Type == FUSELAGE_GEOM_TYPE || currgeom->GetType().m_Type == POD_GEOM_TYPE || currgeom->GetType().m_Type == STACK_GEOM_TYPE ) //TODO: Improve
                     {
-                        m_FeaPartChoice.SetFlag( 4, 0 ); // FEA_DOME
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_DOME, 0 ); // FEA_DOME
                     }
                     else
                     {
-                        m_FeaPartChoice.SetFlag( 4, FL_MENU_INACTIVE );
+                        m_FeaPartChoice.SetFlagByVal( vsp::FEA_DOME, FL_MENU_INACTIVE );
                     }
 
-                    // Number of non-subsurface types.  Used as an offset when indexing m_FeaPartChoice, but needing
-                    // to index into subsurface part types.
-                    m_NumFeaPartChoices = 8;
+
 
                     m_FeaPartChoice.UpdateItems();
 
@@ -2599,7 +2601,7 @@ void StructScreen::CallBack( Fl_Widget* w )
 
                         if ( subsurf )
                         {
-                            m_SelectedFeaPartChoice = subsurf->GetType() + m_NumFeaPartChoices;
+                            m_SelectedFeaPartChoice = subsurf->GetType() + m_FeaPartChoiceSubSurfOffset;
                         }
                     }
                 }
@@ -2885,46 +2887,18 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             m_SelectedPartIndexVec.clear();
 
-            if ( m_FeaPartChoice.GetVal() < m_NumFeaPartChoices )
+            if ( m_FeaPartChoice.GetVal() < m_FeaPartChoiceSubSurfOffset )
             {
                 FeaPart* feaprt = NULL;
 
+                feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( m_FeaPartChoice.GetVal() );
+
                 if ( m_FeaPartChoice.GetVal() == vsp::FEA_SLICE )
                 {
-                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_SLICE );
-
                     FeaSlice* slice = dynamic_cast<FeaSlice*>( feaprt );
                     assert( slice );
 
                     slice->m_OrientationPlane.Set( StructureMgr.GetFeaSliceOrientIndex() );
-                }
-                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_RIB )
-                {
-                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_RIB );
-                }
-                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_SPAR )
-                {
-                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_SPAR );
-                }
-                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_FIX_POINT )
-                {
-                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_FIX_POINT );
-                }
-                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_DOME )
-                {
-                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_DOME );
-                }
-                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_RIB_ARRAY )
-                {
-                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_RIB_ARRAY );
-                }
-                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_SLICE_ARRAY )
-                {
-                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_SLICE_ARRAY );
-                }
-                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_TRIM )
-                {
-                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_TRIM );
                 }
 
                 if ( feaprt )
@@ -2938,30 +2912,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 SubSurface* ssurf = NULL;
 
-                if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_LINE )
-                {
-                    ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_LINE );
-                }
-                else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_RECTANGLE )
-                {
-                    ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_RECTANGLE );
-                }
-                else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_ELLIPSE )
-                {
-                    ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_ELLIPSE );
-                }
-                else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_CONTROL )
-                {
-                    ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_CONTROL );
-                }
-                else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_LINE_ARRAY )
-                {
-                    ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_LINE_ARRAY );
-                }
-                else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_FINITE_LINE )
-                {
-                    ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_FINITE_LINE );
-                }
+                ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( m_FeaPartChoice.GetVal() - m_FeaPartChoiceSubSurfOffset );
 
                 if ( ssurf )
                 {

@@ -371,7 +371,7 @@ private:
     int m_FeaCurrMainSurfIndx;
     vector < int > m_SelectedPartIndexVec;
     int m_SelectedFeaPartChoice;
-    int m_NumFeaPartChoices;
+    int m_FeaPartChoiceSubSurfOffset;
 };
 
 #endif
