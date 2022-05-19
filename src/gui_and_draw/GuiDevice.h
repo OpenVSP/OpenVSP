@@ -551,6 +551,8 @@ public:
 
     virtual void SetFlag( int indx, int flag );
     virtual int GetFlag( int indx );
+    virtual void SetFlagByVal( int val, int flag );
+    virtual int GetFlagByVal( int val );
     virtual void ClearFlags();
 
     virtual vector< string > GetItems()

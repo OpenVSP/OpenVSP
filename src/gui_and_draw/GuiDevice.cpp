@@ -1719,6 +1719,16 @@ int Choice::GetFlag( int indx )
     return 0;
 }
 
+void Choice::SetFlagByVal( int val, int flag )
+{
+    SetFlag( ValToIndex( val ), flag );
+}
+
+int Choice::GetFlagByVal( int val )
+{
+    return GetFlag( ValToIndex( val ) );
+}
+
 void Choice::ClearFlags()
 {
     m_Flags.clear();
