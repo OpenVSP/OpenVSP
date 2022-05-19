@@ -37,7 +37,7 @@ struct MSCloud;
 
 typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, MSCloud > , MSCloud, 3 > MSTree;
 
-typedef vector< pair< size_t, double > > MSTreeResults;
+typedef vector< pair< unsigned int, double > > MSTreeResults;
 
 struct MapSource
 {

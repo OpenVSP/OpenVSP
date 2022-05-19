@@ -35,7 +35,7 @@ struct PntNode;
 struct PntNodeCloud;
 
 typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, PntNodeCloud > , PntNodeCloud, 3 > PNTree;
-typedef vector< pair< size_t, double > > PNTreeResults;
+typedef vector < pair< unsigned int, double > > PNTreeResults;
 
 struct PntNode
 {
