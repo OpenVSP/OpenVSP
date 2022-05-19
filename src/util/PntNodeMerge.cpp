@@ -75,7 +75,7 @@ void IndexPntNodes( PntNodeCloud & cloud, double tol )
 
             for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
             {
-                size_t m_ind = ret_matches[j].first;
+                unsigned int m_ind = ret_matches[j].first;
                 cloud.m_PntNodes[ m_ind ].m_Index = i;
             }
             cloud.m_PntNodes[i].m_UsedIndex = cnt;

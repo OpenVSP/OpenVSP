@@ -394,11 +394,11 @@ void Surf::LimitTargetMap( const MSCloud &es_cloud, MSTree &es_tree, double minm
 
                 MSTreeResults es_matches;
 
-                int nMatches = es_tree.radiusSearch( query_pt, r2max, es_matches, params );
+                unsigned int nMatches = es_tree.radiusSearch( query_pt, r2max, es_matches, params );
 
                 for ( int k = 0; k < nMatches; k++ )
                 {
-                    int imatch = es_matches[k].first;
+                    unsigned int imatch = es_matches[k].first;
                     double r = sqrt( es_matches[k].second );
 
                     double str = es_cloud.sources[imatch]->m_str;
