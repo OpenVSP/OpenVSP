@@ -71,15 +71,6 @@ struct PntNodeCloud
         return m_PntNodes.size();
     }
 
-    // Returns the distance between the vector "p1[0:size-1]" and the data point with index "idx_p2" stored in the class:
-    inline double kdtree_distance( const double *p1, const size_t idx_p2, size_t size ) const
-    {
-        const double d0 = p1[0] - m_PntNodes[idx_p2].m_Pnt.x();
-        const double d1 = p1[1] - m_PntNodes[idx_p2].m_Pnt.y();
-        const double d2 = p1[2] - m_PntNodes[idx_p2].m_Pnt.z();
-        return d0 * d0 + d1 * d1 + d2 * d2;
-    }
-
     // Returns the dim'th component of the idx'th point in the class:
     inline double kdtree_get_pt( const size_t idx, int dim ) const
     {
