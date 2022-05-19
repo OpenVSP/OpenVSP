@@ -81,22 +81,9 @@ struct PntNodeCloud
     }
 
     // Returns the dim'th component of the idx'th point in the class:
-    // Since this is inlined and the "dim" argument is typically an immediate value, the
-    //  "if/else's" are actually solved at compile time.
     inline double kdtree_get_pt( const size_t idx, int dim ) const
     {
-        if ( dim == 0 )
-        {
-            return m_PntNodes[idx].m_Pnt.x();
-        }
-        else if ( dim == 1 )
-        {
-            return m_PntNodes[idx].m_Pnt.y();
-        }
-        else
-        {
-            return m_PntNodes[idx].m_Pnt.z();
-        }
+        return m_PntNodes[idx].m_Pnt.v[dim];
     }
 
     // Optional bounding-box computation: return false to default to a standard bbox computation loop.
