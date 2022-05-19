@@ -30,7 +30,7 @@ void PntNodeCloud::ReserveMorePntNodes( int n )
 
 void PntNodeCloud::AddPntNode( const vec3d & pnt )
 {
-    m_PntNodes.emplace_back( pnt );
+    m_PntNodes.emplace_back( PntNode( pnt ) );
 }
 
 bool PntNodeCloud::UsedNode( int i )
