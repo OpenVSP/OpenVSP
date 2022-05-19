@@ -9,6 +9,7 @@
 
 #include "SurfPatch.h"
 #include "Surf.h"
+#include "VspUtil.h"
 
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
 
@@ -149,8 +150,8 @@ void SurfPatch::find_closest_uw_planar_approx( const vec3d& pnt_in, double uw[2]
     // Note, this function assumes that the patch is approximately planar (see test_planar_rel)
     long an( degree_u() ), am( degree_v() );
 
-    vec3d a0 = m_Patch.get_control_point( 0, 0 ); // origin
-    vec3d a1 = m_Patch.get_control_point( an, 0 );  // u direction
+    vec3d a0 = m_Patch.get_control_point( 0, 0 );  // origin
+    vec3d a1 = m_Patch.get_control_point( an, 0 ); // u direction
     vec3d a2 = m_Patch.get_control_point( 0, am ); // v direction
 
     vec3d u_vec = a1 - a0;
@@ -159,33 +160,12 @@ void SurfPatch::find_closest_uw_planar_approx( const vec3d& pnt_in, double uw[2]
     // Calculate normalized surface coordinates of the intersection point
     vec2d close_uw_01 = MapToPlane( pnt_in, a0, u_vec, w_vec );
 
+    double u01 = clamp( close_uw_01.x(), 0.0, 1.0 );
+    double w01 = clamp( close_uw_01.y(), 0.0, 1.0 );
+
     // Scale the normalized local surface coordinates [0, 1] by the patch U and W range
-    double u_range = u_max - u_min;
-    double w_range = w_max - w_min;
-
-    vec2d close_uw = vec2d( ( u_min + close_uw_01.x() * u_range ), ( w_min + close_uw_01.y() * w_range ) );
-
-    double slop = 1e-3; // TODO: Make this a relative tolerance
-    if ( close_uw.x() < ( u_min - slop ) || close_uw.y() < ( w_min - slop ) || close_uw.x() >( u_max + slop ) || close_uw.y() >( w_max + slop ) )
-    {
-        printf( "BAD parameter in SurfPatch::find_closest_uw_planar_approx! %f %f\n", close_uw.x(), close_uw.y() );
-        assert( false );
-    }
-
-    if ( close_uw.x() < u_min )
-        close_uw.set_x( u_min );
-
-    if ( close_uw.y() < w_min )
-        close_uw.set_y( w_min );
-
-    if ( close_uw.x() > u_max )
-        close_uw.set_x( u_max );
-
-    if ( close_uw.y() > w_max )
-        close_uw.set_y( w_max );
-
-    uw[0] = close_uw.x();
-    uw[1] = close_uw.y();
+    uw[0] = u_min + u01 * ( u_max - u_min );
+    uw[1] = w_min + w01 * ( w_max - w_min );
 }
 
 void SurfPatch::IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vector< double > & t_vals ) const
