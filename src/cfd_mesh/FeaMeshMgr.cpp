@@ -2872,7 +2872,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
                 for ( int isurf = 0; isurf < surf_num; isurf++ )
                 {
-                    Surf *srf = GetFeaSurf( i, isurf );
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                     {
                         fprintf( fp, "\n" );
@@ -2881,11 +2880,19 @@ void FeaMeshMgrSingleton::WriteCalculix()
                         sprintf( ostr, "O%s_%d", m_FeaPartNameVec[i].c_str(), isurf );
                         m_SimplePropertyVec[property_id].WriteCalculix( fp, str, ostr );
 
-                        vec3d orient = srf->GetFeaElementOrientation();
-                        // int otype = srf->GetFeaOrientationType();
-                        fprintf( fp, "\n" );
-                        fprintf( fp, "*ORIENTATION, NAME=%s, SYSTEM=RECTANGULAR\n", ostr );
-                        fprintf( fp, "%f,%f,%f,0.0,0.0,1.0\n", orient.x(), orient.y(), orient.z() );
+                        Surf *srf = GetFeaSurf( i, isurf );  // i is partID, isurf is surf_number
+                        if ( srf )
+                        {
+                            vec3d orient = srf->GetFeaElementOrientation();
+                            // int otype = srf->GetFeaOrientationType();
+                            fprintf( fp, "\n" );
+                            fprintf( fp, "*ORIENTATION, NAME=%s, SYSTEM=RECTANGULAR\n", ostr );
+                            fprintf( fp, "%f,%f,%f,0.0,0.0,1.0\n", orient.x(), orient.y(), orient.z());
+                        }
+                        else
+                        {
+                            // Symmetrical part culled by half mesh.
+                        }
                     }
 
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
