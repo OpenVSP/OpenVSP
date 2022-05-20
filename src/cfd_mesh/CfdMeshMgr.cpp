@@ -2464,15 +2464,22 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
         cloud.m_IPnts.push_back( ( *c )->m_TessVec.back() );  // Add Back Point
     }
 
-    IPntTree index( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
-    index.buildIndex();
-
-    list < IPntGroup* > iPntGroupList;
-
     // tol_fract previously was compared to the distance between groups as a fraction of the local edge length.
     // However, it currently is simply compared to the distance between groups.
     // Consequently, while a reasonable value was previously 1e-2, a much smaller value is now appropriate.
     double tol = GetGridDensityPtr()->m_MinLen / 100.0;
+
+    MergeEndPointCloud( cloud, tol );
+}
+
+void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
+{
+    list< ISegChain* >::iterator c;
+
+    IPntTree index( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+    index.buildIndex();
+
+    list < IPntGroup* > iPntGroupList;
 
     for ( size_t i = 0 ; i < cloud.m_IPnts.size() ; i++ )
     {
