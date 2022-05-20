@@ -2454,41 +2454,47 @@ void CfdMeshMgrSingleton::AddSurfaceChain( Surf* sPtr, ISegChain* chainIn )
 
 void CfdMeshMgrSingleton::MergeBorderEndPoints()
 {
-    //==== Load Chain End Points into Groups - Border Points First ====//
-    list< ISegChain* >::iterator c;
-    list < IPntGroup* > iPntGroupList;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
-    {
-        if ( ( *c )->m_BorderFlag )
-        {
-            iPntGroupList.push_back( new IPntGroup );
-            m_DelIPntGroupVec.push_back( iPntGroupList.back() );
-            iPntGroupList.back()->m_IPntVec.push_back( ( *c )->m_TessVec.front() ); // Add Front Point
-            iPntGroupList.push_back( new IPntGroup );
-            m_DelIPntGroupVec.push_back( iPntGroupList.back() );
-            iPntGroupList.back()->m_IPntVec.push_back( ( *c )->m_TessVec.back() );  // Add Back Point
+    IPntCloud cloud;
+    cloud.m_IPnts.reserve( m_ISegChainList.size() * 2 );
 
-        }
-    }
-    //==== Add Rest of Chain Points ====//
+    list< ISegChain* >::iterator c;
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
-        if ( !( *c )->m_BorderFlag )
-        {
-            iPntGroupList.push_back( new IPntGroup );
-            m_DelIPntGroupVec.push_back( iPntGroupList.back() );
-            iPntGroupList.back()->m_IPntVec.push_back( ( *c )->m_TessVec.front() ); // Add Front Point
-            iPntGroupList.push_back( new IPntGroup );
-            m_DelIPntGroupVec.push_back( iPntGroupList.back() );
-            iPntGroupList.back()->m_IPntVec.push_back( ( *c )->m_TessVec.back() );  // Add Back Point
-        }
+        cloud.m_IPnts.push_back( ( *c )->m_TessVec.front() ); // Add Front Point
+        cloud.m_IPnts.push_back( ( *c )->m_TessVec.back() );  // Add Back Point
     }
+
+    IPntTree index( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 ) );
+    index.buildIndex();
+
+    list < IPntGroup* > iPntGroupList;
 
     // tol_fract previously was compared to the distance between groups as a fraction of the local edge length.
     // However, it currently is simply compared to the distance between groups.
     // Consequently, while a reasonable value was previously 1e-2, a much smaller value is now appropriate.
-    double tol_fract = GetGridDensityPtr()->m_MinLen / 100.0;
-    MergeIPntGroups( iPntGroupList, tol_fract );
+    double tol = GetGridDensityPtr()->m_MinLen / 100.0;
+
+    for ( size_t i = 0 ; i < cloud.m_IPnts.size() ; i++ )
+    {
+        if ( cloud.m_IPnts[i]->m_GroupedFlag == false )
+        {
+            iPntGroupList.push_back( new IPntGroup );
+            m_DelIPntGroupVec.push_back( iPntGroupList.back() );
+
+            std::vector < std::pair < unsigned int, double > > ret_matches;
+
+            nanoflann::SearchParams params;
+            index.radiusSearch( &cloud.m_IPnts[i]->m_Pnt[0], tol, ret_matches, params );
+
+            for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
+            {
+                unsigned int m_ind = ret_matches[j].first;
+                cloud.m_IPnts[ m_ind ]->m_GroupedFlag = true;
+                iPntGroupList.back()->m_IPntVec.push_back( cloud.m_IPnts[ m_ind ] );
+            }
+        }
+    }
+
 
     //==== Merge Ipnts In Groups ====//
     list< IPntGroup* >::iterator g;
@@ -2535,53 +2541,6 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
                 }
             }
             cnt++;
-        }
-    }
-}
-
-void CfdMeshMgrSingleton::MergeIPntGroups( list< IPntGroup* > & iPntGroupList, double tol_fract )
-{
-    //===== Merge Two Closest Groups While Under Tol ====//
-    IPntGroup* nearG1 = NULL;
-    IPntGroup* nearG2 = NULL;
-    double nearDistFract;
-    bool stopFlag = false;
-    while( !stopFlag )
-    {
-        stopFlag = true;
-        nearDistFract = 1.0e12;
-
-        //==== Find Closest Two Groups ====//
-        list< IPntGroup* >::iterator g;
-        for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); ++g )
-        {
-            // Start inner loop with next point.  Distance is symmetrical, no need to check both ways.
-            list< IPntGroup* >::iterator h = g;
-            h++;
-            for ( ; h != iPntGroupList.end(); ++h )
-            {
-                if ( ( *g ) != ( *h ) ) // Not strictly needed, but kept for safety.
-                {
-                    double df = ( *g )->GroupDist( ( *h ) );
-                    if ( df < nearDistFract )
-                    {
-                        nearDistFract = df;
-                        nearG1 = ( *g );
-                        nearG2 = ( *h );
-                    }
-                }
-            }
-        }
-
-        if ( nearDistFract < tol_fract )
-        {
-            if ( nearG1 && nearG2 )
-            {
-                nearG1->AddGroup( nearG2 );
-            }
-//          delete nearG2;
-            iPntGroupList.remove( nearG2 );
-            stopFlag = false;
         }
     }
 }

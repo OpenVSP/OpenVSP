@@ -180,7 +180,6 @@ public:
     virtual vector< Surf* > CreateDomainSurfs();
 
     virtual void MergeBorderEndPoints();
-    virtual void MergeIPntGroups( list< IPntGroup* > & iPntGroupList, double tol );
     virtual void TessellateChains();
     virtual void SetWakeAttachChain( ISegChain* c );
     virtual void MatchWakes();

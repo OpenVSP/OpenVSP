@@ -11,6 +11,8 @@
 #if !defined(ISEGCHAIN_ISEGCHAIN__INCLUDED_)
 #define ISEGCHAIN_ISEGCHAIN__INCLUDED_
 
+#include "nanoflann.hpp"
+
 #include "Surf.h"
 #include "GridDensity.h"
 #include "BezierCurve.h"
@@ -35,6 +37,12 @@ class SharedPnt;
 class ISeg;
 class IPntBin;
 class SurfaceIntersectionSingleton;
+class Ipnt;
+
+struct IPntCloud;
+
+typedef KDTreeSingleIndexAdaptor< L2_Simple_Adaptor< double, IPntCloud > , IPntCloud, 3 > IPntTree;
+
 
 //==== UW Point on Surface ====//
 class Puw
@@ -66,6 +74,7 @@ public:
 
     int m_Index;
     bool m_UsedFlag;
+    bool m_GroupedFlag;
     vec3d m_Pnt;
     deque< Puw* >  m_Puws;
     deque< ISeg* > m_Segs;
@@ -239,5 +248,31 @@ public:
 };
 
 
+
+struct IPntCloud
+{
+    vector < IPnt* > m_IPnts;
+
+    // Must return the number of data points
+    inline size_t kdtree_get_point_count() const
+    {
+        return m_IPnts.size();
+    }
+
+    // Returns the dim'th component of the idx'th point in the class:
+    inline double kdtree_get_pt( const size_t idx, int dim ) const
+    {
+        return m_IPnts[idx]->m_Pnt.v[dim];
+    }
+
+    // Optional bounding-box computation: return false to default to a standard bbox computation loop.
+    //   Return true if the BBOX was already computed by the class and returned in "bb" so it can be avoided to redo it again.
+    //   Look at bb.size() to find out the expected dimensionality (e.g. 2 or 3 for point clouds)
+    template <class BBOX>
+    bool kdtree_get_bbox( BBOX &bb ) const
+    {
+        return false;
+    }
+};
 
 #endif
