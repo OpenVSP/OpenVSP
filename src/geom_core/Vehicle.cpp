@@ -3217,7 +3217,7 @@ void Vehicle::FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs )
 
             for ( int j = 0; j < ( int )surf_vec.size(); j++ )
             {
-                surf_vec[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetMainSurfID( j ), icomp, 0, xfersurfs );
+                surf_vec[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetMainSurfID( j ), icomp, j, xfersurfs );
                 icomp++;
             }
         }
