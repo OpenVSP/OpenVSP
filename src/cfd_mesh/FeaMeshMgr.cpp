@@ -643,7 +643,6 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
                  !fea_struct->FeaPartIsSkin( i ) &&
                  !fea_struct->FeaPartIsTrim( i ) )
             {
-                int part_index = fea_struct->GetFeaPartIndex( fea_part_vec[i] );
                 vector< XferSurf > partxfersurfs;
 
                 fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
@@ -658,7 +657,7 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
 
                 for ( int j = begin; j < end; j++ )
                 {
-                    m_SurfVec[j]->SetFeaPartIndex( part_index );
+                    m_SurfVec[j]->SetFeaPartIndex( i );
                 }
             }
         }
