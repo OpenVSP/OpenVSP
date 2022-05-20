@@ -378,75 +378,19 @@ Bezier_curve SurfCore::GetBorderCurve( int iborder ) const
 {
     piecewise_curve_type pwc;
 
-    curve_segment_type s;
-    s.resize( 3 );
-
-    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
-    surface_patch_type::index_type icp, jcp;
-
-    nupatch = m_Surface.number_u_patches();
-    nvpatch = m_Surface.number_v_patches();
-
     if ( iborder == UMIN || iborder == UMAX )
     {
         if ( iborder == UMIN )
-            ip = 0;
+            m_Surface.get_umin_bndy_curve( pwc );
         else
-            ip = nupatch - 1;
-
-
-        pwc.set_t0( m_Surface.get_v0() );
-
-        for( jp = 0; jp < nvpatch; ++jp )
-        {
-            double u0, du, v0, dv;
-            const surface_patch_type *patch = m_Surface.get_patch( ip, jp, u0, du, v0, dv );
-
-            s.resize( patch->degree_v() );
-
-            if ( iborder == UMIN )
-                icp = 0;
-            else
-                icp = patch->degree_u();
-
-            for( jcp = 0; jcp <= patch->degree_v(); ++jcp )
-            {
-                surface_point_type cp;
-                cp = patch->get_control_point( icp, jcp );
-                s.set_control_point( cp, jcp );
-            }
-            pwc.push_back( s, dv );
-        }
+            m_Surface.get_umax_bndy_curve( pwc );
     }
     else if ( iborder == WMIN || iborder == WMAX )
     {
         if ( iborder == WMIN )
-            jp = 0;
+            m_Surface.get_vmin_bndy_curve( pwc );
         else
-            jp = nvpatch - 1;
-
-        pwc.set_t0( m_Surface.get_u0() );
-
-        for( ip = 0; ip < nupatch; ++ip )
-        {
-            double u0, du, v0, dv;
-            const surface_patch_type *patch = m_Surface.get_patch( ip, jp, u0, du, v0, dv );
-
-            s.resize( patch->degree_u() );
-
-            if ( iborder == WMIN )
-                jcp = 0;
-            else
-                jcp = patch->degree_v();
-
-            for( icp = 0; icp <= patch->degree_u(); ++icp )
-            {
-                surface_point_type cp;
-                cp = patch->get_control_point( icp, jcp );
-                s.set_control_point( cp, icp );
-            }
-            pwc.push_back( s, du );
-        }
+            m_Surface.get_vmax_bndy_curve( pwc );
     }
 
     Bezier_curve crv( pwc );
