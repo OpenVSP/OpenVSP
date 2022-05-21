@@ -536,7 +536,8 @@ void Surf::FindBorderCurves()
     pnts[1].set_xyz( max_u, min_w, 0 );
 
     scrv = new SCurve( this );
-    scrv->BuildBezierCurve( pnts, 0.25 );
+    scrv->InterpolateLinear( pnts );
+    scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
 
     if ( scrv->Length( 10 ) > degen_tol )
     {
@@ -551,7 +552,8 @@ void Surf::FindBorderCurves()
     pnts[1].set_xyz( max_u, max_w, 0 );
 
     scrv = new SCurve( this );
-    scrv->BuildBezierCurve( pnts, 0.25 );
+    scrv->InterpolateLinear( pnts );
+    scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
 
     if ( scrv->Length( 10 ) > degen_tol )
     {
@@ -566,7 +568,8 @@ void Surf::FindBorderCurves()
     pnts[1].set_xyz( min_u, max_w, 0 );
 
     scrv = new SCurve( this );
-    scrv->BuildBezierCurve( pnts, 0.25 );
+    scrv->InterpolateLinear( pnts );
+    scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
 
     if ( scrv->Length( 10 ) > degen_tol )
     {
@@ -578,10 +581,11 @@ void Surf::FindBorderCurves()
     }
 
     pnts[0].set_xyz( min_u, max_w,   0 );           // Dec W
-    pnts[1].set_xyz( min_u, min_w,       0 );
+    pnts[1].set_xyz( min_u, min_w,   0 );
 
     scrv = new SCurve( this );
-    scrv->BuildBezierCurve( pnts, 0.25 );
+    scrv->InterpolateLinear( pnts );
+    scrv->PromoteTo( 3 );  // Need to be cubic as intermediate points are checked for degeneracy.
 
     if ( scrv->Length( 10 ) > degen_tol )
     {

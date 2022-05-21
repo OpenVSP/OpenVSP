@@ -448,7 +448,7 @@ void Bezier_curve::TessAdaptXYZ( const Surf &srf, double umin, double umax, cons
 }
 
 //===== Interpolate Creates piecewise linear curves ===//
-void Bezier_curve::InterpolateLinear( vector< vec3d > & input_pnt_vec )
+void Bezier_curve::InterpolateLinear( const vector< vec3d > & input_pnt_vec )
 {
     // copy points over to new type
     vector<curve_point_type> pts( input_pnt_vec.size() );
@@ -470,4 +470,9 @@ void Bezier_curve::InterpolateLinear( vector< vec3d > & input_pnt_vec )
     {
         std::cerr << "Failed to create linear curve. " << __LINE__ << std::endl;
     }
+}
+
+void Bezier_curve::PromoteTo( int deg )
+{
+    m_Curve.degree_promote_to( deg );
 }
