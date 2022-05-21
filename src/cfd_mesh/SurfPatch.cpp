@@ -133,14 +133,11 @@ bool SurfPatch::test_planar_rel( double reltol ) const
 //===== Find Closest UW On Patch to Given Point with Initial Guess  =====//
 void SurfPatch::find_closest_uw( const vec3d& pnt_in, const double guess_uw[2], double uw[2] ) const
 {
-    // Normalize the initial guess
-    vec2d guess_uw01( ( guess_uw[0] - u_min ) / ( u_max - u_min ), ( guess_uw[1] - w_min ) / ( w_max - w_min ) );
-
     surface_point_type p;
     p << pnt_in.x(), pnt_in.y(), pnt_in.z();
 
     double u, w;
-    eli::geom::intersect::minimum_distance( u, w, m_Patch, p, guess_uw01.x(), guess_uw01.y() );
+    eli::geom::intersect::minimum_distance( u, w, m_Patch, p, ( guess_uw[0] - u_min ) / ( u_max - u_min ), ( guess_uw[1] - w_min ) / ( w_max - w_min ) );
 
     uw[0] = u_min + u * ( u_max - u_min );
     uw[1] = w_min + w * ( w_max - w_min );
