@@ -2849,9 +2849,9 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
         double k = 1.0;
 
         // Shift points to center on point of interest, also helps precision.
-        double xc = 13.526978;
-        double yc = 16.2362945;
-        double zc = 0.44215;
+        double xc = 0;
+        double yc = 0;
+        double zc = 0;
 
 
         fprintf( fpmas, "clear all; format compact; close all;\n" );
