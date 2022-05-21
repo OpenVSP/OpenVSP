@@ -56,77 +56,6 @@ vec3d Bezier_curve::CompPnt01( double u ) const
     return rtn;
 }
 
-void Bezier_curve::BuildCurve( const vector< vec3d > & pVec, double tanStr )
-{
-    int closeFlag = 0; // TODO: Support closeFlag = 1?
-    if ( pVec.size() < 2 )
-    {
-        return;
-    }
-
-    int i;
-    vec3d tan;
-
-    //==== Allocate Space ====//
-    unsigned int num_sections = pVec.size() - 1;
-
-    vector < vec3d > pnts;
-
-    pnts.resize( num_sections * 3 + 1 );
-
-    //==== First Point ====//
-    pnts[0] = pVec[0];
-
-    if ( closeFlag )
-    {
-        tan = pVec[1] - pVec[pVec.size() - 2];
-    }
-    else
-    {
-        tan = pVec[1] - pVec[0];
-    }
-
-    tan.normalize();
-    double mag = ( pVec[1] - pVec[0] ).mag();
-
-    pnts[1] = pVec[0] + tan * ( mag * tanStr );
-
-    for ( i = 1 ; i < ( int )pVec.size() - 1 ; i++ )
-    {
-        tan = pVec[i + 1] - pVec[i - 1];
-        tan.normalize();
-        mag = ( pVec[i] - pVec[i - 1] ).mag();
-
-        pnts[( i - 1 ) * 3 + 2] = pVec[i] - tan * ( mag * tanStr );
-
-        pnts[( i - 1 ) * 3 + 3] = pVec[i];
-
-        mag = ( pVec[i + 1] - pVec[i] ).mag();
-        pnts[( i - 1 ) * 3 + 4] = pVec[i] + tan * ( mag * tanStr );
-
-    }
-    //==== Last Point ====//
-    if ( closeFlag )
-    {
-        tan = pVec[1] - pVec[pVec.size() - 2];
-    }
-    else
-    {
-        tan = pVec[pVec.size() - 1] - pVec[pVec.size() - 2];
-    }
-
-    tan.normalize();
-    mag = ( pVec[pVec.size() - 1] - pVec[pVec.size() - 2] ).mag();
-
-    int ind = ( pVec.size() - 2 ) * 3 + 2;
-    pnts[ind] = pVec[pVec.size() - 1] - tan * ( mag * tanStr );
-
-    pnts[ind + 1] = pVec[pVec.size() - 1];
-
-    // Assign control points to Code-Eli curve.
-    PutControlPoints( pnts );
-}
-
 void Bezier_curve::FlipCurve()
 {
     m_Curve.reverse();
@@ -165,29 +94,6 @@ curve_point_type Bezier_curve::ComputeWakeTrailEdgePnt( const curve_point_type &
     double z = pnt.z() + ( endx - pnt.x() ) * tan( DEG2RAD( angle ) );
     wkpnt << endx, pnt.y(), z;
     return wkpnt;
-}
-
-void Bezier_curve::PutControlPoints( const vector< vec3d > &pnts_in )
-{
-    int npts = pnts_in.size();
-    int num_sections = ( npts - 1 ) / 3;
-
-    m_Curve.clear();
-    m_Curve.set_t0( 0.0 );
-
-    for ( int i = 0; i < num_sections; i++ )
-    {
-        curve_segment_type c;
-        c.resize( 3 );
-
-        for ( int j = 0; j < 4; j++ )
-        {
-            vec3d p = pnts_in[ j + ( i * 3 ) ];
-            curve_point_type cp( p.x(), p.y(), p.z() );
-            c.set_control_point( cp, j );
-        }
-        m_Curve.push_back( c );
-    }
 }
 
 void Bezier_curve::GetControlPoints( vector< vec3d > &pnts_out )

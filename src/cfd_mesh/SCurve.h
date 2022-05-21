@@ -68,8 +68,6 @@ public:
     void ApplyESSurface( double u, double t );
     void Tesselate();
 
-    void BuildBezierCurve( const vector< vec3d > & pnts_to_interpolate, double tanStr );
-
     void InterpolateLinear(vector<vec3d> &pnts_to_interpolate);
     void PromoteTo( int deg );
 

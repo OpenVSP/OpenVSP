@@ -40,7 +40,6 @@ class Bezier_curve
 protected:
 
     piecewise_curve_type m_Curve;
-    void PutControlPoints( const vector< vec3d > &pnts_in );
 
 public:
 
@@ -57,8 +56,6 @@ public:
     vec3d LastPnt() const;
 
     vec3d CompPnt01( double u ) const;
-
-    void BuildCurve( const vector< vec3d > & pVec, double tanStr );
 
     void TessAdaptXYZ( const Surf& srf, std::vector< vec3d >& output, double tol, int Nlimit );
     void TessAdaptXYZ( const Surf& srf, std::vector< vec3d >& output, double tol, int Nlimit, std::vector< double >& uvec );

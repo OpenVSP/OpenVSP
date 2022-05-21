@@ -27,11 +27,6 @@ SCurve::~SCurve()
 {
 }
 
-void SCurve::BuildBezierCurve( const vector< vec3d > & pnts_to_interpolate, double tanStr )
-{
-    m_UWCrv.BuildCurve( pnts_to_interpolate, tanStr );
-}
-
 void SCurve::InterpolateLinear(vector<vec3d> &pnts_to_interpolate)
 {
     m_UWCrv.InterpolateLinear( pnts_to_interpolate );
