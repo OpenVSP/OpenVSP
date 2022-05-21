@@ -1251,10 +1251,7 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
 
                             if ( m_SurfVec[i]->GetMesh()->SetFixPoint( m_FixPntMap[n][j], m_FixUWMap[n][j] ) )
                             {
-                                string count = std::to_string( m_SurfVec[i]->GetMesh()->GetNumFixPointIter() );
-                                string message = "\t" + fix_point_name + " Number of Iterations:" + count + "\n";
-                                addOutputText( message );
-                                m_SurfVec[i]->GetMesh()->ResetNumFixPointIter();
+                                // No message on success.
                             }
                             else
                             {

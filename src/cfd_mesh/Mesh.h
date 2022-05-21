@@ -157,15 +157,6 @@ public:
 
     void RemoveInteriorTrisEdgesNodes();
 
-    int GetNumFixPointIter()
-    {
-        return m_NumFixPointIter;
-    }
-    void ResetNumFixPointIter()
-    {
-        m_NumFixPointIter = 0;
-    }
-
 protected:
 
     Surf* m_Surf;
@@ -185,8 +176,6 @@ protected:
     vector< vec3d > simpPntVec;
     vector< vec2d > simpUWPntVec;
     vector< SimpTri > simpTriVec;
-
-    int m_NumFixPointIter;
 };
 
 

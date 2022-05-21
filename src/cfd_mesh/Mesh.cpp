@@ -36,8 +36,6 @@ Mesh::Mesh()
 
     m_Surf = NULL;
     m_GridDensity = NULL;
-
-    m_NumFixPointIter = 0;
 }
 
 Mesh::~Mesh()
@@ -71,8 +69,6 @@ void Mesh::Clear()
     }
 
     nodeList.clear();
-
-    m_NumFixPointIter = 0;
 }
 
 void Mesh::LimitTargetEdgeLength( Node* n )
@@ -1303,12 +1299,8 @@ void Mesh::OptSmooth( int num_iter )
 
 bool Mesh::SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw )
 {
-    double min_dist = FLT_MAX;
+    double min_dist = DBL_MAX;
     Node* closest_node = NULL;
-    double tol = m_GridDensity->m_MinLen;
-    tol = FLT_MAX;
-
-    m_NumFixPointIter++;
 
     list< Node* >::iterator n;
     for ( n = nodeList.begin(); n != nodeList.end(); ++n )
@@ -1326,57 +1318,21 @@ bool Mesh::SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw )
 
     if ( closest_node && m_Surf->ValidUW( fix_uw ) )
     {
-        // Check lengths of connected edges and split if longer than tolerance
-        vector < Edge* > check_edge_vec = closest_node->edgeVec;
-        bool long_edge = false;
+        // Move closest node to fixed point location
+        closest_node->uw = m_Surf->ClosestUW( fix_pnt, fix_uw.x(), fix_uw.y() );
+        closest_node->pnt = m_Surf->CompPnt( closest_node->uw.x(), closest_node->uw.y() );
+        closest_node->fixed = true;
 
-        for ( size_t i = 0; i < check_edge_vec.size(); i++ )
-        {
-            if ( !check_edge_vec[i]->border && check_edge_vec[i]->ComputeLength() > tol )
-            {
-                long_edge = true;
-                break;
-            }
-        }
+        // Check for any error.  Should always be 0.0.
+        // However, projecting point and computing is cheap, so no harm in keeping the above code.
+        // vec2d duw = closest_node->uw - fix_uw;
+        // vec3d dpt = closest_node->pnt - fix_pnt;
+        // printf( "duw %e %e dpt %e %e %e\n", duw.x(), duw.y(), dpt.x(), dpt.y(), dpt.z() );
 
-        if ( !long_edge )
-        {
-            // Move closest node to fixed point location
-            closest_node->uw = m_Surf->ClosestUW( fix_pnt, fix_uw.x(), fix_uw.y() );
-            closest_node->pnt = m_Surf->CompPnt( closest_node->uw.x(), closest_node->uw.y() );
-            closest_node->fixed = true;
-            return true;
-        }
+        return true;
     }
 
-    list< Edge* >::iterator e;
-
-    //===== Split if no nodes found ====//
-    vector < Edge* > split_edge_vec;
-    split_edge_vec.reserve( edgeList.size() );
-    for ( e = edgeList.begin(); e != edgeList.end(); ++e )
-    {
-        if ( !( *e )->border )
-        {
-            split_edge_vec.push_back( ( *e ) );
-        }
-    }
-
-    int num_split = split_edge_vec.size();
-
-    for ( int i = 0; i < num_split; i++ )
-    {
-        SplitEdge( split_edge_vec[i] );
-    }
-
-    DumpGarbage();
-
-    if ( num_split > 0 )
-    {
-        return SetFixPoint( fix_pnt, fix_uw );
-    }
-
-    return false; // Indicates no closest node was found
+    return false;
 }
 
 void Mesh::AdjustEdgeLengths()
