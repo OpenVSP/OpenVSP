@@ -302,7 +302,6 @@ public:
     virtual void CheckFixPointIntersects()    {}; // Only for FeaMesh; do nothing for CfdMesh
     virtual void SetFixPointBorderNodes()    {}; // Only for FeaMesh; do nothing for CfdMesh
 
-    void TestStuff();
     vector< vec3d > debugPnts;
     vector< vec2d > debugUWs;
     vector< SurfPatch* > debugPatches;

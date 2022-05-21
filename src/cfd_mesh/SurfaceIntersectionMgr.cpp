@@ -3136,51 +3136,6 @@ vector< Surf* > SurfaceIntersectionSingleton::GetPossCoPlanarSurfs( Surf* surfPt
     return retSurfVec;
 }
 
-void SurfaceIntersectionSingleton::TestStuff()
-{
-    if ( !m_SurfVec.size() )
-    {
-        return;
-    }
-
-    Surf* sPtr = m_SurfVec[0];
-
-    vector< SurfPatch* > pVec = sPtr->GetPatchVec();
-
-    if ( !pVec.size() )
-    {
-        return;
-    }
-
-    SurfPatch sp0;
-    SurfPatch sp1;
-    SurfPatch sp2;
-    SurfPatch sp3;
-
-    pVec[0]->split_patch( sp0, sp1, sp2, sp3 );
-
-    vec3d psurf = pVec[0]->comp_pnt_01( 0.3, 0.3 );
-    vec3d ppatch = sp0.comp_pnt_01( 0.6, 0.6 );
-    double d = dist( psurf, ppatch );
-
-    psurf = pVec[0]->comp_pnt_01( 0.6, 0.6 );
-    ppatch = sp3.comp_pnt_01( 0.2, 0.2 );
-    d = dist( psurf, ppatch );
-
-    psurf = pVec[0]->comp_pnt_01( 0.3, 0.6 );
-    ppatch = sp2.comp_pnt_01( 0.6, 0.2 );
-    d = dist( psurf, ppatch );
-
-    psurf = pVec[0]->comp_pnt_01( 0.6, 0.3 );
-    ppatch = sp1.comp_pnt_01( 0.2, 0.6 );
-    d = dist( psurf, ppatch );
-
-    sp3.split_patch( sp0, sp1, sp2, sp3 );
-    psurf = pVec[0]->comp_pnt_01( 0.6, 0.6 );
-    ppatch = sp0.comp_pnt_01( 0.4, 0.4 );
-    d = dist( psurf, ppatch );
-}
-
 void SurfaceIntersectionSingleton::BinaryAdaptIntCurves()
 {
     m_BinAdaptCurveAVec.clear();

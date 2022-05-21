@@ -110,18 +110,10 @@ public:
         return &bnd_box;
     }
     friend void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
-    void find_closest_uw( const vec3d& pnt_in, double uw[2] ) const;
     void find_closest_uw( const vec3d& pnt_in, const double guess_uw[2],double uw[2] ) const;
     void find_closest_uw_planar_approx( const vec3d& pnt_in, double uw[2] ) const;
 
     friend void refine_intersect_pt( const vec3d& pt, const SurfPatch &pA, double uwA[2], const SurfPatch &pB, double uwB[2] );
-
-    vec3d comp_pnt_01( double u, double w ) const;
-    vec3d comp_tan_u_01( double u, double w ) const;
-    vec3d comp_tan_w_01( double u, double w ) const;
-
-
-    // void Draw();
 
     void IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vector< double > & t_vals ) const;
     void AddTVal( double t, vector< double > & t_vals ) const;
