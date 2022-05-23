@@ -2547,9 +2547,11 @@ bool StructScreen::Update()
 
 void StructScreen::AddOutputText( const string &text )
 {
+    Fl::lock();
     m_ConsoleBuffer->append( text.c_str() );
     m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
     m_ConsoleDisplay->show_insert_position();
+    Fl::unlock();
 }
 
 void StructScreen::CallBack( Fl_Widget* w )

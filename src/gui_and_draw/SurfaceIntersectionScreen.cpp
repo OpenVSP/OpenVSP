@@ -507,9 +507,11 @@ void SurfaceIntersectionScreen::LoadSetChoice()
 
 void SurfaceIntersectionScreen::AddOutputText( const string &text )
 {
+    Fl::lock();
     m_ConsoleBuffer->append( text.c_str() );
     m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
     m_ConsoleDisplay->show_insert_position();
+    Fl::unlock();
 }
 
 void SurfaceIntersectionScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
