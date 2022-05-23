@@ -2281,12 +2281,9 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_TrimPartChoice )
     {
         m_SelectedTrimPartChoice = m_TrimPartChoice.GetVal();
-        printf( "Trim Part Choice %d\n", m_SelectedTrimPartChoice );
     }
     else if ( device == &m_AddTrimPartButton )
     {
-        printf( "Press Add\n" );
-
         vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
 
         if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -2303,15 +2300,12 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     trim->AddTrimPart( m_TrimPartChoiceIDVec[ m_SelectedTrimPartChoice ] );
                     m_ActiveTrimPartIndex = trim->m_TrimFeaPartIDVec.size() - 1;
                     trim->Update();
-
-                    printf( "Add %d, %s\nNew active part %d\n", m_SelectedTrimPartChoice, m_TrimPartChoiceIDVec[ m_SelectedTrimPartChoice ].c_str(), m_ActiveTrimPartIndex );
                 }
             }
         }
     }
     else if ( device == &m_DeleteTrimPartButton )
     {
-        printf( "Press Delete\n" );
         vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
 
         if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -2325,7 +2319,6 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 if ( trim )
                 {
-                    printf( "Delete %d\n", m_ActiveTrimPartIndex );
                     trim->DeleteTrimPart( m_ActiveTrimPartIndex );
                     m_ActiveTrimPartIndex = -1;
                     trim->Update();
@@ -2376,8 +2369,6 @@ void FeaPartEditScreen::CallBack( Fl_Widget* w )
                 }
             }
         }
-
-        printf( "TrimPartBrowser %d\n", m_ActiveTrimPartIndex );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -2677,12 +2668,8 @@ void FeaPartEditScreen::UpdateTrimPartChoice()
                         m_TrimPartBrowser->select( m_ActiveTrimPartIndex + 2 );
                     }
 
-                    if ( m_ActiveTrimPartIndex >= 0 && m_ActiveTrimPartIndex< trim->m_FlipFlagVec.size() )
+                    if ( m_ActiveTrimPartIndex >= 0 && m_ActiveTrimPartIndex < trim->m_FlipFlagVec.size() )
                     {
-                        printf( "Attempt to Update FlipTrimDirButton size %d index %d\n", trim->m_FlipFlagVec.size(), m_ActiveTrimPartIndex );
-
-                        // More traditional Update stuff.
-                        // trim->m_TrimFeaPartIDVec[ m_ActiveTrimPartIndex ] = m_TrimPartChoiceIDVec[ m_SelectedTrimPartChoice ];
                         m_FlipTrimDirButton.Update( trim->m_FlipFlagVec[ m_ActiveTrimPartIndex ]->GetID());
                     }
                 }
