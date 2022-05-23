@@ -2839,10 +2839,11 @@ void SurfaceIntersectionSingleton::HighlightNextChain()
 
 void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tessFlag )
 {
+#ifdef DEBUG_CFD_MESH
     if ( true )
     {
         char str2[256];
-        sprintf( str2, "%s.m", name );
+        sprintf( str2, "%s%s.m", m_DebugDir.c_str(), name );
         FILE* fpmas = fopen( str2, "w" );
 
         // Scale points to shift precision.
@@ -2865,7 +2866,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
         for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         {
             char str[256];
-            sprintf( str, "%s%d.m", name, i );
+            sprintf( str, "%s%s%d.m", m_DebugDir.c_str(), name, i );
             FILE* fp = fopen( str, "w" );
 
             fprintf( fpmas, "run( '%s' );\n", str );
@@ -3048,7 +3049,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
         for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         {
             char str[256];
-            sprintf( str, "%s%d.dat", name, i );
+            sprintf( str, "%s%s%d.dat", m_DebugDir.c_str(), name, i );
             FILE* fp = fopen( str, "w" );
 
             int cnt = 0;
@@ -3129,6 +3130,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
             fclose( fp );
         }
     }
+#endif
 }
 
 void SurfaceIntersectionSingleton::AddPossCoPlanarSurf( Surf* surfA, Surf* surfB )
