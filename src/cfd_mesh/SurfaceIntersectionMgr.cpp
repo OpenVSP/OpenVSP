@@ -2273,8 +2273,8 @@ void SurfaceIntersectionSingleton::WriteChains()
     for ( int i = 1 ; i < ( int )debugUWs.size() ; i += 2 )
     {
         fprintf( fp, "MOVE \n" );
-        fprintf( fp, "%f %f\n", debugUWs[i - 1].x(), debugUWs[i - 1].y() );
-        fprintf( fp, "%f %f\n", debugUWs[i].x(), debugUWs[i].y() );
+        fprintf( fp, "%.19e %.19e\n", debugUWs[i - 1].x(), debugUWs[i - 1].y() );
+        fprintf( fp, "%.19e %.19e\n", debugUWs[i].x(), debugUWs[i].y() );
     }
 
     fclose( fp );
@@ -2356,8 +2356,8 @@ void SurfaceIntersectionSingleton::WriteChains()
                         Puw* puw1 = ip1->m_Puws[puwind];
 
                         fprintf( fp, "MOVE \n" );
-                        fprintf( fp, "%f %f\n", puw0->m_UW.x(), puw0->m_UW.y() );
-                        fprintf( fp, "%f %f\n", puw1->m_UW.x(), puw1->m_UW.y() );
+                        fprintf( fp, "%.19e %.19e\n", puw0->m_UW.x(), puw0->m_UW.y() );
+                        fprintf( fp, "%.19e %.19e\n", puw1->m_UW.x(), puw1->m_UW.y() );
                     }
                 }
 
@@ -2369,8 +2369,8 @@ void SurfaceIntersectionSingleton::WriteChains()
                     {
                         fprintf( fp, "color YELLOW\n" );
                         fprintf( fp, "MOVE \n" );
-                        fprintf( fp, "%f %f\n", split->m_UW.x(), split->m_UW.y() );
-                        fprintf( fp, "%f %f\n", split->m_UW.x() + 0.1, split->m_UW.y() + 0.1 );
+                        fprintf( fp, "%.19e %.19e\n", split->m_UW.x(), split->m_UW.y() );
+                        fprintf( fp, "%.19e %.19e\n", split->m_UW.x() + 0.1, split->m_UW.y() + 0.1 );
                     }
 
                 }
