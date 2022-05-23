@@ -1474,6 +1474,12 @@ void Mesh::CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & 
     }
 }
 
+bool vec2dCompare( const vec2d &a, const vec2d &b )
+{
+    if ( a.x() == b.x() )
+        return a.y() < b.y();
+    return a.x() < b.x();
+}
 
 void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr )
 {
@@ -1489,6 +1495,51 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     {
         return;
     }
+
+#ifdef DEBUG_CFD_MESH
+    static int namecnt = 0;
+    FILE* fp;
+
+    vector< vec2d > sorted = uw_points;
+    sort( sorted.begin(), sorted.end(), vec2dCompare );
+
+    sprintf( str, "%sSortedUnscaledMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
+    fp = fopen( str, "w" );
+
+    fprintf( fp, "u = [" );
+    for ( i = 0 ; i < sorted.size() ; i++ )
+    {
+        fprintf( fp, "%.19e", sorted[i].x() );
+
+        if ( i < num_edges - 1 )
+        {
+            fprintf( fp, ";\n" );
+        }
+        else
+        {
+            fprintf( fp, "];\n" );
+        }
+    }
+    fprintf( fp, "v = [" );
+    for ( i = 0 ; i < sorted.size() ; i++ )
+    {
+        fprintf( fp, "%.19e", sorted[i].y() );
+
+        if ( i < num_edges - 1 )
+        {
+            fprintf( fp, ";\n" );
+        }
+        else
+        {
+            fprintf( fp, "];\n" );
+        }
+    }
+    fprintf( fp, "figure ( 1 );\n" );
+    fprintf( fp, "plot( u', v', 'x' );\n" );
+    fprintf( fp, "axis equal;\n" );
+
+    fclose( fp );
+#endif
 
     vec2d VspMinUW = vec2d( m_Surf->GetSurfCore()->GetMinU(), m_Surf->GetSurfCore()->GetMinW() );
     double VspMinU = VspMinUW.v[0];
@@ -1517,9 +1568,6 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
 #ifdef DEBUG_CFD_MESH
-    static int namecnt = 0;
-    FILE* fp;
-
     sprintf( str, "%sMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
     fprintf( fp, "u = [" );
