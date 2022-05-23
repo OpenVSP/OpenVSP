@@ -1527,7 +1527,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     {
         int ind0 = segs_indexes[i].m_Index[0];
         int ind1 = segs_indexes[i].m_Index[1];
-        fprintf( fp, "%f %f", uw_points[ind0].x(), uw_points[ind1].x() );
+        fprintf( fp, "%.19e %.19e", uw_points[ind0].x(), uw_points[ind1].x() );
 
         if ( i < num_edges - 1 )
         {
@@ -1543,7 +1543,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     {
         int ind0 = segs_indexes[i].m_Index[0];
         int ind1 = segs_indexes[i].m_Index[1];
-        fprintf( fp, "%f %f", uw_points[ind0].y(), uw_points[ind1].y() );
+        fprintf( fp, "%.19e %.19e", uw_points[ind0].y(), uw_points[ind1].y() );
 
         if ( i < num_edges - 1 )
         {
