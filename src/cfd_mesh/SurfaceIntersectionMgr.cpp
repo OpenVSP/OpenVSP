@@ -466,7 +466,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     addOutputText( "Build Grid\n" );
     BuildGrid();
 
-    addOutputText( "Intersect\n" );
+    // addOutputText( "Intersect\n" ); // Output in intersect() itself.
     Intersect();
 
     addOutputText( "Binary Adaptation Curve Approximation\n" );
@@ -1700,12 +1700,16 @@ void SurfaceIntersectionSingleton::BuildCurves()
 
 void SurfaceIntersectionSingleton::Intersect()
 {
+    char str[256];
 
     if ( GetSettingsPtr()->m_IntersectSubSurfs ) BuildSubSurfIntChains();
 
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
     {
+        sprintf( str, "Intersect %d/%d\n", i + 1, m_SurfVec.size() );
+        addOutputText( str );
+
         for ( int j = i + 1; j < (int) m_SurfVec.size(); j++ )
         {
             m_SurfVec[i]->Intersect( m_SurfVec[j], this );

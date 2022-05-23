@@ -99,7 +99,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Build Grid\n" );
     BuildGrid();
 
-    addOutputText( "Intersect\n" );
+    // addOutputText( "Intersect\n" ); // Output in intersect() itself.
     Intersect();
 
     addOutputText( "Binary Adaptation Curve Approximation\n" );
