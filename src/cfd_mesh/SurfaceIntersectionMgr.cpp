@@ -2885,24 +2885,24 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                         for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
-                            fprintf( fp, "%f,", uw1[0] );
+                            fprintf( fp, "%.19e;\n", uw1[0] );
                         }
                         uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                         uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
-                        fprintf( fp, "%f, %f];\n", uw1[0], uw2[0] );
+                        fprintf( fp, "%.19e;\n%.19e];\n", uw1[0], uw2[0] );
 
                         fprintf( fp, "w=[" );
                         for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
-                            fprintf( fp, "%f,", uw1[1] );
+                            fprintf( fp, "%.19e;\n", uw1[1] );
                         }
                         uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                         uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
-                        fprintf( fp, "%f, %f];\n", uw1[1], uw2[1] );
+                        fprintf( fp, "%.19e;\n%.19e];\n", uw1[1], uw2[1] );
 
                         fprintf( fp, "figure(1)\n" );
-                        fprintf( fp, "plot( u, w, 'x-'); hold on;\n" );
+                        fprintf( fp, "plot( u, w, 'x-');\n hold on;\n" );
                         fprintf( fp, "text( u(round(end/2)), w(round(end/2)), 'Surf: %d Chain: %d' );\n", i, cnt );
 
                         fprintf( fp, "x=[" );
@@ -2911,51 +2911,51 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                         {
                             uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                             pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                            fprintf( fp, "%.19e,", ( pt.x() - xc ) * k );
+                            fprintf( fp, "%.19e;\n", ( pt.x() - xc ) * k );
                         }
                         uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
                         uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw2[0], uw2[1] );
-                        fprintf( fp, "%.19e %.19e];\n", ( pt.x() - xc ) * k, ( pt2.x() - xc ) * k );
+                        fprintf( fp, "%.19e;\n%.19e];\n", ( pt.x() - xc ) * k, ( pt2.x() - xc ) * k );
 
                         fprintf( fp, "y=[" );
                         for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                             pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                            fprintf( fp, "%.19e,", ( pt.y() - yc ) * k );
+                            fprintf( fp, "%.19e;\n", ( pt.y() - yc ) * k );
                         }
                         uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
                         uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw2[0], uw2[1] );
-                        fprintf( fp, "%.19e %.19e];\n", ( pt.y() - yc ) * k, ( pt2.y() - yc ) * k );
+                        fprintf( fp, "%.19e;\n%.19e];\n", ( pt.y() - yc ) * k, ( pt2.y() - yc ) * k );
 
                         fprintf( fp, "z=[" );
                         for ( j = 0 ; j < ( int )( *c )->m_ISegDeque.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                             pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                            fprintf( fp, "%.19e,", ( pt.z() - zc ) * k );
+                            fprintf( fp, "%.19e;\n", ( pt.z() - zc ) * k );
                         }
                         uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
                         uw2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt2 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw2[0], uw2[1] );
-                        fprintf( fp, "%.19e %.19e];\n", ( pt.z() - zc ) * k, ( pt2.z() - zc ) * k );
+                        fprintf( fp, "%.19e;\n%.19e];\n", ( pt.z() - zc ) * k, ( pt2.z() - zc ) * k );
 
                         fprintf( fp, "figure(2)\n" );
-                        fprintf( fp, "plot3( x, y, z, 'x-' ); hold on;\n" );
+                        fprintf( fp, "plot3( x, y, z, 'x-' );\n hold on;\n" );
                         fprintf( fp, "text( x(round(end/2)), y(round(end/2)), z(round(end/2)), 'Surf: %d Chain: %d' );\n", i, cnt );
 
                         fprintf( fp, "r = sqrt( x.^2 + y.^2 + z.^2 );\n" );
-                        fprintf( fp, "mask = r < ( r0 * %f );\n", k );
+                        fprintf( fp, "mask = r < ( r0 * %.19e );\n", k );
                         // Expand mask by one point in each direction to provide context -- also makes sure single points get plotted.
                         fprintf( fp, "mask([false mask(1:end-1)~=mask(2:end)]) = 1;\n" );
                         fprintf( fp, "mask([mask(1:end-1)~=mask(2:end) false]) = 1;\n" );
                         fprintf( fp, "figure(3)\n" );
-                        fprintf( fp, "plot3( x(mask), y(mask), z(mask), 'x-' ); hold on;\n" );
+                        fprintf( fp, "plot3( x(mask), y(mask), z(mask), 'x-' );\n hold on;\n" );
                     }
                     else
                     {
@@ -2965,22 +2965,22 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                         for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
-                            fprintf( fp, "%f,", uw1[0] );
+                            fprintf( fp, "%.19e;\n", uw1[0] );
                         }
                         uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
-                        fprintf( fp, "%f];\n", uw1[0] );
+                        fprintf( fp, "%.19e];\n", uw1[0] );
 
                         fprintf( fp, "w=[" );
                         for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
-                            fprintf( fp, "%f,", uw1[1] );
+                            fprintf( fp, "%.19e;\n", uw1[1] );
                         }
                         uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
-                        fprintf( fp, "%f];\n", uw1[1] );
+                        fprintf( fp, "%.19e];\n", uw1[1] );
 
                         fprintf( fp, "figure(1)\n");
-                        fprintf( fp, "plot( u, w, 'x-'); hold on;\n" );
+                        fprintf( fp, "plot( u, w, 'x-');\n hold on;\n" );
 
 
                         fprintf( fp, "x=[" );
@@ -2989,36 +2989,36 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                         {
                             uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
                             pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                            fprintf( fp, "%f,", pt.x() );
+                            fprintf( fp, "%.19e;\n", pt.x() );
                         }
                         uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                        fprintf( fp, "%f];\n", pt.x() );
+                        fprintf( fp, "%.19e];\n", pt.x() );
 
                         fprintf( fp, "y=[" );
                         for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
                             pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                            fprintf( fp, "%f,", pt.y() );
+                            fprintf( fp, "%.19e;\n", pt.y() );
                         }
                         uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                        fprintf( fp, "%f];\n", pt.y() );
+                        fprintf( fp, "%.19e];\n", pt.y() );
 
                         fprintf( fp, "z=[" );
                         for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
                             pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                            fprintf( fp, "%f,", pt.z() );
+                            fprintf( fp, "%.19e;\n", pt.z() );
                         }
                         uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                        fprintf( fp, "%f];\n", pt.z() );
+                        fprintf( fp, "%.19e];\n", pt.z() );
 
                         fprintf( fp, "figure(2)\n");
-                        fprintf( fp, "plot3( x, y, z, 'x-'); hold on;\n" );
+                        fprintf( fp, "plot3( x, y, z, 'x-');\n hold on;\n" );
                     }
                     cnt++;
                 }
@@ -3105,8 +3105,8 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                             vec2d tmp = uw0 + ( uw1 - uw0 ) * 0.1;
                             uw1 = uw1 + ( uw0 - uw1 ) * 0.1;
                             uw0 = tmp;
-                            fprintf( fp, "%f %f\n", uw0[0], uw0[1] );
-                            fprintf( fp, "%f %f\n", uw1[0], uw1[1] );
+                            fprintf( fp, "%.19e %.19e\n", uw0[0], uw0[1] );
+                            fprintf( fp, "%.19e %.19e\n", uw1[0], uw1[1] );
                         }
                     }
                     else
@@ -3119,8 +3119,8 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                             vec2d tmp = uw0 + ( uw1 - uw0 ) * 0.1;
                             uw1 = uw1 + ( uw0 - uw1 ) * 0.1;
                             uw0 = tmp;
-                            fprintf( fp, "%f %f\n", uw0[0], uw0[1] );
-                            fprintf( fp, "%f %f\n", uw1[0], uw1[1] );
+                            fprintf( fp, "%.19e %.19e\n", uw0[0], uw0[1] );
+                            fprintf( fp, "%.19e %.19e\n", uw1[0], uw1[1] );
                         }
                     }
                     cnt++;
