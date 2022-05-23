@@ -370,7 +370,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Build Target Map\n" );
     BuildTargetMap( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
-    addOutputText( "InitMesh\n" );
+    // addOutputText( "InitMesh\n" ); // Output inside InitMesh
     InitMesh();
 
     addOutputText( "Sub Tag Tris\n" );

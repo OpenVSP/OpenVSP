@@ -108,7 +108,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Build Target Map\n" );
     BuildTargetMap( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
-    addOutputText( "InitMesh\n" );
+    // addOutputText( "InitMesh\n" ); // Output inside InitMesh
     InitMesh( );
 
     addOutputText( "Sub Tag tris\n" );
@@ -2262,7 +2262,7 @@ void CfdMeshMgrSingleton::InitMesh( )
 
     if ( PrintProgress )
     {
-        addOutputText( "BuildMesh\n" );
+        // addOutputText( "BuildMesh\n" );  Output in BuildMesh
     }
     BuildMesh();
 
@@ -2554,6 +2554,8 @@ void CfdMeshMgrSingleton::MergeEndPointCloud( IPntCloud &cloud, double tol )
 
 void CfdMeshMgrSingleton::BuildMesh()
 {
+    char str[256];
+
     //==== Mesh Each Surface ====//
     for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
     {
@@ -2566,6 +2568,9 @@ void CfdMeshMgrSingleton::BuildMesh()
                 surf_chains.push_back( ( *c ) );
             }
         }
+
+        sprintf( str, "InitMesh %d/%d\n", s+1, m_SurfVec.size() );
+        addOutputText( str );
         m_SurfVec[s]->InitMesh( surf_chains, this );
     }
 }
