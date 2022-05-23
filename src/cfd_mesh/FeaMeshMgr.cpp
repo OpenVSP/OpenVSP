@@ -290,6 +290,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Init Timer\n" );
 #endif
 
+    addOutputText( "Transfer Mesh Settings\n" );
     TransferMeshSettings();
 
     addOutputText( "Load Surfaces\n" );
@@ -316,21 +317,30 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     }
 
     GetMassUnit();
+
+    addOutputText( "Transfer FEA Data\n" );
     TransferFeaData();
+
+    addOutputText( "Transfer Subsurf Data\n" );
     TransferSubSurfData();
     TransferDrawObjData();
 
+    addOutputText( "Merge Co-Planar Parts\n" );
     MergeCoplanarParts();
 
     addOutputText( "Add Structure Parts\n" );
     AddStructureSurfParts();
 
+    addOutputText( "Clean Merge Surfs\n" );
     CleanMergeSurfs(); // Must be called before AddStructureFixPoints to prevent FEA Fix Point surface misidentification
 
+    addOutputText( "Add Structure Fix Points\n" );
     AddStructureFixPoints();
 
+    addOutputText( "Add Structure Trim Planes\n" );
     AddStructureTrimPlanes();
 
+    addOutputText( "Identify CompID Names\n" );
     IdentifyCompIDNames();
 
     // TODO: Update and Build Domain for Half Mesh?
@@ -340,7 +350,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     addOutputText( "Intersect\n" );
     Intersect();
-    addOutputText( "Finished Intersect\n" );
 
     addOutputText( "Binary Adaptation Curve Approximation\n" );
     BinaryAdaptIntCurves();
@@ -364,6 +373,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "InitMesh\n" );
     InitMesh();
 
+    addOutputText( "Sub Tag Tris\n" );
     SubTagTris();
 
     addOutputText( "Set Fixed Points\n" );
@@ -372,10 +382,13 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Remesh\n" );
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
+    addOutputText( "Build Single Tag Map\n" );
     SubSurfaceMgr.BuildSingleTagMap();
 
+    addOutputText( "Check Subsurf Border Intersect\n" );
     CheckSubSurfBorderIntersect();
 
+    addOutputText( "Check Duplicate Subsurface Intersects\n" );
     CheckDuplicateSSIntersects();
 
     addOutputText( "Build Fea Mesh\n" );
@@ -384,6 +397,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Tag Fea Nodes\n" );
     TagFeaNodes();
 
+    addOutputText( "Remove Subsurf FEA Tris\n" );
     RemoveSubSurfFeaTris();
 
     addOutputText( "Exporting Files\n" );

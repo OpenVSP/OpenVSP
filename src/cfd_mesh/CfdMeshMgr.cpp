@@ -51,6 +51,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Init Timer\n" );
 #endif
 
+    addOutputText( "Transfer Mesh Settings\n" );
     TransferMeshSettings();
 
     addOutputText( "Fetching Bezier Surfaces\n" );
@@ -60,21 +61,26 @@ void CfdMeshMgrSingleton::GenerateMesh()
 
     // UpdateSourcesAndWakes must be before m_Vehicle->HideAll() to prevent components 
     // being being added to or removed from the CFD Mesh set
+    addOutputText( "Update Sources And Wakes\n" );
     UpdateSourcesAndWakes();
     WakeMgr.SetStretchMeshFlag( true );
 
     // Hide all geoms after fetching their surfaces
     m_Vehicle->HideAll();
 
+    addOutputText( "Cleanup\n" );
     CleanUp();
+
     addOutputText( "Loading Bezier Surfaces\n" );
     LoadSurfs( xfersurfs );
 
     if ( GetSettingsPtr()->m_IntersectSubSurfs )
     {
+        addOutputText( "Transfer Subsurface Data\n" );
         TransferSubSurfData();
     }
 
+    addOutputText( "Clean Merge Surfaces\n" );
     CleanMergeSurfs();
 
     if ( m_SurfVec.size() == 0 )
@@ -84,7 +90,10 @@ void CfdMeshMgrSingleton::GenerateMesh()
         return;
     }
 
+    addOutputText( "Update Domain\n" );
     UpdateDomain();
+
+    addOutputText( "Build Domain\n" );
     BuildDomain();
 
     addOutputText( "Build Grid\n" );
@@ -92,7 +101,6 @@ void CfdMeshMgrSingleton::GenerateMesh()
 
     addOutputText( "Intersect\n" );
     Intersect();
-    addOutputText( "Finished Intersect\n" );
 
     addOutputText( "Binary Adaptation Curve Approximation\n" );
     BinaryAdaptIntCurves();
@@ -103,6 +111,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "InitMesh\n" );
     InitMesh( );
 
+    addOutputText( "Sub Tag tris\n" );
     SubTagTris();
 
     addOutputText( "Remesh\n" );
@@ -112,6 +121,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     //string qual = CfdMeshMgr.GetQualString();
     //addOutputText( qual.c_str() );
 
+    addOutputText( "Build Single Tag Map\n" );
     SubSurfaceMgr.BuildSingleTagMap();
 
     addOutputText( "Exporting Files\n" );

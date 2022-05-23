@@ -421,6 +421,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     addOutputText( "Init Timer\n" );
 #endif
 
+    addOutputText( "Transfer Mesh Settings\n" );
     TransferMeshSettings();
 
     addOutputText( "Fetching Bezier Surfaces\n" );
@@ -430,23 +431,29 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
 
     // UpdateWakes must be before m_Vehicle->HideAll() to prevent components 
     // being being added to or removed from the Surface Intersection set
+    addOutputText( "Update Wakes\n" );
     UpdateWakes();
     WakeMgr.SetStretchMeshFlag( false );
 
     // Hide all geoms after fetching their surfaces
     m_Vehicle->HideAll();
 
+    addOutputText( "Cleanup\n" );
     CleanUp();
+
     addOutputText( "Loading Bezier Surfaces\n" );
     LoadSurfs( xfersurfs );
 
     if ( GetSettingsPtr()->m_IntersectSubSurfs )
     {
+        addOutputText( "Transfer Subsurf Data\n" );
         TransferSubSurfData();
     }
 
+    addOutputText( "Clean Merge Surfs\n" );
     CleanMergeSurfs();
 
+    addOutputText( "Identify CompID Names\n" );
     IdentifyCompIDNames();
 
     if ( m_SurfVec.size() == 0 )
@@ -459,14 +466,8 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     addOutputText( "Build Grid\n" );
     BuildGrid();
 
-//    auto t1 = std::chrono::high_resolution_clock::now();
-
     addOutputText( "Intersect\n" );
     Intersect();
-    addOutputText( "Finished Intersect\n" );
-
-//    auto t2 = std::chrono::high_resolution_clock::now();
-//    printf( "Intersect took %lld mus %f ms %f sec\n", std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count(), std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count()/1000.0, std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count()/1000000.0 );
 
     addOutputText( "Binary Adaptation Curve Approximation\n" );
     BinaryAdaptIntCurves();
