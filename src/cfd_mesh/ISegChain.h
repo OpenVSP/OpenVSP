@@ -65,6 +65,12 @@ public:
     virtual ~IPnt();
 
     void CompPnt();
+
+    void CompPnt_WithMetrics();
+    double CalcDave();
+    void DumpMatlab( FILE* fp, int figno );
+    void GetDOPts( vector < vec3d > &pts );
+
     Puw* GetPuw( Surf* surf  );
 
     void AddPuws( IPnt* ip );

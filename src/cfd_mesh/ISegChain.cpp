@@ -69,6 +69,111 @@ void IPnt::CompPnt()
     m_Pnt = psum;
 }
 
+void IPnt::CompPnt_WithMetrics()
+{
+    vector < vec3d > pts( m_Puws.size() );
+    vec3d psum;
+    for ( int i = 0 ; i < ( int )m_Puws.size() ; i++ )
+    {
+        vec2d uw = m_Puws[i]->m_UW;
+        vec3d p  = m_Puws[i]->m_Surf->CompPnt( uw[0], uw[1] );
+        psum = psum + p;
+
+        pts[i] = p;
+    }
+    if ( m_Puws.size() )
+    {
+        psum = psum * ( 1.0 / ( double )m_Puws.size() );
+
+        double dave = 0;
+        for ( int i = 0 ; i < ( int )m_Puws.size() ; i++ )
+        {
+            dave += dist( pts[i], psum );
+        }
+        dave /= m_Puws.size();
+
+        printf( "Number in group %d average spread %e\n", m_Puws.size(), dave );
+    }
+
+    m_Pnt = psum;
+}
+
+double IPnt::CalcDave()
+{
+    vector < vec3d > pts( m_Puws.size() );
+    vec3d psum;
+    double dave = -1;
+
+    for ( int i = 0 ; i < ( int )m_Puws.size() ; i++ )
+    {
+        vec2d uw = m_Puws[i]->m_UW;
+        vec3d p  = m_Puws[i]->m_Surf->CompPnt( uw[0], uw[1] );
+        psum = psum + p;
+
+        pts[i] = p;
+    }
+    if ( m_Puws.size() )
+    {
+        dave = 0;
+        psum = psum * ( 1.0 / ( double )m_Puws.size() );
+
+        for ( int i = 0 ; i < ( int )m_Puws.size() ; i++ )
+        {
+            dave += dist( pts[i], psum );
+        }
+        dave /= m_Puws.size();
+
+    }
+
+    return dave;
+}
+
+void IPnt::DumpMatlab( FILE* fp, int figno )
+{
+    vector < vec3d > pts( m_Puws.size() );
+
+    fprintf( fp, "figure( %d );\n", figno );
+    fprintf( fp, "hold on\n" );
+
+    vec3d psum;
+    for ( int i = 0 ; i < ( int )m_Puws.size() ; i++ )
+    {
+        vec2d uw = m_Puws[i]->m_UW;
+        vec3d p  = m_Puws[i]->m_Surf->CompPnt( uw[0], uw[1] );
+        fprintf( fp, "plot3( %.19e, %.19e, %.19e, 'kx' );\n", p.x(), p.y(), p.z() );
+        psum = psum + p;
+        pts[i] = p;
+    }
+    if ( m_Puws.size() )
+    {
+        psum = psum * ( 1.0 / ( double )m_Puws.size() );
+        fprintf( fp, "plot3( %.19e, %.19e, %.19e, 'bo' );\n", psum.x(), psum.y(), psum.z() );
+
+        double dave = 0;
+        for ( int i = 0 ; i < ( int )m_Puws.size() ; i++ )
+        {
+            dave += dist( pts[i], psum );
+        }
+        dave /= m_Puws.size();
+        fprintf( fp, "title( 'N = %d dave = %.19e' );\n", m_Puws.size(), dave );
+    }
+    fprintf( fp, "hold off\n" );
+    fprintf( fp, "axis equal\n" );
+
+}
+
+void IPnt::GetDOPts( vector < vec3d > &pts )
+{
+    int offset = pts.size();
+    pts.resize( offset + m_Puws.size() );
+    for ( int i = 0 ; i < ( int )m_Puws.size() ; i++ )
+    {
+        vec2d uw = m_Puws[i]->m_UW;
+        vec3d p  = m_Puws[i]->m_Surf->CompPnt( uw[0], uw[1] );
+        pts[ i + offset ] = p;
+    }
+}
+
 Puw* IPnt::GetPuw( Surf* surf )
 {
     for ( int i = 0 ; i < ( int )m_Puws.size() ; i++ )
