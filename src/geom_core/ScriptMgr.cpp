@@ -1140,6 +1140,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_ELEMENT_TYPE", "FEA_SHELL_AND_BEAM", FEA_SHELL_AND_BEAM, "/*!< Both Shell and Beam FEA element types */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_PART_ELEMENT_TYPE", "FEA_NO_ELEMENTS", FEA_NO_ELEMENTS, "/*!< FEA part with no elements */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_PART_ELEMENT_TYPE", "FEA_NUM_ELEMENT_TYPES", FEA_NUM_ELEMENT_TYPES, "/*!< Number of FEA element type choices */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum used to identify the available FEA Part types. */";
 

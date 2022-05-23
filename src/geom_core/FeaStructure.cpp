@@ -915,7 +915,7 @@ FeaPart::FeaPart( const string& geomID, int type )
 
     m_MainSurfIndx = 0;
 
-    m_IncludedElements.Init( "IncludedElements", "FeaPart", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_SHELL_AND_BEAM );
+    m_IncludedElements.Init( "IncludedElements", "FeaPart", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_NUM_ELEMENT_TYPES - 1 );
     m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the FeaPart" );
 
     m_OrientationType.Init( "Orientation", "FeaPart", this, vsp::FEA_ORIENT_PART_U, vsp::FEA_ORIENT_GLOBAL_X, vsp::FEA_NUM_ORIENT_TYPES - 1 );
@@ -3405,7 +3405,7 @@ bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen,
 
 FeaPartTrim::FeaPartTrim( const string& geomID, int type ) : FeaPart( geomID, type )
 {
-
+    m_IncludedElements.Set( vsp::FEA_NO_ELEMENTS );
 
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property

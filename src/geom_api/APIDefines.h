@@ -318,7 +318,9 @@ enum FEA_ORIENTATION_TYPE { FEA_ORIENT_GLOBAL_X,
 
 enum FEA_PART_ELEMENT_TYPE { FEA_SHELL = 0,
                              FEA_BEAM,
-                             FEA_SHELL_AND_BEAM
+                             FEA_SHELL_AND_BEAM,
+                             FEA_NO_ELEMENTS,
+                             FEA_NUM_ELEMENT_TYPES
                            };
 
 enum FEA_PART_TYPE { FEA_SLICE = 0,
