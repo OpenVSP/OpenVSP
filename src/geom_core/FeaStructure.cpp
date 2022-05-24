@@ -3434,26 +3434,41 @@ void FeaPartTrim::UpdateSurface()
 
 xmlNodePtr FeaPartTrim::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr fea_prt_node = FeaPart::EncodeXml( node );
+    xmlNodePtr part_info = xmlNewChild( node, NULL, BAD_CAST "FeaPartInfo", NULL );
 
-    if ( fea_prt_node )
+    if ( part_info )
     {
+        XmlUtil::AddIntNode( part_info, "FeaPartType", m_FeaPartType );
 
+        xmlNodePtr tlist_node = xmlNewChild( part_info, NULL, BAD_CAST "TrimList", NULL );
+        for ( int i = 0 ; i < ( int )m_TrimFeaPartIDVec.size() ; i++ )
+        {
+            xmlNodePtr trim_node = xmlNewChild( tlist_node, NULL, BAD_CAST "TrimPart", NULL );
+            XmlUtil::AddStringNode( trim_node, "ID", m_TrimFeaPartIDVec[i] );
+        }
+
+        ParmContainer::EncodeXml( part_info );
     }
 
-    return fea_prt_node;
+    return part_info;
 }
 
 xmlNodePtr FeaPartTrim::DecodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr fea_prt_node = FeaPart::DecodeXml( node );
+    Clear();
 
-    if ( fea_prt_node )
+    xmlNodePtr tl_node = XmlUtil::GetNode( node, "TrimList", 0 );
+    int num_trim = XmlUtil::GetNumNames( tl_node, "TrimPart" );
+
+    for ( int i = 0 ; i < num_trim ; i++ )
     {
-
+        xmlNodePtr n = XmlUtil::GetNode( tl_node, "TrimPart", i );
+        AddTrimPart( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
     }
 
-    return fea_prt_node;
+    ParmContainer::DecodeXml( node );
+
+    return node;
 }
 
 void FeaPartTrim::UpdateDrawObjs()
