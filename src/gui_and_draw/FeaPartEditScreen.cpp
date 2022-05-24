@@ -1754,6 +1754,15 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
+    if ( device == &m_SliceOrientationChoice )
+    {
+        StructureMgr.SetFeaSliceOrientIndex( m_SliceOrientationChoice.GetVal() );
+    }
+    else if ( device == &m_TrimPartChoice )
+    {
+        m_SelectedTrimPartChoice = m_TrimPartChoice.GetVal();
+    }
+
     if ( device == &m_FeaPartNameInput )
     {
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
@@ -1779,10 +1788,6 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                 }
             }
         }
-    }
-    else if ( device == &m_SliceOrientationChoice )
-    {
-        StructureMgr.SetFeaSliceOrientIndex( m_SliceOrientationChoice.GetVal() );
     }
     else if ( device == &m_RibPerpendicularSparChoice && StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
     {
@@ -1942,10 +1947,6 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                 }
             }
         }
-    }
-    else if ( device == &m_TrimPartChoice )
-    {
-        m_SelectedTrimPartChoice = m_TrimPartChoice.GetVal();
     }
     else if ( device == &m_AddTrimPartButton )
     {
