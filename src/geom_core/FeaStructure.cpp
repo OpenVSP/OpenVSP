@@ -3484,9 +3484,15 @@ void FeaPartTrim::UpdateDrawObjs()
                 vec3d cen = s.CompPnt01( 0.5, 0.5 );
                 vec3d dir = s.CompNorm01( 0.5, 0.5 );
 
-                if ( m_FlipFlagVec[ipart]->Get() )
+                if ( ipart < m_FlipFlagVec.size() )
                 {
-                    dir = -1.0 * dir;
+                    if ( m_FlipFlagVec[ ipart ] )
+                    {
+                        if ( m_FlipFlagVec[ ipart ]->Get() )
+                        {
+                            dir = -1.0 * dir;
+                        }
+                    }
                 }
 
                 arrowLineDO.m_PntVec.push_back( cen );
