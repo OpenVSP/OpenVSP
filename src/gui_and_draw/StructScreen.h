@@ -38,13 +38,8 @@ public:
     virtual void UpdateMainSurfChoice();
     virtual void UpdateFeaPartChoice();
     virtual void UpdateFeaPropertyBrowser();
-    virtual void UpdateFeaPropertyChoice();
     virtual void UpdateFeaMaterialBrowser();
     virtual void UpdateFeaMaterialChoice();
-
-    virtual void UpdateGenPropertyIndex( Choice* property_choice );
-//    virtual void UpdateGenOrientationIndex( Choice* orientation_choice );
-    virtual void UpdateGenCapPropertyIndex( Choice* property_choice );
 
     virtual void UpdateUnitLabels();
 
@@ -141,14 +136,6 @@ private:
     TriggerButton m_EditFeaPartButton;
     TriggerButton m_AddFeaPartButton;
     TriggerButton m_DelFeaPartButton;
-    ToggleButton m_ShellToggle;
-    ToggleButton m_CapToggle;
-    ToggleButton m_ShellCapToggle;
-    ToggleRadioGroup m_ShellCapToggleGroup;
-
-    Choice m_GenPropertyChoice;
-    Choice m_GenCapPropertyChoice;
-    Choice m_GenOrientationChoice;
 
     ToggleButton m_ShowFeaPartButton;
     ToggleButton m_HideFeaPartButton;

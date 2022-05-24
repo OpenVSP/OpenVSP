@@ -36,8 +36,6 @@ public:
     virtual void UpdatePerpendicularRibChoice();
     virtual void UpdateFixPointParentChoice();
     virtual void UpdateTrimPartChoice();
-    virtual void SetFeaPartPropertyIndex( Choice* property_choice );
-    virtual void SetCapPropertyIndex( Choice* property_choice );
     virtual void UpdateUnitLabels();
 
 private:
@@ -62,13 +60,18 @@ private:
 
     //===== General =====//
     StringInput m_FeaPartNameInput;
+    Choice m_ShellPropertyChoice;
+    Choice m_OrientationChoice;
+    Choice m_CapPropertyChoice;
+    ToggleButton m_ShellToggle;
+    ToggleButton m_CapToggle;
+    ToggleButton m_ShellCapToggle;
+    ToggleRadioGroup m_ShellCapToggleGroup;
 
     //===== Skin =====//
     ToggleButton m_RemoveSkinToggle;
-    Choice m_SkinPropertyChoice;
 
     //===== Slice =====//
-    Choice m_SlicePropertyChoice;
     Choice m_SliceOrientationChoice;
     ToggleButton m_SlicePosRelToggle;
     ToggleButton m_SlicePosAbsToggle;
@@ -82,14 +85,8 @@ private:
     SliderAdjRangeInput m_SliceXRotSlider;
     SliderAdjRangeInput m_SliceYRotSlider;
     SliderAdjRangeInput m_SliceZRotSlider;
-    Choice m_SliceCapPropertyChoice;
-    ToggleButton m_SliceShellToggle;
-    ToggleButton m_SliceCapToggle;
-    ToggleButton m_SliceShellCapToggle;
-    ToggleRadioGroup m_SliceShellCapToggleGroup;
 
     //===== Rib =====//
-    Choice m_RibPropertyChoice;
     ToggleButton m_RibNoNormalToggle;
     ToggleButton m_RibLENormalToggle;
     ToggleButton m_RibTENormalToggle;
@@ -107,16 +104,10 @@ private:
     SliderAdjRangeInput m_RibThetaSlider;
     ToggleButton m_RibTrimToBBoxToggle;
     ToggleButton m_RibRotateDihedralToggle;
-    Choice m_RibCapPropertyChoice;
-    ToggleButton m_RibShellToggle;
-    ToggleButton m_RibCapToggle;
-    ToggleButton m_RibShellCapToggle;
-    ToggleRadioGroup m_RibShellCapToggleGroup;
 
     vector < string > m_PerpendicularEdgeVec;
 
     //===== Spar =====//
-    Choice m_SparPropertyChoice;
     ToggleButton m_SparPosRelToggle;
     ToggleButton m_SparPosAbsToggle;
     ToggleRadioGroup m_SparPosTypeToggleGroup;
@@ -130,11 +121,6 @@ private:
     IndexSelector m_SparEndSectIndexSelector;
     SliderAdjRangeInput m_SparThetaSlider;
     ToggleButton m_SparTrimToBBoxToggle;
-    Choice m_SparCapPropertyChoice;
-    ToggleButton m_SparShellToggle;
-    ToggleButton m_SparCapToggle;
-    ToggleButton m_SparShellCapToggle;
-    ToggleRadioGroup m_SparShellCapToggleGroup;
 
     //===== Fix Point =====//
     Choice m_FixPointParentSurfChoice;
@@ -147,7 +133,6 @@ private:
     vector < string > m_FixPointParentIDVec;
 
     //===== Dome =====//
-    Choice m_DomePropertyChoice;
     ToggleButton m_DomeFlipDirButton;
     ToggleButton m_DomeSpineAttachButton;
     SliderAdjRangeInput m_DomeUSpineSlider;
@@ -166,14 +151,8 @@ private:
     SliderAdjRangeInput m_DomeXRotSlider;
     SliderAdjRangeInput m_DomeYRotSlider;
     SliderAdjRangeInput m_DomeZRotSlider;
-    Choice m_DomeCapPropertyChoice;
-    ToggleButton m_DomeShellToggle;
-    ToggleButton m_DomeCapToggle;
-    ToggleButton m_DomeShellCapToggle;
-    ToggleRadioGroup m_DomeShellCapToggleGroup;
 
     //===== RibArray =====//
-    Choice m_RibArrayPropertyChoice;
     ToggleButton m_RibArrayNoNormalToggle;
     ToggleButton m_RibArrayLENormalToggle;
     ToggleButton m_RibArrayTENormalToggle;
@@ -198,12 +177,7 @@ private:
     SliderAdjRangeInput m_RibArrayThetaSlider;
     ToggleButton m_RibArrayTrimToBBoxToggle;
     ToggleButton m_RibArrayRotateDihedralToggle;
-    Choice m_RibArrayCapPropertyChoice;
     TriggerButton m_IndividualizeRibArrayButton;
-    ToggleButton m_RibArrayShellToggle;
-    ToggleButton m_RibArrayCapToggle;
-    ToggleButton m_RibArrayShellCapToggle;
-    ToggleRadioGroup m_RibArrayShellCapToggleGroup;
 
     //===== SliceArray =====//
     Choice m_SliceArrayOrientationChoice;
@@ -226,12 +200,6 @@ private:
     SliderAdjRangeInput m_SliceArrayXRotSlider;
     SliderAdjRangeInput m_SliceArrayYRotSlider;
     SliderAdjRangeInput m_SliceArrayZRotSlider;
-    ToggleButton m_SliceArrayShellToggle;
-    ToggleButton m_SliceArrayCapToggle;
-    ToggleButton m_SliceArrayShellCapToggle;
-    ToggleRadioGroup m_SliceArrayShellCapToggleGroup;
-    Choice m_SliceArrayPropertyChoice;
-    Choice m_SliceArrayCapPropertyChoice;
     TriggerButton m_IndividualizeSliceArrayButton;
 
     //===== Trim =====//
@@ -250,7 +218,6 @@ private:
     //===== SubSurfaces =====//
 
     // SS_Line
-    Choice m_FeaSSLinePropertyChoice;
     SliderAdjRangeInput m_FeaSSLineConstSlider; // Either Constant U or W
     ToggleButton m_FeaSSLineConstUButton;
     ToggleButton m_FeaSSLineConstWButton;
@@ -259,14 +226,8 @@ private:
     ToggleButton m_FeaSSLineLessToggle;
     ToggleButton m_FeaSSLineNoneToggle;
     ToggleRadioGroup m_FeaSSLineTestToggleGroup;
-    Choice m_FeaSSLineCapPropertyChoice;
-    ToggleButton m_FeaSSLineShellToggle;
-    ToggleButton m_FeaSSLineCapToggle;
-    ToggleButton m_FeaSSLineShellCapToggle;
-    ToggleRadioGroup m_FeaSSLineShellCapToggleGroup;
 
     // SS_Rectangle
-    Choice m_FeaSSRecPropertyChoice;
     SliderAdjRangeInput m_FeaSSRecCentUSlider;
     SliderAdjRangeInput m_FeaSSRecCentWSlider;
     SliderAdjRangeInput m_FeaSSRecULenSlider;
@@ -276,14 +237,8 @@ private:
     ToggleButton m_FeaSSRecOutsideButton;
     ToggleButton m_FeaSSRecNoneButton;
     ToggleRadioGroup m_FeaSSRecTestToggleGroup;
-    Choice m_FeaSSRecCapPropertyChoice;
-    ToggleButton m_FeaSSRecShellToggle;
-    ToggleButton m_FeaSSRecCapToggle;
-    ToggleButton m_FeaSSRecShellCapToggle;
-    ToggleRadioGroup m_FeaSSRecShellCapToggleGroup;
 
     // SS_Ellipse
-    Choice m_FeaSSEllPropertyChoice;
     SliderAdjRangeInput m_FeaSSEllCentUSlider;
     SliderAdjRangeInput m_FeaSSEllCentWSlider;
     SliderAdjRangeInput m_FeaSSEllULenSlider;
@@ -294,14 +249,8 @@ private:
     ToggleButton m_FeaSSEllOutsideButton;
     ToggleButton m_FeaSSEllNoneButton;
     ToggleRadioGroup m_FeaSSEllTestToggleGroup;
-    Choice m_FeaSSEllCapPropertyChoice;
-    ToggleButton m_FeaSSEllShellToggle;
-    ToggleButton m_FeaSSEllCapToggle;
-    ToggleButton m_FeaSSEllShellCapToggle;
-    ToggleRadioGroup m_FeaSSEllShellCapToggleGroup;
 
     // SS_Control
-    Choice m_FeaSSConPropertyChoice;
     SliderAdjRangeInput m_FeaSSConUSSlider;
     SliderAdjRangeInput m_FeaSSConUESlider;
     SliderAdjRangeInput m_FeaSSConSFracSlider;
@@ -318,11 +267,6 @@ private:
     ToggleButton m_FeaSSConNoneButton;
     ToggleRadioGroup m_FeaSSConTestToggleGroup;
     Choice m_FeaSSConSurfTypeChoice;
-    Choice m_FeaSSConCapPropertyChoice;
-    ToggleButton m_FeaSSConShellToggle;
-    ToggleButton m_FeaSSConCapToggle;
-    ToggleButton m_FeaSSConShellCapToggle;
-    ToggleRadioGroup m_FeaSSConShellCapToggleGroup;
     SliderAdjRangeInput m_FeaSSConSAngleSlider;
     SliderAdjRangeInput m_FeaSSConEAngleSlider;
     ToggleButton m_FeaSSConSAngleButton;
@@ -337,15 +281,12 @@ private:
     ToggleButton m_FeaSSLineArrayConstUButton;
     ToggleButton m_FeaSSLineArrayConstWButton;
     ToggleRadioGroup m_FeaSSLineArrayConstToggleGroup;
-    Choice m_FeaSSLineArrayCapPropertyChoice;
     ToggleButton m_FeaSSLineArrayNegDirToggle;
     ToggleButton m_FeaSSLineArrayPosDirToggle;
     ToggleRadioGroup m_FeaSSLineArrayPosNegDirToggleGroup;
     TriggerButton m_IndividualizeSSLineArrayButton;
 
     //===== SSFiniteLine =====//
-
-    Choice m_FeaSSFLineCapPropertyChoice;
 
     SliderAdjRangeInput m_FeaSSFLineUStartSlider;
     SliderAdjRangeInput m_FeaSSFLineUEndSlider;
