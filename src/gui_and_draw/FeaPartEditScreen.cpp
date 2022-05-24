@@ -1768,36 +1768,38 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
         FeaStructure *structure = structvec[ StructureMgr.GetCurrStructIndex() ];
 
+        FeaPart* feaprt = NULL;
+        SubSurface* subsurf = NULL;
+
+        if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
+        {
+            feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+        }
+        else if ( StructureMgr.GetCurrPartIndex() >= structure->NumFeaParts() )
+        {
+            subsurf = structure->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structure->NumFeaParts() );
+        }
+
 
     if ( device == &m_FeaPartNameInput )
     {
 
-            if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-            {
-                FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
                 if ( feaprt )
                 {
                     feaprt->SetName( m_FeaPartNameInput.GetString() );
                 }
-            }
-            else if ( StructureMgr.GetCurrPartIndex() >= structure->NumFeaParts() )
-            {
-                SubSurface* subsurf = structure->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structure->NumFeaParts() );
 
                 if ( subsurf )
                 {
                     subsurf->SetName( m_FeaPartNameInput.GetString() );
                 }
-            }
+
 
     }
     else if ( device == &m_RibPerpendicularSparChoice )
     {
 
-        if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-        {
-            FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
             if ( feaprt && feaprt->GetType() == vsp::FEA_RIB )
             {
@@ -1806,14 +1808,10 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibPerpendicularSparChoice.GetVal()] );
             }
-        }
     }
     else if ( device == &m_RibNormalTypeGroup )
     {
 
-        if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-        {
-            FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
             if ( feaprt && feaprt->GetType() == vsp::FEA_RIB )
             {
@@ -1825,16 +1823,13 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibPerpendicularSparChoice.GetVal()] );
                 }
             }
-        }
+
     }
     else if ( device == &m_FixPointParentSurfChoice )
     {
 
             FeaPart* parent_feaprt = StructureMgr.GetFeaPart( m_FixPointParentIDVec[m_FixPointParentSurfChoice.GetVal()] );
 
-            if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-            {
-                FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
                 if ( feaprt && parent_feaprt )
                 {
@@ -1846,15 +1841,12 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                         fixpt->m_ParentFeaPartID = parent_feaprt->GetID();
                     }
                 }
-            }
+
 
     }
     else if ( device == &m_RibArrayPerpendicularSparChoice )
     {
 
-        if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-        {
-            FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
             if ( feaprt && feaprt->GetType() == vsp::FEA_RIB_ARRAY )
             {
@@ -1863,14 +1855,10 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibArrayPerpendicularSparChoice.GetVal()] );
             }
-        }
+
     }
     else if ( device == &m_RibArrayNormalTypeGroup )
     {
-
-        if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-        {
-            FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
             if ( feaprt && feaprt->GetType() == vsp::FEA_RIB_ARRAY )
             {
@@ -1882,14 +1870,11 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibArrayPerpendicularSparChoice.GetVal()] );
                 }
             }
-        }
+
     }
     else if ( device == &m_IndividualizeRibArrayButton )
     {
 
-            if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-            {
-                FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
                 if ( feaprt )
                 {
@@ -1898,14 +1883,11 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                         structure->IndividualizeRibArray( StructureMgr.GetCurrPartIndex() );
                     }
                 }
-            }
+
     }
     else if ( device == &m_IndividualizeSliceArrayButton )
     {
 
-            if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-            {
-                FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
                 if ( feaprt )
                 {
@@ -1914,14 +1896,11 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                         structure->IndividualizeSliceArray( StructureMgr.GetCurrPartIndex() );
                     }
                 }
-            }
+
     }
     else if ( device == &m_IndividualizeSSLineArrayButton )
     {
 
-            if ( StructureMgr.GetCurrPartIndex() >= structure->NumFeaParts() )
-            {
-                SubSurface* subsurf = structure->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structure->NumFeaParts() );
 
                 if ( subsurf )
                 {
@@ -1930,14 +1909,11 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                         structure->IndividualizeSSLineArray( StructureMgr.GetCurrPartIndex() - structure->NumFeaParts() );
                     }
                 }
-            }
+
     }
     else if ( device == &m_AddTrimPartButton )
     {
 
-        if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-        {
-            FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
             if ( feaprt && feaprt->GetType() == vsp::FEA_TRIM )
             {
@@ -1951,14 +1927,11 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     trim->Update();
                 }
             }
-        }
+
     }
     else if ( device == &m_DeleteTrimPartButton )
     {
 
-        if ( StructureMgr.GetCurrPartIndex() < structure->NumFeaParts() )
-        {
-            FeaPart* feaprt = structure->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
             if ( feaprt && feaprt->GetType() == vsp::FEA_TRIM )
             {
@@ -1972,7 +1945,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     trim->Update();
                 }
             }
-        }
+
     }
     }
     m_ScreenMgr->SetUpdateFlag( true );
