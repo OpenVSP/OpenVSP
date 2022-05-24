@@ -1781,143 +1781,113 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         }
 
 
-    if ( device == &m_FeaPartNameInput )
-    {
-
-
-                if ( feaprt )
-                {
-                    feaprt->SetName( m_FeaPartNameInput.GetString() );
-                }
-
-                if ( subsurf )
-                {
-                    subsurf->SetName( m_FeaPartNameInput.GetString() );
-                }
-
-
-    }
-    else if ( device == &m_RibPerpendicularSparChoice )
-    {
-
-
+        if ( device == &m_FeaPartNameInput )
+        {
+            if ( feaprt )
+            {
+                feaprt->SetName( m_FeaPartNameInput.GetString() );
+            }
+            else if ( subsurf )
+            {
+                subsurf->SetName( m_FeaPartNameInput.GetString() );
+            }
+        }
+        else if ( device == &m_RibPerpendicularSparChoice )
+        {
             if ( feaprt && feaprt->GetType() == vsp::FEA_RIB )
             {
-                FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
+                FeaRib *rib = dynamic_cast<FeaRib *>( feaprt );
                 assert( rib );
 
-                rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibPerpendicularSparChoice.GetVal()] );
+                rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[ m_RibPerpendicularSparChoice.GetVal() ] );
             }
-    }
-    else if ( device == &m_RibNormalTypeGroup )
-    {
-
-
+        }
+        else if ( device == &m_RibNormalTypeGroup )
+        {
             if ( feaprt && feaprt->GetType() == vsp::FEA_RIB )
             {
-                FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
+                FeaRib *rib = dynamic_cast<FeaRib *>( feaprt );
                 assert( rib );
 
                 if ( rib->m_PerpendicularEdgeType.Get() == vsp::SPAR_NORMAL )
                 {
-                    rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibPerpendicularSparChoice.GetVal()] );
+                    rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[ m_RibPerpendicularSparChoice.GetVal() ] );
                 }
             }
+        }
+        else if ( device == &m_FixPointParentSurfChoice )
+        {
+            FeaPart *parent_feaprt = StructureMgr.GetFeaPart( m_FixPointParentIDVec[ m_FixPointParentSurfChoice.GetVal() ] );
 
-    }
-    else if ( device == &m_FixPointParentSurfChoice )
-    {
-
-            FeaPart* parent_feaprt = StructureMgr.GetFeaPart( m_FixPointParentIDVec[m_FixPointParentSurfChoice.GetVal()] );
-
-
-                if ( feaprt && parent_feaprt )
+            if ( feaprt && parent_feaprt )
+            {
+                if ( feaprt->GetType() == vsp::FEA_FIX_POINT )
                 {
-                    if ( feaprt->GetType() == vsp::FEA_FIX_POINT )
-                    {
-                        FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt );
-                        assert( fixpt );
+                    FeaFixPoint *fixpt = dynamic_cast<FeaFixPoint *>( feaprt );
+                    assert( fixpt );
 
-                        fixpt->m_ParentFeaPartID = parent_feaprt->GetID();
-                    }
+                    fixpt->m_ParentFeaPartID = parent_feaprt->GetID();
                 }
-
-
-    }
-    else if ( device == &m_RibArrayPerpendicularSparChoice )
-    {
-
-
+            }
+        }
+        else if ( device == &m_RibArrayPerpendicularSparChoice )
+        {
             if ( feaprt && feaprt->GetType() == vsp::FEA_RIB_ARRAY )
             {
-                FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
+                FeaRibArray *rib_array = dynamic_cast<FeaRibArray *>( feaprt );
                 assert( rib_array );
 
-                rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibArrayPerpendicularSparChoice.GetVal()] );
+                rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[ m_RibArrayPerpendicularSparChoice.GetVal() ] );
             }
-
-    }
-    else if ( device == &m_RibArrayNormalTypeGroup )
-    {
-
+        }
+        else if ( device == &m_RibArrayNormalTypeGroup )
+        {
             if ( feaprt && feaprt->GetType() == vsp::FEA_RIB_ARRAY )
             {
-                FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
+                FeaRibArray *rib_array = dynamic_cast<FeaRibArray *>( feaprt );
                 assert( rib_array );
 
                 if ( rib_array->m_PerpendicularEdgeType.Get() == vsp::SPAR_NORMAL )
                 {
-                    rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibArrayPerpendicularSparChoice.GetVal()] );
+                    rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[ m_RibArrayPerpendicularSparChoice.GetVal() ] );
                 }
             }
-
-    }
-    else if ( device == &m_IndividualizeRibArrayButton )
-    {
-
-
-                if ( feaprt )
+        }
+        else if ( device == &m_IndividualizeRibArrayButton )
+        {
+            if ( feaprt )
+            {
+                if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
                 {
-                    if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
-                    {
-                        structure->IndividualizeRibArray( StructureMgr.GetCurrPartIndex() );
-                    }
+                    structure->IndividualizeRibArray( StructureMgr.GetCurrPartIndex() );
                 }
-
-    }
-    else if ( device == &m_IndividualizeSliceArrayButton )
-    {
-
-
-                if ( feaprt )
+            }
+        }
+        else if ( device == &m_IndividualizeSliceArrayButton )
+        {
+            if ( feaprt )
+            {
+                if ( feaprt->GetType() == vsp::FEA_SLICE_ARRAY )
                 {
-                    if ( feaprt->GetType() == vsp::FEA_SLICE_ARRAY )
-                    {
-                        structure->IndividualizeSliceArray( StructureMgr.GetCurrPartIndex() );
-                    }
+                    structure->IndividualizeSliceArray( StructureMgr.GetCurrPartIndex() );
                 }
-
-    }
-    else if ( device == &m_IndividualizeSSLineArrayButton )
-    {
-
-
-                if ( subsurf )
+            }
+        }
+        else if ( device == &m_IndividualizeSSLineArrayButton )
+        {
+            if ( subsurf )
+            {
+                if ( subsurf->GetType() == vsp::SS_LINE_ARRAY )
                 {
-                    if ( subsurf->GetType() == vsp::SS_LINE_ARRAY )
-                    {
-                        structure->IndividualizeSSLineArray( StructureMgr.GetCurrPartIndex() - structure->NumFeaParts() );
-                    }
+                    structure->IndividualizeSSLineArray( StructureMgr.GetCurrPartIndex() - structure->NumFeaParts() );
                 }
-
-    }
-    else if ( device == &m_AddTrimPartButton )
-    {
-
-
+            }
+        }
+        else if ( device == &m_AddTrimPartButton )
+        {
             if ( feaprt && feaprt->GetType() == vsp::FEA_TRIM )
             {
-                FeaPartTrim* trim = dynamic_cast<FeaPartTrim*>( feaprt );
+                FeaPartTrim *trim = dynamic_cast<FeaPartTrim *>( feaprt );
                 assert( trim );
 
                 if ( trim )
@@ -1927,15 +1897,12 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     trim->Update();
                 }
             }
-
-    }
-    else if ( device == &m_DeleteTrimPartButton )
-    {
-
-
+        }
+        else if ( device == &m_DeleteTrimPartButton )
+        {
             if ( feaprt && feaprt->GetType() == vsp::FEA_TRIM )
             {
-                FeaPartTrim* trim = dynamic_cast<FeaPartTrim*>( feaprt );
+                FeaPartTrim *trim = dynamic_cast<FeaPartTrim *>( feaprt );
                 assert( trim );
 
                 if ( trim )
@@ -1945,8 +1912,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     trim->Update();
                 }
             }
-
-    }
+        }
     }
     m_ScreenMgr->SetUpdateFlag( true );
 }
