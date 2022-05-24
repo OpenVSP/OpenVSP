@@ -716,19 +716,25 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int trim_part_col_widths[] = { m_TrimEditLayout.GetW()-100, 100, 0 }; // 2 columns
+    static int trim_part_col_widths[] = { m_TrimEditLayout.GetW()-75, 75, 0 }; // 2 columns
 
     m_TrimPartBrowser = m_TrimEditLayout.AddColResizeBrowser( trim_part_col_widths, 2, 200 );
     m_TrimPartBrowser->callback( staticScreenCB, this );
 
-    m_TrimEditLayout.AddChoice( m_TrimPartChoice, "Trim Part" );
-    m_TrimEditLayout.AddButton( m_FlipTrimDirButton, "Flip Dir" );
-
-
-    m_TrimEditLayout.SetFitWidthFlag( false );
+    m_TrimEditLayout.SetFitWidthFlag( true );
     m_TrimEditLayout.SetSameLineFlag( true );
 
-    m_TrimEditLayout.AddButton( m_AddTrimPartButton, "Add", m_TrimEditLayout.GetW() * 0.5 );
+    m_TrimEditLayout.SetChoiceButtonWidth( 75 );
+
+    m_TrimEditLayout.AddChoice( m_TrimPartChoice, "Trim Part", 75 );
+
+    m_TrimEditLayout.SetFitWidthFlag( false );
+    m_TrimEditLayout.AddButton( m_FlipTrimDirButton, "Flip Dir" );
+
+    m_TrimEditLayout.ForceNewLine();
+
+    m_TrimEditLayout.SetButtonWidth( m_TrimEditLayout.GetW() * 0.5 );
+    m_TrimEditLayout.AddButton( m_AddTrimPartButton, "Add" );
     m_TrimEditLayout.AddButton( m_DeleteTrimPartButton, "Delete" );
 
     //=== SubSurfaces ===//
