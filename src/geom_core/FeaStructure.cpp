@@ -3413,11 +3413,18 @@ FeaPartTrim::FeaPartTrim( const string& geomID, int type ) : FeaPart( geomID, ty
 
 FeaPartTrim::~FeaPartTrim()
 {
+    Clear();
+}
+
+void FeaPartTrim::Clear()
+{
     for ( int i = 0; i < m_FlipFlagVec.size(); i++ )
     {
         delete m_FlipFlagVec[i];
     }
     m_FlipFlagVec.clear();
+
+    m_TrimFeaPartIDVec.clear();
 }
 
 void FeaPartTrim::UpdateSurface()

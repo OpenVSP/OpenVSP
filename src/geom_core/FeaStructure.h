@@ -396,6 +396,8 @@ public:
     FeaPartTrim( const string& geomID, int type = vsp::FEA_TRIM );
     virtual ~FeaPartTrim();
 
+    virtual void Clear();
+
     virtual void UpdateSurface();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
