@@ -259,7 +259,7 @@ public:
     void SetFoilSurf( VspSurf *s )                           { m_FoilSurf = s; }
     VspSurf *GetFoilSurf()                                   { return m_FoilSurf; }
 
-    void MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &ptC, const vec3d &ptD );
+    void MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &ptC, const vec3d &ptD, double expand = 1.0 );
 
     void SetFeaOrientation( int otype, const vec3d &orient )
     {
