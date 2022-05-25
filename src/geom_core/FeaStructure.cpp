@@ -1974,7 +1974,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
         }
 
         // Make Planar Surface
-        slice_surf.MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+        slice_surf.MakePlaneSurf( cornerA, cornerB, cornerC, cornerD, 1.1 );
 
         // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
         Matrix4d trans_mat_1, trans_mat_2, rot_mat_x, rot_mat_y, rot_mat_z;
@@ -3165,7 +3165,7 @@ VspSurf FeaRib::ComputeRibSurf()
             cornerD = lead_edge_f - ( height * wing_z_axis );
 
             // Make Planar Surface
-            rib_surf.MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+            rib_surf.MakePlaneSurf( cornerA, cornerB, cornerC, cornerD, 1.1 );
 
             // Translate to the origin, rotate, and translate back to center
             Matrix4d trans_rot_mat;
