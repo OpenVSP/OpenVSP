@@ -26,6 +26,7 @@
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 #include "eli/geom/intersect/distance_angle_surface.hpp"
 #include "eli/geom/intersect/intersect_axis_surface.hpp"
+#include "eli/geom/intersect/intersect_segment_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
@@ -350,6 +351,14 @@ double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, const double &u
     w_out = w_out / GetWMax();
 
     return idist;
+}
+
+bool VspSurf::IsInside( const vec3d &pt )
+{
+    surface_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    return eli::geom::intersect::inside( m_Surface, p );
 }
 
 void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const

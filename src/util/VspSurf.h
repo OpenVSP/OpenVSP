@@ -123,6 +123,8 @@ public:
     double ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d & outpt ) const;
     double ProjectPt01( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d & outpt ) const;
 
+    bool IsInside( const vec3d &pt );
+
     void GetUConstCurve( VspCurve &c, const double &u ) const;
     void GetWConstCurve( VspCurve &c, const double &w ) const;
 
