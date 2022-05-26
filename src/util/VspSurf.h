@@ -117,6 +117,9 @@ public:
     double FindRST( const vec3d & pt, const double &r0, const double &s0, const double &t0, double &r, double &s, double &t ) const;
     double FindRST( const vec3d & pt, double &r, double &s, double &t ) const;
 
+    void ConvertRSTtoLMN( const double &r, const double &s, const double &t, double &l, double &m, double &n ) const;
+    void ConvertLMNtoRST( const double &l, const double &m, const double &n, double &r, double &s, double &t ) const;
+
     double ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d & outpt ) const;
     double ProjectPt( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d & outpt ) const;
 

@@ -311,6 +311,16 @@ double VspSurf::FindRST( const vec3d & pt, double &r, double &s, double &t ) con
     return dist;
 }
 
+void VspSurf::ConvertRSTtoLMN( const double &r, const double &s, const double &t, double &l, double &m, double &n ) const
+{
+    m_Surface.ConvertRSTtoLMN( r, s, t, l, m, n );
+}
+
+void VspSurf::ConvertLMNtoRST( const double &l, const double &m, const double &n, double &r, double &s, double &t ) const
+{
+    m_Surface.ConvertLMNtoRST( l, m, n, r, s, t );
+}
+
 double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d &outpt ) const
 {
     surface_point_type p, p0;
