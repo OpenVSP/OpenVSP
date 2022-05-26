@@ -16,6 +16,7 @@ namespace std {
     %template(IntVector)    vector<int>;
     %template(DoubleVector) vector<double>;
     %template(StringVector) vector<string>;
+    %template(BoolVector) vector<bool>;
     %template(DoubleVecVec)  vector< vector<double> >;
     %template(Vec3dVec) vector<vec3d>;
     %template(Matrix4dVec) vector<Matrix4d>;

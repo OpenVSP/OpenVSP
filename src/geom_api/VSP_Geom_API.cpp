@@ -7582,6 +7582,28 @@ double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, cons
     return idmin;
 }
 
+bool InsideSurf( const std::string &geom_id, const int &surf_indx, const vec3d &pt )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "InsideSurf::Can't Find Geom " + geom_id );
+        return false;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "InsideSurf::Invalid Surface Index " + to_string( surf_indx ) );
+        return false;
+    }
+
+    bool ret = geom_ptr->GetSurfPtr( surf_indx )->IsInside( pt );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
 vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t )
 {
     Vehicle* veh = GetVehicle();
@@ -7970,6 +7992,43 @@ void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, con
         return;
     }
     ErrorMgr.NoError();
+}
+
+std::vector < bool > VecInsideSurf( const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    vector < bool > ret;
+    ret.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+
+        if ( surf )
+        {
+            ret.resize( pts.size(), false );
+
+            for ( int i = 0; i < pts.size(); i++ )
+            {
+                ret[i] = surf->IsInside( pts[i] );
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "VecInsideSurf::Invalid surf index " + to_string( surf_indx ) );
+            return ret;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "VecInsideSurf::Can't Find Geom " + geom_id );
+        return ret;
+    }
+    ErrorMgr.NoError();
+    return ret;
 }
 
 std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const int &surf_indx, const std::vector < double > &rs, const std::vector < double > &ss, const std::vector < double > &ts )

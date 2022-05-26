@@ -10722,6 +10722,43 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Test whether a given point is inside a specified surface.
+
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double r = 0.12;
+    double s = 0.34;
+    double t = 0.56;
+
+    vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t );
+
+    bool res = InsideSurf( geom_id, surf_indx, pt );
+
+    if ( res )
+    {
+        print( "Inside" );
+    }
+    else
+    {
+        print( "Outside" );
+    }
+
+    \endcode
+    \sa VecInsideSurf
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] pt Input 3D coordinate point
+    \return Boolean true if the point is inside the surface, false otherwise.
+*/)";
+    r = se->RegisterGlobalFunction( "bool InsideSurf( const string & in geom_id, const int & in surf_indx, const vec3d & in pt )", asFUNCTION(vsp::InsideSurf), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Determine the nearest (R, S, T) volume coordinate for an input (X, Y, Z) 3D coordinate point and calculate the distance between the
     3D point and the found volume point.
     \code{.cpp}
@@ -11214,6 +11251,48 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [out] ds Output array of axis distances for each 3D point and the projected point of the surface
 */)";
     r = se->RegisterGlobalFunction( "void AxisProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<vec3d>@ ps_out, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Test whether a vector of points are inside a specified surface.
+
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    int n = 5;
+
+    array<double> rvec, svec, tvec;
+
+    rvec.resize( n );
+    svec.resize( n );
+    tvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        rvec[i] = (i+1)*1.0/(n+1);
+
+        svec[i] = (n-i)*0.5/(n+1);
+
+        tvec[i] = (i+1)*1.0/(n+1);
+    }
+
+    array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec );
+
+    array<bool> res;
+    res = VecInsideSurf( geom_id, surf_indx, ptvec );
+
+    \endcode
+    \sa VecInsideSurf
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] pts Input array of 3D coordinate points
+    \return Boolean vector for each point.  True if it is inside the surface, false otherwise.
+*/)";
+    r = se->RegisterGlobalFunction( "array<bool>@  VecInsideSurf( const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts )", asFUNCTION(vsp::VecInsideSurf), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
    doc_struct.comment = R"(
