@@ -10898,6 +10898,149 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Convert RST volumetric coordinates to LMN coordinates.
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double r = 0.12;
+    double s = 0.34;
+    double t = 0.56;
+    double l, m, n;
+
+    ConvertRSTtoLMN( geom_id, surf_indx, r, s, t, l, m, n );
+
+    \endcode
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] r R (0 - 1) volume coordinate
+    \param [in] s S (0 - 0.5) volume coordinate
+    \param [in] t T (0 - 1) volume coordinate
+    \param [out] l L (0 - 1) linear volume coordinate
+    \param [out] m M (0 - 1) linear volume coordinate
+    \param [out] n N (0 - 1) linear volume coordinate
+    \return void
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d ConvertRSTtoLMN( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t, double & out l, double & out m, double & out n )", asFUNCTION(vsp::ConvertRSTtoLMN), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Convert LMN volumetric coordinates to RST coordinates.
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double l = 0.12;
+    double m = 0.34;
+    double n = 0.56;
+    double r, s, t;
+
+    ConvertLMNtoRST( geom_id, surf_indx, l, m, n, r, s, t );
+
+    \endcode
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] l L (0 - 1) linear volume coordinate
+    \param [in] m M (0 - 1) linear volume coordinate
+    \param [in] n N (0 - 1) linear volume coordinate
+    \param [out] r R (0 - 1) volume coordinate
+    \param [out] s S (0 - 0.5) volume coordinate
+    \param [out] t T (0 - 1) volume coordinate
+    \return void
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d ConvertLMNtoRST( const string & in geom_id, const int & in surf_indx, const double & in l, const double & in m, const double & in n, double & out r, double & out s, double & out t )", asFUNCTION(vsp::ConvertLMNtoRST), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+
+    doc_struct.comment = R"(
+/*!
+    Convert vector of RST volumetric coordinates to LMN coordinates.
+
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int n = 5;
+
+    array<double> rvec, svec, tvec;
+
+    rvec.resize( n );
+    svec.resize( n );
+    tvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        rvec[i] = (i+1)*1.0/(n+1);
+        svec[i] = 0.5 * (n-i)*1.0/(n+1);
+        tvec[i] = (i+1)*1.0/(n+1);
+    }
+
+    array<double> lvec, mvec, nvec;
+
+    ConvertRSTtoLMNVec( geom_id, 0, rvec, svec, tvec, lvec, mvec, nvec );
+
+    \endcode
+    \sa ConvertLMNtoRSTVec, ConvertRSTtoLMN, ConvertLMNtoRST
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] rs Input array of R (0 - 1) volumetric coordinate
+    \param [in] ss Input array of S (0 - 0.5) volumetric coordinate
+    \param [in] ts Input array of T (0 - 1) volumetric coordinate
+    \param [out] ls Output array of L (0 - 1) linear volumetric coordinate
+    \param [out] ms Output array of M (0 - 1) linear volumetric coordinate
+    \param [out] ns Output array of N (0 - 1) linear volumetric coordinate
+*/)";
+    r = se->RegisterGlobalFunction( "void ConvertRSTtoLMNVec(const string & in geom_id, const int & in surf_indx, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ls, array<double>@ ms, array<double>@ ns )", asMETHOD( ScriptMgrSingleton, ConvertRSTtoLMNVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Convert vector of LMN volumetric coordinates to RST coordinates.
+
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int n = 5;
+
+    array<double> lvec, mvec, nvec;
+
+    lvec.resize( n );
+    mvec.resize( n );
+    nvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        lvec[i] = (i+1)*1.0/(n+1);
+        mvec[i] = (n-i)*1.0/(n+1);
+        nvec[i] = (i+1)*1.0/(n+1);
+    }
+
+    array<double> rvec, svec, tvec;
+
+    ConvertLMNtoRSTVec( geom_id, 0, lvec, mvec, nvec, rvec, svec, tvec );
+
+    \endcode
+    \sa ConvertRSTtoLMNVec, ConvertRSTtoLMN, ConvertLMNtoRST
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] rs Input array of R (0 - 1) volumetric coordinate
+    \param [in] ss Input array of S (0 - 0.5) volumetric coordinate
+    \param [in] ts Input array of T (0 - 1) volumetric coordinate
+    \param [out] ls Output array of L (0 - 1) linear volumetric coordinate
+    \param [out] ms Output array of M (0 - 1) linear volumetric coordinate
+    \param [out] ns Output array of N (0 - 1) linear volumetric coordinate
+*/)";
+    r = se->RegisterGlobalFunction( "void ConvertLMNtoRSTVec(const string & in geom_id, const int & in surf_indx, array<double>@ ls, array<double>@ ms, array<double>@ ns, array<double>@ rs, array<double>@ ss, array<double>@ ts )", asMETHOD( ScriptMgrSingleton, ConvertLMNtoRSTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Get the surface coordinate point of each intersection of the tessellated wireframe for a particular surface
     \code{.cpp}
     // Add Pod Geom
@@ -13563,6 +13706,48 @@ void ScriptMgrSingleton::FindRSTVecGuess(const string &geom_id, const int &surf_
     FillArray( out_ss, ss );
     FillArray( out_ts, ts );
     FillArray( out_ds, ds );
+}
+
+void ScriptMgrSingleton::ConvertRSTtoLMNVec(const string &geom_id, const int &surf_indx, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts, CScriptArray* ls, CScriptArray* ms, CScriptArray* ns )
+{
+    vector < double > in_rs;
+    vector < double > in_ss;
+    vector < double > in_ts;
+
+    FillArray( rs, in_rs );
+    FillArray( ss, in_ss );
+    FillArray( ts, in_ts );
+
+    vector < double > out_ls;
+    vector < double > out_ms;
+    vector < double > out_ns;
+
+    vsp::ConvertRSTtoLMNVec( geom_id, surf_indx, in_rs, in_ss, in_ts, out_ls, out_ms, out_ns );
+
+    FillArray( out_ls, ls );
+    FillArray( out_ms, ms );
+    FillArray( out_ns, ns );
+}
+
+void ScriptMgrSingleton::ConvertLMNtoRSTVec(const string &geom_id, const int &surf_indx, CScriptArray* ls, CScriptArray* ms, CScriptArray* ns, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts )
+{
+    vector < double > in_ls;
+    vector < double > in_ms;
+    vector < double > in_ns;
+
+    FillArray( ls, in_ls );
+    FillArray( ms, in_ms );
+    FillArray( ns, in_ns );
+
+    vector < double > out_rs;
+    vector < double > out_ss;
+    vector < double > out_ts;
+
+    vsp::ConvertLMNtoRSTVec( geom_id, surf_indx, in_ls, in_ms, in_ns, out_rs, out_ss, out_ts );
+
+    FillArray( out_rs, rs );
+    FillArray( out_ss, ss );
+    FillArray( out_ts, ts );
 }
 
 void ScriptMgrSingleton::GetUWTess01(const string &geom_id, int &surf_indx, CScriptArray* us, CScriptArray* ws )

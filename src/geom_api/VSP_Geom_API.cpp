@@ -7679,6 +7679,54 @@ double FindRSTGuess( const std::string &geom_id, const int &surf_indx, const vec
     return dist;
 }
 
+void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l, double &m, double &n )
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertRSTtoLMN::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertRSTtoLMN::Invalid Surface Index " + to_string( surf_indx ) );
+        return;
+    }
+
+    geom->GetSurfPtr( surf_indx )->ConvertRSTtoLMN( r, s, t, l, m, n );
+
+    ErrorMgr.NoError();
+
+    return;
+}
+
+void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r, double &s, double &t )
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertLMNtoRST::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertLMNtoRST::Invalid Surface Index " + to_string( surf_indx ) );
+        return;
+    }
+
+    geom->GetSurfPtr( surf_indx )->ConvertLMNtoRST( l, m, n, r, s, t );
+
+    ErrorMgr.NoError();
+
+    return;
+}
+
 vector < vec3d > CompVecPnt01( const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws )
 {
     Vehicle* veh = GetVehicle();
@@ -8161,6 +8209,104 @@ void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, const st
     else
     {
         ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "FindRSTVecGuess::Can't Find Geom " + geom_id );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx,
+                      const std::vector < double > &r_vec, const std::vector < double > &s_vec, const std::vector < double > &t_vec,
+                      std::vector < double > &l_out_vec, std::vector < double > &m_out_vec, std::vector < double > &n_out_vec )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    l_out_vec.resize( 0 );
+    m_out_vec.resize( 0 );
+    n_out_vec.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        if ( r_vec.size() == s_vec.size() && r_vec.size() == t_vec.size() )
+        {
+            VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
+
+            if ( surf )
+            {
+                l_out_vec.resize( r_vec.size() );
+                m_out_vec.resize( r_vec.size() );
+                n_out_vec.resize( r_vec.size() );
+
+                for ( int i = 0; i < r_vec.size(); i++ )
+                {
+                    surf->ConvertRSTtoLMN( r_vec[i], s_vec[i], t_vec[i], l_out_vec[i], m_out_vec[i], n_out_vec[i] );
+                }
+            }
+            else
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertRSTtoLMN::Invalid surf index " + to_string( surf_indx ) );
+                return;
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertRSTtoLMN::Input size mismatch." );
+            return;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertRSTtoLMN::Can't Find Geom " + geom_id );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx,
+                      const std::vector < double > &l_vec, const std::vector < double > &m_vec, const std::vector < double > &n_vec,
+                      std::vector < double > &r_out_vec, std::vector < double > &s_out_vec, std::vector < double > &t_out_vec )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    r_out_vec.resize( 0 );
+    s_out_vec.resize( 0 );
+    t_out_vec.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        if ( l_vec.size() == m_vec.size() && l_vec.size() == n_vec.size() )
+        {
+            VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
+
+            if ( surf )
+            {
+                r_out_vec.resize( l_vec.size() );
+                s_out_vec.resize( l_vec.size() );
+                t_out_vec.resize( l_vec.size() );
+
+                for ( int i = 0; i < l_vec.size(); i++ )
+                {
+                    surf->ConvertRSTtoLMN( l_vec[i], m_vec[i], n_vec[i], r_out_vec[i], s_out_vec[i], t_out_vec[i] );
+                }
+            }
+            else
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertLMNtoRST::Invalid surf index " + to_string( surf_indx ) );
+                return;
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertLMNtoRST::Input size mismatch." );
+            return;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertLMNtoRST::Can't Find Geom " + geom_id );
         return;
     }
     ErrorMgr.NoError();

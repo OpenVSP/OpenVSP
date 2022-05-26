@@ -36,6 +36,9 @@ namespace std {
 %apply ( std::vector<double> &OUTPUT ) { std::vector < double > &s_out_vec };
 %apply ( std::vector<double> &OUTPUT ) { std::vector < double > &r_out_vec };
 %apply ( std::vector<double> &OUTPUT ) { std::vector < double > &t_out_vec };
+%apply ( std::vector<double> &OUTPUT ) { std::vector < double > &l_out_vec };
+%apply ( std::vector<double> &OUTPUT ) { std::vector < double > &m_out_vec };
+%apply ( std::vector<double> &OUTPUT ) { std::vector < double > &n_out_vec };
 
 /* Let's just grab the original header file here */
 %include "APIDefines.h"
