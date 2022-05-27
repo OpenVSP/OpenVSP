@@ -852,14 +852,14 @@ void StructureMgrSingleton::InitFeaMaterials()
                               "Aluminum 2024-T3",
                               "Titanium Ti-6Al-4V",
                               "AISI 4130 Steel",
-                              "Carbon Epoxy AS4 3501-6 [02/90]s",
-                              "Carbon Epoxy AS4 3501-6 [0/90]2s",
+                              "Carbon Epoxy AS4 3501-6 [0_2/90]s",
+                              "Carbon Epoxy AS4 3501-6 [0/90]_2s",
                               "Carbon Epoxy AS4 3501-6 [0/90/+-45]s",
-                              "Carbon Epoxy AS4 3501-6 [+-30]2s",
-                              "Carbon Epoxy AS4 3501-6 [+-45]2s",
-                              "Carbon Epoxy AS4 3501-6 [+-60]2s",
-                              "Glass Epoxy S2 3501-6 [02/90]s",
-                              "Glass Epoxy S2 3501-6 [0/90]2s",
+                              "Carbon Epoxy AS4 3501-6 [+-30]_2s",
+                              "Carbon Epoxy AS4 3501-6 [+-45]_2s",
+                              "Carbon Epoxy AS4 3501-6 [+-60]_2s",
+                              "Glass Epoxy S2 3501-6 [0_2/90]s",
+                              "Glass Epoxy S2 3501-6 [0/90]_2s",
                               "Glass Epoxy S2 3501-6 [0/90/+-45]s",
                               "Balsa LTR",
                               "Sitka Spruce LTR"};
@@ -867,9 +867,9 @@ void StructureMgrSingleton::InitFeaMaterials()
     // These materials duplicate names above, but have different properties in the source.
     // Keep these names here in case it gets sorted later and they need to be added.
     /*
-            "Carbon Epoxy AS4 3501-6 [+-30]2s",
-            "Carbon Epoxy AS4 3501-6 [+-45]2s",
-            "Carbon Epoxy AS4 3501-6 [+-60]2s",
+            "Carbon Epoxy AS4 3501-6 [+-30]_2s",
+            "Carbon Epoxy AS4 3501-6 [+-45]_2s",
+            "Carbon Epoxy AS4 3501-6 [+-60]_2s",
     */
 
     for ( int i = 0; i < nmat; i++ )

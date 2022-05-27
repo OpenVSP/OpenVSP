@@ -4899,7 +4899,7 @@ void FeaMaterial::Update()
             m_ElasticModulus.Set( ConvertPressure( 205e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
             m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 13.7e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-�C)
         }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [02/90]s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [0_2/90]s" ) == 0 )
         {
             /*
             AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
@@ -4924,7 +4924,7 @@ void FeaMaterial::Update()
             m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
             m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
         }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [0/90]2s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [0/90]_2s" ) == 0 )
         {
             m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
             m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
@@ -4958,7 +4958,7 @@ void FeaMaterial::Update()
             m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
             m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
         }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-30]2s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-30]_2s" ) == 0 )
         {
             m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
             m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
@@ -4975,7 +4975,7 @@ void FeaMaterial::Update()
             m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
             m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
         }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-45]2s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-45]_2s" ) == 0 )
         {
             m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
             m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
@@ -4992,7 +4992,7 @@ void FeaMaterial::Update()
             m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
             m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
         }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-60]2s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-60]_2s" ) == 0 )
         {
             m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
             m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
@@ -5009,7 +5009,7 @@ void FeaMaterial::Update()
             m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
             m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
         }
-        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [02/90]s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [0_2/90]s" ) == 0 )
         {
             /*
             S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
@@ -5034,7 +5034,7 @@ void FeaMaterial::Update()
             m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
             m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
         }
-        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [0/90]2s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [0/90]_2s" ) == 0 )
         {
             m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
             m_MassDensity.Set( ConvertDensity( 1878, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
@@ -5147,7 +5147,7 @@ void FeaMaterial::Update()
         // It duplicates another entry above -- but the values are different.
         // It is possible that these values apply to S2/3501-6 for the indicated laminate schedules.
         /*
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-30]2s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-30]_2s" ) == 0 )
         {
             m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
             m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
@@ -5164,7 +5164,7 @@ void FeaMaterial::Update()
             m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
             m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
         }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-45]2s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-45]_2s" ) == 0 )
         {
             m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
             m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
@@ -5181,7 +5181,7 @@ void FeaMaterial::Update()
             m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
             m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
         }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-60]2s" ) == 0 )
+        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-60]_2s" ) == 0 )
         {
             m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
             m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
