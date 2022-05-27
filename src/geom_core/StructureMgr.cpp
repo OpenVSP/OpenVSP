@@ -795,7 +795,7 @@ FeaMaterial* StructureMgrSingleton::AddFeaMaterial()
 
     if ( feamat )
     {
-        feamat->SetName( string( "Material" + std::to_string( m_FeaMatCount ) ) );
+        feamat->SetName( string( "Material" + std::to_string( m_FeaMatCount ) ), false ); // false is for removeslashes
         feamat->m_UserFeaMaterial = true;
         m_FeaMaterialVec.push_back( feamat );
         m_FeaMatCount++;
@@ -852,15 +852,15 @@ void StructureMgrSingleton::InitFeaMaterials()
                               "Aluminum 2024-T3",
                               "Titanium Ti-6Al-4V",
                               "AISI 4130 Steel",
-                              "Carbon Epoxy AS4 3501-6 [02 90]s",
-                              "Carbon Epoxy AS4 3501-6 [0 90]2s",
-                              "Carbon Epoxy AS4 3501-6 [0 90 +-45]s",
+                              "Carbon Epoxy AS4 3501-6 [02/90]s",
+                              "Carbon Epoxy AS4 3501-6 [0/90]2s",
+                              "Carbon Epoxy AS4 3501-6 [0/90/+-45]s",
                               "Carbon Epoxy AS4 3501-6 [+-30]2s",
                               "Carbon Epoxy AS4 3501-6 [+-45]2s",
                               "Carbon Epoxy AS4 3501-6 [+-60]2s",
-                              "Glass Epoxy S2 3501-6 [02 90]s",
-                              "Glass Epoxy S2 3501-6 [0 90]2s",
-                              "Glass Epoxy S2 3501-6 [0 90 +-45]s",
+                              "Glass Epoxy S2 3501-6 [02/90]s",
+                              "Glass Epoxy S2 3501-6 [0/90]2s",
+                              "Glass Epoxy S2 3501-6 [0/90/+-45]s",
                               "Balsa LTR",
                               "Sitka Spruce LTR"};
 
@@ -875,7 +875,7 @@ void StructureMgrSingleton::InitFeaMaterials()
     for ( int i = 0; i < nmat; i++ )
     {
         FeaMaterial* mat = new FeaMaterial();
-        mat->SetName( matnames[i] );
+        mat->SetName( matnames[i], false ); // false is for removeslashes
         mat->m_UserFeaMaterial = false;
         mat->Update();
         AddFeaMaterial( mat );
