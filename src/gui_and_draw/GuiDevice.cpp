@@ -1751,7 +1751,17 @@ void Choice::UpdateItems( bool keepsetting )
         m_Choice->clear();
         for ( int i = 0 ; i < ( int )m_Items.size() ; i++ )
         {
-            m_Choice->add( m_Items[i].c_str(), 0, 0, 0, m_Flags[i] );
+            // Slashes in names create sub-menus.  We don't want those.
+            if ( m_Items[i].find( '/' ) != string::npos )
+            {
+                m_Choice->add( "dummy", 0, 0, 0, m_Flags[i] );
+                // Only way to add strings with slashes is to replace just-added entry.
+                m_Choice->replace( i, m_Items[i].c_str() );
+            }
+            else
+            {
+                m_Choice->add( m_Items[i].c_str(), 0, 0, 0, m_Flags[i] );
+            }
         }
 
         if( keepsetting )
