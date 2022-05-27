@@ -1434,6 +1434,8 @@ void StructScreen::UpdateFeaMaterialBrowser()
     for ( int i = 0; i < (int)material_vec.size(); i++ )
     {
         string mat_name = material_vec[i]->GetName();
+        fltk_unicode_subscripts( mat_name );
+        fltk_unicode_plusminus( mat_name );
         m_FeaMaterialSelectBrowser->add( mat_name.c_str() );
     }
 
@@ -1464,11 +1466,15 @@ void StructScreen::UpdateFeaMaterialChoice()
 
         for ( int i = 0; i < material_vec.size(); ++i )
         {
-            m_FeaShellMaterialChoice.AddItem( string( material_vec[i]->GetName() ), i );
+            string mat_name = material_vec[i]->GetName();
+            fltk_unicode_subscripts( mat_name );
+            fltk_unicode_plusminus( mat_name );
+
+            m_FeaShellMaterialChoice.AddItem( mat_name, i );
 
             if ( material_vec[i]->m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
             {
-                m_FeaBeamMaterialChoice.AddItem( string( material_vec[i]->GetName() ), i );
+                m_FeaBeamMaterialChoice.AddItem( mat_name, i );
             }
         }
         m_FeaShellMaterialChoice.UpdateItems();
