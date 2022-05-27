@@ -153,11 +153,14 @@ int ParmContainer::GetLatestChangeCnt()
     return cnt;
 }
 
-void ParmContainer::SetName( const string& name )
+void ParmContainer::SetName( const string& name, bool removeslashes )
 {
     string temp_name = name;
     // Remove forward slashes, which FLTK interprets as new choice dropdowns
-    StringUtil::remove_all( temp_name, '/' );
+    if ( removeslashes )
+    {
+        StringUtil::remove_all( temp_name, '/' );
+    }
     m_Name = temp_name;
 }
 
