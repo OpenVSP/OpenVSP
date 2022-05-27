@@ -17,6 +17,7 @@
 #include "AdvLinkMgr.h"
 #include "StlHelper.h"
 #include "VspUtil.h"
+#include "StringUtil.h"
 #include <cfloat>  //For DBL_EPSILON
 
 // Xlib.h does a horrible '#define Status int' which causes problems for exprparse.
@@ -27,6 +28,38 @@
 
 using std::max;
 using std::min;
+
+void fltk_unicode_subscripts( string & str )
+{
+    for ( int i = 0 ; i < ( int )str.size() ; i++ )
+    {
+        if ( str[i] == '_' )
+        {
+            int n = str[i+1] - 48;
+            if ( n >= 0 && n <= 9 )
+            {
+                char buf[16];
+                int indx = 0;
+                indx += fl_utf8encode( 8320 + n, &buf[ indx ] );
+                buf[ indx ] = 0;
+                string subscr( buf );
+                str.replace( i, 2, subscr );
+                i++;
+            }
+        }
+    }
+}
+
+void fltk_unicode_plusminus( string & str )
+{
+    char buf[16];
+    int indx = 0;
+    indx += fl_utf8encode( 177, &buf[ indx ] );
+    buf[ indx ] = 0;
+
+    string plusminus( "+-" );
+    StringUtil::replace_all( str, plusminus, buf  );
+}
 
 VspSlider::VspSlider(int x, int y, int w, int h, const char *label ):Fl_Slider(x, y, w, h, label)
 {

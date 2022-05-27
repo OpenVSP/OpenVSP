@@ -85,6 +85,9 @@ class GroupLayout;
 //  ColResizeBrowser (None)         Fl_Browser with resizeable columns. Based on the code provided at Erco's 
 //                                      FLTK Cheat Page: http://seriss.com/people/erco/fltk/#Fl_Resize_Browser
 
+void fltk_unicode_subscripts( string & str );
+void fltk_unicode_plusminus( string & str );
+
 class VspSlider : public Fl_Slider
 {
 public:
