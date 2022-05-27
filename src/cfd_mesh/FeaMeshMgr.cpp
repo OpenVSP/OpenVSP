@@ -2571,6 +2571,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         for ( unsigned int i = 0; i < m_SimplePropertyVec.size(); i++ )
         {
             m_SimplePropertyVec[i].WriteNASTRAN( temp, i + 1 );
+            m_SimpleMaterialVec[ m_SimplePropertyVec[i].GetSimpFeaMatIndex() ].m_Used = true;
         }
 
         //==== Materials ====//
@@ -2896,6 +2897,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                         char ostr[256];
                         sprintf( ostr, "O%s_%d", m_FeaPartNameVec[i].c_str(), isurf );
                         m_SimplePropertyVec[property_id].WriteCalculix( fp, str, ostr );
+                        m_SimpleMaterialVec[ m_SimplePropertyVec[ property_id ].GetSimpFeaMatIndex() ].m_Used = true;
 
                         Surf *srf = GetFeaSurf( i, isurf );  // i is partID, isurf is surf_number
                         if ( srf )
@@ -2917,6 +2919,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                         fprintf( fp, "\n" );
                         sprintf( str, "E%s_%d_CAP", m_FeaPartNameVec[i].c_str(), isurf );
                         m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str, "" );
+                        m_SimpleMaterialVec[ m_SimplePropertyVec[ cap_property_id ].GetSimpFeaMatIndex() ].m_Used = true;
                     }
                 }
             }
@@ -2938,6 +2941,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                     char ostr[256];
                     sprintf( ostr, "O%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
                     m_SimplePropertyVec[property_id].WriteCalculix( fp, str, ostr );
+                    m_SimpleMaterialVec[ m_SimplePropertyVec[ property_id ].GetSimpFeaMatIndex() ].m_Used = true;
 
                     vec3d orient = ovec[isurf];
                     // int otype = m_SimpleSubSurfaceVec[i].GetFeaOrientationType();
@@ -2951,6 +2955,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                     fprintf( fp, "\n" );
                     sprintf( str, "E%s_%d_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
                     m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str, "" );
+                    m_SimpleMaterialVec[ m_SimplePropertyVec[ cap_property_id ].GetSimpFeaMatIndex() ].m_Used = true;
                 }
             }
         }
@@ -2962,7 +2967,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
         for ( unsigned int i = 0; i < m_SimpleMaterialVec.size(); i++ )
         {
             m_SimpleMaterialVec[i].WriteCalculix( fp, i );
-            fprintf( fp, "\n" );
         }
 
         fclose( fp );

@@ -270,6 +270,8 @@ public:
 
     double GetShearModulus();
 
+    bool m_Used;
+
     double m_MassDensity;
     double m_ElasticModulus;
     double m_PoissonRatio;

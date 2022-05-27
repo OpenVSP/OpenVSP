@@ -556,11 +556,17 @@ void SimpleFeaMaterial::CopyFrom( FeaMaterial* fea_mat )
         m_A2 = fea_mat->m_A2.Get();
         m_A3 = fea_mat->m_A3.Get();
         m_Name = fea_mat->GetName();
+        m_Used = false;
     }
 }
 
 void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
 {
+    if ( !m_Used )
+    {
+        return;
+    }
+
     if ( m_FeaMaterialType == vsp::FEA_ISOTROPIC )
     {
         fprintf( fp, "$ %s\n", m_Name.c_str() );
@@ -589,10 +595,16 @@ void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
         fprintf( fp, fmt.c_str(), mat_id, m_E1, m_E2, m_nu12, m_G12, m_G13, m_G23, m_MassDensity, m_A1, m_A2  );
         // If solid elements are ever added, they will need MAT9 for isotropic materials.
     }
+    fprintf( fp, "\n" );
 }
 
 void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id )
 {
+    if ( !m_Used )
+    {
+        return;
+    }
+
     if ( m_FeaMaterialType == vsp::FEA_ISOTROPIC )
     {
         fprintf( fp, "*MATERIAL, NAME=%s\n", m_Name.c_str() );
@@ -614,6 +626,7 @@ void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id )
         fprintf( fp, "*EXPANSION, TYPE=ORTHO\n" );
         fprintf( fp, "%g, %g, %g\n", m_A1, m_A2, m_A3 );
     }
+    fprintf( fp, "\n" );
 }
 
 double SimpleFeaMaterial::GetShearModulus()
