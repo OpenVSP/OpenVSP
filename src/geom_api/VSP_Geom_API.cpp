@@ -8146,10 +8146,7 @@ void FindRSTVec( const std::string &geom_id, const int &surf_indx, const std::ve
             ts.resize( pts.size() );
             ds.resize( pts.size() );
 
-            for ( int i = 0; i < pts.size(); i++ )
-            {
-                ds[i] = surf->FindRST( pts[i], rs[i], ss[i], ts[i] );
-            }
+            surf->FindRST( pts, rs, ss, ts, ds );
         }
         else
         {
