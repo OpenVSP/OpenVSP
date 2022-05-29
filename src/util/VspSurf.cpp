@@ -311,6 +311,19 @@ double VspSurf::FindRST( const vec3d & pt, double &r, double &s, double &t ) con
     return dist;
 }
 
+void VspSurf::FindRST( const vector < vec3d > & pt, vector < double > &r, vector < double > &s, vector < double > &t, vector < double > &d  ) const
+{
+    int n = pt.size();
+    vector <surface_point_type> pts( n );
+    vector <surface_index_type> ret(n);
+
+    for ( int i = 0; i < n; i++ )
+    {
+        pts[i] << pt[i].x(), pt[i].y(), pt[i].z();
+    }
+    eli::geom::intersect::find_rst( r, s, t, d, m_Surface, pts, ret );
+}
+
 void VspSurf::ConvertRSTtoLMN( const double &r, const double &s, const double &t, double &l, double &m, double &n ) const
 {
     m_Surface.ConvertRSTtoLMN( r, s, t, l, m, n );
