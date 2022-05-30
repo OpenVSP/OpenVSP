@@ -509,8 +509,6 @@ public:
 
     vector< vec3d > m_VertVec;
 
-    bool m_HalfBoxFlag;
-
     // Surface type of parent surface.
     int m_SurfType;
 

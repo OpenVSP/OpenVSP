@@ -1850,10 +1850,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
         //==== Count Tris ====//
         for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
-            if ( !m_TMeshVec[i]->m_HalfBoxFlag )
-            {
-                numTris += m_TMeshVec[i]->m_TVec.size();
-            }
+            numTris += m_TMeshVec[i]->m_TVec.size();
         }
     }
 
@@ -1861,17 +1858,14 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
     vector< string > compIdVec;
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        if ( !m_TMeshVec[i]->m_HalfBoxFlag )
+        string id = m_TMeshVec[i]->m_PtrID;
+        vector<string>::iterator iter;
+
+        iter = find( compIdVec.begin(), compIdVec.end(), id );
+
+        if ( iter == compIdVec.end() )
         {
-            string id = m_TMeshVec[i]->m_PtrID;
-            vector<string>::iterator iter;
-
-            iter = find( compIdVec.begin(), compIdVec.end(), id );
-
-            if ( iter == compIdVec.end() )
-            {
-                compIdVec.push_back( id );
-            }
+            compIdVec.push_back( id );
         }
     }
 
@@ -2002,31 +1996,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
         m_TMeshVec[i]->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
     }
 
-    // Only ever set to true for !degen case.
-    // The code is harmless for a !halfFlag case (optimization).
-    // So, both protections could be eliminated.
-    // This is the only appearance of halfFalg in this function, argument could be eliminated.
-    if ( !degen )
-    {
-        if ( halfFlag )
-        {
-            //==== Remove Half Mesh Box ===//
-            vector< TMesh* > tempVec;
-            for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-            {
-                if ( !m_TMeshVec[i]->m_HalfBoxFlag )
-                {
-                    tempVec.push_back( m_TMeshVec[i] );
-                }
-                else
-                {
-                    delete m_TMeshVec[i];
-                }
-            }
-            m_TMeshVec = tempVec;
-        }
-    }
-
     //===== Reset Scale =====//
     m_Scale = 1;
     ApplyScale();
@@ -2036,31 +2005,22 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
     m_TotalTheoArea = m_TotalWetArea = 0.0;
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        if ( !m_TMeshVec[i]->m_HalfBoxFlag )
-        {
-            m_TotalTheoArea += m_TMeshVec[i]->ComputeTheoArea();
-            m_TotalWetArea  += m_TMeshVec[i]->ComputeWetArea();
-        }
+        m_TotalTheoArea += m_TMeshVec[i]->ComputeTheoArea();
+        m_TotalWetArea  += m_TMeshVec[i]->ComputeWetArea();
     }
 
     //==== Compute Theo Vols ====//
     m_TotalTheoVol = 0;
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        if ( !m_TMeshVec[i]->m_HalfBoxFlag )
-        {
-            m_TotalTheoVol += m_TMeshVec[i]->ComputeTheoVol();
-        }
+        m_TotalTheoVol += m_TMeshVec[i]->ComputeTheoVol();
     }
 
     //==== Compute Total Volume ====//
     m_TotalWetVol = 0.0;
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        if ( !m_TMeshVec[i]->m_HalfBoxFlag )
-        {
-            m_TotalWetVol += m_TMeshVec[i]->ComputeTrimVol();
-        }
+        m_TotalWetVol += m_TMeshVec[i]->ComputeTrimVol();
     }
 
     double guessTotalWetVol = 0;
@@ -4053,7 +4013,6 @@ void MeshGeom::AddHalfBox()
 
     //==== Build Box Triangles =====//
     TMesh* tm = new TMesh();
-    tm->m_HalfBoxFlag = true;
     tm->m_SurfCfdType = vsp::CFD_NEGATIVE;
 
     m_TMeshVec.push_back( tm );

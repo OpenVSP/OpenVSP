@@ -394,7 +394,6 @@ TMesh::TMesh()
     m_DeleteMeFlag = false;
     m_TheoArea = m_WetArea = 0.0;
     m_TheoVol    = m_WetVol = 0.0;
-    m_HalfBoxFlag = false;
     m_SurfNum = 0;
     m_AreaCenter = vec3d(0,0,0);
     m_GuessVol = 0;
