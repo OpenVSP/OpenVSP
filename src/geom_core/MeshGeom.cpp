@@ -1827,7 +1827,7 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & Tran
     }
 }
 
-void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int halfFlag, int intSubsFlag )
+void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag )
 {
     int i, j;
 

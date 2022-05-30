@@ -4612,7 +4612,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
         vector< DegenGeom > dg;
-        mesh_ptr->IntersectTrim( dg, false, halfFlag, intSubsFlag );
+        mesh_ptr->IntersectTrim( dg, false, intSubsFlag );
     }
     else
     {
@@ -5365,7 +5365,7 @@ void Vehicle::CreateDegenGeom( int set )
         MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
         if ( mesh_ptr != NULL )
         {
-            mesh_ptr->IntersectTrim( m_DegenGeomVec, true, 0, 0 );
+            mesh_ptr->IntersectTrim( m_DegenGeomVec, true, 0 );
             DeleteGeom( id );
         }
     }
