@@ -4054,6 +4054,7 @@ void MeshGeom::AddHalfBox()
     //==== Build Box Triangles =====//
     TMesh* tm = new TMesh();
     tm->m_HalfBoxFlag = true;
+    tm->m_SurfCfdType = vsp::CFD_NEGATIVE;
 
     m_TMeshVec.push_back( tm );
 
