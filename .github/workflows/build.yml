@@ -42,6 +42,7 @@ jobs:
             arch: x64,
             python-arch: x64,
           }
+        - {
             name: "macOS 11",
             os: macos-11,
             arch: x64,
