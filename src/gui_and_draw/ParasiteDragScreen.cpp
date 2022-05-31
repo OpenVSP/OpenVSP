@@ -450,11 +450,11 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
 
     m_ExcrescenceListLayout.SetChoiceButtonWidth( TYPICAL_INPUT_WIDTH );
     m_ExcrescenceListLayout.AddChoice( m_excresTypeChoice, "Type", 0 );
-    m_excresTypeChoice.AddItem( "Drag Counts" );
-    m_excresTypeChoice.AddItem( "CD" );
-    m_excresTypeChoice.AddItem( "% of CD_Geom" );
-    m_excresTypeChoice.AddItem( "% Margin" );
-    m_excresTypeChoice.AddItem( "Drag Area, D\\/q" );
+    m_excresTypeChoice.AddItem( "Drag Counts", vsp::EXCRESCENCE_COUNT );
+    m_excresTypeChoice.AddItem( "CD", vsp::EXCRESCENCE_CD );
+    m_excresTypeChoice.AddItem( "% of CD_Geom", vsp::EXCRESCENCE_PERCENT_GEOM );
+    m_excresTypeChoice.AddItem( "% Margin", vsp::EXCRESCENCE_MARGIN );
+    m_excresTypeChoice.AddItem( "Drag Area, D\\/q", vsp::EXCRESCENCE_DRAGAREA );
     m_excresTypeChoice.UpdateItems();
     m_ExcrescenceListLayout.AddButton( m_excresAdd, " Add Excrescence " );
 
