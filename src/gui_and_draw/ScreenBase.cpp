@@ -3246,14 +3246,14 @@ BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_BlendLayout.AddX( m_BlendLayout.GetW()/2 + 2 );
     m_BlendLayout.AddSubGroupLayout( m_OutLELayout, m_BlendLayout.GetW()/2 - 2, m_BlendLayout.GetStdHeight() * 4 + m_BlendLayout.GetDividerHeight() );
 
-    m_InLEChoice.AddItem( "FREE" );
-    m_InLEChoice.AddItem( "ANGLES" );
-    m_InLEChoice.AddItem( "IN_LE_TRAP" );
-    m_InLEChoice.AddItem( "IN_TE_TRAP" );
-    m_InLEChoice.AddItem( "OUT_LE_TRAP" );
-    m_InLEChoice.AddItem( "OUT_TE_TRAP" );
-    m_InLEChoice.AddItem( "IN_ANGLES" );
-    m_InLEChoice.AddItem( "LE_ANGLES" );
+    m_InLEChoice.AddItem( "FREE", vsp::BLEND_FREE );
+    m_InLEChoice.AddItem( "ANGLES", vsp::BLEND_ANGLES );
+    m_InLEChoice.AddItem( "IN_LE_TRAP", vsp::BLEND_MATCH_IN_LE_TRAP );
+    m_InLEChoice.AddItem( "IN_TE_TRAP", vsp::BLEND_MATCH_IN_TE_TRAP );
+    m_InLEChoice.AddItem( "OUT_LE_TRAP", vsp::BLEND_MATCH_OUT_LE_TRAP );
+    m_InLEChoice.AddItem( "OUT_TE_TRAP", vsp::BLEND_MATCH_OUT_TE_TRAP );
+    m_InLEChoice.AddItem( "IN_ANGLES", vsp::BLEND_MATCH_IN_ANGLES );
+    m_InLEChoice.AddItem( "LE_ANGLES", vsp::BLEND_MATCH_LE_ANGLES );
     m_InLEChoice.SetFlag( BLEND_MATCH_IN_ANGLES, FL_MENU_INVISIBLE );
     m_InLEChoice.SetFlag( BLEND_MATCH_LE_ANGLES, FL_MENU_INVISIBLE );
 
@@ -3265,14 +3265,14 @@ BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_InLELayout.AddSlider( m_InLEDihedral, "Dihedral", dihRng, angleFmt );
     m_InLELayout.AddSlider( m_InLEStrength, "Strength", strengthRng, strengthFmt );
 
-    m_OutLEChoice.AddItem( "FREE" );
-    m_OutLEChoice.AddItem( "ANGLES" );
-    m_OutLEChoice.AddItem( "IN_LE_TRAP" );
-    m_OutLEChoice.AddItem( "IN_TE_TRAP" );
-    m_OutLEChoice.AddItem( "OUT_LE_TRAP" );
-    m_OutLEChoice.AddItem( "OUT_TE_TRAP" );
-    m_OutLEChoice.AddItem( "IN_ANGLES" );
-    m_OutLEChoice.AddItem( "LE_ANGLES" );
+    m_OutLEChoice.AddItem( "FREE", vsp::BLEND_FREE );
+    m_OutLEChoice.AddItem( "ANGLES", vsp::BLEND_ANGLES );
+    m_OutLEChoice.AddItem( "IN_LE_TRAP", vsp::BLEND_MATCH_IN_LE_TRAP );
+    m_OutLEChoice.AddItem( "IN_TE_TRAP", vsp::BLEND_MATCH_IN_TE_TRAP );
+    m_OutLEChoice.AddItem( "OUT_LE_TRAP", vsp::BLEND_MATCH_OUT_LE_TRAP );
+    m_OutLEChoice.AddItem( "OUT_TE_TRAP", vsp::BLEND_MATCH_OUT_TE_TRAP );
+    m_OutLEChoice.AddItem( "IN_ANGLES", vsp::BLEND_MATCH_IN_ANGLES );
+    m_OutLEChoice.AddItem( "LE_ANGLES", vsp::BLEND_MATCH_LE_ANGLES );
     m_OutLEChoice.SetFlag( BLEND_MATCH_LE_ANGLES, FL_MENU_INVISIBLE );
 
     m_OutLELayout.SetButtonWidth( bw );
@@ -3294,14 +3294,14 @@ BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_BlendLayout.AddSubGroupLayout( m_OutTELayout, m_BlendLayout.GetW()/2 - 2, m_BlendLayout.GetStdHeight() * 4 + m_BlendLayout.GetDividerHeight() );
 
 
-    m_InTEChoice.AddItem( "FREE" );
-    m_InTEChoice.AddItem( "ANGLES" );
-    m_InTEChoice.AddItem( "IN_LE_TRAP" );
-    m_InTEChoice.AddItem( "IN_TE_TRAP" );
-    m_InTEChoice.AddItem( "OUT_LE_TRAP" );
-    m_InTEChoice.AddItem( "OUT_TE_TRAP" );
-    m_InTEChoice.AddItem( "IN_ANGLES" );
-    m_InTEChoice.AddItem( "LE_ANGLES" );
+    m_InTEChoice.AddItem( "FREE", vsp::BLEND_FREE );
+    m_InTEChoice.AddItem( "ANGLES", vsp::BLEND_ANGLES );
+    m_InTEChoice.AddItem( "IN_LE_TRAP", vsp::BLEND_MATCH_IN_LE_TRAP );
+    m_InTEChoice.AddItem( "IN_TE_TRAP", vsp::BLEND_MATCH_IN_TE_TRAP );
+    m_InTEChoice.AddItem( "OUT_LE_TRAP", vsp::BLEND_MATCH_OUT_LE_TRAP );
+    m_InTEChoice.AddItem( "OUT_TE_TRAP", vsp::BLEND_MATCH_OUT_TE_TRAP );
+    m_InTEChoice.AddItem( "IN_ANGLES", vsp::BLEND_MATCH_IN_ANGLES );
+    m_InTEChoice.AddItem( "LE_ANGLES", vsp::BLEND_MATCH_LE_ANGLES );
     m_InTEChoice.SetFlag( BLEND_MATCH_IN_ANGLES, FL_MENU_INVISIBLE );
 
     m_InTELayout.SetButtonWidth( bw );
@@ -3313,14 +3313,14 @@ BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_InTELayout.AddSlider( m_InTEStrength, "Strength", strengthRng, strengthFmt );
 
 
-    m_OutTEChoice.AddItem( "FREE" );
-    m_OutTEChoice.AddItem( "ANGLES" );
-    m_OutTEChoice.AddItem( "IN_LE_TRAP" );
-    m_OutTEChoice.AddItem( "IN_TE_TRAP" );
-    m_OutTEChoice.AddItem( "OUT_LE_TRAP" );
-    m_OutTEChoice.AddItem( "OUT_TE_TRAP" );
-    m_OutTEChoice.AddItem( "IN_ANGLES" );
-    m_OutTEChoice.AddItem( "LE_ANGLES" );
+    m_OutTEChoice.AddItem( "FREE", vsp::BLEND_FREE );
+    m_OutTEChoice.AddItem( "ANGLES", vsp::BLEND_ANGLES );
+    m_OutTEChoice.AddItem( "IN_LE_TRAP", vsp::BLEND_MATCH_IN_LE_TRAP );
+    m_OutTEChoice.AddItem( "IN_TE_TRAP", vsp::BLEND_MATCH_IN_TE_TRAP );
+    m_OutTEChoice.AddItem( "OUT_LE_TRAP", vsp::BLEND_MATCH_OUT_LE_TRAP );
+    m_OutTEChoice.AddItem( "OUT_TE_TRAP", vsp::BLEND_MATCH_OUT_TE_TRAP );
+    m_OutTEChoice.AddItem( "IN_ANGLES", vsp::BLEND_MATCH_IN_ANGLES );
+    m_OutTEChoice.AddItem( "LE_ANGLES", vsp::BLEND_MATCH_LE_ANGLES );
 
     m_OutTELayout.SetButtonWidth( bw );
     m_OutTELayout.SetChoiceButtonWidth( m_OutTELayout.GetButtonWidth() );
