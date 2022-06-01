@@ -3254,8 +3254,8 @@ BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_InLEChoice.AddItem( "OUT_TE_TRAP", vsp::BLEND_MATCH_OUT_TE_TRAP );
     m_InLEChoice.AddItem( "IN_ANGLES", vsp::BLEND_MATCH_IN_ANGLES );
     m_InLEChoice.AddItem( "LE_ANGLES", vsp::BLEND_MATCH_LE_ANGLES );
-    m_InLEChoice.SetFlag( BLEND_MATCH_IN_ANGLES, FL_MENU_INVISIBLE );
-    m_InLEChoice.SetFlag( BLEND_MATCH_LE_ANGLES, FL_MENU_INVISIBLE );
+    m_InLEChoice.SetFlagByVal( BLEND_MATCH_IN_ANGLES, FL_MENU_INVISIBLE );
+    m_InLEChoice.SetFlagByVal( BLEND_MATCH_LE_ANGLES, FL_MENU_INVISIBLE );
 
     m_InLELayout.SetButtonWidth( bw );
     m_InLELayout.SetChoiceButtonWidth( m_InLELayout.GetButtonWidth() );
@@ -3273,7 +3273,7 @@ BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_OutLEChoice.AddItem( "OUT_TE_TRAP", vsp::BLEND_MATCH_OUT_TE_TRAP );
     m_OutLEChoice.AddItem( "IN_ANGLES", vsp::BLEND_MATCH_IN_ANGLES );
     m_OutLEChoice.AddItem( "LE_ANGLES", vsp::BLEND_MATCH_LE_ANGLES );
-    m_OutLEChoice.SetFlag( BLEND_MATCH_LE_ANGLES, FL_MENU_INVISIBLE );
+    m_OutLEChoice.SetFlagByVal( BLEND_MATCH_LE_ANGLES, FL_MENU_INVISIBLE );
 
     m_OutLELayout.SetButtonWidth( bw );
     m_OutLELayout.SetChoiceButtonWidth( m_OutLELayout.GetButtonWidth() );
@@ -3302,7 +3302,7 @@ BlendScreen::BlendScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_InTEChoice.AddItem( "OUT_TE_TRAP", vsp::BLEND_MATCH_OUT_TE_TRAP );
     m_InTEChoice.AddItem( "IN_ANGLES", vsp::BLEND_MATCH_IN_ANGLES );
     m_InTEChoice.AddItem( "LE_ANGLES", vsp::BLEND_MATCH_LE_ANGLES );
-    m_InTEChoice.SetFlag( BLEND_MATCH_IN_ANGLES, FL_MENU_INVISIBLE );
+    m_InTEChoice.SetFlagByVal( BLEND_MATCH_IN_ANGLES, FL_MENU_INVISIBLE );
 
     m_InTELayout.SetButtonWidth( bw );
     m_InTELayout.SetChoiceButtonWidth( m_InTELayout.GetButtonWidth() );
@@ -3391,77 +3391,77 @@ bool BlendScreen::Update()
 
 
         // Set pull-down menu flags to 'normal'
-        m_InTEChoice.SetFlag( BLEND_MATCH_LE_ANGLES, 0 );
+        m_InTEChoice.SetFlagByVal( BLEND_MATCH_LE_ANGLES, 0 );
 
-        m_OutLEChoice.SetFlag( BLEND_MATCH_IN_ANGLES, 0 );
+        m_OutLEChoice.SetFlagByVal( BLEND_MATCH_IN_ANGLES, 0 );
 
-        m_OutTEChoice.SetFlag( BLEND_MATCH_IN_ANGLES, 0 );
-        m_OutTEChoice.SetFlag( BLEND_MATCH_LE_ANGLES, 0 );
+        m_OutTEChoice.SetFlagByVal( BLEND_MATCH_IN_ANGLES, 0 );
+        m_OutTEChoice.SetFlagByVal( BLEND_MATCH_LE_ANGLES, 0 );
 
-        m_InLEChoice.SetFlag( BLEND_MATCH_IN_LE_TRAP, 0 );
-        m_InLEChoice.SetFlag( BLEND_MATCH_IN_TE_TRAP, 0 );
-        m_InLEChoice.SetFlag( BLEND_MATCH_OUT_LE_TRAP, 0 );
-        m_InLEChoice.SetFlag( BLEND_MATCH_OUT_TE_TRAP, 0 );
+        m_InLEChoice.SetFlagByVal( BLEND_MATCH_IN_LE_TRAP, 0 );
+        m_InLEChoice.SetFlagByVal( BLEND_MATCH_IN_TE_TRAP, 0 );
+        m_InLEChoice.SetFlagByVal( BLEND_MATCH_OUT_LE_TRAP, 0 );
+        m_InLEChoice.SetFlagByVal( BLEND_MATCH_OUT_TE_TRAP, 0 );
 
-        m_InTEChoice.SetFlag( BLEND_MATCH_IN_LE_TRAP, 0 );
-        m_InTEChoice.SetFlag( BLEND_MATCH_IN_TE_TRAP, 0 );
-        m_InTEChoice.SetFlag( BLEND_MATCH_OUT_LE_TRAP, 0 );
-        m_InTEChoice.SetFlag( BLEND_MATCH_OUT_TE_TRAP, 0 );
+        m_InTEChoice.SetFlagByVal( BLEND_MATCH_IN_LE_TRAP, 0 );
+        m_InTEChoice.SetFlagByVal( BLEND_MATCH_IN_TE_TRAP, 0 );
+        m_InTEChoice.SetFlagByVal( BLEND_MATCH_OUT_LE_TRAP, 0 );
+        m_InTEChoice.SetFlagByVal( BLEND_MATCH_OUT_TE_TRAP, 0 );
 
-        m_OutLEChoice.SetFlag( BLEND_MATCH_IN_LE_TRAP, 0 );
-        m_OutLEChoice.SetFlag( BLEND_MATCH_IN_TE_TRAP, 0 );
-        m_OutLEChoice.SetFlag( BLEND_MATCH_OUT_LE_TRAP, 0 );
-        m_OutLEChoice.SetFlag( BLEND_MATCH_OUT_TE_TRAP, 0 );
+        m_OutLEChoice.SetFlagByVal( BLEND_MATCH_IN_LE_TRAP, 0 );
+        m_OutLEChoice.SetFlagByVal( BLEND_MATCH_IN_TE_TRAP, 0 );
+        m_OutLEChoice.SetFlagByVal( BLEND_MATCH_OUT_LE_TRAP, 0 );
+        m_OutLEChoice.SetFlagByVal( BLEND_MATCH_OUT_TE_TRAP, 0 );
 
-        m_OutTEChoice.SetFlag( BLEND_MATCH_IN_LE_TRAP, 0 );
-        m_OutTEChoice.SetFlag( BLEND_MATCH_IN_TE_TRAP, 0 );
-        m_OutTEChoice.SetFlag( BLEND_MATCH_OUT_LE_TRAP, 0 );
-        m_OutTEChoice.SetFlag( BLEND_MATCH_OUT_TE_TRAP, 0 );
+        m_OutTEChoice.SetFlagByVal( BLEND_MATCH_IN_LE_TRAP, 0 );
+        m_OutTEChoice.SetFlagByVal( BLEND_MATCH_IN_TE_TRAP, 0 );
+        m_OutTEChoice.SetFlagByVal( BLEND_MATCH_OUT_LE_TRAP, 0 );
+        m_OutTEChoice.SetFlagByVal( BLEND_MATCH_OUT_TE_TRAP, 0 );
 
         if ( xs->m_InLEMode() != BLEND_ANGLES )
         {
-            m_InTEChoice.SetFlag( BLEND_MATCH_LE_ANGLES, FL_MENU_INACTIVE );
-            m_OutLEChoice.SetFlag( BLEND_MATCH_IN_ANGLES, FL_MENU_INACTIVE );
+            m_InTEChoice.SetFlagByVal( BLEND_MATCH_LE_ANGLES, FL_MENU_INACTIVE );
+            m_OutLEChoice.SetFlagByVal( BLEND_MATCH_IN_ANGLES, FL_MENU_INACTIVE );
         }
 
         if ( xs->m_InTEMode() != BLEND_ANGLES && xs->m_InTEMode() != BLEND_MATCH_LE_ANGLES )
         {
-            m_OutTEChoice.SetFlag( BLEND_MATCH_IN_ANGLES, FL_MENU_INACTIVE );
+            m_OutTEChoice.SetFlagByVal( BLEND_MATCH_IN_ANGLES, FL_MENU_INACTIVE );
         }
 
         if ( xs->m_OutLEMode() != BLEND_ANGLES && xs->m_OutLEMode() != BLEND_MATCH_IN_ANGLES )
         {
-            m_OutTEChoice.SetFlag( BLEND_MATCH_LE_ANGLES, FL_MENU_INACTIVE );
+            m_OutTEChoice.SetFlagByVal( BLEND_MATCH_LE_ANGLES, FL_MENU_INACTIVE );
         }
 
         if ( firstxs )
         {
-            m_InLEChoice.SetFlag( BLEND_MATCH_IN_LE_TRAP, FL_MENU_INACTIVE );
-            m_InLEChoice.SetFlag( BLEND_MATCH_IN_TE_TRAP, FL_MENU_INACTIVE );
+            m_InLEChoice.SetFlagByVal( BLEND_MATCH_IN_LE_TRAP, FL_MENU_INACTIVE );
+            m_InLEChoice.SetFlagByVal( BLEND_MATCH_IN_TE_TRAP, FL_MENU_INACTIVE );
 
-            m_InTEChoice.SetFlag( BLEND_MATCH_IN_LE_TRAP, FL_MENU_INACTIVE );
-            m_InTEChoice.SetFlag( BLEND_MATCH_IN_TE_TRAP, FL_MENU_INACTIVE );
+            m_InTEChoice.SetFlagByVal( BLEND_MATCH_IN_LE_TRAP, FL_MENU_INACTIVE );
+            m_InTEChoice.SetFlagByVal( BLEND_MATCH_IN_TE_TRAP, FL_MENU_INACTIVE );
 
-            m_OutLEChoice.SetFlag( BLEND_MATCH_IN_LE_TRAP, FL_MENU_INACTIVE );
-            m_OutLEChoice.SetFlag( BLEND_MATCH_IN_TE_TRAP, FL_MENU_INACTIVE );
+            m_OutLEChoice.SetFlagByVal( BLEND_MATCH_IN_LE_TRAP, FL_MENU_INACTIVE );
+            m_OutLEChoice.SetFlagByVal( BLEND_MATCH_IN_TE_TRAP, FL_MENU_INACTIVE );
 
-            m_OutTEChoice.SetFlag( BLEND_MATCH_IN_LE_TRAP, FL_MENU_INACTIVE );
-            m_OutTEChoice.SetFlag( BLEND_MATCH_IN_TE_TRAP, FL_MENU_INACTIVE );
+            m_OutTEChoice.SetFlagByVal( BLEND_MATCH_IN_LE_TRAP, FL_MENU_INACTIVE );
+            m_OutTEChoice.SetFlagByVal( BLEND_MATCH_IN_TE_TRAP, FL_MENU_INACTIVE );
         }
 
         if ( lastxs )
         {
-            m_InLEChoice.SetFlag( BLEND_MATCH_OUT_LE_TRAP, FL_MENU_INACTIVE );
-            m_InLEChoice.SetFlag( BLEND_MATCH_OUT_TE_TRAP, FL_MENU_INACTIVE );
+            m_InLEChoice.SetFlagByVal( BLEND_MATCH_OUT_LE_TRAP, FL_MENU_INACTIVE );
+            m_InLEChoice.SetFlagByVal( BLEND_MATCH_OUT_TE_TRAP, FL_MENU_INACTIVE );
 
-            m_InTEChoice.SetFlag( BLEND_MATCH_OUT_LE_TRAP, FL_MENU_INACTIVE );
-            m_InTEChoice.SetFlag( BLEND_MATCH_OUT_TE_TRAP, FL_MENU_INACTIVE );
+            m_InTEChoice.SetFlagByVal( BLEND_MATCH_OUT_LE_TRAP, FL_MENU_INACTIVE );
+            m_InTEChoice.SetFlagByVal( BLEND_MATCH_OUT_TE_TRAP, FL_MENU_INACTIVE );
 
-            m_OutLEChoice.SetFlag( BLEND_MATCH_OUT_LE_TRAP, FL_MENU_INACTIVE );
-            m_OutLEChoice.SetFlag( BLEND_MATCH_OUT_TE_TRAP, FL_MENU_INACTIVE );
+            m_OutLEChoice.SetFlagByVal( BLEND_MATCH_OUT_LE_TRAP, FL_MENU_INACTIVE );
+            m_OutLEChoice.SetFlagByVal( BLEND_MATCH_OUT_TE_TRAP, FL_MENU_INACTIVE );
 
-            m_OutTEChoice.SetFlag( BLEND_MATCH_OUT_LE_TRAP, FL_MENU_INACTIVE );
-            m_OutTEChoice.SetFlag( BLEND_MATCH_OUT_TE_TRAP, FL_MENU_INACTIVE );
+            m_OutTEChoice.SetFlagByVal( BLEND_MATCH_OUT_LE_TRAP, FL_MENU_INACTIVE );
+            m_OutTEChoice.SetFlagByVal( BLEND_MATCH_OUT_TE_TRAP, FL_MENU_INACTIVE );
         }
 
         // Update menu while keeping setting.
