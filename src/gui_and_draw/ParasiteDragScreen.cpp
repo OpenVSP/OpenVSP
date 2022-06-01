@@ -943,15 +943,15 @@ void ParasiteDragScreen::UpdateExcresTab()
     {
         if ( excresVec[i].Type == vsp::EXCRESCENCE_MARGIN )
         {
-            m_excresTypeChoice.SetFlag( vsp::EXCRESCENCE_MARGIN, FL_MENU_INACTIVE );
+            m_excresTypeChoice.SetFlagByVal( vsp::EXCRESCENCE_MARGIN, FL_MENU_INACTIVE );
             break;
         }
-        m_excresTypeChoice.SetFlag( vsp::EXCRESCENCE_MARGIN, 0 );
+        m_excresTypeChoice.SetFlagByVal( vsp::EXCRESCENCE_MARGIN, 0 );
     }
 
     if ( excresVec.size() == 0 )
     {
-        m_excresTypeChoice.SetFlag( vsp::EXCRESCENCE_MARGIN, 0 );
+        m_excresTypeChoice.SetFlagByVal( vsp::EXCRESCENCE_MARGIN, 0 );
     }
 
     m_excresTypeChoice.UpdateItems();
@@ -1620,12 +1620,12 @@ void ParasiteDragScreen::UpdateIncorporateDropDowns()
                         if ( rowVec[i].GeomShapeType !=
                                 veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetSurfType(0) )
                         {
-                            m_grouped[i].SetFlag( j, FL_MENU_INACTIVE );
+                            m_grouped[ i ].SetFlagByVal( j, FL_MENU_INACTIVE );
                         }
                     }
                     else
                     {
-                        m_grouped[i].SetFlag( j, FL_MENU_INACTIVE );
+                        m_grouped[ i ].SetFlagByVal( j, FL_MENU_INACTIVE );
                     }
                 }
                 m_grouped[i].UpdateItems();
