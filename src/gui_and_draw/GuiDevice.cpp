@@ -1724,42 +1724,24 @@ int Choice::GetVal()
     return IndexToVal( m_Choice->value() );
 }
 
-void Choice::SetFlag( int indx, int flag )
-{
-    if ( m_Flags.size() != m_Items.size() )
-    {
-        m_Flags.resize( m_Items.size(), 0 );
-    }
-
-    if ( indx < m_Flags.size() )
-    {
-        m_Flags[indx] = flag;
-    }
-}
-
-int Choice::GetFlag( int indx )
-{
-    if ( m_Flags.size() != m_Items.size() )
-    {
-        m_Flags.resize( m_Items.size(), 0 );
-    }
-
-    if ( indx < m_Flags.size() )
-    {
-        return m_Flags[indx];
-    }
-
-    return 0;
-}
-
 void Choice::SetFlagByVal( int val, int flag )
 {
-    SetFlag( ValToIndex( val ), flag );
+    if ( m_Flags.size() != m_Items.size() )
+    {
+        m_Flags.resize( m_Items.size(), 0 );
+    }
+
+    m_Flags[ ValToIndex( val ) ] = flag;
 }
 
 int Choice::GetFlagByVal( int val )
 {
-    return GetFlag( ValToIndex( val ) );
+    if ( m_Flags.size() != m_Items.size() )
+    {
+        m_Flags.resize( m_Items.size(), 0 );
+    }
+
+    return m_Flags[ ValToIndex( val ) ];
 }
 
 void Choice::ClearFlags()
