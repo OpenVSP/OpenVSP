@@ -1869,7 +1869,7 @@ void VspSurf::BuildFeatureLines( bool force_xsec_flag)
     }
 }
 
-bool VspSurf::CapUMin(int CapType, double len, double str, double offset, bool swflag)
+bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
 {
     if (CapType == vsp::NO_END_CAP)
     {
@@ -1899,7 +1899,10 @@ bool VspSurf::CapUMin(int CapType, double len, double str, double offset, bool s
         break;
     }
 
-    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMIN, len, offset, str, swflag );
+    surface_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMIN, len, offset, str, p, swflag );
 
     if (!rtn_flag)
     {
@@ -1920,7 +1923,7 @@ bool VspSurf::CapUMin(int CapType, double len, double str, double offset, bool s
     return true;
 }
 
-bool VspSurf::CapUMax(int CapType, double len, double str, double offset, bool swflag)
+bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
 {
     if (CapType == vsp::NO_END_CAP)
     {
@@ -1950,7 +1953,10 @@ bool VspSurf::CapUMax(int CapType, double len, double str, double offset, bool s
         break;
     }
 
-    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMAX, len, offset, str, swflag );
+    surface_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMAX, len, offset, str, p, swflag );
 
     if (!rtn_flag)
     {
