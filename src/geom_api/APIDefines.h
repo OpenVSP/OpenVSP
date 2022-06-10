@@ -58,6 +58,7 @@ enum CAP_TYPE { NO_END_CAP,
                 ROUND_END_CAP,
                 EDGE_END_CAP,
                 SHARP_END_CAP,
+                POINT_END_CAP,
                 NUM_END_CAP_OPTIONS
               };
 

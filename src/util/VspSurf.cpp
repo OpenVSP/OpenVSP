@@ -1894,6 +1894,9 @@ bool VspSurf::CapUMin(int CapType, double len, double str, double offset, bool s
       case vsp::SHARP_END_CAP:
         captype = multicap_creator_type::SHARP;
         break;
+      case vsp::POINT_END_CAP:
+        captype = multicap_creator_type::POINT;
+        break;
     }
 
     rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMIN, len, offset, str, swflag );
@@ -1941,6 +1944,9 @@ bool VspSurf::CapUMax(int CapType, double len, double str, double offset, bool s
         break;
       case vsp::SHARP_END_CAP:
         captype = multicap_creator_type::SHARP;
+        break;
+      case vsp::POINT_END_CAP:
+        captype = multicap_creator_type::POINT;
         break;
     }
 
