@@ -132,7 +132,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     # Create virtual environment with openvsp package installed.
     CreateVirtualEnvironment( venv
-            REQUIREMENTS_TXT ${CMAKE_BINARY_DIR}/python_pseudo/requirements.txt
+            REQUIREMENTS_TXT ${CMAKE_BINARY_DIR}/python_pseudo/requirements-dev.txt
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo
             OUT_PYTHON_EXE PYTHON_VENV_EXE
             OUT_BINARY_DIR PYTHON_VENV_BIN_DIR
