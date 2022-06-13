@@ -99,5 +99,11 @@ IF( NOT VSP_NO_GRAPHICS )
   )
 
   INSTALL( TARGETS vspviewer RUNTIME DESTINATION . )
+  INSTALL( TARGETS vspviewer RUNTIME DESTINATION python/openvsp/openvsp )
+
+  add_custom_command(TARGET vspviewer POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy
+          $<TARGET_FILE:vspviewer>
+          ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
 
 ENDIF()
