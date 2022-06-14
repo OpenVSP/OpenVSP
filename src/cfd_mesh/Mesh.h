@@ -59,14 +59,14 @@ public:
     int Split( int num_iter );
     void SplitEdge( Edge* edge );
 
-    static bool ThreeEdgesThreeTris( Edge* edge );
+    static bool ThreeEdgesThreeFaces( Edge* edge );
     void SwapEdge( Edge* edge );
 
     int Collapse( int num_iter );
     static bool ValidCollapse( Edge* edge );
     void CollapseEdge( Edge* edge );
 
-    int RemoveRevTris();
+    int RemoveRevFaces();
 
     void LimitTargetEdgeLength();
     void LimitTargetEdgeLength( Edge* e );
@@ -100,8 +100,8 @@ public:
     void  RemoveEdge( Edge* eptr );
     Edge* FindEdge( Node* n0, Node* n1 );
 
-    Face* AddTri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
-    void  RemoveTri( Face* tptr );
+    Face* AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
+    void  RemoveFace( Face* tptr );
 
     static void TriangulateBorder( const vector< vec3d > &uw_border );
 
@@ -136,9 +136,9 @@ public:
 
     void ColorTris();
 
-    list <Face*> GetTriList()
+    list <Face*> GetFaceList()
     {
-        return triList;
+        return faceList;
     }
 
     vector < vec3d >& GetSimpPntVec()
@@ -156,18 +156,18 @@ public:
 
     void StretchSimpPnts( double start_x, double end_x, double factor, double angle );
 
-    void RemoveInteriorTrisEdgesNodes();
+    void RemoveInteriorFacesEdgesNodes();
 
 protected:
 
     Surf* m_Surf;
     SimpleGridDensity* m_GridDensity;
 
-    list < Face* > triList;
+    list < Face* > faceList;
     list < Edge* > edgeList;
     list < Node* > nodeList;
 
-    vector< Face* > garbageTriVec;
+    vector< Face* > garbageFaceVec;
     vector< Edge* > garbageEdgeVec;
     vector< Node* > garbageNodeVec;
 

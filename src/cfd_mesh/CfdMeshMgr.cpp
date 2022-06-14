@@ -740,10 +740,10 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
             num_tris = 0;
             m_SurfVec[i]->GetMesh()->Remesh();
 
-            num_rev_removed = m_SurfVec[i]->GetMesh()->RemoveRevTris();
+            num_rev_removed = m_SurfVec[ i ]->GetMesh()->RemoveRevFaces();
 
 
-            num_tris += m_SurfVec[i]->GetMesh()->GetTriList().size();
+            num_tris += m_SurfVec[ i ]->GetMesh()->GetFaceList().size();
 
             sprintf( str, "Surf %d/%d Iter %d/10 Num Tris = %d\n", i + 1, nsurf, iter + 1, num_tris );
             if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
@@ -789,7 +789,7 @@ void CfdMeshMgrSingleton::RemeshSingleComp( int comp_id, int output_type )
                 num_tris = 0;
                 m_SurfVec[i]->GetMesh()->Remesh();
 
-                num_tris += m_SurfVec[i]->GetMesh()->GetTriList().size();
+                num_tris += m_SurfVec[ i ]->GetMesh()->GetFaceList().size();
 
                 sprintf( str, "Surf %d/%d Iter %d/10 Num Tris = %d\n", i + 1, nsurf, iter + 1, num_tris );
                 addOutputText( str, output_type );
@@ -2685,7 +2685,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s ) // every surface
     {
         int tri_comp_id = m_SurfVec[s]->GetCompID();
-        list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+        list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
         for ( t = triList.begin() ; t != triList.end(); ++t ) // every triangle
         {
             vector< vector< double > > t_vec_vec;
@@ -2786,7 +2786,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     //==== Check Vote and Mark Interior Tris =====//
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
-        list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+        list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
         for ( t = triList.begin() ; t != triList.end(); ++t )
         {
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
@@ -2816,7 +2816,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
     for ( int a = 0 ; a < ( int )m_SurfVec.size() ; a++ )
     {
-        list< Face * > triList = m_SurfVec[a]->GetMesh()->GetTriList();
+        list< Face * > triList = m_SurfVec[ a ]->GetMesh()->GetFaceList();
         for ( t = triList.begin(); t != triList.end(); ++t )
         {
             // Determine if the triangle should be deleted
@@ -2838,7 +2838,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         {
             if ( ! m_SurfVec[s]->GetSymPlaneFlag() )
             {
-                list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+                list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
                 for ( t = triList.begin() ; t != triList.end(); ++t )
                 {
                     vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
@@ -2853,7 +2853,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() )
                 {
-                    list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+                    list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
                     for ( t = triList.begin() ; t != triList.end(); ++t )
                     {
                         ( *t )->deleteFlag = true;
@@ -2866,7 +2866,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     //==== Remove Tris, Edges and Nodes ====//
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
     {
-        m_SurfVec[s]->GetMesh()->RemoveInteriorTrisEdgesNodes();
+        m_SurfVec[ s ]->GetMesh()->RemoveInteriorFacesEdgesNodes();
     }
 }
 
@@ -2879,7 +2879,7 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
     {
         if ( m_SurfVec[s]->GetWakeFlag() == wakeOnly )
         {
-            list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+            list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
             for ( t = triList.begin() ; t != triList.end(); ++t )
             {
                 if (( *t )->e0->OtherFace(( *t )) == NULL )

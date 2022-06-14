@@ -48,12 +48,12 @@ Mesh::~Mesh()
 void Mesh::Clear()
 {
     list< Face* >::iterator t;
-    for ( t = triList.begin() ; t != triList.end(); ++t )
+    for ( t = faceList.begin() ; t != faceList.end(); ++t )
     {
         delete ( *t );
     }
 
-    triList.clear();
+    faceList.clear();
 
     list< Edge* >::iterator e;
     for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
@@ -225,12 +225,12 @@ void Mesh::Remesh()
 void Mesh::LoadSimpTris()
 {
     list< Face* >::iterator t;
-    simpTriVec.resize( triList.size() );
-    simpPntVec.resize( triList.size() * 3 );
-    simpUWPntVec.resize( triList.size() * 3 );
+    simpTriVec.resize( faceList.size() );
+    simpPntVec.resize( faceList.size() * 3 );
+    simpUWPntVec.resize( faceList.size() * 3 );
 
     int cnt = 0;
-    for ( t = triList.begin() ; t != triList.end(); ++t )
+    for ( t = faceList.begin() ; t != faceList.end(); ++t )
     {
         simpTriVec[cnt].ind0 = cnt * 3;
         simpTriVec[cnt].ind1 = cnt * 3 + 1;
@@ -438,14 +438,14 @@ int Mesh::Collapse( int num_iter )
 
 }
 
-int Mesh::RemoveRevTris()
+int Mesh::RemoveRevFaces()
 {
     int badcount = 0;
 
     vector < Edge* > remEdges;
 
     list< Face* >::iterator t;
-    for ( t = triList.begin() ; t != triList.end(); ++t )
+    for ( t = faceList.begin() ; t != faceList.end(); ++t )
     {
         vec3d ntri = (*t)->Normal();
         vec2d avg_uw = ( (*t)->n0->uw + (*t)->n1->uw + (*t)->n2->uw ) * ( 1.0 / 3.0 );
@@ -488,7 +488,7 @@ int Mesh::RemoveRevTris()
 void Mesh::ColorTris()
 {
     list< Face* >::iterator t;
-    for ( t = triList.begin() ; t != triList.end(); ++t )
+    for ( t = faceList.begin() ; t != faceList.end(); ++t )
     {
         double q = ( *t )->ComputeQual();
 
@@ -586,18 +586,18 @@ Edge* Mesh::FindEdge( Node* n0, Node* n1 )
     return NULL;
 }
 
-Face* Mesh::AddTri( Node* n0, Node* n1, Node* n2, Edge* e0, Edge* e1, Edge* e2 )
+Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
 {
-    Face* tptr = new Face( n0, n1, n2, e0, e1, e2 );
-    triList.push_back( tptr );
-    tptr->list_ptr = --triList.end();
+    Face* tptr = new Face( nn0, nn1, nn2, ee0, ee1, ee2 );
+    faceList.push_back( tptr );
+    tptr->list_ptr = --faceList.end();
     return tptr;
 }
 
-void Mesh::RemoveTri( Face* tptr )
+void Mesh::RemoveFace( Face* tptr )
 {
-    garbageTriVec.push_back( tptr );
-    triList.erase( tptr->list_ptr );
+    garbageFaceVec.push_back( tptr );
+    faceList.erase( tptr->list_ptr );
     tptr->m_DeleteMeFlag = true;
 }
 
@@ -618,11 +618,11 @@ void Mesh::DumpGarbage()
     garbageEdgeVec.clear();
 
     //==== Delete Flagged Tris =====//
-    for ( int i = 0 ; i < ( int )garbageTriVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )garbageFaceVec.size() ; i++ )
     {
-        delete garbageTriVec[i];
+        delete garbageFaceVec[i];
     }
-    garbageTriVec.clear();
+    garbageFaceVec.clear();
 }
 
 void Mesh::SetNodeFlags()
@@ -697,8 +697,8 @@ void Mesh::SplitEdge( Edge* edge )
         Edge* ea0 = ta->FindEdge( n0, na );
         Edge* ea1 = ta->FindEdge( na, n1 );
 
-        Face* ta0 = AddTri( n0, ns, na, ea0, ea, es0 );
-        Face* ta1 = AddTri( n1, na, ns, ea1, es1, ea );
+        Face* ta0 = AddFace( n0, ns, na, ea0, ea, es0 );
+        Face* ta1 = AddFace( n1, na, ns, ea1, es1, ea );
 
         ea->f0 = ta0;
         ea->f1 = ta1;
@@ -732,7 +732,7 @@ void Mesh::SplitEdge( Edge* edge )
         es0->f0 = ta0;
         es1->f0 = ta1;
 
-        RemoveTri( ta );
+        RemoveFace( ta );
     }
 
     if ( tb )
@@ -743,8 +743,8 @@ void Mesh::SplitEdge( Edge* edge )
         Edge* eb0 = tb->FindEdge( n0, nb );
         Edge* eb1 = tb->FindEdge( nb, n1 );
 
-        Face* tb0 = AddTri( n0, nb, ns, es0, eb, eb0 );
-        Face* tb1 = AddTri( n1, ns, nb, es1, eb1, eb );
+        Face* tb0 = AddFace( n0, nb, ns, es0, eb, eb0 );
+        Face* tb1 = AddFace( n1, ns, nb, es1, eb1, eb );
 
         eb->f0 = tb0;
         eb->f1 = tb1;
@@ -778,7 +778,7 @@ void Mesh::SplitEdge( Edge* edge )
         es0->f1 = tb0;
         es1->f1 = tb1;
 
-        RemoveTri( tb );
+        RemoveFace( tb );
     }
 
     RemoveEdge( edge );
@@ -804,7 +804,7 @@ void Mesh::SwapEdge( Edge* edge )
         return;
     }
 
-    if ( ThreeEdgesThreeTris( edge ) )
+    if ( ThreeEdgesThreeFaces( edge ) )
     {
         return;
     }
@@ -910,7 +910,7 @@ void Mesh::SwapEdge( Edge* edge )
 //CheckValidAllEdges();
 }
 
-bool Mesh::ThreeEdgesThreeTris( Edge* edge )
+bool Mesh::ThreeEdgesThreeFaces( Edge* edge )
 {
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
@@ -1247,8 +1247,8 @@ void Mesh::CollapseEdge( Edge* edge )
     RemoveEdge( edge );
     RemoveNode( n0 );
     RemoveNode( n1 );
-    RemoveTri( ta );
-    RemoveTri( tb );
+    RemoveFace( ta );
+    RemoveFace( tb );
     RemoveEdge( ea0 );
     RemoveEdge( ea1 );
     RemoveEdge( eb0 );
@@ -1767,7 +1767,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
                 e2 = AddEdge( n2, n0 );
             }
 
-            Face* tri = AddTri( n0, n1, n2, e0, e1, e2 );
+            Face* tri = AddFace( n0, n1, n2, e0, e1, e2 );
 
             if ( e0->f0 == NULL )
             {
@@ -2026,14 +2026,14 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     triangle_context_destroy( ctx );
 }
 
-void Mesh::RemoveInteriorTrisEdgesNodes()
+void Mesh::RemoveInteriorFacesEdgesNodes()
 {
     set < Face* > remTris;
     set < Edge* > remEdges;
     set < Node* > remNodes;
 
     list< Face* >::iterator t;
-    for ( t = triList.begin() ; t != triList.end(); ++t )
+    for ( t = faceList.begin() ; t != faceList.end(); ++t )
     {
         //==== Check Surrounding Tris =====//
         if ( ( *t )->deleteFlag )
@@ -2097,7 +2097,7 @@ void Mesh::RemoveInteriorTrisEdgesNodes()
     }
     for ( st = remTris.begin() ; st != remTris.end(); ++st )
     {
-        RemoveTri( ( *st ) );
+        RemoveFace(( *st ));
     }
 
     DumpGarbage();
@@ -2186,7 +2186,7 @@ void Mesh::ReadSTL( const char* file_name )
                 e2 = AddEdge( n2, n0 );
             }
 
-            Face* tri = AddTri( n0, n1, n2, e0, e1, e2 );
+            Face* tri = AddFace( n0, n1, n2, e0, e1, e2 );
 
             if      ( e0->f0 == NULL )
             {

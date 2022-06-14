@@ -780,7 +780,7 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
         {
             bool delSomeTris = false;
 
-            list < Face * > triList = m_SurfVec[ s ]->GetMesh()->GetTriList();
+            list < Face * > triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
             for ( list < Face * >::iterator t = triList.begin(); t != triList.end(); ++t ) // every triangle
             {
                 vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[ s ] );
@@ -799,7 +799,7 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
 
             if ( delSomeTris ) // Skip removal if no tris in this m_SurfVec were flagged for deletion.
             {
-                m_SurfVec[ s ]->GetMesh()->RemoveInteriorTrisEdgesNodes();
+                m_SurfVec[ s ]->GetMesh()->RemoveInteriorFacesEdgesNodes();
             }
         }
     }
