@@ -105,9 +105,6 @@ public:
 
     void InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr );
 
-    static void CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes ); // Mark for removal
-
-
     void ReadSTL( const char* file_name );
     void WriteSTL( const char* file_name );
     void WriteSTL( FILE* fp );

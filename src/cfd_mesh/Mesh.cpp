@@ -1451,24 +1451,6 @@ void Mesh::CheckValidEdge( Edge* edge )
     }
 }
 
-void Mesh::CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes )
-{
-    //int min_i;
-    //int min_j;
-    double min_dist = 1.0e12;
-    for ( int i = 0 ; i < ( int )uw_points.size() ; i++ )
-    {
-        for ( int j = i + 1 ; j < ( int )uw_points.size() ; j++ )
-        {
-            double d = dist( uw_points[i], uw_points[j] );
-            if ( d < min_dist )
-            {
-                min_dist = d;
-            }
-        }
-    }
-}
-
 bool vec2dCompare( const vec2d &a, const vec2d &b )
 {
     if ( a.x() == b.x() )
@@ -1604,9 +1586,6 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     fclose( fp );
 #endif
 
-
-
-//CheckValidTriInput( uw_points, segs_indexes );
 
 
     //==== Dump Into Triangle ====//
