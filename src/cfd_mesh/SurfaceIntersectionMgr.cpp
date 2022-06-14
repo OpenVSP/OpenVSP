@@ -756,7 +756,11 @@ void SurfaceIntersectionSingleton::CleanMergeSurfs()
             int compB = m_SurfVec[t]->GetCompID();
             if ( compA != compB && m_SurfVec[s]->BorderMatch( m_SurfVec[t] ) )
             {
-                mergeCompMap[compB] = compA;
+                // Only merge like-type surfaces.  I.e. normal, negative, etc.
+                if ( m_SurfVec[s]->GetSurfaceCfdType() == m_SurfVec[t]->GetSurfaceCfdType() )
+                {
+                    mergeCompMap[compB] = compA;
+                }
             }
         }
     }
