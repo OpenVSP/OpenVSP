@@ -26,7 +26,7 @@
 #include <algorithm>
 using namespace std;
 
-class Tri;
+class Face;
 class Edge;
 class Surf;
 
@@ -60,7 +60,7 @@ public:
     vector< Edge* >  edgeVec;       // All Edges Which Use This Node
 
     void GetConnectNodes( vector< Node* > & cnVec );
-    void GetConnectTris( vector< Tri* > & ctVec );
+    void GetConnectTris( vector< Face* > & ctVec );
 
     void AddConnectEdge( Edge* e );
     void RemoveConnectEdge( Edge* e );
@@ -107,8 +107,8 @@ public:
     Node* n0;
     Node* n1;
 
-    Tri* t0;
-    Tri* t1;
+    Face* t0;
+    Face* t1;
 
     bool ridge;             // Dont Remove but Can Split
     bool border;            // Dont remove or split
@@ -118,11 +118,11 @@ public:
     double target_len;
     double m_Length;
 
-    Tri* OtherTri( Tri* t );
+    Face* OtherTri( Face* t );
     Node* OtherNode( Node* n );
     void ReplaceNode( Node* curr_node, Node* replace_node );
 
-    bool SetTri( Tri* t );
+    bool SetTri( Face* t );
     bool ContainsNodes( Node* in0, Node* in1 );
 
 
@@ -142,21 +142,21 @@ public:
     }
 
     bool BothAdjoiningTrisInterior();
-    void ReplaceTri( Tri* t, Tri* replace_t );
+    void ReplaceTri( Face* t, Face* replace_t );
 
 
 
 };
 
 //////////////////////////////////////////////////////////////////////
-class Tri
+class Face
 {
 public:
-    Tri();
-    Tri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
-    virtual ~Tri();
+    Face();
+    Face( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
+    virtual ~Face();
 
-    list< Tri* >::iterator list_ptr;
+    list< Face* >::iterator list_ptr;
     bool m_DeleteMeFlag;
 
     Node* n0;
@@ -207,7 +207,7 @@ public:
     // Set to true if tri should be removed
     bool deleteFlag;
 
-    void LoadAdjTris( int num_levels, set< Tri* > & triSet );
+    void LoadAdjTris( int num_levels, set< Face* > & triSet );
 
     unsigned char rgb[3];
 

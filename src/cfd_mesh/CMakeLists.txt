@@ -21,6 +21,7 @@ INCLUDE_DIRECTORIES(
 ADD_LIBRARY(cfd_mesh
 BezierCurve.cpp
 CfdMeshMgr.cpp
+Face.cpp
 FeaElement.cpp
 FeaMeshMgr.cpp
 ICurve.cpp
@@ -36,9 +37,9 @@ Surf.cpp
 SurfaceIntersectionMgr.cpp
 SurfCore.cpp
 SurfPatch.cpp
-Tri.cpp
 BezierCurve.h
 CfdMeshMgr.h
+Face.h
 FeaElement.h
 FeaMeshMgr.h
 ICurve.h
@@ -55,7 +56,6 @@ Surf.h
 SurfaceIntersectionMgr.h
 SurfCore.h
 SurfPatch.h
-Tri.h
 )
 
 ADD_DEPENDENCIES( cfd_mesh

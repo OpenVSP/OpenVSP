@@ -711,8 +711,8 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
     }
 
     double tparm, uparm, vparm;
-    list< Tri* >::iterator t;
-    list <Tri*> triList = m_Mesh.GetTriList();
+    list< Face* >::iterator t;
+    list <Face*> triList = m_Mesh.GetTriList();
 
     vec3d dir = p1 - p0;
 

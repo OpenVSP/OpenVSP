@@ -228,7 +228,7 @@ protected:
     BndBox m_Domain;
 
     vector<Edge*> m_BadEdges;
-    vector<Tri*> m_BadTris;
+    vector<Face*> m_BadTris;
     vector< Node* > m_nodeStore;
 
 private:

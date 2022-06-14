@@ -1760,7 +1760,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
 
 string CfdMeshMgrSingleton::CheckWaterTight()
 {
-    vector< Tri* > triVec;
+    vector< Face* > triVec;
 
     int tri_cnt = 0;
     vector< vec3d* > allPntVec;
@@ -1815,7 +1815,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
                 Edge* e1 = FindAddEdge( edgeMap, m_nodeStore, ind2, ind3 );
                 Edge* e2 = FindAddEdge( edgeMap, m_nodeStore, ind3, ind1 );
 
-                Tri* tri = new Tri( m_nodeStore[ind1], m_nodeStore[ind2], m_nodeStore[ind3], e0, e1, e2 );
+                Face* tri = new Face( m_nodeStore[ind1], m_nodeStore[ind2], m_nodeStore[ind3], e0, e1, e2 );
 
                 if ( !e0->SetTri( tri ) )
                 {
@@ -2681,11 +2681,11 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
 
     //==== Count Number of Component Crossings for Each Component =====//
-    list< Tri* >::iterator t;
+    list< Face* >::iterator t;
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s ) // every surface
     {
         int tri_comp_id = m_SurfVec[s]->GetCompID();
-        list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+        list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
         for ( t = triList.begin() ; t != triList.end(); ++t ) // every triangle
         {
             vector< vector< double > > t_vec_vec;
@@ -2756,10 +2756,10 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         for ( t = triList.begin() ; t != triList.end(); ++t ) // every triangle
         {
             //==== Load Adjoining Tris - NOT Crossing Borders ====//
-            set< Tri* > triSet;
+            set< Face* > triSet;
             ( *t )->LoadAdjTris( 3, triSet );
 
-            set<Tri*>::iterator st;
+            set<Face*>::iterator st;
 
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
@@ -2786,7 +2786,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     //==== Check Vote and Mark Interior Tris =====//
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
-        list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+        list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
         for ( t = triList.begin() ; t != triList.end(); ++t )
         {
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
@@ -2816,7 +2816,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
     for ( int a = 0 ; a < ( int )m_SurfVec.size() ; a++ )
     {
-        list< Tri * > triList = m_SurfVec[a]->GetMesh()->GetTriList();
+        list< Face * > triList = m_SurfVec[a]->GetMesh()->GetTriList();
         for ( t = triList.begin(); t != triList.end(); ++t )
         {
             // Determine if the triangle should be deleted
@@ -2838,7 +2838,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         {
             if ( ! m_SurfVec[s]->GetSymPlaneFlag() )
             {
-                list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+                list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
                 for ( t = triList.begin() ; t != triList.end(); ++t )
                 {
                     vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
@@ -2853,7 +2853,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() )
                 {
-                    list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+                    list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
                     for ( t = triList.begin() ; t != triList.end(); ++t )
                     {
                         ( *t )->deleteFlag = true;
@@ -2874,12 +2874,12 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
 {
     list< Edge* >::iterator e;
     list< Edge* > edgeList;
-    list< Tri* >::iterator t;
+    list< Face* >::iterator t;
     for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
     {
         if ( m_SurfVec[s]->GetWakeFlag() == wakeOnly )
         {
-            list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
+            list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
             for ( t = triList.begin() ; t != triList.end(); ++t )
             {
                 if ( ( *t )->e0->OtherTri( ( *t ) ) == NULL )
@@ -3227,7 +3227,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshBadTriDO.m_LineWidth = 3.0;
 
     vector< vec3d > badTriData;
-    vector< Tri* >::iterator t;
+    vector< Face* >::iterator t;
     for ( t = m_BadTris.begin() ; t != m_BadTris.end(); ++t )
     {
         badTriData.push_back( ( *t )->n0->pnt );

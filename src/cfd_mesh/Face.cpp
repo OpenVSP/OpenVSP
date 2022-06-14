@@ -7,7 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "Tri.h"
+#include "Face.h"
 #include "Surf.h"
 
 //////////////////////////////////////////////////////////////////////
@@ -53,19 +53,19 @@ void Node::GetConnectNodes( vector< Node* > & cnVec )
     }
 }
 
-void Node::GetConnectTris( vector< Tri* > & ctVec )
+void Node::GetConnectTris( vector< Face* > & ctVec )
 {
 //jrg speed this up!!!!
     ctVec.clear();
     for ( int i = 0 ; i < ( int )edgeVec.size() ; i++ )
     {
-        Tri* t0 = edgeVec[i]->t0;
+        Face* t0 = edgeVec[i]->t0;
         if ( t0 && find( ctVec.begin(), ctVec.end(), t0 ) == ctVec.end() )
         {
             ctVec.push_back( t0 );
         }
 
-        Tri* t1 = edgeVec[i]->t1;
+        Face* t1 = edgeVec[i]->t1;
         if ( t1 && find( ctVec.begin(), ctVec.end(), t1 ) == ctVec.end() )
         {
             ctVec.push_back( t1 );
@@ -76,7 +76,7 @@ void Node::GetConnectTris( vector< Tri* > & ctVec )
 
 bool Node::AllInteriorConnectedTris()
 {
-    vector< Tri* > tvec;
+    vector< Face* > tvec;
     GetConnectTris( tvec );
     for ( int i = 0 ; i < ( int )tvec.size() ; i++ )
     {
@@ -148,7 +148,7 @@ void Node::LaplacianSmooth( Surf* surfPtr )
 
 void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
 {
-    vector< Tri* > connectTris;
+    vector< Face* > connectTris;
     GetConnectTris( connectTris );
 
     vector< double > areas;
@@ -233,7 +233,7 @@ void Node::LaplacianSmoothUW()
 
 void Node::OptSmooth()
 {
-    vector< Tri* > connectTris;
+    vector< Face* > connectTris;
     GetConnectTris( connectTris );
 
     if ( ( int )connectTris.size() < 3 )
@@ -242,7 +242,7 @@ void Node::OptSmooth()
     }
 
     double worst_qual = 0.0;
-    Tri* worst_tri = NULL;
+    Face* worst_tri = NULL;
     for ( int i = 0 ; i < ( int )connectTris.size() ; i++ )
     {
         double q = connectTris[i]->ComputeCosSmallAng();
@@ -294,14 +294,14 @@ void Node::OptSmooth()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-bool Edge::SetTri( Tri* t )
+bool Edge::SetTri( Face* t )
 {
     if ( t0 && t1 )
     {
         printf( "Edge: More Than 2 Tris %16.10f %16.10f %16.10f\n",
 //          t0->ComputeQual(), t1->ComputeQual(), t->ComputeQual() );
                 t0->Area(), t1->Area(), t->Area() );
-        Tri* badtri = t;
+        Face* badtri = t;
         if ( t0->Area() < badtri->Area() )
         {
             t0 = badtri;
@@ -359,7 +359,7 @@ bool Edge::ContainsNodes( Node* in0, Node* in1 )
     return false;
 }
 
-Tri* Edge::OtherTri( Tri* t )
+Face* Edge::OtherTri( Face* t )
 {
     if ( t == t0 )
     {
@@ -411,7 +411,7 @@ void Edge::ReplaceNode( Node* curr_node, Node* replace_node )
     }
 }
 
-void Edge::ReplaceTri( Tri* t, Tri* replace_t )
+void Edge::ReplaceTri( Face* t, Face* replace_t )
 {
     if ( t0 == t )
     {
@@ -437,7 +437,7 @@ bool Edge::BothAdjoiningTrisInterior()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-Tri::Tri()
+Face::Face()
 {
     m_DeleteMeFlag = false;
     debugFlag = false;
@@ -447,7 +447,7 @@ Tri::Tri()
     rgb[0] = rgb[1] = rgb[2] = 0;
 }
 
-Tri::Tri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
+Face::Face( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
 {
     m_DeleteMeFlag = false;
     debugFlag = false;
@@ -455,11 +455,11 @@ Tri::Tri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
     deleteFlag = false;
 }
 
-Tri::~Tri()
+Face::~Face()
 {
 }
 
-void Tri::SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
+void Face::SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
 {
     n0 = nn0;
     n1 = nn1;
@@ -469,7 +469,7 @@ void Tri::SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, 
     e2 = ee2;
 }
 
-Edge* Tri::FindEdge( Node* nn0, Node* nn1 )
+Edge* Face::FindEdge( Node* nn0, Node* nn1 )
 {
     if ( e0->n0 == nn0 && e0->n1 == nn1 )
     {
@@ -499,7 +499,7 @@ Edge* Tri::FindEdge( Node* nn0, Node* nn1 )
     return NULL;
 }
 
-Edge* Tri::FindEdgeWithout( Node* node_ptr )
+Edge* Face::FindEdgeWithout( Node* node_ptr )
 {
     if ( e0->n0 != node_ptr && e0->n1 != node_ptr )
     {
@@ -517,7 +517,7 @@ Edge* Tri::FindEdgeWithout( Node* node_ptr )
     return NULL;
 }
 
-Edge* Tri::FindLongEdge()
+Edge* Face::FindLongEdge()
 {
     if ( !e0 || !e1 || !e2 )
     {
@@ -543,7 +543,7 @@ Edge* Tri::FindLongEdge()
     return e;
 }
 
-void Tri::ReplaceNode( Node* curr_node, Node* replace_node )
+void Face::ReplaceNode( Node* curr_node, Node* replace_node )
 {
     if ( n0 == curr_node )
     {
@@ -563,7 +563,7 @@ void Tri::ReplaceNode( Node* curr_node, Node* replace_node )
     }
 }
 
-void Tri::ReplaceEdge( Edge* curr_edge, Edge* replace_edge )
+void Face::ReplaceEdge( Edge* curr_edge, Edge* replace_edge )
 {
     if ( e0 == curr_edge )
     {
@@ -583,12 +583,12 @@ void Tri::ReplaceEdge( Edge* curr_edge, Edge* replace_edge )
     }
 }
 
-double Tri::ComputeQual()
+double Face::ComputeQual()
 {
     return ComputeQual( n0, n1, n2 );
 }
 
-double Tri::ComputeQual( Node* n0, Node* n1, Node* n2 )
+double Face::ComputeQual( Node* n0, Node* n1, Node* n2 )
 {
     double ang0, ang1, ang2;
 
@@ -628,7 +628,7 @@ double Tri::ComputeQual( Node* n0, Node* n1, Node* n2 )
     //return qual;
 }
 
-double Tri::ComputeCosSmallAng()
+double Face::ComputeCosSmallAng()
 {
     double ang0, ang1, ang2;
     ComputeCosAngles( n0, n1, n2, &ang0, &ang1, &ang2 );
@@ -647,24 +647,24 @@ double Tri::ComputeCosSmallAng()
     return minang;
 }
 
-vec3d Tri::Normal()
+vec3d Face::Normal()
 {
     return Normal( n0, n1, n2 );
 }
 
-vec3d Tri::Normal( Node* n0, Node* n1, Node* n2 )
+vec3d Face::Normal( Node* n0, Node* n1, Node* n2 )
 {
     return cross( n1->pnt - n0->pnt, n2->pnt - n0->pnt );
 }
 
 
 
-void Tri::ComputeCosAngles( double* ang0, double* ang1, double* ang2 )
+void Face::ComputeCosAngles( double* ang0, double* ang1, double* ang2 )
 {
     ComputeCosAngles( n0, n1, n2, ang0, ang1, ang2 );
 }
 
-void Tri::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double* ang1, double* ang2 )
+void Face::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double* ang1, double* ang2 )
 {
     double dsqr01 = dist_squared( n0->pnt, n1->pnt );
     double dsqr12 = dist_squared( n1->pnt, n2->pnt );
@@ -681,12 +681,12 @@ void Tri::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double* 
 
 // XOR (^) of anything with itself will return zero.  So, by performing a bitwise XOR chain of all the pointers
 // n0^n1^n2^a^b, a and b clobber their match among n0,n1,n2 leaving just the odd pointer out to be returned.
-Node* Tri::OtherNode( Node* a, Node* b )
+Node* Face::OtherNode( Node* a, Node* b )
 {
     return (Node *) ((uintptr_t) n0 ^ (uintptr_t) n1 ^ (uintptr_t) n2 ^ (uintptr_t) a ^ (uintptr_t) b);
 }
 
-bool Tri::Contains( Node* a, Node* b )
+bool Face::Contains( Node* a, Node* b )
 {
     if ( a == b )
     {
@@ -702,12 +702,12 @@ bool Tri::Contains( Node* a, Node* b )
     return false;
 }
 
-bool Tri::Contains( Edge* e )
+bool Face::Contains( Edge* e )
 {
     return ( e == e0 || e == e1 || e == e2 );
 }
 
-bool Tri::CorrectOrder( Node* en0, Node* en1 )
+bool Face::CorrectOrder( Node* en0, Node* en1 )
 {
     if ( en0 == n0 && en1 == n1 )
     {
@@ -726,12 +726,12 @@ bool Tri::CorrectOrder( Node* en0, Node* en1 )
 
 }
 
-double Tri::Area()
+double Face::Area()
 {
     return area( n0->pnt, n1->pnt, n2->pnt );
 }
 
-vec3d Tri::ComputeCenterPnt( Surf* surfPtr )
+vec3d Face::ComputeCenterPnt( Surf* surfPtr )
 {
     //vec3d avg_p = (n0->pnt + n1->pnt)*0.5;
     //avg_p = (avg_p + n2->pnt)*0.5;
@@ -752,9 +752,9 @@ vec3d Tri::ComputeCenterPnt( Surf* surfPtr )
     return surfPtr->CompPnt( uw[0], uw[1] );
 }
 
-void Tri::LoadAdjTris( int num_levels, set< Tri* > & triSet )
+void Face::LoadAdjTris( int num_levels, set< Face* > & triSet )
 {
-    Tri* t;
+    Face* t;
     triSet.insert( this );
 
     num_levels--;

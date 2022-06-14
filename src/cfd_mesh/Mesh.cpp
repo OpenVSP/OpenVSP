@@ -47,7 +47,7 @@ Mesh::~Mesh()
 
 void Mesh::Clear()
 {
-    list< Tri* >::iterator t;
+    list< Face* >::iterator t;
     for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         delete ( *t );
@@ -224,7 +224,7 @@ void Mesh::Remesh()
 
 void Mesh::LoadSimpTris()
 {
-    list< Tri* >::iterator t;
+    list< Face* >::iterator t;
     simpTriVec.resize( triList.size() );
     simpPntVec.resize( triList.size() * 3 );
     simpUWPntVec.resize( triList.size() * 3 );
@@ -444,7 +444,7 @@ int Mesh::RemoveRevTris()
 
     vector < Edge* > remEdges;
 
-    list< Tri* >::iterator t;
+    list< Face* >::iterator t;
     for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         vec3d ntri = (*t)->Normal();
@@ -487,7 +487,7 @@ int Mesh::RemoveRevTris()
 
 void Mesh::ColorTris()
 {
-    list< Tri* >::iterator t;
+    list< Face* >::iterator t;
     for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         double q = ( *t )->ComputeQual();
@@ -586,15 +586,15 @@ Edge* Mesh::FindEdge( Node* n0, Node* n1 )
     return NULL;
 }
 
-Tri* Mesh::AddTri( Node* n0, Node* n1, Node* n2, Edge* e0, Edge* e1, Edge* e2 )
+Face* Mesh::AddTri( Node* n0, Node* n1, Node* n2, Edge* e0, Edge* e1, Edge* e2 )
 {
-    Tri* tptr = new Tri( n0, n1, n2, e0, e1, e2 );
+    Face* tptr = new Face( n0, n1, n2, e0, e1, e2 );
     triList.push_back( tptr );
     tptr->list_ptr = --triList.end();
     return tptr;
 }
 
-void Mesh::RemoveTri( Tri* tptr )
+void Mesh::RemoveTri( Face* tptr )
 {
     garbageTriVec.push_back( tptr );
     triList.erase( tptr->list_ptr );
@@ -655,8 +655,8 @@ void Mesh::SplitEdge( Edge* edge )
 
     assert( edge->t0 || edge->t1 );
 
-    Tri*  ta = edge->t0;
-    Tri*  tb = edge->t1;
+    Face*  ta = edge->t0;
+    Face*  tb = edge->t1;
 
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
@@ -697,8 +697,8 @@ void Mesh::SplitEdge( Edge* edge )
         Edge* ea0 = ta->FindEdge( n0, na );
         Edge* ea1 = ta->FindEdge( na, n1 );
 
-        Tri* ta0 = AddTri( n0, ns, na, ea0, ea, es0 );
-        Tri* ta1 = AddTri( n1, na, ns, ea1, es1, ea );
+        Face* ta0 = AddTri( n0, ns, na, ea0, ea, es0 );
+        Face* ta1 = AddTri( n1, na, ns, ea1, es1, ea );
 
         ea->t0 = ta0;
         ea->t1 = ta1;
@@ -743,8 +743,8 @@ void Mesh::SplitEdge( Edge* edge )
         Edge* eb0 = tb->FindEdge( n0, nb );
         Edge* eb1 = tb->FindEdge( nb, n1 );
 
-        Tri* tb0 = AddTri( n0, nb, ns, es0, eb, eb0 );
-        Tri* tb1 = AddTri( n1, ns, nb, es1, eb1, eb );
+        Face* tb0 = AddTri( n0, nb, ns, es0, eb, eb0 );
+        Face* tb1 = AddTri( n1, ns, nb, es1, eb1, eb );
 
         eb->t0 = tb0;
         eb->t1 = tb1;
@@ -796,8 +796,8 @@ void Mesh::SwapEdge( Edge* edge )
         return;
     }
 
-    Tri*  ta = edge->t0;
-    Tri*  tb = edge->t1;
+    Face*  ta = edge->t0;
+    Face*  tb = edge->t1;
 
     if ( !ta || !tb )
     {
@@ -827,8 +827,8 @@ void Mesh::SwapEdge( Edge* edge )
     //==== Determine Tri Quality of Existing Tris =====//
     double qa = ta->ComputeQual();
     double qb = tb->ComputeQual();
-    double qc = Tri::ComputeQual( n0, nb, na );
-    double qd = Tri::ComputeQual( n1, na, nb );
+    double qc = Face::ComputeQual( n0, nb, na );
+    double qd = Face::ComputeQual( n1, na, nb );
 
     if ( min( qc, qd ) <= min( qa, qb ) )
     {
@@ -837,8 +837,8 @@ void Mesh::SwapEdge( Edge* edge )
 
     vec3d norma = ta->Normal();
     vec3d normb = tb->Normal();
-    vec3d normc = Tri::Normal( n0, nb, na );
-    vec3d normd = Tri::Normal( n1, na, nb );
+    vec3d normc = Face::Normal( n0, nb, na );
+    vec3d normd = Face::Normal( n1, na, nb );
 
     double angab = angle( norma, normb );
 
@@ -915,14 +915,14 @@ bool Mesh::ThreeEdgesThreeTris( Edge* edge )
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
 
-    vector< Tri* > tvec0;
+    vector< Face* > tvec0;
     n0->GetConnectTris( tvec0 );
     if ( tvec0.size() == 3 && n0->edgeVec.size() == 3 )
     {
         return true;
     }
 
-    vector< Tri* > tvec1;
+    vector< Face* > tvec1;
     n1->GetConnectTris( tvec1 );
 
     return tvec1.size() == 3 && n1->edgeVec.size() == 3;
@@ -960,8 +960,8 @@ bool Mesh::ValidCollapse( Edge* edge )
 
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
-    Tri*  ta = edge->t0;
-    Tri*  tb = edge->t1;
+    Face*  ta = edge->t0;
+    Face*  tb = edge->t1;
     Node* na = ta->OtherNode( n0, n1 );
     Node* nb = tb->OtherNode( n0, n1 );
 
@@ -974,8 +974,8 @@ bool Mesh::ValidCollapse( Edge* edge )
         return false;
     }
 
-    Tri* ta0 = e0a->OtherTri( ta );
-    Tri* ta1 = e1a->OtherTri( ta );
+    Face* ta0 = e0a->OtherTri( ta );
+    Face* ta1 = e1a->OtherTri( ta );
 
     if ( ta0 && ta1 )
     {
@@ -991,8 +991,8 @@ bool Mesh::ValidCollapse( Edge* edge )
     Edge* e0b = tb->FindEdge( n0, nb );
     Edge* e1b = tb->FindEdge( n1, nb );
 
-    Tri* tb0 = e0b->OtherTri( tb );
-    Tri* tb1 = e1b->OtherTri( tb );
+    Face* tb0 = e0b->OtherTri( tb );
+    Face* tb1 = e1b->OtherTri( tb );
 
     if ( tb0 && tb1 )
     {
@@ -1014,11 +1014,11 @@ bool Mesh::ValidCollapse( Edge* edge )
     return true;
 }
 
-bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Tri* ignoreTri )
+bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreTri )
 {
     int i;
     bool valid_flag = true;
-    vector < Tri* > triVec;
+    vector < Face* > triVec;
     nptr->GetConnectTris( triVec );
 
     vector < vec3d > normals;
@@ -1085,8 +1085,8 @@ void Mesh::CollapseEdge( Edge* edge )
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
 
-    Tri*  ta = edge->t0;
-    Tri*  tb = edge->t1;
+    Face*  ta = edge->t0;
+    Face*  tb = edge->t1;
     Node* na = ta->OtherNode( n0, n1 );
     Node* nb = tb->OtherNode( n0, n1 );
 
@@ -1096,10 +1096,10 @@ void Mesh::CollapseEdge( Edge* edge )
     Edge* ea1 = ta->FindEdge( na, n1 );
     Edge* eb0 = tb->FindEdge( nb, n0 );
     Edge* eb1 = tb->FindEdge( nb, n1 );
-    Tri*  ta0 = ea0->OtherTri( ta );
-    Tri*  ta1 = ea1->OtherTri( ta );
-    Tri*  tb0 = eb0->OtherTri( tb );
-    Tri*  tb1 = eb1->OtherTri( tb );
+    Face*  ta0 = ea0->OtherTri( ta );
+    Face*  ta1 = ea1->OtherTri( ta );
+    Face*  tb0 = eb0->OtherTri( tb );
+    Face*  tb1 = eb1->OtherTri( tb );
 
 
     if ( ta0 && ta1 )
@@ -1202,7 +1202,7 @@ void Mesh::CollapseEdge( Edge* edge )
 //CheckValidEdge(ecb);
 
     //==== Change Any Tris That Point to n0 ====//
-    vector< Tri* > tVec;
+    vector< Face* > tVec;
     n0->GetConnectTris( tVec );
     for ( int i = 0 ; i < ( int )tVec.size() ; i++ )
     {
@@ -1409,8 +1409,8 @@ void Mesh::CheckValidEdge( Edge* edge )
     assert( n0 );
     assert( n1 );
 
-    Tri* t0 = edge->t0;
-    Tri* t1 = edge->t1;
+    Face* t0 = edge->t0;
+    Face* t1 = edge->t1;
 
     assert ( t0 || t1 );
 
@@ -1767,7 +1767,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
                 e2 = AddEdge( n2, n0 );
             }
 
-            Tri* tri = AddTri( n0, n1, n2, e0, e1, e2 );
+            Face* tri = AddTri( n0, n1, n2, e0, e1, e2 );
 
             if ( e0->t0 == NULL )
             {
@@ -2028,11 +2028,11 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
 void Mesh::RemoveInteriorTrisEdgesNodes()
 {
-    set < Tri* > remTris;
+    set < Face* > remTris;
     set < Edge* > remEdges;
     set < Node* > remNodes;
 
-    list< Tri* >::iterator t;
+    list< Face* >::iterator t;
     for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         //==== Check Surrounding Tris =====//
@@ -2071,7 +2071,7 @@ void Mesh::RemoveInteriorTrisEdgesNodes()
     }
 
     //==== Remove References to Deleted Tris =====//
-    set< Tri* >::iterator st;
+    set< Face* >::iterator st;
     for ( st = remTris.begin() ; st != remTris.end(); ++st )
     {
         ( *st )->e0->ReplaceTri( ( *st ), NULL );
@@ -2186,7 +2186,7 @@ void Mesh::ReadSTL( const char* file_name )
                 e2 = AddEdge( n2, n0 );
             }
 
-            Tri* tri = AddTri( n0, n1, n2, e0, e1, e2 );
+            Face* tri = AddTri( n0, n1, n2, e0, e1, e2 );
 
             if      ( e0->t0 == NULL )
             {

@@ -13,7 +13,7 @@
 
 #include "Vec2d.h"
 #include "Vec3d.h"
-#include "Tri.h"
+#include "Face.h"
 
 class Surf;
 class SimpleGridDensity;
@@ -94,14 +94,14 @@ public:
     void  RemoveNode( Node* nptr );
     Node* FindNode( const vec3d& p );
 
-    static bool ValidNodeMove( Node* nptr, const vec3d & move_to, Tri* ignoreTri = NULL );
+    static bool ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreTri = NULL );
 
     Edge* AddEdge( Node* n0, Node* n1 );
     void  RemoveEdge( Edge* eptr );
     Edge* FindEdge( Node* n0, Node* n1 );
 
-    Tri* AddTri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
-    void  RemoveTri( Tri* tptr );
+    Face* AddTri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
+    void  RemoveTri( Face* tptr );
 
     static void TriangulateBorder( const vector< vec3d > &uw_border );
 
@@ -136,7 +136,7 @@ public:
 
     void ColorTris();
 
-    list <Tri*> GetTriList()
+    list <Face*> GetTriList()
     {
         return triList;
     }
@@ -163,11 +163,11 @@ protected:
     Surf* m_Surf;
     SimpleGridDensity* m_GridDensity;
 
-    list < Tri* > triList;
+    list < Face* > triList;
     list < Edge* > edgeList;
     list < Node* > nodeList;
 
-    vector< Tri* > garbageTriVec;
+    vector< Face* > garbageTriVec;
     vector< Edge* > garbageEdgeVec;
     vector< Node* > garbageNodeVec;
 
