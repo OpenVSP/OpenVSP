@@ -53,19 +53,19 @@ void Node::GetConnectNodes( vector< Node* > & cnVec )
     }
 }
 
-void Node::GetConnectTris( vector< Face* > & ctVec )
+void Node::GetConnectFaces( vector< Face* > & ctVec )
 {
 //jrg speed this up!!!!
     ctVec.clear();
     for ( int i = 0 ; i < ( int )edgeVec.size() ; i++ )
     {
-        Face* t0 = edgeVec[i]->t0;
+        Face* t0 = edgeVec[i]->f0;
         if ( t0 && find( ctVec.begin(), ctVec.end(), t0 ) == ctVec.end() )
         {
             ctVec.push_back( t0 );
         }
 
-        Face* t1 = edgeVec[i]->t1;
+        Face* t1 = edgeVec[i]->f1;
         if ( t1 && find( ctVec.begin(), ctVec.end(), t1 ) == ctVec.end() )
         {
             ctVec.push_back( t1 );
@@ -74,10 +74,10 @@ void Node::GetConnectTris( vector< Face* > & ctVec )
 
 }
 
-bool Node::AllInteriorConnectedTris()
+bool Node::AllInteriorConnectedFaces()
 {
     vector< Face* > tvec;
-    GetConnectTris( tvec );
+    GetConnectFaces( tvec );
     for ( int i = 0 ; i < ( int )tvec.size() ; i++ )
     {
         if ( !tvec[i]->deleteFlag )
@@ -149,7 +149,7 @@ void Node::LaplacianSmooth( Surf* surfPtr )
 void Node::AreaWeightedLaplacianSmooth( Surf* surfPtr )
 {
     vector< Face* > connectTris;
-    GetConnectTris( connectTris );
+    GetConnectFaces( connectTris );
 
     vector< double > areas;
     areas.resize( connectTris.size() );
@@ -234,7 +234,7 @@ void Node::LaplacianSmoothUW()
 void Node::OptSmooth()
 {
     vector< Face* > connectTris;
-    GetConnectTris( connectTris );
+    GetConnectFaces( connectTris );
 
     if ( ( int )connectTris.size() < 3 )
     {
@@ -294,30 +294,30 @@ void Node::OptSmooth()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-bool Edge::SetTri( Face* t )
+bool Edge::SetFace( Face* t )
 {
-    if ( t0 && t1 )
+    if ( f0 && f1 )
     {
         printf( "Edge: More Than 2 Tris %16.10f %16.10f %16.10f\n",
 //          t0->ComputeQual(), t1->ComputeQual(), t->ComputeQual() );
-                t0->Area(), t1->Area(), t->Area() );
+                f0->Area(), f1->Area(), t->Area() );
         Face* badtri = t;
-        if ( t0->Area() < badtri->Area() )
+        if ( f0->Area() < badtri->Area() )
         {
-            t0 = badtri;
+            f0 = badtri;
         }
-        if ( t1->Area() < badtri->Area() )
+        if ( f1->Area() < badtri->Area() )
         {
-            t1 = badtri;
+            f1 = badtri;
         }
 
-        printf( "     vertex %f %f %f\n", t0->n0->pnt.x(), t0->n0->pnt.y(), t0->n0->pnt.z() );
-        printf( "     vertex %f %f %f\n", t0->n1->pnt.x(), t0->n1->pnt.y(), t0->n1->pnt.z() );
-        printf( "     vertex %f %f %f\n", t0->n2->pnt.x(), t0->n2->pnt.y(), t0->n2->pnt.z() );
+        printf( "     vertex %f %f %f\n", f0->n0->pnt.x(), f0->n0->pnt.y(), f0->n0->pnt.z() );
+        printf( "     vertex %f %f %f\n", f0->n1->pnt.x(), f0->n1->pnt.y(), f0->n1->pnt.z() );
+        printf( "     vertex %f %f %f\n", f0->n2->pnt.x(), f0->n2->pnt.y(), f0->n2->pnt.z() );
 
-        printf( "     vertex %f %f %f\n", t1->n0->pnt.x(), t1->n0->pnt.y(), t1->n0->pnt.z() );
-        printf( "     vertex %f %f %f\n", t1->n1->pnt.x(), t1->n1->pnt.y(), t1->n1->pnt.z() );
-        printf( "     vertex %f %f %f\n", t1->n2->pnt.x(), t1->n2->pnt.y(), t1->n2->pnt.z() );
+        printf( "     vertex %f %f %f\n", f1->n0->pnt.x(), f1->n0->pnt.y(), f1->n0->pnt.z() );
+        printf( "     vertex %f %f %f\n", f1->n1->pnt.x(), f1->n1->pnt.y(), f1->n1->pnt.z() );
+        printf( "     vertex %f %f %f\n", f1->n2->pnt.x(), f1->n2->pnt.y(), f1->n2->pnt.z() );
 
         printf( "     vertex %f %f %f\n", t->n0->pnt.x(), t->n0->pnt.y(), t->n0->pnt.z() );
         printf( "     vertex %f %f %f\n", t->n1->pnt.x(), t->n1->pnt.y(), t->n1->pnt.z() );
@@ -333,13 +333,13 @@ bool Edge::SetTri( Face* t )
 
         return false;
     }
-    if ( t0 )
+    if ( f0 )
     {
-        t1 = t;
+        f1 = t;
     }
     else
     {
-        t0 = t;
+        f0 = t;
     }
 
     return true;
@@ -359,15 +359,15 @@ bool Edge::ContainsNodes( Node* in0, Node* in1 )
     return false;
 }
 
-Face* Edge::OtherTri( Face* t )
+Face* Edge::OtherFace( Face* t )
 {
-    if ( t == t0 )
+    if ( t == f0 )
     {
-        return t1;
+        return f1;
     }
-    else if ( t == t1 )
+    else if ( t == f1 )
     {
-        return t0;
+        return f0;
     }
     else
     {
@@ -411,22 +411,22 @@ void Edge::ReplaceNode( Node* curr_node, Node* replace_node )
     }
 }
 
-void Edge::ReplaceTri( Face* t, Face* replace_t )
+void Edge::ReplaceFace( Face* t, Face* replace_t )
 {
-    if ( t0 == t )
+    if ( f0 == t )
     {
-        t0 = replace_t;
+        f0 = replace_t;
     }
-    else if ( t1 == t )
+    else if ( f1 == t )
     {
-        t1 = replace_t;
+        f1 = replace_t;
     }
 }
 
 bool Edge::BothAdjoiningTrisInterior()
 {
-    if ( ( t0 && t0->deleteFlag ) || ( t0 == NULL ) )
-        if ( ( t1 && t1->deleteFlag ) || ( t1 == NULL ) )
+    if (( f0 && f0->deleteFlag ) || ( f0 == NULL ) )
+        if (( f1 && f1->deleteFlag ) || ( f1 == NULL ) )
         {
             return true;
         }
@@ -752,7 +752,7 @@ vec3d Face::ComputeCenterPnt( Surf* surfPtr )
     return surfPtr->CompPnt( uw[0], uw[1] );
 }
 
-void Face::LoadAdjTris( int num_levels, set< Face* > & triSet )
+void Face::LoadAdjFaces( int num_levels, set< Face* > & triSet )
 {
     Face* t;
     triSet.insert( this );
@@ -765,26 +765,26 @@ void Face::LoadAdjTris( int num_levels, set< Face* > & triSet )
 
     if ( !e0->border )
     {
-        t = e0->OtherTri( this );
+        t = e0->OtherFace( this );
         if ( t )
         {
-            t->LoadAdjTris( num_levels, triSet );
+            t->LoadAdjFaces( num_levels, triSet );
         }
     }
     if ( !e1->border )
     {
-        t = e1->OtherTri( this );
+        t = e1->OtherFace( this );
         if ( t )
         {
-            t->LoadAdjTris( num_levels, triSet );
+            t->LoadAdjFaces( num_levels, triSet );
         }
     }
     if ( !e2->border )
     {
-        t = e2->OtherTri( this );
+        t = e2->OtherFace( this );
         if ( t )
         {
-            t->LoadAdjTris( num_levels, triSet );
+            t->LoadAdjFaces( num_levels, triSet );
         }
     }
 }

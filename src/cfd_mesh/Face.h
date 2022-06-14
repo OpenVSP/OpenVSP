@@ -4,12 +4,12 @@
 //
 
 //////////////////////////////////////////////////////////////////////
-// Tri.h
+// Face.h
 // J.R. Gloudemans
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(TRI_TRI__INCLUDED_)
-#define TRI_TRI__INCLUDED_
+#if !defined(FACE_FACE__INCLUDED_)
+#define FACE_FACE__INCLUDED_
 
 #include "Defines.h"
 #include "Vec2d.h"
@@ -60,7 +60,7 @@ public:
     vector< Edge* >  edgeVec;       // All Edges Which Use This Node
 
     void GetConnectNodes( vector< Node* > & cnVec );
-    void GetConnectTris( vector< Face* > & ctVec );
+    void GetConnectFaces( vector< Face* > & ctVec );
 
     void AddConnectEdge( Edge* e );
     void RemoveConnectEdge( Edge* e );
@@ -69,7 +69,7 @@ public:
 //  void AngleSmooth();
     void OptSmooth();
 
-    bool AllInteriorConnectedTris();
+    bool AllInteriorConnectedFaces();
 
     void LaplacianSmooth( Surf* surfPtr );
     void AreaWeightedLaplacianSmooth( Surf* surfPtr );
@@ -84,7 +84,7 @@ public:
     Edge()
     {
         n0 = n1 = NULL;
-        t0 = t1 = NULL;
+        f0 = f1 = NULL;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
         target_len = 0;
         m_Length = 0;
@@ -93,7 +93,7 @@ public:
     {
         n0 = node0;
         n1 = node1;
-        t0 = t1 = NULL;
+        f0 = f1 = NULL;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
         target_len = 0;
         m_Length = 0;
@@ -107,8 +107,8 @@ public:
     Node* n0;
     Node* n1;
 
-    Face* t0;
-    Face* t1;
+    Face* f0;
+    Face* f1;
 
     bool ridge;             // Dont Remove but Can Split
     bool border;            // Dont remove or split
@@ -118,11 +118,11 @@ public:
     double target_len;
     double m_Length;
 
-    Face* OtherTri( Face* t );
+    Face* OtherFace( Face* t );
     Node* OtherNode( Node* n );
     void ReplaceNode( Node* curr_node, Node* replace_node );
 
-    bool SetTri( Face* t );
+    bool SetFace( Face* t );
     bool ContainsNodes( Node* in0, Node* in1 );
 
 
@@ -142,7 +142,7 @@ public:
     }
 
     bool BothAdjoiningTrisInterior();
-    void ReplaceTri( Face* t, Face* replace_t );
+    void ReplaceFace( Face* t, Face* replace_t );
 
 
 
@@ -207,7 +207,7 @@ public:
     // Set to true if tri should be removed
     bool deleteFlag;
 
-    void LoadAdjTris( int num_levels, set< Face* > & triSet );
+    void LoadAdjFaces( int num_levels, set< Face* > & triSet );
 
     unsigned char rgb[3];
 

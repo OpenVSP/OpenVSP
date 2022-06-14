@@ -1817,17 +1817,17 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 
                 Face* tri = new Face( m_nodeStore[ind1], m_nodeStore[ind2], m_nodeStore[ind3], e0, e1, e2 );
 
-                if ( !e0->SetTri( tri ) )
+                if ( !e0->SetFace( tri ) )
                 {
                     tri->debugFlag = true;
                     moreThanTwoTriPerEdge++;
                 }
-                if ( !e1->SetTri( tri ) )
+                if ( !e1->SetFace( tri ) )
                 {
                     tri->debugFlag = true;
                     moreThanTwoTriPerEdge++;
                 }
-                if ( !e2->SetTri( tri ) )
+                if ( !e2->SetFace( tri ) )
                 {
                     tri->debugFlag = true;
                     moreThanTwoTriPerEdge++;
@@ -1850,7 +1850,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
         for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
             Edge* e = iter->second[i];
-            if ( !( e->t0 && e->t1 ) )
+            if ( !( e->f0 && e->f1 ) )
             {
                 m_BadEdges.push_back( e );
                 e->debugFlag = true;
@@ -2757,7 +2757,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         {
             //==== Load Adjoining Tris - NOT Crossing Borders ====//
             set< Face* > triSet;
-            ( *t )->LoadAdjTris( 3, triSet );
+            ( *t )->LoadAdjFaces( 3, triSet );
 
             set<Face*>::iterator st;
 
@@ -2882,15 +2882,15 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
             list <Face*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
             for ( t = triList.begin() ; t != triList.end(); ++t )
             {
-                if ( ( *t )->e0->OtherTri( ( *t ) ) == NULL )
+                if (( *t )->e0->OtherFace(( *t )) == NULL )
                 {
                     edgeList.push_back( ( *t )->e0 );
                 }
-                if ( ( *t )->e1->OtherTri( ( *t ) ) == NULL )
+                if (( *t )->e1->OtherFace(( *t )) == NULL )
                 {
                     edgeList.push_back( ( *t )->e1 );
                 }
-                if ( ( *t )->e2->OtherTri( ( *t ) ) == NULL )
+                if (( *t )->e2->OtherFace(( *t )) == NULL )
                 {
                     edgeList.push_back( ( *t )->e2 );
                 }
