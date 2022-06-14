@@ -60,7 +60,7 @@ public:
     vector< Edge* >  edgeVec;       // All Edges Which Use This Node
 
     void GetConnectNodes( vector< Node* > & cnVec );
-    void GetConnectFaces( vector< Face* > & ctVec );
+    void GetConnectFaces( vector< Face* > & cfVec );
 
     void AddConnectEdge( Edge* e );
     void RemoveConnectEdge( Edge* e );

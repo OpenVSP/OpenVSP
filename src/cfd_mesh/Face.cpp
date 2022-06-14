@@ -53,22 +53,22 @@ void Node::GetConnectNodes( vector< Node* > & cnVec )
     }
 }
 
-void Node::GetConnectFaces( vector< Face* > & ctVec )
+void Node::GetConnectFaces( vector< Face* > & cfVec )
 {
 //jrg speed this up!!!!
-    ctVec.clear();
+    cfVec.clear();
     for ( int i = 0 ; i < ( int )edgeVec.size() ; i++ )
     {
-        Face* t0 = edgeVec[i]->f0;
-        if ( t0 && find( ctVec.begin(), ctVec.end(), t0 ) == ctVec.end() )
+        Face* f0 = edgeVec[i]->f0;
+        if ( f0 && find( cfVec.begin(), cfVec.end(), f0 ) == cfVec.end() )
         {
-            ctVec.push_back( t0 );
+            cfVec.push_back( f0 );
         }
 
-        Face* t1 = edgeVec[i]->f1;
-        if ( t1 && find( ctVec.begin(), ctVec.end(), t1 ) == ctVec.end() )
+        Face* f1 = edgeVec[i]->f1;
+        if ( f1 && find( cfVec.begin(), cfVec.end(), f1 ) == cfVec.end() )
         {
-            ctVec.push_back( t1 );
+            cfVec.push_back( f1 );
         }
     }
 
@@ -76,11 +76,11 @@ void Node::GetConnectFaces( vector< Face* > & ctVec )
 
 bool Node::AllInteriorConnectedFaces()
 {
-    vector< Face* > tvec;
-    GetConnectFaces( tvec );
-    for ( int i = 0 ; i < ( int )tvec.size() ; i++ )
+    vector< Face* > fvec;
+    GetConnectFaces( fvec );
+    for ( int i = 0 ; i < ( int )fvec.size() ; i++ )
     {
-        if ( !tvec[i]->deleteFlag )
+        if ( !fvec[i]->deleteFlag )
         {
             return false;
         }

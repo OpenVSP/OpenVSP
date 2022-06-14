@@ -709,15 +709,15 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
     }
 
     double tparm, uparm, vparm;
-    list< Face* >::iterator t;
-    list <Face*> triList = m_Mesh.GetFaceList();
+    list <Face*>::iterator f;
+    list <Face*> faceList = m_Mesh.GetFaceList();
 
     vec3d dir = p1 - p0;
 
-    for ( t = triList.begin() ; t != triList.end(); ++t )
+    for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
         int iFlag = intersect_triangle( p0.v, dir.v,
-                                        ( *t )->n0->pnt.v, ( *t )->n1->pnt.v, ( *t )->n2->pnt.v, &tparm, &uparm, &vparm );
+                                        ( *f )->n0->pnt.v, ( *f )->n1->pnt.v, ( *f )->n2->pnt.v, &tparm, &uparm, &vparm );
 
         if ( iFlag && tparm > 0.0 )
         {

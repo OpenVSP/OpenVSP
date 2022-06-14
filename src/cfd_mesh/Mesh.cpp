@@ -47,10 +47,10 @@ Mesh::~Mesh()
 
 void Mesh::Clear()
 {
-    list< Face* >::iterator t;
-    for ( t = faceList.begin() ; t != faceList.end(); ++t )
+    list< Face* >::iterator f;
+    for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
-        delete ( *t );
+        delete ( *f );
     }
 
     faceList.clear();
@@ -224,25 +224,25 @@ void Mesh::Remesh()
 
 void Mesh::LoadSimpFaces()
 {
-    list< Face* >::iterator t;
+    list< Face* >::iterator f;
     simpFaceVec.resize( faceList.size() );
     simpPntVec.resize( faceList.size() * 3 );
     simpUWPntVec.resize( faceList.size() * 3 );
 
     int cnt = 0;
-    for ( t = faceList.begin() ; t != faceList.end(); ++t )
+    for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
         simpFaceVec[cnt].ind0 = cnt * 3;
         simpFaceVec[cnt].ind1 = cnt * 3 + 1;
         simpFaceVec[cnt].ind2 = cnt * 3 + 2;
 
-        simpPntVec[cnt * 3]   = ( *t )->n0->pnt;
-        simpPntVec[cnt * 3 + 1] = ( *t )->n1->pnt;
-        simpPntVec[cnt * 3 + 2] = ( *t )->n2->pnt;
+        simpPntVec[cnt * 3]   = ( *f )->n0->pnt;
+        simpPntVec[cnt * 3 + 1] = ( *f )->n1->pnt;
+        simpPntVec[cnt * 3 + 2] = ( *f )->n2->pnt;
 
-        simpUWPntVec[cnt * 3] = ( *t )->n0->uw;
-        simpUWPntVec[cnt * 3 + 1] = ( *t )->n1->uw;
-        simpUWPntVec[cnt * 3 + 2] = ( *t )->n2->uw;
+        simpUWPntVec[cnt * 3] = ( *f )->n0->uw;
+        simpUWPntVec[cnt * 3 + 1] = ( *f )->n1->uw;
+        simpUWPntVec[cnt * 3 + 2] = ( *f )->n2->uw;
         cnt++;
     }
 }
@@ -588,17 +588,17 @@ Edge* Mesh::FindEdge( Node* n0, Node* n1 )
 
 Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
 {
-    Face* tptr = new Face( nn0, nn1, nn2, ee0, ee1, ee2 );
-    faceList.push_back( tptr );
-    tptr->list_ptr = --faceList.end();
-    return tptr;
+    Face* fptr = new Face( nn0, nn1, nn2, ee0, ee1, ee2 );
+    faceList.push_back( fptr );
+    fptr->list_ptr = --faceList.end();
+    return fptr;
 }
 
-void Mesh::RemoveFace( Face* tptr )
+void Mesh::RemoveFace( Face* fptr )
 {
-    garbageFaceVec.push_back( tptr );
-    faceList.erase( tptr->list_ptr );
-    tptr->m_DeleteMeFlag = true;
+    garbageFaceVec.push_back( fptr );
+    faceList.erase( fptr->list_ptr );
+    fptr->m_DeleteMeFlag = true;
 }
 
 void Mesh::DumpGarbage()
@@ -655,17 +655,17 @@ void Mesh::SplitEdge( Edge* edge )
 
     assert( edge->f0 || edge->f1 );
 
-    Face*  ta = edge->f0;
-    Face*  tb = edge->f1;
+    Face* fa = edge->f0;
+    Face* fb = edge->f1;
 
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
-    if ( ta && !ta->CorrectOrder( n0, n1 ) )
+    if ( fa && !fa->CorrectOrder( n0, n1 ) )
     {
         n0 = edge->n1;
         n1 = edge->n0;
     }
-    else if ( !ta && tb && !tb->CorrectOrder( n0, n1 ) )
+    else if ( !fa && fb && !fb->CorrectOrder( n0, n1 ) )
     {
         n0 = edge->n1;
         n1 = edge->n0;
@@ -689,96 +689,96 @@ void Mesh::SplitEdge( Edge* edge )
     es0->ridge = edge->ridge;
     es1->ridge = edge->ridge;
 
-    if ( ta )
+    if ( fa )
     {
-        Node* na = ta->OtherNode( n0, n1 );
+        Node* na = fa->OtherNode( n0, n1 );
         Edge* ea = AddEdge( na, ns );
 
-        Edge* ea0 = ta->FindEdge( n0, na );
-        Edge* ea1 = ta->FindEdge( na, n1 );
+        Edge* ea0 = fa->FindEdge( n0, na );
+        Edge* ea1 = fa->FindEdge( na, n1 );
 
-        Face* ta0 = AddFace( n0, ns, na, ea0, ea, es0 );
-        Face* ta1 = AddFace( n1, na, ns, ea1, es1, ea );
+        Face* fa0 = AddFace( n0, ns, na, ea0, ea, es0 );
+        Face* fa1 = AddFace( n1, na, ns, ea1, es1, ea );
 
-        ea->f0 = ta0;
-        ea->f1 = ta1;
+        ea->f0 = fa0;
+        ea->f1 = fa1;
 
-        if ( ea0->f0 == ta )
+        if ( ea0->f0 == fa )
         {
-            ea0->f0 = ta0;
+            ea0->f0 = fa0;
         }
-        else if ( ea0->f1 == ta )
+        else if ( ea0->f1 == fa )
         {
-            ea0->f1 = ta0;
-        }
-        else
-        {
-            assert( 0 );
-        }
-
-        if ( ea1->f0 == ta )
-        {
-            ea1->f0 = ta1;
-        }
-        else if ( ea1->f1 == ta )
-        {
-            ea1->f1 = ta1;
+            ea0->f1 = fa0;
         }
         else
         {
             assert( 0 );
         }
 
-        es0->f0 = ta0;
-        es1->f0 = ta1;
+        if ( ea1->f0 == fa )
+        {
+            ea1->f0 = fa1;
+        }
+        else if ( ea1->f1 == fa )
+        {
+            ea1->f1 = fa1;
+        }
+        else
+        {
+            assert( 0 );
+        }
 
-        RemoveFace( ta );
+        es0->f0 = fa0;
+        es1->f0 = fa1;
+
+        RemoveFace( fa );
     }
 
-    if ( tb )
+    if ( fb )
     {
-        Node* nb = tb->OtherNode( n0, n1 );
+        Node* nb = fb->OtherNode( n0, n1 );
         Edge* eb = AddEdge( ns, nb );
 
-        Edge* eb0 = tb->FindEdge( n0, nb );
-        Edge* eb1 = tb->FindEdge( nb, n1 );
+        Edge* eb0 = fb->FindEdge( n0, nb );
+        Edge* eb1 = fb->FindEdge( nb, n1 );
 
-        Face* tb0 = AddFace( n0, nb, ns, es0, eb, eb0 );
-        Face* tb1 = AddFace( n1, ns, nb, es1, eb1, eb );
+        Face* fb0 = AddFace( n0, nb, ns, es0, eb, eb0 );
+        Face* fb1 = AddFace( n1, ns, nb, es1, eb1, eb );
 
-        eb->f0 = tb0;
-        eb->f1 = tb1;
+        eb->f0 = fb0;
+        eb->f1 = fb1;
 
-        if ( eb0->f0 == tb )
+        if ( eb0->f0 == fb )
         {
-            eb0->f0 = tb0;
+            eb0->f0 = fb0;
         }
-        else if ( eb0->f1 == tb )
+        else if ( eb0->f1 == fb )
         {
-            eb0->f1 = tb0;
-        }
-        else
-        {
-            assert( 0 );
-        }
-
-        if ( eb1->f0 == tb )
-        {
-            eb1->f0 = tb1;
-        }
-        else if ( eb1->f1 == tb )
-        {
-            eb1->f1 = tb1;
+            eb0->f1 = fb0;
         }
         else
         {
             assert( 0 );
         }
 
-        es0->f1 = tb0;
-        es1->f1 = tb1;
+        if ( eb1->f0 == fb )
+        {
+            eb1->f0 = fb1;
+        }
+        else if ( eb1->f1 == fb )
+        {
+            eb1->f1 = fb1;
+        }
+        else
+        {
+            assert( 0 );
+        }
 
-        RemoveFace( tb );
+        es0->f1 = fb0;
+        es1->f1 = fb1;
+
+        RemoveFace( fb );
     }
 
     RemoveEdge( edge );
@@ -915,17 +915,17 @@ bool Mesh::ThreeEdgesThreeFaces( Edge* edge )
     Node* n0 = edge->n0;
     Node* n1 = edge->n1;
 
-    vector< Face* > tvec0;
-    n0->GetConnectFaces( tvec0 );
-    if ( tvec0.size() == 3 && n0->edgeVec.size() == 3 )
+    vector< Face* > f;
+    n0->GetConnectFaces( f );
+    if ( f.size() == 3 && n0->edgeVec.size() == 3 )
     {
         return true;
     }
 
-    vector< Face* > tvec1;
-    n1->GetConnectFaces( tvec1 );
+    vector< Face* > fvec1;
+    n1->GetConnectFaces( fvec1 );
 
-    return tvec1.size() == 3 && n1->edgeVec.size() == 3;
+    return fvec1.size() == 3 && n1->edgeVec.size() == 3;
 }
 
 
@@ -974,13 +974,13 @@ bool Mesh::ValidCollapse( Edge* edge )
         return false;
     }
 
-    Face* ta0 = e0a->OtherFace( fa );
-    Face* ta1 = e1a->OtherFace( fa );
+    Face* fa0 = e0a->OtherFace( fa );
+    Face* fa1 = e1a->OtherFace( fa );
 
-    if ( ta0 && ta1 )
+    if ( fa0 && fa1 )
     {
-        Node* na0 = ta0->OtherNode( n0, na );
-        Node* na1 = ta1->OtherNode( n1, na );
+        Node* na0 = fa0->OtherNode( n0, na );
+        Node* na1 = fa1->OtherNode( n1, na );
 
         if ( na0 == na1 )
         {
@@ -991,13 +991,13 @@ bool Mesh::ValidCollapse( Edge* edge )
     Edge* e0b = fb->FindEdge( n0, nb );
     Edge* e1b = fb->FindEdge( n1, nb );
 
-    Face* tb0 = e0b->OtherFace( fb );
-    Face* tb1 = e1b->OtherFace( fb );
+    Face* fb0 = e0b->OtherFace( fb );
+    Face* fb1 = e1b->OtherFace( fb );
 
-    if ( tb0 && tb1 )
+    if ( fb0 && fb1 )
     {
-        Node* nb0 = tb0->OtherNode( n0, nb );
-        Node* nb1 = tb1->OtherNode( n1, nb );
+        Node* nb0 = fb0->OtherNode( n0, nb );
+        Node* nb1 = fb1->OtherNode( n1, nb );
 
         if ( nb0 == nb1 )
         {
@@ -2160,15 +2160,15 @@ void Mesh::ReadSTL( const char* file_name )
                 e2 = AddEdge( n2, n0 );
             }
 
-            Face* tri = AddFace( n0, n1, n2, e0, e1, e2 );
+            Face* face = AddFace( n0, n1, n2, e0, e1, e2 );
 
             if      ( e0->f0 == NULL )
             {
-                e0->f0 = tri;
+                e0->f0 = face;
             }
             else if ( e0->f1 == NULL )
             {
-                e0->f1 = tri;
+                e0->f1 = face;
             }
             else
             {
@@ -2177,11 +2177,11 @@ void Mesh::ReadSTL( const char* file_name )
 
             if      ( e1->f0 == NULL )
             {
-                e1->f0 = tri;
+                e1->f0 = face;
             }
             else if ( e1->f1 == NULL )
             {
-                e1->f1 = tri;
+                e1->f1 = face;
             }
             else
             {
@@ -2190,11 +2190,11 @@ void Mesh::ReadSTL( const char* file_name )
 
             if      ( e2->f0 == NULL )
             {
-                e2->f0 = tri;
+                e2->f0 = face;
             }
             else if ( e2->f1 == NULL )
             {
-                e2->f1 = tri;
+                e2->f1 = face;
             }
             else
             {

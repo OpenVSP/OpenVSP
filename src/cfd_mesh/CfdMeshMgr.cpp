@@ -173,11 +173,11 @@ void CfdMeshMgrSingleton::CleanUp()
     m_BadEdges.clear();
 
     //==== Delete Bad Triangles ====//
-    for ( i = 0 ; i < ( int )m_BadTris.size() ; i++ )
+    for ( i = 0 ; i < ( int )m_BadFaces.size() ; i++ )
     {
-        delete m_BadTris[i];
+        delete m_BadFaces[i];
     }
-    m_BadTris.clear();
+    m_BadFaces.clear();
 }
 
 void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
@@ -1760,7 +1760,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
 
 string CfdMeshMgrSingleton::CheckWaterTight()
 {
-    vector< Face* > triVec;
+    vector< Face* > faceVec;
 
     int face_cnt = 0;
     vector< vec3d* > allPntVec;
@@ -1832,11 +1832,11 @@ string CfdMeshMgrSingleton::CheckWaterTight()
                     face->debugFlag = true;
                     moreThanTwoTriPerEdge++;
                 }
-                triVec.push_back( face );
+                faceVec.push_back( face );
 
                 if ( face->debugFlag )
                 {
-                    m_BadTris.push_back( face );
+                    m_BadFaces.push_back( face );
                 }
             }
         }
@@ -1871,11 +1871,11 @@ string CfdMeshMgrSingleton::CheckWaterTight()
             }
         }
     }
-    for ( int i = 0 ; i < ( int )triVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )faceVec.size() ; i++ )
     {
-        if ( ! triVec[i]->debugFlag )
+        if ( ! faceVec[i]->debugFlag )
         {
-            delete triVec[i];
+            delete faceVec[i];
         }
     }
 
@@ -2681,35 +2681,35 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
 
     //==== Count Number of Component Crossings for Each Component =====//
-    list< Face* >::iterator t;
+    list< Face* >::iterator f;
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s ) // every surface
     {
-        int tri_comp_id = m_SurfVec[s]->GetCompID();
-        list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-        for ( t = triList.begin() ; t != triList.end(); ++t ) // every triangle
+        int s_comp_id = m_SurfVec[s]->GetCompID();
+        list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+        for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every triangle
         {
             vector< vector< double > > t_vec_vec;
 
             if ( GetSettingsPtr()->m_SymSplittingOnFlag )
             {
                 t_vec_vec.resize( m_NumComps + 10 );  // + 10 to handle possibility of outer domain and symmetry plane.
-                ( *t )->insideSurf.resize(m_NumComps + 10);
-                ( *t )->insideCount.resize(m_NumComps + 10);
+                ( *f )->insideSurf.resize( m_NumComps + 10);
+                ( *f )->insideCount.resize( m_NumComps + 10);
             }
             else
             {
                 t_vec_vec.resize( m_NumComps + 6 );
-                ( *t )->insideSurf.resize(m_NumComps + 6);
-                ( *t )->insideCount.resize(m_NumComps + 6);
+                ( *f )->insideSurf.resize( m_NumComps + 6);
+                ( *f )->insideCount.resize( m_NumComps + 6);
             }
 
-            vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
+            vec3d cp = ( *f )->ComputeCenterPnt( m_SurfVec[s] );
             vec3d ep = cp + vec3d( x_dist, 1.0e-4, 1.0e-4 );
 
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
                 int comp_id = m_SurfVec[i]->GetCompID();
-                if ( i != s && comp_id != tri_comp_id ) // Don't check self intersection.
+                if ( i != s && comp_id != s_comp_id ) // Don't check self intersection.
                 {
                     if ( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT &&
                          m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_STRUCTURE &&
@@ -2731,14 +2731,14 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 int c = m_SurfVec[i]->GetCompID();
 
-                if ( c >= 0 && c < ( *t )->insideSurf.size() )
+                if ( c >= 0 && c < ( *f )->insideSurf.size() )
                 {
                     if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
                          GetSettingsPtr()->m_FarCompFlag )
                     {
                         if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
                         {
-                            ( *t )->insideSurf[c] = true;
+                            ( *f )->insideSurf[c] = true;
                         }
                     }
                     else
@@ -2746,36 +2746,36 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
                         if ( ( int )t_vec_vec[c].size() % 2 == 1)
                         {
-                            ( *t )->insideSurf[c] = true;
+                            ( *f )->insideSurf[c] = true;
                         }
                     }
                 }
             }
         }
 
-        for ( t = triList.begin() ; t != triList.end(); ++t ) // every triangle
+        for ( f = faceList.begin() ; f != faceList.end(); ++f ) // every face
         {
-            //==== Load Adjoining Tris - NOT Crossing Borders ====//
-            set< Face* > triSet;
-            ( *t )->LoadAdjFaces( 3, triSet );
+            //==== Load Adjoining Faces - NOT Crossing Borders ====//
+            set< Face* > faceSet;
+            ( *f )->LoadAdjFaces( 3, faceSet );
 
-            set<Face*>::iterator st;
+            set<Face*>::iterator sf;
 
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
                 int c = m_SurfVec[i]->GetCompID();
-                if ( c >= 0 && c < ( *t )->insideSurf.size() )
+                if ( c >= 0 && c < ( *f )->insideSurf.size() )
                 {
 
-                    for ( st = triSet.begin() ; st != triSet.end() ; ++st )
+                    for ( sf = faceSet.begin() ; sf != faceSet.end() ; ++sf )
                     {
-                        if ( ( *t )->insideSurf[c] )
+                        if ( ( *f )->insideSurf[c] )
                         {
-                            ( *st )->insideCount[c]++;
+                            ( *sf )->insideCount[c]++;
                         }
                         else
                         {
-                            ( *st )->insideCount[c]--;
+                            ( *sf )->insideCount[c]--;
                         }
                     }
                 }
@@ -2786,23 +2786,23 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     //==== Check Vote and Mark Interior Tris =====//
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
-        list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-        for ( t = triList.begin() ; t != triList.end(); ++t )
+        list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+        for ( f = faceList.begin() ; f != faceList.end(); ++f )
         {
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
                 int c = m_SurfVec[i]->GetCompID();
 
-                if ( c >= 0 && c < ( *t )->insideSurf.size() )
+                if ( c >= 0 && c < ( *f )->insideSurf.size() )
                 {
 
-                    if ( ( *t )->insideCount[c] > 0 )
+                    if (( *f )->insideCount[c] > 0 )
                     {
-                        ( *t )->insideSurf[c] = true;
+                        ( *f )->insideSurf[c] = true;
                     }
-                    else if ( ( *t )->insideCount[c] < 0 )
+                    else if (( *f )->insideCount[c] < 0 )
                     {
-                        ( *t )->insideSurf[c] = false;
+                        ( *f )->insideSurf[c] = false;
                     }
                     else // Can't determine if Tri is inside or outside based on neighbor votes
                     {
@@ -2816,17 +2816,17 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
     for ( int a = 0 ; a < ( int )m_SurfVec.size() ; a++ )
     {
-        list< Face * > triList = m_SurfVec[ a ]->GetMesh()->GetFaceList();
-        for ( t = triList.begin(); t != triList.end(); ++t )
+        list< Face * > faceList = m_SurfVec[ a ]->GetMesh()->GetFaceList();
+        for ( f = faceList.begin(); f != faceList.end(); ++f )
         {
             // Determine if the triangle should be deleted
             if ( m_SurfVec[a]->GetIgnoreSurfFlag() )
             {
-                ( *t )->deleteFlag = true;
+                ( *f )->deleteFlag = true;
             }
             else
             {
-                ( *t )->deleteFlag = SetDeleteTriFlag( m_SurfVec[a]->GetSurfaceCfdType(), m_SurfVec[a]->GetSymPlaneFlag(), ( *t )->insideSurf );
+                ( *f )->deleteFlag = SetDeleteTriFlag( m_SurfVec[a]->GetSurfaceCfdType(), m_SurfVec[a]->GetSymPlaneFlag(), ( *f )->insideSurf );
             }
         }
     }
@@ -2838,13 +2838,13 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         {
             if ( ! m_SurfVec[s]->GetSymPlaneFlag() )
             {
-                list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-                for ( t = triList.begin() ; t != triList.end(); ++t )
+                list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+                for ( f = faceList.begin() ; f != faceList.end(); ++f )
                 {
-                    vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
+                    vec3d cp = ( *f )->ComputeCenterPnt( m_SurfVec[s] );
                     if ( cp[1] < -1.0e-10 )
                     {
-                        ( *t )->deleteFlag = true;
+                        ( *f )->deleteFlag = true;
                     }
                 }
             }
@@ -2853,10 +2853,10 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() )
                 {
-                    list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-                    for ( t = triList.begin() ; t != triList.end(); ++t )
+                    list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+                    for ( f = faceList.begin() ; f != faceList.end(); ++f )
                     {
-                        ( *t )->deleteFlag = true;
+                        ( *f )->deleteFlag = true;
                     }
                 }
             }
@@ -2874,25 +2874,25 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
 {
     list< Edge* >::iterator e;
     list< Edge* > edgeList;
-    list< Face* >::iterator t;
+    list< Face* >::iterator f;
     for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
     {
         if ( m_SurfVec[s]->GetWakeFlag() == wakeOnly )
         {
-            list <Face*> triList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-            for ( t = triList.begin() ; t != triList.end(); ++t )
+            list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
+            for ( f = faceList.begin() ; f != faceList.end(); ++f )
             {
-                if (( *t )->e0->OtherFace(( *t )) == NULL )
+                if (( *f )->e0->OtherFace(( *f )) == NULL )
                 {
-                    edgeList.push_back( ( *t )->e0 );
+                    edgeList.push_back( ( *f )->e0 );
                 }
-                if (( *t )->e1->OtherFace(( *t )) == NULL )
+                if (( *f )->e1->OtherFace(( *f )) == NULL )
                 {
-                    edgeList.push_back( ( *t )->e1 );
+                    edgeList.push_back( ( *f )->e1 );
                 }
-                if (( *t )->e2->OtherFace(( *t )) == NULL )
+                if (( *f )->e2->OtherFace(( *f )) == NULL )
                 {
-                    edgeList.push_back( ( *t )->e2 );
+                    edgeList.push_back( ( *f )->e2 );
                 }
             }
         }
@@ -3227,12 +3227,12 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshBadTriDO.m_LineWidth = 3.0;
 
     vector< vec3d > badTriData;
-    vector< Face* >::iterator t;
-    for ( t = m_BadTris.begin() ; t != m_BadTris.end(); ++t )
+    vector< Face* >::iterator f;
+    for ( f = m_BadFaces.begin() ; f != m_BadFaces.end(); ++f )
     {
-        badTriData.push_back( ( *t )->n0->pnt );
-        badTriData.push_back( ( *t )->n1->pnt );
-        badTriData.push_back( ( *t )->n2->pnt );
+        badTriData.push_back( ( *f )->n0->pnt );
+        badTriData.push_back( ( *f )->n1->pnt );
+        badTriData.push_back( ( *f )->n2->pnt );
     }
     m_MeshBadTriDO.m_PntVec = badTriData;
     // Normal Vec is not required, load placeholder.
