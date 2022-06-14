@@ -216,7 +216,7 @@ protected:
 };
 
 
-class SimpTri
+class SimpFace
 {
 public:
     int ind0;

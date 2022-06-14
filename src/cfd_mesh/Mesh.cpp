@@ -222,19 +222,19 @@ void Mesh::Remesh()
 
 }
 
-void Mesh::LoadSimpTris()
+void Mesh::LoadSimpFaces()
 {
     list< Face* >::iterator t;
-    simpTriVec.resize( faceList.size() );
+    simpFaceVec.resize( faceList.size() );
     simpPntVec.resize( faceList.size() * 3 );
     simpUWPntVec.resize( faceList.size() * 3 );
 
     int cnt = 0;
     for ( t = faceList.begin() ; t != faceList.end(); ++t )
     {
-        simpTriVec[cnt].ind0 = cnt * 3;
-        simpTriVec[cnt].ind1 = cnt * 3 + 1;
-        simpTriVec[cnt].ind2 = cnt * 3 + 2;
+        simpFaceVec[cnt].ind0 = cnt * 3;
+        simpFaceVec[cnt].ind1 = cnt * 3 + 1;
+        simpFaceVec[cnt].ind2 = cnt * 3 + 2;
 
         simpPntVec[cnt * 3]   = ( *t )->n0->pnt;
         simpPntVec[cnt * 3 + 1] = ( *t )->n1->pnt;
@@ -247,16 +247,16 @@ void Mesh::LoadSimpTris()
     }
 }
 
-void Mesh::CondenseSimpTris()
+void Mesh::CondenseSimpFaces()
 {
     //==== Map Coincedent Point ====//
     vector< int > reMap;
     map< int, vector< int > > indMap;
-    for ( int i = 0 ; i < ( int )simpTriVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
     {
-        reMap.push_back( CheckDupOrAdd( simpTriVec[i].ind0, indMap, simpPntVec ) );
-        reMap.push_back( CheckDupOrAdd( simpTriVec[i].ind1, indMap, simpPntVec ) );
-        reMap.push_back( CheckDupOrAdd( simpTriVec[i].ind2, indMap, simpPntVec ) );
+        reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind0, indMap, simpPntVec ) );
+        reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind1, indMap, simpPntVec ) );
+        reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind2, indMap, simpPntVec ) );
     }
 
     //==== Reduce Point and UW Vec ====//
@@ -279,11 +279,11 @@ void Mesh::CondenseSimpTris()
 
     simpPntVec = rePntVec;
     simpUWPntVec = reUWVec;
-    for ( int i = 0 ; i < ( int )simpTriVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
     {
-        simpTriVec[i].ind0 = reMap[3 * i];
-        simpTriVec[i].ind1 = reMap[3 * i + 1];
-        simpTriVec[i].ind2 = reMap[3 * i + 2];
+        simpFaceVec[i].ind0 = reMap[ 3 * i];
+        simpFaceVec[i].ind1 = reMap[ 3 * i + 1];
+        simpFaceVec[i].ind2 = reMap[ 3 * i + 2];
     }
 }
 
@@ -2240,13 +2240,13 @@ void Mesh::WriteSTL( const char* file_name )
 
 void Mesh::WriteSTL( FILE* file_id )
 {
-    for ( int i = 0 ; i < ( int )simpTriVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
     {
-        SimpTri* t = &simpTriVec[i];
+        SimpFace* f = &simpFaceVec[i];
 
-        vec3d& p0 = simpPntVec[t->ind0];
-        vec3d& p1 = simpPntVec[t->ind1];
-        vec3d& p2 = simpPntVec[t->ind2];
+        vec3d& p0 = simpPntVec[f->ind0];
+        vec3d& p1 = simpPntVec[f->ind1];
+        vec3d& p2 = simpPntVec[f->ind2];
         vec3d v10 = p1 - p0;
         vec3d v20 = p2 - p1;
         vec3d norm = cross( v10, v20 );

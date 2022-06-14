@@ -51,8 +51,8 @@ public:
     // void Draw();
 
     void Remesh();
-    void LoadSimpTris();
-    void CondenseSimpTris();
+    void LoadSimpFaces();
+    void CondenseSimpFaces();
     static int CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, vector< vec3d > & pntVec );
 
 
@@ -144,9 +144,9 @@ public:
     {
         return simpUWPntVec;
     }
-    vector < SimpTri >& GetSimpTriVec()
+    vector < SimpFace >& GetSimpFaceVec()
     {
-        return simpTriVec;
+        return simpFaceVec;
     }
 
     void StretchSimpPnts( double start_x, double end_x, double factor, double angle );
@@ -171,7 +171,7 @@ protected:
 
     vector< vec3d > simpPntVec;
     vector< vec2d > simpUWPntVec;
-    vector< SimpTri > simpTriVec;
+    vector< SimpFace > simpFaceVec;
 };
 
 

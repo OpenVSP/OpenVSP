@@ -1311,27 +1311,27 @@ bool Surf::BorderMatch( Surf* otherSurf )
 
 void Surf::Subtag( bool tag_subs )
 {
-    vector< SimpTri >& tri_vec = m_Mesh.GetSimpTriVec();
+    vector< SimpFace >& face_vec = m_Mesh.GetSimpFaceVec();
     const vector< vec2d >& pnts = m_Mesh.GetSimpUWPntVec();
     vector< SubSurface* > s_surfs;
 
     if ( tag_subs ) s_surfs = SubSurfaceMgr.GetSubSurfs( m_GeomID, m_MainSurfID );
 
-    for ( int t = 0 ; t < ( int ) tri_vec.size() ; t++ )
+    for ( int f = 0 ; f < ( int ) face_vec.size() ; f++ )
     {
-        SimpTri& tri = tri_vec[t];
-        tri.m_Tags.push_back( m_BaseTag );
-        vec2d center = ( pnts[tri.ind0] + pnts[tri.ind1] + pnts[tri.ind2] ) * 1 / 3.0;
+        SimpFace& face = face_vec[f];
+        face.m_Tags.push_back( m_BaseTag );
+        vec2d center = ( pnts[face.ind0] + pnts[face.ind1] + pnts[face.ind2] ) * 1 / 3.0;
         vec2d cent2d = center;
 
         for ( int s = 0 ; s < ( int ) s_surfs.size() ; s++ )
         {
             if ( s_surfs[s]->Subtag( vec3d( cent2d.x(), cent2d.y(), 0 ) ) )
             {
-                tri.m_Tags.push_back( s_surfs[s]->m_Tag );
+                face.m_Tags.push_back( s_surfs[s]->m_Tag );
             }
         }
-        SubSurfaceMgr.m_TagCombos.insert( tri.m_Tags );
+        SubSurfaceMgr.m_TagCombos.insert( face.m_Tags );
     }
 }
 
