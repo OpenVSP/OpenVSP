@@ -2039,15 +2039,15 @@ void Mesh::RemoveInteriorFacesEdgesNodes()
         if ( ( *t )->deleteFlag )
         {
             //==== Check Edges ====//
-            if ( ( *t )->e0->BothAdjoiningTrisInterior() )
+            if (( *t )->e0->BothAdjoiningFacesInterior() )
             {
                 remEdges.insert( ( *t )->e0 );
             }
-            if ( ( *t )->e1->BothAdjoiningTrisInterior() )
+            if (( *t )->e1->BothAdjoiningFacesInterior() )
             {
                 remEdges.insert( ( *t )->e1 );
             }
-            if ( ( *t )->e2->BothAdjoiningTrisInterior() )
+            if (( *t )->e2->BothAdjoiningFacesInterior() )
             {
                 remEdges.insert( ( *t )->e2 );
             }

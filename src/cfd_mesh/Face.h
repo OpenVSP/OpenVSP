@@ -118,11 +118,11 @@ public:
     double target_len;
     double m_Length;
 
-    Face* OtherFace( Face* t );
+    Face* OtherFace( Face* f );
     Node* OtherNode( Node* n );
     void ReplaceNode( Node* curr_node, Node* replace_node );
 
-    bool SetFace( Face* t );
+    bool SetFace( Face* f );
     bool ContainsNodes( Node* in0, Node* in1 );
 
 
@@ -141,8 +141,8 @@ public:
         return m_Length;
     }
 
-    bool BothAdjoiningTrisInterior();
-    void ReplaceFace( Face* t, Face* replace_t );
+    bool BothAdjoiningFacesInterior();
+    void ReplaceFace( Face* f, Face* replace_f );
 
 
 
@@ -204,10 +204,10 @@ public:
 
     vector< int > insideCount;
 
-    // Set to true if tri should be removed
+    // Set to true if face should be removed
     bool deleteFlag;
 
-    void LoadAdjFaces( int num_levels, set< Face* > & triSet );
+    void LoadAdjFaces( int num_levels, set< Face* > & faceSet );
 
     unsigned char rgb[3];
 
