@@ -1451,11 +1451,6 @@ void Mesh::CheckValidEdge( Edge* edge )
     }
 }
 
-void Mesh::TriangulateBorder( const vector< vec3d > &uw_border )
-{
-
-}
-
 void Mesh::CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes )
 {
     //int min_i;

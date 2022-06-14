@@ -103,8 +103,6 @@ public:
     Face* AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
     void  RemoveFace( Face* tptr );
 
-    static void TriangulateBorder( const vector< vec3d > &uw_border ); // Mark for removal
-
     void InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr );
 
     static void CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes ); // Mark for removal

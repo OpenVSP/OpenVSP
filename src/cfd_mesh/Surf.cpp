@@ -631,8 +631,6 @@ void Surf::BuildGrid()
         }
     }
 
-    m_Mesh.TriangulateBorder( uw_border );
-
     //for ( i = 0 ; i < 10 ; i++ )
     //{
     //  m_Mesh.Remesh(100);
