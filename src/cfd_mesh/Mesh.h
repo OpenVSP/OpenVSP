@@ -94,7 +94,7 @@ public:
     void  RemoveNode( Node* nptr );
     Node* FindNode( const vec3d& p );
 
-    static bool ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreTri = NULL );
+    static bool ValidNodeMove( Node* nptr, const vec3d & move_to, Face* ignoreFace = NULL );
 
     Edge* AddEdge( Node* n0, Node* n1 );
     void  RemoveEdge( Edge* eptr );
@@ -103,11 +103,11 @@ public:
     Face* AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
     void  RemoveFace( Face* tptr );
 
-    static void TriangulateBorder( const vector< vec3d > &uw_border );
+    static void TriangulateBorder( const vector< vec3d > &uw_border ); // Mark for removal
 
     void InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr );
 
-    static void CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes );
+    static void CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes ); // Mark for removal
 
 
     void ReadSTL( const char* file_name );
