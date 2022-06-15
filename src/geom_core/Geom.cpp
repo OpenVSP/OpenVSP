@@ -2279,8 +2279,11 @@ void Geom::UpdateDrawObj()
     }
     m_FeatureDrawObj_vec[0].m_PntVec.reserve( numfealineseg );
 
+    int nsurf = GetNumTotalSurfs();
+    if ( m_TessVec.size() == nsurf && m_SurfVec.size() == nsurf && m_FeatureTessVec.size() == nsurf )
+    {
     //==== Tesselate Surface ====//
-    for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
+    for ( int i = 0 ; i < nsurf ; i++ )
     {
         int iflip = 0;
         if ( m_TessVec[i].GetFlipNormal() )
@@ -2319,6 +2322,7 @@ void Geom::UpdateDrawObj()
             }
 
         }
+    }
     }
 
     //==== Bounding Box ====//
