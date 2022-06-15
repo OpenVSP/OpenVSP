@@ -441,8 +441,8 @@ Face::Face()
 {
     m_DeleteMeFlag = false;
     debugFlag = false;
-    n0 = n1 = n2 = NULL;
-    e0 = e1 = e2 = NULL;
+    n0 = n1 = n2 = n3 = NULL;
+    e0 = e1 = e2 = e3 = NULL;
     deleteFlag = false;
     rgb[0] = rgb[1] = rgb[2] = 0;
 }
@@ -455,6 +455,14 @@ Face::Face( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )
     deleteFlag = false;
 }
 
+Face::Face( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge* ee1, Edge* ee2, Edge* ee3 )
+{
+    m_DeleteMeFlag = false;
+    debugFlag = false;
+    SetNodesEdges( nn0, nn1, nn2, nn3, ee0, ee1, ee2, ee3 );
+    deleteFlag = false;
+}
+
 Face::~Face()
 {
 }
@@ -464,9 +472,23 @@ void Face::SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1,
     n0 = nn0;
     n1 = nn1;
     n2 = nn2;
+    n3 = NULL;
     e0 = ee0;
     e1 = ee1;
     e2 = ee2;
+    e3 = NULL;
+}
+
+void Face::SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge* ee1, Edge* ee2, Edge* ee3 )
+{
+    n0 = nn0;
+    n1 = nn1;
+    n2 = nn2;
+    n3 = nn3;
+    e0 = ee0;
+    e1 = ee1;
+    e2 = ee2;
+    e3 = ee3;
 }
 
 Edge* Face::FindEdge( Node* nn0, Node* nn1 )
@@ -495,7 +517,17 @@ Edge* Face::FindEdge( Node* nn0, Node* nn1 )
     {
         return e2;
     }
-
+    if ( e3 )
+    {
+        if ( e3->n0 == nn0 && e3->n1 == nn1 )
+        {
+            return e3;
+        }
+        if ( e3->n0 == nn1 && e3->n1 == nn0 )
+        {
+            return e3;
+        }
+    }
     return NULL;
 }
 
@@ -512,6 +544,13 @@ Edge* Face::FindEdgeWithout( Node* node_ptr )
     if ( e2->n0 != node_ptr && e2->n1 != node_ptr )
     {
         return e2;
+    }
+    if ( e3 )
+    {
+        if ( e2->n0 != node_ptr && e2->n1 != node_ptr )
+        {
+            return e2;
+        }
     }
 
     return NULL;
@@ -539,7 +578,18 @@ Edge* Face::FindLongEdge()
     if ( dsqr2 < dsqr0 )
     {
         e = e2;
+        dsqr0 = dsqr2;
     }
+
+    if ( e3 )
+    {
+        double dsqr3 = dist_squared( e3->n0->pnt, e3->n1->pnt );
+        if ( dsqr3 < dsqr0 )
+        {
+            e = e3;
+        }
+    }
+
     return e;
 }
 
@@ -556,6 +606,10 @@ void Face::ReplaceNode( Node* curr_node, Node* replace_node )
     else if ( n2 == curr_node )
     {
         n2 = replace_node;
+    }
+    else if ( n3 == curr_node )
+    {
+        n3 = replace_node;
     }
     else
     {
@@ -576,6 +630,10 @@ void Face::ReplaceEdge( Edge* curr_edge, Edge* replace_edge )
     else if ( e2 == curr_edge )
     {
         e2 = replace_edge;
+    }
+    else if ( e3 == curr_edge )
+    {
+        e3 = replace_edge;
     }
     else
     {
@@ -637,10 +695,17 @@ double Face::ComputeTriQual( Node* n0, Node* n1, Node* n2 )
 
 double Face::ComputeCosSmallAng()
 {
-    double ang0, ang1, ang2;
-    ComputeCosAngles( n0, n1, n2, &ang0, &ang1, &ang2 );
-
-    double minang = max( ang0, max( ang1, ang2 ) );
+    double minang, ang0, ang1, ang2, ang3;
+    if ( n3 )
+    {
+        ComputeCosAngles( n0, n1, n2, n3, &ang0, &ang1, &ang2, &ang3 );
+        minang = max( ang0, max( ang1, max( ang2, ang3 ) ) );
+    }
+    else
+    {
+        ComputeCosAngles( n0, n1, n2, &ang0, &ang1, &ang2 );
+        minang = max( ang0, max( ang1, ang2 ) );
+    }
 
     if ( minang > 1.0 )
     {
@@ -681,6 +746,30 @@ void Face::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double*
     *ang2 = ( -dsqr01 + dsqr12 + dsqr20 ) / ( 2.0 * d12 * d20 );
 }
 
+void Face::ComputeCosAngles( Node* n0, Node* n1, Node* n2, Node* n3, double* ang0, double* ang1, double* ang2, double* ang3 )
+{
+    double dsqr01 = dist_squared( n0->pnt, n1->pnt );
+    double dsqr12 = dist_squared( n1->pnt, n2->pnt );
+    double dsqr20 = dist_squared( n2->pnt, n0->pnt );
+
+    double dsqr23 = dist_squared( n2->pnt, n3->pnt );
+    double dsqr30 = dist_squared( n3->pnt, n0->pnt );
+
+    double dsqr13 = dist_squared( n1->pnt, n3->pnt );
+
+    double d01 = sqrt( dsqr01 );
+    double d12 = sqrt( dsqr12 );
+    //double d20 = sqrt( dsqr20 );
+    double d23 = sqrt( dsqr23 );
+    double d30 = sqrt( dsqr30 );
+    //double d13 = sqrt( dsqr13 );
+
+    *ang0 = ( -dsqr13 + dsqr01 + dsqr30 ) / ( 2.0 * d01 * d30 );
+    *ang1 = ( -dsqr20 + dsqr01 + dsqr12 ) / ( 2.0 * d01 * d12 );
+    *ang2 = ( -dsqr13 + dsqr12 + dsqr23 ) / ( 2.0 * d12 * d23 );
+    *ang3 = ( -dsqr20 + dsqr30 + dsqr23 ) / ( 2.0 * d30 * d23 );
+}
+
 // XOR (^) of anything with itself will return zero.  So, by performing a bitwise XOR chain of all the pointers
 // n0^n1^n2^a^b, a and b clobber their match among n0,n1,n2 leaving just the odd pointer out to be returned.
 Node* Face::OtherNodeTri( Node* a, Node* b )
@@ -703,16 +792,30 @@ bool Face::Contains( Node* a, Node* b )
     }
 
     if ( a == n0 || a == n1 || a == n2 )
+    {
         if ( b == n0 || b == n1 || b == n2 )
         {
             return true;
         }
+    }
+
+    if ( n3 )
+    {
+        if ( a == n3 || b == n3 )
+        {
+            return true;
+        }
+    }
 
     return false;
 }
 
 bool Face::Contains( Edge* e )
 {
+    if ( e3 )
+    {
+        return ( e == e0 || e == e1 || e == e2 || e == e3 );
+    }
     return ( e == e0 || e == e1 || e == e2 );
 }
 
@@ -726,37 +829,57 @@ bool Face::CorrectOrder( Node* en0, Node* en1 )
     {
         return true;
     }
-    if ( en0 == n2 && en1 == n0 )
+
+    if ( !n3 ) // Triangle
     {
-        return true;
+        if ( en0 == n2 && en1 == n0 )
+        {
+            return true;
+        }
+    }
+    else
+    {
+        if ( en0 == n2 && en1 == n3 )
+        {
+            return true;
+        }
+        if ( en0 == n3 && en1 == n0 )
+        {
+            return true;
+        }
     }
 
     return false;
-
 }
 
 double Face::Area()
 {
-    return area( n0->pnt, n1->pnt, n2->pnt );
+    if ( !n3 )
+    {
+        return area( n0->pnt, n1->pnt, n2->pnt );
+    }
+    else
+    {
+        return area( n0->pnt, n1->pnt, n2->pnt ) + area( n0->pnt, n2->pnt, n3->pnt );
+    }
 }
 
 vec3d Face::ComputeCenterPnt( Surf* surfPtr )
 {
-    //vec3d avg_p = (n0->pnt + n1->pnt)*0.5;
-    //avg_p = (avg_p + n2->pnt)*0.5;
-    //vec2d avg_uw = (n0->uw + n1->uw)*0.5;
-    //avg_uw = (avg_uw + n2->uw)*0.5;
-    //vec2d uw = surfPtr->ClosestUW( avg_p, avg_uw[0], avg_uw[1] );
-    //return surfPtr->CompPnt( uw[0], uw[1] );
+    vec2d avg_uw;
+    vec3d avg_p;
 
-    //return avg_p;
+    if ( !n3 )
+    {
+        avg_uw = ( n0->uw + n1->uw + n2->uw ) * ( 1.0 / 3.0 );
+        avg_p = ( n0->pnt + n1->pnt + n2->pnt ) * ( 1.0 / 3.0 );
+    }
+    else
+    {
+        avg_uw = ( n0->uw + n1->uw + n2->uw + n3->uw ) * ( 1.0 / 4.0 );
+        avg_p = ( n0->pnt + n1->pnt + n2->pnt + n3->pnt ) * ( 1.0 / 4.0 );
+    }
 
-    //vec2d avg_uw = (n0->uw + n1->uw)*0.5;
-    //avg_uw = (avg_uw + n2->uw)*0.5;
-    //return surfPtr->CompPnt( avg_uw[0], avg_uw[1] );
-
-    vec2d avg_uw = ( n0->uw + n1->uw + n2->uw ) * ( 1.0 / 3.0 );
-    vec3d avg_p  = ( n0->pnt + n1->pnt + n2->pnt ) * ( 1.0 / 3.0 );
     vec2d uw = surfPtr->ClosestUW( avg_p, avg_uw[0], avg_uw[1] );
     return surfPtr->CompPnt( uw[0], uw[1] );
 }
@@ -794,6 +917,17 @@ void Face::LoadAdjFaces( int num_levels, set< Face* > & faceSet )
         if ( f )
         {
             f->LoadAdjFaces( num_levels, faceSet );
+        }
+    }
+    if ( e3 )
+    {
+        if ( !e3->border )
+        {
+            f = e3->OtherFace( this );
+            if ( f )
+            {
+                f->LoadAdjFaces( num_levels, faceSet );
+            }
         }
     }
 }

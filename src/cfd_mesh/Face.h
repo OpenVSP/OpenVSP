@@ -154,6 +154,7 @@ class Face
 public:
     Face();
     Face( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
+    Face( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge* ee1, Edge* ee2, Edge* ee3 );
     virtual ~Face();
 
     list< Face* >::iterator list_ptr;
@@ -162,14 +163,18 @@ public:
     Node* n0;
     Node* n1;
     Node* n2;
+    Node* n3;
 
     Edge* e0;
     Edge* e1;
     Edge* e2;
+    Edge* e3;
 
     static void ComputeCosAngles( Node* nn0, Node* nn1, Node* nn2, double* ang0, double* ang1, double* ang2 );
+    static void ComputeCosAngles( Node* nn0, Node* nn1, Node* nn2, Node* nn3, double* ang0, double* ang1, double* ang2, double* ang3 );
 
     void SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
+    void SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge* ee1, Edge* ee2, Edge* ee3 );
 
     Edge* FindEdge( Node* nn0, Node* nn1 );
     Edge* FindEdgeWithout( Node* node_ptr );
