@@ -1422,6 +1422,14 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
 
     int num_mesh = drawObj->m_PntMesh.size();
 
+    if ( drawObj->m_NormMesh.size() != num_mesh || drawObj->m_uTexMesh.size() != num_mesh || drawObj->m_vTexMesh.size() != num_mesh )
+    {
+        destObj->emptyVBuffer();
+        destObj->emptyEBuffer();
+        destObj->enableEBuffer( false );
+        return;
+    }
+
     unsigned int vtotal = 0;
     unsigned int etotal = 0;
 
