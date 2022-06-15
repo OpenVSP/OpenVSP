@@ -63,6 +63,13 @@ void SimpleTess::CalcTexCoords( )
 
     unsigned int n = nu * nv;
 
+    if ( m_pnts.size() != n )
+    {
+        m_utex.clear();
+        m_vtex.clear();
+        return;
+    }
+
     m_utex.resize(n);
     m_vtex.resize(n);
 
