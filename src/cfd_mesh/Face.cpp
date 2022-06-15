@@ -588,6 +588,9 @@ double Face::ComputeTriQual()
     if ( n3 )
     {
         printf( "Attempt Tri quality calculation on Quad.\n" );
+        // Force error in Address Sanitizer
+        int *p = NULL;
+        *p = 1;
     }
     return ComputeTriQual( n0, n1, n2 );
 }
