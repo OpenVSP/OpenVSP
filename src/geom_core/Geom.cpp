@@ -2282,47 +2282,47 @@ void Geom::UpdateDrawObj()
     int nsurf = GetNumTotalSurfs();
     if ( m_TessVec.size() == nsurf && m_SurfVec.size() == nsurf && m_FeatureTessVec.size() == nsurf )
     {
-    //==== Tesselate Surface ====//
-    for ( int i = 0 ; i < nsurf ; i++ )
-    {
-        int iflip = 0;
-        if ( m_TessVec[i].GetFlipNormal() )
+        //==== Tesselate Surface ====//
+        for ( int i = 0 ; i < nsurf ; i++ )
         {
-            iflip = 1;
-        }
-
-        if ( m_SurfVec[i].GetSurfCfdType() == vsp::CFD_TRANSPARENT )
-        {
-            iflip += 2;
-        }
-
-        m_WireShadeDrawObj_vec[iflip].m_PntMesh.insert( m_WireShadeDrawObj_vec[iflip].m_PntMesh.end(),
-                m_TessVec[i].m_pnts.begin(), m_TessVec[i].m_pnts.end() );
-        m_WireShadeDrawObj_vec[iflip].m_NormMesh.insert( m_WireShadeDrawObj_vec[iflip].m_NormMesh.end(),
-                m_TessVec[i].m_norms.begin(), m_TessVec[i].m_norms.end() );
-
-        m_WireShadeDrawObj_vec[iflip].m_uTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_uTexMesh.end(),
-                m_TessVec[i].m_utex.begin(), m_TessVec[i].m_utex.end() );
-        m_WireShadeDrawObj_vec[iflip].m_vTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_vTexMesh.end(),
-                m_TessVec[i].m_vtex.begin(), m_TessVec[i].m_vtex.end() );
-
-        if( m_GuiDraw.GetDispFeatureFlag() )
-        {
-            int nfl = m_FeatureTessVec[i].m_ptline.size();
-
-            for( int j = 0; j < nfl; j++ )
+            int iflip = 0;
+            if ( m_TessVec[i].GetFlipNormal() )
             {
-                int n = m_FeatureTessVec[i].m_ptline[j].size() - 1;
-
-                for ( int k = 0; k < n; k++ )
-                {
-                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( m_FeatureTessVec[i].m_ptline[j][ k ] );
-                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( m_FeatureTessVec[i].m_ptline[j][ k + 1 ] );
-                }
+                iflip = 1;
             }
 
+            if ( m_SurfVec[i].GetSurfCfdType() == vsp::CFD_TRANSPARENT )
+            {
+                iflip += 2;
+            }
+
+            m_WireShadeDrawObj_vec[iflip].m_PntMesh.insert( m_WireShadeDrawObj_vec[iflip].m_PntMesh.end(),
+                    m_TessVec[i].m_pnts.begin(), m_TessVec[i].m_pnts.end() );
+            m_WireShadeDrawObj_vec[iflip].m_NormMesh.insert( m_WireShadeDrawObj_vec[iflip].m_NormMesh.end(),
+                    m_TessVec[i].m_norms.begin(), m_TessVec[i].m_norms.end() );
+
+            m_WireShadeDrawObj_vec[iflip].m_uTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_uTexMesh.end(),
+                    m_TessVec[i].m_utex.begin(), m_TessVec[i].m_utex.end() );
+            m_WireShadeDrawObj_vec[iflip].m_vTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_vTexMesh.end(),
+                    m_TessVec[i].m_vtex.begin(), m_TessVec[i].m_vtex.end() );
+
+            if( m_GuiDraw.GetDispFeatureFlag() )
+            {
+                int nfl = m_FeatureTessVec[i].m_ptline.size();
+
+                for( int j = 0; j < nfl; j++ )
+                {
+                    int n = m_FeatureTessVec[i].m_ptline[j].size() - 1;
+
+                    for ( int k = 0; k < n; k++ )
+                    {
+                        m_FeatureDrawObj_vec[0].m_PntVec.push_back( m_FeatureTessVec[i].m_ptline[j][ k ] );
+                        m_FeatureDrawObj_vec[0].m_PntVec.push_back( m_FeatureTessVec[i].m_ptline[j][ k + 1 ] );
+                    }
+                }
+
+            }
         }
-    }
     }
 
     //==== Bounding Box ====//
