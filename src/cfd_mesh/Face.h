@@ -178,8 +178,8 @@ public:
     void ReplaceNode( Node* curr_node, Node* replace_node );
     void ReplaceEdge( Edge* curr_edge, Edge* replace_edge );
 
-    double ComputeQual();
-    static double ComputeQual( Node* nn0, Node* nn1, Node* nn2 );
+    double ComputeTriQual();
+    static double ComputeTriQual( Node* n0, Node* n1, Node* n2 );
 
     double ComputeCosSmallAng();
 

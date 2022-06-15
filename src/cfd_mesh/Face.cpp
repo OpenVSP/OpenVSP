@@ -583,12 +583,16 @@ void Face::ReplaceEdge( Edge* curr_edge, Edge* replace_edge )
     }
 }
 
-double Face::ComputeQual()
+double Face::ComputeTriQual()
 {
-    return ComputeQual( n0, n1, n2 );
+    if ( n3 )
+    {
+        printf( "Attempt Tri quality calculation on Quad.\n" );
+    }
+    return ComputeTriQual( n0, n1, n2 );
 }
 
-double Face::ComputeQual( Node* n0, Node* n1, Node* n2 )
+double Face::ComputeTriQual( Node* n0, Node* n1, Node* n2 )
 {
     double ang0, ang1, ang2;
 

@@ -490,7 +490,7 @@ void Mesh::ColorTris()
     list< Face* >::iterator f;
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
-        double q = ( *f )->ComputeQual();
+        double q = ( *f )->ComputeTriQual();
 
         if ( q > M_PI / 6.0 )                                           // > 30 Deg
         {
@@ -825,10 +825,10 @@ void Mesh::SwapEdge( Edge* edge )
     assert( na != nb );
 
     //==== Determine Face Quality of Existing Faces =====//
-    double qa = fa->ComputeQual();
-    double qb = fb->ComputeQual();
-    double qc = Face::ComputeQual( n0, nb, na );
-    double qd = Face::ComputeQual( n1, na, nb );
+    double qa = fa->ComputeTriQual();
+    double qb = fb->ComputeTriQual();
+    double qc = Face::ComputeTriQual( n0, nb, na );
+    double qd = Face::ComputeTriQual( n1, na, nb );
 
     if ( min( qc, qd ) <= min( qa, qb ) )
     {
