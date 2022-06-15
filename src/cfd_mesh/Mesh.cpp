@@ -691,7 +691,7 @@ void Mesh::SplitEdge( Edge* edge )
 
     if ( fa )
     {
-        Node* na = fa->OtherNode( n0, n1 );
+        Node* na = fa->OtherNodeTri( n0, n1 );
         Edge* ea = AddEdge( na, ns );
 
         Edge* ea0 = fa->FindEdge( n0, na );
@@ -737,7 +737,7 @@ void Mesh::SplitEdge( Edge* edge )
 
     if ( fb )
     {
-        Node* nb = fb->OtherNode( n0, n1 );
+        Node* nb = fb->OtherNodeTri( n0, n1 );
         Edge* eb = AddEdge( ns, nb );
 
         Edge* eb0 = fb->FindEdge( n0, nb );
@@ -819,8 +819,8 @@ void Mesh::SwapEdge( Edge* edge )
         n1 = edge->n0;
     }
 
-    Node* na = fa->OtherNode( n0, n1 );
-    Node* nb = fb->OtherNode( n0, n1 );
+    Node* na = fa->OtherNodeTri( n0, n1 );
+    Node* nb = fb->OtherNodeTri( n0, n1 );
 
     assert( na != nb );
 
@@ -962,8 +962,8 @@ bool Mesh::ValidCollapse( Edge* edge )
     Node* n1 = edge->n1;
     Face* fa = edge->f0;
     Face* fb = edge->f1;
-    Node* na = fa->OtherNode( n0, n1 );
-    Node* nb = fb->OtherNode( n0, n1 );
+    Node* na = fa->OtherNodeTri( n0, n1 );
+    Node* nb = fb->OtherNodeTri( n0, n1 );
 
     //==== Check 3 Faces in a Face Case =====//
     Edge* e0a = fa->FindEdge( n0, na );
@@ -979,8 +979,8 @@ bool Mesh::ValidCollapse( Edge* edge )
 
     if ( fa0 && fa1 )
     {
-        Node* na0 = fa0->OtherNode( n0, na );
-        Node* na1 = fa1->OtherNode( n1, na );
+        Node* na0 = fa0->OtherNodeTri( n0, na );
+        Node* na1 = fa1->OtherNodeTri( n1, na );
 
         if ( na0 == na1 )
         {
@@ -996,8 +996,8 @@ bool Mesh::ValidCollapse( Edge* edge )
 
     if ( fb0 && fb1 )
     {
-        Node* nb0 = fb0->OtherNode( n0, nb );
-        Node* nb1 = fb1->OtherNode( n1, nb );
+        Node* nb0 = fb0->OtherNodeTri( n0, nb );
+        Node* nb1 = fb1->OtherNodeTri( n1, nb );
 
         if ( nb0 == nb1 )
         {
@@ -1087,8 +1087,8 @@ void Mesh::CollapseEdge( Edge* edge )
 
     Face* fa = edge->f0;
     Face* fb = edge->f1;
-    Node* na = fa->OtherNode( n0, n1 );
-    Node* nb = fb->OtherNode( n0, n1 );
+    Node* na = fa->OtherNodeTri( n0, n1 );
+    Node* nb = fb->OtherNodeTri( n0, n1 );
 
     assert( na != nb );
 
@@ -1104,15 +1104,15 @@ void Mesh::CollapseEdge( Edge* edge )
 
     if ( fa0 && fa1 )
     {
-        Node* other_ta0 = fa0->OtherNode( na, n0 );
-        Node* other_ta1 = fa1->OtherNode( na, n1 );
+        Node* other_ta0 = fa0->OtherNodeTri( na, n0 );
+        Node* other_ta1 = fa1->OtherNodeTri( na, n1 );
         assert ( other_ta0 != other_ta1 );
     }
 
     if ( fb0 && fb1 )
     {
-        Node* other_tb0 = fb0->OtherNode( nb, n0 );
-        Node* other_tb1 = fb1->OtherNode( nb, n1 );
+        Node* other_tb0 = fb0->OtherNodeTri( nb, n0 );
+        Node* other_tb1 = fb1->OtherNodeTri( nb, n1 );
         assert ( other_tb0 != other_tb1 );
     }
 
@@ -1435,8 +1435,8 @@ void Mesh::CheckValidEdge( Edge* edge )
     }
     if ( f0 && f1 )
     {
-        Node* na = f0->OtherNode( n0, n1 );
-        Node* nb = f1->OtherNode( n0, n1 );
+        Node* na = f0->OtherNodeTri( n0, n1 );
+        Node* nb = f1->OtherNodeTri( n0, n1 );
         assert( na != nb );
 
         vec3d norm0 = f0->Normal();

@@ -676,7 +676,7 @@ void Face::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double*
 
 // XOR (^) of anything with itself will return zero.  So, by performing a bitwise XOR chain of all the pointers
 // n0^n1^n2^a^b, a and b clobber their match among n0,n1,n2 leaving just the odd pointer out to be returned.
-Node* Face::OtherNode( Node* a, Node* b )
+Node* Face::OtherNodeTri( Node* a, Node* b )
 {
     return (Node *) ((uintptr_t) n0 ^ (uintptr_t) n1 ^ (uintptr_t) n2 ^ (uintptr_t) a ^ (uintptr_t) b);
 }

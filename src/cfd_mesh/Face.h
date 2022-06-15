@@ -183,7 +183,7 @@ public:
 
     double ComputeCosSmallAng();
 
-    Node* OtherNode( Node* a, Node* b );
+    Node* OtherNodeTri( Node* a, Node* b );
 
     bool Contains( Node* a, Node* b );
     bool Contains( Edge* e );
