@@ -167,7 +167,6 @@ public:
     Edge* e1;
     Edge* e2;
 
-    void ComputeCosAngles( double* ang0, double* ang1, double* ang2 );
     static void ComputeCosAngles( Node* nn0, Node* nn1, Node* nn2, double* ang0, double* ang1, double* ang2 );
 
     void SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );

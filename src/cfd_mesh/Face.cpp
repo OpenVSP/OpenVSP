@@ -659,11 +659,6 @@ vec3d Face::Normal( Node* n0, Node* n1, Node* n2 )
 
 
 
-void Face::ComputeCosAngles( double* ang0, double* ang1, double* ang2 )
-{
-    ComputeCosAngles( n0, n1, n2, ang0, ang1, ang2 );
-}
-
 void Face::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double* ang1, double* ang2 )
 {
     double dsqr01 = dist_squared( n0->pnt, n1->pnt );
