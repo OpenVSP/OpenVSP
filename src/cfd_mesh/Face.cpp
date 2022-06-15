@@ -685,6 +685,13 @@ void Face::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double*
 // n0^n1^n2^a^b, a and b clobber their match among n0,n1,n2 leaving just the odd pointer out to be returned.
 Node* Face::OtherNodeTri( Node* a, Node* b )
 {
+    if ( n3 )
+    {
+        printf( "Attempt OtherNodeTri on Quad.\n" );
+        // Force error in Address Sanitizer
+        int *p = NULL;
+        *p = 1;
+    }
     return (Node *) ((uintptr_t) n0 ^ (uintptr_t) n1 ^ (uintptr_t) n2 ^ (uintptr_t) a ^ (uintptr_t) b);
 }
 
