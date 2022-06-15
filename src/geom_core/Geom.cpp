@@ -1553,11 +1553,16 @@ void Geom::UpdateSurfVec()
 template <typename T>
 void Geom::ApplySymm( vector<T> const &source, vector<T> &dest )
 {
+    int num_main = GetNumMainSurfs();
     unsigned int num_surf = GetNumTotalSurfs();
     dest.clear();
-    dest.resize( num_surf);
 
-    int num_main = GetNumMainSurfs();
+    if ( source.size() != num_main )
+    {
+        return;
+    }
+
+    dest.resize( num_surf );
     for ( int i = 0 ; i < ( int )num_main ; i++ )
     {
         dest[i] = source[i];
