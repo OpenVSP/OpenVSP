@@ -3643,7 +3643,15 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
     degenGeom.setTransMat( tmatvec );
 
     degenGeom.setNumXSecs( pnts.size() );
-    degenGeom.setNumPnts( pnts[0].size() );
+    if ( pnts.size() > 0 )
+    {
+        degenGeom.setNumPnts( pnts[0].size() );
+    }
+    else
+    {
+        degenGeom.setNumPnts( 0 );
+        return;
+    }
     degenGeom.setName( GetName() );
 
     degenGeom.createDegenSurface( pnts, uwpnts, flipnormal );
