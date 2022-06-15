@@ -607,6 +607,7 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
     if ( !setcond )
     {
         printf( "Failure in SkinRibs set_conditions\n" );
+        return;
     }
 
     // set the delta u for each surface segment
@@ -622,6 +623,7 @@ void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > 
     if ( !creat )
     {
         printf( "Failure in SkinRibs create\n" );
+        return;
     }
 
     ResetFlipNormal();
