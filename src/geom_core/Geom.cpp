@@ -1127,7 +1127,13 @@ void Geom::Update( bool fullupdate )
     m_CappingDone = false;
 
     if ( m_SurfDirty )
-        Scale();
+    {
+        double sf = m_Scale() / m_LastScale();
+        if ( sf != 1.0 )
+        {
+            Scale();
+        }
+    }
 
     UpdateSets();
 
