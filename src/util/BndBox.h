@@ -25,6 +25,9 @@ public:
     BndBox();
     BndBox( const vec3d& min_pnt, const vec3d& max_pnt );
 
+    friend bool operator==( const BndBox& a, const BndBox& b );
+    friend bool operator!=( const BndBox& a, const BndBox& b );
+
     void Reset();
     void SetMax( int ind, double val );
     void SetMin( int ind, double val );

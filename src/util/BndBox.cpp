@@ -25,6 +25,20 @@ BndBox::BndBox( const vec3d& min_pnt, const vec3d& max_pnt )
     m_Max = max_pnt;
 }
 
+bool operator==( const BndBox& a, const BndBox& b )
+{
+    if ( a.m_Min == b.m_Min && a.m_Max == b.m_Max )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool operator!=( const BndBox& a, const BndBox& b )
+{
+    return !(a == b);
+}
+
 //==== Reset Box ====//
 void BndBox::Reset()
 {
