@@ -4410,7 +4410,7 @@ void Vehicle::UpdateBBox()
         new_box.Update( geom_vec[i]->GetBndBox() );
     }
 
-    if( ngeom > 0 )
+    if( ngeom > 0 && ( new_box != m_BBox ) )
     {
         m_BbXLen = new_box.GetMax( 0 ) - new_box.GetMin( 0 );
         m_BbYLen = new_box.GetMax( 1 ) - new_box.GetMin( 1 );
