@@ -224,6 +224,9 @@ public:
 
     friend vec3d operator-( const vec3d & in );
 
+    friend bool operator==( const vec3d &a, const vec3d& b );
+    friend bool operator!=( const vec3d &a, const vec3d& b );
+
     // cout << a
 //    friend ostream& operator<< (ostream& out, const vec3d& a);
 

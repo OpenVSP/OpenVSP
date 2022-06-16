@@ -316,6 +316,22 @@ vec3d& vec3d::operator-=( float b[] )
     return *this;
 }
 
+bool operator==( const vec3d &a, const vec3d& b )
+{
+    if ( a.v[0] == b.v[0] &&
+         a.v[1] == b.v[1] &&
+         a.v[2] == b.v[2] )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool operator!=( const vec3d &a, const vec3d& b )
+{
+    return !( a == b );
+}
+
 vec3d operator-( const vec3d & in )
 {
     return -1.0 * in;
