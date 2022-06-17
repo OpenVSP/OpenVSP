@@ -226,25 +226,32 @@ void Mesh::LoadSimpFaces()
 {
     list< Face* >::iterator f;
     simpFaceVec.resize( faceList.size() );
-    simpPntVec.resize( faceList.size() * 3 );
-    simpUWPntVec.resize( faceList.size() * 3 );
+    simpPntVec.resize( faceList.size() * 4 );
+    simpUWPntVec.resize( faceList.size() * 4 );
 
     int cnt = 0;
+    int ncnt = 0;
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
-        simpFaceVec[cnt].ind0 = cnt * 3;
-        simpPntVec[cnt * 3]   = ( *f )->n0->pnt;
-        simpUWPntVec[cnt * 3] = ( *f )->n0->uw;
+        simpFaceVec[cnt].ind0 = ncnt;
+        simpPntVec[ncnt]   = ( *f )->n0->pnt;
+        simpUWPntVec[ncnt] = ( *f )->n0->uw;
+        ncnt++;
 
-        simpFaceVec[cnt].ind1 = cnt * 3 + 1;
-        simpPntVec[cnt * 3 + 1] = ( *f )->n1->pnt;
-        simpUWPntVec[cnt * 3 + 1] = ( *f )->n1->uw;
+        simpFaceVec[cnt].ind1 = ncnt;
+        simpPntVec[ncnt] = ( *f )->n1->pnt;
+        simpUWPntVec[ncnt] = ( *f )->n1->uw;
+        ncnt++;
 
-        simpFaceVec[cnt].ind2 = cnt * 3 + 2;
-        simpPntVec[cnt * 3 + 2] = ( *f )->n2->pnt;
-        simpUWPntVec[cnt * 3 + 2] = ( *f )->n2->uw;
+        simpFaceVec[cnt].ind2 = ncnt;
+        simpPntVec[ncnt] = ( *f )->n2->pnt;
+        simpUWPntVec[ncnt] = ( *f )->n2->uw;
+        ncnt++;
         cnt++;
     }
+
+    simpPntVec.resize( ncnt );
+    simpUWPntVec.resize( ncnt );
 }
 
 void Mesh::CondenseSimpFaces()
