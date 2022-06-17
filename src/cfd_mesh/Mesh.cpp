@@ -247,6 +247,16 @@ void Mesh::LoadSimpFaces()
         simpPntVec[ncnt] = ( *f )->n2->pnt;
         simpUWPntVec[ncnt] = ( *f )->n2->uw;
         ncnt++;
+
+        if ( ( *f )->IsQuad() )
+        {
+            simpFaceVec[cnt].m_isQuad = true;
+            simpFaceVec[cnt].ind3 = ncnt;
+            simpPntVec[ncnt] = ( *f )->n3->pnt;
+            simpUWPntVec[ncnt] = ( *f )->n3->uw;
+            ncnt++;
+        }
+
         cnt++;
     }
 
