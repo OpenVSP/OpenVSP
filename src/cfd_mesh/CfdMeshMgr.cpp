@@ -1809,11 +1809,28 @@ string CfdMeshMgrSingleton::CheckWaterTight()
                 int ind2 = pntShift[i1];
                 int ind3 = pntShift[i2];
 
-                Edge* e0 = FindAddEdge( edgeMap, m_nodeStore, ind1, ind2 );
-                Edge* e1 = FindAddEdge( edgeMap, m_nodeStore, ind2, ind3 );
-                Edge* e2 = FindAddEdge( edgeMap, m_nodeStore, ind3, ind1 );
+                Edge *e0, *e1, *e2, *e3;
 
-                Face* face = new Face( m_nodeStore[ind1], m_nodeStore[ind2], m_nodeStore[ind3], e0, e1, e2 );
+                Face* face = NULL;
+                if ( sFaceVec[f].m_isQuad )
+                {
+                    int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], allPntVec, indMap );
+                    int ind4 = pntShift[i3];
+
+                    e0 = FindAddEdge( edgeMap, m_nodeStore, ind1, ind2 );
+                    e1 = FindAddEdge( edgeMap, m_nodeStore, ind2, ind3 );
+                    e2 = FindAddEdge( edgeMap, m_nodeStore, ind3, ind4 );
+                    e3 = FindAddEdge( edgeMap, m_nodeStore, ind4, ind1 );
+
+                    face = new Face( m_nodeStore[ind1], m_nodeStore[ind2], m_nodeStore[ind3],  m_nodeStore[ind4], e0, e1, e2, e3 );
+                }
+                else
+                {
+                    e0 = FindAddEdge( edgeMap, m_nodeStore, ind1, ind2 );
+                    e1 = FindAddEdge( edgeMap, m_nodeStore, ind2, ind3 );
+                    e2 = FindAddEdge( edgeMap, m_nodeStore, ind3, ind1 );
+                    face = new Face( m_nodeStore[ind1], m_nodeStore[ind2], m_nodeStore[ind3], e0, e1, e2 );
+                }
 
                 if ( !e0->SetFace( face ) )
                 {
@@ -1830,6 +1847,16 @@ string CfdMeshMgrSingleton::CheckWaterTight()
                     face->debugFlag = true;
                     moreThanTwoTriPerEdge++;
                 }
+
+                if ( sFaceVec[f].m_isQuad )
+                {
+                    if ( !e3->SetFace( face ) )
+                    {
+                        face->debugFlag = true;
+                        moreThanTwoTriPerEdge++;
+                    }
+                }
+
                 faceVec.push_back( face );
 
                 if ( face->debugFlag )
