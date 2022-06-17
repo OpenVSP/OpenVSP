@@ -1660,6 +1660,12 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
                 sface.ind1 = pntShift[i1] + 1;
                 sface.ind2 = pntShift[i2] + 1;
                 sface.m_Tags = sFaceVec[f].m_Tags;
+                if ( sFaceVec[f].m_isQuad )
+                {
+                    sface.m_isQuad = true;
+                    int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], allPntVec, indMap );
+                    sface.ind3 = pntShift[i3] + 1;
+                }
                 allFaceVec.push_back( sface );
             }
         }
@@ -1717,6 +1723,12 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
                     if ( all_tag_vec[i] == SubSurfaceMgr.GetTag( allFaceVec[j].m_Tags ) )
                     {
                         tag_count++;
+
+                        // Count extra tri as quads will be split.
+                        if( allFaceVec[j].m_isQuad )
+                        {
+                            tag_count++;
+                        }
                     }
                 }
 
@@ -1750,6 +1762,15 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
 
                         // 3 nodes of facet, material ID, component ID, running facet #:
                         fprintf( fp, "%d %d %d %d %u %d\n", allFaceVec[j].ind0, allFaceVec[j].ind1, allFaceVec[j].ind2, materialID, i + 1, facet_count );
+
+                        // Split quad into two tris.  It may be possible to write out tris and quads separately by
+                        // grouping them appropriately and then writing separate groups.  However, without documentation
+                        // of the facet file format, this approach is the least risky.
+                        if( allFaceVec[j].m_isQuad )
+                        {
+                            facet_count++;
+                            fprintf( fp, "%d %d %d %d %u %d\n", allFaceVec[j].ind0, allFaceVec[j].ind2, allFaceVec[j].ind3, materialID, i + 1, facet_count );
+                        }
                     }
                 }
             }
