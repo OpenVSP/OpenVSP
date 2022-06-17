@@ -268,12 +268,17 @@ void Mesh::CondenseSimpFaces()
 {
     //==== Map Coincedent Point ====//
     vector< int > reMap;
+    reMap.reserve( simpFaceVec.size() * 4 );
     map< int, vector< int > > indMap;
     for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
     {
         reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind0, indMap, simpPntVec ) );
         reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind1, indMap, simpPntVec ) );
         reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind2, indMap, simpPntVec ) );
+        if ( simpFaceVec[i].m_isQuad )
+        {
+            reMap.push_back( CheckDupOrAdd( simpFaceVec[i].ind3, indMap, simpPntVec ) );
+        }
     }
 
     //==== Reduce Point and UW Vec ====//
@@ -296,11 +301,21 @@ void Mesh::CondenseSimpFaces()
 
     simpPntVec = rePntVec;
     simpUWPntVec = reUWVec;
+    int iremap = 0;
     for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
     {
-        simpFaceVec[i].ind0 = reMap[ 3 * i];
-        simpFaceVec[i].ind1 = reMap[ 3 * i + 1];
-        simpFaceVec[i].ind2 = reMap[ 3 * i + 2];
+        simpFaceVec[i].ind0 = reMap[ iremap ];
+        iremap++;
+        simpFaceVec[i].ind1 = reMap[ iremap ];
+        iremap++;
+        simpFaceVec[i].ind2 = reMap[ iremap ];
+        iremap++;
+
+        if ( simpFaceVec[i].m_isQuad )
+        {
+            simpFaceVec[i].ind3 = reMap[ iremap ];
+            iremap++;
+        }
     }
 }
 
