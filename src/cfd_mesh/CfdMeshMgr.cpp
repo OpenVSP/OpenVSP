@@ -3215,7 +3215,14 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshBadTriDO.m_LineColor = vec3d( 1, 0, 0 );
     m_MeshBadTriDO.m_LineWidth = 3.0;
 
+    m_MeshBadQuadDO.m_GeomID = GetID() + "BADQUAD";
+    m_MeshBadQuadDO.m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+    m_MeshBadQuadDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag;
+    m_MeshBadQuadDO.m_LineColor = vec3d( 1, 0, 0 );
+    m_MeshBadQuadDO.m_LineWidth = 3.0;
+
     vector< vec3d > badTriData;
+    vector< vec3d > badQuadData;
     vector< Face* >::iterator f;
     for ( f = m_BadFaces.begin() ; f != m_BadFaces.end(); ++f )
     {
@@ -3223,12 +3230,19 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         {
             ( *f )->GetNodePts( badTriData );
         }
+        else
+        {
+            ( *f )->GetNodePts( badQuadData );
+        }
     }
     m_MeshBadTriDO.m_PntVec = badTriData;
+    m_MeshBadQuadDO.m_PntVec = badQuadData;
     // Normal Vec is not required, load placeholder.
     m_MeshBadTriDO.m_NormVec = badTriData;
+    m_MeshBadQuadDO.m_NormVec = badQuadData;
 
     draw_obj_vec.push_back( &m_MeshBadTriDO );
+    draw_obj_vec.push_back( &m_MeshBadQuadDO );
 }
 
 /*

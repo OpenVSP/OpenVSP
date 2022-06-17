@@ -234,6 +234,7 @@ protected:
 private:
     DrawObj m_MeshBadEdgeDO;
     DrawObj m_MeshBadTriDO;
+    DrawObj m_MeshBadQuadDO;
     DrawObj m_BBoxLineStripDO;
     DrawObj m_BBoxLinesDO;
     DrawObj m_BBoxLineStripSymSplit;
