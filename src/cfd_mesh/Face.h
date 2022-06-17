@@ -157,19 +157,6 @@ public:
     Face( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge* ee1, Edge* ee2, Edge* ee3 );
     virtual ~Face();
 
-    list< Face* >::iterator list_ptr;
-    bool m_DeleteMeFlag;
-
-    Node* n0;
-    Node* n1;
-    Node* n2;
-    Node* n3;
-
-    Edge* e0;
-    Edge* e1;
-    Edge* e2;
-    Edge* e3;
-
     static void ComputeCosAngles( Node* nn0, Node* nn1, Node* nn2, double* ang0, double* ang1, double* ang2 );
     static void ComputeCosAngles( Node* nn0, Node* nn1, Node* nn2, Node* nn3, double* ang0, double* ang1, double* ang2, double* ang3 );
 
@@ -201,6 +188,22 @@ public:
 
     vec3d ComputeCenterPnt( Surf* surfPtr );
 
+    void LoadAdjFaces( int num_levels, set< Face* > & faceSet );
+
+
+    list< Face* >::iterator list_ptr;
+    bool m_DeleteMeFlag;
+
+    Node* n0;
+    Node* n1;
+    Node* n2;
+    Node* n3;
+
+    Edge* e0;
+    Edge* e1;
+    Edge* e2;
+    Edge* e3;
+
     bool debugFlag;
 
     // true if inside surface with a cid corresponding to an index.
@@ -210,8 +213,6 @@ public:
 
     // Set to true if face should be removed
     bool deleteFlag;
-
-    void LoadAdjFaces( int num_levels, set< Face* > & faceSet );
 
     unsigned char rgb[3];
 
