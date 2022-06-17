@@ -2882,18 +2882,7 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
             list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
             for ( f = faceList.begin() ; f != faceList.end(); ++f )
             {
-                if (( *f )->e0->OtherFace(( *f )) == NULL )
-                {
-                    edgeList.push_back( ( *f )->e0 );
-                }
-                if (( *f )->e1->OtherFace(( *f )) == NULL )
-                {
-                    edgeList.push_back( ( *f )->e1 );
-                }
-                if (( *f )->e2->OtherFace(( *f )) == NULL )
-                {
-                    edgeList.push_back( ( *f )->e2 );
-                }
+                ( *f )->AddBorderEdges( edgeList );
             }
         }
     }

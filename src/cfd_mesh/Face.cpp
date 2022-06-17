@@ -932,7 +932,29 @@ void Face::LoadAdjFaces( int num_levels, set< Face* > & faceSet )
     }
 }
 
+void Face::AddBorderEdges( list< Edge* > &edgeList )
+{
+    if ( e0->OtherFace( this ) == NULL )
+    {
+        edgeList.push_back( e0 );
+    }
+    if ( e1->OtherFace( this ) == NULL )
+    {
+        edgeList.push_back( e1 );
+    }
+    if ( e2->OtherFace( this ) == NULL )
+    {
+        edgeList.push_back( e2 );
+    }
 
+    if ( e3 )
+    {
+        if ( e3->OtherFace( this ) == NULL )
+        {
+            edgeList.push_back( e3 );
+        }
+    }
+}
 
 
 
