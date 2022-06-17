@@ -2012,35 +2012,7 @@ void Mesh::RemoveInteriorFacesEdgesNodes()
         //==== Check Surrounding Faces =====//
         if ( ( *f )->deleteFlag )
         {
-            //==== Check Edges ====//
-            if (( *f )->e0->BothAdjoiningFacesInterior() )
-            {
-                remEdges.insert( ( *f )->e0 );
-            }
-            if (( *f )->e1->BothAdjoiningFacesInterior() )
-            {
-                remEdges.insert( ( *f )->e1 );
-            }
-            if (( *f )->e2->BothAdjoiningFacesInterior() )
-            {
-                remEdges.insert( ( *f )->e2 );
-            }
-
-            //==== Check Nodes ====//
-            if (( *f )->n0->AllInteriorConnectedFaces() )
-            {
-                remNodes.insert( ( *f )->n0 );
-            }
-            if (( *f )->n1->AllInteriorConnectedFaces() )
-            {
-                remNodes.insert( ( *f )->n1 );
-            }
-            if (( *f )->n2->AllInteriorConnectedFaces() )
-            {
-                remNodes.insert( ( *f )->n2 );
-            }
-
-            remFaces.insert(( *f ) );
+            ( *f )->BuildRemovalSet( remFaces, remEdges, remNodes );
         }
     }
 

@@ -191,6 +191,7 @@ public:
     void LoadAdjFaces( int num_levels, set< Face* > & faceSet );
 
     void AddBorderEdges( list< Edge* > &edgeList );
+    void BuildRemovalSet( set < Face* > &remFaces, set < Edge* > &remEdges, set < Node* > &remNodes );
 
     list< Face* >::iterator list_ptr;
     bool m_DeleteMeFlag;

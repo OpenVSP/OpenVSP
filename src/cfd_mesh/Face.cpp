@@ -956,7 +956,54 @@ void Face::AddBorderEdges( list< Edge* > &edgeList )
     }
 }
 
+void Face::BuildRemovalSet( set < Face* > &remFaces, set < Edge* > &remEdges, set < Node* > &remNodes )
+{
+    //==== Check Edges ====//
+    if ( e0->BothAdjoiningFacesInterior() )
+    {
+        remEdges.insert( e0 );
+    }
+    if ( e1->BothAdjoiningFacesInterior() )
+    {
+        remEdges.insert( e1 );
+    }
+    if ( e2->BothAdjoiningFacesInterior() )
+    {
+        remEdges.insert( e2 );
+    }
 
+    if ( e3 )
+    {
+        if ( e2->BothAdjoiningFacesInterior() )
+        {
+            remEdges.insert( e3 );
+        }
+    }
+
+    //==== Check Nodes ====//
+    if ( n0->AllInteriorConnectedFaces() )
+    {
+        remNodes.insert( n0 );
+    }
+    if ( n1->AllInteriorConnectedFaces() )
+    {
+        remNodes.insert( n1 );
+    }
+    if ( n2->AllInteriorConnectedFaces() )
+    {
+        remNodes.insert( n2 );
+    }
+
+    if ( n3 )
+    {
+        if ( n3->AllInteriorConnectedFaces() )
+        {
+            remNodes.insert( n3 );
+        }
+    }
+
+    remFaces.insert( this );
+}
 
 
 
