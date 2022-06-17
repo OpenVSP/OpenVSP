@@ -340,6 +340,7 @@ void Mesh::StretchSimpPnts( double start_x, double end_x, double scale, double a
 
 }
 
+// TODO: Re-write with nanoflann
 int Mesh::CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, vector< vec3d > & pntVec )
 {
     double tol = 1.0e-8;
