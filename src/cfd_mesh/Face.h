@@ -194,6 +194,8 @@ public:
     void BuildRemovalSet( set < Face* > &remFaces, set < Edge* > &remEdges, set < Node* > &remNodes );
     void EdgeForgetFace();
 
+    bool IsTri() { return !e3; }
+    bool IsQuad(){ return  e3; }
     list< Face* >::iterator list_ptr;
     bool m_DeleteMeFlag;
 
