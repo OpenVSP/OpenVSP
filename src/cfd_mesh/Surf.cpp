@@ -1445,6 +1445,11 @@ vec3d Surf::CompPnt01( double u, double w ) const
     return m_SurfCore.CompPnt01( u, w );
 }
 
+vec3d Surf::CompNorm( double u, double w ) const
+{
+    return m_SurfCore.CompNorm( u, w );
+}
+
 // Compute the individual element material orientation after mesh has been created.  Consequently, we
 // know the U, V coordinates of element centers required to find the local directions used by NASTRAN in some cases.
 vec3d Surf::GetFeaElementOrientation( double u, double w )

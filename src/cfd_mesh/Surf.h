@@ -47,6 +47,7 @@ public:
 
     vec3d CompPnt( double u, double w ) const;
     vec3d CompPnt01( double u, double w ) const;
+    vec3d CompNorm( double u, double w ) const;
 
     const SurfCore* GetSurfCore() const
     {
