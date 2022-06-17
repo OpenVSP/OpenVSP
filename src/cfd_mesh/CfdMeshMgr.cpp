@@ -1110,8 +1110,19 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
 
             // <# of polygons> [# of holes] [boundary marker]
             fprintf( fp, "1 0 %d\n", tag );
-            // <# of corners> <corner 1> <corner 2> <corner 3>
-            fprintf( fp, "3 %d %d %d\n", ind1, ind2, ind3 );
+            if( sFaceVec[t].m_isQuad )
+            {
+                int i3 = FindPntIndex( sPntVec[sFaceVec[t].ind3], allPntVec, indMap );
+                int ind4 = pntShift[i3] + 1;
+
+                // <# of corners> <corner 1> <corner 2> <corner 3> <corner 4>
+                fprintf( fp, "4 %d %d %d %d\n", ind1, ind2, ind3, ind4 );
+            }
+            else
+            {
+                // <# of corners> <corner 1> <corner 2> <corner 3>
+                fprintf( fp, "3 %d %d %d\n", ind1, ind2, ind3 );
+            }
         }
     }
 
