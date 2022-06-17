@@ -196,6 +196,9 @@ public:
 
     bool IsTri() { return !e3; }
     bool IsQuad(){ return  e3; }
+
+    void GetNodePts( vector <vec3d> &pts );
+
     list< Face* >::iterator list_ptr;
     bool m_DeleteMeFlag;
 

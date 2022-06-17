@@ -1021,4 +1021,13 @@ void Face::EdgeForgetFace()
     }
 }
 
-
+void Face::GetNodePts( vector <vec3d> &pts )
+{
+    pts.push_back( n0->pnt );
+    pts.push_back( n1->pnt );
+    pts.push_back( n2->pnt );
+    if ( n3 )
+    {
+        pts.push_back( n3->pnt );
+    }
+}

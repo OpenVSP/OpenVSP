@@ -3219,9 +3219,10 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     vector< Face* >::iterator f;
     for ( f = m_BadFaces.begin() ; f != m_BadFaces.end(); ++f )
     {
-        badTriData.push_back( ( *f )->n0->pnt );
-        badTriData.push_back( ( *f )->n1->pnt );
-        badTriData.push_back( ( *f )->n2->pnt );
+        if( ( *f )->IsTri() )
+        {
+            ( *f )->GetNodePts( badTriData );
+        }
     }
     m_MeshBadTriDO.m_PntVec = badTriData;
     // Normal Vec is not required, load placeholder.
