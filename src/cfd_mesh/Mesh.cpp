@@ -233,15 +233,15 @@ void Mesh::LoadSimpFaces()
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
         simpFaceVec[cnt].ind0 = cnt * 3;
-        simpFaceVec[cnt].ind1 = cnt * 3 + 1;
-        simpFaceVec[cnt].ind2 = cnt * 3 + 2;
-
         simpPntVec[cnt * 3]   = ( *f )->n0->pnt;
-        simpPntVec[cnt * 3 + 1] = ( *f )->n1->pnt;
-        simpPntVec[cnt * 3 + 2] = ( *f )->n2->pnt;
-
         simpUWPntVec[cnt * 3] = ( *f )->n0->uw;
+
+        simpFaceVec[cnt].ind1 = cnt * 3 + 1;
+        simpPntVec[cnt * 3 + 1] = ( *f )->n1->pnt;
         simpUWPntVec[cnt * 3 + 1] = ( *f )->n1->uw;
+
+        simpFaceVec[cnt].ind2 = cnt * 3 + 2;
+        simpPntVec[cnt * 3 + 2] = ( *f )->n2->pnt;
         simpUWPntVec[cnt * 3 + 2] = ( *f )->n2->uw;
         cnt++;
     }
