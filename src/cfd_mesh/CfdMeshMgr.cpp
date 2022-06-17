@@ -1283,6 +1283,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
     //==== Assemble Normal Tris ====//
     vector< SimpFace > allFaceVec;
+    int ntristrict = 0;
     vector< int > allSurfIDVec;
     vector< vector< vec2d > > allUWVec;
     vector < pair < int, int > > wedges;
@@ -1302,14 +1303,28 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 sface.ind0 = pntShift[i0] + 1;
                 sface.ind1 = pntShift[i1] + 1;
                 sface.ind2 = pntShift[i2] + 1;
+
+                if( sFaceVec[t].m_isQuad )
+                {
+                    sface.m_isQuad = true;
+                    int i3 = FindPntIndex( sPntVec[sFaceVec[t].ind3], allPntVec, indMap );
+                    sface.ind3 = pntShift[i3] + 1;
+                    ntristrict++; // Bonus tri for split quad.
+                }
+
                 sface.m_Tags = sFaceVec[t].m_Tags;
+                ntristrict++;
                 allFaceVec.push_back( sface );
                 allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
 
-                vector< vec2d > uwFace( 3);
+                vector< vec2d > uwFace( 4 );
                 uwFace[0] = sUWVec[ sFaceVec[t].ind0 ];
                 uwFace[1] = sUWVec[ sFaceVec[t].ind1 ];
                 uwFace[2] = sUWVec[ sFaceVec[t].ind2 ];
+                if( sFaceVec[t].m_isQuad )
+                {
+                    uwFace[3] = sUWVec[ sFaceVec[t].ind3 ];
+                }
                 allUWVec.push_back( uwFace );
 
                 if ( m_SurfVec[i]->GetSurfaceVSPType() == vsp::WING_SURF ||
@@ -1318,13 +1333,24 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     bool n0 = uwFace[0].y() <= ( TMAGIC + tol );
                     bool n1 = uwFace[1].y() <= ( TMAGIC + tol );
                     bool n2 = uwFace[2].y() <= ( TMAGIC + tol );
+                    bool n3 = false;
+                    if( sFaceVec[t].m_isQuad )
+                    {
+                        n3 = uwFace[3].y() <= ( TMAGIC + tol );
+                    }
 
-                    if ( ( n0 + n1 + n2 ) == 2 ) // Two true, one false.
+                    if ( ( n0 + n1 + n2 + n3 ) == 2 ) // Two true, one or two false.
                     {
                         // Perform index lookup as above.
                         int i0 = pntShift[ FindPntIndex( sPntVec[sFaceVec[t].ind0], allPntVec, indMap ) ] + 1;
                         int i1 = pntShift[ FindPntIndex( sPntVec[sFaceVec[t].ind1], allPntVec, indMap ) ] + 1;
                         int i2 = pntShift[ FindPntIndex( sPntVec[sFaceVec[t].ind2], allPntVec, indMap ) ] + 1;
+
+                        int i3 = -1;
+                        if( sFaceVec[t].m_isQuad )
+                        {
+                            i3 = pntShift[ FindPntIndex( sPntVec[sFaceVec[t].ind3], allPntVec, indMap ) ] + 1;
+                        }
 
                         // Add nodes to wake edges, lowest u first.
                         if ( n0 && n1 )
@@ -1349,7 +1375,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                                 wedges.push_back( pair< int, int>( i2, i1 ) );
                             }
                         }
-                        else if ( n2 && n0 )
+                        else if ( !sFaceVec[t].m_isQuad && n2 && n0 ) // Triangle only
                         {
                             if ( uwFace[2].x() < uwFace[0].x() )
                             {
@@ -1358,6 +1384,28 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                             else
                             {
                                 wedges.push_back( pair< int, int>( i0, i2 ) );
+                            }
+                        }
+                        else if ( sFaceVec[t].m_isQuad && n2 && n3 ) // Quad only
+                        {
+                            if ( uwFace[2].x() < uwFace[3].x() )
+                            {
+                                wedges.push_back( pair< int, int>( i2, i3 ) );
+                            }
+                            else
+                            {
+                                wedges.push_back( pair< int, int>( i3, i2 ) );
+                            }
+                        }
+                        else if ( sFaceVec[t].m_isQuad && n3 && n0 ) // Quad only
+                        {
+                            if ( uwFace[3].x() < uwFace[0].x() )
+                            {
+                                wedges.push_back( pair< int, int>( i3, i0 ) );
+                            }
+                            else
+                            {
+                                wedges.push_back( pair< int, int>( i0, i3 ) );
                             }
                         }
                     }
@@ -1426,6 +1474,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
         {
             vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+            vector< vec2d >& sUWVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
             for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
             {
                 int i0 = FindPntIndex( sPntVec[sFaceVec[f].ind0], wakeAllPntVec, wakeIndMap );
@@ -1435,9 +1484,30 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 sface.ind0 = wakePntShift[i0] + 1 + wakeIndOffset;
                 sface.ind1 = wakePntShift[i1] + 1 + wakeIndOffset;
                 sface.ind2 = wakePntShift[i2] + 1 + wakeIndOffset;
+
+                if( sFaceVec[f].m_isQuad )
+                {
+                    sface.m_isQuad = true;
+                    int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], wakeAllPntVec, wakeIndMap );
+                    sface.ind3 = wakePntShift[i3] + 1 + wakeIndOffset;
+                    ntristrict++; // Bonus tri for split quad
+                }
+
                 sface.m_Tags = sFaceVec[f].m_Tags;
+                ntristrict++;
                 allFaceVec.push_back( sface );
                 allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
+
+                vector< vec2d > uwFace( 4 );
+                uwFace[0] = sUWVec[ sFaceVec[f].ind0 ];
+                uwFace[1] = sUWVec[ sFaceVec[f].ind1 ];
+                uwFace[2] = sUWVec[ sFaceVec[f].ind2 ];
+                if( sFaceVec[f].m_isQuad )
+                {
+                    uwFace[3] = sUWVec[ sFaceVec[f].ind3 ];
+                }
+                allUWVec.push_back( uwFace );
+
             }
         }
     }
@@ -1461,7 +1531,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
         if ( fp )
         {
             //===== Write Num Pnts and Tris ====//
-            fprintf( fp, "%d %d\n", ( int )allUsedPntVec.size(), ( int )allFaceVec.size() );
+            fprintf( fp, "%d %d\n", ( int )allUsedPntVec.size(), ntristrict );
 
             //==== Write Pnts ====//
             for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
@@ -1475,6 +1545,13 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 fprintf( fp, "%d %d %d %d.0\n",
                          allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind1,
                          SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ) );
+
+                if( allFaceVec[i].m_isQuad )
+                {
+                    fprintf( fp, "%d %d %d %d.0\n",
+                             allFaceVec[i].ind0, allFaceVec[i].ind3, allFaceVec[i].ind2,
+                             SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ) );
+                }
             }
             fclose( fp );
         }
@@ -1504,7 +1581,14 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Tris ====//
             for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
             {
-                fprintf( fp, "f %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                if( allFaceVec[i].m_isQuad )
+                {
+                    fprintf( fp, "f %d %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                }
+                else
+                {
+                    fprintf( fp, "f %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                }
             }
             fclose( fp );
         }
@@ -1521,7 +1605,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
         if ( fp )
         {
             //==== Write Pnt Count and Tri Count ====//
-            fprintf( fp, "%d %d\n", ( int )allUsedPntVec.size(), ( int )allFaceVec.size() );
+            fprintf( fp, "%d %d\n", ( int )allUsedPntVec.size(), ntristrict );
 
             //==== Write Pnts ====//
             for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
@@ -1533,12 +1617,20 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
             {
                 fprintf( fp, "%d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                if( allFaceVec[i].m_isQuad )
+                {
+                    fprintf( fp, "%d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                }
             }
 
             //==== Write Component ID ====//
             for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
             {
                 fprintf( fp, "%d \n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ) );
+                if( allFaceVec[i].m_isQuad )
+                {
+                    fprintf( fp, "%d \n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ) );
+                }
             }
 
             fclose( fp );
@@ -1574,7 +1666,14 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             int ele_cnt = 1;
             for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
             {
-                fprintf( fp, "%d 2 0 %d %d %d \n", ele_cnt, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                if( allFaceVec[i].m_isQuad )
+                {
+                    fprintf( fp, "%d 3 0 %d %d %d %d \n", ele_cnt, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                }
+                else
+                {
+                    fprintf( fp, "%d 2 0 %d %d %d \n", ele_cnt, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                }
                 ele_cnt++;
             }
 
@@ -1601,23 +1700,80 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
             }
 
-            //==== Write Tri Count ====//
-            fprintf( fp, "%d\n", ( int )allFaceVec.size() );
-
-            //==== Write Tris ====//
-            for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+            bool allowquads = true;
+            if ( allowquads )
             {
-                fprintf( fp, "3 %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                //==== Write Face Count ====//
+                fprintf( fp, "%d\n", ( int )allFaceVec.size() );
+
+                //==== Write Faces ====//
+                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                {
+                    if( allFaceVec[i].m_isQuad )
+                    {
+                        fprintf( fp, "4 %d %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                    }
+                    else
+                    {
+                        fprintf( fp, "3 %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                    }
+                }
+            }
+            else
+            {
+                //==== Write Face Count ====//
+                fprintf( fp, "%d\n", ntristrict );
+
+                //==== Write Tris Only ====//
+                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                {
+                    fprintf( fp, "3 %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                    if( allFaceVec[i].m_isQuad )
+                    {
+                        fprintf( fp, "3 %d %d %d \n", allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                    }
+                }
             }
 
-            //==== Write Component ID ====//
-            for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+            if ( allowquads )
             {
-                fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ),
-                         allUWVec[i][0].x(), allUWVec[i][0].y(),
-                         allUWVec[i][1].x(), allUWVec[i][1].y(),
-                         allUWVec[i][2].x(), allUWVec[i][2].y() );
-
+                //==== Write Component ID ====//
+                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                {
+                    if( allFaceVec[i].m_isQuad )
+                    {
+                        fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ),
+                             allUWVec[i][0].x(), allUWVec[i][0].y(),
+                             allUWVec[i][1].x(), allUWVec[i][1].y(),
+                             allUWVec[i][2].x(), allUWVec[i][2].y(),
+                             allUWVec[i][3].x(), allUWVec[i][3].y() );
+                    }
+                    else
+                    {
+                        fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ),
+                                 allUWVec[i][0].x(), allUWVec[i][0].y(),
+                                 allUWVec[i][1].x(), allUWVec[i][1].y(),
+                                 allUWVec[i][2].x(), allUWVec[i][2].y() );
+                    }
+                }
+            }
+            else
+            {
+                //==== Write Component ID ====//
+                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                {
+                    fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ),
+                             allUWVec[i][0].x(), allUWVec[i][0].y(),
+                             allUWVec[i][1].x(), allUWVec[i][1].y(),
+                             allUWVec[i][2].x(), allUWVec[i][2].y() );
+                    if( allFaceVec[i].m_isQuad )
+                    {
+                        fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ),
+                                 allUWVec[i][0].x(), allUWVec[i][0].y(),
+                                 allUWVec[i][2].x(), allUWVec[i][2].y(),
+                                 allUWVec[i][3].x(), allUWVec[i][3].y() );
+                    }
+                }
             }
 
             int nwake = wakes.size();
