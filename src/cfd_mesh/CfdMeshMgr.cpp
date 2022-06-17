@@ -959,6 +959,14 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
             sface.ind0 = pntShift[i0];
             sface.ind1 = pntShift[i1];
             sface.ind2 = pntShift[i2];
+
+            if( sFaceVec[i].m_isQuad )
+            {
+                sface.m_isQuad = true;
+                int i3 = FindPntIndex( sPntVec[sFaceVec[t].ind3], allPntVec, indMap );
+                sface.ind3 = pntShift[i3];
+            }
+
             sface.m_Tags = sFaceVec[t].m_Tags;
             allFaceVec.push_back( sface );
         }
@@ -992,9 +1000,9 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
                     vec3d* p0 = allUsedPntVec[sface->ind0];
                     vec3d* p1 = allUsedPntVec[sface->ind1];
                     vec3d* p2 = allUsedPntVec[sface->ind2];
-                    vec3d v10 = *p1 - *p0;
-                    vec3d v20 = *p2 - *p1;
-                    vec3d norm = cross( v10, v20 );
+                    vec3d v01 = *p1 - *p0;
+                    vec3d v12 = *p2 - *p1;
+                    vec3d norm = cross( v01, v12 );
                     norm.normalize();
 
                     fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
@@ -1006,6 +1014,25 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
 
                     fprintf( file_id, "   endloop\n" );
                     fprintf( file_id, " endfacet\n" );
+
+                    if ( sface->m_isQuad ) // Split quad and write additional tri.
+                    {
+                        vec3d* p3 = allUsedPntVec[sface->ind3];
+                        vec3d v23 = *p3 - *p2;
+                        vec3d v30 = *p0 - *p3;
+                        norm = cross( v23, v30 );
+                        norm.normalize();
+
+                        fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+                        fprintf( file_id, "   outer loop\n" );
+
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0->x(), p0->y(), p0->z() );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2->x(), p2->y(), p2->z() );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p3->x(), p3->y(), p3->z() );
+
+                        fprintf( file_id, "   endloop\n" );
+                        fprintf( file_id, " endfacet\n" );
+                    }
                 }
             }
             fprintf( file_id, "endsolid %s\n", tagname.c_str() );
