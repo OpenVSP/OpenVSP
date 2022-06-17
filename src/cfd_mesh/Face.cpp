@@ -889,6 +889,22 @@ vec3d Face::ComputeCenterPnt( Surf* surfPtr )
     return surfPtr->CompPnt( uw[0], uw[1] );
 }
 
+vec3d Face::ComputeCenterNormal( Surf* surfPtr )
+{
+    vec2d avg_uw;
+
+    if ( !n3 )
+    {
+        avg_uw = ( n0->uw + n1->uw + n2->uw ) * ( 1.0 / 3.0 );
+    }
+    else
+    {
+        avg_uw = ( n0->uw + n1->uw + n2->uw + n3->uw ) * ( 1.0 / 4.0 );
+    }
+
+    return surfPtr->CompNorm( avg_uw[0], avg_uw[1] );
+}
+
 void Face::LoadAdjFaces( int num_levels, set< Face* > & faceSet )
 {
     Face* f;

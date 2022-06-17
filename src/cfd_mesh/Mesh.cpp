@@ -448,8 +448,7 @@ int Mesh::RemoveRevFaces()
     for ( f = faceList.begin() ; f != faceList.end(); ++f )
     {
         vec3d nface = (*f)->Normal();
-        vec2d avg_uw = ((*f)->n0->uw + (*f)->n1->uw + (*f)->n2->uw ) * ( 1.0 / 3.0 );
-        vec3d nsurf = m_Surf->GetSurfCore()->CompNorm( avg_uw[0], avg_uw[1] );
+        vec3d nsurf = (*f)->ComputeCenterNormal( m_Surf );
 
         double dprod = dot ( nface, nsurf );
 
