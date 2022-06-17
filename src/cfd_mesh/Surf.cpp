@@ -697,49 +697,6 @@ void Surf::IntersectLineSeg( vec3d & p0, vec3d & p1, vector< double > & t_vals )
     }
 }
 
-void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_vals )
-{
-    BndBox line_box;
-    line_box.Update( p0 );
-    line_box.Update( p1 );
-
-    if ( !Compare( line_box, m_BBox ) )
-    {
-        return;
-    }
-
-    double tparm, uparm, vparm;
-    list <Face*>::iterator f;
-    list <Face*> faceList = m_Mesh.GetFaceList();
-
-    vec3d dir = p1 - p0;
-
-    for ( f = faceList.begin() ; f != faceList.end(); ++f )
-    {
-        int iFlag = intersect_triangle( p0.v, dir.v,
-                                        ( *f )->n0->pnt.v, ( *f )->n1->pnt.v, ( *f )->n2->pnt.v, &tparm, &uparm, &vparm );
-
-        if ( iFlag && tparm > 0.0 )
-        {
-            //==== Find If T is Already Included ====//
-            int dupFlag = 0;
-            for ( int j = 0 ; j < ( int )t_vals.size() ; j++ )
-            {
-                if ( std::abs( tparm - t_vals[j] ) < 1.0e-7 )
-                {
-                    dupFlag = 1;
-                    break;
-                }
-            }
-
-            if ( !dupFlag )
-            {
-                t_vals.push_back( tparm );
-            }
-        }
-    }
-}
-
 bool Surf::BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
     bool retFlag = false;
