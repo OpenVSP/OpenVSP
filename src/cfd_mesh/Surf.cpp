@@ -1278,12 +1278,19 @@ void Surf::Subtag( bool tag_subs )
     {
         SimpFace& face = face_vec[f];
         face.m_Tags.push_back( m_BaseTag );
-        vec2d center = ( pnts[face.ind0] + pnts[face.ind1] + pnts[face.ind2] ) * 1 / 3.0;
-        vec2d cent2d = center;
+        vec2d center;
+        if ( face.m_isQuad )
+        {
+            center = ( pnts[face.ind0] + pnts[face.ind1] + pnts[face.ind2] + pnts[face.ind3] ) * 1 / 4.0;
+        }
+        else
+        {
+            center = ( pnts[face.ind0] + pnts[face.ind1] + pnts[face.ind2] ) * 1 / 3.0;
+        }
 
         for ( int s = 0 ; s < ( int ) s_surfs.size() ; s++ )
         {
-            if ( s_surfs[s]->Subtag( vec3d( cent2d.x(), cent2d.y(), 0 ) ) )
+            if ( s_surfs[s]->Subtag( vec3d( center.x(), center.y(), 0 ) ) )
             {
                 face.m_Tags.push_back( s_surfs[s]->m_Tag );
             }
