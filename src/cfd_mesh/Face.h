@@ -233,9 +233,16 @@ protected:
 class SimpFace
 {
 public:
+    SimpFace()
+    {
+        m_isQuad = false;
+        ind0 = ind1 = ind2 = ind3 = -1;
+    }
     int ind0;
     int ind1;
     int ind2;
+    int ind3;
+    bool m_isQuad;
     vector<int> m_Tags;
 };
 
