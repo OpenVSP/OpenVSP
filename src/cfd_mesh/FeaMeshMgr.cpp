@@ -1028,6 +1028,10 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             face_vec_curr[i].ind0 += all_pnt_vec.size();
             face_vec_curr[i].ind1 += all_pnt_vec.size();
             face_vec_curr[i].ind2 += all_pnt_vec.size();
+            if( face_vec_curr[i].m_isQuad )
+            {
+                face_vec_curr[i].ind3 += all_pnt_vec.size();
+            }
 
             all_face_vec.push_back( face_vec_curr[i] );
             tri_surf_ind_vec.push_back( s );
@@ -1103,6 +1107,14 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             {
                 all_face_vec[j].ind2 = index_vec[i];
             }
+
+            if ( all_face_vec[j].m_isQuad )
+            {
+                if ( all_face_vec[j].ind3 == i && all_face_vec[j].ind3 != index_vec[i] )
+                {
+                    all_face_vec[j].ind3 = index_vec[i];
+                }
+            }
         }
     }
 
@@ -1113,7 +1125,17 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         vec3d pnt1 = node_vec[all_face_vec[i].ind1];
         vec3d pnt2 = node_vec[all_face_vec[i].ind2];
 
-        vec3d avg_pnt = ( pnt0 + pnt1 + pnt2 ) / 3.0;
+        vec3d avg_pnt;
+        if ( all_face_vec[i].m_isQuad )
+        {
+            vec3d pnt3 = node_vec[all_face_vec[i].ind3];
+            avg_pnt = ( pnt0 + pnt1 + pnt2 + pnt3 ) / 4.0;
+        }
+        else
+        {
+            avg_pnt = ( pnt0 + pnt1 + pnt2 ) / 3.0;
+        }
+
 
         // Determine initial guess for uw near SimpTri center (uw points defining SimpTri can be from different surfaces after adjustments) 
         vec2d uw_guess;
@@ -1130,16 +1152,29 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         {
             uw_guess = new_uw_vec[all_face_vec[i].ind2];
         }
+        else if ( all_face_vec[i].m_isQuad && tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_face_vec[i].ind3] )
+        {
+            uw_guess = new_uw_vec[all_face_vec[i].ind3];
+        }
         else
         {
             uw_guess.set_x( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidU() );
             uw_guess.set_y( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidW() );
         }
 
-        FeaTri* tri = new FeaTri;
-        tri->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2] );
-        tri->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
-        tri->SetSurfIndex( tri_surf_ind_vec[i] );
+        FeaElement* elem = NULL;
+        if( all_face_vec[i].m_isQuad )
+        {
+            elem = new FeaQuad;
+            ((FeaQuad*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], node_vec[all_face_vec[i].ind3] );
+        }
+        else
+        {
+            elem = new FeaTri;
+            ((FeaTri*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2] );
+        }
+        elem->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
+        elem->SetSurfIndex( tri_surf_ind_vec[i] );
 
         vec2d closest_uw = m_SurfVec[tri_surf_ind_vec[i]]->ClosestUW( avg_pnt, uw_guess[0], uw_guess[1] );
 
@@ -1152,7 +1187,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             // First index of m_Tags is the parent surface. Second index is subsurface index which begins 
             //  from the last FeaPart surface index (FeaFixPoints are not tagged; they are not surfaces)
             int ssindex = all_face_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1;
-            tri->SetFeaSSIndex( ssindex );
+            elem->SetFeaSSIndex( ssindex );
 
             int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
             vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
@@ -1164,7 +1199,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         {
             //Give priority to first tagged subsurface in the event of overlap
             int ssindex = all_face_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1;
-            tri->SetFeaSSIndex( ssindex );
+            elem->SetFeaSSIndex( ssindex );
 
             int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
             vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
@@ -1179,9 +1214,10 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         orient_vec = proj_vec_to_plane( orient_vec, norm );
 
         orient_vec.normalize();
-        tri->m_Orientation = orient_vec;
 
-        m_FeaElementVec.push_back( tri );
+        elem->m_Orientation = orient_vec;
+
+        m_FeaElementVec.push_back( elem );
         m_NumTris++;
     }
 

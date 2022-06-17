@@ -102,6 +102,7 @@ public:
     vector< FeaNode* > m_Corners;
     vector< FeaNode* > m_Mids;
 
+    vec3d m_Orientation;
 protected:
 
     int m_ElementType;
@@ -122,8 +123,6 @@ public:
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset );
     virtual double ComputeMass( int property_index );
-
-    vec3d m_Orientation;
 };
 
 //=== 8 Point Quad Element ====//
