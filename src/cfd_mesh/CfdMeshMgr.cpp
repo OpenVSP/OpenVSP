@@ -1762,7 +1762,6 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 {
     vector< Face* > faceVec;
 
-    int face_cnt = 0;
     vector< vec3d* > allPntVec;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
@@ -1773,7 +1772,6 @@ string CfdMeshMgrSingleton::CheckWaterTight()
             {
                 allPntVec.push_back( &sPntVec[v] );
             }
-            face_cnt += m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec().size();
         }
     }
 
