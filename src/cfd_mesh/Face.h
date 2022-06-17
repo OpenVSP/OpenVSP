@@ -144,7 +144,7 @@ public:
     bool BothAdjoiningFacesInterior();
     void ReplaceFace( Face* f, Face* replace_f );
 
-
+    void NodeForgetEdge();
 
 };
 
@@ -192,6 +192,7 @@ public:
 
     void AddBorderEdges( list< Edge* > &edgeList );
     void BuildRemovalSet( set < Face* > &remFaces, set < Edge* > &remEdges, set < Node* > &remNodes );
+    void EdgeForgetFace();
 
     list< Face* >::iterator list_ptr;
     bool m_DeleteMeFlag;

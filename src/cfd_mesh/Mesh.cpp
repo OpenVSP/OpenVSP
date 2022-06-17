@@ -2020,15 +2020,12 @@ void Mesh::RemoveInteriorFacesEdgesNodes()
     set< Face* >::iterator sf;
     for ( sf = remFaces.begin() ; sf != remFaces.end(); ++sf )
     {
-        ( *sf )->e0->ReplaceFace(( *sf ), NULL );
-        ( *sf )->e1->ReplaceFace(( *sf ), NULL );
-        ( *sf )->e2->ReplaceFace(( *sf ), NULL );
+        ( *sf )->EdgeForgetFace();
     }
     set< Edge* >::iterator se;
     for ( se = remEdges.begin() ; se != remEdges.end(); ++se )
     {
-        ( *se )->n0->RemoveConnectEdge( ( *se ) );
-        ( *se )->n1->RemoveConnectEdge( ( *se ) );
+        ( *se )->NodeForgetEdge();
     }
 
     //==== Remove Node Edges and Faces =====//

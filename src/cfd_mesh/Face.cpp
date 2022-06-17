@@ -433,6 +433,11 @@ bool Edge::BothAdjoiningFacesInterior()
     return false;
 }
 
+void Edge::NodeForgetEdge()
+{
+    n0->RemoveConnectEdge( this );
+    n1->RemoveConnectEdge( this );
+}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -1005,6 +1010,15 @@ void Face::BuildRemovalSet( set < Face* > &remFaces, set < Edge* > &remEdges, se
     remFaces.insert( this );
 }
 
-
+void Face::EdgeForgetFace()
+{
+    e0->ReplaceFace( this, NULL );
+    e1->ReplaceFace( this, NULL );
+    e2->ReplaceFace( this, NULL );
+    if ( e3 )
+    {
+        e3->ReplaceFace( this, NULL );
+    }
+}
 
 
