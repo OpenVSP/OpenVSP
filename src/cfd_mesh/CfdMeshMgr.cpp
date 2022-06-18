@@ -3323,8 +3323,9 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     // Render Tag Colors
     unsigned int num_tags = SubSurfaceMgr.GetNumTags();
-    m_TagDO.resize( num_tags );
-    map<int, DrawObj*> tag_dobj_map;
+    m_TagDO.resize( num_tags * 2 );
+    map<int, DrawObj*> tag_tri_dobj_map;
+    map<int, DrawObj*> tag_quad_dobj_map;
     map< std::vector<int>, int >::const_iterator mit;
     map< int, DrawObj* >::const_iterator dmit;
     map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
@@ -3339,31 +3340,46 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     for ( mit = tagMap.begin(); mit != tagMap.end() ; ++mit )
     {
         m_TagDO[cnt] = DrawObj();
-        tag_dobj_map[ mit->second ] = &m_TagDO[cnt];
+        tag_tri_dobj_map[ mit->second ] = &m_TagDO[cnt];
         sprintf( str, "%s_TAG_%d", GetID().c_str(), cnt );
         m_TagDO[cnt].m_GeomID = string( str );
 
+        m_TagDO[cnt + num_tags] = DrawObj();
+        tag_quad_dobj_map[ mit->second ] = &m_TagDO[cnt + num_tags];
+        sprintf( str, "%s_TAG_%d", GetID().c_str(), cnt + num_tags );
+        m_TagDO[cnt + num_tags].m_GeomID = string( str );
+
         m_TagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
         m_TagDO[cnt].m_Visible = false;
+        m_TagDO[cnt + num_tags].m_Type = DrawObj::VSP_SHADED_QUADS;
+        m_TagDO[cnt + num_tags].m_Visible = false;
         if ( GetCfdSettingsPtr()->m_DrawMeshFlag ||
              GetCfdSettingsPtr()->m_ColorTagsFlag )   // At least mesh or tags are visible.
         {
             m_TagDO[cnt].m_Visible = true;
+            m_TagDO[cnt + num_tags].m_Visible = true;
 
             if ( GetCfdSettingsPtr()->m_DrawMeshFlag &&
                  GetCfdSettingsPtr()->m_ColorTagsFlag ) // Both are visible.
             {
                 m_TagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
                 m_TagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+
+                m_TagDO[cnt + num_tags].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                m_TagDO[cnt + num_tags].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
             }
             else if ( GetCfdSettingsPtr()->m_DrawMeshFlag ) // Mesh only
             {
                 m_TagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
                 m_TagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+
+                m_TagDO[cnt + num_tags].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                m_TagDO[cnt + num_tags].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
             }
             else // Tags only
             {
                 m_TagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+                m_TagDO[cnt + num_tags].m_Type = DrawObj::VSP_SHADED_QUADS;
             }
         }
 
@@ -3382,6 +3398,11 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_TagDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i]/10.0f;
                 m_TagDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
                 m_TagDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i]/20.0f;
+
+                m_TagDO[cnt + num_tags].m_MaterialInfo.Ambient[i] = (float)rgb.v[i]/5.0f;
+                m_TagDO[cnt + num_tags].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i]/10.0f;
+                m_TagDO[cnt + num_tags].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
+                m_TagDO[cnt + num_tags].m_MaterialInfo.Emission[i] = (float)rgb.v[i]/20.0f;
             }
             m_TagDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
             m_TagDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
@@ -3389,6 +3410,14 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_TagDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
 
             m_TagDO[cnt].m_MaterialInfo.Shininess = 32.0f;
+
+
+            m_TagDO[cnt + num_tags].m_MaterialInfo.Ambient[3] = 1.0f;
+            m_TagDO[cnt + num_tags].m_MaterialInfo.Diffuse[3] = 1.0f;
+            m_TagDO[cnt + num_tags].m_MaterialInfo.Specular[3] = 1.0f;
+            m_TagDO[cnt + num_tags].m_MaterialInfo.Emission[3] = 1.0f;
+
+            m_TagDO[cnt + num_tags].m_MaterialInfo.Shininess = 32.0f;
         }
         else
         {
@@ -3396,6 +3425,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         }
 
         draw_obj_vec.push_back( &m_TagDO[cnt] );
+        draw_obj_vec.push_back( &m_TagDO[cnt + num_tags] );
         cnt++;
     }
 
@@ -3409,10 +3439,23 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                  ( !m_SurfVec[i]->GetSymPlaneFlag() || GetCfdSettingsPtr()->m_DrawSymmFlag ) )
             {
                 SimpFace* sface = &m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec()[f];
-                dmit = tag_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
-                if ( dmit == tag_dobj_map.end() )
+                if ( sface->m_isQuad )
                 {
-                    continue;
+                    dmit = tag_quad_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
+
+                    if ( dmit == tag_quad_dobj_map.end() )
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                    dmit = tag_tri_dobj_map.find( SubSurfaceMgr.GetTag( sface->m_Tags ) );
+
+                    if ( dmit == tag_tri_dobj_map.end() )
+                    {
+                        continue;
+                    }
                 }
 
                 DrawObj* obj = dmit->second;
@@ -3424,6 +3467,11 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 obj->m_NormVec.push_back( norm );
                 obj->m_NormVec.push_back( norm );
                 obj->m_NormVec.push_back( norm );
+                if ( sface->m_isQuad )
+                {
+                    obj->m_PntVec.push_back( pVec[sface->ind3] );
+                    obj->m_NormVec.push_back( norm );
+                }
             }
         }
     }
