@@ -172,6 +172,8 @@ public:
     enum { QUIET_OUTPUT, VOCAL_OUTPUT, };
     virtual void Remesh( int output_type );
 
+    virtual void PostMesh();
+
     virtual void InitMesh();
 
     virtual string GetQualString();

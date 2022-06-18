@@ -117,6 +117,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Remesh\n" );
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
+    addOutputText( "Post Mesh\n" );
+    PostMesh();
+
     //addOutputText( "Triangle Quality\n");
     //string qual = CfdMeshMgr.GetQualString();
     //addOutputText( qual.c_str() );
@@ -761,17 +764,24 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
                 addOutputText( str, output_type );
             }
         }
-
-        m_SurfVec[ i ]->GetMesh()->LoadSimpFaces();
-        m_SurfVec[i]->GetMesh()->Clear();
-        Subtag( m_SurfVec[i] );
-        m_SurfVec[ i ]->GetMesh()->CondenseSimpFaces();
     }
 
     WakeMgr.StretchWakes();
 
     sprintf( str, "Total Num Tris = %d\n", total_num_tris );
     addOutputText( str, output_type );
+}
+
+void CfdMeshMgrSingleton::PostMesh()
+{
+    int nsurf = ( int )m_SurfVec.size();
+    for ( int i = 0 ; i < nsurf ; ++i )
+    {
+        m_SurfVec[ i ]->GetMesh()->LoadSimpFaces();
+        m_SurfVec[i]->GetMesh()->Clear();
+        Subtag( m_SurfVec[i] );
+        m_SurfVec[ i ]->GetMesh()->CondenseSimpFaces();
+    }
 }
 
 string CfdMeshMgrSingleton::GetQualString()
