@@ -359,6 +359,16 @@ bool Edge::ContainsNodes( Node* in0, Node* in1 )
     return false;
 }
 
+bool Edge::ContainsNode( Node* in )
+{
+    if ( in == n0 || in == n1 )
+    {
+        return true;
+    }
+
+    return false;
+}
+
 Face* Edge::OtherFace( Face* f )
 {
     if ( f == f0 )

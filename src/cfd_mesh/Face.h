@@ -124,7 +124,7 @@ public:
 
     bool SetFace( Face* f );
     bool ContainsNodes( Node* in0, Node* in1 );
-
+    bool ContainsNode( Node* in );
 
     double length()
     {
