@@ -626,6 +626,14 @@ Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge
     return fptr;
 }
 
+Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge* ee1, Edge* ee2, Edge* ee3 )
+{
+    Face* fptr = new Face( nn0, nn1, nn2, nn3, ee0, ee1, ee2, ee3 );
+    faceList.push_back( fptr );
+    fptr->list_ptr = --faceList.end();
+    return fptr;
+}
+
 void Mesh::RemoveFace( Face* fptr )
 {
     garbageFaceVec.push_back( fptr );
