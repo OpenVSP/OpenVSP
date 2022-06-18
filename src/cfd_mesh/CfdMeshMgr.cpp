@@ -117,6 +117,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Remesh\n" );
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
+    addOutputText( "ConvertToQuads\n" );
+    ConvertToQuads();
+
     addOutputText( "Post Mesh\n" );
     PostMesh();
 
@@ -781,6 +784,15 @@ void CfdMeshMgrSingleton::PostMesh()
         m_SurfVec[i]->GetMesh()->Clear();
         Subtag( m_SurfVec[i] );
         m_SurfVec[ i ]->GetMesh()->CondenseSimpFaces();
+    }
+}
+
+void CfdMeshMgrSingleton::ConvertToQuads()
+{
+    int nsurf = ( int )m_SurfVec.size();
+    for ( int i = 0 ; i < nsurf ; ++i )
+    {
+        // Do something here.
     }
 }
 

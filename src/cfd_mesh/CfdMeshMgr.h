@@ -174,6 +174,8 @@ public:
 
     virtual void PostMesh();
 
+    virtual void ConvertToQuads();
+
     virtual void InitMesh();
 
     virtual string GetQualString();
