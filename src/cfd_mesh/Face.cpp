@@ -879,27 +879,34 @@ double Face::Area()
     }
 }
 
-vec3d Face::ComputeCenterPnt( Surf* surfPtr )
+void Face::ComputeCenterPnt( Surf* surfPtr, vec3d &cen, vec2d &uwcen ) const
+{
+    if ( !n3 )
+    {
+        uwcen = ( n0->uw + n1->uw + n2->uw ) * ( 1.0 / 3.0 );
+        cen = ( n0->pnt + n1->pnt + n2->pnt ) * ( 1.0 / 3.0 );
+    }
+    else
+    {
+        uwcen = ( n0->uw + n1->uw + n2->uw + n3->uw ) * ( 1.0 / 4.0 );
+        cen = ( n0->pnt + n1->pnt + n2->pnt + n3->pnt ) * ( 1.0 / 4.0 );
+    }
+
+    uwcen = surfPtr->ClosestUW( cen, uwcen[0], uwcen[1] );
+    cen = surfPtr->CompPnt( uwcen[0], uwcen[1] );
+}
+
+vec3d Face::ComputeCenterPnt( Surf* surfPtr ) const
 {
     vec2d avg_uw;
     vec3d avg_p;
 
-    if ( !n3 )
-    {
-        avg_uw = ( n0->uw + n1->uw + n2->uw ) * ( 1.0 / 3.0 );
-        avg_p = ( n0->pnt + n1->pnt + n2->pnt ) * ( 1.0 / 3.0 );
-    }
-    else
-    {
-        avg_uw = ( n0->uw + n1->uw + n2->uw + n3->uw ) * ( 1.0 / 4.0 );
-        avg_p = ( n0->pnt + n1->pnt + n2->pnt + n3->pnt ) * ( 1.0 / 4.0 );
-    }
+    ComputeCenterPnt( surfPtr, avg_p, avg_uw );
 
-    vec2d uw = surfPtr->ClosestUW( avg_p, avg_uw[0], avg_uw[1] );
-    return surfPtr->CompPnt( uw[0], uw[1] );
+    return avg_p;
 }
 
-vec3d Face::ComputeCenterNormal( Surf* surfPtr )
+vec3d Face::ComputeCenterNormal( Surf* surfPtr ) const
 {
     vec2d avg_uw;
 

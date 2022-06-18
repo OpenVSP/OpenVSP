@@ -186,8 +186,9 @@ public:
 
     bool CorrectOrder( Node* n0, Node* n1 );
 
-    vec3d ComputeCenterPnt( Surf* surfPtr );
-    vec3d ComputeCenterNormal( Surf* surfPtr );
+    void ComputeCenterPnt( Surf* surfPtr, vec3d &cen, vec2d &uwcen ) const;
+    vec3d ComputeCenterPnt( Surf* surfPtr ) const;
+    vec3d ComputeCenterNormal( Surf* surfPtr ) const;
 
     void LoadAdjFaces( int num_levels, set< Face* > & faceSet );
 
