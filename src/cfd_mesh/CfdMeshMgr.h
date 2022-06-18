@@ -171,7 +171,6 @@ public:
 
     enum { QUIET_OUTPUT, VOCAL_OUTPUT, };
     virtual void Remesh( int output_type );
-    virtual void RemeshSingleComp( int comp_id, int output_type );
 
     virtual void InitMesh();
 
