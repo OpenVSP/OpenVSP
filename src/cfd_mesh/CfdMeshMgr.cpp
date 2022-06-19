@@ -792,7 +792,7 @@ void CfdMeshMgrSingleton::ConvertToQuads()
     int nsurf = ( int )m_SurfVec.size();
     for ( int i = 0 ; i < nsurf ; ++i )
     {
-        // Do something here.
+        m_SurfVec[i]->GetMesh()->ConvertToQuads();
     }
 }
 
