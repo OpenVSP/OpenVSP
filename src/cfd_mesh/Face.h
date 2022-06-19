@@ -37,14 +37,12 @@ public:
     Node()
     {
         fixed = m_DeleteMeFlag = false;
-        id = 0;
     }
     Node( const vec3d& p, const vec2d& uw_in )
     {
         pnt = p;
         uw = uw_in;
         fixed = m_DeleteMeFlag = false;
-        id = 0;
     }
     virtual ~Node();
 
@@ -55,7 +53,6 @@ public:
     vec3d pnt;              // Position
     vec2d uw;               // Parametric
     bool fixed;             // Dont move or delete
-    int  id;
 
     vector< Edge* >  edgeVec;       // All Edges Which Use This Node
 
