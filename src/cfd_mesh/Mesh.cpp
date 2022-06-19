@@ -2292,6 +2292,156 @@ void Mesh::WriteSTL( FILE* file_id )
     }
 }
 
+// Edge split data structure.
+class splitData
+{
+public:
+    splitData() : ns{nullptr}, es0{nullptr}, es1{nullptr} {}
+    splitData( Node* ns, Edge* es0, Edge* es1 ) : ns{ns}, es0{es0}, es1{es1} {}
+
+    Node* ns;
+    Edge* es0;
+    Edge* es1;
+};
+
+void Mesh::ConvertToQuads()
+{
+    // Store copies of original edge and face lists.
+    // Working from a copy allows us to traverse the list as we add edges/faces without traversing the new edges/faces.
+    list < Edge* > origEdgeList = edgeList;
+    list < Face* > origFaceList = faceList;
+
+    // Map containing information about each edge split -- keyed by the edge.  This allows us to recall this information
+    // each time the edge is used.
+    map< Edge*, splitData > splitEdgeMap;
+
+    // Loop over all edges.
+    for ( list< Edge* >::iterator e = origEdgeList.begin() ; e != origEdgeList.end(); ++e )
+    {
+        Node* n0 = ( *e )->n0;
+        Node* n1 = ( *e )->n1;
+
+        // Approximate edge midpoint.
+        // Should perhaps be weighted by relative target edge lengths.
+        vec3d psplit  = ( n0->pnt + n1->pnt ) * 0.5;
+        vec2d uwsplit = ( n0->uw  + n1->uw ) * 0.5;
+
+        // Project approximate midpoint to surface, determine true UW and XYZ.
+        vec2d uws = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
+        vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
+
+        // Create midpoint node.
+        Node* ns  = AddNode( ps, uws );
+
+        // Node will be fixed if both endpoints are fixed (i.e. edge is a border edge).
+        ns->fixed = n0->fixed && n1->fixed;
+
+        // Create split edges.
+        Edge* es0 = AddEdge( n0, ns );
+        Edge* es1 = AddEdge( ns, n1 );
+
+        // Copy parent properties to split edges.
+        es0->ridge = ( *e )->ridge;
+        es1->ridge = ( *e )->ridge;
+        es0->border = ( *e )->border;
+        es1->border = ( *e )->border;
+
+        // Add split data to map.
+        splitEdgeMap[ *e ] = splitData( ns, es0, es1 );
+
+        // Compute edge length for new node.
+        ComputeTargetEdgeLength( ns );
+        LimitTargetEdgeLength( ns );
+    }
+
+    // Loop over all faces
+    for ( list< Face* >::iterator f = origFaceList.begin() ; f != origFaceList.end(); ++f )
+    {
+        // Skip any quads - should be impossible.
+        if( ( *f )->IsQuad() )
+        {
+            continue;
+        }
+
+        // Construct triangle center point and add node.  Center point could possibly be weighted based on target
+        // edge lengths.
+        vec3d pcen;
+        vec2d uwcen;
+        ( *f )->ComputeCenterPnt( m_Surf, pcen, uwcen );
+        Node* ncen  = AddNode( pcen, uwcen );
+
+        // Get existing triangle nodes.  These are in cw order.
+        Node* n0 = ( *f )->n0;
+        Node* n1 = ( *f )->n1;
+        Node* n2 = ( *f )->n2;
+
+        // Get existing triangle edges.  Lookup edges by nodes because they aren't stored in any particular order.
+        Edge* e0 = ( *f )->FindEdge( n0, n1 );
+        Edge* e1 = ( *f )->FindEdge( n1, n2 );
+        Edge* e2 = ( *f )->FindEdge( n2, n0 );
+
+        // Get split data for existing edges.
+        splitData sd0 = splitEdgeMap[ e0 ];
+        splitData sd1 = splitEdgeMap[ e1 ];
+        splitData sd2 = splitEdgeMap[ e2 ];
+
+        // Construct edges from edge split to tri center.
+        Edge* em0 = AddEdge( sd0.ns, ncen );
+        Edge* em1 = AddEdge( sd1.ns, ncen );
+        Edge* em2 = AddEdge( sd2.ns, ncen );
+
+        // Determine which half of split edge is used with node 0
+        Edge *ea, *eb;
+        ea = sd0.es0;
+        if ( !ea->ContainsNode( n0 ) )
+            ea = sd0.es1;
+
+        eb = sd2.es0;
+        if ( !eb->ContainsNode( n0 ) )
+            eb = sd2.es1;
+
+        // Add quad starting at node 0
+        AddFace( n0, sd0.ns, ncen, sd2.ns, ea, em0, em2, eb );
+
+        // Determine which half of split edge is used with node 1
+        ea = sd1.es0;
+        if ( !ea->ContainsNode( n1 ) )
+            ea = sd1.es1;
+
+        eb = sd0.es0;
+        if ( !eb->ContainsNode( n1 ) )
+            eb = sd0.es1;
+
+        // Add quad starting at node 1
+        AddFace( n1, sd1.ns, ncen, sd0.ns, ea, em1, em0, eb );
+
+        // Determine which half of split edge is used with node 2
+        ea = sd2.es0;
+        if ( !ea->ContainsNode( n2 ) )
+            ea = sd2.es1;
+
+        eb = sd1.es0;
+        if ( !eb->ContainsNode( n2 ) )
+            eb = sd1.es1;
+
+        // Add quad starting at node 2
+        AddFace( n2, sd2.ns, ncen, sd1.ns, ea, em2, em1, eb );
+    }
+
+    // Clean up edges and tris.
+    for ( list< Edge* >::iterator e = origEdgeList.begin() ; e != origEdgeList.end(); ++e )
+    {
+        RemoveEdge( *e );
+    }
+
+    for ( list< Face* >::iterator f = origFaceList.begin() ; f != origFaceList.end(); ++f )
+    {
+        RemoveFace( *f );
+    }
+
+    DumpGarbage();
+}
+
 /*
 void Mesh::Draw()
 {

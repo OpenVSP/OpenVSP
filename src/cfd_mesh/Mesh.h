@@ -110,6 +110,8 @@ public:
     void WriteSTL( const char* file_name );
     void WriteSTL( FILE* fp );
 
+    void ConvertToQuads();
+
     void SetSurfPtr( Surf* sptr )
     {
         m_Surf = sptr;
