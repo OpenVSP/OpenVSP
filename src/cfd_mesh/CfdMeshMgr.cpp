@@ -749,7 +749,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
             num_rev_removed = m_SurfVec[ i ]->GetMesh()->RemoveRevFaces();
 
 
-            num_tris += m_SurfVec[ i ]->GetMesh()->GetFaceList().size();
+            num_tris += m_SurfVec[ i ]->GetMesh()->GetNumFaces();
 
             sprintf( str, "Surf %d/%d Iter %d/10 Num Tris = %d\n", i + 1, nsurf, iter + 1, num_tris );
             if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )

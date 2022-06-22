@@ -134,7 +134,12 @@ public:
 
     void ColorTris();
 
-    list <Face*> GetFaceList()
+    int GetNumFaces()
+    {
+        return faceList.size();
+    }
+
+    const list <Face*> & GetFaceList()
     {
         return faceList;
     }
