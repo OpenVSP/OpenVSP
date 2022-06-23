@@ -59,6 +59,8 @@ public:
     void GetConnectNodes( vector< Node* > & cnVec );
     void GetConnectFaces( vector< Face* > & cfVec );
 
+    Edge *FindEdge( Node* n );
+
     void AddConnectEdge( Edge* e );
     void RemoveConnectEdge( Edge* e );
     void LaplacianSmooth();

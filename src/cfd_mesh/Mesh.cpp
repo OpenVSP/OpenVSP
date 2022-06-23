@@ -1716,19 +1716,19 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
             cnt += 3;
 
-            Edge* e0 = FindEdge( n0, n1 );
+            Edge* e0 = n0->FindEdge( n1 );
             if ( !e0 )
             {
                 e0 = AddEdge( n0, n1 );
             }
 
-            Edge* e1 = FindEdge( n1, n2 );
+            Edge* e1 = n1->FindEdge( n2 );
             if ( !e1 )
             {
                 e1 = AddEdge( n1, n2 );
             }
 
-            Edge* e2 = FindEdge( n2, n0 );
+            Edge* e2 = n2->FindEdge( n0 );
             if ( !e2 )
             {
                 e2 = AddEdge( n2, n0 );

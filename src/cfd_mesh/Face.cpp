@@ -74,6 +74,21 @@ void Node::GetConnectFaces( vector< Face* > & cfVec )
 
 }
 
+Edge * Node::FindEdge( Node* n )
+{
+    for ( int k = 0; k < (int)edgeVec.size(); k++ )
+    {
+        Node* ne0 = edgeVec[k]->n0;
+        Node* ne1 = edgeVec[k]->n1;
+
+        if ( ( ne0 == this && ne1 == n ) || ( ne0 == n && ne1 == this ) )
+        {
+            return edgeVec[k];
+        }
+    }
+    return NULL;
+}
+
 bool Node::AllInteriorConnectedFaces()
 {
     vector< Face* > fvec;
