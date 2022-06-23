@@ -628,14 +628,16 @@ void SCurve::SmoothTess()
 
 void SCurve::UWTess()
 {
+    int n = m_UTess.size();
     m_UWTess.clear();
+    m_UWTess.resize( n );
 
     vec3d uw;
-    for ( int i = 0 ; i < ( int )m_UTess.size() ; i++ )
+    for ( int i = 0 ; i < n ; i++ )
     {
         double u = m_UTess[i];
         uw = m_UWCrv.CompPnt01( u );
-        m_UWTess.push_back( uw );
+        m_UWTess[i] = uw;
     }
 }
 
