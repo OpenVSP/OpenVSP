@@ -120,6 +120,7 @@ public:
     void ReplaceNode( Node* curr_node, Node* replace_node );
 
     bool SetFace( Face* f );
+    void RemoveFace( Face* f );
     bool ContainsNodes( Node* in0, Node* in1 );
     bool ContainsNode( Node* in );
 

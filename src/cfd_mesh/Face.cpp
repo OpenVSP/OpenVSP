@@ -345,6 +345,18 @@ bool Edge::SetFace( Face* f )
     return true;
 }
 
+void Edge::RemoveFace( Face* f )
+{
+    if ( f0 == f )
+    {
+        f0 = NULL;
+    }
+    else
+    {
+        f1 = NULL;
+    }
+}
+
 bool Edge::ContainsNodes( Node* in0, Node* in1 )
 {
     if ( in0 == n0 && in1 == n1 )

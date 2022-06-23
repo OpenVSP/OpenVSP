@@ -623,6 +623,11 @@ Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge
     Face* fptr = new Face( nn0, nn1, nn2, ee0, ee1, ee2 );
     faceList.push_back( fptr );
     fptr->list_ptr = --faceList.end();
+
+    ee0->SetFace( fptr );
+    ee1->SetFace( fptr );
+    ee2->SetFace( fptr );
+
     return fptr;
 }
 
@@ -631,6 +636,12 @@ Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge
     Face* fptr = new Face( nn0, nn1, nn2, nn3, ee0, ee1, ee2, ee3 );
     faceList.push_back( fptr );
     fptr->list_ptr = --faceList.end();
+
+    ee0->SetFace( fptr );
+    ee1->SetFace( fptr );
+    ee2->SetFace( fptr );
+    ee3->SetFace( fptr );
+
     return fptr;
 }
 
@@ -737,40 +748,11 @@ void Mesh::SplitEdge( Edge* edge )
         Edge* ea0 = fa->FindEdge( n0, na );
         Edge* ea1 = fa->FindEdge( na, n1 );
 
+        ea0->RemoveFace( fa );
+        ea1->RemoveFace( fa );
+
         Face* fa0 = AddFace( n0, ns, na, ea0, ea, es0 );
         Face* fa1 = AddFace( n1, na, ns, ea1, es1, ea );
-
-        ea->f0 = fa0;
-        ea->f1 = fa1;
-
-        if ( ea0->f0 == fa )
-        {
-            ea0->f0 = fa0;
-        }
-        else if ( ea0->f1 == fa )
-        {
-            ea0->f1 = fa0;
-        }
-        else
-        {
-            assert( 0 );
-        }
-
-        if ( ea1->f0 == fa )
-        {
-            ea1->f0 = fa1;
-        }
-        else if ( ea1->f1 == fa )
-        {
-            ea1->f1 = fa1;
-        }
-        else
-        {
-            assert( 0 );
-        }
-
-        es0->f0 = fa0;
-        es1->f0 = fa1;
 
         RemoveFace( fa );
     }
@@ -783,40 +765,11 @@ void Mesh::SplitEdge( Edge* edge )
         Edge* eb0 = fb->FindEdge( n0, nb );
         Edge* eb1 = fb->FindEdge( nb, n1 );
 
+        eb0->RemoveFace( fb );
+        eb1->RemoveFace( fb );
+
         Face* fb0 = AddFace( n0, nb, ns, es0, eb, eb0 );
         Face* fb1 = AddFace( n1, ns, nb, es1, eb1, eb );
-
-        eb->f0 = fb0;
-        eb->f1 = fb1;
-
-        if ( eb0->f0 == fb )
-        {
-            eb0->f0 = fb0;
-        }
-        else if ( eb0->f1 == fb )
-        {
-            eb0->f1 = fb0;
-        }
-        else
-        {
-            assert( 0 );
-        }
-
-        if ( eb1->f0 == fb )
-        {
-            eb1->f0 = fb1;
-        }
-        else if ( eb1->f1 == fb )
-        {
-            eb1->f1 = fb1;
-        }
-        else
-        {
-            assert( 0 );
-        }
-
-        es0->f1 = fb0;
-        es1->f1 = fb1;
 
         RemoveFace( fb );
     }
@@ -1782,46 +1735,6 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
             }
 
             Face* face = AddFace( n0, n1, n2, e0, e1, e2 );
-
-            if ( e0->f0 == NULL )
-            {
-                e0->f0 = face;
-            }
-            else if ( e0->f1 == NULL )
-            {
-                e0->f1 = face;
-            }
-            else
-            {
-                assert( 0 );
-            }
-
-            if ( e1->f0 == NULL )
-            {
-                e1->f0 = face;
-            }
-            else if ( e1->f1 == NULL )
-            {
-                e1->f1 = face;
-            }
-            else
-            {
-                assert( 0 );
-            }
-
-            if ( e2->f0 == NULL )
-            {
-                e2->f0 = face;
-            }
-            else if ( e2->f1 == NULL )
-            {
-                e2->f1 = face;
-            }
-            else
-            {
-                assert( 0 );
-            }
-
         }
 
         //==== Fix The Exterior Edges ====//
@@ -2170,45 +2083,6 @@ void Mesh::ReadSTL( const char* file_name )
             }
 
             Face* face = AddFace( n0, n1, n2, e0, e1, e2 );
-
-            if      ( e0->f0 == NULL )
-            {
-                e0->f0 = face;
-            }
-            else if ( e0->f1 == NULL )
-            {
-                e0->f1 = face;
-            }
-            else
-            {
-                assert( 0 );
-            }
-
-            if      ( e1->f0 == NULL )
-            {
-                e1->f0 = face;
-            }
-            else if ( e1->f1 == NULL )
-            {
-                e1->f1 = face;
-            }
-            else
-            {
-                assert( 0 );
-            }
-
-            if      ( e2->f0 == NULL )
-            {
-                e2->f0 = face;
-            }
-            else if ( e2->f1 == NULL )
-            {
-                e2->f1 = face;
-            }
-            else
-            {
-                assert( 0 );
-            }
         }
     }
     if ( file_id )
