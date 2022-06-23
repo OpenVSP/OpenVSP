@@ -406,10 +406,6 @@ Face* Edge::OtherFace( Face* f )
     {
         return f0;
     }
-    else
-    {
-        assert( 0 );
-    }
 
     return NULL;
 }
