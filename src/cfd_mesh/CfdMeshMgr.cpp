@@ -120,6 +120,10 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "ConvertToQuads\n" );
     ConvertToQuads();
 
+    addOutputText( "ConnectBorderEdges\n" );
+    ConnectBorderEdges( false );        // No Wakes
+    ConnectBorderEdges( true );         // Only Wakes
+
     addOutputText( "Post Mesh\n" );
     PostMesh();
 
@@ -2507,12 +2511,6 @@ void CfdMeshMgrSingleton::InitMesh( )
     }
     RemoveTrimTris();
 
-    if ( PrintProgress )
-    {
-        addOutputText( "ConnectBorderEdges\n" );
-    }
-    ConnectBorderEdges( false );        // No Wakes
-    ConnectBorderEdges( true );         // Only Wakes
 }
 
 void CfdMeshMgrSingleton::TessellateChains()
