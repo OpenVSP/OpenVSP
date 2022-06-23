@@ -1481,7 +1481,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     {
         fprintf( fp, "%.19e", sorted[i].x() );
 
-        if ( i < num_edges - 1 )
+        if ( i < sorted.size() - 1 )
         {
             fprintf( fp, ";\n" );
         }
@@ -1495,7 +1495,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     {
         fprintf( fp, "%.19e", sorted[i].y() );
 
-        if ( i < num_edges - 1 )
+        if ( i < sorted.size() - 1 )
         {
             fprintf( fp, ";\n" );
         }
