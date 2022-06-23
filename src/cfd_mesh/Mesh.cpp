@@ -2187,20 +2187,32 @@ void Mesh::ConvertToQuads()
         Node* n0 = ( *e )->n0;
         Node* n1 = ( *e )->n1;
 
-        // Approximate edge midpoint.
-        // Should perhaps be weighted by relative target edge lengths.
-        vec3d psplit  = ( n0->pnt + n1->pnt ) * 0.5;
-        vec2d uwsplit = ( n0->uw  + n1->uw ) * 0.5;
+        Node* ns = NULL;
 
-        // Project approximate midpoint to surface, determine true UW and XYZ.
-        vec2d uws = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
-        vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
+        std::map< Edge *, Node * >::iterator it;
+        it = m_BorderEdgeSplitNode.find( *e );
 
-        // Create midpoint node.
-        Node* ns  = AddNode( ps, uws );
+        if( it != m_BorderEdgeSplitNode.end() )
+        {
+            ns = it->second;
+        }
+        else
+        {
+            // Approximate edge midpoint.
+            // Should perhaps be weighted by relative target edge lengths.
+            vec3d psplit  = ( n0->pnt + n1->pnt ) * 0.5;
+            vec2d uwsplit = ( n0->uw  + n1->uw ) * 0.5;
 
-        // Node will be fixed if both endpoints are fixed (i.e. edge is a border edge).
-        ns->fixed = n0->fixed && n1->fixed;
+            // Project approximate midpoint to surface, determine true UW and XYZ.
+            vec2d uws = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
+            vec3d ps  = m_Surf->CompPnt( uws.x(), uws.y() );
+
+            // Create midpoint node.
+            ns  = AddNode( ps, uws );
+
+            // Node will be fixed if both endpoints are fixed (i.e. edge is a border edge).
+            ns->fixed = n0->fixed && n1->fixed;
+        }
 
         // Create split edges.
         Edge* es0 = AddEdge( n0, ns );
