@@ -852,7 +852,7 @@ void Surf::InitMesh( vector< ISegChain* > chains, SurfaceIntersectionSingleton *
     //==== Store Only One Instance of each IPnt ====//
     set< IPnt* > ipntSet;
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
-        for ( int j = 0 ; j < ( int )chains[i]->m_TessVec.size() ; j++ )
+        for ( int j = 0 ; j < ( int )chains[i]->m_TessVec.size() ; j += 2 )
         {
             ipntSet.insert( chains[i]->m_TessVec[j] );
         }
@@ -891,12 +891,17 @@ void Surf::InitMesh( vector< ISegChain* > chains, SurfaceIntersectionSingleton *
     MeshSeg seg;
     vector< MeshSeg > isegVec;
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
-        for ( int j = 1 ; j < ( int )chains[i]->m_TessVec.size() ; j++ )
+    {
+        int n = chains[i]->m_TessVec.size();
+        int nhalf = 0.5 * ( n - 1 )  + 1;
+        for ( int j = 0 ; j < nhalf - 1; j++ )
         {
-            seg.m_Index[0] = chains[i]->m_TessVec[j - 1]->m_Index;
-            seg.m_Index[1] = chains[i]->m_TessVec[j]->m_Index;
+            seg.m_Index[0] = chains[i]->m_TessVec[2 * j]->m_Index;
+            seg.m_Index[1] = chains[i]->m_TessVec[2 * (j + 1)]->m_Index;
+            seg.m_UWmid = chains[i]->m_TessVec[2 * j + 1]->GetPuw( this )->m_UW;
             isegVec.push_back( seg );
         }
+    }
 
 //  ////jrg Check For Duplicate Segs
 //  vector< MeshSeg > dupMeshSegVec;
