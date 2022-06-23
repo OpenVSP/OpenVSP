@@ -1206,7 +1206,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     double small_edge = 1.0e12;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
+        vector < SimpFace >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpFaceVec();
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         for ( int t = 0 ; t <  ( int )sTriVec.size() ; t++ )
         {
