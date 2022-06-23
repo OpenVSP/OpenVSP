@@ -1743,17 +1743,15 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
             Node* n0 = nodeVec[segs_indexes[j].m_Index[0]];
             Node* n1 = nodeVec[segs_indexes[j].m_Index[1]];
 
-            for ( int k = 0; k < (int)n0->edgeVec.size(); k++ )
-            {
-                Node* ne0 = n0->edgeVec[k]->n0;
-                Node* ne1 = n0->edgeVec[k]->n1;
+            Edge *e = n0->FindEdge( n1 );
 
-                if ( ( ne0 == n0 && ne1 == n1 ) || ( ne0 == n1 && ne1 == n0 ) )
-                {
-                    n0->edgeVec[k]->border = true;
-                    n0->fixed = true;
-                    n1->fixed = true;
-                }
+            if ( e )
+            {
+                e->border = true;
+
+                n0->fixed = true;
+                n1->fixed = true;
+
             }
         }
     }
