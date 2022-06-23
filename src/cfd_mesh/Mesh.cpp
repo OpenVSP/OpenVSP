@@ -1737,18 +1737,6 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
             Face* face = AddFace( n0, n1, n2, e0, e1, e2 );
         }
 
-        //==== Fix The Exterior Edges ====//
-        list< Edge* >::iterator e;
-        for ( e = edgeList.begin(); e != edgeList.end(); ++e )
-        {
-            if (( *e )->f0 == NULL || ( *e )->f1 == NULL )
-            {
-                //          (*e)->ridge = true;
-                ( *e )->border = true;
-                ( *e )->n0->fixed = true;
-                ( *e )->n1->fixed = true;
-            }
-        }
 
         for ( j = 0; j < (int)segs_indexes.size(); j++ )
         {
