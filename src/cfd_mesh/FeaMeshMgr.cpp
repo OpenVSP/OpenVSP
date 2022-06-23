@@ -382,6 +382,9 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Remesh\n" );
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
+    addOutputText( "ConvertToQuads\n" );
+    ConvertToQuads();
+
     addOutputText( "ConnectBorderEdges\n" );
     ConnectBorderEdges( false );        // No Wakes
     ConnectBorderEdges( true );         // Only Wakes
