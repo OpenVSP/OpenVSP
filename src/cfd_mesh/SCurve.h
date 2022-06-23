@@ -62,6 +62,7 @@ public:
     bool BisectFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction );
     void TessIntegrate( int direction, vector< double > &utess );
     void SmoothTess();
+    void DoubleTess();
     void UWTess();
     void SpreadDensity( SCurve* BCurve );
     void CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );

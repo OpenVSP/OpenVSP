@@ -665,11 +665,27 @@ void SCurve::ApplyESSurface( double u, double t )
     m_Surf->ApplyES( uw, t );
 }
 
+void SCurve::DoubleTess()
+{
+    int n = m_UTess.size();
+
+    vector< double > doubleUTess( 2 * ( n - 1 ) + 1 );
+
+    for( int i = 0; i < n - 1; i++ )
+    {
+        doubleUTess[ 2 * i ] = m_UTess[i];
+        doubleUTess[ 2 * i + 1 ] = 0.5 * ( m_UTess[ i + 1 ] + m_UTess[ i ] );
+    }
+    doubleUTess[ 2 * ( n - 1 ) ] = m_UTess[ n - 1 ];
+
+    m_UTess.swap( doubleUTess );
+}
 
 void SCurve::Tesselate()
 {
     TessIntegrate();
     SmoothTess();
+    DoubleTess();
     UWTess();
 }
 
