@@ -279,7 +279,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
     m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
 
-    m_AdvancedCaseSetupLayout.AddButton( m_EnableExperimentalFormat, "Use Experimental File Format" );
+    m_AdvancedCaseSetupLayout.AddButton( m_EnableAlternateFormat, "Use Alternate File Format" );
     m_AdvancedCaseSetupLayout.AddYGap();
 
     m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
@@ -1063,7 +1063,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             string file_ext = "*.csv";
             string message = "Select degen geom CSV output file.";
 
-            if ( VSPAEROMgr.m_ExperimentalInputFormatFlag() )
+            if ( VSPAEROMgr.m_AlternateInputFormatFlag() )
             {
                 file_type = vsp::VSPAERO_VSPGEOM_TYPE;
                 file_ext = "*.vspgeom";
@@ -1074,15 +1074,15 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_CompGeomFileButton )
         {
-            int file_type = vsp::VSPAERO_PANEL_TRI_TYPE;
-            string file_ext = "*.tri";
-            string message = "Select comp geom TRI output file.";
+            int file_type = vsp::VSPAERO_VSPGEOM_TYPE;
+            string file_ext = "*.vspgeom";
+            string message = "Select comp geom VSPGEOM output file.";
 
-            if ( VSPAEROMgr.m_ExperimentalInputFormatFlag() )
+            if ( VSPAEROMgr.m_AlternateInputFormatFlag() )
             {
-                file_type = vsp::VSPAERO_VSPGEOM_TYPE;
-                file_ext = "*.vspgeom";
-                message = "Select comp geom VSPGEOM output file.";
+                file_type = vsp::VSPAERO_PANEL_TRI_TYPE;
+                file_ext = "*.tri";
+                message = "Select comp geom TRI output file.";
             }
 
             veh->setExportFileName( file_type, m_ScreenMgr->GetSelectFileScreen()->FileChooser( message.c_str(), file_ext.c_str() ) );
@@ -1391,15 +1391,15 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
-    if ( VSPAEROMgr.m_ExperimentalInputFormatFlag.Get() )
+    if ( VSPAEROMgr.m_AlternateInputFormatFlag.Get() )
     {
         m_DegenFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
-        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
+        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE ) );
     }
     else
     {
         m_DegenFileName.Update( veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE ) );
-        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE ) );
+        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE ) );
     }
 
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
@@ -1408,7 +1408,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_KTCorrectionToggle.Update( VSPAEROMgr.m_KTCorrection.GetID() );
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
-    m_EnableExperimentalFormat.Update( VSPAEROMgr.m_ExperimentalInputFormatFlag.GetID() );
+    m_EnableAlternateFormat.Update( VSPAEROMgr.m_AlternateInputFormatFlag.GetID() );
 
     // Wake Options
     m_FixedWakeToggle.Update( VSPAEROMgr.m_FixedWakeFlag.GetID() );

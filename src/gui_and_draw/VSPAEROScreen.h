@@ -185,7 +185,7 @@ protected:
     ToggleButton m_BatchCalculationToggle;
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
-    ToggleButton m_EnableExperimentalFormat;
+    ToggleButton m_EnableAlternateFormat;
     TriggerButton m_LoadExistingResultsButton;
     Choice m_PreconditionChoice;
     ToggleButton m_KTCorrectionToggle;

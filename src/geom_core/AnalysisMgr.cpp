@@ -1251,7 +1251,7 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get() ) );
         m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get() ) );
         m_Inputs.Add( NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get() ) );
-        m_Inputs.Add( NameValData( "ExperimentalInputFormatFlag", VSPAEROMgr.m_ExperimentalInputFormatFlag.Get() ) );
+        m_Inputs.Add( NameValData( "AlternateInputFormatFlag", VSPAEROMgr.m_AlternateInputFormatFlag.Get() ) );
     }
     else
     {
@@ -1285,11 +1285,11 @@ string VSPAEROComputeGeometryAnalysis::Execute()
             VSPAEROMgr.m_Symmetry.Set( nvd->GetInt( 0 ) );
         }
 
-        bool experimentalFileOrig = VSPAEROMgr.m_ExperimentalInputFormatFlag.Get();
-        nvd = m_Inputs.FindPtr( "ExperimentalInputFormatFlag", 0 );
+        bool alternateFileOrig = VSPAEROMgr.m_AlternateInputFormatFlag.Get();
+        nvd = m_Inputs.FindPtr( "AlternateInputFormatFlag", 0 );
         if ( nvd )
         {
-            VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( nvd->GetInt( 0 ) );
+            VSPAEROMgr.m_AlternateInputFormatFlag.Set( nvd->GetInt( 0 ) );
         }
 
         //==== Execute Analysis ====//
@@ -1299,7 +1299,7 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
         VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
         VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
-        VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( experimentalFileOrig );
+        VSPAEROMgr.m_AlternateInputFormatFlag.Set( alternateFileOrig );
     }
     
     return resId;
@@ -1316,7 +1316,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         //Case Setup
         m_Inputs.Add( NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                      ) );
         m_Inputs.Add( NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()               ) );
-        m_Inputs.Add( NameValData( "ExperimentalInputFormatFlag",   VSPAEROMgr.m_ExperimentalInputFormatFlag.Get()  ) );
+        m_Inputs.Add( NameValData( "AlternateInputFormatFlag",      VSPAEROMgr.m_AlternateInputFormatFlag.Get()     ) );
         m_Inputs.Add( NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                         ) );
         m_Inputs.Add( NameValData( "FixedWakeFlag",                 VSPAEROMgr.m_FixedWakeFlag.Get()                ) );
         m_Inputs.Add( NameValData( "WakeNumIter",                   VSPAEROMgr.m_WakeNumIter.Get()                  ) );
@@ -1531,7 +1531,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_MachNpts.Set( 1 );                    // note: this is NOT an input
 
         //Case Setup
-        bool experimentalFlagOrig    = VSPAEROMgr.m_ExperimentalInputFormatFlag.Get();
+        bool alternateFlagOrig       = VSPAEROMgr.m_AlternateInputFormatFlag.Get();
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
         bool fixedWakeFlagOrig       = VSPAEROMgr.m_FixedWakeFlag.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
@@ -1551,10 +1551,10 @@ string VSPAEROSinglePointAnalysis::Execute()
         double reCrefEndOrig         = VSPAEROMgr.m_ReCrefEnd.Get();
         int reCrefNptsOrig           = VSPAEROMgr.m_ReCrefNpts.Get();
 
-        nvd = m_Inputs.FindPtr( "ExperimentalInputFormatFlag" );
+        nvd = m_Inputs.FindPtr( "AlternateInputFormatFlag" );
         if ( nvd )
         {
-            VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( nvd->GetInt( 0 ) );
+            VSPAEROMgr.m_AlternateInputFormatFlag.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "NCPU", 0 );
         if ( nvd )
@@ -1804,7 +1804,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_MachNpts.Set(machNptsOrig);        // note this is NOT an input
 
         //    Case Setup
-        VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( experimentalFlagOrig );
+        VSPAEROMgr.m_AlternateInputFormatFlag.Set( alternateFlagOrig );
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
@@ -1862,7 +1862,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         //Case Setup
         m_Inputs.Add( NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        ) );
         m_Inputs.Add( NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()                 ) );
-        m_Inputs.Add( NameValData( "ExperimentalInputFormatFlag",   VSPAEROMgr.m_ExperimentalInputFormatFlag.Get()    ) );
+        m_Inputs.Add( NameValData( "AlternateInputFormatFlag",   VSPAEROMgr.m_AlternateInputFormatFlag.Get()          ) );
         m_Inputs.Add( NameValData( "NCPU",                          VSPAEROMgr.m_NCPU.Get()                           ) );
         m_Inputs.Add( NameValData( "FixedWakeFlag",                 VSPAEROMgr.m_FixedWakeFlag.Get()                  ) );
         m_Inputs.Add( NameValData( "WakeNumIter",                   VSPAEROMgr.m_WakeNumIter.Get()                    ) );
@@ -2115,7 +2115,7 @@ string VSPAEROSweepAnalysis::Execute()
         //Case Setup
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
         bool fixedWakeFlagOrig       = VSPAEROMgr.m_FixedWakeFlag.Get();
-        bool experimentalFlagOrig    = VSPAEROMgr.m_ExperimentalInputFormatFlag.Get();
+        bool alternateFlagOrig       = VSPAEROMgr.m_AlternateInputFormatFlag.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
         int numWakeNodesOrig         = VSPAEROMgr.m_NumWakeNodes.Get();
         int stabilityTypeOrig        = VSPAEROMgr.m_StabilityType.Get();
@@ -2143,10 +2143,10 @@ string VSPAEROSweepAnalysis::Execute()
         {
             VSPAEROMgr.m_FixedWakeFlag.Set( nvd->GetInt( 0 ) );
         }
-        nvd = m_Inputs.FindPtr( "ExperimentalInputFormatFlag", 0 );
+        nvd = m_Inputs.FindPtr( "AlternateInputFormatFlag", 0 );
         if ( nvd )
         {
-            VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( nvd->GetInt( 0 ) );
+            VSPAEROMgr.m_AlternateInputFormatFlag.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
         if ( nvd )
@@ -2391,7 +2391,7 @@ string VSPAEROSweepAnalysis::Execute()
         //    Case Setup
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
-        VSPAEROMgr.m_ExperimentalInputFormatFlag.Set( experimentalFlagOrig );
+        VSPAEROMgr.m_AlternateInputFormatFlag.Set( alternateFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
         VSPAEROMgr.m_StabilityType.Set( stabilityTypeOrig );
         VSPAEROMgr.m_Precondition.Set( preconditionOrig );

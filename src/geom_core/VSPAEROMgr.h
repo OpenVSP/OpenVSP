@@ -404,7 +404,7 @@ public:
     BoolParm m_KTCorrection;
     BoolParm m_Symmetry;
     BoolParm m_Write2DFEMFlag;
-    BoolParm m_ExperimentalInputFormatFlag;
+    BoolParm m_AlternateInputFormatFlag;
     IntParm m_ClMaxToggle;
     Parm m_ClMax;
     BoolParm m_MaxTurnToggle;
