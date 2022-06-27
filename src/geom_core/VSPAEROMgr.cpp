@@ -2542,13 +2542,13 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
         //READ wake iteration table
         /* Example wake iteration table
-        Iter      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS
-        1   0.00000   1.00000   0.00000   0.03329   0.00364   0.00009   0.00373  -0.00000   8.93773 395.42033  -0.00049  -0.00000   0.03329  -0.00000  -0.09836  -0.00000   0.00000
-        2   0.00000   1.00000   0.00000   0.03329   0.00364   0.00009   0.00373  -0.00000   8.93494 394.87228  -0.00049  -0.00000   0.03328  -0.00000  -0.09834  -0.00000   0.00000
+  Iter      Mach       AoA      Beta       CL         CDo       CDi      CDtot     CDt     CDtot_t      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz      T/QS
+        1   0.00100  10.00000   0.00000   0.76736   0.01024   0.02568   0.03592   0.02535   0.03559   0.00006  21.36474   1.01383  -0.10796   0.00006   0.76016   0.00228  -0.87399   0.00019   0.00000
+        2   0.00100  10.00000   0.00000   0.77200   0.01029   0.02600   0.03628   0.02566   0.03595   0.00001  21.27622   1.01353  -0.10846   0.00001   0.76479   0.00005  -0.88307   0.00001   0.00000
         ...
         */
-        int wake_iter_table_columns = 19;
-        int num_unsteady_pqr_col = 20;
+        int wake_iter_table_columns = 20;
+        int num_unsteady_pqr_col = 21;
         bool unsteady_flag = false;
         bool unsteady_pqr = false;
 
@@ -2576,6 +2576,8 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
             std::vector<double> CDo;
             std::vector<double> CDi;
             std::vector<double> CDtot;
+            std::vector<double> CDt;
+            std::vector<double> CDtott;
             std::vector<double> CS;
             std::vector<double> LoD;
             std::vector<double> E;
@@ -2585,48 +2587,49 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
             std::vector<double> CMx;
             std::vector<double> CMy;
             std::vector<double> CMz;
-            std::vector<double> CDtrefftz;
             std::vector<double> ToQS;
             std::vector<double> UnstdAng;
 
             while ( data_string_array.size() >= wake_iter_table_columns )
             {
+                int icol = 0;
                 if ( unsteady_flag )
                 {
-                    time.push_back( std::stod( data_string_array[0] ) );
+                    time.push_back( std::stod( data_string_array[icol] ) ); icol++;
                 }
                 else
                 {
-                    i.push_back( std::stoi( data_string_array[0] ) );
+                    i.push_back( std::stoi( data_string_array[icol] ) ); icol++;
                 }
 
-                Mach.push_back(     std::stod( data_string_array[1] ) );
-                Alpha.push_back(    std::stod( data_string_array[2] ) );
-                Beta.push_back(     std::stod( data_string_array[3] ) );
+                Mach.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                Alpha.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                Beta.push_back(     std::stod( data_string_array[icol] ) ); icol++;
 
-                CL.push_back(       std::stod( data_string_array[4] ) );
-                CDo.push_back(      std::stod( data_string_array[5] ) );
-                CDi.push_back(      std::stod( data_string_array[6] ) );
-                CDtot.push_back(    std::stod( data_string_array[7] ) );
-                CS.push_back(       std::stod( data_string_array[8] ) );
+                CL.push_back(       std::stod( data_string_array[icol] ) ); icol++;
+                CDo.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CDi.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CDtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                CDt.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CDtott.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                CS.push_back(       std::stod( data_string_array[icol] ) ); icol++;
 
-                LoD.push_back(      std::stod( data_string_array[9] ) );
-                E.push_back(        std::stod( data_string_array[10] ) );
+                LoD.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                E.push_back(        std::stod( data_string_array[icol] ) ); icol++;
 
-                CFx.push_back(      std::stod( data_string_array[11] ) );
-                CFy.push_back(      std::stod( data_string_array[12] ) );
-                CFz.push_back(      std::stod( data_string_array[13] ) );
+                CFx.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CFy.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CFz.push_back(      std::stod( data_string_array[icol] ) ); icol++;
 
-                CMx.push_back(      std::stod( data_string_array[14] ) );
-                CMy.push_back(      std::stod( data_string_array[15] ) );
-                CMz.push_back(      std::stod( data_string_array[16] ) );
+                CMx.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CMy.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CMz.push_back(      std::stod( data_string_array[icol] ) ); icol++;
 
-                CDtrefftz.push_back( std::stod( data_string_array[17] ) );
-                ToQS.push_back(      std::stod( data_string_array[18] ) );
+                ToQS.push_back(      std::stod( data_string_array[icol] ) ); icol++;
 
                 if ( unsteady_pqr ) // Additional columns for pqr analysis
                 {
-                    UnstdAng.push_back( std::stod( data_string_array[19] ) );
+                    UnstdAng.push_back( std::stod( data_string_array[icol] ) ); icol++;
                 }
 
                 data_string_array = ReadDelimLine( fp, seps );
@@ -2650,6 +2653,8 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 res->Add( NameValData( "CDo", CDo ) );
                 res->Add( NameValData( "CDi", CDi ) );
                 res->Add( NameValData( "CDtot", CDtot ) );
+                res->Add( NameValData( "CDt", CDt ) );
+                res->Add( NameValData( "CDtott", CDtott ) );
                 res->Add( NameValData( "CS", CS ) );
                 res->Add( NameValData( "L/D", LoD ) );
                 res->Add( NameValData( "E", E ) );
@@ -2660,7 +2665,6 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 res->Add( NameValData( "CMy", CMy ) );
                 res->Add( NameValData( "CMz", CMz ) );
                 res->Add( NameValData( "T/QS", ToQS ) );
-                res->Add( NameValData( "CDtrefftz", CDtrefftz ) );
 
                 if ( unsteady_pqr )
                 {
@@ -2698,7 +2702,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
     std::vector<string> table_column_names;
     std::vector<string> data_string_array;
 
-    int num_polar_col = 21; // number of columns in the file
+    int num_polar_col = 23; // number of columns in the file
 
     double tol = 1e-8; // tolerance for comparing values to account for machine precision errors
     int num_history_res = ResultsMgr.GetNumResults( "VSPAERO_History" );
@@ -2727,6 +2731,8 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                     std::vector<double> CDo;
                     std::vector<double> CDi;
                     std::vector<double> CDtot;
+                    std::vector<double> CDt;
+                    std::vector<double> CDtott;
                     std::vector<double> CS;
                     std::vector<double> L_D;
                     std::vector<double> E;
@@ -2743,27 +2749,30 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
 
                     while ( num_polar_col == data_string_array.size() )
                     {
-                        Beta.push_back( std::stod( data_string_array[0] ) );
-                        Mach.push_back( std::stod( data_string_array[1] ) );
-                        Alpha.push_back( std::stod( data_string_array[2] ) );
-                        Re_1e6.push_back( std::stod( data_string_array[3] ) );
-                        CL.push_back( std::stod( data_string_array[4] ) );
-                        CDo.push_back( std::stod( data_string_array[5] ) );
-                        CDi.push_back( std::stod( data_string_array[6] ) );
-                        CDtot.push_back( std::stod( data_string_array[7] ) );
-                        CS.push_back( std::stod( data_string_array[8] ) );
-                        L_D.push_back( std::stod( data_string_array[9] ) );
-                        E.push_back( std::stod( data_string_array[10] ) );
-                        CFx.push_back( std::stod( data_string_array[11] ) );
-                        CFy.push_back( std::stod( data_string_array[12] ) );
-                        CFz.push_back( std::stod( data_string_array[13] ) );
-                        CMx.push_back( std::stod( data_string_array[14] ) );
-                        CMy.push_back( std::stod( data_string_array[15] ) );
-                        CMz.push_back( std::stod( data_string_array[16] ) );
-                        CMl.push_back( std::stod( data_string_array[17] ) );
-                        CMm.push_back( std::stod( data_string_array[18] ) );
-                        CMn.push_back( std::stod( data_string_array[19] ) );
-                        Fopt.push_back( std::stod( data_string_array[20] ) );
+                        int icol = 0;
+                        Beta.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                        Mach.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                        Alpha.push_back(  std::stod( data_string_array[icol] ) ); icol++;
+                        Re_1e6.push_back( std::stod( data_string_array[icol] ) ); icol++;
+                        CL.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        CDo.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CDi.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CDtot.push_back(  std::stod( data_string_array[icol] ) ); icol++;
+                        CDt.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CDtott.push_back( std::stod( data_string_array[icol] ) ); icol++;
+                        CS.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                        L_D.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        E.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                        CFx.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFy.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CFz.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMx.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMy.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMz.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMl.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMm.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        CMn.push_back(    std::stod( data_string_array[icol] ) ); icol++;
+                        Fopt.push_back(   std::stod( data_string_array[icol] ) ); icol++;
 
                         if ( ( abs( ( 1e6 * Re_1e6.back() ) - recref ) > tol ) && num_history_res > 0 )
                         {
@@ -2881,6 +2890,8 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                     res->Add( NameValData( "CDo", CDo ) );
                     res->Add( NameValData( "CDi", CDi ) );
                     res->Add( NameValData( "CDtot", CDtot ) );
+                    res->Add( NameValData( "CDt", CDt ) );
+                    res->Add( NameValData( "CDtott", CDtott ) );
                     res->Add( NameValData( "CS", CS ) );
                     res->Add( NameValData( "L_D", L_D ) );
                     res->Add( NameValData( "E", E ) );
