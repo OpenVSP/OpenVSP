@@ -1,0 +1,7 @@
+do:
+
+g++ *.C -o adb2loads
+
+to compile
+
+

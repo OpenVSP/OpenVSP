@@ -1,0 +1,36 @@
+# cygwin options
+
+include Makefile.COMMON
+#-march=native
+#VSPAERO_OPT =  'CCFLAGS = -O2 -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-loop-vectorize -ftree-loop-distribute-patterns -ftree-slp-vectorize -fopenmp  \
+# good VSPAERO_OPT =  'CCFLAGS = -O2 -march=native -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-loop-vectorize   -fopenmp  \
+
+#VSPAERO_OPT =  'CCFLAGS = -O3 -march=native -funroll-loops -funroll-all-loops   -fopenmp  \
+#         'INCDIRS = -I/usr/local/include -I/usr/include/tcl -I../CodiPack/CoDiPack-master/include '\
+
+################################## VSPAERO Code #################################       
+#VSPAERO_OPT =  'CCFLAGS = -O3 -march=native -funroll-loops -funroll-all-loops   -fopenmp  \
+#                    -Wunused -DVSPAERO_OPENMP -DMYTIME' \
+
+#VSPAERO_OPT =  'CCFLAGS = -std=c++11 -O3 -march=native -funroll-loops -funroll-all-loops   -fopenmp  \
+#                    -Wunused -DVSPAERO_OPENMP -DMYTIME -DCODIPACK' \
+
+# CCFLAGS = -pg   -fopenmp
+
+#VSPAERO_OPT =  'CCFLAGS = -std=c++11 -O3 -march=native -funroll-loops -funroll-all-loops   -fopenmp  \
+#                    -Wunused -Wno-format-security -DMYTIME -AUTODIFF' \
+                    
+VSPAERO_SOLVER_OPT =  'CCFLAGS = -O3 -funroll-loops -fopenmp  \
+                    -Wunused -DVSPAERO_OPENMP -DMYTIME' \
+         'LDC = clang++-mp-11' \
+         'LDF = gfortran' \
+         'DEFINES = ' \
+         'INCDIRS = -I/usr/local/include -I/usr/include/tcl  '\
+         'OBJS =  '\
+         'LIBDIRS = -L/usr/local/lib -L/usr/lib ' \
+         'LIBS =  '\
+         'VPATH =../'\
+         'PROGRAM = $(VSPAERO_SOLVER_EXE)'       
+
+include Makefile.ALL
+

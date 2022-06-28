@@ -1,0 +1,46 @@
+################################################################################      
+#                                                                              #
+# Compiles the VSPAERO code.                                                   #
+#                                                                              #
+# January 2014                                                                 #
+# Makefile created by Dave Kinney                                              #
+#                                                                              #
+################################################################################
+.SUFFIXES:	.h .C .cc
+
+C_SRCS	=	VSP_Optimizer.C	        \
+                vspaero_opt.C
+          
+        
+################################################################################      
+#                                                                              #
+#                               COMPILE SCRIPT                                 #
+#                                                                              #
+################################################################################
+
+C_OBJS		= $(C_SRCS:.C=.o)
+
+all:	msg1 $(C_OBJS) 
+	@echo " "
+	@rm -rf ../bin/$(PROGRAM)
+	@rm -rf ../bin/$(PROGRAM).exe
+	$(LDC) $(CCFLAGS) $(INCDIRS) $(LIBDIRS) $(C_OBJS) $(F_OBJS) $(OBJS) $(LIBS) -o ../../bin/$(PROGRAM)
+	
+msg1:
+	@echo " "
+	@echo " "
+	@echo  "Compiling VSPAERO Optimizer code"
+
+msg2:
+	@echo " "
+	@echo " "
+	@echo  "Final link to create VSPAERO Optimizer executable..."
+
+.C.o:
+		$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $^ -o $@
+
+#%.o: %.C
+#.C.o:
+#		@$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $*.C
+#		@$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $*.C -o OBJECTS/$*.o
+

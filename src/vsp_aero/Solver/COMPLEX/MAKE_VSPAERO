@@ -1,0 +1,84 @@
+################################################################################      
+#                                                                              #
+# Compiles the VSPAERO code.                                                   #
+#                                                                              #
+# January 2014                                                                 #
+# Makefile created by Dave Kinney                                              #
+#                                                                              #
+################################################################################
+.SUFFIXES:	.h .C .cc
+
+C_SRCS	=	matrix.C	        \
+                utils.C			     \
+                quat.C			     \
+                Vortex_Trail.C		\
+                Vortex_Bound.C		\
+                Vortex_Sheet.C		\
+                VSP_Geom.C		\
+                VSP_Edge.C		      \
+                VSP_Grid.C	    	   \
+                VSP_Node.C		       \
+                VSP_Loop.C          \
+                VSP_Solver.C		   \
+                VSP_Surface.C		   \
+                RotorDisk.C		    \
+                VSP_Agglom.C		   \
+                time.C 			\
+                FEM_Node.C    \
+                ControlSurface.C    \
+                ControlSurfaceGroup.C    \
+                MatPrecon.C			\
+                Gradient.C			\
+                InteractionLoop.C   \
+                VortexSheetInteractionLoop.C   \
+                VortexSheetVortex_To_VortexInteractionSet.C \
+                MergeSort.C			\
+                SpanLoadData.C		       	\
+                SpanLoadRotorData.C       	\
+                ComponentGroup.C		\
+                SearchLeaf.C			\
+                Search.C			\
+                WOPWOP.C			\
+                VSPAERO_TYPES.C  		\
+                BoundaryConditionData.C 	\
+		QuadNode.C			\
+		QuadEdge.C			\
+		QuadCell.C			\
+		QuadTree.C			\
+		EngineFace.C			\
+      OptimizationFunction.C \
+                vspaero.C
+          
+        
+################################################################################      
+#                                                                              #
+#                               COMPILE SCRIPT                                 #
+#                                                                              #
+################################################################################
+
+C_OBJS		= $(C_SRCS:.C=.o)
+
+all:	msg1 $(C_OBJS) 
+	@echo " "
+	@rm -rf ../bin/$(PROGRAM)
+	@rm -rf ../bin/$(PROGRAM).exe
+	$(LDC) $(CCFLAGS) $(INCDIRS) $(LIBDIRS) $(C_OBJS) $(F_OBJS) $(OBJS) $(LIBS) -o ../../bin/$(PROGRAM)
+	
+msg1:
+	@echo " "
+	@echo " "
+	@echo  "Compiling VSPAERO COMPLEX STEP SOLVER code"
+
+msg2:
+	@echo " "
+	@echo " "
+	@echo  "Final link to create VSPAERO SOLVER executable..."
+
+.C.o:
+		$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $^ -o $@
+
+#%.o: %.C
+#.C.o:
+#		@$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $*.C
+#		@$(LDC) $(CCFLAGS) $(DEFINES) $(INCDIRS) -c $*.C -o OBJECTS/$*.o
+

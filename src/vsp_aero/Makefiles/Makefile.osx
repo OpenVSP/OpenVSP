@@ -1,0 +1,114 @@
+# cygwin options
+
+include Makefile.COMMON
+#-march=native
+#VSPAERO_OPT =  'CCFLAGS = -O2 -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-loop-vectorize -ftree-loop-distribute-patterns -ftree-slp-vectorize -fopenmp  \
+# good VSPAERO_OPT =  'CCFLAGS = -O2 -march=native -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-loop-vectorize   -fopenmp  \
+
+#VSPAERO_OPT =  'CCFLAGS = -O3 -march=native -funroll-loops -funroll-all-loops   -fopenmp  \
+#         'INCDIRS = -I/usr/local/include -I/usr/include/tcl -I../CodiPack/CoDiPack-master/include '\
+
+################################## VSPAERO Code #################################       
+#VSPAERO_OPT =  'CCFLAGS = -O3 -march=native -funroll-loops -funroll-all-loops   -fopenmp  \
+#                    -Wunused -DVSPAERO_OPENMP -DMYTIME' \
+
+#VSPAERO_OPT =  'CCFLAGS = -std=c++11 -O3 -march=native -funroll-loops -funroll-all-loops   -fopenmp  \
+#                    -Wunused -DVSPAERO_OPENMP -DMYTIME -DCODIPACK' \
+
+# CCFLAGS = -pg   -fopenmp
+
+#VSPAERO_OPT =  'CCFLAGS = -std=c++11 -O3 -march=native -funroll-loops -funroll-all-loops   -fopenmp  \
+#                    -Wunused -Wno-format-security -DMYTIME -AUTODIFF' \
+                    
+VSPAERO_SOLVER_OPT =  'CCFLAGS = -O3 -march=native -funroll-loops -funroll-all-loops -fopenmp  \
+                    -Wno-unused -Wno-format-security -Wno-format-overflow -DVSPAERO_OPENMP -DMYTIME' \
+         'LDC = g++-mp-11' \
+         'LDF = gfortran' \
+         'DEFINES = ' \
+         'INCDIRS = -I/usr/local/include -I/usr/include/tcl  '\
+         'OBJS =  '\
+         'LIBDIRS = -L/usr/local/lib -L/usr/lib ' \
+         'LIBS =  '\
+         'VPATH =../'\
+         'PROGRAM = $(VSPAERO_SOLVER_EXE)'       
+
+################################## VSPAERO ADJOINT Code #################################       
+
+VSPAERO_ADJOINT_OPT =  'CCFLAGS = -O3 -march=native -funroll-loops -funroll-all-loops \
+                    -Wno-unused -Wno-format-security -Wno-format-overflow -DMYTIME -DAUTODIFF -DADEPT_RECORDING_PAUSABLE' \
+         'LDC = g++-mp-11' \
+         'LDF = gfortran' \
+         'DEFINES = ' \
+         'INCDIRS = -I/usr/local/include -I/usr/include/tcl -I/Users/dkinney/projects/Libraries/ADEPT/adept-2.1/include '\
+         'OBJS = /Users/dkinney/projects/Libraries/ADEPT/adept-2.1/adept/.libs/libadept.a '\
+         'LIBDIRS = -L/usr/local/lib -L/lib -L/usr/lib ' \
+         'LIBS =  '\
+         'VPATH =../'\
+         'PROGRAM = $(VSPAERO_ADJOINT_EXE)'   
+
+################################## VSPAERO Complex Step Code #################################       
+#                    -Wno-unused -Wno-format-security -Wno-format-overflow -DMYTIME -DVSPAERO_OPENMP -DCOMPLEXDIFF -Wl,-stack_size -Wl,1000000' \
+
+VSPAERO_COMPLEX_OPT =  'CCFLAGS = -O3 -march=native -funroll-loops -funroll-all-loops -fopenmp \
+                    -Wno-unused -Wno-format-security -Wno-format-overflow -DMYTIME -DVSPAERO_OPENMP -DCOMPLEXDIFF' \
+         'LDC = g++-mp-11' \
+         'LDF = gfortran' \
+         'DEFINES = ' \
+         'INCDIRS = -I/usr/local/include -I/usr/include/tcl '\
+         'OBJS = '\
+         'LIBDIRS = -L/usr/local/lib -L/lib -L/usr/lib ' \
+         'LIBS =  '\
+         'VPATH =../'\
+         'PROGRAM = $(VSPAERO_COMPLEX_EXE)'   
+
+################################## VSPAERO Optimizer Code #################################       
+#                    -Wno-unused -Wno-format-security -Wno-format-overflow -DMYTIME -DVSPAERO_OPENMP -DCOMPLEXDIFF -Wl,-stack_size -Wl,1000000' \
+
+VSPAERO_OPTIMIZER_OPT =  'CCFLAGS = -O3 -march=native -funroll-loops -funroll-all-loops -fopenmp \
+                    -Wno-unused -Wno-format-security -Wno-format-overflow -DMYTIME -DVSPAERO_OPENMP' \
+         'LDC = g++-mp-11' \
+         'LDF = gfortran' \
+         'DEFINES = ' \
+         'INCDIRS = -I/usr/local/include -I/usr/include/tcl -I/Users/dkinney/projects/Libraries/ADEPT/adept-2.1/include'\
+         'OBJS = ../SOLVER/solverlib.a ../ADJOINT/adjointlib.a /Users/dkinney/projects/Libraries/ADEPT/adept-2.1/adept/.libs/libadept.a'\
+         'LIBDIRS = -L/usr/local/lib -L/lib -L/usr/lib ' \
+         'LIBS =  '\
+         'VPATH =../'\
+         'PROGRAM = $(VSPAERO_OPTIMIZER_EXE)'   
+                           
+################################# VIEWER Code ##############################       
+
+#          'OBJS = ../Libs/libtiff.v4.0.3/tiff-4.0.3/libtiff/.libs/libtiff.a'\
+
+VIEWER_OPT =  'CCFLAGS = -DNDEBUG -DDO_GRAPHICS -O2 -Wall -fno-exceptions  -DOCTREE_DO_GRAPHICS -DOSX' \
+          'LDC = g++-mp-11' \
+          'DEFINES = ' \
+          'INCDIRS = -I/usr/local/include -I/Users/dkinney/projects/Libraries/FLTK/fltk-1.3.7 '\
+          'OBJS = '\
+          'LIBDIRS = -L/usr/local/lib -L/lib -L/usr/lib -L/usr/include ' \
+          'LIBS = /Users/dkinney/projects/Libraries/FLTK/fltk-1.3.7/lib/libfltk_gl.a \
+                  /Users/dkinney/projects/Libraries/FLTK/fltk-1.3.7/lib/libfltk.a -lm -lc -lpthread  -framework Cocoa -framework OpenGL' \
+          'PROGRAM = $(VIEWER_EXE)'
+          
+# -L/usr/X11R6/lib -lXext -lX11 -lXft -lXinerama -ljpeg -lfontconfig -lz -ldl          
+################################# SLICER Code ##############################       
+
+SLICER_OPT =  'CCFLAGS = -O3 -funroll-loops -funroll-all-loops \
+                     -Wunused -DVSPAERO_OPENMP -DMYTIME -fopenmp' \
+         'LDC = g++-mp-11' \
+         'LDF = gfortran' \
+         'DEFINES = ' \
+         'INCDIRS = -I/usr/local/include -I/usr/include/tcl '\
+         'OBJS = '\
+         'LIBDIRS = -L/usr/local/lib -L/lib -L/usr/lib ' \
+         'LIBS =  '\
+         'PROGRAM = $(SLICER_EXE)'       
+                    
+################################################################################      
+#                                                                              #
+#                              COMPILE SCRIPT                                  #
+#                                                                              #
+################################################################################
+
+include Makefile.ALL
+

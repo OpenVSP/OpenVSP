@@ -1,0 +1,1091 @@
+     
+Updating VSPAERO for osx on intel                
+     
+ 
+ 
+Compiling VSPAERO SOLVER code
+ 
+g++-mp-11 -O3 -march=native -funroll-loops -funroll-all-loops -fopenmp -Wno-unused -Wno-format-security -Wno-format-overflow -DVSPAERO_OPENMP -DMYTIME -I/usr/local/include -I/usr/include/tcl   -L/usr/local/lib -L/usr/lib  matrix.o utils.o quat.o Vortex_Trail.o Vortex_Bound.o Vortex_Sheet.o VSP_Geom.o VSP_Edge.o VSP_Grid.o VSP_Node.o VSP_Loop.o VSP_Solver.o VSP_Surface.o RotorDisk.o VSP_Agglom.o time.o FEM_Node.o ControlSurface.o ControlSurfaceGroup.o MatPrecon.o Gradient.o InteractionLoop.o VortexSheetInteractionLoop.o VortexSheetVortex_To_VortexInteractionSet.o MergeSort.o SpanLoadData.o SpanLoadRotorData.o ComponentGroup.o SearchLeaf.o Search.o WOPWOP.o VSPAERO_TYPES.o BoundaryConditionData.o QuadNode.o QuadEdge.o QuadCell.o QuadTree.o EngineFace.o OptimizationFunction.o vspaero.o    -o ../../bin/vspaero
+ 
+ 
+Compiling VSPAERO ADJOINT SOLVER code
+ 
+g++-mp-11 -O3 -march=native -funroll-loops -funroll-all-loops -Wno-unused -Wno-format-security -Wno-format-overflow -DMYTIME -DAUTODIFF -DADEPT_RECORDING_PAUSABLE -I/usr/local/include -I/usr/include/tcl -I/Users/dkinney/projects/Libraries/ADEPT/adept-2.1/include  -L/usr/local/lib -L/lib -L/usr/lib  matrix.o utils.o quat.o Vortex_Trail.o Vortex_Bound.o Vortex_Sheet.o VSP_Geom.o VSP_Edge.o VSP_Grid.o VSP_Node.o VSP_Loop.o VSP_Solver.o VSP_Surface.o RotorDisk.o VSP_Agglom.o time.o FEM_Node.o ControlSurface.o ControlSurfaceGroup.o MatPrecon.o Gradient.o InteractionLoop.o VortexSheetInteractionLoop.o VortexSheetVortex_To_VortexInteractionSet.o MergeSort.o SpanLoadData.o SpanLoadRotorData.o ComponentGroup.o SearchLeaf.o Search.o WOPWOP.o VSPAERO_TYPES.o BoundaryConditionData.o QuadNode.o QuadEdge.o QuadCell.o QuadTree.o EngineFace.o OptimizationFunction.o vspaero.o  /Users/dkinney/projects/Libraries/ADEPT/adept-2.1/adept/.libs/libadept.a   -o ../../bin/vspaero_adjoint
+ld: warning: directory not found for option '-L/lib'
+ 
+ 
+Compiling VSPAERO COMPLEX STEP SOLVER code
+ 
+g++-mp-11 -O3 -march=native -funroll-loops -funroll-all-loops -fopenmp -Wno-unused -Wno-format-security -Wno-format-overflow -DMYTIME -DVSPAERO_OPENMP -DCOMPLEXDIFF -I/usr/local/include -I/usr/include/tcl  -L/usr/local/lib -L/lib -L/usr/lib  matrix.o utils.o quat.o Vortex_Trail.o Vortex_Bound.o Vortex_Sheet.o VSP_Geom.o VSP_Edge.o VSP_Grid.o VSP_Node.o VSP_Loop.o VSP_Solver.o VSP_Surface.o RotorDisk.o VSP_Agglom.o time.o FEM_Node.o ControlSurface.o ControlSurfaceGroup.o MatPrecon.o Gradient.o InteractionLoop.o VortexSheetInteractionLoop.o VortexSheetVortex_To_VortexInteractionSet.o MergeSort.o SpanLoadData.o SpanLoadRotorData.o ComponentGroup.o SearchLeaf.o Search.o WOPWOP.o VSPAERO_TYPES.o BoundaryConditionData.o QuadNode.o QuadEdge.o QuadCell.o QuadTree.o EngineFace.o OptimizationFunction.o vspaero.o    -o ../../bin/vspaero_complex
+ld: warning: directory not found for option '-L/lib'
+ 
+ 
+Compiling VSPAERO Optimizer code
+ 
+g++-mp-11 -O3 -march=native -funroll-loops -funroll-all-loops -fopenmp -Wno-unused -Wno-format-security -Wno-format-overflow -DMYTIME -DVSPAERO_OPENMP -I/usr/local/include -I/usr/include/tcl -I/Users/dkinney/projects/Libraries/ADEPT/adept-2.1/include -L/usr/local/lib -L/lib -L/usr/lib  VSP_Optimizer.o vspaero_opt.o  ../SOLVER/solverlib.a ../ADJOINT/adjointlib.a /Users/dkinney/projects/Libraries/ADEPT/adept-2.1/adept/.libs/libadept.a  -o ../../bin/vspaero_opt
+ld: warning: directory not found for option '-L/lib'
+ 
+ 
+Compiling VIEWER code
+g++-mp-11 -DNDEBUG -DDO_GRAPHICS -O2 -Wall -fno-exceptions  -DOCTREE_DO_GRAPHICS -DOSX  -I/usr/local/include -I/Users/dkinney/projects/Libraries/FLTK/fltk-1.3.7  -c glviewer.C
+In file included from glviewer.C:7:
+glviewer.H: In member function 'int GL_VIEWER::DrawQuadWireFrameWasPicked()':
+glviewer.H:1058:102: warning: no return statement in function returning non-void [-Wreturn-type]
+ 1058 |     int DrawQuadWireFrameWasPicked(void) { ToggleFlag(DrawQuadWireFrameIsOn, "DrawQuadWireFrameIs"); };
+      |                                                                                                      ^
+glviewer.H: In member function 'int GL_VIEWER::DrawQuadVelocitiesWasPicked()':
+glviewer.H:1059:105: warning: no return statement in function returning non-void [-Wreturn-type]
+ 1059 |     int DrawQuadVelocitiesWasPicked(void) { ToggleFlag(DrawQuadVelocitiesIsOn, "DrawQuadVelocitiesIs"); };
+      |                                                                                                         ^
+glviewer.C: In destructor 'virtual GL_VIEWER::~GL_VIEWER()':
+glviewer.C:288:9: warning: unused variable 'i' [-Wunused-variable]
+  288 |     int i;
+      |         ^
+glviewer.C: In member function 'void GL_VIEWER::LoadInitialData(char*)':
+glviewer.C:327:10: warning: unused variable 'CommandLine' [-Wunused-variable]
+  327 |     char CommandLine[2000], file_name_w_ext[2000];
+      |          ^~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadMeshData(int)':
+glviewer.C:512:33: warning: unused variable 'DumChar' [-Wunused-variable]
+  512 |     char file_name_w_ext[2000], DumChar[1000], GridName[1000];
+      |                                 ^~~~~~~
+glviewer.C:512:48: warning: unused variable 'GridName' [-Wunused-variable]
+  512 |     char file_name_w_ext[2000], DumChar[1000], GridName[1000];
+      |                                                ^~~~~~~~
+glviewer.C:513:15: warning: unused variable 'k' [-Wunused-variable]
+  513 |     int i, j, k, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes;
+      |               ^
+glviewer.C:514:9: warning: variable 'TotNum' set but not used [-Wunused-but-set-variable]
+  514 |     int TotNum, i_size, f_size, c_size;
+      |         ^~~~~~
+glviewer.C:516:11: warning: unused variable 'DumFloat' [-Wunused-variable]
+  516 |     float DumFloat;
+      |           ^~~~~~~~
+glviewer.C:517:22: warning: unused variable 'madb_file' [-Wunused-variable]
+  517 |     FILE *adb_file, *madb_file;
+      |                      ^~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::UpdateMeshData(FILE*)':
+glviewer.C:1054:10: warning: unused variable 'file_name_w_ext' [-Wunused-variable]
+ 1054 |     char file_name_w_ext[2000], DumChar[1000], GridName[1000];
+      |          ^~~~~~~~~~~~~~~
+glviewer.C:1054:33: warning: unused variable 'DumChar' [-Wunused-variable]
+ 1054 |     char file_name_w_ext[2000], DumChar[1000], GridName[1000];
+      |                                 ^~~~~~~
+glviewer.C:1054:48: warning: unused variable 'GridName' [-Wunused-variable]
+ 1054 |     char file_name_w_ext[2000], DumChar[1000], GridName[1000];
+      |                                                ^~~~~~~~
+glviewer.C:1055:15: warning: unused variable 'k' [-Wunused-variable]
+ 1055 |     int i, j, k, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes;
+      |               ^
+glviewer.C:1056:9: warning: unused variable 'TotNum' [-Wunused-variable]
+ 1056 |     int TotNum, i_size, f_size, c_size;
+      |         ^~~~~~
+glviewer.C:1056:33: warning: variable 'c_size' set but not used [-Wunused-but-set-variable]
+ 1056 |     int TotNum, i_size, f_size, c_size;
+      |                                 ^~~~~~
+glviewer.C:1058:11: warning: unused variable 'DumFloat' [-Wunused-variable]
+ 1058 |     float DumFloat;
+      |           ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadQuadCuttingPlaneCaseList()':
+glviewer.C:1390:33: warning: unused variable 'DumChar' [-Wunused-variable]
+ 1390 |     char file_name_w_ext[2000], DumChar[2000];
+      |                                 ^~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadCalculixINPFile()':
+glviewer.C:1580:34: warning: embedded '\0' in format [-Wformat-contains-nul]
+ 1580 |              sprintf(SaveChar,"%s\0",DumChar);
+      |                                  ^~
+glviewer.C:1451:33: warning: unused variable 'MoreElements' [-Wunused-variable]
+ 1451 |     int i, j, k, Done, AllDone, MoreElements, DumInt1, DumInt2;
+      |                                 ^~~~~~~~~~~~
+glviewer.C:1451:47: warning: unused variable 'DumInt1' [-Wunused-variable]
+ 1451 |     int i, j, k, Done, AllDone, MoreElements, DumInt1, DumInt2;
+      |                                               ^~~~~~~
+glviewer.C:1451:56: warning: unused variable 'DumInt2' [-Wunused-variable]
+ 1451 |     int i, j, k, Done, AllDone, MoreElements, DumInt1, DumInt2;
+      |                                                        ^~~~~~~
+glviewer.C:1455:32: warning: unused variable 'BestNode' [-Wunused-variable]
+ 1455 |     int *NodeIsUsed, MaxNodes, BestNode;
+      |                                ^~~~~~~~
+glviewer.C:1456:10: warning: unused variable 'TriIsUsed' [-Wunused-variable]
+ 1456 |     int *TriIsUsed, MaxTris;
+      |          ^~~~~~~~~
+glviewer.C:1457:11: warning: unused variable 'Distance' [-Wunused-variable]
+ 1457 |     float Distance, MinDistance;
+      |           ^~~~~~~~
+glviewer.C:1457:21: warning: unused variable 'MinDistance' [-Wunused-variable]
+ 1457 |     float Distance, MinDistance;
+      |                     ^~~~~~~~~~~
+glviewer.C:1458:11: warning: unused variable 'vec1' [-Wunused-variable]
+ 1458 |     float vec1[3], vec2[3], vec3[3], mag, Pressure, *PressureLoad;
+      |           ^~~~
+glviewer.C:1458:20: warning: unused variable 'vec2' [-Wunused-variable]
+ 1458 |     float vec1[3], vec2[3], vec3[3], mag, Pressure, *PressureLoad;
+      |                    ^~~~
+glviewer.C:1458:29: warning: unused variable 'vec3' [-Wunused-variable]
+ 1458 |     float vec1[3], vec2[3], vec3[3], mag, Pressure, *PressureLoad;
+      |                             ^~~~
+glviewer.C:1458:38: warning: unused variable 'mag' [-Wunused-variable]
+ 1458 |     float vec1[3], vec2[3], vec3[3], mag, Pressure, *PressureLoad;
+      |                                      ^~~
+glviewer.C: In member function 'void GL_VIEWER::LoadCalculixDATFile()':
+glviewer.C:2283:12: warning: unused variable 'j' [-Wunused-variable]
+ 2283 |     int i, j, k, Done, AllDone, DumInt, NoDisplacementData;
+      |            ^
+glviewer.C:2283:15: warning: unused variable 'k' [-Wunused-variable]
+ 2283 |     int i, j, k, Done, AllDone, DumInt, NoDisplacementData;
+      |               ^
+glviewer.C: In member function 'void GL_VIEWER::LoadCalculixFRDFileOld()':
+glviewer.C:2376:59: warning: unused variable 'NodeOffSet' [-Wunused-variable]
+ 2376 |     int i, j, node1, node2, node3, Node, ElementNode[20], NodeOffSet, DumInt, ElementType, Done;
+      |                                                           ^~~~~~~~~~
+glviewer.C:2379:24: warning: unused variable 'DsMin' [-Wunused-variable]
+ 2379 |     double Dx, Dy, Dz, DsMin, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
+      |                        ^~~~~
+glviewer.C:2379:38: warning: variable 'DeltaMax' set but not used [-Wunused-but-set-variable]
+ 2379 |     double Dx, Dy, Dz, DsMin, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
+      |                                      ^~~~~~~~
+glviewer.C:2381:31: warning: unused variable 'ElementName' [-Wunused-variable]
+ 2381 |     char file_name_w_ext[80], ElementName[1000], DumChar[1000];
+      |                               ^~~~~~~~~~~
+glviewer.C:2382:22: warning: unused variable 'sum_file' [-Wunused-variable]
+ 2382 |     FILE *frd_file, *sum_file;
+      |                      ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadCalculixFRDFile()':
+glviewer.C:2898:59: warning: unused variable 'NodeOffSet' [-Wunused-variable]
+ 2898 |     int i, j, node1, node2, node3, Node, ElementNode[20], NodeOffSet, DumInt, ElementType, Done;
+      |                                                           ^~~~~~~~~~
+glviewer.C:2901:24: warning: unused variable 'DsMin' [-Wunused-variable]
+ 2901 |     double Dx, Dy, Dz, DsMin, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
+      |                        ^~~~~
+glviewer.C:2901:38: warning: variable 'DeltaMax' set but not used [-Wunused-but-set-variable]
+ 2901 |     double Dx, Dy, Dz, DsMin, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
+      |                                      ^~~~~~~~
+glviewer.C:2903:31: warning: unused variable 'ElementName' [-Wunused-variable]
+ 2903 |     char file_name_w_ext[80], ElementName[1000], DumChar[1000];
+      |                               ^~~~~~~~~~~
+glviewer.C:2904:22: warning: unused variable 'sum_file' [-Wunused-variable]
+ 2904 |     FILE *frd_file, *sum_file;
+      |                      ^~~~~~~~
+glviewer.C:2905:12: warning: unused variable 'SaveLocation' [-Wunused-variable]
+ 2905 |     fpos_t SaveLocation;
+      |            ^~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawCalculixFEMModelAsWireFrame(CALCULIX_MESH&, int)':
+glviewer.C:3571:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3571 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:3571:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3571 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:3571:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3571 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:3572:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3572 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:3572:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3572 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:3572:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3572 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:3574:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3574 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:3574:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3574 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:3574:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3574 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:3575:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3575 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:3575:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3575 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:3575:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 3575 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:3567:9: warning: unused variable 'SurfID' [-Wunused-variable]
+ 3567 |     int SurfID, LastTri, LastCon, LastSurface;
+      |         ^~~~~~
+glviewer.C:3567:17: warning: unused variable 'LastTri' [-Wunused-variable]
+ 3567 |     int SurfID, LastTri, LastCon, LastSurface;
+      |                 ^~~~~~~
+glviewer.C:3567:26: warning: unused variable 'LastCon' [-Wunused-variable]
+ 3567 |     int SurfID, LastTri, LastCon, LastSurface;
+      |                          ^~~~~~~
+glviewer.C:3567:35: warning: unused variable 'LastSurface' [-Wunused-variable]
+ 3567 |     int SurfID, LastTri, LastCon, LastSurface;
+      |                                   ^~~~~~~~~~~
+glviewer.C:3568:9: warning: unused variable 'LastMaterialType' [-Wunused-variable]
+ 3568 |     int LastMaterialType;
+      |         ^~~~~~~~~~~~~~~~
+glviewer.C:3569:27: warning: unused variable 'LastEmissivity' [-Wunused-variable]
+ 3569 |     float vec[3], rgb[4], LastEmissivity, per, ScaleFactor, ReverseNormals;
+      |                           ^~~~~~~~~~~~~~
+glviewer.C:3571:13: warning: unused variable 'ambient1' [-Wunused-variable]
+ 3571 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:3572:13: warning: unused variable 'ambient2' [-Wunused-variable]
+ 3572 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:3574:13: warning: unused variable 'ambient3' [-Wunused-variable]
+ 3574 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:3575:13: warning: unused variable 'ambient4' [-Wunused-variable]
+ 3575 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawCalculixFEMModel(CALCULIX_MESH&, int)':
+glviewer.C:4688:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4688 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:4688:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4688 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:4688:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4688 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:4689:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4689 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:4689:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4689 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:4689:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4689 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:4691:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4691 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:4691:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4691 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:4691:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4691 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:4692:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4692 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:4692:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4692 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:4692:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 4692 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:4684:9: warning: unused variable 'SurfID' [-Wunused-variable]
+ 4684 |     int SurfID, LastTri, LastCon, LastSurface;
+      |         ^~~~~~
+glviewer.C:4684:17: warning: unused variable 'LastTri' [-Wunused-variable]
+ 4684 |     int SurfID, LastTri, LastCon, LastSurface;
+      |                 ^~~~~~~
+glviewer.C:4684:26: warning: unused variable 'LastCon' [-Wunused-variable]
+ 4684 |     int SurfID, LastTri, LastCon, LastSurface;
+      |                          ^~~~~~~
+glviewer.C:4684:35: warning: unused variable 'LastSurface' [-Wunused-variable]
+ 4684 |     int SurfID, LastTri, LastCon, LastSurface;
+      |                                   ^~~~~~~~~~~
+glviewer.C:4685:9: warning: unused variable 'LastMaterialType' [-Wunused-variable]
+ 4685 |     int LastMaterialType;
+      |         ^~~~~~~~~~~~~~~~
+glviewer.C:4686:27: warning: unused variable 'LastEmissivity' [-Wunused-variable]
+ 4686 |     float vec[3], rgb[4], LastEmissivity, per, ScaleFactor, ReverseNormals;
+      |                           ^~~~~~~~~~~~~~
+glviewer.C:4691:13: warning: unused variable 'ambient3' [-Wunused-variable]
+ 4691 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:4692:13: warning: unused variable 'ambient4' [-Wunused-variable]
+ 4692 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawCalculixFEMModelRigidLinks(CALCULIX_MESH&)':
+glviewer.C:5745:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5745 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:5745:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5745 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:5745:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5745 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:5746:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5746 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:5746:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5746 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:5746:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5746 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:5748:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5748 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:5748:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5748 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:5748:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5748 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:5749:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5749 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:5749:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5749 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:5749:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5749 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:5745:13: warning: unused variable 'ambient1' [-Wunused-variable]
+ 5745 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:5746:13: warning: unused variable 'ambient2' [-Wunused-variable]
+ 5746 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:5748:13: warning: unused variable 'ambient3' [-Wunused-variable]
+ 5748 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:5749:13: warning: unused variable 'ambient4' [-Wunused-variable]
+ 5749 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawCalculixFEMConcentratedLoads(CALCULIX_MESH&)':
+glviewer.C:5812:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5812 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:5812:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5812 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:5812:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5812 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:5813:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5813 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:5813:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5813 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:5813:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5813 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:5815:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5815 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:5815:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5815 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:5815:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5815 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:5816:31: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5816 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                            ~~~^~~~~~~~~~~
+glviewer.C:5816:47: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5816 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                            ~~~^~~~~~~~~~~
+glviewer.C:5816:63: warning: narrowing conversion of '(2.0e+0 * ((double)((GL_VIEWER*)this)->GL_VIEWER::Brightness))' from 'double' to 'GLfloat' {aka 'float'} [-Wnarrowing]
+ 5816 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |                                                            ~~~^~~~~~~~~~~
+glviewer.C:5809:19: warning: unused variable 'node2' [-Wunused-variable]
+ 5809 |     int j, node1, node2;
+      |                   ^~~~~
+glviewer.C:5812:13: warning: unused variable 'ambient1' [-Wunused-variable]
+ 5812 |     GLfloat ambient1[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:5813:13: warning: unused variable 'ambient2' [-Wunused-variable]
+ 5813 |     GLfloat ambient2[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:5815:13: warning: unused variable 'ambient3' [-Wunused-variable]
+ 5815 |     GLfloat ambient3[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C:5816:13: warning: unused variable 'ambient4' [-Wunused-variable]
+ 5816 |     GLfloat ambient4[] = { 2.0*Brightness, 2.0*Brightness, 2.0*Brightness, 1.0 };
+      |             ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadSolutionData()':
+glviewer.C:6016:9: warning: unused variable 'i' [-Wunused-variable]
+ 6016 |     int i;
+      |         ^
+glviewer.C: In member function 'void GL_VIEWER::LoadExistingSolutionData(int)':
+glviewer.C:6035:33: warning: unused variable 'DumChar' [-Wunused-variable]
+ 6035 |     char file_name_w_ext[2000], DumChar[100], GridName[100];
+      |                                 ^~~~~~~
+glviewer.C:6035:47: warning: unused variable 'GridName' [-Wunused-variable]
+ 6035 |     char file_name_w_ext[2000], DumChar[100], GridName[100];
+      |                                               ^~~~~~~~
+glviewer.C:6036:27: warning: unused variable 'Level' [-Wunused-variable]
+ 6036 |     int c, i, j, k, m, p, Level, pStart, pEnd;
+      |                           ^~~~~
+glviewer.C:6037:25: warning: variable 'c_size' set but not used [-Wunused-but-set-variable]
+ 6037 |     int i_size, f_size, c_size, d_size;
+      |                         ^~~~~~
+glviewer.C:6038:17: warning: unused variable 'nod1' [-Wunused-variable]
+ 6038 |     int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge, Direction;
+      |                 ^~~~
+glviewer.C:6038:23: warning: unused variable 'nod2' [-Wunused-variable]
+ 6038 |     int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge, Direction;
+      |                       ^~~~
+glviewer.C:6038:29: warning: unused variable 'nod3' [-Wunused-variable]
+ 6038 |     int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge, Direction;
+      |                             ^~~~
+glviewer.C:6038:35: warning: unused variable 'CFDCaseFlag' [-Wunused-variable]
+ 6038 |     int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge, Direction;
+      |                                   ^~~~~~~~~~~
+glviewer.C:6038:48: warning: unused variable 'Edge' [-Wunused-variable]
+ 6038 |     int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge, Direction;
+      |                                                ^~~~
+glviewer.C:6038:54: warning: unused variable 'Direction' [-Wunused-variable]
+ 6038 |     int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge, Direction;
+      |                                                      ^~~~~~~~~
+glviewer.C:6040:11: warning: unused variable 'FreeStreamPressure' [-Wunused-variable]
+ 6040 |     float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Cf;
+      |           ^~~~~~~~~~~~~~~~~~
+glviewer.C:6040:31: warning: unused variable 'DynamicPressure' [-Wunused-variable]
+ 6040 |     float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Cf;
+      |                               ^~~~~~~~~~~~~~~
+glviewer.C:6040:48: warning: unused variable 'Xc' [-Wunused-variable]
+ 6040 |     float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Cf;
+      |                                                ^~
+glviewer.C:6040:52: warning: unused variable 'Yc' [-Wunused-variable]
+ 6040 |     float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Cf;
+      |                                                    ^~
+glviewer.C:6040:56: warning: unused variable 'Zc' [-Wunused-variable]
+ 6040 |     float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Cf;
+      |                                                        ^~
+glviewer.C:6040:60: warning: unused variable 'Cf' [-Wunused-variable]
+ 6040 |     float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Cf;
+      |                                                            ^~
+glviewer.C:6041:11: warning: unused variable 'BoundaryLayerThicknessCode' [-Wunused-variable]
+ 6041 |     float BoundaryLayerThicknessCode, LaminarDelta, TurbulentDelta;
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:6041:39: warning: unused variable 'LaminarDelta' [-Wunused-variable]
+ 6041 |     float BoundaryLayerThicknessCode, LaminarDelta, TurbulentDelta;
+      |                                       ^~~~~~~~~~~~
+glviewer.C:6041:53: warning: unused variable 'TurbulentDelta' [-Wunused-variable]
+ 6041 |     float BoundaryLayerThicknessCode, LaminarDelta, TurbulentDelta;
+      |                                                     ^~~~~~~~~~~~~~
+glviewer.C:6042:11: warning: unused variable 'DumFloat' [-Wunused-variable]
+ 6042 |     float DumFloat, Value, Vmax, Mag, Vclip;
+      |           ^~~~~~~~
+glviewer.C:6042:21: warning: unused variable 'Value' [-Wunused-variable]
+ 6042 |     float DumFloat, Value, Vmax, Mag, Vclip;
+      |                     ^~~~~
+glviewer.C:6043:22: warning: unused variable 'madb_file' [-Wunused-variable]
+ 6043 |     FILE *adb_file, *madb_file, *QuadFile;
+      |                      ^~~~~~~~~
+glviewer.C:6045:10: warning: unused variable 'OffSet' [-Wunused-variable]
+ 6045 |     long OffSet;
+      |          ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadCaseFile(char*)':
+glviewer.C:6471:12: warning: unused variable 'j' [-Wunused-variable]
+ 6471 |     int i, j, Done;
+      |            ^
+glviewer.C:6473:47: warning: unused variable 'file_type' [-Wunused-variable]
+ 6473 |     char file_name_w_ext[2000], DumChar[200], file_type[100], PlanetType[80];
+      |                                               ^~~~~~~~~
+glviewer.C:6473:63: warning: unused variable 'PlanetType' [-Wunused-variable]
+ 6473 |     char file_name_w_ext[2000], DumChar[200], file_type[100], PlanetType[80];
+      |                                                               ^~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::CreateTriEdges()':
+glviewer.C:7041:5: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+ 7041 |     if ( Error ) printf("Note... mesh may not be closed! \n");fflush(NULL);
+      |     ^~
+glviewer.C:7041:63: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+ 7041 |     if ( Error ) printf("Note... mesh may not be closed! \n");fflush(NULL);
+      |                                                               ^~~~~~
+glviewer.C:6671:49: warning: unused variable 'tri1' [-Wunused-variable]
+ 6671 |     int level, edge_to_node[4][3], nod_list[4], tri1, tri2;
+      |                                                 ^~~~
+glviewer.C:6671:55: warning: unused variable 'tri2' [-Wunused-variable]
+ 6671 |     int level, edge_to_node[4][3], nod_list[4], tri1, tri2;
+      |                                                       ^~~~
+glviewer.C: In member function 'void GL_VIEWER::FindSolutionMinMax(float*, float&, float&, float&, float&)':
+glviewer.C:7244:9: warning: unused variable 'i' [-Wunused-variable]
+ 7244 |     int i, j, m, Hits;
+      |         ^
+glviewer.C:7244:12: warning: unused variable 'j' [-Wunused-variable]
+ 7244 |     int i, j, m, Hits;
+      |            ^
+glviewer.C: In member function 'void GL_VIEWER::SetSolutionMin(float)':
+glviewer.C:7302:9: warning: unused variable 'i' [-Wunused-variable]
+ 7302 |     int i;
+      |         ^
+glviewer.C: In member function 'void GL_VIEWER::SetSolutionMax(float)':
+glviewer.C:7325:9: warning: unused variable 'i' [-Wunused-variable]
+ 7325 |     int i;
+      |         ^
+glviewer.C: In member function 'void GL_VIEWER::ZeroAllViews()':
+glviewer.C:7566:9: warning: unused variable 'i' [-Wunused-variable]
+ 7566 |     int i;
+      |         ^
+glviewer.C: In member function 'void GL_VIEWER::ClearADBFile()':
+glviewer.C:7599:9: warning: variable 'MenuListSize' set but not used [-Wunused-but-set-variable]
+ 7599 |     int MenuListSize, UserSelectedMenuItem;
+      |         ^~~~~~~~~~~~
+glviewer.C:7599:23: warning: variable 'UserSelectedMenuItem' set but not used [-Wunused-but-set-variable]
+ 7599 |     int MenuListSize, UserSelectedMenuItem;
+      |                       ^~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::Draw()':
+glviewer.C:8047:9: warning: unused variable 'i' [-Wunused-variable]
+ 8047 |     int i;
+      |         ^
+glviewer.C:8060:13: warning: unused variable 'ambient3' [-Wunused-variable]
+ 8060 |     GLfloat ambient3[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+      |             ^~~~~~~~
+glviewer.C:8061:13: warning: unused variable 'ambient4' [-Wunused-variable]
+ 8061 |     GLfloat ambient4[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+      |             ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawLegend()':
+glviewer.C:8259:42: warning: variable 'lim_delt' set but not used [-Wunused-but-set-variable]
+ 8259 |     float x1, x2, y1, y2, y_old, y_delt, lim_delt, LegendVal;
+      |                                          ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawBBox()':
+glviewer.C:8454:9: warning: unused variable 'j' [-Wunused-variable]
+ 8454 |     int j, node1, node2, node3;
+      |         ^
+glviewer.C:8454:12: warning: unused variable 'node1' [-Wunused-variable]
+ 8454 |     int j, node1, node2, node3;
+      |            ^~~~~
+glviewer.C:8454:19: warning: unused variable 'node2' [-Wunused-variable]
+ 8454 |     int j, node1, node2, node3;
+      |                   ^~~~~
+glviewer.C:8454:26: warning: unused variable 'node3' [-Wunused-variable]
+ 8454 |     int j, node1, node2, node3;
+      |                          ^~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawQuadCuttingPlaneWire()':
+glviewer.C:8712:15: warning: unused variable 'node1' [-Wunused-variable]
+ 8712 |     int c, j, node1, node2, node3, SurfaceID, SurfID;
+      |               ^~~~~
+glviewer.C:8712:22: warning: unused variable 'node2' [-Wunused-variable]
+ 8712 |     int c, j, node1, node2, node3, SurfaceID, SurfID;
+      |                      ^~~~~
+glviewer.C:8712:29: warning: unused variable 'node3' [-Wunused-variable]
+ 8712 |     int c, j, node1, node2, node3, SurfaceID, SurfID;
+      |                             ^~~~~
+glviewer.C:8712:36: warning: unused variable 'SurfaceID' [-Wunused-variable]
+ 8712 |     int c, j, node1, node2, node3, SurfaceID, SurfID;
+      |                                    ^~~~~~~~~
+glviewer.C:8712:47: warning: unused variable 'SurfID' [-Wunused-variable]
+ 8712 |     int c, j, node1, node2, node3, SurfaceID, SurfID;
+      |                                               ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawQuadCuttingPlaneVelocityVectors()':
+glviewer.C:8816:15: warning: unused variable 'k' [-Wunused-variable]
+ 8816 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |               ^
+glviewer.C:8816:18: warning: unused variable 'node1' [-Wunused-variable]
+ 8816 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                  ^~~~~
+glviewer.C:8816:25: warning: unused variable 'node2' [-Wunused-variable]
+ 8816 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                         ^~~~~
+glviewer.C:8816:32: warning: unused variable 'node3' [-Wunused-variable]
+ 8816 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                ^~~~~
+glviewer.C:8816:39: warning: unused variable 'SurfaceID' [-Wunused-variable]
+ 8816 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                       ^~~~~~~~~
+glviewer.C:8816:50: warning: unused variable 'SurfID' [-Wunused-variable]
+ 8816 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                                  ^~~~~~
+glviewer.C:8817:11: warning: unused variable 'per' [-Wunused-variable]
+ 8817 |     float per, vec[3], rgb[4], Normal[3], Mag;
+      |           ^~~
+glviewer.C:8817:32: warning: variable 'Normal' set but not used [-Wunused-but-set-variable]
+ 8817 |     float per, vec[3], rgb[4], Normal[3], Mag;
+      |                                ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawQuadCuttingPlaneShaded()':
+glviewer.C:9030:18: warning: unused variable 'node1' [-Wunused-variable]
+ 9030 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                  ^~~~~
+glviewer.C:9030:25: warning: unused variable 'node2' [-Wunused-variable]
+ 9030 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                         ^~~~~
+glviewer.C:9030:32: warning: unused variable 'node3' [-Wunused-variable]
+ 9030 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                ^~~~~
+glviewer.C:9030:39: warning: unused variable 'SurfaceID' [-Wunused-variable]
+ 9030 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                       ^~~~~~~~~
+glviewer.C:9030:50: warning: unused variable 'SurfID' [-Wunused-variable]
+ 9030 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                                  ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawFEMBoundaryNodes()':
+glviewer.C:9148:9: warning: unused variable 'c' [-Wunused-variable]
+ 9148 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |         ^
+glviewer.C:9148:15: warning: unused variable 'k' [-Wunused-variable]
+ 9148 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |               ^
+glviewer.C:9148:18: warning: unused variable 'node1' [-Wunused-variable]
+ 9148 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                  ^~~~~
+glviewer.C:9148:25: warning: unused variable 'node2' [-Wunused-variable]
+ 9148 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                         ^~~~~
+glviewer.C:9148:32: warning: unused variable 'node3' [-Wunused-variable]
+ 9148 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                ^~~~~
+glviewer.C:9148:39: warning: unused variable 'SurfaceID' [-Wunused-variable]
+ 9148 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                       ^~~~~~~~~
+glviewer.C:9148:50: warning: unused variable 'SurfID' [-Wunused-variable]
+ 9148 |     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                                  ^~~~~~
+glviewer.C:9149:11: warning: unused variable 'per' [-Wunused-variable]
+ 9149 |     float per, vec[3], rgb[4], Normal[3], Mag;
+      |           ^~~
+glviewer.C:9149:32: warning: unused variable 'Normal' [-Wunused-variable]
+ 9149 |     float per, vec[3], rgb[4], Normal[3], Mag;
+      |                                ^~~~~~
+glviewer.C:9149:43: warning: unused variable 'Mag' [-Wunused-variable]
+ 9149 |     float per, vec[3], rgb[4], Normal[3], Mag;
+      |                                           ^~~
+glviewer.C: In member function 'void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int)':
+glviewer.C:9218:26: warning: unused variable 'node3' [-Wunused-variable]
+ 9218 |     int j, node1, node2, node3, SurfaceID, SurfID;
+      |                          ^~~~~
+glviewer.C:9218:44: warning: unused variable 'SurfID' [-Wunused-variable]
+ 9218 |     int j, node1, node2, node3, SurfaceID, SurfID;
+      |                                            ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawCoarseMeshNodesForLevel(int)':
+glviewer.C:9349:12: warning: unused variable 'node1' [-Wunused-variable]
+ 9349 |     int j, node1, node2, node3, SurfaceID, SurfID;
+      |            ^~~~~
+glviewer.C:9349:19: warning: unused variable 'node2' [-Wunused-variable]
+ 9349 |     int j, node1, node2, node3, SurfaceID, SurfID;
+      |                   ^~~~~
+glviewer.C:9349:26: warning: unused variable 'node3' [-Wunused-variable]
+ 9349 |     int j, node1, node2, node3, SurfaceID, SurfID;
+      |                          ^~~~~
+glviewer.C:9349:33: warning: unused variable 'SurfaceID' [-Wunused-variable]
+ 9349 |     int j, node1, node2, node3, SurfaceID, SurfID;
+      |                                 ^~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawWakes()':
+glviewer.C:9407:15: warning: unused variable 'node1' [-Wunused-variable]
+ 9407 |     int i, j, node1, node2, node3, NumberNodes, KuttaNode, SurfID;
+      |               ^~~~~
+glviewer.C:9407:22: warning: unused variable 'node2' [-Wunused-variable]
+ 9407 |     int i, j, node1, node2, node3, NumberNodes, KuttaNode, SurfID;
+      |                      ^~~~~
+glviewer.C:9407:29: warning: unused variable 'node3' [-Wunused-variable]
+ 9407 |     int i, j, node1, node2, node3, NumberNodes, KuttaNode, SurfID;
+      |                             ^~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawControlSurfaces()':
+glviewer.C:9603:15: warning: unused variable 'node1' [-Wunused-variable]
+ 9603 |     int j, k, node1, node2, node3, SurfaceID, SurfID;
+      |               ^~~~~
+glviewer.C:9603:22: warning: unused variable 'node2' [-Wunused-variable]
+ 9603 |     int j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                      ^~~~~
+glviewer.C:9603:29: warning: unused variable 'node3' [-Wunused-variable]
+ 9603 |     int j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                             ^~~~~
+glviewer.C:9603:36: warning: unused variable 'SurfaceID' [-Wunused-variable]
+ 9603 |     int j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                    ^~~~~~~~~
+glviewer.C:9603:47: warning: unused variable 'SurfID' [-Wunused-variable]
+ 9603 |     int j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                               ^~~~~~
+glviewer.C:9604:11: warning: unused variable 'vec' [-Wunused-variable]
+ 9604 |     float vec[3], rgb[3];
+      |           ^~~
+glviewer.C: In member function 'void GL_VIEWER::DrawBEAM3DFEM()':
+glviewer.C:9653:15: warning: unused variable 'k' [-Wunused-variable]
+ 9653 |     int i, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |               ^
+glviewer.C:9653:18: warning: unused variable 'node1' [-Wunused-variable]
+ 9653 |     int i, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                  ^~~~~
+glviewer.C:9653:25: warning: unused variable 'node2' [-Wunused-variable]
+ 9653 |     int i, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                         ^~~~~
+glviewer.C:9653:32: warning: unused variable 'node3' [-Wunused-variable]
+ 9653 |     int i, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                ^~~~~
+glviewer.C:9653:39: warning: unused variable 'SurfaceID' [-Wunused-variable]
+ 9653 |     int i, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                       ^~~~~~~~~
+glviewer.C:9653:50: warning: unused variable 'SurfID' [-Wunused-variable]
+ 9653 |     int i, j, k, node1, node2, node3, SurfaceID, SurfID;
+      |                                                  ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::PanelComGeomTagsBrowser_Update()':
+glviewer.C:9825:12: warning: unused variable 'Type' [-Wunused-variable]
+ 9825 |     int i, Type, IndependentPanelType, NumItems;
+      |            ^~~~
+glviewer.C:9825:18: warning: unused variable 'IndependentPanelType' [-Wunused-variable]
+ 9825 |     int i, Type, IndependentPanelType, NumItems;
+      |                  ^~~~~~~~~~~~~~~~~~~~
+glviewer.C:9826:11: warning: unused variable 'Emissivity' [-Wunused-variable]
+ 9826 |     float Emissivity;
+      |           ^~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::CutPlanesBrowser_Update()':
+glviewer.C:9919:12: warning: unused variable 'Type' [-Wunused-variable]
+ 9919 |     int i, Type, IndependentPanelType, NumItems;
+      |            ^~~~
+glviewer.C:9919:18: warning: unused variable 'IndependentPanelType' [-Wunused-variable]
+ 9919 |     int i, Type, IndependentPanelType, NumItems;
+      |                  ^~~~~~~~~~~~~~~~~~~~
+glviewer.C:9919:40: warning: variable 'NumItems' set but not used [-Wunused-but-set-variable]
+ 9919 |     int i, Type, IndependentPanelType, NumItems;
+      |                                        ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawShadedSurface()':
+glviewer.C:9953:42: warning: unused variable 'LastCon' [-Wunused-variable]
+ 9953 |     int j, node1, node2, node3, LastTri, LastCon, LastSurface;
+      |                                          ^~~~~~~
+glviewer.C:9954:9: warning: unused variable 'LastMaterialType' [-Wunused-variable]
+ 9954 |     int LastMaterialType, SurfaceID, SurfID;
+      |         ^~~~~~~~~~~~~~~~
+glviewer.C:9955:46: warning: unused variable 'LastEmissivity' [-Wunused-variable]
+ 9955 |     float vec1[3], vec2[3], vec3[3], rgb[4], LastEmissivity;
+      |                                              ^~~~~~~~~~~~~~
+glviewer.C:9957:13: warning: unused variable 'ambient1' [-Wunused-variable]
+ 9957 |     GLfloat ambient1[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+      |             ^~~~~~~~
+glviewer.C:9958:13: warning: unused variable 'ambient2' [-Wunused-variable]
+ 9958 |     GLfloat ambient2[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+      |             ^~~~~~~~
+glviewer.C:9960:13: warning: unused variable 'ambient3' [-Wunused-variable]
+ 9960 |     GLfloat ambient3[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+      |             ^~~~~~~~
+glviewer.C:9961:13: warning: unused variable 'ambient4' [-Wunused-variable]
+ 9961 |     GLfloat ambient4[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+      |             ^~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawShadedSolution(float*, float, float)':
+glviewer.C:10190:17: warning: unused variable 'NewMin' [-Wunused-variable]
+10190 |     float Area, NewMin, NewMax;
+      |                 ^~~~~~
+glviewer.C:10190:25: warning: unused variable 'NewMax' [-Wunused-variable]
+10190 |     float Area, NewMin, NewMax;
+      |                         ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawShadedLineContours(float*, float, float)':
+glviewer.C:10282:39: warning: unused variable 'NumContourLevels' [-Wunused-variable]
+10282 |     int c, i, j, node1, node2, node3, NumContourLevels;
+      |                                       ^~~~~~~~~~~~~~~~
+glviewer.C:10283:17: warning: unused variable 'NewMin' [-Wunused-variable]
+10283 |     float Area, NewMin, NewMax, Vec[3], Value, Per2RGB, Per[3], v1, v2;
+      |                 ^~~~~~
+glviewer.C:10283:25: warning: unused variable 'NewMax' [-Wunused-variable]
+10283 |     float Area, NewMin, NewMax, Vec[3], Value, Per2RGB, Per[3], v1, v2;
+      |                         ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawRotorSurfacesShaded(int)':
+glviewer.C:11157:12: warning: unused variable 'node1' [-Wunused-variable]
+11157 |     int j, node1, node2, node3;
+      |            ^~~~~
+glviewer.C:11157:19: warning: unused variable 'node2' [-Wunused-variable]
+11157 |     int j, node1, node2, node3;
+      |                   ^~~~~
+glviewer.C:11157:26: warning: unused variable 'node3' [-Wunused-variable]
+11157 |     int j, node1, node2, node3;
+      |                          ^~~~~
+glviewer.C:11158:19: warning: unused variable 'cvec' [-Wunused-variable]
+11158 |     float vec[3], cvec[3], rgb[4], prcent;
+      |                   ^~~~
+glviewer.C:11158:36: warning: unused variable 'prcent' [-Wunused-variable]
+11158 |     float vec[3], cvec[3], rgb[4], prcent;
+      |                                    ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawNozzleSurfacesShaded(int)':
+glviewer.C:11561:12: warning: unused variable 'node1' [-Wunused-variable]
+11561 |     int j, node1, node2, node3;
+      |            ^~~~~
+glviewer.C:11561:19: warning: unused variable 'node2' [-Wunused-variable]
+11561 |     int j, node1, node2, node3;
+      |                   ^~~~~
+glviewer.C:11561:26: warning: unused variable 'node3' [-Wunused-variable]
+11561 |     int j, node1, node2, node3;
+      |                          ^~~~~
+glviewer.C:11562:19: warning: unused variable 'cvec' [-Wunused-variable]
+11562 |     float vec[3], cvec[3], rgb[4], prcent;
+      |                   ^~~~
+glviewer.C:11562:36: warning: unused variable 'prcent' [-Wunused-variable]
+11562 |     float vec[3], cvec[3], rgb[4], prcent;
+      |                                    ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawSymmetryPlane()':
+glviewer.C:11781:11: warning: unused variable 'Scale' [-Wunused-variable]
+11781 |     float Scale, InvScale, dalpha, alpha;
+      |           ^~~~~
+glviewer.C:11781:18: warning: unused variable 'InvScale' [-Wunused-variable]
+11781 |     float Scale, InvScale, dalpha, alpha;
+      |                  ^~~~~~~~
+glviewer.C:11783:12: warning: unused variable 'j' [-Wunused-variable]
+11783 |     int i, j, node1, node2, node3, LastTri, LastCon, LastSurface;
+      |            ^
+glviewer.C:11783:15: warning: unused variable 'node1' [-Wunused-variable]
+11783 |     int i, j, node1, node2, node3, LastTri, LastCon, LastSurface;
+      |               ^~~~~
+glviewer.C:11783:22: warning: unused variable 'node2' [-Wunused-variable]
+11783 |     int i, j, node1, node2, node3, LastTri, LastCon, LastSurface;
+      |                      ^~~~~
+glviewer.C:11783:29: warning: unused variable 'node3' [-Wunused-variable]
+11783 |     int i, j, node1, node2, node3, LastTri, LastCon, LastSurface;
+      |                             ^~~~~
+glviewer.C:11783:36: warning: unused variable 'LastTri' [-Wunused-variable]
+11783 |     int i, j, node1, node2, node3, LastTri, LastCon, LastSurface;
+      |                                    ^~~~~~~
+glviewer.C:11783:45: warning: unused variable 'LastCon' [-Wunused-variable]
+11783 |     int i, j, node1, node2, node3, LastTri, LastCon, LastSurface;
+      |                                             ^~~~~~~
+glviewer.C:11783:54: warning: unused variable 'LastSurface' [-Wunused-variable]
+11783 |     int i, j, node1, node2, node3, LastTri, LastCon, LastSurface;
+      |                                                      ^~~~~~~~~~~
+glviewer.C:11784:9: warning: unused variable 'LastMaterialType' [-Wunused-variable]
+11784 |     int LastMaterialType, SurfaceID, SurfID;
+      |         ^~~~~~~~~~~~~~~~
+glviewer.C:11784:27: warning: unused variable 'SurfaceID' [-Wunused-variable]
+11784 |     int LastMaterialType, SurfaceID, SurfID;
+      |                           ^~~~~~~~~
+glviewer.C:11784:38: warning: unused variable 'SurfID' [-Wunused-variable]
+11784 |     int LastMaterialType, SurfaceID, SurfID;
+      |                                      ^~~~~~
+glviewer.C:11785:66: warning: unused variable 'LastEmissivity' [-Wunused-variable]
+11785 |     float vec1[3], vec2[3], vec3[3], vec4[3], Normal[3], rgb[4], LastEmissivity;
+      |                                                                  ^~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawFEMAxes()':
+glviewer.C:12041:11: warning: unused variable 'rgb' [-Wunused-variable]
+12041 |     float rgb[3];
+      |           ^~~
+glviewer.C: In member function 'void GL_VIEWER::DrawFEMAxesName()':
+glviewer.C:12108:10: warning: unused variable 'string' [-Wunused-variable]
+12108 |     char string[80];
+      |          ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::WritePNGFile(char*)':
+glviewer.C:12780:24: warning: unused variable 'DumInt' [-Wunused-variable]
+12780 |     int width, height, DumInt;
+      |                        ^~~~~~
+glviewer.C: In member function 'void GL_VIEWER::WritePNGFile(char*, char*)':
+glviewer.C:12812:24: warning: unused variable 'DumInt' [-Wunused-variable]
+12812 |     int width, height, DumInt;
+      |                        ^~~~~~
+glviewer.C: In member function 'int GL_VIEWER::WritePNG(char*, char*, int, int, int, int, int)':
+glviewer.C:12846:12: warning: variable 'DumInt' set but not used [-Wunused-but-set-variable]
+12846 |     int i, DumInt, ScanLength;
+      |            ^~~~~~
+In file included from glviewer.H:43,
+                 from glviewer.C:7:
+trackball.H: At global scope:
+trackball.H:227:14: warning: 'float tb_project_to_sphere(float, float, float)' declared 'static' but never defined [-Wunused-function]
+  227 | static float tb_project_to_sphere(float r, float x, float y);
+      |              ^~~~~~~~~~~~~~~~~~~~
+trackball.H:273:13: warning: 'void normalize_quat(float*)' declared 'static' but never defined [-Wunused-function]
+  273 | static void normalize_quat(float q[4]);
+      |             ^~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadSolutionCaseList()':
+glviewer.C:1337:35: warning: '.adb.cases' directive writing 10 bytes into a region of size between 1 and 2000 [-Wformat-overflow=]
+ 1337 |        sprintf(file_name_w_ext,"%s.adb.cases",file_name);
+      |                                   ^~~~~~~~~~
+glviewer.C:1337:15: note: 'sprintf' output between 11 and 2010 bytes into a destination of size 2000
+ 1337 |        sprintf(file_name_w_ext,"%s.adb.cases",file_name);
+      |        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:1331:35: warning: '.cases' directive writing 6 bytes into a region of size between 1 and 2000 [-Wformat-overflow=]
+ 1331 |        sprintf(file_name_w_ext,"%s.cases",file_name);
+      |                                   ^~~~~~
+glviewer.C:1331:15: note: 'sprintf' output between 7 and 2006 bytes into a destination of size 2000
+ 1331 |        sprintf(file_name_w_ext,"%s.cases",file_name);
+      |        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadCalculixINPFile()':
+glviewer.C:1675:25: warning: 'NumberOfElementNodes' may be used uninitialized in this function [-Wmaybe-uninitialized]
+ 1675 |                    else if ( NumberOfElementNodes == 2 ) {
+      |                         ^~
+glviewer.C: In member function 'void GL_VIEWER::LoadCalculixFRDFileOld()':
+glviewer.C:2389:30: warning: '%s' directive writing up to 1999 bytes into a region of size 80 [-Wformat-overflow=]
+ 2389 |     sprintf(file_name_w_ext,"%s.frd",CalculixFileName);
+      |                              ^~
+glviewer.C:2389:12: note: 'sprintf' output between 5 and 2004 bytes into a destination of size 80
+ 2389 |     sprintf(file_name_w_ext,"%s.frd",CalculixFileName);
+      |     ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadCalculixFRDFile()':
+glviewer.C:2911:30: warning: '%s' directive writing up to 1999 bytes into a region of size 80 [-Wformat-overflow=]
+ 2911 |     sprintf(file_name_w_ext,"%s.frd",CalculixFileName);
+      |                              ^~
+glviewer.C:2911:12: note: 'sprintf' output between 5 and 2004 bytes into a destination of size 80
+ 2911 |     sprintf(file_name_w_ext,"%s.frd",CalculixFileName);
+      |     ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadExistingSolutionData(int)':
+glviewer.C:6070:36: warning: '.adb' directive writing 4 bytes into a region of size between 1 and 2000 [-Wformat-overflow=]
+ 6070 |         sprintf(file_name_w_ext,"%s.adb",file_name);
+      |                                    ^~~~
+glviewer.C:6070:16: note: 'sprintf' output between 5 and 2004 bytes into a destination of size 2000
+ 6070 |         sprintf(file_name_w_ext,"%s.adb",file_name);
+      |         ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:6072:73: warning: '%d' directive writing between 1 and 11 bytes into a region of size between 0 and 1999 [-Wformat-overflow=]
+ 6072 |         if ( CheckForOptimizationReloads_ ) sprintf(file_name_w_ext,"%s.%d.adb",file_name,Case);
+      |                                                                         ^~
+glviewer.C:6072:52: note: 'sprintf' output between 7 and 2016 bytes into a destination of size 2000
+ 6072 |         if ( CheckForOptimizationReloads_ ) sprintf(file_name_w_ext,"%s.%d.adb",file_name,Case);
+      |                                             ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:6064:73: warning: '%d' directive writing between 1 and 11 bytes into a region of size between 0 and 1999 [-Wformat-overflow=]
+ 6064 |         if ( CheckForOptimizationReloads_ ) sprintf(file_name_w_ext,"%s.%d",file_name,Case);
+      |                                                                         ^~
+glviewer.C:6064:52: note: 'sprintf' output between 3 and 2012 bytes into a destination of size 2000
+ 6064 |         if ( CheckForOptimizationReloads_ ) sprintf(file_name_w_ext,"%s.%d",file_name,Case);
+      |                                             ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:6278:35: warning: '.case.' directive writing 6 bytes into a region of size between 1 and 2000 [-Wformat-overflow=]
+ 6278 |        sprintf(file_name_w_ext,"%s.case.%d.quad.%d.dat",file_name,Case,c);
+      |                                   ^~~~~~
+glviewer.C:6278:32: note: directive argument in the range [1, 2147483647]
+ 6278 |        sprintf(file_name_w_ext,"%s.case.%d.quad.%d.dat",file_name,Case,c);
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:6278:15: note: 'sprintf' output between 19 and 2037 bytes into a destination of size 2000
+ 6278 |        sprintf(file_name_w_ext,"%s.case.%d.quad.%d.dat",file_name,Case,c);
+      |        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadAdjointandGradients()':
+glviewer.C:6579:28: warning: '.gradient' directive writing 9 bytes into a region of size between 1 and 2000 [-Wformat-overflow=]
+ 6579 |     sprintf(OptFileName,"%s.gradient",file_name);
+      |                            ^~~~~~~~~
+glviewer.C:6579:12: note: 'sprintf' output between 10 and 2009 bytes into a destination of size 2000
+ 6579 |     sprintf(OptFileName,"%s.gradient",file_name);
+      |     ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadBeam3DFEMData()':
+glviewer.C:6548:33: warning: '.Surface.' directive writing 9 bytes into a region of size between 1 and 2000 [-Wformat-overflow=]
+ 6548 |        sprintf(FEM_File_Name,"%s.Surface.%d.dfm",file_name,i);
+      |                                 ^~~~~~~~~
+glviewer.C:6548:30: note: directive argument in the range [1, 2147483647]
+ 6548 |        sprintf(FEM_File_Name,"%s.Surface.%d.dfm",file_name,i);
+      |                              ^~~~~~~~~~~~~~~~~~~
+glviewer.C:6548:15: note: 'sprintf' output between 15 and 2023 bytes into a destination of size 2000
+ 6548 |        sprintf(FEM_File_Name,"%s.Surface.%d.dfm",file_name,i);
+      |        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadMeshData(int)':
+glviewer.C:542:36: warning: '.adb' directive writing 4 bytes into a region of size between 1 and 2000 [-Wformat-overflow=]
+  542 |         sprintf(file_name_w_ext,"%s.adb",file_name);
+      |                                    ^~~~
+glviewer.C:542:16: note: 'sprintf' output between 5 and 2004 bytes into a destination of size 2000
+  542 |         sprintf(file_name_w_ext,"%s.adb",file_name);
+      |         ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:544:51: warning: '%d' directive writing between 1 and 11 bytes into a region of size between 0 and 1999 [-Wformat-overflow=]
+  544 |         if ( ReLoad ) sprintf(file_name_w_ext,"%s.%d.adb",file_name,ReLoad);
+      |                                                   ^~
+glviewer.C:544:47: note: using the range [-2147483648, 2147483647] for directive argument
+  544 |         if ( ReLoad ) sprintf(file_name_w_ext,"%s.%d.adb",file_name,ReLoad);
+      |                                               ^~~~~~~~~~~
+glviewer.C:544:30: note: 'sprintf' output between 7 and 2016 bytes into a destination of size 2000
+  544 |         if ( ReLoad ) sprintf(file_name_w_ext,"%s.%d.adb",file_name,ReLoad);
+      |                       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:536:51: warning: '%d' directive writing between 1 and 11 bytes into a region of size between 0 and 1999 [-Wformat-overflow=]
+  536 |         if ( ReLoad ) sprintf(file_name_w_ext,"%s.%d",file_name,ReLoad);
+      |                                                   ^~
+glviewer.C:536:47: note: using the range [-2147483648, 2147483647] for directive argument
+  536 |         if ( ReLoad ) sprintf(file_name_w_ext,"%s.%d",file_name,ReLoad);
+      |                                               ^~~~~~~
+glviewer.C:536:30: note: 'sprintf' output between 3 and 2012 bytes into a destination of size 2000
+  536 |         if ( ReLoad ) sprintf(file_name_w_ext,"%s.%d",file_name,ReLoad);
+      |                       ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::SolutionCaseSliderWasMoved(int)':
+glviewer.C:7679:39: warning: '%d' directive writing between 1 and 11 bytes into a region of size between 0 and 1999 [-Wformat-overflow=]
+ 7679 |           sprintf(file_name_w_ext,"%s.%d.adb",file_name,NewCase);
+      |                                       ^~
+glviewer.C:7679:18: note: 'sprintf' output between 7 and 2016 bytes into a destination of size 2000
+ 7679 |           sprintf(file_name_w_ext,"%s.%d.adb",file_name,NewCase);
+      |           ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:7689:42: warning: '%d' directive writing between 1 and 11 bytes into a region of size between 0 and 1999 [-Wformat-overflow=]
+ 7689 |              sprintf(file_name_w_ext,"%s.%d.adb",file_name,NewCase);
+      |                                          ^~
+glviewer.C:7689:21: note: 'sprintf' output between 7 and 2016 bytes into a destination of size 2000
+ 7689 |              sprintf(file_name_w_ext,"%s.%d.adb",file_name,NewCase);
+      |              ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadQuadCuttingPlaneCaseList()':
+glviewer.C:1408:35: warning: '.quad.cases' directive writing 11 bytes into a region of size between 1 and 2000 [-Wformat-overflow=]
+ 1408 |        sprintf(file_name_w_ext,"%s.quad.cases",file_name);
+      |                                   ^~~~~~~~~~~
+glviewer.C:1408:15: note: 'sprintf' output between 12 and 2011 bytes into a destination of size 2000
+ 1408 |        sprintf(file_name_w_ext,"%s.quad.cases",file_name);
+      |        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::LoadInitialData(char*)':
+glviewer.C:339:36: warning: '.adb' directive writing 4 bytes into a region of size between 1 and 2000 [-Wformat-overflow=]
+  339 |         sprintf(file_name_w_ext,"%s.adb",file_name);
+      |                                    ^~~~
+glviewer.C:339:16: note: 'sprintf' output between 5 and 2004 bytes into a destination of size 2000
+  339 |         sprintf(file_name_w_ext,"%s.adb",file_name);
+      |         ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::DrawSymmetryPlane()':
+glviewer.C:11894:18: warning: 'Normal[2]' may be used uninitialized in this function [-Wmaybe-uninitialized]
+11894 |        glNormal3f( Normal[0], Normal[1], Normal[2] );
+      |        ~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:11894:18: warning: 'Normal[1]' may be used uninitialized in this function [-Wmaybe-uninitialized]
+glviewer.C:11894:18: warning: 'Normal[0]' may be used uninitialized in this function [-Wmaybe-uninitialized]
+glviewer.C: In member function 'void GL_VIEWER::DrawShadedSurface()':
+glviewer.C:10010:54: warning: 'LastSurface' may be used uninitialized in this function [-Wmaybe-uninitialized]
+10010 |           if ( LastTri != GOMGEOM_TRI || LastSurface != SurfID ) {
+      |                                          ~~~~~~~~~~~~^~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::WritePNGFile(char*)':
+glviewer.C:12791:24: warning: '%s' directive writing up to 1999 bytes into a region of size 256 [-Wformat-overflow=]
+12791 |        sprintf(rgbstr,"%s.%s.png",file_name,FileName);
+      |                        ^~
+glviewer.C:12791:15: note: 'sprintf' output 6 or more bytes (assuming 2005) into a destination of size 256
+12791 |        sprintf(rgbstr,"%s.%s.png",file_name,FileName);
+      |        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::WritePNGFile(char*, char*)':
+glviewer.C:12823:26: warning: '%s' directive writing up to 1999 bytes into a region of size 256 [-Wformat-overflow=]
+12823 |        sprintf(rgbstr,"%s%s.%s.png",Path,file_name,FileName);
+      |                          ^~
+glviewer.C:12823:15: note: 'sprintf' output 6 or more bytes (assuming 2005) into a destination of size 256
+12823 |        sprintf(rgbstr,"%s%s.%s.png",Path,file_name,FileName);
+      |        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C: In member function 'void GL_VIEWER::MakeMovie(char*)':
+glviewer.C:5943:39: warning: '%d' directive writing between 1 and 10 bytes into a region of size between 0 and 1999 [-Wformat-overflow=]
+ 5943 |           sprintf(file_name_w_ext,"%s.%d.adb",file_name,Case);
+      |                                       ^~
+glviewer.C:5943:35: note: directive argument in the range [1, 2147483647]
+ 5943 |           sprintf(file_name_w_ext,"%s.%d.adb",file_name,Case);
+      |                                   ^~~~~~~~~~~
+glviewer.C:5943:18: note: 'sprintf' output between 7 and 2015 bytes into a destination of size 2000
+ 5943 |           sprintf(file_name_w_ext,"%s.%d.adb",file_name,Case);
+      |           ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:5998:41: warning: '%s' directive writing up to 1999 bytes into a region of size 1984 [-Wformat-overflow=]
+ 5998 |        sprintf(Command,"ffmpeg -r 50 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4",Path,file_name,FileName,file_name,FileName);
+      |                                         ^~                                            ~~~~
+glviewer.C:5998:15: note: 'sprintf' output 50 or more bytes (assuming 6047) into a destination of size 2000
+ 5998 |        sprintf(Command,"ffmpeg -r 50 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4",Path,file_name,FileName,file_name,FileName);
+      |        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+glviewer.C:5990:41: warning: '%s' directive writing up to 1999 bytes into a region of size 1984 [-Wformat-overflow=]
+ 5990 |        sprintf(Command,"ffmpeg -r 10 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4",Path,file_name,FileName,file_name,FileName);
+      |                                         ^~                                            ~~~~
+glviewer.C:5990:15: note: 'sprintf' output 50 or more bytes (assuming 6047) into a destination of size 2000
+ 5990 |        sprintf(Command,"ffmpeg -r 10 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4",Path,file_name,FileName,file_name,FileName);
+      |        ~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+g++-mp-11 -DNDEBUG -DDO_GRAPHICS -O2 -Wall -fno-exceptions  -DOCTREE_DO_GRAPHICS -DOSX  -I/usr/local/include -I/Users/dkinney/projects/Libraries/FLTK/fltk-1.3.7  -c viewerUI.C
+In file included from viewerUI.H:9,
+                 from viewerUI.C:3:
+glviewer.H: In member function 'int GL_VIEWER::DrawQuadWireFrameWasPicked()':
+glviewer.H:1058:102: warning: no return statement in function returning non-void [-Wreturn-type]
+ 1058 |     int DrawQuadWireFrameWasPicked(void) { ToggleFlag(DrawQuadWireFrameIsOn, "DrawQuadWireFrameIs"); };
+      |                                                                                                      ^
+glviewer.H: In member function 'int GL_VIEWER::DrawQuadVelocitiesWasPicked()':
+glviewer.H:1059:105: warning: no return statement in function returning non-void [-Wreturn-type]
+ 1059 |     int DrawQuadVelocitiesWasPicked(void) { ToggleFlag(DrawQuadVelocitiesIsOn, "DrawQuadVelocitiesIs"); };
+      |                                                                                                         ^
+viewerUI.C: In member function 'void viewerUI::cb_CutPlanesDrawCp_i(Fl_Button*, void*)':
+viewerUI.C:162:13: error: 'class GL_VIEWER' has no member named 'DrawCuttingPlanesWasPicked'; did you mean 'DrawCuttingPlanesCpWasPicked'?
+  162 |   glviewer->DrawCuttingPlanesWasPicked();
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |             DrawCuttingPlanesCpWasPicked
+viewerUI.C: In member function 'void viewerUI::cb_CutPlanesScaleVelocity_i(Fl_Value_Slider*, void*)':
+viewerUI.C:170:39: error: 'value' was not declared in this scope
+  170 |   glviewer->SetQuadCellVelocityScaler(value());
+      |                                       ^~~~~
+viewerUI.C: In member function 'void viewerUI::cb_FileMenuSaveAsTiff_i(Fl_Menu_*, void*)':
+viewerUI.C:180:13: warning: zero-length gnu_printf format string [-Wformat-zero-length]
+  180 | sprintf(dum,"");
+      |             ^~
+viewerUI.C: In member function 'void viewerUI::cb_FileMenuSaveAsMoviePNG_i(Fl_Menu_*, void*)':
+viewerUI.C:196:13: warning: zero-length gnu_printf format string [-Wformat-zero-length]
+  196 | sprintf(dum,"");
+      |             ^~
+viewerUI.C: In member function 'void viewerUI::cb_FileMenuPickQuit_i(Fl_Menu_*, void*)':
+viewerUI.C:211:13: warning: 'int fl_ask(const char*, ...)' is deprecated [-Wdeprecated-declarations]
+  211 | val = fl_ask("Quit Application?");
+      |       ~~~~~~^~~~~~~~~~~~~~~~~~~~~
+In file included from glviewer.H:25,
+                 from viewerUI.H:9,
+                 from viewerUI.C:3:
+/Users/dkinney/projects/Libraries/FLTK/fltk-1.3.7/FL/fl_ask.H:55:15: note: declared here
+   55 | FL_EXPORT int fl_ask(const char *,...) __fl_attr((__format__ (__printf__, 1, 2), __deprecated__));
+      |               ^~~~~~
+In file included from glviewer.H:43,
+                 from viewerUI.H:9,
+                 from viewerUI.C:3:
+trackball.H: At global scope:
+trackball.H:227:14: warning: 'float tb_project_to_sphere(float, float, float)' declared 'static' but never defined [-Wunused-function]
+  227 | static float tb_project_to_sphere(float r, float x, float y);
+      |              ^~~~~~~~~~~~~~~~~~~~
+trackball.H:273:13: warning: 'void normalize_quat(float*)' declared 'static' but never defined [-Wunused-function]
+  273 | static void normalize_quat(float q[4]);
+      |             ^~~~~~~~~~~~~~
+make[2]: *** [viewerUI.o] Error 1
+make[1]: *** [all] Error 2
+make: *** [osx] Error 2

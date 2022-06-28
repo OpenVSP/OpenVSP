@@ -1,0 +1,179 @@
+#include "VSPAERO_TYPES.H"
+
+/*##############################################################################
+#                                                                              #
+#                       Convert double to a float                              #
+#                                                                              #
+##############################################################################*/
+
+float FLOAT(double a) { 
+   
+    return (float) a; 
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FWRITE                                       #
+#                                                                              #
+##############################################################################*/
+
+int FWRITE(int *Value, size_t Size, size_t Num, FILE *File) {
+   
+   return fwrite(Value, Size, Num, File);
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FWRITE                                       #
+#                                                                              #
+##############################################################################*/
+
+int FWRITE(float *Value, size_t Size, size_t Num, FILE *File) {
+   
+   return fwrite(Value, Size, Num, File);
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FWRITE                                       #
+#                                                                              #
+##############################################################################*/
+
+int FWRITE(double *Value, size_t Size, size_t Num, FILE *File) {
+   
+   return fwrite(Value, Size, Num, File);
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FWRITE                                       #
+#                                                                              #
+##############################################################################*/
+
+int FWRITE(char *Value, size_t Size, size_t Num, FILE *File) {
+   
+   return fwrite(Value, Size, Num, File);
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FREAD                                        #
+#                                                                              #
+##############################################################################*/
+
+int FREAD(int *Value, size_t Size, size_t Num, FILE *File) {
+   
+   return fread(Value, Size, Num, File);
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FREAD                                        #
+#                                                                              #
+##############################################################################*/
+
+int FREAD(float *Value, size_t Size, size_t Num, FILE *File) {
+   
+   return fread(Value, Size, Num, File);
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FREAD                                        #
+#                                                                              #
+##############################################################################*/
+
+int FREAD(double *Value, size_t Size, size_t Num, FILE *File) {
+   
+   return fread(Value, Size, Num, File);
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FREAD                                        #
+#                                                                              #
+##############################################################################*/
+
+int FREAD(char *Value, size_t Size, size_t Num, FILE *File) {
+   
+   return fread(Value, Size, Num, File);
+   
+}
+
+//////////////////////////////////// CODIPACK //////////////////////////////////
+
+#ifdef CODIPACK
+
+/*##############################################################################
+#                                                                              #
+#             Convert CODI RealReverse to a float                              #
+#                                                                              #
+##############################################################################*/
+   
+float FLOAT(codi::RealReverse a) {
+   
+    return (float) a.getValue();
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FWRITE                                       #
+#                                                                              #
+##############################################################################*/
+
+int FWRITE(codi::RealReverse *Value, size_t Size, size_t Num, FILE *File) {
+   
+   double DumDouble;
+   
+   DumDouble = Value->getValue();
+
+   return fwrite(&(DumDouble), Size, Num, File);
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                                 FREAD                                        #
+#                                                                              #
+##############################################################################*/
+
+int FREAD(codi::RealReverse *Value, size_t Size, size_t Num, FILE *File) {
+   
+   int DumInt;
+   double DumDouble;
+
+   DumInt = fread(&DumDouble, Size, Num, File);
+   
+   Value->setValue(DumDouble);
+
+   return DumInt;
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                             Codi Argument                                    #
+#                                                                              #
+##############################################################################*/
+
+double const Argument(codi::RealReverse const & value) noexcept
+{
+
+  return value.getValue();
+
+}
+
+#endif
+
+
+
+
