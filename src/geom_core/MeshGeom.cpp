@@ -3972,9 +3972,21 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
         }
     }
 
+    DeleteMarkedMeshes();
+
+    //==== Remove Any Degenerate Tris ====//
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        info->m_NumDegenerateTriDeleted += m_TMeshVec[i]->RemoveDegenerate();
+    }
+
+}
+
+void MeshGeom::DeleteMarkedMeshes()
+{
     //==== Remove meshes marked for deletion ====//
     vector< TMesh* > newTMeshVec;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         if ( !m_TMeshVec[i]->m_DeleteMeFlag )
         {
@@ -3986,16 +3998,9 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
         }
     }
     m_TMeshVec = newTMeshVec;
-
-    //==== Remove Any Degenerate Tris ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        info->m_NumDegenerateTriDeleted += m_TMeshVec[i]->RemoveDegenerate();
-    }
-
 }
 
-void MeshGeom::AddHalfBox()
+void MeshGeom::AddHalfBox( string id )
 {
     //==== Find Bound Box ====//
     BndBox box;
@@ -4014,6 +4019,7 @@ void MeshGeom::AddHalfBox()
     //==== Build Box Triangles =====//
     TMesh* tm = new TMesh();
     tm->m_SurfCfdType = vsp::CFD_NEGATIVE;
+    tm->m_PtrID = id;
 
     m_TMeshVec.push_back( tm );
 
@@ -4086,6 +4092,18 @@ void MeshGeom::AddHalfBox()
     tm->AddTri( E, A, B, vec3d( 0, 0, -1 ) );
     tm->AddTri( E, B, F, vec3d( 0, 0, -1 ) );
 
+}
+
+TMesh* MeshGeom::GetMeshByID( const string & id )
+{
+    for ( int i = 0; i < m_TMeshVec.size(); i++ )
+    {
+        if ( m_TMeshVec[i]->m_PtrID == id )
+        {
+            return m_TMeshVec[i];
+        }
+    }
+    return NULL;
 }
 
 void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )

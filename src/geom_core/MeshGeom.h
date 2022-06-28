@@ -169,7 +169,10 @@ public:
     vector< TetraMassProp* > m_PointMassVec;
 
     virtual void WaterTightCheck( FILE* fid );
-    virtual void AddHalfBox();
+    virtual void DeleteMarkedMeshes();
+    virtual void AddHalfBox( string id );
+
+    virtual TMesh* GetMeshByID( const string & id );
 
     virtual void UpdateSurf() {}
     virtual int GetNumMainSurfs() const

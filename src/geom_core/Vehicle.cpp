@@ -4606,7 +4606,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
 
     if ( halfFlag )
     {
-        mesh_ptr->AddHalfBox();
+        mesh_ptr->AddHalfBox( "NEGATIVE_HALF" );
     }
 
     if ( mesh_ptr->m_TMeshVec.size() )
@@ -4620,6 +4620,12 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
         CutActiveGeomVec();
         DeleteClipBoard();
         id = "NONE";
+    }
+
+    if ( halfFlag )
+    {
+        mesh_ptr->GetMeshByID( "NEGATIVE_HALF" )->m_DeleteMeFlag = true;
+        mesh_ptr->DeleteMarkedMeshes();
     }
 
     return id;
