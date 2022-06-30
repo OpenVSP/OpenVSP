@@ -739,6 +739,8 @@ void Mesh::SplitEdge( Edge* edge )
     Edge* es1 = AddEdge( ns, n1 );
     es0->ridge = edge->ridge;
     es1->ridge = edge->ridge;
+    es0->border = edge->border; // Should be impossible.
+    es1->border = edge->border; // Should be impossible.
 
     if ( fa )
     {
