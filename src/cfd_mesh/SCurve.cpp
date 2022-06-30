@@ -598,7 +598,10 @@ void SCurve::SmoothTess()
 {
 
     vector< double > UTessRev;
-    TessRevIntegrate( UTessRev );
+    vector< double > STessRev;
+    TessRevIntegrate( UTessRev, STessRev );
+
+    double smax = dist_vec.back();
 
     int nfwd = m_UTess.size();
     int nrev = UTessRev.size();
@@ -609,12 +612,16 @@ void SCurve::SmoothTess()
         n = nrev;
         m_UTess.pop_back();
         m_UTess[ n - 1 ] = 1.0;
+        m_STess.pop_back();
+        m_STess[ n - 1 ] = smax;
     }
     else if( nrev > nfwd )
     {
         n = nfwd;
         UTessRev.pop_back();
         UTessRev[ n - 1 ] = 0.0;
+        STessRev.pop_back();
+        STessRev[ n - 1 ] = 0.0;
     }
     else
     {
@@ -628,9 +635,23 @@ void SCurve::SmoothTess()
         double uave = ( 2.0 * u - u * u + ur * ur ) / 2.0;
 
         m_UTess[ i ] = uave;
+
+        double s = m_STess[ i ];
+        double sr = STessRev[ n - i - 1 ];
+
+        // Average of two weighted sums.
+        // One weighted by (s/smax), the other by (sr/smax).
+        // The weighting ensures the 'head' of each curve (forward or reverse) is taken as truth, with no
+        // contribution from the 'tail' of the opposing curve.  However, in the middle the two are averaged.
+        double save = ( 2.0 * s + ( (sr * sr) - (s * s) ) / smax ) / 2.0;
+
+        m_STess[ i ] = save;
     }
     m_UTess[ 0 ] = 0.0;
     m_UTess[ n - 1 ] = 1.0;
+
+    m_STess[ 0 ] = 0.0;
+    m_STess[ n - 1 ] = smax;
 }
 
 void SCurve::UWTess()
