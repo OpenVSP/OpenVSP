@@ -369,13 +369,15 @@ void SCurve::TessEndPts()
 void SCurve::TessIntegrate()
 {
     vector<double> utess;
-    TessIntegrate( 1, utess );
+    vector< double > stess;
+    TessIntegrate( 1, utess, stess );
     m_UTess.swap( utess );
+    m_STess.swap( stess );
 }
 
-void SCurve::TessRevIntegrate( vector< double > &utess )
+void SCurve::TessRevIntegrate( vector< double > &utess, vector< double > &stess )
 {
-    TessIntegrate( -1, utess );
+    TessIntegrate( -1, utess, stess );
 }
 
 // Bisection method solver to find i,u corresponding to starget.
@@ -503,9 +505,10 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
 }
 
 
-void SCurve::TessIntegrate( int direction, vector< double > &utess )
+void SCurve::TessIntegrate( int direction, vector< double > &utess, vector< double > &stess )
 {
     utess.clear();
+    stess.clear();
 
     int nsubstep = 5;
 
@@ -541,6 +544,7 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess )
     InterpDistTable( ireal, t, u, s, dsdi );
 
     utess.push_back( u );
+    stess.push_back( s );
 
     while( ireal <= imax && ireal >= 0.0 )
     {
@@ -566,6 +570,7 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess )
         if( isub >= nsubstep )
         {
             utess.push_back( u );
+            stess.push_back( s );
             isub = 0;
         }
     }
@@ -576,6 +581,7 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess )
         if( utess.back() > 0.0 )
         {
             utess.push_back( 0.0 );
+            stess.push_back( 0.0 );
         }
     }
     else
@@ -583,6 +589,7 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess )
         if( utess.back() < 1.0 )
         {
             utess.push_back( 1.0 );
+            stess.push_back( smax );
         }
     }
 }
