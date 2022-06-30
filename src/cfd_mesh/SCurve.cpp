@@ -739,22 +739,17 @@ void SCurve::ApplyESSurface( double u, double t )
 
 void SCurve::DoubleTess()
 {
-    int n = m_UTess.size();
+    int n = m_STess.size();
 
-    vector< double > doubleUTess( 2 * ( n - 1 ) + 1 );
     vector< double > doubleSTess( 2 * ( n - 1 ) + 1 );
 
     for( int i = 0; i < n - 1; i++ )
     {
-        doubleUTess[ 2 * i ] = m_UTess[i];
-        doubleUTess[ 2 * i + 1 ] = 0.5 * ( m_UTess[ i + 1 ] + m_UTess[ i ] );
         doubleSTess[ 2 * i ] = m_STess[i];
         doubleSTess[ 2 * i + 1 ] = 0.5 * ( m_STess[ i + 1 ] + m_STess[ i ] );
     }
-    doubleUTess[ 2 * ( n - 1 ) ] = m_UTess[ n - 1 ];
     doubleSTess[ 2 * ( n - 1 ) ] = m_STess[ n - 1 ];
 
-    m_UTess.swap( doubleUTess );
     m_STess.swap( doubleSTess );
 }
 
