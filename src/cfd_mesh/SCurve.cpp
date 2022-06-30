@@ -640,30 +640,24 @@ void SCurve::STessToUTess( const vector< double > &stess, vector< double > &utes
 
 void SCurve::SmoothTess()
 {
-
-    vector< double > UTessRev;
     vector< double > STessRev;
-    TessRevIntegrate( UTessRev, STessRev );
+    TessRevIntegrate( STessRev );
 
     double smax = dist_vec.back();
 
-    int nfwd = m_UTess.size();
-    int nrev = UTessRev.size();
+    int nfwd = m_STess.size();
+    int nrev = STessRev.size();
     int n;
 
     if( nfwd > nrev )
     {
         n = nrev;
-        m_UTess.pop_back();
-        m_UTess[ n - 1 ] = 1.0;
         m_STess.pop_back();
         m_STess[ n - 1 ] = smax;
     }
     else if( nrev > nfwd )
     {
         n = nfwd;
-        UTessRev.pop_back();
-        UTessRev[ n - 1 ] = 0.0;
         STessRev.pop_back();
         STessRev[ n - 1 ] = 0.0;
     }
@@ -674,12 +668,6 @@ void SCurve::SmoothTess()
 
     for( int i = 1; i < n - 1; i++ )
     {
-        double u = m_UTess[ i ];
-        double ur = UTessRev[ n - i - 1 ];
-        double uave = ( 2.0 * u - u * u + ur * ur ) / 2.0;
-
-        m_UTess[ i ] = uave;
-
         double s = m_STess[ i ];
         double sr = STessRev[ n - i - 1 ];
 
@@ -691,9 +679,6 @@ void SCurve::SmoothTess()
 
         m_STess[ i ] = save;
     }
-    m_UTess[ 0 ] = 0.0;
-    m_UTess[ n - 1 ] = 1.0;
-
     m_STess[ 0 ] = 0.0;
     m_STess[ n - 1 ] = smax;
 }
