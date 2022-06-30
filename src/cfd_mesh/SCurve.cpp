@@ -366,18 +366,6 @@ void SCurve::TessEndPts()
     UWTess();
 }
 
-void SCurve::TessIntegrate()
-{
-    vector< double > stess;
-    TessIntegrate( 1, stess );
-    m_STess.swap( stess );
-}
-
-void SCurve::TessRevIntegrate( vector< double > &stess )
-{
-    TessIntegrate( -1, stess );
-}
-
 // Bisection method solver to find i,u corresponding to starget.
 //
 // starget  i       Target s input.
@@ -631,10 +619,12 @@ void SCurve::STessToUTess( const vector< double > &stess, vector< double > &utes
     utess[ ntess - 1 ] = 1.0;
 }
 
-void SCurve::SmoothTess()
+void SCurve::TessIntegrateAndSmooth()
 {
+    TessIntegrate( 1, m_STess );
+
     vector< double > STessRev;
-    TessRevIntegrate( STessRev );
+    TessIntegrate( -1, STessRev );
 
     double smax = dist_vec.back();
 
@@ -733,8 +723,7 @@ void SCurve::DoubleTess()
 
 void SCurve::Tesselate()
 {
-    TessIntegrate();
-    SmoothTess();
+    TessIntegrateAndSmooth();
     DoubleTess();
     STessToUTess();
     UWTess();
