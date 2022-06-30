@@ -709,12 +709,43 @@ void SCurve::DoubleTess()
 {
     int n = m_STess.size();
 
-    vector< double > doubleSTess( 2 * ( n - 1 ) + 1 );
+    // Build up tvec corresponding to points m_STess
+    vector < double > tvec( n );
+    tvec[0] = target_vec[0];
+    int ilow = 0;
+    int iup = 1;
+    int ntable = dist_vec.size();
+    for( int i = 1; i < n - 1; i++ )
+    {
+        while( iup < ntable && m_STess[i] > dist_vec[ iup ] )
+        {
+            ilow++;
+            iup++;
+        }
 
+        if ( iup >= ntable )
+        {
+            iup = ntable - 1;
+            ilow = iup - 1;
+        }
+
+        double slow = dist_vec[ ilow ];
+        double sup = dist_vec[ iup ];
+        double frac = ( m_STess[i] - slow )/( sup - slow );
+
+        tvec[i] = target_vec[ ilow ] + frac * ( target_vec[ iup ] - target_vec[ ilow ] );
+    }
+    tvec[ n - 1 ] = target_vec[ ntable - 1 ];
+
+    // Build up doubleSTess with 'mid'-points inserted.  Points are inserted at a point adjusted
+    // for the target lengths at the start and end of the segment.
+    vector< double > doubleSTess( 2 * ( n - 1 ) + 1 );
     for( int i = 0; i < n - 1; i++ )
     {
         doubleSTess[ 2 * i ] = m_STess[i];
-        doubleSTess[ 2 * i + 1 ] = 0.5 * ( m_STess[ i + 1 ] + m_STess[ i ] );
+
+        double k = 1.0 / ( 1.0 + ( tvec[ i + 1 ] / tvec[ i ] ) );
+        doubleSTess[ 2 * i + 1 ] = m_STess[ i ] + k * ( m_STess[ i + 1 ] - m_STess[ i ] );
     }
     doubleSTess[ 2 * ( n - 1 ) ] = m_STess[ n - 1 ];
 
