@@ -594,6 +594,11 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess, vector< doub
     }
 }
 
+void SCurve::STessToUTess()
+{
+    STessToUTess( m_STess, m_UTess );
+}
+
 void SCurve::STessToUTess( const vector< double > &stess, vector< double > &utess )
 {
     int ntess = stess.size();
@@ -758,12 +763,7 @@ void SCurve::Tesselate()
     TessIntegrate();
     SmoothTess();
     DoubleTess();
-
-    vector< double > utess;
-    STessToUTess( m_STess, utess );
-
-    m_UTess.swap( utess );
-
+    STessToUTess();
     UWTess();
 }
 

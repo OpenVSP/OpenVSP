@@ -61,6 +61,7 @@ public:
     bool NewtonFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u );
     bool BisectFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction );
     void TessIntegrate( int direction, vector< double > &utess, vector< double > &stess );
+    void STessToUTess();
     void STessToUTess( const vector< double > &stess, vector< double > &utess );
     void SmoothTess();
     void DoubleTess();
