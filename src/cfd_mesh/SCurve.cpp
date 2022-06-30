@@ -594,6 +594,45 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess, vector< doub
     }
 }
 
+void SCurve::STessToUTess( const vector< double > &stess, vector< double > &utess )
+{
+    int ntess = stess.size();
+    utess.clear();
+    utess.resize( ntess, -1.0 );
+
+    int ntable = dist_vec.size();
+    int ilow = 0;
+    int iup = 1;
+    utess[ 0 ] = 0;
+
+    for ( int i = 1; i < ntess - 1; i++ )
+    {
+        while( iup < ntable && stess[i] > dist_vec[ iup ] )
+        {
+            ilow++;
+            iup++;
+        }
+
+        if ( iup >= ntable )
+        {
+            iup = ntable - 1;
+            ilow = iup - 1;
+        }
+
+        double slow = dist_vec[ ilow ];
+        double sup = dist_vec[ iup ];
+        double frac = ( stess[i] - slow )/( sup - slow );
+
+        double ulow = u_vec[ ilow ];
+        double uup = u_vec[ iup ];
+
+        double u = ulow + frac * ( uup - ulow );
+        utess[ i ] = u;
+    }
+
+    utess[ ntess - 1 ] = 1.0;
+}
+
 void SCurve::SmoothTess()
 {
 
