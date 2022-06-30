@@ -758,6 +758,12 @@ void SCurve::Tesselate()
     TessIntegrate();
     SmoothTess();
     DoubleTess();
+
+    vector< double > utess;
+    STessToUTess( m_STess, utess );
+
+    m_UTess.swap( utess );
+
     UWTess();
 }
 
