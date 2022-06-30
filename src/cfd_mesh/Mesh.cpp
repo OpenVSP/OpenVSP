@@ -1128,8 +1128,9 @@ void Mesh::CollapseEdge( Edge* edge )
     }
     else
     {
-//      pc  = (n0->pnt + n1->pnt)*0.5;
-        uwc = ( n0->uw + n1->uw ) * 0.5;
+        vec3d psplit = ( n0->pnt + n1->pnt ) * 0.5;
+        vec2d uwsplit = ( n0->uw + n1->uw ) * 0.5;
+        uwc = m_Surf->ClosestUW( psplit, uwsplit[0], uwsplit[1] );
         pc  = m_Surf->CompPnt( uwc.x(), uwc.y() );
     }
 
