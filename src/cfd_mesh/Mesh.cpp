@@ -1152,10 +1152,48 @@ void Mesh::CollapseEdge( Edge* edge )
     if ( ea0->border || ea1->border )
     {
         eca->border = true;
+
+        std::map< Edge *, Node * >::iterator it;
+        it = m_BorderEdgeSplitNode.find( ea0 );
+
+        if( it != m_BorderEdgeSplitNode.end() )
+        {
+            Node* ns = it->second;
+            m_BorderEdgeSplitNode.erase( it );
+            m_BorderEdgeSplitNode[ eca ] = ns;
+        }
+
+        it = m_BorderEdgeSplitNode.find( ea1 );
+
+        if( it != m_BorderEdgeSplitNode.end() )
+        {
+            Node* ns = it->second;
+            m_BorderEdgeSplitNode.erase( it );
+            m_BorderEdgeSplitNode[ eca ] = ns;
+        }
     }
     if ( eb0->border || eb1->border )
     {
         ecb->border = true;
+
+        std::map< Edge *, Node * >::iterator it;
+        it = m_BorderEdgeSplitNode.find( eb0 );
+
+        if( it != m_BorderEdgeSplitNode.end() )
+        {
+            Node* ns = it->second;
+            m_BorderEdgeSplitNode.erase( it );
+            m_BorderEdgeSplitNode[ ecb ] = ns;
+        }
+
+        it = m_BorderEdgeSplitNode.find( eb1 );
+
+        if( it != m_BorderEdgeSplitNode.end() )
+        {
+            Node* ns = it->second;
+            m_BorderEdgeSplitNode.erase( it );
+            m_BorderEdgeSplitNode[ ecb ] = ns;
+        }
     }
     if ( ea0->ridge  || ea1->ridge )
     {
