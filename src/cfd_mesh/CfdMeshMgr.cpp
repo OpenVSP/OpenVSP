@@ -164,6 +164,13 @@ void CfdMeshMgrSingleton::TransferMeshSettings()
 
     m_CfdGridDensity = SimpleCfdGridDensity();
     m_CfdGridDensity.CopyFrom( m_Vehicle->GetCfdGridDensityPtr() );
+
+    if ( m_CfdSettings.m_ConvertToQuadsFlag )
+    {
+        // Increase target edge length because tris are split into quads.
+        // A tri with edge length 1.0 will result in an average quad edge of 0.349
+        m_CfdGridDensity.ScaleMesh( 2.536 );
+    }
 }
 
 void CfdMeshMgrSingleton::CleanUp()

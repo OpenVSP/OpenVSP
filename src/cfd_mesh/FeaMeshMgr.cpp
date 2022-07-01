@@ -173,6 +173,13 @@ void FeaMeshMgrSingleton::TransferMeshSettings()
 
         m_FeaGridDensity = SimpleFeaGridDensity();
         m_FeaGridDensity.CopyFrom( fea_struct->GetFeaGridDensityPtr() );
+
+        if ( m_StructSettings.m_ConvertToQuadsFlag )
+        {
+            // Increase target edge length because tris are split into quads.
+            // A tri with edge length 1.0 will result in an average quad edge of 0.349
+            m_FeaGridDensity.ScaleMesh( 2.536 );
+        }
     }
 }
 
