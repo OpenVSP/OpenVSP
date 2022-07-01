@@ -143,7 +143,6 @@ public:
     virtual void AddDefaultSourcesCurrGeom();
     virtual void UpdateSourcesAndWakes();
     virtual void UpdateDomain();
-    virtual void ScaleTriSize( double scale );
 
 //  virtual void Draw();
 //  virtual void Draw_BBox( BndBox box );

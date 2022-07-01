@@ -576,18 +576,6 @@ void CfdMeshMgrSingleton::AddDefaultSourcesCurrGeom()
     curr_geom->AddDefaultSources( base_len );
 }
 
-void CfdMeshMgrSingleton::ScaleTriSize( double scale )
-{
-    GetGridDensityPtr()->m_BaseLen = scale * GetGridDensityPtr()->m_BaseLen;
-    GetGridDensityPtr()->m_MinLen = scale * GetGridDensityPtr()->m_MinLen;
-    GetGridDensityPtr()->m_MaxGap = scale * GetGridDensityPtr()->m_MaxGap;
-    GetGridDensityPtr()->m_NCircSeg = GetGridDensityPtr()->m_NCircSeg / scale;
-    GetGridDensityPtr()->m_FarMaxLen = scale * GetGridDensityPtr()->m_FarMaxLen;
-    GetGridDensityPtr()->m_FarMaxGap = scale * GetGridDensityPtr()->m_FarMaxGap;
-    GetGridDensityPtr()->m_FarNCircSeg = GetGridDensityPtr()->m_FarNCircSeg / scale;
-    GetGridDensityPtr()->ScaleAllSources( scale );
-}
-
 void CfdMeshMgrSingleton::BuildDomain()
 {
     vector< Surf* > FFBox = CreateDomainSurfs();
