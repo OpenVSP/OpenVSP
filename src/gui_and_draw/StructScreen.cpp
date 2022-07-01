@@ -753,6 +753,12 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "F
     m_MeshTabLayout.AddSlider( m_ToCubicTolSlider, "Cubic Tolerance", 10, "%5.4g", 0, true );
 
     m_MeshTabLayout.AddYGap();
+    m_MeshTabLayout.AddDividerBox( "Element Type" );
+    m_MeshTabLayout.AddYGap();
+
+    m_MeshTabLayout.AddButton( m_ConvertToQuadsToggle, "Convert to Quads" );
+
+    m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddDividerBox( "FEA Index Offsets" );
     m_MeshTabLayout.AddYGap();
 
@@ -1926,6 +1932,8 @@ bool StructScreen::Update()
             {
                 m_ToCubicTolSlider.Deactivate();
             }
+
+            m_ConvertToQuadsToggle.Update( curr_struct->GetStructSettingsPtr()->m_ConvertToQuadsFlag.GetID() );
 
             m_NodeOffset.Update( curr_struct->GetStructSettingsPtr()->m_NodeOffset.GetID() );
             m_ElementOffset.Update( curr_struct->GetStructSettingsPtr()->m_ElementOffset.GetID() );

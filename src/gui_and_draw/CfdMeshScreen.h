@@ -85,6 +85,8 @@ protected:
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;
 
+    ToggleButton m_ConvertToQuadsToggle;
+
     //===== Display Tab Items =====//
 
     ToggleButton m_ShowSourcesAndWakePreview;

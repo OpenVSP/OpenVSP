@@ -120,6 +120,9 @@ void CfdMeshScreen::CreateGlobalTab()
     m_GlobalTabLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
     m_GlobalTabLayout.AddSlider( m_ToCubicTolSlider, "Cubic Tolerance", 10, "%5.4g", 0, true );
 
+    m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddButton( m_ConvertToQuadsToggle, "Convert to Quads" );
+
     globalTab->show();
 }
 
@@ -711,6 +714,8 @@ void CfdMeshScreen::UpdateGlobalTab()
     {
         m_ToCubicTolSlider.Deactivate();
     }
+
+    m_ConvertToQuadsToggle.Update( m_Vehicle->GetCfdSettingsPtr()->m_ConvertToQuadsFlag.GetID() );
 }
 
 void CfdMeshScreen::UpdateDisplayTab()

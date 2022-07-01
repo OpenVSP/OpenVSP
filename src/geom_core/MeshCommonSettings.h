@@ -95,6 +95,8 @@ public:
     BoolParm m_DemoteSurfsCubicFlag;
     Parm m_CubicSurfTolerance;
 
+    BoolParm m_ConvertToQuadsFlag;
+
     Parm m_STEPTol;
     BoolParm m_STEPMergePoints;
     IntParm m_STEPRepresentation;

@@ -49,6 +49,8 @@ public:
     bool m_DemoteSurfsCubicFlag;
     double m_CubicSurfTolerance;
 
+    bool m_ConvertToQuadsFlag;
+
     bool m_FarMeshFlag;
     bool m_FarCompFlag;
     bool m_HalfMeshFlag;

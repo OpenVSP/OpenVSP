@@ -117,8 +117,11 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Remesh\n" );
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
-    addOutputText( "ConvertToQuads\n" );
-    ConvertToQuads();
+    if ( GetSettingsPtr()->m_ConvertToQuadsFlag )
+    {
+        addOutputText( "ConvertToQuads\n" );
+        ConvertToQuads();
+    }
 
     addOutputText( "ConnectBorderEdges\n" );
     ConnectBorderEdges( false );        // No Wakes

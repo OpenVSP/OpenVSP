@@ -49,6 +49,9 @@ void MeshCommonSettings::InitCommonParms()
     m_CubicSurfTolerance.Init( "CubicSurfTolerance", "Global", this, 1e-6, 1e-12, 1e12 );
     m_CubicSurfTolerance.SetDescript( "Tolerance Used When Demoting Higher Order Surfaces to Cubic" );
 
+    m_ConvertToQuadsFlag.Init( "ConvertToQuadsFlag", "Global", this, false, false, true );
+    m_ConvertToQuadsFlag.SetDescript( "Flag to convert mesh to quads" );
+
     m_FarCompFlag.Init( "FarComp", "FarField", this, false, 0, 1 );
     m_FarMeshFlag.Init( "FarMesh", "FarField", this, false, 0, 1 );
     m_HalfMeshFlag.Init( "HalfMesh", "FarField", this, false, 0, 1 );
@@ -413,6 +416,8 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_Name = "StructSettings";
 
     InitCommonParms();
+    // Convert to quads should default to ON for structures.
+    m_ConvertToQuadsFlag.Set( true );
 
     m_ExportFileFlags[ vsp::FEA_MASS_FILE_NAME ].Init( "MASS_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );
