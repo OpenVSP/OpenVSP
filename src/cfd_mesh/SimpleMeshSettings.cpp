@@ -427,6 +427,20 @@ double SimpleGridDensity::GetTargetLen( vec3d& pos, bool farFlag, const string &
     return target_len;
 }
 
+void SimpleGridDensity::ScaleMesh( double scale )
+{
+    m_BaseLen *= scale;
+    m_FarMaxLen *= scale;
+    m_MinLen *= scale;
+    m_NCircSeg /= scale;
+    m_FarNCircSeg /= scale;
+    m_MaxGap *= scale;
+    m_FarMaxGap *= scale;
+    // m_GrowRatio;
+
+    ScaleAllSources( scale );
+}
+
 void SimpleGridDensity::ScaleAllSources( double scale )
 {
     for ( int i = 0; i < (int)m_Sources.size(); i++ )

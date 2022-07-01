@@ -210,6 +210,7 @@ public:
         return m_Sources.size();
     }
 
+    void ScaleMesh( double scale );
     void ScaleAllSources( double scale );
 
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
