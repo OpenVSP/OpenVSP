@@ -184,7 +184,9 @@ protected:
     unsigned int m_NumFeaParts;
     unsigned int m_NumFeaSubSurfs;
     unsigned int m_NumFeaFixPoints;
+    unsigned int m_NumEls;
     unsigned int m_NumTris;
+    unsigned int m_NumQuads;
     unsigned int m_NumBeams;
 
     vector < string > m_FeaPartNameVec;

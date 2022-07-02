@@ -27,7 +27,9 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_NumFeaSubSurfs = 0;
     m_FeaMeshStructIndex = -1;
     m_NumFeaFixPoints = 0;
+    m_NumEls = 0;
     m_NumTris = 0;
+    m_NumQuads = 0;
     m_NumBeams = 0;
     m_MessageName = "FEAMessage";
 }
@@ -61,7 +63,9 @@ void FeaMeshMgrSingleton::CleanUp()
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
     m_NumFeaFixPoints = 0;
+    m_NumEls = 0;
     m_NumTris = 0;
+    m_NumQuads = 0;
     m_NumBeams = 0;
 
     m_FeaPartNameVec.clear();
@@ -1187,11 +1191,13 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         {
             elem = new FeaQuad;
             ((FeaQuad*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], node_vec[all_face_vec[i].ind3] );
+            m_NumQuads++;
         }
         else
         {
             elem = new FeaTri;
             ((FeaTri*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2] );
+            m_NumTris++;
         }
         elem->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
         elem->SetSurfIndex( tri_surf_ind_vec[i] );
@@ -1238,7 +1244,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         elem->m_Orientation = orient_vec;
 
         m_FeaElementVec.push_back( elem );
-        m_NumTris++;
+        m_NumEls++;
     }
 
  
@@ -1253,7 +1259,9 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
     {
         fprintf( fp, "...FEA Mesh...\n" );
         fprintf( fp, "Mass_Unit: %s\n", m_MassUnit.c_str() );
+        fprintf( fp, "Num_Els: %u\n", m_NumEls );
         fprintf( fp, "Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "Num_Quads: %u\n", m_NumQuads );
         fprintf( fp, "Num_Beams: %u\n", m_NumBeams );
         fprintf( fp, "\n" );
 
@@ -2387,7 +2395,9 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
         // Comments can be at top of NASTRAN file before case control section
         fprintf( fp, "$NASTRAN Data File Generated from %s\n", VSPVERSION4 );
+        fprintf( fp, "$Num_Els: %u\n", m_NumEls );
         fprintf( fp, "$Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "$Num_Quads: %u\n", m_NumQuads );
         fprintf( fp, "$Num_Beams %u\n", m_NumBeams );
 
         // Write bulk data to temp file
@@ -2686,7 +2696,9 @@ void FeaMeshMgrSingleton::WriteCalculix()
     if ( fp )
     {
         fprintf( fp, "**Calculix Data File Generated from %s\n", VSPVERSION4 );
+        fprintf( fp, "**Num_Els: %u\n", m_NumEls );
         fprintf( fp, "**Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "**Num_Quads: %u\n", m_NumQuads );
         fprintf( fp, "**Num_Beams %u\n\n", m_NumBeams );
 
         int elem_id = 0;
