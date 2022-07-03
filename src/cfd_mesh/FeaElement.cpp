@@ -290,16 +290,26 @@ void FeaQuad::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
 }
 void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
 {
+    vec3d x_element = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
+    x_element.normalize();
+    vec3d x_axis = vec3d( 1.0, 0.0, 0.0 );
+
+    double theta_material = RAD_2_DEG * signed_angle( x_element, m_Orientation, x_axis );
+
     if ( m_ElementType == FEA_QUAD_4 )
     {
-        fprintf( fp, "CQUAD4  ,%8d,%8d,%8d,%8d,%8d,%8d\n", id + eoffset, property_index + 1,
-                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset );
+        string format_string = "CQUAD4  ,%8d,%8d,%8d,%8d,%8d,%8d," + NasFmt( theta_material ) + "\n";
+
+        fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset, theta_material );
     }
     else
     {
-        fprintf( fp, "CQUAD8  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ,%8d,%8d\n", id + eoffset, property_index + 1,
+        string format_string = "CQUAD8  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ,%8d,%8d,        ,        ,        ,        ," + NasFmt( theta_material ) + "\n";
+
+        fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
-                 m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
+                 m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset, theta_material );
 
     }
 }
