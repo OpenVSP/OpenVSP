@@ -757,6 +757,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "F
     m_MeshTabLayout.AddYGap();
 
     m_MeshTabLayout.AddButton( m_ConvertToQuadsToggle, "Convert to Quads" );
+    m_MeshTabLayout.AddButton( m_HighOrderElementToggle, "High order Elements" );
 
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddDividerBox( "FEA Index Offsets" );
@@ -1934,6 +1935,7 @@ bool StructScreen::Update()
             }
 
             m_ConvertToQuadsToggle.Update( curr_struct->GetStructSettingsPtr()->m_ConvertToQuadsFlag.GetID() );
+            m_HighOrderElementToggle.Update( curr_struct->GetStructSettingsPtr()->m_HighOrderElementFlag.GetID() );
 
             m_NodeOffset.Update( curr_struct->GetStructSettingsPtr()->m_NodeOffset.GetID() );
             m_ElementOffset.Update( curr_struct->GetStructSettingsPtr()->m_ElementOffset.GetID() );

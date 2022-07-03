@@ -52,6 +52,9 @@ void MeshCommonSettings::InitCommonParms()
     m_ConvertToQuadsFlag.Init( "ConvertToQuadsFlag", "Global", this, false, false, true );
     m_ConvertToQuadsFlag.SetDescript( "Flag to convert mesh to quads" );
 
+    m_HighOrderElementFlag.Init( "HighOrderElementFlag", "Global", this, false, false, true );
+    m_HighOrderElementFlag.SetDescript( "Flag to promote to high order elements" );
+
     m_FarCompFlag.Init( "FarComp", "FarField", this, false, 0, 1 );
     m_FarMeshFlag.Init( "FarMesh", "FarField", this, false, 0, 1 );
     m_HalfMeshFlag.Init( "HalfMesh", "FarField", this, false, 0, 1 );
@@ -418,6 +421,8 @@ StructSettings::StructSettings() : MeshCommonSettings()
     InitCommonParms();
     // Convert to quads should default to ON for structures.
     m_ConvertToQuadsFlag.Set( true );
+    // High order elements should default to ON for structures.
+    m_HighOrderElementFlag.Set( true );
 
     m_ExportFileFlags[ vsp::FEA_MASS_FILE_NAME ].Init( "MASS_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );

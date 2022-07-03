@@ -268,6 +268,7 @@ private:
     SliderAdjRangeInput m_ToCubicTolSlider;
 
     ToggleButton m_ConvertToQuadsToggle;
+    ToggleButton m_HighOrderElementToggle;
 
     SliderAdjRangeInput m_NodeOffset;
     SliderAdjRangeInput m_ElementOffset;

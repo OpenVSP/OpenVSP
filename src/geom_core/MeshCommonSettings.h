@@ -96,6 +96,7 @@ public:
     Parm m_CubicSurfTolerance;
 
     BoolParm m_ConvertToQuadsFlag;
+    BoolParm m_HighOrderElementFlag;
 
     Parm m_STEPTol;
     BoolParm m_STEPMergePoints;

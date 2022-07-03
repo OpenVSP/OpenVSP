@@ -42,6 +42,7 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
     m_CubicSurfTolerance = 1e-6;
 
     m_ConvertToQuadsFlag = false;
+    m_HighOrderElementFlag = false;
 
     m_FarMeshFlag = false;
     m_FarCompFlag = false;
@@ -94,6 +95,7 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
     m_CubicSurfTolerance = settings->m_CubicSurfTolerance.Get();
 
     m_ConvertToQuadsFlag = settings->m_ConvertToQuadsFlag.Get();
+    m_HighOrderElementFlag = settings->m_HighOrderElementFlag.Get();
 
     m_FarMeshFlag = settings->m_FarMeshFlag.Get();
     m_FarCompFlag = settings->m_FarCompFlag.Get();

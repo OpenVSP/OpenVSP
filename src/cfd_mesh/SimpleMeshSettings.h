@@ -50,6 +50,7 @@ public:
     double m_CubicSurfTolerance;
 
     bool m_ConvertToQuadsFlag;
+    bool m_HighOrderElementFlag;
 
     bool m_FarMeshFlag;
     bool m_FarCompFlag;
