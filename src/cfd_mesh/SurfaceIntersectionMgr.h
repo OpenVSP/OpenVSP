@@ -130,6 +130,7 @@ public:
     void AppendWakeSurfs( vector< Surf* >& surf_vec );
 
     //void Draw();
+    void UpdateDrawObjs();
     void LoadDrawObjs( vector< DrawObj* >& draw_obj_vec );
     void Show( bool flag );
 
@@ -223,6 +224,7 @@ public:
 
 //  virtual void Draw();
 //  virtual void Draw_BBox( BndBox box );
+    virtual void UpdateDrawObjs();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void UpdateDisplaySettings();

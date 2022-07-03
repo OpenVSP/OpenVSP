@@ -337,7 +337,7 @@ void WakeMgr::Draw()
 }
 */
 
-void WakeMgrSingleton::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
+void WakeMgrSingleton::UpdateDrawObjs()
 {
     vector< vec3d > wakeData;
     for ( int e = 0; e < (int)m_LeadingEdgeVec.size(); e++ )
@@ -364,7 +364,10 @@ void WakeMgrSingleton::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
     m_WakeDO.m_Type = DrawObj::VSP_LINES;
     m_WakeDO.m_LineColor = vec3d( 1, 204.0 / 255, 51.0 / 255 );
     m_WakeDO.m_PntVec = wakeData;
+}
 
+void WakeMgrSingleton::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
+{
     draw_obj_vec.push_back( &m_WakeDO );
 }
 
@@ -474,6 +477,8 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
 
     addOutputText( "Exporting Files\n" );
     ExportFiles();
+
+    UpdateDrawObjs();
 
     addOutputText( "Done\n" );
 
@@ -3202,75 +3207,46 @@ void SurfaceIntersectionSingleton::BinaryAdaptIntCurves()
     }
 }
 
-void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
+void SurfaceIntersectionSingleton::UpdateDrawObjs()
 {
-    if ( m_MeshInProgress )
-    {
-        return;
-    }
-
     // Draw ISegChains
     m_IsectCurveDO.m_GeomID = GetID() + "ISECTCURVE";
     m_IsectCurveDO.m_Type = DrawObj::VSP_LINES;
-    m_IsectCurveDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
-                               GetSettingsPtr()->m_DrawCurveFlag &&
-                               GetSettingsPtr()->m_DrawBinAdaptFlag;
     m_IsectCurveDO.m_LineColor = vec3d(0, 0, 1);
     m_IsectCurveDO.m_LineWidth = 2.0;
 
     m_IsectPtsDO.m_GeomID = GetID() + "ISECTPTS";
     m_IsectPtsDO.m_Type = DrawObj::VSP_POINTS;
-    m_IsectPtsDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
-                               GetSettingsPtr()->m_DrawPntsFlag &&
-                               GetSettingsPtr()->m_DrawBinAdaptFlag;
     m_IsectPtsDO.m_PointColor = vec3d(0, 0, 0);
     m_IsectPtsDO.m_PointSize = 10.0;
 
     m_BorderCurveDO.m_GeomID = GetID() + "BORDERCURVE";
     m_BorderCurveDO.m_Type = DrawObj::VSP_LINES;
-    m_BorderCurveDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
-                               GetSettingsPtr()->m_DrawCurveFlag &&
-                               GetSettingsPtr()->m_DrawBinAdaptFlag;
     m_BorderCurveDO.m_LineColor = vec3d(0, 1, 0);
     m_BorderCurveDO.m_LineWidth = 2.0;
 
     m_BorderPtsDO.m_GeomID = GetID() + "BORDERPTS";
     m_BorderPtsDO.m_Type = DrawObj::VSP_POINTS;
-    m_BorderPtsDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
-                               GetSettingsPtr()->m_DrawPntsFlag &&
-                               GetSettingsPtr()->m_DrawBinAdaptFlag;
     m_BorderPtsDO.m_PointColor = vec3d(0, 0, 0);
     m_BorderPtsDO.m_PointSize = 10.0;
 
     m_RawIsectCurveDO.m_GeomID = GetID() + "RAWISECTCURVE";
     m_RawIsectCurveDO.m_Type = DrawObj::VSP_LINES;
-    m_RawIsectCurveDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
-                                  GetSettingsPtr()->m_DrawCurveFlag &&
-                                  GetSettingsPtr()->m_DrawRawFlag;
     m_RawIsectCurveDO.m_LineColor = vec3d(1, 0, 1);
     m_RawIsectCurveDO.m_LineWidth = 2.0;
 
     m_RawIsectPtsDO.m_GeomID = GetID() + "RAWISECTPTS";
     m_RawIsectPtsDO.m_Type = DrawObj::VSP_POINTS;
-    m_RawIsectPtsDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
-                                GetSettingsPtr()->m_DrawPntsFlag &&
-                                GetSettingsPtr()->m_DrawRawFlag;
     m_RawIsectPtsDO.m_PointColor = vec3d(0.5, 0.5, 0.5);
     m_RawIsectPtsDO.m_PointSize = 10.0;
 
     m_RawBorderCurveDO.m_GeomID = GetID() + "RAWBORDERCURVE";
     m_RawBorderCurveDO.m_Type = DrawObj::VSP_LINES;
-    m_RawBorderCurveDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
-                                   GetSettingsPtr()->m_DrawCurveFlag &&
-                                   GetSettingsPtr()->m_DrawRawFlag;
     m_RawBorderCurveDO.m_LineColor = vec3d(1, 1, 0);
     m_RawBorderCurveDO.m_LineWidth = 2.0;
 
     m_RawBorderPtsDO.m_GeomID = GetID() + "RAWBORDERPTS";
     m_RawBorderPtsDO.m_Type = DrawObj::VSP_POINTS;
-    m_RawBorderPtsDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
-                                 GetSettingsPtr()->m_DrawPntsFlag &&
-                                 GetSettingsPtr()->m_DrawRawFlag;
     m_RawBorderPtsDO.m_PointColor = vec3d(0.5, 0.5, 0.5);
     m_RawBorderPtsDO.m_PointSize = 10.0;
 
@@ -3364,15 +3340,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     m_RawBorderCurveDO.m_NormVec = m_RawBorderCurveDO.m_PntVec;
     m_RawBorderPtsDO.m_NormVec = m_RawBorderPtsDO.m_PntVec;
 
-    draw_obj_vec.push_back( &m_IsectCurveDO );
-    draw_obj_vec.push_back( &m_IsectPtsDO );
-    draw_obj_vec.push_back( &m_BorderCurveDO );
-    draw_obj_vec.push_back( &m_BorderPtsDO );
-
-    draw_obj_vec.push_back( &m_RawIsectCurveDO );
-    draw_obj_vec.push_back( &m_RawIsectPtsDO );
-    draw_obj_vec.push_back( &m_RawBorderCurveDO );
-    draw_obj_vec.push_back( &m_RawBorderPtsDO );
 
     //=====  Visualizatino tools for SurfaceINtersectionMgr debugging =====//
     if ( false ) // Set to true to turn visualization tools ON
@@ -3392,16 +3359,12 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
 
         m_ApproxPlanesDO.m_GeomID = GetID() + "APPROXPLANES";
         m_ApproxPlanesDO.m_Type = DrawObj::VSP_LINES;
-        m_ApproxPlanesDO.m_Visible = false;
         m_ApproxPlanesDO.m_LineColor = vec3d( .2, .2, .2 );
         m_ApproxPlanesDO.m_LineWidth = 1.0;
         m_ApproxPlanesDO.m_NormVec = m_ApproxPlanesDO.m_PntVec;
 
-        draw_obj_vec.push_back( &m_ApproxPlanesDO );
-
         m_DelPtsDO.m_GeomID = GetID() + "m_DelPtsDO";
         m_DelPtsDO.m_Type = DrawObj::VSP_POINTS;
-        m_DelPtsDO.m_Visible = false;
         m_DelPtsDO.m_PointColor = vec3d( .2, .4, .6 );
         m_DelPtsDO.m_PointSize = 10.0;
         m_DelPtsDO.m_PntVec.clear();
@@ -3410,8 +3373,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
         {
             m_DelPtsDO.m_PntVec.push_back( m_DelIPntVec[indx]->m_Pnt );
         }
-
-        draw_obj_vec.push_back( &m_DelPtsDO );
 
         if ( m_IPatchADrawLines.size() > 0 && m_IPatchBDrawLines.size() > 0 )
         {
@@ -3423,7 +3384,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
                 m_IPatchADO[i].m_GeomID = GetID() + "IPatchA_" + to_string( i );
                 m_IPatchADO[i].m_LineColor = vec3d( .4, .5, .6 );
                 m_IPatchADO[i].m_LineWidth = 1.5;
-                m_IPatchADO[i].m_Visible = false;
                 m_IPatchADO[i].m_PntVec.clear();
 
                 m_IPatchADO[i].m_Type = m_IPatchBDO[i].VSP_LINES;
@@ -3432,8 +3392,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
                 {
                     m_IPatchADO[i].m_PntVec.push_back( m_IPatchADrawLines[i][indx] );
                 }
-
-                draw_obj_vec.push_back( &m_IPatchADO[i] );
             }
 
             m_IPatchBDO.clear();
@@ -3444,7 +3402,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
                 m_IPatchBDO[i].m_GeomID = GetID() + "IPatchB_" + to_string( i );
                 m_IPatchBDO[i].m_LineColor = vec3d( .7, .8, .9 );
                 m_IPatchBDO[i].m_LineWidth = 1.5;
-                m_IPatchBDO[i].m_Visible = false;
                 m_IPatchBDO[i].m_PntVec.clear();
 
                 m_IPatchBDO[i].m_Type = m_IPatchBDO[i].VSP_LINES;
@@ -3453,7 +3410,80 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
                 {
                     m_IPatchBDO[i].m_PntVec.push_back( m_IPatchBDrawLines[i][indx] );
                 }
+            }
+        }
+    }
+}
 
+void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
+{
+    if ( m_MeshInProgress )
+    {
+        return;
+    }
+
+    m_IsectCurveDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
+                               GetSettingsPtr()->m_DrawCurveFlag &&
+                               GetSettingsPtr()->m_DrawBinAdaptFlag;
+
+    m_IsectPtsDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
+                             GetSettingsPtr()->m_DrawPntsFlag &&
+                             GetSettingsPtr()->m_DrawBinAdaptFlag;
+
+    m_BorderCurveDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
+                                GetSettingsPtr()->m_DrawCurveFlag &&
+                                GetSettingsPtr()->m_DrawBinAdaptFlag;
+
+    m_BorderPtsDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
+                              GetSettingsPtr()->m_DrawPntsFlag &&
+                              GetSettingsPtr()->m_DrawBinAdaptFlag;
+
+    m_RawIsectCurveDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
+                                  GetSettingsPtr()->m_DrawCurveFlag &&
+                                  GetSettingsPtr()->m_DrawRawFlag;
+
+    m_RawIsectPtsDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
+                                GetSettingsPtr()->m_DrawPntsFlag &&
+                                GetSettingsPtr()->m_DrawRawFlag;
+
+    m_RawBorderCurveDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
+                                   GetSettingsPtr()->m_DrawCurveFlag &&
+                                   GetSettingsPtr()->m_DrawRawFlag;
+
+    m_RawBorderPtsDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
+                                 GetSettingsPtr()->m_DrawPntsFlag &&
+                                 GetSettingsPtr()->m_DrawRawFlag;
+
+    draw_obj_vec.push_back( &m_IsectCurveDO );
+    draw_obj_vec.push_back( &m_IsectPtsDO );
+    draw_obj_vec.push_back( &m_BorderCurveDO );
+    draw_obj_vec.push_back( &m_BorderPtsDO );
+
+    draw_obj_vec.push_back( &m_RawIsectCurveDO );
+    draw_obj_vec.push_back( &m_RawIsectPtsDO );
+    draw_obj_vec.push_back( &m_RawBorderCurveDO );
+    draw_obj_vec.push_back( &m_RawBorderPtsDO );
+
+    //=====  Visualizatino tools for SurfaceINtersectionMgr debugging =====//
+    if ( false ) // Set to true to turn visualization tools ON
+    {
+        m_ApproxPlanesDO.m_Visible = false;
+        draw_obj_vec.push_back( &m_ApproxPlanesDO );
+
+        m_DelPtsDO.m_Visible = false;
+        draw_obj_vec.push_back( &m_DelPtsDO );
+
+        if ( m_IPatchADrawLines.size() > 0 && m_IPatchBDrawLines.size() > 0 )
+        {
+            for ( size_t i = 0; i < m_IPatchADrawLines.size(); i++ )
+            {
+                m_IPatchADO[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_IPatchADO[i] );
+            }
+
+            for ( size_t i = 0; i < m_IPatchBDrawLines.size(); i++ )
+            {
+                m_IPatchBDO[i].m_Visible = false;
                 draw_obj_vec.push_back( &m_IPatchBDO[i] );
             }
         }
@@ -3490,6 +3520,7 @@ void SurfaceIntersectionSingleton::UpdateWakes()
     WakeMgr.SetWakeScaleVec( wake_scale_vec );
     WakeMgr.SetWakeAngleVec( wake_angle_vec );
 
+    WakeMgr.UpdateDrawObjs();
 }
 
 void SurfaceIntersectionSingleton::SetICurveVec( ICurve* newcurve, int loc )
