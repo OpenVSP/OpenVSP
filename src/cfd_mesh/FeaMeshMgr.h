@@ -233,12 +233,13 @@ private:
     vector< DrawObj > m_FeaQuadElementDO;
     vector< DrawObj > m_CapFeaElementDO;
     vector< DrawObj > m_FeaNodeDO;
-    vector< DrawObj > m_TriOrientationDO;
+    vector< DrawObj > m_ElOrientationDO;
     vector< DrawObj > m_CapNormDO;
-    vector< DrawObj > m_SSFeaElementDO;
+    vector< DrawObj > m_SSTriElementDO;
+    vector< DrawObj > m_SSQuadElementDO;
     vector< DrawObj > m_SSCapFeaElementDO;
     vector< DrawObj > m_SSFeaNodeDO;
-    vector< DrawObj > m_SSTriOrientationDO;
+    vector< DrawObj > m_SSElOrientationDO;
     vector< DrawObj > m_SSCapNormDO;
 };
 

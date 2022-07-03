@@ -125,28 +125,44 @@ void FeaElement::LoadNodes( vector< FeaNode* > & node_vec )
 //==================== FeaTri ======================//
 //////////////////////////////////////////////////////
 
-void FeaTri::Create( vec3d & p0, vec3d & p1, vec3d & p2 )
+void FeaTri::Create( vec3d & p0, vec3d & p1, vec3d & p2, bool highorder )
 {
-    m_ElementType = FEA_TRI_6;
     DeleteAllNodes();
     m_Corners.push_back( new FeaNode( p0 ) );
     m_Corners.push_back( new FeaNode( p1 ) );
     m_Corners.push_back( new FeaNode( p2 ) );
 
-    vec3d p01 = ( p0 + p1 ) * 0.5;
-    vec3d p12 = ( p1 + p2 ) * 0.5;
-    vec3d p20 = ( p2 + p0 ) * 0.5;
+    if ( highorder )
+    {
+        m_ElementType = FEA_TRI_6;
 
-    m_Mids.push_back( new FeaNode( p01 ) );
-    m_Mids.push_back( new FeaNode( p12 ) );
-    m_Mids.push_back( new FeaNode( p20 ) );
+        vec3d p01 = ( p0 + p1 ) * 0.5;
+        vec3d p12 = ( p1 + p2 ) * 0.5;
+        vec3d p20 = ( p2 + p0 ) * 0.5;
+
+        m_Mids.push_back( new FeaNode( p01 ) );
+        m_Mids.push_back( new FeaNode( p12 ) );
+        m_Mids.push_back( new FeaNode( p20 ) );
+    }
+    else
+    {
+        m_ElementType = FEA_TRI_3;
+    }
 }
 
 void FeaTri::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
 {
-    fprintf( fp, "%d,%d,%d,%d,%d,%d,%d\n", id + eoffset,
-             m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
-             m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset );
+    if ( m_ElementType == FEA_TRI_3 )
+    {
+        fprintf( fp, "%d,%d,%d,%d\n", id + eoffset,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset );
+    }
+    else
+    {
+        fprintf( fp, "%d,%d,%d,%d,%d,%d,%d\n", id + eoffset,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
+                 m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset );
+    }
 }
 
 void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
@@ -157,19 +173,39 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, in
 
     double theta_material = RAD_2_DEG * signed_angle( x_element, m_Orientation, x_axis );
 
-    string format_string = "CTRIA6  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ," + NasFmt( theta_material ) + "\n";
+    if ( m_ElementType == FEA_TRI_3 )
+    {
+        string format_string = "CTRIA3  ,%8d,%8d,%8d,%8d,%8d," + NasFmt( theta_material ) + "\n";
 
-    fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
-             m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
-             m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, theta_material );
+        fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
+                 theta_material );
+    }
+    else
+    {
+        string format_string = "CTRIA6  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ," + NasFmt( theta_material ) + "\n";
+
+        fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
+                 m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, theta_material );
+    }
 }
 
 void FeaTri::WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset )
 {
-    // 6-node second order triangle element type (9)
-    fprintf( fp, "%d 9 1 %d %d %d %d %d %d %d\n", id + eoffset, fea_part_index,
-             m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
-             m_Mids[0]->GetIndex() + noffset,m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset );
+    if ( m_ElementType == FEA_TRI_3 )
+    {
+        // 3-node triangle element type (2)
+        fprintf( fp, "%d 2 1 %d %d %d %d\n", id + eoffset, fea_part_index,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset );
+    }
+    else
+    {
+        // 6-node second order triangle element type (9)
+        fprintf( fp, "%d 9 1 %d %d %d %d %d %d %d\n", id + eoffset, fea_part_index,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
+                 m_Mids[0]->GetIndex() + noffset,m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset );
+    }
 }
 
 double FeaTri::ComputeMass( int property_index )
@@ -210,45 +246,79 @@ double FeaTri::ComputeMass( int property_index )
 //=================== FeaQuad ======================//
 //////////////////////////////////////////////////////
 
-void FeaQuad::Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3 )
+void FeaQuad::Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3, bool highorder )
 {
-    m_ElementType = FEA_QUAD_8;
     DeleteAllNodes();
     m_Corners.push_back( new FeaNode( p0 ) );
     m_Corners.push_back( new FeaNode( p1 ) );
     m_Corners.push_back( new FeaNode( p2 ) );
     m_Corners.push_back( new FeaNode( p3 ) );
 
-    vec3d p01 = ( p0 + p1 ) * 0.5;
-    vec3d p12 = ( p1 + p2 ) * 0.5;
-    vec3d p23 = ( p2 + p3 ) * 0.5;
-    vec3d p30 = ( p3 + p0 ) * 0.5;
+    if ( highorder )
+    {
+        m_ElementType = FEA_QUAD_8;
 
-    m_Mids.push_back( new FeaNode( p01 ) );
-    m_Mids.push_back( new FeaNode( p12 ) );
-    m_Mids.push_back( new FeaNode( p23 ) );
-    m_Mids.push_back( new FeaNode( p30 ) );
+        vec3d p01 = ( p0 + p1 ) * 0.5;
+        vec3d p12 = ( p1 + p2 ) * 0.5;
+        vec3d p23 = ( p2 + p3 ) * 0.5;
+        vec3d p30 = ( p3 + p0 ) * 0.5;
+
+        m_Mids.push_back( new FeaNode( p01 ) );
+        m_Mids.push_back( new FeaNode( p12 ) );
+        m_Mids.push_back( new FeaNode( p23 ) );
+        m_Mids.push_back( new FeaNode( p30 ) );
+    }
+    else
+    {
+        m_ElementType = FEA_QUAD_4;
+    }
 }
 
 void FeaQuad::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
 {
-    fprintf( fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", id + eoffset,
-             m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
-             m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
+    if ( m_ElementType == FEA_QUAD_4 )
+    {
+        fprintf( fp, "%d,%d,%d,%d,%d\n", id + eoffset,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset );
+    }
+    else
+    {
+        fprintf( fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", id + eoffset,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
+                 m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
+    }
 }
 void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
 {
-    fprintf( fp, "CQUAD8  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ,%8d,%8d\n", id + eoffset, property_index + 1,
-             m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
-             m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
+    if ( m_ElementType == FEA_QUAD_4 )
+    {
+        fprintf( fp, "CQUAD4  ,%8d,%8d,%8d,%8d,%8d,%8d\n", id + eoffset, property_index + 1,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset );
+    }
+    else
+    {
+        fprintf( fp, "CQUAD8  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ,%8d,%8d\n", id + eoffset, property_index + 1,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
+                 m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
+
+    }
 }
 
 void FeaQuad::WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset )
 {
-    // 8-node second order quadrangle element type (16)
-    fprintf( fp, "%d 16 1 %d %d %d %d %d %d %d %d %d\n", id + eoffset, fea_part_index,
-             m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
-             m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
+    if ( m_ElementType == FEA_QUAD_4 )
+    {
+        // 4-node quadrangle element type (3)
+        fprintf( fp, "%d 3 1 %d %d %d %d %d\n", id + eoffset, fea_part_index,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset );
+    }
+    else
+    {
+        // 8-node second order quadrangle element type (16)
+        fprintf( fp, "%d 16 1 %d %d %d %d %d %d %d %d %d\n", id + eoffset, fea_part_index,
+                 m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
+                 m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
+    }
 }
 
 double FeaQuad::ComputeMass( int property_index )

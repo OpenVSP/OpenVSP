@@ -889,6 +889,8 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
 
 void FeaMeshMgrSingleton::BuildFeaMesh()
 {
+    bool highorder = GetSettingsPtr()->m_HighOrderElementFlag;
+
     //==== Collect All Nodes and Tris ====//
     vector < vec2d > all_uw_vec;
     vector < int > uw_surf_ind_vec; // Vector of surface index for each UW point
@@ -1190,13 +1192,13 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         if( all_face_vec[i].m_isQuad )
         {
             elem = new FeaQuad;
-            ((FeaQuad*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], node_vec[all_face_vec[i].ind3] );
+            ((FeaQuad*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], node_vec[all_face_vec[i].ind3], highorder );
             m_NumQuads++;
         }
         else
         {
             elem = new FeaTri;
-            ((FeaTri*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2] );
+            ((FeaTri*)elem)->Create( node_vec[all_face_vec[i].ind0], node_vec[all_face_vec[i].ind1], node_vec[all_face_vec[i].ind2], highorder );
             m_NumTris++;
         }
         elem->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
@@ -1267,7 +1269,7 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
         if ( m_NumFeaParts > 0 )
         {
-            fprintf( fp, "FeaPart_Name         Mass_Tris   Mass_Beams\n" );
+            fprintf( fp, "FeaPart_Name         Mass_Shells   Mass_Beams\n" );
         }
 
         // Iterate over each FeaPart index and calculate mass of each FeaElement if the current indexes match
@@ -1275,16 +1277,20 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
-                double tri_mass = 0;
+                double shell_mass = 0;
                 double beam_mass = 0;
                 int property_id = m_FeaPartPropertyIndexVec[i];
                 int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
-                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
+                       ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 ||
+                         m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ||
+                         m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 ||
+                         m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) )
                     {
-                        tri_mass += m_FeaElementVec[j]->ComputeMass( property_id );
+                        shell_mass += m_FeaElementVec[j]->ComputeMass( property_id );
                     }
                     else if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
                     {
@@ -1294,9 +1300,9 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
                 string name = m_FeaPartNameVec[i];
 
-                fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), tri_mass, beam_mass );
+                fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), shell_mass, beam_mass );
 
-                m_TotalMass += tri_mass + beam_mass;
+                m_TotalMass += shell_mass + beam_mass;
             }
         }
 
@@ -1341,21 +1347,25 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
         if ( m_NumFeaSubSurfs > 0 )
         {
             fprintf( fp, "\n" );
-            fprintf( fp, "FeaSubSurf_Name      Mass_Tris   Mass_Beams\n" );
+            fprintf( fp, "FeaSubSurf_Name      Mass_Shells   Mass_Beams\n" );
         }
         
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            double tri_mass = 0;
+            double shell_mass = 0;
             double beam_mass = 0;
             int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
             int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
+                   ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 ||
+                     m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ||
+                     m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 ||
+                     m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) )
                 {
-                    tri_mass += m_FeaElementVec[j]->ComputeMass( property_id );
+                    shell_mass += m_FeaElementVec[j]->ComputeMass( property_id );
                 }
                 else if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
                 {
@@ -1365,9 +1375,9 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
             string name = m_SimpleSubSurfaceVec[i].GetName();
 
-            fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), tri_mass, beam_mass );
+            fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), shell_mass, beam_mass );
 
-            m_TotalMass += tri_mass + beam_mass;
+            m_TotalMass += shell_mass + beam_mass;
         }
 
         fprintf( fp, "\n" );
@@ -2255,7 +2265,11 @@ void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
     {
         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
         {
-            if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+            if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
+               ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 ||
+                 m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ||
+                 m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 ||
+                 m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) )
             {
                 if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM )
                 {
@@ -2727,6 +2741,8 @@ void FeaMeshMgrSingleton::WriteCalculix()
             }
         }
 
+        bool highorder = GetSettingsPtr()->m_HighOrderElementFlag;
+
         //==== Write elements from FeaParts ====//
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
@@ -2738,12 +2754,15 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 {
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                     {
-                        fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=ET%s_%d\n", m_FeaPartNameVec[i].c_str(), isurf );
+                        int nnode = 3;
+                        if ( highorder ) nnode = 6;
+
+                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=ET%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), isurf );
 
                         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                         {
                             if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
-                                 m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 &&
+                               ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) &&
                                  m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
                                  m_SurfVec[m_FeaElementVec[j]->GetSurfIndex()]->GetFeaPartSurfNum() == isurf )
                             {
@@ -2756,12 +2775,15 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                     {
-                        fprintf( fp, "*ELEMENT, TYPE=S8, ELSET=EQ%s_%d\n", m_FeaPartNameVec[i].c_str(), isurf );
+                        int nnode = 4;
+                        if ( highorder ) nnode = 8;
+
+                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=EQ%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), isurf );
 
                         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                         {
                             if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
-                                 m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 &&
+                               ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) &&
                                  m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
                                  m_SurfVec[m_FeaElementVec[j]->GetSurfIndex()]->GetFeaPartSurfNum() == isurf )
                             {
@@ -2881,13 +2903,15 @@ void FeaMeshMgrSingleton::WriteCalculix()
             {
                 if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
                 {
-                    fprintf( fp, "\n" );
-                    fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=ET%s_%d\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                    int nnode = 3;
+                    if ( highorder ) nnode = 6;
+
+                    fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=ET%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
 
                     for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                     {
                         if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
-                             m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 &&
+                           ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) &&
                              m_SurfVec[m_FeaElementVec[j]->GetSurfIndex()]->GetFeaPartSurfNum() == isurf )
                         {
                             elem_id++;
@@ -2899,13 +2923,15 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
                 if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
                 {
-                    fprintf( fp, "\n" );
-                    fprintf( fp, "*ELEMENT, TYPE=S8, ELSET=EQ%s_%d\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                    int nnode = 4;
+                    if ( highorder ) nnode = 8;
+
+                    fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=EQ%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
 
                     for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                     {
                         if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
-                             m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 &&
+                           ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) &&
                              m_SurfVec[m_FeaElementVec[j]->GetSurfIndex()]->GetFeaPartSurfNum() == isurf )
                         {
                             elem_id++;
@@ -3271,7 +3297,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         m_FeaTriElementDO.resize( m_NumFeaParts );
         m_FeaQuadElementDO.resize( m_NumFeaParts );
         m_CapFeaElementDO.resize( m_NumFeaParts );
-        m_TriOrientationDO.resize( m_NumFeaParts );
+        m_ElOrientationDO.resize( m_NumFeaParts );
         m_CapNormDO.resize( m_NumFeaParts );
 
         double line_length = GetGridDensityPtr()->m_MinLen / 3.0; // Length of orientation vectors
@@ -3448,7 +3474,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     {
                         if ( m_FeaElementVec[j]->GetFeaPartIndex() == cnt && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                         {
-                            if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                            if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
                             {
                                 vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
                                 norm.normalize();
@@ -3459,7 +3485,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                                 m_FeaTriElementDO[cnt].m_NormVec.push_back( norm );
                                 m_FeaTriElementDO[cnt].m_NormVec.push_back( norm );
                             }
-                            else if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 )
+                            else if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 )
                             {
                                 vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
                                 norm.normalize();
@@ -3496,30 +3522,33 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             }
 
             sprintf( str, "%s_Tri_Norm_%d", GetID().c_str(), cnt );
-            m_TriOrientationDO[cnt].m_GeomID = string( str );
+            m_ElOrientationDO[cnt].m_GeomID = string( str );
             sprintf( str, "%s_Cap_Norm_%d", GetID().c_str(), cnt );
             m_CapNormDO[cnt].m_GeomID = string( str );
 
-            m_TriOrientationDO[cnt].m_Type = DrawObj::VSP_LINES;
-            m_TriOrientationDO[cnt].m_LineWidth = 1.0;
+            m_ElOrientationDO[cnt].m_Type = DrawObj::VSP_LINES;
+            m_ElOrientationDO[cnt].m_LineWidth = 1.0;
             m_CapNormDO[cnt].m_Type = DrawObj::VSP_LINES;
             m_CapNormDO[cnt].m_LineWidth = 1.0;
 
-            m_TriOrientationDO[cnt].m_Visible =
+            m_ElOrientationDO[cnt].m_Visible =
                     GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[cnt];
 
             m_CapNormDO[cnt].m_Visible =
                     GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawCapFlagVec[cnt];
 
-            m_TriOrientationDO[cnt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+            m_ElOrientationDO[cnt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
             m_CapNormDO[cnt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
-            vector < vec3d > tri_orient_pnt_vec, cap_norm_pnt_vec;
+            vector < vec3d > el_orient_pnt_vec, cap_norm_pnt_vec;
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                if ( m_FeaElementVec[j]->GetFeaPartIndex() == cnt && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                if ( m_FeaElementVec[j]->GetFeaPartIndex() == cnt &&
+                   ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 ||
+                     m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) &&
+                     m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                 {
                     vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt ) / 3.0;
 
@@ -3529,8 +3558,24 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                     vec3d orient_pnt = center + line_length * tri->m_Orientation;
 
-                    tri_orient_pnt_vec.push_back( center );
-                    tri_orient_pnt_vec.push_back( orient_pnt );
+                    el_orient_pnt_vec.push_back( center );
+                    el_orient_pnt_vec.push_back( orient_pnt );
+                }
+                else if ( m_FeaElementVec[j]->GetFeaPartIndex() == cnt &&
+                     ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 ||
+                       m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) &&
+                     m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                {
+                    vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt + m_FeaElementVec[j]->m_Corners[3]->m_Pnt ) / 4.0;
+
+                    // Define orientation vec:
+                    FeaQuad* quad = dynamic_cast<FeaQuad*>( m_FeaElementVec[j] );
+                    assert( quad );
+
+                    vec3d orient_pnt = center + line_length * quad->m_Orientation;
+
+                    el_orient_pnt_vec.push_back( center );
+                    el_orient_pnt_vec.push_back( orient_pnt );
                 }
                 else if ( m_FeaElementVec[j]->GetFeaPartIndex() == cnt && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                 {
@@ -3544,35 +3589,41 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            m_TriOrientationDO[cnt].m_PntVec = tri_orient_pnt_vec;
+            m_ElOrientationDO[cnt].m_PntVec = el_orient_pnt_vec;
             m_CapNormDO[cnt].m_PntVec = cap_norm_pnt_vec;
         }
 
         // FeaSubSurfaces:
         m_SSFeaNodeDO.resize( m_NumFeaSubSurfs );
-        m_SSFeaElementDO.resize( m_NumFeaSubSurfs );
+        m_SSTriElementDO.resize( m_NumFeaSubSurfs );
+        m_SSQuadElementDO.resize( m_NumFeaSubSurfs );
         m_SSCapFeaElementDO.resize( m_NumFeaSubSurfs );
-        m_SSTriOrientationDO.resize( m_NumFeaSubSurfs );
+        m_SSElOrientationDO.resize( m_NumFeaSubSurfs );
         m_SSCapNormDO.resize( m_NumFeaSubSurfs );
 
         for ( int cnt = 0; cnt < m_NumFeaSubSurfs; cnt++ )
         {
             m_SSFeaNodeDO[cnt] = DrawObj();
-            m_SSFeaElementDO[cnt] = DrawObj();
+            m_SSTriElementDO[cnt] = DrawObj();
+            m_SSQuadElementDO[cnt] = DrawObj();
             m_SSCapFeaElementDO[cnt] = DrawObj();
 
             sprintf( str, "%s_SSNode_Tag_%d", GetID().c_str(), cnt );
             m_SSFeaNodeDO[cnt].m_GeomID = string( str );
-            sprintf( str, "%s_SSElement_Tag_%d", GetID().c_str(), cnt );
-            m_SSFeaElementDO[cnt].m_GeomID = string( str );
+            sprintf( str, "%s_SSTriElement_Tag_%d", GetID().c_str(), cnt );
+            m_SSTriElementDO[cnt].m_GeomID = string( str );
+            sprintf( str, "%s_SSQuadElement_Tag_%d", GetID().c_str(), cnt );
+            m_SSQuadElementDO[cnt].m_GeomID = string( str );
             sprintf( str, "%s_SSCap_Element_Tag_%d", GetID().c_str(), cnt );
             m_SSCapFeaElementDO[cnt].m_GeomID = string( str );
 
             m_SSFeaNodeDO[cnt].m_Type = DrawObj::VSP_POINTS;
             m_SSFeaNodeDO[cnt].m_Visible = false;
             m_SSFeaNodeDO[cnt].m_PointSize = 3.0;
-            m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
-            m_SSFeaElementDO[cnt].m_Visible = false;
+            m_SSTriElementDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+            m_SSTriElementDO[cnt].m_Visible = false;
+            m_SSQuadElementDO[cnt].m_Type = DrawObj::VSP_SHADED_QUADS;
+            m_SSQuadElementDO[cnt].m_Visible = false;
             m_SSCapFeaElementDO[cnt].m_Type = DrawObj::VSP_LINES;
             m_SSCapFeaElementDO[cnt].m_Visible = false;
             m_SSCapFeaElementDO[cnt].m_LineWidth = 3.0;
@@ -3580,22 +3631,28 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             if ( GetStructSettingsPtr()->m_DrawMeshFlag ||
                  GetStructSettingsPtr()->m_ColorTagsFlag )   // At least mesh or tags are visible.
             {
-                m_SSFeaElementDO[cnt].m_Visible = true;
+                m_SSTriElementDO[cnt].m_Visible = true;
+                m_SSQuadElementDO[cnt].m_Visible = true;
 
                 if ( GetStructSettingsPtr()->m_DrawMeshFlag &&
                      GetStructSettingsPtr()->m_ColorTagsFlag ) // Both are visible.
                 {
-                    m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
-                    m_SSFeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                    m_SSTriElementDO[cnt].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
+                    m_SSTriElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                    m_SSQuadElementDO[cnt].m_Type = DrawObj::VSP_WIRE_SHADED_QUADS;
+                    m_SSQuadElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else if ( GetStructSettingsPtr()->m_DrawMeshFlag ) // Mesh only
                 {
-                    m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS;
-                    m_SSFeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                    m_SSTriElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS;
+                    m_SSTriElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                    m_SSQuadElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                    m_SSQuadElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else // Tags only
                 {
-                    m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+                    m_SSTriElementDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
+                    m_SSQuadElementDO[cnt].m_Type = DrawObj::VSP_SHADED_QUADS;
                 }
             }
 
@@ -3606,7 +3663,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 // Note, (cnt/ncgrp) uses integer division resulting in floor.
                 double deg = ( ( ( m_NumFeaParts + cnt ) % ncgrp ) * ncstep + ( ( m_NumFeaParts + cnt ) / ncgrp ) ) * nctodeg;
                 double deg2 = ( ( ( 1 + m_NumFeaParts + m_NumFeaSubSurfs + cnt ) % ncgrp ) * ncstep + ( ( 1 + m_NumFeaParts + m_NumFeaSubSurfs + cnt ) / ncgrp ) ) * nctodeg; 
-                vec3d rgb = m_SSFeaElementDO[cnt].ColorWheel( deg );
+                vec3d rgb = m_SSTriElementDO[cnt].ColorWheel( deg );
                 rgb.normalize();
 
                 m_SSFeaNodeDO[cnt].m_PointColor = rgb;
@@ -3614,17 +3671,28 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                 for ( int i = 0; i < 3; i++ )
                 {
-                    m_SSFeaElementDO[cnt].m_MaterialInfo.Ambient[i] = (float)rgb.v[i] / 5.0f;
-                    m_SSFeaElementDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i] / 10.0f;
-                    m_SSFeaElementDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
-                    m_SSFeaElementDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i] / 20.0f;
-                }
-                m_SSFeaElementDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
-                m_SSFeaElementDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
-                m_SSFeaElementDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
-                m_SSFeaElementDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
+                    m_SSTriElementDO[cnt].m_MaterialInfo.Ambient[i] = (float)rgb.v[i] / 5.0f;
+                    m_SSTriElementDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i] / 10.0f;
+                    m_SSTriElementDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
+                    m_SSTriElementDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i] / 20.0f;
 
-                m_SSFeaElementDO[cnt].m_MaterialInfo.Shininess = 32.0f;
+                    m_SSQuadElementDO[cnt].m_MaterialInfo.Ambient[i] = (float)rgb.v[i] / 5.0f;
+                    m_SSQuadElementDO[cnt].m_MaterialInfo.Diffuse[i] = 0.4f + (float)rgb.v[i] / 10.0f;
+                    m_SSQuadElementDO[cnt].m_MaterialInfo.Specular[i] = 0.04f + 0.7f * (float)rgb.v[i];
+                    m_SSQuadElementDO[cnt].m_MaterialInfo.Emission[i] = (float)rgb.v[i] / 20.0f;
+                }
+                m_SSTriElementDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
+                m_SSTriElementDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
+                m_SSTriElementDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
+                m_SSTriElementDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
+
+                m_SSQuadElementDO[cnt].m_MaterialInfo.Ambient[3] = 1.0f;
+                m_SSQuadElementDO[cnt].m_MaterialInfo.Diffuse[3] = 1.0f;
+                m_SSQuadElementDO[cnt].m_MaterialInfo.Specular[3] = 1.0f;
+                m_SSQuadElementDO[cnt].m_MaterialInfo.Emission[3] = 1.0f;
+
+                m_SSTriElementDO[cnt].m_MaterialInfo.Shininess = 32.0f;
+                m_SSQuadElementDO[cnt].m_MaterialInfo.Shininess = 32.0f;
             }
             else
             {
@@ -3634,7 +3702,8 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             }
 
             draw_obj_vec.push_back( &m_SSFeaNodeDO[cnt] );
-            draw_obj_vec.push_back( &m_SSFeaElementDO[cnt] );
+            draw_obj_vec.push_back( &m_SSTriElementDO[cnt] );
+            draw_obj_vec.push_back( &m_SSQuadElementDO[cnt] );
         }
 
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
@@ -3659,16 +3728,31 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
-                    if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                    if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) &&
+                         ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) )
                     {
                         vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
                         norm.normalize();
-                        m_SSFeaElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                        m_SSFeaElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
-                        m_SSFeaElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt );
-                        m_SSFeaElementDO[i].m_NormVec.push_back( norm );
-                        m_SSFeaElementDO[i].m_NormVec.push_back( norm );
-                        m_SSFeaElementDO[i].m_NormVec.push_back( norm );
+                        m_SSTriElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                        m_SSTriElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
+                        m_SSTriElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt );
+                        m_SSTriElementDO[i].m_NormVec.push_back( norm );
+                        m_SSTriElementDO[i].m_NormVec.push_back( norm );
+                        m_SSTriElementDO[i].m_NormVec.push_back( norm );
+                    }
+                    else if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) &&
+                              ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 ) )
+                    {
+                        vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                        norm.normalize();
+                        m_SSQuadElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                        m_SSQuadElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[1]->m_Pnt );
+                        m_SSQuadElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[2]->m_Pnt );
+                        m_SSQuadElementDO[i].m_PntVec.push_back( m_FeaElementVec[j]->m_Corners[3]->m_Pnt );
+                        m_SSQuadElementDO[i].m_NormVec.push_back( norm );
+                        m_SSQuadElementDO[i].m_NormVec.push_back( norm );
+                        m_SSQuadElementDO[i].m_NormVec.push_back( norm );
+                        m_SSQuadElementDO[i].m_NormVec.push_back( norm );
                     }
                 }
             }
@@ -3692,30 +3776,31 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             }
 
             sprintf( str, "%s_SSTri_Norm_%u", GetID().c_str(), i );
-            m_SSTriOrientationDO[i].m_GeomID = string( str );
+            m_SSElOrientationDO[i].m_GeomID = string( str );
             sprintf( str, "%s_SSCap_Norm_%u", GetID().c_str(), i );
             m_SSCapNormDO[i].m_GeomID = string( str );
 
-            m_SSTriOrientationDO[i].m_Type = DrawObj::VSP_LINES;
-            m_SSTriOrientationDO[i].m_LineWidth = 1.0;
+            m_SSElOrientationDO[i].m_Type = DrawObj::VSP_LINES;
+            m_SSElOrientationDO[i].m_LineWidth = 1.0;
             m_SSCapNormDO[i].m_Type = DrawObj::VSP_LINES;
             m_SSCapNormDO[i].m_LineWidth = 1.0;
 
-            m_SSTriOrientationDO[i].m_Visible =
+            m_SSElOrientationDO[i].m_Visible =
                     GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[i + m_NumFeaParts];
 
             m_SSCapNormDO[i].m_Visible =
                     GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawCapFlagVec[i + m_NumFeaParts];
 
-            m_SSTriOrientationDO[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+            m_SSElOrientationDO[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
             m_SSCapNormDO[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
-            vector < vec3d > ss_tri_orient_pnt_vec, ss_cap_norm_pnt_vec;
+            vector < vec3d > ss_el_orient_pnt_vec, ss_cap_norm_pnt_vec;
 
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
-                if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) &&
+                     ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) )
                 {
                     vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt ) / 3.0;
 
@@ -3725,8 +3810,22 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
                     vec3d orient_pnt = center + line_length * tri->m_Orientation;
 
-                    ss_tri_orient_pnt_vec.push_back( center );
-                    ss_tri_orient_pnt_vec.push_back( orient_pnt );
+                    ss_el_orient_pnt_vec.push_back( center );
+                    ss_el_orient_pnt_vec.push_back( orient_pnt );
+                }
+                else if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) &&
+                     ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) )
+                {
+                    vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt + m_FeaElementVec[j]->m_Corners[3]->m_Pnt ) / 4.0;
+
+                    // Define orientation vec:
+                    FeaQuad* quad = dynamic_cast<FeaQuad*>( m_FeaElementVec[j] );
+                    assert( quad );
+
+                    vec3d orient_pnt = center + line_length * quad->m_Orientation;
+
+                    ss_el_orient_pnt_vec.push_back( center );
+                    ss_el_orient_pnt_vec.push_back( orient_pnt );
                 }
                 else if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM )
                 {
@@ -3740,7 +3839,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            m_SSTriOrientationDO[i].m_PntVec = ss_tri_orient_pnt_vec;
+            m_SSElOrientationDO[i].m_PntVec = ss_el_orient_pnt_vec;
             m_SSCapNormDO[i].m_PntVec = ss_cap_norm_pnt_vec;
         }
 
@@ -3748,13 +3847,13 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             draw_obj_vec.push_back( &m_CapFeaElementDO[i] );
-            draw_obj_vec.push_back( &m_TriOrientationDO[i] );
+            draw_obj_vec.push_back( &m_ElOrientationDO[i] );
             draw_obj_vec.push_back( &m_CapNormDO[i] );
         }
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             draw_obj_vec.push_back( &m_SSCapFeaElementDO[i] );
-            draw_obj_vec.push_back( &m_SSTriOrientationDO[i] );
+            draw_obj_vec.push_back( &m_SSElOrientationDO[i] );
             draw_obj_vec.push_back( &m_SSCapNormDO[i] );
         }
     }
