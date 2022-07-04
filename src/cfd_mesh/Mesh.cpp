@@ -1752,6 +1752,12 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
                 n0->fixed = true;
                 n1->fixed = true;
 
+                vec2d uw = segs_indexes[j].m_UWmid;
+                vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
+                Node* nsplit = AddNode( pnt, uw );
+                nsplit->fixed = true;
+
+                m_BorderEdgeSplitNode[ e ] = nsplit;
             }
         }
     }
