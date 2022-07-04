@@ -93,7 +93,6 @@ public:
     Wake();
     virtual ~Wake();
 
-    // void Draw();
     void MatchBorderCurve( ICurve* curve );
     void BuildSurfs();
     double DistToClosestLeadingEdgePnt( vec3d& p );
@@ -129,7 +128,6 @@ public:
     void StretchWakes();
     void AppendWakeSurfs( vector< Surf* >& surf_vec );
 
-    //void Draw();
     void UpdateDrawObjs();
     void LoadDrawObjs( vector< DrawObj* >& draw_obj_vec );
     void Show( bool flag );
@@ -222,8 +220,6 @@ public:
 
     void addOutputText( string str, int output_type = VOCAL_OUTPUT );
 
-//  virtual void Draw();
-//  virtual void Draw_BBox( BndBox box );
     virtual void UpdateDrawObjs();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 

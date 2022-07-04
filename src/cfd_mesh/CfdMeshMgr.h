@@ -144,8 +144,6 @@ public:
     virtual void UpdateSourcesAndWakes();
     virtual void UpdateDomain();
 
-//  virtual void Draw();
-//  virtual void Draw_BBox( BndBox box );
     virtual void UpdateDrawObjs() override;
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
 

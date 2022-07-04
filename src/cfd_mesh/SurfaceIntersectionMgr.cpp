@@ -39,26 +39,6 @@ Wake::~Wake()
 {
 }
 
-/*
-void Wake::Draw()
-{
-    glColor3ub( 255, 255, 0 );
-    glBegin( GL_LINE_STRIP );
-    for ( int i = 0 ; i < (int)m_LeadingEdge.size() ; i++ )
-    {
-        glVertex3dv( m_LeadingEdge[i].data() );
-    }
-    glEnd();
-
-    //for ( int i = 0 ; i < (int)m_LeadingCurves.size() ; i++ )
-    //  m_LeadingCurves[i]->m_SCurve_A->Draw();
-
-    //for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
-    //  m_SurfVec[i]->Draw();
-
-}
-*/
-
 double Wake::DistToClosestLeadingEdgePnt( vec3d& pnt )
 {
     double close_dist = 1.0e12;
@@ -309,33 +289,6 @@ void WakeMgrSingleton::StretchWakes()
         }
     }
 }
-
-/*
-void WakeMgr::Draw()
-{
-    double scale = CfdMeshMgr.GetWakeScale();
-    double factor = scale - 1.0;
-
-    glColor4ub( 255, 204, 51, 255 );        // Yellowish
-    for ( int e = 0 ; e < (int)m_LeadingEdgeVec.size() ; e++ )
-    {
-        glBegin( GL_LINES );
-        for ( int i = 0 ; i < (int)m_LeadingEdgeVec[e].size() ; i++ )
-        {
-            vec3d le = m_LeadingEdgeVec[e][i];
-            glVertex3dv( le.data() );
-
-            vec3d te = ComputeTrailEdgePnt( le );
-            double numer = te.x()-m_StartStretchX;
-            double fract = numer/(m_EndX-m_StartStretchX);
-            double xx = m_StartStretchX + numer*(1.0 + factor*fract*fract);
-            double zz = te.z() + (xx - te.x())*tan( DEG2RAD(m_Angle) );
-            glVertex3d( xx, te.y(), zz );
-        }
-        glEnd();
-    }
-}
-*/
 
 void WakeMgrSingleton::UpdateDrawObjs()
 {
