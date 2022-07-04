@@ -548,6 +548,25 @@ void SurfaceIntersectionSingleton::CleanUp()
 
     m_IPatchADrawLines.clear();
     m_IPatchBDrawLines.clear();
+
+    // Clean up DrawObj's
+    m_IsectCurveDO = DrawObj();
+    m_IsectPtsDO = DrawObj();
+    m_BorderCurveDO = DrawObj();
+    m_BorderPtsDO = DrawObj();
+
+    m_RawIsectCurveDO = DrawObj();
+    m_RawIsectPtsDO = DrawObj();
+    m_RawBorderCurveDO = DrawObj();
+    m_RawBorderPtsDO = DrawObj();
+
+    m_ApproxPlanesDO = DrawObj();
+
+    m_DelPtsDO = DrawObj();
+
+    m_IPatchADO.clear();
+    m_IPatchBDO.clear();
+
 }
 
 void SurfaceIntersectionSingleton::RegisterAnalysis()
@@ -3249,15 +3268,6 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
     m_RawBorderPtsDO.m_Type = DrawObj::VSP_POINTS;
     m_RawBorderPtsDO.m_PointColor = vec3d(0.5, 0.5, 0.5);
     m_RawBorderPtsDO.m_PointSize = 10.0;
-
-    m_IsectCurveDO.m_PntVec.clear();
-    m_IsectPtsDO.m_PntVec.clear();
-    m_BorderCurveDO.m_PntVec.clear();
-    m_BorderPtsDO.m_PntVec.clear();
-    m_RawIsectCurveDO.m_PntVec.clear();
-    m_RawIsectPtsDO.m_PntVec.clear();
-    m_RawBorderCurveDO.m_PntVec.clear();
-    m_RawBorderPtsDO.m_PntVec.clear();
 
     for ( int indx = 0; indx < m_RawCurveAVec.size(); indx++ )
     {
