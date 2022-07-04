@@ -957,7 +957,7 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
             sface.ind1 = pntShift[i1];
             sface.ind2 = pntShift[i2];
 
-            if( sFaceVec[i].m_isQuad )
+            if( sFaceVec[f].m_isQuad )
             {
                 sface.m_isQuad = true;
                 int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], allPntVec, indMap );
