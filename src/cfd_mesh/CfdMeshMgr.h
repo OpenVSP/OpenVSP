@@ -146,7 +146,8 @@ public:
 
 //  virtual void Draw();
 //  virtual void Draw_BBox( BndBox box );
-    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
+    virtual void UpdateDrawObjs() override;
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
 
     void UpdateDisplaySettings() override;
 
