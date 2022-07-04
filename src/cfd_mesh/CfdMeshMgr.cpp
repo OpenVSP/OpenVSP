@@ -947,11 +947,11 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
     {
         vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        for ( int t = 0 ; t <  ( int )sFaceVec.size() ; t++ )
+        for ( int f = 0 ; f <  ( int )sFaceVec.size() ; f++ )
         {
-            int i0 = FindPntIndex( sPntVec[sFaceVec[t].ind0], allPntVec, indMap );
-            int i1 = FindPntIndex( sPntVec[sFaceVec[t].ind1], allPntVec, indMap );
-            int i2 = FindPntIndex( sPntVec[sFaceVec[t].ind2], allPntVec, indMap );
+            int i0 = FindPntIndex( sPntVec[sFaceVec[f].ind0], allPntVec, indMap );
+            int i1 = FindPntIndex( sPntVec[sFaceVec[f].ind1], allPntVec, indMap );
+            int i2 = FindPntIndex( sPntVec[sFaceVec[f].ind2], allPntVec, indMap );
             SimpFace sface;
             sface.ind0 = pntShift[i0];
             sface.ind1 = pntShift[i1];
@@ -960,11 +960,11 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
             if( sFaceVec[i].m_isQuad )
             {
                 sface.m_isQuad = true;
-                int i3 = FindPntIndex( sPntVec[sFaceVec[t].ind3], allPntVec, indMap );
+                int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], allPntVec, indMap );
                 sface.ind3 = pntShift[i3];
             }
 
-            sface.m_Tags = sFaceVec[t].m_Tags;
+            sface.m_Tags = sFaceVec[f].m_Tags;
             allFaceVec.push_back( sface );
         }
     }
@@ -982,17 +982,17 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
     if ( file_id )
     {
         std::vector< int > tags = SubSurfaceMgr.GetAllTags();
-        for ( int i = 0; i < ( int ) tags.size(); i++ )
+        for ( int itag = 0; itag < ( int ) tags.size(); itag++ )
         {
-            std::string tagname = SubSurfaceMgr.GetTagNames( i );
+            std::string tagname = SubSurfaceMgr.GetTagNames( itag );
             fprintf( file_id, "solid %s\n", tagname.c_str() );
 
-            for ( int j = 0; j < ( int ) allFaceVec.size(); j++ )
+            for ( int f = 0; f < ( int ) allFaceVec.size(); f++ )
             {
-                SimpFace* sface = &allFaceVec[j];
+                SimpFace* sface = &allFaceVec[f];
                 int t = SubSurfaceMgr.GetTag( sface->m_Tags );
 
-                if ( t == tags[i] )
+                if ( t == tags[itag] )
                 {
                     vec3d* p0 = allUsedPntVec[sface->ind0];
                     vec3d* p1 = allUsedPntVec[sface->ind1];
@@ -1122,21 +1122,21 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     {
         vector < SimpFace >& sFaceVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        for ( int t = 0 ; t <  ( int )sFaceVec.size() ; t++ )
+        for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
         {
-            int i0 = FindPntIndex( sPntVec[sFaceVec[t].ind0], allPntVec, indMap );
-            int i1 = FindPntIndex( sPntVec[sFaceVec[t].ind1], allPntVec, indMap );
-            int i2 = FindPntIndex( sPntVec[sFaceVec[t].ind2], allPntVec, indMap );
+            int i0 = FindPntIndex( sPntVec[sFaceVec[f].ind0], allPntVec, indMap );
+            int i1 = FindPntIndex( sPntVec[sFaceVec[f].ind1], allPntVec, indMap );
+            int i2 = FindPntIndex( sPntVec[sFaceVec[f].ind2], allPntVec, indMap );
             int ind1 = pntShift[i0] + 1;
             int ind2 = pntShift[i1] + 1;
             int ind3 = pntShift[i2] + 1;
-            int tag = SubSurfaceMgr.GetTag( sFaceVec[t].m_Tags );
+            int tag = SubSurfaceMgr.GetTag( sFaceVec[f].m_Tags );
 
             // <# of polygons> [# of holes] [boundary marker]
             fprintf( fp, "1 0 %d\n", tag );
-            if( sFaceVec[t].m_isQuad )
+            if( sFaceVec[f].m_isQuad )
             {
-                int i3 = FindPntIndex( sPntVec[sFaceVec[t].ind3], allPntVec, indMap );
+                int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], allPntVec, indMap );
                 int ind4 = pntShift[i3] + 1;
 
                 // <# of corners> <corner 1> <corner 2> <corner 3> <corner 4>
@@ -1214,13 +1214,13 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     double small_edge = 1.0e12;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        vector < SimpFace >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpFaceVec();
+        vector < SimpFace >& sFaceVec = m_SurfVec[i]->GetMesh()->GetSimpFaceVec();
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-        for ( int t = 0 ; t <  ( int )sTriVec.size() ; t++ )
+        for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
         {
-            double el0 = dist_squared( sPntVec[sTriVec[t].ind0], sPntVec[sTriVec[t].ind1] );
-            double el1 = dist_squared( sPntVec[sTriVec[t].ind1], sPntVec[sTriVec[t].ind2] );
-            double el2 = dist_squared( sPntVec[sTriVec[t].ind2], sPntVec[sTriVec[t].ind0] );
+            double el0 = dist_squared( sPntVec[sFaceVec[f].ind0], sPntVec[sFaceVec[f].ind1] );
+            double el1 = dist_squared( sPntVec[sFaceVec[f].ind1], sPntVec[sFaceVec[f].ind2] );
+            double el2 = dist_squared( sPntVec[sFaceVec[f].ind2], sPntVec[sFaceVec[f].ind0] );
             if ( el0 < small_edge )
             {
                 small_edge = el0;
