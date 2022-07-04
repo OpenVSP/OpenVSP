@@ -124,6 +124,7 @@ public:
     virtual void TransferDrawObjData();
     virtual bool FeaDataAvailable();
     virtual void SetAllDisplayFlags( bool flag );
+    virtual void UpdateDrawObjs();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void UpdateDisplaySettings();
