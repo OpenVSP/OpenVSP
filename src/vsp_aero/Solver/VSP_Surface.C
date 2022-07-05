@@ -206,7 +206,7 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
 {
  
     int i, k, n, NumNodes, NumTris, Node1, Node2, Node3, SurfaceID, Done;
-    int *SurfaceList, Found, DumInt, CompID;
+    int *SurfaceList, Found, DumInt, CompID, *ComponentIDForVSPSurface;
     int *SurfaceIsUsed, NumberOfVSPSurfaces;
     char DumChar[2000], DumChar2[2000], CompName[200], Comma[2000], *Next;    
     VSPAERO_DOUBLE x, y, z, u1, u2, u3, v1, v2, v3;
@@ -301,7 +301,7 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
        fscanf(CART3D_File,"%d \n",&SurfaceID);
 
        Grid().TriList(n).SurfaceID()         = SurfaceID;
-        
+
        Grid().TriList(n).SurfaceType()       = CART3D_SURFACE;
        
        Grid().TriList(n).DegenBodyID()       = 0;
@@ -353,10 +353,10 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
     }
     
     SurfacePatchNameList_ = new char*[NumberOfSurfacePatches_ + 1];
+        
+    BoundaryConditionForSurface_ = new BOUNDARY_CONDITION_DATA[NumberOfSurfacePatches_ + 2];
     
     ComponentIDForSurfacePatch_ = new int[NumberOfSurfacePatches_ + 1];
-    
-    BoundaryConditionForSurface_ = new BOUNDARY_CONDITION_DATA[NumberOfSurfacePatches_ + 2];
     
     PRINTF("Found %d CART3D Surfaces \n",NumberOfSurfacePatches_);
 
@@ -369,19 +369,19 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
        fgets(DumChar,2000,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
        
        sscanf(DumChar,"%d\n",&NumberOfVSPSurfaces);
+
+       ComponentIDForVSPSurface = new int[NumberOfVSPSurfaces + 1];
        
        printf("NumberOfVSPSurfaces: %d \n",NumberOfVSPSurfaces);
 
-       fgets(DumChar,2000,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,2000,TKEY_File);
       
        k = 0;
        
        for ( n = 1 ; n <= NumberOfVSPSurfaces ; n++ ) {
           
-          fgets(DumChar,2000,TKEY_File);printf("n: %d --> DumChar: %s \n",n,DumChar); fflush(NULL);
-          
-        //  sscanf(DumChar,"%d,%s",&DumInt,DumChar);
-          
+          fgets(DumChar,2000,TKEY_File);
+ 
           Next = strtok(DumChar,Comma); 
 
           DumInt = atoi(Next);
@@ -392,16 +392,16 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
              
              k++;
           
-             printf("Surface: %d exists in tringulation and has OpenVSP Name: %s \n",DumInt,DumChar);
+             ComponentIDForVSPSurface[n] = k;
              
-             ComponentIDForSurfacePatch_[n] = k;
+             ComponentIDForSurfacePatch_[k] = n;
              
              SurfacePatchNameList_[k] = new char[2000];
                           
              sprintf(SurfacePatchNameList_[k],"%s",Next);
-             
-             PRINTF("SurfacePatchNameList_[%d]: %s \n",k,SurfacePatchNameList_[k]);
-             
+          
+             printf("Surface: %d exists in tringulation and will be surface: %d with OpenVSP Name: %s \n",DumInt,k,SurfacePatchNameList_[k]);
+  
           }
           
        }
@@ -418,7 +418,7 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
     else {
        
        for ( n = 1 ; n <= NumberOfSurfacePatches_ ; n++ ) {
-          
+ 
           ComponentIDForSurfacePatch_[n] = n;
           
           SurfacePatchNameList_[n] = new char[2000];
@@ -429,6 +429,30 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
        
     }
 
+    for ( i = 1 ; i <= NumberOfSurfacePatches_ ; i++ ) {
+       
+       PRINTF("SurfaceList[%d]: %d \n",i,SurfaceList[i]);
+       
+    }
+    
+    for ( i = 1 ; i <= NumberOfVSPSurfaces ; i++ ) {
+       
+       PRINTF("ComponentIDForVSPSurface[%d]: %d \n",i,ComponentIDForVSPSurface[i]);
+       
+    }
+
+    for ( i = 1 ; i <= NumberOfSurfacePatches_ ; i++ ) {
+       
+      ComponentIDForSurfacePatch_[i] = ComponentIDForVSPSurface[ComponentIDForSurfacePatch_[i]];
+       
+    }
+    
+    for ( i = 1 ; i <= NumberOfSurfacePatches_ ; i++ ) {
+       
+       PRINTF("ComponentIDForSurfacePatch_[%d]: %d \n",i,ComponentIDForSurfacePatch_[i]);
+       
+    }
+        
     // Renumber the surfaces
     
     for ( n = 1 ; n <= NumTris ; n++ ) {
@@ -445,7 +469,7 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
 
              if ( TKEY_File != NULL ) {
                 
-                Grid().TriList(n).ComponentID() = ComponentIDForSurfacePatch_[Grid().TriList(n).SurfaceID()];
+                Grid().TriList(n).ComponentID() = ComponentIDForVSPSurface[Grid().TriList(n).SurfaceID()];
                 
              }
              else {
@@ -474,8 +498,10 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
        }
        
     }
- 
+
     delete [] SurfaceList;
+    
+    if ( TKEY_File ) delete [] ComponentIDForVSPSurface;
     
     // Hack for u,v data...
 
@@ -659,7 +685,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
        
        if ( Node1 == Node2 || Node1 == Node3 || Node2 == Node3 ) {
           
-          printf("fuck... tri: %d --> %d %d %d \n",n,Node1,Node2,Node3);fflush(NULL);exit(1);
+          printf("wtf... tri: %d --> %d %d %d \n",n,Node1,Node2,Node3);fflush(NULL);exit(1);
           
        }
        
@@ -1376,13 +1402,13 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
        if ( NumberOfSharpNodes ) {
           
           if ( NodeIsSharp[Node1] && NodeIsSharp[Node2] ) {
+      
+              IncidentKuttaEdges[Node1]++;
+              
+              IncidentKuttaEdges[Node2]++;
+              
+              IsKuttaEdge[i] = 1;     
 
-             IncidentKuttaEdges[Node1]++;
-             
-             IncidentKuttaEdges[Node2]++;
-             
-             IsKuttaEdge[i] = 1;     
-                  
           } 
           
        }       
@@ -1577,7 +1603,7 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
          
              // Check Node 1
              
-             if ( SurfaceAtNodeIsConvex(Node1) || IncidentKuttaEdges[Node1] >= 2 || NumberOfSharpNodes ) {
+             if ( SurfaceAtNodeIsConvex(Node1) || IncidentKuttaEdges[Node1] >= 2 ) {
               
                 KuttaNodeList[Node1].IsKuttaNode = 1;
                 
@@ -1597,7 +1623,7 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
              
              // Check Node 2
              
-             if ( SurfaceAtNodeIsConvex(Node2) || IncidentKuttaEdges[Node2] >= 2 || NumberOfSharpNodes ) {
+             if ( SurfaceAtNodeIsConvex(Node2) || IncidentKuttaEdges[Node2] >= 2 ) {
                
                 KuttaNodeList[Node2].IsKuttaNode = 1;
                 
@@ -1675,7 +1701,7 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
        
        SheetIsPeriodic = 0;
        
-       // Try to start with a wing tip node
+       // Try NOT to start with a wing tip node
        
        Done = 0;
        
@@ -1683,7 +1709,7 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
    
        while ( k <= Grid().NumberOfNodes() && !Done ) {
        
-          if ( KuttaNodeList[k].IsKuttaNode && IncidentKuttaEdges[k] == 1 && NodeUsed[k] == 0 ) Done = 1;
+          if ( KuttaNodeList[k].IsKuttaNode && IncidentKuttaEdges[k] != 2 && NodeUsed[k] == 0 ) Done = 1;
           
           k++;
           
@@ -1781,8 +1807,10 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
           Node1 = Grid().EdgeList(Edge1).Node1() + Grid().EdgeList(Edge1).Node2() - Node;
           Node2 = Grid().EdgeList(Edge2).Node1() + Grid().EdgeList(Edge2).Node2() - Node;
 
+          // Add node 1
+          
           if ( Edge1 > 0 && KuttaNodeList[Node1].IsKuttaNode && NodeUsed[Node1] == 0 && Grid().NodeList(Node1).ComponentID() == CurrentComponentID ) {
-             
+            
              PermArray[++Next] = Node1;
              
              NodeUsed[Node1] = 1;
@@ -1791,8 +1819,10 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
              
           }
           
+          // Add node 2
+          
           else if ( Edge2 > 0 && KuttaNodeList[Node2].IsKuttaNode && NodeUsed[Node2] == 0 && Grid().NodeList(Node2).ComponentID() == CurrentComponentID ) {
-             
+            
              PermArray[++Next] = Node2;
              
              NodeUsed[Node2] = 1;
@@ -1800,6 +1830,44 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
              Done = 0;
                       
           }  
+          
+         // Catch root and tips...
+         
+       // // Add node 1
+       // 
+       // if ( Edge1 > 0 && KuttaNodeList[Node1].IsKuttaNode && NodeUsed[Node1] == 0 && Grid().NodeList(Node1).ComponentID() != CurrentComponentID ) {
+       //
+       //    PRINTF("Warning... resetting node %d from component ID: %d to compononent ID: %d ... as it lies on a wake line intersection \n",
+       //           Grid().NodeList(Node1).ComponentID(),
+       //           CurrentComponentID);
+       //                
+       //    PermArray[++Next] = Node1;
+       //    
+       //    NodeUsed[Node1] = 1;
+       //    
+       //    Grid().NodeList(Node1).ComponentID() = CurrentComponentID;
+       //    
+       //    Done = 0;
+       //    
+       // }
+       // 
+       // // Add node 2
+       // 
+       // else if ( Edge2 > 0 && KuttaNodeList[Node2].IsKuttaNode && NodeUsed[Node2] == 0 && Grid().NodeList(Node2).ComponentID() != CurrentComponentID ) {
+       //
+       //    PRINTF("Warning... resetting node %d from component ID: %d to compononent ID: %d ... as it lies on a wake line intersection \n",
+       //           Grid().NodeList(Node1).ComponentID(),
+       //           CurrentComponentID);
+       //    
+       //    PermArray[++Next] = Node2;
+       //    
+       //    NodeUsed[Node2] = 1;
+       //    
+       //    Grid().NodeList(Node2).ComponentID() = CurrentComponentID;
+       //    
+       //    Done = 0;
+       //             
+       // }            
    
        }
      
@@ -1830,6 +1898,8 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
           }
    
        }   
+
+       PRINTF("VortexSheet: %d finished... and %d out of %d kutta nodes are now allocated \n",VortexSheet,p,NumberOfKuttaNodes);fflush(NULL);
        
        VortexSheet++;
                      
@@ -2005,6 +2075,8 @@ int VSP_SURFACE::SurfaceAtNodeIsConvex(int Node)
     int i, j, k, Tri;
     VSPAERO_DOUBLE Vec[3], VecAvg[3], P1[3], P2[3], Dot, Angle;
    
+    if ( NumberOfTrisForNode_[Node] == 2 ) return 1;
+    
     // Calculate averaged normal at Node
     
     VecAvg[0] = VecAvg[1] = VecAvg[2] = 0.;

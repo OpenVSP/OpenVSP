@@ -243,7 +243,7 @@ void VSP_GEOM::LoadFEMDeformationData(char *FileName)
 void VSP_GEOM::Read_CART3D_File(char *FileName)
 {
 
-    int Done;
+    int i, Done, *ComponentList;
     char VSP_File_Name[2000], VKEY_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
     VSPAERO_DOUBLE Diam, x, y, z, nx, ny, nz;
     FILE *Cart3D_File, *TKEY_File, *VSP_Degen_File;
@@ -298,8 +298,32 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 
     VSP_Surface(1).ReadCart3DDataFromFile(Name,Cart3D_File,TKEY_File);
     
-    NumberOfComponents_ = NumberOfSurfacePatches_ = VSP_Surface(1).NumberOfSurfacePatches();
+    NumberOfSurfacePatches_ = VSP_Surface(1).NumberOfSurfacePatches();
 
+    // Determine number of components
+    
+    ComponentList = new int[VSP_Surface(1).Grid().NumberOfTris() + 1];
+    
+    zero_int_array(ComponentList,VSP_Surface(1).Grid().NumberOfTris());
+    
+    for ( i = 1 ; i <= VSP_Surface(1).Grid().NumberOfTris() ; i++ ) {
+ 
+       ComponentList[VSP_Surface(1).Grid().TriList(i).ComponentID()] = 1;
+       
+    }
+    
+    NumberOfComponents_ = 0;
+    
+    for ( i = 1 ; i <= VSP_Surface(1).Grid().NumberOfTris() ; i++ ) {
+    
+       NumberOfComponents_ += ComponentList[i];
+       
+    }    
+    
+    PRINTF("Found %d components for cart3d geometry ... \n",NumberOfComponents_);fflush(NULL);
+    
+    delete [] ComponentList;
+    
     fclose(Cart3D_File);
     
     // Now see if a degen file exists
@@ -401,7 +425,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
 {
 
-    int Done;
+    int i, Done, *ComponentList;
     char VSPGEOM_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
     char VKEY_File_Name[2000];
     VSPAERO_DOUBLE Diam, x, y, z, nx, ny, nz;
@@ -457,7 +481,31 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
 
     VSP_Surface(1).ReadVSPGeomDataFromFile(Name,VSPGEOM_File,VKEY_File);
     
-    NumberOfComponents_ = NumberOfSurfacePatches_ = VSP_Surface(1).NumberOfSurfacePatches();
+    NumberOfSurfacePatches_ = VSP_Surface(1).NumberOfSurfacePatches();
+    
+    // Determine number of components
+    
+    ComponentList = new int[VSP_Surface(1).Grid().NumberOfTris() + 1];
+    
+    zero_int_array(ComponentList,VSP_Surface(1).Grid().NumberOfTris());
+    
+    for ( i = 1 ; i <= VSP_Surface(1).Grid().NumberOfTris() ; i++ ) {
+ 
+       ComponentList[VSP_Surface(1).Grid().TriList(i).ComponentID()] = 1;
+       
+    }
+    
+    NumberOfComponents_ = 0;
+    
+    for ( i = 1 ; i <= VSP_Surface(1).Grid().NumberOfTris() ; i++ ) {
+    
+       NumberOfComponents_ += ComponentList[i];
+       
+    }    
+    
+    PRINTF("Found %d components for vspgeom geometry ... \n",NumberOfComponents_);fflush(NULL);
+    
+    delete [] ComponentList;
 
     fclose(VSPGEOM_File);
     

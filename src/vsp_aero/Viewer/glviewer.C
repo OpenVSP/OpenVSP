@@ -9029,25 +9029,25 @@ void GL_VIEWER::DrawQuadCuttingPlaneShaded(void)
                 
           for ( j = 1 ; j <= QuadCutPlaneList_[c].NumberOfQuadCells; j++ ) {
       
-             if ( DrawQuadCuttingPlanesCpIsOn_ ) {
-                
-                per = ( QuadCutPlaneList_[c].QuadCellList[j].Cp_mid - CpMin)/(CpMax - CpMin);
-                
-                percent_to_rgb(per, rgb, 0);
-                
-                glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
-                glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
-                glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
-                glColor3fv(rgb);
-                   
-             }
+            if ( DrawQuadCuttingPlanesCpIsOn_ ) {
+               
+               per = ( QuadCutPlaneList_[c].QuadCellList[j].Cp_mid - CpMin)/(CpMax - CpMin);
+               
+               percent_to_rgb(per, rgb, 0);
+               
+               glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
+               glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
+               glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
+               glColor3fv(rgb);
+                  
+            }
                          
              glBegin(GL_QUADS);
       
                 glNormal3f( Normal[0], Normal[1], Normal[2] );
              
                 for ( k = 0 ; k <= 3 ; k++ ) {
-      
+ 
                    vec[0] = QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[j].node[k]].xyz[0] - GeometryXShift;
                    vec[1] = QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[j].node[k]].xyz[1] - GeometryYShift;
                    vec[2] = QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[j].node[k]].xyz[2] - GeometryZShift;

@@ -129,6 +129,8 @@ void VSP_EDGE::init(void)
     
     CoreWidth_ = 0.;        
     
+    SuperSonicCoreWidth_ = 0.;
+    
     MinCoreWidth_ = 0.;    
     
     WakeNode_ = 0;              
@@ -465,7 +467,7 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
     VSPAERO_DOUBLE W2, W4;
     VSPAERO_DOUBLE C_Gamma;
     VSPAERO_DOUBLE a, b, c, d, dx, dy, dz;
-    VSPAERO_DOUBLE s1, s2, F, F1, F2;
+    VSPAERO_DOUBLE s1, s2, F, F1, F2, Test;
 
     Beta2_ = 1. - SQR(KTFact_*Mach_);
 
@@ -513,19 +515,43 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
      
        // F function evaluated at node 1
 
+       SuperSonicCoreWidth_ = 0.;
+       
+       if ( Xp >= X1_ && Mach_ > 1. && SQR(X1_-Xp) + Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp) ) >= 0. ) {
+   
+          Test = SQR(X1_-Xp)/(Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp)));
+
+          Test = sqrt(ABS(Test));
+ 
+       //   SuperSonicCoreWidth_ = ABS(X1_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
+
+       }
+       
        F1 = 0.;
 
-       if ( Mach_ < 1. || ( Xp >= X1_ && 0.80*SQR(X1_-Xp) + Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp) ) > 0. ) ) {
+       if ( Mach_ < 1. || ( Xp > X1_ && SQR(X1_-Xp) + Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp) )/0.7 > 0. ) ) {
 
            F1 = Fint(a,b,c,d,s1);
        
        }
 
        // F function evaluated at node 2
+       
+       SuperSonicCoreWidth_ = 0.;
 
+       if ( Xp >= X2_ && Mach_ > 1. && SQR(X2_-Xp) + Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp) ) >= 0. ) {
+     
+          Test = SQR(X2_-Xp)/(Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp)));
+          
+          Test = sqrt(ABS(Test));
+ 
+        //  SuperSonicCoreWidth_ = ABS(X2_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
+
+       }
+    
        F2 = 0.;
        
-       if ( Mach_ < 1. || ( Xp >= X2_ && 0.80*SQR(X2_-Xp) + Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp) ) > 0. ) ) {
+       if ( Mach_ < 1. || ( Xp > X2_ && SQR(X2_-Xp) + Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp) )/0.7 > 0. ) ) {
       
            F2 = Fint(a,b,c,d,s2);
   
@@ -745,7 +771,7 @@ VSPAERO_DOUBLE VSP_EDGE::Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUB
 
     Denom = d * sqrt(R);
 
-    F = 2.*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + MinCoreWidth_*MinCoreWidth_);
+    F = 2.*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + SuperSonicCoreWidth_*SuperSonicCoreWidth_ + MinCoreWidth_*MinCoreWidth_);
 
     return F;
  
@@ -768,7 +794,7 @@ VSPAERO_DOUBLE VSP_EDGE::Gint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUB
 
     Denom = d * sqrt(R);
 
-    G = -2.*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + MinCoreWidth_*MinCoreWidth_);
+    G = -2.*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + SuperSonicCoreWidth_*SuperSonicCoreWidth_ + MinCoreWidth_*MinCoreWidth_);
     
     return G;
  
@@ -929,8 +955,6 @@ VSPAERO_DOUBLE VSP_EDGE::GeneralizedPrincipalPartOfDownWash(void)
     Arg = -Beta_2 - T*T;
 
     Ws = 0.;
-
-   // if ( Mach_ > 1. && Arg > 0. ) Ws = 0.50*sqrt(Arg)*cos(Theta)/LocalSpacing_;
 
     if ( Mach_ > 1. && Arg > 0. ) Ws = 0.50*sqrt(Arg)*cos(Theta);
 

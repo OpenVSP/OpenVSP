@@ -199,7 +199,9 @@ void SEARCH::create_tree_leafs(SEARCH_LEAF *root)
 
     if ( icut == root->number_of_nodes ) {
 
-       while ( icut > 1  && 
+       icut = root->number_of_nodes - 1;
+       
+       while ( icut > 1 && 
                ( temp_node[icut].xyz[root->sort_direction] == temp_node[icut+1].xyz[root->sort_direction] ) ) {
 
           icut--;

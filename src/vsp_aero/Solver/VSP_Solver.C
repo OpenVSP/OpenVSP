@@ -296,7 +296,7 @@ void VSP_SOLVER::Setup(void)
  
     int c, i, j, k, cpu, NumberOfStations, MaxEdges, Level, Hits, CompSurfs;
     int NumSteps_1, NumSteps_2, NumberOfTimeSamples, ThereIsARotor;
-    int Found, UserNumberOfTimeSteps, *ComponentInThisGroup, DumInt, Surf;
+    int Found, UserNumberOfTimeSteps, *ComponentInThisGroup, DumInt, Surf, *WakeSurfaceUsed;
     VSPAERO_DOUBLE Area, Scale_X, Scale_Y, Scale_Z, FarDist, Period, S[3], Mag;
     VSPAERO_DOUBLE MinRotorDiameter, dt1, dt2, TimeSetByFastestRotor, StreamDist;
     VSPAERO_DOUBLE SlatPer, SlatMach, dx, dy, dz, CutOff;
@@ -698,6 +698,8 @@ void VSP_SOLVER::Setup(void)
           ComponentGroupList_[1].RVec(1) =  0.;
           ComponentGroupList_[1].RVec(2) =  0.;
 
+          PRINTF("VSPGeom().NumberOfComponents(): %d \n",VSPGeom().NumberOfComponents());fflush(NULL);
+
           ComponentGroupList_[1].SizeList(VSPGeom().NumberOfComponents());
           
           for ( j = 1 ; j <= VSPGeom().NumberOfComponents() ; j++ ) {
@@ -730,9 +732,23 @@ void VSP_SOLVER::Setup(void)
        
     }
 
+    // Determine the number of vortex sheets
+    
+    NumberOfVortexSheets_ = 0;
+    
+    for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ; j++ ) {
+
+       NumberOfVortexSheets_ = MAX(NumberOfVortexSheets_, VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(j));
+       
+    }   
+    
     // Determine the number of lifting surfaces per component group
     
+    WakeSurfaceUsed = new int[NumberOfVortexSheets_ + 1];
+                  
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+  
+       zero_int_array(WakeSurfaceUsed, NumberOfVortexSheets_);
   
        CompSurfs = 0;
 
@@ -757,30 +773,50 @@ void VSP_SOLVER::Setup(void)
           // Panel or VSPGEOM/VLM
           
           else {
-
-             Found = 0;
              
              i = 1;
              
-             while ( i <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() && !Found ) {
+             while ( i <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ) {
                 
-                if ( ComponentGroupList_[c].ComponentList(j) == VSPGeom().Grid(MGLevel_).ComponentIDForKuttaNode(i) ) Found = 1;
+                if ( ComponentGroupList_[c].ComponentList(j) == VSPGeom().Grid(MGLevel_).ComponentIDForKuttaNode(i) ) {
+              
+                //  SurfaceUsed[VSPGeom().Grid(MGLevel_).NodeList(VSPGeom().Grid(MGLevel_).KuttaNode(i)).SurfaceID()] = 1;
+                   
+                   WakeSurfaceUsed[VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(i)] = 1;;
              
+                }
+                
                 i++;
                 
              }   
-             
-             if ( Found ) CompSurfs++;
-             
+
           }
 
        }
-       
-       PRINTF("Found %d lifting surfaces for component group: %d \n",CompSurfs, c);
-       
-       if ( CompSurfs > 0 ) ComponentGroupList_[c].GeometryHasWings() = 1;
 
-       ComponentGroupList_[c].SizeSpanLoadingList(CompSurfs);
+       if ( SurfaceType_ == VSPGEOM_SURFACE || SurfaceType_ == CART3D_SURFACE ) {
+         
+          CompSurfs = 0;
+            
+          for ( i = 1 ; i <= NumberOfVortexSheets_ ; i++ ) {
+             
+             CompSurfs += WakeSurfaceUsed[i];
+             
+          }
+             
+       }
+    
+       PRINTF("Found %d lifting surfaces for component group: %d \n",CompSurfs, c);
+
+       if ( CompSurfs > 0 ) {
+          
+          ComponentGroupList_[c].GeometryHasWings() = 1;
+
+          ComponentGroupList_[c].SizeSpanLoadingList(CompSurfs);
+
+       }
+       
+       zero_int_array(WakeSurfaceUsed, NumberOfVortexSheets_);
 
        CompSurfs = 0;
 
@@ -816,59 +852,52 @@ void VSP_SOLVER::Setup(void)
           // VLM VSPGEOM, or any panel
 
           else {
-           
-             if ( Verbose_ ) {
-                
-                PRINTF("Searching for ComponentGroupList_[%d].ComponentList(%d): %d \n", c,j,ComponentGroupList_[c].ComponentList(j));
-                
-                for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ; i++ ) {
-                
-                   PRINTF("VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(%d): %d \n",i,VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(i));
-                
-                }
-                
-             }
-       
-             Found = 0;
+
              
              i = 1;
              
-             while ( i <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() && !Found ) {
+             while ( i <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ) {
                 
                 if ( ComponentGroupList_[c].ComponentList(j) == VSPGeom().Grid(MGLevel_).ComponentIDForKuttaNode(i) ) {
-                   
-                   Found = VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(i);
-             
+              
+                   WakeSurfaceUsed[VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(i)] = 1;;
+
                 }
                 
-                // if ( Found ) PRINTF("found... so: VSPGeom().Grid(MGLevel_).ComponentIDForKuttaNode(%d): %d \n",i,VSPGeom().Grid(MGLevel_).ComponentIDForKuttaNode(i));
-             
                 i++;
                 
              }   
-             
-             if ( Verbose_ ) PRINTF("and found surface: %d \n",Found);
-             
-             if ( Found ) {
-                
-                CompSurfs++;
-             
-PRINTF("CompSurfs: %d ... Found: %d \n",CompSurfs,Found);
-             
-                ComponentGroupList_[c].SpanLoadData(CompSurfs).SurfaceID() = Found;
-                
-                if ( Verbose_ ) PRINTF("Found surface: %d for component group: %d which is lifting surface: %d \n",Found,c,CompSurfs);
-             
-                // Do this later...   ComponentGroupList_[c].SpanLoadData(CompSurfs).SetNumberOfSpanStations(...);   
-             
-             }                         
                                      
           }
             
        }
+       
+       if ( SurfaceType_ == VSPGEOM_SURFACE || SurfaceType_ == CART3D_SURFACE ) {
+
+          CompSurfs = 0;
+          
+          for ( i = 1 ; i <= NumberOfVortexSheets_ ; i++ ) {
+             
+             if ( WakeSurfaceUsed[i] ) {
+                
+                CompSurfs++;
+                
+                ComponentGroupList_[c].SpanLoadData(CompSurfs).SurfaceID() = i;
+                
+                if ( 1||Verbose_ ) PRINTF("Found vortex sheet: %d for component group: %d \n",i,c);
+                
+                // Do this later...   ComponentGroupList_[c].SpanLoadData(CompSurfs).SetNumberOfSpanStations(...);   
+                
+             }
+          
+          }     
+          
+       }     
    
     }
-
+     
+    delete WakeSurfaceUsed;
+             
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
        
        for ( j = 1 ; j <= ComponentGroupList_[c].NumberOfComponents() ; j++ ) {
@@ -2264,11 +2293,11 @@ void VSP_SOLVER::InitializeFreeStream(void)
     
     FarAway_ = 5.;
     
-   // if ( Mach_ > 1. ) FarAway_ *= 2.;
+   // if ( Mach_ > 1. ) FarAway_ *= 4.;
 
-    // Setting supersonic smoothing 
-    
-    SmoothFactor_ = 0.01;
+    // Supersonic smoothing 
+
+    SmoothFactor_ = 0.0;
 
     // Turn on KT correction
     
@@ -3594,10 +3623,10 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
        
        for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
        
-       // Some flakiness here... it's possible a node sits on more than one surface..
-       // The most likely candidates are nodes at the start and end of a wake surface...
-       // .. it's also possible that a wake sheet only has 2 nodes on a coarse grid...
-       // So we are kinda screwed either way below...
+          // Some flakiness here... it's possible a node sits on more than one surface..
+          // The most likely candidates are nodes at the start and end of a wake surface...
+          // .. it's also possible that a wake sheet only has 2 nodes on a coarse grid...
+          // So we are kinda screwed either way below...
        
           for ( j = 1 ; j <= VortexSheet(k).NumberOfTrailingVortices() ; j++ ) {
              
@@ -3667,7 +3696,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
              
               for ( i = 1 ; i <= NumberOfVortexSheetsForSurface[c] ; i++ ) {
                  
-                 PRINTF("Component %d attached to vortex sheet: %d \n",c,VortexSheetListForSurface[c][i]);
+                 PRINTF("Surface %d attached to vortex sheet: %d \n",c,VortexSheetListForSurface[c][i]);
                  
               }
               
@@ -3857,7 +3886,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                    
                    VortexLoop(p).VortexSheet() = 0; 
                    
-                   WakeWarning = 1;
+                   WakeWarning++;
   
                 }
                 
@@ -4032,9 +4061,9 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
       
        }
 
-       if ( 1||Verbose_ ) {
+       if ( Verbose_ ) {
           
-          for ( k = 0 ; k <= NumberOfSpanLoadDataSets_ ; k++ ) {
+          for ( k = 1 ; k <= NumberOfSpanLoadDataSets_ ; k++ ) {
           
              for ( j = 1 ; j <= SpanLoadData(k).NumberOfSpanStations() ; j++ ) {
           
@@ -4045,13 +4074,13 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                 Vec1[1] = SpanLoadData(k).Span_YTE(j);
                 Vec1[2] = SpanLoadData(k).Span_ZTE(j);
                 
-               // PRINTF("Vortex Sheet: %d --> j: %d --> Span XYZ: %f %f %f --> Chord: %f \n",
-               // k,
-               // j,
-               // Vec1[0],
-               // Vec1[1],
-               // Vec1[2],                
-               // SpanLoadData(k).Span_Chord(j));
+                PRINTF("Vortex Sheet: %d --> j: %d --> Span XYZ: %f %f %f --> Chord: %f \n",
+                k,
+                j,
+                Vec1[0],
+                Vec1[1],
+                Vec1[2],                
+                SpanLoadData(k).Span_Chord(j));
                 
              }
              
@@ -4065,7 +4094,9 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
         
           for ( i = 1 ; i <= ComponentGroupList_[c].NumberOfLiftingSurfaces() ; i++ ) {
           
-             j = ComponentGroupList_[c].SpanLoadData(i).SurfaceID();
+             j = ComponentGroupList_[c].SpanLoadData(i).SurfaceID(); // SurfaceID really points to the wake surface #
+             
+             if ( Verbose_ ) PRINTF("Wake: %d .... NumberOfSpanStations: %d \n",j,SpanLoadData(j).NumberOfSpanStations());fflush(NULL);
        
              ComponentGroupList_[c].SpanLoadData(i).SetNumberOfSpanStations(SpanLoadData(j).NumberOfSpanStations());
 
@@ -6021,8 +6052,8 @@ void VSP_SOLVER::UpdateWakeConvectedDistance(void)
 void VSP_SOLVER::CalculateRightHandSide(void)
 {
  
-    int i, j, k, p, Loop;
-    VSPAERO_DOUBLE Normal[3];
+    int i, j, k, p, Loop, Loop2, Edge;
+    VSPAERO_DOUBLE Normal[3], ds;
 
     // Update righthandside
 
@@ -6031,6 +6062,30 @@ void VSP_SOLVER::CalculateRightHandSide(void)
        RightHandSide_[i] = -vector_dot(VortexLoop(i).Normal(), VSPGeom().Grid(1).LoopList(i).LocalFreeStreamVelocity());
 
     }
+
+    if ( Mach_ > 1. ) {
+       
+       // Regularization terms
+       
+       for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+          
+          for ( j = 1 ; j <= VortexLoop(i).NumberOfEdges() ; j++ ) {
+             
+             Edge = VortexLoop(i).Edge(j);
+             
+             Loop2 = SurfaceVortexEdge(Edge).Loop2() + SurfaceVortexEdge(Edge).Loop1() - i;
+ 
+             if ( i != Loop2 && vector_dot(VortexLoop(i).Normal(),VortexLoop(Loop2).Normal()) > 0. ) {
+   
+                RightHandSide_[i] -= SmoothFactor_*Vinf_*( Gamma(i) - Gamma(Loop2) );
+                
+             }
+                                       
+          }
+
+       }       
+       
+    }    
     
     // Modify righthandside for control surface deflections
     
@@ -6188,13 +6243,7 @@ void VSP_SOLVER::CalculateDiagonal(void)
    
              if ( i != Loop2 && vector_dot(VortexLoop(i).Normal(),VortexLoop(Loop2).Normal()) > 0. ) {
 
-                ds = sqrt( pow(VortexLoop(i).Xc() - VortexLoop(Loop2).Xc(),2.)
-                         + pow(VortexLoop(i).Yc() - VortexLoop(Loop2).Yc(),2.)
-                         + pow(VortexLoop(i).Zc() - VortexLoop(Loop2).Zc(),2.) );
-                        
-                ds = ABS(VortexLoop(i).Xc() - VortexLoop(Loop2).Xc())/ds;   
-
-                Diagonal_[i] += ds*SmoothFactor_*Vinf_;
+                Diagonal_[i] += SmoothFactor_*Vinf_;
                 
              }
                                        
@@ -6502,13 +6551,7 @@ void VSP_SOLVER::CreateMatrixPreconditioners(void)
           
              if ( i != Loop2 && vector_dot(VortexLoop(i).Normal(),VortexLoop(Loop2).Normal()) > 0. ) {
 
-                ds = sqrt( pow(VortexLoop(i).Xc() - VortexLoop(Loop2).Xc(),2.)
-                         + pow(VortexLoop(i).Yc() - VortexLoop(Loop2).Yc(),2.)
-                         + pow(VortexLoop(i).Zc() - VortexLoop(Loop2).Zc(),2.) );
-
-                ds = ABS(VortexLoop(i).Xc() - VortexLoop(Loop2).Xc())/ds;    
-
-                Diagonal_[i] += ds*SmoothFactor_*Vinf_;
+                Diagonal_[i] += SmoothFactor_*Vinf_;
                 
              }
                                        
@@ -7152,14 +7195,8 @@ void VSP_SOLVER::MatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out)
              Loop2 = SurfaceVortexEdge(Edge).Loop2() + SurfaceVortexEdge(Edge).Loop1() - i;
  
              if ( i != Loop2 && vector_dot(VortexLoop(i).Normal(),VortexLoop(Loop2).Normal()) > 0. ) {
-
-                ds = sqrt( pow(VortexLoop(i).Xc() - VortexLoop(Loop2).Xc(),2.)
-                         + pow(VortexLoop(i).Yc() - VortexLoop(Loop2).Yc(),2.)
-                         + pow(VortexLoop(i).Zc() - VortexLoop(Loop2).Zc(),2.) );
-
-                ds = ABS(VortexLoop(i).Xc() - VortexLoop(Loop2).Xc())/ds;    
-          
-                vec_out[i] += ds*SmoothFactor_*Vinf_*( Gamma(i) - Gamma(Loop2) );
+   
+                vec_out[i] += SmoothFactor_*Vinf_*( Gamma(i) - Gamma(Loop2) );
                 
              }
                                        
@@ -12224,7 +12261,7 @@ void VSP_SOLVER::CalculateForces(void)
 
     int i;
     VSPAERO_DOUBLE CLReq;
-   
+      
     // If a full run, calculate induced drag and surface velocities
     
     if ( !NoiseAnalysis_ ) {
@@ -15114,8 +15151,8 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
           NumberOfStations = SpanLoadData(i).NumberOfSpanStations();
 
        }
-       
-       VSPGeom().VSP_Surface(i).CDo() = 0.;
+
+       if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE ) VSPGeom().VSP_Surface(i).CDo() = 0.;
       
        for ( k = 1 ; k <= NumberOfStations ; k++ ) {
          
@@ -15380,9 +15417,9 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
              
              dCD /= 0.5*Sref_*Vref_*Vref_;
 
-             // Save at component level
+             // Save at component level for degen_geom cases
              
-             VSPGeom().VSP_Surface(i).CDo() += dCD;
+             if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE )VSPGeom().VSP_Surface(i).CDo() += dCD;
              
              // Total drag
       
@@ -15919,7 +15956,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
               
     // VLM Model - Loop over body surfaces and calculate skin friction drag
     
-    if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE) {
+    if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE ) {
     
        for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
         
@@ -15949,9 +15986,9 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
                                                      // The lateral parts are added in below with
                                                      // another 2x 
    
-             // Save at component level
+             // Save at surface level for degen_geom cases
    
-             VSPGeom().VSP_Surface(i).CDo() = dCD;
+             if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE ) VSPGeom().VSP_Surface(i).CDo() = dCD;
              
              // Total drag
       
@@ -18077,7 +18114,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseHeader(void)
          FWRITE(DumChar, c_size, 100, ADBFile_);
          
          DumInt = VSPGeom().VSP_Surface(1).ComponentIDForSurfacePatch(i);
-         
+ 
          FWRITE(&DumInt, i_size, 1, ADBFile_);
     
       }    
@@ -22145,11 +22182,11 @@ void VSP_SOLVER::SmoothPrincipalPart(void)
           Ws = SurfaceVortexEdge(k).GeneralizedPrincipalPartOfDownWash() * SurfaceVortexEdge(k).Length() / VortexLoop(i).Area();
           
           Weight = pow(SurfaceVortexEdge(k).Length(),2.);
-    
+
           if ( Ws > 0. ) {
 
              VortexLoop(i).Ws() += Ws*Weight;
-             
+            
              WeightSum += Weight;
              
           }
@@ -22552,23 +22589,28 @@ void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
  
     int i;
     
-    FPRINTF(StatusFile_,"\n");
-    FPRINTF(StatusFile_,"\n");
-    FPRINTF(StatusFile_,"\n");    
-    FPRINTF(StatusFile_,"Skin Friction Drag Break Out:\n");    
-    FPRINTF(StatusFile_,"\n");   
-    FPRINTF(StatusFile_,"\n");       
-                       //1234567890123456789012345678901234567890: 123456789
-    FPRINTF(StatusFile_,"Surface                                      CDo \n");
-    FPRINTF(StatusFile_,"\n");
+    if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE ) {
+       
+       FPRINTF(StatusFile_,"\n");
+       FPRINTF(StatusFile_,"\n");
+       FPRINTF(StatusFile_,"\n");    
+       FPRINTF(StatusFile_,"Skin Friction Drag Break Out:\n");    
+       FPRINTF(StatusFile_,"\n");   
+       FPRINTF(StatusFile_,"\n");       
+                          //1234567890123456789012345678901234567890: 123456789
+       FPRINTF(StatusFile_,"Surface                                      CDo \n");
+       FPRINTF(StatusFile_,"\n");
+       
+       for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
+        
+          FPRINTF(StatusFile_,"%-40s  %9.5lf \n",
+                  VSPGeom().VSP_Surface(i).ComponentName(),
+                  VSPGeom().VSP_Surface(i).CDo());
+   
+       } 
+       
+    }
     
-    for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
-     
-       FPRINTF(StatusFile_,"%-40s  %9.5lf \n",
-               VSPGeom().VSP_Surface(i).ComponentName(),
-               VSPGeom().VSP_Surface(i).CDo());
-
-    } 
 }
 
 /*##############################################################################
