@@ -515,11 +515,11 @@ void Vehicle::SetupPaths()
 #ifdef WIN32
     m_VSPAEROCmd = string( "vspaero.exe" );
     m_VIEWERCmd = string( "vspviewer.exe" );
-    m_SLICERCmd = string( "vspslicer.exe" );
+    m_SLICERCmd = string( "vsploads.exe" );
 #else
     m_VSPAEROCmd = string( "vspaero" );
     m_VIEWERCmd = string( "vspviewer" );
-    m_SLICERCmd = string( "vspslicer" );
+    m_LOADSCmd = string( "vsploads" );
 #endif
 
     if( !CheckForFile( m_ExePath, m_VSPAEROCmd ) )
@@ -530,9 +530,9 @@ void Vehicle::SetupPaths()
     {
         printf("VSPAERO viewer not found in %s.\n", m_ExePath.c_str());
     }
-    if ( !CheckForFile( m_ExePath, m_SLICERCmd ) )
+    if ( !CheckForFile( m_ExePath, m_LOADSCmd ) )
     {
-        printf( "VSPAERO slicer not found in %s.\n", m_ExePath.c_str());
+        printf( "VSPAERO loads not found in %s.\n", m_ExePath.c_str());
     }
 
     m_CustomScriptDirs.push_back( string( "./CustomScripts/" ) );
@@ -543,16 +543,16 @@ void Vehicle::SetupPaths()
 bool Vehicle::CheckForVSPAERO( const string & path )
 {
     bool ret_val = true;
-    string path_file, vspaero_exe, viewer_exe, slicer_exe;
+    string path_file, vspaero_exe, viewer_exe, loads_exe;
 
 #ifdef WIN32
     vspaero_exe = string( "vspaero.exe" );
     viewer_exe = string( "vspviewer.exe" );
-    slicer_exe = string( "vspslicer.exe" );
+    loads_exe = string( "vsploads.exe" );
 #else
     vspaero_exe = string( "vspaero" );
     viewer_exe = string( "vspviewer" );
-    slicer_exe = string( "vspslicer" );
+    loads_exe = string( "vsploads" );
 #endif
 
     path_file = path + string( "/" ) + vspaero_exe;
@@ -591,11 +591,11 @@ bool Vehicle::CheckForVSPAERO( const string & path )
         m_VIEWERCmd = viewer_exe;
     }
 
-    path_file = path + string( "/" ) + slicer_exe;
+    path_file = path + string( "/" ) + loads_exe;
 
     if( !FileExist( path_file ) )
     {
-        fprintf( stderr, "ERROR %d: VSPAERO Slicer Not Found. \n"
+        fprintf( stderr, "ERROR %d: VSPAERO Loads Not Found. \n"
             "\tExpected here: %s\n"
             "\tFile: %s \tLine: %d\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
@@ -606,7 +606,7 @@ bool Vehicle::CheckForVSPAERO( const string & path )
     else
     {
         // Save Slicer executable
-        m_SLICERCmd = slicer_exe;
+        m_LOADSCmd = loads_exe;
     }
 
     return ret_val;

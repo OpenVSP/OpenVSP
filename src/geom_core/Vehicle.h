@@ -169,7 +169,7 @@ public:
     string GetVSPAEROPath()                                 { return m_VSPAEROPath; }
     string GetVSPAEROCmd()                                  { return m_VSPAEROCmd; }
     string GetVIEWERCmd()                                   { return m_VIEWERCmd; }
-    string GetSLICERCmd()                                   { return m_SLICERCmd; }
+    string GetLOADSCmd()                                    { return m_LOADSCmd; }
 
     bool CheckForVSPAERO( const string & path );
     bool SetVSPAEROPath( const string & path );
@@ -529,7 +529,7 @@ protected:
     string m_VSPAEROPath;
     string m_VSPAEROCmd;
     string m_VIEWERCmd;
-    string m_SLICERCmd;
+    string m_LOADSCmd;
     vector< string > m_CustomScriptDirs;
 
     IntersectSettings m_ISectSettings;

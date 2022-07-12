@@ -3982,10 +3982,11 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     vector<string> args;
 
     // Add model file name
+    args.push_back( "-slice" );
     args.push_back( m_ModelNameBase );
 
     //====== Execute VSPAERO Slicer ======//
-    m_SlicerThread.ForkCmd( veh->GetExePath(), veh->GetSLICERCmd(), args );
+    m_SlicerThread.ForkCmd( veh->GetExePath(), veh->GetLOADSCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
     MonitorSolver( logFile );
