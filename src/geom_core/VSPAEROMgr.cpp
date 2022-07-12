@@ -1526,6 +1526,20 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         fprintf( case_file, "Num Unsteady Props = %d \n", NumUnsteadyRotorGroups() ); // number of unsteady propellers
     }
 
+    if ( m_CpSliceVec.size() > 0 )
+    {
+        fprintf( case_file, "NumberOfQuadTrees = %d \n", m_CpSliceVec.size() );
+
+        for ( i = 0; i < m_CpSliceVec.size(); i++ )
+        {
+            CpSlice* slice = m_CpSliceVec[i];
+            if ( slice )
+            {
+                fprintf( case_file, "%d %d %lf \n", i + 1, slice->m_CutType() + 1, slice->m_CutPosition() );
+            }
+        }
+    }
+
     //Finish up by closing the file and making sure that it appears in the file system
     fclose( case_file );
 
