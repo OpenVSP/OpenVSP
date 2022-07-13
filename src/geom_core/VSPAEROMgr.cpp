@@ -4019,6 +4019,58 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     return res->GetID();
 }
 
+void VSPAEROMgrSingleton::ComputeQuadTreeSlices( FILE * logFile )
+{
+    UpdateFilenames();
+
+    if ( !FileExist( m_AdbFile ) )
+    {
+        fprintf( stderr, "\nError: Aerothermal database (*.adb) file not found. "
+                         "Execute VSPAERO before running the quad tree slicer\n" );
+        return;
+    }
+
+    // Setup file needs to be re-written to update desired slices.
+    CreateSetupFile();
+
+    ExecuteQuadTreeSlicer( logFile );
+}
+
+void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    WaitForFile( m_AdbFile );
+    if ( !FileExist( m_AdbFile ) )
+    {
+        fprintf( stderr, "WARNING: Aerothermal database file not found: %s\n\tFile: %s \tLine:%d\n", m_AdbFile.c_str(), __FILE__, __LINE__ );
+        return;
+    }
+
+    //====== Send command to be executed by the system at the command prompt ======//
+    vector<string> args;
+
+    // Add model file name
+    args.push_back( "-interrogate" );
+
+    if ( false ) // Need to determine proper conditions to enable this.
+    {
+        args.push_back( "-unsteady" );
+    }
+
+    args.push_back( m_ModelNameBase );
+
+    //====== Execute VSPAERO Slicer ======//
+    m_SolverProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
+
+    // ==== MonitorSolverProcess ==== //
+    MonitorSolver( logFile );
+}
+
 void VSPAEROMgrSingleton::ClearCpSliceResults()
 {
     // Clear previous results

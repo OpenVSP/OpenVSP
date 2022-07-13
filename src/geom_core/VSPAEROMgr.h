@@ -284,6 +284,8 @@ public:
     // CpSlicer Functionality and Variables
     string ComputeCpSlices( FILE * logFile = NULL );
     string ExecuteCpSlicer( FILE * logFile = NULL );
+    void ComputeQuadTreeSlices( FILE * logFile = NULL );
+    void ExecuteQuadTreeSlicer( FILE * logFile = NULL );
     static void ClearCpSliceResults();
     void CreateCutsFile();
     void AddCpSlice( CpSlice* slice )                      { m_CpSliceVec.push_back( slice ); }

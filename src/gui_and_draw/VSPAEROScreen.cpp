@@ -433,14 +433,14 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
                                              10 * m_AdvancedRightLayout.GetStdHeight() );
     m_AdvancedRightLayout.AddY( m_CpSlicerLayout.GetH() );
 
-    m_CpSlicerLayout.AddDividerBox( "Cp Slicer" );
+    m_CpSlicerLayout.AddDividerBox( "Slicer" );
 
     m_CpSlicerLayout.SetSameLineFlag( true );
     m_CpSlicerLayout.SetFitWidthFlag( false );
 
     m_CpSlicerLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 2 );
 
-    m_CpSlicerLayout.AddButton( m_CpSlicerActivateToggle, "Activate Cp Slicer" );
+    m_CpSlicerLayout.AddButton( m_CpSlicerActivateToggle, "Activate Slicer" );
     m_CpSlicerLayout.AddButton( m_CpSliceLastADBButton, "Slice Latest *.adb File" );
 
     m_CpSlicerLayout.ForceNewLine();
@@ -1136,6 +1136,8 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             VSPAEROMgr.ClearCpSliceResults();
 
             VSPAEROMgr.ComputeCpSlices();
+
+            VSPAEROMgr.ComputeQuadTreeSlices();
         }
         else if ( device == &m_AddCpSliceButton )
         {
