@@ -279,8 +279,6 @@ public:
 
     string LoadExistingVSPAEROResults();
 
-    IntParm m_AnalysisMethod;
-
     // CpSlicer Functionality and Variables
     string ComputeCpSlices( FILE * logFile = NULL );
     string ExecuteCpSlicer( FILE * logFile = NULL );
@@ -301,8 +299,6 @@ public:
     int GetCurrentCpSliceIndex()                           { return m_CurrentCpSliceIndex; }
     void SetCurrentCpSliceIndex( int index )               { m_CurrentCpSliceIndex = index; }
     int GetCpSliceAnalysisType()                           { return m_CpSliceAnalysisType; }
-
-    BoolParm m_CpSliceFlag;
 
     // Rotor Disk Functionality
     void AddRotorDisk();
@@ -344,6 +340,10 @@ public:
     // Highlighter Methods and Variables
     void HighlightSelected( int type );
     void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
+
+    IntParm m_AnalysisMethod;
+
+    BoolParm m_CpSliceFlag;
 
     vector < int > m_SelectedGroupedCS;
     vector < int > m_SelectedUngroupedCS;
@@ -503,14 +503,6 @@ public:
     ProcessUtil m_SlicerThread;
 
 protected:
-    DrawObj m_HighlightDrawObj;
-
-    BndBox m_BBox;
-
-    int m_LastSelectedType;
-
-    string m_LastPanelMeshGeomId;
-
     static int WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
     void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec );
 
@@ -532,6 +524,13 @@ protected:
     void ReadRotorResFile( string filename, vector <string> &res_id_vector, string group_name = "" );
     static void AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
 
+    DrawObj m_HighlightDrawObj;
+
+    BndBox m_BBox;
+
+    int m_LastSelectedType;
+
+    string m_LastPanelMeshGeomId;
 
 private:
     VSPAEROMgrSingleton();
