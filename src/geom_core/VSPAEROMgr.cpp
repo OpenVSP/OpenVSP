@@ -4057,7 +4057,7 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     // Add model file name
     args.push_back( "-interrogate" );
 
-    if ( false ) // Need to determine proper conditions to enable this.
+    if ( m_RotateBladesFlag() || m_StabilityType.Get() > vsp::STABILITY_DEFAULT )
     {
         args.push_back( "-unsteady" );
     }
