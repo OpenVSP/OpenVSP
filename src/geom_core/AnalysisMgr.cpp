@@ -2758,6 +2758,8 @@ string CpSlicerAnalysis::Execute()
         // Execute analysis
         res_id = VSPAEROMgr.ComputeCpSlices( stdout );
 
+        VSPAEROMgr.ClearCpSliceVec();
+
         // ==== Restore original values that were overwritten by analysis inputs ==== //
         VSPAEROMgr.AddCpSliceVec( vsp::X_DIR, xcutsOrig );
         VSPAEROMgr.AddCpSliceVec( vsp::Y_DIR, ycutsOrig );
