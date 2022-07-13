@@ -2209,8 +2209,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         //====== Modify/Update the setup file ======//
         if ( m_Verbose ) { printf( "Writing vspaero setup file: %s\n", m_SetupFile.c_str() ); }
-        // if the setup file doesn't exist, create one with the current settings
-        // TODO output a warning to the user that we are creating a default file
         CreateSetupFile();
 
         //====== Modify/Update the groups file for unsteady analysis ======//
