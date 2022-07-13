@@ -1526,7 +1526,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         fprintf( case_file, "Num Unsteady Props = %d \n", NumUnsteadyRotorGroups() ); // number of unsteady propellers
     }
 
-    if ( m_CpSliceVec.size() > 0 )
+    if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
     {
         fprintf( case_file, "NumberOfQuadTrees = %d \n", m_CpSliceVec.size() );
 
