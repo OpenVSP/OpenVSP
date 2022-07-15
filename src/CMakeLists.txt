@@ -96,8 +96,8 @@ SET( VSP_COMMON_LIBRARIES
     sixseries
     util
     tritri
-    Angelscript
     wavedragEL
+    ${ANGELSCRIPT_LIBRARIES}
     ${CPPTEST_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${WINSOCK_LIBRARIES}
