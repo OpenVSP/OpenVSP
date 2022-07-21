@@ -205,6 +205,11 @@ void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, d
 {
     int imax = target_vec.size() - 1;
 
+    if ( idouble > imax )
+    {
+        idouble = 0.0;
+    }
+
     int ifloor = (int)floor( idouble );
     int iceil = (int)ceil( idouble );
 
