@@ -13,6 +13,7 @@
 #include <cmath>
 #include <algorithm>
 #include <set>
+#include <cfloat>
 
 #include "VspSurf.h"
 #include "StlHelper.h"
@@ -1762,9 +1763,10 @@ void VspSurf::TessAdaptLine( double umin, double umax, double wmin, double wmax,
 
     vec3d pmid = CompPnt( umid, wmid );
 
-    double d = dist_pnt_2_line( pmin, pmax, pmid ) / dist( pmin, pmax );
+    double len = dist( pmin, pmax );
+    double d = dist_pnt_2_line( pmin, pmax, pmid ) / len;
 
-    if ( ( d > tol && Nlimit > 0 ) || Nadapt < 2 )
+    if ( ( len > DBL_EPSILON && d > tol && Nlimit > 0 ) || Nadapt < 2 )
     {
         TessAdaptLine( umin, umid, wmin, wmid, pmin, pmid, pnts, tol, Nlimit - 1, Nadapt + 1 );
         TessAdaptLine( umid, umax, wmid, wmax, pmid, pmax, pnts, tol, Nlimit - 1, Nadapt + 1 );

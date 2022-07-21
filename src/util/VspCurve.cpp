@@ -11,6 +11,7 @@
 
 #include <cstdio>
 #include <cmath>
+#include <cfloat>
 
 #include "VspCurve.h"
 #include "APIDefines.h"
@@ -1332,9 +1333,10 @@ void VspCurve::TessAdapt( double umin, double umax, const vec3d & pmin, const ve
 
     vec3d pmid = CompPnt( umid );
 
-    double d = dist_pnt_2_line( pmin, pmax, pmid ) / dist( pmin, pmax );
+    double len = dist( pmin, pmax );
+    double d = dist_pnt_2_line( pmin, pmax, pmid ) / len;
 
-    if ( ( d > tol && Nlimit > 0 ) || Nadapt < 3 )
+    if ( ( len > DBL_EPSILON && d > tol && Nlimit > 0 ) || Nadapt < 3 )
     {
         TessAdapt( umin, umid, pmin, pmid, pnts, tol, Nlimit - 1, Nadapt + 1 );
         TessAdapt( umid, umax, pmid, pmax, pnts, tol, Nlimit - 1, Nadapt + 1 );

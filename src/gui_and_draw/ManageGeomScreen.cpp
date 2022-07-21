@@ -956,7 +956,7 @@ void ManageGeomScreen::UpdateDrawType()
     int num_sub_on = 0;
     int num_feature_on = 0;
 
-    for ( int i = 0; i < (int)geom_vec.size(); i++ )
+    for ( int i = 0; i < (int)num_geoms; i++ )
     {
         if ( geom_vec[i] && geom_vec[i]->m_GuiDraw.GetDispSubSurfFlag() )
         {
@@ -969,23 +969,27 @@ void ManageGeomScreen::UpdateDrawType()
         }
     }
 
-    double flag_average = num_sub_on/(double)num_geoms;
-    if ( flag_average > 0.5 )
+    if ( num_geoms > 0 )
     {
-        m_ShowSubToggle.GetFlButton()->value( 1 );
-    }
-    else
-    {
-        m_ShowSubToggle.GetFlButton()->value( 0 );
-    }
+        double flag_average = num_sub_on / (double)num_geoms;
 
-    flag_average = num_feature_on / (double)num_geoms;
-    if ( flag_average > 0.5 )
-    {
-        m_ShowFeatureToggle.GetFlButton()->value( 1 );
-    }
-    else
-    {
-        m_ShowFeatureToggle.GetFlButton()->value( 0 );
+        if ( flag_average > 0.5 )
+        {
+            m_ShowSubToggle.GetFlButton()->value( 1 );
+        }
+        else
+        {
+            m_ShowSubToggle.GetFlButton()->value( 0 );
+        }
+
+        flag_average = num_feature_on / (double)num_geoms;
+        if ( flag_average > 0.5 )
+        {
+            m_ShowFeatureToggle.GetFlButton()->value( 1 );
+        }
+        else
+        {
+            m_ShowFeatureToggle.GetFlButton()->value( 0 );
+        }
     }
 }

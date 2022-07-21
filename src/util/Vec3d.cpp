@@ -564,7 +564,7 @@ double dist_pnt_2_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3
 
     double denom = C_B.mag();
 
-    if ( denom < 0.0 )
+    if ( denom < DBL_EPSILON )
     {
         return( A_B.mag() );
     }
