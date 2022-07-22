@@ -1900,7 +1900,8 @@ int PropGeom::ReadBEM( const string &file_name )
         fclose( fid );
     }
 
-    if ( true )
+    // Echo BEM file as-read back to stdout.
+    if ( false )
     {
         printf( "Num_Sections: %u\n", num_sect );
         printf( "Num_Blade: %u\n", num_blade );
