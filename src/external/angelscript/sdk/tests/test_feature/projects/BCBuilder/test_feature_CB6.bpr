@@ -1,0 +1,396 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!-- C++Builder XML Project -->
+<PROJECT>
+  <MACROS>
+    <VERSION value="BCB.06.00"/>
+    <PROJECT value="..\..\bin\test_feature_CB6.exe"/>
+    <OBJFILES value="..\..\intermediate\CB6\utils.obj ..\..\intermediate\CB6\bstr.obj 
+      ..\..\intermediate\CB6\main.obj ..\..\intermediate\CB6\test2modules.obj 
+      ..\..\intermediate\CB6\test_2func.obj 
+      ..\..\intermediate\CB6\test_addon_scriptarray.obj 
+      ..\..\intermediate\CB6\test_any.obj ..\..\intermediate\CB6\test_argref.obj 
+      ..\..\intermediate\CB6\test_array.obj 
+      ..\..\intermediate\CB6\test_arrayhandle.obj 
+      ..\..\intermediate\CB6\test_arrayintf.obj 
+      ..\..\intermediate\CB6\test_arrayobject.obj 
+      ..\..\intermediate\CB6\test_assign.obj 
+      ..\..\intermediate\CB6\test_autohandle.obj 
+      ..\..\intermediate\CB6\test_bits.obj ..\..\intermediate\CB6\test_bool.obj 
+      ..\..\intermediate\CB6\test_castop.obj 
+      ..\..\intermediate\CB6\test_cdecl_return.obj 
+      ..\..\intermediate\CB6\test_circularimport.obj 
+      ..\..\intermediate\CB6\test_compiler.obj 
+      ..\..\intermediate\CB6\test_condition.obj 
+      ..\..\intermediate\CB6\test_config.obj 
+      ..\..\intermediate\CB6\test_configaccess.obj 
+      ..\..\intermediate\CB6\test_constobject.obj 
+      ..\..\intermediate\CB6\test_constproperty.obj 
+      ..\..\intermediate\CB6\test_constructor2.obj 
+      ..\..\intermediate\CB6\test_constructor.obj 
+      ..\..\intermediate\CB6\test_conversion.obj 
+      ..\..\intermediate\CB6\test_cstring.obj 
+      ..\..\intermediate\CB6\test_custommem.obj 
+      ..\..\intermediate\CB6\test_debug.obj 
+      ..\..\intermediate\CB6\test_destructor.obj 
+      ..\..\intermediate\CB6\test_dict.obj 
+      ..\..\intermediate\CB6\test_dictionary.obj 
+      ..\..\intermediate\CB6\test_discard.obj 
+      ..\..\intermediate\CB6\test_dump.obj 
+      ..\..\intermediate\CB6\test_dynamicconfig.obj 
+      ..\..\intermediate\CB6\test_enum.obj 
+      ..\..\intermediate\CB6\test_exception.obj 
+      ..\..\intermediate\CB6\test_exceptionmemory.obj 
+      ..\..\intermediate\CB6\test_factory.obj 
+      ..\..\intermediate\CB6\test_file.obj ..\..\intermediate\CB6\test_float.obj 
+      ..\..\intermediate\CB6\test_for.obj 
+      ..\..\intermediate\CB6\test_funcoverload.obj 
+      ..\..\intermediate\CB6\test_functionptr.obj 
+      ..\..\intermediate\CB6\test_garbagecollect.obj 
+      ..\..\intermediate\CB6\test_generic.obj 
+      ..\..\intermediate\CB6\test_getargptr.obj 
+      ..\..\intermediate\CB6\test_getset.obj 
+      ..\..\intermediate\CB6\test_implicitcast.obj 
+      ..\..\intermediate\CB6\test_implicithandle.obj 
+      ..\..\intermediate\CB6\test_import2.obj 
+      ..\..\intermediate\CB6\test_import.obj 
+      ..\..\intermediate\CB6\test_inheritance.obj 
+      ..\..\intermediate\CB6\test_int8.obj 
+      ..\..\intermediate\CB6\test_interface.obj 
+      ..\..\intermediate\CB6\test_metadata.obj 
+      ..\..\intermediate\CB6\test_module.obj 
+      ..\..\intermediate\CB6\test_multiassign.obj 
+      ..\..\intermediate\CB6\test_nested.obj 
+      ..\..\intermediate\CB6\test_nevervisited.obj 
+      ..\..\intermediate\CB6\test_notinitialized.obj 
+      ..\..\intermediate\CB6\test_object2.obj 
+      ..\..\intermediate\CB6\test_object3.obj 
+      ..\..\intermediate\CB6\test_object.obj 
+      ..\..\intermediate\CB6\test_objhandle2.obj 
+      ..\..\intermediate\CB6\test_objhandle.obj 
+      ..\..\intermediate\CB6\test_objzerosize.obj 
+      ..\..\intermediate\CB6\test_operator.obj 
+      ..\..\intermediate\CB6\test_optimize.obj 
+      ..\..\intermediate\CB6\test_parser.obj 
+      ..\..\intermediate\CB6\test_pointer.obj 
+      ..\..\intermediate\CB6\test_postprocess.obj 
+      ..\..\intermediate\CB6\test_refargument.obj 
+      ..\..\intermediate\CB6\test_refcast.obj 
+      ..\..\intermediate\CB6\test_registertype.obj 
+      ..\..\intermediate\CB6\test_return_with_cdecl_objfirst.obj 
+      ..\..\intermediate\CB6\test_returnstring.obj 
+      ..\..\intermediate\CB6\test_rz.obj 
+      ..\..\intermediate\CB6\test_saveload.obj ..\..\intermediate\CB6\test_scriptclassmethod.obj 
+      ..\..\intermediate\CB6\test_scriptmath.obj 
+      ..\..\intermediate\CB6\test_scriptstring.obj 
+      ..\..\intermediate\CB6\test_scriptstruct.obj 
+      ..\..\intermediate\CB6\test_shark.obj 
+      ..\..\intermediate\CB6\test_singleton.obj 
+      ..\..\intermediate\CB6\test_stack2.obj 
+      ..\..\intermediate\CB6\test_stdvector.obj 
+      ..\..\intermediate\CB6\test_stream.obj 
+      ..\..\intermediate\CB6\test_structintf.obj 
+      ..\..\intermediate\CB6\test_suspend.obj 
+      ..\..\intermediate\CB6\test_template.obj 
+      ..\..\intermediate\CB6\test_typedef.obj 
+      ..\..\intermediate\CB6\test_unsaferef.obj 
+      ..\..\intermediate\CB6\test_vartype.obj 
+      ..\..\intermediate\CB6\test_vector3.obj 
+      ..\..\intermediate\CB6\test_vector3_2.obj 
+      ..\..\intermediate\CB6\testbstr.obj 
+      ..\..\intermediate\CB6\testcdecl_class.obj 
+      ..\..\intermediate\CB6\testcdecl_class_a.obj 
+      ..\..\intermediate\CB6\testcdecl_class_c.obj 
+      ..\..\intermediate\CB6\testcdecl_class_d.obj 
+      ..\..\intermediate\CB6\testcreateengine.obj 
+      ..\..\intermediate\CB6\testenumglobvar.obj 
+      ..\..\intermediate\CB6\testexecute1arg.obj 
+      ..\..\intermediate\CB6\testexecute2args.obj 
+      ..\..\intermediate\CB6\testexecute4args.obj 
+      ..\..\intermediate\CB6\testexecute4argsf.obj 
+      ..\..\intermediate\CB6\testexecute32args.obj 
+      ..\..\intermediate\CB6\testexecute32mixedargs.obj 
+      ..\..\intermediate\CB6\testexecute.obj 
+      ..\..\intermediate\CB6\testexecutemixedargs.obj 
+      ..\..\intermediate\CB6\testexecutescript.obj 
+      ..\..\intermediate\CB6\testexecutestring.obj 
+      ..\..\intermediate\CB6\testexecutethis32mixedargs.obj 
+      ..\..\intermediate\CB6\testglobalvar.obj 
+      ..\..\intermediate\CB6\testint64.obj 
+      ..\..\intermediate\CB6\testlongtoken.obj 
+      ..\..\intermediate\CB6\testmoduleref.obj 
+      ..\..\intermediate\CB6\testmultipleinheritance.obj 
+      ..\..\intermediate\CB6\testnegateoperator.obj 
+      ..\..\intermediate\CB6\testnotcomplexstdcall.obj 
+      ..\..\intermediate\CB6\testnotcomplexthiscall.obj 
+      ..\..\intermediate\CB6\testoutput.obj ..\..\intermediate\CB6\teststack.obj 
+      ..\..\intermediate\CB6\teststdcall4args.obj 
+      ..\..\intermediate\CB6\teststdstring.obj 
+      ..\..\intermediate\CB6\testswitch.obj 
+      ..\..\intermediate\CB6\testtempvar.obj 
+      ..\..\intermediate\CB6\testvirtualinheritance.obj 
+      ..\..\intermediate\CB6\testvirtualmethod.obj"/>
+    <RESFILES value="test_feature_CB6.res"/>
+    <DEFFILE value=""/>
+    <RESDEPEN value="$(RESFILES)"/>
+    <LIBFILES value="..\..\..\..\angelscript\lib\AngelScriptBCC_Static_CB6.lib"/>
+    <LIBRARIES value=""/>
+    <SPARELIBS value=""/>
+    <PACKAGES value="vcl.bpi rtl.bpi vclx.bpi bcbsmp.bpi dbrtl.bpi adortl.bpi vcldb.bpi 
+      qrpt.bpi bdertl.bpi vcldbx.bpi dsnap.bpi cds.bpi bdecds.bpi teeui.bpi 
+      teedb.bpi tee.bpi teeqr.bpi ibxpress.bpi visualclx.bpi visualdbclx.bpi 
+      vclie.bpi xmlrtl.bpi inet.bpi inetdbbde.bpi inetdbxpress.bpi inetdb.bpi 
+      nmfast.bpi bcbie.bpi soaprtl.bpi dclocx.bpi dbexpress.bpi dbxcds.bpi 
+      indy.bpi bcb2kaxserver.bpi"/>
+    <PATHCPP value=".;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source;..\..\source"/>
+    <PATHPAS value=".;"/>
+    <PATHRC value=".;"/>
+    <PATHASM value=".;"/>
+    <DEBUGLIBPATH value="$(BCB)\lib\debug"/>
+    <RELEASELIBPATH value="$(BCB)\lib\release"/>
+    <LINKER value="ilink32"/>
+    <USERDEFINES value="WIN32;AS_USE_NAMESPACE=1;_DEBUG"/>
+    <SYSDEFINES value="NO_STRICT;_NO_VCL;_RTLDLL"/>
+    <MAINSOURCE value="test_feature_CB6.bpf"/>
+    <INCLUDEPATH value="..\..\source;..\..\..\..\angelscript\include;&quot;E:\Eigene Dateien\RAD Studio\Projekte\repository\3rdparty\AngelScript\svn\tests\test_feature\projects\BCBuilder&quot;;$(BCB)\include;$(BCB)\include\vcl"/>
+    <LIBPATH value="..\..\source;&quot;E:\Eigene Dateien\RAD Studio\Projekte\repository\3rdparty\AngelScript\svn\tests\test_feature\projects\BCBuilder&quot;;$(BCB)\lib\obj;$(BCB)\lib"/>
+    <WARNINGS value="-w-par"/>
+    <OTHERFILES value=""/>
+  </MACROS>
+  <OPTIONS>
+    <CFLAG1 value="-Od -Vx -Ve -X- -r- -a8 -b- -k -y -v -vi- -tWC -tWM -c"/>
+    <PFLAGS value="-N2..\..\intermediate\CB6 -N0..\..\intermediate\CB6 -$YD -$W -$O- -$A8 -v 
+      -JPHNE -M"/>
+    <RFLAGS value=""/>
+    <AFLAGS value="/mx /w2 /zd"/>
+    <LFLAGS value="-I..\..\intermediate\CB6 -D&quot;&quot; -ap -Tpe -x -Gn -v"/>
+    <OTHERFILES value=""/>
+  </OPTIONS>
+  <LINKER>
+    <ALLOBJ value="c0x32.obj $(OBJFILES)"/>
+    <ALLRES value="$(RESFILES)"/>
+    <ALLLIB value="$(LIBFILES) $(LIBRARIES) import32.lib cw32mti.lib"/>
+    <OTHERFILES value=""/>
+  </LINKER>
+  <FILELIST>
+      <FILE FILENAME="test_feature_CB6.res" FORMNAME="" UNITNAME="test_feature_CB6.res" CONTAINERID="ResTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="test_feature_CB6.bpf" FORMNAME="" UNITNAME="test_feature_CB6" CONTAINERID="BPF" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\utils.cpp" FORMNAME="" UNITNAME="utils.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\bstr.cpp" FORMNAME="" UNITNAME="bstr.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\main.cpp" FORMNAME="" UNITNAME="main.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test2modules.cpp" FORMNAME="" UNITNAME="test2modules.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_2func.cpp" FORMNAME="" UNITNAME="test_2func.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_addon_scriptarray.cpp" FORMNAME="" UNITNAME="test_addon_scriptarray.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_any.cpp" FORMNAME="" UNITNAME="test_any.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_argref.cpp" FORMNAME="" UNITNAME="test_argref.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_array.cpp" FORMNAME="" UNITNAME="test_array.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_arrayhandle.cpp" FORMNAME="" UNITNAME="test_arrayhandle.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_arrayintf.cpp" FORMNAME="" UNITNAME="test_arrayintf.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_arrayobject.cpp" FORMNAME="" UNITNAME="test_arrayobject.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_assign.cpp" FORMNAME="" UNITNAME="test_assign.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_autohandle.cpp" FORMNAME="" UNITNAME="test_autohandle.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_bits.cpp" FORMNAME="" UNITNAME="test_bits.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_bool.cpp" FORMNAME="" UNITNAME="test_bool.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_castop.cpp" FORMNAME="" UNITNAME="test_castop.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_cdecl_return.cpp" FORMNAME="" UNITNAME="test_cdecl_return.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_circularimport.cpp" FORMNAME="" UNITNAME="test_circularimport.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_compiler.cpp" FORMNAME="" UNITNAME="test_compiler.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_condition.cpp" FORMNAME="" UNITNAME="test_condition.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_config.cpp" FORMNAME="" UNITNAME="test_config.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_configaccess.cpp" FORMNAME="" UNITNAME="test_configaccess.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_constobject.cpp" FORMNAME="" UNITNAME="test_constobject.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_constproperty.cpp" FORMNAME="" UNITNAME="test_constproperty.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_constructor2.cpp" FORMNAME="" UNITNAME="test_constructor2.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_constructor.cpp" FORMNAME="" UNITNAME="test_constructor.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_conversion.cpp" FORMNAME="" UNITNAME="test_conversion.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_cstring.cpp" FORMNAME="" UNITNAME="test_cstring.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_custommem.cpp" FORMNAME="" UNITNAME="test_custommem.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_debug.cpp" FORMNAME="" UNITNAME="test_debug.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_destructor.cpp" FORMNAME="" UNITNAME="test_destructor.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_dict.cpp" FORMNAME="" UNITNAME="test_dict.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_dictionary.cpp" FORMNAME="" UNITNAME="test_dictionary.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_discard.cpp" FORMNAME="" UNITNAME="test_discard.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_dump.cpp" FORMNAME="" UNITNAME="test_dump.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_dynamicconfig.cpp" FORMNAME="" UNITNAME="test_dynamicconfig.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_enum.cpp" FORMNAME="" UNITNAME="test_enum.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_exception.cpp" FORMNAME="" UNITNAME="test_exception.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_exceptionmemory.cpp" FORMNAME="" UNITNAME="test_exceptionmemory.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_factory.cpp" FORMNAME="" UNITNAME="test_factory.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_file.cpp" FORMNAME="" UNITNAME="test_file.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_float.cpp" FORMNAME="" UNITNAME="test_float.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_for.cpp" FORMNAME="" UNITNAME="test_for.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_funcoverload.cpp" FORMNAME="" UNITNAME="test_funcoverload.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_functionptr.cpp" FORMNAME="" UNITNAME="test_functionptr.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_garbagecollect.cpp" FORMNAME="" UNITNAME="test_garbagecollect.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_generic.cpp" FORMNAME="" UNITNAME="test_generic.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_getargptr.cpp" FORMNAME="" UNITNAME="test_getargptr.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_getset.cpp" FORMNAME="" UNITNAME="test_getset.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_implicitcast.cpp" FORMNAME="" UNITNAME="test_implicitcast.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_implicithandle.cpp" FORMNAME="" UNITNAME="test_implicithandle.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_import2.cpp" FORMNAME="" UNITNAME="test_import2.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_import.cpp" FORMNAME="" UNITNAME="test_import.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_inheritance.cpp" FORMNAME="" UNITNAME="test_inheritance.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_int8.cpp" FORMNAME="" UNITNAME="test_int8.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_interface.cpp" FORMNAME="" UNITNAME="test_interface.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_metadata.cpp" FORMNAME="" UNITNAME="test_metadata.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_module.cpp" FORMNAME="" UNITNAME="test_module.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_multiassign.cpp" FORMNAME="" UNITNAME="test_multiassign.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_nested.cpp" FORMNAME="" UNITNAME="test_nested.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_nevervisited.cpp" FORMNAME="" UNITNAME="test_nevervisited.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_notinitialized.cpp" FORMNAME="" UNITNAME="test_notinitialized.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_object2.cpp" FORMNAME="" UNITNAME="test_object2.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_object3.cpp" FORMNAME="" UNITNAME="test_object3.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_object.cpp" FORMNAME="" UNITNAME="test_object.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_objhandle2.cpp" FORMNAME="" UNITNAME="test_objhandle2.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_objhandle.cpp" FORMNAME="" UNITNAME="test_objhandle.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_objzerosize.cpp" FORMNAME="" UNITNAME="test_objzerosize.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_operator.cpp" FORMNAME="" UNITNAME="test_operator.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_optimize.cpp" FORMNAME="" UNITNAME="test_optimize.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_parser.cpp" FORMNAME="" UNITNAME="test_parser.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_pointer.cpp" FORMNAME="" UNITNAME="test_pointer.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_postprocess.cpp" FORMNAME="" UNITNAME="test_postprocess.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_refargument.cpp" FORMNAME="" UNITNAME="test_refargument.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_refcast.cpp" FORMNAME="" UNITNAME="test_refcast.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_registertype.cpp" FORMNAME="" UNITNAME="test_registertype.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_return_with_cdecl_objfirst.cpp" FORMNAME="" UNITNAME="test_return_with_cdecl_objfirst.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_returnstring.cpp" FORMNAME="" UNITNAME="test_returnstring.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_rz.cpp" FORMNAME="" UNITNAME="test_rz.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_saveload.cpp" FORMNAME="" UNITNAME="test_saveload.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_scriptclassmethod.cpp" FORMNAME="" UNITNAME="test_scriptclassmethod.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_scriptmath.cpp" FORMNAME="" UNITNAME="test_scriptmath.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_scriptstring.cpp" FORMNAME="" UNITNAME="test_scriptstring.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_scriptstruct.cpp" FORMNAME="" UNITNAME="test_scriptstruct.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_shark.cpp" FORMNAME="" UNITNAME="test_shark.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_singleton.cpp" FORMNAME="" UNITNAME="test_singleton.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_stack2.cpp" FORMNAME="" UNITNAME="test_stack2.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_stdvector.cpp" FORMNAME="" UNITNAME="test_stdvector.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_stream.cpp" FORMNAME="" UNITNAME="test_stream.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_structintf.cpp" FORMNAME="" UNITNAME="test_structintf.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_suspend.cpp" FORMNAME="" UNITNAME="test_suspend.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_template.cpp" FORMNAME="" UNITNAME="test_template.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_typedef.cpp" FORMNAME="" UNITNAME="test_typedef.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_unsaferef.cpp" FORMNAME="" UNITNAME="test_unsaferef.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_vartype.cpp" FORMNAME="" UNITNAME="test_vartype.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_vector3.cpp" FORMNAME="" UNITNAME="test_vector3.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\test_vector3_2.cpp" FORMNAME="" UNITNAME="test_vector3_2.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testbstr.cpp" FORMNAME="" UNITNAME="testbstr.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testcdecl_class.cpp" FORMNAME="" UNITNAME="testcdecl_class.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testcdecl_class_a.cpp" FORMNAME="" UNITNAME="testcdecl_class_a.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testcdecl_class_c.cpp" FORMNAME="" UNITNAME="testcdecl_class_c.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testcdecl_class_d.cpp" FORMNAME="" UNITNAME="testcdecl_class_d.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testcreateengine.cpp" FORMNAME="" UNITNAME="testcreateengine.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testenumglobvar.cpp" FORMNAME="" UNITNAME="testenumglobvar.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecute1arg.cpp" FORMNAME="" UNITNAME="testexecute1arg.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecute2args.cpp" FORMNAME="" UNITNAME="testexecute2args.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecute4args.cpp" FORMNAME="" UNITNAME="testexecute4args.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecute4argsf.cpp" FORMNAME="" UNITNAME="testexecute4argsf.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecute32args.cpp" FORMNAME="" UNITNAME="testexecute32args.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecute32mixedargs.cpp" FORMNAME="" UNITNAME="testexecute32mixedargs.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecute.cpp" FORMNAME="" UNITNAME="testexecute.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecutemixedargs.cpp" FORMNAME="" UNITNAME="testexecutemixedargs.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecutescript.cpp" FORMNAME="" UNITNAME="testexecutescript.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecutestring.cpp" FORMNAME="" UNITNAME="testexecutestring.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testexecutethis32mixedargs.cpp" FORMNAME="" UNITNAME="testexecutethis32mixedargs.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testglobalvar.cpp" FORMNAME="" UNITNAME="testglobalvar.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testint64.cpp" FORMNAME="" UNITNAME="testint64.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testlongtoken.cpp" FORMNAME="" UNITNAME="testlongtoken.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testmoduleref.cpp" FORMNAME="" UNITNAME="testmoduleref.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testmultipleinheritance.cpp" FORMNAME="" UNITNAME="testmultipleinheritance.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testnegateoperator.cpp" FORMNAME="" UNITNAME="testnegateoperator.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testnotcomplexstdcall.cpp" FORMNAME="" UNITNAME="testnotcomplexstdcall.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testnotcomplexthiscall.cpp" FORMNAME="" UNITNAME="testnotcomplexthiscall.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testoutput.cpp" FORMNAME="" UNITNAME="testoutput.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\teststack.cpp" FORMNAME="" UNITNAME="teststack.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\teststdcall4args.cpp" FORMNAME="" UNITNAME="teststdcall4args.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\teststdstring.cpp" FORMNAME="" UNITNAME="teststdstring.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testswitch.cpp" FORMNAME="" UNITNAME="testswitch.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testtempvar.cpp" FORMNAME="" UNITNAME="testtempvar.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testvirtualinheritance.cpp" FORMNAME="" UNITNAME="testvirtualinheritance.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\source\testvirtualmethod.cpp" FORMNAME="" UNITNAME="testvirtualmethod.cpp" CONTAINERID="CCompiler" DESIGNCLASS="" LOCALCOMMAND=""/>
+      <FILE FILENAME="..\..\..\..\angelscript\lib\AngelScriptBCC_Static_CB6.lib" FORMNAME="" UNITNAME="AngelScriptBCC_Static_CB6.lib" CONTAINERID="LibTool" DESIGNCLASS="" LOCALCOMMAND=""/>
+  </FILELIST>
+  <BUILDTOOLS>
+  </BUILDTOOLS>
+
+  <IDEOPTIONS>
+[Version Info]
+IncludeVerInfo=0
+AutoIncBuild=0
+MajorVer=1
+MinorVer=0
+Release=0
+Build=0
+Debug=0
+PreRelease=0
+Special=0
+Private=0
+DLL=0
+Locale=1031
+CodePage=1252
+
+[Version Info Keys]
+CompanyName=
+FileDescription=
+FileVersion=1.0.0.0
+InternalName=
+LegalCopyright=
+LegalTrademarks=
+OriginalFilename=
+ProductName=
+ProductVersion=1.0.0.0
+Comments=
+
+[Excluded Packages]
+e:\programme\bcb6\Bin\dclite60.bpl=Borland Integrierte Übersetzungsumgebung
+
+[HistoryLists\hlIncludePath]
+Count=6
+Item0=..\..\source;..\..\..\..\angelscript\include;E:\Eigene Dateien\RAD Studio\Projekte\repository\3rdparty\AngelScript\svn\tests\test_feature\projects\BCBuilder;$(BCB)\include;$(BCB)\include\vcl
+Item1=..\..\..\..\angelscript\include;E:\Eigene Dateien\RAD Studio\Projekte\repository\3rdparty\AngelScript\svn\tests\test_feature\projects\BCBuilder;$(BCB)\include;$(BCB)\include\vcl
+Item2=..\..\..\..\angelscript\include;..\..\source;E:\Eigene Dateien\RAD Studio\Projekte\repository\3rdparty\AngelScript\svn\tests\test_feature\projects\BCBuilder;$(BCB)\include;$(BCB)\include\vcl
+Item3=..\..\angelscript\include;..\..\source;E:\Eigene Dateien\RAD Studio\Projekte\repository\3rdparty\AngelScript\svn\tests\test_feature\projects\BCBuilder;$(BCB)\include;$(BCB)\include\vcl
+Item4=..\..\..\angelscript\include;..\..\source;E:\Eigene Dateien\RAD Studio\Projekte\repository\3rdparty\AngelScript\svn\tests\test_feature\projects\BCBuilder;$(BCB)\include;$(BCB)\include\vcl
+Item5=..\..\source;E:\Eigene Dateien\RAD Studio\Projekte\repository\3rdparty\AngelScript\svn\tests\test_feature\projects\BCBuilder;$(BCB)\include;$(BCB)\include\vcl
+
+[HistoryLists\hlLibraryPath]
+Count=1
+Item0=..\..\source;E:\Eigene Dateien\RAD Studio\Projekte\repository\3rdparty\AngelScript\svn\tests\test_feature\projects\BCBuilder;$(BCB)\lib\obj;$(BCB)\lib
+
+[HistoryLists\hlDebugSourcePath]
+Count=1
+Item0=$(BCB)\source\vcl
+
+[HistoryLists\hlConditionals]
+Count=2
+Item0=WIN32;AS_USE_NAMESPACE=1;_DEBUG
+Item1=_DEBUG
+
+[HistoryLists\hlIntOutputDir]
+Count=1
+Item0=..\..\intermediate\CB6
+
+[HistoryLists\hlFinalOutputDir]
+Count=2
+Item0=..\..\bin\
+Item1=..\..\bin
+
+[Debugging]
+DebugSourceDirs=$(BCB)\source\vcl
+
+[Parameters]
+RunParams=
+Launcher=
+UseLauncher=0
+DebugCWD=
+HostApplication=
+RemoteHost=
+RemotePath=
+RemoteLauncher=
+RemoteCWD=
+RemoteDebug=0
+
+[Compiler]
+ShowInfoMsgs=0
+LinkDebugVcl=0
+LinkCGLIB=0
+  </IDEOPTIONS>
+</PROJECT>
