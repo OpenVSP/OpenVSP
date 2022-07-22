@@ -515,7 +515,7 @@ void Vehicle::SetupPaths()
 #ifdef WIN32
     m_VSPAEROCmd = string( "vspaero.exe" );
     m_VIEWERCmd = string( "vspviewer.exe" );
-    m_SLICERCmd = string( "vsploads.exe" );
+    m_LOADSCmd = string( "vsploads.exe" );
 #else
     m_VSPAEROCmd = string( "vspaero" );
     m_VIEWERCmd = string( "vspviewer" );
