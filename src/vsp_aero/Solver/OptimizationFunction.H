@@ -34,6 +34,12 @@
 
 #define OPT_RESIDUAL  12
 
+#define OPT_WING_CX 13
+#define OPT_WING_CY 14
+#define OPT_WING_CZ 15
+
+#define OPT_ROTOR_RPM 20
+
 class OPTIMIZATION_FUNCTION {
 
 private:

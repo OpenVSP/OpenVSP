@@ -453,7 +453,7 @@ void VSP_AGGLOM::InitializeFront_(void)
              
              k = FindMatchingSymmetryEdge_(i);
              
-             if ( k != 0 ) {
+             if ( k != 0 && EdgeIsOnFront_[k] == 0 ) {
                 
                 if ( FineGrid().EdgeList(k).IsTrailingEdge()  ) {
                    
@@ -489,7 +489,7 @@ void VSP_AGGLOM::InitializeFront_(void)
              
              k = FindMatchingSymmetryEdge_(i);
              
-             if ( k != 0 ) {
+             if ( k != 0 && EdgeIsOnFront_[k] == 0 ) {
                 
                 if ( FineGrid().EdgeList(k).IsLeadingEdge()  ) {
                    
@@ -525,7 +525,7 @@ void VSP_AGGLOM::InitializeFront_(void)
             
              k = FindMatchingSymmetryEdge_(i);
              
-             if ( k != 0 ) {
+             if ( k != 0 && EdgeIsOnFront_[k] == 0 ) {
                 
                 if ( FineGrid().EdgeList(k).IsBoundaryEdge()  ) {
                    
@@ -596,13 +596,17 @@ void VSP_AGGLOM::InitializeFront_(void)
           
              if ( Loop1 > 0 && FineGrid().LoopList(Loop1).SurfaceID() == i || Loop2 >0 && FineGrid().LoopList(Loop2).SurfaceID() == i ) {
                 
-                EdgeIsOnFront_[j] = BOUNDARY_EDGE_BC;
-                
-                FrontEdgeQueue_[++NextEdgeInQueue_] = j;
-                
-                NumberOfEdgesOnBoundary_++;     
-                
-                Done = 1;           
+                if ( EdgeIsOnFront_[j] == 0 ) {
+                   
+                   EdgeIsOnFront_[j] = BOUNDARY_EDGE_BC;
+                   
+                   FrontEdgeQueue_[++NextEdgeInQueue_] = j;
+                   
+                   NumberOfEdgesOnBoundary_++;     
+                   
+                   Done = 1;          
+                   
+                } 
                 
              }
              
@@ -875,7 +879,7 @@ void VSP_AGGLOM::MergeVortexLoopsOld_(void)
                                if ( EdgeIsOnFront_[Edge] == 0 ) {
                                   
                                   EdgeIsOnFront_[Edge] = INTERIOR_EDGE_BC;
-                                  
+                            
                                   FrontEdgeQueue_[++NumberOfEdgesInQueue_] = Edge;
                                   
                                }
@@ -1221,7 +1225,7 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
                          
                          p = FindMatchingSymmetryEdge_(Edge);
                          
-                         if ( p != 0 ) {
+                         if ( p != 0 && EdgeIsOnFront_[p] == 0 ) {
                             
                            EdgeIsOnFront_[p] = INTERIOR_EDGE_BC;
                            
@@ -1253,7 +1257,7 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
                   
                    p = FindMatchingSymmetryEdge_(Edge);
                    
-                   if ( p != 0 ) {
+                   if ( p != 0 && EdgeIsOnFront_[p] == 0 ) {
                       
                      EdgeIsOnFront_[p] = INTERIOR_EDGE_BC;
                      
@@ -1328,7 +1332,7 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
                    
                    p = FindMatchingSymmetryEdge_(Edge);
                    
-                   if ( p != 0 ) {
+                   if ( p != 0 && EdgeIsOnFront_[p] == 0 ) {
                       
                      EdgeIsOnFront_[p] = INTERIOR_EDGE_BC;
                      
@@ -1356,7 +1360,7 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
                  
                    p = FindMatchingSymmetryEdge_(Edge);
                    
-                   if ( p != 0 ) {
+                   if ( p != 0 && EdgeIsOnFront_[p] == 0 ) {
                       
                      EdgeIsOnFront_[p] = INTERIOR_EDGE_BC;
                      
@@ -1564,8 +1568,6 @@ void VSP_AGGLOM::MergeSurroundedLoops_(void)
                
     }   
     
-    printf("NumLoops: %d \n",NumLoops);fflush(NULL);
-
     LoopDegree = new int[FineGrid().NumberOfLoops() + 1];
     
     zero_int_array(LoopDegree, FineGrid().NumberOfLoops());
@@ -1619,16 +1621,8 @@ void VSP_AGGLOM::MergeSurroundedLoops_(void)
           }
           
           if ( MinLoop == MaxLoop ) {
-             
-             printf("Working on fine grid loop: %d \n",i);
-             printf("Which is coarse grid loop: %d \n",CLoops[i]);             
-             printf("Min,Max Loops: %d %d \n",MinLoop,MaxLoop);
-             printf("VortexLoopWasAgglomerated_ is: %d \n",VortexLoopWasAgglomerated_[i]);
-             printf("CLoops[VortexLoopWasAgglomerated_[%d]]: %d \n",VortexLoopWasAgglomerated_[i],CLoops[VortexLoopWasAgglomerated_[i]]);
 
              Loop1 = CLoops[i];
-             
-             printf("Loop1: %d \n",Loop1);
              
              for ( j = 1 ; j <= FineGrid().NumberOfEdges() ; j++ ) {
                 
@@ -1638,53 +1632,29 @@ void VSP_AGGLOM::MergeSurroundedLoops_(void)
                 LoopB = ABS(CLoops[FineGrid().EdgeList(j).Loop2()]);
                 
                 if ( LoopA == Loop1 && LoopB != Loop1 ) {
-                   
-                   printf("Found case 1 ... \n");fflush(NULL);
-                   
-               //    printf("VortexLoopWasAgglomerated_[j]: %d \n",VortexLoopWasAgglomerated_[Loop1]);
-                   
-                   printf("LoopA,B: %d %d \n",LoopA,LoopB);
-                   
-                   printf("LoopA: %d \n",LoopA);
-                   printf("LoopB: %d \n",LoopA);
-                   
-                   printf("FineGrid().EdgeList(%d).Loop1(): %d \n",j,FineGrid().EdgeList(j).Loop1());
-             
+
                    VortexLoopWasAgglomerated_[FineGrid().EdgeList(j).Loop1()] = -ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(j).Loop2()]);
-                   
-                   printf("After... VortexLoopWasAgglomerated_[FineGrid().EdgeList(j).Loop1()]: %d \n",VortexLoopWasAgglomerated_[FineGrid().EdgeList(j).Loop1()]);
-                   
-                         
+                 
                    // Now add edges of this loop to the front
-                   
-                   printf("FineGrid().LoopList(i).NumberOfEdges(): %d \n",FineGrid().LoopList(i).NumberOfEdges());fflush(NULL);
-                   
+             
                    for ( k = 1 ; k <= FineGrid().LoopList(FineGrid().EdgeList(j).Loop1()).NumberOfEdges() ; k++ ) {
                     
                       p = FineGrid().LoopList(FineGrid().EdgeList(j).Loop1()).Edge(k);
                       
-                      if ( 1||EdgeIsOnFront_[p] == 0 ) {
+                      if ( EdgeIsOnFront_[p] == 0 ) {
                          
                          EdgeIsOnFront_[p] = -INTERIOR_EDGE_BC;
                      
                          FrontEdgeQueue_[++NumberOfEdgesInQueue_] = p;
                                                   
                       }
-                      
-                      else {
-                         
-                         printf("EdgeIsOnFront_[p]: %d \n",EdgeIsOnFront_[p]);fflush(NULL);
-                         
-                      }
-                      
+ 
                    }
        
                 }
                 
                 if ( LoopB == Loop1 && LoopA != Loop1 ) {
                    
-                   printf("Found case 2 ... \n");fflush(NULL);
-
                    VortexLoopWasAgglomerated_[FineGrid().EdgeList(j).Loop2()] = -ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(j).Loop1()]);
                          
                    // Now add edges of this loop to the front
@@ -1693,7 +1663,7 @@ void VSP_AGGLOM::MergeSurroundedLoops_(void)
                     
                       p = FineGrid().LoopList(i).Edge(k);
                       
-                      if ( 1||EdgeIsOnFront_[p] == 0 ) {
+                      if ( EdgeIsOnFront_[p] == 0 ) {
                          
                          EdgeIsOnFront_[p] = -INTERIOR_EDGE_BC;
                      

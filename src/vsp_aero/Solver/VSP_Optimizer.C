@@ -93,6 +93,8 @@ VSP_OPTIMIZER::VSP_OPTIMIZER(const VSP_OPTIMIZER &Optimizer)
 
 void VSP_OPTIMIZER::Setup(char *FileName)
 {
+   
+    int p;
 
     sprintf(FileName_,"%s",FileName);
 
@@ -120,6 +122,14 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     // Settings
 
     Solver().OptimizationSolve() = 1;
+
+    Solver().NumberOfOptimizationFunctions() = NumberOfOptimizationFunctions_;
+
+    for ( p = 1 ; p <= NumberOfOptimizationFunctions_ ; p++ ) {
+
+       Solver().SetOptimizationFunction(p, OptimizationFunction_[p], OptimizationSet_[p]);
+
+    } 
      
     Solver().TimeAccurate() = DoUnsteadyAnalysis_;
     
@@ -136,10 +146,9 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     // Setup stuff
                  
     Solver().Setup();
-        
 
-    
-    
+
+  
     // Turn on adept stack and create VSP Adjoint object
         
     Adjoint_ = new VSPAERO_ADJOINT::VSP_SOLVER;
@@ -152,6 +161,14 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     
     Adjoint().DoAdjointSolve() = 1;
 
+    Adjoint().NumberOfOptimizationFunctions() = NumberOfOptimizationFunctions_;
+
+    for ( p = 1 ; p <= NumberOfOptimizationFunctions_ ; p++ ) {
+
+       Adjoint().SetOptimizationFunction(p, OptimizationFunction_[p], OptimizationSet_[p]);
+       
+    } 
+     
     Adjoint().TimeAccurate() = DoUnsteadyAnalysis_;
     
     Adjoint().TimeAnalysisType() = 0;
@@ -169,7 +186,7 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     VSPAERO_ADJOINT::CONTINUE_AUTO_DIFF();
  
     Adjoint().Setup();
-    
+        
     VSPAERO_ADJOINT::PAUSE_AUTO_DIFF();
 
 }
@@ -191,7 +208,7 @@ void VSP_OPTIMIZER::Solve(void)
  
     // Run the adjoint
         
-    SolveAdjoint(1, NULL);   
+    SolveAdjoint();   
 
 }
 
@@ -207,12 +224,12 @@ void VSP_OPTIMIZER::Solve(double *Vec)
     int p;
     
     // Run the solver
-    
+
     SolveForward();
  
     // Run the adjoint
-        
-    SolveAdjoint(1, Vec);   
+       
+    SolveAdjoint();   
 
 }
 
@@ -225,20 +242,6 @@ void VSP_OPTIMIZER::Solve(double *Vec)
 void VSP_OPTIMIZER::SolveForward(void)
 {
 
-    int p;
-    
-    // Run the solver
-    
-    Solver().OptimizationSolve() = 1;
-    
-    Solver().NumberOfOptimizationFunctions() = NumberOfOptimizationFunctions_;
-
-    for ( p = 1 ; p <= NumberOfOptimizationFunctions_ ; p++ ) {
-
-       Solver().SetOptimizationFunction(p, OptimizationFunction_[p]);
-       
-    }
-    
     Solver().Solve(1);    
 
 }
@@ -279,43 +282,37 @@ void VSP_OPTIMIZER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *
 
 /*##############################################################################
 #                                                                              #
-#                         VSP_OPTIMIZER Solve                                  #
+#                         VSP_OPTIMIZER SetGradientVector                      #
 #                                                                              #
 ##############################################################################*/
 
-void VSP_OPTIMIZER::SolveAdjoint(int Case, double *Vec)
+void VSP_OPTIMIZER::SetGradientVector(int Case, double *Vec)
 {
+;
 
-    int p;
-
-    // Run the adjoint
-        
-    Adjoint().OptimizationSolve() = 1;
-    
-    Adjoint().NumberOfOptimizationFunctions() = NumberOfOptimizationFunctions_;
-    
     VSPAERO_ADJOINT::CONTINUE_AUTO_DIFF();
- 
-    // Initialize the functions
-    
-    for ( p = 1 ; p <= NumberOfOptimizationFunctions_ ; p++ ) {
-     
-       Adjoint().SetOptimizationFunction(p, OptimizationFunction_[p]);
-       
-       
-       printf("OptimizationFunction_[p]: %d \n",OptimizationFunction_[p]);fflush(NULL);
-       
-    }
-    
+
     // Possible user defined input vector for gradients
     
     if ( Vec != NULL ) {
-       
-       Adjoint().SetOptimizationFunctionInputGradientVector(Case,Vec);
+
+       Adjoint().SetOptimizationFunctionInputGradientVector(Case, Solver().OptimizationFunctionLength(Case), OptimizationSet_[Case], Vec);
        
     }
 
     VSPAERO_ADJOINT::PAUSE_AUTO_DIFF();
+
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_OPTIMIZER Solve                                  #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SolveAdjoint(void)
+{
 
     Adjoint().Optimization_Solve(1);    
 
@@ -1321,13 +1318,13 @@ void VSP_OPTIMIZER::UpdateGeometry(double *NodeXYZ)
     
     for ( i = 1 ; i <= Adjoint().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
-         Solver().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*-2];
-         Solver().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*-1]; 
-         Solver().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3   ]; 
+         Solver().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2];
+         Solver().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1]; 
+         Solver().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i ]; 
 
-        Adjoint().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*-2];
-        Adjoint().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*-1]; 
-        Adjoint().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3   ]; 
+        Adjoint().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2];
+        Adjoint().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1]; 
+        Adjoint().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i  ]; 
                 
     }
     

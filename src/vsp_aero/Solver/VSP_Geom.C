@@ -244,7 +244,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 {
 
     int i, Done, *ComponentList;
-    char VSP_File_Name[2000], VKEY_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
+    char VSP_File_Name[2000], TKEY_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
     VSPAERO_DOUBLE Diam, x, y, z, nx, ny, nz;
     FILE *Cart3D_File, *TKEY_File, *VSP_Degen_File;
  
@@ -258,11 +258,11 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 
     }    
 
-    SPRINTF(VKEY_File_Name,"%s.tkey",FileName);
+    SPRINTF(TKEY_File_Name,"%s.tkey",FileName);
     
-    if ( (TKEY_File = fopen(VKEY_File_Name,"r")) == NULL ) {
+    if ( (TKEY_File = fopen(TKEY_File_Name,"r")) == NULL ) {
 
-       printf("Could not load %s VKEY file... so I won't use it... ;-) \n", VKEY_File_Name);fflush(NULL);
+       printf("Could not load %s TKEY file... so I won't use it... ;-) \n", TKEY_File_Name);fflush(NULL);
 
        TKEY_File = NULL;
 
@@ -325,6 +325,8 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
     delete [] ComponentList;
     
     fclose(Cart3D_File);
+    
+    if ( TKEY_File != NULL ) fclose(TKEY_File);
     
     // Now see if a degen file exists
 
@@ -509,7 +511,7 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
 
     fclose(VSPGEOM_File);
     
-    fclose(VKEY_File);
+    if ( VKEY_File != NULL ) fclose(VKEY_File);
  
     // Now see if a degen file exists
 

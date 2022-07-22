@@ -252,7 +252,7 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
     
     DrawQuadCuttingPlanesCpIsOn_ = 1;
     
-    DrawCuttingPlanesShadedIsOn_ = 0;
+    DrawCuttingPlanesShadedIsOn_ = 1;
     
     DrawCuttingPlanesWireIsOn_ = 0;
     
@@ -1434,6 +1434,38 @@ void GL_VIEWER::LoadQuadCuttingPlaneCaseList(void)
           &j,
           &(QuadCutPlaneList_[i].CutPlaneDirection),
           &(QuadCutPlaneList_[i].CutPlaneValue));
+          
+          if ( QuadCutPlaneList_[i].CutPlaneDirection == 1 ) {
+             
+             QuadCutPlaneList_[i].Normal[0] = -1.;
+             QuadCutPlaneList_[i].Normal[1] =  0.;
+             QuadCutPlaneList_[i].Normal[2] =  0.;
+             
+          }
+          
+          else if ( QuadCutPlaneList_[i].CutPlaneDirection == 2 ) {
+             
+             QuadCutPlaneList_[i].Normal[0] = 0.;
+             QuadCutPlaneList_[i].Normal[1] = 1.;
+             QuadCutPlaneList_[i].Normal[2] = 0.;
+             
+          }
+          
+          else if ( QuadCutPlaneList_[i].CutPlaneDirection == 3 ) {
+             
+             QuadCutPlaneList_[i].Normal[0] = 0.;
+             QuadCutPlaneList_[i].Normal[1] = 0.;
+             QuadCutPlaneList_[i].Normal[2] = 1.;
+             
+          }        
+          
+          else {
+             
+             printf("Unnknown quad plane cutting direction: %d \n", QuadCutPlaneList_[i].CutPlaneDirection);
+             fflush(NULL);exit(1);
+             
+          }  
+           
        
        }
    
@@ -6409,12 +6441,8 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
                                                                 + QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[i].node[1]].Cp
                                                                 + QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[i].node[2]].Cp
                                                                 + QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[i].node[3]].Cp );
-                                                                                                                                                                                                      
-             QuadCutPlaneList_[c].QuadCellList[i].ds = 0.65*MAX3(ABS( QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[i].node[0]].xyz[0] - QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[i].node[1]].xyz[0] ),
-                                                                 ABS( QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[i].node[0]].xyz[1] - QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[i].node[1]].xyz[1] ),
-                                                                 ABS( QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[i].node[0]].xyz[2] - QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[i].node[1]].xyz[2] ) );                                              
-                    
-                    QuadCutPlaneList_[c].QuadCellList[i].ds = 1.;
+ 
+             QuadCutPlaneList_[c].QuadCellList[i].ds = 1.;
                     
           }
           
@@ -7172,7 +7200,7 @@ void GL_VIEWER::FixViewingBox(float x1, float x2, float y1, float y2, float z1, 
 }
 
 /*##############################################################################
-#                                                                              #FindSolutionMinMax
+#                                                                              #
 #                            GL_VIEWER FindSolutionMinMax                      #
 #                                                                              #
 ##############################################################################*/
@@ -7180,12 +7208,16 @@ void GL_VIEWER::FixViewingBox(float x1, float x2, float y1, float y2, float z1, 
 void GL_VIEWER::FindSolutionMinMax(void)
 {
 
-    FindSolutionMinMax(Cp,                 CpMinActual,         CpMaxActual,         CpMin,         CpMax);
-    FindSolutionMinMax(CpSteady,     CpSteadyMinActual,   CpSteadyMaxActual,   CpSteadyMin,   CpSteadyMax);
-    FindSolutionMinMax(CpUnsteady, CpUnsteadyMinActual, CpUnsteadyMaxActual, CpUnsteadyMin, CpUnsteadyMax);
-    FindSolutionMinMax(Gamma,           GammaMinActual,      GammaMaxActual,      GammaMin,      GammaMax);
+    float FMinavg, FMaxAvg;
     
+    FindSolutionMinMax(Cp, FMinavg, FMaxAvg, CpMinActual, CpMaxActual, CpMin, CpMax);
+
+    if ( ModelType == PANEL_MODEL && CurrentEdgeMach < 1. ) CpMin = -1.5;
     if ( ModelType == PANEL_MODEL && CurrentEdgeMach < 1. ) CpMax = CpMaxSoln;
+
+    FindSolutionMinMax(CpSteady,   FMinavg, FMaxAvg,   CpSteadyMinActual,   CpSteadyMaxActual,   CpSteadyMin,   CpSteadyMax);
+    FindSolutionMinMax(CpUnsteady, FMinavg, FMaxAvg, CpUnsteadyMinActual, CpUnsteadyMaxActual, CpUnsteadyMin, CpUnsteadyMax);
+    FindSolutionMinMax(Gamma,      FMinavg, FMaxAvg,      GammaMinActual,      GammaMaxActual,      GammaMin,      GammaMax);
 
 }
 
@@ -7195,35 +7227,65 @@ void GL_VIEWER::FindSolutionMinMax(void)
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::FindSolutionMinMax(float *Function, float &FMinActual, float &FmaxActual, float &FMin, float &FMax)
+void GL_VIEWER::FindSolutionMinMax(float *Function, float &FMinAvg, float &FMaxAvg, float &FMinActual, float &FmaxActual, float &FMin, float &FMax)
 {
 
-    int i, j, m, Hits;
+    int i, j, m, Hits, HitsMin, HitsMax;
     float Big = 1.e9, Avg, StdDev;
 
     FMinActual = Big;
     FmaxActual = -Big;
     
-    Avg   = 0.;   Hits = 0;
+    Avg = 0.; Hits = 0;
  
+    FMinAvg = FMaxAvg = 0.; HitsMin = HitsMax = 0;
+    
     for ( m = 1 ; m <= NumberOfTris ; m++ ) {
 
        FMinActual = MIN(FMinActual, Function[m]);
        FmaxActual = MAX(FmaxActual, Function[m]);
        
        Avg += Function[m]; Hits++;
+       
+       if ( Function[m] <  0. ) { FMinAvg += Function[m] ; HitsMin++; };
+       if ( Function[m] >= 0. ) { FMaxAvg += Function[m] ; HitsMax++; };
+       
 
     }
     
     Avg /= Hits;
-  
+    
+    if ( HitsMin > 0. ) {
+       
+       FMinAvg /= HitsMin;
+       
+    }
+    
+    else {
+       
+       FMinAvg = 0.;
+       
+    }
+    
+    if ( HitsMax > 0. ) {
+       
+       FMaxAvg /= HitsMin;
+       
+    }
+    
+    else {
+       
+       FMaxAvg = 0.;
+       
+    }
+      
     // Now calculate some statistics
   
     StdDev   = 0.;   Hits = 0;
 
     for ( m = 1 ; m <= NumberOfTris ; m++ ) {
 
-       StdDev += pow(Avg- Function[m],2.0f); Hits++;
+       StdDev += pow(Avg - Function[m],2.0f); Hits++;
 
     }    
     
@@ -7240,8 +7302,8 @@ void GL_VIEWER::FindSolutionMinMax(float *Function, float &FMinActual, float &Fm
     
     else {
 
-       FMin = MAX(Avg - 2. * StdDev, FMinActual);
-       FMax = MIN(Avg + 2. * StdDev, FmaxActual);
+       FMin = MAX(Avg - 1. * StdDev, FMinActual);
+       FMax = MIN(Avg + 1. * StdDev, FmaxActual);
        
     }
 
@@ -8579,7 +8641,6 @@ void GL_VIEWER::DrawWireFrame(void)
     glColor3fv(rgb);
     glLineWidth(1.);
     glDisable(GL_LIGHTING);
-
     
     // Draw the surface triangles
 
@@ -8772,7 +8833,7 @@ void GL_VIEWER::DrawQuadCuttingPlaneVelocityVectors(void)
 {
 
     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
-    float per, vec[3], rgb[4], Normal[3], Mag;
+    float per, vec[3], rgb[4], Mag;
 
     glShadeModel(GL_SMOOTH);
 
@@ -8800,10 +8861,6 @@ void GL_VIEWER::DrawQuadCuttingPlaneVelocityVectors(void)
     glColor3fv(rgb);
     glLineWidth(2.);
     glDisable(GL_LIGHTING);
-    
-    Normal[0] = 0.;
-    Normal[1] = 1.;
-    Normal[2] = 0.;
 
     glColor3fv(rgb);
 
@@ -8999,7 +9056,7 @@ void GL_VIEWER::DrawQuadCuttingPlaneShaded(void)
 {
 
     int c, j, k, node1, node2, node3, SurfaceID, SurfID;
-    float per, vec[3], rgb[4], Normal[3];
+    float per, vec[3], rgb[4];
 
     glShadeModel(GL_SMOOTH);
 
@@ -9008,11 +9065,7 @@ void GL_VIEWER::DrawQuadCuttingPlaneShaded(void)
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.,0.);
-    
-    Normal[0] = 0.;
-    Normal[1] = 1.;
-    Normal[2] = 0.;
-    
+
     rgb[0] = 1.;
     rgb[1] = 1.;
     rgb[2] = 1.;
@@ -9024,7 +9077,9 @@ void GL_VIEWER::DrawQuadCuttingPlaneShaded(void)
     glColor3fv(rgb);
                    
     for ( c = 1 ; c <= NumberOfQuadCuttingPlanes_ ; c++ ) {
-       
+
+       glNormal3f( QuadCutPlaneList_[c].Normal[0], QuadCutPlaneList_[c].Normal[1], QuadCutPlaneList_[c].Normal[2] );
+                    
        if ( CuttingPlanesBrowser->selected(c) == 1 ) {
                 
           for ( j = 1 ; j <= QuadCutPlaneList_[c].NumberOfQuadCells; j++ ) {
@@ -9044,7 +9099,6 @@ void GL_VIEWER::DrawQuadCuttingPlaneShaded(void)
                          
              glBegin(GL_QUADS);
       
-                glNormal3f( Normal[0], Normal[1], Normal[2] );
              
                 for ( k = 0 ; k <= 3 ; k++ ) {
  
@@ -9061,9 +9115,7 @@ void GL_VIEWER::DrawQuadCuttingPlaneShaded(void)
              if ( DrawReflectedGeometryIsOn ) {
             
                 glBegin(GL_QUADS);
-         
-                  glNormal3f( Normal[0], Normal[1], Normal[2] );
-         
+
                    for ( k = 0 ; k <= 3 ; k++ ) {
          
                       vec[0] =  QuadCutPlaneList_[c].QuadNodeList[QuadCutPlaneList_[c].QuadCellList[j].node[k]].xyz[0] - GeometryXShift;
@@ -9085,6 +9137,33 @@ void GL_VIEWER::DrawQuadCuttingPlaneShaded(void)
     glDisable(GL_POLYGON_OFFSET_LINE);
 
     glPolygonOffset(1.,0.);
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                          GL_VIEWER SwapQuadNormalsWasPicked                  #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::SwapQuadNormalsWasPicked(void)
+{
+
+    int c;
+    
+    for ( c = 1 ; c <= NumberOfQuadCuttingPlanes_ ; c++ ) {
+
+       glNormal3f( QuadCutPlaneList_[c].Normal[0], QuadCutPlaneList_[c].Normal[1], QuadCutPlaneList_[c].Normal[2] );
+                    
+       if ( CuttingPlanesBrowser->selected(c) == 1 ) {
+          
+          QuadCutPlaneList_[c].Normal[0] *= -1.;
+          QuadCutPlaneList_[c].Normal[1] *= -1.;
+          QuadCutPlaneList_[c].Normal[2] *= -1.;
+          
+       }
+       
+    }
 
 }
 

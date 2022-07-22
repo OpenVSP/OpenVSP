@@ -230,6 +230,7 @@ private:
     int DoFiniteDiffTest               ;
     int NumberOfOptimizationFunctions_ ;
     int OptimizationFunction_[1001]    ;
+    int OptimizationSet_[1001]         ;
 
     template <typename T>
     void LoadCaseFile(T &VSP);
@@ -300,10 +301,15 @@ public:
          // OPT_WING_LOAD    Spanwise wing load, ie Cl vs Span
          //                  
          // OPT_RESIDUAL     Residual vector for linear system
+         
+         
+    // Set the optimization set, this may be the wing set, or rotor set
     
+    int &OptimizationSet(int Case) { return OptimizationSet_[Case]; };
+        
     // Get vector length for optimization function # Case... 
     
-    int OptimizationFunctionLength(int Case) { return Adjoint().OptimizationFunctionLength(Case); };
+    int OptimizationFunctionLength(int Case) { return Solver().OptimizationFunctionLength(Case); };
     
     // Setup everything for both the forward solver and adjoint
     
@@ -321,9 +327,13 @@ public:
     
     void SolveForward(void);
     
+    // Set any user supplied initial gradient vectors
+    
+    void SetGradientVector(int Case, double *Vec);
+        
     // Solve the adjoint problem
     
-    void SolveAdjoint(int Case, double *Vec);
+    void SolveAdjoint(void);
     
     // Do a matrix-vector multiply and get the RHS for the forward problem... please do a forward solve first!
     

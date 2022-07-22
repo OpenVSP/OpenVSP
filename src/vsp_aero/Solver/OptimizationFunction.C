@@ -19,7 +19,7 @@ OPTIMIZATION_FUNCTION::OPTIMIZATION_FUNCTION(void)
 
     OptimizationFunction_ = OPT_CL;
     
-    FunctionLength_ = 1;
+    FunctionLength_ = 0;
 
     Wing_ = 1;
 
@@ -126,7 +126,7 @@ OPTIMIZATION_FUNCTION &OPTIMIZATION_FUNCTION::operator=(const OPTIMIZATION_FUNCT
 
 void OPTIMIZATION_FUNCTION::SetFunctionLength(int Length)
 {
-   
+
     int i;
     
     if ( Function_ != NULL ) delete [] Function_;

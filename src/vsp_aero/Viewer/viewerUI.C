@@ -174,20 +174,20 @@ void viewerUI::cb_CutPlanesScaleVelocity(Fl_Value_Slider* o, void* v) {
   ((viewerUI*)(o->parent()->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_CutPlanesScaleVelocity_i(o,v);
 }
 
-void viewerUI::cb_CutPlanesDrawShaded_i(Fl_Button*, void*) {
-  glviewer->DrawCutPlanesShadedWasPicked();
-glviewer->redraw();
-}
-void viewerUI::cb_CutPlanesDrawShaded(Fl_Button* o, void* v) {
-  ((viewerUI*)(o->parent()->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_CutPlanesDrawShaded_i(o,v);
-}
-
 void viewerUI::cb_CutPlanesDrawVectorColor_i(Fl_Button*, void*) {
   glviewer->DrawCutPlanesVelocityColorWasPicked();
 glviewer->redraw();
 }
 void viewerUI::cb_CutPlanesDrawVectorColor(Fl_Button* o, void* v) {
   ((viewerUI*)(o->parent()->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_CutPlanesDrawVectorColor_i(o,v);
+}
+
+void viewerUI::cb_CutPlanesSwapNormals_i(Fl_Button*, void*) {
+  glviewer->SwapQuadNormalsWasPicked();
+glviewer->redraw();
+}
+void viewerUI::cb_CutPlanesSwapNormals(Fl_Button* o, void* v) {
+  ((viewerUI*)(o->parent()->parent()->parent()->parent()->parent()->parent()->parent()->user_data()))->cb_CutPlanesSwapNormals_i(o,v);
 }
 
 void viewerUI::cb_FileMenuSaveAsTiff_i(Fl_Menu_*, void*) {
@@ -224,7 +224,7 @@ void viewerUI::cb_FileMenuSaveAsMoviePNG(Fl_Menu_* o, void* v) {
 
 void viewerUI::cb_FileMenuPickQuit_i(Fl_Menu_*, void*) {
   int val;
-val = fl_ask("Quit Application?");
+val = fl_choice("Quit Application?", fl_no, fl_yes, 0);
 if ( val == 1 ) {
    glviewer->Exit(1);
 };
@@ -1156,7 +1156,7 @@ viewerUI::viewerUI() {
                 CutPlanesDrawWireFrame->labelsize(12);
                 CutPlanesDrawWireFrame->callback((Fl_Callback*)cb_CutPlanesDrawWireFrame);
                 } // Fl_Button* CutPlanesDrawWireFrame
-                { CutPlanesDrawVelocityVectors = new Fl_Button(883, 685, 130, 25, "Draw Velocity Vectors");
+                { CutPlanesDrawVelocityVectors = new Fl_Button(1019, 616, 130, 25, "Draw Velocity Vectors");
                 CutPlanesDrawVelocityVectors->tooltip("Select all");
                 CutPlanesDrawVelocityVectors->type(1);
                 CutPlanesDrawVelocityVectors->box(FL_PLASTIC_UP_BOX);
@@ -1165,7 +1165,7 @@ viewerUI::viewerUI() {
                 CutPlanesDrawVelocityVectors->labelsize(12);
                 CutPlanesDrawVelocityVectors->callback((Fl_Callback*)cb_CutPlanesDrawVelocityVectors);
                 } // Fl_Button* CutPlanesDrawVelocityVectors
-                { CutPlanesDrawCp = new Fl_Button(883, 720, 130, 25, "Draw Cp");
+                { CutPlanesDrawCp = new Fl_Button(883, 616, 130, 25, "Draw Cp");
                 CutPlanesDrawCp->tooltip("Select all");
                 CutPlanesDrawCp->type(1);
                 CutPlanesDrawCp->box(FL_PLASTIC_UP_BOX);
@@ -1175,24 +1175,16 @@ viewerUI::viewerUI() {
                 CutPlanesDrawCp->labelsize(12);
                 CutPlanesDrawCp->callback((Fl_Callback*)cb_CutPlanesDrawCp);
                 } // Fl_Button* CutPlanesDrawCp
-                { CutPlanesScaleVelocity = new Fl_Value_Slider(1018, 686, 127, 25, "Velocity Scaler");
+                { CutPlanesScaleVelocity = new Fl_Value_Slider(1018, 685, 127, 25, "Velocity Scaler");
                 CutPlanesScaleVelocity->type(1);
+                CutPlanesScaleVelocity->maximum(5);
                 CutPlanesScaleVelocity->step(0.05);
                 CutPlanesScaleVelocity->value(1);
                 CutPlanesScaleVelocity->textsize(14);
                 CutPlanesScaleVelocity->callback((Fl_Callback*)cb_CutPlanesScaleVelocity);
-                CutPlanesScaleVelocity->align(Fl_Align(FL_ALIGN_TOP));
+                CutPlanesScaleVelocity->align(Fl_Align(FL_ALIGN_BOTTOM_LEFT));
                 } // Fl_Value_Slider* CutPlanesScaleVelocity
-                { CutPlanesDrawShaded = new Fl_Button(883, 616, 130, 25, "Draw Quad Shaded");
-                CutPlanesDrawShaded->tooltip("Select all");
-                CutPlanesDrawShaded->type(1);
-                CutPlanesDrawShaded->box(FL_PLASTIC_UP_BOX);
-                CutPlanesDrawShaded->color((Fl_Color)5);
-                CutPlanesDrawShaded->selection_color((Fl_Color)2);
-                CutPlanesDrawShaded->labelsize(12);
-                CutPlanesDrawShaded->callback((Fl_Callback*)cb_CutPlanesDrawShaded);
-                } // Fl_Button* CutPlanesDrawShaded
-                { CutPlanesDrawVectorColor = new Fl_Button(1015, 720, 127, 25, "Vector Color");
+                { CutPlanesDrawVectorColor = new Fl_Button(1019, 650, 127, 25, "Vector Color");
                 CutPlanesDrawVectorColor->tooltip("Select all");
                 CutPlanesDrawVectorColor->type(1);
                 CutPlanesDrawVectorColor->box(FL_PLASTIC_UP_BOX);
@@ -1201,6 +1193,14 @@ viewerUI::viewerUI() {
                 CutPlanesDrawVectorColor->labelsize(12);
                 CutPlanesDrawVectorColor->callback((Fl_Callback*)cb_CutPlanesDrawVectorColor);
                 } // Fl_Button* CutPlanesDrawVectorColor
+                { CutPlanesSwapNormals = new Fl_Button(883, 685, 130, 25, "Swap Normal");
+                CutPlanesSwapNormals->tooltip("Select all");
+                CutPlanesSwapNormals->box(FL_PLASTIC_UP_BOX);
+                CutPlanesSwapNormals->color((Fl_Color)4);
+                CutPlanesSwapNormals->selection_color((Fl_Color)2);
+                CutPlanesSwapNormals->labelsize(12);
+                CutPlanesSwapNormals->callback((Fl_Callback*)cb_CutPlanesSwapNormals);
+                } // Fl_Button* CutPlanesSwapNormals
                 CutPlanes->end();
               } // Fl_Group* CutPlanes
               CutPlanePanel->end();

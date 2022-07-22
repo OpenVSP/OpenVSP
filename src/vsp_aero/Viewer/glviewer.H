@@ -345,6 +345,7 @@ public:
     float Vmax;
     float Vref;
     float dsmax;
+    float Normal[3];
     
     int DrawWireFrame;
     int DrawVelocityVectors;
@@ -934,7 +935,7 @@ public:
 
     void FindMeshMinMax(void);
     void FindSolutionMinMax(void);
-    void FindSolutionMinMax(float *Function, float &FMinActual, float &FmaxActual, float &FMin, float &FMax);
+    void FindSolutionMinMax(float *Function, float &FMinAvg, float &FMaxAvg, float &FMinActual, float &FmaxActual, float &FMin, float &FMax);
     void FixViewingBox(float x1, float x2, float y1, float y2, float z1, float z2 );
 
     int ForceView_;
@@ -1006,7 +1007,8 @@ public:
     void DrawQuadVelocitiesNormalScaledWasPicked(void) { ToggleFlag(DrawQuadVelocitiesNormalScaled_, "DrawQuadVelocitiesNormalScaled"); if ( DrawQuadVelocitiesNormalScaled_ ) { DrawQuadVelocitiesVrefScaled_   = DrawQuadVelocitiesVmaxScaled_ = 0; } };
     void DrawQuadVelocitiesVrefScaledWasPicked(void)   { ToggleFlag(DrawQuadVelocitiesVrefScaled_  , "DrawQuadVelocitiesVrefScaled");   if ( DrawQuadVelocitiesVrefScaled_   ) { DrawQuadVelocitiesNormalScaled_ = DrawQuadVelocitiesVmaxScaled_ = 0; } };
     void DrawQuadVelocitiesVmaxScaledWasPicked(void)   { ToggleFlag(DrawQuadVelocitiesVmaxScaled_  , "DrawQuadVelocitiesVmaxScaled");   if ( DrawQuadVelocitiesVmaxScaled_   ) { DrawQuadVelocitiesNormalScaled_ = DrawQuadVelocitiesVrefScaled_ = 0; } };
-
+    void SwapQuadNormalsWasPicked(void);
+    
     // ADB Menu
     
     void ClearADBFile(void);

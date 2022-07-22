@@ -1094,8 +1094,10 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
 
     void SetOptimizationFunction(int i, int OptFunctionValue);
     void SetOptimizationFunction(int i, int OptFunctionValue, int Set );
-    void SetOptimizationFunctionInputGradientVector(double *Vec ) { SetOptimizationFunctionInputGradientVector(1,Vec); };
-    void SetOptimizationFunctionInputGradientVector(int Case, double *Vec );
+    void SetOptimizationFunctionInputGradientVector(double *Vec) { SetOptimizationFunctionInputGradientVector(1,1,1,Vec); };
+    void SetOptimizationFunctionInputGradientVector(int Case, int Length, int Set, double *Vec);
+
+    void CalculateOptimizationFunctionLength(void);
    
     int OptimizationFunctionLength(int Case) { return OptimizationFunctionList_[Case].FunctionLength(); };
 
@@ -1132,6 +1134,7 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
     
     void CalculateNodalPressures(void);
     void Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pMesh);
+    VSPAERO_DOUBLE *Optimization_Calculate_pF_pRotorOmega(int Group);
     
     VSPAERO_DOUBLE NodalCp(int i) { return NodalCp_[i]; };
         

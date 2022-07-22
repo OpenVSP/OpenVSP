@@ -354,7 +354,7 @@ int main(int argc, char **argv)
 
        VSP_VLM().NumberOfOptimizationFunctions() = 1;
        
-       VSP_VLM().SetOptimizationFunction(1,OptimizationFunction_);
+       VSP_VLM().SetOptimizationFunction(1,OptimizationFunction_,1);
  
      //  PAUSE_AUTO_DIFF();
 

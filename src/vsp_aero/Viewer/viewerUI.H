@@ -129,15 +129,15 @@ private:
   inline void cb_CutPlanesScaleVelocity_i(Fl_Value_Slider*, void*);
   static void cb_CutPlanesScaleVelocity(Fl_Value_Slider*, void*);
 public:
-  Fl_Button *CutPlanesDrawShaded;
-private:
-  inline void cb_CutPlanesDrawShaded_i(Fl_Button*, void*);
-  static void cb_CutPlanesDrawShaded(Fl_Button*, void*);
-public:
   Fl_Button *CutPlanesDrawVectorColor;
 private:
   inline void cb_CutPlanesDrawVectorColor_i(Fl_Button*, void*);
   static void cb_CutPlanesDrawVectorColor(Fl_Button*, void*);
+public:
+  Fl_Button *CutPlanesSwapNormals;
+private:
+  inline void cb_CutPlanesSwapNormals_i(Fl_Button*, void*);
+  static void cb_CutPlanesSwapNormals(Fl_Button*, void*);
 public:
   Fl_Menu_Button *FileMenu;
   static Fl_Menu_Item menu_FileMenu[];

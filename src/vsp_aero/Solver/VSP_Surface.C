@@ -434,16 +434,25 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
        PRINTF("SurfaceList[%d]: %d \n",i,SurfaceList[i]);
        
     }
-    
-    for ( i = 1 ; i <= NumberOfVSPSurfaces ; i++ ) {
-       
-       PRINTF("ComponentIDForVSPSurface[%d]: %d \n",i,ComponentIDForVSPSurface[i]);
-       
-    }
 
-    for ( i = 1 ; i <= NumberOfSurfacePatches_ ; i++ ) {
+    fflush(NULL);
+    
+    if ( TKEY_File != NULL ) {
+    
+       for ( i = 1 ; i <= NumberOfVSPSurfaces ; i++ ) {
+          
+          PRINTF("ComponentIDForVSPSurface[%d]: %d \n",i,ComponentIDForVSPSurface[i]);
+          
+       }
        
-      ComponentIDForSurfacePatch_[i] = ComponentIDForVSPSurface[ComponentIDForSurfacePatch_[i]];
+
+       fflush(NULL);
+
+       for ( i = 1 ; i <= NumberOfSurfacePatches_ ; i++ ) {
+          
+         ComponentIDForSurfacePatch_[i] = ComponentIDForVSPSurface[ComponentIDForSurfacePatch_[i]];
+          
+       }
        
     }
     
@@ -452,6 +461,8 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
        PRINTF("ComponentIDForSurfacePatch_[%d]: %d \n",i,ComponentIDForSurfacePatch_[i]);
        
     }
+    
+    fflush(NULL);
         
     // Renumber the surfaces
     
@@ -472,6 +483,7 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
                 Grid().TriList(n).ComponentID() = ComponentIDForVSPSurface[Grid().TriList(n).SurfaceID()];
                 
              }
+             
              else {
                 
                 Grid().TriList(n).ComponentID() = i;
