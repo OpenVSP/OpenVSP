@@ -449,6 +449,8 @@ private:
     float QuadCellVelocityScaler_;
 
     char file_name[2000];
+    char file_name_no_path[2000];
+    char path[2000];
 
     float Sref;
     float Cref;

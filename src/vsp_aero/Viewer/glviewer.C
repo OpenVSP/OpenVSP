@@ -6,6 +6,10 @@
 
 #include "glviewer.H"
 #include <FL/fl_ask.H>
+#include <cstring>
+
+#include <string>
+
 #ifdef WIN32
 #include <direct.h>
 #include <WinBase.h>
@@ -344,7 +348,25 @@ void GL_VIEWER::LoadInitialData(char *name)
     
     // Save the file name
 
-    sprintf(file_name,"%s",name);
+    sprintf( file_name, "%s", name );
+
+    char* pathsep = NULL;
+    pathsep = strrchr( file_name, '/' );
+    if (!pathsep)
+    {
+        pathsep = strrchr( file_name, '\\' );
+    }
+
+    if (pathsep)
+    {
+        sprintf( file_name_no_path, "%s", pathsep + 1 );
+        sprintf( path, "%.*s", pathsep - file_name, file_name );
+    }
+    else
+    {
+        sprintf( file_name_no_path, "%s", file_name );
+        sprintf( path, "." );
+    }
 
     // Determine if an adb file exists. Add the .adb extension if not already present.
     
@@ -6063,16 +6085,16 @@ void GL_VIEWER::MakeMovie(char *FileName)
 
     if ( !CheckForOptimizationReloads_ ) {
     
-       sprintf(Command,"ffmpeg -r 10 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4",Path,file_name,FileName,file_name,FileName);
-       
+       sprintf(Command, "ffmpeg -r 10 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4", Path, file_name_no_path, FileName, file_name, FileName );
+
     }
     
     // Bump it to 50 fps for optimization runs...
     
     else {
        
-       sprintf(Command,"ffmpeg -r 50 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4",Path,file_name,FileName,file_name,FileName);
-       
+       sprintf(Command, "ffmpeg -r 50 -i %s%s.%s.%%d.png -vcodec libx264 -y %s.%s.mp4", Path, file_name_no_path, FileName, file_name, FileName );
+
     }       
 
     system(Command);
@@ -12955,10 +12977,12 @@ void GL_VIEWER::WritePNGFile(char *Path, char *FileName)
 
        // Now write to png file
 
-       sprintf(rgbstr,"%s%s.%s.png",Path,file_name,FileName);
+       sprintf( rgbstr, "%s%s.%s.png", Path, file_name_no_path, FileName );
        width = w();
        height = h();
        
+       printf( "Writing PNG file: %s\n", rgbstr );
+
        WritePNG( rgbstr, ( char * )"VSPVIEWER", 0, 0, width, height, 0 );
 
        fflush(NULL);
