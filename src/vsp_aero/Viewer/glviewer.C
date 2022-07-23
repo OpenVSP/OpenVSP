@@ -5961,7 +5961,7 @@ void GL_VIEWER::DrawCalculixFEMConcentratedLoads(CALCULIX_MESH &FEM_MESH)
 void GL_VIEWER::MakeMovie(char *FileName)
 {
 
-    int i, Case, Done;
+    int i, Case, Done, ret;
     char DumChar[2000], Command[2000], Path[2000], file_name_w_ext[2000];
     FILE *adb_file;
 
@@ -6097,8 +6097,14 @@ void GL_VIEWER::MakeMovie(char *FileName)
 
     }       
 
-    system(Command);
-      
+    printf("%s\n", Command);
+
+    flush(); glFlush();fflush(NULL);
+
+    ret = system(Command);
+    printf("%d\n", ret);
+
+
 }
 
 
