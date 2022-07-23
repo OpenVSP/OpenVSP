@@ -5,6 +5,14 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "glviewer.H"
+#ifdef WIN32
+#include <direct.h>
+#include <WinBase.h>
+#include <Windows.h>
+#else
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif
 
     int CALCULIX_NODE::Static = 1;
 
@@ -12797,6 +12805,72 @@ void GL_VIEWER::SwapSurfaceNormals(void)
 
     delete [] TotalArea;
     
+}
+
+/*##############################################################################
+#                                                                              #
+#                          GL_VIEWER remove_dir                                #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::remove_dir(const char* path)
+{
+#ifdef WIN32
+    std::string search_path = std::string(path) + "/*.*";
+    std::string s_p = std::string(path) + "/";
+    WIN32_FIND_DATA fd;
+    HANDLE hFind = ::FindFirstFile(search_path.c_str(), &fd);
+    if (hFind != INVALID_HANDLE_VALUE)
+    {
+        do
+        {
+            if (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
+                if (strcmp(fd.cFileName, ".") != 0 && strcmp(fd.cFileName, "..") != 0)
+                {
+                    remove_dir((s_p + std::string(fd.cFileName)).c_str() );
+                }
+            }
+            else
+            {
+                DeleteFile((s_p + std::string(fd.cFileName)).c_str());
+            }
+        }
+        while (::FindNextFile(hFind, &fd));
+
+        ::FindClose(hFind);
+        _rmdir(path);
+    }
+#else
+    struct dirent* entry = NULL;
+    DIR* dir = NULL;
+    dir = opendir(path);
+    while (entry = readdir(dir))
+    {
+        DIR* sub_dir = NULL;
+        FILE* file = NULL;
+        char* abs_path new char[256];
+        if ((*(entry->d_name) != '.') || ((strlen(entry->d_name) > 1) && (entry->d_name[1] != '.')))
+        {
+            sprintf(abs_path, "%s/%s", path, entry->d_name);
+            if (sub_dir = opendir(abs_path))
+            {
+                closedir(sub_dir);
+                remove_dir(abs_path);
+            }
+            else
+            {
+                if (file = fopen(abs_path, "r"))
+                {
+                    fclose(file);
+                    remove(abs_path);
+                }
+            }
+        }
+        delete[] abs_path;
+    }
+    remove(path);
+#endif
 }
 
 /*##############################################################################

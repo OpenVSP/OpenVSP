@@ -909,6 +909,8 @@ public:
 
     // Write out a png file
 
+    void remove_dir(const char *path);
+
     void WritePNGFile(char *FileName);
     void WritePNGFile(char *Path, char *FileName);
 
