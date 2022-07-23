@@ -5,6 +5,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "glviewer.H"
+#include <FL/fl_ask.H>
 #ifdef WIN32
 #include <direct.h>
 #include <WinBase.h>
@@ -5946,6 +5947,34 @@ void GL_VIEWER::MakeMovie(char *FileName)
     
     sprintf(Command,"rm -rf ./MoviePNGFiles");
     system(Command);
+
+    // Check for ffmpeg  & delete any old png files
+#ifdef WIN32
+    system( "ffmpeg -h > temp.txt" );
+
+    // Get size of temp file
+    FILE* fp = fopen( "temp.txt", "r" );
+    fseek(fp, 0L, SEEK_END);
+    size_t sz = ftell( fp );
+
+    fclose( fp );
+    system( "del temp.txt" );
+
+    if (sz == 0)
+    {
+        fl_alert( "ERROR: ffmpeg not found in the VSPViewer directory or system PATH" );
+        return;
+    }
+#else
+        // Check for ffmpeg
+    if ( system( "which ffmpeg > /dev/null 2>&1" ) )
+    {
+        // Command not available
+        fl_alert( "ERROR: ffmpeg not found in the VSPViewer directory or system PATH" );
+        return;
+    }
+#endif
+
     
     // Create a sub directory to store all the movie files in
     
