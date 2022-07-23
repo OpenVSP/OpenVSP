@@ -5976,12 +5976,14 @@ void GL_VIEWER::MakeMovie(char *FileName)
     remove_dir( Path );
     
     // Create a sub directory to store all the movie files in
-    
-    sprintf(Command,"mkdir ./MoviePNGFiles");
-    system(Command);
-    
-    sprintf(Path,"./MoviePNGFiles/");
- 
+
+#ifdef WIN32
+    _mkdir( Path );
+#else
+    mode_t mode = 0755;
+    mkdir( Path, mode );
+#endif
+
     // Movie from an adb file... likely time accurate solution
     
     if ( !CheckForOptimizationReloads_ ) {
