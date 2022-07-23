@@ -5942,11 +5942,9 @@ void GL_VIEWER::MakeMovie(char *FileName)
     int i, Case, Done;
     char DumChar[2000], Command[2000], Path[2000], file_name_w_ext[2000];
     FILE *adb_file;
-    
-    // Delete any old png files
-    
-    sprintf(Command,"rm -rf ./MoviePNGFiles");
-    system(Command);
+
+    sprintf( Path, "%s/MoviePNGFiles/", path );
+
 
     // Check for ffmpeg  & delete any old png files
 #ifdef WIN32
@@ -5975,6 +5973,7 @@ void GL_VIEWER::MakeMovie(char *FileName)
     }
 #endif
 
+    remove_dir( Path );
     
     // Create a sub directory to store all the movie files in
     
