@@ -17,6 +17,7 @@
 #else
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <cstdio>
 #endif
 
     int CALCULIX_NODE::Static = 1;
@@ -12903,31 +12904,34 @@ void GL_VIEWER::remove_dir(const char* path)
     struct dirent* entry = NULL;
     DIR* dir = NULL;
     dir = opendir(path);
-    while (entry = readdir(dir))
+    if ( dir )
     {
-        DIR* sub_dir = NULL;
-        FILE* file = NULL;
-        char* abs_path new char[256];
-        if ((*(entry->d_name) != '.') || ((strlen(entry->d_name) > 1) && (entry->d_name[1] != '.')))
+        while ( (entry = readdir( dir )) )
         {
-            sprintf(abs_path, "%s/%s", path, entry->d_name);
-            if (sub_dir = opendir(abs_path))
+            DIR *sub_dir = NULL;
+            FILE *file = NULL;
+            char *abs_path = new char[256];
+            if (( *( entry->d_name ) != '.' ) || (( strlen( entry->d_name ) > 1 ) && ( entry->d_name[ 1 ] != '.' )))
             {
-                closedir(sub_dir);
-                remove_dir(abs_path);
-            }
-            else
-            {
-                if (file = fopen(abs_path, "r"))
+                sprintf( abs_path, "%s/%s", path, entry->d_name );
+                if ( (sub_dir = opendir( abs_path )))
                 {
-                    fclose(file);
-                    remove(abs_path);
+                    closedir( sub_dir );
+                    remove_dir( abs_path );
+                }
+                else
+                {
+                    if ( (file = fopen( abs_path, "r" )))
+                    {
+                        fclose( file );
+                        std::remove( abs_path );
+                    }
                 }
             }
+            delete[] abs_path;
         }
-        delete[] abs_path;
     }
-    remove(path);
+    std::remove( path);
 #endif
 }
 
