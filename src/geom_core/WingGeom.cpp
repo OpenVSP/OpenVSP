@@ -1707,6 +1707,7 @@ void WingGeom::UpdateSurf()
     unsigned int nxsec = m_XSecSurf.NumXSec();
     vector< VspCurve > crv_vec( nxsec );
     vector< VspCurve > untransformed_crv_vec( nxsec );
+    vector< double > foil_scale_vec( nxsec, 1.0 );
 
     vector< Matrix4d > transform_vec( nxsec );
 
@@ -1850,6 +1851,7 @@ void WingGeom::UpdateSurf()
             previous_dihead_rot = dihead_rot;
 
             ws->m_ThickScale = foil_scale;
+            foil_scale_vec[i] = foil_scale;
 
             //==== Load Transformations =====//
             ws->m_YDelta = total_span;
@@ -1988,6 +1990,9 @@ void WingGeom::UpdateSurf()
             pt0 = cte.f( i );
             pt1 = cte.f( i + 1 );
 
+            double afsc0 = foil_scale_vec[ i ];
+            double afsc1 = foil_scale_vec[ i + 1 ];
+
             for ( int j = 0; j < ulocalvec.size(); j++ )
             {
                 double ulocal = ulocalvec[j];
@@ -2027,6 +2032,9 @@ void WingGeom::UpdateSurf()
 
                 VspCurve inscrv;
                 m_FoilSurf.GetUConstCurve( inscrv, u );
+
+                // Scale thickness by linear interpolation of thickness scale at joints.
+                inscrv.ScaleY( afsc0 + ulocal * ( afsc1 - afsc0 ) );
 
                 // Transform interpolated foil such that later transformation
                 // will properly position the foil.  This is mostly needed to
