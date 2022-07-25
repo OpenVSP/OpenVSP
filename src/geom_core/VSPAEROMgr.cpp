@@ -4509,14 +4509,19 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
 
             if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE )
             {
-                if ( degen_type_vec[i] == DegenGeom::SURFACE_TYPE )
-                {
-                    surface_geoms.push_back( std::make_pair( all_geom_vec[i], s ) );
-                }
-                else if ( degen_type_vec[i] == DegenGeom::BODY_TYPE )
+                if ( degen_type_vec[i] == DegenGeom::BODY_TYPE )
                 {
                     body_geoms.push_back( std::make_pair( all_geom_vec[i], s ) );
                 }
+            }
+        }
+
+        // Only write VLM lifting surfaces once.
+        if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE )
+        {
+            if ( degen_type_vec[i] == DegenGeom::SURFACE_TYPE )
+            {
+                surface_geoms.push_back( std::make_pair( all_geom_vec[i], 1 ) );
             }
         }
     }
