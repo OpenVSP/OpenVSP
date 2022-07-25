@@ -1027,7 +1027,9 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
 
           VSP_Surface(Surface).ReadWingDataFromFile(Name,VSP_Degen_File);
           
-          if ( strcmp(LastGeomID,GeomID) != 0 || ( strcmp(LastGeomID,GeomID) == 0 && strcmp(LastSymCopyNdx,SymCopyNdx) != 0 ) ) ComponentID++;
+     //djk  this treated the left/right wings as 2 different components...   if ( strcmp(LastGeomID,GeomID) != 0 || ( strcmp(LastGeomID,GeomID) == 0 && strcmp(LastSymCopyNdx,SymCopyNdx) != 0 ) ) ComponentID++;
+                    
+          if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
                     
           if ( strcmp(LastGeomID,GeomID) == 0 ) GeomIDInteger++;
                     

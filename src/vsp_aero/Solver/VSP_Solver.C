@@ -21704,7 +21704,33 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int GeomID, int ComponentID, int pL
                 }
               
              }
-          
+
+             // Check for nearly planar, and close, panels on different surfaces - VLM
+   
+             Ratio = Distance / ( VSPGeom().Grid(Level).LoopList(Loop).Length() + VSPGeom().Grid(Level).LoopList(Loop).CentroidOffSet() );
+           
+             if ( ModelType_ == VLM_MODEL && ComponentID > 0 && ComponentID != VSPGeom().Grid(Level).LoopList(Loop).ComponentID() && Ratio <= 2./Level ) {
+
+                // Calculate normal distance
+   
+                NormalDistance = ABS(vector_dot(Vec,VSPGeom().Grid(Level).LoopList(Loop).Normal()));
+        
+                // Tolerance
+                
+                Tolerance = 0.25*sqrt(VSPGeom().Grid(Level).LoopList(Loop).Area());
+ 
+                if ( ABS(NormalDistance) <= Tolerance ) {
+ 
+                   if ( compare_boxes(VSPGeom().BBoxForComponent(ComponentID), VSPGeom().BBoxForComponent(VSPGeom().Grid(Level).LoopList(Loop).ComponentID())) ) {
+
+                      AddEdges = 0;
+                      
+                   }
+               
+                }
+                
+             }
+                       
              // Add these edges to the list
              
              if ( AddEdges ) {
