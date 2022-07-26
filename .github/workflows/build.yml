@@ -43,6 +43,12 @@ jobs:
             python-arch: x64,
           }
         - {
+            name: "Ubuntu 22.04",
+            os: ubuntu-22.04,
+            arch: x64,
+            python-arch: x64,
+          }
+        - {
             name: "macOS 11",
             os: macos-11,
             arch: x64,
