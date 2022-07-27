@@ -14,7 +14,6 @@
 #include "Defines.h"
 
 #include <angelscript.h>
-#include <autowrapper/aswrappedcall.h>
 #include <scriptstdstring/scriptstdstring.h>
 #include <scriptbuilder/scriptbuilder.h>
 #include <scriptarray/scriptarray.h>
@@ -33,38 +32,6 @@
 using std::string;
 using std::map;
 using std::vector;
-
-#if true
-#define vspFUNCTION WRAP_FN
-#define vspFUNCTIONPR WRAP_FN_PR
-#define vspMETHOD WRAP_MFN
-#define vspMETHODPR WRAP_MFN_PR
-
-#define vspCALL_CDECL asCALL_GENERIC
-#define vspCALL_STDCALL asCALL_GENERIC
-#define vspCALL_THISCALL_ASGLOBAL asCALL_GENERIC
-#define vspCALL_THISCALL asCALL_GENERIC
-#define vspCALL_CDECL_OBJLAST asCALL_GENERIC
-#define vspCALL_CDECL_OBJFIRST asCALL_GENERIC
-// #define vspCALL_GENERIC asCALL_GENERIC
-#define vspCALL_THISCALL_OBJLAST asCALL_GENERIC
-#define vspCALL_THISCALL_OBJFIRST asCALL_GENERIC
-#else
-#define vspFUNCTION asFUNCTION
-#define vspFUNCTIONPR asFUNCTIONPR
-#define vspMETHOD asMETHOD
-#define vspMETHODPR asMETHODPR
-
-#define vspCALL_CDECL asCALL_CDECL
-#define vspCALL_STDCALL asCALL_STDCALL
-#define vspCALL_THISCALL_ASGLOBAL asCALL_THISCALL_ASGLOBAL
-#define vspCALL_THISCALL asCALL_THISCALL
-#define vspCALL_CDECL_OBJLAST asCALL_CDECL_OBJLAST
-#define vspCALL_CDECL_OBJFIRST asCALL_CDECL_OBJFIRST
-// #define vspCALL_GENERIC asCALL_GENERIC
-#define vspCALL_THISCALL_OBJLAST asCALL_THISCALL_OBJLAST
-#define vspCALL_THISCALL_OBJFIRST asCALL_THISCALL_OBJFIRST
-#endif
 
 class ScriptMgrSingleton
 {
