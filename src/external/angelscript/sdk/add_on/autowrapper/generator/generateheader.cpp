@@ -17,7 +17,7 @@
 #include <string>
 
 // Generate templates for up to this number of function parameters
-const int max_args = 4;
+const int max_args = 11;
 
 using namespace std;
 
