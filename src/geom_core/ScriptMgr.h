@@ -34,7 +34,7 @@ using std::string;
 using std::map;
 using std::vector;
 
-#if true
+#ifdef __aarch64__
 #define vspFUNCTION WRAP_FN
 #define vspFUNCTIONPR WRAP_FN_PR
 #define vspMETHOD WRAP_MFN
