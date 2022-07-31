@@ -29,50 +29,59 @@ NameValData::NameValData( const string & name )
 }
 
 //==== Constructors With Name & Data =====//
-NameValData::NameValData( const string & name, const int & i_data )
+NameValData::NameValData( const string & name, const int & i_data, const string & doc )
 {
     Init( name, vsp::INT_DATA );
     m_IntData.push_back( i_data );
+    m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const double & d_data )
+NameValData::NameValData( const string & name, const double & d_data, const string & doc )
 {
     Init( name, vsp::DOUBLE_DATA );
     m_DoubleData.push_back( d_data );
+    m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const string & s_data )
+NameValData::NameValData( const string & name, const string & s_data, const string & doc )
 {
     Init( name, vsp::STRING_DATA );
     m_StringData.push_back( s_data );
+    m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vec3d & v_data )
+NameValData::NameValData( const string & name, const vec3d & v_data, const string & doc )
 {
     Init( name, vsp::VEC3D_DATA );
     m_Vec3dData.push_back( v_data );
+    m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vector< int > & i_data )
+NameValData::NameValData( const string & name, const vector< int > & i_data, const string & doc )
 {
     Init( name, vsp::INT_DATA );
     m_IntData = i_data;
+    m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vector< double > & d_data )
+NameValData::NameValData( const string & name, const vector< double > & d_data, const string & doc )
 {
     Init( name, vsp::DOUBLE_DATA );
     m_DoubleData = d_data;
+    m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vector< string > & s_data )
+NameValData::NameValData( const string & name, const vector< string > & s_data, const string & doc )
 {
     Init( name, vsp::STRING_DATA );
     m_StringData = s_data;
+    m_Doc = doc;
 }
-NameValData::NameValData( const string & name, const vector< vec3d > & v_data )
+NameValData::NameValData( const string & name, const vector< vec3d > & v_data, const string & doc )
 {
     Init( name, vsp::VEC3D_DATA );
     m_Vec3dData = v_data;
+    m_Doc = doc;
 }
-NameValData::NameValData( const string &name, const vector< vector< double > > &dmat_data )
+NameValData::NameValData( const string &name, const vector< vector< double > > &dmat_data, const string & doc )
 {
     Init( name, vsp::DOUBLE_MATRIX_DATA );
     m_DoubleMatData = dmat_data;
+    m_Doc = doc;
 }
 void NameValData::Init( const string & name, int type, int index )
 {
@@ -889,27 +898,27 @@ void Results::Copy( NameValData* nvd )
     {
         case ( vsp::DOUBLE_DATA ):
         {
-            Add( ( NameValData( nvd->GetName(), nvd->GetDoubleData() ) ) );
+            Add( ( NameValData( nvd->GetName(), nvd->GetDoubleData(), nvd->GetDoc().c_str() ) ) );
             break;
         }
         case ( vsp::INT_DATA ):
         {
-            Add( ( NameValData( nvd->GetName(), nvd->GetIntData() ) ) );
+            Add( ( NameValData( nvd->GetName(), nvd->GetIntData(), nvd->GetDoc().c_str() ) ) );
             break;
         }
         case ( vsp::STRING_DATA ):
         {
-            Add( ( NameValData( nvd->GetName(), nvd->GetStringData() ) ) );
+            Add( ( NameValData( nvd->GetName(), nvd->GetStringData(), nvd->GetDoc().c_str() ) ) );
             break;
         }
         case ( vsp::DOUBLE_MATRIX_DATA ):
         {
-            Add( ( NameValData( nvd->GetName(), nvd->GetDoubleMatData() ) ) );
+            Add( ( NameValData( nvd->GetName(), nvd->GetDoubleMatData(), nvd->GetDoc().c_str() ) ) );
             break;
         }
         case ( vsp::VEC3D_DATA ):
         {
-            Add( ( NameValData( nvd->GetName(), nvd->GetVec3dData() ) ) );
+            Add( ( NameValData( nvd->GetName(), nvd->GetVec3dData(), nvd->GetDoc().c_str() ) ) );
             break;
         }
     }

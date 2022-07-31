@@ -28,15 +28,15 @@ class NameValData
 public:
     NameValData();
     NameValData( const string & name );
-    NameValData( const string & name, const int & i_data );
-    NameValData( const string & name, const double & d_data );
-    NameValData( const string & name, const string & s_data );
-    NameValData( const string & name, const vec3d & v_data );
-    NameValData( const string & name, const vector< int > & i_data );
-    NameValData( const string & name, const vector< double > & d_data );
-    NameValData( const string & name, const vector< string > & s_data );
-    NameValData( const string & name, const vector< vec3d > & v_data );
-    NameValData( const string & name, const vector< vector< double > > &dmat_data );
+    NameValData( const string & name, const int & i_data, const string & doc );
+    NameValData( const string & name, const double & d_data, const string & doc );
+    NameValData( const string & name, const string & s_data, const string & doc );
+    NameValData( const string & name, const vec3d & v_data, const string & doc );
+    NameValData( const string & name, const vector< int > & i_data, const string & doc );
+    NameValData( const string & name, const vector< double > & d_data, const string & doc );
+    NameValData( const string & name, const vector< string > & s_data, const string & doc );
+    NameValData( const string & name, const vector< vec3d > & v_data, const string & doc );
+    NameValData( const string & name, const vector< vector< double > > &dmat_data, const string & doc );
 
     void Init( const string & name, int type = 0, int index = 0 );
 
@@ -47,6 +47,11 @@ public:
     int GetType() const
     {
         return m_Type;
+    }
+
+    string GetDoc() const
+    {
+        return m_Doc;
     }
 
     const vector<int> & GetIntData() const
@@ -101,6 +106,7 @@ protected:
 
     string m_Name;
     int m_Type;
+    string m_Doc;
     vector< int > m_IntData;
     vector< double > m_DoubleData;
     vector< string > m_StringData;
