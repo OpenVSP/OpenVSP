@@ -540,11 +540,9 @@ bool Vehicle::CheckForVSPAERO( const string & path )
     if( !CheckForFile( path, m_VSPAEROCmd ) )
     {
         fprintf( stderr, "ERROR %d: VSPAERO Solver Not Found. \n"
-            "\tExpected here: %s\n"
-            "\tFile: %s \tLine: %d\n",
+            "\tExpected here: %s\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
-            ( path + "/" + m_VSPAEROCmd ).c_str(),
-            __FILE__, __LINE__ );
+            ( path + string("/") + m_VSPAEROCmd ).c_str() );
         ret_val = false;
     }
     else
@@ -555,11 +553,9 @@ bool Vehicle::CheckForVSPAERO( const string & path )
     if( !CheckForFile( path, m_VIEWERCmd ) )
     {
         fprintf( stderr, "ERROR %d: VSPAERO Viewer Not Found. \n"
-            "\tExpected here: %s\n"
-            "\tFile: %s \tLine: %d\n",
+            "\tExpected here: %s\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
-            ( path + "/" + m_VIEWERCmd ).c_str(),
-            __FILE__, __LINE__ );
+            ( path + string("/") + m_VIEWERCmd ).c_str() );
         ret_val = false;
     }
     else
@@ -570,11 +566,9 @@ bool Vehicle::CheckForVSPAERO( const string & path )
     if( !CheckForFile( path, m_LOADSCmd ) )
     {
         fprintf( stderr, "ERROR %d: VSPAERO Loads Not Found. \n"
-            "\tExpected here: %s\n"
-            "\tFile: %s \tLine: %d\n",
+            "\tExpected here: %s\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
-            ( path + "/" + m_LOADSCmd ).c_str(),
-            __FILE__, __LINE__ );
+            ( path + string("/") + m_LOADSCmd ).c_str() );
         ret_val = false;
     }
     else
