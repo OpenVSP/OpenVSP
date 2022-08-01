@@ -547,70 +547,50 @@ void Vehicle::SetupPaths()
 bool Vehicle::CheckForVSPAERO( const string & path )
 {
     bool ret_val = true;
-    string path_file, vspaero_exe, viewer_exe, loads_exe;
 
-#ifdef WIN32
-    vspaero_exe = string( "vspaero.exe" );
-    viewer_exe = string( "vspviewer.exe" );
-    loads_exe = string( "vsploads.exe" );
-#else
-    vspaero_exe = string( "vspaero" );
-    viewer_exe = string( "vspviewer" );
-    loads_exe = string( "vsploads" );
-#endif
-
-    path_file = path + string( "/" ) + vspaero_exe;
-
-    if( !FileExist( path_file ) )
+    if( !CheckForFile( path, m_VSPAEROCmd ) )
     {
         fprintf( stderr, "ERROR %d: VSPAERO Solver Not Found. \n"
             "\tExpected here: %s\n"
             "\tFile: %s \tLine: %d\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
-            path_file.c_str(),
+            ( path + "/" + m_VSPAEROCmd ).c_str(),
             __FILE__, __LINE__ );
         ret_val = false;
     }
     else
     {
-        // Save VSPAERO executable
-        m_VSPAEROCmd = vspaero_exe;
+        m_VSPAEROFound = true;
     }
 
-    path_file = path + string( "/" ) + viewer_exe;
-
-    if( !FileExist( path_file ) )
+    if( !CheckForFile( path, m_VIEWERCmd ) )
     {
         fprintf( stderr, "ERROR %d: VSPAERO Viewer Not Found. \n"
             "\tExpected here: %s\n"
             "\tFile: %s \tLine: %d\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
-            path_file.c_str(),
+            ( path + "/" + m_VIEWERCmd ).c_str(),
             __FILE__, __LINE__ );
         ret_val = false;
     }
     else
     {
-        // Save Viewer executable
-        m_VIEWERCmd = viewer_exe;
+        m_VIEWERFound = true;
     }
 
-    path_file = path + string( "/" ) + loads_exe;
-
-    if( !FileExist( path_file ) )
+    if( !CheckForFile( path, m_LOADSCmd ) )
     {
         fprintf( stderr, "ERROR %d: VSPAERO Loads Not Found. \n"
             "\tExpected here: %s\n"
             "\tFile: %s \tLine: %d\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
-            path_file.c_str(),
+            ( path + "/" + m_LOADSCmd ).c_str(),
             __FILE__, __LINE__ );
         ret_val = false;
     }
     else
     {
-        // Save Slicer executable
-        m_LOADSCmd = loads_exe;
+        m_LOADSFound = true;
     }
 
     return ret_val;
