@@ -3998,7 +3998,7 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     args.push_back( m_ModelNameBase );
 
     //====== Execute VSPAERO Slicer ======//
-    m_SlicerThread.ForkCmd( veh->GetExePath(), veh->GetLOADSCmd(), args );
+    m_SlicerThread.ForkCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
     MonitorSolver( logFile );
