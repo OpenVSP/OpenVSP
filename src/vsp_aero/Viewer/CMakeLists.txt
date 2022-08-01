@@ -106,4 +106,9 @@ IF( NOT VSP_NO_GRAPHICS )
           $<TARGET_FILE:vspviewer>
           ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
 
+  add_custom_command(TARGET vspviewer POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy
+          $<TARGET_FILE:vspviewer>
+          ${CMAKE_BINARY_DIR}/src/vsp )
+
 ENDIF()

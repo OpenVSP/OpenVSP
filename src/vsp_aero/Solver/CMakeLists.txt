@@ -62,6 +62,11 @@ else()
             $<TARGET_FILE:vspaero>
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
 
+    add_custom_command(TARGET vspaero POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:vspaero>
+            ${CMAKE_BINARY_DIR}/src/vsp )
+
 	IF ( NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
         INSTALL( PROGRAMS ${BINARY_DIR}/vspaero_complex DESTINATION . )
     ENDIF()
@@ -292,6 +297,11 @@ if(BUILD_VSPAERO)
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:vspaero>
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
+
+    add_custom_command(TARGET vspaero POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:vspaero>
+            ${CMAKE_BINARY_DIR}/src/vsp )
 
     # INSTALL( TARGETS solver LIBRARY DESTINATION . )
 
