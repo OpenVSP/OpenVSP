@@ -522,18 +522,7 @@ void Vehicle::SetupPaths()
     m_LOADSCmd = string( "vsploads" );
 #endif
 
-    if( !CheckForFile( m_ExePath, m_VSPAEROCmd ) )
-    {
-        printf("VSPAERO solver not found in %s.\n", m_ExePath.c_str());
-    }
-    if( !CheckForFile( m_ExePath, m_VIEWERCmd ) )
-    {
-        printf("VSPAERO viewer not found in %s.\n", m_ExePath.c_str());
-    }
-    if ( !CheckForFile( m_ExePath, m_LOADSCmd ) )
-    {
-        printf( "VSPAERO loads not found in %s.\n", m_ExePath.c_str());
-    }
+    CheckForVSPAERO( m_VSPAEROPath );
 
     m_VSPAEROFound = false;
     m_VIEWERFound = false;
