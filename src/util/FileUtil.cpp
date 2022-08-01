@@ -259,24 +259,10 @@ string PathToCWD()
     return string( buff );
 }
 
-bool CheckForFile( const string &path, string &file )
+bool CheckForFile( const string &path, const string &file )
 {
-    FILE *fp = NULL;
-
     string pathfile = path + string( "/" ) + file;
-
-    fp = fopen( pathfile.c_str(), "r" );
-
-    if( fp )
-    {
-        fclose( fp );
-        return true;
-    }
-    else
-    {
-        file = string();
-        return false;
-    }
+    return FileExist( pathfile );
 }
 
 bool FileExist( const string & file )
