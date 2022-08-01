@@ -174,6 +174,10 @@ public:
     bool CheckForVSPAERO( const string & path );
     bool SetVSPAEROPath( const string & path );
 
+    bool GetVSPAEROFound()                                  { return m_VSPAEROFound; }
+    bool GetVIEWERFound()                                   { return m_VIEWERFound; }
+    bool GetLOADSFound()                                    { return m_LOADSFound; } // Not yet used.
+
     //==== Get Script Dir to Write Scripts ====//
     string GetWriteScriptDir()                              { return m_CustomScriptDirs[0]; }
     vector < string > GetCustomScriptDirs()                 { return m_CustomScriptDirs; }
@@ -531,6 +535,10 @@ protected:
     string m_VIEWERCmd;
     string m_LOADSCmd;
     vector< string > m_CustomScriptDirs;
+
+    bool m_VSPAEROFound;
+    bool m_VIEWERFound;
+    bool m_LOADSFound;
 
     IntersectSettings m_ISectSettings;
 

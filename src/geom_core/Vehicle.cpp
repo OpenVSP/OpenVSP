@@ -535,6 +535,10 @@ void Vehicle::SetupPaths()
         printf( "VSPAERO loads not found in %s.\n", m_ExePath.c_str());
     }
 
+    m_VSPAEROFound = false;
+    m_VIEWERFound = false;
+    m_LOADSFound = false;
+
     m_CustomScriptDirs.push_back( string( "./CustomScripts/" ) );
     m_CustomScriptDirs.push_back( m_HomePath + string( "/CustomScripts/" ) );
     m_CustomScriptDirs.push_back( m_ExePath + string( "/CustomScripts/" ) );

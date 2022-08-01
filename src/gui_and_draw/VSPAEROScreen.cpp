@@ -980,7 +980,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( device == &m_SolverButton )
         {
-            if( veh->GetVSPAEROCmd().empty() || VSPAEROMgr.IsSolverRunning() )
+            if( !veh->GetVSPAEROFound() || VSPAEROMgr.IsSolverRunning() )
             { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
             else
             {
@@ -1019,7 +1019,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_ViewerButton )
         {
-            if( veh->GetVIEWERCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || m_ViewerProcess.IsRunning() )
+            if( !veh->GetVIEWERFound() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || m_ViewerProcess.IsRunning() )
             { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
             else
             {
@@ -1556,7 +1556,7 @@ void VSPAEROScreen::UpdateVSPAEROButtons()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     // Solver Button
-    if (veh->GetVSPAEROCmd().empty() || m_SolverThreadIsRunning)
+    if ( !veh->GetVSPAEROFound() || m_SolverThreadIsRunning)
     {
         m_SolverButton.Deactivate();
     }
@@ -1575,7 +1575,7 @@ void VSPAEROScreen::UpdateVSPAEROButtons()
     }
 
     // Plot Window Button
-    if (veh->GetVSPAEROCmd().empty() || !FileExist(VSPAEROMgr.m_SetupFile))
+    if ( !veh->GetVSPAEROFound() || !FileExist(VSPAEROMgr.m_SetupFile))
     {
         m_PlotButton.Deactivate();
     }
@@ -1585,7 +1585,7 @@ void VSPAEROScreen::UpdateVSPAEROButtons()
     }
 
     // Viewer Button
-    if (veh->GetVIEWERCmd().empty() || m_SolverThreadIsRunning || m_ViewerProcess.IsRunning() || !FileExist(VSPAEROMgr.m_AdbFile))
+    if ( !veh->GetVIEWERFound() || m_SolverThreadIsRunning || m_ViewerProcess.IsRunning() || !FileExist(VSPAEROMgr.m_AdbFile))
     {
         m_ViewerButton.Deactivate();
     }
