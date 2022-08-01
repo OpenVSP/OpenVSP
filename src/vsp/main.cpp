@@ -202,6 +202,8 @@ int main( int argc, char** argv )
     //==== Get Vehicle Ptr ====//
     Vehicle* vPtr = VehicleMgr.GetVehicle();
 
+    vPtr->CheckForVSPAERO( vPtr->GetVSPAEROPath() );
+
     int ret;
     if ( batchMode( argc, argv, vPtr, ret ) )
     {

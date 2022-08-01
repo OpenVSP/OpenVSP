@@ -522,8 +522,6 @@ void Vehicle::SetupPaths()
     m_LOADSCmd = string( "vsploads" );
 #endif
 
-    CheckForVSPAERO( m_VSPAEROPath );
-
     m_VSPAEROFound = false;
     m_VIEWERFound = false;
     m_LOADSFound = false;
