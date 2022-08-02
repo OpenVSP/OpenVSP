@@ -36,9 +36,9 @@ INSTALL( TARGETS vsploads RUNTIME DESTINATION python/openvsp/openvsp )
 add_custom_command(TARGET vsploads POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:vsploads>
-        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsploads )
 
 add_custom_command(TARGET vsploads POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:vsploads>
-        ${CMAKE_BINARY_DIR}/src/vsp )
+        ${CMAKE_BINARY_DIR}/src/vsp/vsploads )

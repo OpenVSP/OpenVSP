@@ -108,27 +108,27 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     add_custom_command( TARGET _vsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/packages/
-            ${CMAKE_BINARY_DIR}/python_pseudo )
+            ${CMAKE_BINARY_DIR}/python_pseudo/ )
 
-    add_custom_command(TARGET _vsp POST_BUILD
+    add_custom_command( TARGET _vsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:_vsp>
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:_vsp> )
 
-    add_custom_command(TARGET _vsp POST_BUILD
+    add_custom_command( TARGET _vsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_BINARY_DIR}/vsp.py
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp )
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py )
 
-    add_custom_command(TARGET _vsp POST_BUILD
+    add_custom_command( TARGET _vsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp )
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/setup.py )
 
-    add_custom_command(TARGET _vsp POST_BUILD
+    add_custom_command( TARGET _vsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/conda-recipe )
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/conda-recipe/meta.yaml )
 
     # Create virtual environment with openvsp package installed.
     CreateVirtualEnvironment( venv
