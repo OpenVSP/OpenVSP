@@ -95,6 +95,81 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         ${CLIPPER2_LIBRARIES}
     )
 
+
+    IF( NOT VSP_NO_GRAPHICS )
+
+        SET( SWIG_MODULE_vsp_g_EXTRA_DEPS
+            ${UTIL_INCLUDE_DIR}/Defines.h
+            ${GEOM_API_INCLUDE_DIR}/APIDefines.h
+            ${GEOM_API_INCLUDE_DIR}/APIErrorMgr.h
+            ${GEOM_API_INCLUDE_DIR}/VSP_Geom_API.h
+            ${GEOM_CORE_INCLUDE_DIR}/SWIGDefines.h
+            ${UTIL_INCLUDE_DIR}/Vec3d.h
+        )
+
+        set(I_FILES_g
+            ../geom_api/vsp_g.i
+            )
+
+        SET_SOURCE_FILES_PROPERTIES(${I_FILES_g} PROPERTIES CPLUSPLUS ON)
+
+        IF (${CMAKE_VERSION} VERSION_LESS "3.8.0")
+            SWIG_ADD_MODULE( vsp_g python ${I_FILES_g} )
+        ELSE()
+            SWIG_ADD_LIBRARY( vsp_g
+            LANGUAGE python
+            SOURCES ${I_FILES_g} )
+        ENDIF()
+
+        IF( APPLE )
+            SET( PY_LIB "" )
+            SET_TARGET_PROPERTIES(_vsp_g PROPERTIES LINK_FLAGS "-undefined dynamic_lookup" )
+        ELSE()
+            SET( PY_LIB ${PYTHON_LIBRARIES} )
+        ENDIF()
+
+        SWIG_LINK_LIBRARIES( vsp_g
+            geom_api_g
+            geom_core
+            gui_and_draw
+            cfd_mesh
+            util
+            tritri
+            clipper
+            Angelscript
+            xmlvsp
+            sixseries
+            cartesian
+            wavedragEL
+            pinocchio
+            ${CPPTEST_LIBRARIES}
+            ${LIBXML2_LIBRARIES}
+            ${FLTK_LIBRARIES}
+            ${OPENGL_LIBRARIES}
+            ${WINSOCK_LIBRARIES}
+            ${PY_LIB}
+            ${CMINPACK_LIBRARIES}
+            ${STEPCODE_LIBRARIES}
+            ${LIBIGES_LIBRARIES}
+            ${TRIANGLE_LIBRARIES}
+        )
+
+        add_custom_command( TARGET _vsp_g POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                $<TARGET_FILE:_vsp_g>
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:_vsp_g> )
+
+        add_custom_command( TARGET _vsp_g POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py )
+
+        INSTALL( TARGETS _vsp_g LIBRARY DESTINATION python/openvsp/openvsp )
+        INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py DESTINATION python/openvsp/openvsp )
+
+    ENDIF()
+
+
     CONFIGURE_FILE(packages/openvsp/setup.py.in python/packages/openvsp/setup.py)
     CONFIGURE_FILE(packages/openvsp/conda-recipe/meta.yaml.in python/packages/openvsp/conda-recipe/meta.yaml)
     CONFIGURE_FILE(packages/environment.yml.in python/packages/environment.yml)
