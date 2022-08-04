@@ -57,6 +57,7 @@ void GuiInterface::StartGuiAPI( )
     {
         m_ScreenMgr->SetRunGui( true );
         m_ScreenMgr->ShowReturnToAPI();
+        m_ScreenMgr->HideExit();
         m_ScreenMgr->ShowScreen( vsp::VSP_MAIN_SCREEN );
         while( m_ScreenMgr->CheckRunGui() && Fl::wait() );
     }
