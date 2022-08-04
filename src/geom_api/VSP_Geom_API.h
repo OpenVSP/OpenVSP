@@ -142,6 +142,7 @@ extern void PrintResults( const std::string &results_id );
 extern void PrintResultsDocs( const std::string &results_id );
 
 //======================== GUI Functions ================================//
+extern void InitGui();
 extern void StartGui( );
 extern void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop = false );
 extern void SetViewAxis( bool vaxis );
