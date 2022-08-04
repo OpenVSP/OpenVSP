@@ -119,12 +119,13 @@ void VSPCheckSetup()
     }
     once = true;
 
-    //==== Check For Valid Vehicle Ptr ====//
-    if ( !VehicleMgr.GetVehicle() )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "VSPCheckSetup::Invalid Vehicle Ptr" );
-        exit( 0 );
-    }
+//    //==== Check For Valid Vehicle Ptr ====//
+//    if ( !VehicleMgr.GetVehicle() )
+//    {
+//        ErrorMgr.AddError( VSP_INVALID_PTR, "VSPCheckSetup::Invalid Vehicle Ptr" );
+//        exit( 0 );
+//    }
+
 
 // Please dont do this - messes up the batch script mode
 //#ifdef VSP_USE_FLTK
