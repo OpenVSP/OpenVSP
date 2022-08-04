@@ -19,6 +19,9 @@ class BaseMenuItem
 {
 public:
 
+    void Hide();
+    void Show();
+
 protected:
     Fl_Sys_Menu_Bar *m_MenuBar;
     std::string m_MenuPath;

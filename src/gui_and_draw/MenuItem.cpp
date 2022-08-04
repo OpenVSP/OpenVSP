@@ -2,6 +2,30 @@
 #include <MenuItem.h>
 #include "ScreenMgr.h"
 
+void BaseMenuItem::Hide()
+{
+    if ( m_MenuBar )
+    {
+        Fl_Menu_Item * mi = (Fl_Menu_Item*) m_MenuBar->find_item( m_MenuPath.c_str() );
+        if ( mi )
+        {
+            mi->hide();
+        }
+    }
+}
+
+void BaseMenuItem::Show()
+{
+    if ( m_MenuBar )
+    {
+        Fl_Menu_Item * mi = (Fl_Menu_Item*) m_MenuBar->find_item( m_MenuPath.c_str() );
+        if ( mi )
+        {
+            mi->show();
+        }
+    }
+}
+
 void ScreenMenuItem::Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, std::string mpath, int sid )
 {
     m_ScreenMgr = mgr;
