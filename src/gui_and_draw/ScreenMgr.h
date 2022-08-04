@@ -67,11 +67,19 @@ public:
     };
     void ShowReturnToAPI()
     {
-//        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowReturnToAPI();
+        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowReturnToAPI();
     };
     void HideReturnToAPI()
     {
-//        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideReturnToAPI();
+        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideReturnToAPI();
+    };
+    void ShowExit()
+    {
+        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowExit();
+    };
+    void HideExit()
+    {
+        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideExit();
     };
 
     bool m_ShowPlotScreenOnce;
