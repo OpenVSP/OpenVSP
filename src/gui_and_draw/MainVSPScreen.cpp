@@ -398,6 +398,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_ReturnToAPIMenuItem )
     {
+        m_ScreenMgr->SetRunGui( false );
     }
     else if ( data == &m_UndoMenuItem )
     {
