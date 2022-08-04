@@ -90,6 +90,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RunScriptMenuItem.Init( this, m_MenuBar, "File/Run Script..." );
     m_PreferencesMenuItem.Init( mgr, m_MenuBar, "File/Preferences...", vsp::VSP_PREFERENCES_SCREEN );
     m_ExitMenuItem.Init( this, m_MenuBar, "File/Exit" );
+    m_ReturnToAPIMenuItem.Init( this, m_MenuBar, "File/Return to API" );
+    m_ReturnToAPIMenuItem.Hide();
 
     m_UndoMenuItem.Init( this, m_MenuBar, "Edit/Undo Parameter Change", FL_COMMAND + 'z' );
     m_CutMenuItem.Init( this, m_MenuBar, "Edit/Cut", FL_COMMAND + 'x' );
@@ -393,6 +395,9 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_ExitMenuItem )
     {
         ExitVSP();
+    }
+    else if ( data == &m_ReturnToAPIMenuItem )
+    {
     }
     else if ( data == &m_UndoMenuItem )
     {

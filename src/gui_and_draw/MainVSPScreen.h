@@ -49,6 +49,27 @@ public:
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
 
+    void ShowReturnToAPI()
+    {
+        m_ReturnToAPIMenuItem.Show();
+        m_MenuBar->update();
+    }
+    void HideReturnToAPI()
+    {
+        m_ReturnToAPIMenuItem.Hide();
+        m_MenuBar->update();
+    }
+    void ShowExit()
+    {
+        m_ExitMenuItem.Show();
+        m_MenuBar->update();
+    }
+    void HideExit()
+    {
+        m_ExitMenuItem.Hide();
+        m_MenuBar->update();
+    }
+
 protected:
 
     virtual void ActionCB( void * data );
@@ -73,6 +94,7 @@ protected:
     ActionMenuItem m_RunScriptMenuItem;
     ScreenMenuItem m_PreferencesMenuItem;
     ActionMenuItem m_ExitMenuItem;
+    ActionMenuItem m_ReturnToAPIMenuItem;
 
     ActionMenuItem m_UndoMenuItem;
     ActionMenuItem m_CutMenuItem;
