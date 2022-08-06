@@ -245,6 +245,51 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     }
 }
 
+void ScreenMgr::APIHideScreens()
+{
+    m_APIScreenOpenVec.clear();
+    m_APIScreenOpenVec.resize( VSP_NUM_SCREENS, false );
+
+    for ( int i = 0; i < VSP_NUM_SCREENS; i++ )
+    {
+        if ( i == VSP_COR_SCREEN || i != VSP_MAIN_SCREEN )
+        {
+            continue;
+        }
+
+        if ( m_ScreenVec[ i ] )
+        {
+            m_APIScreenOpenVec[ i ] = m_ScreenVec[ i ]->IsShown();
+            if ( m_APIScreenOpenVec[ i ] )
+            {
+                m_ScreenVec[ i ]->Hide();
+            }
+        }
+    }
+}
+
+void ScreenMgr::APIShowScreens()
+{
+    if ( m_APIScreenOpenVec.size() <= VSP_NUM_SCREENS )
+    {
+        for ( int i = 0; i < m_APIScreenOpenVec.size(); i++ )
+        {
+            if ( i == VSP_COR_SCREEN )
+            {
+                continue;
+            }
+
+            if ( m_APIScreenOpenVec[ i ] )
+            {
+                if ( m_ScreenVec[ i ] )
+                {
+                    m_ScreenVec[ i ]->Show();
+                }
+            }
+        }
+    }
+}
+
 //==== Init All Screens ====//
 void ScreenMgr::Init()
 {

@@ -31,6 +31,7 @@ public:
     virtual ~MainVSPScreen();
 
     void Show();
+    void Hide();
     bool Update();
 
     virtual void CallBack( Fl_Widget *w );

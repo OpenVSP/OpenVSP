@@ -206,6 +206,8 @@ MainVSPScreen::~MainVSPScreen()
 //==== Show Main VSP Screen ====//
 void MainVSPScreen::Show()
 {
+    m_ScreenMgr->SetUpdateFlag( true );
+
     if ( m_FLTK_Window )
     {
         ActionScreen::Show();
@@ -213,8 +215,22 @@ void MainVSPScreen::Show()
 
     if ( m_GlWin )
     {
-        m_GlWin->show();
+//        m_GlWin->show();
     }
+}
+
+void MainVSPScreen::Hide()
+{
+    if ( m_FLTK_Window )
+    {
+        m_FLTK_Window->hide();
+    }
+
+    if ( m_GlWin )
+    {
+//        m_GlWin->hide();
+    }
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 //==== Update Main VSP Screen ====//
@@ -398,6 +414,8 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_ReturnToAPIMenuItem )
     {
+        m_ScreenMgr->APIHideScreens();
+        // m_ScreenMgr->ForceUpdate();
         m_ScreenMgr->SetRunGui( false );
     }
     else if ( data == &m_UndoMenuItem )

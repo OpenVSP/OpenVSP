@@ -82,6 +82,9 @@ public:
         ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideExit();
     };
 
+    void APIHideScreens();
+    void APIShowScreens();
+
     bool m_ShowPlotScreenOnce;
 
 protected:
@@ -95,6 +98,7 @@ protected:
 
     Vehicle* m_VehiclePtr;
     vector< VspScreen* > m_ScreenVec;
+    vector< bool > m_APIScreenOpenVec;
 
     string NativeFileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &dir = string() );
     Fl_Native_File_Chooser * m_NativeFileChooser;
