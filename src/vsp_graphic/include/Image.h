@@ -20,6 +20,9 @@ public:
     * fileName - the path and name of the image file.
     */
     Image( std::string fileName );
+
+    Image( unsigned int width, unsigned int height, unsigned int bpp );
+
     /*!
     * Destructor.
     */

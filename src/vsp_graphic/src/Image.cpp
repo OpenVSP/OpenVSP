@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <MultiImageLoader.h>
+#include "OpenGLHeaders.h"
 
 #include "Image.h"
 #include <algorithm>
@@ -13,6 +14,26 @@ Image::Image( std::string fileName )
     _fileName = fileName;
     _loadImage( fileName );
 }
+
+Image::Image( unsigned int width, unsigned int height, unsigned int bpp )
+{
+    _loaders = _initLoaders();
+
+    _image.valid = true;
+    _image.width = width;
+    _image.height = height;
+    if ( bpp == 4 )
+    {
+        _image.type = GL_RGBA;
+    }
+    else
+    {
+        _image.type = GL_RGB;
+    }
+
+    _image.data = new unsigned char[ _image.width * _image.height * bpp ];
+}
+
 Image::~Image()
 {
     if( _image.data )
