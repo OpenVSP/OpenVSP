@@ -4,6 +4,7 @@
 #include "Display.h"
 #include "Viewport.h"
 #include "Background.h"
+#include "Image.h"
 
 #include "stb_image_write.h"
 #include "LayoutMgr.h"
@@ -41,8 +42,8 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
     GLuint depth;
     GLuint fbo;
     int oldWidth, oldHeight;
-    // width * height * RGB
-    std::vector<unsigned char> data(width * height * 4, 0);
+    // width * height * RGBA
+    Image image( width, height, 4 );;
 
     std::vector< VSPGraphic::Viewport * > vports = _display->getLayoutMgr()->getViewports();
     if ( transparentBG )
@@ -85,7 +86,7 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
 
         glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
         glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-        glReadPixels( 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &data[0] );
+        glReadPixels( 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &(image.getImageData())[0] );
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     else
@@ -96,7 +97,7 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
 
         glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
         glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-        glReadPixels( 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &data[0] );
+        glReadPixels( 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &(image.getImageData())[0] );
     }
 
     for ( int i = 0; i < vports.size(); i++ )
@@ -107,19 +108,11 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
         }
     }
 
-    // Flip data top to bottom.
-    std::vector<unsigned char> flipdat(width * height * 4, 0);
-    int scanLen = 4 * width;
-    for ( int i = 0 ; i < height; i++ )
-    {
-        unsigned char* srcLine = &data[ i * scanLen ];
-        unsigned char* dstLine = &flipdat[ (height - i - 1) * scanLen ];
-        memcpy(  dstLine, srcLine, scanLen );
-    }
+    image.flipud();
 
     if ( filetype == PNG )
     {
-        stbi_write_png( fileName.c_str(), width, height, 4, &flipdat[0], width * 4 );
+        stbi_write_png( fileName.c_str(), width, height, 4, &(image.getImageData())[0], width * 4 );
     }
     else
     {

@@ -136,6 +136,7 @@ bool Image::_loadWithExt( std::string fileName, std::string ext )
         if( _loaders[i]->acceptExt( ext ) )
         {
             _image = _loaders[i]->load( fileName );
+            flipud();
             return true;
         }
     }
@@ -149,6 +150,7 @@ bool Image::_loadWithoutExt( std::string fileName )
         _image = _loaders[i]->load( fileName );
         if( _image.valid )
         {
+            flipud();
             return true;
         }
     }

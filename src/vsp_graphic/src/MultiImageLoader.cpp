@@ -39,16 +39,8 @@ ImageData MultiImageLoader::load( std::string fileName )
         iData.type = GL_RGB;
     }
 
-    // Flip data top to bottom.
-    iData.data = new unsigned char[ iData.width * iData.height * bpp];
-    int scanLen = bpp * iData.width;
-
-    for ( int i = 0 ; i < (int)iData.height; i++ )
-    {
-        unsigned char* srcLine = &data[ i * scanLen ];
-        unsigned char* dstLine = &iData.data[ (iData.height - i - 1) * scanLen ];
-        memcpy(  dstLine, srcLine, scanLen );
-    }
+    iData.data = new unsigned char[ iData.width * iData.height * bpp ];
+    memcpy( iData.data, data, iData.width * iData.height * bpp );
 
     stbi_image_free(data);
 
