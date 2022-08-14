@@ -39,7 +39,7 @@ public:
     void UpdateGui( );
     void PopupMsg( const char * message, bool lock_out );
 
-    void ScreenGrab( const std::string & fname, int w, int h, bool transparentBG );
+    void ScreenGrab( const std::string & fname, int w, int h, bool transparentBG, bool autocrop );
     void SetViewAxis( bool vaxis );
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );

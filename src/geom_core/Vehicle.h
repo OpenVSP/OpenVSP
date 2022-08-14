@@ -460,6 +460,7 @@ public:
     IntParm m_NewWidthValue;
     IntParm m_NewHeightValue;
     BoolParm m_TransparentBGFlag;
+    BoolParm m_AutoCropFlag;
 
     // UserParmScreen
     Parm m_UserParmVal;

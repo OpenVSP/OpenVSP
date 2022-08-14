@@ -1590,10 +1590,10 @@ extern void StartGui( )
 #endif
 }
 
-void ScreenGrab( const string & fname, int w, int h, bool transparentBG )
+void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop )
 {
 #ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().ScreenGrab( fname, w, h, transparentBG );
+    GuiInterface::getInstance().ScreenGrab( fname, w, h, transparentBG, autocrop );
 #endif
 }
 

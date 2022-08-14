@@ -187,6 +187,7 @@ Vehicle::Vehicle()
     m_NewWidthValue.Init( "Width", "Screenshot", this, 1.0, 0.0, 1.0e12 );
     m_NewHeightValue.Init( "Height", "Screenshot", this, 1.0, 0.0, 1.0e12 );
     m_TransparentBGFlag.Init( "TransparentBGFlag", "Screenshot", this, 1, 0, 1 );
+    m_AutoCropFlag.Init( "AutoCropFlag", "Screenshot", this, false, false, true );
 
     m_UserParmVal.Init( "Val", "UserParm", this, 0.0, -1.0e12, 1.0e12 );
     m_UserParmMin.Init( "Min", "UserParm", this, -1.0e5, -1.0e12, 1.0e12 );
@@ -400,6 +401,7 @@ void Vehicle::Init()
     m_NewWidthValue.Set( 1.0 );
     m_NewHeightValue.Set( 1.0 );
     m_TransparentBGFlag.Set( 1 );
+    m_AutoCropFlag.Set( false );
 
     m_STLMultiSolid.Set( false );
     m_STLExportPropMainSurf.Set( false );

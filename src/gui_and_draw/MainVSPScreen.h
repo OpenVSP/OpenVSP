@@ -44,7 +44,7 @@ public:
         return m_GlWin;
     }
 
-    void ScreenGrab( const string & fname, int w, int h, bool transparentBG );
+    void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop );
     void SetViewAxis( bool vaxis );
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );

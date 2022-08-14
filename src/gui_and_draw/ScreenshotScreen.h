@@ -54,6 +54,7 @@ protected:
     TriggerButton m_SetToCurrentSize;
 
     ToggleButton m_TransparentBG;
+    ToggleButton m_AutoCrop;
 
     TriggerButton m_CapturePNG;
 

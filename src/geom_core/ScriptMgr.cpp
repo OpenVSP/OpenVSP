@@ -4022,14 +4022,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     string fname = "test_screen_grab.png";
 
-    ScreenGrab( fname, screenw, screenh, true );                // Take PNG screenshot
+    ScreenGrab( fname, screenw, screenh, true, true );                // Take PNG screenshot
     \endcode
     \param [in] file_name Output file name
     \param [in] w Width of screen grab
     \param [in] h Height of screen grab
     \param [in] transparentBG Transparent background flag
+    \param [in] autocrop Automatically crop transparent background flag
 */)";
-    r = se->RegisterGlobalFunction( "void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG )", vspFUNCTION( vsp::ScreenGrab ), vspCALL_CDECL, doc_struct );
+    r = se->RegisterGlobalFunction( "void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG, bool autocrop = false )", vspFUNCTION( vsp::ScreenGrab ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
