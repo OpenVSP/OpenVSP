@@ -65,6 +65,8 @@ public:
 
     void crop( unsigned int x0, unsigned int y0, unsigned int w, unsigned int h );
 
+    void alphabounds( unsigned int &x0, unsigned int &y0, unsigned int &xf, unsigned int &yf );
+
 protected:
     /*!
     * Load image from file.
