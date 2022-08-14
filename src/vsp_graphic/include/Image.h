@@ -63,6 +63,8 @@ public:
 
     void flipud();
 
+    void crop( unsigned int x0, unsigned int y0, unsigned int w, unsigned int h );
+
 protected:
     /*!
     * Load image from file.

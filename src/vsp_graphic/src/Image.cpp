@@ -106,6 +106,39 @@ void Image::flipud()
     delete[] data;
 }
 
+void Image::crop( unsigned int x0, unsigned int y0, unsigned int w, unsigned int h )
+{
+    unsigned int bpp = getBPP();
+
+    if ( x0 + w > _image.width )
+    {
+        w = _image.width - x0;
+    }
+
+    if ( y0 + h > _image.height )
+    {
+        h = _image.height - y0;
+    }
+
+    unsigned int oScanLen = bpp * _image.width;
+
+    unsigned int scanLen = bpp * w;
+    unsigned int siz = h * scanLen;
+    unsigned char *data = new unsigned char[ siz ];
+
+    for ( unsigned int i = 0 ; i < h; i++ )
+    {
+        unsigned char* srcLine = &_image.data[ ( i + y0 ) * oScanLen + x0 * bpp ];
+        unsigned char* dstLine = &data[ i * scanLen ];
+        memcpy( dstLine, srcLine, scanLen );
+    }
+
+    _image.width = w;
+    _image.height = h;
+    memcpy( _image.data, data, siz );
+    delete[] data;
+}
+
 void Image::_loadImage( std::string fileName )
 {
     bool succeed;
