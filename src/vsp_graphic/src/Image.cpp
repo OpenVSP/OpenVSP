@@ -89,11 +89,7 @@ unsigned char * Image::getImageData()
 
 void Image::flipud()
 {
-    int bpp = 3;
-    if ( _image.type == GL_RGBA )
-    {
-        bpp = 4;
-    }
+    unsigned int bpp = getBPP();
 
     // Flip data top to bottom.
     unsigned int scanLen = bpp * _image.width;

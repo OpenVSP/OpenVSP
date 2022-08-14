@@ -112,7 +112,7 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
 
     if ( filetype == PNG )
     {
-        stbi_write_png( fileName.c_str(), width, height, 4, &(image.getImageData())[0], width * 4 );
+        stbi_write_png( fileName.c_str(), image.getWidth(), image.getHeight(), image.getBPP(), &(image.getImageData())[0], image.getWidth() * image.getBPP() );
     }
     else
     {

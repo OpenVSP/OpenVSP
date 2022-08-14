@@ -79,14 +79,7 @@ namespace VSPGraphic
         _imHeight = image->getHeight();
 
         // Load Texture.
-        if( image->getType() == GL_RGBA )
-        {
-            glTexImage2D( GL_TEXTURE_2D, 0, 4, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image->getImageData() );
-        }
-        else
-        {
-            glTexImage2D( GL_TEXTURE_2D, 0, 3, image->getWidth(), image->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image->getImageData() );
-        }
+        glTexImage2D( GL_TEXTURE_2D, 0, image->getBPP(), image->getWidth(), image->getHeight(), 0, image->getType(), GL_UNSIGNED_BYTE, image->getImageData() );
 
         // Unbind Texture.
         glDisable( GL_TEXTURE_2D );
