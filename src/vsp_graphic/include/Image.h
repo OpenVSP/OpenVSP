@@ -54,6 +54,8 @@ public:
     */
     unsigned int getType();
 
+    unsigned int getBPP();
+
     /*!
     * Return the image's byte data.
     */

@@ -73,6 +73,15 @@ unsigned int Image::getType()
     return _image.type;
 }
 
+unsigned int Image::getBPP()
+{
+    if ( _image.type == GL_RGBA )
+    {
+        return 4;
+    }
+    return 3;
+}
+
 unsigned char * Image::getImageData()
 {
     return _image.data;
