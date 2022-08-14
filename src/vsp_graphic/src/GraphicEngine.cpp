@@ -36,7 +36,7 @@ void GraphicEngine::draw( int mouseX, int mouseY )
     _display->draw( _scene, mouseX, mouseY );
 }
 
-void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height, bool transparentBG, bool framebufferSupported, int filetype )
+void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height, bool transparentBG, bool autocrop, bool framebufferSupported, int filetype )
 {
     GLuint color;
     GLuint depth;
@@ -109,6 +109,17 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
     }
 
     image.flipud();
+
+    if ( autocrop )
+    {
+        unsigned int x0, y0, xf, yf, w, h;
+        image.alphabounds( x0, y0, xf, yf );
+
+        w = xf - x0 + 1;
+        h = yf - y0 + 1;
+
+        image.crop( x0, y0, w, h );
+    }
 
     if ( filetype == PNG )
     {
