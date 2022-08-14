@@ -78,6 +78,29 @@ unsigned char * Image::getImageData()
     return _image.data;
 }
 
+void Image::flipud()
+{
+    int bpp = 3;
+    if ( _image.type == GL_RGBA )
+    {
+        bpp = 4;
+    }
+
+    // Flip data top to bottom.
+    unsigned int scanLen = bpp * _image.width;
+    unsigned int siz = _image.height * scanLen;
+    unsigned char *data = new unsigned char[ siz ];
+
+    for ( unsigned int i = 0 ; i < _image.height; i++ )
+    {
+        unsigned char* srcLine = &_image.data[ i * scanLen ];
+        unsigned char* dstLine = &data[ (_image.height - i - 1) * scanLen ];
+        memcpy( dstLine, srcLine, scanLen );
+    }
+    memcpy( _image.data, data, siz );
+    delete[] data;
+}
+
 void Image::_loadImage( std::string fileName )
 {
     bool succeed;

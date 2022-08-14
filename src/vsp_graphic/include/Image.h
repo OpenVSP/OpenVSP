@@ -59,6 +59,8 @@ public:
     */
     unsigned char * getImageData();
 
+    void flipud();
+
 protected:
     /*!
     * Load image from file.
