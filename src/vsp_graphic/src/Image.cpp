@@ -38,7 +38,7 @@ Image::~Image()
 {
     if( _image.data )
     {
-        free( _image.data );
+        delete[] _image.data;
     }
 
     for( int i = 0; i < ( int )_loaders.size(); i++ )
