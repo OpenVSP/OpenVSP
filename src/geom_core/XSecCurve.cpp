@@ -2285,7 +2285,7 @@ SuperXSec::SuperXSec( ) : XSecCurve( )
 void SuperXSec::UpdateCurve( bool updateParms )
 {
     piecewise_curve_type c;
-    piecewise_superellipse_creator psc( 16 );
+    piecewise_superellipse_creator psc( 3*2*4 );
     curve_point_type origin, x, y;
 
     origin << m_Width() / 2, 0, 0;
