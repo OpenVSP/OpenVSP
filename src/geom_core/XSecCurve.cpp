@@ -2267,12 +2267,13 @@ SuperXSec::SuperXSec( ) : XSecCurve( )
     m_Height.SetDescript( "Height of the Super Ellipse Cross-Section" );
     m_Width.Init( "Super_Width", m_GroupName, this,  1.0, 0.0, 1.0e12 );
     m_Width.SetDescript( "Width of the Super Ellipse Cross-Section" );
-    m_M.Init( "Super_M", m_GroupName, this, 2.0, 0.2, 5.0 );
-    m_M.SetDescript( "Width of the Super Ellipse Cross-Section" );
-    m_N.Init( "Super_N", m_GroupName, this, 2.0, 0.2, 5.0 );
-    m_M_bot.Init( "Super_M_bot", m_GroupName, this, 2.0, 0.25, 5.0 );
+    m_M.Init( "Super_M", m_GroupName, this, 2.0, 0.2, 20.0 );
+    m_M.SetDescript( "Generalized Super Ellipse M Exponent" );
+    m_N.Init( "Super_N", m_GroupName, this, 2.0, 0.2, 20.0 );
+    m_N.SetDescript( "Generalized Super Ellipse N Exponent" );
+    m_M_bot.Init( "Super_M_bot", m_GroupName, this, 2.0, 0.2, 20.0 );
     m_M_bot.SetDescript( "Generalized Super Ellipse M Exponent for Bottom Half" );
-    m_N_bot.Init( "Super_N_bot", m_GroupName, this, 2.0, 0.25, 5.0 );
+    m_N_bot.Init( "Super_N_bot", m_GroupName, this, 2.0, 0.2, 20.0 );
     m_N_bot.SetDescript( "Generalized Super Ellipse N Exponent for Bottom Half" );
     m_MaxWidthLoc.Init( "Super_MaxWidthLoc", m_GroupName, this, 0.0, -10, 10 );
     m_MaxWidthLoc.SetDescript( "Maximum Width Location for Super Ellipse" );
