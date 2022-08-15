@@ -2318,6 +2318,8 @@ void SuperXSec::UpdateCurve( bool updateParms )
     else
     {
         c.reverse();
+        c.set_tmax( 4.0 );
+
         m_Curve.InterpolateEqArcLenPCHIP( c );
     }
 }
