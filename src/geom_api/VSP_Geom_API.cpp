@@ -1968,8 +1968,8 @@ string GetGeomTypeName( const string & geom_id )
     return typ;
 }
 
-/// Get the parm id given geom id, parm name, and group name
-string GetParm( const string & geom_id, const string & name, const string & group )
+/// Get the parm id given container id, parm name, and group name
+string GetParm( const string & container_id, const string & name, const string & group )
 {
     Vehicle* veh = GetVehicle();
     
@@ -1980,19 +1980,19 @@ string GetParm( const string & geom_id, const string & name, const string & grou
 
     string parm_id;
 
-    Geom* geom_ptr = veh->FindGeom( geom_id );
-    if ( !geom_ptr )
+    ParmContainer* pc = ParmMgr.FindParmContainer( container_id );
+    if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetParm::Can't Find Geom " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetParm::Can't Find Container " + container_id );
         return parm_id;
     }
 
-    parm_id = geom_ptr->FindParm( name, group );
+    parm_id = pc->FindParm( name, group );
 
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParm::Can't Find Parm " + geom_id + ":" + group + ":" + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParm::Can't Find Parm " + container_id + ":" + group + ":" + name );
         return parm_id;
     }
     ErrorMgr.NoError();
@@ -6264,13 +6264,13 @@ double SetParmVal( const string & parm_id, double val )
 
 /// Set the parm value.  If update is true, the parm container is updated.
 /// The final value of parm is returned.
-double SetParmVal( const string & geom_id, const string & name, const string & group, double val )
+double SetParmVal( const string & container_id, const string & name, const string & group, double val )
 {
-    string parm_id = GetParm( geom_id, name, group );
+    string parm_id = GetParm( container_id, name, group );
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + container_id + ":" + group + ":" + name  );
         return val;
     }
     ErrorMgr.NoError();
@@ -6309,13 +6309,13 @@ double SetParmValUpdate( const string & parm_id, double val )
 
 /// Set the parm value.  If update is true, the parm container is updated.
 /// The final value of parm is returned.
-double SetParmValUpdate( const string & geom_id, const string & parm_name, const string & parm_group_name, double val )
+double SetParmValUpdate( const string & container_id, const string & parm_name, const string & parm_group_name, double val )
 {
-    string parm_id = GetParm( geom_id, parm_name, parm_group_name );
+    string parm_id = GetParm( container_id, parm_name, parm_group_name );
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmValUpdate::Can't Find Parm " + parm_id );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmValUpdate::Can't Find Parm " + container_id + ":" + parm_group_name + ":" + parm_name );
         return val;
     }
     ErrorMgr.NoError();
@@ -6336,13 +6336,13 @@ double GetParmVal( const string & parm_id )
 }
 
 /// Get the value of parm
-double GetParmVal( const string & geom_id, const string & name, const string & group )
+double GetParmVal( const string & container_id, const string & name, const string & group )
 {
-    string parm_id = GetParm( geom_id, name, group );
+    string parm_id = GetParm( container_id, name, group );
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + name );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + container_id + ":" + group + ":" + name  );
         return 0.0;
     }
     ErrorMgr.NoError();

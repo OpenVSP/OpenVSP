@@ -9148,26 +9148,26 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Set the value of the specified Parm. This function includes a call to GetParm to identify the Parm ID given the Geom ID, Parm name, and Parm group.
+    Set the value of the specified Parm. This function includes a call to GetParm to identify the Parm ID given the Container ID, Parm name, and Parm group.
     \code{.cpp}
     string wing_id = AddGeom( "WING" );
 
     SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.2 );
     \endcode
     \sa SetParmValUpdate
-    \param [in] geom_id Geom ID
+    \param [in] container_id Container ID
     \param [in] name Parm name
     \param [in] group Parm group name
     \param [in] val Parm value to set
     \return Value that the Parm was set to
 */)";
-    r = se->RegisterGlobalFunction( "double SetParmVal(const string & in geom_id, const string & in name, const string & in group, double val )",
+    r = se->RegisterGlobalFunction( "double SetParmVal(const string & in container_id, const string & in name, const string & in group, double val )",
                                     vspFUNCTIONPR( vsp::SetParmVal, ( const string &, const string &, const string &, double val ), double ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
 /*!
-    Set the value of the specified Parm and force an Update. This function includes a call to GetParm to identify the Parm ID given the Geom ID, Parm name, and Parm group.
+    Set the value of the specified Parm and force an Update. This function includes a call to GetParm to identify the Parm ID given the Container ID, Parm name, and Parm group.
     \code{.cpp}
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
@@ -9175,13 +9175,13 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 5.0 );
     \endcode
     \sa SetParmVal
-    \param [in] geom_id Geom ID
+    \param [in] container_id Container ID
     \param [in] parm_name Parm name
     \param [in] parm_group_name Parm group name
     \param [in] val Parm value to set
     \return Value that the Parm was set to
 */)";
-    r = se->RegisterGlobalFunction( "double SetParmValUpdate(const string & in geom_id, const string & in parm_name, const string & in parm_group_name, double val )",
+    r = se->RegisterGlobalFunction( "double SetParmValUpdate(const string & in container_id, const string & in parm_name, const string & in parm_group_name, double val )",
                                     vspFUNCTIONPR( vsp::SetParmValUpdate, ( const string &, const string &, const string &, double val ), double ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
@@ -9212,7 +9212,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the value of the specified double type Parm. This function includes a call to GetParm to identify the Parm ID given the Geom ID, Parm name, and Parm group.
+    Get the value of the specified double type Parm. This function includes a call to GetParm to identify the Parm ID given the Container ID, Parm name, and Parm group.
     The data type of the Parm value will be cast to a double.
     \code{.cpp}
     //==== Add Pod Geometry ====//
@@ -9220,12 +9220,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     double length = GetParmVal( pod_id, "Length", "Design" );
     \endcode
-    \param [in] geom_id Geom ID
+    \param [in] container_id Container ID
     \param [in] name Parm name
     \param [in] group Parm group name
     \return Parm value
 */)";
-    r = se->RegisterGlobalFunction( "double GetParmVal(const string & in geom_id, const string & in name, const string & in group )",
+    r = se->RegisterGlobalFunction( "double GetParmVal(const string & in container_id, const string & in name, const string & in group )",
                                     vspFUNCTIONPR( vsp::GetParmVal, ( const string &, const string &, const string & ), double ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
@@ -9530,12 +9530,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     if ( !ValidParm( lenid ) )                { Print( "---> Error: API GetParm  " ); }
     \endcode
-    \param [in] geom_id Geom ID
+    \param [in] container_id Container ID
     \param [in] name Parm name
     \param [in] group Parm group name
     \return Array of Parm ID
 */)";
-    r = se->RegisterGlobalFunction( "string GetParm(const string & in geom_id, const string & in name, const string & in group )", vspFUNCTION( vsp::GetParm ), vspCALL_CDECL, doc_struct );
+    r = se->RegisterGlobalFunction( "string GetParm(const string & in container_id, const string & in name, const string & in group )", vspFUNCTION( vsp::GetParm ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     //=== Parm Container Functions ===//
