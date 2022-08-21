@@ -314,19 +314,33 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     }
     else if ( w == m_InputBrowser )
     {
-        m_InputBrowserSelect = m_InputBrowser->value() - 2;
+        if ( edit_link )
+        {
+            int ibs = m_InputBrowser->value() - 2;
 
-        vector <VarDef> ivars = edit_link->GetInputVars();
-        m_VarNameInput.Update( ivars[ m_InputBrowserSelect ].m_VarName );
-        m_ParmPicker.SetParmChoice( ivars[ m_InputBrowserSelect ].m_ParmID );
+            vector <VarDef> ivars = edit_link->GetInputVars();
+            if ( ibs >= 0 && ibs < ivars.size() )
+            {
+                m_InputBrowserSelect = ibs;
+                m_VarNameInput.Update( ivars[ m_InputBrowserSelect ].m_VarName );
+                m_ParmPicker.SetParmChoice( ivars[ m_InputBrowserSelect ].m_ParmID );
+            }
+        }
     }
     else if ( w == m_OutputBrowser )
     {
-        m_OutputBrowserSelect = m_OutputBrowser->value() - 2;
+        if ( edit_link )
+        {
+            int obs = m_OutputBrowser->value() - 2;
 
-        vector <VarDef> ovars = edit_link->GetOutputVars();
-        m_VarNameInput.Update(ovars[ m_OutputBrowserSelect ].m_VarName );
-        m_ParmPicker.SetParmChoice(ovars[ m_OutputBrowserSelect ].m_ParmID );
+            vector < VarDef > ovars = edit_link->GetOutputVars();
+            if ( obs >= 0 && obs < ovars.size())
+            {
+                m_OutputBrowserSelect = obs;
+                m_VarNameInput.Update( ovars[ m_OutputBrowserSelect ].m_VarName );
+                m_ParmPicker.SetParmChoice( ovars[ m_OutputBrowserSelect ].m_ParmID );
+            }
+        }
     }
     else if ( w == m_InputGroup.GetGroup() || w == m_OutputGroup.GetGroup() )
     {
