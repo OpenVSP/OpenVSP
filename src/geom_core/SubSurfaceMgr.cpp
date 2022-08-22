@@ -10,6 +10,7 @@
 
 #include "SubSurfaceMgr.h"
 #include "Vehicle.h"
+#include "StlHelper.h"
 
 using std::vector;
 using std::string;
@@ -181,6 +182,8 @@ void SubSurfaceMgrSingleton::ClearTagMaps()
     m_TagIDs.clear();
     m_SingleTagMap.clear();
     m_CompNames.clear();
+    m_CompIDs.clear();
+    m_CompThick.clear();
 
     // Add Dummy tag combo for meshes with no tags
     // so there will a draw object for them
@@ -296,7 +299,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
     fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
     fprintf( fid, "\n" );
-    fprintf( fid, "# tag#,geom#,surf#,gname,gid,ssname1,ssname2,...,ssid1,ssid2,...\n" );
+    fprintf( fid, "# tag#,geom#,surf#,gname,gid,thick,ssname1,ssname2,...,ssid1,ssid2,...\n" );
 
     // Build GeomID set to have unique integer index instead of GeomID.
     std::set< string, greater< string > > gids;
@@ -349,8 +352,10 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         // Lookup Geom number
         int gnum = distance( gids.begin(), gids.find( gid ) );
 
+        int thickthin = m_CompThick[ gnum ];
+
         // Write tag number and surface list to file
-        fprintf( fid, "%d,%d,%s,%s,%s", tag , gnum, snum.c_str(), gname.c_str(), gid.c_str() );
+        fprintf( fid, "%d,%d,%s,%s,%s,%d", tag , gnum, snum.c_str(), gname.c_str(), gid.c_str(), thickthin );
 
         // Write subsurface information if there is any
         if( !ssnames.empty() )
