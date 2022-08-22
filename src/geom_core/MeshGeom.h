@@ -171,6 +171,7 @@ public:
     virtual void WaterTightCheck( FILE* fid );
     virtual void DeleteMarkedMeshes();
     virtual void AddHalfBox( string id );
+    virtual void IgnoreYLessThan( const double & ytol );
 
     virtual TMesh* GetMeshByID( const string & id );
 

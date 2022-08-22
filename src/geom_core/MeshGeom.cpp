@@ -4094,6 +4094,14 @@ void MeshGeom::AddHalfBox( string id )
 
 }
 
+void MeshGeom::IgnoreYLessThan( const double & ytol )
+{
+    for ( int i = 0; i < m_TMeshVec.size(); i++ )
+    {
+        m_TMeshVec[i]->IgnoreYLessThan( ytol );
+    }
+}
+
 TMesh* MeshGeom::GetMeshByID( const string & id )
 {
     for ( int i = 0; i < m_TMeshVec.size(); i++ )

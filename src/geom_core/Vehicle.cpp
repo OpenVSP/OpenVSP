@@ -4624,6 +4624,11 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
 
     if ( halfFlag )
     {
+        // This check is to ensure any triangles remaining from the positive bodies on the symmetry plane are removed.
+        // Absolute tolerance here, would be perhaps better as a fraction of the triangle's edge lengths.  Comparison
+        // based on triangle center location, so it should be reliable.
+        mesh_ptr->IgnoreYLessThan( 1e-5 );
+
         mesh_ptr->GetMeshByID( "NEGATIVE_HALF" )->m_DeleteMeFlag = true;
         mesh_ptr->DeleteMarkedMeshes();
     }

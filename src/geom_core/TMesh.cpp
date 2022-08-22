@@ -903,6 +903,35 @@ void TMesh::SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & 
     }
 }
 
+void TMesh::IgnoreYLessThan( const double & ytol )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                vec3d cen = tri->m_SplitVec[s]->ComputeCenter();
+                if ( cen.y() < ytol )
+                {
+                    tri->m_SplitVec[s]->m_IgnoreTriFlag = true;
+                }
+            }
+        }
+        else
+        {
+            vec3d cen = tri->ComputeCenter();
+            if ( cen.y() < ytol )
+            {
+                tri->m_IgnoreTriFlag = true;
+            }
+        }
+    }
+}
+
 void TMesh::DeterIntExt( vector< TMesh* >& meshVec )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
