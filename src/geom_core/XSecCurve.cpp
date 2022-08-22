@@ -266,6 +266,7 @@ string XSecCurve::GetName()
 void XSecCurve::SetScale( double scale )
 {
     SetWidthHeight( GetWidth()*scale, GetHeight()*scale );
+    m_Area.Set( m_Area() * scale * scale );
 
     if ( m_TECloseType() != XSEC_CLOSE_TYPE::CLOSE_NONE )
     {
