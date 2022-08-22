@@ -503,8 +503,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_AttachLayout.SetFitWidthFlag( true );
     m_AttachLayout.SetSameLineFlag( false );
 
-    m_AttachLayout.AddSlider( m_AttachUSlider, "U", 1, " %5.4f" );
-    m_AttachLayout.AddSlider( m_AttachVSlider, "W", 1, " %5.4f" );
+    m_AttachLayout.AddSlider( m_AttachUSlider, "U", 1, " %7.6f" );
+    m_AttachLayout.AddSlider( m_AttachVSlider, "W", 1, " %7.6f" );
 
 
     //=============== SubSurface Tab ===================//
@@ -576,7 +576,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSLineGroup.SetFitWidthFlag( true );
     m_SSLineGroup.SetSameLineFlag( false );
     m_SSLineGroup.ForceNewLine();
-    m_SSLineGroup.AddSlider( m_SSLineConstSlider, "Value", 1, "%5.4f" );
+    m_SSLineGroup.AddSlider( m_SSLineConstSlider, "Value", 1, "%7.6f" );
 
     //==== SSRectangle ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSRecGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -597,11 +597,11 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSRecGroup.SetSameLineFlag( false );
     m_SSRecGroup.ForceNewLine();
 
-    m_SSRecGroup.AddSlider( m_SSRecCentUSlider, "Center U", 1, "%5.4f" );
-    m_SSRecGroup.AddSlider( m_SSRecCentWSlider, "Center W", 1, "%5.4f" );
-    m_SSRecGroup.AddSlider( m_SSRecULenSlider, "U Length", 1, "%5.4f" );
-    m_SSRecGroup.AddSlider( m_SSRecWLenSlider, "W Length", 1, "%5.4f" );
-    m_SSRecGroup.AddSlider( m_SSRecThetaSlider, "Theta", 25, "%5.4f" );
+    m_SSRecGroup.AddSlider( m_SSRecCentUSlider, "Center U", 1, "%7.6f" );
+    m_SSRecGroup.AddSlider( m_SSRecCentWSlider, "Center W", 1, "%7.6f" );
+    m_SSRecGroup.AddSlider( m_SSRecULenSlider, "U Length", 1, "%7.6f" );
+    m_SSRecGroup.AddSlider( m_SSRecWLenSlider, "W Length", 1, "%7.6f" );
+    m_SSRecGroup.AddSlider( m_SSRecThetaSlider, "Theta", 25, "%7.6f" );
 
     //==== SS_Ellipse ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSEllGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -623,11 +623,11 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSEllGroup.ForceNewLine();
 
     m_SSEllGroup.AddSlider( m_SSEllTessSlider, "Num Points", 100, "%5.0f" );
-    m_SSEllGroup.AddSlider( m_SSEllCentUSlider, "Center U", 1, "%5.4f" );
-    m_SSEllGroup.AddSlider( m_SSEllCentWSlider, "Center W", 1, "%5.4f" );
-    m_SSEllGroup.AddSlider( m_SSEllULenSlider, "U Length", 1, "%5.4f" );
-    m_SSEllGroup.AddSlider( m_SSEllWLenSlider, "W Length", 1, "%5.4f" );
-    m_SSEllGroup.AddSlider( m_SSEllThetaSlider, "Theta", 25, "%5.4f" );
+    m_SSEllGroup.AddSlider( m_SSEllCentUSlider, "Center U", 1, "%7.6f" );
+    m_SSEllGroup.AddSlider( m_SSEllCentWSlider, "Center W", 1, "%7.6f" );
+    m_SSEllGroup.AddSlider( m_SSEllULenSlider, "U Length", 1, "%7.6f" );
+    m_SSEllGroup.AddSlider( m_SSEllWLenSlider, "W Length", 1, "%7.6f" );
+    m_SSEllGroup.AddSlider( m_SSEllThetaSlider, "Theta", 25, "%7.6f" );
 
     //===== SSControl ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSConGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -664,8 +664,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConGroup.AddYGap();
     m_SSConGroup.AddDividerBox( "Spanwise" );
 
-    m_SSConGroup.AddSlider(m_SSConUSSlider, "Start U", 1, "%5.4f");
-    m_SSConGroup.AddSlider(m_SSConUESlider, "End U", 1, "%5.4f");
+    m_SSConGroup.AddSlider(m_SSConUSSlider, "Start U", 1, "%7.6f");
+    m_SSConGroup.AddSlider(m_SSConUESlider, "End U", 1, "%7.6f");
 
     m_SSConGroup.AddYGap();
     m_SSConGroup.AddDividerBox( "Chordwise" );
@@ -688,11 +688,11 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConSAbsRelToggleGroup.AddButton( m_SSConSAbsButton.GetFlButton() );
     m_SSConSAbsRelToggleGroup.AddButton( m_SSConSRelButton.GetFlButton() );
 
-    m_SSConGroup.AddSlider( m_SSConSLenSlider, "Start Length", 10.0, "%5.4f" );
-    m_SSConGroup.AddSlider( m_SSConSFracSlider, "Start Length/C", 1.0, "%5.4f");
+    m_SSConGroup.AddSlider( m_SSConSLenSlider, "Start Length", 10.0, "%7.6f" );
+    m_SSConGroup.AddSlider( m_SSConSFracSlider, "Start Length/C", 1.0, "%7.6f");
 
-    m_SSConGroup.AddSlider( m_SSConELenSlider, "End Length", 10.0, "%5.4f" );
-    m_SSConGroup.AddSlider( m_SSConEFracSlider, "End Length/C", 1.0, "%5.4f" );
+    m_SSConGroup.AddSlider( m_SSConELenSlider, "End Length", 10.0, "%7.6f" );
+    m_SSConGroup.AddSlider( m_SSConEFracSlider, "End Length/C", 1.0, "%7.6f" );
 
     m_SSConGroup.AddYGap();
     m_SSConGroup.AddDividerBox( "Surface End Angle" );
@@ -708,8 +708,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConGroup.SetFitWidthFlag( true );
     m_SSConGroup.ForceNewLine();
 
-    m_SSConGroup.AddSlider( m_SSConSAngleSlider, "Start Angle", 10.0, "%5.4f" );
-    m_SSConGroup.AddSlider( m_SSConEAngleSlider, "End Angle", 10.0, "%5.4f" );
+    m_SSConGroup.AddSlider( m_SSConSAngleSlider, "Start Angle", 10.0, "%7.6f" );
+    m_SSConGroup.AddSlider( m_SSConEAngleSlider, "End Angle", 10.0, "%7.6f" );
 
     m_SSConGroup.AddSlider( m_SSConTessSlider, "Num Points", 100, "%5.0f" );
 
@@ -721,10 +721,10 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSFLineGroup.SetSameLineFlag( false );
     m_SSFLineGroup.ForceNewLine();
 
-    m_SSFLineGroup.AddSlider( m_SSFLineUStartSlider, "U Start", 1, "%5.4f" );
-    m_SSFLineGroup.AddSlider( m_SSFLineUEndSlider, "U End", 1, "%5.4f" );
-    m_SSFLineGroup.AddSlider( m_SSFLineWStartSlider, "W Start", 1, "%5.4f" );
-    m_SSFLineGroup.AddSlider( m_SSFLineWEndSlider, "W End", 1, "%5.4f" );
+    m_SSFLineGroup.AddSlider( m_SSFLineUStartSlider, "U Start", 1, "%7.6f" );
+    m_SSFLineGroup.AddSlider( m_SSFLineUEndSlider, "U End", 1, "%7.6f" );
+    m_SSFLineGroup.AddSlider( m_SSFLineWStartSlider, "W Start", 1, "%7.6f" );
+    m_SSFLineGroup.AddSlider( m_SSFLineWEndSlider, "W End", 1, "%7.6f" );
 
     m_RotActive = true;
 }
