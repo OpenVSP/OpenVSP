@@ -734,7 +734,7 @@ void MeshGeom::BuildIndexedMesh( int partOffset, bool half_flag )
                     ttri->m_N0->m_ID != ttri->m_N2->m_ID &&
                     ttri->m_N1->m_ID != ttri->m_N2->m_ID )
             {
-                if ( half_flag && ( ( ( ttri->m_N0->GetXYZPnt() + ttri->m_N1->GetXYZPnt() + ttri->m_N2->GetXYZPnt() ) / 3. ).y() < 0 ) )
+                if ( half_flag && ( ( ( ttri->m_N0->GetXYZPnt() + ttri->m_N1->GetXYZPnt() + ttri->m_N2->GetXYZPnt() ) / 3. ).y() < 1e-5 ) )
                 {
                     // Don't keep tris with enter with -Y component
                     continue;
