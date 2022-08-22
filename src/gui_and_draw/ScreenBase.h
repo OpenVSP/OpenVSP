@@ -281,6 +281,7 @@ public:
     // SS_Line
     GroupLayout m_SSLineGroup;
     SliderAdjRangeInput m_SSLineConstSlider; // Either Constant U or W
+    SliderAdjRangeInput m_SSLineConstSlider0N; // Either Constant U or W
     ToggleButton m_SSLineConstUButton;
     ToggleButton m_SSLineConstWButton;
     ToggleRadioGroup m_SSLineConstToggleGroup;
@@ -288,6 +289,10 @@ public:
     ToggleButton m_SSLineGreaterToggle;
     ToggleButton m_SSLineLessToggle;
     ToggleRadioGroup m_SSLineTestToggleGroup;
+
+    ToggleButton m_SSLine01Toggle;
+    ToggleButton m_SSLine0NToggle;
+    ToggleRadioGroup m_SSLineScaleToggleGroup;
 
     // SS_Rectangle
     GroupLayout m_SSRecGroup;

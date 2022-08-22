@@ -565,6 +565,17 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSLineConstToggleGroup.AddButton( m_SSLineConstWButton.GetFlButton() );
 
     m_SSLineGroup.ForceNewLine();
+
+    m_SSLineGroup.AddLabel( "Scale", remain_x / 3 );
+    m_SSLineGroup.AddButton( m_SSLine01Toggle, "[0, 1]" );
+    m_SSLineGroup.AddButton( m_SSLine0NToggle, "[0, N]" );
+
+    m_SSLineScaleToggleGroup.Init( this );
+    m_SSLineScaleToggleGroup.AddButton( m_SSLine0NToggle.GetFlButton() ); // 0 false added first
+    m_SSLineScaleToggleGroup.AddButton( m_SSLine01Toggle.GetFlButton() ); // 1 true added second
+
+    m_SSLineGroup.ForceNewLine();
+
     m_SSLineGroup.AddLabel( "Test", remain_x / 3 );
     m_SSLineGroup.AddButton( m_SSLineGreaterToggle, "Greater" );
     m_SSLineGroup.AddButton( m_SSLineLessToggle, "Less" );
@@ -576,7 +587,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSLineGroup.SetFitWidthFlag( true );
     m_SSLineGroup.SetSameLineFlag( false );
     m_SSLineGroup.ForceNewLine();
-    m_SSLineGroup.AddSlider( m_SSLineConstSlider, "Value", 1, "%7.6f" );
+    m_SSLineGroup.AddSlider( m_SSLineConstSlider, "Value01", 1, "%7.6f" );
+    m_SSLineGroup.AddSlider( m_SSLineConstSlider0N, "Value0N", 1, "%7.6f" );
 
     //==== SSRectangle ====//
     m_SSCommonGroup.AddSubGroupLayout( m_SSRecGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
@@ -904,8 +916,22 @@ bool GeomScreen::Update()
             assert( ssline );
 
             m_SSLineConstToggleGroup.Update( ssline->m_ConstType.GetID() );
+            m_SSLineScaleToggleGroup.Update( ssline->m_Val01.GetID() );
             m_SSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
             m_SSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
+            m_SSLineConstSlider0N.Update( ssline->m_ConstVal0N.GetID() );
+
+            if ( ssline->m_Val01() )
+            {
+                m_SSLineConstSlider.Activate();
+                m_SSLineConstSlider0N.Deactivate();
+            }
+            else
+            {
+                m_SSLineConstSlider.Deactivate();
+                m_SSLineConstSlider0N.Activate();
+            }
+
             SubSurfDispGroup( &m_SSLineGroup );
 
         }

@@ -741,10 +741,18 @@ void SSLineSeg::AddToTMesh( TMesh* tmesh ) const
 SSLine::SSLine( const string& comp_id, int type ) : SubSurface( comp_id, type )
 {
     m_ConstType.Init( "Const_Line_Type", "SubSurface", this, vsp::CONST_U, 0, 1 );
+
     m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0.5, 0, 1 );
-    m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is chosen." );
+    m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is chosen in [0, 1] basis." );
+
     m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::NO );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
+
+    m_Val01.Init( "Value_01", "SubSurface", this, true, false, true );
+    m_Val01.SetDescript( "The U or V value is specified in [0, 1] basis or [0, N] basis." );
+
+    m_ConstVal0N.Init( "Const_Line_Value0N", "SubSurface", this, 0.5, 0, 1e12 );
+    m_ConstVal0N.SetDescript( "Either the U or V value of the line depending on what constant line type is chosen in [0, N] basis." );
 
     m_LVec.resize( 1 );
 }
@@ -755,25 +763,51 @@ SSLine::~SSLine()
 
 void SSLine::Update()
 {
-    // Using m_LVec[0] since SSLine should always only have one line segment
-    // Update SSegLine points based on current values
-    if ( m_ConstType() == vsp::CONST_U )
-    {
-        m_LVec[0].SetSP0( vec3d( m_ConstVal(), 1, 0 ) );
-        m_LVec[0].SetSP1( vec3d( m_ConstVal(), 0, 0 ) );
-    }
-    else if ( m_ConstType() == vsp::CONST_W )
-    {
-        m_LVec[0].SetSP0( vec3d( 0, m_ConstVal(), 0 ) );
-        m_LVec[0].SetSP1( vec3d( 1, m_ConstVal(), 0 ) );
-    }
-
-    m_LVec[0].m_TestType = m_TestType();
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom )
     {
         return;
     }
+
+    // Using m_LVec[0] since SSLine should always only have one line segment
+    // Update SSegLine points based on current values
+    if ( m_ConstType() == vsp::CONST_U )
+    {
+        double umax = geom->GetMainUMax( m_MainSurfIndx() );
+
+        if ( m_Val01.Get() ) // Use 01 basis
+        {
+            m_ConstVal0N.Set( m_ConstVal() * umax );
+        }
+        else
+        {
+            double val = clamp( m_ConstVal0N(), 0.0, umax );
+            m_ConstVal.Set( val / umax );
+        }
+
+        m_LVec[0].SetSP0( vec3d( m_ConstVal(), 1, 0 ) );
+        m_LVec[0].SetSP1( vec3d( m_ConstVal(), 0, 0 ) );
+    }
+    else if ( m_ConstType() == vsp::CONST_W )
+    {
+        double wmax = geom->GetMainWMax( m_MainSurfIndx() );
+
+        if ( m_Val01.Get() ) // Use 01 basis
+        {
+            m_ConstVal0N.Set( m_ConstVal() * wmax );
+        }
+        else
+        {
+            double val = clamp( m_ConstVal0N(), 0.0, wmax );
+            m_ConstVal.Set( val / wmax );
+        }
+
+        m_LVec[0].SetSP0( vec3d( 0, m_ConstVal(), 0 ) );
+        m_LVec[0].SetSP1( vec3d( 1, m_ConstVal(), 0 ) );
+    }
+
+    m_LVec[0].m_TestType = m_TestType();
+
     m_LVec[0].Update( geom );
 
     SubSurface::Update();

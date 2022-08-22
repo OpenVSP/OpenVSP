@@ -198,6 +198,8 @@ public:
 
     IntParm m_ConstType; // Either constant u or constant w line
     Parm m_ConstVal; // Either the const u value or const w value of line
+    BoolParm m_Val01; // Value is on 01 basis
+    Parm m_ConstVal0N; // Value on 0N basis
 
     virtual bool Subtag( TTri* tri );
     virtual bool Subtag( const vec3d & center );
