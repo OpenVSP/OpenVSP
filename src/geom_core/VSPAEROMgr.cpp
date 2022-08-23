@@ -1643,7 +1643,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
     {
         if ( FileExist( m_PolarFile ) )
         {
-            ReadPolarFile( m_HistoryFile, res_id_vec, m_ReCrefStart() );
+            ReadPolarFile( m_PolarFile, res_id_vec, m_ReCrefStart() );
         }
         else
         {
