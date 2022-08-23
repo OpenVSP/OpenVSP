@@ -1698,6 +1698,7 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSLineArraySpacingSlider.Update( sslinearray->m_Spacing.GetID() );
                         m_FeaSSLineArrayStartLocSlider.Update( sslinearray->m_StartLocation.GetID() );
                         m_FeaSSLineArrayEndLocSlider.Update( sslinearray->m_EndLocation.GetID() );
+                        m_ShellCapToggleGroup.Update( sslinearray->m_IncludedElements.GetID() );
 
                         m_ShellPropertyChoice.Deactivate();
                         m_OrientationChoice.Deactivate();
@@ -1714,6 +1715,7 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSFLineUEndSlider.Update( ssfline->m_UEnd.GetID() );
                         m_FeaSSFLineWStartSlider.Update( ssfline->m_WStart.GetID() );
                         m_FeaSSFLineWEndSlider.Update( ssfline->m_WEnd.GetID() );
+                        m_ShellCapToggleGroup.Update( ssfline->m_IncludedElements.GetID() );
 
                         m_ShellPropertyChoice.Deactivate();
                         m_OrientationChoice.Deactivate();

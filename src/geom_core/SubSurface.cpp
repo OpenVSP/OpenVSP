@@ -2336,6 +2336,7 @@ SSFiniteLine::SSFiniteLine( const string& comp_id, int type ) : SubSurface( comp
     m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::NO, SSLineSeg::NO, SSLineSeg::NO );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
+    m_IncludedElements.Set( vsp::FEA_BEAM );
     m_LVec.resize( 1 );
 }
 
