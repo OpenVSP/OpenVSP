@@ -105,30 +105,31 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     # Copy python package files to ${CMAKE_BINARY_DIR}/python_pseudo such that a virtual environment can be
     # built from there.  This brings both generated files (from BINARY_DIR) and source files (from SOURCE_DIR) together
     # and places them in the expected relative places.
-    add_custom_command( TARGET _vsp POST_BUILD
+
+    # Add copy_package target to copy full directory.  Unfortunately, will copy every build.  However, there is no
+    # obvious way to have CMake track the contents of the directory for changes.
+    add_custom_target( copy_package
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/packages/
             ${CMAKE_BINARY_DIR}/python_pseudo/ )
+    add_dependencies( _vsp copy_package ) # Make _vsp depend on copy_package.  Not sure this is required.
 
+    # Copy _vsp library post build.
     add_custom_command( TARGET _vsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:_vsp>
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:_vsp> )
 
+    # Copy vsp.py wrapper post SWIG generation.
     add_custom_command( TARGET _vsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_BINARY_DIR}/vsp.py
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py )
 
-    add_custom_command( TARGET _vsp POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/setup.py )
-
-    add_custom_command( TARGET _vsp POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/conda-recipe/meta.yaml )
+    # Configure files to pseudo install -- redundant to package configure above, but tracks dependencies best.
+    # Unfortunately, it does not know if you delete the files from ${CMAKE_BINARY_DIR}.
+    CONFIGURE_FILE( packages/openvsp/setup.py.in ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/setup.py )
+    CONFIGURE_FILE( packages/openvsp/conda-recipe/meta.yaml.in ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/conda-recipe/meta.yaml )
 
     # Create virtual environment with openvsp package installed.
     CreateVirtualEnvironment( venv
