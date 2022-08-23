@@ -3023,15 +3023,24 @@ void FeaMeshMgrSingleton::WriteCalculix()
         }
 
         //==== Remaining Nodes ====//
-        fprintf( fp, "**Remaining Nodes\n" );
-        fprintf( fp, "*NODE, NSET=RemainingNodes\n" );
+        bool RemainingHeader = false;
         for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
         {
             if ( m_PntShift[i] >= 0 &&
                  m_FeaNodeVec[i]->m_Tags.size() == 0 )
             {
+                if ( !RemainingHeader )
+                {
+                    fprintf( fp, "**Remaining Nodes\n" );
+                    fprintf( fp, "*NODE, NSET=RemainingNodes\n" );
+                    RemainingHeader = true;
+                }
                 m_FeaNodeVec[i]->WriteCalculix( fp, noffset );
             }
+        }
+        if ( RemainingHeader )
+        {
+            fprintf( fp, "\n" );
         }
 
         //==== FeaProperties ====//
