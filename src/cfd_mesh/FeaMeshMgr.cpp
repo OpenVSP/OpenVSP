@@ -2999,9 +2999,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         }
 
         //==== Intersection Nodes ====//
-        fprintf( fp, "**Intersections\n" );
-        fprintf( fp, "*NODE, NSET=Nintersections\n" );
-
+        bool IntersectHeader = false;
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
             if ( m_PntShift[j] >= 0 )
@@ -3009,11 +3007,20 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
                     !m_FeaNodeVec[j]->m_FixedPointFlag )
                 {
+                    if ( !IntersectHeader )
+                    {
+                        fprintf( fp, "**Intersections\n" );
+                        fprintf( fp, "*NODE, NSET=Nintersections\n" );
+                        IntersectHeader = true;
+                    }
                     m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
                 }
             }
         }
-        fprintf( fp, "\n" );
+        if ( IntersectHeader )
+        {
+            fprintf( fp, "\n" );
+        }
 
         //==== Remaining Nodes ====//
         fprintf( fp, "**Remaining Nodes\n" );
