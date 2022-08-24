@@ -104,8 +104,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     //    wake parameters
     m_FixedWakeFlag.Init( "FixedWakeFlag", groupname, this, false, false, true );
     m_FixedWakeFlag.SetDescript( "Flag to enable a fixed wake." );
-    m_WakeNumIter.Init( "WakeNumIter", groupname, this, 5, 3, 255 );
-    m_WakeNumIter.SetDescript( "Number of wake iterations to execute, Default = 5" );
+    m_WakeNumIter.Init( "WakeNumIter", groupname, this, 3, 3, 255 );
+    m_WakeNumIter.SetDescript( "Number of wake iterations to execute" );
     m_NumWakeNodes.SetPowShift( 2, 0 ); // Must come before Init
     m_NumWakeNodes.Init( "RootWakeNodes", groupname, this, 64, 0, 10e12 );
     m_NumWakeNodes.SetDescript( "Number of Wake Nodes (f(n^2))" );
