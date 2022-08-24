@@ -262,6 +262,11 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 
     m_Verbose = false;
     m_iCase = 0;
+
+    CpSlice* slice = AddCpSlice();
+    slice->SetName( "Y = 0" );
+    slice->m_CutType.Set( vsp::Y_DIR );
+    slice->m_CutPosition.Set( 0.0 );
 }
 
 void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
@@ -303,6 +308,11 @@ void VSPAEROMgrSingleton::Renew()
     m_RotorDiskVec.clear();
 
     ClearCpSliceVec();
+    CpSlice* slice = AddCpSlice();
+    slice->SetName( "Y = 0" );
+    slice->m_CutType.Set( vsp::Y_DIR );
+    slice->m_CutPosition.Set( 0.0 );
+
     ClearUnsteadyGroupVec();
 
     m_DegenGeomVec.clear();
