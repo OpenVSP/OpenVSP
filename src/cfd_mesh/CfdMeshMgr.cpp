@@ -3837,15 +3837,6 @@ void CfdMeshMgrSingleton::SubTagTris()
 
             SubSurfaceMgr.m_CompNames.push_back(name);
             SubSurfaceMgr.m_CompIDs.push_back(exportid);
-
-            // Set to thin.
-            bool thick = false;
-            if ( surf->GetSurfaceCfdType() == vsp::CFD_NORMAL || surf->GetSurfaceCfdType() == vsp::CFD_NEGATIVE )
-            {
-                thick = true;
-            }
-
-            SubSurfaceMgr.m_CompThick.push_back( thick );
         }
 
         surf->SetBaseTag( tag_map[id] );
