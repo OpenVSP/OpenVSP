@@ -105,6 +105,11 @@ void Probe::Update()
 
         vec3d norm = veh->CompNorm01(m_OriginGeomID, m_OriginIndx(), m_OriginU(), m_OriginW());
 
+        if ( norm.mag() < 1e-6 )
+        {
+            norm.set_xyz( 0, 0, 1 );
+        }
+
         m_NX = norm.x();
         m_NY = norm.y();
         m_NZ = norm.z();
@@ -112,10 +117,10 @@ void Probe::Update()
         double k1, k2, ka, kg;
         veh->CompCurvature01(m_OriginGeomID, m_OriginIndx(), m_OriginU(), m_OriginW(), k1, k2, ka, kg);
 
-        m_K1 = k1;
-        m_K2 = k2;
-        m_Ka = ka;
-        m_Kg = kg;
+        m_K1 = isfinite( k1 ) ? k1 : 0.0;
+        m_K2 = isfinite( k2 ) ? k2 : 0.0;
+        m_Ka = isfinite( ka ) ? ka : 0.0;
+        m_Kg = isfinite( kg ) ? kg : 0.0;
 
         m_LabelDO.m_Probe.Pt = pt;
         m_LabelDO.m_Probe.Norm = norm;
