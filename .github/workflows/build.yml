@@ -25,12 +25,6 @@ jobs:
             python-arch: x64,
           }
         - {
-            name: "Windows 32",
-            os: windows-2019,
-            arch: Win32,
-            python-arch: x86,
-          }
-        - {
             name: "Ubuntu 18.04",
             os: ubuntu-18.04,
             arch: x64,
