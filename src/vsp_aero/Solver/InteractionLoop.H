@@ -28,6 +28,8 @@ private:
 
     int NumberOfVortexEdges_;
     
+    VSP_EDGE **SurfaceVortexEdgeInteractionList_;
+    
 public:
 
 
@@ -36,23 +38,40 @@ public:
     LOOP_INTERACTION_ENTRY(const LOOP_INTERACTION_ENTRY &LoopInteractionEntry);
 
     LOOP_INTERACTION_ENTRY& operator=(const LOOP_INTERACTION_ENTRY &LoopInteractionEntry);
-    
+
+    /** Size the list **/
+        
     void SizeList(int NumberOfVortexEdges);
+    
+    /** Delete the list **/
     
     void DeleteList(void);
     
+    /** Pass in pointer to an existing list... and well, use it ;-) **/
+    
     void UseList(int NumberOfVortexEdges, VSP_EDGE **TempList);
+    
+    /** Mesh level this list corresponds to, ie in the full multipole we may be calculating 
+     * induced velocities for a group of loops (agglomerated) at a coarse level as we 
+     * have decided they are far enough away as a group to be considered a single evaulation
+     * point... **/
 
     int &Level(void) { return Level_; };
     
+    /** Loop this list evaluates for... again, this may be a coarse grid loop **/
+    
     int &Loop(void) { return Loop_; };
+    
+    /** Number of vortex edges in this interaction list * */
 
     int NumberOfVortexEdges(void) { return NumberOfVortexEdges_; };
     
-    VSP_EDGE **SurfaceVortexEdgeInteractionList_;
+    /** Access the ith entry of the vortex interaction list **/
 
     VSP_EDGE *SurfaceVortexEdgeInteractionList(int i) { return SurfaceVortexEdgeInteractionList_[i]; };
-    
+
+    /** Pointer access to the full interaction list **/
+        
     VSP_EDGE **SurfaceVortexEdgeInteractionList(void) { return SurfaceVortexEdgeInteractionList_; };
     
 };

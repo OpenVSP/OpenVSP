@@ -31,6 +31,8 @@ QUAD_CELL::QUAD_CELL(void)
 
     Level_ = 0;
     
+    SurfaceEdge_ = 0;
+    
     InsertedPoint_[0] = InsertedPoint_[1] = InsertedPoint_[2] = 0.;
 
 }
@@ -57,6 +59,8 @@ QUAD_CELL::~QUAD_CELL(void)
     Parent_ = 0;
 
     Level_ = 0;
+    
+    SurfaceEdge_ = 0;
     
     InsertedPoint_[0] = InsertedPoint_[1] = InsertedPoint_[2] = 0.;
 

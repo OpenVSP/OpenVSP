@@ -79,78 +79,124 @@ public:
     CONTROL_SURFACE(const CONTROL_SURFACE &ControlSurface);
     CONTROL_SURFACE& operator=(const CONTROL_SURFACE &ControlSurface);
     
-    // Size the loop list
+    /** Size the loop list... this is the list of of vortex loops contained within
+     * the control surface definition **/
     
     void SizeLoopList(int NumberOfLoops);
     
-    // Control surface bounding box
+    /** u min value of control surface bounding box in u,v space **/
     
     VSPAERO_DOUBLE &u_min(void) { return u_min_; };
+
+    /** u max value of control surface bounding box in u,v space **/
+
     VSPAERO_DOUBLE &u_max(void) { return u_max_; };
+
+    /** v min value of control surface bounding box in u,v space **/
+
     VSPAERO_DOUBLE &v_min(void) { return v_min_; };
+
+    /** v max value of control surface bounding box in u,v space **/
+
     VSPAERO_DOUBLE &v_max(void) { return v_max_; };
     
-    // Access the list of affected vortex loops
+    /** Number of loops contained in this control surface definition **/
     
     int NumberOfLoops(void) { return NumberOfLoops_; };
     
+    /** ith vortex loop contained in this control surface definition **/
+    
     int &LoopList(int i) { return LoopList_[i]; };
 
-    // XYZ coordinates
+    /** Size the node list that defines the polygon for this control surface **/
     
     void SizeNodeList(int NumberOfNodes);
     
+    /** Number of nodes that define the control surface polygon **/
+    
     int NumberOfNodes(void) { return NumberOfNodes_; };
+    
+    /** XYZ vector of ith control surface defining node **/
     
     VSPAERO_DOUBLE *XYZ_Node(int i) { return XYZ_NodeList_[i]; };
     
+    //** 1st node of control surface polygon, and ith direction 0:x, 1:y, 2:z ... **/
+    
     VSPAERO_DOUBLE &XYZ_Node_1(int i) { return XYZ_NodeList_[1][i]; };
+    
+    //** 2nd node of control surface polygon, and ith direction 0:x, 1:y, 2:z ... **/
+    
     VSPAERO_DOUBLE &XYZ_Node_2(int i) { return XYZ_NodeList_[2][i]; };
+
+    //** 3rd node of control surface polygon, and ith direction 0:x, 1:y, 2:z ... **/
+
     VSPAERO_DOUBLE &XYZ_Node_3(int i) { return XYZ_NodeList_[3][i]; };
+
+    //** 4th node of control surface polygon, and ith direction 0:x, 1:y, 2:z ... **/
+
     VSPAERO_DOUBLE &XYZ_Node_4(int i) { return XYZ_NodeList_[4][i]; };
+    
+    /** UV vector of ith control surface defining node **/
     
     VSPAERO_DOUBLE *UV_Node(int i) { return UV_NodeList_[i]; };
     
+    //** 1st node of control surface polygon, and ith direction 0:y, 1:v ... **/
+    
     VSPAERO_DOUBLE &UV_Node_1(int i) { return UV_NodeList_[1][i]; };
+    
+    //** 2nd node of control surface polygon, and ith direction 0:y, 1:v ... **/
+    
     VSPAERO_DOUBLE &UV_Node_2(int i) { return UV_NodeList_[2][i]; };
+
+    //** 3rd node of control surface polygon, and ith direction 0:y, 1:v ... **/
+
     VSPAERO_DOUBLE &UV_Node_3(int i) { return UV_NodeList_[3][i]; };
+
+    //** 4th node of control surface polygon, and ith direction 0:y, 1:v ... **/
+
     VSPAERO_DOUBLE &UV_Node_4(int i) { return UV_NodeList_[4][i]; };    
 
-    // Hinge line  
+    /** Hinge node 1 **/
     
     VSPAERO_DOUBLE &HingeNode_1(int i) { return HingeNode_1_[i]; };
+    
+    /** Hinge node 2 **/
+    
     VSPAERO_DOUBLE &HingeNode_2(int i) { return HingeNode_2_[i]; };
+    
+    /** Hinge vector defined as vector from hinge node 1 to hinge node 2 **/
+    
     VSPAERO_DOUBLE &HingeVec(int i) { return HingeVec_[i]; };
     
-    // Rotate a normal vector
+    /** Rotate the user supplied normal vector about the hinge line by an amount DeflectionAngle_ **/
     
     void RotateNormal(VSPAERO_DOUBLE *Normal);
     
-    // Check to see if a tri is inside this control surface
+    /** Determine in a tri/loop is inside the control surface definition **/
     
     int TriInside(VSPAERO_DOUBLE *UV);
     
-    // Name
+    /** Control surface name **/
     
     char *Name(void) { return Name_; };
     
-    // Short name
+    /** Short name given by openvsp to descriminate between control surfaces on various componets **/
     
     char *ShortName(void) { return ShortName_; };    
     
-    // TypeName
+    /** Type of control surface by name **/
     
     char *TypeName(void) { return TypeName_; };
 
-    // Type
+    // Type of control surface **/
     
     int &Type(void) { return Type_; };
     
-    // Deflection angle
+    /** Control surface deflection angle **/
     
     VSPAERO_DOUBLE &DeflectionAngle(void) { return DeflectionAngle_; };
     
-    // Control group
+    /** Control group ID number **/
     
     int &ControlGroup(void) { return ControlGroup_; };
     

@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#include <algorithm>
 
 #ifndef WIN32
 #include <sys/wait.h>
@@ -72,6 +73,9 @@
 
 #define MAXRUNCASES 10
 
+#define DEFAULT_ARRAYS 0
+#define PYTHON_ARRAYS  1
+
 class VSP_OPTIMIZER {
 
 private:
@@ -125,7 +129,7 @@ private:
     int NumberOfControlGroups_;
     VSPAERO_SOLVER::CONTROL_SURFACE_GROUP *ControlSurfaceGroup_;
     
-    // Sability and control Mach, AoA, and Beta Lists
+    // Stability and control Mach, AoA, and Beta Lists
     
     double Stab_MachList_[MAXRUNCASES];
     double  Stab_AoAList_[MAXRUNCASES];
@@ -247,7 +251,14 @@ private:
     VSPAERO_ADJOINT::VSP_SOLVER *Adjoint_;
     
     VSPAERO_ADJOINT::VSP_SOLVER &Adjoint(void) { return Adjoint_[0]; };
+    
+    int ArrayOffSet_;
+    int MaxTempArraySize_;
+    
+    double *TempArray_[3];
 
+    void ShiftInputVector(double *Vec1, double *Vec2, int Length);
+    void ShiftOutputVector(double *Vec1, double *Vec2, int Length);
 
 public:
 
@@ -255,144 +266,220 @@ public:
    ~VSP_OPTIMIZER(void);
     VSP_OPTIMIZER(const VSP_OPTIMIZER &Optimizer);
 
-    // Set the number of CPU threads
+    /** Set the number of CPU threads used by OPENMP in forward solve **/
     
     int &NumberOfThreads(void) { return NumberOfThreads_; };
     
-    // Tell the solvers this is an unsteady, time accurate, solve
+    /** Tell the solvers this is an unsteady, time accurate, solve **/
     
     int &DoUnsteadyAnalysis(void) { return DoUnsteadyAnalysis_; };
     
-    // Number of mesh nodes
+    /** Number of mesh nodes **/
     
     int NumberOfNodes(void) { return Solver().VSPGeom().Grid(0).NumberOfNodes(); };
     
-    // Number Of mesh loops
+    /** Number Of mesh loops **/
     
     int NumberOfLoops(void) { return Solver().VSPGeom().Grid(1).NumberOfLoops(); };
     
-    // Update the geometry (mesh)
+    /** Update the geometry (mesh) **/
     
     void UpdateGeometry(double *NodeXYZ);
         
-    // Set number of optimization functions.. ie, CL, CD, CT, SpanLoading
+    /** Set number of optimization functions.. ie, CL, CD, CT, SpanLoading **/
     
     int &NumberOfOptimizationFunctions(void) { return NumberOfOptimizationFunctions_; };
  
-    // Set the Optimization function for case i
-    
+    /** Set the Optimization function for case i
+     * 
+     * Usage OptimizationFunction(Case) = Value, where Value is one of the following:
+     *
+     * OPT_CL:           Vehicle Lift Force Coefficient
+     * OPT_CD:           Vehicle Drag Force Coefficient
+     * OPT_CS:           Vehicle Side Force Coefficient
+     *                  
+     * OPT_CMx:          Vehicle Pitching Moment about the X axis
+     * OPT_CMy:          Vehicle Pitching Moment about the Y axis
+     * OPT_CMz:          Vehicle Pitching Moment about the Z axis
+     *                  
+     * OPT_CD_CL_CM:     Trim Vehicle, Minimize Drag, and Drive CL to user specified value
+     *                  
+     * OPT_ROTOR_CT:     Rotor Thrust Coefficient
+     * OPT_ROTOR_CP:     Rotor Power Coefficient
+     *                  
+     * OPT_WING_LOAD:    Spanwise wing load, ie Cl vs Span
+     *                  
+     * OPT_RESIDUAL:     Residual vector for linear system
+     *
+     * OPT_WING_CX:      X component of spanwise wing load
+     * OPT_WING_CY:      Y component of spanwise wing load
+     * OPT_WING_CZ:      Z component of spanwise wing load
+     *
+     **/
+             
     int &OptimizationFunction(int Case) { return OptimizationFunction_[Case]; };
 
-         // Usage OptimizationFunction(Case) = Value, where Value is one of the following:
-         //
-         // OPT_CL           Vehicle Lift Force Coefficient
-         // OPT_CD           Vehicle Drag Force Coefficient
-         // OPT_CS           Vehicle Side Force Coefficient
-         //                  
-         // OPT_CMx          Vehicle Pitching Moment about the X axis
-         // OPT_CMy          Vehicle Pitching Moment about the Y axis
-         // OPT_CMz          Vehicle Pitching Moment about the Z axis
-         //                  
-         // OPT_CD_CL_CM     Trim Vehicle, Minimize Drag, and Drive CL to user specified value
-         //                  
-         // OPT_ROTOR_CT     Rotor Thrust Coefficient
-         // OPT_ROTOR_CP     Rotor Power Coefficient
-         //                  
-         // OPT_WING_LOAD    Spanwise wing load, ie Cl vs Span
-         //                  
-         // OPT_RESIDUAL     Residual vector for linear system
-         
-         
-    // Set the optimization set, this may be the wing set, or rotor set
+    /** Set the optimization set, this may be the wing set, or rotor set **/
     
     int &OptimizationSet(int Case) { return OptimizationSet_[Case]; };
         
-    // Get vector length for optimization function # Case... 
+    /** Get function length for optimization function # Case...  **/
     
     int OptimizationFunctionLength(int Case) { return Solver().OptimizationFunctionLength(Case); };
+
+    /** Get total vector length for optimization function # Case... this is generally the function length X Number of time sample points for an unsteady case **/
     
-    // Setup everything for both the forward solver and adjoint
+    int OptimizationNumberOfTimeSteps(int Case) { return Solver().OptimizationNumberOfTimeSteps(Case); };
+    
+    /** Setup everything for both the forward solver and adjoint **/
     
     void Setup(char *FileName);
     
-    // Solve both the forward solve and adjoint problem
+    /** Solve both the forward solve and adjoint problem **/
     
     void Solve(void);
     
-    // Solve both the forward solver and the adjoint with a user supplied gradient vector.. Vec is of length FunctionLength
+    /** Solve both the forward solver and the adjoint with a user supplied gradient vector.. Vec is of length FunctionLength **/
     
     void Solve(double *Vec);    
     
-    // Solve the forward problem
+    /** Solve the forward problem **/
     
     void SolveForward(void);
     
-    // Set any user supplied initial gradient vectors
+    /** Set any user supplied initial gradient vectors **/
     
     void SetGradientVector(int Case, double *Vec);
         
-    // Solve the adjoint problem
+    /** Solve the adjoint problem **/
     
     void SolveAdjoint(void);
     
-    // Do a matrix-vector multiply and get the RHS for the forward problem... please do a forward solve first!
+    /** Do a matrix-vector multiply and get the RHS for the forward problem... please do a forward solve first! **/
     
     void CalculateMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
     
-    // Do a adjoint matrix-vector multiply and get the RHS for the forward problem... please do a forward and adjoint solve first!
+    /** Do a adjoint matrix-vector multiply and get the RHS for the forward problem... please do a forward and adjoint solve first! **/
     
     void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
     
-    // Get the function value for a single case run, this returns a scalar in Vec
+    /** Get the function value for a single case run, this returns a scalar in Vec **/
 
     void GetFunctionValue(double &Vec);    
-    
-    // Get the function value for optimization run # Case, this returns a scalar in Vec
+
+    /** Get the function value for optimization run # Case, this returns a scalar in Vec **/
     
     void GetFunctionValue(int Case, double &Vec);
 
-    // Get the function value for a single case run, this returns a vector in Vec
+    /** Get the function value for a single case run, this returns a vector in Vec **/
 
     void GetFunctionValue(double *Vec);    
     
-    // Get the function value for optimization run # Case, this returns a vector in Vec
+    /** Get the function value for optimization run # Case, this returns a vector in Vec **/
     
     void GetFunctionValue(int Case, double *Vec);
-        
-    // Get gradients for single case run, Gradients is a 3*NumberOfNodes length vector containing gradients wrt xyz
+
+    /** Get the unsteady function value for optimization run # Case, and integration time step TIME...this returns a vector in Vec **/
+    
+    void GetUnsteadyFunctionValue(int Case, int Time, double *Vec);
+    
+    /** Get the unsteady function value for optimization run # 1, and integration time step Time...this returns a vector in Vec **/
+    
+    void GetUnsteadyFunctionValue(int Time, double *Vec);    
+            
+    /** Get gradients for single case run, Gradients is a 3*NumberOfNodes length vector containing gradients wrt xyz **/
         
     void GetFunctionGradients(double *Gradients);
     
-    // Get gradients for optimization run # Case, Gradients is a 3*NumberOfNodes length vector containing gradients wrt xyz
+    /** Get gradients for optimization run # Case, Gradients is a 3*NumberOfNodes length vector containing gradients wrt xyz **/
     
     void GetFunctionGradients(int Case, double *Gradients);
-
-    // Geometry/mesh xyz node values
     
-    double NodeX(int i) { return Solver().VSPGeom().Grid(0).NodeList(i).x(); };
-    double NodeY(int i) { return Solver().VSPGeom().Grid(0).NodeList(i).y(); };
-    double NodeZ(int i) { return Solver().VSPGeom().Grid(0).NodeList(i).z(); };
+    /** Get gradients for optimization run # Case and integration time step Time, Gradients is a 3*NumberOfNodes length vector containing gradients wrt xyz **/
     
-    // Gradients wrt X, Y, or Z for single case run
+    void GetFunctionGradients(int p, int Time, double *Gradients);
 
-    double GradientX(int i) { return Adjoint().dF_dMesh_X(1,i); };
-    double GradientY(int i) { return Adjoint().dF_dMesh_Y(1,i); };
-    double GradientZ(int i) { return Adjoint().dF_dMesh_Z(1,i); };
+    /** X coordinate of node i **/
+    
+    double NodeX(int i) { return Solver().VSPGeom().Grid(0).NodeList(i + ArrayOffSet_).x(); };
+    
+    /** Y coordinate of node i **/
+    
+    double NodeY(int i) { return Solver().VSPGeom().Grid(0).NodeList(i + ArrayOffSet_).y(); };
+    
+    /** Z coordinate of node i **/
+    
+    double NodeZ(int i) { return Solver().VSPGeom().Grid(0).NodeList(i + ArrayOffSet_).z(); };
+    
+    /** Gradient of objective function wrt x for node i **/
 
-    // Gradients wrt X, Y, or Z for optimization run # Case
+    double GradientX(int i) { return Adjoint().dF_dMesh_X(1,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function wrt y for node i **/
+    
+    double GradientY(int i) { return Adjoint().dF_dMesh_Y(1,i + ArrayOffSet_); };
 
-    double GradientX(int Case, int i) { return Adjoint().dF_dMesh_X(Case,i); };
-    double GradientY(int Case, int i) { return Adjoint().dF_dMesh_Y(Case,i); };
-    double GradientZ(int Case, int i) { return Adjoint().dF_dMesh_Z(Case,i); };
+    /** Gradient of objective function wrt z for node i **/
 
-    // Get the pressures at the nodes of the mesh, returns a vector of length NumberOfNodes
+    double GradientZ(int i) { return Adjoint().dF_dMesh_Z(1,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt x for node i **/
+
+    double GradientX(int Case, int i) { return Adjoint().dF_dMesh_X(Case,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function # Case, wrt y for node i **/
+    
+    double GradientY(int Case, int i) { return Adjoint().dF_dMesh_Y(Case,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt z for node i **/
+
+    double GradientZ(int Case, int i) { return Adjoint().dF_dMesh_Z(Case,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt x for node i at averaging time, Time **/
+
+    double GradientX(int Case, int Time, int i) { return Adjoint().dF_dMesh_X(Case,Time,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function # Case, wrt y for node i at averaging time, Time **/
+    
+    double GradientY(int Case, int Time, int i) { return Adjoint().dF_dMesh_Y(Case,Time,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt z for node i at averaging time, Time **/
+
+    double GradientZ(int Case, int Time, int i) { return Adjoint().dF_dMesh_Z(Case,Time,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function wrt input variable **/
+
+    double dF_dInputVariable(int InputVariable) { return Adjoint().dF_dInputVariable(InputVariable); };
+        
+    /** Gradient of objective function # Case, wrt input variable **/
+
+    double dF_dInputVariable(int Case, int InputVariable) { return Adjoint().dF_dInputVariable(Case,InputVariable); };
+    
+    /** Gradient of objective function # Case, wrt input variable at averaging time, Time **/
+
+    double dF_dInputVariable(int Case, int Time, int InputVariable) { return Adjoint().dF_dInputVariable(Case,Time,InputVariable); };
+        
+    /** Get the pressures at the nodes of the mesh, returns a vector of length NumberOfNodes **/
     
     void GetNodalPressures(double *Pressure);
     
-    // Calculate partial F wrt pressure for user supplied function F... both vectors are of length NumberOfNodes
+    /** Calculate partial F wrt pressure for user supplied function F... both vectors are of length NumberOfNodes **/
     
     void GetpFupMesh(double *pFU_pP, double *pFU_pMesh);
     
+    /** Set array assumptions
+     * 
+     * UsageCase PYTHON_ARRAYS  ... API arrays are assumed to run from 0 to N-1
+     * UsageCase DEFAULT_ARRAYS ... API arrays are assumed to run from 1 to N
+     * 
+     **/
+    
+    void SetArrayOffSetType(int ArrayType) { ArrayOffSet_ = ArrayType; };
+    
+    /** Write out a cart3d tri file **/
+    
+    void WriteOutCart3dTriFile(void) { Solver().WriteOutCart3dTriFile(); };
+
 };
 
 #endif

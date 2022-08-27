@@ -1,0 +1,122 @@
+27
+QSNPYXDDDLO:WingGeom:XSec_0:Sweep: 10
+UBVRJTIEPRR:WingGeom:XSec_1:Sweep: 10
+CGZTNEFZTXK:WingGeom:XSec_2:Sweep: 10
+KGURZHQQJXW:WingGeom:XSec_3:Sweep: 10
+YAQSYUMEGHT:WingGeom:XSec_4:Sweep: 10
+YRVTOTKGFYR:WingGeom:XSec_5:Sweep: 10
+XGYAVXCURSO:WingGeom:XSec_6:Sweep: 10
+EYBNIPHKMTY:WingGeom:XSec_7:Sweep: 10
+IWYKCCBHEEE:WingGeom:XSec_8:Sweep: 10
+IYLFEPKRFML:WingGeom:XSec_0:Twist: 0
+TMTOXZDOQZI:WingGeom:XSec_1:Twist: 0
+FCYJHZEHJCT:WingGeom:XSec_2:Twist: 0
+ZAFHQVQPTLW:WingGeom:XSec_3:Twist: 0
+DHJZVPGELUZ:WingGeom:XSec_4:Twist: 0
+EMWZYDEWUXH:WingGeom:XSec_5:Twist: 0
+JSRGUOZNESD:WingGeom:XSec_6:Twist: 0
+EGMUPYIIWOC:WingGeom:XSec_7:Twist: 0
+KLWNOERTIDR:WingGeom:XSec_8:Twist: 0
+BIWKBQFLDOL:WingGeom:XSec_0:Dihedral: 0
+VVGNWNLTXGH:WingGeom:XSec_1:Dihedral: 0
+CXCXFHBMUGR:WingGeom:XSec_2:Dihedral: 0
+DJUJIUMPALR:WingGeom:XSec_3:Dihedral: 0
+AJYNZIANVGW:WingGeom:XSec_4:Dihedral: 0
+HPIAHZLAHRO:WingGeom:XSec_5:Dihedral: 0
+ITLOJZZBWIT:WingGeom:XSec_6:Dihedral: 0
+ZACDPIGIKLQ:WingGeom:XSec_7:Dihedral: 0
+GDHBWFNZCYK:WingGeom:XSec_8:Dihedral: 0
+
+
+WTVFYVVSOHO:WingGeom:XSecCurve_0:Camber: 0.0
+CNZDBPHYSOH:WingGeom:XSecCurve_1:Camber: 0.0
+PFYTBNXTKJG:WingGeom:XSecCurve_2:Camber: 0.0
+XHGCIUYZQNT:WingGeom:XSecCurve_3:Camber: 0.0
+UULDGQSBZZV:WingGeom:XSecCurve_4:Camber: 0.0
+LKTEZHVRAZV:WingGeom:XSecCurve_5:Camber: 0.0
+NZAHRBSNQWH:WingGeom:XSecCurve_6:Camber: 0.0
+HDMAAXXVBAI:WingGeom:XSecCurve_7:Camber: 0.0
+KJWFGUEHSFX:WingGeom:XSecCurve_8:Camber: 0.0
+
+
+
+
+
+
+PQWDYSHWADC:WingGeom:XSecCurve_0:CamberLoc: 0.2
+WSLFQMGNKEX:WingGeom:XSecCurve_1:CamberLoc: 0.2
+ADPDXPWTFTV:WingGeom:XSecCurve_2:CamberLoc: 0.2
+EVMHMXFRQRD:WingGeom:XSecCurve_3:CamberLoc: 0.2
+OLPNSTIGQTL:WingGeom:XSecCurve_4:CamberLoc: 0.2
+YHGALQFGLRE:WingGeom:XSecCurve_5:CamberLoc: 0.2
+QALHMYHRXIQ:WingGeom:XSecCurve_6:CamberLoc: 0.2
+WVURDHIGNSL:WingGeom:XSecCurve_7:CamberLoc: 0.2
+XJQRCEVKEZE:WingGeom:XSecCurve_8:CamberLoc: 0.2
+
+
+
+
+
+
+
+
+
+GHHGQQKARMQ:TailGeom:XSec_0:Sweep: 10
+DYVQFMYUPCX:TailGeom:XSec_1:Sweep: 10
+VCTUMSSWWGF:TailGeom:XSec_2:Sweep: 10
+PLPBOZQMUXU:TailGeom:XSec_3:Sweep: 10
+MVIBQODBAQD:TailGeom:XSec_4:Sweep: 10
+DKUOGNRZEBY:TailGeom:XSec_5:Sweep: 10
+XULOTWBRITK:TailGeom:XSec_6:Sweep: 10
+HZUJNVNNUXQ:TailGeom:XSec_7:Sweep: 10
+LNOQRPSYULD:TailGeom:XSec_8:Sweep: 10
+FHHVRHMDZTN:TailGeom:XSec_0:Twist: 0
+SUDESXVWUZT:TailGeom:XSec_1:Twist: 0
+GOJYIIWPPWM:TailGeom:XSec_2:Twist: 0
+CPDBHSYHMLE:TailGeom:XSec_3:Twist: 0
+CZBSDDVVGQP:TailGeom:XSec_4:Twist: 0
+EAKRTMYWKKL:TailGeom:XSec_5:Twist: 0
+NQRKRKSMWKA:TailGeom:XSec_6:Twist: 0
+NTXJGKDGCAT:TailGeom:XSec_7:Twist: 0
+NIWCCWYNAVH:TailGeom:XSec_8:Twist: 0
+KXXSQDORUVZ:TailGeom:XSec_0:Dihedral: 0
+WLEEJCBLATF:TailGeom:XSec_1:Dihedral: 0
+NGFJDCWXCEL:TailGeom:XSec_2:Dihedral: 0
+MZAUXEHLTLD:TailGeom:XSec_3:Dihedral: 0
+ECWPPKLPWOP:TailGeom:XSec_4:Dihedral: 0
+UDYWMRGAXLC:TailGeom:XSec_5:Dihedral: 0
+EKXGPDIRBYK:TailGeom:XSec_6:Dihedral: 0
+XXDRWNKEVYZ:TailGeom:XSec_7:Dihedral: 0
+PXPLBCKRHXZ:TailGeom:XSec_8:Dihedral: 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ILZGBVOVBGG:WingGeom:XSec_0:Root_Chord: 5
+GLFBKWJUNYD:WingGeom:XSec_1:Root_Chord: 5
+QKDOVYVFLGI:WingGeom:XSec_2:Root_Chord: 5
+FEKINZVTXZX:WingGeom:XSec_3:Root_Chord: 5
+VPGLEVCIZQR:WingGeom:XSec_4:Root_Chord: 5
+MILNXTRSMUY:WingGeom:XSec_5:Root_Chord: 5
+ORAVGRBWXYW:WingGeom:XSec_6:Root_Chord: 5
+KMSZQIIZNSN:WingGeom:XSec_7:Root_Chord: 5
+DUFQLFXAKRJ:WingGeom:XSec_8:Root_Chord: 5
+

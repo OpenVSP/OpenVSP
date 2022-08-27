@@ -90,6 +90,10 @@ ADBSLICER::ADBSLICER(void)
     OptFact_ = 1.;
     
     sprintf(ElementLabel_,"NONE");
+
+    AddLabel_ = 0;
+
+    Label_[0]= '\0';
   
 }
 
@@ -4119,7 +4123,9 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
     int ElementID, Node1, Node2, Node3, Node4, Node5, Node6;
     float x, y, z;
     char file_name_w_ext[10000], DumChar[10000], SetName[10000];
-    char MaterialName1[10000], MaterialName2[10000], MaterialName3[10000], NSkinLabel[10000];
+    char MaterialName[10000], NSkinLabel[10000];
+    char OrientationName[10000], Remainder[10000], DumChar2[10000];
+    char *substr;
     FILE *InpFile, *LoadFile;
  
     // Open calculix file
@@ -4353,57 +4359,96 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
               
               printf("DumChar: %s \n",DumChar);
 
-              sprintf(MaterialName1,"");
-              sprintf(MaterialName2,"");
-              sprintf(MaterialName3,"");
-              
-              sscanf(DumChar,"*SHELL SECTION, ELSET=%s%s%s%s",SetName,MaterialName1,MaterialName2,MaterialName3);
+              // strtok modifies base string contents, work from copy to leave DumChar un-changed.
+              strcpy( DumChar2, DumChar );
 
-              if ( strlen(MaterialName2) <= 2 ) sprintf(MaterialName2,"");
-              if ( strlen(MaterialName3) <= 2 ) sprintf(MaterialName3,"");
-              
-              printf("MaterialName1: %s \n",MaterialName1);
-              printf("MaterialName2: %s \n",MaterialName2);
-              printf("MaterialName3: %s \n",MaterialName3);
-     
-              SetName[strlen(SetName)-1]=0;
+              // Position substr at first occurance of ELSET in DumChar
+              substr = strstr( DumChar2, "ELSET" );
+
+              // Separate element
+              substr = strtok( substr, "=" );
+              substr = strtok( NULL, "," );
+              strcpy( SetName, substr );
+
+              substr = strtok( NULL, "=" );
+              substr = strtok( NULL, "," );
+              strcpy( MaterialName, substr );
+
+              substr = strtok( NULL, "=" );
+              substr = strtok( NULL, "\n\0" );
+              strcpy( OrientationName, substr );
 
               if ( !AddLabel_ ) {
 				  
                  fprintf(LoadFile,"%s",DumChar);
                  
-			     }
+              }
 			     
-			     else {
-			 	                  
-                 fprintf(LoadFile,"*SHELL SECTION, ELSET=%s_%s, %s_%s_%s_%s\n",SetName,Label_,MaterialName1,MaterialName2,MaterialName3,Label_);
-                    
+              else {
+
+                 fprintf( LoadFile, "*SHELL SECTION, ELSET=%s_%s, MATERIAL=%s_%s, ORIENTATION=%s_%s\n", SetName, Label_, MaterialName, Label_, OrientationName, Label_);
+
               }
               
+           }
+
+           else if ( strstr(DumChar,"*ORIENTATION") != NULL ) {
+
+              printf("Orientation definition! \n");
+
+              // strtok modifies base string contents, work from copy to leave DumChar un-changed.
+              strcpy( DumChar2, DumChar );
+
+              // Position substr at first occurance of NAME in DumChar
+              substr = strstr( DumChar2, "NAME" );
+
+              // Separate element
+              substr = strtok( substr, "=" );
+              substr = strtok( NULL, "," );
+              strcpy( OrientationName, substr );
+
+              substr = strtok( NULL, "\n\0" );
+              strcpy( Remainder, substr );
+
+              if ( !AddLabel_ ) {
+
+                 fprintf(LoadFile,"%s",DumChar);
+
+              }
+
+              else {
+
+                 fprintf( LoadFile, "*ORIENTATION, NAME=%s_%s,%s\n", OrientationName, Label_, Remainder);
+
+              }
+
            }
 
            else if ( strstr(DumChar,"*MATERIAL") != NULL ) {
               
               printf("Material definition! \n");
 
-              sscanf(DumChar,"*MATERIAL, NAME=%s%s%s",MaterialName1,MaterialName2,MaterialName3);
+              // strtok modifies base string contents, work from copy to leave DumChar un-changed.
+              strcpy( DumChar2, DumChar );
 
-              if ( strlen(MaterialName2) <= 2 ) sprintf(MaterialName2,"");
-              if ( strlen(MaterialName3) <= 2 ) sprintf(MaterialName3,"");
-     
-              SetName[strlen(SetName)-1]=0;
+              // Position substr at first occurance of NAME in DumChar
+              substr = strstr( DumChar2, "NAME" );
+
+              substr = strtok( substr, "=" );
+              substr = strtok( NULL, "\n\0" );
+              strcpy( MaterialName, substr );
 
               if ( !AddLabel_ ) {
 				  
                  fprintf(LoadFile,"%s",DumChar);
                  
-			     }
+              }
 			     
-			     else {
-			     
-                    fprintf(LoadFile,"*MATERIAL, NAME=%s_%s_%s_%s\n",MaterialName1,MaterialName2,MaterialName3,Label_);
+              else {
+
+                 fprintf( LoadFile, "*MATERIAL, NAME=%s_%s\n", MaterialName, Label_);
                     
-			     }			 
+              }
               
            }
                               

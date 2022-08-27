@@ -60,7 +60,6 @@ private:
     
     int VortexEdge_;
     
-    int EdgeType_;
     int IsTrailingEdge_;
     int IsLeadingEdge_;
     int IsBoundaryEdge_;
@@ -73,24 +72,15 @@ private:
     VSP_EDGE *Child2_;
     
     VSPAERO_DOUBLE ReferenceLength_;
-    
-    int EdgeWasUsedForLoop_;
-    
-    int WakeNode_;
-    
+       
     VSPAERO_DOUBLE Sigma_;
     VSPAERO_DOUBLE S_;
     VSPAERO_DOUBLE T_;
     VSPAERO_DOUBLE Length_;
 
     VSPAERO_DOUBLE Forces_[3];
-    VSPAERO_DOUBLE ForcesNM1_[3];
     VSPAERO_DOUBLE Unsteady_Forces_[3];
-    
-    VSPAERO_DOUBLE LocalForces_[3];
-    VSPAERO_DOUBLE LocalForcesNM1_[3];    
-    VSPAERO_DOUBLE Unsteady_LocalForces[3];
-    
+
     VSPAERO_DOUBLE Trefftz_Forces_[3];
     
     VSPAERO_DOUBLE InducedForces_[3];
@@ -144,16 +134,12 @@ private:
     static double Tolerance_1_;
     static double Tolerance_2_;
     static double Tolerance_4_;
-    
-    // Local grid spacing estimate
 
-    VSPAERO_DOUBLE LocalSpacing_;
-    
     // Mach number and Beta
     
-    static double Mach_;
+    VSPAERO_DOUBLE Mach_;
     
-    static double Kappa_;
+    VSPAERO_DOUBLE Kappa_;
 
     VSPAERO_DOUBLE Beta2_;
 
@@ -192,13 +178,7 @@ private:
                                    VSPAERO_DOUBLE &X1, VSPAERO_DOUBLE &Y1, VSPAERO_DOUBLE &Z1,
                                    VSPAERO_DOUBLE &Xd, VSPAERO_DOUBLE &Yd, VSPAERO_DOUBLE &Zd,
                                    VSPAERO_DOUBLE &t1, VSPAERO_DOUBLE &t2);    
-                                                    
-    // Airfoil data
 
-    VSPAERO_DOUBLE ThicknessToChord_;
-    VSPAERO_DOUBLE LocationOfMaxThickness_;
-    VSPAERO_DOUBLE RadiusToChord_;            
-    
     // Velocities
 
     VSPAERO_DOUBLE Velocity_[3];
@@ -213,221 +193,353 @@ public:
     VSP_EDGE(const VSP_EDGE &VSPEdge);
     VSP_EDGE& operator=(const VSP_EDGE &VSPEdge);
 
-    // Accesss to node data
+    /** Grid node 1 of the edge **/
 
     int &Node1(void) { return Node1_; };
+    
+    /** Grid node 2 of the edge **/
+    
     int &Node2(void) { return Node2_; };
 
-    // Access to tri data
+    /** Tri 1 attached to this edge **/
     
     int &Tri1(void) { return Loop1_; };
+    
+    /** Tri 2 attached to this edge **/
+    
     int &Tri2(void) { return Loop2_; };
     
+    /** Left tri attached to this edge **/    
+    
     int &TriL(void) { return LoopL_; };
+    
+    /** Right tri attached to this edge **/    
+    
     int &TriR(void) { return LoopR_; };
  
-    // Access to loop data
+    /** Loop 1 attached to this edge, note this could also be tri 1 on the finest mesh... **/
     
     int &Loop1(void) { return Loop1_; };
+    
+    /** Loop 2 attached to this edge, note this could also be tri 1 on the finest mesh... **/
+    
     int &Loop2(void) { return Loop2_; };
  
+    /** Left loop attached to this edge, note this could also be the left tri on the finest mesh... **/
+ 
     int &LoopL(void) { return LoopL_; };
+    
+    /** Right loop attached to this edge, note this could also be the right tri on the finest mesh... **/
+    
     int &LoopR(void) { return LoopR_; };
     
-    // Access to global vortex edge, and vortex loop data
+    /** Global vortex edge number... ie, edge number over all edges in the agglomerated edge structures **/
     
     int &VortexEdge(void) { return VortexEdge_; };
     
+    /** Vortex Loop 1 attached to this edge **/
+    
     int &VortexLoop1(void) { return VortexLoop1_; };
+    
+    /** Vortex Loop 2 attached to this edge **/
+    
     int &VortexLoop2(void) { return VortexLoop2_; };
 
-    // Edge Sigma, S, and length
-    
-    int &WakeNode(void) { return WakeNode_; };
-    
+    /** Finite ore size **/
+     
     VSPAERO_DOUBLE &Sigma(void) { return Sigma_; };
+    
+    /** Edge Length **/
+    
     VSPAERO_DOUBLE &S(void) { return S_; };
+    
+    /** Edge age, used in trailing wake, finite core size, model **/
+    
     VSPAERO_DOUBLE &T(void) { return T_; };    
+    
+    /** Edge length **/
+    
     VSPAERO_DOUBLE &Length(void) { return Length_; };
     
-    int &EdgeType(void) { return EdgeType_; };
+    /** Edge is on trailing edge of lifting surface **/
+    
     int &IsTrailingEdge(void) { return IsTrailingEdge_; };
+    
+    /** Edge on leading edge of lifting surface **/
+    
     int &IsLeadingEdge(void) { return IsLeadingEdge_; };
+    
+    /** Edge is on boundary edge (intersection) of two surface **/
+    
     int &IsBoundaryEdge(void) { return IsBoundaryEdge_; };
     
+    /** Coarse grid edge that this edge was agglomerated into **/
+    
     int &CoarseGridEdge(void) { return CoarseGridEdge_; };
+    
+    /** Fine grid edge that this edge was created from... note that this is not unique... we only store one **/
+  
     int &FineGridEdge(void) { return FineGridEdge_; };
+    
+    /** Agglomerated grid level this edge sits on **/
+    
     int &Level(void) { return Level_; };
-    int &EdgeWasUsedForLoop(void) { return EdgeWasUsedForLoop_; };
+    
+    /** Pointer to children of this edge... this is used in the trailing wake routines ... for
+     * the local agglomeration of trailing wakes **/
 
     void SetupChildren(VSP_EDGE &Child1, VSP_EDGE &Child2) { Child1_ = &Child1 ; Child2_ = &Child2; };
 
+    /** Flag to determine if this edge has children... this is used in the trailing wake routines ... for
+     * the local agglomeration of trailing wakes **/
+     
     int ThereAreChildren(void) { if ( Child1_ != NULL ) { return 1; } else { return 0; }; };
     
+    /** Child 1 for this edge... may be 0 **/
+    
     VSP_EDGE &Child1(void) { return *Child1_; };
+    
+    /** Child 2 for this edge... may be 0 **/
+    
     VSP_EDGE &Child2(void) { return *Child2_; };
+    
+    /** Reference length for this edge... this may differ from the actual length for trailing
+     * wakes where we have agglomerated edges and hence lost any curvature information. This
+     * is an attempt to keep track of the actual length of the segment we have formed through
+     * agglomeration
+     **/
     
     VSPAERO_DOUBLE &ReferenceLength(void) { return ReferenceLength_; };
 
-    // Accesss to Vortex edge data
+    /** Edge is on degen wing **/
 
     int &DegenWing(void) { return DegenWing_; };
+    
+    /** Edge is on degen body **/
+    
     int &DegenBody(void) { return DegenBody_; };
+    
+    /** Edge is on Surface **/
+    
     int &SurfaceID(void) { return SurfaceID_; };
+    
+    /** Edge is on Component **/
+    
     int &ComponentID(void) { return ComponentID_; };
+    
+    /** Tied to OpenVSP unique GeomID flag **/
+    
     int &GeomID(void) { return GeomID_; };
     
-    // Solver routines
+    /** Set up the edge data structure given these 2 mesh nodes **/
 
     void Setup(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };
                                
+    /** Update the edge data given these two mesh nodes .. we assume the initial set was performed
+     * and we are just updating the location of edge node xyz locations and data that depends
+     * on them... **/
+                                  
     void Update(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };
+    
+    /** Calculate the induced velocity from this edge **/
 
     void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
     
+    /** Calculate the induced velocity from this edge, assuming a finite core model **/
+    
     void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CoreWidth);
+    
+    /** Calculate forces acting on this edge **/
     
     void CalculateForces(void);
    
+    /** Calculate the induced drag (forces) acting on this edge ***/
+    
     void CalculateTrefftzForces(VSPAERO_DOUBLE WakeInducedVelocity[3]);
+    
+    /** Calculate the generalized principal part of the downwash integral for this edge **/
 
     VSPAERO_DOUBLE GeneralizedPrincipalPartOfDownWash(void);
+
+    /** Determine if this edge is swept in front, or behind the Mach cone... hence (super,sub) sonic **/
+    
     int IsSupersonic(void);
+    
+    /** Minimum core size for this edge **/
     
     VSPAERO_DOUBLE &MinCoreWidth(void) { return MinCoreWidth_; };
     
-    // Access to tolerances
+    /** Set zero tolerances for this edge **/
     
     void SetTolerance(VSPAERO_DOUBLE Tolerance);
 
-    // Access to Mach number
+    /** Mach number for this edge... it's actually static across ALL edges **/
     
-    void SetMach(VSPAERO_DOUBLE Mach);
+    void SetMachNumber(VSPAERO_DOUBLE Mach);
 
-    double Mach(void) { return Mach_; };
+    /** Edge Mach number **/
+    
+    VSPAERO_DOUBLE Mach(void) { return Mach_; };
 
+    /** Karman-Tsien factor for this edge **/
+    
     VSPAERO_DOUBLE &KTFact(void) { return KTFact_; };
 
-    // Down wind vortex loops
+    /** Vortex loop 1 is down wind of this edge, or not ... **/
     
     int &VortexLoop1IsDownWind(void) { return VortexLoop1IsDownWind_; };
+    
+    /** Vortex loop 2 is down wind of this edge, or not ... **/
+    
     int &VortexLoop2IsDownWind(void) { return VortexLoop2IsDownWind_; };
     
+    /** Edge edge contributes, a possibly zero, contribution to loops that are down wind
+     * of said edge. This is the fraction that this edge provides to Loop 1... assuming
+     * Loop 1 is down wind... 
+     **/
+    
     VSPAERO_DOUBLE &VortexLoop1DownWindWeight(void) { return VortexLoop1DownWindWeight_; };
+    
+    /** Edge edge contributes, a possibly zero, contribution to loops that are down wind
+     * of said edge. This is the fraction that this edge provides to Loop 2... assuming
+     * Loop 2 is down wind... 
+     **/
+         
     VSPAERO_DOUBLE &VortexLoop2DownWindWeight(void) { return VortexLoop2DownWindWeight_; };
     
-    // Access to the circulation strength
+    /** Circulation strength for this edge **/
     
     VSPAERO_DOUBLE &Gamma(void) { return Gamma_; };
     
-    // Access to the edge matrix coefficients
+    /** Edge coefficient data.. this is used for the sparse edge ssor preconditioning 
+     * routine that is used by GMRES in the solution of the linear system of equations
+     * formed in the solution of the flow equations **/
 
     VSPAERO_DOUBLE &EdgeCoef(int i) { return EdgeCoef_[i]; };
     
-    // Access to the total steady and unstready forces
+    /** Force in the x direction acting on this edge **/
     
     VSPAERO_DOUBLE &Fx(void) { return Forces_[0]; };
-    VSPAERO_DOUBLE &Fy(void) { return Forces_[1]; };
-    VSPAERO_DOUBLE &Fz(void) { return Forces_[2]; };
-
-    VSPAERO_DOUBLE &FxNM1(void) { return ForcesNM1_[0]; };
-    VSPAERO_DOUBLE &FyNM1(void) { return ForcesNM1_[1]; };
-    VSPAERO_DOUBLE &FzNM1(void) { return ForcesNM1_[2]; };
-        
-    VSPAERO_DOUBLE &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
-    VSPAERO_DOUBLE &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
-    VSPAERO_DOUBLE &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };   
-
-    // Access to the local steady and unsteady forces
     
-    VSPAERO_DOUBLE &Local_Fx(void) { return LocalForces_[0]; };
-    VSPAERO_DOUBLE &Local_Fy(void) { return LocalForces_[1]; };
-    VSPAERO_DOUBLE &Local_Fz(void) { return LocalForces_[2]; };
+    /** Force in the y direction acting on this edge **/
+    
+    VSPAERO_DOUBLE &Fy(void) { return Forces_[1]; };
 
-    VSPAERO_DOUBLE &Local_FxNM1(void) { return LocalForcesNM1_[0]; };
-    VSPAERO_DOUBLE &Local_FyNM1(void) { return LocalForcesNM1_[1]; };
-    VSPAERO_DOUBLE &Local_FzNM1(void) { return LocalForcesNM1_[2]; };
-        
-    VSPAERO_DOUBLE &Unsteady_Local_Fx(void) { return Unsteady_LocalForces[0]; };
-    VSPAERO_DOUBLE &Unsteady_Local_Fy(void) { return Unsteady_LocalForces[1]; };
-    VSPAERO_DOUBLE &Unsteady_Local_Fz(void) { return Unsteady_LocalForces[2]; };    
-      
-    // Access to the Trefftz plane (kinda) forces
+    /** Force in the z direction acting on this edge **/
+
+    VSPAERO_DOUBLE &Fz(void) { return Forces_[2]; };
+    
+    /** Unsteady force in the x direction acting on this edge **/
+           
+    VSPAERO_DOUBLE &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
+    
+    /** Unsteady force in the y direction acting on this edge **/
+    
+    VSPAERO_DOUBLE &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
+
+    /** Unsteady force in the z direction acting on this edge **/
+
+    VSPAERO_DOUBLE &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };   
+    
+    /** Induced (drag) force in the x direction acting on this edge **/
     
     VSPAERO_DOUBLE &Trefftz_Fx(void) { return Trefftz_Forces_[0]; };
+
+    /** Induced (drag) force in the y direction acting on this edge **/
+    
     VSPAERO_DOUBLE &Trefftz_Fy(void) { return Trefftz_Forces_[1]; };
+
+    /** Induced (drag) force in the z direction acting on this edge **/
+
     VSPAERO_DOUBLE &Trefftz_Fz(void) { return Trefftz_Forces_[2]; };
-          
-    // Access to local spacing
-    
-    VSPAERO_DOUBLE &LocalSpacing(void) { return LocalSpacing_; };
-    
-    // Access to the ends of the edge
+
+    /** X coordinate for edge node 1 **/
     
     VSPAERO_DOUBLE X1(void) { return X1_; };
+    
+    /** Y coordinate for edge node 1 **/
+    
     VSPAERO_DOUBLE Y1(void) { return Y1_; };
+    
+    /** Z coordinate for edge node 1 **/
+    
     VSPAERO_DOUBLE Z1(void) { return Z1_; };
+
+    /** X coordinate for edge node 2 **/
     
     VSPAERO_DOUBLE X2(void) { return X2_; };
-    VSPAERO_DOUBLE Y2(void) { return Y2_; };
-    VSPAERO_DOUBLE Z2(void) { return Z2_; };
-    
-    // References to the xyz values at the edge ends... don't use these!
-    // This is only here for the ADJOINT solve
-    
-#ifdef AUTODIFF
 
-    VSPAERO_DOUBLE &X1ref(void) { return X1_; };
-    VSPAERO_DOUBLE &Y1ref(void) { return Y1_; };
-    VSPAERO_DOUBLE &Z1ref(void) { return Z1_; };
-    
-    VSPAERO_DOUBLE &X2ref(void) { return X2_; };
-    VSPAERO_DOUBLE &Y2ref(void) { return Y2_; };
-    VSPAERO_DOUBLE &Z2ref(void) { return Z2_; };
-    
-#endif    
-    
-    // Access to the center of the edge
+    /** Y coordinate for edge node 2 **/
+
+    VSPAERO_DOUBLE Y2(void) { return Y2_; };
+
+    /** Z coordinate for edge node 2 **/
+
+    VSPAERO_DOUBLE Z2(void) { return Z2_; };
+
+    /** X coordinate of edge centroid **/
     
     VSPAERO_DOUBLE Xc(void) { return XYZc_[0]; };
+    
+    /** Y coordinate of edge centroid **/
+    
     VSPAERO_DOUBLE Yc(void) { return XYZc_[1]; };
+
+    /** Z coordinate of edge centroid **/
+
     VSPAERO_DOUBLE Zc(void) { return XYZc_[2]; };
+    
+    /** XYZ vector of edge centroid coordinates **/
     
     VSPAERO_DOUBLE *xyz_c(void) { return XYZc_; };
     
+    /** NODE object of edge centroid coordinates **/
+    
     VSP_NODE &VortexCentroid(void) { return VortexCentroid_; };
 
-    // Vortex unit vector
+    /** Unit vector for edge, pointing from node 1 to 2 **/
     
     VSPAERO_DOUBLE *Vec(void) { return Vec_; };    
     
-    // Normal
+    /** Edge normal, this is an average of the left and right loop normals **/
     
     VSPAERO_DOUBLE *Normal(void) { return Normal_; };
-    
-    // Airfoil data
-    
-    VSPAERO_DOUBLE &ThicknessToChord(void) { return ThicknessToChord_; };
-    VSPAERO_DOUBLE &LocationOfMaxThickness(void ) { return LocationOfMaxThickness_; };
-    VSPAERO_DOUBLE &RadiusToChord(void) { return RadiusToChord_; };        
 
-    // Local total velocity, includes downwash
+    /** X component of velocity for this edge **/
     
     VSPAERO_DOUBLE &U(void) { return Velocity_[0]; };
+    
+    /** Y component of velocity for this edge **/
+    
     VSPAERO_DOUBLE &V(void) { return Velocity_[1]; };
+
+    /** Z component of velocity for this edge **/
+
     VSPAERO_DOUBLE &W(void) { return Velocity_[2]; };
+    
+    /** Velocity vector of velocity components for this edge **/
     
     VSPAERO_DOUBLE *Velocity(void) { return Velocity_; };
     
-    // Just the down wash velocity
+    /** Down wash, ie velocity due to the wakes, in X direction for this edge **/
     
     VSPAERO_DOUBLE &DownWash_U(void) { return DownWash_Velocity_[0]; };
+    
+    /** Down wash, ie velocity due to the wakes, in Y direction for this edge **/
+    
     VSPAERO_DOUBLE &DownWash_V(void) { return DownWash_Velocity_[1]; };
+
+    /** Down wash, ie velocity due to the wakes, in Z direction for this edge **/
+
     VSPAERO_DOUBLE &DownWash_W(void) { return DownWash_Velocity_[2]; };
 
-    // Update geometry
+    /** Update the geometry information for this edge by rotating and translating ... input
+     * is a translation vector, TVec, a rotation origin, and a quaternion and it's inverse **/
     
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+    
+    /** Update geometry location given updates to the 2 defining nodes for this edge **/
+    
     void UpdateGeometryLocation(VSP_NODE &Node1, VSP_NODE &Node2);
 
 };

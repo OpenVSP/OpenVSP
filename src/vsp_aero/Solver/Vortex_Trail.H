@@ -81,8 +81,6 @@ private:
     
     VSPAERO_DOUBLE FreeStreamVelocity_[3];
     
-    VSPAERO_DOUBLE LocalVelocityAtTrailingEdge_[3];
-
     // Far away ratio
     
     static double FarAway_;
@@ -98,10 +96,6 @@ private:
     // Minimum Tolerance
     
     VSPAERO_DOUBLE Tolerance_;
-    
-    // Trailing edge vector
-    
-    VSPAERO_DOUBLE TEVec_[3];
 
     // Location along span 
     
@@ -173,7 +167,12 @@ private:
     
     void CreateSearchTree_(void);
     
-    
+    // Calculate the velocity due to a sub vortex on the trailing vortex 
+
+    void CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+     
+    VSPAERO_DOUBLE GammaScale(int i);
+     
 public:
 
     // Constructor, Destructor, Copy
@@ -187,162 +186,255 @@ public:
     VORTEX_TRAIL& operator=(const VORTEX_TRAIL &Trailing_Vortex);
     VORTEX_TRAIL& operator+=(const VORTEX_TRAIL &Trailing_Vortex);
     
-    // Time accurate flag
+    /** Analysis is time accurate **/
     
     int &TimeAccurate(void) { return TimeAccurate_; };
+    
+    /** Time analysis type **/
+    
     int &TimeAnalysisType(void ) { return TimeAnalysisType_; };
     
-    // Accesss to Vortex edge data
+    /** Wing that this trailing vortex is shed from **/
 
     int &Wing(void) { return Wing_; };
+    
+    /** Edge attached to this trailing vortex **/
+    
     int &Edge(void) { return Edge_; };
+    
+    /** Node on trailing edge of wing from which this trailing vortex is shed **/
+    
     int &Node(void) { return Node_; };
+    
+    /** Component ID for the wing this trailing vortex is shed from **/
+    
     int &ComponentID(void) { return ComponentID_; };
  
+    /** Set up the trailing vortex... we need the xyz location of the TE (Node1), a node at infinity (NODE2)...
+     * FarDist is the distance the adapted portion of the wake extends to... so the wake will have NumSubVortices
+     * segments from the trailing edge out to a distance of FarDist, then a single sub vortex out to NODE2 which
+     * is taken to be 'infinfity'.
+     * The number of subvortices must be a power of 2... ie... 32, 64, 128... 
+     **/
+     
     void Setup(int NumSubVortices, VSPAERO_DOUBLE FarDist, VSP_NODE &Node1, VSP_NODE &Node2);
-                       
+    
+    /** Update the trailing wake geometry, does the same as setup() but does not allocate any of the data structures
+     * ... this is currently used for the adjoint taping process after the mesh, or other relevant parameter has
+     * changed that would impact the wake geometry
+     **/
+    
+    void Update(VSPAERO_DOUBLE FarDist, VSP_NODE &Node1, VSP_NODE &Node2);
+    
+    /** Calculate the induced velocity at location xyz **/
+          
     void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
 
+    /** Calculate the induced velocity at location xyz assuming a finite core size CorSize **/
+    
     void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CorSize);
 
-    void CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
-
-    // Distance/2 between wakes at trailing edge
+    /** Set the distance/2 between wakes at trailing edge... this is used in various cut off 
+     * routines to limit the 1/r behavior **/
     
     VSPAERO_DOUBLE &Sigma(void) { return Sigma_; };
 
-    // Core size at trailing edge
+    /** Set the core size at trailing edge for the finite core model **/
     
     VSPAERO_DOUBLE &CoreSize(void) { return CoreSize_; };
-        
-    // Trailing edge vector
-    
-    VSPAERO_DOUBLE &TEVec(int i) { return TEVec_[i]; };
-    VSPAERO_DOUBLE *TEVec(void) { return TEVec_; };
-    
-    // Trailing edge location along span
+
+    /** Trailing edge location along span.. this is y/b... so ranges from 0 to 1 **/
     
     VSPAERO_DOUBLE &SoverB(void) { return SoverB_; };
-    
-    // Evaluation flag... for agglomeration multipole routine
-    
-    int &Evaluate(void) { return Evaluate_; };
-    
-    // Circulation strength
+
+    /** Trailing edge Circulation strength **/
 
     VSPAERO_DOUBLE &Gamma(void) { return Gamma_[0]; };
     
+    /** Circulation strength along trailing vortex... for unsteady cases **/
+    
     VSPAERO_DOUBLE &Gamma(int i) {  return Gamma_[i]; };
     
-    // Update gamma values for sub vortices
+    /** Update the vorticity (gamma) values for sub vortices **/
     
     void UpdateGamma(void);    
      
-    // Trailing edge node
+    /** Trailing edge node **/
     
     VSP_NODE &TE_Node(void) { return TE_Node_; };
-     
-    // Vortex length
     
-    VSPAERO_DOUBLE Length(void) { return Length_; };
+    /** Evaluation flag... for agglomeration multipole routine **/
     
-    // Number of sub vortices
+    int &Evaluate(void) { return Evaluate_; };
+
+    /** Number of agglomeration levels for this trailing vortex **/
 
     int NumberOfLevels(void) { return NumberOfLevels_; };
     
+    /** Total number of subvortices across all the agglomeration levels **/
+    
     int TotalNumberOfSubVortices(void) { return TotalNumberOfSubVortices_; };
 
+    /** Number of subvortices for level i **/
+    
     int NumberOfSubVortices(int i) { return NumberOfSubVortices_[i]; };
+    
+    /** Number of subvortices on the top level **/
     
     int NumberOfSubVortices(void) { return NumberOfSubVortices_[1]; };
     
-    // Access to each vortex edge on the finest level
+    /** Access to each vortex edge on the finest level **/
     
     VSP_EDGE &VortexEdge(int i) { return VortexEdgeList_[1][i]; };
     
+    /** Access to each vortex edge on each level **/
+        
     VSP_EDGE &VortexEdge(int Level, int i) { return VortexEdgeList_[Level][i]; };
     
-    // Centroid of each sub vortex
+    /** Centroid of each sub vortex **/
     
     VSPAERO_DOUBLE *xyz_c(int i) { return VortexEdgeList_[1][i].xyz_c(); };
     
-    // Wake points list
+    /** Wake points location, distance, from trailing edge **/
     
     VSPAERO_DOUBLE S(int i) { return S_[0][i]; };
 
-    VSPAERO_DOUBLE GammaScale(int i);
-    
-    // Velocity for each sub vortex
+    /** X component of velocity for vortex edge i at the top level **/
     
     VSPAERO_DOUBLE &U(int i) { return VortexEdgeVelocity_[1][i][0]; };
+    
+    /** Y component of velocity for vortex edge i at the top level **/
+    
     VSPAERO_DOUBLE &V(int i) { return VortexEdgeVelocity_[1][i][1]; };
+
+    /** Z component of velocity for vortex edge i at the top level **/
+
     VSPAERO_DOUBLE &W(int i) { return VortexEdgeVelocity_[1][i][2]; };
 
+    /** X component of velocity for vortex edge i at the chosen level **/
+
     VSPAERO_DOUBLE &U(int Level, int i) { return VortexEdgeVelocity_[Level][i][0]; };
+    
+    /** Y component of velocity for vortex edge i at the chosen level **/
+    
     VSPAERO_DOUBLE &V(int Level, int i) { return VortexEdgeVelocity_[Level][i][1]; };
+
+    /** Z component of velocity for vortex edge i at the chosen level **/
+
     VSPAERO_DOUBLE &W(int Level, int i) { return VortexEdgeVelocity_[Level][i][2]; };
     
-    // Free stream velocity
+    /** Free stream velocity component in x,y, or z ... 0, 1, or 2 **/
     
     VSPAERO_DOUBLE &FreeStreamVelocity(int i) { return FreeStreamVelocity_[i];};
-    
-    VSPAERO_DOUBLE &LocalVelocityAtTrailingEdge(int i) { return LocalVelocityAtTrailingEdge_[i]; };
+ 
+    /** Vector for velocity at sub vortex i at the top level **/
     
     VSPAERO_DOUBLE *VortexEdgeVelocity(int i) { return VortexEdgeVelocity_[1][i]; };
     
+    /** Zero out edge velocities along the trailing vortex at all levels **/
+    
     void ZeroEdgeVelocities(void);
+    
+    /** Prolongate the edge velocites from coarse up to the finest grid **/
     
     void ProlongateEdgeVelocities(void);
     
-    // Update the wake location
+    /**  Update the wake location **/
     
-    VSPAERO_DOUBLE UpdateWakeLocation(void);     
+    VSPAERO_DOUBLE UpdateWakeLocation(void);    
+    
+    /** Convec the wake vorticity in time down stream ... **/ 
     
     void ConvectWakeVorticity(int ConvectType);
     
-    // Ground effects analysis flag
+    /** Ground effects analysis flag **/
     
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
 
-    // Bladed analysis flags
+    /** Bladed analysis flag **/
     
     int &RotorAnalysis(void) { return RotorAnalysis_; }; 
     
+    /** Blade analysis RPM **/
+    
     VSPAERO_DOUBLE &BladeRPM(void) { return BladeRPM_; };
     
-    // Unsteady analysis
+    /** Unsteady analysis time step **/
     
     VSPAERO_DOUBLE &TimeStep(void) { return TimeStep_; };
     
+    /** Free stream velocity magnitude **/
+    
     VSPAERO_DOUBLE &Vinf(void) { return Vinf_; };
  
+    /** Current global time for time accurate analysis **/
+    
     int &CurrentTimeStep(void) { return CurrentTimeStep_; };
+    
+    /** Turn on wake damping models **/
     
     int &WakeDampingIsOn(void) { return WakeDampingIsOn_; };
     
+    /** This trailing vortex is shed from a rotor... we use that knowledge to do
+     * rotor like thingies... mostly we add in some extra damping via the core models **/
+    
     int &IsARotor(void) { return IsARotor_; };
+    
+    /** Origin of the rotor for the blade analysis .,.. this is a vector **/
     
     VSPAERO_DOUBLE &RotorOrigin(int i) { return RotorOrigin_[i]; };
     
+    /** Thrust direction vector for the rotor... this is a vector **/
+    
     VSPAERO_DOUBLE &RotorThrustVector(int i) { return RotorThrustVector_[i]; }; 
+    
+    /** Free stream direction vector ... assumed to be normalized **/
     
     VSPAERO_DOUBLE &FreeStreamDirection(int i) { return FreeStreamDirection_[i]; };
     
+    /** Create the binary search tree for fast search of trailing wake nodes to determine
+     * how far we are from a point we need to calculate the induced velocities for **/
+    
     void CreateSearchTree(void) { CreateSearchTree_(); };
 
+    /** Save the current vortex (circulation) state... both now, and the past few time steps **/
+    
     void SaveVortexState(void);
 
+    /** Write trailing edge vortex data to a file **/
+    
     void WriteToFile(FILE *adb_file);
+    
+    /** Read in trailing edge vortex data from a file **/
+    
     void ReadInFile(FILE *adb_file);
+    
+    /** Skip over trailing edge vortex data in file ... **/
+    
     void SkipReadInFile(FILE *adb_file);
     
+    /** Update the geometry given a translation vecctor and a rotating quaternion **/
+    
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+    
+    /** Set Mach number **/
+     
+    void SetMachNumber(VSPAERO_DOUBLE Mach);
 
+    /** This trailing vortex was searched by the tree routine **/
+    
     int &Searched(void) { return Searched_; };
     
+    /** Distance from the sample point **/
+    
     VSPAERO_DOUBLE &Distance(void) { return Distance_; };
+    
+    /** Pointer to the binary tree search **/
 
     SEARCH &Search(void) { return *Search_; };
+    
+    /** Ratio that determines how far away a point has to be relative to the size of the 
+     * trailing vortex to move up an agglomeration level **/
     
     double &FarAwayRatio(void) { return FarAway_; };
             

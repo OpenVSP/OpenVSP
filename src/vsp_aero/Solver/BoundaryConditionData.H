@@ -37,11 +37,16 @@ public:
 
     BOUNDARY_CONDITION_DATA& operator=(const BOUNDARY_CONDITION_DATA &BoundaryConditionData);
 
-    void Size(int NumberOfSurfaces);
-
+    /** Indicate that the lifting surface has high lift data **/
+    
     int &HasHightLiftSlat(void) { return HasHightLiftSlat_; };
     
+    /** Percent of chord for the leading edge slat... acutally a fraction from 0 to 1. **/
+    
     VSPAERO_DOUBLE &HighLiftSlatPercentage(void) { return HighLiftSlatPercentage_; };
+    
+    /** Mach number, below which, the slats are deployed **/
+    
     VSPAERO_DOUBLE &HighLiftSlatMachDeploy(void) { return HighLiftSlatMachDeploy_; };
      
 };

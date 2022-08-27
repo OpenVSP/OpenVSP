@@ -71,58 +71,105 @@ public:
     
     int &ComponentID(void) { return ComponentID_; };
 
-    // Initialize rotor inputs
+    /** Free stream density **/
     
     VSPAERO_DOUBLE &Density(void) { return Density_; };
+    
+    /** Free stream velocity **/
+    
     VSPAERO_DOUBLE &Vinf(int i) { return Vinf_[i]; };
     
+    /** Propeller radius **/
+    
     VSPAERO_DOUBLE &Radius(void) { return RotorRadius_; };
+    
+    /** Hub radius **/
+    
     VSPAERO_DOUBLE &HubRadius(void) { return RotorHubRadius_; };
+    
+    /** Propeller RPM **/
+    
     VSPAERO_DOUBLE &RPM(void) { return RotorRPM_; };
 
+    /** Propeller thrust coefficient **/
+    
     VSPAERO_DOUBLE &CT(void) { return Rotor_CT_; };
+
+    /** Propeller power coefficient **/    
+    
     VSPAERO_DOUBLE &CP(void) { return Rotor_CP_; };
-        
+
+    /** Center (origin) of propeller **/
+            
     VSPAERO_DOUBLE &XYZ(int i) { return RotorXYZ_[i]; };
+    
+    /** Propeller normal vector... this is the direction about which the
+     * RPM is defined... right hand rule... it is also the direction of
+     * the thrust reported **/
+     
     VSPAERO_DOUBLE &Normal(int i) { return RotorNormal_[i]; };
     
-    // Calculate velocity induced by rotor
+    /** Calculate velocity induced by rotor at coordinate (x,y,z) **/
     
     void Velocity(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5]);
+    
+    /** Calculate the velocity potential function for rotor at coordinate (x,y,z) **/
+    
     void VelocityPotential(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5]);
     
-    // Initialize
+    /** Intialize the rotor data **/
     
     void Initialize(void);
     
-    // Calculate rotor geometry
+    /** Calculate the rotor geometry information... mostly used for the VIEWER app **/
     
     void CalculateRotorGeometry(void);
     
-    // Rotor tip geometry
+    /** Rotor radius xyz location... i'th azimuth value, and j = 0,1,2 for x,y,z ...
+     * There are NUM_ROTOR_NODES azimuth values **/
     
     VSPAERO_DOUBLE RotorRadiusXYZ(int i, int j) { return RotorRadiusXYZ_[i][j]; };
     
+    /** Rotor radius vector... pointing in the direction of rotation... i'th azimuth value, 
+     * and j = 0,1,2 for x,y,z ... There are NUM_ROTOR_NODES azimuth values **/
+         
     VSPAERO_DOUBLE RotorDirectionVectorXYZ(int i, int j) { return RotorDirectionVectorXYZ_[i][j]; };
 
+    /** Rotor radius vector normals... points normal to the rotor direction...  used to draw the
+     * arrow heads of the direction vector... i'th azimuth value, and j = 0,1,2 for x,y,z ... The
+     **/
+     
     VSPAERO_DOUBLE RotorDirectionVectorNormal(int i, int j) { return RotorDirectionVectorNormal_[i][j]; };
         
-    // Rotor thrust and power
+    /** Propeller thrust **/    
 
     VSPAERO_DOUBLE RotorThrust(void) { return Rotor_CT_ * Density_ * pow(ABS(RotorRPM_)/60.,2.) * pow(2.*RotorRadius_,4.); };
     
+    /** Propeller power **/
+    
     VSPAERO_DOUBLE RotorPower(void) { return Rotor_CP_ * Density_ * pow(ABS(RotorRPM_)/60.,3.) * pow(2.*RotorRadius_,5.); };
     
-    // File I/O
+    /** Write out propeller data to file **/
     
-    void Write_STP_Data(FILE *InputFile);    
+    void Write_STP_Data(FILE *OutputFile);    
+    
+    /** Read in propeller data from file **/
+    
     void Load_STP_Data(FILE *InputFile);
     
-    void Write_Binary_STP_Data(FILE *InputFile); 
+    /** Write propeller data out to binary file **/
+    
+    void Write_Binary_STP_Data(FILE *OutputFile); 
+    
+    /** Read in propeller data from binary file **/
+    
     void Read_Binary_STP_Data(FILE *InputFile);    
+    
+    /** Skip over propeller data in binary file **/
+    
     void Skip_Read_Binary_STP_Data(FILE *InputFile);
     
-    // Geometry update
+    /** Update geometry based on given translation and quaternion rotation **/
     
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
 

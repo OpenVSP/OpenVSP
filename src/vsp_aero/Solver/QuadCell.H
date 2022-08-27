@@ -37,16 +37,44 @@ public:
    ~QUAD_CELL(void);
     QUAD_CELL(const QUAD_CELL &QuadCell);
     
+    /** Cell has a point in it **/
+    
     int &HasPoint(void) { return HasPoint_; };
+    
+    /** Surface edge this point (may) be related to **/
+    
     int &SurfaceEdge(void) { return SurfaceEdge_; };
+    
+    /** i'th node for this cell **/
+    
     int &Node(int i) { return Node_[i]; };
+    
+    /** i'th child for this cell **/
+    
     int &Child(int i) { return Child_[i]; };
+    
+    /** i'th edge for this cell **/
+    
     int &Edge(int i) { return Edge_[i]; };
+    
+    /** Parent cell for this edge **/
+    
     int &Parent(void) { return Parent_; };
+    
+    /** Quad tree level **/
+    
     int &Level(void) { return Level_; };
+    
+    /** Neighbor cell... up to eight cells **/
+    
     int NeighborCell(int i);
 
+    /** Inserted point vector **/
+    
     VSPAERO_DOUBLE *InsertedPoint(void) { return InsertedPoint_; };         
+    
+    /** Inserted point coordinates **/
+    
     VSPAERO_DOUBLE &InsertedPoint(int i) { return InsertedPoint_[i]; }; 
 
 };

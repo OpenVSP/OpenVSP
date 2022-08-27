@@ -34,7 +34,7 @@ public:
    ~MERGESORT(void);
     MERGESORT(const MERGESORT &MergeSort);
     
-    // Sort routines
+    /** Sort the list **/
     
     int* Sort(int NumberOfEdges, VSP_EDGE **EdgeList);
 

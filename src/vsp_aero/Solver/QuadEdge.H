@@ -27,6 +27,8 @@ public:
    ~QUAD_EDGE(void);
     QUAD_EDGE(const QUAD_EDGE &QuadEdge);
     
+    /** Left and right cells for this quad edge **/
+    
     int &Cell(int i) { return Cell_[i]; };
 
 };

@@ -49,27 +49,27 @@ public:
     CONTROL_SURFACE_GROUP(const CONTROL_SURFACE_GROUP &ControlSurfaceGroup);
     CONTROL_SURFACE_GROUP& operator=(const CONTROL_SURFACE_GROUP &ControlSurfaceGroup);
     
-    // Name
+    /** Control surface group name **/
     
     char *Name(void) { return Name_; };
     
-    // Size the list
+    /** Size the list for the number of control surfaces **/
     
     void SizeList(int NumberOfControlSurfaces);
     
-    // Number of control surface
+    /** Number of control surfaces in this group **/
     
     int NumberOfControlSurfaces(void) { return NumberOfControlSurfaces_; };
     
-    // Control surface name
+    /** Set, or access the control surface name **/
     
     char *ControlSurface_Name(int i) { return ControlSurface_Name_[i]; };
     
-    // Control surface deflection sign
+    /** Control surface deflection sign ... this allows for async motion... like ailerons **/
     
     VSPAERO_DOUBLE &ControlSurface_DeflectionDirection(int i) { return ControlSurface_DeflectionDirection_[i]; };
     
-    // Control surface deflection angle
+    /** Control surface deflection angle, degrees **/
     
     VSPAERO_DOUBLE &ControlSurface_DeflectionAngle(void) { return ControlSurface_DeflectionAngle_; };
     

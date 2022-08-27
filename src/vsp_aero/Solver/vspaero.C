@@ -27,7 +27,7 @@ using namespace VSPAERO_SOLVER;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 0
+#define VER_PATCH 3
 
 // Some globals...
 
@@ -178,7 +178,6 @@ int DoUnsteadyAnalysis_            = 0;
 int StartFromSteadyState_          = 0;
 int UnsteadyAnalysisType_          = 0;
 int NumberOfTimeSteps_             = 0;
-int NumberOfTimeSamples_           = 0;
 int RotorAnalysisRun_              = 0;
 int CreateNoiseFiles_              = 0;
 int NoPanelSpanWiseLoading_        = 0;
@@ -350,13 +349,9 @@ int main(int argc, char **argv)
 
     if ( OptimizationFunction_ ) {
 
-     //  CONTINUE_AUTO_DIFF();
-
        VSP_VLM().NumberOfOptimizationFunctions() = 1;
        
        VSP_VLM().SetOptimizationFunction(1,OptimizationFunction_,1);
- 
-     //  PAUSE_AUTO_DIFF();
 
     }
                    
@@ -492,7 +487,7 @@ void PrintUsageHelp()
        PRINTF(" -opt -optfunction <#>              This is an optimization solve... solve the Aero equations and write out all information needed for adjoint solver. \n"); 
        PRINTF(" -opt -adjoint   -optfunction <#>   This is an optimization solve... solve Adjoint equations for optfunction #. Only used with the ADJOINT solver. \n");
        PRINTF(" -opt -gradients -optfunction <#>   This is an optimization solve... solve for the gradients for optfunction #.  Only used with the ADJOINT solver. \n");
-
+       PRINTF(" -complextest                       This runs the complex step gradient test case... you have to use this with the complex step version and -opt, -optfunction \n");
        PRINTF(" -interrogate                       Reload an existing solution, and interrogate the data using survey points list. \n");
        PRINTF(" -interrogate -unsteady             Reload an existing unsteady solution, and interrogate the data using survey points list. \n");
 
@@ -559,6 +554,14 @@ void ParseInput(int argc, char *argv[])
 
        }
 
+       else if ( strcmp(argv[i],"-h") == 0 || strcmp(argv[i],"-help") == 0 ) {
+        
+          PrintUsageHelp();
+ 
+          exit(1);
+          
+       }
+       
        else if ( strcmp(argv[i],"-omp") == 0 ) {
         
           NumberOfThreads_ = atoi(argv[++i]);
@@ -1270,7 +1273,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
                        if ( strcmp( VSP_VLM().VSPGeom().VSP_Surface( k  ).ComponentName(),
                                     VSP_VLM().VSPGeom().VSP_Surface( k2 ).ComponentName() ) == 0 ){
    
-                           if ( strcmp( VSP_VLM().VSPGeom().VSP_Surface( k  ).ControlSurface( p ).ShortName(),
+                           if ( strcmp( VSP_VLM().VSPGeom().VSP_Surface( k  ).ControlSurface( p  ).ShortName(),
                                         VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).ShortName() ) == 0 ){
    
                              SPRINTF( tempStrBuf,",%s", VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).Name() );
@@ -2484,7 +2487,7 @@ void Solve(void)
 
              CDoForCase[Case] = VSP_VLM().CDo();     
              
-             OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
+             if ( OptimizationFunction_ ) OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
              
              // Loop over any ReCref cases
              
@@ -2520,7 +2523,7 @@ void Solve(void)
    
                 CDoForCase[Case] = VSP_VLM().CDo();   
                 
-                OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
+                if ( OptimizationFunction_ ) OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
         
              } 
              
@@ -3802,9 +3805,8 @@ void ComplexDiffTestSolve(void)
     }
    
     for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=1 ) {
-//    for ( i = 40 ; i <= 42 ; i+=1 ) {
-//     for ( i = 35 ; i <= 35 ; i+=1 ) {
-        
+//for ( i = 273 ; i <= 273 ; i+=1 ) {
+       
         PRINTF("\n\n\n\n Working on node %d of %d \n\n\n\n\n",i,VSP_VLM().VSPGeom().Grid(0).NumberOfNodes()); fflush(NULL);
 
         // X
@@ -3822,18 +3824,13 @@ void ComplexDiffTestSolve(void)
         Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).x());
 
         VSP_VLM().VSPGeom().UpdateMeshes();
- 
+        
         VSP_VLM().Solve(Case);
 
-PRINTF("VSP_VLM().OptimizationFunction(): %f \n",VSP_VLM().OptimizationFunction());
-fflush(NULL);
-
         VSP_VLM().OptimizationFunction(Function);
-        
+       
         dFdxyz[0] = CALCULATE_COMPLEX_DIFF_FOR_FUNCTION(Function,Delta);
-
-PRINTF("dFdxyz[0]: %f \n",dFdxyz[0]);
-        
+      
         ZERO_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).x());
 
         // Y
@@ -3986,9 +3983,8 @@ void FiniteDiffTestSolve(void)
         
     Delta = 0.1;  
     
-    for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=1 ) {
-  //  for ( i = 40 ; i <= 42 ; i+=1 ) {
-  //    for ( i = 35 ; i <= 35 ; i+=1 ) {
+ //   for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=1 ) {
+    for ( i = 100 ; i <=110 ; i+=1 ) {
 
         PRINTF("Working on node %d of %d \n");
 

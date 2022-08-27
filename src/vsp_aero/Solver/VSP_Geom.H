@@ -64,11 +64,6 @@ private:
     
     int NumberOfDegenBodies_;
 
-    // Blade Element data
-    
-    int DoBladeElementAnalysis_;
-    int NumberOfBladeElementSurfaces_;
-    
     // Rotor Disk Data
     
     int NumberOfRotors_;
@@ -125,6 +120,22 @@ private:
     
     int CalculateNumberOfFineLoops(int Level, VSP_LOOP &Loop); 
 
+    // Mesh the geometry
+    
+    void MeshGeom(void);
+    
+    // Try and figure out if this a panel or VLM mesh
+    
+    void DetermineModelType(void);
+
+    // Update the coarse mesh based on the finer mesh update
+    
+    void UpdateCoarseMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid);
+    
+    // Bounding Box data
+    
+    void CreateComponentBBoxData(void);
+            
 public:
 
     // Constructor, Destructor, Copy
@@ -141,65 +152,87 @@ public:
     
     void ReadFile(char *FileName, int& ModelType, int& SurfaceType);
     
-    // FEM
+    /** Load in a FEM (beam method) FEM deformation file **/
 
     int &LoadDeformationFile(void) { return LoadDeformationFile_; };    
  
+    /** Load in FEM (beam data) deformation data file **/
+    
     void LoadFEMDeformationData(char *FileName);
-    void FEMDeformGeometry(void);    
-    
-    // Force blade element analysis of rotors
-    
-    int &DoBladeElementAnalysis(void) { return DoBladeElementAnalysis_; };
 
-    // Meshing
-    
-    void MeshGeom(void);
-    
-    void DetermineModelType(void);
-    
-    void UpdateMeshes(void);
-    
-    void UpdateCoarseMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid);
-    
-    // Access to data
+    /** Number of Components **/
     
     int NumberOfComponents(void) { return NumberOfComponents_; };
     
+    /** Number of degen wings **/
+    
     int NumberOfDegenWings(void) { return NumberOfDegenWings_; };
 
+    /** Number of degen bodies **/
+    
     int NumberOfDegenBodies(void) { return NumberOfDegenBodies_; };
 
-    int NumberOfBladeElementSurfaces(void) { return NumberOfBladeElementSurfaces_; };
- 
+    /** Number of surfaces **/
+    
     int NumberOfSurfaces(void) { return NumberOfSurfaces_; };
     
+    /** Number of surface patches **/
+        
     int NumberOfSurfacePatches(void) { return NumberOfSurfacePatches_; };
     
+    /** Access to the VSP_SURFACE object list **/
+    
     VSP_SURFACE &VSP_Surface(int i) { return VSP_Surface_[i]; };
-    
-    // Bounding Box data
-    
-    void CreateComponentBBoxData(void);
+
+    /** Bounding box for each component **/
     
     BBOX &BBoxForComponent(int i) { return BBoxForComponent_[i]; };
+    
+    /** Number of agglomeration levels **/
        
     int NumberOfGridLevels(void) { return NumberOfGridLevels_; };
+    
+    /** Access to the finest, user supplied grid **/
+    
     VSP_GRID &Grid(void) { return *(Grid_[0]); };
+    
+    /** Access to the i'th level grid **/
+    
     VSP_GRID &Grid(int i) { return *(Grid_[i]); };
     
+    /** Number of rotors, aka actuator disks **/
+    
     int NumberOfRotors(void) { return NumberOfRotors_; };
+    
+    /** Rotor disk list **/
+    
     ROTOR_DISK &RotorDisk(int i) { return RotorDisk_[i]; };
+    
+    /** Flag that we are doing a symmetry plane analysis... **/
     
     int &DoSymmetryPlaneSolve(void) { return DoSymmetryPlaneSolve_; };
     
+    /** Flag that we are doing a ground effects analysis **/
+    
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
+    
+    /** Vehicle rotation angle vector... we rotate about this vector... use for ground effect modeling
+     * ... as we rotate the vehicle for AoA, Beta...  **/
     
     VSPAERO_DOUBLE &VehicleRotationAngleVector(int i) { return VehicleRotationAngleVector_[i]; };
     
+    /** Vehicle rotation origin ... used in ground effects solve ***/
+    
     VSPAERO_DOUBLE &VehicleRotationAxisLocation(int i) { return VehicleRotationAxisLocation_[i]; };
     
+    /** Height above the ground for ground effects model **/
+    
     VSPAERO_DOUBLE &HeightAboveGround(void) { return HeightAboveGround_; };
+    
+    /** Update the mesh ... user has updated xyz points on the mesh, so we need to update
+     * all the mesh dependent stuff... **/
+
+    void UpdateMeshes(void);
 
 };
 

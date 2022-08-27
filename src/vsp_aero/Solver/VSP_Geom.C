@@ -41,8 +41,6 @@ void VSP_GEOM::init(void)
     VehicleRotationAngleVector_[0] = 0.;    
     VehicleRotationAngleVector_[1] = 0.;    
     VehicleRotationAngleVector_[2] = 0.;    
-    
-    DoBladeElementAnalysis_ = 0;
 
 }
 
@@ -852,7 +850,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
 
     // Now scan the file and determine how many actuator disks / blade element models
     
-    NumberOfRotors_ = NumberOfBladeElementSurfaces_ = 0;
+    NumberOfRotors_ = 0;
     
     Done = 0;
     
@@ -868,8 +866,6 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
        
     }        
        
-    if ( DoBladeElementAnalysis_ ) NumberOfBladeElementSurfaces_ = NumberOfRotors_;
-
     if ( NumberOfRotors_ > 0 ) {
        
        rewind(VSP_Degen_File);  
@@ -1474,8 +1470,6 @@ void VSP_GEOM::MeshGeom(void)
              Grid().EdgeList(i).IsBoundaryEdge() = VSP_Surface(Surface).Grid().EdgeList(i).IsBoundaryEdge();
              
              Grid().EdgeList(i).IsLeadingEdge()  = VSP_Surface(Surface).Grid().EdgeList(i).IsLeadingEdge();
-             
-             Grid().EdgeList(i).EdgeType()       = VSP_Surface(Surface).Grid().EdgeList(i).EdgeType();
 
           }
          
@@ -1631,7 +1625,7 @@ void VSP_GEOM::DetermineModelType(void)
        i++;
        
     }
-    
+
     if ( ModelType_ == VLM_MODEL   ) printf("Model is a VSPGEOM VLM geometry \n");fflush(NULL);
     if ( ModelType_ == PANEL_MODEL ) printf("Model is a VSPGEOM Panel geometry \n");fflush(NULL);
 
@@ -1860,7 +1854,7 @@ int VSP_GEOM::CalculateNumberOfFineLoops(int Level, VSP_LOOP &Loop)
 void VSP_GEOM::UpdateMeshes(void)
 {
    
-    int i, Node1, Node2;
+    int i, Node, Node1, Node2;
     
     // Update the loop data finest grid
     
@@ -1876,6 +1870,18 @@ void VSP_GEOM::UpdateMeshes(void)
        Grid(0).EdgeList(i).UpdateGeometryLocation(Grid(0).NodeList(Node1), Grid(0).NodeList(Node2));
   
     }
+    
+    // Update the kutta node location data
+    
+    for ( i = 1 ; i <= Grid(0).NumberOfKuttaNodes() ; i++ ) {
+
+       Node = Grid(0).KuttaNode(i);
+       
+       Grid(0).WakeTrailingEdgeX(i) = Grid(0).NodeList(Node).x();
+       Grid(0).WakeTrailingEdgeY(i) = Grid(0).NodeList(Node).y();
+       Grid(0).WakeTrailingEdgeZ(i) = Grid(0).NodeList(Node).z(); 
+       
+    }        
     
     // Now update the coarser meshes recursively
      
@@ -1896,7 +1902,7 @@ void VSP_GEOM::UpdateMeshes(void)
 void VSP_GEOM::UpdateCoarseMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid)
 {
     
-    int i, j, k, Node1, Node2, Next;
+    int i, j, k, Node, Node1, Node2, Next;
     VSPAERO_DOUBLE Length, Area, Mag, Xb, Yb, Zb;
     VSPAERO_DOUBLE x1, y1, z1, x2, y2, z2;
         
@@ -2113,7 +2119,19 @@ void VSP_GEOM::UpdateCoarseMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid)
        CoarseGrid.LoopList(k).Length() = MAX(Length, CoarseGrid.LoopList(k).Length());
        
     }
+
+    // Copy over any kutta node information
+   
+    for ( i = 1 ; i <= CoarseGrid.NumberOfKuttaNodes() ; i++ ) {
+
+       Node = CoarseGrid.KuttaNode(i);
        
+       CoarseGrid.WakeTrailingEdgeX(i) = CoarseGrid.NodeList(Node).x();
+       CoarseGrid.WakeTrailingEdgeY(i) = CoarseGrid.NodeList(Node).y();
+       CoarseGrid.WakeTrailingEdgeZ(i) = CoarseGrid.NodeList(Node).z(); 
+       
+    }
+           
 }
 
 #include "END_NAME_SPACE.H"

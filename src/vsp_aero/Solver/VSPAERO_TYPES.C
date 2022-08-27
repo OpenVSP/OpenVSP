@@ -893,9 +893,9 @@ double INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSPAERO_DOUBLE &X)
    
     double Delta;
 
-    Delta = 1.e-20;
+    Delta = 1.e-10;
 
-    X.imag(Delta);
+    X.imag(1.e-10);
     
     return Delta;
    

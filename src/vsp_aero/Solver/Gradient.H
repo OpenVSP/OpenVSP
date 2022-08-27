@@ -49,32 +49,60 @@ public:
     GRADIENT(const GRADIENT &Gradient);
     GRADIENT& operator=(const GRADIENT &Gradient);
     
-    // Size the list
+    /** Size the list... given number of Loops, equations, and degrees of freedom **/
     
     void SizeList(int NumberOfLoops, int NumberOfEquations, int NumberOfDegreesOfFreedom);
 
-    // Accesss to data
+    /** Number of loops **/
     
     int NumberOfLoops(void) { return NumberOfLoops_; };
     
+    /** Number of equations **/
+    
     int NumberOfEquations(void) { return NumberOfEquations_; };
+    
+    /** Number of degrees of freedom **/
     
     int NumberOfDegreesOfFreedom(void) { return NumberOfDegreesOfFreedom_; };
     
+    /** Loop list */
+    
     int &LoopList(int i) { return LoopList_[i]; };
+    
+    /** Partial of function wrt x **/
  
     VSPAERO_DOUBLE &dv_dx(void) { return Gradient_[0]; };
+    
+    /** Partial of function wrt y **/
+    
     VSPAERO_DOUBLE &dv_dy(void) { return Gradient_[1]; };
+
+    /** Partial of function wrt z **/
+
     VSPAERO_DOUBLE &dv_dz(void) { return Gradient_[2]; };
     
+    /** Gradient vector **/
+    
     VSPAERO_DOUBLE *Vector(void) { return Gradient_; };
+    
+    /* Access to transposed matrix **/
 
     MATRIX &At(void) { return At_; };
+    
+    /** Access to matrix, note this may be the LU decomposition  **/
+      
     MATRIX &AA(void) { return AA_; };
+    
+    /** Right hand side vector **/
     
     VSPAERO_DOUBLE &b(int i) { return b_[i]; };
     
+    /** Form LU decomposition of A matrix **/
+    
     void LU(void) { AA_.LU(); };
+    
+    /** Solve linear system for gradients **/
+    
     void Solve(void);
     
 };

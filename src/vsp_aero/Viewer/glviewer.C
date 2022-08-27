@@ -7727,12 +7727,10 @@ void GL_VIEWER::SolutionCaseSliderWasMoved(int Case)
     FILE *adb_file;
     char file_name_w_ext[2000];
    
-   printf("a... \n");
    
-   printf("CheckForOptimizationReloads_: %d \n",CheckForOptimizationReloads_);fflush(NULL);
+    printf("CheckForOptimizationReloads_: %d \n",CheckForOptimizationReloads_);fflush(NULL);
    
     if ( !CheckForOptimizationReloads_ ) {
-     printf("b... \n");
      
        UserSelectedSolutionCase_ = Case; 
        
@@ -12956,8 +12954,8 @@ void GL_VIEWER::WritePNGFile(char *FileName)
        // Now write to png file
 
        sprintf(rgbstr,"%s.%s.png",file_name,FileName);
-       width = w();
-       height = h();
+       width = pixel_w();
+       height = pixel_h();
        
        WritePNG( rgbstr, ( char * ) "VSPVIEWER", 0, 0, width, height, 0 );
 
@@ -12988,8 +12986,8 @@ void GL_VIEWER::WritePNGFile(char *Path, char *FileName)
        // Now write to png file
 
        sprintf( rgbstr, "%s%s.%s.png", Path, file_name_no_path, FileName );
-       width = w();
-       height = h();
+       width = pixel_w();
+       height = pixel_h();
        
        printf( "Writing PNG file: %s\n", rgbstr );
 

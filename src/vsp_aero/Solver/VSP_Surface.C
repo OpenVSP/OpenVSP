@@ -1337,8 +1337,7 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
     
     int **NodeToEdgeList_;
     int  *NumberOfEdgesForNode_;
-        
-
+      
     NumberOfEdgesForNode_ = new int[Grid().NumberOfNodes() + 1];
     
     zero_int_array(NumberOfEdgesForNode_, Grid().NumberOfNodes());
@@ -2089,7 +2088,10 @@ int VSP_SURFACE::SurfaceAtNodeIsConvex(int Node)
    
     if ( NumberOfTrisForNode_[Node] == 2 ) return 1;
     
-    // Calculate averaged normal at Node
+    // Calculate averaged normal at Node.. I removed the area weighting of normals
+    // that used to be here... small tris on a trailing edge of the wing and the
+    // large tris on default bodies meant the averaged normal was not really
+    // very representative of what we wanted to test against...
     
     VecAvg[0] = VecAvg[1] = VecAvg[2] = 0.;
     
@@ -2097,9 +2099,9 @@ int VSP_SURFACE::SurfaceAtNodeIsConvex(int Node)
     
        Tri = NodeToTriList_[Node][i];
        
-       VecAvg[0] += Grid().LoopList(Tri).Normal()[0]*Grid().LoopList(Tri).Area();
-       VecAvg[1] += Grid().LoopList(Tri).Normal()[1]*Grid().LoopList(Tri).Area();
-       VecAvg[2] += Grid().LoopList(Tri).Normal()[2]*Grid().LoopList(Tri).Area();
+       VecAvg[0] += Grid().LoopList(Tri).Normal()[0];
+       VecAvg[1] += Grid().LoopList(Tri).Normal()[1];
+       VecAvg[2] += Grid().LoopList(Tri).Normal()[2];
        
     }
     
@@ -4504,11 +4506,11 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
           
           Grid().TriList(n).SpanStation() = i;
           
-          // Airfoil data
-          
-          Grid().TriList(n).ThicknessToChord()       = ThicknessToChord_[i];
-          Grid().TriList(n).LocationOfMaxThickness() = LocationOfMaxThickness_[i];
-          Grid().TriList(n).RadiusToChord()          = RadiusToChord_[i];     
+ //djk         // Airfoil data
+ //djk         
+ //djk         Grid().TriList(n).ThicknessToChord()       = ThicknessToChord_[i];
+ //djk         Grid().TriList(n).LocationOfMaxThickness() = LocationOfMaxThickness_[i];
+ //djk         Grid().TriList(n).RadiusToChord()          = RadiusToChord_[i];     
           
           // Trailing / leading edge flags
   
@@ -4593,11 +4595,11 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
           
           Grid().TriList(n).SpanStation() = i;
           
-          // Airfoil data
-          
-          Grid().TriList(n).ThicknessToChord()       = ThicknessToChord_[i];
-          Grid().TriList(n).LocationOfMaxThickness() = LocationOfMaxThickness_[i];
-          Grid().TriList(n).RadiusToChord()          = RadiusToChord_[i];     
+  //djk        // Airfoil data
+  //djk        
+  //djk        Grid().TriList(n).ThicknessToChord()       = ThicknessToChord_[i];
+  //djk        Grid().TriList(n).LocationOfMaxThickness() = LocationOfMaxThickness_[i];
+  //djk        Grid().TriList(n).RadiusToChord()          = RadiusToChord_[i];     
                        
           // Trailing / leading edge flags
 
@@ -5087,11 +5089,11 @@ void VSP_SURFACE::CreateBodyTriMesh(int SurfaceID)
              
              Grid().TriList(n).SpanStation() = i;
              
-             // Airfoil data
-             
-             Grid().TriList(n).ThicknessToChord()       = 0.;
-             Grid().TriList(n).LocationOfMaxThickness() = 0.;
-             Grid().TriList(n).RadiusToChord()          = 0.;  
+  //djk          // Airfoil data
+  //djk          
+  //djk          Grid().TriList(n).ThicknessToChord()       = 0.;
+  //djk          Grid().TriList(n).LocationOfMaxThickness() = 0.;
+  //djk          Grid().TriList(n).RadiusToChord()          = 0.;  
              
              // Leading and trailing edge flags
      
@@ -5163,11 +5165,11 @@ void VSP_SURFACE::CreateBodyTriMesh(int SurfaceID)
              
              Grid().TriList(n).SpanStation() = i;
              
-             // Airfoil data
-             
-             Grid().TriList(n).ThicknessToChord()       = 0.;
-             Grid().TriList(n).LocationOfMaxThickness() = 0.;
-             Grid().TriList(n).RadiusToChord()          = 0.;
+   //djk         // Airfoil data
+   //djk         
+   //djk         Grid().TriList(n).ThicknessToChord()       = 0.;
+   //djk         Grid().TriList(n).LocationOfMaxThickness() = 0.;
+   //djk         Grid().TriList(n).RadiusToChord()          = 0.;
              
              // Leading and trailing edge flags
      

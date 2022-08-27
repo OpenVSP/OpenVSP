@@ -811,21 +811,7 @@ void VSP_GRID::CreateTriEdges(void)
        EdgeList(j).Length() = sqrt( pow(x2-x1,2.) + pow(y2-y1,2.) + pow(z2-z1,2.) );    
        
     }
-    
-    // Store airfoil information on leading edges
-
-    for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
-       
-       if ( EdgeList(i).IsLeadingEdge() ) {
-
-          EdgeList(i).ThicknessToChord()       = TriList(EdgeList(i).Tri1()).ThicknessToChord();
-          EdgeList(i).LocationOfMaxThickness() = TriList(EdgeList(i).Tri1()).LocationOfMaxThickness();
-          EdgeList(i).RadiusToChord()          = TriList(EdgeList(i).Tri1()).RadiusToChord();      
-          
-       }
-       
-    }
-         
+ 
 }
 
 /*##############################################################################
@@ -1314,6 +1300,27 @@ void VSP_GRID::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec
        
     }  
           
+}
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_GRID UpdateGeometryLocation                         #
+#                                                                              #
+##############################################################################*/
+
+void VSP_GRID::SetMachNumber(VSPAERO_DOUBLE Mach)
+{
+
+    int i;
+    
+    // Update the Mach number
+        
+    for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
+
+       EdgeList(i).SetMachNumber(Mach);
+       
+    }
+    
 }
 
 /*##############################################################################

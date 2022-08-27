@@ -27,7 +27,6 @@ VSP_NODE::VSP_NODE(void)
     z_                    = 0.;
 
     dGamma_               = 0.;
-    Area_                 = 0.;
     
     CoarseGridNode_       = 0;
     FineGridNode_         = 0;
@@ -72,7 +71,6 @@ VSP_NODE& VSP_NODE::operator=(const VSP_NODE &VSPNode)
     z_                    = VSPNode.z_;
 
     dGamma_               = VSPNode.dGamma_;
-    Area_                 = VSPNode.Area_;
     
     CoarseGridNode_       = VSPNode.CoarseGridNode_;
     FineGridNode_         = VSPNode.FineGridNode_;  

@@ -38,23 +38,48 @@ public:
 
     MATPRECON& operator=(const MATPRECON &MatPrecon);
     
+    /** Size the list for the given number of vortex loops **/
+    
     void Size(int NumberOfVortexLoops);
+    
+    /** Number of vortex loops for this matrix preconditioner **/
     
     int NumberOfVortexLoops(void) { return NumberOfVortexLoops_; };
     
+    /** Vortex loop list **/
+    
     int &VortexLoopList(int i) { return VortexLoopList_[i]; };
     
+    /** The transpose has been calculated... used for the Adjoint solver **/
+    
     int& ThereIsTranspose(void) { return ThereIsTranspose_; };
+    
+    /** Preconditioning matrix ... may be the LU decomposition **/
 
     MATRIX &A(void) { return *A_; };
+    
+    /** Transpose of preconditioning matrix... may be the LU decomposition **/
+    
     MATRIX &AT(void) { return *AT_; };
+    
+    /** Right hand side vector... so we are solving v = (A^-1)x **/
 
     VSPAERO_DOUBLE &x(int i) { return x_[i]; };
     
+    /** Form LU decomposition of A **/
+    
     void LU(void) { A_->LU(); };
+    
+    /** Form LU decomposition of AT **/
+    
     void LUT(void) { AT_->LU(); };
+    
+    /** Do matrix precondition of x **/
 
     void Solve(void) { A_->solve(x_); };
+    
+    /** Do matrix (tranpose) precondition of x**/
+    
     void SolveT(void) { AT_->solve(x_); };
 
 };

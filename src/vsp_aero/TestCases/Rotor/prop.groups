@@ -1,0 +1,21 @@
+1
+#
+GroupName = Rotor
+NumberOfComponents = 1
+1
+GeometryIsFixed = 0
+GeometryIsDynamic = 0
+GeometryIsARotor = 1
+RotorDiameter = 10.
+OVec= 0. 0. 0.
+RVec =  -1. 0. 0.
+Velocity = 0. 0. 0.
+Omega = 89.9777
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
+

@@ -158,10 +158,6 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
     VortexLoop_             = VSPTri.VortexLoop_;
     
     SpanStation_            = VSPTri.SpanStation_;
-    
-    ThicknessToChord_       = VSPTri.ThicknessToChord_;
-    LocationOfMaxThickness_ = VSPTri.LocationOfMaxThickness_;
-    RadiusToChord_          = VSPTri.RadiusToChord_;          
 
     Area_                   = VSPTri.Area_;
     Length_                 = VSPTri.Length_;
@@ -213,7 +209,6 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
     }
     
     BoundBox_ = VSPTri.BoundBox_;
-    LoopUsed_ = VSPTri.LoopUsed_;
     
     IsSonic_ = VSPTri.IsSonic_;
           

@@ -1,0 +1,39 @@
+This is a simple rotor test case.
+
+1) Two step adjoint run
+
+Run the TestiT script
+
+./Testit
+
+this will run vpsaero, and vpsaero_adjoint with the ouput of hershey.gradient
+
+
+
+2) Adjoint API
+
+Run the vspaero_opt executable for test case 1...
+
+../../bin/vspaero_opt 1 hershey
+
+this will run vspaero_opt with the output of hershey.opt.gradient
+
+
+
+3) Complex Step ( Note, this will take a while to run... )
+
+Run the vspaero_complex solver
+
+../../bin/vspaero_complex -omp 4 -opt -optfunction 1 -complextest hershey
+
+this will run vspaero_complex with output hershey.complex.gradient
+
+
+
+4) Create some plots
+
+gnuplot compare.complex.gnuplot
+
+this creates compare.complex.pdf and compares the complex step, 2 step adjoint, and adjoint API results.
+
+

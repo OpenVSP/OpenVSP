@@ -1,0 +1,6 @@
+adjointlib.a
+solverlib.a
+vspaero
+vspaero_adjoint
+vspaero_complex
+vspaero_opt

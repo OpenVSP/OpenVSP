@@ -32,13 +32,27 @@ public:
    ~QUAD_NODE(void);
     QUAD_NODE(const QUAD_NODE &QuadNode);
     
+    /** Node is inside the body **/
+    
     int &InsideBody(void) { return InsideBody_; };
     
+    /** xyz coordinates for this quad tree node **/
+    
     VSPAERO_DOUBLE &xyz(int i) { return xyz_[i]; };
+    
+    /** velocity for this quad tree node **/
+    
     VSPAERO_DOUBLE &velocity(int i) { return velocity_[i]; };
 
+    /** xyz coordinate vector for this quad tree node **/
+    
     VSPAERO_DOUBLE *xyz(void) { return xyz_; };
+    
+    /** Velocity vector for this quad tree node **/
+     
     VSPAERO_DOUBLE *velocity(void) { return velocity_; };
+    
+    /** Pressure coefficient for this quad tree node **/
     
     VSPAERO_DOUBLE &Cp(void) { return Cp_;  };    
     

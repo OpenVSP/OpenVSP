@@ -47,15 +47,32 @@ public:
    ~SEARCH_LEAF(void);
     SEARCH_LEAF(const SEARCH_LEAF &SearchLeaf);
 
+    /** Sort direction... x, y, or z **/
+    
     int sort_direction;
+    
+    /** Number of nodes in this leaf **/
+    
     int number_of_nodes;
+    
+    /** Level in the overall hierarchy of the search tree **/
+    
     int level;
+    
+    /** Split point in x,y, or z for this leaf **/
     
     VSPAERO_DOUBLE cut_off_value;
     
+    /** Node list **/
+    
     SURFACE_NODE *node;
     
+    /** Left child **/
+    
     SEARCH_LEAF *left;
+    
+    /** Right child **/
+    
     SEARCH_LEAF *right;
     
 };

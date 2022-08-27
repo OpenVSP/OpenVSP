@@ -76,130 +76,193 @@ public:
    ~VSP_GRID(void);
     VSP_GRID(const VSP_GRID &VSPGrid);
 
-    // Initialize
-
+    /** Initialize a new mesh **/
+    
     void init(void);
 
-    // Size the Mach, Q, Alpha arrays
-
-    void SizeMachList(int NumMach);
-    void SizeBarsList(int NumBars);
-    void SizeAlphaList(int NumAlpha);
-
-    // Size the node list
+    /** Size the node list **/
 
     void SizeNodeList(int NumNodes);
+    
+    /** Delete the node list **/
+    
     void DeleteNodeList(void) { delete [] NodeList_; };
 
-    // Size the tri lists
+    /** Size the tri list **/
 
     void SizeTriList(int NumTris);
+    
+    /** Delete the tri list **/
+    
     void DeleteTriList(void) { delete [] LoopList_; };
 
-    // Size the more general loop list
+    /** Size a more general loop (vs tri) list **/
     
     void SizeLoopList(int NumLoops);
     
-    // Size the edge lists
+    /** Size the edge list **/
 
     void SizeEdgeList(int NumEdges);
+    
+    /** Delete the edge list **/
+    
     void DeleteEdgeList(void) { delete [] EdgeList_; };
 
-    // Access to  name
+    /** Grid name **/
 
     char *GridName(void) { return GridName_; };
 
-    // Access to Nodal data
+    /** Number of mesh nodes **/
 
     int NumberOfNodes(void) { return NumberOfNodes_; };
   
-    VSP_NODE &NodeList(int i) { return NodeList_[i]; };
+    /** Mesh node list **/
+    
+    inline VSP_NODE &NodeList(int i) { return NodeList_[i]; };
 
-    VSP_NODE *NodeList(void) { return NodeList_; };
+    /** Pointer to mesh node list **/
+    
+    inline VSP_NODE *NodeList(void) { return NodeList_; };
 
+    /** Pass in a pointer to a node list and just use it ... **/
+    
     void UseThisNodeList(int NumberOfNodes, VSP_NODE *NodeList) { NumberOfNodes_ = NumberOfNodes ; NodeList_ = NodeList; };
 
-    // Access to Tri data
+    /** Number of grid tris **/
 
     int NumberOfTris(void) { return NumberOfLoops_; };
     
-    VSP_LOOP &TriList(int i) { return LoopList_[i]; };
+    /** Mesh tri list **/
+    
+    inline VSP_LOOP &TriList(int i) { return LoopList_[i]; };
 
-    VSP_LOOP *TriList(void) { return LoopList_; };
+    /** Pointer to mesh tri list **/
+    
+    inline VSP_LOOP *TriList(void) { return LoopList_; };
+    
+    /** Pass in a pointer to a tri list and just use it ... **/
 
     void UseThisTriList(int NumberOfTris, VSP_LOOP *TriList) { NumberOfLoops_ = NumberOfTris ; LoopList_ = TriList; };
 
-    // Access to Loop data
+    /** Number of mesh loops **/
     
     int NumberOfLoops(void) { return NumberOfLoops_; };
     
+    /** Mesh loop list **/
+    
     VSP_LOOP &LoopList(int i) { return LoopList_[i]; };
 
+    /** Pointer to mesh loop list **/
+    
     VSP_LOOP *LoopList(void) { return LoopList_; };
+    
+    /** Pass in a pointer to a loop list and just use it ... **/
 
     void UseThisLoopList(int NumberOfLoops, VSP_LOOP *LoopList) { NumberOfLoops_ = NumberOfLoops ; LoopList_ = LoopList; };
     
-    // Access to Edge data
+    /** Number of mesh edges **/
 
     int NumberOfEdges(void) { return NumberOfEdges_; };
 
+    /** Mesh edge list **/
+    
     VSP_EDGE &EdgeList(int i) { return EdgeList_[i]; };
 
+    /** Pointer to mesh edge list ***/
+    
     VSP_EDGE *EdgeList(void) { return EdgeList_; };
 
+    /** Pass in a pointer to an edge list and just use it ... **/
+    
     void UseThisEdgeList(int NumberOfEdges, VSP_EDGE *EdgeList) { NumberOfEdges_ = NumberOfEdges ; EdgeList_ = EdgeList; };
     
-    // Access to kutta node list
+    /** Size the kutta node list **/
     
     void SizeKuttaNodeList(int NumberOfKuttaNodes);
     
+    /** Number of kutta nodes **/
+    
     int NumberOfKuttaNodes(void) { return NumberOfKuttaNodes_; };
+    
+    /** Kutta node list **/
+    
     int &KuttaNode(int i) { return KuttaNode_[i]; };
+    
+    /** Wing surface that the kutta node is on **/
+    
     int &WingSurfaceForKuttaNode(int i) { return WingSurfaceForKuttaNode_[i]; };
+    
+    /** Component that kutta node is one **/
+    
     int &ComponentIDForKuttaNode(int i) { return ComponentIDForKuttaNode_[i]; };
+    
+    /** Wing surface kutta node is on is periodic... ie, like a nacelle ***/
+    
     int &WingSurfaceForKuttaNodeIsPeriodic(int i) { return WingSurfaceForKuttaNodeIsPeriodic_[i]; };
+    
+    /** Kutta node is on wing tip **/
+    
     int &KuttaNodeIsOnWingTip(int i) { return KuttaNodeIsOnWingTip_[i]; };
     
+    /** X coordinate of kutta node trailing edge point **/
+    
     VSPAERO_DOUBLE &WakeTrailingEdgeX(int i) { return WakeTrailingEdgeX_[i]; };
+    
+    /** Y coordinate of kutta node trailing edge point **/
+    
     VSPAERO_DOUBLE &WakeTrailingEdgeY(int i) { return WakeTrailingEdgeY_[i]; };
+    
+    /** Z coordinate of kutta node trailing edge point **/
+    
     VSPAERO_DOUBLE &WakeTrailingEdgeZ(int i) { return WakeTrailingEdgeZ_[i]; };
+    
+    /** S over B (ie, non-dim span location) for kutta node **/
     
     VSPAERO_DOUBLE &KuttaNodeSoverB(int i) { return KuttaNodeSoverB_[i]; };
     
-    // Model type
+    /** Model type **/
     
     int &ModelType(void) { return ModelType_; };
     
-    // Surface type
+    /** Surface type **/
     
     int &SurfaceType(void) { return SurfaceType_; };
     
-    // Component ID
+    /** Component ID **/
     
     int &ComponentID(void) { return ComponentID_; };
    
-    // Create edge data
+    /** Create edge data from triangle list **/
     
     void CreateTriEdges(void);
     
-    // Calculate normals and centroids for a triangular mesh
+    /** Calculate normals and centroids for a triangular mesh **/
     
     void CalculateTriNormalsAndCentroids(void);
     
-    // Calculate which edges are updwind off the triangle centroid
+    /** Determine which which edges are updwind off the triangle centroid **/
     
     void CalculateUpwindEdges(void);
+    
+    /** Calculate upwind edge data **/
+    
     void CreateUpwindEdgeData(void);
+    
+    /** Contraint on the minimum loop sized used during agglomeration **/
     
     VSPAERO_DOUBLE &MinLoopArea(void) { return MinLoopArea_; };
 
-    // Write out mesh
+    /** Write out mesh data **/
     
     void WriteMesh(char *FileName);
     
-    // Geometry update
+    /** Update geometry based on supplied translation vector and quaternion rotation **/
     
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
+    
+    /** Set the edge Mach number **/
+    
+    void SetMachNumber(VSPAERO_DOUBLE Mach);
 
 };
 

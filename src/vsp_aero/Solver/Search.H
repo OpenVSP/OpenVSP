@@ -53,12 +53,20 @@ public:
     SEARCH(void);
    ~SEARCH(void);
     SEARCH(const SEARCH &Search);
+    
+    /** Search the tree to find closest result to the TEST_NODE node **/
 
     int SearchTree(TEST_NODE &node) { return SearchTree_(root_, node); };
+    
+    /** Create a search tree given a trailing vortex data structure **/
 
     void CreateSearchTree(VORTEX_TRAIL &Trail, int NumberOfNodes);
+    
+    /** Create a search tree given a surface mesh **/
 
     void CreateSearchTree(VSP_GRID &Grid);
+    
+    /** Set the tolerances on searches **/
     
     VSPAERO_DOUBLE &Tolerance(void) { return Tolerance_; };
 

@@ -1,0 +1,87 @@
+// Simple script to load file, apply design changes, and execute CompGeom.
+//
+// vsp -script vspgeom.vspscript
+// or
+// vspbatch -script vspgeom.vspscript
+//
+// Comment out lines 14-21 below if you prefer to pass the filenames on the command line.
+// vsp baseline.vsp3 -des changes.des -script vspgeom.vspscript
+// or
+// vspbatch baseline.vsp3 -des changes.des -script vspgeom.vspscript
+
+void main()
+{
+    // Purely optional, can be passed on the command line instead.  Equivalent to:
+    // vsp baseline.vsp3
+    string fname = "hershey.vsp3";
+    ReadVSPFile( fname );
+
+    // Purely optional, can be passed on the command line instead.  Equivalent to:
+    // vsp baseline.vsp3 -des changes.des
+    ReadApplyDESFile( "Opt.des" );
+    Update();
+    Update();
+    Update();
+
+    // Flag to control whether geometry is intersected or non-intersected.
+    bool intersect = true;
+
+    // To use a user set, use SET_FIRST_USER+0 etc.
+    int thick_set = SET_NONE;  // SET_ALL;
+    int thin_set = SET_ALL;    // SET_NONE;
+
+    if ( intersect )
+    {
+        string analysis_name = "CompGeom";
+    
+        // Set the thick surface Set -- SET_ALL is the default.
+        array< int > set = GetIntAnalysisInput( analysis_name, "Set" );
+        set[0] = thick_set;
+        SetIntAnalysisInput( analysis_name, "Set", set );
+
+        // Set the thin surface Set -- SET_NONE is the default.
+        array< int > dgset = GetIntAnalysisInput( analysis_name, "DegenSet" );
+        dgset[0] = thin_set;
+        SetIntAnalysisInput( analysis_name, "DegenSet", dgset );
+
+        // Control CompGeom half mesh setting.
+        array< int > hmflag = GetIntAnalysisInput( analysis_name, "HalfMeshFlag" );
+        hmflag[0] = 0;
+        SetIntAnalysisInput( analysis_name, "HalfMeshFlag", hmflag );
+
+        // Control CompGeom subsurface setting.
+        array< int > ssflag = GetIntAnalysisInput( analysis_name, "SubSurfFlag" );
+        ssflag[0] = 0;
+        SetIntAnalysisInput( analysis_name, "SubSurfFlag", ssflag );
+
+        // Turn off writing CompGeom CSV file.
+        array< int > cflag = GetIntAnalysisInput( analysis_name, "WriteCSVFlag" );
+        cflag[0] = 0;
+        SetIntAnalysisInput( analysis_name, "WriteCSVFlag", cflag );
+
+        // Turn off writing CompGeom DragTSV file.
+        array< int > tflag = GetIntAnalysisInput( analysis_name, "WriteDragTSVFlag" );
+        tflag[0] = 0;
+        SetIntAnalysisInput( analysis_name, "WriteDragTSVFlag", tflag );
+
+        // Execute CompGeom
+		// This places the resulting MeshGeom in the thick_set Set.
+        ExecAnalysis( analysis_name );
+    }
+
+    // Dump out file, creating thick/thin MeshGeom if needed.
+  
+  // old way  ThickThinExportFile( "hershey.vspgeom", thick_set, thin_set, EXPORT_VSPGEOM );
+
+   // New way ExportFile( const string & in file_name, int thick_set, int file_type, int thin_set = -1 )
+
+
+    ExportFile( "hershey.vspgeom", thick_set, EXPORT_VSPGEOM, thin_set );
+    
+    // Check For API Errors
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+}

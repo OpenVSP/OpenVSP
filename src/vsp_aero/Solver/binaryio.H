@@ -45,32 +45,52 @@ public:
 
    void init(void);
 
-   // I/O
+   /** Turn on byte swapping for all reads **/
 
    void TurnByteSwapForReadsOn(void) { SwapOnRead_ = 1; };
+   
+   /** Turn off byte swapping for all reads **/
+   
    void TurnByteSwapForReadsOff(void) { SwapOnRead_ = 0; };
 
+   /** Turn on byte swapping for all writes **/
+   
    void TurnByteSwapForWritesOn(void) { SwapOnWrite_ = 1; };
+   
+   /** Turn off byte swapping for all writes **/
+   
    void TurnByteSwapForWritesOff(void) { SwapOnWrite_ = 0; };
 
-   // Read or write an int
+   /** Read in an integer **/
 
    size_t fread(int *Word, int WordSize, int NumWords , FILE *File);
+   
+   /** Write out an integer **/
+   
    size_t fwrite(int *Word, int WordSize, int NumWords , FILE *File);
 
-   // Read or write a float
+   /** Read in a float **/
 
    size_t fread(float *Word, int WordSize, int NumWords , FILE *File);
+   
+   /** Write out a float **/
+   
    size_t fwrite(float *Word, int WordSize, int NumWords , FILE *File);
 
-   // Read or write a double
+   /** Read in a double **/
 
    size_t fread(double *Word, int WordSize, int NumWords , FILE *File);
+   
+   /** Write out a double **/
+   
    size_t fwrite(double *Word, int WordSize, int NumWords , FILE *File);
 
-   // Read or write a char
+   /** Read in a char **/
 
    size_t fread(char *Word, int WordSize, int NumWords , FILE *File);
+   
+   /** Write out a char **/
+   
    size_t fwrite(char *Word, int WordSize, int NumWords , FILE *File);
 
 };

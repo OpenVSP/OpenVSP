@@ -39,7 +39,6 @@ private:
     VSPAERO_DOUBLE z_;
     
     VSPAERO_DOUBLE dGamma_;
-    VSPAERO_DOUBLE Area_;
     
     // Agglomeration data
     
@@ -55,28 +54,59 @@ public:
     VSP_NODE(const VSP_NODE &VSPNode);
     VSP_NODE& operator=(const VSP_NODE &VSPNode);
 
-    // Accesss to node data
+    /** X coordinate of node **/
 
     VSPAERO_DOUBLE &x(void) { return x_; };
+    
+    /** Y coordinate of node **/
+    
     VSPAERO_DOUBLE &y(void) { return y_; };
+
+    /** Z coordinate of node **/
+
     VSPAERO_DOUBLE &z(void) { return z_; };
     
+    /** Node is on trailing edge **/
+    
     int &IsTrailingEdgeNode(void) { return IsTrailingEdgeNode_; };
+    
+    /** Node is on leading edge **/
+    
     int &IsLeadingEdgeNode(void) { return IsLeadingEdgeNode_; };
+
+    /** Node is on boundary edge **/
+
     int &IsBoundaryEdgeNode(void) { return IsBoundaryEdgeNode_; };
+
+    /** Node is on a corner **/
+
     int &IsBoundaryCornerNode(void) { return IsBoundaryCornerNode_; };
     
+    /** Component ID **/
+    
     int &ComponentID(void) { return ComponentID_; };
+    
+    /** Surface ID **/
+    
     int &SurfaceID(void) { return SurfaceID_; };
+    
+    /** Geom ID **/
     
     int &GeomID(void) { return GeomID_; };
     
+    /** Delta gamma **/
+    
     VSPAERO_DOUBLE &dGamma(void) { return dGamma_; };
     
-    VSPAERO_DOUBLE &Area(void) { return Area_; };
-    
+    /** Coarse grid node **/
+  
     int &CoarseGridNode(void) { return CoarseGridNode_; };
+    
+    /** Fine grid node **/
+    
     int &FineGridNode(void) { return FineGridNode_; };
+    
+    /** Update geometry given translation vector and quaternion rotation **/
     
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
 

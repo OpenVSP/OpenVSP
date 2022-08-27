@@ -2,7 +2,8 @@
 // This file is released under the terms of the NASA Open Source Agreement (NOSA)
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
-//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+////////////
 
 #include "VSP_Edge.H"
 
@@ -14,8 +15,8 @@
 #                                                                              #
 ##############################################################################*/
 
-    double VSP_EDGE::Mach_        = 0.;
-    double VSP_EDGE::Kappa_       = 2.;
+  // VSPAERO_DOUBLE VSP_EDGE::Mach_        = 0.;
+  // VSPAERO_DOUBLE VSP_EDGE::Kappa_       = 2.;
 
     double VSP_EDGE::Tolerance_1_ = 1.e-7;
     double VSP_EDGE::Tolerance_2_ = 1.e-7 * 1.e-7;
@@ -69,7 +70,6 @@ void VSP_EDGE::init(void)
     ComponentID_ = 0;
     GeomID_ = 0;
 
-    EdgeType_ = 0;
     IsTrailingEdge_ = 0;
     IsLeadingEdge_ = 0;
     IsBoundaryEdge_ = 0;
@@ -77,9 +77,7 @@ void VSP_EDGE::init(void)
     CoarseGridEdge_ = 0;
     FineGridEdge_ = 0;
     Level_ = 0.;
-
-    EdgeWasUsedForLoop_ = 0;
-    
+ 
     S_ = 0.;
     T_ = 0.;
     Sigma_ = 0.;
@@ -89,9 +87,7 @@ void VSP_EDGE::init(void)
          Trefftz_Forces_[0] =      Trefftz_Forces_[1] =      Trefftz_Forces_[2] = 0.;
         Unsteady_Forces_[0] =     Unsteady_Forces_[1] =     Unsteady_Forces_[2] = 0.;
           InducedForces_[0] =       InducedForces_[1] =       InducedForces_[2] = 0.;
-            LocalForces_[0] =         LocalForces_[1] =         LocalForces_[2] = 0.;
-    Unsteady_LocalForces[0] = Unsteady_LocalForces[1] = Unsteady_LocalForces[2] = 0.;
-     
+  
     Verbose_ = 0;
  
     DegenWing_ = 0;
@@ -111,8 +107,6 @@ void VSP_EDGE::init(void)
 
     u_ = v_ = w_ = 0.;
 
-    LocalSpacing_ = 0.;
-
     VortexLoop1IsDownWind_ = 0;
     VortexLoop2IsDownWind_ = 0;
     
@@ -121,20 +115,14 @@ void VSP_EDGE::init(void)
 
     Gamma_ = 0.;   
 
-    ThicknessToChord_ = 0.;   
-    
-    LocationOfMaxThickness_ = 0.;   
-    
-    RadiusToChord_ = 0.;        
-    
-    CoreWidth_ = 0.;        
-    
     SuperSonicCoreWidth_ = 0.;
     
     MinCoreWidth_ = 0.;    
+
+    Mach_ = -1.;
     
-    WakeNode_ = 0;              
-    
+    Kappa_ = 1.;
+       
     KTFact_ = 1.;  
     
     Normal_[0] = Normal_[1] = Normal_[2] = 0.;
@@ -201,7 +189,6 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     
     // Edge type
     
-    EdgeType_       = VSPEdge.EdgeType_;     
     IsTrailingEdge_ = VSPEdge.IsTrailingEdge_;
     IsLeadingEdge_  = VSPEdge.IsLeadingEdge_; 
     IsBoundaryEdge_ = VSPEdge.IsBoundaryEdge_;
@@ -214,7 +201,6 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     CoarseGridEdge_     = VSPEdge.CoarseGridEdge_;     
     FineGridEdge_       = VSPEdge.FineGridEdge_;     
     Level_              = VSPEdge.Level_;     
-    EdgeWasUsedForLoop_ = VSPEdge.EdgeWasUsedForLoop_;     
      
     // Surface type
     
@@ -255,10 +241,10 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     
     S_ = VSPEdge.S_;
     T_ = VSPEdge.T_;
-    
-    LocalSpacing_ = VSPEdge.LocalSpacing_;
 
     Mach_ = VSPEdge.Mach_;
+    
+    Kappa_ = VSPEdge.Kappa_;
     
     // Tolerances
     
@@ -279,15 +265,7 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     // Circulation strength
     
     Gamma_ = VSPEdge.Gamma_;
-    
-    // Airfoil information                                  
-  
-    ThicknessToChord_ = VSPEdge.ThicknessToChord_;
-    
-    LocationOfMaxThickness_ = VSPEdge.LocationOfMaxThickness_;
-    
-    RadiusToChord_ = VSPEdge.RadiusToChord_;    
-    
+
     CoreWidth_ = VSPEdge.CoreWidth_;
     
     MinCoreWidth_ = VSPEdge.MinCoreWidth_;
@@ -307,11 +285,9 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     for ( i = 0 ; i <= 2 ; i++ ) {
        
                     Forces_[i] = VSPEdge.Forces_[i];
-               LocalForces_[i] = VSPEdge.LocalForces_[i];
             Trefftz_Forces_[i] = VSPEdge.Trefftz_Forces_[i];
            Unsteady_Forces_[i] = VSPEdge.Unsteady_Forces_[i];
              InducedForces_[i] = VSPEdge.InducedForces_[i];       
-       Unsteady_LocalForces[i] = VSPEdge.Unsteady_LocalForces[i];
        
     }
    
@@ -395,13 +371,15 @@ void VSP_EDGE::SetTolerance(VSPAERO_DOUBLE Tolerance) {
 
 /*##############################################################################
 #                                                                              #
-#                            VSP_EDGE SetMach                                  #
+#                            VSP_EDGE SetMachNumber                            #
 #                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::SetMach(VSPAERO_DOUBLE Mach) {
+void VSP_EDGE::SetMachNumber(VSPAERO_DOUBLE Mach) {
 
-    Mach_ = DOUBLE(Mach);
+//djk     Mach_ = DOUBLE(Mach);
+
+    Mach_ = Mach;
 
     if ( Mach_ < 1. ) {
    
@@ -468,6 +446,15 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
     VSPAERO_DOUBLE C_Gamma;
     VSPAERO_DOUBLE a, b, c, d, dx, dy, dz;
     VSPAERO_DOUBLE s1, s2, F, F1, F2, Test;
+
+    // Debug code...
+    
+   //if ( Mach_ < 0. ) {
+   //   
+   //   PRINTF("Mach number not initialized! \n");   
+   //   fflush(NULL);exit(1);
+   //   
+   //}
 
     Beta2_ = 1. - SQR(KTFact_*Mach_);
 

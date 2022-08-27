@@ -2953,6 +2953,41 @@ void VORTEX_SHEET::UpdateGeometryLocation(void)
 
 /*##############################################################################
 #                                                                              #
+#                         VORTEX_SHEET SetMachNumber                           #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_SHEET::SetMachNumber(VSPAERO_DOUBLE Mach)
+{
+   
+    int i, Level;
+
+    // Set the Mach number for the trailing wakes and any bound vortices
+
+    for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+ 
+      TrailingVortexList_[i]->SetMachNumber(Mach);
+      
+    }
+    
+    BoundVortex_.SetMachNumber(Mach);
+
+    // Recursively update
+    
+    for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
+       
+       for ( i = 1 ; i <= NumberOfVortexSheetsForLevel_[Level] ; i++ ) {
+          
+          VortexSheetListForLevel_[Level][i].SetMachNumber(Mach);
+    
+       }
+       
+    }
+       
+}
+
+/*##############################################################################
+#                                                                              #
 #                      VORTEX_SHEET UpdateRotorFlags                           #
 #                                                                              #
 ##############################################################################*/
@@ -2974,8 +3009,6 @@ void VORTEX_SHEET::UpdateRotorFlags(int *ComponentInThisGroup)
            
            IsARotor_ = 1;
 
-           PRINTF("i: %d .... is a rotor! \n");fflush(NULL);
-           
        }
        
     }

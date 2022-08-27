@@ -219,7 +219,7 @@ glviewer->redraw();}
           label SaveAs open
           xywh {0 0 70 21}
         } {
-          MenuItem FileMenuSaveAsTiff {
+          MenuItem FileMenuSaveAsPNG {
             label {PNG File}
             callback {const char *val;
 char dum[80];

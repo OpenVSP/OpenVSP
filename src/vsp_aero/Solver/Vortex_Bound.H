@@ -71,33 +71,52 @@ public:
     VORTEX_BOUND& operator=(const VORTEX_BOUND &VortexBound);
     VORTEX_BOUND& operator+=(const VORTEX_BOUND &VortexBound);
     
-    // Setup bound vortex data structure
+    /** Given 2 trailing vortex structures, set up bound vortex structure 
+     * ... this structure contains the shed, bound, vortices, from the
+     * trailing edge at previous time steps... for a steady solution
+     * these bound vortices would have zero strength. For an unsteady
+     * problem they contain the time history of the lift evolution 
+     **/
 
     void Setup(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Trail2);
                     
-    // Update bound vortex locations
+    /** Update bound vortex locations as the wake is shed at each time step **/
     
     void UpdateGeometryLocation(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Trail2);
 
-    // Induced velocities
+    /** Set the Mach number for the bound vortex list **/
+    
+    void SetMachNumber(VSPAERO_DOUBLE Mach);
+    
+    /** Update the bound vortex circulation strengths **/
 
     void UpdateGamma(void);
     
+    /** Calculate the bound vortex induced velocities **/
+    
     void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+    
+    /** Calculate the bound vortex induced velocities ... assuming a finite core size model **/
     
     void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CorSize);
    
-    // Bound vortex strengths at finest level
+    /** Access to the bound vortex strengths at finest level **/
      
     VSPAERO_DOUBLE &Gamma(int i) { return Gamma_[i]; };
      
-    // Solution parameters
+    /** Time accurate flag **/
     
     int &TimeAccurate(void) { return TimeAccurate_; };
     
+    /** Time analysis type flag **/
+    
     int &TimeAnalysisType(void) { return TimeAnalysisType_; };
 
+    /** The current global time step, used in the core size evolution calculations **/
+    
     int &CurrentTimeStep(void) { return CurrentTimeStep_; };
+    
+    /** Analysis time step **/
     
     VSPAERO_DOUBLE &TimeStep(void) { return TimeStep_; };
 

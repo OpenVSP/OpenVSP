@@ -179,7 +179,63 @@ private:
     int *NumberOfCommonNodesForTE_;
        
     COMMON_VORTEX_SHEET *CommonTEList_;   
-     
+
+    // Left and right trailing vortices for this vortex sheet **/
+    
+    void SetTrailingVortices(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Trail2) { VortexTrail1_ = &Trail1 ; VortexTrail2_ = &Trail2; };
+    
+    // Left trailing vortex 
+
+    VORTEX_TRAIL& VortexTrail1(void) { return *VortexTrail1_; };
+    
+    // Right trailing vortex 
+    
+    VORTEX_TRAIL& VortexTrail2(void) { return *VortexTrail2_; };    
+    
+    // Set left and right vortex strengths for injection 
+    
+    void SetVortexGammas(VSPAERO_DOUBLE *Gamma1, VSPAERO_DOUBLE *Gamma2) { VortexTrailingGamma1_ = Gamma1 ; VortexTrailingGamma2_ = Gamma2; };
+
+    // Vortex strength for trailing vortex 1 
+    
+    VSPAERO_DOUBLE &TrailingGamma1(int i) { return VortexTrailingGamma1_[i]; };
+    
+    // Vortex strength for trailing vortex 2 
+    
+    VSPAERO_DOUBLE &TrailingGamma2(int i) { return VortexTrailingGamma2_[i]; };
+
+    // Set Child1, and Child2 for this vortex sheet 
+    
+    void SetupChildren(VORTEX_SHEET &Child1, VORTEX_SHEET &Child2) { Child1_ = &Child1 ; Child2_ = &Child2; ThereAreChildren_ = 2; };
+    
+    // Set Child1, no Child2 for this vortex sheet 
+    
+    void SetupChildren(VORTEX_SHEET &Child1)                       { Child1_ = &Child1 ; Child2_ = NULL;    ThereAreChildren_ = 1; };
+
+    // This vortex sheet has children 
+    
+    int &ThereAreChildren(void) { return ThereAreChildren_; };
+    
+    // Child 1 for this vortex sheet 
+    
+    VORTEX_SHEET &Child1(void) { return *Child1_; };
+    
+    // Child 2 for this vortex sheet 
+    
+    VORTEX_SHEET &Child2(void) { return *Child2_; };
+
+    // Setup this vortex sheet 
+    
+    void Setup(void);
+    
+    // Determine if evaluation point is faraway wrt this vortex sheet
+
+    int FarAway(VSPAERO_DOUBLE xyz_p[3]);
+    
+    // Calculate distance from evaluation point to this vortex sheet
+    
+    VSPAERO_DOUBLE Distance(VSPAERO_DOUBLE xyz_p[3]);
+         
 public:
 
     // Constructor, Destructor, Copy
@@ -193,153 +249,206 @@ public:
     VORTEX_SHEET& operator=(const VORTEX_SHEET &Vortex_Sheet);
     VORTEX_SHEET& operator+=(const VORTEX_SHEET &VortexSheet);
     
-    // Set up the vortex sheet
+    /** Set up the vortex sheet **/
 
     void SetupVortexSheets(void);
     
-    // Wing Surface ID
+    /** Wing Surface ID for this vortex sheet **/
     
     int &WingSurface(void) { return WingSurface_; };
         
-    // Trailing vortices
+    /** Number of Subvortices for each trailing vortex **/
     
     int NumberOfSubVortices(void) { return NumberOfSubVortices_; };
     
+    /** Number of starting vortices that have been shed down stream from the trailing edge **/
+    
     int NumberOfStartingVortices(void) { return NumberOfStartingVortices_; };
+    
+    /** Size the trailing vortex list data structures **/
     
     void SizeTrailingVortexList(int NumberOfTrailingVortices);
     
+    /** Number of trailing vortices **/
+    
     int NumberOfTrailingVortices(void) { return NumberOfTrailingVortices_; };
+    
+    /** Number of vortex sheets across all the levels after agglomeration **/
     
     int TotalNumberOfVortexSheets(void) { return TotalNumberOfVortexSheets_; };
     
+    /** Access to the i'th trailing vortex **/
+    
     VORTEX_TRAIL& TrailingVortex(int i) { return *(TrailingVortexList_[i]); };
 
-    // Left and right trailing vortices
-    
-    void SetTrailingVortices(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Trail2) { VortexTrail1_ = &Trail1 ; VortexTrail2_ = &Trail2; };
 
-    VORTEX_TRAIL& VortexTrail1(void) { return *VortexTrail1_; };
-    VORTEX_TRAIL& VortexTrail2(void) { return *VortexTrail2_; };    
-    
-    // Set left and right vortex strengths for injection
-    
-    void SetVortexGammas(VSPAERO_DOUBLE *Gamma1, VSPAERO_DOUBLE *Gamma2) { VortexTrailingGamma1_ = Gamma1 ; VortexTrailingGamma2_ = Gamma2; };
-
-    VSPAERO_DOUBLE &TrailingGamma1(int i) { return VortexTrailingGamma1_[i]; };
-    VSPAERO_DOUBLE &TrailingGamma2(int i) { return VortexTrailingGamma2_[i]; };
-
-    // Vortex sheet children
-    
-    void SetupChildren(VORTEX_SHEET &Child1, VORTEX_SHEET &Child2) { Child1_ = &Child1 ; Child2_ = &Child2; ThereAreChildren_ = 2; };
-    void SetupChildren(VORTEX_SHEET &Child1)                       { Child1_ = &Child1 ; Child2_ = NULL;    ThereAreChildren_ = 1; };
-
-    int &ThereAreChildren(void) { return ThereAreChildren_; };
-    
-    VORTEX_SHEET &Child1(void) { return *Child1_; };
-    VORTEX_SHEET &Child2(void) { return *Child2_; };
-
-    // Level for this vortex sheet
+    /** Agglomeration level for this vortex sheet **/
     
     int &Level(void) { return Level_; };
     
-    // Evaluation flag... for agglomeration multipole routine
+    /** Evaluation flag... for agglomeration multipole routine **/
     
     int &Evaluate(void) { return Evaluate_; };    
     
-    // Sheed ID
+    /** Global sheet ID **/
     
     int &SheetID(void) { return SheetID_; };
     
-    // Distance to evaluation point
+    /** Distance to evaluation point **/
     
     VSPAERO_DOUBLE &Distance(void) { return Distance_; };
     
-    // Span
+    /** Span of this vortex sheet **/
     
     VSPAERO_DOUBLE Span(void) { return Span_; };
     
-    // Time accurate data
+    /** Time accurate analysis flag **/
     
     int &TimeAccurate(void) { return TimeAccurate_; };
+    
+    /** Time accurate analysis type flag **/
         
     int &TimeAnalysisType(void ) { return TimeAnalysisType_; };
 
+    /** Current time step for a time accurate analysis **/
+    
     int &CurrentTimeStep(void) { return CurrentTimeStep_; };
+    
+    /** This vortex sheet is attached to a rotor **/
     
     int &IsARotor(void) { return IsARotor_; };
     
+    /** Freestream velocity magnitude **/
+    
     VSPAERO_DOUBLE &Vinf(void) { return Vinf_; };
+    
+    /** Free stream velocity vector **/
     
     VSPAERO_DOUBLE &FreeStreamVelocity(int i) { return FreeStreamVelocity_[i]; };
     
+    /** Time step for time accurate analysis **/
+    
     VSPAERO_DOUBLE &TimeStep(void) { return TimeStep_; };
 
-    // Induced velocity from this vortex sheet
-    
-    void Setup(void);
+    /** Vortex sheet is periodoic... ala a nacelle **/
     
     int &IsPeriodic(void) { return IsPeriodic_; };
-
-    int FarAway(VSPAERO_DOUBLE xyz_p[3]);
     
-    VSPAERO_DOUBLE Distance(VSPAERO_DOUBLE xyz_p[3]);
-        
+    /** Save the current vortex state **/
+    
     void SaveVortexState(void);
+    
+    /** Update the vortex strengths **/
     
     void UpdateVortexStrengths(int UpdateType);
     
+    /** Update how far the wake has been evolved in a time accurate analysis **/
+    
     void UpdateConvectedDistance(void);
+    
+    /** Create a vortex sheet interaction list for point xyz **/
     
     VORTEX_SHEET_ENTRY *CreateInteractionSheetList(VSPAERO_DOUBLE xyz_p[3], int &NumberOfEvaluatedSheets);
     
+    /** Calculate the induced velocity at point xyz **/
+    
     void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+    
+    /** Calculate the induced velocity at point xyz that is on trailing wake start at xyz_te... we are trying not
+     * to do self trailing vortex evaluations **/
     
     void InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE xyz_te[3]);
     
+    /** Calculate the induced trailing edge induced velocity ... this basically uses Munk's theorem to 
+     * shift the incoming point to the x location of the start of each trailing vortex and then calculates
+     * the induced velocity ... this is similar to doing a Trefftz plane analysis for the induced drag **/
+     
     void InducedKuttaVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);    
 
+    /** Calculate the induced velocity at point xyz from the vortex sheet list previously determined for this point **/
+    
     void InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
 
+    /** Calculate the induced velocity at point xyz from the vortex sheet list previously determined for this point ... but check for self induced
+     * cases as we are on a trailing vortex **/
+     
     void InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE xyz_te[3], VSPAERO_DOUBLE q[3]);
  
+    /** Calculate the induced trailing edge induced velocity ... this basically uses Munk's theorem to 
+     * shift the incoming point to the x location of the start of each trailing vortex and then calculates
+     * the induced velocity ... this is similar to doing a Trefftz plane analysis for the induced drag ...
+     * in this case we are using a predetermine set of vortex sheets **/
+     
     void InducedKuttaVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+    
+    /** Values for starting gammas (circulation) **/
    
     VSPAERO_DOUBLE StartingGamma(int i, int j) { return StartingGamma_[i][j]; };
+    
+    /** Flag to do ground effect analyis **/
  
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
     
+    /** Update the wake location **/
+    
     VSPAERO_DOUBLE UpdateWakeLocation(void);
     
+    /** Update the geometry based on an input translation vector and rotation quaternion **/
+    
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
+    
+    /** Set the trailing and bound vortices Mach number **/
+    
+    void SetMachNumber(VSPAERO_DOUBLE Mach);
 
+    /** Move down vortex sheet, and trailing edge structures to note that anything in the passed in component group is part of a rotor **/
+     
     void UpdateRotorFlags(int *ComponentInThisGroup);
   
+    /** Zero velocities evaluated for each edge making up the trailing vortices... these are the velocities used to adapt the location of
+     * the wakes **/
+    
     void ZeroEdgeVelocities(void);
 
+    /** Prolongate the calculated induced velocites from the coarse to finer meshes as part of the multipole process **/
+    
     void ProlongateEdgeVelocities(void);
+    
+    /** Finite core size for the trailing vortices **/
     
     VSPAERO_DOUBLE CoreSize(void) { return CoreSize_; };
     
+    /** Ratio used to determine if a point is far enough away from a vortex sheet to be accurately evaluated... or if we need
+     * to move to a finer mesh **/
+    
     double &FarAwayRatio(void) { return FarAway_; };
 
-    // Wake Bounding Box
+    /** Wake bounding box **/
     
     BBOX &TEBox(void) { return TEBox_; };    
 
-    // Common trailing edge node list
+    /** Common trailing edge node list **/
     
     void SizeCommonTEList(int NumberOfCommonTE);
+    
+    /** Number of common trailing edge nodes **/
 
     int NumberOfCommonTE(void) { return NumberOfCommonTE_; };
     
+    /** Number of commond nodes that share this xyz location **/
+    
     int &NumberOfCommonNodesForTE(int i) { return NumberOfCommonNodesForTE_[i]; };
-       
+    
+    /** Common vortex sheet list **/
+   
     COMMON_VORTEX_SHEET &CommonTEList(int i) { return CommonTEList_[i]; };      
     
-    // Wake Damping
+    /** Turn on Wake damping **/
     
     void TurnWakeDampingOn(void);
+    
+    /** Turn off wake damping **/
+    
     void TurnWakeDampingOff(void);
     
 };

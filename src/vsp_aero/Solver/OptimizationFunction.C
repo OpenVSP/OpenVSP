@@ -21,6 +21,10 @@ OPTIMIZATION_FUNCTION::OPTIMIZATION_FUNCTION(void)
     
     FunctionLength_ = 0;
 
+    NumberOfTimeSteps_ = 0;
+    
+    VectorLength_ = 0;
+    
     Wing_ = 1;
 
     Rotor_ = 1;
@@ -46,6 +50,10 @@ OPTIMIZATION_FUNCTION::~OPTIMIZATION_FUNCTION(void)
     
     FunctionLength_ = 0;
 
+    NumberOfTimeSteps_ = 0;
+    
+    VectorLength_ = 0;
+    
     Wing_ = 0;
 
     Rotor_ = 0;
@@ -88,6 +96,10 @@ OPTIMIZATION_FUNCTION &OPTIMIZATION_FUNCTION::operator=(const OPTIMIZATION_FUNCT
     
     FunctionLength_ = Optfunction.FunctionLength_;
 
+    NumberOfTimeSteps_ = Optfunction.NumberOfTimeSteps_;
+    
+    VectorLength_ = Optfunction.VectorLength_;
+    
     Wing_ = Optfunction.Wing_;
 
     Rotor_ = Optfunction.Rotor_;
@@ -98,13 +110,13 @@ OPTIMIZATION_FUNCTION &OPTIMIZATION_FUNCTION::operator=(const OPTIMIZATION_FUNCT
     
     if ( UserVector_ != NULL ) delete [] UserVector_;
     
-    Function_ = new VSPAERO_DOUBLE[FunctionLength_ + 1];
+    Function_ = new VSPAERO_DOUBLE[VectorLength_ + 1];
 
-    FunctionAverage_ = new VSPAERO_DOUBLE[FunctionLength_ + 1];
+    FunctionAverage_ = new VSPAERO_DOUBLE[VectorLength_ + 1];
     
-    UserVector_ = new double[FunctionLength_ + 1];
+    UserVector_ = new double[VectorLength_ + 1];
     
-    for ( i = 1 ; i <= FunctionLength_ ; i++ ) {
+    for ( i = 1 ; i <= VectorLength_ ; i++ ) {
     
        Function_[i] = Optfunction.Function_[i];
        
@@ -124,7 +136,7 @@ OPTIMIZATION_FUNCTION &OPTIMIZATION_FUNCTION::operator=(const OPTIMIZATION_FUNCT
 #                                                                              #
 ##############################################################################*/
 
-void OPTIMIZATION_FUNCTION::SetFunctionLength(int Length)
+void OPTIMIZATION_FUNCTION::SetFunctionLength(int Length, int NumberOfTimeSteps)
 {
 
     int i;
@@ -137,13 +149,17 @@ void OPTIMIZATION_FUNCTION::SetFunctionLength(int Length)
 
     FunctionLength_ = Length;
     
-    Function_ = new VSPAERO_DOUBLE[FunctionLength_ + 1];
+    NumberOfTimeSteps_ = NumberOfTimeSteps;
+    
+    VectorLength_ = FunctionLength_*(NumberOfTimeSteps_ + 1);
+    
+    Function_ = new VSPAERO_DOUBLE[VectorLength_ + 1];
 
-    FunctionAverage_ = new VSPAERO_DOUBLE[FunctionLength_ + 1];
+    FunctionAverage_ = new VSPAERO_DOUBLE[VectorLength_ + 1]; // Yes, this is over kill...
     
-    UserVector_ = new double[FunctionLength_ + 1];
-    
-    for ( i = 1 ; i <= FunctionLength_ ; i++ ) {
+    UserVector_ = new double[VectorLength_ + 1];
+
+    for ( i = 1 ; i <= VectorLength_ ; i++ ) {
        
        Function_[i] = 0.;
        

@@ -282,7 +282,7 @@ void ENGINE_FACE::Read_Binary_STP_Data(FILE *InputFile)
 #                                                                              #
 ##############################################################################*/
 
-void ENGINE_FACE::Skip_Read_Binary_STP_Data(FILE *InputFile)
+void ENGINE_FACE::Skip_Read_Binary_STP_Data(FILE *OutputFile)
 {
  
     int i_size, c_size, d_size;
@@ -297,15 +297,15 @@ void ENGINE_FACE::Skip_Read_Binary_STP_Data(FILE *InputFile)
     
     // Write out STP file data
 
-    FREAD(&DumDouble, d_size, 1, InputFile); 
-    FREAD(&DumDouble, d_size, 1, InputFile); 
-    FREAD(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, OutputFile); 
+    FREAD(&DumDouble, d_size, 1, OutputFile); 
+    FREAD(&DumDouble, d_size, 1, OutputFile); 
     
-    FREAD(&DumDouble, d_size, 1, InputFile); 
-    FREAD(&DumDouble, d_size, 1, InputFile); 
-    FREAD(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, OutputFile); 
+    FREAD(&DumDouble, d_size, 1, OutputFile); 
+    FREAD(&DumDouble, d_size, 1, OutputFile); 
     
-    FREAD(&DumDouble, d_size, 1, InputFile); 
+    FREAD(&DumDouble, d_size, 1, OutputFile); 
 
 }
 

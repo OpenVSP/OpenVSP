@@ -308,5 +308,26 @@ void VORTEX_BOUND::UpdateGeometryLocation(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Tr
  
 }    
 
+/*##############################################################################
+#                                                                              #
+#                         VORTEX_BOUND SetMachNumber                           #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_BOUND::SetMachNumber(VSPAERO_DOUBLE Mach)
+{
+
+    int i;
+
+    // Set the Mach number for the bound vortices
+    
+    for ( i = 1 ; i <= NumberOfStartingVortices_ ; i++ ) {
+
+       BoundVortexList_[i].SetMachNumber(Mach);
+                     
+    }
+ 
+}   
+
 #include "END_NAME_SPACE.H"
 

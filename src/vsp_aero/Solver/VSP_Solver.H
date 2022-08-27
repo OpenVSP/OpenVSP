@@ -494,10 +494,22 @@ private:
     
     OPTIMIZATION_FUNCTION OptimizationFunctionList_[1001];   
     
+    // Gradient data with respect to mesh nodes **/
+    
     VSPAERO_DOUBLE *pF_pMesh_;
     VSPAERO_DOUBLE *pR_pMesh_;    
     VSPAERO_DOUBLE *pF_pGamma_;
-    VSPAERO_DOUBLE **dF_dMesh_;
+    VSPAERO_DOUBLE ***dF_dMesh_;
+    
+    // Gradient data with respect to input variables
+    
+    int NumberOfOptimizationInputIndepdendentVariables_;
+
+    VSPAERO_DOUBLE *pR_pInputVariable_;
+    VSPAERO_DOUBLE *pF_pInputVariable_;
+    VSPAERO_DOUBLE ***dF_dInputVariable_;
+    
+    // Adjoint solution vector
     
     VSPAERO_DOUBLE **Psi_;
     
@@ -513,7 +525,11 @@ private:
     void Optimization_Calculate_pR_pMesh(void);
     void Optimization_Calculate_Total_Gradient(void);
     void StoreOptimizationFunction(void);
-
+    
+    // Calculate gradients wrt rotor rpm
+    
+    VSPAERO_DOUBLE *Optimization_Calculate_pF_pRotorOmega(int Group);
+    
     // Setup stuff
     
     static double FarAway_;
@@ -527,7 +543,9 @@ private:
     void Setup_VortexEdges(void);
     
     void InitializeTrailingVortices(void);
-
+    
+    void UpdateTrailingVortices(void);
+    
     void CreateSurfaceVorticesInteractionList(int LoopType);
     
     void UpdateWakeVortexInteractionLists(void);
@@ -569,6 +587,103 @@ private:
     int DoRestart_;
     int SaveRestartFile_;
     
+    // Solve stuff
+    
+    // Solve the linear system 
+    
+    void SolveLinearSystem(void);
+        
+    // Wake update 
+    
+    void UpdateWakeLocations(void);
+    
+    // Calculate the unsteady wake velocities
+    
+    void CalculateUnsteadyWakeVelocities(void);
+    
+    // Calculate the body surface velocities
+    
+    void CalculateSurfaceMotion(void);
+    
+    // Update the location of the geometry ... or parts of it
+    
+    void UpdateGeometryLocation(int DoStartUp);
+    
+    // Reset the geometry to it's initial state
+    
+    void ResetGeometry(void);
+
+    // Update the local values of the circulation strengths for each vortex egde
+    
+    void UpdateVortexEdgeStrengths(int Level, int UpdateType);
+    
+    // Zero out vortex strengths
+    
+    void ZeroVortexState(void);
+    
+    // Update the convected wake distance
+    
+    void UpdateWakeConvectedDistance(void);
+    
+    // Calculate Residual
+    
+    void CalculateResidual(void);
+    
+    // Smooth out the principal part of the integral for supersonic flows
+    
+    void CalculatePrincipalPart(void);
+    
+    void SmoothPrincipalPart(void);
+            
+    // Force and moment calculations
+    
+    void CalculateForces(void);
+    void CalculatePressureForces(void);
+    void CalculateTrefftzForces(void);
+    void CalculateKuttaJukowskiForces(void);
+    void CalculateUnsteadyForces(void);    
+    void IntegrateForcesAndMoments(void);
+    void CalculateDeltaCPs(void);
+    void CalculateVorticityGradient(void);    
+    void CalculateSurfacePressures(void);
+    void CalculateOptimizationFunctions(void);
+    void CalculateOptimizationForces(void);
+
+    void CreateVorticityGradientDataStructure(void);
+    void CreateVorticityGradientDataStructureOld(void);
+
+    void CalculateLeastSquaresCoefficients(int Loop1);
+                                            
+    void CalculateCLmaxLimitedForces(void);
+
+    int SurfaceVortexEdgeIsBetweenPlanes(VSPAERO_DOUBLE *Normal1, VSPAERO_DOUBLE *Normal1Point,
+                                         VSPAERO_DOUBLE *Normal2, VSPAERO_DOUBLE *Normal2Point,
+                                         int Edge, VSPAERO_DOUBLE &Weight);
+    
+    void CalculateSpanWiseLoading(void);
+    void CreateFEMLoadFile(int Case);
+    void CreateFEMLoadFileFromVLMSolve(int Case);
+    void CreateFEMLoadFileFromPanelSolve(int Case);
+    
+    // Quad Tree Slicing
+    
+    void CreateQuadTreePlaneDataStructures(void);
+    void CalculateQuadTreeVelocitySurvey(int Case);
+    
+    int InsideBody(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE distance);       
+
+    // Set solver type... not being used 
+    
+    int &SolverType(void) { return SolverType_; };
+    
+    // Number of time samples... not being used 
+           
+    int &NumberOfTimeSamples(void) { return NumberOfTimeSamples_; };
+           
+    // Field surveys
+    
+    void CalculateVelocitySurvey(int Case);
+        
     // ADB file
     
     int DoSolutionInterrogation_;
@@ -654,6 +769,18 @@ private:
     
     // PSU WOP WOP Coupling
     
+    // Set psuwopwop periodicity type
+    // WOPWOP_CONSTANT  1
+    // WOPWOP_PERIODIC  2
+    // WOPWOP_APERIODIC 3
+     
+    int &WopWopPeriodicity(void) { return WopWopPeriodicity_; };
+    
+    int &WopWopWriteOutADBFile(void) { return WopWopWriteOutADBFile_; };    
+    
+    VSPAERO_DOUBLE &WopWopUserStartTime(void) { return WopWopUserStartTime_; };
+    VSPAERO_DOUBLE &WopWopUserFinishTime(void) { return WopWopUserFinishTime_; };
+        
     int NoiseAnalysis_;
     int NoiseTimeRefinement_;
     int NoiseTime_;
@@ -724,7 +851,6 @@ private:
 
     void WriteOutPSUWopWopThicknessGeometryHeaderForGroup(int c);    
     void WriteOutPSUWopWopThicknessGeometryDataForGroup(int c); 
-
     
     // Full Geometry
 
@@ -754,401 +880,795 @@ public:
 
     VSP_SOLVER& operator=(const VSP_SOLVER &Solver_);
 
-    // Solver routines
+    /** Get Model type.. Panel or VLM **/
 
     int ModelType(void) { return ModelType_; };
+    
+    /** Get Model subtype... CART3D, VSPGEOM, or DegenGeom **/
+    
     int ModelSubType(void) { return SurfaceType_; };
     
+    /** Turn off wake iterations **/
+    
     int &NoWakeIteration(void) { return NoWakeIteration_; };
+    
+    /** Set number of wake iterations **/
+    
     int &WakeIterations(void) { return WakeIterations_; };
+    
+    /** Turn on tight GMRES convergence **/
+    
     int &GMRESTightConvergence(void) { return GMRESTightConvergence_; };
     
+    /** Set angle of attack **/
+    
     VSPAERO_DOUBLE &AngleOfAttack(void) { return AngleOfAttack_; };
+    
+    /** Set angle of sidesip **/
+    
     VSPAERO_DOUBLE &AngleOfBeta(void) { return AngleOfBeta_; };
+   
+    /** Zero angle of attack, for unsteady periodic runs **/
+    
     VSPAERO_DOUBLE &AngleOfAttackZero(void) { return AngleOfAttackZero_; };
+    
+    /** Zero side slip angle, for unsteady periodic runs **/
+    
     VSPAERO_DOUBLE &AngleOfBetaZero(void) { return AngleOfBetaZero_; };
+    
+    /** Set free stream Mach number **/
+        
     VSPAERO_DOUBLE &Mach(void) { return Mach_; };
-    VSPAERO_DOUBLE &Machref(void) { return Machref_; };
+    
+    /** Set free stream velocity ... note that units are up to user to be consistent with geometry! **/
+    
     VSPAERO_DOUBLE &Vinf(void) { return Vinf_; };
+
+    /** Set reference Mach number, this requires Vref to be set as well **/
+    
+    VSPAERO_DOUBLE &Machref(void) { return Machref_; };
+    
+    /** Set reference velocity.. this is often the tip velocity for a rotor ... should be consistent with Machref **/
+    
     VSPAERO_DOUBLE &Vref(void) { return Vref_; };
+    
+    /** Set free stream density **/
+    
     VSPAERO_DOUBLE &Density(void) { return Density_; };
+    
+    /** Set free stream Reynolds number based on the reference chord, Cref **/
+    
     VSPAERO_DOUBLE &ReCref(void) { return ReCref_; };
+    
+    /** Set Xcg loation **/
 
     VSPAERO_DOUBLE &Xcg(void) { return XYZcg_[0]; };
+    
+    /** Set Ycg loation **/
+    
     VSPAERO_DOUBLE &Ycg(void) { return XYZcg_[1]; };
+
+    /** Set Zcg loation **/
+
     VSPAERO_DOUBLE &Zcg(void) { return XYZcg_[2]; };    
     
+    /** Set rotational rate about x axis **/
+    
     VSPAERO_DOUBLE &RotationalRate_p(void) { return RotationalRate_[0]; };
+    
+    /** Set rotational rate about y axis **/
+    
     VSPAERO_DOUBLE &RotationalRate_q(void) { return RotationalRate_[1]; };
+
+    /** Set rotational rate about z axis **/
+
     VSPAERO_DOUBLE &RotationalRate_r(void) { return RotationalRate_[2]; };    
 
-    // Rotors
+    /** Set number of rotors ... aka... acuator disks **/
     
     void SetNumberOfRotors(int NumberOfRotors) { NumberOfRotors_ = NumberOfRotors; RotorDisk_ = new ROTOR_DISK[NumberOfRotors_ + 1]; };
+    
+    /** Access to the acuator disk objects **/
+    
     ROTOR_DISK &RotorDisk(int i) { return RotorDisk_[i]; };
    
-    // Inlet / Nozzles
+    /** Set the number of inlets and nozzles **/
     
     void SetNumberOfEngineFaces(int NumberOfEngineFaces) { NumberOfEngineFaces_ = NumberOfEngineFaces ; EngineFace_ = new ENGINE_FACE[NumberOfEngineFaces_ + 1]; };
+    
+    /** Get number of inlets/nozzles **/
+    
     int NumberOfEngineFaces(void) { return NumberOfEngineFaces_; };
+    
+    /** Access to the nozzle/inlet objects **/
+    
     ENGINE_FACE &EngineFace(int i) { return EngineFace_[i]; };
 
-    // Control Surface Group information (used for case header)
+    /** Pass in a pointer to the control surface group(s) that were read in/set up in the vspaero main routine... **/
     
     void SetControlSurfaceGroup( CONTROL_SURFACE_GROUP * csg, int NumberOfControlGroups ) { ControlSurfaceGroup_ = csg; NumberOfControlGroups_ = NumberOfControlGroups;  };
+
+    /** Access to the control surface group objects **/
+    
     CONTROL_SURFACE_GROUP &ControlSurfaceGroup( int i ) { return ControlSurfaceGroup_[i]; };
+    
+    /** Turn on and set symmetry direction **/
     
     void DoSymmetryPlaneSolve(int Direction) { DoSymmetryPlaneSolve_ = VSPGeom_.DoSymmetryPlaneSolve() = Direction; };
 
+    /** Set the farfield distance for the trailing wakes.. over rides defaults **/
+    
     void SetFarFieldDist(VSPAERO_DOUBLE FarDist) { SetFarFieldDist_ = 1; FarFieldDist_ = FarDist; };
+    
+    /** Set number of trailing nodes to define the wakes... must be a power of 2 **/
     
     void SetNumberOfWakeTrailingNodes(int NumberOfNodes) { NumberOfWakeTrailingNodes_ = NumberOfNodes; };
         
-    // Survey points
+    /** Set the number of survey points **/
     
     void SetNumberOfSurveyPoints(int NumberOfSurveyPoints) { NumberofSurveyPoints_ = NumberOfSurveyPoints; SurveyPointList_ = new VSP_NODE[NumberofSurveyPoints_ + 1]; };
     
+    /** Access to the survey points objects **/
+    
     VSP_NODE &SurveyPointList(int i) { return SurveyPointList_[i]; };
+    
+    /** Set the number of final time steps to do a survey for unsteady calculatons **/
     
     int &NumberOfSurveyTimeSteps(void) { return NumberOfSurveyTimeSteps_; };
     
-    // Quad tree surfaces
+    /** Set number of quad trees for flow field interrogation **/
     
     void SetNumberOfQuadTrees(int NumberOfQuadTrees) { NumberOfQuadTrees_ = NumberOfQuadTrees; QuadTreeDirection_ = new int[NumberOfQuadTrees_ + 1]; QuadTreeValue_ = new VSPAERO_DOUBLE[NumberOfQuadTrees_ + 1]; };
 
+    /** Set quad tree direction ... x, y, or z --> 1, 2, or 3 **/
+    
     int &QuadTreeDirection(int i) { return QuadTreeDirection_[i]; };
+    
+    /** Set quad tree plane value... ie x, y, or z location **/
+    
     VSPAERO_DOUBLE &QuadTreeValue(int i) { return QuadTreeValue_[i]; };
     
-    // Calculate rotor coefficients for a rotor blade analysis
+    /** Output the force and moment data for group Group ... **/
     
     void OutputForcesAndMomentsForGroup(int Group);
+    
+    /** Calculate rotor coefficients given thrust, moment, diameter, rpm... **/
      
     void CalculateRotorCoefficientsFromForces(VSPAERO_DOUBLE Thrust, VSPAERO_DOUBLE Moment, VSPAERO_DOUBLE Diameter, VSPAERO_DOUBLE RPM,
                                               VSPAERO_DOUBLE &J, VSPAERO_DOUBLE &CT, VSPAERO_DOUBLE &CQ, VSPAERO_DOUBLE &CP, VSPAERO_DOUBLE &EtaP,
                                               VSPAERO_DOUBLE &CT_h, VSPAERO_DOUBLE &CQ_h, VSPAERO_DOUBLE &CP_h, VSPAERO_DOUBLE &FOM);
 
-    // Reference areas and lengths 
+    /** Reference area **/
     
     VSPAERO_DOUBLE &Sref(void) { return Sref_; };
+    
+    /** Reference chord **/
+    
     VSPAERO_DOUBLE &Cref(void) { return Cref_; };
+    
+    /** Reference Span **/
+    
     VSPAERO_DOUBLE &Bref(void) { return Bref_; };    
  
-    // Force and moment coefficients
+    /** Force coefficient, in x axis direction ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE CFx(int Type) { return CFx_[Type]; };
+    
+    /** Force coefficient, in y axis directio ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    
     VSPAERO_DOUBLE CFy(int Type) { return CFy_[Type]; };
+
+    /** Force coefficient, in z axis directio ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+
     VSPAERO_DOUBLE CFz(int Type) { return CFz_[Type]; };
+
+    /** Lift coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+
     VSPAERO_DOUBLE  CL(int Type) { return  CL_[Type]; };
+    
+    /** Drag coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    
     VSPAERO_DOUBLE  CD(int Type) { return  CD_[Type]; };
+    
+    /** Side force coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    
     VSPAERO_DOUBLE  CS(int Type) { return  CS_[Type]; };
+    
+    /** Moment coefficient, about x axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    
     VSPAERO_DOUBLE CMx(int Type) { return CMx_[Type]; };
+    
+    /** Moment coefficient, about y axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    
     VSPAERO_DOUBLE CMy(int Type) { return CMy_[Type]; };
+
+    /** Moment coefficient, about z axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+
     VSPAERO_DOUBLE CMz(int Type) { return CMz_[Type]; };
+    
+    /** Trailing edge (sorta kinda Trefftz analysis) induced drag ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE CDTrefftz(int Type) { return CDTrefftz_[Type]; };
 
+    /** Current Force coefficient, in x axis direction ... Steady/Unsteady **/
+
     VSPAERO_DOUBLE CFx(void) { return CFx_[0]; };
+    
+    /** Current Force coefficient, in y axis direction ... Steady/Unsteady **/
+    
     VSPAERO_DOUBLE CFy(void) { return CFy_[0]; };
+
+    /** Current Force coefficient, in z axis direction ... Steady/Unsteady **/
+
     VSPAERO_DOUBLE CFz(void) { return CFz_[0]; };
+
+    /** Current Lift coefficient ... Steady/Unsteady **/
+    
     VSPAERO_DOUBLE  CL(void) { return  CL_[0]; };
+    
+    /** Current Drag coefficient ... Steady/Unsteady **/
+
     VSPAERO_DOUBLE  CD(void) { return  CD_[0]; };
+    
+    /** Current Side coefficient ... Steady/Unsteady **/
+    
     VSPAERO_DOUBLE  CS(void) { return  CS_[0]; };
+    
+    /** Current moment coefficient about x axis... Steady/Unsteady **/
+    
     VSPAERO_DOUBLE CMx(void) { return CMx_[0]; };
+    
+    /** Current moment coefficient about y axis... Steady/Unsteady **/
+    
     VSPAERO_DOUBLE CMy(void) { return CMy_[0]; };
+
+    /** Current moment coefficient about z axis... Steady/Unsteady **/
+
     VSPAERO_DOUBLE CMz(void) { return CMz_[0]; };
     
+    /** Current Trailing edge (sorta kinda Trefftz analysis) induced drag... Steady/Unsteady **/
+    
     VSPAERO_DOUBLE CDTrefftz(void) { return CDTrefftz_[0]; };
+    
+    /** Unsteady Lift coefficient at time step i **/
   
     VSPAERO_DOUBLE  CL_Unsteady(int i) { return  CL_Unsteady_[i]; };
-    VSPAERO_DOUBLE  CD_Unsteady(int i) { return  CD_Unsteady_[i]; };
-    VSPAERO_DOUBLE  CS_Unsteady(int i) { return  CS_Unsteady_[i]; };   
-    VSPAERO_DOUBLE CFx_Unsteady(int i) { return CFx_Unsteady_[i]; };
-    VSPAERO_DOUBLE CFy_Unsteady(int i) { return CFy_Unsteady_[i]; };
-    VSPAERO_DOUBLE CFz_Unsteady(int i) { return CFz_Unsteady_[i]; };
-    VSPAERO_DOUBLE CMx_Unsteady(int i) { return CMx_Unsteady_[i]; };
-    VSPAERO_DOUBLE CMy_Unsteady(int i) { return CMy_Unsteady_[i]; };
-    VSPAERO_DOUBLE CMz_Unsteady(int i) { return CMz_Unsteady_[i]; }; 
     
+    /** Unsteady Drag coefficient at time step i **/
+    
+    VSPAERO_DOUBLE  CD_Unsteady(int i) { return  CD_Unsteady_[i]; };
+
+    /** Unsteady Side coefficient at time step i **/
+
+    VSPAERO_DOUBLE  CS_Unsteady(int i) { return  CS_Unsteady_[i]; };   
+
+    /** Unsteady force coefficient in x axis direction at time step i **/
+
+    VSPAERO_DOUBLE CFx_Unsteady(int i) { return CFx_Unsteady_[i]; };
+
+    /** Unsteady force coefficient in y axis direction at time step i **/
+
+    VSPAERO_DOUBLE CFy_Unsteady(int i) { return CFy_Unsteady_[i]; };
+
+    /** Unsteady force coefficient in z axis direction at time step i **/
+
+    VSPAERO_DOUBLE CFz_Unsteady(int i) { return CFz_Unsteady_[i]; };
+
+    /** Unsteady moment coefficient along x axis at time step i **/
+
+    VSPAERO_DOUBLE CMx_Unsteady(int i) { return CMx_Unsteady_[i]; };
+    
+    /** Unsteady moment coefficient along y axis at time step i **/
+
+    VSPAERO_DOUBLE CMy_Unsteady(int i) { return CMy_Unsteady_[i]; };
+
+    /** Unsteady moment coefficient along z axis at time step i **/
+
+    VSPAERO_DOUBLE CMz_Unsteady(int i) { return CMz_Unsteady_[i]; }; 
+
+    /** Viscous force coefficient in x axis direction **/
+        
     VSPAERO_DOUBLE CFxo(void) { return CFxo_; };
+
+    /** Viscous force coefficient in y axis direction **/
+
     VSPAERO_DOUBLE CFyo(void) { return CFyo_; };
+    
+    /** Viscous force coefficient in z axis direction **/
+    
     VSPAERO_DOUBLE CFzo(void) { return CFzo_; };
+
+    /** Viscous moment coefficient along x axis **/
         
     VSPAERO_DOUBLE CMxo(void) { return CMxo_; };
+    
+    /** Viscous moment coefficient along y axis **/
+    
     VSPAERO_DOUBLE CMyo(void) { return CMyo_; };
+
+    /** Viscous moment coefficient along z axis **/
+
     VSPAERO_DOUBLE CMzo(void) { return CMzo_; };
     
-    // Zero lift drag
+    /** Zero lift drag coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE CDo(int Type) { return CDo_[Type]; };
+
+    /** Zero lift drag coefficient **/
+
     VSPAERO_DOUBLE CDo(void) { return CDo_[0]; };
     
-    // Local, 2D, Clmax te
+    /** Zero angle of attack lift coefficient for 2D viscous drag estimate... **/
 
     VSPAERO_DOUBLE &Clo2D(void) { return Clo_2d_; };
+    
+    /** 2D ClMax for stall calculations **/
+    
     VSPAERO_DOUBLE &ClMax(void) { return Clmax_2d_; };
+    
+    /** Max turning angle for stall calculations .. this is no longer being used... **/
     
     VSPAERO_DOUBLE &MaxTurningAngle(void) { return MaxTurningAngle_; };
     
-    // Read in the VSP geometry file
+    /** Read in the VSP geometry file **/
     
     void ReadFile(char *FileName) { sprintf(FileName_,"%s",FileName); VSPGeom_.LoadDeformationFile() = LoadDeformationFile_;  VSPGeom_.ReadFile(FileName,ModelType_,SurfaceType_); };    
 
-    // Read in the FEM deformation file
+    /** Read in the FEM deformation file **/
     
     void LoadFEMDeformationData(void) { VSPGeom_.LoadFEMDeformationData(FileName_); };
     
-    // Ground effects analysis
+    /** Turn on ground effects analysis **/
     
     int &DoGroundEffectsAnalysis(void) { return VSPGeom_.DoGroundEffectsAnalysis(); };
     
+    /** Set the vehicle rotation vector (r1,r2,r3 **/
+    
     VSPAERO_DOUBLE &VehicleRotationAngleVector(int i) { return VSPGeom_.VehicleRotationAngleVector(i); };
+    
+    /** Set the point about which to rotate the vehicle **/
     
     VSPAERO_DOUBLE &VehicleRotationAxisLocation(int i) { return VSPGeom_.VehicleRotationAxisLocation(i); };
     
+    /** Set the height of the vehicle above the ground ...be careful you don't rotate a vehicle into the ground plane! **/
+    
     VSPAERO_DOUBLE &HeightAboveGround(void) { return VSPGeom_.HeightAboveGround(); };
     
-    // Access to VSP geometry
+    /** Access to VSP geometry object **/
     
     VSP_GEOM &VSPGeom(void) { return VSPGeom_; };
 
-    // Solver setup and solve
+    /** Set up the problem... **/
     
     void Setup(void);
+    
+    /** Solve on the current geometry, flow condition(s) **/
+ 
     void Solve(void) { Solve(0); };
+    
+    /** Solve case, Case **/
+    
     void Solve(int Case);
-    void SolveLinearSystem(void);
+
+    /** Recalcalculate the forces... something has been changed, usually the Re # **/
+    
     void ReCalculateForces(void);    
+    
+    /** Write out the noise files for psuwopwop **/
+    
     void WriteOutNoiseFiles(int Case);  
+    
+    /** Write out time accurate noise files for psuwopwop **/
+    
     void WriteOutTimeAccurateNoiseFiles(int Case);  
+    
+    /** Write out steady state noise files for psuwopwop **/
+    
     void WriteOutSteadyStateNoiseFiles(int Case);  
       
-    // Wake update 
-    
-    void UpdateWakeLocations(void);
-    
-    // Calculate the unsteady wake velocities
-    
-    void CalculateUnsteadyWakeVelocities(void);
-    
-    // Calculate the body surface velocities
-    
-    void CalculateSurfaceMotion(void);
-    
-    // Update the location of the geometry ... or parts of it
-    
-    void UpdateGeometryLocation(int DoStartUp);
-    void ResetGeometry(void);
-
-    // Update the local values of the circulation strengths for each vortex egde
-    
-    void UpdateVortexEdgeStrengths(int Level, int UpdateType);
-    
-    // Zero out vortex strengths
-    
-    void ZeroVortexState(void);
-    
-    // Update the convected wake distance
-    
-    void UpdateWakeConvectedDistance(void);
-    
-    // Calculate Residual
-    
-    void CalculateResidual(void);
-    
-    // Smooth out the principal part of the integral for supersonic flows
-    
-    void CalculatePrincipalPart(void);
-    
-    void SmoothPrincipalPart(void);
-        
-    // Do a matrix vector product using a user supplied vector... and also return the right hand side
 
 #if not defined AUTODIFF && not defined COMPLEXDIFF
+
+    /** Do a matrix vector product using a user supplied vector... and also return the right hand side **/
+
     void CalculateMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
 #endif
 
 #if defined AUTODIFF
+
+    /** Do a matrix vector product using a user supplied vector... and also return the right hand side **/
+
 void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
 #endif
     
+    /** Return the L2 residual **/
+    
     VSPAERO_DOUBLE L2Residual(void) { return L2Residual_; };
 
-    // Force and moment calculations
-    
-    void CalculateForces(void);
-    void CalculatePressureForces(void);
-    void CalculateTrefftzForces(void);
-    void CalculateKuttaJukowskiForces(void);
-    void CalculateUnsteadyForces(void);    
-    void IntegrateForcesAndMoments(void);
-    void CalculateDeltaCPs(void);
-    void CalculateVorticityGradient(void);    
-    void CalculateSurfacePressures(void);
-    void CalculateOptimizationFunctions(void);
-    void CalculateOptimizationForces(void);
-
-    void CreateVorticityGradientDataStructure(void);
-    void CreateVorticityGradientDataStructureOld(void);
-
-    void CalculateLeastSquaresCoefficients(int Loop1);
-                                            
-    void CalculateCLmaxLimitedForces(void);
-
-    int SurfaceVortexEdgeIsBetweenPlanes(VSPAERO_DOUBLE *Normal1, VSPAERO_DOUBLE *Normal1Point,
-                                         VSPAERO_DOUBLE *Normal2, VSPAERO_DOUBLE *Normal2Point,
-                                         int Edge, VSPAERO_DOUBLE &Weight);
-
-    void CalculateSpanWiseLoading(void);
-    void CreateFEMLoadFile(int Case);
-    void CreateFEMLoadFileFromVLMSolve(int Case);
-    void CreateFEMLoadFileFromPanelSolve(int Case);
-
-    // Field surveys
-    
-    void CalculateVelocitySurvey(int Case);
-    
-    // Set solver method
-    
-    int &SolverType(void) { return SolverType_; };
-    
-    // Force a restart
+    /** Do a restart using a previous solution file **/
         
     int &DoRestart(void) { return DoRestart_; };
+    
+    /** Save a restart file **/
+    
     int &SaveRestartFile(void) { return SaveRestartFile_; };
     
-    // Output results file
+    /** Output a status file **/
     
     void OutputStatusFile(int Case);
+    
+    /** Output zero lift drag to the status file **/
+    
     void OutputZeroLiftDragToStatusFile(void);
     
-    // Force geometry dump, and no solve
+    /** Read in the geometry, do a minimum of set up and then write out an adb file we can view in Viewer ... no solve **/
     
     int &DumpGeom(void) { return DumpGeom_; };
     
-    // Create a boundary conditions setup file
+    /** Create a default boundary conditions setup file **/
     
     int &CreateHighLiftFile(void) { return CreateHighLiftFile_; };
 
-    // FEM Analysis
+    /** Load in the fem deformation file **/
     
     int &LoadFEMDeformation(void) { return LoadDeformationFile_; };
     
+    /** Write out 2D FEM load file **/
+    
     int &Write2DFEMFile(void) { return Write2DFEMFile_; };
 
+    /** Turn on the Karman Tsien compressibiltiy correction **/
+    
     int &KarmanTsienCorrection(void) { return KarmanTsienCorrection_; };
-    
-    // Quad Tree Slicing
-    
-    void CreateQuadTreePlaneDataStructures(void);
-    void CalculateQuadTreeVelocitySurvey(int Case);
-    
-    int InsideBody(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE distance);
-        
-    // Unsteady analysis
+
+    /** Set the time accurate anlsysis type 
+     * 
+     * P_ANALYSIS ... unsteady pitch analysis
+     * Q_ANALYSIS ... unsteady roll analysis
+     * R_ANALYSIS ... unsteady yaw analysis
+     * 
+     **/
     
     int &TimeAnalysisType(void) { return TimeAnalysisType_; };
+    
+    /** Set the analysis to time accurate mode **/
+    
     int &TimeAccurate(void) { return TimeAccurate_; };
+    
+    /** Run a steady state analysis first... then start time accurate analysis from there **/
+    
     int &StartFromSteadyState(void) { return StartFromSteadyState_; };    
+    
+    /** Set the number of time step 
+     * 
+     * -1 indicates the code will determine number of time steps based on rotor RPMS
+     * -1 means one rotor revolutions
+     * -2 means two rotor revolutions...
+     * 
+     */
+     
     int &NumberOfTimeSteps(void) { return NumberOfTimeSteps_; };
-    int &NumberOfTimeSamples(void) { return NumberOfTimeSamples_; };
-    int &DoHoverRampFreeStream(void) { return DoHoverRampFreeStream_; };
-    int &PanelSpanWiseLoading(void) { return PanelSpanWiseLoading_; };
-    
-    VSPAERO_DOUBLE &HoverRampFreeStreamVelocity(void) { return HoverRampFreeStreamVelocity_; };
-    
-    VSPAERO_DOUBLE &ReducedFrequency(void) { return ReducedFrequency_; };
-    VSPAERO_DOUBLE Unsteady_AngleRate(void) { return Unsteady_AngleRate_; };
-    VSPAERO_DOUBLE &Unsteady_AngleMax(void) { return Unsteady_AngleMax_; };
-    VSPAERO_DOUBLE &Unsteady_HMax(void) { return Unsteady_HMax_; };
-    
+
+    /** Set the time step for an unsteady analysis
+     * 
+     * -1 means the code will set the time step based on rotor RPMS
+     * -1 means code will do 18 revs on the fastest rotor
+     * -2 means code will do 36 revs on the fastest rotor...
+     * 
+     **/
+     
     VSPAERO_DOUBLE &TimeStep(void) { return TimeStep_; };
     
-    // Blade analysis
+    /** Starts time accurate solve with a finite free stream and 
+     * slowly tapers that to zero to help with solving stiff
+     * hover cases
+     *
+     **/
+
+    int &DoHoverRampFreeStream(void) { return DoHoverRampFreeStream_; };
+
+    /** Hover ram free stream velocity to start with **/
+        
+    VSPAERO_DOUBLE &HoverRampFreeStreamVelocity(void) { return HoverRampFreeStreamVelocity_; };
+    
+    /** Turn off the calculation of spanwise loading for a panel solver...
+     * 
+     * this is here since the code can get confused for cart3d tri file
+     * geometries that just really don't have the information to figure
+     * out how to calculate spanwise loading information... without this
+     * the code might just quit after bashing it's head into the ground
+     **/
+     
+    int &PanelSpanWiseLoading(void) { return PanelSpanWiseLoading_; };
+    
+    /** Set reduced frequency for an unsteady pitch/yaw analysis **/
+    
+    VSPAERO_DOUBLE &ReducedFrequency(void) { return ReducedFrequency_; };
+    
+    /** Get back the actual unsteady angle rate **/
+    
+    VSPAERO_DOUBLE Unsteady_AngleRate(void) { return Unsteady_AngleRate_; };
+    
+    /** Set the unsteady maximum angle... pitch or yaw **/
+    
+    VSPAERO_DOUBLE &Unsteady_AngleMax(void) { return Unsteady_AngleMax_; };
+    
+    /** Set the unsteady max heave value **/
+    
+    VSPAERO_DOUBLE &Unsteady_HMax(void) { return Unsteady_HMax_; };
+        
+    /** Run a hacked blade analysis where the world spins and the rotor doesn't **/
             
     int &RotorAnalysis(void) { return RotorAnalysis_; };
-    VSPAERO_DOUBLE &BladeRPM(void) { return BladeRPM_; };
     
-    // Noise Analysis
+    /** Set the blade analysis rotor RPM **/
+    
+    VSPAERO_DOUBLE &BladeRPM(void) { return BladeRPM_; };
+
+    /** Interrogate an existing solution **/
+    
+    int &DoSolutionInterrogation(void) { return DoSolutionInterrogation_; };
+
+
+    /** Load in restart file and interrogate the solution 
+    * 
+    * this lets you add in survey points, cut planes after you've done a run
+    * and then just interrogate the solution without have to solve it
+    * again... very useful for unsteady cases
+    * 
+    **/ 
+     
+    void RestartAndInterrogateSolution(int Case);
+        
+    /** Do a noise analysis... this is a post processing step on an existing solution **/
     
     int &NoiseAnalysis(void) { return NoiseAnalysis_; };
-    int &SteadyStateNoise(void) { return SteadyStateNoise_; };    
-    int &WopWopEnglishUnits(void) { return WopWopEnglishUnits_; };    
-    int &WopWopPeriodicity(void) { return WopWopPeriodicity_; };
-    int &WopWopWriteOutADBFile(void) { return WopWopWriteOutADBFile_; };
     
+    /** Create files for an assumed steady state analysis... ie, not time accurate **/
+    
+    int &SteadyStateNoise(void) { return SteadyStateNoise_; };    
+   
+    /** Input geometry and flight conditions are in english units...
+     * 
+     * ... so we will convert to SI for output to psuwopwop
+     * 
+     **/
+
+    int &WopWopEnglishUnits(void) { return WopWopEnglishUnits_; };   
+
+    /** Do a psuwopwop flyby analysis **/
+
     void DoWopWopFlyBy(void) { WopWopFlyBy_ = 1; };
+    
+    /** Do a psuwopwop foot print analysis **/
+    
     void DoWopWopFootPrint(void) { WopWopFlyBy_ = 0; };
     
-    VSPAERO_DOUBLE &WopWopUserStartTime(void) { return WopWopUserStartTime_; };
-    VSPAERO_DOUBLE &WopWopUserFinishTime(void) { return WopWopUserFinishTime_; };
+    /** Number of nodes on the finest grid level **/
     
-    // Solve and Adjoint stuff
+    int NumberOfGridNodes(void) { return VSPGeom().Grid(0).NumberOfNodes(); };
+    
+    /** Number of vortex loop on the finest mesh level **/
+    
+    int NumberOfVortexLoops(void) { return NumberOfVortexLoops_; };
+
+    /** Do an adjoint solve **/
     
     void Optimization_Solve(void) { Optimization_Solve(0); };
     
+    /** Do an adjoint solve on case **/
+    
     void Optimization_Solve(int Case);    
-        
-    void RestartAndInterrogateSolution(int Case);
+    
+    /** Set the number of optimization functions **/
     
     int &NumberOfOptimizationFunctions(void) { return NumberOfOptimizationFunctions_; };
 
+    /** Set optimization function 'i' to value 'OptFunctionValue' **/
+    
     void SetOptimizationFunction(int i, int OptFunctionValue);
+    
+    /** Set optimization function 'i' to value 'OptFunctionValue' and associate with rotor, or wing 'Set' **/
+    
     void SetOptimizationFunction(int i, int OptFunctionValue, int Set );
-    void SetOptimizationFunctionInputGradientVector(double *Vec) { SetOptimizationFunctionInputGradientVector(1,1,1,Vec); };
-    void SetOptimizationFunctionInputGradientVector(int Case, int Length, int Set, double *Vec);
+    
+    /** Set optimization gradient vector for the one and only optimization function... assume there just 1! **/
+    
+    void SetOptimizationFunctionInputGradientVector(double *Vec) { SetOptimizationFunctionInputGradientVector(1,1,1,1,Vec); };
+   
+    /** Set optimization gradient vector for Case, with Length, TimeSteps, Set... **/
+    
+    void SetOptimizationFunctionInputGradientVector(int Case, int Length, int TimeSteps, int Set, double *Vec);
 
+    /** Determine the optimization function length based on what it is... **/
+    
     void CalculateOptimizationFunctionLength(void);
    
+    /** Get optimization function lenght for opt function Case **/
+    
     int OptimizationFunctionLength(int Case) { return OptimizationFunctionList_[Case].FunctionLength(); };
+    
+    /** Get total vector length for optimization case **/
+    
+    int OptimizationVectorLength(int Case) { return OptimizationFunctionList_[Case].VectorLength(); };
+    
+    /** Get number of averaging time steps for optimization case **/
+    
+    int OptimizationNumberOfTimeSteps(int Case) { return OptimizationFunctionList_[Case].NumberOfTimeSteps(); };
+    
+    /** Do the adjoint solve **/
 
     int &DoAdjointSolve(void) { return DoAdjointSolve_; };
+    
+    /** This is an optimization solve
+     * 
+     * this must be set to let the solver know it needs to evaluate the 
+     * optimization functions... for both the foward and adjoint solvers
+     * 
+     **/
 
     int &OptimizationSolve(void) { return OptimizationSolve_; };
     
-    int &DoSolutionInterrogation(void) { return DoSolutionInterrogation_; };
- 
-    double dF_dMesh_X(int i) { return DOUBLE(dF_dMesh_[1][3*i-2]); };
-    double dF_dMesh_Y(int i) { return DOUBLE(dF_dMesh_[1][3*i-1]); };
-    double dF_dMesh_Z(int i) { return DOUBLE(dF_dMesh_[1][3*i  ]); };
+    /** Total gradient of objective function 1 wrt x for node i **/
+    
+    double dF_dMesh_X(int i) { return DOUBLE(dF_dMesh_[0][1][3*i-2]); };
+    
+    /** Total gradient of objective function 1 wrt y for node i **/
+    
+    double dF_dMesh_Y(int i) { return DOUBLE(dF_dMesh_[0][1][3*i-1]); };
 
-    double dF_dMesh_X(int p, int i) { return DOUBLE(dF_dMesh_[p][3*i-2]); };
-    double dF_dMesh_Y(int p, int i) { return DOUBLE(dF_dMesh_[p][3*i-1]); };
-    double dF_dMesh_Z(int p, int i) { return DOUBLE(dF_dMesh_[p][3*i  ]); };
+    /** Total gradient of objective function 1 wrt z for node i **/
+
+    double dF_dMesh_Z(int i) { return DOUBLE(dF_dMesh_[0][1][3*i  ]); };
+    
+    /** Total gradient of objective function p wrt x for node i **/
+
+    double dF_dMesh_X(int p, int i) { return DOUBLE(dF_dMesh_[0][p][3*i-2]); };
+    
+    /** Total gradient of objective function p wrt y for node i **/
+    
+    double dF_dMesh_Y(int p, int i) { return DOUBLE(dF_dMesh_[0][p][3*i-1]); };
+
+    /** Total gradient of objective function p wrt z for node i **/
+
+    double dF_dMesh_Z(int p, int i) { return DOUBLE(dF_dMesh_[0][p][3*i  ]); };
+    
+    /** Unsteady total gradient of objective function p, at time Time, wrt x for node i **/
+    
+    double dF_dMesh_X(int p, int Time, int i) { return DOUBLE(dF_dMesh_[Time][p][3*i-2]); };
+    
+    /** Unsteady total gradient of objective function p, at time Time, wrt y for node i **/
+    
+    double dF_dMesh_Y(int p, int Time, int i) { return DOUBLE(dF_dMesh_[Time][p][3*i-1]); };
+
+    /** Unsteady total gradient of objective function p, at time Time, wrt z for node i **/
+
+    double dF_dMesh_Z(int p, int Time, int i) { return DOUBLE(dF_dMesh_[Time][p][3*i  ]); };
+        
+    /** Total gradient of objective function 1 with resepect to input variable InputVariable 
+     *
+     * OPT_GRADIENT_WRT_ALPHA 
+     * OPT_GRADIENT_WRT_BETA         
+     * OPT_GRADIENT_WRT_MACH         
+     * OPT_GRADIENT_WRT_VINF         
+     * OPT_GRADIENT_WRT_DENSITY      
+     * OPT_GRADIENT_WRT_RECREF       
+     * OPT_GRADIENT_WRT_P_RATE       
+     * OPT_GRADIENT_WRT_Q_RATE       
+     * OPT_GRADIENT_WRT_R_RATE       
+     * **/
+    
+    double dF_dInputVariable(int InputVariable) { return DOUBLE(dF_dInputVariable_[0][1][InputVariable]); };
+ 
+    /** Total gradient of objective function p with resepect to input variable InputVariable 
+     *
+     * OPT_GRADIENT_WRT_ALPHA 
+     * OPT_GRADIENT_WRT_BETA         
+     * OPT_GRADIENT_WRT_MACH         
+     * OPT_GRADIENT_WRT_VINF         
+     * OPT_GRADIENT_WRT_DENSITY      
+     * OPT_GRADIENT_WRT_RECREF       
+     * OPT_GRADIENT_WRT_P_RATE       
+     * OPT_GRADIENT_WRT_Q_RATE       
+     * OPT_GRADIENT_WRT_R_RATE       
+     * **/    
+
+    double dF_dInputVariable(int p, int InputVariable) { return DOUBLE(dF_dInputVariable_[0][p][InputVariable]); };
+    
+    /** Unsteady total gradient of objective function p, at time Time, with resepect to input variable InputVariable
+     *
+     * OPT_GRADIENT_WRT_ALPHA 
+     * OPT_GRADIENT_WRT_BETA         
+     * OPT_GRADIENT_WRT_MACH         
+     * OPT_GRADIENT_WRT_VINF         
+     * OPT_GRADIENT_WRT_DENSITY      
+     * OPT_GRADIENT_WRT_RECREF       
+     * OPT_GRADIENT_WRT_P_RATE       
+     * OPT_GRADIENT_WRT_Q_RATE       
+     * OPT_GRADIENT_WRT_R_RATE       
+     * **/
+    
+    double dF_dInputVariable(int p, int Time, int InputVariable) { return DOUBLE(dF_dInputVariable_[Time][p][InputVariable]); };
+        
+    /** Value of objective function **/
         
     VSPAERO_DOUBLE OptimizationFunction(void);
+    
+    /** Value of objective function Case **/
+    
     VSPAERO_DOUBLE OptimizationFunction(int Case);
 
 #if defined AUTODIFF || defined COMPLEXDIFF
+
+    /** Value of objective function 1 ... returns VSPAERO_DOUBLE **/
+
     void OptimizationFunction(VSPAERO_DOUBLE &Vec) { OptimizationFunction(1, Vec); };
+    
+    /** Value of objective function Case ... returns VSPAERO_DOUBLE **/
+    
     void OptimizationFunction(int Case, VSPAERO_DOUBLE &Vec);
+
+    /** Value of objective vector function ... returns VSPAERO_DOUBLE **/
+
     void OptimizationFunction(VSPAERO_DOUBLE *Vec) { OptimizationFunction(1,Vec); };   
+
+    /** Value of vector objective function case ... returns VSPAERO_DOUBLE **/
+
     void OptimizationFunction(int Case, VSPAERO_DOUBLE *Vec);
+
+    /** Value of vector objective function case, and time Time ... returns VSPAERO_DOUBLE **/
+
+    void OptimizationFunction(int Case, int Time, VSPAERO_DOUBLE *Vec);
+
 #endif
 
+    /** Value of objective function 1 ... returns double **/
+
     void OptimizationFunction(double &Vec) { OptimizationFunction(1, Vec); };
+
+    /** Value of objective function Case  ... returns double **/
+
     void OptimizationFunction(int Case, double &Vec);    
+
+    /** Value of objective vector function  ... returns double **/
+
     void OptimizationFunction(double *Vec) { OptimizationFunction(1, Vec); };  
+
+    /** Value of vector objective function case  ... returns double **/
+
     void OptimizationFunction(int Case, double *Vec);
-                
-    // Nodal quantities of stuff
+
+    /** Value of vector objective function case, and time Time  ... returns double **/
+
+    void OptimizationFunction(int Case, int Time, double *Vec);
+                    
+    /** Calculate nodal pressures on the mesh for FEM analysis **/
     
     void CalculateNodalPressures(void);
-    void Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pMesh);
-    VSPAERO_DOUBLE *Optimization_Calculate_pF_pRotorOmega(int Group);
+    
+    /** Pressure at node i of the mesh **/
     
     VSPAERO_DOUBLE NodalCp(int i) { return NodalCp_[i]; };
-        
-    // Over ride default edge by edge ssor preconditioner
+            
+    /** Calculate partial of user input function F wrt to pressures **/
+    
+    void Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pMesh);
+
+    /** Over ride default edge by edge ssor preconditioner **/
     
     int &Preconditioner(void ) { return Preconditioner_; };
 
-    // User case string
+    /** Set the user case string **/
     
     char *CaseString(void) { return CaseString_; };
         
-    // Generic File header
+    /** Write a Generic File header to FILE id fid **/
     
     void WriteCaseHeader(FILE *fid);
+    
+    /** Write out a cart3d tri file of the top level mesh **/
+    
+    void WriteOutCart3dTriFile(void);
 
 };
 

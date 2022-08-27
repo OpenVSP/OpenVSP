@@ -171,7 +171,19 @@ private:
     // Initialization
     
     void Initialize_(void);
+
+    // Fine grid
     
+    VSP_GRID &FineGrid(void) { return *FineGrid_; };
+    
+    // Coarse grid
+    
+    VSP_GRID &CoarseGrid(void) { return *CoarseGrid_; };
+
+    // Merge high aspect ratio quads
+
+    VSP_GRID* MergeHighAspectRatioQuads(VSP_GRID &Grid) { return MergeHighAspectRatioQuads_(Grid); };
+        
 public:
 
     // Constructor, Destructor, Copy
@@ -180,27 +192,14 @@ public:
    ~VSP_AGGLOM(void);
     VSP_AGGLOM(const VSP_AGGLOM &agglom);
 
-    // Reference to the coarse and fine grids
-    
-    VSP_GRID &FineGrid(void) { return *FineGrid_; };
-    VSP_GRID &CoarseGrid(void) { return *CoarseGrid_; };
-    
-    // Agglomerate the grid
+    /** Agglomerate the input grid to create a coarse grid... and return that coarse grid **/
     
     VSP_GRID* Agglomerate(VSP_GRID &Grid) { return Agglomerate_(Grid); };    
     
-    // Simplify mesh
+    /** Simplify the input mesh... this merges tris into quads and for panel solves it attempts
+     * merge splinter tris at intersections into general polygons **/
     
     VSP_GRID* SimplifyMesh(VSP_GRID &Grid) { return SimplifyMesh_(Grid); };
-    
-    // Update the mesh
-    
-    void UpdateMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid);
-    
-    // Merge high aspect ratio quads
-
-    VSP_GRID* MergeHighAspectRatioQuads(VSP_GRID &Grid) { return MergeHighAspectRatioQuads_(Grid); };
-
 
 };
 

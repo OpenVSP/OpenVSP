@@ -1,0 +1,2 @@
+../../bin/vspaero -unsteady -opt -omp 4 -optfunction 2 prop
+../../bin/vspaero_adjoint -unsteady -opt -adjoint -optfunction 2 prop

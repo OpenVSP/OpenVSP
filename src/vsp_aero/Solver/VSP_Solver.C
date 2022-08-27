@@ -234,7 +234,7 @@ void VSP_SOLVER::init(void)
     NumberOfOptimizationFunctions_ = 0;
     
     OptimizationFunctionList_[1].SetOptimizationFunction(OPT_CL);
-    OptimizationFunctionList_[1].SetFunctionLength(0);
+    OptimizationFunctionList_[1].SetFunctionLength(0,0);
     OptimizationFunctionList_[1].SetWing(0);
     OptimizationFunctionList_[1].SetRotor(0);
 
@@ -896,7 +896,7 @@ void VSP_SOLVER::Setup(void)
    
     }
      
-    delete WakeSurfaceUsed;
+    delete [] WakeSurfaceUsed;
              
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
        
@@ -1144,8 +1144,8 @@ void VSP_SOLVER::Setup(void)
           PRINTF("TotalTime: %f \n",TimeStep_*NumberOfTimeSteps_);
           PRINTF("Optimization integration time period: %f \n",Period);
  
-          OptimizationNumberOfIntegrationTimeSteps_ = GET_VALUE(Period) / GET_VALUE(TimeStep_);
-                       
+          OptimizationNumberOfIntegrationTimeSteps_ = GET_VALUE(Period) / GET_VALUE(TimeStep_) + 1;
+     
         //  if ( OptimizationNumberOfIntegrationTimeSteps_ * TimeStep_ < OptimizationIntegrationTime_ ) OptimizationNumberOfIntegrationTimeSteps_++;
                        
           PRINTF("OptimizationNumberOfIntegrationTimeSteps_: %d \n",OptimizationNumberOfIntegrationTimeSteps_);               
@@ -1454,7 +1454,7 @@ void VSP_SOLVER::Setup(void)
           if ( ComponentGroupList_[i].GeometryIsARotor() ) {
        
              for ( j = 1 ; j <= ComponentGroupList_[i].NumberOfComponents() ; j++ ) {
-             
+                          
                 ComponentInThisGroup[ComponentGroupList_[i].ComponentList(j)] = 1;
                 
              }
@@ -1579,18 +1579,7 @@ void VSP_SOLVER::Setup(void)
     // Create vortex edge list
  
     Setup_VortexEdges();
-
-    // Calculate average vortex edge spacing
-    
-    for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
-
-       Area = VortexLoop(SurfaceVortexEdge(j).VortexLoop1()).Area()
-            + VortexLoop(SurfaceVortexEdge(j).VortexLoop2()).Area();
-   
-       SurfaceVortexEdge(j).LocalSpacing() = 0.5*Area/SurfaceVortexEdge(j).Length();
-
-    }  
-                       
+             
     // Zero out stuff on this grid 
 
     for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {
@@ -2280,14 +2269,18 @@ void VSP_SOLVER::InitializeFreeStream(void)
     VSP_NODE VSP_Node1, VSP_Node2;
     VSPAERO_DOUBLE OVec[3], TVec[3], RVec[3];
     QUAT Quat, InvQuat, Vec1, Vec2, DQuatDt, Omega, BodyVelocity, WQuat;
-             
+
     // Limit lower value of Mach number
     
     if ( Mach_ <= 0. ) Mach_ = 0.001;
 
     // Set Mach number for the edge class... it is static across all edge instances
+    
+    for ( i = 0 ; i <= NumberOfMGLevels_ ; i++ ) {
 
-    VSPGeom().Grid(1).EdgeList(1).SetMach(Mach_);    
+       VSPGeom().Grid(i).SetMachNumber(Mach_);    
+       
+    }
 
     // Set multi-pole far away ratio
     
@@ -3335,13 +3328,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                 // Set sigma
  
                 VortexSheet(c,k).TrailingVortex(NumEdges).Sigma() = 0.5*Sigma[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
-
-                // Set trailing edge direction 
-                
-                VortexSheet(c,k).TrailingVortex(NumEdges).TEVec(0) = VecX[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
-                VortexSheet(c,k).TrailingVortex(NumEdges).TEVec(1) = VecY[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
-                VortexSheet(c,k).TrailingVortex(NumEdges).TEVec(2) = VecZ[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
-               
+    
                 // Create trailing wakes... specify number of sub vortices per trail
       
                 WakeDist = MAX(VSP_Node1.x() + 0.5*FarDist, Xmax_ + 0.25*FarDist) - VSP_Node1.x();
@@ -3391,6 +3378,8 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
           }
       
           VortexSheet(c,k).SetupVortexSheets();
+          
+          VortexSheet(c,k).SetMachNumber(Mach_);
           
           if ( c == 0 ) {
 
@@ -4298,6 +4287,247 @@ PRINTF("Adding edge at: %f %f %f with MinCoreSize: %f \n",SurfaceVortexEdge(p).X
         * 
 
  */  
+
+    delete [] Sigma;
+    delete [] VecX;    
+    delete [] VecY;
+    delete [] VecZ;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_SOLVER UpdateTrailingVortices                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::UpdateTrailingVortices(void)
+{
+ 
+    int i, j, k, c, jj, kk, l, m, p, q, Node, NumEdges, Node1, Node2, Node3, Loop;
+    int NodeA, NodeB, Found, Done, WakeWarning;
+    int NumberOfSheets, NumberOfKuttaNodes, Hits, MaxNumberOfCommonTEs;
+    int *ComponentInThisGroup, NumberOfStations, *ComponentGroup;
+    int *NumberOfVortexSheetsForSurface, *MaxNumberOfVortexSheetsForSurface, **VortexSheetListForSurface;
+    int MaxNumberOfSurfaces, SurfaceID, ComponentID, Edge, NumWakeNodes, iRatio;
+    VSPAERO_DOUBLE FarDist, *Sigma, *VecX, *VecY, *VecZ, VecTe[3], Dot, Dist;
+    VSPAERO_DOUBLE Scale_X, Scale_Y, Scale_Z, WakeDist, xyz_te[3];
+    VSPAERO_DOUBLE Vec0[3], Vec1[3], Vec2[3], Vec3[3], Mag, dt, ds, Omega, Ratio;
+    VSPAERO_DOUBLE VecS[3], VecT[3], VecN[3], S, S1, S2, Uc, U1, U2, MaxSoverB;
+    VSP_NODE VSP_Node1, VSP_Node2;
+
+    PRINTF("Updating vortex sheet data... \n"); fflush(NULL);
+    
+    // Initial wake in the free stream direction
+
+    if ( Vinf_ > 0. ) {
+       
+       WakeAngle_[0] = FreeStreamVelocity_[0] / Vinf_;
+       WakeAngle_[1] = FreeStreamVelocity_[1] / Vinf_;
+       WakeAngle_[2] = FreeStreamVelocity_[2] / Vinf_;
+       
+    }
+    
+    else {
+
+       WakeAngle_[0] = 1.;
+       WakeAngle_[1] = 0.;
+       WakeAngle_[2] = 0.;
+       
+    }
+
+    // Determine the minimum trailing edge spacing for edge kutta node
+
+    Sigma = new VSPAERO_DOUBLE[VSPGeom().Grid(MGLevel_).NumberOfNodes() + 1];
+    
+    for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfNodes() ; j++ ) {
+
+       Sigma[j] = 1.e9;
+
+    }
+  
+    Hits = 0;
+    
+    SigmaAvg_ = 0.;
+    
+    for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfEdges() ; i++ ) {
+     
+       if ( VSPGeom().Grid(MGLevel_).EdgeList(i).IsTrailingEdge() ) {     
+
+          Node1 = VSPGeom().Grid(MGLevel_).EdgeList(i).Node1();
+          Node2 = VSPGeom().Grid(MGLevel_).EdgeList(i).Node2();
+          
+          Sigma[Node1] = MIN(Sigma[Node1], VSPGeom().Grid(MGLevel_).EdgeList(i).Length());
+          Sigma[Node2] = MIN(Sigma[Node2], VSPGeom().Grid(MGLevel_).EdgeList(i).Length());
+          
+          SigmaAvg_ += VSPGeom().Grid(MGLevel_).EdgeList(i).Length();
+          
+          Hits++;
+        
+       }
+       
+    } 
+    
+    // Average trailing edge spacing
+    
+    SigmaAvg_ /= Hits;
+
+    // Determine trailing edge angle
+    
+    VecX = new VSPAERO_DOUBLE[VSPGeom().Grid(MGLevel_).NumberOfNodes() + 1];
+    VecY = new VSPAERO_DOUBLE[VSPGeom().Grid(MGLevel_).NumberOfNodes() + 1];
+    VecZ = new VSPAERO_DOUBLE[VSPGeom().Grid(MGLevel_).NumberOfNodes() + 1];
+    
+    for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfNodes() ; j++ ) {
+
+       VecX[j] = 0.;
+       VecY[j] = 0.;
+       VecZ[j] = 0.;
+       
+    }
+    
+    for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfEdges() ; i++ ) {
+     
+       if ( VSPGeom().Grid(MGLevel_).EdgeList(i).IsTrailingEdge() ) { 
+        
+          // Determine trailing edge loop
+          
+          VecTe[0] = VecTe[1] = VecTe[2] = 0.;
+          
+          for ( j = 1 ; j <= 2 ; j++ ) {
+             
+             if ( j == 1 ) Loop = VSPGeom().Grid(MGLevel_).EdgeList(i).Loop1();
+             
+             if ( j == 2 ) Loop = VSPGeom().Grid(MGLevel_).EdgeList(i).Loop2();
+             
+             if ( Loop != 0 ) {
+             
+                // Edge vector crossed into normal... gives TE direction
+                
+                vector_cross(VSPGeom().Grid(MGLevel_).EdgeList(i).Vec(), VSPGeom().Grid(MGLevel_).LoopList(Loop).Normal(), VecTe);
+ 
+                Node1 = VSPGeom().Grid(MGLevel_).EdgeList(i).Node1();
+                Node2 = VSPGeom().Grid(MGLevel_).EdgeList(i).Node2();
+           
+                if ( Loop == VSPGeom().Grid(MGLevel_).EdgeList(i).LoopL() ) {
+                 
+                   VecX[Node1] += VecTe[0];
+                   VecY[Node1] += VecTe[1];
+                   VecZ[Node1] += VecTe[2];
+                   
+                   VecX[Node2] += VecTe[0];
+                   VecY[Node2] += VecTe[1];
+                   VecZ[Node2] += VecTe[2];
+                   
+                }
+                
+                else {
+                 
+                   VecX[Node1] -= VecTe[0];
+                   VecY[Node1] -= VecTe[1];
+                   VecZ[Node1] -= VecTe[2];
+                               
+                   VecX[Node2] -= VecTe[0];
+                   VecY[Node2] -= VecTe[1];
+                   VecZ[Node2] -= VecTe[2];
+                   
+                }    
+                
+             }       
+             
+          }
+
+       }
+       
+    }   
+    
+    // Create copy of vortex sheet data for each CPU
+    
+    for ( c = 0 ; c < NumberOfThreads_ ; c++ ) {
+       
+       i = 0;
+
+       for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+
+          NumEdges = 0;
+
+          if ( Vinf_ > 0. ) {
+
+             VortexSheet(c,k).FreeStreamVelocity(0) = FreeStreamVelocity_[0]/Vinf_;
+             VortexSheet(c,k).FreeStreamVelocity(1) = FreeStreamVelocity_[1]/Vinf_;
+             VortexSheet(c,k).FreeStreamVelocity(2) = FreeStreamVelocity_[2]/Vinf_;
+         
+          }
+          
+          else {
+             
+             VortexSheet(c,k).FreeStreamVelocity(0) = 0.;
+             VortexSheet(c,k).FreeStreamVelocity(1) = 0.;
+             VortexSheet(c,k).FreeStreamVelocity(2) = 0.; 
+             
+          }          
+   
+          for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ; j++ ) {
+             
+             if ( VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(j) == VortexSheet(c,k).WingSurface() ) {
+             
+                NumEdges++;
+     
+                if ( RotorAnalysis_ > 0 ) {
+                   
+                   if ( Vinf_ > 0. ) {
+                      
+                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(0) = FreeStreamVelocity_[0]/Vinf_;
+                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(1) = FreeStreamVelocity_[1]/Vinf_; 
+                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(2) = FreeStreamVelocity_[2]/Vinf_; 
+                      
+                   }
+                   
+                   else {
+                      
+                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(0) = 0.;
+                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(1) = 0.; 
+                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(2) = 0.; 
+                      
+                   }                                                            
+       
+                }
+                
+                VortexSheet(c,k).TrailingVortex(NumEdges).Vinf() = SGN(Vinf_)*MAX(0.000001,ABS(Vinf_));
+   
+                VortexSheet(c,k).TrailingVortex(NumEdges).BladeRPM() = BladeRPM_;
+                                 
+                // Pass in edge data and create edge cofficients
+                
+                VSP_Node1.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j);
+                VSP_Node1.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j);
+                VSP_Node1.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j);
+   
+                VSP_Node2.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j) + WakeAngle_[0] * 1.e6;
+                VSP_Node2.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j) + WakeAngle_[1] * 1.e6;
+                VSP_Node2.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j) + WakeAngle_[2] * 1.e6;
+          
+                // Set sigma
+ 
+                VortexSheet(c,k).TrailingVortex(NumEdges).Sigma() = 0.5*Sigma[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
+
+                // Create trailing wakes... specify number of sub vortices per trail
+      
+                WakeDist = MAX(VSP_Node1.x() + 0.5*FarDist, Xmax_ + 0.25*FarDist) - VSP_Node1.x();
+                
+                NumWakeNodes = NumberOfWakeTrailingNodes_;
+             
+                VortexSheet(c,k).TrailingVortex(NumEdges).Update(WakeDist,VSP_Node1,VSP_Node2);                   
+                 
+             }
+                
+          }
+          
+          VortexSheet(c,k).SetMachNumber(Mach_);
+
+       }
+       
+    }
 
     delete [] Sigma;
     delete [] VecX;    
@@ -6111,7 +6341,6 @@ void VSP_SOLVER::CalculateRightHandSide(void)
                 VSPGeom().VSP_Surface(j).ControlSurface(k).RotateNormal(Normal);
             
                 RightHandSide_[Loop] = -vector_dot(Normal, VSPGeom().Grid(1).LoopList(Loop).LocalFreeStreamVelocity());
-                                
                 
              }
              
@@ -7967,9 +8196,9 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
        // Add in the rotor induced velocities
    
        for ( k = 1 ; k <= NumberOfRotors_ ; k++ ) {
-   #ifndef AUTODIFF
-   #pragma omp parallel for private(j,xyz,q)
-   #endif
+#ifndef AUTODIFF
+#pragma   omp parallel for private(j,xyz,q)
+#endif
           for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
         
              xyz[0] = SurfaceVortexEdge(j).Xc(); 
@@ -8064,9 +8293,9 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
        
        for ( k = 1 ; k <= NumberOfEngineFaces_ ; k++ ) {
         
-   #ifndef AUTODIFF
-   #pragma omp parallel for private(j,xyz,q)
-   #endif
+#ifndef AUTODIFF
+#pragma   omp parallel for private(j,xyz,q)
+#endif
           for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
         
              xyz[0] = SurfaceVortexEdge(j).Xc(); 
@@ -8162,9 +8391,9 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
                 
              U = V = W = 0;
    
-   #ifndef AUTODIFF
-   #pragma omp parallel for reduction(+:U,V,W) private(k,VortexEdge,dq)
-   #endif          
+#ifndef AUTODIFF
+#pragma      omp parallel for reduction(+:U,V,W) private(k,VortexEdge,dq)
+#endif          
              for ( k = 1 ; k <= NumberOfInteractionEdgesForEdge_[LoopType][j] ; k++ ) {
              
                 VortexEdge = VortexEdgeInteractionList_[LoopType][j][k];
@@ -8201,9 +8430,9 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
                
                 U = V = W = 0;
    
-   #ifndef AUTODIFF
-   #pragma omp parallel for reduction(+:U,V,W) private(k,VortexEdge,dq)
-   #endif          
+#ifndef AUTODIFF
+#pragma         omp parallel for reduction(+:U,V,W) private(k,VortexEdge,dq)
+#endif          
                 for ( k = 1 ; k <= NumberOfInteractionEdgesForEdge_[LoopType][j] ; k++ ) {
                 
                    VortexEdge = VortexEdgeInteractionList_[LoopType][j][k];
@@ -8246,9 +8475,9 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
                
                 U = V = W = 0;
    
-   #ifndef AUTODIFF
-   #pragma omp parallel for reduction(+:U,V,W) private(k,VortexEdge,dq)
-   #endif          
+#ifndef AUTODIFF
+#pragma         omp parallel for reduction(+:U,V,W) private(k,VortexEdge,dq)
+#endif          
                 for ( k = 1 ; k <= NumberOfInteractionEdgesForEdge_[LoopType][j] ; k++ ) {
                 
                    VortexEdge = VortexEdgeInteractionList_[LoopType][j][k];
@@ -8285,9 +8514,9 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
                   
                    U = V = W = 0;
    
-   #ifndef AUTODIFF
-   #pragma omp parallel for reduction(+:U,V,W) private(k,VortexEdge,dq)
-   #endif          
+#ifndef AUTODIFF
+#pragma            omp parallel for reduction(+:U,V,W) private(k,VortexEdge,dq)
+#endif          
                    for ( k = 1 ; k <= NumberOfInteractionEdgesForEdge_[LoopType][j] ; k++ ) {
                    
                       VortexEdge = VortexEdgeInteractionList_[LoopType][j][k];
@@ -8354,22 +8583,22 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
        
        for ( v = 1 ; v <= NumberOfVortexSheets_ ; v++ ) {
    
-   #ifndef AUTODIFF
-   #pragma omp parallel for private(cpu, j, xyz, q, U, V, W)
-   #endif
+#ifndef AUTODIFF
+#pragma omp parallel for private(cpu, j, xyz, q, U, V, W)
+#endif
           for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
-   
-   #ifndef AUTODIFF
-   
-   #ifdef VSPAERO_OPENMP    
-          cpu = omp_get_thread_num();
-   #else
-          cpu = 0;
-   #endif  
-   
-   #else
-          cpu = 0;
-   #endif       
+
+#ifndef AUTODIFF
+
+#ifdef VSPAERO_OPENMP    
+             cpu = omp_get_thread_num();
+#else
+             cpu = 0;
+#endif  
+
+#else
+             cpu = 0;
+#endif       
    
              xyz[0] = SurfaceVortexEdge(j).Xc(); 
              xyz[1] = SurfaceVortexEdge(j).Yc();        
@@ -10042,15 +10271,15 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
           
              for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
               
-            // this is broken    RotorDisk(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
+              // this is broken    RotorDisk(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
                 
              }
 	     
-	     // Update engine locations
+	          // Update engine locations
 	     
              for ( i = 1 ; i <= NumberOfEngineFaces_ ; i++ ) {
               
-            // this is broken    EngineFace(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
+              // this is broken    EngineFace(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
                 
              }	     
 	     
@@ -10167,27 +10396,39 @@ void VSP_SOLVER::ResetGeometry(void)
 {
 
     int i, j, c, n, Level, *ComponentInThisGroup, Found, Node;
+    int NumberOfStepsToReset;
     VSPAERO_DOUBLE OVec[3], TVec[3], RVec[3];
     VSPAERO_DOUBLE TimeStep, CurrentTime;
     QUAT Quat, InvQuat, Vec1, Vec2, DQuatDt, Omega, BodyVelocity, WQuat;
 
-    if ( !NoiseAnalysis_ ) {
-       
-       PRINTF("The ResetGeometry routine only really works for noise analyses! \n");
-       fflush(NULL);
-       exit(1);
-       
-    }
-
     ComponentInThisGroup = new int[VSPGeom().NumberOfComponents() + 1];
 
-    // Loop over any unsteady component groups and update geometry
+    // We completely reset the geometry for a noise analysis...
 
-    TimeStep = -NoiseTimeStep_;
+    if ( NoiseAnalysis_ ) {
        
-    CurrentTime = CurrentNoiseTime_ + NoiseTimeShift_;       
+       TimeStep = -NoiseTimeStep_;
+         
+       CurrentTime = CurrentNoiseTime_ + NoiseTimeShift_;      
+       
+       NumberOfStepsToReset = NumberOfNoiseTimeSteps_;
+       
+    }
+    
+    // Otherwise... we are assuming this is an optimization run and we just
+    // want to reset back one time step
+    
+    else {
+       
+       TimeStep = -TimeStep_;
+       
+       CurrentTime = CurrentTime_;
+       
+       NumberOfStepsToReset = 1;
+       
+    } 
 
-    for ( n = 1 ; n <= NumberOfNoiseTimeSteps_ ; n++ ) {
+    for ( n = 1 ; n <= NumberOfStepsToReset ; n++ ) {
   
        for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
    
@@ -10521,7 +10762,7 @@ void VSP_SOLVER::Optimization_CalculateGradientOfDesignFunction(void)
         
     // Calculate pF_pMesh
     
-    PRINTF("Calculating pF_pMesh ... \n");
+    if ( Verbose_ ) PRINTF("Calculating pF_pMesh ... \n");
     
     Optimization_Calculate_pF_pMesh();
 
@@ -10550,7 +10791,7 @@ void VSP_SOLVER::Optimization_CalculateGradientOfDesignFunction(void)
 void VSP_SOLVER::Optimization_Solve(int Case)
 {
      
-    int c, i, k, p;
+    int c, i, j, k, p;
     char StatusFileName[2000], ADBFileName[2000];
     char GroupFileName[2000], RotorFileName[2000];
     char GradientFileName[2000];
@@ -10591,33 +10832,72 @@ void VSP_SOLVER::Optimization_Solve(int Case)
  
     }
 
-    // Optimization stuff...
+    // Adjoint solution vector
+
+    Psi_ = new VSPAERO_DOUBLE*[NumberOfOptimizationFunctions_ + 1];
+
+    // Gradients with respectt to mesh
     
     pR_pMesh_  = new VSPAERO_DOUBLE[3*VSPGeom().Grid(0).NumberOfNodes() + 1];
     pF_pMesh_  = new VSPAERO_DOUBLE[3*VSPGeom().Grid(0).NumberOfNodes() + 1];
     
-    dF_dMesh_  = new VSPAERO_DOUBLE*[NumberOfOptimizationFunctions_ + 1];    
-    Psi_       = new VSPAERO_DOUBLE*[NumberOfVortexLoops_ + 1];
-    
-    for ( i = 1 ; i <= NumberOfOptimizationFunctions_ ; i++ ) {
-       
-       dF_dMesh_[i]  = new VSPAERO_DOUBLE[3*VSPGeom().Grid(0).NumberOfNodes() + 1];
-
-            Psi_[i]  = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
-       
-    }
+    zero_double_array(pR_pMesh_, 3*VSPGeom().Grid(0).NumberOfNodes());
+    zero_double_array(pF_pMesh_, 3*VSPGeom().Grid(0).NumberOfNodes());
     
     pF_pGamma_ = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
-
+    
+    zero_double_array(pF_pGamma_, NumberOfVortexLoops_);
+    
     
     for ( i = 1 ; i <= NumberOfOptimizationFunctions_ ; i++ ) {
-    
-       zero_double_array(dF_dMesh_[i], 3*VSPGeom().Grid(0).NumberOfNodes());
+
+       Psi_[i]  = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
        
        zero_double_array(Psi_[i], NumberOfVortexLoops_);
-              
+       
     }
 
+    dF_dMesh_ = new VSPAERO_DOUBLE**[OptimizationNumberOfIntegrationTimeSteps_ + 1];    
+
+    for ( i = 0 ; i <= OptimizationNumberOfIntegrationTimeSteps_ ; i++ ) {
+       
+       dF_dMesh_[i]  = new VSPAERO_DOUBLE*[NumberOfOptimizationFunctions_ + 1];
+
+       for ( j = 1 ; j <= NumberOfOptimizationFunctions_ ; j++ ) {
+       
+          dF_dMesh_[i][j] = new VSPAERO_DOUBLE[3*VSPGeom().Grid(0).NumberOfNodes() + 1];
+          
+          zero_double_array(dF_dMesh_[i][j], 3*VSPGeom().Grid(0).NumberOfNodes());
+          
+       }
+
+    }
+    
+    // Gradients with respect to input variables 
+    
+    NumberOfOptimizationInputIndepdendentVariables_ = OPT_GRADIENT_NUMBER_OF_INPUTS + NumberOfComponentGroups_;
+    
+    pR_pInputVariable_  = new VSPAERO_DOUBLE[NumberOfOptimizationInputIndepdendentVariables_ + 1];
+    pF_pInputVariable_  = new VSPAERO_DOUBLE[NumberOfOptimizationInputIndepdendentVariables_ + 1];
+    
+    zero_double_array(pR_pInputVariable_, NumberOfOptimizationInputIndepdendentVariables_);
+    zero_double_array(pF_pInputVariable_, NumberOfOptimizationInputIndepdendentVariables_);    
+    
+    dF_dInputVariable_ = new VSPAERO_DOUBLE**[OptimizationNumberOfIntegrationTimeSteps_ + 1];    
+
+    for ( i = 0 ; i <= OptimizationNumberOfIntegrationTimeSteps_ ; i++ ) {
+       
+       dF_dInputVariable_[i]  = new VSPAERO_DOUBLE*[NumberOfOptimizationFunctions_ + 1];
+
+       for ( j = 1 ; j <= NumberOfOptimizationFunctions_ ; j++ ) {
+       
+          dF_dInputVariable_[i][j] = new VSPAERO_DOUBLE[NumberOfOptimizationInputIndepdendentVariables_ + 1];
+          
+          zero_double_array(dF_dInputVariable_[i][j], NumberOfOptimizationInputIndepdendentVariables_);
+          
+       }
+
+    }
 
     // Update geometry location... really just the surface velocities
     
@@ -10630,10 +10910,6 @@ void VSP_SOLVER::Optimization_Solve(int Case)
     // Initialize free stream
 
     InitializeFreeStream();
-
-    // AUTODIFF: Pause recording
-    
-    PAUSE_AUTO_DIFF();
 
     // Create interaction list for fixed components
 
@@ -10648,12 +10924,14 @@ void VSP_SOLVER::Optimization_Solve(int Case)
     // Initialize the wake trailing vortices
 
     InitializeTrailingVortices();
-    
-    ZeroVortexState();
 
     // AUTODIFF: Pause recording
     
     PAUSE_AUTO_DIFF();
+
+    // Zero the vortex state 
+            
+    ZeroVortexState();
     
     // Create matrix preconditioners
     
@@ -10672,11 +10950,7 @@ void VSP_SOLVER::Optimization_Solve(int Case)
         VortexLoop(i).Gamma() = Gamma(i) = 0.;
  
     }
-
-    // AUTODIFF: Pause recording
-    
-    PAUSE_AUTO_DIFF();
-    
+  
     // Open status file
 
     SPRINTF(StatusFileName,"%s.optimization.history",FileName_);
@@ -10899,7 +11173,7 @@ void VSP_SOLVER::Optimization_Solve(int Case)
      
        if ( TimeAccurate_ ) SaveVortexState();
       
-       if ( !TimeAccurate_ || Time_ >= NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_ ) {
+       if ( !TimeAccurate_ || Time_ >= NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_ + 1) {
 
           // Solve the adjoint equation and calculate gradients
    
@@ -10981,9 +11255,9 @@ void VSP_SOLVER::Optimization_Solve(int Case)
            VSPGeom().Grid(0).NodeList(i).x(),
            VSPGeom().Grid(0).NodeList(i).y(),
            VSPGeom().Grid(0).NodeList(i).z(),
-           dF_dMesh_[p][3*i-2],
-           dF_dMesh_[p][3*i-1],
-           dF_dMesh_[p][3*i  ]);
+           dF_dMesh_[0][p][3*i-2],
+           dF_dMesh_[0][p][3*i-1],
+           dF_dMesh_[0][p][3*i  ]);
            
        }
        
@@ -11004,7 +11278,7 @@ void VSP_SOLVER::Optimization_Solve(int Case)
 void VSP_SOLVER::Optimization_Calculate_Total_Gradient(void)
 {
 
-    int i, c, *ComponentInThisGroup;
+    int i, t, c, *ComponentInThisGroup;
     QUAT Quat, InvQuat, Vec;
 
     // Do coordinate transformation for unsteady cases
@@ -11073,16 +11347,44 @@ void VSP_SOLVER::Optimization_Calculate_Total_Gradient(void)
        
        delete [] ComponentInThisGroup;
        
+       // Save the current gradient with respect to the mesh if this is an unsteady case
+       
+       t = Time_ - (NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_);
+       
+       printf("t: %d and OptimizationNumberOfIntegrationTimeSteps_: %d \n\n\n\n",t,OptimizationNumberOfIntegrationTimeSteps_);fflush(NULL);
+       
+       for ( i = 1 ; i <= 3*VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
+          
+          dF_dMesh_[t][OptimizationCase_][i] += pF_pMesh_[i] - pR_pMesh_[i];
+       
+       }
+       
+       // Save the current gradient with respect to the input varialbes if this is an unsteady case
+       
+       for ( i = 1 ; i <= NumberOfOptimizationInputIndepdendentVariables_ ; i++ ) {
+          
+          dF_dInputVariable_[t][OptimizationCase_][i] += pF_pInputVariable_[i] - pR_pInputVariable_[i];
+          
+       }
+           
     }
-  
-    // Add in the current gradient... this may be an unsteady case
+    
+    // Add in the current gradient with respect to the mesh ... this may be an unsteady case
      
     for ( i = 1 ; i <= 3*VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
-       dF_dMesh_[OptimizationCase_][i] += pF_pMesh_[i] - pR_pMesh_[i];
+       dF_dMesh_[0][OptimizationCase_][i] += pF_pMesh_[i] - pR_pMesh_[i];
 
     }
     
+    // Add in the current gradient with respect to the input variables ... this may be an unsteady case
+    
+    for ( i = 1 ; i <= NumberOfOptimizationInputIndepdendentVariables_ ; i++ ) {
+       
+       dF_dInputVariable_[0][OptimizationCase_][i] += pF_pInputVariable_[i] - pR_pInputVariable_[i];
+
+    }
+          
     // If this is the last time through, average in time and write out the result
     
     if ( TimeAccurate_ && Time_ == NumberOfTimeSteps_ ) {
@@ -11091,10 +11393,18 @@ void VSP_SOLVER::Optimization_Calculate_Total_Gradient(void)
      
        for ( i = 1 ; i <= 3*VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {       
           
-          dF_dMesh_[OptimizationCase_][i] /= (OptimizationNumberOfIntegrationTimeSteps_ + 1);
+          dF_dMesh_[0][OptimizationCase_][i] /= OptimizationNumberOfIntegrationTimeSteps_;
           
        }
-       
+
+       // Average the gradient for time accurate cases, otherwise we are just dividing by 1...
+     
+       for ( i = 1 ; i <= NumberOfOptimizationInputIndepdendentVariables_ ; i++ ) {       
+          
+          dF_dInputVariable_[0][OptimizationCase_][i] /= OptimizationNumberOfIntegrationTimeSteps_;
+          
+       }
+              
     }
 
 }
@@ -11110,7 +11420,11 @@ void VSP_SOLVER::Optimization_Calculate_pF_pMesh(void)
 
 #ifdef AUTODIFF
 
-    int i;
+    int i, k;
+
+    // Back up up one time step for time accurate analyses
+    
+ //   if ( TimeAccurate_ ) ResetGeometry();
 
     // AUTODIFF: Start new recording
 
@@ -11118,7 +11432,15 @@ void VSP_SOLVER::Optimization_Calculate_pF_pMesh(void)
 
     // Update the mesh data from fine down to coarse...
     
+ //   if ( TimeAccurate_ ) UpdateGeometryLocation(0);
+    
     VSPGeom().UpdateMeshes();
+        
+    // Update free stream
+    
+    InitializeFreeStream();
+
+    UpdateTrailingVortices();
     
     // Calculate the optimization function
     
@@ -11134,31 +11456,19 @@ void VSP_SOLVER::Optimization_Calculate_pF_pMesh(void)
 
     for ( i = 1 ; i <= OptimizationFunctionList_[OptimizationCase_].FunctionLength() ; i++ ) {
 
-       SET_GRADIENT(OptimizationFunctionList_[OptimizationCase_].Function(i),OptimizationFunctionList_[OptimizationCase_].UserVector(i));
+       k = i;
+       
+       if ( TimeAccurate_ ) k = (Time_ - (NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_) - 1 )*OptimizationFunctionList_[OptimizationCase_].FunctionLength() + i;
+      
+       SET_GRADIENT(OptimizationFunctionList_[OptimizationCase_].Function(k),OptimizationFunctionList_[OptimizationCase_].UserVector(i));
        
     }
 
-    // AUTODIFF: Set independent variables
-
-    for ( i = 1 ; i <= VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
-
-       SET_INDEPENDENT_VARIABLE(VSPGeom().Grid(0).NodeList(i).x());
-       SET_INDEPENDENT_VARIABLE(VSPGeom().Grid(0).NodeList(i).y());
-       SET_INDEPENDENT_VARIABLE(VSPGeom().Grid(0).NodeList(i).z());
-          
-    }
-
-    // AUTODIFF: Set dependent function and calculate the adjoint, extract gradients
-
-    for ( i = 1 ; i <= OptimizationFunctionList_[OptimizationCase_].FunctionLength() ; i++ ) {
-       
-       SET_DEPENDENT_FUNCTION(OptimizationFunctionList_[OptimizationCase_].Function(i));
-       
-    }
-        
-    //SET_DEPENDENT_FUNCTION(OptimizationFunctionList_[OptimizationCase_].Function());
+    // AUTODIFF: Calculate adjoint
 
     CALCULATE_ADJOINT();
+    
+    // Extract gradients wrt mesh
      
     for ( i = 1 ; i <= VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
@@ -11168,6 +11478,25 @@ void VSP_SOLVER::Optimization_Calculate_pF_pMesh(void)
 
     }
 
+    // Extract gradients wrt input variables
+
+    pF_pInputVariable_[1] = GET_GRADIENT(AngleOfAttack_);
+    pF_pInputVariable_[2] = GET_GRADIENT(AngleOfBeta_);
+    pF_pInputVariable_[3] = GET_GRADIENT(Mach_);
+    pF_pInputVariable_[4] = GET_GRADIENT(Vinf_);
+    pF_pInputVariable_[5] = GET_GRADIENT(Density_);    
+    pF_pInputVariable_[6] = GET_GRADIENT(ReCref_);
+    pF_pInputVariable_[7] = GET_GRADIENT(RotationalRate_[0]);
+    pF_pInputVariable_[8] = GET_GRADIENT(RotationalRate_[1]);
+    pF_pInputVariable_[9] = GET_GRADIENT(RotationalRate_[2]); 
+    
+    
+    for ( i = 1 ; i <= NumberOfComponentGroups_ ; i++ ) {
+
+       pF_pInputVariable_[OPT_GRADIENT_NUMBER_OF_INPUTS + i] = GET_GRADIENT(ComponentGroupList_[i].Omega());
+
+    } 
+    
 #endif
  
 }
@@ -11185,13 +11514,27 @@ void VSP_SOLVER::Optimization_Calculate_pR_pMesh(void)
 
     int i, j;
 
+    // Back up up one time step for time accurate analyses
+    
+ //   if ( TimeAccurate_ ) ResetGeometry();
+    
     // AUTODIFF: Start a new recording
     
     START_NEW_AUTO_DIFF();
-
+    
+    // Update the meshes for time accurate analyses
+    
+  //  if ( TimeAccurate_ ) UpdateGeometryLocation(0);
+    
     // Update the mesh data from fine down to coarse...
     
     VSPGeom().UpdateMeshes();
+
+    // Update free stream
+    
+    InitializeFreeStream();
+  
+    UpdateTrailingVortices();
 
     // Calculate the residual
     
@@ -11208,32 +11551,16 @@ void VSP_SOLVER::Optimization_Calculate_pR_pMesh(void)
     // AUTODIFF: set gradient value
     
     for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
-       
+             
        SET_GRADIENT(Residual_[i], Psi_[OptimizationCase_][i].value());
        
     }
 
-    // AUTODIFF: Set independent variables
-         
-    for ( i = 1 ; i <= VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
-
-       SET_INDEPENDENT_VARIABLE(VSPGeom().Grid(0).NodeList(i).x());
-       SET_INDEPENDENT_VARIABLE(VSPGeom().Grid(0).NodeList(i).y());
-       SET_INDEPENDENT_VARIABLE(VSPGeom().Grid(0).NodeList(i).z());
-                    
-    }
-    
-    // AUTODIFF: Set dependent function
-
-    for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
-
-       SET_DEPENDENT_FUNCTION(Residual_[i]);
-       
-    }
-
-    // AUTODIFF: Calculate adjoint and extract the gradients
+    // AUTODIFF: Calculate adjoint
 
     CALCULATE_ADJOINT();
+    
+    // Extract the gradients wrt mesh
  
     for ( i = 1 ; i <= VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
@@ -11243,6 +11570,24 @@ void VSP_SOLVER::Optimization_Calculate_pR_pMesh(void)
 
     }
     
+    // Extract gradients wrt input variables
+
+    pR_pInputVariable_[1] = GET_GRADIENT(AngleOfAttack_);
+    pR_pInputVariable_[2] = GET_GRADIENT(AngleOfBeta_);
+    pR_pInputVariable_[3] = GET_GRADIENT(Mach_);
+    pR_pInputVariable_[4] = GET_GRADIENT(Vinf_);
+    pR_pInputVariable_[5] = GET_GRADIENT(Density_);    
+    pR_pInputVariable_[6] = GET_GRADIENT(ReCref_);
+    pR_pInputVariable_[7] = GET_GRADIENT(RotationalRate_[0]);
+    pR_pInputVariable_[8] = GET_GRADIENT(RotationalRate_[1]);
+    pR_pInputVariable_[9] = GET_GRADIENT(RotationalRate_[2]); 
+    
+    for ( i = 1 ; i <= NumberOfComponentGroups_ ; i++ ) {
+
+       pR_pInputVariable_[OPT_GRADIENT_NUMBER_OF_INPUTS + i] = GET_GRADIENT(ComponentGroupList_[i].Omega());
+
+    } 
+
 #endif
  
 }
@@ -11258,7 +11603,7 @@ void VSP_SOLVER::Optimization_Calculate_pF_pGamma(void)
 
 #ifdef AUTODIFF
 
-    int i;
+    int i, k;
  
     VSPAERO_DOUBLE time1, time2;
 
@@ -11281,29 +11626,15 @@ void VSP_SOLVER::Optimization_Calculate_pF_pGamma(void)
     // AUTODIFF: Set gradient
 
     for ( i = 1 ; i <= OptimizationFunctionList_[OptimizationCase_].FunctionLength() ; i++ ) {
-       
-       SET_GRADIENT(OptimizationFunctionList_[OptimizationCase_].Function(i),OptimizationFunctionList_[OptimizationCase_].UserVector(i));
-       
-    }
-    
-    // AUTODIFF: Set independent variables
 
-    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+       k = i;
        
-      SET_INDEPENDENT_VARIABLE(Gamma_[0][i]);
-      
+       if ( TimeAccurate_ ) k = (Time_ - (NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_) - 1 )*OptimizationFunctionList_[OptimizationCase_].FunctionLength() + i;
+       
+       SET_GRADIENT(OptimizationFunctionList_[OptimizationCase_].Function(k),OptimizationFunctionList_[OptimizationCase_].UserVector(i));
+       
     }
-  
-    // AUTODIFF: Set dependent function, calculate adjoint, and extract gradients
 
-    for ( i = 1 ; i <= OptimizationFunctionList_[OptimizationCase_].FunctionLength() ; i++ ) {
-       
-       SET_DEPENDENT_FUNCTION(OptimizationFunctionList_[OptimizationCase_].Function(i));
-       
-    }
-   
-   // SET_DEPENDENT_FUNCTION(OptimizationFunctionList_[OptimizationCase_].Function());
-   
     CALCULATE_ADJOINT();
 
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
@@ -11424,22 +11755,6 @@ void VSP_SOLVER::Optimization_DoAdjointMatrixMultiply(VSPAERO_DOUBLE *vec_in, VS
     for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
 
        SET_GRADIENT(Residual_[i],vec_in[i].value());
-       
-    }
-
-    // AUTODIFF: Set independent variables
-
-    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
-       
-       SET_INDEPENDENT_VARIABLE(Gamma_[0][i]);
-       
-    }
-
-    // AUTODIFF: Set dependent variables
-    
-    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
-       
-       SET_DEPENDENT_FUNCTION(Residual_[i]);
        
     }
 
@@ -12264,7 +12579,7 @@ void VSP_SOLVER::ApplyGivensRotation(VSPAERO_DOUBLE c, VSPAERO_DOUBLE s, int k, 
 void VSP_SOLVER::CalculateForces(void)
 {
 
-    int i, j;
+    int i, j, k;
     VSPAERO_DOUBLE CLReq;
       
     // If a full run, calculate induced drag and surface velocities
@@ -12333,14 +12648,16 @@ void VSP_SOLVER::CalculateForces(void)
           }
          
        }
-  
-       if ( TimeAccurate_ && Time_ >= NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_ ) {
+
+       if ( TimeAccurate_ ) {
            
           for ( i = 1 ; i <= NumberOfOptimizationFunctions_ ; i++ ) {
              
              for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
-             
-                OptimizationFunctionList_[i].FunctionAverage(j) += OptimizationFunctionList_[i].Function(j);
+                
+                k = (Time_ - (NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_ ) - 1 )*OptimizationFunctionList_[i].FunctionLength() + j;
+
+                if ( k > 0 ) OptimizationFunctionList_[i].FunctionAverage(j) += OptimizationFunctionList_[i].Function(k);
                 
              }
          
@@ -12352,7 +12669,7 @@ void VSP_SOLVER::CalculateForces(void)
                 
                for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
              
-                  OptimizationFunctionList_[i].FunctionAverage(j) /= (OptimizationNumberOfIntegrationTimeSteps_ + 1);
+                  OptimizationFunctionList_[i].FunctionAverage(j) /= OptimizationNumberOfIntegrationTimeSteps_;
                   
                }
              
@@ -12381,9 +12698,12 @@ void VSP_SOLVER::CalculateOptimizationFunctions(void)
     if ( OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CL        ||
          OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CD        ||
          OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CS        ||                              
-         OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CMx       ||
-         OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CMy       ||
-         OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CMz       ||                              
+         OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CX        ||
+         OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CY        ||
+         OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CZ        ||          
+         OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CMX       ||
+         OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CMY       ||
+         OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CMZ       ||                              
          OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_CD_CL_CM  ||                                                                                  
          OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_ROTOR_CT  ||
          OptimizationFunctionList_[OptimizationCase_].OptimizationFunction() == OPT_ROTOR_CP  ||         
@@ -12411,7 +12731,7 @@ void VSP_SOLVER::CalculateOptimizationFunctions(void)
         CalculateResidual();        
         
      }
-     
+  
      // Fail...
      
      else {
@@ -12433,11 +12753,6 @@ void VSP_SOLVER::CalculateOptimizationFunctions(void)
 void VSP_SOLVER::CalculateOptimizationForces(void)
 {
 
-    int c; 
-    VSPAERO_DOUBLE Diameter, RPM, Vec[3], Thrusti, Thrusto, Thrust, Momenti, Momento, Moment, Poweri, Powero, Power;
-    VSPAERO_DOUBLE J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM;
-    VSPAERO_DOUBLE CLReq, CTReq, CPReq;
-
     // Calculate surface velocities
 
     if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
@@ -12452,6 +12767,12 @@ void VSP_SOLVER::CalculateOptimizationForces(void)
 
     if ( TimeAccurate_ ) CalculateUnsteadyForces();
 
+    // Calculate Delta-Cps, or surface pressures
+    
+    if ( ModelType_ == VLM_MODEL ) CalculateDeltaCPs();
+     
+    if ( ModelType_ == PANEL_MODEL ) CalculateSurfacePressures();
+    
     // Calculate forces by applying JK theorem to each edge
 
     CalculateKuttaJukowskiForces();
@@ -12478,7 +12799,7 @@ void VSP_SOLVER::CalculateOptimizationForces(void)
     StoreOptimizationFunction();
 
     if ( Verbose_ ) PRINTF("CalculateOptimizationFunction: Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
-                      
+                       
 }
 
 /*##############################################################################
@@ -12507,44 +12828,61 @@ void VSP_SOLVER::SetOptimizationFunction(int Case, int OptFunctionValue )
 void VSP_SOLVER::CalculateOptimizationFunctionLength(void)
 {
 
-    int Case, OptFunctionValue;
+    int Case, OptFunctionValue, Wing, Rotor;
+    int FunctionLength, NumberOfSampleTimes;
 
     for ( Case = 1 ; Case <= NumberOfOptimizationFunctions_ ; Case++ ) {
        
        OptFunctionValue = OptimizationFunctionList_[Case].OptimizationFunction();
+       
+       Wing = OptimizationFunctionList_[Case].Wing();
+
+       Rotor = OptimizationFunctionList_[Case].Rotor();
+       
+       FunctionLength = NumberOfSampleTimes = 1;
+       
+       if ( Wing > 0 ) FunctionLength = SpanLoadData(Wing).NumberOfSpanStations();
+       
+       if ( TimeAccurate_ ) NumberOfSampleTimes = OptimizationNumberOfIntegrationTimeSteps_;
 
        // Resize the length
      
        if ( OptimizationFunctionList_[Case].FunctionLength() == 0 ) { 
        
-          if ( OptFunctionValue                                       == OPT_CL        ) { OptimizationFunctionList_[Case].SetFunctionLength(1); };
+          if ( OptFunctionValue                                       == OPT_CL        ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
                                                                                                                                           
-          if ( OptFunctionValue                                       == OPT_CD        ) { OptimizationFunctionList_[Case].SetFunctionLength(1); };
+          if ( OptFunctionValue                                       == OPT_CD        ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
                                                                                                                                              
-          if ( OptFunctionValue                                       == OPT_CS        ) { OptimizationFunctionList_[Case].SetFunctionLength(1); };
-                                                                                                                                          
-          if ( OptFunctionValue                                       == OPT_CMx       ) { OptimizationFunctionList_[Case].SetFunctionLength(1); };
+          if ( OptFunctionValue                                       == OPT_CS        ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
+
+          if ( OptFunctionValue                                       == OPT_CX        ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
                                                                                                                                              
-          if ( OptFunctionValue                                       == OPT_CMy       ) { OptimizationFunctionList_[Case].SetFunctionLength(1); };
+          if ( OptFunctionValue                                       == OPT_CY        ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
                                                                                                                                           
-          if ( OptFunctionValue                                       == OPT_CMz       ) { OptimizationFunctionList_[Case].SetFunctionLength(1); };
+          if ( OptFunctionValue                                       == OPT_CZ        ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
+                                                                                                                                          
+          if ( OptFunctionValue                                       == OPT_CMX       ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
                                                                                                                                              
-          if ( OptFunctionValue                                       == OPT_CD_CL_CM  ) { OptimizationFunctionList_[Case].SetFunctionLength(1); };
+          if ( OptFunctionValue                                       == OPT_CMY       ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
                                                                                                                                           
-          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CT  ) { OptimizationFunctionList_[Case].SetFunctionLength(1); };  
+          if ( OptFunctionValue                                       == OPT_CMZ       ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
+                                                                                                                                             
+          if ( OptFunctionValue                                       == OPT_CD_CL_CM  ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };
                                                                                                                                           
-          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP  ) { OptimizationFunctionList_[Case].SetFunctionLength(1); };  
-                                                                                      
-          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_LOAD ) { OptimizationFunctionList_[Case].SetFunctionLength(SpanLoadData(1).NumberOfSpanStations()); };
-          
-          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_RESIDUAL  ) { OptimizationFunctionList_[Case].SetFunctionLength(NumberOfVortexLoops_); };
+          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CT  ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };  
+                                                                                                                                          
+          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP  ) { OptimizationFunctionList_[Case].SetFunctionLength(1,NumberOfSampleTimes); };  
+                                                                                       
+          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_LOAD ) { OptimizationFunctionList_[Case].SetFunctionLength(FunctionLength,NumberOfSampleTimes); };
+                                                                                       
+          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CX   ) { OptimizationFunctionList_[Case].SetFunctionLength(FunctionLength,NumberOfSampleTimes); };
+                                                                                       
+          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CY   ) { OptimizationFunctionList_[Case].SetFunctionLength(FunctionLength,NumberOfSampleTimes); };
+                                                                                       
+          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CZ   ) { OptimizationFunctionList_[Case].SetFunctionLength(FunctionLength,NumberOfSampleTimes); };
 
-          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CX  ) { OptimizationFunctionList_[Case].SetFunctionLength(SpanLoadData(1).NumberOfSpanStations()); };
+          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_RESIDUAL  ) { OptimizationFunctionList_[Case].SetFunctionLength(NumberOfVortexLoops_,NumberOfSampleTimes); };
 
-          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CY  ) { OptimizationFunctionList_[Case].SetFunctionLength(SpanLoadData(1).NumberOfSpanStations()); };
-
-          if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CZ  ) { OptimizationFunctionList_[Case].SetFunctionLength(SpanLoadData(1).NumberOfSpanStations()); };
-   
        }
    
     }
@@ -12564,33 +12902,39 @@ void VSP_SOLVER::SetOptimizationFunction(int Case, int OptFunctionValue, int Set
 
     OptimizationFunctionList_[Case].SetOptimizationFunction(OptFunctionValue);
 
-    if ( OptFunctionValue                                       == OPT_CL        ) { /* Nothing to do... */ };
-                                                                                     /* Nothing to do... */ 
-    if ( OptFunctionValue                                       == OPT_CD        ) { /* Nothing to do... */ };
-                                                                                     /* Nothing to do... */ 
-    if ( OptFunctionValue                                       == OPT_CS        ) { /* Nothing to do... */ };
-                                                                                     /* Nothing to do... */ 
-    if ( OptFunctionValue                                       == OPT_CMx       ) { /* Nothing to do... */ };
-                                                                                     /* Nothing to do... */ 
-    if ( OptFunctionValue                                       == OPT_CMy       ) { /* Nothing to do... */ };
-                                                                                     /* Nothing to do... */ 
-    if ( OptFunctionValue                                       == OPT_CMz       ) { /* Nothing to do... */ };
-                                                                                     /* Nothing to do... */ 
-    if ( OptFunctionValue                                       == OPT_CD_CL_CM  ) { /* Nothing to do... */ };
-                                                                                                                                    
-    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CT  ) { OptimizationFunctionList_[Case].SetRotor(Set); };  
-                                                                                     
-    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP  ) { OptimizationFunctionList_[Case].SetRotor(Set); };  
-    
-    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_LOAD ) { OptimizationFunctionList_[Case].SetWing(Set); };
+    if ( OptFunctionValue                                       == OPT_CL                 ) { /* Nothing to do... */ };
+                                                                                             
+    if ( OptFunctionValue                                       == OPT_CD                 ) { /* Nothing to do... */ };
+                                                                                             
+    if ( OptFunctionValue                                       == OPT_CS                 ) { /* Nothing to do... */ };
 
-    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_RESIDUAL  ) { /* Nothing to do... */ };
-
-    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CX   ) { OptimizationFunctionList_[Case].SetWing(Set); };
-                                                                                
-    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CY   ) { OptimizationFunctionList_[Case].SetWing(Set); };
-                                                                                
-    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CZ   ) { OptimizationFunctionList_[Case].SetWing(Set); };
+    if ( OptFunctionValue                                       == OPT_CX                 ) { /* Nothing to do... */ };
+                                                                                             
+    if ( OptFunctionValue                                       == OPT_CY                 ) { /* Nothing to do... */ };
+                                                                                            
+    if ( OptFunctionValue                                       == OPT_CZ                 ) { /* Nothing to do... */ };
+                                                                                             
+    if ( OptFunctionValue                                       == OPT_CMX                ) { /* Nothing to do... */ };
+                                                                                            
+    if ( OptFunctionValue                                       == OPT_CMY                ) { /* Nothing to do... */ };
+                                                                                        
+    if ( OptFunctionValue                                       == OPT_CMZ                ) { /* Nothing to do... */ };
+                                                                                             
+    if ( OptFunctionValue                                       == OPT_CD_CL_CM           ) { /* Nothing to do... */ };
+                                                                                                                                             
+    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CT           ) { OptimizationFunctionList_[Case].SetRotor(Set); };  
+                                                                                              
+    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP           ) { OptimizationFunctionList_[Case].SetRotor(Set); };  
+                                                                                          
+    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_LOAD          ) { OptimizationFunctionList_[Case].SetWing(Set); };
+                                                                                          
+    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_RESIDUAL           ) { /* Nothing to do... */ };
+                                                                                          
+    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CX            ) { OptimizationFunctionList_[Case].SetWing(Set); };
+                                                                                          
+    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CY            ) { OptimizationFunctionList_[Case].SetWing(Set); };
+                                                                                          
+    if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CZ            ) { OptimizationFunctionList_[Case].SetWing(Set); };
 
     PAUSE_AUTO_DIFF();
         
@@ -12602,25 +12946,25 @@ void VSP_SOLVER::SetOptimizationFunction(int Case, int OptFunctionValue, int Set
 #                                                                              #
 ##############################################################################*/
 
-void VSP_SOLVER::SetOptimizationFunctionInputGradientVector(int Case, int Length, int Set, double *Vec)
+void VSP_SOLVER::SetOptimizationFunctionInputGradientVector(int Case, int Length, int TimeSteps, int Set, double *Vec)
 {
 
     int i;
     
     CONTINUE_AUTO_DIFF();
 
-    OptimizationFunctionList_[Case].SetFunctionLength(Length);
+    OptimizationFunctionList_[Case].SetFunctionLength(Length,TimeSteps);
     
     if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CT  ) { OptimizationFunctionList_[Case].SetRotor(Set); };  
                                                                                      
     if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP  ) { OptimizationFunctionList_[Case].SetRotor(Set); };  
-    
+                                                                                 
     if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_LOAD ) { OptimizationFunctionList_[Case].SetWing(Set); };
-
+                                                                                 
     if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CX   ) { OptimizationFunctionList_[Case].SetWing(Set); };
-                                                                                
+                                                                                 
     if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CY   ) { OptimizationFunctionList_[Case].SetWing(Set); };
-                                                                              
+                                                                                 
     if ( OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CZ   ) { OptimizationFunctionList_[Case].SetWing(Set); };
 
     for ( i = 1 ; i <= OptimizationFunctionList_[Case].FunctionLength() ; i++ ) {
@@ -12642,7 +12986,7 @@ void VSP_SOLVER::SetOptimizationFunctionInputGradientVector(int Case, int Length
 void VSP_SOLVER::StoreOptimizationFunction(void)
 {
 
-    int i, j, c; 
+    int i, j, k, c; 
     VSPAERO_DOUBLE Diameter, RPM, Vec[3], Thrusti, Thrusto, Thrust, Momenti, Momento, Moment, Poweri, Powero, Power;
     VSPAERO_DOUBLE J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM;
     VSPAERO_DOUBLE CLReq;
@@ -12650,150 +12994,166 @@ void VSP_SOLVER::StoreOptimizationFunction(void)
     // Keep track of optimization functionals
 
     for ( i = 1 ; i <= NumberOfOptimizationFunctions_ ; i++ ) {
-    
-       if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CL ) {
+   
+       for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
           
-          OptimizationFunctionList_[i].Function() = CL_[0];
+          k = j;
           
-       }
-       
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CD ) {
-          
-          OptimizationFunctionList_[i].Function() = CD_[0];
-          
-       }
+          if ( TimeAccurate_ ) k = (Time_ - (NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_) - 1 )*OptimizationFunctionList_[i].FunctionLength() + j;
 
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CS ) {
-          
-          OptimizationFunctionList_[i].Function() = CS_[0];
-          
-       }
+          if ( k > 0 ) {
+             
+             if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CL ) {
+                
+                OptimizationFunctionList_[i].Function(k) = CL_[0];
+                
+             }
 
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CMx ) {
-          
-          OptimizationFunctionList_[i].Function() = CMx_[0];
-          
-       }
-
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CMy ) {
-          
-          OptimizationFunctionList_[i].Function() = CMy_[0];
-          
-       }
-       
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CMz ) {
-          
-          OptimizationFunctionList_[i].Function() = CMz_[0];
-          
-       } 
-                  
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CD_CL_CM ) {
-
-          // L/D with an attempt to hold CL constant and drive CM to zero
-          
-          CLReq = 0.5000;
-          
-          OptimizationFunctionList_[i].Function() = 1000.*pow(CL_[0]-CLReq,2.) + ABS(CD_[0]) + 5.*ABS(CMy_[0]);
-          
-       }
-
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_ROTOR_CT ||
-                 OptimizationFunctionList_[i].OptimizationFunction() == OPT_ROTOR_CP ) {
-
-          c = OptimizationFunctionList_[i].Rotor();
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CD ) {
+                
+              //   OptimizationFunctionList_[i].Function(k) = CD_[0] + CDo_[0];
+                  OptimizationFunctionList_[i].Function(k) = CD_[0];
+             
+             }
       
-          if ( ComponentGroupList_[c].GeometryIsARotor() ) {    
-                         
-              // Thrust coefficient
-           
-              if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_ROTOR_CT ) {
-                 
-                 OptimizationFunctionList_[i].Function() = ComponentGroupList_[c].CTo() + ComponentGroupList_[c].CT();
-              
-              }
-              
-              // Power Coefficient
-              
-              else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_ROTOR_CP ) {
-                 
-                 OptimizationFunctionList_[i].Function() = ComponentGroupList_[c].CPo() + ComponentGroupList_[c].CP();
-                 
-              }
-              
-              else {
-                 
-                 PRINTF("Unknown rotor optimization function! \n");fflush(NULL);
-                 exit(1);
-                 
-              }
-              
-          }
-          
-          else {
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CS ) {
+                
+                OptimizationFunctionList_[i].Function(k) = CS_[0];
+                
+             }
+
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CX ) {
+                
+                OptimizationFunctionList_[i].Function(k) = CFx_[0] + CFxo_;
+                
+             }
+      
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CY ) {
+                
+                OptimizationFunctionList_[i].Function(k) = CFy_[0] + CFyo_;
+                
+             }
              
-             PRINTF("Error... chosen optimization group is not a rotor! \n");fflush(NULL);
-             exit(1);
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CZ ) {
+                
+                OptimizationFunctionList_[i].Function(k) = CFz_[0] + CFzo_;
+                
+             } 
+                   
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CMX ) {
+                
+                OptimizationFunctionList_[i].Function(k) = CMx_[0] + CMxo_;
+                
+             }
+      
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CMY ) {
+                
+                OptimizationFunctionList_[i].Function(k) = CMy_[0]+ CMyo_;
+                
+             }
              
-          }
-          
-       }
-       
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_WING_LOAD ) {
-          
-          for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
-
-             OptimizationFunctionList_[i].Function(j) = SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cl(j);
-
-          }
-          
-       }
-
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_WING_CX ) {
-          
-          for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
-
-             OptimizationFunctionList_[i].Function(j) = SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cx(j)
-                                                      + SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cxo(j);
-              
-          }
-          
-       }
-
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_WING_CY ) {
-          
-          for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
-
-             OptimizationFunctionList_[i].Function(j) = SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cy(j)
-                                                      + SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cyo(j);
-              
-          }
-          
-       }
-
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_WING_CZ ) {
-          
-          for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
-
-             OptimizationFunctionList_[i].Function(j) = SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cz(j)
-                                                      + SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Czo(j);
-              
-          }
-          
-       }
-               
-                                    
-       else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_RESIDUAL ) {
-          
-          for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
-             
-             OptimizationFunctionList_[i].Function(j) = Residual_[j];
-             
-          }
-          
-       }          
-       
-    }
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CMZ ) {
+                
+                OptimizationFunctionList_[i].Function(k) = CMz_[0] + CMzo_;
+                
+             } 
+                        
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_CD_CL_CM ) {
+      
+                // L/D with an attempt to hold CL constant and drive CM to zero
+                
+                CLReq = 0.5000;
+                
+                OptimizationFunctionList_[i].Function(k) = 1000.*pow(CL_[0]-CLReq,2.) + ABS(CD_[0]) + 5.*ABS(CMy_[0]);
+                
+             }
+      
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_ROTOR_CT ||
+                       OptimizationFunctionList_[i].OptimizationFunction() == OPT_ROTOR_CP ) {
+      
+                c = OptimizationFunctionList_[i].Rotor();
+            
+                if ( ComponentGroupList_[c].GeometryIsARotor() ) {    
+                               
+                    // Thrust coefficient
+                 
+                    if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_ROTOR_CT ) {
+                       
+                       OptimizationFunctionList_[i].Function(k) = ComponentGroupList_[c].CTo() + ComponentGroupList_[c].CT();
                     
+                    }
+                    
+                    // Power Coefficient
+                    
+                    else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_ROTOR_CP ) {
+                       
+                       OptimizationFunctionList_[i].Function(k) = ComponentGroupList_[c].CPo() + ComponentGroupList_[c].CP();
+                       
+                    }
+                    
+                    else {
+                       
+                       PRINTF("Unknown rotor optimization function! \n");fflush(NULL);
+                       exit(1);
+                       
+                    }
+                    
+                }
+                
+                else {
+                   
+                   PRINTF("Error... chosen optimization group is not a rotor! \n");fflush(NULL);
+                   exit(1);
+                   
+                }
+                
+             }
+             
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_WING_LOAD ) {
+             
+                OptimizationFunctionList_[i].Function(j) = SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cl(j);
+      
+             }
+      
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_WING_CX ) {
+          
+                OptimizationFunctionList_[i].Function(k) = SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cx(j)
+                                                         + SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cxo(j);
+       
+             }
+      
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_WING_CY ) {
+              
+                OptimizationFunctionList_[i].Function(k) = SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cy(j)
+                                                         + SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cyo(j);
+           
+             }
+      
+             else if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_WING_CZ ) {
+       
+                OptimizationFunctionList_[i].Function(k) = SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Cz(j)
+                                                         + SpanLoadData(OptimizationFunctionList_[i].Wing()).Span_Czo(j);
+      
+             } 
+          
+          }
+          
+       }
+
+    }
+    
+    // Special case of residual
+           
+    if ( OptimizationFunctionList_[i].OptimizationFunction() == OPT_RESIDUAL ) {
+       
+       for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
+          
+          OptimizationFunctionList_[i].Function(j) = Residual_[j];
+          
+       }
+       
+    }      
+               
 }
 
 /*##############################################################################
@@ -12904,6 +13264,39 @@ void VSP_SOLVER::OptimizationFunction(int Case, VSPAERO_DOUBLE *Vec)
 
 }
 
+/*##############################################################################
+#                                                                              #
+#                    VSP_SOLVER OptimizationFunction                           #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::OptimizationFunction(int Case, int Time, VSPAERO_DOUBLE *Vec)
+{ 
+
+    int i, j;
+    
+    if ( !TimeAccurate_ ) { 
+ 
+       PRINTF("Error... requesting unsteady data from steady state solution! \n");
+       fflush(NULL);
+       exit(1);
+       
+    }
+    
+    else {
+
+       for ( i = 1 ; i <= OptimizationFunctionList_[Case].FunctionLength() ; i++ ) {
+          
+          j = (Time-1)*OptimizationFunctionList_[Case].FunctionLength() + i;
+   
+          Vec[i] = OptimizationFunctionList_[Case].Function(j);
+          
+       }
+ 
+    }
+
+}
+
 #endif
 
 /*##############################################################################
@@ -12960,6 +13353,39 @@ void VSP_SOLVER::OptimizationFunction(int Case, double *Vec)
           
        }
  
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_SOLVER OptimizationFunction                      #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::OptimizationFunction(int Case, int Time, double *Vec)
+{ 
+
+    int i, j;
+    
+    if ( !TimeAccurate_ ) { 
+ 
+       PRINTF("Error... requesting unsteady data from steady state solution! \n");
+       fflush(NULL);
+       exit(1);
+       
+    }
+    
+    else {
+
+       for ( i = 1 ; i <= OptimizationFunctionList_[Case].FunctionLength() ; i++ ) {
+  
+          j = (Time-1)*OptimizationFunctionList_[Case].FunctionLength() + i;
+   
+          Vec[i] = DOUBLE(OptimizationFunctionList_[Case].Function(j));
+                      
+       }
+
     }
 
 }
@@ -13624,7 +14050,7 @@ void VSP_SOLVER::CalculateSurfacePressures(void)
        
        if ( TimeAccurate_ ) {
           
-          VortexLoop(i).dCp() += VortexLoop(i).dCp_Unsteady();
+          VortexLoop(i).dCp() += VortexLoop(i).dCp_Unsteady()/(0.5*Vref_*Vref_);
           
        }
         
@@ -13698,6 +14124,14 @@ void VSP_SOLVER::Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pM
     // AUTODIFF: Start a new recording
     
     START_NEW_AUTO_DIFF();
+    
+    // Update free stream
+    
+    InitializeFreeStream();
+
+    CalculateRightHandSide();
+    
+    CalculateResidual();
 
     // Update the mesh data from fine down to coarse...
     
@@ -13718,24 +14152,6 @@ void VSP_SOLVER::Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pM
     for ( i = 0 ; i <= NumberOfSurfaceNodes_ ; i++ ) {
        
        SET_GRADIENT(NodalCp_[i], pUF_pP[i]);
-       
-    }
-
-    // AUTODIFF: Set independent variables
-         
-    for ( i = 1 ; i <= VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
-
-       SET_INDEPENDENT_VARIABLE(VSPGeom().Grid(0).NodeList(i).x());
-       SET_INDEPENDENT_VARIABLE(VSPGeom().Grid(0).NodeList(i).y());
-       SET_INDEPENDENT_VARIABLE(VSPGeom().Grid(0).NodeList(i).z());
-                    
-    }
-    
-    // AUTODIFF: Set dependent function
-
-    for ( i = 0 ; i <= NumberOfSurfaceNodes_ ; i++ ) {
-
-       SET_DEPENDENT_FUNCTION(NodalCp_[i]);
        
     }
 
@@ -13766,7 +14182,7 @@ VSPAERO_DOUBLE *VSP_SOLVER::Optimization_Calculate_pF_pRotorOmega(int Group)
 
 #ifdef AUTODIFF
 
-    int i, j, OptCase;
+    int i, j, k, OptCase;
     VSPAERO_DOUBLE *pF_pOmega;
 
     pF_pOmega = new VSPAERO_DOUBLE[NumberOfOptimizationFunctions_ + 1];
@@ -13780,6 +14196,12 @@ VSPAERO_DOUBLE *VSP_SOLVER::Optimization_Calculate_pF_pRotorOmega(int Group)
           // AUTODIFF: Start a new recording
           
           START_NEW_AUTO_DIFF();
+
+          // Update free stream
+          
+          InitializeFreeStream();
+
+          CalculateRightHandSide();
       
           // Update the mesh data from fine down to coarse...
           
@@ -13798,20 +14220,12 @@ VSPAERO_DOUBLE *VSP_SOLVER::Optimization_Calculate_pF_pRotorOmega(int Group)
           // AUTODIFF: Set gradient
       
           for ( i = 1 ; i <= OptimizationFunctionList_[OptCase].FunctionLength() ; i++ ) {
-      
-             SET_GRADIENT(OptimizationFunctionList_[OptCase].Function(i),OptimizationFunctionList_[OptimizationCase_].UserVector(i));
              
-          }
-          
-          // AUTODIFF: Set independent variables
-
-          SET_INDEPENDENT_VARIABLE(ComponentGroupList_[Group].Omega());
-      
-          // AUTODIFF: Set dependent function and calculate the adjoint, extract gradients
-      
-          for ( i = 1 ; i <= OptimizationFunctionList_[OptCase].FunctionLength() ; i++ ) {
+             k = i;
              
-             SET_DEPENDENT_FUNCTION(OptimizationFunctionList_[OptimizationCase_].Function(i));
+             if ( TimeAccurate_ ) k = (Time_ - (NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_ - 1) )*OptimizationFunctionList_[OptCase].FunctionLength() + i;
+      
+             SET_GRADIENT(OptimizationFunctionList_[OptCase].Function(k),OptimizationFunctionList_[OptimizationCase_].UserVector(i));
              
           }
       
@@ -16582,8 +16996,12 @@ void VSP_SOLVER::CreateFEMLoadFile(int Case)
        
     // Write out FEM beam load file for VLM model
     
-    if ( ModelType_ == VLM_MODEL ) CreateFEMLoadFileFromVLMSolve(Case);
+    if ( ModelType_ == VLM_MODEL ) {
+       
+       CreateFEMLoadFileFromVLMSolve(Case);
 
+    }
+    
     // Write out FEM beam load file for Panel model
     
     else if ( ModelType_ == PANEL_MODEL ) {
@@ -16608,7 +17026,7 @@ void VSP_SOLVER::CreateFEMLoadFileFromVLMSolve(int Case)
 
     for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
      
-       if ( 1||VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) {
+       if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) {
         
           FPRINTF(FEMLoadFile_,"Wing Surface: %d \n",i);
           FPRINTF(FEMLoadFile_,"SpanStations: %d \n",VSPGeom().VSP_Surface(i).NumberOfSpanStations());
@@ -16621,22 +17039,6 @@ void VSP_SOLVER::CreateFEMLoadFileFromVLMSolve(int Case)
               
           for ( k = 1 ; k <= NumberOfStations ; k++ ) {
 
-             // Calculate local deformed quarter chord location
-             
-             Vec[0] = SpanLoadData(i).Span_XTE_Def(k) - SpanLoadData(i).Span_XLE_Def(k);
-             Vec[1] = SpanLoadData(i).Span_YTE_Def(k) - SpanLoadData(i).Span_YLE_Def(k);
-             Vec[2] = SpanLoadData(i).Span_ZTE_Def(k) - SpanLoadData(i).Span_ZLE_Def(k);
-                  
-             Chord = sqrt(vector_dot(Vec,Vec));
-         
-             Vec[0] /= Chord;
-             Vec[1] /= Chord;
-             Vec[2] /= Chord;
-
-             VecQC_Def[0] = SpanLoadData(i).Span_XLE_Def(k) + 0.25*Chord*Vec[0];
-             VecQC_Def[1] = SpanLoadData(i).Span_YLE_Def(k) + 0.25*Chord*Vec[1];
-             VecQC_Def[2] = SpanLoadData(i).Span_ZLE_Def(k) + 0.25*Chord*Vec[2];
-                       
              // Calculate local undeformed quarter chord location
 
              Vec[0] = SpanLoadData(i).Span_XTE(k) - SpanLoadData(i).Span_XLE(k);
@@ -16652,7 +17054,45 @@ void VSP_SOLVER::CreateFEMLoadFileFromVLMSolve(int Case)
              VecQC[0] = SpanLoadData(i).Span_XLE(k) + 0.25*Chord*Vec[0];
              VecQC[1] = SpanLoadData(i).Span_YLE(k) + 0.25*Chord*Vec[1];
              VecQC[2] = SpanLoadData(i).Span_ZLE(k) + 0.25*Chord*Vec[2];
-  
+             
+             // Calculate local deformed quarter chord location
+             
+             Vec[0] = SpanLoadData(i).Span_XTE_Def(k) - SpanLoadData(i).Span_XLE_Def(k);
+             Vec[1] = SpanLoadData(i).Span_YTE_Def(k) - SpanLoadData(i).Span_YLE_Def(k);
+             Vec[2] = SpanLoadData(i).Span_ZTE_Def(k) - SpanLoadData(i).Span_ZLE_Def(k);
+                  
+             Chord = sqrt(vector_dot(Vec,Vec));
+             
+             // If chord > 0 then we actually have some deflected data... 
+             
+             if ( Chord > 0. ) {
+             
+                Vec[0] /= Chord;
+                Vec[1] /= Chord;
+                Vec[2] /= Chord;
+                
+                VecQC_Def[0] = SpanLoadData(i).Span_XLE_Def(k) + 0.25*Chord*Vec[0];
+                VecQC_Def[1] = SpanLoadData(i).Span_YLE_Def(k) + 0.25*Chord*Vec[1];
+                VecQC_Def[2] = SpanLoadData(i).Span_ZLE_Def(k) + 0.25*Chord*Vec[2];
+                
+             }
+             
+             else {
+
+                SpanLoadData(i).Span_XLE_Def(k) = SpanLoadData(i).Span_XLE(k);
+                SpanLoadData(i).Span_YLE_Def(k) = SpanLoadData(i).Span_YLE(k);
+                SpanLoadData(i).Span_ZLE_Def(k) = SpanLoadData(i).Span_ZLE(k);
+                                
+                SpanLoadData(i).Span_XTE_Def(k) = SpanLoadData(i).Span_XTE(k);
+                SpanLoadData(i).Span_YTE_Def(k) = SpanLoadData(i).Span_YTE(k);
+                SpanLoadData(i).Span_ZTE_Def(k) = SpanLoadData(i).Span_ZTE(k);
+                
+                VecQC_Def[0] = VecQC[0];
+                VecQC_Def[1] = VecQC[1];
+                VecQC_Def[2] = VecQC[2];
+                               
+             }
+                
              // Transfer moments to the deformed, quarter chord location
           
              RVec[0] = XYZcg_[0] - VecQC_Def[0];
@@ -16670,9 +17110,9 @@ void VSP_SOLVER::CreateFEMLoadFileFromVLMSolve(int Case)
              Moment[0] += SpanLoadData(i).Span_Cmx(k) * SpanLoadData(i).Span_Chord(k);
              Moment[1] += SpanLoadData(i).Span_Cmy(k) * SpanLoadData(i).Span_Chord(k);
              Moment[2] += SpanLoadData(i).Span_Cmz(k) * SpanLoadData(i).Span_Chord(k);
-                     
-             // Re-nondimensionalize
              
+             // Re-nondimensionalize
+           
              Moment[0] /= SpanLoadData(i).Span_Chord(k);
              Moment[1] /= SpanLoadData(i).Span_Chord(k);
              Moment[2] /= SpanLoadData(i).Span_Chord(k);
@@ -22845,6 +23285,12 @@ void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
        } 
        
     }
+    else {
+
+        // OpenVSP's parer expects a blank line before the next case header.
+        FPRINTF(StatusFile_,"\n");
+
+    }
     
 }
 
@@ -22987,27 +23433,27 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
           
           FPRINTF(GroupFile_[c],"%10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f \n",
                   Time,
-                  ComponentGroupList_[c].Cx() + ComponentGroupList_[c].Cxo(),
-                  ComponentGroupList_[c].Cy() + ComponentGroupList_[c].Cyo(),
-                  ComponentGroupList_[c].Cz() + ComponentGroupList_[c].Czo(),
+                  FLOAT(ComponentGroupList_[c].Cx() + ComponentGroupList_[c].Cxo()),
+                  FLOAT(ComponentGroupList_[c].Cy() + ComponentGroupList_[c].Cyo()),
+                  FLOAT(ComponentGroupList_[c].Cz() + ComponentGroupList_[c].Czo()),
                   ComponentGroupList_[c].Cxo(),
                   ComponentGroupList_[c].Cyo(),
                   ComponentGroupList_[c].Czo(),
                   ComponentGroupList_[c].Cx(),
                   ComponentGroupList_[c].Cy(),
                   ComponentGroupList_[c].Cz(),                                    
-                  ComponentGroupList_[c].Cmx() + ComponentGroupList_[c].Cmxo(),
-                  ComponentGroupList_[c].Cmy() + ComponentGroupList_[c].Cmyo(),
-                  ComponentGroupList_[c].Cmz() + ComponentGroupList_[c].Cmzo(),
+                  FLOAT(ComponentGroupList_[c].Cmx() + ComponentGroupList_[c].Cmxo()),
+                  FLOAT(ComponentGroupList_[c].Cmy() + ComponentGroupList_[c].Cmyo()),
+                  FLOAT(ComponentGroupList_[c].Cmz() + ComponentGroupList_[c].Cmzo()),
                   ComponentGroupList_[c].Cmxo(),
                   ComponentGroupList_[c].Cmyo(),
                   ComponentGroupList_[c].Cmzo(),
                   ComponentGroupList_[c].Cmx(),
                   ComponentGroupList_[c].Cmy(),
                   ComponentGroupList_[c].Cmz(),                                    
-                  ComponentGroupList_[c].CL() + ComponentGroupList_[c].CLo(),
-                  ComponentGroupList_[c].CD() + ComponentGroupList_[c].CDo(),
-                  ComponentGroupList_[c].CS() + ComponentGroupList_[c].CSo(),
+                  FLOAT(ComponentGroupList_[c].CL() + ComponentGroupList_[c].CLo()),
+                  FLOAT(ComponentGroupList_[c].CD() + ComponentGroupList_[c].CDo()),
+                  FLOAT(ComponentGroupList_[c].CS() + ComponentGroupList_[c].CSo()),
                   ComponentGroupList_[c].CLo(),
                   ComponentGroupList_[c].CDo(),   
                   ComponentGroupList_[c].CSo(),                     
@@ -23082,27 +23528,27 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
  
                 FPRINTF(GroupFile_[c],"%10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f %10.5f \n",
                         Time,
-                        ComponentGroupList_[c].CxAvg() + ComponentGroupList_[c].CxoAvg(),
-                        ComponentGroupList_[c].CyAvg() + ComponentGroupList_[c].CyoAvg(),
-                        ComponentGroupList_[c].CzAvg() + ComponentGroupList_[c].CzoAvg(),
+                        FLOAT(ComponentGroupList_[c].CxAvg() + ComponentGroupList_[c].CxoAvg()),
+                        FLOAT(ComponentGroupList_[c].CyAvg() + ComponentGroupList_[c].CyoAvg()),
+                        FLOAT(ComponentGroupList_[c].CzAvg() + ComponentGroupList_[c].CzoAvg()),
                         ComponentGroupList_[c].CxoAvg(),
                         ComponentGroupList_[c].CyoAvg(),
                         ComponentGroupList_[c].CzoAvg(),
                         ComponentGroupList_[c].CxAvg(),
                         ComponentGroupList_[c].CyAvg(),
                         ComponentGroupList_[c].CzAvg(),                                    
-                        ComponentGroupList_[c].CmxAvg() + ComponentGroupList_[c].CmxoAvg(),
-                        ComponentGroupList_[c].CmyAvg() + ComponentGroupList_[c].CmyoAvg(),
-                        ComponentGroupList_[c].CmzAvg() + ComponentGroupList_[c].CmzoAvg(),
+                        FLOAT(ComponentGroupList_[c].CmxAvg() + ComponentGroupList_[c].CmxoAvg()),
+                        FLOAT(ComponentGroupList_[c].CmyAvg() + ComponentGroupList_[c].CmyoAvg()),
+                        FLOAT(ComponentGroupList_[c].CmzAvg() + ComponentGroupList_[c].CmzoAvg()),
                         ComponentGroupList_[c].CmxoAvg(),
                         ComponentGroupList_[c].CmyoAvg(),
                         ComponentGroupList_[c].CmzoAvg(),
                         ComponentGroupList_[c].CmxAvg(),
                         ComponentGroupList_[c].CmyAvg(),
                         ComponentGroupList_[c].CmzAvg(),                                    
-                        ComponentGroupList_[c].CLAvg() + ComponentGroupList_[c].CLoAvg(),
-                        ComponentGroupList_[c].CDAvg() + ComponentGroupList_[c].CDoAvg(),
-                        ComponentGroupList_[c].CSAvg() + ComponentGroupList_[c].CSoAvg(),                        
+                        FLOAT(ComponentGroupList_[c].CLAvg() + ComponentGroupList_[c].CLoAvg()),
+                        FLOAT(ComponentGroupList_[c].CDAvg() + ComponentGroupList_[c].CDoAvg()),
+                        FLOAT(ComponentGroupList_[c].CSAvg() + ComponentGroupList_[c].CSoAvg()),                        
                         ComponentGroupList_[c].CLoAvg(),
                         ComponentGroupList_[c].CDoAvg(),   
                         ComponentGroupList_[c].CSoAvg(),                           
@@ -23135,9 +23581,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                              
                              ComponentGroupList_[c].SpanLoadData(i).Local_Velocity(j),
             
-                             ComponentGroupList_[c].SpanLoadData(i).Span_Cx(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cxo(j),
-                             ComponentGroupList_[c].SpanLoadData(i).Span_Cy(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cyo(j),
-                             ComponentGroupList_[c].SpanLoadData(i).Span_Cz(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Czo(j),
+                             FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cx(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cxo(j)),
+                             FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cy(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cyo(j)),
+                             FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cz(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Czo(j)),
 
                              ComponentGroupList_[c].SpanLoadData(i).Span_Cxo(j),
                              ComponentGroupList_[c].SpanLoadData(i).Span_Cyo(j),
@@ -23147,9 +23593,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                              ComponentGroupList_[c].SpanLoadData(i).Span_Cy(j),
                              ComponentGroupList_[c].SpanLoadData(i).Span_Cz(j),
                              
-                             ComponentGroupList_[c].SpanLoadData(i).Span_Cl(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Clo(j),
-                             ComponentGroupList_[c].SpanLoadData(i).Span_Cd(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(j),
-                             ComponentGroupList_[c].SpanLoadData(i).Span_Cw(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(j),
+                             FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cl(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Clo(j)),
+                             FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cd(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(j)),
+                             FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cw(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(j)),
 
                              ComponentGroupList_[c].SpanLoadData(i).Span_Clo(j),
                              ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(j),
@@ -23159,9 +23605,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                              ComponentGroupList_[c].SpanLoadData(i).Span_Cd(j),
                              ComponentGroupList_[c].SpanLoadData(i).Span_Cw(j),
                              
-                             ComponentGroupList_[c].SpanLoadData(i).Span_Cmx(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmxo(j),
-                             ComponentGroupList_[c].SpanLoadData(i).Span_Cmy(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmyo(j),
-                             ComponentGroupList_[c].SpanLoadData(i).Span_Cmz(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmzo(j),
+                             FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cmx(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmxo(j)),
+                             FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cmy(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmyo(j)),
+                             FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cmz(j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmzo(j)),
 
                              ComponentGroupList_[c].SpanLoadData(i).Span_Cmxo(j),
                              ComponentGroupList_[c].SpanLoadData(i).Span_Cmyo(j),
@@ -23205,9 +23651,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                                  
                                  ComponentGroupList_[c].SpanLoadData(i).Local_Velocity(t,j),
                                     
-                                 ComponentGroupList_[c].SpanLoadData(i).Span_Cx(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cxo(t,j),
-                                 ComponentGroupList_[c].SpanLoadData(i).Span_Cy(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cyo(t,j),
-                                 ComponentGroupList_[c].SpanLoadData(i).Span_Cz(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Czo(t,j),
+                                 FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cx(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cxo(t,j)),
+                                 FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cy(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cyo(t,j)),
+                                 FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cz(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Czo(t,j)),
                                
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Cxo(t,j),
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Cyo(t,j),
@@ -23217,9 +23663,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Cy(t,j),
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Cz(t,j),
                                  
-                                 ComponentGroupList_[c].SpanLoadData(i).Span_Cl(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Clo(t,j),
-                                 ComponentGroupList_[c].SpanLoadData(i).Span_Cd(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(t,j),
-                                 ComponentGroupList_[c].SpanLoadData(i).Span_Cw(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(t,j),
+                                 FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cl(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Clo(t,j)),
+                                 FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cd(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(t,j)),
+                                 FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cw(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(t,j)),
                                
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Clo(t,j),
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Cdo(t,j),
@@ -23229,9 +23675,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Cd(t,j),
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Cw(t,j),
                                  
-                                 ComponentGroupList_[c].SpanLoadData(i).Span_Cmx(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmxo(t,j),
-                                 ComponentGroupList_[c].SpanLoadData(i).Span_Cmy(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmyo(t,j),
-                                 ComponentGroupList_[c].SpanLoadData(i).Span_Cmz(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmzo(t,j),
+                                 FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cmx(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmxo(t,j)),
+                                 FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cmy(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmyo(t,j)),
+                                 FLOAT(ComponentGroupList_[c].SpanLoadData(i).Span_Cmz(t,j) + ComponentGroupList_[c].SpanLoadData(i).Span_Cmzo(t,j)),
                                
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Cmxo(t,j),
                                  ComponentGroupList_[c].SpanLoadData(i).Span_Cmyo(t,j),
@@ -23321,7 +23767,7 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
              Power = Powero + Poweri;
                                        
              CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);                                       
-             
+                        
              Time = CurrentTime_;
           
              if ( NoiseAnalysis_ ) Time = CurrentNoiseTime_ + NoiseTimeShift_;
@@ -23350,7 +23796,7 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                       CQ_h,
                       CP_h,
                       FOM,
-                      ComponentGroupList_[c].TotalRotationAngle()/TORAD);                           
+                      FLOAT(ComponentGroupList_[c].TotalRotationAngle()/TORAD));                           
                  
              if ( ( TimeAccurate_ && Time_ == NumberOfTimeSteps_ ) ) {
                                 
@@ -23435,7 +23881,7 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                         CQ_h,
                         CP_h,
                         FOM,
-                        ComponentGroupList_[c].TotalRotationAngle()/TORAD);
+                        FLOAT(ComponentGroupList_[c].TotalRotationAngle()/TORAD));
                         
                 // Write out spanwise blade loading data, again averaged over one revolution
                 
@@ -27418,6 +27864,67 @@ void VSP_SOLVER::WriteOutPSUWopWopLoadingDataForGroup(int c)
        FWRITE(&Fz, f_size, 1, WopFile);
     
     }    
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_SOLVER WriteOutCart3dTriFile                     #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::WriteOutCart3dTriFile(void)
+{
+
+    int i;
+    char Cart3DFileName[2000];
+    FILE *Cart3dFile;
+    
+    // Open the cart3d file
+    
+    SPRINTF(Cart3DFileName,"%s.vspaero.tri",FileName_);
+    
+    if ( (Cart3dFile = fopen(Cart3DFileName, "w")) == NULL ) {
+    
+       PRINTF("Could not open the cart3d file for output! \n");
+    
+       exit(1);
+    
+    }    
+
+    FPRINTF(Cart3dFile,"%d %d \n",
+            VSPGeom().Grid().NumberOfNodes(),
+            VSPGeom().Grid().NumberOfLoops());
+
+    // Write out node data
+
+    for ( i = 1 ; i <= VSPGeom().Grid().NumberOfNodes() ; i++ ) {
+
+       FPRINTF(Cart3dFile,"%f %f %f \n",
+               VSPGeom().Grid().NodeList(i).x(),
+               VSPGeom().Grid().NodeList(i).y(),
+               VSPGeom().Grid().NodeList(i).z());
+                                         
+    }
+
+         
+    // Write out triangulated surface mesh
+
+    for ( i = 1 ; i <= VSPGeom().Grid().NumberOfLoops() ; i++ ) {
+
+       FPRINTF(Cart3dFile,"%d %d %d \n",
+               VSPGeom().Grid().LoopList(i).Node1(),
+               VSPGeom().Grid().LoopList(i).Node2(),
+               VSPGeom().Grid().LoopList(i).Node3());
+               
+    }
+
+    for ( i = 1 ; i <= VSPGeom().Grid().NumberOfLoops() ; i++ ) {
+
+       FPRINTF(Cart3dFile,"%d \n",
+               VSPGeom().Grid().LoopList(i).SurfaceID());
+
+    }
 
 }
  

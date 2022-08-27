@@ -54,6 +54,8 @@ VSP_OPTIMIZER::VSP_OPTIMIZER(void)
     
     NumberOfThreads_               = 1;
     OptimizationFunction_[1]       = 1;
+    
+    ArrayOffSet_ = 0;
 
 }
 
@@ -188,6 +190,16 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     Adjoint().Setup();
         
     VSPAERO_ADJOINT::PAUSE_AUTO_DIFF();
+    
+    
+    
+    // Create some temp arrays
+    
+    MaxTempArraySize_ = 3*std::max(Solver().NumberOfGridNodes(), Solver().NumberOfVortexLoops());
+    
+    TempArray_[0] = new double[MaxTempArraySize_ + 1];
+    TempArray_[1] = new double[MaxTempArraySize_ + 1];
+    TempArray_[2] = new double[MaxTempArraySize_ + 1];
 
 }
 
@@ -242,7 +254,46 @@ void VSP_OPTIMIZER::Solve(double *Vec)
 void VSP_OPTIMIZER::SolveForward(void)
 {
 
-    Solver().Solve(1);    
+    Solver().Solve(0);    
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_OPTIMIZER ShiftInputVector                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::ShiftInputVector(double *Vec1, double *Vec2, int Length)
+{
+
+    int i;
+    
+    for ( i = 1 ; i <= Length ; i++ ) {
+       
+       Vec2[i] = Vec1[i + ArrayOffSet_];
+       
+    }
+
+}
+
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_OPTIMIZER ShiftInputVector                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::ShiftOutputVector(double *Vec1, double *Vec2, int Length)
+{
+
+    int i;
+    
+    for ( i = 1 ; i <= Length ; i++ ) {
+       
+       Vec2[i - ArrayOffSet_] = Vec1[i ];
+       
+    }
 
 }
 
@@ -255,11 +306,19 @@ void VSP_OPTIMIZER::SolveForward(void)
 void VSP_OPTIMIZER::CalculateMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS )
 {
 
-    int p;
+    // Shift inputs
+    
+    ShiftInputVector(VecIn,TempArray_[0],Solver().NumberOfVortexLoops());
     
     // Do matrix-vector mult, and get the RHS vector
     
-    Solver().CalculateMatrixVectorProductAndRightHandSide(VecIn, VecOut, RHS);
+    Solver().CalculateMatrixVectorProductAndRightHandSide(TempArray_[0], TempArray_[1], TempArray_[2]);
+
+    // Shift outputs 
+        
+    ShiftOutputVector(TempArray_[1],VecOut,Solver().NumberOfVortexLoops());
+    
+    ShiftOutputVector(TempArray_[2],RHS,Solver().NumberOfVortexLoops());
     
 }
 
@@ -272,12 +331,20 @@ void VSP_OPTIMIZER::CalculateMatrixVectorProductAndRightHandSide(double *VecIn, 
 void VSP_OPTIMIZER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS )
 {
 
-    int p;
+    // Shift inputs
+     
+    ShiftInputVector(VecIn,TempArray_[0],Solver().NumberOfVortexLoops());
     
     // Do matrix-vector mult, and get the RHS vector
     
-    Adjoint().CalculateAdjointMatrixVectorProductAndRightHandSide(VecIn, VecOut, RHS);
+    Adjoint().CalculateAdjointMatrixVectorProductAndRightHandSide(TempArray_[0], TempArray_[1], TempArray_[2]);
+
+    // Shift outputs 
+        
+    ShiftOutputVector(TempArray_[1],VecOut,Solver().NumberOfVortexLoops());
     
+    ShiftOutputVector(TempArray_[2],RHS,Solver().NumberOfVortexLoops());
+       
 }
 
 /*##############################################################################
@@ -295,8 +362,10 @@ void VSP_OPTIMIZER::SetGradientVector(int Case, double *Vec)
     // Possible user defined input vector for gradients
     
     if ( Vec != NULL ) {
+       
+       ShiftInputVector(Vec,TempArray_[0],Solver().OptimizationFunctionLength(Case));
 
-       Adjoint().SetOptimizationFunctionInputGradientVector(Case, Solver().OptimizationFunctionLength(Case), OptimizationSet_[Case], Vec);
+       Adjoint().SetOptimizationFunctionInputGradientVector(Case, Solver().OptimizationFunctionLength(Case), Solver().OptimizationNumberOfTimeSteps(Case), OptimizationSet_[Case], TempArray_[0]);
        
     }
 
@@ -314,7 +383,7 @@ void VSP_OPTIMIZER::SetGradientVector(int Case, double *Vec)
 void VSP_OPTIMIZER::SolveAdjoint(void)
 {
 
-    Adjoint().Optimization_Solve(1);    
+    Adjoint().Optimization_Solve(0);    
 
 }
 
@@ -1318,13 +1387,13 @@ void VSP_OPTIMIZER::UpdateGeometry(double *NodeXYZ)
     
     for ( i = 1 ; i <= Adjoint().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
-         Solver().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2];
-         Solver().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1]; 
-         Solver().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i ]; 
+         Solver().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2 + ArrayOffSet_];
+         Solver().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1 + ArrayOffSet_]; 
+         Solver().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i   + ArrayOffSet_]; 
 
-        Adjoint().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2];
-        Adjoint().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1]; 
-        Adjoint().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i  ]; 
+        Adjoint().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2 + ArrayOffSet_];
+        Adjoint().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1 + ArrayOffSet_]; 
+        Adjoint().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i   + ArrayOffSet_]; 
                 
     }
     
@@ -1359,7 +1428,37 @@ void VSP_OPTIMIZER::GetFunctionValue(int Case, double &Vec)
     Solver().OptimizationFunction(Case, Vec);
       
 }
-  
+
+/*##############################################################################
+#                                                                              #
+#                 VSP_OPTIMIZER GetUnsteadyFunctionValue                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::GetUnsteadyFunctionValue(int Case, int Time, double *Vec)
+{
+   
+    Solver().OptimizationFunction(Case, Time, TempArray_[0]);
+
+    ShiftOutputVector(TempArray_[0],Vec,Solver().OptimizationFunctionLength(1));
+      
+}
+
+/*##############################################################################
+#                                                                              #
+#                 VSP_OPTIMIZER GetUnsteadyFunctionValue                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::GetUnsteadyFunctionValue(int Time, double *Vec)
+{
+   
+    Solver().OptimizationFunction(1, Time, TempArray_[0]);
+    
+    ShiftOutputVector(TempArray_[0],Vec,Solver().OptimizationFunctionLength(1));
+         
+}
+
 /*##############################################################################
 #                                                                              #
 #                      VSP_OPTIMIZER GetFunctionValue                          #
@@ -1369,10 +1468,13 @@ void VSP_OPTIMIZER::GetFunctionValue(int Case, double &Vec)
 void VSP_OPTIMIZER::GetFunctionValue(double *Vec)
 {
    
-    Solver().OptimizationFunction(Vec);
+    Solver().OptimizationFunction(TempArray_[0]);
+    
+    ShiftOutputVector(TempArray_[0],Vec,Solver().OptimizationFunctionLength(1));
+    
       
 }
-  
+
 /*##############################################################################
 #                                                                              #
 #                      VSP_OPTIMIZER GetFunctionValue                          #
@@ -1382,7 +1484,9 @@ void VSP_OPTIMIZER::GetFunctionValue(double *Vec)
 void VSP_OPTIMIZER::GetFunctionValue(int Case, double *Vec)
 {
 
-    Solver().OptimizationFunction(Case, Vec);
+    Solver().OptimizationFunction(Case, TempArray_[0]);
+
+    ShiftOutputVector(TempArray_[0],Vec,Solver().OptimizationFunctionLength(Case));
       
 }
   
@@ -1399,9 +1503,9 @@ void VSP_OPTIMIZER::GetFunctionGradients(double *Gradients)
     
     for ( i = 1 ; i <= Adjoint().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
-        Gradients[3*i-2] = Adjoint().dF_dMesh_X(i);
-        Gradients[3*i-1] = Adjoint().dF_dMesh_Y(i);
-        Gradients[3*i  ] = Adjoint().dF_dMesh_Z(i);
+        Gradients[3*i-2 - ArrayOffSet_] = Adjoint().dF_dMesh_X(i);
+        Gradients[3*i-1 - ArrayOffSet_] = Adjoint().dF_dMesh_Y(i);
+        Gradients[3*i   - ArrayOffSet_] = Adjoint().dF_dMesh_Z(i);
         
     }
       
@@ -1420,9 +1524,30 @@ void VSP_OPTIMIZER::GetFunctionGradients(int p, double *Gradients)
     
     for ( i = 1 ; i <= Adjoint().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
-        Gradients[3*i-2] = Adjoint().dF_dMesh_X(p,i);
-        Gradients[3*i-1] = Adjoint().dF_dMesh_Y(p,i);
-        Gradients[3*i  ] = Adjoint().dF_dMesh_Z(p,i);
+        Gradients[3*i-2 - ArrayOffSet_] = Adjoint().dF_dMesh_X(p,i);
+        Gradients[3*i-1 - ArrayOffSet_] = Adjoint().dF_dMesh_Y(p,i);
+        Gradients[3*i   - ArrayOffSet_] = Adjoint().dF_dMesh_Z(p,i);
+        
+    }
+      
+}
+
+/*##############################################################################
+#                                                                              #
+#                  VSP_OPTIMIZER GetFunctionGradients                          #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::GetFunctionGradients(int p, int Time, double *Gradients)
+{
+
+    int i;
+    
+    for ( i = 1 ; i <= Adjoint().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
+       
+        Gradients[3*i-2 - ArrayOffSet_] = Adjoint().dF_dMesh_X(p,Time,i);
+        Gradients[3*i-1 - ArrayOffSet_] = Adjoint().dF_dMesh_Y(p,Time,i);
+        Gradients[3*i   - ArrayOffSet_] = Adjoint().dF_dMesh_Z(p,Time,i);
         
     }
       
@@ -1443,7 +1568,7 @@ void VSP_OPTIMIZER::GetNodalPressures(double *Pressure)
     
     for ( i = 1 ; i <= Solver().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
-        Pressure[i] = Solver().NodalCp(i);
+        Pressure[i - ArrayOffSet_] = Solver().NodalCp(i);
 
     }
       

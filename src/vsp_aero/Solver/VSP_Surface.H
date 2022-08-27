@@ -349,170 +349,299 @@ public:
 
     VSP_SURFACE& operator=(const VSP_SURFACE &VSP_Surface);
     
-    // Access to wire frame surface data - xyz, u, v, etc...
+    /** Number of U points for degen geom surface **/
     
     int Surface_NumI(void) { return NumGeomI_; };
+    
+    /** Number of V points for degen geom surface **/
+    
     int Surface_NumJ(void) { return NumGeomJ_; };
+    
+    /** Surface x list **/
         
     VSPAERO_DOUBLE Surface_x(int i) { return x_[i]; };
+
+    /** Surface y list **/    
+    
     VSPAERO_DOUBLE Surface_y(int i) { return y_[i]; };
+
+    /** Surface z list **/
+
     VSPAERO_DOUBLE Surface_z(int i) { return z_[i]; };
+
+    /** Surface u list **/
+
     VSPAERO_DOUBLE Surface_u(int i) { return u_[i]; };
+
+    /** Surface v list **/
+
     VSPAERO_DOUBLE Surface_v(int i) { return v_[i]; };
+    
+    /** Surface x list .. (i,j) mapping **/
 
     VSPAERO_DOUBLE Surface_x(int i, int j) { return x_[(i-1)*NumGeomJ_ + j]; };
+    
+    /** Surface y list .. (i,j) mapping **/
+    
     VSPAERO_DOUBLE Surface_y(int i, int j) { return y_[(i-1)*NumGeomJ_ + j]; };
+
+    /** Surface z list .. (i,j) mapping **/
+
     VSPAERO_DOUBLE Surface_z(int i, int j) { return z_[(i-1)*NumGeomJ_ + j]; };
 
+    /** X component of surface normals list .. (i,j) mapping **/
+
     VSPAERO_DOUBLE Surface_Nx(int i, int j) { return Nx_[(i-1)*NumGeomJ_ + j]; };
+
+    /** Y component of surface normals list .. (i,j) mapping **/
+
     VSPAERO_DOUBLE Surface_Ny(int i, int j) { return Ny_[(i-1)*NumGeomJ_ + j]; };
+
+    /** Z component of surface normals list .. (i,j) mapping **/
+
     VSPAERO_DOUBLE Surface_Nz(int i, int j) { return Nz_[(i-1)*NumGeomJ_ + j]; };
+    
+    /** Surface u list .. (i,j) mapping **/    
         
     VSPAERO_DOUBLE Surface_u(int i, int j) { return u_[(i-1)*NumGeomJ_ + j]; };
+
+    /** Surface v list .. (i,j) mapping **/
+
     VSPAERO_DOUBLE Surface_v(int i, int j) { return v_[(i-1)*NumGeomJ_ + j]; };
+    
+    /** Surface area... (i,j) mapping **/
     
     VSPAERO_DOUBLE Surface_Area(int i, int j) { return Area_[(i-1)*NumGeomJ_ + j]; };
     
-    // Access to the number of nodes in each direction
+    /** Number of span stations **/
     
     int NumberOfSpanStations(void) { return NumPlateI_ - 1; };
 
-    // Leading and trailing edges
+    /** X coordinate of leading edge at span station i **/
     
     VSPAERO_DOUBLE xLE(int i) { return xLE_[i]; };
+    
+    /** Y coordinate of leading edge at span station i **/
+    
     VSPAERO_DOUBLE yLE(int i) { return yLE_[i]; };
+
+    /** Z coordinate of leading edge at span station i **/
+
     VSPAERO_DOUBLE zLE(int i) { return zLE_[i]; };
 
+    /** X coordinate of trailing edge at span station i **/
+
     VSPAERO_DOUBLE xTE(int i) { return xTE_[i]; };
+
+    /** Y coordinate of trailing edge at span station i **/
+
     VSPAERO_DOUBLE yTE(int i) { return yTE_[i]; };
+
+    /** Z coordinate of trailing edge at span station i **/
+
     VSPAERO_DOUBLE zTE(int i) { return zTE_[i]; };
     
-    // Deformed leading and trailing edges
+    /** X component of deformed leading edge after FEM analysis at this span station **/
     
     VSPAERO_DOUBLE xLE_Def(int i) { return xLE_Def_[i]; };
+    
+    /** Y component of deformed leading edge after FEM analysis at this span station **/
+    
     VSPAERO_DOUBLE yLE_Def(int i) { return yLE_Def_[i]; };
+
+    /** Z component of deformed leading edge after FEM analysis at this span station **/
+
     VSPAERO_DOUBLE zLE_Def(int i) { return zLE_Def_[i]; };
 
+    /** X component of deformed trailing edge after FEM analysis at this span station **/
+
     VSPAERO_DOUBLE xTE_Def(int i) { return xTE_Def_[i]; };
+
+    /** Y component of deformed trailing edge after FEM analysis at this span station **/
+
     VSPAERO_DOUBLE yTE_Def(int i) { return yTE_Def_[i]; };
+
+    /** Z component of deformed trailing edge after FEM analysis at this span station **/
+
     VSPAERO_DOUBLE zTE_Def(int i) { return zTE_Def_[i]; };    
  
-    // Flat plate normal
+    /** X component of flat plate normal at quarter chord location at this span station **/
     
     VSPAERO_DOUBLE NxQC(int i) { return Nx_FlatPlateNormal_[i]; };
+    
+    /** Y component of flat plate normal at quarter chord location at this span station **/
+    
     VSPAERO_DOUBLE NyQC(int i) { return Ny_FlatPlateNormal_[i]; };
+
+    /** Z component of flat plate normal at quarter chord location at this span station **/
+
     VSPAERO_DOUBLE NzQC(int i) { return Nz_FlatPlateNormal_[i]; };
  
-    // Arc length along wing, from root to top
+    /** Arc length along wing, from root to top  at this span station**/
     
     VSPAERO_DOUBLE s(int i) { return s_[i]; };
     
-    // Deformed Arc length along wing, from root to top
+    /** Deformed Arc length along wing, from root to top  at this span station **/
     
     VSPAERO_DOUBLE s_Def(int i) { return s_Def_[i]; };
         
-    // Local chord 
+    /** Local chord at this span station **/
     
     VSPAERO_DOUBLE LocalChord(int i) { return LocalChord_[i]; };
     
-    // Average chord
+    /** Average chord across entire surface **/
     
     VSPAERO_DOUBLE AverageChord(void) { return AverageChord_; };
     
-    // Root LE, TE, and Quarter chord
+    /** Root leading edge coordinates **/
     
     VSPAERO_DOUBLE Root_LE(int i ) { return Root_LE_[i]; };
+    
+    /** Root trailing edge coordinates **/
+    
     VSPAERO_DOUBLE Root_TE(int i ) { return Root_TE_[i]; };
+
+    /** Root quarter chood coordinates **/
+
     VSPAERO_DOUBLE Root_QC(int i ) { return Root_QC_[i]; };
     
-    // Tip LE, TE, and Quarter chord
+    /** Tip leading edge coordinates **/
     
     VSPAERO_DOUBLE Tip_LE(int i ) { return Tip_LE_[i]; };
+    
+    /** Tip trailing edge coordinates **/
+    
     VSPAERO_DOUBLE Tip_TE(int i ) { return Tip_TE_[i]; };
+    
+    /** Tip quarter chood coordinates **/
+    
     VSPAERO_DOUBLE Tip_QC(int i ) { return Tip_QC_[i]; };  
 
-    // Wetted area
+    /** Surface wetted area **/
     
     VSPAERO_DOUBLE WettedArea(void) { return WettedArea_; };
     
-    // Zero lift drag
+    /** Zero lift drag for this surface **/
     
     VSPAERO_DOUBLE &CDo(void) { return CDo_; };
 
-    // Create triangulated mesh
+    /** Create triangulated mesh **/
     
     void CreateMesh(int SurfaceID);
+    
+    /** Agglomerate the mesh **/
+    
     void AgglomerateMesh(void);
     
-    VSP_GRID &Grid(void) { return *(Grid_[0]); };
-    VSP_GRID &Grid(int i) { return *(Grid_[MIN(i,NumberOfGridLevels_-1)]); };
-    VSP_GRID &FineGrid(void) { return *(Grid_[0]); };
+    /** Finest (input) grid **/
+    
+    inline VSP_GRID &Grid(void) { return *(Grid_[0]); };
+    
+    /** Agglomerated grid list **/
+   
+    inline VSP_GRID &Grid(int i) { return *(Grid_[i]); };
+    
+    /** Finest grid **/
+    
+    inline VSP_GRID &FineGrid(void) { return *(Grid_[0]); };
+    
+    /** Number of grid levels **/
     
     int NumberOfGridLevels(void) { return NumberOfGridLevels_; };
      
-    // File I/O
+    /** Read in the component bounding box information **/
     
     void GetComponentBBox(FILE *VSP_Degen_File, BBOX &WingBox);
     
+    /** Read in cart3d mesh from file **/
+    
     void ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *VKEY_File);
+    
+    /** Read in VSP Geom mesh from file **/
+    
     void ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *TKEY_File);
 
+    /** Read in degen wing data from file **/
+    
     void ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File);
+    
+    /** Read in degen body data from file **/
+    
     void ReadBodyDataFromFile(char *Name, int Case, FILE *VSP_Degen_File);
     
-    // FEM
+    /** Load in FEM deformation data from file **/
         
     void LoadFEMDeformationData(char *FileName);
+    
+    /** Deform the geometry based on FEM deformation data **/
+    
     void FEMDeformGeometry(void);        
 
-    // Component name
+    /** Component name **/
     
     char* ComponentName(void) { return ComponentName_; };
     
-    // Surface type
+    /** Surface type **/
     
     int SurfaceType(void) { return SurfaceType_; };
     
-    // Internal component ID
+    /** Component ID **/
     
     int &ComponentID(void) { return ComponentID_; };
     
-    // Group ID
+    /** Group ID **/
     
     int &GeomID(void) { return GeomID_; };
     
-    // Case number... DegenGeoms are split 4 ways, keep track of which one we are
+    /** Case number... DegenGeoms are split 4 ways, keep track of which one we are **/
     
     int &Case(void) { return Case_; };
     
-    // Number of surface patches
+    /** Number of surface patches **/
     
     int NumberOfSurfacePatches(void) { return NumberOfSurfacePatches_; };    
+
+    /** Component ID for surfac patch i **/
+    
     int ComponentIDForSurfacePatch(int i) { return ComponentIDForSurfacePatch_[i]; };
+   
+    /** Name for surface patch i **/
+    
     char *SurfacePatchNameList(int i) { return SurfacePatchNameList_[i]; };
 
-    // Boundary condition data
+    /** Boundary condition data for surface i **/
     
     BOUNDARY_CONDITION_DATA &BoundaryConditionForSurface(int i) { return BoundaryConditionForSurface_[i]; };
         
-    // FEM data
+    /** Undeformed geometry based on FEM solution data **/
     
     void FEMUnDeformGeometry(VSPAERO_DOUBLE xyz_p[3]);
     
-    // Ground effects analysis
+    /** Ground effect analysis flag **/
     
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
+    
+    /** Rotation angle for vehicle when in ground effect... we rotate the vehicle and not the free stream **/
+    
     VSPAERO_DOUBLE &GroundEffectsRotationAngle(void) { return GroundEffectsRotationAngle_; };
+    
+    /** Rotation location for ground effects analysis **/
+    
     VSPAERO_DOUBLE &GroundEffectsCGLocation(int i) { return GroundEffectsCGLocation_[i]; };
+    
+    /** Height above ground (of cg) for ground effects analysis **/
+    
     VSPAERO_DOUBLE &GroundEffectsHeightAboveGround(void) { return GroundEffectsHeightAboveGround_; };
 
-    // Control surfaces
+    /** Number of control surfaces **/
     
     int NumberOfControlSurfaces(void) { return NumberOfControlSurfaces_; };
     
+    /** Control surface data structure list **/
+    
     CONTROL_SURFACE &ControlSurface(int i) { return ControlSurface_[i]; };
     
-    // Update geometry location
+    /** Update the geometry based on input translation vector and quaternion rotation **/
     
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
 

@@ -143,125 +143,251 @@ public:
 
     SPAN_LOAD_DATA& operator=(const SPAN_LOAD_DATA &SpanLoadData);
 
+    /** Size the lists **/
+    
     void Size(int NumberOfSpanStations);
 
+    /** Zero all data **/
+    
     void ZeroAll(void);
+    
+    /** Zero just the force and moment data **/
+    
     void ZeroForcesAndMoments(void);
+    
+    /** Number of span stations **/
 
     int NumberOfSpanStations(void) { return NumberOfSpanStations_ ; };
     
+    /** Update the geometry information given a translation vector, and a quaternion rotation **/
+    
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
     
-    // Viscous forces
+    /** Viscous force coefficient in X **/
       
     VSPAERO_DOUBLE &Span_Cxo(int i) { return Span_Cxo_[i]; };
+    
+    /** Viscous force coefficient in Y **/
+    
     VSPAERO_DOUBLE &Span_Cyo(int i) { return Span_Cyo_[i]; };
+    
+    /** Viscous force coefficient in Z **/
+    
     VSPAERO_DOUBLE &Span_Czo(int i) { return Span_Czo_[i]; };
               
-    // Inviscid forces
+    /** Inviscid force coefficient in X **/
                 
     VSPAERO_DOUBLE &Span_Cx(int i) { return Span_Cx_[i]; };
+
+    /** Inviscid force coefficient in Y **/
+    
     VSPAERO_DOUBLE &Span_Cy(int i) { return Span_Cy_[i]; };
+
+    /** Inviscid force coefficient in Z **/
+
     VSPAERO_DOUBLE &Span_Cz(int i) { return Span_Cz_[i]; };
            
-    // Trefftz, induced drag, forces
+    /** Trefftz drag force coefficient... component in X **/
     
     VSPAERO_DOUBLE &Span_Cxi(int i) { return Span_Cxi_[i]; }; 
+    
+    /** Trefftz drag force coefficient... component in y **/
+    
     VSPAERO_DOUBLE &Span_Cyi(int i) { return Span_Cyi_[i]; };
+
+    /** Trefftz drag force coefficient... component in Z **/
+
     VSPAERO_DOUBLE &Span_Czi(int i) { return Span_Czi_[i]; };  
     
-    // Viscous moments
+    /** Viscous moment coefficient about X **/
       
     VSPAERO_DOUBLE &Span_Cmxo(int i) { return Span_Cmxo_[i]; }; 
+    
+    /** Viscous moment coefficient about Y **/
+    
     VSPAERO_DOUBLE &Span_Cmyo(int i) { return Span_Cmyo_[i]; };
+
+    /** Viscous moment coefficient about Z **/
+
     VSPAERO_DOUBLE &Span_Cmzo(int i) { return Span_Cmzo_[i]; };
           
-    // Inviscid moments
+    /** Inviscid moment coefficient about X **/
           
     VSPAERO_DOUBLE &Span_Cmx(int i) { return Span_Cmx_[i]; };  
+    
+    /** Inviscid moment coefficient about Y **/
+    
     VSPAERO_DOUBLE &Span_Cmy(int i) { return Span_Cmy_[i]; };
+
+    /** Inviscid moment coefficient about Z **/
+
     VSPAERO_DOUBLE &Span_Cmz(int i) { return Span_Cmz_[i]; };
              
-    // Trefftz, induced drag, moments
+    /** Trefftz drag induced moment coefficient about X **/
 
     VSPAERO_DOUBLE &Span_Cmxi(int i) { return Span_Cmxi_[i]; }; 
+    
+    /** Trefftz drag induced moment coefficient about Y **/
+    
     VSPAERO_DOUBLE &Span_Cmyi(int i) { return Span_Cmyi_[i]; };
+
+    /** Trefftz drag induced moment coefficient about Z **/
+
     VSPAERO_DOUBLE &Span_Cmzi(int i) { return Span_Cmzi_[i]; };
     
-    // Lift, drag, normal, spanwise forces
+    /** Normal force coefficient **/
             
     VSPAERO_DOUBLE &Span_Cn(int i) { return Span_Cn_[i]; };
+    
+    /** Lift coefficient **/
+    
     VSPAERO_DOUBLE &Span_Cl(int i) { return Span_Cl_[i]; };
+    
+    /** Side force coefficient **/
+    
     VSPAERO_DOUBLE &Span_Cs(int i) { return Span_Cs_[i]; };
+    
+    /** Drag coefficient **/
+    
     VSPAERO_DOUBLE &Span_Cd(int i) { return Span_Cd_[i]; };
     
-    // Mininum Local Cp
+    /** Minimum Cp at this span station **/
     
     VSPAERO_DOUBLE &Span_CpMin(int i) { return Span_CpMin_[i]; };
     
-    // Geometrical information
+    /** X coordinate of leading edge **/
     
     VSPAERO_DOUBLE &Span_XLE( int i) { return Span_XLE_[i]; };
+
+    /** Y coordinate of leading edge **/
+    
     VSPAERO_DOUBLE &Span_YLE( int i) { return Span_YLE_[i]; };
+
+    /** Z coordinate of leading edge **/
+
     VSPAERO_DOUBLE &Span_ZLE( int i) { return Span_ZLE_[i]; };
     
+    /** X coordinate of trailing edge **/
+        
     VSPAERO_DOUBLE &Span_XTE( int i) { return Span_XTE_[i]; };
+    
+    /** Y coordinate of trailing edge **/
+    
     VSPAERO_DOUBLE &Span_YTE( int i) { return Span_YTE_[i]; };
+
+    /** Z coordinate of trailing edge **/
+
     VSPAERO_DOUBLE &Span_ZTE( int i) { return Span_ZTE_[i]; };
 
+    /** Deflected X coordinate of trailing edge **/
+
     VSPAERO_DOUBLE &Span_XLE_Def( int i) { return Span_XLE_Def_[i]; };
+    
+    /** Deflected Y coordinate of trailing edge **/
+    
     VSPAERO_DOUBLE &Span_YLE_Def( int i) { return Span_YLE_Def_[i]; };
+
+    /** Deflected Z coordinate of trailing edge **/
+
     VSPAERO_DOUBLE &Span_ZLE_Def( int i) { return Span_ZLE_Def_[i]; };
     
+    /** Deflected X coordinate of trailing edge **/
+    
     VSPAERO_DOUBLE &Span_XTE_Def( int i) { return Span_XTE_Def_[i]; };
+    
+    /** Deflected Y coordinate of trailing edge **/
+    
     VSPAERO_DOUBLE &Span_YTE_Def( int i) { return Span_YTE_Def_[i]; };
+
+    /** Deflected Z coordinate of trailing edge **/
+
     VSPAERO_DOUBLE &Span_ZTE_Def( int i) { return Span_ZTE_Def_[i]; };
         
+    /** Average X coordinate of this spanwise station **/
+        
     VSPAERO_DOUBLE &Span_Xavg(int i) { return Span_Xavg_[i]; };
+    
+    /** Average Y coordinate of this spanwise station **/
+    
     VSPAERO_DOUBLE &Span_Yavg(int i) { return Span_Yavg_[i]; };
+
+    /** Average Z coordinate of this spanwise station **/
+
     VSPAERO_DOUBLE &Span_Zavg(int i) { return Span_Zavg_[i]; };
+    
+    /** Area for this spanwise slice **/
     
     VSPAERO_DOUBLE &Span_Area(int i) { return Span_Area_[i]; };
     
+    /** Chord for this spanwise slice **/
+    
     VSPAERO_DOUBLE &Span_Chord(int i) { return Span_Chord_[i]; };
+    
+    /** Span of this spanwise slice **/
     
     VSPAERO_DOUBLE &Span_S(int i) { return Span_S_[i]; };
 
+    /** Deflected span of this spanwise slice **/
+    
     VSPAERO_DOUBLE &Span_S_Def(int i) { return Span_S_Def_[i]; };
 
+    /** Vector pointing from trailing edge to leading edge of this spanwise slice **/
+    
     VSPAERO_DOUBLE *Span_Svec(int i) { return Span_Svec_[i]; };
+    
+    /** Normal vector for this spanwise slice **/
     
     VSPAERO_DOUBLE *Span_Nvec(int i) { return Span_Nvec_[i]; };
 
-    // Root LE, TE, and Quarter chord
+    /** Root leading edge coordinates **/
     
     VSPAERO_DOUBLE &Root_LE(int i) { return Root_LE_[i]; };
+    
+    /** Root trailing edge coordinates **/
+    
     VSPAERO_DOUBLE &Root_TE(int i) { return Root_TE_[i]; };
+       
+    /** Root quater chord coordinates **/
+       
     VSPAERO_DOUBLE &Root_QC(int i) { return Root_QC_[i]; };
     
-    // Tip LE, TE, and Quarter chord
+    /** Tip leading edge coordinates **/
     
     VSPAERO_DOUBLE &Tip_LE(int i) { return Tip_LE_[i]; };
+    
+    /** Tip trailing edge coordinates **/
+    
     VSPAERO_DOUBLE &Tip_TE(int i) { return Tip_TE_[i]; };
+    
+    /** Tip quarter chord coordinates **/
+    
     VSPAERO_DOUBLE &Tip_QC(int i) { return Tip_QC_[i]; };  
     
-    // Local velocity
+    /** Local averaged velocity for this spanwise strip **/
     
     VSPAERO_DOUBLE *Span_Local_Velocity(int i) { return Local_Velocity_[i]; };
     
-    // Stall Flag
+    /** Fraction of this spanwise slice that is stalled **/
     
     VSPAERO_DOUBLE &StallFact(int i) { return StallFact_[i]; };
      
+    /** Flag indicating if this spanwise section has stalled based on 2D models ... **/
+     
     int &IsStalled(int i) { return IsStalled_[i]; };
+    
+    /** Flag indicating that this spanwise station has a leading edge slat **/
     
     int &SpanStationHasSlat(int i ) { return SpanStationHasSlat_[i]; };
     
+    /** Percentage of chord (actually a fraction) that the slat makes up for this spanwise slice **/
+    
     VSPAERO_DOUBLE &SlatPercentage(int i) { return SlatPercentage_[i]; };
+    
+    /** Mach number, below which, any possible slat for this spanwise slice would deploy **/
     
     VSPAERO_DOUBLE &SlatMachDeploy(int i) { return SlatMachDeploy_[i]; };
     
-    // Rotor Flag
+    /** Flag indicating if this span load data is tied to a rotor blade **/
     
     int &IsARotor(void) { return IsARotor_; };
      

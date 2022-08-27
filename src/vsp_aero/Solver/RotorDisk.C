@@ -708,24 +708,24 @@ void ROTOR_DISK::CalculateRotorGeometry(void)
 #                                                                              #
 ##############################################################################*/
 
-void ROTOR_DISK::Write_STP_Data(FILE *InputFile)
+void ROTOR_DISK::Write_STP_Data(FILE *OutputFile)
 {
 
     // Write out STP file data
 
-    FPRINTF(InputFile,"%lf %lf %lf \n",RotorXYZ_[0], RotorXYZ_[1], RotorXYZ_[2]);
+    FPRINTF(OutputFile,"%lf %lf %lf \n",RotorXYZ_[0], RotorXYZ_[1], RotorXYZ_[2]);
     
-    FPRINTF(InputFile,"%lf %lf %lf \n",RotorNormal_[0], RotorNormal_[1], RotorNormal_[2]);
+    FPRINTF(OutputFile,"%lf %lf %lf \n",RotorNormal_[0], RotorNormal_[1], RotorNormal_[2]);
     
-    FPRINTF(InputFile,"%lf \n",RotorRadius_);
+    FPRINTF(OutputFile,"%lf \n",RotorRadius_);
 
-    FPRINTF(InputFile,"%lf \n",RotorHubRadius_);
+    FPRINTF(OutputFile,"%lf \n",RotorHubRadius_);
     
-    FPRINTF(InputFile,"%lf \n",RotorRPM_);
+    FPRINTF(OutputFile,"%lf \n",RotorRPM_);
   
-    FPRINTF(InputFile,"%lf \n",Rotor_CT_);
+    FPRINTF(OutputFile,"%lf \n",Rotor_CT_);
     
-    FPRINTF(InputFile,"%lf \n",Rotor_CP_);
+    FPRINTF(OutputFile,"%lf \n",Rotor_CP_);
    
 }
 
@@ -735,7 +735,7 @@ void ROTOR_DISK::Write_STP_Data(FILE *InputFile)
 #                                                                              #
 ##############################################################################*/
 
-void ROTOR_DISK::Write_Binary_STP_Data(FILE *InputFile)
+void ROTOR_DISK::Write_Binary_STP_Data(FILE *OutputFile)
 {
  
     int i_size, c_size, d_size;
@@ -748,23 +748,23 @@ void ROTOR_DISK::Write_Binary_STP_Data(FILE *InputFile)
     
     // Write out STP file data
 
-    FWRITE(&(RotorXYZ_[0]), d_size, 1, InputFile); 
-    FWRITE(&(RotorXYZ_[1]), d_size, 1, InputFile); 
-    FWRITE(&(RotorXYZ_[2]), d_size, 1, InputFile); 
+    FWRITE(&(RotorXYZ_[0]), d_size, 1, OutputFile); 
+    FWRITE(&(RotorXYZ_[1]), d_size, 1, OutputFile); 
+    FWRITE(&(RotorXYZ_[2]), d_size, 1, OutputFile); 
     
-    FWRITE(&(RotorNormal_[0]), d_size, 1, InputFile); 
-    FWRITE(&(RotorNormal_[1]), d_size, 1, InputFile); 
-    FWRITE(&(RotorNormal_[2]), d_size, 1, InputFile); 
+    FWRITE(&(RotorNormal_[0]), d_size, 1, OutputFile); 
+    FWRITE(&(RotorNormal_[1]), d_size, 1, OutputFile); 
+    FWRITE(&(RotorNormal_[2]), d_size, 1, OutputFile); 
     
-    FWRITE(&(RotorRadius_), d_size, 1, InputFile); 
+    FWRITE(&(RotorRadius_), d_size, 1, OutputFile); 
     
-    FWRITE(&(RotorHubRadius_), d_size, 1, InputFile); 
+    FWRITE(&(RotorHubRadius_), d_size, 1, OutputFile); 
      
-    FWRITE(&(RotorRPM_), d_size, 1, InputFile); 
+    FWRITE(&(RotorRPM_), d_size, 1, OutputFile); 
       
-    FWRITE(&(Rotor_CT_), d_size, 1, InputFile); 
+    FWRITE(&(Rotor_CT_), d_size, 1, OutputFile); 
     
-    FWRITE(&(Rotor_CP_), d_size, 1, InputFile); 
+    FWRITE(&(Rotor_CP_), d_size, 1, OutputFile); 
 
 }
 

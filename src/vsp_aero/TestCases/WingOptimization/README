@@ -1,0 +1,92 @@
+This is a very SIMPLE wing optimization test case. We are minimizing:
+
+       F = Lambda_1 * pow(CL - CLreq,2.) + Lambda_2 * pow(CD,2.) + Lambda_3 * pow(CM,2.);
+
+where:
+
+       Lambda_1 = 100.;
+       Lambda_2 = 1.;
+       Lambda_3 = 5.;
+
+       CLreq = 0.4;
+       
+See the TestCase_7 in vspaero_opt.C
+
+The code calculates the gradients of to CL, CD, and CM withg respect to the mesh nodes as 3 adjoint solves:
+
+    Optimizer.NumberOfOptimizationFunctions() = 3;
+    
+    // First design variable is CL
+    
+    Optimizer.OptimizationFunction(1) = OPT_CL;
+    
+    // Second design variable is CD
+    
+    Optimizer.OptimizationFunction(2) = OPT_CD;
+
+    // Second design variable is pitching moment, CM
+    
+    Optimizer.OptimizationFunction(3) = OPT_CMY;       
+    
+The OpenVSP model parameters are (per the OpenVSP hershey.des file):
+
+27
+QSNPYXDDDLO:WingGeom:XSec_0:Sweep: 10
+UBVRJTIEPRR:WingGeom:XSec_1:Sweep: 10
+CGZTNEFZTXK:WingGeom:XSec_2:Sweep: 10
+KGURZHQQJXW:WingGeom:XSec_3:Sweep: 10
+YAQSYUMEGHT:WingGeom:XSec_4:Sweep: 10
+YRVTOTKGFYR:WingGeom:XSec_5:Sweep: 10
+XGYAVXCURSO:WingGeom:XSec_6:Sweep: 10
+EYBNIPHKMTY:WingGeom:XSec_7:Sweep: 10
+IWYKCCBHEEE:WingGeom:XSec_8:Sweep: 10
+IYLFEPKRFML:WingGeom:XSec_0:Twist: 0
+TMTOXZDOQZI:WingGeom:XSec_1:Twist: 0
+FCYJHZEHJCT:WingGeom:XSec_2:Twist: 0
+ZAFHQVQPTLW:WingGeom:XSec_3:Twist: 0
+DHJZVPGELUZ:WingGeom:XSec_4:Twist: 0
+EMWZYDEWUXH:WingGeom:XSec_5:Twist: 0
+JSRGUOZNESD:WingGeom:XSec_6:Twist: 0
+EGMUPYIIWOC:WingGeom:XSec_7:Twist: 0
+KLWNOERTIDR:WingGeom:XSec_8:Twist: 0
+BIWKBQFLDOL:WingGeom:XSec_0:Dihedral: 0
+VVGNWNLTXGH:WingGeom:XSec_1:Dihedral: 0
+CXCXFHBMUGR:WingGeom:XSec_2:Dihedral: 0
+DJUJIUMPALR:WingGeom:XSec_3:Dihedral: 0
+AJYNZIANVGW:WingGeom:XSec_4:Dihedral: 0
+HPIAHZLAHRO:WingGeom:XSec_5:Dihedral: 0
+ITLOJZZBWIT:WingGeom:XSec_6:Dihedral: 0
+ZACDPIGIKLQ:WingGeom:XSec_7:Dihedral: 0
+GDHBWFNZCYK:WingGeom:XSec_8:Dihedral: 0
+
+
+The gradients of the mesh with respect to these parameters are calculated using finite differences via
+OpenVSP's scripting language via a C/++ system call:
+
+    // Run vsp script to create VSPGEOM file
+    
+    sprintf(CommandLine,"vsp -script CreateVSPGEOM.script > vsp.out >&1 ");
+    
+    system(CommandLine);
+ 
+ 
+The code uses a very simple conjugate gradient optimizer with a really stupid 1D line search based
+on the Golden ratio. I am just doing a finite number of optimization steps (25) and stopping.
+
+You can view the results of the optimization evolution using viewer:
+
+viewer hershey.opt
+
+you will need to turn on "Check for Optimization Values" under the 
+
+Options Menu --> Optimization -->  Check for Optimization Values
+
+To run this case:
+
+vspaero_opt 7 hershey 
+
+It takes ~4 minutes on my Mac laptop
+
+The history of the optimization (Iter, CL, CD, CM, F, # of Search Steps, Step Size ) is written to hershey.opt.history
+
+-Dave

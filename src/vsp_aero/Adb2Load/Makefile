@@ -1,0 +1,32 @@
+include ../config.mk
+
+all: adb2loads
+
+options:
+	@echo VSPAERO build options:
+	@echo "CXX = $(CXX)"
+	@echo "ADB2LOADS_CXXFLAGS = $(ADB2LOADS_CXXFLAGS)"
+	@echo "ADB2LOADS_LDFLAGS = $(ADB2LOADS_LDFLAGS)"
+	@echo "VSPAERO_ADB2LOADS_CXXFLAGS = $(VSPAERO_ADB2LOADS_CXXFLAGS)"
+	@echo "VSPAERO_ADB2LOADS_LDFLAGS = $(VSPAERO_ADB2LOADS_LDFLAGS)"
+
+VSPAERO_ADB2LOADS_SRCS = adb2loads.C ADBSlicer.C binaryio.C EngineFace.C interp.C quat.C RotorDisk.C search.C utils.C
+
+VSPAERO_ADB2LOADS_OBJS = $(VSPAERO_ADB2LOADS_SRCS:.C=.o)
+VSPAERO_ADB2LOADS_DEFINES =
+
+VSPAERO_ADB2LOADS_CXXFLAGS = $(ADB2LOADS_CXXFLAGS)
+VSPAERO_ADB2LOADS_LDFLAGS = $(ADB2LOADS_LDFLAGS)
+
+%.o: %.C
+	$(CXX) $(VSPAERO_ADB2LOADS_CXXFLAGS) $(VSPAERO_ADB2LOADS_DEFINES) -c $^ -o $@
+
+adb2loads: $(VSPAERO_ADB2LOADS_OBJS)
+	$(CXX) $(VSPAERO_ADB2LOADS_CXXFLAGS) $^ $(VSPAERO_ADB2LOADS_LDFLAGS) -o $@
+
+clean:
+	rm -f $(VSPAERO_ADB2LOADS_OBJS)
+	rm -f adb2loads
+
+# https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html
+.PHONY: all clean options

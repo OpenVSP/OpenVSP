@@ -1,0 +1,2 @@
+../../../v6.4/bin/vspaero -opt -omp 4 -optfunction 1 hershey
+../../../v6.4/bin/vspaero_adjoint -adjoint -opt -optfunction 1 hershey

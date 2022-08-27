@@ -53,25 +53,67 @@ public:
     ENGINE_FACE(const ENGINE_FACE &EngineFace);
     ENGINE_FACE& operator=(const ENGINE_FACE &EngineFace);
     
+    /** Surface type ... INLET or NOZZLE **/
+    
     int &SurfaceType(void) { return SurfaceType_; };
+    
+    /** Surface ID ... pointing back to the surface mesh Surface IDs **/
+    
     int &SurfaceID(void) { return SurfaceID_; };
 
+    /** Nozzle radius **/
+    
     VSPAERO_DOUBLE &NozzleRadius(void) { return NozzleRadius_; };
+    
+    /** Nozzle xyz origin location **/
+    
     VSPAERO_DOUBLE &NozzleXYZ(int i) { return NozzleXYZ_[i]; };
+    
+    /** Nozzle normal vector **/
+    
     VSPAERO_DOUBLE &NozzleNormal(int i) { return NozzleNormal_[i]; };
+    
+    /** Nozzle exit velocity **/
+    
     VSPAERO_DOUBLE &NozzleVelocity(void) { return NozzleVelocity_; };
+    
+    /** Nozzle exit delta Cp in the exit jet **/
+    
     VSPAERO_DOUBLE &NozzleDeltaCp(void) { return NozzleDeltaCp_; };
+    
+    /** Inlet mass flow **/
             
     VSPAERO_DOUBLE &MassFlow(void) { return MassFlow_; };
+    
+    /** Inlet density **/
+    
     VSPAERO_DOUBLE &Density(void) { return Density_; };
+    
+    /** Inlet area **/
+    
     VSPAERO_DOUBLE &Area(void) { return Area_; };
 
-    void Write_Binary_STP_Data(FILE *InputFile); 
+    /** Write state of this nozzle / inlet to file **/
+    
+    void Write_Binary_STP_Data(FILE *OutputFile); 
+    
+    /** Read state for this nozzle from file **/
+    
     void Read_Binary_STP_Data(FILE *InputFile);    
+    
+    /** Skip over engine data in this file **/
+    
     void Skip_Read_Binary_STP_Data(FILE *InputFile); 
     
+    /** Normal velocity for this engine face **/
+    
     VSPAERO_DOUBLE NormalVelocity(void);
+    
+    /** Velocity, (u,v,w,DeltaCp,VelocityMagnitude) at location (x,y,z) **/
+    
     void Velocity(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5]);
+    
+    /** Update the location, orientation of the engine data based on a translation and quaternion rotation **/
 
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
           
