@@ -4,6 +4,7 @@
 
 #include "Image.h"
 #include <algorithm>
+#include <cstring>
 
 namespace VSPGraphic
 {
