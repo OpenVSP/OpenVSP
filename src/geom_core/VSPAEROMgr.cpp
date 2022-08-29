@@ -110,10 +110,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_NumWakeNodes.Init( "RootWakeNodes", groupname, this, 64, 0, 10e12 );
     m_NumWakeNodes.SetDescript( "Number of Wake Nodes (f(n^2))" );
 
-    m_BatchModeFlag.Init( "BatchModeFlag", groupname, this, true, false, true );
-    m_BatchModeFlag.SetDescript( "Flag to calculate in batch mode" );
-    m_BatchModeFlag = true;
-
     // This sets all the filename members to the appropriate value (for example: empty strings if there is no vehicle)
     UpdateFilenames();
 
@@ -261,7 +257,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CurrentUnsteadyGroupIndex = 0;
 
     m_Verbose = false;
-    m_iCase = 0;
 
     CpSlice* slice = AddCpSlice();
     slice->SetName( "Y = 0" );
@@ -338,7 +333,6 @@ void VSPAEROMgrSingleton::Renew()
     m_BetaStart.Set( 0.0 ); m_BetaEnd.Set( 0.0 ); m_BetaNpts.Set( 1 );
     m_MachStart.Set( 0.0 ); m_MachEnd.Set( 0.0 ); m_MachNpts.Set( 1 );
 
-    m_BatchModeFlag.Set( true );
     m_Precondition.Set( vsp::PRECON_MATRIX );
     m_KTCorrection.Set( false );
     m_Symmetry.Set( false );
@@ -1352,20 +1346,6 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     vector<double> recrefVec;
     GetSweepVectors( alphaVec, betaVec, machVec, recrefVec );
 
-    if ( !m_BatchModeFlag.Get() )
-    {
-        // Identify the current VSPAERO flow condition case
-        double recref = recrefVec[(int)( ( m_iCase ) % m_ReCrefNpts.Get() )];
-        double mach = machVec[(int)( ( (int)floor( ( m_iCase ) / m_ReCrefNpts.Get() ) ) % m_MachNpts.Get() )];
-        double beta = betaVec[(int)( ( (int)floor( ( m_iCase ) / ( m_ReCrefNpts.Get() * m_MachNpts.Get() ) ) ) % m_BetaNpts.Get() )];
-        double alpha = alphaVec[(int)floor( ( m_iCase ) / ( m_ReCrefNpts.Get() * m_MachNpts.Get() * m_BetaNpts.Get() ) )];
-
-        machVec = { mach };
-        alphaVec = { alpha };
-        betaVec = { beta };
-        recrefVec = { recref };
-    }
-
     unsigned int i;
     // Mach vector
     fprintf( case_file, "Mach = " );
@@ -1884,300 +1864,7 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
         MessageMgr::getInstance().SendAll( errMsgData );
     }
 
-    if ( m_BatchModeFlag.Get() )
-    {
-        return ComputeSolverBatch( logFile );
-    }
-    else
-    {
-        return ComputeSolverSingle( logFile );
-    }
-
-    return string();
-}
-
-/* ComputeSolverSingle(FILE * logFile)
-*/
-string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
-{
-    std::vector <string> res_id_vector;
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-
-        string adbFileName = m_AdbFile;
-        string historyFileName = m_HistoryFile;
-        string polarFileName = m_PolarFile;
-        string loadFileName = m_LoadFile;
-        string stabFileName = m_StabFile;
-        string modelNameBase = m_ModelNameBase;
-        vector < string > group_res_vec = m_GroupResFiles;
-        vector < string > rotor_res_vec = m_RotorResFiles;
-        vector < string > unsteady_group_name_vec = m_UnsteadyGroupResNames;
-
-        bool unsteady_flag = m_RotateBladesFlag.Get();
-        vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
-        vsp::VSPAERO_STABILITY_TYPE stabilityType = ( vsp::VSPAERO_STABILITY_TYPE )m_StabilityType.Get();
-        bool noise_flag = m_NoiseCalcFlag.Get();
-        int noise_type = m_NoiseCalcType.Get();
-        int noise_unit = m_NoiseUnits.Get();
-        
-        double recref = m_ReCrefStart.Get();
-
-        // Save analysis type for Cp Slicer
-        m_CpSliceAnalysisType = analysisMethod;
-
-        int ncpu = m_NCPU.Get();
-        m_iCase = 0;
-
-        //====== Modify/Update the groups file for unsteady analysis ======//
-        if ( m_RotateBladesFlag() )
-        {
-            CreateGroupsFile();
-        }
-
-        //====== Loop over flight conditions and solve ======//
-        int alphaNpts = m_AlphaNpts.Get();
-        int betaNpts = m_BetaNpts.Get();
-        int machNpts = m_MachNpts.Get();
-        int recrefNpts = m_ReCrefNpts.Get();
-
-        for ( int iAlpha = 0; iAlpha < alphaNpts; iAlpha++ )
-        {
-            for ( int iBeta = 0; iBeta < betaNpts; iBeta++ )
-            {
-                for ( int iMach = 0; iMach < machNpts; iMach++ )
-                {
-                    for ( int iReCref = 0; iReCref < recrefNpts; iReCref++ )
-                    {
-                        //====== Modify/Update the setup file ======//
-                        CreateSetupFile();
-
-                        //====== Clear VSPAERO output files ======//
-                        if ( FileExist( adbFileName ) )
-                        {
-                            remove( adbFileName.c_str() );
-                        }
-                        if ( FileExist( historyFileName ) )
-                        {
-                            remove( historyFileName.c_str() );
-                        }
-                        if ( FileExist( polarFileName ) )
-                        {
-                            remove( polarFileName.c_str() );
-                        }
-                        if ( FileExist( loadFileName ) )
-                        {
-                            remove( loadFileName.c_str() );
-                        }
-                        if ( FileExist( stabFileName ) )
-                        {
-                            remove( stabFileName.c_str() );
-                        }
-
-                        for ( size_t j = 0; j < group_res_vec.size(); j++ )
-                        {
-                            if ( FileExist( group_res_vec[j] ) )
-                            {
-                                remove( group_res_vec[j].c_str() );
-                            }
-                        }
-
-                        for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
-                        {
-                            if ( FileExist( rotor_res_vec[j] ) )
-                            {
-                                remove( rotor_res_vec[j].c_str() );
-                            }
-                        }
-
-                        //====== Send command to be executed by the system at the command prompt ======//
-                        vector<string> args;
-
-                        // Set number of openmp threads
-                        args.push_back( "-omp" );
-                        args.push_back( StringUtil::int_to_string( m_NCPU.Get(), "%d" ) );
-                        // Set stability run arguments
-                        if ( stabilityType != vsp::STABILITY_OFF )
-                        {
-                            switch ( stabilityType )
-                            {
-                            case vsp::STABILITY_DEFAULT:
-                                args.push_back( "-stab" );
-                                break;
-
-                            case vsp::STABILITY_P_ANALYSIS:
-                                args.push_back( "-pstab" );
-                                break;
-
-                            case vsp::STABILITY_Q_ANALYSIS:
-                                args.push_back( "-qstab" );
-                                break;
-
-                            case vsp::STABILITY_R_ANALYSIS:
-                                args.push_back( "-rstab" );
-                                break;
-
-                                // === To Be Implemented ===
-                                //case vsp::STABILITY_HEAVE:
-                                //    AnalysisType = "HEAVE";
-                                //    break;
-
-                                //case vsp::STABILITY_IMPULSE:
-                                //    AnalysisType = "IMPULSE";
-                                //    break;
-
-                                //case vsp::STABILITY_UNSTEADY:
-                                //    args.push_back( "-unsteady" );
-                                //    break;
-                            }
-                        }
-
-                        if ( m_FromSteadyState() )
-                        {
-                            args.push_back( "-fromsteadystate" );
-                        }
-
-                        if ( m_GroundEffectToggle() )
-                        {
-                            args.push_back( "-groundheight" );
-                            args.push_back( StringUtil::double_to_string( m_GroundEffect(), "%f" ) );
-                        }
-
-                        if ( m_Write2DFEMFlag() )
-                        {
-                            args.push_back( "-write2dfem" );
-                        }
-
-                        if ( m_Precondition() == vsp::PRECON_JACOBI )
-                        {
-                            args.push_back( "-jacobi" );
-                        }
-                        else if ( m_Precondition() == vsp::PRECON_SSOR )
-                        {
-                            args.push_back( "-ssor" );
-                        }
-
-                        if ( m_KTCorrection() )
-                        {
-                            args.push_back( "-dokt" );
-                        }
-
-                        if ( m_RotateBladesFlag() )
-                        {
-                            args.push_back( "-unsteady" );
-
-                            if ( m_HoverRampFlag() )
-                            {
-                                args.push_back( "-hoverramp" );
-                                args.push_back( StringUtil::double_to_string( m_HoverRamp(), "%f" ) );
-                            }
-                        }
-
-                        // Add model file name
-                        args.push_back( modelNameBase );
-
-                        //Print out execute command
-                        string cmdStr = m_SolverProcess.PrettyCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
-                        if ( logFile )
-                        {
-                            fprintf( logFile, "%s", cmdStr.c_str() );
-                        }
-                        else
-                        {
-                            MessageData data;
-                            data.m_String = "VSPAEROSolverMessage";
-                            data.m_StringVec.push_back( cmdStr );
-                            MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-                        }
-
-                        // Execute VSPAero
-                        m_SolverProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
-
-                        // ==== MonitorSolverProcess ==== //
-                        MonitorSolver( logFile );
-
-                        // Check if the kill solver flag has been raised, if so clean up and return
-                        //  note: we could have exited the IsRunning loop if the process was killed
-                        if ( m_SolverProcessKill )
-                        {
-                            m_SolverProcessKill = false;    //reset kill flag
-
-                            return string();    //return empty result ID vector
-                        }
-
-                        //====== Read in all of the results ======//
-                        // read the files if there is new data that has not successfully been read in yet
-                        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod, recref );
-
-                        if ( stabilityType == vsp::STABILITY_OFF )
-                        {
-                            ReadPolarFile( polarFileName, res_id_vector, recref ); // Must be after *.history file is read to generate results for multiple ReCref values
-                        }
-
-                        ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
-
-                        if ( stabilityType != vsp::STABILITY_OFF )
-                        {
-                            ReadStabFile( stabFileName, res_id_vector, analysisMethod, stabilityType );      //*.STAB stability coeff file
-                        }
-
-                        // CpSlice Latest *.adb File if slices are defined
-                        if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
-                        {
-                            ComputeCpSlices();
-                        }
-
-                        if ( unsteady_flag )
-                        {
-                            for ( size_t j = 0; j < group_res_vec.size(); j++ )
-                            {
-                                ReadGroupResFile( group_res_vec[j], res_id_vector, unsteady_group_name_vec[j] );
-                            }
-
-                            int offset = group_res_vec.size() - rotor_res_vec.size();
-
-                            for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
-                            {
-                                ReadGroupResFile( rotor_res_vec[j], res_id_vector, unsteady_group_name_vec[j + offset] );
-                            }
-
-                            if ( noise_flag )
-                            {
-                                ExecuteNoiseAnalysis( logFile, noise_type, noise_unit );
-                            }
-                        }
-
-                        // Send the message to update the screens
-                        MessageData data;
-                        data.m_String = "UpdateAllScreens";
-                        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-
-                        m_iCase++; // Increment VSPAERO case index
-
-                    } //ReCref sweep loop
-
-                }    //Mach sweep loop
-
-            }    //beta sweep loop
-
-        }    //alpha sweep loop
-
-    }
-
-    // Create "wrapper" result to contain a vector of result IDs (this maintains compatibility to return a single result after computation)
-    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
-    if( !res )
-    {
-        return string();
-    }
-    else
-    {
-        res->Add( NameValData( "ResultsVec", res_id_vector ) );
-        return res->GetID();
-    }
+    return ComputeSolverBatch( logFile );
 }
 
 /* ComputeSolverBatch(FILE * logFile)

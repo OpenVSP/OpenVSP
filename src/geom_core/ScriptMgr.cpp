@@ -969,6 +969,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_ADV_LINK_BUILD_FAIL", vsp::VSP_ADV_LINK_BUILD_FAIL, "/*!< Advanced link build failure */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_DEPRECATED", vsp::VSP_DEPRECATED, "/*!< This capability has been deprecated and is not longer supported */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum used to indicate Parasite Drag Tool excressence type. */";
 

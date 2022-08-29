@@ -270,7 +270,6 @@ public:
     string CreateSetupFile();                          // natively creates a *.vspaero template setup file
     string ComputeSolver( FILE * logFile = NULL ); // returns a result with a vector of results id's under the name ResultVec
     string ComputeSolverBatch( FILE * logFile = NULL );
-    string ComputeSolverSingle( FILE * logFile = NULL );
     ProcessUtil* GetSolverProcess();
     bool IsSolverRunning();
     void KillSolver();
@@ -374,8 +373,6 @@ public:
     Parm m_cref;
     string m_RefGeomID;
     IntParm m_RefFlag;
-
-    BoolParm m_BatchModeFlag;
 
     // Mass Properties Parms
     IntParm m_CGGeomSet;
@@ -554,8 +551,6 @@ private:
     int m_CpSliceAnalysisType;
 
     bool m_Verbose;
-
-    int m_iCase; // Index corresponding to the current VSPAERO solution case in non-batch mode runs (see ComputeSolverSingle)
 
     // VSPAERO Inputs from Existing Results
     int m_PreviousStabilityType;

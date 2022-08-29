@@ -182,7 +182,6 @@ protected:
     StringOutput m_CompGeomFileName;
     TriggerButton m_CompGeomFileButton;
     SliderAdjRangeInput m_NCPUSlider;
-    ToggleButton m_BatchCalculationToggle;
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
     ToggleButton m_EnableAlternateFormat;

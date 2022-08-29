@@ -287,17 +287,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
 
-    m_AdvancedCaseSetupLayout.SetFitWidthFlag( false );
-    m_AdvancedCaseSetupLayout.SetSameLineFlag( true );
-
-    m_AdvancedCaseSetupLayout.SetButtonWidth( m_AdvancedCaseSetupLayout.GetW() / 2 );
-
-    m_AdvancedCaseSetupLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
     m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
-
-    m_AdvancedCaseSetupLayout.ForceNewLine();
-    m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
-    m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
 
     m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
 
@@ -1405,7 +1395,6 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     }
 
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
-    m_BatchCalculationToggle.Update(VSPAEROMgr.m_BatchModeFlag.GetID());
     m_PreconditionChoice.Update(VSPAEROMgr.m_Precondition.GetID());
     m_KTCorrectionToggle.Update( VSPAEROMgr.m_KTCorrection.GetID() );
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
