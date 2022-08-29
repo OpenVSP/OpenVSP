@@ -304,7 +304,7 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     printf("COMPLETE\n");
 
     //==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     printf( "\tAnalysis: %s\n", analysis_name.c_str() );
 
     // Set defaults
@@ -428,7 +428,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     }
 
     //==== Analysis: VSPAERO Single Point ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     printf( "\t%s\n", analysis_name.c_str() );
     // Set defaults
     vsp::SetAnalysisInputDefaults( analysis_name );
@@ -451,11 +451,17 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag );
     //    freestream parameters
     std::vector< double > alpha; alpha.push_back( 5 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha );
+    vsp::SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha );
+    vector< int > alpha_npts; alpha_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "AlphaNpts", alpha_npts, 0 );
     std::vector< double > beta; beta.push_back( 2.5 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Beta", beta );
+    vsp::SetDoubleAnalysisInput( analysis_name, "BetaStart", beta );
+    std::vector< int > beta_npts; beta_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "BetaNpts", beta_npts );
     std::vector< double > mach; mach.push_back( 0.1 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach );
+    vsp::SetDoubleAnalysisInput( analysis_name, "MachStart", mach );
+    std::vector< int > mach_npts; mach_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "MachNpts", mach_npts );
 
     // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 2 );
@@ -505,7 +511,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     }
 
     //==== Analysis: VSPAERO Single Point ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     printf( "\t%s\n", analysis_name.c_str() );
     // Set defaults
     vsp::SetAnalysisInputDefaults( analysis_name );
@@ -528,11 +534,17 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag );
     //    freestream parameters
     std::vector< double > alpha; alpha.push_back( 5 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha );
+    vsp::SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha );
+    vector< int > alpha_npts; alpha_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "AlphaNpts", alpha_npts, 0 );
     std::vector< double > beta; beta.push_back( 2.5 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Beta", beta );
+    vsp::SetDoubleAnalysisInput( analysis_name, "BetaStart", beta );
+    std::vector< int > beta_npts; beta_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "BetaNpts", beta_npts );
     std::vector< double > mach; mach.push_back( 0.1 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach );
+    vsp::SetDoubleAnalysisInput( analysis_name, "MachStart", mach );
+    std::vector< int > mach_npts; mach_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "MachNpts", mach_npts );
 
     // list inputs, type, and current values
     vsp::PrintAnalysisInputs( analysis_name );
@@ -575,7 +587,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     }
 
     //==== Analysis: VSPAERO Single Point  stabilityFlag = TRUE ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     printf( "\t%s\n", analysis_name.c_str() );
     // Set defaults
     vsp::SetAnalysisInputDefaults( analysis_name );
@@ -598,11 +610,17 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag );
     //    freestream parameters
     std::vector< double > alpha; alpha.push_back( 4.0 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha );
+    vsp::SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha );
+    vector< int > alpha_npts; alpha_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "AlphaNpts", alpha_npts, 0 );
     std::vector< double > beta; beta.push_back( -3.0 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Beta", beta );
+    vsp::SetDoubleAnalysisInput( analysis_name, "BetaStart", beta );
+    std::vector< int > beta_npts; beta_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "BetaNpts", beta_npts );
     std::vector< double > mach; mach.push_back( 0.4 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach );
+    vsp::SetDoubleAnalysisInput( analysis_name, "MachStart", mach );
+    std::vector< int > mach_npts; mach_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "MachNpts", mach_npts );
     //     Case Setup
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
@@ -654,7 +672,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady()
     printf("COMPLETE\n");
 
     //==== Analysis: VSPAERO Single Point  stabilityFlag = TRUE ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     printf( "\tAnalysis Type: %s\n", analysis_name.c_str() );
     // Set defaults
     vsp::SetAnalysisInputDefaults( analysis_name );
@@ -678,11 +696,17 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady()
     vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag );
     //    freestream parameters
     std::vector< double > alpha; alpha.push_back( 4.0 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha );
+    vsp::SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha );
+    vector< int > alpha_npts; alpha_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "AlphaNpts", alpha_npts, 0 );
     std::vector< double > beta; beta.push_back( -3.0 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Beta", beta );
+    vsp::SetDoubleAnalysisInput( analysis_name, "BetaStart", beta );
+    std::vector< int > beta_npts; beta_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "BetaNpts", beta_npts );
     std::vector< double > mach; mach.push_back( 0.4 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach );
+    vsp::SetDoubleAnalysisInput( analysis_name, "MachStart", mach );
+    std::vector< int > mach_npts; mach_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "MachNpts", mach_npts );
     //     Case Setup
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
@@ -776,8 +800,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     //     Case Setup
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
-    std::vector< int > batch_mode_flag; batch_mode_flag.push_back( 0 );
-    vsp::SetIntAnalysisInput( analysis_name, "BatchModeFlag", batch_mode_flag );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -868,8 +890,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     //     Case Setup
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
-    std::vector< int > batch_mode_flag; batch_mode_flag.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "BatchModeFlag", batch_mode_flag );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -901,7 +921,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Analysis: VSPAero Single Point ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     printf( "\t%s\n", analysis_name.c_str() );
 
     //==== Create Symmetric Airfoil Wing Geometry ====//
@@ -991,10 +1011,14 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     // Freestream Parameters
     vector< double > alpha;
     alpha.push_back( 0.0 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha, 0 );
+    vector< int > alpha_npts; alpha_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "AlphaNpts", alpha_npts, 0 );
     vector< double > mach;
     mach.push_back( 0.1 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "MachStart", mach, 0 );
+    std::vector< int > mach_npts; mach_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "MachNpts", mach_npts );
 
     // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
@@ -1052,7 +1076,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Analysis: VSPAero Single Point ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     printf( "\t%s\n", analysis_name.c_str() );
 
     //==== Create Symmetric Airfoil Wing Geometry ====//
@@ -1155,10 +1179,14 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     // Freestream Parameters
     vector< double > alpha;
     alpha.push_back( 0.0 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha, 0 );
+    vector< int > alpha_npts; alpha_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "AlphaNpts", alpha_npts, 0 );
     vector< double > mach;
     mach.push_back( 0.1 );
-    vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "MachStart", mach, 0 );
+    std::vector< int > mach_npts; mach_npts.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "MachNpts", mach_npts );
 
     // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
@@ -1328,10 +1356,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
-
-    // Set Batch Mode
-    vector< int > batch_mode_flag; batch_mode_flag.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "BatchModeFlag", batch_mode_flag, 0 );
 
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
