@@ -116,8 +116,8 @@ void VSPAeroDiskAndCSGroupAnalysis()
     // Get & Display Results
     PrintResults( compgeom_resid );
 
-    //==== Analysis: VSPAero Single Point ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    //==== Analysis: VSPAero Sweep ====//
+    string analysis_name = "VSPAEROSweep";
 
     SetAnalysisInputDefaults( analysis_name );
 
@@ -134,10 +134,11 @@ void VSPAeroDiskAndCSGroupAnalysis()
     // Freestream Parameters
     array< double > alpha;
     alpha.push_back( 0.0 );
-    SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha, 0 );
+    array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
     array< double > mach;
     mach.push_back( 0.1 );
-    SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
+    SetDoubleAnalysisInput( analysis_name, "MachStart", mach, 0 );
 
     Update();
 

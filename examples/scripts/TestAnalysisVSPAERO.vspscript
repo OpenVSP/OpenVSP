@@ -139,7 +139,7 @@ void TestVSPAeroSharpTrailingEdge()
     Print( string( "" ) );
 
     //==== Analysis: VSPAero Single Point ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     Print( analysis_name );
 
     //==== Create some test geometries ====//
@@ -219,10 +219,16 @@ void TestVSPAeroSharpTrailingEdge()
     // Freestream Parameters
     array< double > alpha;
     alpha.push_back( 0.0 );
-    SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha, 0 );
+    array< int > alphaNpts;
+    alphaNpts.push_back( 1 );
+    SetIntAnalysisInput( analysis_name, "AlphaNpts", alphaNpts, 0 );
     array< double > mach;
     mach.push_back( 0.1 );
-    SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
+    SetDoubleAnalysisInput( analysis_name, "MachStart", mach, 0 );
+    array< int > machNpts;
+    machNpts.push_back( 1 );
+    SetIntAnalysisInput( analysis_name, "MachNpts", machNpts, 0 );
 
     Update();
 
@@ -267,7 +273,7 @@ void TestVSPAeroBluntTrailingEdge()
     Print( string( "" ) );
 
     //==== Analysis: VSPAero Single Point ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     Print( analysis_name );
 
     //==== Create some test geometries ====//
@@ -358,10 +364,16 @@ void TestVSPAeroBluntTrailingEdge()
     // Freestream Parameters
     array< double > alpha;
     alpha.push_back( 0.0 );
-    SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha, 0 );
+    array< int > alphaNpts;
+    alphaNpts.push_back( 1 );
+    SetIntAnalysisInput( analysis_name, "AlphaNpts", alphaNpts, 0 );
     array< double > mach;
     mach.push_back( 0.1 );
-    SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
+    SetDoubleAnalysisInput( analysis_name, "MachStart", mach, 0 );
+    array< int > machNpts;
+    machNpts.push_back( 1 );
+    SetIntAnalysisInput( analysis_name, "MachNpts", machNpts, 0 );
 
     Update();
 

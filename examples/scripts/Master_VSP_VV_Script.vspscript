@@ -2454,7 +2454,6 @@ class VV_Base
     VV_Base()
     {
         m_CompGeomAnalysis = string("VSPAEROComputeGeometry");
-        m_VSPSingleAnalysis = string("VSPAEROSinglePoint");
         m_VSPSweepAnalysis = string("VSPAEROSweep");
         m_CpSliceAnalysis = string("CpSlicer");
         
@@ -2475,7 +2474,6 @@ class VV_Base
     
     // V&V Base Class Properties
     string m_CompGeomAnalysis;
-    string m_VSPSingleAnalysis;
     string m_VSPSweepAnalysis;
     string m_CpSliceAnalysis;
     
@@ -3065,7 +3063,7 @@ class HersheyVV : VV_Base
             }
             
             //==== Analysis: VSPAero Panel Single ====//
-            Print( m_VSPSingleAnalysis );
+            Print( m_VSPSweepAnalysis );
             
             //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
             Print( m_CompGeomAnalysis );
@@ -3091,31 +3089,33 @@ class HersheyVV : VV_Base
             
             //==== Analysis: VSPAero Panel Single ====//
             // Set defaults
-            SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-            Print(m_VSPSingleAnalysis);
+            SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+            Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-            SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
-            SetIntAnalysisInput( m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis );
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+            SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+            SetIntAnalysisInput( m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis );
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
             
             // Freestream Parameters
             array<double> Alpha(1, 1.0);
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
+            array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+            array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
             
             Update();
 
             // list inputs, type, and current values
-            PrintAnalysisInputs( m_VSPSingleAnalysis );
+            PrintAnalysisInputs( m_VSPSweepAnalysis );
             Print( "" );
 
             // Execute
             Print( "\tExecuting..." );
-            rid = ExecAnalysis( m_VSPSingleAnalysis );
+            rid = ExecAnalysis( m_VSPSweepAnalysis );
             Print( "COMPLETE" );
 
             // Get & Display Results
@@ -3287,8 +3287,8 @@ class HersheyVV : VV_Base
             Print( fname );
             ReadVSPFile( fname ); // Sets VSP3 file name
 
-            //==== Analysis: VSPAEROSinglePoint ====//
-            Print( m_VSPSingleAnalysis );
+            //==== Analysis: m_VSPSweepAnalysis ====//
+            Print( m_VSPSweepAnalysis );
 
             //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
             Print( m_CompGeomAnalysis );
@@ -3311,31 +3311,33 @@ class HersheyVV : VV_Base
 
             //==== Analysis: VSPAero Single Point ====//
             // Set defaults
-            SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-            Print(m_VSPSingleAnalysis);
+            SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+            Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             array<string> wid = FindGeomsWithName( "WingGeom" );
-            SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+            SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
             // Freestream Parameters
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", m_AlphaVec, 0);
+            array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+            array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
             Update();
 
             // list inputs, type, and current values
-            PrintAnalysisInputs( m_VSPSingleAnalysis );
+            PrintAnalysisInputs( m_VSPSweepAnalysis );
             Print( "" );
 
             // Execute
             Print( "\tExecuting..." );
-            string rid = ExecAnalysis( m_VSPSingleAnalysis );
+            string rid = ExecAnalysis( m_VSPSweepAnalysis );
             Print( "COMPLETE" );
 
             // Get & Display Results
@@ -3492,8 +3494,8 @@ class HersheyVV : VV_Base
             Print( fname );
             ReadVSPFile( fname ); // Sets VSP3 file name
 
-            //==== Analysis: VSPAEROSinglePoint ====//
-            Print( m_VSPSingleAnalysis );
+            //==== Analysis: m_VSPSweepAnalysis ====//
+            Print( m_VSPSweepAnalysis );
 
             //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
             Print( m_CompGeomAnalysis );
@@ -3516,31 +3518,33 @@ class HersheyVV : VV_Base
 
             //==== Analysis: VSPAero Single Point ====//
             // Set defaults
-            SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-            Print(m_VSPSingleAnalysis);
+            SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+            Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             array<string> wid = FindGeomsWithName( "WingGeom" );
-            SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+            SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
             // Freestream Parameters
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", m_AlphaVec, 0);
+            array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+            array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
             Update();
 
             // list inputs, type, and current values
-            PrintAnalysisInputs( m_VSPSingleAnalysis );
+            PrintAnalysisInputs( m_VSPSweepAnalysis );
             Print( "" );
 
             // Execute
             Print( "\tExecuting..." );
-            string rid = ExecAnalysis( m_VSPSingleAnalysis );
+            string rid = ExecAnalysis( m_VSPSweepAnalysis );
             Print( "COMPLETE" );
 
             // Get & Display Results
@@ -3714,8 +3718,8 @@ class HersheyVV : VV_Base
                 Print( fname );
                 ReadVSPFile( fname ); // Sets VSP3 file name
 
-                //==== Analysis: VSPAEROSinglePoint ====//
-                Print( m_VSPSingleAnalysis );
+                //==== Analysis: m_VSPSweepAnalysis ====//
+                Print( m_VSPSweepAnalysis );
 
                 //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
                 Print( m_CompGeomAnalysis );
@@ -3738,31 +3742,33 @@ class HersheyVV : VV_Base
 
                 //==== Analysis: VSPAero Single Point ====//
                 // Set defaults
-                SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-                Print(m_VSPSingleAnalysis);
+                SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+                Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 array<string> wid = FindGeomsWithName( "WingGeom" );
-                SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+                SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
                 // Freestream Parameters
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", m_AlphaVec, 0);
+                array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+                array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
                 Update();
 
                 // list inputs, type, and current values
-                PrintAnalysisInputs( m_VSPSingleAnalysis );
+                PrintAnalysisInputs( m_VSPSweepAnalysis );
                 Print( "" );
 
                 // Execute
                 Print( "\tExecuting..." );
-                string rid = ExecAnalysis( m_VSPSingleAnalysis );
+                string rid = ExecAnalysis( m_VSPSweepAnalysis );
                 Print( "COMPLETE" );
 
                 // Get & Display Results
@@ -3940,8 +3946,8 @@ class HersheyVV : VV_Base
             Print( fname );
             ReadVSPFile( fname ); // Sets VSP3 file name
 
-            //==== Analysis: VSPAEROSinglePoint ====//
-            Print( m_VSPSingleAnalysis );
+            //==== Analysis: m_VSPSweepAnalysis ====//
+            Print( m_VSPSweepAnalysis );
 
             //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
             Print( m_CompGeomAnalysis );
@@ -3964,31 +3970,33 @@ class HersheyVV : VV_Base
 
             //==== Analysis: VSPAero Single Point ====//
             // Set defaults
-            SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-            Print(m_VSPSingleAnalysis);
+            SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+            Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             array<string> wid = FindGeomsWithName( "WingGeom" );
-            SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+            SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
             // Freestream Parameters
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", m_AlphaVec, 0);
+            array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+            array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
             Update();
 
             // list inputs, type, and current values
-            PrintAnalysisInputs( m_VSPSingleAnalysis );
+            PrintAnalysisInputs( m_VSPSweepAnalysis );
             Print( "" );
 
             // Execute
             Print( "\tExecuting..." );
-            string rid = ExecAnalysis( m_VSPSingleAnalysis );
+            string rid = ExecAnalysis( m_VSPSweepAnalysis );
             Print( "COMPLETE" );
 
             // Get & Display Results
@@ -4098,8 +4106,8 @@ class HersheyVV : VV_Base
             Print( fname );
             ReadVSPFile( fname ); // Sets VSP3 file name
             
-            //==== Analysis: VSPAEROSinglePoint ====//
-            Print( m_VSPSingleAnalysis );
+            //==== Analysis: m_VSPSweepAnalysis ====//
+            Print( m_VSPSweepAnalysis );
 
             //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
             Print( m_CompGeomAnalysis );
@@ -4122,33 +4130,35 @@ class HersheyVV : VV_Base
 
             //==== Analysis: VSPAero Single Point ====//
             // Set defaults
-            SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-            Print(m_VSPSingleAnalysis);
+            SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+            Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
 
             array<string> wid = FindGeomsWithName( "WingGeom" );
-            SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+            SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
             // Freestream Parameters
             array<double> Alpha(1, 1.0);
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
-            SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
+            array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+            array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
             array<int> wake_vec(1, m_WakeIter[i]);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", wake_vec, 0);
-            SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", wake_vec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             Update();
 
             // list inputs, type, and current values
-            PrintAnalysisInputs( m_VSPSingleAnalysis );
+            PrintAnalysisInputs( m_VSPSweepAnalysis );
             Print( "" );
 
             // Execute
             Print( "\tExecuting..." );
-            string rid = ExecAnalysis( m_VSPSingleAnalysis );
+            string rid = ExecAnalysis( m_VSPSweepAnalysis );
             Print( "COMPLETE" );
 
             // Get & Display Results
@@ -4293,8 +4303,8 @@ class HersheyVV : VV_Base
                 Print( fname );
                 ReadVSPFile( fname ); // Sets VSP3 file name
                 
-                //==== Analysis: VSPAEROSinglePoint ====//
-                Print( m_VSPSingleAnalysis );
+                //==== Analysis: m_VSPSweepAnalysis ====//
+                Print( m_VSPSweepAnalysis );
 
                 //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
                 Print( m_CompGeomAnalysis );
@@ -4317,51 +4327,53 @@ class HersheyVV : VV_Base
 
                 //==== Analysis: VSPAero Single Point ====//
                 // Set defaults
-                SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-                Print(m_VSPSingleAnalysis);
+                SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+                Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
 
                 array<string> wid = FindGeomsWithName( "WingGeom" );
-                SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+                SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
                 // Freestream Parameters
                 array<double> Alpha(1, 1.0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
+                array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+                array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
                 array<int> wake_vec(1, m_WakeIter[w]);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", wake_vec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", wake_vec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // if i == 0 -> use default advanced settings
                 
                 if ( i == 1 )
                 {
                     array<int> precon_vec(1, PRECON_JACOBI); // Jacobi Preconditioner
-                    SetIntAnalysisInput(m_VSPSingleAnalysis, "Precondition", precon_vec, 0);
+                    SetIntAnalysisInput(m_VSPSweepAnalysis, "Precondition", precon_vec, 0);
                 }
                 else if ( i == 2 )
                 {
                     array<int> precon_vec(1, PRECON_SSOR); // SSOR Preconditioner
-                    SetIntAnalysisInput(m_VSPSingleAnalysis, "Precondition", precon_vec, 0);
+                    SetIntAnalysisInput(m_VSPSweepAnalysis, "Precondition", precon_vec, 0);
                 }
                 else if ( i == 3 )
                 {
                     array<int> KTCorrect_vec(1, 0); // 2nd Orrder Mach Correction On
-                    SetIntAnalysisInput(m_VSPSingleAnalysis, "KTCorrection", KTCorrect_vec, 0);
+                    SetIntAnalysisInput(m_VSPSweepAnalysis, "KTCorrection", KTCorrect_vec, 0);
                 }
                 
                 Update();
 
                 // list inputs, type, and current values
-                PrintAnalysisInputs( m_VSPSingleAnalysis );
+                PrintAnalysisInputs( m_VSPSweepAnalysis );
                 Print( "" );
 
                 // Execute
                 Print( "\tExecuting..." );
-                string rid = ExecAnalysis( m_VSPSingleAnalysis );
+                string rid = ExecAnalysis( m_VSPSweepAnalysis );
                 Print( "COMPLETE" );
 
                 // Get & Display Results
@@ -4691,8 +4703,8 @@ class SweepVV : VV_Base
                 Print( fname );
                 ReadVSPFile( fname ); // Sets VSP3 file name
                 
-                //==== Analysis: VSPAeroSinglePoint ====//
-                Print( m_VSPSingleAnalysis );
+                //==== Analysis: m_VSPSweepAnalysis ====//
+                Print( m_VSPSweepAnalysis );
 
                 //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
                 Print( m_CompGeomAnalysis );
@@ -4715,32 +4727,34 @@ class SweepVV : VV_Base
 
                 //==== Analysis: VSPAero Single Point ====//
                 // Set defaults
-                SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-                Print(m_VSPSingleAnalysis);
+                SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+                Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput( m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0 );
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 array< string > wid = FindGeomsWithName( "WingGeom" );
-                SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+                SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
                 // Freestream Parameters
                 array<double> Alpha(1, 1.0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
+                array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+                array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
                 Update();
 
                 // list inputs, type, and current values
-                PrintAnalysisInputs( m_VSPSingleAnalysis );
+                PrintAnalysisInputs( m_VSPSweepAnalysis );
                 Print( "" );
 
                 // Execute
                 Print( "\tExecuting..." );
-                string rid = ExecAnalysis( m_VSPSingleAnalysis );
+                string rid = ExecAnalysis( m_VSPSweepAnalysis );
                 Print( "COMPLETE" );
 
                 // Get & Display Results
@@ -4771,7 +4785,7 @@ class SweepVV : VV_Base
                 }
                 
                 //==== Analysis: VSPAero Panel Single ====//
-                Print( m_VSPSingleAnalysis );
+                Print( m_VSPSweepAnalysis );
                 
                 //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
                 Print( m_CompGeomAnalysis );
@@ -4797,31 +4811,33 @@ class SweepVV : VV_Base
                 
                 //==== Analysis: VSPAero Panel Single ====//
                // Set defaults
-                SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-                Print(m_VSPSingleAnalysis);
+                SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+                Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-                SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+                SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
                 
                 // Freestream Parameters
                 array<double> alpha(1, 1);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", alpha, 0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", alpha, 0);
+                array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+                array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
 
                 Update();
 
                 // list inputs, type, and current values
-                PrintAnalysisInputs( m_VSPSingleAnalysis );
+                PrintAnalysisInputs( m_VSPSweepAnalysis );
                 Print( "" );
 
                 // Execute
                 Print( "\tExecuting..." );
-                rid = ExecAnalysis( m_VSPSingleAnalysis );
+                rid = ExecAnalysis( m_VSPSweepAnalysis );
                 Print( "COMPLETE" );
 
                 // Get & Display Results
@@ -4985,8 +5001,8 @@ class SweepVV : VV_Base
                 Print( fname );
                 ReadVSPFile( fname ); // Sets VSP3 file name
                 
-                //==== Analysis: VSPAeroSinglePoint ====//
-                Print( m_VSPSingleAnalysis );
+                //==== Analysis: m_VSPSweepAnalysis ====//
+                Print( m_VSPSweepAnalysis );
 
                 //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
                 Print( m_CompGeomAnalysis );
@@ -5007,31 +5023,33 @@ class SweepVV : VV_Base
 
                 //==== Analysis: VSPAero Single Point ====//
                 // Set defaults
-                SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-                Print(m_VSPSingleAnalysis);
+                SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+                Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput( m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0 );
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 array< string > wid = FindGeomsWithName( "WingGeom" );
-                SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+                SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
                 // Freestream Parameters
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", m_AlphaVec, 0);
+                array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+                array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
                 Update();
 
                 // list inputs, type, and current values
-                PrintAnalysisInputs( m_VSPSingleAnalysis );
+                PrintAnalysisInputs( m_VSPSweepAnalysis );
                 Print( "" );
 
                 // Execute
                 Print( "\tExecuting..." );
-                string rid = ExecAnalysis( m_VSPSingleAnalysis );
+                string rid = ExecAnalysis( m_VSPSweepAnalysis );
                 Print( "COMPLETE" );
 
                 // Get & Display Results
@@ -5938,8 +5956,8 @@ class VKTVV : VV_Base
                     Print( fname );
                     ReadVSPFile( fname ); // Sets VSP3 file name
 
-                    //==== Analysis: VSPAEROSinglePoint ====//
-                    Print( m_VSPSingleAnalysis );
+                    //==== Analysis: m_VSPSweepAnalysis ====//
+                    Print( m_VSPSweepAnalysis );
 
                     //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
                     Print( m_CompGeomAnalysis );
@@ -5963,32 +5981,34 @@ class VKTVV : VV_Base
 
                     //==== Analysis: VSPAero Single Point ====//
                     // Set defaults
-                    SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-                    Print(m_VSPSingleAnalysis);
+                    SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+                    Print(m_VSPSweepAnalysis);
 
-                    SetIntAnalysisInput( m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0 );
-                    SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-                    //SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0); // TODO: Add symmetry if VSPAERO doesn't crash
+                    SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
+                    SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+                    //SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0); // TODO: Add symmetry if VSPAERO doesn't crash
 
                     array< string > wid = FindGeomsWithName( "WingGeom" );
-                    SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+                    SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
-                    SetIntAnalysisInput( m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis );
+                    SetIntAnalysisInput( m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis );
 
                     // Freestream Parameters
-                    SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
-                    SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
-                    SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                    SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
+                    array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                    SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+                    array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+                    SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
                     Update();
 
                     // list inputs, type, and current values
-                    PrintAnalysisInputs(m_VSPSingleAnalysis);
+                    PrintAnalysisInputs(m_VSPSweepAnalysis);
                     Print( "" );
 
                     // Execute
                     Print( "\tExecuting..." );
-                    string rid = ExecAnalysis( m_VSPSingleAnalysis );
+                    string rid = ExecAnalysis( m_VSPSweepAnalysis );
                     Print( "COMPLETE" );
 
                     // Get & Display Results
@@ -6139,8 +6159,8 @@ class VKTVV : VV_Base
                 Print( fname );
                 ReadVSPFile( fname ); // Sets VSP3 file name
                 
-                //==== Analysis: VSPAEROSinglePoint ====//
-                Print( m_VSPSingleAnalysis );
+                //==== Analysis: m_VSPSweepAnalysis ====//
+                Print( m_VSPSweepAnalysis );
 
                 //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
                 Print( m_CompGeomAnalysis );
@@ -6164,27 +6184,29 @@ class VKTVV : VV_Base
 
                 //==== Analysis: VSPAero Single Point ====//
                 // Set defaults
-                SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-                Print(m_VSPSingleAnalysis);
+                SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+                Print(m_VSPSweepAnalysis);
 
-                SetIntAnalysisInput( m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0 );
+                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
 
-                SetIntAnalysisInput( m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis );
+                SetIntAnalysisInput( m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis );
 
                 // Freestream Parameters
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
+                array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
+                array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
                 Update();
 
                 // list inputs, type, and current values
-                PrintAnalysisInputs( m_VSPSingleAnalysis );
+                PrintAnalysisInputs( m_VSPSweepAnalysis );
                 Print( "" );
 
                 // Execute
                 Print( "\tExecuting..." );
-                string rid = ExecAnalysis( m_VSPSingleAnalysis );
+                string rid = ExecAnalysis( m_VSPSweepAnalysis );
                 Print( "COMPLETE" );
 
                 // Get & Display Results
@@ -6497,8 +6519,8 @@ class EllipsoidVV : VV_Base
                 Print( fname );
                 ReadVSPFile( fname ); // Sets VSP3 file name
 
-                //==== Analysis: VSPAEROSinglePoint ====//
-                Print( m_VSPSingleAnalysis );
+                //==== Analysis: m_VSPSweepAnalysis ====//
+                Print( m_VSPSweepAnalysis );
 
                 //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
                 Print( m_CompGeomAnalysis );
@@ -6522,33 +6544,35 @@ class EllipsoidVV : VV_Base
 
                 //==== Analysis: VSPAero Single Point ====//
                 // Set defaults
-                SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-                Print(m_VSPSingleAnalysis);
+                SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+                Print(m_VSPSweepAnalysis);
 
                 // Note: Symmetry will cause VSPAERO to crash
 
                 // Freestream Parameters
                 array<double> Alpha(1, m_alpha_vec[a]);
                 array<double> Beta(1, m_beta_vec[b]);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Beta", Beta, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
+                array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "BetaStart", Beta, 0);
                 
                 array<double> Mach(1, 0.0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", Mach, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", Mach, 0);
+                array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
                 
-                SetIntAnalysisInput( m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0 ); // Reference geometry set
-                SetIntAnalysisInput( m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis );
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 ); // Reference geometry set
+                SetIntAnalysisInput( m_VSPSweepAnalysis, "AnalysisMethod", panel_analysis );
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
                 Update();
 
                 // list inputs, type, and current values
-                PrintAnalysisInputs( m_VSPSingleAnalysis );
+                PrintAnalysisInputs( m_VSPSweepAnalysis );
                 Print( "" );
 
                 // Execute
                 Print( "\tExecuting..." );
-                string rid = ExecAnalysis( m_VSPSingleAnalysis );
+                string rid = ExecAnalysis( m_VSPSweepAnalysis );
                 Print( "COMPLETE" );
 
                 // Get & Display Results
@@ -6874,7 +6898,7 @@ class SDVV : VV_Base
                 ReadVSPFile( fname ); // Sets VSP3 file name
                 
                 //==== Analysis: VSPAero SinglePoint ====//
-                Print( m_VSPSingleAnalysis );
+                Print( m_VSPSweepAnalysis );
 
                 //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
                 Print( m_CompGeomAnalysis );
@@ -6897,33 +6921,35 @@ class SDVV : VV_Base
 
                 //==== Analysis: VSPAero Single Point ====//
                 // Set defaults
-                SetAnalysisInputDefaults(m_VSPSingleAnalysis);
-                Print(m_VSPSingleAnalysis);
+                SetAnalysisInputDefaults(m_VSPSweepAnalysis);
+                Print(m_VSPSweepAnalysis);
 
                 // Reference geometry set
-                SetIntAnalysisInput( m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0 );
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
+                SetIntAnalysisInput( m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0 );
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "RefFlag", m_RefFlagVec, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 array< string > wid = FindGeomsWithName( "WingGeom" );
-                SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
+                SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
 
                 // Freestream Parameters
                 array<double> Alpha( 1, 5.0 );
                 array<double> Mach( 1, m_SuperMachVec[m] );
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
-                SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", Mach, 0);
-                SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
+                array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", Mach, 0);
+                array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
                 Update();
 
                 // list inputs, type, and current values
-                PrintAnalysisInputs( m_VSPSingleAnalysis );
+                PrintAnalysisInputs( m_VSPSweepAnalysis );
                 Print( "" );
 
                 // Execute
                 Print( "\tExecuting..." );
-                string rid = ExecAnalysis( m_VSPSingleAnalysis );
+                string rid = ExecAnalysis( m_VSPSweepAnalysis );
                 Print( "COMPLETE" );
 
                 // Get & Display Results

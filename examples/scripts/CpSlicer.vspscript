@@ -8,7 +8,7 @@ void main()
     ComputeGeometry();
     
     //==== Create *.adb File ====//
-    VSPAEROSinglePoint();
+    VSPAEROSweep();
 
     //==== Execute Cp Slicer ====//
     CpSlice();
@@ -77,13 +77,13 @@ void ComputeGeometry()
     Print( string( "" ) );
 }
 
-void VSPAEROSinglePoint()
+void VSPAEROSweep()
 {
-    Print( string( "--> Computing VSPAERO Geometry" ) );
+    Print( string( "--> Computing VSPAERO" ) );
     Print( string( "" ) );
 
     //==== Analysis: VSPAERO Single Point ====//
-    string analysis_name = "VSPAEROSinglePoint";
+    string analysis_name = "VSPAEROSweep";
     Print( analysis_name );
 
     // Set defaults
@@ -93,6 +93,9 @@ void VSPAEROSinglePoint()
     array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
     analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
     SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
+
+    array< int > alphaNpts; alphaNpts.push_back( 1 );
+    SetIntAnalysisInput( analysis_name, "AlphaNpts", alphaNpts, 0 );
 
     // list inputs, type, and current values
     PrintAnalysisInputs( analysis_name );

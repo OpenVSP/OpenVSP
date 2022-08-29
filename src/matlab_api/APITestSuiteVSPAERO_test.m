@@ -284,7 +284,7 @@ function TestVSPAeroControlSurfaceDeflection_test(~)
     fprintf('COMPLETE\n');
 
     % //==== Analysis: VSPAero Compute Geometry ====% //
-    analysis_name = 'VSPAEROSinglePoint';
+    analysis_name = 'VSPAEROSweep';
     fprintf( '\tAnalysis: %s\n', analysis_name);
 
     % // Set defaults
@@ -423,7 +423,7 @@ function  TestVSPAeroSinglePointPanel_test(~)
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
     % //==== Analysis: VSPAERO Single Point ====% //
-    analysis_name = 'VSPAEROSinglePoint';
+    analysis_name = 'VSPAEROSweep';
     fprintf( '\t%s\n', analysis_name);
     % // Set defaults
     vsp.SetAnalysisInputDefaults( analysis_name );
@@ -446,11 +446,17 @@ function  TestVSPAeroSinglePointPanel_test(~)
     vsp.SetIntAnalysisInput( analysis_name, 'RefFlag', ref_flag );
     % //    freestream parameters
     alpha = vsp.DoubleVector(); alpha.push_back(5);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Alpha', vsp.DoubleVector(alpha) );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'AlphaStart', vsp.DoubleVector(alpha) );
+    alpha_npts = vsp.IntVector(); alpha_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'AlphaNpts', alpha_npts, 0 );
     beta = vsp.DoubleVector(); beta.push_back(2.5);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Beta', beta );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'BetaStart', beta );
+    beta_npts = vsp.IntVector(); beta_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'BetaNpts', beta_npts );
     mach = vsp.DoubleVector(); mach.push_back(0.1);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Mach', mach );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'MachStart', mach );
+    mach_npts = vsp.IntVector(); mach_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'MachNpts', mach_npts );
 
     % // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
     wakeNumIter = vsp.IntVector(); wakeNumIter.push_back(3);
@@ -489,7 +495,7 @@ function TestVSPAeroSinglePoint_test(~)
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
     % //==== Analysis: VSPAERO Single Point ====% //
-    analysis_name = 'VSPAEROSinglePoint';
+    analysis_name = 'VSPAEROSweep';
     fprintf( '\t%s\n', analysis_name);
     % // Set defaults
     vsp.SetAnalysisInputDefaults( analysis_name );
@@ -512,11 +518,17 @@ function TestVSPAeroSinglePoint_test(~)
     vsp.SetIntAnalysisInput( analysis_name, 'RefFlag', ref_flag );
     % //    freestream parameters
     alpha = vsp.DoubleVector(); alpha.push_back(5);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Alpha', alpha );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'AlphaStart', alpha );
+    alpha_npts = vsp.IntVector(); alpha_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'AlphaNpts', alpha_npts, 0 );
     beta = vsp.DoubleVector(); beta.push_back(2.5);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Beta', beta );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'BetaStart', beta );
+    beta_npts = vsp.IntVector(); beta_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'BetaNpts', beta_npts );
     mach = vsp.DoubleVector(); mach.push_back(0.1);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Mach', mach );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'MachStart', mach );
+    mach_npts = vsp.IntVector(); mach_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'MachNpts', mach_npts );
 
     % // list inputs, type, and current values
     vsp.PrintAnalysisInputs( analysis_name );
@@ -548,7 +560,7 @@ function TestVSPAeroSinglePointStab_test(~)
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
 
     % //==== Analysis: VSPAERO Single Point  stabilityFlag = TRUE ====% //
-    analysis_name = 'VSPAEROSinglePoint';
+    analysis_name = 'VSPAEROSweep';
     fprintf( '\t%s\n', analysis_name);
     % // Set defaults
     vsp.SetAnalysisInputDefaults( analysis_name );
@@ -571,11 +583,17 @@ function TestVSPAeroSinglePointStab_test(~)
     vsp.SetIntAnalysisInput( analysis_name, 'RefFlag', ref_flag );
     % //    freestream parameters
     alpha = vsp.DoubleVector(); alpha.push_back(4);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Alpha', alpha );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'AlphaStart', alpha );
+    alpha_npts = vsp.IntVector(); alpha_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'AlphaNpts', alpha_npts, 0 );
     beta = vsp.DoubleVector(); beta.push_back(-3.0);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Beta', beta );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'BetaStart', beta );
+    beta_npts = vsp.IntVector(); beta_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'BetaNpts', beta_npts );
     mach = vsp.DoubleVector(); mach.push_back(0.4);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Mach', mach );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'MachStart', mach );
+    mach_npts = vsp.IntVector(); mach_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'MachNpts', mach_npts );
     % //     Case Setup
     wakeNumIter = vsp.IntVector(); wakeNumIter.push_back(3);
     vsp.SetIntAnalysisInput( analysis_name, 'WakeNumIter', wakeNumIter );
@@ -618,7 +636,7 @@ function TestVSPAeroSinglePointUnsteady_test(~)
     fprintf('COMPLETE\n');
 
     % //==== Analysis: VSPAERO Single Point  stabilityFlag = TRUE ====% //
-    analysis_name = 'VSPAEROSinglePoint';
+    analysis_name = 'VSPAEROSweep';
     fprintf( '\tAnalysis Type: %s\n', analysis_name);
     % // Set defaults
     vsp.SetAnalysisInputDefaults( analysis_name );
@@ -642,11 +660,17 @@ function TestVSPAeroSinglePointUnsteady_test(~)
     vsp.SetIntAnalysisInput( analysis_name, 'RefFlag', ref_flag );
     % //    freestream parameters
     alpha = vsp.DoubleVector(); alpha.push_back(4);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Alpha', alpha );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'AlphaStart', alpha );
+    alpha_npts = vsp.IntVector(); alpha_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'AlphaNpts', alpha_npts, 0 );
     beta = vsp.DoubleVector(); beta.push_back(-3.0);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Beta', beta );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'BetaStart', beta );
+    beta_npts = vsp.IntVector(); beta_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'BetaNpts', beta_npts );
     mach = vsp.DoubleVector(); mach.push_back(0.4);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Mach', mach );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'MachStart', mach );
+    mach_npts = vsp.IntVector(); mach_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'MachNpts', mach_npts );
     % //     Case Setup
     wakeNumIter = vsp.IntVector(); wakeNumIter.push_back(3);
     vsp.SetIntAnalysisInput( analysis_name, 'WakeNumIter', wakeNumIter );
@@ -732,8 +756,6 @@ function TestVSPAeroSweep_test(~)
     % //     Case Setup
     wakeNumIter = vsp.IntVector(); wakeNumIter.push_back(3);
     vsp.SetIntAnalysisInput( analysis_name, 'WakeNumIter', wakeNumIter );
-    batch_mode_flag = vsp.IntVector(); batch_mode_flag.push_back(0);
-    vsp.SetIntAnalysisInput( analysis_name, 'BatchModeFlag', batch_mode_flag );
 
     vsp.Update();
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
@@ -816,8 +838,6 @@ function  TestVSPAeroSweepBatch_test(~)
     % //     Case Setup
     wakeNumIter = vsp.IntVector(); wakeNumIter.push_back(3);
     vsp.SetIntAnalysisInput( analysis_name, 'WakeNumIter', wakeNumIter );
-    batch_mode_flag = vsp.IntVector(); batch_mode_flag.push_back(0);
-    vsp.SetIntAnalysisInput( analysis_name, 'BatchModeFlag', batch_mode_flag );
 
     vsp.Update();
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
@@ -848,7 +868,7 @@ function TestVSPAeroSharpTrailingEdge_test(~)
     fprintf( 'APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()\n' );
 
     % //==== Analysis: VSPAero Single Point ====% //
-    analysis_name = 'VSPAEROSinglePoint';
+    analysis_name = 'VSPAEROSweep';
     fprintf( '\t%s\n', analysis_name);
 
     % //==== Create Symmetric Airfoil Wing Geometry ====% //
@@ -936,9 +956,13 @@ function TestVSPAeroSharpTrailingEdge_test(~)
 
     % // Freestream Parameters
     alpha = vsp.DoubleVector(); alpha.push_back(0.0);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Alpha', alpha, 0 );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'AlphaStart', alpha, 0 );
+    alpha_npts = vsp.IntVector(); alpha_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'AlphaNpts', alpha_npts, 0 );
     mach = vsp.DoubleVector(); mach.push_back(0.1);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Mach', mach, 0 );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'MachStart', mach, 0 );
+    mach_npts = vsp.IntVector(); mach_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'MachNpts', mach_npts );
 
     % // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
     wakeNumIter = vsp.IntVector(); wakeNumIter.push_back(3);
@@ -989,7 +1013,7 @@ function TestVSPAeroBluntTrailingEdge_test(~)
     fprintf( 'APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()\n' );
 
     % //==== Analysis: VSPAero Single Point ====% //
-    analysis_name = 'VSPAEROSinglePoint';
+    analysis_name = 'VSPAEROSweep';
     fprintf( '\t%s\n', analysis_name);
 
     % //==== Create Symmetric Airfoil Wing Geometry ====% //
@@ -1090,9 +1114,13 @@ function TestVSPAeroBluntTrailingEdge_test(~)
 
     % // Freestream Parameters
     alpha = vsp.DoubleVector(); alpha.push_back(0.0);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Alpha', alpha, 0 );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'AlphaStart', alpha, 0 );
+    alpha_npts = vsp.IntVector(); alpha_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'AlphaNpts', alpha_npts, 0 );
     mach = vsp.DoubleVector(); mach.push_back(0.1);
-    vsp.SetDoubleAnalysisInput( analysis_name, 'Mach', mach, 0 );
+    vsp.SetDoubleAnalysisInput( analysis_name, 'MachStart', mach, 0 );
+    mach_npts = vsp.IntVector(); mach_npts.push_back(1);
+    vsp.SetIntAnalysisInput( analysis_name, 'MachNpts', mach_npts );
 
     % // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
     wakeNumIter = vsp.IntVector(); wakeNumIter.push_back(3);
@@ -1249,10 +1277,6 @@ function TestVSPAeroSupersonicDeltaWing_test(~)
     % // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
     wakeNumIter = vsp.IntVector(); wakeNumIter.push_back(3);
     vsp.SetIntAnalysisInput( analysis_name, 'WakeNumIter', wakeNumIter );
-
-    % // Set Batch Mode
-    batch_mode_flag = vsp.IntVector(); batch_mode_flag.push_back(1);
-    vsp.SetIntAnalysisInput( analysis_name, 'BatchModeFlag', batch_mode_flag, 0 );
 
     vsp.Update();
     assert(strcmp(vsp.ErrorMgrSingleton.getInstance.GetLastError().GetErrorString(),'No Error'),vsp.ErrorMgrSingleton.getInstance.PopLastError().GetErrorString());
