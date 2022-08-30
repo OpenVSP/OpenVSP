@@ -504,15 +504,18 @@ void StructSettings::SetExportFileName( const string &fn, int type )
     }
 }
 
-void StructSettings::ResetExportFileNames( const string& basename )
+void StructSettings::ResetExportFileNames( const string& structname )
 {
-    string base = basename;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    string base = veh->GetVSP3FileName();
 
     int pos = base.find( ".vsp3" );
     if ( pos >= 0 )
     {
         base.erase( pos, base.length() - 1 );
     }
+    base.append( "_" + structname );
 
     const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.inp", ".stl", ".msh", ".srf", ".curv", ".p3d", ".igs", ".stp" };
 
