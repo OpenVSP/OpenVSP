@@ -97,6 +97,8 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
     m_ExportFileFlags[vsp::INTERSECT_IGES_FILE_NAME].Init( "IGES_Export", "ExportIntersect", this, true, 0, 1 );
     m_ExportFileFlags[vsp::INTERSECT_STEP_FILE_NAME].Init( "STEP_Export", "ExportIntersect", this, true, 0, 1 );
 
+    m_ExportFileNames.resize( vsp::INTERSECT_NUM_FILE_NAMES );
+
     InitCommonParms();
 
     SetFarCompFlag( false );
@@ -147,28 +149,21 @@ void IntersectSettings::SetExportFileName( const string &fn, int type )
     }
 }
 
-void IntersectSettings::ResetExportFileNames()
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        ResetExportFileNames( veh->GetVSP3FileName() );
-    }
-}
-
 void IntersectSettings::ResetExportFileNames( const string& basename )
 {
-    int pos;
+    string base = basename;
+
+    int pos = base.find( ".vsp3" );
+    if ( pos >= 0 )
+    {
+        base.erase( pos, base.length() - 1 );
+    }
+
     const char *suffix[] = {".srf", ".curv", ".p3d", ".igs", ".stp" };
 
     for ( int i = 0 ; i < vsp::INTERSECT_NUM_FILE_NAMES; i++ )
     {
-        m_ExportFileNames[i] = basename;
-        pos = m_ExportFileNames[i].find( ".vsp3" );
-        if ( pos >= 0 )
-        {
-            m_ExportFileNames[i].erase( pos, m_ExportFileNames[i].length() - 1 );
-        }
+        m_ExportFileNames[i] = base;
         m_ExportFileNames[i].append( suffix[i] );
     }
 }
@@ -198,13 +193,7 @@ void IntersectSettings::SetFileExportFlag( int type, bool flag )
 
 vector < string > IntersectSettings::GetExportFileNames()
 {
-    vector < string > ret_vec;
-
-    for ( size_t i = 0; i < vsp::INTERSECT_NUM_FILE_NAMES; i++ )
-    {
-        ret_vec.push_back( m_ExportFileNames[i] );
-    }
-    return ret_vec;
+    return m_ExportFileNames;
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -274,6 +263,7 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_DrawBorderFlag = false;
     m_DrawIsectFlag = false;
 
+    m_ExportFileNames.resize( vsp::CFD_NUM_FILE_NAMES );
 }
 
 CfdMeshSettings::~CfdMeshSettings()
@@ -353,41 +343,28 @@ void CfdMeshSettings::SetExportFileName( const string &fn, int type )
     }
 }
 
-void CfdMeshSettings::ResetExportFileNames()
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        ResetExportFileNames( veh->GetVSP3FileName() );
-    }
-}
-
 void CfdMeshSettings::ResetExportFileNames( const string& basename )
 {
-    int pos;
+    string base = basename;
+
+    int pos = base.find( ".vsp3" );
+    if ( pos >= 0 )
+    {
+        base.erase( pos, base.length() - 1 );
+    }
+
     const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey", ".facet", ".curv", ".p3d", ".vspgeom" };
 
     for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
     {
-        m_ExportFileNames[i] = basename;
-        pos = m_ExportFileNames[i].find( ".vsp3" );
-        if ( pos >= 0 )
-        {
-            m_ExportFileNames[i].erase( pos, m_ExportFileNames[i].length() - 1 );
-        }
+        m_ExportFileNames[i] = base;
         m_ExportFileNames[i].append( suffix[i] );
     }
 }
 
 vector < string > CfdMeshSettings::GetExportFileNames()
 {
-    vector < string > ret_vec;
-
-    for ( size_t i = 0; i < vsp::CFD_NUM_FILE_NAMES; i++ )
-    {
-        ret_vec.push_back( m_ExportFileNames[i] );
-    }
-    return ret_vec;
+    return m_ExportFileNames;
 }
 
 BoolParm* CfdMeshSettings::GetExportFileFlag( int type )
@@ -408,7 +385,9 @@ void CfdMeshSettings::SetAllFileExportFlags( bool flag )
 void CfdMeshSettings::SetFileExportFlag( int type, bool flag )
 {
     if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
+    {
         m_ExportFileFlags[type] = flag;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -480,7 +459,7 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_ElementOffset.Init( "ElementOffset", "StructSettings", this, 0, 0, 1e12 );
     m_ElementOffset.SetDescript( "Offset to add to FEA element ID's for this structure" );
 
-    ResetExportFileNames();
+    m_ExportFileNames.resize( vsp::FEA_NUM_FILE_NAMES );
 }
 
 StructSettings::~StructSettings()
@@ -525,28 +504,21 @@ void StructSettings::SetExportFileName( const string &fn, int type )
     }
 }
 
-void StructSettings::ResetExportFileNames()
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        ResetExportFileNames( veh->GetVSP3FileName() );
-    }
-}
-
 void StructSettings::ResetExportFileNames( const string& basename )
 {
-    int pos;
+    string base = basename;
+
+    int pos = base.find( ".vsp3" );
+    if ( pos >= 0 )
+    {
+        base.erase( pos, base.length() - 1 );
+    }
+
     const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.inp", ".stl", ".msh", ".srf", ".curv", ".p3d", ".igs", ".stp" };
 
     for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
     {
-        m_ExportFileNames[i] = basename;
-        pos = m_ExportFileNames[i].find( ".vsp3" );
-        if ( pos >= 0 )
-        {
-            m_ExportFileNames[i].erase( pos, m_ExportFileNames[i].length() - 1 );
-        }
+        m_ExportFileNames[i] = base;
         m_ExportFileNames[i].append( suffix[i] );
     }
 }
@@ -569,16 +541,12 @@ void StructSettings::SetAllFileExportFlags( bool flag )
 void StructSettings::SetFileExportFlag( int type, bool flag )
 {
     if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )
+    {
         m_ExportFileFlags[type] = flag;
+    }
 }
 
 vector < string > StructSettings::GetExportFileNames()
 {
-    vector < string > ret_vec;
-
-    for ( size_t i = 0; i < vsp::FEA_NUM_FILE_NAMES; i++ )
-    {
-        ret_vec.push_back( m_ExportFileNames[i] );
-    }
-    return ret_vec;
+    return m_ExportFileNames;
 }

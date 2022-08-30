@@ -123,7 +123,6 @@ public:
 
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
-    void ResetExportFileNames();
     void ResetExportFileNames( const string& basename );
 
     BoolParm* GetExportFileFlag( int type );
@@ -142,7 +141,7 @@ protected:
     // the file name is set (save/save as/open).  There is no way to have good
     // default behavior based on the main file name -- and to use the user-set
     // file names.
-    string m_ExportFileNames[ vsp::INTERSECT_NUM_FILE_NAMES ];
+    vector < string > m_ExportFileNames;
 
 };
 
@@ -185,7 +184,6 @@ public:
 
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
-    void ResetExportFileNames();
     void ResetExportFileNames( const string& basename );
     vector < string > GetExportFileNames();
 
@@ -227,7 +225,7 @@ protected:
     // the file name is set (save/save as/open).  There is no way to have good
     // default behavior based on the main file name -- and to use the user-set
     // file names.
-    string m_ExportFileNames[vsp::CFD_NUM_FILE_NAMES];
+    vector < string > m_ExportFileNames;
 
 };
 
@@ -243,7 +241,6 @@ public:
 
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
-    void ResetExportFileNames();
     void ResetExportFileNames( const string& basename );
 
     BoolParm* GetExportFileFlag( int type );
@@ -268,7 +265,7 @@ protected:
     // the file name is set (save/save as/open).  There is no way to have good
     // default behavior based on the main file name -- and to use the user-set
     // file names.
-    string m_ExportFileNames[vsp::FEA_NUM_FILE_NAMES];
+    vector < string > m_ExportFileNames;
 
 };
 
