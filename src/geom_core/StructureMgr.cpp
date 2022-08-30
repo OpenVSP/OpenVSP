@@ -166,6 +166,16 @@ vector < FeaStructure* > StructureMgrSingleton::GetAllFeaStructs()
     return feastructvec;
 }
 
+void StructureMgrSingleton::ResetAllExportFileNames()
+{
+    vector < FeaStructure* > structs = GetAllFeaStructs();
+
+    for ( unsigned int i = 0; i < structs.size(); i++ )
+    {
+        structs[i]->ResetExportFileNames();
+    }
+}
+
 //==== Get FeaStructure from Total Structure Index ====//
 FeaStructure* StructureMgrSingleton::GetFeaStruct( int total_struct_ind )
 {

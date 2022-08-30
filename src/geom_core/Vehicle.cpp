@@ -501,6 +501,7 @@ void Vehicle::SetVSP3FileName( const string & f_name )
 
     m_CfdSettings.ResetExportFileNames( m_VSP3FileName );
     m_ISectSettings.ResetExportFileNames( m_VSP3FileName );
+    StructureMgr.ResetAllExportFileNames();
     resetExportFileNames();
 }
 

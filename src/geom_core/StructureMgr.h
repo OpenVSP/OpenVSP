@@ -38,6 +38,7 @@ public:
 
     //==== FeaStructure Management ====//
     static vector < FeaStructure* > GetAllFeaStructs();
+    void ResetAllExportFileNames();
     FeaStructure* GetFeaStruct( int total_struct_ind );
     FeaStructure* GetFeaStruct( const string & struct_id );
     string GetFeaStructParentID( const string & struct_id );
