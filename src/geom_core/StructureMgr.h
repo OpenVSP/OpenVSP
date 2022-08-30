@@ -51,7 +51,6 @@ public:
     string GetFeaPartName( const string & id );
     int GetFeaPropertyIndex( const string & FeaPartID );
     int GetFeaMaterialIndex( const string & FeaPartID );
-    void ResetExportFileNames( const string & VSP3FileName );
     void ShowAllParts();
 
     void UpdateStructUnit( int new_unit );

@@ -330,16 +330,6 @@ string StructureMgrSingleton::GetFeaPartName( const string & id )
     return name;
 }
 
-void StructureMgrSingleton::ResetExportFileNames( const string & VSP3FileName )
-{
-    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
-
-    for ( size_t i = 0; i < struct_vec.size(); i++ )
-    {
-        struct_vec[i]->GetStructSettingsPtr()->ResetExportFileNames( VSP3FileName );
-    }
-}
-
 void StructureMgrSingleton::ShowAllParts()
 {
     FeaStructure* fea_struct = GetFeaStruct( m_CurrStructIndex );
