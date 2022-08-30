@@ -2442,7 +2442,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 if ( feastruct->GetStructSettingsPtr() )
                 {
-                    feastruct->GetStructSettingsPtr()->ResetExportFileNames( m_FeaStructNameInput.GetString() );
+                    feastruct->ResetExportFileNames();
                 }
             }
         }

@@ -823,6 +823,11 @@ int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
     return -1; // indicates an error
 }
 
+void FeaStructure::ResetExportFileNames()
+{
+    m_StructSettings.ResetExportFileNames( GetName() );
+}
+
 void FeaStructure::BuildSuppressList()
 {
     m_Usuppress.clear();

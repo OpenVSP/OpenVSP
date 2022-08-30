@@ -122,6 +122,8 @@ public:
         return m_MainSurfIndx;
     }
 
+    void ResetExportFileNames();
+
     StructSettings* GetStructSettingsPtr()
     {
         return &m_StructSettings;
