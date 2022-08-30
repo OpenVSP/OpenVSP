@@ -27,6 +27,7 @@ class ScreenMgr : MessageBase
 {
 public:
     enum { VSP_ADV_LINK_SCREEN,
+           VSP_AERO_STRUCT_SCREEN,
            VSP_AIRFOIL_CURVES_EXPORT_SCREEN,
            VSP_AIRFOIL_POINTS_EXPORT_SCREEN,
            VSP_BACKGROUND_SCREEN,
