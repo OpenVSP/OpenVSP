@@ -4531,18 +4531,18 @@ void Vehicle::resetExportFileNames()
     const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_Slice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv", "_WaveDrag.txt", ".tri", "_ParasiteBuildUp.csv", "_VSPGeom.vspgeom" };
     const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE, WAVE_DRAG_TXT_TYPE, VSPAERO_PANEL_TRI_TYPE, DRAG_BUILD_CSV_TYPE, VSPAERO_VSPGEOM_TYPE };
     const int ntype = ( sizeof(types) / sizeof(types[0]) );
-    int pos;
+
+    string fname = m_VSP3FileName;
+    int pos = fname.find( ".vsp3" );
+    if ( pos >= 0 )
+    {
+        fname.erase( pos, fname.length() - 1 );
+    }
 
     for( int i = 0; i < ntype; i++ )
     {
-        string fname = m_VSP3FileName;
-        pos = fname.find( ".vsp3" );
-        if ( pos >= 0 )
-        {
-            fname.erase( pos, fname.length() - 1 );
-        }
-        fname.append( suffix[i] );
         m_ExportFileNames[types[i]] = fname;
+        m_ExportFileNames[types[i]].append( suffix[i] );
     }
 }
 
