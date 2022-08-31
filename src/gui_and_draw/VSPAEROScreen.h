@@ -97,6 +97,8 @@ public:
 
     void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
 
+    void LaunchVSPAERO();
+
 protected:
 
     int m_NumVarAngle;
