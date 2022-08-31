@@ -39,6 +39,11 @@ public:
 
 protected:
 
+    GroupLayout m_GlobalLayout;
+
+    TriggerButton m_ShowVSPAEROGUI;
+    TriggerButton m_ExecuteVSPAERO;
+
 
 };
 
