@@ -29,6 +29,7 @@ MESSAGE( STATUS "PINOCCHIO_INCLUDE_DIR " ${PINOCCHIO_INCLUDE_DIR})
 ADD_LIBRARY(geom_core
 AdvLink.cpp
 AdvLinkMgr.cpp
+AeroStructMgr.cpp
 Airfoil.cpp
 AnalysisMgr.cpp
 Atmosphere.cpp
@@ -94,6 +95,7 @@ ColorMgr.cpp
 VSPAEROMgr.cpp
 AdvLink.h
 AdvLinkMgr.h
+AeroStructMgr.h
 Airfoil.h
 AnalysisMgr.h
 Atmosphere.h
