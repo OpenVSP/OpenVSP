@@ -44,6 +44,10 @@ protected:
     TriggerButton m_ShowVSPAEROGUI;
     TriggerButton m_ExecuteVSPAERO;
 
+    Choice m_StructureChoice;
+    TriggerButton m_ShowFEAMeshGUI;
+    TriggerButton m_ExecuteFEAMesh;
+
 
 };
 
