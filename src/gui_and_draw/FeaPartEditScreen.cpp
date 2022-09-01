@@ -1048,15 +1048,15 @@ bool FeaPartEditScreen::Update()
         m_CapPropertyChoice.Activate();
         m_ShellCapToggleGroup.Activate();
 
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
 
 
             // Update Current FeaPart
-            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+                FeaPart* feaprt = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
                 if ( feaprt )
                 {
                     m_FeaPartNameInput.Update( feaprt->GetName() );
@@ -1485,10 +1485,10 @@ bool FeaPartEditScreen::Update()
                     return false;
                 }
             }
-            else if ( StructureMgr.GetCurrPartIndex() >= structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            else if ( StructureMgr.GetCurrPartIndex() >= structVec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
                 //===== SubSurface =====//
-                SubSurface* subsurf = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+                SubSurface* subsurf = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structVec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() );
                 if ( subsurf )
                 {
                     m_FeaPartNameInput.Update( subsurf->GetName() );
@@ -1771,10 +1771,10 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         m_SelectedTrimPartChoice = m_TrimPartChoice.GetVal();
     }
 
-    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
     {
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-        FeaStructure *structure = structvec[ StructureMgr.GetCurrStructIndex() ];
+        FeaStructure *structure = structvec[ StructureMgr.m_CurrStructIndex() ];
 
         FeaPart* feaprt = NULL;
         SubSurface* subsurf = NULL;
@@ -1941,9 +1941,9 @@ void FeaPartEditScreen::CallBack( Fl_Widget* w )
         m_ActiveTrimPartIndex = m_TrimPartBrowser->value() - 2;
 
         vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
-        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
         {
-            FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+            FeaPart* feaprt = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
             if ( feaprt && feaprt->GetType() == vsp::FEA_TRIM )
             {
@@ -1996,13 +1996,13 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
         m_ShellPropertyChoice.UpdateItems();
         m_CapPropertyChoice.UpdateItems();
 
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            if ( StructureMgr.GetCurrPartIndex() < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            if ( StructureMgr.GetCurrPartIndex() < structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                FeaPart* feaprt = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+                FeaPart* feaprt = structvec[StructureMgr.m_CurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
                 if ( feaprt )
                 {
@@ -2013,9 +2013,9 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
 
                 }
             }
-            else if ( StructureMgr.GetCurrPartIndex() >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            else if ( StructureMgr.GetCurrPartIndex() >= structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                SubSurface* subsurf = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+                SubSurface* subsurf = structvec[StructureMgr.m_CurrStructIndex()]->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() );
 
                 if ( subsurf )
                 {
@@ -2035,14 +2035,14 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
     m_FixPointParentSurfChoice.ClearItems();
     m_FixPointParentIDVec.clear();
 
-    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
     {
         vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
-        vector<FeaPart*> feaprt_vec = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPartVec();
+        vector<FeaPart*> feaprt_vec = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPartVec();
 
         for ( size_t i = 0; i < feaprt_vec.size(); i++ )
         {
-            if ( !structVec[StructureMgr.GetCurrStructIndex()]->FeaPartIsFixPoint( i ) )
+            if ( !structVec[StructureMgr.m_CurrStructIndex()]->FeaPartIsFixPoint( i ) )
             {
                 m_FixPointParentSurfChoice.AddItem( string( feaprt_vec[i]->GetName() ) );
                 m_FixPointParentIDVec.push_back( feaprt_vec[i]->GetID() );
@@ -2051,9 +2051,9 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
 
         m_FixPointParentSurfChoice.UpdateItems();
 
-        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
         {
-            FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+            FeaPart* feaprt = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
             if ( feaprt )
             {
@@ -2066,18 +2066,18 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
 
                     if ( parent_feaprt )
                     {
-                        int parent_index = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPartIndex( parent_feaprt );
+                        int parent_index = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPartIndex( parent_feaprt );
                         int num_fix_pnts_prior = 0;
 
                         for ( size_t i = 0; i < parent_index; i++ )
                         {
-                            if ( structVec[StructureMgr.GetCurrStructIndex()]->FeaPartIsFixPoint( i ) )
+                            if ( structVec[StructureMgr.m_CurrStructIndex()]->FeaPartIsFixPoint( i ) )
                             {
                                 num_fix_pnts_prior++;
                             }
                         }
 
-                        if ( structVec[StructureMgr.GetCurrStructIndex()]->ValidFeaPartInd( parent_index - num_fix_pnts_prior ) )
+                        if ( structVec[StructureMgr.m_CurrStructIndex()]->ValidFeaPartInd( parent_index - num_fix_pnts_prior ) )
                         {
                             m_FixPointParentSurfChoice.SetVal( parent_index - num_fix_pnts_prior );
                         }
@@ -2085,9 +2085,9 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
                     else
                     {
                         // Set skin as parent surface if undefined
-                        if ( structVec[StructureMgr.GetCurrStructIndex()]->GetFeaSkin() )
+                        if ( structVec[StructureMgr.m_CurrStructIndex()]->GetFeaSkin() )
                         {
-                            fixpt->m_ParentFeaPartID = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaSkin()->GetID();
+                            fixpt->m_ParentFeaPartID = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaSkin()->GetID();
                         }
                     }
                 }
@@ -2102,7 +2102,7 @@ void FeaPartEditScreen::UpdateTrimPartChoice()
     m_TrimPartChoice.ClearItems();
     m_TrimPartChoiceIDVec.clear();
 
-    int istruct = StructureMgr.GetCurrStructIndex();
+    int istruct = StructureMgr.m_CurrStructIndex();
 
     if ( StructureMgr.ValidTotalFeaStructInd( istruct ) )
     {
@@ -2203,9 +2203,9 @@ void FeaPartEditScreen::UpdatePerpendicularRibChoice()
 
     if ( veh )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
-            FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[StructureMgr.GetCurrStructIndex()];
+            FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[StructureMgr.m_CurrStructIndex()];
 
             if ( curr_struct )
             {
@@ -2344,13 +2344,13 @@ void FeaPartEditScreen::UpdateUnitLabels()
         m_DomeYUnit.GetFlButton()->copy_label( dist_unit.c_str() );
         m_DomeZUnit.GetFlButton()->copy_label( dist_unit.c_str() );
 
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
 
-            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+                FeaPart* feaprt = structVec[StructureMgr.m_CurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
                 if ( feaprt )
                 {
                     if ( feaprt->GetType() == vsp::FEA_SLICE || feaprt->GetType() == vsp::FEA_RIB || feaprt->GetType() == vsp::FEA_SPAR || feaprt->GetType() == vsp::FEA_RIB_ARRAY || feaprt->GetType() == vsp::FEA_SLICE_ARRAY ) // TODO: Switch to different check

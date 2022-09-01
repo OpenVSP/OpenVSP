@@ -20,7 +20,8 @@ StructureMgrSingleton::StructureMgrSingleton()
     m_FeaPropertyCount = 0;
     m_FeaMatCount = 0;
 
-    m_CurrStructIndex = -1;
+    m_CurrStructIndex.Init( "CurrStructIndex", "Struct", this, -1, -1, 1e12 ); // -1 for none selected.
+
     m_CurrPartIndex = -1;
     m_CurrFeaMaterialIndex = -1;
     m_CurrFeaPropertyIndex = -1;
@@ -37,6 +38,8 @@ xmlNodePtr StructureMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr structmgr_node = xmlNewChild( node, NULL, BAD_CAST"StructureMgr", NULL );
 
+    ParmContainer::EncodeXml( structmgr_node );
+
     for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
     {
         m_FeaPropertyVec[i]->EncodeXml( structmgr_node );
@@ -50,8 +53,6 @@ xmlNodePtr StructureMgrSingleton::EncodeXml( xmlNodePtr & node )
         }
     }
 
-    XmlUtil::AddIntNode( structmgr_node, "CurrStructIndex", m_CurrStructIndex );
-
     return structmgr_node;
 }
 
@@ -61,7 +62,7 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
 
     if ( structmgr_node )
     {
-        m_CurrStructIndex = XmlUtil::FindInt( structmgr_node, "CurrStructIndex", 0 );
+        ParmContainer::DecodeXml( structmgr_node );
 
         int num_prop = XmlUtil::GetNumNames( structmgr_node, "FeaPropertyInfo" );
 
@@ -342,7 +343,7 @@ string StructureMgrSingleton::GetFeaPartName( const string & id )
 
 void StructureMgrSingleton::ShowAllParts()
 {
-    FeaStructure* fea_struct = GetFeaStruct( m_CurrStructIndex );
+    FeaStructure* fea_struct = GetFeaStruct( m_CurrStructIndex() );
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     if ( fea_struct && veh )

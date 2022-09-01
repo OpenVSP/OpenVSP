@@ -13,7 +13,7 @@
 
 #include "FeaStructure.h"
 
-class StructureMgrSingleton
+class StructureMgrSingleton : public ParmContainer
 {
 protected:
     StructureMgrSingleton();
@@ -96,15 +96,6 @@ public:
         return m_FeaMaterialVec.size();
     }
 
-    void SetCurrStructIndex( int ind )
-    {
-        m_CurrStructIndex = ind;
-    }
-    int GetCurrStructIndex()
-    {
-        return m_CurrStructIndex;
-    }
-
     void SetCurrPartIndex( int ind )
     {
         m_CurrPartIndex = ind;
@@ -141,6 +132,8 @@ public:
         return m_FeaSliceOrientationIndex;
     }
 
+    IntParm m_CurrStructIndex;
+
 protected:
 
     vector < FeaProperty* > m_FeaPropertyVec;
@@ -149,7 +142,6 @@ protected:
     vector < FeaMaterial* > m_FeaMaterialVec;
     int m_FeaMatCount;
 
-    int m_CurrStructIndex;
     int m_CurrPartIndex;
     int m_CurrFeaMaterialIndex;
     int m_CurrFeaPropertyIndex;
