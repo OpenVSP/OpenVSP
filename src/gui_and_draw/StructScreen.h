@@ -47,6 +47,7 @@ public:
     virtual void OrientStructure( VSPGraphic::Common::VSPenum type );
 
     virtual void Show();
+    virtual void LaunchFEAMesh();
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 

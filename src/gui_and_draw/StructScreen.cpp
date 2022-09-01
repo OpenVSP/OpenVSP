@@ -2319,6 +2319,25 @@ void * feamesh_thread_fun( void *data )
     return 0;
 }
 
+void StructScreen::LaunchFEAMesh()
+{
+    // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
+    FeaMeshMgr.SetFeaMeshInProgress( true );
+
+    // Identify which structure to mesh
+    FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.m_CurrStructIndex() );
+
+    m_FeaMeshProcess.StartThread( feamesh_thread_fun, ( void* ) this );
+
+    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+    {
+        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+        structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
+        structvec[StructureMgr.m_CurrStructIndex()]->SetDrawFlag( false );
+    }
+}
+
 void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
@@ -2332,21 +2351,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_FeaMeshExportButton )
     {
-        // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
-        FeaMeshMgr.SetFeaMeshInProgress( true );
-
-        // Identify which structure to mesh
-        FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.m_CurrStructIndex() );
-
-        m_FeaMeshProcess.StartThread( feamesh_thread_fun, ( void* ) this );
-
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
-            structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
-            structvec[StructureMgr.m_CurrStructIndex()]->SetDrawFlag( false );
-        }
+        LaunchFEAMesh();
     }
     else if ( device == &m_ResetDisplayButton )
     {
