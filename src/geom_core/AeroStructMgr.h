@@ -36,11 +36,18 @@ public:
 
     void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
 
+    void FindCCX( const string & path );
+    bool GetCalculiXFound()                                  { return m_CalculiXFound; }
+
 private:
 
     AeroStructSingleton();
     AeroStructSingleton( AeroStructSingleton const& copy );            // Not Implemented
     AeroStructSingleton& operator=( AeroStructSingleton const& copy ); // Not Implemented
+
+    bool m_CalculiXFound;
+    string m_CalculiXPath;
+    string m_CalculiXCmd;
 
 };
 

@@ -10,7 +10,7 @@
 #include "Vehicle.h"
 #include "MeshGeom.h"
 #include "WingGeom.h"
-
+#include "FileUtil.h"
 
 AeroStructSingleton::AeroStructSingleton() : ParmContainer()
 {
@@ -56,4 +56,43 @@ void AeroStructSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     }
 
 
+}
+
+void AeroStructSingleton::FindCCX( const string & path )
+{
+    m_CalculiXFound = false;
+    m_CalculiXCmd = "ccx";
+    m_CalculiXPath = string();
+
+    // Check specific location
+#ifdef WIN32
+    if ( CheckForFile( path, "ccx.exe" ) )
+#else
+    if ( CheckForFile( path, "ccx" ) )
+#endif
+    {
+        m_CalculiXFound = true;
+        m_CalculiXPath = path;
+    }
+    else // Check for ccx in path
+    {
+#ifdef WIN32
+        system( "ccx > temp.txt" );
+
+        // Get size of temp file
+        FILE* fp = fopen( "temp.txt", "r" );
+        fseek(fp, 0L, SEEK_END);
+        size_t sz = ftell( fp );
+        fclose( fp );
+
+        system( "del temp.txt" );
+
+        if ( sz != 0 )
+#else
+        if ( !system( "which ccx > /dev/null 2>&1" ))
+#endif
+        {
+            m_CalculiXFound = true;
+        }
+    }
 }
