@@ -29,6 +29,8 @@ public:
     void Hide();
     bool Update();
 
+    void AddOutputText( const string &text );
+
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
@@ -48,6 +50,9 @@ protected:
     TriggerButton m_ShowFEAMeshGUI;
     TriggerButton m_ExecuteFEAMesh;
 
+    //===== Console Items =====//
+    Fl_Text_Display* m_ConsoleDisplay;
+    Fl_Text_Buffer* m_ConsoleBuffer;
 
 };
 

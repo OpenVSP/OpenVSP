@@ -40,10 +40,17 @@ AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 60
     m_GlobalLayout.AddButton( m_ShowFEAMeshGUI, "Show FEA Mesh GUI" );
     m_GlobalLayout.AddButton( m_ExecuteFEAMesh, "Generate FEA Mesh" );
 
+    m_ConsoleDisplay = m_GlobalLayout.AddFlTextDisplay( 100 );
+    m_ConsoleBuffer = new Fl_Text_Buffer;
+    m_ConsoleDisplay->buffer( m_ConsoleBuffer );
+    m_FLTK_Window->resizable( m_ConsoleDisplay );
+
 }
 
 AeroStructScreen::~AeroStructScreen()
 {
+    m_ConsoleDisplay->buffer( NULL );
+    delete m_ConsoleBuffer;
 }
 
 //==== Update Screen ====//
@@ -128,6 +135,15 @@ void AeroStructScreen::Hide()
 {
     m_FLTK_Window->hide();
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void AeroStructScreen::AddOutputText( const string &text )
+{
+    Fl::lock();
+    m_ConsoleBuffer->append( text.c_str() );
+    m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
+    m_ConsoleDisplay->show_insert_position();
+    Fl::unlock();
 }
 
 //==== Callbacks ====//

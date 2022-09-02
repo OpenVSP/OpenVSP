@@ -139,6 +139,15 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
                 scr->AddOutputText( scr->GetDisplay( VSPAERO_SOLVER ), data.m_StringVec[i] );
             }
         }
+        // Also dump to aero-structure console.
+        AeroStructScreen* asscr = ( AeroStructScreen* ) m_ScreenVec[VSP_AERO_STRUCT_SCREEN];
+        if ( asscr )
+        {
+            for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
+            {
+                asscr->AddOutputText( data.m_StringVec[i] );
+            }
+        }
     }
     else if ( data.m_String == string( "FEAMessage" ) )
     {
@@ -148,6 +157,26 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
             {
                 scr->AddOutputText( data.m_StringVec[i] );
+            }
+        }
+        // Also dump to aero-structure console.
+        AeroStructScreen* asscr = ( AeroStructScreen* ) m_ScreenVec[VSP_AERO_STRUCT_SCREEN];
+        if ( asscr )
+        {
+            for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
+            {
+                asscr->AddOutputText( data.m_StringVec[i] );
+            }
+        }
+    }
+    else if ( data.m_String == string( "AeroStructMessage" ) )
+    {
+        AeroStructScreen* asscr = ( AeroStructScreen* ) m_ScreenVec[VSP_AERO_STRUCT_SCREEN];
+        if ( asscr )
+        {
+            for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
+            {
+                asscr->AddOutputText( data.m_StringVec[i] );
             }
         }
     }
