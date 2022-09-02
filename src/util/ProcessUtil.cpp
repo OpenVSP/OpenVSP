@@ -77,7 +77,13 @@ int cppexecv( const string &cmd, const vector< string > &options )
 int ProcessUtil::SystemCmd( const string &path, const string &cmd, const vector<string> &opts )
 {
 #ifdef WIN32
-    string command = string( "start " ) + path + string("\\") + cmd;
+    string command = string( "start " );
+    if ( !path.empty() )
+    {
+        command += path + string("\\");
+    }
+    command += cmd;
+
     for( unsigned int i = 0; i < opts.size(); i++ )
     {
         command += string(" ") + opts[i];
@@ -86,7 +92,13 @@ int ProcessUtil::SystemCmd( const string &path, const string &cmd, const vector<
     return system( command.c_str() );
 
 #else
-    string command = path + string("/") + cmd;
+    string command;
+    if ( !path.empty() )
+    {
+        command += path + string( "/" );
+    }
+    command += cmd;
+
     for( unsigned int i = 0; i < opts.size(); i++ )
     {
         command += string(" ") + opts[i];
@@ -168,7 +180,13 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
         exit( 0 );
     }
 
-    string command = QuoteString( path + string("\\") + cmd );
+    string command;
+    if ( !path.empty() )
+    {
+        command += path + string("\\");
+    }
+    command = QuoteString( command + cmd );
+
     for( int i = 0; i < opts.size(); i++ )
     {
         command += string(" ") + QuoteString( opts[i] );
@@ -230,7 +248,13 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
         close( m_StdoutPipe[PIPE_READ] );
         close( m_StdoutPipe[PIPE_WRITE] );
 
-        string command = path + string("/") + cmd;
+        string command;
+        if ( !path.empty() )
+        {
+            command = path + string("/");
+        }
+        command += cmd;
+
         if( cppexecv( command, opts ) < 0 ) {
             printf( "execv error\n" );
         }
@@ -388,13 +412,25 @@ void ProcessUtil::ReadStdoutPipe(char * bufptr, int bufsize, BUF_READ_TYPE * nre
 string ProcessUtil::PrettyCmd( const string &path, const string &cmd, const vector<string> &opts )
 {
 #ifdef WIN32
-    string command = QuoteString( path + string("\\") + cmd );
+    string command;
+    if ( !path.empty() )
+    {
+        command += path + string("\\");
+    }
+    command = QuoteString( command + cmd );
+
     for( int i = 0; i < opts.size(); i++ )
     {
         command += string(" ") + QuoteString( opts[i] );
     }
 #else
-    string command = path + string("/") + cmd;
+    string command;
+    if ( !path.empty() )
+    {
+        command = path + string("/");
+    }
+    command += cmd;
+
     for( unsigned int i = 0; i < opts.size(); i++ )
     {
         command += string(" ") + opts[i];
