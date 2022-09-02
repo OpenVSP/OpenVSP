@@ -9,6 +9,7 @@
 #include "PodGeom.h"
 #include "FuselageGeom.h"
 #include "WingGeom.h"
+#include "AeroStructMgr.h"
 #include "BlankGeom.h"
 #include "BORGeom.h"
 #include "MeshGeom.h"
@@ -536,6 +537,8 @@ void Vehicle::SetupPaths()
 
 bool Vehicle::CheckForVSPAERO( const string & path )
 {
+    AeroStructMgr.FindCCX( path );
+
     bool ret_val = true;
 
     if( !CheckForFile( path, m_VSPAEROCmd ) )
