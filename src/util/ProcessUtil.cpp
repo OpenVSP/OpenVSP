@@ -268,15 +268,24 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
         close( m_StdoutPipe[PIPE_READ] );
         close( m_StdoutPipe[PIPE_WRITE] );
 
-        string command;
-        if ( !path.empty() )
+        if ( path.empty() ) // Search OS path for cmd
         {
-            command = path + string("/");
+            if( cppexecvp( cmd, opts ) < 0 ) {
+                printf( "execvp error\n" );
+            }
         }
-        command += cmd;
+        else // Full path to cmd specified.
+        {
+            string command;
+            if ( !path.empty() )
+            {
+                command = path + string("/");
+            }
+            command += cmd;
 
-        if( cppexecv( command, opts ) < 0 ) {
-            printf( "execv error\n" );
+            if( cppexecv( command, opts ) < 0 ) {
+                printf( "execv error\n" );
+            }
         }
     }
     else if (childPid < 0)
