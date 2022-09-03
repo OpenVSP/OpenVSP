@@ -13,6 +13,7 @@
 
 #include "ScreenBase.h"
 #include "GuiDevice.h"
+#include "ProcessUtil.h"
 
 #include <FL/Fl.H>
 #include <FL/Fl_Text_Buffer.H>
@@ -39,6 +40,9 @@ public:
 
     void GuiDeviceCallBack( GuiDevice* gui_device );
 
+    ProcessUtil *GetProcess();
+    Fl_Text_Display *GetDisplay();
+
 protected:
 
     GroupLayout m_GlobalLayout;
@@ -50,10 +54,20 @@ protected:
     TriggerButton m_ShowFEAMeshGUI;
     TriggerButton m_ExecuteFEAMesh;
 
+    TriggerButton m_ExecuteLoads;
+
+    TriggerButton m_ExecuteCalculiX;
+
+    TriggerButton m_ExecuteViewer;
+
     //===== Console Items =====//
     Fl_Text_Display* m_ConsoleDisplay;
     Fl_Text_Buffer* m_ConsoleBuffer;
 
+    // Viewer thread handling
+    ProcessUtil m_ViewerProcess;
+
+    ProcessUtil m_ViewerMonitor;
 };
 
 
