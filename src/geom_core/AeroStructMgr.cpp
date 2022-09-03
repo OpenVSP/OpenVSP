@@ -11,6 +11,8 @@
 #include "MeshGeom.h"
 #include "WingGeom.h"
 #include "FileUtil.h"
+#include "VSPAEROMgr.h"
+#include "StructureMgr.h"
 
 AeroStructSingleton::AeroStructSingleton() : ParmContainer()
 {
@@ -125,4 +127,88 @@ void AeroStructSingleton::FindCCX( const string & path )
             m_CalculiXFound = true;
         }
     }
+}
+
+void AeroStructSingleton::TransferLoads( FILE * logFile )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    //====== Send command to be executed by the system at the command prompt ======//
+    vector<string> args;
+
+    args.push_back( "-interp" );
+
+    args.push_back( GetBasename( m_ADBFile ) ); // adb base name.
+
+    args.push_back( GetBasename( m_FEAMeshFile ) ); // FEA mesh base name.
+
+    args.push_back( "-dynp" );
+    args.push_back( "150.0"); // Dynamic pressure value
+
+    args.push_back( "-label" );
+    args.push_back( "foo"); // Label FEA stuff.
+
+
+    string cmdStr = m_LoadsProcess.PrettyCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
+    if( logFile )
+    {
+        fprintf( logFile, "%s", cmdStr.c_str() );
+    }
+    else
+    {
+        MessageData data;
+        data.m_String = "AeroStructMessage";
+        data.m_StringVec.push_back( cmdStr );
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+    }
+
+    printf( "%s\n", cmdStr.c_str() );
+
+    m_LoadsProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
+
+    // ==== MonitorSolverProcess ==== //
+    MonitorProcess( logFile, &m_LoadsProcess, "AeroStructMessage" );
+}
+
+void AeroStructSingleton::ComputeStructure( FILE * logFile )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    //====== Send command to be executed by the system at the command prompt ======//
+    vector<string> args;
+
+    args.push_back( GetBasename( m_FEAInputFile ) );
+
+
+    string cmdStr = m_CalculiXProcess.PrettyCmd( m_CalculiXPath, m_CalculiXCmd, args );
+    if( logFile )
+    {
+        fprintf( logFile, "%s", cmdStr.c_str() );
+    }
+    else
+    {
+        MessageData data;
+        data.m_String = "AeroStructMessage";
+        data.m_StringVec.push_back( cmdStr );
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+    }
+
+    printf( "%s\n", cmdStr.c_str() );
+
+    m_CalculiXProcess.ForkCmd( m_CalculiXPath, m_CalculiXCmd, args );
+
+    printf( "Forked\n" );
+
+
+    // ==== MonitorSolverProcess ==== //
+    MonitorProcess( logFile, &m_CalculiXProcess, "AeroStructMessage" );
+
 }

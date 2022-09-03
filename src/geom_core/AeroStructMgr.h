@@ -13,6 +13,7 @@
 #include "Vehicle.h"
 #include "Geom.h"
 #include "Parm.h"
+#include "ProcessUtil.h"
 
 #include <vector>
 #include <string>
@@ -39,6 +40,8 @@ public:
     void FindCCX( const string & path );
     bool GetCalculiXFound()                                  { return m_CalculiXFound; }
 
+    void TransferLoads( FILE * logFile = NULL );
+    void ComputeStructure( FILE * logFile = NULL );
 
     bool m_ADBFileFound;
     bool m_FEAMeshFileFound;
@@ -59,6 +62,9 @@ private:
     bool m_CalculiXFound;
     string m_CalculiXPath;
     string m_CalculiXCmd;
+
+    ProcessUtil m_LoadsProcess;
+    ProcessUtil m_CalculiXProcess;
 
 };
 
