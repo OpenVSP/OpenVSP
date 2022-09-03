@@ -2058,7 +2058,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         m_SolverProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
 
         // ==== MonitorSolverProcess ==== //
-        MonitorSolver( logFile );
+        MonitorProcess( logFile, &m_SolverProcess, "VSPAEROSolverMessage" );
 
         // Check if the kill solver flag has been raised, if so clean up and return
         //  note: we could have exited the IsRunning loop if the process was killed
@@ -2128,52 +2128,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         res->Add( NameValData( "ResultsVec", res_id_vector ) );
         return res->GetID();
     }
-}
-
-void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
-{
-    // ==== MonitorSolverProcess ==== //
-    int bufsize = 1000;
-    char *buf;
-    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
-    BUF_READ_TYPE nread = 1;
-    bool runflag = m_SolverProcess.IsRunning();
-    while ( runflag || nread > 0 )
-    {
-        m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-        if( nread > 0 )
-        {
-            if ( buf )
-            {
-                buf[nread] = 0;
-                StringUtil::change_from_to( buf, '\r', '\n' );
-                if( logFile )
-                {
-                    fprintf( logFile, "%s", buf );
-                }
-                else
-                {
-                    MessageData data;
-                    data.m_String = "VSPAEROSolverMessage";
-                    data.m_StringVec.push_back( string( buf ) );
-                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-                }
-            }
-        }
-
-        SleepForMilliseconds( 100 );
-        runflag = m_SolverProcess.IsRunning();
-    }
-
-#ifdef WIN32
-    CloseHandle( m_SolverProcess.m_StdoutPipe[0] );
-    m_SolverProcess.m_StdoutPipe[0] = NULL;
-#else
-    close( m_SolverProcess.m_StdoutPipe[0] );
-    m_SolverProcess.m_StdoutPipe[0] = -1;
-#endif
-
-    free( buf );
 }
 
 void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
@@ -3698,7 +3652,7 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     m_SlicerThread.ForkCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
-    MonitorSolver( logFile );
+    MonitorProcess( logFile, &m_SlicerThread, "VSPAEROSolverMessage" );
 
     // Write out new results
     Results* res = ResultsMgr.CreateResults( "CpSlice_Wrapper" );
@@ -3765,7 +3719,7 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     m_SolverProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
-    MonitorSolver( logFile );
+    MonitorProcess( logFile, &m_SolverProcess, "VSPAEROSolverMessage" );
 }
 
 void VSPAEROMgrSingleton::ClearCpSliceResults()
@@ -4728,7 +4682,7 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
     m_SolverProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
-    MonitorSolver( logFile );
+    MonitorProcess( logFile, &m_SolverProcess, "VSPAEROSolverMessage" );
 
     // Check if the kill solver flag has been raised, if so clean up and return
     //  note: we could have exited the IsRunning loop if the process was killed
