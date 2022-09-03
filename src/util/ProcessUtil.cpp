@@ -4,6 +4,8 @@
 //
 
 #include "ProcessUtil.h"
+#include "MessageMgr.h"
+#include "StringUtil.h"
 
 #ifdef __APPLE__
 
@@ -470,4 +472,50 @@ string ProcessUtil::PrettyCmd( const string &path, const string &cmd, const vect
     command += string("\n");
 
     return command;
+}
+
+void MonitorProcess( FILE * logFile, ProcessUtil *process, const string &msgLabel )
+{
+    // ==== MonitorSolverProcess ==== //
+    int bufsize = 1000;
+    char *buf;
+    buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
+    BUF_READ_TYPE nread = 1;
+    bool runflag = process->IsRunning();
+    while ( runflag || nread > 0 )
+    {
+        process->ReadStdoutPipe( buf, bufsize, &nread );
+        if( nread > 0 )
+        {
+            if ( buf )
+            {
+                buf[nread] = 0;
+                StringUtil::change_from_to( buf, '\r', '\n' );
+                if( logFile )
+                {
+                    fprintf( logFile, "%s", buf );
+                }
+                else
+                {
+                    MessageData data;
+                    data.m_String = msgLabel;
+                    data.m_StringVec.push_back( string( buf ) );
+                    MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                }
+            }
+        }
+
+        SleepForMilliseconds( 100 );
+        runflag = process->IsRunning();
+    }
+
+#ifdef WIN32
+    CloseHandle( process->m_StdoutPipe[0] );
+    process->m_StdoutPipe[0] = NULL;
+#else
+    close( process->m_StdoutPipe[0] );
+    process->m_StdoutPipe[0] = -1;
+#endif
+
+    free( buf );
 }

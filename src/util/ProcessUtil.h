@@ -28,7 +28,10 @@ using std::vector;
 #define BUF_READ_TYPE int
 #endif
 
+class ProcessUtil;
+
 void SleepForMilliseconds( unsigned int sleep_time);
+void MonitorProcess( FILE * logFile, ProcessUtil *process, const string &msgLabel );
 
 class ProcessUtil
 {
