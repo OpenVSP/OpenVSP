@@ -50,10 +50,10 @@ ProcessUtil::ProcessUtil()
 }
 
 #ifndef WIN32
-// C++ wrapper for execv.
+// Wrapper for handling arguments for exec*** routines.
 // Note, this automatically makes cmd the first argument in the list.
 // This also automatically NULL terminates the list of arguments.
-int cppexecv( const string &cmd, const vector< string > &options )
+const char** opt2argv( const string &cmd, const vector< string > &options )
 {
     int narg = options.size();
     const char **argv = new const char*[narg + 2];
@@ -65,6 +65,14 @@ int cppexecv( const string &cmd, const vector< string > &options )
         argv[i+1] = options[i].c_str();
     }
     argv[narg + 1] = NULL;
+
+    return argv;
+}
+
+// C++ wrapper for execv.
+int cppexecv( const string &cmd, const vector< string > &options )
+{
+    const char **argv = opt2argv( cmd, options );
 
     int retval = execv( cmd.c_str(), (char **)argv );
 
