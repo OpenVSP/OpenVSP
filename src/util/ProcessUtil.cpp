@@ -248,7 +248,7 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
 
     if( pipe( m_StdoutPipe ) < 0 )
     {
-        printf( "Error allocating pipe for child output redirect");
+        printf( "Error allocating pipe for child output redirect\n");
         return -1;
     }
 
@@ -261,7 +261,7 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
         if( dup2( m_StdoutPipe[PIPE_WRITE], STDOUT_FILENO ) == -1 ||
             dup2( m_StdoutPipe[PIPE_WRITE], STDERR_FILENO ) == -1 )
         {
-            printf( "Error redirecting child stdout" );
+            printf( "Error redirecting child stdout\n" );
             exit( 0 );
         }
 
