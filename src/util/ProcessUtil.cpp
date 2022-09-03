@@ -80,6 +80,18 @@ int cppexecv( const string &cmd, const vector< string > &options )
 
     return retval;
 }
+
+// C++ wrapper for execvp -- searches path.
+int cppexecvp( const string &cmd, const vector< string > &options )
+{
+    const char **argv = opt2argv( cmd, options );
+
+    int retval = execvp( cmd.c_str(), (char **)argv );
+
+    delete[] argv;
+
+    return retval;
+}
 #endif
 
 int ProcessUtil::SystemCmd( const string &path, const string &cmd, const vector<string> &opts )
