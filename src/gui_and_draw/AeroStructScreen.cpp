@@ -63,22 +63,41 @@ bool AeroStructScreen::Update()
         return false;
     }
 
+    AeroStructMgr.Update();
+
     VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* > ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_SCREEN ) );
 
     if ( AeroScreen )
     {
-        if ( AeroScreen->m_SolverThreadIsRunning )
+        if ( veh->GetVSPAEROFound() && !AeroScreen->m_SolverThreadIsRunning )
         {
-            m_ExecuteVSPAERO.SetColor( FL_RED );
+            m_ExecuteVSPAERO.Activate();
         }
         else
         {
-            m_ExecuteVSPAERO.SetColor( FL_BACKGROUND_COLOR );
+            m_ExecuteVSPAERO.Deactivate();
         }
     }
 
+    if ( !AeroStructMgr.m_ADBFileFound )
+    {
+        m_ExecuteVSPAERO.SetColor( FL_RED );
+    }
+    else
+    {
+        m_ExecuteVSPAERO.SetColor( FL_BACKGROUND_COLOR );
+    }
 
     if ( FeaMeshMgr.GetFeaMeshInProgress() )
+    {
+        m_ExecuteFEAMesh.Deactivate();
+    }
+    else
+    {
+        m_ExecuteFEAMesh.Activate();
+    }
+
+    if ( !AeroStructMgr.m_FEAMeshFileFound )
     {
         m_ExecuteFEAMesh.SetColor( FL_RED );
     }
@@ -87,6 +106,50 @@ bool AeroStructScreen::Update()
         m_ExecuteFEAMesh.SetColor( FL_BACKGROUND_COLOR );
     }
 
+    if ( veh->GetLOADSFound() && AeroStructMgr.m_ADBFileFound && AeroStructMgr.m_FEAMeshFileFound )
+    {
+        m_ExecuteLoads.Activate();
+    }
+    else
+    {
+        m_ExecuteLoads.Deactivate();
+    }
+
+    if ( !AeroStructMgr.m_FEAInputFileFound )
+    {
+        m_ExecuteLoads.SetColor( FL_RED );
+    }
+    else
+    {
+        m_ExecuteLoads.SetColor( FL_BACKGROUND_COLOR );
+    }
+
+    if ( AeroStructMgr.GetCalculiXFound() && AeroStructMgr.m_FEAInputFileFound )
+    {
+        m_ExecuteCalculiX.Activate();
+    }
+    else
+    {
+        m_ExecuteCalculiX.Deactivate();
+    }
+
+    if ( !AeroStructMgr.m_FEASolutionFileFound )
+    {
+        m_ExecuteCalculiX.SetColor( FL_RED );
+    }
+    else
+    {
+        m_ExecuteCalculiX.SetColor( FL_BACKGROUND_COLOR );
+    }
+
+    if ( veh->GetVIEWERFound() && AeroStructMgr.m_FEASolutionFileFound && AeroStructMgr.m_ADBFileFound )
+    {
+        m_ExecuteViewer.Activate();
+    }
+    else
+    {
+        m_ExecuteViewer.Deactivate();
+    }
 
 
     m_StructureChoice.ClearItems();
