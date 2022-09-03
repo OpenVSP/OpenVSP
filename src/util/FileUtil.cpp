@@ -315,3 +315,15 @@ string GetFilename( const string &pathfile )
     return fileParts.back();
 
 }
+
+string GetBasename( const string &fname )
+{
+    //==== Figure Out Basename ====//
+    string base_name = fname;
+    std::string::size_type loc = base_name.find_last_of( "." );
+    if ( loc != base_name.npos )
+    {
+        base_name = base_name.substr( 0, loc );
+    }
+    return base_name;
+}
