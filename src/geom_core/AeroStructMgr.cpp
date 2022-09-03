@@ -43,6 +43,36 @@ xmlNodePtr AeroStructSingleton::DecodeXml( xmlNodePtr & node )
 
 void AeroStructSingleton::Update()
 {
+    VSPAEROMgr.UpdateFilenames();
+
+    m_ADBFile = VSPAEROMgr.m_AdbFile;
+    m_ADBFileFound = FileExist( m_ADBFile );
+
+
+    m_FEAMeshFile = string();
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
+    if ( fea_struct )
+    {
+        vector < string > fnames = fea_struct->GetStructSettingsPtr()->GetExportFileNames();
+        m_FEAMeshFile = fnames[ vsp::FEA_CALCULIX_FILE_NAME ];
+    }
+    m_FEAMeshFileFound = FileExist( m_FEAMeshFile );
+
+    m_FEAInputFile = string();
+    if ( m_FEAMeshFileFound )
+    {
+        m_FEAInputFile = GetBasename( m_FEAMeshFile ) + ".static.inp";
+    }
+    m_FEAInputFileFound = FileExist( m_FEAInputFile );
+
+
+    m_FEASolutionFile = string();
+    if ( m_FEAInputFileFound )
+    {
+        m_FEASolutionFile = GetBasename( m_FEAInputFile ) + ".frd";
+    }
+    m_FEASolutionFileFound = FileExist( m_FEASolutionFile );
+
 
 }
 

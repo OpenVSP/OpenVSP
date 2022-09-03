@@ -39,6 +39,17 @@ public:
     void FindCCX( const string & path );
     bool GetCalculiXFound()                                  { return m_CalculiXFound; }
 
+
+    bool m_ADBFileFound;
+    bool m_FEAMeshFileFound;
+    bool m_FEAInputFileFound;
+    bool m_FEASolutionFileFound;
+
+    string m_ADBFile;
+    string m_FEAMeshFile;
+    string m_FEAInputFile;
+    string m_FEASolutionFile;
+
 private:
 
     AeroStructSingleton();
