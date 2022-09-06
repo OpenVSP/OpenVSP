@@ -1785,6 +1785,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_ClippingMgr.EncodeXml( node );
     WaveDragMgr.EncodeXml( node );
     ParasiteDragMgr.EncodeXml( node );
+    AeroStructMgr.EncodeXml( node );
 
     xmlNodePtr setnamenode = xmlNewChild( node, NULL, BAD_CAST"SetNames", NULL );
     if ( setnamenode )
@@ -1825,6 +1826,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     m_ClippingMgr.DecodeXml( node );
     WaveDragMgr.DecodeXml( node );
     ParasiteDragMgr.DecodeXml( node );
+    AeroStructMgr.DecodeXml( node );
 
     ParasiteDragMgr.CorrectTurbEquation();
 
