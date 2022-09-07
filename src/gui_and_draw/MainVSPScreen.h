@@ -80,6 +80,7 @@ protected:
     void SetFileLabel( string fname );
 
     virtual void ExitVSP();
+    virtual void ReturnToAPI();
 
     ActionMenuItem m_FileMenuItem;
 

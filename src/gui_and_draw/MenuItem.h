@@ -21,6 +21,7 @@ public:
 
     void Hide();
     void Show();
+    bool IsShown();
 
 protected:
     Fl_Sys_Menu_Bar *m_MenuBar;

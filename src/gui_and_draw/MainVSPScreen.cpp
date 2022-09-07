@@ -279,7 +279,14 @@ void MainVSPScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void MainVSPScreen::CloseCallBack( Fl_Widget *w )
 {
-    ExitVSP();
+    if ( m_ReturnToAPIMenuItem.IsShown() )
+    {
+        ReturnToAPI();
+    }
+    else
+    {
+        ExitVSP();
+    }
 }
 
 void MainVSPScreen::SetFileLabel( string fname )
@@ -314,6 +321,13 @@ void MainVSPScreen::ExitVSP()
                 exit( 0 );
             }
     }
+}
+
+void MainVSPScreen::ReturnToAPI()
+{
+    m_ScreenMgr->APIHideScreens();
+    // m_ScreenMgr->ForceUpdate();
+    m_ScreenMgr->SetRunGui( false );
 }
 
 void MainVSPScreen::ActionCB( void * data )
@@ -414,9 +428,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_ReturnToAPIMenuItem )
     {
-        m_ScreenMgr->APIHideScreens();
-        // m_ScreenMgr->ForceUpdate();
-        m_ScreenMgr->SetRunGui( false );
+        ReturnToAPI();
     }
     else if ( data == &m_UndoMenuItem )
     {
