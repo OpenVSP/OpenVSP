@@ -91,16 +91,19 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     CONFIGURE_FILE(packages/openvsp/setup.py.in python/packages/openvsp/setup.py)
     CONFIGURE_FILE(packages/openvsp/conda-recipe/meta.yaml.in python/packages/openvsp/conda-recipe/meta.yaml)
+    CONFIGURE_FILE(packages/environment.yml.in python/packages/environment.yml)
 
     INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/packages/ DESTINATION python
             PATTERN setup.py.in EXCLUDE
-            PATTERN meta.yaml.in EXCLUDE)
+            PATTERN meta.yaml.in EXCLUDE
+            PATTERN environment.yml.in EXCLUDE)
 
     INSTALL( TARGETS _vsp LIBRARY DESTINATION python/openvsp/openvsp )
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp.py DESTINATION python/openvsp/openvsp )
     INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/test.py DESTINATION python/openvsp/openvsp/tests )
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py DESTINATION python/openvsp)
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml DESTINATION python/openvsp/conda-recipe)
+    INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/environment.yml DESTINATION python)
 
     # Copy python package files to ${CMAKE_BINARY_DIR}/python_pseudo such that a virtual environment can be
     # built from there.  This brings both generated files (from BINARY_DIR) and source files (from SOURCE_DIR) together
@@ -109,6 +112,10 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/packages/
             ${CMAKE_BINARY_DIR}/python_pseudo )
+
+    add_custom_command(TARGET _vsp POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E remove
+            ${CMAKE_BINARY_DIR}/python_pseudo/environment.yml.in )
 
     add_custom_command(TARGET _vsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
@@ -130,7 +137,12 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/conda-recipe )
 
-    # Create virtual environment with openvsp package installed.
+    add_custom_command(TARGET _vsp POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_BINARY_DIR}/python/packages/environment.yml
+            ${CMAKE_BINARY_DIR}/python_pseudo )
+
+            # Create virtual environment with openvsp package installed.
     CreateVirtualEnvironment( venv
             REQUIREMENTS_TXT ${CMAKE_BINARY_DIR}/python_pseudo/requirements.txt
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo
