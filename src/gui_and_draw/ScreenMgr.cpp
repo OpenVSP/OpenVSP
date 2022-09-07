@@ -252,7 +252,7 @@ void ScreenMgr::APIHideScreens()
 
     for ( int i = 0; i < VSP_NUM_SCREENS; i++ )
     {
-        if ( i == VSP_COR_SCREEN || i != VSP_MAIN_SCREEN )
+        if ( i == VSP_COR_SCREEN || i == VSP_MAIN_SCREEN ) // Closing these causes crashes.
         {
             continue;
         }
