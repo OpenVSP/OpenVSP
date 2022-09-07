@@ -93,7 +93,7 @@ jobs:
         make -j2
         
         cd $GITHUB_WORKSPACE/build
-        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs ../src
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DVSP_PYTHON_VERSION_NUM=${{ matrix.python-version }} ../src
         make -j2 package
         
         DEBFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-Linux.deb
@@ -117,7 +117,7 @@ jobs:
         cmake --build . --config Release -j 2
         cd $GITHUB_WORKSPACE\\build
 
-        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A $BUILD_ARCH ..\\src
+        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -DVSP_PYTHON_VERSION_NUM=${{ matrix.python-version }} -A $BUILD_ARCH ..\\src
 
         cmake --build . --target package --config Release -j 2
 
@@ -141,7 +141,7 @@ jobs:
         make -j2
         
         cd $GITHUB_WORKSPACE/build
-        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCXX_OMP_COMPILER=/usr/local/bin/g++-10 -DC_OMP_COMPILER=/usr/local/bin/gcc-10 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
+        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCXX_OMP_COMPILER=/usr/local/bin/g++-10 -DC_OMP_COMPILER=/usr/local/bin/gcc-10 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_PYTHON_VERSION_NUM=${{ matrix.python-version }} ../src;
         make -j2 package
         
         ZIPFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-MacOS.zip
