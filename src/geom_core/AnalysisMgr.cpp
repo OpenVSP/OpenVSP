@@ -14,6 +14,7 @@
 #include "PropGeom.h"
 #include "VSPAEROMgr.h"
 #include "ParasiteDragMgr.h"
+#include <cstdio>
 
 #include "VSP_Geom_API.h"
 
@@ -1491,6 +1492,9 @@ void VSPAEROSweepAnalysis::SetDefaults()
     if ( veh )
     {
 
+        // Output redirection
+        m_Inputs.Add( NameValData( "RedirectFile",                  string( "stdout" )                                ) );
+
         //Case Setup
         m_Inputs.Add( NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Geometry Set for analysis." ) );
         m_Inputs.Add( NameValData( "AnalysisMethod",                VSPAEROMgr.m_AnalysisMethod.Get()                 , "Flag to indicate analysis method (thin vs. thick)." ) );
@@ -1986,8 +1990,29 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_NoiseUnits.Set( nvd->GetInt( 0 ) );
         }
 
+        nvd = m_Inputs.FindPtr( "RedirectFile", 0 );
+        string fname = string( "stdout" );
+        if ( nvd )
+        {
+            fname = nvd->GetString( 0 );
+        }
+
         //==== Execute Analysis ====//
-        resId = VSPAEROMgr.ComputeSolver(stdout);
+
+        if ( fname == string() )
+        {
+            resId = VSPAEROMgr.ComputeSolver( NULL );
+        }
+        else if ( fname != string( "stdout" ) )
+        {
+            FILE* fp = fopen( fname.c_str(), "w" );
+            resId = VSPAEROMgr.ComputeSolver( fp );
+            fclose( fp );
+        }
+        else
+        {
+            resId = VSPAEROMgr.ComputeSolver( stdout );
+        }
 
 
         //==== Restore Original Values ====//
