@@ -247,6 +247,19 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
 
 void ScreenMgr::APIHideScreens()
 {
+    // De-select all Geoms
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->ClearActiveGeom();
+    }
+
+    ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *> ( m_ScreenVec[ ScreenMgr::VSP_MANAGE_GEOM_SCREEN ] );
+    if( geomScreen )
+    {
+        geomScreen->ShowHideGeomScreens();
+    }
+
     m_APIScreenOpenVec.clear();
     m_APIScreenOpenVec.resize( VSP_NUM_SCREENS, false );
 
