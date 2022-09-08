@@ -18,6 +18,9 @@ using std::string;
 class CfdMeshAnalysis : public Analysis
 {
 public:
+
+    CfdMeshAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 };
@@ -25,6 +28,9 @@ public:
 class FeaMeshAnalysis : public Analysis
 {
 public:
+
+    FeaMeshAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 };
@@ -32,6 +38,9 @@ public:
 class SurfaceIntersectionAnalysis : public Analysis
 {
 public:
+
+    SurfaceIntersectionAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 };

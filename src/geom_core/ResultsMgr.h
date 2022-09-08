@@ -126,7 +126,13 @@ class NameValCollection
 {
 public:
     NameValCollection() {};
-    NameValCollection( const string & name, const string & id );
+    NameValCollection( const string & name, const string & id, const string & doc  );
+
+    void Init( const char *name, const char *doc = "" )
+    {
+        m_Name = name;
+        m_Doc = doc;
+    }
 
     string GetName()
     {
@@ -135,6 +141,10 @@ public:
     string GetID()
     {
         return m_ID;
+    }
+    string GetDoc() const
+    {
+        return m_Doc;
     }
 
     void Add( const NameValData & d );
@@ -149,6 +159,7 @@ protected:
 
     string m_Name;
     string m_ID;
+    string m_Doc;
 
     //==== All The Data For This Computation Result =====//
     map< string, vector< NameValData > > m_DataMap;
@@ -160,7 +171,7 @@ class Results : public NameValCollection
 {
 public:
 
-    Results( const string & name, const string & id );
+    Results( const string & name, const string & id, const string & doc );
 
     void SetDateTime();
 

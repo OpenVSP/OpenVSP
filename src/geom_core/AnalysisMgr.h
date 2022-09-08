@@ -37,6 +37,11 @@ class Analysis
 {
 public:
 
+    Analysis( const char *name, const char *doc = "" )
+    {
+        m_Inputs.Init( name, doc );
+    }
+
     virtual ~Analysis(){};
 
     virtual void SetDefaults() = 0;
@@ -121,6 +126,8 @@ class BEMAnalysis : public Analysis
 {
 public:
 
+    BEMAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 
@@ -129,6 +136,8 @@ public:
 class CompGeomAnalysis : public Analysis
 {
 public:
+
+    CompGeomAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();
@@ -139,6 +148,8 @@ class DegenGeomAnalysis : public Analysis
 {
 public:
 
+    DegenGeomAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 };
@@ -146,6 +157,8 @@ public:
 class EmintonLordAnalysis : public Analysis
 {
 public:
+
+    EmintonLordAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();
@@ -156,6 +169,8 @@ class MassPropAnalysis : public Analysis
 {
 public:
 
+    MassPropAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 
@@ -164,6 +179,8 @@ public:
 class PlanarSliceAnalysis : public Analysis
 {
 public:
+
+    PlanarSliceAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();
@@ -174,6 +191,8 @@ class ProjectionAnalysis : public Analysis
 {
 public:
 
+    ProjectionAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 
@@ -183,6 +202,8 @@ class SurfacePatchAnalysis : public Analysis
 {
 public:
 
+    SurfacePatchAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 };
@@ -190,6 +211,8 @@ public:
 class WaveDragAnalysis : public Analysis
 {
 public:
+
+    WaveDragAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();
@@ -201,6 +224,8 @@ class VSPAERODegenGeomAnalysis : public Analysis
 {
 public:
 
+    VSPAERODegenGeomAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 
@@ -209,6 +234,8 @@ public:
 class VSPAEROComputeGeometryAnalysis : public Analysis
 {
 public:
+
+    VSPAEROComputeGeometryAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();
@@ -219,6 +246,8 @@ class VSPAEROSinglePointAnalysis : public Analysis
 {
 public:
 
+    VSPAEROSinglePointAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 
@@ -227,6 +256,8 @@ public:
 class VSPAEROSweepAnalysis : public Analysis
 {
 public:
+
+    VSPAEROSweepAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();
@@ -237,6 +268,8 @@ class ParasiteDragFullAnalysis : public Analysis
 {
 public:
 
+    ParasiteDragFullAnalysis();
+
     virtual void SetDefaults();
     virtual string Execute();
 
@@ -245,6 +278,8 @@ public:
 class CpSlicerAnalysis : public Analysis
 {
     public:
+
+    CpSlicerAnalysis();
 
     virtual void SetDefaults();
     virtual string Execute();

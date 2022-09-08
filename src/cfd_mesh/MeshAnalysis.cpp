@@ -19,6 +19,10 @@
 //================================= Cfd Mesh Analysis ==================================//
 //======================================================================================//
 
+CfdMeshAnalysis::CfdMeshAnalysis() : Analysis( "CfdMeshAnalysis", "Generate CFD surface mesh of model." )
+{
+}
+
 void CfdMeshAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
@@ -221,6 +225,10 @@ string CfdMeshAnalysis::Execute()
 //======================================================================================//
 //================================= Fea Mesh Analysis ==================================//
 //======================================================================================//
+
+FeaMeshAnalysis::FeaMeshAnalysis() : Analysis( "FeaMeshAnalysis", "Generate structure parts and finite element mesh of model." )
+{
+}
 
 void FeaMeshAnalysis::SetDefaults()
 {
@@ -595,6 +603,10 @@ string FeaMeshAnalysis::Execute()
 //======================================================================================//
 //========================== Surface Intersection Analysis =============================//
 //======================================================================================//
+
+SurfaceIntersectionAnalysis::SurfaceIntersectionAnalysis() : Analysis( "SurfaceIntersection", "Intersect surfaces and generate CAD-exchange files including BREP solids." )
+{
+}
 
 void SurfaceIntersectionAnalysis::SetDefaults()
 {

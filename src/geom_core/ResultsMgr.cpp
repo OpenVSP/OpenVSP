@@ -140,10 +140,11 @@ vec3d NameValData::GetVec3d( int i ) const
 //======================================================================================//
 
 
-NameValCollection::NameValCollection( const string & name, const string & id )
+NameValCollection::NameValCollection( const string & name, const string & id, const string & doc )
 {
     m_Name = name;
     m_ID = id;
+    m_Doc = doc;
 }
 
 //==== Add Data To Results - Can Have Data With The Same Name =====//
@@ -245,7 +246,7 @@ NameValData* NameValCollection::FindPtr( const string & name, int index )
 //======================================================================================//
 //======================================================================================//
 
-Results::Results( const string & name, const string & id ) : NameValCollection( name, id )
+Results::Results( const string & name, const string & id, const string & doc ) : NameValCollection( name, id, doc )
 {
     SetDateTime();          // Set Time Stamp
 }

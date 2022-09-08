@@ -544,6 +544,10 @@ void AnalysisMgrSingleton::RegisterBuiltins()
 //======================================= BEM ==========================================//
 //======================================================================================//
 
+BEMAnalysis::BEMAnalysis() : Analysis( "BladeElement", "Export a propeller in a blade element format" )
+{
+}
+
 void BEMAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
@@ -614,6 +618,10 @@ string BEMAnalysis::Execute()
 //================================= CompGeom ==========================================//
 //======================================================================================//
 
+CompGeomAnalysis::CompGeomAnalysis() : Analysis( "CompGeom", "Compute watertight triangle mesh via constructive solid geometry and compute wetted areas and volumes." )
+{
+}
+
 void CompGeomAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
@@ -683,6 +691,10 @@ string CompGeomAnalysis::Execute()
 //======================================================================================//
 //================================ Degen Geom ==========================================//
 //======================================================================================//
+DegenGeomAnalysis::DegenGeomAnalysis() : Analysis( "DegenGeom", "Compute degenerate geometry representations of model." )
+{
+}
+
 void DegenGeomAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
@@ -747,6 +759,9 @@ string DegenGeomAnalysis::Execute()
 //======================================================================================//
 //=============================== Emington Lord Analysis ===============================//
 //======================================================================================//
+EmintonLordAnalysis::EmintonLordAnalysis() : Analysis( "EmintonLord", "Perform Eminton-Lord integration of area distribution to compute wave drag." )
+{
+}
 
 void EmintonLordAnalysis::SetDefaults()
 {
@@ -800,6 +815,10 @@ string EmintonLordAnalysis::Execute()
 //======================================================================================//
 //================================= Mass Properties ====================================//
 //======================================================================================//
+
+MassPropAnalysis::MassPropAnalysis() : Analysis( "MassProp", "Compute mass properties of model." )
+{
+}
 
 void MassPropAnalysis::SetDefaults()
 {
@@ -862,6 +881,10 @@ string MassPropAnalysis::Execute()
 //======================================================================================//
 //================================= Planar Slice =======================================//
 //======================================================================================//
+
+PlanarSliceAnalysis::PlanarSliceAnalysis() : Analysis( "PlanarSlice", "Generate array of planar slices of model and calculate areas." )
+{
+}
 
 void PlanarSliceAnalysis::SetDefaults()
 {
@@ -972,6 +995,10 @@ string PlanarSliceAnalysis::Execute()
 //======================================================================================//
 //======================================================================================//
 //======================================================================================//
+
+ProjectionAnalysis::ProjectionAnalysis() : Analysis( "Projection", "Compute projected area of model." )
+{
+}
 
 void ProjectionAnalysis::SetDefaults()
 {
@@ -1114,6 +1141,10 @@ string ProjectionAnalysis::Execute()
 //================================= Surface Patch ======================================//
 //======================================================================================//
 
+SurfacePatchAnalysis::SurfacePatchAnalysis() : Analysis( "SurfacePatches", "Compute structured grid of points and normals for all surface patches." )
+{
+}
+
 void SurfacePatchAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
@@ -1146,6 +1177,10 @@ string SurfacePatchAnalysis::Execute()
 //======================================================================================//
 //================================= Wave Drag ==========================================//
 //======================================================================================//
+
+WaveDragAnalysis::WaveDragAnalysis() : Analysis( "WaveDrag", "Compute the wave drag of a model." )
+{
+}
 
 void WaveDragAnalysis::SetDefaults()
 {
@@ -1222,6 +1257,10 @@ string WaveDragAnalysis::Execute()
 //================================= VSPAERO ============================================//
 //======================================================================================//
 
+VSPAERODegenGeomAnalysis::VSPAERODegenGeomAnalysis() : Analysis( "VSPAERODegenGeom", "Prepare a degen geometry for VSPAERO analysis." )
+{
+}
+
 void VSPAERODegenGeomAnalysis::SetDefaults()
 {
     // the default values use exactly what is setup in the VSPAEROMgr
@@ -1264,6 +1303,10 @@ string VSPAERODegenGeomAnalysis::Execute()
     }
     
     return res_id;
+}
+
+VSPAEROComputeGeometryAnalysis::VSPAEROComputeGeometryAnalysis() : Analysis( "VSPAEROComputeGeometry", "Prepare a watertight triangle mesh for VSPAERO analysis." )
+{
 }
 
 void VSPAEROComputeGeometryAnalysis::SetDefaults()
@@ -1330,6 +1373,10 @@ string VSPAEROComputeGeometryAnalysis::Execute()
     return resId;
 }
 
+VSPAEROSinglePointAnalysis::VSPAEROSinglePointAnalysis() : Analysis( "VSPAEROSinglePoint", "Perform VSPAERO analysis at a single flow condition." )
+{
+}
+
 void VSPAEROSinglePointAnalysis::SetDefaults()
 {
     // SetDefaults() is called when the analysis is registered.  Do nothing.
@@ -1348,6 +1395,10 @@ string VSPAEROSinglePointAnalysis::Execute()
     MessageMgr::getInstance().SendAll( errMsgData );
 
     return resId;
+}
+
+VSPAEROSweepAnalysis::VSPAEROSweepAnalysis() : Analysis( "VSPAEROSweep", "Perform VSPAERO calculation while sweeping flow condition." )
+{
 }
 
 void VSPAEROSweepAnalysis::SetDefaults()
@@ -1938,6 +1989,10 @@ string VSPAEROSweepAnalysis::Execute()
 //============================== Parasite Drag =========================================//
 //======================================================================================//
 
+ParasiteDragFullAnalysis::ParasiteDragFullAnalysis() : Analysis( "ParasiteDrag", "Compute parasite drag buildup of a model." )
+{
+}
+
 void ParasiteDragFullAnalysis::SetDefaults()
 {
     // the default values use exactly what is setup in the VSPAEROMgr
@@ -2205,6 +2260,10 @@ string ParasiteDragFullAnalysis::Execute()
 //======================================================================================//
 //=================================== CpSlicer =========================================//
 //======================================================================================//
+
+CpSlicerAnalysis::CpSlicerAnalysis() : Analysis( "CpSlicer", "Post-process VSPAERO solution to produce Cp slices" )
+{
+}
 
 void CpSlicerAnalysis::SetDefaults()
 {
