@@ -128,7 +128,7 @@ class CharmAirfoilSection:
 
 class CharmRotorSettings:
     def __init__(self, rpm=0.0, rotor_wake_template=None, initial_collective=None, ct=None,
-                 default_airfoil_opts=None, merge_wings=True, nspan_override=None,
+                 default_airfoil_opts=None, merge_wings=False, nspan_override=None,
                  airfoil_opts=None, iaero=1, irvflo=0, icoll=None, airfoil_r_o_Rs=None, nchord=1,
                  icnvct=None, flap_type=None, flap_length=None, flap_defl=None):
         """
