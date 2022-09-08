@@ -207,6 +207,23 @@ int AnalysisMgrSingleton::GetAnalysisInputType( const string & analysis, const s
     return inpt_ptr->GetType();
 }
 
+string AnalysisMgrSingleton::GetAnalysisInputDoc( const string & analysis, const string & name )
+{
+    Analysis* analysis_ptr = FindAnalysis( analysis );
+    if ( !analysis_ptr )
+    {
+        return "";
+    }
+
+    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name );
+    if ( !inpt_ptr )
+    {
+        return "";
+    }
+
+    return inpt_ptr->GetDoc();
+}
+
 void AnalysisMgrSingleton::PrintAnalysisInputs( const string &fname, const string& analysis_name )
 {
     FILE *fp;
@@ -286,6 +303,46 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
         }    // end for
 
         fprintf( outputStream, "\n" );
+    }
+}
+
+void AnalysisMgrSingleton::PrintAnalysisDocs( const string &fname, const string& analysis_name )
+{
+    FILE *fp;
+    fp = fopen( fname.c_str(), "w" );
+    if ( fp )
+    {
+        PrintAnalysisDocs( fp, analysis_name );
+        fclose( fp );
+    }
+}
+
+void AnalysisMgrSingleton::PrintAnalysisDocs( const string& analysis_name )
+{
+    PrintAnalysisDocs( stdout, analysis_name );
+}
+
+void AnalysisMgrSingleton::PrintAnalysisDocs( FILE * outputStream, const string& analysis_name )
+{
+    fprintf( outputStream, "%s\n", analysis_name.c_str() );
+
+    Analysis* analysis_ptr = FindAnalysis( analysis_name );
+    if ( !analysis_ptr )
+    {
+        return;
+    }
+    string doc = analysis_ptr->m_Inputs.GetDoc();
+    fprintf( outputStream, "%s\n", doc.c_str() );
+
+    fprintf( outputStream, "\t\t%-20s%s\t%s\n", "[input_name] ", "[type]", "[doc]" );
+
+    vector < string > input_names = analysis_ptr->m_Inputs.GetAllDataNames();
+    for ( unsigned int i_input_name = 0; i_input_name < input_names.size(); i_input_name++ )
+    {
+        // print out type and number of data entries
+        int current_input_type = GetAnalysisInputType( analysis_name, input_names[i_input_name] );
+        string current_input_doc = GetAnalysisInputDoc( analysis_name, input_names[i_input_name] );
+        fprintf( outputStream, "\t\t%-20s%u\t\t%s\n", input_names[i_input_name].c_str(), current_input_type, current_input_doc.c_str() );
     }
 }
 

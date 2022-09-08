@@ -4877,6 +4877,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Print to stdout all current input documentation for a specific analysis
+    \code{.cpp}
+    //==== Analysis: VSPAero Compute Geometry ====//
+    string analysis_name = "VSPAEROComputeGeometry";
+
+    // list inputs, type, and documentation
+    PrintAnalysisDocs( analysis_name );
+    \endcode
+    \param [in] analysis Analysis name
+*/)";
+    r = se->RegisterGlobalFunction( "void PrintAnalysisDocs( const string & in analysis )", vspFUNCTION( vsp::PrintAnalysisDocs ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
    Set all input values to their defaults for a specific analysis
     \code{.cpp}
     //==== Analysis: VSPAero Compute Geometry ====//

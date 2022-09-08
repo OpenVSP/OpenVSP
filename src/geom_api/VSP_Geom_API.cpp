@@ -1315,6 +1315,16 @@ void PrintAnalysisInputs( const string & analysis_name )
     AnalysisMgr.PrintAnalysisInputs( analysis_name );
 }
 
+void PrintAnalysisDocs( const string & analysis_name )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis_name ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "PrintAnalysisDocs::Invalid Analysis ID " + analysis_name );
+    }
+
+    AnalysisMgr.PrintAnalysisDocs( analysis_name );
+}
+
 //===================================================================//
 //===============       Results Functions         ===================//
 //===================================================================//
