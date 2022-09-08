@@ -106,15 +106,20 @@ Analysis* AnalysisMgrSingleton::FindAnalysis( const string & name ) const
     return NULL;
 }
 
-bool AnalysisMgrSingleton::RegisterAnalysis( const string & name, Analysis* asys )
+bool AnalysisMgrSingleton::RegisterAnalysis( Analysis* asys )
 {
-    Analysis *b = FindAnalysis( name );
-
-    if ( !b && asys )
+    if ( asys )
     {
-        asys->SetDefaults();
-        m_AnalysisMap[name] = asys;
-        return true;
+        string name = asys->m_Inputs.GetName();
+
+        Analysis *b = FindAnalysis( name );
+
+        if ( !b )
+        {
+            asys->SetDefaults();
+            m_AnalysisMap[name] = asys;
+            return true;
+        }
     }
 
     return false; // name already in AnalysisMap
@@ -435,21 +440,21 @@ void AnalysisMgrSingleton::RegisterBuiltins()
 {
     BEMAnalysis *bem = new BEMAnalysis();
 
-    if ( bem && !RegisterAnalysis( "BladeElement", bem ) )
+    if ( bem && !RegisterAnalysis( bem ) )
     {
         delete bem;
     }
 
     CompGeomAnalysis *cga = new CompGeomAnalysis();
 
-    if ( cga && !RegisterAnalysis( "CompGeom", cga ) )
+    if ( cga && !RegisterAnalysis( cga ) )
     {
         delete cga;
     }
 
     DegenGeomAnalysis *dga = new DegenGeomAnalysis();
 
-    if ( dga && !RegisterAnalysis( "DegenGeom", dga ) )
+    if ( dga && !RegisterAnalysis( dga ) )
     {
         delete dga;
     }
@@ -457,84 +462,84 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     EmintonLordAnalysis *ema = new EmintonLordAnalysis();
 
 
-    if ( ema && !RegisterAnalysis( "EmintonLord", ema ) )
+    if ( ema && !RegisterAnalysis( ema ) )
     {
         delete ema;
     }
 
     MassPropAnalysis *mpa = new MassPropAnalysis();
 
-    if ( mpa && !RegisterAnalysis( "MassProp", mpa ) )
+    if ( mpa && !RegisterAnalysis( mpa ) )
     {
         delete mpa;
     }
 
     PlanarSliceAnalysis *psa = new PlanarSliceAnalysis();
 
-    if ( psa && !RegisterAnalysis( "PlanarSlice", psa ) )
+    if ( psa && !RegisterAnalysis( psa ) )
     {
         delete psa;
     }
 
     ProjectionAnalysis *proj = new ProjectionAnalysis();
 
-    if ( proj && !RegisterAnalysis( "Projection", proj ) )
+    if ( proj && !RegisterAnalysis( proj ) )
     {
         delete proj;
     }
 
     SurfacePatchAnalysis *spa = new SurfacePatchAnalysis();
 
-    if ( spa && !RegisterAnalysis( "SurfacePatches", spa ) )
+    if ( spa && !RegisterAnalysis( spa ) )
     {
         delete spa;
     }
 
     WaveDragAnalysis *wave = new WaveDragAnalysis();
 
-    if ( wave && !RegisterAnalysis( "WaveDrag", wave ) )
+    if ( wave && !RegisterAnalysis( wave ) )
     {
         delete wave;
     }
 
     VSPAERODegenGeomAnalysis *vsadga = new VSPAERODegenGeomAnalysis();
 
-    if ( vsadga && !RegisterAnalysis( "VSPAERODegenGeom", vsadga ) )
+    if ( vsadga && !RegisterAnalysis( vsadga ) )
     {
         delete vsadga;
     }
 
     VSPAEROComputeGeometryAnalysis *vsaga = new VSPAEROComputeGeometryAnalysis();
 
-    if ( vsaga && !RegisterAnalysis( "VSPAEROComputeGeometry", vsaga ) )
+    if ( vsaga && !RegisterAnalysis( vsaga ) )
     {
         delete vsaga;
     }
 
     VSPAEROSinglePointAnalysis *vsaspa = new VSPAEROSinglePointAnalysis();
 
-    if ( vsaspa && !RegisterAnalysis( "VSPAEROSinglePoint", vsaspa ) )
+    if ( vsaspa && !RegisterAnalysis( vsaspa ) )
     {
         delete vsaspa;
     }
 
     VSPAEROSweepAnalysis *vsasa = new VSPAEROSweepAnalysis();
 
-    if ( vsasa && !RegisterAnalysis( "VSPAEROSweep", vsasa ) )
+    if ( vsasa && !RegisterAnalysis( vsasa ) )
     {
         delete vsasa;
     }
 
     ParasiteDragFullAnalysis *vspdbu = new ParasiteDragFullAnalysis();
 
-    if ( vspdbu && !RegisterAnalysis( "ParasiteDrag", vspdbu ) )
+    if ( vspdbu && !RegisterAnalysis( vspdbu ) )
     {
         delete vspdbu;
     }
 
     CpSlicerAnalysis *cpsa = new CpSlicerAnalysis();
 
-    if ( cpsa && !RegisterAnalysis( "CpSlicer", cpsa ) )
+    if ( cpsa && !RegisterAnalysis( cpsa ) )
     {
         delete cpsa;
     }

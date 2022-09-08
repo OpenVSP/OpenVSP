@@ -526,13 +526,11 @@ void SurfaceIntersectionSingleton::CleanUp()
 
 void SurfaceIntersectionSingleton::RegisterAnalysis()
 {
-    string analysis_name = "SurfaceIntersection";
-
-    if ( !AnalysisMgr.FindAnalysis( analysis_name ) )
+    if ( !AnalysisMgr.FindAnalysis( "SurfaceIntersection" ) )
     {
         SurfaceIntersectionAnalysis* sia = new SurfaceIntersectionAnalysis();
 
-        if ( sia && !AnalysisMgr.RegisterAnalysis( analysis_name, sia ) )
+        if ( sia && !AnalysisMgr.RegisterAnalysis( sia ) )
         {
             delete sia;
         }

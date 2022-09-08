@@ -70,7 +70,7 @@ public:
     int GetNumAnalysis() const;
     vector < string > ListAnalysis() const;
     Analysis* FindAnalysis( const string & name ) const;
-    bool RegisterAnalysis( const string & name, Analysis* asys );
+    bool RegisterAnalysis( Analysis* asys );
 
     string ExecAnalysis( const string & analysis );
 

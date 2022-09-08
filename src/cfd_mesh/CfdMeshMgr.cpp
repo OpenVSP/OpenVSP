@@ -3943,13 +3943,11 @@ void CfdMeshMgrSingleton::UpdateDisplaySettings()
 
 void CfdMeshMgrSingleton::RegisterAnalysis()
 {
-    string analysis_name = "CfdMeshAnalysis";
-
-    if (!AnalysisMgr.FindAnalysis(analysis_name))
+    if (!AnalysisMgr.FindAnalysis( "CfdMeshAnalysis" ))
     {
         CfdMeshAnalysis* cfda = new CfdMeshAnalysis();
 
-        if ( cfda && !AnalysisMgr.RegisterAnalysis( analysis_name, cfda ) )
+        if ( cfda && !AnalysisMgr.RegisterAnalysis( cfda ) )
         {
             delete cfda;
         }

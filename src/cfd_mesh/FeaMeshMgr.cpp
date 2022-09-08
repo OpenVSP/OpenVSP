@@ -2514,13 +2514,11 @@ void FeaMeshMgrSingleton::UpdateAssemblyDisplaySettings( const string &assembly_
 
 void FeaMeshMgrSingleton::RegisterAnalysis()
 {
-    string analysis_name = "FeaMeshAnalysis";
-
-    if (!AnalysisMgr.FindAnalysis(analysis_name))
+    if (!AnalysisMgr.FindAnalysis( "FeaMeshAnalysis" ))
     {
         FeaMeshAnalysis* sia = new FeaMeshAnalysis();
 
-        if ( sia && !AnalysisMgr.RegisterAnalysis( analysis_name, sia ) )
+        if ( sia && !AnalysisMgr.RegisterAnalysis( sia ) )
         {
             delete sia;
         }
