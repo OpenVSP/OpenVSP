@@ -1245,6 +1245,7 @@ void ResultsMgrSingleton::PrintResults( const string &fname, const string &resul
 void ResultsMgrSingleton::PrintResults( const string &results_id )
 {
     PrintResults( stdout, results_id );
+    fflush( stdout );
 }
 
 void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &results_id )
@@ -1347,6 +1348,7 @@ void ResultsMgrSingleton::PrintResultsDocs( const string &fname, const string &r
 void ResultsMgrSingleton::PrintResultsDocs( const string &results_id )
 {
     PrintResultsDocs( stdout, results_id );
+    fflush( stdout );
 }
 
 void ResultsMgrSingleton::PrintResultsDocs( FILE * outputStream, const string &results_id )

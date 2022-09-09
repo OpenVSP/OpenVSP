@@ -255,6 +255,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( const string &fname, const strin
 void AnalysisMgrSingleton::PrintAnalysisInputs( const string& analysis_name )
 {
     PrintAnalysisInputs( stdout, analysis_name );
+    fflush( stdout );
 }
 
 void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const string& analysis_name )
@@ -338,6 +339,7 @@ void AnalysisMgrSingleton::PrintAnalysisDocs( const string &fname, const string&
 void AnalysisMgrSingleton::PrintAnalysisDocs( const string& analysis_name )
 {
     PrintAnalysisDocs( stdout, analysis_name );
+    fflush( stdout );
 }
 
 void AnalysisMgrSingleton::PrintAnalysisDocs( FILE * outputStream, const string& analysis_name )
