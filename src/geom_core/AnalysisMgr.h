@@ -79,6 +79,7 @@ public:
 
     int GetNumInputData( const string & analysis, const string & name );
     int GetAnalysisInputType( const string & analysis, const string & name );
+    string GetAnalysisInputTypeName( const string & results_id, const string & data_name );
     string GetAnalysisInputDoc( const string & analysis, const string & name );
 
     void PrintAnalysisInputs( const string & fname, const std::string& analysis_name );

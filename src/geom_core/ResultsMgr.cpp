@@ -89,6 +89,26 @@ void NameValData::Init( const string & name, int type, int index )
     m_Type = type;
 }
 
+string NameValData::GetTypeName() const
+{
+    switch ( m_Type ){
+        case vsp::INVALID_TYPE:
+            return string( "invalid" );
+        case vsp::INT_DATA:
+            return string( "integer" );
+        case vsp::DOUBLE_DATA:
+            return string( "double" );
+        case vsp::STRING_DATA:
+            return string( "string" );
+        case vsp::VEC3D_DATA:
+            return string( "vec3d" );
+        case vsp::DOUBLE_MATRIX_DATA:
+            return string( "double matrix" );
+        default:
+            return string( "unknown" );
+    }
+}
+
 int NameValData::GetInt( int i ) const
 {
     if ( i >= 0 && i < ( int )m_IntData.size() )
@@ -1152,6 +1172,23 @@ int ResultsMgrSingleton::GetResultsType( const string & results_id, const string
     return rd_ptr->GetType();
 }
 
+string ResultsMgrSingleton::GetResultsTypeName( const string & results_id, const string & data_name )
+{
+    Results* results_ptr = FindResultsPtr( results_id );
+    if ( !results_ptr )
+    {
+        return "";
+    }
+
+    NameValData* rd_ptr = results_ptr->FindPtr( data_name );
+    if ( !rd_ptr )
+    {
+        return "";
+    }
+
+    return rd_ptr->GetTypeName();
+}
+
 string ResultsMgrSingleton::GetResultsDoc( const string & results_id, const string & data_name )
 {
     Results* results_ptr = FindResultsPtr( results_id );
@@ -1212,14 +1249,15 @@ void ResultsMgrSingleton::PrintResults( const string &results_id )
 
 void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &results_id )
 {
-    fprintf( outputStream, "\n\t\t%-20s%s\t%s\t%s\n", "[result_name]", "[type]", "[#]", "[current values-->]" );
+    fprintf( outputStream, "\n   %-30s%-13s\t%s\t%s\n", "[result_name]", "[type]", "[#]", "[current values-->]" );
 
     vector<string> results_names = GetAllDataNames( results_id );
     for ( unsigned int i_result_name = 0; i_result_name < results_names.size(); i_result_name++ )
     {
         int current_result_type = GetResultsType( results_id, results_names[i_result_name] );
+        string current_result_type_name = GetResultsTypeName( results_id, results_names[i_result_name] );
         unsigned int current_result_num_data = ( unsigned int )GetNumData( results_id, results_names[i_result_name] );
-        fprintf( outputStream, "\t\t%-20s%d\t\t%d", results_names[i_result_name].c_str(), current_result_type, current_result_num_data );
+        fprintf( outputStream, "   %-30s%-13s\t%d", results_names[i_result_name].c_str(), current_result_type_name.c_str(), current_result_num_data );
         // print out the current value (this needs to handle different types and vector lengths
         fprintf( outputStream, "\t" );
         for ( unsigned int i_val = 0; i_val < current_result_num_data; i_val++ )
@@ -1323,14 +1361,14 @@ void ResultsMgrSingleton::PrintResultsDocs( FILE * outputStream, const string &r
     fprintf( outputStream, "%s\n", res_ptr->GetName().c_str() );
     fprintf( outputStream, "%s\n", res_ptr->GetDoc().c_str() );
 
-    fprintf( outputStream, "\t\t%-20s%s\t%s\n", "[result_name]", "[type]", "[doc]" );
+    fprintf( outputStream, "   %-30s%-13s\t%s\n", "[result_name]", "[type]", "[doc]" );
 
     vector<string> results_names = GetAllDataNames( results_id );
     for ( unsigned int i_result_name = 0; i_result_name < results_names.size(); i_result_name++ )
     {
-        int current_result_type = GetResultsType( results_id, results_names[i_result_name] );
+        string current_result_type = GetResultsTypeName( results_id, results_names[i_result_name] );
         string current_result_doc = GetResultsDoc( results_id, results_names[i_result_name] );
-        fprintf( outputStream, "\t\t%-20s%d\t\t%s\n", results_names[i_result_name].c_str(), current_result_type, current_result_doc.c_str() );
+        fprintf( outputStream, "   %-30s%-13s\t%s\n", results_names[i_result_name].c_str(), current_result_type.c_str(), current_result_doc.c_str() );
     }
 }
 

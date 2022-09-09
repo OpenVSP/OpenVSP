@@ -48,6 +48,7 @@ public:
     {
         return m_Type;
     }
+    string GetTypeName() const;
 
     string GetDoc() const
     {
@@ -234,6 +235,7 @@ public:
     int GetNumData( const string & results_id, const string & data_name );
 
     int GetResultsType( const string & results_id, const string & data_name );
+    string GetResultsTypeName( const string & results_id, const string & data_name );
     string GetResultsDoc( const string & results_id, const string & data_name );
 
     vector< string > GetAllResultsNames();

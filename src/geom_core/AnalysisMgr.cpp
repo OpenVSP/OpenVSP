@@ -207,6 +207,23 @@ int AnalysisMgrSingleton::GetAnalysisInputType( const string & analysis, const s
     return inpt_ptr->GetType();
 }
 
+string AnalysisMgrSingleton::GetAnalysisInputTypeName( const string & analysis, const string & name )
+{
+    Analysis* analysis_ptr = FindAnalysis( analysis );
+    if ( !analysis_ptr )
+    {
+        return "";
+    }
+
+    NameValData* inpt_ptr = analysis_ptr->m_Inputs.FindPtr( name );
+    if ( !inpt_ptr )
+    {
+        return "";
+    }
+
+    return inpt_ptr->GetTypeName();
+}
+
 string AnalysisMgrSingleton::GetAnalysisInputDoc( const string & analysis, const string & name )
 {
     Analysis* analysis_ptr = FindAnalysis( analysis );
@@ -242,7 +259,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( const string& analysis_name )
 
 void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const string& analysis_name )
 {
-    fprintf( outputStream, "\t\t%-20s%s\t%s\t%s\n", "[input_name] ", "[type]", "[#]", "[current values-->]" );
+    fprintf( outputStream, "   %-30s%-13s\t%s\t%s\n", "[input_name] ", "[type]", "[#]", "[current values-->]" );
 
     Analysis* analysis_ptr = FindAnalysis( analysis_name );
     if ( !analysis_ptr )
@@ -254,8 +271,9 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
     {
         // print out type and number of data entries
         int current_input_type = GetAnalysisInputType( analysis_name, input_names[i_input_name] );
+        string current_input_type_name = GetAnalysisInputTypeName( analysis_name, input_names[i_input_name] );
         unsigned int current_input_num_data = ( unsigned int ) GetNumInputData( analysis_name, input_names[i_input_name] );
-        fprintf( outputStream, "\t\t%-20s%u\t\t%d", input_names[i_input_name].c_str(), current_input_type, current_input_num_data );
+        fprintf( outputStream, "   %-30s%-13s\t%d", input_names[i_input_name].c_str(), current_input_type_name.c_str(), current_input_num_data );
 
         // print out the current value (this needs to handle different types and vector lengths
         fprintf( outputStream, "\t" );
@@ -334,15 +352,15 @@ void AnalysisMgrSingleton::PrintAnalysisDocs( FILE * outputStream, const string&
     string doc = analysis_ptr->m_Inputs.GetDoc();
     fprintf( outputStream, "%s\n", doc.c_str() );
 
-    fprintf( outputStream, "\t\t%-20s%s\t%s\n", "[input_name] ", "[type]", "[doc]" );
+    fprintf( outputStream, "   %-30s%-13s\t%s\n", "[input_name] ", "[type]", "[doc]" );
 
     vector < string > input_names = analysis_ptr->m_Inputs.GetAllDataNames();
     for ( unsigned int i_input_name = 0; i_input_name < input_names.size(); i_input_name++ )
     {
         // print out type and number of data entries
-        int current_input_type = GetAnalysisInputType( analysis_name, input_names[i_input_name] );
+        string current_input_type = GetAnalysisInputTypeName( analysis_name, input_names[i_input_name] );
         string current_input_doc = GetAnalysisInputDoc( analysis_name, input_names[i_input_name] );
-        fprintf( outputStream, "\t\t%-20s%u\t\t%s\n", input_names[i_input_name].c_str(), current_input_type, current_input_doc.c_str() );
+        fprintf( outputStream, "   %-30s%-13s\t%s\n", input_names[i_input_name].c_str(), current_input_type.c_str(), current_input_doc.c_str() );
     }
 }
 
