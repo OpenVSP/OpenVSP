@@ -1152,6 +1152,23 @@ int ResultsMgrSingleton::GetResultsType( const string & results_id, const string
     return rd_ptr->GetType();
 }
 
+string ResultsMgrSingleton::GetResultsDoc( const string & results_id, const string & data_name )
+{
+    Results* results_ptr = FindResultsPtr( results_id );
+    if ( !results_ptr )
+    {
+        return "";
+    }
+
+    NameValData* rd_ptr = results_ptr->FindPtr( data_name );
+    if ( !rd_ptr )
+    {
+        return "";
+    }
+
+    return rd_ptr->GetDoc();
+}
+
 //==== Get The Names of All Results ====//
 vector< string > ResultsMgrSingleton::GetAllResultsNames()
 {
@@ -1278,6 +1295,44 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
     }
 }
 
+void ResultsMgrSingleton::PrintResultsDocs( const string &fname, const string &results_id )
+{
+    FILE *fp;
+    fp = fopen( fname.c_str(), "w" );
+    if ( fp )
+    {
+        PrintResultsDocs( fp, results_id );
+        fclose( fp );
+    }
+}
+
+void ResultsMgrSingleton::PrintResultsDocs( const string &results_id )
+{
+    PrintResultsDocs( stdout, results_id );
+}
+
+void ResultsMgrSingleton::PrintResultsDocs( FILE * outputStream, const string &results_id )
+{
+    Results * res_ptr = FindResultsPtr( results_id );
+
+    if ( !res_ptr )
+    {
+        return;
+    }
+
+    fprintf( outputStream, "%s\n", res_ptr->GetName().c_str() );
+    fprintf( outputStream, "%s\n", res_ptr->GetDoc().c_str() );
+
+    fprintf( outputStream, "\t\t%-20s%s\t%s\n", "[result_name]", "[type]", "[doc]" );
+
+    vector<string> results_names = GetAllDataNames( results_id );
+    for ( unsigned int i_result_name = 0; i_result_name < results_names.size(); i_result_name++ )
+    {
+        int current_result_type = GetResultsType( results_id, results_names[i_result_name] );
+        string current_result_doc = GetResultsDoc( results_id, results_names[i_result_name] );
+        fprintf( outputStream, "\t\t%-20s%d\t\t%s\n", results_names[i_result_name].c_str(), current_result_type, current_result_doc.c_str() );
+    }
+}
 
 
 //==== Get Int Results Given Results ID and Name of Data and Index (Default 0) ====//

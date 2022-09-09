@@ -234,6 +234,7 @@ public:
     int GetNumData( const string & results_id, const string & data_name );
 
     int GetResultsType( const string & results_id, const string & data_name );
+    string GetResultsDoc( const string & results_id, const string & data_name );
 
     vector< string > GetAllResultsNames();
     vector< string > GetAllDataNames( const string & results_id );
@@ -241,6 +242,10 @@ public:
     void PrintResults( const string &fname, const std::string &results_id );
     void PrintResults( const std::string &results_id );
     void PrintResults( FILE * outputStream, const std::string &results_id );
+
+    void PrintResultsDocs( const string &fname, const std::string &results_id );
+    void PrintResultsDocs( const std::string &results_id );
+    void PrintResultsDocs( FILE * outputStream, const std::string &results_id );
 
     const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
     const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );

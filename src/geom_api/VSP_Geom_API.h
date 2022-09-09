@@ -132,6 +132,7 @@ extern void DeleteAllResults();
 extern void DeleteResult( const std::string & id );
 extern void WriteResultsCSVFile( const std::string & id, const std::string & file_name );
 extern void PrintResults( const std::string &results_id );
+extern void PrintResultsDocs( const std::string &results_id );
 
 //======================== GUI Functions ================================//
 extern void StartGui( );

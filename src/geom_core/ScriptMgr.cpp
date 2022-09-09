@@ -5383,6 +5383,25 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Print a result's names and documentation to stdout
+    \code{.cpp}
+    // Add Pod Geom
+    string pid = AddGeom( "POD" );
+
+    string analysis_name = "VSPAEROComputeGeometry";
+
+    string rid = ExecAnalysis( analysis_name );
+
+    // Get & Display Results Docs
+    PrintResultsDoc( rid );
+    \endcode
+    \param [in] id Result ID
+*/)";
+    r = se->RegisterGlobalFunction( "void PrintResultsDoc( const string & in id )", vspFUNCTION( vsp::PrintResultsDocs ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Create two sets of test results, each containing int, string, vec3d, double, and vector< double > data types. 
     \code{.cpp}
     //==== Write Some Fake Test Results =====//

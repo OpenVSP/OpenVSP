@@ -1578,6 +1578,11 @@ void PrintResults( const string &results_id )
     ResultsMgr.PrintResults( results_id );
 }
 
+void PrintResultsDocs( const std::string &results_id )
+{
+    ResultsMgr.PrintResultsDocs( results_id );
+}
+
 //===================================================================//
 //===============        GUI Functions            ===================//
 //===================================================================//
