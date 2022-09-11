@@ -1,5 +1,6 @@
 ExternalProject_Add( EIGEN
-	URL ${CMAKE_SOURCE_DIR}/eigen-eigen-1f4c0311cda3.tar.gz
+	URL "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz"
+	URL_HASH "SHA1=d222db69a9e87d9006608e029d1039039f360b52"
 	UPDATE_COMMAND ""
 	CONFIGURE_COMMAND ""
 	BUILD_COMMAND ""
