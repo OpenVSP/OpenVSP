@@ -1189,7 +1189,7 @@ string ResultsMgrSingleton::GetResultsTypeName( const string & results_id, const
     return rd_ptr->GetTypeName();
 }
 
-string ResultsMgrSingleton::GetResultsDoc( const string & results_id, const string & data_name )
+string ResultsMgrSingleton::GetResultsEntryDoc( const string & results_id, const string & data_name )
 {
     Results* results_ptr = FindResultsPtr( results_id );
     if ( !results_ptr )
@@ -1369,7 +1369,7 @@ void ResultsMgrSingleton::PrintResultsDocs( FILE * outputStream, const string &r
     for ( unsigned int i_result_name = 0; i_result_name < results_names.size(); i_result_name++ )
     {
         string current_result_type = GetResultsTypeName( results_id, results_names[i_result_name] );
-        string current_result_doc = GetResultsDoc( results_id, results_names[i_result_name] );
+        string current_result_doc = GetResultsEntryDoc( results_id, results_names[ i_result_name ] );
         fprintf( outputStream, "   %-30s%-13s\t%s\n", results_names[i_result_name].c_str(), current_result_type.c_str(), current_result_doc.c_str() );
     }
 }
