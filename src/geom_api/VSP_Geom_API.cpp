@@ -1111,6 +1111,31 @@ vector < string > GetAnalysisInputNames( const string & analysis )
     return a->m_Inputs.GetAllDataNames();
 }
 
+string GetAnalysisDoc( const std::string & analysis )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAnalysisDoc::Invalid Analysis ID " + analysis );
+        return "";
+    }
+
+    Analysis *a = AnalysisMgr.FindAnalysis( analysis );
+
+    return a->m_Inputs.GetDoc();
+}
+
+string GetAnalysisInputDoc( const std::string & analysis, const std::string & name )
+{
+    if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAnalysisInputDoc::Invalid Analysis ID " + analysis );
+        return "";
+    }
+    ErrorMgr.NoError();
+
+    return AnalysisMgr.GetAnalysisInputDoc( analysis, name );
+}
+
 string ExecAnalysis( const string & analysis )
 {
     if ( !AnalysisMgr.ValidAnalysisName( analysis ) )
@@ -1363,6 +1388,29 @@ string GetResultsName( const string & results_id )
     }
 
     return ResultsMgr.FindResultsPtr( results_id )->GetName();
+}
+
+string GetResultsSetDoc( const std::string & results_id )
+{
+    if ( !ResultsMgr.ValidResultsID( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsSetDoc::Invalid ID " + results_id );
+        return  "";
+    }
+
+    return ResultsMgr.FindResultsPtr( results_id )->GetDoc();
+}
+
+string GetResultsEntryDoc( const std::string & results_id, const std::string & data_name )
+{
+    if ( !ResultsMgr.ValidResultsID( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsEntryDoc::Invalid ID " + results_id );
+        return "";
+    }
+    ErrorMgr.NoError();
+
+    return ResultsMgr.GetResultsEntryDoc( results_id, data_name );
 }
 
 /// Return the id of the results with the given results name and index

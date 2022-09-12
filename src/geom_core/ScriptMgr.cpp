@@ -4736,6 +4736,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Get the analysis documentation string
+    \code{.cpp}
+    string analysis_name = "VSPAEROComputeGeometry";
+
+    string doc = GetAnalysisDoc( analysis_name );
+    \endcode
+    \param [in] analysis Analysis name
+    \return Documentation string
+*/)";
+    r = se->RegisterGlobalFunction( "string GetAnalysisDoc( const string & in analysis )", vspFUNCTION( vsp::GetAnalysisDoc ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the documentation string for the particular analysis and input
+    \param [in] analysis Analysis name
+    \param [in] name Input name
+    \return Documentation string
+*/)";
+    r = se->RegisterGlobalFunction( "string GetAnalysisInputDoc( const string & in analysis, const string & in name )", vspFUNCTION( vsp::GetNumAnalysisInputData ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Execute an analysis through the Analysis Manager
     \code{.cpp}
     string analysis_name = "VSPAEROComputeGeometry";
@@ -5037,6 +5061,52 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \return Result name
 */)";
     r = se->RegisterGlobalFunction( "string GetResultsName( const string & in results_id )", vspFUNCTION( vsp::GetResultsName ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the documentation string for a result given its ID
+    \code{.cpp}
+    //==== Analysis: VSPAero Compute Geometry ====//
+    string analysis_name = "VSPAEROComputeGeometry";
+
+    // Set defaults
+    SetAnalysisInputDefaults( analysis_name );
+
+    string res_id = ( ExecAnalysis( analysis_name ) );
+
+    Print( "Results doc: ", false );
+
+    Print( GetResultsSetDoc( res_id ) );
+    \endcode
+    \param [in] results_id Result ID
+    \return Result documentation string
+*/)";
+    r = se->RegisterGlobalFunction( "string GetResultsSetDoc( const string & in results_id )",
+                                    vspFUNCTION( vsp::GetResultsSetDoc ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the documentation string for a given result ID and data name
+    \code{.cpp}
+    //==== Write Some Fake Test Results =====//
+    WriteTestResults();
+
+    string res_id = FindResultsID( "Test_Results" );
+
+    string doc = GetResultsSetDoc( res_id, "Test_Int" )
+
+    Print( doc );
+
+    \endcode
+    \param [in] results_id Result ID
+    \param [in] data_name Data name
+    \return Documentation string for data entry in result set
+*/)";
+    r = se->RegisterGlobalFunction(
+            "string GetResultsEntryDoc( const string & in results_id, const string & in data_name )",
+            vspFUNCTION( vsp::GetResultsSetDoc ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(

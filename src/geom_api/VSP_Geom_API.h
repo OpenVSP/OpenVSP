@@ -95,6 +95,8 @@ extern string SetVSPAERORefWingID( const std::string & geom_id );
 extern int GetNumAnalysis();
 extern std::vector<std::string> ListAnalysis();
 extern std::vector<std::string> GetAnalysisInputNames( const std::string & analysis );
+extern std::string GetAnalysisDoc( const std::string & analysis );
+extern std::string GetAnalysisInputDoc( const std::string & analysis, const std::string & name );
 extern std::string ExecAnalysis( const std::string & analysis );
 
 extern int GetNumAnalysisInputData( const std::string & analysis, const std::string & name );
@@ -118,6 +120,8 @@ extern std::vector<std::string> GetAllResultsNames();
 extern std::vector<std::string> GetAllDataNames( const std::string & results_id );
 extern int GetNumResults( const std::string & name );
 extern std::string GetResultsName(const std::string & results_id );
+extern std::string GetResultsSetDoc( const std::string & results_id );
+extern std::string GetResultsEntryDoc( const std::string & results_id, const std::string & data_name );
 extern std::string FindResultsID( const std::string & name, int index = 0 );
 extern std::string FindLatestResultsID( const std::string & name );
 extern int GetNumData( const std::string & results_id, const std::string & data_name );
