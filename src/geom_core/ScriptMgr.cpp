@@ -4728,7 +4728,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
         Print( ( "\t" + in_names[i] + "\n" ) );
     }
     \endcode
-    \param [in] analysis Snalysis name
+    \param [in] analysis Analysis name
     \return Array of input names
 */)";
     r = se->RegisterGlobalFunction( "array<string>@ GetAnalysisInputNames(const string & in analysis )", vspMETHOD( ScriptMgrSingleton, GetAnalysisInputNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
@@ -4766,7 +4766,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     string res_id = ExecAnalysis( analysis_name );
     \endcode
-    \param [in] analysis Snalysis name
+    \param [in] analysis Analysis name
     \return Result ID
 */)";
     r = se->RegisterGlobalFunction( "string ExecAnalysis( const string & in analysis )", vspFUNCTION( vsp::ExecAnalysis ), vspCALL_CDECL, doc_struct );
