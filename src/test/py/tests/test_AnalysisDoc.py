@@ -1,6 +1,8 @@
 import openvsp as vsp
 
 def test_AnalysisDoc():
+    errorMgr = vsp.ErrorMgrSingleton_getInstance()
+
     vsp.AddGeom( 'POD', '' )
     vsp.Update()
 
@@ -11,6 +13,14 @@ def test_AnalysisDoc():
     res = vsp.ExecAnalysis( 'CompGeom' )
     vsp.PrintResults(res)
     vsp.PrintResultsDocs(res)
+
+    # Check for errors
+    num_err = errorMgr.GetNumTotalErrors()
+    assert num_err == 0
+
+    for i in range(0, num_err):
+        err = errorMgr.PopLastError()
+        print("error = ", err.m_ErrorString)
 
 
 if __name__ == "__main__":
