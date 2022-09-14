@@ -1,0 +1,49 @@
+proprw.inp: Rotor Wake Input File for Prop
+NBLADE  OMEGA
+  4     62.832
+IROTAT          XROTOR              X,Y,Z tilt     ITILT
+  1          0.00 0.00 0.00     0.0   -16.0   0.0    1
+ICOLL   COLL     CT
+  0     0.0    0.011
+ITRIM     A1W    B1W    A1S   B1S
+  0       0.0    0.0    0.0   0.0
+NOWAKE   ICNVCT   NWAKES   NPWAKE   IFAR   MBCVE
+  0        2        1        0       0      -1
+KSCHEME  KPC
+   0      0
+NCUT   AOVLAP   ISKEW   IUNS
+  1       -1       1     1 
+NZONE   (NVORT(I), I=1,NZONE)
+  3       34  34 2
+(NPTFW(I), I=1,NZONE)
+96  96  96 
+(CORLIM(NV,IZONE,1), NV=1,NVORT(IZONE) IZONE=1 (Min core radii)
+0.01
+(CORLIM(NV,IZONE,2), NV=1,NVORT(IZONE) IZONE=1 (Max core radii)
+1.0
+(CORLIM(NV,IZONE,1), NV=1,NVORT(IZONE) IZONE=2 (Min core radii)
+0.01
+(CORLIM(NV,IZONE,2), NV=1,NVORT(IZONE) IZONE=2 (Max core radii)
+1.0
+(CORLIM(NV,IZONE,1), NV=1,NVORT(IZONE) IZONE=3 (Min core radii)
+0.01
+(CORLIM(NV,IZONE,2), NV=1,NVORT(IZONE) IZONE=3 (Max core radii)
+1.0
+(CUTLIM(NV,IZONE,1), NV=1,NVORT(IZONE) IZONE=1 (Min cutoff distances)
+0.01
+(CUTLIM(NV,IZONE,2), NV=1,NVORT(IZONE) IZONE=1 (Max cutoff distances)
+1.0
+(CUTLIM(NV,IZONE,1), NV=1,NVORT(IZONE) IZONE=2 (Min cutoff distances)
+0.01
+(CUTLIM(NV,IZONE,2), NV=1,NVORT(IZONE) IZONE=2 (Max cutoff distances)
+1.0
+(CUTLIM(NV,IZONE,1), NV=1,NVORT(IZONE) IZONE=2 (Min cutoff distances)
+0.1
+(CUTLIM(NV,IZONE,2), NV=1,NVORT(IZONE) IZONE=2 (Max cutoff distances)
+0.1
+IDYNM
+  1
+SRAD   SHGHT
+0.0    0.0
+NHHI (Higher harmonic cyclic pitch input flag)
+  0
