@@ -23,6 +23,7 @@ BezierCurve.cpp
 CfdMeshMgr.cpp
 Face.cpp
 FeaElement.cpp
+FeaMesh.cpp
 FeaMeshMgr.cpp
 ICurve.cpp
 IntersectPatch.cpp
@@ -41,6 +42,7 @@ BezierCurve.h
 CfdMeshMgr.h
 Face.h
 FeaElement.h
+FeaMesh.h
 FeaMeshMgr.h
 ICurve.h
 IntersectPatch.h

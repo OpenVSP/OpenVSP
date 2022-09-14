@@ -15,6 +15,7 @@
 #include "FeaStructure.h"
 #include "FeaElement.h"
 #include "AnalysisMgr.h"
+#include "FeaMesh.h"
 
 using namespace std;
 
@@ -55,6 +56,11 @@ public:
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
         return (SimpleMeshCommonSettings* ) &m_StructSettings;
+    }
+
+    virtual FeaMesh* GetMeshPtr()
+    {
+        return &m_ThisMesh;
     }
 
     virtual bool LoadSurfaces();
@@ -122,36 +128,11 @@ public:
     }
 
     virtual void TransferDrawObjData();
-    virtual bool FeaDataAvailable();
-    virtual void SetAllDisplayFlags( bool flag );
+
     virtual void UpdateDrawObjs();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void UpdateDisplaySettings();
-
-    virtual vector < string > GetDrawBrowserNameVec()
-    {
-        return m_DrawBrowserNameVec;
-    }
-
-    virtual vector < int > GetDrawBrowserIndexVec()
-    {
-        return m_DrawBrowserPartIndexVec;
-    }
-
-    virtual vector < bool > GetDrawElementFlagVec()
-    {
-        return m_DrawElementFlagVec;
-    }
-
-    virtual void SetDrawElementFlag( int index, bool flag );
-
-    virtual vector < bool > GetDrawCapFlagVec()
-    {
-        return m_DrawCapFlagVec;
-    }
-
-    virtual void SetDrawCapFlag( int index, bool flag );
 
     virtual vector < SimpleFeaProperty > GetSimplePropertyVec()
     {
@@ -183,12 +164,8 @@ protected:
     int m_FeaMeshStructIndex;
 
     unsigned int m_NumFeaParts;
-    unsigned int m_NumFeaSubSurfs;
     unsigned int m_NumFeaFixPoints;
-    unsigned int m_NumEls;
-    unsigned int m_NumTris;
-    unsigned int m_NumQuads;
-    unsigned int m_NumBeams;
+    unsigned int m_NumFeaSubSurfs;
 
     vector < string > m_FeaPartNameVec;
     vector < int > m_FeaPartTypeVec;
@@ -210,38 +187,15 @@ protected:
     vector < vector < vec3d > > m_TrimPt;
     vector < vector < vec3d > > m_TrimNorm;
 
-    vector < string > m_DrawBrowserNameVec;
-    vector < int > m_DrawBrowserPartIndexVec;
-    vector < bool > m_DrawElementFlagVec;
-    vector < bool > m_FixPointFeaPartFlagVec;
-    vector < bool > m_DrawCapFlagVec;
-
-    vector< FeaElement* > m_FeaElementVec;
-    vector < SimpleFeaProperty > m_SimplePropertyVec;
-    vector < SimpleFeaMaterial > m_SimpleMaterialVec;
-
-    vector< FeaNode* > m_FeaNodeVec;
-    vector< vec3d* > m_AllPntVec;
-    map< int, vector< int > > m_IndMap;
-    vector< int > m_PntShift;
-
     SimpleFeaMeshSettings m_StructSettings;
     SimpleGridDensity m_FeaGridDensity;
 
-private:
+    vector < SimpleFeaProperty > m_SimplePropertyVec;
+    vector < SimpleFeaMaterial > m_SimpleMaterialVec;
 
-    vector< DrawObj > m_FeaTriElementDO;
-    vector< DrawObj > m_FeaQuadElementDO;
-    vector< DrawObj > m_CapFeaElementDO;
-    vector< DrawObj > m_FeaNodeDO;
-    vector< DrawObj > m_ElOrientationDO;
-    vector< DrawObj > m_CapNormDO;
-    vector< DrawObj > m_SSTriElementDO;
-    vector< DrawObj > m_SSQuadElementDO;
-    vector< DrawObj > m_SSCapFeaElementDO;
-    vector< DrawObj > m_SSFeaNodeDO;
-    vector< DrawObj > m_SSElOrientationDO;
-    vector< DrawObj > m_SSCapNormDO;
+
+    FeaMesh m_ThisMesh;
+
 };
 
 #define FeaMeshMgr FeaMeshMgrSingleton::getInstance()
