@@ -147,6 +147,8 @@ rpm2n = 1/n2rpm
 
 mph2fts = mi2ft/(hr2m*m2s)
 
+mph2fps = mph2fts  # enable use of both fps and fts
+
 fts2mph = 1/mph2fts
 
 ms2fts = m2ft
