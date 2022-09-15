@@ -23,10 +23,7 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_TotalMass = 0.0;
     m_FeaMeshInProgress = false;
     m_CADOnlyFlag = false;
-    m_NumFeaParts = 0;
-    m_NumFeaSubSurfs = 0;
     m_FeaMeshStructIndex = -1;
-    m_NumFeaFixPoints = 0;
     m_MessageName = "FEAMessage";
 
     GetMeshPtr()->m_FeaGridDensityPtr = GetGridDensityPtr();
@@ -40,10 +37,6 @@ FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
 
 void FeaMeshMgrSingleton::CleanUp()
 {
-    m_NumFeaParts = 0;
-    m_NumFeaSubSurfs = 0;
-    m_NumFeaFixPoints = 0;
-
     m_TotalMass = 0.0;
 
     m_FeaPartNameVec.clear();
@@ -80,12 +73,10 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
     m_StructName = fea_struct->GetName();
 
     // Identify number of FeaParts
-    m_NumFeaParts = fea_struct->NumFeaParts();
-    GetMeshPtr()->m_NumFeaParts = m_NumFeaParts;
+    GetMeshPtr()->m_NumFeaParts = fea_struct->NumFeaParts();
 
     // Identify number of FeaFixPoints
-    m_NumFeaFixPoints = fea_struct->GetNumFeaFixPoints();
-    GetMeshPtr()->m_NumFeaFixPoints = m_NumFeaFixPoints;
+    GetMeshPtr()->m_NumFeaFixPoints = fea_struct->GetNumFeaFixPoints();
 
     LoadSkins();
 
@@ -203,12 +194,12 @@ void FeaMeshMgrSingleton::TransferFeaData()
     if ( fea_struct )
     {
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
-        m_FeaPartNameVec.resize( m_NumFeaParts );
-        m_FeaPartTypeVec.resize( m_NumFeaParts );
-        m_FeaPartNumSurfVec.resize( m_NumFeaParts );
-        m_FeaPartIncludedElementsVec.resize( m_NumFeaParts );
-        m_FeaPartPropertyIndexVec.resize( m_NumFeaParts );
-        m_FeaPartCapPropertyIndexVec.resize( m_NumFeaParts );
+        m_FeaPartNameVec.resize( GetMeshPtr()->m_NumFeaParts );
+        m_FeaPartTypeVec.resize( GetMeshPtr()->m_NumFeaParts );
+        m_FeaPartNumSurfVec.resize( GetMeshPtr()->m_NumFeaParts );
+        m_FeaPartIncludedElementsVec.resize( GetMeshPtr()->m_NumFeaParts );
+        m_FeaPartPropertyIndexVec.resize( GetMeshPtr()->m_NumFeaParts );
+        m_FeaPartCapPropertyIndexVec.resize( GetMeshPtr()->m_NumFeaParts );
 
         for ( size_t i = 0; i < fea_part_vec.size(); i++ )
         {
@@ -259,8 +250,7 @@ void FeaMeshMgrSingleton::TransferSubSurfData()
     }
 
     // Identify number of FeaSubSurfaces
-    m_NumFeaSubSurfs = m_SimpleSubSurfaceVec.size();
-    GetMeshPtr()->m_NumFeaSubSurfs = m_NumFeaSubSurfs;
+    GetMeshPtr()->m_NumFeaSubSurfs = m_SimpleSubSurfaceVec.size();
 }
 
 void FeaMeshMgrSingleton::GenerateFeaMesh()
@@ -501,7 +491,7 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         // Collect all surfaces and compute norms
-        for ( size_t k = 0; k < m_NumFeaParts; k++ )
+        for ( size_t k = 0; k < GetMeshPtr()->m_NumFeaParts; k++ )
         {
             if ( fea_part_vec[k]->GetType() != vsp::FEA_DOME && fea_part_vec[k]->GetType() != vsp::FEA_SKIN )
             {
@@ -651,7 +641,7 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         //===== Add FeaParts ====//
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
         {
             if ( !fea_struct->FeaPartIsFixPoint( i ) &&
                  !fea_struct->FeaPartIsSkin( i ) &&
@@ -687,7 +677,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         //===== Add FeaParts ====//
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
         {
             if ( fea_struct->FeaPartIsFixPoint( i ) )
             {
@@ -1187,7 +1177,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         {
             // First index of m_Tags is the parent surface. Second index is subsurface index which begins 
             //  from the last FeaPart surface index (FeaFixPoints are not tagged; they are not surfaces)
-            int ssindex = all_face_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1;
+            int ssindex = all_face_vec[i].m_Tags[1] - ( GetMeshPtr()->m_NumFeaParts - GetMeshPtr()->m_NumFeaFixPoints ) - 1;
             elem->SetFeaSSIndex( ssindex );
 
             int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
@@ -1199,7 +1189,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         else if ( all_face_vec[i].m_Tags.size() > 2 )
         {
             //Give priority to first tagged subsurface in the event of overlap
-            int ssindex = all_face_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1;
+            int ssindex = all_face_vec[i].m_Tags[1] - ( GetMeshPtr()->m_NumFeaParts - GetMeshPtr()->m_NumFeaFixPoints ) - 1;
             elem->SetFeaSSIndex( ssindex );
 
             int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
@@ -1240,13 +1230,13 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
         fprintf( fp, "Num_Beams: %u\n", GetMeshPtr()->m_NumBeams );
         fprintf( fp, "\n" );
 
-        if ( m_NumFeaParts > 0 )
+        if ( GetMeshPtr()->m_NumFeaParts > 0 )
         {
             fprintf( fp, "FeaPart_Name         Mass_Shells   Mass_Beams\n" );
         }
 
         // Iterate over each FeaPart index and calculate mass of each FeaElement if the current indexes match
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
@@ -1280,13 +1270,13 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
         }
 
         // Add point masses
-        if ( m_NumFeaFixPoints > 0 )
+        if ( GetMeshPtr()->m_NumFeaFixPoints > 0 )
         {
             fprintf( fp, "\n" );
             fprintf( fp, "PointMass_Name       Mass        X_loc       Y_loc       Z_loc\n" );
         }
 
-        for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaFixPoints; i++ )
         {
             FixPoint fxpt = GetMeshPtr()->m_FixPntVec[i];
             if ( fxpt.m_PtMassFlag[0] )
@@ -1318,13 +1308,13 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
         }
 
         // Iterate over each FeaSubSurface index and calculate mass of each FeaElement if the subsurface indexes match
-        if ( m_NumFeaSubSurfs > 0 )
+        if ( GetMeshPtr()->m_NumFeaSubSurfs > 0 )
         {
             fprintf( fp, "\n" );
             fprintf( fp, "FeaSubSurf_Name      Mass_Shells   Mass_Beams\n" );
         }
         
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
         {
             double shell_mass = 0;
             double beam_mass = 0;
@@ -1364,7 +1354,7 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
 void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
 {
-    for ( size_t n = 0; n < m_NumFeaFixPoints; n++ )
+    for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[n];
         for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
@@ -1399,7 +1389,7 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
 
 void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 {
-    for ( size_t n = 0; n < m_NumFeaFixPoints; n++ )
+    for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[n];
         // Identify and set FeaFixPoints on border curves
@@ -1492,7 +1482,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
 {
     // Identify and set FeaFixPoints on intersection curves
 
-    for ( size_t n = 0; n < m_NumFeaFixPoints; n++ )
+    for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[n];
         for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
@@ -2238,7 +2228,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
 
 void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
 {
-    for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+    for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
     {
         for ( int j = 0; j < GetMeshPtr()->m_FeaElementVec.size(); j++ )
         {
@@ -2289,7 +2279,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
     }
 
     // Tag FeaPart Nodes with FeaPart Index
-    for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+    for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
     {
         vector< FeaNode* > temp_nVec;
 
@@ -2308,8 +2298,8 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         }
     }
 
-    // Tag FeaSubSurface Nodes with FeaSubSurface Index, beginning at the last FeaPart index (m_NumFeaParts)
-    for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+    // Tag FeaSubSurface Nodes with FeaSubSurface Index, beginning at the last FeaPart index (GetMeshPtr()->m_NumFeaParts)
+    for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
     {
         vector< FeaNode* > temp_nVec;
 
@@ -2324,12 +2314,12 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         for ( int j = 0; j < (int)temp_nVec.size(); j++ )
         {
             int ind = FindPntIndex( temp_nVec[j]->m_Pnt, m_AllPntVec, GetMeshPtr()->m_IndMap );
-            GetMeshPtr()->m_FeaNodeVec[ind]->AddTag( i + m_NumFeaParts );
+            GetMeshPtr()->m_FeaNodeVec[ind]->AddTag( i + GetMeshPtr()->m_NumFeaParts );
         }
     }
 
     //==== Tag FeaFixPoints ====//
-    for ( size_t j = 0; j < m_NumFeaFixPoints; j++ )
+    for ( size_t j = 0; j < GetMeshPtr()->m_NumFeaFixPoints; j++ )
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[j];
         for ( size_t k = 0; k < fxpt.m_Pnt.size(); k++ )
@@ -2401,7 +2391,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         string name;
 
         // FeaPart Nodes
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
         {
             grid_id_vec.clear();
 
@@ -2445,7 +2435,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         }
 
         // SubSurface Nodes
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
         {
             fprintf( temp, "\n" );
             fprintf( temp, "$%s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
@@ -2456,7 +2446,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             {
                 if ( GetMeshPtr()->m_PntShift[j] >= 0 )
                 {
-                    if ( GetMeshPtr()->m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
+                    if ( GetMeshPtr()->m_FeaNodeVec[ j ]->HasOnlyTag( i + GetMeshPtr()->m_NumFeaParts ) )
                     {
                         GetMeshPtr()->m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                         grid_id_vec.push_back( GetMeshPtr()->m_FeaNodeVec[j]->m_Index );
@@ -2514,7 +2504,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         vector < int > shell_elem_id_vec, beam_elem_id_vec;
 
         // Write FeaParts
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
@@ -2557,7 +2547,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         }
 
         // Write FeaFixPoints
-        for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaFixPoints; i++ )
         {
             FixPoint fxpt = GetMeshPtr()->m_FixPntVec[i];
             if ( fxpt.m_PtMassFlag[0] )
@@ -2584,7 +2574,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         }
 
         // Write FeaSubSurfaces
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
         {
             fprintf( temp, "\n" );
             fprintf( temp, "$%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
@@ -2703,7 +2693,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         char str[256];
 
         //==== Write nodes from FeaParts ====//
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
@@ -2728,7 +2718,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         bool highorder = GetSettingsPtr()->m_HighOrderElementFlag;
 
         //==== Write elements from FeaParts ====//
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
@@ -2818,7 +2808,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         }
 
         //==== Write Fixed Points ====//
-        for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
+        for ( size_t i = 0; i < GetMeshPtr()->m_NumFeaFixPoints; i++ )
         {
             FixPoint fxpt = GetMeshPtr()->m_FixPntVec[i];
 
@@ -2864,7 +2854,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         }
 
         //==== Write SubSurfaces ====//
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
         {
             fprintf( fp, "**%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
             fprintf( fp, "*NODE, NSET=N%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
@@ -2873,7 +2863,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
             {
                 if ( GetMeshPtr()->m_PntShift[j] >= 0 )
                 {
-                    if ( GetMeshPtr()->m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
+                    if ( GetMeshPtr()->m_FeaNodeVec[ j ]->HasOnlyTag( i + GetMeshPtr()->m_NumFeaParts ) )
                     {
                         GetMeshPtr()->m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
                     }
@@ -2881,7 +2871,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
             }
         }
 
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
         {
             int surf_num = m_SimpleSubSurfaceVec[i].GetFeaOrientationVec().size();
 
@@ -3010,7 +3000,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         }
 
         //==== FeaProperties ====//
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
@@ -3066,7 +3056,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
             }
         }
 
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
         {
             int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
             int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
@@ -3152,8 +3142,8 @@ void FeaMeshMgrSingleton::WriteGmsh()
 
         //==== Group and Name FeaParts ====//
         fprintf( fp, "$PhysicalNames\n" );
-        fprintf( fp, "%u\n", m_NumFeaParts - m_NumFeaFixPoints );
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        fprintf( fp, "%u\n", GetMeshPtr()->m_NumFeaParts - GetMeshPtr()->m_NumFeaFixPoints );
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
@@ -3182,7 +3172,7 @@ void FeaMeshMgrSingleton::WriteGmsh()
 
         int ele_cnt = 1;
 
-        for ( unsigned int j = 0; j < m_NumFeaParts; j++ )
+        for ( unsigned int j = 0; j < GetMeshPtr()->m_NumFeaParts; j++ )
         {
             for ( int i = 0; i < (int)GetMeshPtr()->m_FeaElementVec.size(); i++ )
             {
@@ -3210,7 +3200,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         // FeaParts:
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ )
         {
             string name = m_StructName + ":  " + m_FeaPartNameVec[i];
 
@@ -3238,14 +3228,14 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
         }
 
         // FeaSubSurfaces:
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
         {
             string name = m_StructName + ":  " + m_SimpleSubSurfaceVec[i].GetName();
 
             if ( m_SimpleSubSurfaceVec[i].m_TestType != vsp::NONE && ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) )
             {
                 GetMeshPtr()->m_DrawBrowserNameVec.push_back( name );
-                GetMeshPtr()->m_DrawBrowserPartIndexVec.push_back( m_NumFeaParts + i );
+                GetMeshPtr()->m_DrawBrowserPartIndexVec.push_back( GetMeshPtr()->m_NumFeaParts + i );
             }
 
             GetMeshPtr()->m_DrawElementFlagVec.push_back( true );
@@ -3254,7 +3244,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
             {
                 name += "_CAP";
                 GetMeshPtr()->m_DrawBrowserNameVec.push_back( name );
-                GetMeshPtr()->m_DrawBrowserPartIndexVec.push_back( m_NumFeaParts + i );
+                GetMeshPtr()->m_DrawBrowserPartIndexVec.push_back( GetMeshPtr()->m_NumFeaParts + i );
                 GetMeshPtr()->m_DrawCapFlagVec.push_back( true );
             }
             else

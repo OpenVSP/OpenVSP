@@ -164,10 +164,6 @@ protected:
     string m_StructName;
     int m_FeaMeshStructIndex;
 
-    unsigned int m_NumFeaParts;
-    unsigned int m_NumFeaFixPoints;
-    unsigned int m_NumFeaSubSurfs;
-
     vector < string > m_FeaPartNameVec;
     vector < int > m_FeaPartTypeVec;
     vector < int > m_FeaPartNumSurfVec;

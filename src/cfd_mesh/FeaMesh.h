@@ -81,7 +81,6 @@ public:
     SimpleFeaMeshSettings* m_StructSettingsPtr;
     SimpleGridDensity* m_FeaGridDensityPtr;
 
-    // These three are duplicated from FeaMeshMgr.
     unsigned int m_NumFeaParts;
     unsigned int m_NumFeaFixPoints;
     unsigned int m_NumFeaSubSurfs;
