@@ -186,8 +186,7 @@ protected:
     vector < int > m_FeaPartPropertyIndexVec;
     vector < int > m_FeaPartCapPropertyIndexVec;
 
-    // Mapped to FeaFixPoint count index
-    map < int, FixPoint > m_FixPntMap; // Fix point data map.
+    vector < FixPoint > m_FixPntVec; // Fix point data map.
 
     // Groups of trimming planes.
     vector < vector < vec3d > > m_TrimPt;
