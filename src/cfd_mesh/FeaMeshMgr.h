@@ -156,13 +156,6 @@ protected:
     string m_StructName;
     int m_FeaMeshStructIndex;
 
-    vector < string > m_FeaPartNameVec;
-    vector < int > m_FeaPartTypeVec;
-    vector < int > m_FeaPartNumSurfVec;
-    vector < int > m_FeaPartIncludedElementsVec;
-    vector < int > m_FeaPartPropertyIndexVec;
-    vector < int > m_FeaPartCapPropertyIndexVec;
-
     // Groups of trimming planes.
     vector < vector < vec3d > > m_TrimPt;
     vector < vector < vec3d > > m_TrimNorm;

@@ -88,6 +88,13 @@ public:
     unsigned int m_NumFeaFixPoints;
     unsigned int m_NumFeaSubSurfs;
 
+    vector < string > m_FeaPartNameVec;
+    vector < int > m_FeaPartTypeVec;
+    vector < int > m_FeaPartNumSurfVec;
+    vector < int > m_FeaPartIncludedElementsVec;
+    vector < int > m_FeaPartPropertyIndexVec;
+    vector < int > m_FeaPartCapPropertyIndexVec;
+
     unsigned int m_NumEls;
     unsigned int m_NumTris;
     unsigned int m_NumQuads;

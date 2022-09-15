@@ -51,6 +51,13 @@ void FeaMesh::Cleanup()
     m_NumFeaSubSurfs = 0;
     m_NumFeaFixPoints = 0;
 
+    m_FeaPartNameVec.clear();
+    m_FeaPartTypeVec.clear();
+    m_FeaPartNumSurfVec.clear();
+    m_FeaPartIncludedElementsVec.clear();
+    m_FeaPartPropertyIndexVec.clear();
+    m_FeaPartCapPropertyIndexVec.clear();
+
     m_NumEls = 0;
     m_NumTris = 0;
     m_NumQuads = 0;
