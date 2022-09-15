@@ -99,11 +99,6 @@ public:
 
     virtual void ComputeWriteMass();
 
-    virtual double GetTotalMass()
-    {
-        return m_TotalMass;
-    }
-
     virtual void SetFeaMeshStructIndex( int index )
     {
         m_FeaMeshStructIndex = index;
@@ -157,9 +152,6 @@ protected:
 
     bool m_FeaMeshInProgress;
     bool m_CADOnlyFlag; // Indicates that ne meshing should be performed, but the surfaces are still exported
-
-    double m_TotalMass;
-    string m_MassUnit;
 
     string m_StructName;
     int m_FeaMeshStructIndex;

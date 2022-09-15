@@ -6,6 +6,8 @@
 
 FeaMesh::FeaMesh()
 {
+    m_TotalMass = 0;
+
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
     m_NumFeaFixPoints = 0;
@@ -42,6 +44,8 @@ void FeaMesh::Cleanup()
 
     m_IndMap.clear();
     m_PntShift.clear();
+
+    m_TotalMass = 0;
 
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;

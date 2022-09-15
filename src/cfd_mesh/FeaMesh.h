@@ -81,6 +81,9 @@ public:
     SimpleFeaMeshSettings* m_StructSettingsPtr;
     SimpleGridDensity* m_FeaGridDensityPtr;
 
+    double m_TotalMass;
+    string m_MassUnit;
+
     unsigned int m_NumFeaParts;
     unsigned int m_NumFeaFixPoints;
     unsigned int m_NumFeaSubSurfs;

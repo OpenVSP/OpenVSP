@@ -20,7 +20,6 @@
 
 FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
 {
-    m_TotalMass = 0.0;
     m_FeaMeshInProgress = false;
     m_CADOnlyFlag = false;
     m_FeaMeshStructIndex = -1;
@@ -37,8 +36,6 @@ FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
 
 void FeaMeshMgrSingleton::CleanUp()
 {
-    m_TotalMass = 0.0;
-
     m_FeaPartNameVec.clear();
     m_FeaPartTypeVec.clear();
     m_FeaPartNumSurfVec.clear();
@@ -165,23 +162,23 @@ void FeaMeshMgrSingleton::GetMassUnit()
     switch ( m_Vehicle->m_StructUnit() )
     {
         case vsp::SI_UNIT:
-            m_MassUnit = "kg";
+            GetMeshPtr()->m_MassUnit = "kg";
             break;
 
         case vsp::CGS_UNIT:
-            m_MassUnit = "g";
+            GetMeshPtr()->m_MassUnit = "g";
             break;
 
         case vsp::MPA_UNIT:
-            m_MassUnit = "tonne"; // or Mg/
+            GetMeshPtr()->m_MassUnit = "tonne"; // or Mg/
             break;
 
         case vsp::BFT_UNIT:
-            m_MassUnit = "slug";
+            GetMeshPtr()->m_MassUnit = "slug";
             break;
 
         case vsp::BIN_UNIT:
-            m_MassUnit = "lbf*sec" + string( 1, (char) 178 ) + "/in";
+            GetMeshPtr()->m_MassUnit = "lbf*sec" + string( 1, (char) 178 ) + "/in";
             break;
     }
 }
@@ -426,7 +423,7 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
         if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
         {
             ComputeWriteMass();
-            string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
+            string mass_output = "Total Mass = " + std::to_string( GetMeshPtr()->m_TotalMass ) + "\n";
             addOutputText( mass_output );
         }
 
@@ -1217,13 +1214,13 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 
 void FeaMeshMgrSingleton::ComputeWriteMass()
 {
-    m_TotalMass = 0.0;
+    GetMeshPtr()->m_TotalMass = 0.0;
 
     FILE* fp = fopen( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_MASS_FILE_NAME ).c_str(), "w" );
     if ( fp )
     {
         fprintf( fp, "...FEA Mesh...\n" );
-        fprintf( fp, "Mass_Unit: %s\n", m_MassUnit.c_str() );
+        fprintf( fp, "Mass_Unit: %s\n", GetMeshPtr()->m_MassUnit.c_str() );
         fprintf( fp, "Num_Els: %u\n", GetMeshPtr()->m_NumEls );
         fprintf( fp, "Num_Tris: %u\n", GetMeshPtr()->m_NumTris );
         fprintf( fp, "Num_Quads: %u\n", GetMeshPtr()->m_NumQuads );
@@ -1265,7 +1262,7 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
                 fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), shell_mass, beam_mass );
 
-                m_TotalMass += shell_mass + beam_mass;
+                GetMeshPtr()->m_TotalMass += shell_mass + beam_mass;
             }
         }
 
@@ -1303,7 +1300,7 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
                 fprintf( fp, "%-20s% -12.4f% -12.4f% -12.4f% -12.4f\n", name.c_str(), pnt_mass, pnt[0], pnt[1], pnt[2] );
 
-                m_TotalMass += pnt_mass;
+                GetMeshPtr()->m_TotalMass += pnt_mass;
             }
         }
 
@@ -1341,12 +1338,12 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
             fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), shell_mass, beam_mass );
 
-            m_TotalMass += shell_mass + beam_mass;
+            GetMeshPtr()->m_TotalMass += shell_mass + beam_mass;
         }
 
         fprintf( fp, "\n" );
         fprintf( fp, "FeaStruct_Name       Total_Mass\n" );
-        fprintf( fp, "%-20s% -9.4f\n", m_StructName.c_str(), m_TotalMass );
+        fprintf( fp, "%-20s% -9.4f\n", m_StructName.c_str(), GetMeshPtr()->m_TotalMass );
 
         fclose( fp );
     }
