@@ -24,17 +24,6 @@ enum
     SURFACE_FIX_POINT, BORDER_FIX_POINT, INTERSECT_FIX_POINT
 };
 
-class FixPoint
-{
-public:
-    vector < vec3d > m_Pnt;              // Vector 3D coordinates for FeaFixPoints
-    vector < vec2d > m_UW;               // Vector UW coordinates for FeaFixPoints
-    vector < int > m_FeaPartIndex;       // Vector of FixPoint FeaPart indexes
-    vector < int > m_BorderFlag;         // Indicates if the FixPoint lies on a surface, border, or intersection
-    vector < vector < int > > m_SurfInd; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec (Note: not the surf ID)
-    vector < bool > m_PtMassFlag;
-    vector < double > m_PtMass;
-};
 
 //////////////////////////////////////////////////////////////////////
 class FeaMeshMgrSingleton : public CfdMeshMgrSingleton
@@ -185,8 +174,6 @@ protected:
     vector < int > m_FeaPartIncludedElementsVec;
     vector < int > m_FeaPartPropertyIndexVec;
     vector < int > m_FeaPartCapPropertyIndexVec;
-
-    vector < FixPoint > m_FixPntVec; // Fix point data map.
 
     // Groups of trimming planes.
     vector < vector < vec3d > > m_TrimPt;

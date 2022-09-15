@@ -8,6 +8,18 @@
 #include "FeaElement.h"
 #include "SimpleMeshSettings.h"
 
+class FixPoint
+{
+public:
+    vector < vec3d > m_Pnt;              // Vector 3D coordinates for FeaFixPoints
+    vector < vec2d > m_UW;               // Vector UW coordinates for FeaFixPoints
+    vector < int > m_FeaPartIndex;       // Vector of FixPoint FeaPart indexes
+    vector < int > m_BorderFlag;         // Indicates if the FixPoint lies on a surface, border, or intersection
+    vector < vector < int > > m_SurfInd; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec (Note: not the surf ID)
+    vector < bool > m_PtMassFlag;
+    vector < double > m_PtMass;
+};
+
 class FeaMesh
 {
 public:
@@ -93,7 +105,7 @@ public:
     map< int, vector< int > > m_IndMap;
     vector< int > m_PntShift;
 
-
+    vector < FixPoint > m_FixPntVec; // Fix point data map.
 
 // Was private.
 

@@ -38,6 +38,8 @@ void FeaMesh::Cleanup()
     }
     m_AllPntVec.clear();
 
+    m_FixPntVec.clear();
+
     m_IndMap.clear();
     m_PntShift.clear();
 

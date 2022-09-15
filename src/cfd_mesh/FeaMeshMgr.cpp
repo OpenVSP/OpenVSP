@@ -53,7 +53,6 @@ void FeaMeshMgrSingleton::CleanUp()
     m_FeaPartPropertyIndexVec.clear();
     m_FeaPartCapPropertyIndexVec.clear();
 
-    m_FixPntVec.clear();
 
     GetMeshPtr()->Cleanup();
 
@@ -737,7 +736,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                     }
                 }
 
-                m_FixPntVec.push_back( fxpt );
+                GetMeshPtr()->m_FixPntVec.push_back( fxpt );
             }
         }
     }
@@ -1289,7 +1288,7 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
         for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
         {
-            FixPoint fxpt = m_FixPntVec[i];
+            FixPoint fxpt = GetMeshPtr()->m_FixPntVec[i];
             if ( fxpt.m_PtMassFlag[0] )
             {
                 double pnt_mass = 0;
@@ -1367,7 +1366,7 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
 {
     for ( size_t n = 0; n < m_NumFeaFixPoints; n++ )
     {
-        FixPoint fxpt = m_FixPntVec[n];
+        FixPoint fxpt = GetMeshPtr()->m_FixPntVec[n];
         for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
         {
             if ( fxpt.m_BorderFlag[j] == SURFACE_FIX_POINT && fxpt.m_SurfInd[j].size() == 1 )
@@ -1402,7 +1401,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 {
     for ( size_t n = 0; n < m_NumFeaFixPoints; n++ )
     {
-        FixPoint fxpt = m_FixPntVec[n];
+        FixPoint fxpt = GetMeshPtr()->m_FixPntVec[n];
         // Identify and set FeaFixPoints on border curves
         for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
         {
@@ -1495,7 +1494,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
 
     for ( size_t n = 0; n < m_NumFeaFixPoints; n++ )
     {
-        FixPoint fxpt = m_FixPntVec[n];
+        FixPoint fxpt = GetMeshPtr()->m_FixPntVec[n];
         for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
         {
             bool split = false;
@@ -2332,7 +2331,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
     //==== Tag FeaFixPoints ====//
     for ( size_t j = 0; j < m_NumFeaFixPoints; j++ )
     {
-        FixPoint fxpt = m_FixPntVec[j];
+        FixPoint fxpt = GetMeshPtr()->m_FixPntVec[j];
         for ( size_t k = 0; k < fxpt.m_Pnt.size(); k++ )
         {
             for ( int i = 0; i < (int)GetMeshPtr()->m_FeaNodeVec.size(); i++ )
@@ -2560,7 +2559,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         // Write FeaFixPoints
         for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
         {
-            FixPoint fxpt = m_FixPntVec[i];
+            FixPoint fxpt = GetMeshPtr()->m_FixPntVec[i];
             if ( fxpt.m_PtMassFlag[0] )
             {
                 fprintf( temp, "\n" );
@@ -2821,7 +2820,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
         //==== Write Fixed Points ====//
         for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
         {
-            FixPoint fxpt = m_FixPntVec[i];
+            FixPoint fxpt = GetMeshPtr()->m_FixPntVec[i];
 
             fprintf( fp, "**%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str() );
             fprintf( fp, "*NODE, NSET=N%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str() );
