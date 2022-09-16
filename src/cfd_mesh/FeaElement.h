@@ -73,13 +73,13 @@ public:
     {
         m_FeaPartIndex = fea_part_index;
     }
-    virtual int GetSurfIndex()
+    virtual int GetFeaPartSurfNum()
     {
-        return m_SurfIndex;
+        return m_FeaPartSurfNum;
     }
-    virtual void SetSurfIndex( int surf_index )
+    virtual void SetFeaPartSurfNum( int part_surf_num )
     {
-        m_SurfIndex = surf_index;
+        m_FeaPartSurfNum = part_surf_num;
     }
     virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset ) = 0;
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset ) = 0;
@@ -107,8 +107,8 @@ protected:
 
     int m_ElementType;
     int m_FeaPartIndex; // Corresponds to index in FeaStructure m_FeaPartVec
-    int m_SurfIndex; // Corresponds to index in FeaMeshMgr m_SurfVec
     int m_FeaSSIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
+    int m_FeaPartSurfNum; // corresponds to m_SurfVec->GetFeaPartSurfNum();
 };
 
 //==== 6 Point Triangle Element ====//

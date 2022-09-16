@@ -7,6 +7,7 @@
 
 #include "FeaElement.h"
 #include "SimpleMeshSettings.h"
+#include "SimpleSubSurface.h"
 
 class FixPoint
 {
@@ -77,9 +78,30 @@ public:
 
     virtual void SetDrawCapFlag( int index, bool flag );
 
+    virtual void WriteCalculix( );
+    virtual void WriteNASTRAN( const string &base_filename );
+    virtual void WriteGmsh();
+
+    // Was protected.
+    virtual void WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string &set_name, const int &offset );
+
+    virtual void ComputeWriteMass();
+
+    // This is a duplicate of SurfaceIntersectionMgr::m_SimpleSubSurfaceVec
+    // We need this to access the subsurface name and property index post-mesh generation.
+    // Copying the full data structure is overkill, but it requires less maintenance.
+    vector < SimpleSubSurface > m_SimpleSubSurfaceVec;
+
+    vector < SimpleFeaProperty > m_SimplePropertyVec;
+    vector < SimpleFeaMaterial > m_SimpleMaterialVec;
 
     SimpleFeaMeshSettings* m_StructSettingsPtr;
     SimpleGridDensity* m_FeaGridDensityPtr;
+
+    string m_StructName;
+
+    bool m_QuadMesh;
+    bool m_HighOrder;
 
     double m_TotalMass;
     string m_MassUnit;
@@ -100,6 +122,9 @@ public:
     unsigned int m_NumQuads;
     unsigned int m_NumBeams;
 
+    int m_NodeOffset;
+    int m_ElementOffset;
+
     vector < string > m_DrawBrowserNameVec;
     vector < int > m_DrawBrowserPartIndexVec;
     vector < bool > m_DrawElementFlagVec;
@@ -115,6 +140,10 @@ public:
     vector< int > m_PntShift;
 
     vector < FixPoint > m_FixPntVec; // Fix point data map.
+
+    // m_PartSurfOrientation[i][j] == GetFeaSurf(i,j)->GetFeaElementOrientation()
+    vector < vector < vec3d > > m_PartSurfOrientation;
+
 
 // Was private.
 

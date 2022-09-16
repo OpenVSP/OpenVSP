@@ -76,6 +76,7 @@ public:
     virtual void AddStructureSurfParts();
     virtual void AddStructureFixPoints();
     virtual void AddStructureTrimPlanes();
+    virtual void BuildMeshOrientationLookup();
     virtual bool CullPtByTrimGroup( const vec3d &pt, const vector < vec3d > & pplane, const vector < vec3d > & nplane );
     virtual void RemoveTrimTris();
     virtual void SetFixPointSurfaceNodes();
@@ -92,12 +93,6 @@ public:
     {
         return m_SurfVec.size();
     }
-
-    virtual void WriteCalculix( );
-    virtual void WriteNASTRAN( const string &base_filename );
-    virtual void WriteGmsh();
-
-    virtual void ComputeWriteMass();
 
     virtual void SetFeaMeshStructIndex( int index )
     {
@@ -132,12 +127,12 @@ public:
 
     virtual vector < SimpleFeaProperty > GetSimplePropertyVec()
     {
-        return m_SimplePropertyVec;
+        return GetMeshPtr()->m_SimplePropertyVec;
     }
 
     virtual vector < SimpleFeaMaterial > GetSimpleMaterialVec()
     {
-        return m_SimpleMaterialVec;
+        return GetMeshPtr()->m_SimpleMaterialVec;
     }
 
     virtual void RegisterAnalysis();
@@ -148,12 +143,9 @@ protected:
 
     virtual void GetMassUnit();
 
-    virtual void WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string &set_name, const int &offset );
-
     bool m_FeaMeshInProgress;
     bool m_CADOnlyFlag; // Indicates that ne meshing should be performed, but the surfaces are still exported
 
-    string m_StructName;
     int m_FeaMeshStructIndex;
 
     // Groups of trimming planes.
@@ -162,10 +154,6 @@ protected:
 
     SimpleFeaMeshSettings m_StructSettings;
     SimpleGridDensity m_FeaGridDensity;
-
-    vector < SimpleFeaProperty > m_SimplePropertyVec;
-    vector < SimpleFeaMaterial > m_SimpleMaterialVec;
-
 
     FeaMesh m_ThisMesh;
 
