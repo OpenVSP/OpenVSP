@@ -417,11 +417,6 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
             GetMeshPtr()->WriteGmsh();
         }
 
-        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
-        {
-            GetMeshPtr()->WriteGmsh();
-        }
-
         if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
         {
             GetMeshPtr()->ComputeWriteMass();
