@@ -423,24 +423,23 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
             string mass_output = "Total Mass = " + std::to_string( GetMeshPtr()->m_TotalMass ) + "\n";
             addOutputText( mass_output );
         }
+    }
 
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
+    {
+        WriteSurfsIntCurves( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );
+    }
 
-        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
-        {
-            WriteSurfsIntCurves( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );
-        }
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
+    {
+        WriteGridToolCurvFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
+                               GetStructSettingsPtr()->m_ExportRawFlag );
+    }
 
-        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
-        {
-            WriteGridToolCurvFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
-                                   GetStructSettingsPtr()->m_ExportRawFlag );
-        }
-
-        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
-        {
-            WritePlot3DFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
-                             GetStructSettingsPtr()->m_ExportRawFlag );
-        }
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
+    {
+        WritePlot3DFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
+                         GetStructSettingsPtr()->m_ExportRawFlag );
     }
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) || GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ) )
