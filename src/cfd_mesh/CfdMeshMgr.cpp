@@ -3911,8 +3911,6 @@ void CfdMeshMgrSingleton::UpdateDisplaySettings()
         GetCfdSettingsPtr()->m_DrawBinAdaptFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawBinAdaptFlag.Get();
         GetCfdSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawCurveFlag.Get();
         GetCfdSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawPntsFlag.Get();
-
-        GetCfdSettingsPtr()->m_RelCurveTol = m_Vehicle->GetCfdSettingsPtr()->m_RelCurveTol.Get();
     }
 }
 

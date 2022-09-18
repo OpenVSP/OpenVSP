@@ -3509,11 +3509,7 @@ void SurfaceIntersectionSingleton::UpdateDisplaySettings()
         GetIntersectSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.Get();
         GetIntersectSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.Get();
 
-        GetIntersectSettingsPtr()->m_RelCurveTol = m_Vehicle->GetISectSettingsPtr()->m_RelCurveTol.Get();
-
-        GetIntersectSettingsPtr()->m_IntersectSubSurfs = m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.Get();
+        // Needed by update wakes - called by screen::Update
         GetIntersectSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.Get();
-
-        GetIntersectSettingsPtr()->m_XYZIntCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.Get();
     }
 }
