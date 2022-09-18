@@ -1068,6 +1068,7 @@ void StructScreen::UpdateStructBrowser()
     int scroll_pos = m_StructureSelectBrowser->position();
     int h_pos = m_StructureSelectBrowser->hposition();
     m_StructureSelectBrowser->clear();
+    m_StructIDs.clear();
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     if ( !veh )
@@ -1101,6 +1102,8 @@ void StructScreen::UpdateStructBrowser()
 
             sprintf( str, "%s:%s:Surf_%d", struct_name.c_str(), parent_geom_name.c_str(), struct_surf_ind );
             m_StructureSelectBrowser->add( str );
+
+            m_StructIDs.push_back( structVec[i]->GetID() );
         }
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
@@ -2325,7 +2328,7 @@ void StructScreen::LaunchFEAMesh()
     FeaMeshMgr.SetFeaMeshInProgress( true );
 
     // Identify which structure to mesh
-    FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.m_CurrStructIndex() );
+    FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
 
     m_FeaMeshProcess.StartThread( feamesh_thread_fun, ( void* ) this );
 
@@ -3005,7 +3008,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         FeaMeshMgr.SetCADOnlyFlag( true );
 
         // Identify which structure to mesh
-        FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.m_CurrStructIndex() );
+        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
 
         m_FeaMeshProcess.StartThread( feamesh_thread_fun, (void*)this );
     }

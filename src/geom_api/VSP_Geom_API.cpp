@@ -2485,11 +2485,11 @@ int AddFeaStruct( const string & geom_id, bool init_skin, int surfindex )
 
 void SetFeaMeshStructIndex( int struct_index )
 { 
-    vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_index );
 
-    if ( struct_index <= ( int )structVec.size() && struct_index >= 0 )
+    if ( feastruct )
     {
-        FeaMeshMgr.SetFeaMeshStructIndex( struct_index );
+        FeaMeshMgr.SetFeaMeshStructID( feastruct->GetID() );
         ErrorMgr.NoError();
     }
     else
@@ -3125,7 +3125,7 @@ void ComputeFeaMesh( const string & geom_id, int fea_struct_ind, int file_type )
     feastruct->GetStructSettingsPtr()->SetAllFileExportFlags( false );
     feastruct->GetStructSettingsPtr()->SetFileExportFlag( file_type, true );
 
-    FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.GetTotFeaStructIndex( feastruct ) );
+    FeaMeshMgr.SetFeaMeshStructID( feastruct->GetID() );
 
     FeaMeshMgr.GenerateFeaMesh();
     ErrorMgr.NoError();
@@ -3145,7 +3145,7 @@ void ComputeFeaMesh( const string & struct_id, int file_type )
     feastruct->GetStructSettingsPtr()->SetAllFileExportFlags( false );
     feastruct->GetStructSettingsPtr()->SetFileExportFlag( file_type, true );
 
-    FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.GetTotFeaStructIndex( feastruct ) );
+    FeaMeshMgr.SetFeaMeshStructID( struct_id );
 
     FeaMeshMgr.GenerateFeaMesh();
     ErrorMgr.NoError();

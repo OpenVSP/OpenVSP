@@ -28,6 +28,7 @@ public:
 
     void Cleanup();
 
+    void SetID( const string &id ) { m_ID = id; }
     string GetID()   { return m_ID; }
 
     virtual SimpleGridDensity* GetGridDensityPtr()

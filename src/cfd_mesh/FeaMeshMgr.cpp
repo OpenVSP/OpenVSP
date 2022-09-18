@@ -22,7 +22,7 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
 {
     m_FeaMeshInProgress = false;
     m_CADOnlyFlag = false;
-    m_FeaMeshStructIndex = -1;
+    m_FeaStructID = string();
     m_MessageName = "FEAMessage";
 
     GetMeshPtr()->m_FeaGridDensityPtr = GetGridDensityPtr();
@@ -46,7 +46,7 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
     CleanUp();
 
     // Identify the structure to mesh (m_FeaMeshStructIndex must be set) 
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     if ( !fea_struct )
     {
@@ -71,7 +71,7 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
 
 void FeaMeshMgrSingleton::LoadSkins()
 {
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     if ( fea_struct )
     {
@@ -114,7 +114,7 @@ void FeaMeshMgrSingleton::LoadSkins()
 
 void FeaMeshMgrSingleton::TransferMeshSettings()
 {
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     if ( fea_struct )
     {
@@ -182,7 +182,7 @@ void FeaMeshMgrSingleton::GetMassUnit()
 void FeaMeshMgrSingleton::TransferFeaData()
 {
     // Transfer FeaPart Data
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     if ( fea_struct )
     {
@@ -228,7 +228,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
 
 void FeaMeshMgrSingleton::TransferSubSurfData()
 {
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     if ( fea_struct )
     {
@@ -472,7 +472,7 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
 
 void FeaMeshMgrSingleton::MergeCoplanarParts()
 {
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     vector < VspSurf > all_surf_vec;
     vector < vec3d > all_norm_vec;
@@ -619,7 +619,7 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
 
 void FeaMeshMgrSingleton::AddStructureSurfParts()
 {
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     if ( fea_struct )
     {
@@ -663,7 +663,7 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
 
 void FeaMeshMgrSingleton::AddStructureFixPoints()
 {
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     if ( fea_struct )
     {
@@ -727,7 +727,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
 
 void FeaMeshMgrSingleton::AddStructureTrimPlanes()
 {
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     if ( fea_struct )
     {
@@ -2231,7 +2231,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
 void FeaMeshMgrSingleton::TransferDrawObjData()
 {
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
     if ( fea_struct )
     {
@@ -2316,20 +2316,20 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
 void FeaMeshMgrSingleton::UpdateDisplaySettings()
 {
-    if ( GetStructSettingsPtr() && StructureMgr.GetFeaStruct( m_FeaMeshStructIndex ) )
+    if ( GetStructSettingsPtr() && StructureMgr.GetFeaStruct( m_FeaStructID ) )
     {
-        GetStructSettingsPtr()->m_DrawMeshFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawMeshFlag.Get();
-        GetStructSettingsPtr()->m_ColorTagsFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_ColorTagsFlag.Get();
+        GetStructSettingsPtr()->m_DrawMeshFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawMeshFlag.Get();
+        GetStructSettingsPtr()->m_ColorTagsFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_ColorTagsFlag.Get();
 
-        GetStructSettingsPtr()->m_DrawNodesFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawNodesFlag.Get();
-        GetStructSettingsPtr()->m_DrawElementOrientVecFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.Get();
+        GetStructSettingsPtr()->m_DrawNodesFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawNodesFlag.Get();
+        GetStructSettingsPtr()->m_DrawElementOrientVecFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.Get();
 
-        GetStructSettingsPtr()->m_DrawBorderFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawBorderFlag.Get();
-        GetStructSettingsPtr()->m_DrawIsectFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawIsectFlag.Get();
-        GetStructSettingsPtr()->m_DrawRawFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawRawFlag.Get();
-        GetStructSettingsPtr()->m_DrawBinAdaptFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawBinAdaptFlag.Get();
-        GetStructSettingsPtr()->m_DrawCurveFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawCurveFlag.Get();
-        GetStructSettingsPtr()->m_DrawPntsFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawPntsFlag.Get();
+        GetStructSettingsPtr()->m_DrawBorderFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawBorderFlag.Get();
+        GetStructSettingsPtr()->m_DrawIsectFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawIsectFlag.Get();
+        GetStructSettingsPtr()->m_DrawRawFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawRawFlag.Get();
+        GetStructSettingsPtr()->m_DrawBinAdaptFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawBinAdaptFlag.Get();
+        GetStructSettingsPtr()->m_DrawCurveFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawCurveFlag.Get();
+        GetStructSettingsPtr()->m_DrawPntsFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawPntsFlag.Get();
     }
 }
 

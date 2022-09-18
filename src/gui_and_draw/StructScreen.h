@@ -114,6 +114,7 @@ private:
     TriggerButton m_DelFeaStructButton;
 
     ColResizeBrowser* m_StructureSelectBrowser;
+    vector < string > m_StructIDs;
 
     StringInput m_FeaStructNameInput;
 

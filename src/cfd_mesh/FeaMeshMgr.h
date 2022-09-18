@@ -17,6 +17,8 @@
 #include "AnalysisMgr.h"
 #include "FeaMesh.h"
 
+#include "StructureMgr.h"
+
 using namespace std;
 
 enum
@@ -94,14 +96,16 @@ public:
         return m_SurfVec.size();
     }
 
-    virtual void SetFeaMeshStructIndex( int index )
+    virtual void SetFeaMeshStructID( string struct_id )
     {
-        m_FeaMeshStructIndex = index;
+        FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_id );
+        int index = StructureMgr.GetTotFeaStructIndex( feastruct );
+        m_FeaStructID = struct_id;
     }
 
-    virtual int GetFeaMeshStructIndex()
+    virtual string GetFeaMeshStructID()
     {
-        return m_FeaMeshStructIndex;
+        return m_FeaStructID;
     }
 
     virtual bool GetFeaMeshInProgress()
@@ -146,7 +150,7 @@ protected:
     bool m_FeaMeshInProgress;
     bool m_CADOnlyFlag; // Indicates that ne meshing should be performed, but the surfaces are still exported
 
-    int m_FeaMeshStructIndex;
+    string m_FeaStructID;
 
     // Groups of trimming planes.
     vector < vector < vec3d > > m_TrimPt;

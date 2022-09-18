@@ -220,7 +220,7 @@ void FeaMeshAnalysis::SetDefaults()
 {
     m_Inputs.Clear();
 
-    FeaStructure* curr_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetFeaMeshStructIndex() );
+    FeaStructure* curr_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetFeaMeshStructID() );
 
     StructSettings temp_settings;
     FeaGridDensity temp_density;
@@ -347,7 +347,7 @@ string FeaMeshAnalysis::Execute()
 {
     string res_id;
 
-    FeaStructure* curr_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetFeaMeshStructIndex() );
+    FeaStructure* curr_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetFeaMeshStructID() );
 
     if( curr_struct )
     {
