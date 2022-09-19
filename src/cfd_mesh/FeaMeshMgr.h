@@ -19,6 +19,8 @@
 
 #include "StructureMgr.h"
 
+#include <unordered_map>
+
 using namespace std;
 
 enum
@@ -26,6 +28,7 @@ enum
     SURFACE_FIX_POINT, BORDER_FIX_POINT, INTERSECT_FIX_POINT
 };
 
+typedef unordered_map < string, FeaMesh* > meshmaptype;
 
 //////////////////////////////////////////////////////////////////////
 class FeaMeshMgrSingleton : public CfdMeshMgrSingleton
@@ -45,6 +48,7 @@ public:
 
     virtual ~FeaMeshMgrSingleton();
     virtual void CleanUp();
+    virtual void CleanMeshMap();
 
     virtual SimpleGridDensity* GetGridDensityPtr()
     {
@@ -61,9 +65,11 @@ public:
         return (SimpleMeshCommonSettings* ) &m_StructSettings;
     }
 
+    virtual void SetActiveMesh( string struct_id );
+
     virtual FeaMesh* GetMeshPtr()
     {
-        return &m_ThisMesh;
+        return m_ActiveMesh;
     }
 
     virtual bool LoadSurfaces();
@@ -101,6 +107,7 @@ public:
         FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_id );
         int index = StructureMgr.GetTotFeaStructIndex( feastruct );
         m_FeaStructID = struct_id;
+        SetActiveMesh( struct_id );
     }
 
     virtual string GetFeaMeshStructID()
@@ -159,7 +166,9 @@ protected:
     SimpleFeaMeshSettings m_StructSettings;
     SimpleGridDensity m_FeaGridDensity;
 
-    FeaMesh m_ThisMesh;
+    meshmaptype m_MeshPtrMap;
+
+    FeaMesh* m_ActiveMesh;
 
 };
 

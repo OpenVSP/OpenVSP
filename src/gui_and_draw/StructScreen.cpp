@@ -1255,6 +1255,11 @@ void StructScreen::UpdateFeaPartBrowser()
 
 void StructScreen::UpdateDrawPartBrowser()
 {
+    if ( !FeaMeshMgr.GetMeshPtr() )
+    {
+        return;
+    }
+
     //==== Draw Part Browser ====//
     int scroll_pos = m_DrawPartSelectBrowser->position();
     m_DrawPartSelectBrowser->clear();
@@ -2147,9 +2152,16 @@ bool StructScreen::Update()
             m_FeaMeshExportButton.Activate();
         }
 
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) && FeaMeshMgr.GetMeshPtr()->FeaDataAvailable() )
+        if ( FeaMeshMgr.GetMeshPtr() )
         {
-            m_ResetDisplayButton.Activate();
+            if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) && FeaMeshMgr.GetMeshPtr()->FeaDataAvailable() )
+            {
+                m_ResetDisplayButton.Activate();
+            }
+            else
+            {
+                m_ResetDisplayButton.Deactivate();
+            }
         }
         else
         {

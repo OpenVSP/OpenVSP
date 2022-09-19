@@ -24,11 +24,11 @@ public:
 class FeaMesh
 {
 public:
-    FeaMesh();
+    FeaMesh( string & struct_id );
+    ~FeaMesh();
 
     void Cleanup();
 
-    void SetID( const string &id ) { m_ID = id; }
     string GetID()   { return m_ID; }
 
     virtual SimpleGridDensity* GetGridDensityPtr()
@@ -54,6 +54,8 @@ public:
     virtual void SetAllDisplayFlags( bool flag );
     virtual void UpdateDrawObjs();
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+    virtual void UpdateDisplaySettings();
 
     virtual vector < string > GetDrawBrowserNameVec()
     {

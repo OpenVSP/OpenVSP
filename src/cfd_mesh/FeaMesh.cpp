@@ -4,9 +4,12 @@
 
 #include "FeaMesh.h"
 #include "main.h"  // For version numbers
+#include "StructureMgr.h"
 
-FeaMesh::FeaMesh()
+FeaMesh::FeaMesh( string & struct_id )
 {
+    m_ID = struct_id;
+
     m_TotalMass = 0;
 
     m_NumFeaParts = 0;
@@ -18,10 +21,13 @@ FeaMesh::FeaMesh()
     m_NumQuads = 0;
     m_NumBeams = 0;
 
-    m_ID = "FEAMESH"; // Replace with random UUID
-
     m_FeaGridDensityPtr = NULL;
     m_StructSettingsPtr = NULL;
+}
+
+FeaMesh::~FeaMesh()
+{
+    Cleanup();
 }
 
 void FeaMesh::Cleanup()
@@ -1696,5 +1702,25 @@ void FeaMesh::ComputeWriteMass()
         fprintf( fp, "%-20s% -9.4f\n", m_StructName.c_str(), m_TotalMass );
 
         fclose( fp );
+    }
+}
+
+void FeaMesh::UpdateDisplaySettings()
+{
+    FeaStructure *fea_struct = StructureMgr.GetFeaStruct( GetID() );
+    if ( GetStructSettingsPtr() && fea_struct )
+    {
+        GetStructSettingsPtr()->m_DrawMeshFlag = fea_struct->GetStructSettingsPtr()->m_DrawMeshFlag.Get();
+        GetStructSettingsPtr()->m_ColorTagsFlag = fea_struct->GetStructSettingsPtr()->m_ColorTagsFlag.Get();
+
+        GetStructSettingsPtr()->m_DrawNodesFlag = fea_struct->GetStructSettingsPtr()->m_DrawNodesFlag.Get();
+        GetStructSettingsPtr()->m_DrawElementOrientVecFlag = fea_struct->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.Get();
+
+        GetStructSettingsPtr()->m_DrawBorderFlag = fea_struct->GetStructSettingsPtr()->m_DrawBorderFlag.Get();
+        GetStructSettingsPtr()->m_DrawIsectFlag = fea_struct->GetStructSettingsPtr()->m_DrawIsectFlag.Get();
+        GetStructSettingsPtr()->m_DrawRawFlag = fea_struct->GetStructSettingsPtr()->m_DrawRawFlag.Get();
+        GetStructSettingsPtr()->m_DrawBinAdaptFlag = fea_struct->GetStructSettingsPtr()->m_DrawBinAdaptFlag.Get();
+        GetStructSettingsPtr()->m_DrawCurveFlag = fea_struct->GetStructSettingsPtr()->m_DrawCurveFlag.Get();
+        GetStructSettingsPtr()->m_DrawPntsFlag = fea_struct->GetStructSettingsPtr()->m_DrawPntsFlag.Get();
     }
 }

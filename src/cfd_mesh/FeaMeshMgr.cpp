@@ -22,23 +22,65 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
 {
     m_FeaMeshInProgress = false;
     m_CADOnlyFlag = false;
-    m_FeaStructID = string();
+
     m_MessageName = "FEAMessage";
 
-    GetMeshPtr()->m_FeaGridDensityPtr = GetGridDensityPtr();
-    GetMeshPtr()->m_StructSettingsPtr = GetStructSettingsPtr();
+    m_FeaStructID = string();
+    m_ActiveMesh = NULL;
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
 {
+    CleanMeshMap();
+
     CleanUp();
+    // Should be handled by cleanup of entire map.
+    // delete m_ActiveMesh;
 }
 
+// Cleanup done between mesh generation runs.
 void FeaMeshMgrSingleton::CleanUp()
 {
-    GetMeshPtr()->Cleanup();
-
     CfdMeshMgrSingleton::CleanUp();
+
+    // Clean the active Mesh - leave others un-touched.
+    if ( GetMeshPtr() )
+    {
+        GetMeshPtr()->Cleanup();
+    }
+}
+
+// Cleanup done on file-load.
+void FeaMeshMgrSingleton::CleanMeshMap()
+{
+    meshmaptype::iterator it = m_MeshPtrMap.begin();
+
+    while ( it != m_MeshPtrMap.end() )
+    {
+        if ( m_ActiveMesh == it->second )
+        {
+            m_ActiveMesh = NULL;
+        }
+        delete it->second;
+        it++;
+    }
+    m_MeshPtrMap.clear();
+}
+
+void FeaMeshMgrSingleton::SetActiveMesh( string struct_id )
+{
+    meshmaptype::iterator it = m_MeshPtrMap.find( struct_id );
+
+    if ( it == m_MeshPtrMap.end() )
+    {
+        FeaMesh * fm = new FeaMesh( struct_id );
+        m_MeshPtrMap[ struct_id ] = fm;
+
+        fm->m_FeaGridDensityPtr = GetGridDensityPtr();
+        fm->m_StructSettingsPtr = GetStructSettingsPtr();
+    }
+
+    m_ActiveMesh = m_MeshPtrMap[ struct_id ];
 }
 
 bool FeaMeshMgrSingleton::LoadSurfaces()
@@ -2310,26 +2352,18 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     if ( !GetFeaMeshInProgress() )
     {
         SurfaceIntersectionSingleton::LoadDrawObjs( draw_obj_vec );
-        GetMeshPtr()->LoadDrawObjs( draw_obj_vec );
+        if ( GetMeshPtr() )
+        {
+            GetMeshPtr()->LoadDrawObjs( draw_obj_vec );
+        }
     }
 }
 
 void FeaMeshMgrSingleton::UpdateDisplaySettings()
 {
-    if ( GetStructSettingsPtr() && StructureMgr.GetFeaStruct( m_FeaStructID ) )
+    if ( GetMeshPtr() )
     {
-        GetStructSettingsPtr()->m_DrawMeshFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawMeshFlag.Get();
-        GetStructSettingsPtr()->m_ColorTagsFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_ColorTagsFlag.Get();
-
-        GetStructSettingsPtr()->m_DrawNodesFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawNodesFlag.Get();
-        GetStructSettingsPtr()->m_DrawElementOrientVecFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.Get();
-
-        GetStructSettingsPtr()->m_DrawBorderFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawBorderFlag.Get();
-        GetStructSettingsPtr()->m_DrawIsectFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawIsectFlag.Get();
-        GetStructSettingsPtr()->m_DrawRawFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawRawFlag.Get();
-        GetStructSettingsPtr()->m_DrawBinAdaptFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawBinAdaptFlag.Get();
-        GetStructSettingsPtr()->m_DrawCurveFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawCurveFlag.Get();
-        GetStructSettingsPtr()->m_DrawPntsFlag = StructureMgr.GetFeaStruct( m_FeaStructID )->GetStructSettingsPtr()->m_DrawPntsFlag.Get();
+        GetMeshPtr()->UpdateDisplaySettings();
     }
 }
 
