@@ -2269,6 +2269,7 @@ void StructScreen::CallBack( Fl_Widget* w )
                 if ( m_StructureSelectBrowser->selected( iCase ) )
                 {
                     StructureMgr.m_CurrStructIndex.Set( iCase - 2 );
+                    FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
                     break;
                 }
             }
