@@ -532,6 +532,7 @@ private:
     VSPAEROMgrSingleton();
     VSPAEROMgrSingleton( VSPAEROMgrSingleton const& copy );            // Not Implemented
     VSPAEROMgrSingleton& operator=( VSPAEROMgrSingleton const& copy ); // Not Implemented
+    ~VSPAEROMgrSingleton();
 
     vector< RotorDisk* > m_RotorDiskVec;
     vector< VspAeroControlSurf > m_CompleteControlSurfaceVec;   // list of all control and rectangle sub-surfaces in the model selected as control surfaces

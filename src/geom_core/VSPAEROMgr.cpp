@@ -264,6 +264,27 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     slice->m_CutPosition.Set( 0.0 );
 }
 
+VSPAEROMgrSingleton::~VSPAEROMgrSingleton()
+{
+    for ( int i = 0; i < m_CpSliceVec.size(); i++ )
+    {
+        delete m_CpSliceVec[i];
+    }
+    m_CpSliceVec.clear();
+
+    for ( int i = 0; i < m_ControlSurfaceGroupVec.size(); i++ )
+    {
+        delete m_ControlSurfaceGroupVec[i];
+    }
+    m_ControlSurfaceGroupVec.clear();
+
+    for ( int i = 0; i < m_UnsteadyGroupVec.size(); i++ )
+    {
+        delete m_UnsteadyGroupVec[i];
+    }
+    m_UnsteadyGroupVec.clear();
+}
+
 void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
