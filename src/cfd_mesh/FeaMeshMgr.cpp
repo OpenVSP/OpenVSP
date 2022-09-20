@@ -372,6 +372,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
         addOutputText( "Exporting Files\n" );
         ExportFeaMesh();
 
+        UpdateDrawObjs();
+
         addOutputText( "Finished\n" );
 
         m_FeaMeshInProgress = false;
