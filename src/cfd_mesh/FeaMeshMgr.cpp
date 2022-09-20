@@ -439,36 +439,36 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
 void FeaMeshMgrSingleton::ExportFeaMesh()
 {
-    if ( !m_CADOnlyFlag )
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) )
     {
-        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) )
-        {
-            GetMeshPtr()->WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) );
-        }
-
-        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
-        {
-            GetMeshPtr()->WriteCalculix();
-        }
-
-        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) )
-        {
-            WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME ) );
-        }
-
-        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
-        {
-            GetMeshPtr()->WriteGmsh();
-        }
-
-        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
-        {
-            GetMeshPtr()->ComputeWriteMass();
-            string mass_output = "Total Mass = " + std::to_string( GetMeshPtr()->m_TotalMass ) + "\n";
-            addOutputText( mass_output );
-        }
+        GetMeshPtr()->WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) );
     }
 
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
+    {
+        GetMeshPtr()->WriteCalculix();
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) )
+    {
+        WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME ) );
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
+    {
+        GetMeshPtr()->WriteGmsh();
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
+    {
+        GetMeshPtr()->ComputeWriteMass();
+        string mass_output = "Total Mass = " + std::to_string( GetMeshPtr()->m_TotalMass ) + "\n";
+        addOutputText( mass_output );
+    }
+}
+
+void FeaMeshMgrSingleton::ExportCADFiles()
+{
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
     {
         WriteSurfsIntCurves( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );

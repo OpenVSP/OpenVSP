@@ -76,6 +76,7 @@ public:
     virtual void LoadSkins();
     virtual void GenerateFeaMesh();
     virtual void ExportFeaMesh();
+    virtual void ExportCADFiles();
     virtual void TransferMeshSettings();
     virtual void IdentifyCompIDNames();
     virtual void TransferFeaData();
