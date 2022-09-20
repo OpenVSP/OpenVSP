@@ -102,8 +102,10 @@ private:
     //===== Common buttons =====//
     StringOutput m_CurrStructOutput;
     TriggerButton m_ResetDisplayButton;
-    TriggerButton m_FeaMeshExportButton;
-    TriggerButton m_CADExportButton;
+    TriggerButton m_FeaExportMeshButton;
+    TriggerButton m_FeaIntersectMeshButton;
+    TriggerButton m_IntersectOnlyButton;
+    TriggerButton m_ExportCADButton;
 
     //===== Structure Tab Items =====//
     TriggerButton m_WikiLinkButton;

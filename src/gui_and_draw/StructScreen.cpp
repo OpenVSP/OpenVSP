@@ -26,7 +26,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "FEA Mesh", 155 )
+StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "FEA Mesh", 176 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -50,18 +50,24 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "F
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
-                        - 7 * m_ConsoleLayout.GetStdHeight()
-                        - 2 * m_ConsoleLayout.GetGapHeight()
-                        - 5 );
+    int textheight = 100;
 
-    m_ConsoleLayout.AddYGap();
+    m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
+                        - textheight                            // 100
+                        - 3 * m_ConsoleLayout.GetStdHeight()    // 3 * 20
+                        - m_ConsoleLayout.GetGapHeight()        // 6
+                        - border );                             // 5
+
+    // 176 passed to TabScreen constructor above is this sum plus an additional border.
+    // textheight + 3 * m_ConsoleLayout.GetStdHeight() + m_ConsoleLayout.GetGapHeight() + 2 * border
+    // This is for the contents of m_BorderConsoleLayout.
+
     m_ConsoleLayout.AddX( border );
 
     m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - border,
                                        m_ConsoleLayout.GetRemainY() - border );
 
-    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( 100 );
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( textheight );
     m_ConsoleBuffer = new Fl_Text_Buffer;
     m_ConsoleDisplay->buffer( m_ConsoleBuffer );
     m_FLTK_Window->resizable( m_ConsoleDisplay );
@@ -81,8 +87,13 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "F
     m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 2 );
     m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 2 );
 
-    m_BorderConsoleLayout.AddButton( m_CADExportButton, "Export CAD" );
-    m_BorderConsoleLayout.AddButton( m_FeaMeshExportButton, "Mesh and Export" );
+    m_BorderConsoleLayout.AddButton( m_IntersectOnlyButton, "Intersect Only" );
+    m_BorderConsoleLayout.AddButton( m_ExportCADButton, "Export CAD" );
+
+    m_BorderConsoleLayout.ForceNewLine();
+
+    m_BorderConsoleLayout.AddButton( m_FeaIntersectMeshButton, "Intersect and Mesh" );
+    m_BorderConsoleLayout.AddButton( m_FeaExportMeshButton, "Export Mesh" );
 
     //=== Structures Tab ===//
     structTab->show();
@@ -2145,11 +2156,13 @@ bool StructScreen::Update()
 
         if ( FeaMeshMgr.GetFeaMeshInProgress() )
         {
-            m_FeaMeshExportButton.Deactivate();
+            m_FeaIntersectMeshButton.Deactivate();
+            m_FeaExportMeshButton.Deactivate();
         }
         else
         {
-            m_FeaMeshExportButton.Activate();
+            m_FeaIntersectMeshButton.Activate();
+            m_FeaExportMeshButton.Activate();
         }
 
         if ( FeaMeshMgr.GetMeshPtr() )
@@ -2172,13 +2185,17 @@ bool StructScreen::Update()
     //If size is > 1 then a Structure has been added to Browser, and we activate export buttons
     if ( ( int )( m_FeaPartSelectBrowser->size() > 1 ) )
     {
-        m_CADExportButton.Activate();
-        m_FeaMeshExportButton.Activate();
+        m_IntersectOnlyButton.Activate();
+        m_ExportCADButton.Activate();
+        m_FeaIntersectMeshButton.Activate();
+        m_FeaExportMeshButton.Activate();
     }
     else
     {
-        m_CADExportButton.Deactivate();
-        m_FeaMeshExportButton.Deactivate();
+        m_IntersectOnlyButton.Deactivate();
+        m_ExportCADButton.Deactivate();
+        m_FeaIntersectMeshButton.Deactivate();
+        m_FeaExportMeshButton.Deactivate();
     }
 
     return true;
@@ -2365,9 +2382,35 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
-    if ( device == &m_FeaMeshExportButton )
+    if ( device == &m_FeaIntersectMeshButton )
     {
         LaunchFEAMesh();
+    }
+    else if ( device == &m_FeaExportMeshButton )
+    {
+        // Identify which structure to write, should be already set
+        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+
+        FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
+        FeaMeshMgr.ExportFeaMesh();
+    }
+    else if ( device == &m_IntersectOnlyButton )
+    {
+        // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
+        FeaMeshMgr.SetFeaMeshInProgress( true );
+        FeaMeshMgr.SetCADOnlyFlag( true );
+
+        // Identify which structure to mesh
+        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+
+        m_FeaMeshProcess.StartThread( feamesh_thread_fun, (void*)this );
+    }
+    else if ( device == &m_ExportCADButton )
+    {
+        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+
+        FeaMeshMgr.addOutputText( "Exporting CAD Files\n" );
+        FeaMeshMgr.ExportCADFiles();
     }
     else if ( device == &m_ResetDisplayButton )
     {
@@ -3013,17 +3056,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_STEP_FILE_NAME );
             }
         }
-    }
-    else if ( device == &m_CADExportButton )
-    {
-        // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
-        FeaMeshMgr.SetFeaMeshInProgress( true );
-        FeaMeshMgr.SetCADOnlyFlag( true );
-
-        // Identify which structure to mesh
-        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
-
-        m_FeaMeshProcess.StartThread( feamesh_thread_fun, (void*)this );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
