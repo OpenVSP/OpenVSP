@@ -208,6 +208,27 @@ void FeaTri::WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int e
     }
 }
 
+void FeaTri::WriteSTL( FILE* fp )
+{
+    vec3d p0 = m_Corners[0]->m_Pnt;
+    vec3d p1 = m_Corners[1]->m_Pnt;
+    vec3d p2 = m_Corners[2]->m_Pnt;
+    vec3d v01 = p1 - p0;
+    vec3d v12 = p2 - p1;
+    vec3d norm = cross( v01, v12 );
+    norm.normalize();
+
+    fprintf( fp, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+    fprintf( fp, "   outer loop\n" );
+
+    fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+    fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
+    fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+
+    fprintf( fp, "   endloop\n" );
+    fprintf( fp, " endfacet\n" );
+}
+
 double FeaTri::ComputeMass( int property_index )
 {
     double mass = 0.0;
@@ -329,6 +350,43 @@ void FeaQuad::WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int 
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
                  m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
     }
+}
+
+void FeaQuad::WriteSTL( FILE* fp )
+{
+    vec3d p0 = m_Corners[0]->m_Pnt;
+    vec3d p1 = m_Corners[1]->m_Pnt;
+    vec3d p2 = m_Corners[2]->m_Pnt;
+    vec3d v01 = p1 - p0;
+    vec3d v12 = p2 - p1;
+    vec3d norm = cross( v01, v12 );
+    norm.normalize();
+
+    fprintf( fp, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+    fprintf( fp, "   outer loop\n" );
+
+    fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+    fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
+    fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+
+    fprintf( fp, "   endloop\n" );
+    fprintf( fp, " endfacet\n" );
+
+    vec3d p3 = m_Corners[3]->m_Pnt;
+    vec3d v23 = p3 - p2;
+    vec3d v30 = p0 - p3;
+    norm = cross( v23, v30 );
+    norm.normalize();
+
+    fprintf( fp, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+    fprintf( fp, "   outer loop\n" );
+
+    fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+    fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+    fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", p3.x(), p3.y(), p3.z() );
+
+    fprintf( fp, "   endloop\n" );
+    fprintf( fp, " endfacet\n" );
 }
 
 double FeaQuad::ComputeMass( int property_index )

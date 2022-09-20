@@ -84,6 +84,7 @@ public:
     virtual void WriteCalculix( );
     virtual void WriteNASTRAN( const string &base_filename );
     virtual void WriteGmsh();
+    virtual void WriteSTL();
 
     // Was protected.
     virtual void WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string &set_name, const int &offset );

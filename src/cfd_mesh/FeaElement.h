@@ -83,7 +83,8 @@ public:
     }
     virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset ) = 0;
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset ) = 0;
-    virtual void WriteGmsh( FILE* fp, int id , int fea_part_index, int noffset, int eoffset ) = 0;
+    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset ) = 0;
+    virtual void WriteSTL( FILE* fp ) = 0;
     virtual double ComputeMass( int property_index ) = 0;
 
     virtual int GetFeaSSIndex()
@@ -122,6 +123,7 @@ public:
     virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset );
+    virtual void WriteSTL( FILE* fp );
     virtual double ComputeMass( int property_index );
 };
 
@@ -136,6 +138,7 @@ public:
     virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset );
+    virtual void WriteSTL( FILE* fp );
     virtual double ComputeMass( int property_index );
 };
 
@@ -151,6 +154,7 @@ public:
     virtual void WriteCalculixNormal( FILE* fp, int noffset, int eoffset );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset );
+    virtual void WriteSTL( FILE* fp ) {};
     virtual double ComputeMass( int property_index );
 
     vec3d m_DispVec; // Vector from end point in the displacement coordinate system at the end point
@@ -171,7 +175,8 @@ public:
     virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset )    {};
-    virtual double ComputeMass( int property_index )    
+    virtual void WriteSTL( FILE* fp ) {};
+    virtual double ComputeMass( int property_index )
     {
         return m_Mass;
     };

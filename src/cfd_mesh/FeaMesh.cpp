@@ -1575,6 +1575,61 @@ void FeaMesh::WriteGmsh()
     }
 }
 
+void FeaMesh::WriteSTL()
+{
+    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME );
+    FILE* fp = fopen( fn.c_str(), "w" );
+    if ( fp )
+    {
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        {
+            int surf_num = m_FeaPartNumSurfVec[i];
+
+            for ( int isurf = 0; isurf < surf_num; isurf++ )
+            {
+                if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
+                {
+                    fprintf( fp, "solid %s_%d\n", m_FeaPartNameVec[ i ].c_str(), isurf );
+
+                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                    {
+                        if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
+                             m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
+                             m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                        {
+                            m_FeaElementVec[j]->WriteSTL( fp );
+                        }
+                    }
+
+                    fprintf( fp, "endsolid %s_%d\n", m_FeaPartNameVec[ i ].c_str(), isurf );
+                }
+            }
+        }
+
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            int surf_num = m_SimpleSubSurfaceVec[i].GetFeaOrientationVec().size();
+
+            for ( int isurf = 0; isurf < surf_num; isurf++ )
+            {
+                if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
+                {
+                    fprintf( fp, "solid %s_%d\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+
+                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                    {
+                        if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
+                             m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                        {
+                            m_FeaElementVec[j]->WriteSTL( fp );
+                        }
+                    }
+                    fprintf( fp, "endsolid %s_%d\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                }
+            }
+        }
+    }
+}
 
 void FeaMesh::ComputeWriteMass()
 {
