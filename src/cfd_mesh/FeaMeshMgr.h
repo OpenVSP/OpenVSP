@@ -105,8 +105,6 @@ public:
 
     virtual void SetFeaMeshStructID( string struct_id )
     {
-        FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_id );
-        int index = StructureMgr.GetTotFeaStructIndex( feastruct );
         m_FeaStructID = struct_id;
         SetActiveMesh( struct_id );
     }
