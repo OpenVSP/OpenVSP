@@ -81,6 +81,8 @@ public:
 
     virtual void SetDrawCapFlag( int index, bool flag );
 
+    virtual void ExportFeaMesh();
+
     virtual void WriteCalculix( );
     virtual void WriteNASTRAN( const string &base_filename );
     virtual void WriteGmsh();
@@ -109,6 +111,8 @@ public:
 
     double m_TotalMass;
     string m_MassUnit;
+
+    bool m_MeshReady;
 
     unsigned int m_NumFeaParts;
     unsigned int m_NumFeaFixPoints;

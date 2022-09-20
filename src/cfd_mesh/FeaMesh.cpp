@@ -5,6 +5,7 @@
 #include "FeaMesh.h"
 #include "main.h"  // For version numbers
 #include "StructureMgr.h"
+#include "FeaMeshMgr.h"
 
 FeaMesh::FeaMesh( string & struct_id )
 {
@@ -25,6 +26,7 @@ FeaMesh::FeaMesh( string & struct_id )
     m_StructSettingsPtr = NULL;
 
     m_MeshDOUpToDate = false;
+    m_MeshReady = false;
 }
 
 FeaMesh::~FeaMesh()
@@ -65,6 +67,8 @@ void FeaMesh::Cleanup()
     m_HighOrder = true;
 
     m_TotalMass = 0;
+
+    m_MeshReady = false;
 
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
@@ -143,6 +147,11 @@ void FeaMesh::SetAllDisplayFlags( bool flag )
 
 void FeaMesh::UpdateDrawObjs()
 {
+    if ( !m_MeshReady )
+    {
+        return;
+    }
+
     m_MeshDOUpToDate = true;
     // FeaParts:
     m_FeaNodeDO.resize( m_NumFeaParts );
@@ -710,6 +719,41 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             draw_obj_vec.push_back( &m_SSElOrientationDO[iss] );
             draw_obj_vec.push_back( &m_SSCapNormDO[iss] );
         }
+    }
+}
+
+void FeaMesh::ExportFeaMesh()
+{
+    if ( !m_MeshReady )
+    {
+        return;
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) )
+    {
+        WriteSTL();
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) )
+    {
+        WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) );
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
+    {
+        WriteCalculix();
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
+    {
+        WriteGmsh();
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
+    {
+        ComputeWriteMass();
+        string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
+        FeaMeshMgr.addOutputText( mass_output );
     }
 }
 
