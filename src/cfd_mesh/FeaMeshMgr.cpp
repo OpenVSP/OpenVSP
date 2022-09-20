@@ -361,10 +361,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     if ( m_CADOnlyFlag )
     {
-        // No need to generate mesh
-        addOutputText( "Exporting Files\n" );
-        ExportFeaMesh();
-
         UpdateDrawObjs();
 
         addOutputText( "Finished\n" );
@@ -419,9 +415,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     addOutputText( "Remove Subsurf FEA Tris\n" );
     RemoveSubSurfFeaTris();
-
-    addOutputText( "Exporting Files\n" );
-    ExportFeaMesh();
 
     UpdateDrawObjs();
 
