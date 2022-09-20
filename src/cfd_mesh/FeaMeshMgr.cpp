@@ -312,13 +312,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
         return;
     }
 
-    if ( ( !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) && !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) &&
-           !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) && !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) &&
-           !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) ) )
-    {
-        m_CADOnlyFlag = true;
-    }
-
     if ( !m_CADOnlyFlag )
     {
         // Hide all geoms after loading surfaces and settings
