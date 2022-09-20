@@ -149,7 +149,7 @@ public:
 
 
 // Was private.
-
+    bool m_MeshDOUpToDate;
     vector< DrawObj > m_FeaTriElementDO;
     vector< DrawObj > m_FeaQuadElementDO;
     vector< DrawObj > m_CapFeaElementDO;

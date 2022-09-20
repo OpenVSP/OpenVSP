@@ -23,6 +23,8 @@ FeaMesh::FeaMesh( string & struct_id )
 
     m_FeaGridDensityPtr = NULL;
     m_StructSettingsPtr = NULL;
+
+    m_MeshDOUpToDate = false;
 }
 
 FeaMesh::~FeaMesh()
@@ -89,6 +91,7 @@ void FeaMesh::Cleanup()
     m_FixPointFeaPartFlagVec.clear();
     m_DrawCapFlagVec.clear();
 
+    m_MeshDOUpToDate = false;
     m_FeaTriElementDO.clear();
     m_FeaQuadElementDO.clear();
     m_CapFeaElementDO.clear();
@@ -140,7 +143,7 @@ void FeaMesh::SetAllDisplayFlags( bool flag )
 
 void FeaMesh::UpdateDrawObjs()
 {
-
+    m_MeshDOUpToDate = true;
     // FeaParts:
     m_FeaNodeDO.resize( m_NumFeaParts );
     m_FeaTriElementDO.resize( m_NumFeaParts );
@@ -437,6 +440,11 @@ void FeaMesh::UpdateDrawObjs()
 
 void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
+    if ( !m_MeshDOUpToDate )
+    {
+        return;
+    }
+
     if ( m_DrawElementFlagVec.size() == m_NumFeaParts + m_NumFeaSubSurfs )
     {
         // Calculate constants for color sequence.
