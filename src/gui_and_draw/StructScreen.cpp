@@ -26,7 +26,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "FEA Mesh", 176 )
+StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "FEA Mesh", 196 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -54,11 +54,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "F
 
     m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
                         - textheight                            // 100
-                        - 3 * m_ConsoleLayout.GetStdHeight()    // 3 * 20
+                        - 4 * m_ConsoleLayout.GetStdHeight()    // 4 * 20
                         - m_ConsoleLayout.GetGapHeight()        // 6
                         - border );                             // 5
 
-    // 176 passed to TabScreen constructor above is this sum plus an additional border.
+    // 196 passed to TabScreen constructor above is this sum plus an additional border.
     // textheight + 3 * m_ConsoleLayout.GetStdHeight() + m_ConsoleLayout.GetGapHeight() + 2 * border
     // This is for the contents of m_BorderConsoleLayout.
 
@@ -91,6 +91,12 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "F
     m_BorderConsoleLayout.AddButton( m_ExportCADButton, "Export CAD" );
 
     m_BorderConsoleLayout.ForceNewLine();
+
+    m_BorderConsoleLayout.SetFitWidthFlag( true );
+    m_BorderConsoleLayout.AddChoice( m_CurrFeaMeshChoice, "Structure" );
+
+    m_BorderConsoleLayout.ForceNewLine();
+    m_BorderConsoleLayout.SetFitWidthFlag( false );
 
     m_BorderConsoleLayout.AddOutput( m_CurrFeaMeshOutput, "Current Mesh" );
     m_BorderConsoleLayout.AddButton( m_FeaIntersectMeshButton, "Intersect and Mesh" );
@@ -1080,6 +1086,7 @@ void StructScreen::UpdateStructBrowser()
     int scroll_pos = m_StructureSelectBrowser->position();
     int h_pos = m_StructureSelectBrowser->hposition();
     m_StructureSelectBrowser->clear();
+    m_CurrFeaMeshChoice.ClearItems();
     m_StructIDs.clear();
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
@@ -1114,13 +1121,16 @@ void StructScreen::UpdateStructBrowser()
 
             sprintf( str, "%s:%s:Surf_%d", struct_name.c_str(), parent_geom_name.c_str(), struct_surf_ind );
             m_StructureSelectBrowser->add( str );
+            m_CurrFeaMeshChoice.AddItem( struct_name, i );
 
             m_StructIDs.push_back( structVec[i]->GetID() );
         }
+        m_CurrFeaMeshChoice.UpdateItems();
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
             m_StructureSelectBrowser->select( StructureMgr.m_CurrStructIndex() + 2 );
+            m_CurrFeaMeshChoice.Update( StructureMgr.m_CurrStructIndex.GetID() );
         }
     }
 

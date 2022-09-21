@@ -102,6 +102,7 @@ private:
     //===== Common buttons =====//
     StringOutput m_CurrFeaMeshOutput;
     StringOutput m_CurrIntersectOutput;
+    Choice m_CurrFeaMeshChoice;
 
     TriggerButton m_ResetDisplayButton;
 
