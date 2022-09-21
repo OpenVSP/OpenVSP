@@ -1674,6 +1674,17 @@ extern void StartGui( )
 #endif
 }
 
+extern void UpdateGui()
+{
+#ifdef VSP_USE_FLTK
+    Vehicle* veh = GetVehicle();
+    if ( veh )
+    {
+        veh->UpdateGui();
+    }
+#endif
+}
+
 void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop )
 {
 #ifdef VSP_USE_FLTK
