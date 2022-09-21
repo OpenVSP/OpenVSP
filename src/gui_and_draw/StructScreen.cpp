@@ -77,21 +77,22 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "F
     m_BorderConsoleLayout.SetSameLineFlag( true );
     m_BorderConsoleLayout.SetFitWidthFlag( false );
 
-    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 3 );
-    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 3 );
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() );
+    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() );
 
-    m_BorderConsoleLayout.AddOutput( m_CurrStructOutput, "Current Structure" );
     m_BorderConsoleLayout.AddButton( m_ResetDisplayButton, "Reset Display" );
 
     m_BorderConsoleLayout.ForceNewLine();
-    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 2 );
-    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 2 );
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 4 );
+    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 4 );
 
+    m_BorderConsoleLayout.AddOutput( m_CurrIntersectOutput, "Current CAD" );
     m_BorderConsoleLayout.AddButton( m_IntersectOnlyButton, "Intersect Only" );
     m_BorderConsoleLayout.AddButton( m_ExportCADButton, "Export CAD" );
 
     m_BorderConsoleLayout.ForceNewLine();
 
+    m_BorderConsoleLayout.AddOutput( m_CurrFeaMeshOutput, "Current Mesh" );
     m_BorderConsoleLayout.AddButton( m_FeaIntersectMeshButton, "Intersect and Mesh" );
     m_BorderConsoleLayout.AddButton( m_FeaExportMeshButton, "Export Mesh" );
 
@@ -1921,12 +1922,61 @@ bool StructScreen::Update()
             }
         }
 
+        if ( FeaMeshMgr.GetFeaMeshStructID() == string() )
+        {
+            if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+            {
+                FeaStructure* curr_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
+                FeaMeshMgr.SetFeaMeshStructID( curr_struct->GetID() );
+            }
+        }
+
+        FeaStructure* isect_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetIntersectStructID() );
+        if ( isect_struct )
+        {
+            m_CurrIntersectOutput.Update( isect_struct->GetName() );
+
+            if ( FeaMeshMgr.GetIntersectComplete() )
+            {
+                m_ExportCADButton.Activate();
+            }
+            else
+            {
+                m_ExportCADButton.Deactivate();
+            }
+        }
+        else
+        {
+            m_CurrIntersectOutput.Update( "" );
+            m_ExportCADButton.Deactivate();
+        }
+
+
+        FeaMesh* mesh = FeaMeshMgr.GetMeshPtr();
+        if ( mesh )
+        {
+            if ( mesh->m_MeshReady )
+            {
+                m_FeaExportMeshButton.Activate();
+            }
+            else
+            {
+                m_FeaExportMeshButton.Deactivate();
+            }
+        }
+        else
+        {
+            m_FeaExportMeshButton.Deactivate();
+        }
+
+
+
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
             FeaStructure* curr_struct = structVec[StructureMgr.m_CurrStructIndex()];
 
-            m_CurrStructOutput.Update( curr_struct->GetName() );
+            m_CurrFeaMeshOutput.Update( curr_struct->GetName() );
 
             //==== Default Elem Size ====//
             m_MaxEdgeLen.Update( curr_struct->GetFeaGridDensityPtr()->m_BaseLen.GetID() );
@@ -2151,18 +2201,7 @@ bool StructScreen::Update()
         }
         else
         {
-            m_CurrStructOutput.Update( "" );
-        }
-
-        if ( FeaMeshMgr.GetFeaMeshInProgress() )
-        {
-            m_FeaIntersectMeshButton.Deactivate();
-            m_FeaExportMeshButton.Deactivate();
-        }
-        else
-        {
-            m_FeaIntersectMeshButton.Activate();
-            m_FeaExportMeshButton.Activate();
+            m_CurrFeaMeshOutput.Update( "" );
         }
 
         if ( FeaMeshMgr.GetMeshPtr() )
@@ -2186,16 +2225,12 @@ bool StructScreen::Update()
     if ( ( int )( m_FeaPartSelectBrowser->size() > 1 ) )
     {
         m_IntersectOnlyButton.Activate();
-        m_ExportCADButton.Activate();
         m_FeaIntersectMeshButton.Activate();
-        m_FeaExportMeshButton.Activate();
     }
     else
     {
         m_IntersectOnlyButton.Deactivate();
-        m_ExportCADButton.Deactivate();
         m_FeaIntersectMeshButton.Deactivate();
-        m_FeaExportMeshButton.Deactivate();
     }
 
     return true;

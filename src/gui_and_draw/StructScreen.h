@@ -100,10 +100,14 @@ private:
     ProcessUtil m_MonitorProcess;
 
     //===== Common buttons =====//
-    StringOutput m_CurrStructOutput;
+    StringOutput m_CurrFeaMeshOutput;
+    StringOutput m_CurrIntersectOutput;
+
     TriggerButton m_ResetDisplayButton;
-    TriggerButton m_FeaExportMeshButton;
+
     TriggerButton m_FeaIntersectMeshButton;
+    TriggerButton m_FeaExportMeshButton;
+
     TriggerButton m_IntersectOnlyButton;
     TriggerButton m_ExportCADButton;
 

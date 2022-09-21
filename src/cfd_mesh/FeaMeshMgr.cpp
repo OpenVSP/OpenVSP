@@ -25,6 +25,9 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
 
     m_MessageName = "FEAMessage";
 
+    m_IntersectStructID = string();
+    m_IntersectComplete = false;
+
     m_FeaStructID = string();
     m_ActiveMesh = NULL;
 }
@@ -34,8 +37,6 @@ FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
     CleanMeshMap();
 
     CleanUp();
-    // Should be handled by cleanup of entire map.
-    // delete m_ActiveMesh;
 }
 
 // Cleanup done between mesh generation runs.
@@ -43,11 +44,7 @@ void FeaMeshMgrSingleton::CleanUp()
 {
     CfdMeshMgrSingleton::CleanUp();
 
-    // Clean the active Mesh - leave others un-touched.
-    if ( GetMeshPtr() )
-    {
-        GetMeshPtr()->Cleanup();
-    }
+    m_IntersectComplete = false;
 }
 
 // Cleanup done on file-load.
@@ -86,6 +83,12 @@ void FeaMeshMgrSingleton::SetActiveMesh( string struct_id )
 bool FeaMeshMgrSingleton::LoadSurfaces()
 {
     CleanUp();
+
+    // Clean the active Mesh - leave others un-touched.
+    if ( GetMeshPtr() )
+    {
+        GetMeshPtr()->Cleanup();
+    }
 
     // Identify the structure to mesh (m_FeaMeshStructIndex must be set) 
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
@@ -359,6 +362,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Binary Adaptation Curve Approximation\n" );
     BinaryAdaptIntCurves();
 
+    m_IntersectComplete = true;
+
     if ( m_CADOnlyFlag )
     {
         UpdateDrawObjs();
@@ -432,6 +437,11 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
 
 void FeaMeshMgrSingleton::ExportCADFiles()
 {
+    if ( !m_IntersectComplete )
+    {
+        return;
+    }
+
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
     {
         WriteSurfsIntCurves( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );
@@ -2316,7 +2326,11 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     if ( !GetFeaMeshInProgress() )
     {
-        SurfaceIntersectionSingleton::LoadDrawObjs( draw_obj_vec );
+        if ( m_IntersectComplete )
+        {
+            SurfaceIntersectionSingleton::LoadDrawObjs( draw_obj_vec );
+        }
+
         if ( GetMeshPtr() )
         {
             GetMeshPtr()->LoadDrawObjs( draw_obj_vec );

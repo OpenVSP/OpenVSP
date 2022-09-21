@@ -107,11 +107,27 @@ public:
     {
         m_FeaStructID = struct_id;
         SetActiveMesh( struct_id );
+
+        if ( struct_id != m_IntersectStructID )
+        {
+            CleanUp(); // Cleans intersection information, not FeaMesh
+            m_IntersectStructID = struct_id;
+        }
     }
 
     virtual string GetFeaMeshStructID()
     {
         return m_FeaStructID;
+    }
+
+    virtual string GetIntersectStructID()
+    {
+        return m_IntersectStructID;
+    }
+
+    virtual bool GetIntersectComplete()
+    {
+        return m_IntersectComplete;
     }
 
     virtual bool GetFeaMeshInProgress()
@@ -157,6 +173,9 @@ protected:
     bool m_CADOnlyFlag; // Indicates that ne meshing should be performed, but the surfaces are still exported
 
     string m_FeaStructID;
+
+    string m_IntersectStructID;
+    bool m_IntersectComplete;
 
     // Groups of trimming planes.
     vector < vector < vec3d > > m_TrimPt;
