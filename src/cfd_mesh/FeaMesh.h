@@ -138,6 +138,10 @@ public:
 
     vector < FixPoint > m_FixPntVec; // Fix point data map.
 
+    // Groups of trimming planes.
+    vector < vector < vec3d > > m_TrimPt;
+    vector < vector < vec3d > > m_TrimNorm;
+
     // m_PartSurfOrientation[i][j] == GetFeaSurf(i,j)->GetFeaElementOrientation()
     vector < vector < vec3d > > m_PartSurfOrientation;
 

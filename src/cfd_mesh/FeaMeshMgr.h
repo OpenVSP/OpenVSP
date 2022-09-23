@@ -189,10 +189,6 @@ protected:
     string m_IntersectStructID;
     bool m_IntersectComplete;
 
-    // Groups of trimming planes.
-    vector < vector < vec3d > > m_TrimPt;
-    vector < vector < vec3d > > m_TrimNorm;
-
     meshmaptype m_MeshPtrMap;
 
     FeaMesh* m_ActiveMesh;

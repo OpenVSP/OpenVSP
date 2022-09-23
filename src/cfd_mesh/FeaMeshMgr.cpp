@@ -740,9 +740,9 @@ void FeaMeshMgrSingleton::AddStructureTrimPlanes()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
-    if ( fea_struct )
+    if ( fea_struct && GetMeshPtr() )
     {
-        fea_struct->FetchAllTrimPlanes( m_TrimPt, m_TrimNorm );
+        fea_struct->FetchAllTrimPlanes( GetMeshPtr()->m_TrimPt, GetMeshPtr()->m_TrimNorm );
     }
 }
 
@@ -787,7 +787,12 @@ bool FeaMeshMgrSingleton::CullPtByTrimGroup( const vec3d &pt, const vector < vec
 
 void FeaMeshMgrSingleton::RemoveTrimTris()
 {
-    if ( m_TrimPt.size() > 0 ) // Skip if there are no trim groups.
+    if ( !GetMeshPtr() )
+    {
+        return;
+    }
+
+    if ( GetMeshPtr()->m_TrimPt.size() > 0 ) // Skip if there are no trim groups.
     {
         for ( int s = 0; s < ( int ) m_SurfVec.size(); ++s ) // every surface
         {
@@ -798,10 +803,10 @@ void FeaMeshMgrSingleton::RemoveTrimTris()
             {
                 vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[ s ] );
 
-                for ( int i = 0; i < m_TrimPt.size(); i++ )
+                for ( int i = 0; i < GetMeshPtr()->m_TrimPt.size(); i++ )
                 {
                     // This seems convoluted, but it needs to be cumulative.
-                    if ( CullPtByTrimGroup( cp, m_TrimPt[ i ], m_TrimNorm[ i ] ) )
+                    if ( CullPtByTrimGroup( cp, GetMeshPtr()->m_TrimPt[ i ], GetMeshPtr()->m_TrimNorm[ i ] ) )
                     {
                         ( *t )->deleteFlag = true;
                         delSomeTris = true;
