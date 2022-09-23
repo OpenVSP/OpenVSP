@@ -182,7 +182,7 @@ protected:
     virtual void GetMassUnit();
 
     bool m_FeaMeshInProgress;
-    bool m_CADOnlyFlag; // Indicates that ne meshing should be performed, but the surfaces are still exported
+    bool m_CADOnlyFlag; // Indicates that only meshing should be performed, but the surfaces are still exported
 
     string m_FeaStructID;
 
