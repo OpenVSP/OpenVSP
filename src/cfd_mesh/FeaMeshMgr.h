@@ -59,15 +59,6 @@ public:
         return NULL;
     }
 
-    virtual SimpleFeaMeshSettings* GetStructSettingsPtr()
-    {
-        if ( m_ActiveMesh )
-        {
-            return m_ActiveMesh->GetStructSettingsPtr();
-        }
-        return NULL;
-    }
-
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
         if ( m_ActiveMesh )
