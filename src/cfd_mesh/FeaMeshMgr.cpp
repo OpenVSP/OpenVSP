@@ -436,47 +436,47 @@ void FeaMeshMgrSingleton::ExportCADFiles()
         return;
     }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
     {
-        WriteSurfsIntCurves( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );
+        WriteSurfsIntCurves( GetSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );
     }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
     {
-        WriteGridToolCurvFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
-                               GetStructSettingsPtr()->m_ExportRawFlag );
+        WriteGridToolCurvFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
+                               GetSettingsPtr()->m_ExportRawFlag );
     }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
     {
-        WritePlot3DFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
-                         GetStructSettingsPtr()->m_ExportRawFlag );
+        WritePlot3DFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
+                         GetSettingsPtr()->m_ExportRawFlag );
     }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) || GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) || GetSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ) )
     {
         BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
 
         BuildNURBSSurfMap();
     }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) )
     {
-        string delim = StringUtil::get_delim( GetStructSettingsPtr()->m_CADLabelDelim );
+        string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        WriteIGESFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME ), GetStructSettingsPtr()->m_CADLenUnit,
-                       GetStructSettingsPtr()->m_CADLabelID, GetStructSettingsPtr()->m_CADLabelSurfNo, GetStructSettingsPtr()->m_CADLabelSplitNo,
-                       GetStructSettingsPtr()->m_CADLabelName, delim );
+        WriteIGESFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
+                       GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
+                       GetSettingsPtr()->m_CADLabelName, delim );
     }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ) )
     {
-        string delim = StringUtil::get_delim( GetStructSettingsPtr()->m_CADLabelDelim );
+        string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        WriteSTEPFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME ), GetStructSettingsPtr()->m_CADLenUnit,
-                       GetStructSettingsPtr()->m_STEPTol, GetStructSettingsPtr()->m_STEPMergePoints,
-                       GetStructSettingsPtr()->m_CADLabelID, GetStructSettingsPtr()->m_CADLabelSurfNo, GetStructSettingsPtr()->m_CADLabelSplitNo,
-                       GetStructSettingsPtr()->m_CADLabelName, delim, GetStructSettingsPtr()->m_STEPRepresentation );
+        WriteSTEPFile( GetSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
+                       GetSettingsPtr()->m_STEPTol, GetSettingsPtr()->m_STEPMergePoints,
+                       GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
+                       GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );
     }
 
 }
