@@ -384,7 +384,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Remesh\n" );
     Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
-    if ( GetSettingsPtr()->m_ConvertToQuadsFlag )
+    if ( GetMeshPtr()->m_StructSettings.m_ConvertToQuadsFlag )
     {
         addOutputText( "ConvertToQuads\n" );
         ConvertToQuads();
@@ -883,7 +883,7 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
 
 void FeaMeshMgrSingleton::BuildFeaMesh()
 {
-    bool highorder = GetSettingsPtr()->m_HighOrderElementFlag;
+    bool highorder = GetMeshPtr()->m_StructSettings.m_HighOrderElementFlag;
 
     //==== Collect All Nodes and Tris ====//
     vector < vec2d > all_uw_vec;
