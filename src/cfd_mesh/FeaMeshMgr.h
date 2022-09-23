@@ -52,17 +52,29 @@ public:
 
     virtual SimpleGridDensity* GetGridDensityPtr()
     {
-        return &m_FeaGridDensity;
+        if ( m_ActiveMesh )
+        {
+            return m_ActiveMesh->GetGridDensityPtr();
+        }
+        return NULL;
     }
 
     virtual SimpleFeaMeshSettings* GetStructSettingsPtr()
     {
-        return &m_StructSettings;
+        if ( m_ActiveMesh )
+        {
+            return m_ActiveMesh->GetStructSettingsPtr();
+        }
+        return NULL;
     }
 
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
-        return (SimpleMeshCommonSettings* ) &m_StructSettings;
+        if ( m_ActiveMesh )
+        {
+            return (SimpleMeshCommonSettings* ) m_ActiveMesh->GetStructSettingsPtr();
+        }
+        return NULL;
     }
 
     virtual void SetActiveMesh( string struct_id );
@@ -180,9 +192,6 @@ protected:
     // Groups of trimming planes.
     vector < vector < vec3d > > m_TrimPt;
     vector < vector < vec3d > > m_TrimNorm;
-
-    SimpleFeaMeshSettings m_StructSettings;
-    SimpleGridDensity m_FeaGridDensity;
 
     meshmaptype m_MeshPtrMap;
 

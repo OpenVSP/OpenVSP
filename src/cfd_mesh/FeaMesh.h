@@ -33,20 +33,12 @@ public:
 
     virtual SimpleGridDensity* GetGridDensityPtr()
     {
-        if ( m_FeaGridDensityPtr )
-        {
-            return m_FeaGridDensityPtr;
-        }
-        else
-        {
-            assert( true );
-            return NULL;
-        }
+        return &m_FeaGridDensity;
     }
 
     virtual SimpleFeaMeshSettings* GetStructSettingsPtr()
     {
-        return m_StructSettingsPtr;
+        return &m_StructSettings;
     }
 
 
@@ -101,8 +93,8 @@ public:
     vector < SimpleFeaProperty > m_SimplePropertyVec;
     vector < SimpleFeaMaterial > m_SimpleMaterialVec;
 
-    SimpleFeaMeshSettings* m_StructSettingsPtr;
-    SimpleGridDensity* m_FeaGridDensityPtr;
+    SimpleFeaMeshSettings m_StructSettings;
+    SimpleGridDensity m_FeaGridDensity;
 
     string m_StructName;
 

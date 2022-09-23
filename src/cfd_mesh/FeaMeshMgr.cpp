@@ -72,9 +72,6 @@ void FeaMeshMgrSingleton::SetActiveMesh( string struct_id )
     {
         FeaMesh * fm = new FeaMesh( struct_id );
         m_MeshPtrMap[ struct_id ] = fm;
-
-        fm->m_FeaGridDensityPtr = GetGridDensityPtr();
-        fm->m_StructSettingsPtr = GetStructSettingsPtr();
     }
 
     m_ActiveMesh = m_MeshPtrMap[ struct_id ];
@@ -163,24 +160,24 @@ void FeaMeshMgrSingleton::TransferMeshSettings()
 
     if ( fea_struct )
     {
-        m_StructSettings = SimpleFeaMeshSettings();
-        m_StructSettings.CopyFrom( fea_struct->GetStructSettingsPtr() );
+        GetMeshPtr()->m_StructSettings = SimpleFeaMeshSettings();
+        GetMeshPtr()->m_StructSettings.CopyFrom( fea_struct->GetStructSettingsPtr() );
 
-        m_FeaGridDensity = SimpleFeaGridDensity();
-        m_FeaGridDensity.CopyFrom( fea_struct->GetFeaGridDensityPtr() );
+        GetMeshPtr()->m_FeaGridDensity = SimpleFeaGridDensity();
+        GetMeshPtr()->m_FeaGridDensity.CopyFrom( fea_struct->GetFeaGridDensityPtr() );
 
-        if ( m_StructSettings.m_ConvertToQuadsFlag )
+        if ( GetMeshPtr()->m_StructSettings.m_ConvertToQuadsFlag )
         {
             // Increase target edge length because tris are split into quads.
             // A tri with edge length 1.0 will result in an average quad edge of 0.349
-            m_FeaGridDensity.ScaleMesh( 2.536 );
+            GetMeshPtr()->m_FeaGridDensity.ScaleMesh( 2.536 );
         }
 
-        GetMeshPtr()->m_QuadMesh = m_StructSettings.m_ConvertToQuadsFlag;
-        GetMeshPtr()->m_HighOrder = m_StructSettings.m_HighOrderElementFlag;
+        GetMeshPtr()->m_QuadMesh = GetMeshPtr()->m_StructSettings.m_ConvertToQuadsFlag;
+        GetMeshPtr()->m_HighOrder = GetMeshPtr()->m_StructSettings.m_HighOrderElementFlag;
 
-        GetMeshPtr()->m_NodeOffset = GetStructSettingsPtr()->m_NodeOffset;
-        GetMeshPtr()->m_ElementOffset = GetStructSettingsPtr()->m_ElementOffset;
+        GetMeshPtr()->m_NodeOffset = GetMeshPtr()->m_StructSettings.m_NodeOffset;
+        GetMeshPtr()->m_ElementOffset = GetMeshPtr()->m_StructSettings.m_ElementOffset;
     }
 
 }

@@ -22,9 +22,6 @@ FeaMesh::FeaMesh( string & struct_id )
     m_NumQuads = 0;
     m_NumBeams = 0;
 
-    m_FeaGridDensityPtr = NULL;
-    m_StructSettingsPtr = NULL;
-
     m_MeshDOUpToDate = false;
     m_MeshReady = false;
 }
