@@ -102,6 +102,23 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
     m_HalfMeshFlag = settings->m_HalfMeshFlag.Get();
 }
 
+string SimpleMeshCommonSettings::GetExportFileName( int type )
+{
+    if ( type >= 0 && type < m_ExportFileNames.size() )
+    {
+        return m_ExportFileNames[type];
+    }
+
+    return string();
+}
+
+bool SimpleMeshCommonSettings::GetExportFileFlag( int type )
+{
+    assert( type >= 0 && type < m_ExportFileFlags.size() );
+
+    return m_ExportFileFlags[type];
+}
+
 //////////////////////////////////////////////////////
 //============ SimpleIntersectSettings ===============//
 //////////////////////////////////////////////////////
@@ -143,23 +160,6 @@ void SimpleIntersectSettings::CopyFrom( IntersectSettings* settings )
     m_CADLabelSplitNo = settings->m_CADLabelSplitNo.Get();
 
     SimpleMeshCommonSettings::CopyFrom( settings );
-}
-
-string SimpleIntersectSettings::GetExportFileName( int type )
-{
-    if ( type >= 0 && type < vsp::INTERSECT_NUM_FILE_NAMES )
-    {
-        return m_ExportFileNames[type];
-    }
-
-    return string();
-}
-
-bool SimpleIntersectSettings::GetExportFileFlag( int type )
-{
-    assert( type >= 0 && type < vsp::INTERSECT_NUM_FILE_NAMES );
-
-    return m_ExportFileFlags[type];
 }
 
 //////////////////////////////////////////////////////
@@ -239,23 +239,6 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
     SimpleMeshCommonSettings::CopyFrom( settings );
 }
 
-string SimpleCfdMeshSettings::GetExportFileName( int type )
-{
-    if ( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES )
-    {
-        return m_ExportFileNames[type];
-    }
-
-    return string();
-}
-
-bool SimpleCfdMeshSettings::GetExportFileFlag( int type )
-{
-    assert( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES );
-
-    return m_ExportFileFlags[type];
-}
-
 //////////////////////////////////////////////////////
 //============ SimpleFeaMeshSettings ===============//
 //////////////////////////////////////////////////////
@@ -309,23 +292,6 @@ void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
     m_CADLabelSplitNo = settings->m_CADLabelSplitNo.Get();
 
     SimpleMeshCommonSettings::CopyFrom( settings );
-}
-
-string SimpleFeaMeshSettings::GetExportFileName( int type )
-{
-    if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )
-    {
-        return m_ExportFileNames[type];
-    }
-
-    return string();
-}
-
-bool SimpleFeaMeshSettings::GetExportFileFlag( int type )
-{
-    assert( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES );
-
-    return m_ExportFileFlags[type];
 }
 
 //////////////////////////////////////////////////////
