@@ -2326,15 +2326,8 @@ void StructScreen::CallBack( Fl_Widget* w )
         }
         else if ( w == m_StructureSelectBrowser )
         {
-            for ( unsigned int iCase = 1; iCase <= m_StructureSelectBrowser->size(); iCase++ )
-            {
-                if ( m_StructureSelectBrowser->selected( iCase ) )
-                {
-                    StructureMgr.m_CurrStructIndex.Set( iCase - 2 );
-                    FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
-                    break;
-                }
-            }
+            StructureMgr.m_CurrStructIndex.Set( m_StructureSelectBrowser->value() - 2 );
+            FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
         }
         else if ( w == m_DrawPartSelectBrowser )
         {
@@ -2355,25 +2348,11 @@ void StructScreen::CallBack( Fl_Widget* w )
         }
         else if ( w == m_FeaPropertySelectBrowser )
         {
-            for ( unsigned int iCase = 1; iCase <= m_FeaPropertySelectBrowser->size(); iCase++ )
-            {
-                if ( m_FeaPropertySelectBrowser->selected( iCase ) )
-                {
-                    StructureMgr.SetCurrPropertyIndex( iCase - 2 );
-                    break;
-                }
-            }
+            StructureMgr.SetCurrPropertyIndex( m_FeaPropertySelectBrowser->value() - 2 );
         }
         else if ( w == m_FeaMaterialSelectBrowser )
         {
-            for ( unsigned int iCase = 1; iCase <= m_FeaMaterialSelectBrowser->size(); iCase++ )
-            {
-                if ( m_FeaMaterialSelectBrowser->selected( iCase ) )
-                {
-                    StructureMgr.SetCurrMaterialIndex( iCase - 1 );
-                    break;
-                }
-            }
+            StructureMgr.SetCurrMaterialIndex( m_FeaMaterialSelectBrowser->value() - 1 );
         }
     }
 
