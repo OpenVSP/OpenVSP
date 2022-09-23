@@ -2034,10 +2034,9 @@ bool StructScreen::Update()
             m_ShowCurve.Update( curr_struct->GetStructSettingsPtr()->m_DrawCurveFlag.GetID() );
             m_ShowPts.Update( curr_struct->GetStructSettingsPtr()->m_DrawPntsFlag.GetID() );
 
-            if ( FeaMeshMgr.GetStructSettingsPtr() )
-            {
-                FeaMeshMgr.UpdateDisplaySettings();
-            }
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            FeaMeshMgr.UpdateDisplaySettings();
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             string massname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_MASS_FILE_NAME );
             m_MassOutput.Update( StringUtil::truncateFileName( massname, 40 ).c_str() );
