@@ -2318,11 +2318,6 @@ void FeaMeshMgrSingleton::UpdateDrawObjs()
 
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    if ( !GetGridDensityPtr() || !GetStructSettingsPtr() )
-    {
-        return;
-    }
-
     if ( !GetFeaMeshInProgress() )
     {
         if ( m_IntersectComplete )
