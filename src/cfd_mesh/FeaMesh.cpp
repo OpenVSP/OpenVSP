@@ -60,9 +60,6 @@ void FeaMesh::Cleanup()
 
     m_StructName = "";
 
-    m_QuadMesh = true;
-    m_HighOrder = true;
-
     m_TotalMass = 0;
 
     m_MeshReady = false;
@@ -1159,10 +1156,10 @@ void FeaMesh::WriteCalculix()
 
                 for ( int isurf = 0; isurf < surf_num; isurf++ )
                 {
-                    if ( !m_QuadMesh && ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM ) )
+                    if ( !m_StructSettings.m_ConvertToQuadsFlag && ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM ) )
                     {
                         int nnode = 3;
-                        if ( m_HighOrder ) nnode = 6;
+                        if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 6;
 
                         fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), isurf );
 
@@ -1180,10 +1177,10 @@ void FeaMesh::WriteCalculix()
                         fprintf( fp, "\n" );
                     }
 
-                    if ( m_QuadMesh && ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM ) )
+                    if ( m_StructSettings.m_ConvertToQuadsFlag && ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM ) )
                     {
                         int nnode = 4;
-                        if ( m_HighOrder ) nnode = 8;
+                        if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 8;
 
                         fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), isurf );
 
@@ -1310,10 +1307,10 @@ void FeaMesh::WriteCalculix()
 
             for ( int isurf = 0; isurf < surf_num; isurf++ )
             {
-                if ( !m_QuadMesh & ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) )
+                if ( !m_StructSettings.m_ConvertToQuadsFlag & ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) )
                 {
                     int nnode = 3;
-                    if ( m_HighOrder ) nnode = 6;
+                    if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 6;
 
                     fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=E%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
 
@@ -1330,10 +1327,10 @@ void FeaMesh::WriteCalculix()
                     fprintf( fp, "\n" );
                 }
 
-                if ( m_QuadMesh && ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) )
+                if ( m_StructSettings.m_ConvertToQuadsFlag && ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) )
                 {
                     int nnode = 4;
-                    if ( m_HighOrder ) nnode = 8;
+                    if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 8;
 
                     fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=E%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
 
@@ -1450,7 +1447,7 @@ void FeaMesh::WriteCalculix()
                         char ostr[256];
                         sprintf( ostr, "O%s_%d", m_FeaPartNameVec[i].c_str(), isurf );
 
-                        if ( !m_QuadMesh )
+                        if ( !m_StructSettings.m_ConvertToQuadsFlag )
                         {
                             sprintf( str, "E%s_%d", m_FeaPartNameVec[ i ].c_str(), isurf );
                             m_SimplePropertyVec[ property_id ].WriteCalculix( fp, str, ostr );
@@ -1496,7 +1493,7 @@ void FeaMesh::WriteCalculix()
                     char ostr[256];
                     sprintf( ostr, "O%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
 
-                    if ( !m_QuadMesh )
+                    if ( !m_StructSettings.m_ConvertToQuadsFlag )
                     {
                         sprintf( str, "E%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
                         m_SimplePropertyVec[property_id].WriteCalculix( fp, str, ostr );

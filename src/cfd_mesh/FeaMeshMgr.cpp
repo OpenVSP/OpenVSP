@@ -173,9 +173,6 @@ void FeaMeshMgrSingleton::TransferMeshSettings()
             GetMeshPtr()->m_FeaGridDensity.ScaleMesh( 2.536 );
         }
 
-        GetMeshPtr()->m_QuadMesh = GetMeshPtr()->m_StructSettings.m_ConvertToQuadsFlag;
-        GetMeshPtr()->m_HighOrder = GetMeshPtr()->m_StructSettings.m_HighOrderElementFlag;
-
         GetMeshPtr()->m_NodeOffset = GetMeshPtr()->m_StructSettings.m_NodeOffset;
         GetMeshPtr()->m_ElementOffset = GetMeshPtr()->m_StructSettings.m_ElementOffset;
     }

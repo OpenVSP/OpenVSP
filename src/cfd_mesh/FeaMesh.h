@@ -98,9 +98,6 @@ public:
 
     string m_StructName;
 
-    bool m_QuadMesh;
-    bool m_HighOrder;
-
     double m_TotalMass;
     string m_MassUnit;
 
