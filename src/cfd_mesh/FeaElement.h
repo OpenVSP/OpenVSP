@@ -212,10 +212,10 @@ class SimpleFeaProperty
 
     void CopyFrom( FeaProperty* fea_prop );
 
-    void WriteNASTRAN( FILE* fp, int id );
-    void WriteCalculix( FILE* fp, const string &ELSET, const string &ORIENTATION );
+    void WriteNASTRAN( FILE* fp, int id ) const;
+    void WriteCalculix( FILE* fp, const string &ELSET, const string &ORIENTATION ) const;
 
-    int GetSimpFeaMatIndex()
+    int GetSimpFeaMatIndex() const
     {
         return m_SimpleFeaMatIndex;
     }
@@ -269,10 +269,10 @@ public:
 
     void CopyFrom( FeaMaterial* fea_mat );
 
-    void WriteNASTRAN( FILE* fp, int id );
-    void WriteCalculix( FILE* fp, int id );
+    void WriteNASTRAN( FILE* fp, int id ) const;
+    void WriteCalculix( FILE* fp, int id ) const;
 
-    double GetShearModulus();
+    double GetShearModulus() const;
 
     bool m_Used;
 

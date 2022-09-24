@@ -570,7 +570,7 @@ void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
     }
 }
 
-void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
+void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id ) const
 {
     fprintf( fp, "$ %s using %s\n", m_Name.c_str(), m_MaterialName.c_str() );
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
@@ -625,7 +625,7 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
     }
 }
 
-void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const string &ORIENTATION )
+void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const string &ORIENTATION ) const
 {
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
@@ -698,7 +698,7 @@ void SimpleFeaMaterial::CopyFrom( FeaMaterial* fea_mat )
     }
 }
 
-void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
+void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id ) const
 {
     if ( !m_Used )
     {
@@ -736,7 +736,7 @@ void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
     fprintf( fp, "\n" );
 }
 
-void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id )
+void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id ) const
 {
     if ( !m_Used )
     {
@@ -767,7 +767,7 @@ void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id )
     fprintf( fp, "\n" );
 }
 
-double SimpleFeaMaterial::GetShearModulus()
+double SimpleFeaMaterial::GetShearModulus() const
 {
     return ( m_ElasticModulus / ( 2.0 * ( m_PoissonRatio + 1.0 ) ) );
 }
