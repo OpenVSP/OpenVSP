@@ -672,15 +672,9 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_GMSH_FILE_NAME", CFD_GMSH_FILE_NAME, "/*!< GMSH export type */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_SRF_FILE_NAME", CFD_SRF_FILE_NAME, "/*!< SRF export type */" );
-    assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_TKEY_FILE_NAME", CFD_TKEY_FILE_NAME, "/*!< TKEY export type */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_FACET_FILE_NAME", CFD_FACET_FILE_NAME, "/*!< FACET export type */" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_CURV_FILE_NAME", CFD_CURV_FILE_NAME, "/*!< CURV export type */" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_PLOT3D_FILE_NAME", CFD_PLOT3D_FILE_NAME, "/*!< PLOT3D export type */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_VSPGEOM_FILE_NAME", CFD_VSPGEOM_FILE_NAME, "/*!< VSPGEOM export type */" );
     assert( r >= 0 );
@@ -827,8 +821,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_GMSH_TYPE", CFD_GMSH_TYPE, "/*!< CFD Mesh GMSH file type */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_SRF_TYPE", CFD_SRF_TYPE, "/*!< CFD Mesh SRF file type */" );
-    assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_TKEY_TYPE", CFD_TKEY_TYPE, "/*!< CFD Mesh TKEY file type */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "PROJ_AREA_CSV_TYPE", PROJ_AREA_CSV_TYPE, "/*!< Projected Area CSV file type */" );
@@ -840,10 +832,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "DRAG_BUILD_CSV_TYPE", DRAG_BUILD_CSV_TYPE, "/*!< Parasite Drag CSV file type */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_FACET_TYPE", CFD_FACET_TYPE, "/*!< CFD Mesh FACET file type */" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_CURV_TYPE", CFD_CURV_TYPE, "/*!< CFD Mesh CURV file type */" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_PLOT3D_TYPE", CFD_PLOT3D_TYPE, "/*!< CFD Mesh PLOT3D file type */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_VSPGEOM_TYPE", CFD_VSPGEOM_TYPE, "/*!< CFD Mesh VSPGEOM file type */" );
     assert( r >= 0 );

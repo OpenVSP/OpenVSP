@@ -899,28 +899,10 @@ void CfdMeshMgrSingleton::ExportFiles()
         WriteFacet( GetSettingsPtr()->GetExportFileName( vsp::CFD_FACET_FILE_NAME ) );
     }
 
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME ) )
-    {
-        WriteSurfsIntCurves( GetSettingsPtr()->GetExportFileName( vsp::CFD_SRF_FILE_NAME ) );
-    }
-
     if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME ) )
     {
         SubSurfaceMgr.WriteTKeyFile(GetSettingsPtr()->GetExportFileName(vsp::CFD_TKEY_FILE_NAME));
     }
-
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME ) )
-    {
-        WriteGridToolCurvFile( GetSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME ),
-                               GetSettingsPtr()->m_ExportRawFlag );
-    }
-
-    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME ) )
-    {
-        WritePlot3DFile( GetSettingsPtr()->GetExportFileName( vsp::CFD_PLOT3D_FILE_NAME ),
-                         GetSettingsPtr()->m_ExportRawFlag );
-    }
-
 }
 
 void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )

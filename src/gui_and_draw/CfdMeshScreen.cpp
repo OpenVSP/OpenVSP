@@ -259,53 +259,6 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
 
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddDividerBox("Surfaces and Intersection Curves");
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( false );
-
-    m_OutputTabLayout.InitWidthHeightVals();
-
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.SetSameLineFlag( false );
-    m_OutputTabLayout.SetButtonWidth( 175 );
-
-    m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.SetSameLineFlag( true );
-
-    m_OutputTabLayout.SetButtonWidth(55);
-    m_OutputTabLayout.SetInputWidth(300);
-
-    m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
-    m_OutputTabLayout.AddOutput(m_CurvOutput);
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton(m_SelectCurvFile, "...");
-
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetButtonWidth( 55 );
-    m_OutputTabLayout.AddButton(m_Plot3DFile, ".p3d");
-    m_OutputTabLayout.AddOutput(m_Plot3DOutput);
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
-
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.AddYGap();
-
-    m_OutputTabLayout.SetButtonWidth( 55 );
-    m_OutputTabLayout.AddButton( m_SrfFile, ".srf" );
-    m_OutputTabLayout.AddOutput( m_SrfOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectSrfFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
-
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves" );
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.AddYGap();
-
     outputTab->show();
 }
 
@@ -764,8 +717,6 @@ void CfdMeshScreen::UpdateOutputTab()
     m_DatOutput.Update( StringUtil::truncateFileName( datname, 40 ).c_str() );
     string keyname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_KEY_FILE_NAME );
     m_KeyOutput.Update( StringUtil::truncateFileName( keyname, 40 ).c_str() );
-    string srfname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_SRF_FILE_NAME );
-    m_SrfOutput.Update( StringUtil::truncateFileName( srfname, 40 ).c_str() );
     string tkeyname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TKEY_FILE_NAME );
     m_TkeyOutput.Update( StringUtil::truncateFileName( tkeyname, 40).c_str() );
     string vspgeomname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_VSPGEOM_FILE_NAME );
@@ -781,22 +732,9 @@ void CfdMeshScreen::UpdateOutputTab()
     m_MshFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->GetID() );
     m_DatFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_DAT_FILE_NAME )->GetID() );
     m_KeyFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_KEY_FILE_NAME )->GetID() );
-    m_SrfFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->GetID() );
-    m_XYZIntCurves.Update( m_Vehicle->GetCfdSettingsPtr()->m_XYZIntCurveFlag.GetID() );
     m_TkeyFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME)->GetID() );
     m_VspgeomFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_VSPGEOM_FILE_NAME )->GetID() );
 
-
-    string curvname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME );
-    m_CurvOutput.Update( StringUtil::truncateFileName( curvname, 40 ).c_str() );
-    string plot3dname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_PLOT3D_FILE_NAME );
-    m_Plot3DOutput.Update( StringUtil::truncateFileName( plot3dname, 40 ).c_str() );
-
-    //==== Update File Output Flags ====//
-    m_CurvFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME )->GetID() );
-    m_Plot3DFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME )->GetID() );
-
-    m_ExportRaw.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawFlag.GetID() );
 }
 
 void CfdMeshScreen::UpdateSourcesTab( BaseSource* source )
@@ -1193,36 +1131,12 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_KEY_FILE_NAME );
         }
     }
-    else if ( device == &m_SelectSrfFile )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .srf file.", "*.srf" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_SRF_FILE_NAME );
-        }
-    }
     else if ( device == &m_SelectTkeyFile )
     {
         string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tkey file.", "*.tkey" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_TKEY_FILE_NAME );
-        }
-    }
-    else if ( device == &m_SelectCurvFile )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select GridTool .curv file.", "*.curv" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_CURV_FILE_NAME );
-        }
-    }
-    else if ( device == &m_SelectPlot3DFile )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Plot3D .p3d file.", "*.p3d" );
-        if ( newfile.compare( "" ) != 0 )
-        {
-            m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_PLOT3D_FILE_NAME );
         }
     }
     else if ( device == &m_SelectVspgeomFile )

@@ -417,14 +417,8 @@ void SetComputationFileName( int file_type, const string & file_name )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_KEY_FILE_NAME );
     if ( file_type == CFD_GMSH_TYPE )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_GMSH_FILE_NAME );
-    if ( file_type == CFD_SRF_TYPE )
-        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_SRF_FILE_NAME );
     if ( file_type == CFD_TKEY_TYPE )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TKEY_FILE_NAME );
-    if ( file_type == CFD_CURV_TYPE )
-        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_CURV_FILE_NAME );
-    if ( file_type == CFD_PLOT3D_TYPE )
-        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_PLOT3D_FILE_NAME );
     if ( file_type == CFD_VSPGEOM_TYPE )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_VSPGEOM_FILE_NAME );
 
@@ -702,14 +696,8 @@ void ComputeCFDMesh( int set, int file_export_types )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_KEY_FILE_NAME, true );
     if ( file_export_types & CFD_GMSH_TYPE )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_GMSH_FILE_NAME, true );
-    if ( file_export_types & CFD_SRF_TYPE )
-        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_SRF_FILE_NAME, true );
     if ( file_export_types & CFD_TKEY_TYPE )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_TKEY_FILE_NAME, true );
-    if ( file_export_types & CFD_CURV_TYPE )
-        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_CURV_FILE_NAME, true );
-    if ( file_export_types & CFD_PLOT3D_TYPE )
-        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_PLOT3D_FILE_NAME, true );
     if ( file_export_types & CFD_VSPGEOM_TYPE )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_VSPGEOM_FILE_NAME, true );
 

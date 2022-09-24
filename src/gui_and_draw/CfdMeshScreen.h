@@ -119,8 +119,6 @@ protected:
     ToggleButton m_MshFile;
     ToggleButton m_DatFile;
     ToggleButton m_KeyFile;
-    ToggleButton m_SrfFile;
-    ToggleButton m_XYZIntCurves;
     ToggleButton m_TkeyFile;
     ToggleButton m_VspgeomFile;
 
@@ -132,7 +130,6 @@ protected:
     TriggerButton m_SelectMshFile;
     TriggerButton m_SelectDatFile;
     TriggerButton m_SelectKeyFile;
-    TriggerButton m_SelectSrfFile;
     TriggerButton m_SelectTkeyFile;
     TriggerButton m_SelectVspgeomFile;
 
@@ -144,20 +141,8 @@ protected:
     StringOutput m_MshOutput;
     StringOutput m_DatOutput;
     StringOutput m_KeyOutput;
-    StringOutput m_SrfOutput;
     StringOutput m_TkeyOutput;
     StringOutput m_VspgeomOutput;
-
-    ToggleButton m_CurvFile;
-    ToggleButton m_Plot3DFile;
-
-    TriggerButton m_SelectCurvFile;
-    TriggerButton m_SelectPlot3DFile;
-
-    StringOutput m_CurvOutput;
-    StringOutput m_Plot3DOutput;
-
-    ToggleButton m_ExportRaw;
 
     //===== Sources Tab Items =====//
 
