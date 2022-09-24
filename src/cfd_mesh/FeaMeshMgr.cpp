@@ -423,6 +423,13 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
 void FeaMeshMgrSingleton::ExportFeaMesh()
 {
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
+
+    if ( fea_struct )
+    {
+        GetMeshPtr()->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr());
+    }
+
     GetMeshPtr()->ExportFeaMesh();
 }
 
@@ -431,6 +438,13 @@ void FeaMeshMgrSingleton::ExportCADFiles()
     if ( !m_IntersectComplete )
     {
         return;
+    }
+
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
+
+    if ( fea_struct )
+    {
+        GetMeshPtr()->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr());
     }
 
     if ( GetSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )

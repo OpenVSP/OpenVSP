@@ -132,6 +132,7 @@ public:
     virtual ~SimpleFeaMeshSettings();
 
     virtual void CopyFrom( StructSettings* settings );
+    virtual void CopyPostOpFrom( StructSettings* settings );
 
     int m_NumEvenlySpacedPart;
     bool m_DrawNodesFlag;

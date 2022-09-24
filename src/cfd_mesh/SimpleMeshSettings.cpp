@@ -135,7 +135,6 @@ SimpleIntersectSettings::~SimpleIntersectSettings()
 
 void SimpleIntersectSettings::CopyFrom( IntersectSettings* settings )
 {
-
     m_ExportFileFlags.clear();
     m_ExportFileFlags.resize( vsp::INTERSECT_NUM_FILE_NAMES );
 
@@ -261,6 +260,21 @@ SimpleFeaMeshSettings::~SimpleFeaMeshSettings()
 
 void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
 {
+    m_NumEvenlySpacedPart = settings->m_NumEvenlySpacedPart.Get(); // Not used by FeaMeshMgr
+
+    m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
+    m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
+
+    CopyPostOpFrom( settings );
+    SimpleMeshCommonSettings::CopyFrom( settings );
+}
+
+// The Post-op variables are used after the primary operation.
+// For example, the file names (and flags) and mesh/element offsets might
+// be adjusted after the mesh is generated, but before a file is written.
+void SimpleFeaMeshSettings::CopyPostOpFrom( StructSettings* settings )
+{
+    // File output flags and names.
     m_ExportFileFlags.clear();
     m_ExportFileFlags.resize( vsp::FEA_NUM_FILE_NAMES );
 
@@ -269,16 +283,14 @@ void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
         m_ExportFileFlags[i] = settings->m_ExportFileFlags[i].Get();
     }
 
-    m_NumEvenlySpacedPart = settings->m_NumEvenlySpacedPart.Get();
-    m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
-    m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
+    m_ExportFileNames = settings->GetExportFileNames();
 
+    // FEA numbering offsets
     m_NodeOffset = settings->m_NodeOffset.Get();
     m_ElementOffset = settings->m_ElementOffset.Get();
 
+    // Allow CAD output settings to be included as Post-Op for Structures
     m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
-
-    m_ExportFileNames = settings->GetExportFileNames();
 
     m_STEPTol = settings->m_STEPTol.Get();
     m_STEPMergePoints = settings->m_STEPMergePoints.Get();
@@ -291,8 +303,11 @@ void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
     m_CADLabelDelim = settings->m_CADLabelDelim.Get();
     m_CADLabelSplitNo = settings->m_CADLabelSplitNo.Get();
 
-    SimpleMeshCommonSettings::CopyFrom( settings );
+    // Copied in SimpleMeshCommonSettings, but needed here also.
+    m_ExportRawFlag = settings->m_ExportRawFlag.Get();
+    m_RelCurveTol = settings->m_RelCurveTol.Get();
 }
+
 
 //////////////////////////////////////////////////////
 //============== SimpleGridDensity =================//
