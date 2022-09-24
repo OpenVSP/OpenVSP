@@ -240,7 +240,10 @@ void FeaMeshMgrSingleton::TransferFeaData()
             GetMeshPtr()->m_FeaPartCapPropertyIndexVec[i] = fea_part_vec[i]->m_CapFeaPropertyIndex();
         }
     }
+}
 
+void FeaMeshMgrSingleton::TransferPropMatData()
+{
     // Transfer FeaProperty Data
     vector < FeaProperty* > fea_prop_vec = StructureMgr.GetFeaPropertyVec();
     GetMeshPtr()->m_SimplePropertyVec.resize( fea_prop_vec.size() );
@@ -429,6 +432,8 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
     {
         GetMeshPtr()->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr());
     }
+
+    TransferPropMatData();
 
     GetMeshPtr()->ExportFeaMesh();
 }

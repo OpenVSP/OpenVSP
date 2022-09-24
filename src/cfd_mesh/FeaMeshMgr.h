@@ -83,6 +83,7 @@ public:
     virtual void TransferMeshSettings();
     virtual void IdentifyCompIDNames();
     virtual void TransferFeaData();
+    virtual void TransferPropMatData();
     virtual void TransferSubSurfData();
     virtual void MergeCoplanarParts();
     virtual void AddStructureSurfParts();
