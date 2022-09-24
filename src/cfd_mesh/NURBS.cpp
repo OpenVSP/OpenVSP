@@ -44,6 +44,10 @@ void NURBS_Curve::InitNURBSCurve( SCurve curve, double curve_tol )
 
     m_MergeTol = m_BBox.DiagDist() * 1.0e-10;
 
+    // TODO: This does not make any sense.
+    // If m_BBox.DiagDist() < 1.0, then this will always happen.  That seems a bit extreme.
+    // Not sure if the model is scaled at this point.  If not, 1.0 should often be a
+    // significant distance.  I.e. unlikely a threshold for changing behavior.
     if ( m_MergeTol < 1.0e-10 )
     {
         m_MergeTol = 1.0e-10;
