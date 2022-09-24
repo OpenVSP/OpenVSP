@@ -155,14 +155,27 @@ public:
 
     virtual void UpdateDisplaySettings();
 
-    virtual vector < SimpleFeaProperty > GetSimplePropertyVec()
+    virtual const vector < SimpleFeaProperty >& GetSimplePropertyVec()
     {
-        return GetMeshPtr()->m_SimplePropertyVec;
+        return m_SimplePropertyVec;
     }
 
-    virtual vector < SimpleFeaMaterial > GetSimpleMaterialVec()
+    virtual const vector < SimpleFeaMaterial >& GetSimpleMaterialVec()
     {
-        return GetMeshPtr()->m_SimpleMaterialVec;
+        return m_SimpleMaterialVec;
+    }
+
+    virtual void ResetMaterialUse()
+    {
+        for ( int i = 0; i < m_SimpleMaterialVec.size(); i++ )
+        {
+            m_SimpleMaterialVec[ i ].m_Used = false;
+        }
+    }
+
+    virtual void MarkMaterialUsed( int indx )
+    {
+        m_SimpleMaterialVec[ indx ].m_Used = true;
     }
 
     virtual void RegisterAnalysis();
@@ -172,6 +185,9 @@ public:
 protected:
 
     virtual void GetMassUnit();
+
+    vector < SimpleFeaProperty > m_SimplePropertyVec;
+    vector < SimpleFeaMaterial > m_SimpleMaterialVec;
 
     bool m_FeaMeshInProgress;
     bool m_CADOnlyFlag; // Indicates that only meshing should be performed, but the surfaces are still exported

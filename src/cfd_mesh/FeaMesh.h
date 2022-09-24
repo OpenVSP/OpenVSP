@@ -90,9 +90,6 @@ public:
     // Copying the full data structure is overkill, but it requires less maintenance.
     vector < SimpleSubSurface > m_SimpleSubSurfaceVec;
 
-    vector < SimpleFeaProperty > m_SimplePropertyVec;
-    vector < SimpleFeaMaterial > m_SimpleMaterialVec;
-
     SimpleFeaMeshSettings m_StructSettings;
     SimpleGridDensity m_FeaGridDensity;
 

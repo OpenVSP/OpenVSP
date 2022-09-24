@@ -44,6 +44,9 @@ void FeaMeshMgrSingleton::CleanUp()
 {
     CfdMeshMgrSingleton::CleanUp();
 
+    m_SimplePropertyVec.clear();
+    m_SimpleMaterialVec.clear();
+
     m_IntersectComplete = false;
 }
 
@@ -246,22 +249,22 @@ void FeaMeshMgrSingleton::TransferPropMatData()
 {
     // Transfer FeaProperty Data
     vector < FeaProperty* > fea_prop_vec = StructureMgr.GetFeaPropertyVec();
-    GetMeshPtr()->m_SimplePropertyVec.resize( fea_prop_vec.size() );
+    m_SimplePropertyVec.resize( fea_prop_vec.size() );
 
     for ( size_t i = 0; i < fea_prop_vec.size(); i++ )
     {
-        GetMeshPtr()->m_SimplePropertyVec[i] = SimpleFeaProperty();
-        GetMeshPtr()->m_SimplePropertyVec[i].CopyFrom( fea_prop_vec[i] );
+        m_SimplePropertyVec[i] = SimpleFeaProperty();
+        m_SimplePropertyVec[i].CopyFrom( fea_prop_vec[i] );
     }
 
     // Transfer FeaMaterial Data
     vector < FeaMaterial* > fea_mat_vec = StructureMgr.GetFeaMaterialVec();
-    GetMeshPtr()->m_SimpleMaterialVec.resize( fea_mat_vec.size() );
+    m_SimpleMaterialVec.resize( fea_mat_vec.size() );
 
     for ( size_t i = 0; i < fea_mat_vec.size(); i++ )
     {
-        GetMeshPtr()->m_SimpleMaterialVec[i] = SimpleFeaMaterial();
-        GetMeshPtr()->m_SimpleMaterialVec[i].CopyFrom( fea_mat_vec[i] );
+        m_SimpleMaterialVec[i] = SimpleFeaMaterial();
+        m_SimpleMaterialVec[i].CopyFrom( fea_mat_vec[i] );
     }
 }
 

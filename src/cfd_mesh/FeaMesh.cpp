@@ -48,8 +48,6 @@ void FeaMesh::Cleanup()
     }
     m_AllPntVec.clear();
 
-    m_SimplePropertyVec.clear();
-    m_SimpleMaterialVec.clear();
     m_SimpleSubSurfaceVec.clear();
     m_PartSurfOrientation.clear();
 
@@ -750,6 +748,8 @@ void FeaMesh::ExportFeaMesh()
 
 void FeaMesh::WriteNASTRAN( const string &filename )
 {
+    FeaMeshMgr.ResetMaterialUse();
+
     int noffset = m_StructSettings.m_NodeOffset;
     int eoffset = m_StructSettings.m_ElementOffset;
 
@@ -922,11 +922,13 @@ void FeaMesh::WriteNASTRAN( const string &filename )
                         {
                             m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
                             shell_elem_id_vec.push_back( elem_id );
+                            FeaMeshMgr.MarkMaterialUsed( FeaMeshMgr.GetSimplePropertyVec()[ property_id ].GetSimpFeaMatIndex() );
                         }
                         else
                         {
                             m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
                             beam_elem_id_vec.push_back( elem_id );
+                            FeaMeshMgr.MarkMaterialUsed( FeaMeshMgr.GetSimplePropertyVec()[ cap_property_id ].GetSimpFeaMatIndex() );
                         }
 
                         elem_id++;
@@ -990,11 +992,13 @@ void FeaMesh::WriteNASTRAN( const string &filename )
                     {
                         m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
                         shell_elem_id_vec.push_back( elem_id );
+                        FeaMeshMgr.MarkMaterialUsed( FeaMeshMgr.GetSimplePropertyVec()[ property_id ].GetSimpFeaMatIndex() );
                     }
                     else
                     {
                         m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
                         beam_elem_id_vec.push_back( elem_id );
+                        FeaMeshMgr.MarkMaterialUsed( FeaMeshMgr.GetSimplePropertyVec()[ cap_property_id ].GetSimpFeaMatIndex() );
                     }
 
                     elem_id++;
@@ -1014,19 +1018,18 @@ void FeaMesh::WriteNASTRAN( const string &filename )
         fprintf( temp, "\n" );
         fprintf( temp, "$Properties\n" );
 
-        for ( unsigned int i = 0; i < m_SimplePropertyVec.size(); i++ )
+        for ( unsigned int i = 0; i < FeaMeshMgr.GetSimplePropertyVec().size(); i++ )
         {
-            m_SimplePropertyVec[i].WriteNASTRAN( temp, i + 1 );
-            m_SimpleMaterialVec[ m_SimplePropertyVec[i].GetSimpFeaMatIndex() ].m_Used = true;
+            FeaMeshMgr.GetSimplePropertyVec()[i].WriteNASTRAN( temp, i + 1 );
         }
 
         //==== Materials ====//
         fprintf( temp, "\n" );
         fprintf( temp, "$Materials\n" );
 
-        for ( unsigned int i = 0; i < m_SimpleMaterialVec.size(); i++ )
+        for ( unsigned int i = 0; i < FeaMeshMgr.GetSimpleMaterialVec().size(); i++ )
         {
-            m_SimpleMaterialVec[i].WriteNASTRAN( temp, i + 1 );
+            FeaMeshMgr.GetSimpleMaterialVec()[i].WriteNASTRAN( temp, i + 1 );
         }
 
         fprintf( temp, "\nENDDATA\n" );
@@ -1101,6 +1104,8 @@ void FeaMesh::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num,
 
 void FeaMesh::WriteCalculix()
 {
+    FeaMeshMgr.ResetMaterialUse();
+
     int noffset = m_StructSettings.m_NodeOffset;
     int eoffset = m_StructSettings.m_ElementOffset;
 
@@ -1447,15 +1452,15 @@ void FeaMesh::WriteCalculix()
                         if ( !m_StructSettings.m_ConvertToQuadsFlag )
                         {
                             sprintf( str, "E%s_%d", m_FeaPartNameVec[ i ].c_str(), isurf );
-                            m_SimplePropertyVec[ property_id ].WriteCalculix( fp, str, ostr );
+                            FeaMeshMgr.GetSimplePropertyVec()[ property_id ].WriteCalculix( fp, str, ostr );
                         }
                         else
                         {
                             sprintf( str, "E%s_%d", m_FeaPartNameVec[ i ].c_str(), isurf );
-                            m_SimplePropertyVec[ property_id ].WriteCalculix( fp, str, ostr );
+                            FeaMeshMgr.GetSimplePropertyVec()[ property_id ].WriteCalculix( fp, str, ostr );
                         }
 
-                        m_SimpleMaterialVec[ m_SimplePropertyVec[ property_id ].GetSimpFeaMatIndex() ].m_Used = true;
+                        FeaMeshMgr.MarkMaterialUsed( FeaMeshMgr.GetSimplePropertyVec()[ property_id ].GetSimpFeaMatIndex() );
 
                         vec3d orient = m_PartSurfOrientation[i][isurf];
                         // int otype = srf->GetFeaOrientationType();
@@ -1468,8 +1473,8 @@ void FeaMesh::WriteCalculix()
                     {
                         fprintf( fp, "\n" );
                         sprintf( str, "EB%s_%d_CAP", m_FeaPartNameVec[i].c_str(), isurf );
-                        m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str, "" );
-                        m_SimpleMaterialVec[ m_SimplePropertyVec[ cap_property_id ].GetSimpFeaMatIndex() ].m_Used = true;
+                        FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
+                        FeaMeshMgr.MarkMaterialUsed( FeaMeshMgr.GetSimplePropertyVec()[ cap_property_id ].GetSimpFeaMatIndex() );
                     }
                 }
             }
@@ -1493,15 +1498,15 @@ void FeaMesh::WriteCalculix()
                     if ( !m_StructSettings.m_ConvertToQuadsFlag )
                     {
                         sprintf( str, "E%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
-                        m_SimplePropertyVec[property_id].WriteCalculix( fp, str, ostr );
+                        FeaMeshMgr.GetSimplePropertyVec()[property_id].WriteCalculix( fp, str, ostr );
                     }
                     else
                     {
                         sprintf( str, "E%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
-                        m_SimplePropertyVec[property_id].WriteCalculix( fp, str, ostr );
+                        FeaMeshMgr.GetSimplePropertyVec()[property_id].WriteCalculix( fp, str, ostr );
                     }
 
-                    m_SimpleMaterialVec[ m_SimplePropertyVec[ property_id ].GetSimpFeaMatIndex() ].m_Used = true;
+                    FeaMeshMgr.MarkMaterialUsed( FeaMeshMgr.GetSimplePropertyVec()[ property_id ].GetSimpFeaMatIndex() );
 
                     vec3d orient = ovec[isurf];
                     // int otype = m_SimpleSubSurfaceVec[i].GetFeaOrientationType();
@@ -1514,8 +1519,8 @@ void FeaMesh::WriteCalculix()
                 {
                     fprintf( fp, "\n" );
                     sprintf( str, "EB%s_%d_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
-                    m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str, "" );
-                    m_SimpleMaterialVec[ m_SimplePropertyVec[ cap_property_id ].GetSimpFeaMatIndex() ].m_Used = true;
+                    FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
+                    FeaMeshMgr.MarkMaterialUsed( FeaMeshMgr.GetSimplePropertyVec()[ cap_property_id ].GetSimpFeaMatIndex() );
                 }
             }
         }
@@ -1524,9 +1529,9 @@ void FeaMesh::WriteCalculix()
         //==== Materials ====//
         fprintf( fp, "\n" );
         fprintf( fp, "**Materials\n" );
-        for ( unsigned int i = 0; i < m_SimpleMaterialVec.size(); i++ )
+        for ( unsigned int i = 0; i < FeaMeshMgr.GetSimpleMaterialVec().size(); i++ )
         {
-            m_SimpleMaterialVec[i].WriteCalculix( fp, i );
+            FeaMeshMgr.GetSimpleMaterialVec()[i].WriteCalculix( fp, i );
         }
 
         fclose( fp );
