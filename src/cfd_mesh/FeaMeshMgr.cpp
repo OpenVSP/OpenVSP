@@ -172,9 +172,6 @@ void FeaMeshMgrSingleton::TransferMeshSettings()
             // A tri with edge length 1.0 will result in an average quad edge of 0.349
             GetMeshPtr()->m_FeaGridDensity.ScaleMesh( 2.536 );
         }
-
-        GetMeshPtr()->m_NodeOffset = GetMeshPtr()->m_StructSettings.m_NodeOffset;
-        GetMeshPtr()->m_ElementOffset = GetMeshPtr()->m_StructSettings.m_ElementOffset;
     }
 
 }

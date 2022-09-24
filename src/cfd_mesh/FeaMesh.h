@@ -119,9 +119,6 @@ public:
     unsigned int m_NumQuads;
     unsigned int m_NumBeams;
 
-    int m_NodeOffset;
-    int m_ElementOffset;
-
     vector < string > m_DrawBrowserNameVec;
     vector < int > m_DrawBrowserPartIndexVec;
     vector < bool > m_DrawElementFlagVec;

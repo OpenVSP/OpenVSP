@@ -68,9 +68,6 @@ void FeaMesh::Cleanup()
     m_NumFeaSubSurfs = 0;
     m_NumFeaFixPoints = 0;
 
-    m_NodeOffset = 0;
-    m_ElementOffset = 0;
-
     m_FeaPartNameVec.clear();
     m_FeaPartTypeVec.clear();
     m_FeaPartNumSurfVec.clear();
@@ -753,8 +750,8 @@ void FeaMesh::ExportFeaMesh()
 
 void FeaMesh::WriteNASTRAN( const string &filename )
 {
-    int noffset = m_NodeOffset;
-    int eoffset = m_ElementOffset;
+    int noffset = m_StructSettings.m_NodeOffset;
+    int eoffset = m_StructSettings.m_ElementOffset;
 
     // Create temporary file to store NASTRAN bulk data. Case control information (SETs) will be
     //  defined in the *_NASTRAN.dat file prior to the bulk data (elements, gridpoints, etc.)
@@ -1104,8 +1101,8 @@ void FeaMesh::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num,
 
 void FeaMesh::WriteCalculix()
 {
-    int noffset = m_NodeOffset;
-    int eoffset = m_ElementOffset;
+    int noffset = m_StructSettings.m_NodeOffset;
+    int eoffset = m_StructSettings.m_ElementOffset;
 
     // This code does not currently support mixed quads and tris.
     // Element sets must be made unique.  Properties and orientation should only be written for
@@ -1538,8 +1535,8 @@ void FeaMesh::WriteCalculix()
 
 void FeaMesh::WriteGmsh()
 {
-    int noffset = m_NodeOffset;
-    int eoffset = m_ElementOffset;
+    int noffset = m_StructSettings.m_NodeOffset;
+    int eoffset = m_StructSettings.m_ElementOffset;
 
     string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_GMSH_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
