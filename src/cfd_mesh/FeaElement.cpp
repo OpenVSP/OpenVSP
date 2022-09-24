@@ -560,6 +560,7 @@ void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
         m_Dim6 = fea_prop->m_Dim6.Get();
         m_CrossSectType = fea_prop->m_CrossSectType.Get();
         m_SimpleFeaMatIndex = fea_prop->m_FeaMaterialIndex();
+        m_Used = false;
 
         FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_SimpleFeaMatIndex );
 
@@ -572,6 +573,11 @@ void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
 
 void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id ) const
 {
+    if ( !m_Used )
+    {
+        return;
+    }
+
     fprintf( fp, "$ %s using %s\n", m_Name.c_str(), m_MaterialName.c_str() );
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
@@ -627,6 +633,11 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id ) const
 
 void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const string &ORIENTATION ) const
 {
+    if ( !m_Used )
+    {
+        return;
+    }
+
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
         fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s, ORIENTATION=%s\n", ELSET.c_str(), m_MaterialName.c_str(), ORIENTATION.c_str() );

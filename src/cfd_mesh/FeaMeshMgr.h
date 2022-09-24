@@ -165,17 +165,18 @@ public:
         return m_SimpleMaterialVec;
     }
 
-    virtual void ResetMaterialUse()
+    virtual void ResetPropMatUse()
     {
-        for ( int i = 0; i < m_SimpleMaterialVec.size(); i++ )
+        for ( int i = 0; i < m_SimplePropertyVec.size(); i++ )
         {
-            m_SimpleMaterialVec[ i ].m_Used = false;
+            m_SimplePropertyVec[ i ].m_Used = false;
         }
     }
 
-    virtual void MarkMaterialUsed( int indx )
+    virtual void MarkPropMatUsed( int indx )
     {
-        m_SimpleMaterialVec[ indx ].m_Used = true;
+        m_SimplePropertyVec[ indx ].m_Used = true;
+        m_SimpleMaterialVec[ m_SimplePropertyVec[ indx ].GetSimpFeaMatIndex() ].m_Used = true;
     }
 
     virtual void RegisterAnalysis();

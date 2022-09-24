@@ -220,6 +220,8 @@ class SimpleFeaProperty
         return m_SimpleFeaMatIndex;
     }
 
+    bool m_Used;
+
     int m_FeaPropertyType;
     double m_Thickness;
     double m_CrossSecArea;
