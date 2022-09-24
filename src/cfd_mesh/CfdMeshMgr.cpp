@@ -845,80 +845,80 @@ string CfdMeshMgrSingleton::GetQualString()
 
 void CfdMeshMgrSingleton::ExportFiles()
 {
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME ) )
     {
         if ( !m_Vehicle->m_STLMultiSolid() )
         {
-            WriteSTL( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
+            WriteSTL( GetSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
         }
         else
         {
-            WriteTaggedSTL( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
+            WriteTaggedSTL( GetSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
         }
     }
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME ) )
     {
-        WriteTetGen( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_POLY_FILE_NAME ) );
+        WriteTetGen( GetSettingsPtr()->GetExportFileName( vsp::CFD_POLY_FILE_NAME ) );
     }
 
     string dat_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_DAT_FILE_NAME ) )
+    if (  GetSettingsPtr()->GetExportFileFlag( vsp::CFD_DAT_FILE_NAME ) )
     {
-        dat_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_DAT_FILE_NAME );
+        dat_fn = GetSettingsPtr()->GetExportFileName( vsp::CFD_DAT_FILE_NAME );
     }
     string key_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_KEY_FILE_NAME ) )
+    if (  GetSettingsPtr()->GetExportFileFlag( vsp::CFD_KEY_FILE_NAME ) )
     {
-        key_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_KEY_FILE_NAME );
+        key_fn = GetSettingsPtr()->GetExportFileName( vsp::CFD_KEY_FILE_NAME );
     }
     string obj_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME ) )
+    if (  GetSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME ) )
     {
-        obj_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_OBJ_FILE_NAME );
+        obj_fn = GetSettingsPtr()->GetExportFileName( vsp::CFD_OBJ_FILE_NAME );
     }
     string tri_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME ) )
+    if (  GetSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME ) )
     {
-        tri_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TRI_FILE_NAME );
+        tri_fn = GetSettingsPtr()->GetExportFileName( vsp::CFD_TRI_FILE_NAME );
     }
     string gmsh_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME ) )
+    if (  GetSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME ) )
     {
-        gmsh_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME );
+        gmsh_fn = GetSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME );
     }
     string vspaero_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_VSPGEOM_FILE_NAME ) )
+    if (  GetSettingsPtr()->GetExportFileFlag( vsp::CFD_VSPGEOM_FILE_NAME ) )
     {
-        vspaero_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_VSPGEOM_FILE_NAME );
+        vspaero_fn = GetSettingsPtr()->GetExportFileName( vsp::CFD_VSPGEOM_FILE_NAME );
     }
 
     WriteNASCART_Obj_Tri_Gmsh( dat_fn, key_fn, obj_fn, tri_fn, gmsh_fn, vspaero_fn );
 
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_FACET_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_FACET_FILE_NAME ) )
     {
-        WriteFacet( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_FACET_FILE_NAME ) );
+        WriteFacet( GetSettingsPtr()->GetExportFileName( vsp::CFD_FACET_FILE_NAME ) );
     }
 
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME ) )
     {
-        WriteSurfsIntCurves( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_SRF_FILE_NAME ) );
+        WriteSurfsIntCurves( GetSettingsPtr()->GetExportFileName( vsp::CFD_SRF_FILE_NAME ) );
     }
 
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME ) )
     {
-        SubSurfaceMgr.WriteTKeyFile(GetCfdSettingsPtr()->GetExportFileName(vsp::CFD_TKEY_FILE_NAME));
+        SubSurfaceMgr.WriteTKeyFile(GetSettingsPtr()->GetExportFileName(vsp::CFD_TKEY_FILE_NAME));
     }
 
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME ) )
     {
-        WriteGridToolCurvFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME ),
-                               GetCfdSettingsPtr()->m_ExportRawFlag );
+        WriteGridToolCurvFile( GetSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME ),
+                               GetSettingsPtr()->m_ExportRawFlag );
     }
 
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME ) )
     {
-        WritePlot3DFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_PLOT3D_FILE_NAME ),
-                         GetCfdSettingsPtr()->m_ExportRawFlag );
+        WritePlot3DFile( GetSettingsPtr()->GetExportFileName( vsp::CFD_PLOT3D_FILE_NAME ),
+                         GetSettingsPtr()->m_ExportRawFlag );
     }
 
 }

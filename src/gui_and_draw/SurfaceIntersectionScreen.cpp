@@ -343,10 +343,7 @@ void SurfaceIntersectionScreen::UpdateDisplayTab()
     m_ShowCurve.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.GetID() );
     m_ShowPts.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.GetID() );
 
-    if ( SurfaceIntersectionMgr.GetIntersectSettingsPtr() )
-    {
-        SurfaceIntersectionMgr.UpdateDisplaySettings();
-    }
+    SurfaceIntersectionMgr.UpdateDisplaySettings();
 }
 
 void SurfaceIntersectionScreen::UpdateOutputTab()

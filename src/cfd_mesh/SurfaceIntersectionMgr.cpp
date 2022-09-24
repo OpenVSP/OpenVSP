@@ -880,45 +880,45 @@ void SurfaceIntersectionSingleton::BuildGrid()
 
 void SurfaceIntersectionSingleton::ExportFiles()
 {
-    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME ) )
     {
-        WriteSurfsIntCurves( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME ) );
+        WriteSurfsIntCurves( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME ) );
     }
 
-    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME ) )
     {
-        WriteGridToolCurvFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME ),
-                               GetIntersectSettingsPtr()->m_ExportRawFlag );
+        WriteGridToolCurvFile( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME ),
+                               GetSettingsPtr()->m_ExportRawFlag );
     }
 
-    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME ) )
     {
-        WritePlot3DFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME ),
-                         GetIntersectSettingsPtr()->m_ExportRawFlag );
+        WritePlot3DFile( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME ),
+                         GetSettingsPtr()->m_ExportRawFlag );
     }
 
-    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) || GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) || GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ) )
     {
         BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
     }
 
-    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) )
     {
-        string delim = StringUtil::get_delim( GetIntersectSettingsPtr()->m_CADLabelDelim );
+        string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        WriteIGESFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ), GetIntersectSettingsPtr()->m_CADLenUnit,
-                       GetIntersectSettingsPtr()->m_CADLabelID, GetIntersectSettingsPtr()->m_CADLabelSurfNo, GetIntersectSettingsPtr()->m_CADLabelSplitNo,
-                       GetIntersectSettingsPtr()->m_CADLabelName, delim );
+        WriteIGESFile( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
+                       GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
+                       GetSettingsPtr()->m_CADLabelName, delim );
     }
 
-    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ) )
+    if ( GetSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ) )
     {
-        string delim = StringUtil::get_delim( GetIntersectSettingsPtr()->m_CADLabelDelim );
+        string delim = StringUtil::get_delim( GetSettingsPtr()->m_CADLabelDelim );
 
-        WriteSTEPFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ), GetIntersectSettingsPtr()->m_CADLenUnit,
-                       GetIntersectSettingsPtr()->m_STEPTol, GetIntersectSettingsPtr()->m_STEPMergePoints,
-                       GetIntersectSettingsPtr()->m_CADLabelID, GetIntersectSettingsPtr()->m_CADLabelSurfNo, GetIntersectSettingsPtr()->m_CADLabelSplitNo,
-                       GetIntersectSettingsPtr()->m_CADLabelName, delim, GetIntersectSettingsPtr()->m_STEPRepresentation );
+        WriteSTEPFile( GetSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ), GetSettingsPtr()->m_CADLenUnit,
+                       GetSettingsPtr()->m_STEPTol, GetSettingsPtr()->m_STEPMergePoints,
+                       GetSettingsPtr()->m_CADLabelID, GetSettingsPtr()->m_CADLabelSurfNo, GetSettingsPtr()->m_CADLabelSplitNo,
+                       GetSettingsPtr()->m_CADLabelName, delim, GetSettingsPtr()->m_STEPRepresentation );
     }
 }
 
@@ -3498,18 +3498,18 @@ void SurfaceIntersectionSingleton::SetICurveVec( ICurve* newcurve, int loc )
 
 void SurfaceIntersectionSingleton::UpdateDisplaySettings()
 {
-    if ( GetIntersectSettingsPtr() )
+    if ( GetSettingsPtr() )
     {
-        GetIntersectSettingsPtr()->m_DrawSourceWakeFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawSourceWakeFlag.Get();
+        GetSettingsPtr()->m_DrawSourceWakeFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawSourceWakeFlag.Get();
 
-        GetIntersectSettingsPtr()->m_DrawBorderFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBorderFlag.Get();
-        GetIntersectSettingsPtr()->m_DrawIsectFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawIsectFlag.Get();
-        GetIntersectSettingsPtr()->m_DrawRawFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawRawFlag.Get();
-        GetIntersectSettingsPtr()->m_DrawBinAdaptFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag.Get();
-        GetIntersectSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.Get();
-        GetIntersectSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.Get();
+        GetSettingsPtr()->m_DrawBorderFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBorderFlag.Get();
+        GetSettingsPtr()->m_DrawIsectFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawIsectFlag.Get();
+        GetSettingsPtr()->m_DrawRawFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawRawFlag.Get();
+        GetSettingsPtr()->m_DrawBinAdaptFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag.Get();
+        GetSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.Get();
+        GetSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.Get();
 
         // Needed by update wakes - called by screen::Update
-        GetIntersectSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.Get();
+        GetSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.Get();
     }
 }

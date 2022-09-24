@@ -330,10 +330,6 @@ public:
     vector< vec3d > m_DebugColors;
 #endif
 
-    virtual SimpleIntersectSettings* GetIntersectSettingsPtr()
-    {
-        return &m_IntersectSettings;
-    }
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
         return (SimpleMeshCommonSettings* )&m_IntersectSettings;
