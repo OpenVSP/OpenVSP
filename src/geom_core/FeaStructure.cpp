@@ -16,6 +16,7 @@
 #include "WingGeom.h"
 #include "ConformalGeom.h"
 #include "UnitConversion.h"
+#include "StlHelper.h"
 
 #include <cfloat>
 
@@ -592,6 +593,24 @@ void FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector <
             }
         }
     }
+}
+
+vector< FeaPart* > FeaStructure::GetFeaPartVecType( int type )
+{
+    vector< FeaPart* > retvec;
+
+    for ( int i = 0; i < m_FeaPartVec.size(); i++ )
+    {
+        FeaPart* fea_part = m_FeaPartVec[i];
+        if ( fea_part )
+        {
+            if ( fea_part->GetType() == type )
+            {
+                retvec.push_back( fea_part );
+            }
+        }
+    }
+    return retvec;
 }
 
 bool FeaStructure::FeaPartIsFixPoint( int ind )
@@ -5244,4 +5263,215 @@ xmlNodePtr FeaMaterial::DecodeXml( xmlNodePtr & node )
 double FeaMaterial::GetShearModulus()
 {
     return ( m_ElasticModulus() / ( 2 * ( m_PoissonRatio() + 1 ) ) );
+}
+
+//////////////////////////////////////////////////////
+//================= FeaConnection ==================//
+//////////////////////////////////////////////////////
+
+FeaConnection::FeaConnection( )
+{
+}
+
+xmlNodePtr FeaConnection::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr conn_node = xmlNewChild( node, NULL, BAD_CAST "Connection", NULL );
+
+    if ( conn_node )
+    {
+        ParmContainer::EncodeXml( conn_node );
+
+        XmlUtil::AddStringNode( conn_node, "StartFixPtID", m_StartFixPtID );
+        XmlUtil::AddStringNode( conn_node, "StartStructID", m_StartStructID );
+        XmlUtil::AddStringNode( conn_node, "EndFixPtID", m_EndFixPtID );
+        XmlUtil::AddStringNode( conn_node, "EndStructID", m_EndStructID );
+    }
+
+    return conn_node;
+}
+
+xmlNodePtr FeaConnection::DecodeXml( xmlNodePtr & conn_node )
+{
+    if ( conn_node )
+    {
+        ParmContainer::DecodeXml( conn_node );
+
+        m_StartFixPtID = XmlUtil::FindString( conn_node, "StartFixPtID", m_StartFixPtID );
+        m_StartStructID = XmlUtil::FindString( conn_node, "StartStructID", m_StartStructID );
+        m_EndFixPtID = XmlUtil::FindString( conn_node, "EndFixPtID", m_EndFixPtID );
+        m_EndStructID = XmlUtil::FindString( conn_node, "EndStructID", m_EndStructID );
+    }
+
+    return conn_node;
+}
+
+string FeaConnection::MakeLabel()
+{
+    string lbl;
+
+    FeaStructure* start_struct = StructureMgr.GetFeaStruct( m_StartStructID );
+    FeaPart* start_pt = StructureMgr.GetFeaPart( m_StartFixPtID );
+    FeaStructure* end_struct = StructureMgr.GetFeaStruct( m_EndStructID );
+    FeaPart* end_pt = StructureMgr.GetFeaPart( m_EndFixPtID );
+
+    if ( start_struct && start_pt && end_struct && end_pt )
+    {
+        char str[512];
+        sprintf( str, "%s:%s:%s:%s:", start_struct->GetName().c_str(), start_pt->GetName().c_str(),
+                                      end_struct->GetName().c_str(), end_pt->GetName().c_str() );
+        lbl = string( str );
+    }
+    return lbl;
+}
+
+//////////////////////////////////////////////////////
+//================= FeaConnection ==================//
+//////////////////////////////////////////////////////
+
+FeaAssembly::FeaAssembly( )
+{
+}
+
+FeaAssembly::~FeaAssembly()
+{
+    for ( int i = 0 ; i < ( int )m_ConnectionVec.size() ; i++ )
+    {
+        delete m_ConnectionVec[i];
+    }
+    m_ConnectionVec.clear();
+}
+
+xmlNodePtr FeaAssembly::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr assy_node = xmlNewChild( node, NULL, BAD_CAST "FeaAssembly", NULL );
+
+    if ( assy_node )
+    {
+        ParmContainer::EncodeXml( assy_node );
+
+        xmlNodePtr structlist_node = xmlNewChild( assy_node, NULL, BAD_CAST "Structure_List", NULL );
+        for ( int i = 0 ; i < ( int )m_StructIDVec.size() ; i++ )
+        {
+            xmlNodePtr struct_node = xmlNewChild( structlist_node, NULL, BAD_CAST "Structure", NULL );
+            XmlUtil::AddStringNode( struct_node, "ID", m_StructIDVec[i] );
+        }
+
+        xmlNodePtr conlist_node = xmlNewChild( assy_node, NULL, BAD_CAST "Connection_List", NULL );
+        for ( int i = 0 ; i < ( int )m_ConnectionVec.size() ; i++ )
+        {
+            FeaConnection* conn = m_ConnectionVec[i];
+            if ( conn )
+            {
+                conn->EncodeXml( conlist_node );
+            }
+        }
+    }
+
+    return assy_node;
+}
+
+xmlNodePtr FeaAssembly::DecodeXml( xmlNodePtr & assy_node )
+{
+    ParmContainer::DecodeXml( assy_node );
+
+    if ( assy_node )
+    {
+        m_StructIDVec.clear();
+
+        xmlNodePtr structlist_node = XmlUtil::GetNode( assy_node, "Structure_List", 0 );
+        if ( structlist_node )
+        {
+            int num_struct = XmlUtil::GetNumNames( structlist_node, "Structure" );
+
+            for ( int i = 0; i < num_struct; i++ )
+            {
+                xmlNodePtr n = XmlUtil::GetNode( structlist_node, "Structure", i );
+                m_StructIDVec.push_back( ParmMgr.RemapID( XmlUtil::FindString( n, "ID", string() ) ) );
+            }
+        }
+
+        xmlNodePtr conlist_node = XmlUtil::GetNode( assy_node, "Connection_List", 0 );
+        if ( conlist_node )
+        {
+            int num = XmlUtil::GetNumNames( conlist_node, "Connection" );
+
+            for ( int i = 0; i < num; i++ )
+            {
+                xmlNodePtr n = XmlUtil::GetNode( conlist_node, "Connection", i );
+                if ( n )
+                {
+                    FeaConnection *conn = new FeaConnection();
+                    conn->DecodeXml( n );
+                    m_ConnectionVec.push_back( conn );
+                }
+            }
+        }
+    }
+
+    return assy_node;
+}
+
+void FeaAssembly::AddStructure( const string &id )
+{
+    if ( !vector_contains_val( m_StructIDVec, id ) )
+    {
+        m_StructIDVec.push_back( id );
+    }
+}
+
+void FeaAssembly::DelStructure( const string &id )
+{
+    if ( vector_contains_val( m_StructIDVec, id ) )
+    {
+        vector_remove_val( m_StructIDVec, id );
+    }
+}
+
+void FeaAssembly::GetAllFixPts( vector< FeaPart* > & fixpts, vector <string> &structids )
+{
+    fixpts.clear();
+    structids.clear();
+
+    for ( int i = 0; i < m_StructIDVec.size(); i++ )
+    {
+        FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_StructIDVec[i] );
+        if ( fea_struct )
+        {
+            vector < FeaPart * > st_pts = fea_struct->GetFeaPartVecType( vsp::FEA_FIX_POINT );
+            if ( st_pts.size() > 0 )
+            {
+                fixpts.insert( fixpts.end(), st_pts.begin(), st_pts.end() );
+                vector < string > ids( st_pts.size(), m_StructIDVec[ i ] );
+                structids.insert( structids.end(), ids.begin(), ids.end() );
+            }
+        }
+    }
+}
+
+void FeaAssembly::AddConnection( const string &startid, const string &startstructid, const string &endid, const string &endstructid )
+{
+    if ( startid != endid )
+    {
+        FeaConnection *conn = new FeaConnection();
+
+        conn->m_StartFixPtID = startid;
+        conn->m_StartStructID = startstructid;
+        conn->m_EndFixPtID = endid;
+        conn->m_EndStructID = endstructid;
+
+        m_ConnectionVec.push_back( conn );
+    }
+}
+
+void FeaAssembly::DelConnection( int index )
+{
+    if ( index >= 0 && index < m_ConnectionVec.size() && m_ConnectionVec.size() > 0 )
+    {
+        FeaConnection* con = m_ConnectionVec[index];
+        if ( con )
+        {
+            delete con;
+        }
+        m_ConnectionVec.erase( m_ConnectionVec.begin() + index );
+    }
 }

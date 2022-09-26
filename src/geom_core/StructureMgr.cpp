@@ -17,6 +17,7 @@ StructureMgrSingleton::StructureMgrSingleton()
     InitFeaMaterials();
     InitFeaProperties();
 
+    m_FeaAssemblyCount = 0;
     m_FeaPropertyCount = 0;
     m_FeaMatCount = 0;
 
@@ -51,6 +52,11 @@ xmlNodePtr StructureMgrSingleton::EncodeXml( xmlNodePtr & node )
         {
             m_FeaMaterialVec[i]->EncodeXml( structmgr_node );
         }
+    }
+
+    for ( int i = 0; i < (int)m_FeaAssemblyVec.size(); i++ )
+    {
+        m_FeaAssemblyVec[i]->EncodeXml( structmgr_node );
     }
 
     return structmgr_node;
@@ -102,6 +108,27 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
                 }
             }
         }
+
+        int num_assy = XmlUtil::GetNumNames( structmgr_node, "FeaAssembly" );
+
+        for ( unsigned int i = 0; i < num_assy; i++ )
+        {
+            xmlNodePtr assy = XmlUtil::GetNode( structmgr_node, "FeaAssembly", i );
+
+            if ( num_assy )
+            {
+                FeaAssembly* fea_assy = new FeaAssembly();
+
+                if ( fea_assy )
+                {
+                    fea_assy->DecodeXml( assy );
+
+                    AddFeaAssembly( fea_assy );
+                }
+            }
+        }
+
+
     }
 
     InitFeaProperties();
@@ -117,6 +144,13 @@ void StructureMgrSingleton::Renew()
 
 void StructureMgrSingleton::Wype()
 {
+    // Delete FeaAssemblies
+    for ( int i = 0; i < (int)m_FeaAssemblyVec.size(); i++ )
+    {
+        delete m_FeaAssemblyVec[i];
+    }
+    m_FeaAssemblyVec.clear();
+
     // Delete FeaProperties
     for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
     {
@@ -881,4 +915,66 @@ void StructureMgrSingleton::InitFeaMaterials()
         mat->Update();
         AddFeaMaterial( mat );
     }
+}
+
+//==== Get FeaAssembly =====//
+FeaAssembly* StructureMgrSingleton::GetFeaAssembly( const string & assyid )
+{
+    for ( unsigned int i = 0; i < m_FeaAssemblyVec.size(); i++ )
+    {
+        FeaAssembly* assy_ptr = m_FeaAssemblyVec[i];
+        if ( assy_ptr )
+        {
+            if ( assy_ptr->GetID() == assyid )
+            {
+                return assy_ptr;
+            }
+        }
+    }
+    return NULL;
+}
+
+//==== Add FeaProperty =====//
+FeaAssembly* StructureMgrSingleton::AddFeaAssembly( )
+{
+    FeaAssembly* feaassy = new FeaAssembly();
+
+    if ( feaassy )
+    {
+        feaassy->SetName( string( "ASSEMBLY_" + std::to_string( m_FeaAssemblyCount ) ) );
+
+        m_FeaAssemblyVec.push_back( feaassy );
+        m_FeaAssemblyCount++;
+    }
+
+    return feaassy;
+}
+
+//==== Delete FeaProperty =====//
+void StructureMgrSingleton::DeleteFeaAssembly( int index )
+{
+    if ( !ValidFeaAssemblyInd( index ) )
+        return;
+
+    delete m_FeaAssemblyVec[index];
+    m_FeaAssemblyVec.erase( m_FeaAssemblyVec.begin() + index );
+}
+
+//==== Validate FeaProperty Index ====//
+bool StructureMgrSingleton::ValidFeaAssemblyInd( int index )
+{
+    if ( (int)m_FeaAssemblyVec.size() > 0 && index >= 0 && index < (int)m_FeaAssemblyVec.size() )
+    {
+        return true;
+    }
+    return false;
+}
+
+FeaAssembly* StructureMgrSingleton::GetFeaAssembly( int index )
+{
+    if ( ValidFeaAssemblyInd( index ) )
+    {
+        return m_FeaAssemblyVec[index];
+    }
+    return NULL;
 }

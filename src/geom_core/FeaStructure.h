@@ -72,6 +72,8 @@ public:
 
     virtual void FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm );
 
+    vector< FeaPart* > GetFeaPartVecType( int type );
+
     bool FeaPartIsFixPoint( int ind );
     int GetNumFeaFixPoints();
 
@@ -640,5 +642,52 @@ public:
     Parm m_A3;
 
 };
+
+class FeaConnection : public ParmContainer
+{
+public:
+
+    FeaConnection();
+    virtual ~FeaConnection()    {};
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual string MakeLabel();
+
+    string m_StartStructID;
+    string m_StartFixPtID;
+
+    string m_EndStructID;
+    string m_EndFixPtID;
+
+protected:
+
+};
+
+class FeaAssembly : public ParmContainer
+{
+public:
+
+    FeaAssembly();
+    ~FeaAssembly();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void AddStructure( const string &id );
+    virtual void DelStructure( const string &id );
+
+    virtual void GetAllFixPts( vector< FeaPart* > & fixpts, vector <string> &structids );
+    virtual void AddConnection( const string &startid, const string &startstructid, const string &endid, const string &endstructid );
+    virtual void DelConnection( int index );
+
+    vector < string > m_StructIDVec;
+
+    vector < FeaConnection* > m_ConnectionVec;
+
+};
+
+
 
 #endif // !defined(FEASTRUCTURE_INCLUDED_)
