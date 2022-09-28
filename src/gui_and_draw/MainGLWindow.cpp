@@ -4,6 +4,7 @@
 #include "ScreenMgr.h"
 #include "CfdMeshScreen.h"
 #include "StructScreen.h"
+#include "StructAssemblyScreen.h"
 #include "Display.h"
 #include "Scene.h"
 #include "Viewport.h"
@@ -317,6 +318,14 @@ void VspGlWindow::update()
         if( structScreen )
         {
             structScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from FeaStructAssemblyScreen.
+        StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN ) );
+        if( structAssemblyScreen )
+        {
+            structAssemblyScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Render Objects from lightScreen.

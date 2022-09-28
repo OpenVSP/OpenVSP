@@ -87,6 +87,7 @@ SetEditorScreen.cpp
 SnapToScreen.cpp
 StackScreen.cpp
 StructScreen.cpp
+StructAssemblyScreen.cpp
 STEPOptionsScreen.cpp
 STEPStructureOptionsScreen.cpp
 STLOptionsScreen.cpp
@@ -162,6 +163,7 @@ SetEditorScreen.h
 SnapToScreen.h
 StackScreen.h
 StructScreen.h
+StructAssemblyScreen.h
 STEPOptionsScreen.h
 STEPStructureOptionsScreen.h
 STLOptionsScreen.h
