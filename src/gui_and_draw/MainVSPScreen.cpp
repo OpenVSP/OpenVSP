@@ -133,7 +133,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_ProjectionMenuItem.Init( mgr, m_MenuBar, "Analysis/Projected Area...", ScreenMgr::VSP_PROJECTION_SCREEN );
     m_SurfIntMenuItem.Init( mgr, m_MenuBar, "Analysis/Trimmed Surfaces...", ScreenMgr::VSP_SURFACE_INTERSECTION_SCREEN );
     m_CFDMeshMenuItem.Init( mgr, m_MenuBar, "Analysis/CFD Mesh...", ScreenMgr::VSP_CFD_MESH_SCREEN );
-    m_StructMenuItem.Init( mgr, m_MenuBar, "Analysis/FEA Mesh...", ScreenMgr::VSP_STRUCT_SCREEN );
+    m_StructMenuItem.Init( mgr, m_MenuBar, "Analysis/FEA Structure...", ScreenMgr::VSP_STRUCT_SCREEN );
     m_DegenGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/DegenGeom...", ScreenMgr::VSP_DEGEN_GEOM_SCREEN );
     m_VSPAEROMenuItem.Init( mgr, m_MenuBar, "Analysis/VSPAERO...", ScreenMgr::VSP_VSPAERO_SCREEN );
     m_WaveDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Wave Drag...", ScreenMgr::VSP_WAVEDRAG_SCREEN );
