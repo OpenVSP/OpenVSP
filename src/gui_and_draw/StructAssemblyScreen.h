@@ -21,6 +21,10 @@
 
 using namespace std;
 
+class StructAssemblyScreen;
+
+typedef std::pair< StructAssemblyScreen*, vector<string> > batchmeshpair;
+
 class StructAssemblyScreen : public TabScreen
 {
 public:
@@ -28,7 +32,7 @@ public:
     virtual ~StructAssemblyScreen();
 
     virtual void Show();
-    virtual void LaunchFEAMesh();
+    virtual void LaunchBatchFEAMesh( const vector < string > &idvec );
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
@@ -155,6 +159,8 @@ private:
     TriggerButton m_HideAllButton;
 
     //==== Private Variables ====//
+
+    vector < string > m_BatchIDs;
 
 };
 

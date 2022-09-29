@@ -121,9 +121,9 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
     m_StructureTabLayout.AddDividerBox( "Structure Selection" );
 
-    static int struct_col_widths[] = { 172, 151, 86, 0 }; // widths for each column
+    static int struct_col_widths[] = { 300, 100, 0 }; // widths for each column
 
-    m_StructureSelectBrowser = m_StructureTabLayout.AddColResizeBrowser( struct_col_widths, 3, browser_h );
+    m_StructureSelectBrowser = m_StructureTabLayout.AddColResizeBrowser( struct_col_widths, 2, browser_h );
     m_StructureSelectBrowser->callback( staticScreenCB, this );
 
     m_StructureTabLayout.AddChoice( m_FeaStructureChoice, "Structure" );
@@ -392,15 +392,31 @@ void StructAssemblyScreen::UpdateStructTab()
     }
 
     m_StructureSelectBrowser->column_char( ':' );
-    m_StructureSelectBrowser->add( "@b@.NAME" );
+    m_StructureSelectBrowser->add( "@b@.NAME:@b@.MESH READY:" );
 
     vector < string > idvec = curr_assy->m_StructIDVec;
     for ( int i = 0; i < idvec.size(); i++ )
     {
         int indx = vector_find_val( m_StructIDs, idvec[i] );
 
+        string ready( "N" );
+
+        FeaStructure* fea_struct = StructureMgr.GetFeaStruct( idvec[i] );
+
+        if ( fea_struct )
+        {
+            FeaMesh* mesh = FeaMeshMgr.GetMeshPtr( idvec[i] );
+            if ( mesh )
+            {
+                if ( mesh->m_MeshReady )
+                {
+                    ready = "Y";
+                }
+            }
+        }
+
         char str[256];
-        sprintf( str, "%s", names[indx].c_str() );
+        sprintf( str, "%s:%s:", names[indx].c_str(), ready.c_str() );
 
         m_StructureSelectBrowser->add( str );
     }
@@ -514,40 +530,29 @@ void StructAssemblyScreen::CallBack( Fl_Widget* w )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+
+
 #ifdef WIN32
 DWORD WINAPI feaassy_thread_fun( LPVOID data )
 #else
 void * feaassy_thread_fun( void *data )
 #endif
 {
-    FeaMeshMgr.GenerateFeaMesh();
+    vector < string > *idvec = ( vector < string > * ) data;
 
-    StructAssemblyScreen *cs = (StructAssemblyScreen *)data;
-    if ( cs )
-    {
-        cs->GetScreenMgr()->SetUpdateFlag( true ); // FeaParts will not be updated when mesh is in progress
-    }
+    FeaMeshMgr.MeshUnMeshed( *idvec );
 
     return 0;
 }
 
-void StructAssemblyScreen::LaunchFEAMesh()
+void StructAssemblyScreen::LaunchBatchFEAMesh( const vector < string > &idvec )
 {
-    // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
     FeaMeshMgr.SetFeaMeshInProgress( true );
 
-    // Identify which structure to mesh
-    FeaMeshMgr.SetFeaMeshStructID( m_AssemblyIDs[ StructureMgr.m_CurrStructIndex() ] );
+    // Copy vector to memory that will persist through duration of meshing process.
+    m_BatchIDs = idvec;
 
-    m_FeaMeshProcess.StartThread( feaassy_thread_fun, ( void* ) this );
-
-    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-    {
-        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
-        structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
-        structvec[StructureMgr.m_CurrStructIndex()]->SetDrawFlag( false );
-    }
+    m_FeaMeshProcess.StartThread( feaassy_thread_fun, ( void* ) &m_BatchIDs );
 }
 
 void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
@@ -563,13 +568,45 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_FeaReMeshAllButton )
     {
-        LaunchFEAMesh();
+        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        {
+            FeaAssembly *curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+
+            if ( curr_assy )
+            {
+                FeaMeshMgr.CleanupMeshes( curr_assy->m_StructIDVec );
+                LaunchBatchFEAMesh( curr_assy->m_StructIDVec );
+            }
+        }
+    }
+    else if ( device == &m_FeaMeshUnmeshedButton )
+    {
+        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        {
+            FeaAssembly *curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+
+            if ( curr_assy )
+            {
+                LaunchBatchFEAMesh( curr_assy->m_StructIDVec );
+            }
+        }
+    }
+    else if ( device == &m_FeaExportMeshButton )
+    {
+        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        {
+            FeaAssembly *curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+
+            if ( curr_assy )
+            {
+                FeaMeshMgr.ExportMeshes( curr_assy->m_StructIDVec );
+            }
+        }
     }
     else if ( device == &m_AddAssemblyButton )
     {
         StructureMgr.AddFeaAssembly();
         StructureMgr.SetCurrAssemblyIndex( StructureMgr.NumFeaAssembly() - 1 );
-
     }
     else if ( device == &m_DelAssemblyButton )
     {
