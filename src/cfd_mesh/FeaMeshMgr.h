@@ -75,6 +75,8 @@ public:
         return m_ActiveMesh;
     }
 
+    virtual FeaMesh* GetMeshPtr( string struct_id );
+
     virtual bool LoadSurfaces();
     virtual void LoadSkins();
     virtual void GenerateFeaMesh();
@@ -182,6 +184,10 @@ public:
     virtual void RegisterAnalysis();
 
     virtual Surf* GetFeaSurf( int FeaPartID, int surf_num );
+
+    virtual void MeshUnMeshed( const vector < string > & idvec );
+    virtual void CleanupMeshes( const vector < string > & idvec );
+    virtual void ExportMeshes( const vector < string > & idvec );
 
 protected:
 

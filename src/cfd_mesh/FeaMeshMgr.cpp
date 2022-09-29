@@ -14,6 +14,7 @@
 #include "StringUtil.h"
 #include "MeshAnalysis.h"
 #include "StlHelper.h"
+#include "MessageMgr.h"
 
 //=============================================================//
 //=============================================================//
@@ -78,6 +79,17 @@ void FeaMeshMgrSingleton::SetActiveMesh( string struct_id )
     }
 
     m_ActiveMesh = m_MeshPtrMap[ struct_id ];
+}
+
+FeaMesh* FeaMeshMgrSingleton::GetMeshPtr( string struct_id )
+{
+    meshmaptype::iterator it = m_MeshPtrMap.find( struct_id );
+
+    if ( it == m_MeshPtrMap.end() )
+    {
+        return NULL;
+    }
+    return m_MeshPtrMap[ struct_id ];
 }
 
 bool FeaMeshMgrSingleton::LoadSurfaces()
@@ -2384,4 +2396,40 @@ Surf* FeaMeshMgrSingleton::GetFeaSurf( int FeaPartID, int surf_num )
         }
     }
     return NULL;
+}
+
+void FeaMeshMgrSingleton::MeshUnMeshed( const vector < string > & idvec )
+{
+    for ( int i = 0; i < idvec.size(); i++ )
+    {
+        SetFeaMeshStructID( idvec[i] );
+
+        if ( m_ActiveMesh )
+        {
+            if ( !m_ActiveMesh->m_MeshReady )
+            {
+                GenerateFeaMesh();
+
+                // Trigger screen update after each mesh generation.
+                MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+            }
+        }
+    }
+}
+
+void FeaMeshMgrSingleton::CleanupMeshes( const vector < string > & idvec )
+{
+    for ( int i = 0; i < idvec.size(); i++ )
+    {
+        FeaMesh* mesh = GetMeshPtr( idvec[i] );
+        if ( mesh )
+        {
+            mesh->Cleanup();
+        }
+    }
+}
+
+void FeaMeshMgrSingleton::ExportMeshes( const vector < string > & idvec )
+{
+    addOutputText( "Exporting Meshes.\n" );
 }
