@@ -97,7 +97,6 @@ private:
     Fl_Text_Buffer* m_ConsoleBuffer;
 
     ProcessUtil m_FeaMeshProcess;
-    ProcessUtil m_MonitorProcess;
 
     //===== Common buttons =====//
     StringOutput m_CurrFeaMeshOutput;
