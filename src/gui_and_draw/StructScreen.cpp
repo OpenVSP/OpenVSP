@@ -2366,12 +2366,6 @@ void * feamesh_thread_fun( void *data )
 {
     FeaMeshMgr.GenerateFeaMesh();
 
-    StructScreen *cs = (StructScreen *)data;
-    if ( cs )
-    {
-        cs->GetScreenMgr()->SetUpdateFlag( true ); // FeaParts will not be updated when mesh is in progress
-    }
-
     return 0;
 }
 
@@ -2383,7 +2377,7 @@ void StructScreen::LaunchFEAMesh()
     // Identify which structure to mesh
     FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
 
-    m_FeaMeshProcess.StartThread( feamesh_thread_fun, ( void* ) this );
+    m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
 
     if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
     {
@@ -2426,7 +2420,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         // Identify which structure to mesh
         FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
 
-        m_FeaMeshProcess.StartThread( feamesh_thread_fun, (void*)this );
+        m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
     }
     else if ( device == &m_ExportCADButton )
     {

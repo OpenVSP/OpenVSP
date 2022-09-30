@@ -321,6 +321,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     {
         addOutputText( "No Surfaces.  Done.\n" );
         m_FeaMeshInProgress = false;
+        MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
         return;
     }
 
@@ -381,6 +382,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
         m_FeaMeshInProgress = false;
         m_CADOnlyFlag = false;
+        MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
         return;
     }
 
@@ -437,6 +439,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Finished\n" );
 
     m_FeaMeshInProgress = false;
+    MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
 void FeaMeshMgrSingleton::ExportFeaMesh()

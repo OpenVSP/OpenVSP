@@ -87,6 +87,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     {
         addOutputText( "No Surfaces To Mesh\n" );
         m_MeshInProgress = false;
+        MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
         return;
     }
 
@@ -147,6 +148,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     UpdateDrawObjs();
 
     m_MeshInProgress = false;
+    MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
 void CfdMeshMgrSingleton::TransferMeshSettings()

@@ -994,13 +994,6 @@ void * cfdmesh_thread_fun( void *data )
 #endif
 {
     CfdMeshMgr.GenerateMesh();
-
-    CfdMeshScreen *cs = (CfdMeshScreen *)data;
-    if ( cs )
-    {
-        cs->GetScreenMgr()->SetUpdateFlag( true );
-    }
-
     return 0;
 }
 
@@ -1017,7 +1010,7 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_MeshAndExport )
     {
         CfdMeshMgr.SetMeshInProgress( true );
-        m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, ( void* ) this );
+        m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, NULL );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

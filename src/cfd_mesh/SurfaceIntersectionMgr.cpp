@@ -416,6 +416,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     {
         addOutputText( "No Surfaces To Mesh\n" );
         m_MeshInProgress = false;
+        MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
         return;
     }
 
@@ -436,6 +437,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     addOutputText( "Done\n" );
 
     m_MeshInProgress = false;
+    MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
 void SurfaceIntersectionSingleton::CleanUp()

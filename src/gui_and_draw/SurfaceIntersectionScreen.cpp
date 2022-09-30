@@ -550,13 +550,6 @@ void * surfint_thread_fun( void *data )
 #endif
 {
     SurfaceIntersectionMgr.IntersectSurfaces();
-
-    SurfaceIntersectionScreen *cs = (SurfaceIntersectionScreen *)data;
-    if ( cs )
-    {
-        cs->GetScreenMgr()->SetUpdateFlag( true );
-    }
-
     return 0;
 }
 
@@ -571,7 +564,7 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_IntersectAndExport )
     {
         SurfaceIntersectionMgr.SetMeshInProgress( true );
-        m_IntersectProcess.StartThread( surfint_thread_fun, ( void* ) this );
+        m_IntersectProcess.StartThread( surfint_thread_fun, NULL );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
