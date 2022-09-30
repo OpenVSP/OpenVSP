@@ -149,8 +149,8 @@ void AeroStructSingleton::TransferLoads( FILE * logFile )
     args.push_back( "-dynp" );
     args.push_back( "150.0"); // Dynamic pressure value
 
-    args.push_back( "-label" );
-    args.push_back( "foo"); // Label FEA stuff.
+//    args.push_back( "-label" );
+//    args.push_back( "foo"); // Label FEA stuff.
 
 
     string cmdStr = m_LoadsProcess.PrettyCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
