@@ -40,6 +40,7 @@ AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 60
 
     m_GlobalLayout.AddButton( m_ShowFEAMeshGUI, "Show FEA Mesh GUI" );
     m_GlobalLayout.AddButton( m_ExecuteFEAMesh, "Generate FEA Mesh" );
+    m_GlobalLayout.AddButton( m_ExportFEAMesh, "Export FEA Mesh" );
 
     m_GlobalLayout.AddYGap();
     m_GlobalLayout.AddDividerBox( "Loads" );
@@ -110,19 +111,38 @@ bool AeroStructScreen::Update()
     if ( FeaMeshMgr.GetFeaMeshInProgress() )
     {
         m_ExecuteFEAMesh.Deactivate();
+        m_ExportFEAMesh.Deactivate();
     }
     else
     {
         m_ExecuteFEAMesh.Activate();
+        m_ExportFEAMesh.Activate();
+    }
+
+
+    if ( FeaMeshMgr.GetMeshPtr() )
+    {
+        if ( !FeaMeshMgr.GetMeshPtr()->m_MeshReady )
+        {
+            m_ExecuteFEAMesh.SetColor( FL_RED );
+        }
+        else
+        {
+            m_ExecuteFEAMesh.SetColor( FL_BACKGROUND_COLOR );
+        }
+    }
+    else
+    {
+        m_ExecuteFEAMesh.SetColor( FL_RED );
     }
 
     if ( !AeroStructMgr.m_FEAMeshFileFound )
     {
-        m_ExecuteFEAMesh.SetColor( FL_RED );
+        m_ExportFEAMesh.SetColor( FL_RED );
     }
     else
     {
-        m_ExecuteFEAMesh.SetColor( FL_BACKGROUND_COLOR );
+        m_ExportFEAMesh.SetColor( FL_BACKGROUND_COLOR );
     }
 
     if ( veh->GetLOADSFound() && AeroStructMgr.m_ADBFileFound && AeroStructMgr.m_FEAMeshFileFound )
@@ -336,13 +356,31 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ExecuteFEAMesh )
     {
-        StructScreen * structscreen = dynamic_cast < StructScreen* > ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_SCREEN ) );
-        if ( structscreen )
-        {
-            // Clear the console
-            m_ConsoleBuffer->text( "" );
+        // Clear the console
+        m_ConsoleBuffer->text( "" );
 
-            structscreen->LaunchFEAMesh();
+        FeaStructure* fea_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
+        if ( fea_struct )
+        {
+            // Identify which structure to write, should be already set
+            FeaMeshMgr.SetFeaMeshStructID( fea_struct->GetID() );
+
+            LaunchFEAMesh();
+        }
+    }
+    else if ( gui_device == &m_ExportFEAMesh )
+    {
+        // Clear the console
+        m_ConsoleBuffer->text( "" );
+
+        FeaStructure* fea_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
+        if ( fea_struct )
+        {
+            // Identify which structure to write, should be already set
+            FeaMeshMgr.SetFeaMeshStructID( fea_struct->GetID() );
+
+            FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
+            FeaMeshMgr.ExportFeaMesh();
         }
     }
     else if ( gui_device == &m_ExecuteLoads )
@@ -403,4 +441,33 @@ ProcessUtil* AeroStructScreen::GetProcess()
 Fl_Text_Display* AeroStructScreen::GetDisplay()
 {
     return m_ConsoleDisplay;
+}
+
+#ifdef WIN32
+DWORD WINAPI aerostruct_feamesh_thread_fun( LPVOID data )
+#else
+void * aerostruct_feamesh_thread_fun( void *data )
+#endif
+{
+    FeaMeshMgr.GenerateFeaMesh();
+    return 0;
+}
+
+void AeroStructScreen::LaunchFEAMesh()
+{
+    // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
+    FeaMeshMgr.SetFeaMeshInProgress( true );
+
+    // Identify which structure to mesh
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
+    if ( fea_struct )
+    {
+        // Identify which structure to write, should be already set
+        FeaMeshMgr.SetFeaMeshStructID( fea_struct->GetID());
+
+        m_FeaMeshProcess.StartThread( aerostruct_feamesh_thread_fun, NULL );
+
+        fea_struct->GetStructSettingsPtr()->m_DrawMeshFlag = true;
+        fea_struct->SetDrawFlag( false );
+    }
 }

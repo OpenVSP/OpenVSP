@@ -43,6 +43,9 @@ public:
     ProcessUtil *GetProcess();
     Fl_Text_Display *GetDisplay();
 
+    void LaunchFEAMesh();
+
+
 protected:
 
     GroupLayout m_GlobalLayout;
@@ -53,6 +56,7 @@ protected:
     Choice m_StructureChoice;
     TriggerButton m_ShowFEAMeshGUI;
     TriggerButton m_ExecuteFEAMesh;
+    TriggerButton m_ExportFEAMesh;
 
     TriggerButton m_ExecuteLoads;
 
@@ -68,6 +72,7 @@ protected:
     ProcessUtil m_ViewerProcess;
 
     ProcessUtil m_ViewerMonitor;
+    ProcessUtil m_FeaMeshProcess;
 };
 
 
