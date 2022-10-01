@@ -1674,6 +1674,31 @@ extern void StartGui( )
 #endif
 }
 
+extern void InitStartGui()
+{
+    printf( "InitStartGui()\n" );
+    //==== Make Sure Init is Only Called Once ===//
+    static bool once = false;
+    if ( once )
+    {
+        return;
+    }
+    once = true;
+
+// Please dont do this - messes up the batch script mode
+#ifdef VSP_USE_FLTK
+    if ( VehicleMgr.GetVehicle() )
+    {
+        printf( "Initing GUI\n" );
+        GuiInterface::getInstance().InitGui( VehicleMgr.GetVehicle() );
+        printf( "Starting GUI\n" );
+        GuiInterface::getInstance().StartGuiAPI( );
+    }
+#endif
+
+    ErrorMgr.NoError();
+}
+
 extern void UpdateGui()
 {
 #ifdef VSP_USE_FLTK
