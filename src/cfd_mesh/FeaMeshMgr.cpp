@@ -2435,4 +2435,22 @@ void FeaMeshMgrSingleton::CleanupMeshes( const vector < string > & idvec )
 void FeaMeshMgrSingleton::ExportMeshes( const vector < string > & idvec )
 {
     addOutputText( "Exporting Meshes.\n" );
+
+    TransferPropMatData();
+
+    for ( int i = 0; i < idvec.size(); i++ )
+    {
+        FeaMesh* mesh = GetMeshPtr( idvec[i] );
+        if ( mesh )
+        {
+            FeaStructure* fea_struct = StructureMgr.GetFeaStruct( idvec[i] );
+
+            if ( fea_struct )
+            {
+                mesh->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr() );
+            }
+
+            mesh->ExportFeaMesh();
+        }
+    }
 }
