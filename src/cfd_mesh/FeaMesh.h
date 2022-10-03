@@ -75,7 +75,8 @@ public:
 
     virtual void ExportFeaMesh();
 
-    virtual void WriteCalculix( );
+    virtual void WriteCalculix();
+    virtual void WriteCalculix( FILE* fp );
     virtual void WriteNASTRAN( const string &base_filename );
     virtual void WriteGmsh();
     virtual void WriteSTL();

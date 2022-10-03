@@ -1104,6 +1104,18 @@ void FeaMesh::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num,
 
 void FeaMesh::WriteCalculix()
 {
+    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
+    FILE* fp = fopen( fn.c_str(), "w" );
+
+    if ( fp )
+    {
+        WriteCalculix( fp );
+        fclose( fp );
+    }
+}
+
+void FeaMesh::WriteCalculix( FILE* fp )
+{
     FeaMeshMgr.ResetPropMatUse();
 
     int noffset = m_StructSettings.m_NodeOffset;
@@ -1113,8 +1125,6 @@ void FeaMesh::WriteCalculix()
     // Element sets must be made unique.  Properties and orientation should only be written for
     // element sets that are actually used.
 
-    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
-    FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
     {
         fprintf( fp, "**Calculix Data File Generated from %s\n", VSPVERSION4 );
@@ -1533,8 +1543,6 @@ void FeaMesh::WriteCalculix()
         {
             FeaMeshMgr.GetSimpleMaterialVec()[i].WriteCalculix( fp, i );
         }
-
-        fclose( fp );
     }
 }
 
