@@ -1455,6 +1455,8 @@ void FeaMesh::WriteCalculix( FILE* fp )
                 {
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                     {
+                        FeaMeshMgr.MarkPropMatUsed( property_id );
+
                         fprintf( fp, "\n" );
                         char ostr[256];
                         sprintf( ostr, "O%s_%d", m_FeaPartNameVec[i].c_str(), isurf );
@@ -1470,8 +1472,6 @@ void FeaMesh::WriteCalculix( FILE* fp )
                             FeaMeshMgr.GetSimplePropertyVec()[ property_id ].WriteCalculix( fp, str, ostr );
                         }
 
-                        FeaMeshMgr.MarkPropMatUsed( property_id );
-
                         vec3d orient = m_PartSurfOrientation[i][isurf];
                         // int otype = srf->GetFeaOrientationType();
                         fprintf( fp, "\n" );
@@ -1481,10 +1481,11 @@ void FeaMesh::WriteCalculix( FILE* fp )
 
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                     {
+                        FeaMeshMgr.MarkPropMatUsed( cap_property_id );
+
                         fprintf( fp, "\n" );
                         sprintf( str, "EB%s_%d_CAP", m_FeaPartNameVec[i].c_str(), isurf );
                         FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
-                        FeaMeshMgr.MarkPropMatUsed( cap_property_id );
                     }
                 }
             }
@@ -1501,6 +1502,8 @@ void FeaMesh::WriteCalculix( FILE* fp )
             {
                 if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
                 {
+                    FeaMeshMgr.MarkPropMatUsed( property_id );
+
                     fprintf( fp, "\n" );
                     char ostr[256];
                     sprintf( ostr, "O%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
@@ -1516,8 +1519,6 @@ void FeaMesh::WriteCalculix( FILE* fp )
                         FeaMeshMgr.GetSimplePropertyVec()[property_id].WriteCalculix( fp, str, ostr );
                     }
 
-                    FeaMeshMgr.MarkPropMatUsed( property_id );
-
                     vec3d orient = ovec[isurf];
                     // int otype = m_SimpleSubSurfaceVec[i].GetFeaOrientationType();
                     fprintf( fp, "\n" );
@@ -1527,10 +1528,11 @@ void FeaMesh::WriteCalculix( FILE* fp )
 
                 if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
                 {
+                    FeaMeshMgr.MarkPropMatUsed( cap_property_id );
+
                     fprintf( fp, "\n" );
                     sprintf( str, "EB%s_%d_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
                     FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
-                    FeaMeshMgr.MarkPropMatUsed( cap_property_id );
                 }
             }
         }
