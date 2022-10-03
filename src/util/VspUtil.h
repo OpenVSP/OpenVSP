@@ -23,18 +23,6 @@ using namespace std;
 
 #include <cfloat>  /* for DBL_EPSILON */
 
-template <class T> bool ContainsVal( vector< T > & vec, T const & val )
-{
-    for ( int i = 0 ; i < ( int )vec.size() ; i++ )
-    {
-        if ( val == vec[i] )
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 extern string GenerateRandomID( int length );
 
 extern bool ToBool( double val );
