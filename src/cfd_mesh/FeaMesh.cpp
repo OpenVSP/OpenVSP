@@ -1118,6 +1118,30 @@ void FeaMesh::WriteCalculix( FILE* fp )
 {
     FeaMeshMgr.ResetPropMatUse();
 
+    if ( fp )
+    {
+        WriteCalculixHeader( fp );
+        WriteCalculixNodesElements( fp );
+        WriteCalculixProperties( fp );
+        WriteCalculixMaterials( fp );
+    }
+}
+
+void FeaMesh::WriteCalculixHeader( FILE* fp )
+{
+    if ( fp )
+    {
+        fprintf( fp, "**Calculix Data File Generated from %s\n", VSPVERSION4 );
+        fprintf( fp, "**Num_Els: %u\n", m_NumEls );
+        fprintf( fp, "**Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "**Num_Quads: %u\n", m_NumQuads );
+        fprintf( fp, "**Num_Beams %u\n\n", m_NumBeams );
+    }
+}
+
+void FeaMesh::WriteCalculixNodesElements( FILE* fp )
+{
+
     int noffset = m_StructSettings.m_NodeOffset;
     int eoffset = m_StructSettings.m_ElementOffset;
 
@@ -1127,12 +1151,6 @@ void FeaMesh::WriteCalculix( FILE* fp )
 
     if ( fp )
     {
-        fprintf( fp, "**Calculix Data File Generated from %s\n", VSPVERSION4 );
-        fprintf( fp, "**Num_Els: %u\n", m_NumEls );
-        fprintf( fp, "**Num_Tris: %u\n", m_NumTris );
-        fprintf( fp, "**Num_Quads: %u\n", m_NumQuads );
-        fprintf( fp, "**Num_Beams %u\n\n", m_NumBeams );
-
         int elem_id = 0;
         char str[256];
 
@@ -1440,6 +1458,14 @@ void FeaMesh::WriteCalculix( FILE* fp )
         {
             fprintf( fp, "\n" );
         }
+    }
+}
+
+void FeaMesh::WriteCalculixProperties( FILE* fp )
+{
+    if ( fp )
+    {
+        char str[256];
 
         //==== FeaProperties ====//
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
@@ -1537,7 +1563,13 @@ void FeaMesh::WriteCalculix( FILE* fp )
             }
         }
 
+    }
+}
 
+void FeaMesh::WriteCalculixMaterials( FILE* fp )
+{
+    if ( fp )
+    {
         //==== Materials ====//
         fprintf( fp, "\n" );
         fprintf( fp, "**Materials\n" );
