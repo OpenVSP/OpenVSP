@@ -189,6 +189,9 @@ public:
     virtual void CleanupMeshes( const vector < string > & idvec );
     virtual void ExportMeshes( const vector < string > & idvec );
 
+    virtual void WriteCalculix( FILE* fp, const vector < string > & idvec  );
+    virtual void WriteCalculixMaterials( FILE* fp );
+
 protected:
 
     virtual void GetMassUnit();

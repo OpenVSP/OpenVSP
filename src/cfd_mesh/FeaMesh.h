@@ -80,7 +80,6 @@ public:
     virtual void WriteCalculixHeader( FILE* fp );
     virtual void WriteCalculixNodesElements( FILE* fp );
     virtual void WriteCalculixProperties( FILE* fp );
-    virtual void WriteCalculixMaterials( FILE* fp );
 
     virtual void WriteNASTRAN( const string &base_filename );
     virtual void WriteGmsh();
@@ -117,6 +116,7 @@ public:
     vector < int > m_FeaPartPropertyIndexVec;
     vector < int > m_FeaPartCapPropertyIndexVec;
 
+    unsigned int m_NumNodes;
     unsigned int m_NumEls;
     unsigned int m_NumTris;
     unsigned int m_NumQuads;

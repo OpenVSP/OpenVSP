@@ -15,6 +15,7 @@
 #include "MeshAnalysis.h"
 #include "StlHelper.h"
 #include "MessageMgr.h"
+#include "VspUtil.h"
 
 //=============================================================//
 //=============================================================//
@@ -2277,6 +2278,13 @@ void FeaMeshMgrSingleton::TagFeaNodes()
             }
         }
     }
+
+    int maxid = -1;
+    for ( int i = 0; i < (int)GetMeshPtr()->m_FeaNodeVec.size(); i++ )
+    {
+        maxid = max( maxid, GetMeshPtr()->m_FeaNodeVec[i]->m_Index );
+    }
+    GetMeshPtr()->m_NumNodes = maxid;
 }
 
 void FeaMeshMgrSingleton::TransferDrawObjData()
@@ -2436,8 +2444,12 @@ void FeaMeshMgrSingleton::ExportMeshes( const vector < string > & idvec )
 {
     addOutputText( "Exporting Meshes.\n" );
 
+    // Transfer common property and material data to FeaMeshMgr.
     TransferPropMatData();
 
+    // Compute and store offsets.
+    int noffset = 0;
+    int eoffset = 0;
     for ( int i = 0; i < idvec.size(); i++ )
     {
         FeaMesh* mesh = GetMeshPtr( idvec[i] );
@@ -2447,10 +2459,79 @@ void FeaMeshMgrSingleton::ExportMeshes( const vector < string > & idvec )
 
             if ( fea_struct )
             {
+                // Store in Parm.
+                fea_struct->GetStructSettingsPtr()->m_NodeOffset.Set( noffset );
+                fea_struct->GetStructSettingsPtr()->m_ElementOffset.Set( eoffset );
+
+                // Transfer to mesh.
                 mesh->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr() );
             }
 
-            mesh->ExportFeaMesh();
+            // Round up at magnitude of number.  Consider ceil2scale( n, 1000 ); instead.
+            noffset = magroundup( noffset + mesh->m_NumNodes );
+            eoffset = magroundup( eoffset + mesh->m_NumEls );
+        }
+    }
+
+
+    string fn = "combined.inp";
+    FILE* fp = fopen( fn.c_str(), "w" );
+
+    if ( fp )
+    {
+        WriteCalculix( fp, idvec  );
+        fclose( fp );
+    }
+
+}
+
+void FeaMeshMgrSingleton::WriteCalculix( FILE* fp, const vector < string > & idvec  )
+{
+    fprintf( fp, "**Calculix assembly data file generated from %s\n", VSPVERSION4 );
+
+    for ( int i = 0; i < idvec.size(); i++ )
+    {
+        FeaMesh* mesh = GetMeshPtr( idvec[i] );
+        if ( mesh )
+        {
+            mesh->WriteCalculixHeader( fp );
+        }
+    }
+
+    for ( int i = 0; i < idvec.size(); i++ )
+    {
+        FeaMesh* mesh = GetMeshPtr( idvec[i] );
+        if ( mesh )
+        {
+            mesh->WriteCalculixNodesElements( fp );
+        }
+    }
+
+    for ( int i = 0; i < idvec.size(); i++ )
+    {
+        FeaMesh* mesh = GetMeshPtr( idvec[i] );
+        if ( mesh )
+        {
+            mesh->WriteCalculixProperties( fp );
+        }
+    }
+
+
+    WriteCalculixMaterials( fp );
+
+}
+
+
+void FeaMeshMgrSingleton::WriteCalculixMaterials( FILE* fp )
+{
+    if ( fp )
+    {
+        //==== Materials ====//
+        fprintf( fp, "\n" );
+        fprintf( fp, "**Materials\n" );
+        for ( unsigned int i = 0; i < m_SimpleMaterialVec.size(); i++ )
+        {
+            m_SimpleMaterialVec[i].WriteCalculix( fp, i );
         }
     }
 }
