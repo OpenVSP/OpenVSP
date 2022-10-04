@@ -66,6 +66,11 @@ double magroundup( double x )
     return MAX( 0.0, ceil2scale( x, pow( 10.0, mag( x ) ) ) );
 }
 
+double magp1roundup( double x )
+{
+    return MAX( 0.0, ceil2scale( x, pow( 10.0, 1 + mag( x ) ) ) );
+}
+
 /* floor2scale(x,scale) rounds a number down to a specific precision
     Examples:
     320         = floor2scale( 321.123456, 10   )

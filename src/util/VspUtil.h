@@ -30,6 +30,7 @@ extern bool ToBool( double val );
 double mag( double x );
 double magrounddn( double x );
 double magroundup( double x );
+double magp1roundup( double x );
 double floor2scale( double x, double scale );
 double ceil2scale( double x, double scale );
 vector <double> linspace( double a, double b, double n );

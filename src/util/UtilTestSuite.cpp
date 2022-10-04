@@ -10,7 +10,7 @@
 #include <float.h>
 #include "StringUtil.h"
 #include "StlHelper.h"
-
+#include "VspUtil.h"
 
 //==== Test vec2d ====//
 void UtilTestSuite::Vec2dUtilTest()
@@ -695,4 +695,24 @@ void UtilTestSuite::FormatWidthTest()
         v = v / 10;
     }
 
+}
+
+void UtilTestSuite::NumbersTest()
+{
+    vector < double > val = logspace( 0, 4, 100 );
+
+//    printf( "i\tdi\tmagx\tmagrd\tmagru\tmagp1ru\n" );
+    for ( int i = 0; i < val.size(); i++ )
+    {
+        double di = val[i];
+
+        double magx = mag( di );
+        double magrd = magrounddn( di );
+        double magru = magroundup( di );
+        double magp1ru = magp1roundup( di );
+        // floor2scale( double x, double scale );
+        // ceil2scale( double x, double scale );
+
+//        printf( "%d\t%f\t%f\t%f\t%f\t%f\n", i, di, magx, magrd, magru, magp1ru );
+    }
 }
