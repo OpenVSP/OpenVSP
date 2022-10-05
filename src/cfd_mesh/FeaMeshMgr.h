@@ -30,6 +30,17 @@ enum
 
 typedef unordered_map < string, FeaMesh* > meshmaptype;
 
+class FeaCount
+{
+public:
+    FeaCount();
+    int m_NumNodes;
+    int m_NumEls;
+    int m_NumTris;
+    int m_NumQuads;
+    int m_NumBeams;
+};
+
 //////////////////////////////////////////////////////////////////////
 class FeaMeshMgrSingleton : public CfdMeshMgrSingleton
 {
@@ -189,7 +200,7 @@ public:
     virtual void CleanupMeshes( const vector < string > & idvec );
     virtual void ExportMeshes( const vector < string > & idvec );
 
-    virtual void WriteCalculix( FILE* fp, const vector < string > & idvec  );
+    virtual void WriteCalculix( FILE* fp, const vector < string > & idvec, const FeaCount &feacount );
     virtual void WriteCalculixMaterials( FILE* fp );
 
 protected:

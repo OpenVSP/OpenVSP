@@ -1120,7 +1120,7 @@ void FeaMesh::WriteCalculix( FILE* fp )
 
     if ( fp )
     {
-        fprintf( fp, "**Calculix structure data file generated from %s\n", VSPVERSION4 );
+        fprintf( fp, "** Calculix structure data file generated from %s\n", VSPVERSION4 );
         WriteCalculixHeader( fp );
         WriteCalculixNodesElements( fp );
         WriteCalculixProperties( fp );
@@ -1132,13 +1132,14 @@ void FeaMesh::WriteCalculixHeader( FILE* fp )
 {
     if ( fp )
     {
-        fprintf( fp, "**Num_Nodes:      %u\n", m_NumNodes );
-        fprintf( fp, "**Num_Els:        %u\n", m_NumEls );
-        fprintf( fp, "**Num_Tris:       %u\n", m_NumTris );
-        fprintf( fp, "**Num_Quads:      %u\n", m_NumQuads );
-        fprintf( fp, "**Num_Beams:      %u\n", m_NumBeams );
-        fprintf( fp, "**Node_Offset:    %u\n", m_StructSettings.m_NodeOffset );
-        fprintf( fp, "**Element_Offset: %u\n", m_StructSettings.m_ElementOffset );
+        fprintf( fp, "** %s\n", m_StructName.c_str() );
+        fprintf( fp, "** Num_Nodes:       %u\n", m_NumNodes );
+        fprintf( fp, "** Num_Els:         %u\n", m_NumEls );
+        fprintf( fp, "** Num_Tris:        %u\n", m_NumTris );
+        fprintf( fp, "** Num_Quads:       %u\n", m_NumQuads );
+        fprintf( fp, "** Num_Beams:       %u\n", m_NumBeams );
+        fprintf( fp, "** Node_Offset:     %u\n", m_StructSettings.m_NodeOffset );
+        fprintf( fp, "** Element_Offset:  %u\n", m_StructSettings.m_ElementOffset );
         fprintf( fp, "\n" );
     }
 }
@@ -1163,8 +1164,8 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
-                fprintf( fp, "**%s\n", m_FeaPartNameVec[i].c_str() );
-                fprintf( fp, "*NODE, NSET=N%s\n", m_FeaPartNameVec[i].c_str() );
+                fprintf( fp, "** %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
 
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
@@ -1195,7 +1196,7 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
                         int nnode = 3;
                         if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 6;
 
-                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), isurf );
+                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
 
                         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                         {
@@ -1216,7 +1217,7 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
                         int nnode = 4;
                         if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 8;
 
-                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), isurf );
+                        fprintf( fp, "*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
 
                         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                         {
@@ -1234,7 +1235,7 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
 
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                     {
-                        fprintf( fp, "*ELEMENT, TYPE=B32, ELSET=EB%s_%d_CAP\n", m_FeaPartNameVec[i].c_str(), isurf );
+                        fprintf( fp, "*ELEMENT, TYPE=B32, ELSET=EB%s_%s_%d_CAP\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
 
                         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                         {
@@ -1276,8 +1277,8 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
         {
             FixPoint fxpt = m_FixPntVec[i];
 
-            fprintf( fp, "**%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str() );
-            fprintf( fp, "*NODE, NSET=N%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str() );
+            fprintf( fp, "** %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
+            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
@@ -1295,7 +1296,7 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
             if ( fxpt.m_PtMassFlag[0] )
             {
                 fprintf( fp, "\n" );
-                fprintf( fp, "*ELEMENT, TYPE=MASS, ELSET=EP%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str() );
+                fprintf( fp, "*ELEMENT, TYPE=MASS, ELSET=EP%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
@@ -1310,7 +1311,7 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
 
                 fprintf( fp, "\n" );
 
-                fprintf( fp, "*MASS, ELSET=EP%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str() );
+                fprintf( fp, "*MASS, ELSET=EP%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
                 fprintf( fp, "%f\n", fxpt.m_PtMass[0] );
             }
 
@@ -1320,8 +1321,8 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
         //==== Write SubSurfaces ====//
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            fprintf( fp, "**%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
-            fprintf( fp, "*NODE, NSET=N%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+            fprintf( fp, "** %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
@@ -1346,7 +1347,7 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
                     int nnode = 3;
                     if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 6;
 
-                    fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=E%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                    fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
 
                     for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                     {
@@ -1366,7 +1367,7 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
                     int nnode = 4;
                     if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 8;
 
-                    fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=E%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                    fprintf( fp, "\n*ELEMENT, TYPE=S%d, ELSET=E%s_%s_%d\n", nnode, m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
 
                     for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                     {
@@ -1384,7 +1385,7 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
                 if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
                 {
                     fprintf( fp, "\n" );
-                    fprintf( fp, "*ELEMENT, TYPE=B32, ELSET=EB%s_%d_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                    fprintf( fp, "*ELEMENT, TYPE=B32, ELSET=EB%s_%s_%d_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
 
                     for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                     {
@@ -1429,8 +1430,8 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
                 {
                     if ( !IntersectHeader )
                     {
-                        fprintf( fp, "**Intersections\n" );
-                        fprintf( fp, "*NODE, NSET=Nintersections\n" );
+                        fprintf( fp, "** Intersections %s\n", m_StructName.c_str() );
+                        fprintf( fp, "*NODE, NSET=Nintersections_%s\n", m_StructName.c_str() );
                         IntersectHeader = true;
                     }
                     m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
@@ -1451,8 +1452,8 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
             {
                 if ( !RemainingHeader )
                 {
-                    fprintf( fp, "**Remaining Nodes\n" );
-                    fprintf( fp, "*NODE, NSET=RemainingNodes\n" );
+                    fprintf( fp, "** Remaining Nodes %s\n", m_StructName.c_str() );
+                    fprintf( fp, "*NODE, NSET=RemainingNodes_%s\n", m_StructName.c_str() );
                     RemainingHeader = true;
                 }
                 m_FeaNodeVec[i]->WriteCalculix( fp, noffset );
@@ -1489,16 +1490,16 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
                         fprintf( fp, "\n" );
                         char ostr[256];
-                        sprintf( ostr, "O%s_%d", m_FeaPartNameVec[i].c_str(), isurf );
+                        sprintf( ostr, "O%s_%s_%d", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
 
                         if ( !m_StructSettings.m_ConvertToQuadsFlag )
                         {
-                            sprintf( str, "E%s_%d", m_FeaPartNameVec[ i ].c_str(), isurf );
+                            sprintf( str, "E%s_%s_%d", m_FeaPartNameVec[ i ].c_str(), m_StructName.c_str(), isurf );
                             FeaMeshMgr.GetSimplePropertyVec()[ property_id ].WriteCalculix( fp, str, ostr );
                         }
                         else
                         {
-                            sprintf( str, "E%s_%d", m_FeaPartNameVec[ i ].c_str(), isurf );
+                            sprintf( str, "E%s_%s_%d", m_FeaPartNameVec[ i ].c_str(), m_StructName.c_str(), isurf );
                             FeaMeshMgr.GetSimplePropertyVec()[ property_id ].WriteCalculix( fp, str, ostr );
                         }
 
@@ -1514,7 +1515,7 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                         FeaMeshMgr.MarkPropMatUsed( cap_property_id );
 
                         fprintf( fp, "\n" );
-                        sprintf( str, "EB%s_%d_CAP", m_FeaPartNameVec[i].c_str(), isurf );
+                        sprintf( str, "EB%s_%s_%d_CAP", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
                         FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
                     }
                 }
@@ -1536,16 +1537,16 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
                     fprintf( fp, "\n" );
                     char ostr[256];
-                    sprintf( ostr, "O%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                    sprintf( ostr, "O%s_%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
 
                     if ( !m_StructSettings.m_ConvertToQuadsFlag )
                     {
-                        sprintf( str, "E%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                        sprintf( str, "E%s_%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
                         FeaMeshMgr.GetSimplePropertyVec()[property_id].WriteCalculix( fp, str, ostr );
                     }
                     else
                     {
-                        sprintf( str, "E%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                        sprintf( str, "E%s_%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
                         FeaMeshMgr.GetSimplePropertyVec()[property_id].WriteCalculix( fp, str, ostr );
                     }
 
@@ -1561,7 +1562,7 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                     FeaMeshMgr.MarkPropMatUsed( cap_property_id );
 
                     fprintf( fp, "\n" );
-                    sprintf( str, "EB%s_%d_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str(), isurf );
+                    sprintf( str, "EB%s_%s_%d_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
                     FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
                 }
             }

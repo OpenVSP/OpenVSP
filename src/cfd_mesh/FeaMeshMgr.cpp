@@ -20,6 +20,18 @@
 //=============================================================//
 //=============================================================//
 
+FeaCount::FeaCount()
+{
+    m_NumNodes = 0;
+    m_NumEls = 0;
+    m_NumTris = 0;
+    m_NumQuads = 0;
+    m_NumBeams = 0;
+}
+
+//=============================================================//
+//=============================================================//
+
 FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
 {
     m_FeaMeshInProgress = false;
@@ -2450,6 +2462,9 @@ void FeaMeshMgrSingleton::ExportMeshes( const vector < string > & idvec )
     // Compute and store offsets.
     int noffset = 0;
     int eoffset = 0;
+
+    FeaCount feacount;
+
     for ( int i = 0; i < idvec.size(); i++ )
     {
         FeaMesh* mesh = GetMeshPtr( idvec[i] );
@@ -2467,6 +2482,12 @@ void FeaMeshMgrSingleton::ExportMeshes( const vector < string > & idvec )
                 mesh->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr() );
             }
 
+            feacount.m_NumNodes += mesh->m_NumNodes;
+            feacount.m_NumEls += mesh->m_NumEls;
+            feacount.m_NumTris += mesh->m_NumTris;
+            feacount.m_NumQuads += mesh->m_NumQuads;
+            feacount.m_NumBeams += mesh->m_NumBeams;
+
             // Round up at magnitude of number.  Consider ceil2scale( n, 1000 ); instead.
             noffset = magroundup( noffset + mesh->m_NumNodes );
             eoffset = magroundup( eoffset + mesh->m_NumEls );
@@ -2479,46 +2500,55 @@ void FeaMeshMgrSingleton::ExportMeshes( const vector < string > & idvec )
 
     if ( fp )
     {
-        WriteCalculix( fp, idvec  );
+        WriteCalculix( fp, idvec, feacount );
         fclose( fp );
     }
 
 }
 
-void FeaMeshMgrSingleton::WriteCalculix( FILE* fp, const vector < string > & idvec  )
+void FeaMeshMgrSingleton::WriteCalculix( FILE* fp, const vector < string > & idvec, const FeaCount &feacount  )
 {
-    fprintf( fp, "**Calculix assembly data file generated from %s\n", VSPVERSION4 );
-
-    for ( int i = 0; i < idvec.size(); i++ )
+    if ( fp )
     {
-        FeaMesh* mesh = GetMeshPtr( idvec[i] );
-        if ( mesh )
+        fprintf( fp, "** Calculix assembly data file generated from %s\n", VSPVERSION4 );
+        fprintf( fp, "\n" );
+        fprintf( fp, "** Num_Structures:  %u\n", idvec.size() );
+        fprintf( fp, "** Num_Nodes:       %u\n", feacount.m_NumNodes );
+        fprintf( fp, "** Num_Els:         %u\n", feacount.m_NumEls );
+        fprintf( fp, "** Num_Tris:        %u\n", feacount.m_NumTris );
+        fprintf( fp, "** Num_Quads:       %u\n", feacount.m_NumQuads );
+        fprintf( fp, "** Num_Beams:       %u\n", feacount.m_NumBeams );
+        fprintf( fp, "\n" );
+
+        for ( int i = 0; i < idvec.size(); i++ )
         {
-            mesh->WriteCalculixHeader( fp );
+            FeaMesh* mesh = GetMeshPtr( idvec[i] );
+            if ( mesh )
+            {
+                mesh->WriteCalculixHeader( fp );
+            }
         }
-    }
 
-    for ( int i = 0; i < idvec.size(); i++ )
-    {
-        FeaMesh* mesh = GetMeshPtr( idvec[i] );
-        if ( mesh )
+        for ( int i = 0; i < idvec.size(); i++ )
         {
-            mesh->WriteCalculixNodesElements( fp );
+            FeaMesh* mesh = GetMeshPtr( idvec[i] );
+            if ( mesh )
+            {
+                mesh->WriteCalculixNodesElements( fp );
+            }
         }
-    }
 
-    for ( int i = 0; i < idvec.size(); i++ )
-    {
-        FeaMesh* mesh = GetMeshPtr( idvec[i] );
-        if ( mesh )
+        for ( int i = 0; i < idvec.size(); i++ )
         {
-            mesh->WriteCalculixProperties( fp );
+            FeaMesh* mesh = GetMeshPtr( idvec[i] );
+            if ( mesh )
+            {
+                mesh->WriteCalculixProperties( fp );
+            }
         }
+
+        WriteCalculixMaterials( fp );
     }
-
-
-    WriteCalculixMaterials( fp );
-
 }
 
 
@@ -2528,7 +2558,7 @@ void FeaMeshMgrSingleton::WriteCalculixMaterials( FILE* fp )
     {
         //==== Materials ====//
         fprintf( fp, "\n" );
-        fprintf( fp, "**Materials\n" );
+        fprintf( fp, "** Materials\n" );
         for ( unsigned int i = 0; i < m_SimpleMaterialVec.size(); i++ )
         {
             m_SimpleMaterialVec[i].WriteCalculix( fp, i );
