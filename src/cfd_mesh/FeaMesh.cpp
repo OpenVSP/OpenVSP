@@ -1122,7 +1122,8 @@ void FeaMesh::WriteCalculix( FILE* fp )
     {
         fprintf( fp, "** Calculix structure data file generated from %s\n", VSPVERSION4 );
         WriteCalculixHeader( fp );
-        WriteCalculixNodesElements( fp );
+        WriteCalculixNodes( fp );
+        WriteCalculixElements( fp );
         WriteCalculixProperties( fp );
         FeaMeshMgr.WriteCalculixMaterials( fp );
     }
@@ -1144,11 +1145,9 @@ void FeaMesh::WriteCalculixHeader( FILE* fp )
     }
 }
 
-void FeaMesh::WriteCalculixNodesElements( FILE* fp )
+void FeaMesh::WriteCalculixNodes( FILE* fp )
 {
-
     int noffset = m_StructSettings.m_NodeOffset;
-    int eoffset = m_StructSettings.m_ElementOffset;
 
     // This code does not currently support mixed quads and tris.
     // Element sets must be made unique.  Properties and orientation should only be written for
@@ -1182,11 +1181,116 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
             }
         }
 
+        //==== Write Fixed Points ====//
+        for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
+        {
+            FixPoint fxpt = m_FixPntVec[i];
+
+            fprintf( fp, "** Fixed Point: %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
+            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_PntShift[j] >= 0 )
+                {
+                    if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
+                         m_FeaNodeVec[j]->m_FixedPointFlag &&
+                         m_FeaNodeVec[j]->HasTag( fxpt.m_FeaPartIndex[0] ) )
+                    {
+                        m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
+                    }
+                }
+            }
+
+            fprintf( fp, "\n" );
+        }
+
+        //==== Write SubSurfaces ====//
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            fprintf( fp, "** %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_PntShift[j] >= 0 )
+                {
+                    if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
+                    {
+                        m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
+                    }
+                }
+            }
+        }
+
+        //==== Intersection Nodes ====//
+        bool IntersectHeader = false;
+        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+        {
+            if ( m_PntShift[j] >= 0 )
+            {
+                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
+                     !m_FeaNodeVec[j]->m_FixedPointFlag )
+                {
+                    if ( !IntersectHeader )
+                    {
+                        fprintf( fp, "** Intersections %s\n", m_StructName.c_str() );
+                        fprintf( fp, "*NODE, NSET=Nintersections_%s\n", m_StructName.c_str() );
+                        IntersectHeader = true;
+                    }
+                    m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
+                }
+            }
+        }
+        if ( IntersectHeader )
+        {
+            fprintf( fp, "\n" );
+        }
+
+        //==== Remaining Nodes ====//
+        bool RemainingHeader = false;
+        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+        {
+            if ( m_PntShift[i] >= 0 &&
+                 m_FeaNodeVec[i]->m_Tags.size() == 0 )
+            {
+                if ( !RemainingHeader )
+                {
+                    fprintf( fp, "** Remaining Nodes %s\n", m_StructName.c_str() );
+                    fprintf( fp, "*NODE, NSET=RemainingNodes_%s\n", m_StructName.c_str() );
+                    RemainingHeader = true;
+                }
+                m_FeaNodeVec[i]->WriteCalculix( fp, noffset );
+            }
+        }
+        if ( RemainingHeader )
+        {
+            fprintf( fp, "\n" );
+        }
+    }
+}
+
+void FeaMesh::WriteCalculixElements( FILE* fp )
+{
+    int noffset = m_StructSettings.m_NodeOffset;
+    int eoffset = m_StructSettings.m_ElementOffset;
+
+    // This code does not currently support mixed quads and tris.
+    // Element sets must be made unique.  Properties and orientation should only be written for
+    // element sets that are actually used.
+
+    if ( fp )
+    {
+        int elem_id = 0;
+        char str[256];
+
         //==== Write elements from FeaParts ====//
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
+                fprintf( fp, "** %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+
                 int surf_num = m_FeaPartNumSurfVec[i];
 
                 for ( int isurf = 0; isurf < surf_num; isurf++ )
@@ -1277,25 +1381,10 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
         {
             FixPoint fxpt = m_FixPntVec[i];
 
-            fprintf( fp, "** %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
-            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
-
-            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-            {
-                if ( m_PntShift[j] >= 0 )
-                {
-                    if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
-                         m_FeaNodeVec[j]->m_FixedPointFlag &&
-                         m_FeaNodeVec[j]->HasTag( fxpt.m_FeaPartIndex[0] ) )
-                    {
-                        m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
-                    }
-                }
-            }
-
             if ( fxpt.m_PtMassFlag[0] )
             {
                 fprintf( fp, "\n" );
+                fprintf( fp, "** Fixed Point: %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
                 fprintf( fp, "*ELEMENT, TYPE=MASS, ELSET=EP%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
@@ -1321,24 +1410,9 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
         //==== Write SubSurfaces ====//
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            fprintf( fp, "** %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
-            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
-
-            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-            {
-                if ( m_PntShift[j] >= 0 )
-                {
-                    if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
-                    {
-                        m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
-                    }
-                }
-            }
-        }
-
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
-        {
             int surf_num = m_SimpleSubSurfaceVec[i].GetFeaOrientationVec().size();
+
+            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
 
             for ( int isurf = 0; isurf < surf_num; isurf++ )
             {
@@ -1418,51 +1492,6 @@ void FeaMesh::WriteCalculixNodesElements( FILE* fp )
                 }
             }
         }
-
-        //==== Intersection Nodes ====//
-        bool IntersectHeader = false;
-        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-        {
-            if ( m_PntShift[j] >= 0 )
-            {
-                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
-                     !m_FeaNodeVec[j]->m_FixedPointFlag )
-                {
-                    if ( !IntersectHeader )
-                    {
-                        fprintf( fp, "** Intersections %s\n", m_StructName.c_str() );
-                        fprintf( fp, "*NODE, NSET=Nintersections_%s\n", m_StructName.c_str() );
-                        IntersectHeader = true;
-                    }
-                    m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
-                }
-            }
-        }
-        if ( IntersectHeader )
-        {
-            fprintf( fp, "\n" );
-        }
-
-        //==== Remaining Nodes ====//
-        bool RemainingHeader = false;
-        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
-        {
-            if ( m_PntShift[i] >= 0 &&
-                 m_FeaNodeVec[i]->m_Tags.size() == 0 )
-            {
-                if ( !RemainingHeader )
-                {
-                    fprintf( fp, "** Remaining Nodes %s\n", m_StructName.c_str() );
-                    fprintf( fp, "*NODE, NSET=RemainingNodes_%s\n", m_StructName.c_str() );
-                    RemainingHeader = true;
-                }
-                m_FeaNodeVec[i]->WriteCalculix( fp, noffset );
-            }
-        }
-        if ( RemainingHeader )
-        {
-            fprintf( fp, "\n" );
-        }
     }
 }
 
@@ -1471,6 +1500,8 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
     if ( fp )
     {
         char str[256];
+
+        fprintf( fp, "** Properties %s\n", m_StructName.c_str() );
 
         //==== FeaProperties ====//
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
@@ -1568,6 +1599,7 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
             }
         }
 
+        fprintf( fp, "\n" );
     }
 }
 

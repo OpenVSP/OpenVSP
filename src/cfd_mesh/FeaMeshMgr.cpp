@@ -2534,7 +2534,16 @@ void FeaMeshMgrSingleton::WriteCalculix( FILE* fp, const vector < string > & idv
             FeaMesh* mesh = GetMeshPtr( idvec[i] );
             if ( mesh )
             {
-                mesh->WriteCalculixNodesElements( fp );
+                mesh->WriteCalculixNodes( fp );
+            }
+        }
+
+        for ( int i = 0; i < idvec.size(); i++ )
+        {
+            FeaMesh* mesh = GetMeshPtr( idvec[i] );
+            if ( mesh )
+            {
+                mesh->WriteCalculixElements( fp );
             }
         }
 

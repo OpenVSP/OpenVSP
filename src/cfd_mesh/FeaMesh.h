@@ -78,7 +78,8 @@ public:
     virtual void WriteCalculix();
     virtual void WriteCalculix( FILE* fp );
     virtual void WriteCalculixHeader( FILE* fp );
-    virtual void WriteCalculixNodesElements( FILE* fp );
+    virtual void WriteCalculixNodes( FILE* fp );
+    virtual void WriteCalculixElements( FILE* fp );
     virtual void WriteCalculixProperties( FILE* fp );
 
     virtual void WriteNASTRAN( const string &base_filename );

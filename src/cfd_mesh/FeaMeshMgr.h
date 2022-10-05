@@ -34,11 +34,11 @@ class FeaCount
 {
 public:
     FeaCount();
-    int m_NumNodes;
-    int m_NumEls;
-    int m_NumTris;
-    int m_NumQuads;
-    int m_NumBeams;
+    unsigned int m_NumNodes;
+    unsigned int m_NumEls;
+    unsigned int m_NumTris;
+    unsigned int m_NumQuads;
+    unsigned int m_NumBeams;
 };
 
 //////////////////////////////////////////////////////////////////////
