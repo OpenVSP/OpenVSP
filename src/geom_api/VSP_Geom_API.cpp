@@ -531,9 +531,9 @@ void SetCFDMeshVal( int type, double val )
     else if ( type == CFD_INTERSECT_SUBSURFACE_FLAG )
         GetVehicle()->GetCfdSettingsPtr()->m_IntersectSubSurfs = ToBool(val);
     else if ( type == CFD_HALF_MESH_FLAG )
-        GetVehicle()->GetCfdSettingsPtr()->SetHalfMeshFlag( ToBool(val) );
+        GetVehicle()->GetCfdSettingsPtr()->m_HalfMeshFlag = ToBool(val);
     else if ( type == CFD_FAR_FIELD_FLAG )
-        GetVehicle()->GetCfdSettingsPtr()->SetFarMeshFlag( ToBool(val) );
+        GetVehicle()->GetCfdSettingsPtr()->m_FarMeshFlag = ToBool(val);
     else if ( type == CFD_FAR_MAX_EDGE_LEN )
         GetVehicle()->GetCfdGridDensityPtr()->m_FarMaxLen = val;
     else if ( type == CFD_FAR_MAX_GAP )
@@ -541,7 +541,7 @@ void SetCFDMeshVal( int type, double val )
     else if ( type == CFD_FAR_NUM_CIRCLE_SEGS )
         GetVehicle()->GetCfdGridDensityPtr()->m_FarNCircSeg = val;
     else if ( type == CFD_FAR_SIZE_ABS_FLAG )
-        GetVehicle()->GetCfdSettingsPtr()->SetFarAbsSizeFlag( ToBool(val) );
+        GetVehicle()->GetCfdSettingsPtr()->m_FarAbsSizeFlag = ToBool(val);
     else if ( type == CFD_FAR_LENGTH )
         GetVehicle()->GetCfdSettingsPtr()->m_FarLength = val;
     else if ( type == CFD_FAR_WIDTH )
@@ -555,7 +555,7 @@ void SetCFDMeshVal( int type, double val )
     else if ( type == CFD_FAR_Z_SCALE )
         GetVehicle()->GetCfdSettingsPtr()->m_FarZScale = val;
     else if ( type == CFD_FAR_LOC_MAN_FLAG )
-        GetVehicle()->GetCfdSettingsPtr()->SetFarManLocFlag( ToBool(val) );
+        GetVehicle()->GetCfdSettingsPtr()->m_FarManLocFlag = ToBool(val);
     else if ( type == CFD_FAR_LOC_X )
         GetVehicle()->GetCfdSettingsPtr()->m_FarXLocation = val;
     else if ( type == CFD_FAR_LOC_Y )
@@ -3048,7 +3048,7 @@ void SetFeaMeshVal( const string & geom_id, int fea_struct_ind, int type, double
     else if ( type == CFD_LIMIT_GROWTH_FLAG )
         feastruct->GetFeaGridDensityPtr()->SetRigorLimit( ToBool( val ) );
     else if ( type == CFD_HALF_MESH_FLAG )
-        feastruct->GetStructSettingsPtr()->SetHalfMeshFlag( ToBool( val ) );
+        feastruct->GetStructSettingsPtr()->m_HalfMeshFlag = ToBool( val );
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetFEAMeshVal::Can't Find Type " + to_string( (long long)type ) );

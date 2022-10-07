@@ -872,11 +872,11 @@ void CfdMeshScreen::UpdateDomainTab()
     m_DomainZLoc.Update( m_Vehicle->GetCfdSettingsPtr()->m_FarZLocation.GetID() );
 
     //=== Domain tab GUI active areas ===//
-    if ( m_Vehicle->GetCfdSettingsPtr()->GetFarMeshFlag() )
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_FarMeshFlag() )
     {
         m_FarParametersLayout.GetGroup()->activate();
 
-        if( m_Vehicle->GetCfdSettingsPtr()->GetFarCompFlag() )
+        if( m_Vehicle->GetCfdSettingsPtr()->m_FarCompFlag() )
         {
             m_FarBoxLayout.GetGroup()->deactivate();
             m_ComponentChoice.Activate();
@@ -886,7 +886,7 @@ void CfdMeshScreen::UpdateDomainTab()
             m_FarBoxLayout.GetGroup()->activate();
             m_ComponentChoice.Deactivate();
 
-            if( m_Vehicle->GetCfdSettingsPtr()->GetFarManLocFlag() )
+            if( m_Vehicle->GetCfdSettingsPtr()->m_FarManLocFlag() )
             {
                 m_FarXYZLocationLayout.GetGroup()->activate();
             }
@@ -1185,7 +1185,7 @@ void CfdMeshScreen::GuiDeviceDomainTabCallback( GuiDevice* device )
 {
     if ( device == &m_FarFieldTypeComponent )
     {
-        m_Vehicle->GetCfdSettingsPtr()->SetFarCompFlag( true );
+        m_Vehicle->GetCfdSettingsPtr()->m_FarCompFlag = true;
 
         if ( m_FarFieldTypeBox.GetValue() )
         {
@@ -1199,7 +1199,7 @@ void CfdMeshScreen::GuiDeviceDomainTabCallback( GuiDevice* device )
     }
     else if ( device == &m_FarFieldTypeBox )
     {
-        m_Vehicle->GetCfdSettingsPtr()->SetFarCompFlag( false );
+        m_Vehicle->GetCfdSettingsPtr()->m_FarCompFlag = false;
 
         if ( m_FarFieldTypeComponent.GetValue() )
         {
@@ -1213,7 +1213,7 @@ void CfdMeshScreen::GuiDeviceDomainTabCallback( GuiDevice* device )
     }
     else if ( device == &m_DomainRel )
     {
-        m_Vehicle->GetCfdSettingsPtr()->SetFarAbsSizeFlag( false );
+        m_Vehicle->GetCfdSettingsPtr()->m_FarAbsSizeFlag = false;
 
         if ( (int)m_DomainAbs.GetFlButton()->value() )
         {
@@ -1227,7 +1227,7 @@ void CfdMeshScreen::GuiDeviceDomainTabCallback( GuiDevice* device )
     }
     else if ( device == &m_DomainAbs )
     {
-        m_Vehicle->GetCfdSettingsPtr()->SetFarAbsSizeFlag( true );
+        m_Vehicle->GetCfdSettingsPtr()->m_FarAbsSizeFlag = true;
 
         if ( (int)m_DomainRel.GetFlButton()->value() )
         {
@@ -1241,7 +1241,7 @@ void CfdMeshScreen::GuiDeviceDomainTabCallback( GuiDevice* device )
     }
     else if ( device == &m_DomainCen )
     {
-        m_Vehicle->GetCfdSettingsPtr()->SetFarManLocFlag( false );
+        m_Vehicle->GetCfdSettingsPtr()->m_FarManLocFlag = false;
 
         if ( (int)m_DomainMan.GetFlButton()->value() )
         {
@@ -1255,7 +1255,7 @@ void CfdMeshScreen::GuiDeviceDomainTabCallback( GuiDevice* device )
     }
     else if ( device == &m_DomainMan )
     {
-        m_Vehicle->GetCfdSettingsPtr()->SetFarManLocFlag( true );
+        m_Vehicle->GetCfdSettingsPtr()->m_FarManLocFlag = true;
 
         if ( (int)m_DomainCen.GetFlButton()->value() )
         {

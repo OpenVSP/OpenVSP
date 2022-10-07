@@ -23,51 +23,6 @@ public:
 
     virtual void InitCommonParms();
 
-    virtual void SetIntersectSubSurfs( bool f )
-    {
-        m_IntersectSubSurfs = f;
-    }
-    virtual bool GetIntersectSubSurfs()
-    {
-        return m_IntersectSubSurfs();
-    }
-
-    virtual bool GetFarMeshFlag()
-    {
-        return m_FarMeshFlag.Get();
-    }
-    virtual void SetFarMeshFlag( bool f )
-    {
-        m_FarMeshFlag = f;
-    }
-    virtual bool GetFarCompFlag()
-    {
-        return m_FarCompFlag.Get();
-    }
-    virtual void SetFarCompFlag( bool f )
-    {
-        m_FarCompFlag = f;
-    }
-
-    virtual bool GetHalfMeshFlag()
-    {
-        return m_HalfMeshFlag.Get();
-    }
-    virtual void SetHalfMeshFlag( bool f )
-    {
-        m_HalfMeshFlag = f;
-    }
-
-    //Symmetry Plane Item Quad BoolParm
-    virtual bool GetSymSplittingOnFlag()
-    {
-        return m_SymSplittingOnFlag.Get();
-    }
-    virtual void SetSymSplittingOnFlag( bool f )
-    {
-        m_SymSplittingOnFlag = f;
-    }
-
     //Symmetry Plane Boolean Items
     BoolParm m_SymSplittingOnFlag;
 
@@ -164,22 +119,6 @@ public:
     virtual void SetFarGeomID( const string& gid )
     {
         m_FarGeomID = gid;
-    }
-    virtual bool GetFarManLocFlag()
-    {
-        return m_FarManLocFlag.Get();
-    }
-    virtual void SetFarManLocFlag( bool f )
-    {
-        m_FarManLocFlag = f;
-    }
-    virtual bool GetFarAbsSizeFlag()
-    {
-        return m_FarAbsSizeFlag.Get();
-    }
-    virtual void SetFarAbsSizeFlag( bool f )
-    {
-        m_FarAbsSizeFlag = f;
     }
 
     string GetExportFileName( int type );

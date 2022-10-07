@@ -101,10 +101,10 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     InitCommonParms();
 
-    SetFarCompFlag( false );
-    SetFarMeshFlag( false );
-    SetSymSplittingOnFlag( false );
-    SetIntersectSubSurfs( true );
+    m_FarCompFlag = false;
+    m_FarMeshFlag = false;
+    m_SymSplittingOnFlag = false;
+    m_IntersectSubSurfs = true;
 }
 
 IntersectSettings::~IntersectSettings()
@@ -429,10 +429,10 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_DrawBorderFlag = false;
     m_DrawIsectFlag = false;
 
-    SetFarCompFlag( false );
-    SetFarMeshFlag( false );
-    SetSymSplittingOnFlag( false );
-    SetIntersectSubSurfs( true );
+    m_FarCompFlag = false;
+    m_FarMeshFlag = false;
+    m_SymSplittingOnFlag = false;
+    m_IntersectSubSurfs = true;
 
     m_NumEvenlySpacedPart.Init( "NumEvenlySpacedPart", "StructSettings", this, 10, 0, 1000 );
     m_NumEvenlySpacedPart.SetDescript( "Number of Evenly Spaced FeaParts to Add" );
