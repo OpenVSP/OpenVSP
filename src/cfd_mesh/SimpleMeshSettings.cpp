@@ -496,3 +496,66 @@ SimpleFeaGridDensity::~SimpleFeaGridDensity()
 }
 
 
+//////////////////////////////////////////////////////
+//============ SimpleAssemblySettings ==============//
+//////////////////////////////////////////////////////
+
+SimpleAssemblySettings::SimpleAssemblySettings()
+{
+    m_DrawMeshFlag = false;
+    m_ColorTagsFlag = false;
+
+    m_DrawNodesFlag = false;
+    m_DrawElementOrientVecFlag = false;
+}
+
+SimpleAssemblySettings::~SimpleAssemblySettings()
+{
+
+}
+
+void SimpleAssemblySettings::CopyFrom( AssemblySettings* settings )
+{
+    m_DrawMeshFlag = settings->m_DrawMeshFlag.Get();
+    m_ColorTagsFlag = settings->m_ColorTagsFlag.Get();
+
+    m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
+    m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
+
+    CopyPostOpFrom( settings );
+}
+
+string SimpleAssemblySettings::GetExportFileName( int type )
+{
+    if ( type >= 0 && type < m_ExportFileNames.size() )
+    {
+        return m_ExportFileNames[type];
+    }
+
+    return string();
+}
+
+bool SimpleAssemblySettings::GetExportFileFlag( int type )
+{
+    assert( type >= 0 && type < m_ExportFileFlags.size() );
+
+    return m_ExportFileFlags[type];
+}
+
+// The Post-op variables are used after the primary operation.
+// For example, the file names (and flags) and mesh/element offsets might
+// be adjusted after the mesh is generated, but before a file is written.
+void SimpleAssemblySettings::CopyPostOpFrom( AssemblySettings* settings )
+{
+    // File output flags and names.
+    m_ExportFileFlags.clear();
+    m_ExportFileFlags.resize( vsp::FEA_NUM_FILE_NAMES );
+
+    for ( size_t i = 0; i < vsp::FEA_NUM_FILE_NAMES; i++ )
+    {
+        m_ExportFileFlags[i] = settings->m_ExportFileFlags[i].Get();
+    }
+
+    m_ExportFileNames = settings->GetExportFileNames();
+}
+

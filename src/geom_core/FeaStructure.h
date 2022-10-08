@@ -682,6 +682,12 @@ public:
     virtual void AddConnection( const string &startid, const string &startstructid, const string &endid, const string &endstructid );
     virtual void DelConnection( int index );
 
+    virtual void ResetExportFileNames();
+    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
+
+
+    AssemblySettings m_AssemblySettings;
+
     vector < string > m_StructIDVec;
 
     vector < FeaConnection* > m_ConnectionVec;

@@ -2452,9 +2452,20 @@ void FeaMeshMgrSingleton::CleanupMeshes( const vector < string > & idvec )
     }
 }
 
-void FeaMeshMgrSingleton::ExportMeshes( const vector < string > & idvec )
+void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
 {
-    addOutputText( "Exporting Meshes.\n" );
+    FeaAssembly* fea_assembly = StructureMgr.GetFeaAssembly( assembly_id );
+
+    if ( !fea_assembly )
+    {
+        return;
+    }
+
+    vector < string > idvec = fea_assembly->m_StructIDVec;
+
+    m_AssemblySettings.CopyPostOpFrom( &(fea_assembly->m_AssemblySettings) );
+
+    addOutputText( "Exporting Assembly Mesh.\n" );
 
     // Transfer common property and material data to FeaMeshMgr.
     TransferPropMatData();
@@ -2494,20 +2505,35 @@ void FeaMeshMgrSingleton::ExportMeshes( const vector < string > & idvec )
         }
     }
 
+    if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
+    {
+        WriteAssemblyCalculix( assembly_id, feacount );
+    }
+}
 
-    string fn = "combined.inp";
+void FeaMeshMgrSingleton::WriteAssemblyCalculix( const string &assembly_id, const FeaCount &feacount )
+{
+    string fn = m_AssemblySettings.GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
 
     if ( fp )
     {
-        WriteCalculix( fp, idvec, feacount );
+        WriteAssemblyCalculix( fp, assembly_id, feacount );
         fclose( fp );
     }
-
 }
 
-void FeaMeshMgrSingleton::WriteCalculix( FILE* fp, const vector < string > & idvec, const FeaCount &feacount  )
+void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembly_id, const FeaCount &feacount  )
 {
+    FeaAssembly* fea_assembly = StructureMgr.GetFeaAssembly( assembly_id );
+
+    if ( !fea_assembly )
+    {
+        return;
+    }
+
+    vector < string > & idvec = fea_assembly->m_StructIDVec;
+
     if ( fp )
     {
         fprintf( fp, "** Calculix assembly data file generated from %s\n", VSPVERSION4 );

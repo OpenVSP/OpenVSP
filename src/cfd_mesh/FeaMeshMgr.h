@@ -198,9 +198,10 @@ public:
 
     virtual void MeshUnMeshed( const vector < string > & idvec );
     virtual void CleanupMeshes( const vector < string > & idvec );
-    virtual void ExportMeshes( const vector < string > & idvec );
+    virtual void ExportAssemblyMesh( const string &assembly_id );
 
-    virtual void WriteCalculix( FILE* fp, const vector < string > & idvec, const FeaCount &feacount );
+    virtual void WriteAssemblyCalculix( const string &assembly_id, const FeaCount &feacount );
+    virtual void WriteAssemblyCalculix( FILE* fp, const string &assembly_id, const FeaCount &feacount );
     virtual void WriteCalculixMaterials( FILE* fp );
 
 protected:
@@ -222,6 +223,8 @@ protected:
 
     FeaMesh* m_ActiveMesh;
 
+
+    SimpleAssemblySettings m_AssemblySettings;
 };
 
 #define FeaMeshMgr FeaMeshMgrSingleton::getInstance()

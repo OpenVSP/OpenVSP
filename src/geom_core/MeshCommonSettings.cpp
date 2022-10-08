@@ -549,3 +549,124 @@ vector < string > StructSettings::GetExportFileNames()
 {
     return m_ExportFileNames;
 }
+
+
+/////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
+
+AssemblySettings::AssemblySettings() : ParmContainer()
+{
+    m_Name = "AssemblySettings";
+
+    m_ExportFileFlags[ vsp::FEA_MASS_FILE_NAME ].Init( "MASS_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_NKEY_FILE_NAME ].Init( "NKEY_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_CALCULIX_FILE_NAME ].Init( "CALCULIX_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_STL_FILE_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_GMSH_FILE_NAME].Init( "GMSH_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_SRF_FILE_NAME ].Init( "SRF_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_CURV_FILE_NAME ].Init( "CURV_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_PLOT3D_FILE_NAME ].Init( "PLOT3D_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[vsp::FEA_IGES_FILE_NAME].Init( "IGES_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[vsp::FEA_STEP_FILE_NAME].Init( "STEP_Export", "ExportFEA", this, true, 0, 1 );
+
+    m_DrawNodesFlag.Init( "DrawNodesFlag", "StructSettings", this, false, false, true );
+    m_DrawNodesFlag.SetDescript( "Flag to Draw FeaNodes" );
+
+    m_DrawElementOrientVecFlag.Init( "DrawElementOrientVecFlag", "StructSettings", this, false, false, true );
+    m_DrawElementOrientVecFlag.SetDescript( "Flag to Draw FeaElement Orientation Vectors" );
+
+    m_ExportFileNames.resize( vsp::FEA_NUM_FILE_NAMES );
+}
+
+AssemblySettings::~AssemblySettings()
+{
+}
+
+xmlNodePtr AssemblySettings::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr assemblysettingnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+
+    ParmContainer::EncodeXml( assemblysettingnode );
+
+    return assemblysettingnode;
+}
+
+xmlNodePtr AssemblySettings::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr assemblysettingnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
+    if ( assemblysettingnode )
+    {
+        ParmContainer::DecodeXml( assemblysettingnode );
+    }
+
+    return assemblysettingnode;
+}
+
+string AssemblySettings::GetExportFileName( int type )
+{
+    if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )
+    {
+        return m_ExportFileNames[type];
+    }
+
+    return string();
+}
+
+void AssemblySettings::SetExportFileName( const string &fn, int type )
+{
+    if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )
+    {
+        m_ExportFileNames[type] = fn;
+    }
+}
+
+void AssemblySettings::ResetExportFileNames( const string& structname )
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    string base = veh->GetVSP3FileName();
+
+    int pos = base.find( ".vsp3" );
+    if ( pos >= 0 )
+    {
+        base.erase( pos, base.length() - 1 );
+    }
+    base.append( "_" + structname );
+
+    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.inp", ".stl", ".msh", ".srf", ".curv", ".p3d", ".igs", ".stp" };
+
+    for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
+    {
+        m_ExportFileNames[i] = base;
+        m_ExportFileNames[i].append( suffix[i] );
+    }
+}
+
+BoolParm* AssemblySettings::GetExportFileFlag( int type )
+{
+    assert( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES );
+
+    return &m_ExportFileFlags[type];
+}
+
+void AssemblySettings::SetAllFileExportFlags( bool flag )
+{
+    for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
+    {
+        m_ExportFileFlags[i] = flag;
+    }
+}
+
+void AssemblySettings::SetFileExportFlag( int type, bool flag )
+{
+    if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )
+    {
+        m_ExportFileFlags[type] = flag;
+    }
+}
+
+vector < string > AssemblySettings::GetExportFileNames()
+{
+    return m_ExportFileNames;
+}

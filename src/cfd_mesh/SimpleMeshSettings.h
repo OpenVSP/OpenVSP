@@ -232,4 +232,32 @@ public:
 
 };
 
+class SimpleAssemblySettings
+{
+public:
+    SimpleAssemblySettings();
+    virtual ~SimpleAssemblySettings();
+
+    virtual void CopyFrom( AssemblySettings* settings );
+
+    string GetExportFileName( int type );
+    bool GetExportFileFlag( int type );
+
+    virtual void CopyPostOpFrom( AssemblySettings* settings );
+
+    bool m_DrawNodesFlag;
+    bool m_DrawElementOrientVecFlag;
+
+    bool m_DrawMeshFlag;
+    bool m_ColorTagsFlag;
+
+    vector < bool > m_ExportFileFlags;
+
+protected:
+
+    vector < string > m_ExportFileNames;
+};
+
+
+
 #endif

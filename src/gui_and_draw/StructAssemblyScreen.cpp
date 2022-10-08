@@ -308,6 +308,46 @@ bool StructAssemblyScreen::Update()
     UpdateConnectionTab();
 
 
+    FeaAssembly* curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+
+    if ( !curr_assy )
+    {
+        return false;
+    }
+
+    string massname = curr_assy->m_AssemblySettings.GetExportFileName( vsp::FEA_MASS_FILE_NAME );
+    m_MassOutput.Update( StringUtil::truncateFileName( massname, 40 ).c_str() );
+    string nastranname = curr_assy->m_AssemblySettings.GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
+    m_NastOutput.Update( StringUtil::truncateFileName( nastranname, 40 ).c_str() );
+    string nkeyname = curr_assy->m_AssemblySettings.GetExportFileName( vsp::FEA_NKEY_FILE_NAME );
+    m_NkeyOutput.Update( StringUtil::truncateFileName( nkeyname, 40 ).c_str() );
+    string calculixname = curr_assy->m_AssemblySettings.GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
+    m_CalcOutput.Update( StringUtil::truncateFileName( calculixname, 40 ).c_str() );
+    string stlname = curr_assy->m_AssemblySettings.GetExportFileName( vsp::FEA_STL_FILE_NAME );
+    m_StlOutput.Update( StringUtil::truncateFileName( stlname, 40 ).c_str() );
+    string gmshname = curr_assy->m_AssemblySettings.GetExportFileName( vsp::FEA_GMSH_FILE_NAME );
+    m_GmshOutput.Update( StringUtil::truncateFileName( gmshname, 40 ).c_str() );
+
+    //==== Update File Output Flags ====//
+    m_MassFile.Update( curr_assy->m_AssemblySettings.GetExportFileFlag( vsp::FEA_MASS_FILE_NAME )->GetID() );
+    m_NastFile.Update( curr_assy->m_AssemblySettings.GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->GetID() );
+    m_NkeyFile.Update( curr_assy->m_AssemblySettings.GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME )->GetID() );
+    m_CalcFile.Update( curr_assy->m_AssemblySettings.GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME )->GetID() );
+    m_StlFile.Update( curr_assy->m_AssemblySettings.GetExportFileFlag( vsp::FEA_STL_FILE_NAME )->GetID() );
+    m_GmshFile.Update( curr_assy->m_AssemblySettings.GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME )->GetID() );
+
+    if ( !curr_assy->m_AssemblySettings.GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->Get() )
+    {
+        m_NkeyFile.Deactivate();
+        m_NkeyOutput.Deactivate();
+        m_SelectNkeyFile.Deactivate();
+    }
+    else
+    {
+        m_NkeyFile.Activate();
+        m_NkeyOutput.Activate();
+        m_SelectNkeyFile.Activate();
+    }
 
     return true;
 }
@@ -599,7 +639,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( curr_assy )
             {
-                FeaMeshMgr.ExportMeshes( curr_assy->m_StructIDVec );
+                FeaMeshMgr.ExportAssemblyMesh( curr_assy->GetID() );
             }
         }
     }
@@ -631,6 +671,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( fea_assy )
             {
                 fea_assy->SetName( m_AssemblyNameInput.GetString() );
+                fea_assy->ResetExportFileNames();
             }
         }
     }

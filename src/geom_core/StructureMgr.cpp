@@ -209,6 +209,11 @@ void StructureMgrSingleton::ResetAllExportFileNames()
     {
         structs[i]->ResetExportFileNames();
     }
+
+    for ( unsigned int i = 0; i < m_FeaAssemblyVec.size(); i++ )
+    {
+        m_FeaAssemblyVec[i]->ResetExportFileNames();
+    }
 }
 
 //==== Get FeaStructure from Total Structure Index ====//
@@ -942,6 +947,8 @@ FeaAssembly* StructureMgrSingleton::AddFeaAssembly( )
     if ( feaassy )
     {
         feaassy->SetName( string( "ASSEMBLY_" + std::to_string( m_FeaAssemblyCount ) ) );
+
+        feaassy->ResetExportFileNames();
 
         m_FeaAssemblyVec.push_back( feaassy );
         m_FeaAssemblyCount++;

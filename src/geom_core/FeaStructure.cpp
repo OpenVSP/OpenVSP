@@ -5367,6 +5367,8 @@ xmlNodePtr FeaAssembly::EncodeXml( xmlNodePtr & node )
         }
     }
 
+    m_AssemblySettings.EncodeXml( assy_node );
+
     return assy_node;
 }
 
@@ -5407,6 +5409,9 @@ xmlNodePtr FeaAssembly::DecodeXml( xmlNodePtr & assy_node )
             }
         }
     }
+
+    m_AssemblySettings.DecodeXml( assy_node );
+    ResetExportFileNames();
 
     return assy_node;
 }
@@ -5474,4 +5479,14 @@ void FeaAssembly::DelConnection( int index )
         }
         m_ConnectionVec.erase( m_ConnectionVec.begin() + index );
     }
+}
+
+void FeaAssembly::ResetExportFileNames()
+{
+    m_AssemblySettings.ResetExportFileNames( GetName() );
+}
+
+void FeaAssembly::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
+{
+    m_AssemblySettings.AddLinkableParms( linkable_parm_vec, m_ID );
 }

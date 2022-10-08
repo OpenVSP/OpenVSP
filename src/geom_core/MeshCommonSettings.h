@@ -208,4 +208,40 @@ protected:
 
 };
 
+//////////////////////////////////////////////////////////////////////
+class AssemblySettings : public ParmContainer
+{
+public:
+    AssemblySettings();
+    virtual ~AssemblySettings();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    string GetExportFileName( int type );
+    void SetExportFileName( const string &fn, int type );
+    void ResetExportFileNames( const string& basename );
+
+    BoolParm* GetExportFileFlag( int type );
+    void SetAllFileExportFlags( bool flag );
+    void SetFileExportFlag( int type, bool flag );
+    vector < string > GetExportFileNames();
+
+    BoolParm m_DrawMeshFlag;
+    BoolParm m_ColorTagsFlag;
+
+    BoolParm m_ExportFileFlags[vsp::FEA_NUM_FILE_NAMES];
+    BoolParm m_DrawNodesFlag;
+    BoolParm m_DrawElementOrientVecFlag;
+
+protected:
+
+    // These file names do not get written to file.  They are reset each time
+    // the file name is set (save/save as/open).  There is no way to have good
+    // default behavior based on the main file name -- and to use the user-set
+    // file names.
+    vector < string > m_ExportFileNames;
+
+};
+
 #endif // !defined(MESHCOMMONSETTINGS__INCLUDED_)
