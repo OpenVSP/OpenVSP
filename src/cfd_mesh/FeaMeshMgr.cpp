@@ -728,7 +728,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         //===== Add FeaParts ====//
-        for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
+        for ( unsigned int i = 0; i < fea_struct->NumFeaParts(); i++ ) // Do Not Assume Skin is Index 0
         {
             if ( fea_struct->FeaPartIsFixPoint( i ) )
             {
