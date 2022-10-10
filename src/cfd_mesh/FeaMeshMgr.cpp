@@ -2304,6 +2304,13 @@ void FeaMeshMgrSingleton::TagFeaNodes()
                     break;
                 }
             }
+
+            if ( GetMeshPtr()->m_FixPntVec[j].m_NodeIndex[k] < 0 )
+            {
+                char buf[512];
+                sprintf( buf, "FixPoint %d %d not found in mesh\n", j, k );
+                addOutputText( string( buf ) );
+            }
         }
     }
 
