@@ -2598,6 +2598,55 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
             }
         }
 
+        for ( int i = 0; i < fea_assembly->m_ConnectionVec.size(); i++ )
+        {
+            FeaConnection* conn = fea_assembly->m_ConnectionVec[i];
+            if ( conn )
+            {
+
+                fprintf( fp, "** %s \n", conn->GetName().c_str() );
+                fprintf( fp, "*CONNECTION\n" );
+
+
+                FeaMesh* startmesh = GetMeshPtr( conn->m_StartStructID );
+                FeaStructure* startstruct = StructureMgr.GetFeaStruct( conn->m_StartStructID );
+                if ( startmesh && startstruct )
+                {
+                    FixPoint *fxpt = startmesh->GetFixPointByID( conn->m_StartFixPtID );
+                    int noffset = startstruct->GetStructSettingsPtr()->m_NodeOffset();
+
+                    fprintf( fp, "*START\n" );
+
+                    if ( fxpt )
+                    {
+                        for ( int j = 0; j < fxpt->m_NodeIndex.size(); j++  )
+                        {
+                            fprintf( fp, "%d\n", fxpt->m_NodeIndex[j] + noffset );
+                        }
+                    }
+                }
+
+                FeaMesh* endmesh = GetMeshPtr( conn->m_EndStructID );
+                FeaStructure* endstruct = StructureMgr.GetFeaStruct( conn->m_EndStructID );
+                if ( endmesh && endstruct )
+                {
+                    FixPoint *fxpt = endmesh->GetFixPointByID( conn->m_EndFixPtID );
+                    int noffset = endstruct->GetStructSettingsPtr()->m_NodeOffset();
+
+                    fprintf( fp, "*END\n" );
+
+                    if ( fxpt )
+                    {
+                        for ( int j = 0; j < fxpt->m_NodeIndex.size(); j++  )
+                        {
+                            fprintf( fp, "%d\n", fxpt->m_NodeIndex[j] + noffset );
+                        }
+                    }
+                }
+                fprintf( fp, "\n" );
+            }
+        }
+
         for ( int i = 0; i < idvec.size(); i++ )
         {
             FeaMesh* mesh = GetMeshPtr( idvec[i] );
