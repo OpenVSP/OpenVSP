@@ -227,28 +227,6 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     m_DisplayTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
     m_DisplayTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
 
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.AddDividerBox( "Intersection Curve Display" );
-
-    m_DisplayTabLayout.SetFitWidthFlag( false );
-    m_DisplayTabLayout.SetSameLineFlag( true );
-
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2 );
-
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
-    m_DisplayTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
-    m_DisplayTabLayout.ForceNewLine();
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_ShowCurve, "Show Curves");
-    m_DisplayTabLayout.AddButton( m_ShowPts, "Show Points");
-    m_DisplayTabLayout.ForceNewLine();
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
-    m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
-    m_DisplayTabLayout.ForceNewLine();
-
     m_DisplayTabLayout.SetFitWidthFlag( true );
     m_DisplayTabLayout.SetSameLineFlag( false );
     m_DisplayTabLayout.AddYGap();
@@ -306,6 +284,7 @@ bool StructAssemblyScreen::Update()
     UpdateAssemblyTab();
     UpdateStructTab();
     UpdateConnectionTab();
+    UpdateDrawPartBrowser();
 
 
     FeaAssembly* curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
@@ -314,6 +293,14 @@ bool StructAssemblyScreen::Update()
     {
         return false;
     }
+
+    //===== Display Tab Toggle Update =====//
+    m_DrawMeshButton.Update( curr_assy->m_AssemblySettings.m_DrawMeshFlag.GetID() );
+    m_ColorElementsButton.Update( curr_assy->m_AssemblySettings.m_ColorTagsFlag.GetID() );
+    m_DrawNodesToggle.Update( curr_assy->m_AssemblySettings.m_DrawNodesFlag.GetID() );
+    m_DrawElementOrientVecToggle.Update( curr_assy->m_AssemblySettings.m_DrawElementOrientVecFlag.GetID() );
+
+    FeaMeshMgr.UpdateAssemblyDisplaySettings( curr_assy->GetID() );
 
     string massname = curr_assy->m_AssemblySettings.GetExportFileName( vsp::FEA_MASS_FILE_NAME );
     m_MassOutput.Update( StringUtil::truncateFileName( massname, 40 ).c_str() );
@@ -535,6 +522,51 @@ void StructAssemblyScreen::UpdateConnectionTab()
     m_ConnectionSelectBrowser->hposition( h_pos );
 }
 
+void StructAssemblyScreen::UpdateDrawPartBrowser()
+{
+    //==== Draw Part Browser ====//
+    int scroll_pos = m_DrawPartSelectBrowser->position();
+    m_DrawPartSelectBrowser->clear();
+
+    FeaAssembly* curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+
+    if ( !curr_assy )
+    {
+        return;
+    }
+
+    vector < string > idvec = curr_assy->m_StructIDVec;
+
+    for ( int i = 0; i < idvec.size(); i++ )
+    {
+        int indx = vector_find_val( m_StructIDs, idvec[i] );
+
+        FeaMesh *mesh = FeaMeshMgr.GetMeshPtr( idvec[ i ] );
+
+        if ( mesh )
+        {
+            vector < int > draw_browser_index_vec = mesh->GetDrawBrowserIndexVec();
+            vector < string > draw_browser_name_vec = mesh->GetDrawBrowserNameVec();
+            vector < bool > draw_element_flag_vec = mesh->GetDrawElementFlagVec();
+            vector < bool > draw_cap_flag_vec = mesh->GetDrawCapFlagVec();
+
+            for ( unsigned int j = 0; j < draw_browser_name_vec.size(); j++ )
+            {
+                if ( draw_browser_name_vec[i].find( "CAP" ) != std::string::npos )
+                {
+                    m_DrawPartSelectBrowser->add( draw_browser_name_vec[j].c_str(), draw_cap_flag_vec[draw_browser_index_vec[j]] );
+                }
+                else
+                {
+                    m_DrawPartSelectBrowser->add( draw_browser_name_vec[j].c_str(), draw_element_flag_vec[draw_browser_index_vec[j]] );
+                }
+            }
+        }
+    }
+
+    m_DrawPartSelectBrowser->position( scroll_pos );
+}
+
 void StructAssemblyScreen::AddOutputText( const string &text )
 {
     Fl::lock();
@@ -565,6 +597,25 @@ void StructAssemblyScreen::CallBack( Fl_Widget* w )
     else if ( w == m_ConnectionSelectBrowser )
     {
         m_ConnectionBrowserIndex = m_ConnectionSelectBrowser->value() - 2;
+    }
+    else if ( w == m_DrawPartSelectBrowser )
+    {
+        int selected_index = m_DrawPartSelectBrowser->value();
+        bool flag = !!m_DrawPartSelectBrowser->checked( selected_index );
+
+        /*
+        vector < string > draw_browser_name_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserNameVec();
+        vector < int > draw_browser_index_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserIndexVec();
+
+        if ( draw_browser_name_vec[selected_index - 1].find( "CAP" ) != std::string::npos )
+        {
+            FeaMeshMgr.GetMeshPtr()->SetDrawCapFlag( draw_browser_index_vec[selected_index - 1], flag );
+        }
+        else
+        {
+            FeaMeshMgr.GetMeshPtr()->SetDrawElementFlag( draw_browser_index_vec[selected_index - 1], flag );
+        }
+         */
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

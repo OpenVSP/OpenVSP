@@ -50,6 +50,7 @@ public:
     virtual void UpdateAssemblyTab();
     virtual void UpdateStructTab();
     virtual void UpdateConnectionTab();
+    virtual void UpdateDrawPartBrowser();
 
     virtual void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
 
@@ -142,16 +143,6 @@ private:
     ToggleButton m_ColorElementsButton;
     ToggleButton m_DrawNodesToggle;
     ToggleButton m_DrawElementOrientVecToggle;
-
-    ToggleButton m_DrawIsect;
-    ToggleButton m_DrawBorder;
-
-    ToggleButton m_ShowRaw;
-    ToggleButton m_ShowBinAdapt;
-    SliderAdjRangeInput m_RelCurveTolSlider;
-
-    ToggleButton m_ShowCurve;
-    ToggleButton m_ShowPts;
 
     Fl_Check_Browser* m_DrawPartSelectBrowser;
 
