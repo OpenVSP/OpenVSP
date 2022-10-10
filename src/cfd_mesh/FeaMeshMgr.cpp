@@ -754,6 +754,10 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                         if ( m_SurfVec[k]->GetFeaPartIndex() == StructureMgr.GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) &&
                              m_SurfVec[k]->GetFeaPartSurfNum() == j )
                         {
+                            // Surfaces here are patches.  We're detecting points that fall on two patches because the border
+                            // values of the parameter are valid on both patches.  This is not true when you reach the max/min
+                            // limit of a patch.  I.e. W=0.0 and W=1.0 are the same point, but both do not get added by this
+                            // logic.
                             if ( m_SurfVec[k]->ValidUW( uw, 0.0 ) )
                             {
                                 surf_index.push_back( k );
