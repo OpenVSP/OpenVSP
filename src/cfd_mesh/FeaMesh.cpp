@@ -1874,6 +1874,18 @@ void FeaMesh::ComputeWriteMass()
     }
 }
 
+FixPoint* FeaMesh::GetFixPointByID( const string &id )
+{
+    for ( int i = 0; i < m_FixPntVec.size(); i++ )
+    {
+        if ( m_FeaPartIDVec[ m_FixPntVec[i].m_FeaPartIndex ] == id )
+        {
+            return &m_FixPntVec[i];
+        }
+    }
+    return NULL;
+}
+
 void FeaMesh::UpdateDisplaySettings()
 {
     FeaStructure *fea_struct = StructureMgr.GetFeaStruct( GetID() );

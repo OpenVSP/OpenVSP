@@ -91,6 +91,8 @@ public:
 
     virtual void ComputeWriteMass();
 
+    virtual FixPoint* GetFixPointByID( const string &id );
+
     // This is a duplicate of SurfaceIntersectionMgr::m_SimpleSubSurfaceVec
     // We need this to access the subsurface name and property index post-mesh generation.
     // Copying the full data structure is overkill, but it requires less maintenance.
