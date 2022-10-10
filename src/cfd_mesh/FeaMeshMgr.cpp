@@ -2421,6 +2421,20 @@ void FeaMeshMgrSingleton::UpdateDisplaySettings()
     }
 }
 
+void FeaMeshMgrSingleton::UpdateAssemblyDisplaySettings( const string &assembly_id )
+{
+    FeaAssembly* fea_assembly = StructureMgr.GetFeaAssembly( assembly_id );
+
+    if ( fea_assembly )
+    {
+        m_AssemblySettings.m_DrawMeshFlag = fea_assembly->m_AssemblySettings.m_DrawMeshFlag.Get();
+        m_AssemblySettings.m_ColorTagsFlag = fea_assembly->m_AssemblySettings.m_ColorTagsFlag.Get();
+
+        m_AssemblySettings.m_DrawNodesFlag = fea_assembly->m_AssemblySettings.m_DrawNodesFlag.Get();
+        m_AssemblySettings.m_DrawElementOrientVecFlag = fea_assembly->m_AssemblySettings.m_DrawElementOrientVecFlag.Get();
+    }
+}
+
 void FeaMeshMgrSingleton::RegisterAnalysis()
 {
     string analysis_name = "FeaMeshAnalysis";
