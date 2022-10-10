@@ -751,6 +751,8 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
 
                 for ( size_t j = 0; j < pnt_vec.size(); j++ )
                 {
+                    fxpt.m_Pnt.push_back( pnt_vec[j] );
+
                     // Identify the surface index and coordinate points for the fixed point
                     vector < int > surf_index;
                     for ( size_t k = 0; k < m_SurfVec.size(); k++ )
@@ -769,20 +771,22 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                         }
                     }
 
-                    if ( surf_index.size() > 0 )
+                    if ( surf_index.empty() )
                     {
-                        fxpt.m_Pnt.push_back( pnt_vec[j] );
-                        fxpt.m_SurfInd.push_back( surf_index );
-
-                        if ( surf_index.size() > 1 )
-                        {
-                            fxpt.m_BorderFlag.push_back( BORDER_FIX_POINT );
-                        }
-                        else
-                        {
-                            fxpt.m_BorderFlag.push_back( SURFACE_FIX_POINT ); // Possibly re-set in CheckFixPointIntersects()
-                        }
+                        surf_index.push_back( -1 );
                     }
+
+                    fxpt.m_SurfInd.push_back( surf_index );
+
+                    if ( surf_index.size() > 1 )
+                    {
+                        fxpt.m_BorderFlag.push_back( BORDER_FIX_POINT );
+                    }
+                    else
+                    {
+                        fxpt.m_BorderFlag.push_back( SURFACE_FIX_POINT ); // Possibly re-set in CheckFixPointIntersects()
+                    }
+
                 }
 
                 GetMeshPtr()->m_FixPntVec.push_back( fxpt );
