@@ -252,6 +252,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
     {
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
         GetMeshPtr()->m_FeaPartNameVec.resize( GetMeshPtr()->m_NumFeaParts );
+        GetMeshPtr()->m_FeaPartIDVec.resize( GetMeshPtr()->m_NumFeaParts );
         GetMeshPtr()->m_FeaPartTypeVec.resize( GetMeshPtr()->m_NumFeaParts );
         GetMeshPtr()->m_FeaPartNumSurfVec.resize( GetMeshPtr()->m_NumFeaParts );
         GetMeshPtr()->m_FeaPartIncludedElementsVec.resize( GetMeshPtr()->m_NumFeaParts );
@@ -261,6 +262,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
         for ( size_t i = 0; i < fea_part_vec.size(); i++ )
         {
             GetMeshPtr()->m_FeaPartNameVec[i] = fea_part_vec[i]->GetName();
+            GetMeshPtr()->m_FeaPartIDVec[i] = fea_part_vec[i]->GetID();
             GetMeshPtr()->m_FeaPartTypeVec[i] = fea_part_vec[i]->GetType();
             GetMeshPtr()->m_FeaPartNumSurfVec[i] = fea_part_vec[i]->NumFeaPartSurfs();
             GetMeshPtr()->m_FeaPartIncludedElementsVec[i] = fea_part_vec[i]->m_IncludedElements.Get();

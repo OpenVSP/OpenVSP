@@ -111,6 +111,7 @@ public:
     unsigned int m_NumFeaSubSurfs;
 
     vector < string > m_FeaPartNameVec;
+    vector < string > m_FeaPartIDVec;
     vector < int > m_FeaPartTypeVec;
     vector < int > m_FeaPartNumSurfVec;
     vector < int > m_FeaPartIncludedElementsVec;
