@@ -454,14 +454,17 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         {
             m_FeaNodeDO[iprt].m_Type = DrawObj::VSP_POINTS;
             m_FeaNodeDO[iprt].m_PointSize = 4.0;
+            m_FeaNodeDO[iprt].m_PointColor = vec3d( 0, 0, 1 );
 
             if ( m_FixPointFeaPartFlagVec[iprt] )
             {
                 m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_POINTS;
-                m_FeaTriElementDO[iprt].m_PointSize = 7.0;
+                m_FeaTriElementDO[iprt].m_PointSize = 9.0;
+                m_FeaTriElementDO[iprt].m_PointColor = vec3d( 0, 0, 1 );
 
                 m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_POINTS;
-                m_FeaQuadElementDO[iprt].m_PointSize = 7.0;
+                m_FeaQuadElementDO[iprt].m_PointSize = 9.0;
+                m_FeaQuadElementDO[iprt].m_PointColor = vec3d( 0, 0, 1 );
             }
             else
             {
