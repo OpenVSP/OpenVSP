@@ -1340,6 +1340,7 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
     }
 }
 
+// Called first from SurfaceIntersectionMgr::Intersect()
 void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 {
     for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )
@@ -1431,6 +1432,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
     }
 }
 
+// Called immediately next from SurfaceIntersectionMgr::Intersect()
 void FeaMeshMgrSingleton::CheckFixPointIntersects()
 {
     // Identify and set FeaFixPoints on intersection curves
