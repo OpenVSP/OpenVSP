@@ -19,6 +19,7 @@ public:
     vector < vector < int > > m_SurfInd; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec (Note: not the surf ID)
     bool m_PtMassFlag;
     double m_PtMass;
+    vector < int > m_NodeIndex;          // Index of node in mesh.
 };
 
 class FeaMesh

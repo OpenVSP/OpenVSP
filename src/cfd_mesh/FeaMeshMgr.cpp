@@ -746,6 +746,8 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                 fxpt.m_PtMassFlag = fixpnt->m_FixPointMassFlag.Get();
                 fxpt.m_PtMass = fixpnt->m_FixPointMass.Get();
                 fxpt.m_UW = uw;
+                // Initialize node vector to -1.  Set in TagFeaNodes
+                fxpt.m_NodeIndex.resize( pnt_vec.size(), -1 );
 
                 for ( size_t j = 0; j < pnt_vec.size(); j++ )
                 {
@@ -2279,6 +2281,11 @@ void FeaMeshMgrSingleton::TagFeaNodes()
                     GetMeshPtr()->m_FeaNodeVec[i]->AddTag( fxpt.m_FeaPartIndex );
                     GetMeshPtr()->m_FeaNodeVec[i]->m_FixedPointFlag = true;
 
+                    int ind = FindPntIndex( GetMeshPtr()->m_FeaNodeVec[i]->m_Pnt, m_AllPntVec, GetMeshPtr()->m_IndMap );
+
+                    // Set fix point node index here.
+                    GetMeshPtr()->m_FixPntVec[j].m_NodeIndex[k] = GetMeshPtr()->m_PntShift[ind] + 1;
+
                     // Create mass element if mass flag is true
                     if ( fxpt.m_PtMassFlag )
                     {
@@ -2286,7 +2293,6 @@ void FeaMeshMgrSingleton::TagFeaNodes()
                         mass->Create( GetMeshPtr()->m_FeaNodeVec[i]->m_Pnt, fxpt.m_PtMass );
                         mass->SetFeaPartIndex( fxpt.m_FeaPartIndex );
 
-                        int ind = FindPntIndex( GetMeshPtr()->m_FeaNodeVec[i]->m_Pnt, m_AllPntVec, GetMeshPtr()->m_IndMap );
                         mass->m_Corners[0]->m_Index = GetMeshPtr()->m_PntShift[ind] + 1;
 
                         GetMeshPtr()->m_FeaElementVec.push_back( mass );
