@@ -2690,7 +2690,7 @@ void DeleteFeaPart( const string & geom_id, int fea_struct_ind, const string & p
         return;
     }
 
-    int index = StructureMgr.GetFeaPartIndex( part_id );
+    int index = feastruct->GetFeaPartIndex( part_id );
     if ( index == -1 )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Can't Find FeaPart " + part_id );

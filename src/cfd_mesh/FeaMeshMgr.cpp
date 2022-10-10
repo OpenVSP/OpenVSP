@@ -751,7 +751,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                     vector < int > surf_index;
                     for ( size_t k = 0; k < m_SurfVec.size(); k++ )
                     {
-                        if ( m_SurfVec[k]->GetFeaPartIndex() == StructureMgr.GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) &&
+                        if ( m_SurfVec[k]->GetFeaPartIndex() == fea_struct->GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) &&
                              m_SurfVec[k]->GetFeaPartSurfNum() == j )
                         {
                             // Surfaces here are patches.  We're detecting points that fall on two patches because the border

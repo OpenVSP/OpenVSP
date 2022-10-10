@@ -59,6 +59,9 @@ public:
     void ReorderFeaPart( int ind, int action );
     void UpdateFeaParts();
     FeaPart* GetFeaPart( int ind );
+
+    int GetFeaPartIndex( const string &id );
+
     string GetFeaPartName( int ind );
     vector< FeaPart* > GetFeaPartVec()
     {

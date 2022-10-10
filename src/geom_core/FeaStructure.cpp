@@ -550,6 +550,18 @@ FeaPart* FeaStructure::GetFeaPart( int ind )
     return NULL;
 }
 
+int FeaStructure::GetFeaPartIndex( const string &id )
+{
+    for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
+    {
+        if ( id == m_FeaPartVec[i]->GetID() )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 string FeaStructure::GetFeaPartName( int ind )
 {
     string name;
