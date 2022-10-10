@@ -1205,6 +1205,14 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
             //     }
             // }
 
+            for ( unsigned int j = 0; j < (int)fxpt.m_Pnt.size(); j++ )
+            {
+                if ( fxpt.m_NodeIndex[j] >= 0 )
+                {
+                    fprintf( fp, "%d,%f,%f,%f\n", fxpt.m_NodeIndex[j] + noffset, fxpt.m_Pnt[j][0], fxpt.m_Pnt[j][1], fxpt.m_Pnt[j][2] );
+                }
+            }
+
             fprintf( fp, "\n" );
         }
 
