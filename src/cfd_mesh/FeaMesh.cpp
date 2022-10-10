@@ -1192,18 +1192,18 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
             fprintf( fp, "** Fixed Point: %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
             fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
 
-            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-            {
-                if ( m_PntShift[j] >= 0 )
-                {
-                    if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
-                         m_FeaNodeVec[j]->m_FixedPointFlag &&
-                         m_FeaNodeVec[j]->HasTag( fxpt.m_FeaPartIndex ) )
-                    {
-                        m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
-                    }
-                }
-            }
+            // for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            // {
+            //     if ( m_PntShift[j] >= 0 )
+            //     {
+            //         if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
+            //              m_FeaNodeVec[j]->m_FixedPointFlag &&
+            //              m_FeaNodeVec[j]->HasTag( fxpt.m_FeaPartIndex ) )
+            //         {
+            //             m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
+            //         }
+            //     }
+            // }
 
             fprintf( fp, "\n" );
         }
