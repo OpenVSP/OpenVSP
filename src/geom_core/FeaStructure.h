@@ -382,6 +382,8 @@ public:
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
+    virtual int NumFeaPartSurfs();
+
     Parm m_PosU;
     Parm m_PosW;
     BoolParm m_FixPointMassFlag;
@@ -657,12 +659,15 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual string MakeLabel();
+    virtual string MakeName();
 
     string m_StartStructID;
     string m_StartFixPtID;
+    IntParm m_StartFixPtSurfIndex;
 
     string m_EndStructID;
     string m_EndFixPtID;
+    IntParm m_EndFixPtSurfIndex;
 
 protected:
 
@@ -682,7 +687,8 @@ public:
     virtual void DelStructure( const string &id );
 
     virtual void GetAllFixPts( vector< FeaPart* > & fixpts, vector <string> &structids );
-    virtual void AddConnection( const string &startid, const string &startstructid, const string &endid, const string &endstructid );
+    virtual void AddConnection( const string &startid, const string &startstructid, int startindx,
+                                const string &endid, const string &endstructid, int endindx );
     virtual void DelConnection( int index );
 
     virtual void ResetExportFileNames();

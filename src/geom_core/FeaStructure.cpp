@@ -3435,6 +3435,17 @@ bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen,
     return false;
 }
 
+int FeaFixPoint::NumFeaPartSurfs()
+{
+    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
+
+    if ( parent_part )
+    {
+        return parent_part->NumFeaPartSurfs();
+    }
+    return 0;
+}
+
 ////////////////////////////////////////////////////
 //================= FeaPartTrim ==================//
 ////////////////////////////////////////////////////
@@ -5283,6 +5294,8 @@ double FeaMaterial::GetShearModulus()
 
 FeaConnection::FeaConnection( )
 {
+    m_StartFixPtSurfIndex.Init( "StartFixPtSurfIndex", "Connection", this, -1, -1, 1e12 );
+    m_EndFixPtSurfIndex.Init( "EndFixPtSurfIndex", "Connection", this, -1, -1, 1e12 );
 }
 
 xmlNodePtr FeaConnection::EncodeXml( xmlNodePtr & node )
@@ -5329,11 +5342,30 @@ string FeaConnection::MakeLabel()
     if ( start_struct && start_pt && end_struct && end_pt )
     {
         char str[512];
-        sprintf( str, "%s:%s:%s:%s:", start_struct->GetName().c_str(), start_pt->GetName().c_str(),
-                                      end_struct->GetName().c_str(), end_pt->GetName().c_str() );
+        sprintf( str, "%s:%s:%d:%s:%s:%d:", start_struct->GetName().c_str(), start_pt->GetName().c_str(), m_StartFixPtSurfIndex(),
+                                      end_struct->GetName().c_str(), end_pt->GetName().c_str(), m_EndFixPtSurfIndex() );
         lbl = string( str );
     }
     return lbl;
+}
+
+string FeaConnection::MakeName()
+{
+    string name;
+
+    FeaStructure* start_struct = StructureMgr.GetFeaStruct( m_StartStructID );
+    FeaPart* start_pt = StructureMgr.GetFeaPart( m_StartFixPtID );
+    FeaStructure* end_struct = StructureMgr.GetFeaStruct( m_EndStructID );
+    FeaPart* end_pt = StructureMgr.GetFeaPart( m_EndFixPtID );
+
+    if ( start_struct && start_pt && end_struct && end_pt )
+    {
+        char str[512];
+        sprintf( str, "%s_%s_%d_to_%s_%s_%d", start_struct->GetName().c_str(), start_pt->GetName().c_str(), m_StartFixPtSurfIndex(),
+                 end_struct->GetName().c_str(), end_pt->GetName().c_str(), m_EndFixPtSurfIndex() );
+        name = string( str );
+    }
+    return name;
 }
 
 //////////////////////////////////////////////////////
@@ -5465,7 +5497,8 @@ void FeaAssembly::GetAllFixPts( vector< FeaPart* > & fixpts, vector <string> &st
     }
 }
 
-void FeaAssembly::AddConnection( const string &startid, const string &startstructid, const string &endid, const string &endstructid )
+void FeaAssembly::AddConnection( const string &startid, const string &startstructid, int startindx,
+                                 const string &endid, const string &endstructid, int endindx )
 {
     if ( startid != endid )
     {
@@ -5473,8 +5506,11 @@ void FeaAssembly::AddConnection( const string &startid, const string &startstruc
 
         conn->m_StartFixPtID = startid;
         conn->m_StartStructID = startstructid;
+        conn->m_StartFixPtSurfIndex = startindx;
+
         conn->m_EndFixPtID = endid;
         conn->m_EndStructID = endstructid;
+        conn->m_EndFixPtSurfIndex = endindx;
 
         m_ConnectionVec.push_back( conn );
     }

@@ -110,6 +110,11 @@ private:
     Choice m_ConnectionEndChoice;
     int m_ConnectionStartIndex;
     int m_ConnectionEndIndex;
+    Choice m_ConnectionStartSurfIndxChoice;
+    Choice m_ConnectionEndSurfIndxChoice;
+    int m_ConnectionStartSurfIndex;
+    int m_ConnectionEndSurfIndex;
+
     vector < string > m_FixPtIDs;
     vector < string > m_FixPtStructIDs;
 

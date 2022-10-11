@@ -142,16 +142,26 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
     m_ConnectionsTabLayout.AddDividerBox( "Connection Selection" );
 
-    static int con_col_widths[] = { 100, 100, 100, 100, 0 }; // widths for each column
+    static int con_col_widths[] = { 100, 75, 25, 100, 75, 25, 0 }; // widths for each column
 
-    m_ConnectionSelectBrowser = m_ConnectionsTabLayout.AddColResizeBrowser( con_col_widths, 4, browser_h );
+    m_ConnectionSelectBrowser = m_ConnectionsTabLayout.AddColResizeBrowser( con_col_widths, 6, browser_h );
     m_ConnectionSelectBrowser->callback( staticScreenCB, this );
-
-    m_ConnectionsTabLayout.AddChoice( m_ConnectionStartChoice, "Start" );
-    m_ConnectionsTabLayout.AddChoice( m_ConnectionEndChoice, "End" );
 
     m_ConnectionsTabLayout.SetSameLineFlag( true );
     m_ConnectionsTabLayout.SetFitWidthFlag( false );
+
+    m_ConnectionsTabLayout.SetChoiceButtonWidth( m_ConnectionsTabLayout.GetRemainX() / 4 );
+    m_ConnectionsTabLayout.SetSliderWidth( m_ConnectionsTabLayout.GetRemainX() / 4 );
+
+    m_ConnectionsTabLayout.AddChoice( m_ConnectionStartChoice, "Start" );
+    m_ConnectionsTabLayout.AddChoice( m_ConnectionStartSurfIndxChoice, "Index" );
+
+    m_ConnectionsTabLayout.ForceNewLine();
+
+    m_ConnectionsTabLayout.AddChoice( m_ConnectionEndChoice, "End" );
+    m_ConnectionsTabLayout.AddChoice( m_ConnectionEndSurfIndxChoice, "Index" );
+
+    m_ConnectionsTabLayout.ForceNewLine();
 
     m_ConnectionsTabLayout.SetButtonWidth( m_ConnectionsTabLayout.GetRemainX() / 2 );
 
@@ -462,6 +472,8 @@ void StructAssemblyScreen::UpdateConnectionTab()
     m_ConnectionSelectBrowser->clear();
     m_ConnectionStartChoice.ClearItems();
     m_ConnectionEndChoice.ClearItems();
+    m_ConnectionStartSurfIndxChoice.ClearItems();
+    m_ConnectionEndSurfIndxChoice.ClearItems();
     m_FixPtIDs.clear();
     m_FixPtStructIDs.clear();
 
@@ -507,8 +519,35 @@ void StructAssemblyScreen::UpdateConnectionTab()
     m_ConnectionEndChoice.SetVal( m_ConnectionEndIndex );
 
 
+    FeaPart* fpstart = StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionStartIndex ] );
+    if ( fpstart )
+    {
+        int num = fpstart->NumFeaPartSurfs();
+
+        for ( int i = 0; i< num; i ++ )
+        {
+            m_ConnectionStartSurfIndxChoice.AddItem( to_string( i ), i );
+        }
+    }
+    m_ConnectionStartSurfIndxChoice.UpdateItems();
+    m_ConnectionStartSurfIndxChoice.SetVal( m_ConnectionStartSurfIndex );
+
+    FeaPart* fpend = StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionEndIndex ] );
+    if ( fpend )
+    {
+        int num = fpend->NumFeaPartSurfs();
+
+        for ( int i = 0; i< num; i ++ )
+        {
+            m_ConnectionEndSurfIndxChoice.AddItem( to_string( i ), i );
+        }
+    }
+    m_ConnectionEndSurfIndxChoice.UpdateItems();
+    m_ConnectionEndSurfIndxChoice.SetVal( m_ConnectionEndSurfIndex );
+
+
     m_ConnectionSelectBrowser->column_char( ':' );
-    m_ConnectionSelectBrowser->add( "@b@.START STRUCT:@b@.PT:@b@.END STRUCT:@b@.PT:" );
+    m_ConnectionSelectBrowser->add( "@b@.START STRUCT:@b@.PT:@b@.INDEX:@b@.END STRUCT:@b@.PT:@b@.INDEX:" );
 
     vector < FeaConnection* > convec = curr_assy->m_ConnectionVec;
     for ( int i = 0; i < convec.size(); i++ )
@@ -764,6 +803,14 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         m_ConnectionEndIndex = m_ConnectionEndChoice.GetVal();
     }
+    else if ( device == &m_ConnectionStartSurfIndxChoice )
+    {
+        m_ConnectionStartSurfIndex = m_ConnectionStartSurfIndxChoice.GetVal();
+    }
+    else if ( device == &m_ConnectionEndSurfIndxChoice )
+    {
+        m_ConnectionEndSurfIndex = m_ConnectionEndSurfIndxChoice.GetVal();
+    }
     else if ( device == &m_AddConnectionButton )
     {
         if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
@@ -773,8 +820,8 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( fea_assy )
             {
-                fea_assy->AddConnection( m_FixPtIDs[m_ConnectionStartIndex], m_FixPtStructIDs[m_ConnectionStartIndex],
-                                         m_FixPtIDs[m_ConnectionEndIndex], m_FixPtStructIDs[m_ConnectionEndIndex] );
+                fea_assy->AddConnection( m_FixPtIDs[m_ConnectionStartIndex], m_FixPtStructIDs[m_ConnectionStartIndex], m_ConnectionStartSurfIndex,
+                                         m_FixPtIDs[m_ConnectionEndIndex], m_FixPtStructIDs[m_ConnectionEndIndex], m_ConnectionEndSurfIndex );
             }
         }
     }

@@ -2619,47 +2619,7 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
             FeaConnection* conn = fea_assembly->m_ConnectionVec[i];
             if ( conn )
             {
-
-                fprintf( fp, "** %s \n", conn->GetName().c_str() );
-                fprintf( fp, "*CONNECTION\n" );
-
-
-                FeaMesh* startmesh = GetMeshPtr( conn->m_StartStructID );
-                FeaStructure* startstruct = StructureMgr.GetFeaStruct( conn->m_StartStructID );
-                if ( startmesh && startstruct )
-                {
-                    FixPoint *fxpt = startmesh->GetFixPointByID( conn->m_StartFixPtID );
-                    int noffset = startstruct->GetStructSettingsPtr()->m_NodeOffset();
-
-                    fprintf( fp, "*START\n" );
-
-                    if ( fxpt )
-                    {
-                        for ( int j = 0; j < fxpt->m_NodeIndex.size(); j++  )
-                        {
-                            fprintf( fp, "%d\n", fxpt->m_NodeIndex[j] + noffset );
-                        }
-                    }
-                }
-
-                FeaMesh* endmesh = GetMeshPtr( conn->m_EndStructID );
-                FeaStructure* endstruct = StructureMgr.GetFeaStruct( conn->m_EndStructID );
-                if ( endmesh && endstruct )
-                {
-                    FixPoint *fxpt = endmesh->GetFixPointByID( conn->m_EndFixPtID );
-                    int noffset = endstruct->GetStructSettingsPtr()->m_NodeOffset();
-
-                    fprintf( fp, "*END\n" );
-
-                    if ( fxpt )
-                    {
-                        for ( int j = 0; j < fxpt->m_NodeIndex.size(); j++  )
-                        {
-                            fprintf( fp, "%d\n", fxpt->m_NodeIndex[j] + noffset );
-                        }
-                    }
-                }
-                fprintf( fp, "\n" );
+                WriteConnectionCalculix( fp, conn );
             }
         }
 
@@ -2676,6 +2636,64 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
     }
 }
 
+// Connection assumed between 0th entry of fxpt.  Needs specification in situations of part arrays and symmetry.
+void FeaMeshMgrSingleton::WriteConnectionCalculix( FILE* fp, FeaConnection* conn )
+{
+    if ( fp && conn )
+    {
+        int startnod = - 1;
+        int endnod = -1;
+
+        FeaMesh *startmesh = GetMeshPtr( conn->m_StartStructID );
+        if ( startmesh )
+        {
+            FixPoint *fxpt = startmesh->GetFixPointByID( conn->m_StartFixPtID );
+            int noffset = startmesh->m_StructSettings.m_NodeOffset;
+
+            if ( fxpt )
+            {
+                int npt = fxpt->m_NodeIndex.size();
+                int indx = conn->m_StartFixPtSurfIndex();
+
+                if ( indx >=0 && indx < npt )
+                {
+                    startnod = fxpt->m_NodeIndex[ indx ] + noffset;
+                }
+            }
+        }
+
+        FeaMesh *endmesh = GetMeshPtr( conn->m_EndStructID );
+        if ( endmesh )
+        {
+            FixPoint *fxpt = endmesh->GetFixPointByID( conn->m_EndFixPtID );
+            int noffset = endmesh->m_StructSettings.m_NodeOffset;
+
+            if ( fxpt )
+            {
+                int npt = fxpt->m_NodeIndex.size();
+                int indx = conn->m_EndFixPtSurfIndex();
+
+                if ( indx >=0 && indx < npt )
+                {
+                    endnod = fxpt->m_NodeIndex[ indx ] + noffset;
+                }
+            }
+        }
+
+        if ( startnod >= 0 && endnod >= 0 )
+        {
+            fprintf( fp, "** CONNECTION %s\n", conn->MakeName().c_str() );
+
+            for ( int i = 1; i <= 6; i++ )
+            {
+                fprintf( fp, "*EQUATION\n" );
+                fprintf( fp, "2\n" );                // Two terms in equation.
+                fprintf( fp, "%d,%d,%f,%d,%d,%f\n", startnod, i, 1.0, endnod, i, -1.0 ); // LHS of equation = 0
+            }
+            fprintf( fp, "\n" );
+        }
+    }
+}
 
 void FeaMeshMgrSingleton::WriteCalculixMaterials( FILE* fp )
 {

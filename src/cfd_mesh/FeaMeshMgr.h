@@ -203,6 +203,7 @@ public:
 
     virtual void WriteAssemblyCalculix( const string &assembly_id, const FeaCount &feacount );
     virtual void WriteAssemblyCalculix( FILE* fp, const string &assembly_id, const FeaCount &feacount );
+    virtual void WriteConnectionCalculix( FILE* fp, FeaConnection* conn );
     virtual void WriteCalculixMaterials( FILE* fp );
 
 protected:
