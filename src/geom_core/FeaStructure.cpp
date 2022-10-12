@@ -426,6 +426,18 @@ SubSurface* FeaStructure::GetFeaSubSurf( int ind )
     return NULL;
 }
 
+SubSurface* FeaStructure::GetFeaSubSurf( const string &id )
+{
+    for ( int i = 0; i < m_FeaSubSurfVec.size(); i++ )
+    {
+        if ( m_FeaSubSurfVec[i]->GetID() == id )
+        {
+            return m_FeaSubSurfVec[i];
+        }
+    }
+    return NULL;
+}
+
 void FeaStructure::ReorderFeaSubSurf( int ind, int action )
 {
     //==== Check SubSurface Index Validity ====//

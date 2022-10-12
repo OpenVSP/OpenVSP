@@ -100,6 +100,7 @@ public:
     bool ValidFeaSubSurfInd( int ind );
     void DelFeaSubSurf( int ind );
     SubSurface* GetFeaSubSurf( int ind );
+    SubSurface* GetFeaSubSurf( const string &id );
     void ReorderFeaSubSurf( int ind, int action );
     int NumFeaSubSurfs()
     {
