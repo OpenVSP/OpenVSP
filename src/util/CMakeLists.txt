@@ -47,6 +47,7 @@ Vsp1DCurve.cpp
 VspCurve.cpp
 VspSurf.cpp
 VspUtil.cpp
+BitMask.h
 BndBox.h
 CADutil.h
 Cluster.h
