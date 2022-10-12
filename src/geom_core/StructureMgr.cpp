@@ -328,6 +328,30 @@ FeaPart* StructureMgrSingleton::GetFeaPart( const string & feapart_id )
     return ret_ptr;
 }
 
+//==== Get FeaPart pointer from FeaPart ID ====//
+SubSurface* StructureMgrSingleton::GetFeaSubSurf( const string & feasubsurf_id )
+{
+    SubSurface* ret_ptr = NULL;
+
+    vector < FeaStructure* > fea_struct_vec = GetAllFeaStructs();
+
+    for ( unsigned int i = 0; i < fea_struct_vec.size(); i++ )
+    {
+        vector < SubSurface* > fea_subsurf_vec = fea_struct_vec[i]->GetFeaSubSurfVec();
+
+        for ( unsigned int j = 0; j < fea_subsurf_vec.size(); j++ )
+        {
+            if ( fea_subsurf_vec[j]->GetID() == feasubsurf_id )
+            {
+                return fea_subsurf_vec[j];
+            }
+        }
+    }
+
+    return ret_ptr;
+}
+
+
 //==== Get FeaSubSurf index from SubSurf ID ====//
 int StructureMgrSingleton::GetFeaSubSurfIndex( const string & ss_id )
 {

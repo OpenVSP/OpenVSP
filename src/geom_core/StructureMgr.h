@@ -47,6 +47,7 @@ public:
     int GetTotFeaStructIndex( FeaStructure* fea_struct );
     int GetGeomFeaStructIndex( const string & struct_id );
     FeaPart* GetFeaPart( const string & feapart_id );
+    SubSurface* GetFeaSubSurf( const string & feasubsurf_id );
     int GetFeaSubSurfIndex( const string & ss_id );
     string GetFeaPartName( const string & id );
     int GetFeaPropertyIndex( const string & FeaPartID );
