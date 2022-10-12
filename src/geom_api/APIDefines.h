@@ -272,6 +272,12 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_STEP_STRUCTURE
                  };
 
+enum FEA_BC_TYPE { FEA_BC_Y_LESS_THAN,
+                   FEA_BC_PART,
+                   FEA_BC_SUBSURF,
+                   FEA_NUM_BC_TYPES
+                 };
+
 enum FEA_CROSS_SECT_TYPE { FEA_XSEC_GENERAL = 0,
                            FEA_XSEC_CIRC,
                            FEA_XSEC_PIPE,

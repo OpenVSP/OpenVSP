@@ -151,6 +151,15 @@ public:
         return m_CurrFeaPropertyIndex;
     }
 
+    void SetCurrBCIndex( int ind )
+    {
+        m_CurrFeaBCIndex = ind;
+    }
+    int GetCurrBCIndex()
+    {
+        return m_CurrFeaBCIndex;
+    }
+
     void SetFeaSliceOrientIndex( int ind )
     {
         m_FeaSliceOrientationIndex = ind;
@@ -177,6 +186,7 @@ protected:
     int m_CurrFeaAssemblyIndex;
     int m_CurrFeaMaterialIndex;
     int m_CurrFeaPropertyIndex;
+    int m_CurrFeaBCIndex;
     int m_FeaSliceOrientationIndex; // Identifies the default orientation for FeaSlices; 0: XY_PLANE, 1: YZ_PLANE, 2: XZ_PLANE
 };
 

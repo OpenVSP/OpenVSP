@@ -24,11 +24,13 @@
 #include "SubSurface.h"
 #include "MeshCommonSettings.h"
 #include "GridDensity.h"
+#include "BitMask.h"
 
 #define FEA_PART_EXPANSION_FACTOR 1e-4
 
 // Forward declaration
 class FeaPart;
+class FeaBC;
 
 class FeaStructure : public ParmContainer
 {
@@ -152,6 +154,34 @@ public:
 
     bool PtsOnAnyPlanarPart( const vector < vec3d > &pnts );
 
+    // Boundary Condition Stuff
+    void AddFeaBC( FeaBC* fea_bc )
+    {
+        m_FeaBCVec.push_back( fea_bc );
+    }
+
+    FeaBC* AddFeaBC( int type );
+
+    void DelFeaBC( int ind );
+
+    bool ValidFeaBCInd( int ind );
+
+    FeaBC* GetFeaBC( int ind );
+
+    int GetFeaBCIndex( const string &id );
+
+    int GetFeaBCIndex( FeaBC* fea_bc );
+
+    vector< FeaBC* > GetFeaBCVec()
+    {
+        return m_FeaBCVec;
+    }
+
+    int NumFeaBCs()
+    {
+        return m_FeaBCVec.size();
+    }
+
 protected:
 
     string m_ParentGeomID;
@@ -165,6 +195,8 @@ protected:
     vector < FeaPart* > m_FeaPartVec;
 
     vector < SubSurface* > m_FeaSubSurfVec;
+
+    vector < FeaBC* > m_FeaBCVec;
 
     StructSettings m_StructSettings;
     FeaGridDensity m_FeaGridDensity;
@@ -704,6 +736,81 @@ public:
 
 };
 
+class FeaBC : public ParmContainer
+{
+public:
+    FeaBC( int type );
+    ~FeaBC()       {};
 
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual string GetDescription();
+
+    virtual BitMask GetAsBitMask();
+
+    virtual int GetType()
+    {
+        return m_FeaBCType;
+    }
+
+    IntParm m_Constraints;
+
+protected:
+
+    int m_FeaBCType;
+
+};
+
+class FeaBCYLT : public FeaBC
+{
+public:
+    FeaBCYLT( int type = vsp::FEA_BC_Y_LESS_THAN );
+
+    virtual string GetDescription();
+
+    Parm m_Yval;
+
+protected:
+
+};
+
+class FeaBCPart : public FeaBC
+{
+public:
+    FeaBCPart( int type = vsp::FEA_BC_PART );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual string GetDescription();
+
+    virtual void SetPartID( const string &id ) { m_PartID = id; }
+    virtual string GetPartID()  { return m_PartID; }
+
+protected:
+    string m_PartID;
+
+};
+
+class FeaBCSubSurf : public FeaBC
+{
+public:
+    FeaBCSubSurf( int type = vsp::FEA_BC_SUBSURF );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual string GetDescription();
+
+    virtual void SetSubSurfID( const string &id ) { m_SubSurfID = id; }
+    virtual string GetSubSurfID()  { return m_SubSurfID; }
+
+protected:
+    string m_SubSurfID;
+
+};
 
 #endif // !defined(FEASTRUCTURE_INCLUDED_)
