@@ -318,6 +318,24 @@ void FeaMeshMgrSingleton::TransferSubSurfData()
     GetMeshPtr()->m_SimpleSubSurfaceVec = m_SimpleSubSurfaceVec;
 }
 
+void FeaMeshMgrSingleton::TransferBCData()
+{
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
+
+    if ( fea_struct )
+    {
+        vector< FeaBC* > bc_vec = fea_struct->GetFeaBCVec();
+
+        int nbc = bc_vec.size();
+        GetMeshPtr()->m_BCVec.resize( nbc );
+
+        for ( int i = 0; i < nbc; i++ )
+        {
+            GetMeshPtr()->m_BCVec[i].CopyFrom( bc_vec[i] );
+        }
+    }
+}
+
 void FeaMeshMgrSingleton::GenerateFeaMesh()
 {
     m_FeaMeshInProgress = true;
@@ -353,6 +371,11 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     addOutputText( "Transfer Subsurf Data\n" );
     TransferSubSurfData();
+
+    // Needs to be after TransferSubSurfData so SubSurf BC's can be indexed.
+    // Needs to be after TransferFeaData() so FeaParts can be indexed.
+    TransferBCData();
+
     TransferDrawObjData();
 
     addOutputText( "Merge Co-Planar Parts\n" );
@@ -2318,6 +2341,18 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         }
     }
 
+    // Apply BC's to nodes.
+    for ( unsigned int i = 0; i < GetMeshPtr()->m_BCVec.size(); i++ )
+    {
+        for ( unsigned int j = 0; j < (int)GetMeshPtr()->m_FeaNodeVec.size(); j++ )
+        {
+            if ( GetMeshPtr()->m_PntShift[j] >= 0 )
+            {
+                GetMeshPtr()->m_BCVec[i].ApplyTo( GetMeshPtr()->m_FeaNodeVec[j] );
+            }
+        }
+    }
+
     int maxid = -1;
     for ( int i = 0; i < (int)GetMeshPtr()->m_FeaNodeVec.size(); i++ )
     {
@@ -2611,6 +2646,15 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
             if ( mesh )
             {
                 mesh->WriteCalculixElements( fp );
+            }
+        }
+
+        for ( int i = 0; i < idvec.size(); i++ )
+        {
+            FeaMesh* mesh = GetMeshPtr( idvec[i] );
+            if ( mesh )
+            {
+                mesh->WriteCalculixBCs( fp );
             }
         }
 

@@ -17,6 +17,7 @@
 
 #include "Vec3d.h"
 #include "FeaStructure.h"
+#include "BitMask.h"
 
 using namespace std;
 
@@ -41,6 +42,7 @@ public:
     int m_Index;
     vec3d m_Pnt;
     bool m_FixedPointFlag;
+    BitMask m_BCs;
 
     void AddTag( int ind );
     bool HasTag( int ind );
@@ -49,6 +51,7 @@ public:
 
     void WriteNASTRAN( FILE* fp, int noffset );
     void WriteCalculix( FILE* fp, int noffset );
+    void WriteCalculixBCs( FILE* fp, int noffset );
     void WriteGmsh( FILE* fp, int noffset );
 };
 

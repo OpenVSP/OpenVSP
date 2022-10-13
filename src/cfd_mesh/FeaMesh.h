@@ -8,6 +8,7 @@
 #include "FeaElement.h"
 #include "SimpleMeshSettings.h"
 #include "SimpleSubSurface.h"
+#include "SimpleBC.h"
 
 class FixPoint
 {
@@ -81,6 +82,7 @@ public:
     virtual void WriteCalculixHeader( FILE* fp );
     virtual void WriteCalculixNodes( FILE* fp );
     virtual void WriteCalculixElements( FILE* fp );
+    virtual void WriteCalculixBCs( FILE* fp );
     virtual void WriteCalculixProperties( FILE* fp );
 
     virtual void WriteNASTRAN( const string &base_filename );
@@ -146,6 +148,8 @@ public:
     // Groups of trimming planes.
     vector < vector < vec3d > > m_TrimPt;
     vector < vector < vec3d > > m_TrimNorm;
+
+    vector < SimpleBC > m_BCVec;
 
     // m_PartSurfOrientation[i][j] == GetFeaSurf(i,j)->GetFeaElementOrientation()
     vector < vector < vec3d > > m_PartSurfOrientation;

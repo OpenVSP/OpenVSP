@@ -89,6 +89,20 @@ void FeaNode::WriteCalculix( FILE* fp, int noffset )
     }
 }
 
+void FeaNode::WriteCalculixBCs( FILE* fp, int noffset )
+{
+    int ndof = 6;
+
+    vector < bool > bv = m_BCs.AsBoolVec( ndof );
+    for ( int i = 0; i < ndof; i++ )
+    {
+        if ( bv[i] )
+        {
+            fprintf( fp, "%d,%d\n", m_Index + noffset, i + 1 );
+        }
+    }
+}
+
 void FeaNode::WriteGmsh( FILE* fp, int noffset )
 {
     fprintf( fp, "%d %f %f %f\n", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );

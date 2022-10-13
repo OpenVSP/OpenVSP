@@ -1127,6 +1127,7 @@ void FeaMesh::WriteCalculix( FILE* fp )
         WriteCalculixHeader( fp );
         WriteCalculixNodes( fp );
         WriteCalculixElements( fp );
+        WriteCalculixBCs( fp );
         WriteCalculixProperties( fp );
         FeaMeshMgr.WriteCalculixMaterials( fp );
     }
@@ -1500,6 +1501,29 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                     fprintf( fp, "\n" );
                 }
             }
+        }
+    }
+}
+
+void FeaMesh::WriteCalculixBCs( FILE* fp )
+{
+    int noffset = m_StructSettings.m_NodeOffset;
+
+    if ( fp )
+    {
+        if ( m_BCVec.size() > 0 )
+        {
+            fprintf( fp, "*BOUNDARY\n" );
+        }
+
+        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+        {
+            m_FeaNodeVec[j]->WriteCalculixBCs( fp, noffset );
+        }
+
+        if ( m_BCVec.size() > 0 )
+        {
+            fprintf( fp, "\n" );
         }
     }
 }

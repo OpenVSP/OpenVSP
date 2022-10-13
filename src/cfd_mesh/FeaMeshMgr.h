@@ -98,6 +98,7 @@ public:
     virtual void TransferFeaData();
     virtual void TransferPropMatData();
     virtual void TransferSubSurfData();
+    virtual void TransferBCData();
     virtual void MergeCoplanarParts();
     virtual void AddStructureSurfParts();
     virtual void AddStructureFixPoints();

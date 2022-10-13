@@ -32,6 +32,7 @@ Mesh.cpp
 MeshAnalysis.cpp
 NURBS.cpp
 SCurve.cpp
+SimpleBC.cpp
 SimpleMeshSettings.cpp
 SimpleSubSurface.cpp
 Surf.cpp
@@ -52,6 +53,7 @@ Mesh.h
 MeshAnalysis.h
 NURBS.h
 SCurve.h
+SimpleBC.h
 SimpleMeshSettings.h
 SimpleSubSurface.h
 Surf.h
