@@ -1673,6 +1673,20 @@ void StructScreen::UpdateBCPartChoice()
         m_FeaBCPartChoice.UpdateItems();
         m_FeaBCPartChoice.SetVal( m_SelectedBCPartChoice );
 
+
+        if ( fea_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
+        {
+            FeaBC *curr_bc = fea_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
+
+            if ( curr_bc->GetType() == vsp::FEA_BC_PART )
+            {
+                FeaBCPart * part_bc = dynamic_cast< FeaBCPart* > ( curr_bc );
+                if ( part_bc )
+                {
+                    part_bc->SetPartID( m_FeaBCPartChoiceIDVec[ m_SelectedBCPartChoice ] );
+                }
+            }
+        }
     }
 }
 
@@ -1700,6 +1714,20 @@ void StructScreen::UpdateBCSubSurfChoice()
         m_FeaBCSubSurfChoice.UpdateItems();
         m_FeaBCSubSurfChoice.SetVal( m_SelectedBCSubSurfChoice );
 
+
+        if ( fea_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
+        {
+            FeaBC *curr_bc = fea_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
+
+            if ( curr_bc->GetType() == vsp::FEA_BC_SUBSURF )
+            {
+                FeaBCSubSurf * subsurf_bc = dynamic_cast< FeaBCSubSurf* > ( curr_bc );
+                if ( subsurf_bc )
+                {
+                    subsurf_bc->SetSubSurfID( m_FeaBCSubSurfChoiceIDVec[ m_SelectedBCSubSurfChoice ] );
+                }
+            }
+        }
     }
 }
 
@@ -3387,58 +3415,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_FeaBCPartChoice )
     {
         m_SelectedBCPartChoice = m_FeaBCPartChoice.GetVal();
-
-
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-        {
-            vector < FeaStructure * > structVec = StructureMgr.GetAllFeaStructs();
-            FeaStructure *curr_struct = structVec[ StructureMgr.m_CurrStructIndex() ];
-
-            if ( curr_struct )
-            {
-                if ( curr_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
-                {
-                    FeaBC *curr_bc = curr_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
-
-                    if ( curr_bc->GetType() == vsp::FEA_BC_PART )
-                    {
-                        FeaBCPart * part_bc = dynamic_cast< FeaBCPart* > ( curr_bc );
-                        if ( part_bc )
-                        {
-                            part_bc->SetPartID( m_FeaBCPartChoiceIDVec[ m_SelectedBCPartChoice ] );
-                        }
-                    }
-                }
-            }
-        }
     }
     else if ( device == &m_FeaBCSubSurfChoice )
     {
         m_SelectedBCSubSurfChoice = m_FeaBCSubSurfChoice.GetVal();
-
-
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-        {
-            vector < FeaStructure * > structVec = StructureMgr.GetAllFeaStructs();
-            FeaStructure *curr_struct = structVec[ StructureMgr.m_CurrStructIndex() ];
-
-            if ( curr_struct )
-            {
-                if ( curr_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
-                {
-                    FeaBC *curr_bc = curr_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
-
-                    if ( curr_bc->GetType() == vsp::FEA_BC_SUBSURF )
-                    {
-                        FeaBCSubSurf * subsurf_bc = dynamic_cast< FeaBCSubSurf* > ( curr_bc );
-                        if ( subsurf_bc )
-                        {
-                            subsurf_bc->SetSubSurfID( m_FeaBCSubSurfChoiceIDVec[ m_SelectedBCSubSurfChoice ] );
-                        }
-                    }
-                }
-            }
-        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
