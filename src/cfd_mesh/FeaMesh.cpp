@@ -1221,6 +1221,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
                     }
                 }
             }
+            fprintf( fp, "\n" );
         }
 
         //==== Intersection Nodes ====//
@@ -1402,17 +1403,14 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                 fprintf( fp, "*MASS, ELSET=EP%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
                 fprintf( fp, "%f\n", fxpt.m_PtMass[0] );
+                fprintf( fp, "\n" );
             }
-
-            fprintf( fp, "\n" );
         }
 
         //==== Write SubSurfaces ====//
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             int surf_num = m_SimpleSubSurfaceVec[i].GetFeaOrientationVec().size();
-
-            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
 
             for ( int isurf = 0; isurf < surf_num; isurf++ )
             {
