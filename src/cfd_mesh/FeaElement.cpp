@@ -74,7 +74,19 @@ void FeaNode::WriteNASTRAN( FILE* fp, int noffset )
 
 void FeaNode::WriteCalculix( FILE* fp, int noffset )
 {
-    fprintf( fp, "%d,%f,%f,%f\n", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
+    if ( true )   // print 'just' nodes.
+    {
+        fprintf( fp, "%d,%f,%f,%f\n", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
+    }
+    else          // also print node tags for debugging.
+    {
+        fprintf( fp, "%d,%f,%f,%f  ** ", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
+        for ( int i = 0; i < m_Tags.size(); i++ )
+        {
+            fprintf( fp, "%d ", m_Tags[ i ] );
+        }
+        fprintf( fp, "\n" );
+    }
 }
 
 void FeaNode::WriteGmsh( FILE* fp, int noffset )
