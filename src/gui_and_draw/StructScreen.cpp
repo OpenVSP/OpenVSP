@@ -1673,17 +1673,19 @@ void StructScreen::UpdateBCPartChoice()
         m_FeaBCPartChoice.UpdateItems();
         m_FeaBCPartChoice.SetVal( m_SelectedBCPartChoice );
 
-
-        if ( fea_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
+        if ( m_SelectedBCPartChoice >= 0 && m_SelectedBCPartChoice < m_FeaBCPartChoiceIDVec.size() && m_FeaBCPartChoiceIDVec.size() > 0 )
         {
-            FeaBC *curr_bc = fea_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
-
-            if ( curr_bc->GetType() == vsp::FEA_BC_PART )
+            if ( fea_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
             {
-                FeaBCPart * part_bc = dynamic_cast< FeaBCPart* > ( curr_bc );
-                if ( part_bc )
+                FeaBC *curr_bc = fea_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
+
+                if ( curr_bc->GetType() == vsp::FEA_BC_PART )
                 {
-                    part_bc->SetPartID( m_FeaBCPartChoiceIDVec[ m_SelectedBCPartChoice ] );
+                    FeaBCPart * part_bc = dynamic_cast< FeaBCPart* > ( curr_bc );
+                    if ( part_bc )
+                    {
+                        part_bc->SetPartID( m_FeaBCPartChoiceIDVec[ m_SelectedBCPartChoice ] );
+                    }
                 }
             }
         }
@@ -1715,16 +1717,19 @@ void StructScreen::UpdateBCSubSurfChoice()
         m_FeaBCSubSurfChoice.SetVal( m_SelectedBCSubSurfChoice );
 
 
-        if ( fea_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
+        if ( m_SelectedBCSubSurfChoice >= 0 && m_SelectedBCSubSurfChoice < m_FeaBCSubSurfChoiceIDVec.size() && m_FeaBCSubSurfChoiceIDVec.size() > 0 )
         {
-            FeaBC *curr_bc = fea_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
-
-            if ( curr_bc->GetType() == vsp::FEA_BC_SUBSURF )
+            if ( fea_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
             {
-                FeaBCSubSurf * subsurf_bc = dynamic_cast< FeaBCSubSurf* > ( curr_bc );
-                if ( subsurf_bc )
+                FeaBC *curr_bc = fea_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
+
+                if ( curr_bc->GetType() == vsp::FEA_BC_SUBSURF )
                 {
-                    subsurf_bc->SetSubSurfID( m_FeaBCSubSurfChoiceIDVec[ m_SelectedBCSubSurfChoice ] );
+                    FeaBCSubSurf * subsurf_bc = dynamic_cast< FeaBCSubSurf* > ( curr_bc );
+                    if ( subsurf_bc )
+                    {
+                        subsurf_bc->SetSubSurfID( m_FeaBCSubSurfChoiceIDVec[ m_SelectedBCSubSurfChoice ] );
+                    }
                 }
             }
         }
