@@ -612,6 +612,18 @@ vector< SimpleSubSurface > SurfaceIntersectionSingleton::GetSimpSubSurfs( string
     return ret_vec;
 }
 
+int SurfaceIntersectionSingleton::GetSimpSubSurfIndex( string ss_id )
+{
+    for ( int i = 0; i < m_SimpleSubSurfaceVec.size(); i++ )
+    {
+        if ( m_SimpleSubSurfaceVec[i].GetSSID() == ss_id )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void SurfaceIntersectionSingleton::addOutputText( string str, int output_type )
 {
     if ( output_type != QUIET_OUTPUT )
