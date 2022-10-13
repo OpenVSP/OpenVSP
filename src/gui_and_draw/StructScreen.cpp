@@ -2454,10 +2454,9 @@ bool StructScreen::Update()
             vector < FeaStructure * > structVec = StructureMgr.GetAllFeaStructs();
             FeaStructure *curr_struct = structVec[ StructureMgr.m_CurrStructIndex() ];
 
-            UpdateFeaBCBrowser();
             UpdateBCPartChoice();
             UpdateBCSubSurfChoice();
-
+            UpdateFeaBCBrowser();
 
             if ( curr_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
             {
