@@ -737,9 +737,13 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                 assert( fixpnt );
                 FixPoint fxpt;
 
-                int part_index = fea_struct->GetFeaPartIndex( fea_part_vec[i] );
                 vector < vec3d > pnt_vec = fixpnt->GetPntVec();
                 vec2d uw = fixpnt->GetUW();
+
+                fxpt.m_FeaPartIndex = i;
+                fxpt.m_PtMassFlag = fixpnt->m_FixPointMassFlag.Get();
+                fxpt.m_PtMass = fixpnt->m_FixPointMass.Get();
+                fxpt.m_UW = uw;
 
                 for ( size_t j = 0; j < pnt_vec.size(); j++ )
                 {
@@ -760,11 +764,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                     if ( surf_index.size() > 0 )
                     {
                         fxpt.m_Pnt.push_back( pnt_vec[j] );
-                        fxpt.m_UW.push_back( uw );
                         fxpt.m_SurfInd.push_back( surf_index );
-                        fxpt.m_FeaPartIndex.push_back( part_index );
-                        fxpt.m_PtMassFlag.push_back( fixpnt->m_FixPointMassFlag.Get() );
-                        fxpt.m_PtMass.push_back( fixpnt->m_FixPointMass.Get() );
 
                         if ( surf_index.size() > 1 )
                         {
@@ -1308,9 +1308,9 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
                     {
                         if ( fxpt.m_SurfInd[j][k] == i )
                         {
-                            string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex[j]];
+                            string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex];
 
-                            if ( m_SurfVec[i]->GetMesh()->SetFixPoint( fxpt.m_Pnt[j], fxpt.m_UW[j] ) )
+                            if ( m_SurfVec[i]->GetMesh()->SetFixPoint( fxpt.m_Pnt[j], fxpt.m_UW ) )
                             {
                                 // No message on success.
                             }
@@ -1348,18 +1348,18 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                     {
                         vec2d closest_uwA, closest_uwB;
 
-                        if ( ( *c )->m_SurfA->ValidUW( fxpt.m_UW[j] ) )
+                        if ( ( *c )->m_SurfA->ValidUW( fxpt.m_UW ) )
                         {
-                            closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[j][0], fxpt.m_UW[j][1] );
+                            closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
                         }
                         else
                         {
                             closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j] );
                         }
 
-                        if ( ( *c )->m_SurfB->ValidUW( fxpt.m_UW[j] ) )
+                        if ( ( *c )->m_SurfB->ValidUW( fxpt.m_UW ) )
                         {
-                            closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[j][0], fxpt.m_UW[j][1] );
+                            closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
                         }
                         else
                         {
@@ -1391,7 +1391,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 
                         if ( success )
                         {
-                            string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex[j]];
+                            string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex];
                             string message = "\tBorder Intersect Point Set for " + fix_point_name + "\n";
                             addOutputText( message );
                             split = true;
@@ -1454,7 +1454,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                             // Compare FeaFixPoint to closest point on other surface
                             if ( dist( closest_pnt, fxpt.m_Pnt[j] ) <= tol )
                             {
-                                vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[j][0], fxpt.m_UW[j][1] );
+                                vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
                                 vec2d closest_uwB = closest_uw;
 
                                 if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
@@ -1500,7 +1500,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                             if ( dist( closest_pnt, fxpt.m_Pnt[j] ) <= tol )
                             {
                                 vec2d closest_uwA = closest_uw;
-                                vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[j][0], fxpt.m_UW[j][1] );
+                                vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
 
                                 if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
                                 {
@@ -1552,8 +1552,8 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
 
                         if ( closest_dist < tol )
                         {
-                            vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[j][0], fxpt.m_UW[j][1] );
-                            vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[j][0], fxpt.m_UW[j][1] );
+                            vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+                            vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
 
                             if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
                             {
@@ -1579,7 +1579,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                     {
                         fxpt.m_BorderFlag[j] = INTERSECT_FIX_POINT;
 
-                        string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex[j]];
+                        string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex];
                         string message = "\tIntersection Found for " + fix_point_name + "\n";
                         addOutputText( message );
                         split = true;
@@ -2270,15 +2270,15 @@ void FeaMeshMgrSingleton::TagFeaNodes()
                 // Compare the distance between node and fixed point, but only use nodes that have been tagged to an FeaPart
                 if (( dist( GetMeshPtr()->m_FeaNodeVec[i]->m_Pnt, fxpt.m_Pnt[k] ) <= FLT_EPSILON ) && ( GetMeshPtr()->m_FeaNodeVec[i]->m_Tags.size() > 0 ) )
                 {
-                    GetMeshPtr()->m_FeaNodeVec[i]->AddTag( fxpt.m_FeaPartIndex[k] );
+                    GetMeshPtr()->m_FeaNodeVec[i]->AddTag( fxpt.m_FeaPartIndex );
                     GetMeshPtr()->m_FeaNodeVec[i]->m_FixedPointFlag = true;
 
                     // Create mass element if mass flag is true
-                    if ( fxpt.m_PtMassFlag[k] )
+                    if ( fxpt.m_PtMassFlag )
                     {
                         FeaPointMass* mass = new FeaPointMass;
-                        mass->Create( GetMeshPtr()->m_FeaNodeVec[i]->m_Pnt, fxpt.m_PtMass[k] );
-                        mass->SetFeaPartIndex( fxpt.m_FeaPartIndex[k] );
+                        mass->Create( GetMeshPtr()->m_FeaNodeVec[i]->m_Pnt, fxpt.m_PtMass );
+                        mass->SetFeaPartIndex( fxpt.m_FeaPartIndex );
 
                         int ind = FindPntIndex( GetMeshPtr()->m_FeaNodeVec[i]->m_Pnt, m_AllPntVec, GetMeshPtr()->m_IndMap );
                         mass->m_Corners[0]->m_Index = GetMeshPtr()->m_PntShift[ind] + 1;

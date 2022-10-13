@@ -949,16 +949,16 @@ void FeaMesh::WriteNASTRAN( const string &filename )
         for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
         {
             FixPoint fxpt = m_FixPntVec[i];
-            if ( fxpt.m_PtMassFlag[0] )
+            if ( fxpt.m_PtMassFlag )
             {
                 fprintf( temp, "\n" );
-                fprintf( temp, "$%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str() );
+                fprintf( temp, "$%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str() );
 
                 vector < int > mass_elem_id_vec;
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
-                    if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex[0] && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                    if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
                         m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, -1, noffset, eoffset ); // property ID ignored for Point Masses
                         mass_elem_id_vec.push_back( elem_id );
@@ -967,7 +967,7 @@ void FeaMesh::WriteNASTRAN( const string &filename )
                 }
 
                 // Write mass element set
-                name = m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]] + "_MassElements";
+                name = m_FeaPartNameVec[fxpt.m_FeaPartIndex] + "_MassElements";
                 WriteNASTRANSet( fp, nkey_fp, set_cnt, mass_elem_id_vec, name, eoffset );
             }
         }
@@ -1186,8 +1186,8 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         {
             FixPoint fxpt = m_FixPntVec[i];
 
-            fprintf( fp, "** Fixed Point: %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
-            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
+            fprintf( fp, "** Fixed Point: %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
+            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
@@ -1195,7 +1195,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
                 {
                     if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
                          m_FeaNodeVec[j]->m_FixedPointFlag &&
-                         m_FeaNodeVec[j]->HasTag( fxpt.m_FeaPartIndex[0] ) )
+                         m_FeaNodeVec[j]->HasTag( fxpt.m_FeaPartIndex ) )
                     {
                         m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
                     }
@@ -1382,15 +1382,15 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
         {
             FixPoint fxpt = m_FixPntVec[i];
 
-            if ( fxpt.m_PtMassFlag[0] )
+            if ( fxpt.m_PtMassFlag )
             {
                 fprintf( fp, "\n" );
-                fprintf( fp, "** Fixed Point: %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
-                fprintf( fp, "*ELEMENT, TYPE=MASS, ELSET=EP%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
+                fprintf( fp, "** Fixed Point: %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
+                fprintf( fp, "*ELEMENT, TYPE=MASS, ELSET=EP%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
-                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex[0] &&
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex &&
                          m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS &&
                          m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
@@ -1401,8 +1401,8 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                 fprintf( fp, "\n" );
 
-                fprintf( fp, "*MASS, ELSET=EP%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]].c_str(), m_StructName.c_str() );
-                fprintf( fp, "%f\n", fxpt.m_PtMass[0] );
+                fprintf( fp, "*MASS, ELSET=EP%s_%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
+                fprintf( fp, "%f\n", fxpt.m_PtMass );
                 fprintf( fp, "\n" );
             }
         }
@@ -1798,15 +1798,15 @@ void FeaMesh::ComputeWriteMass()
         for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
         {
             FixPoint fxpt = m_FixPntVec[i];
-            if ( fxpt.m_PtMassFlag[0] )
+            if ( fxpt.m_PtMassFlag )
             {
                 double pnt_mass = 0;
-                string name = m_FeaPartNameVec[fxpt.m_FeaPartIndex[0]];
+                string name = m_FeaPartNameVec[fxpt.m_FeaPartIndex];
                 vec3d pnt;
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
-                    if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex[0] && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                    if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
                         pnt_mass += m_FeaElementVec[j]->ComputeMass( -1 ); // property ID ignored for point masses
 
