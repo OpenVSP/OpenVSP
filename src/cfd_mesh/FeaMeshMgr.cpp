@@ -2260,7 +2260,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
         for ( int j = 0; j < GetMeshPtr()->m_FeaElementVec.size(); j++ )
         {
-            if ( GetMeshPtr()->m_FeaElementVec[j]->GetFeaSSIndex() == i && GetMeshPtr()->m_FeaElementVec[j]->GetFeaSSIndex() >= 0 && m_SimpleSubSurfaceVec[i].m_IncludedElements != vsp::FEA_BEAM )
+            if ( GetMeshPtr()->m_FeaElementVec[j]->GetFeaSSIndex() == i )
             {
                 GetMeshPtr()->m_FeaElementVec[j]->LoadNodes( temp_nVec );
             }
