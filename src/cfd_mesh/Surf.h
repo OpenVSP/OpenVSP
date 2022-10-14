@@ -44,6 +44,7 @@ public:
     void BuildClean();
 
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve & crv ) const;
+    int UWPointOnBorder( double u, double w, double tol ) const;
 
     vec3d CompPnt( double u, double w ) const;
     vec3d CompPnt01( double u, double w ) const;
@@ -183,6 +184,7 @@ public:
     bool ValidUW( vec2d & uw, double slop = 1.0e-4 ) const;
 
     bool BorderMatch( Surf* otherSurf );
+    bool BorderMatch( int iborder, Surf* otherSurf );
 
     void SetWakeFlag( bool flag )
     {

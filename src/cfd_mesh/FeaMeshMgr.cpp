@@ -774,6 +774,9 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
 
                 for ( size_t j = 0; j < pnt_vec.size(); j++ )
                 {
+                    bool onborder = false;
+                    int iborder = -1;
+
                     fxpt.m_Pnt.push_back( pnt_vec[j] );
 
                     // Identify the surface index and coordinate points for the fixed point
@@ -790,6 +793,33 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                             if ( m_SurfVec[k]->ValidUW( uw, 0.0 ) )
                             {
                                 surf_index.push_back( k );
+
+                                int border = m_SurfVec[k]->UWPointOnBorder( uw.x(), uw.y(), 1e-6 );
+                                if ( border != SurfCore::NOBNDY )
+                                {
+                                    onborder = true;
+                                    iborder = border;
+                                }
+                            }
+                        }
+                    }
+
+
+                    // Identify points on border where uw does not match up.
+                    if ( onborder && surf_index.size() == 1 )  // Point is on border, but no second surface identified.
+                    {
+                        for ( size_t k = 0; k < m_SurfVec.size(); k++ )  // Loop over surface patches again.
+                        {
+                            if ( m_SurfVec[k]->GetFeaPartIndex() == fea_struct->GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) &&
+                                 m_SurfVec[k]->GetFeaPartSurfNum() == j )  // Apply same condition as before.
+                            {
+                                if ( surf_index[0] != k ) // Skip already identified patch.
+                                {
+                                    if ( m_SurfVec[surf_index[0]]->BorderMatch( iborder, m_SurfVec[k] ) )
+                                    {
+                                        surf_index.push_back( k );
+                                    }
+                                }
                             }
                         }
                     }

@@ -71,6 +71,11 @@ void Surf::GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve & cr
     m_SurfCore.GetBorderCurve( uw0, uw1, crv );
 }
 
+int Surf::UWPointOnBorder( double u, double w, double tol ) const
+{
+    return m_SurfCore.UWPointOnBorder( u, w, tol );
+}
+
 double Surf::TargetLen( double u, double w, double gap, double radfrac )
 {
     double k1, k2, ka, kg;
@@ -1275,6 +1280,27 @@ bool Surf::BorderMatch( Surf* otherSurf )
     }
     return false;
 }
+
+bool Surf::BorderMatch( int iborder, Surf* otherSurf )
+{
+    double tol = 1e-4;
+
+    Bezier_curve borderA = m_SurfCore.GetBorderCurve( iborder );
+
+    vector < Bezier_curve > borderCurvesB;
+    otherSurf->GetSurfCore()->LoadBorderCurves( borderCurvesB );
+
+    for ( int j = 0 ; j < ( int )borderCurvesB.size() ; j++ )
+    {
+        if ( borderA.Match( borderCurvesB[j], tol ) )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 
 void Surf::Subtag( bool tag_subs )
 {
