@@ -2784,9 +2784,12 @@ void CfdMeshMgrSingleton::BuildMesh()
             }
         }
 
+        vector < vec2d > adduw;
+        ForceSurfaceFixPoints( s, adduw );
+
         sprintf( str, "InitMesh %d/%d\n", s+1, m_SurfVec.size() );
         addOutputText( str );
-        m_SurfVec[s]->InitMesh( surf_chains, this );
+        m_SurfVec[s]->InitMesh( surf_chains, adduw, this );
     }
 }
 

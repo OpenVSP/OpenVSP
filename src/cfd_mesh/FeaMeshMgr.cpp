@@ -818,6 +818,28 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
     }
 }
 
+void FeaMeshMgrSingleton::ForceSurfaceFixPoints( int surf_indx, vector < vec2d > &adduw )
+{
+    for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )  // Loop over all fix points.
+    {
+        FixPoint fxpt = GetMeshPtr()->m_FixPntVec[ n ];       // This fix point
+
+        for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )  // For all multiplicity of points (symmetry, arrays, etc)
+        {
+            if ( fxpt.m_SurfInd[j].size() == 1 )      // On one surface only (not a boundary or intersection)
+            {
+                if ( fxpt.m_SurfInd[ j ][0] == surf_indx )  // It is _this_ surface
+                {
+                    if ( fxpt.m_BorderFlag[ j ] == SURFACE_FIX_POINT )  // Should be redundant by now, but to be safe.
+                    {
+                        adduw.push_back( fxpt.m_UW );
+                    }
+                }
+            }
+        }
+    }
+}
+
 void FeaMeshMgrSingleton::AddStructureTrimPlanes()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );

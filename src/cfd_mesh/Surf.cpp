@@ -821,7 +821,7 @@ void Surf::SetBBox( const vec3d &pmin, const vec3d &pmax )
 }
 
 
-void Surf::InitMesh( vector< ISegChain* > chains, SurfaceIntersectionSingleton *MeshMgr )
+void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw, SurfaceIntersectionSingleton *MeshMgr )
 {
 
 //static int name_cnt = 0;
@@ -887,6 +887,11 @@ void Surf::InitMesh( vector< ISegChain* > chains, SurfaceIntersectionSingleton *
         }
     }
 
+    // Add additional points for Triangle -- these are structures Fix Points.
+    for ( int i = 0; i < adduw.size(); i++ )
+    {
+        uwPntVec.push_back( adduw[i] );
+    }
 
     MeshSeg seg;
     vector< MeshSeg > isegVec;

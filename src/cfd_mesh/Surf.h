@@ -173,7 +173,7 @@ public:
         m_PatchVec = pvec;
     }
 
-    void InitMesh( vector< ISegChain* > chains, SurfaceIntersectionSingleton *MeshMgr );
+    void InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw, SurfaceIntersectionSingleton *MeshMgr );
 
 
     void BuildDistMap();

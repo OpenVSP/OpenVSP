@@ -188,6 +188,9 @@ public:
     virtual void AddWakeCoPlanarSurfaceChains();
     virtual void AddSurfaceChain( Surf* sPtr, ISegChain* chainIn );
     virtual void BuildMesh();
+
+    virtual void ForceSurfaceFixPoints( int surf_indx, vector < vec2d > &adduw ) {}; // used by FEAMesh Only.
+
     virtual void BuildTargetMap( int output_type );
     virtual void RemoveInteriorTris();
     virtual void RemoveTrimTris() {};  // Implemented for FEAMesh
