@@ -1558,20 +1558,10 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                 if ( p0 )
                                 {
                                     success = ( *c )->AddBorderSplit( p0 );
-
-                                    if ( success )
-                                    {
-                                        fxpt.m_Pnt[j] = ( *c )->m_SurfA->CompPnt( closest_uwA.x(), closest_uwA.y() );
-                                    }
                                 }
                                 if ( p1 && !success )
                                 {
                                     success = ( *c )->AddBorderSplit( p1 );
-
-                                    if ( success )
-                                    {
-                                        fxpt.m_Pnt[j] = closest_pnt;
-                                    }
                                 }
                             }
                         }
@@ -1603,20 +1593,10 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                 if ( p0 )
                                 {
                                     success = ( *c )->AddBorderSplit( p0 );
-
-                                    if ( success )
-                                    {
-                                        fxpt.m_Pnt[j] = closest_pnt;
-                                    }
                                 }
                                 if ( p1 && !success )
                                 {
                                     success = ( *c )->AddBorderSplit( p1 );
-
-                                    if ( success )
-                                    {
-                                        fxpt.m_Pnt[j] = ( *c )->m_SurfB->CompPnt( closest_uwB[0], closest_uwB[1] );
-                                    }
                                 }
                             }
                         }
@@ -1666,7 +1646,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
 
                     if ( success )
                     {
-                        fxpt.m_BorderFlag[j] = INTERSECT_FIX_POINT;
+                        GetMeshPtr()->m_FixPntVec[n].m_BorderFlag[j] = INTERSECT_FIX_POINT;
 
                         string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex];
                         string message = "\tIntersection Found for " + fix_point_name + "\n";
