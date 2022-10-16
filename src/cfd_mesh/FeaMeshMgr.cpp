@@ -1026,6 +1026,14 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     vector < SimpFace > all_face_vec;
     vector < int > tri_surf_ind_vec; // Vector of surface index for each SimpTri
 
+    // BuildFeaMesh() is called after ConvertToQuads().  So, we need to skip every other point for a tri
+    // mesh, but use every point for a quad mesh.
+    int tessIncrement = 2;
+    if ( GetMeshPtr()->m_StructSettings.m_ConvertToQuadsFlag )
+    {
+        tessIncrement = 1;
+    }
+
     // Build FeaBeam Intersections
     list< ISegChain* >::iterator c;
 
@@ -1071,7 +1079,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 }
 
                 // Get points and compute normals
-                for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
+                for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j += tessIncrement )  // Increment by tessIncrement
                 {
                     Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
                     iuwVec.push_back( vec2d( Puw->m_UW[0], Puw->m_UW[1] ) );
@@ -1105,7 +1113,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                     NormSurf = ( *c )->m_SurfA;
 
                     // Get points and compute normals
-                    for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
+                    for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j += tessIncrement )  // Increment by tessIncrement
                     {
                         Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
                         iuwVec.push_back( vec2d( Puw->m_UW[0], Puw->m_UW[1] ) );
