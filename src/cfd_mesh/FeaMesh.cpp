@@ -453,7 +453,7 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         for ( int iprt = 0; iprt < m_NumFeaParts; iprt++ )
         {
             m_FeaNodeDO[iprt].m_Type = DrawObj::VSP_POINTS;
-            m_FeaNodeDO[iprt].m_PointSize = 4.0;
+            m_FeaNodeDO[iprt].m_PointSize = 6.0;
             m_FeaNodeDO[iprt].m_PointColor = vec3d( 0, 0, 1 );
 
             if ( m_FixPointFeaPartFlagVec[iprt] )
@@ -598,7 +598,7 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         for ( int iss = 0; iss < m_NumFeaSubSurfs; iss++ )
         {
             m_SSFeaNodeDO[iss].m_Type = DrawObj::VSP_POINTS;
-            m_SSFeaNodeDO[iss].m_PointSize = 3.0;
+            m_SSFeaNodeDO[iss].m_PointSize = 6.0;
             m_SSTriElementDO[iss].m_Type = DrawObj::VSP_SHADED_TRIS;
             m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_SHADED_QUADS;
             m_SSCapFeaElementDO[iss].m_Type = DrawObj::VSP_LINES;
