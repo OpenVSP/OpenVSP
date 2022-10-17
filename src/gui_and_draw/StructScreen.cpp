@@ -2450,23 +2450,6 @@ bool StructScreen::Update()
             m_CurrFeaMeshOutput.Update( "" );
         }
 
-        if ( FeaMeshMgr.GetMeshPtr() )
-        {
-            if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) && FeaMeshMgr.GetMeshPtr()->FeaDataAvailable() )
-            {
-                m_ResetDisplayButton.Activate();
-            }
-            else
-            {
-                m_ResetDisplayButton.Deactivate();
-            }
-        }
-        else
-        {
-            m_ResetDisplayButton.Deactivate();
-        }
-
-
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
             vector < FeaStructure * > structVec = StructureMgr.GetAllFeaStructs();
