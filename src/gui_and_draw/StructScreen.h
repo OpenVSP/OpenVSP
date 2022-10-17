@@ -284,6 +284,8 @@ private:
 
     GroupLayout m_FeaBCCommonGroup;
 
+    Choice m_FeaBCModeChoice;
+
     CheckButtonBit m_TxButton;
     CheckButtonBit m_TyButton;
     CheckButtonBit m_TzButton;

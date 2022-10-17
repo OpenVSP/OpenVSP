@@ -5673,6 +5673,7 @@ FeaBC::FeaBC( const string &structID, int type )
     m_StructID = structID;
     m_FeaBCType = type;
 
+    m_ConMode.Init( "ConMode", "FeaBC", this, vsp::FEA_BCM_USER, vsp::FEA_BCM_USER, vsp::FEA_NUM_BCM_MODES - 1 );
     m_Constraints.Init( "Constraints", "FeaBC", this, 0, 0, 63 );
 }
 
@@ -5734,6 +5735,36 @@ BitMask FeaBC::GetAsBitMask()
 
 void FeaBC::Update()
 {
+    m_Constraints.Deactivate();
+
+    if ( m_ConMode() == vsp::FEA_BCM_USER )
+    {
+        m_Constraints.Activate();
+    }
+    else if ( m_ConMode() == vsp::FEA_BCM_ALL )
+    {
+        std::vector < bool > bv( 6, true );
+        BitMask bm( bv );
+        m_Constraints.Set( bm.AsNum() );
+    }
+    else if ( m_ConMode() == vsp::FEA_BCM_PIN )
+    {
+        std::vector < bool > bv = {true, true, true, false, false, false};
+        BitMask bm( bv );
+        m_Constraints.Set( bm.AsNum() );
+    }
+    else if ( m_ConMode() == vsp::FEA_BCM_SYMM )
+    {
+        std::vector < bool > bv = {false, true, false, true, false, true};
+        BitMask bm( bv );
+        m_Constraints.Set( bm.AsNum() );
+    }
+    else if ( m_ConMode() == vsp::FEA_BCM_ASYMM )
+    {
+        std::vector < bool > bv = {true, false, true, false, true, false};
+        BitMask bm( bv );
+        m_Constraints.Set( bm.AsNum() );
+    }
 }
 
 //////////////////////////////////////////////////////

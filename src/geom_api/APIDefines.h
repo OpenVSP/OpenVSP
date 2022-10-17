@@ -278,6 +278,14 @@ enum FEA_BC_TYPE { FEA_BC_Y_LESS_THAN,
                    FEA_NUM_BC_TYPES
                  };
 
+enum FEA_BC_MODE { FEA_BCM_USER,
+                   FEA_BCM_ALL,
+                   FEA_BCM_PIN,
+                   FEA_BCM_SYMM,
+                   FEA_BCM_ASYMM,
+                   FEA_NUM_BCM_MODES
+                  };
+
 enum FEA_CROSS_SECT_TYPE { FEA_XSEC_GENERAL = 0,
                            FEA_XSEC_CIRC,
                            FEA_XSEC_PIPE,

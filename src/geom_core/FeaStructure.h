@@ -759,6 +759,8 @@ public:
     }
 
     virtual void Update();
+
+    IntParm m_ConMode;
     IntParm m_Constraints;
 
 protected:

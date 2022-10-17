@@ -788,6 +788,14 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
 
     m_BCEditSubGroup.AddSubGroupLayout( m_FeaBCCommonGroup, m_BCEditSubGroup.GetRemainX(), m_BCEditSubGroup.GetRemainY() );
 
+    m_FeaBCCommonGroup.AddChoice( m_FeaBCModeChoice, "Mode" );
+    m_FeaBCModeChoice.AddItem( "User", vsp::FEA_BCM_USER );
+    m_FeaBCModeChoice.AddItem( "All", vsp::FEA_BCM_ALL );
+    m_FeaBCModeChoice.AddItem( "Pin", vsp::FEA_BCM_PIN );
+    m_FeaBCModeChoice.AddItem( "Symmetric", vsp::FEA_BCM_SYMM );
+    m_FeaBCModeChoice.AddItem( "Antisymmetric", vsp::FEA_BCM_ASYMM );
+    m_FeaBCModeChoice.UpdateItems();
+
     m_FeaBCCommonGroup.SetSameLineFlag( true );
     m_FeaBCCommonGroup.SetFitWidthFlag( false );
 
@@ -806,7 +814,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     m_FeaBCCommonGroup.AddButton( m_RyButton, "Y", 1 << 4 );
     m_FeaBCCommonGroup.AddButton( m_RzButton, "Z", 1 << 5 );
 
-    m_BCEditSubGroup.AddY( 40 );
+    m_BCEditSubGroup.AddY( 60 );
 
     // Constraint Y Less Than
     m_BCEditSubGroup.AddSubGroupLayout( m_FeaBCYLTGroup, m_BCEditSubGroup.GetRemainX(), m_BCEditSubGroup.GetRemainY() );
@@ -2471,6 +2479,8 @@ bool StructScreen::Update()
             if ( curr_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
             {
                 FeaBC *curr_bc = curr_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
+
+                m_FeaBCModeChoice.Update( curr_bc->m_ConMode.GetID() );
 
                 m_TxButton.Update( curr_bc->m_Constraints.GetID() );
                 m_TyButton.Update( curr_bc->m_Constraints.GetID() );
