@@ -769,18 +769,18 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     m_BCEditGroup.AddButton( m_DelFeaBCButton, "Delete BC" );
     m_BCEditGroup.ForceNewLine();
 
-    m_BCEditGroup.AddSubGroupLayout( m_BCEditSubGroup, m_BCEditGroup.GetRemainX(), m_BCEditGroup.GetRemainY() );
+    m_BCEditGroup.SetButtonWidth( m_BCEditSubGroup.GetRemainX() / 3 );
 
+    m_BCEditGroup.SetSameLineFlag( false );
+    m_BCEditGroup.SetFitWidthFlag( true );
 
-    m_BCEditSubGroup.SetButtonWidth( m_BCEditSubGroup.GetRemainX() / 3 );
-
-    m_BCEditSubGroup.AddYGap();
-
-    m_BCEditSubGroup.AddChoice( m_FeaBCTypeChoice, "Type" );
+    m_BCEditGroup.AddChoice( m_FeaBCTypeChoice, "Type" );
     m_FeaBCTypeChoice.AddItem( "Y Less Than", vsp::FEA_BC_Y_LESS_THAN );
     m_FeaBCTypeChoice.AddItem( "Part", vsp::FEA_BC_PART );
     m_FeaBCTypeChoice.AddItem( "Sub Surface", vsp::FEA_BC_SUBSURF );
     m_FeaBCTypeChoice.UpdateItems();
+
+    m_BCEditGroup.AddSubGroupLayout( m_BCEditSubGroup, m_BCEditGroup.GetRemainX(), m_BCEditGroup.GetRemainY() );
 
     m_BCEditSubGroup.AddYGap();
 
@@ -1640,7 +1640,12 @@ void StructScreen::UpdateFeaBCBrowser()
 
             if ( curr_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
             {
+                m_BCEditSubGroup.Show();
                 m_FeaBCSelectBrowser->select( StructureMgr.GetCurrBCIndex() + 1 );
+            }
+            else
+            {
+                m_BCEditSubGroup.Hide();
             }
 
             m_FeaBCSelectBrowser->position( scroll_pos );
@@ -2644,6 +2649,23 @@ void StructScreen::CallBack( Fl_Widget* w )
         else if ( w == m_FeaBCSelectBrowser )
         {
             StructureMgr.SetCurrBCIndex( m_FeaBCSelectBrowser->value() - 1 );
+
+            if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+            {
+                vector < FeaStructure * > structvec = StructureMgr.GetAllFeaStructs();
+
+                FeaStructure *curr_struct = structvec[ StructureMgr.m_CurrStructIndex() ];
+
+                if ( curr_struct )
+                {
+                    FeaBC *feabc = curr_struct->GetFeaBC( StructureMgr.GetCurrBCIndex());
+
+                    if ( feabc )
+                    {
+                        m_FeaBCTypeChoice.SetVal( feabc->GetType());
+                    }
+                }
+            }
         }
     }
 
