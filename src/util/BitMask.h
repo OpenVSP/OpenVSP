@@ -75,6 +75,11 @@ public:
         return boolvec;
     }
 
+    unsigned AsNum()
+    {
+        return m_Store;
+    }
+
 protected:
     unsigned m_Store;
 };
