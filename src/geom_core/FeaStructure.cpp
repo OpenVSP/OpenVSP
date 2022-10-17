@@ -61,6 +61,7 @@ void FeaStructure::Update()
 {
     UpdateFeaParts();
     UpdateFeaSubSurfs();
+    UpdateFeaBCs();
 }
 
 void FeaStructure::ParmChanged( Parm* parm_ptr, int type )
@@ -556,6 +557,14 @@ void FeaStructure::UpdateFeaSubSurfs()
     }
 }
 
+void FeaStructure::UpdateFeaBCs()
+{
+    for ( unsigned int i = 0; i < m_FeaBCVec.size(); i++ )
+    {
+        m_FeaBCVec[i]->Update();
+    }
+}
+
 vector < FeaPart* > FeaStructure::InitFeaSkin()
 {
     m_FeaPartVec.clear();
@@ -990,15 +999,15 @@ FeaBC* FeaStructure::AddFeaBC( int type )
 
     if ( type == vsp::FEA_BC_Y_LESS_THAN )
     {
-        feabc = new FeaBCYLT();
+        feabc = new FeaBCYLT( GetID() );
     }
     else if ( type == vsp::FEA_BC_PART )
     {
-        feabc = new FeaBCPart();
+        feabc = new FeaBCPart( GetID() );
     }
     else if ( type == vsp::FEA_BC_SUBSURF )
     {
-        feabc = new FeaBCSubSurf();
+        feabc = new FeaBCSubSurf( GetID() );
     }
 
     if ( feabc )
@@ -5659,21 +5668,21 @@ void FeaAssembly::AddLinkableParms( vector< string > & linkable_parm_vec, const 
 //===================== FeaBC ======================//
 //////////////////////////////////////////////////////
 
-FeaBC::FeaBC( int type )
+FeaBC::FeaBC( const string &structID, int type )
 {
+    m_StructID = structID;
     m_FeaBCType = type;
 
     m_Constraints.Init( "Constraints", "FeaBC", this, 0, 0, 63 );
 }
 
-// This should really call FeaStructure::ParmChanged, but there is no clear way to get a pointer to the
-// FeaStructure that contains this FeaPart
 void FeaBC::ParmChanged( Parm* parm_ptr, int type )
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
+    FeaStructure *pstruct = StructureMgr.GetFeaStruct( m_StructID );
+
+    if ( pstruct )
     {
-        veh->ParmChanged( parm_ptr, type );
+        pstruct->ParmChanged( parm_ptr, type );
     }
 }
 
@@ -5723,11 +5732,15 @@ BitMask FeaBC::GetAsBitMask()
     return bm;
 }
 
+void FeaBC::Update()
+{
+}
+
 //////////////////////////////////////////////////////
 //=================== FeaBCYLT =====================//
 //////////////////////////////////////////////////////
 
-FeaBCYLT::FeaBCYLT( int type ) : FeaBC( type )
+FeaBCYLT::FeaBCYLT( const string &structID, int type ) : FeaBC( structID, type )
 {
     m_Yval.Init( "Yval", "FeaBCYLT", this, 1e-4, -1e12, 1e12 );
 
@@ -5747,7 +5760,7 @@ string FeaBCYLT::GetDescription()
 //=================== FeaBCPart=====================//
 //////////////////////////////////////////////////////
 
-FeaBCPart::FeaBCPart( int type ) : FeaBC( type )
+FeaBCPart::FeaBCPart( const string &structID, int type ) : FeaBC( structID, type )
 {
 
 }
@@ -5794,7 +5807,7 @@ string FeaBCPart::GetDescription()
 //================= FeaBCSubSurf====================//
 //////////////////////////////////////////////////////
 
-FeaBCSubSurf::FeaBCSubSurf( int type ) : FeaBC( type )
+FeaBCSubSurf::FeaBCSubSurf( const string &structID, int type ) : FeaBC( structID, type )
 {
 
 }

@@ -181,6 +181,7 @@ public:
     {
         return m_FeaBCVec.size();
     }
+    void UpdateFeaBCs();
 
 protected:
 
@@ -740,7 +741,7 @@ public:
 class FeaBC : public ParmContainer
 {
 public:
-    FeaBC( int type );
+    FeaBC( const string &m_StructID, int type );
     ~FeaBC()       {};
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
@@ -757,9 +758,12 @@ public:
         return m_FeaBCType;
     }
 
+    virtual void Update();
     IntParm m_Constraints;
 
 protected:
+
+    string m_StructID;
 
     int m_FeaBCType;
 
@@ -768,7 +772,7 @@ protected:
 class FeaBCYLT : public FeaBC
 {
 public:
-    FeaBCYLT( int type = vsp::FEA_BC_Y_LESS_THAN );
+    FeaBCYLT( const string &m_StructID, int type = vsp::FEA_BC_Y_LESS_THAN );
 
     virtual string GetDescription();
 
@@ -781,7 +785,7 @@ protected:
 class FeaBCPart : public FeaBC
 {
 public:
-    FeaBCPart( int type = vsp::FEA_BC_PART );
+    FeaBCPart( const string &m_StructID, int type = vsp::FEA_BC_PART );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -799,7 +803,7 @@ protected:
 class FeaBCSubSurf : public FeaBC
 {
 public:
-    FeaBCSubSurf( int type = vsp::FEA_BC_SUBSURF );
+    FeaBCSubSurf( const string &m_StructID, int type = vsp::FEA_BC_SUBSURF );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
