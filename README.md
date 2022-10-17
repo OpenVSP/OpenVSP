@@ -169,6 +169,10 @@
    (Debian, Ubuntu, Mint, etc.), step-by-step instructions are
    included on the OpenVSP Wiki here: [Debian Based Build](http://www.openvsp.org/wiki/doku.php?id=ubuntu_instructions).
 
+   If you want to build OpenVSP on a RPM based Linux distribution,
+   step-by-step instructions are
+   included on the OpenVSP Wiki here: [RPM Based Build](http://www.openvsp.org/wiki/doku.php?id=rpm_instructions).
+
    All of the supporting libraries and code described above in
    DEPENDENCIES categories 1 and 2 must be properly installed.
    Those in categories 3 and 4 can be satisfied by OpenVSP itself.
