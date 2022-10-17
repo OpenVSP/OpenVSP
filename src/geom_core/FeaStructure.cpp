@@ -132,7 +132,7 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
             }
             else
             {
-                FeaPart* feaskin = new FeaSkin( m_ParentGeomID );
+                FeaPart* feaskin = new FeaSkin( m_ParentGeomID, GetID() );
                 feaskin->DecodeXml( part_info );
                 m_FeaPartVec.push_back( feaskin );
             }
@@ -236,17 +236,17 @@ FeaPart* FeaStructure::AddFeaPart( int type )
 
     if ( type == vsp::FEA_SLICE )
     {
-        feaprt = new FeaSlice( m_ParentGeomID );
+        feaprt = new FeaSlice( m_ParentGeomID, GetID() );
         feaprt->SetName( string( "Slice" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_RIB )
     {
-        feaprt = new FeaRib( m_ParentGeomID );
+        feaprt = new FeaRib( m_ParentGeomID, GetID() );
         feaprt->SetName( string( "Rib" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_SPAR )
     {
-        feaprt = new FeaSpar( m_ParentGeomID );
+        feaprt = new FeaSpar( m_ParentGeomID, GetID() );
         feaprt->SetName( string( "Spar" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_FIX_POINT )
@@ -256,28 +256,28 @@ FeaPart* FeaStructure::AddFeaPart( int type )
 
         if ( skin )
         {
-            feaprt = new FeaFixPoint( m_ParentGeomID, skin->GetID() );
+            feaprt = new FeaFixPoint( m_ParentGeomID, GetID(), skin->GetID() );
             feaprt->SetName( string( "FixPoint" + std::to_string( m_FeaPartCount ) ) );
         }
     }
     else if ( type == vsp::FEA_DOME )
     {
-        feaprt = new FeaDome( m_ParentGeomID );
+        feaprt = new FeaDome( m_ParentGeomID, GetID() );
         feaprt->SetName( string( "Dome" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_RIB_ARRAY )
     {
-        feaprt = new FeaRibArray( m_ParentGeomID );
+        feaprt = new FeaRibArray( m_ParentGeomID, GetID() );
         feaprt->SetName( string( "RibArray" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_SLICE_ARRAY )
     {
-        feaprt = new FeaSliceArray( m_ParentGeomID );
+        feaprt = new FeaSliceArray( m_ParentGeomID, GetID() );
         feaprt->SetName( string( "SliceArray" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_TRIM )
     {
-        feaprt = new FeaPartTrim( m_ParentGeomID );
+        feaprt = new FeaPartTrim( m_ParentGeomID, GetID() );
         feaprt->SetName( string( "Trim" + std::to_string( m_FeaPartCount ) ) );
     }
 
@@ -568,7 +568,7 @@ vector < FeaPart* > FeaStructure::InitFeaSkin()
         if ( currgeom )
         {
             FeaPart* feaskin;
-            feaskin = new FeaSkin( m_ParentGeomID );
+            feaskin = new FeaSkin( m_ParentGeomID, GetID() );
 
             if ( feaskin )
             {
@@ -1064,10 +1064,11 @@ int FeaStructure::GetFeaBCIndex( FeaBC* fea_bc )
 //==================== FeaPart =====================//
 //////////////////////////////////////////////////////
 
-FeaPart::FeaPart( const string& geomID, int type )
+FeaPart::FeaPart( const string &geomID, const string &structID, int type )
 {
     m_FeaPartType = type;
     m_ParentGeomID = geomID;
+    m_StructID = structID;
 
     m_MainSurfIndx = 0;
 
@@ -1215,18 +1216,13 @@ void FeaPart::UpdateOrientation()
     }
 }
 
-// This should really call FeaStructure::ParmChanged, but there is no clear way to get a pointer to the
-// FeaStructure that contains this FeaPart
 void FeaPart::ParmChanged( Parm* parm_ptr, int type )
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
+    FeaStructure *pstruct = StructureMgr.GetFeaStruct( m_StructID );
+
+    if ( pstruct )
     {
-        Geom* geom = veh->FindGeom( m_ParentGeomID );
-        if ( geom  )
-        {
-            geom->ParmChanged( parm_ptr, type );
-        }
+        pstruct->ParmChanged( parm_ptr, type );
     }
 }
 
@@ -1570,7 +1566,7 @@ bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int
 //==================== FeaSlice ====================//
 //////////////////////////////////////////////////////
 
-FeaSlice::FeaSlice( const string& geomID, int type ) : FeaPart( geomID, type )
+FeaSlice::FeaSlice( const string &geomID, const string &structID, int type ) : FeaPart( geomID, structID, type )
 {
     m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::SPINE_NORMAL );
     m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to (Body or Absolute Reference Frame)" );
@@ -2170,7 +2166,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
 //===================== FeaSpar ====================//
 //////////////////////////////////////////////////////
 
-FeaSpar::FeaSpar( const string& geomID, int type ) : FeaSlice( geomID, type )
+FeaSpar::FeaSpar( const string &geomID, const string &structID, int type ) : FeaSlice( geomID, structID, type )
 {
     m_Theta.Init( "Theta", "FeaSpar", this, 0.0, -90.0, 90.0 );
     m_Theta.SetDescript( "Rotation of Spar About Axis Normal to Wing Chord Line " );
@@ -2484,7 +2480,7 @@ void FeaSpar::ComputePlanarSurf()
             }
 
             FeaSlice* temp_slice = NULL;
-            temp_slice = new FeaSlice( m_ParentGeomID );
+            temp_slice = new FeaSlice( m_ParentGeomID, m_StructID );
 
             if ( temp_slice )
             {
@@ -2668,7 +2664,7 @@ void FeaSpar::ComputePlanarSurf()
 //===================== FeaRib =====================//
 //////////////////////////////////////////////////////
 
-FeaRib::FeaRib( const string& geomID, int type ) : FeaSlice( geomID, type )
+FeaRib::FeaRib( const string &geomID, const string &structID, int type ) : FeaSlice( geomID, structID, type )
 {
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
     m_Theta.SetDescript( "Rotation of FeaRib About Axis Normal to Wing Chord Line" );
@@ -3134,7 +3130,7 @@ VspSurf FeaRib::ComputeRibSurf()
             }
 
             FeaSlice* temp_slice = NULL;
-            temp_slice = new FeaSlice( m_ParentGeomID );
+            temp_slice = new FeaSlice( m_ParentGeomID, m_StructID );
 
             if ( temp_slice )
             {
@@ -3351,7 +3347,7 @@ VspSurf FeaRib::ComputeRibSurf()
 //================= FeaFixPoint ==================//
 ////////////////////////////////////////////////////
 
-FeaFixPoint::FeaFixPoint( const string& compID, const string& partID, int type ) : FeaPart( compID, type )
+FeaFixPoint::FeaFixPoint( const string &compID, const string &structID, const string &partID, int type ) : FeaPart( compID, structID, type )
 {
     m_ParentFeaPartID = partID;
 
@@ -3570,7 +3566,7 @@ int FeaFixPoint::NumFeaPartSurfs()
 //================= FeaPartTrim ==================//
 ////////////////////////////////////////////////////
 
-FeaPartTrim::FeaPartTrim( const string& geomID, int type ) : FeaPart( geomID, type )
+FeaPartTrim::FeaPartTrim( const string &geomID, const string &structID, int type ) : FeaPart( geomID, structID, type )
 {
     m_IncludedElements.Set( vsp::FEA_NO_ELEMENTS );
 
@@ -3861,7 +3857,7 @@ void FeaPartTrim::RenameParms()
 //=================== FeaSkin ====================//
 ////////////////////////////////////////////////////
 
-FeaSkin::FeaSkin( const string& geomID, int type ) : FeaPart( geomID, type )
+FeaSkin::FeaSkin( const string &geomID, const string &structID, int type ) : FeaPart( geomID, structID, type )
 {
     m_IncludedElements.Set( vsp::FEA_SHELL );
     m_DrawFeaPartFlag.Set( false );
@@ -3905,7 +3901,7 @@ bool FeaSkin::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int
 //================= FeaDome ==================//
 ////////////////////////////////////////////////////
 
-FeaDome::FeaDome( const string& geomID, int type ) : FeaPart( geomID, type )
+FeaDome::FeaDome( const string &geomID, const string &structID, int type ) : FeaPart( geomID, structID, type )
 {
     m_Aradius.Init( "A_Radius", "FeaDome", this, 1.0, 0.0, 1.0e12 );
     m_Aradius.SetDescript( "A (x) Radius of Dome" );
@@ -4148,7 +4144,7 @@ bool FeaDome::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int
 //================= FeaRibArray ==================//
 ////////////////////////////////////////////////////
 
-FeaRibArray::FeaRibArray( const string& geomID, int type ) : FeaPart( geomID, type )
+FeaRibArray::FeaRibArray( const string &geomID, const string &structID, int type ) : FeaPart( geomID, structID, type )
 {
     m_RibAbsSpacing.Init( "RibAbsSpacing", "FeaRibArray", this, 0.1, 1e-6, 1e12 );
     m_RibAbsSpacing.SetDescript( "Absolute Spacing Between Ribs in Array" );
@@ -4380,7 +4376,7 @@ void FeaRibArray::CreateFeaRibArray()
 
             // Create a rib to calculate surface from
             FeaRib* rib = NULL;
-            rib = new FeaRib( m_ParentGeomID );
+            rib = new FeaRib( m_ParentGeomID, m_StructID );
             if ( !rib )
             {
                 return;
@@ -4413,7 +4409,7 @@ void FeaRibArray::CreateFeaRibArray()
 
 FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
 {
-    FeaRib* fearib = new FeaRib( m_ParentGeomID );
+    FeaRib* fearib = new FeaRib( m_ParentGeomID, m_StructID );
 
     if ( fearib )
     {
@@ -4509,7 +4505,7 @@ xmlNodePtr FeaRibArray::DecodeXml( xmlNodePtr & node )
 //================= FeaSliceArray ==================//
 ////////////////////////////////////////////////////
 
-FeaSliceArray::FeaSliceArray( const string& geomID, int type ) : FeaPart( geomID, type )
+FeaSliceArray::FeaSliceArray( const string &geomID, const string &structID, int type ) : FeaPart( geomID, structID, type )
 {
     m_SliceAbsSpacing.Init( "SliceAbsSpacing", "FeaSliceArray", this, 0.2, 1e-6, 1e12 );
     m_SliceAbsSpacing.SetDescript( "Absolute Spacing Between Slices in Array" );
@@ -4746,7 +4742,7 @@ void FeaSliceArray::CreateFeaSliceArray()
 
             // Create a temporary slice to calculate surface from
             FeaSlice* slice = NULL;
-            slice = new FeaSlice( m_ParentGeomID );
+            slice = new FeaSlice( m_ParentGeomID, m_StructID );
             if ( !slice )
             {
                 return;
@@ -4773,7 +4769,7 @@ void FeaSliceArray::CreateFeaSliceArray()
 
 FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
 {
-    FeaSlice* slice = new FeaSlice( m_ParentGeomID );
+    FeaSlice* slice = new FeaSlice( m_ParentGeomID, m_StructID );
 
     if ( slice )
     {

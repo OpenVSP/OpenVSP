@@ -207,7 +207,7 @@ class FeaPart : public ParmContainer
 {
 public:
 
-    FeaPart( const string& geomID, int type );
+    FeaPart( const string &geomID, const string &structID, int type );
     virtual ~FeaPart();
 
     virtual void Update();
@@ -280,6 +280,7 @@ protected:
     int m_FeaPartType;
 
     string m_ParentGeomID;
+    string m_StructID;
 
     vector < int > m_SymmIndexVec;
 
@@ -294,7 +295,7 @@ class FeaSlice : public FeaPart
 {
 public:
 
-    FeaSlice( const string& geomID, int type = vsp::FEA_SLICE );
+    FeaSlice( const string &geomID, const string &structID, int type = vsp::FEA_SLICE );
     virtual ~FeaSlice()    {};
 
     virtual void UpdateSurface();
@@ -329,7 +330,7 @@ class FeaSpar : public FeaSlice
 {
 public:
 
-    FeaSpar( const string& geomID, int type = vsp::FEA_SPAR );
+    FeaSpar( const string &geomID, const string &structID, int type = vsp::FEA_SPAR );
     virtual ~FeaSpar()    {};
 
     virtual void UpdateSurface();
@@ -356,7 +357,7 @@ class FeaRib : public FeaSlice
 {
 public:
 
-    FeaRib( const string& geomID, int type = vsp::FEA_RIB );
+    FeaRib( const string &geomID, const string &structID, int type = vsp::FEA_RIB );
     virtual ~FeaRib()    {};
 
     virtual void UpdateSurface();
@@ -400,7 +401,7 @@ class FeaFixPoint : public FeaPart
 {
 public:
 
-    FeaFixPoint( const string& geomID, const string& partID, int type = vsp::FEA_FIX_POINT );
+    FeaFixPoint( const string &geomID, const string &structID, const string &partID, int type = vsp::FEA_FIX_POINT );
     virtual ~FeaFixPoint()    {};
 
     virtual void UpdateSurface();
@@ -435,7 +436,7 @@ class FeaPartTrim : public FeaPart
 {
 public:
 
-    FeaPartTrim( const string& geomID, int type = vsp::FEA_TRIM );
+    FeaPartTrim( const string &geomID, const string &structID, int type = vsp::FEA_TRIM );
     virtual ~FeaPartTrim();
 
     virtual void Clear();
@@ -464,7 +465,7 @@ class FeaSkin : public FeaPart
 {
 public:
 
-    FeaSkin( const string& geomID, int type = vsp::FEA_SKIN );
+    FeaSkin( const string &geomID, const string &structID, int type = vsp::FEA_SKIN );
     virtual ~FeaSkin()    {};
 
     virtual void UpdateSurface();
@@ -486,7 +487,7 @@ class FeaDome : public FeaPart
 {
 public:
 
-    FeaDome( const string& geomID, int type = vsp::FEA_DOME );
+    FeaDome( const string &geomID, const string &structID, int type = vsp::FEA_DOME );
     virtual ~FeaDome()    {};
 
     virtual void UpdateSurface();
@@ -519,7 +520,7 @@ class FeaRibArray : public FeaPart
 {
 public:
 
-    FeaRibArray( const string& geomID, int type = vsp::FEA_RIB_ARRAY );
+    FeaRibArray( const string &geomID, const string &structID, int type = vsp::FEA_RIB_ARRAY );
     virtual ~FeaRibArray();
 
     virtual void UpdateSurface();
@@ -573,7 +574,7 @@ class FeaSliceArray : public FeaPart
 {
 public:
 
-    FeaSliceArray( const string& geomID, int type = vsp::FEA_SLICE_ARRAY );
+    FeaSliceArray( const string &geomID, const string &structID, int type = vsp::FEA_SLICE_ARRAY );
     virtual ~FeaSliceArray()    {};
 
     virtual void UpdateSurface();
