@@ -278,6 +278,9 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     m_ConnectionStartIndex = 0;
     m_ConnectionEndIndex = 0;
 
+    m_ConnectionStartSurfIndex = 0;
+    m_ConnectionEndSurfIndex = 0;
+
 }
 
 StructAssemblyScreen::~StructAssemblyScreen()
