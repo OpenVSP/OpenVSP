@@ -39,15 +39,29 @@ installed, but it is worth verifying that this has been done.
 2. Navigate to the location of this README.md file
 3. Execute `./setup.ps1`
 
-### Mac OS and Linux Installation (via BASH)
+### Mac OS Installation (via BASH)
 
 1. Open a terminal window and navigate to the location of this README.md file
 2. Execute `conda env create -f ./environment.yml
 3. Execute `conda activate vsppytools`
-4. Execute `pip install -r requirements-dev.txt`
+4. Execute `pip install -r requirements.txt`
 
-   Note: Can install `requirements.txt` if you are not going to modify the Python
-   packages.
+   Note: You can install `requirements-dev.txt` if you are going to modify the Python packages. See [the pip install documents](https://pip.pypa.io/en/stable/cli/pip_install/#cmdoption-e) for more info on installing with `-e`.
+
+### Linux Installation (via BASH)
+
+Linux users often use OpenVSP as installed by their packaging system in a
+location such as /opt/OpenVSP.  The final step of this process required write
+permissions.  You shouldn't need to do this as root, so we'll start by copying
+all the files somewhere you will have write access.
+
+1. Open a terminal window and navigate to the location of this README.md file.  If you have write permissions, continue with the MacOS instructions above.
+2. Execute `cd ..; cp -r python /tmp/vsptemp; cd /tmp/vsptemp`
+3. Execute `conda env create -f ./environment.yml
+4. Execute `conda activate vsppytools`
+5. Execute `pip install -r requirements.txt`
+
+   Note: You can install `requirements-dev.txt` if you are going to modify the Python packages. See [the pip install documents](https://pip.pypa.io/en/stable/cli/pip_install/#cmdoption-e) for more info on installing with `-e`.
 
 ## Uninstall Directions
 
