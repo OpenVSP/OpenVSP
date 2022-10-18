@@ -41,13 +41,18 @@ installed, but it is worth verifying that this has been done.
 
 ### Mac OS and Linux Installation (via BASH)
 
+Do the following steps as your own user, not root:
+
 1. Open a terminal window and navigate to the location of this README.md file
 2. Execute `conda env create -f ./environment.yml
 3. Execute `conda activate vsppytools`
-4. Execute `pip install -r requirements-dev.txt`
+4. Make a copy of the directory which you can write to: `cp -r /opt/OpenVSP/python /tmp/my-copy`, and change directory: `cd /tmp/my-copy`.
+5. Execute `pip install -r requirements.txt`
 
-   Note: Can install `requirements.txt` if you are not going to modify the Python
-   packages.
+During step 5, you must have *write* access to the Python module directory. Conda installs are designed to work as your own user id, not root. That is why we need to make a copy in step 4.
+
+For step 5, you can install `requirements-dev.txt` if you are going to
+modify the Python packages. See [the pip install documents](https://pip.pypa.io/en/stable/cli/pip_install/#cmdoption-e) for more info on installing with `-e`.
 
 ## Uninstall Directions
 
