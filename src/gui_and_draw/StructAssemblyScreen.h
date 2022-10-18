@@ -67,7 +67,6 @@ private:
     GroupLayout m_StructureTabLayout;
     GroupLayout m_ConnectionsTabLayout;
     GroupLayout m_OutputTabLayout;
-    GroupLayout m_DisplayTabLayout;
 
     //===== Console Items =====//
     Fl_Text_Display* m_ConsoleDisplay;

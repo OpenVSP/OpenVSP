@@ -27,7 +27,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "FEA Assembly", 196 )
+StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "FEA Assembly", 201 + 5 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -39,24 +39,22 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     Fl_Group* structTabGroup = AddSubGroup( structTab, border );
     Fl_Group* conTab = AddTab( "Connections" );
     Fl_Group* conTabGroup = AddSubGroup( conTab, border );
-    Fl_Group* outputTab = AddTab( "Output" );
+    Fl_Group* outputTab = AddTab( "FEM" );
     Fl_Group* outputTabGroup = AddSubGroup( outputTab, border );
-    Fl_Group* displayTab = AddTab( "Display" );
-    Fl_Group* displayTabGroup = AddSubGroup( displayTab, border );
 
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    int textheight = 100;
+    int textheight = 150;
 
     m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
-                        - textheight                            // 100
-                        - 4 * m_ConsoleLayout.GetStdHeight()    // 4 * 20
+                        - textheight                            // 150
+                        - 2 * m_ConsoleLayout.GetStdHeight()    // 2 * 20
                         - m_ConsoleLayout.GetGapHeight()        // 6
                         - border );                             // 5
 
-    // 196 passed to TabScreen constructor above is this sum plus an additional border.
-    // textheight + 3 * m_ConsoleLayout.GetStdHeight() + m_ConsoleLayout.GetGapHeight() + 2 * border
+    // 201 + 5 passed to TabScreen constructor above is this sum plus an additional border.
+    // textheight + 2 * m_ConsoleLayout.GetStdHeight() + m_ConsoleLayout.GetGapHeight() + 2 * border
     // This is for the contents of m_BorderConsoleLayout.
 
     m_ConsoleLayout.AddX( border );
@@ -71,12 +69,19 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
     m_BorderConsoleLayout.AddYGap();
 
-    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() );
-    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() );
+    m_BorderConsoleLayout.SetSameLineFlag( true );
+    m_BorderConsoleLayout.SetFitWidthFlag( false );
+
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 2 );
+
 
     m_BorderConsoleLayout.AddButton( m_FeaReMeshAllButton, "Re-Mesh All" );
     m_BorderConsoleLayout.AddButton( m_FeaMeshUnmeshedButton, "Mesh Unmeshed" );
-    m_BorderConsoleLayout.AddButton( m_FeaExportMeshButton, "Export Mesh" );
+    m_BorderConsoleLayout.ForceNewLine();
+
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() );
+
+    m_BorderConsoleLayout.AddButton( m_FeaExportMeshButton, "Export FEM" );
 
     //=== Assembly Tab ===//
     assyTab->show();
@@ -225,38 +230,44 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton( m_SelectCalcFile, "..." );
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.AddYGap();
 
-    //=== Display Tab ===//
-    m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
+    m_OutputTabLayout.SetSameLineFlag( false );
+    m_OutputTabLayout.SetFitWidthFlag( true );
 
-    m_DisplayTabLayout.AddDividerBox( "Display" );
+    m_OutputTabLayout.AddDividerBox( "FEM Display" );
 
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
-    m_DisplayTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
-    m_DisplayTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
-    m_DisplayTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
+    m_OutputTabLayout.SetSameLineFlag( true );
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetW() / 2 );
 
-    m_DisplayTabLayout.SetFitWidthFlag( true );
-    m_DisplayTabLayout.SetSameLineFlag( false );
-    m_DisplayTabLayout.AddYGap();
+    m_OutputTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
+    m_OutputTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
+    m_OutputTabLayout.ForceNewLine();
 
-    m_DisplayTabLayout.AddDividerBox( "Display Element Sets" );
+    m_OutputTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
+    m_OutputTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
+    m_OutputTabLayout.ForceNewLine();
 
-    m_DrawPartSelectBrowser = m_DisplayTabLayout.AddCheckBrowser( browser_h );
+    m_OutputTabLayout.AddYGap();
+
+    m_OutputTabLayout.SetSameLineFlag( false );
+    m_OutputTabLayout.SetFitWidthFlag( true );
+
+    m_OutputTabLayout.AddDividerBox( "Element Sets" );
+
+    m_DrawPartSelectBrowser = m_OutputTabLayout.AddCheckBrowser( browser_h );
     m_DrawPartSelectBrowser->callback( staticScreenCB, this );
 
-    m_DisplayTabLayout.AddY( 125 );
-    m_DisplayTabLayout.AddYGap();
+    m_OutputTabLayout.AddY( 125 );
+    m_OutputTabLayout.AddYGap();
 
-    m_DisplayTabLayout.SetSameLineFlag( true );
-    m_DisplayTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.SetSameLineFlag( true );
+    m_OutputTabLayout.SetFitWidthFlag( false );
 
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2 );
-
-    m_DisplayTabLayout.AddButton( m_DrawAllButton, "Draw All Elements" );
-    m_DisplayTabLayout.AddButton( m_HideAllButton, "Hide All Elements" );
-    m_DisplayTabLayout.ForceNewLine();
+    m_OutputTabLayout.AddButton( m_DrawAllButton, "Draw All Elements" );
+    m_OutputTabLayout.AddButton( m_HideAllButton, "Hide All Elements" );
+    m_OutputTabLayout.ForceNewLine();
 
 
     m_StructureBrowserIndex = 0;
