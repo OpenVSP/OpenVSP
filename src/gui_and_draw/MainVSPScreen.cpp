@@ -131,15 +131,17 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_PSliceMenuItem.Init( mgr, m_MenuBar, "Analysis/Planar Slice...", ScreenMgr::VSP_PSLICE_SCREEN );
     m_MassPropMenuItem.Init( mgr, m_MenuBar, "Analysis/Mass Prop...", ScreenMgr::VSP_MASS_PROP_SCREEN );
     m_ProjectionMenuItem.Init( mgr, m_MenuBar, "Analysis/Projected Area...", ScreenMgr::VSP_PROJECTION_SCREEN );
+    m_DegenGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/DegenGeom...", ScreenMgr::VSP_DEGEN_GEOM_SCREEN );
     m_SurfIntMenuItem.Init( mgr, m_MenuBar, "Analysis/Trimmed Surfaces...", ScreenMgr::VSP_SURFACE_INTERSECTION_SCREEN );
     m_CFDMeshMenuItem.Init( mgr, m_MenuBar, "Analysis/CFD Mesh...", ScreenMgr::VSP_CFD_MESH_SCREEN );
-    m_StructMenuItem.Init( mgr, m_MenuBar, "Analysis/FEA Structure...", ScreenMgr::VSP_STRUCT_SCREEN );
-    m_StructAssemblyMenuItem.Init( mgr, m_MenuBar, "Analysis/FEA Assembly...", ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN );
-    m_DegenGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/DegenGeom...", ScreenMgr::VSP_DEGEN_GEOM_SCREEN );
-    m_VSPAEROMenuItem.Init( mgr, m_MenuBar, "Analysis/VSPAERO...", ScreenMgr::VSP_VSPAERO_SCREEN );
-    m_WaveDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Wave Drag...", ScreenMgr::VSP_WAVEDRAG_SCREEN );
-    m_ParasiteDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Parasite Drag...", ScreenMgr::VSP_PARASITE_DRAG_SCREEN );
-    m_AeroStructMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero Structural...", ScreenMgr::VSP_AERO_STRUCT_SCREEN );
+
+    m_StructMenuItem.Init( mgr, m_MenuBar, "Analysis/Structure/FEA Structure...", ScreenMgr::VSP_STRUCT_SCREEN );
+    m_StructAssemblyMenuItem.Init( mgr, m_MenuBar, "Analysis/Structure/FEA Assembly...", ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN );
+    m_AeroStructMenuItem.Init( mgr, m_MenuBar, "Analysis/Structure/Aero Structural...", ScreenMgr::VSP_AERO_STRUCT_SCREEN );
+
+    m_VSPAEROMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero/VSPAERO...", ScreenMgr::VSP_VSPAERO_SCREEN );
+    m_WaveDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero/Wave Drag...", ScreenMgr::VSP_WAVEDRAG_SCREEN );
+    m_ParasiteDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero/Parasite Drag...", ScreenMgr::VSP_PARASITE_DRAG_SCREEN );
 
 
     // m_AboutMenuItem.Init( mgr, m_MenuBar, "Help/About...", ScreenMgr:: );
