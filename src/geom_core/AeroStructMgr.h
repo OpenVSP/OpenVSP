@@ -43,6 +43,8 @@ public:
     void TransferLoads( FILE * logFile = NULL );
     void ComputeStructure( FILE * logFile = NULL );
 
+    Parm m_DynPress;
+
     bool m_ADBFileFound;
     bool m_FEAMeshFileFound;
     bool m_FEAInputFileFound;

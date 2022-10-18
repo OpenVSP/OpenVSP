@@ -45,6 +45,7 @@ AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 60
     m_GlobalLayout.AddYGap();
     m_GlobalLayout.AddDividerBox( "Loads" );
 
+    m_GlobalLayout.AddSlider( m_DynPressSlider, "Dynamic Pressure", 100, "%7.3f"  );
     m_GlobalLayout.AddButton( m_ExecuteLoads, "Apply Loads" );
 
     m_GlobalLayout.AddYGap();
@@ -84,6 +85,8 @@ bool AeroStructScreen::Update()
     }
 
     AeroStructMgr.Update();
+
+    m_DynPressSlider.Update( AeroStructMgr.m_DynPress.GetID() );
 
     VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* > ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_SCREEN ) );
 

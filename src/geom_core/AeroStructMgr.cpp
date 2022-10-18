@@ -18,6 +18,7 @@ AeroStructSingleton::AeroStructSingleton() : ParmContainer()
 {
     m_Name = "AeroStructSettings";
 
+    m_DynPress.Init( "DynamicPressure", "AeroStructure", this, 0, 0, 1e12 );
 
 }
 
@@ -139,6 +140,7 @@ void AeroStructSingleton::TransferLoads( FILE * logFile )
 
     //====== Send command to be executed by the system at the command prompt ======//
     vector<string> args;
+    char str[512];
 
     args.push_back( "-interp" );
 
@@ -147,10 +149,8 @@ void AeroStructSingleton::TransferLoads( FILE * logFile )
     args.push_back( GetBasename( m_FEAMeshFile ) ); // FEA mesh base name.
 
     args.push_back( "-dynp" );
-    args.push_back( "150.0"); // Dynamic pressure value
-
-//    args.push_back( "-label" );
-//    args.push_back( "foo"); // Label FEA stuff.
+    sprintf( str, "%f", m_DynPress() );
+    args.push_back( string( str ) );
 
 
     string cmdStr = m_LoadsProcess.PrettyCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );

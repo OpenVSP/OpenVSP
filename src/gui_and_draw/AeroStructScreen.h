@@ -58,6 +58,7 @@ protected:
     TriggerButton m_ExecuteFEAMesh;
     TriggerButton m_ExportFEAMesh;
 
+    SliderAdjRangeInput m_DynPressSlider;
     TriggerButton m_ExecuteLoads;
 
     TriggerButton m_ExecuteCalculiX;
