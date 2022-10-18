@@ -94,7 +94,7 @@ private:
     GroupLayout m_BCTabLayout;
     GroupLayout m_BCEditGroup;
     GroupLayout m_MeshTabLayout;
-    GroupLayout m_OutputTabLayout;
+    GroupLayout m_CadTabLayout;
     GroupLayout m_DisplayTabLayout;
 
     GroupLayout* m_CurrDispGroup;
@@ -106,8 +106,6 @@ private:
     ProcessUtil m_FeaMeshProcess;
 
     //===== Common buttons =====//
-    StringOutput m_CurrFeaMeshOutput;
-    StringOutput m_CurrIntersectOutput;
     Choice m_CurrFeaMeshChoice;
 
     TriggerButton m_ResetDisplayButton;

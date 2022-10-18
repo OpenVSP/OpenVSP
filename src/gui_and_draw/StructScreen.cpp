@@ -44,10 +44,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     Fl_Group* bcTabGroup = AddSubGroup( bcTab, border );
     Fl_Group* meshTab = AddTab( "Mesh" );
     Fl_Group* meshTabGroup = AddSubGroup( meshTab, border );
-    Fl_Group* outputTab = AddTab( "Output" );
-    Fl_Group* outputTabGroup = AddSubGroup( outputTab, border );
-    Fl_Group* displayTab = AddTab( "Display" );
+    Fl_Group* displayTab = AddTab( "FEM" );
     Fl_Group* displayTabGroup = AddSubGroup( displayTab, border );
+    Fl_Group* cadTab = AddTab( "CAD" );
+    Fl_Group* cadTabGroup = AddSubGroup( cadTab, border );
 
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -76,33 +76,23 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
 
     m_BorderConsoleLayout.AddYGap();
 
+    m_BorderConsoleLayout.SetFitWidthFlag( true );
+    m_BorderConsoleLayout.SetSameLineFlag( false );
+    m_BorderConsoleLayout.AddChoice( m_CurrFeaMeshChoice, "Structure" );
+    m_BorderConsoleLayout.AddButton( m_ResetDisplayButton, "Reset Part Display" );
+
     m_BorderConsoleLayout.SetSameLineFlag( true );
     m_BorderConsoleLayout.SetFitWidthFlag( false );
 
-    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() );
-    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() );
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 2 );
+    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 2 );
 
-    m_BorderConsoleLayout.AddButton( m_ResetDisplayButton, "Reset Display" );
-
-    m_BorderConsoleLayout.ForceNewLine();
-    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 4 );
-    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 4 );
-
-    m_BorderConsoleLayout.AddOutput( m_CurrIntersectOutput, "Current CAD" );
     m_BorderConsoleLayout.AddButton( m_IntersectOnlyButton, "Intersect Only" );
     m_BorderConsoleLayout.AddButton( m_ExportCADButton, "Export CAD" );
-
     m_BorderConsoleLayout.ForceNewLine();
 
-    m_BorderConsoleLayout.SetFitWidthFlag( true );
-    m_BorderConsoleLayout.AddChoice( m_CurrFeaMeshChoice, "Structure" );
-
-    m_BorderConsoleLayout.ForceNewLine();
-    m_BorderConsoleLayout.SetFitWidthFlag( false );
-
-    m_BorderConsoleLayout.AddOutput( m_CurrFeaMeshOutput, "Current Mesh" );
     m_BorderConsoleLayout.AddButton( m_FeaIntersectMeshButton, "Intersect and Mesh" );
-    m_BorderConsoleLayout.AddButton( m_FeaExportMeshButton, "Export Mesh" );
+    m_BorderConsoleLayout.AddButton( m_FeaExportMeshButton, "Export FEM" );
 
     //=== Structures Tab ===//
     structTab->show();
@@ -874,132 +864,76 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     m_MeshTabLayout.AddSlider( m_NodeOffset, "Node Offset", 1e5, " %5.0f" );
     m_MeshTabLayout.AddSlider( m_ElementOffset, "Element Offset", 1e5, " %5.0f" );
 
-    m_OutputTabLayout.SetGroupAndScreen( outputTabGroup, this );
-    // TODO: Add more CFD Mesh Export file options?
+    //=== CAD TAB ===//
+    m_CadTabLayout.SetGroupAndScreen( cadTabGroup, this );
 
-    m_OutputTabLayout.AddDividerBox( "File Export" );
 
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.SetSameLineFlag( true );
+    m_CadTabLayout.SetFitWidthFlag( true );
+    m_CadTabLayout.SetSameLineFlag( false );
+    m_CadTabLayout.InitWidthHeightVals();
 
-    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - 75 - 55 );
+    m_CadTabLayout.AddDividerBox("Surface and Curve Export");
 
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton( m_StlFile, ".stl" );
-    m_OutputTabLayout.AddOutput( m_StlOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectStlFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
+    m_CadTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
 
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton( m_GmshFile, ".msh" );
-    m_OutputTabLayout.AddOutput( m_GmshOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectGmshFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
+    m_CadTabLayout.InitWidthHeightVals();
+    m_CadTabLayout.SetInputWidth( m_CadTabLayout.GetW() - 75 - 55 );
+    m_CadTabLayout.SetFitWidthFlag( false );
+    m_CadTabLayout.SetSameLineFlag( true );
 
-    m_OutputTabLayout.AddYGap();
+    m_CadTabLayout.SetButtonWidth( 75 );
+    m_CadTabLayout.AddButton(m_CurvFile, ".curv");
+    m_CadTabLayout.AddOutput(m_CurvOutput);
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() );
+    m_CadTabLayout.AddButton(m_SelectCurvFile, "...");
+    m_CadTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton( m_MassFile, "Mass" );
-    m_OutputTabLayout.AddOutput( m_MassOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectMassFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
+    m_CadTabLayout.SetButtonWidth( 75 );
+    m_CadTabLayout.AddButton(m_Plot3DFile, ".p3d");
+    m_CadTabLayout.AddOutput(m_Plot3DOutput);
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() );
+    m_CadTabLayout.AddButton(m_SelectPlot3DFile, "...");
+    m_CadTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.AddYGap();
+    m_CadTabLayout.AddYGap();
 
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton( m_NastFile, "Nastran" );
-    m_OutputTabLayout.AddOutput( m_NastOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectNastFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
+    m_CadTabLayout.SetButtonWidth( 75 );
+    m_CadTabLayout.AddButton( m_SrfFile, ".srf" );
+    m_CadTabLayout.AddOutput( m_SrfOutput );
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() );
+    m_CadTabLayout.AddButton( m_SelectSrfFile, "..." );
+    m_CadTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton( m_NkeyFile, "Nkey" );
-    m_OutputTabLayout.AddOutput( m_NkeyOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectNkeyFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
+    m_CadTabLayout.SetSameLineFlag( false );
+    m_CadTabLayout.SetFitWidthFlag( true );
+    m_CadTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves" );
 
-    m_OutputTabLayout.AddYGap();
+    m_CadTabLayout.AddYGap();
+    m_CadTabLayout.SetFitWidthFlag( true );
+    m_CadTabLayout.SetSameLineFlag( false );
 
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton( m_CalcFile, "Calculix" );
-    m_OutputTabLayout.AddOutput( m_CalcOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectCalcFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
+    m_CadTabLayout.AddDividerBox( "Trimmed CAD Export" );
 
-    m_OutputTabLayout.AddYGap();
+    m_CadTabLayout.InitWidthHeightVals();
+    m_CadTabLayout.SetFitWidthFlag( false );
+    m_CadTabLayout.SetSameLineFlag( true );
 
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.SetSameLineFlag( false );
-    m_OutputTabLayout.InitWidthHeightVals();
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() / 4 );
 
-    m_OutputTabLayout.AddDividerBox("Surfaces and Intersection Curves");
+    m_CadTabLayout.AddButton( m_LabelIDToggle, "Geom ID" );
+    m_CadTabLayout.AddButton( m_LabelNameToggle, "Geom Name" );
+    m_CadTabLayout.AddButton( m_LabelSurfNoToggle, "Surf Number" );
+    m_CadTabLayout.AddButton( m_LabelSplitNoToggle, "Split Number" );
 
-    m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-
-    m_OutputTabLayout.InitWidthHeightVals();
-    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - 75 - 55 );
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.SetSameLineFlag( true );
-
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
-    m_OutputTabLayout.AddOutput(m_CurvOutput);
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton(m_SelectCurvFile, "...");
-    m_OutputTabLayout.ForceNewLine();
-
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton(m_Plot3DFile, ".p3d");
-    m_OutputTabLayout.AddOutput(m_Plot3DOutput);
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
-    m_OutputTabLayout.ForceNewLine();
-
-    m_OutputTabLayout.AddYGap();
-
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton( m_SrfFile, ".srf" );
-    m_OutputTabLayout.AddOutput( m_SrfOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectSrfFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
-
-    m_OutputTabLayout.SetSameLineFlag( false );
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves" );
-
-    m_OutputTabLayout.AddYGap();
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.SetSameLineFlag( false );
-
-    m_OutputTabLayout.AddDividerBox( "Trimmed CAD Options" );
-
-    m_OutputTabLayout.InitWidthHeightVals();
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.SetSameLineFlag( true );
-
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 4 );
-
-    m_OutputTabLayout.AddButton( m_LabelIDToggle, "Geom ID" );
-    m_OutputTabLayout.AddButton( m_LabelNameToggle, "Geom Name" );
-    m_OutputTabLayout.AddButton( m_LabelSurfNoToggle, "Surf Number" );
-    m_OutputTabLayout.AddButton( m_LabelSplitNoToggle, "Split Number" );
-
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetSliderWidth( m_OutputTabLayout.GetRemainX() / 4 );
-    m_OutputTabLayout.SetChoiceButtonWidth( m_OutputTabLayout.GetRemainX() / 4 );
+    m_CadTabLayout.ForceNewLine();
+    m_CadTabLayout.SetSliderWidth( m_CadTabLayout.GetRemainX() / 4 );
+    m_CadTabLayout.SetChoiceButtonWidth( m_CadTabLayout.GetRemainX() / 4 );
 
     m_LabelDelimChoice.AddItem( "Comma" );
     m_LabelDelimChoice.AddItem( "Underscore" );
     m_LabelDelimChoice.AddItem( "Space" );
     m_LabelDelimChoice.AddItem( "None" );
-    m_OutputTabLayout.AddChoice( m_LabelDelimChoice, "Delimiter" );
+    m_CadTabLayout.AddChoice( m_LabelDelimChoice, "Delimiter" );
 
     m_LenUnitChoice.AddItem( "MM" );
     m_LenUnitChoice.AddItem( "CM" );
@@ -1007,91 +941,160 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     m_LenUnitChoice.AddItem( "IN" );
     m_LenUnitChoice.AddItem( "FT" );
     m_LenUnitChoice.AddItem( "YD" );
-    m_OutputTabLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.AddYGap();
+    m_CadTabLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
+    m_CadTabLayout.ForceNewLine();
+    m_CadTabLayout.AddYGap();
 
-    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - 75 - 55 );
+    m_CadTabLayout.SetInputWidth( m_CadTabLayout.GetW() - 75 - 55 );
 
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton( m_IGESFile, ".igs" );
-    m_OutputTabLayout.AddOutput( m_IGESOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectIGESFile, "..." );
+    m_CadTabLayout.SetButtonWidth( 75 );
+    m_CadTabLayout.AddButton( m_IGESFile, ".igs" );
+    m_CadTabLayout.AddOutput( m_IGESOutput );
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() );
+    m_CadTabLayout.AddButton( m_SelectIGESFile, "..." );
 
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.AddYGap();
+    m_CadTabLayout.ForceNewLine();
+    m_CadTabLayout.AddYGap();
 
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton( m_STEPFile, ".stp" );
-    m_OutputTabLayout.AddOutput( m_STEPOutput );
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton( m_SelectSTEPFile, "..." );
-    m_OutputTabLayout.ForceNewLine();
+    m_CadTabLayout.SetButtonWidth( 75 );
+    m_CadTabLayout.AddButton( m_STEPFile, ".stp" );
+    m_CadTabLayout.AddOutput( m_STEPOutput );
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() );
+    m_CadTabLayout.AddButton( m_SelectSTEPFile, "..." );
+    m_CadTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.SetSameLineFlag( false );
+    m_CadTabLayout.SetFitWidthFlag( true );
+    m_CadTabLayout.SetSameLineFlag( false );
 
-    m_OutputTabLayout.InitWidthHeightVals();
-    m_OutputTabLayout.SetButtonWidth( 175 );
+    m_CadTabLayout.InitWidthHeightVals();
+    m_CadTabLayout.SetButtonWidth( 175 );
 
-    //m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
-    //m_OutputTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
-    //m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddSlider( m_STEPTolSlider, "STEP Tolerance", 10, "%5.4g", 0, true );
-    //m_OutputTabLayout.SetFitWidthFlag( false );
-    //m_OutputTabLayout.ForceNewLine();
+    //m_CadTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
+    //m_CadTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
+    //m_CadTabLayout.SetFitWidthFlag( true );
+    m_CadTabLayout.AddSlider( m_STEPTolSlider, "STEP Tolerance", 10, "%5.4g", 0, true );
+    //m_CadTabLayout.SetFitWidthFlag( false );
+    //m_CadTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.SetSameLineFlag( true );
+    m_CadTabLayout.SetFitWidthFlag( false );
+    m_CadTabLayout.SetSameLineFlag( true );
 
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 2 );
-    m_OutputTabLayout.AddButton( m_STEPShell, "Shell Representation" );
-    m_OutputTabLayout.AddButton( m_STEPBREP, "BREP Solid Representation" );
-    m_OutputTabLayout.ForceNewLine();
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetRemainX() / 2 );
+    m_CadTabLayout.AddButton( m_STEPShell, "Shell Representation" );
+    m_CadTabLayout.AddButton( m_STEPBREP, "BREP Solid Representation" );
+    m_CadTabLayout.ForceNewLine();
 
     m_STEPRepGroup.Init( this );
     m_STEPRepGroup.AddButton( m_STEPShell.GetFlButton() );
     m_STEPRepGroup.AddButton( m_STEPBREP.GetFlButton() );
 
+    m_CadTabLayout.AddYGap();
+
+    m_CadTabLayout.SetFitWidthFlag( true );
+    m_CadTabLayout.SetSameLineFlag( false );
+
+    m_CadTabLayout.AddDividerBox( "Intersection Curve Display" );
+
+    m_CadTabLayout.SetFitWidthFlag( false );
+    m_CadTabLayout.SetSameLineFlag( true );
+
+    m_CadTabLayout.SetButtonWidth( m_CadTabLayout.GetW() / 2 );
+
+    m_CadTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
+    m_CadTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
+    m_CadTabLayout.ForceNewLine();
+
+    m_CadTabLayout.AddButton( m_ShowCurve, "Show Curves");
+    m_CadTabLayout.AddButton( m_ShowPts, "Show Points");
+    m_CadTabLayout.ForceNewLine();
+
+    m_CadTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
+    m_CadTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
+    m_CadTabLayout.ForceNewLine();
+
     //=== Display Tab ===//
     m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
 
-    m_DisplayTabLayout.AddDividerBox( "Display" );
-
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
-    m_DisplayTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
-    m_DisplayTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
-    m_DisplayTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
-
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.AddDividerBox( "Intersection Curve Display" );
+    m_DisplayTabLayout.AddDividerBox( "FEM Export" );
 
     m_DisplayTabLayout.SetFitWidthFlag( false );
     m_DisplayTabLayout.SetSameLineFlag( true );
 
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2 );
+    m_DisplayTabLayout.SetInputWidth( m_DisplayTabLayout.GetW() - 75 - 55 );
+
+    m_DisplayTabLayout.SetButtonWidth( 75 );
+    m_DisplayTabLayout.AddButton( m_StlFile, ".stl" );
+    m_DisplayTabLayout.AddOutput( m_StlOutput );
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
+    m_DisplayTabLayout.AddButton( m_SelectStlFile, "..." );
+    m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.SetButtonWidth( 75 );
+    m_DisplayTabLayout.AddButton( m_GmshFile, ".msh" );
+    m_DisplayTabLayout.AddOutput( m_GmshOutput );
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
+    m_DisplayTabLayout.AddButton( m_SelectGmshFile, "..." );
+    m_DisplayTabLayout.ForceNewLine();
 
     m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
-    m_DisplayTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
+
+    m_DisplayTabLayout.SetButtonWidth( 75 );
+    m_DisplayTabLayout.AddButton( m_MassFile, "Mass" );
+    m_DisplayTabLayout.AddOutput( m_MassOutput );
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
+    m_DisplayTabLayout.AddButton( m_SelectMassFile, "..." );
     m_DisplayTabLayout.ForceNewLine();
+
     m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_ShowCurve, "Show Curves");
-    m_DisplayTabLayout.AddButton( m_ShowPts, "Show Points");
+
+    m_DisplayTabLayout.SetButtonWidth( 75 );
+    m_DisplayTabLayout.AddButton( m_NastFile, "Nastran" );
+    m_DisplayTabLayout.AddOutput( m_NastOutput );
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
+    m_DisplayTabLayout.AddButton( m_SelectNastFile, "..." );
     m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.SetButtonWidth( 75 );
+    m_DisplayTabLayout.AddButton( m_NkeyFile, "Nkey" );
+    m_DisplayTabLayout.AddOutput( m_NkeyOutput );
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
+    m_DisplayTabLayout.AddButton( m_SelectNkeyFile, "..." );
+    m_DisplayTabLayout.ForceNewLine();
+
     m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
-    m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
+
+    m_DisplayTabLayout.SetButtonWidth( 75 );
+    m_DisplayTabLayout.AddButton( m_CalcFile, "Calculix" );
+    m_DisplayTabLayout.AddOutput( m_CalcOutput );
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
+    m_DisplayTabLayout.AddButton( m_SelectCalcFile, "..." );
+    m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.AddYGap();
+
+    m_DisplayTabLayout.SetFitWidthFlag( true );
+    m_DisplayTabLayout.SetSameLineFlag( false );
+
+    m_DisplayTabLayout.AddDividerBox( "FEM Display" );
+
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2 );
+
+    m_DisplayTabLayout.SetFitWidthFlag( false );
+    m_DisplayTabLayout.SetSameLineFlag( true );
+
+    m_DisplayTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
+    m_DisplayTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
+    m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
+    m_DisplayTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
     m_DisplayTabLayout.ForceNewLine();
 
     m_DisplayTabLayout.SetFitWidthFlag( true );
     m_DisplayTabLayout.SetSameLineFlag( false );
     m_DisplayTabLayout.AddYGap();
 
-    m_DisplayTabLayout.AddDividerBox( "Display Element Sets" );
+    m_DisplayTabLayout.AddDividerBox( "Element Sets" );
 
     m_DrawPartSelectBrowser = m_DisplayTabLayout.AddCheckBrowser( browser_h );
     m_DrawPartSelectBrowser->callback( staticScreenCB, this );
@@ -2169,20 +2172,15 @@ bool StructScreen::Update()
             }
         }
 
-        if ( FeaMeshMgr.GetFeaMeshStructID() == string() )
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
-            if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-            {
-                FeaStructure* curr_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
-                FeaMeshMgr.SetFeaMeshStructID( curr_struct->GetID() );
-            }
+            FeaStructure* curr_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
+            FeaMeshMgr.SetFeaMeshStructID( curr_struct->GetID() );
         }
 
         FeaStructure* isect_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetIntersectStructID() );
         if ( isect_struct )
         {
-            m_CurrIntersectOutput.Update( isect_struct->GetName() );
-
             if ( FeaMeshMgr.GetIntersectComplete() )
             {
                 m_ExportCADButton.Activate();
@@ -2194,7 +2192,6 @@ bool StructScreen::Update()
         }
         else
         {
-            m_CurrIntersectOutput.Update( "" );
             m_ExportCADButton.Deactivate();
         }
 
@@ -2222,8 +2219,6 @@ bool StructScreen::Update()
         {
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
             FeaStructure* curr_struct = structVec[StructureMgr.m_CurrStructIndex()];
-
-            m_CurrFeaMeshOutput.Update( curr_struct->GetName() );
 
             //==== Default Elem Size ====//
             m_MaxEdgeLen.Update( curr_struct->GetFeaGridDensityPtr()->m_BaseLen.GetID() );
@@ -2445,10 +2440,6 @@ bool StructScreen::Update()
             }
 
         }
-        else
-        {
-            m_CurrFeaMeshOutput.Update( "" );
-        }
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
@@ -2616,19 +2607,22 @@ void StructScreen::CallBack( Fl_Widget* w )
         }
         else if ( w == m_DrawPartSelectBrowser )
         {
-            int selected_index = m_DrawPartSelectBrowser->value();
+            int selected_index = m_DrawPartSelectBrowser->value() - 1;
             bool flag = !!m_DrawPartSelectBrowser->checked( selected_index );
 
             vector < string > draw_browser_name_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserNameVec();
             vector < int > draw_browser_index_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserIndexVec();
 
-            if ( draw_browser_name_vec[selected_index - 1].find( "CAP" ) != std::string::npos )
+            if ( selected_index < draw_browser_name_vec.size() )
             {
-                FeaMeshMgr.GetMeshPtr()->SetDrawCapFlag( draw_browser_index_vec[selected_index - 1], flag );
-            }
-            else
-            {
-                FeaMeshMgr.GetMeshPtr()->SetDrawElementFlag( draw_browser_index_vec[selected_index - 1], flag );
+                if ( draw_browser_name_vec[ selected_index ].find( "CAP" ) != std::string::npos )
+                {
+                    FeaMeshMgr.GetMeshPtr()->SetDrawCapFlag( draw_browser_index_vec[ selected_index ], flag );
+                }
+                else
+                {
+                    FeaMeshMgr.GetMeshPtr()->SetDrawElementFlag( draw_browser_index_vec[ selected_index ], flag );
+                }
             }
         }
         else if ( w == m_FeaPropertySelectBrowser )
@@ -2738,9 +2732,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ResetDisplayButton )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) && FeaMeshMgr.GetMeshPtr()->FeaDataAvailable() )
+        StructureMgr.ShowAllParts();
+
+        if ( FeaMeshMgr.GetMeshPtr() )
         {
-            StructureMgr.ShowAllParts();
             FeaMeshMgr.GetMeshPtr()->SetAllDisplayFlags( false );
         }
     }
