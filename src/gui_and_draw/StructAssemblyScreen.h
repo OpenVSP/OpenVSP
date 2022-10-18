@@ -66,7 +66,7 @@ private:
     GroupLayout m_AssemblyTabLayout;
     GroupLayout m_StructureTabLayout;
     GroupLayout m_ConnectionsTabLayout;
-    GroupLayout m_OutputTabLayout;
+    GroupLayout m_FemTabLayout;
 
     //===== Console Items =====//
     Fl_Text_Display* m_ConsoleDisplay;
@@ -120,7 +120,7 @@ private:
     TriggerButton m_AddConnectionButton;
     TriggerButton m_DelConnectionButton;
 
-    //===== Output Items =====//
+    //===== FEM Items =====//
     ToggleButton m_StlFile;
     ToggleButton m_GmshFile;
     ToggleButton m_MassFile;
@@ -142,7 +142,6 @@ private:
     StringOutput m_NkeyOutput;
     StringOutput m_CalcOutput;
 
-    //===== Draw Tab Items =====//
     ToggleButton m_DrawMeshButton;
     ToggleButton m_ColorElementsButton;
     ToggleButton m_DrawNodesToggle;
