@@ -166,8 +166,6 @@ void AeroStructSingleton::TransferLoads( FILE * logFile )
         MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
     }
 
-    printf( "%s\n", cmdStr.c_str() );
-
     m_LoadsProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
@@ -201,11 +199,7 @@ void AeroStructSingleton::ComputeStructure( FILE * logFile )
         MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
     }
 
-    printf( "%s\n", cmdStr.c_str() );
-
     m_CalculiXProcess.ForkCmd( m_CalculiXPath, m_CalculiXCmd, args );
-
-    printf( "Forked\n" );
 
 
     // ==== MonitorSolverProcess ==== //
