@@ -95,7 +95,7 @@ private:
     GroupLayout m_BCEditGroup;
     GroupLayout m_MeshTabLayout;
     GroupLayout m_CadTabLayout;
-    GroupLayout m_DisplayTabLayout;
+    GroupLayout m_FemTabLayout;
 
     GroupLayout* m_CurrDispGroup;
 
@@ -108,10 +108,10 @@ private:
     //===== Common buttons =====//
     Choice m_CurrFeaMeshChoice;
 
-    TriggerButton m_ResetDisplayButton;
+    TriggerButton m_ResetPartDisplayButton;
 
     TriggerButton m_FeaIntersectMeshButton;
-    TriggerButton m_FeaExportMeshButton;
+    TriggerButton m_FeaExportFEMButton;
 
     TriggerButton m_IntersectOnlyButton;
     TriggerButton m_ExportCADButton;
@@ -328,7 +328,7 @@ private:
     SliderAdjRangeInput m_NodeOffset;
     SliderAdjRangeInput m_ElementOffset;
 
-    //===== Output Items =====//
+    //===== FEM Items =====//
     ToggleButton m_StlFile;
     ToggleButton m_GmshFile;
     ToggleButton m_MassFile;
@@ -350,6 +350,17 @@ private:
     StringOutput m_NkeyOutput;
     StringOutput m_CalcOutput;
 
+    ToggleButton m_DrawMeshButton;
+    ToggleButton m_ColorElementsButton;
+    ToggleButton m_DrawNodesToggle;
+    ToggleButton m_DrawElementOrientVecToggle;
+
+    Fl_Check_Browser* m_DrawPartSelectBrowser;
+
+    TriggerButton m_DrawAllButton;
+    TriggerButton m_HideAllButton;
+
+    //===== CAD Items =====//
     ToggleButton m_SrfFile;
     ToggleButton m_XYZIntCurves;
     TriggerButton m_SelectSrfFile;
@@ -385,12 +396,6 @@ private:
     ToggleButton m_LabelSplitNoToggle;
     Choice m_LabelDelimChoice;
 
-    //===== Draw Tab Items =====//
-    ToggleButton m_DrawMeshButton;
-    ToggleButton m_ColorElementsButton;
-    ToggleButton m_DrawNodesToggle;
-    ToggleButton m_DrawElementOrientVecToggle;
-
     ToggleButton m_DrawIsect;
     ToggleButton m_DrawBorder;
 
@@ -400,11 +405,6 @@ private:
 
     ToggleButton m_ShowCurve;
     ToggleButton m_ShowPts;
-
-    Fl_Check_Browser* m_DrawPartSelectBrowser;
-
-    TriggerButton m_DrawAllButton;
-    TriggerButton m_HideAllButton;
 
     //==== Private Variables ====//
     string m_SelectedGeomID;

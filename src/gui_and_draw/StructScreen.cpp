@@ -44,8 +44,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     Fl_Group* bcTabGroup = AddSubGroup( bcTab, border );
     Fl_Group* meshTab = AddTab( "Mesh" );
     Fl_Group* meshTabGroup = AddSubGroup( meshTab, border );
-    Fl_Group* displayTab = AddTab( "FEM" );
-    Fl_Group* displayTabGroup = AddSubGroup( displayTab, border );
+    Fl_Group* femTab = AddTab( "FEM" );
+    Fl_Group* femTabGroup = AddSubGroup( femTab, border );
     Fl_Group* cadTab = AddTab( "CAD" );
     Fl_Group* cadTabGroup = AddSubGroup( cadTab, border );
 
@@ -79,7 +79,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     m_BorderConsoleLayout.SetFitWidthFlag( true );
     m_BorderConsoleLayout.SetSameLineFlag( false );
     m_BorderConsoleLayout.AddChoice( m_CurrFeaMeshChoice, "Structure" );
-    m_BorderConsoleLayout.AddButton( m_ResetDisplayButton, "Reset Part Display" );
+    m_BorderConsoleLayout.AddButton( m_ResetPartDisplayButton, "Reset Part Display" );
 
     m_BorderConsoleLayout.SetSameLineFlag( true );
     m_BorderConsoleLayout.SetFitWidthFlag( false );
@@ -92,7 +92,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     m_BorderConsoleLayout.ForceNewLine();
 
     m_BorderConsoleLayout.AddButton( m_FeaIntersectMeshButton, "Intersect and Mesh" );
-    m_BorderConsoleLayout.AddButton( m_FeaExportMeshButton, "Export FEM" );
+    m_BorderConsoleLayout.AddButton( m_FeaExportFEMButton, "Export FEM" );
 
     //=== Structures Tab ===//
     structTab->show();
@@ -864,6 +864,105 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     m_MeshTabLayout.AddSlider( m_NodeOffset, "Node Offset", 1e5, " %5.0f" );
     m_MeshTabLayout.AddSlider( m_ElementOffset, "Element Offset", 1e5, " %5.0f" );
 
+    //=== FEM Tab ===//
+    m_FemTabLayout.SetGroupAndScreen( femTabGroup, this );
+
+    m_FemTabLayout.AddDividerBox( "FEM Export" );
+
+    m_FemTabLayout.SetFitWidthFlag( false );
+    m_FemTabLayout.SetSameLineFlag( true );
+
+    m_FemTabLayout.SetInputWidth( m_FemTabLayout.GetW() - 75 - 55 );
+
+    m_FemTabLayout.SetButtonWidth( 75 );
+    m_FemTabLayout.AddButton( m_StlFile, ".stl" );
+    m_FemTabLayout.AddOutput( m_StlOutput );
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetRemainX() );
+    m_FemTabLayout.AddButton( m_SelectStlFile, "..." );
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.SetButtonWidth( 75 );
+    m_FemTabLayout.AddButton( m_GmshFile, ".msh" );
+    m_FemTabLayout.AddOutput( m_GmshOutput );
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetRemainX() );
+    m_FemTabLayout.AddButton( m_SelectGmshFile, "..." );
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.AddYGap();
+
+    m_FemTabLayout.SetButtonWidth( 75 );
+    m_FemTabLayout.AddButton( m_MassFile, "Mass" );
+    m_FemTabLayout.AddOutput( m_MassOutput );
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetRemainX() );
+    m_FemTabLayout.AddButton( m_SelectMassFile, "..." );
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.AddYGap();
+
+    m_FemTabLayout.SetButtonWidth( 75 );
+    m_FemTabLayout.AddButton( m_NastFile, "Nastran" );
+    m_FemTabLayout.AddOutput( m_NastOutput );
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetRemainX() );
+    m_FemTabLayout.AddButton( m_SelectNastFile, "..." );
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.SetButtonWidth( 75 );
+    m_FemTabLayout.AddButton( m_NkeyFile, "Nkey" );
+    m_FemTabLayout.AddOutput( m_NkeyOutput );
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetRemainX() );
+    m_FemTabLayout.AddButton( m_SelectNkeyFile, "..." );
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.AddYGap();
+
+    m_FemTabLayout.SetButtonWidth( 75 );
+    m_FemTabLayout.AddButton( m_CalcFile, "Calculix" );
+    m_FemTabLayout.AddOutput( m_CalcOutput );
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetRemainX() );
+    m_FemTabLayout.AddButton( m_SelectCalcFile, "..." );
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.AddYGap();
+
+    m_FemTabLayout.SetFitWidthFlag( true );
+    m_FemTabLayout.SetSameLineFlag( false );
+
+    m_FemTabLayout.AddDividerBox( "FEM Display" );
+
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 2 );
+
+    m_FemTabLayout.SetFitWidthFlag( false );
+    m_FemTabLayout.SetSameLineFlag( true );
+
+    m_FemTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
+    m_FemTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
+    m_FemTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.SetFitWidthFlag( true );
+    m_FemTabLayout.SetSameLineFlag( false );
+    m_FemTabLayout.AddYGap();
+
+    m_FemTabLayout.AddDividerBox( "Element Sets" );
+
+    m_DrawPartSelectBrowser = m_FemTabLayout.AddCheckBrowser( browser_h );
+    m_DrawPartSelectBrowser->callback( staticScreenCB, this );
+
+    m_FemTabLayout.AddY( 125 );
+    m_FemTabLayout.AddYGap();
+
+    m_FemTabLayout.SetSameLineFlag( true );
+    m_FemTabLayout.SetFitWidthFlag( false );
+
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 2 );
+
+    m_FemTabLayout.AddButton( m_DrawAllButton, "Draw All Elements" );
+    m_FemTabLayout.AddButton( m_HideAllButton, "Hide All Elements" );
+    m_FemTabLayout.ForceNewLine();
+
     //=== CAD TAB ===//
     m_CadTabLayout.SetGroupAndScreen( cadTabGroup, this );
 
@@ -1011,105 +1110,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 465, 720, "FEA Me
     m_CadTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
     m_CadTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
     m_CadTabLayout.ForceNewLine();
-
-    //=== Display Tab ===//
-    m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
-
-    m_DisplayTabLayout.AddDividerBox( "FEM Export" );
-
-    m_DisplayTabLayout.SetFitWidthFlag( false );
-    m_DisplayTabLayout.SetSameLineFlag( true );
-
-    m_DisplayTabLayout.SetInputWidth( m_DisplayTabLayout.GetW() - 75 - 55 );
-
-    m_DisplayTabLayout.SetButtonWidth( 75 );
-    m_DisplayTabLayout.AddButton( m_StlFile, ".stl" );
-    m_DisplayTabLayout.AddOutput( m_StlOutput );
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
-    m_DisplayTabLayout.AddButton( m_SelectStlFile, "..." );
-    m_DisplayTabLayout.ForceNewLine();
-
-    m_DisplayTabLayout.SetButtonWidth( 75 );
-    m_DisplayTabLayout.AddButton( m_GmshFile, ".msh" );
-    m_DisplayTabLayout.AddOutput( m_GmshOutput );
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
-    m_DisplayTabLayout.AddButton( m_SelectGmshFile, "..." );
-    m_DisplayTabLayout.ForceNewLine();
-
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.SetButtonWidth( 75 );
-    m_DisplayTabLayout.AddButton( m_MassFile, "Mass" );
-    m_DisplayTabLayout.AddOutput( m_MassOutput );
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
-    m_DisplayTabLayout.AddButton( m_SelectMassFile, "..." );
-    m_DisplayTabLayout.ForceNewLine();
-
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.SetButtonWidth( 75 );
-    m_DisplayTabLayout.AddButton( m_NastFile, "Nastran" );
-    m_DisplayTabLayout.AddOutput( m_NastOutput );
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
-    m_DisplayTabLayout.AddButton( m_SelectNastFile, "..." );
-    m_DisplayTabLayout.ForceNewLine();
-
-    m_DisplayTabLayout.SetButtonWidth( 75 );
-    m_DisplayTabLayout.AddButton( m_NkeyFile, "Nkey" );
-    m_DisplayTabLayout.AddOutput( m_NkeyOutput );
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
-    m_DisplayTabLayout.AddButton( m_SelectNkeyFile, "..." );
-    m_DisplayTabLayout.ForceNewLine();
-
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.SetButtonWidth( 75 );
-    m_DisplayTabLayout.AddButton( m_CalcFile, "Calculix" );
-    m_DisplayTabLayout.AddOutput( m_CalcOutput );
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetRemainX() );
-    m_DisplayTabLayout.AddButton( m_SelectCalcFile, "..." );
-    m_DisplayTabLayout.ForceNewLine();
-
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.SetFitWidthFlag( true );
-    m_DisplayTabLayout.SetSameLineFlag( false );
-
-    m_DisplayTabLayout.AddDividerBox( "FEM Display" );
-
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2 );
-
-    m_DisplayTabLayout.SetFitWidthFlag( false );
-    m_DisplayTabLayout.SetSameLineFlag( true );
-
-    m_DisplayTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
-    m_DisplayTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
-    m_DisplayTabLayout.ForceNewLine();
-
-    m_DisplayTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
-    m_DisplayTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
-    m_DisplayTabLayout.ForceNewLine();
-
-    m_DisplayTabLayout.SetFitWidthFlag( true );
-    m_DisplayTabLayout.SetSameLineFlag( false );
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.AddDividerBox( "Element Sets" );
-
-    m_DrawPartSelectBrowser = m_DisplayTabLayout.AddCheckBrowser( browser_h );
-    m_DrawPartSelectBrowser->callback( staticScreenCB, this );
-
-    m_DisplayTabLayout.AddY( 125 );
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.SetSameLineFlag( true );
-    m_DisplayTabLayout.SetFitWidthFlag( false );
-
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2 );
-
-    m_DisplayTabLayout.AddButton( m_DrawAllButton, "Draw All Elements" );
-    m_DisplayTabLayout.AddButton( m_HideAllButton, "Hide All Elements" );
-    m_DisplayTabLayout.ForceNewLine();
 
     // Set initial values
     m_FeaCurrMainSurfIndx = 0;
@@ -2201,16 +2201,16 @@ bool StructScreen::Update()
         {
             if ( mesh->m_MeshReady )
             {
-                m_FeaExportMeshButton.Activate();
+                m_FeaExportFEMButton.Activate();
             }
             else
             {
-                m_FeaExportMeshButton.Deactivate();
+                m_FeaExportFEMButton.Deactivate();
             }
         }
         else
         {
-            m_FeaExportMeshButton.Deactivate();
+            m_FeaExportFEMButton.Deactivate();
         }
 
 
@@ -2704,7 +2704,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         LaunchFEAMesh();
     }
-    else if ( device == &m_FeaExportMeshButton )
+    else if ( device == &m_FeaExportFEMButton )
     {
         // Identify which structure to write, should be already set
         FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
@@ -2730,7 +2730,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         FeaMeshMgr.addOutputText( "Exporting CAD Files\n" );
         FeaMeshMgr.ExportCADFiles();
     }
-    else if ( device == &m_ResetDisplayButton )
+    else if ( device == &m_ResetPartDisplayButton )
     {
         StructureMgr.ShowAllParts();
 
