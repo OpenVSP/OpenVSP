@@ -93,6 +93,8 @@ ADBSLICER::ADBSLICER(void)
 
     AddLabel_ = 0;
 
+    ApplyBCs_ = 0;
+
     Label_[0]= '\0';
   
 }
@@ -4174,8 +4176,12 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
            // Look for **Materials
            
            if ( strstr(DumChar,"**Materials") != NULL ) {
-              
-              WriteOutCalculixBoundaryConditions(LoadFile);
+
+              if ( ApplyBCs_ ){
+
+                 WriteOutCalculixBoundaryConditions( LoadFile );
+
+              }
 
            }
            

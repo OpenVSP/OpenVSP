@@ -13,6 +13,7 @@ int Interpolate        = 0;
 int GnuPlot            = 0;
 int NodeOffSet         = 0;
 int ElementOffSet      = 0;
+int ApplyBCs           = 0;
 int AddLabel           = 0;
 int ParseCalculixFile  = 0;
 int CalculateOffSets   = 0;
@@ -119,7 +120,13 @@ int main(int argc, char **argv) {
        Slicer.LoadFile(FileName_1);       
     
        Slicer.DynamicPressure() = DynamicPressure;
-       
+
+       if ( ApplyBCs > 0 ){
+
+           Slicer.ApplyBCs() = ApplyBCs;
+
+       }
+
        Slicer.BoundaryTolerance() = BoundaryTolerance;
        
        Slicer.NodeOffSet() = NodeOffSet;
@@ -304,7 +311,9 @@ void ParseInput(int argc, char *argv[])
        }  
        
        else if ( strcmp(argv[i],"-boundarycutoff") == 0 ) {
-      
+
+          ApplyBCs = 1;
+
           BoundaryTolerance = atof(argv[++i]);
 
        }         

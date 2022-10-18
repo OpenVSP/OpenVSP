@@ -362,6 +362,7 @@ private:
     int NodeOffSet_;
     int ElementOffSet_;
     int AddLabel_;
+    int ApplyBCs_;
     int MaxCalculixNode_;
     int MaxCalculixElement_;
     int FindClosestNode_;
@@ -425,6 +426,8 @@ public:
     int &FindClosestNode(void) { return FindClosestNode_; };
     
     int &AddLabel(void) { return AddLabel_; };
+
+    int &ApplyBCs(void) { return ApplyBCs_; };
     
     float &DynamicPressure(void) { return DynamicPressure_; };
     
