@@ -59,7 +59,7 @@ AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 60
 
     m_GlobalLayout.AddYGap();
 
-    m_ConsoleDisplay = m_GlobalLayout.AddFlTextDisplay( 100 );
+    m_ConsoleDisplay = m_GlobalLayout.AddFlTextDisplay( m_GlobalLayout.GetH() - m_GlobalLayout.GetY() - m_GlobalLayout.GetGapHeight() );
     m_ConsoleBuffer = new Fl_Text_Buffer;
     m_ConsoleDisplay->buffer( m_ConsoleBuffer );
     m_FLTK_Window->resizable( m_ConsoleDisplay );
