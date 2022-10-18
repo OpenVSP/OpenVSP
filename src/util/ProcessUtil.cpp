@@ -180,6 +180,7 @@ string ProcessUtil::QuoteString( const string &str )
 
 int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<string> &opts )
 {
+    std::clock_t tstart = std::clock();
 
 #ifdef WIN32
 
@@ -241,11 +242,6 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
         return 0;
     }
 
-    CloseHandle( m_StdoutPipe[PIPE_WRITE] );
-    m_StdoutPipe[PIPE_WRITE] = NULL;
-
-    free( cmdstr );
-
 #else
 
     if( pipe( m_StdoutPipe ) < 0 )
@@ -298,9 +294,25 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
         printf( "Fork failed (%d).\n", childPid );
         return 0;
     }
+#endif
 
+    // Attempt at forking has taken less than one second, so delay to make up for it.  This gives the monitor thread
+    // a fair chance to connect.  Threads that terminate too quickly do not get their output captured because they
+    // terminate before the monitor is working.  Delay occurs before the output pipe is closed.
+    double tmin = 1.0;
+    double telapsed = ( std::clock() - tstart ) / (double)CLOCKS_PER_SEC;
+    if ( telapsed < tmin )
+    {
+        SleepForMilliseconds( 1000.0 * ( tmin - telapsed ) );
+    }
+
+#ifdef WIN32
+    CloseHandle( m_StdoutPipe[PIPE_WRITE] );
+    m_StdoutPipe[PIPE_WRITE] = NULL;
+
+    free( cmdstr );
+#else
     close( m_StdoutPipe[PIPE_WRITE] );
-
 #endif
 
     return 0;
