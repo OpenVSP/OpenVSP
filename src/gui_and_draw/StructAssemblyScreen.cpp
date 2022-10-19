@@ -712,41 +712,32 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
         return;
     }
 
+    FeaAssembly *curr_assy = NULL;
+    if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+    {
+        curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+    }
+
     if ( device == &m_FeaReMeshAllButton )
     {
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        if ( curr_assy )
         {
-            FeaAssembly *curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
-
-            if ( curr_assy )
-            {
-                FeaMeshMgr.CleanupMeshes( curr_assy->m_StructIDVec );
-                LaunchBatchFEAMesh( curr_assy->m_StructIDVec );
-            }
+            FeaMeshMgr.CleanupMeshes( curr_assy->m_StructIDVec );
+            LaunchBatchFEAMesh( curr_assy->m_StructIDVec );
         }
     }
     else if ( device == &m_FeaMeshUnmeshedButton )
     {
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        if ( curr_assy )
         {
-            FeaAssembly *curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
-
-            if ( curr_assy )
-            {
-                LaunchBatchFEAMesh( curr_assy->m_StructIDVec );
-            }
+            LaunchBatchFEAMesh( curr_assy->m_StructIDVec );
         }
     }
     else if ( device == &m_FeaExportMeshButton )
     {
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        if ( curr_assy )
         {
-            FeaAssembly *curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
-
-            if ( curr_assy )
-            {
-                FeaMeshMgr.ExportAssemblyMesh( curr_assy->GetID() );
-            }
+            FeaMeshMgr.ExportAssemblyMesh( curr_assy->GetID() );
         }
     }
     else if ( device == &m_AddAssemblyButton )
@@ -769,16 +760,10 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_AssemblyNameInput )
     {
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaAssembly* > assy_vec = StructureMgr.GetFeaAssemblyVec();
-            FeaAssembly* fea_assy = assy_vec[StructureMgr.GetCurrAssemblyIndex()];
-
-            if ( fea_assy )
-            {
-                fea_assy->SetName( m_AssemblyNameInput.GetString() );
-                fea_assy->ResetExportFileNames();
-            }
+            curr_assy->SetName( m_AssemblyNameInput.GetString() );
+            curr_assy->ResetExportFileNames();
         }
     }
     else if ( device == &m_FeaStructureChoice )
@@ -787,28 +772,16 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_AddFeaStructureButton )
     {
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaAssembly* > assy_vec = StructureMgr.GetFeaAssemblyVec();
-            FeaAssembly* fea_assy = assy_vec[StructureMgr.GetCurrAssemblyIndex()];
-
-            if ( fea_assy )
-            {
-                fea_assy->AddStructure( m_StructIDs[m_StructureChoiceIndex] );
-            }
+            curr_assy->AddStructure( m_StructIDs[m_StructureChoiceIndex] );
         }
     }
     else if ( device == &m_DelFeaStructureButton )
     {
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaAssembly* > assy_vec = StructureMgr.GetFeaAssemblyVec();
-            FeaAssembly* fea_assy = assy_vec[StructureMgr.GetCurrAssemblyIndex()];
-
-            if ( fea_assy )
-            {
-                fea_assy->DelStructure( fea_assy->m_StructIDVec[ m_StructureBrowserIndex ] );
-            }
+            curr_assy->DelStructure( curr_assy->m_StructIDVec[ m_StructureBrowserIndex ] );
         }
     }
     else if ( device == &m_ConnectionStartChoice )
@@ -829,29 +802,17 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_AddConnectionButton )
     {
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaAssembly* > assy_vec = StructureMgr.GetFeaAssemblyVec();
-            FeaAssembly* fea_assy = assy_vec[StructureMgr.GetCurrAssemblyIndex()];
-
-            if ( fea_assy )
-            {
-                fea_assy->AddConnection( m_FixPtIDs[m_ConnectionStartIndex], m_FixPtStructIDs[m_ConnectionStartIndex], m_ConnectionStartSurfIndex,
-                                         m_FixPtIDs[m_ConnectionEndIndex], m_FixPtStructIDs[m_ConnectionEndIndex], m_ConnectionEndSurfIndex );
-            }
+            curr_assy->AddConnection( m_FixPtIDs[m_ConnectionStartIndex], m_FixPtStructIDs[m_ConnectionStartIndex], m_ConnectionStartSurfIndex,
+                                      m_FixPtIDs[m_ConnectionEndIndex], m_FixPtStructIDs[m_ConnectionEndIndex], m_ConnectionEndSurfIndex );
         }
     }
     else if ( device == &m_DelConnectionButton )
     {
-        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaAssembly* > assy_vec = StructureMgr.GetFeaAssemblyVec();
-            FeaAssembly* fea_assy = assy_vec[StructureMgr.GetCurrAssemblyIndex()];
-
-            if ( fea_assy )
-            {
-                fea_assy->DelConnection( m_ConnectionBrowserIndex );
-            }
+            curr_assy->DelConnection( m_ConnectionBrowserIndex );
         }
     }
     else if ( device == &m_SelectStlFile )
