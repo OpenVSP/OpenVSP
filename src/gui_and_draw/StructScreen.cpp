@@ -2172,11 +2172,6 @@ bool StructScreen::Update()
             }
         }
 
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-        {
-            FeaStructure* curr_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
-            FeaMeshMgr.SetFeaMeshStructID( curr_struct->GetID() );
-        }
 
         FeaStructure* isect_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetIntersectStructID() );
         if ( isect_struct )
@@ -2722,8 +2717,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ExportCADButton )
     {
-        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
-
         FeaMeshMgr.addOutputText( "Exporting CAD Files\n" );
         FeaMeshMgr.ExportCADFiles();
     }
