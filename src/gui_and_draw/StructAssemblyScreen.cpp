@@ -817,79 +817,67 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_SelectStlFile )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_STL_FILE_NAME );
+                curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_STL_FILE_NAME );
             }
         }
     }
     else if ( device == &m_SelectMassFile )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select mass .txt file.", "*.txt" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_MASS_FILE_NAME );
+                curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_MASS_FILE_NAME );
             }
         }
     }
     else if ( device == &m_SelectNastFile )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN .dat file.", "*.dat" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_NASTRAN_FILE_NAME );
+                curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_NASTRAN_FILE_NAME );
             }
         }
     }
     else if ( device == &m_SelectNkeyFile )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN key file.", "*.nkey" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_NKEY_FILE_NAME );
+                curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_NKEY_FILE_NAME );
             }
         }
     }
     else if ( device == &m_SelectCalcFile  )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix .dat file.", "*.dat" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_CALCULIX_FILE_NAME );
+                curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_CALCULIX_FILE_NAME );
             }
         }
     }
     else if ( device == &m_SelectGmshFile )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        if ( curr_assy )
         {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .msh file.", "*.msh" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_GMSH_FILE_NAME );
+                curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_GMSH_FILE_NAME );
             }
         }
     }
