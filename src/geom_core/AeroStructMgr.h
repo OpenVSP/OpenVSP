@@ -45,6 +45,8 @@ public:
 
     Parm m_DynPress;
 
+    IntParm m_CurrStructAssyIndex;
+
     bool m_ADBFileFound;
     bool m_FEAMeshFileFound;
     bool m_FEAInputFileFound;
@@ -54,6 +56,9 @@ public:
     string m_FEAMeshFile;
     string m_FEAInputFile;
     string m_FEASolutionFile;
+
+    vector < bool > m_StructAssyFlagVec;
+    vector < string > m_StructAssyIDVec;
 
 private:
 

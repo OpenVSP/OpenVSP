@@ -40,10 +40,12 @@ public:
 
     void GuiDeviceCallBack( GuiDevice* gui_device );
 
+    void MakeStructIDVec( vector < string > &structid );
+
     ProcessUtil *GetProcess();
     Fl_Text_Display *GetDisplay();
 
-    void LaunchFEAMesh();
+    void LaunchBatchFEAMesh( const vector < string > &idvec );
 
 
 protected:
@@ -55,7 +57,9 @@ protected:
 
     Choice m_StructureChoice;
     TriggerButton m_ShowFEAMeshGUI;
-    TriggerButton m_ExecuteFEAMesh;
+    TriggerButton m_ShowFEAAssemblyGUI;
+    TriggerButton m_ExecuteRemeshAllFEAMesh;
+    TriggerButton m_ExecuteMeshUnmeshedFEAMesh;
     TriggerButton m_ExportFEAMesh;
 
     SliderAdjRangeInput m_DynPressSlider;
@@ -74,6 +78,8 @@ protected:
 
     ProcessUtil m_ViewerMonitor;
     ProcessUtil m_FeaMeshProcess;
+
+    vector < string > m_BatchIDs;
 };
 
 

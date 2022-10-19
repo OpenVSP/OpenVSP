@@ -38,12 +38,29 @@ AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 60
 
     m_GlobalLayout.AddChoice( m_StructureChoice, "Structure" );
 
-    m_GlobalLayout.AddButton( m_ShowFEAMeshGUI, "Show FEA Mesh GUI" );
-    m_GlobalLayout.AddButton( m_ExecuteFEAMesh, "Generate FEA Mesh" );
+    m_GlobalLayout.SetFitWidthFlag( false );
+    m_GlobalLayout.SetSameLineFlag( true );
+
+    m_GlobalLayout.SetButtonWidth( m_GlobalLayout.GetW() / 2 );
+
+    m_GlobalLayout.AddButton( m_ShowFEAMeshGUI, "Show FEA Structure GUI" );
+    m_GlobalLayout.AddButton( m_ShowFEAAssemblyGUI, "Show FEA Assembly GUI" );
+    m_GlobalLayout.ForceNewLine();
+
+
+    m_GlobalLayout.AddButton( m_ExecuteRemeshAllFEAMesh, "Remesh All" );
+    m_GlobalLayout.AddButton( m_ExecuteMeshUnmeshedFEAMesh, "Mesh Unmeshed" );
+    m_GlobalLayout.ForceNewLine();
+
+    m_GlobalLayout.SetFitWidthFlag( true );
+    m_GlobalLayout.SetSameLineFlag( false );
+
     m_GlobalLayout.AddButton( m_ExportFEAMesh, "Export FEA Mesh" );
 
     m_GlobalLayout.AddYGap();
     m_GlobalLayout.AddDividerBox( "Loads" );
+
+    m_GlobalLayout.SetButtonWidth( m_GlobalLayout.GetW() / 3 );
 
     m_GlobalLayout.AddSlider( m_DynPressSlider, "Dynamic Pressure", 100, "%7.3f"  );
     m_GlobalLayout.AddButton( m_ExecuteLoads, "Apply Loads" );
@@ -113,12 +130,14 @@ bool AeroStructScreen::Update()
 
     if ( FeaMeshMgr.GetFeaMeshInProgress() )
     {
-        m_ExecuteFEAMesh.Deactivate();
+        m_ExecuteRemeshAllFEAMesh.Deactivate();
+        m_ExecuteMeshUnmeshedFEAMesh.Deactivate();
         m_ExportFEAMesh.Deactivate();
     }
     else
     {
-        m_ExecuteFEAMesh.Activate();
+        m_ExecuteRemeshAllFEAMesh.Activate();
+        m_ExecuteMeshUnmeshedFEAMesh.Activate();
         m_ExportFEAMesh.Activate();
     }
 
@@ -127,16 +146,19 @@ bool AeroStructScreen::Update()
     {
         if ( !FeaMeshMgr.GetMeshPtr()->m_MeshReady )
         {
-            m_ExecuteFEAMesh.SetColor( FL_RED );
+            m_ExecuteRemeshAllFEAMesh.SetColor( FL_RED );
+            m_ExecuteMeshUnmeshedFEAMesh.SetColor( FL_RED );
         }
         else
         {
-            m_ExecuteFEAMesh.SetColor( FL_BACKGROUND_COLOR );
+            m_ExecuteRemeshAllFEAMesh.SetColor( FL_BACKGROUND_COLOR );
+            m_ExecuteMeshUnmeshedFEAMesh.SetColor( FL_BACKGROUND_COLOR );
         }
     }
     else
     {
-        m_ExecuteFEAMesh.SetColor( FL_RED );
+        m_ExecuteRemeshAllFEAMesh.SetColor( FL_RED );
+        m_ExecuteMeshUnmeshedFEAMesh.SetColor( FL_RED );
     }
 
     if ( !AeroStructMgr.m_FEAMeshFileFound )
@@ -195,31 +217,48 @@ bool AeroStructScreen::Update()
 
 
     m_StructureChoice.ClearItems();
-    // Populate browser with added structures
-    vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
-    if ( structVec.size() > 0 )
+
+    for ( int i = 0; i < AeroStructMgr.m_StructAssyIDVec.size(); i++ )
     {
-        for ( int i = 0; i < (int)structVec.size(); i++ )
+        string id = AeroStructMgr.m_StructAssyIDVec[i];
+
+        if ( AeroStructMgr.m_StructAssyFlagVec[i] )        // Current is a structure.
         {
-            string struct_name = structVec[i]->GetName();
-            int struct_surf_ind = structVec[i]->GetFeaStructMainSurfIndx();
-            string parent_geom_name;
-            char str[1000];
+            FeaStructure* fea_struct = StructureMgr.GetFeaStruct( id );
 
-            Geom* parent = veh->FindGeom( structVec[i]->GetParentGeomID() );
-            if ( parent )
+            if ( fea_struct )
             {
-                parent_geom_name = parent->GetName();
-            }
+                string struct_name = fea_struct->GetName();
+                int struct_surf_ind = fea_struct->GetFeaStructMainSurfIndx();
+                string parent_geom_name;
+                char str[1000];
 
-            sprintf( str, "%s:%s:Surf_%d", struct_name.c_str(), parent_geom_name.c_str(), struct_surf_ind );
-            m_StructureChoice.AddItem( str );
+                Geom *parent = veh->FindGeom( fea_struct->GetParentGeomID());
+                if ( parent )
+                {
+                    parent_geom_name = parent->GetName();
+                }
+
+                sprintf( str, "%s:%s:Surf_%d", struct_name.c_str(), parent_geom_name.c_str(), struct_surf_ind );
+                m_StructureChoice.AddItem( str );
+            }
+        }
+        else                                               // Current is an assembly.
+        {
+            FeaAssembly* fea_assy = StructureMgr.GetFeaAssembly( id );
+
+            if ( fea_assy )
+            {
+                string assy_name = fea_assy->GetName();
+
+                m_StructureChoice.AddItem( assy_name );
+            }
         }
     }
+
     m_StructureChoice.UpdateItems();
 
-    m_StructureChoice.Update( StructureMgr.m_CurrStructIndex.GetID() );
-
+    m_StructureChoice.Update( AeroStructMgr.m_CurrStructAssyIndex.GetID() );
 
 
 
@@ -357,18 +396,35 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_STRUCT_SCREEN );
     }
-    else if ( gui_device == &m_ExecuteFEAMesh )
+    else if ( gui_device == &m_ShowFEAAssemblyGUI )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN );
+    }
+    else if ( gui_device == &m_ExecuteRemeshAllFEAMesh )
     {
         // Clear the console
         m_ConsoleBuffer->text( "" );
 
-        FeaStructure* fea_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
-        if ( fea_struct )
-        {
-            // Identify which structure to write, should be already set
-            FeaMeshMgr.SetFeaMeshStructID( fea_struct->GetID() );
+        vector < string > structid;
+        MakeStructIDVec( structid );
 
-            LaunchFEAMesh();
+        if ( !structid.empty() )
+        {
+            FeaMeshMgr.CleanupMeshes( structid );
+            LaunchBatchFEAMesh( structid );
+        }
+    }
+    else if ( gui_device == &m_ExecuteMeshUnmeshedFEAMesh )
+    {
+        // Clear the console
+        m_ConsoleBuffer->text( "" );
+
+        vector < string > structid;
+        MakeStructIDVec( structid );
+
+        if ( !structid.empty() )
+        {
+            LaunchBatchFEAMesh( structid );
         }
     }
     else if ( gui_device == &m_ExportFEAMesh )
@@ -376,14 +432,22 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         // Clear the console
         m_ConsoleBuffer->text( "" );
 
-        FeaStructure* fea_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
-        if ( fea_struct )
+        if ( AeroStructMgr.m_CurrStructAssyIndex() >= 0 ) // Non-negative test is sufficient because of tests elsewhere.
         {
-            // Identify which structure to write, should be already set
-            FeaMeshMgr.SetFeaMeshStructID( fea_struct->GetID() );
+            string id = AeroStructMgr.m_StructAssyIDVec[ AeroStructMgr.m_CurrStructAssyIndex() ];
 
-            FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
-            FeaMeshMgr.ExportFeaMesh();
+            if ( AeroStructMgr.m_StructAssyFlagVec[ AeroStructMgr.m_CurrStructAssyIndex() ] )         // Currently a structure
+            {
+                FeaMeshMgr.SetFeaMeshStructID( id );
+
+                FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
+                FeaMeshMgr.ExportFeaMesh();
+            }
+            else                                                                                      // Currently an assembly.
+            {
+                FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
+                FeaMeshMgr.ExportAssemblyMesh( id );
+            }
         }
     }
     else if ( gui_device == &m_ExecuteLoads )
@@ -436,6 +500,38 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void AeroStructScreen::MakeStructIDVec( vector < string > &structid )
+{
+    structid.clear();
+
+    if ( AeroStructMgr.m_CurrStructAssyIndex() >= 0 ) // Non-negative test is sufficient because of tests elsewhere.
+    {
+        string id = AeroStructMgr.m_StructAssyIDVec[ AeroStructMgr.m_CurrStructAssyIndex() ];
+
+        if ( AeroStructMgr.m_StructAssyFlagVec[ AeroStructMgr.m_CurrStructAssyIndex() ] )         // Currently a structure
+        {
+            structid.push_back( id );
+//                FeaStructure *fea_struct = StructureMgr.GetFeaStruct( id );
+//                if ( fea_struct )
+//                {
+//                    // Identify which structure to write, should be already set
+//                    FeaMeshMgr.SetFeaMeshStructID( fea_struct->GetID() );
+//
+//                    LaunchFEAMesh();
+//                }
+        }
+        else                                                                                      // Currently an assembly.
+        {
+            FeaAssembly *fea_assy = StructureMgr.GetFeaAssembly( id );
+
+            if ( fea_assy )
+            {
+                structid = fea_assy->m_StructIDVec;
+            }
+        }
+    }
+}
+
 ProcessUtil* AeroStructScreen::GetProcess()
 {
     return &m_ViewerProcess;
@@ -452,25 +548,20 @@ DWORD WINAPI aerostruct_feamesh_thread_fun( LPVOID data )
 void * aerostruct_feamesh_thread_fun( void *data )
 #endif
 {
-    FeaMeshMgr.GenerateFeaMesh();
+    vector < string > *idvec = ( vector < string > * ) data;
+
+    FeaMeshMgr.MeshUnMeshed( *idvec );
+
     return 0;
 }
 
-void AeroStructScreen::LaunchFEAMesh()
+void AeroStructScreen::LaunchBatchFEAMesh( const vector < string > &idvec )
 {
     // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
     FeaMeshMgr.SetFeaMeshInProgress( true );
 
-    // Identify which structure to mesh
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
-    if ( fea_struct )
-    {
-        // Identify which structure to write, should be already set
-        FeaMeshMgr.SetFeaMeshStructID( fea_struct->GetID());
+    // Copy vector to memory that will persist through duration of meshing process.
+    m_BatchIDs = idvec;
 
-        m_FeaMeshProcess.StartThread( aerostruct_feamesh_thread_fun, NULL );
-
-        fea_struct->GetStructSettingsPtr()->m_DrawMeshFlag = true;
-        fea_struct->SetDrawFlag( false );
-    }
+    m_FeaMeshProcess.StartThread( aerostruct_feamesh_thread_fun, ( void* ) &m_BatchIDs  );
 }

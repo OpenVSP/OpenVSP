@@ -20,6 +20,7 @@ AeroStructSingleton::AeroStructSingleton() : ParmContainer()
 
     m_DynPress.Init( "DynamicPressure", "AeroStructure", this, 0, 0, 1e12 );
 
+    m_CurrStructAssyIndex.Init( "CurrStructAssyIndex", "AeroStructure", this, -1, -1, 1e12 );
 }
 
 xmlNodePtr AeroStructSingleton::EncodeXml( xmlNodePtr & node )
@@ -51,15 +52,66 @@ void AeroStructSingleton::Update()
     m_ADBFile = VSPAEROMgr.m_AdbFile;
     m_ADBFileFound = FileExist( m_ADBFile );
 
+    m_StructAssyFlagVec.clear();
+    m_StructAssyIDVec.clear();
+
+    vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+    if ( structVec.size() > 0 )
+    {
+        for ( int i = 0; i < (int)structVec.size(); i++ )
+        {
+            m_StructAssyFlagVec.push_back( true );
+            m_StructAssyIDVec.push_back( structVec[i]->GetID() );
+        }
+    }
+
+    vector < FeaAssembly* > assyVec = StructureMgr.GetFeaAssemblyVec();
+    if ( assyVec.size() > 0 )
+    {
+        for ( int i = 0; i < (int)assyVec.size(); i++ )
+        {
+            m_StructAssyFlagVec.push_back( false );
+            m_StructAssyIDVec.push_back( assyVec[i]->GetID() );
+        }
+    }
+
+    if ( m_StructAssyFlagVec.size() == 0 || ( m_CurrStructAssyIndex() >= m_StructAssyFlagVec.size() ) )
+    {
+        m_CurrStructAssyIndex.Set( -1 );
+    }
+
+
 
     m_FEAMeshFile = string();
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( StructureMgr.m_CurrStructIndex() );
-    if ( fea_struct )
+    m_FEAMeshFileFound = false;
+
+    if ( m_CurrStructAssyIndex() >= 0 ) // Non-negative test is sufficient because of tests above.
     {
-        vector < string > fnames = fea_struct->GetStructSettingsPtr()->GetExportFileNames();
-        m_FEAMeshFile = fnames[ vsp::FEA_CALCULIX_FILE_NAME ];
+        string id = m_StructAssyIDVec[ m_CurrStructAssyIndex() ];
+
+        if ( m_StructAssyFlagVec[ m_CurrStructAssyIndex() ] )                // Currently a structure
+        {
+            FeaStructure *fea_struct = StructureMgr.GetFeaStruct( id );
+            if ( fea_struct )
+            {
+                vector < string > fnames = fea_struct->GetStructSettingsPtr()->GetExportFileNames();
+                m_FEAMeshFile = fnames[ vsp::FEA_CALCULIX_FILE_NAME ];
+            }
+            m_FEAMeshFileFound = FileExist( m_FEAMeshFile );
+        }
+        else                                                                 // Currently an assembly.
+        {
+            FeaAssembly *fea_assy = StructureMgr.GetFeaAssembly( id );
+
+            if ( fea_assy )
+            {
+                vector < string > fnames = fea_assy->m_AssemblySettings.GetExportFileNames();
+                m_FEAMeshFile = fnames[ vsp::FEA_CALCULIX_FILE_NAME ];
+            }
+            m_FEAMeshFileFound = FileExist( m_FEAMeshFile );
+        }
     }
-    m_FEAMeshFileFound = FileExist( m_FEAMeshFile );
+
 
     m_FEAInputFile = string();
     if ( m_FEAMeshFileFound )
