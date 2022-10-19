@@ -446,6 +446,9 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
             }
         }
 
+        // One slice added automatically -- remove before adding more.  This prevents
+        // adding more Y=0 slices every time a file is load/saved.
+        ClearCpSliceVec();
         // Decode CpSlices using Internal Decode Method
         int num_slice = XmlUtil::FindInt( VSPAEROsetnode, "CpSliceCount", 0 );
         for ( size_t i = 0; i < num_slice; ++i )
