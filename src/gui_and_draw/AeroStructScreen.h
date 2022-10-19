@@ -40,7 +40,7 @@ public:
 
     void GuiDeviceCallBack( GuiDevice* gui_device );
 
-    void MakeStructIDVec( vector < string > &structid );
+    vector < string > MakeStructIDVec();
 
     ProcessUtil *GetProcess();
     Fl_Text_Display *GetDisplay();

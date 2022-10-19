@@ -406,7 +406,7 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         m_ConsoleBuffer->text( "" );
 
         vector < string > structid;
-        MakeStructIDVec( structid );
+        structid = MakeStructIDVec();
 
         if ( !structid.empty() )
         {
@@ -420,7 +420,7 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         m_ConsoleBuffer->text( "" );
 
         vector < string > structid;
-        MakeStructIDVec( structid );
+        structid = MakeStructIDVec();
 
         if ( !structid.empty() )
         {
@@ -498,9 +498,9 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void AeroStructScreen::MakeStructIDVec( vector < string > &structid )
+vector < string > AeroStructScreen::MakeStructIDVec()
 {
-    structid.clear();
+    vector < string > structid;
 
     if ( AeroStructMgr.m_CurrStructAssyIndex() >= 0 ) // Non-negative test is sufficient because of tests elsewhere.
     {
@@ -528,6 +528,7 @@ void AeroStructScreen::MakeStructIDVec( vector < string > &structid )
             }
         }
     }
+    return structid;
 }
 
 ProcessUtil* AeroStructScreen::GetProcess()
