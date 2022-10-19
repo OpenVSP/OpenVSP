@@ -124,11 +124,6 @@ public:
 
     virtual void SetFeaMeshStructID( string struct_id )
     {
-        if ( m_FeaMeshInProgress )
-        {
-            return;
-        }
-
         m_FeaStructID = struct_id;
         SetActiveMesh( struct_id );
 
