@@ -532,33 +532,35 @@ void StructAssemblyScreen::UpdateConnectionTab()
     m_ConnectionStartChoice.SetVal( m_ConnectionStartIndex );
     m_ConnectionEndChoice.SetVal( m_ConnectionEndIndex );
 
-
-    FeaPart* fpstart = StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionStartIndex ] );
-    if ( fpstart )
+    if ( m_FixPtIDs.size() > 0 )
     {
-        int num = fpstart->NumFeaPartSurfs();
-
-        for ( int i = 0; i< num; i ++ )
+        FeaPart* fpstart = StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionStartIndex ] );
+        if ( fpstart )
         {
-            m_ConnectionStartSurfIndxChoice.AddItem( to_string( i ), i );
+            int num = fpstart->NumFeaPartSurfs();
+
+            for ( int i = 0; i < num; i ++ )
+            {
+                m_ConnectionStartSurfIndxChoice.AddItem( to_string( i ), i );
+            }
         }
-    }
-    m_ConnectionStartSurfIndxChoice.UpdateItems();
-    m_ConnectionStartSurfIndxChoice.SetVal( m_ConnectionStartSurfIndex );
+        m_ConnectionStartSurfIndxChoice.UpdateItems();
+        m_ConnectionStartSurfIndxChoice.SetVal( m_ConnectionStartSurfIndex );
 
-    FeaPart* fpend = StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionEndIndex ] );
-    if ( fpend )
-    {
-        int num = fpend->NumFeaPartSurfs();
 
-        for ( int i = 0; i< num; i ++ )
+        FeaPart* fpend = StructureMgr.GetFeaPart( m_FixPtIDs[ m_ConnectionEndIndex ] );
+        if ( fpend )
         {
-            m_ConnectionEndSurfIndxChoice.AddItem( to_string( i ), i );
-        }
-    }
-    m_ConnectionEndSurfIndxChoice.UpdateItems();
-    m_ConnectionEndSurfIndxChoice.SetVal( m_ConnectionEndSurfIndex );
+            int num = fpend->NumFeaPartSurfs();
 
+            for ( int i = 0; i < num; i ++ )
+            {
+                m_ConnectionEndSurfIndxChoice.AddItem( to_string( i ), i );
+            }
+        }
+        m_ConnectionEndSurfIndxChoice.UpdateItems();
+        m_ConnectionEndSurfIndxChoice.SetVal( m_ConnectionEndSurfIndex );
+    }
 
     m_ConnectionSelectBrowser->column_char( ':' );
     m_ConnectionSelectBrowser->add( "@b@.START STRUCT:@b@.PT:@b@.INDEX:@b@.END STRUCT:@b@.PT:@b@.INDEX:" );
