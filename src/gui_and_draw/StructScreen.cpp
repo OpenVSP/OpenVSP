@@ -2706,11 +2706,8 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FeaExportFEMButton )
     {
-        // Identify which structure to write, should be already set
-        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
-
         FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
-        FeaMeshMgr.ExportFeaMesh();
+        FeaMeshMgr.ExportFeaMesh( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
     }
     else if ( device == &m_IntersectOnlyButton )
     {

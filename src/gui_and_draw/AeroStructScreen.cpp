@@ -438,10 +438,8 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             if ( AeroStructMgr.m_StructAssyFlagVec[ AeroStructMgr.m_CurrStructAssyIndex() ] )         // Currently a structure
             {
-                FeaMeshMgr.SetFeaMeshStructID( id );
-
                 FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
-                FeaMeshMgr.ExportFeaMesh();
+                FeaMeshMgr.ExportFeaMesh( id );
             }
             else                                                                                      // Currently an assembly.
             {

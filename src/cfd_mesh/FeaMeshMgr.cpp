@@ -480,18 +480,19 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }
 
-void FeaMeshMgrSingleton::ExportFeaMesh()
+void FeaMeshMgrSingleton::ExportFeaMesh( string structID )
 {
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( structID );
+    FeaMesh* mesh = GetMeshPtr( structID );
 
-    if ( fea_struct )
+    if ( mesh && fea_struct )
     {
-        GetMeshPtr()->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr());
+        mesh->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr() );
+
+        TransferPropMatData();
+
+        mesh->ExportFeaMesh();
     }
-
-    TransferPropMatData();
-
-    GetMeshPtr()->ExportFeaMesh();
 }
 
 void FeaMeshMgrSingleton::ExportCADFiles()

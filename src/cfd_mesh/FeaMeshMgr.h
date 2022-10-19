@@ -91,7 +91,7 @@ public:
     virtual bool LoadSurfaces();
     virtual void LoadSkins();
     virtual void GenerateFeaMesh();
-    virtual void ExportFeaMesh();
+    virtual void ExportFeaMesh( string structID );
     virtual void ExportCADFiles();
     virtual void TransferMeshSettings();
     virtual void IdentifyCompIDNames();
