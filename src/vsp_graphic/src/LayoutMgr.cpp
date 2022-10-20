@@ -119,8 +119,6 @@ void LayoutMgr::predraw( Scene * scene, int x, int y )
 
         glDisable( GL_LIGHTING );
 
-        glDisable( GL_POINT_SMOOTH );
-        glDisable( GL_LINE_SMOOTH );
         glDisable( GL_BLEND );
         glDisable( GL_MULTISAMPLE );
 
@@ -164,9 +162,6 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
         // Set Viewport Properties.
         glDisable( GL_LIGHTING );
 
-        glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
-        glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
-
         glBlendFuncSeparate( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE );
         glEnable( GL_BLEND );
 
@@ -176,8 +171,7 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
         glDepthFunc( GL_LEQUAL );
         glEnable( GL_DEPTH_TEST );
 
-        glEnable( GL_POINT_SMOOTH );
-        glEnable( GL_LINE_SMOOTH );
+        glEnable( GL_MULTISAMPLE );
 
         glShadeModel( GL_SMOOTH );
 

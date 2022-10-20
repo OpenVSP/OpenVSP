@@ -190,15 +190,12 @@ void Viewport::drawXYZArrows()
     glVertex3d( 0.0, 0.0, ARROW_LENGTH );
     glEnd();
 
-    glEnable( GL_POINT_SMOOTH );
-    glPointSize( 3.0 );
+    glPointSize( 6.0 );
     glBegin( GL_POINTS );
     glColor3ub( 0, 0, 0 );
     glVertex3d( 0.0, 0.0, 0.0 );
     glEnd();
 
-    glDisable( GL_POINT_SMOOTH );
-    glDisable( GL_LINE_SMOOTH );
     glDepthMask( GL_FALSE );
     glDisable( GL_DEPTH_TEST );
 
