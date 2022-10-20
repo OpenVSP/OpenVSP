@@ -569,6 +569,13 @@ void StructAssemblyScreen::UpdateConnectionTab()
     for ( int i = 0; i < convec.size(); i++ )
     {
         m_ConnectionSelectBrowser->add( convec[i]->MakeLabel().c_str() );
+
+        convec[i]->SetDrawObjHighlight( false );
+    }
+
+    if ( m_ConnectionBrowserIndex >= 0 )
+    {
+        convec[ m_ConnectionBrowserIndex ]->SetDrawObjHighlight( true );
     }
 
     m_ConnectionSelectBrowser->select( m_ConnectionBrowserIndex + 2 );
@@ -896,6 +903,23 @@ void StructAssemblyScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     if ( IsShown() )
     {
+        FeaAssembly *curr_assy = NULL;
+        if ( StructureMgr.ValidFeaAssemblyInd( StructureMgr.GetCurrAssemblyIndex() ) )
+        {
+            curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+        }
+
+        if ( curr_assy )
+        {
+            // This makes sure connection DO's are updated.
+            // does not need to be called every time, but they aren't in an update path
+            // otherwise.
+            curr_assy->Update();
+
+
+            curr_assy->LoadDrawObjs( draw_obj_vec );
+        }
+
 
         // Load Draw Objects for FeaMesh
         FeaMeshMgr.LoadDrawObjs( draw_obj_vec );

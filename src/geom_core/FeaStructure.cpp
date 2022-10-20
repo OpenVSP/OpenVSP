@@ -5423,6 +5423,12 @@ FeaConnection::FeaConnection( )
     m_EndFixPtSurfIndex.Init( "EndFixPtSurfIndex", "Connection", this, -1, -1, 1e12 );
 }
 
+void FeaConnection::Update( )
+{
+
+    UpdateDrawObjs();
+}
+
 xmlNodePtr FeaConnection::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr conn_node = xmlNewChild( node, NULL, BAD_CAST "Connection", NULL );
@@ -5493,6 +5499,61 @@ string FeaConnection::MakeName()
     return name;
 }
 
+void FeaConnection::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
+{
+    draw_obj_vec.push_back( &m_ConnLineDO );
+    draw_obj_vec.push_back( &m_ConnPtsDO );
+}
+
+void FeaConnection::UpdateDrawObjs()
+{
+    FeaFixPoint* start_pt = dynamic_cast< FeaFixPoint* > ( StructureMgr.GetFeaPart( m_StartFixPtID ) );
+    FeaFixPoint* end_pt = dynamic_cast< FeaFixPoint* > ( StructureMgr.GetFeaPart( m_EndFixPtID ) );
+
+    if ( start_pt && end_pt )
+    {
+        vector <vec3d> sp = start_pt->GetPntVec();
+        vector <vec3d> ep = end_pt->GetPntVec();
+
+        vector <vec3d> pv(2);
+        pv[0] = sp[ m_StartFixPtSurfIndex() ];
+        pv[1] = ep[ m_EndFixPtSurfIndex() ];
+
+        m_ConnLineDO.m_Type = DrawObj::VSP_LINES;
+        m_ConnLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_ConnLineDO.m_LineWidth = 2.0;
+        m_ConnLineDO.m_GeomID = GetID() + "Line";
+        m_ConnLineDO.m_GeomChanged = true;
+        m_ConnLineDO.m_PntVec = pv;
+
+        m_ConnPtsDO.m_Type = DrawObj::VSP_POINTS;
+        m_ConnPtsDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_ConnPtsDO.m_PointSize = 7.0;
+        m_ConnPtsDO.m_GeomID = GetID() + "Pts";
+        m_ConnPtsDO.m_GeomChanged = true;
+        m_ConnPtsDO.m_PntVec = pv;
+    }
+}
+
+void FeaConnection::SetDrawObjHighlight ( bool highlight )
+{
+    if ( highlight )
+    {
+        m_ConnLineDO.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
+
+        m_ConnPtsDO.m_PointColor = vec3d( 0.0, 0.0, 1.0 );
+        m_ConnPtsDO.m_Visible = true;
+
+    }
+    else
+    {
+        m_ConnLineDO.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+
+        m_ConnPtsDO.m_Visible = false;
+    }
+}
+
+
 //////////////////////////////////////////////////////
 //================= FeaConnection ==================//
 //////////////////////////////////////////////////////
@@ -5508,6 +5569,30 @@ FeaAssembly::~FeaAssembly()
         delete m_ConnectionVec[i];
     }
     m_ConnectionVec.clear();
+}
+
+void FeaAssembly::Update()
+{
+    for ( int i = 0 ; i < ( int )m_ConnectionVec.size() ; i++ )
+    {
+        FeaConnection* conn = m_ConnectionVec[i];
+        if ( conn )
+        {
+            conn->Update();
+        }
+    }
+}
+
+void FeaAssembly::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
+{
+    for ( int i = 0 ; i < ( int )m_ConnectionVec.size() ; i++ )
+    {
+        FeaConnection* conn = m_ConnectionVec[i];
+        if ( conn )
+        {
+            conn->LoadDrawObjs( draw_obj_vec );
+        }
+    }
 }
 
 xmlNodePtr FeaAssembly::EncodeXml( xmlNodePtr & node )

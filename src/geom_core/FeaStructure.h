@@ -690,11 +690,17 @@ public:
     FeaConnection();
     virtual ~FeaConnection()    {};
 
+    virtual void Update();
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual string MakeLabel();
     virtual string MakeName();
+
+    virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
+    virtual void UpdateDrawObjs();
+    virtual void SetDrawObjHighlight ( bool highlight );
 
     string m_StartStructID;
     string m_StartFixPtID;
@@ -706,6 +712,9 @@ public:
 
 protected:
 
+    DrawObj m_ConnLineDO;
+    DrawObj m_ConnPtsDO;
+
 };
 
 class FeaAssembly : public ParmContainer
@@ -714,6 +723,9 @@ public:
 
     FeaAssembly();
     ~FeaAssembly();
+
+    virtual void Update();
+    virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
