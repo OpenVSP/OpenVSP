@@ -2484,7 +2484,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         if ( GetMeshPtr() )
         {
-            GetMeshPtr()->LoadDrawObjs( draw_obj_vec );
+            GetMeshPtr()->LoadDrawObjs( draw_obj_vec, GetMeshPtr()->GetStructSettingsPtr() );
         }
     }
 }

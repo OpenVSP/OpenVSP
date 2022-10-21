@@ -47,7 +47,7 @@ public:
     virtual bool FeaDataAvailable();
     virtual void SetAllDisplayFlags( bool flag );
     virtual void UpdateDrawObjs();
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, SimpleFeaMeshSettings* st_settings );
 
     virtual void UpdateDisplaySettings();
 

@@ -435,8 +435,7 @@ void FeaMesh::UpdateDrawObjs()
     }
 }
 
-
-void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
+void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSettings* st_settings )
 {
     if ( !m_MeshDOUpToDate )
     {
@@ -474,13 +473,13 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_CapFeaElementDO[iprt].m_Type = DrawObj::VSP_LINES;
             m_CapFeaElementDO[iprt].m_LineWidth = 3.0;
 
-            if ( GetStructSettingsPtr()->m_DrawMeshFlag ||
-                 GetStructSettingsPtr()->m_ColorTagsFlag )   // At least mesh or tags are visible.
+            if ( st_settings->m_DrawMeshFlag ||
+                 st_settings->m_ColorTagsFlag )   // At least mesh or tags are visible.
             {
                 if ( !m_FixPointFeaPartFlagVec[iprt] )
                 {
-                    if ( GetStructSettingsPtr()->m_DrawMeshFlag &&
-                         GetStructSettingsPtr()->m_ColorTagsFlag ) // Both are visible.
+                    if ( st_settings->m_DrawMeshFlag &&
+                         st_settings->m_ColorTagsFlag ) // Both are visible.
                     {
                         m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
                         m_FeaTriElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
@@ -488,7 +487,7 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                         m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_WIRE_SHADED_QUADS;
                         m_FeaQuadElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                     }
-                    else if ( GetStructSettingsPtr()->m_DrawMeshFlag ) // Mesh only
+                    else if ( st_settings->m_DrawMeshFlag ) // Mesh only
                     {
                         m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_HIDDEN_TRIS;
                         m_FeaTriElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
@@ -513,7 +512,7 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_FeaQuadElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
             }
 
-            if ( GetStructSettingsPtr()->m_ColorTagsFlag )
+            if ( st_settings->m_ColorTagsFlag )
             {
                 // Color sequence -- go around color wheel ncstep times with slight
                 // offset from ncgrp basic colors.
@@ -580,12 +579,12 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_CapFeaElementDO[iprt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             }
 
-            m_FeaTriElementDO[iprt].m_Visible = ( GetStructSettingsPtr()->m_DrawMeshFlag || GetStructSettingsPtr()->m_ColorTagsFlag ) && m_DrawElementFlagVec[iprt];
-            m_FeaQuadElementDO[iprt].m_Visible = ( GetStructSettingsPtr()->m_DrawMeshFlag || GetStructSettingsPtr()->m_ColorTagsFlag ) && m_DrawElementFlagVec[iprt];
-            m_FeaNodeDO[ iprt ].m_Visible = GetStructSettingsPtr()->m_DrawNodesFlag && m_DrawElementFlagVec[iprt];
+            m_FeaTriElementDO[iprt].m_Visible = ( st_settings->m_DrawMeshFlag || st_settings->m_ColorTagsFlag ) && m_DrawElementFlagVec[iprt];
+            m_FeaQuadElementDO[iprt].m_Visible = ( st_settings->m_DrawMeshFlag || st_settings->m_ColorTagsFlag ) && m_DrawElementFlagVec[iprt];
+            m_FeaNodeDO[ iprt ].m_Visible = st_settings->m_DrawNodesFlag && m_DrawElementFlagVec[iprt];
             m_CapFeaElementDO[ iprt ].m_Visible = m_DrawCapFlagVec[ iprt ];
-            m_ElOrientationDO[iprt].m_Visible = GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[iprt];
-            m_CapNormDO[iprt].m_Visible = GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawCapFlagVec[iprt];
+            m_ElOrientationDO[iprt].m_Visible = st_settings->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[iprt];
+            m_CapNormDO[iprt].m_Visible = st_settings->m_DrawElementOrientVecFlag && m_DrawCapFlagVec[iprt];
 
             draw_obj_vec.push_back( &m_FeaNodeDO[iprt] );
             draw_obj_vec.push_back( &m_FeaTriElementDO[iprt] );
@@ -604,19 +603,19 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_SSCapFeaElementDO[iss].m_Type = DrawObj::VSP_LINES;
             m_SSCapFeaElementDO[iss].m_LineWidth = 3.0;
 
-            if ( GetStructSettingsPtr()->m_DrawMeshFlag ||
-                 GetStructSettingsPtr()->m_ColorTagsFlag )   // At least mesh or tags are visible.
+            if ( st_settings->m_DrawMeshFlag ||
+                 st_settings->m_ColorTagsFlag )   // At least mesh or tags are visible.
             {
 
-                if ( GetStructSettingsPtr()->m_DrawMeshFlag &&
-                     GetStructSettingsPtr()->m_ColorTagsFlag ) // Both are visible.
+                if ( st_settings->m_DrawMeshFlag &&
+                     st_settings->m_ColorTagsFlag ) // Both are visible.
                 {
                     m_SSTriElementDO[iss].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
                     m_SSTriElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                     m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_WIRE_SHADED_QUADS;
                     m_SSQuadElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
-                else if ( GetStructSettingsPtr()->m_DrawMeshFlag ) // Mesh only
+                else if ( st_settings->m_DrawMeshFlag ) // Mesh only
                 {
                     m_SSTriElementDO[iss].m_Type = DrawObj::VSP_HIDDEN_TRIS;
                     m_SSTriElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
@@ -637,7 +636,7 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_SSQuadElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
             }
 
-            if ( GetStructSettingsPtr()->m_ColorTagsFlag )
+            if ( st_settings->m_ColorTagsFlag )
             {
                 // Color sequence -- go around color wheel ncstep times with slight
                 // offset from ncgrp basic colors.
@@ -696,13 +695,13 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_SSCapFeaElementDO[iss].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             }
 
-            m_SSTriElementDO[ iss ].m_Visible = ( GetStructSettingsPtr()->m_DrawMeshFlag || GetStructSettingsPtr()->m_ColorTagsFlag ) && m_DrawElementFlagVec[ iss + m_NumFeaParts ];
-            m_SSQuadElementDO[ iss ].m_Visible = ( GetStructSettingsPtr()->m_DrawMeshFlag || GetStructSettingsPtr()->m_ColorTagsFlag ) && m_DrawElementFlagVec[ iss + m_NumFeaParts ];
+            m_SSTriElementDO[ iss ].m_Visible = ( st_settings->m_DrawMeshFlag || st_settings->m_ColorTagsFlag ) && m_DrawElementFlagVec[ iss + m_NumFeaParts ];
+            m_SSQuadElementDO[ iss ].m_Visible = ( st_settings->m_DrawMeshFlag || st_settings->m_ColorTagsFlag ) && m_DrawElementFlagVec[ iss + m_NumFeaParts ];
 
-            m_SSFeaNodeDO[ iss ].m_Visible = GetStructSettingsPtr()->m_DrawNodesFlag && m_DrawElementFlagVec[ iss + m_NumFeaParts];
+            m_SSFeaNodeDO[ iss ].m_Visible = st_settings->m_DrawNodesFlag && m_DrawElementFlagVec[ iss + m_NumFeaParts];
             m_SSCapFeaElementDO[ iss ].m_Visible = m_DrawCapFlagVec[ iss + m_NumFeaParts];
-            m_SSElOrientationDO[ iss ].m_Visible = GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[ iss + m_NumFeaParts ];
-            m_SSCapNormDO[ iss ].m_Visible = GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawCapFlagVec[ iss + m_NumFeaParts ];
+            m_SSElOrientationDO[ iss ].m_Visible = st_settings->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[ iss + m_NumFeaParts ];
+            m_SSCapNormDO[ iss ].m_Visible = st_settings->m_DrawElementOrientVecFlag && m_DrawCapFlagVec[ iss + m_NumFeaParts ];
 
             draw_obj_vec.push_back( &m_SSFeaNodeDO[iss] );
             draw_obj_vec.push_back( &m_SSTriElementDO[iss] );
