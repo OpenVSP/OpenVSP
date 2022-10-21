@@ -2602,8 +2602,9 @@ void StructScreen::CallBack( Fl_Widget* w )
         }
         else if ( w == m_DrawPartSelectBrowser )
         {
-            int selected_index = m_DrawPartSelectBrowser->value() - 1;
+            int selected_index = m_DrawPartSelectBrowser->value();
             bool flag = !!m_DrawPartSelectBrowser->checked( selected_index );
+            selected_index--;
 
             vector < string > draw_browser_name_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserNameVec();
             vector < int > draw_browser_index_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserIndexVec();
