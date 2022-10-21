@@ -577,7 +577,7 @@ void StructAssemblyScreen::UpdateConnectionTab()
         convec[i]->SetDrawObjHighlight( false );
     }
 
-    if ( m_ConnectionBrowserIndex >= 0 )
+    if ( m_ConnectionBrowserIndex >= 0 && convec.size() > 0 && m_ConnectionBrowserIndex < convec.size() )
     {
         convec[ m_ConnectionBrowserIndex ]->SetDrawObjHighlight( true );
     }
