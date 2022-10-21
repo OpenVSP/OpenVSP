@@ -2794,3 +2794,47 @@ void FeaMeshMgrSingleton::WriteCalculixMaterials( FILE* fp )
         }
     }
 }
+
+void FeaMeshMgrSingleton::ModifyConnDO( FeaConnection* conn, vector < DrawObj* > connDO )
+{
+    if ( conn && connDO.size() == 2 )
+    {
+        FeaMesh *startmesh = GetMeshPtr( conn->m_StartStructID );
+
+        if ( startmesh )
+        {
+            FixPoint *fxpt = startmesh->GetFixPointByID( conn->m_StartFixPtID );
+
+            if ( fxpt )
+            {
+                int npt = fxpt->m_Pnt.size();
+                int indx = conn->m_StartFixPtSurfIndex();
+
+                if ( indx >= 0 && indx < npt )
+                {
+                    connDO[ 0 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ];
+                    connDO[ 1 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ];
+                }
+            }
+        }
+
+        FeaMesh *endmesh = GetMeshPtr( conn->m_EndStructID );
+
+        if ( endmesh )
+        {
+            FixPoint *fxpt = endmesh->GetFixPointByID( conn->m_EndFixPtID );
+
+            if ( fxpt )
+            {
+                int npt = fxpt->m_Pnt.size();
+                int indx = conn->m_EndFixPtSurfIndex();
+
+                if ( indx >= 0 && indx < npt )
+                {
+                    connDO[0]->m_PntVec[1] = fxpt->m_Pnt[ indx ];
+                    connDO[1]->m_PntVec[1] = fxpt->m_Pnt[ indx ];
+                }
+            }
+        }
+    }
+}

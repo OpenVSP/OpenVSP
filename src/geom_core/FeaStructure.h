@@ -725,7 +725,6 @@ public:
     ~FeaAssembly();
 
     virtual void Update();
-    virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );

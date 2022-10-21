@@ -934,7 +934,27 @@ void StructAssemblyScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             // does not need to be called every time, but they aren't in an update path
             // otherwise.
             curr_assy->Update();
-            curr_assy->LoadDrawObjs( draw_obj_vec );
+
+            for ( int i = 0 ; i < ( int )curr_assy->m_ConnectionVec.size() ; i++ )
+            {
+                FeaConnection* conn = curr_assy->m_ConnectionVec[i];
+                if ( conn )
+                {
+                    if ( FeaMeshMgr.GetAssemblySettingsPtr()->m_DrawAsMeshFlag )
+                    {
+                        std::vector < DrawObj * > connDO;
+
+                        // Grab version to potentially modify.
+                        conn->LoadDrawObjs( connDO );
+
+                        // Modify each point if mesh is ready.
+                        FeaMeshMgr.ModifyConnDO( conn, connDO );
+                    }
+
+                    // Grab pointers for graphics engine.
+                    conn->LoadDrawObjs( draw_obj_vec );
+                }
+            }
 
             vector < string > idvec = curr_assy->m_StructIDVec;
             for ( int iid = 0; iid < idvec.size(); iid++ )

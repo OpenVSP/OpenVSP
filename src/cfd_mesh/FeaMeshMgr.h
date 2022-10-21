@@ -213,6 +213,8 @@ public:
     virtual void WriteConnectionCalculix( FILE* fp, FeaConnection* conn );
     virtual void WriteCalculixMaterials( FILE* fp );
 
+    virtual void ModifyConnDO( FeaConnection* conn, vector < DrawObj* > connDO );
+
 protected:
 
     virtual void GetMassUnit();

@@ -5421,6 +5421,16 @@ FeaConnection::FeaConnection( )
 {
     m_StartFixPtSurfIndex.Init( "StartFixPtSurfIndex", "Connection", this, -1, -1, 1e12 );
     m_EndFixPtSurfIndex.Init( "EndFixPtSurfIndex", "Connection", this, -1, -1, 1e12 );
+
+    m_ConnLineDO.m_Type = DrawObj::VSP_LINES;
+    m_ConnLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_ConnLineDO.m_LineWidth = 2.0;
+    m_ConnLineDO.m_GeomID = GetID() + "Line";
+
+    m_ConnPtsDO.m_Type = DrawObj::VSP_POINTS;
+    m_ConnPtsDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_ConnPtsDO.m_PointSize = 7.0;
+    m_ConnPtsDO.m_GeomID = GetID() + "Pts";
 }
 
 void FeaConnection::Update( )
@@ -5519,17 +5529,9 @@ void FeaConnection::UpdateDrawObjs()
         pv[0] = sp[ m_StartFixPtSurfIndex() ];
         pv[1] = ep[ m_EndFixPtSurfIndex() ];
 
-        m_ConnLineDO.m_Type = DrawObj::VSP_LINES;
-        m_ConnLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_ConnLineDO.m_LineWidth = 2.0;
-        m_ConnLineDO.m_GeomID = GetID() + "Line";
         m_ConnLineDO.m_GeomChanged = true;
         m_ConnLineDO.m_PntVec = pv;
 
-        m_ConnPtsDO.m_Type = DrawObj::VSP_POINTS;
-        m_ConnPtsDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_ConnPtsDO.m_PointSize = 7.0;
-        m_ConnPtsDO.m_GeomID = GetID() + "Pts";
         m_ConnPtsDO.m_GeomChanged = true;
         m_ConnPtsDO.m_PntVec = pv;
     }
@@ -5579,18 +5581,6 @@ void FeaAssembly::Update()
         if ( conn )
         {
             conn->Update();
-        }
-    }
-}
-
-void FeaAssembly::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
-{
-    for ( int i = 0 ; i < ( int )m_ConnectionVec.size() ; i++ )
-    {
-        FeaConnection* conn = m_ConnectionVec[i];
-        if ( conn )
-        {
-            conn->LoadDrawObjs( draw_obj_vec );
         }
     }
 }
