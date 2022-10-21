@@ -79,6 +79,11 @@ public:
         return NULL;
     }
 
+    virtual SimpleAssemblySettings* GetAssemblySettingsPtr()
+    {
+        return &m_AssemblySettings;
+    }
+
     virtual void SetActiveMesh( string struct_id );
 
     virtual FeaMesh* GetMeshPtr()

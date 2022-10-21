@@ -502,6 +502,8 @@ SimpleFeaGridDensity::~SimpleFeaGridDensity()
 
 SimpleAssemblySettings::SimpleAssemblySettings()
 {
+    m_DrawAsMeshFlag = true;
+
     m_DrawMeshFlag = false;
     m_ColorTagsFlag = false;
 
@@ -516,6 +518,8 @@ SimpleAssemblySettings::~SimpleAssemblySettings()
 
 void SimpleAssemblySettings::CopyFrom( AssemblySettings* settings )
 {
+    m_DrawAsMeshFlag = settings->m_DrawAsMeshFlag.Get();
+
     m_DrawMeshFlag = settings->m_DrawMeshFlag.Get();
     m_ColorTagsFlag = settings->m_ColorTagsFlag.Get();
 

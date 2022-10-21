@@ -227,6 +227,7 @@ public:
     void SetFileExportFlag( int type, bool flag );
     vector < string > GetExportFileNames();
 
+    BoolParm m_DrawAsMeshFlag;
     BoolParm m_DrawMeshFlag;
     BoolParm m_ColorTagsFlag;
 

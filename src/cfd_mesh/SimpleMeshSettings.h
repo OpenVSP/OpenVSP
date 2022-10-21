@@ -245,6 +245,7 @@ public:
 
     virtual void CopyPostOpFrom( AssemblySettings* settings );
 
+    bool m_DrawAsMeshFlag;
 
 protected:
 

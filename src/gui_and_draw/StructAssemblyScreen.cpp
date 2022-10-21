@@ -27,7 +27,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "FEA Assembly", 201 + 5 )
+StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650 + 30, "FEA Assembly", 221 + 5 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -49,11 +49,11 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
     m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
                         - textheight                            // 150
-                        - 2 * m_ConsoleLayout.GetStdHeight()    // 2 * 20
+                        - 3 * m_ConsoleLayout.GetStdHeight()    // 3 * 20
                         - m_ConsoleLayout.GetGapHeight()        // 6
                         - border );                             // 5
 
-    // 201 + 5 passed to TabScreen constructor above is this sum plus an additional border.
+    // 221 + 5 passed to TabScreen constructor above is this sum plus an additional border.
     // textheight + 2 * m_ConsoleLayout.GetStdHeight() + m_ConsoleLayout.GetGapHeight() + 2 * border
     // This is for the contents of m_BorderConsoleLayout.
 
@@ -68,6 +68,8 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     m_FLTK_Window->resizable( m_ConsoleDisplay );
 
     m_BorderConsoleLayout.AddYGap();
+
+    m_BorderConsoleLayout.AddButton( m_DrawAsMeshButton, "Draw as Mesh When Ready" );
 
     m_BorderConsoleLayout.SetSameLineFlag( true );
     m_BorderConsoleLayout.SetFitWidthFlag( false );
@@ -317,6 +319,8 @@ bool StructAssemblyScreen::Update()
     {
         return false;
     }
+
+    m_DrawAsMeshButton.Update( curr_assy->m_AssemblySettings.m_DrawAsMeshFlag.GetID() );
 
     //===== Display Tab Toggle Update =====//
     m_DrawMeshButton.Update( curr_assy->m_AssemblySettings.m_DrawMeshFlag.GetID() );
@@ -590,6 +594,9 @@ void StructAssemblyScreen::UpdateDrawPartBrowser()
     int scroll_pos = m_DrawPartSelectBrowser->position();
     m_DrawPartSelectBrowser->clear();
 
+    m_DrawBrowserMeshIDVec.clear();
+    m_DrawBrowserIndexVec.clear();
+
     FeaAssembly* curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
 
     if ( !curr_assy )
@@ -598,7 +605,6 @@ void StructAssemblyScreen::UpdateDrawPartBrowser()
     }
 
     vector < string > idvec = curr_assy->m_StructIDVec;
-
     for ( int i = 0; i < idvec.size(); i++ )
     {
         int indx = vector_find_val( m_StructIDs, idvec[i] );
@@ -614,6 +620,9 @@ void StructAssemblyScreen::UpdateDrawPartBrowser()
 
             for ( unsigned int j = 0; j < draw_browser_name_vec.size(); j++ )
             {
+                m_DrawBrowserMeshIDVec.push_back( idvec[ i ] );
+                m_DrawBrowserIndexVec.push_back( j );
+
                 if ( draw_browser_name_vec[i].find( "CAP" ) != std::string::npos )
                 {
                     m_DrawPartSelectBrowser->add( draw_browser_name_vec[j].c_str(), draw_cap_flag_vec[draw_browser_index_vec[j]] );
@@ -664,20 +673,30 @@ void StructAssemblyScreen::CallBack( Fl_Widget* w )
     {
         int selected_index = m_DrawPartSelectBrowser->value();
         bool flag = !!m_DrawPartSelectBrowser->checked( selected_index );
+        selected_index--;
 
-        /*
-        vector < string > draw_browser_name_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserNameVec();
-        vector < int > draw_browser_index_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserIndexVec();
+        if ( selected_index >= 0 && selected_index < m_DrawBrowserMeshIDVec.size() && m_DrawBrowserMeshIDVec.size() > 0 )
+        {
+            string id = m_DrawBrowserMeshIDVec[ selected_index ];
+            int index = m_DrawBrowserIndexVec[ selected_index ];
 
-        if ( draw_browser_name_vec[selected_index - 1].find( "CAP" ) != std::string::npos )
-        {
-            FeaMeshMgr.GetMeshPtr()->SetDrawCapFlag( draw_browser_index_vec[selected_index - 1], flag );
+            FeaMesh *mesh = FeaMeshMgr.GetMeshPtr( id );
+
+            if ( mesh )
+            {
+                vector < string > draw_browser_name_vec = mesh->GetDrawBrowserNameVec();
+                vector < int > draw_browser_index_vec = mesh->GetDrawBrowserIndexVec();
+
+                if ( draw_browser_name_vec[index].find( "CAP" ) != std::string::npos )
+                {
+                    mesh->SetDrawCapFlag( draw_browser_index_vec[index], flag );
+                }
+                else
+                {
+                    mesh->SetDrawElementFlag( draw_browser_index_vec[index], flag );
+                }
+            }
         }
-        else
-        {
-            FeaMeshMgr.GetMeshPtr()->SetDrawElementFlag( draw_browser_index_vec[selected_index - 1], flag );
-        }
-         */
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -915,13 +934,45 @@ void StructAssemblyScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             // does not need to be called every time, but they aren't in an update path
             // otherwise.
             curr_assy->Update();
-
-
             curr_assy->LoadDrawObjs( draw_obj_vec );
+
+            vector < string > idvec = curr_assy->m_StructIDVec;
+            for ( int iid = 0; iid < idvec.size(); iid++ )
+            {
+                FeaMesh *mesh = FeaMeshMgr.GetMeshPtr( idvec[ iid ] );
+
+                bool drewmesh = false;
+
+                if ( mesh )
+                {
+                    if ( mesh->m_MeshReady && FeaMeshMgr.GetAssemblySettingsPtr()->m_DrawAsMeshFlag )
+                    {
+                        mesh->LoadDrawObjs( draw_obj_vec, FeaMeshMgr.GetAssemblySettingsPtr() );
+
+                        drewmesh = true;
+                    }
+                }
+
+                if ( !drewmesh )
+                {
+                    FeaStructure *fea_struct = StructureMgr.GetFeaStruct( idvec[ iid ] );
+
+                    if ( fea_struct )
+                    {
+                        vector < FeaPart * > partvec = fea_struct->GetFeaPartVec();
+                        for ( unsigned int i = 0; i < ( int ) partvec.size(); i++ )
+                        {
+                            partvec[ i ]->LoadDrawObjs( draw_obj_vec );
+                        }
+
+                        vector < SubSurface * > subsurf_vec = fea_struct->GetFeaSubSurfVec();
+                        for ( unsigned int i = 0; i < ( int ) subsurf_vec.size(); i++ )
+                        {
+                            subsurf_vec[ i ]->LoadDrawObjs( draw_obj_vec );
+                        }
+                    }
+                }
+            }
         }
-
-
-        // Load Draw Objects for FeaMesh
-        FeaMeshMgr.LoadDrawObjs( draw_obj_vec );
     }
 }

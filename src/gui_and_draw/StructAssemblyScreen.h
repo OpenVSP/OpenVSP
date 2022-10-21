@@ -142,6 +142,8 @@ private:
     StringOutput m_NkeyOutput;
     StringOutput m_CalcOutput;
 
+    ToggleButton m_DrawAsMeshButton;
+
     ToggleButton m_DrawMeshButton;
     ToggleButton m_ColorElementsButton;
     ToggleButton m_DrawNodesToggle;
@@ -155,6 +157,9 @@ private:
     //==== Private Variables ====//
 
     vector < string > m_BatchIDs;
+
+    vector < string > m_DrawBrowserMeshIDVec;
+    vector < int > m_DrawBrowserIndexVec;
 
 };
 

@@ -570,6 +570,8 @@ AssemblySettings::AssemblySettings() : ParmContainer()
     m_ExportFileFlags[vsp::FEA_IGES_FILE_NAME].Init( "IGES_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[vsp::FEA_STEP_FILE_NAME].Init( "STEP_Export", "ExportFEA", this, true, 0, 1 );
 
+    m_DrawAsMeshFlag.Init( "DrawAsPartsFlag", "DrawMesh", this, true, false, true );
+
     m_DrawMeshFlag.Init( "DrawMeshFlag", "DrawMesh", this, true, 0, 1 );
     m_ColorTagsFlag.Init( "ColorTagsFlag", "DrawMesh", this, true, 0, 1 );
 

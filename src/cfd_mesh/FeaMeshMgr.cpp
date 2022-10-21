@@ -2503,6 +2503,7 @@ void FeaMeshMgrSingleton::UpdateAssemblyDisplaySettings( const string &assembly_
 
     if ( fea_assembly )
     {
+        m_AssemblySettings.m_DrawAsMeshFlag = fea_assembly->m_AssemblySettings.m_DrawAsMeshFlag.Get();
         m_AssemblySettings.m_DrawMeshFlag = fea_assembly->m_AssemblySettings.m_DrawMeshFlag.Get();
         m_AssemblySettings.m_ColorTagsFlag = fea_assembly->m_AssemblySettings.m_ColorTagsFlag.Get();
 
