@@ -232,7 +232,7 @@ public:
 
 };
 
-class SimpleAssemblySettings
+class SimpleAssemblySettings : public SimpleFeaMeshSettings
 {
 public:
     SimpleAssemblySettings();
@@ -245,17 +245,9 @@ public:
 
     virtual void CopyPostOpFrom( AssemblySettings* settings );
 
-    bool m_DrawNodesFlag;
-    bool m_DrawElementOrientVecFlag;
-
-    bool m_DrawMeshFlag;
-    bool m_ColorTagsFlag;
-
-    vector < bool > m_ExportFileFlags;
 
 protected:
 
-    vector < string > m_ExportFileNames;
 };
 
 
