@@ -509,14 +509,6 @@ vector < string > AeroStructScreen::MakeStructIDVec()
         if ( AeroStructMgr.m_StructAssyFlagVec[ AeroStructMgr.m_CurrStructAssyIndex() ] )         // Currently a structure
         {
             structid.push_back( id );
-//                FeaStructure *fea_struct = StructureMgr.GetFeaStruct( id );
-//                if ( fea_struct )
-//                {
-//                    // Identify which structure to write, should be already set
-//                    FeaMeshMgr.SetFeaMeshStructID( fea_struct->GetID() );
-//
-//                    LaunchFEAMesh();
-//                }
         }
         else                                                                                      // Currently an assembly.
         {
