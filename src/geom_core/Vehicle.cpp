@@ -540,6 +540,7 @@ void Vehicle::SetupPaths()
 bool Vehicle::CheckForVSPAERO( const string & path )
 {
     AeroStructMgr.FindCCX( path );
+    AeroStructMgr.FindCGX( path );
 
     bool ret_val = true;
 

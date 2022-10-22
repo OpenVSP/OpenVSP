@@ -40,6 +40,11 @@ public:
     void FindCCX( const string & path );
     bool GetCalculiXFound()                                  { return m_CalculiXFound; }
 
+    void FindCGX( const string & path );
+    bool GetCGXFound()                                       { return m_CGXFound; }
+    string GetCGXPath()                                      { return m_CGXPath; }
+    string GetCGXCmd()                                       { return m_CGXCmd; }
+
     void TransferLoads( FILE * logFile = NULL );
     void ComputeStructure( FILE * logFile = NULL );
 
@@ -69,6 +74,10 @@ private:
     bool m_CalculiXFound;
     string m_CalculiXPath;
     string m_CalculiXCmd;
+
+    bool m_CGXFound;
+    string m_CGXPath;
+    string m_CGXCmd;
 
     ProcessUtil m_LoadsProcess;
     ProcessUtil m_CalculiXProcess;

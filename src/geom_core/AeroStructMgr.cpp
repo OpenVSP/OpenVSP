@@ -182,6 +182,45 @@ void AeroStructSingleton::FindCCX( const string & path )
     }
 }
 
+void AeroStructSingleton::FindCGX( const string & path )
+{
+    m_CGXFound = false;
+    m_CGXCmd = "cgx";
+    m_CGXPath = string();
+
+    // Check specific location
+#ifdef WIN32
+    if ( CheckForFile( path, "cgx.exe" ) )
+#else
+    if ( CheckForFile( path, "cgx" ) )
+#endif
+    {
+        m_CGXFound = true;
+        m_CGXPath = path;
+    }
+    else // Check for ccx in path
+    {
+#ifdef WIN32
+        system( "cgx > temp.txt" );
+
+        // Get size of temp file
+        FILE* fp = fopen( "temp.txt", "r" );
+        fseek(fp, 0L, SEEK_END);
+        size_t sz = ftell( fp );
+        fclose( fp );
+
+        system( "del temp.txt" );
+
+        if ( sz != 0 )
+#else
+        if ( !system( "which cgx > /dev/null 2>&1" ))
+#endif
+        {
+            m_CGXFound = true;
+        }
+    }
+}
+
 void AeroStructSingleton::TransferLoads( FILE * logFile )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
