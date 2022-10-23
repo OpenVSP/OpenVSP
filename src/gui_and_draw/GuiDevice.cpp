@@ -1093,6 +1093,7 @@ void ParmButton::Update( const string& parm_id )
         if ( parm_ptr )
         {
             m_Button->copy_label( parm_ptr->GetName().c_str() );
+            DebugLabelSize( m_Button );
         }
     }
 }
@@ -1101,6 +1102,7 @@ void ParmButton::Update( const string& parm_id )
 void ParmButton::UpdateButtonName( const string & name )
 {
     m_Button->copy_label( name.c_str() );
+    DebugLabelSize( m_Button );
 }
 
 //==== Set Slider Value and Limits =====//
