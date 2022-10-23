@@ -2448,7 +2448,7 @@ void GL_VIEWER::LoadCalculixFRDFileOld(void)
     double x, y, z, vec1[3], vec2[3], vec3[3], mag, cosPhi;
     double Dx, Dy, Dz, DsMin, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
     double S11, S22, S33, S12, S23, S31, I1, I2, I3, S1, S2, S3, Phi;
-    char file_name_w_ext[80], ElementName[1000], DumChar[1000];
+    char file_name_w_ext[2000], ElementName[1000], DumChar[1000];
     FILE *frd_file, *sum_file;
     fpos_t SaveLocation;
 
@@ -2970,7 +2970,7 @@ void GL_VIEWER::LoadCalculixFRDFile(void)
     double x, y, z, vec1[3], vec2[3], vec3[3], mag;
     double Dx, Dy, Dz, DsMin, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
     double S11, S22, S33, S12, S23, S31, I1, I2, I3, S1, S2, S3, Phi;
-    char file_name_w_ext[80], ElementName[1000], DumChar[1000];
+    char file_name_w_ext[2000], ElementName[1000], DumChar[1000];
     FILE *frd_file, *sum_file;
     fpos_t SaveLocation;
 
