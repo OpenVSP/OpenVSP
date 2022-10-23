@@ -521,6 +521,18 @@ void MonitorProcess( FILE * logFile, ProcessUtil *process, const string &msgLabe
         runflag = process->IsRunning();
     }
 
+    if( logFile )
+    {
+        fprintf( logFile, "Done\n" );
+    }
+    else
+    {
+        MessageData data;
+        data.m_String = msgLabel;
+        data.m_StringVec.push_back( string( "Done\n" ) );
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+    }
+
 #ifdef WIN32
     CloseHandle( process->m_StdoutPipe[0] );
     process->m_StdoutPipe[0] = NULL;
