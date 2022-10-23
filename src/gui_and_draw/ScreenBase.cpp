@@ -1442,9 +1442,12 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
 
     m_RoundedRectGroup.SetSameLineFlag( true );
     m_RoundedRectGroup.SetFitWidthFlag( false );
-    m_RoundedRectGroup.SetButtonWidth( m_RoundedRectGroup.GetRemainX() / 5 );
 
-    m_RoundedRectGroup.AddLabel( "Symmetry:", m_RoundedRectGroup.GetRemainX() / 5 );
+    int oldbw = m_RoundedRectGroup.GetButtonWidth();
+
+    m_RoundedRectGroup.AddLabel( "Symmetry:", oldbw );
+
+    m_RoundedRectGroup.SetButtonWidth( m_RoundedRectGroup.GetRemainX() / 4 );
     m_RoundedRectGroup.AddButton( m_RRRadNoSymToggle, "None" );
     m_RoundedRectGroup.AddButton( m_RRRadRLSymToggle, "R//L" );
     m_RoundedRectGroup.AddButton( m_RRRadTBSymToggle, "T//B" );
@@ -1459,6 +1462,8 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_RoundedRectGroup.ForceNewLine();
     m_RoundedRectGroup.SetSameLineFlag( false );
     m_RoundedRectGroup.SetFitWidthFlag( true );
+
+    m_RoundedRectGroup.SetButtonWidth( oldbw );
 
     m_RoundedRectGroup.AddSlider( m_RRRadiusTRSlider, "TR Radius", 10, "%6.5f" );
     m_RoundedRectGroup.AddSlider( m_RRRadiusTLSlider, "TL Radius", 10, "%6.5f" );

@@ -175,8 +175,11 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
 
-    m_OutputTabLayout.SetButtonWidth(55);
-    m_OutputTabLayout.SetInputWidth(300);
+
+    int typebuttonw = 80;
+    m_OutputTabLayout.SetButtonWidth(typebuttonw);
+    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - typebuttonw - 30 );
+
     m_OutputTabLayout.AddButton(m_StlFile, ".stl");
     m_OutputTabLayout.AddOutput(m_StlOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
@@ -189,37 +192,37 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
 
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
     m_OutputTabLayout.AddButton(m_PolyFile, ".poly");
     m_OutputTabLayout.AddOutput(m_PolyOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectPolyFile, "...");
     m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
     m_OutputTabLayout.AddButton(m_TriFile, ".tri");
     m_OutputTabLayout.AddOutput(m_TriOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectTriFile, "...");
     m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
     m_OutputTabLayout.AddButton( m_FacFile, ".facet" );
     m_OutputTabLayout.AddOutput( m_FacOutput );
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton( m_SelectFacFile, "..." );
     m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
     m_OutputTabLayout.AddButton(m_ObjFile, ".obj");
     m_OutputTabLayout.AddOutput(m_ObjOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectObjFile, "...");
     m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
     m_OutputTabLayout.AddButton(m_MshFile, ".msh");
     m_OutputTabLayout.AddOutput(m_MshOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectMshFile, "...");
     m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
     m_OutputTabLayout.AddButton(m_VspgeomFile, ".vspgeom");
     m_OutputTabLayout.AddOutput(m_VspgeomOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
@@ -232,13 +235,13 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
 
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
     m_OutputTabLayout.AddButton(m_DatFile, ".dat");
     m_OutputTabLayout.AddOutput(m_DatOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectDatFile, "...");
     m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
     m_OutputTabLayout.AddButton(m_KeyFile, ".key");
     m_OutputTabLayout.AddOutput(m_KeyOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
@@ -251,7 +254,7 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
 
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( typebuttonw );
     m_OutputTabLayout.AddButton(m_TkeyFile, ".tkey");
     m_OutputTabLayout.AddOutput(m_TkeyOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
