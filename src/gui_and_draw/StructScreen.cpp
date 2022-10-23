@@ -939,7 +939,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_FemTabLayout.ForceNewLine();
 
     m_FemTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
-    m_FemTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
+    m_FemTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation" );
     m_FemTabLayout.ForceNewLine();
 
     m_FemTabLayout.SetFitWidthFlag( true );
