@@ -231,6 +231,13 @@ private:
 
 public:
 
+    CALCULIX_BOUNDARY()
+    {
+        Node = -1;
+        StartDOF = -1;
+        StopDOF = -1;
+    }
+
     int Node;
     int StartDOF;
     int StopDOF;
