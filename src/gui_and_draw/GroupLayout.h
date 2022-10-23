@@ -226,5 +226,7 @@ void AddPoint( const double & x, const double & y, Fl_Color color, int pointsize
 void AddPoint( const vector <double> & xdata,  const vector <double> & ydata, Fl_Color color, int pointsize = 2, int pointstyle = CA_ROUND );
 Fl_Color ColorWheel( int i, int nunique, int nhue = 7 );
 int StyleWheel( int i );
+void DebugLabelSize( Fl_Widget *widget );
+
 
 #endif // !defined(GUIDEVICE__INCLUDED_)

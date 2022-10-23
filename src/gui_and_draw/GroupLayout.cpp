@@ -9,6 +9,8 @@
 #include "ScreenBase.h"
 #include <FL/Fl_Value_Slider.H>
 
+// #define DEBUG_LABEL_SIZE
+
 //==== Constructor ====//
 GroupLayout::GroupLayout()
 {
@@ -1833,4 +1835,21 @@ int StyleWheel( int i )
     // There are 5 true styles, but the 0th style is no-symbol at all.
     int nstyle = 5;
     return i % nstyle + 1;
+}
+
+void DebugLabelSize( Fl_Widget *widget )
+{
+#ifdef DEBUG_LABEL_SIZE
+    int lw = 0;
+    int lh = 0;
+    widget->measure_label( lw, lh );
+    if ( widget->w() - lw <= 0 )
+    {
+        printf( "'%s' insufficient width widget: %d label: %d\n", widget->label(), widget->w(), lw );
+    }
+    if ( widget->h() - lh <= -2 )
+    {
+        printf( "'%s' insufficient height widget: %d label: %d.\n", widget->label(), widget->h(), lh );
+    }
+#endif
 }
