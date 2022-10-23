@@ -24,65 +24,73 @@
 //==== Constructor ====//
 AeroStructScreen::AeroStructScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 400, 600, "Aero Structure Coupled Analysis" )
 {
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    m_GlobalLayout.SetGroupAndScreen( m_FLTK_Window, this );
-    m_GlobalLayout.AddY( 25 );
+    m_MainLayout.ForceNewLine();
+    m_MainLayout.AddY(7);
+    m_MainLayout.AddX(5);
 
-    m_GlobalLayout.AddDividerBox( "VSPAERO" );
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - 5.0,
+                                    m_MainLayout.GetRemainY() - 5.0 );
 
-    m_GlobalLayout.AddButton( m_ShowVSPAEROGUI, "Show VSPAERO GUI" );
-    m_GlobalLayout.AddButton( m_ExecuteVSPAERO, "Execute VSPAERO" );
+    m_BorderLayout.AddDividerBox( "VSPAERO" );
 
-    m_GlobalLayout.AddYGap();
-    m_GlobalLayout.AddDividerBox( "FEA Mesh" );
+    m_BorderLayout.AddButton( m_ShowVSPAEROGUI, "Show VSPAERO GUI" );
+    m_BorderLayout.AddButton( m_ExecuteVSPAERO, "Execute VSPAERO" );
 
-    m_GlobalLayout.AddChoice( m_StructureChoice, "Structure" );
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddDividerBox( "FEA Mesh" );
 
-    m_GlobalLayout.SetFitWidthFlag( false );
-    m_GlobalLayout.SetSameLineFlag( true );
+    m_BorderLayout.AddChoice( m_StructureChoice, "Structure" );
 
-    m_GlobalLayout.SetButtonWidth( m_GlobalLayout.GetW() / 2 );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSameLineFlag( true );
 
-    m_GlobalLayout.AddButton( m_ShowFEAMeshGUI, "Show FEA Structure GUI" );
-    m_GlobalLayout.AddButton( m_ShowFEAAssemblyGUI, "Show FEA Assembly GUI" );
-    m_GlobalLayout.ForceNewLine();
+    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 2 );
+
+    m_BorderLayout.AddButton( m_ShowFEAMeshGUI, "Show FEA Structure GUI" );
+    m_BorderLayout.AddButton( m_ShowFEAAssemblyGUI, "Show FEA Assembly GUI" );
+    m_BorderLayout.ForceNewLine();
 
 
-    m_GlobalLayout.AddButton( m_ExecuteRemeshAllFEAMesh, "Remesh All" );
-    m_GlobalLayout.AddButton( m_ExecuteMeshUnmeshedFEAMesh, "Mesh Unmeshed" );
-    m_GlobalLayout.ForceNewLine();
+    m_BorderLayout.AddButton( m_ExecuteRemeshAllFEAMesh, "Remesh All" );
+    m_BorderLayout.AddButton( m_ExecuteMeshUnmeshedFEAMesh, "Mesh Unmeshed" );
+    m_BorderLayout.ForceNewLine();
 
-    m_GlobalLayout.SetFitWidthFlag( true );
-    m_GlobalLayout.SetSameLineFlag( false );
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.SetSameLineFlag( false );
 
-    m_GlobalLayout.AddButton( m_ExportFEAMesh, "Export FEA Mesh" );
+    m_BorderLayout.AddButton( m_ExportFEAMesh, "Export FEA Mesh" );
 
-    m_GlobalLayout.AddYGap();
-    m_GlobalLayout.AddDividerBox( "Loads" );
+    m_BorderLayout.AddButton( m_ExecuteCGXMesh, "Visualize Mesh in cgx" );
 
-    m_GlobalLayout.SetButtonWidth( m_GlobalLayout.GetW() / 3 );
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddDividerBox( "Loads" );
 
-    m_GlobalLayout.AddSlider( m_DynPressSlider, "Dynamic Pressure", 100, "%7.3f"  );
-    m_GlobalLayout.AddButton( m_ExecuteLoads, "Apply Loads" );
+    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 3 );
 
-    m_GlobalLayout.AddYGap();
-    m_GlobalLayout.AddDividerBox( "CalculiX" );
+    m_BorderLayout.AddSlider( m_DynPressSlider, "Dynamic Pressure", 100, "%7.3f"  );
+    m_BorderLayout.AddButton( m_ExecuteLoads, "Apply Loads" );
 
-    m_GlobalLayout.AddButton( m_ExecuteCalculiX, "Solve Structure" );
+    m_BorderLayout.AddButton( m_ExecuteCGXInput, "Visualize Input in cgx" );
 
-    m_GlobalLayout.AddYGap();
-    m_GlobalLayout.AddDividerBox( "Viewer" );
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddDividerBox( "CalculiX" );
 
-    m_GlobalLayout.AddButton( m_ExecuteViewer, "Visualize Results" );
+    m_BorderLayout.AddButton( m_ExecuteCalculiX, "Solve Structure" );
 
-    m_GlobalLayout.AddYGap();
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddDividerBox( "Viewer" );
 
-    m_ConsoleDisplay = m_GlobalLayout.AddFlTextDisplay( m_GlobalLayout.GetH() - m_GlobalLayout.GetY() - m_GlobalLayout.GetGapHeight() );
+    m_BorderLayout.AddButton( m_ExecuteViewer, "Visualize Results in vspviewer" );
+    m_BorderLayout.AddButton( m_ExecuteCGXSolution, "Visualize Results in cgx" );
+
+    m_BorderLayout.ForceNewLine();
+
+    m_ConsoleDisplay = m_BorderLayout.AddFlTextDisplay( m_BorderLayout.GetH() - m_BorderLayout.GetY() + 25 );
     m_ConsoleBuffer = new Fl_Text_Buffer;
     m_ConsoleDisplay->buffer( m_ConsoleBuffer );
     m_FLTK_Window->resizable( m_ConsoleDisplay );
-
-
 }
 
 AeroStructScreen::~AeroStructScreen()
@@ -102,6 +110,8 @@ bool AeroStructScreen::Update()
     }
 
     AeroStructMgr.Update();
+
+    bool structselected = AeroStructMgr.m_CurrStructAssyIndex() >= 0;
 
     m_DynPressSlider.Update( AeroStructMgr.m_DynPress.GetID() );
 
@@ -128,37 +138,50 @@ bool AeroStructScreen::Update()
         m_ExecuteVSPAERO.SetColor( FL_BACKGROUND_COLOR );
     }
 
-    if ( FeaMeshMgr.GetFeaMeshInProgress() )
-    {
-        m_ExecuteRemeshAllFEAMesh.Deactivate();
-        m_ExecuteMeshUnmeshedFEAMesh.Deactivate();
-        m_ExportFEAMesh.Deactivate();
-    }
-    else
-    {
-        m_ExecuteRemeshAllFEAMesh.Activate();
-        m_ExecuteMeshUnmeshedFEAMesh.Activate();
-        m_ExportFEAMesh.Activate();
-    }
-
-
     if ( FeaMeshMgr.GetMeshPtr() )
     {
-        if ( !FeaMeshMgr.GetMeshPtr()->m_MeshReady )
-        {
-            m_ExecuteRemeshAllFEAMesh.SetColor( FL_RED );
-            m_ExecuteMeshUnmeshedFEAMesh.SetColor( FL_RED );
-        }
-        else
+        if ( FeaMeshMgr.GetMeshPtr()->m_MeshReady )
         {
             m_ExecuteRemeshAllFEAMesh.SetColor( FL_BACKGROUND_COLOR );
             m_ExecuteMeshUnmeshedFEAMesh.SetColor( FL_BACKGROUND_COLOR );
+        }
+        else
+        {
+            m_ExecuteRemeshAllFEAMesh.SetColor( FL_RED );
+            m_ExecuteMeshUnmeshedFEAMesh.SetColor( FL_RED );
         }
     }
     else
     {
         m_ExecuteRemeshAllFEAMesh.SetColor( FL_RED );
         m_ExecuteMeshUnmeshedFEAMesh.SetColor( FL_RED );
+    }
+
+    if ( !structselected || FeaMeshMgr.GetFeaMeshInProgress() )
+    {
+        m_ExecuteRemeshAllFEAMesh.Deactivate();
+        m_ExecuteMeshUnmeshedFEAMesh.Deactivate();
+    }
+    else
+    {
+        m_ExecuteRemeshAllFEAMesh.Activate();
+        m_ExecuteMeshUnmeshedFEAMesh.Activate();
+    }
+
+    if ( FeaMeshMgr.GetMeshPtr() && !FeaMeshMgr.GetFeaMeshInProgress() )
+    {
+        if ( FeaMeshMgr.GetMeshPtr()->m_MeshReady )
+        {
+            m_ExportFEAMesh.Activate();
+        }
+        else
+        {
+            m_ExportFEAMesh.Deactivate();
+        }
+    }
+    else
+    {
+        m_ExportFEAMesh.Deactivate();
     }
 
     if ( !AeroStructMgr.m_FEAMeshFileFound )
@@ -168,6 +191,15 @@ bool AeroStructScreen::Update()
     else
     {
         m_ExportFEAMesh.SetColor( FL_BACKGROUND_COLOR );
+    }
+
+    if ( AeroStructMgr.GetCGXFound() && AeroStructMgr.m_FEAMeshFileFound && !m_ViewerProcess.IsRunning() )
+    {
+        m_ExecuteCGXMesh.Activate();
+    }
+    else
+    {
+        m_ExecuteCGXMesh.Deactivate();
     }
 
     if ( veh->GetLOADSFound() && AeroStructMgr.m_ADBFileFound && AeroStructMgr.m_FEAMeshFileFound )
@@ -188,6 +220,15 @@ bool AeroStructScreen::Update()
         m_ExecuteLoads.SetColor( FL_BACKGROUND_COLOR );
     }
 
+    if ( AeroStructMgr.GetCGXFound() && AeroStructMgr.m_FEAInputFileFound && !m_ViewerProcess.IsRunning() )
+    {
+        m_ExecuteCGXInput.Activate();
+    }
+    else
+    {
+        m_ExecuteCGXInput.Deactivate();
+    }
+
     if ( AeroStructMgr.GetCalculiXFound() && AeroStructMgr.m_FEAInputFileFound )
     {
         m_ExecuteCalculiX.Activate();
@@ -206,7 +247,7 @@ bool AeroStructScreen::Update()
         m_ExecuteCalculiX.SetColor( FL_BACKGROUND_COLOR );
     }
 
-    if ( veh->GetVIEWERFound() && AeroStructMgr.m_FEASolutionFileFound && AeroStructMgr.m_ADBFileFound )
+    if ( veh->GetVIEWERFound() && AeroStructMgr.m_FEASolutionFileFound && AeroStructMgr.m_ADBFileFound && !m_ViewerProcess.IsRunning() )
     {
         m_ExecuteViewer.Activate();
     }
@@ -215,6 +256,14 @@ bool AeroStructScreen::Update()
         m_ExecuteViewer.Deactivate();
     }
 
+    if ( AeroStructMgr.GetCGXFound() && AeroStructMgr.m_FEASolutionFileFound && !m_ViewerProcess.IsRunning() )
+    {
+        m_ExecuteCGXSolution.Activate();
+    }
+    else
+    {
+        m_ExecuteCGXSolution.Deactivate();
+    }
 
     m_StructureChoice.ClearItems();
 
@@ -351,6 +400,11 @@ void * asmonitorfun( void *data )
                 runflag = pu->IsRunning();
             }
 
+            Fl::lock();
+            // Any FL calls must occur between Fl::lock() and Fl::unlock().
+            as->AddOutputText( "Done\n" );
+            Fl::unlock();
+
 #ifdef WIN32
             CloseHandle( pu->m_StdoutPipe[0] );
             pu->m_StdoutPipe[0] = NULL;
@@ -446,6 +500,7 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
                 FeaMeshMgr.ExportAssemblyMesh( id );
             }
+            FeaMeshMgr.addOutputText( "Done\n" );
         }
     }
     else if ( gui_device == &m_ExecuteLoads )
@@ -485,6 +540,83 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             AddOutputText( command );
 
             m_ViewerProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVIEWERCmd(), args );
+
+            m_ViewerMonitor.StartThread( asmonitorfun, ( void* ) this );
+
+        }
+    }
+    else if ( gui_device == &m_ExecuteCGXMesh )
+    {
+        // Clear the console
+        m_ConsoleBuffer->text( "" );
+
+        if( !AeroStructMgr.GetCGXFound() || m_ViewerProcess.IsRunning() ||
+            !FileExist( AeroStructMgr.m_FEAMeshFile ) )
+        { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
+        else
+        {
+            vector<string> args;
+            args.push_back( "-c" );
+
+            args.push_back( AeroStructMgr.m_FEAMeshFile );
+
+            string command = m_ViewerProcess.PrettyCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
+
+            AddOutputText( command );
+
+            m_ViewerProcess.ForkCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
+
+            m_ViewerMonitor.StartThread( asmonitorfun, ( void* ) this );
+
+        }
+    }
+    else if ( gui_device == &m_ExecuteCGXInput )
+    {
+        // Clear the console
+        m_ConsoleBuffer->text( "" );
+
+        if( !AeroStructMgr.GetCGXFound() || m_ViewerProcess.IsRunning() ||
+            !FileExist( AeroStructMgr.m_FEAInputFile ) )
+        { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
+        else
+        {
+            vector<string> args;
+            args.push_back( "-c" );
+
+            args.push_back( AeroStructMgr.m_FEAInputFile );
+
+            string command = m_ViewerProcess.PrettyCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
+
+            AddOutputText( command );
+
+            m_ViewerProcess.ForkCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
+
+            m_ViewerMonitor.StartThread( asmonitorfun, ( void* ) this );
+
+        }
+    }
+    else if ( gui_device == &m_ExecuteCGXSolution )
+    {
+        // Clear the console
+        m_ConsoleBuffer->text( "" );
+
+        if( !AeroStructMgr.GetCGXFound() || m_ViewerProcess.IsRunning() ||
+            !FileExist( AeroStructMgr.m_FEASolutionFile ) ||
+            !FileExist( AeroStructMgr.m_FEAInputFile ) )
+        { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
+        else
+        {
+            vector<string> args;
+
+            args.push_back( AeroStructMgr.m_FEASolutionFile );
+
+            args.push_back( AeroStructMgr.m_FEAInputFile );
+
+            string command = m_ViewerProcess.PrettyCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
+
+            AddOutputText( command );
+
+            m_ViewerProcess.ForkCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
 
             m_ViewerMonitor.StartThread( asmonitorfun, ( void* ) this );
 

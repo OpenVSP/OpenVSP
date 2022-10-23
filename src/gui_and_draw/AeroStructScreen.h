@@ -50,7 +50,8 @@ public:
 
 protected:
 
-    GroupLayout m_GlobalLayout;
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
 
     TriggerButton m_ShowVSPAEROGUI;
     TriggerButton m_ExecuteVSPAERO;
@@ -62,10 +63,16 @@ protected:
     TriggerButton m_ExecuteMeshUnmeshedFEAMesh;
     TriggerButton m_ExportFEAMesh;
 
+    TriggerButton m_ExecuteCGXMesh;
+
     SliderAdjRangeInput m_DynPressSlider;
     TriggerButton m_ExecuteLoads;
 
+    TriggerButton m_ExecuteCGXInput;
+
     TriggerButton m_ExecuteCalculiX;
+
+    TriggerButton m_ExecuteCGXSolution;
 
     TriggerButton m_ExecuteViewer;
 
