@@ -727,7 +727,7 @@ void FeaMesh::ExportFeaMesh()
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) )
     {
-        WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) );
+        WriteNASTRAN();
     }
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
@@ -748,18 +748,16 @@ void FeaMesh::ExportFeaMesh()
     }
 }
 
-void FeaMesh::WriteNASTRAN( const string &filename )
+void FeaMesh::WriteNASTRAN()
 {
-    FeaMeshMgr.ResetPropMatUse();
+    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
 
-    int noffset = m_StructSettings.m_NodeOffset;
-    int eoffset = m_StructSettings.m_ElementOffset;
+    FILE* fp = fopen( fn.c_str(), "w" ); // Open *_NASTRAN.dat
 
     // Create temporary file to store NASTRAN bulk data. Case control information (SETs) will be
     //  defined in the *_NASTRAN.dat file prior to the bulk data (elements, gridpoints, etc.)
     FILE* temp = std::tmpfile();
 
-    FILE* fp = fopen( filename.c_str(), "w" ); // Open *_NASTRAN.dat
     if ( fp && temp )
     {
         FILE* nkey_fp = NULL;
@@ -774,6 +772,52 @@ void FeaMesh::WriteNASTRAN( const string &filename )
             }
         }
 
+        WriteNASTRAN( fp, temp, nkey_fp );
+
+        // Obtain file size:
+        fseek( temp, 0, SEEK_END );
+        long lSize = ftell( temp );
+        rewind( temp );
+
+        // Allocate memory to contain the whole file:
+        char * buffer = (char*)malloc( sizeof( char )*lSize + 1 );
+        if ( buffer == NULL )
+        {
+            printf( "WriteNASTRAN memory error\n" );
+        }
+
+        // Copy the file into the buffer:
+        size_t result = fread( buffer, 1, lSize, temp );
+        buffer[ result ] = '\0';
+        if ( result != lSize )
+        {
+            printf( "WriteNASTRAN reading error\n" );
+        }
+
+        // The whole file is now loaded in the memory buffer. Write to NASTRAN file
+        fprintf( fp, "%s", buffer );
+
+        // Close open files and free memory
+        fclose( fp );
+        fclose( temp );
+        free( buffer );
+
+        if ( nkey_fp )
+        {
+            fclose( nkey_fp );
+        }
+    }
+}
+
+void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
+{
+    FeaMeshMgr.ResetPropMatUse();
+
+    int noffset = m_StructSettings.m_NodeOffset;
+    int eoffset = m_StructSettings.m_ElementOffset;
+
+    if ( fp && temp )
+    {
         // Comments can be at top of NASTRAN file before case control section
         fprintf( fp, "$NASTRAN Data File Generated from %s\n", VSPVERSION4 );
         fprintf( fp, "$Num_Els: %u\n", m_NumEls );
@@ -1035,39 +1079,6 @@ void FeaMesh::WriteNASTRAN( const string &filename )
         }
 
         fprintf( temp, "\nENDDATA\n" );
-
-        // Obtain file size:
-        fseek( temp, 0, SEEK_END );
-        long lSize = ftell( temp );
-        rewind( temp );
-
-        // Allocate memory to contain the whole file:
-        char * buffer = (char*)malloc( sizeof( char )*lSize + 1 );
-        if ( buffer == NULL )
-        {
-            printf( "WriteNASTRAN memory error\n" );
-        }
-
-        // Copy the file into the buffer:
-        size_t result = fread( buffer, 1, lSize, temp );
-        buffer[ result ] = '\0';
-        if ( result != lSize )
-        {
-            printf( "WriteNASTRAN reading error\n" );
-        }
-
-        // The whole file is now loaded in the memory buffer. Write to NASTRAN file
-        fprintf( fp, "%s", buffer );
-
-        // Close open files and free memory
-        fclose( fp );
-        fclose( temp );
-        free( buffer );
-
-        if ( nkey_fp )
-        {
-            fclose( nkey_fp );
-        }
     }
 }
 

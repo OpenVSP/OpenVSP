@@ -85,7 +85,9 @@ public:
     virtual void WriteCalculixBCs( FILE* fp );
     virtual void WriteCalculixProperties( FILE* fp );
 
-    virtual void WriteNASTRAN( const string &base_filename );
+    virtual void WriteNASTRAN();
+    virtual void WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp );
+
     virtual void WriteGmsh();
     virtual void WriteSTL();
 
