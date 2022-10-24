@@ -846,7 +846,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
             grid_id_vec.clear();
 
             fprintf( temp, "\n" );
-            fprintf( temp, "$%s Gridpoints\n", m_FeaPartNameVec[i].c_str() );
+            fprintf( temp, "$ %s Gridpoints\n", m_FeaPartNameVec[i].c_str() );
 
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
