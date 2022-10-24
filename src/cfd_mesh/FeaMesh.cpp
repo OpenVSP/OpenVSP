@@ -774,38 +774,7 @@ void FeaMesh::WriteNASTRAN()
 
         WriteNASTRAN( fp, temp, nkey_fp );
 
-        // Obtain file size:
-        fseek( temp, 0, SEEK_END );
-        long lSize = ftell( temp );
-        rewind( temp );
-
-        // Allocate memory to contain the whole file:
-        char * buffer = (char*)malloc( sizeof( char )*lSize + 1 );
-        if ( buffer == NULL )
-        {
-            printf( "WriteNASTRAN memory error\n" );
-        }
-
-        // Copy the file into the buffer:
-        size_t result = fread( buffer, 1, lSize, temp );
-        buffer[ result ] = '\0';
-        if ( result != lSize )
-        {
-            printf( "WriteNASTRAN reading error\n" );
-        }
-
-        // The whole file is now loaded in the memory buffer. Write to NASTRAN file
-        fprintf( fp, "%s", buffer );
-
-        // Close open files and free memory
-        fclose( fp );
-        fclose( temp );
-        free( buffer );
-
-        if ( nkey_fp )
-        {
-            fclose( nkey_fp );
-        }
+        CloseNASTRAN( fp, temp, nkey_fp );
     }
 }
 
@@ -1079,6 +1048,45 @@ void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
         }
 
         fprintf( temp, "\nENDDATA\n" );
+    }
+}
+
+void FeaMesh::CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
+{
+    if ( fp && temp )
+    {
+        // Obtain file size:
+        fseek( temp, 0, SEEK_END );
+        long lSize = ftell( temp );
+        rewind( temp );
+
+        // Allocate memory to contain the whole file:
+        char * buffer = (char*)malloc( sizeof( char )*lSize + 1 );
+        if ( buffer == NULL )
+        {
+            printf( "WriteNASTRAN memory error\n" );
+        }
+
+        // Copy the file into the buffer:
+        size_t result = fread( buffer, 1, lSize, temp );
+        buffer[ result ] = '\0';
+        if ( result != lSize )
+        {
+            printf( "WriteNASTRAN reading error\n" );
+        }
+
+        // The whole file is now loaded in the memory buffer. Write to NASTRAN file
+        fprintf( fp, "%s", buffer );
+
+        // Close open files and free memory
+        fclose( fp );
+        fclose( temp );
+        free( buffer );
+
+        if ( nkey_fp )
+        {
+            fclose( nkey_fp );
+        }
     }
 }
 
