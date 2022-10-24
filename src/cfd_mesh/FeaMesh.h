@@ -87,6 +87,8 @@ public:
 
     virtual void WriteNASTRAN();
     virtual void WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp );
+    virtual void WriteNASTRANHeader( FILE* fp );
+
     virtual void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp );
 
     virtual void WriteGmsh();

@@ -787,15 +787,12 @@ void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
 
     if ( fp && temp )
     {
-        // Comments can be at top of NASTRAN file before case control section
-        fprintf( fp, "$NASTRAN Data File Generated from %s\n", VSPVERSION4 );
-        fprintf( fp, "$Num_Els: %u\n", m_NumEls );
-        fprintf( fp, "$Num_Tris: %u\n", m_NumTris );
-        fprintf( fp, "$Num_Quads: %u\n", m_NumQuads );
-        fprintf( fp, "$Num_Beams %u\n", m_NumBeams );
+
+        WriteNASTRANHeader( fp );
 
         // Write bulk data to temp file
         fprintf( temp, "\nBEGIN BULK\n" );
+
 
         int set_cnt = 1;
         int max_grid_id = 0;
@@ -1048,6 +1045,24 @@ void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
         }
 
         fprintf( temp, "\nENDDATA\n" );
+    }
+}
+
+void FeaMesh::WriteNASTRANHeader( FILE* fp )
+{
+    if ( fp )
+    {
+        // Comments can be at top of NASTRAN file before case control section
+        fprintf( fp, "$ NASTRAN Data File Generated from %s\n", VSPVERSION4 );
+        fprintf( fp, "$ %s\n", m_StructName.c_str() );
+        fprintf( fp, "$ Num_Nodes:       %u\n", m_NumNodes );
+        fprintf( fp, "$ Num_Els:         %u\n", m_NumEls );
+        fprintf( fp, "$ Num_Tris:        %u\n", m_NumTris );
+        fprintf( fp, "$ Num_Quads:       %u\n", m_NumQuads );
+        fprintf( fp, "$ Num_Beams:       %u\n", m_NumBeams );
+        fprintf( fp, "$ Node_Offset:     %u\n", m_StructSettings.m_NodeOffset );
+        fprintf( fp, "$ Element_Offset:  %u\n", m_StructSettings.m_ElementOffset );
+        fprintf( fp, "\n" );
     }
 }
 
