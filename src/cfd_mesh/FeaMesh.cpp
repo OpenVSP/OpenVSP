@@ -796,15 +796,12 @@ void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
 
         int set_cnt = 1;
         int max_grid_id = 0;
-        vector < int > grid_id_vec;
-        string name;
 
-        WriteNASTRANNodes( fp, temp, nkey_fp );
+        WriteNASTRANNodes( fp, temp, nkey_fp, set_cnt, max_grid_id );
 
         int elem_id = max_grid_id + 1; // First element ID begins after last gridpoint ID
-        vector < int > shell_elem_id_vec, beam_elem_id_vec;
 
-        WriteNASTRANElements( fp, temp, nkey_fp );
+        WriteNASTRANElements( fp, temp, nkey_fp, set_cnt, elem_id );
 
         FeaMeshMgr.WriteNASTRANProperties( temp );
 
@@ -832,18 +829,14 @@ void FeaMesh::WriteNASTRANHeader( FILE* fp )
     }
 }
 
-void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp )
+void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &max_grid_id )
 {
     FeaMeshMgr.ResetPropMatUse();
 
     int noffset = m_StructSettings.m_NodeOffset;
-    int eoffset = m_StructSettings.m_ElementOffset;
 
     if ( fp && temp )
     {
-
-        int set_cnt = 1;
-        int max_grid_id = 0;
         vector < int > grid_id_vec;
         string name;
 
@@ -960,7 +953,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp )
     }
 }
 
-void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp )
+void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &elem_id )
 {
     FeaMeshMgr.ResetPropMatUse();
 
@@ -969,12 +962,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp )
 
     if ( fp && temp )
     {
-        int set_cnt = 1;
-        int max_grid_id = 0;
-        vector < int > grid_id_vec;
         string name;
-
-        int elem_id = max_grid_id + 1; // First element ID begins after last gridpoint ID
         vector < int > shell_elem_id_vec, beam_elem_id_vec;
 
         // Write FeaParts
