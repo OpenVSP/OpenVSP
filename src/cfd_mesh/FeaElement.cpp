@@ -675,7 +675,7 @@ void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const stri
         {
             // Note: *BEAM GENERAL SECTION is supported by Abaqus but not Calculix. Calculix depends on BEAM SECTION properties
             //  where the cross-section dimensions must be explicitly defined. 
-            fprintf( fp, "*BEAM GENERAL SECTION, SECTION=GENERAL, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "*BEAM SECTION, SECTION=GENERAL, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
             fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea, m_Izz, m_Izy, m_Iyy, m_Ixx );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_CIRC )
