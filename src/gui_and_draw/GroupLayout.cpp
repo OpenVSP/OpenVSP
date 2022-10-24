@@ -1873,16 +1873,23 @@ int StyleWheel( int i )
 void DebugLabelSize( Fl_Widget *widget )
 {
 #ifdef DEBUG_LABEL_SIZE
-    int lw = 0;
-    int lh = 0;
-    widget->measure_label( lw, lh );
-    if ( widget->w() - lw <= 0 )
+    int ww = widget->w();
+    int hh = widget->h();
+    int wo = ww;
+    int ho = hh;
+
+    Fl_Font ff = widget->labelfont();
+    Fl_Fontsize fs = widget->labelsize();
+    fl_font( ff, fs );
+    fl_measure( widget->label(), ww, hh );
+
+    if ( wo - ww <= 0 )
     {
-        printf( "'%s' insufficient width widget: %d label: %d\n", widget->label(), widget->w(), lw );
+        printf( "'%s' insufficient width.\n", widget->label() );
     }
-    if ( widget->h() - lh <= -2 )
+    if ( ho - hh <= -2 )
     {
-        printf( "'%s' insufficient height widget: %d label: %d.\n", widget->label(), widget->h(), lh );
+        printf( "'%s' insufficient height.\n", widget->label() );
     }
 #endif
 }
