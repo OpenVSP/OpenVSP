@@ -795,11 +795,11 @@ void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
 
 
         int set_cnt = 1;
-        int max_grid_id = 0;
+        int max_node_id = 0;
 
-        WriteNASTRANNodes( fp, temp, nkey_fp, set_cnt, max_grid_id );
+        WriteNASTRANNodes( fp, temp, nkey_fp, set_cnt, max_node_id );
 
-        int elem_id = max_grid_id + 1; // First element ID begins after last gridpoint ID
+        int elem_id = max_node_id + 1; // First element ID begins after last node ID
 
         WriteNASTRANElements( fp, temp, nkey_fp, set_cnt, elem_id );
 
@@ -829,7 +829,7 @@ void FeaMesh::WriteNASTRANHeader( FILE* fp )
     }
 }
 
-void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &max_grid_id )
+void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &max_node_id )
 {
     FeaMeshMgr.ResetPropMatUse();
 
@@ -837,13 +837,13 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
     if ( fp && temp )
     {
-        vector < int > grid_id_vec;
+        vector < int > node_id_vec;
         string name;
 
         // FeaPart Nodes
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
-            grid_id_vec.clear();
+            node_id_vec.clear();
 
             fprintf( temp, "\n" );
             fprintf( temp, "$ %s Gridpoints\n", m_FeaPartNameVec[i].c_str() );
@@ -857,8 +857,8 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
                             m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
-                            grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
-                            max_grid_id = max( max_grid_id, m_FeaNodeVec[j]->m_Index );
+                            node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
+                            max_node_id = max( max_node_id, m_FeaNodeVec[j]->m_Index );
                         }
                     }
                 }
@@ -872,8 +872,8 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                         if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( i ) )
                         {
                             m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
-                            grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
-                            max_grid_id = max( max_grid_id, m_FeaNodeVec[j]->m_Index );
+                            node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
+                            max_node_id = max( max_node_id, m_FeaNodeVec[j]->m_Index );
                         }
                     }
                 }
@@ -881,7 +881,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
             // Write FEA part node set
             name = m_FeaPartNameVec[i] + "_Gridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name, noffset );
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
         // SubSurface Nodes
@@ -890,7 +890,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
             fprintf( temp, "\n" );
             fprintf( temp, "$%s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
-            grid_id_vec.clear();
+            node_id_vec.clear();
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
@@ -899,22 +899,22 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
                         m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
-                        grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
-                        max_grid_id = max( max_grid_id, m_FeaNodeVec[j]->m_Index );
+                        node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
+                        max_node_id = max( max_node_id, m_FeaNodeVec[j]->m_Index );
                     }
                 }
             }
 
             // Write subsurface node set
             name = m_SimpleSubSurfaceVec[i].GetName() + "_Gridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name, noffset );
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
         // Intersection Nodes
         fprintf( temp, "\n" );
         fprintf( temp, "$Intersections\n" );
 
-        grid_id_vec.clear();
+        node_id_vec.clear();
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
@@ -923,22 +923,22 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
                 {
                     m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
-                    grid_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
-                    max_grid_id = max( max_grid_id, m_FeaNodeVec[j]->m_Index );
+                    node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
+                    max_node_id = max( max_node_id, m_FeaNodeVec[j]->m_Index );
                 }
             }
         }
 
         // Write intersection node set
         name = "Intersection_Gridpoints";
-        WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name, noffset );
+        WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
 
         //==== Remaining Nodes ====//
         fprintf( temp, "\n" );
         fprintf( temp, "$Remainingnodes\n" );
         for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
         {
-            grid_id_vec.clear();
+            node_id_vec.clear();
 
             if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->m_Tags.size() == 0 )
             {
@@ -947,7 +947,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
             // Write remaining node set
             name = "Remaining_Gridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name, noffset );
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
     }
