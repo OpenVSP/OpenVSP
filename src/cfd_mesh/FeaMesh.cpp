@@ -804,119 +804,7 @@ void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
         int elem_id = max_grid_id + 1; // First element ID begins after last gridpoint ID
         vector < int > shell_elem_id_vec, beam_elem_id_vec;
 
-        // Write FeaParts
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
-        {
-            if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
-            {
-                fprintf( temp, "\n" );
-                fprintf( temp, "$%s\n", m_FeaPartNameVec[i].c_str() );
-
-                shell_elem_id_vec.clear();
-                beam_elem_id_vec.clear();
-
-                int property_id = m_FeaPartPropertyIndexVec[i];
-                int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
-
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
-                {
-                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
-                    {
-                        if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
-                        {
-                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
-                            shell_elem_id_vec.push_back( elem_id );
-                            FeaMeshMgr.MarkPropMatUsed( property_id );
-                        }
-                        else
-                        {
-                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
-                            beam_elem_id_vec.push_back( elem_id );
-                            FeaMeshMgr.MarkPropMatUsed( cap_property_id );
-                        }
-
-                        elem_id++;
-                    }
-                }
-
-                // Write shell element set
-                name = m_FeaPartNameVec[i] + "_ShellElements";
-                WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
-
-                // Write beam element set
-                name = m_FeaPartNameVec[i] + "_BeamElements";
-                WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
-            }
-        }
-
-        // Write FeaFixPoints
-        for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
-        {
-            FixPoint fxpt = m_FixPntVec[i];
-            if ( fxpt.m_PtMassFlag )
-            {
-                fprintf( temp, "\n" );
-                fprintf( temp, "$%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str() );
-
-                vector < int > mass_elem_id_vec;
-
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
-                {
-                    if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
-                    {
-                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, -1, noffset, eoffset ); // property ID ignored for Point Masses
-                        mass_elem_id_vec.push_back( elem_id );
-                        elem_id++;
-                    }
-                }
-
-                // Write mass element set
-                name = m_FeaPartNameVec[fxpt.m_FeaPartIndex] + "_MassElements";
-                WriteNASTRANSet( fp, nkey_fp, set_cnt, mass_elem_id_vec, name, eoffset );
-            }
-        }
-
-        // Write FeaSubSurfaces
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
-        {
-            fprintf( temp, "\n" );
-            fprintf( temp, "$%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
-
-            int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
-            int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
-
-            shell_elem_id_vec.clear();
-            beam_elem_id_vec.clear();
-
-            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
-            {
-                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i )
-                {
-                    if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
-                    {
-                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
-                        shell_elem_id_vec.push_back( elem_id );
-                        FeaMeshMgr.MarkPropMatUsed( property_id );
-                    }
-                    else
-                    {
-                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
-                        beam_elem_id_vec.push_back( elem_id );
-                        FeaMeshMgr.MarkPropMatUsed( cap_property_id );
-                    }
-
-                    elem_id++;
-                }
-            }
-
-            // Write shell element set
-            name = m_SimpleSubSurfaceVec[i].GetName() + "_ShellElements";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
-
-            // Write beam element set
-            name = m_SimpleSubSurfaceVec[i].GetName() + "_BeamElements";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
-        }
+        WriteNASTRANElements( fp, temp, nkey_fp );
 
         //==== Properties ====//
         fprintf( temp, "\n" );
@@ -1083,6 +971,139 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp )
             WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name, noffset );
         }
 
+    }
+}
+
+void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp )
+{
+    FeaMeshMgr.ResetPropMatUse();
+
+    int noffset = m_StructSettings.m_NodeOffset;
+    int eoffset = m_StructSettings.m_ElementOffset;
+
+    if ( fp && temp )
+    {
+        int set_cnt = 1;
+        int max_grid_id = 0;
+        vector < int > grid_id_vec;
+        string name;
+
+        int elem_id = max_grid_id + 1; // First element ID begins after last gridpoint ID
+        vector < int > shell_elem_id_vec, beam_elem_id_vec;
+
+        // Write FeaParts
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        {
+            if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
+            {
+                fprintf( temp, "\n" );
+                fprintf( temp, "$%s\n", m_FeaPartNameVec[i].c_str() );
+
+                shell_elem_id_vec.clear();
+                beam_elem_id_vec.clear();
+
+                int property_id = m_FeaPartPropertyIndexVec[i];
+                int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                    {
+                        if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
+                        {
+                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
+                            shell_elem_id_vec.push_back( elem_id );
+                            FeaMeshMgr.MarkPropMatUsed( property_id );
+                        }
+                        else
+                        {
+                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
+                            beam_elem_id_vec.push_back( elem_id );
+                            FeaMeshMgr.MarkPropMatUsed( cap_property_id );
+                        }
+
+                        elem_id++;
+                    }
+                }
+
+                // Write shell element set
+                name = m_FeaPartNameVec[i] + "_ShellElements";
+                WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
+
+                // Write beam element set
+                name = m_FeaPartNameVec[i] + "_BeamElements";
+                WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
+            }
+        }
+
+        // Write FeaFixPoints
+        for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
+        {
+            FixPoint fxpt = m_FixPntVec[i];
+            if ( fxpt.m_PtMassFlag )
+            {
+                fprintf( temp, "\n" );
+                fprintf( temp, "$%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str() );
+
+                vector < int > mass_elem_id_vec;
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                    {
+                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, -1, noffset, eoffset ); // property ID ignored for Point Masses
+                        mass_elem_id_vec.push_back( elem_id );
+                        elem_id++;
+                    }
+                }
+
+                // Write mass element set
+                name = m_FeaPartNameVec[fxpt.m_FeaPartIndex] + "_MassElements";
+                WriteNASTRANSet( fp, nkey_fp, set_cnt, mass_elem_id_vec, name, eoffset );
+            }
+        }
+
+        // Write FeaSubSurfaces
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            fprintf( temp, "\n" );
+            fprintf( temp, "$%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+
+            int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
+            int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
+
+            shell_elem_id_vec.clear();
+            beam_elem_id_vec.clear();
+
+            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            {
+                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i )
+                {
+                    if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
+                    {
+                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
+                        shell_elem_id_vec.push_back( elem_id );
+                        FeaMeshMgr.MarkPropMatUsed( property_id );
+                    }
+                    else
+                    {
+                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
+                        beam_elem_id_vec.push_back( elem_id );
+                        FeaMeshMgr.MarkPropMatUsed( cap_property_id );
+                    }
+
+                    elem_id++;
+                }
+            }
+
+            // Write shell element set
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_ShellElements";
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
+
+            // Write beam element set
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_BeamElements";
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
+        }
     }
 }
 
