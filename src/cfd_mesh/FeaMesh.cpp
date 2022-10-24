@@ -1166,8 +1166,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
-                fprintf( fp, "** %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
-                fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                bool NodeHeader = false;
 
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
@@ -1175,6 +1174,12 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
+                            if ( !NodeHeader )
+                            {
+                                fprintf( fp, "** %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                                fprintf( fp, "*NODE, NSET=N%s_%s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                                NodeHeader = true;
+                            }
                             m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
                         }
                     }
@@ -1219,8 +1224,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         //==== Write SubSurfaces ====//
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            fprintf( fp, "** %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
-            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+            bool SubSurfHeader = false;
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
@@ -1228,6 +1232,12 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
+                        if ( !SubSurfHeader )
+                        {
+                            fprintf( fp, "** %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+                            fprintf( fp, "*NODE, NSET=N%s_%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+                            SubSurfHeader = true;
+                        }
                         m_FeaNodeVec[j]->WriteCalculix( fp, noffset );
                     }
                 }
