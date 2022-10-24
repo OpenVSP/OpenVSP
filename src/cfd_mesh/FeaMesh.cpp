@@ -806,23 +806,9 @@ void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
 
         WriteNASTRANElements( fp, temp, nkey_fp );
 
-        //==== Properties ====//
-        fprintf( temp, "\n" );
-        fprintf( temp, "$Properties\n" );
+        FeaMeshMgr.WriteNASTRANProperties( temp );
 
-        for ( unsigned int i = 0; i < FeaMeshMgr.GetSimplePropertyVec().size(); i++ )
-        {
-            FeaMeshMgr.GetSimplePropertyVec()[i].WriteNASTRAN( temp, i + 1 );
-        }
-
-        //==== Materials ====//
-        fprintf( temp, "\n" );
-        fprintf( temp, "$Materials\n" );
-
-        for ( unsigned int i = 0; i < FeaMeshMgr.GetSimpleMaterialVec().size(); i++ )
-        {
-            FeaMeshMgr.GetSimpleMaterialVec()[i].WriteNASTRAN( temp, i + 1 );
-        }
+        FeaMeshMgr.WriteNASTRANMaterials( temp );
 
         fprintf( temp, "\nENDDATA\n" );
     }

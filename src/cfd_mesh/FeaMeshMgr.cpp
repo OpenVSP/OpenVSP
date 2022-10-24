@@ -2795,6 +2795,37 @@ void FeaMeshMgrSingleton::WriteCalculixMaterials( FILE* fp )
     }
 }
 
+
+void FeaMeshMgrSingleton::WriteNASTRANProperties( FILE* temp )
+{
+    if ( temp )
+    {
+        //==== Properties ====//
+        fprintf( temp, "\n" );
+        fprintf( temp, "$Properties\n" );
+
+        for ( unsigned int i = 0; i < FeaMeshMgr.GetSimplePropertyVec().size(); i++ )
+        {
+            FeaMeshMgr.GetSimplePropertyVec()[i].WriteNASTRAN( temp, i + 1 );
+        }
+    }
+}
+
+void FeaMeshMgrSingleton::WriteNASTRANMaterials( FILE* temp )
+{
+    if ( temp )
+    {
+        //==== Materials ====//
+        fprintf( temp, "\n" );
+        fprintf( temp, "$Materials\n" );
+
+        for ( unsigned int i = 0; i < FeaMeshMgr.GetSimpleMaterialVec().size(); i++ )
+        {
+            FeaMeshMgr.GetSimpleMaterialVec()[i].WriteNASTRAN( temp, i + 1 );
+        }
+    }
+}
+
 void FeaMeshMgrSingleton::ModifyConnDO( FeaConnection* conn, vector < DrawObj* > connDO )
 {
     if ( conn && connDO.size() == 2 )
