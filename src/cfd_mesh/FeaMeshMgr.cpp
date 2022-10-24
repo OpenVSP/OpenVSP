@@ -2619,7 +2619,7 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
 
             // Round up at magnitude of number.  Consider ceil2scale( n, 1000 ); instead.
             noffset = magroundup( noffset + mesh->m_NumNodes );
-            eoffset = magroundup( eoffset + mesh->m_NumEls );
+            eoffset = magroundup( eoffset + mesh->m_NumEls + feacount.m_NumBeams );
         }
     }
 
