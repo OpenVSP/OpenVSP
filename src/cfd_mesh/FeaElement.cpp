@@ -68,8 +68,10 @@ void FeaNode::WriteNASTRAN( FILE* fp, int noffset )
     double y = m_Pnt.y();
     double z = m_Pnt.z();
 
-    string fmt = "GRID    ,%8d,        ," + NasFmt( x ) + "," + NasFmt( y ) + "," + NasFmt( z ) + "\n";
-    fprintf( fp, fmt.c_str(), m_Index + noffset, x, y, z );
+    string bcstr = m_BCs.AsNASTRAN();
+
+    string fmt = "GRID    ,%8d,        ," + NasFmt( x ) + "," + NasFmt( y ) + "," + NasFmt( z ) + ",        ,%s\n";
+    fprintf( fp, fmt.c_str(), m_Index + noffset, x, y, z, bcstr.c_str() );
 }
 
 void FeaNode::WriteCalculix( FILE* fp, int noffset )
