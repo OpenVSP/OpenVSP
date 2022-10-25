@@ -623,7 +623,7 @@ void StructAssemblyScreen::UpdateDrawPartBrowser()
                 m_DrawBrowserMeshIDVec.push_back( idvec[ i ] );
                 m_DrawBrowserIndexVec.push_back( j );
 
-                if ( draw_browser_name_vec[i].find( "CAP" ) != std::string::npos )
+                if ( draw_browser_name_vec[j].find( "CAP" ) != std::string::npos )
                 {
                     m_DrawPartSelectBrowser->add( draw_browser_name_vec[j].c_str(), draw_cap_flag_vec[draw_browser_index_vec[j]] );
                 }
