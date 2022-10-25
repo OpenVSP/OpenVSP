@@ -2733,13 +2733,13 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
     }
 }
 
-// Connection assumed between 0th entry of fxpt.  Needs specification in situations of part arrays and symmetry.
-void FeaMeshMgrSingleton::WriteConnectionCalculix( FILE* fp, FeaConnection* conn )
+void FeaMeshMgrSingleton::DetermineConnectionNodes( FeaConnection* conn, int &startnod, int &endnod )
 {
-    if ( fp && conn )
+    startnod = - 1;
+    endnod = -1;
+
+    if ( conn )
     {
-        int startnod = - 1;
-        int endnod = -1;
 
         FeaMesh *startmesh = GetMeshPtr( conn->m_StartStructID );
         if ( startmesh )
@@ -2776,6 +2776,16 @@ void FeaMeshMgrSingleton::WriteConnectionCalculix( FILE* fp, FeaConnection* conn
                 }
             }
         }
+    }
+}
+
+// Connection assumed between 0th entry of fxpt.  Needs specification in situations of part arrays and symmetry.
+void FeaMeshMgrSingleton::WriteConnectionCalculix( FILE* fp, FeaConnection* conn )
+{
+    if ( fp && conn )
+    {
+        int startnod, endnod;
+        DetermineConnectionNodes( conn, startnod, endnod );
 
         if ( startnod >= 0 && endnod >= 0 )
         {

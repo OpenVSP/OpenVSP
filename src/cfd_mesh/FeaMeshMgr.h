@@ -219,6 +219,9 @@ public:
 
     virtual void WriteNASTRANProperties( FILE* temp );
     virtual void WriteNASTRANMaterials( FILE* temp );
+
+    virtual void DetermineConnectionNodes( FeaConnection* conn, int &startnod, int &endnod );
+
     virtual void ModifyConnDO( FeaConnection* conn, vector < DrawObj* > connDO );
 
 protected:
