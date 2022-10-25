@@ -90,8 +90,8 @@ public:
     virtual void WriteNASTRAN();
     virtual void WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp );
     virtual void WriteNASTRANHeader( FILE* fp );
-    virtual void WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &max_node_id );
-    virtual void WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &elem_id );
+    virtual void WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt );
+    virtual void WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt );
 
     virtual void WriteGmsh();
     virtual void WriteSTL();

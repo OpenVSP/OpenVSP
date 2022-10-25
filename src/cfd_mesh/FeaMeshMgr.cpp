@@ -2605,10 +2605,6 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
             {
                 // Store in Parm.
                 fea_struct->GetStructSettingsPtr()->m_NodeOffset.Set( noffset );
-                fea_struct->GetStructSettingsPtr()->m_ElementOffset.Set( eoffset );
-
-                // Transfer to mesh.
-                mesh->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr() );
             }
 
             feacount.m_NumNodes += mesh->m_NumNodes;
@@ -2617,9 +2613,22 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
             feacount.m_NumQuads += mesh->m_NumQuads;
             feacount.m_NumBeams += mesh->m_NumBeams;
 
+            int maxn = noffset + mesh->m_NumNodes;
+
             // Round up at magnitude of number.  Consider ceil2scale( n, 1000 ); instead.
-            noffset = magroundup( noffset + mesh->m_NumNodes );
-            eoffset = magroundup( eoffset + mesh->m_NumEls + feacount.m_NumBeams );
+            eoffset = magroundup( maxn );
+
+            if ( fea_struct )
+            {
+                // Store in Parm.
+                fea_struct->GetStructSettingsPtr()->m_ElementOffset.Set( eoffset );
+
+                // Transfer to mesh.
+                mesh->m_StructSettings.CopyPostOpFrom( fea_struct->GetStructSettingsPtr() );
+            }
+
+            int maxe = eoffset + mesh->m_NumEls + feacount.m_NumBeams;
+            noffset = magroundup( maxe );
         }
     }
 

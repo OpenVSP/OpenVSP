@@ -791,13 +791,10 @@ void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
 
 
         int set_cnt = 1;
-        int max_node_id = 0;
 
-        WriteNASTRANNodes( fp, temp, nkey_fp, set_cnt, max_node_id );
+        WriteNASTRANNodes( fp, temp, nkey_fp, set_cnt );
 
-        int elem_id = max_node_id + 1; // First element ID begins after last node ID
-
-        WriteNASTRANElements( fp, temp, nkey_fp, set_cnt, elem_id );
+        WriteNASTRANElements( fp, temp, nkey_fp, set_cnt );
 
         FeaMeshMgr.WriteNASTRANProperties( temp );
 
@@ -825,7 +822,7 @@ void FeaMesh::WriteNASTRANHeader( FILE* fp )
     }
 }
 
-void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &max_node_id )
+void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt )
 {
     int noffset = m_StructSettings.m_NodeOffset;
 
@@ -852,7 +849,6 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                         {
                             m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                             node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
-                            max_node_id = max( max_node_id, m_FeaNodeVec[j]->m_Index );
                         }
                     }
                 }
@@ -867,7 +863,6 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                         {
                             m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                             node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
-                            max_node_id = max( max_node_id, m_FeaNodeVec[j]->m_Index );
                         }
                     }
                 }
@@ -894,7 +889,6 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                     {
                         m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                         node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
-                        max_node_id = max( max_node_id, m_FeaNodeVec[j]->m_Index );
                     }
                 }
             }
@@ -922,7 +916,6 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                     }
                     m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                     node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
-                    max_node_id = max( max_node_id, m_FeaNodeVec[j]->m_Index );
                 }
             }
         }
@@ -959,7 +952,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
     }
 }
 
-void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &elem_id )
+void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt )
 {
     int noffset = m_StructSettings.m_NodeOffset;
     int eoffset = m_StructSettings.m_ElementOffset;
@@ -968,6 +961,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
     {
         string name;
         vector < int > shell_elem_id_vec, beam_elem_id_vec;
+        int elem_id = 0;
 
         // Write FeaParts
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
