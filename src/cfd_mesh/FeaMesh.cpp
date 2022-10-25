@@ -904,18 +904,22 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
             WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
-        // Intersection Nodes
-        fprintf( temp, "\n" );
-        fprintf( temp, "$Intersections\n" );
-
         node_id_vec.clear();
 
+        // Intersection Nodes
+        bool IntersectHeader = false;
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
             if ( m_PntShift[j] >= 0 )
             {
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
                 {
+                    if ( !IntersectHeader )
+                    {
+                        fprintf( temp, "\n" );
+                        fprintf( temp, "$ Intersections\n" );
+                        IntersectHeader = true;
+                    }
                     m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                     node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                     max_node_id = max( max_node_id, m_FeaNodeVec[j]->m_Index );
@@ -928,14 +932,19 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
 
         //==== Remaining Nodes ====//
-        fprintf( temp, "\n" );
-        fprintf( temp, "$Remainingnodes\n" );
+        bool RemainingHeader = false;
         for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
         {
             node_id_vec.clear();
 
             if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->m_Tags.size() == 0 )
             {
+                if ( !RemainingHeader )
+                {
+                    fprintf( temp, "\n" );
+                    fprintf( temp, "$ Remainingnodes\n" );
+                    RemainingHeader = true;
+                }
                 m_FeaNodeVec[i]->WriteNASTRAN( temp, noffset );
             }
 
