@@ -120,6 +120,15 @@ private:
     TriggerButton m_AddConnectionButton;
     TriggerButton m_DelConnectionButton;
 
+    Choice m_FeaConnModeChoice;
+
+    CheckButtonBit m_TxButton;
+    CheckButtonBit m_TyButton;
+    CheckButtonBit m_TzButton;
+    CheckButtonBit m_RxButton;
+    CheckButtonBit m_RyButton;
+    CheckButtonBit m_RzButton;
+
     //===== FEM Items =====//
     ToggleButton m_StlFile;
     ToggleButton m_GmshFile;

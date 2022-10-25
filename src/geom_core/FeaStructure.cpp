@@ -5422,6 +5422,9 @@ FeaConnection::FeaConnection( )
     m_StartFixPtSurfIndex.Init( "StartFixPtSurfIndex", "Connection", this, -1, -1, 1e12 );
     m_EndFixPtSurfIndex.Init( "EndFixPtSurfIndex", "Connection", this, -1, -1, 1e12 );
 
+    m_ConMode.Init( "ConMode", "Connection", this, vsp::FEA_BCM_ALL, vsp::FEA_BCM_USER, vsp::FEA_BCM_PIN ); // not all possible.
+    m_Constraints.Init( "Constraints", "Connection", this, 0, 0, 63 );
+
     m_ConnLineDO.m_Type = DrawObj::VSP_LINES;
     m_ConnLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_ConnLineDO.m_LineWidth = 2.0;
@@ -5433,8 +5436,33 @@ FeaConnection::FeaConnection( )
     m_ConnPtsDO.m_GeomID = GetID() + "Pts";
 }
 
+BitMask FeaConnection::GetAsBitMask()
+{
+    BitMask bm( m_Constraints() );
+
+    return bm;
+}
+
 void FeaConnection::Update( )
 {
+    m_Constraints.Deactivate();
+
+    if ( m_ConMode() == vsp::FEA_BCM_USER )
+    {
+        m_Constraints.Activate();
+    }
+    else if ( m_ConMode() == vsp::FEA_BCM_ALL )
+    {
+        std::vector < bool > bv( 6, true );
+        BitMask bm( bv );
+        m_Constraints.Set( bm.AsNum() );
+    }
+    else if ( m_ConMode() == vsp::FEA_BCM_PIN )
+    {
+        std::vector < bool > bv = {true, true, true, false, false, false};
+        BitMask bm( bv );
+        m_Constraints.Set( bm.AsNum() );
+    }
 
     UpdateDrawObjs();
 }

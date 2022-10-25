@@ -692,6 +692,8 @@ public:
 
     virtual void Update();
 
+    virtual BitMask GetAsBitMask();
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -709,6 +711,9 @@ public:
     string m_EndStructID;
     string m_EndFixPtID;
     IntParm m_EndFixPtSurfIndex;
+
+    IntParm m_ConMode;
+    IntParm m_Constraints;
 
 protected:
 

@@ -174,6 +174,36 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
     m_ConnectionsTabLayout.AddButton( m_AddConnectionButton, "Add Connection" );
     m_ConnectionsTabLayout.AddButton( m_DelConnectionButton, "Delete Connection" );
+    m_ConnectionsTabLayout.ForceNewLine();
+
+    m_ConnectionsTabLayout.SetSameLineFlag( false );
+    m_ConnectionsTabLayout.SetFitWidthFlag( true );
+
+    m_ConnectionsTabLayout.AddDividerBox( "Connection Properties" );
+
+    m_ConnectionsTabLayout.AddChoice( m_FeaConnModeChoice, "Mode" );
+    m_FeaConnModeChoice.AddItem( "User", vsp::FEA_BCM_USER );
+    m_FeaConnModeChoice.AddItem( "All", vsp::FEA_BCM_ALL );
+    m_FeaConnModeChoice.AddItem( "Pin", vsp::FEA_BCM_PIN );
+    m_FeaConnModeChoice.UpdateItems();
+
+    m_ConnectionsTabLayout.SetSameLineFlag( true );
+    m_ConnectionsTabLayout.SetFitWidthFlag( false );
+
+    m_ConnectionsTabLayout.SetButtonWidth( m_ConnectionsTabLayout.GetW() / 4 );
+
+    m_ConnectionsTabLayout.AddLabel( "Translation:", m_ConnectionsTabLayout.GetButtonWidth() );
+
+    m_ConnectionsTabLayout.AddButton( m_TxButton, "X", 1 << 0 );
+    m_ConnectionsTabLayout.AddButton( m_TyButton, "Y", 1 << 1 );
+    m_ConnectionsTabLayout.AddButton( m_TzButton, "Z", 1 << 2 );
+
+    m_ConnectionsTabLayout.ForceNewLine();
+
+    m_ConnectionsTabLayout.AddLabel( "Rotation:", m_ConnectionsTabLayout.GetButtonWidth() );
+    m_ConnectionsTabLayout.AddButton( m_RxButton, "X", 1 << 3 );
+    m_ConnectionsTabLayout.AddButton( m_RyButton, "Y", 1 << 4 );
+    m_ConnectionsTabLayout.AddButton( m_RzButton, "Z", 1 << 5 );
 
     //=== Output Tab ===//
     m_FemTabLayout.SetGroupAndScreen( femTabGroup, this );
@@ -307,13 +337,20 @@ void StructAssemblyScreen::Show()
 
 bool StructAssemblyScreen::Update()
 {
+    FeaAssembly* curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
+
+    // This makes sure connection DO's are updated.
+    // does not need to be called every time, but they aren't in an update path
+    // otherwise.
+    if ( curr_assy )
+    {
+        curr_assy->Update();
+    }
+
     UpdateAssemblyTab();
     UpdateStructTab();
     UpdateConnectionTab();
     UpdateDrawPartBrowser();
-
-
-    FeaAssembly* curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
 
     if ( !curr_assy )
     {
@@ -579,7 +616,20 @@ void StructAssemblyScreen::UpdateConnectionTab()
 
     if ( m_ConnectionBrowserIndex >= 0 && convec.size() > 0 && m_ConnectionBrowserIndex < convec.size() )
     {
-        convec[ m_ConnectionBrowserIndex ]->SetDrawObjHighlight( true );
+        FeaConnection* curr_conn = convec[ m_ConnectionBrowserIndex ];
+        if ( curr_conn )
+        {
+            curr_conn->SetDrawObjHighlight( true );
+
+            m_FeaConnModeChoice.Update( curr_conn->m_ConMode.GetID() );
+
+            m_TxButton.Update( curr_conn->m_Constraints.GetID() );
+            m_TyButton.Update( curr_conn->m_Constraints.GetID() );
+            m_TzButton.Update( curr_conn->m_Constraints.GetID() );
+            m_RxButton.Update( curr_conn->m_Constraints.GetID() );
+            m_RyButton.Update( curr_conn->m_Constraints.GetID() );
+            m_RzButton.Update( curr_conn->m_Constraints.GetID() );
+        }
     }
 
     m_ConnectionSelectBrowser->select( m_ConnectionBrowserIndex + 2 );

@@ -2800,11 +2800,16 @@ void FeaMeshMgrSingleton::WriteConnectionCalculix( FILE* fp, FeaConnection* conn
         {
             fprintf( fp, "** CONNECTION %s\n", conn->MakeName().c_str() );
 
+            BitMask dof = conn->GetAsBitMask();
+
             for ( int i = 1; i <= 6; i++ )
             {
-                fprintf( fp, "*EQUATION\n" );
-                fprintf( fp, "2\n" );                // Two terms in equation.
-                fprintf( fp, "%d,%d,%f,%d,%d,%f\n", startnod, i, 1.0, endnod, i, -1.0 ); // LHS of equation = 0
+                if ( dof.CheckBit( i - 1) )
+                {
+                    fprintf( fp, "*EQUATION\n" );
+                    fprintf( fp, "2\n" );                // Two terms in equation.
+                    fprintf( fp, "%d,%d,%f,%d,%d,%f\n", startnod, i, 1.0, endnod, i, -1.0 ); // LHS of equation = 0
+                }
             }
             fprintf( fp, "\n" );
         }
@@ -2941,8 +2946,11 @@ void FeaMeshMgrSingleton::WriteConnectionNASTRAN( FILE* fp, FeaConnection* conn,
 
         if ( startnod >= 0 && endnod >= 0 )
         {
+            BitMask dof = conn->GetAsBitMask();
+            string bcstr = dof.AsNASTRAN();
+
             fprintf( fp, "$ Connection %s\n", conn->MakeName().c_str() );
-            fprintf( fp, "RBAR1   ,%8d,%8d,%8d,123456\n", connid, startnod, endnod );
+            fprintf( fp, "RBAR1   ,%8d,%8d,%8d,%s\n", connid, startnod, endnod, bcstr.c_str() );
             fprintf( fp, "\n" );
             connid++;
         }
