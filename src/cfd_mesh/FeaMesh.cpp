@@ -853,7 +853,17 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                     }
                 }
             }
-            else if ( m_FeaPartTypeVec[i] == vsp::FEA_FIX_POINT ) // FixedPoint Nodes
+
+            // Write FEA part node set
+            name = m_FeaPartNameVec[i] + "_" + m_StructName + "_Gridpoints";
+            WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
+        }
+
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        {
+            node_id_vec.clear();
+
+            if ( m_FeaPartTypeVec[i] == vsp::FEA_FIX_POINT ) // FixedPoint Nodes
             {
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
@@ -869,7 +879,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
             }
 
             // Write FEA part node set
-            name = m_FeaPartNameVec[i] + "_Gridpoints";
+            name = m_FeaPartNameVec[i] + "_" + m_StructName + "_FixedGridpoints";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
