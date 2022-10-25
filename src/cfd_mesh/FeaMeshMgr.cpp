@@ -2650,6 +2650,8 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
         return;
     }
 
+    FeaMeshMgr.ResetPropMatUse();
+
     vector < string > & idvec = fea_assembly->m_StructIDVec;
 
     if ( fp )

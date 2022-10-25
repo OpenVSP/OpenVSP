@@ -831,8 +831,6 @@ void FeaMesh::WriteNASTRANHeader( FILE* fp )
 
 void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &max_node_id )
 {
-    FeaMeshMgr.ResetPropMatUse();
-
     int noffset = m_StructSettings.m_NodeOffset;
 
     if ( fp && temp )
@@ -955,8 +953,6 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
 void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &elem_id )
 {
-    FeaMeshMgr.ResetPropMatUse();
-
     int noffset = m_StructSettings.m_NodeOffset;
     int eoffset = m_StructSettings.m_ElementOffset;
 

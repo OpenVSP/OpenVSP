@@ -195,6 +195,7 @@ class SimpleFeaProperty
 {
     public:
     SimpleFeaProperty()    {
+        m_Used = false;
         m_FeaPropertyType = vsp::FEA_SHELL;
         m_Thickness = 0;
         m_CrossSecArea = 0;
@@ -252,6 +253,7 @@ class SimpleFeaMaterial
 {
 public:
     SimpleFeaMaterial()    {
+        m_Used = false;
         m_FeaMaterialType = vsp::FEA_ISOTROPIC;
         m_MassDensity = 0;
         m_ElasticModulus = 0;

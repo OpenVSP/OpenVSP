@@ -192,6 +192,10 @@ public:
         {
             m_SimplePropertyVec[ i ].m_Used = false;
         }
+        for ( int i = 0; i < m_SimpleMaterialVec.size(); i++ )
+        {
+            m_SimpleMaterialVec[ i ].m_Used = false;
+        }
     }
 
     virtual void MarkPropMatUsed( int indx )
