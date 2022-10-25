@@ -2673,6 +2673,7 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
         fprintf( fp, "** Num_Tris:        %u\n", feacount.m_NumTris );
         fprintf( fp, "** Num_Quads:       %u\n", feacount.m_NumQuads );
         fprintf( fp, "** Num_Beams:       %u\n", feacount.m_NumBeams );
+        fprintf( fp, "** Num_Connections: %u\n", fea_assembly->m_ConnectionVec.size() );
         fprintf( fp, "\n" );
 
         for ( int i = 0; i < idvec.size(); i++ )
