@@ -782,12 +782,8 @@ void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
 {
     FeaMeshMgr.ResetPropMatUse();
 
-    int noffset = m_StructSettings.m_NodeOffset;
-    int eoffset = m_StructSettings.m_ElementOffset;
-
     if ( fp && temp )
     {
-
         WriteNASTRANHeader( fp );
 
         // Write bulk data to temp file
