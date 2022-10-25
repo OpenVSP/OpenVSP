@@ -11,6 +11,7 @@
 #define VSP_TOP_BITMASK_H
 
 #include <vector>
+#include <string>
 
 class BitMask
 {
@@ -78,6 +79,21 @@ public:
     unsigned AsNum()
     {
         return m_Store;
+    }
+
+    std::string AsNASTRAN()
+    {
+        std::string str;
+
+        for ( int i = 0; i < 6; i++ )
+        {
+            if ( CheckBit(i) )
+            {
+                str += std::to_string( i + 1 );
+            }
+        }
+
+        return str;
     }
 
 protected:
