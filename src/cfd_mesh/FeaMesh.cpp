@@ -931,6 +931,8 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         name = "Intersection_Gridpoints";
         WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
 
+        node_id_vec.clear();
+
         //==== Remaining Nodes ====//
         bool RemainingHeader = false;
         for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
@@ -946,6 +948,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                     RemainingHeader = true;
                 }
                 m_FeaNodeVec[i]->WriteNASTRAN( temp, noffset );
+                node_id_vec.push_back( m_FeaNodeVec[i]->m_Index );
             }
         }
 
