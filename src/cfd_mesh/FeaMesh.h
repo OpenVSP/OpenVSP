@@ -10,6 +10,8 @@
 #include "SimpleSubSurface.h"
 #include "SimpleBC.h"
 
+void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp );
+
 class FixPoint
 {
 public:
@@ -90,7 +92,6 @@ public:
     virtual void WriteNASTRANHeader( FILE* fp );
     virtual void WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &max_node_id );
     virtual void WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt, int &elem_id );
-    virtual void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp );
 
     virtual void WriteGmsh();
     virtual void WriteSTL();

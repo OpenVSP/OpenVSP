@@ -1077,7 +1077,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
     }
 }
 
-void FeaMesh::CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
+void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
 {
     if ( fp && temp )
     {
