@@ -882,7 +882,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             fprintf( temp, "\n" );
-            fprintf( temp, "$%s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+            fprintf( temp, "$ %s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
             node_id_vec.clear();
 
