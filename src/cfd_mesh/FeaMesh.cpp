@@ -947,11 +947,11 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                 }
                 m_FeaNodeVec[i]->WriteNASTRAN( temp, noffset );
             }
-
-            // Write remaining node set
-            name = "Remaining_Gridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
+
+        // Write remaining node set
+        name = "Remaining_Gridpoints";
+        WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
 
     }
 }
