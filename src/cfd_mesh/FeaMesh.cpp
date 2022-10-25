@@ -837,7 +837,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
             node_id_vec.clear();
 
             fprintf( temp, "\n" );
-            fprintf( temp, "$ %s Gridpoints\n", m_FeaPartNameVec[i].c_str() );
+            fprintf( temp, "$ %s %s Gridpoints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
 
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
@@ -887,7 +887,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             fprintf( temp, "\n" );
-            fprintf( temp, "$ %s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+            fprintf( temp, "$ %s %s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
 
             node_id_vec.clear();
 
@@ -904,7 +904,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
             }
 
             // Write subsurface node set
-            name = m_SimpleSubSurfaceVec[i].GetName() + "_Gridpoints";
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_Gridpoints";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
@@ -921,7 +921,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                     if ( !IntersectHeader )
                     {
                         fprintf( temp, "\n" );
-                        fprintf( temp, "$ Intersections\n" );
+                        fprintf( temp, "$ %s Intersections\n", m_StructName.c_str() );
                         IntersectHeader = true;
                     }
                     m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
@@ -931,7 +931,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         }
 
         // Write intersection node set
-        name = "Intersection_Gridpoints";
+        name = m_StructName + "_Intersection_Gridpoints";
         WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
 
         node_id_vec.clear();
@@ -947,7 +947,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                 if ( !RemainingHeader )
                 {
                     fprintf( temp, "\n" );
-                    fprintf( temp, "$ Remainingnodes\n" );
+                    fprintf( temp, "$ %s Remainingnodes\n", m_StructName.c_str() );
                     RemainingHeader = true;
                 }
                 m_FeaNodeVec[i]->WriteNASTRAN( temp, noffset );
@@ -956,9 +956,8 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         }
 
         // Write remaining node set
-        name = "Remaining_Gridpoints";
+        name = m_StructName + "_Remaining_Gridpoints";
         WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
-
     }
 }
 
@@ -979,7 +978,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
                 fprintf( temp, "\n" );
-                fprintf( temp, "$%s\n", m_FeaPartNameVec[i].c_str() );
+                fprintf( temp, "$ %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str()  );
 
                 shell_elem_id_vec.clear();
                 beam_elem_id_vec.clear();
@@ -1009,11 +1008,11 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
                 }
 
                 // Write shell element set
-                name = m_FeaPartNameVec[i] + "_ShellElements";
+                name = m_FeaPartNameVec[i] + "_" + m_StructName + "_ShellElements";
                 WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
 
                 // Write beam element set
-                name = m_FeaPartNameVec[i] + "_BeamElements";
+                name = m_FeaPartNameVec[i] + "_" + m_StructName + "_BeamElements";
                 WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
             }
         }
@@ -1025,7 +1024,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
             if ( fxpt.m_PtMassFlag )
             {
                 fprintf( temp, "\n" );
-                fprintf( temp, "$%s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str() );
+                fprintf( temp, "$ %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
 
                 vector < int > mass_elem_id_vec;
 
@@ -1040,7 +1039,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
                 }
 
                 // Write mass element set
-                name = m_FeaPartNameVec[fxpt.m_FeaPartIndex] + "_MassElements";
+                name = m_FeaPartNameVec[fxpt.m_FeaPartIndex] + "_" +  m_StructName + "_MassElements";
                 WriteNASTRANSet( fp, nkey_fp, set_cnt, mass_elem_id_vec, name, eoffset );
             }
         }
@@ -1049,7 +1048,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             fprintf( temp, "\n" );
-            fprintf( temp, "$%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+            fprintf( temp, "$ %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
 
             int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
             int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
@@ -1079,11 +1078,11 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
             }
 
             // Write shell element set
-            name = m_SimpleSubSurfaceVec[i].GetName() + "_ShellElements";
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_ShellElements";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
 
             // Write beam element set
-            name = m_SimpleSubSurfaceVec[i].GetName() + "_BeamElements";
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_BeamElements";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
         }
     }
