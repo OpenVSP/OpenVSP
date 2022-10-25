@@ -217,6 +217,9 @@ public:
     virtual void WriteConnectionCalculix( FILE* fp, FeaConnection* conn );
     virtual void WriteCalculixMaterials( FILE* fp );
 
+    virtual void WriteAssemblyNASTRAN( const string &assembly_id, const FeaCount &feacount, int connoffset );
+    virtual void WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp, const string &assembly_id, const FeaCount &feacount, int connoffset );
+    virtual void WriteConnectionNASTRAN( FILE* fp, FeaConnection* conn, int &connid );
     virtual void WriteNASTRANProperties( FILE* temp );
     virtual void WriteNASTRANMaterials( FILE* temp );
 
