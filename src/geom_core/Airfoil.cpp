@@ -665,17 +665,20 @@ void SixSeries::UpdateCurve( bool updateParms )
 {
     //==== Run Six Series Fortran Generation Code ====//
     float cli = ( float )m_IdealCl();
-    float ta = ( float )m_A();
     float toc = ( float )m_ThickChord();
     int sixser = 63;
     if ( m_Series() <= SERIES_67 )
     {
         sixser = m_Series() + 63;
+        m_A.Activate();
     }
     else if ( m_Series() < NUM_SERIES )
     {
+        m_A = 0.8;
+        m_A.Deactivate();
         sixser = -( m_Series() + 58 );
     }
+    float ta = ( float )m_A();
 
     //==== Generate Airfoil ====//
     sixseries_( &sixser, &toc, &cli, &ta );
