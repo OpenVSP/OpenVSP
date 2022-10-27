@@ -31,8 +31,6 @@ public:
     virtual void FeaPropertyDispGroup( GroupLayout* group );
     virtual void BeamXSecDispGroup( GroupLayout* group );
 
-    virtual void FeaBCDispGroup( GroupLayout* group );
-
     virtual void LoadGeomChoice();
     virtual void UpdateStructBrowser();
     virtual void UpdateFeaPartBrowser();
@@ -274,8 +272,6 @@ private:
     TriggerButton m_AddFeaBCButton;
     TriggerButton m_DelFeaBCButton;
 
-    GroupLayout m_BCEditSubGroup;
-
     Choice m_FeaBCTypeChoice;
 
     GroupLayout* m_CurFeaBCGroup;
@@ -291,20 +287,11 @@ private:
     CheckButtonBit m_RyButton;
     CheckButtonBit m_RzButton;
 
-    // Y Less Than Constraint
-    GroupLayout m_FeaBCYLTGroup;
-
     SliderAdjRangeInput m_BCYLTSlider;
-
-    // Part Constraint
-    GroupLayout m_FeaBCPartGroup;
 
     Choice m_FeaBCPartChoice;
     vector < string > m_FeaBCPartChoiceIDVec;
     int m_SelectedBCPartChoice;
-
-    // SubSurface Constraint
-    GroupLayout m_FeaBCSubSurfGroup;
 
     Choice m_FeaBCSubSurfChoice;
     vector < string > m_FeaBCSubSurfChoiceIDVec;

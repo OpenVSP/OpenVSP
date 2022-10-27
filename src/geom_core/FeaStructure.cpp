@@ -169,9 +169,7 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
 
         if ( bc_info )
         {
-            int type = XmlUtil::FindInt( bc_info, "FeaBCType", 0 );
-
-            FeaBC* feabc = AddFeaBC( type );
+            FeaBC* feabc = AddFeaBC();
             feabc->DecodeXml( bc_info );
         }
     }
@@ -995,23 +993,11 @@ bool FeaStructure::PtsOnAnyPlanarPart( const vector < vec3d > &pnts )
 
 FeaBC* FeaStructure::AddFeaBC( int type )
 {
-    FeaBC* feabc = NULL;
-
-    if ( type == vsp::FEA_BC_Y_LESS_THAN )
-    {
-        feabc = new FeaBCYLT( GetID() );
-    }
-    else if ( type == vsp::FEA_BC_PART )
-    {
-        feabc = new FeaBCPart( GetID() );
-    }
-    else if ( type == vsp::FEA_BC_SUBSURF )
-    {
-        feabc = new FeaBCSubSurf( GetID() );
-    }
+    FeaBC* feabc = new FeaBC( GetID() );
 
     if ( feabc )
     {
+        feabc->m_FeaBCType.Set( type );
         AddFeaBC( feabc );
     }
 
@@ -5771,13 +5757,15 @@ void FeaAssembly::AddLinkableParms( vector< string > & linkable_parm_vec, const 
 //===================== FeaBC ======================//
 //////////////////////////////////////////////////////
 
-FeaBC::FeaBC( const string &structID, int type )
+FeaBC::FeaBC( const string &structID )
 {
     m_StructID = structID;
-    m_FeaBCType = type;
+    m_FeaBCType.Init( "Type", "FeaBC", this, vsp::FEA_BC_Y_LESS_THAN, vsp::FEA_BC_Y_LESS_THAN, vsp::FEA_NUM_BC_TYPES - 1 );
 
     m_ConMode.Init( "ConMode", "FeaBC", this, vsp::FEA_BCM_USER, vsp::FEA_BCM_USER, vsp::FEA_NUM_BCM_MODES - 1 );
     m_Constraints.Init( "Constraints", "FeaBC", this, 0, 0, 63 );
+
+    m_Yval.Init( "Yval", "FeaBCYLT", this, 1e-4, -1e12, 1e12 );
 }
 
 void FeaBC::ParmChanged( Parm* parm_ptr, int type )
@@ -5794,17 +5782,69 @@ xmlNodePtr FeaBC::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr bc_info = xmlNewChild( node, NULL, BAD_CAST "FeaBCInfo", NULL );
 
-    XmlUtil::AddIntNode( bc_info, "FeaBCType", m_FeaBCType );
+    xmlNodePtr conn_node = ParmContainer::EncodeXml( bc_info );
 
-    return ParmContainer::EncodeXml( bc_info );
+    if ( conn_node )
+    {
+        XmlUtil::AddStringNode( conn_node, "PartID", m_PartID );
+        XmlUtil::AddStringNode( conn_node, "SubSurfID", m_SubSurfID );
+    }
+
+    return conn_node;
 }
 
 xmlNodePtr FeaBC::DecodeXml( xmlNodePtr & node )
 {
-    return ParmContainer::DecodeXml( node );
+    xmlNodePtr conn_node = ParmContainer::DecodeXml( node );
+
+    if ( conn_node )
+    {
+        m_PartID = XmlUtil::FindString( conn_node, "PartID", m_PartID );
+        m_SubSurfID = XmlUtil::FindString( conn_node, "SubSurfID", m_SubSurfID );
+
+    }
+
+    return conn_node;
 }
 
 string FeaBC::GetDescription()
+{
+    char str[256];
+    str[0] = '\0';
+
+    string dof = GetDescriptionDOF();
+
+    if ( m_FeaBCType() == vsp::FEA_BC_Y_LESS_THAN )
+    {
+        sprintf( str, "%sY Less Than %f", dof.c_str(), m_Yval() );
+    }
+    else if ( m_FeaBCType() == vsp::FEA_BC_PART )
+    {
+        FeaPart* part = StructureMgr.GetFeaPart( m_PartID );
+
+        if ( part )
+        {
+            sprintf( str, "%s%s", dof.c_str(), part->GetName().c_str() );
+        }
+    }
+    else if ( m_FeaBCType() == vsp::FEA_BC_SUBSURF )
+    {
+        SubSurface* subsurf = StructureMgr.GetFeaSubSurf( m_SubSurfID );
+
+        if ( subsurf )
+        {
+            sprintf( str, "%s%s", dof.c_str(), subsurf->GetName().c_str() );
+        }
+        else
+        {
+            sprintf( str, "%s%s not found\n", dof.c_str(), m_SubSurfID.c_str() );
+        }
+    }
+
+    return string( str );
+}
+
+string FeaBC::GetDescriptionDOF()
 {
     char labels[] = "XYZPQR";
     char str[13];
@@ -5868,122 +5908,4 @@ void FeaBC::Update()
         BitMask bm( bv );
         m_Constraints.Set( bm.AsNum() );
     }
-}
-
-//////////////////////////////////////////////////////
-//=================== FeaBCYLT =====================//
-//////////////////////////////////////////////////////
-
-FeaBCYLT::FeaBCYLT( const string &structID, int type ) : FeaBC( structID, type )
-{
-    m_Yval.Init( "Yval", "FeaBCYLT", this, 1e-4, -1e12, 1e12 );
-
-}
-
-string FeaBCYLT::GetDescription()
-{
-    char str[256];
-
-    sprintf( str, "%sY Less Than %f", FeaBC::GetDescription().c_str(), m_Yval() );
-
-    return string( str );
-}
-
-
-//////////////////////////////////////////////////////
-//=================== FeaBCPart=====================//
-//////////////////////////////////////////////////////
-
-FeaBCPart::FeaBCPart( const string &structID, int type ) : FeaBC( structID, type )
-{
-
-}
-
-xmlNodePtr FeaBCPart::EncodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr conn_node = FeaBC::EncodeXml( node );
-
-    if ( conn_node )
-    {
-        XmlUtil::AddStringNode( conn_node, "PartID", m_PartID );
-    }
-
-    return conn_node;
-}
-
-xmlNodePtr FeaBCPart::DecodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr conn_node = FeaBC::DecodeXml( node );
-    if ( conn_node )
-    {
-        m_PartID = XmlUtil::FindString( conn_node, "PartID", m_PartID );
-    }
-
-    return conn_node;
-}
-
-string FeaBCPart::GetDescription()
-{
-    char str[256];
-    str[0] = '\0';
-
-    FeaPart* part = StructureMgr.GetFeaPart( m_PartID );
-
-    if ( part )
-    {
-        sprintf( str, "%s%s", FeaBC::GetDescription().c_str(), part->GetName().c_str() );
-    }
-
-    return string( str );
-}
-
-//////////////////////////////////////////////////////
-//================= FeaBCSubSurf====================//
-//////////////////////////////////////////////////////
-
-FeaBCSubSurf::FeaBCSubSurf( const string &structID, int type ) : FeaBC( structID, type )
-{
-
-}
-
-xmlNodePtr FeaBCSubSurf::EncodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr conn_node = FeaBC::EncodeXml( node );
-
-    if ( conn_node )
-    {
-        XmlUtil::AddStringNode( conn_node, "SubSurfID", m_SubSurfID );
-    }
-
-    return conn_node;
-}
-
-xmlNodePtr FeaBCSubSurf::DecodeXml( xmlNodePtr & node )
-{
-    xmlNodePtr conn_node = FeaBC::DecodeXml( node );
-    if ( conn_node )
-    {
-        m_SubSurfID = XmlUtil::FindString( conn_node, "SubSurfID", m_SubSurfID );
-    }
-
-    return conn_node;
-}
-
-string FeaBCSubSurf::GetDescription()
-{
-    char str[256];
-    str[0] = '\0';
-
-    SubSurface* subsurf = StructureMgr.GetFeaSubSurf( m_SubSurfID );
-
-    if ( subsurf )
-    {
-        sprintf( str, "%s%s", FeaBC::GetDescription().c_str(), subsurf->GetName().c_str() );
-    }
-    else
-    {
-        sprintf( str, "%s%s not found\n", FeaBC::GetDescription().c_str(), m_SubSurfID.c_str() );
-    }
-
-    return string( str );
 }

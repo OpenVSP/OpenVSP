@@ -759,24 +759,26 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_BCEditGroup.AddButton( m_DelFeaBCButton, "Delete BC" );
     m_BCEditGroup.ForceNewLine();
 
-    m_BCEditGroup.SetButtonWidth( m_BCEditSubGroup.GetRemainX() / 3 );
+    m_BCEditGroup.AddSubGroupLayout( m_FeaBCCommonGroup, m_BCEditGroup.GetRemainX(), m_BCEditGroup.GetRemainY() );
 
-    m_BCEditGroup.SetSameLineFlag( false );
-    m_BCEditGroup.SetFitWidthFlag( true );
+    m_FeaBCCommonGroup.AddYGap();
 
-    m_BCEditGroup.AddChoice( m_FeaBCTypeChoice, "Type" );
+    m_FeaBCCommonGroup.AddDividerBox( "BC Properties" );
+
+    m_FeaBCCommonGroup.AddChoice( m_FeaBCTypeChoice, "Type" );
     m_FeaBCTypeChoice.AddItem( "Y Less Than", vsp::FEA_BC_Y_LESS_THAN );
     m_FeaBCTypeChoice.AddItem( "Part", vsp::FEA_BC_PART );
     m_FeaBCTypeChoice.AddItem( "Sub Surface", vsp::FEA_BC_SUBSURF );
     m_FeaBCTypeChoice.UpdateItems();
 
-    m_BCEditGroup.AddSubGroupLayout( m_BCEditSubGroup, m_BCEditGroup.GetRemainX(), m_BCEditGroup.GetRemainY() );
+    m_FeaBCCommonGroup.AddYGap();
 
-    m_BCEditSubGroup.AddYGap();
+    m_FeaBCCommonGroup.AddChoice( m_FeaBCPartChoice, "Part" );
+    m_FeaBCCommonGroup.AddChoice( m_FeaBCSubSurfChoice, "Sub Surface" );
 
-    m_BCEditSubGroup.AddDividerBox( "BC Properties" );
+    m_FeaBCCommonGroup.AddYGap();
 
-    m_BCEditSubGroup.AddSubGroupLayout( m_FeaBCCommonGroup, m_BCEditSubGroup.GetRemainX(), m_BCEditSubGroup.GetRemainY() );
+    m_FeaBCCommonGroup.AddDividerBox( "Degrees of Freedom" );
 
     m_FeaBCCommonGroup.AddChoice( m_FeaBCModeChoice, "Mode" );
     m_FeaBCModeChoice.AddItem( "User", vsp::FEA_BCM_USER );
@@ -804,24 +806,15 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_FeaBCCommonGroup.AddButton( m_RyButton, "Y", 1 << 4 );
     m_FeaBCCommonGroup.AddButton( m_RzButton, "Z", 1 << 5 );
 
-    m_BCEditSubGroup.AddY( 60 );
+    m_FeaBCCommonGroup.ForceNewLine();
 
-    // Constraint Y Less Than
-    m_BCEditSubGroup.AddSubGroupLayout( m_FeaBCYLTGroup, m_BCEditSubGroup.GetRemainX(), m_BCEditSubGroup.GetRemainY() );
+    m_FeaBCCommonGroup.SetSameLineFlag( false );
+    m_FeaBCCommonGroup.SetFitWidthFlag( true );
 
-    m_FeaBCYLTGroup.SetButtonWidth( m_FeaBCYLTGroup.GetChoiceButtonWidth() );
+    m_FeaBCCommonGroup.AddYGap();
 
-    m_FeaBCYLTGroup.AddSlider( m_BCYLTSlider, "Y", 100.0, "%5.3g" );
+    m_FeaBCCommonGroup.AddSlider( m_BCYLTSlider, "Y", 100.0, "%5.3g" );
 
-    // Constrain Part
-    m_BCEditSubGroup.AddSubGroupLayout( m_FeaBCPartGroup, m_BCEditSubGroup.GetRemainX(), m_BCEditSubGroup.GetRemainY() );
-
-    m_FeaBCPartGroup.AddChoice( m_FeaBCPartChoice, "Part" );
-
-    // Constrain SubSurf
-    m_BCEditSubGroup.AddSubGroupLayout( m_FeaBCSubSurfGroup, m_BCEditSubGroup.GetRemainX(), m_BCEditSubGroup.GetRemainY() );
-
-    m_FeaBCSubSurfGroup.AddChoice( m_FeaBCSubSurfChoice, "Sub Surface" );
 
     //=== MESH TAB ===//
     m_MeshTabLayout.SetGroupAndScreen( meshTabGroup, this );
@@ -1651,12 +1644,12 @@ void StructScreen::UpdateFeaBCBrowser()
 
             if ( curr_struct->ValidFeaBCInd( StructureMgr.GetCurrBCIndex() ) )
             {
-                m_BCEditSubGroup.Show();
+                m_FeaBCCommonGroup.Show();
                 m_FeaBCSelectBrowser->select( StructureMgr.GetCurrBCIndex() + 1 );
             }
             else
             {
-                m_BCEditSubGroup.Hide();
+                m_FeaBCCommonGroup.Hide();
             }
 
             m_FeaBCSelectBrowser->position( scroll_pos );
@@ -1695,13 +1688,9 @@ void StructScreen::UpdateBCPartChoice()
             {
                 FeaBC *curr_bc = fea_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
 
-                if ( curr_bc->GetType() == vsp::FEA_BC_PART )
+                if ( curr_bc->m_FeaBCType() == vsp::FEA_BC_PART )
                 {
-                    FeaBCPart * part_bc = dynamic_cast< FeaBCPart* > ( curr_bc );
-                    if ( part_bc )
-                    {
-                        part_bc->SetPartID( m_FeaBCPartChoiceIDVec[ m_SelectedBCPartChoice ] );
-                    }
+                    curr_bc->SetPartID( m_FeaBCPartChoiceIDVec[ m_SelectedBCPartChoice ] );
                 }
             }
         }
@@ -1739,13 +1728,9 @@ void StructScreen::UpdateBCSubSurfChoice()
             {
                 FeaBC *curr_bc = fea_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
 
-                if ( curr_bc->GetType() == vsp::FEA_BC_SUBSURF )
+                if ( curr_bc->m_FeaBCType() == vsp::FEA_BC_SUBSURF )
                 {
-                    FeaBCSubSurf * subsurf_bc = dynamic_cast< FeaBCSubSurf* > ( curr_bc );
-                    if ( subsurf_bc )
-                    {
-                        subsurf_bc->SetSubSurfID( m_FeaBCSubSurfChoiceIDVec[ m_SelectedBCSubSurfChoice ] );
-                    }
+                    curr_bc->SetSubSurfID( m_FeaBCSubSurfChoiceIDVec[ m_SelectedBCSubSurfChoice ] );
                 }
             }
         }
@@ -1806,25 +1791,6 @@ void StructScreen::FeaPropertyDispGroup( GroupLayout* group )
     {
         group->Show();
         m_FeaPropertyCommonGroup.Show(); // Always show the Common Group if any other subsurface group is being displayed.
-    }
-}
-
-void StructScreen::FeaBCDispGroup( GroupLayout* group )
-{
-    if ( m_CurFeaBCGroup == group && group )
-    {
-        return;
-    }
-
-    m_FeaBCYLTGroup.Hide();
-    m_FeaBCPartGroup.Hide();
-    m_FeaBCSubSurfGroup.Hide();
-
-    m_CurFeaBCGroup = group;
-
-    if ( group )
-    {
-        group->Show();
     }
 }
 
@@ -2449,6 +2415,8 @@ bool StructScreen::Update()
             {
                 FeaBC *curr_bc = curr_struct->GetFeaBC( StructureMgr.GetCurrBCIndex() );
 
+                m_FeaBCTypeChoice.Update( curr_bc->m_FeaBCType.GetID() );
+
                 m_FeaBCModeChoice.Update( curr_bc->m_ConMode.GetID() );
 
                 m_TxButton.Update( curr_bc->m_Constraints.GetID() );
@@ -2458,47 +2426,25 @@ bool StructScreen::Update()
                 m_RyButton.Update( curr_bc->m_Constraints.GetID() );
                 m_RzButton.Update( curr_bc->m_Constraints.GetID() );
 
-                if ( curr_bc->GetType() == vsp::FEA_BC_Y_LESS_THAN )
-                {
-                    FeaBCDispGroup( &m_FeaBCYLTGroup );
+                m_FeaBCPartChoice.Deactivate();
+                m_FeaBCSubSurfChoice.Deactivate();
+                m_BCYLTSlider.Deactivate();
 
-                    FeaBCYLT * ylt_bc = dynamic_cast< FeaBCYLT* > ( curr_bc );
-                    if ( ylt_bc )
-                    {
-                        m_BCYLTSlider.Update( ylt_bc->m_Yval.GetID() );
-                    }
+                if ( curr_bc->m_FeaBCType() == vsp::FEA_BC_Y_LESS_THAN )
+                {
+                    m_BCYLTSlider.Activate();
+                    m_BCYLTSlider.Update( curr_bc->m_Yval.GetID() );
                 }
-                else if ( curr_bc->GetType() == vsp::FEA_BC_PART )
+                else if ( curr_bc->m_FeaBCType() == vsp::FEA_BC_PART )
                 {
-                    FeaBCDispGroup( &m_FeaBCPartGroup );
-
-                    FeaBCPart * part_bc = dynamic_cast< FeaBCPart* > ( curr_bc );
-                    if ( part_bc )
-                    {
-                        // Nothing needed here.  m_FeaBCPartChoice handled in GuiDeviceCallBack.
-                    }
+                    m_FeaBCPartChoice.Activate();
                 }
-                else if ( curr_bc->GetType() == vsp::FEA_BC_SUBSURF )
+                else if ( curr_bc->m_FeaBCType() == vsp::FEA_BC_SUBSURF )
                 {
-                    FeaBCDispGroup( &m_FeaBCSubSurfGroup );
-
-                    FeaBCSubSurf * subsurf_bc = dynamic_cast< FeaBCSubSurf* > ( curr_bc );
-                    if ( subsurf_bc )
-                    {
-                        // Nothing needed here.  m_FeaBCPartChoice handled in GuiDeviceCallBack.
-                    }
+                    m_FeaBCSubSurfChoice.Activate();
                 }
             }
-            else
-            {
-                FeaBCDispGroup( NULL );
-            }
         }
-        else
-        {
-            FeaBCDispGroup( NULL );
-        }
-
 
     }
 
@@ -2632,23 +2578,6 @@ void StructScreen::CallBack( Fl_Widget* w )
         else if ( w == m_FeaBCSelectBrowser )
         {
             StructureMgr.SetCurrBCIndex( m_FeaBCSelectBrowser->value() - 1 );
-
-            if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
-            {
-                vector < FeaStructure * > structvec = StructureMgr.GetAllFeaStructs();
-
-                FeaStructure *curr_struct = structvec[ StructureMgr.m_CurrStructIndex() ];
-
-                if ( curr_struct )
-                {
-                    FeaBC *feabc = curr_struct->GetFeaBC( StructureMgr.GetCurrBCIndex());
-
-                    if ( feabc )
-                    {
-                        m_FeaBCTypeChoice.SetVal( feabc->GetType());
-                    }
-                }
-            }
         }
     }
 
@@ -3377,9 +3306,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( curr_struct )
             {
-                FeaBC* feabc = NULL;
-
-                feabc = curr_struct->AddFeaBC( m_FeaBCTypeChoice.GetVal() );
+                FeaBC* feabc = curr_struct->AddFeaBC();
 
                 if ( feabc )
                 {

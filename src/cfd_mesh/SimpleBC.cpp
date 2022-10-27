@@ -21,32 +21,11 @@ SimpleBC::SimpleBC()
 void SimpleBC::CopyFrom( FeaBC* fea_bc )
 {
     m_Constraints = fea_bc->GetAsBitMask();
-    m_BCType = fea_bc->GetType();
+    m_BCType = fea_bc->m_FeaBCType();
 
-    if ( m_BCType == vsp::FEA_BC_Y_LESS_THAN )
-    {
-        FeaBCYLT* fea_bc_ylt = dynamic_cast< FeaBCYLT* >( fea_bc );
-        if ( fea_bc_ylt )
-        {
-            m_Val = fea_bc_ylt->m_Yval();
-        }
-    }
-    else if ( m_BCType == vsp::FEA_BC_PART )
-    {
-        FeaBCPart* fea_bc_part = dynamic_cast< FeaBCPart* >( fea_bc );
-        if ( fea_bc_part )
-        {
-            m_FeaPartIndex = vector_find_val( FeaMeshMgr.GetMeshPtr()->m_FeaPartIDVec, fea_bc_part->GetPartID() );
-        }
-    }
-    else if ( m_BCType == vsp::FEA_BC_SUBSURF )
-    {
-        FeaBCSubSurf* fea_bc_subsurf = dynamic_cast< FeaBCSubSurf* >( fea_bc );
-        if ( fea_bc_subsurf )
-        {
-            m_FeaSubSurfIndex = FeaMeshMgr.GetSimpSubSurfIndex( fea_bc_subsurf->GetSubSurfID() );
-        }
-    }
+    m_Val = fea_bc->m_Yval();
+    m_FeaPartIndex = vector_find_val( FeaMeshMgr.GetMeshPtr()->m_FeaPartIDVec, fea_bc->GetPartID() );
+    m_FeaSubSurfIndex = FeaMeshMgr.GetSimpSubSurfIndex( fea_bc->GetSubSurfID() );
 }
 
 void SimpleBC::ApplyTo( FeaNode* node )

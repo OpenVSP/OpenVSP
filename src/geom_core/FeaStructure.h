@@ -160,7 +160,7 @@ public:
         m_FeaBCVec.push_back( fea_bc );
     }
 
-    FeaBC* AddFeaBC( int type );
+    FeaBC* AddFeaBC( int type = -1 );
 
     void DelFeaBC( int ind );
 
@@ -757,7 +757,7 @@ public:
 class FeaBC : public ParmContainer
 {
 public:
-    FeaBC( const string &m_StructID, int type );
+    FeaBC( const string &m_StructID );
     ~FeaBC()       {};
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
@@ -766,72 +766,29 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual string GetDescription();
+    virtual string GetDescriptionDOF();
 
     virtual BitMask GetAsBitMask();
 
-    virtual int GetType()
-    {
-        return m_FeaBCType;
-    }
+    virtual void SetPartID( const string &id ) { m_PartID = id; }
+    virtual string GetPartID()  { return m_PartID; }
+
+    virtual void SetSubSurfID( const string &id ) { m_SubSurfID = id; }
+    virtual string GetSubSurfID()  { return m_SubSurfID; }
 
     virtual void Update();
 
+    IntParm m_FeaBCType;
+
     IntParm m_ConMode;
     IntParm m_Constraints;
-
-protected:
-
-    string m_StructID;
-
-    int m_FeaBCType;
-
-};
-
-class FeaBCYLT : public FeaBC
-{
-public:
-    FeaBCYLT( const string &m_StructID, int type = vsp::FEA_BC_Y_LESS_THAN );
-
-    virtual string GetDescription();
 
     Parm m_Yval;
 
 protected:
 
-};
-
-class FeaBCPart : public FeaBC
-{
-public:
-    FeaBCPart( const string &m_StructID, int type = vsp::FEA_BC_PART );
-
-    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
-    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-
-    virtual string GetDescription();
-
-    virtual void SetPartID( const string &id ) { m_PartID = id; }
-    virtual string GetPartID()  { return m_PartID; }
-
-protected:
+    string m_StructID;
     string m_PartID;
-
-};
-
-class FeaBCSubSurf : public FeaBC
-{
-public:
-    FeaBCSubSurf( const string &m_StructID, int type = vsp::FEA_BC_SUBSURF );
-
-    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
-    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-
-    virtual string GetDescription();
-
-    virtual void SetSubSurfID( const string &id ) { m_SubSurfID = id; }
-    virtual string GetSubSurfID()  { return m_SubSurfID; }
-
-protected:
     string m_SubSurfID;
 
 };
