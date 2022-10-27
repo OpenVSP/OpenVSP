@@ -783,7 +783,23 @@ public:
     IntParm m_ConMode;
     IntParm m_Constraints;
 
-    Parm m_Yval;
+    BoolParm m_XLTFlag;
+    BoolParm m_XGTFlag;
+
+    BoolParm m_YLTFlag;
+    BoolParm m_YGTFlag;
+
+    BoolParm m_ZLTFlag;
+    BoolParm m_ZGTFlag;
+
+    Parm m_XLTVal;
+    Parm m_XGTVal;
+
+    Parm m_YLTVal;
+    Parm m_YGTVal;
+
+    Parm m_ZLTVal;
+    Parm m_ZGTVal;
 
 protected:
 

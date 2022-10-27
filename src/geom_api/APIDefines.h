@@ -272,7 +272,7 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_STEP_STRUCTURE
                  };
 
-enum FEA_BC_TYPE { FEA_BC_Y_LESS_THAN,
+enum FEA_BC_TYPE { FEA_BC_STRUCTURE,
                    FEA_BC_PART,
                    FEA_BC_SUBSURF,
                    FEA_NUM_BC_TYPES

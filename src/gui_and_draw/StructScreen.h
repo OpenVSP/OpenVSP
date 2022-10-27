@@ -274,8 +274,6 @@ private:
 
     Choice m_FeaBCTypeChoice;
 
-    GroupLayout* m_CurFeaBCGroup;
-
     GroupLayout m_FeaBCCommonGroup;
 
     Choice m_FeaBCModeChoice;
@@ -287,8 +285,6 @@ private:
     CheckButtonBit m_RyButton;
     CheckButtonBit m_RzButton;
 
-    SliderAdjRangeInput m_BCYLTSlider;
-
     Choice m_FeaBCPartChoice;
     vector < string > m_FeaBCPartChoiceIDVec;
     int m_SelectedBCPartChoice;
@@ -296,6 +292,24 @@ private:
     Choice m_FeaBCSubSurfChoice;
     vector < string > m_FeaBCSubSurfChoiceIDVec;
     int m_SelectedBCSubSurfChoice;
+
+    ToggleButton m_XLTFlagButton;
+    ToggleButton m_XGTFlagButton;
+
+    ToggleButton m_YLTFlagButton;
+    ToggleButton m_YGTFlagButton;
+
+    ToggleButton m_ZLTFlagButton;
+    ToggleButton m_ZGTFlagButton;
+
+    SliderAdjRangeInput m_XLTValSlider;
+    SliderAdjRangeInput m_XGTValSlider;
+
+    SliderAdjRangeInput m_YLTValSlider;
+    SliderAdjRangeInput m_YGTValSlider;
+
+    SliderAdjRangeInput m_ZLTValSlider;
+    SliderAdjRangeInput m_ZGTValSlider;
 
     //===== Mesh Tab Items =====//
     SliderAdjRangeInput m_MaxEdgeLen;

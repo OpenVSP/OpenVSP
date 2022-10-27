@@ -5760,12 +5760,28 @@ void FeaAssembly::AddLinkableParms( vector< string > & linkable_parm_vec, const 
 FeaBC::FeaBC( const string &structID )
 {
     m_StructID = structID;
-    m_FeaBCType.Init( "Type", "FeaBC", this, vsp::FEA_BC_Y_LESS_THAN, vsp::FEA_BC_Y_LESS_THAN, vsp::FEA_NUM_BC_TYPES - 1 );
+    m_FeaBCType.Init( "Type", "FeaBC", this, vsp::FEA_BC_STRUCTURE, vsp::FEA_BC_STRUCTURE, vsp::FEA_NUM_BC_TYPES - 1 );
 
     m_ConMode.Init( "ConMode", "FeaBC", this, vsp::FEA_BCM_USER, vsp::FEA_BCM_USER, vsp::FEA_NUM_BCM_MODES - 1 );
     m_Constraints.Init( "Constraints", "FeaBC", this, 0, 0, 63 );
 
-    m_Yval.Init( "Yval", "FeaBCYLT", this, 1e-4, -1e12, 1e12 );
+    m_XLTFlag.Init( "XLTFlag", "FeaBC", this, false, false, true );
+    m_XGTFlag.Init( "XLGFlag", "FeaBC", this, false, false, true );
+
+    m_YLTFlag.Init( "YLTFlag", "FeaBC", this, false, false, true );
+    m_YGTFlag.Init( "YLGFlag", "FeaBC", this, false, false, true );
+
+    m_ZLTFlag.Init( "ZLTFlag", "FeaBC", this, false, false, true );
+    m_ZGTFlag.Init( "ZLGFlag", "FeaBC", this, false, false, true );
+
+    m_XLTVal.Init( "XLTVal", "FeaBC", this, 0.0, -1.0e12, 1.0e12 );
+    m_XGTVal.Init( "XGTVal", "FeaBC", this, 0.0, -1.0e12, 1.0e12 );
+
+    m_YLTVal.Init( "YLTVal", "FeaBC", this, 0.0, -1.0e12, 1.0e12 );
+    m_YGTVal.Init( "YGTVal", "FeaBC", this, 0.0, -1.0e12, 1.0e12 );
+
+    m_ZLTVal.Init( "ZLTVal", "FeaBC", this, 0.0, -1.0e12, 1.0e12 );
+    m_ZGTVal.Init( "ZGTVal", "FeaBC", this, 0.0, -1.0e12, 1.0e12 );
 }
 
 void FeaBC::ParmChanged( Parm* parm_ptr, int type )
@@ -5809,22 +5825,19 @@ xmlNodePtr FeaBC::DecodeXml( xmlNodePtr & node )
 
 string FeaBC::GetDescription()
 {
-    char str[256];
-    str[0] = '\0';
+    string desc = GetDescriptionDOF();
 
-    string dof = GetDescriptionDOF();
-
-    if ( m_FeaBCType() == vsp::FEA_BC_Y_LESS_THAN )
-    {
-        sprintf( str, "%sY Less Than %f", dof.c_str(), m_Yval() );
-    }
-    else if ( m_FeaBCType() == vsp::FEA_BC_PART )
+    if ( m_FeaBCType() == vsp::FEA_BC_PART )
     {
         FeaPart* part = StructureMgr.GetFeaPart( m_PartID );
 
         if ( part )
         {
-            sprintf( str, "%s%s", dof.c_str(), part->GetName().c_str() );
+            desc += part->GetName() + " ";
+        }
+        else
+        {
+            desc += string( "Not Found " );
         }
     }
     else if ( m_FeaBCType() == vsp::FEA_BC_SUBSURF )
@@ -5833,15 +5846,65 @@ string FeaBC::GetDescription()
 
         if ( subsurf )
         {
-            sprintf( str, "%s%s", dof.c_str(), subsurf->GetName().c_str() );
+            desc += subsurf->GetName() + " ";
         }
         else
         {
-            sprintf( str, "%s%s not found\n", dof.c_str(), m_SubSurfID.c_str() );
+            desc += string( "Not Found " );
         }
     }
 
-    return string( str );
+    char str[256];
+
+    if ( m_XGTFlag() && m_XLTFlag() )
+    {
+        sprintf( str, "%g<=X<=%g ", m_XGTVal(), m_XLTVal() );
+        desc += string( str );
+    }
+    else if ( m_XGTFlag() )
+    {
+        sprintf( str, "X>=%g ", m_XGTVal() );
+        desc += string( str );
+    }
+    else if ( m_XLTFlag() )
+    {
+        sprintf( str, "X<=%g ", m_XLTVal() );
+        desc += string( str );
+    }
+
+    if ( m_YGTFlag() && m_YLTFlag() )
+    {
+        sprintf( str, "%g<=Y<=%g ", m_YGTVal(), m_YLTVal() );
+        desc += string( str );
+    }
+    else if ( m_YGTFlag() )
+    {
+        sprintf( str, "Y>=%g ", m_YGTVal() );
+        desc += string( str );
+    }
+    else if ( m_YLTFlag() )
+    {
+        sprintf( str, "Y<=%g ", m_YLTVal() );
+        desc += string( str );
+    }
+
+    if ( m_ZGTFlag() && m_ZLTFlag() )
+    {
+        sprintf( str, "%g<=Z<=%g ", m_ZGTVal(), m_ZLTVal() );
+        desc += string( str );
+    }
+    else if ( m_ZGTFlag() )
+    {
+        sprintf( str, "Z>=%g ", m_ZGTVal() );
+        desc += string( str );
+    }
+    else if ( m_ZLTFlag() )
+    {
+        sprintf( str, "Z<=%g ", m_ZLTVal() );
+        desc += string( str );
+    }
+
+    return desc;
 }
 
 string FeaBC::GetDescriptionDOF()
