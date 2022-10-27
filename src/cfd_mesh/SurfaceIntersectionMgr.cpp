@@ -1723,6 +1723,7 @@ void SurfaceIntersectionSingleton::Intersect()
     LoadBorderCurves();
     // DebugWriteChains( "LoadBorderCurves", false );
 
+    addOutputText( "MergeInteriorChainIPnts\n" );
     MergeInteriorChainIPnts();
     // DebugWriteChains( "MergeInteriorChainIPnts", false );
 
