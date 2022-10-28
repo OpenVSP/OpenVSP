@@ -188,8 +188,8 @@ void create_tree_leafs(LEAF *root)
 
     icut = root->number_of_nodes/2;
 
-    while ( ( temp_node[icut].xyz[dir] == temp_node[icut+1].xyz[dir] ) &&
-            icut < root->number_of_nodes ) {
+    while ( icut < root->number_of_nodes &&
+          ( temp_node[icut].xyz[dir] == temp_node[icut+1].xyz[dir] ) ) {
 
        icut++;
 
@@ -197,8 +197,10 @@ void create_tree_leafs(LEAF *root)
 
     if ( icut == root->number_of_nodes ) {
 
-       while ( ( temp_node[icut].xyz[dir] == temp_node[icut+1].xyz[dir] ) &&
-               icut > 1 ) {
+        icut = root->number_of_nodes - 1;
+
+        while ( icut > 1 &&
+              ( temp_node[icut].xyz[dir] == temp_node[icut+1].xyz[dir] ) ) {
 
           icut--;
 
