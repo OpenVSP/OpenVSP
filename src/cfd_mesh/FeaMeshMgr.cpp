@@ -1169,7 +1169,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 all_uw_vec.push_back( iuwVec[j - 1] );
                 all_uw_vec.push_back( iuwVec[j] );
 
-                beam->Create( start_pnt, end_pnt, inormVec[j - 1] );
+                beam->Create( start_pnt, end_pnt, inormVec[ j - 1 ],  inormVec[ j ] );
                 beam->SetFeaPartIndex( FeaPartIndex );
                 beam->SetFeaSSIndex( ssindexVec[j] );
                 beam->SetFeaPartSurfNum( m_SurfVec[normsurfindx]->GetFeaPartSurfNum() );

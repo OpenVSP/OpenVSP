@@ -152,7 +152,7 @@ public:
     FeaBeam()    { m_ElementIndex = -1; };
     virtual ~FeaBeam()    {};
 
-    virtual void Create( vec3d & p0, vec3d & p1 , vec3d & norm );
+    virtual void Create( vec3d &p0, vec3d &p1, vec3d &norm0, vec3d &norm1 );
     virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset );
     virtual void WriteCalculixNormal( FILE* fp, int noffset, int eoffset );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
@@ -160,7 +160,8 @@ public:
     virtual void WriteSTL( FILE* fp ) {};
     virtual double ComputeMass( int property_index );
 
-    vec3d m_DispVec; // Vector from end point in the displacement coordinate system at the end point
+    vec3d m_Norm0; // Vector from end point in the displacement coordinate system at the end point
+    vec3d m_Norm1;
 
 private:
 

@@ -457,7 +457,7 @@ double FeaQuad::ComputeMass( int property_index )
 //=================== FeaBeam ======================//
 //////////////////////////////////////////////////////
 
-void FeaBeam::Create( vec3d & p0, vec3d & p1, vec3d & norm )
+void FeaBeam::Create( vec3d &p0, vec3d &p1, vec3d &norm0, vec3d &norm1 )
 {
     m_ElementType = FEA_BEAM;
     DeleteAllNodes();
@@ -469,7 +469,8 @@ void FeaBeam::Create( vec3d & p0, vec3d & p1, vec3d & norm )
 
     m_Mids.push_back( new FeaNode( p01 ) );
 
-    m_DispVec = norm;
+    m_Norm0 = norm0;
+    m_Norm1 = norm1;
 }
 
 void FeaBeam::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
@@ -482,16 +483,21 @@ void FeaBeam::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
 
 void FeaBeam::WriteCalculixNormal( FILE* fp, int noffset, int eoffset )
 {
-    fprintf( fp, "%d,%d,%f,%f,%f\n", m_ElementIndex + eoffset, m_Corners[0]->GetIndex() + noffset, m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
+    vec3d norm = ( m_Norm0 + m_Norm1 ) * 0.5;
+    norm.normalize();
+
+    fprintf( fp, "%d,%d,%f,%f,%f\n", m_ElementIndex + eoffset, m_Corners[0]->GetIndex() + noffset, m_Norm0.x(), m_Norm0.y(), m_Norm0.z() );
+    fprintf( fp, "%d,%d,%f,%f,%f\n", m_ElementIndex + eoffset, m_Mids[0]->GetIndex() + noffset, norm.x(), norm.y(), norm.z() );
+    fprintf( fp, "%d,%d,%f,%f,%f\n", m_ElementIndex + eoffset, m_Corners[1]->GetIndex() + noffset, m_Norm1.x(), m_Norm1.y(), m_Norm1.z() );
 }
 
 void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
 {
-    string format_string = "CBAR    ,%8d,%8d,%8d,%8d," + NasFmt( m_DispVec.x() ) + "," +
-                           NasFmt( m_DispVec.y() ) + "," + NasFmt( m_DispVec.z() ) + "\n";
+    string format_string = "CBAR    ,%8d,%8d,%8d,%8d," + NasFmt( m_Norm0.x() ) + "," +
+                           NasFmt( m_Norm0.y() ) + "," + NasFmt( m_Norm0.z() ) + "\n";
 
     fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1, m_Corners[0]->GetIndex() + noffset,
-             m_Corners[1]->GetIndex() + noffset, m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
+             m_Corners[1]->GetIndex() + noffset, m_Norm0.x(), m_Norm0.y(), m_Norm0.z() );
 }
 
 void FeaBeam::WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset )

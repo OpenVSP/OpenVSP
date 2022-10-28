@@ -290,7 +290,7 @@ void FeaMesh::UpdateDrawObjs()
                 FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
                 assert( beam );
 
-                vec3d norm_pnt = m_FeaElementVec[j]->m_Mids[0]->m_Pnt + line_length * beam->m_DispVec;
+                vec3d norm_pnt = m_FeaElementVec[j]->m_Mids[0]->m_Pnt + line_length * beam->m_Norm0;
 
                 cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Mids[0]->m_Pnt );
                 cap_norm_pnt_vec.push_back( norm_pnt );
@@ -423,7 +423,7 @@ void FeaMesh::UpdateDrawObjs()
                 FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
                 assert( beam );
 
-                vec3d norm_pnt = m_FeaElementVec[j]->m_Mids[0]->m_Pnt + line_length * beam->m_DispVec;
+                vec3d norm_pnt = m_FeaElementVec[j]->m_Mids[0]->m_Pnt + line_length * beam->m_Norm0;
 
                 ss_cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Mids[0]->m_Pnt );
                 ss_cap_norm_pnt_vec.push_back( norm_pnt );
