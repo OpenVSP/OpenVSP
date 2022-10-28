@@ -153,9 +153,6 @@ public:
 
     int WriteGroup( FILE* logFile );
 
-    int GetSelectedCompIndex()                                                              { return m_SelectedCompIndex; }
-    void SetSelectedCompIndex( int index );
-
     vector < pair < string, int > > GetCompSurfPairVec()                                    { return m_ComponentSurfPairVec; }
     void SetCompSurfPairVec( const vector < pair < string, int > > comp_surf_pair_vec )     { m_ComponentSurfPairVec = comp_surf_pair_vec; }
 
@@ -163,8 +160,6 @@ public:
     void SetVSPAEROIndexVec( vector < int > vepaero_index_vec )                             { m_ComponentVSPAEROIndexVec = vepaero_index_vec; }
 
     void AddComp( string comp_id, int surf_ind )                                            { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
-    void ClearCompIDVec()                                                                   { m_ComponentSurfPairVec.clear(); }
-    void RemoveComp( int index );
 
     enum GEOM_PROPERTY_TYPE
     {
@@ -203,7 +198,6 @@ private:
 
     vector < pair < string, int > > m_ComponentSurfPairVec; // Pairs of component IDs and symmetric surface index for the unsteady group
     vector < int > m_ComponentVSPAEROIndexVec;
-    int m_SelectedCompIndex;
 };
 
 //==== VSPAERO Manager ====//

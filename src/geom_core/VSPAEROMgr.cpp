@@ -5682,7 +5682,6 @@ UnsteadyGroup::UnsteadyGroup( void ) : ParmContainer()
     m_Iyz.Init( "Iyz", m_GroupName, this, 0, 0, 1e12 );
     m_Iyz.SetDescript( "Iyz of unsteady group" );
 
-    m_SelectedCompIndex = -1;
     m_ReverseFlag = false;
 }
 
@@ -5892,18 +5891,4 @@ int UnsteadyGroup::WriteGroup( FILE* group_file )
     fprintf( group_file, "Iyz = %lf\n", m_Iyz() );
 
     return vsp::VSP_OK;
-}
-
-void UnsteadyGroup::SetSelectedCompIndex( int index )
-{
-    index = Clamp<int>( index, 0, m_ComponentSurfPairVec.size() - 1 );
-    m_SelectedCompIndex = index;
-}
-
-void UnsteadyGroup::RemoveComp( int index )
-{
-    if ( index >= 0 && index < m_ComponentSurfPairVec.size() )
-    {
-        m_ComponentSurfPairVec.erase( m_ComponentSurfPairVec.begin() + index );
-    }
 }
