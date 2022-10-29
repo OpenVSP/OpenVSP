@@ -73,6 +73,8 @@ public:
 
     std::map< std::vector<int>, int > GetSingleTagMap() { return m_SingleTagMap; }
 
+    int FindGNum( const string &gid );
+
     // Write Tag Key File
     void WriteVSPGEOMKeyFile(const string & file_name );
     void WriteTKeyFile(const string & file_name );

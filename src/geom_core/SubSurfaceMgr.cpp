@@ -273,6 +273,22 @@ void SubSurfaceMgrSingleton::BuildSingleTagMap()
     }
 }
 
+int SubSurfaceMgrSingleton::FindGNum( const string &gid )
+{
+    // Build GeomID set to have unique integer index instead of GeomID.
+    std::set< string, greater< string > > gids;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        string id_list = GetTagIDs( m_TagKeys[i] );
+        int pos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, pos );
+        gids.insert( gid );
+    }
+
+    int gnum = distance( gids.begin(), gids.find( gid ) );
+    return gnum;
+}
+
 //==== Write Key File ====//
 void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 {
