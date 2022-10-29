@@ -320,7 +320,6 @@ private:
             
     // FEM data
 
-    int LoadFEMDeformation_;
     FEM_NODE FemData_;
     FEM_NODE &FemData(void) { return FemData_; };   
     

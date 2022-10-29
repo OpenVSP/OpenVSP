@@ -163,12 +163,6 @@ public:
 };
 
 class CALCULIX_GROUP {
-   
-    int NumberOfElements;
-    int *ElementList;
-    
-    float MinThick;
-    float MaxThick;
     
 };
 

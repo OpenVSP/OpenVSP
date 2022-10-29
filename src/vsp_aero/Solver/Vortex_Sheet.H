@@ -56,6 +56,8 @@ private:
     
     int IsPeriodic_;
     
+    int Is2D_;
+    
     int Level_;
     
     int SheetID_;
@@ -69,6 +71,8 @@ private:
     int NumberOfSubVortices_;
     
     int TimeAccurate_;
+    
+    int OptimizationSolve_;
             
     int TimeAnalysisType_;
     
@@ -99,6 +103,8 @@ private:
     VSPAERO_DOUBLE &StartingGamma(int i) { return StartingGamma_[0][i]; };
 
     VSPAERO_DOUBLE CoreSize_;
+    
+    VSPAERO_DOUBLE CoreSizeFactor_;
     
     VSPAERO_DOUBLE Distance_;
     
@@ -306,6 +312,10 @@ public:
     
     int &TimeAccurate(void) { return TimeAccurate_; };
     
+    /** Optimization flag... this will turn off some of the unsteady wake and essentially force a steady state solution **/
+    
+    int &OptimizationSolve(void) { return OptimizationSolve_; };
+    
     /** Time accurate analysis type flag **/
         
     int &TimeAnalysisType(void ) { return TimeAnalysisType_; };
@@ -333,6 +343,10 @@ public:
     /** Vortex sheet is periodoic... ala a nacelle **/
     
     int &IsPeriodic(void) { return IsPeriodic_; };
+    
+    /** Vortex sheet is 2D... this is mostly for testing purposed **/
+    
+    int &Is2D(void) { return Is2D_; };
     
     /** Save the current vortex state **/
     
@@ -393,10 +407,14 @@ public:
     
     VSPAERO_DOUBLE UpdateWakeLocation(void);
     
-    /** Update the geometry based on an input translation vector and rotation quaternion **/
+    /** Update the geometry based on an input translation vector and rotation quaternion, this also shift the wake back in time **/
     
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
     
+    /** Update the trailing edge geometry based on an input translation vector and rotation quaternion **/
+    
+    void UpdateTrailingEdgeGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
+        
     /** Set the trailing and bound vortices Mach number **/
     
     void SetMachNumber(VSPAERO_DOUBLE Mach);
@@ -417,6 +435,10 @@ public:
     /** Finite core size for the trailing vortices **/
     
     VSPAERO_DOUBLE CoreSize(void) { return CoreSize_; };
+    
+    /** User adjustment of core size model **/
+    
+    VSPAERO_DOUBLE &CoreSizeFactor(void) { return CoreSizeFactor_; };
     
     /** Ratio used to determine if a point is far enough away from a vortex sheet to be accurately evaluated... or if we need
      * to move to a finer mesh **/

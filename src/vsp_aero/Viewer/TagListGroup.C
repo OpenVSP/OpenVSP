@@ -183,7 +183,7 @@ void TAG_LIST_GROUP::LoadFile(char *PathName, char *GeometryName, char *TagListG
     int i, NumberOfLists, MaxNumberOfLists;
     char FileNameWithExtension[FILE_NAME_SIZE], Line[FILE_NAME_SIZE];
     char DumChar[FILE_NAME_SIZE];
-    char *next, dot[FILE_NAME_SIZE];
+    char dot[FILE_NAME_SIZE];
     FILE *TagListGroupFile;
     TAG_LIST *TagListList;
 

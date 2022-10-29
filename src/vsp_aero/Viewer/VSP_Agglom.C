@@ -383,7 +383,6 @@ void VSP_AGGLOM::CleanUpLoneLoops_(void)
 
     int i, j, NumberOfCoarseGridLoops, *CoarseGridLoop, Loop1, Loop2, LoopA, LoopB;
     int *NumberOfNeighborLoops, **NeighborLoopList, Found, Case, IsInteriorLoop;
-    double LoopArea;
     
     // Determine number of coarse grid loops
     

@@ -120,8 +120,7 @@ ADBSLICER::~ADBSLICER(void)
 void ADBSLICER::LoadFile(char *name)
 {
 
-    int i;
-    char CommandLine[10000], file_name_w_ext[10000];
+    char file_name_w_ext[10000];
     FILE *adb_file;
     
     // Save the file name
@@ -178,7 +177,7 @@ void ADBSLICER::SliceGeometry(char *name)
 {
 
     int i;
-    char CommandLine[10000], file_name_w_ext[10000];
+    char file_name_w_ext[10000];
     FILE *cuts_file;
     
     // Save the file name
@@ -240,8 +239,7 @@ void ADBSLICER::SliceGeometry(char *name)
 void ADBSLICER::ParseCalculixFile(char *name)
 {
 
-    int i;
-    char CommandLine[10000], file_name_w_ext[10000];
+    char file_name_w_ext[10000];
     FILE *InpFile;
     INTERP Interp;
 
@@ -289,8 +287,7 @@ void ADBSLICER::ParseCalculixFile(char *name)
 void ADBSLICER::FindNearestNodeInCalculixFile(char *name, float *xyz)
 {
 
-    int i;
-    char CommandLine[10000], file_name_w_ext[10000];
+    char file_name_w_ext[10000];
     FILE *InpFile;
     INTERP Interp;
     
@@ -330,8 +327,7 @@ void ADBSLICER::FindNearestNodeInCalculixFile(char *name, float *xyz)
 void ADBSLICER::InterpolateSolutionToCalculix(char *name)
 {
 
-    int i;
-    char CommandLine[10000], file_name_w_ext[10000];
+    char file_name_w_ext[10000];
     FILE *InpFile;
     INTERP Interp;
 
@@ -411,11 +407,10 @@ void ADBSLICER::InterpolateSolutionToCalculix(char *name)
 void ADBSLICER::LoadMeshData(void)
 {
 
-    char file_name_w_ext[10000], DumChar[1000], GridName[1000];
-    int i, j, k, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes, TimeAnalysisType;
+    char file_name_w_ext[10000];
+    int i, j, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes, TimeAnalysisType;
     int TotNum, i_size, f_size, c_size, NumberOfRotors, NumberOfNozzles;
-    float DumFloat;
-    FILE *adb_file, *madb_file;
+    FILE *adb_file;
     BINARYIO BIO;
 
     // Sizeof ints and floats
@@ -891,16 +886,14 @@ void ADBSLICER::LoadSolutionCaseList(void)
 void ADBSLICER::LoadSolutionData(int Case)
 {
 
-    char file_name_w_ext[10000], DumChar[100], GridName[100];
-    int i, j, k, m, p, Level, node1, node2, node3;
+    char file_name_w_ext[10000];
+    int i, j, k, m, p, node1, node2, node3;
     int i_size, f_size, c_size, d_size;
-    int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge;
-    float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Fx, Fy, Fz, Cf;
-    float BoundaryLayerThicknessCode, LaminarDelta, TurbulentDelta, DumFloat;
+    int DumInt;
+    float DumFloat;
     float Area;
-    FILE *adb_file, *madb_file;
+    FILE *adb_file;
     BINARYIO BIO;
-    long OffSet;
     double DumDouble;
 
     // Sizeof ints and floats
@@ -1145,7 +1138,7 @@ void ADBSLICER::CreateTriEdges(void)
 {
 
     int i, j, k, nod1, nod2, noda, nodb, start_edge, surf_edge;
-    int level, edge_to_node[4][3], nod_list[4], tri1, tri2;
+    int level, edge_to_node[4][3], nod_list[4];
     int max_edge, new_edge, *jump_pnt, Error;
     GL_EDGE_ENTRY *list, *tlist;
 
@@ -1566,7 +1559,7 @@ void ADBSLICER::FindMeshMinMax(void)
 void ADBSLICER::FindSolutionMinMax(void)
 {
 
-    int i, j, m, Hits;
+    int m, Hits;
     float Big = 1.e9, Avg, StdDev;
 
     CpMinActual = Big;
@@ -1867,11 +1860,9 @@ void ADBSLICER::Slice(int Case)
 void ADBSLICER::CleanCalculixInpFile(char *filename1, char *newfilename)
 {
 
-    int AllDone, Done, NodeID, Editing;
+    int AllDone, Done;
     int j, k, ElementID, Node[6], Whacked;
-    float x, y, z;
-    char file_name_w_ext[10000], DumChar[10000], SetName[10000];
-    char MaterialName1[10000], MaterialName2[10000], MaterialName3[10000], NSkinLabel[10000];
+    char file_name_w_ext[10000], DumChar[10000];
     FILE *File1, *NewFile;
  
     // Open calculix files
@@ -1990,11 +1981,10 @@ void ADBSLICER::CleanCalculixInpFile(char *filename1, char *newfilename)
 void ADBSLICER::ScaleCalulixInpPressureLoads(char *filename1, char *newfilename, float ScaleFactor)
 {
 
-    int AllDone, Done, NodeID, Editing;
-    int j, k, ElementID, Node[6], Whacked, LoadsScaled;
-    float x, y, z, Pressure;
-    char file_name_w_ext[10000], DumChar[10000], SetName[10000];
-    char MaterialName1[10000], MaterialName2[10000], MaterialName3[10000], NSkinLabel[10000];
+    int AllDone, Done;
+    int ElementID, LoadsScaled;
+    float Pressure;
+    char file_name_w_ext[10000], DumChar[10000];
     FILE *File1, *NewFile;
  
     printf("Scaling pressure... \n");
@@ -2102,7 +2092,7 @@ void ADBSLICER::ScaleCalulixInpPressureLoads(char *filename1, char *newfilename,
 void ADBSLICER::OptimizationCalculixInpFile(char *filename1, char *filename2, char *filename3)
 {
  
-   int i, NumThick;
+   int i;
    float Smag, Ratio, Thickness, Smax, Savg;
    char file_name_w_ext[2000];
    FILE *SizingFile;
@@ -2217,8 +2207,8 @@ void ADBSLICER::OptimizationCalculixInpFile(char *filename1, char *filename2, ch
 void ADBSLICER::SmoothSkinThickness(char *filename1)
 {
 
-    int AllDone, Done, NodeID, NumElementsToSmooth, Iter;
-    int i, j, k, t, ElementID, Node[6], *ElementData, MaxElements;
+    int AllDone, Done, NumElementsToSmooth, Iter;
+    int i, j, ElementID, Node[6], *ElementData, MaxElements;
     float Thickness, *NewThick, *Area;
     char file_name_w_ext[10000], DumChar[10000], SearchLabel[10000];
     FILE *File1;
@@ -2405,10 +2395,10 @@ void ADBSLICER::SmoothSkinThickness(char *filename1)
 void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
 {
 
-    int AllDone, Done, NodeID, Editing, NumUsedElements;
-    int i, j, k, t, m, ElementID, Node[6], Whacked, *ElementData, NumberOfElements, MaxElements;
-    float x, y, z, Volume[2], MinThick, MaxThick, Area, Thickness;
-    char file_name_w_ext[10000], DumChar[10000], SetName[10000], *VarArray, *ElementName;
+    int AllDone, Done, NumUsedElements;
+    int i, j, k, t, m, ElementID, Node[6], *ElementData, NumberOfElements, MaxElements;
+    float Volume[2], MinThick, MaxThick, Area, Thickness;
+    char file_name_w_ext[10000], DumChar[10000];
     char SaveLine[10000], SearchLabel[10000];
     FILE *File1, *NewFile;
     
@@ -2757,10 +2747,10 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
 void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilename)
 {
 
-    int AllDone, Done, NodeID, Editing;
-    int i, j, k, ElementID, Node[6], Whacked, *ElementData, NumberOfElements, MaxElements;
-    float x, y, z, Volume[2], MinThick, MaxThick, Area;
-    char file_name_w_ext[10000], DumChar[10000], SetName[10000], *VarArray, *ElementName;
+    int AllDone, Done;
+    int i, j, ElementID, Node[6], *ElementData, NumberOfElements, MaxElements;
+    float Volume[2], MinThick, MaxThick, Area;
+    char file_name_w_ext[10000], DumChar[10000];
     char SaveLine[10000], SearchLabel[10000];
     FILE *File1, *NewFile;
     
@@ -2993,10 +2983,9 @@ void ADBSLICER::LoadCalculixINPFileSurfaceElements(char *name)
     int node1, node2, node3, node4, node5, node6;
     int NumNodes, NumElements;
     int *NodeIsUsed, MaxNodes, BestNode;
-    int *TriIsUsed, MaxTris;
+    int MaxTris;
     float Distance, MinDistance;
     char file_name_w_ext[10000], DumChar[10000], SaveChar[10000];
-    char SetName[2000], TypeName[2000];
     FILE *CalculixFile;
 
     // Open the aerothermal data base file
@@ -3324,14 +3313,12 @@ void ADBSLICER::LoadCalculixINPFileSurfaceElements(char *name)
 int *ADBSLICER::RenumberCalulixINPFile(char *name)
 {
    
-    int i, Done, AllDone, MoreElements, DumInt1, DumInt2;
-    int node1, node2, node3, node4, node5, node6;
+    int i, Done, AllDone;
     int NumNodes, NumElements;
     int *NodeIsUsed, MaxNodes, BestNode;
-    int *TriIsUsed, MaxTris;
-    float Distance, MinDistance;
+    int MaxTris;
+    float MinDistance;
     char file_name_w_ext[10000], DumChar[10000], SaveChar[10000];
-    char SetName[2000], TypeName[2000];
     FILE *CalculixFile;
 
     // Open the aerothermal data base file
@@ -3642,8 +3629,7 @@ void ADBSLICER::WriteOutRenumberedCalculixINPFile(char *name)
     int ElementID, Node1, Node2, Node3, Node4, Node5, Node6;
     int EQNode[2], EQDir[2], CDir, DOF1, DOF2;
     float x, y, z, EQCoef[2], Pressure, CLoad;
-    char file_name_w_ext[10000], DumChar[10000], SetName[10000];
-    char MaterialName1[10000], MaterialName2[10000], MaterialName3[10000], NSkinLabel[10000];
+    char file_name_w_ext[10000], DumChar[10000];
     FILE *InpFile, *NewFile;
     
     // Open calculix file and create node permutation array
@@ -4606,11 +4592,8 @@ void ADBSLICER::WriteOutCalculixElementLoads(FILE *LoadFile)
 void ADBSLICER::MergeCalculixFiles(char *filename1, char *filename2, char *newfilename)
 {
 
-    int Done, NodeID, Editing;
-    int ElementID, Node1, Node2, Node3, Node4, Node5, Node6;
-    float x, y, z;
-    char file_name_w_ext[10000], DumChar[10000], SetName[10000];
-    char MaterialName1[10000], MaterialName2[10000], MaterialName3[10000], NSkinLabel[10000];
+    int Done;
+    char file_name_w_ext[10000], DumChar[10000];
     FILE *File1, *File2, *NewFile;
  
     // Open calculix files
@@ -4857,13 +4840,13 @@ void ADBSLICER::MergeCalculixFiles(char *filename1, char *filename2, char *newfi
 void ADBSLICER::LoadCalculixData(char *filename)
 {
 
-    int i, j, node1, node2, node3, Node, ElementNode[20], NodeOffSet, DumInt, ElementType, Done;
+    int i, j, node1, node2, node3, Node, ElementNode[20], DumInt, ElementType, Done;
     int *NodePointer, MaxNodeNumber, Set;
-    double x, y, z, vec1[3], vec2[3], vec3[3], mag, Smag, Ratio, Thickness, cosPhi;
+    double x, y, z, vec1[3], vec2[3], vec3[3], mag, cosPhi;
     double Dx, Dy, Dz, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
     double S11, S22, S33, S12, S23, S31, I1, I2, I3, S1, S2, S3, Phi;
     char file_name_w_ext[80], ElementName[1000], DumChar[1000];
-    FILE *frd_file, *sum_file, *SizingFile;
+    FILE *frd_file;
     fpos_t SaveLocation;
 
     // Open the calculix solution file

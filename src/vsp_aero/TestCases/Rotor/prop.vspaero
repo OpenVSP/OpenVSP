@@ -7,7 +7,7 @@ Z_cg =   0.
 Mach =   0.00896
 AoA =   0.
 Beta =  0.
-Vinf = 10.
+Vinf = 80.
 Vref = 774.
 Machref = 0.403
 Rho =   0.002377
@@ -16,38 +16,13 @@ ClMax = -1.
 MaxTurningAngle = -1. 
 Symmetry = N
 FarDist = -1.
-NumWakeNodes = -1
+NumWakeNodes = 128
 WakeIters = 3
 NumberOfRotors = 0 
 NumberOfControlGroups = 0 
 TimeStep =           -1.
 NumberOfTimeSteps =  -2
-
-
-TimeStep =           0.00349152
-NumberOfTimeSteps =  200
-
-// 4.5 degrees
-
-TimeStep =           0.000872881
-NumberOfTimeSteps =  200
-
-// 9 degrees
-
-TimeStep =           0.001745762
-NumberOfTimeSteps =  400
-
-
-// 10 degrees
-
-TimeStep =           0.001939735
-NumberOfTimeSteps =  200
-
-// 18 degrees ... :D
-
-TimeStep =           0.00349152
-NumberOfTimeSteps =  200
-
+GMRESReductionFactor = 1.
 
 
 

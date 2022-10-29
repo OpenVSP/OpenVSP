@@ -948,11 +948,15 @@ void VSP_GRID::CalculateUpwindEdges(void)
 
              Node2 = LoopList(k).Node(j);
 
-             x2 = NodeList(Node2).x();
-             y2 = NodeList(Node2).y();
-             z2 = NodeList(Node2).z();
+             if ( i != j ) {
+
+                x2 = NodeList(Node2).x();
+                y2 = NodeList(Node2).y();
+                z2 = NodeList(Node2).z();
        
-             Length = MAX(Length,sqrt( pow(x1-x2,2.) + pow(y1-y2,2.) + pow(z1-z2,2.) ));
+                Length = MAX(Length,sqrt( pow(x1-x2,2.) + pow(y1-y2,2.) + pow(z1-z2,2.) ));
+
+             }
              
           }
           

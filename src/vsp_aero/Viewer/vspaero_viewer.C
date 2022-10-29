@@ -18,7 +18,7 @@ float BoxSize;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 1
+#define VER_PATCH 2
 
 /*##############################################################################
 #                                                                              #
@@ -29,7 +29,6 @@ float BoxSize;
 int main(int argc, char **argv) {
 
     int i;
-    char dumchar[80];
 
     viewerUI *vui = new viewerUI;
 

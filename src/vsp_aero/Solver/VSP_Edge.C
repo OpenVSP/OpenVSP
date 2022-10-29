@@ -896,8 +896,7 @@ void VSP_EDGE::FindLineConicIntersection(VSPAERO_DOUBLE &Xp, VSPAERO_DOUBLE &Yp,
              // Node 1 is outside
              
              if ( Dot > 0. ) {
-              
-                t1 = t1;
+
                 t2 = 1.;
           
              }
@@ -905,7 +904,6 @@ void VSP_EDGE::FindLineConicIntersection(VSPAERO_DOUBLE &Xp, VSPAERO_DOUBLE &Yp,
              else {
               
                 t1 = 0.;
-                t2 = t2;
       
              }
              
@@ -929,14 +927,16 @@ void VSP_EDGE::FindLineConicIntersection(VSPAERO_DOUBLE &Xp, VSPAERO_DOUBLE &Yp,
 VSPAERO_DOUBLE VSP_EDGE::GeneralizedPrincipalPartOfDownWash(void)
 {
  
+    if ( Mach_ < 1. ) return 0.;
+
     VSPAERO_DOUBLE Beta_2, T, Ws, Mag, Theta, Arg;
-    
+
     Beta_2 = 1. - SQR(Mach_);
-    
+
     Mag = MAX(MIN(Vec_[0],1.),-1.); // this is just vector_dot(Vec,Xaxis);
 
     Theta = 0.5*PI - acos(Mag);
-    
+
     T = tan(Theta);
 
     Arg = -Beta_2 - T*T;

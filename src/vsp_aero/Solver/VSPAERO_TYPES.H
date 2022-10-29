@@ -16,6 +16,16 @@
 #include <complex>
 #endif
 
+// undef FWRITE/FREAD macors
+// These function names can conflict with  macros found in fcntl.h
+#ifdef FWRITE
+#undef FWRITE
+#endif
+
+#ifdef FREAD
+#undef FREAD
+#endif
+
 #include "START_NAME_SPACE.H"
 
 int FWRITE(int    *Value, size_t Size, size_t Num, FILE *File);

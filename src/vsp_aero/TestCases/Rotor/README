@@ -24,7 +24,7 @@ this will run vspaero_opt with the output of prop.opt.gradient
 
 Run the vspaero_complex solver
 
-../../bin/vspaero_complex -omp 4 -unsteady -opt -optfunction 2 -complextest prop
+../../bin/vspaero_complex -omp 4 -unsteady -opt -optfunction 3001 -complextest prop
 
 this will run vspaero_complex with output prop.complex.gradient
 

@@ -94,8 +94,7 @@ VSP_GEOM::~VSP_GEOM(void)
 
 void VSP_GEOM::ReadFile(char *FileName, int &ModelType, int &SurfaceType)
 {
- 
-    int Surface;
+
     
     char Degen_File_Name[2000];
     char CART3D_File_Name[2000];
@@ -151,7 +150,7 @@ void VSP_GEOM::ReadFile(char *FileName, int &ModelType, int &SurfaceType)
        
        else {
 
-          printf("Could not load %s VSP Degen Geometry, CART3D Tri, or VSPGEOM Tri file... \n", FileName);fflush(NULL);
+          PRINTF("Could not load %s VSP Degen Geometry, CART3D Tri, or VSPGEOM Tri file... \n", FileName);fflush(NULL);
 
           exit(1);
           
@@ -159,7 +158,7 @@ void VSP_GEOM::ReadFile(char *FileName, int &ModelType, int &SurfaceType)
               
     }
         
-    printf("NumberOfSurfaces_: %d \n",NumberOfSurfaces_);    
+    PRINTF("NumberOfSurfaces_: %d \n",NumberOfSurfaces_);    
 
     // Load in FEM analysis data
     
@@ -218,7 +217,7 @@ void VSP_GEOM::LoadFEMDeformationData(char *FileName)
            
              fclose(File);
              
-             printf("Reading in a FEM deformation file for wing surface: %d \n",i);
+             PRINTF("Reading in a FEM deformation file for wing surface: %d \n",i);
           
              VSP_Surface(i).LoadFEMDeformationData(FEM_File_Name);
              
@@ -250,7 +249,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
     
     if ( (Cart3D_File = fopen(VSP_File_Name,"r")) == NULL ) {
 
-       printf("Could not load %s CART3D file... \n", VSP_File_Name);fflush(NULL);
+       PRINTF("Could not load %s CART3D file... \n", VSP_File_Name);fflush(NULL);
 
        exit(1);
 
@@ -260,7 +259,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
     
     if ( (TKEY_File = fopen(TKEY_File_Name,"r")) == NULL ) {
 
-       printf("Could not load %s TKEY file... so I won't use it... ;-) \n", TKEY_File_Name);fflush(NULL);
+       PRINTF("Could not load %s TKEY file... so I won't use it... ;-) \n", TKEY_File_Name);fflush(NULL);
 
        TKEY_File = NULL;
 
@@ -402,7 +401,7 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
           
        }
        
-       printf("Found: %d Rotors \n",NumberOfRotors_);
+       PRINTF("Found: %d Rotors \n",NumberOfRotors_);
        
        rewind(VSP_Degen_File);  
               
@@ -435,7 +434,7 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
     
     if ( (VSPGEOM_File = fopen(VSPGEOM_File_Name,"r")) == NULL ) {
 
-       printf("Could not load %s VSPGEOM file... \n", VSPGEOM_File_Name);fflush(NULL);
+       PRINTF("Could not load %s VSPGEOM file... \n", VSPGEOM_File_Name);fflush(NULL);
 
        exit(1);
 
@@ -445,7 +444,7 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
     
     if ( (VKEY_File = fopen(VKEY_File_Name,"r")) == NULL ) {
 
-       printf("Could not load %s VKEY file... so I won't use it... ;-) \n", VKEY_File_Name);fflush(NULL);
+       PRINTF("Could not load %s VKEY file... so I won't use it... ;-) \n", VKEY_File_Name);fflush(NULL);
 
        VKEY_File = NULL;
 
@@ -587,7 +586,7 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
           
        }
        
-       printf("Found: %d Rotors \n",NumberOfRotors_);
+       PRINTF("Found: %d Rotors \n",NumberOfRotors_);
        
        rewind(VSP_Degen_File);  
               
@@ -642,7 +641,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
 
        // No VSP degen file... exit
 
-       printf("Could not load %s VSP Degen Geometry file... \n", VSP_File_Name);fflush(NULL);
+       PRINTF("Could not load %s VSP Degen Geometry file... \n", VSP_File_Name);fflush(NULL);
 
        exit(1);
 
@@ -655,7 +654,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     fgets(DumChar,1000,VSP_Degen_File);
     fgets(DumChar,1000,VSP_Degen_File); sscanf(DumChar,"%d\n",&NumberOfComponents_);
     
-    printf("Number Of Surfaces: %d \n",NumberOfComponents_);
+    PRINTF("Number Of Surfaces: %d \n",NumberOfComponents_);
     
     // Now scan the file and determine how many wings in total
     
@@ -677,13 +676,13 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     
     if ( GeomIDFlags ) {
        
-       printf("GeomIDFlags are defined! \n");
+       PRINTF("GeomIDFlags are defined! \n");
        
     }
     
     else {
        
-       printf("GeomIDFlags are NOT defined! \n");       
+       PRINTF("GeomIDFlags are NOT defined! \n");       
        
     }
     
@@ -743,7 +742,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
        
     }
     
-    printf("NumberOfDegenWings_: %d \n",NumberOfDegenWings_);
+    PRINTF("NumberOfDegenWings_: %d \n",NumberOfDegenWings_);
     
     rewind(VSP_Degen_File);
     
@@ -844,7 +843,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
        
     }
     
-    printf("NumberOfDegenBodies_: %d \n",NumberOfDegenBodies_);
+    PRINTF("NumberOfDegenBodies_: %d \n",NumberOfDegenBodies_);
     
     rewind(VSP_Degen_File);    
 
@@ -922,7 +921,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
        
     }
     
-    printf("Found: %d Rotors \n",NumberOfRotors_);
+    PRINTF("Found: %d Rotors \n",NumberOfRotors_);
     
     // Split body data into 4 sets... top/bottom vertical, and left/right horizontal slices
     
@@ -938,7 +937,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
        
     }
 
-    printf("NumberOfDegenBodies_: %d \n",NumberOfDegenBodies_);
+    PRINTF("NumberOfDegenBodies_: %d \n",NumberOfDegenBodies_);
 
     rewind(VSP_Degen_File);
 
@@ -1019,7 +1018,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
               
           }
 
-          if ( 1||Verbose_ ) printf("Working on reading wing: %d --> Name: %s with GeomID: %s ... MainSurfNdx: %s ... SymCopyNdx: %s \n",Wing,Name,GeomID,MainSurfNdx,SymCopyNdx);
+          if ( 1||Verbose_ ) PRINTF("Working on reading wing: %d --> Name: %s with GeomID: %s ... MainSurfNdx: %s ... SymCopyNdx: %s \n",Wing,Name,GeomID,MainSurfNdx,SymCopyNdx);
 
           VSP_Surface(Surface).ReadWingDataFromFile(Name,VSP_Degen_File);
           
@@ -1091,11 +1090,11 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
              
           } 
 
-          if ( Verbose_ ) printf("Working on reading #1 horizontal slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
+          if ( Verbose_ ) PRINTF("Working on reading #1 horizontal slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
                  
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,2,VSP_Degen_File);
           
-          if ( Verbose_ ) printf("LastGeomID, GeomID: %s %s .... LastSurfNdx,SurfNdx: %s %s \n",LastGeomID, GeomID, LastSurfNdx,SurfNdx);
+          if ( Verbose_ ) PRINTF("LastGeomID, GeomID: %s %s .... LastSurfNdx,SurfNdx: %s %s \n",LastGeomID, GeomID, LastSurfNdx,SurfNdx);
           
           if ( strcmp(LastGeomID,GeomID) != 0 || ( strcmp(LastGeomID,GeomID) == 0 && strcmp(LastSurfNdx,SurfNdx) != 0 ) ) ComponentID++;
 
@@ -1153,7 +1152,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
              
           }
              
-          if ( Verbose_ ) printf("Working on reading #2 horizontal slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
+          if ( Verbose_ ) PRINTF("Working on reading #2 horizontal slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
                  
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,1,VSP_Degen_File);
           
@@ -1211,7 +1210,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
              
           }
           
-          if ( Verbose_ ) printf("Working on reading #1 vertical slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
+          if ( Verbose_ ) PRINTF("Working on reading #1 vertical slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
                             
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,3,VSP_Degen_File);    
           
@@ -1269,7 +1268,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
              
           }
           
-          if ( Verbose_ ) printf("Working on reading #2 vertical slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
+          if ( Verbose_ ) PRINTF("Working on reading #2 vertical slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
                  
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,4,VSP_Degen_File);    
           
@@ -1289,14 +1288,14 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     
     NumberOfComponents_ = ComponentID;
     
-    printf("NumberOfComponents_: %d \n", NumberOfComponents_);
+    PRINTF("NumberOfComponents_: %d \n", NumberOfComponents_);
     
     fclose(VSP_Degen_File);
     
     delete [] ReadInThisBody;
     delete [] ReadInThisWing;
     
-    printf("Done loading in geometry! \n");fflush(NULL);
+    PRINTF("Done loading in geometry! \n");fflush(NULL);
 
 }
 
@@ -1548,7 +1547,7 @@ void VSP_GEOM::MeshGeom(void)
        
           Grid_[i]->CreateUpwindEdgeData();
 
-          printf("Grid:%d --> # loops: %10d ...# Edges: %10d ...# Nodes: %10d \n",i,
+          PRINTF("Grid:%d --> # loops: %10d ...# Edges: %10d ...# Nodes: %10d \n",i,
            Grid_[i]->NumberOfLoops(),
            Grid_[i]->NumberOfEdges(),
            Grid_[i]->NumberOfNodes());
@@ -1626,8 +1625,8 @@ void VSP_GEOM::DetermineModelType(void)
        
     }
 
-    if ( ModelType_ == VLM_MODEL   ) printf("Model is a VSPGEOM VLM geometry \n");fflush(NULL);
-    if ( ModelType_ == PANEL_MODEL ) printf("Model is a VSPGEOM Panel geometry \n");fflush(NULL);
+    if ( ModelType_ == VLM_MODEL   ) PRINTF("Model is a VSPGEOM VLM geometry \n");fflush(NULL);
+    if ( ModelType_ == PANEL_MODEL ) PRINTF("Model is a VSPGEOM Panel geometry \n");fflush(NULL);
 
 }
 
@@ -1642,7 +1641,7 @@ void VSP_GEOM::CreateComponentBBoxData(void)
    
     int i, c, j, Node;
     
-    printf("NumberOfComponents_: %d\n",NumberOfComponents_);
+    PRINTF("NumberOfComponents_: %d\n",NumberOfComponents_);
 
     fflush(NULL);
     
@@ -1699,7 +1698,7 @@ void VSP_GEOM::AgglomerateMeshes(void)
        
     }
     
-    printf("Done agglomerating meshes! \n");fflush(NULL);
+    PRINTF("Done agglomerating meshes! \n");fflush(NULL);
      
 }
 
@@ -1793,7 +1792,7 @@ void VSP_GEOM::OutputCoarseGridInfo(void)
 
        NumberOfLoops = CalculateNumberOfFineLoops(Level, Grid(Level).LoopList(i));
        
-       printf("Coarse loop %d contains %d fine loops \n",i,NumberOfLoops);
+       PRINTF("Coarse loop %d contains %d fine loops \n",i,NumberOfLoops);
        
        for ( j = 1 ; j <= Grid(Level).LoopList(i).NumberOfEdges() ; j++ ) {
           
@@ -1802,7 +1801,7 @@ void VSP_GEOM::OutputCoarseGridInfo(void)
           Loop = Grid(Level).EdgeList(Edge).Loop1()
                + Grid(Level).EdgeList(Edge).Loop2() - i;
                 
-          printf("   Boundary Loop: %d: %d ... pairs: %d %d\n",j,Loop,
+          PRINTF("   Boundary Loop: %d: %d ... pairs: %d %d\n",j,Loop,
           Grid(Level).EdgeList(Edge).Loop1(),
           Grid(Level).EdgeList(Edge).Loop2());
           
@@ -2081,10 +2080,21 @@ void VSP_GEOM::UpdateCoarseMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid)
        Xb = 0.5*( CoarseGrid.LoopList(i).BoundBox().x_max + CoarseGrid.LoopList(i).BoundBox().x_min );
        Yb = 0.5*( CoarseGrid.LoopList(i).BoundBox().y_max + CoarseGrid.LoopList(i).BoundBox().y_min );
        Zb = 0.5*( CoarseGrid.LoopList(i).BoundBox().z_max + CoarseGrid.LoopList(i).BoundBox().z_min );
-       
-       CoarseGrid.LoopList(i).CentroidOffSet() = sqrt( pow(CoarseGrid.LoopList(i).Xc() - Xb,2.)
-                                                     + pow(CoarseGrid.LoopList(i).Yc() - Yb,2.)
-                                                     + pow(CoarseGrid.LoopList(i).Zc() - Zb,2.) );       
+
+       if ( Xb == CoarseGrid.LoopList(i).Xc() &&
+            Yb == CoarseGrid.LoopList(i).Yc() && 
+            Zb == CoarseGrid.LoopList(i).Zc()){
+
+           CoarseGrid.LoopList(i).CentroidOffSet() = 0.0;
+
+       }
+
+       else{
+
+           CoarseGrid.LoopList(i).CentroidOffSet() = sqrt( pow(CoarseGrid.LoopList(i).Xc() - Xb,2.)
+                                                         + pow(CoarseGrid.LoopList(i).Yc() - Yb,2.)
+                                                         + pow(CoarseGrid.LoopList(i).Zc() - Zb,2.) );
+       }
 
     }            
 
@@ -2104,13 +2114,17 @@ void VSP_GEOM::UpdateCoarseMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid)
        
           for ( j = 1 ; j <= CoarseGrid.LoopList(k).NumberOfNodes() ; j++ ) {
        
-             Node2 = CoarseGrid.LoopList(k).Node(j);
+             if ( i != j ) {
+
+                Node2 = CoarseGrid.LoopList(k).Node(j);
        
-             x2 = CoarseGrid.NodeList(Node2).x();
-             y2 = CoarseGrid.NodeList(Node2).y();
-             z2 = CoarseGrid.NodeList(Node2).z();
+                x2 = CoarseGrid.NodeList(Node2).x();
+                y2 = CoarseGrid.NodeList(Node2).y();
+                z2 = CoarseGrid.NodeList(Node2).z();
        
-             Length = MAX(Length,sqrt( pow(x1-x2,2.) + pow(y1-y2,2.) + pow(z1-z2,2.) ));
+                Length = MAX(Length,sqrt( pow(x1-x2,2.) + pow(y1-y2,2.) + pow(z1-z2,2.) ));
+
+             }
              
           }
           

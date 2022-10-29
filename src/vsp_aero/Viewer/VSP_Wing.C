@@ -132,7 +132,7 @@ void VSP_WING::ReadFile(char *Name, FILE *VSP_Degen_File)
  
     int i, j, NumI, NumJ, Wing, Done;
     double DumFloat, zCamber;
-    char VSP_File_Name[2000], DumChar[2000], Stuff[2000];
+    char DumChar[2000], Stuff[2000];
 
     // Save the component name
     

@@ -93,6 +93,10 @@ private:
     
     VSPAERO_DOUBLE CoreSize_;
     
+    // Wake relaxation factor
+    
+    VSPAERO_DOUBLE WakeRelax_;
+    
     // Minimum Tolerance
     
     VSPAERO_DOUBLE Tolerance_;
@@ -118,7 +122,7 @@ private:
     VSPAERO_DOUBLE TimeStep_;
     VSPAERO_DOUBLE Vinf_;
     VSPAERO_DOUBLE *Gamma_;
-    VSPAERO_DOUBLE *GammaNew_;
+//    VSPAERO_DOUBLE *GammaNew_;
     VSPAERO_DOUBLE *GammaSave_;
 
     VSPAERO_DOUBLE *WakeAge_;
@@ -242,6 +246,10 @@ public:
     /** Set the core size at trailing edge for the finite core model **/
     
     VSPAERO_DOUBLE &CoreSize(void) { return CoreSize_; };
+    
+    /** Wake relaxation factor **/
+    
+    VSPAERO_DOUBLE &WakeRelax(void) { return WakeRelax_; };
 
     /** Trailing edge location along span.. this is y/b... so ranges from 0 to 1 **/
     
@@ -413,9 +421,13 @@ public:
     
     void SkipReadInFile(FILE *adb_file);
     
-    /** Update the geometry given a translation vecctor and a rotating quaternion **/
+    /** Update the geometry given a translation vector and a rotating quaternion, this also shift the wake back in time  **/
     
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+    
+    /** Update the trailing edge location given a translation vector and a rotating quaternion **/
+    
+    void UpdateTrailingEdgeGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
     
     /** Set Mach number **/
      

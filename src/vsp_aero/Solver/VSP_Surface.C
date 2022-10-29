@@ -206,9 +206,9 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
 {
  
     int i, k, n, NumNodes, NumTris, Node1, Node2, Node3, SurfaceID, Done;
-    int *SurfaceList, Found, DumInt, CompID, *ComponentIDForVSPSurface;
+    int *SurfaceList, Found, DumInt, *ComponentIDForVSPSurface;
     int *SurfaceIsUsed, NumberOfVSPSurfaces;
-    char DumChar[2000], DumChar2[2000], CompName[200], Comma[2000], *Next;    
+    char DumChar[2000], Comma[2000], *Next;
     VSPAERO_DOUBLE x, y, z, u1, u2, u3, v1, v2, v3;
     VSPAERO_DOUBLE Ymin, Ymax, Zmin, Zmax;
 
@@ -364,15 +364,15 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
        
        // Read in the vkey data
        
-       fgets(DumChar,2000,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
-       fgets(DumChar,2000,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
-       fgets(DumChar,2000,TKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,2000,TKEY_File);PRINTF("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,2000,TKEY_File);PRINTF("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,2000,TKEY_File);PRINTF("DumChar: %s \n",DumChar); fflush(NULL);
        
        sscanf(DumChar,"%d\n",&NumberOfVSPSurfaces);
 
        ComponentIDForVSPSurface = new int[NumberOfVSPSurfaces + 1];
        
-       printf("NumberOfVSPSurfaces: %d \n",NumberOfVSPSurfaces);
+       PRINTF("NumberOfVSPSurfaces: %d \n",NumberOfVSPSurfaces);
 
        fgets(DumChar,2000,TKEY_File);
       
@@ -398,9 +398,9 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
              
              SurfacePatchNameList_[k] = new char[2000];
                           
-             sprintf(SurfacePatchNameList_[k],"%s",Next);
+             SPRINTF(SurfacePatchNameList_[k],"%s",Next);
           
-             printf("Surface: %d exists in tringulation and will be surface: %d with OpenVSP Name: %s \n",DumInt,k,SurfacePatchNameList_[k]);
+             PRINTF("Surface: %d exists in tringulation and will be surface: %d with OpenVSP Name: %s \n",DumInt,k,SurfacePatchNameList_[k]);
   
           }
           
@@ -408,7 +408,7 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
        
        if ( k != NumberOfSurfacePatches_ ) {
           
-          printf("Error... number of used surfaces in .tri and .tkey files do not match! \n");
+          PRINTF("Error... number of used surfaces in .tri and .tkey files do not match! \n");
           fflush(NULL);exit(1);
           
        }
@@ -423,7 +423,7 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
           
           SurfacePatchNameList_[n] = new char[2000];
           
-          sprintf(SurfacePatchNameList_[n],"Surface_%d",n);
+          SPRINTF(SurfacePatchNameList_[n],"Surface_%d",n);
           
        }
        
@@ -620,11 +620,11 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
 void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKEY_File)
 {
  
-    int i, j, k, n, DumInt, DumInt2, NumNodes, NumTris, Node1, Node2, Node3, SurfaceID, Done;
+    int i, j, k, n, DumInt, NumNodes, NumTris, Node1, Node2, Node3, SurfaceID, Done;
     int *SurfaceList, Found, CompID;
     int *SurfaceIsUsed, NumberOfVSPSurfaces;    
-    int NumKuttaNodeLists, NumKuttaNodes, NumNodesInList, *KuttaNodeList, NumColinearPoints;
-    char DumChar[2000], DumChar2[2000], Comma[2000], *Next;
+    int NumKuttaNodeLists, NumKuttaNodes, NumNodesInList, *KuttaNodeList;
+    char DumChar[2000], Comma[2000], *Next;
     VSPAERO_DOUBLE x, y, z, u1, v1, u2, v2, u3, v3;
 
     SPRINTF (Comma,",");
@@ -697,7 +697,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
        
        if ( Node1 == Node2 || Node1 == Node3 || Node2 == Node3 ) {
           
-          printf("wtf... tri: %d --> %d %d %d \n",n,Node1,Node2,Node3);fflush(NULL);exit(1);
+          PRINTF("wtf... tri: %d --> %d %d %d \n",n,Node1,Node2,Node3);fflush(NULL);exit(1);
           
        }
        
@@ -827,30 +827,30 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
        
        // Read in the vkey data
        
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,2000,VKEY_File);PRINTF("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,2000,VKEY_File);PRINTF("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,2000,VKEY_File);PRINTF("DumChar: %s \n",DumChar); fflush(NULL);
        
        sscanf(DumChar,"%d\n",&NumberOfVSPSurfaces);
        
-       printf("NumberOfVSPSurfaces: %d \n",NumberOfVSPSurfaces);
+       PRINTF("NumberOfVSPSurfaces: %d \n",NumberOfVSPSurfaces);
        
      // if ( DumInt != NumberOfSurfacePatches_ ) {
      //    
-     //    printf("Error... number of surfaces in .vspgeom and .vkey files do not match! \n");
+     //    PRINTF("Error... number of surfaces in .vspgeom and .vkey files do not match! \n");
      //    fflush(NULL);exit(1);
      //    
      // }
        
        
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
-       fgets(DumChar,2000,VKEY_File);printf("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,2000,VKEY_File);PRINTF("DumChar: %s \n",DumChar); fflush(NULL);
+       fgets(DumChar,2000,VKEY_File);PRINTF("DumChar: %s \n",DumChar); fflush(NULL);
       
        k = 0;
        
        for ( n = 1 ; n <= NumberOfVSPSurfaces ; n++ ) {
           
-          fgets(DumChar,2000,VKEY_File);printf("n: %d --> DumChar: %s \n",n,DumChar); fflush(NULL);
+          fgets(DumChar,2000,VKEY_File);PRINTF("n: %d --> DumChar: %s \n",n,DumChar); fflush(NULL);
           
         //  sscanf(DumChar,"%d,%d,%d,%s,%s",&DumInt,&CompID,&DumInt2,DumChar2,DumChar);
 
@@ -868,17 +868,17 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
           
           if ( SurfaceIsUsed[DumInt] ) {
 
-             printf("Surface: %d exists in tringulation and has OpenVSP Name: %s \n",DumInt,DumChar);
+             PRINTF("Surface: %d exists in tringulation and has OpenVSP Name: %s \n",DumInt,DumChar);
              
              k++;
                           
-             printf("CompID: %d \n",CompID);
+             PRINTF("CompID: %d \n",CompID);
              
              ComponentIDForSurfacePatch_[DumInt] = CompID + 1;
              
              SurfacePatchNameList_[k] = new char[2000];
              
-             sprintf(SurfacePatchNameList_[k],"%s",Next);    
+             SPRINTF(SurfacePatchNameList_[k],"%s",Next);    
                           
           }      
           
@@ -894,7 +894,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
           
           SurfacePatchNameList_[n] = new char[2000];
           
-          sprintf(SurfacePatchNameList_[n],"Surface_%d",n);
+          SPRINTF(SurfacePatchNameList_[n],"Surface_%d",n);
           
        }
        
@@ -1288,7 +1288,7 @@ void VSP_SURFACE::FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList)
     int Edge, Edge1, Edge2, Next, VortexSheet, SheetIsPeriodic;
     int *KuttaEdgeList, *IncidentKuttaEdges, *IsKuttaEdge, *PermArray, *NodeUsed;
     int *NodeIsSharp, CurrentComponentID;
-    VSPAERO_DOUBLE vec1[3], vec2[3], vec3[3], Xvec[3], dot, angle, mag1, mag2, S1, S2, Ratio;
+    VSPAERO_DOUBLE vec1[3], vec2[3], vec3[3], Xvec[3], dot, angle, mag1, mag2;
     KUTTA_NODE *KuttaNodeList;
 
     // Create a node to tri list
@@ -2232,7 +2232,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
     int i1, i2, i3, i4, j1, j2, j3, j4, FlipNormals;    
     VSPAERO_DOUBLE DumFloat, Vec[3], VecQC_1[3], VecQC_2[3], Mag, HingeVec[3];
     VSPAERO_DOUBLE x1, y1, z1, x2, y2, z2, ArcLength[2], Chord, up, wp, xyz[3];
-    VSPAERO_DOUBLE u1, u2, w1, w2, ulist[4], wlist[4];
+    VSPAERO_DOUBLE ulist[4], wlist[4];
     VSPAERO_DOUBLE Vec1[3], Vec2[3], Vec3[3], Vec4[3], normal[3], Temp[5], CellArea;
     
     char DumChar[4000], Stuff[4000], LastSubSurf[4000], Comma[4000], *Next;

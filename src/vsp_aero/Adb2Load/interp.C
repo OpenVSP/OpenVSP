@@ -42,8 +42,6 @@ INTERP::INTERP(const INTERP &Interp)
 void INTERP::Interpolate(INTERP_MESH *Mesh1, INTERP_MESH *Mesh2)
 {
 
-    int i;
-
     // Calculate centroid locations and normals for each mesh
 
     CalculateCentroids(Mesh1); CalculateNormals(Mesh1); CalculateBoundingBox(Mesh1);
@@ -94,7 +92,7 @@ float INTERP::Limiter2D(float Value, float Val1, float Val2, float Val3)
 void INTERP::CalculateBoundingBox(INTERP_MESH *Mesh)
 {
 
-    int j, nod1, nod2, nod3;
+    int j;
 
     // Calculate centroids for each tri
 
@@ -258,9 +256,8 @@ void INTERP::SwapSurfaceNormals(INTERP_MESH *Mesh)
 void INTERP::CalculateNodalValues(INTERP_MESH *Mesh)
 {
 
-    int i, j, nod1, nod2, nod3, InterpTri;
-    float *Weight, x1, y1, z1, x2, y2, z2, Area, Mag;
-    float ds, dsMin, u, v, vec1[3], vec2[3], vec3[3], N1, N2, N3;
+    int j, nod1, nod2, nod3;
+    float *Weight, Area;
     float Cp, Cp_Unsteady, Gamma;
 
     // Calculate nodal values of solution for Mesh 1
@@ -362,7 +359,7 @@ Coded By: David J. Kinney
 void INTERP::InterpolateSolution(INTERP_MESH *Mesh1, INTERP_MESH *Mesh2)
 {
 
-    int k, n, p, nod, *did_this_node, iter, max_iter, closest, max_radius;
+    int k, p, iter, max_iter, closest, max_radius;
     int OutOfBox, NormalOff, Done, SymShear, node1, node2, node3;
     double tol_x, tol_y, tol_z, Tolerance, yc;
     LEAF  *root;
@@ -658,7 +655,7 @@ void INTERP::WriteADBFile(INTERP_MESH *Mesh, char *Name)
 
     FILE *adb_file;
     BINARYIO BIO;
-    int i_size, c_size, f_size, DumInt, i, j, k, m;
+    int i_size, c_size, f_size, DumInt, i, k;
     char file_name_w_ext[200];
 
     // Sizeof ints and floats

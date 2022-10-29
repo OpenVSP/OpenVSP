@@ -214,7 +214,7 @@ void VORTEX_BOUND::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3],
 {
    
    CoreSize_ = CoreSize;
-   
+
    InducedVelocity_(xyz_p, q);
    
 }
@@ -231,7 +231,7 @@ void VORTEX_BOUND::InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]
     int i, NumVortices;
     VSPAERO_DOUBLE dq[3];
 
-    NumVortices = MIN(CurrentTimeStep_ , NumberOfStartingVortices_);
+    NumVortices = MIN(CurrentTimeStep_ + 1, NumberOfStartingVortices_);
 
     // Calculate induced velocity
     
@@ -246,10 +246,6 @@ void VORTEX_BOUND::InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]
        q[2] += dq[2];
 
     }      
-//PRINTF("q: %f %f %f \n",q[0],q[1],q[2]);    
-    
-// Uncomment to make unsteady wake go away... well, part of it anyway
-// q[0] = q[1] = q[2] = 0.;
 
 }
 
@@ -303,7 +299,7 @@ void VORTEX_BOUND::UpdateGeometryLocation(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Tr
        BoundVortexList(i).Sigma() = 0.5*( Trail1.Sigma() + Trail2.Sigma() );
        
        BoundVortexList(i).S() = 0.5*( Trail1.S(i) + Trail2.S(i) );
-                     
+       
     }
  
 }    

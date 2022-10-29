@@ -17,7 +17,7 @@
 OPTIMIZATION_FUNCTION::OPTIMIZATION_FUNCTION(void)
 {
 
-    OptimizationFunction_ = OPT_CL;
+    OptimizationFunction_ = OPT_CL_TOTAL;
     
     FunctionLength_ = 0;
 

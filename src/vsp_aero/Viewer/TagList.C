@@ -185,7 +185,7 @@ void TAG_LIST::LoadFile(char *PathName, char *GeometryName, char *TagListName)
     int GeometryNameLength, TagRegionNameLength;
     char FileNameWithExtension[FILE_NAME_SIZE], Line[FILE_NAME_SIZE];
     char DumChar[FILE_NAME_SIZE];
-    char *next, dot[FILE_NAME_SIZE], *LastDot;
+    char dot[FILE_NAME_SIZE], *LastDot;
     char TagGeometryName[FILE_NAME_SIZE], TagRegionName[FILE_NAME_SIZE];
     FILE *TagListFile;
     TAG_REGION *TagList;

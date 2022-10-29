@@ -85,10 +85,9 @@ VSP_DEGEN_GEOM::~VSP_DEGEN_GEOM(void)
 void VSP_DEGEN_GEOM::ReadFile(char *FileName)
 {
  
-    int i, j, NumI, NumJ, Wing, Body, Done, Slice, NumberOfBodySets, BodySet;
-    double x, y, z, u, v, Nx, Ny, Nz, DumFloat;
-    char VSP_File_Name[2000], DumChar[2000], Stuff[2000], Type[2000], Name[2000];
-    FILE *VSP_Degen_File, *MeshFile;
+    int Wing, Body, Done, NumberOfBodySets, BodySet;
+    char VSP_File_Name[2000], DumChar[2000], Type[2000], Name[2000];
+    FILE *VSP_Degen_File;
     
     // Open setup file
 
@@ -252,7 +251,6 @@ void VSP_DEGEN_GEOM::MeshGeom(void)
 {
  
     int Wing, Body;
-    char DumChar[2000];
     
     // Loop over the wings and create a mesh
 
@@ -294,7 +292,7 @@ void VSP_DEGEN_GEOM::WriteMeshFile(char *FileName)
     FILE *adb_file_;
     char adb_file_name[2000], DumChar[2000];
     int i, j, Node1, Node2, Node3, NumberOfTrailingVortexEdges, NumberOfRotors;
-    int m, i_size, c_size, f_size, DumInt, number_of_nodes, number_of_tris;
+    int i_size, c_size, f_size, DumInt, number_of_nodes, number_of_tris;
     int SurfaceType, SurfaceID, TotalNodes, MaxLevels;
     float Mach, AngleOfAttack, AngleOfBeta, Sref, Cref, Bref, X_cg, Y_cg, Z_cg, Area;
 
@@ -312,8 +310,6 @@ void VSP_DEGEN_GEOM::WriteMeshFile(char *FileName)
     
     float FreeStreamPressure         = 1000;
     float DynamicPressure            = 100000.;
-
-    float DumFloat;
     
     float Cp;
 

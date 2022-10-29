@@ -132,7 +132,7 @@ void VSP_BODY::ReadFile(char *Name, int Case, FILE *VSP_Degen_File)
  
     int i, j, NumI, NumJ, Wing, Done;
     double DumFloat;
-    char VSP_File_Name[2000], DumChar[2000], Stuff[2000];
+    char DumChar[2000], Stuff[2000];
 
     // Save the component name
 

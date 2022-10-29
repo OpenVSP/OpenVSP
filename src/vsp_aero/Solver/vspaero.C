@@ -27,7 +27,7 @@ using namespace VSPAERO_SOLVER;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 3
+#define VER_PATCH 4
 
 // Some globals...
 
@@ -66,6 +66,9 @@ VSPAERO_DOUBLE UnsteadyAngleMax_;
 VSPAERO_DOUBLE UnsteadyHMax_;     
 VSPAERO_DOUBLE HeightAboveGround_;
 VSPAERO_DOUBLE BladeRPM_;
+VSPAERO_DOUBLE WakeRelax_;
+VSPAERO_DOUBLE GMRESReductionFactor_;
+VSPAERO_DOUBLE CoreSizeFactor_;
 
 #define MAXRUNCASES 100000
 
@@ -191,6 +194,7 @@ int NumberOfInlets_                = 0;
 int NumberOfNozzles_               = 0;
 int DoComplexDiffTest              = 0;
 int DoFiniteDiffTest               = 0;
+int FlowIs2D                       = 0;
 
 // Prototypes
 
@@ -354,6 +358,10 @@ int main(int argc, char **argv)
        VSP_VLM().SetOptimizationFunction(1,OptimizationFunction_,1);
 
     }
+    
+    // Force flow into '2D' mode
+    
+    if ( FlowIs2D ) VSP_VLM().FlowIs2D() = 1;
                    
     // Setup
 
@@ -453,11 +461,11 @@ void PrintUsageHelp()
        PRINTF("Options: \n");                  
        PRINTF(" -omp <N>                           Use 'N' processes.\n");
        PRINTF(" -stab                              Calculate stability derivatives.\n");
-                                                   
+       PRINTF("\n");                                                   
        PRINTF(" -pstab                             Calculate unsteady roll  rate stability derivative analysis.\n");
        PRINTF(" -qstab                             Calculate unsteady pitch rate stability derivative analysis.\n");
        PRINTF(" -rstab                             Calculate unsteady yaw   rate stability derivative analysis.\n");
-                                                   
+       PRINTF("\n");                                                   
        PRINTF(" -fs <M> END <A> END <B> END        Set/Override freestream Mach, Alpha, and Beta. note: M, A, and B are space delimited lists.\n");
        PRINTF(" -save                              Save restart file.\n");
        PRINTF(" -restart                           Restart analysis.\n");
@@ -473,24 +481,26 @@ void PrintUsageHelp()
        PRINTF(" -fromsteadystate                   Run an unsteady analysis... after converging a steady analysis. Assumes .groups file is setup! \n");
        PRINTF(" -hoverramp <ih> <fs>               Start unsteady solution with free stream fs, and reduce down to actual free stream starting at time step ih. \n");
        PRINTF(" -nospanload                        Turn off calculation of span wise loading... this is here in case this feature is breaking stuff... \n");
-                                                   
+       PRINTF("\n");                                                   
        PRINTF(" -dokt                              Turn on the 2nd order Karman-Tsien Mach number correction. \n");       
        PRINTF(" -jacobi                            Use Jacobi matrix preconditioner for GMRES solve. \n");
        PRINTF(" -ssor                              Use SSOR matrix preconditioner for GMRES solve. \n");
-                                                   
+       PRINTF("\n");                                                   
        PRINTF(" -noise                             Post process and existing solution to setup files for psu-wopwop noise analysis \n");
        PRINTF(" -noise -steady                     Output steady state data to psu-wopwop, default is unsteady, periodic. \n");
        PRINTF(" -noise -english                    Assumes your model is in english (feet) units, will convert to SI for psu-wopwop \n");
        PRINTF(" -noise -flyby                      Set up flyby analysis for psu-wopwop \n");
        PRINTF(" -noise -footprint                  Set up fot print analysis for psu-wopwop \n");
- 
+       PRINTF("\n");                                                   
        PRINTF(" -opt -optfunction <#>              This is an optimization solve... solve the Aero equations and write out all information needed for adjoint solver. \n"); 
        PRINTF(" -opt -adjoint   -optfunction <#>   This is an optimization solve... solve Adjoint equations for optfunction #. Only used with the ADJOINT solver. \n");
        PRINTF(" -opt -gradients -optfunction <#>   This is an optimization solve... solve for the gradients for optfunction #.  Only used with the ADJOINT solver. \n");
        PRINTF(" -complextest                       This runs the complex step gradient test case... you have to use this with the complex step version and -opt, -optfunction \n");
        PRINTF(" -interrogate                       Reload an existing solution, and interrogate the data using survey points list. \n");
        PRINTF(" -interrogate -unsteady             Reload an existing unsteady solution, and interrogate the data using survey points list. \n");
-
+       PRINTF("\n");                                                   
+       PRINTF(" -2d                                Turn off trailing wakes and approximate 2D flow \n");
+       PRINTF("\n");                                                   
        PRINTF(" -setup                             Write template *.vspaero file, can specify parameters below:\n");
        PRINTF("     -sref  <S>                     Reference area S.\n");
        PRINTF("     -bref  <b>                     Reference span b.\n");
@@ -579,11 +589,15 @@ void ParseInput(int argc, char *argv[])
           StabControlRun_ = 2;
           
           VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
-          VSP_VLM().TimeAnalysisType()    = P_ANALYSIS;
-          VSP_VLM().NumberOfTimeSteps()   = 32;
+          VSP_VLM().TimeAnalysisType() = P_ANALYSIS;
+          
+          VSP_VLM().NumberOfTimeSteps()   = 64;
           VSP_VLM().Unsteady_AngleMax()   = 1.;
           VSP_VLM().Unsteady_HMax()       = 0.;    
-          NumberOfWakeNodes_ = 64;
+          VSP_VLM().CoreSizeFactor()      = 1.;    
+          VSP_VLM().User_GMRES_ToleranceFactor() = 1.;   
+          
+          NumberOfWakeNodes_ = 128;
           VSP_VLM().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
 
        }      
@@ -593,11 +607,15 @@ void ParseInput(int argc, char *argv[])
           StabControlRun_ = 3;
           
           VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
-          VSP_VLM().TimeAnalysisType()    = Q_ANALYSIS;
-          VSP_VLM().NumberOfTimeSteps()   = 32;
-          VSP_VLM().Unsteady_AngleMax()   = 1.;
-          VSP_VLM().Unsteady_HMax()       = 0.;    
-          NumberOfWakeNodes_ = 64;
+          VSP_VLM().TimeAnalysisType() = Q_ANALYSIS;
+          
+          VSP_VLM().NumberOfTimeSteps()          = 64;
+          VSP_VLM().Unsteady_AngleMax()          = 1.;
+          VSP_VLM().Unsteady_HMax()              = 0.;    
+          VSP_VLM().CoreSizeFactor()             = 1.;    
+          VSP_VLM().User_GMRES_ToleranceFactor() = 1.;   
+          
+          NumberOfWakeNodes_ = 128;
           VSP_VLM().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
                     
        }      
@@ -607,11 +625,15 @@ void ParseInput(int argc, char *argv[])
           StabControlRun_ = 4;
           
           VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
-          VSP_VLM().TimeAnalysisType()    = R_ANALYSIS;
-          VSP_VLM().NumberOfTimeSteps()   = 32;
+          VSP_VLM().TimeAnalysisType() = R_ANALYSIS;
+          
+          VSP_VLM().NumberOfTimeSteps()   = 64;
           VSP_VLM().Unsteady_AngleMax()   = 1.;
           VSP_VLM().Unsteady_HMax()       = 0.;    
-          NumberOfWakeNodes_ = 64;
+          VSP_VLM().CoreSizeFactor()      = 1.;    
+          VSP_VLM().User_GMRES_ToleranceFactor() = 1.;   
+          
+          NumberOfWakeNodes_ = 128;
           VSP_VLM().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
                     
        }              
@@ -891,6 +913,12 @@ void ParseInput(int argc, char *argv[])
           DoFiniteDiffTest = 1;
 
        }          
+       
+       else if ( strcmp(argv[i],"-2d") == 0 ) { 
+          
+          FlowIs2D = 1;
+          
+       }
            
        else if ( strcmp(argv[i],"END") == 0 ) {
 
@@ -1333,7 +1361,7 @@ void LoadCaseFile(void)
 
     int i, j, k, NumberOfControlSurfaces, Done, Dir, Surface;
     VSPAERO_DOUBLE x,y,z, DumDouble, HingeVec[3], RotAngle, DeltaHeight;
-    VSPAERO_DOUBLE Density, Value, MassFlow, Velocity, DeltaCp;
+    VSPAERO_DOUBLE Value, MassFlow, Velocity, DeltaCp;
     FILE *case_file;
     char file_name_w_ext[2000], DumChar[2000], DumChar2[2000], Comma[2000], *Next;
     char SymmetryFlag[2000];
@@ -1787,6 +1815,60 @@ void LoadCaseFile(void)
     if ( DoSymmetry_ == SYM_Y ) VSP_VLM().DoSymmetryPlaneSolve(SYM_Y);
     if ( DoSymmetry_ == SYM_Z ) VSP_VLM().DoSymmetryPlaneSolve(SYM_Z);
     
+    // Look for wake relaxation factor
+    
+    rewind(case_file);
+    
+    while ( fgets(DumChar,2000,case_file) != NULL ) {
+
+      if ( strstr(DumChar,"WakeRelax") != NULL ) {
+         
+         sscanf(DumChar,"WakeRelax = %lf \n",&WakeRelax_);
+         
+         PRINTF("Setting wake relaxation factor to: %f \n",WakeRelax_);
+         
+         VSP_VLM().WakeRelax() = WakeRelax_;
+         
+      }
+      
+    }
+    
+    // Look for GMRES residual scale factor
+    
+    rewind(case_file);
+    
+    while ( fgets(DumChar,2000,case_file) != NULL ) {
+
+      if ( strstr(DumChar,"GMRESReductionFactor") != NULL ) {
+         
+         sscanf(DumChar,"GMRESReductionFactor = %lf \n",&GMRESReductionFactor_);
+         
+         PRINTF("Setting GMRES reduction factor to: %f \n",GMRESReductionFactor_);
+         
+         VSP_VLM().User_GMRES_ToleranceFactor() = GMRESReductionFactor_;
+         
+      }
+      
+    }    
+        
+    // Look for coresize factor
+    
+    rewind(case_file);
+    
+    while ( fgets(DumChar,2000,case_file) != NULL ) {
+
+      if ( strstr(DumChar,"CoreSizeFactor") != NULL ) {
+         
+         sscanf(DumChar,"CoreSizeFactor = %lf \n",&CoreSizeFactor_);
+         
+         PRINTF("Setting CoreSizeFactor to: %f \n",CoreSizeFactor_);
+         
+         VSP_VLM().CoreSizeFactor() = CoreSizeFactor_;
+         
+      }
+      
+    } 
+                       
     // Load in the control surface data
     
     rewind(case_file);
@@ -2487,6 +2569,8 @@ void Solve(void)
 
              CDoForCase[Case] = VSP_VLM().CDo();     
              
+             OptimizationFunctionForCase[Case] = 0.;
+             
              if ( OptimizationFunction_ ) OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
              
              // Loop over any ReCref cases
@@ -2523,6 +2607,8 @@ void Solve(void)
    
                 CDoForCase[Case] = VSP_VLM().CDo();   
                 
+                OptimizationFunctionForCase[Case] = 0.;
+                
                 if ( OptimizationFunction_ ) OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
         
              } 
@@ -2551,8 +2637,8 @@ void Solve(void)
 
     }    
 
-                     //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789      
-    FPRINTF(PolarFile,"  Beta      Mach       AoA      Re/1e6     CL         CDo       CDi      CDtot      CDt    CDtot_t      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       CMl       CMm       CMn      FOpt \n");
+                     //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456      
+    FPRINTF(PolarFile,"      Beta             Mach             AoA             Re/1e6             CL              CDo              CDi             CDtot             CDt            CDtot_t             CS              L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              CMl              CMm              CMn              FOpt \n");
 
     // Write out polars, note these are written out in a different order than they were calculated above - we group them by Re number
     
@@ -2569,31 +2655,31 @@ void Solve(void)
                 AR = Bref_ * Bref_ / Sref_;
    
                 E = ( CLForCase[Case] *CLForCase[Case] / ( PI * AR) ) / CDForCase[Case];
-                
-                FPRINTF(PolarFile,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",             
-                        BetaList_[i],
-                        MachList_[j],
-                        AoAList_[k],
-                        ReCrefList_[p]/1.e6,
-                        CLForCase[Case],
-                        CDoForCase[Case],
-                        CDForCase[Case],
-                        CDoForCase[Case] + CDForCase[Case],
-                        CDtForCase[Case],
-                        CDoForCase[Case] + CDtForCase[Case],
-                        CSForCase[Case],            
-                        CLForCase[Case]/(CDoForCase[Case] + CDForCase[Case]),
-                        E,
-                        CFxForCase[Case],
-                        CFyForCase[Case],
-                        CFzForCase[Case],
-                        CMxForCase[Case],
-                        CMyForCase[Case],
-                        CMzForCase[Case],
-                        CMlForCase[Case],       
-                        CMmForCase[Case],       
-                        CMnForCase[Case],
-                        OptimizationFunctionForCase[Case]);
+             
+                FPRINTF(PolarFile,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",             
+                        DOUBLE(BetaList_[i]),
+                        DOUBLE(MachList_[j]),
+                        DOUBLE(AoAList_[k]),
+                        DOUBLE(ReCrefList_[p])/1.e6,
+                        DOUBLE(CLForCase[Case]),
+                        DOUBLE(CDoForCase[Case]),
+                        DOUBLE(CDForCase[Case]),
+                        DOUBLE(CDoForCase[Case] + CDForCase[Case]),
+                        DOUBLE(CDtForCase[Case]),
+                        DOUBLE(CDoForCase[Case] + CDtForCase[Case]),
+                        DOUBLE(CSForCase[Case]),            
+                        DOUBLE(CLForCase[Case]/(CDoForCase[Case] + CDForCase[Case])),
+                        DOUBLE(E),
+                        DOUBLE(CFxForCase[Case]),
+                        DOUBLE(CFyForCase[Case]),
+                        DOUBLE(CFzForCase[Case]),
+                        DOUBLE(CMxForCase[Case]),
+                        DOUBLE(CMyForCase[Case]),
+                        DOUBLE(CMzForCase[Case]),
+                        DOUBLE(CMlForCase[Case]),       
+                        DOUBLE(CMmForCase[Case]),       
+                        DOUBLE(CMnForCase[Case]),
+                        DOUBLE(OptimizationFunctionForCase[Case]));
                            
              }
              
@@ -2789,7 +2875,9 @@ void StabilityAndControlSolve(void)
                 CMmForCase[Case] =  VSP_VLM().CMy();       
                 CMnForCase[Case] = -VSP_VLM().CMz();                     
 
-                OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
+                OptimizationFunctionForCase[Case] = 0.;
+
+                if ( OptimizationFunction_ ) OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
          
                 PRINTF("\n");
          
@@ -2895,7 +2983,9 @@ void StabilityAndControlSolve(void)
                 CMmForCase[Case] =  VSP_VLM().CMy();       
                 CMnForCase[Case] = -VSP_VLM().CMz();                        
       
-                OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
+                OptimizationFunctionForCase[Case] = 0.;
+                
+                if ( OptimizationFunction_ ) OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
          
                 // Reset Control surface group deflection to un-perturbed control surface deflections
 
@@ -3233,7 +3323,7 @@ void WriteOutVorviewFLTFile(void)
 void UnsteadyStabilityAndControlSolve(void)
 {
 
-    int i, j, k, p, pm1, Case, NumCases;
+    int i, j, k, p, pm, pm1, Case, NumCases;
     char StabFileName[2000];
     VSPAERO_DOUBLE  CL_damp,  CL_avg;
     VSPAERO_DOUBLE  CD_damp,  CD_avg;
@@ -3309,17 +3399,17 @@ void UnsteadyStabilityAndControlSolve(void)
              // Calculate the damping derivatives
 
 // Old method     
-/*    
-              CL_damp = (  VSP_VLM().CL_Unsteady(16) -  VSP_VLM().CL_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-              CD_damp = (  VSP_VLM().CD_Unsteady(16) -  VSP_VLM().CD_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-              CS_damp = (  VSP_VLM().CS_Unsteady(16) -  VSP_VLM().CS_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );   
-             CFx_damp = ( VSP_VLM().CFx_Unsteady(16) - VSP_VLM().CFx_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-             CFy_damp = ( VSP_VLM().CFy_Unsteady(16) - VSP_VLM().CFy_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-             CFz_damp = ( VSP_VLM().CFz_Unsteady(16) - VSP_VLM().CFz_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-             CMx_damp = ( VSP_VLM().CMx_Unsteady(16) - VSP_VLM().CMx_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-             CMy_damp = ( VSP_VLM().CMy_Unsteady(16) - VSP_VLM().CMy_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
-             CMz_damp = ( VSP_VLM().CMz_Unsteady(16) - VSP_VLM().CMz_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );        
-*/
+    
+       //       CL_damp = (  VSP_VLM().CL_Unsteady(16) -  VSP_VLM().CL_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
+       //       CD_damp = (  VSP_VLM().CD_Unsteady(16) -  VSP_VLM().CD_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
+       //       CS_damp = (  VSP_VLM().CS_Unsteady(16) -  VSP_VLM().CS_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );   
+       //      CFx_damp = ( VSP_VLM().CFx_Unsteady(16) - VSP_VLM().CFx_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
+       //      CFy_damp = ( VSP_VLM().CFy_Unsteady(16) - VSP_VLM().CFy_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
+       //      CFz_damp = ( VSP_VLM().CFz_Unsteady(16) - VSP_VLM().CFz_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
+       //      CMx_damp = ( VSP_VLM().CMx_Unsteady(16) - VSP_VLM().CMx_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
+       //      CMy_damp = ( VSP_VLM().CMy_Unsteady(16) - VSP_VLM().CMy_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );
+       //      CMz_damp = ( VSP_VLM().CMz_Unsteady(16) - VSP_VLM().CMz_Unsteady(32) )/( 2. * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180. );        
+
               CL_avg = 0.;
               CD_avg = 0.;
               CS_avg = 0.;
@@ -3330,23 +3420,9 @@ void UnsteadyStabilityAndControlSolve(void)
              CMy_avg = 0.;
              CMz_avg = 0.;
 
-              // First and last point are assumed to be the same
-              
-              p = VSP_VLM().NumberOfTimeSteps();
-              
-              CL_avg =  VSP_VLM().CL_Unsteady(p);
-              CD_avg =  VSP_VLM().CD_Unsteady(p);
-              CS_avg =  VSP_VLM().CS_Unsteady(p);
-             CFx_avg = VSP_VLM().CFx_Unsteady(p);
-             CFy_avg = VSP_VLM().CFy_Unsteady(p);
-             CFz_avg = VSP_VLM().CFz_Unsteady(p);
-             CMx_avg = VSP_VLM().CMx_Unsteady(p);
-             CMy_avg = VSP_VLM().CMy_Unsteady(p);
-             CMz_avg = VSP_VLM().CMz_Unsteady(p);    
-             
              // Sum up from T = DT, to N*DT
              
-             for ( p = 1 ; p <= VSP_VLM().NumberOfTimeSteps() ; p++ ) {
+             for ( p = VSP_VLM().NumberOfTimeSteps()/2 ; p <= VSP_VLM().NumberOfTimeSteps() ; p++ ) {
          
                  CL_avg +=  VSP_VLM().CL_Unsteady(p);
                  CD_avg +=  VSP_VLM().CD_Unsteady(p);
@@ -3357,20 +3433,22 @@ void UnsteadyStabilityAndControlSolve(void)
                 CMx_avg += VSP_VLM().CMx_Unsteady(p);
                 CMy_avg += VSP_VLM().CMy_Unsteady(p);
                 CMz_avg += VSP_VLM().CMz_Unsteady(p);
-                
+            
              }
              
              // Calculate average
              
-              CL_avg /= (VSP_VLM().NumberOfTimeSteps() + 1);
-              CD_avg /= (VSP_VLM().NumberOfTimeSteps() + 1);
-              CS_avg /= (VSP_VLM().NumberOfTimeSteps() + 1);
-             CFx_avg /= (VSP_VLM().NumberOfTimeSteps() + 1);
-             CFy_avg /= (VSP_VLM().NumberOfTimeSteps() + 1);
-             CFz_avg /= (VSP_VLM().NumberOfTimeSteps() + 1);
-             CMx_avg /= (VSP_VLM().NumberOfTimeSteps() + 1);
-             CMy_avg /= (VSP_VLM().NumberOfTimeSteps() + 1);
-             CMz_avg /= (VSP_VLM().NumberOfTimeSteps() + 1);
+              CL_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+              CD_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+              CS_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+             CFx_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+             CFy_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+             CFz_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+             CMx_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+             CMy_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+             CMz_avg /= (VSP_VLM().NumberOfTimeSteps()/2 + 1);
+             
+             PRINTF("CMy_avg: %f \n",CMy_avg);
              
              // Integrate deltas
               
@@ -3384,29 +3462,30 @@ void UnsteadyStabilityAndControlSolve(void)
              CMy_damp = 0.;             
              CMz_damp = 0.;             
              
-             for ( p = 1 ; p <= VSP_VLM().NumberOfTimeSteps() ; p++ ) {
+             for ( p = VSP_VLM().NumberOfTimeSteps()/2 + 1 ; p <= VSP_VLM().NumberOfTimeSteps() ; p++ ) {
          
+                 pm  = p;
                  pm1 = p - 1;
                  
-                 if ( p == 1 ) pm1 = VSP_VLM().NumberOfTimeSteps();
+                 if ( p == VSP_VLM().NumberOfTimeSteps() ) pm1 = VSP_VLM().NumberOfTimeSteps()/2;
                  
-                 T = VSP_VLM().TimeStep() * 0.5 * (VSPAERO_DOUBLE) (2*p + 1);
+                 T = VSP_VLM().TimeStep() * 0.5 * (VSPAERO_DOUBLE) (2*(p-1) + 1);
                  
                  Theta = VSP_VLM().Unsteady_AngleRate() * T;
 
-                 CL_damp += 2.*( 0.5*(  VSP_VLM().CL_Unsteady(pm1) +  VSP_VLM().CL_Unsteady(p) ) -  CL_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
-                 CD_damp += 2.*( 0.5*(  VSP_VLM().CD_Unsteady(pm1) +  VSP_VLM().CD_Unsteady(p) ) -  CD_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
-                 CS_damp += 2.*( 0.5*(  VSP_VLM().CS_Unsteady(pm1) +  VSP_VLM().CS_Unsteady(p) ) -  CS_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
-                CFx_damp += 2.*( 0.5*( VSP_VLM().CFx_Unsteady(pm1) + VSP_VLM().CFx_Unsteady(p) ) - CFx_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
-                CFy_damp += 2.*( 0.5*( VSP_VLM().CFy_Unsteady(pm1) + VSP_VLM().CFy_Unsteady(p) ) - CFy_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
-                CFz_damp += 2.*( 0.5*( VSP_VLM().CFz_Unsteady(pm1) + VSP_VLM().CFz_Unsteady(p) ) - CFz_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
-                CMx_damp += 2.*( 0.5*( VSP_VLM().CMx_Unsteady(pm1) + VSP_VLM().CMx_Unsteady(p) ) - CMx_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
-                CMy_damp += 2.*( 0.5*( VSP_VLM().CMy_Unsteady(pm1) + VSP_VLM().CMy_Unsteady(p) ) - CMy_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
-                CMz_damp += 2.*( 0.5*( VSP_VLM().CMz_Unsteady(pm1) + VSP_VLM().CMz_Unsteady(p) ) - CMz_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
+                 CL_damp += 2.*( 0.5*(  VSP_VLM().CL_Unsteady(pm1) +  VSP_VLM().CL_Unsteady(pm) ) -  CL_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
+                 CD_damp += 2.*( 0.5*(  VSP_VLM().CD_Unsteady(pm1) +  VSP_VLM().CD_Unsteady(pm) ) -  CD_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
+                 CS_damp += 2.*( 0.5*(  VSP_VLM().CS_Unsteady(pm1) +  VSP_VLM().CS_Unsteady(pm) ) -  CS_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
+                CFx_damp += 2.*( 0.5*( VSP_VLM().CFx_Unsteady(pm1) + VSP_VLM().CFx_Unsteady(pm) ) - CFx_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
+                CFy_damp += 2.*( 0.5*( VSP_VLM().CFy_Unsteady(pm1) + VSP_VLM().CFy_Unsteady(pm) ) - CFy_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
+                CFz_damp += 2.*( 0.5*( VSP_VLM().CFz_Unsteady(pm1) + VSP_VLM().CFz_Unsteady(pm) ) - CFz_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
+                CMx_damp += 2.*( 0.5*( VSP_VLM().CMx_Unsteady(pm1) + VSP_VLM().CMx_Unsteady(pm) ) - CMx_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
+                CMy_damp += 2.*( 0.5*( VSP_VLM().CMy_Unsteady(pm1) + VSP_VLM().CMy_Unsteady(pm) ) - CMy_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
+                CMz_damp += 2.*( 0.5*( VSP_VLM().CMz_Unsteady(pm1) + VSP_VLM().CMz_Unsteady(pm) ) - CMz_avg ) * cos( Theta ) * VSP_VLM().TimeStep();
 
-             }    
+             }
                   
-              Fact = VSP_VLM().TimeStep() * VSP_VLM().NumberOfTimeSteps() * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180.;
+             Fact = 0.5 * VSP_VLM().TimeStep() * VSP_VLM().NumberOfTimeSteps() * VSP_VLM().ReducedFrequency() * VSP_VLM().Unsteady_AngleMax() * PI / 180.;
               
               CL_damp /= Fact;    
               CD_damp /= Fact;    
@@ -3614,7 +3693,7 @@ void Noise(void)
 void CalculateAerodynamicCenter(void)
 {
 
-    int i, j, k, p, ic, jc, kc;
+    int ic, jc, kc;
     VSPAERO_DOUBLE DeltaXcg;
     char StabFileName[2000];
     
@@ -3748,7 +3827,7 @@ void ComplexDiffTestSolve(void)
 
 #ifdef COMPLEXDIFF
 
-    int i, j, Case, NumCases;
+    int i, j, Case, NumCases, Iter;
     double Delta, dFdxyz[3];
     VSPAERO_DOUBLE *TempXYZ, Function;
     char TestFileName[2000];
@@ -3772,7 +3851,7 @@ void ComplexDiffTestSolve(void)
     
     if ( NumCases > 1 ) {
        
-       printf("Please choose a single Mach, AoA, Beta, and Re for complex diff test \n");
+       PRINTF("Please choose a single Mach, AoA, Beta, and Re for complex diff test \n");
        fflush(NULL);
        exit(1);
        
@@ -3804,106 +3883,125 @@ void ComplexDiffTestSolve(void)
        
     }
    
-    for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=1 ) {
-//for ( i = 273 ; i <= 273 ; i+=1 ) {
-       
-        PRINTF("\n\n\n\n Working on node %d of %d \n\n\n\n\n",i,VSP_VLM().VSPGeom().Grid(0).NumberOfNodes()); fflush(NULL);
+   // for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=1 ) {
+//    for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=17 ) {
 
-        // X
-
-        for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
-        
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j   ];
-           
-        }
-                
-        Case++;
-           
-        Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).x());
-
-        VSP_VLM().VSPGeom().UpdateMeshes();
-        
-        VSP_VLM().Solve(Case);
-
-        VSP_VLM().OptimizationFunction(Function);
-       
-        dFdxyz[0] = CALCULATE_COMPLEX_DIFF_FOR_FUNCTION(Function,Delta);
+    i = 1;
+    Iter = 1;
+    
+    while ( i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ) {
+    
+       PRINTF("\n\n\n\n Working on node %d of %d \n\n\n\n\n",i,VSP_VLM().VSPGeom().Grid(0).NumberOfNodes()); fflush(NULL);
       
-        ZERO_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).x());
+       // X
+      
+       for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+       
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j   ];
+          
+       }
+               
+       Case++;
+          
+       Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).x());
+      
+       VSP_VLM().VSPGeom().UpdateMeshes();
+       
+       VSP_VLM().Solve(Case);
+      
+       VSP_VLM().OptimizationFunction(Function);
+      
+       dFdxyz[0] = CALCULATE_COMPLEX_DIFF_FOR_FUNCTION(Function,Delta);
+      
+       ZERO_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).x());
+      
+       // Y
+      
+       for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+       
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j   ];
+          
+       }
+                  
+       Case++;
+          
+       Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).y());
+      
+       VSP_VLM().VSPGeom().UpdateMeshes();
+      
+       VSP_VLM().Solve(Case);
+      
+       VSP_VLM().OptimizationFunction(Function);
+       
+       dFdxyz[1] = CALCULATE_COMPLEX_DIFF_FOR_FUNCTION(Function,Delta);        
+       
+       ZERO_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).y());
+      
+       // Z
+      
+       for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+       
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j   ];
+          
+       }
+                  
+       Case++;
+       
+       if ( i == VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ) Case = -1;
+          
+       Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).z());
+       
+       VSP_VLM().VSPGeom().UpdateMeshes();
+      
+       VSP_VLM().Solve(Case);
+      
+       VSP_VLM().OptimizationFunction(Function);
+       
+       dFdxyz[2] = CALCULATE_COMPLEX_DIFF_FOR_FUNCTION(Function,Delta);
+        
+       ZERO_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).z());
+      
+       for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
+       
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
+          VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j   ];
+          
+       }
+            
+       // Output results
+                       
+       FPRINTF(ComplexStepFile,"%d %10.6e %10.6e %10.6e    %10.6e %10.6e %10.6e \n",
+        i,
+        VSP_VLM().VSPGeom().Grid(0).NodeList(i).x(),
+        VSP_VLM().VSPGeom().Grid(0).NodeList(i).y(),
+        VSP_VLM().VSPGeom().Grid(0).NodeList(i).z(),
+        dFdxyz[0],
+        dFdxyz[1],
+        dFdxyz[2]);
+        
+       fflush(NULL);
+        
+     //if ( Iter == 1 ) {
+     //   
+     //   i += 8; Iter = 2;
+     //      
+     //}
+     //
+     //else if ( Iter == 2 ) {
+     //   
+     //   i += 9; Iter = 1;
+     //      
+     //}
+      
+      i++;
 
-        // Y
-
-        for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
-        
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j   ];
-           
-        }
-                   
-        Case++;
-           
-        Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).y());
-
-        VSP_VLM().VSPGeom().UpdateMeshes();
-  
-        VSP_VLM().Solve(Case);
-
-        VSP_VLM().OptimizationFunction(Function);
-        
-        dFdxyz[1] = CALCULATE_COMPLEX_DIFF_FOR_FUNCTION(Function,Delta);        
-        
-        ZERO_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).y());
-
-        // Z
-
-        for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
-        
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j   ];
-           
-        }
-                   
-        Case++;
-        
-        if ( i == VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ) Case = -1;
-           
-        Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).z());
-        
-        VSP_VLM().VSPGeom().UpdateMeshes();
- 
-        VSP_VLM().Solve(Case);
-
-        VSP_VLM().OptimizationFunction(Function);
-        
-        dFdxyz[2] = CALCULATE_COMPLEX_DIFF_FOR_FUNCTION(Function,Delta);
-         
-        ZERO_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).z());
-
-        for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
-        
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).x() = TempXYZ[3*j-2];
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).y() = TempXYZ[3*j-1];
-           VSP_VLM().VSPGeom().Grid(0).NodeList(j).z() = TempXYZ[3*j   ];
-           
-        }
-             
-        // Output results
-                        
-        FPRINTF(ComplexStepFile,"%d %10.6e %10.6e %10.6e    %10.6e %10.6e %10.6e \n",
-         i,
-         VSP_VLM().VSPGeom().Grid(0).NodeList(i).x(),
-         VSP_VLM().VSPGeom().Grid(0).NodeList(i).y(),
-         VSP_VLM().VSPGeom().Grid(0).NodeList(i).z(),
-         dFdxyz[0],
-         dFdxyz[1],
-         dFdxyz[2]);
-         
-         fflush(NULL);
-        
     }
 
 #endif
@@ -3945,7 +4043,7 @@ void FiniteDiffTestSolve(void)
     
     if ( NumCases > 1 ) {
        
-       printf("Please choose a single Mach, AoA, Beta, and Re for complex diff test \n");
+       PRINTF("Please choose a single Mach, AoA, Beta, and Re for complex diff test \n");
        fflush(NULL);
        exit(1);
        

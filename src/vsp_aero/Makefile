@@ -28,6 +28,7 @@ config.mk:
 
 options:
 	@echo VSPAERO build options:
+	@echo "CC = $(CC)"
 	@echo "CXX = $(CXX)"
 	@echo "SOLVER_CXXFLAGS = $(SOLVER_CXXFLAGS)"
 	@echo "SOLVER_LDFLAGS = $(SOLVER_LDFLAGS)"
@@ -93,6 +94,9 @@ clean:
 	$(MAKE) -C Viewer clean
 	$(MAKE) -C Adb2Load clean
 
+interface: vspaero_opt
+	CC=$(CC) CXX=$(CXX) CFLAGS="$(SOLVER_CXXFLAGS) $(OPENMP_CXXFLAGS)" LDFLAGS="$(SOLVER_LDFLAGS) $(OPENMP_LDFLAGS)" $(PIP) install -e . --verbose
+
 # test_wing: vspaero vspaero_adjoint
 # 	@cd TestCases/Wing && \
 # 	../../Solver/vspaero -opt -omp 4 -optfunction 1 hershey > vspaero.stdout && \
@@ -107,4 +111,4 @@ clean:
 
 # test: test_wing test_rotor
 
-.PHONY: options docs all vspaero vspaero_adjoint vspaero_complex vspaero_opt viewer install uninstall clean test_wing test_rotor test
+.PHONY: options docs all vspaero vspaero_adjoint vspaero_complex vspaero_opt viewer install uninstall clean test_wing test_rotor test interface

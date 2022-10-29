@@ -63,6 +63,8 @@ void VORTEX_SHEET::init(void)
     
     CoreSize_ = 0.;
     
+    CoreSizeFactor_ = 1.;
+    
     Distance_ = 0.;
     
     TrailingGamma_ = NULL;
@@ -104,6 +106,10 @@ void VORTEX_SHEET::init(void)
     IsARotor_ = 0;
     
     FreezeWakeGeoemtry_ = 0;
+    
+    OptimizationSolve_ = 0;
+    
+    Is2D_ = 0;
     
 }
 
@@ -172,6 +178,8 @@ VORTEX_SHEET& VORTEX_SHEET::operator=(const VORTEX_SHEET &VortexSheet)
     ThereAreChildren_         = VortexSheet.ThereAreChildren_;
     
     CoreSize_                 = VortexSheet.CoreSize_;
+    
+    CoreSizeFactor_           = VortexSheet.CoreSizeFactor_;
     
     Distance_                 = VortexSheet.Distance_;
 
@@ -292,7 +300,11 @@ VORTEX_SHEET& VORTEX_SHEET::operator+=(const VORTEX_SHEET &VortexSheet)
 
     IsPeriodic_               = VortexSheet.IsPeriodic_;
     
+    Is2D_                     = VortexSheet.Is2D_;
+    
     Level_                    = VortexSheet.Level_;
+    
+    SheetID_                  = VortexSheet.SheetID_;
      
     NumberOfLevels_           = VortexSheet.NumberOfLevels_;
 
@@ -304,10 +316,18 @@ VORTEX_SHEET& VORTEX_SHEET::operator+=(const VORTEX_SHEET &VortexSheet)
 
     TimeAccurate_             = VortexSheet.TimeAccurate_;
     
+    OptimizationSolve_        = VortexSheet.OptimizationSolve_;
+    
     TimeAnalysisType_         = VortexSheet.TimeAnalysisType_;
- 
+    
     DoGroundEffectsAnalysis_  = VortexSheet.DoGroundEffectsAnalysis_;
     
+    CurrentTimeStep_          = VortexSheet.CurrentTimeStep_;    
+ 
+    IsARotor_                 = VortexSheet.IsARotor_;
+    
+    FreezeWakeGeoemtry_       = VortexSheet.FreezeWakeGeoemtry_;
+   
     Vinf_                     = VortexSheet.Vinf_;
     
     FreeStreamVelocity_[0]    = VortexSheet.FreeStreamVelocity_[0];
@@ -318,19 +338,19 @@ VORTEX_SHEET& VORTEX_SHEET::operator+=(const VORTEX_SHEET &VortexSheet)
 
     TimeStep_                 = VortexSheet.TimeStep_;
    
-    CurrentTimeStep_          = VortexSheet.CurrentTimeStep_;
-   
-    ThereAreChildren_         = VortexSheet.ThereAreChildren_;
-    
     CoreSize_                 = VortexSheet.CoreSize_;
+    
+    CoreSizeFactor_           = VortexSheet.CoreSizeFactor_;
     
     Distance_                 = VortexSheet.Distance_;
 
+    Evaluate_                 = VortexSheet.Evaluate_;
+        
+    ThereAreChildren_         = VortexSheet.ThereAreChildren_;
+
     Span_                     = VortexSheet.Span_;
 
-    Evaluate_                 = VortexSheet.Evaluate_;
-    
-    IsARotor_                 = VortexSheet.IsARotor_;
+    TEBox_                    = VortexSheet.TEBox_;    
     
     // Trailing vortex list
 
@@ -530,6 +550,8 @@ VORTEX_SHEET::~VORTEX_SHEET(void)
     CurrentTimeStep_ = 0;
     
     CoreSize_ = 0.;
+    
+    CoreSizeFactor_ = 1.;
     
     Distance_ = 0.;
     
@@ -997,13 +1019,16 @@ void VORTEX_SHEET::SetupPlanarVortexSheets(void)
     
     CoreSize_ /= NumberOfTrailingVortices_;
 
-    CoreSize_ = 2.*sqrt(CoreSize_); 
+    CoreSize_ = sqrt(CoreSize_); 
 
     if ( IsARotor_ ) CoreSize_ *= 1.5; // Rotors are hard ;-)
     
-    if ( Verbose_ ) printf("CoreSize_: %f \n",CoreSize_);
+    // User adjustment factor for core size
     
- 
+    CoreSize_ *= CoreSizeFactor_;
+    
+    if ( Verbose_ ) printf("CoreSize_: %f \n",CoreSize_);
+     
 }
 
 /*##############################################################################
@@ -1247,14 +1272,22 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
     
     for ( j = 1 ; j <= NumberOfTrailingVortices_ ; j++ ) {
        
-       CoreSize_ += pow(2.*TrailingVortexList_[j]->Sigma(),2.);
-       
+       CoreSize_ += pow(TrailingVortexList_[j]->Sigma(),2.);
+
     }
     
     CoreSize_ /= NumberOfTrailingVortices_;
     
     CoreSize_ = sqrt(CoreSize_);
+    
+    if ( IsARotor_ ) CoreSize_ *= 1.5; // Rotors are hard ;-)
+    
+    // User adjustment factor for core size
+    
+    CoreSize_ *= CoreSizeFactor_;
 
+    if ( Verbose_ ) printf("CoreSize_: %f \n",CoreSize_);
+    
 }
 
 /*##############################################################################
@@ -1451,7 +1484,7 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
  
     if ( TimeAccurate_ ) {
        
-       NumSubVorticesMax = MIN(CurrentTimeStep_ , NumberOfSubVortices());
+       NumSubVorticesMax = MIN(CurrentTimeStep_ + 1, NumberOfSubVortices());
 
        // Zero out starting vortices
        
@@ -1474,9 +1507,9 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
           for ( j = 1 ; j <= NumSubVorticesMax ; j++ ) {
    
              StartingGamma_[i][j] = StartingGamma_[i-1][j] + TrailingGamma_[i][j];
-   
+      
           }
-          
+
        }  
      
        // Now calculate delta-gammas
@@ -1816,13 +1849,13 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
        else {
           
           NumVortices = MIN( CurrentTimeStep_ + 1, NumberOfSubVortices());
-    
+
           if ( VortexSheet->Level() > VortexSheet->VortexTrail1().Evaluate() ) {
  
              for ( j = 0 ; j <= NumVortices + 1 ; j++ ) {
                 
                 VortexSheet->VortexTrail1().Gamma(j) = VortexSheet->TrailingGamma1(j);
-                                  
+                          
              }
                      
              VortexSheet->VortexTrail1().Evaluate() = VortexSheet->Level();
@@ -1880,10 +1913,12 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
     q[1] = V;
     q[2] = W;   
     
+    if ( Is2D_ ) q[0] = q[1] = q[2] = 0.;
+    
     // If this is an unsteady solution, we have to evaluate the starting
     // vortices for all the previous time steps
 
-    if ( TimeAccurate_ ) {
+    if ( TimeAccurate_ && !OptimizationSolve_ ) {
 
        // Start at the coarsest level
        
@@ -2030,7 +2065,7 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
           // Don't do self induced velocities                     
 
           if ( Dist >= 0.5*TrailingVortexList_[i]->Sigma() ) AgglomeratedTrailingVortexList_[++NumberOfAgglomeratedTrailingVortices_] = TrailingVortexList_[i];
-          
+
        }
        
     }    
@@ -2055,10 +2090,12 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
     q[1] = V;
     q[2] = W;   
     
+    if ( Is2D_ ) q[0] = q[1] = q[2] = 0.;
+    
     // If this is an unsteady solution, we have to evaluate the starting
     // vortices for all the previous time steps
 
-    if ( TimeAccurate_ ) {
+    if ( TimeAccurate_ && !OptimizationSolve_ ) {
 
        // Start at the coarsest level
 
@@ -2243,7 +2280,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *
     // If this is an unsteady solution, we have to evaluate the starting
     // vortices for all the previous time steps
 
-    if ( TimeAccurate_ ) {
+    if ( TimeAccurate_ && !OptimizationSolve_ ) {
 
        // Loop over the vortex sheets for the finest level
 
@@ -2276,6 +2313,8 @@ void VORTEX_SHEET::InducedKuttaVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *
        
     }       
   
+    if ( Is2D_ ) q[0] = q[1] = q[2] = 0.;
+  
 }
 
 /*##############################################################################
@@ -2291,8 +2330,6 @@ void VORTEX_SHEET::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
     VSPAERO_DOUBLE U, V, W, dq[3];
     VORTEX_TRAIL *TrailingVortex;
     VORTEX_SHEET *VortexSheet;
-
-    PAUSE_AUTO_DIFF();
 
     // Zero evaluation level and initialize trailing and shed vortex gammas
 
@@ -2351,7 +2388,7 @@ void VORTEX_SHEET::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
     // If this is an unsteady solution, we have to evaluate the starting
     // vortices for all the previous time steps
 
-    if ( TimeAccurate_ ) {
+    if ( TimeAccurate_ && !OptimizationSolve_ ) {
 
        // Start at the coarsest level
        
@@ -2371,11 +2408,11 @@ void VORTEX_SHEET::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
        
     }    
 
-    CONTINUE_AUTO_DIFF();
-    
     q[0] = U;
     q[1] = V;
     q[2] = W;   
+
+    if ( Is2D_ ) q[0] = q[1] = q[2] = 0.;
     
 }
 
@@ -2462,7 +2499,7 @@ void VORTEX_SHEET::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3],
     // If this is an unsteady solution, we have to evaluate the starting
     // vortices for all the previous time steps
 
-    if ( TimeAccurate_ ) {
+    if ( TimeAccurate_ && !OptimizationSolve_  ) {
 
        // Loop over the vortex sheets for the finest level
 
@@ -2485,6 +2522,8 @@ void VORTEX_SHEET::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3],
     q[0] = U;
     q[1] = V;
     q[2] = W;   
+
+    if ( Is2D_ ) q[0] = q[1] = q[2] = 0.;
     
 }
 
@@ -2579,7 +2618,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE 
     // If this is an unsteady solution, we have to evaluate the starting
     // vortices for all the previous time steps
 
-    if ( TimeAccurate_ ) {
+    if ( TimeAccurate_ && !OptimizationSolve_  ) {
 
        // Loop over the vortex sheets for the finest level
 
@@ -2607,6 +2646,8 @@ void VORTEX_SHEET::InducedKuttaVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE 
     q[0] = U;
     q[1] = V;
     q[2] = W;   
+
+    if ( Is2D_ ) q[0] = q[1] = q[2] = 0.;
     
 }
 
@@ -2909,6 +2950,53 @@ void VORTEX_SHEET::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *
        if ( ComponentInThisGroup[TrailingVortexList_[i]->ComponentID()] ) {
           
            TrailingVortexList_[i]->UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
+           
+           UpdatedGeometry = 1;
+           
+       }
+       
+    }
+
+    // Update bound vortices
+    
+    if ( UpdatedGeometry ) {
+       
+       for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
+          
+          for ( i = 1 ; i <= NumberOfVortexSheetsForLevel_[Level] ; i++ ) {
+             
+             VortexSheetListForLevel_[Level][i].CurrentTimeStep() = CurrentTimeStep_;
+       
+             VortexSheetListForLevel_[Level][i].UpdateGeometryLocation();
+       
+          }
+          
+       }
+       
+    }
+  
+}
+
+/*##############################################################################
+#                                                                              #
+#              VORTEX_SHEET UpdateTrailingEdgeGeometryLocation                 #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_SHEET::UpdateTrailingEdgeGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup)
+{
+   
+    int i, Level, UpdatedGeometry;
+   
+    // Update each trailing wake shape
+    
+    UpdatedGeometry = 0;
+    
+    for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+ 
+       if ( ComponentInThisGroup[TrailingVortexList_[i]->ComponentID()] ) {
+          
+           TrailingVortexList_[i]->UpdateTrailingEdgeGeometryLocation(TVec, OVec, Quat, InvQuat);
            
            UpdatedGeometry = 1;
            

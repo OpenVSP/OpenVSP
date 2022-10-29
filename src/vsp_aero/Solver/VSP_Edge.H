@@ -88,7 +88,6 @@ private:
     VSPAERO_DOUBLE MinCoreWidth_;
     VSPAERO_DOUBLE CoreWidth_;
     VSPAERO_DOUBLE SuperSonicCoreWidth_;
-    VSPAERO_DOUBLE FreeStreamDirection_[3];
 
     // Vortex solution data
     

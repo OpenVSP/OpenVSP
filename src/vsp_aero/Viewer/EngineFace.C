@@ -317,7 +317,7 @@ void ENGINE_FACE::CalculateNozzleGeometry(void)
 {
  
     int i;
-    double DTheta, Theta, s[3], t[3], r[3], mag, XYZo[3], XYZp[3];
+    double DTheta, Theta, t[3], r[3], mag;
     QUAT Quat, InvQuat, Vec1, Vec2, Vec3;
     
     // Random vector

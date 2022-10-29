@@ -54,7 +54,6 @@ private:
     int FineGridEdge_;
     
     double Forces_[3];
-    double Trefftz_Forces_[3];
 
 public:
 

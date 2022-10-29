@@ -231,7 +231,7 @@ void QUAD_TREE::InitializeTree(VSPAERO_DOUBLE X_min, VSPAERO_DOUBLE X_max,
     
     else {
        
-       printf("Unknown quadtree plane type! \n");fflush(NULL);
+       PRINTF("Unknown quadtree plane type! \n");fflush(NULL);
        exit(1);
        
     }
@@ -359,7 +359,7 @@ void QUAD_TREE::ClearTree(void)
 int QUAD_TREE::InsertPoint(VSPAERO_DOUBLE xyzp[3], int SurfaceEdge)
 {
    
-    int Done, Cell, i, j, k, Inserted, Found, Child, Neighbor;
+    int Done, Cell, i, Inserted, Found, Child;
     VSPAERO_DOUBLE xyz[3], Distance, Tolerance;
     
     Tolerance = 1.e-2;
@@ -479,7 +479,7 @@ int QUAD_TREE::InsertPoint(VSPAERO_DOUBLE xyzp[3], int SurfaceEdge)
              
           }
           
-          if ( Found == 0 ) { printf("wtf! \n"); exit(1); };
+          if ( Found == 0 ) { PRINTF("wtf! \n"); exit(1); };
           
           // Move onto child cell
           
@@ -587,7 +587,7 @@ int QUAD_TREE::InsideQuad(int Cell, VSPAERO_DOUBLE xyz[3])
 void QUAD_TREE::BufferTree(int Level)
 {
    
-   int i, j, k,edge, NeighborCell, NumCells, Split;
+   int i, j, k,edge, NumCells, Split;
 
    //for ( k = 1 ; k <= 1 ; k++ ) {
    //   
@@ -761,7 +761,7 @@ void QUAD_TREE::SplitCell(int Cell)
 
           if ( EdgeList_[Edge].Cell(0) != Cell && EdgeList_[Edge].Cell(1) != Cell ) {
              
-             printf("wtf! \n");fflush(NULL);
+             PRINTF("wtf! \n");fflush(NULL);
              exit(1);
              
           }
@@ -780,7 +780,7 @@ void QUAD_TREE::SplitCell(int Cell)
        
        else if ( NeighborCell < 0 ) {
           
-          printf("wtf! NeighborCell: %d \n",NeighborCell);
+          PRINTF("wtf! NeighborCell: %d \n",NeighborCell);
           fflush(NULL);
           exit(1);
           
@@ -1239,7 +1239,7 @@ void QUAD_TREE::SplitCell(int Cell)
        
        if ( !Inserted ) {
           
-          printf("wtf ... not inserted int one of the children! \n");fflush(NULL);exit(1);
+          PRINTF("wtf ... not inserted int one of the children! \n");fflush(NULL);exit(1);
           
        }
        

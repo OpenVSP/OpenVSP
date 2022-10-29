@@ -2,11 +2,12 @@ PREFIX ?= $(CONDA_PREFIX)
 BINDIR ?= $(PREFIX)/bin
 LIBDIR ?= $(PREFIX)/lib
 
-# C++ compiler
+# C and C++ compiler
+CC = clang
 CXX = clang++
 
 # These are extra CXXFLAGS and LDFLAGS specific to building the code under `Solver/`.
-SOLVER_CXXFLAGS = -std=c++11 -O3 -funroll-loops -Wno-unused -Wno-format-security -Wno-error=non-pod-varargs
+SOLVER_CXXFLAGS = -fPIC -std=c++11 -O3 -funroll-loops -Wno-unused -Wno-format-security -Wno-error=non-pod-varargs
 SOLVER_LDFLAGS =
 ARFLAGS = rcs
 
@@ -39,3 +40,6 @@ FLTK_LDFLAGS ?= -L$(FLTK_DIR)/lib/ -lfltk -lfltk_gl -framework OpenGL -Wl,-rpath
 
 # Doxygen is needed to compile the docs
 DOXYGEN = doxygen
+
+# Needed to install python interface
+PIP = pip

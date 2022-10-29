@@ -12,10 +12,15 @@
 #include <string.h>
 #include <sys/types.h>
 #include <algorithm>
+#include <fcntl.h>
 
 #ifndef WIN32
 #include <sys/wait.h>
 #include <unistd.h>
+#else
+#define open            _open
+#define O_WRONLY        _O_WRONLY
+#define close           _close
 #endif
 
 #include "VSPAERO_TYPES.H"
@@ -88,9 +93,6 @@ private:
     double Xcg_;
     double Ycg_;
     double Zcg_;
-    double Cl_;
-    double Cd_;
-    double Cm_;
     double Mach_;
     double AoA_;
     double Beta_;
@@ -104,12 +106,12 @@ private:
     double MaxTurningAngle_;
     double FarDist_;
     double TimeStep_;
-    double ReducedFrequency_;
-    double UnsteadyAngleMax_;
-    double UnsteadyHMax_;     
     double HeightAboveGround_;
     double BladeRPM_;
-    
+    double WakeRelax_;
+    double GMRESReductionFactor_;
+    double CoreSizeFactor_;
+        
     // Number of Machs, AoAs, and Betas
     
     int NumberOfMachs_;
@@ -128,73 +130,6 @@ private:
     
     int NumberOfControlGroups_;
     VSPAERO_SOLVER::CONTROL_SURFACE_GROUP *ControlSurfaceGroup_;
-    
-    // Stability and control Mach, AoA, and Beta Lists
-    
-    double Stab_MachList_[MAXRUNCASES];
-    double  Stab_AoAList_[MAXRUNCASES];
-    double Stab_BetaList_[MAXRUNCASES];
-    
-    // Stability Rotational rates list
-    
-    double RotationalRate_pList_[MAXRUNCASES];
-    double RotationalRate_qList_[MAXRUNCASES];
-    double RotationalRate_rList_[MAXRUNCASES];
-    
-    // Deltas for calculating derivaties
-    
-    double Delta_AoA_;
-    double Delta_Beta_;
-    double Delta_Mach_;
-    double Delta_P_;
-    double Delta_Q_;
-    double Delta_R_;
-    double Delta_Control_;
-    
-    // Raw stability data
-    
-    double CFxForCase[MAXRUNCASES];
-    double CFyForCase[MAXRUNCASES];
-    double CFzForCase[MAXRUNCASES];
-    
-    double CMxForCase[MAXRUNCASES];
-    double CMyForCase[MAXRUNCASES];
-    double CMzForCase[MAXRUNCASES];
-    
-    double CLForCase[MAXRUNCASES];
-    double CDForCase[MAXRUNCASES];
-    double CSForCase[MAXRUNCASES];
-    
-    double CDtForCase[MAXRUNCASES];
-    
-    double CMlForCase[MAXRUNCASES];
-    double CMmForCase[MAXRUNCASES];
-    double CMnForCase[MAXRUNCASES];
-    
-    double CDoForCase[MAXRUNCASES];
-    
-    double OptimizationFunctionForCase[MAXRUNCASES];
-    
-    // Stability derivatives
-    
-    double dCFx_wrt[MAXRUNCASES];
-    double dCFy_wrt[MAXRUNCASES];
-    double dCFz_wrt[MAXRUNCASES];
-    
-    double dCMx_wrt[MAXRUNCASES];
-    double dCMy_wrt[MAXRUNCASES];
-    double dCMz_wrt[MAXRUNCASES];
-    
-    double dCL_wrt[MAXRUNCASES];
-    double dCD_wrt[MAXRUNCASES];
-    double dCS_wrt[MAXRUNCASES];
-    
-    double dCMl_wrt[MAXRUNCASES];
-    double dCMm_wrt[MAXRUNCASES];
-    double dCMn_wrt[MAXRUNCASES];
-    
-    FILE *StabFile;
-    FILE *VorviewFlt;
     
     int WakeIterations_                ;
     int NumberOfRotors_                ;
@@ -257,6 +192,8 @@ private:
     
     double *TempArray_[3];
 
+    int stdoutfd;
+
     void ShiftInputVector(double *Vec1, double *Vec2, int Length);
     void ShiftOutputVector(double *Vec1, double *Vec2, int Length);
 
@@ -266,13 +203,23 @@ public:
    ~VSP_OPTIMIZER(void);
     VSP_OPTIMIZER(const VSP_OPTIMIZER &Optimizer);
 
+    /** Activate/deactivate the Adept stack in case we may be running multiple optimizer insatances**/
+    void ActivateAutoDiffStack(void) { AutoDiffStack.activate(); };
+    void DeactivateAutoDiffStack(void) { AutoDiffStack.deactivate(); };
+
     /** Set the number of CPU threads used by OPENMP in forward solve **/
     
     int &NumberOfThreads(void) { return NumberOfThreads_; };
+    // Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values
+    int GetNumberOfThreads(void) { return NumberOfThreads_; };
+    void SetNumberOfThreads(int i) { NumberOfThreads_ = i; };
     
     /** Tell the solvers this is an unsteady, time accurate, solve **/
     
     int &DoUnsteadyAnalysis(void) { return DoUnsteadyAnalysis_; };
+    // Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values
+    int GetUnsteadyAnalysis(void) { return DoUnsteadyAnalysis_; };
+    void SetUnsteadyAnalysis(int i) { DoUnsteadyAnalysis_ = i; };
     
     /** Number of mesh nodes **/
     
@@ -289,6 +236,9 @@ public:
     /** Set number of optimization functions.. ie, CL, CD, CT, SpanLoading **/
     
     int &NumberOfOptimizationFunctions(void) { return NumberOfOptimizationFunctions_; };
+    // Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values
+    int GetNumberOfOptimizationFunctions(void) { return NumberOfOptimizationFunctions_; };
+    void SetNumberOfOptimizationFunctions(int n) { NumberOfOptimizationFunctions_ = n; };
  
     /** Set the Optimization function for case i
      * 
@@ -318,10 +268,14 @@ public:
      **/
              
     int &OptimizationFunction(int Case) { return OptimizationFunction_[Case]; };
-
+    // Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values
+    int GetOptimizationFunction(int Case) { return OptimizationFunction_[Case]; };
+    void SetOptimizationFunction(int Case, int Value) { OptimizationFunction_[Case] = Value; };
     /** Set the optimization set, this may be the wing set, or rotor set **/
     
     int &OptimizationSet(int Case) { return OptimizationSet_[Case]; };
+    int GetOptimizationSet(int Case) { return OptimizationSet_[Case]; };
+    void SetOptimizationSet(int Case, int Value) { OptimizationSet_[Case] = Value; };
         
     /** Get function length for optimization function # Case...  **/
     
@@ -335,19 +289,117 @@ public:
     
     void Setup(char *FileName);
     
+    /** Set the free stream Mach number ***/
+    
+    void SetMachNumber(double Mach);
+    
+    /** Set the free stream angle of attack **/
+    
+    void SetAoADegrees(double Alpha);
+    
+    /*** Set free stream side slip angle ***/
+    
+    void SetBetaDegrees(double Beta);
+    
+    /** Set free stream velocity **/
+    
+    void SetVinf(double Vinf);
+    
+    /** Set free stream density **/
+    
+    void SetDensity(double Density);
+    
+    /** Set Reynold's number based on Cref **/
+    
+    void SetReCref(double ReCref);
+    
+    /** Set roll rate about x axis **/
+    
+    void SetRotationalRate_p(double P);
+    
+    /** Set roll rate about y axis ***/
+    
+    void SetRotationalRate_q(double Q);
+    
+    /** Set roll rate about z axis **/
+    
+    void SetRotationalRate_r(double R);
+    
+    /** Set wing reference area **/
+    
+    void SetSref(double Sref);
+    
+    /** Set wing reference chord **/
+    
+    void SetCref(double Cref);
+    
+    /** Set wing reference span **/
+    
+    void SetBref(double Bref);
+    
+    /** Set wing X cg location **/
+    
+    void SetXcg(double Xcg);
+    
+    /** Set wing Y cg location **/
+    
+    void SetYcg(double Ycg);
+    
+    /** Set wing Z cg location **/
+    
+    void SetZcg(double Zcg);
+    
+    /** Set 2D CLo offset for viscous drag estimates on wings 
+     * Ie... Cdvisc ~ k*(Cl-Clo2D)^2 ... hence Clo2D allows the
+     * user to offset the minimum viscous profile drag for lifting
+     * surfaces to a non zero (local/2d) Cl **/
+    
+    void SetClo2D(double Clo2D);
+    
+    /** Set 2D ClMax limit flag 
+     * if ClMax <  0.   ... no ClMax limit applied 
+     * if ClMax >= 0.   ... ClMax is the 2D ClMax limit for wing sectional Cl's 
+     * if ClMax == -999 ... ClMax limited is calculated internally to the code based
+     * on the local Re number (based on ReCref and the local chord) and a limit
+     * local Mach number based loosely on Carlson's methods **/
+    
+    void SetClMax(double ClMax);
+    
+    /** Set number of wake iterations **/
+    
+    void SetWakeIterations(int WakeIterations);
+    
+    /** Set number of wake nodes, this must be a power of 2... ie 32, 64, 128 ... **/
+    
+    void SetNumWakeNodes(int NumWakeNodes);
+    
+    /** Set wake far distance ... this is the distance from the trailing edge that is in the adapted wake region **/
+    
+    void SetFarDist(double FarDist);
+
+    /** Set tolerance factor for GMRES solver, this scales the default residual reduction
+     * ie... ResidualReduction = DefaultResidualReduction * User_GMRES_ToleranceFactor_**/
+
+    void SetGMRESToleranceFactor(double tolFactor);
+    
+    /** Set the symmetry flag 
+     * N ~ no symmetry
+     * X ~ symmetry about X = 0
+     * Y ~ symmetry about Y = 0
+     * Z ~ symmetry about Z = 0
+     * 
+     **/
+
     /** Solve both the forward solve and adjoint problem **/
     
     void Solve(void);
-    
-    /** Solve both the forward solver and the adjoint with a user supplied gradient vector.. Vec is of length FunctionLength **/
-    
-    void Solve(double *Vec);    
-    
+
     /** Solve the forward problem **/
     
     void SolveForward(void);
     
-    /** Set any user supplied initial gradient vectors **/
+    /** Set any user supplied initial gradient vectors ... this should be called after SolveForward() and before SolveAdjoint() 
+     * partly because you will need to know the length for Vec and you won't until you run the forward solve ... **/
     
     void SetGradientVector(int Case, double *Vec);
         
@@ -399,6 +451,14 @@ public:
     
     void GetFunctionGradients(int p, int Time, double *Gradients);
 
+    /** Component ID of node i **/
+    
+    int NodeComponentID(int i) { return Solver().VSPGeom().Grid(0).NodeList(i + ArrayOffSet_).ComponentID(); };
+    
+    /** Surface ID of node i **/
+    
+    int NodeSurfaceID(int i) { return Solver().VSPGeom().Grid(0).NodeList(i + ArrayOffSet_).SurfaceID(); };
+    
     /** X coordinate of node i **/
     
     double NodeX(int i) { return Solver().VSPGeom().Grid(0).NodeList(i + ArrayOffSet_).x(); };
@@ -479,6 +539,11 @@ public:
     /** Write out a cart3d tri file **/
     
     void WriteOutCart3dTriFile(void) { Solver().WriteOutCart3dTriFile(); };
+
+    /** Supress/resume stdout **/
+
+    void SupressStdout(void);
+    void ResumeStdout(void);
 
 };
 

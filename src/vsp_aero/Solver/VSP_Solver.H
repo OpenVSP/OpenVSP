@@ -190,6 +190,7 @@ private:
     int PanelSpanWiseLoading_;
     int AveragingHasStarted_;
     int NumberOfAveragingSets_;
+    int FlowIs2D_;
     
     VSPAERO_DOUBLE SigmaAvg_;
     VSPAERO_DOUBLE TimeStep_;
@@ -240,6 +241,12 @@ private:
     int DoSymmetryPlaneSolve_;
 
     int Preconditioner_;
+    
+    VSPAERO_DOUBLE User_GMRES_ToleranceFactor_;
+    
+    VSPAERO_DOUBLE WakeRelax_;
+    
+    VSPAERO_DOUBLE CoreSizeFactor_;
 
     VSPAERO_DOUBLE *Gamma_[3];
     VSPAERO_DOUBLE &Gamma(int i) { return Gamma_[0][i]; };
@@ -326,13 +333,15 @@ private:
     VSPAERO_DOUBLE MaxTurningAngle_;
     VSPAERO_DOUBLE Clo_2d_;
     VSPAERO_DOUBLE Clmax_2d_;
-    VSPAERO_DOUBLE CFxo_;
-    VSPAERO_DOUBLE CFyo_;
-    VSPAERO_DOUBLE CFzo_;
+    VSPAERO_DOUBLE CFxo_[3];
+    VSPAERO_DOUBLE CFyo_[3];
+    VSPAERO_DOUBLE CFzo_[3];
+    VSPAERO_DOUBLE CLo_[3];
+    VSPAERO_DOUBLE CSo_[3];
     VSPAERO_DOUBLE CDo_[3];
-    VSPAERO_DOUBLE CMxo_;
-    VSPAERO_DOUBLE CMyo_;
-    VSPAERO_DOUBLE CMzo_;
+    VSPAERO_DOUBLE CMxo_[3];
+    VSPAERO_DOUBLE CMyo_[3];
+    VSPAERO_DOUBLE CMzo_[3];
     
     // Span loading data
 
@@ -489,7 +498,7 @@ private:
     int OptimizationCase_;
     int DoAdjointSolve_;
     int OptimizationSolve_;    
-    int AdjointSolve_;    
+    int AdjointMatrixSolve_;    
     int FreezeMeshGradients_;
     
     OPTIMIZATION_FUNCTION OptimizationFunctionList_[1001];   
@@ -573,6 +582,7 @@ private:
     int NodeIsInsideLoop(VSP_LOOP &Loop, VSPAERO_DOUBLE xyz[3]);
 
     int FirstTimeSetup_;
+    int FirstTimeGradientSetup_;
     int MaxStackSize_;
     int ***EdgeIsUsed_;    
     int *SearchID_;
@@ -600,15 +610,11 @@ private:
     // Calculate the unsteady wake velocities
     
     void CalculateUnsteadyWakeVelocities(void);
-    
-    // Calculate the body surface velocities
-    
-    void CalculateSurfaceMotion(void);
-    
+
     // Update the location of the geometry ... or parts of it
     
     void UpdateGeometryLocation(int DoStartUp);
-    
+
     // Reset the geometry to it's initial state
     
     void ResetGeometry(void);
@@ -896,10 +902,24 @@ public:
     
     int &WakeIterations(void) { return WakeIterations_; };
     
+    /** Adjust the wake core size model up or down, default value is 1. **/
+    
+    VSPAERO_DOUBLE &CoreSizeFactor(void) { return CoreSizeFactor_; };
+    
     /** Turn on tight GMRES convergence **/
     
     int &GMRESTightConvergence(void) { return GMRESTightConvergence_; };
     
+    /** User GMRES residual reduction factor... this scales the default residual reduction
+     * ie... ResidualReductrion = DefaultResidualReduction * User_GMRES_ToleranceFactor_
+     **/
+     
+    VSPAERO_DOUBLE &User_GMRES_ToleranceFactor(void) { return User_GMRES_ToleranceFactor_; };
+
+    /** Wake relaxation factor **/
+    
+    VSPAERO_DOUBLE &WakeRelax(void) { return WakeRelax_; };
+        
     /** Set angle of attack **/
     
     VSPAERO_DOUBLE &AngleOfAttack(void) { return AngleOfAttack_; };
@@ -1168,36 +1188,60 @@ public:
 
     /** Viscous force coefficient in x axis direction **/
         
-    VSPAERO_DOUBLE CFxo(void) { return CFxo_; };
+    VSPAERO_DOUBLE CFxo(void) { return CFxo_[0]; };
 
     /** Viscous force coefficient in y axis direction **/
 
-    VSPAERO_DOUBLE CFyo(void) { return CFyo_; };
+    VSPAERO_DOUBLE CFyo(void) { return CFyo_[0]; };
     
     /** Viscous force coefficient in z axis direction **/
     
-    VSPAERO_DOUBLE CFzo(void) { return CFzo_; };
+    VSPAERO_DOUBLE CFzo(void) { return CFzo_[0]; };
 
     /** Viscous moment coefficient along x axis **/
         
-    VSPAERO_DOUBLE CMxo(void) { return CMxo_; };
+    VSPAERO_DOUBLE CMxo(void) { return CMxo_[0]; };
     
     /** Viscous moment coefficient along y axis **/
     
-    VSPAERO_DOUBLE CMyo(void) { return CMyo_; };
+    VSPAERO_DOUBLE CMyo(void) { return CMyo_[0]; };
 
     /** Viscous moment coefficient along z axis **/
 
-    VSPAERO_DOUBLE CMzo(void) { return CMzo_; };
+    VSPAERO_DOUBLE CMzo(void) { return CMzo_[0]; };
+    
+    /** Zero lift drag coefficient **/
+
+    VSPAERO_DOUBLE CDo(void) { return CDo_[0]; };
+        
+    /** Viscous force coefficient in x axis direction... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/ 
+        
+    VSPAERO_DOUBLE CFxo(int Type) { return CFxo_[Type]; };
+
+    /** Viscous force coefficient in y axis direction... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+
+    VSPAERO_DOUBLE CFyo(int Type) { return CFyo_[Type]; };
+    
+    /** Viscous force coefficient in z axis direction... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/ 
+    
+    VSPAERO_DOUBLE CFzo(int Type) { return CFzo_[Type]; };
+
+    /** Viscous moment coefficient along x axis... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+        
+    VSPAERO_DOUBLE CMxo(int Type) { return CMxo_[Type]; };
+    
+    /** Viscous moment coefficient along y axis... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/ 
+    
+    VSPAERO_DOUBLE CMyo(int Type) { return CMyo_[Type]; };
+
+    /** Viscous moment coefficient along z axi... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+
+    VSPAERO_DOUBLE CMzo(int Type) { return CMzo_[Type]; };    
     
     /** Zero lift drag coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE CDo(int Type) { return CDo_[Type]; };
 
-    /** Zero lift drag coefficient **/
-
-    VSPAERO_DOUBLE CDo(void) { return CDo_[0]; };
-    
     /** Zero angle of attack lift coefficient for 2D viscous drag estimate... **/
 
     VSPAERO_DOUBLE &Clo2D(void) { return Clo_2d_; };
@@ -1367,9 +1411,13 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
 
     int &DoHoverRampFreeStream(void) { return DoHoverRampFreeStream_; };
 
-    /** Hover ram free stream velocity to start with **/
+    /** Hover ramp free stream velocity to start with **/
         
     VSPAERO_DOUBLE &HoverRampFreeStreamVelocity(void) { return HoverRampFreeStreamVelocity_; };
+    
+    /** Force the solver into 2D mode ... mostly for testing purposes **/
+    
+    int &FlowIs2D(void) { return FlowIs2D_; };
     
     /** Turn off the calculation of spanwise loading for a panel solver...
      * 

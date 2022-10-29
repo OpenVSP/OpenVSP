@@ -54,6 +54,12 @@ VSP_OPTIMIZER::VSP_OPTIMIZER(void)
     
     NumberOfThreads_               = 1;
     OptimizationFunction_[1]       = 1;
+    OptimizationSet_[1]            = 1;
+    
+    BladeRPM_                      = 0.;
+    WakeRelax_                     = 1.;
+    GMRESReductionFactor_          = 1.;
+    CoreSizeFactor_                = 1.;
     
     ArrayOffSet_ = 0;
 
@@ -100,9 +106,8 @@ void VSP_OPTIMIZER::Setup(char *FileName)
 
     sprintf(FileName_,"%s",FileName);
 
-    printf("Working on file: %s \n",FileName_);
-    fflush(NULL);
-        
+    printf("Working on file: %s \n",FileName_); fflush(NULL);
+    
 #ifdef VSPAERO_OPENMP
 
     printf("Initializing OPENMP for %d threads \n",NumberOfThreads_);
@@ -205,22 +210,316 @@ void VSP_OPTIMIZER::Setup(char *FileName)
 
 /*##############################################################################
 #                                                                              #
-#                         VSP_OPTIMIZER Solve                                  #
+#                  VSP_OPTIMIZER SetMachNumber                                 #
 #                                                                              #
 ##############################################################################*/
 
-void VSP_OPTIMIZER::Solve(void)
+void VSP_OPTIMIZER::SetMachNumber(double Mach)
+{
+   
+   Solver().Mach() = Mach;
+   
+   Adjoint().Mach() = Mach;
+      
+}
+   
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetAoADegrees                             #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetAoADegrees(double Alpha)
+{
+   
+   Solver().AngleOfAttack() = Alpha*TORAD;
+   
+   Adjoint().AngleOfAttack() = Alpha*TORAD;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetBeta                                   #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetBetaDegrees(double Beta)
+{
+   
+   Solver().AngleOfBeta() = Beta*TORAD;
+   
+   Adjoint().AngleOfBeta() = Beta*TORAD;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetVinf                                   #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetVinf(double Vinf)
+{
+   
+   Solver().Vinf() = Vinf;
+   
+   Adjoint().Vinf() = Vinf;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetDensity                                #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetDensity(double Density)
+{
+   
+   Solver().Density() = Density;
+   
+   Adjoint().Density() = Density;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetDensity                                #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetReCref(double ReCref)
+{
+   
+   Solver().ReCref() = ReCref;
+   
+   Adjoint().ReCref() = ReCref;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetRotationalRate_p                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetRotationalRate_p(double P)
+{
+   
+   Solver().RotationalRate_p() = P;
+   
+   Adjoint().RotationalRate_p() = P;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetRotationalRate_q                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetRotationalRate_q(double Q)
+{
+   
+   Solver().RotationalRate_q() = Q;
+   
+   Adjoint().RotationalRate_q() = Q;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetRotationalRate_q                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetRotationalRate_r(double R)
+{
+   
+   Solver().RotationalRate_r() = R;
+   
+   Adjoint().RotationalRate_r() = R;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                          VSP_OPTIMIZER SetSref                               #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetSref(double Sref)
+{
+   
+   Solver().Sref() = Sref;
+   
+   Adjoint().Sref() = Sref;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                          VSP_OPTIMIZER SetBref                               #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetBref(double Bref)
+{
+   
+   Solver().Bref() = Bref;
+   
+   Adjoint().Bref() = Bref;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                          VSP_OPTIMIZER SetCref                               #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetCref(double Cref)
+{
+   
+   Solver().Cref() = Cref;
+   
+   Adjoint().Cref() = Cref;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                           VSP_OPTIMIZER SetXcg                               #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetXcg(double Xcg)
+{
+   
+   Solver().Xcg() = Xcg;
+   
+   Adjoint().Xcg() = Xcg;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                           VSP_OPTIMIZER SetYcg                               #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetYcg(double Ycg)
+{
+   
+   Solver().Ycg() = Ycg;
+   
+   Adjoint().Ycg() = Ycg;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#                           VSP_OPTIMIZER SetZcg                               #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetZcg(double Zcg)
+{
+   
+   Solver().Zcg() = Zcg;
+   
+   Adjoint().Zcg() = Zcg;
+      
+}  
+
+/*##############################################################################
+#                                                                              #
+#                           VSP_OPTIMIZER SetClo2D                             #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetClo2D(double Clo2D)
+{
+   
+   Solver().Clo2D() = Clo2D;
+   
+   Adjoint().Clo2D() = Clo2D;
+      
+}  
+
+/*##############################################################################
+#                                                                              #
+#                           VSP_OPTIMIZER SetClMax                             #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetClMax(double ClMax)
+{
+   
+   Solver().ClMax() = ClMax;
+   
+   Adjoint().ClMax() = ClMax;
+      
+}  
+
+/*##############################################################################
+#                                                                              #
+#                    VSP_OPTIMIZER SetNumWakeNodes                             #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetNumWakeNodes(int NumWakeNodes)
+{
+   
+   Solver().SetNumberOfWakeTrailingNodes(NumWakeNodes);
+   
+   Adjoint().SetNumberOfWakeTrailingNodes(NumWakeNodes);
+      
+}  
+
+/*##############################################################################
+#                                                                              #
+#                    VSP_OPTIMIZER SetWakeIterations                           #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetWakeIterations(int WakeIterations)
+{
+   
+   Solver().WakeIterations() = WakeIterations;
+   
+   Adjoint().WakeIterations() = WakeIterations;
+      
+}  
+
+/*##############################################################################
+#                                                                              #
+#                           VSP_OPTIMIZER SetFarDist                           #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetFarDist(double FarDist)
+{
+   
+   Solver().SetFarFieldDist(FarDist);
+   
+   Adjoint().SetFarFieldDist(FarDist);
+      
+}
+
+/*##############################################################################
+#                                                                              #
+#                    VSP_OPTIMIZER SetGMRESToleranceFactor                     #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetGMRESToleranceFactor(double tolFactor)
 {
 
-    int p;
-    
-    // Run the solver
-    
-    SolveForward();
- 
-    // Run the adjoint
-        
-    SolveAdjoint();   
+   Solver().User_GMRES_ToleranceFactor() = tolFactor;
+
+   Adjoint().User_GMRES_ToleranceFactor() = tolFactor;
 
 }
 
@@ -230,17 +529,15 @@ void VSP_OPTIMIZER::Solve(void)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_OPTIMIZER::Solve(double *Vec)
+void VSP_OPTIMIZER::Solve(void)
 {
 
-    int p;
-    
     // Run the solver
-
+    
     SolveForward();
  
     // Run the adjoint
-       
+        
     SolveAdjoint();   
 
 }
@@ -258,6 +555,20 @@ void VSP_OPTIMIZER::SolveForward(void)
 
 }
 
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_OPTIMIZER Solve                                  #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SolveAdjoint(void)
+{
+
+    Adjoint().Optimization_Solve(0);    
+
+}
+
 /*##############################################################################
 #                                                                              #
 #                         VSP_OPTIMIZER ShiftInputVector                       #
@@ -271,7 +582,7 @@ void VSP_OPTIMIZER::ShiftInputVector(double *Vec1, double *Vec2, int Length)
     
     for ( i = 1 ; i <= Length ; i++ ) {
        
-       Vec2[i] = Vec1[i + ArrayOffSet_];
+       Vec2[i] = Vec1[i - ArrayOffSet_];
        
     }
 
@@ -280,7 +591,7 @@ void VSP_OPTIMIZER::ShiftInputVector(double *Vec1, double *Vec2, int Length)
 
 /*##############################################################################
 #                                                                              #
-#                         VSP_OPTIMIZER ShiftInputVector                       #
+#                         VSP_OPTIMIZER ShiftOutputVector                      #
 #                                                                              #
 ##############################################################################*/
 
@@ -291,7 +602,7 @@ void VSP_OPTIMIZER::ShiftOutputVector(double *Vec1, double *Vec2, int Length)
     
     for ( i = 1 ; i <= Length ; i++ ) {
        
-       Vec2[i - ArrayOffSet_] = Vec1[i ];
+       Vec2[i - ArrayOffSet_] = Vec1[i];
        
     }
 
@@ -355,7 +666,6 @@ void VSP_OPTIMIZER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *
 
 void VSP_OPTIMIZER::SetGradientVector(int Case, double *Vec)
 {
-;
 
     VSPAERO_ADJOINT::CONTINUE_AUTO_DIFF();
 
@@ -376,19 +686,6 @@ void VSP_OPTIMIZER::SetGradientVector(int Case, double *Vec)
 
 /*##############################################################################
 #                                                                              #
-#                         VSP_OPTIMIZER Solve                                  #
-#                                                                              #
-##############################################################################*/
-
-void VSP_OPTIMIZER::SolveAdjoint(void)
-{
-
-    Adjoint().Optimization_Solve(0);    
-
-}
-
-/*##############################################################################
-#                                                                              #
 #                       VSP_OPTIMIZER LoadCaseFile                             #
 #                                                                              #
 ##############################################################################*/
@@ -399,7 +696,7 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
 
     int i, j, k, NumberOfControlSurfaces, Done, Dir, Surface;
     double x,y,z, DumDouble, HingeVec[3], RotAngle, DeltaHeight;
-    double Density, Value, MassFlow, Velocity, DeltaCp;
+    double Value, MassFlow, Velocity, DeltaCp;
     FILE *case_file;
     char file_name_w_ext[2000], DumChar[2000], DumChar2[2000], Comma[2000], *Next;
     char SymmetryFlag[2000];
@@ -852,6 +1149,60 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
     if ( DoSymmetry_ == SYM_X ) VSP.DoSymmetryPlaneSolve(SYM_X);
     if ( DoSymmetry_ == SYM_Y ) VSP.DoSymmetryPlaneSolve(SYM_Y);
     if ( DoSymmetry_ == SYM_Z ) VSP.DoSymmetryPlaneSolve(SYM_Z);
+    
+    // Look for GMRES residual scale factor
+    
+    rewind(case_file);
+    
+    while ( fgets(DumChar,2000,case_file) != NULL ) {
+
+      if ( strstr(DumChar,"GMRESReductionFactor") != NULL ) {
+         
+         sscanf(DumChar,"GMRESReductionFactor = %lf \n",&GMRESReductionFactor_);
+         
+         printf("Setting GMRES reduction factor to: %f \n",GMRESReductionFactor_);
+         
+         VSP.User_GMRES_ToleranceFactor() = GMRESReductionFactor_;
+         
+      }
+      
+    }    
+        
+    // Look for wake relaxation factor
+    
+    rewind(case_file);
+    
+    while ( fgets(DumChar,2000,case_file) != NULL ) {
+
+      if ( strstr(DumChar,"WakeRelax") != NULL ) {
+         
+         sscanf(DumChar,"WakeRelax = %lf \n",&WakeRelax_);
+         
+         printf("Setting wake relaxation factor to: %f \n",WakeRelax_);
+         
+         VSP.WakeRelax() = WakeRelax_;
+         
+      }
+      
+    }
+            
+    // Look for coresize factor
+    
+    rewind(case_file);
+    
+    while ( fgets(DumChar,2000,case_file) != NULL ) {
+
+      if ( strstr(DumChar,"CoreSizeFactor") != NULL ) {
+         
+         sscanf(DumChar,"CoreSizeFactor = %lf \n",&CoreSizeFactor_);
+         
+         printf("Setting CoreSizeFactor to: %f \n",CoreSizeFactor_);
+         
+         VSP.CoreSizeFactor() = CoreSizeFactor_;
+         
+      }
+      
+    } 
     
     // Load in the control surface data
     
@@ -1387,13 +1738,13 @@ void VSP_OPTIMIZER::UpdateGeometry(double *NodeXYZ)
     
     for ( i = 1 ; i <= Adjoint().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
-         Solver().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2 + ArrayOffSet_];
-         Solver().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1 + ArrayOffSet_]; 
-         Solver().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i   + ArrayOffSet_]; 
+         Solver().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2 - ArrayOffSet_];
+         Solver().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1 - ArrayOffSet_]; 
+         Solver().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i   - ArrayOffSet_]; 
 
-        Adjoint().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2 + ArrayOffSet_];
-        Adjoint().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1 + ArrayOffSet_]; 
-        Adjoint().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i   + ArrayOffSet_]; 
+        Adjoint().VSPGeom().Grid(0).NodeList(i).x() = NodeXYZ[3*i-2 - ArrayOffSet_];
+        Adjoint().VSPGeom().Grid(0).NodeList(i).y() = NodeXYZ[3*i-1 - ArrayOffSet_]; 
+        Adjoint().VSPGeom().Grid(0).NodeList(i).z() = NodeXYZ[3*i   - ArrayOffSet_]; 
                 
     }
     
@@ -1585,6 +1936,34 @@ void VSP_OPTIMIZER::GetpFupMesh(double *pFu_pP, double *pFu_pMesh)
 
     Adjoint().Optimization_Calculate_pFu_pMesh(pFu_pP,pFu_pMesh );
           
+}
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SupressStdout                             #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SupressStdout(void) {
+    fflush(stdout);
+
+    stdoutfd = dup(1);
+    int nullfd = open("/dev/null", O_WRONLY);
+    // check nullfd for error omitted
+    dup2(nullfd, 1);
+    close(nullfd);
+}
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER ResumeStdout                              #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::ResumeStdout(void) {
+    fflush(stdout);
+    dup2(stdoutfd, 1);
+    close(stdoutfd);
 }
 
 

@@ -594,6 +594,10 @@ public:
     
     void Update(VSPAERO_DOUBLE TimeStep, VSPAERO_DOUBLE CurrentTime);
     
+    /** Update the quaternions **/
+    
+    void UpdateQuaternions(VSPAERO_DOUBLE TimeStep);
+    
     /** Write out file containing group information **/
     
     void WriteData(FILE *File);

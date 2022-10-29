@@ -305,8 +305,6 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
 GL_VIEWER::~GL_VIEWER(void)
 {
 
-    int i;
-
     // Rotation and translation data
 
     vAng   = 0.;
@@ -344,7 +342,7 @@ GL_VIEWER::~GL_VIEWER(void)
 void GL_VIEWER::LoadInitialData(char *name)
 {
 
-    char CommandLine[2000], file_name_w_ext[2000];
+    char file_name_w_ext[2000];
     FILE *adb_file;
     
     // Save the file name
@@ -547,12 +545,11 @@ void GL_VIEWER::CalculateSurfaceNormals(int Case)
 void GL_VIEWER::LoadMeshData(int ReLoad)
 {
 
-    char file_name_w_ext[2000], DumChar[1000], GridName[1000];
-    int i, j, k, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes;
+    char file_name_w_ext[2000];
+    int i, j, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes;
     int TotNum, i_size, f_size, c_size;
     int NumberOfRotors, NumberOfNozzles;
-    float DumFloat;
-    FILE *adb_file, *madb_file;
+    FILE *adb_file;
     BINARYIO BIO;
 
     // Sizeof ints and floats
@@ -1089,11 +1086,9 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
 void GL_VIEWER::UpdateMeshData(FILE *adb_file)
 {
 
-    char file_name_w_ext[2000], DumChar[1000], GridName[1000];
-    int i, j, k, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes;
-    int TotNum, i_size, f_size, c_size;
+    int i, j, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes;
+    int i_size, f_size, c_size;
     int NumberOfRotors, NumberOfNozzles;
-    float DumFloat;
     BINARYIO BIO;
 
     // Sizeof ints and floats
@@ -1425,7 +1420,7 @@ void GL_VIEWER::LoadQuadCuttingPlaneCaseList(void)
 {
  
     int i, j;
-    char file_name_w_ext[2000], DumChar[2000];
+    char file_name_w_ext[2000];
     FILE *quad_file;
     
     // Open the solution case list. Add the .adb extension if not already present.
@@ -1518,14 +1513,13 @@ void GL_VIEWER::LoadQuadCuttingPlaneCaseList(void)
 void GL_VIEWER::LoadCalculixINPFile(void)
 {
    
-    int i, j, k, Done, AllDone, MoreElements, DumInt1, DumInt2;
+    int i, j, k, Done, AllDone;
     int MaxCalculixElement, MaxCalculixNode, ElementID;
     int node1, node2, node3, node4, node5, node6;
     int NumNodes, NumElements, GeometryType, NumberOfElementNodes;
-    int *NodeIsUsed, MaxNodes, BestNode;
-    int *TriIsUsed, MaxTris;
-    float Distance, MinDistance;
-    float vec1[3], vec2[3], vec3[3], mag, Pressure, *PressureLoad;
+    int *NodeIsUsed, MaxNodes;
+    int MaxTris;
+    float Pressure, *PressureLoad;
     char file_name_w_ext[10000], DumChar[10000], SaveChar[10000];
     FILE *CalculixFile;
 
@@ -2350,7 +2344,7 @@ void GL_VIEWER::LoadCalculixDATFile(void)
 {
    
     double ds, dsmax;
-    int i, j, k, Done, AllDone, DumInt, NoDisplacementData;
+    int i, Done, AllDone, DumInt, NoDisplacementData;
     char file_name_w_ext[10000], DumChar[10000];
     FILE *CalculixFile;
 
@@ -2443,13 +2437,13 @@ void GL_VIEWER::LoadCalculixDATFile(void)
 void GL_VIEWER::LoadCalculixFRDFileOld(void)
 {
 
-    int i, j, node1, node2, node3, Node, ElementNode[20], NodeOffSet, DumInt, ElementType, Done;
+    int i, j, node1, node2, node3, Node, ElementNode[20], DumInt, ElementType, Done;
     int *NodePointer, MaxNodeNumber, Set, s, Found, NoDisplacementData;
     double x, y, z, vec1[3], vec2[3], vec3[3], mag, cosPhi;
-    double Dx, Dy, Dz, DsMin, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
+    double Dx, Dy, Dz, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
     double S11, S22, S33, S12, S23, S31, I1, I2, I3, S1, S2, S3, Phi;
-    char file_name_w_ext[2000], ElementName[1000], DumChar[1000];
-    FILE *frd_file, *sum_file;
+    char file_name_w_ext[2000], DumChar[1000];
+    FILE *frd_file;
     fpos_t SaveLocation;
 
     // Open the calculix solution file
@@ -2965,14 +2959,13 @@ void GL_VIEWER::LoadCalculixFRDFileOld(void)
 void GL_VIEWER::LoadCalculixFRDFile(void)
 {
 
-    int i, j, node1, node2, node3, Node, ElementNode[20], NodeOffSet, DumInt, ElementType, Done;
+    int i, j, node1, node2, node3, Node, ElementNode[20], DumInt, ElementType, Done;
     int *NodePointer, MaxNodeNumber, Set, s, Found, NoDisplacementData;
     double x, y, z, vec1[3], vec2[3], vec3[3], mag;
-    double Dx, Dy, Dz, DsMin, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
+    double Dx, Dy, Dz, DsMax, DeltaMax, S1_Min, S2_Min, S3_Min, S1_Max, S2_Max, S3_Max;
     double S11, S22, S33, S12, S23, S31, I1, I2, I3, S1, S2, S3, Phi;
-    char file_name_w_ext[2000], ElementName[1000], DumChar[1000];
-    FILE *frd_file, *sum_file;
-    fpos_t SaveLocation;
+    char file_name_w_ext[2000], DumChar[1000];
+    FILE *frd_file;
 
     // Open the calculix solution file
     
@@ -3634,15 +3627,7 @@ void GL_VIEWER::DrawCalculixFEMModelAsWireFrame(CALCULIX_MESH &FEM_MESH, int Dra
 {
 
     int j, node1, node2, node3, node4, node5, node6, node7, node8;
-    int SurfID, LastTri, LastCon, LastSurface;
-    int LastMaterialType;
-    float vec[3], rgb[4], LastEmissivity, per, ScaleFactor, ReverseNormals;
-
-    GLfloat ambient1[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-    GLfloat ambient2[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-
-    GLfloat ambient3[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-    GLfloat ambient4[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
+    float vec[3], rgb[4], per, ScaleFactor, ReverseNormals;
 
     // Draw triangles as wire frame
 
@@ -4751,15 +4736,10 @@ void GL_VIEWER::DrawCalculixFEMModel(CALCULIX_MESH &FEM_MESH, int DrawDeformed)
 {
 
     int j, node1, node2, node3, node4, node5, node6, node7, node8;
-    int SurfID, LastTri, LastCon, LastSurface;
-    int LastMaterialType;
-    float vec[3], rgb[4], LastEmissivity, per, ScaleFactor, ReverseNormals;
+    float vec[3], rgb[4], per, ScaleFactor, ReverseNormals;
 
     GLfloat ambient1[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
     GLfloat ambient2[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-
-    GLfloat ambient3[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-    GLfloat ambient4[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
 
     // Enable Lighting
 
@@ -5812,12 +5792,6 @@ void GL_VIEWER::DrawCalculixFEMModelRigidLinks(CALCULIX_MESH &FEM_MESH)
     int j, node1, node2;
     float vec[3], rgb[4], ScaleFactor;
 
-    GLfloat ambient1[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-    GLfloat ambient2[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-
-    GLfloat ambient3[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-    GLfloat ambient4[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-
     // Draw triangles as shaded surface
 
     rgb[0] = 1.0;
@@ -5876,14 +5850,8 @@ void GL_VIEWER::DrawCalculixFEMModelRigidLinks(CALCULIX_MESH &FEM_MESH)
 void GL_VIEWER::DrawCalculixFEMConcentratedLoads(CALCULIX_MESH &FEM_MESH)
 {
 
-    int j, node1, node2;
+    int j, node1;
     float vec1[3],  vec2[3], rgb[4], ScaleFactor;
-
-    GLfloat ambient1[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-    GLfloat ambient2[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-
-    GLfloat ambient3[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
-    GLfloat ambient4[] = { ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 2.0)*Brightness, ((float) 1.0) };
 
     // Draw triangles as shaded surface
 
@@ -6118,8 +6086,6 @@ void GL_VIEWER::MakeMovie(char *FileName)
 void GL_VIEWER::LoadSolutionData(void)
 {
 
-    int i;
-
     // Get the user selected case
 
     LoadExistingSolutionData(UserSelectedSolutionCase_);
@@ -6137,17 +6103,14 @@ void GL_VIEWER::LoadSolutionData(void)
 void GL_VIEWER::LoadExistingSolutionData(int Case)
 {
 
-    char file_name_w_ext[2000], DumChar[100], GridName[100];
-    int c, i, j, k, m, p, Level, pStart, pEnd;
+    char file_name_w_ext[2000];
+    int c, i, j, k, m, p, pStart, pEnd;
     int i_size, f_size, c_size, d_size;
-    int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge, Direction;
+    int DumInt;
     int *TempSurfaceList;
-    float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Cf;
-    float BoundaryLayerThicknessCode, LaminarDelta, TurbulentDelta;
-    float DumFloat, Value, Vmax, Mag, Vclip;
-    FILE *adb_file, *madb_file, *QuadFile;
+    float Vmax, Mag, Vclip;
+    FILE *adb_file, *QuadFile;
     BINARYIO BIO;
-    long OffSet;
 
     // Sizeof ints and floats
 
@@ -6568,9 +6531,9 @@ void GL_VIEWER::RotateControlSurfaceNode( float xyz[3], int ConSurf )
 void GL_VIEWER::LoadCaseFile(char *FileName)
 {
 
-    int i, j, Done;
+    int i, Done;
     FILE *case_file;
-    char file_name_w_ext[2000], DumChar[200], file_type[100], PlanetType[80];
+    char file_name_w_ext[2000], DumChar[200];
     fpos_t StartOfRotorData;
 
     // Open the case file
@@ -6768,7 +6731,7 @@ void GL_VIEWER::CreateTriEdges(void)
 {
 
     int i, j, k, nod1, nod2, noda, nodb, start_edge, surf_edge;
-    int level, edge_to_node[4][3], nod_list[4], tri1, tri2;
+    int level, edge_to_node[4][3], nod_list[4];
     int max_edge, new_edge, *jump_pnt, Error;
     GL_EDGE_ENTRY *list, *tlist;
 
@@ -7297,7 +7260,7 @@ void GL_VIEWER::FindSolutionMinMax(void)
 void GL_VIEWER::FindSolutionMinMax(float *Function, float &FMinAvg, float &FMaxAvg, float &FMinActual, float &FmaxActual, float &FMin, float &FMax)
 {
 
-    int i, j, m, Hits, HitsMin, HitsMax;
+    int m, Hits, HitsMin, HitsMax;
     float Big = 1.e9, Avg, StdDev;
 
     FMinActual = Big;
@@ -7385,8 +7348,6 @@ void GL_VIEWER::FindSolutionMinMax(float *Function, float &FMinAvg, float &FMaxA
 void GL_VIEWER::SetSolutionMin(float MinVal)
 {
 
-    int i;
-
     if ( DrawCpIsOn           ) CpMin                 = MinVal;
     if ( DrawCpSteadyIsOn     ) CpSteadyMin           = MinVal;
     if ( DrawCpUnsteadyIsOn   ) CpUnsteadyMin         = MinVal;
@@ -7407,8 +7368,6 @@ void GL_VIEWER::SetSolutionMin(float MinVal)
 
 void GL_VIEWER::SetSolutionMax(float MaxVal)
 {
-
-    int i;
 
     if ( DrawCpIsOn           ) CpMax                 = MaxVal;
     if ( DrawCpSteadyIsOn     ) CpSteadyMax           = MaxVal;
@@ -7648,8 +7607,6 @@ void GL_VIEWER::IsoViewUp(void)
 
 void GL_VIEWER::ZeroAllViews(void)
 {
-
-    int i;
 
     DrawLegendIsOn                    = 0;
     DrawLabelIsOn                     = 0;
@@ -8128,7 +8085,6 @@ int GL_VIEWER::handle(int event)
 void GL_VIEWER::Draw(void)
 {
 
-    int i;
     GLfloat m[4][4];
     float AR;
 
@@ -8140,9 +8096,6 @@ void GL_VIEWER::Draw(void)
    
  //   GLfloat ambient1[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
  //   GLfloat ambient2[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
-
-    GLfloat ambient3[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
-    GLfloat ambient4[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
        
     // Enable Lighting
 
@@ -8536,7 +8489,6 @@ void GL_VIEWER::DrawLabel(void)
 void GL_VIEWER::DrawBBox(void)
 {
 
-    int j, node1, node2, node3;
     float vec[3], rgb1[3], rgb2[3], rgb3[3];
 
     // Draw triangles as wire frames
@@ -8793,7 +8745,7 @@ void GL_VIEWER::DrawWireFrame(void)
 void GL_VIEWER::DrawQuadCuttingPlaneWire(void)
 {
 
-    int c, j, node1, node2, node3, SurfaceID, SurfID;
+    int c, j;
     float vec1[3], vec2[3], vec3[3], vec4[3], rgb[4];
 
     // Draw triangles as wire frames
@@ -8897,8 +8849,8 @@ void GL_VIEWER::DrawQuadCuttingPlaneWire(void)
 void GL_VIEWER::DrawQuadCuttingPlaneVelocityVectors(void)
 {
 
-    int c, j, k, node1, node2, node3, SurfaceID, SurfID;
-    float per, vec[3], rgb[4], Mag;
+    int c, j;
+    float vec[3], rgb[4], Mag;
 
     glShadeModel(GL_SMOOTH);
 
@@ -9120,7 +9072,7 @@ void GL_VIEWER::DrawQuadCuttingPlaneVelocityVectors(void)
 void GL_VIEWER::DrawQuadCuttingPlaneShaded(void)
 {
 
-    int c, j, k, node1, node2, node3, SurfaceID, SurfID;
+    int c, j, k;
     float per, vec[3], rgb[4];
 
     glShadeModel(GL_SMOOTH);
@@ -9241,8 +9193,8 @@ void GL_VIEWER::SwapQuadNormalsWasPicked(void)
 void GL_VIEWER::DrawFEMBoundaryNodes(void)
 {
 
-    int c, j, k, node1, node2, node3, SurfaceID, SurfID;
-    float per, vec[3], rgb[4], Normal[3], Mag;
+    int j;
+    float vec[3], rgb[4];
 
     glShadeModel(GL_SMOOTH);
 
@@ -9311,7 +9263,7 @@ void GL_VIEWER::DrawFEMBoundaryNodes(void)
 void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int Level)
 {
 
-    int j, node1, node2, node3, SurfaceID, SurfID;
+    int j, node1, node2, SurfaceID;
     float vec[3], rgb[4];
 
     // Draw triangles as wire frames
@@ -9442,7 +9394,7 @@ void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int Level)
 void GL_VIEWER::DrawCoarseMeshNodesForLevel(int Level)
 {
 
-    int j, node1, node2, node3, SurfaceID, SurfID;
+    int j, SurfID;
     float vec[3], rgb[3];
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
@@ -9500,7 +9452,7 @@ void GL_VIEWER::DrawCoarseMeshNodesForLevel(int Level)
 void GL_VIEWER::DrawWakes(void)
 {
 
-    int i, j, node1, node2, node3, NumberNodes, KuttaNode, SurfID;
+    int i, j, NumberNodes, KuttaNode, SurfID;
     float vec[3], rgb[4], Alpha;
 
     // Draw triangles as wire frames
@@ -9696,8 +9648,8 @@ void GL_VIEWER::DrawWakes(void)
 void GL_VIEWER::DrawControlSurfaces(void)
 {
 
-    int j, k, node1, node2, node3, SurfaceID, SurfID;
-    float vec[3], rgb[3];
+    int j, k;
+    float rgb[3];
 
     // Draw triangles as wire frames
 
@@ -9746,7 +9698,7 @@ void GL_VIEWER::DrawControlSurfaces(void)
 void GL_VIEWER::DrawBEAM3DFEM(void)
 {
 
-    int i, j, k, node1, node2, node3, SurfaceID, SurfID;
+    int i, j;
     float vec[3], rgb[3];
 
     // Draw triangles as wire frames
@@ -9918,8 +9870,7 @@ void GL_VIEWER::PanelComGeomTagsBrowser_SelectAll(void)
 void GL_VIEWER::PanelComGeomTagsBrowser_Update(void)
 {
 
-    int i, Type, IndependentPanelType, NumItems;
-    float Emissivity;
+    int i, NumItems;
     char Line[200];
 
     PanelComGeomTagsBrowser->clear();
@@ -10012,7 +9963,7 @@ void GL_VIEWER::CutPlanesBrowser_UnSelectAll(void)
 void GL_VIEWER::CutPlanesBrowser_Update(void)
 {
 
-    int i, Type, IndependentPanelType, NumItems;
+    int i, NumItems;
     char Line[200];
 
     CuttingPlanesBrowser->clear();
@@ -10046,10 +9997,10 @@ void GL_VIEWER::CutPlanesBrowser_Update(void)
 void GL_VIEWER::DrawShadedSurface(void)
 {
 
-    int j, node1, node2, node3, LastTri, LastCon, LastSurface;
-    int LastMaterialType, SurfaceID, SurfID;
-    float vec1[3], vec2[3], vec3[3], rgb[4], LastEmissivity;
-
+    int j, node1, node2, node3, LastTri, LastSurface;
+    int SurfaceID, SurfID;
+    float vec1[3], vec2[3], vec3[3], rgb[4];
+/*
     GLfloat ambient1[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
     GLfloat ambient2[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
 
@@ -10058,7 +10009,7 @@ void GL_VIEWER::DrawShadedSurface(void)
 
     // Modify lighting for just simple shaded surface... brighten up things some
 
-/*    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
@@ -10283,7 +10234,7 @@ void GL_VIEWER::DrawShadedSolution(float *Function, float FMin, float FMax)
 {
 
     int i, node1, node2, node3;
-    float Area, NewMin, NewMax;
+    float Area;
 
     // Per tri contour shading
     
@@ -10375,8 +10326,8 @@ void GL_VIEWER::DrawShadedSolution(float *Function, float FMin, float FMax)
 void GL_VIEWER::DrawShadedLineContours(float *Function, float FMin, float FMax)
 {
 
-    int c, i, j, node1, node2, node3, NumContourLevels;
-    float Area, NewMin, NewMax, Vec[3], Value, Per2RGB, Per[3], v1, v2;
+    int c, i, j, node1, node2, node3;
+    float Area, Vec[3], Value, Per2RGB, Per[3], v1, v2;
     float xyz1[3], xyz2[3];
     float rgb[3];
     
@@ -11250,8 +11201,8 @@ void GL_VIEWER::DrawPropulsionElements(void)
 void GL_VIEWER::DrawRotorSurfacesShaded(int i)
 {
 
-    int j, node1, node2, node3;
-    float vec[3], cvec[3], rgb[4], prcent;
+    int j;
+    float vec[3], rgb[4];
 
     // Draw triangles as shaded surface
 
@@ -11654,8 +11605,8 @@ void GL_VIEWER::DrawRotorSurfacesShaded(int i)
 void GL_VIEWER::DrawNozzleSurfacesShaded(int i)
 {
 
-    int j, node1, node2, node3;
-    float vec[3], cvec[3], rgb[4], prcent;
+    int j;
+    float vec[3], rgb[4];
 
     // Draw triangles as shaded surface
 
@@ -11874,11 +11825,10 @@ void GL_VIEWER::DrawCGMarker(void)
 void GL_VIEWER::DrawSymmetryPlane(void)
 {
 
-    float Scale, InvScale, dalpha, alpha;
+    float dalpha, alpha;
 
-    int i, j, node1, node2, node3, LastTri, LastCon, LastSurface;
-    int LastMaterialType, SurfaceID, SurfID;
-    float vec1[3], vec2[3], vec3[3], vec4[3], Normal[3], rgb[4], LastEmissivity;
+    int i;
+    float vec1[3], vec2[3], vec3[3], vec4[3], Normal[3], rgb[4];
     float xyz1[3], xyz2[3];
 
     glTranslatef( 0. - GeometryXShift,
@@ -12134,7 +12084,6 @@ void GL_VIEWER::DrawFEMAxes(void)
     float vxy_1[3];
     float vxy_2[3];
     float vxy_3[3];
-    float rgb[3];
    
     i = CurrentFEMAxisSet;
     
@@ -12201,7 +12150,6 @@ void GL_VIEWER::DrawFEMAxesName(void)
 {
 
     int i;
-    char string[80];
     float rgb[3];
 
     rgb[0] = 0.;
@@ -12942,7 +12890,7 @@ void GL_VIEWER::remove_dir(const char* path)
 void GL_VIEWER::WritePNGFile(char *FileName)
 {
 
-    int width, height, DumInt;
+    int width, height;
     char rgbstr[256];
 
     if ( FileName != NULL ) {
@@ -12974,7 +12922,7 @@ void GL_VIEWER::WritePNGFile(char *FileName)
 void GL_VIEWER::WritePNGFile(char *Path, char *FileName)
 {
 
-    int width, height, DumInt;
+    int width, height;
     char rgbstr[256];
 
     if ( FileName != NULL ) {

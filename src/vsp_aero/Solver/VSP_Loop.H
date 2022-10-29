@@ -95,8 +95,6 @@ private:
     
     BBOX BoundBox_;
     
-    int LoopUsed_;
-    
     // Velocities
 
     VSPAERO_DOUBLE LocalFreeStreamVelocity_[5];

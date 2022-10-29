@@ -66,6 +66,10 @@ VSP_NODE& VSP_NODE::operator=(const VSP_NODE &VSPNode)
     IsBoundaryEdgeNode_   = VSPNode.IsBoundaryEdgeNode_;  
     IsBoundaryCornerNode_ = VSPNode.IsBoundaryCornerNode_;
 
+    ComponentID_          = VSPNode.ComponentID_;
+    SurfaceID_            = VSPNode.SurfaceID_;
+    GeomID_               = VSPNode.GeomID_;
+
     x_                    = VSPNode.x_;
     y_                    = VSPNode.y_;
     z_                    = VSPNode.z_;
@@ -75,10 +79,6 @@ VSP_NODE& VSP_NODE::operator=(const VSP_NODE &VSPNode)
     CoarseGridNode_       = VSPNode.CoarseGridNode_;
     FineGridNode_         = VSPNode.FineGridNode_;  
     
-    ComponentID_          = VSPNode.ComponentID_;
-    SurfaceID_            = VSPNode.SurfaceID_;
-    GeomID_               = VSPNode.GeomID_;
-
     return *this;
 
 }

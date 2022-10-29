@@ -125,7 +125,7 @@ ROTOR_DISK& ROTOR_DISK::operator=(const ROTOR_DISK &RotorDisk)
 void ROTOR_DISK::VelocityPotential(double xyz[3], double q[5])
 {
 
-    double Term1, Term2, Vh, alpha, z, r, sinf, f, vec[3], rvec[3], tvec[3], mag;
+    double Vh, z, r, vec[3], rvec[3], tvec[3], mag;
     double Velocity_X, Velocity_R, Velocity_T, Omega, PhiTotal;
     double Phi_D, Phi_D_z;
  

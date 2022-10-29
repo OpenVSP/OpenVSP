@@ -246,7 +246,6 @@ void QUAT::FormRotationQuat(VSPAERO_DOUBLE *Vec, VSPAERO_DOUBLE Theta)
 
 }
 
-
 /*##############################################################################
 #                                                                              #
 #                              QUAT print                                      #

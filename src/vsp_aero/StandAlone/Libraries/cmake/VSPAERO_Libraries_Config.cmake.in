@@ -1,0 +1,11 @@
+#
+# VSPAERO_Libraries_Config.cmake - VSPAERO CMake configuration file for external projects.
+#
+# This file is configured by CMake and used to load VSPAERO's libraries for the main build.
+
+SET( VSP_LIBRARIES_FOUND TRUE )
+
+SET( Adept2_INSTALL_DIR "@Adept2_INSTALL_DIR@" )
+SET( FLTK_INSTALL_DIR "@FLTK_INSTALL_DIR@" )
+
+SET( VSP_NO_GRAPHICS @VSP_NO_GRAPHICS@ )

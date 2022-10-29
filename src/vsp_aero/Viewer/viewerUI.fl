@@ -8,7 +8,7 @@ class viewerUI {open
   } {
     Fl_Window mainWindow {
       label {VSPAERO Viewer 6.4.0} open
-      private xywh {796 285 1160 765} type Double labelsize 12 align 0 resizable visible
+      private xywh {931 395 1160 765} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
         xywh {0 -34 1312 818} box FLAT_BOX labeltype ENGRAVED_LABEL
@@ -26,14 +26,14 @@ class viewerUI {open
             code1 {\#include "GL_VIEWER.forward.declaration.H"}
             class GL_VIEWER
           }
-          Fl_Group Quad {open selected
+          Fl_Group Quad {open
             xywh {0 -30 1290 814}
           } {
             Fl_Tabs {} {open
               xywh {865 2 313 759}
             } {
               Fl_Group SolutionPanel {
-                label Solution open
+                label Solution open selected
                 xywh {865 26 291 735} labelfont 1
               } {
                 Fl_Group PanelComGeomTags {open
@@ -179,31 +179,31 @@ glviewer->redraw();}
                     label {Draw Velocity Vectors}
                     callback {glviewer->DrawCutPlanesVelocityWasPicked();
 glviewer->redraw();}
-                    tooltip {Select all} xywh {883 685 130 25} type Toggle box PLASTIC_UP_BOX color 5 selection_color 2 labelsize 12
+                    tooltip {Select all} xywh {1019 616 130 25} type Toggle box PLASTIC_UP_BOX color 5 selection_color 2 labelsize 12
                   }
                   Fl_Button CutPlanesDrawCp {
                     label {Draw Cp}
                     callback {glviewer->DrawCuttingPlanesCpWasPicked();
 glviewer->redraw();}
-                    tooltip {Select all} xywh {883 720 130 25} type Toggle box PLASTIC_UP_BOX value 1 color 5 selection_color 2 labelsize 12
+                    tooltip {Select all} xywh {883 616 130 25} type Toggle box PLASTIC_UP_BOX value 1 color 5 selection_color 2 labelsize 12
                   }
                   Fl_Value_Slider CutPlanesScaleVelocity {
                     label {Velocity Scaler}
                     callback {glviewer->SetQuadCellVelocityScaler(((Fl_Value_Input *)o)->value());
 glviewer->redraw();}
-                    xywh {1018 686 127 25} type Horizontal align 1 step 0.05 value 1 textsize 14
-                  }
-                  Fl_Button CutPlanesDrawShaded {
-                    label {Draw Quad Shaded}
-                    callback {glviewer->DrawCutPlanesShadedWasPicked();
-glviewer->redraw();}
-                    tooltip {Select all} xywh {883 616 130 25} type Toggle box PLASTIC_UP_BOX color 5 selection_color 2 labelsize 12
+                    xywh {1018 685 127 25} type Horizontal align 6 maximum 5 step 0.05 value 1 textsize 14
                   }
                   Fl_Button CutPlanesDrawVectorColor {
                     label {Vector Color}
                     callback {glviewer->DrawCutPlanesVelocityColorWasPicked();
 glviewer->redraw();}
-                    tooltip {Select all} xywh {1015 720 127 25} type Toggle box PLASTIC_UP_BOX color 0 selection_color 5 labelsize 12
+                    tooltip {Select all} xywh {1019 650 127 25} type Toggle box PLASTIC_UP_BOX color 0 selection_color 5 labelsize 12
+                  }
+                  Fl_Button CutPlanesSwapNormals {
+                    label {Swap Normal}
+                    callback {glviewer->SwapQuadNormalsWasPicked();
+glviewer->redraw();}
+                    tooltip {Select all} xywh {883 685 130 25} box PLASTIC_UP_BOX color 4 selection_color 2 labelsize 12
                   }
                 }
               }

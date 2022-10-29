@@ -11,12 +11,12 @@
         <CORZ Value="0.000000000000000000e+00" ID="OBTZMZZWSJA"/>
         <PanX Value="0.000000000000000000e+00" ID="TIXDMHKMXLM"/>
         <PanY Value="0.000000000000000000e+00" ID="CCDBOOQXVEY"/>
-        <RotationX Value="2.652525137760878948e+01" ID="HHKORZNFLQH"/>
-        <RotationY Value="-7.814070406745000241e+01" ID="RRYFHVCNVTS"/>
-        <RotationZ Value="-2.641748806797891191e+01" ID="HIXRUNZYLJG"/>
+        <RotationX Value="4.673622253265163451e+00" ID="HHKORZNFLQH"/>
+        <RotationY Value="-8.221052692591545963e+01" ID="RRYFHVCNVTS"/>
+        <RotationZ Value="-3.733374911649258365e+01" ID="HIXRUNZYLJG"/>
         <ViewportX Value="0.000000000000000000e+00" ID="TISYLNTTVQP"/>
         <ViewportY Value="0.000000000000000000e+00" ID="UXZSLJLFAIT"/>
-        <Zoom Value="5.160084925591945648e-03" ID="ODMPEIJOIEY"/>
+        <Zoom Value="8.609343320131301880e-03" ID="ODMPEIJOIEY"/>
       </AdjustView>
       <AirfoilExport>
         <AFAppendGeomIDFlag Value="1.000000000000000000e+00" ID="GAFENJZOUMZ"/>
@@ -212,15 +212,6 @@
         <ParmContainer>
           <ID>IIMESPLIRX</ID>
           <Name>Default</Name>
-          <Light_Parm>
-            <ActiveFlag Value="0.000000000000000000e+00" ID="IJGVXAZFUEN"/>
-            <Ambient Value="0.000000000000000000e+00" ID="VRUFJQJULQG"/>
-            <Diffuse Value="0.000000000000000000e+00" ID="VBVRWRGDRVL"/>
-            <Specular Value="0.000000000000000000e+00" ID="KYOVWZWCHEA"/>
-            <X Value="0.000000000000000000e+00" ID="JEPVDSWFSDA"/>
-            <Y Value="0.000000000000000000e+00" ID="MTAZGCAQZWP"/>
-            <Z Value="0.000000000000000000e+00" ID="KSOYZYYJQEG"/>
-          </Light_Parm>
         </ParmContainer>
       </Light3>
       <Light4>
@@ -229,9 +220,6 @@
           <Name>Default</Name>
           <Light_Parm>
             <ActiveFlag Value="0.000000000000000000e+00" ID="WEOXOVHZTRB"/>
-            <Ambient Value="0.000000000000000000e+00" ID="PBVAZDHTODD"/>
-            <Diffuse Value="0.000000000000000000e+00" ID="EMXZKLJSXBG"/>
-            <Specular Value="0.000000000000000000e+00" ID="UUNDKIYKNBL"/>
             <X Value="0.000000000000000000e+00" ID="AVRVSRHHXYZ"/>
             <Y Value="0.000000000000000000e+00" ID="UGXVIONGBSD"/>
             <Z Value="0.000000000000000000e+00" ID="JTQDHXYSIFI"/>
@@ -377,12 +365,12 @@
           <TeTwRatio Value="1.000000000000000000e+00" ID="BESONQMXDSM"/>
         </ParasiteDragProps>
         <PropGeom>
-          <MaxGrowth Value="1.437005756083839181e+00" ID="OEBOSTQCBKU"/>
-          <SmallPanelW Value="9.105466852720794577e-03" ID="PBLOYMIBPJM"/>
+          <MaxGrowth Value="1.963769402454648594e+00" ID="OEBOSTQCBKU"/>
+          <SmallPanelW Value="3.325716707950943096e-02" ID="PBLOYMIBPJM"/>
         </PropGeom>
         <Shape>
-          <Tess_U Value="1.700000000000000000e+01" ID="TRYVSZHIWCH"/>
-          <Tess_W Value="3.300000000000000000e+01" ID="QILDXFGVNJO"/>
+          <Tess_U Value="6.000000000000000000e+00" ID="TRYVSZHIWCH"/>
+          <Tess_W Value="1.700000000000000000e+01" ID="QILDXFGVNJO"/>
           <Wake Value="0.000000000000000000e+00" ID="WRBDDTBJJTO"/>
         </Shape>
         <Sym>
@@ -999,6 +987,7 @@
         <CpSliceFlag Value="1.000000000000000000e+00" ID="ASXIOMXFTQS"/>
         <CpSlicePlotLinesFlag Value="1.000000000000000000e+00" ID="QCJPTFWYKAE"/>
         <CpSliceYAxisFlipFlag Value="0.000000000000000000e+00" ID="RLRSSIQEBWT"/>
+        <ExperimentalInputFormatFlag Value="0.000000000000000000e+00" ID="BKSJSLSUGNM"/>
         <FarDist Value="0.000000000000000000e+00" ID="DCOTVHHYLMV"/>
         <FarDistToggle Value="0.000000000000000000e+00" ID="HGWWRPQIKHV"/>
         <FixedWakeFlag Value="0.000000000000000000e+00" ID="GVIBKOAMMEE"/>
@@ -1026,6 +1015,8 @@
         <NumTimeSteps Value="2.500000000000000000e+01" ID="KFPZFLBRQJR"/>
         <Precondition Value="0.000000000000000000e+00" ID="FRCGWUMVCVH"/>
         <ReCref Value="1.000000000000000000e+07" ID="ZOCOCMVLTZN"/>
+        <ReCrefEnd Value="2.000000000000000000e+07" ID="LHAEDKASDLM"/>
+        <ReCrefNpts Value="1.000000000000000000e+00" ID="WXZJUNSIBRV"/>
         <RefFlag Value="0.000000000000000000e+00" ID="WOMMHXENXME"/>
         <Rho Value="2.377000000000000206e-03" ID="JXLMLWVDIGU"/>
         <RootWakeNodes Value="0.000000000000000000e+00" ID="RSBWPRIFURA"/>

@@ -20,7 +20,7 @@ Coded By: David J. Kinney
 LEAF *create_cfd_tree(INTERP_MESH *Mesh)
 {
 
-    int   i, j, k, p, ii, jj, num_nodes, iblank[4], sum, tri[2][3];
+    int   i, num_nodes;
     int node1, node2, node3;
     LEAF *root;
 
@@ -124,7 +124,7 @@ Coded By: David J. Kinney
 void create_tree_leafs(LEAF *root)
 {
 
-    int   i, j, p, num_nodes, *perm, dir, icut, StopRecursion;
+    int   i, *perm, dir, icut, StopRecursion;
     LEAF  *left_leaf, *right_leaf;
     SNODE *temp_node;
 
@@ -523,7 +523,6 @@ int search_tree(LEAF *root, TNODE *node, double Tolerance)
 {
 
     float ds;
-    int   i;
 
     /* Don't search a NULL list */
 
@@ -640,9 +639,9 @@ Coded By: David J. Kinney
 void test_node(SNODE *snode, TNODE *tnode)
 {
 
-    float dot, angle, a_dist, distance, volume, vec1[3], vec2[3], vec3[3];
+    float dot, angle, a_dist, distance, vec1[3], vec2[3];
     float xyz[3], interp[MAX_VARIABLES], area[3], InterpWeight[3];
-    int   i, j, ifound, stencil, InterpNode[3];
+    int   j, stencil, InterpNode[3];
 
     /* check normals */
 

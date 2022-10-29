@@ -229,7 +229,12 @@ void PAUSE_AUTO_DIFF(void) {
    
     // Pause recording
 
-    adept::active_stack()->pause_recording();
+    if ( !adept::active_stack()->pause_recording() ) {
+       
+       PRINTF("Warning, VSPAERO was not compiled with ADEPT RECORDING PAUSABLE ! \n");
+       fflush(NULL);
+       
+    }
 
 #endif   
    
@@ -247,7 +252,12 @@ void CONTINUE_AUTO_DIFF(void) {
    
     // Continue recording
  
-    adept::active_stack()->continue_recording();
+    if ( !adept::active_stack()->continue_recording() ) {
+       
+       PRINTF("Warning, VSPAERO was not compiled with ADEPT RECORDING PAUSABLE ! \n");
+       fflush(NULL);
+              
+    }       
 
 #endif
                 
@@ -895,7 +905,7 @@ double INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSPAERO_DOUBLE &X)
 
     Delta = 1.e-10;
 
-    X.imag(1.e-10);
+    X.imag(Delta);
     
     return Delta;
    
@@ -936,14 +946,6 @@ double CALCULATE_COMPLEX_DIFF_FOR_FUNCTION(VSPAERO_DOUBLE F, double Delta)
 void INIT_1_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSPAERO_DOUBLE &X, double Delta)
 {
 
-    double Xr, Xi;
-    
-  //  Xr = ( X.real() + 0.5          )*Delta;
-  //  Xi = ( 0.0      + 0.5*sqrt(3.) )*Delta;
-  //  
-  //  X.real(Xr);
-  //  X.imag(Xi);
-    
     X.imag(Delta);
         
     
@@ -958,14 +960,6 @@ void INIT_1_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSPAERO_DOUBLE &X, double Delt
 void INIT_2_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSPAERO_DOUBLE &X, double Delta)
 {
 
-    double Xr, Xi;
-    
-  //  Xr = ( X.real() - 0.5          )*Delta;
-  //  Xi = ( 0.0      - 0.5*sqrt(3.) )*Delta;
-  //  
-  //  X.real(Xr);
-  //  X.imag(Xi);
-    
     X.imag(-Delta);
     
     

@@ -31,10 +31,10 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     GeometryHasWings_  = 0;
     GeometryHasBodies_ = 0;
         
-    OVec_[0] = OVec_[0] = OVec_[0] = 0.;
-    RVec_[0] = RVec_[0] = RVec_[0] = 0.;
-    TVec_[0] = TVec_[0] = TVec_[0] = 0.;
-    
+    OVec_[0] = OVec_[1] = OVec_[2] = 0.;
+    RVec_[0] = RVec_[1] = RVec_[2] = 0.;
+    TVec_[0] = TVec_[1] = TVec_[2] = 0.;
+        
     UserInputVelocity_[0] = UserInputVelocity_[1] = UserInputVelocity_[2] = 0.;
 
     UserInputAcceleration_[0] = UserInputAcceleration_[1] = UserInputAcceleration_[2] = 0.;
@@ -138,6 +138,8 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
            AngularMomentum_.size(3);           
                   Velocity_.size(3);            
               Acceleration_.size(3);    
+
+    Velocity_(1) = Velocity_(2) = Velocity_(3) = 0.;
                   
 }
 
@@ -176,7 +178,7 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
     RVec_[0] = RVec_[1] = RVec_[2] = 0.;
     TVec_[0] = TVec_[1] = TVec_[2] = 0.;
 
-    UserInputVelocity_[0] = UserInputVelocity_[1] = UserInputVelocity_[2] = 0.;
+    Velocity_(1) = Velocity_(2) = Velocity_(3) = 0.;
     
     UserInputAcceleration_[0] = UserInputAcceleration_[1] = UserInputAcceleration_[2] = 0.;
     
@@ -649,7 +651,7 @@ void COMPONENT_GROUP::UpdateSteadyRates(void)
     // Update current total rotation angle
 
     if ( CurrentTime_ > 0. ) TotalRotationAngle_ += Angle_;
- 
+
     // Quaternion rates
 
     WQuat_ = Omega * Quat_ * InvQuat_;
@@ -663,7 +665,41 @@ void COMPONENT_GROUP::UpdateSteadyRates(void)
     // Update the total quat
     
     if ( CurrentTime_ > 0. ) TotalQuat_ =  Quat_ * TotalQuat_;
-     
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                    COMPONENT_GROUP UpdateQuaternions                         #
+#                                                                              #
+##############################################################################*/
+
+void COMPONENT_GROUP::UpdateQuaternions(VSPAERO_DOUBLE TimeStep)
+{
+
+    QUAT Omega;
+    
+    // Angular rate
+   
+    Omega(0) = Omega_ * RVec_[0];
+    Omega(1) = Omega_ * RVec_[1];
+    Omega(2) = Omega_ * RVec_[2];
+    Omega(3) = 0.;
+
+    // Quaternion for this rotation, and it's inverse
+
+    Angle_ = Omega_ * TimeStep;
+
+    Quat_.FormRotationQuat(RVec_,Angle_);
+   
+    InvQuat_ = Quat_;
+   
+    InvQuat_.FormInverse();   
+  
+    // Quaternion rates
+
+    WQuat_ = Omega * Quat_ * InvQuat_;
+      
 }
 
 /*##############################################################################
@@ -1227,9 +1263,9 @@ void COMPONENT_GROUP::CalculateAverageForcesAndMoments(void)
     CDo_[1]  /= NumberOfTimeSamples_;
     CSo_[1]  /= NumberOfTimeSamples_; 
 
-    CTo_[1]   /= NumberOfTimeSamples_;
-    CQo_[1]   /= NumberOfTimeSamples_;
-    CPo_[1]   /= NumberOfTimeSamples_;
+    CTo_[1]  /= NumberOfTimeSamples_;
+    CQo_[1]  /= NumberOfTimeSamples_;
+    CPo_[1]  /= NumberOfTimeSamples_;
     
     CT_[1]   /= NumberOfTimeSamples_;
     CQ_[1]   /= NumberOfTimeSamples_;
@@ -1240,11 +1276,11 @@ void COMPONENT_GROUP::CalculateAverageForcesAndMoments(void)
     CQo_h_[1] /= NumberOfTimeSamples_;
     CPo_h_[1] /= NumberOfTimeSamples_;
         
-    CT_h_[1] /= NumberOfTimeSamples_;
-    CQ_h_[1] /= NumberOfTimeSamples_;
-    CP_h_[1] /= NumberOfTimeSamples_;
-    FOM_[1]  /= NumberOfTimeSamples_;
-        
+    CT_h_[1]  /= NumberOfTimeSamples_;
+    CQ_h_[1]  /= NumberOfTimeSamples_;
+    CP_h_[1]  /= NumberOfTimeSamples_;
+    FOM_[1]   /= NumberOfTimeSamples_;
+       
 }
 
 /*##############################################################################

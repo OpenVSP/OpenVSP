@@ -41,6 +41,10 @@ VSP_LOOP::VSP_LOOP(void)
 
     Normal_[0] = Normal_[1] = Normal_[2] = 0.;
 
+    Camber_ = 0.;
+
+    UVc_[0] = UVc_[1] = 0.;
+
     Velocity_[0] = Velocity_[1] = Velocity_[2] = 0.;
     
     Force_[0] = Force_[1] = Force_[2] = 0.;
@@ -48,6 +52,8 @@ VSP_LOOP::VSP_LOOP(void)
     Area_ = 0.;
     
     Length_ = 0.;
+
+    CentroidOffSet_ = 0.;
     
     RefLength_ = 0.;
     

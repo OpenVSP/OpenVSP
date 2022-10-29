@@ -594,7 +594,7 @@ void VSP_AGGLOM::InitializeFront_(void)
              Loop1 = FineGrid().EdgeList(j).Loop1();
              Loop2 = FineGrid().EdgeList(j).Loop2();
           
-             if ( Loop1 > 0 && FineGrid().LoopList(Loop1).SurfaceID() == i || Loop2 >0 && FineGrid().LoopList(Loop2).SurfaceID() == i ) {
+             if ( ( Loop1 > 0 && FineGrid().LoopList(Loop1).SurfaceID() == i ) || ( Loop2 >0 && FineGrid().LoopList(Loop2).SurfaceID() == i ) ) {
                 
                 if ( EdgeIsOnFront_[j] == 0 ) {
                    
@@ -1086,7 +1086,7 @@ void VSP_AGGLOM::MergeVortexLoops_(void)
 
     int MaxNode, Edge, Hits, MinLoop, MergedLoop; 
     int Side, Loop, Loop2, jLoop, i, j, k, p, Node, Node1, Node2, MaxLoops, AgglomLoops;
-    VSPAERO_DOUBLE Vec[3], Distance, MinDistance, MaxDistance, Weight, AverageWeight;
+    VSPAERO_DOUBLE Vec[3], Distance, MinDistance, Weight, AverageWeight;
         
     // Check each side
 
@@ -1402,7 +1402,7 @@ void VSP_AGGLOM::MergeSmallLoops_(void)
 {
 
     int Loop1, Loop2, i, j, k, p, q, r, Bad;
-    int Edge, LoopC, LoopD;
+    int Edge;
 
     q = 0;
     
@@ -2053,14 +2053,12 @@ PRINTF("...............................Interior loop! \n"); fflush(NULL);
 void VSP_AGGLOM::CreateCoarseMesh_(void)
 {
     
-    int i, j, k, p, Edge, Node, Node1, Node2, Node3, Loop, Loop1, Loop2, Next;
+    int i, j, k, p, Edge, Node, Node1, Node2, Loop, Loop1, Loop2, Next;
     int NumberOfCoarseGridNodes, NumberOfCoarseGridEdges, NumberOfCoarseGridLoops;
     int *KuttaNode, NumberOfKuttaNodes, *EdgeDirection;
     int *NumberOfFineGridLoops, *NumberOfEdgesForLoop;
-    int NumberOfLoopNodes, *NodeListForLoop, InList, Found, Done, FoundOne;
-    int Iter, IterMax, AllDone, NumberOfNodesUsed;
+    int NumberOfLoopNodes, *NodeListForLoop, InList, Found;
     VSPAERO_DOUBLE Area, Mag, Xb, Yb, Zb, x1, y1, z1, x2, y2, z2, Length;
-    VSPAERO_DOUBLE vec1[3], vec2[3], vec3[3], Normal[3];
     
     // Create a list of the fine edges still in use on the coarse grid
        
@@ -2122,8 +2120,6 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        if ( VortexLoopWasAgglomerated_[i] < 0 ) VortexLoopWasAgglomerated_[i] = VortexLoopWasAgglomerated_[ABS(VortexLoopWasAgglomerated_[i])];
                
     } 
-    
-    printf("VortexLoopWasAgglomerated_[57]: %d \n",VortexLoopWasAgglomerated_[57]);fflush(NULL);  
 
     // Allocate space for the coarse grid
 
@@ -2377,10 +2373,21 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        Xb = 0.5*( CoarseGrid().LoopList(i).BoundBox().x_max + CoarseGrid().LoopList(i).BoundBox().x_min );
        Yb = 0.5*( CoarseGrid().LoopList(i).BoundBox().y_max + CoarseGrid().LoopList(i).BoundBox().y_min );
        Zb = 0.5*( CoarseGrid().LoopList(i).BoundBox().z_max + CoarseGrid().LoopList(i).BoundBox().z_min );
-       
-       CoarseGrid().LoopList(i).CentroidOffSet() = sqrt( pow(CoarseGrid().LoopList(i).Xc() - Xb,2.)
-                                                       + pow(CoarseGrid().LoopList(i).Yc() - Yb,2.)
-                                                       + pow(CoarseGrid().LoopList(i).Zc() - Zb,2.) );       
+
+       if ( Xb == CoarseGrid().LoopList(i).Xc() &&
+            Yb == CoarseGrid().LoopList(i).Yc() && 
+            Zb == CoarseGrid().LoopList(i).Zc()){
+
+           CoarseGrid().LoopList(i).CentroidOffSet() = 0.0;
+
+       }
+
+       else{
+
+           CoarseGrid().LoopList(i).CentroidOffSet() = sqrt( pow(CoarseGrid().LoopList(i).Xc() - Xb,2.)
+                                                           + pow(CoarseGrid().LoopList(i).Yc() - Yb,2.)
+                                                           + pow(CoarseGrid().LoopList(i).Zc() - Zb,2.) );
+       }
 
     }            
     
@@ -2622,11 +2629,15 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        
              Node2 = CoarseGrid().LoopList(k).Node(j);
        
-             x2 = CoarseGrid().NodeList(Node2).x();
-             y2 = CoarseGrid().NodeList(Node2).y();
-             z2 = CoarseGrid().NodeList(Node2).z();
+             if ( i != j ) {
+
+                x2 = CoarseGrid().NodeList(Node2).x();
+                y2 = CoarseGrid().NodeList(Node2).y();
+                z2 = CoarseGrid().NodeList(Node2).z();
        
-             Length = MAX(Length,sqrt( pow(x1-x2,2.) + pow(y1-y2,2.) + pow(z1-z2,2.) ));
+                Length = MAX(Length,sqrt( pow(x1-x2,2.) + pow(y1-y2,2.) + pow(z1-z2,2.) ));
+
+             }
              
           }
           
@@ -3613,10 +3624,10 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
 void VSP_AGGLOM::CreateMixedMesh_(void)
 {
  
-    int i, Edge, Edge2, Loop, NeighborLoop, Iter, Done, CurrEdge;
+    int Edge, Loop, NeighborLoop;
     int Node1, Node2, Node3, Node4, NodeA, NodeB;
     int NumberOfLoopsMerged, BestNeighborLoop;   
-    VSPAERO_DOUBLE Angle, BestAngle, Dot;
+    VSPAERO_DOUBLE Angle, BestAngle;
 
     GoodQuadAngle_  = 100.*TORAD;
     WorstQuadAngle_ = 135.*TORAD;
@@ -3709,7 +3720,6 @@ void VSP_AGGLOM::CheckMesh_(VSP_GRID &ThisGrid)
 {
  
     int i, j, k, Loop1, Loop2, MessedUp;
-    int *NumberOfEdgesForLoop;
 
     if (0&& ThisGrid.ModelType() != VLM_MODEL ) {
        
@@ -4984,17 +4994,11 @@ VSPAERO_DOUBLE VSP_AGGLOM::CalculateAspectRatioOld_(VSP_GRID &ThisGrid, int Loop
 int VSP_AGGLOM::LoopsAreCoplanar_(VSP_GRID &ThisGrid, int Loop1, int Loop2, VSPAERO_DOUBLE MaxAngle)
 {
    
-    VSPAERO_DOUBLE Dot, Angle;
+    VSPAERO_DOUBLE Dot;
     
     Dot = vector_dot(ThisGrid.LoopList(Loop1).Normal(), ThisGrid.LoopList(Loop2).Normal());
     
-    if ( Dot <= 0. ) return 0;
-    
-    Dot = MAX(MIN(Dot,1.),-1.);
-    
-    Angle = acos(Dot)*180./PI;
-    
-    if ( ABS(Angle) <= MaxAngle ) return 1;
+    if ( Dot >= cos(MaxAngle*PI/180) ) return 1;
     
     return 0;
     
@@ -5010,7 +5014,7 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPA
 {
    
     int Node0, Node1, Node2, NodeA, NodeB;
-    VSPAERO_DOUBLE Vec1[3], Vec2[3], Dot, Angle;
+    VSPAERO_DOUBLE Vec1[3], Vec2[3], Dot;
     
     Node1 = ThisGrid.EdgeList(Edge1).Node1();
     Node2 = ThisGrid.EdgeList(Edge1).Node2();
@@ -5037,7 +5041,7 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPA
     else if ( Node2 == NodeA ) {
        
        Node0 = Node2;
-       Node1 = Node1;
+       // Node1 = Node1;
        Node2 = NodeB;
        
     }
@@ -5045,7 +5049,7 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPA
     else if ( Node2 == NodeB ) {
        
        Node0 = Node2;
-       Node1 = Node1;
+       // Node1 = Node1;
        Node2 = NodeA;
        
     }
@@ -5080,13 +5084,7 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPA
             
     Dot = vector_dot(Vec1,Vec2);
     
-    if ( Dot >= 0. ) return 0;
-    
-    Dot = MAX(Dot,-1.);
-    
-    Angle = 180. - acos(Dot)*180./PI;
- 
-    if ( Angle <= MaxAngle ) return 1;
+    if ( Dot >= cos(MaxAngle*PI/180) ) return 1;
     
     return 0;
     
@@ -5727,8 +5725,8 @@ PRINTF("Before edge search... NumberOfNodesUsed: %d \n",NumberOfNodesUsed);fflus
           
        }
        
-       printf("NumberOfLoopNodes: %d \n",NumberOfLoopNodes);
-       printf("NumberOfNodesUsed: %d \n",NumberOfNodesUsed);fflush(NULL);
+       PRINTF("NumberOfLoopNodes: %d \n",NumberOfLoopNodes);
+       PRINTF("NumberOfNodesUsed: %d \n",NumberOfNodesUsed);fflush(NULL);
  
       for ( j = 1 ; j <= NumberOfLoopNodes ; j++ ) {
       
@@ -5744,8 +5742,8 @@ PRINTF("Before edge search... NumberOfNodesUsed: %d \n",NumberOfNodesUsed);fflus
               
        if ( NumberOfNodesUsed != NumberOfLoopNodes ) {
           
-          printf("Error in creating the loop node list! \n");
-          printf("CoarseGrid().LoopList(i).NumberOfEdges() : %d \n",CoarseGrid().LoopList(i).NumberOfEdges() );
+          PRINTF("Error in creating the loop node list! \n");
+          PRINTF("CoarseGrid().LoopList(i).NumberOfEdges() : %d \n",CoarseGrid().LoopList(i).NumberOfEdges() );
           
           fflush(NULL);
           
@@ -5754,7 +5752,7 @@ PRINTF("Before edge search... NumberOfNodesUsed: %d \n",NumberOfNodesUsed);fflus
              Node1 = MIN(CoarseGrid().EdgeList(CoarseGrid().LoopList(i).Edge(j)).Node1(),CoarseGrid().EdgeList(CoarseGrid().LoopList(i).Edge(j)).Node2());
              Node2 = MAX(CoarseGrid().EdgeList(CoarseGrid().LoopList(i).Edge(j)).Node1(),CoarseGrid().EdgeList(CoarseGrid().LoopList(i).Edge(j)).Node2());
             
-             printf("Edge %d --> %d with Nodes: %d, %d and usage status: %d \n",j,CoarseGrid().LoopList(i).Edge(j),Node1,Node2,EdgeWasUsed[CoarseGrid().LoopList(i).Edge(j)]);
+             PRINTF("Edge %d --> %d with Nodes: %d, %d and usage status: %d \n",j,CoarseGrid().LoopList(i).Edge(j),Node1,Node2,EdgeWasUsed[CoarseGrid().LoopList(i).Edge(j)]);
           
           }
 

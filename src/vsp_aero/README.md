@@ -9,7 +9,7 @@
     $ make docs
     ```
 
-* Online documentation is located at [https://OpenMDAO.github.io/VSPAero/](https://OpenMDAO.github.io/VSPAero/)
+* Online documentation is located at [https://openmdao.github.io/VSPAERO/](https://openmdao.github.io/VSPAERO/)
 
 ## Prerequisites
 
@@ -63,6 +63,12 @@
 
     ```
     $ make install PREFIX=$HOME/foo/bar/vspaero/whatever
+    ```
+
+* To install the python interface, use the `interface` target in the makefile:
+
+    ```
+    $ make interface
     ```
 
 * To run the test cases, use the `test` target in the makefile:
