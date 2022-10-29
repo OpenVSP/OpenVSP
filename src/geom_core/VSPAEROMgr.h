@@ -151,12 +151,13 @@ public:
 
     void Update();
 
-    int WriteGroup( FILE* logFile );
+    int WriteGroup( FILE *group_file, int method, bool alternatefile );
 
     vector < pair < string, int > > GetCompSurfPairVec()                                    { return m_ComponentSurfPairVec; }
     void SetCompSurfPairVec( const vector < pair < string, int > > comp_surf_pair_vec )     { m_ComponentSurfPairVec = comp_surf_pair_vec; }
 
     void SetVSPAEROIndexVec( vector < int > vepaero_index_vec )                             { m_ComponentVSPAEROIndexVec = vepaero_index_vec; }
+    void SetGeomIDsInGroup( vector < string > gidvec )                                      { m_GeomIDsInGroup = gidvec; }
 
     void AddComp( string comp_id, int surf_ind )                                            { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
 
@@ -197,6 +198,8 @@ private:
 
     vector < pair < string, int > > m_ComponentSurfPairVec; // Pairs of component IDs and symmetric surface index for the unsteady group
     vector < int > m_ComponentVSPAEROIndexVec;
+
+    vector < string > m_GeomIDsInGroup; // Used with vspgeom files
 };
 
 //==== VSPAERO Manager ====//

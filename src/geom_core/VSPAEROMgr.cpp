@@ -18,6 +18,7 @@
 #include "WingGeom.h"
 #include "PropGeom.h"
 #include "FileUtil.h"
+#include "SubSurfaceMgr.h"
 
 //==== Constructor ====//
 VspAeroControlSurf::VspAeroControlSurf()
@@ -4476,6 +4477,27 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         group->Update();
     }
 
+    for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
+    {
+        vector < pair < string, int > > cspv = m_UnsteadyGroupVec[i]->GetCompSurfPairVec();
+        // A vector of <geomid, s> pairs -- where s is the symmetry copy number.
+        // We want to find the unique Geom's from this.
+
+        vector < string > gidv( cspv.size() );
+        for ( size_t j = 0; j < cspv.size(); j++ )
+        {
+            // Find index (position in vector) corresponding to GeomID.
+            gidv[j] = cspv[j].first;
+        }
+
+        // Make vector unique.
+        std::vector<string>::iterator it;
+        it = std::unique( gidv.begin(), gidv.end() );
+        gidv.resize( std::distance( gidv.begin(), it ) );
+
+        m_UnsteadyGroupVec[i]->SetGeomIDsInGroup( gidv );
+    }
+
     // Make sure the fixed compomnet group is always first
     if ( m_UnsteadyGroupVec.size() > NumUnsteadyRotorGroups() && m_UnsteadyGroupVec[0]->m_GeomPropertyType() != UnsteadyGroup::GEOM_FIXED )
     {
@@ -4608,7 +4630,7 @@ int VSPAEROMgrSingleton::CreateGroupsFile()
 
     for ( size_t i = 0; i < numgroups; i++ )
     {
-        m_UnsteadyGroupVec[i]->WriteGroup( group_file );
+        m_UnsteadyGroupVec[ i ]->WriteGroup( group_file, m_AnalysisMethod(), m_AlternateInputFormatFlag() );
     }
 
     //Finish up by closing the file and making sure that it appears in the file system
@@ -5819,7 +5841,7 @@ void UnsteadyGroup::Update()
     m_Rz.Set( r_vec.z() );
 }
 
-int UnsteadyGroup::WriteGroup( FILE* group_file )
+int UnsteadyGroup::WriteGroup( FILE *group_file, int method, bool alternatefile )
 {
     if ( !group_file )
     {
@@ -5834,11 +5856,30 @@ int UnsteadyGroup::WriteGroup( FILE* group_file )
     name.erase( remove_if( name.begin(), name.end(), ::isspace ), name.end() );
 
     fprintf( group_file, "GroupName = %s\n", name.c_str() );
-    fprintf( group_file, "NumberOfComponents = %d\n", m_ComponentVSPAEROIndexVec.size() );
 
-    for ( size_t i = 0; i < m_ComponentVSPAEROIndexVec.size(); i++ )
+    bool oldway = true;
+
+    if ( method == vsp::PANEL && !alternatefile )
     {
-        fprintf( group_file, "%d\n", m_ComponentVSPAEROIndexVec[i] );
+        oldway = false;
+    }
+
+    if ( oldway )
+    {
+        fprintf( group_file, "NumberOfComponents = %d\n", m_ComponentVSPAEROIndexVec.size() );
+        for ( size_t i = 0; i < m_ComponentVSPAEROIndexVec.size(); i++ )
+        {
+            fprintf( group_file, "%d\n", m_ComponentVSPAEROIndexVec[i] );
+        }
+    }
+    else
+    {
+        fprintf( group_file, "NumberOfComponents = %d\n", m_GeomIDsInGroup.size() );
+        for ( size_t i = 0; i < m_GeomIDsInGroup.size(); i++ )
+        {
+            int gnum = SubSurfaceMgr.FindGNum( m_GeomIDsInGroup[i] );
+            fprintf( group_file, "%d\n", gnum + 1 );
+        }
     }
 
     bool geom_fixed = false;
