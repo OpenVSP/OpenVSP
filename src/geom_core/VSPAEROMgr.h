@@ -156,7 +156,6 @@ public:
     vector < pair < string, int > > GetCompSurfPairVec()                                    { return m_ComponentSurfPairVec; }
     void SetCompSurfPairVec( const vector < pair < string, int > > comp_surf_pair_vec )     { m_ComponentSurfPairVec = comp_surf_pair_vec; }
 
-    vector < int > GetVSPAEROIndexVec()                                                     { return m_ComponentVSPAEROIndexVec; }
     void SetVSPAEROIndexVec( vector < int > vepaero_index_vec )                             { m_ComponentVSPAEROIndexVec = vepaero_index_vec; }
 
     void AddComp( string comp_id, int surf_ind )                                            { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
@@ -315,7 +314,7 @@ public:
     void SetCurrentUnsteadyGroupIndex( const string& id );
     int GetCurrentUnsteadyGroupIndex()                          { return m_CurrentUnsteadyGroupIndex; }
     UnsteadyGroup* AddUnsteadyGroup();
-    void DeleteUnsteadyGroup( int index );
+    void DeleteUnsteadyGroup( vector <int> ind_vec );
     bool ValidUnsteadyGroupInd( int index );
     void AddUnsteadyGroup( UnsteadyGroup* group )               { m_UnsteadyGroupVec.push_back( group ); }
     UnsteadyGroup* GetUnsteadyGroup( int index );

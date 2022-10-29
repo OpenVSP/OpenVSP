@@ -4001,18 +4001,22 @@ bool VSPAEROMgrSingleton::ValidUnsteadyGroupInd( int index )
     }
 }
 
-void VSPAEROMgrSingleton::DeleteUnsteadyGroup( int index )
+void VSPAEROMgrSingleton::DeleteUnsteadyGroup( vector <int> ind_vec )
 {
-    if ( ValidUnsteadyGroupInd( index ) )
-    {
-        delete m_UnsteadyGroupVec[index];
-        m_UnsteadyGroupVec.erase( m_UnsteadyGroupVec.begin() + index );
+    vector < UnsteadyGroup* > tempvec;
 
-        if ( ValidUnsteadyGroupInd( index - 1 ) )
+    for ( int i = 0; i < m_UnsteadyGroupVec.size(); i++ )
+    {
+        if ( vector_contains_val( ind_vec, i ) )
         {
-            m_CurrentUnsteadyGroupIndex -= 1;
+            delete m_UnsteadyGroupVec[i];
+        }
+        else
+        {
+            tempvec.push_back( m_UnsteadyGroupVec[i] );
         }
     }
+    m_UnsteadyGroupVec = tempvec;
 }
 
 UnsteadyGroup* VSPAEROMgrSingleton::AddUnsteadyGroup()
@@ -4438,22 +4442,8 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         m_UnsteadyGroupVec[i]->Update();
     }
 
-    // Delete empty groups
-    while ( del_vec.size() > 0 )
-    {
-        int del_ind = del_vec.back();
-        DeleteUnsteadyGroup( del_ind );
 
-        for ( size_t i = 1; i < del_vec.size(); i++ )
-        {
-            if ( del_ind < del_vec[i] )
-            {
-                del_vec[i] -= 1;
-            }
-        }
-
-        del_vec.pop_back();
-    }
+    DeleteUnsteadyGroup( del_vec );
 
     // Create a fixed component group with all ungrouped components
     if ( ungrouped_comps.size() > 0 )
