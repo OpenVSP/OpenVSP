@@ -4131,8 +4131,9 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
             continue;
         }
 
-        if ( geom->GetType().m_Type == BLANK_GEOM_TYPE || geom->GetType().m_Type == HINGE_GEOM_TYPE ||
-             geom->GetType().m_Type == PT_CLOUD_GEOM_TYPE ) // TODO: Check if point cloud works in panel method?
+        if ( geom->GetType().m_Type == BLANK_GEOM_TYPE ||
+             geom->GetType().m_Type == HINGE_GEOM_TYPE ||
+             geom->GetType().m_Type == PT_CLOUD_GEOM_TYPE ) // Skip these types.
         {
             continue;
         }
@@ -4422,7 +4423,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
             }
         }
 
-        if ( m_UnsteadyGroupVec[i]->m_GeomPropertyType() != m_UnsteadyGroupVec[i]->GEOM_ROTOR )
+        if ( m_UnsteadyGroupVec[i]->m_GeomPropertyType() != UnsteadyGroup::GEOM_ROTOR )
         {
             for ( size_t j = 0; j < ungrouped_comps.size(); j++ )
             {
