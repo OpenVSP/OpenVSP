@@ -1754,6 +1754,8 @@ void Choice::ClearFlags()
 
 void Choice::UpdateItems( bool keepsetting )
 {
+    static string dummymenuentry = GenerateRandomID( 14 );
+
     if ( m_Flags.size() != m_Items.size() )
     {
         m_Flags.resize( m_Items.size(), 0 );
@@ -1768,17 +1770,13 @@ void Choice::UpdateItems( bool keepsetting )
         m_Choice->clear();
         for ( int i = 0 ; i < ( int )m_Items.size() ; i++ )
         {
-            // Slashes in names create sub-menus.  We don't want those.
-            if ( m_Items[i].find( '/' ) != string::npos )
-            {
-                m_Choice->add( "dummy", 0, 0, 0, m_Flags[i] );
-                // Only way to add strings with slashes is to replace just-added entry.
-                m_Choice->replace( i, m_Items[i].c_str() );
-            }
-            else
-            {
-                m_Choice->add( m_Items[i].c_str(), 0, 0, 0, m_Flags[i] );
-            }
+            // Use two-step add & replace for all item entries.
+            // Entries with special characters require a two-step add.
+            // Likewise, duplicate entries require a two-step add.
+            // The first step contains the safeties for special characters, duplicates, etc.  The two-step
+            // short circuits that.
+            m_Choice->add( dummymenuentry.c_str(), 0, 0, 0, m_Flags[i] );
+            m_Choice->replace( i, m_Items[i].c_str() );
         }
 
         if( keepsetting )
