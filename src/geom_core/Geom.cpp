@@ -4625,18 +4625,20 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec ) const
     vector< vector<vec3d> > norms;
     vector< vector<vec3d> > uw_pnts;
 
-    for ( int i = 0 ; i < surf_vec.size(); i++ )
+    int nsurf = surf_vec.size();
+
+    for ( int i = 0 ; i < nsurf; i++ )
     {
         surf_vec[i].ResetUSkip();
     }
 
     // Check for duplicate patches.  Typically occur at symmetrical wing root.  When they occur, skip both copies
     // in tessellation.
-    if ( surf_vec.size() == GetNumTotalSurfs() ) // Detect if we're working m_SurfVec
+    if ( nsurf == GetNumTotalSurfs() ) // Detect if we're working m_SurfVec
     {
-        for ( int i = 0 ; i < surf_vec.size() - 1 ; i++ )
+        for ( int i = 0 ; i < nsurf - 1 ; i++ )
         {
-            for ( int j = i + 1 ; j < surf_vec.size() ; j++ )
+            for ( int j = i + 1 ; j < nsurf ; j++ )
             {
                 if ( m_SurfIndxVec[i] == m_SurfIndxVec[j] ) // Check if they come from same main surface
                 {
@@ -4647,16 +4649,16 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec ) const
     }
     else                                         // We're working copy of m_MainSurfVec
     {
-        for ( int i = 0 ; i < surf_vec.size() - 1 ; i++ )
+        for ( int i = 0 ; i < nsurf - 1 ; i++ )
         {
-            for ( int j = i + 1 ; j < surf_vec.size() ; j++ )
+            for ( int j = i + 1 ; j < nsurf ; j++ )
             {
                 surf_vec[i].FlagDuplicate( surf_vec[j] );
             }
         }
     }
 
-    for ( int i = 0 ; i < surf_vec.size() ; i++ )
+    for ( int i = 0 ; i < nsurf ; i++ )
     {
         if ( surf_vec[i].GetNumSectU() != 0 && surf_vec[i].GetNumSectW() != 0 )
         {
