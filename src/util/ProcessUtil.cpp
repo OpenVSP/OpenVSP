@@ -7,6 +7,8 @@
 #include "MessageMgr.h"
 #include "StringUtil.h"
 
+#include <ctime>
+
 #ifdef __APPLE__
 
 #endif
@@ -180,7 +182,7 @@ string ProcessUtil::QuoteString( const string &str )
 
 int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<string> &opts )
 {
-    std::clock_t tstart = std::clock();
+    clock_t tstart = clock();
 
 #ifdef WIN32
 
@@ -300,7 +302,7 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
     // a fair chance to connect.  Threads that terminate too quickly do not get their output captured because they
     // terminate before the monitor is working.  Delay occurs before the output pipe is closed.
     double tmin = 1.0;
-    double telapsed = ( std::clock() - tstart ) / (double)CLOCKS_PER_SEC;
+    double telapsed = ( clock() - tstart ) / (double)CLOCKS_PER_SEC;
     if ( telapsed < tmin )
     {
         SleepForMilliseconds( 1000.0 * ( tmin - telapsed ) );
