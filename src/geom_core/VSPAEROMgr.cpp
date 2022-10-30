@@ -214,7 +214,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_RotateBladesFlag.Init( "RotateBladesFlag", groupname, this, false, false, true );
     m_RotateBladesFlag.SetDescript( "Flag for VSPAERO to Analyze Unsteady Rotating Propellers (Propeller tab)" );
 
-    m_StabilityType.Init( "UnsteadyType", groupname, this, vsp::STABILITY_OFF, vsp::STABILITY_OFF, vsp::STABILITY_IMPULSE );
+    m_StabilityType.Init( "UnsteadyType", groupname, this, vsp::STABILITY_OFF, vsp::STABILITY_OFF, vsp::STABILITY_NUM_TYPES - 1 );
     m_StabilityType.SetDescript( "Unsteady Calculation Type" );
 
     // Unsteady
@@ -675,6 +675,10 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             {
                 m_StabFile = m_ModelNameBase + string( ".rstab" );
             }
+            else if ( m_StabilityType() == vsp::STABILITY_PITCH )
+            {
+                m_StabFile = m_ModelNameBase + string( ".aerocenter.stab" );
+            }
             else
             {
                 m_StabFile = m_ModelNameBase + string( ".stab" );
@@ -741,6 +745,10 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             else if ( m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
             {
                 m_StabFile = m_ModelNameBase + string( ".rstab" );
+            }
+            else if ( m_StabilityType() == vsp::STABILITY_PITCH )
+            {
+                m_StabFile = m_ModelNameBase + string( ".aerocenter.stab" );
             }
             else
             {
@@ -2018,6 +2026,10 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
                 //case vsp::STABILITY_UNSTEADY:
                 //    args.push_back( "-unsteady" );
                 //    break;
+
+                case vsp::STABILITY_PITCH:
+                    args.push_back( "-acstab" );
+                    break;
             }
         }
 
@@ -2897,7 +2909,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
     std::vector<string> data_string_array;
 
     // Read in all of the data into the results manager
-    char seps[] = " :,\t\n";
+    char seps[] = " :,\t\n()";
     while ( !feof( fp ) )
     {
         data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
@@ -2912,6 +2924,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
             {
                 // Failed to read the case header
                 fprintf( stderr, "ERROR %d: Could not read case header in VSPAERO file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_READ_FAILURE, m_StabFile.c_str(), __FILE__, __LINE__ );
+                std::fclose ( fp );
                 return;
             }
         }
@@ -2946,6 +2959,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                 if ( stabilityType != vsp::STABILITY_DEFAULT )
                 {
                     // Support file format for P, Q, or R uinsteady analysis types
+                    // Also works for pitch stability run.
                     string name = data_string_array[0];
 
                     for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
@@ -3733,7 +3747,8 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     // Add model file name
     args.push_back( "-interrogate" );
 
-    if ( m_RotateBladesFlag() || m_StabilityType.Get() > vsp::STABILITY_DEFAULT )
+    if ( m_RotateBladesFlag() ||
+       ( m_StabilityType.Get() > vsp::STABILITY_DEFAULT && m_StabilityType.Get() < vsp::STABILITY_PITCH ) )
     {
         args.push_back( "-unsteady" );
     }

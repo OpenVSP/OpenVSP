@@ -380,13 +380,12 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_PropAndStabLayout.SetSliderWidth( m_PropAndStabLayout.GetRemainX() / 2 );
 
     m_PropAndStabLayout.AddChoice( m_StabilityTypeChoice, "Stability Type" );
-    m_StabilityTypeChoice.AddItem( "Off" );
-    m_StabilityTypeChoice.AddItem( "Steady" );
-    m_StabilityTypeChoice.AddItem( "P Analysis" );
-    m_StabilityTypeChoice.AddItem( "Q Analysis" );
-    m_StabilityTypeChoice.AddItem( "R Analysis" );
-    //m_StabilityTypeChoice.AddItem( "Heave" ); // To Be Implemented
-    //m_StabilityTypeChoice.AddItem( "Impulse" ); // To Be Implemented
+    m_StabilityTypeChoice.AddItem( "Off", vsp::STABILITY_OFF );
+    m_StabilityTypeChoice.AddItem( "Steady", vsp::STABILITY_DEFAULT );
+    m_StabilityTypeChoice.AddItem( "Pitch", vsp::STABILITY_PITCH );
+    m_StabilityTypeChoice.AddItem( "P Analysis", vsp::STABILITY_P_ANALYSIS );
+    m_StabilityTypeChoice.AddItem( "Q Analysis", vsp::STABILITY_Q_ANALYSIS );
+    m_StabilityTypeChoice.AddItem( "R Analysis", vsp::STABILITY_R_ANALYSIS );
     m_StabilityTypeChoice.UpdateItems();
     m_PropAndStabLayout.ForceNewLine();
 
@@ -1453,7 +1452,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     // Stability
     if (VSPAEROMgr.m_Symmetry())
     {
-        VSPAEROMgr.m_StabilityType.Set( vsp::STABILITY_OFF );
+        VSPAEROMgr.m_StabilityType.Set( vsp::STABILITY_OFF ); // Potentially relax to allow STABILITY_PITCH or STABILITY_Q_ANALYSIS
     }
 
     m_StabilityTypeChoice.Update( VSPAEROMgr.m_StabilityType.GetID() );
@@ -1748,7 +1747,8 @@ void VSPAEROScreen::UpdateOtherSetupParms()
         m_StabilityTypeChoice.Activate();
     }
 
-    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType.Get() >= vsp::STABILITY_P_ANALYSIS )
+    if ( VSPAEROMgr.m_RotateBladesFlag() ||
+       ( VSPAEROMgr.m_StabilityType.Get() >= vsp::STABILITY_P_ANALYSIS && VSPAEROMgr.m_StabilityType.Get() <= vsp::STABILITY_R_ANALYSIS ) )
     {
         m_ReCrefNptsInput.Deactivate();
     }
@@ -1757,7 +1757,9 @@ void VSPAEROScreen::UpdateOtherSetupParms()
         m_ReCrefNptsInput.Activate();
     }
 
-    if ( VSPAEROMgr.m_RotateBladesFlag.Get() || VSPAEROMgr.m_ActuatorDiskFlag.Get() || VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_OFF )
+    if ( VSPAEROMgr.m_RotateBladesFlag.Get() ||
+         VSPAEROMgr.m_ActuatorDiskFlag.Get() ||
+       ( VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_OFF && VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_PITCH ) )
     {
         m_VinfSlider.Activate();
         m_ActivateVRefToggle.Activate();

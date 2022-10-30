@@ -1882,10 +1882,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_R_ANALYSIS", STABILITY_R_ANALYSIS, "/*!< R stability analysis */" );
     assert( r >= 0 );
-    //r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_HEAVE", STABILITY_HEAVE );
-    //assert( r >= 0 );
-    //r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_IMPULSE", STABILITY_IMPULSE );
-    //assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_PITCH", STABILITY_PITCH, "/*!< Pitch stability analysis */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_NUM_TYPES", STABILITY_NUM_TYPES, "/*!< Number of stability run types */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for the VSPAERO stall modeling options (Cl Max VSPAERO input). */";
 

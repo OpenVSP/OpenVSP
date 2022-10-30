@@ -653,14 +653,14 @@ enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,
                             PRECON_SSOR,
                           };
 
-enum VSPAERO_STABILITY_TYPE { STABILITY_OFF,
-                              STABILITY_DEFAULT,
-                              STABILITY_P_ANALYSIS,
-                              STABILITY_Q_ANALYSIS,
-                              STABILITY_R_ANALYSIS,
-                              STABILITY_UNSTEADY, // TODO: Implement with later VSPAERO version
-                              STABILITY_HEAVE, // TODO: Implement with later VSPAERO version
-                              STABILITY_IMPULSE // TODO: Implement with later VSPAERO version
+// Values need to match VSPAERO StabControlRun_
+enum VSPAERO_STABILITY_TYPE { STABILITY_OFF = 0,
+                              STABILITY_DEFAULT = 1,
+                              STABILITY_P_ANALYSIS = 2,
+                              STABILITY_Q_ANALYSIS = 3,
+                              STABILITY_R_ANALYSIS = 4,
+                              STABILITY_PITCH = 5,
+                              STABILITY_NUM_TYPES = 6
                             };
 
 enum VSPAERO_CLMAX_TYPE { CLMAX_OFF,

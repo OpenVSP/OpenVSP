@@ -625,7 +625,8 @@ void VSPAEROPlotScreen::SetDefaultView()
     int num_group = ResultsMgr.GetNumResults( "VSPAERO_Group" );
 
     // TODO: Identify default view from results, not parms
-    if ( num_group > 0 || stab_type >= vsp::STABILITY_P_ANALYSIS )
+    if ( num_group > 0 ||
+       ( stab_type >= vsp::STABILITY_P_ANALYSIS && stab_type <= vsp::STABILITY_R_ANALYSIS ) )
     {
         m_UnsteadyTab->show();
 
@@ -666,7 +667,9 @@ bool VSPAEROPlotScreen::Update()
         stabFlag = true;
     }
 
-    if ( !stabFlag || ( stabFlag && stabType == vsp::STABILITY_DEFAULT ) )
+    if ( !stabFlag ||
+          stabFlag && stabType == vsp::STABILITY_DEFAULT ||
+          stabFlag && stabType == vsp::STABILITY_PITCH )
     {
         m_UnsteadyTab->deactivate();
         m_ConvergenceTab->activate();
