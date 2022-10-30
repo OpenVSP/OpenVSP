@@ -48,11 +48,11 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
       if: runner.os != 'Linux'
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
         architecture: ${{ matrix.config.python-arch }}
@@ -162,6 +162,6 @@ jobs:
         ls html.zip && (echo "DOC GEN SUCCESSFUL" && exit 0) || (echo "DOC GEN FAILED" && exit 1)
 
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         path: ${{ github.workspace }}/artifacts
