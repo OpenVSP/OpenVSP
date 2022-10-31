@@ -281,6 +281,9 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     m_FemTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
     m_FemTabLayout.ForceNewLine();
 
+    m_FemTabLayout.AddButton( m_DrawBCNodesToggle, "Draw BCs" );
+    m_FemTabLayout.ForceNewLine();
+
     m_FemTabLayout.AddYGap();
 
     m_FemTabLayout.SetSameLineFlag( false );
@@ -363,6 +366,7 @@ bool StructAssemblyScreen::Update()
     m_DrawMeshButton.Update( curr_assy->m_AssemblySettings.m_DrawMeshFlag.GetID() );
     m_ColorElementsButton.Update( curr_assy->m_AssemblySettings.m_ColorTagsFlag.GetID() );
     m_DrawNodesToggle.Update( curr_assy->m_AssemblySettings.m_DrawNodesFlag.GetID() );
+    m_DrawBCNodesToggle.Update( curr_assy->m_AssemblySettings.m_DrawBCNodesFlag.GetID() );
     m_DrawElementOrientVecToggle.Update( curr_assy->m_AssemblySettings.m_DrawElementOrientVecFlag.GetID() );
 
     FeaMeshMgr.UpdateAssemblyDisplaySettings( curr_assy->GetID() );

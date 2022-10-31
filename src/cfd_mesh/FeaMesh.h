@@ -176,6 +176,7 @@ public:
     vector< DrawObj > m_SSFeaNodeDO;
     vector< DrawObj > m_SSElOrientationDO;
     vector< DrawObj > m_SSCapNormDO;
+    DrawObj m_BCNodeDO;
 
 
 private:

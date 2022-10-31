@@ -986,6 +986,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_FemTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation" );
     m_FemTabLayout.ForceNewLine();
 
+    m_FemTabLayout.AddButton( m_DrawBCNodesToggle, "Draw BCs" );
+    m_FemTabLayout.ForceNewLine();
+
     m_FemTabLayout.SetFitWidthFlag( true );
     m_FemTabLayout.SetSameLineFlag( false );
     m_FemTabLayout.AddYGap();
@@ -2238,6 +2241,7 @@ bool StructScreen::Update()
             m_DrawMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
             m_ColorElementsButton.Update( curr_struct->GetStructSettingsPtr()->m_ColorTagsFlag.GetID() );
             m_DrawNodesToggle.Update( curr_struct->GetStructSettingsPtr()->m_DrawNodesFlag.GetID() );
+            m_DrawBCNodesToggle.Update( curr_struct->GetStructSettingsPtr()->m_DrawBCNodesFlag.GetID() );
             m_DrawElementOrientVecToggle.Update( curr_struct->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.GetID() );
 
             m_DrawIsect.Update( curr_struct->GetStructSettingsPtr()->m_DrawIsectFlag.GetID() );

@@ -446,6 +446,9 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_DrawNodesFlag.Init( "DrawNodesFlag", "StructSettings", this, false, false, true );
     m_DrawNodesFlag.SetDescript( "Flag to Draw FeaNodes" );
 
+    m_DrawBCNodesFlag.Init( "DrawBCNodesFlag", "StructSettings", this, false, false, true );
+    m_DrawBCNodesFlag.SetDescript( "Flag to Draw Boundary Condition FeaNodes" );
+
     m_DrawElementOrientVecFlag.Init( "DrawElementOrientVecFlag", "StructSettings", this, false, false, true );
     m_DrawElementOrientVecFlag.SetDescript( "Flag to Draw FeaElement Orientation Vectors" );
 
@@ -577,6 +580,9 @@ AssemblySettings::AssemblySettings() : ParmContainer()
 
     m_DrawNodesFlag.Init( "DrawNodesFlag", "StructSettings", this, false, false, true );
     m_DrawNodesFlag.SetDescript( "Flag to Draw FeaNodes" );
+
+    m_DrawBCNodesFlag.Init( "DrawBCNodesFlag", "StructSettings", this, false, false, true );
+    m_DrawBCNodesFlag.SetDescript( "Flag to Draw Boundary Condition FeaNodes" );
 
     m_DrawElementOrientVecFlag.Init( "DrawElementOrientVecFlag", "StructSettings", this, false, false, true );
     m_DrawElementOrientVecFlag.SetDescript( "Flag to Draw FeaElement Orientation Vectors" );

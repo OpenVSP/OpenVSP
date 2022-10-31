@@ -246,6 +246,7 @@ SimpleFeaMeshSettings::SimpleFeaMeshSettings()
 {
     m_NumEvenlySpacedPart = 0;
     m_DrawNodesFlag = false;
+    m_DrawBCNodesFlag = false;
     m_DrawElementOrientVecFlag = false;
     m_XYZIntCurveFlag = false;
 
@@ -263,6 +264,7 @@ void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
     m_NumEvenlySpacedPart = settings->m_NumEvenlySpacedPart.Get(); // Not used by FeaMeshMgr
 
     m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
+    m_DrawBCNodesFlag = settings->m_DrawBCNodesFlag.Get();
     m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
 
     CopyPostOpFrom( settings );
@@ -508,6 +510,7 @@ SimpleAssemblySettings::SimpleAssemblySettings()
     m_ColorTagsFlag = false;
 
     m_DrawNodesFlag = false;
+    m_DrawBCNodesFlag = false;
     m_DrawElementOrientVecFlag = false;
 }
 
@@ -524,6 +527,7 @@ void SimpleAssemblySettings::CopyFrom( AssemblySettings* settings )
     m_ColorTagsFlag = settings->m_ColorTagsFlag.Get();
 
     m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
+    m_DrawBCNodesFlag = settings->m_DrawBCNodesFlag.Get();
     m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
 
     CopyPostOpFrom( settings );

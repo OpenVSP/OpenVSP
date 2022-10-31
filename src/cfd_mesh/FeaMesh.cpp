@@ -149,8 +149,22 @@ void FeaMesh::UpdateDrawObjs()
     m_CapFeaElementDO.resize( m_NumFeaParts );
     m_ElOrientationDO.resize( m_NumFeaParts );
     m_CapNormDO.resize( m_NumFeaParts );
+    m_BCNodeDO.m_PntVec.clear();
 
     double line_length = GetGridDensityPtr()->m_MinLen / 3.0; // Length of orientation vectors
+
+    m_BCNodeDO.m_GeomID = GetID() + "_BCNodes";
+    m_BCNodeDO.m_Type = DrawObj::VSP_POINTS;
+    m_BCNodeDO.m_PointSize = 10.0;
+    m_BCNodeDO.m_PointColor = vec3d( 1, 0, 0 );
+    for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+    {
+        if ( m_FeaNodeVec[j]->m_BCs.AsNum() != 0 ) // Some BC is set.
+        {
+            m_BCNodeDO.m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt );
+        }
+    }
+    m_BCNodeDO.m_GeomChanged = true;
 
     char str[256];
     for ( int iprt = 0; iprt < m_NumFeaParts; iprt++ )
@@ -453,7 +467,7 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
         {
             m_FeaNodeDO[iprt].m_Type = DrawObj::VSP_POINTS;
             m_FeaNodeDO[iprt].m_PointSize = 6.0;
-            m_FeaNodeDO[iprt].m_PointColor = vec3d( 0, 0, 1 );
+            m_FeaNodeDO[iprt].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
 
             if ( m_FixPointFeaPartFlagVec[iprt] )
             {
@@ -528,7 +542,6 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                     m_FeaQuadElementDO[iprt].m_PointColor = rgb;
                 }
 
-                m_FeaNodeDO[iprt].m_PointColor = rgb;
                 m_CapFeaElementDO[iprt].m_LineColor = m_CapFeaElementDO[iprt].ColorWheel( deg2 );
 
                 for ( int icomp = 0; icomp < 3; icomp++ )
@@ -575,7 +588,6 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                 m_FeaQuadElementDO[iprt].m_MaterialInfo.Shininess = 1.0f;
 
                 // No color needed for mesh only.
-                m_FeaNodeDO[iprt].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
                 m_CapFeaElementDO[iprt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             }
 
@@ -598,6 +610,8 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
         {
             m_SSFeaNodeDO[iss].m_Type = DrawObj::VSP_POINTS;
             m_SSFeaNodeDO[iss].m_PointSize = 6.0;
+            m_SSFeaNodeDO[iss].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
+
             m_SSTriElementDO[iss].m_Type = DrawObj::VSP_SHADED_TRIS;
             m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_SHADED_QUADS;
             m_SSCapFeaElementDO[iss].m_Type = DrawObj::VSP_LINES;
@@ -646,7 +660,6 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                 vec3d rgb = m_SSTriElementDO[iss].ColorWheel( deg );
                 rgb.normalize();
 
-                m_SSFeaNodeDO[iss].m_PointColor = rgb;
                 m_SSCapFeaElementDO[iss].m_LineColor = m_SSCapFeaElementDO[iss].ColorWheel( deg2 );
 
                 for ( int icomp = 0; icomp < 3; icomp++ )
@@ -691,7 +704,6 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                 m_SSTriElementDO[iss].m_MaterialInfo.Shininess = 1.0f;
                 m_SSQuadElementDO[iss].m_MaterialInfo.Shininess = 1.0f;
 
-                m_SSFeaNodeDO[iss].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
                 m_SSCapFeaElementDO[iss].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             }
 
@@ -711,6 +723,10 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
             draw_obj_vec.push_back( &m_SSCapNormDO[iss] );
         }
     }
+
+    m_BCNodeDO.m_Visible = st_settings->m_DrawBCNodesFlag;
+    draw_obj_vec.push_back( &m_BCNodeDO );
+
 }
 
 void FeaMesh::ExportFeaMesh()
@@ -1992,6 +2008,7 @@ void FeaMesh::UpdateDisplaySettings()
         GetStructSettingsPtr()->m_ColorTagsFlag = fea_struct->GetStructSettingsPtr()->m_ColorTagsFlag.Get();
 
         GetStructSettingsPtr()->m_DrawNodesFlag = fea_struct->GetStructSettingsPtr()->m_DrawNodesFlag.Get();
+        GetStructSettingsPtr()->m_DrawBCNodesFlag = fea_struct->GetStructSettingsPtr()->m_DrawBCNodesFlag.Get();
         GetStructSettingsPtr()->m_DrawElementOrientVecFlag = fea_struct->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.Get();
 
         GetStructSettingsPtr()->m_DrawBorderFlag = fea_struct->GetStructSettingsPtr()->m_DrawBorderFlag.Get();

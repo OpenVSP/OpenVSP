@@ -354,6 +354,7 @@ private:
     ToggleButton m_DrawMeshButton;
     ToggleButton m_ColorElementsButton;
     ToggleButton m_DrawNodesToggle;
+    ToggleButton m_DrawBCNodesToggle;
     ToggleButton m_DrawElementOrientVecToggle;
 
     Fl_Check_Browser* m_DrawPartSelectBrowser;

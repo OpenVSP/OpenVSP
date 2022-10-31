@@ -192,6 +192,7 @@ public:
     Parm m_MultiSliceSpacing;
     IntParm m_MultSliceIncludedElements;
     BoolParm m_DrawNodesFlag;
+    BoolParm m_DrawBCNodesFlag;
     BoolParm m_DrawElementOrientVecFlag;
     BoolParm m_XYZIntCurveFlag;
 
@@ -233,6 +234,7 @@ public:
 
     BoolParm m_ExportFileFlags[vsp::FEA_NUM_FILE_NAMES];
     BoolParm m_DrawNodesFlag;
+    BoolParm m_DrawBCNodesFlag;
     BoolParm m_DrawElementOrientVecFlag;
 
 protected:

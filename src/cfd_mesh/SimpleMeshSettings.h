@@ -136,6 +136,7 @@ public:
 
     int m_NumEvenlySpacedPart;
     bool m_DrawNodesFlag;
+    bool m_DrawBCNodesFlag;
     bool m_DrawElementOrientVecFlag;
 
     int m_NodeOffset;

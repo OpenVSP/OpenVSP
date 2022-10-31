@@ -2507,6 +2507,7 @@ void FeaMeshMgrSingleton::UpdateAssemblyDisplaySettings( const string &assembly_
         m_AssemblySettings.m_ColorTagsFlag = fea_assembly->m_AssemblySettings.m_ColorTagsFlag.Get();
 
         m_AssemblySettings.m_DrawNodesFlag = fea_assembly->m_AssemblySettings.m_DrawNodesFlag.Get();
+        m_AssemblySettings.m_DrawBCNodesFlag = fea_assembly->m_AssemblySettings.m_DrawBCNodesFlag.Get();
         m_AssemblySettings.m_DrawElementOrientVecFlag = fea_assembly->m_AssemblySettings.m_DrawElementOrientVecFlag.Get();
     }
 }
