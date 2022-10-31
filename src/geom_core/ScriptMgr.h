@@ -19,7 +19,9 @@
 #include <scriptbuilder/scriptbuilder.h>
 #include <scriptarray/scriptarray.h>
 #include <scriptany/scriptany.h>
+#include <datetime/datetime.h>
 #include <scriptfile/scriptfile.h>
+#include <scriptfile/scriptfilesystem.h>
 #include <scriptmath/scriptmath.h>
 
 #include "Vec3d.h"

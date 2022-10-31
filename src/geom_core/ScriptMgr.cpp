@@ -104,6 +104,15 @@ void ScriptMgrSingleton::Init( )
 
     se->AddSkipComment( "array", comment_str.c_str() );
 
+    RegisterScriptDateTime( m_ScriptEngine );
+
+    comment_str = R"(
+  //!  AngelScript ScriptExtension for obtain the system date and time
+  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_datetime.html">Angelscript datetime Documentation </a>
+  */)";
+
+    se->AddSkipComment( "datetime", comment_str.c_str() );
+
     RegisterScriptFile( m_ScriptEngine );
 
     comment_str = R"(
@@ -112,6 +121,15 @@ void ScriptMgrSingleton::Init( )
   */)";
 
     se->AddSkipComment( "file", comment_str.c_str() );
+
+    RegisterScriptFileSystem( m_ScriptEngine );
+
+    comment_str = R"(
+  //!  AngelScript ScriptExtension for working with the filesystem
+  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_filesystem.html">Angelscript filesystem Documentation </a>
+  */)";
+
+    se->AddSkipComment( "filesystem", comment_str.c_str() );
 
     RegisterStdStringUtils( m_ScriptEngine );
 

@@ -72,7 +72,9 @@ set(ANGELSCRIPT_HEADERS
         ./add_on/scriptstdstring/scriptstdstring.h
         ./add_on/scriptarray/scriptarray.h
         ./add_on/scriptany/scriptany.h
+        ./add_on/datetime/datetime.h
         ./add_on/scriptfile/scriptfile.h
+        ./add_on/scriptfile/scriptfilesystem.h
         ./add_on/scriptmath/scriptmath.h
         ./add_on/scriptbuilder/scriptbuilder.h
 )
@@ -114,7 +116,9 @@ set(ANGELSCRIPT_SOURCE
         ./add_on/scriptstdstring/scriptstdstring_utils.cpp
         ./add_on/scriptarray/scriptarray.cpp
         ./add_on/scriptany/scriptany.cpp
+        ./add_on/datetime/datetime.cpp
         ./add_on/scriptfile/scriptfile.cpp
+        ./add_on/scriptfile/scriptfilesystem.cpp
         ./add_on/scriptmath/scriptmath.cpp
         ./add_on/scriptbuilder/scriptbuilder.cpp
 )
