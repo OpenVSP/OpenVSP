@@ -4,9 +4,6 @@ on:
   push:
     branches: build
 
-env:
-  BUILD_TYPE: Release
-
 jobs:
   build:
     name: ${{ matrix.config.name }}
@@ -83,7 +80,7 @@ jobs:
       run:   |
         mkdir build buildlibs artifacts
         cd $GITHUB_WORKSPACE/buildlibs
-        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DVSP_USE_SYSTEM_CPPTEST=false ../Libraries
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DVSP_USE_SYSTEM_CPPTEST=false ../Libraries
         make -j2
         
         cd $GITHUB_WORKSPACE/build
@@ -106,12 +103,12 @@ jobs:
       run:   |
         mkdir build buildlibs artifacts
         cd $GITHUB_WORKSPACE\\buildlibs
-        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -A $BUILD_ARCH ..\\Libraries
+        cmake -DCMAKE_BUILD_TYPE=Release -A $BUILD_ARCH ..\\Libraries
 
         cmake --build . --config Release -j 2
         cd $GITHUB_WORKSPACE\\build
 
-        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A $BUILD_ARCH ..\\src
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A $BUILD_ARCH ..\\src
 
         cmake --build . --target package --config Release -j 2
 
