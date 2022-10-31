@@ -3,5 +3,5 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.6
+  - python=@PYTHON_VERSION@
   - numpy!=1.19.4
