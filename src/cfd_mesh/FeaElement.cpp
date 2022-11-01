@@ -491,6 +491,11 @@ void FeaBeam::WriteCalculixNormal( FILE* fp, int noffset, int eoffset )
     fprintf( fp, "%d,%d,%f,%f,%f\n", m_ElementIndex + eoffset, m_Corners[1]->GetIndex() + noffset, m_Norm1.x(), m_Norm1.y(), m_Norm1.z() );
 }
 
+void FeaBeam::WriteCalculixNormal( FILE* fp )
+{
+    fprintf( fp, "%f,%f,%f\n", m_Norm0.x(), m_Norm0.y(), m_Norm0.z() );
+}
+
 void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
 {
     string format_string = "CBAR    ,%8d,%8d,%8d,%8d," + NasFmt( m_Norm0.x() ) + "," +

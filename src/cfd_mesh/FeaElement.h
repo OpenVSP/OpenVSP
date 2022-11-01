@@ -155,6 +155,7 @@ public:
     virtual void Create( vec3d &p0, vec3d &p1, vec3d &norm0, vec3d &norm1 );
     virtual void WriteCalculix( FILE* fp, int id, int noffset, int eoffset );
     virtual void WriteCalculixNormal( FILE* fp, int noffset, int eoffset );
+    virtual void WriteCalculixNormal( FILE* fp );
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset );
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset );
     virtual void WriteSTL( FILE* fp ) {};

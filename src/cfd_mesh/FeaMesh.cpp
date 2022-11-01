@@ -1447,20 +1447,23 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                             }
                         }
 
-                        // Write Normal Vectors
-                        fprintf( fp, "\n" );
-                        fprintf( fp, "*NORMAL\n" );
-
-                        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                        if ( m_StructSettings.m_BeamPerElementNormal )
                         {
-                            if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
-                                 m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
-                                 m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
-                                 m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                            // Write Normal Vectors
+                            fprintf( fp, "\n" );
+                            fprintf( fp, "*NORMAL\n" );
+
+                            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                             {
-                                FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
-                                assert( beam );
-                                beam->WriteCalculixNormal( fp, noffset, eoffset );
+                                if ( m_FeaElementVec[j]->GetFeaPartIndex() == i &&
+                                     m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
+                                     m_FeaElementVec[j]->GetFeaSSIndex() < 0 &&
+                                     m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                                {
+                                    FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
+                                    assert( beam );
+                                    beam->WriteCalculixNormal( fp, noffset, eoffset );
+                                }
                             }
                         }
 
@@ -1563,19 +1566,23 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                         }
                     }
 
-                    // Write Normal Vectors
-                    fprintf( fp, "\n" );
-                    fprintf( fp, "*NORMAL\n" );
 
-                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                    if ( m_StructSettings.m_BeamPerElementNormal )
                     {
-                        if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
-                             m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
-                             m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                        // Write Normal Vectors
+                        fprintf( fp, "\n" );
+                        fprintf( fp, "*NORMAL\n" );
+
+                        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                         {
-                            FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
-                            assert( beam );
-                            beam->WriteCalculixNormal( fp, noffset, eoffset );
+                            if ( m_FeaElementVec[j]->GetFeaSSIndex() == i &&
+                                 m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_BEAM &&
+                                 m_FeaElementVec[j]->GetFeaPartSurfNum() == isurf )
+                            {
+                                FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
+                                assert( beam );
+                                beam->WriteCalculixNormal( fp, noffset, eoffset );
+                            }
                         }
                     }
 
@@ -1662,6 +1669,23 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                         fprintf( fp, "\n" );
                         sprintf( str, "EB%s_%s_%d_CAP", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
                         FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
+
+                        if ( !m_StructSettings.m_BeamPerElementNormal )
+                        {
+                            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                            {
+                                if ( m_FeaElementVec[ j ]->GetFeaPartIndex() == i &&
+                                     m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_BEAM &&
+                                     m_FeaElementVec[ j ]->GetFeaSSIndex() < 0 &&
+                                     m_FeaElementVec[ j ]->GetFeaPartSurfNum() == isurf )
+                                {
+                                    FeaBeam *beam = dynamic_cast<FeaBeam *>( m_FeaElementVec[ j ] );
+                                    assert( beam );
+                                    beam->WriteCalculixNormal( fp );
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1709,6 +1733,22 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                     fprintf( fp, "\n" );
                     sprintf( str, "EB%s_%s_%d_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
                     FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
+
+                    if ( !m_StructSettings.m_BeamPerElementNormal )
+                    {
+                        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                        {
+                            if ( m_FeaElementVec[ j ]->GetFeaSSIndex() == i &&
+                                 m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_BEAM &&
+                                 m_FeaElementVec[ j ]->GetFeaPartSurfNum() == isurf )
+                            {
+                                FeaBeam *beam = dynamic_cast<FeaBeam *>( m_FeaElementVec[ j ] );
+                                assert( beam );
+                                beam->WriteCalculixNormal( fp );
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
