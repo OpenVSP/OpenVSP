@@ -139,6 +139,8 @@ public:
     bool m_DrawBCNodesFlag;
     bool m_DrawElementOrientVecFlag;
 
+    bool m_BeamPerElementNormal;
+
     int m_NodeOffset;
     int m_ElementOffset;
 

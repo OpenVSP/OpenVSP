@@ -199,6 +199,8 @@ public:
     IntParm m_NodeOffset;
     IntParm m_ElementOffset;
 
+    BoolParm m_BeamPerElementNormal;
+
 protected:
 
     // These file names do not get written to file.  They are reset each time

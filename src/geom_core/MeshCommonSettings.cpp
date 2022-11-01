@@ -458,6 +458,9 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_ElementOffset.Init( "ElementOffset", "StructSettings", this, 0, 0, 1e12 );
     m_ElementOffset.SetDescript( "Offset to add to FEA element ID's for this structure" );
 
+    m_BeamPerElementNormal.Init( "BeamPerElementNormal", "StructSettings", this, true, false, true );
+    m_BeamPerElementNormal.SetDescript( "Flag to write per-element beam element normals instead of per-part for CalculiX." );
+
     m_ExportFileNames.resize( vsp::FEA_NUM_FILE_NAMES );
 }
 

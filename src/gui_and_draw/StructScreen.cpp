@@ -900,6 +900,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
 
     m_MeshTabLayout.AddButton( m_ConvertToQuadsToggle, "Convert to Quads" );
     m_MeshTabLayout.AddButton( m_HighOrderElementToggle, "High order Elements" );
+    m_MeshTabLayout.AddButton( m_BeamPerElementNormalToggle, "Beam Per-Element Normal Vectors" );
 
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddDividerBox( "FEA Index Offsets" );
@@ -2236,6 +2237,8 @@ bool StructScreen::Update()
 
             m_NodeOffset.Update( curr_struct->GetStructSettingsPtr()->m_NodeOffset.GetID() );
             m_ElementOffset.Update( curr_struct->GetStructSettingsPtr()->m_ElementOffset.GetID() );
+
+            m_BeamPerElementNormalToggle.Update( curr_struct->GetStructSettingsPtr()->m_BeamPerElementNormal.GetID() );
 
             //===== Display Tab Toggle Update =====//
             m_DrawMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );

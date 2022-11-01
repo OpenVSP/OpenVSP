@@ -325,6 +325,7 @@ private:
 
     ToggleButton m_ConvertToQuadsToggle;
     ToggleButton m_HighOrderElementToggle;
+    ToggleButton m_BeamPerElementNormalToggle;
 
     SliderAdjRangeInput m_NodeOffset;
     SliderAdjRangeInput m_ElementOffset;

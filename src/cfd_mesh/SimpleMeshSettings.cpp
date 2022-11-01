@@ -250,6 +250,8 @@ SimpleFeaMeshSettings::SimpleFeaMeshSettings()
     m_DrawElementOrientVecFlag = false;
     m_XYZIntCurveFlag = false;
 
+    m_BeamPerElementNormal = true;
+
     m_NodeOffset = 0;
     m_ElementOffset = 0;
 }
@@ -290,6 +292,8 @@ void SimpleFeaMeshSettings::CopyPostOpFrom( StructSettings* settings )
     // FEA numbering offsets
     m_NodeOffset = settings->m_NodeOffset.Get();
     m_ElementOffset = settings->m_ElementOffset.Get();
+
+    m_BeamPerElementNormal = settings->m_BeamPerElementNormal.Get();
 
     // Allow CAD output settings to be included as Post-Op for Structures
     m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
