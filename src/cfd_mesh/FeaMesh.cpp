@@ -1433,7 +1433,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                     if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                     {
-                        fprintf( fp, "*ELEMENT, TYPE=B32, ELSET=EB%s_%s_%d_CAP\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
+                        fprintf( fp, "*ELEMENT, TYPE=B32R, ELSET=EB%s_%s_%d_CAP\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
 
                         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                         {
@@ -1550,7 +1550,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                 if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
                 {
                     fprintf( fp, "\n" );
-                    fprintf( fp, "*ELEMENT, TYPE=B32, ELSET=EB%s_%s_%d_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
+                    fprintf( fp, "*ELEMENT, TYPE=B32R, ELSET=EB%s_%s_%d_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
 
                     for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                     {
