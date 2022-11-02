@@ -1504,31 +1504,33 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
 {
     Results *res = ResultsMgr.CreateResults( "Degen_DegenGeom", "Degen geom results." );
     degen_results_ids.push_back( res->GetID() );
+    string degentype;
     if ( type == SURFACE_TYPE )
     {
-        res->Add( NameValData( "type", "LIFTING_SURFACE" ) );
+        degentype = "LIFTING_SURFACE";
     }
     else if ( type == DISK_TYPE )
     {
-        res->Add( NameValData( "type", "DISK" ) );
+        degentype = "DISK";
     }
     else if( type == MESH_TYPE )
     {
-        res->Add( NameValData( "type", "MESH" ) );
+        degentype = "MESH";
     }
     else
     {
-        res->Add( NameValData( "type", "BODY" ) );
+        degentype = "BODY";
     }
+    res->Add( NameValData( "type", degentype, "Geom type classification (LIFTING_SURFACE, DISK, MESH, or BODY)." ) );
 
-    res->Add( NameValData( "name", name ) );
-    res->Add( NameValData( "surf_index", getSurfNum() ) );
-    res->Add( NameValData( "geom_id", parentGeom->GetID() ) );
-    res->Add( NameValData( "main_surf_index", getMainSurfInd() ) );
-    res->Add( NameValData( "sym_copy_index", getSymCopyInd() ) );
-    res->Add( NameValData( "flip_normal", getFlipNormal() ) );
+    res->Add( NameValData( "name", name, "Geom name." ) );
+    res->Add( NameValData( "surf_index", getSurfNum(), "Surface index." ) );
+    res->Add( NameValData( "geom_id", parentGeom->GetID(), "GeomID." ) );
+    res->Add( NameValData( "main_surf_index", getMainSurfInd(), "Index of main surface copied for symmetry." ) );
+    res->Add( NameValData( "sym_copy_index", getSymCopyInd(), "Symmetrical copy index." ) );
+    res->Add( NameValData( "flip_normal", getFlipNormal(), "Flag to flip surface orientation." ) );
 
-    res->Add( NameValData( "transmat", transmat ) );
+    res->Add( NameValData( "transmat", transmat, "Transformation matrix from origin to surface location." ) );
 
     if ( type == DISK_TYPE )
     {
@@ -1550,14 +1552,14 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
     {
         write_degenGeomPlateResultsManager( plate_ids, degenPlates[i] );
     }
-    res->Add( NameValData( "plates", plate_ids ) );
+    res->Add( NameValData( "plates", plate_ids, "ID's of degen plate results." ) );
 
     vector< string > stick_ids;
     for ( unsigned int i = 0; i < degenSticks.size(); i++ )
     {
         write_degenGeomStickResultsManager( stick_ids, degenSticks[i] );
     }
-    res->Add( NameValData( "sticks", stick_ids ) );
+    res->Add( NameValData( "sticks", stick_ids, "ID's of degen stick results." ) );
 
     write_degenGeomPointResultsManager( res );
 
@@ -1566,14 +1568,14 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
     {
         write_degenSubSurfResultsManager( subsurf_ids, degenSubSurfs[i] );
     }
-    res->Add( NameValData( "subsurfs", subsurf_ids ) );
+    res->Add( NameValData( "subsurfs", subsurf_ids, "ID's of degen subsurface results." ) );
 
     vector< string > hinge_ids;
     for ( unsigned int i = 0; i < degenHingeLines.size(); i++ )
     {
         write_degenHingeLineResultsManager( hinge_ids, degenHingeLines[i] );
     }
-    res->Add( NameValData( "hinges", hinge_ids ) );
+    res->Add( NameValData( "hinges", hinge_ids, "ID's of degen hinge line results." ) );
 }
 
 void DegenGeom::write_degenGeomDiskResultsManager( Results *res )
@@ -1581,11 +1583,11 @@ void DegenGeom::write_degenGeomDiskResultsManager( Results *res )
     if ( !res ) { return; }
 
     Results *disk_res = ResultsMgr.CreateResults( "Degen_disk", "Degen geom actuator disk results." );
-    res->Add( NameValData( "disk", disk_res->GetID() ) );
+    res->Add( NameValData( "disk", disk_res->GetID(), "ID of degen disk result." ) );
 
-    disk_res->Add( NameValData( "diameter", degenDisk.d ) );
-    disk_res->Add( NameValData( "pos", degenDisk.x ) );
-    disk_res->Add( NameValData( "n", degenDisk.nvec ) );
+    disk_res->Add( NameValData( "diameter", degenDisk.d, "Diameter." ) );
+    disk_res->Add( NameValData( "pos", degenDisk.x, "Center coordinate." ) );
+    disk_res->Add( NameValData( "n", degenDisk.nvec, "Axis of rotation vector." ) );
 
 }
 
@@ -1594,15 +1596,15 @@ void DegenGeom::write_degenGeomSurfResultsManager( Results *res )
     if ( !res ) { return; }
 
     Results *surf_res = ResultsMgr.CreateResults( "Degen_surf", "Degen surface representation results." );
-    res->Add( NameValData ( "surf", surf_res->GetID() ) );
+    res->Add( NameValData ( "surf", surf_res->GetID(), "ID of degen surf result." ) );
 
-    surf_res->Add( NameValData( "nxsecs", num_xsecs ) );
-    surf_res->Add( NameValData( "num_pnts", num_pnts ) );
-    surf_res->Add( degenSurface.x, "" );
-    surf_res->Add( NameValData( "u", degenSurface.u ) );
-    surf_res->Add( NameValData( "w", degenSurface.w ) );
-    surf_res->Add( degenSurface.nvec, "n" );
-    surf_res->Add( NameValData( "area", degenSurface.area ) );
+    surf_res->Add( NameValData( "nxsecs", num_xsecs, "Number of cross sections." ) );
+    surf_res->Add( NameValData( "num_pnts", num_pnts, "Number of points per cross section." ) );
+    surf_res->Add( degenSurface.x, "", "Node coordinates." );
+    surf_res->Add( NameValData( "u", degenSurface.u, "U surface parameters." ) );
+    surf_res->Add( NameValData( "w", degenSurface.w, "W surface parameters." ) );
+    surf_res->Add( degenSurface.nvec, "n", "Face normal vectors." );
+    surf_res->Add( NameValData( "area", degenSurface.area, "Face areas." ) );
 }
 
 void DegenGeom::write_degenGeomPlateResultsManager( vector< string > &plate_ids, const DegenPlate &degenPlate )
@@ -1610,18 +1612,18 @@ void DegenGeom::write_degenGeomPlateResultsManager( vector< string > &plate_ids,
     Results *plate_res = ResultsMgr.CreateResults( "Degen_plate", "Degen geom plate representation results." );
     plate_ids.push_back( plate_res->GetID() );
 
-    plate_res->Add( NameValData( "nxsecs", num_xsecs ) );
-    plate_res->Add( NameValData( "num_pnts", num_pnts ) );
+    plate_res->Add( NameValData( "nxsecs", num_xsecs, "Number of cross sections." ) );
+    plate_res->Add( NameValData( "num_pnts", num_pnts, "Number of points per cross section." ) );
 
-    plate_res->Add( NameValData( "n", degenPlate.nPlate ) );
-    plate_res->Add( degenPlate.x, "" );
-    plate_res->Add( degenPlate.xCamber, "xCamber" );
-    plate_res->Add( NameValData( "zCamber", degenPlate.zcamber ) );
-    plate_res->Add( NameValData( "t", degenPlate.t ) );
-    plate_res->Add( degenPlate.nCamber, "nCamber_" );
-    plate_res->Add( NameValData( "u", degenPlate.u ) );
-    plate_res->Add( NameValData( "wTop", degenPlate.wTop ) );
-    plate_res->Add( NameValData( "wBot", degenPlate.wBot ) );
+    plate_res->Add( NameValData( "n", degenPlate.nPlate, "Normal vector." ) );
+    plate_res->Add( degenPlate.x, "", "Plate surface coordinates." );
+    plate_res->Add( degenPlate.xCamber, "xCamber", "Camber surface coordinates." );
+    plate_res->Add( NameValData( "zCamber", degenPlate.zcamber, "Camber offset distance." ) );
+    plate_res->Add( NameValData( "t", degenPlate.t, "Surface thickness." ) );
+    plate_res->Add( degenPlate.nCamber, "nCamber_", "Camber surface normal vector." );
+    plate_res->Add( NameValData( "u", degenPlate.u, "U surface parameters." ) );
+    plate_res->Add( NameValData( "wTop", degenPlate.wTop, "W surface parameter of top points." ) );
+    plate_res->Add( NameValData( "wBot", degenPlate.wBot, "W surface parameter of bottom points." ) );
 }
 
 void DegenGeom::write_degenGeomStickResultsManager( vector<string> &stick_ids, const DegenStick &degenStick )
@@ -1629,34 +1631,34 @@ void DegenGeom::write_degenGeomStickResultsManager( vector<string> &stick_ids, c
     Results *stick_res = ResultsMgr.CreateResults( "Degen_stick", "Degen stick representation results." );
     stick_ids.push_back( stick_res->GetID() );
 
-    stick_res->Add( NameValData( "nxsecs", num_xsecs ) );
-    stick_res->Add( NameValData( "le", degenStick.xle ) );
-    stick_res->Add( NameValData( "te", degenStick.xte ) );
-    stick_res->Add( NameValData( "cgShell", degenStick.xcgShell ) );
-    stick_res->Add( NameValData( "cgSolid", degenStick.xcgSolid ) );
-    stick_res->Add( NameValData( "toc", degenStick.toc ) );
-    stick_res->Add( NameValData( "tLoc", degenStick.tLoc ) );
-    stick_res->Add( NameValData( "chord", degenStick.chord ) );
-    stick_res->Add( NameValData( "Ishell", degenStick.Ishell ) );
-    stick_res->Add( NameValData( "Isolid", degenStick.Isolid ) );
-    stick_res->Add( NameValData( "sectArea", degenStick.sectarea ) );
-    stick_res->Add( NameValData( "sectNormal", degenStick.sectnvec ) );
-    stick_res->Add( NameValData( "perimTop", degenStick.perimTop ) );
-    stick_res->Add( NameValData( "perimBot", degenStick.perimBot ) );
-    stick_res->Add( NameValData( "u", degenStick.u ) );
-    stick_res->Add( NameValData( "transmat", degenStick.transmat ) );
-    stick_res->Add( NameValData( "invtransmat", degenStick.invtransmat ) );
-    stick_res->Add( NameValData( "toc2", degenStick.toc2 ) );
-    stick_res->Add( NameValData( "tLoc2", degenStick.tLoc2 ) );
-    stick_res->Add( NameValData( "anglele", degenStick.anglele ) );
-    stick_res->Add( NameValData( "anglete", degenStick.anglete ) );
-    stick_res->Add( NameValData( "radleTop", degenStick.radleTop ) );
-    stick_res->Add( NameValData( "radleBot", degenStick.radleBot ) );
+    stick_res->Add( NameValData( "nxsecs", num_xsecs, "Number of cross sections." ) );
+    stick_res->Add( NameValData( "le", degenStick.xle, "Leading edge coordinates." ) );
+    stick_res->Add( NameValData( "te", degenStick.xte, "Trailing edge coordinates." ) );
+    stick_res->Add( NameValData( "cgShell", degenStick.xcgShell, "Center of gravity of section treated as thin shell." ) );
+    stick_res->Add( NameValData( "cgSolid", degenStick.xcgSolid, "Center of gravity of section treated as solid area." ) );
+    stick_res->Add( NameValData( "toc", degenStick.toc, "Maximum thickness to chord calculated from mesh points." ) );
+    stick_res->Add( NameValData( "tLoc", degenStick.tLoc, "Location of max t/c calculated from mesh points." ) );
+    stick_res->Add( NameValData( "chord", degenStick.chord, "Section chord." ) );
+    stick_res->Add( NameValData( "Ishell", degenStick.Ishell, "Moment of inertia of section treated as thin shell I11 I22 I12, per unit thickness." ) );
+    stick_res->Add( NameValData( "Isolid", degenStick.Isolid, "Moment of inertia of section treated as solid area I11 I22 I12." ) );
+    stick_res->Add( NameValData( "sectArea", degenStick.sectarea, "Cross section area." ) );
+    stick_res->Add( NameValData( "sectNormal", degenStick.sectnvec, "Section normal vector." ) );
+    stick_res->Add( NameValData( "perimTop", degenStick.perimTop, "Perimeter of section top surface." ) );
+    stick_res->Add( NameValData( "perimBot", degenStick.perimBot, "Perimeter of section bottom surface." ) );
+    stick_res->Add( NameValData( "u", degenStick.u, "U surface parameter of section." ) );
+    stick_res->Add( NameValData( "transmat", degenStick.transmat, "Transformation matrix from origin to section." ) );
+    stick_res->Add( NameValData( "invtransmat", degenStick.invtransmat, "Inverse transformation matrix." ) );
+    stick_res->Add( NameValData( "toc2", degenStick.toc2, "Maximum thickness to chord calculated from Bezier curves." ) );
+    stick_res->Add( NameValData( "tLoc2", degenStick.tLoc2, "Location of max t/c calculated from Bezier curves." ) );
+    stick_res->Add( NameValData( "anglele", degenStick.anglele, "Leading edge angle." ) );
+    stick_res->Add( NameValData( "anglete", degenStick.anglete, "Trailing edge angle." ) );
+    stick_res->Add( NameValData( "radleTop", degenStick.radleTop, "Upper surface leading edge radius." ) );
+    stick_res->Add( NameValData( "radleBot", degenStick.radleBot, "Lower surface leading edge radius." ) );
 
-    stick_res->Add( NameValData( "sweeple", degenStick.sweeple ) );
-    stick_res->Add( NameValData( "sweepte", degenStick.sweepte ) );
-    stick_res->Add( NameValData( "areaTop", degenStick.areaTop ) );
-    stick_res->Add( NameValData( "areaBot", degenStick.areaBot ) );
+    stick_res->Add( NameValData( "sweeple", degenStick.sweeple, "Leading edge sweep angle." ) );
+    stick_res->Add( NameValData( "sweepte", degenStick.sweepte, "Trailing edge sweep angle." ) );
+    stick_res->Add( NameValData( "areaTop", degenStick.areaTop, "Area of top surface strip." ) );
+    stick_res->Add( NameValData( "areaBot", degenStick.areaBot, "Area of bottom surface strip." ) );
 }
 
 void DegenGeom::write_degenGeomPointResultsManager( Results *res )
@@ -1664,16 +1666,16 @@ void DegenGeom::write_degenGeomPointResultsManager( Results *res )
     if ( !res ) { return; }
 
     Results *point_res = ResultsMgr.CreateResults( "point", "Degen geom point representation results." );
-    res->Add( NameValData( "point", point_res->GetID() ) );
+    res->Add( NameValData( "point", point_res->GetID(), "ID of degen point result." ) );
 
-    point_res->Add( NameValData( "vol", degenPoint.vol[0] ) );
-    point_res->Add( NameValData( "volWet", degenPoint.volWet[0] ) );
-    point_res->Add( NameValData( "area", degenPoint.area[0] ) );
-    point_res->Add( NameValData( "areaWet", degenPoint.areaWet[0] ) );
-    point_res->Add( NameValData( "Ishell", degenPoint.Ishell[0] ) );
-    point_res->Add( NameValData( "Isolid", degenPoint.Isolid[0] ) );
-    point_res->Add( NameValData( "cgShell", degenPoint.xcgShell ) );
-    point_res->Add( NameValData( "cgSolid", degenPoint.xcgSolid ) );
+    point_res->Add( NameValData( "vol", degenPoint.vol[0], "Volume." ) );
+    point_res->Add( NameValData( "volWet", degenPoint.volWet[0], "Contribution to trimmed volume of Set." ) );
+    point_res->Add( NameValData( "area", degenPoint.area[0], "Surface area." ) );
+    point_res->Add( NameValData( "areaWet", degenPoint.areaWet[0], "Contribution to wetted surface area of Set." ) );
+    point_res->Add( NameValData( "Ishell", degenPoint.Ishell[0], "Moment of inertia treated as thin shell Ixx Iyy Izz Ixy Ixz Iyz, per unit thickness." ) );
+    point_res->Add( NameValData( "Isolid", degenPoint.Isolid[0], "Moment of inertia treated as solid body Ixx Iyy Izz Ixy Ixz Iyz." ) );
+    point_res->Add( NameValData( "cgShell", degenPoint.xcgShell, "Center of gravity treated as thin shell." ) );
+    point_res->Add( NameValData( "cgSolid", degenPoint.xcgSolid, "Center of gravity treated as solid." ) );
 }
 
 void DegenGeom::write_degenSubSurfResultsManager( vector<string> &subsurf_ids, const DegenSubSurf &degenSubSurf )
@@ -1681,15 +1683,15 @@ void DegenGeom::write_degenSubSurfResultsManager( vector<string> &subsurf_ids, c
     Results* subsurf_res = ResultsMgr.CreateResults( "Degen_subsurf", "Degen subsurface results." );
     subsurf_ids.push_back( subsurf_res->GetID() );
 
-    subsurf_res->Add( NameValData( "name", degenSubSurf.name ) );
-    subsurf_res->Add( NameValData( "typeName", degenSubSurf.typeName ) );
-    subsurf_res->Add( NameValData( "typeId", degenSubSurf.typeId ) );
-    subsurf_res->Add( NameValData( "fullName", degenSubSurf.fullName ) );
-    subsurf_res->Add( NameValData( "testType", degenSubSurf.testType ) );
+    subsurf_res->Add( NameValData( "name", degenSubSurf.name, "Sub surface name." ) );
+    subsurf_res->Add( NameValData( "typeName", degenSubSurf.typeName, "Name of type." ) );
+    subsurf_res->Add( NameValData( "typeId", degenSubSurf.typeId, "ID of type." ) );
+    subsurf_res->Add( NameValData( "fullName", degenSubSurf.fullName, "ParentGeomName_Surf#_SubSurfName." ) );
+    subsurf_res->Add( NameValData( "testType", degenSubSurf.testType, "Test type ID, inside, outside, none." ) );
 
-    subsurf_res->Add( NameValData( "u", degenSubSurf.u ) );
-    subsurf_res->Add( NameValData( "w", degenSubSurf.w ) );
-    subsurf_res->Add( NameValData( "x", degenSubSurf.x ) );
+    subsurf_res->Add( NameValData( "u", degenSubSurf.u, "U surface parameter polyline." ) );
+    subsurf_res->Add( NameValData( "w", degenSubSurf.w, "W surface parameter polyline." ) );
+    subsurf_res->Add( NameValData( "x", degenSubSurf.x, "Coordinate polyline." ) );
 }
 
 void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, const DegenHingeLine &degenHingeLine )
@@ -1697,13 +1699,13 @@ void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, c
     Results *hinge_res = ResultsMgr.CreateResults( "Degen_hinge", "Degen hinge results." );
     hinge_ids.push_back( hinge_res->GetID() );
 
-    hinge_res->Add( NameValData( "name", degenHingeLine.name ) );
-    hinge_res->Add( NameValData( "uStart", degenHingeLine.uStart ) );
-    hinge_res->Add( NameValData( "uEnd", degenHingeLine.uEnd ) );
-    hinge_res->Add( NameValData( "wStart", degenHingeLine.wStart ) );
-    hinge_res->Add( NameValData( "wEnd", degenHingeLine.wEnd ) );
-    hinge_res->Add( NameValData( "xStart", degenHingeLine.xStart ) );
-    hinge_res->Add( NameValData( "xEnd", degenHingeLine.xEnd ) );
+    hinge_res->Add( NameValData( "name", degenHingeLine.name, "Control surface name." ) );
+    hinge_res->Add( NameValData( "uStart", degenHingeLine.uStart, "U surface parameter of start point." ) );
+    hinge_res->Add( NameValData( "uEnd", degenHingeLine.uEnd, "U surface parameter of end point." ) );
+    hinge_res->Add( NameValData( "wStart", degenHingeLine.wStart, "W surface parameter of start point." ) );
+    hinge_res->Add( NameValData( "wEnd", degenHingeLine.wEnd, "W surface parameter of end point." ) );
+    hinge_res->Add( NameValData( "xStart", degenHingeLine.xStart, "Coordinate of start point." ) );
+    hinge_res->Add( NameValData( "xEnd", degenHingeLine.xEnd, "Coordinate of end point." ) );
 }
 
 void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
