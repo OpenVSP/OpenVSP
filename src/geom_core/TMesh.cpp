@@ -150,15 +150,6 @@ TEdge::TEdge( TNode* n0, TNode* n1, TTri* par_tri )
     m_Tri0 = m_Tri1 = NULL;
 }
 
-TMesh* TEdge::GetParTMesh()
-{
-    if ( GetParTri() == NULL )
-    {
-        return NULL;
-    }
-    return GetParTri()->GetTMeshPtr();
-}
-
 // Sort edges in increasing U (du > 0), unless du is large, then flip.
 // For the case of a periodic wake (duct), one edge must close the curve and its u parameter
 // will jump from nearly the largest parameter back to zero.  Detect the large positive jump

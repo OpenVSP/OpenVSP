@@ -256,7 +256,6 @@ public:
     {
         return m_ParTri;
     }
-    virtual TMesh* GetParTMesh();
 
     virtual void SortNodesByU();
 
