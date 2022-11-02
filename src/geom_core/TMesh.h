@@ -270,7 +270,7 @@ protected:
 class TTri
 {
 public:
-    TTri();
+    TTri( TMesh* tmesh );
     virtual ~TTri();
 
     TNode* m_N0;
@@ -328,10 +328,6 @@ public:
     virtual bool  ShareEdge( TTri* t );
     virtual bool MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol );
 
-    virtual void SetTMeshPtr( TMesh* tmesh )
-    {
-        m_TMesh = tmesh;
-    }
     virtual TMesh* GetTMeshPtr()
     {
         return m_TMesh;

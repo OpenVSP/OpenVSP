@@ -427,7 +427,7 @@ void TMesh::copy( TMesh* m )
 
     for ( int i = 0 ; i < ( int )m->m_TVec.size() ; i++ )
     {
-        TTri* tri = new TTri();
+        TTri* tri = new TTri( this );
         tri->m_N0   = new TNode();
         tri->m_N1   = new TNode();
         tri->m_N2   = new TNode();
@@ -570,7 +570,7 @@ void TMesh::DecodeTriList( xmlNodePtr & node, int num_tris )
         if ( !xmlStrcmp( iter_node->name, ( const xmlChar * )"Tri" ) )
         {
             tri = XmlUtil::GetVectorVec3dNode( iter_node );
-            m_TVec[i] = new TTri();
+            m_TVec[i] = new TTri( this );
             // Create Nodes
             m_TVec[i]->m_N0 = new TNode();
             m_TVec[i]->m_N1 = new TNode();
@@ -1176,9 +1176,8 @@ void TMesh::AddTri( const vec3d & p0, const vec3d & p1, const vec3d & p2 )
 void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm )
 {
     // Use For XYZ Tri
-    TTri* ttri = new TTri();
+    TTri* ttri = new TTri( this );
     ttri->m_Norm = norm;
-    ttri->SetTMeshPtr( this );
 
     ttri->m_N0 = new TNode();
     ttri->m_N1 = new TNode();
@@ -1201,9 +1200,8 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
 // Base
 void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm )
 {
-    TTri* ttri = new TTri();
+    TTri* ttri = new TTri( this );
     ttri->m_Norm = norm;
-    ttri->SetTMeshPtr( this );
 
     ttri->m_N0 = new TNode();
     ttri->m_N1 = new TNode();
@@ -1255,7 +1253,7 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
 void TMesh::AddTri( const TTri* tri)
 {
     // Copies an existing triangle and pushes back into the existing
-    TTri* new_tri = new TTri();
+    TTri* new_tri = new TTri( this );
 
     new_tri->CopyFrom( tri );
     m_TVec.push_back( new_tri );
@@ -1267,9 +1265,8 @@ void TMesh::AddTri( const TTri* tri)
 void TMesh::AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm )
 {
     // Use For XYZ Tri
-    TTri* ttri = new TTri();
+    TTri* ttri = new TTri( this );
     ttri->m_Norm = norm;
-    ttri->SetTMeshPtr( this );
 
     ttri->m_N0 = new TNode();
     ttri->m_N1 = new TNode();
@@ -1403,7 +1400,7 @@ int TMesh::NumVerts()
 //===============================================//
 //===============================================//
 
-TTri::TTri()
+TTri::TTri( TMesh* tmesh )
 {
     static int cnt = 0;
     cnt++;
@@ -1413,7 +1410,7 @@ TTri::TTri()
     m_IgnoreTriFlag = false;
     m_InvalidFlag  = 0;
     m_Density = 1.0;
-    m_TMesh = NULL;
+    m_TMesh = tmesh;
     m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = NULL;
 }
 
@@ -2153,7 +2150,7 @@ void TTri::TriangulateSplit( int flattenAxis )
                 out.trianglelist[cnt + 1] < (int)m_NVec.size() &&
                 out.trianglelist[cnt + 2] < (int)m_NVec.size() )
             {
-                TTri* t = new TTri();
+                TTri* t = new TTri( m_TMesh );
                 t->m_N0 = m_NVec[out.trianglelist[cnt]];
                 t->m_N1 = m_NVec[out.trianglelist[cnt + 1]];
                 t->m_N2 = m_NVec[out.trianglelist[cnt + 2]];
@@ -2306,28 +2303,28 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
     TTri* tri;
     if ( n01 && n12 && n20 )        // Three Split - Make Four Tris
     {
-        tri = new TTri();
+        tri = new TTri( m_TMesh );
         tri->m_N0 = m_N0;
         tri->m_N1 = n01;
         tri->m_N2 = n20;
         tri->m_Norm = m_Norm;
         m_SplitVec.push_back( tri );
 
-        tri = new TTri();
+        tri = new TTri( m_TMesh );
         tri->m_N0 = m_N1;
         tri->m_N1 = n12;
         tri->m_N2 = n01;
         tri->m_Norm = m_Norm;
         m_SplitVec.push_back( tri );
 
-        tri = new TTri();
+        tri = new TTri( m_TMesh );
         tri->m_N0 = m_N2;
         tri->m_N1 = n20;
         tri->m_N2 = n12;
         tri->m_Norm = m_Norm;
         m_SplitVec.push_back( tri );
 
-        tri = new TTri();
+        tri = new TTri( m_TMesh );
         tri->m_N0 = n01;
         tri->m_N1 = n12;
         tri->m_N2 = n20;
@@ -3647,11 +3644,11 @@ void TMesh::StressTest()
         {
             printf( "Stress Test Iter = %d\n", i );
         }
-        TTri* t0 = new TTri();
+        TTri* t0 = new TTri( NULL );
         t0->m_N0   = new TNode();
         t0->m_N1   = new TNode();
         t0->m_N2   = new TNode();
-        TTri* t1 = new TTri();
+        TTri* t1 = new TTri( NULL );
         t1->m_N0   = new TNode();
         t1->m_N1   = new TNode();
         t1->m_N2   = new TNode();

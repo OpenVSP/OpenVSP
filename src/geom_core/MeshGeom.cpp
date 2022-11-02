@@ -302,7 +302,7 @@ int MeshGeom::ReadSTL( const char* file_name )
                 }
 
                 //==== Add Valid Facet ====//
-                tPtr = new TTri();
+                tPtr = new TTri( tMesh );
                 tPtr->m_Norm = vec3d( nx, ny, nz );
                 tMesh->m_TVec.push_back( tPtr );
 
@@ -370,7 +370,7 @@ int MeshGeom::ReadSTL( const char* file_name )
                 fgetc( file_id );
 
                 //==== Add Valid Facet ====//
-                tPtr = new TTri();
+                tPtr = new TTri( tMesh );
                 tPtr->m_Norm = vec3d( nx, ny, nz );
                 tMesh->m_TVec.push_back( tPtr );
 

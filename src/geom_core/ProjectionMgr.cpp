@@ -986,7 +986,7 @@ void ProjectionMgrSingleton::Triangulate()
         ptcnt = 0;
         for ( int i = 0; i < out.numberoftriangles; i++ )
         {
-            TTri* tPtr = new TTri();
+            TTri* tPtr = new TTri( tMesh );
 
             //==== Put Nodes Into Tri ====//
             tPtr->m_N0 = new TNode();
