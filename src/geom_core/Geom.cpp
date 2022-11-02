@@ -5088,22 +5088,22 @@ void Geom::ExportSurfacePatches( vector<string> &surf_res_ids )
 
         // Add a results entity for each patch to the surface
         Results* res = ResultsMgr.CreateResults( "Surface", "Surfaces within a Geom." );
-        res->Add( NameValData( "comp_id", GetID() ) );
-        res->Add( NameValData( "surf_index", i ) );
+        res->Add( NameValData( "comp_id", GetID(), "GeomID." ) );
+        res->Add( NameValData( "surf_index", i, "Surface index." ) );
 
         vector< string > patch_ids;
         for ( int ipatch = 0 ; ipatch < ( int )pnts.size() ; ipatch++ )
         {
             Results* patch_res = ResultsMgr.CreateResults( "SurfacePatch", "Patches (determined by feature lines) within a surface." );
-            patch_res->Add( NameValData( "comp_id", GetID() ) );
-            patch_res->Add( NameValData( "surf_index", i ) );
-            patch_res->Add( NameValData( "patch_index", ipatch) );
-            patch_res->Add( pnts[ipatch], "" );
-            patch_res->Add( norms[ipatch], "n" );
+            patch_res->Add( NameValData( "comp_id", GetID(), "GeomID." ) );
+            patch_res->Add( NameValData( "surf_index", i, "Surface index." ) );
+            patch_res->Add( NameValData( "patch_index", ipatch, "Patch index.") );
+            patch_res->Add( pnts[ipatch], "", "Patch node coordinates" );
+            patch_res->Add( norms[ipatch], "n", "Patch node normal vector" );
             patch_ids.push_back( patch_res->GetID() );
         }
 
-        res->Add( NameValData( "patches", patch_ids ) );
+        res->Add( NameValData( "patches", patch_ids, "ID's of patch results." ) );
 
         surf_res_ids.push_back( res->GetID() );
     }

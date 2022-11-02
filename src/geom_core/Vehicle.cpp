@@ -5706,20 +5706,20 @@ string Vehicle::ExportSurfacePatches( int set )
             {
                 // Loop over all surfaces adding points to the results manager
                 Results* res = ResultsMgr.CreateResults( "ComponentSurfaces", "Geom group for surface patch results." );
-                res->Add( NameValData( "name", geom->GetName() ) );
-                res->Add( NameValData( "id", geom->GetID() ) );
+                res->Add( NameValData( "name", geom->GetName(), "Geom name." ) );
+                res->Add( NameValData( "id", geom->GetID(), "GeomID." ) );
 
                 vector< string > surfaces;
                 geom->ExportSurfacePatches( surfaces  );
 
-                res->Add( NameValData( "surfaces", surfaces) );
+                res->Add( NameValData( "surfaces", surfaces, "ID's of surface results.") );
 
                 components.push_back( res->GetID() );
             }
         }
     }
 
-    veh_surfaces->Add( NameValData( "components", components ) );
+    veh_surfaces->Add( NameValData( "components", components, "ID's of component results." ) );
     return veh_surfaces->GetID();
 }
 
