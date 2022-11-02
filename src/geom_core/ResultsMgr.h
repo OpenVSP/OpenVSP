@@ -149,7 +149,7 @@ public:
     }
 
     void Add( const NameValData & d );
-    void Add( const vector< vector< vec3d > > & d, string prefix );
+    void Add( const vector< vector< vec3d > > & d, string prefix, const string &doc );
 
     int GetNumData( const string & name );
     vector< string > GetAllDataNames();
