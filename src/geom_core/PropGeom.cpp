@@ -1753,14 +1753,14 @@ string PropGeom::BuildBEMResults()
 
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "PropBEM", "Propeller BEM representation results." );
-    res->Add( NameValData( "Num_Sections", n ) );
-    res->Add( NameValData( "Num_Blade", m_Nblade() ) );
-    res->Add( NameValData( "Diameter", m_Diameter() ) );
-    res->Add( NameValData( "Beta34", m_Beta34() ) );
-    res->Add( NameValData( "Feather", m_Feather() ) );
-    res->Add( NameValData( "Pre_Cone", m_Precone() ) );
-    res->Add( NameValData( "Center", cen ) );
-    res->Add( NameValData( "Normal", norm ) );
+    res->Add( NameValData( "Num_Sections", n, "Number of defining sections." ) );
+    res->Add( NameValData( "Num_Blade", m_Nblade(), "Number of propeller blades." ) );
+    res->Add( NameValData( "Diameter", m_Diameter(), "Propeller diameter." ) );
+    res->Add( NameValData( "Beta34", m_Beta34(), "Blade angle measured at 0.75R." ) );
+    res->Add( NameValData( "Feather", m_Feather(), "Rotation of blade about feather axis." ) );
+    res->Add( NameValData( "Pre_Cone", m_Precone(), "Propeller pre-cone angle." ) );
+    res->Add( NameValData( "Center", cen, "Center of rotation vector." ) );
+    res->Add( NameValData( "Normal", norm, "Axis of rotation vector." ) );
 
     double rfirst = m_ChordCurve.GetRFirst();
     double rlast = m_ChordCurve.GetRLast();
@@ -1805,8 +1805,8 @@ string PropGeom::BuildBEMResults()
 
         char str[255];
         sprintf( str, "%03d", i );
-        res->Add( NameValData( "XSection_" + string( str ), xpts ) );
-        res->Add( NameValData( "YSection_" + string( str ), ypts ) );
+        res->Add( NameValData( "XSection_" + string( str ), xpts, "X coordinates of airfoil section." ) );
+        res->Add( NameValData( "YSection_" + string( str ), ypts, "Y coordinates of airfoil section." ) );
 
         r_vec[i] = r;
         chord_vec[i] = m_ChordCurve.Comp( r );
@@ -1820,16 +1820,16 @@ string PropGeom::BuildBEMResults()
         tangential_vec[i] = m_TangentialCurve.Comp( r );
     }
 
-    res->Add( NameValData( "Radius", r_vec ) );
-    res->Add( NameValData( "Chord", chord_vec ) );
-    res->Add( NameValData( "Twist", twist_vec ) );
-    res->Add( NameValData( "Rake", rake_vec ) );
-    res->Add( NameValData( "Skew", skew_vec ) );
-    res->Add( NameValData( "Sweep", sweep_vec ) );
-    res->Add( NameValData( "Thick", thick_vec ) );
-    res->Add( NameValData( "CLi", cli_vec ) );
-    res->Add( NameValData( "Axial", axial_vec ) );
-    res->Add( NameValData( "Tangential", tangential_vec ) );
+    res->Add( NameValData( "Radius", r_vec, "Vector of radii where prop data is provided." ) );
+    res->Add( NameValData( "Chord", chord_vec, "Blade chord as c/R." ) );
+    res->Add( NameValData( "Twist", twist_vec, "Blade twist angle." ) );
+    res->Add( NameValData( "Rake", rake_vec, "Offset perpendicular to local chord as Rake/R." ) );
+    res->Add( NameValData( "Skew", skew_vec, "Offset parallel to local chord as Skew/R." ) );
+    res->Add( NameValData( "Sweep", sweep_vec, "Blade sweep angle." ) );
+    res->Add( NameValData( "Thick", thick_vec, "Airfoil section t/c." ) );
+    res->Add( NameValData( "CLi", cli_vec, "Airfoil ideal (design) lift coefficient." ) );
+    res->Add( NameValData( "Axial", axial_vec, "Offset in direction of prop axis as Axial/R." ) );
+    res->Add( NameValData( "Tangential", tangential_vec, "Offset tangent to prop rotation as Tangential/R" ) );
 
     return res->GetID();
 }
