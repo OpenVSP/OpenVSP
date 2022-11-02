@@ -2331,24 +2331,27 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
 int TTri::WakeEdge()
 {
     double tol = 1e-12;
-    int type = GetTMeshPtr()->m_SurfType;
-    if ( type == vsp::WING_SURF || type == vsp::PROP_SURF )
+    if ( m_TMesh )
     {
-        bool n0 = m_N0->m_UWPnt.y() <= ( TMAGIC + tol );
-        bool n1 = m_N1->m_UWPnt.y() <= ( TMAGIC + tol );
-        bool n2 = m_N2->m_UWPnt.y() <= ( TMAGIC + tol );
+        int type = m_TMesh->m_SurfType;
+        if ( type == vsp::WING_SURF || type == vsp::PROP_SURF )
+        {
+            bool n0 = m_N0->m_UWPnt.y() <= ( TMAGIC + tol );
+            bool n1 = m_N1->m_UWPnt.y() <= ( TMAGIC + tol );
+            bool n2 = m_N2->m_UWPnt.y() <= ( TMAGIC + tol );
 
-        if ( n0 && n1 )
-        {
-            return 1;
-        }
-        else if ( n1 && n2 )
-        {
-            return 2;
-        }
-        else if ( n2 && n0 )
-        {
-            return 3;
+            if ( n0 && n1 )
+            {
+                return 1;
+            }
+            else if ( n1 && n2 )
+            {
+                return 2;
+            }
+            else if ( n2 && n0 )
+            {
+                return 3;
+            }
         }
     }
     return 0;
