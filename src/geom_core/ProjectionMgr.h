@@ -120,9 +120,9 @@ protected:
 
     virtual bool PtInHole( const vec2d &p );
 
-    virtual void AreaReport( Results* res, const string &resname, const ClipperLib::Paths & pths, double scale, bool holerpt = false );
+    virtual void AreaReport( Results* res, const string &resname, const string &doc, const ClipperLib::Paths & pths, double scale, bool holerpt = false );
 
-    virtual void AreaReport( Results* res, const string &resname, const vector < ClipperLib::Paths > & pthsvec, double scale );
+    virtual void AreaReport( Results* res, const string &resname, const string &doc, const vector < ClipperLib::Paths > & pthsvec, double scale );
 
     virtual Results* Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir );
     virtual Results* Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir );
