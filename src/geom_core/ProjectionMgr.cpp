@@ -303,7 +303,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
     Union( targetvec, utargetvec, targetids );
 
     //==== Create Results ====//
-    Results* res = ResultsMgr.CreateResults( "Projection" );
+    Results* res = ResultsMgr.CreateResults( "Projection", "Projected area results." );
 
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -398,7 +398,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     Union( targetvec, utargetvec, targetids );
 
     //==== Create Results ====//
-    Results* res = ResultsMgr.CreateResults( "Projection" );
+    Results* res = ResultsMgr.CreateResults( "Projection", "Projected area with bounding mesh results." );
 
     Vehicle* veh = VehicleMgr.GetVehicle();
 

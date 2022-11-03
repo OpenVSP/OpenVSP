@@ -862,7 +862,7 @@ string EmintonLordAnalysis::Execute()
 
         double Donq = WaveDragMgr.WaveDrag( x_vec, area_vec, coeff );
 
-        Results* res = ResultsMgr.CreateResults( "EmintonLord" );
+        Results* res = ResultsMgr.CreateResults( "EmintonLord", "Eminton Lord wave drag integral results." );
         if ( res )
         {
             res->Add( NameValData( "Donq", Donq ) );

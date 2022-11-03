@@ -7271,7 +7271,7 @@ void WriteAtmosphereCSVFile(const std::string & file_name, const int &atmos_type
         pres_ratio_vec.push_back( pres_ratio );
         rho_ratio_vec.push_back( rho_ratio );
     }
-    Results* res = ResultsMgr.CreateResults("Atmosphere");
+    Results* res = ResultsMgr.CreateResults( "Atmosphere", "Standard atmosphere verification results." );
     res->Add(NameValData("Alt", AltTestPoints));
     res->Add(NameValData("Temp", temp_vec));
     res->Add(NameValData("Pres", pres_vec));
@@ -7309,7 +7309,7 @@ void CalcAtmosphere(const double & alt, const double & delta_temp, const int & a
 
 void WriteBodyFFCSVFile(const std::string & file_name)
 {
-    Results* res = ResultsMgr.CreateResults("Body_Form_Factor");
+    Results* res = ResultsMgr.CreateResults("Body_Form_Factor", "Body form factor verification results.");
     char str[256];
     vector < double > body_ff_vec;
     vector < double > dol_array = linspace( 0.0, 0.3, 200 );
@@ -7330,7 +7330,7 @@ void WriteBodyFFCSVFile(const std::string & file_name)
 
 void WriteWingFFCSVFile(const std::string & file_name)
 {
-    Results* res = ResultsMgr.CreateResults("Wing_Form_Factor");
+    Results* res = ResultsMgr.CreateResults("Wing_Form_Factor", "Wing form factor verification results.");
     char str[256];
     vector < double > wing_ff_vec;
     vector < double > toc_array = linspace( 0.0, 0.205, 200 );
@@ -7355,7 +7355,7 @@ void WriteWingFFCSVFile(const std::string & file_name)
 
 void WriteCfEqnCSVFile(const std::string & file_name)
 {
-    Results* res = ResultsMgr.CreateResults("Friction_Coefficient");
+    Results* res = ResultsMgr.CreateResults("Friction_Coefficient", "Friction coefficient verification results.");
     char str[256];
     vector < double > lam_cf_vec, turb_cf_vec, ref_leng;
     vector < double > ReyIn_array = logspace( 3, 10, 500 );
@@ -7397,7 +7397,7 @@ void WriteCfEqnCSVFile(const std::string & file_name)
 
 void WritePartialCfMethodCSVFile(const std::string & file_name)
 {
-    Results* res = ResultsMgr.CreateResults("Friction_Coefficient");
+    Results* res = ResultsMgr.CreateResults("Friction_Coefficient", "Partial turbulence coefficient verification results.");
     vector < double > cf_vec, ref_leng;
     vector < double > lam_perc_array = linspace( 0, 100, 1000 );
     vector < double > ReyIn_array, reql_array;

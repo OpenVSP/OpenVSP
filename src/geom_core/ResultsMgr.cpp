@@ -943,10 +943,10 @@ ResultsMgrSingleton::~ResultsMgrSingleton()
 
 
 //==== Create and Add Results Object and Return Ptr ====//
-Results* ResultsMgrSingleton::CreateResults( const string & name )
+Results* ResultsMgrSingleton::CreateResults( const string & name, const string & doc )
 {
     string id = GenerateRandomID( 7 );
-    Results* res_ptr = new Results( name, id );     // Create Results
+    Results* res_ptr = new Results( name, id, doc );     // Create Results
 
     m_ResultsMap[id] = res_ptr;                     // Map ID to Ptr
     m_NameIDMap[name].push_back( id );              // Map Name to Vector of IDs
@@ -957,7 +957,7 @@ Results* ResultsMgrSingleton::CreateResults( const string & name )
 //==== Create Results And Load With Geometry Data ====//
 string ResultsMgrSingleton::CreateGeomResults( const string & geom_id, const string & name )
 {
-    Results* res_ptr = CreateResults( name );
+    Results* res_ptr = CreateResults( name, "Geometry mesh results." );
 
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
@@ -1409,7 +1409,7 @@ void ResultsMgrSingleton::WriteTestResults()
     //==== Write Two Sets of Results ====//
     for ( int s = 0 ; s < 2 ; s++ )
     {
-        Results* res = ResultsMgr.CreateResults( "Test_Results" );
+        Results* res = ResultsMgr.CreateResults( "Test_Results", "Test results." );
 
 //      printf( "Timestamp = %d \n", res->GetTimestamp() );
 

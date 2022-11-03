@@ -5087,14 +5087,14 @@ void Geom::ExportSurfacePatches( vector<string> &surf_res_ids )
         UpdateSplitTesselate( m_SurfVec, i, pnts, norms );
 
         // Add a results entity for each patch to the surface
-        Results* res = ResultsMgr.CreateResults( "Surface" );
+        Results* res = ResultsMgr.CreateResults( "Surface", "Surfaces within a Geom." );
         res->Add( NameValData( "comp_id", GetID() ) );
         res->Add( NameValData( "surf_index", i ) );
 
         vector< string > patch_ids;
         for ( int ipatch = 0 ; ipatch < ( int )pnts.size() ; ipatch++ )
         {
-            Results* patch_res = ResultsMgr.CreateResults( "SurfacePatch" );
+            Results* patch_res = ResultsMgr.CreateResults( "SurfacePatch", "Patches (determined by feature lines) within a surface." );
             patch_res->Add( NameValData( "comp_id", GetID() ) );
             patch_res->Add( NameValData( "surf_index", i ) );
             patch_res->Add( NameValData( "patch_index", ipatch) );

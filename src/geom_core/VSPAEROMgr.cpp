@@ -1305,7 +1305,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Geom",  0 ) );
     }
     // Write out new results
-    Results* res = ResultsMgr.CreateResults( "VSPAERO_Geom" );
+    Results* res = ResultsMgr.CreateResults( "VSPAERO_Geom", "VSPAERO Geometry results." );
     if ( !res )
     {
         fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
@@ -1574,7 +1574,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     WaitForFile( m_SetupFile );
 
     // Add and return a result
-    Results* res = ResultsMgr.CreateResults( "VSPAERO_Setup" );
+    Results* res = ResultsMgr.CreateResults( "VSPAERO_Setup", "VSPAERO setup file results." );
 
     if ( !FileExist( m_SetupFile ) )
     {
@@ -1765,7 +1765,7 @@ string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
     }
 
     // Create "wrapper" result to contain a vector of result IDs (this maintains compatibility to return a single result after computation)
-    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
+    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper", "VSPAERO read existing solution results." );
     if ( !res )
     {
         return string();
@@ -2159,7 +2159,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
     }
 
     // Create "wrapper" result to contain a vector of result IDs (this maintains compatibility to return a single result after computation)
-    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
+    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper", "VSPAERO sweep analysis results." );
     if( !res )
     {
         return string();
@@ -2257,7 +2257,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
         if ( CheckForCaseHeader( data_string_array ) )
         {
-            res = ResultsMgr.CreateResults( "VSPAERO_History" );
+            res = ResultsMgr.CreateResults( "VSPAERO_History", "VSPAERO History file results." );
             res_id_vector.push_back( res->GetID() );
 
             if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
@@ -2447,7 +2447,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
         {
             if ( data_string_array[0].find( "Beta" ) != std::string::npos )
             {
-                res = ResultsMgr.CreateResults( "VSPAERO_Polar" );
+                res = ResultsMgr.CreateResults( "VSPAERO_Polar", "VSPAERO polar file results." );
 
                 if ( res )
                 {
@@ -2538,7 +2538,7 @@ void VSPAEROMgrSingleton::ReadPolarFile( string filename, vector <string> &res_i
                                 if ( ( abs( mach - Mach.back() ) < tol ) && ( abs( alpha - Alpha.back() ) < tol ) && ( abs( beta - Beta.back() ) < tol ) )
                                 {
                                     // Generate new *.history results for multiple ReCref inputs since VSPAERO only outputs a result for the first ReCref
-                                    Results* new_history_res = ResultsMgr.CreateResults( "VSPAERO_History" );
+                                    Results* new_history_res = ResultsMgr.CreateResults( "VSPAERO_History", "VSPAERO additional history results to capture ReCref variation." );
                                     res_id_vector.push_back( new_history_res->GetID() );
 
                                     new_history_res->Add( NameValData( "FC_ReCref_", ( 1e6 * Re_1e6.back() ) ) );
@@ -2684,7 +2684,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
 
         if ( CheckForCaseHeader( data_string_array ) )
         {
-            res = ResultsMgr.CreateResults( "VSPAERO_Load" );
+            res = ResultsMgr.CreateResults( "VSPAERO_Load", "VSPAERO load distribution lod file results." );
             res_id_vector.push_back( res->GetID() );
 
             if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
@@ -2809,7 +2809,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
         else if ( data_string_array.size() == nCompDataTableCols && sectional_data_complete && data_string_array[0].find( "Comp" ) != std::string::npos )
         {
             // "Comp" section of *.lod file
-            res = ResultsMgr.CreateResults( "VSPAERO_Comp_Load" );
+            res = ResultsMgr.CreateResults( "VSPAERO_Comp_Load", "VSPAERO component loads from lod file results." );
             res_id_vector.push_back( res->GetID() );
 
             //discard the header row and read the next line assuming that it is numeric
@@ -2920,7 +2920,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
 
         if ( CheckForCaseHeader( data_string_array ) )
         {
-            res = ResultsMgr.CreateResults( "VSPAERO_Stab" );
+            res = ResultsMgr.CreateResults( "VSPAERO_Stab", "VSPAERO stability run results." );
             res->Add( NameValData( "StabilityType", stabilityType ) );
             res_id_vector.push_back( res->GetID() );
 
@@ -3698,7 +3698,7 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     MonitorProcess( logFile, &m_SlicerThread, "VSPAEROSolverMessage" );
 
     // Write out new results
-    Results* res = ResultsMgr.CreateResults( "CpSlice_Wrapper" );
+    Results* res = ResultsMgr.CreateResults( "CpSlice_Wrapper", "VSPAERO Cp slicer setup results." );
     if ( !res )
     {
         fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
@@ -3946,7 +3946,7 @@ void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_i
         {
             if ( strcmp( data_string_array[0].c_str(), "BLOCK" ) == 0 )
             {
-                res = ResultsMgr.CreateResults( "CpSlicer_Case" );
+                res = ResultsMgr.CreateResults( "CpSlicer_Case", "VSPAERO Cp slicer results." );
                 res_id_vector.push_back( res->GetID() );
 
                 res->Add( NameValData( "Cut_Type", (int)( data_string_array[4][0] - 88 ) ) ); // ASCII X: 88; Y: 89; Z: 90
@@ -4790,7 +4790,7 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
 
         if ( strcmp( data_string_array[0].c_str(), "Time" ) == 0 )
         {
-            res = ResultsMgr.CreateResults( "VSPAERO_Group" );
+            res = ResultsMgr.CreateResults( "VSPAERO_Group", "VSPAERO Group file results." );
 
             res->Add( NameValData( "Group_Num", group_num ) );
             res->Add( NameValData( "Group_Name", group_name ) );
@@ -4933,7 +4933,7 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
 
         if ( strcmp( data_string_array[0].c_str(), "Time" ) == 0 && strcmp( data_string_array[1].c_str(), "Diameter" ) == 0 )
         {
-            res = ResultsMgr.CreateResults( "VSPAERO_Rotor" );
+            res = ResultsMgr.CreateResults( "VSPAERO_Rotor", "VSPAERO Rotor results." );
 
             res->Add( NameValData( "Rotor_Num", rotor_num ) );
             res->Add( NameValData( "Group_Name", group_name ) );
@@ -4942,7 +4942,7 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
         }
         else if ( strcmp( data_string_array[0].c_str(), "Station" ) == 0 && strcmp( prev_start_str.c_str(), "Average" ) == 0 )
         {
-            res = ResultsMgr.CreateResults( "VSPAERO_Blade_Avg" );
+            res = ResultsMgr.CreateResults( "VSPAERO_Blade_Avg", "VSPAERO blade average rotor results." );
 
             res->Add( NameValData( "Rotor_Num", rotor_num ) );
             res->Add( NameValData( "Blade_Num", blade_load_avg_ind ) );
@@ -4953,7 +4953,7 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
         }
         else if ( strcmp( data_string_array[0].c_str(), "Station" ) == 0 && strcmp( prev_start_str.c_str(), "Time" ) == 0 )
         {
-            res = ResultsMgr.CreateResults( "VSPAERO_Blade_Last_Rev" );
+            res = ResultsMgr.CreateResults( "VSPAERO_Blade_Last_Rev", "VSPAERO blade final revolution results." );
 
             res->Add( NameValData( "Rotor_Num", rotor_num ) );
             res->Add( NameValData( "Blade_Num", blade_load_last_rev_ind ) );

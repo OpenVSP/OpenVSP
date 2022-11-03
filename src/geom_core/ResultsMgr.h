@@ -219,7 +219,7 @@ public:
     }
 
 
-    Results* CreateResults( const string & name );                      // Return Results Ptr
+    Results* CreateResults( const string & name, const string & doc );                      // Return Results Ptr
 
     string CreateGeomResults( const string & geom_id, const string & name );
 

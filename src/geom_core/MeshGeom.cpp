@@ -1867,7 +1867,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     if ( !degen )
     {
         //==== Create Results ====//
-        res = ResultsMgr.CreateResults( "Comp_Geom" );
+        res = ResultsMgr.CreateResults( "Comp_Geom", "CompGeom CSG mesh generation results." );
         res->Add( NameValData( "Num_Comps", ( int )compIdVec.size() ) );
         res->Add( NameValData( "Total_Num_Meshes", ( int )m_TMeshVec.size() ) );
         res->Add( NameValData( "Total_Num_Tris", numTris ) );
@@ -2268,7 +2268,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     MergeRemoveOpenMeshes( &info, false );
 
     //==== Create Results ====//
-    Results* res = ResultsMgr.CreateResults( "Slice" );
+    Results* res = ResultsMgr.CreateResults( "Slice", "Planar slicing results." );
     res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
@@ -2915,14 +2915,14 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
 
     if ( !degen )
     {
-        res = ResultsMgr.CreateResults( "Mass_Properties" );
-        res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ));
-        res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ));
-        res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ));
-        res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes ));
-        res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes ));
-        res->Add( NameValData( "Mesh_GeomID", this->GetID()));
-        res->Add( NameValData( "Num_Total_Meshes", ( int ) m_TMeshVec.size()));
+        res = ResultsMgr.CreateResults( "Mass_Properties", "Mass properties results." );
+        res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
+        res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
+        res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+        res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes ) );
+        res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes ) );
+        res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
+        res->Add( NameValData( "Num_Total_Meshes", ( int ) m_TMeshVec.size() ) );
 
         //==== Count Tris ====//
         for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )

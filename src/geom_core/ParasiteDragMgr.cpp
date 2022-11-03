@@ -3151,7 +3151,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     }
 
     // Create Results
-    Results* res = ResultsMgr.CreateResults( "Parasite_Drag" );
+    Results* res = ResultsMgr.CreateResults( "Parasite_Drag", "Parasite drag buildup results." );
 
     if ( !res )
     {

@@ -1752,7 +1752,7 @@ string PropGeom::BuildBEMResults()
     int n = m_TessU();
 
     //==== Create Results ====//
-    Results* res = ResultsMgr.CreateResults( "PropBEM" );
+    Results* res = ResultsMgr.CreateResults( "PropBEM", "Propeller BEM representation results." );
     res->Add( NameValData( "Num_Sections", n ) );
     res->Add( NameValData( "Num_Blade", m_Nblade() ) );
     res->Add( NameValData( "Diameter", m_Diameter() ) );

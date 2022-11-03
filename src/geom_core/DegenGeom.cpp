@@ -1502,7 +1502,7 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
 
 void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_ids )
 {
-    Results *res = ResultsMgr.CreateResults( "Degen_DegenGeom" );
+    Results *res = ResultsMgr.CreateResults( "Degen_DegenGeom", "Degen geom results." );
     degen_results_ids.push_back( res->GetID() );
     if ( type == SURFACE_TYPE )
     {
@@ -1580,7 +1580,7 @@ void DegenGeom::write_degenGeomDiskResultsManager( Results *res )
 {
     if ( !res ) { return; }
 
-    Results *disk_res = ResultsMgr.CreateResults( "Degen_disk" );
+    Results *disk_res = ResultsMgr.CreateResults( "Degen_disk", "Degen geom actuator disk results." );
     res->Add( NameValData( "disk", disk_res->GetID() ) );
 
     disk_res->Add( NameValData( "diameter", degenDisk.d ) );
@@ -1593,7 +1593,7 @@ void DegenGeom::write_degenGeomSurfResultsManager( Results *res )
 {
     if ( !res ) { return; }
 
-    Results *surf_res = ResultsMgr.CreateResults( "Degen_surf" );
+    Results *surf_res = ResultsMgr.CreateResults( "Degen_surf", "Degen surface representation results." );
     res->Add( NameValData ( "surf", surf_res->GetID() ) );
 
     surf_res->Add( NameValData( "nxsecs", num_xsecs ) );
@@ -1607,7 +1607,7 @@ void DegenGeom::write_degenGeomSurfResultsManager( Results *res )
 
 void DegenGeom::write_degenGeomPlateResultsManager( vector< string > &plate_ids, const DegenPlate &degenPlate )
 {
-    Results *plate_res = ResultsMgr.CreateResults( "Degen_plate" );
+    Results *plate_res = ResultsMgr.CreateResults( "Degen_plate", "Degen geom plate representation results." );
     plate_ids.push_back( plate_res->GetID() );
 
     plate_res->Add( NameValData( "nxsecs", num_xsecs ) );
@@ -1626,7 +1626,7 @@ void DegenGeom::write_degenGeomPlateResultsManager( vector< string > &plate_ids,
 
 void DegenGeom::write_degenGeomStickResultsManager( vector<string> &stick_ids, const DegenStick &degenStick )
 {
-    Results *stick_res = ResultsMgr.CreateResults( "Degen_stick" );
+    Results *stick_res = ResultsMgr.CreateResults( "Degen_stick", "Degen stick representation results." );
     stick_ids.push_back( stick_res->GetID() );
 
     stick_res->Add( NameValData( "nxsecs", num_xsecs ) );
@@ -1663,7 +1663,7 @@ void DegenGeom::write_degenGeomPointResultsManager( Results *res )
 {
     if ( !res ) { return; }
 
-    Results *point_res = ResultsMgr.CreateResults( "point" );
+    Results *point_res = ResultsMgr.CreateResults( "point", "Degen geom point representation results." );
     res->Add( NameValData( "point", point_res->GetID() ) );
 
     point_res->Add( NameValData( "vol", degenPoint.vol[0] ) );
@@ -1678,7 +1678,7 @@ void DegenGeom::write_degenGeomPointResultsManager( Results *res )
 
 void DegenGeom::write_degenSubSurfResultsManager( vector<string> &subsurf_ids, const DegenSubSurf &degenSubSurf )
 {
-    Results* subsurf_res = ResultsMgr.CreateResults( "Degen_subsurf" );
+    Results* subsurf_res = ResultsMgr.CreateResults( "Degen_subsurf", "Degen subsurface results." );
     subsurf_ids.push_back( subsurf_res->GetID() );
 
     subsurf_res->Add( NameValData( "name", degenSubSurf.name ) );
@@ -1694,7 +1694,7 @@ void DegenGeom::write_degenSubSurfResultsManager( vector<string> &subsurf_ids, c
 
 void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, const DegenHingeLine &degenHingeLine )
 {
-    Results *hinge_res = ResultsMgr.CreateResults( "Degen_hinge" );
+    Results *hinge_res = ResultsMgr.CreateResults( "Degen_hinge", "Degen hinge results." );
     hinge_ids.push_back( hinge_res->GetID() );
 
     hinge_res->Add( NameValData( "name", degenHingeLine.name ) );

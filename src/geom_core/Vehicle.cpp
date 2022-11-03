@@ -5513,7 +5513,7 @@ string Vehicle::WriteDegenGeomFile()
 
     // Create results object to contain the ids of all of the results associated
     // with degen geoms
-    Results *res = ResultsMgr.CreateResults( "DegenGeom" );
+    Results *res = ResultsMgr.CreateResults( "DegenGeom", "Vehicle level degen geom results." );
     vector < string > degen_results_ids;
     vector < string > blank_degen_result_ids;
 
@@ -5521,7 +5521,7 @@ string Vehicle::WriteDegenGeomFile()
     {
         for ( int i = 0; i < ( int ) m_DegenPtMassVec.size(); i++ )
         {
-            Results *blnk_res = ResultsMgr.CreateResults( "Degen_BlankGeom" );
+            Results *blnk_res = ResultsMgr.CreateResults( "Degen_BlankGeom", "Blank component degen geom results." );
             blank_degen_result_ids.push_back( blnk_res->GetID() );
 
             blnk_res->Add( NameValData( "name", m_DegenPtMassVec[i].name ) );
@@ -5693,7 +5693,7 @@ string Vehicle::ExportSurfacePatches( int set )
 {
     vector< string > geom_vec = GetGeomVec();
 
-    Results* veh_surfaces = ResultsMgr.CreateResults( "VehicleSurfaces" );
+    Results* veh_surfaces = ResultsMgr.CreateResults( "VehicleSurfaces", "Vehicle level surface patch results." );
     vector< string > components;
 
     for ( int i = 0; i < (int)geom_vec.size(); i++ )
@@ -5705,7 +5705,7 @@ string Vehicle::ExportSurfacePatches( int set )
             if ( geom->GetSetFlag( set ) )
             {
                 // Loop over all surfaces adding points to the results manager
-                Results* res = ResultsMgr.CreateResults( "ComponentSurfaces" );
+                Results* res = ResultsMgr.CreateResults( "ComponentSurfaces", "Geom group for surface patch results." );
                 res->Add( NameValData( "name", geom->GetName() ) );
                 res->Add( NameValData( "id", geom->GetID() ) );
 

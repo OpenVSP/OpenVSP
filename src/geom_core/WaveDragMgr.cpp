@@ -282,7 +282,7 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
     }
 
     //==== Create Results ====//
-    Results* res = ResultsMgr.CreateResults( "WaveDrag" );
+    Results* res = ResultsMgr.CreateResults( "WaveDrag", "Wave drag results." );
 
     res->Add( NameValData( "Mach", Mach ) );
 
