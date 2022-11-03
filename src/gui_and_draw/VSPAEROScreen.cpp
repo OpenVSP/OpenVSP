@@ -1759,7 +1759,7 @@ void VSPAEROScreen::UpdateOtherSetupParms()
 
     if ( VSPAEROMgr.m_RotateBladesFlag.Get() ||
          VSPAEROMgr.m_ActuatorDiskFlag.Get() ||
-       ( VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_OFF && VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_PITCH ) )
+       ( VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_OFF && VSPAEROMgr.m_StabilityType.Get() < vsp::STABILITY_PITCH ) )
     {
         m_VinfSlider.Activate();
         m_ActivateVRefToggle.Activate();
