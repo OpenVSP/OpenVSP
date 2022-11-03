@@ -30,36 +30,36 @@ void CfdMeshAnalysis::SetDefaults()
 
     if( veh )
     {
-        m_Inputs.Add( NameValData( "BaseLen", veh->GetCfdGridDensityPtr()->m_BaseLen() ) );
-        m_Inputs.Add( NameValData( "MinLen", veh->GetCfdGridDensityPtr()->m_MinLen() ) );
-        m_Inputs.Add( NameValData( "MaxGap", veh->GetCfdGridDensityPtr()->m_MaxGap() ) );
-        m_Inputs.Add( NameValData( "NCircSeg", veh->GetCfdGridDensityPtr()->m_NCircSeg() ) );
-        m_Inputs.Add( NameValData( "GrowthRatio", veh->GetCfdGridDensityPtr()->m_GrowRatio() ) );
-        m_Inputs.Add( NameValData( "RelCurveTol", veh->GetCfdSettingsPtr()->m_RelCurveTol() ) );
+        m_Inputs.Add( NameValData( "BaseLen", veh->GetCfdGridDensityPtr()->m_BaseLen(), "Maximum target edge length." ) );
+        m_Inputs.Add( NameValData( "MinLen", veh->GetCfdGridDensityPtr()->m_MinLen(), "Minimum target edge length." ) );
+        m_Inputs.Add( NameValData( "MaxGap", veh->GetCfdGridDensityPtr()->m_MaxGap(), "Maximum sagitta of circle inscribed to local curvature." ) );
+        m_Inputs.Add( NameValData( "NCircSeg", veh->GetCfdGridDensityPtr()->m_NCircSeg(), "Number of segments to divide a circle inscribed to local curvature." ) );
+        m_Inputs.Add( NameValData( "GrowthRatio", veh->GetCfdGridDensityPtr()->m_GrowRatio(), "Maximum edge length growth ratio."  ) );
+        m_Inputs.Add( NameValData( "RelCurveTol", veh->GetCfdSettingsPtr()->m_RelCurveTol(), "Tolerance used when constructing binary adapted curves." ) );
 
-        m_Inputs.Add( NameValData( "RigorLimit", veh->GetCfdGridDensityPtr()->m_RigorLimit() ) );
-        m_Inputs.Add( NameValData( "IntersectSubSurfs", veh->GetCfdSettingsPtr()->m_IntersectSubSurfs() ) );
-        m_Inputs.Add( NameValData( "TaggedMultiSolid", veh->m_STLMultiSolid() ) );
-        m_Inputs.Add( NameValData( "XYZIntCurveFlag", veh->GetCfdSettingsPtr()->m_XYZIntCurveFlag() ) );
-        m_Inputs.Add( NameValData( "ExportRawFlag", veh->GetCfdSettingsPtr()->m_ExportRawFlag() ) );
-        m_Inputs.Add( NameValData( "GenerateHalfMesh", veh->GetCfdSettingsPtr()->m_HalfMeshFlag() ) );
+        m_Inputs.Add( NameValData( "RigorLimit", veh->GetCfdGridDensityPtr()->m_RigorLimit(), "Flag to enable rigorous growth limiting across 3D space." ) );
+        m_Inputs.Add( NameValData( "IntersectSubSurfs", veh->GetCfdSettingsPtr()->m_IntersectSubSurfs(), "Flag to include subsurfaces in model." ) );
+        m_Inputs.Add( NameValData( "TaggedMultiSolid", veh->m_STLMultiSolid(), "Flag to enable non-standard tagged multi-solid STL file export." ) );
+        m_Inputs.Add( NameValData( "XYZIntCurveFlag", veh->GetCfdSettingsPtr()->m_XYZIntCurveFlag(), "Flag to include X,Y,Z intersection curves in *.srf file." ) );
+        m_Inputs.Add( NameValData( "ExportRawFlag", veh->GetCfdSettingsPtr()->m_ExportRawFlag(), "Flag to export raw intersection points."  ) );
+        m_Inputs.Add( NameValData( "GenerateHalfMesh", veh->GetCfdSettingsPtr()->m_HalfMeshFlag(), "Flag to generate a half mesh in +Y domain." ) );
 
-        m_Inputs.Add( NameValData( "SelectedSetIndex", veh->GetCfdSettingsPtr()->m_SelectedSetIndex() ) );
-        m_Inputs.Add( NameValData( "SelectedDegenSetIndex", veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex() ) );
+        m_Inputs.Add( NameValData( "SelectedSetIndex", veh->GetCfdSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
+        m_Inputs.Add( NameValData( "SelectedDegenSetIndex", veh->GetCfdSettingsPtr()->m_SelectedDegenSetIndex(), "Degenerate (thin) geometry set for analysis." ) );
 
         // File Outputs
-        m_Inputs.Add( NameValData( "STLFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "STLFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) ) );
-        m_Inputs.Add( NameValData( "POLYFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "POLYFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_POLY_FILE_NAME ) ) );
-        m_Inputs.Add( NameValData( "TRIFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "TRIFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TRI_FILE_NAME ) ) );
-        m_Inputs.Add( NameValData( "FACETFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_FACET_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "FACETFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_FACET_FILE_NAME ) ) );
-        m_Inputs.Add( NameValData( "OBJFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "OBJFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_OBJ_FILE_NAME ) ) );
-        m_Inputs.Add( NameValData( "GMSHFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "GMSHFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "STLFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get(), "Flag to enable STL file export." ) );
+        m_Inputs.Add( NameValData( "STLFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ), "File name for STL file export." ) );
+        m_Inputs.Add( NameValData( "POLYFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->Get(), "Flag to enable Poly file export." ) );
+        m_Inputs.Add( NameValData( "POLYFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_POLY_FILE_NAME ), "File name for Poly file export." ) );
+        m_Inputs.Add( NameValData( "TRIFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME )->Get(), "Flag to enable TRI file export." ) );
+        m_Inputs.Add( NameValData( "TRIFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TRI_FILE_NAME ), "File name for TRI file export." ) );
+        m_Inputs.Add( NameValData( "FACETFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_FACET_FILE_NAME )->Get(), "Flag to enable FACET file export." ) );
+        m_Inputs.Add( NameValData( "FACETFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_FACET_FILE_NAME ), "File name for FACET file export." ) );
+        m_Inputs.Add( NameValData( "OBJFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME )->Get(), "Flag to enable OBJ file export." ) );
+        m_Inputs.Add( NameValData( "OBJFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_OBJ_FILE_NAME ), "File name for OBJ file export." ) );
+        m_Inputs.Add( NameValData( "GMSHFileFlag", veh->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->Get(), "Flag to enable GMSH file export." ) );
+        m_Inputs.Add( NameValData( "GMSHFileName", veh->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME ), "File name for GMSH file export." ) );
     }
     else
     {
@@ -236,124 +236,83 @@ void FeaMeshAnalysis::SetDefaults()
 
     FeaStructure* curr_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetFeaMeshStructID() );
 
+    GridDensity* density_settings = NULL;
+    StructSettings* struct_settings = NULL;
+
     StructSettings temp_settings;
     FeaGridDensity temp_density;
 
     if( curr_struct )
     {
-        m_Inputs.Add( NameValData( "BaseLen", curr_struct->GetFeaGridDensityPtr()->m_BaseLen() ) );
-        m_Inputs.Add( NameValData( "MinLen", curr_struct->GetFeaGridDensityPtr()->m_MinLen() ) );
-        m_Inputs.Add( NameValData( "MaxGap", curr_struct->GetFeaGridDensityPtr()->m_MaxGap() ) );
-        m_Inputs.Add( NameValData( "NCircSeg", curr_struct->GetFeaGridDensityPtr()->m_NCircSeg() ) );
-        m_Inputs.Add( NameValData( "GrowthRatio", curr_struct->GetFeaGridDensityPtr()->m_GrowRatio() ) );
-        m_Inputs.Add( NameValData( "RelCurveTol", curr_struct->GetStructSettingsPtr()->m_RelCurveTol() ) );
-        m_Inputs.Add( NameValData( "STEPTol", curr_struct->GetStructSettingsPtr()->m_STEPTol() ) );
-
-        m_Inputs.Add( NameValData( "RigorLimit", curr_struct->GetFeaGridDensityPtr()->m_RigorLimit() ) );
-        m_Inputs.Add( NameValData( "ExportRawFlag", curr_struct->GetStructSettingsPtr()->m_ExportRawFlag() ) );
-        m_Inputs.Add( NameValData( "HalfMeshFlag", curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag() ) );
-        m_Inputs.Add( NameValData( "XYZIntCurveFlag", curr_struct->GetStructSettingsPtr()->m_XYZIntCurveFlag() ) );
-        m_Inputs.Add( NameValData( "CADLabelID", curr_struct->GetStructSettingsPtr()->m_CADLabelID() ) );
-        m_Inputs.Add( NameValData( "CADLabelName", curr_struct->GetStructSettingsPtr()->m_CADLabelName() ) );
-        m_Inputs.Add( NameValData( "CADLabelSurfNo", curr_struct->GetStructSettingsPtr()->m_CADLabelSurfNo() ) );
-        m_Inputs.Add( NameValData( "CADLabelSplitNo", curr_struct->GetStructSettingsPtr()->m_CADLabelSplitNo() ) );
-        m_Inputs.Add( NameValData( "STEPRepresentation", curr_struct->GetStructSettingsPtr()->m_STEPRepresentation() ) );
-
-        m_Inputs.Add( NameValData( "CADLenUnit", curr_struct->GetStructSettingsPtr()->m_CADLenUnit() ) );
-        m_Inputs.Add( NameValData( "CADLabelDelim", curr_struct->GetStructSettingsPtr()->m_CADLabelDelim() ) );
-
-        // File Outputs
-        m_Inputs.Add( NameValData( "STLFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "STLFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "GMSHFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "GMSHFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_GMSH_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "MASSFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "MASSFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_MASS_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "NASTRANFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "NASTRANFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "NKEYFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "NKEYFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NKEY_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "CALCULIXFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "CALCULIXFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "CURVFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "CURVFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "P3DFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "P3DFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "SRFFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "SRFFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "IGESFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "IGESFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME ) ) );
-
-        m_Inputs.Add( NameValData( "STEPFileFlag", curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "STEPFileName", curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME ) ) );
-
+        density_settings = curr_struct->GetFeaGridDensityPtr();
+        struct_settings = curr_struct->GetStructSettingsPtr();
     }
     else
     {
-        m_Inputs.Add( NameValData( "BaseLen", temp_density.m_BaseLen() ) );
-        m_Inputs.Add( NameValData( "MinLen", temp_density.m_MinLen() ) );
-        m_Inputs.Add( NameValData( "MaxGap", temp_density.m_MaxGap() ) );
-        m_Inputs.Add( NameValData( "NCircSeg", temp_density.m_NCircSeg() ) );
-        m_Inputs.Add( NameValData( "GrowthRatio", temp_density.m_GrowRatio() ) );
-        m_Inputs.Add( NameValData( "RelCurveTol", temp_settings.m_RelCurveTol() ) );
-        m_Inputs.Add( NameValData( "STEPTol", temp_settings.m_STEPTol() ) );
+        density_settings = &temp_density;
+        struct_settings = &temp_settings;
+    }
 
-        m_Inputs.Add( NameValData( "RigorLimit", temp_density.m_RigorLimit() ) );
-        m_Inputs.Add( NameValData( "ExportRawFlag", temp_settings.m_ExportRawFlag() ) );
-        m_Inputs.Add( NameValData( "HalfMeshFlag", temp_settings.m_HalfMeshFlag() ) );
-        m_Inputs.Add( NameValData( "XYZIntCurveFlag", temp_settings.m_XYZIntCurveFlag() ) );
-        m_Inputs.Add( NameValData( "CADLabelID", temp_settings.m_CADLabelID() ) );
-        m_Inputs.Add( NameValData( "CADLabelName", temp_settings.m_CADLabelName() ) );
-        m_Inputs.Add( NameValData( "CADLabelSurfNo", temp_settings.m_CADLabelSurfNo() ) );
-        m_Inputs.Add( NameValData( "CADLabelSplitNo", temp_settings.m_CADLabelSplitNo() ) );
-        m_Inputs.Add( NameValData( "STEPRepresentation", temp_settings.m_STEPRepresentation() ) );
+    if( density_settings )
+    {
+        m_Inputs.Add( NameValData( "BaseLen", density_settings->m_BaseLen(), "Maximum target edge length." ) );
+        m_Inputs.Add( NameValData( "MinLen", density_settings->m_MinLen(), "Minimum target edge length." ) );
+        m_Inputs.Add( NameValData( "MaxGap", density_settings->m_MaxGap(), "Maximum sagitta of circle inscribed to local curvature." ) );
+        m_Inputs.Add( NameValData( "NCircSeg", density_settings->m_NCircSeg(), "Number of segments to divide a circle inscribed to local curvature." ) );
+        m_Inputs.Add( NameValData( "GrowthRatio", density_settings->m_GrowRatio(), "Maximum edge length growth ratio." ) );
+        m_Inputs.Add( NameValData( "RigorLimit", density_settings->m_RigorLimit(), "Flag to enable rigorous growth limiting across 3D space." ) );
+    }
 
-        m_Inputs.Add( NameValData( "CADLenUnit", temp_settings.m_CADLenUnit() ) );
-        m_Inputs.Add( NameValData( "CADLabelDelim", temp_settings.m_CADLabelDelim() ) );
+    if ( struct_settings )
+    {
+        m_Inputs.Add( NameValData( "RelCurveTol", struct_settings->m_RelCurveTol(), "Tolerance used when constructing binary adapted curves." ) );
+        m_Inputs.Add( NameValData( "STEPTol", struct_settings->m_STEPTol(), "Tolerance output to STEP files." ) );
+
+        m_Inputs.Add( NameValData( "ExportRawFlag", struct_settings->m_ExportRawFlag(), "Flag to export raw intersection points." ) );
+        m_Inputs.Add( NameValData( "HalfMeshFlag", struct_settings->m_HalfMeshFlag(), "Flag to generate a half mesh in +Y domain." ) );
+        m_Inputs.Add( NameValData( "XYZIntCurveFlag", struct_settings->m_XYZIntCurveFlag(), "Flag to include X,Y,Z intersection curves in *.srf file." ) );
+        m_Inputs.Add( NameValData( "CADLabelID", struct_settings->m_CADLabelID(), "Flag to include GeomID in CAD surface label." ) );
+        m_Inputs.Add( NameValData( "CADLabelName", struct_settings->m_CADLabelName(), "Flag to include Geom name in CAD surface label." ) );
+        m_Inputs.Add( NameValData( "CADLabelSurfNo", struct_settings->m_CADLabelSurfNo(), "Flag to include surface number in CAD surface label." ) );
+        m_Inputs.Add( NameValData( "CADLabelSplitNo", struct_settings->m_CADLabelSplitNo(), "Flag to include surface split number in CAD surface label." ) );
+        m_Inputs.Add( NameValData( "STEPRepresentation", struct_settings->m_STEPRepresentation(), "Flag to control whether STEP representation is shell or BREP solid." ) );
+
+        m_Inputs.Add( NameValData( "CADLenUnit", struct_settings->m_CADLenUnit(), "Model length unit enum included in CAD file export." ) );
+        m_Inputs.Add( NameValData( "CADLabelDelim", struct_settings->m_CADLabelDelim(), "Delimiter enum to separate components of CAD surface label." ) );
 
         // File Outputs
-        m_Inputs.Add( NameValData( "STLFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_STL_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "STLFileName", temp_settings.GetExportFileName( vsp::FEA_STL_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "STLFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_STL_FILE_NAME )->Get(), "Flag to enable STL file export." ) );
+        m_Inputs.Add( NameValData( "STLFileName", struct_settings->GetExportFileName( vsp::FEA_STL_FILE_NAME ), "File name for STL file export." ) );
 
-        m_Inputs.Add( NameValData( "GMSHFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "GMSHFileName", temp_settings.GetExportFileName( vsp::FEA_GMSH_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "GMSHFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME )->Get(), "Flag to enable GMSH file export." ) );
+        m_Inputs.Add( NameValData( "GMSHFileName", struct_settings->GetExportFileName( vsp::FEA_GMSH_FILE_NAME ), "File name for GMSH file export." ) );
 
-        m_Inputs.Add( NameValData( "MASSFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_MASS_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "MASSFileName", temp_settings.GetExportFileName( vsp::FEA_MASS_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "MASSFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME )->Get(), "Flag to enable MASS file export." ) );
+        m_Inputs.Add( NameValData( "MASSFileName", struct_settings->GetExportFileName( vsp::FEA_MASS_FILE_NAME ), "File name for MASS file export." ) );
 
-        m_Inputs.Add( NameValData( "NASTRANFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "NASTRANFileName", temp_settings.GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "NASTRANFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->Get(), "Flag to enable NASTRAN file export." ) );
+        m_Inputs.Add( NameValData( "NASTRANFileName", struct_settings->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ), "File name for NASTRAN file export." ) );
 
-        m_Inputs.Add( NameValData( "NKEYFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "NKEYFileName", temp_settings.GetExportFileName( vsp::FEA_NKEY_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "NKEYFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME )->Get(), "Flag to enable NASTRAN Key file export." ) );
+        m_Inputs.Add( NameValData( "NKEYFileName", struct_settings->GetExportFileName( vsp::FEA_NKEY_FILE_NAME ), "File name for NASTRAN Key file export." ) );
 
-        m_Inputs.Add( NameValData( "CALCULIXFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "CALCULIXFileName", temp_settings.GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "CALCULIXFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME )->Get(), "Flag to enable CalculiX file export." ) );
+        m_Inputs.Add( NameValData( "CALCULIXFileName", struct_settings->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME ), "File name for CalculiX file export." ) );
 
-        m_Inputs.Add( NameValData( "CURVFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_CURV_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "CURVFileName", temp_settings.GetExportFileName( vsp::FEA_CURV_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "CURVFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME )->Get(), "Flag to enable CURV file export." ) );
+        m_Inputs.Add( NameValData( "CURVFileName", struct_settings->GetExportFileName( vsp::FEA_CURV_FILE_NAME ), "File name for CURV file export." ) );
 
-        m_Inputs.Add( NameValData( "P3DFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "P3DFileName", temp_settings.GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "P3DFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME )->Get(), "Flag to enable Plot3D file export." ) );
+        m_Inputs.Add( NameValData( "P3DFileName", struct_settings->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ), "File name for Plot3D file export." ) );
 
-        m_Inputs.Add( NameValData( "SRFFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_SRF_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "SRFFileName", temp_settings.GetExportFileName( vsp::FEA_SRF_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "SRFFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME )->Get(), "Flag to enable SRF file export." ) );
+        m_Inputs.Add( NameValData( "SRFFileName", struct_settings->GetExportFileName( vsp::FEA_SRF_FILE_NAME ), "File name for SRF file export." ) );
 
-        m_Inputs.Add( NameValData( "IGESFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "IGESFileName", temp_settings.GetExportFileName( vsp::FEA_IGES_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "IGESFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->Get(), "Flag to enable IGES file export." ) );
+        m_Inputs.Add( NameValData( "IGESFileName", struct_settings->GetExportFileName( vsp::FEA_IGES_FILE_NAME ), "File name for IGES file export." ) );
 
-        m_Inputs.Add( NameValData( "STEPFileFlag", temp_settings.GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "STEPFileName", temp_settings.GetExportFileName( vsp::FEA_STEP_FILE_NAME ) ) );
-
+        m_Inputs.Add( NameValData( "STEPFileFlag", struct_settings->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get(), "Flag to enable STEP file export." ) );
+        m_Inputs.Add( NameValData( "STEPFileName", struct_settings->GetExportFileName( vsp::FEA_STEP_FILE_NAME ), "File name for STEP file export." ) );
     }
 }
 
@@ -615,34 +574,34 @@ void SurfaceIntersectionAnalysis::SetDefaults()
 
     if( veh )
     {
-        m_Inputs.Add( NameValData( "ExportRawFlag", veh->GetISectSettingsPtr()->m_ExportRawFlag() ) );
-        m_Inputs.Add( NameValData( "IntersectSubSurfs", veh->GetISectSettingsPtr()->m_IntersectSubSurfs() ) );
-        m_Inputs.Add( NameValData( "RelCurveTol", veh->GetISectSettingsPtr()->m_RelCurveTol() ) );
-        m_Inputs.Add( NameValData( "SelectedSetIndex", veh->GetISectSettingsPtr()->m_SelectedSetIndex() ) );
-        m_Inputs.Add( NameValData( "SelectedDegenSetIndex", veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex() ) );
+        m_Inputs.Add( NameValData( "ExportRawFlag", veh->GetISectSettingsPtr()->m_ExportRawFlag(), "Flag to export raw intersection points." ) );
+        m_Inputs.Add( NameValData( "IntersectSubSurfs", veh->GetISectSettingsPtr()->m_IntersectSubSurfs(), "Flag to include subsurfaces in model." ) );
+        m_Inputs.Add( NameValData( "RelCurveTol", veh->GetISectSettingsPtr()->m_RelCurveTol(), "Tolerance used when constructing binary adapted curves." ) );
+        m_Inputs.Add( NameValData( "SelectedSetIndex", veh->GetISectSettingsPtr()->m_SelectedSetIndex(), "Normal (thick) geometry set for analysis." ) );
+        m_Inputs.Add( NameValData( "SelectedDegenSetIndex", veh->GetISectSettingsPtr()->m_SelectedDegenSetIndex(), "Degen (thin) geometry set for analysis." ) );
 
         // CAD Export
-        m_Inputs.Add( NameValData( "CADLabelDelim", veh->GetISectSettingsPtr()->m_CADLabelDelim() ) );
-        m_Inputs.Add( NameValData( "CADLabelID", veh->GetISectSettingsPtr()->m_CADLabelID() ) );
-        m_Inputs.Add( NameValData( "CADLabelName", veh->GetISectSettingsPtr()->m_CADLabelName() ) );
-        m_Inputs.Add( NameValData( "CADLabelSplitNo", veh->GetISectSettingsPtr()->m_CADLabelSplitNo() ) );
-        m_Inputs.Add( NameValData( "CADLabelSurfNo", veh->GetISectSettingsPtr()->m_CADLabelSurfNo() ) );
-        m_Inputs.Add( NameValData( "CADLenUnit", veh->GetISectSettingsPtr()->m_CADLenUnit() ) );
-        //m_Inputs.Add( NameValData( "STEPMergePoints", veh->GetISectSettingsPtr()->m_STEPMergePoints() ) );
-        m_Inputs.Add( NameValData( "STEPRepresentation", veh->GetISectSettingsPtr()->m_STEPRepresentation() ) );
-        m_Inputs.Add( NameValData( "STEPTol", veh->GetISectSettingsPtr()->m_STEPTol() ) );
+        m_Inputs.Add( NameValData( "CADLabelDelim", veh->GetISectSettingsPtr()->m_CADLabelDelim(), "Delimiter enum to separate components of CAD surface label." ) );
+        m_Inputs.Add( NameValData( "CADLabelID", veh->GetISectSettingsPtr()->m_CADLabelID(), "Flag to include GeomID in CAD surface label." ) );
+        m_Inputs.Add( NameValData( "CADLabelName", veh->GetISectSettingsPtr()->m_CADLabelName(), "Flag to include Geom name in CAD surface label." ) );
+        m_Inputs.Add( NameValData( "CADLabelSplitNo", veh->GetISectSettingsPtr()->m_CADLabelSplitNo(), "Flag to include surface split number in CAD surface label." ) );
+        m_Inputs.Add( NameValData( "CADLabelSurfNo", veh->GetISectSettingsPtr()->m_CADLabelSurfNo(), "Flag to include surface number in CAD surface label." ) );
+        m_Inputs.Add( NameValData( "CADLenUnit", veh->GetISectSettingsPtr()->m_CADLenUnit(), "Model length unit enum included in CAD file export." ) );
+        //m_Inputs.Add( NameValData( "STEPMergePoints", veh->GetISectSettingsPtr()->m_STEPMergePoints(), "Flag to merge points on STEP export. ) );
+        m_Inputs.Add( NameValData( "STEPRepresentation", veh->GetISectSettingsPtr()->m_STEPRepresentation(), "Flag to control whether STEP representation is shell or BREP solid." ) );
+        m_Inputs.Add( NameValData( "STEPTol", veh->GetISectSettingsPtr()->m_STEPTol(), "Tolerance output to STEP files." ) );
 
         // File Outputs
-        m_Inputs.Add( NameValData( "CURVFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "CURVFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME ) ) );
-        m_Inputs.Add( NameValData( "SRFFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "SRFFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME ) ) );
-        m_Inputs.Add( NameValData( "P3DFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "P3DFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME ) ) );
-        m_Inputs.Add( NameValData( "IGESFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "IGESFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ) ) );
-        m_Inputs.Add( NameValData( "STEPFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->Get() ) );
-        m_Inputs.Add( NameValData( "STEPFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "CURVFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME )->Get(), "Flag to enable CURV file export." ) );
+        m_Inputs.Add( NameValData( "CURVFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME ), "File name for CURV file export." ) );
+        m_Inputs.Add( NameValData( "SRFFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME )->Get(), "Flag to enable SRF file export." ) );
+        m_Inputs.Add( NameValData( "SRFFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME ), "File name for SRF file export." ) );
+        m_Inputs.Add( NameValData( "P3DFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME )->Get(), "Flag to enable Plot3D file export." ) );
+        m_Inputs.Add( NameValData( "P3DFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME ), "File name for Plot3D file export." ) );
+        m_Inputs.Add( NameValData( "IGESFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->Get(), "Flag to enable IGES file export." ) );
+        m_Inputs.Add( NameValData( "IGESFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ), "File name for IGES file export." ) );
+        m_Inputs.Add( NameValData( "STEPFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->Get(), "Flag to enable STEP file export." ) );
+        m_Inputs.Add( NameValData( "STEPFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ), "File name for STEP file export." ) );
     }
     else
     {
