@@ -3162,27 +3162,27 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     UpdateExcres();
     UpdateExportLabels();
 
-    res->Add( NameValData( "Alt_Label", m_AltLabel ) );
-    res->Add( NameValData( "Vinf_Label", m_VinfLabel ) );
-    res->Add( NameValData( "Sref_Label", m_SrefLabel ) );
-    res->Add( NameValData( "Temp_Label", m_TempLabel ) );
-    res->Add( NameValData( "Pres_Label", m_PresLabel ) );
-    res->Add( NameValData( "Rho_Label", m_RhoLabel ) );
-    res->Add( NameValData( "LamCfEqnName", m_LamCfEqnName ) );
-    res->Add( NameValData( "TurbCfEqnName", m_TurbCfEqnName ) );
-    res->Add( NameValData( "Swet_Label", m_SwetLabel ) );
-    res->Add( NameValData( "Lref_Label", m_LrefLabel ) );
-    res->Add( NameValData( "f_Label", m_fLabel ) );
+    res->Add( NameValData( "Alt_Label", m_AltLabel, "Altitude label including units." ) );
+    res->Add( NameValData( "Vinf_Label", m_VinfLabel, "Airspeed label including units." ) );
+    res->Add( NameValData( "Sref_Label", m_SrefLabel, "Reference area label including units." ) );
+    res->Add( NameValData( "Temp_Label", m_TempLabel, "Temperature label including units." ) );
+    res->Add( NameValData( "Pres_Label", m_PresLabel, "Pressure label including units." ) );
+    res->Add( NameValData( "Rho_Label", m_RhoLabel, "Density label including units." ) );
+    res->Add( NameValData( "LamCfEqnName", m_LamCfEqnName, "Laminar skin friction coefficient equation name." ) );
+    res->Add( NameValData( "TurbCfEqnName", m_TurbCfEqnName, "Turbulent skin friction coefficient equation name." ) );
+    res->Add( NameValData( "Swet_Label", m_SwetLabel, "Wetted area label including units." ) );
+    res->Add( NameValData( "Lref_Label", m_LrefLabel, "Reference length label including units." ) );
+    res->Add( NameValData( "f_Label", m_fLabel, "Drag area label including units." ) );
 
     // Flow Condition
-    res->Add( NameValData( "FC_Mach", m_Mach() ) );
-    res->Add( NameValData( "FC_Alt", m_Hinf.Get() ) );
-    res->Add( NameValData( "FC_Vinf", m_Vinf.Get() ) );
-    res->Add( NameValData( "FC_Sref", m_Sref.Get() ) );
-    res->Add( NameValData( "FC_dTemp", m_DeltaT.Get() ) );
-    res->Add( NameValData( "FC_Temp", m_Temp.Get() ) );
-    res->Add( NameValData( "FC_Pres", m_Pres.Get() ) );
-    res->Add( NameValData( "FC_Rho", m_Rho.Get() ) );
+    res->Add( NameValData( "FC_Mach", m_Mach(), "Flow condition Mach." ) );
+    res->Add( NameValData( "FC_Alt", m_Hinf.Get(), "Flow condition altitude." ) );
+    res->Add( NameValData( "FC_Vinf", m_Vinf.Get(), "Flow condition airspeed." ) );
+    res->Add( NameValData( "FC_Sref", m_Sref.Get(), "Reference area." ) );
+    res->Add( NameValData( "FC_dTemp", m_DeltaT.Get(), "Flow condition temperature deviation." ) );
+    res->Add( NameValData( "FC_Temp", m_Temp.Get(), "Flow condition temperature." ) );
+    res->Add( NameValData( "FC_Pres", m_Pres.Get(), "Flow condition pressure." ) );
+    res->Add( NameValData( "FC_Rho", m_Rho.Get(), "Flow condition density." ) );
 
     // Component Related
     if ( !m_ExportSubCompFlag() )
@@ -3224,72 +3224,72 @@ string ParasiteDragMgrSingleton::ExportToCSV()
 
         int num_comp = new_ID_vec.size();
 
-        res->Add( NameValData( "Num_Comp", num_comp ) );
-        res->Add( NameValData( "Comp_ID", new_ID_vec ) );
-        res->Add( NameValData( "Comp_Label", new_geo_label ) );
-        res->Add( NameValData( "Comp_Swet", new_geo_swet ) );
-        res->Add( NameValData( "Comp_Lref", new_geo_lref ) );
-        res->Add( NameValData( "Comp_Re", new_geo_Re ) );
-        res->Add( NameValData( "Comp_PercLam", new_geo_percLam ) );
-        res->Add( NameValData( "Comp_Cf", new_geo_cf ) );
-        res->Add( NameValData( "Comp_FineRat", new_geo_fineRatorToC ) );
-        res->Add( NameValData( "Comp_FFEqn", new_geo_ffType ) );
-        res->Add( NameValData( "Comp_FFEqnName", new_geo_ffName ) );
-        res->Add( NameValData( "Comp_FFIn", new_geo_ffIn ) );
-        res->Add( NameValData( "Comp_FFOut", new_geo_ffOut ) );
-        res->Add( NameValData( "Comp_Roughness", new_geo_Roughness ) );
-        res->Add( NameValData( "Comp_TeTwRatio", new_geo_TeTwRatio ) );
-        res->Add( NameValData( "Comp_TawTwRatio", new_geo_TawTwRatio ) );
-        res->Add( NameValData( "Comp_Q", new_geo_Q ) );
-        res->Add( NameValData( "Comp_f", new_geo_f ) );
-        res->Add( NameValData( "Comp_CD", new_geo_CD ) );
-        res->Add( NameValData( "Comp_PercTotalCD", new_geo_percTotalCD ) );
-        res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum ) );
+        res->Add( NameValData( "Num_Comp", num_comp, "Number of components." ) );
+        res->Add( NameValData( "Comp_ID", new_ID_vec, "Component IDs." ) );
+        res->Add( NameValData( "Comp_Label", new_geo_label, "Label." ) );
+        res->Add( NameValData( "Comp_Swet", new_geo_swet, "Wetted area." ) );
+        res->Add( NameValData( "Comp_Lref", new_geo_lref, "Reference length." ) );
+        res->Add( NameValData( "Comp_Re", new_geo_Re, "Reynolds number." ) );
+        res->Add( NameValData( "Comp_PercLam", new_geo_percLam, "Percent laminar flow." ) );
+        res->Add( NameValData( "Comp_Cf", new_geo_cf, "Skin friction coefficient." ) );
+        res->Add( NameValData( "Comp_FineRat", new_geo_fineRatorToC, "Fineness ratio or t/c." ) );
+        res->Add( NameValData( "Comp_FFEqn", new_geo_ffType, "Form factor equation." ) );
+        res->Add( NameValData( "Comp_FFEqnName", new_geo_ffName, "Form factor equation." ) );
+        res->Add( NameValData( "Comp_FFIn", new_geo_ffIn, "Form factor in." ) );
+        res->Add( NameValData( "Comp_FFOut", new_geo_ffOut, "Form factor out." ) );
+        res->Add( NameValData( "Comp_Roughness", new_geo_Roughness, "Surface roughness." ) );
+        res->Add( NameValData( "Comp_TeTwRatio", new_geo_TeTwRatio, "Te/Tw temperature ratio." ) );
+        res->Add( NameValData( "Comp_TawTwRatio", new_geo_TawTwRatio, "Taw/Tw temperature ratio." ) );
+        res->Add( NameValData( "Comp_Q", new_geo_Q, "Inteference factor." ) );
+        res->Add( NameValData( "Comp_f", new_geo_f, "Drag area." ) );
+        res->Add( NameValData( "Comp_CD", new_geo_CD, "Drag coefficient." ) );
+        res->Add( NameValData( "Comp_PercTotalCD", new_geo_percTotalCD, "Percent of total CD." ) );
+        res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum, "Geom surf number" ) );
     }
     else
     {
-        res->Add( NameValData( "Num_Comp", m_RowSize ) );
-        res->Add( NameValData( "Comp_ID", m_geo_geomID ) );
-        res->Add( NameValData( "Comp_Label", m_geo_label ) );
-        res->Add( NameValData( "Comp_Swet", m_geo_swet ) );
-        res->Add( NameValData( "Comp_Lref", m_geo_lref ) );
-        res->Add( NameValData( "Comp_Re", m_geo_Re ) );
-        res->Add( NameValData( "Comp_PercLam", m_geo_percLam ) );
-        res->Add( NameValData( "Comp_Cf", m_geo_cf ) );
-        res->Add( NameValData( "Comp_FineRat", m_geo_fineRat_or_toc ) );
-        res->Add( NameValData( "Comp_FFEqn", m_geo_ffType ) );
-        res->Add( NameValData( "Comp_FFEqnName", m_geo_ffName ) );
-        res->Add( NameValData( "Comp_FFIn", m_geo_ffIn ) );
-        res->Add( NameValData( "Comp_FFOut", m_geo_ffOut ) );
-        res->Add( NameValData( "Comp_Roughness", m_geo_Roughness ) );
-        res->Add( NameValData( "Comp_TeTwRatio", m_geo_TeTwRatio ) );
-        res->Add( NameValData( "Comp_TawTwRatio", m_geo_TawTwRatio ) );
-        res->Add( NameValData( "Comp_Q", m_geo_Q ) );
-        res->Add( NameValData( "Comp_f", m_geo_f ) );
-        res->Add( NameValData( "Comp_CD", m_geo_CD ) );
-        res->Add( NameValData( "Comp_PercTotalCD", m_geo_percTotalCD ) );
-        res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum ) );
+        res->Add( NameValData( "Num_Comp", m_RowSize, "Number of components." ) );
+        res->Add( NameValData( "Comp_ID", m_geo_geomID, "GeomID." ) );
+        res->Add( NameValData( "Comp_Label", m_geo_label, "Label." ) );
+        res->Add( NameValData( "Comp_Swet", m_geo_swet, "Wetted area." ) );
+        res->Add( NameValData( "Comp_Lref", m_geo_lref, "Reference length." ) );
+        res->Add( NameValData( "Comp_Re", m_geo_Re, "Reynolds number." ) );
+        res->Add( NameValData( "Comp_PercLam", m_geo_percLam, "Percent laminar flow." ) );
+        res->Add( NameValData( "Comp_Cf", m_geo_cf, "Skin friction coefficient." ) );
+        res->Add( NameValData( "Comp_FineRat", m_geo_fineRat_or_toc, "Fineness ratio or t/c." ) );
+        res->Add( NameValData( "Comp_FFEqn", m_geo_ffType, "Form factor equation." ) );
+        res->Add( NameValData( "Comp_FFEqnName", m_geo_ffName, "Form factor equation." ) );
+        res->Add( NameValData( "Comp_FFIn", m_geo_ffIn, "Form factor in." ) );
+        res->Add( NameValData( "Comp_FFOut", m_geo_ffOut, "Form factor out." ) );
+        res->Add( NameValData( "Comp_Roughness", m_geo_Roughness, "Surface roughness." ) );
+        res->Add( NameValData( "Comp_TeTwRatio", m_geo_TeTwRatio, "Te/Tw temperature ratio." ) );
+        res->Add( NameValData( "Comp_TawTwRatio", m_geo_TawTwRatio, "Taw/Tw temperature ratio." ) );
+        res->Add( NameValData( "Comp_Q", m_geo_Q, "Inteference factor." ) );
+        res->Add( NameValData( "Comp_f", m_geo_f, "Drag area." ) );
+        res->Add( NameValData( "Comp_CD", m_geo_CD, "Drag coefficient." ) );
+        res->Add( NameValData( "Comp_PercTotalCD", m_geo_percTotalCD, "Percent of total CD." ) );
+        res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum, "Geom surf number." ) );
     }
 
     // Excres Related
-    res->Add( NameValData( "Num_Excres", ( int )m_ExcresRowVec.size() ) );
-    res->Add( NameValData( "Excres_Label", m_excres_Label ) );
-    res->Add( NameValData( "Excres_Type", m_excres_Type ) );
-    res->Add( NameValData( "Excres_Input", m_excres_Input ) );
-    res->Add( NameValData( "Excres_f", m_excres_f ) );
-    res->Add( NameValData( "Excres_Amount", m_excres_Amount ) );
-    res->Add( NameValData( "Excres_PercTotalCD", m_excres_PercTotalCD ) );
+    res->Add( NameValData( "Num_Excres", ( int )m_ExcresRowVec.size(), "Number of excressence contributions." ) );
+    res->Add( NameValData( "Excres_Label", m_excres_Label, "Name." ) );
+    res->Add( NameValData( "Excres_Type", m_excres_Type, "Type." ) );
+    res->Add( NameValData( "Excres_Input", m_excres_Input, "Input value." ) );
+    res->Add( NameValData( "Excres_f", m_excres_f, "Drag area." ) );
+    res->Add( NameValData( "Excres_Amount", m_excres_Amount, "Amount." ) );
+    res->Add( NameValData( "Excres_PercTotalCD", m_excres_PercTotalCD, "Percent of total CD." ) );
 
     // Totals
-    res->Add( NameValData( "Geom_f_Total", GetGeomfTotal() ) );
-    res->Add( NameValData( "Geom_CD_Total", GetGeometryCD() ) );
-    res->Add( NameValData( "Geom_Perc_Total", GetGeomPercTotal() ) );
-    res->Add( NameValData( "Excres_f_Total", GetExcresfTotal() ) );
-    res->Add( NameValData( "Excres_CD_Total", GetTotalExcresCD() ) );
-    res->Add( NameValData( "Excres_Perc_Total", GetExcresPercTotal() ) );
-    res->Add( NameValData( "Total_f_Total", GetfTotal() ) );
-    res->Add( NameValData( "Total_CD_Total", GetTotalCD() ) );
-    res->Add( NameValData( "Total_Perc_Total", GetPercTotal() ) );
+    res->Add( NameValData( "Geom_f_Total", GetGeomfTotal(), "Geom drag area." ) );
+    res->Add( NameValData( "Geom_CD_Total", GetGeometryCD(), "Geom drag coefficient." ) );
+    res->Add( NameValData( "Geom_Perc_Total", GetGeomPercTotal(), "Geom percent of total CD." ) );
+    res->Add( NameValData( "Excres_f_Total", GetExcresfTotal(), "Total excressence drag area." ) );
+    res->Add( NameValData( "Excres_CD_Total", GetTotalExcresCD(), "Total excressence drag coefficient." ) );
+    res->Add( NameValData( "Excres_Perc_Total", GetExcresPercTotal(), "Total excressence percent of CD." ) );
+    res->Add( NameValData( "Total_f_Total", GetfTotal(), "Drag area." ) );
+    res->Add( NameValData( "Total_CD_Total", GetTotalCD(), "Drag coefficient." ) );
+    res->Add( NameValData( "Total_Perc_Total", GetPercTotal(), "Total percent of CD (should be 1.0)." ) );
 
     string f_name = veh->getExportFileName( vsp::DRAG_BUILD_CSV_TYPE );
     res->WriteParasiteDragFile( f_name );
