@@ -284,9 +284,9 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "WaveDrag", "Wave drag results." );
 
-    res->Add( NameValData( "Mach", Mach ) );
+    res->Add( NameValData( "Mach", Mach, "Mach number." ) );
 
-    res->Add( NameValData( "Mesh_GeomID", m_lastmeshgeomID ) );
+    res->Add( NameValData( "Mesh_GeomID", m_lastmeshgeomID, "GeomID of MeshGeom created." ) );
 
     PushSliceResults( res );
 
@@ -304,7 +304,7 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
 
     int set_index = m_SelectedSetIndex.Get();
     string set_name = set_name_vec[set_index];
-    res->Add( NameValData( "Set_Name", set_name ) );
+    res->Add( NameValData( "Set_Name", set_name, "Set name." ) );
 
     string to_insert = "_" + str_mach + "_" + set_name;
     filename.insert( filename.find( ".txt" ), to_insert );
@@ -498,11 +498,11 @@ void WaveDragSingleton::CalcDrag( )
 
 void WaveDragSingleton::PushDragResults( Results* res )
 {
-    res->Add( NameValData( "CDWave", m_CDWave ) );
+    res->Add( NameValData( "CDWave", m_CDWave, "Wave drag coefficient." ) );
 
-    res->Add( NameValData( "Length", m_Length ) );
-    res->Add( NameValData( "Volume", m_Volume ) );
-    res->Add( NameValData( "MaxArea", m_MaxArea ) );
+    res->Add( NameValData( "Length", m_Length, "Equivalent body length." ) );
+    res->Add( NameValData( "Volume", m_Volume, "Equivalent body volume." ) );
+    res->Add( NameValData( "MaxArea", m_MaxArea, "Equivalent body max area." ) );
 }
 
 void WaveDragSingleton::CalcVolArea( const vector < double > &x, const vector < double > &S, double length, double &volume, double &maxArea ) const
@@ -563,27 +563,27 @@ void WaveDragSingleton::FitBuildup()
 void WaveDragSingleton::PushSliceResults( Results* res )
 {
     //==== Add Mesh Results after component and subsurface intersection ====//
-    res->Add( NameValData( "Ambiguous_Subsurf_Flag", m_AmbigSubSurf ) );
+    res->Add( NameValData( "Ambiguous_Subsurf_Flag", m_AmbigSubSurf, "Ambigious subsurface flag." ) );
 
-    res->Add( NameValData( "Num_Slices", m_NSlice ) );
+    res->Add( NameValData( "Num_Slices", m_NSlice, "Number of slices." ) );
 
     vector <double> theta_deg( m_NTheta );
     for ( int i = 0; i < m_NTheta; i++ )
     {
         theta_deg[i] = m_ThetaRad[i] * 180.0 / PI;
 
-        res->Add( NameValData( "Slice_Area", m_SliceAreaDist[i] ) );
+        res->Add( NameValData( "Slice_Area", m_SliceAreaDist[i], "Slice area distribution for given theta." ) );
     }
 
-    res->Add( NameValData( "Theta", theta_deg ) );
-    res->Add( NameValData( "Num_Cone_Sections", m_NTheta ) );
+    res->Add( NameValData( "Theta", theta_deg, "Theta angle around cone of influence." ) );
+    res->Add( NameValData( "Num_Cone_Sections", m_NTheta, "Number of thetas." ) );
 
-    res->Add( NameValData( "Inlet_Area", m_InletArea ) );
-    res->Add( NameValData( "Exit_Area", m_ExitArea ) );
+    res->Add( NameValData( "Inlet_Area", m_InletArea, "Propulsive inlet area." ) );
+    res->Add( NameValData( "Exit_Area", m_ExitArea, "Propulsive exit area." ) );
 
-    res->Add( NameValData( "X_Norm", m_XNorm ) );
-    res->Add( NameValData( "Start_X", m_StartX ) );
-    res->Add( NameValData( "End_X", m_EndX ) );
+    res->Add( NameValData( "X_Norm", m_XNorm, "Slice normal vector." ) );
+    res->Add( NameValData( "Start_X", m_StartX, "Slice starting coordinate." ) );
+    res->Add( NameValData( "End_X", m_EndX, "Slice ending coordinate." ) );
 }
 
 void WaveDragSingleton::EvalELCurve( const vector < double > &Spts, const vector < double > &x, vector < double > &S, double &xMaxDrag, int itheta )
