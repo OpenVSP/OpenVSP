@@ -4484,8 +4484,8 @@ void Geom::WritePMARCWakeFile( FILE *fp, int &ipatch, vector<int> &idpat )
 
 void Geom::CreateGeomResults( Results* res )
 {
-    res->Add( NameValData( "Type", vsp::GEOM_XSECS ) );
-    res->Add( NameValData( "Num_Surfs", GetNumTotalSurfs() ) );
+    res->Add( NameValData( "Type", vsp::GEOM_XSECS, "Geom results type." ) );
+    res->Add( NameValData( "Num_Surfs", GetNumTotalSurfs(), "Number of surfaces." ) );
 
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
@@ -4494,11 +4494,11 @@ void Geom::CreateGeomResults( Results* res )
         vector< vector< vec3d > > norms;
         UpdateTesselate( i, pnts, norms, false );
 
-        res->Add( NameValData( "Num_XSecs", static_cast<int>( pnts.size() ) ) );
+        res->Add( NameValData( "Num_XSecs", static_cast<int>( pnts.size() ), "Number of cross sections." ) );
 
         if ( pnts.size() )
         {
-            res->Add( NameValData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ) ) );
+            res->Add( NameValData( "Num_Pnts_Per_XSec", static_cast<int>( pnts[0].size() ), "Number of points per cross section." ) );
         }
 
         //==== Write XSec Data ====//
@@ -4509,7 +4509,7 @@ void Geom::CreateGeomResults( Results* res )
             {
                 xsec_vec.push_back(  pnts[j][k] );
             }
-            res->Add( NameValData( "XSec_Pnts", xsec_vec ) );
+            res->Add( NameValData( "XSec_Pnts", xsec_vec, "Coordinates of surface points." ) );
         }
     }
 }
