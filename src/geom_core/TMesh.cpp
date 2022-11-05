@@ -3862,6 +3862,7 @@ void TMesh::SubTag( int part_num, bool tag_subs )
     for ( int t = 0 ; t < ( int )m_TVec.size(); t ++ )
     {
         TTri* tri = m_TVec[t];
+        tri->m_Tags.clear();
         tri->m_Tags.push_back( part_num ); // Give Tri overall surface ID number
         for ( int s = 0; s < ss_num; s++ )
         {

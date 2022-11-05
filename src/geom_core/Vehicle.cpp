@@ -4602,6 +4602,10 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
 
         mesh_ptr->GetMeshByID( "NEGATIVE_HALF" )->m_DeleteMeFlag = true;
         mesh_ptr->DeleteMarkedMeshes();
+
+        // Repeat tagging after removing meshes.
+        // This removes the empty tags from the key files.
+        mesh_ptr->SubTagTris( true );
     }
 
     return id;

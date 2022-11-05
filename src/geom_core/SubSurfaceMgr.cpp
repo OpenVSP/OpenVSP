@@ -175,12 +175,14 @@ void SubSurfaceMgrSingleton::ReSuffixGroupNames( const string& comp_id )
 //==== Manage Tag Maps ====//
 void SubSurfaceMgrSingleton::ClearTagMaps()
 {
+    m_TagKeys.clear();
+    m_SingleTagMap.clear();
 
     m_TagCombos.clear();
     m_TagNames.clear();
     m_TagIDs.clear();
-    m_SingleTagMap.clear();
     m_CompNames.clear();
+    m_CompIDs.clear();
 
     // Add Dummy tag combo for meshes with no tags
     // so there will a draw object for them
