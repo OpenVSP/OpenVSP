@@ -1276,6 +1276,12 @@ void StructScreen::UpdateStructBrowser()
         }
     }
 
+    // Make sure FeaMeshMgr is consistent.
+    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+    {
+        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+    }
+
     m_StructureSelectBrowser->position( scroll_pos );
     m_StructureSelectBrowser->hposition( h_pos );
 }
