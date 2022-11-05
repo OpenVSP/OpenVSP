@@ -53,6 +53,7 @@ public:
     int GetFeaPropertyIndex( const string & FeaPartID );
     int GetFeaMaterialIndex( const string & FeaPartID );
     void ShowAllParts();
+    void HideAllParts();
 
     void UpdateStructUnit( int new_unit );
 

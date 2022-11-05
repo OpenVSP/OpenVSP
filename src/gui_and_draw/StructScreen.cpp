@@ -80,13 +80,16 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_BorderConsoleLayout.SetFitWidthFlag( true );
     m_BorderConsoleLayout.SetSameLineFlag( false );
     m_BorderConsoleLayout.AddChoice( m_CurrFeaMeshChoice, "Structure" );
-    m_BorderConsoleLayout.AddButton( m_ResetPartDisplayButton, "Reset Part Display" );
 
     m_BorderConsoleLayout.SetSameLineFlag( true );
     m_BorderConsoleLayout.SetFitWidthFlag( false );
 
     m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 2 );
     m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 2 );
+
+    m_BorderConsoleLayout.AddButton( m_ResetPartDisplayButton, "Reset Part Display" );
+    m_BorderConsoleLayout.AddButton( m_ResetMeshDisplayButton, "Reset Mesh Display" );
+    m_BorderConsoleLayout.ForceNewLine();
 
     m_BorderConsoleLayout.AddButton( m_IntersectOnlyButton, "Intersect Only" );
     m_BorderConsoleLayout.AddButton( m_ExportCADButton, "Export CAD" );
@@ -2751,6 +2754,15 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( FeaMeshMgr.GetMeshPtr() )
         {
             FeaMeshMgr.GetMeshPtr()->SetAllDisplayFlags( false );
+        }
+    }
+    else if ( device == &m_ResetMeshDisplayButton )
+    {
+        StructureMgr.HideAllParts();
+
+        if ( FeaMeshMgr.GetMeshPtr() )
+        {
+            FeaMeshMgr.GetMeshPtr()->SetAllDisplayFlags( true );
         }
     }
     else if ( device == &m_WikiLinkButton )

@@ -417,6 +417,32 @@ void StructureMgrSingleton::ShowAllParts()
     }
 }
 
+void StructureMgrSingleton::HideAllParts()
+{
+    FeaStructure* fea_struct = GetFeaStruct( m_CurrStructIndex() );
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( fea_struct && veh )
+    {
+        string parent_id = fea_struct->GetParentGeomID();
+        veh->HideAll();
+
+        vector < FeaPart* > part_vec = fea_struct->GetFeaPartVec();
+
+        for ( size_t i = 0; i < part_vec.size(); i++ )
+        {
+            part_vec[i]->m_DrawFeaPartFlag.Set( false );
+        }
+
+        vector < SubSurface* > ss_vec = fea_struct->GetFeaSubSurfVec();
+
+        for ( size_t i = 0; i < ss_vec.size(); i++ )
+        {
+            ss_vec[i]->m_DrawFeaPartFlag.Set( false );
+        }
+    }
+}
+
 void StructureMgrSingleton::UpdateStructUnit( int new_unit )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();

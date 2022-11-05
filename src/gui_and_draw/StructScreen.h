@@ -107,6 +107,7 @@ private:
     Choice m_CurrFeaMeshChoice;
 
     TriggerButton m_ResetPartDisplayButton;
+    TriggerButton m_ResetMeshDisplayButton;
 
     TriggerButton m_FeaIntersectMeshButton;
     TriggerButton m_FeaExportFEMButton;
