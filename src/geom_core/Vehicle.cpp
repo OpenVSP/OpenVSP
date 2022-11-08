@@ -2621,6 +2621,18 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             if ( geom_ptr )
             {
                 MeshGeom *mg = dynamic_cast<MeshGeom *>( geom_ptr );
+
+                if ( half_flag )
+                {
+                    // This check is to ensure any triangles remaining from the positive bodies on the symmetry plane are removed.
+                    // Absolute tolerance here, would be perhaps better as a fraction of the triangle's edge lengths.  Comparison
+                    // based on triangle center location, so it should be reliable.
+                    mg->IgnoreYLessThan( -1e-5 );
+
+                    // Purge ignored tris.
+                    mg->FlattenTMeshVec();
+                }
+
                 mg->SubTagTris( true );
                 geom_vec.push_back( geom_ptr );
                 geom_ptr->Update();
