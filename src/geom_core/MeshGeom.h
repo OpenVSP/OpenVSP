@@ -108,7 +108,7 @@ public:
     virtual void WriteStl( FILE* stl_file, int tag );
 
     virtual void InitIndexedMesh( const vector < TMesh* > &meshvec, int & offset );
-    virtual void BuildIndexedMesh( int partOffset, bool half_flag = false );
+    virtual void BuildIndexedMesh( int partOffset );
     virtual int  GetNumIndexedPnts() const
     {
         return m_IndexedNodeVec.size();

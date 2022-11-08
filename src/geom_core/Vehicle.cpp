@@ -2663,7 +2663,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
-            mg->BuildIndexedMesh( num_parts, half_flag );
+            mg->BuildIndexedMesh( num_parts );
             num_parts += mg->GetNumIndexedParts();
             num_pnts += mg->GetNumIndexedPnts();
             num_tris += mg->GetNumIndexedTris();
