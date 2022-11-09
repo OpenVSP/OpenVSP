@@ -4049,7 +4049,7 @@ void FeaDome::BuildDomeSurf()
 
 void FeaDome::UpdateDrawObjs()
 {
-    // Two DrawObjs per Dome surface: index j correcponds to the surface (quads) and 
+    // Two DrawObjs per Dome surface: index j corresponds to the surface (quads) and 
     //  j + 1 corresponds to the cross section feature line at u_max 
 
     m_FeaPartDO.clear();

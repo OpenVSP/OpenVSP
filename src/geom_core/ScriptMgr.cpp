@@ -7664,7 +7664,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Set the ower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
+    Set the lower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
     \code{.cpp}
     // Add Fuselage Geom
     string fuseid = AddGeom( "FUSELAGE", "" );
@@ -11832,7 +11832,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Delete a particular Ruler from the Meaure Tool
+    Delete a particular Ruler from the Measure Tool
     \code{.cpp}
     string pid1 = AddGeom( "POD", "" );
 
@@ -11857,7 +11857,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Delete all Rulers from the Meaure Tool
+    Delete all Rulers from the Measure Tool
     \code{.cpp}
     string pid1 = AddGeom( "POD", "" );
 

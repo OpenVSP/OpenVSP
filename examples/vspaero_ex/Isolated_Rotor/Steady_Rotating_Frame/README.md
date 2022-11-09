@@ -4,7 +4,7 @@ Instead of rotating the blades, the steady rotating frame approach used in this 
 holds the blades still and rotates the freestream around the X-axis.  This requires the
 model and flow to be symmetrical about (and aligned with) the X-axis.  The resulting
 flow is steady in the frame of the blades.  In this case, wake relaxation is used in the
-solution process.  However, the wake relaxation does not represent a time-accurate phenemona. 
+solution process.  However, the wake relaxation does not represent a time-accurate phenomena. 
 
 The `prop_DegenGeom.csv` file in this directory can be re-created by running the DegenGeom
 analysis in OpenVSP.

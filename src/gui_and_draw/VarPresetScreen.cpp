@@ -184,8 +184,8 @@ bool VarPresetScreen::Update()
 
     // ==== Update Menus ==== //
     // This used to only update when a flag to update it was set or the 
-    // number of variable presets changed. THis was not working so was simplified
-    // to update the manues evey iteration. The additional time is negligible and 
+    // number of variable presets changed. This was not working so was simplified
+    // to update the menus every iteration. The additional time is negligible and 
     // this is consistent with updates for other menu items. 
     RebuildMenus( VarPresetMgr.GetActiveGroupIndex() );
 

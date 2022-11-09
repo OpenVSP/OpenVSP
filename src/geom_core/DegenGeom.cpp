@@ -403,7 +403,7 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
             xVec[j]  = chordPnt;
 
             // This portion of the code implicitly assumes each section is flat.  For
-            // bodies with extreme skinning, this is likley not the case and unexpected results
+            // bodies with extreme skinning, this is likely not the case and unexpected results
             // may occur.
 
             vec3d zv = camberPnt - chordPnt;

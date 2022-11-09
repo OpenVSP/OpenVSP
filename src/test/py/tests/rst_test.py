@@ -30,7 +30,7 @@ def test_rst():
     t1 = np.zeros([nr*ns, 1])
     d1 = np.zeros([nr*ns, 1])
 
-    # Preform RST projection on test points (this should give the rst points we defined in the step above)
+    # Perform RST projection on test points (this should give the rst points we defined in the step above)
     r1, s1, t1, d1 = vsp.FindRSTVec(geom_id, 0, pts0)
     # Evaluate the new rst projections in xyz (again, these should be the same points we found above)
     pts1 = vsp.CompVecPntRST(geom_id, 0, r1, s1, t1)
