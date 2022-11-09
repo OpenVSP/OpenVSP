@@ -2015,20 +2015,14 @@ bool VspSurf::CapWMax(int CapType)
     return false;
 }
 
-int VspSurf::SplitU( const double &u )
+void VspSurf::SplitU( const double &u )
 {
     m_Surface.split_u( u );
-    vector < double > pmap;
-    m_Surface.get_pmap_u( pmap );
-    return vector_find_val( pmap, u );
 }
 
-int VspSurf::SplitW( const double &w )
+void VspSurf::SplitW( const double &w )
 {
     m_Surface.split_v( w );
-    vector < double > pmap;
-    m_Surface.get_pmap_v( pmap );
-    return vector_find_val( pmap, w );
 }
 
 void VspSurf::JoinU( const VspSurf & sa, const VspSurf & sb )

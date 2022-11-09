@@ -92,8 +92,8 @@ public:
     void RollU( const int &iu ) { m_Surface.roll_u( iu ); }
     void RollW( const int &iw ) { m_Surface.roll_v( iw ); }
 
-    int SplitU( const double &u );
-    int SplitW( const double &w );
+    void SplitU( const double &u );
+    void SplitW( const double &w );
 
     void JoinU( const VspSurf & sa, const VspSurf & sb );
     void JoinW( const VspSurf & sa, const VspSurf & sb );
