@@ -1812,9 +1812,6 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         // Decode lighting information.
         LightMgr.DecodeXml( vehicle_node );
 
-        // Decode label information.
-        MeasureMgr.DecodeXml( vehicle_node );
-
     }
 
     // 'GeomsOnly' is a euphamism for those entities we want to read when 'inserting' a file.
@@ -1866,6 +1863,8 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
     xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
     if ( vehicle_node )
     {
+        // Decode label information.
+        MeasureMgr.DecodeXml( vehicle_node );
 
         int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
         for ( int i = 0 ; i < num ; i++ )
