@@ -523,7 +523,7 @@ MATRIX operator/(const MATRIX &mat1, const MATRIX &mat2)
 
 #endif
 
-    // Find LU decompostion of mat2
+    // Find LU decomposition of mat2
 
     A.LU();
 
@@ -588,7 +588,7 @@ void MatDivMat(const MATRIX &mat1, const MATRIX &mat2, MATRIX &B)
 
 #endif
 
-    // Find LU decompostion of mat2
+    // Find LU decomposition of mat2
 
     A.LU();
 
@@ -917,7 +917,7 @@ MATRIX MATRIX::inverse(void)
 
 #endif
 
-    // Find LU decompostion of A
+    // Find LU decomposition of A
 
     A_inv.LU();
 
@@ -979,7 +979,7 @@ void MATRIX::inverse(MATRIX &A_inv, MATRIX &B)
 
 #endif
 
-    // Find LU decompostion of A
+    // Find LU decomposition of A
 
     A_inv.LU();
 
@@ -1297,7 +1297,7 @@ void MATRIX::solve_vdk(MATRIX &vec)
     VSPAERO_DOUBLE sum;
     MATRIX A_inv(*this);
 
-    // Find LU decompostion of A
+    // Find LU decomposition of A
 
     neq = A_inv.row;
 

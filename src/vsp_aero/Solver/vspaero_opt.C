@@ -25,14 +25,14 @@ int TestCase_1(char *FileName); // Single, SCALAR, optimization function
 
 int TestCase_2(char *FileName); // 3 SCALAR optimization functions, 1 forward solve, 3 adjoint solves
 
-int TestCase_3(char *FileName); // UNSTEADY analysis... with a single scalar optimization function, with user supplied intitial gradient 
+int TestCase_3(char *FileName); // UNSTEADY analysis... with a single scalar optimization function, with user supplied initial gradient 
 
-int TestCase_4(char *FileName); // UNSTEADY analysis... with a single scalar optimization function, with user supplied intitial gradient 
+int TestCase_4(char *FileName); // UNSTEADY analysis... with a single scalar optimization function, with user supplied initial gradient 
 
-int TestCase_5(char *FileName); // Single VECTOR optimization function, with user supplied intitial gradient...
+int TestCase_5(char *FileName); // Single VECTOR optimization function, with user supplied initial gradient...
                                 // followed by a matrix-vector multiply, and an adjoint matrix-vector multiply
 
-int TestCase_6(char *FileName); // UNSTEADY analysis... with 3 VECTOR optimization functions, with user supplied intitial gradient 
+int TestCase_6(char *FileName); // UNSTEADY analysis... with 3 VECTOR optimization functions, with user supplied initial gradient 
 
 int TestCase_7(char *FileName); // Dead stupid optimization of a wing...
 
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
        
     }
     
-    // Single VECTOR optimization function, with user supplied intitial gradient 
+    // Single VECTOR optimization function, with user supplied initial gradient 
     
     else if ( TestCase == 3 ) {
        
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
        
     }  
 
-    // UNSTEADY analysis... with a single scalar optimization function, with user supplied intitial gradient 
+    // UNSTEADY analysis... with a single scalar optimization function, with user supplied initial gradient 
        
     else if ( TestCase == 4 ) {
        
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
        
     }
 
-    // Single VECTOR optimization function, with user supplied intitial gradient...
+    // Single VECTOR optimization function, with user supplied initial gradient...
     // followed by a matrix-vector multiply, and an adjoint matrix-vector multiply
 
     else if ( TestCase == 5 ) {
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
        
     }
     
-    // UNSTEADY analysis... with 3 VECTOR optimization functions, with user supplied intitial gradient 
+    // UNSTEADY analysis... with 3 VECTOR optimization functions, with user supplied initial gradient 
 
     else if ( TestCase == 6 ) {
        
@@ -383,7 +383,7 @@ int TestCase_2(char *FileName)
 #                                                                              #
 #                            TestCase_3                                        #
 #                                                                              #
-#   Single VECTOR optimization function, with user supplied intitial gradient  #
+#   Single VECTOR optimization function, with user supplied initial gradient  #
 #                                                                              #
 ##############################################################################*/
 
@@ -404,7 +404,7 @@ int TestCase_3(char *FileName)
     
     Optimizer.NumberOfOptimizationFunctions() = Case = 1;
     
-    Optimizer.OptimizationFunction(Case) = OPT_WING_CL_TOTAL; // xyz force coefficents vs span for wing 1
+    Optimizer.OptimizationFunction(Case) = OPT_WING_CL_TOTAL; // xyz force coefficients vs span for wing 1
     
     Optimizer.OptimizationSet(Case) = Wing = 1; // We have to specify which wing this is
 
@@ -508,7 +508,7 @@ int TestCase_3(char *FileName)
 #                            TestCase_4                                        #
 #                                                                              #
 #   UNSTEADY analysis... with a single scalar optimization function, with      #
-#   user supplied intitial gradient                                            #
+#   user supplied initial gradient                                            #
 #                                                                              #
 ##############################################################################*/
 
@@ -669,7 +669,7 @@ int TestCase_4(char *FileName)
 #                                                                              #
 #                            TestCase_5                                        #
 #                                                                              #
-# Single vector optimization functions, with user supplied intitial gradient.. #
+# Single vector optimization functions, with user supplied initial gradient.. #
 # followed by a matrix-vector multiply, and an adjoint matrix-vector multiply  #
 #                                                                              #
 ##############################################################################*/
@@ -693,7 +693,7 @@ int TestCase_5(char *FileName)
     
     Case = 1;
     
-    Optimizer.OptimizationFunction(Case) = OPT_WING_CX_TOTAL; // xyz force coefficents vs span for wing 1
+    Optimizer.OptimizationFunction(Case) = OPT_WING_CX_TOTAL; // xyz force coefficients vs span for wing 1
     
     Optimizer.OptimizationSet(Case) = Wing = 1; // We have to specify which wing this is
 
@@ -767,7 +767,7 @@ int TestCase_5(char *FileName)
 #                            TestCase_6                                        #
 #                                                                              #
 # UNSTEADY analysis... with 3 VECTOR optimization functions with user supplied #
-# intitial gradient                                                            #                  
+# initial gradient                                                            #                  
 #                                                                              #
 ##############################################################################*/
 

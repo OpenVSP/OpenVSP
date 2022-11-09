@@ -399,7 +399,7 @@ public:
    
     VSPAERO_DOUBLE StartingGamma(int i, int j) { return StartingGamma_[i][j]; };
     
-    /** Flag to do ground effect analyis **/
+    /** Flag to do ground effect analysis **/
  
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
     
@@ -457,7 +457,7 @@ public:
 
     int NumberOfCommonTE(void) { return NumberOfCommonTE_; };
     
-    /** Number of commond nodes that share this xyz location **/
+    /** Number of common nodes that share this xyz location **/
     
     int &NumberOfCommonNodesForTE(int i) { return NumberOfCommonNodesForTE_[i]; };
     

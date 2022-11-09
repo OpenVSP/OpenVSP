@@ -50,7 +50,7 @@ class INTERP_TRI
     int InterpNode[3];
     float InterpWeight[3];
     
-    char *ElementName; // Pointer to element group name, this is shared across all elements in the gorup
+    char *ElementName; // Pointer to element group name, this is shared across all elements in the grpup
 
 }; 
 // Node Structure

@@ -71,7 +71,7 @@ class SteadyProblem(BaseProblem):
         eval_funcs : iterable object containing strings.
             If not none, use these functions to evaluate.
         ignore_missing : bool
-            Flag to supress checking for a valid function. Please use
+            Flag to suppress checking for a valid function. Please use
             this option with caution.
 
         Examples
@@ -107,7 +107,7 @@ class SteadyProblem(BaseProblem):
         This is the main routine for returning useful (sensitivity)
         information from problem. The derivatives of the functions
         corresponding to the strings in EVAL_FUNCS are evaluated and
-        updated into the provided dictionary. The derivitives with
+        updated into the provided dictionary. The derivatives with
         respect to all design variables and node locations are computed.
 
         Parameters

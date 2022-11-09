@@ -139,7 +139,7 @@ private:
     
     VSPAERO_DOUBLE KelvinLambda_;
     
-    // Rotor Geoemtry
+    // Rotor Geometry
     
     int NumberOfRotors_;
     
@@ -420,7 +420,7 @@ private:
     
     void CalculateDiagonal(void);
     
-    // Calculate nearest neighbor coeffients of the influence matrix
+    // Calculate nearest neighbor coefficients of the influence matrix
     
     void CalculateNeighborCoefs(void);
     
@@ -619,7 +619,7 @@ private:
     
     void ResetGeometry(void);
 
-    // Update the local values of the circulation strengths for each vortex egde
+    // Update the local values of the circulation strengths for each vortex edge
     
     void UpdateVortexEdgeStrengths(int Level, int UpdateType);
     
@@ -1032,7 +1032,7 @@ public:
     
     VSP_NODE &SurveyPointList(int i) { return SurveyPointList_[i]; };
     
-    /** Set the number of final time steps to do a survey for unsteady calculatons **/
+    /** Set the number of final time steps to do a survey for unsteady calculations **/
     
     int &NumberOfSurveyTimeSteps(void) { return NumberOfSurveyTimeSteps_; };
     
@@ -1488,7 +1488,7 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
 
     void DoWopWopFlyBy(void) { WopWopFlyBy_ = 1; };
     
-    /** Do a psuwopwop foot print analysis **/
+    /** Do a psuwopwop footprint analysis **/
     
     void DoWopWopFootPrint(void) { WopWopFlyBy_ = 0; };
     
@@ -1532,7 +1532,7 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
     
     void CalculateOptimizationFunctionLength(void);
    
-    /** Get optimization function lenght for opt function Case **/
+    /** Get optimization function length for opt function Case **/
     
     int OptimizationFunctionLength(int Case) { return OptimizationFunctionList_[Case].FunctionLength(); };
     
@@ -1551,7 +1551,7 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
     /** This is an optimization solve
      * 
      * this must be set to let the solver know it needs to evaluate the 
-     * optimization functions... for both the foward and adjoint solvers
+     * optimization functions... for both the forward and adjoint solvers
      * 
      **/
 
@@ -1593,7 +1593,7 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
 
     double dF_dMesh_Z(int p, int Time, int i) { return DOUBLE(dF_dMesh_[Time][p][3*i  ]); };
         
-    /** Total gradient of objective function 1 with resepect to input variable InputVariable 
+    /** Total gradient of objective function 1 with respect to input variable InputVariable 
      *
      * OPT_GRADIENT_WRT_ALPHA 
      * OPT_GRADIENT_WRT_BETA         
@@ -1608,7 +1608,7 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
     
     double dF_dInputVariable(int InputVariable) { return DOUBLE(dF_dInputVariable_[0][1][InputVariable]); };
  
-    /** Total gradient of objective function p with resepect to input variable InputVariable 
+    /** Total gradient of objective function p with respect to input variable InputVariable 
      *
      * OPT_GRADIENT_WRT_ALPHA 
      * OPT_GRADIENT_WRT_BETA         
@@ -1623,7 +1623,7 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
 
     double dF_dInputVariable(int p, int InputVariable) { return DOUBLE(dF_dInputVariable_[0][p][InputVariable]); };
     
-    /** Unsteady total gradient of objective function p, at time Time, with resepect to input variable InputVariable
+    /** Unsteady total gradient of objective function p, at time Time, with respect to input variable InputVariable
      *
      * OPT_GRADIENT_WRT_ALPHA 
      * OPT_GRADIENT_WRT_BETA         

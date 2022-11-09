@@ -390,7 +390,7 @@ int QUAD_TREE::InsertPoint(VSPAERO_DOUBLE xyzp[3], int SurfaceEdge)
     
     else {
        
-       PRINTF("Must specificy quad tree direction before inserting points! \n");fflush(NULL);
+       PRINTF("Must specify quad tree direction before inserting points! \n");fflush(NULL);
        exit(1);
        
     }

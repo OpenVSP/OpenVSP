@@ -64,7 +64,7 @@ public:
     VSP_EDGE(const VSP_EDGE &VSPEdge);
     VSP_EDGE& operator=(const VSP_EDGE &VSPEdge);
 
-    // Accesss to tri data
+    // Access to tri data
 
     int &Node1(void) { return Node1_; };
     int &Node2(void) { return Node2_; };

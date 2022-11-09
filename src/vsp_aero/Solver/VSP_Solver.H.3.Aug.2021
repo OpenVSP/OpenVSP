@@ -141,7 +141,7 @@ private:
     
     VSPAERO_DOUBLE KelvinLambda_;
     
-    // Rotor Geoemtry
+    // Rotor Geometry
     
     int NumberOfRotors_;
     
@@ -392,7 +392,7 @@ private:
     
     void CalculateDiagonal(void);
     
-    // Calculate nearest neighbor coeffients of the influence matrix
+    // Calculate nearest neighbor coefficients of the influence matrix
     
     void CalculateNeighborCoefs(void);
     
@@ -870,7 +870,7 @@ public:
     void UpdateGeometryLocation(int DoStartUp);
     void ResetGeometry(void);
 
-    // Update the local values of the circulation strengths for each vortex egde
+    // Update the local values of the circulation strengths for each vortex edge
     
     void UpdateVortexEdgeStrengths(int Level, int UpdateType);
     

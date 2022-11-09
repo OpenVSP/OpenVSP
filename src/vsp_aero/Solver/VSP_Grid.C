@@ -760,7 +760,7 @@ void VSP_GRID::CreateTriEdges(void)
 
     }
         
-    // Mark edges on boarders of diffrent surface IDs, and calculate normal
+    // Mark edges on boarders of different surface IDs, and calculate normal
     
     for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
        
@@ -1012,7 +1012,7 @@ void VSP_GRID::CreateUpwindEdgeData(void)
    
     for ( j = 1 ; j <= NumberOfEdges() ; j++ ) {
 
-       // Pass in edge data and create edge cofficients
+       // Pass in edge data and create edge coefficients
        
        Node1 = EdgeList(j).Node1();
        Node2 = EdgeList(j).Node2();

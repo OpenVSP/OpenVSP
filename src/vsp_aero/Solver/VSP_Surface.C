@@ -503,7 +503,7 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TK
        
        if ( !Done ) {
           
-          PRINTF("Error in determing number of surfaces in CART3D file! \n");
+          PRINTF("Error in determining number of surfaces in CART3D file! \n");
           fflush(NULL);
           exit(1);
           
@@ -936,7 +936,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
        
        if ( !Done ) {
           
-          PRINTF("Error in determing number of surfaces in VSPGEOM file! \n");
+          PRINTF("Error in determining number of surfaces in VSPGEOM file! \n");
           fflush(NULL);
           exit(1);
           
@@ -2324,7 +2324,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
     
     SizeFlatPlateLists(NumI,NumJ);
     
-    // Read in the flate plate Normal information
+    // Read in the flat plate Normal information
     
     fgets(DumChar,1000,VSP_Degen_File);  
 
@@ -5372,7 +5372,7 @@ void VSP_SURFACE::CreateUpwindEdgeData(int SurfaceID)
 
        }       
 
-       // Pass in edge data and create edge cofficients
+       // Pass in edge data and create edge coefficients
        
        Node1 = Grid().EdgeList(j).Node1();
        Node2 = Grid().EdgeList(j).Node2();

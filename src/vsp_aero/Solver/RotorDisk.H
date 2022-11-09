@@ -117,7 +117,7 @@ public:
     
     void VelocityPotential(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[5]);
     
-    /** Intialize the rotor data **/
+    /** Initialize the rotor data **/
     
     void Initialize(void);
     

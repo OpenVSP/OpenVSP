@@ -92,7 +92,7 @@ public:
     //==== Add Fixed Distance (GapHeight) To Y Location ====//
     void AddYGap()          { m_Y += m_GapHeight; }
 
-    //==== Move to Begininng of Next Line (ignore SameLineFlag) ====//
+    //==== Move to Beginning of Next Line (ignore SameLineFlag) ====//
     void ForceNewLine();
 
     //==== Flag To Force GuiDevices to Fill Complete Line Width ====//

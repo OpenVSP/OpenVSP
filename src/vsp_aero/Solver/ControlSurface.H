@@ -180,7 +180,7 @@ public:
     
     char *Name(void) { return Name_; };
     
-    /** Short name given by openvsp to descriminate between control surfaces on various componets **/
+    /** Short name given by openvsp to discriminate between control surfaces on various components **/
     
     char *ShortName(void) { return ShortName_; };    
     

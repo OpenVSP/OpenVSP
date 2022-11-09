@@ -1512,7 +1512,7 @@ int glfLoadBMFFont(char *FName)
 			flag = 1;
 			break;
 		}
-	if (!flag) /* Not enought space for new texture */
+	if (!flag) /* Not enough space for new texture */
 	{
 		fclose(f);
 		free(texture);

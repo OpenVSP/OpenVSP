@@ -583,7 +583,7 @@ void VSP_SOLVER::Setup(void)
           
           if ( ComponentGroupList_[c].ComponentList(j) > VSPGeom().NumberOfComponents() ) {
              
-             PRINTF("Component Group: %d lists non-existant Component: %d \n", c, ComponentGroupList_[c].ComponentList(j));
+             PRINTF("Component Group: %d lists non-existent Component: %d \n", c, ComponentGroupList_[c].ComponentList(j));
              
              fflush(NULL);exit(1);
           
@@ -711,7 +711,7 @@ void VSP_SOLVER::Setup(void)
           
           if ( ComponentGroupList_[c].ComponentList(j) > VSPGeom().NumberOfComponents() ) {
              
-             PRINTF("Component Group: %d lists non-existant Component: %d \n", c, ComponentGroupList_[c].ComponentList(j));
+             PRINTF("Component Group: %d lists non-existent Component: %d \n", c, ComponentGroupList_[c].ComponentList(j));
              
              fflush(NULL);exit(1);
           
@@ -1026,7 +1026,7 @@ void VSP_SOLVER::Setup(void)
     
     }
     
-    // Uknown model
+    // Unknown model
     
     else {
        
@@ -1833,7 +1833,7 @@ void VSP_SOLVER::Setup_VortexEdges(void)
    
           VSPGeom().Grid(Level).EdgeList(j).VortexEdge() = ++k;
           
-          // Pass in edge data and create edge cofficients
+          // Pass in edge data and create edge coefficients
           
           Node1 = VSPGeom().Grid(Level).EdgeList(j).Node1();
           Node2 = VSPGeom().Grid(Level).EdgeList(j).Node2();
@@ -2302,7 +2302,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
     PRINTF("Wake FarDist set to: %f \n",FarDist);
     PRINTF("\n");
        
-    // Set intial wake start time
+    // Set initial wake start time
     
     WakeStartingTime_ = 0;
     
@@ -2660,7 +2660,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                    
                 }                             
                                                                     
-                // Pass in edge data and create edge cofficients
+                // Pass in edge data and create edge coefficients
                 
                 VSP_Node1.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j);
                 VSP_Node1.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j);
@@ -3613,7 +3613,7 @@ void VSP_SOLVER::Solve(int Case)
         
     }
 
-    // Update geometry location and interaction lists for moving geoemtries
+    // Update geometry location and interaction lists for moving geometries
 
     CurrentTime_ = CurrentNoiseTime_ = 0.;
            
@@ -3908,7 +3908,7 @@ printf("How the fuck did I get here? \n");fflush(NULL);exit(1);
 
           if ( TimeAccurate_ ) {
    
-             // Update geometry location and interaction lists for moving geoemtries
+             // Update geometry location and interaction lists for moving geometries
 
              if ( !StartFromSteadyState_ || ( StartFromSteadyState_ && Time_ > 1 ) ) UpdateGeometryLocation(0);
 
@@ -4382,7 +4382,7 @@ void VSP_SOLVER::WriteOutSteadyStateNoiseFiles(int Case)
 
        if ( Time_ == NumberOfTimeSteps_ - 1 ) { for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) WriteOutPSUWopWopUnsteadyDataForGroup(c); };
 
-       // Update geometry location and interaction lists for moving geoemtries
+       // Update geometry location and interaction lists for moving geometries
        
        UpdateGeometryLocation(0);     
          
@@ -4877,7 +4877,7 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
 
           WriteOutPSUWopWopUnsteadyDataForGroup(c);
   
-          // Update geometry location and interaction lists for moving geoemtries
+          // Update geometry location and interaction lists for moving geometries
           
           UpdateGeometryLocation(0);    
              
@@ -6244,7 +6244,7 @@ void VSP_SOLVER::DoMatrixPrecondition(VSPAERO_DOUBLE *vec_in)
 
     }
     
-    // Matrix precondtioner
+    // Matrix preconditioner
     
     else if ( Preconditioner_ == MATCON ) {
 
@@ -8495,7 +8495,7 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
                                 
              }         
              
-             // Update the least squares cofficients for the panel solver
+             // Update the least squares coefficients for the panel solver
              
              if ( ModelType_ == PANEL_MODEL ) {
                 
@@ -8723,7 +8723,7 @@ void VSP_SOLVER::ResetGeometry(void)
                                 
              }                      
              
-             // Update the least squares cofficients for the panel solver
+             // Update the least squares coefficients for the panel solver
              
              if ( ModelType_ == PANEL_MODEL ) {
                 
@@ -10281,7 +10281,7 @@ void VSP_SOLVER::CalculateForces(void)
     OptimizationFunction_[OPT_CMy] = CMy_[0];
     OptimizationFunction_[OPT_CMz] = CMz_[0];
     
-    // L/D with an attemp to hold CL constant
+    // L/D with an attempt to hold CL constant
     
     CLReq = 0.1800;
     
@@ -13238,7 +13238,7 @@ int VSP_SOLVER::SurfaceVortexEdgeIsBetweenPlanes(VSPAERO_DOUBLE *Normal1, VSPAER
 
     if ( Type1 == 0 ) { Weight = 1. ; return 1; };
        
-    // Segement is parallel with plane, but does not intersect it
+    // Segment is parallel with plane, but does not intersect it
     
     if ( Type1 == -1 ) { Weight = 1. ; return 1; };
     
@@ -13248,7 +13248,7 @@ int VSP_SOLVER::SurfaceVortexEdgeIsBetweenPlanes(VSPAERO_DOUBLE *Normal1, VSPAER
 
     if ( Type2 == 0 ) { Weight = 1. ; return 1; };
        
-    // Segement is parallel with plane, but does not intersect it
+    // Segment is parallel with plane, but does not intersect it
     
     if ( Type2 == -1 ) { Weight = 1. ; return 1; };    
     
@@ -14247,7 +14247,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseHeader(void)
     c_size = sizeof(char);
     f_size = sizeof(float);
 
-    // Write out coded id to allow us to determine endiannes of files
+    // Write out coded id to allow us to determine endianness of files
 
     DumInt = -123789456; // Version 2 of the ADB file
 
@@ -14384,7 +14384,7 @@ void VSP_SOLVER::ReadInAerothermalDatabaseHeader(void)
     c_size = sizeof(char);
     f_size = sizeof(float);
 
-    // Read in endiannes of files
+    // Read in endianness of files
 
     FREAD(&DumInt, i_size, 1, InputADBFile_);
     
@@ -22477,7 +22477,7 @@ void VSP_SOLVER::WriteOutPSUWopWopBPMHeaderForGroup(int c)
        NumberJ = VSPGeom().VSP_Surface(k).NumberOfSpanStations();
     
        DumInt = 42; FWRITE(&(DumInt ), i_size, 1, WopFile); // Magic Number
-                    FWRITE(&(NumberJ), i_size, 1, WopFile); // Number of sections definining the blade
+                    FWRITE(&(NumberJ), i_size, 1, WopFile); // Number of sections defining the blade
        DumInt =  0; FWRITE(&(DumInt ), i_size, 1, WopFile); // Non-uniform blade sections
        DumInt =  1; FWRITE(&(DumInt ), i_size, 1, WopFile); // Blade section chord data provided
        DumInt =  0; FWRITE(&(DumInt ), i_size, 1, WopFile); // Blade section length data not provided

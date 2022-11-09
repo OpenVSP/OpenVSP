@@ -41,7 +41,7 @@ public:
     
     int &HasHightLiftSlat(void) { return HasHightLiftSlat_; };
     
-    /** Percent of chord for the leading edge slat... acutally a fraction from 0 to 1. **/
+    /** Percent of chord for the leading edge slat... actually a fraction from 0 to 1. **/
     
     VSPAERO_DOUBLE &HighLiftSlatPercentage(void) { return HighLiftSlatPercentage_; };
     

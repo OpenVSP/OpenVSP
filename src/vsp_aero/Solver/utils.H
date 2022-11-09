@@ -132,7 +132,7 @@ int asearch(VSPAERO_DOUBLE value, const VSPAERO_DOUBLE * array, int dim, VSPAERO
 
 int Intersect2DLines(VSPAERO_DOUBLE *u, VSPAERO_DOUBLE *v, VSPAERO_DOUBLE *p, VSPAERO_DOUBLE *q, VSPAERO_DOUBLE Epsilson);
 
-/** Check if a point p is withing a 2D tri defined by points x and y **/
+/** Check if a point p is within a 2D tri defined by points x and y **/
 
 int CheckIfInsideTri(VSPAERO_DOUBLE *x, VSPAERO_DOUBLE *y, VSPAERO_DOUBLE *p, VSPAERO_DOUBLE Eps);
 

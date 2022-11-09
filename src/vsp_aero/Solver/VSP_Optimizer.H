@@ -540,9 +540,9 @@ public:
     
     void WriteOutCart3dTriFile(void) { Solver().WriteOutCart3dTriFile(); };
 
-    /** Supress/resume stdout **/
+    /** Suppress/resume stdout **/
 
-    void SupressStdout(void);
+    void SuppressStdout(void);
     void ResumeStdout(void);
 
 };

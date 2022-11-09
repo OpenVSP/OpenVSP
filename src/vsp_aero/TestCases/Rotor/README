@@ -6,7 +6,7 @@ Run the TestiT script
 
 ./Testit
 
-this will run vpsaero, and vpsaero_adjoint with the ouput of prop.gradient
+this will run vpsaero, and vpsaero_adjoint with the output of prop.gradient
 
 
 

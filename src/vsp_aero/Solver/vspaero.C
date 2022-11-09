@@ -103,7 +103,7 @@ VSPAERO_DOUBLE RotationalRate_pList_[MAXRUNCASES];
 VSPAERO_DOUBLE RotationalRate_qList_[MAXRUNCASES];
 VSPAERO_DOUBLE RotationalRate_rList_[MAXRUNCASES];
 
-// Deltas for calculating derivaties
+// Deltas for calculating derivatives
 
 VSPAERO_DOUBLE Delta_AoA_;
 VSPAERO_DOUBLE Delta_Beta_;
@@ -490,7 +490,7 @@ void PrintUsageHelp()
        PRINTF(" -noise -steady                     Output steady state data to psu-wopwop, default is unsteady, periodic. \n");
        PRINTF(" -noise -english                    Assumes your model is in english (feet) units, will convert to SI for psu-wopwop \n");
        PRINTF(" -noise -flyby                      Set up flyby analysis for psu-wopwop \n");
-       PRINTF(" -noise -footprint                  Set up fot print analysis for psu-wopwop \n");
+       PRINTF(" -noise -footprint                  Set up footprint analysis for psu-wopwop \n");
        PRINTF("\n");                                                   
        PRINTF(" -opt -optfunction <#>              This is an optimization solve... solve the Aero equations and write out all information needed for adjoint solver. \n"); 
        PRINTF(" -opt -adjoint   -optfunction <#>   This is an optimization solve... solve Adjoint equations for optfunction #. Only used with the ADJOINT solver. \n");
@@ -510,9 +510,9 @@ void PrintUsageHelp()
        PRINTF("     -aoa  <A> END                  Angle of attack. A is a space delimited list of aoa values.\n");
        PRINTF("     -beta <B> END                  Sideslip angle. B is a space delimited list of beta values.\n");
        PRINTF("     -wakeiters <N>                 Number of wake iterations to calculate.\n");
-       PRINTF("     -symx                          Symetry flag - vehicle is symetric at x=0.\n");
-       PRINTF("     -symy                          Symetry flag - vehicle is symetric at y=0 (this is the most common).\n");
-       PRINTF("     -symz                          Symetry flag - vehicle is symetric at z=0.\n");
+       PRINTF("     -symx                          Symmetry flag - vehicle is symmetric at x=0.\n");
+       PRINTF("     -symy                          Symmetry flag - vehicle is symmetric at y=0 (this is the most common).\n");
+       PRINTF("     -symz                          Symmetry flag - vehicle is symmetric at z=0.\n");
        PRINTF("\n");
        PRINTF("EXAMPLES:\n");
        PRINTF("Example: Creating a setup file for testModel with mach and alpha sweep matrix\n");
@@ -862,11 +862,11 @@ void ParseInput(int argc, char *argv[])
                 
              }             
 
-             // Check if we are to do foot print
+             // Check if we are to do footprint
    
              if ( strcmp(argv[i+1],"-footprint") == 0 ) {
                 
-                PRINTF("Doing foot print noise analysis. \n");
+                PRINTF("Doing footprint noise analysis. \n");
                 
                 VSP_VLM().DoWopWopFootPrint();
                 

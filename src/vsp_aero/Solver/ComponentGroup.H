@@ -506,7 +506,7 @@ public:
     
     VSPAERO_DOUBLE &Bref(void) { return Bref_; };
     
-    /** Refererence chord **/
+    /** Reference chord **/
     
     VSPAERO_DOUBLE &Cref(void) { return Cref_; };    
         
@@ -546,7 +546,7 @@ public:
         
     VSPAERO_DOUBLE &Velocity(int i ) { return Velocity_(i+1); };
     
-    /** Angular velocity of group... typicall used to model a rotor **/
+    /** Angular velocity of group... typically used to model a rotor **/
      
     VSPAERO_DOUBLE &Omega(void) { return Omega_; };   
     

@@ -1789,7 +1789,7 @@ void XSecCurve::Chevron()
     }
 
     // Set up chevron curve as if start is always at 0.0.
-    // This simplifies some of the logic including determing how many points are needed to define curve.
+    // This simplifies some of the logic including determining how many points are needed to define curve.
     int ptpercycle = 2;
     int peakpercycle = 1;
     int valleypercycle = 1;

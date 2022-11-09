@@ -126,7 +126,7 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     Cref_    = 0.;  
 
 
-    // Size and intialize matrices, vectors
+    // Size and initialize matrices, vectors
     
                 MassMatrix_.size(3,3);
              InertiaMatrix_.size(3,3);

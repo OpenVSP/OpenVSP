@@ -16,7 +16,7 @@
 #include <complex>
 #endif
 
-// undef FWRITE/FREAD macors
+// undef FWRITE/FREAD macros
 // These function names can conflict with  macros found in fcntl.h
 #ifdef FWRITE
 #undef FWRITE

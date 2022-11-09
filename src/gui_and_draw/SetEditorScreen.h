@@ -63,7 +63,7 @@ protected:
     TriggerButton m_CopySet;
     TriggerButton m_PasteSet;
 
-    //These buttons are for selecting all or none of the checkboxs in m_SetSelectBrowser
+    //These buttons are for selecting all or none of the checkboxes in m_SetSelectBrowser
     TriggerButton m_SelectAll;
     TriggerButton m_UnselectAll;
 

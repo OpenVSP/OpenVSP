@@ -62,7 +62,7 @@ class BaseUI:
         """
 
         # Redefine the get_option def from the base class so we can
-        # mane sure the name is lowercase
+        # make sure the name is lowercase
 
         if name.lower() in self.default_options:
             return self.options[name.lower()][1]

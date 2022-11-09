@@ -66,7 +66,7 @@ private:
     VSPAERO_DOUBLE *Span_Cs_;
     VSPAERO_DOUBLE *Span_Cd_;
     
-    // Mininum Local Cp
+    // Minimum Local Cp
 
     VSPAERO_DOUBLE *Span_CpMin_;    
     

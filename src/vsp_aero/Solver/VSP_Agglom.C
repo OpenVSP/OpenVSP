@@ -509,7 +509,7 @@ void VSP_AGGLOM::InitializeFront_(void)
        
     }
        
-    // Check if edge is on any general boundry
+    // Check if edge is on any general boundary
        
     for ( i = 1 ; i <= FineGrid().NumberOfEdges() ; i++ ) {
               
@@ -2519,7 +2519,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
           PRINTF("Working on Loop: %d \n",i);
           PRINTF("NumberOfLoopNodes: %d \n",NumberOfLoopNodes);
           PRINTF("CoarseGrid().LoopList(i).NumberOfEdges(): %d \n",CoarseGrid().LoopList(i).NumberOfEdges());
-          PRINTF("These should be the same value if we assume a sensical mesh... but we problably coarsened too much! \n");
+          PRINTF("These should be the same value if we assume a sensical mesh... but we probably coarsened too much! \n");
           PRINTF("The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... \n");
           fflush(NULL);
           
@@ -2599,7 +2599,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
           
           if ( !Found ) {
              
-             PRINTF("Error in determing UV surface mapping during agglomeration! \n");
+             PRINTF("Error in determining UV surface mapping during agglomeration! \n");
              fflush(NULL);
           //   exit(1);
              

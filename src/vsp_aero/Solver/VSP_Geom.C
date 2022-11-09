@@ -1569,7 +1569,7 @@ void VSP_GEOM::MeshGeom(void)
     PRINTF("NumberOfGridLevels_: %d \n",NumberOfGridLevels_);    
     PRINTF("NumberOfSurfacePatches_: %d \n",NumberOfSurfacePatches_);
     
-    // Ouput the coarse grid mesh info
+    // Output the coarse grid mesh info
     
     if ( Verbose_ ) OutputCoarseGridInfo();
 

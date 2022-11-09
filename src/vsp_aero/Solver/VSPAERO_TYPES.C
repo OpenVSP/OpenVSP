@@ -163,7 +163,7 @@ double AUTO_DIFF_STACK_MEMORY(void) {
 
 #ifdef AUTODIFF
    
-    // Get stack memory useage
+    // Get stack memory usage
 
     return (adept::active_stack()->memory()/(1.e9));
 

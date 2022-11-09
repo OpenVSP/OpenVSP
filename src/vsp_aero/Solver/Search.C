@@ -334,7 +334,7 @@ int *SEARCH::merge_sort(SEARCH_LEAF *root)
 
     list_2 = new int[root->number_of_nodes + 1];
 
-    // check that memory allocation was succesfull 
+    // check that memory allocation was successful
 
     if ( list_1 == NULL || list_2 == NULL ) {
 
@@ -344,7 +344,7 @@ int *SEARCH::merge_sort(SEARCH_LEAF *root)
 
     }
 
-    // intialize the lists 
+    // initialize the lists 
 
     for ( i = 1 ; i <= root->number_of_nodes ; i++ ) {
 

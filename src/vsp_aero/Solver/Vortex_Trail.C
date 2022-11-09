@@ -1593,7 +1593,7 @@ VSPAERO_DOUBLE VORTEX_TRAIL::UpdateWakeLocation(void)
           
           Dot1 = vector_dot(Vec,RotorThrustVector_);
           
-          // Component in direction of the vector from the rotor to the free stram direction
+          // Component in direction of the vector from the rotor to the free stream direction
           
           Vec3[0] = FreeStreamDirection_[0] + RotorThrustVector_[0];
           Vec3[1] = FreeStreamDirection_[1] + RotorThrustVector_[1];
@@ -1882,7 +1882,7 @@ void VORTEX_TRAIL::SmoothVelocity(VSPAERO_DOUBLE *Velocity)
     c[NumberOfNodes] =  0.;
     d[NumberOfNodes] =  r[NumberOfNodes];   
 
-    // General node... implicity smoothing
+    // General node... implicitly smoothing
 
     Eps = 0.5;
 
@@ -2072,7 +2072,7 @@ void VORTEX_TRAIL::SmoothWake(void)
        c_[NumberOfNodes] =  0.;
        d_[NumberOfNodes] =  r_[NumberOfNodes];   
 
-       // General node... implicity smoothing
+       // General node... implicitly smoothing
 
        Eps = 0.25;
 

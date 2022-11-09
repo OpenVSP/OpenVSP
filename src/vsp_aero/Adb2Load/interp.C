@@ -634,7 +634,7 @@ void INTERP::InterpolateSolution(INTERP_MESH *Mesh1, INTERP_MESH *Mesh2)
 
     printf("Used closest point for %d nodes \n",closest);
 
-    printf("Turn off normal contraints for %d nodes \n",NormalOff);
+    printf("Turn off normal constraints for %d nodes \n",NormalOff);
 
     printf("Used a maximum radius of %d \n",max_radius);
 
@@ -676,7 +676,7 @@ void INTERP::WriteADBFile(INTERP_MESH *Mesh, char *Name)
 
     }
 
-    // Write out the default in to check on endianess
+    // Write out the default in to check on endianness
 
     DumInt = -123789456 + 4; // Version 4
 

@@ -53,7 +53,7 @@ public:
     
     /** Mesh level this list corresponds to, ie in the full multipole we may be calculating 
      * induced velocities for a group of loops (agglomerated) at a coarse level as we 
-     * have decided they are far enough away as a group to be considered a single evaulation
+     * have decided they are far enough away as a group to be considered a single evaluation
      * point... **/
 
     int &Level(void) { return Level_; };

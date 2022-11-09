@@ -756,7 +756,7 @@ void VSP_SOLVER::Setup(void)
           
           if ( ComponentGroupList_[c].ComponentList(j) > VSPGeom().NumberOfComponents() ) {
              
-             PRINTF("Component Group: %d lists non-existant Component: %d \n", c, ComponentGroupList_[c].ComponentList(j));
+             PRINTF("Component Group: %d lists non-existent Component: %d \n", c, ComponentGroupList_[c].ComponentList(j));
              
              fflush(NULL);exit(1);
           
@@ -937,7 +937,7 @@ void VSP_SOLVER::Setup(void)
           
           if ( ComponentGroupList_[c].ComponentList(j) > VSPGeom().NumberOfComponents() ) {
              
-             PRINTF("Component Group: %d lists non-existant Component: %d \n", c, ComponentGroupList_[c].ComponentList(j)); fflush(NULL);
+             PRINTF("Component Group: %d lists non-existent Component: %d \n", c, ComponentGroupList_[c].ComponentList(j)); fflush(NULL);
              
              fflush(NULL);exit(1);
           
@@ -1315,7 +1315,7 @@ void VSP_SOLVER::Setup(void)
     
     }
     
-    // Uknown model
+    // Unknown model
     
     else {
        
@@ -1776,7 +1776,7 @@ void VSP_SOLVER::Setup(void)
           
           if ( EngineFace_[i].SurfaceID() <= 0 || EngineFace_[i].SurfaceID() > VSPGeom().VSP_Surface(1).NumberOfSurfacePatches() ) {
              
-             PRINTF("Error... engine %d points to non-existant surface: %d \n",i,EngineFace_[i].SurfaceID()); fflush(NULL);
+             PRINTF("Error... engine %d points to non-existent surface: %d \n",i,EngineFace_[i].SurfaceID()); fflush(NULL);
              
           }
           
@@ -2945,7 +2945,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
     PRINTF("Wake FarDist set to: %f \n",FarDist);
     PRINTF("\n");
        
-    // Set intial wake start time
+    // Set initial wake start time
     
     WakeStartingTime_ = 0;
     
@@ -5135,7 +5135,7 @@ void VSP_SOLVER::RestartAndInterrogateSolution(int Case)
  
        }    
        
-       // Update geometry location and interaction lists for moving geoemtries
+       // Update geometry location and interaction lists for moving geometries
 
        if ( TimeAccurate_ ) UpdateGeometryLocation(0);     
   
@@ -5450,7 +5450,7 @@ void VSP_SOLVER::WriteOutSteadyStateNoiseFiles(int Case)
 
        if ( Time_ == NumberOfTimeSteps_ - 1 ) { for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) WriteOutPSUWopWopUnsteadyDataForGroup(c); };
 
-       // Update geometry location and interaction lists for moving geoemtries
+       // Update geometry location and interaction lists for moving geometries
        
        UpdateGeometryLocation(0);     
          
@@ -5949,7 +5949,7 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
 
           WriteOutPSUWopWopUnsteadyDataForGroup(c);
   
-          // Update geometry location and interaction lists for moving geoemtries
+          // Update geometry location and interaction lists for moving geometries
           
           UpdateGeometryLocation(0);    
              
@@ -7438,7 +7438,7 @@ void VSP_SOLVER::DoMatrixPrecondition(VSPAERO_DOUBLE *vec_in)
 
     }
     
-    // Matrix precondtioner
+    // Matrix preconditioner
     
     else if ( Preconditioner_ == MATCON ) {
 
@@ -11130,7 +11130,7 @@ void VSP_SOLVER::Optimization_Calculate_Total_Gradient(void)
        
        }
        
-       // Save the current gradient with respect to the input varialbes if this is an unsteady case
+       // Save the current gradient with respect to the input variables if this is an unsteady case
        
        for ( i = 1 ; i <= NumberOfOptimizationInputIndepdendentVariables_ ; i++ ) {
           
@@ -11768,7 +11768,7 @@ void VSP_SOLVER::CalculateResidual(void)
    
     else if ( ModelType_ == PANEL_MODEL ) {
        
-       // Matrix vector of the linear system... enforncing tangency
+       // Matrix vector of the linear system... enforcing tangency
 
        MatrixMultiply(Gamma_[0], Residual_);
 
@@ -11877,7 +11877,7 @@ void VSP_SOLVER::CalculateMatrixVectorProductAndRightHandSide(double *VecIn, dou
    
     else if ( ModelType_ == PANEL_MODEL ) {
        
-       // Matrix vector of the linear system... enforncing tangency
+       // Matrix vector of the linear system... enforcing tangency
 
        MatrixMultiply(VecIn, MatrixVecTemp_);
        
@@ -16573,7 +16573,7 @@ int VSP_SOLVER::SurfaceVortexEdgeIsBetweenPlanes(VSPAERO_DOUBLE *Normal1, VSPAER
 
     if ( Type1 == 0 ) { Weight = 1. ; return 1; };
        
-    // Segement is parallel with plane, but does not intersect it
+    // Segment is parallel with plane, but does not intersect it
     
     if ( Type1 == -1 ) { Weight = 1. ; return 1; };
     
@@ -16583,7 +16583,7 @@ int VSP_SOLVER::SurfaceVortexEdgeIsBetweenPlanes(VSPAERO_DOUBLE *Normal1, VSPAER
 
     if ( Type2 == 0 ) { Weight = 1. ; return 1; };
        
-    // Segement is parallel with plane, but does not intersect it
+    // Segment is parallel with plane, but does not intersect it
     
     if ( Type2 == -1 ) { Weight = 1. ; return 1; };    
     
@@ -18476,7 +18476,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseHeader(void)
     c_size = sizeof(char);
     f_size = sizeof(float);
 
-    // Write out coded id to allow us to determine endiannes of files
+    // Write out coded id to allow us to determine endianness of files
 
     DumInt = -123789456 + 3; // Version 3 of the ADB file
 
@@ -18629,7 +18629,7 @@ void VSP_SOLVER::ReadInAerothermalDatabaseHeader(void)
     c_size = sizeof(char);
     f_size = sizeof(float);
 
-    // Read in endiannes of files
+    // Read in endianness of files
 
     FREAD(&DumInt, i_size, 1, InputADBFile_);
     
@@ -27253,7 +27253,7 @@ void VSP_SOLVER::WriteOutPSUWopWopBPMHeaderForGroup(int c)
        NumberJ = VSPGeom().VSP_Surface(k).NumberOfSpanStations();
     
        DumInt = 42; FWRITE(&(DumInt ), i_size, 1, WopFile); // Magic Number
-                    FWRITE(&(NumberJ), i_size, 1, WopFile); // Number of sections definining the blade
+                    FWRITE(&(NumberJ), i_size, 1, WopFile); // Number of sections defining the blade
        DumInt =  0; FWRITE(&(DumInt ), i_size, 1, WopFile); // Non-uniform blade sections
        DumInt =  1; FWRITE(&(DumInt ), i_size, 1, WopFile); // Blade section chord data provided
        DumInt =  0; FWRITE(&(DumInt ), i_size, 1, WopFile); // Blade section length data not provided

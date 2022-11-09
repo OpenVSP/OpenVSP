@@ -849,7 +849,7 @@ void GeomXForm::AcceptScale()
 //  if (sym_code != NO_SYM)
 //    compose_reflect_matrix();
 //
-//  //==== Uppdate Children =====//
+//  //==== Update Children =====//
 //  for ( i = 0 ; i < (int)childGeomVec.size() ; i++ )
 //  {
 //  childGeomVec[i]->compose_model_matrix();

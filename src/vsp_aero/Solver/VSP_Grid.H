@@ -248,7 +248,7 @@ public:
     
     void CreateUpwindEdgeData(void);
     
-    /** Contraint on the minimum loop sized used during agglomeration **/
+    /** Constraint on the minimum loop sized used during agglomeration **/
     
     VSPAERO_DOUBLE &MinLoopArea(void) { return MinLoopArea_; };
 

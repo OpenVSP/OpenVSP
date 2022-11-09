@@ -146,7 +146,7 @@ private:
     
     VSPAERO_DOUBLE KTFact_;
 
-    // Flag dermining which loops are down wind of this vortex edge
+    // Flag derminining which loops are down wind of this vortex edge
     
     int VortexLoop1IsDownWind_;
     int VortexLoop2IsDownWind_;
@@ -244,7 +244,7 @@ public:
     
     int &VortexLoop2(void) { return VortexLoop2_; };
 
-    /** Finite ore size **/
+    /** Finite core size **/
      
     VSPAERO_DOUBLE &Sigma(void) { return Sigma_; };
     

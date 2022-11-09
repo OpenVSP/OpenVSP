@@ -588,7 +588,7 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
        
     }
 
-    // Read in the default in to check on endianess
+    // Read in the default in to check on endianness
 
     BIO.fread(&DumInt, i_size, 1, adb_file);
 
@@ -1043,7 +1043,7 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
        
     } 
     
-    // Mark nodes on intitial mesh per the surface they are on... yes the
+    // Mark nodes on initial mesh per the surface they are on... yes the
     // solution is not unique at intersections... deal with it
     
     for ( i = 1 ; i <= NumberOfTris ; i++ ) {
@@ -1527,7 +1527,7 @@ void GL_VIEWER::LoadCalculixINPFile(void)
 
     sprintf(file_name_w_ext,"%s.inp",CalculixFileName);
 
-    printf("Attemping to open the Calculix inp file... \n");
+    printf("Attempting to open the Calculix inp file... \n");
 
     if ( (CalculixFile = fopen(file_name_w_ext,"r")) != NULL ) {
    
@@ -2354,7 +2354,7 @@ void GL_VIEWER::LoadCalculixDATFile(void)
 
     sprintf(file_name_w_ext,"%s.dat",CalculixFileName);
 
-    printf("Attemping to open the Calculix dat file... \n");
+    printf("Attempting to open the Calculix dat file... \n");
 
     if ( (CalculixFile = fopen(file_name_w_ext,"r")) != NULL ) {
 
@@ -2448,7 +2448,7 @@ void GL_VIEWER::LoadCalculixFRDFileOld(void)
 
     // Open the calculix solution file
     
-    printf("Attemping to open the Calculix frd file... \n");
+    printf("Attempting to open the Calculix frd file... \n");
 
     sprintf(file_name_w_ext,"%s.frd",CalculixFileName);
     
@@ -2969,7 +2969,7 @@ void GL_VIEWER::LoadCalculixFRDFile(void)
 
     // Open the calculix solution file
     
-    printf("Attemping to open the Calculix frd file... \n");
+    printf("Attempting to open the Calculix frd file... \n");
 
     sprintf(file_name_w_ext,"%s.frd",CalculixFileName);
     
@@ -6149,7 +6149,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
     } 
 
-    // Read in the default text string to check on endianess
+    // Read in the default text string to check on endianness
 
     BIO.fread(&DumInt, i_size, 1, adb_file);
 

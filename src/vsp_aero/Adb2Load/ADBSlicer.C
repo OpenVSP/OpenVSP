@@ -435,7 +435,7 @@ void ADBSLICER::LoadMeshData(void)
        
     }
 
-    // Read in the default in to check on endianess
+    // Read in the default in to check on endianness
 
     BIO.fread(&DumInt, i_size, 1, adb_file);
 
@@ -919,7 +919,7 @@ void ADBSLICER::LoadSolutionData(int Case)
 
     } 
     
-    // Read in the default in to check on endianess
+    // Read in the default in to check on endianness
 
     BIO.fread(&DumInt, i_size, 1, adb_file);
 
@@ -2213,7 +2213,7 @@ void ADBSLICER::SmoothSkinThickness(char *filename1)
     char file_name_w_ext[10000], DumChar[10000], SearchLabel[10000];
     FILE *File1;
 
-    // Create a temp array for the elment data
+    // Create a temp array for the element data
         
     MaxElements = 250000;
         
@@ -2407,7 +2407,7 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
     MinThick = 1.e9;
     MaxThick = -1.e9;
 
-    // Create a temp array for the elment data
+    // Create a temp array for the element data
         
     MaxElements = 250000;
         
@@ -2759,7 +2759,7 @@ void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilena
     MinThick = 1.e9;
     MaxThick = -1.e9;
 
-    // Create a temp array for the elment data
+    // Create a temp array for the element data
         
     MaxElements = 250000;
         
@@ -4354,7 +4354,7 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
               // strtok modifies base string contents, work from copy to leave DumChar un-changed.
               strcpy( DumChar2, DumChar );
 
-              // Position substr at first occurance of ELSET in DumChar
+              // Position substr at first occurrence of ELSET in DumChar
               substr = strstr( DumChar2, "ELSET" );
 
               // Separate element
@@ -4391,7 +4391,7 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
               // strtok modifies base string contents, work from copy to leave DumChar un-changed.
               strcpy( DumChar2, DumChar );
 
-              // Position substr at first occurance of NAME in DumChar
+              // Position substr at first occurrence of NAME in DumChar
               substr = strstr( DumChar2, "NAME" );
 
               // Separate element
@@ -4423,7 +4423,7 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
               // strtok modifies base string contents, work from copy to leave DumChar un-changed.
               strcpy( DumChar2, DumChar );
 
-              // Position substr at first occurance of NAME in DumChar
+              // Position substr at first occurrence of NAME in DumChar
               substr = strstr( DumChar2, "NAME" );
 
               substr = strtok( substr, "=" );
