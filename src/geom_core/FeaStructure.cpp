@@ -3489,7 +3489,7 @@ xmlNodePtr FeaFixPoint::DecodeXml( xmlNodePtr & node )
 
     if ( fea_prt_node )
     {
-        m_ParentFeaPartID = XmlUtil::FindString( fea_prt_node, "ParentFeaPartID", m_ParentFeaPartID );
+        m_ParentFeaPartID = ParmMgr.RemapID( XmlUtil::FindString( fea_prt_node, "ParentFeaPartID", m_ParentFeaPartID ) );
     }
 
     return fea_prt_node;
@@ -5476,10 +5476,10 @@ xmlNodePtr FeaConnection::DecodeXml( xmlNodePtr & conn_node )
     {
         ParmContainer::DecodeXml( conn_node );
 
-        m_StartFixPtID = XmlUtil::FindString( conn_node, "StartFixPtID", m_StartFixPtID );
-        m_StartStructID = XmlUtil::FindString( conn_node, "StartStructID", m_StartStructID );
-        m_EndFixPtID = XmlUtil::FindString( conn_node, "EndFixPtID", m_EndFixPtID );
-        m_EndStructID = XmlUtil::FindString( conn_node, "EndStructID", m_EndStructID );
+        m_StartFixPtID = ParmMgr.RemapID( XmlUtil::FindString( conn_node, "StartFixPtID", m_StartFixPtID ) );
+        m_StartStructID = ParmMgr.RemapID( XmlUtil::FindString( conn_node, "StartStructID", m_StartStructID ) );
+        m_EndFixPtID = ParmMgr.RemapID( XmlUtil::FindString( conn_node, "EndFixPtID", m_EndFixPtID ) );
+        m_EndStructID = ParmMgr.RemapID( XmlUtil::FindString( conn_node, "EndStructID", m_EndStructID ) );
     }
 
     return conn_node;
@@ -5815,8 +5815,8 @@ xmlNodePtr FeaBC::DecodeXml( xmlNodePtr & node )
 
     if ( conn_node )
     {
-        m_PartID = XmlUtil::FindString( conn_node, "PartID", m_PartID );
-        m_SubSurfID = XmlUtil::FindString( conn_node, "SubSurfID", m_SubSurfID );
+        m_PartID = ParmMgr.RemapID( XmlUtil::FindString( conn_node, "PartID", m_PartID ) );
+        m_SubSurfID = ParmMgr.RemapID( XmlUtil::FindString( conn_node, "SubSurfID", m_SubSurfID ) );
 
     }
 
