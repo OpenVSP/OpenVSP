@@ -89,8 +89,8 @@ public:
     bool IsClosedU() const;
     bool IsClosedW() const;
 
-    void RollU( const int &iu ) { m_Surface.roll_u( iu ); }
-    void RollW( const int &iw ) { m_Surface.roll_v( iw ); }
+    void RollU( const double &u );
+    void RollW( const double &w );
 
     void SplitU( const double &u );
     void SplitW( const double &w );
