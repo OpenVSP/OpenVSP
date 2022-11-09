@@ -246,8 +246,7 @@ void GeomEngine::UpdateEngine()
         if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineGeomInType() == ENGINE_GEOM_FLOWTHROUGH )
         {
             uroll = infaceu;
-            int iu = surf.SplitU( uroll );
-            surf.RollU( iu );
+            surf.RollU( uroll );
 
             infaceu = roll_t( infaceu, uroll, umin, umax );
             inlipu = roll_t( inlipu, uroll, umin, umax );
@@ -379,8 +378,7 @@ void GeomEngine::UpdateEngine()
             if ( m_EngineGeomIOType() == ENGINE_GEOM_INLET_OUTLET && m_EngineInModeType() == ENGINE_MODE_FLOWTHROUGH_NEG )
             {
                 uroll = inlipu;
-                int iu = surf2.SplitU( uroll );
-                surf2.RollU( iu );
+                surf2.RollU( uroll );
 
                 infaceu = roll_t( infaceu, uroll, umin, umax );
                 inlipu = roll_t( inlipu, uroll, umin, umax );
