@@ -11,7 +11,7 @@
 #include <cstdio>
 
 #include "Vsp1DCurve.h"
-
+#include "StlHelper.h"
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
@@ -49,6 +49,7 @@ void Vsp1DCurve::Copy( Vsp1DCurve & input_crv )
 //==== Split at Specified Parameter and Return Remaining Curve =====//
 void Vsp1DCurve::Split( double u )
 {
+
     m_Curve.split( u );
 }
 
@@ -645,6 +646,65 @@ void Vsp1DCurve::Scale( double s )
 void Vsp1DCurve::Reverse()
 {
     m_Curve.reverse();
+}
+
+void Vsp1DCurve::Roll( double u )
+{
+    m_Curve.split( u );
+
+    vector < double > pmap;
+    m_Curve.get_pmap( pmap );
+    int iu = vector_find_val( pmap, u );
+
+    m_Curve.roll( iu );
+}
+
+void Vsp1DCurve::Trim( double u, bool before )
+{
+    oned_piecewise_curve_type c1, c2;
+
+    m_Curve.split( c1, c2, u );
+
+    if ( before )
+    {
+        m_Curve = c1;
+    }
+    else
+    {
+        c2.set_t0( 0.0 );
+        m_Curve = c2;
+    }
+}
+
+void Vsp1DCurve::Join( const Vsp1DCurve &a, const Vsp1DCurve &b )
+{
+    m_Curve = a.GetCurve();
+    m_Curve.push_back( b.GetCurve() );
+}
+
+void Vsp1DCurve::CapMax()
+{
+    vector < double > val( 2, -1.0 );
+    vector < double > u( 2, 0.0 );
+    u[1] = 1.0;
+
+    Vsp1DCurve cap;
+    cap.InterpolateLinear( val, u, false );
+
+    m_Curve.push_back( cap.GetCurve() );
+}
+
+void Vsp1DCurve::CapMin()
+{
+    vector < double > val( 2, -1.0 );
+    vector < double > u( 2, 0.0 );
+    u[1] = 1.0;
+
+    Vsp1DCurve cap;
+    cap.InterpolateLinear( val, u, false );
+
+    cap.m_Curve.push_back( m_Curve );
+    m_Curve = cap.GetCurve();
 }
 
 void Vsp1DCurve::product( Vsp1DCurve c1, Vsp1DCurve c2 )

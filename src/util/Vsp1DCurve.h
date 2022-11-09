@@ -88,6 +88,12 @@ public:
 
     void Reverse();
 
+    void Roll( double u );
+    void Trim( double u, bool before );
+    void Join( const Vsp1DCurve &a, const Vsp1DCurve &b );
+    void CapMax();
+    void CapMin();
+
     void product( Vsp1DCurve c1, Vsp1DCurve c2 );
 
     bool IsEqual( const Vsp1DCurve & crv );
