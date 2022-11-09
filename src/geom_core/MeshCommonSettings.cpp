@@ -283,7 +283,7 @@ xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
     xmlNodePtr cfdsettingnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
     if ( cfdsettingnode )
     {
-        m_FarGeomID = XmlUtil::FindString( cfdsettingnode, "FarGeomID", m_FarGeomID );
+        m_FarGeomID = ParmMgr.RemapID( XmlUtil::FindString( cfdsettingnode, "FarGeomID", m_FarGeomID ) );
 
         MeshCommonSettings::DecodeXml( cfdsettingnode );
     }

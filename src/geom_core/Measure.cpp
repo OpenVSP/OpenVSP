@@ -68,7 +68,7 @@ xmlNodePtr Probe::DecodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        m_OriginGeomID = XmlUtil::FindString( parmcontain_node, "OriginGeomID", "" );
+        m_OriginGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
         m_Stage = STAGE_COMPLETE;
     }
 
@@ -220,7 +220,7 @@ xmlNodePtr RSTProbe::DecodeXml(xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        m_OriginGeomID = XmlUtil::FindString( parmcontain_node, "OriginGeomID", "" );
+        m_OriginGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
         m_Stage = STAGE_COMPLETE;
     }
 
@@ -474,8 +474,8 @@ xmlNodePtr Ruler::DecodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        m_OriginGeomID = XmlUtil::FindString( parmcontain_node, "OriginGeomID", "" );
-        m_EndGeomID = XmlUtil::FindString( parmcontain_node, "EndGeomID", "" );
+        m_OriginGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "OriginGeomID", m_OriginGeomID ) );
+        m_EndGeomID = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "EndGeomID", m_EndGeomID ) );
         m_Stage = STAGE_COMPLETE;
     }
 

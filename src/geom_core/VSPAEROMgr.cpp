@@ -5442,7 +5442,7 @@ xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
     if ( node )
     {
         ParmContainer::DecodeXml( node );
-        m_ParentGeomId = XmlUtil::FindString( node, "ParentID", defstr );
+        m_ParentGeomId = ParmMgr.RemapID( XmlUtil::FindString( node, "ParentID", defstr ) );
         m_ParentGeomSurfNdx = XmlUtil::FindInt( node, "SurfIndex", defint );
     }
 
@@ -5565,15 +5565,15 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 
     if ( node )
     {
-        m_ParentGeomBaseID = XmlUtil::FindString( node, "ParentGeomBase", ParentGeomID );
+        m_ParentGeomBaseID = ParmMgr.RemapID( XmlUtil::FindString( node, "ParentGeomBase", ParentGeomID ) );
 
         nControlSubSurfaces = XmlUtil::FindInt( node, "NumberOfControlSubSurfaces", nControlSubSurfaces );
         for ( size_t i = 0; i < nControlSubSurfaces; ++i )
         {
             xmlNodePtr csnode = XmlUtil::GetNode( node, "Control_Surface", i );
 
-            newSurf.SSID = XmlUtil::FindString( csnode, "SSID", SSID );
-            newSurf.parentGeomId = XmlUtil::FindString( csnode, "ParentGeomID", ParentGeomID );
+            newSurf.SSID = ParmMgr.RemapID( XmlUtil::FindString( csnode, "SSID", SSID ) );
+            newSurf.parentGeomId = ParmMgr.RemapID( XmlUtil::FindString( csnode, "ParentGeomID", ParentGeomID ) );
             newSurf.iReflect = XmlUtil::FindInt( csnode, "iReflect", iReflect );
             AddSubSurface( newSurf );
         }
@@ -5746,7 +5746,7 @@ xmlNodePtr UnsteadyGroup::DecodeXml( xmlNodePtr& node )
         {
             xmlNodePtr csnode = XmlUtil::GetNode( node, "Component", i );
 
-            string compID = XmlUtil::FindString( csnode, "CompID", "" );
+            string compID = ParmMgr.RemapID( XmlUtil::FindString( csnode, "CompID", "" ) );
             int surf_index = XmlUtil::FindInt( csnode, "SurfIndex", 1 );
             AddComp( compID, surf_index );
         }

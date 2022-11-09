@@ -169,7 +169,7 @@ Preset Preset::DecodeXml( xmlNodePtr &varpresetnode, int i )
     for ( int j = 0; j < numParmqGroup[ i ]; j++ )
     {
         sprintf(buffer, "ParmID%i", j);
-        p_IDs.push_back( XmlUtil::FindString( groupqualnode, buffer, name) );
+        p_IDs.push_back( ParmMgr.RemapID( XmlUtil::FindString( groupqualnode, buffer, name) ) );
     }
 
     // Grab Setting Qualities
