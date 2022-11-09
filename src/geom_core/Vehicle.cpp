@@ -1825,7 +1825,6 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     m_CfdSettings.DecodeXml( node );
     m_ISectSettings.DecodeXml( node );
     m_CfdGridDensity.DecodeXml( node );
-    StructureMgr.DecodeXml( node );
     m_ClippingMgr.DecodeXml( node );
     WaveDragMgr.DecodeXml( node );
     ParasiteDragMgr.DecodeXml( node );
@@ -1900,6 +1899,7 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
     LinkMgr.DecodeXml( node );
     AdvLinkMgr.DecodeXml( node );
     VarPresetMgr.DecodeXml( node );
+    StructureMgr.DecodeXml( node );
 
     return vehicle_node;
 }
