@@ -310,6 +310,7 @@ public:
 
     void InitUMapping();
     void InitUMapping( double val );
+    void PrintUMapping();
 
 protected:
 
