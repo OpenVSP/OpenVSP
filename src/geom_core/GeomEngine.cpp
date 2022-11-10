@@ -226,6 +226,8 @@ void GeomEngine::UpdateEngine()
 
         VspSurf surf = m_MainSurfVec[0];
         surf.SetSurfCfdType( vsp::CFD_NORMAL );
+        surf.InitUMapping();
+
         VspSurf surf2;
         bool usesurf2 = false;
         VspSurf surf3;
