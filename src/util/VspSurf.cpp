@@ -1926,6 +1926,8 @@ bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const 
 
     rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMIN, len, offset, str, p, swflag );
 
+    m_UMapping.CapMin();
+
     if (!rtn_flag)
     {
       ResetUSkip();
@@ -1980,6 +1982,8 @@ bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const 
 
     rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMAX, len, offset, str, p, swflag );
 
+    m_UMapping.CapMax();
+
     if (!rtn_flag)
     {
       ResetUSkip();
@@ -2024,6 +2028,8 @@ void VspSurf::RollU( const double &u )
     int iu = vector_find_val( pmap, u );
 
     m_Surface.roll_u( iu );
+
+    m_UMapping.Roll( u );
 }
 
 void VspSurf::RollW( const double &w )
@@ -2050,6 +2056,8 @@ void VspSurf::SplitW( const double &w )
 void VspSurf::JoinU( const VspSurf & sa, const VspSurf & sb )
 {
     m_Surface.join_u( sa.m_Surface, sb.m_Surface );
+
+    m_UMapping.Join( sa.m_UMapping, sb.m_UMapping );
 }
 
 void VspSurf::JoinW( const VspSurf & sa, const VspSurf & sb )
@@ -2156,6 +2164,8 @@ void VspSurf::TrimU( double u, bool before )
         s2.set_u0( 0.0 );
         m_Surface = s2;
     }
+
+    m_UMapping.Trim( u, before );
 }
 
 void VspSurf::TrimV( double v, bool before )
