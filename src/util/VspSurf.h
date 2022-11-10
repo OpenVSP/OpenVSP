@@ -14,6 +14,7 @@
 #include "Vec3d.h"
 #include "Matrix4d.h"
 #include "VspCurve.h"
+#include "Vsp1DCurve.h"
 #include "BndBox.h"
 #include "XferSurf.h"
 
@@ -307,6 +308,8 @@ public:
     int GetPlateNum() { return m_PlateNum; }
     void SetPlateNum( int p ) { m_PlateNum = p; }
 
+    void InitUMapping();
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
@@ -330,6 +333,8 @@ protected:
 
     vector < double > m_UFeature;
     vector < double > m_WFeature;
+
+    Vsp1DCurve m_UMapping;
 
     double m_LECluster;
     double m_TECluster;

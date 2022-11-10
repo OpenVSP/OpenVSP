@@ -2489,8 +2489,8 @@ void VspSurf::DegenCamberSurf( const VspSurf & parent )
 
 void VspSurf::DegenPlanarSurf( const VspSurf & parent, int vhflag )
 {
-    vector< VspCurve > crvs(2);
-    vector<double> param(2);
+    vector < VspCurve > crvs( 2 );
+    vector < double > param( 2 );
 
     double umin, vmin, umax, vmax, dv;
 
@@ -2513,12 +2513,26 @@ void VspSurf::DegenPlanarSurf( const VspSurf & parent, int vhflag )
     parent.GetWConstCurve( crvs[0], vstart );
     parent.GetWConstCurve( crvs[1], vend );
 
-    param[0] = vstart;
-    param[1] = vend;
+    param[ 0 ] = vstart;
+    param[ 1 ] = vend;
 
     SkinC0( crvs, param, false );
     SwapUWDirections();
     FlipNormal();
     m_ThickSurf = false;
     SetSurfCfdType( vsp::CFD_TRANSPARENT );
+}
+
+void VspSurf::InitUMapping()
+{
+    double umax = GetUMax();
+    int n = round( umax ) + 1;
+
+    vector < double > uvals( n );
+    for ( int i = 0; i < n; i++ )
+    {
+        uvals[i] = 1.0 * i;
+    }
+
+    m_UMapping.InterpolateLinear( uvals, uvals, false );
 }
