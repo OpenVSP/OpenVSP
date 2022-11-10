@@ -298,6 +298,7 @@ void GeomEngine::UpdateEngine()
 
                     VspSurf ext;
                     ext.SkinC0( extcrvs, extparam, false );
+                    ext.InitUMapping( -2 );
 
                     VspSurf s;
                     s.JoinU( surf, ext );
@@ -356,6 +357,7 @@ void GeomEngine::UpdateEngine()
 
                     VspSurf ext;
                     ext.SkinC0( extcrvs, extparam, false );
+                    ext.InitUMapping( -2 );
 
                     VspSurf s;
                     s.JoinU( ext, surf );
@@ -413,6 +415,7 @@ void GeomEngine::UpdateEngine()
 
                     VspSurf ext;
                     ext.SkinC0( extcrvs, extparam, false );
+                    ext.InitUMapping( -2 );
 
                     VspSurf s;
                     s.JoinU( surf, ext );
@@ -457,6 +460,7 @@ void GeomEngine::UpdateEngine()
 
                     VspSurf ext;
                     ext.SkinC0( extcrvs, extparam, false );
+                    ext.InitUMapping( -2 );
 
                     VspSurf s;
                     s.JoinU( ext, surf );
@@ -509,6 +513,7 @@ void GeomEngine::UpdateEngine()
 
                     VspSurf ext;
                     ext.SkinC0( extcrvs, extparam, false );
+                    ext.InitUMapping( -2 );
 
                     VspSurf s;
                     s.JoinU( surf, ext );
@@ -538,6 +543,7 @@ void GeomEngine::UpdateEngine()
 
                     VspSurf ext;
                     ext.SkinC0( extcrvs, extparam, false );
+                    ext.InitUMapping( -2 );
 
                     VspSurf s;
                     s.JoinU( ext, surf );

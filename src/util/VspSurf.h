@@ -309,6 +309,7 @@ public:
     void SetPlateNum( int p ) { m_PlateNum = p; }
 
     void InitUMapping();
+    void InitUMapping( double val );
 
 protected:
 

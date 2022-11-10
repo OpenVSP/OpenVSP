@@ -2546,3 +2546,18 @@ void VspSurf::InitUMapping()
 
     m_UMapping.InterpolateLinear( uvals, uvals, false );
 }
+
+void VspSurf::InitUMapping( double val )
+{
+    double umax = GetUMax();
+    int n = round( umax ) + 1;
+
+    vector < double > uvals( n, val );
+    vector < double > tvals( n );
+    for ( int i = 0; i < n; i++ )
+    {
+        tvals[i] = 1.0 * i;
+    }
+
+    m_UMapping.InterpolateLinear( uvals, tvals, false );
+}
