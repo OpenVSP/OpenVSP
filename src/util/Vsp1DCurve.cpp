@@ -49,7 +49,6 @@ void Vsp1DCurve::Copy( Vsp1DCurve & input_crv )
 //==== Split at Specified Parameter and Return Remaining Curve =====//
 void Vsp1DCurve::Split( double u )
 {
-
     m_Curve.split( u );
 }
 
@@ -650,6 +649,11 @@ void Vsp1DCurve::Reverse()
 
 void Vsp1DCurve::Roll( double u )
 {
+    if ( GetNumSections() <= 0 )
+    {
+        return;
+    }
+
     m_Curve.split( u );
 
     vector < double > pmap;
@@ -661,6 +665,11 @@ void Vsp1DCurve::Roll( double u )
 
 void Vsp1DCurve::Trim( double u, bool before )
 {
+    if ( GetNumSections() <= 0 )
+    {
+        return;
+    }
+
     oned_piecewise_curve_type c1, c2;
 
     m_Curve.split( c1, c2, u );
@@ -678,12 +687,22 @@ void Vsp1DCurve::Trim( double u, bool before )
 
 void Vsp1DCurve::Join( const Vsp1DCurve &a, const Vsp1DCurve &b )
 {
+    if ( a.GetNumSections() <= 0 || b.GetNumSections() <= 0)
+    {
+        return;
+    }
+
     m_Curve = a.GetCurve();
     m_Curve.push_back( b.GetCurve() );
 }
 
 void Vsp1DCurve::CapMax()
 {
+    if ( GetNumSections() <= 0 )
+    {
+        return;
+    }
+
     vector < double > val( 2, -1.0 );
     vector < double > u( 2, 0.0 );
     u[1] = 1.0;
@@ -696,6 +715,11 @@ void Vsp1DCurve::CapMax()
 
 void Vsp1DCurve::CapMin()
 {
+    if ( GetNumSections() <= 0 )
+    {
+        return;
+    }
+
     vector < double > val( 2, -1.0 );
     vector < double > u( 2, 0.0 );
     u[1] = 1.0;
