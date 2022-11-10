@@ -1510,7 +1510,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
             for ( int isurf = 0; isurf < surf_num; isurf++ )
             {
-                if ( !m_StructSettings.m_ConvertToQuadsFlag & ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) )
+                if ( !m_StructSettings.m_ConvertToQuadsFlag && ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) )
                 {
                     int nnode = 3;
                     if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 6;
