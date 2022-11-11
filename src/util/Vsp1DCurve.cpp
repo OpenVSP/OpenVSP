@@ -15,6 +15,7 @@
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/intersect/one_d_curve_solver.hpp"
 
 typedef oned_piecewise_curve_type::index_type oned_curve_index_type;
 typedef oned_piecewise_curve_type::point_type oned_curve_point_type;
@@ -735,6 +736,50 @@ void Vsp1DCurve::CapMin()
 
     cap.m_Curve.push_back( m_Curve );
     m_Curve = cap.GetCurve();
+}
+
+double Vsp1DCurve::Invert( double f )
+{
+    oned_curve_point_type p0;
+    p0 << -f;
+
+    oned_piecewise_curve_type shifted = m_Curve;
+    shifted.translate( p0 );
+
+    int n = shifted.number_segments();
+    oned_curve_segment_type c;
+    oned_curve_point_type p;
+
+    vector < double > tmap;
+    m_Curve.get_pmap( tmap );
+
+    for ( int i = 0; i < n; i++ )
+    {
+        shifted.get( c, i );
+
+        int ncross = c.numzerocrossings();
+
+        if ( ncross < 0 )
+        {
+            // function is zero everywhere.
+            double tmin = tmap[i];
+            double tmax = tmap[i+1];
+            return ( tmin + tmax ) * 0.5;
+        }
+        if ( ncross > 0 )
+        {
+            // function crosses zero ncross times.
+            double t;
+            double val;
+            val = eli::geom::intersect::find_zero( t, c, 0.5, 0, 1 );
+
+            double tmin = tmap[i];
+            double dt = tmap[i+1] - tmin;
+            return tmin + t * dt;
+        }
+    }
+
+    return -1;
 }
 
 void Vsp1DCurve::product( Vsp1DCurve c1, Vsp1DCurve c2 )
