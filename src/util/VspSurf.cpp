@@ -1242,9 +1242,8 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
         {
             for ( int j = 0; j < umerge[i]; j++ )
             {
-                double du, dv;
-                surface_patch_type surf;
-                m_Surface.get( surf, du, dv, iusect, 0 );
+                double du;
+                du = m_Surface.get_du( iusect );
 
                 uend += du;
                 iusect++;
@@ -1299,9 +1298,8 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
         size_t iu = 0;
         for ( iusect = 0; iusect < (size_t)nusect; ++iusect )
         {
-            double du, dv;
-            surface_patch_type surf;
-            m_Surface.get( surf, du, dv, iusect, 0 );
+            double du;
+            du = m_Surface.get_du( iusect );
 
             if ( !m_USkip[ iusect] )
             {
