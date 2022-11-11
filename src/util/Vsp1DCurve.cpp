@@ -293,7 +293,7 @@ void Vsp1DCurve::InterpolateCSpline( vector< double > & input_pnt_vec, const dou
     }
 }
 
-void Vsp1DCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc )
+void Vsp1DCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc ) const
 {
     oned_piecewise_binary_cubic_creator pbcc;
 
@@ -313,7 +313,7 @@ void Vsp1DCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc
     c.get_pmap( tmap );
 }
 
-void Vsp1DCurve::GetTMap( vector < double > &tmap, vector < double > &tdisc )
+void Vsp1DCurve::GetTMap( vector < double > &tmap, vector < double > &tdisc ) const
 {
     // Pick off discontinuities because we want to return them as well
     // as use them in corner_create
@@ -535,7 +535,7 @@ void Vsp1DCurve::AppendCurveSegment( oned_curve_segment_type &c )
 }
 
 //===== Compute Point  =====//
-double Vsp1DCurve::CompPnt( double u )
+double Vsp1DCurve::CompPnt( double u ) const
 {
     oned_curve_point_type v( m_Curve.f( u ) );
 
@@ -543,7 +543,7 @@ double Vsp1DCurve::CompPnt( double u )
 }
 
 //===== Compute Tangent  =====//
-double Vsp1DCurve::CompTan( double u )
+double Vsp1DCurve::CompTan( double u ) const
 {
     oned_curve_point_type v( m_Curve.fp( u ) );
 
@@ -551,14 +551,14 @@ double Vsp1DCurve::CompTan( double u )
 }
 
 //===== Compute Point U 0.0 -> 1.0 =====//
-double Vsp1DCurve::CompPnt01( double u )
+double Vsp1DCurve::CompPnt01( double u ) const
 {
     return CompPnt( u * m_Curve.get_tmax() );
 }
 
 
 //===== Compute Tan U 0.0 -> 1.0 =====//
-double Vsp1DCurve::CompTan01( double u )
+double Vsp1DCurve::CompTan01( double u ) const
 {
     return CompTan( u * m_Curve.get_tmax() );
 }
