@@ -1147,6 +1147,14 @@ void Geom::Update( bool fullupdate )
         UpdateEndCaps();
 
     if ( m_SurfDirty )
+    {
+        for ( int i = 0; i < m_MainSurfVec.size(); i++ )
+        {
+            m_MainSurfVec[i].InitUMapping();
+        }
+    }
+
+    if ( m_SurfDirty )
         UpdateEngine();
 
     if ( fullupdate )
