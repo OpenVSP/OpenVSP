@@ -22,12 +22,6 @@ jobs:
             python-arch: x64,
           }
         - {
-            name: "Ubuntu 18.04",
-            os: ubuntu-18.04,
-            arch: x64,
-            python-arch: x64,
-          }
-        - {
             name: "Ubuntu 20.04",
             os: ubuntu-20.04,
             arch: x64,
