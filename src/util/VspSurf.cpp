@@ -2566,3 +2566,8 @@ void VspSurf::PrintUMapping()
 {
     m_UMapping.GetCurve().print();
 }
+
+void VspSurf::ParmReport()
+{
+    m_Surface.parameter_report();
+}
