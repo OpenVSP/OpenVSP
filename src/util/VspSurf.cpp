@@ -1272,44 +1272,71 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
     }
     else
     {
-        surface_index_type nu;
-        double umin;
+        const int nusect = m_Surface.number_u_patches();
 
-        const int nusect = num_u.size();
+        vector < double > umap;
+        m_UMapping.GetTMap( umap );
 
-        assert( m_USkip.size() == nusect );
+        vector < int > num_uu( nusect );
+        vector < double > rootc( nusect );
+        vector < double > tipc( nusect );
+        vector < bool > skip( nusect );
 
-        // calculate nu
-        nu = 1;
-        for ( int ii = 0; ii < nusect; ++ii )
+        // Count nu and build up tess parameters, translating from specification to modified
+        // parameter space in the case of a GeomEngine.
+        int nu = 1;
+        for ( int isect = 0; isect < nusect; ++isect )
         {
-            if ( !m_USkip[ii] )
+            // Determine original section index from mapping.
+            int iorig = round( m_UMapping.CompPnt( umap[isect] ) );
+
+            if ( iorig == -1 )        // Cap added by GeomEngine::UpdateEngine();
             {
-                nu += num_u[ii] - 1;
+                num_uu[isect] = 5;
+                rootc[isect] = 1.0;
+                tipc[isect] = 1.0;
+                nu += num_uu[isect] - 1;
+                skip[isect] = false;
+            }
+            else if ( iorig == -2 )   // Extension added by GeomEngine::UpdateEngine()
+            {
+                num_uu[isect] = 10;
+                rootc[isect] = 1.0;
+                tipc[isect] = 1.0;
+                nu += num_uu[isect] - 1;
+                skip[isect] = false;
+            }
+            else                      // Maps to an original segment.
+            {
+                skip[isect] = m_USkip[iorig];
+                if ( !m_USkip[iorig] )
+                {
+                    nu += num_u[iorig] - 1;
+
+                    num_uu[isect] = num_u[iorig];
+                    rootc[isect] = GetRootCluster( iorig );
+                    tipc[isect] = GetTipCluster( iorig );
+                }
             }
         }
 
-        // calculate the u and v parameterizations
-        umin = m_Surface.get_u0();
-
+        // Construct u tessellation.
         u.resize( nu );
-        double uumin( umin );
-        size_t iusect;
-        size_t iu = 0;
-        for ( iusect = 0; iusect < (size_t)nusect; ++iusect )
+        double uumin( m_Surface.get_u0() );
+        int iu = 0;
+        for ( int isect = 0; isect < nusect; ++isect )
         {
-            double du;
-            du = m_Surface.get_du( iusect );
+            double du = m_Surface.get_du( isect );
 
-            if ( !m_USkip[ iusect] )
+            if ( !skip[ isect ] )
             {
-                for ( int isecttess = 0; isecttess < num_u[iusect] - 1; ++isecttess )
+                for ( int isecttess = 0; isecttess < num_uu[ isect ] - 1; ++isecttess )
                 {
-                    u[iu] = uumin + du * Cluster( static_cast<double>( isecttess ) / ( num_u[iusect] - 1 ), GetRootCluster( iusect ), GetTipCluster( iusect ) );
+                    u[iu] = uumin + du * Cluster( static_cast<double>( isecttess ) / ( num_uu[ isect ] - 1 ), rootc[ isect ], tipc[ isect ] );
                     iu++;
                 }
             }
-            if ( !( iusect == nusect - 1 && m_USkip[ iusect ] ) )
+            if ( !( isect == nusect - 1 && skip[ isect ] ) )
             {
                 uumin += du;
             }
