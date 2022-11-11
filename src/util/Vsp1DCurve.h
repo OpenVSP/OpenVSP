@@ -51,6 +51,7 @@ public:
 
     void BinCubicTMap( vector < double > &tmap, vector < double > &tdisc ) const;
     void GetTMap( vector < double > &tmap, vector < double > &tdisc ) const;
+    void GetTMap( vector < double > &tmap ) const;
     void ToBinaryCubic( );
     void ToCubic();
 

@@ -324,6 +324,12 @@ void Vsp1DCurve::GetTMap( vector < double > &tmap, vector < double > &tdisc ) co
     m_Curve.get_pmap( tmap );
 }
 
+void Vsp1DCurve::GetTMap( vector < double > &tmap ) const
+{
+    // Get parameter map
+    m_Curve.get_pmap( tmap );
+}
+
 void Vsp1DCurve::ToBinaryCubic( )
 {
     oned_piecewise_binary_cubic_creator pbcc;
