@@ -11282,15 +11282,21 @@ void VSP_SOLVER::Optimization_Calculate_pF_pMesh(void)
 
     if ( Verbose_ ) PRINTF("Extracting gradients with respect to free stream inputs \n"); fflush(NULL);
 
-    pF_pInputVariable_[1] = GET_GRADIENT(AngleOfAttack_);
-    pF_pInputVariable_[2] = GET_GRADIENT(AngleOfBeta_);
-    pF_pInputVariable_[3] = GET_GRADIENT(Mach_);
-    pF_pInputVariable_[4] = GET_GRADIENT(Vinf_);
-    pF_pInputVariable_[5] = GET_GRADIENT(Density_);    
-    pF_pInputVariable_[6] = GET_GRADIENT(ReCref_);
-    pF_pInputVariable_[7] = GET_GRADIENT(RotationalRate_[0]);
-    pF_pInputVariable_[8] = GET_GRADIENT(RotationalRate_[1]);
-    pF_pInputVariable_[9] = GET_GRADIENT(RotationalRate_[2]); 
+    pF_pInputVariable_[OPT_GRADIENT_WRT_ALPHA] = GET_GRADIENT(AngleOfAttack_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_BETA] = GET_GRADIENT(AngleOfBeta_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_MACH] = GET_GRADIENT(Mach_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_VINF] = GET_GRADIENT(Vinf_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_DENSITY] = GET_GRADIENT(Density_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_RECREF] = GET_GRADIENT(ReCref_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_P_RATE] = GET_GRADIENT(RotationalRate_[0]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_Q_RATE] = GET_GRADIENT(RotationalRate_[1]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_R_RATE] = GET_GRADIENT(RotationalRate_[2]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_X_CG] = GET_GRADIENT(XYZcg_[0]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_Y_CG] = GET_GRADIENT(XYZcg_[1]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_Z_CG] = GET_GRADIENT(XYZcg_[2]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_S_REF] = GET_GRADIENT(Sref_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_B_REF] = GET_GRADIENT(Bref_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_C_REF] = GET_GRADIENT(Cref_);
     
     if ( Verbose_ ) PRINTF("Extracting gradients with respect to component group omegas \n"); fflush(NULL);
     
@@ -11369,15 +11375,22 @@ void VSP_SOLVER::Optimization_Calculate_pR_pMesh(void)
     
     // Extract gradients wrt input variables
 
-    pR_pInputVariable_[1] = GET_GRADIENT(AngleOfAttack_);
-    pR_pInputVariable_[2] = GET_GRADIENT(AngleOfBeta_);
-    pR_pInputVariable_[3] = GET_GRADIENT(Mach_);
-    pR_pInputVariable_[4] = GET_GRADIENT(Vinf_);
-    pR_pInputVariable_[5] = GET_GRADIENT(Density_);    
-    pR_pInputVariable_[6] = GET_GRADIENT(ReCref_);
-    pR_pInputVariable_[7] = GET_GRADIENT(RotationalRate_[0]);
-    pR_pInputVariable_[8] = GET_GRADIENT(RotationalRate_[1]);
-    pR_pInputVariable_[9] = GET_GRADIENT(RotationalRate_[2]); 
+    pR_pInputVariable_[OPT_GRADIENT_WRT_ALPHA] = GET_GRADIENT(AngleOfAttack_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_BETA] = GET_GRADIENT(AngleOfBeta_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_MACH] = GET_GRADIENT(Mach_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_VINF] = GET_GRADIENT(Vinf_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_DENSITY] = GET_GRADIENT(Density_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_RECREF] = GET_GRADIENT(ReCref_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_P_RATE] = GET_GRADIENT(RotationalRate_[0]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_Q_RATE] = GET_GRADIENT(RotationalRate_[1]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_R_RATE] = GET_GRADIENT(RotationalRate_[2]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_X_CG] = GET_GRADIENT(XYZcg_[0]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_Y_CG] = GET_GRADIENT(XYZcg_[1]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_Z_CG] = GET_GRADIENT(XYZcg_[2]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_S_REF] = GET_GRADIENT(Sref_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_B_REF] = GET_GRADIENT(Bref_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_C_REF] = GET_GRADIENT(Cref_);
+
     
     for ( i = 1 ; i <= NumberOfComponentGroups_ ; i++ ) {
 

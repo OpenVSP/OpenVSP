@@ -27,7 +27,7 @@ using namespace VSPAERO_SOLVER;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 4
+#define VER_PATCH 5
 
 // Some globals...
 

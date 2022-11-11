@@ -40,7 +40,7 @@ class ProblemTest(PyVSPAeroTestCase.PyVSPAeroTest):
         Setup vspaero problems objects that describe different problem types we will be testing.
         Must be defined in child class that inherits from this class.
         """
-        VLMAssembler = pyVSPAero(vsp_file, options={"solver_type": "Panel"}, sref=56.25, bref=3.0, cref=3.0)
+        VLMAssembler = pyVSPAero(vsp_file, options={"solver_type": "Panel"}, s_ref=56.25, b_ref=3.0, c_ref=3.0)
         # Add output functions
         VLMAssembler.add_function("CL", functions.CL)
         VLMAssembler.add_function("CD", functions.CD)

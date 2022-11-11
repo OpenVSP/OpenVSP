@@ -7249,6 +7249,19 @@ void GL_VIEWER::FindSolutionMinMax(void)
     FindSolutionMinMax(CpUnsteady, FMinavg, FMaxAvg, CpUnsteadyMinActual, CpUnsteadyMaxActual, CpUnsteadyMin, CpUnsteadyMax);
     FindSolutionMinMax(Gamma,      FMinavg, FMaxAvg,      GammaMinActual,      GammaMaxActual,      GammaMin,      GammaMax);
 
+    printf("CpUnsteadyMinActual: %f \n",CpUnsteadyMinActual);
+    printf("CpUnsteadyMinActual: %f \n",CpUnsteadyMaxActual);
+    fflush(NULL);
+
+    if ( ABS(CpUnsteadyMinActual) + ABS(CpUnsteadyMaxActual) <= 1.e-8 ) {
+
+        CpSteadyMinActual = CpMinActual;
+        CpSteadyMaxActual = CpMaxActual;
+
+        CpSteadyMin = CpMin;
+        CpSteadyMax = CpMax;
+    }
+
 }
 
 /*##############################################################################

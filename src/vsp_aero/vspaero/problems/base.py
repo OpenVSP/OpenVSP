@@ -17,7 +17,14 @@ wrt_dict = {"aoa": vspaero.functions.WRT_ALPHA,
             "mach": vspaero.functions.WRT_MACH,
             "vinf": vspaero.functions.WRT_VINF,
             "rho": vspaero.functions.WRT_DENSITY,
-            "recref": vspaero.functions.WRT_RECREF}
+            "recref": vspaero.functions.WRT_RECREF,
+            "x_cg": vspaero.functions.WRT_X_CG,
+            "y_cg": vspaero.functions.WRT_Y_CG,
+            "z_cg": vspaero.functions.WRT_Z_CG,
+            "S_ref": vspaero.functions.WRT_S_REF,
+            "b_ref": vspaero.functions.WRT_B_REF,
+            "c_ref": vspaero.functions.WRT_C_REF
+            }
 
 class BaseProblem(BaseUI):
     """
@@ -52,9 +59,9 @@ class BaseProblem(BaseUI):
             for key in options:
                 self.set_option(key, options[key])
 
-        self.sref = 1.
-        self.cref = 1.
-        self.bref = 1.
+        self.s_ref = 1.
+        self.c_ref = 1.
+        self.b_ref = 1.
         self.x_cg = 0.0
         self.y_cg = 0.0
         self.z_cg = 0.0
@@ -73,15 +80,15 @@ class BaseProblem(BaseUI):
     def set_flight_vars(self, **kwargs):
         flight_vars = kwargs
         for var in flight_vars:
-            if "sref" == var.lower() or var == f"{self.name}_Sref":
-                self.sref = flight_vars[var]
-                self.assembler.set_sref(self.sref)
-            if "cref" == var.lower() or var == f"{self.name}_cref":
-                self.cref = flight_vars[var]
-                self.assembler.set_cref(self.cref)
-            if "bref" == var.lower() or var == f"{self.name}_bref":
-                self.bref = flight_vars[var]
-                self.assembler.set_bref(self.bref)
+            if "s_ref" == var.lower() or var == f"{self.name}_S_ref":
+                self.s_ref = flight_vars[var]
+                self.assembler.set_sref(self.s_ref)
+            if "c_ref" == var.lower() or var == f"{self.name}_c_ref":
+                self.c_ref = flight_vars[var]
+                self.assembler.set_cref(self.c_ref)
+            if "b_ref" == var.lower() or var == f"{self.name}_b_ref":
+                self.b_ref = flight_vars[var]
+                self.assembler.set_bref(self.b_ref)
             if "x_cg" == var.lower() or var == f"{self.name}_x_cg":
                 self.x_cg = flight_vars[var]
                 self.assembler.set_x_cg(self.x_cg)
@@ -119,9 +126,9 @@ class BaseProblem(BaseUI):
         else:
             raise self._vspaero_error("'flight_vars' must be of type dict in 'get_flight_vars' method.")
 
-        new_vars = {f"{self.name}_Sref": self.sref,
-                    f"{self.name}_cref": self.cref,
-                    f"{self.name}_bref": self.bref,
+        new_vars = {f"{self.name}_S_ref": self.s_ref,
+                    f"{self.name}_c_ref": self.c_ref,
+                    f"{self.name}_b_ref": self.b_ref,
                     f"{self.name}_x_cg": self.x_cg,
                     f"{self.name}_y_cg": self.y_cg,
                     f"{self.name}_z_cg": self.z_cg,
@@ -211,9 +218,9 @@ class BaseProblem(BaseUI):
             Name of file to write to.
         """
         file_handle = open(file_name, "w")
-        file_handle.write(f"Sref = {self.sref}\n")
-        file_handle.write(f"Cref = {self.cref}\n")
-        file_handle.write(f"Bref = {self.bref}\n")
+        file_handle.write(f"Sref = {self.s_ref}\n")
+        file_handle.write(f"Cref = {self.c_ref}\n")
+        file_handle.write(f"Bref = {self.b_ref}\n")
         file_handle.write(f"X_cg = {self.x_cg}\n")
         file_handle.write(f"Y_cg = {self.y_cg}\n")
         file_handle.write(f"Z_cg = {self.z_cg}\n")

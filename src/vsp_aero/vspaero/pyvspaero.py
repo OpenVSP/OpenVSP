@@ -76,16 +76,16 @@ class pyVSPAero(BaseUI):
                 self.set_option(key, options[key])
 
         # Pick out default reference quantities based on first WingGeom found
-        self.Sref, self.bref, self.cref = self._get_ref_quantities()
+        self.S_ref, self.b_ref, self.c_ref = self._get_ref_quantities()
 
         # Overwrite ref quantities with user-defined ones
         for ref_quant in kwargs:
-            if ref_quant.lower() == "sref":
-                self.Sref = kwargs[ref_quant]
-            elif ref_quant.lower() == "bref":
-                self.bref = kwargs[ref_quant]
-            elif ref_quant.lower() == "cref":
-                self.cref = kwargs[ref_quant]
+            if ref_quant.lower() == "s_ref":
+                self.S_ref = kwargs[ref_quant]
+            elif ref_quant.lower() == "b_ref":
+                self.b_ref = kwargs[ref_quant]
+            elif ref_quant.lower() == "c_ref":
+                self.c_ref = kwargs[ref_quant]
 
         self.func_list = {}
 
@@ -119,7 +119,7 @@ class pyVSPAero(BaseUI):
 
         problem = vspaero.problems.SteadyProblem(name, self.openvsp, self.func_list.copy(), sol_type, options)
         # Set with original flight vars and coordinates, in case they have changed
-        problem.set_flight_vars(Sref=self.Sref, bref=self.bref, cref=self.cref)
+        problem.set_flight_vars(S_ref=self.S_ref, b_ref=self.b_ref, c_ref=self.c_ref)
         problem.set_flight_vars(**flight_vars)
         return problem
 

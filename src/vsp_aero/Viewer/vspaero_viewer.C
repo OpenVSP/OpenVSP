@@ -18,7 +18,7 @@ float BoxSize;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 2
+#define VER_PATCH 5
 
 /*##############################################################################
 #                                                                              #
