@@ -1686,7 +1686,7 @@ void PropGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vecto
     }
 
     surf_vec[indx].SetRootTipClustering( rootc, tipc );
-    surf_vec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen, umerge );
+    surf_vec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen, umerge );
 }
 
 void PropGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
@@ -1726,7 +1726,7 @@ void PropGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, 
     }
 
     surf_vec[indx].SetRootTipClustering( rootc, tipc );
-    surf_vec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), umerge );
+    surf_vec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU(), umerge );
 }
 
 void PropGeom::UpdatePreTess()

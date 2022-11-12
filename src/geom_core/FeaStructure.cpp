@@ -4072,7 +4072,7 @@ void FeaDome::UpdateDrawObjs()
 
         // Tesselate the surface (can adjust num_u and num_v Tessellation for smoothness) 
         vector < vector < vec3d > > pnts, norms, uw;
-        m_FeaPartSurfVec[j].Tesselate( 10, 18, pnts, norms, uw, 3, false );
+        m_FeaPartSurfVec[j].Tesselate( 10, 18, pnts, norms, uw, 3, 10, false );
 
         // Define quads for bulkhead surface
         m_FeaPartDO[j].m_Type = DrawObj::VSP_SHADED_QUADS;
