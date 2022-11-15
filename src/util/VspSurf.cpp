@@ -1287,8 +1287,13 @@ void VspSurf::MakeUTess( vector < double > &u, const vector < int > &num_u, cons
         int nu = 1;
         for ( int isect = 0; isect < nusect; ++isect )
         {
+            double ustart = m_UMapping.GetSegFirstPoint( isect );
+            double uend  = m_UMapping.GetSegLastPoint( isect );
+
             // Determine original section index from mapping.
-            int iorig = round( m_UMapping.CompPnt( umap[isect] ) );
+            // I believe the operations performed on the mapping make it impossible for floor to give a wrong result
+            // in this situation.
+            int iorig = floor( ustart );
 
             if ( iorig == -1 )        // Cap added by GeomEngine::UpdateEngine();
             {
@@ -1311,11 +1316,61 @@ void VspSurf::MakeUTess( vector < double > &u, const vector < int > &num_u, cons
                 skip[isect] = m_USkip[iorig];
                 if ( !m_USkip[iorig] )
                 {
-                    nu += num_u[iorig] - 1;
+                    int nuu = num_u[iorig];
+                    double rc = GetRootCluster( iorig );
+                    double tc = GetTipCluster( iorig );
 
-                    num_uu[isect] = num_u[iorig];
-                    rootc[isect] = GetRootCluster( iorig );
-                    tipc[isect] = GetTipCluster( iorig );
+                    double fstart = ustart - iorig;
+                    double fend = uend - iorig;
+
+                    double tol = 1e-6;
+                    if ( fstart > tol || fend < ( 1.0 - tol ) )
+                    {
+                        // Find where points will lie for fully tessellated section.
+                        vector < double > fvec( nuu );
+                        for ( int ifv = 0; ifv < nuu; ifv++ )
+                        {
+                            fvec[ ifv ] = Cluster( static_cast<double>( ifv ) / ( nuu - 1 ), rc, tc );
+                        }
+
+                        int istart = vector_find_nearest( fvec, fstart );
+                        int iend = vector_find_nearest( fvec, fend );
+
+                        if ( istart > 0 )
+                        {
+                            if ( istart < nuu - 1 )
+                            {
+                                rc = 2.0 / ( ( fvec[ istart + 1 ] - fvec[ istart - 1 ] ) * ( nuu - 1 ) );
+                            }
+                            else
+                            {
+                                rc = 1.0 / ( ( fvec[ istart ] - fvec[ istart - 1 ] ) * ( nuu - 1 ) );
+                            }
+                        }
+
+                        if ( iend < ( nuu - 1 ))
+                        {
+                            if ( iend > 0 )
+                            {
+                                tc = 2.0 / ( ( fvec[ iend + 1 ] - fvec[ iend - 1 ] ) * ( nuu - 1 ) );
+                            }
+                            else
+                            {
+                                tc = 1.0 / ( ( fvec[ iend + 1 ] - fvec[ iend ] ) * ( nuu - 1 ) );
+                            }
+                        }
+
+                        if ( istart > 0 || iend < ( nuu - 1 ) )
+                        {
+                            nuu = iend - istart + 1;
+                        }
+                    }
+
+                    nu += nuu - 1;
+
+                    num_uu[isect] = nuu;
+                    rootc[isect] = rc;
+                    tipc[isect] = tc;
                 }
             }
         }
