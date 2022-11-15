@@ -434,9 +434,8 @@ public:
     */
     virtual void ResetGeomChangedFlag( bool flag = false );
 
-    virtual vec3d CompPnt01(const double &u, const double &w);
     virtual vec3d CompPnt01(const int &indx, const double &u, const double &w);
-    virtual void GetUWTess01( int indx, vector < double > &u, vector < double > &w );
+    virtual void GetUWTess01( const int &indx, vector < double > &u, vector < double > &w );
 
     virtual vec3d CompTanU( const int &indx, const double &u, const double &w );
     virtual vec3d CompTanW( const int &indx, const double &u, const double &w );
@@ -446,8 +445,8 @@ public:
     virtual vec3d CompTanS( const int &indx, const double &r, const double &s, const double &t );
     virtual vec3d CompTanT( const int &indx, const double &r, const double &s, const double &t );
 
-    virtual bool CompRotCoordSys( const double &u, const double &w, Matrix4d &rotmat );
-    virtual bool CompTransCoordSys( const double &u, const double &w, Matrix4d &transmat );
+    virtual bool CompRotCoordSys( const int &indx, const double &u, const double &w, Matrix4d &rotmat );
+    virtual bool CompTransCoordSys( const int &indx, const double &u, const double &w, Matrix4d &transmat );
 
     virtual vector < Matrix4d > GetFeaTransMatVec()
     {

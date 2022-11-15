@@ -642,7 +642,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         // these calculations and does not need to be applied again.
         if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_UV )
         {
-            if ( !( parent->CompTransCoordSys( m_ULoc(), m_WLoc(), transMat ) ) )
+            if ( !( parent->CompTransCoordSys( 0, m_ULoc(), m_WLoc(), transMat )) )
             {
                 revertCompTrans = true; // Blank components revert to the component matrix.
             }
@@ -650,7 +650,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
 
         if ( m_RotAttachFlag() == vsp::ATTACH_ROT_UV )
         {
-            if ( !( parent->CompRotCoordSys( m_ULoc(), m_WLoc(), rotMat ) ) )
+            if ( !( parent->CompRotCoordSys( 0, m_ULoc(), m_WLoc(), rotMat )) )
             {
                 revertCompRot = true; // For blank component.
             }
@@ -1259,7 +1259,7 @@ void Geom::Update( bool fullupdate )
     m_UpdateBlock = false;
 }
 
-void Geom::GetUWTess01( int indx, vector < double > &u, vector < double > &w )
+void Geom::GetUWTess01( const int &indx, vector < double > &u, vector < double > &w )
 {
     vector< vector< vec3d > > pnts;
     vector< vector< vec3d > > norms;
@@ -3883,11 +3883,6 @@ double Geom::GetMainWMax( int indx ) const
     return m_MainSurfVec[indx].GetWMax();
 }
 
-vec3d Geom::CompPnt01(const double &u, const double &w)
-{
-    return GetSurfPtr(0)->CompPnt01( u, w );
-}
-
 vec3d Geom::CompPnt01(const int &indx, const double &u, const double &w)
 {
     return GetSurfPtr( indx )->CompPnt01( u, w );
@@ -3927,23 +3922,23 @@ vec3d Geom::CompTanT( const int &indx, const double &r, const double &s, const d
     return GetSurfPtr( indx )->CompTanT( r, s, t );
 }
 
-bool Geom::CompRotCoordSys( const double &u, const double &w, Matrix4d &rotMat )
+bool Geom::CompRotCoordSys( const int &indx, const double &u, const double &w, Matrix4d &rotmat )
 {
-    VspSurf* surf_ptr = GetSurfPtr(0);
+    VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
-        rotMat = surf_ptr->CompRotCoordSys( u, w );
+        rotmat = surf_ptr->CompRotCoordSys( u, w );
         return true;
     }
     return false;
 }
 
-bool Geom::CompTransCoordSys( const double &u, const double &w, Matrix4d &transMat )
+bool Geom::CompTransCoordSys( const int &indx, const double &u, const double &w, Matrix4d &transmat )
 {
-    VspSurf* surf_ptr = GetSurfPtr(0);
+    VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
-        transMat = surf_ptr->CompTransCoordSys( u, w );
+        transmat = surf_ptr->CompTransCoordSys( u, w );
         return true;
     }
     return false;

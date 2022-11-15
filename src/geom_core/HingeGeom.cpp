@@ -206,9 +206,9 @@ void HingeGeom::UpdateSurf()
                 invparentRotMat = parentRotMat;
                 invparentRotMat.affineInverse();
 
-                parent->CompRotCoordSys( m_PrimULoc(), m_PrimWLoc(), rotMat );
+                parent->CompRotCoordSys( 0, m_PrimULoc(), m_PrimWLoc(), rotMat );
 
-                vec3d surfpt = parent->CompPnt01(m_PrimULoc(), m_PrimWLoc());
+                vec3d surfpt = parent->CompPnt01( 0, m_PrimULoc(), m_PrimWLoc());
 
 
                 if ( m_PrimaryType() == SURFPT )
