@@ -111,6 +111,9 @@ public:
     double IntegrateCrv_rcub( );
     double IntegrateCrv_rcub( double r0 );
 
+    double GetSegFirstPoint( int i ) const;
+    double GetSegLastPoint( int i ) const;
+
 protected:
     oned_piecewise_curve_type m_Curve;
 

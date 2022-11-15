@@ -976,3 +976,23 @@ double Vsp1DCurve::IntegrateCrv_rcub( double r0 )
 
     return quad( fun, r0, 1.0 );
 }
+
+double Vsp1DCurve::GetSegFirstPoint( int i ) const
+{
+    oned_curve_segment_type c;
+    m_Curve.get( c, i );
+
+    oned_curve_point_type p;
+    p = c.get_control_point( 0 );
+    return p[0];
+}
+
+double Vsp1DCurve::GetSegLastPoint( int i ) const
+{
+    oned_curve_segment_type c;
+    m_Curve.get( c, i );
+
+    oned_curve_point_type p;
+    p = c.get_control_point( c.degree() );
+    return p[0];
+}
