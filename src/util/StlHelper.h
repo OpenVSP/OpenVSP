@@ -121,6 +121,24 @@ int vector_find_val( const vector< T > & vec, T const & val, T const & tol )
     return -1;
 }
 
+//==== Find Index of Vector nearest to val =====//
+template <class T>
+int vector_find_nearest( const vector< T > & vec, T const & val )
+{
+    int ibest = -1;
+    T dist = std::numeric_limits< T >::max();
+    for ( int i = 0 ; i < ( int )vec.size() ; i++ )
+    {
+        T d = std::abs( val - vec[i] );
+        if ( d < dist )
+        {
+            ibest = i;
+            dist = d;
+        }
+    }
+    return ibest;
+}
+
 //==== Clamp Value Between Two Vals ====//
 template <typename T>
 T Clamp( const T& value, const T& low, const T& high )
