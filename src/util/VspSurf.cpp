@@ -69,6 +69,8 @@ VspSurf::VspSurf()
     m_LECluster = 1.0;
     m_TECluster = 1.0;
     m_SkinClosedFlag = 0;
+
+    m_UMapMax = -1;
 }
 
 //===== Destructor  =====//
@@ -2138,6 +2140,8 @@ void VspSurf::JoinU( const VspSurf & sa, const VspSurf & sb )
     m_Surface.join_u( sa.m_Surface, sb.m_Surface );
 
     m_UMapping.Join( sa.m_UMapping, sb.m_UMapping );
+
+    m_UMapMax = max( sa.m_UMapMax, sb.m_UMapMax );
 }
 
 void VspSurf::JoinW( const VspSurf & sa, const VspSurf & sb )
@@ -2615,8 +2619,8 @@ void VspSurf::DegenPlanarSurf( const VspSurf & parent, int vhflag )
 
 void VspSurf::InitUMapping()
 {
-    double umax = GetUMax();
-    int n = round( umax ) + 1;
+    m_UMapMax = GetUMax();
+    int n = round( m_UMapMax ) + 1;
 
     vector < double > uvals( n );
     for ( int i = 0; i < n; i++ )

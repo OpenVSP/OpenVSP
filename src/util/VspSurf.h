@@ -339,6 +339,7 @@ protected:
     vector < double > m_WFeature;
 
     Vsp1DCurve m_UMapping;
+    double m_UMapMax;
 
     double m_LECluster;
     double m_TECluster;
