@@ -2640,8 +2640,12 @@ void StructScreen::CallBack( Fl_Widget* w )
         }
         else if ( w == m_StructureSelectBrowser )
         {
-            StructureMgr.m_CurrStructIndex.Set( m_StructureSelectBrowser->value() - 2 );
-            FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+            int indx = m_StructureSelectBrowser->value() - 2;
+            if ( StructureMgr.ValidTotalFeaStructInd( indx  ) )
+            {
+                StructureMgr.m_CurrStructIndex.Set( indx );
+                FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+            }
         }
         else if ( w == m_DrawPartSelectBrowser )
         {
