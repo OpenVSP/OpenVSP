@@ -97,13 +97,27 @@ void Probe::Update()
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        vec3d pt = veh->CompPnt01(m_OriginGeomID, m_OriginIndx(), m_OriginU(), m_OriginW());
+        vec3d pt, norm;
+        double k1 = 0;
+        double k2 = 0;
+        double ka = 0;
+        double kg = 0;
+        Geom *geom = veh->FindGeom( m_OriginGeomID );
+
+        if ( geom )
+        {
+            VspSurf *surf = geom->GetSurfPtr( m_OriginIndx() );
+            if ( surf )
+            {
+                pt = surf->CompPnt01( m_OriginU(), m_OriginW() );
+                norm = surf->CompNorm01( m_OriginU(), m_OriginW() );
+                surf->CompCurvature01( m_OriginU(), m_OriginW(), k1, k2, ka, kg );
+            }
+        }
 
         m_X = pt.x();
         m_Y = pt.y();
         m_Z = pt.z();
-
-        vec3d norm = veh->CompNorm01(m_OriginGeomID, m_OriginIndx(), m_OriginU(), m_OriginW());
 
         if ( norm.mag() < 1e-6 )
         {
@@ -113,9 +127,6 @@ void Probe::Update()
         m_NX = norm.x();
         m_NY = norm.y();
         m_NZ = norm.z();
-
-        double k1, k2, ka, kg;
-        veh->CompCurvature01(m_OriginGeomID, m_OriginIndx(), m_OriginU(), m_OriginW(), k1, k2, ka, kg);
 
         m_K1 = isfinite( k1 ) ? k1 : 0.0;
         m_K2 = isfinite( k2 ) ? k2 : 0.0;
@@ -250,13 +261,21 @@ void RSTProbe::Update()
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        vec3d pt = veh->CompPntRST( m_OriginGeomID, m_OriginIndx(), m_OriginR(), m_OriginS(), m_OriginT() );
+        vec3d pt, norm;
+        Geom *geom = veh->FindGeom( m_OriginGeomID );
+        if ( geom )
+        {
+            VspSurf *surf = geom->GetSurfPtr( m_OriginIndx() );
+            if ( surf )
+            {
+                pt = surf->CompPntRST( m_OriginR(), m_OriginS(), m_OriginT() );
+                norm = surf->CompNorm01( m_OriginR(), m_OriginS() );
+            }
+        }
 
         m_X = pt.x();
         m_Y = pt.y();
         m_Z = pt.z();
-
-        vec3d norm = veh->CompNorm01( m_OriginGeomID, m_OriginIndx(), m_OriginR(), m_OriginS() );
 
         m_LabelDO.m_Probe.Pt = pt;
         m_LabelDO.m_Probe.Norm = norm;
@@ -379,8 +398,27 @@ void Ruler::Update()
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        vec3d origin = veh->CompPnt01(m_OriginGeomID, m_OriginIndx(), m_OriginU(), m_OriginW());
-        vec3d end = veh->CompPnt01(m_EndGeomID, m_EndIndx(), m_EndU(), m_EndW());
+        vec3d origin;
+        Geom *ogeom = veh->FindGeom( m_OriginGeomID );
+        if ( ogeom )
+        {
+            VspSurf *osurf = ogeom->GetSurfPtr( m_OriginIndx() );
+            if ( osurf )
+            {
+                origin = osurf->CompPnt01( m_OriginU(), m_OriginW() );
+            }
+        }
+
+        vec3d end;
+        Geom *egeom = veh->FindGeom( m_EndGeomID );
+        if ( egeom )
+        {
+            VspSurf *esurf = egeom->GetSurfPtr( m_EndIndx() );
+            if ( esurf )
+            {
+                end = esurf->CompPnt01( m_EndU(), m_EndW() );
+            }
+        }
 
         vec3d delta = end - origin;
 
