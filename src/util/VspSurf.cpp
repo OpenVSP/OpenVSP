@@ -445,10 +445,12 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
 {
     Matrix4d retMat; // Return Matrix
 
+    double uprm = m_UMapping.Invert( u * m_UMapMax ) / GetUMax();
+
     // Get du and norm, cross them to get the last orthonormal vector
-    vec3d du = CompTanU01( u, w );
+    vec3d du = CompTanU01( uprm, w );
     du.normalize();
-    vec3d norm = CompNorm01( u, w ); // use CompNorm01 since normals now face outward
+    vec3d norm = CompNorm01( uprm, w ); // use CompNorm01 since normals now face outward
     norm.normalize();
 
     if ( m_MagicVParm ) // Surfs with magic parameter treatment (wings) have added chances to degenerate
@@ -459,19 +461,19 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
         {
             if ( w <= tmagic01 ) // Near TE lower
             {
-                du = CompTanU01( u, tmagic01 + 1e-6 );
+                du = CompTanU01( uprm, tmagic01 + 1e-6 );
                 du.normalize();
             }
 
             if ( w >= ( 0.5 - tmagic01 ) && w <= ( 0.5 + tmagic01 ) ) // Near leading edge
             {
-                du = CompTanU01( u, 0.5 + tmagic01 + 1e-6 );
+                du = CompTanU01( uprm, 0.5 + tmagic01 + 1e-6 );
                 du.normalize();
             }
 
             if ( w >= ( 1.0 - tmagic01 ) ) // Near TE upper
             {
-                du = CompTanU01( u, 1.0 - ( tmagic01 + 1e-6 ) );
+                du = CompTanU01( uprm, 1.0 - ( tmagic01 + 1e-6 ) );
                 du.normalize();
             }
         }
@@ -480,19 +482,19 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
         {
             if ( w <= tmagic01 ) // Near TE lower
             {
-                norm = CompNorm01( u, tmagic01 + 1e-6 );
+                norm = CompNorm01( uprm, tmagic01 + 1e-6 );
                 norm.normalize();
             }
 
             if ( w >= ( 0.5 - tmagic01 ) && w <= ( 0.5 + tmagic01 ) ) // Near leading edge
             {
-                norm = CompNorm01( u, 0.5 + tmagic01 + 1e-6 );
+                norm = CompNorm01( uprm, 0.5 + tmagic01 + 1e-6 );
                 norm.normalize();
             }
 
             if ( w >= ( 1.0 - tmagic01 ) ) // Near TE upper
             {
-                norm = CompNorm01( u, 1.0 - ( tmagic01 + 1e-6 ) );
+                norm = CompNorm01( uprm, 1.0 - ( tmagic01 + 1e-6 ) );
                 norm.normalize();
             }
         }
@@ -511,8 +513,10 @@ Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
 {
     Matrix4d retMat; // Return Matrix
 
+    double uprm = m_UMapping.Invert( u * m_UMapMax ) / GetUMax();
+
     // Get x,y,z location of u,w coordinate and place in translation matrix
-    vec3d cartCoords = CompPnt01( u, w );
+    vec3d cartCoords = CompPnt01( uprm, w );
     retMat.translatef( cartCoords.x(), cartCoords.y(), cartCoords.z() );
     return retMat;
 }
