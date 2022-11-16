@@ -597,10 +597,10 @@ bool SSLineSeg::Subtag( TTri* tri ) const
     return Subtag( center );
 }
 
-void SSLineSeg::Update( Geom* geom )
+void SSLineSeg::Update( Geom *geom, const int &indx )
 {
-    double umax = geom->GetUMax(0);
-    double wmax = geom->GetWMax(0);
+    double umax = geom->GetUMax( indx );
+    double wmax = geom->GetWMax( indx );
     // Update none scaled points
     m_P0.set_xyz( m_SP0[0]*umax, m_SP0[1]*wmax, 0 );
     m_P1.set_xyz( m_SP1[0]*umax, m_SP1[1]*wmax, 0 );
@@ -808,7 +808,7 @@ void SSLine::Update()
 
     m_LVec[0].m_TestType = m_TestType();
 
-    m_LVec[0].Update( geom );
+    m_LVec[ 0 ].Update( geom, m_MainSurfIndx() );
 
     SubSurface::Update();
 }
@@ -909,7 +909,7 @@ void SSRectangle::Update()
         m_LVec[i].SetSP0( pntVec[pind] );
         pind++;
         m_LVec[i].SetSP1( pntVec[pind] );
-        m_LVec[i].Update( geom );
+        m_LVec[ i ].Update( geom, m_MainSurfIndx() );
     }
 
     SubSurface::Update();
@@ -985,7 +985,7 @@ void SSEllipse::Update()
         pnt.set_xyz( a * cos( p1 ) + m_CenterU(), b * sin( p1 ) + m_CenterW(), 0 );
         pnt = transMat2.xform( rotMat.xform( transMat1.xform( pnt ) ) );
         m_LVec[i].SetSP1( pnt );
-        m_LVec[i].Update( geom );
+        m_LVec[ i ].Update( geom, m_MainSurfIndx() );
     }
 
     SubSurface::Update();
@@ -1937,7 +1937,7 @@ void SSControlSurf::Update()
             m_LVec.push_back( SSLineSeg() );
             m_LVec.back().SetSP0( up_pnt_vec[i] );
             m_LVec.back().SetSP1( up_pnt_vec[i+1] );
-            m_LVec.back().Update( geom );
+            m_LVec.back().Update( geom, m_MainSurfIndx() );
         }
     }
 
@@ -1950,7 +1950,7 @@ void SSControlSurf::Update()
             m_LVec.push_back( SSLineSeg() );
             m_LVec.back().SetSP0( low_pnt_vec[i] );
             m_LVec.back().SetSP1( low_pnt_vec[i+1] );
-            m_LVec.back().Update( geom );
+            m_LVec.back().Update( geom, m_MainSurfIndx() );
         }
     }
 
@@ -2219,7 +2219,7 @@ void SSLineArray::Update()
             return;
         }
 
-        m_LVec[i].Update( geom );
+        m_LVec[ i ].Update( geom, m_MainSurfIndx() );
     }
 
     SubSurface::Update();
@@ -2357,7 +2357,7 @@ void SSFiniteLine::Update()
     {
         return;
     }
-    m_LVec[0].Update( geom );
+    m_LVec[ 0 ].Update( geom, m_MainSurfIndx() );
 
     SubSurface::Update();
 }
