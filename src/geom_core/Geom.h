@@ -448,6 +448,9 @@ public:
     virtual bool CompRotCoordSys( const int &indx, const double &u, const double &w, Matrix4d &rotmat );
     virtual bool CompTransCoordSys( const int &indx, const double &u, const double &w, Matrix4d &transmat );
 
+    virtual double ProjPnt01I( const vec3d & pt, int &surf_indx, double &u, double &w );
+    virtual double AxisProjPnt01I( const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out );
+
     virtual vector < Matrix4d > GetFeaTransMatVec()
     {
         return m_FeaTransMatVec;

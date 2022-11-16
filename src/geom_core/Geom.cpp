@@ -3944,6 +3944,75 @@ bool Geom::CompTransCoordSys( const int &indx, const double &u, const double &w,
     return false;
 }
 
+double Geom::ProjPnt01I( const vec3d & pt, int &surf_indx, double &u, double &w )
+{
+    double tol = 1e-12;
+
+    double dmin = std::numeric_limits<double>::max();
+
+    int nsurf = GetNumTotalSurfs();
+    for ( int i = 0; i < nsurf; i++ )
+    {
+        double utest, wtest;
+
+        double d = GetSurfPtr(i)->FindNearest01( utest, wtest, pt );
+
+        if ( d < dmin )
+        {
+            dmin = d;
+            u = utest;
+            w = wtest;
+            surf_indx = i;
+
+            if ( d < tol )
+            {
+                break;
+            }
+        }
+    }
+
+    return dmin;
+}
+
+double Geom::AxisProjPnt01I( const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out )
+{
+    double idmin = std::numeric_limits<double>::max();
+
+    bool converged = false;
+
+    int nsurf = GetNumTotalSurfs();
+    for ( int i = 0; i < nsurf; i++ )
+    {
+        double utest, wtest;
+        vec3d ptest;
+
+        double id = GetSurfPtr( i )->ProjectPt01( pt, iaxis, utest, wtest, ptest );
+
+        if ( id >= 0 && id < idmin )
+        {
+            idmin = id;
+            u_out = utest;
+            w_out = wtest;
+            p_out = ptest;
+            surf_indx_out = i;
+            converged = true;
+        }
+    }
+
+    if ( converged )
+    {
+        return idmin;
+    }
+
+    u_out = -1;
+    w_out = -1;
+    p_out = pt;
+    surf_indx_out = -1;
+    idmin = -1;
+
+    return idmin;
+}
+
 void Geom::WriteBezierAirfoil( const string & file_name, double foilsurf_u_location )
 {
     // This function writes out the all Bezier segments (order, t0, tend, and control points) 

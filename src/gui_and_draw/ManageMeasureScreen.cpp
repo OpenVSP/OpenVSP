@@ -904,8 +904,15 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    Geom * geom = NULL;
+
+    if ( veh )
+    {
+        geom = veh->FindGeom( targetGeomId );
+    }
+
     Ruler * ruler = MeasureMgr.GetCurrentRuler();
-    if( ruler && veh )
+    if( ruler && geom )
     {
         if( ruler->m_Stage == STAGE_ZERO )
         {
@@ -914,7 +921,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             int index;
             double u, w;
-            veh->ProjPnt01I(targetGeomId, placement, index, u, w);
+            geom->ProjPnt01I( placement, index, u, w );
 
             ruler->m_OriginU = u;
             ruler->m_OriginW = w;
@@ -927,7 +934,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             int index;
             double u, w;
-            veh->ProjPnt01I(targetGeomId, placement, index, u, w);
+            geom->ProjPnt01I( placement, index, u, w );
 
             ruler->m_EndU = u;
             ruler->m_EndW = w;
@@ -944,7 +951,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
     }
 
     Probe * probe = MeasureMgr.GetCurrentProbe();
-    if( probe && veh )
+    if( probe && geom )
     {
         if( probe->m_Stage == STAGE_ZERO )
         {
@@ -953,7 +960,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             int index;
             double u, w;
-            veh->ProjPnt01I(targetGeomId, placement, index, u, w);
+            geom->ProjPnt01I( placement, index, u, w );
 
             probe->m_OriginU = u;
             probe->m_OriginW = w;
@@ -968,7 +975,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
     }
 
     RSTProbe * RSTprobe = MeasureMgr.GetCurrentRSTProbe();
-    if( RSTprobe && veh )
+    if( RSTprobe && geom )
     {
         if( RSTprobe->m_Stage == STAGE_ZERO )
         {
@@ -977,7 +984,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             int index;
             double u, w;
-            veh->ProjPnt01I( targetGeomId, placement, index, u, w );
+            geom->ProjPnt01I( placement, index, u, w );
 
             double r, s, t;
             r = u;

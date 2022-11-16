@@ -7645,7 +7645,7 @@ double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx,
         return dmin;
     }
 
-    dmin = vPtr->ProjPnt01I( geom_id, pt, surf_indx, u, w );
+    dmin = geom->ProjPnt01I( pt, surf_indx, u, w );
 
     ErrorMgr.NoError();
 
@@ -7717,7 +7717,7 @@ double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d 
         return idmin;
     }
 
-    idmin = vPtr->AxisProjPnt01I( geom_id, iaxis, pt, surf_indx_out, u_out, w_out, p_out );
+    idmin = geom->AxisProjPnt01I( iaxis, pt, surf_indx_out, u_out, w_out, p_out );
 
     ErrorMgr.NoError();
 
