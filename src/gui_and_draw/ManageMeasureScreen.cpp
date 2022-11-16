@@ -912,9 +912,21 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
     }
 
     Ruler * ruler = MeasureMgr.GetCurrentRuler();
+    if ( ruler )
+    {
+        if( ruler->m_Stage == STAGE_TWO )
+        {
+            ruler->m_Stage = STAGE_COMPLETE;
+
+            ruler->m_XOffset = placement.x();
+            ruler->m_YOffset = placement.y();
+            ruler->m_ZOffset = placement.z();
+        }
+    }
+
     if( ruler && geom )
     {
-        if( ruler->m_Stage == STAGE_ZERO )
+        if ( ruler->m_Stage == STAGE_ZERO )
         {
             ruler->m_Stage = STAGE_ONE;
             ruler->m_OriginGeomID = targetGeomId;
@@ -927,7 +939,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             ruler->m_OriginW = w;
             ruler->m_OriginIndx = index;
         }
-        else if( ruler->m_Stage == STAGE_ONE )
+        else if ( ruler->m_Stage == STAGE_ONE )
         {
             ruler->m_Stage = STAGE_TWO;
             ruler->m_EndGeomID = targetGeomId;
@@ -940,20 +952,22 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             ruler->m_EndW = w;
             ruler->m_EndIndx = index;
         }
-        else if( ruler->m_Stage == STAGE_TWO )
-        {
-            ruler->m_Stage = STAGE_COMPLETE;
-
-            ruler->m_XOffset = placement.x();
-            ruler->m_YOffset = placement.y();
-            ruler->m_ZOffset = placement.z();
-        }
     }
 
     Probe * probe = MeasureMgr.GetCurrentProbe();
+    if ( probe )
+    {
+        if( probe->m_Stage == STAGE_ONE )
+        {
+            probe->m_Stage = STAGE_COMPLETE;
+
+            probe->SetLenFromPlacement( placement );
+        }
+    }
+
     if( probe && geom )
     {
-        if( probe->m_Stage == STAGE_ZERO )
+        if ( probe->m_Stage == STAGE_ZERO )
         {
             probe->m_Stage = STAGE_ONE;
             probe->m_OriginGeomID = targetGeomId;
@@ -966,18 +980,22 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             probe->m_OriginW = w;
             probe->m_OriginIndx = index;
         }
-        else if( probe->m_Stage == STAGE_ONE )
-        {
-            probe->m_Stage = STAGE_COMPLETE;
-
-            probe->SetLenFromPlacement( placement );
-        }
     }
 
     RSTProbe * RSTprobe = MeasureMgr.GetCurrentRSTProbe();
+    if ( RSTprobe )
+    {
+        if( RSTprobe->m_Stage == STAGE_ONE )
+        {
+            RSTprobe->m_Stage = STAGE_COMPLETE;
+
+            RSTprobe->SetLenFromPlacement( placement );
+        }
+    }
+
     if( RSTprobe && geom )
     {
-        if( RSTprobe->m_Stage == STAGE_ZERO )
+        if ( RSTprobe->m_Stage == STAGE_ZERO )
         {
             RSTprobe->m_Stage = STAGE_ONE;
             RSTprobe->m_OriginGeomID = targetGeomId;
@@ -1001,14 +1019,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             RSTprobe->m_OriginT = t;
             RSTprobe->m_OriginIndx = index;
         }
-        else if( RSTprobe->m_Stage == STAGE_ONE )
-        {
-            RSTprobe->m_Stage = STAGE_COMPLETE;
-
-            RSTprobe->SetLenFromPlacement( placement );
-        }
     }
-
 }
 
 std::string ManageMeasureScreen::getFeedbackGroupName()
