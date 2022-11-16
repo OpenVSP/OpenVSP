@@ -779,7 +779,7 @@ double Vsp1DCurve::Invert( double f )
         }
     }
 
-    return -1;
+    return f; // target value not found, return input value.
 }
 
 void Vsp1DCurve::product( Vsp1DCurve c1, Vsp1DCurve c2 )
