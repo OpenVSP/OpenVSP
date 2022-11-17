@@ -599,11 +599,16 @@ bool SSLineSeg::Subtag( TTri* tri ) const
 
 void SSLineSeg::Update( Geom *geom, const int &indx )
 {
-    double umax = geom->GetUMax( indx );
+    double umax = geom->GetUMapMax( indx );
     double wmax = geom->GetWMax( indx );
+
+    VspSurf* surf = geom->GetMainSurfPtr( indx );
+    double u0 = surf->InvertUMapping( m_SP0[0] * umax );
+    double u1 = surf->InvertUMapping( m_SP1[0] * umax );
+
     // Update none scaled points
-    m_P0.set_xyz( m_SP0[0]*umax, m_SP0[1]*wmax, 0 );
-    m_P1.set_xyz( m_SP1[0]*umax, m_SP1[1]*wmax, 0 );
+    m_P0.set_xyz( u0, m_SP0[1]*wmax, 0 );
+    m_P1.set_xyz( u1, m_SP1[1]*wmax, 0 );
 
     // Update line
     m_line = m_P1 - m_P0;
@@ -773,7 +778,7 @@ void SSLine::Update()
     // Update SSegLine points based on current values
     if ( m_ConstType() == vsp::CONST_U )
     {
-        double umax = geom->GetMainUMax( m_MainSurfIndx() );
+        double umax = geom->GetMainUMapMax( m_MainSurfIndx() );
 
         if ( m_Val01.Get() ) // Use 01 basis
         {
@@ -782,6 +787,7 @@ void SSLine::Update()
         else
         {
             double val = clamp( m_ConstVal0N(), 0.0, umax );
+            m_ConstVal0N.Set( val );
             m_ConstVal.Set( val / umax );
         }
 
