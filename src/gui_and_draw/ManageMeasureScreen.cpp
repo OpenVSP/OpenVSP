@@ -935,7 +935,19 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            ruler->m_OriginU = u;
+            VspSurf * surf = geom->GetSurfPtr( index );
+
+            double umapmax = surf->GetUMapMax();
+            double umax = surf->GetUMax();
+
+            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+
+            if ( uprm < 0 )
+            {
+                uprm = u;
+            }
+
+            ruler->m_OriginU = uprm;
             ruler->m_OriginW = w;
             ruler->m_OriginIndx = index;
         }
@@ -948,7 +960,19 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            ruler->m_EndU = u;
+            VspSurf * surf = geom->GetSurfPtr( index );
+
+            double umapmax = surf->GetUMapMax();
+            double umax = surf->GetUMax();
+
+            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+
+            if ( uprm < 0 )
+            {
+                uprm = u;
+            }
+
+            ruler->m_EndU = uprm;
             ruler->m_EndW = w;
             ruler->m_EndIndx = index;
         }
@@ -976,7 +1000,19 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            probe->m_OriginU = u;
+            VspSurf * surf = geom->GetSurfPtr( index );
+
+            double umapmax = surf->GetUMapMax();
+            double umax = surf->GetUMax();
+
+            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+
+            if ( uprm < 0 )
+            {
+                uprm = u;
+            }
+
+            probe->m_OriginU = uprm;
             probe->m_OriginW = w;
             probe->m_OriginIndx = index;
         }
@@ -1004,8 +1040,20 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
+            VspSurf * surf = geom->GetSurfPtr( index );
+
+            double umapmax = surf->GetUMapMax();
+            double umax = surf->GetUMax();
+
+            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+
+            if ( uprm < 0 )
+            {
+                uprm = u;
+            }
+
             double r, s, t;
-            r = u;
+            r = uprm;
             s = w;
             t = 0.0;
             if ( w > 0.5 )

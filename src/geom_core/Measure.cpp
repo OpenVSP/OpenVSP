@@ -109,9 +109,13 @@ void Probe::Update()
             VspSurf *surf = geom->GetSurfPtr( m_OriginIndx() );
             if ( surf )
             {
-                pt = surf->CompPnt01( m_OriginU(), m_OriginW() );
-                norm = surf->CompNorm01( m_OriginU(), m_OriginW() );
-                surf->CompCurvature01( m_OriginU(), m_OriginW(), k1, k2, ka, kg );
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
+                double u = surf->InvertUMapping( m_OriginU() * umapmax ) / umax;
+
+                pt = surf->CompPnt01( u, m_OriginW() );
+                norm = surf->CompNorm01( u, m_OriginW() );
+                surf->CompCurvature01( u, m_OriginW(), k1, k2, ka, kg );
             }
         }
 
@@ -268,8 +272,12 @@ void RSTProbe::Update()
             VspSurf *surf = geom->GetSurfPtr( m_OriginIndx() );
             if ( surf )
             {
-                pt = surf->CompPntRST( m_OriginR(), m_OriginS(), m_OriginT() );
-                norm = surf->CompNorm01( m_OriginR(), m_OriginS() );
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
+                double r = surf->InvertUMapping( m_OriginR() * umapmax ) / umax;
+
+                pt = surf->CompPntRST( r, m_OriginS(), m_OriginT() );
+                norm = surf->CompNorm01( r, m_OriginS() );
             }
         }
 
@@ -405,7 +413,11 @@ void Ruler::Update()
             VspSurf *osurf = ogeom->GetSurfPtr( m_OriginIndx() );
             if ( osurf )
             {
-                origin = osurf->CompPnt01( m_OriginU(), m_OriginW() );
+                double umapmax = osurf->GetUMapMax();
+                double umax = osurf->GetUMax();
+                double u = osurf->InvertUMapping( m_OriginU() * umapmax ) / umax;
+
+                origin = osurf->CompPnt01( u, m_OriginW() );
             }
         }
 
@@ -416,7 +428,11 @@ void Ruler::Update()
             VspSurf *esurf = egeom->GetSurfPtr( m_EndIndx() );
             if ( esurf )
             {
-                end = esurf->CompPnt01( m_EndU(), m_EndW() );
+                double umapmax = esurf->GetUMapMax();
+                double umax = esurf->GetUMax();
+                double u = esurf->InvertUMapping( m_EndU() * umapmax ) / umax;
+
+                end = esurf->CompPnt01( u, m_EndW() );
             }
         }
 
