@@ -37,6 +37,7 @@ GeomEngine::GeomEngine( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_EngineInModeType.Init( "InletModeType", "EngineModel", this, ENGINE_MODE_TO_LIP, ENGINE_MODE_FLOWTHROUGH, ENGINE_MODE_NUM_TYPES - 1 );
     m_EngineOutModeType.Init( "OutletModeType", "EngineModel", this, ENGINE_MODE_TO_LIP, ENGINE_MODE_TO_LIP, ENGINE_MODE_NUM_TYPES - 1 );
 
+    m_ExtensionDistance.Init( "ExtensionDistance", "EngineModel", this, 10, 0, 1e12 );
 }
 
 //==== Destructor ====//
@@ -72,6 +73,8 @@ void GeomEngine::ValidateParms()
     m_EngineInModeType.Deactivate();
     m_EngineOutModeType.Deactivate();
 
+    m_ExtensionDistance.Deactivate();
+
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
     {
         if ( m_EngineGeomIOType() <= ENGINE_GEOM_INLET_OUTLET ) // Includes inlet description
@@ -105,6 +108,11 @@ void GeomEngine::ValidateParms()
                 {
                     m_EngineInFaceU.Activate();
                 }
+            }
+
+            if ( m_EngineInModeType() == ENGINE_MODE_EXTEND )
+            {
+                m_ExtensionDistance.Activate();
             }
         }
 
@@ -143,6 +151,11 @@ void GeomEngine::ValidateParms()
                 {
                     m_EngineOutFaceU.Activate();
                 }
+            }
+
+            if ( m_EngineOutModeType() == ENGINE_MODE_EXTEND )
+            {
+                m_ExtensionDistance.Activate();
             }
         }
     }
@@ -291,7 +304,7 @@ void GeomEngine::UpdateEngine()
                     vector < VspCurve > extcrvs(2);
                     surf.GetUConstCurve( extcrvs[0], outlipu );
                     extcrvs[1] = extcrvs[0];
-                    extcrvs[1].OffsetX( 10.0 );
+                    extcrvs[1].OffsetX( m_ExtensionDistance() );
 
                     vector < double > extparam = { 0, 1.0 };
 
@@ -350,7 +363,7 @@ void GeomEngine::UpdateEngine()
                     vector < VspCurve > extcrvs(2);
                     surf.GetUConstCurve( extcrvs[1], 0.0 );
                     extcrvs[0] = extcrvs[1];
-                    extcrvs[0].OffsetX( -10.0 );
+                    extcrvs[0].OffsetX( -m_ExtensionDistance() );
 
                     vector < double > extparam = { 0, 1.0 };
 
@@ -408,7 +421,7 @@ void GeomEngine::UpdateEngine()
                     vector < VspCurve > extcrvs(2);
                     surf.GetUConstCurve( extcrvs[0], outlipu );
                     extcrvs[1] = extcrvs[0];
-                    extcrvs[1].OffsetX( 10.0 );
+                    extcrvs[1].OffsetX( m_ExtensionDistance() );
 
                     vector < double > extparam = { 0, 1.0 };
 
@@ -453,7 +466,7 @@ void GeomEngine::UpdateEngine()
                     vector < VspCurve > extcrvs(2);
                     surf.GetUConstCurve( extcrvs[1], 0.0 );
                     extcrvs[0] = extcrvs[1];
-                    extcrvs[0].OffsetX( -10.0 );
+                    extcrvs[0].OffsetX( -m_ExtensionDistance() );
 
                     vector < double > extparam = { 0, 1.0 };
 
@@ -506,7 +519,7 @@ void GeomEngine::UpdateEngine()
                     vector < VspCurve > extcrvs(2);
                     surf.GetUConstCurve( extcrvs[0], outlipu );
                     extcrvs[1] = extcrvs[0];
-                    extcrvs[1].OffsetX( 10.0 );
+                    extcrvs[1].OffsetX( m_ExtensionDistance() );
 
                     vector < double > extparam = { 0, 1.0 };
 
@@ -536,7 +549,7 @@ void GeomEngine::UpdateEngine()
                     vector < VspCurve > extcrvs(2);
                     surf.GetUConstCurve( extcrvs[1], 0.0 );
                     extcrvs[0] = extcrvs[1];
-                    extcrvs[0].OffsetX( -10.0 );
+                    extcrvs[0].OffsetX( -m_ExtensionDistance() );
 
                     vector < double > extparam = { 0, 1.0 };
 

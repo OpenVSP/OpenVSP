@@ -400,6 +400,8 @@ void StackGeom::Scale()
         }
     }
 
+    m_ExtensionDistance.Set( m_ExtensionDistance() * currentScale );
+
     m_LastScale = m_Scale();
 }
 

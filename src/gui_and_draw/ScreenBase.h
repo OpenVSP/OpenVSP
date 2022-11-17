@@ -716,6 +716,8 @@ protected:
 
     Choice m_EngineInModeChoice;
     Choice m_EngineOutModeChoice;
+
+    SliderAdjRangeInput m_EngineExtendDistanceSlider;
 };
 
 //==== Chevron Screen ====//

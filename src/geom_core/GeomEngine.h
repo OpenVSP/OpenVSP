@@ -45,6 +45,9 @@ public:
 
     IntParm m_EngineInModeType;
     IntParm m_EngineOutModeType;
+
+    Parm m_ExtensionDistance;
+
 protected:
 
     double roll_t( const double &torig, const double &troll, const double &tmin, const double &tmax );

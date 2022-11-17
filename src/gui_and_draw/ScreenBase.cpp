@@ -3142,6 +3142,12 @@ void EngineModelScreen::BuildEngineGUI( GroupLayout & layout )
     m_EngineOutModeChoice.AddItem( "EXTEND", vsp::ENGINE_MODE_EXTEND );
     layout.AddChoice( m_EngineOutModeChoice, "Outlet Mode:" );
 
+    layout.AddYGap();
+    layout.AddDividerBox( "Extension" );
+    layout.SetButtonWidth( button_w );
+
+    layout.AddSlider( m_EngineExtendDistanceSlider, "Distance", 10.0, "%7.3f" );
+
 }
 
 bool EngineModelScreen::Update( )
@@ -3261,6 +3267,8 @@ bool EngineModelScreen::Update( )
     m_EngineGeomOutChoice.UpdateItems( true );
     m_EngineInModeChoice.UpdateItems( true );
     m_EngineOutModeChoice.UpdateItems( true );
+
+    m_EngineExtendDistanceSlider.Update( geomengine_ptr->m_ExtensionDistance.GetID() );
 
     return true;
 }
