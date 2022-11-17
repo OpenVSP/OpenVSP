@@ -2664,3 +2664,8 @@ double VspSurf::InvertUMapping( double u ) const
 {
     return m_UMapping.Invert( u );
 }
+
+double VspSurf::EvalUMapping( double u ) const
+{
+    return m_UMapping.CompPnt( u );
+}

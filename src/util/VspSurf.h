@@ -316,6 +316,7 @@ public:
     void ParmReport();
 
     double InvertUMapping( double u ) const;
+    double EvalUMapping( double u ) const;
 
 protected:
 
