@@ -79,6 +79,7 @@ public:
     void SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );
 
     double GetUMax() const;
+    double GetUMapMax() const { return m_UMapMax; };
     double GetWMax() const;
 
     void ReverseUDirection();
@@ -313,6 +314,8 @@ public:
     void PrintUMapping();
 
     void ParmReport();
+
+    double InvertUMapping( double u ) const;
 
 protected:
 

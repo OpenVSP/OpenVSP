@@ -2659,3 +2659,8 @@ void VspSurf::ParmReport()
 {
     m_Surface.parameter_report();
 }
+
+double VspSurf::InvertUMapping( double u ) const
+{
+    return m_UMapping.Invert( u );
+}
