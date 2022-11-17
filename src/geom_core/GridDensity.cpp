@@ -402,7 +402,10 @@ double PointSimpleSource::GetTargetLen( double base_len, vec3d &  pos, const str
 
 void PointSimpleSource::Update( Geom* geomPtr )
 {
-    m_Loc = geomPtr->CompPnt01(m_SurfIndx, m_ULoc, m_WLoc);
+    VspSurf* surf = geomPtr->GetMainSurfPtr( m_SurfIndx );
+    double u = surf->InvertUMapping( m_ULoc * geomPtr->GetUMapMax( m_SurfIndx ) ) / geomPtr->GetUMax( m_SurfIndx );
+
+    m_Loc = geomPtr->CompPnt01( m_SurfIndx, u, m_WLoc );
 }
 
 void PointSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -575,8 +578,15 @@ double LineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const strin
 
 void LineSimpleSource::Update( Geom* geomPtr )
 {
-    vec3d p1 = geomPtr->CompPnt01(m_SurfIndx, m_ULoc1, m_WLoc1);
-    vec3d p2 = geomPtr->CompPnt01(m_SurfIndx, m_ULoc2, m_WLoc2);
+    VspSurf* surf = geomPtr->GetMainSurfPtr( m_SurfIndx );
+
+    double umapmax = geomPtr->GetUMapMax( m_SurfIndx );
+    double umax = geomPtr->GetUMax( m_SurfIndx );
+    double u1 = surf->InvertUMapping( m_ULoc1 * umapmax ) / umax;
+    double u2 = surf->InvertUMapping( m_ULoc2 * umapmax ) / umax;
+
+    vec3d p1 = geomPtr->CompPnt01( m_SurfIndx, u1, m_WLoc1 );
+    vec3d p2 = geomPtr->CompPnt01( m_SurfIndx, u2, m_WLoc2 );
     m_RadSquared1 = m_Rad * m_Rad;
     m_RadSquared2 = m_Rad2 * m_Rad2;
     SetEndPnts( p1, p2 );
@@ -750,17 +760,23 @@ double BoxSimpleSource::GetTargetLen( double base_len, vec3d & pos, const string
 
 void BoxSimpleSource::Update( Geom* geomPtr )
 {
+    VspSurf* surf = geomPtr->GetMainSurfPtr( m_SurfIndx );
+    double umapmax = geomPtr->GetUMapMax( m_SurfIndx );
+    double umax = geomPtr->GetUMax( m_SurfIndx );
+    double u1 = surf->InvertUMapping( m_ULoc1 * umapmax ) / umax;
+    double u2 = surf->InvertUMapping( m_ULoc2 * umapmax ) / umax;
+
     BndBox box;
     int num_segs = 8;
     vector< vec3d > pVec;
     for ( int i = 0 ; i < num_segs ; i++ )
     {
         double fu = ( double )i / ( double )( num_segs - 1 );
-        double u = m_ULoc1 + fu * ( m_ULoc2 - m_ULoc1 );
+        double u = u1 + fu * ( u2 - u1 );
         for ( int j = 0 ; j < num_segs ; j++ )
         {
             double w = m_WLoc1 + fu * ( m_WLoc2 - m_WLoc1 );
-            vec3d p = geomPtr->CompPnt01(m_SurfIndx, u, w);
+            vec3d p = geomPtr->CompPnt01( m_SurfIndx, u, w );
             pVec.push_back( p );
             box.Update( p );
         }
@@ -1052,6 +1068,8 @@ void ConstLineSimpleSource::Highlight( bool flag )
 
 void ULineSimpleSource::Update( Geom* geomPtr )
 {
+    VspSurf* surf = geomPtr->GetMainSurfPtr( m_SurfIndx );
+    double u = surf->InvertUMapping( m_Val * geomPtr->GetUMapMax( m_SurfIndx ) ) / geomPtr->GetUMax( m_SurfIndx );
 
     const unsigned int N = 10;
     m_Pts.resize( N );
@@ -1060,8 +1078,8 @@ void ULineSimpleSource::Update( Geom* geomPtr )
     for ( int i = 0; i < N; i++ )
     {
         double w = i * 1.0 / ( N - 1 );
-        m_Pts[i] = geomPtr->CompPnt01( m_SurfIndx, m_Val, w );
-        m_UWPts[i] = vec3d( m_Val, w, 0.0 );
+        m_Pts[i] = geomPtr->CompPnt01( m_SurfIndx, u, w );
+        m_UWPts[i] = vec3d( u, w, 0.0 );
     }
 
     // Storing this pointer is a massive layering violation.
