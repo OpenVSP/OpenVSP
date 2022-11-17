@@ -406,6 +406,9 @@ public:
     virtual double GetUMax( int indx ) const;
     virtual double GetMainUMax( int indx ) const;
 
+    virtual double GetUMapMax( int indx ) const;
+    virtual double GetMainUMapMax( int indx ) const;
+
     virtual double GetWMax( int indx ) const;
     virtual double GetMainWMax( int indx ) const;
 

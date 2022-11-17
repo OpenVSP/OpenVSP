@@ -3873,6 +3873,16 @@ double Geom::GetMainUMax( int indx ) const
     return m_MainSurfVec[indx].GetUMax();
 }
 
+double Geom::GetUMapMax( int indx ) const
+{
+    return GetMainUMapMax( m_SurfIndxVec[indx] );
+}
+
+double Geom::GetMainUMapMax( int indx ) const
+{
+    return m_MainSurfVec[indx].GetUMapMax();
+}
+
 double Geom::GetWMax( int indx ) const
 {
     return GetMainWMax( m_SurfIndxVec[indx] );
