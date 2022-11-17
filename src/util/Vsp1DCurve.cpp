@@ -738,7 +738,7 @@ void Vsp1DCurve::CapMin()
     m_Curve = cap.GetCurve();
 }
 
-double Vsp1DCurve::Invert( double f )
+double Vsp1DCurve::Invert( double f ) const
 {
     oned_curve_point_type p0;
     p0 << -f;

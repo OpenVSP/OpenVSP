@@ -94,7 +94,7 @@ public:
     void Join( const Vsp1DCurve &a, const Vsp1DCurve &b );
     void CapMax();
     void CapMin();
-    double Invert( double f );
+    double Invert( double f ) const;
 
     void product( Vsp1DCurve c1, Vsp1DCurve c2 );
 
