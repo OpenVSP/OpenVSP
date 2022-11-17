@@ -3446,7 +3446,11 @@ vector < vec3d > FeaFixPoint::GetPntVec()
 
         for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
         {
-            pnt_vec[i] = parent_surf_vec[i].CompPnt01( m_PosU(), m_PosW() );
+            double umapmax = parent_surf_vec[i].GetUMapMax();
+            double umax = parent_surf_vec[i].GetUMax();
+            double u = parent_surf_vec[i].InvertUMapping( m_PosU() * umapmax ) / umax;
+
+            pnt_vec[i] = parent_surf_vec[i].CompPnt01( u, m_PosW() );
         }
     }
     return pnt_vec;
@@ -3463,8 +3467,11 @@ vec2d FeaFixPoint::GetUW()
         vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
 
         if ( parent_surf_vec.size() > 0 ) // Only consider main parent surface (same UW for symmetric copies)
-        { 
-            uw.set_x( parent_surf_vec[0].GetUMax() * m_PosU() );
+        {
+            double umapmax = parent_surf_vec[0].GetUMapMax();
+            double u = parent_surf_vec[0].InvertUMapping( m_PosU() * umapmax );
+
+            uw.set_x( u );
             uw.set_y( parent_surf_vec[0].GetWMax() * m_PosW() );
         }
     }
@@ -3515,7 +3522,11 @@ void FeaFixPoint::UpdateDrawObjs()
 
             m_FeaPartDO[i].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
 
-            vec3d fixpt = parent_surf_vec[i].CompPnt01( m_PosU(), m_PosW() );
+            double umapmax = parent_surf_vec[i].GetUMapMax();
+            double umax = parent_surf_vec[i].GetUMax();
+            double u = parent_surf_vec[i].InvertUMapping( m_PosU() * umapmax ) / umax;
+
+            vec3d fixpt = parent_surf_vec[i].CompPnt01( u, m_PosW() );
             m_FeaPartDO[i].m_PntVec.push_back( fixpt );
 
             m_FeaPartDO[i].m_GeomChanged = true;
