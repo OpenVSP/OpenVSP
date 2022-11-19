@@ -398,6 +398,11 @@ bool Edge::ContainsNode( Node* in )
 
 Face* Edge::OtherFace( Face* f )
 {
+    if ( !f || !f0 || !f1 )
+    {
+        return NULL;
+    }
+
     if ( f == f0 )
     {
         return f1;

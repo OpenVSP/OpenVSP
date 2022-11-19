@@ -430,12 +430,15 @@ int Mesh::Collapse( int num_iter )
         shortEdges.reserve( edgeList.size() );
         for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
         {
-            if ( ValidCollapse( *e ) )
+            if ( *e )
             {
-                double rat = ( *e )->GetLength() / ( *e )->target_len;
-                if ( rat < 0.707 )
+                if ( ValidCollapse( *e ) )
                 {
-                    shortEdges.emplace_back( pair< Edge*, double >( ( *e ), rat ) );
+                    double rat = ( *e )->GetLength() / ( *e )->target_len;
+                    if ( rat < 0.707 )
+                    {
+                        shortEdges.emplace_back( pair< Edge*, double >( ( *e ), rat ) );
+                    }
                 }
             }
         }
@@ -650,6 +653,7 @@ void Mesh::RemoveFace( Face* fptr )
     garbageFaceVec.push_back( fptr );
     faceList.erase( fptr->list_ptr );
     fptr->m_DeleteMeFlag = true;
+    fptr->EdgeForgetFace();
 }
 
 void Mesh::DumpGarbage()
@@ -926,6 +930,11 @@ bool Mesh::ThreeEdgesThreeFaces( Edge* edge )
 
 bool Mesh::ValidCollapse( Edge* edge )
 {
+    if ( !edge )
+    {
+        return false;
+    }
+
     if ( edge->m_DeleteMeFlag )
     {
         return false;
@@ -936,6 +945,14 @@ bool Mesh::ValidCollapse( Edge* edge )
         return false;
     }
 
+    if ( !edge->n0 || !edge->n1 )
+    {
+        return false;
+    }
+
+    Node* n0 = edge->n0;
+    Node* n1 = edge->n1;
+
     //////if ( edge->n0->fixed || edge->n1->fixed )
     //////  return false;
     if ( edge->n0->fixed && edge->n1->fixed )
@@ -943,28 +960,32 @@ bool Mesh::ValidCollapse( Edge* edge )
         return false;
     }
 
-    if ( !edge->f0 || !edge->f1 )
-    {
-        return false;
-    }
-
-    if ( edge->f0->m_DeleteMeFlag || edge->f1->m_DeleteMeFlag )
-    {
-        return false;
-    }
-
-    Node* n0 = edge->n0;
-    Node* n1 = edge->n1;
     Face* fa = edge->f0;
     Face* fb = edge->f1;
+
+    if ( !fa || !fb )
+    {
+        return false;
+    }
+
+    if ( fa->m_DeleteMeFlag || fb->m_DeleteMeFlag )
+    {
+        return false;
+    }
+
     Node* na = fa->OtherNodeTri( n0, n1 );
     Node* nb = fb->OtherNodeTri( n0, n1 );
+
+    if ( !na || !nb )
+    {
+        return false;
+    }
 
     //==== Check 3 Faces in a Face Case =====//
     Edge* e0a = fa->FindEdge( n0, na );
     Edge* e1a = fa->FindEdge( n1, na );
 
-    if ( !e0a || ! e1a )
+    if ( !e0a || !e1a )
     {
         return false;
     }
@@ -985,6 +1006,11 @@ bool Mesh::ValidCollapse( Edge* edge )
 
     Edge* e0b = fb->FindEdge( n0, nb );
     Edge* e1b = fb->FindEdge( n1, nb );
+
+    if ( !e0b || !e1b )
+    {
+        return false;
+    }
 
     Face* fb0 = e0b->OtherFace( fb );
     Face* fb1 = e1b->OtherFace( fb );
