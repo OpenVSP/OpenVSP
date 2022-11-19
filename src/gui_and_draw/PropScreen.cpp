@@ -405,11 +405,11 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 400+40, 700, "Propel
 
     m_MoreLayout.AddYGap();
 
-    m_RootCapTypeChoice.AddItem("None");
-    m_RootCapTypeChoice.AddItem("Flat");
-    m_RootCapTypeChoice.AddItem("Round");
-    m_RootCapTypeChoice.AddItem("Edge");
-    m_RootCapTypeChoice.AddItem("Sharp");
+    m_RootCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
+    m_RootCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
+    m_RootCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
+    m_RootCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
+    m_RootCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
     m_MoreLayout.AddChoice(m_RootCapTypeChoice, "Root Cap Type");
 
     m_MoreLayout.AddSlider(m_RootCapLenSlider, "Length", 1, "%6.5f" );
@@ -419,11 +419,11 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 400+40, 700, "Propel
 
     m_MoreLayout.AddYGap();
 
-    m_TipCapTypeChoice.AddItem("None");
-    m_TipCapTypeChoice.AddItem("Flat");
-    m_TipCapTypeChoice.AddItem("Round");
-    m_TipCapTypeChoice.AddItem("Edge");
-    m_TipCapTypeChoice.AddItem("Sharp");
+    m_TipCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
+    m_TipCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
+    m_TipCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
+    m_TipCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
+    m_TipCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
     m_MoreLayout.AddChoice(m_TipCapTypeChoice, "Tip Cap Type");
 
     m_MoreLayout.AddSlider(m_TipCapLenSlider, "Length", 1, "%6.5f" );

@@ -37,11 +37,11 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680 + 40, "Win
 
     m_PlanLayout.AddYGap();
 
-    m_RootCapTypeChoice.AddItem("None");
-    m_RootCapTypeChoice.AddItem("Flat");
-    m_RootCapTypeChoice.AddItem("Round");
-    m_RootCapTypeChoice.AddItem("Edge");
-    m_RootCapTypeChoice.AddItem("Sharp");
+    m_RootCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
+    m_RootCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
+    m_RootCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
+    m_RootCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
+    m_RootCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
     m_PlanLayout.AddChoice(m_RootCapTypeChoice, "Root Cap Type");
 
     m_PlanLayout.AddSlider( m_RootCapLenSlider, "Length", 1, "%6.5f" );
@@ -51,11 +51,11 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680 + 40, "Win
 
     m_PlanLayout.AddYGap();
 
-    m_TipCapTypeChoice.AddItem("None");
-    m_TipCapTypeChoice.AddItem("Flat");
-    m_TipCapTypeChoice.AddItem("Round");
-    m_TipCapTypeChoice.AddItem("Edge");
-    m_TipCapTypeChoice.AddItem("Sharp");
+    m_TipCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
+    m_TipCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
+    m_TipCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
+    m_TipCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
+    m_TipCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
     m_PlanLayout.AddChoice(m_TipCapTypeChoice, "Tip Cap Type");
 
     m_PlanLayout.AddSlider( m_TipCapLenSlider, "Length", 1, "%6.5f" );
