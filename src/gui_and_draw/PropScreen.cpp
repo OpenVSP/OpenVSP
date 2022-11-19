@@ -410,6 +410,10 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 400+40, 700, "Propel
     m_RootCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
     m_RootCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
     m_RootCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
+    m_RootCapTypeChoice.AddItem( "Round Ext None", vsp::ROUND_EXT_END_CAP_NONE );
+    m_RootCapTypeChoice.AddItem( "Round Ext LE", vsp::ROUND_EXT_END_CAP_LE );
+    m_RootCapTypeChoice.AddItem( "Round Ext TE", vsp::ROUND_EXT_END_CAP_TE );
+    m_RootCapTypeChoice.AddItem( "Round Ext Both", vsp::ROUND_EXT_END_CAP_BOTH );
     m_MoreLayout.AddChoice(m_RootCapTypeChoice, "Root Cap Type");
 
     m_MoreLayout.AddSlider(m_RootCapLenSlider, "Length", 1, "%6.5f" );
@@ -424,6 +428,10 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 400+40, 700, "Propel
     m_TipCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
     m_TipCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
     m_TipCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
+    m_TipCapTypeChoice.AddItem( "Round Ext None", vsp::ROUND_EXT_END_CAP_NONE );
+    m_TipCapTypeChoice.AddItem( "Round Ext LE", vsp::ROUND_EXT_END_CAP_LE );
+    m_TipCapTypeChoice.AddItem( "Round Ext TE", vsp::ROUND_EXT_END_CAP_TE );
+    m_TipCapTypeChoice.AddItem( "Round Ext Both", vsp::ROUND_EXT_END_CAP_BOTH );
     m_MoreLayout.AddChoice(m_TipCapTypeChoice, "Tip Cap Type");
 
     m_MoreLayout.AddSlider(m_TipCapLenSlider, "Length", 1, "%6.5f" );
@@ -581,6 +589,26 @@ bool PropScreen::Update()
             m_RootCapStrengthSlider.Activate();
             m_RootCapSweepFlagButton.Activate();
             break;
+        case ROUND_EXT_END_CAP_NONE:
+            m_RootCapLenSlider.Activate();
+            m_RootCapOffsetSlider.Activate();
+            m_RootCapSweepFlagButton.Activate();
+            break;
+        case ROUND_EXT_END_CAP_LE:
+            m_RootCapLenSlider.Activate();
+            m_RootCapOffsetSlider.Activate();
+            m_RootCapSweepFlagButton.Activate();
+            break;
+        case ROUND_EXT_END_CAP_TE:
+            m_RootCapLenSlider.Activate();
+            m_RootCapOffsetSlider.Activate();
+            m_RootCapSweepFlagButton.Activate();
+            break;
+        case ROUND_EXT_END_CAP_BOTH:
+            m_RootCapLenSlider.Activate();
+            m_RootCapOffsetSlider.Activate();
+            m_RootCapSweepFlagButton.Activate();
+            break;
     }
 
     m_TipCapLenSlider.Update( propeller_ptr->m_CapUMaxLength.GetID() );
@@ -612,6 +640,26 @@ bool PropScreen::Update()
             m_TipCapLenSlider.Activate();
             m_TipCapOffsetSlider.Activate();
             m_TipCapStrengthSlider.Activate();
+            m_TipCapSweepFlagButton.Activate();
+            break;
+        case ROUND_EXT_END_CAP_NONE:
+            m_TipCapLenSlider.Activate();
+            m_TipCapOffsetSlider.Activate();
+            m_TipCapSweepFlagButton.Activate();
+            break;
+        case ROUND_EXT_END_CAP_LE:
+            m_TipCapLenSlider.Activate();
+            m_TipCapOffsetSlider.Activate();
+            m_TipCapSweepFlagButton.Activate();
+            break;
+        case ROUND_EXT_END_CAP_TE:
+            m_TipCapLenSlider.Activate();
+            m_TipCapOffsetSlider.Activate();
+            m_TipCapSweepFlagButton.Activate();
+            break;
+        case ROUND_EXT_END_CAP_BOTH:
+            m_TipCapLenSlider.Activate();
+            m_TipCapOffsetSlider.Activate();
             m_TipCapSweepFlagButton.Activate();
             break;
     }

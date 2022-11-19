@@ -628,6 +628,14 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CAP_TYPE", "SHARP_END_CAP", vsp::SHARP_END_CAP, "/*!< Sharp end cap */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "ROUND_EXT_END_CAP_NONE", vsp::ROUND_EXT_END_CAP_NONE, "/*!< Extended round end cap, but not extended */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "ROUND_EXT_END_CAP_LE", vsp::ROUND_EXT_END_CAP_LE, "/*!< Extended round end cap, extend LE */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "ROUND_EXT_END_CAP_TE", vsp::ROUND_EXT_END_CAP_TE, "/*!< Extended round end cap, extend TE */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAP_TYPE", "ROUND_EXT_END_CAP_BOTH", vsp::ROUND_EXT_END_CAP_BOTH, "/*!< Extended round end cap, extend both */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "CAP_TYPE", "NUM_END_CAP_OPTIONS", vsp::NUM_END_CAP_OPTIONS, "/*!< Number of end cap options */" );
     assert( r >= 0 );
 

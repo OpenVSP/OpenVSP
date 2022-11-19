@@ -1641,6 +1641,18 @@ void Geom::UpdateEndCaps()
             break;
         case SHARP_END_CAP:
             break;
+        case ROUND_EXT_END_CAP_NONE:
+            m_CapUMinStrength = 1.0;
+            break;
+        case ROUND_EXT_END_CAP_LE:
+            m_CapUMinStrength = 1.0;
+            break;
+        case ROUND_EXT_END_CAP_TE:
+            m_CapUMinStrength = 1.0;
+            break;
+        case ROUND_EXT_END_CAP_BOTH:
+            m_CapUMinStrength = 1.0;
+            break;
     }
 
     switch( m_CapUMaxOption() ){
@@ -1657,6 +1669,18 @@ void Geom::UpdateEndCaps()
             m_CapUMaxStrength = 0.0;
             break;
         case SHARP_END_CAP:
+            break;
+        case ROUND_EXT_END_CAP_NONE:
+            m_CapUMaxStrength = 1.0;
+            break;
+        case ROUND_EXT_END_CAP_LE:
+            m_CapUMaxStrength = 1.0;
+            break;
+        case ROUND_EXT_END_CAP_TE:
+            m_CapUMaxStrength = 1.0;
+            break;
+        case ROUND_EXT_END_CAP_BOTH:
+            m_CapUMaxStrength = 1.0;
             break;
     }
 }
@@ -3887,12 +3911,22 @@ void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector
         surf_vec[i].ResetUSkip();
         if ( m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
         {
-            surf_vec[i].SetUSkipFirst( true );
+            int nskip = 1;
+            if ( m_CapUMinOption() >= ROUND_EXT_END_CAP_NONE )
+            {
+                nskip++;
+            }
+            surf_vec[i].SetUSkipFirst( nskip, true );
             urootcap = true;
         }
         if ( m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
         {
-            surf_vec[i].SetUSkipLast( true );
+            int nskip = 1;
+            if ( m_CapUMaxOption() >= ROUND_EXT_END_CAP_NONE )
+            {
+                nskip++;
+            }
+            surf_vec[i].SetUSkipLast( nskip, true );
         }
 
         //==== Tesselate Surface ====//

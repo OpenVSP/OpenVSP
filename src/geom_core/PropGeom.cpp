@@ -1663,13 +1663,27 @@ void PropGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vecto
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
         tipc.push_back( 1.0 );
-        umerge.push_back( 1 );
+
+        if ( m_CapUMinOption() <= POINT_END_CAP )
+        {
+            umerge.push_back( 1 );
+        }
+        else
+        {
+            umerge.push_back( 2 );
+            nmerge--;
+        }
         nmerge--;
     }
 
     if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
         nmerge--;
+
+        if ( m_CapUMaxOption() >= ROUND_EXT_END_CAP_NONE )
+        {
+            nmerge--;
+        }
     }
 
     tessvec.push_back( m_TessU() );
@@ -1682,7 +1696,15 @@ void PropGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vecto
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
         tipc.push_back( 1.0 );
-        umerge.push_back( 1 );
+
+        if ( m_CapUMaxOption() <= POINT_END_CAP )
+        {
+            umerge.push_back( 1 );
+        }
+        else
+        {
+            umerge.push_back( 2 );
+        }
     }
 
     surf_vec[indx].SetRootTipClustering( rootc, tipc );
@@ -1703,13 +1725,27 @@ void PropGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, 
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
         tipc.push_back( 1.0 );
-        umerge.push_back( 1 );
+
+        if ( m_CapUMinOption() <= POINT_END_CAP )
+        {
+            umerge.push_back( 1 );
+        }
+        else
+        {
+            umerge.push_back( 2 );
+            nmerge--;
+        }
         nmerge--;
     }
 
     if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
         nmerge--;
+
+        if ( m_CapUMaxOption() >= ROUND_EXT_END_CAP_NONE )
+        {
+            nmerge--;
+        }
     }
 
     tessvec.push_back( m_TessU() );
@@ -1722,7 +1758,15 @@ void PropGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, 
         tessvec.push_back( m_CapUMinTess() );
         rootc.push_back( 1.0 );
         tipc.push_back( 1.0 );
-        umerge.push_back( 1 );
+
+        if ( m_CapUMaxOption() <= POINT_END_CAP )
+        {
+            umerge.push_back( 1 );
+        }
+        else
+        {
+            umerge.push_back( 2 );
+        }
     }
 
     surf_vec[indx].SetRootTipClustering( rootc, tipc );

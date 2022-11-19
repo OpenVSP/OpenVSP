@@ -1994,17 +1994,24 @@ void VspSurf::BuildFeatureLines( bool force_xsec_flag)
         double umin = m_Surface.get_u0();
         double umax = m_Surface.get_umax();
         double urng = umax - umin;
-        m_UFeature.push_back( umin );
-        m_UFeature.push_back( umax );
 
         if ( GetSurfType() == vsp::WING_SURF || force_xsec_flag )
         {
+            // Forget result of find_interior_feature_edges above.
+            m_UFeature.clear();
+
             // Force all patch boundaries in u direction.
+            // umin and umax are close to integers, but might not be exactly.  Furthermore, this code does not
+            // guarantee that umax is added.
             for ( double u = umin; u <= umax; u++ )
             {
                 m_UFeature.push_back( u );
             }
         }
+
+        // Make sure start/end are always included.
+        m_UFeature.push_back( umin );
+        m_UFeature.push_back( umax );
 
         // Add start/mid/end curves.
         double vmin = m_Surface.get_v0();
@@ -2078,6 +2085,9 @@ bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const 
     multicap_creator_type cc;
     bool rtn_flag;
 
+    bool extle = false;
+    bool extte = false;
+
     int captype = multicap_creator_type::FLAT;
 
     switch( CapType ){
@@ -2095,6 +2105,22 @@ bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const 
         break;
       case vsp::POINT_END_CAP:
         captype = multicap_creator_type::POINT;
+        break;
+      case vsp::ROUND_EXT_END_CAP_NONE:
+        captype = multicap_creator_type::ROUND_EXT;
+        break;
+      case vsp::ROUND_EXT_END_CAP_LE:
+        captype = multicap_creator_type::ROUND_EXT;
+        extle = true;
+        break;
+      case vsp::ROUND_EXT_END_CAP_TE:
+        captype = multicap_creator_type::ROUND_EXT;
+        extte = true;
+        break;
+      case vsp::ROUND_EXT_END_CAP_BOTH:
+        captype = multicap_creator_type::ROUND_EXT;
+        extle = true;
+        extte = true;
         break;
     }
 
@@ -2136,6 +2162,9 @@ bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const 
 
     int captype = multicap_creator_type::FLAT;
 
+    bool extle = false;
+    bool extte = false;
+
     switch( CapType ){
       case vsp::FLAT_END_CAP:
         captype = multicap_creator_type::FLAT;
@@ -2151,6 +2180,22 @@ bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const 
         break;
       case vsp::POINT_END_CAP:
         captype = multicap_creator_type::POINT;
+        break;
+      case vsp::ROUND_EXT_END_CAP_NONE:
+        captype = multicap_creator_type::ROUND_EXT;
+        break;
+      case vsp::ROUND_EXT_END_CAP_LE:
+        captype = multicap_creator_type::ROUND_EXT;
+        extle = true;
+        break;
+      case vsp::ROUND_EXT_END_CAP_TE:
+        captype = multicap_creator_type::ROUND_EXT;
+        extte = true;
+        break;
+      case vsp::ROUND_EXT_END_CAP_BOTH:
+        captype = multicap_creator_type::ROUND_EXT;
+        extle = true;
+        extte = true;
         break;
     }
 
