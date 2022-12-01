@@ -1715,6 +1715,20 @@ extern void UpdateGui()
 #endif
 }
 
+extern void Lock( )
+{
+#ifdef VSP_USE_FLTK
+        GuiInterface::getInstance().Lock( );
+#endif
+}
+
+extern void Unlock( )
+{
+#ifdef VSP_USE_FLTK
+        GuiInterface::getInstance().Unlock( );
+#endif
+}
+
 void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop )
 {
 #ifdef VSP_USE_FLTK

@@ -89,6 +89,20 @@ void GuiInterface::PopupMsg( const char* message, bool lock_out )
 
 }
 
+void GuiInterface::Lock()
+{
+#ifdef VSP_USE_FLTK
+    Fl::lock();
+#endif
+}
+
+void GuiInterface::Unlock()
+{
+#ifdef VSP_USE_FLTK
+    Fl::unlock();
+#endif
+}
+
 void GuiInterface::ScreenGrab( const std::string &fname, int w, int h, bool transparentBG, bool autocrop )
 {
 #ifdef VSP_USE_FLTK

@@ -39,6 +39,9 @@ public:
     void UpdateGui( );
     void PopupMsg( const char * message, bool lock_out );
 
+    void Lock();
+    void Unlock();
+
     void ScreenGrab( const std::string & fname, int w, int h, bool transparentBG, bool autocrop );
     void SetViewAxis( bool vaxis );
     void SetShowBorders( bool brdr );

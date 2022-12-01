@@ -149,6 +149,8 @@ extern void InitGui();
 extern void StartGui();
 extern void InitStartGui();
 extern void UpdateGui();
+extern void Lock( );
+extern void Unlock( );
 extern void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop = false );
 extern void SetViewAxis( bool vaxis );
 extern void SetShowBorders( bool brdr );
