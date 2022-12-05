@@ -560,11 +560,11 @@ void Ca_X_Axis::draw(){
             _tick_order=0;
           else
             _tick_order=-tick_order - 1;
-          sprintf(_label_format,"%s.%if","%",_tick_order);
+          snprintf(_label_format,sizeof(_label_format),"%s.%if","%",_tick_order);
         }
         else
           strcpy(_label_format,label_format);
-        sprintf(label, _label_format,tick_value);
+        snprintf(label,sizeof(label),_label_format,tick_value);
         fl_measure(label,_w,_h);
         _x=_pos-_w/double(2);
         switch (axis_align_ & CA_ALIGNMENT){
@@ -886,11 +886,11 @@ void Ca_Y_Axis::draw(){
             _tick_order=0;
           else
             _tick_order=-tick_order - 1;
-          sprintf(_label_format,"%s.%if","%",_tick_order);
+          snprintf(_label_format,sizeof(_label_format),"%s.%if","%",_tick_order);
         }
         else
           strcpy(_label_format,label_format);
-        sprintf(label, _label_format,tick_value);
+        snprintf(label,sizeof(label),_label_format,tick_value);
         fl_measure(label,_w,_h);
         _y=_pos+_h/3;
         switch (axis_align_ & CA_ALIGNMENT){
