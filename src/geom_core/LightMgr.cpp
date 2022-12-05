@@ -81,7 +81,7 @@ xmlNodePtr LightMgrSingleton::EncodeXml(xmlNodePtr node )
 
     for ( int i = 0; i < (int)m_Lights.size(); i++ )
     {
-        sprintf( lightName, "Light%d", i );
+        snprintf( lightName, sizeof( lightName ), "Light%d", i );
         xmlNodePtr light_node = xmlNewChild( light_root_node, NULL, BAD_CAST lightName, NULL );
         m_Lights[i]->EncodeXml( light_node );
     }
@@ -97,7 +97,7 @@ xmlNodePtr LightMgrSingleton::DecodeXml(xmlNodePtr node )
     int numofLights = XmlUtil::FindInt( light_root_node, "Num_of_Lights", 0 );
     for ( int i = 0; i < numofLights; i++ )
     {
-        sprintf( lightName, "Light%d", i );
+        snprintf( lightName, sizeof( lightName ), "Light%d", i );
         xmlNodePtr light_node = XmlUtil::GetNode( light_root_node, lightName, 0 );
         if( light_node )
         {

@@ -428,7 +428,7 @@ void StructAssemblyScreen::UpdateAssemblyTab()
             string assy_name = assy_vec[i]->GetName();
 
             char str[256];
-            sprintf( str, "%s", assy_name.c_str() );
+            snprintf( str, sizeof( str ),  "%s", assy_name.c_str() );
             m_AssemblySelectBrowser->add( str );
 
             m_AssemblyIDs.push_back( assy_vec[i]->GetID() );
@@ -512,7 +512,7 @@ void StructAssemblyScreen::UpdateStructTab()
         }
 
         char str[256];
-        sprintf( str, "%s:%s:", names[indx].c_str(), ready.c_str() );
+        snprintf( str, sizeof( str ),  "%s:%s:", names[indx].c_str(), ready.c_str() );
 
         m_StructureSelectBrowser->add( str );
     }

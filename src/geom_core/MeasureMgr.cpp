@@ -176,7 +176,7 @@ xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     for ( int i = 0; i < ( int )m_Rulers.size(); i++ )
     {
-        sprintf( labelName, "Ruler_%d", i );
+        snprintf( labelName, sizeof( labelName ), "Ruler_%d", i );
         xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
         m_Rulers[i]->EncodeXml( label_node );
     }
@@ -185,7 +185,7 @@ xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     for ( int i = 0; i < ( int )m_Probes.size(); i++ )
     {
-        sprintf( labelName, "Probe_%d", i );
+        snprintf( labelName, sizeof( labelName ), "Probe_%d", i );
         xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
         m_Probes[i]->EncodeXml( label_node );
     }
@@ -194,7 +194,7 @@ xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     for (int i = 0; i < ( int )m_RSTProbes.size(); i++ )
     {
-        sprintf( labelName, "RSTprobe_%d", i );
+        snprintf( labelName, sizeof( labelName ), "RSTprobe_%d", i );
         xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
         m_RSTProbes[i]->EncodeXml(label_node );
     }
@@ -211,7 +211,7 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
     int numofLabels = XmlUtil::FindInt( label_root_node, "Num_of_Rulers", 0 );
     for ( int i = 0; i < numofLabels; i++ )
     {
-        sprintf( labelName, "Ruler_%d", i );
+        snprintf( labelName, sizeof( labelName ), "Ruler_%d", i );
         xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
         if( label_node )
         {
@@ -227,7 +227,7 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
     int numofProbes = XmlUtil::FindInt( label_root_node, "Num_of_Probes", 0 );
     for ( int i = 0; i < numofProbes; i++ )
     {
-        sprintf( labelName, "Probe_%d", i );
+        snprintf( labelName, sizeof( labelName ), "Probe_%d", i );
         xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
         if( label_node )
         {
@@ -243,7 +243,7 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
     int numofRSTprobes = XmlUtil::FindInt( label_root_node, "Num_of_RSTprobes", 0 );
     for ( int i = 0; i < numofRSTprobes; i++ )
     {
-        sprintf( labelName, "RSTprobe_%d", i );
+        snprintf( labelName, sizeof( labelName ), "RSTprobe_%d", i );
         xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
         if( label_node )
         {

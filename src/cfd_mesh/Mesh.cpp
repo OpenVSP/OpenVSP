@@ -1705,7 +1705,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         uw_tri_area = 1.0e-4;
     }
 
-    sprintf( str, "zpYYQa%8.6fq20", uw_tri_area );
+    snprintf( str, sizeof( str ), "zpYYQa%8.6fq20", uw_tri_area );
 
     //==== Constrained Delaunay Trianglulation ====//
     tristatus = triangle_context_options( ctx, str );

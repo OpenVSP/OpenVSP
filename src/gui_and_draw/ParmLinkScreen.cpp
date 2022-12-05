@@ -220,7 +220,7 @@ bool ParmLinkScreen::Update()
     m_LinkBrowser->clear();
     m_LinkBrowser->column_char( ':' );        // use : as the column character
 
-    sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM:->:@b@.COMP_B:@b@.GROUP:@b@.PARM" );
+    snprintf( str, sizeof( str ),  "@b@.COMP_A:@b@.GROUP:@b@.PARM:->:@b@.COMP_B:@b@.GROUP:@b@.PARM" );
     m_LinkBrowser->add( str );
 
     int num_links = LinkMgr.GetNumLinks();
@@ -233,7 +233,7 @@ bool ParmLinkScreen::Update()
         ParmMgr.GetNames( pl->GetParmA(), c_name_A, g_name_A, p_name_A );
         ParmMgr.GetNames( pl->GetParmB(), c_name_B, g_name_B, p_name_B );
 
-        sprintf( str, "%s:%s:%s:->:%s:%s:%s",
+        snprintf( str, sizeof( str ),  "%s:%s:%s:->:%s:%s:%s",
                  c_name_A.c_str(), g_name_A.c_str(), p_name_A.c_str(),
                  c_name_B.c_str(), g_name_B.c_str(), p_name_B.c_str() );
 

@@ -355,7 +355,7 @@ BaseSource* CfdMeshMgrSingleton::AddSource( int type )
     if ( type == vsp::POINT_SOURCE )
     {
         PointSource* source = new PointSource();
-        sprintf( str, "PointSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
+        snprintf( str, sizeof( str ), "PointSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Rad = 1.0;
@@ -369,7 +369,7 @@ BaseSource* CfdMeshMgrSingleton::AddSource( int type )
     else if ( type == vsp::LINE_SOURCE )
     {
         LineSource* source = new LineSource();
-        sprintf( str, "LineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
+        snprintf( str, sizeof( str ), "LineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Len2 = 0.1;
@@ -387,7 +387,7 @@ BaseSource* CfdMeshMgrSingleton::AddSource( int type )
     else if ( type == vsp::BOX_SOURCE )
     {
         BoxSource* source = new BoxSource();
-        sprintf( str, "BoxSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
+        snprintf( str, sizeof( str ), "BoxSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Rad = 1.0;
@@ -403,7 +403,7 @@ BaseSource* CfdMeshMgrSingleton::AddSource( int type )
     else if ( type == vsp::ULINE_SOURCE )
     {
         ULineSource* source = new ULineSource();
-        sprintf( str, "ULineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
+        snprintf( str, sizeof( str ), "ULineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Rad = 1.0;
@@ -416,7 +416,7 @@ BaseSource* CfdMeshMgrSingleton::AddSource( int type )
     else if ( type == vsp::WLINE_SOURCE )
     {
         WLineSource* source = new WLineSource();
-        sprintf( str, "WLineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
+        snprintf( str, sizeof( str ), "WLineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
         source->SetName( str );
         source->m_Len = 0.1;
         source->m_Rad = 1.0;
@@ -761,7 +761,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
             num_tris += m_SurfVec[ i ]->GetMesh()->GetNumFaces();
 
-            sprintf( str, "Surf %d/%d Iter %d/10 Num Tris = %d\n", i + 1, nsurf, iter + 1, num_tris );
+            snprintf( str, sizeof( str ), "Surf %d/%d Iter %d/10 Num Tris = %d\n", i + 1, nsurf, iter + 1, num_tris );
             if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
             {
                 addOutputText( str, output_type );
@@ -771,7 +771,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
         if ( num_rev_removed > 0 )
         {
-            sprintf( str, "%d Reversed tris collapsed in final iteration.\n", num_rev_removed );
+            snprintf( str, sizeof( str ), "%d Reversed tris collapsed in final iteration.\n", num_rev_removed );
             if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
             {
                 addOutputText( str, output_type );
@@ -781,7 +781,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
     WakeMgr.StretchWakes();
 
-    sprintf( str, "Total Num Tris = %d\n", total_num_tris );
+    snprintf( str, sizeof( str ), "Total Num Tris = %d\n", total_num_tris );
     addOutputText( str, output_type );
 }
 
@@ -2102,12 +2102,12 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     char resultStr[255];
     if ( num_border_edges || moreThanTwoTriPerEdge )
     {
-        sprintf( resultStr, "NOT Water Tight : %d Border Edges, %d Edges > 2 Tris\n",
+        snprintf( resultStr, sizeof( resultStr ), "NOT Water Tight : %d Border Edges, %d Edges > 2 Tris\n",
                  num_border_edges, moreThanTwoTriPerEdge );
     }
     else
     {
-        sprintf( resultStr, "Is Water Tight\n" );
+        snprintf( resultStr, sizeof( resultStr ), "Is Water Tight\n" );
     }
 
     return string( resultStr );
@@ -2786,7 +2786,7 @@ void CfdMeshMgrSingleton::BuildMesh()
         vector < vec2d > adduw;
         ForceSurfaceFixPoints( s, adduw );
 
-        sprintf( str, "InitMesh %d/%d\n", s+1, m_SurfVec.size() );
+        snprintf( str, sizeof( str ), "InitMesh %d/%d\n", s+1, m_SurfVec.size() );
         addOutputText( str );
         m_SurfVec[s]->InitMesh( surf_chains, adduw, this );
     }
@@ -3288,11 +3288,11 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
     for ( mit = tagMap.begin(); mit != tagMap.end() ; ++mit )
     {
         tag_tri_dobj_map[ mit->second ] = &m_TagDO[cnt];
-        sprintf( str, "%s_TTAG_%d", GetID().c_str(), cnt );
+        snprintf( str, sizeof( str ), "%s_TTAG_%d", GetID().c_str(), cnt );
         m_TagDO[cnt].m_GeomID = string( str );
 
         tag_quad_dobj_map[ mit->second ] = &m_TagDO[cnt + num_tags];
-        sprintf( str, "%s_QTAG_%d", GetID().c_str(), cnt + num_tags );
+        snprintf( str, sizeof( str ), "%s_QTAG_%d", GetID().c_str(), cnt + num_tags );
         m_TagDO[cnt + num_tags].m_GeomID = string( str );
 
         cnt++;

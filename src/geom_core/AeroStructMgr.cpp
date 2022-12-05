@@ -240,7 +240,7 @@ void AeroStructSingleton::TransferLoads( FILE * logFile )
     args.push_back( GetBasename( m_FEAMeshFile ) ); // FEA mesh base name.
 
     args.push_back( "-dynp" );
-    sprintf( str, "%f", m_DynPress() );
+    snprintf( str, sizeof( str ), "%f", m_DynPress() );
     args.push_back( string( str ) );
 
 

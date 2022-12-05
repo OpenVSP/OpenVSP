@@ -2373,7 +2373,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
             if ( GetMeshPtr()->m_FixPntVec[j].m_NodeIndex[k] < 0 )
             {
                 char buf[512];
-                sprintf( buf, "FixPoint %s %d not found in mesh\n",
+                snprintf( buf, sizeof( buf ), "FixPoint %s %d not found in mesh\n",
                          GetMeshPtr()->m_FeaPartNameVec[ GetMeshPtr()->m_FixPntVec[j].m_FeaPartIndex ].c_str(),
                          k );
                 addOutputText( string( buf ) );

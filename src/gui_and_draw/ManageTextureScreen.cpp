@@ -135,7 +135,7 @@ bool ManageTextureScreen::Update()
         if ( geom_type != BLANK_GEOM_TYPE &&
              geom_type != HINGE_GEOM_TYPE ) // TODO: Any other types that don't support textures?
         {
-            sprintf( str, "%d.  %s", i + 1, geom_vec[i]->GetName().c_str() );
+            snprintf( str, sizeof( str ),  "%d.  %s", i + 1, geom_vec[i]->GetName().c_str() );
             m_GeomChoice.AddItem( str );
 
             m_GeomIDVec.push_back( geom_vec[i]->GetID() );
@@ -174,7 +174,7 @@ bool ManageTextureScreen::Update()
         for ( int i = 0; i < ( int )texture_vec.size(); i++ )
         {
             string texture_file_name = currgeom->m_GuiDraw.getTextureMgr()->FindTexture( texture_vec[i] )->GetName();
-            sprintf( str, "%d.  %s", i + 1, texture_file_name.c_str() );
+            snprintf( str, sizeof( str ),  "%d.  %s", i + 1, texture_file_name.c_str() );
             m_EditChoice.AddItem( str );
         }
 

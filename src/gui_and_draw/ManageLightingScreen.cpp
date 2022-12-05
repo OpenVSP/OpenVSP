@@ -38,7 +38,7 @@ ManageLightingScreen::ManageLightingScreen( ScreenMgr * mgr ) : BasicScreen( mgr
     char name[256];
     for( int i = 0; i < NUMOFLIGHTS; i++ )
     {
-        sprintf( name, "Light %d", i );
+        snprintf( name, sizeof( name ), "Light %d", i );
         m_LightChoice.AddItem( name );
     }
     m_GenLayout.AddChoice( m_LightChoice, "Light:" );

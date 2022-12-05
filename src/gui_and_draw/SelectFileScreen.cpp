@@ -188,7 +188,7 @@ void SelectFileScreen::CallBack( Fl_Widget* w )
         {
             Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
             char favstr[256];
-            sprintf( favstr, "fav%d", static_cast<int>( m_FavDirVec.size() ) );
+            snprintf( favstr, sizeof( favstr ), "fav%d", static_cast<int>( m_FavDirVec.size() ) );
 
             //If m_FavDirVec has m_DirString already, we don't need to set pref again
             if ( !std::count( m_FavDirVec.begin(), m_FavDirVec.end(), m_DirString.c_str() ) )
@@ -324,7 +324,7 @@ void SelectFileScreen::LoadFavsMenu()
     while ( keep_looking )
     {
         keep_looking = false;
-        sprintf( tag, "fav%d", ( int )m_FavDirVec.size() );
+        snprintf( tag, sizeof( tag ), "fav%d", ( int )m_FavDirVec.size() );
         if ( prefs.get( tag, str, "", 256 ) )
         {
             keep_looking = true;
@@ -347,7 +347,7 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter, boo
     m_FileName = string();
 
     char filter_str[256];
-    sprintf( filter_str, "   (%s)", filter );
+    snprintf( filter_str, sizeof( filter_str ), "   (%s)", filter );
 
     SetTitle( string( title ).append( filter_str ) );
 

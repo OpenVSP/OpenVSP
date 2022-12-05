@@ -1058,7 +1058,7 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         // Symmetry drawObjs have same m_ID. Make them unique by adding index
         // at the end of m_ID.
-        sprintf( str, "_%d", i );
+        snprintf( str, sizeof( str ),  "_%d", i );
         m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
         m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
@@ -1124,7 +1124,7 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
         {
             m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            sprintf( str, "_%d", i );
+            snprintf( str, sizeof( str ),  "_%d", i );
             m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
             m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
             draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
@@ -1144,7 +1144,7 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
         {
             m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            sprintf( str, "_%d", i );
+            snprintf( str, sizeof( str ),  "_%d", i );
             m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
             m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
             m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;

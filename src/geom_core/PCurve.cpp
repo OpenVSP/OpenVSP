@@ -135,7 +135,7 @@ void PCurve::AddPt()
     {
         int i = m_TParmVec.size();
         char str[255];
-        sprintf( str, "%s_%d", m_XParmName.c_str(), i );
+        snprintf( str, sizeof( str ),  "%s_%d", m_XParmName.c_str(), i );
         p->Init( string( str ), m_GroupName, this, 0.0, -1.0e12, 1.0e12 );
         p->SetDescript( "Curve point parameter" );
         m_TParmVec.push_back( p );
@@ -147,7 +147,7 @@ void PCurve::AddPt()
     {
         int i = m_ValParmVec.size();
         char str[255];
-        sprintf( str, "%s_%d", m_YParmName.c_str(),  i );
+        snprintf( str, sizeof( str ),  "%s_%d", m_YParmName.c_str(),  i );
         p->Init( string( str ), m_GroupName, this, 0.0, -1.0e12, 1.0e12 );
         p->SetDescript( "Curve point value" );
         m_ValParmVec.push_back( p );
@@ -158,7 +158,7 @@ void PCurve::AddPt()
     {
         int i = (int)m_EnforceG1Vec.size();
         char str[15];
-        sprintf( str, "G1_%d", i );
+        snprintf( str, sizeof( str ),  "G1_%d", i );
         bp->Init( string( str ), m_GroupName, this, false, false, true );
         bp->SetDescript( "G1 Enforcement Flag" );
         m_EnforceG1Vec.push_back( bp );
@@ -638,13 +638,13 @@ void PCurve::RenameParms()
     for ( int i = 0; i < m_TParmVec.size(); i++ )
     {
         char str[255];
-        sprintf( str, "%s_%d", m_XParmName.c_str(), i );
+        snprintf( str, sizeof( str ),  "%s_%d", m_XParmName.c_str(), i );
         m_TParmVec[i]->SetName( string( str ) );
 
-        sprintf( str, "%s_%d", m_YParmName.c_str(), i );
+        snprintf( str, sizeof( str ),  "%s_%d", m_YParmName.c_str(), i );
         m_ValParmVec[i]->SetName( string( str ) );
 
-        sprintf( str, "G1_%d", i );
+        snprintf( str, sizeof( str ),  "G1_%d", i );
         m_EnforceG1Vec[i]->SetName( string( str ) );
     }
 }

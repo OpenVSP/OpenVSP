@@ -272,10 +272,10 @@ void GeomCoreTestSuite::CompareMeshes( Vehicle & veh, string mesh_a, string mesh
 void GeomCoreTestSuite::CompareVec3ds( const vec3d & v1, const vec3d & v2, const char* msg )
 {
     char str[255];
-    sprintf( str, "v1[0]: %10.16g v2[0]: %10.16g %s", v1[0], v2[0], msg );
+    snprintf( str, sizeof( str ),  "v1[0]: %10.16g v2[0]: %10.16g %s", v1[0], v2[0], msg );
     TEST_ASSERT_MSG( std::abs( v1[0] - v2[0] ) < 1e-5, str );
-    sprintf( str, "v1[1]: %10.16g v2[1]: %10.16g %s", v1[1], v2[1], msg );
+    snprintf( str, sizeof( str ),  "v1[1]: %10.16g v2[1]: %10.16g %s", v1[1], v2[1], msg );
     TEST_ASSERT_MSG( std::abs( v1[1] - v2[1] ) < 1e-5, str );
-    sprintf( str, "v1[2]: %10.16g v%10.16g %s", v1[2], v2[2], msg );
+    snprintf( str, sizeof( str ),  "v1[2]: %10.16g v%10.16g %s", v1[2], v2[2], msg );
     TEST_ASSERT_MSG( std::abs( v1[2] - v2[2] ) < 1e-5, str );
 }

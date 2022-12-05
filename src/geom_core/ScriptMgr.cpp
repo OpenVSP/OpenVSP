@@ -49,7 +49,7 @@ void MessageCallback( const asSMessageInfo *msg, void *param )
     {
         type = "INFO";
     }
-    sprintf( str, "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message );
+    snprintf( str, sizeof( str ),  "%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message );
     ScriptMgr.AddToMessages( str );
     printf( "%s", str );
 }

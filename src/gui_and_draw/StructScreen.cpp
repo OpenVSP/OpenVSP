@@ -1264,7 +1264,7 @@ void StructScreen::UpdateStructBrowser()
                 parent_geom_name = parent->GetName();
             }
 
-            sprintf( str, "%s:%s:Surf_%d", struct_name.c_str(), parent_geom_name.c_str(), struct_surf_ind );
+            snprintf( str, sizeof( str ),  "%s:%s:Surf_%d", struct_name.c_str(), parent_geom_name.c_str(), struct_surf_ind );
             m_StructureSelectBrowser->add( str );
             m_CurrFeaMeshChoice.AddItem( struct_name, i );
 
@@ -1365,7 +1365,7 @@ void StructScreen::UpdateFeaPartBrowser()
                 }
             }
 
-            sprintf( str, "%s:%s:%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), shell.c_str(), shell_prop.c_str(), cap.c_str(), cap_prop.c_str() );
+            snprintf( str, sizeof( str ),  "%s:%s:%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), shell.c_str(), shell_prop.c_str(), cap.c_str(), cap_prop.c_str() );
             m_FeaPartSelectBrowser->add( str );
         }
 
@@ -1408,7 +1408,7 @@ void StructScreen::UpdateFeaPartBrowser()
                 cap_prop = "N/A";
             }
 
-            sprintf( str, "%s:%s:%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), shell.c_str(), shell_prop.c_str(), cap.c_str(), cap_prop.c_str() );
+            snprintf( str, sizeof( str ),  "%s:%s:%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), shell.c_str(), shell_prop.c_str(), cap.c_str(), cap_prop.c_str() );
             m_FeaPartSelectBrowser->add( str );
         }
 
@@ -1597,7 +1597,7 @@ void StructScreen::UpdateFeaPropertyBrowser()
             prop_mat = fea_mat->GetName();
         }
 
-        sprintf( str, "%s:%s:%s:%s:", prop_name.c_str(), prop_type.c_str(), prop_xsec.c_str(), prop_mat.c_str() );
+        snprintf( str, sizeof( str ),  "%s:%s:%s:%s:", prop_name.c_str(), prop_type.c_str(), prop_xsec.c_str(), prop_mat.c_str() );
 
         m_FeaPropertySelectBrowser->add( str );
     }
@@ -2106,7 +2106,7 @@ bool StructScreen::Update()
                 m_MatPoissonSlider.Update( fea_mat->m_PoissonRatio.GetID() );
 
                 char str[256];
-                sprintf( str, "%5.3g", fea_mat->GetShearModulus() );
+                snprintf( str, sizeof( str ),  "%5.3g", fea_mat->GetShearModulus() );
                 m_MatShearModOutput.Update( str );
 
                 m_MatThermalExCoeffSlider.Update( fea_mat->m_ThermalExpanCoeff.GetID() );

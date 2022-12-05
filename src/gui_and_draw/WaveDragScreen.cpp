@@ -263,7 +263,7 @@ bool WaveDragScreen::Update()
                 Geom* g = veh->FindGeom(geomVec[i]);
                 if (g)
                 {
-                    sprintf(str, "%d_%s", i, g->GetName().c_str());
+                    snprintf(str, sizeof( str ), "%d_%s", i, g->GetName().c_str());
 
                     if (g->GetType().m_Type == MS_WING_GEOM_TYPE)
                     {
@@ -321,10 +321,10 @@ bool WaveDragScreen::Update()
             tdval = WaveDragMgr.m_ThetaRad[ itheta ] * 180.0 / PI;
         }
 
-        sprintf( str, "%.1f", tdval );
+        snprintf( str, sizeof( str ), "%.1f", tdval );
         m_ThetaDegValResult.Update( str );
 
-        sprintf( str, "%7.4f", WaveDragMgr.m_CDWave );
+        snprintf( str, sizeof( str ), "%7.4f", WaveDragMgr.m_CDWave );
         m_CDwResult.Update( string( str ) );
 
         m_SelectedBodyRev.Update( WaveDragMgr.m_IdealBodyType.GetID() );
@@ -361,7 +361,7 @@ bool WaveDragScreen::Update()
             Geom* gptr = veh->FindGeom( geomid );
             if ( gptr )
             {
-                sprintf( str, "%s:  %s", gptr->GetName().c_str(), subsurf_vec[i]->GetName().c_str() );
+                snprintf( str, sizeof( str ), "%s:  %s", gptr->GetName().c_str(), subsurf_vec[i]->GetName().c_str() );
 
                 if ( vector_contains_val( WaveDragMgr.m_SSFlow_vec, subsurf_vec[i]->GetID() ) )
                 {

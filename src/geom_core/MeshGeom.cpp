@@ -635,7 +635,7 @@ void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec, int & offset )
                     if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
                     {
                         char str[80];
-                        sprintf( str, "%d", offset );
+                        snprintf( str, sizeof( str ),  "%d", offset );
                         tri->m_SplitVec[s]->m_ID = string( str );
                         m_IndexedTriVec.push_back( tri->m_SplitVec[s] );
                     }
@@ -644,7 +644,7 @@ void MeshGeom::InitIndexedMesh( const vector < TMesh* > &meshvec, int & offset )
             else if ( !tri->m_IgnoreTriFlag )
             {
                 char str[80];
-                sprintf( str, "%d", offset );
+                snprintf( str, sizeof( str ),  "%d", offset );
                 tri->m_ID = string( str );
                 m_IndexedTriVec.push_back( tri );
             }
@@ -1259,10 +1259,10 @@ void MeshGeom::WriteX3D( xmlNodePtr node )
 
             if ( d21.mag() > 0.000001 )
             {
-                sprintf( numstr, "%lf %lf %lf %lf %lf %lf %lf %lf %lf ", v0.x(), v0.y(), v0.z(),
+                snprintf( numstr, sizeof( numstr ), "%lf %lf %lf %lf %lf %lf %lf %lf %lf ", v0.x(), v0.y(), v0.z(),
                          v1.x(), v1.y(), v1.z(), v2.x(), v2.y(), v2.z() );
                 crdstr += numstr;
-                sprintf( numstr, "%d %d %d -1 ", offset, offset + 1, offset + 2 );
+                snprintf( numstr, sizeof( numstr ), "%d %d %d -1 ", offset, offset + 1, offset + 2 );
                 offset += 3;
                 indstr += numstr;
             }

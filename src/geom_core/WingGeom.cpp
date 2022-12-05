@@ -1426,7 +1426,7 @@ void WingGeom::AddDefaultSources( double base_len )
             double ct = ws->m_TipChord();
 
             lsource = new LineSource();
-            sprintf( str, "Def_TE_LS_%d", i );
+            snprintf( str, sizeof( str ),  "Def_TE_LS_%d", i );
             lsource->SetName( str );
             lsource->m_Len = 0.01 * cr;
             lsource->m_Len2 = 0.01 * ct;
@@ -1439,7 +1439,7 @@ void WingGeom::AddDefaultSources( double base_len )
             AddCfdMeshSource( lsource );
 
             lsource = new LineSource();
-            sprintf( str, "Def_LE_LS_%d", i );
+            snprintf( str, sizeof( str ),  "Def_LE_LS_%d", i );
             lsource->SetName( str );
             lsource->m_Len = 0.01 * cr;
             lsource->m_Len2 = 0.01 * ct;

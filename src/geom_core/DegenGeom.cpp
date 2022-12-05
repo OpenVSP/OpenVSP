@@ -894,7 +894,7 @@ void DegenGeom::addDegenHingeLine( SSControlSurf *csurf, int surfIndx )
 string DegenGeom::makeCsvFmt( int n, bool newline )
 {
     char fmt[10];
-    sprintf( fmt, "%%.%de", DBL_DIG + 3 );
+    snprintf( fmt, sizeof( fmt ), "%%.%de", DBL_DIG + 3 );
 
     string fmtstring = "";
     for( int i = 0; i < n; ++i )
@@ -1287,7 +1287,7 @@ void DegenGeom::write_degenGeomSurfM_file( FILE* file_id, int nxsecs )
 void DegenGeom::write_degenGeomPlateM_file( FILE* file_id, int nxsecs, DegenPlate &degenPlate, int iplate )
 {
     char num[80];
-    sprintf( num, "degenGeom(end).plate(%d).", iplate );
+    snprintf( num, sizeof( num ), "degenGeom(end).plate(%d).", iplate );
     string basename = string( num );
 
     WriteVecDoubleM writeVecDouble;
@@ -1312,7 +1312,7 @@ void DegenGeom::write_degenGeomPlateM_file( FILE* file_id, int nxsecs, DegenPlat
 void DegenGeom::write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStick &degenStick, int istick )
 {
     char num[80];
-    sprintf( num, "degenGeom(end).stick(%d).", istick );
+    snprintf( num, sizeof( num ), "degenGeom(end).stick(%d).", istick );
     string basename = string( num );
 
     WriteVecDoubleM writeVecDouble;
@@ -1384,7 +1384,7 @@ void DegenGeom::write_degenGeomDiskM_file( FILE* file_id )
 void DegenGeom::write_degenSubSurfM_file( FILE* file_id, int isubsurf )
 {
     char num[80];
-    sprintf( num, "degenGeom(end).subsurf(%d).", isubsurf + 1 );
+    snprintf( num, sizeof( num ), "degenGeom(end).subsurf(%d).", isubsurf + 1 );
     string basename = string( num );
 
     WriteVecDoubleM writeVecDouble;
@@ -1406,7 +1406,7 @@ void DegenGeom::write_degenSubSurfM_file( FILE* file_id, int isubsurf )
 void DegenGeom::write_degenHingeLineM_file( FILE* file_id, int ihingeline )
 {
     char num[80];
-    sprintf( num, "degenGeom(end).hingeline(%d).", ihingeline + 1 );
+    snprintf( num, sizeof( num ), "degenGeom(end).hingeline(%d).", ihingeline + 1 );
     string basename = string( num );
 
     WriteVecDoubleM writeVecDouble;

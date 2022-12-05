@@ -526,7 +526,7 @@ bool WingScreen::Update()
         m_RotateRootFoilMatchDihedral.Update( root_sect->m_RotateMatchDiedralFlag.GetID() );
     }
 
-    sprintf( str, "       %d", wing_ptr->NumXSec()-1 );
+    snprintf( str, sizeof( str ), "       %d", wing_ptr->NumXSec()-1 );
     m_NumSectOutput.Update(  str );
 
     ////==== Wing Section Index Display ====//

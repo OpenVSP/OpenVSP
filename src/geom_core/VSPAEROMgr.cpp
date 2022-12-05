@@ -858,7 +858,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                                         break;
                                     }
                                 }
-                                sprintf(str, "%s_%zu", geom->GetName().c_str(), iSubsurf);
+                                snprintf( str, sizeof( str ),  "%s_%zu", geom->GetName().c_str(), iSubsurf);
                                 temp.back()->SetName(str);
                             }
                         }
@@ -871,7 +871,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                             temp.push_back(rotor);
                             temp.back()->m_ParentGeomId = currgeomvec[i];
                             temp.back()->m_ParentGeomSurfNdx = iSubsurf;
-                            sprintf(str, "%s_%zu", geom->GetName().c_str(), iSubsurf);
+                            snprintf( str, sizeof( str ),  "%s_%zu", geom->GetName().c_str(), iSubsurf);
                             temp.back()->SetName(str);
                         }
 
@@ -1025,7 +1025,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                                 VspAeroControlSurf newSurf;
                                 newSurf.SSID = ssurf->GetID();
                                 char str[256];
-                                sprintf( str, "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
+                                snprintf( str, sizeof( str ),  "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
                                 newSurf.fullName = string( str );
                                 newSurf.parentGeomId = ssurf->GetParentContainer();
                                 newSurf.iReflect = iReflect;
@@ -1130,7 +1130,7 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                     // Construct a default group name
                     string curr_csg_id = m_CompleteControlSurfaceVec[i].parentGeomId + "_" + m_CompleteControlSurfaceVec[i].SSID;
 
-                    sprintf( str, "%s_%s", m_ControlSurfaceGroupVec[j]->m_ParentGeomBaseID.c_str(),
+                    snprintf( str, sizeof( str ),  "%s_%s", m_ControlSurfaceGroupVec[j]->m_ParentGeomBaseID.c_str(),
                         m_ControlSurfaceGroupVec[j]->m_ControlSurfVec[0].SSID.c_str() );
                     if ( curr_csg_id == str ) // Update Existing Control Surface Group
                     {
@@ -1150,7 +1150,7 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                 {
                     csg = new ControlSurfaceGroup;
                     csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
-                    sprintf( str, "%s_%s", geom->GetName().c_str(),
+                    snprintf( str, sizeof( str ),  "%s_%s", geom->GetName().c_str(),
                         geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
                     csg->SetName( str );
                     csg->m_ParentGeomBaseID = m_CompleteControlSurfaceVec[i].parentGeomId;
@@ -5599,7 +5599,7 @@ void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
         //  parm name: control_surf->fullName (example: MainWing_Surf1_Aileron)
         //  group: "ControlSurfaceGroup"
         //  initial value: control_surf->deflection_gain
-        sprintf( str, "Surf_%s_%u_Gain", control_surf.SSID.c_str(), control_surf.iReflect );
+        snprintf( str, sizeof( str ),  "Surf_%s_%u_Gain", control_surf.SSID.c_str(), control_surf.iReflect );
         p->Init( str, m_GroupName, this, 1.0, -1.0e6, 1.0e6 );
         p->SetDescript( "Deflection gain for the individual sub surface to be used for control mixing and allocation within the control surface group" );
         m_DeflectionGainVec.push_back( p );

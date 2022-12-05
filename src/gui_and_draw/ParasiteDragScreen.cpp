@@ -502,25 +502,25 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_TextBuffer->append( "Lam. Cf Eqn \t : \t Chosen Laminar Equation from Documented List at Link Below \n" );
     m_TextBuffer->append( "Turb. Cf Eqn \t : \t Chosen Turbulent Equation from Documented List at Link Below \n" );
     m_TextBuffer->append( "Spec. Method \t : \t Which Inputs Are to be Used to Determine Re/L and Mach \n" );
-    sprintf( str, "Vinf \t\t : \t %s \n", ParasiteDragMgr.m_Vinf.GetDescript().c_str() );
+    snprintf( str, sizeof( str ),  "Vinf \t\t : \t %s \n", ParasiteDragMgr.m_Vinf.GetDescript().c_str() );
     m_TextBuffer->append( str );
-    sprintf( str, "Altitude \t : \t %s \n", ParasiteDragMgr.m_Hinf.GetDescript().c_str() );
+    snprintf( str, sizeof( str ),  "Altitude \t : \t %s \n", ParasiteDragMgr.m_Hinf.GetDescript().c_str() );
     m_TextBuffer->append( str );
-    sprintf( str, "Temperature \t : \t %s \n", ParasiteDragMgr.m_Temp.GetDescript().c_str() );
+    snprintf( str, sizeof( str ),  "Temperature \t : \t %s \n", ParasiteDragMgr.m_Temp.GetDescript().c_str() );
     m_TextBuffer->append( str );
-    sprintf( str, "Delta Temp. \t : \t %s \n", ParasiteDragMgr.m_DeltaT.GetDescript().c_str() );
+    snprintf( str, sizeof( str ),  "Delta Temp. \t : \t %s \n", ParasiteDragMgr.m_DeltaT.GetDescript().c_str() );
     m_TextBuffer->append( str );
-    sprintf( str, "Pressure \t : \t %s \n", ParasiteDragMgr.m_Pres.GetDescript().c_str() );
+    snprintf( str, sizeof( str ),  "Pressure \t : \t %s \n", ParasiteDragMgr.m_Pres.GetDescript().c_str() );
     m_TextBuffer->append( str );
-    sprintf( str, "Density \t : \t %s \n", ParasiteDragMgr.m_Rho.GetDescript().c_str() );
+    snprintf( str, sizeof( str ),  "Density \t : \t %s \n", ParasiteDragMgr.m_Rho.GetDescript().c_str() );
     m_TextBuffer->append( str );
-    sprintf( str, "Dynamic Visc. \t : \t %s \n", ParasiteDragMgr.m_DynaVisc.GetDescript().c_str() );
+    snprintf( str, sizeof( str ),  "Dynamic Visc. \t : \t %s \n", ParasiteDragMgr.m_DynaVisc.GetDescript().c_str() );
     m_TextBuffer->append( str );
     //sprintf(str, "Medium \t\t : \t %s \n", ParasiteDragMgr.m_MediumType.GetDescript().c_str());
     //m_TextBuffer->append(str);
-    sprintf( str, "Re/L \t\t : \t %s \n", ParasiteDragMgr.m_ReqL.GetDescript().c_str() );
+    snprintf( str, sizeof( str ),  "Re/L \t\t : \t %s \n", ParasiteDragMgr.m_ReqL.GetDescript().c_str() );
     m_TextBuffer->append( str );
-    sprintf( str, "Mach \t\t : \t %s \n", ParasiteDragMgr.m_Mach.GetDescript().c_str() );
+    snprintf( str, sizeof( str ),  "Mach \t\t : \t %s \n", ParasiteDragMgr.m_Mach.GetDescript().c_str() );
     m_TextBuffer->append( str );
     m_TextBuffer->append( "\n" );
     m_TextBuffer->append( "-- Input Unit Types -- \n" );
@@ -537,7 +537,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
             temp.append( m_AltUnitChoice.GetItems()[i] );
         }
     }
-    sprintf( str, "Alt Units \t : \t %s \n", temp.c_str() );
+    snprintf( str, sizeof( str ),  "Alt Units \t : \t %s \n", temp.c_str() );
     m_TextBuffer->append( str );
 
     temp.clear();
@@ -552,7 +552,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
             temp.append( m_ModelLengthUnitChoice.GetItems()[i] );
         }
     }
-    sprintf( str, "Length Units \t : \t %s \n", temp.c_str() );
+    snprintf( str, sizeof( str ),  "Length Units \t : \t %s \n", temp.c_str() );
     m_TextBuffer->append( str );
 
     temp.clear();
@@ -567,7 +567,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
             temp.append( m_VinfUnitChoice.GetItems()[i] );
         }
     }
-    sprintf( str, "Vinf Units \t : \t %s \n", temp.c_str() );
+    snprintf( str, sizeof( str ),  "Vinf Units \t : \t %s \n", temp.c_str() );
     m_TextBuffer->append( str );
 
     m_TextDisplay->buffer( m_TextBuffer );
@@ -585,7 +585,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
             temp.append( m_TempUnitChoice.GetItems()[i] );
         }
     }
-    sprintf( str, "Temp Units \t : \t %s \n", temp.c_str() );
+    snprintf( str, sizeof( str ),  "Temp Units \t : \t %s \n", temp.c_str() );
     m_TextBuffer->append( str );
 
     temp.clear();
@@ -600,7 +600,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
             temp.append( m_PresUnitChoice.GetItems()[i] );
         }
     }
-    sprintf( str, "Pres Units \t : \t %s \n", temp.c_str() );
+    snprintf( str, sizeof( str ),  "Pres Units \t : \t %s \n", temp.c_str() );
     m_TextBuffer->append( str );
     m_TextBuffer->append( "\n" );
 
@@ -807,7 +807,7 @@ void ParasiteDragScreen::UpdateSrefChoice()
             Geom* geom = veh->FindGeom( g_IDs[i] );
             if ( geom )
             {
-                sprintf( str, "%d_%s", i, geom->GetName().c_str() );
+                snprintf( str, sizeof( str ),  "%d_%s", i, geom->GetName().c_str() );
 
                 if ( geom->GetType().m_Type == MS_WING_GEOM_TYPE )
                 {
@@ -898,7 +898,7 @@ void ParasiteDragScreen::UpdateExcresTab()
     m_ExcresBrowser->clear();
     m_ExcresBrowser->column_char( ':' );
 
-    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.VALUE" );
+    snprintf( str, sizeof( str ),  "@b@.NAME:@b@.TYPE:@b@.VALUE" );
     m_ExcresBrowser->add( str );
 
     string excres_name, excres_type, formatString;
@@ -932,7 +932,7 @@ void ParasiteDragScreen::UpdateExcresTab()
             formatString = "%s:%s:%5.3f";
         }
 
-        sprintf( str, formatString.c_str(), excres_name.c_str(), excres_type.c_str(), excres_val );
+        snprintf( str, sizeof( str ),  formatString.c_str(), excres_name.c_str(), excres_type.c_str(), excres_val );
         m_ExcresBrowser->add( str );
     }
 
@@ -1607,7 +1607,7 @@ void ParasiteDragScreen::UpdateIncorporateDropDowns()
                 veh->FindGeom( rowVec[i].GeomID )->BuildAncestorList( ancestorNames );
                 for ( size_t j = 1; j < ancestorNames.size(); ++j )
                 {
-                    sprintf( str, "%u %s", j, ancestorNames[j].c_str() );
+                    snprintf( str, sizeof( str ),  "%u %s", j, ancestorNames[j].c_str() );
                     m_grouped[i].AddItem( str );
                 }
                 ancestorNames.clear();
@@ -2007,29 +2007,29 @@ string ParasiteDragScreen::GetComponentTableLabel( int subsurfFlag, const string
         {
             if ( veh->FindGeom( rowVec[index].GeomID )->GetType().m_Type == CUSTOM_GEOM_TYPE )
             {
-                sprintf( str, "(+) %s", rowVec[index].Label.c_str() );
+                snprintf( str, sizeof( str ),  "(+) %s", rowVec[index].Label.c_str() );
             }
             else
             {
                 if ( rowVec[index].ExpandedList )
                 {
-                    sprintf( str, "@2> %s", rowVec[index].Label.c_str() );
+                    snprintf( str, sizeof( str ),  "@2> %s", rowVec[index].Label.c_str() );
                 }
                 else
                 {
-                    sprintf( str, "(+) %s", veh->FindGeom( rowVec[index].GeomID )->GetName().c_str() );
+                    snprintf( str, sizeof( str ),  "(+) %s", veh->FindGeom( rowVec[index].GeomID )->GetName().c_str() );
                 }
             }
         }
         else
         {
             // Expanded List
-            sprintf( str, "%s", rowVec[index].Label.c_str() ); // All other Surfaces (not including subsurfaces)
+            snprintf( str, sizeof( str ),  "%s", rowVec[index].Label.c_str() ); // All other Surfaces (not including subsurfaces)
         }
     }
     else
     {
-        sprintf( str, "%s", rowVec[index].Label.c_str() ); // is subsurface
+        snprintf( str, sizeof( str ),  "%s", rowVec[index].Label.c_str() ); // is subsurface
     }
 
     return string( str );

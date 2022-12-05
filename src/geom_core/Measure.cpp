@@ -403,7 +403,7 @@ void Ruler::Update()
         m_Distance = delta.mag();
 
         char str[255];
-        sprintf( str, "%s%.*f %s", dir, m_Precision(), delta.mag(), LenUnitName( veh->m_MeasureLenUnit() ).c_str() );
+        snprintf( str, sizeof( str ), "%s%.*f %s", dir, m_Precision(), delta.mag(), LenUnitName( veh->m_MeasureLenUnit() ).c_str() );
 
         m_LabelDO.m_Ruler.Start = origin;
         m_LabelDO.m_Ruler.End = end;

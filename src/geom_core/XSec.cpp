@@ -88,7 +88,7 @@ string XSec::GetName()
     if ( pc )
     {
         char str[256];
-        sprintf( str, "_%d", m_GroupSuffix );
+        snprintf( str, sizeof( str ),  "_%d", m_GroupSuffix );
         return pc->GetName() + " " + m_GroupName + string(str);
     }
     return ParmContainer::GetName();

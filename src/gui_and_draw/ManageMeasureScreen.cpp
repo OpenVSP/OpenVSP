@@ -388,7 +388,7 @@ bool ManageMeasureScreen::Update()
             char str[256];
             for ( int i = 0; i < nsurf; ++i )
             {
-                sprintf( str, "Surf_%d", i );
+                snprintf( str, sizeof( str ),  "Surf_%d", i );
                 m_StartSurfChoice.AddItem( str );
             }
             m_StartSurfChoice.UpdateItems();
@@ -407,7 +407,7 @@ bool ManageMeasureScreen::Update()
         m_EndWSlider.Update( ruler->m_EndW.GetID() );
 
         char str[255];
-        sprintf( str, "%%.%df", ruler->m_Precision() );
+        snprintf( str, sizeof( str ),  "%%.%df", ruler->m_Precision() );
 
         m_DeltaXOutput.SetFormat( str );
         m_DeltaYOutput.SetFormat( str );
@@ -433,7 +433,7 @@ bool ManageMeasureScreen::Update()
             char str[256];
             for ( int i = 0; i < nsurf; ++i )
             {
-                sprintf( str, "Surf_%d", i );
+                snprintf( str, sizeof( str ),  "Surf_%d", i );
                 m_EndSurfChoice.AddItem( str );
             }
             m_EndSurfChoice.UpdateItems();
@@ -514,7 +514,7 @@ bool ManageMeasureScreen::Update()
             char str[256];
             for ( int i = 0; i < nsurf; ++i )
             {
-                sprintf( str, "Surf_%d", i );
+                snprintf( str, sizeof( str ),  "Surf_%d", i );
                 m_ProbeSurfChoice.AddItem( str );
             }
             m_ProbeSurfChoice.UpdateItems();
@@ -528,7 +528,7 @@ bool ManageMeasureScreen::Update()
         }
 
         char str[255];
-        sprintf( str, "%%.%df", probe->m_Precision() );
+        snprintf( str, sizeof( str ),  "%%.%df", probe->m_Precision() );
 
         m_XOutput.SetFormat( str );
         m_YOutput.SetFormat( str );
@@ -549,7 +549,7 @@ bool ManageMeasureScreen::Update()
         m_ZOutput.SetSuffix( lenunit );
 
         char curvunit[255];
-        sprintf( curvunit, "1/%s", lenunit.c_str() );
+        snprintf( curvunit, sizeof( curvunit ), "1/%s", lenunit.c_str() );
 
         m_K1Output.SetSuffix( string( curvunit ) );
         m_K2Output.SetSuffix( string( curvunit ) );
@@ -639,7 +639,7 @@ bool ManageMeasureScreen::Update()
             char str[256];
             for ( int i = 0; i < nsurf; ++i )
             {
-                sprintf( str, "Surf_%d", i );
+                snprintf( str, sizeof( str ),  "Surf_%d", i );
                 m_RSTProbeSurfChoice.AddItem( str );
             }
             m_RSTProbeSurfChoice.UpdateItems();
@@ -653,7 +653,7 @@ bool ManageMeasureScreen::Update()
         }
 
         char str[255];
-        sprintf( str, "%%.%df", RSTprobe->m_Precision() );
+        snprintf( str, sizeof( str ),  "%%.%df", RSTprobe->m_Precision() );
 
         m_RSTXOutput.SetFormat( str );
         m_RSTYOutput.SetFormat( str );
@@ -665,7 +665,7 @@ bool ManageMeasureScreen::Update()
         m_RSTZOutput.SetSuffix( lenunit );
 
         char curvunit[255];
-        sprintf( curvunit, "1/%s", lenunit.c_str() );
+        snprintf( curvunit, sizeof( curvunit ), "1/%s", lenunit.c_str() );
 
         m_RSTXOutput.Update( RSTprobe->m_X.GetID() );
         m_RSTYOutput.Update( RSTprobe->m_Y.GetID() );

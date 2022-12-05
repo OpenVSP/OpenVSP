@@ -823,7 +823,7 @@ bool GeomScreen::Update()
     m_SymAncestorChoice.ClearItems();
     for( int i = 0; i < (int) ancestorNames.size(); i++ )
     {
-        sprintf( str, "%3d %s", i, ancestorNames[i].c_str() );
+        snprintf( str, sizeof( str ),  "%3d %s", i, ancestorNames[i].c_str() );
         m_SymAncestorChoice.AddItem( str );
     }
     m_SymAncestorChoice.UpdateItems();
@@ -894,7 +894,7 @@ bool GeomScreen::Update()
     int nmain = geom_ptr->GetNumMainSurfs();
     for ( int i = 0; i < nmain; ++i )
     {
-        sprintf( str, "Surf_%d", i );
+        snprintf( str, sizeof( str ),  "Surf_%d", i );
         m_SubSurfSelectSurface.AddItem( str );
     }
     m_SubSurfSelectSurface.UpdateItems();
@@ -1071,7 +1071,7 @@ bool GeomScreen::Update()
 
     m_SubSurfBrowser->column_char( ':' );
 
-    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.SURF" );
+    snprintf( str, sizeof( str ),  "@b@.NAME:@b@.TYPE:@b@.SURF" );
     m_SubSurfBrowser->add( str );
 
     string ss_name, ss_type;
@@ -1108,13 +1108,13 @@ bool GeomScreen::Update()
             }
 
             char buf[15];
-            sprintf( buf, "%0.2f", ssline->m_ConstVal() );
+            snprintf( buf, sizeof( buf ), "%0.2f", ssline->m_ConstVal() );
 
             ss_type.append( buf );
         }
 
         ss_surf_ind = subsurf_vec[i]->m_MainSurfIndx.Get();
-        sprintf( str, "%s:%s:Surf_%d", ss_name.c_str(), ss_type.c_str(), ss_surf_ind );
+        snprintf( str, sizeof( str ),  "%s:%s:Surf_%d", ss_name.c_str(), ss_type.c_str(), ss_surf_ind );
         m_SubSurfBrowser->add( str );
     }
 
@@ -2161,9 +2161,9 @@ bool XSecScreen::Update()
                 int num_low = cst_xs->m_LowDeg() + 1;
 
                 char str[255];
-                sprintf( str, "%d", cst_xs->m_UpDeg() );
+                snprintf( str, sizeof( str ),  "%d", cst_xs->m_UpDeg() );
                 m_UpDegreeOutput.Update( str );
-                sprintf( str, "%d", cst_xs->m_LowDeg() );
+                snprintf( str, sizeof( str ),  "%d", cst_xs->m_LowDeg() );
                 m_LowDegreeOutput.Update( str );
 
                 m_CSTChordSlider.Update( cst_xs->m_Chord.GetID() );

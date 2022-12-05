@@ -276,7 +276,7 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
         errMsgData.m_String = "Error";
         errMsgData.m_IntVec.push_back( vsp::VSP_AMBIGUOUS_SUBSURF );
         char buf[255];
-        sprintf( buf, "Error: Ambiguous flow-through subsurface detected" );
+        snprintf( buf, sizeof( buf ), "Error: Ambiguous flow-through subsurface detected" );
         errMsgData.m_StringVec.push_back( string( buf ) );
         MessageMgr::getInstance().SendAll( errMsgData );
     }

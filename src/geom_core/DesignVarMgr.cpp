@@ -318,7 +318,7 @@ void DesignVarMgrSingleton::WriteDesVarsXDDM( const string &newfile )
         ParmMgr.GetNames( m_VarVec[i]->m_ParmID, c_name, g_name, p_name );
 
         char varname[255];
-        sprintf( varname, "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
+        snprintf( varname, sizeof( varname ), "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
 
         xmlSetProp( var_node, ( const xmlChar * )"ID", ( const xmlChar * )varname );
         XmlUtil::SetDoubleProp( var_node, "Value", p->Get() );

@@ -150,9 +150,9 @@ bool UserParmScreen::Update()
         m_EditParmDescInput.Update( user_parm_ptr->GetDescript() );
 
         char str[255];
-        sprintf( str, " %7.5f", user_parm_ptr->GetLowerLimit() );
+        snprintf( str, sizeof( str ), " %7.5f", user_parm_ptr->GetLowerLimit() );
         m_EditParmMinInput.Update( str );
-        sprintf( str, " %7.5f", user_parm_ptr->GetUpperLimit() );
+        snprintf( str, sizeof( str ), " %7.5f", user_parm_ptr->GetUpperLimit() );
         m_EditParmMaxInput.Update( str );
     }
     else

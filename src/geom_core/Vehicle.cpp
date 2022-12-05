@@ -309,7 +309,7 @@ void Vehicle::Init()
     for ( int i = 0 ; i < NUM_SETS; i++ )
     {
         char str[256];
-        sprintf( str, "Set_%d", i );
+        snprintf( str, sizeof( str ),  "Set_%d", i );
         m_SetNameVec.push_back( str );
     }
 
@@ -1516,7 +1516,7 @@ void Vehicle::SetSetName( int index, const string& name )
 
     while ( ( int )m_SetNameVec.size() <= index )
     {
-        sprintf( str, "Set_%d", ( int )m_SetNameVec.size() );
+        snprintf( str, sizeof( str ),  "Set_%d", ( int )m_SetNameVec.size() );
         m_SetNameVec.push_back( string( str ) );
     }
     m_SetNameVec[index] = name;
@@ -3022,16 +3022,16 @@ void Vehicle::WriteX3DViewpoints( xmlNodePtr node )
         // Convert vectors to strings //
         string orients, cents, posits, name, sfov;
 
-        sprintf( numstr, format4.c_str(),  rot_axis.x(), rot_axis.y(), rot_axis.z(), angle );
+        snprintf( numstr, sizeof( numstr ),  format4.c_str(),  rot_axis.x(), rot_axis.y(), rot_axis.z(), angle );
         orients = numstr;
 
-        sprintf( numstr, format3.c_str(), center.x(), center.y(), center.z() );
+        snprintf( numstr, sizeof( numstr ),  format3.c_str(), center.x(), center.y(), center.z() );
         cents = numstr;
 
-        sprintf( numstr, format3.c_str(), position.x(), position.y(), position.z() );
+        snprintf( numstr, sizeof( numstr ),  format3.c_str(), position.x(), position.y(), position.z() );
         posits = numstr;
 
-        sprintf( numstr, "%lf", fov );
+        snprintf( numstr, sizeof( numstr ),  "%lf", fov );
         sfov = numstr;
 
         // write first viewpoint twice so viewpoint buttons will work correctly //
@@ -3084,12 +3084,12 @@ void Vehicle::WriteX3DMaterial( xmlNodePtr node, Material * material )
 
     double alpha;
     material->GetAlpha(alpha);
-    sprintf( numstr, "%lf", 1.0-alpha );
+    snprintf( numstr, sizeof( numstr ),  "%lf", 1.0-alpha );
     xmlSetProp( mat_node, BAD_CAST "transparency", BAD_CAST numstr );
 
     double shine;
     material->GetShininess(shine);
-    sprintf( numstr, "%lf", shine );
+    snprintf( numstr, sizeof( numstr ),  "%lf", shine );
     xmlSetProp( mat_node, BAD_CAST "shininess", BAD_CAST numstr );
 
     material->GetAmbient(amb);
@@ -3103,7 +3103,7 @@ void Vehicle::WriteX3DMaterial( xmlNodePtr node, Material * material )
 
 
 
-    sprintf( numstr, "%lf", ambd );
+    snprintf( numstr, sizeof( numstr ),  "%lf", ambd );
     xmlSetProp( mat_node, BAD_CAST "ambientIntensity", BAD_CAST numstr );
 }
 
@@ -5411,7 +5411,7 @@ string Vehicle::WriteDegenGeomFile()
     blankCnt = m_DegenPtMassVec.size();
 
     char geomCntStr[255];
-    sprintf(geomCntStr,"%d components and %d", geomCnt, blankCnt);
+    snprintf( geomCntStr, sizeof( geomCntStr ), "%d components and %d", geomCnt, blankCnt);
     outStr += "Wrote ";
     outStr += geomCntStr;
     outStr += " blank geoms\nto the following files:\n\n";

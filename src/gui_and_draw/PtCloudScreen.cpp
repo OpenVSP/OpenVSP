@@ -86,7 +86,7 @@ bool PtCloudScreen::Update()
         char str[256];
         for ( int i = 0; i < nsurf; ++i )
         {
-            sprintf( str, "Surf_%d", i );
+            snprintf( str, sizeof( str ), "Surf_%d", i );
             m_SurfChoice.AddItem( str );
         }
         m_SurfChoice.UpdateItems();

@@ -79,7 +79,7 @@ xmlNodePtr TextureMgr::EncodeXml( xmlNodePtr node )
 
     for( int i = 0; i < (int)m_TextureList.size(); i++ )
     {
-        sprintf( texName, "Texture%d", i );
+        snprintf( texName, sizeof( texName ), "Texture%d", i );
         xmlNodePtr tex_node = xmlNewChild( child_node, NULL, BAD_CAST texName, NULL );
         m_TextureList[i]->EncodeXml( tex_node );
     }
@@ -95,7 +95,7 @@ xmlNodePtr TextureMgr::DecodeXml( xmlNodePtr node )
     int numofTex = XmlUtil::FindInt( child_node, "Num_of_Tex", 0 );
     for( int i = 0; i < numofTex; i++ )
     {
-        sprintf( texName, "Texture%d", i );
+        snprintf( texName, sizeof( texName ), "Texture%d", i );
         xmlNodePtr tex_node = XmlUtil::GetNode( child_node, texName, 0 );
         xmlNodePtr parm_node = XmlUtil::GetNode( tex_node, "ParmContainer", 0 );
         if( tex_node && parm_node )

@@ -431,7 +431,7 @@ void SurfaceIntersectionScreen::UpdateWakesTab()
         Geom* g = m_Vehicle->FindGeom( m_GeomVec[i] );
         if ( g )
         {
-            sprintf( str, "%d_%s", i, g->GetName().c_str() );
+            snprintf( str, sizeof( str ), "%d_%s", i, g->GetName().c_str() );
             if ( g->HasWingTypeSurfs() )
             {
                 m_Comp.AddItem( str );

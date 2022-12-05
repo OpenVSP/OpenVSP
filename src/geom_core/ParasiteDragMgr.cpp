@@ -246,16 +246,16 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                 {
                     if ( geom->GetSurfType(0) == vsp::NORMAL_SURF )
                     {
-                        sprintf( str, "[B] %s", geom->GetName().c_str() );
+                        snprintf( str, sizeof( str ),  "[B] %s", geom->GetName().c_str() );
                     }
                     else
                     {
-                        sprintf( str, "[W] %s", geom->GetName().c_str() );
+                        snprintf( str, sizeof( str ),  "[W] %s", geom->GetName().c_str() );
                     }
                 }
                 else
                 {
-                    sprintf( str, "%s", geom->GetName().c_str() );
+                    snprintf( str, sizeof( str ),  "%s", geom->GetName().c_str() );
                 }
 
                 m_geo_shapeType.push_back( geom->GetSurfType(0) ); // Form Factor Shape Type
@@ -295,7 +295,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                         m_geo_TawTwRatio.push_back( m_geo_TawTwRatio[m_geo_TawTwRatio.size() - 1] );
                         m_geo_surfNum.push_back( j );
                         m_geo_expandedList.push_back( false );
-                        sprintf( str, "%s_%d", geom->GetName().c_str(), j );
+                        snprintf( str, sizeof( str ),  "%s_%d", geom->GetName().c_str(), j );
                     }
                     else
                     {
@@ -303,17 +303,17 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                         {
                             if ( geom->GetSurfType(j) == vsp::NORMAL_SURF )
                             {
-                                sprintf( str, "[B] %s", geom->GetName().c_str() );
+                                snprintf( str, sizeof( str ),  "[B] %s", geom->GetName().c_str() );
                             }
                             else
                             {
-                                sprintf( str, "[W] %s", geom->GetName().c_str() );
+                                snprintf( str, sizeof( str ),  "[W] %s", geom->GetName().c_str() );
                             }
                             m_geo_surfNum.push_back( j );
                         }
                         else
                         {
-                            sprintf( str, "%s_%i", geom->GetName().c_str(), j );
+                            snprintf( str, sizeof( str ),  "%s_%i", geom->GetName().c_str(), j );
                             m_geo_surfNum.push_back( 0 );
                         }
                         m_geo_masterRow.push_back( false );
@@ -400,14 +400,14 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 
                         if ( lastSSID.compare( surf->GetID() ) != 0 && surf->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT )
                         {
-                            sprintf( str, "[ss] %s", surf->GetName().c_str() );
+                            snprintf( str, sizeof( str ),  "[ss] %s", surf->GetName().c_str() );
                             m_geo_label.push_back( str );
                             lastSSID = surf->GetID();
                             --k;
                         }
                         else
                         {
-                            sprintf( str, "[ss] %s_%i", surf->GetName().c_str(), k );
+                            snprintf( str, sizeof( str ),  "[ss] %s_%i", surf->GetName().c_str(), k );
                             m_geo_label.push_back( str );
                         }
                     }
@@ -528,7 +528,7 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
                     vector < string > tagidvec = m_CompGeomResults->Find( "Tag_ID" ).GetStringData();
                     if ( m_geo_subsurfID[i].compare( "" ) == 0 )
                     {
-                        sprintf( str, "%s_Surf%i", geom->GetID().c_str(), m_geo_surfNum[i] );
+                        snprintf( str, sizeof( str ),  "%s_Surf%i", geom->GetID().c_str(), m_geo_surfNum[i] );
                         newstr = str;
                         searchIndex = vector_find_val( tagidvec, newstr );
                         m_geo_swet.push_back( m_CompGeomResults->Find( "Tag_Wet_Area" ).GetDouble( searchIndex ) );
@@ -536,7 +536,7 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
                     }
                     else
                     {
-                        sprintf( str, "%s_Surf%i,%s", geom->GetID().c_str(), m_geo_surfNum[i],
+                        snprintf( str, sizeof( str ),  "%s_Surf%i,%s", geom->GetID().c_str(), m_geo_surfNum[i],
                              m_geo_subsurfID[i].c_str() );
                         newstr = str;
                         searchIndex = vector_find_val( tagidvec, newstr );
@@ -2226,7 +2226,7 @@ void ParasiteDragMgrSingleton::AddExcrescence()
 
     if ( m_ExcresName.empty() )
     {
-        sprintf( str, "EXCRES_%zu", m_ExcresRowVec.size() );
+        snprintf( str, sizeof( str ),  "EXCRES_%zu", m_ExcresRowVec.size() );
         tempStruct.Label = string( str );
     }
     else
@@ -3355,7 +3355,7 @@ xmlNodePtr ParasiteDragMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     for ( size_t i = 0; i < m_ExcresRowVec.size(); ++i )
     {
-        sprintf( str, "Excres_%zu", i );
+        snprintf( str, sizeof( str ),  "Excres_%zu", i );
         xmlNodePtr excresqualnode = xmlNewChild( ExcresDragnode, NULL, BAD_CAST str, NULL );
 
         XmlUtil::AddStringNode( excresqualnode, "Label", m_ExcresRowVec[i].Label );
@@ -3384,7 +3384,7 @@ xmlNodePtr ParasiteDragMgrSingleton::DecodeXml( xmlNodePtr & node )
 
         for ( int i = 0; i < numExcres; i++ )
         {
-            sprintf( str, "Excres_%i", i );
+            snprintf( str, sizeof( str ),  "Excres_%i", i );
             xmlNodePtr excresqualnode = XmlUtil::GetNode( ExcresDragnode, str, 0 );
 
             m_ExcresType.Set( XmlUtil::FindInt( excresqualnode, "Type", 0 ) );

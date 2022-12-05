@@ -169,13 +169,13 @@ void FeaMesh::UpdateDrawObjs()
     char str[256];
     for ( int iprt = 0; iprt < m_NumFeaParts; iprt++ )
     {
-        sprintf( str, "%s_Node_Tag_%d", GetID().c_str(), iprt );
+        snprintf( str, sizeof( str ), "%s_Node_Tag_%d", GetID().c_str(), iprt );
         m_FeaNodeDO[iprt].m_GeomID = string( str );
-        sprintf( str, "%s_T_Element_Tag_%d", GetID().c_str(), iprt );
+        snprintf( str, sizeof( str ), "%s_T_Element_Tag_%d", GetID().c_str(), iprt );
         m_FeaTriElementDO[iprt].m_GeomID = string( str );
-        sprintf( str, "%s_Q_Element_Tag_%d", GetID().c_str(), iprt );
+        snprintf( str, sizeof( str ), "%s_Q_Element_Tag_%d", GetID().c_str(), iprt );
         m_FeaQuadElementDO[iprt].m_GeomID = string( str );
-        sprintf( str, "%s_Cap_Element_Tag_%d", GetID().c_str(), iprt );
+        snprintf( str, sizeof( str ), "%s_Cap_Element_Tag_%d", GetID().c_str(), iprt );
         m_CapFeaElementDO[iprt].m_GeomID = string( str );
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
@@ -251,13 +251,13 @@ void FeaMesh::UpdateDrawObjs()
             }
         }
 
-        sprintf( str, "%s_Tri_Norm_%d", GetID().c_str(), iprt );
+        snprintf( str, sizeof( str ), "%s_Tri_Norm_%d", GetID().c_str(), iprt );
         m_ElOrientationDO[iprt].m_GeomID = string( str );
         m_ElOrientationDO[iprt].m_Type = DrawObj::VSP_LINES;
         m_ElOrientationDO[iprt].m_LineWidth = 1.0;
         m_ElOrientationDO[iprt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
-        sprintf( str, "%s_Cap_Norm_%d", GetID().c_str(), iprt );
+        snprintf( str, sizeof( str ), "%s_Cap_Norm_%d", GetID().c_str(), iprt );
         m_CapNormDO[iprt].m_GeomID = string( str );
         m_CapNormDO[iprt].m_Type = DrawObj::VSP_LINES;
         m_CapNormDO[iprt].m_LineWidth = 1.0;
@@ -325,13 +325,13 @@ void FeaMesh::UpdateDrawObjs()
 
     for ( int iss = 0; iss < m_NumFeaSubSurfs; iss++ )
     {
-        sprintf( str, "%s_SSNode_Tag_%d", GetID().c_str(), iss );
+        snprintf( str, sizeof( str ), "%s_SSNode_Tag_%d", GetID().c_str(), iss );
         m_SSFeaNodeDO[iss].m_GeomID = string( str );
-        sprintf( str, "%s_SSTriElement_Tag_%d", GetID().c_str(), iss );
+        snprintf( str, sizeof( str ), "%s_SSTriElement_Tag_%d", GetID().c_str(), iss );
         m_SSTriElementDO[iss].m_GeomID = string( str );
-        sprintf( str, "%s_SSQuadElement_Tag_%d", GetID().c_str(), iss );
+        snprintf( str, sizeof( str ), "%s_SSQuadElement_Tag_%d", GetID().c_str(), iss );
         m_SSQuadElementDO[iss].m_GeomID = string( str );
-        sprintf( str, "%s_SSCap_Element_Tag_%d", GetID().c_str(), iss );
+        snprintf( str, sizeof( str ), "%s_SSCap_Element_Tag_%d", GetID().c_str(), iss );
         m_SSCapFeaElementDO[iss].m_GeomID = string( str );
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
@@ -388,13 +388,13 @@ void FeaMesh::UpdateDrawObjs()
             }
         }
 
-        sprintf( str, "%s_SSTri_Norm_%u", GetID().c_str(), iss );
+        snprintf( str, sizeof( str ), "%s_SSTri_Norm_%u", GetID().c_str(), iss );
         m_SSElOrientationDO[iss].m_GeomID = string( str );
         m_SSElOrientationDO[iss].m_Type = DrawObj::VSP_LINES;
         m_SSElOrientationDO[iss].m_LineWidth = 1.0;
         m_SSElOrientationDO[iss].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
-        sprintf( str, "%s_SSCap_Norm_%u", GetID().c_str(), iss );
+        snprintf( str, sizeof( str ), "%s_SSCap_Norm_%u", GetID().c_str(), iss );
         m_SSCapNormDO[iss].m_GeomID = string( str );
         m_SSCapNormDO[iss].m_Type = DrawObj::VSP_LINES;
         m_SSCapNormDO[iss].m_LineWidth = 1.0;
@@ -1642,16 +1642,16 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
                         fprintf( fp, "\n" );
                         char ostr[256];
-                        sprintf( ostr, "O%s_%s_%d", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
+                        snprintf( ostr, sizeof( str ), "O%s_%s_%d", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
 
                         if ( !m_StructSettings.m_ConvertToQuadsFlag )
                         {
-                            sprintf( str, "E%s_%s_%d", m_FeaPartNameVec[ i ].c_str(), m_StructName.c_str(), isurf );
+                            snprintf( str, sizeof( str ), "E%s_%s_%d", m_FeaPartNameVec[ i ].c_str(), m_StructName.c_str(), isurf );
                             FeaMeshMgr.GetSimplePropertyVec()[ property_id ].WriteCalculix( fp, str, ostr );
                         }
                         else
                         {
-                            sprintf( str, "E%s_%s_%d", m_FeaPartNameVec[ i ].c_str(), m_StructName.c_str(), isurf );
+                            snprintf( str, sizeof( str ), "E%s_%s_%d", m_FeaPartNameVec[ i ].c_str(), m_StructName.c_str(), isurf );
                             FeaMeshMgr.GetSimplePropertyVec()[ property_id ].WriteCalculix( fp, str, ostr );
                         }
 
@@ -1667,7 +1667,7 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                         FeaMeshMgr.MarkPropMatUsed( cap_property_id );
 
                         fprintf( fp, "\n" );
-                        sprintf( str, "EB%s_%s_%d_CAP", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
+                        snprintf( str, sizeof( str ), "EB%s_%s_%d_CAP", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
                         FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
 
                         if ( !m_StructSettings.m_BeamPerElementNormal )
@@ -1706,16 +1706,16 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
                     fprintf( fp, "\n" );
                     char ostr[256];
-                    sprintf( ostr, "O%s_%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
+                    snprintf( ostr, sizeof( ostr ), "O%s_%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
 
                     if ( !m_StructSettings.m_ConvertToQuadsFlag )
                     {
-                        sprintf( str, "E%s_%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
+                        snprintf( str, sizeof( str ), "E%s_%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
                         FeaMeshMgr.GetSimplePropertyVec()[property_id].WriteCalculix( fp, str, ostr );
                     }
                     else
                     {
-                        sprintf( str, "E%s_%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
+                        snprintf( str, sizeof( str ), "E%s_%s_%d", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
                         FeaMeshMgr.GetSimplePropertyVec()[property_id].WriteCalculix( fp, str, ostr );
                     }
 
@@ -1731,7 +1731,7 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                     FeaMeshMgr.MarkPropMatUsed( cap_property_id );
 
                     fprintf( fp, "\n" );
-                    sprintf( str, "EB%s_%s_%d_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
+                    snprintf( str, sizeof( str ), "EB%s_%s_%d_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str(), isurf );
                     FeaMeshMgr.GetSimplePropertyVec()[cap_property_id].WriteCalculix( fp, str, "" );
 
                     if ( !m_StructSettings.m_BeamPerElementNormal )

@@ -1002,9 +1002,9 @@ bool BORScreen::Update()
             int num_low = cst_xs->m_LowDeg() + 1;
 
             char str[255];
-            sprintf( str, "%d", cst_xs->m_UpDeg() );
+            snprintf( str, sizeof( str ),  "%d", cst_xs->m_UpDeg() );
             m_UpDegreeOutput.Update( str );
-            sprintf( str, "%d", cst_xs->m_LowDeg() );
+            snprintf( str, sizeof( str ),  "%d", cst_xs->m_LowDeg() );
             m_LowDegreeOutput.Update( str );
 
             m_CSTChordSlider.Update(cst_xs->m_Chord.GetID());

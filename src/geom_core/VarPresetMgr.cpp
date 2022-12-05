@@ -115,27 +115,27 @@ xmlNodePtr Preset::EncodeXml( xmlNodePtr &varpresetnode, int i )
     char buffer [50];
 
     // Encode Group Name
-    sprintf( buffer, "Group%i", i );
+    snprintf( buffer, sizeof( buffer ),  "Group%i", i );
     XmlUtil::AddStringNode( varpresetnode, buffer, m_GroupName );
 
     // Encode Group Qualities
-    sprintf( buffer, "Group%iQualities", i );
+    snprintf( buffer, sizeof( buffer ),  "Group%iQualities", i );
     xmlNodePtr groupqualnode = xmlNewChild( varpresetnode, NULL, BAD_CAST buffer, NULL );
 
     XmlUtil::AddStringNode( groupqualnode, "ActiveSettingName" , m_CurSetName );
     for ( int j = 0; j < m_ParmIDVec.size(); j++ )
     {
-        sprintf(buffer, "ParmID%i", j );
+        snprintf( buffer, sizeof( buffer ),  "ParmID%i", j );
         XmlUtil::AddStringNode( groupqualnode, buffer, m_ParmIDVec[ j ] );
     }
 
     // Encode Setting Qualities
     for ( int j = 0; j < m_SettingNameVec.size(); j++ )
     {
-        sprintf( buffer, "SettingName%i", j );
+        snprintf( buffer, sizeof( buffer ),  "SettingName%i", j );
         XmlUtil::AddStringNode( groupqualnode, buffer , m_SettingNameVec[ j ] );
 
-        sprintf( buffer, "Setting%iQualities", j );
+        snprintf( buffer, sizeof( buffer ),  "Setting%iQualities", j );
         xmlNodePtr setqualnode = xmlNewChild( groupqualnode, NULL, BAD_CAST buffer, NULL );
 
         XmlUtil::AddVectorDoubleNode( setqualnode, "ParmVals", m_ParmValVec[ j ] );
@@ -160,25 +160,25 @@ Preset Preset::DecodeXml( xmlNodePtr &varpresetnode, int i )
     vector <int> numParmqGroup = XmlUtil::ExtractVectorIntNode( varpresetnode, "NumParmsPerGroup" );
 
     // Grab Group Qualities
-    sprintf( buffer, "Group%i", i );
+    snprintf( buffer, sizeof( buffer ),  "Group%i", i );
     groupName = XmlUtil::FindString( varpresetnode, buffer, name );
 
-    sprintf( buffer, "Group%iQualities", i );
+    snprintf( buffer, sizeof( buffer ),  "Group%iQualities", i );
     xmlNodePtr groupqualnode = XmlUtil::GetNode( varpresetnode, buffer, 0 );
 
     for ( int j = 0; j < numParmqGroup[ i ]; j++ )
     {
-        sprintf(buffer, "ParmID%i", j);
+        snprintf( buffer, sizeof( buffer ),  "ParmID%i", j);
         p_IDs.push_back( ParmMgr.RemapID( XmlUtil::FindString( groupqualnode, buffer, name) ) );
     }
 
     // Grab Setting Qualities
     for ( int j = 0; j < numSetqGroup[ i ]; j++ )
     {
-        sprintf( buffer, "SettingName%i", j );
+        snprintf( buffer, sizeof( buffer ),  "SettingName%i", j );
         setName = XmlUtil::FindString( groupqualnode, buffer, name );
 
-        sprintf( buffer, "Setting%iQualities", j );
+        snprintf( buffer, sizeof( buffer ),  "Setting%iQualities", j );
         xmlNodePtr setqualnode = XmlUtil::GetNode( groupqualnode, buffer, 0 );
         p_vals = XmlUtil::ExtractVectorDoubleNode( setqualnode, "ParmVals" );
 

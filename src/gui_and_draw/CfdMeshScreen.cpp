@@ -532,7 +532,7 @@ bool CfdMeshScreen::Update()
         Geom* g = m_Vehicle->FindGeom( m_GeomVec[i] );
         if ( g )
         {
-            sprintf( str, "%d_%s", i, g->GetName().c_str() );
+            snprintf( str, sizeof( str ),  "%d_%s", i, g->GetName().c_str() );
             m_SourcesSelectComp.AddItem( str );
             if( g->HasWingTypeSurfs() )
             {
@@ -612,7 +612,7 @@ bool CfdMeshScreen::Update()
         for ( int i = 0; i < nmain; ++i )
         {
             char str[256];
-            sprintf( str, "Surf_%d", i );
+            snprintf( str, sizeof( str ),  "Surf_%d", i );
             m_SourcesSelectSurface.AddItem( str );
         }
         m_SourcesSelectSurface.UpdateItems();

@@ -21,7 +21,7 @@ void WriteSVGHeader( xmlNodePtr root, const BndBox &svgbox )
     // Convert vectors to strings:
     char sviewbox[255];
 
-    sprintf( sviewbox, "%f %f %f %f", 0.0, 0.0, x_view, y_view );
+    snprintf( sviewbox, sizeof( sviewbox ), "%f %f %f %f", 0.0, 0.0, x_view, y_view );
 
     xmlSetProp( root, BAD_CAST "width", BAD_CAST "100%" );
     xmlSetProp( root, BAD_CAST "height", BAD_CAST "100%" );
@@ -207,14 +207,14 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
     // Align scale label
     if ( convert_scale < 1 || convert_scale >= 1000 )
     {
-        sprintf( numstr, "%.1e", convert_scale );
+        snprintf( numstr, sizeof( numstr ), "%.1e", convert_scale );
         string_scale = numstr;
         x_end -= 0.125 * x_end;
     }
     else
     {
         int int_scale = convert_scale;
-        sprintf( numstr, "%d", int_scale );
+        snprintf( numstr, sizeof( numstr ), "%d", int_scale );
         string_scale = numstr;
     }
 

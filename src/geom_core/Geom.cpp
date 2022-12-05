@@ -3197,7 +3197,7 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         // Symmetry drawObjs have same m_ID. Make them unique by adding index
         // at the end of m_ID.
-        sprintf( str, "_%d", i );
+        snprintf( str, sizeof( str ),  "_%d", i );
         m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
         m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
@@ -3313,7 +3313,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
         {
             m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            sprintf( str, "_%d", i );
+            snprintf( str, sizeof( str ),  "_%d", i );
             m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
             m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
             m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
@@ -3329,7 +3329,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
             {
                 m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-                sprintf( str, "_%d", i );
+                snprintf( str, sizeof( str ),  "_%d", i );
                 m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
                 m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
                 draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
@@ -4549,7 +4549,7 @@ void Geom::WriteX3D( xmlNodePtr node )
                 offset++;
 
                 vec3d pnt = pnts[xs][p];
-                sprintf( numstr, "%lf %lf %lf ", pnt.x(), pnt.y(), pnt.z() );
+                snprintf( numstr, sizeof( numstr ), "%lf %lf %lf ", pnt.x(), pnt.y(), pnt.z() );
                 crdstr += numstr;
             }
         }
@@ -4566,11 +4566,11 @@ void Geom::WriteX3D( xmlNodePtr node )
 
                 if ( f_norm )
                 {
-                    sprintf( numstr, "%d %d %d %d -1 ", i3, i2, i1, i0 );
+                    snprintf( numstr, sizeof( numstr ), "%d %d %d %d -1 ", i3, i2, i1, i0 );
                 }
                 else
                 {
-                    sprintf( numstr, "%d %d %d %d -1 ", i0, i1, i2, i3 );
+                    snprintf( numstr, sizeof( numstr ), "%d %d %d %d -1 ", i0, i1, i2, i3 );
                 }
                 indstr += numstr;
             }
@@ -4588,7 +4588,7 @@ void Geom::WritePovRay( FILE* fid, int comp_num )
     string name = GetName();
     StringUtil::chance_space_to_underscore( name );
     char str[4];
-    sprintf( str, "_%d", comp_num );
+    snprintf( str, sizeof( str ),  "_%d", comp_num );
     name.append( str );
 
     fprintf( fid, "#declare %s = mesh { \n", name.c_str() );
@@ -5231,7 +5231,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
         {
-            sprintf( str, "_%d", i );
+            snprintf( str, sizeof( str ),  "_%d", i );
 
             m_XSecDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
             m_XSecDrawObj_vec[i].m_GeomID = XSECHEADER + m_ID + str;
@@ -5278,7 +5278,7 @@ void GeomXSec::AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec
             if ( xsc->GetType() == XS_POINT )
             {
                 psource = new PointSource();
-                sprintf( str, "Def_PS_%d", ixsec );
+                snprintf( str, sizeof( str ),  "Def_PS_%d", ixsec );
                 psource->SetName( str );
                 psource->m_Len = 0.1 * base_len;
                 psource->m_Rad = 0.2 * len_ref;
@@ -5304,7 +5304,7 @@ void GeomXSec::AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec
                     double w1 = ( ( double ) (i+1) ) / ( ( double ) nls );
 
                     lsource = new LineSource();
-                    sprintf( str, "Def_LS_%d_%d", ixsec, i );
+                    snprintf( str, sizeof( str ),  "Def_LS_%d_%d", ixsec, i );
                     lsource->SetName( str );
                     lsource->m_Len = 0.1 * base_len;
                     lsource->m_Len2 = 0.1 * base_len;

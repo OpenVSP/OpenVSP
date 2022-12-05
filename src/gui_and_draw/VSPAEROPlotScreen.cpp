@@ -1703,22 +1703,22 @@ void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * r
 
             if ( includeResultId )
             {
-                sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g, Re=%.2g, resID=%s", alpha, beta, mach, recref, res->GetID().c_str() );
+                snprintf( strbuf, sizeof( strbuf ),  "a=%.2g, b=%.2g, M=%.2g, Re=%.2g, resID=%s", alpha, beta, mach, recref, res->GetID().c_str() );
             }
             else
             {
-                sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g, Re=%.2g", alpha, beta, mach, recref );
+                snprintf( strbuf, sizeof( strbuf ),  "a=%.2g, b=%.2g, M=%.2g, Re=%.2g", alpha, beta, mach, recref );
             }
         }
         else
         {
             if ( includeResultId )
             {
-                sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g, resID=%s", alpha, beta, mach, res->GetID().c_str() );
+                snprintf( strbuf, sizeof( strbuf ),  "a=%.2g, b=%.2g, M=%.2g, resID=%s", alpha, beta, mach, res->GetID().c_str() );
             }
             else
             {
-                sprintf( strbuf, "a=%.2g, b=%.2g, M=%.2g", alpha, beta, mach );
+                snprintf( strbuf, sizeof( strbuf ),  "a=%.2g, b=%.2g, M=%.2g", alpha, beta, mach );
             }
         }
     }
@@ -1756,7 +1756,7 @@ void VSPAEROPlotScreen::ConstructCpSliceCaseString( char* strbuf, Results* res, 
             mach = dataVector[dataVector.size() - 1];
         }
 
-        sprintf( strbuf, "Case %d: a=%.2g, b=%.2g, M=%.2g", case_num, alpha, beta, mach );
+        snprintf( strbuf, sizeof( strbuf ),  "Case %d: a=%.2g, b=%.2g, M=%.2g", case_num, alpha, beta, mach );
     }
 }
 
@@ -2030,7 +2030,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
             m_CpSlicePosTypeChoiceVec[type]->Activate();
 
             char strbuf[1024];
-            sprintf( strbuf, "Cut %d: %c= %4.2f", cut_num, type_char, location );
+            snprintf( strbuf, sizeof( strbuf ),  "Cut %d: %c= %4.2f", cut_num, type_char, location );
 
             m_CpSliceCutBrowser->add( strbuf );
 
@@ -2482,7 +2482,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     }
 
                     char strbuf[1024];
-                    sprintf( strbuf, "Cut %d, Case %d", cut_num, case_num );
+                    snprintf( strbuf, sizeof( strbuf ),  "Cut %d, Case %d", cut_num, case_num );
                     m_CpSliceLegendLayout.AddLegendEntry( strbuf, c );
                     iplot++;
 
@@ -2497,7 +2497,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
         if ( std::adjacent_find( pos_type_vec.begin(), pos_type_vec.end(), std::not_equal_to<int>() ) == pos_type_vec.end() )
         {
             char strbuf[1024];
-            sprintf( strbuf, "Position: %c", ( 88 + pos_type_vec[0] ) ); // ASCII X: 88; Y: 89; Z: 90
+            snprintf( strbuf, sizeof( strbuf ),  "Position: %c", ( 88 + pos_type_vec[0] ) ); // ASCII X: 88; Y: 89; Z: 90
 
             m_CpSlicePlotCanvas->current_x()->copy_label( strbuf );
         }

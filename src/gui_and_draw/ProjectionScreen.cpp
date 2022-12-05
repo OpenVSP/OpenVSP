@@ -358,7 +358,7 @@ void ProjectionScreen::GuiDeviceCallBack( GuiDevice* device )
                 double area = nvd->GetDouble( 0 );
 
                 char str[255];
-                sprintf( str, "%g", area );
+                snprintf( str, sizeof( str ), "%g", area );
 
                 m_AreaOutput.Update( str );
             }

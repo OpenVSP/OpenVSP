@@ -333,7 +333,7 @@ string FourSeries::GetAirfoilName()
     }
 
     char str[255];
-    sprintf( str, "  NACA %d%d%02d", icam, icam_loc, ithick );
+    snprintf( str, sizeof( str ),  "  NACA %d%d%02d", icam, icam_loc, ithick );
 
     return string( str );
 }
@@ -435,7 +435,7 @@ string FourDigMod::GetAirfoilName()
     }
 
     char str[255];
-    sprintf( str, "  NACA %d%d%02d-%d%d", icam, icam_loc, ithick, ilerad, ithick_loc );
+    snprintf( str, sizeof( str ),  "  NACA %d%d%02d-%d%d", icam, icam_loc, ithick, ilerad, ithick_loc );
 
     return string( str );
 }
@@ -506,7 +506,7 @@ string FiveDig::GetAirfoilName()
     }
 
     char str[255];
-    sprintf( str, "  NACA %d%02d%02d", icl, icam_loc, ithick );
+    snprintf( str, sizeof( str ),  "  NACA %d%02d%02d", icl, icam_loc, ithick );
 
     return string( str );
 }
@@ -577,7 +577,7 @@ string FiveDigMod::GetAirfoilName()
     }
 
     char str[255];
-    sprintf( str, "  NACA %d%02d%02d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
+    snprintf( str, sizeof( str ),  "  NACA %d%02d%02d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
 
     return string( str );
 }
@@ -640,7 +640,7 @@ string OneSixSeries::GetAirfoilName()
     int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
 
     char str[255];
-    sprintf( str, "  NACA 16-%d%02d", icl, ithick );
+    snprintf( str, sizeof( str ),  "  NACA 16-%d%02d", icl, ithick );
 
     return string( str );
 }
@@ -782,11 +782,11 @@ string SixSeries::GetAirfoilName()
     char str[255];
     if ( sixser > 0 )
     {
-        sprintf( str, "  NACA %d%d%02d  a=%.1f",  sixser, icl, ithick, fa );
+        snprintf( str, sizeof( str ),  "  NACA %d%d%02d  a=%.1f",  sixser, icl, ithick, fa );
     }
     else
     {
-        sprintf( str, "  NACA %dA%d%02d  a=%.1f",  -sixser, icl, ithick, fa );
+        snprintf( str, sizeof( str ),  "  NACA %dA%d%02d  a=%.1f",  -sixser, icl, ithick, fa );
     }
     return string( str );
 }
@@ -1946,7 +1946,7 @@ string CSTAirfoil::AddUpParm()
     {
         int i = m_UpCoeffParmVec.size();
         char str[255];
-        sprintf( str, "Au_%d", i );
+        snprintf( str, sizeof( str ),  "Au_%d", i );
         p->Init( string( str ), "UpperCoeff", this, 0.0, -1.0e12, 1.0e12 );
         p->SetDescript( "Upper surface CST coefficient" );
         m_UpCoeffParmVec.push_back( p );
@@ -1963,7 +1963,7 @@ string CSTAirfoil::AddLowParm()
     {
         int i = m_LowCoeffParmVec.size();
         char str[255];
-        sprintf( str, "Al_%d", i );
+        snprintf( str, sizeof( str ),  "Al_%d", i );
         p->Init( string( str ), "LowerCoeff", this, 0.0, -1.0e12, 1.0e12 );
         p->SetDescript( "Lower surface CST coefficient" );
         m_LowCoeffParmVec.push_back( p );

@@ -127,7 +127,7 @@ bool DesignVarScreen::Update()
 
     m_VarBrowser->column_char( ':' );         // use : as the column character
 
-    sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM:@b@.V/C" );
+    snprintf( str, sizeof( str ),  "@b@.COMP_A:@b@.GROUP:@b@.PARM:@b@.V/C" );
     m_VarBrowser->add( str );
 
     int num_vars = DesignVarMgr.GetNumVars();
@@ -147,7 +147,7 @@ bool DesignVarScreen::Update()
         string c_name, g_name, p_name;
         ParmMgr.GetNames( dv->m_ParmID, c_name, g_name, p_name );
 
-        sprintf( str, "%s:%s:%s:%c", c_name.c_str(), g_name.c_str(), p_name.c_str(), vtype );
+        snprintf( str, sizeof( str ),  "%s:%s:%s:%c", c_name.c_str(), g_name.c_str(), p_name.c_str(), vtype );
         m_VarBrowser->add( str );
     }
 

@@ -509,7 +509,7 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 
     if ( m_Vehicle->IsGeomActive( m_ID ) )
     {
-        sprintf(str,"%d",1);
+        snprintf( str, sizeof( str ), "%d",1);
         m_HighlightDrawObj.m_GeomID = m_ID+string(str);
         m_HighlightDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
@@ -521,7 +521,7 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
         for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
         {
             m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            sprintf( str, "_%d", i );
+            snprintf( str, sizeof( str ),  "_%d", i );
             m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
             m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
             m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
@@ -534,7 +534,7 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
         for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
         {
             m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            sprintf( str, "_%d", i );
+            snprintf( str, sizeof( str ),  "_%d", i );
             m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
             m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
             m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;

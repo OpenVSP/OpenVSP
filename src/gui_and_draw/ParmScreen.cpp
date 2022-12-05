@@ -126,7 +126,7 @@ bool ParmScreen::Update()
     m_LinkFromBrowser->column_char( ':' );        // use : as the column character
 
     char str[256];
-    sprintf( str, "@b@.COMP:@b@.GROUP:@b@.PARM:" );
+    snprintf( str, sizeof( str ),  "@b@.COMP:@b@.GROUP:@b@.PARM:" );
     m_LinkToBrowser->add( str );
     m_LinkFromBrowser->add( str );
 
@@ -135,7 +135,7 @@ bool ParmScreen::Update()
         Parm* p = ParmMgr.FindParm( b_link_vec[i] );
         if ( p )
         {
-            sprintf( str, "%s:%s:%s:",
+            snprintf( str, sizeof( str ),  "%s:%s:%s:",
                      p->GetLinkContainer()->GetName().c_str(), 
                      p->GetGroupName().c_str(), p->GetName().c_str() );
 
@@ -148,7 +148,7 @@ bool ParmScreen::Update()
         Parm* p = ParmMgr.FindParm( a_link_vec[i] );
         if ( p )
         {
-            sprintf( str, "%s:%s:%s:",
+            snprintf( str, sizeof( str ),  "%s:%s:%s:",
                      p->GetLinkContainer()->GetName().c_str(), 
                      p->GetGroupName().c_str(), p->GetName().c_str() );
 

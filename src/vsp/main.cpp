@@ -91,7 +91,7 @@ void* CheckVersionNumber( void *threadid )
 
     //==== Post User Info To Server ====//
     char poststr[256];
-    sprintf( poststr, "postvar1=%lu&postvar2=%d\r\n", user_id, ver_no );
+    snprintf( poststr, sizeof( poststr ), "postvar1=%lu&postvar2=%d\r\n", user_id, ver_no );
     int poststrlen = strlen( poststr );
     const char*  headers = "Content-Type: application/x-www-form-urlencoded \n";
 

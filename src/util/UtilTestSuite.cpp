@@ -679,7 +679,7 @@ void UtilTestSuite::FormatWidthTest()
         fmt = StringUtil::NasFmt( v ) + "\n";
         // printf( fmt.c_str(), v );
 
-        sprintf( buf, fmt.c_str(), v );
+        snprintf( buf, sizeof( buf ), fmt.c_str(), v );
         sbuf = string( buf );
         StringUtil::remove_leading_trailing( sbuf, ' ' );
         TEST_ASSERT( sbuf.length() == len + 1 );
@@ -687,7 +687,7 @@ void UtilTestSuite::FormatWidthTest()
         fmt = StringUtil::NasFmt( -v ) + "\n";
         // printf( fmt.c_str(), -v );
 
-        sprintf( buf, fmt.c_str(), -v );
+        snprintf( buf, sizeof( buf ), fmt.c_str(), -v );
         sbuf = string( buf );
         StringUtil::remove_leading_trailing( sbuf, ' ' );
         TEST_ASSERT( sbuf.length() == len + 1);

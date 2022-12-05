@@ -217,7 +217,7 @@ bool VarPresetScreen::Update()
 
     m_VarBrowser->column_char( ':' );         // use : as the column character
 
-    sprintf( str, "@b@.COMP:@b@.GROUP:@b@.PARM" );
+    snprintf( str, sizeof( str ), "@b@.COMP:@b@.GROUP:@b@.PARM" );
     m_VarBrowser->add( str );
 
     int num_vars = VarPresetMgr.GetNumVars();
@@ -228,7 +228,7 @@ bool VarPresetScreen::Update()
         string c_name, g_name, p_name;
         ParmMgr.GetNames( parmid, c_name, g_name, p_name );
 
-        sprintf( str, "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
+        snprintf( str, sizeof( str ), "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
         m_VarBrowser->add( str );
     }
 

@@ -3809,7 +3809,7 @@ void FeaPartTrim::AddTrimPart( string partID )
     {
         int i = (int)m_FlipFlagVec.size();
         char str[15];
-        sprintf( str, "FlipFlag_%d", i );
+        snprintf( str, sizeof( str ),  "FlipFlag_%d", i );
         bp->Init( string( str ), "FeaPartTrim", this, false, false, true );
         bp->SetDescript( "Trim direction flip flag" );
         m_FlipFlagVec.push_back( bp );
@@ -3843,7 +3843,7 @@ void FeaPartTrim::RenameParms()
     for ( int i = 0; i < m_FlipFlagVec.size(); i++ )
     {
         char str[255];
-        sprintf( str, "FlipFlag_%d", i );
+        snprintf( str, sizeof( str ),  "FlipFlag_%d", i );
         m_FlipFlagVec[i]->SetName( string( str ) );
     }
 }
@@ -5497,7 +5497,7 @@ string FeaConnection::MakeLabel()
     if ( start_struct && start_pt && end_struct && end_pt )
     {
         char str[512];
-        sprintf( str, "%s:%s:%d:%s:%s:%d:", start_struct->GetName().c_str(), start_pt->GetName().c_str(), m_StartFixPtSurfIndex(),
+        snprintf( str, sizeof( str ),  "%s:%s:%d:%s:%s:%d:", start_struct->GetName().c_str(), start_pt->GetName().c_str(), m_StartFixPtSurfIndex(),
                                       end_struct->GetName().c_str(), end_pt->GetName().c_str(), m_EndFixPtSurfIndex() );
         lbl = string( str );
     }
@@ -5516,7 +5516,7 @@ string FeaConnection::MakeName()
     if ( start_struct && start_pt && end_struct && end_pt )
     {
         char str[512];
-        sprintf( str, "%s_%s_%d_to_%s_%s_%d", start_struct->GetName().c_str(), start_pt->GetName().c_str(), m_StartFixPtSurfIndex(),
+        snprintf( str, sizeof( str ),  "%s_%s_%d_to_%s_%s_%d", start_struct->GetName().c_str(), start_pt->GetName().c_str(), m_StartFixPtSurfIndex(),
                  end_struct->GetName().c_str(), end_pt->GetName().c_str(), m_EndFixPtSurfIndex() );
         name = string( str );
     }
@@ -5858,49 +5858,49 @@ string FeaBC::GetDescription()
 
     if ( m_XGTFlag() && m_XLTFlag() )
     {
-        sprintf( str, "%g<=X<=%g ", m_XGTVal(), m_XLTVal() );
+        snprintf( str, sizeof( str ),  "%g<=X<=%g ", m_XGTVal(), m_XLTVal() );
         desc += string( str );
     }
     else if ( m_XGTFlag() )
     {
-        sprintf( str, "X>=%g ", m_XGTVal() );
+        snprintf( str, sizeof( str ),  "X>=%g ", m_XGTVal() );
         desc += string( str );
     }
     else if ( m_XLTFlag() )
     {
-        sprintf( str, "X<=%g ", m_XLTVal() );
+        snprintf( str, sizeof( str ),  "X<=%g ", m_XLTVal() );
         desc += string( str );
     }
 
     if ( m_YGTFlag() && m_YLTFlag() )
     {
-        sprintf( str, "%g<=Y<=%g ", m_YGTVal(), m_YLTVal() );
+        snprintf( str, sizeof( str ),  "%g<=Y<=%g ", m_YGTVal(), m_YLTVal() );
         desc += string( str );
     }
     else if ( m_YGTFlag() )
     {
-        sprintf( str, "Y>=%g ", m_YGTVal() );
+        snprintf( str, sizeof( str ),  "Y>=%g ", m_YGTVal() );
         desc += string( str );
     }
     else if ( m_YLTFlag() )
     {
-        sprintf( str, "Y<=%g ", m_YLTVal() );
+        snprintf( str, sizeof( str ),  "Y<=%g ", m_YLTVal() );
         desc += string( str );
     }
 
     if ( m_ZGTFlag() && m_ZLTFlag() )
     {
-        sprintf( str, "%g<=Z<=%g ", m_ZGTVal(), m_ZLTVal() );
+        snprintf( str, sizeof( str ),  "%g<=Z<=%g ", m_ZGTVal(), m_ZLTVal() );
         desc += string( str );
     }
     else if ( m_ZGTFlag() )
     {
-        sprintf( str, "Z>=%g ", m_ZGTVal() );
+        snprintf( str, sizeof( str ),  "Z>=%g ", m_ZGTVal() );
         desc += string( str );
     }
     else if ( m_ZLTFlag() )
     {
-        sprintf( str, "Z<=%g ", m_ZLTVal() );
+        snprintf( str, sizeof( str ),  "Z<=%g ", m_ZLTVal() );
         desc += string( str );
     }
 

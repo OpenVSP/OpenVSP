@@ -3916,7 +3916,7 @@ void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d>
 
     for ( size_t i = 0; i < ordered_airfoil_pnts.size(); i++ )
     {
-        sprintf( buff, " %7.6f     %7.6f\n", ordered_airfoil_pnts[i].x(), ordered_airfoil_pnts[i].y() );
+        snprintf( buff, sizeof( buff ), " %7.6f     %7.6f\n", ordered_airfoil_pnts[i].x(), ordered_airfoil_pnts[i].y() );
         fprintf( af, "%s", buff );
     }
 
@@ -7374,7 +7374,7 @@ void WriteBodyFFCSVFile(const std::string & file_name)
         {
             body_ff_vec.push_back( ParasiteDragMgr.CalcFFBody( 1.0/dol_array[j], body_ff_case ) );
         }
-        sprintf( str, "%s", ParasiteDragMgr.AssignFFBodyEqnName( body_ff_case ).c_str());
+        snprintf( str, sizeof( str ), "%s", ParasiteDragMgr.AssignFFBodyEqnName( body_ff_case ).c_str() );
         res->Add( NameValData( str, body_ff_vec, "Form factor." ) );
         body_ff_vec.clear();
     }
@@ -7399,8 +7399,8 @@ void WriteWingFFCSVFile(const std::string & file_name)
         {
             wing_ff_vec.push_back( ParasiteDragMgr.CalcFFWing( toc_array[j], wing_ff_case, perc_lam[0], sweep25[0], sweep50[0]) );
         }
-        sprintf( str, "%s", ParasiteDragMgr.AssignFFWingEqnName( wing_ff_case ).c_str());
-        res->Add( NameValData( str, wing_ff_vec, "Form factor." ) );
+        snprintf( str, sizeof( str ), "%s", ParasiteDragMgr.AssignFFWingEqnName( wing_ff_case ).c_str() );
+        res->Add(NameValData( str, wing_ff_vec, "Form factor." ) );
         wing_ff_vec.clear();
     }
     res->WriteCSVFile( file_name );
@@ -7426,7 +7426,7 @@ void WriteCfEqnCSVFile(const std::string & file_name)
             {
                 turb_cf_vec.push_back( ParasiteDragMgr.CalcTurbCf( ReyIn_array[j], ref_leng[0], cf_case, roughness[0], gamma[0], taw_tw_ratio[0], te_tw_ratio[0]) );
             }
-            sprintf( str, "%s", ParasiteDragMgr.AssignTurbCfEqnName( cf_case ).c_str() );
+            snprintf( str, sizeof( str ), "%s", ParasiteDragMgr.AssignTurbCfEqnName( cf_case ).c_str() );
             res->Add( NameValData( str, turb_cf_vec, "Turbulent skin friction coefficient." ) );
             turb_cf_vec.clear();
         }
@@ -7438,7 +7438,7 @@ void WriteCfEqnCSVFile(const std::string & file_name)
         {
             lam_cf_vec.push_back(ParasiteDragMgr.CalcLamCf(ReyIn_array[i], cf_case));
         }
-        sprintf( str, "%s", ParasiteDragMgr.AssignLamCfEqnName( cf_case ).c_str());
+        snprintf( str, sizeof( str ), "%s", ParasiteDragMgr.AssignLamCfEqnName( cf_case ).c_str() );
         res->Add( NameValData( str, lam_cf_vec, "Laminar skin friction coefficient." ) );
         lam_cf_vec.clear();
     }

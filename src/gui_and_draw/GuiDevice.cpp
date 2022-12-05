@@ -410,7 +410,7 @@ void Input::SetValAndLimits( Parm* parm_ptr )
 
     if ( CheckValUpdate( new_val ) )
     {
-        sprintf( m_Str, m_Format.c_str(), new_val );
+        snprintf( m_Str, sizeof( m_Str ), m_Format.c_str(), new_val );
         m_Input->value( m_Str );
     }
     m_LastVal = new_val;
@@ -506,12 +506,12 @@ void Output::SetValAndLimits( Parm* parm_ptr )
 
     if ( CheckValUpdate( new_val ) || m_NewFormat )
     {
-        sprintf( m_Str, m_Format.c_str(), new_val );
+        snprintf( m_Str, sizeof( m_Str ), m_Format.c_str(), new_val );
 
         if ( m_Suffix != string() )
         {
             string tmp = string( m_Str );
-            sprintf( m_Str, "%s %s", tmp.c_str(), m_Suffix.c_str() );
+            snprintf( m_Str, sizeof( m_Str ), "%s %s", tmp.c_str(), m_Suffix.c_str() );
         }
 
         m_Output->value( m_Str );
@@ -1935,7 +1935,7 @@ void FractParmSlider::SetValAndLimits( Parm* parm_ptr )
 
         if ( CheckValUpdate( new_val ) )
         {
-            sprintf( m_Str, m_Format.c_str(), new_val );
+            snprintf( m_Str, sizeof( m_Str ), m_Format.c_str(), new_val );
             m_ResultFlInput->value( m_Str );
         }
         m_LastVal = new_val;
@@ -2186,7 +2186,7 @@ void IndexSelector::SetIndex( int index )
 
     if ( m_Input  )
     {
-        sprintf( m_Str, "   %d", m_Index );
+        snprintf( m_Str, sizeof( m_Str ), "   %d", m_Index );
         m_Input->value( m_Str );
     }
 }
@@ -2452,7 +2452,7 @@ void ParmPicker::Update( )
     int ind = LinkMgr.GetCurrContainerVec( m_ParmIDChoice, containerNameVec );
     for ( i = 0 ; i < ( int )containerNameVec.size() ; i++ )
     {
-        sprintf( str, "%d-%s", i,  containerNameVec[i].c_str() );
+        snprintf( str, sizeof( str ), "%d-%s", i,  containerNameVec[i].c_str() );
         m_ContainerChoice->add( str );
     }
     m_ContainerChoice->value( ind );
@@ -3493,7 +3493,7 @@ void GeomPicker::Update( )
                     m_GeomVec.push_back( allGeomVec[i] );
 
                     char str[256];
-                    sprintf( str, "%d_%s", i, g->GetName().c_str() );
+                    snprintf( str, sizeof( str ), "%d_%s", i, g->GetName().c_str() );
                     m_GeomChoice->add( str );
                 }
             }

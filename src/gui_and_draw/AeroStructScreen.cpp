@@ -288,7 +288,7 @@ bool AeroStructScreen::Update()
                     parent_geom_name = parent->GetName();
                 }
 
-                sprintf( str, "%s:%s:Surf_%d", struct_name.c_str(), parent_geom_name.c_str(), struct_surf_ind );
+                snprintf( str, sizeof( str ),  "%s:%s:Surf_%d", struct_name.c_str(), parent_geom_name.c_str(), struct_surf_ind );
                 m_StructureChoice.AddItem( str );
             }
         }

@@ -1704,7 +1704,7 @@ void SurfaceIntersectionSingleton::Intersect()
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
     for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
     {
-        sprintf( str, "Intersect %d/%d\n", i + 1, m_SurfVec.size() );
+        snprintf( str, sizeof( str ), "Intersect %d/%d\n", i + 1, m_SurfVec.size() );
         addOutputText( str );
 
         for ( int j = i + 1; j < (int) m_SurfVec.size(); j++ )
@@ -1914,7 +1914,7 @@ void SurfaceIntersectionSingleton::WriteISegs()
 {
     int i;
     char str2[256];
-    sprintf( str2, "ISegs.m" );
+    snprintf( str2, sizeof( str2 ), "ISegs.m" );
     FILE* fp = fopen( str2, "w" );
 
     fprintf( fp, "clear all;\n" );
@@ -2265,7 +2265,7 @@ void SurfaceIntersectionSingleton::WriteChains()
 {
     FILE* fp;
     char str[256];
-    sprintf( str, "RawInt_UW0.dat" );
+    snprintf( str, sizeof( str ), "RawInt_UW0.dat" );
     fp = fopen( str, "w" );
 
     for ( int i = 1 ; i < ( int )debugUWs.size() ; i += 2 )
@@ -2282,7 +2282,7 @@ void SurfaceIntersectionSingleton::WriteChains()
     list< ISegChain* >::iterator c;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        sprintf( str, "Intersection_UW%d.dat", i );
+        snprintf( str, sizeof( str ), "Intersection_UW%d.dat", i );
         fp = fopen( str, "w" );
         int c_ind = 0;
         for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )

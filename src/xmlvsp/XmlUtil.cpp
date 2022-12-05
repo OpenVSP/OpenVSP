@@ -232,7 +232,7 @@ xmlNodePtr XmlUtil::AddIntNode( xmlNodePtr root, const char * name, int val )
     char str[255];
     xmlNodePtr node = xmlNewChild( root, NULL, ( const xmlChar * )name, NULL );
 
-    sprintf( str, "%d", val );
+    snprintf( str, sizeof( str ), "%d", val );
     xmlNodeSetContent( node, ( const xmlChar * )str );
 
     return node;
@@ -244,7 +244,7 @@ xmlNodePtr XmlUtil::AddDoubleNode( xmlNodePtr root, const char * name, double va
     char str[255];
     xmlNodePtr node = xmlNewChild( root, NULL, ( const xmlChar * )name, NULL );
 
-    sprintf( str, "%.*e", DBL_DIG + 3, val );
+    snprintf( str, sizeof( str ), "%.*e", DBL_DIG + 3, val );
 
     xmlNodeSetContent( node, ( const xmlChar * )str );
 
@@ -264,14 +264,14 @@ xmlNodePtr XmlUtil::AddStringNode( xmlNodePtr root, const char * name, const str
 void XmlUtil::SetIntProp( xmlNodePtr root, const char * name, int val )
 {
     char str[255];
-    sprintf( str, "%d", val );
+    snprintf( str, sizeof( str ), "%d", val );
     xmlSetProp( root, ( const xmlChar * )name, ( const xmlChar * )str );
 }
 
 void XmlUtil::SetDoubleProp( xmlNodePtr root, const char * name, double val )
 {
     char str[255];
-    sprintf( str, "%.*e", DBL_DIG + 3, val );
+    snprintf( str, sizeof( str ), "%.*e", DBL_DIG + 3, val );
     xmlSetProp( root, ( const xmlChar * )name, ( const xmlChar * )str );
 }
 
@@ -417,7 +417,7 @@ xmlNodePtr XmlUtil::AddVectorBoolNode( xmlNodePtr root, const char * name, const
     char buff[256];
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
     {
-        sprintf( buff, "%d, ", vec[i] ? 1 : 0 );
+        snprintf( buff, sizeof( buff ), "%d, ", vec[i] ? 1 : 0 );
         str.append( buff );
     }
     str.append( "\0" );
@@ -432,7 +432,7 @@ xmlNodePtr XmlUtil::AddVectorIntNode( xmlNodePtr root, const char * name, const 
     char buff[256];
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
     {
-        sprintf( buff, "%d, ", vec[i] );
+        snprintf( buff, sizeof( buff ), "%d, ", vec[i] );
         str.append( buff );
     }
     str.append( "\0" );
@@ -447,7 +447,7 @@ xmlNodePtr XmlUtil::AddVectorDoubleNode( xmlNodePtr root, const char * name, con
     char buff[256];
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
     {
-        sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[i] );
+        snprintf( buff, sizeof( buff ), "%.*e, ", DBL_DIG + 3, vec[i] );
         str.append( buff );
     }
     str.append( "\0" );
@@ -461,9 +461,9 @@ xmlNodePtr XmlUtil::AddVec2dNode( xmlNodePtr root, const char * name, const vec2
     string str;
     char buff[256];
 
-    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[0] );
+    snprintf( buff, sizeof( buff ), "%.*e, ", DBL_DIG + 3, vec[0] );
     str.append( buff );
-    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[1] );
+    snprintf( buff, sizeof( buff ), "%.*e, ", DBL_DIG + 3, vec[1] );
     str.append( buff );
 
     str.append( "\0" );
@@ -477,11 +477,11 @@ xmlNodePtr XmlUtil::AddVec3dNode( xmlNodePtr root, const char * name, const vec3
     string str;
     char buff[256];
 
-    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[0] );
+    snprintf( buff, sizeof( buff ), "%.*e, ", DBL_DIG + 3, vec[0] );
     str.append( buff );
-    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[1] );
+    snprintf( buff, sizeof( buff ), "%.*e, ", DBL_DIG + 3, vec[1] );
     str.append( buff );
-    sprintf( buff, "%.*e, ", DBL_DIG + 3, vec[2] );
+    snprintf( buff, sizeof( buff ), "%.*e, ", DBL_DIG + 3, vec[2] );
     str.append( buff );
 
     str.append( "\0" );

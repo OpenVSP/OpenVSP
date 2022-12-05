@@ -125,37 +125,37 @@ bool MassPropScreen::Update()
     char format[10] = " %6.3f";
 
     //Total Mass
-    sprintf( str, format, veh->m_TotalMass );
+    snprintf( str, sizeof( str ),  format, veh->m_TotalMass );
     m_TotalMassOutput.Update( str );
     //X Cg
     vec3d cg = veh->m_CG;
-    sprintf( str, format, cg.x() );
+    snprintf( str, sizeof( str ),  format, cg.x() );
     m_XCgOutput.Update( str );
     //Y Cg
-    sprintf( str, format, cg.y() );
+    snprintf( str, sizeof( str ),  format, cg.y() );
     m_YCgOutput.Update( str );
     //Z Cg
-    sprintf( str, format, cg.z() );
+    snprintf( str, sizeof( str ),  format, cg.z() );
     m_ZCgOutput.Update( str );
     //I xx
     vec3d moi = veh->m_IxxIyyIzz;
-    sprintf( str, format, moi.x() );
+    snprintf( str, sizeof( str ),  format, moi.x() );
     m_IxxOutput.Update( str );
     //I yy
-    sprintf( str, format, moi.y() );
+    snprintf( str, sizeof( str ),  format, moi.y() );
     m_IyyOutput.Update( str );
     //I zz
-    sprintf( str, format, moi.z() );
+    snprintf( str, sizeof( str ),  format, moi.z() );
     m_IzzOutput.Update( str );
     //I xy
     vec3d pmoi = veh->m_IxyIxzIyz;
-    sprintf( str, format, pmoi.x() );
+    snprintf( str, sizeof( str ),  format, pmoi.x() );
     m_IxyOutput.Update( str );
     //I xz
-    sprintf( str, format, pmoi.y() );
+    snprintf( str, sizeof( str ),  format, pmoi.y() );
     m_IxzOutput.Update( str );
     //I yz
-    sprintf( str, format, pmoi.z() );
+    snprintf( str, sizeof( str ),  format, pmoi.z() );
     m_IyzOutput.Update( str );
 
     m_FileSelect.Update( veh->getExportFileName( vsp::MASS_PROP_TXT_TYPE ).c_str() );

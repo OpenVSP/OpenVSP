@@ -298,7 +298,7 @@ bool FitModelScreen::Update()
     Vehicle * veh = VehicleMgr.GetVehicle();
 
     // Update the number of selected points.
-    sprintf( str, "%d", FitModelMgr.GetNumSelected() );
+    snprintf( str, sizeof( str ),  "%d", FitModelMgr.GetNumSelected() );
     m_NSelOutput.Update( str );
 
     m_TargetGeomPicker.Update();
@@ -319,7 +319,7 @@ bool FitModelScreen::Update()
 
     m_TargetPtBrowser->column_char( ':' );         // use : as the column character
 
-    sprintf( str, "@b@.GEOM:@b@c@.X:@b@c@.Y:@b@c@.Z:@b@c@.U:@b@c@.Type:@b@c@.W:@b@.Type" );
+    snprintf( str, sizeof( str ),  "@b@.GEOM:@b@c@.X:@b@c@.Y:@b@c@.Z:@b@c@.U:@b@c@.Type:@b@c@.W:@b@.Type" );
     m_TargetPtBrowser->add( str );
 
     int num_fix = FitModelMgr.GetNumTargetPt();
@@ -352,7 +352,7 @@ bool FitModelScreen::Update()
                     wt = string( "free" );
                 }
 
-                sprintf( str, "%s:%4.2f:%4.2f:%4.2f:%4.2f:%s:%4.2f:%s", g->GetName().c_str(), tpt->GetPt().x(), tpt->GetPt().y(), tpt->GetPt().z(), tpt->GetUW().x(), ut.c_str(), tpt->GetUW().y(), wt.c_str() );
+                snprintf( str, sizeof( str ),  "%s:%4.2f:%4.2f:%4.2f:%4.2f:%s:%4.2f:%s", g->GetName().c_str(), tpt->GetPt().x(), tpt->GetPt().y(), tpt->GetPt().z(), tpt->GetUW().x(), ut.c_str(), tpt->GetUW().y(), wt.c_str() );
                 m_TargetPtBrowser->add( str );
             }
         }
@@ -367,7 +367,7 @@ bool FitModelScreen::Update()
     m_TargetPtBrowser->hposition( h_pos );
     m_TargetPtBrowser->position( v_pos );
 
-    sprintf( str, "%d", num_fix );
+    snprintf( str, sizeof( str ),  "%d", num_fix );
     m_NTgtOutput.Update( str );
 
     // Check that all Parms exist.  Needed in case a Geom with DesVars is
@@ -393,7 +393,7 @@ bool FitModelScreen::Update()
 
     m_VarBrowser->column_char( ':' );         // use : as the column character
 
-    sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM" );
+    snprintf( str, sizeof( str ),  "@b@.COMP_A:@b@.GROUP:@b@.PARM" );
     m_VarBrowser->add( str );
 
     int num_vars = FitModelMgr.GetNumVars();
@@ -402,7 +402,7 @@ bool FitModelScreen::Update()
         string c_name, g_name, p_name;
         ParmMgr.GetNames( FitModelMgr.GetVar( i ), c_name, g_name, p_name );
 
-        sprintf( str, "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
+        snprintf( str, sizeof( str ),  "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
         m_VarBrowser->add( str );
     }
 
@@ -415,7 +415,7 @@ bool FitModelScreen::Update()
     m_VarBrowser->hposition( h_pos );
     m_VarBrowser->position( v_pos );
 
-    sprintf( str, "%d", num_vars );
+    snprintf( str, sizeof( str ),  "%d", num_vars );
     m_NVarOutput.Update( str );
 
     // Parameter GUI got out of sync.  Probably from File->New or similar.
@@ -431,9 +431,9 @@ bool FitModelScreen::Update()
     }
 
     FitModelMgr.UpdateNumOptVars();
-    sprintf( str, "%d", FitModelMgr.GetNumOptVars() );
+    snprintf( str, sizeof( str ),  "%d", FitModelMgr.GetNumOptVars() );
     m_DOFOutput.Update( str );
-    sprintf( str, "%d", num_fix * 3 );
+    snprintf( str, sizeof( str ),  "%d", num_fix * 3 );
     m_CondOutput.Update( str );
 
     m_DistOutput.Update( std::to_string( static_cast<long double> (FitModelMgr.m_DistMetric) ) );

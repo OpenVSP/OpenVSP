@@ -896,7 +896,7 @@ void Results::WriteBEMFile( const string & file_name )
         for ( int i = 0; i < num_sect; i++ )
         {
             char str[255];
-            sprintf( str, "%03d", i );
+            snprintf( str, sizeof( str ),  "%03d", i );
             vector < double > xpts = Find( "XSection_" + string( str ) ).GetDoubleData();
             vector < double > ypts = Find( "YSection_" + string( str ) ).GetDoubleData();
 

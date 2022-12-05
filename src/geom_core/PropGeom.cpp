@@ -1804,7 +1804,7 @@ string PropGeom::BuildBEMResults()
         }
 
         char str[255];
-        sprintf( str, "%03d", i );
+        snprintf( str, sizeof( str ),  "%03d", i );
         res->Add( NameValData( "XSection_" + string( str ), xpts, "X coordinates of airfoil section." ) );
         res->Add( NameValData( "YSection_" + string( str ), ypts, "Y coordinates of airfoil section." ) );
 

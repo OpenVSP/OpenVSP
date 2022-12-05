@@ -201,7 +201,7 @@ bool AdvLinkScreen::Update()
     vector< AdvLink* > link_vec = AdvLinkMgr.GetLinks();
     for ( int i = 0 ; i < (int)link_vec.size() ; i++ )
     {
-        sprintf( str, "  %s", link_vec[i]->GetName().c_str() );
+        snprintf( str, sizeof( str ),  "  %s", link_vec[i]->GetName().c_str() );
         m_LinkBrowser->add( str );
     }
 
@@ -222,7 +222,7 @@ bool AdvLinkScreen::Update()
     {
         m_InputBrowser->column_char( ':' );
 
-        sprintf( str, "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
+        snprintf( str, sizeof( str ),  "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
         m_InputBrowser->add( str );
 
         vector< VarDef > input_vars = edit_link->GetInputVars();
@@ -230,7 +230,7 @@ bool AdvLinkScreen::Update()
         {
             string c_name, g_name, p_name;
             ParmMgr.GetNames( input_vars[i].m_ParmID, c_name, g_name, p_name );
-            sprintf( str, "%s:%s:%s:%s\n", input_vars[i].m_VarName.c_str(), p_name.c_str(), g_name.c_str(), c_name.c_str() );
+            snprintf( str, sizeof( str ),  "%s:%s:%s:%s\n", input_vars[i].m_VarName.c_str(), p_name.c_str(), g_name.c_str(), c_name.c_str() );
             m_InputBrowser->add( str );
         }
         if ( m_InputBrowserSelect >= 0 && m_InputBrowserSelect < (int)input_vars.size() )
@@ -240,7 +240,7 @@ bool AdvLinkScreen::Update()
 
         m_OutputBrowser->column_char( ':' );
 
-        sprintf( str, "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
+        snprintf( str, sizeof( str ),  "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
         m_OutputBrowser->add( str );
 
         vector< VarDef > output_vars = edit_link->GetOutputVars();
@@ -248,7 +248,7 @@ bool AdvLinkScreen::Update()
         {
             string c_name, g_name, p_name;
             ParmMgr.GetNames( output_vars[i].m_ParmID, c_name, g_name, p_name );
-            sprintf( str, "%s:%s:%s:%s\n", output_vars[i].m_VarName.c_str(), p_name.c_str(), g_name.c_str(), c_name.c_str() );
+            snprintf( str, sizeof( str ),  "%s:%s:%s:%s\n", output_vars[i].m_VarName.c_str(), p_name.c_str(), g_name.c_str(), c_name.c_str() );
             m_OutputBrowser->add( str );
         }
         if ( m_OutputBrowserSelect >= 0 && m_OutputBrowserSelect < (int)output_vars.size() )

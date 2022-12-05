@@ -2133,7 +2133,7 @@ void FeaPartEditScreen::UpdateTrimPartChoice()
         m_TrimPartBrowser->clear();
         m_TrimPartBrowser->column_char( ':' );
         char str[256];
-        sprintf( str, "@b@.PART:@b@.FLIPDIR" );
+        snprintf( str, sizeof( str ),  "@b@.PART:@b@.FLIPDIR" );
         m_TrimPartBrowser->add( str );
 
         int ipart = StructureMgr.GetCurrPartIndex();
@@ -2162,12 +2162,12 @@ void FeaPartEditScreen::UpdateTrimPartChoice()
                                 flagstr = string( "X" );
                             }
 
-                            sprintf( str, "%s:%s", trim_feaprt->GetName().c_str(), flagstr.c_str());
+                            snprintf( str, sizeof( str ),  "%s:%s", trim_feaprt->GetName().c_str(), flagstr.c_str());
                             m_TrimPartBrowser->add( str );
                         }
                         else
                         {
-                            sprintf( str, "Unset: " );
+                            snprintf( str, sizeof( str ),  "Unset: " );
                             m_TrimPartBrowser->add( str );
                         }
                     }

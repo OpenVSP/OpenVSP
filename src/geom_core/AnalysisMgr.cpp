@@ -1472,7 +1472,7 @@ string VSPAEROSinglePointAnalysis::Execute()
     errMsgData.m_String = "Error";
     errMsgData.m_IntVec.push_back( vsp::VSP_DEPRECATED );
     char buf[255];
-    sprintf( buf, "Error:  VSPAEROSinglePoint Analysis is deprecated.  Use VSPAEROSweep with flow condition Npts = 1 instead." );
+    snprintf( buf, sizeof( buf ), "Error:  VSPAEROSinglePoint Analysis is deprecated.  Use VSPAEROSweep with flow condition Npts = 1 instead." );
     errMsgData.m_StringVec.emplace_back( string( buf ) );
     MessageMgr::getInstance().SendAll( errMsgData );
 
