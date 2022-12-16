@@ -2,7 +2,7 @@
 import wx
 import wx.propgrid as pg
 
-from pyvsp.results_panel import ResultsDialog
+from results_panel import ResultsDialog
 
 
 class AnalysisPanel(wx.Panel):
@@ -99,6 +99,7 @@ class AnalysisPanel(wx.Panel):
                 print("vec data type not handled")
                 continue
             try:
+                bad = worse
                 doc = self.vsp.GetAnalysisInputDoc(analysis_name, input_name)
             except:
                 doc = "tom: default doc text"

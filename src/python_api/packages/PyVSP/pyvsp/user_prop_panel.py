@@ -7,7 +7,7 @@ class UserPropertyPanel(wx.Panel):
     Property Panel for editing user params
 
     '''
-    def __init__(self, parent, vsp):
+    def __init__(self, parent, vsp, top):
         """
 
 
@@ -19,7 +19,7 @@ class UserPropertyPanel(wx.Panel):
             the data from the branch selected
         """
         wx.Panel.__init__(self, parent, -1,size=wx.Size(-1,800))
-        self.parent = parent
+        self.top = top
         self.vsp = vsp
         # Panel sizer
         self.sizer = wx.BoxSizer(wx.VERTICAL)
@@ -74,6 +74,7 @@ class UserPropertyPanel(wx.Panel):
             print("could not find edited property")
             return
         self.vsp.SetParmVal(edited_pg.GetName(), edited_pg.GetValue())
+        self.top.vsp_update()
         print("edited value")
 
     def vsp_update(self):

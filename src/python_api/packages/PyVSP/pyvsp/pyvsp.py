@@ -2,28 +2,21 @@ import os
 import sys
 
 import wx
-import time
 import vtk
 from vtk.wx.wxVTKRenderWindowInteractor import wxVTKRenderWindowInteractor
 
 import numpy as np
 import vtk.util.numpy_support as npsup
 
-from pyvsp.user_prop_panel import UserPropertyPanel
-from pyvsp.analysis_panel import AnalysisPanel
+import vsp_g_facade as vsp
+
+from user_prop_panel import UserPropertyPanel
+from analysis_panel import AnalysisPanel
 
 from threading import Thread
 from time import sleep
 
-import socket
-
-import subprocess
-
-import pickle
-
-HOST = "localhost"  # The server's hostname or IP address
-PORT = 6000  # The port used by the server
-
+from vsp_g import vec3d
 
 class DemoFrame(wx.Frame):
     """
@@ -95,7 +88,7 @@ class DemoFrame(wx.Frame):
         self.vtk_panel_buffer.SetSizer(self.vtk_panel_buffer_box)
 
         #creates the analyis panel
-        self.analysis_panel = wx.Panel(top_splitter, -1, style=wx.DOUBLE_BORDER)#AnalysisPanel(top_splitter, vsp)
+        self.analysis_panel = AnalysisPanel(top_splitter, vsp)
 
         #adds analysis panel and vtk panel
         top_splitter.SplitVertically(self.vtk_panel_buffer, self.analysis_panel)
@@ -109,7 +102,7 @@ class DemoFrame(wx.Frame):
         button_buffer.SetSizerAndFit(button_buffer_box)
 
         #create user param panel
-        self.prop_panel = wx.Panel(bottom_splitter, -1, style=wx.DOUBLE_BORDER) #UserPropertyPanel(bottom_splitter, vsp)
+        self.prop_panel = UserPropertyPanel(bottom_splitter, vsp, self)
 
         #adds button and param panels
         bottom_splitter.SplitVertically(button_buffer, self.prop_panel)
@@ -131,7 +124,6 @@ class DemoFrame(wx.Frame):
 
         #setting variables
         self.did_init_gui = False
-        self.sock = None
 
     def add_menu_bar(self):
         """
@@ -185,93 +177,68 @@ class DemoFrame(wx.Frame):
         # self.Bind(wx.EVT_BUTTON, self.on_start_openvsp, start_openvsp)
         # button_buffer_box.Add(start_openvsp)
 
-        start_server = wx.Button(button_buffer, wx.ID_ANY, u"Start VSP Server", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Bind(wx.EVT_BUTTON, self.on_start_server, start_server)
-        button_buffer_box.Add(start_server)
+        # screenshot = wx.Button(button_buffer, wx.ID_ANY, u"Take Screenshot", wx.DefaultPosition, wx.DefaultSize, 0)
+        # self.Bind(wx.EVT_BUTTON, self.on_screenshot, screenshot)
+        # button_buffer_box.Add(screenshot)
 
-        end_server = wx.Button(button_buffer, wx.ID_ANY, u"End VSP Server", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Bind(wx.EVT_BUTTON, self.on_end_server, end_server)
-        button_buffer_box.Add(end_server)
-
-        # check_updates = wx.Button(button_buffer, wx.ID_ANY, u"Check VSP for Updates", wx.DefaultPosition, wx.DefaultSize, 0)
-        # self.Bind(wx.EVT_BUTTON, self.on_check_updates, check_updates)
-        # button_buffer_box.Add(check_updates)
-
-        self.update_count = wx.StaticText(button_buffer, id=wx.ID_ANY, label="-1", pos=wx.DefaultPosition, size=wx.DefaultSize )
-        button_buffer_box.Add(self.update_count)
 
         # switch_to_openvsp = wx.Button(button_buffer, wx.ID_ANY, u"Switch to OpenVSP GUI", wx.DefaultPosition, wx.DefaultSize, 0)
         # self.Bind(wx.EVT_BUTTON, self.on_switch_to_openvsp, switch_to_openvsp)
         # button_buffer_box.Add(switch_to_openvsp)
 
-    def on_start_server(self, event):
-        server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'vsp_server.py')
-        proc = subprocess.Popen( [sys.executable, server_file] )
+        self.update_count = wx.StaticText(button_buffer, wx.ID_ANY, '0')
+        self.update_count.SetFont(wx.Font(20,wx.FONTFAMILY_DEFAULT,wx.FONTSTYLE_NORMAL,wx.FONTWEIGHT_NORMAL))
+        button_buffer_box.Add(self.update_count)
 
-        sleep(1)
+    def on_screenshot(self, event):
+        vsp.ScreenGrab(r'C:\work\gmdao\test_app_server\test.png',400,400,False)
 
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((HOST, PORT))
+    def on_start_openvsp(self, event):
+        """
+        event called to initialize the openvsp gui
 
-        self.timer = wx.Timer(self)
-        self.Bind( wx.EVT_TIMER, self.on_check_updates, self.timer )
-        self.timer.Start(1000) # 1 Hz
+        Parameters
+        ----------
+        event : wx.Event
+            The button event
+        """
+        def start_gui():
 
-    def on_end_server(self, event):
-        self.sock.sendall(pickle.dumps(['close']))
-        self.sock.close()
+            print("before start gui")
+            sleep(1)
+            vsp.InitGui()
+            sleep(1)
+            vsp.StartGui()
+            print("after start gui")
+            # event.set()
+        if self.did_init_gui:
+            print("init gui already called")
+            return
 
-    def on_check_updates(self, event):
-        cnt = self.send_recieve('GetAndResetUpdateCount', [])
-        self.update_count.SetLabel( str(cnt) )
-        # print( cnt )
+        print("before thread")
+        t = Thread(target=start_gui, args=())
+        t.start()
+        print("after thread")
+        self.did_init_gui = True
 
-    # def on_start_openvsp(self, event):
-    #     """
-    #     event called to initialize the openvsp gui
+    def on_switch_to_openvsp(self, event):
+        """
+        event called to switch to the openvsp gui
 
-    #     Parameters
-    #     ----------
-    #     event : wx.Event
-    #         The button event
-    #     """
-    #     def start_gui():
+        Parameters
+        ----------
+        event : wx.Event
+            the button event
+        """
+        self.Freeze() # weird interactions happen between openvsp and wxpython if not frozen
+        if self.did_init_gui:
+            vsp.StartGui()
+            print("return from vsp gui")
+            wx.CallAfter(self.vsp_update)
+        else:
+            print("need to init gui first")
 
-    #         print("before start gui")
-    #         sleep(1)
-    #         vsp.InitGui()
-    #         sleep(1)
-    #         vsp.StartGui()
-    #         print("after start gui")
-    #         # event.set()
-    #     if self.did_init_gui:
-    #         print("init gui already called")
-    #         return
-
-    #     print("before thread")
-    #     t = Thread(target=start_gui, args=())
-    #     t.start()
-    #     print("after thread")
-    #     self.did_init_gui = True
-
-    # def on_switch_to_openvsp(self, event):
-    #     """
-    #     event called to switch to the openvsp gui
-
-    #     Parameters
-    #     ----------
-    #     event : wx.Event
-    #         the button event
-    #     """
-    #     self.Freeze() # weird interactions happen between openvsp and wxpython if not frozen
-    #     if self.did_init_gui:
-    #         vsp.StartGui()
-    #         print("return from vsp gui")
-    #         wx.CallAfter(self.vsp_update)
-    #     else:
-    #         print("need to init gui first")
-
-    #     self.Thaw()
+        self.Thaw()
 
     def on_load_model(self, event):
         """
@@ -311,8 +278,7 @@ class DemoFrame(wx.Frame):
         """
         bool indicating whether a vsp file is loaded
         """
-        # name = vsp.GetVSPFileName()
-        name = self.send_recieve('GetVSPFileName',[])
+        name = vsp.GetVSPFileName()
         if name == 'Unnamed.vsp3':
             return False
         return True
@@ -363,9 +329,7 @@ class DemoFrame(wx.Frame):
         if not self.is_file_loaded:
             print("no model loaded")
             return
-        # vsp.ClearVSPModel()
-        self.send_recieve('ClearVSPModel',[])
-
+        vsp.ClearVSPModel()
     def on_edit_model(self, event):
         """
         event called when the user clicks the edit model button
@@ -395,15 +359,11 @@ class DemoFrame(wx.Frame):
         except:
             print(f"could not convert {new_x_value} to float")
 
-        # geom_list = vsp.FindGeoms()
-        geom_list = self.send_recieve('FindGeoms',[])
-        # vsp.SetParmVal(geom_list[0], 'X_Location', 'XForm', new_x_value)
-        self.send_recieve('SetParmVal',[geom_list[0], 'X_Location', 'XForm', new_x_value])
-        # vsp.Update()
-        self.send_recieve('Update', [])
-        # vsp.UpdateGui()
-        self.send_recieve('UpdateGUI', [])
-        # self.refresh_actors()
+        geom_list = vsp.FindGeoms()
+        vsp.SetParmVal(geom_list[0], 'X_Location', 'XForm', new_x_value)
+        vsp.Update()
+        vsp.UpdateGui()
+        self.refresh_actors()
 
     def on_refresh_model(self, event):
         """
@@ -432,17 +392,16 @@ class DemoFrame(wx.Frame):
         self.dir = os.path.dirname(geom_file_path)
         self.geom_file = os.path.basename(geom_file_path)
         print("Opening OpenVSP file: %s" % self.geom_file)
-        # vsp.ReadVSPFile(os.path.join(self.dir, self.geom_file))
-        self.send_recieve('ReadVSPFile', [os.path.join(self.dir, self.geom_file)])
+        vsp.ReadVSPFile(os.path.join(self.dir, self.geom_file))
         self.vsp_update()
 
     def vsp_update(self):
         """
         Calls all children vsp updates
         """
-        # self.refresh_actors()
-        # self.prop_panel.vsp_update()
-        # self.analysis_panel.vsp_update()
+        self.refresh_actors()
+        self.prop_panel.vsp_update()
+        self.analysis_panel.vsp_update()
     def refresh_actors(self):
         """
         updates vtk window
@@ -469,8 +428,8 @@ class DemoFrame(wx.Frame):
         if not self.is_file_loaded:
             print("no model loaded")
             return
-        # self.refresh_actors()
-        wx.CallLater(3000, lambda: self.automation(0))
+        self.refresh_actors()
+        wx.CallLater(1000, lambda: self.automation(0))
 
     def automation(self, x):
         """
@@ -485,20 +444,16 @@ class DemoFrame(wx.Frame):
             The starting or previous value of X
         """
         print(f"setting component_1 x_location to {x}")
-        # geom_list = vsp.FindGeoms()
-        geom_list = self.send_recieve('FindGeoms', [])
-        # vsp.SetParmVal(geom_list[0], 'X_Location', 'XForm', x)
-        self.send_recieve('SetParmVal', [geom_list[0], 'X_Location', 'XForm', x])
-        # vsp.Update()
-        self.send_recieve('Update', [])
-        # vsp.UpdateGui()
-        self.send_recieve('UpdateGui', [])
-        # self.refresh_actors()
+        geom_list = vsp.FindGeoms()
+        vsp.SetParmVal(geom_list[0], 'X_Location', 'XForm', x)
+        vsp.Update()
+        vsp.UpdateGui()
+        self.refresh_actors()
         x += 10
         if x > 100:
             print("automated script complete")
             return
-        wx.CallLater(3000, lambda: self.automation(x))
+        wx.CallLater(1000, lambda: self.automation(x))
 
 
     def make_tesselations(self,):
@@ -511,18 +466,15 @@ class DemoFrame(wx.Frame):
             a str to list dict
             Each geom id key has a complicated list of points
         """
-        # geom_list = vsp.FindGeoms()
-        geom_list = self.send_recieve('FindGeoms', [])
+        geom_list = vsp.FindGeoms()
         tess = {}
         for geom_id in geom_list:
 
             # geom_name = vsp.GetGeomName(geom_id)
             # self.geom_ids[geom_name] = geom_id
-            # for surf_indx in range(vsp.GetNumMainSurfs(geom_id)):
-            for surf_indx in range(self.send_recieve('GetNumMainSurfs', [geom_id])):
+            for surf_indx in range(vsp.GetNumMainSurfs(geom_id)):
                 if surf_indx == 0:
-                    # if vsp.GetNumMainSurfs(geom_id) > 1:
-                    if self.send_recieve('GetNumMainSurfs', [geom_id]) > 1:
+                    if vsp.GetNumMainSurfs(geom_id) > 1:
                         print("Only one main surface is handled. VSP component \"%s\" has many" % geom_id)
                     tess[geom_id] = self.get_tesselation(geom_id, surf_indx)
         return tess
@@ -543,15 +495,13 @@ class DemoFrame(wx.Frame):
             a complicated list of points
         """
         sym = self.get_symmetry(geom_id)
-        # u_vec, w_vec = vsp.GetUWTess01(geom_id, surf_indx)
-        u_vec, w_vec = self.send_recieve('GetUWTess01', [geom_id, surf_indx])
+        u_vec, w_vec = vsp.GetUWTess01(geom_id, surf_indx)
         u_vec = np.array(u_vec)
         w_vec = np.array(w_vec)
         u_tess, w_tess = np.meshgrid(u_vec, w_vec)
         u_tess = u_tess.flatten()
         w_tess = w_tess.flatten()
-        # points = vsp.CompVecPnt01(geom_id, surf_indx, u_tess, w_tess)
-        points = self.send_recieve('CompVecPnt01', [geom_id, surf_indx, u_tess, w_tess])
+        points = vsp.CompVecPnt01(geom_id, surf_indx, u_tess, w_tess)
         point_tess = np.empty((len(u_tess),3), dtype=float)
         for i, point in enumerate(points):
             point_tess[i,0] = point.x()
@@ -593,9 +543,7 @@ class DemoFrame(wx.Frame):
         sym_vals : str
             'XY', 'XZ', or 'YZ' symmetry plane
         """
-
-        # sym_val = vsp.GetParmVal(vsp.FindParm(geom_id, "Sym_Planar_Flag", "Sym"))
-        sym_val = self.send_recieve('GetParmVal', [self.send_recieve('FindParm', [geom_id, "Sym_Planar_Flag", "Sym"])])
+        sym_val = vsp.GetParmVal(vsp.FindParm(geom_id, "Sym_Planar_Flag", "Sym"))
         if sym_val == 0.0:
             return []
         elif sym_val == 1.0:
@@ -615,25 +563,6 @@ class DemoFrame(wx.Frame):
         else:
             print("UNKNOWN SYM VALUE FOUND")
             return []
-    def send_recieve(self, func_name, args):
-        b_data = pickle.dumps([func_name, args])
-        print(f"sent data: {[func_name, args]}")
-        self.sock.sendall(b_data)
-        # b_result = self.sock.recv(1024)
-        result = None
-        b_result = []
-        while True:
-            packet = self.sock.recv(1024)
-            if not packet: break
-            b_result.append(packet)
-            try:
-                result = pickle.loads(b"".join(b_result))
-                break
-            except:
-                pass
-
-        # result = pickle.loads(b_result)
-        return result
 
 class VTK_Panel_Vehicle(wx.Panel):
     def __init__(self, parent):
