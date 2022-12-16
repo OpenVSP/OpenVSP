@@ -165,6 +165,11 @@ void VSPExit( int error_code )
     exit( error_code );
 }
 
+int GetAndResetUpdateCount()
+{
+    return (int) UpdateCountMgr.GetAndResetUpdateCount();
+}
+
 void RegisterCFDMeshAnalyses()
 {
     SurfaceIntersectionMgr.RegisterAnalysis();

@@ -22,10 +22,12 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY( geom_api
 APIErrorMgr.cpp
+APIUpdateCountMgr.cpp
 GuiInterface.cpp
 VSP_Geom_API.cpp
 APIDefines.h
 APIErrorMgr.h
+APIUpdateCountMgr.h
 GuiInterface.h
 VSP_Geom_API.h
 )
@@ -37,10 +39,12 @@ util
 IF( NOT VSP_NO_GRAPHICS )
     ADD_LIBRARY( geom_api_g
     APIErrorMgr.cpp
+    APIUpdateCountMgr.cpp
     GuiInterface.cpp
     VSP_Geom_API.cpp
     APIDefines.h
     APIErrorMgr.h
+    APIUpdateCountMgr.h
     GuiInterface.h
     VSP_Geom_API.h
     )

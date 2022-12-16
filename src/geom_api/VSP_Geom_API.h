@@ -15,6 +15,7 @@
 #include "Defines.h"
 
 #include "APIErrorMgr.h"
+#include "APIUpdateCountMgr.h"
 #include "Vec3d.h"
 #include "Matrix4d.h"
 
@@ -36,6 +37,8 @@ extern void VSPRenew();
 
 extern void Update( bool update_managers = true );
 extern void VSPExit( int error_code );
+
+extern int GetAndResetUpdateCount();
 
 extern std::string GetVSPVersion();
 extern int GetVSPVersionMajor();

@@ -110,6 +110,8 @@ protected:
     }
 
     bool m_RunGUI;
+
+    unsigned long m_UpdateCount;
 };
 
 

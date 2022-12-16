@@ -87,7 +87,7 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     m_RunGUI = true;
 
     m_ShowPlotScreenOnce = false;
-
+    m_UpdateCount = 0;
 }
 
 //==== Destructor ====//
@@ -143,6 +143,10 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
 {
     if ( data.m_String == string( "UpdateAllScreens" ) )
     {
+        // printf( "UpdateAllScreens %u\n", m_UpdateCount );
+        m_UpdateCount++;
+        MessageMgr::getInstance().Send( "UpdateCountMgr", "UpdateAllScreens" );
+
         SetUpdateFlag( true );
     }
     else if ( data.m_String == string( "VSPAEROSolverMessage" ) )
