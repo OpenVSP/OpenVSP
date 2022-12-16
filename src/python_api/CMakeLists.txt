@@ -169,6 +169,10 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         INSTALL( TARGETS _vsp_g LIBRARY DESTINATION python/openvsp/openvsp )
         INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py DESTINATION python/openvsp/openvsp )
 
+        # vsp_g_facade.py Gets copied to install location via 'INSTALL( DIRECTORY' below.
+        # Similarly, it will get copied to the python_pseudo package via 'add_custom_target( copy_package' bwlow.
+        # Later, vsp_g_facade.py will be generated here.  It will need to be placed in the above two locations.
+
     ENDIF()
 
 
