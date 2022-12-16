@@ -4,4 +4,7 @@
 -e CHARM
 -e AvlPy
 -e pyPMARC
+-e PyVSP
 pytest
+wxPython
+vtk

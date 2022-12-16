@@ -4,3 +4,4 @@ openvsp
 charm
 avlpy
 pypmarc
+pyvsp
