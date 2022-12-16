@@ -1,4 +1,4 @@
-from .vsp import *
+from .vsp_g import *
 from .degen_geom_parse import *
 from .parasite_drag import *
 from .surface_patches import *
