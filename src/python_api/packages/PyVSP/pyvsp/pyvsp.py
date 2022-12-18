@@ -8,7 +8,12 @@ from vtk.wx.wxVTKRenderWindowInteractor import wxVTKRenderWindowInteractor
 import numpy as np
 import vtk.util.numpy_support as npsup
 
-import vsp_g_facade as vsp
+import openvsp_config
+
+openvsp_config.LOAD_GRAPHICS = True
+openvsp_config.LOAD_FACADE = True
+
+import openvsp as vsp
 
 from user_prop_panel import UserPropertyPanel
 from analysis_panel import AnalysisPanel
