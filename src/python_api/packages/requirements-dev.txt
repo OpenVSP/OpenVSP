@@ -1,5 +1,6 @@
 -e utilities
 -e degen_geom
+-e OpenVSP_Config
 -e openvsp
 -e CHARM
 -e AvlPy

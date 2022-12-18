@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 Uber Technologies, Inc.
+# Copyright (c) 2022 Rob McDonald
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,16 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+
 from setuptools import setup
 
 setup(
-    name='openvsp',
-    version='@VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@',
-    packages=['openvsp'],
+    name='openvsp_config',
+    version='0.1.0',
+    packages=['openvsp_config'],
     license='MIT',
-    author='Uber Technologies',
+    author='Rob McDonald',
     author_email='',
-    description='OpenVSP Python Wrapper',
-    install_requires=['degen_geom', 'utilities', 'openvsp_config'],
+    install_requires=[],
     include_package_data=True
 )
