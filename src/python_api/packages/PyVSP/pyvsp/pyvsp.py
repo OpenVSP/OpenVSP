@@ -8,20 +8,12 @@ from vtk.wx.wxVTKRenderWindowInteractor import wxVTKRenderWindowInteractor
 import numpy as np
 import vtk.util.numpy_support as npsup
 
-import openvsp_config
 
-openvsp_config.LOAD_GRAPHICS = True
-openvsp_config.LOAD_FACADE = True
-
-import openvsp as vsp
-
-from user_prop_panel import UserPropertyPanel
-from analysis_panel import AnalysisPanel
+from pyvsp.user_prop_panel import UserPropertyPanel
+from pyvsp.analysis_panel import AnalysisPanel
 
 from threading import Thread
 from time import sleep
-
-from vsp_g import vec3d
 
 class DemoFrame(wx.Frame):
     """
@@ -41,7 +33,7 @@ class DemoFrame(wx.Frame):
     |               |     Parms    |
     |---------------|--------------|
     """
-    def __init__(self, make_vtk = False):
+    def __init__(self):
         """
         initializes the main demo frame
 
@@ -51,6 +43,8 @@ class DemoFrame(wx.Frame):
             Controls whether the vtk panel will be made, by default False
             There are some weird interactions between the vtk panel and OpenVSP
         """
+        global vsp
+        import openvsp.vsp_g_facade as vsp
         wx.Frame.__init__(
             self,
             None,
@@ -83,13 +77,11 @@ class DemoFrame(wx.Frame):
         mainSplitter.SetMinimumPaneSize(10)
 
         #creates the VTK panel
-        self.made_vtk = False
         self.vtk_panel_buffer = wx.Panel(top_splitter, -1, style=wx.DOUBLE_BORDER)
         self.vtk_panel_buffer_box = wx.BoxSizer(wx.VERTICAL)
-        if make_vtk:
-            self.made_vtk = True
-            self.vtkPanel = VTK_Panel_Vehicle(self.vtk_panel_buffer)
-            self.vtk_panel_buffer_box.Add(self.vtkPanel, 1, wx.EXPAND|wx.ALL,5)
+
+        self.vtkPanel = VTK_Panel_Vehicle(self.vtk_panel_buffer)
+        self.vtk_panel_buffer_box.Add(self.vtkPanel, 1, wx.EXPAND|wx.ALL,5)
         self.vtk_panel_buffer.SetSizer(self.vtk_panel_buffer_box)
 
         #creates the analyis panel
@@ -115,8 +107,7 @@ class DemoFrame(wx.Frame):
         bottom_splitter.SetMinimumPaneSize(10)
 
         #renders vtk screen
-        if self.made_vtk:
-            self.vtkPanel.renderVTKScreen()
+        self.vtkPanel.renderVTKScreen()
 
         #adds filemenu
         self.add_menu_bar()
@@ -194,6 +185,10 @@ class DemoFrame(wx.Frame):
         self.update_count = wx.StaticText(button_buffer, wx.ID_ANY, '0')
         self.update_count.SetFont(wx.Font(20,wx.FONTFAMILY_DEFAULT,wx.FONTSTYLE_NORMAL,wx.FONTWEIGHT_NORMAL))
         button_buffer_box.Add(self.update_count)
+
+        self.timer = wx.Timer(self)
+        self.Bind( wx.EVT_TIMER, self.on_check_updates, self.timer )
+        self.timer.Start(1000) # 1 Hz
 
     def on_screenshot(self, event):
         vsp.ScreenGrab(r'C:\work\gmdao\test_app_server\test.png',400,400,False)
@@ -370,6 +365,10 @@ class DemoFrame(wx.Frame):
         vsp.UpdateGui()
         self.refresh_actors()
 
+    def on_check_updates(self, event):
+        cnt = vsp.GetAndResetUpdateCount()
+        self.update_count.SetLabel( str(cnt) )
+
     def on_refresh_model(self, event):
         """
         event called when the user clicks refresh model button
@@ -413,10 +412,9 @@ class DemoFrame(wx.Frame):
         """
         print("refrehsing view")
         tess_dict = self.make_tesselations()
-        if self.made_vtk:
-            self.vtkPanel.make_geom_tesselations(tess_dict)
-            self.vtkPanel.redraw()
-            self.vtkPanel.fitToExtents()
+        self.vtkPanel.make_geom_tesselations(tess_dict)
+        self.vtkPanel.redraw()
+        self.vtkPanel.fitToExtents()
 
     def on_run_automated_script(self, event):
         """
@@ -702,13 +700,11 @@ class VTK_Panel_Vehicle(wx.Panel):
 
 class DemoApp(wx.App):
     def OnInit(self):
-        self.m_frame = DemoFrame(make_vtk=True)
+        self.m_frame = DemoFrame()
         self.m_frame.Show()
         return True
 
-def start_app(make_vtk=False):
+def start_app():
     app = DemoApp(0)
     app.MainLoop()
 
-if __name__ == "__main__":
-    start_app(True)

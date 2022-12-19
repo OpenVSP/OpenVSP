@@ -8,13 +8,13 @@ from sys import version_info as _swig_python_version_info
 if _swig_python_version_info < (2, 7, 0):
     raise RuntimeError("Python 2.7 or later required")
 
-# # Import the low-level C/C++ module
+# Import the low-level C/C++ module
 # if __package__ or "." in __name__:
 #     from . import _vsp_g
 # else:
 #     import _vsp_g
 
-import vsp_g as vsp2
+from openvsp.vsp_g import vec3d
 
 try:
     import builtins as __builtin__
@@ -34,8 +34,6 @@ PORT = 6000
 
 server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'vsp_server.py')
 proc = subprocess.Popen(f'{sys.executable} {server_file}')
-
-sleep(1)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((HOST, PORT))
@@ -67,7 +65,7 @@ def send_recieve(func_name, args, kwargs):
             try:
                 new_result = []
                 for r in result:
-                    new_result.append(vsp2.vec3d(r['x'],r['y'],r['z']))
+                    new_result.append(vec3d(r['x'],r['y'],r['z']))
                 result = new_result
             except:
                 pass
@@ -190,11 +188,8 @@ CFD_OBJ_FILE_NAME = _vsp_g.CFD_OBJ_FILE_NAME
 CFD_DAT_FILE_NAME = _vsp_g.CFD_DAT_FILE_NAME
 CFD_KEY_FILE_NAME = _vsp_g.CFD_KEY_FILE_NAME
 CFD_GMSH_FILE_NAME = _vsp_g.CFD_GMSH_FILE_NAME
-CFD_SRF_FILE_NAME = _vsp_g.CFD_SRF_FILE_NAME
 CFD_TKEY_FILE_NAME = _vsp_g.CFD_TKEY_FILE_NAME
 CFD_FACET_FILE_NAME = _vsp_g.CFD_FACET_FILE_NAME
-CFD_CURV_FILE_NAME = _vsp_g.CFD_CURV_FILE_NAME
-CFD_PLOT3D_FILE_NAME = _vsp_g.CFD_PLOT3D_FILE_NAME
 CFD_VSPGEOM_FILE_NAME = _vsp_g.CFD_VSPGEOM_FILE_NAME
 CFD_NUM_FILE_NAMES = _vsp_g.CFD_NUM_FILE_NAMES
 POINT_SOURCE = _vsp_g.POINT_SOURCE
@@ -251,15 +246,15 @@ CFD_OBJ_TYPE = _vsp_g.CFD_OBJ_TYPE
 CFD_DAT_TYPE = _vsp_g.CFD_DAT_TYPE
 CFD_KEY_TYPE = _vsp_g.CFD_KEY_TYPE
 CFD_GMSH_TYPE = _vsp_g.CFD_GMSH_TYPE
-CFD_SRF_TYPE = _vsp_g.CFD_SRF_TYPE
+CFD_SRF_TYPE_DEPRECATED = _vsp_g.CFD_SRF_TYPE_DEPRECATED
 CFD_TKEY_TYPE = _vsp_g.CFD_TKEY_TYPE
 PROJ_AREA_CSV_TYPE = _vsp_g.PROJ_AREA_CSV_TYPE
 WAVE_DRAG_TXT_TYPE = _vsp_g.WAVE_DRAG_TXT_TYPE
 VSPAERO_PANEL_TRI_TYPE = _vsp_g.VSPAERO_PANEL_TRI_TYPE
 DRAG_BUILD_CSV_TYPE = _vsp_g.DRAG_BUILD_CSV_TYPE
 CFD_FACET_TYPE = _vsp_g.CFD_FACET_TYPE
-CFD_CURV_TYPE = _vsp_g.CFD_CURV_TYPE
-CFD_PLOT3D_TYPE = _vsp_g.CFD_PLOT3D_TYPE
+CFD_CURV_TYPE_DEPRECATED = _vsp_g.CFD_CURV_TYPE_DEPRECATED
+CFD_PLOT3D_TYPE_DEPRECATED = _vsp_g.CFD_PLOT3D_TYPE_DEPRECATED
 CFD_VSPGEOM_TYPE = _vsp_g.CFD_VSPGEOM_TYPE
 VSPAERO_VSPGEOM_TYPE = _vsp_g.VSPAERO_VSPGEOM_TYPE
 DELIM_COMMA = _vsp_g.DELIM_COMMA
@@ -307,6 +302,7 @@ VSP_INVALID_INPUT_VAL = _vsp_g.VSP_INVALID_INPUT_VAL
 VSP_INVALID_CF_EQN = _vsp_g.VSP_INVALID_CF_EQN
 VSP_INVALID_DRIVERS = _vsp_g.VSP_INVALID_DRIVERS
 VSP_ADV_LINK_BUILD_FAIL = _vsp_g.VSP_ADV_LINK_BUILD_FAIL
+VSP_DEPRECATED = _vsp_g.VSP_DEPRECATED
 EXCRESCENCE_COUNT = _vsp_g.EXCRESCENCE_COUNT
 EXCRESCENCE_CD = _vsp_g.EXCRESCENCE_CD
 EXCRESCENCE_PERCENT_GEOM = _vsp_g.EXCRESCENCE_PERCENT_GEOM
@@ -337,6 +333,16 @@ EXPORT_SELIG_AIRFOIL = _vsp_g.EXPORT_SELIG_AIRFOIL
 EXPORT_BEZIER_AIRFOIL = _vsp_g.EXPORT_BEZIER_AIRFOIL
 EXPORT_IGES_STRUCTURE = _vsp_g.EXPORT_IGES_STRUCTURE
 EXPORT_STEP_STRUCTURE = _vsp_g.EXPORT_STEP_STRUCTURE
+FEA_BC_STRUCTURE = _vsp_g.FEA_BC_STRUCTURE
+FEA_BC_PART = _vsp_g.FEA_BC_PART
+FEA_BC_SUBSURF = _vsp_g.FEA_BC_SUBSURF
+FEA_NUM_BC_TYPES = _vsp_g.FEA_NUM_BC_TYPES
+FEA_BCM_USER = _vsp_g.FEA_BCM_USER
+FEA_BCM_ALL = _vsp_g.FEA_BCM_ALL
+FEA_BCM_PIN = _vsp_g.FEA_BCM_PIN
+FEA_BCM_SYMM = _vsp_g.FEA_BCM_SYMM
+FEA_BCM_ASYMM = _vsp_g.FEA_BCM_ASYMM
+FEA_NUM_BCM_MODES = _vsp_g.FEA_NUM_BCM_MODES
 FEA_XSEC_GENERAL = _vsp_g.FEA_XSEC_GENERAL
 FEA_XSEC_CIRC = _vsp_g.FEA_XSEC_CIRC
 FEA_XSEC_PIPE = _vsp_g.FEA_XSEC_PIPE
@@ -612,9 +618,8 @@ STABILITY_DEFAULT = _vsp_g.STABILITY_DEFAULT
 STABILITY_P_ANALYSIS = _vsp_g.STABILITY_P_ANALYSIS
 STABILITY_Q_ANALYSIS = _vsp_g.STABILITY_Q_ANALYSIS
 STABILITY_R_ANALYSIS = _vsp_g.STABILITY_R_ANALYSIS
-STABILITY_UNSTEADY = _vsp_g.STABILITY_UNSTEADY
-STABILITY_HEAVE = _vsp_g.STABILITY_HEAVE
-STABILITY_IMPULSE = _vsp_g.STABILITY_IMPULSE
+STABILITY_PITCH = _vsp_g.STABILITY_PITCH
+STABILITY_NUM_TYPES = _vsp_g.STABILITY_NUM_TYPES
 CLMAX_OFF = _vsp_g.CLMAX_OFF
 CLMAX_2D = _vsp_g.CLMAX_2D
 CLMAX_CARLSON = _vsp_g.CLMAX_CARLSON
