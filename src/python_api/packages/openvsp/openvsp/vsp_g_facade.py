@@ -33,7 +33,7 @@ HOST = 'localhost'
 PORT = 6000
 
 server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'vsp_server.py')
-proc = subprocess.Popen(f'{sys.executable} {server_file}')
+proc = subprocess.Popen([sys.executable, server_file])
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((HOST, PORT))
