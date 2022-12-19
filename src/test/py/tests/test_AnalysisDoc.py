@@ -1,7 +1,7 @@
 import openvsp as vsp
 
 def test_AnalysisDoc():
-    errorMgr = vsp.ErrorMgrSingleton_getInstance()
+    errorMgr = vsp.ErrorMgrSingleton.getInstance()
 
     vsp.AddGeom( 'POD', '' )
     vsp.Update()
