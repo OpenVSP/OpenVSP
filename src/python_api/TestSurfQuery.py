@@ -4,7 +4,7 @@ from __future__ import print_function
 import vsp as vsp
 
 stdout = vsp.cvar.cstdout
-errorMgr = vsp.ErrorMgrSingleton_getInstance()
+errorMgr = vsp.ErrorMgrSingleton.getInstance()
 
 
 # Add Pod

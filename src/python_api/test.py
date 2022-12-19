@@ -4,7 +4,7 @@ from __future__ import print_function
 import openvsp as vsp
 
 stdout = vsp.cvar.cstdout
-errorMgr = vsp.ErrorMgrSingleton_getInstance()
+errorMgr = vsp.ErrorMgrSingleton.getInstance()
 
 # ==== Test Enums ==== #
 print("SET_ALL = ", vsp.SET_ALL)
