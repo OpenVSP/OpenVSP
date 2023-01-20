@@ -2077,80 +2077,15 @@ void VspSurf::BuildFeatureLines( bool force_xsec_flag)
 
 bool VspSurf::CapUMin(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
 {
-    if (CapType == vsp::NO_END_CAP)
-    {
-        ResetUSkip();
-        return false;
-    }
-    multicap_creator_type cc;
-    bool rtn_flag;
-
-    bool extle = false;
-    bool extte = false;
-
-    int captype = multicap_creator_type::FLAT;
-
-    switch( CapType ){
-      case vsp::FLAT_END_CAP:
-        captype = multicap_creator_type::FLAT;
-        break;
-      case vsp::ROUND_END_CAP:
-        captype = multicap_creator_type::ROUND;
-        break;
-      case vsp::EDGE_END_CAP:
-        captype = multicap_creator_type::EDGE;
-        break;
-      case vsp::SHARP_END_CAP:
-        captype = multicap_creator_type::SHARP;
-        break;
-      case vsp::POINT_END_CAP:
-        captype = multicap_creator_type::POINT;
-        break;
-      case vsp::ROUND_EXT_END_CAP_NONE:
-        captype = multicap_creator_type::ROUND_EXT;
-        break;
-      case vsp::ROUND_EXT_END_CAP_LE:
-        captype = multicap_creator_type::ROUND_EXT;
-        extle = true;
-        break;
-      case vsp::ROUND_EXT_END_CAP_TE:
-        captype = multicap_creator_type::ROUND_EXT;
-        extte = true;
-        break;
-      case vsp::ROUND_EXT_END_CAP_BOTH:
-        captype = multicap_creator_type::ROUND_EXT;
-        extle = true;
-        extte = true;
-        break;
-    }
-
-    surface_point_type p;
-    p << pt.x(), pt.y(), pt.z();
-
-    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMIN, len, offset, str, p, swflag );
-
-    m_UMapping.CapMin();
-
-    if (!rtn_flag)
-    {
-      ResetUSkip();
-      return false;
-    }
-
-    rtn_flag = cc.create(m_Surface);
-
-    if (!rtn_flag)
-    {
-      ResetUSkip();
-      return false;
-    }
-
-    m_Surface.set_u0( 0.0 );
-    ResetUSkip();
-    return true;
+    return CapUHandler( multicap_creator_type::CAP_UMIN, CapType, len, str, offset, pt, swflag );
 }
 
 bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
+{
+    return CapUHandler( multicap_creator_type::CAP_UMAX, CapType, len, str, offset, pt, swflag );
+}
+
+bool VspSurf::CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag)
 {
     if (CapType == vsp::NO_END_CAP)
     {
@@ -2202,9 +2137,77 @@ bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const 
     surface_point_type p;
     p << pt.x(), pt.y(), pt.z();
 
-    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, multicap_creator_type::CAP_UMAX, len, offset, str, p, swflag );
+    if ( CapType >= vsp::ROUND_EXT_END_CAP_NONE )
+    {
+        piecewise_curve_type b, e, d, dsq;
 
-    m_UMapping.CapMax();
+        cc.set_ext_conditions( extle, extte );
+
+        rtn_flag = cc.set_conditions( m_Surface, multicap_creator_type::FLAT, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, 0, str, p, swflag );
+        rtn_flag = cc.create_curve( b );
+
+        rtn_flag = cc.set_conditions( m_Surface, multicap_creator_type::ROUND, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, 0, str, p, swflag );
+        rtn_flag = cc.create_curve( e );
+
+        b.scale( -1.0 );
+        d.sum( b, e );
+        dsq.square( d );
+
+        typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
+        typedef onedpwc::point_type onedpt;
+        onedpwc sumsq;
+
+        sumsq = dsq.sumcompcurve();
+
+        // Negate to allow minimization instead of maximization.
+        sumsq.scale( -1.0 );
+
+        onedpwc sweepcurve;
+        cc.create_sweepfactor_sq_curve( sweepcurve );
+        cc.dirty_prep(); // Needed because we split the surface and need to re-load it later.
+
+
+        onedpwc objfun;
+        objfun.product( sumsq, sweepcurve );
+
+        double utmax;
+        double hmax = sqrt( -1.0 * eli::geom::intersect::minimum_dimension( utmax, objfun, 0 ) );
+
+        double xloc, wlow, wup;
+
+        wlow = utmax;
+        wup = GetWMax() - ( utmax - 0.0 );
+
+        SplitW( wup );
+        SplitW( wlow );
+
+        typedef onedpwc::curve_type onedcurve_type;
+        onedcurve_type c;
+
+        onedpt onedp;
+        objfun.get( c, 1 );
+        onedp = c.get_control_point( 0 );
+        double h_start = sqrt( -onedp.x() );
+
+        objfun.get( c, objfun.number_segments() - 2 );
+        onedp = c.get_control_point( c.degree() );
+        double h_end = sqrt( -onedp.x() );
+
+        // Need to pass wlow (which we do) and then search for i_hmax internally after surface has been split,
+        // flipped, and matched top to bottom.  This matching is likely throwing off the patch count.
+        cc.set_h_vals( wlow, hmax, h_start, h_end );
+    }
+
+    rtn_flag = cc.set_conditions(m_Surface, captype, 1.0, (typename multicap_creator_type::edge_cap_identifier) whichCap, len, offset, str, p, swflag );
+
+    if ( whichCap == multicap_creator_type::CAP_UMAX )
+    {
+        m_UMapping.CapMax();
+    }
+    else
+    {
+        m_UMapping.CapMin();
+    }
 
     if (!rtn_flag)
     {
@@ -2219,6 +2222,12 @@ bool VspSurf::CapUMax(int CapType, double len, double str, double offset, const 
       ResetUSkip();
       return false;
     }
+
+    if ( whichCap == multicap_creator_type::CAP_UMIN )
+    {
+        m_Surface.set_u0( 0.0 );
+    }
+
     ResetUSkip();
     return true;
 }

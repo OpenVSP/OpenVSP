@@ -201,6 +201,7 @@ public:
     }
     bool CapUMin(int capType, double len, double str, double offset, const vec3d &ptoff, bool swflag);
     bool CapUMax(int capType, double len, double str, double offset, const vec3d &ptoff, bool swflag);
+    bool CapUHandler(int whichCap, int CapType, double len, double str, double offset, const vec3d &pt, bool swflag);
     static bool CapWMin(int capType);
     static bool CapWMax(int capType);
     void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >() ) const;
