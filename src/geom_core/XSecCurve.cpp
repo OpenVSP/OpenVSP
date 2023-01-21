@@ -323,6 +323,9 @@ void XSecCurve::OffsetCurve( double offset_val )
     double w = GetWidth();
     double h = GetHeight();
 
+    m_DriverGroup->SetChoice( 0, WIDTH_XSEC_DRIVER );
+    m_DriverGroup->SetChoice( 1, HEIGHT_XSEC_DRIVER );
+
     SetWidthHeight( w - offset_val*2.0, h - offset_val*2.0 );
 
 }
