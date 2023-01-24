@@ -209,6 +209,10 @@ string StringUtil::truncateFileName( const string &fn, int len )
 
 string StringUtil::NasFmt( double input )
 {
+    if (input == 0.0) {
+        return string("%f");
+    }
+
     double ainput = std::abs( input );
     if ( input > 0 )  // Positive branch
     {

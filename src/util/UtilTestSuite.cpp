@@ -682,6 +682,9 @@ void UtilTestSuite::FormatWidthTest()
         sprintf( buf, fmt.c_str(), v );
         sbuf = string( buf );
         StringUtil::remove_leading_trailing( sbuf, ' ' );
+        // assert that removing leading/trailing did not change the string
+        // (i.e. no leading/trailing space)
+        TEST_ASSERT( sbuf == string(buf));
         TEST_ASSERT( sbuf.length() == len + 1 );
 
         fmt = StringUtil::NasFmt( -v ) + "\n";
@@ -690,11 +693,16 @@ void UtilTestSuite::FormatWidthTest()
         sprintf( buf, fmt.c_str(), -v );
         sbuf = string( buf );
         StringUtil::remove_leading_trailing( sbuf, ' ' );
+        TEST_ASSERT( sbuf == string(buf));
         TEST_ASSERT( sbuf.length() == len + 1);
 
         v = v / 10;
     }
 
+    // 0 was printing as " 0.0e+00" before, the leading space is wrong.
+    fmt = StringUtil::NasFmt( 0.0 ) + "\n";
+    sprintf( buf, fmt.c_str(), 0.0 );
+    TEST_ASSERT (buf[0] != ' ');
 }
 
 void UtilTestSuite::NumbersTest()
