@@ -6,3 +6,4 @@ inst/
 __pycache__/
 *.egg-info
 *.vscode
+buildlibs/

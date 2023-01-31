@@ -986,7 +986,8 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
     {
         string name;
         vector < int > shell_elem_id_vec, beam_elem_id_vec;
-        int elem_id = 0;
+        // The NASTRAN docs say that element id's must be > 0.
+        int elem_id = 1;
 
         // Write FeaParts
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )

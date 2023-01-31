@@ -884,8 +884,13 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( curr_assy )
         {
-            curr_assy->AddConnection( m_FixPtIDs[m_ConnectionStartIndex], m_FixPtStructIDs[m_ConnectionStartIndex], m_ConnectionStartSurfIndex,
-                                      m_FixPtIDs[m_ConnectionEndIndex], m_FixPtStructIDs[m_ConnectionEndIndex], m_ConnectionEndSurfIndex );
+            if (m_ConnectionStartIndex < m_FixPtIDs.size() &&
+                m_ConnectionStartIndex < m_FixPtStructIDs.size() &&
+                m_ConnectionEndIndex < m_FixPtIDs.size() &&
+                m_ConnectionEndIndex < m_FixPtStructIDs.size()) {
+                curr_assy->AddConnection(m_FixPtIDs[m_ConnectionStartIndex], m_FixPtStructIDs[m_ConnectionStartIndex], m_ConnectionStartSurfIndex,
+                    m_FixPtIDs[m_ConnectionEndIndex], m_FixPtStructIDs[m_ConnectionEndIndex], m_ConnectionEndSurfIndex);
+            }
         }
     }
     else if ( device == &m_DelConnectionButton )

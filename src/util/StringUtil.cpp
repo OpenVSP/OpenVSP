@@ -210,7 +210,7 @@ string StringUtil::truncateFileName( const string &fn, int len )
 string StringUtil::NasFmt( double input )
 {
     if (input == 0.0) {
-        return string("%f");
+        return string("%8f");
     }
 
     double ainput = std::abs( input );

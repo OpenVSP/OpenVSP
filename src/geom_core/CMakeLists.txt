@@ -1,5 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
+if(MSVC)
+  add_definitions(/bigobj)
+endif()
+
 SET(GEOM_CORE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to geom_core headers")
 
 INCLUDE_DIRECTORIES( 

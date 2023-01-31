@@ -699,10 +699,17 @@ void UtilTestSuite::FormatWidthTest()
         v = v / 10;
     }
 
-    // 0 was printing as " 0.0e+00" before, the leading space is wrong.
+    // 0 was printing as " 0.0e+00" before, the leading space is wrong
+    // if you try to use NasFmt in the context of a comma-separated
+    // NASTRAN file (but we don't do that anymore, preferring fixed
+    // format).
     fmt = StringUtil::NasFmt( 0.0 ) + "\n";
+    printf( fmt.c_str(), 0.0 );
     sprintf( buf, fmt.c_str(), 0.0 );
-    TEST_ASSERT (buf[0] != ' ');
+    sbuf = string( buf );
+    StringUtil::remove_leading_trailing( sbuf, ' ' );
+    TEST_ASSERT( sbuf == string(buf));
+    TEST_ASSERT( sbuf.length() == len + 1 );
 }
 
 void UtilTestSuite::NumbersTest()

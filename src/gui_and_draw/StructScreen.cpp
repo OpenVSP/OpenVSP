@@ -2640,8 +2640,11 @@ void StructScreen::CallBack( Fl_Widget* w )
         }
         else if ( w == m_StructureSelectBrowser )
         {
-            StructureMgr.m_CurrStructIndex.Set( m_StructureSelectBrowser->value() - 2 );
-            FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+            unsigned int idx = StructureMgr.m_CurrStructIndex();
+            if (idx < m_StructIDs.size()) {
+                StructureMgr.m_CurrStructIndex.Set(m_StructureSelectBrowser->value() - 2);
+                FeaMeshMgr.SetFeaMeshStructID(m_StructIDs[idx]);
+            }
         }
         else if ( w == m_DrawPartSelectBrowser )
         {
@@ -2698,7 +2701,10 @@ void StructScreen::LaunchFEAMesh()
     FeaMeshMgr.SetFeaMeshInProgress( true );
 
     // Identify which structure to mesh
-    FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+    unsigned int idx = StructureMgr.m_CurrStructIndex();
+    if (idx < m_StructIDs.size()) {
+        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ idx ] );
+    }
 
     m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
 
@@ -2721,7 +2727,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         return;
     }
-
+    unsigned int idx = StructureMgr.m_CurrStructIndex();
     if ( device == &m_FeaIntersectMeshButton )
     {
         LaunchFEAMesh();
@@ -2729,7 +2735,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_FeaExportFEMButton )
     {
         FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
-        FeaMeshMgr.ExportFeaMesh( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+        if (idx < m_StructIDs.size()) {
+            FeaMeshMgr.ExportFeaMesh( m_StructIDs[idx] );
+        }
     }
     else if ( device == &m_IntersectOnlyButton )
     {
@@ -2738,7 +2746,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         FeaMeshMgr.SetCADOnlyFlag( true );
 
         // Identify which structure to mesh
-        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+        if (idx < m_StructIDs.size()) {
+            FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[idx] );
+        }
 
         m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
     }
