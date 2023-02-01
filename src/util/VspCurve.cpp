@@ -1698,12 +1698,6 @@ double VspCurve::CalculateThick( double &loc ) const
     typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
     onedpwc sumsq;
 
-    typedef onedpwc::bounding_box_type onedbox;
-    onedbox box;
-
-    typedef onedpwc::point_type onedpt;
-    onedpt p;
-
     sumsq = c4.sumcompcurve();
 
     // Negate to allow minimization instead of maximization.
