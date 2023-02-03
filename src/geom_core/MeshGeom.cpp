@@ -4238,7 +4238,32 @@ vector< string > MeshGeom::GetTMeshNames()
     vector< string > names;
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        names.push_back( m_TMeshVec[i]->m_NameStr + "_Surf" + to_string( ( long long )m_TMeshVec[i]->m_SurfNum ) );
+        string plate;
+        if ( m_TMeshVec[ i ]->m_PlateNum == -1 )
+        {
+            plate = "_S";
+        }
+        else
+        {
+            if ( m_TMeshVec[i]->m_SurfType == vsp::NORMAL_SURF )
+            {
+                if ( m_TMeshVec[ i ]->m_PlateNum == 0 )
+                {
+                    plate = "_V";
+                }
+                else if ( m_TMeshVec[ i ]->m_PlateNum == 1 )
+                {
+                    plate = "_H";
+                }
+            }
+            else // WING_SURF with m_TMeshVec[ i ]->m_PlateNum == 0
+            {
+                plate = "_C";
+            }
+
+        }
+
+        names.push_back( m_TMeshVec[i]->m_NameStr + plate + "_Surf" + to_string( ( long long )m_TMeshVec[i]->m_SurfNum ) );
     }
 
     return names;
@@ -4249,7 +4274,32 @@ vector< string > MeshGeom::GetTMeshIDs()
     vector< string > ids;
     for ( int i = 0; i < (int)m_TMeshVec.size(); i++ )
     {
-        ids.push_back( m_TMeshVec[i]->m_OriginGeomID + "_Surf" + to_string((long long)m_TMeshVec[i]->m_SurfNum ) );
+        string plate;
+        if ( m_TMeshVec[ i ]->m_PlateNum == -1 )
+        {
+            // plate; // emtpy string.
+        }
+        else
+        {
+            if ( m_TMeshVec[i]->m_SurfType == vsp::NORMAL_SURF )
+            {
+                if ( m_TMeshVec[ i ]->m_PlateNum == 0 )
+                {
+                    plate = "_V";
+                }
+                else if ( m_TMeshVec[ i ]->m_PlateNum == 1 )
+                {
+                    plate = "_H";
+                }
+            }
+            else // WING_SURF with m_TMeshVec[ i ]->m_PlateNum == 0
+            {
+                plate = "_C";
+            }
+
+        }
+
+        ids.push_back( m_TMeshVec[i]->m_OriginGeomID + plate + "_Surf" + to_string((long long)m_TMeshVec[i]->m_SurfNum ) );
     }
 
     return ids;
