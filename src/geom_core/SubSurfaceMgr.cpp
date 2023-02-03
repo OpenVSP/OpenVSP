@@ -358,6 +358,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         // Find position of token _Surf
         spos = id_list.find( "_Surf" );
         string gid = id_list.substr( 0, spos );
+        string gid_bare = gid.substr( 0, 10 );
 
         // Find position of first comma
         cpos = id_list.find( "," );
@@ -371,14 +372,14 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 
         int thickthin = -1;
         map<string,int>::iterator it;
-        it = m_ThickMap.find( gid );
+        it = m_ThickMap.find( gid_bare );
         if ( it != m_ThickMap.end() )
         {
             thickthin = m_ThickMap[ gid ];
         }
 
         // Write tag number and surface list to file
-        fprintf( fid, "%d,%d,%s,%s,%s,%d", tag , gnum, snum.c_str(), gname.c_str(), gid.c_str(), thickthin );
+        fprintf( fid, "%d,%d,%s,%s,%s,%d", tag , gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
 
         // Write subsurface information if there is any
         if( !ssnames.empty() )
