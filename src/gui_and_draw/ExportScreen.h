@@ -31,7 +31,7 @@ public:
 
     void LoadSetChoice();
 
-    void ExportFile( string &newfile, int write_set, int degen_set, int type );
+    void ExportFile( string &newfile, int write_set, int degen_set, int intSubsFlag, int type );
 
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
@@ -48,6 +48,8 @@ protected:
 
     Choice m_ExportSetChoice;
     Choice m_DegenSetChoice;
+
+    ToggleButton m_Subsurfs;
 
     TriggerButton m_XSecButton;
     TriggerButton m_Plot3DButton;

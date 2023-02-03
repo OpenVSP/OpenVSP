@@ -204,7 +204,7 @@ void GeomCoreTestSuite::MeshIOTest()
     TEST_ASSERT( mesh_orig.compare( "NONE" ) != 0 );
 
     out_file = "nascart_test.dat";
-    veh.WriteNascartFiles( out_file, 0 );
+    veh.WriteNascartFiles( out_file, 0, 1 );
     string mesh_ncart = veh.ImportFile( out_file, vsp::IMPORT_NASCART );
     TEST_ASSERT( mesh_ncart.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_ncart );
@@ -222,7 +222,7 @@ void GeomCoreTestSuite::MeshIOTest()
     veh.CutActiveGeomVec();
 
     out_file = "tri_test.tri";
-    veh.WriteTRIFile( out_file, 0 );
+    veh.WriteTRIFile( out_file, 0, 1 );
     string mesh_tri = veh.ImportFile( out_file, vsp::IMPORT_CART3D_TRI );
     TEST_ASSERT( mesh_tri.compare( "NONE" ) != 0 );
     CompareMeshes( veh, mesh_orig, mesh_tri );

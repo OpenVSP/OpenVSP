@@ -185,18 +185,18 @@ public:
     //=== Export Files ===//
     // Return Mesh Geom ID if the export generates a mesh, otherwise return an 
     // empty string. This facilitates deleting the generated mesh from the API.
-    string ExportFile( const string & file_name, int write_set, int degen_set, int file_type );
+    string ExportFile( const string & file_name, int write_set, int degen_set, int subsFlag, int file_type );
     bool WriteXMLFile( const string & file_name, int set );
     void WriteXSecFile( const string & file_name, int write_set );
     void WritePLOT3DFile( const string & file_name, int write_set );
     string WriteSTLFile( const string & file_name, int write_set );
-    string WriteTaggedMSSTLFile( const string & file_name, int write_set );
-    string WriteFacetFile( const string & file_name, int write_set );
-    string WriteTRIFile( const string & file_name, int write_set );
-    string WriteOBJFile( const string & file_name, int write_set );
-    string WriteVSPGeomFile( const string & file_name, int write_set, int degen_set, bool half_flag = false, bool hideset = true, bool suppressdisks = false );
-    string WriteNascartFiles( const string & file_name, int write_set );
-    string WriteGmshFile( const string & file_name, int write_set );
+    string WriteTaggedMSSTLFile( const string & file_name, int write_set, int subsFlag );
+    string WriteFacetFile( const string & file_name, int write_set, int subsFlag );
+    string WriteTRIFile( const string & file_name, int write_set, int subsFlag );
+    string WriteOBJFile( const string & file_name, int write_set, int subsFlag );
+    string WriteVSPGeomFile( const string & file_name, int write_set, int degen_set, int subsFlag, bool half_flag = false, bool hideset = true, bool suppressdisks = false );
+    string WriteNascartFiles( const string & file_name, int write_set, int subsFlag );
+    string WriteGmshFile( const string & file_name, int write_set, int subsFlag );
     void WriteX3DFile( const string & file_name, int write_set );
     static void WriteX3DMaterial( xmlNodePtr node, Material * material );
     void WriteX3DViewpoints( xmlNodePtr node );
