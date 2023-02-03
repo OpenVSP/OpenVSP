@@ -1943,8 +1943,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "DISK_SURF", DISK_SURF, "/*!< Disk VSP surface */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSP_SURF_TYPE", "PROP_SURF", PROP_SURF, "/*!< Propeller VSP surface */" );
-    assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "NUM_SURF_TYPES", NUM_SURF_TYPES, "/*!< Number of VSP surface types */" );
     assert( r >= 0 );
 

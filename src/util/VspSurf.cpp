@@ -1838,7 +1838,7 @@ void VspSurf::BuildFeatureLines( bool force_xsec_flag)
         m_WFeature.push_back( vmax );
 
         // If fuse-type, add .25 and .75 curves.
-        if ( GetSurfType() != vsp::WING_SURF && GetSurfType() != vsp::PROP_SURF )
+        if ( GetSurfType() != vsp::WING_SURF )
         {
             m_WFeature.push_back( vmin + 0.25 * vrng );
             m_WFeature.push_back( vmin + 0.75 * vrng );

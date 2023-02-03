@@ -1308,8 +1308,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 }
                 allUWVec.push_back( uwFace );
 
-                if ( m_SurfVec[i]->GetSurfaceVSPType() == vsp::WING_SURF ||
-                     m_SurfVec[i]->GetSurfaceVSPType() == vsp::PROP_SURF )
+                if ( m_SurfVec[i]->GetSurfaceVSPType() == vsp::WING_SURF )
                 {
                     bool n0 = uwFace[0].y() <= ( TMAGIC + tol );
                     bool n1 = uwFace[1].y() <= ( TMAGIC + tol );

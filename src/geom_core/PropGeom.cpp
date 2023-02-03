@@ -1175,7 +1175,7 @@ void PropGeom::UpdateSurf()
         m_MainSurfVec[0].SkinCubicSpline(rib_vec, m_UPseudo, tdisc, false );
 
         m_MainSurfVec[0].SetMagicVParm( true );
-        m_MainSurfVec[0].SetSurfType( PROP_SURF );
+        m_MainSurfVec[0].SetSurfType( WING_SURF );
         m_MainSurfVec[0].SetSurfCfdType( vsp::CFD_NORMAL );  // Make sure set to default, can be updated later.
 
         m_FoilSurf.SetMagicVParm( true );

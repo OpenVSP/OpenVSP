@@ -2248,8 +2248,7 @@ int TTri::WakeEdge()
     double tol = 1e-12;
     if ( m_TMesh )
     {
-        int type = m_TMesh->m_SurfType;
-        if ( type == vsp::WING_SURF || type == vsp::PROP_SURF )
+        if ( m_TMesh->m_SurfType == vsp::WING_SURF )
         {
             bool n0 = m_N0->m_UWPnt.y() <= ( TMAGIC + tol );
             bool n1 = m_N1->m_UWPnt.y() <= ( TMAGIC + tol );

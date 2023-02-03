@@ -679,7 +679,6 @@ enum VSP_SURF_CFD_TYPE { CFD_NORMAL,
 enum VSP_SURF_TYPE { NORMAL_SURF,
                      WING_SURF,
                      DISK_SURF,
-                     PROP_SURF,
                      NUM_SURF_TYPES,
                    };
 

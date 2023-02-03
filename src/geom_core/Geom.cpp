@@ -3621,7 +3621,7 @@ void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector
         surf_vec[i].ResetUSkip();
 
         int surftype = DegenGeom::BODY_TYPE;
-        if( surf_vec[i].GetSurfType() == vsp::WING_SURF || surf_vec[i].GetSurfType() == vsp::PROP_SURF )
+        if( surf_vec[i].GetSurfType() == vsp::WING_SURF )
         {
             surftype = DegenGeom::SURFACE_TYPE;
         }
@@ -4321,8 +4321,7 @@ void Geom::SetupPMARCFile( int &ipatch, vector < int > &idpat )
 {
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
-        if( GetSurfType(i) == vsp::WING_SURF ||
-            GetSurfType(i) == vsp::PROP_SURF )
+        if( GetSurfType(i) == vsp::WING_SURF )
         {
             idpat[ipatch] = 1;
         }
