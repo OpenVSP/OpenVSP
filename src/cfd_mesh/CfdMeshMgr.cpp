@@ -3807,6 +3807,8 @@ void CfdMeshMgrSingleton::SubTagTris()
             if ( surf->GetWakeFlag() )
                 geom_ptr = m_Vehicle->FindGeom( surf->GetRefGeomID() );
 
+            // Will need to augment name and exportid with _C _V _H markers as from MeshGeom::GetTMeshIDs and GetTMeshNames.
+
             if ( surf->GetCompID() < 0 )
             {
                 name = geom_ptr->GetName() + "_FeaPart_" + to_string( fea_part_cnt );
