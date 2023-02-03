@@ -94,7 +94,7 @@ public:
     std::map< int, std::string > m_TagIDs;
     std::vector< std::string > m_CompNames;
     std::vector< std::string > m_CompIDs;
-    std::vector< int > m_CompThick;
+    std::map< std::string, int > m_ThickMap;
 
 protected:
     int m_CurrSurfInd;

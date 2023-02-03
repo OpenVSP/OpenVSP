@@ -184,7 +184,7 @@ void SubSurfaceMgrSingleton::ClearTagMaps()
     m_TagIDs.clear();
     m_CompNames.clear();
     m_CompIDs.clear();
-    m_CompThick.clear();
+    m_ThickMap.clear();
 
     // Add Dummy tag combo for meshes with no tags
     // so there will a draw object for them
@@ -369,7 +369,13 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         // Lookup Geom number
         int gnum = distance( gids.begin(), gids.find( gid ) );
 
-        int thickthin = m_CompThick[ gnum ];
+        int thickthin = -1;
+        map<string,int>::iterator it;
+        it = m_ThickMap.find( gid );
+        if ( it != m_ThickMap.end() )
+        {
+            thickthin = m_ThickMap[ gid ];
+        }
 
         // Write tag number and surface list to file
         fprintf( fid, "%d,%d,%s,%s,%s,%d", tag , gnum, snum.c_str(), gname.c_str(), gid.c_str(), thickthin );

@@ -4254,13 +4254,13 @@ vector< string > MeshGeom::GetTMeshIDs()
     return ids;
 }
 
-vector < int > MeshGeom::GetThicks()
+map< string, int > MeshGeom::GetThicks()
 {
-    vector < int > thick;
+    map < string, int > thick;
 
     for ( int i = 0; i < (int)m_TMeshVec.size(); i++ )
     {
-        thick.push_back( m_TMeshVec[i]->m_ThickSurf );
+        thick[ m_TMeshVec[i]->m_PtrID ] = m_TMeshVec[i]->m_ThickSurf;
     }
 
     return thick;
@@ -4284,7 +4284,7 @@ void MeshGeom::SubTagTris( bool tag_subs )
     SubSurfaceMgr.ClearTagMaps();
     SubSurfaceMgr.m_CompNames = GetTMeshNames();
     SubSurfaceMgr.m_CompIDs = GetTMeshIDs();
-    SubSurfaceMgr.m_CompThick = GetThicks();
+    SubSurfaceMgr.m_ThickMap = GetThicks();
     SubSurfaceMgr.SetSubSurfTags( GetNumIndexedParts() );
     SubSurfaceMgr.BuildCompNameMap();
     SubSurfaceMgr.BuildCompIDMap();
