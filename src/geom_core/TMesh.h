@@ -352,6 +352,7 @@ public:
     //bool reflected_flag;
     string m_NameStr;
     int m_SurfNum; // To keep track of geoms with multiple surfaces
+    int m_PlateNum; // To keep track of degen plate number.  -1 for normal surfaces.
     int m_MaterialID;
     vec3d m_Color;
     int m_SurfCfdType;
@@ -471,7 +472,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & norms,
                             const vector< vector<vec3d> > & uw_pnts,
-                            int indx, int surftype, int cfdsurftype, bool thicksurf, bool flipnormal, double wmax );
+                            int indx, int platenum, int surftype, int cfdsurftype, bool thicksurf, bool flipnormal, double wmax );
 
 void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax );
 #endif
