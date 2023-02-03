@@ -348,7 +348,7 @@ public:
     virtual void DecodeTriList( xmlNodePtr & node, int num_tris );
 
     //==== Stuff Copied From Geom That Created This Mesh ====//
-    string m_PtrID;
+    string m_OriginGeomID;
     //bool reflected_flag;
     string m_NameStr;
     int m_SurfNum; // To keep track of geoms with multiple surfaces

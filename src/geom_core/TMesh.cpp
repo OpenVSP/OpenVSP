@@ -389,7 +389,7 @@ void TMesh::CopyFlatten( TMesh* m )
 
 void TMesh::CopyAttributes( TMesh* m )
 {
-    m_PtrID     = m->m_PtrID;
+    m_OriginGeomID     = m->m_OriginGeomID;
     m_SurfNum   = m->m_SurfNum;
     m_NameStr   = m->m_NameStr;
     m_MaterialID = m->m_MaterialID;
@@ -504,7 +504,7 @@ void TMesh::LoadGeomAttributes( const Geom* geomPtr )
 {
     /*color       = geomPtr->getColor();
     materialID    = geomPtr->getMaterialID();*/
-    m_PtrID        = geomPtr->GetID();
+    m_OriginGeomID        = geomPtr->GetID();
 
     m_MassPrior     = geomPtr->m_MassPrior();
     m_Density       = geomPtr->m_Density();
@@ -884,7 +884,7 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
                 // Priority assignment for wave drag.  Mass prop may need some adjustments.
                 if ( meshVec[m]->m_MassPrior > prior ) // Should possibly check that priority is only for vsp::CFD_NORMAL
                 {
-                    tri->m_ID = meshVec[m]->m_PtrID;
+                    tri->m_ID = meshVec[m]->m_OriginGeomID;
                     tri->m_Density = meshVec[m]->m_Density;
                     prior = meshVec[m]->m_MassPrior;
                 }
@@ -3770,7 +3770,7 @@ void TMesh::SubTag( int part_num, bool tag_subs )
     // Subtag all triangles in a given TMesh
     // Split tris will be subtagged the same as their parent
     vector<SubSurface*> sub_surfs;
-    if ( tag_subs ) sub_surfs = SubSurfaceMgr.GetSubSurfs( m_PtrID, m_SurfNum );
+    if ( tag_subs ) sub_surfs = SubSurfaceMgr.GetSubSurfs( m_OriginGeomID, m_SurfNum );
     int ss_num = ( int )sub_surfs.size();
 
     for ( int t = 0 ; t < ( int )m_TVec.size(); t ++ )

@@ -484,7 +484,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
 
 bool TMeshCompare( TMesh* a, TMesh* b )
 {
-    return ( a->m_PtrID < b->m_PtrID );
+    return ( a->m_OriginGeomID < b->m_OriginGeomID );
 }
 
 void ProjectionMgrSingleton::ExportProjectLines( vector < TMesh* > targetTMeshVec )
@@ -693,7 +693,7 @@ void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vect
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
         pthvec[i].resize( tmv[i]->m_TVec.size() );
-        ids[i] = tmv[i]->m_PtrID;
+        ids[i] = tmv[i]->m_OriginGeomID;
 
         for ( int j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
         {
