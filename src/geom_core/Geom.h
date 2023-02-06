@@ -394,7 +394,7 @@ public:
     virtual int GetNumTotalHrmSurfs() const;
     virtual int GetNumSymmCopies() const;
 
-    virtual const vector<VspSurf> & GetDegenSurfVecConstRef();
+    virtual vector<VspSurf> GetDegenSurfVec();
 
     virtual int GetSurfType( int indx ) const;
     virtual int GetMainSurfType( int indx ) const;

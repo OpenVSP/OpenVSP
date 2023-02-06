@@ -3795,7 +3795,7 @@ int Geom::GetNumSymFlags() const
     return numSymFlags;
 }
 
-const vector<VspSurf> & Geom::GetDegenSurfVecConstRef()
+vector<VspSurf> Geom::GetDegenSurfVec()
 {
     vector<VspSurf> surf_vec;
     surf_vec = GetSurfVecConstRef();

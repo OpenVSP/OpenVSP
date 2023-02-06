@@ -3214,7 +3214,7 @@ void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &
             }
             else // indegenset
             {
-                surf_vec = geom_vec[i]->GetDegenSurfVecConstRef();
+                surf_vec = geom_vec[i]->GetDegenSurfVec();
             }
 
             for ( int j = 0; j < ( int )surf_vec.size(); j++ )
