@@ -302,7 +302,7 @@ public:
     }
 
     void DegenCamberSurf( const VspSurf & parent );
-    void DegenPlanarSurf( const VspSurf & parent );
+    void DegenPlanarSurf( const VspSurf & parent, int vhflag );
 
 protected:
 

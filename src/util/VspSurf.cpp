@@ -2468,22 +2468,34 @@ void VspSurf::DegenCamberSurf( const VspSurf & parent )
     FlipNormal();
 }
 
-void VspSurf::DegenPlanarSurf( const VspSurf & parent )
+void VspSurf::DegenPlanarSurf( const VspSurf & parent, int vhflag )
 {
     vector< VspCurve > crvs(2);
     vector<double> param(2);
 
-    double umin, vmin, umax, vmax, vmid;
+    double umin, vmin, umax, vmax, dv;
 
     parent.m_Surface.get_parameter_min( umin, vmin );
     parent.m_Surface.get_parameter_max( umax, vmax );
-    vmid = ( vmin + vmax ) * 0.5;
+    dv = vmax - vmin;
 
-    parent.GetWConstCurve( crvs[0], vmin );
-    parent.GetWConstCurve( crvs[1], vmid );
+    double vstart, vend;
+    if ( vhflag ) // vertical.
+    {
+        vstart = vmin + 0.25 * dv;
+        vend = vmin + 0.75 * dv;
+    }
+    else // horizontal.
+    {
+        vstart = vmin;
+        vend = vmin + 0.5 * dv;
+    }
 
-    param[0] = vmin;
-    param[1] = vmid;
+    parent.GetWConstCurve( crvs[0], vstart );
+    parent.GetWConstCurve( crvs[1], vend );
+
+    param[0] = vstart;
+    param[1] = vend;
 
     SkinC0( crvs, param, false );
     m_ThickSurf = false;
