@@ -3801,11 +3801,25 @@ vector<VspSurf> Geom::GetDegenSurfVec()
     surf_vec = GetSurfVecConstRef();
 
     vector<VspSurf> degen_surf_vec;
-    degen_surf_vec.resize( surf_vec.size() );
+    degen_surf_vec.reserve( surf_vec.size() * 2 );
     for ( int i = 0; i < surf_vec.size(); i++ )
     {
-        // degen_surf_vec[i].DegenCamberSurf( surf_vec[i] );
-        degen_surf_vec[i].DegenPlanarSurf( surf_vec[i] );
+        if ( surf_vec[i].GetSurfType() == vsp::WING_SURF )
+        {
+            int isurf = degen_surf_vec.size();
+            degen_surf_vec.push_back( surf_vec[i] ); // Start with copy.
+            degen_surf_vec[isurf].DegenCamberSurf( surf_vec[i] );
+        }
+        else
+        {
+            int isurf = degen_surf_vec.size();
+            degen_surf_vec.push_back( surf_vec[i] ); // Start with copy.
+            degen_surf_vec[isurf].DegenPlanarSurf( surf_vec[i], 1 ); // Vertical
+
+            isurf = degen_surf_vec.size();
+            degen_surf_vec.push_back( surf_vec[i] ); // Start with copy.
+            degen_surf_vec[isurf].DegenPlanarSurf( surf_vec[i], 0 ); // Horizontal
+        }
     }
     return degen_surf_vec;
 }
