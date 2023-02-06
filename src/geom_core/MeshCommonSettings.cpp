@@ -349,7 +349,7 @@ void CfdMeshSettings::ResetExportFileNames( const string& basename )
         base.erase( pos, base.length() - 1 );
     }
 
-    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey", ".facet", ".curv", ".p3d", ".vspgeom" };
+    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".tkey", ".facet", ".vspgeom" };
 
     for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
     {
