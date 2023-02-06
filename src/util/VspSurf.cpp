@@ -2465,6 +2465,7 @@ void VspSurf::DegenCamberSurf( const VspSurf & parent )
     m_Surface.scale( 0.5 );
 
     m_ThickSurf = false;
+    SetSurfCfdType( vsp::CFD_TRANSPARENT );
     FlipNormal();
 }
 
@@ -2499,4 +2500,5 @@ void VspSurf::DegenPlanarSurf( const VspSurf & parent, int vhflag )
 
     SkinC0( crvs, param, false );
     m_ThickSurf = false;
+    SetSurfCfdType( vsp::CFD_TRANSPARENT );
 }
