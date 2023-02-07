@@ -3809,16 +3809,19 @@ vector<VspSurf> Geom::GetDegenSurfVec()
             int isurf = degen_surf_vec.size();
             degen_surf_vec.push_back( surf_vec[i] ); // Start with copy.
             degen_surf_vec[isurf].DegenCamberSurf( surf_vec[i] );
+            degen_surf_vec[isurf].SetPlateNum( 0 );
         }
         else
         {
             int isurf = degen_surf_vec.size();
             degen_surf_vec.push_back( surf_vec[i] ); // Start with copy.
             degen_surf_vec[isurf].DegenPlanarSurf( surf_vec[i], 1 ); // Vertical
+            degen_surf_vec[isurf].SetPlateNum( 0 );
 
             isurf = degen_surf_vec.size();
             degen_surf_vec.push_back( surf_vec[i] ); // Start with copy.
             degen_surf_vec[isurf].DegenPlanarSurf( surf_vec[i], 0 ); // Horizontal
+            degen_surf_vec[isurf].SetPlateNum( 1 );
         }
     }
     return degen_surf_vec;
