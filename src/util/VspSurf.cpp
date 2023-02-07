@@ -2501,6 +2501,8 @@ void VspSurf::DegenPlanarSurf( const VspSurf & parent, int vhflag )
     param[1] = vend;
 
     SkinC0( crvs, param, false );
+    SwapUWDirections();
+    FlipNormal();
     m_ThickSurf = false;
     SetSurfCfdType( vsp::CFD_TRANSPARENT );
 }
