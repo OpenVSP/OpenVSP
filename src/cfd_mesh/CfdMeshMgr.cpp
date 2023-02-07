@@ -3863,8 +3863,7 @@ void CfdMeshMgrSingleton::SubTagTris()
             {
                 thick = true;
             }
-
-            SubSurfaceMgr.m_ThickMap[ exportid ] = thick;
+            SubSurfaceMgr.m_ThickMap[ geom_id ] = thick;
         }
 
         surf->SetBaseTag( tag_map[id] );
