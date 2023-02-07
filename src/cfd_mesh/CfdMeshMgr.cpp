@@ -3818,8 +3818,37 @@ void CfdMeshMgrSingleton::SubTagTris()
             }
             else if ( geom_ptr )
             {
-                name = geom_ptr->GetName() + "_Surf" + to_string( (long long)geom_comp_map[geom_id].size() - 1 );
-                exportid = geom_id + "_Surf" + to_string( (long long)geom_comp_map[geom_id].size() - 1 );
+                string nplate;
+                string idplate;
+                if ( surf->GetSurfacePlateNum() == -1 )
+                {
+                    nplate = "_S";
+                }
+                else
+                {
+                    if ( surf->GetSurfaceVSPType() == vsp::NORMAL_SURF )
+                    {
+                        if ( surf->GetSurfacePlateNum() == 0 )
+                        {
+                            nplate = "_V";
+                            idplate = "_V";
+                        }
+                        else if ( surf->GetSurfacePlateNum() == 1 )
+                        {
+                            nplate = "_H";
+                            idplate = "_H";
+                        }
+                    }
+                    else // WING_SURF with m_PlateNum == 0
+                    {
+                        nplate = "_C";
+                        idplate = "_C";
+                    }
+
+                }
+
+                name = geom_ptr->GetName() + nplate + "_Surf" + to_string((long long)geom_comp_map[geom_id].size() - 1 );
+                exportid = geom_id + idplate + "_Surf" + to_string( (long long)geom_comp_map[geom_id].size() - 1 );
                 if ( surf->GetWakeFlag() ) name = geom_ptr->GetName()
                                                  + to_string( (long long)comp_num_map[ surf->GetUnmergedCompID() ] )
                                                  + "_Wake";
