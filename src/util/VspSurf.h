@@ -304,6 +304,9 @@ public:
     void DegenCamberSurf( const VspSurf & parent );
     void DegenPlanarSurf( const VspSurf & parent, int vhflag );
 
+    int GetPlateNum() { return m_PlateNum; }
+    void SetPlateNum( int p ) { m_PlateNum = p; }
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
@@ -322,6 +325,7 @@ protected:
     vec3d m_FeaOrientation;
 
     bool m_ThickSurf;
+    int m_PlateNum;
     piecewise_surface_type m_Surface;
 
     vector < double > m_UFeature;

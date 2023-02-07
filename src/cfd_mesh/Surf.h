@@ -260,6 +260,15 @@ public:
         return m_ThickSurf;
     }
 
+    void SetSurfacePlateNum( int p )
+    {
+        m_PlateNum = p;
+    }
+    int GetSurfacePlateNum()
+    {
+        return m_PlateNum;
+    }
+
     virtual void SetSymPlaneFlag( bool flag );
     bool GetSymPlaneFlag()
     {
@@ -333,6 +342,7 @@ protected:
     int m_SurfCfdType;
     int m_SurfVspType;
     bool m_ThickSurf;
+    int m_PlateNum;
 
     SurfCore m_SurfCore;
 

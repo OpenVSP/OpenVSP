@@ -34,6 +34,7 @@ public:
         m_FeaOrientationType = vsp::FEA_ORIENT_OML_U;
         m_FeaOrientation = vec3d();
         m_ThickSurf = true;
+        m_PlateNum = -1;
     };
 
     ~XferSurf()
@@ -51,6 +52,7 @@ public:
     int m_FeaOrientationType;
     vec3d m_FeaOrientation;
     bool m_ThickSurf;
+    int m_PlateNum;
 
     piecewise_surface_type m_Surface;
 };

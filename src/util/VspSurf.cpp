@@ -55,6 +55,7 @@ VspSurf::VspSurf()
     m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_ThickSurf = true;
+    m_PlateNum = -1;
     m_SkinType = SKIN_NONE;
 
     m_FeaOrientationType = vsp::FEA_ORIENT_OML_U;
@@ -2246,6 +2247,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         xsurf.m_FeaOrientationType = m_FeaOrientationType;
         xsurf.m_FeaOrientation = m_FeaOrientation;
         xsurf.m_ThickSurf = m_ThickSurf;
+        xsurf.m_PlateNum = m_PlateNum;
         xsurf.m_CompIndx = comp_ind;
         xsurf.m_FeaPartSurfNum = part_surf_num;
         xfersurfs.push_back( xsurf );

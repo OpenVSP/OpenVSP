@@ -27,6 +27,7 @@ Surf::Surf()
     m_WakeFlag = false;
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_ThickSurf = true;
+    m_PlateNum = -1;
     m_SymPlaneFlag = false;
     m_FarFlag = false;
     m_WakeParentSurfID = -1;
