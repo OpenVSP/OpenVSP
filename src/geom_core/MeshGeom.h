@@ -149,8 +149,7 @@ public:
     //==== Intersection, Splitting and Trimming ====//
     virtual void IntersectTrim( vector< DegenGeom > &degenGeom, bool degen = true, int intSubsFlag = 1 );
 
-    virtual void MassSliceX( int numSlice, bool writefile = true );
-    virtual void degenGeomMassSliceX( vector< DegenGeom > &degenGeom );
+    virtual void MassSliceX( vector< DegenGeom > &degenGeom, bool degen, int numSlices, bool writefile = true );
     virtual void AreaSlice( int numSlices, vec3d norm, bool autoBounds, double start = 0, double end = 0 );
 
     virtual void WaveStartEnd( const double &sliceAngle, const vec3d &center );
@@ -160,7 +159,6 @@ public:
     virtual void MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen = true );
 
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len );
-    virtual void createDegenGeomPrism( vector< DegenGeomTetraMassProp* >& tetraVec, TTri* tri, double len );
 
     virtual void AddPointMass( TetraMassProp* pm )
     {

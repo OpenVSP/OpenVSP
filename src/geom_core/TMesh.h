@@ -86,6 +86,19 @@ class TriShellMassProp
 {
 public:
     TriShellMassProp( const string& id, double mass_area_in, const vec3d& p0, const vec3d& p1, const vec3d& p2 );
+    TriShellMassProp()     {
+        m_MassArea = 0;
+        m_TriArea = 0;
+        m_Mass = 0;
+
+        m_Ixx = 0;
+        m_Iyy = 0;
+        m_Izz = 0;
+
+        m_Ixy = 0;
+        m_Ixz = 0;
+        m_Iyz = 0;
+    }
     ~TriShellMassProp()     {}
 
     vec3d m_v0;
@@ -108,76 +121,6 @@ public:
     double m_Ixz;
     double m_Iyz;
 };
-
-//===========================================================================================================//
-//================================================ DegenGeom ================================================//
-//===========================================================================================================//
-
-class DegenGeomTetraMassProp
-{
-public:
-    DegenGeomTetraMassProp( const string& id, const vec3d& p0, const vec3d& p1, const vec3d& p2, const vec3d& p3 );
-    DegenGeomTetraMassProp()        {
-        m_Vol = 0;
-
-        m_Ixx = 0;
-        m_Iyy = 0;
-        m_Izz = 0;
-
-        m_Ixy = 0;
-        m_Ixz = 0;
-        m_Iyz = 0;
-    }
-    ~DegenGeomTetraMassProp()       {}
-
-    vec3d m_v0;
-    vec3d m_v1;
-    vec3d m_v2;
-    vec3d m_v3;
-
-    string m_CompId;
-
-    vec3d m_CG;
-
-    double m_Vol;
-
-    double m_Ixx;
-    double m_Iyy;
-    double m_Izz;
-
-    double m_Ixy;
-    double m_Ixz;
-    double m_Iyz;
-};
-
-class DegenGeomTriShellMassProp
-{
-public:
-    DegenGeomTriShellMassProp( const string& id, const vec3d& p0, const vec3d& p1, const vec3d& p2 );
-    ~DegenGeomTriShellMassProp()        {}
-
-    vec3d m_v0;
-    vec3d m_v1;
-    vec3d m_v2;
-
-    vec3d m_CG;
-
-    string m_CompId;
-
-    double m_TriArea;
-
-    double m_Ixx;
-    double m_Iyy;
-    double m_Izz;
-
-    double m_Ixy;
-    double m_Ixz;
-    double m_Iyz;
-};
-
-//===========================================================================================================//
-//============================================== END DegenGeom ==============================================//
-//===========================================================================================================//
 
 class TNode
 {
