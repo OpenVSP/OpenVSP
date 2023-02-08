@@ -2839,7 +2839,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
     if ( true )
     {
         char str2[256];
-        sprintf( str2, "%s%s.m", m_DebugDir.c_str(), name );
+        sprintf( str2, "%s.m", name );
         FILE* fpmas = fopen( str2, "w" );
 
         // Scale points to shift precision.
