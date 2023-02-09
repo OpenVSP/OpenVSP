@@ -3222,43 +3222,31 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
             }
 
             // Transform running total to new CG location
-            fillIxx = fillIxx +
-                      oldMass * (( fillCG.y() - oldCG.y()) * ( fillCG.y() - oldCG.y()) +
-                                 ( fillCG.z() - oldCG.z()) * ( fillCG.z() - oldCG.z()));
-            fillIyy = fillIyy +
-                      oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.x() - oldCG.x()) +
-                                 ( fillCG.z() - oldCG.z()) * ( fillCG.z() - oldCG.z()));
-            fillIzz = fillIzz +
-                      oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.x() - oldCG.x()) +
-                                 ( fillCG.y() - oldCG.y()) * ( fillCG.y() - oldCG.y()));
+            fillIxx = fillIxx + oldMass * (( fillCG.y() - oldCG.y()) * ( fillCG.y() - oldCG.y()) +
+                                           ( fillCG.z() - oldCG.z()) * ( fillCG.z() - oldCG.z()));
+            fillIyy = fillIyy + oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.x() - oldCG.x()) +
+                                           ( fillCG.z() - oldCG.z()) * ( fillCG.z() - oldCG.z()));
+            fillIzz = fillIzz + oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.x() - oldCG.x()) +
+                                           ( fillCG.y() - oldCG.y()) * ( fillCG.y() - oldCG.y()));
 
-            fillIxy = fillIxy +
-                      oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.y() - oldCG.y()));
-            fillIxz = fillIxz +
-                      oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.z() - oldCG.z()));
-            fillIyz = fillIyz +
-                      oldMass * (( fillCG.y() - oldCG.y()) * ( fillCG.z() - oldCG.z()));
+            fillIxy = fillIxy + oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.y() - oldCG.y()));
+            fillIxz = fillIxz + oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.z() - oldCG.z()));
+            fillIyz = fillIyz + oldMass * (( fillCG.y() - oldCG.y()) * ( fillCG.z() - oldCG.z()));
 
             // Add in all tets, no need to form slice subtotal.
             for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
             {
                 TetraMassProp *tet = tetraVecVec[ j ][ i ];
-                fillIxx += tet->m_Ixx +
-                           tet->m_Mass * (( fillCG.y() - tet->m_CG.y()) * ( fillCG.y() - tet->m_CG.y()) +
-                                          ( fillCG.z() - tet->m_CG.z()) * ( fillCG.z() - tet->m_CG.z()));
-                fillIyy += tet->m_Iyy +
-                           tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.x() - tet->m_CG.x()) +
-                                          ( fillCG.z() - tet->m_CG.z()) * ( fillCG.z() - tet->m_CG.z()));
-                fillIzz += tet->m_Izz +
-                           tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.x() - tet->m_CG.x()) +
-                                          ( fillCG.y() - tet->m_CG.y()) * ( fillCG.y() - tet->m_CG.y()));
+                fillIxx += tet->m_Ixx + tet->m_Mass * (( fillCG.y() - tet->m_CG.y()) * ( fillCG.y() - tet->m_CG.y()) +
+                                                       ( fillCG.z() - tet->m_CG.z()) * ( fillCG.z() - tet->m_CG.z()));
+                fillIyy += tet->m_Iyy + tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.x() - tet->m_CG.x()) +
+                                                       ( fillCG.z() - tet->m_CG.z()) * ( fillCG.z() - tet->m_CG.z()));
+                fillIzz += tet->m_Izz + tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.x() - tet->m_CG.x()) +
+                                                       ( fillCG.y() - tet->m_CG.y()) * ( fillCG.y() - tet->m_CG.y()));
 
-                fillIxy += tet->m_Ixy +
-                           tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.y() - tet->m_CG.y()));
-                fillIxz += tet->m_Ixz +
-                           tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.z() - tet->m_CG.z()));
-                fillIyz += tet->m_Iyz +
-                           tet->m_Mass * (( fillCG.y() - tet->m_CG.y()) * ( fillCG.z() - tet->m_CG.z()));
+                fillIxy += tet->m_Ixy + tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.y() - tet->m_CG.y()));
+                fillIxz += tet->m_Ixz + tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.z() - tet->m_CG.z()));
+                fillIyz += tet->m_Iyz + tet->m_Mass * (( fillCG.y() - tet->m_CG.y()) * ( fillCG.z() - tet->m_CG.z()));
             }
 
             vol_fill_vec.push_back( fillVol );
@@ -3321,43 +3309,31 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
             for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
             {
                 TetraMassProp *tet = tetraVecVec[ j ][ i ];
-                m_TotalIxx += tet->m_Ixx +
-                              tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()) +
-                                             ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
-                m_TotalIyy += tet->m_Iyy +
-                              tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
-                                             ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
-                m_TotalIzz += tet->m_Izz +
-                              tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
-                                             ( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()));
+                m_TotalIxx += tet->m_Ixx + tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()) +
+                                                          ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                m_TotalIyy += tet->m_Iyy + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                                          ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                m_TotalIzz += tet->m_Izz + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                                          ( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()));
 
-                m_TotalIxy += tet->m_Ixy +
-                              tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.y() - tet->m_CG.y()));
-                m_TotalIxz += tet->m_Ixz +
-                              tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.z() - tet->m_CG.z()));
-                m_TotalIyz += tet->m_Iyz +
-                              tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.z() - tet->m_CG.z()));
+                m_TotalIxy += tet->m_Ixy + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.y() - tet->m_CG.y()));
+                m_TotalIxz += tet->m_Ixz + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.z() - tet->m_CG.z()));
+                m_TotalIyz += tet->m_Iyz + tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.z() - tet->m_CG.z()));
             }
         }
         for ( i = 0; i < ( int ) triShellVec.size(); i++ )
         {
             TriShellMassProp *trs = triShellVec[ i ];
-            m_TotalIxx += trs->m_Ixx +
-                          trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()) +
-                                         ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
-            m_TotalIyy += trs->m_Iyy +
-                          trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
-                                         ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
-            m_TotalIzz += trs->m_Izz +
-                          trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
-                                         ( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()));
+            m_TotalIxx += trs->m_Ixx + trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()) +
+                                                      ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+            m_TotalIyy += trs->m_Iyy + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                                      ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+            m_TotalIzz += trs->m_Izz + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                                      ( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()));
 
-            m_TotalIxy += trs->m_Ixy +
-                          trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.y() - trs->m_CG.y()));
-            m_TotalIxz += trs->m_Ixz +
-                          trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.z() - trs->m_CG.z()));
-            m_TotalIyz += trs->m_Iyz +
-                          trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.z() - trs->m_CG.z()));
+            m_TotalIxy += trs->m_Ixy + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.y() - trs->m_CG.y()));
+            m_TotalIxz += trs->m_Ixz + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.z() - trs->m_CG.z()));
+            m_TotalIyz += trs->m_Iyz + trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.z() - trs->m_CG.z()));
         }
     }
 
@@ -3487,22 +3463,16 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
                     TetraMassProp *tet = tetraVecVec[ j ][ i ];
                     if ( !tet->m_CompId.compare( id ))
                     {
-                        compIxx += tet->m_Ixx +
-                                   tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()) +
-                                                  ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
-                        compIyy += tet->m_Iyy +
-                                   tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
-                                                  ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
-                        compIzz += tet->m_Izz +
-                                   tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
-                                                  ( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()));
+                        compIxx += tet->m_Ixx + tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()) +
+                                                               ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                        compIyy += tet->m_Iyy + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                                               ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                        compIzz += tet->m_Izz + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                                               ( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()));
 
-                        compIxy += tet->m_Ixy +
-                                   tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.y() - tet->m_CG.y()));
-                        compIxz += tet->m_Ixz +
-                                   tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.z() - tet->m_CG.z()));
-                        compIyz += tet->m_Iyz +
-                                   tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.z() - tet->m_CG.z()));
+                        compIxy += tet->m_Ixy + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.y() - tet->m_CG.y()));
+                        compIxz += tet->m_Ixz + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.z() - tet->m_CG.z()));
+                        compIyz += tet->m_Iyz + tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.z() - tet->m_CG.z()));
                     }
                 }
             }
@@ -3511,22 +3481,16 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
                 TriShellMassProp *trs = triShellVec[ i ];
                 if ( !trs->m_CompId.compare( id ))
                 {
-                    compIxx += trs->m_Ixx +
-                               trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()) +
-                                              ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
-                    compIyy += trs->m_Iyy +
-                               trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
-                                              ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
-                    compIzz += trs->m_Izz +
-                               trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
-                                              ( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()));
+                    compIxx += trs->m_Ixx + trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()) +
+                                                           ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+                    compIyy += trs->m_Iyy + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                                           ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+                    compIzz += trs->m_Izz + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                                           ( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()));
 
-                    compIxy += trs->m_Ixy +
-                               trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.y() - trs->m_CG.y()));
-                    compIxz += trs->m_Ixz +
-                               trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.z() - trs->m_CG.z()));
-                    compIyz += trs->m_Iyz +
-                               trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.z() - trs->m_CG.z()));
+                    compIxy += trs->m_Ixy + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.y() - trs->m_CG.y()));
+                    compIxz += trs->m_Ixz + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.z() - trs->m_CG.z()));
+                    compIyz += trs->m_Iyz + trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.z() - trs->m_CG.z()));
                 }
             }
 
@@ -3551,22 +3515,16 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
                     TetraMassProp *tet = tetraVecVec[ j ][ i ];
                     if ( !tet->m_CompId.compare( id ))
                     {
-                        compIxx += tet->m_Ixx +
-                                   tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()) +
-                                                 ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
-                        compIyy += tet->m_Iyy +
-                                   tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
-                                                 ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
-                        compIzz += tet->m_Izz +
-                                   tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
-                                                 ( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()));
+                        compIxx += tet->m_Ixx + tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()) +
+                                                              ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
+                        compIyy += tet->m_Iyy + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
+                                                              ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
+                        compIzz += tet->m_Izz + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
+                                                              ( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()));
 
-                        compIxy += tet->m_Ixy +
-                                   tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.y() - tet->m_CG.y()));
-                        compIxz += tet->m_Ixz +
-                                   tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.z() - tet->m_CG.z()));
-                        compIyz += tet->m_Iyz +
-                                   tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.z() - tet->m_CG.z()));
+                        compIxy += tet->m_Ixy + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.y() - tet->m_CG.y()));
+                        compIxz += tet->m_Ixz + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.z() - tet->m_CG.z()));
+                        compIyz += tet->m_Iyz + tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.z() - tet->m_CG.z()));
                     }
                 }
             }
@@ -3591,22 +3549,16 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
                 TriShellMassProp *trs = triShellVec[ i ];
                 if ( !trs->m_CompId.compare( id ))
                 {
-                    compIxx += trs->m_Ixx +
-                               trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()) +
-                                                 ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
-                    compIyy += trs->m_Iyy +
-                               trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
-                                                 ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
-                    compIzz += trs->m_Izz +
-                               trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
-                                                 ( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()));
+                    compIxx += trs->m_Ixx + trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()) +
+                                                              ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
+                    compIyy += trs->m_Iyy + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
+                                                              ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
+                    compIzz += trs->m_Izz + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
+                                                              ( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()));
 
-                    compIxy += trs->m_Ixy +
-                               trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.y() - trs->m_CG.y()));
-                    compIxz += trs->m_Ixz +
-                               trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.z() - trs->m_CG.z()));
-                    compIyz += trs->m_Iyz +
-                               trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.z() - trs->m_CG.z()));
+                    compIxy += trs->m_Ixy + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.y() - trs->m_CG.y()));
+                    compIxz += trs->m_Ixz + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.z() - trs->m_CG.z()));
+                    compIyz += trs->m_Iyz + trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.z() - trs->m_CG.z()));
                 }
             }
 
