@@ -373,6 +373,7 @@ public:
     // Mass Properties Parms
     IntParm m_CGGeomSet;
     IntParm m_NumMassSlice;
+    IntParm m_MassSliceDir;
     Parm m_Xcg;
     Parm m_Ycg;
     Parm m_Zcg;

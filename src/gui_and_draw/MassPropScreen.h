@@ -34,6 +34,8 @@ protected:
     GroupLayout m_BorderLayout;
 
     SliderAdjRangeInput m_NumSlicesInput;
+    Choice m_SliceDirChoice;
+
     Choice m_SetChoice;
     DrawObj m_CGDrawObj;
     ToggleButton m_DrawCgButton;

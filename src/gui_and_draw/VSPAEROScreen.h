@@ -146,6 +146,7 @@ protected:
     Choice m_CGSetChoice;
     TriggerButton m_MassPropButton;
     SliderAdjRangeInput m_NumSliceSlider;
+    Choice m_MassSliceDirChoice;
     SliderAdjRangeInput m_XcgSlider;
     SliderAdjRangeInput m_YcgSlider;
     SliderAdjRangeInput m_ZcgSlider;

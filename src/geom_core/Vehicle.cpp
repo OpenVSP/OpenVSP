@@ -244,6 +244,9 @@ Vehicle::Vehicle()
     m_NumMassSlices.Init( "NumMassSlices", "MassProperties", this, 20, 10, 200 );
     m_NumMassSlices.SetDescript( "Number of slices used to display mesh" );
 
+    m_MassSliceDir.Init( "MassSliceDir", "MassProperties", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_MassSliceDir.SetDescript( "Slicing direction for mass property integration" );
+
     m_DrawCgFlag.Init( "DrawCgFlag", "MassProperties", this, true, false, true );
     m_DrawCgFlag.SetDescript( "Adds red center point to mesh" );
 
@@ -339,6 +342,7 @@ void Vehicle::Init()
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
     m_CG = vec3d( 0, 0, 0 );
     m_NumMassSlices = 20;
+    m_MassSliceDir = vsp::X_DIR;
     m_TotalMass = 0;
 
     m_STEPLenUnit.Set( vsp::LEN_FT );
@@ -450,6 +454,7 @@ void Vehicle::Wype()
     m_IxyIxzIyz = vec3d();
     m_CG = vec3d();
     m_NumMassSlices = int();
+    m_MassSliceDir = vsp::X_DIR;
     m_TotalMass = double();
 
 
@@ -4637,7 +4642,7 @@ string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int 
     return id;
 }
 
-string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile )
+string Vehicle::MassProps( int set, int numSlices, int idir, bool hidegeom, bool writefile )
 {
     string id = AddMeshGeom( set );
     if ( id.compare( "NONE" ) == 0 )
@@ -4687,7 +4692,7 @@ string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile
     if ( mesh_ptr->m_TMeshVec.size() || mesh_ptr->m_PointMassVec.size() )
     {
         vector <DegenGeom> dg;
-        mesh_ptr->MassSlice( dg, false, numSlices, vsp::X_DIR, writefile );
+        mesh_ptr->MassSlice( dg, false, numSlices, idir, writefile );
         m_TotalMass = mesh_ptr->m_TotalMass;
         m_IxxIyyIzz = vec3d( mesh_ptr->m_TotalIxx, mesh_ptr->m_TotalIyy, mesh_ptr->m_TotalIzz );
         m_IxyIxzIyz = vec3d( mesh_ptr->m_TotalIxy, mesh_ptr->m_TotalIxz, mesh_ptr->m_TotalIyz );
@@ -4704,9 +4709,9 @@ string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile
     return id;
 }
 
-string Vehicle::MassPropsAndFlatten( int set, int numSlices, bool hidegeom, bool writefile )
+string Vehicle::MassPropsAndFlatten( int set, int numSlices, int idir, bool hidegeom, bool writefile )
 {
-    string id = MassProps( set, numSlices, hidegeom, writefile );
+    string id = MassProps( set, numSlices, idir, hidegeom, writefile );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {

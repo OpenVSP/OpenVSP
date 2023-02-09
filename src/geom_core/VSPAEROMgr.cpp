@@ -59,6 +59,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_NumMassSlice.Init( "NumMassSlice", groupname, this, 10, 10, 200 );
     m_NumMassSlice.SetDescript( "Number of mass property slices" );
 
+    m_MassSliceDir.Init( "MassSliceDir", groupname, this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_MassSliceDir.SetDescript( "Slicing direction for mass property integration" );
+
     m_Xcg.Init( "Xcg", groupname, this, 0.0, -1.0e12, 1.0e12 );
     m_Xcg.SetDescript( "X Center of Gravity" );
 
@@ -347,6 +350,7 @@ void VSPAEROMgrSingleton::Renew()
 
     m_CGGeomSet.Set( vsp::SET_ALL );
     m_NumMassSlice.Set( 10 );
+    m_MassSliceDir.Set( vsp::X_DIR );
     m_Xcg.Set( 0.0 );
     m_Ycg.Set( 0.0 );
     m_Zcg.Set( 0.0 );

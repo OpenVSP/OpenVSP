@@ -4451,7 +4451,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     //==== Test Mass Props ====//
     string pid = AddGeom( "POD", "" );
 
-    string mesh_id = ComputeMassProps( SET_ALL, 20 );
+    string mesh_id = ComputeMassProps( SET_ALL, 20, X_DIR );
 
     string mass_res_id = FindLatestResultsID( "Mass_Properties" );
 
@@ -4462,9 +4462,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \sa SetAnalysisInputDefaults, PrintAnalysisInputs, ExecAnalysis
     \param [in] set Set index (i.e. SET_ALL)
     \param [in] num_slices Number of slices
+    \param [in] idir Direction of slicing for integration
     \return MeshGeom ID
 */)";
-    r = se->RegisterGlobalFunction( "string ComputeMassProps( int set, int num_slices )", vspFUNCTION( vsp::ComputeMassProps ), vspCALL_CDECL, doc_struct );
+    r = se->RegisterGlobalFunction( "string ComputeMassProps( int set, int num_slices, int idir = X_DIR )", vspFUNCTION( vsp::ComputeMassProps ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(

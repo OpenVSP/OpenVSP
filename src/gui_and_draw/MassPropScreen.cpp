@@ -6,7 +6,7 @@
 
 #include "MassPropScreen.h"
 
-MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 410, "Mass Properties" )
+MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 440, "Mass Properties" )
 {
     int borderPaddingWidth = 5;
     int yPadding = 7;
@@ -29,6 +29,12 @@ MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 410, "
 
     m_BorderLayout.SetButtonWidth( smallButtonWidth );
     m_BorderLayout.AddSlider( m_NumSlicesInput, "Num Slice:", 200, "%6.0f" );
+    m_BorderLayout.AddYGap();
+
+    m_SliceDirChoice.AddItem( "X", vsp::X_DIR );
+    m_SliceDirChoice.AddItem( "Y", vsp::Y_DIR );
+    m_SliceDirChoice.AddItem( "Z", vsp::Z_DIR );
+    m_BorderLayout.AddChoice( m_SliceDirChoice, "Slice Direction:" );
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddChoice( m_SetChoice, "Set" );
@@ -100,6 +106,7 @@ bool MassPropScreen::Update()
     LoadSetChoice();
 
     m_NumSlicesInput.Update( veh->m_NumMassSlices.GetID() );
+    m_SliceDirChoice.Update( veh->m_MassSliceDir.GetID() );
 
     m_DrawCgButton.Update( veh->m_DrawCgFlag.GetID() );
 
@@ -197,7 +204,7 @@ void MassPropScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ComputeButton )
     {
-        veh->MassPropsAndFlatten( m_SelectedSetIndex, veh->m_NumMassSlices.Get() );
+        veh->MassPropsAndFlatten( m_SelectedSetIndex, veh->m_NumMassSlices.Get(), veh->m_MassSliceDir.Get() );
     }
     else if ( device == &m_FileTrigger )
     {

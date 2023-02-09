@@ -257,8 +257,8 @@ public:
     //Comp Geom
     string CompGeom( int set, int degenset, int halfFlag, int intSubsFlag = 1, bool hideset = true, bool suppressdisks = false );
     string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE, bool hideset = true, bool suppressdisks = false );
-    string MassProps( int set, int numSlices, bool hidegeom = true, bool writefile = true );
-    string MassPropsAndFlatten( int set, int numSlices, bool hidegeom = true, bool writefile = true );
+    string MassProps( int set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
+    string MassPropsAndFlatten( int set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
     string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
     string PSliceAndFlatten( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
 
@@ -321,6 +321,7 @@ public:
     double m_TotalMass;
 
     IntParm m_NumMassSlices;
+    IntParm m_MassSliceDir;
     BoolParm m_DrawCgFlag;
 
     IntParm m_NumPlanerSlices;

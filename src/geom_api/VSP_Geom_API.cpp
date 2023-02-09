@@ -426,11 +426,11 @@ void SetComputationFileName( int file_type, const string & file_name )
 }
 
 /// Compute Mass Properties on The Components in the Set
-string ComputeMassProps( int set, int num_slices )
+string ComputeMassProps( int set, int num_slices, int idir )
 {
     Update();
 
-    string id = GetVehicle()->MassPropsAndFlatten( set, num_slices );
+    string id = GetVehicle()->MassPropsAndFlatten( set, num_slices, idir );
 
     if ( id.size() == 0 )
     {

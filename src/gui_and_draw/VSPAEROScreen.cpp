@@ -168,7 +168,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // CG
     m_LeftColumnLayout.AddSubGroupLayout( m_MomentRefLayout,
         m_LeftColumnLayout.GetW(),
-        6 * m_LeftColumnLayout.GetStdHeight() );
+        7 * m_LeftColumnLayout.GetStdHeight() );
     m_LeftColumnLayout.AddY( m_MomentRefLayout.GetH() );
 
     m_MomentRefLayout.AddDividerBox( "Moment Reference Position" );
@@ -186,7 +186,13 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_MomentRefLayout.InitWidthHeightVals();
 
+    m_MassSliceDirChoice.AddItem( "X", vsp::X_DIR );
+    m_MassSliceDirChoice.AddItem( "Y", vsp::Y_DIR );
+    m_MassSliceDirChoice.AddItem( "Z", vsp::Z_DIR );
+    m_MomentRefLayout.AddChoice( m_MassSliceDirChoice, "Slice Direction:" );
+
     m_MomentRefLayout.AddSlider( m_NumSliceSlider, "Num Slices", 100, "%4.0f" );
+
     m_MomentRefLayout.AddSlider( m_XcgSlider, "Xref", 100.0, "%7.3f" );
     m_MomentRefLayout.AddSlider( m_YcgSlider, "Yref", 100.0, "%7.3f" );
     m_MomentRefLayout.AddSlider( m_ZcgSlider, "Zref", 100.0, "%7.3f" );
@@ -1105,7 +1111,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_MassPropButton )
         {
-            string id = veh->MassPropsAndFlatten( m_CGSetChoice.GetVal(), VSPAEROMgr.m_NumMassSlice(), false, false );
+            string id = veh->MassPropsAndFlatten( m_CGSetChoice.GetVal(), VSPAEROMgr.m_NumMassSlice(), VSPAEROMgr.m_MassSliceDir(), false, false );
             veh->DeleteGeom( id );
 
             VSPAEROMgr.m_Xcg = veh->m_CG.x();
@@ -1382,6 +1388,7 @@ void VSPAEROScreen::UpdateReferenceQuantitiesDevices()
 void VSPAEROScreen::UpdateCGDevices()
 {
     m_NumSliceSlider.Update(VSPAEROMgr.m_NumMassSlice.GetID());
+    m_MassSliceDirChoice.Update(VSPAEROMgr.m_MassSliceDir.GetID());
     m_XcgSlider.Update(VSPAEROMgr.m_Xcg.GetID());
     m_YcgSlider.Update(VSPAEROMgr.m_Ycg.GetID());
     m_ZcgSlider.Update(VSPAEROMgr.m_Zcg.GetID());
