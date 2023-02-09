@@ -3374,10 +3374,8 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
     vector < double > vol_vec;
 
     //==== Calculate Properties on a Per Component Basis ====//
-
     vector < vec3d > compSolidCg, compShellCg;
     vector < vector < double > > compSolidI, compShellI;
-
 
     for ( s = 0; s < ( int ) m_TMeshVec.size(); s++ )
     {
@@ -3621,12 +3619,8 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
             tempShellI.push_back( compIyz );
 
             compShellI.push_back( tempShellI );
-
         }
-
-
     }
-
 
     if ( !degen )
     {
@@ -3695,7 +3689,6 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
     }
     else
     {
-
         bool matchFlag;
         vector < bool > matchVec( m_TMeshVec.size(), false );
         // For each degenGeom
@@ -3734,11 +3727,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
 
             degenGeom[ i ].setDegenPoint( degenPoint );
         }
-
-
     }
-
-
 
     //==== Clean Up Mess ====//
     for ( j = 0; j < tetraVecVec.size(); j++ )
