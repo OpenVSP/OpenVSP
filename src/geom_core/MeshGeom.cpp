@@ -2953,7 +2953,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
 }
 
 //==== Call After BndBoxes Have Been Create But Before Intersect ====//
-void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSlices, int idir, bool writefile )
+void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSlices, int idir, bool writefile )
 {
     int i, j, s;
 
@@ -2967,50 +2967,50 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
     MergeRemoveOpenMeshes( &info );
 
     //==== Create Results ====//
-    Results* res = NULL;
+    Results *res = NULL;
     int numTris = 0;
 
     if ( !degen )
     {
-    res = ResultsMgr.CreateResults( "Mass_Properties" );
-    res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
-    res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
-    res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
-    res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes ) );
-    res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes ) );
-    res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
+        res = ResultsMgr.CreateResults( "Mass_Properties" );
+        res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ));
+        res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ));
+        res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ));
+        res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes ));
+        res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes ));
+        res->Add( NameValData( "Mesh_GeomID", this->GetID()));
 
-    //==== Count Tris ====//
+        //==== Count Tris ====//
 
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        numTris += m_TMeshVec[i]->m_TVec.size();
-    }
+        for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
+        {
+            numTris += m_TMeshVec[ i ]->m_TVec.size();
+        }
     }
 
     //==== Augment ID with index to make symmetric copies unique. ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
-        m_TMeshVec[i]->m_OriginGeomID.append( std::to_string((long long) i ) );
+        m_TMeshVec[ i ]->m_OriginGeomID.append( std::to_string(( long long ) i ));
     }
 
     if ( !degen )
     {
-    res->Add( NameValData( "Num_Total_Meshes", ( int )m_TMeshVec.size() ) );
-    res->Add( NameValData( "Num_Total_Tris", numTris ) );
+        res->Add( NameValData( "Num_Total_Meshes", ( int ) m_TMeshVec.size()));
+        res->Add( NameValData( "Num_Total_Tris", numTris ));
     }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
-        m_TMeshVec[i]->LoadBndBox();
+        m_TMeshVec[ i ]->LoadBndBox();
     }
 
     //==== Update Bnd Box for  Combined ====//
     BndBox b;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
-        b.Update( m_TMeshVec[i]->m_TBox.m_Box );
+        b.Update( m_TMeshVec[ i ]->m_TBox.m_Box );
     }
     m_BBox = b;
 
@@ -3020,31 +3020,31 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
         numSlices = 3;
     }
 
-    vector< double > slice_fill_vec;
+    vector < double > slice_fill_vec;
 
     double sliceW = MakeSlices( numSlices, idir, slice_fill_vec );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
-    vector < int > bTypes( m_TMeshVec.size() );
-    vector < bool > thicksurf( m_TMeshVec.size() );
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    vector < int > bTypes( m_TMeshVec.size());
+    vector < bool > thicksurf( m_TMeshVec.size());
+    for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
-        bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
-        thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
+        bTypes[ i ] = m_TMeshVec[ i ]->m_SurfCfdType;
+        thicksurf[ i ] = m_TMeshVec[ i ]->m_ThickSurf;
     }
 
     //==== Load Bounding Box ====//
-    for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
+    for ( s = 0; s < ( int ) m_SliceVec.size(); s++ )
     {
-        TMesh* tm = m_SliceVec[s];
+        TMesh *tm = m_SliceVec[ s ];
         tm->LoadBndBox();
 
         //==== Intersect All Mesh Geoms ====//
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
         {
-            tm->Intersect( m_TMeshVec[i] );
+            tm->Intersect( m_TMeshVec[ i ] );
 
-            m_TMeshVec[i]->RemoveIsectEdges();
+            m_TMeshVec[ i ]->RemoveIsectEdges();
         }
 
         //==== Split Intersected Tri in Mesh ====//
@@ -3059,64 +3059,65 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
     }
 
     //==== Intersect All Mesh Geoms ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
-        for ( j = i + 1 ; j < ( int )m_TMeshVec.size() ; j++ )
+        for ( j = i + 1; j < ( int ) m_TMeshVec.size(); j++ )
         {
-            m_TMeshVec[i]->Intersect( m_TMeshVec[j] );
+            m_TMeshVec[ i ]->Intersect( m_TMeshVec[ j ] );
         }
     }
 
     //==== Split Intersected Tri in Mesh ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
-        m_TMeshVec[i]->Split();
+        m_TMeshVec[ i ]->Split();
     }
 
     //==== Determine Which Triangle Are Interior/Exterior ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
-        m_TMeshVec[i]->DeterIntExt( m_TMeshVec );
+        m_TMeshVec[ i ]->DeterIntExt( m_TMeshVec );
     }
 
     //==== Mark which triangles to ignore ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
-        m_TMeshVec[i]->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
+        m_TMeshVec[ i ]->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
     }
 
     //==== Do Shell Calcs ====//
-    vector< TriShellMassProp* > triShellVec;
-    for ( s = 0 ; s < ( int )m_TMeshVec.size() ; s++ )
+    vector < TriShellMassProp * > triShellVec;
+    for ( s = 0; s < ( int ) m_TMeshVec.size(); s++ )
     {
-        TMesh* tm = m_TMeshVec[s];
-        if ( tm->m_ShellFlag || degen)
+        TMesh *tm = m_TMeshVec[ s ];
+        if ( tm->m_ShellFlag || degen )
         {
             if ( degen )
             {
                 tm->m_ShellMassArea = 1.0;
             }
-            for ( i = 0 ; i < ( int )tm->m_TVec.size() ; i++ )
+            for ( i = 0; i < ( int ) tm->m_TVec.size(); i++ )
             {
-                TTri* tri = tm->m_TVec[i];
-                if ( tri->m_SplitVec.size() )
+                TTri *tri = tm->m_TVec[ i ];
+                if ( tri->m_SplitVec.size())
                 {
-                    for ( j = 0 ; j < ( int )tri->m_SplitVec.size() ; j++ )
+                    for ( j = 0; j < ( int ) tri->m_SplitVec.size(); j++ )
                     {
-                        if ( !tri->m_SplitVec[j]->m_IgnoreTriFlag )
+                        if ( !tri->m_SplitVec[ j ]->m_IgnoreTriFlag )
                         {
-                            TriShellMassProp* tsmp = new TriShellMassProp( tm->m_OriginGeomID, tm->m_ShellMassArea,
-                                    tri->m_SplitVec[j]->m_N0->m_Pnt,
-                                    tri->m_SplitVec[j]->m_N1->m_Pnt,
-                                    tri->m_SplitVec[j]->m_N2->m_Pnt );
+                            TriShellMassProp *tsmp = new TriShellMassProp( tm->m_OriginGeomID, tm->m_ShellMassArea,
+                                                                           tri->m_SplitVec[ j ]->m_N0->m_Pnt,
+                                                                           tri->m_SplitVec[ j ]->m_N1->m_Pnt,
+                                                                           tri->m_SplitVec[ j ]->m_N2->m_Pnt );
                             triShellVec.push_back( tsmp );
                         }
                     }
                 }
                 else if ( !tri->m_IgnoreTriFlag )
                 {
-                    TriShellMassProp* tsmp = new TriShellMassProp( tm->m_OriginGeomID, tm->m_ShellMassArea,
-                            tri->m_N0->m_Pnt, tri->m_N1->m_Pnt, tri->m_N2->m_Pnt );
+                    TriShellMassProp *tsmp = new TriShellMassProp( tm->m_OriginGeomID, tm->m_ShellMassArea,
+                                                                   tri->m_N0->m_Pnt, tri->m_N1->m_Pnt,
+                                                                   tri->m_N2->m_Pnt );
                     triShellVec.push_back( tsmp );
                 }
             }
@@ -3125,26 +3126,26 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
 
     //==== Build Tetrahedrons ====//
     double prismLength = sliceW;
-    vector < vector< TetraMassProp* > > tetraVecVec( m_SliceVec.size() );
+    vector < vector < TetraMassProp * > > tetraVecVec( m_SliceVec.size());
 
-    for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
+    for ( s = 0; s < ( int ) m_SliceVec.size(); s++ )
     {
-        TMesh* tm = m_SliceVec[s];
-        for ( i = 0 ; i < ( int )tm->m_TVec.size() ; i++ )
+        TMesh *tm = m_SliceVec[ s ];
+        for ( i = 0; i < ( int ) tm->m_TVec.size(); i++ )
         {
-            TTri* tri = tm->m_TVec[i];
+            TTri *tri = tm->m_TVec[ i ];
 
-            if ( tri->m_SplitVec.size() )
+            if ( tri->m_SplitVec.size())
             {
-                for ( j = 0 ; j < ( int )tri->m_SplitVec.size() ; j++ )
+                for ( j = 0; j < ( int ) tri->m_SplitVec.size(); j++ )
                 {
-                    if ( !tri->m_SplitVec[j]->m_IgnoreTriFlag )
+                    if ( !tri->m_SplitVec[ j ]->m_IgnoreTriFlag )
                     {
                         if ( degen )
                         {
-                            tri->m_SplitVec[j]->m_Density = 1.0;
+                            tri->m_SplitVec[ j ]->m_Density = 1.0;
                         }
-                        CreatePrism( tetraVecVec[s], tri->m_SplitVec[j], prismLength, idir );
+                        CreatePrism( tetraVecVec[ s ], tri->m_SplitVec[ j ], prismLength, idir );
                     }
                 }
             }
@@ -3154,7 +3155,7 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
                 {
                     tri->m_Density = 1.0;
                 }
-                CreatePrism( tetraVecVec[s], tri, prismLength, idir );
+                CreatePrism( tetraVecVec[ s ], tri, prismLength, idir );
             }
         }
     }
@@ -3162,213 +3163,225 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
     double totalVol = 0.0;
     vec3d cg( 0, 0, 0 );
 
-    vector< double > mass_fill_vec;
-    vector< vec3d > cg_fill_vec;
-    vector< double > ixx_fill_vec;
-    vector< double > iyy_fill_vec;
-    vector< double > izz_fill_vec;
-    vector< double > ixy_fill_vec;
-    vector< double > ixz_fill_vec;
-    vector< double > iyz_fill_vec;
-    vector< double > vol_fill_vec;
+    vector < double > mass_fill_vec;
+    vector < vec3d > cg_fill_vec;
+    vector < double > ixx_fill_vec;
+    vector < double > iyy_fill_vec;
+    vector < double > izz_fill_vec;
+    vector < double > ixy_fill_vec;
+    vector < double > ixz_fill_vec;
+    vector < double > iyz_fill_vec;
+    vector < double > vol_fill_vec;
 
     if ( !degen )
     {
 
-    // Filling mass calcs
-    double fillVol = 0.0;
-    vec3d fillMoment( 0, 0, 0 );
-    vec3d fillCG( 0, 0, 0 );
-    double fillMass = 0.0;
-    double fillIxx, fillIyy, fillIzz;
-    double fillIxy, fillIxz, fillIyz;
-    fillIxx = fillIyy = fillIzz = 0.0;
-    fillIxy = fillIxz = fillIyz = 0.0;
+        // Filling mass calcs
+        double fillVol = 0.0;
+        vec3d fillMoment( 0, 0, 0 );
+        vec3d fillCG( 0, 0, 0 );
+        double fillMass = 0.0;
+        double fillIxx, fillIyy, fillIzz;
+        double fillIxy, fillIxz, fillIyz;
+        fillIxx = fillIyy = fillIzz = 0.0;
+        fillIxy = fillIxz = fillIyz = 0.0;
 
-    for ( j = 0; j < tetraVecVec.size(); j++ )
-    {
-        double sliceVol = 0.0;
-        vec3d sliceMoment( 0, 0, 0 );
-        vec3d sliceCG( 0, 0, 0 );
-        double sliceMass = 0.0;
-
-        vec3d oldCG = fillCG;
-        double oldMass = fillMass;
-
-        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+        for ( j = 0; j < tetraVecVec.size(); j++ )
         {
-            sliceVol += tetraVecVec[j][i]->m_Vol;
-        }
-        fillVol += sliceVol;
+            double sliceVol = 0.0;
+            vec3d sliceMoment( 0, 0, 0 );
+            vec3d sliceCG( 0, 0, 0 );
+            double sliceMass = 0.0;
 
-        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+            vec3d oldCG = fillCG;
+            double oldMass = fillMass;
+
+            for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+            {
+                sliceVol += tetraVecVec[ j ][ i ]->m_Vol;
+            }
+            fillVol += sliceVol;
+
+            for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+            {
+                sliceMass += tetraVecVec[ j ][ i ]->m_Mass;
+                sliceMoment = sliceMoment + tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Mass;
+            }
+
+            if ( sliceMass )
+            {
+                sliceCG = sliceMoment * ( 1.0 / sliceMass );
+            }
+
+            fillMoment = fillMoment + sliceMoment;
+            fillMass += sliceMass;
+
+            if ( fillMass )
+            {
+                fillCG = fillMoment * ( 1.0 / fillMass );
+            }
+
+            // Transform running total to new CG location
+            fillIxx = fillIxx +
+                      oldMass * (( fillCG.y() - oldCG.y()) * ( fillCG.y() - oldCG.y()) +
+                                 ( fillCG.z() - oldCG.z()) * ( fillCG.z() - oldCG.z()));
+            fillIyy = fillIyy +
+                      oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.x() - oldCG.x()) +
+                                 ( fillCG.z() - oldCG.z()) * ( fillCG.z() - oldCG.z()));
+            fillIzz = fillIzz +
+                      oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.x() - oldCG.x()) +
+                                 ( fillCG.y() - oldCG.y()) * ( fillCG.y() - oldCG.y()));
+
+            fillIxy = fillIxy +
+                      oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.y() - oldCG.y()));
+            fillIxz = fillIxz +
+                      oldMass * (( fillCG.x() - oldCG.x()) * ( fillCG.z() - oldCG.z()));
+            fillIyz = fillIyz +
+                      oldMass * (( fillCG.y() - oldCG.y()) * ( fillCG.z() - oldCG.z()));
+
+            // Add in all tets, no need to form slice subtotal.
+            for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+            {
+                TetraMassProp *tet = tetraVecVec[ j ][ i ];
+                fillIxx += tet->m_Ixx +
+                           tet->m_Mass * (( fillCG.y() - tet->m_CG.y()) * ( fillCG.y() - tet->m_CG.y()) +
+                                          ( fillCG.z() - tet->m_CG.z()) * ( fillCG.z() - tet->m_CG.z()));
+                fillIyy += tet->m_Iyy +
+                           tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.x() - tet->m_CG.x()) +
+                                          ( fillCG.z() - tet->m_CG.z()) * ( fillCG.z() - tet->m_CG.z()));
+                fillIzz += tet->m_Izz +
+                           tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.x() - tet->m_CG.x()) +
+                                          ( fillCG.y() - tet->m_CG.y()) * ( fillCG.y() - tet->m_CG.y()));
+
+                fillIxy += tet->m_Ixy +
+                           tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.y() - tet->m_CG.y()));
+                fillIxz += tet->m_Ixz +
+                           tet->m_Mass * (( fillCG.x() - tet->m_CG.x()) * ( fillCG.z() - tet->m_CG.z()));
+                fillIyz += tet->m_Iyz +
+                           tet->m_Mass * (( fillCG.y() - tet->m_CG.y()) * ( fillCG.z() - tet->m_CG.z()));
+            }
+
+            vol_fill_vec.push_back( fillVol );
+            mass_fill_vec.push_back( fillMass );
+            cg_fill_vec.push_back( fillCG );
+            ixx_fill_vec.push_back( fillIxx );
+            iyy_fill_vec.push_back( fillIyy );
+            izz_fill_vec.push_back( fillIzz );
+            ixy_fill_vec.push_back( fillIxy );
+            ixz_fill_vec.push_back( fillIxz );
+            iyz_fill_vec.push_back( fillIyz );
+        }
+
+        // Normal mass calcs below.
+
+        int jpointmass = tetraVecVec.size();
+        tetraVecVec.resize( jpointmass + 1 );
+
+        //==== Add in Point Masses ====//
+        for ( i = 0; i < ( int ) m_PointMassVec.size(); i++ )
         {
-            sliceMass += tetraVecVec[j][i]->m_Mass;
-            sliceMoment = sliceMoment + tetraVecVec[j][i]->m_CG * tetraVecVec[j][i]->m_Mass;
+            tetraVecVec[ jpointmass ].push_back( m_PointMassVec[ i ] );
         }
 
-        if ( sliceMass )
+        for ( j = 0; j < tetraVecVec.size(); j++ )
         {
-            sliceCG = sliceMoment * ( 1.0 / sliceMass );
+            for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+            {
+                totalVol += tetraVecVec[ j ][ i ]->m_Vol;
+            }
         }
 
-        fillMoment = fillMoment + sliceMoment;
-        fillMass += sliceMass;
 
-        if ( fillMass )
+        m_TotalMass = 0.0;
+        for ( j = 0; j < tetraVecVec.size(); j++ )
         {
-            fillCG = fillMoment * (1.0 / fillMass );
+            for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+            {
+                m_TotalMass += tetraVecVec[ j ][ i ]->m_Mass;
+                cg = cg + tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Mass;
+            }
         }
-
-        // Transform running total to new CG location
-        fillIxx = fillIxx +
-                  oldMass * ( ( fillCG.y() - oldCG.y() ) * ( fillCG.y() - oldCG.y() ) + ( fillCG.z() - oldCG.z() ) * ( fillCG.z() - oldCG.z() ) );
-        fillIyy = fillIyy +
-                  oldMass * ( ( fillCG.x() - oldCG.x() ) * ( fillCG.x() - oldCG.x() ) + ( fillCG.z() - oldCG.z() ) * ( fillCG.z() - oldCG.z() ) );
-        fillIzz = fillIzz +
-                  oldMass * ( ( fillCG.x() - oldCG.x() ) * ( fillCG.x() - oldCG.x() ) + ( fillCG.y() - oldCG.y() ) * ( fillCG.y() - oldCG.y() ) );
-
-        fillIxy = fillIxy +
-                  oldMass * ( ( fillCG.x() - oldCG.x() ) * ( fillCG.y() - oldCG.y() ) );
-        fillIxz = fillIxz +
-                  oldMass * ( ( fillCG.x() - oldCG.x() ) * ( fillCG.z() - oldCG.z() ) );
-        fillIyz = fillIyz +
-                  oldMass * ( ( fillCG.y() - oldCG.y() ) * ( fillCG.z() - oldCG.z() ) );
-
-        // Add in all tets, no need to form slice subtotal.
-        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+        for ( i = 0; i < ( int ) triShellVec.size(); i++ )
         {
-            TetraMassProp* tet = tetraVecVec[j][i];
-            fillIxx += tet->m_Ixx +
-                       tet->m_Mass * ( ( fillCG.y() - tet->m_CG.y() ) * ( fillCG.y() - tet->m_CG.y() ) + ( fillCG.z() - tet->m_CG.z() ) * ( fillCG.z() - tet->m_CG.z() ) );
-            fillIyy += tet->m_Iyy +
-                       tet->m_Mass * ( ( fillCG.x() - tet->m_CG.x() ) * ( fillCG.x() - tet->m_CG.x() ) + ( fillCG.z() - tet->m_CG.z() ) * ( fillCG.z() - tet->m_CG.z() ) );
-            fillIzz += tet->m_Izz +
-                       tet->m_Mass * ( ( fillCG.x() - tet->m_CG.x() ) * ( fillCG.x() - tet->m_CG.x() ) + ( fillCG.y() - tet->m_CG.y() ) * ( fillCG.y() - tet->m_CG.y() ) );
-
-            fillIxy += tet->m_Ixy +
-                       tet->m_Mass * ( ( fillCG.x() - tet->m_CG.x() ) * ( fillCG.y() - tet->m_CG.y() ) );
-            fillIxz += tet->m_Ixz +
-                       tet->m_Mass * ( ( fillCG.x() - tet->m_CG.x() ) * ( fillCG.z() - tet->m_CG.z() ) );
-            fillIyz += tet->m_Iyz +
-                       tet->m_Mass * ( ( fillCG.y() - tet->m_CG.y() ) * ( fillCG.z() - tet->m_CG.z() ) );
+            m_TotalMass += triShellVec[ i ]->m_Mass;
+            cg = cg + triShellVec[ i ]->m_CG * triShellVec[ i ]->m_Mass;
         }
 
-        vol_fill_vec.push_back( fillVol );
-        mass_fill_vec.push_back( fillMass );
-        cg_fill_vec.push_back( fillCG );
-        ixx_fill_vec.push_back( fillIxx );
-        iyy_fill_vec.push_back( fillIyy );
-        izz_fill_vec.push_back( fillIzz );
-        ixy_fill_vec.push_back( fillIxy );
-        ixz_fill_vec.push_back( fillIxz );
-        iyz_fill_vec.push_back( fillIyz );
-    }
-
-    // Normal mass calcs below.
-
-    int jpointmass = tetraVecVec.size();
-    tetraVecVec.resize( jpointmass + 1 );
-
-    //==== Add in Point Masses ====//
-    for ( i = 0 ; i < ( int )m_PointMassVec.size() ; i++ )
-    {
-        tetraVecVec[jpointmass].push_back( m_PointMassVec[i] );
-    }
-
-    for ( j = 0; j < tetraVecVec.size(); j++ )
-    {
-       for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
-       {
-           totalVol += tetraVecVec[j][i]->m_Vol;
-       }
-    }
-
-
-    m_TotalMass = 0.0;
-    for ( j = 0; j < tetraVecVec.size(); j++ )
-    {
-        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+        if ( m_TotalMass )
         {
-            m_TotalMass += tetraVecVec[j][i]->m_Mass;
-            cg = cg + tetraVecVec[j][i]->m_CG * tetraVecVec[j][i]->m_Mass;
+            cg = cg * ( 1.0 / m_TotalMass );
         }
-    }
-    for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
-    {
-        m_TotalMass += triShellVec[i]->m_Mass;
-        cg = cg + triShellVec[i]->m_CG * triShellVec[i]->m_Mass;
-    }
 
-    if ( m_TotalMass )
-    {
-        cg = cg * ( 1.0 / m_TotalMass );
-    }
+        m_CenterOfGrav = cg;
 
-    m_CenterOfGrav = cg;
-
-    m_TotalIxx = m_TotalIyy = m_TotalIzz = 0.0;
-    m_TotalIxy = m_TotalIxz = m_TotalIyz = 0.0;
-    for ( j = 0; j < tetraVecVec.size(); j++ )
-    {
-        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+        m_TotalIxx = m_TotalIyy = m_TotalIzz = 0.0;
+        m_TotalIxy = m_TotalIxz = m_TotalIyz = 0.0;
+        for ( j = 0; j < tetraVecVec.size(); j++ )
         {
-            TetraMassProp* tet = tetraVecVec[j][i];
-            m_TotalIxx += tet->m_Ixx +
-                          tet->m_Mass * ( ( cg.y() - tet->m_CG.y() ) * ( cg.y() - tet->m_CG.y() ) + ( cg.z() - tet->m_CG.z() ) * ( cg.z() - tet->m_CG.z() ) );
-            m_TotalIyy += tet->m_Iyy +
-                          tet->m_Mass * ( ( cg.x() - tet->m_CG.x() ) * ( cg.x() - tet->m_CG.x() ) + ( cg.z() - tet->m_CG.z() ) * ( cg.z() - tet->m_CG.z() ) );
-            m_TotalIzz += tet->m_Izz +
-                          tet->m_Mass * ( ( cg.x() - tet->m_CG.x() ) * ( cg.x() - tet->m_CG.x() ) + ( cg.y() - tet->m_CG.y() ) * ( cg.y() - tet->m_CG.y() ) );
+            for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+            {
+                TetraMassProp *tet = tetraVecVec[ j ][ i ];
+                m_TotalIxx += tet->m_Ixx +
+                              tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()) +
+                                             ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                m_TotalIyy += tet->m_Iyy +
+                              tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                             ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                m_TotalIzz += tet->m_Izz +
+                              tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                             ( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()));
 
-            m_TotalIxy += tet->m_Ixy +
-                          tet->m_Mass * ( ( cg.x() - tet->m_CG.x() ) * ( cg.y() - tet->m_CG.y() ) );
-            m_TotalIxz += tet->m_Ixz +
-                          tet->m_Mass * ( ( cg.x() - tet->m_CG.x() ) * ( cg.z() - tet->m_CG.z() ) );
-            m_TotalIyz += tet->m_Iyz +
-                          tet->m_Mass * ( ( cg.y() - tet->m_CG.y() ) * ( cg.z() - tet->m_CG.z() ) );
+                m_TotalIxy += tet->m_Ixy +
+                              tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.y() - tet->m_CG.y()));
+                m_TotalIxz += tet->m_Ixz +
+                              tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.z() - tet->m_CG.z()));
+                m_TotalIyz += tet->m_Iyz +
+                              tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.z() - tet->m_CG.z()));
+            }
+        }
+        for ( i = 0; i < ( int ) triShellVec.size(); i++ )
+        {
+            TriShellMassProp *trs = triShellVec[ i ];
+            m_TotalIxx += trs->m_Ixx +
+                          trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()) +
+                                         ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+            m_TotalIyy += trs->m_Iyy +
+                          trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                         ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+            m_TotalIzz += trs->m_Izz +
+                          trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                         ( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()));
+
+            m_TotalIxy += trs->m_Ixy +
+                          trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.y() - trs->m_CG.y()));
+            m_TotalIxz += trs->m_Ixz +
+                          trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.z() - trs->m_CG.z()));
+            m_TotalIyz += trs->m_Iyz +
+                          trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.z() - trs->m_CG.z()));
         }
     }
-    for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
-    {
-        TriShellMassProp* trs = triShellVec[i];
-        m_TotalIxx += trs->m_Ixx +
-                      trs->m_Mass * ( ( cg.y() - trs->m_CG.y() ) * ( cg.y() - trs->m_CG.y() ) + ( cg.z() - trs->m_CG.z() ) * ( cg.z() - trs->m_CG.z() ) );
-        m_TotalIyy += trs->m_Iyy +
-                      trs->m_Mass * ( ( cg.x() - trs->m_CG.x() ) * ( cg.x() - trs->m_CG.x() ) + ( cg.z() - trs->m_CG.z() ) * ( cg.z() - trs->m_CG.z() ) );
-        m_TotalIzz += trs->m_Izz +
-                      trs->m_Mass * ( ( cg.x() - trs->m_CG.x() ) * ( cg.x() - trs->m_CG.x() ) + ( cg.y() - trs->m_CG.y() ) * ( cg.y() - trs->m_CG.y() ) );
 
-        m_TotalIxy += trs->m_Ixy +
-                      trs->m_Mass * ( ( cg.x() - trs->m_CG.x() ) * ( cg.y() - trs->m_CG.y() ) );
-        m_TotalIxz += trs->m_Ixz +
-                      trs->m_Mass * ( ( cg.x() - trs->m_CG.x() ) * ( cg.z() - trs->m_CG.z() ) );
-        m_TotalIyz += trs->m_Iyz +
-                      trs->m_Mass * ( ( cg.y() - trs->m_CG.y() ) * ( cg.z() - trs->m_CG.z() ) );
-    }
-    }
-
-    vector< string > name_vec;
-    vector< string > id_vec;
-    vector< double > mass_vec;
-    vector< vec3d > cg_vec;
-    vector< double > ixx_vec;
-    vector< double > iyy_vec;
-    vector< double > izz_vec;
-    vector< double > ixy_vec;
-    vector< double > ixz_vec;
-    vector< double > iyz_vec;
-    vector< double > vol_vec;
+    vector < string > name_vec;
+    vector < string > id_vec;
+    vector < double > mass_vec;
+    vector < vec3d > cg_vec;
+    vector < double > ixx_vec;
+    vector < double > iyy_vec;
+    vector < double > izz_vec;
+    vector < double > ixy_vec;
+    vector < double > ixz_vec;
+    vector < double > iyz_vec;
+    vector < double > vol_vec;
 
     //==== Calculate Properties on a Per Component Basis ====//
 
-    vector<vec3d> compSolidCg, compShellCg;
-    vector< vector<double> > compSolidI, compShellI;
+    vector < vec3d > compSolidCg, compShellCg;
+    vector < vector < double > > compSolidI, compShellI;
 
 
-    for ( s = 0 ; s < ( int )m_TMeshVec.size() ; s++ )
+    for ( s = 0; s < ( int ) m_TMeshVec.size(); s++ )
     {
-        TMesh* tm = m_TMeshVec[s];
+        TMesh *tm = m_TMeshVec[ s ];
         string id = tm->m_OriginGeomID;
         id_vec.push_back( id );
 
@@ -3381,84 +3394,82 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
         if ( !degen )
         {
 
-        id_vec.push_back( id );
+            id_vec.push_back( id );
 
-        for ( j = 0; j < tetraVecVec.size(); j++ )
-        {
-            for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+            for ( j = 0; j < tetraVecVec.size(); j++ )
             {
-                if ( !tetraVecVec[j][i]->m_CompId.compare( id ) )
+                for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
                 {
-                    compVol += tetraVecVec[j][i]->m_Vol;
-                }
+                    if ( !tetraVecVec[ j ][ i ]->m_CompId.compare( id ))
+                    {
+                        compVol += tetraVecVec[ j ][ i ]->m_Vol;
+                    }
 
-            }
-        }
-
-        for ( j = 0; j < tetraVecVec.size(); j++ )
-        {
-            for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
-            {
-                if ( !tetraVecVec[j][i]->m_CompId.compare( id ) )
-                {
-                    compMass += tetraVecVec[j][i]->m_Mass;
-                    cg = cg + tetraVecVec[j][i]->m_CG * tetraVecVec[j][i]->m_Mass;
                 }
             }
-        }
-        for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
-        {
-            if ( !triShellVec[i]->m_CompId.compare( id ) )
+
+            for ( j = 0; j < tetraVecVec.size(); j++ )
             {
-                compMass += triShellVec[i]->m_Mass;
-                cg = cg + triShellVec[i]->m_CG * triShellVec[i]->m_Mass;
+                for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+                {
+                    if ( !tetraVecVec[ j ][ i ]->m_CompId.compare( id ))
+                    {
+                        compMass += tetraVecVec[ j ][ i ]->m_Mass;
+                        cg = cg + tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Mass;
+                    }
+                }
             }
-        }
-
-        if ( compMass )
-        {
-            cg = cg * ( 1.0 / compMass );
-        }
-
-       }
-       else
-       {
-
-        for ( j = 0; j < tetraVecVec.size(); j++ )
-        {
-        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
-        {
-            if ( !tetraVecVec[j][i]->m_CompId.compare( id ) )
+            for ( i = 0; i < ( int ) triShellVec.size(); i++ )
             {
-                compMassSolid += tetraVecVec[j][i]->m_Vol;
-                cgSolid = cgSolid + tetraVecVec[j][i]->m_CG * tetraVecVec[j][i]->m_Vol;
+                if ( !triShellVec[ i ]->m_CompId.compare( id ))
+                {
+                    compMass += triShellVec[ i ]->m_Mass;
+                    cg = cg + triShellVec[ i ]->m_CG * triShellVec[ i ]->m_Mass;
+                }
             }
-        }
-        }
-        for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
-        {
-            if ( !triShellVec[i]->m_CompId.compare( id ) )
+
+            if ( compMass )
             {
-                compMassShell += triShellVec[i]->m_TriArea;
-                cgShell = cgShell + triShellVec[i]->m_CG * triShellVec[i]->m_TriArea;
+                cg = cg * ( 1.0 / compMass );
             }
-        }
 
-        if ( compMassSolid )
+        }
+        else
         {
-            cgSolid = cgSolid * ( 1.0 / compMassSolid );
+
+            for ( j = 0; j < tetraVecVec.size(); j++ )
+            {
+                for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+                {
+                    if ( !tetraVecVec[ j ][ i ]->m_CompId.compare( id ))
+                    {
+                        compMassSolid += tetraVecVec[ j ][ i ]->m_Vol;
+                        cgSolid = cgSolid + tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Vol;
+                    }
+                }
+            }
+            for ( i = 0; i < ( int ) triShellVec.size(); i++ )
+            {
+                if ( !triShellVec[ i ]->m_CompId.compare( id ))
+                {
+                    compMassShell += triShellVec[ i ]->m_TriArea;
+                    cgShell = cgShell + triShellVec[ i ]->m_CG * triShellVec[ i ]->m_TriArea;
+                }
+            }
+
+            if ( compMassSolid )
+            {
+                cgSolid = cgSolid * ( 1.0 / compMassSolid );
+            }
+            if ( compMassShell )
+            {
+                cgShell = cgShell * ( 1.0 / compMassShell );
+            }
+
+            compSolidCg.push_back( cgSolid );
+            compShellCg.push_back( cgShell );
+
         }
-        if ( compMassShell )
-        {
-            cgShell = cgShell * ( 1.0 / compMassShell );
-        }
-
-        compSolidCg.push_back( cgSolid );
-        compShellCg.push_back( cgShell );
-
-        }
-
-
 
 
         double compIxx = 0.0;
@@ -3471,136 +3482,147 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
         if ( !degen )
         {
 
-        for ( j = 0; j < tetraVecVec.size(); j++ )
-        {
-            for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+            for ( j = 0; j < tetraVecVec.size(); j++ )
             {
-                TetraMassProp* tet = tetraVecVec[j][i];
-                if ( !tet->m_CompId.compare( id ) )
+                for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
                 {
-                    compIxx += tet->m_Ixx +
-                               tet->m_Mass * ( ( cg.y() - tet->m_CG.y() ) * ( cg.y() - tet->m_CG.y() ) + ( cg.z() - tet->m_CG.z() ) * ( cg.z() - tet->m_CG.z() ) );
-                    compIyy += tet->m_Iyy +
-                               tet->m_Mass * ( ( cg.x() - tet->m_CG.x() ) * ( cg.x() - tet->m_CG.x() ) + ( cg.z() - tet->m_CG.z() ) * ( cg.z() - tet->m_CG.z() ) );
-                    compIzz += tet->m_Izz +
-                               tet->m_Mass * ( ( cg.x() - tet->m_CG.x() ) * ( cg.x() - tet->m_CG.x() ) + ( cg.y() - tet->m_CG.y() ) * ( cg.y() - tet->m_CG.y() ) );
+                    TetraMassProp *tet = tetraVecVec[ j ][ i ];
+                    if ( !tet->m_CompId.compare( id ))
+                    {
+                        compIxx += tet->m_Ixx +
+                                   tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()) +
+                                                  ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                        compIyy += tet->m_Iyy +
+                                   tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                                  ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                        compIzz += tet->m_Izz +
+                                   tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                                  ( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()));
 
-                    compIxy += tet->m_Ixy +
-                               tet->m_Mass * ( ( cg.x() - tet->m_CG.x() ) * ( cg.y() - tet->m_CG.y() ) );
-                    compIxz += tet->m_Ixz +
-                               tet->m_Mass * ( ( cg.x() - tet->m_CG.x() ) * ( cg.z() - tet->m_CG.z() ) );
-                    compIyz += tet->m_Iyz +
-                               tet->m_Mass * ( ( cg.y() - tet->m_CG.y() ) * ( cg.z() - tet->m_CG.z() ) );
+                        compIxy += tet->m_Ixy +
+                                   tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.y() - tet->m_CG.y()));
+                        compIxz += tet->m_Ixz +
+                                   tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.z() - tet->m_CG.z()));
+                        compIyz += tet->m_Iyz +
+                                   tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.z() - tet->m_CG.z()));
+                    }
                 }
             }
-        }
-        for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
-        {
-            TriShellMassProp* trs = triShellVec[i];
-            if ( !trs->m_CompId.compare( id ) )
+            for ( i = 0; i < ( int ) triShellVec.size(); i++ )
             {
-                compIxx += trs->m_Ixx +
-                           trs->m_Mass * ( ( cg.y() - trs->m_CG.y() ) * ( cg.y() - trs->m_CG.y() ) + ( cg.z() - trs->m_CG.z() ) * ( cg.z() - trs->m_CG.z() ) );
-                compIyy += trs->m_Iyy +
-                           trs->m_Mass * ( ( cg.x() - trs->m_CG.x() ) * ( cg.x() - trs->m_CG.x() ) + ( cg.z() - trs->m_CG.z() ) * ( cg.z() - trs->m_CG.z() ) );
-                compIzz += trs->m_Izz +
-                           trs->m_Mass * ( ( cg.x() - trs->m_CG.x() ) * ( cg.x() - trs->m_CG.x() ) + ( cg.y() - trs->m_CG.y() ) * ( cg.y() - trs->m_CG.y() ) );
+                TriShellMassProp *trs = triShellVec[ i ];
+                if ( !trs->m_CompId.compare( id ))
+                {
+                    compIxx += trs->m_Ixx +
+                               trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()) +
+                                              ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+                    compIyy += trs->m_Iyy +
+                               trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                              ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+                    compIzz += trs->m_Izz +
+                               trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                              ( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()));
 
-                compIxy += trs->m_Ixy +
-                           trs->m_Mass * ( ( cg.x() - trs->m_CG.x() ) * ( cg.y() - trs->m_CG.y() ) );
-                compIxz += trs->m_Ixz +
-                           trs->m_Mass * ( ( cg.x() - trs->m_CG.x() ) * ( cg.z() - trs->m_CG.z() ) );
-                compIyz += trs->m_Iyz +
-                           trs->m_Mass * ( ( cg.y() - trs->m_CG.y() ) * ( cg.z() - trs->m_CG.z() ) );
+                    compIxy += trs->m_Ixy +
+                               trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.y() - trs->m_CG.y()));
+                    compIxz += trs->m_Ixz +
+                               trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.z() - trs->m_CG.z()));
+                    compIyz += trs->m_Iyz +
+                               trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.z() - trs->m_CG.z()));
+                }
             }
-        }
 
-        //==== Load Component Results ====//
-        name_vec.push_back( tm->m_NameStr );
-        mass_vec.push_back( compMass );
-        cg_vec.push_back( cg );
-        ixx_vec.push_back( compIxx );
-        iyy_vec.push_back( compIyy );
-        izz_vec.push_back( compIzz );
-        ixy_vec.push_back( compIxy );
-        ixz_vec.push_back( compIxz );
-        iyz_vec.push_back( compIyz );
-        vol_vec.push_back( compVol );
+            //==== Load Component Results ====//
+            name_vec.push_back( tm->m_NameStr );
+            mass_vec.push_back( compMass );
+            cg_vec.push_back( cg );
+            ixx_vec.push_back( compIxx );
+            iyy_vec.push_back( compIyy );
+            izz_vec.push_back( compIzz );
+            ixy_vec.push_back( compIxy );
+            ixz_vec.push_back( compIxz );
+            iyz_vec.push_back( compIyz );
+            vol_vec.push_back( compVol );
         }
         else
         {
-        for ( j = 0; j < tetraVecVec.size(); j++ )
-        {
-        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
-        {
-            TetraMassProp* tet = tetraVecVec[j][i];
-            if ( !tet->m_CompId.compare( id ) )
+            for ( j = 0; j < tetraVecVec.size(); j++ )
             {
-                compIxx += tet->m_Ixx +
-                           tet->m_Vol * ( ( cgSolid.y() - tet->m_CG.y() ) * ( cgSolid.y() - tet->m_CG.y() ) + ( cgSolid.z() - tet->m_CG.z() ) * ( cgSolid.z() - tet->m_CG.z() ) );
-                compIyy += tet->m_Iyy +
-                           tet->m_Vol * ( ( cgSolid.x() - tet->m_CG.x() ) * ( cgSolid.x() - tet->m_CG.x() ) + ( cgSolid.z() - tet->m_CG.z() ) * ( cgSolid.z() - tet->m_CG.z() ) );
-                compIzz += tet->m_Izz +
-                           tet->m_Vol * ( ( cgSolid.x() - tet->m_CG.x() ) * ( cgSolid.x() - tet->m_CG.x() ) + ( cgSolid.y() - tet->m_CG.y() ) * ( cgSolid.y() - tet->m_CG.y() ) );
+                for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+                {
+                    TetraMassProp *tet = tetraVecVec[ j ][ i ];
+                    if ( !tet->m_CompId.compare( id ))
+                    {
+                        compIxx += tet->m_Ixx +
+                                   tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()) +
+                                                 ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
+                        compIyy += tet->m_Iyy +
+                                   tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
+                                                 ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
+                        compIzz += tet->m_Izz +
+                                   tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
+                                                 ( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()));
 
-                compIxy += tet->m_Ixy +
-                           tet->m_Vol * ( ( cgSolid.x() - tet->m_CG.x() ) * ( cgSolid.y() - tet->m_CG.y() ) );
-                compIxz += tet->m_Ixz +
-                           tet->m_Vol * ( ( cgSolid.x() - tet->m_CG.x() ) * ( cgSolid.z() - tet->m_CG.z() ) );
-                compIyz += tet->m_Iyz +
-                           tet->m_Vol * ( ( cgSolid.y() - tet->m_CG.y() ) * ( cgSolid.z() - tet->m_CG.z() ) );
+                        compIxy += tet->m_Ixy +
+                                   tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.y() - tet->m_CG.y()));
+                        compIxz += tet->m_Ixz +
+                                   tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.z() - tet->m_CG.z()));
+                        compIyz += tet->m_Iyz +
+                                   tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.z() - tet->m_CG.z()));
+                    }
+                }
             }
-        }
-        }
-        vector<double> tempSolidI;
-        tempSolidI.push_back( compIxx );
-        tempSolidI.push_back( compIyy );
-        tempSolidI.push_back( compIzz );
-        tempSolidI.push_back( compIxy );
-        tempSolidI.push_back( compIxz );
-        tempSolidI.push_back( compIyz );
+            vector < double > tempSolidI;
+            tempSolidI.push_back( compIxx );
+            tempSolidI.push_back( compIyy );
+            tempSolidI.push_back( compIzz );
+            tempSolidI.push_back( compIxy );
+            tempSolidI.push_back( compIxz );
+            tempSolidI.push_back( compIyz );
 
-        compSolidI.push_back( tempSolidI );
+            compSolidI.push_back( tempSolidI );
 
-        compIxx = 0.0;
-        compIyy = 0.0;
-        compIzz = 0.0;
-        compIxy = 0.0;
-        compIxz = 0.0;
-        compIyz = 0.0;
-        for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
-        {
-            TriShellMassProp* trs = triShellVec[i];
-            if ( !trs->m_CompId.compare( id ) )
+            compIxx = 0.0;
+            compIyy = 0.0;
+            compIzz = 0.0;
+            compIxy = 0.0;
+            compIxz = 0.0;
+            compIyz = 0.0;
+            for ( i = 0; i < ( int ) triShellVec.size(); i++ )
             {
-                compIxx += trs->m_Ixx +
-                           trs->m_TriArea * ( ( cgShell.y() - trs->m_CG.y() ) * ( cgShell.y() - trs->m_CG.y() ) + ( cgShell.z() - trs->m_CG.z() ) * ( cgShell.z() - trs->m_CG.z() ) );
-                compIyy += trs->m_Iyy +
-                           trs->m_TriArea * ( ( cgShell.x() - trs->m_CG.x() ) * ( cgShell.x() - trs->m_CG.x() ) + ( cgShell.z() - trs->m_CG.z() ) * ( cgShell.z() - trs->m_CG.z() ) );
-                compIzz += trs->m_Izz +
-                           trs->m_TriArea * ( ( cgShell.x() - trs->m_CG.x() ) * ( cgShell.x() - trs->m_CG.x() ) + ( cgShell.y() - trs->m_CG.y() ) * ( cgShell.y() - trs->m_CG.y() ) );
+                TriShellMassProp *trs = triShellVec[ i ];
+                if ( !trs->m_CompId.compare( id ))
+                {
+                    compIxx += trs->m_Ixx +
+                               trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()) +
+                                                 ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
+                    compIyy += trs->m_Iyy +
+                               trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
+                                                 ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
+                    compIzz += trs->m_Izz +
+                               trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
+                                                 ( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()));
 
-                compIxy += trs->m_Ixy +
-                           trs->m_TriArea * ( ( cgShell.x() - trs->m_CG.x() ) * ( cgShell.y() - trs->m_CG.y() ) );
-                compIxz += trs->m_Ixz +
-                           trs->m_TriArea * ( ( cgShell.x() - trs->m_CG.x() ) * ( cgShell.z() - trs->m_CG.z() ) );
-                compIyz += trs->m_Iyz +
-                           trs->m_TriArea * ( ( cgShell.y() - trs->m_CG.y() ) * ( cgShell.z() - trs->m_CG.z() ) );
+                    compIxy += trs->m_Ixy +
+                               trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.y() - trs->m_CG.y()));
+                    compIxz += trs->m_Ixz +
+                               trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.z() - trs->m_CG.z()));
+                    compIyz += trs->m_Iyz +
+                               trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.z() - trs->m_CG.z()));
+                }
             }
+
+            vector < double > tempShellI;
+            tempShellI.push_back( compIxx );
+            tempShellI.push_back( compIyy );
+            tempShellI.push_back( compIzz );
+            tempShellI.push_back( compIxy );
+            tempShellI.push_back( compIxz );
+            tempShellI.push_back( compIyz );
+
+            compShellI.push_back( tempShellI );
+
         }
-
-        vector<double> tempShellI;
-        tempShellI.push_back( compIxx );
-        tempShellI.push_back( compIyy );
-        tempShellI.push_back( compIzz );
-        tempShellI.push_back( compIxy );
-        tempShellI.push_back( compIxz );
-        tempShellI.push_back( compIyz );
-
-        compShellI.push_back( tempShellI );
-
-        }
-
 
 
     }
@@ -3609,110 +3631,109 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
     if ( !degen )
     {
 
-    for ( int i = 0; i < m_PointMassVec.size(); i++ )
-    {
-        id_vec.push_back( m_PointMassVec[i]->m_CompId );
-
-        Geom* geom = m_Vehicle->FindGeom( m_PointMassVec[i]->m_CompId );
-        if ( geom )
+        for ( int i = 0; i < m_PointMassVec.size(); i++ )
         {
-            name_vec.push_back( geom->GetName() );
+            id_vec.push_back( m_PointMassVec[ i ]->m_CompId );
+
+            Geom *geom = m_Vehicle->FindGeom( m_PointMassVec[ i ]->m_CompId );
+            if ( geom )
+            {
+                name_vec.push_back( geom->GetName());
+            }
+            else
+            {
+                name_vec.push_back( "" );
+            }
+
+            mass_vec.push_back( m_PointMassVec[ i ]->m_Mass );
+            cg_vec.push_back( m_PointMassVec[ i ]->m_CG );
+            ixx_vec.push_back( m_PointMassVec[ i ]->m_Ixx );
+            iyy_vec.push_back( m_PointMassVec[ i ]->m_Iyy );
+            izz_vec.push_back( m_PointMassVec[ i ]->m_Izz );
+            ixy_vec.push_back( m_PointMassVec[ i ]->m_Ixy );
+            ixz_vec.push_back( m_PointMassVec[ i ]->m_Ixz );
+            iyz_vec.push_back( m_PointMassVec[ i ]->m_Iyz );
+            vol_vec.push_back( m_PointMassVec[ i ]->m_Vol );
         }
-        else
-        {
-            name_vec.push_back( "" );
-        }
 
-        mass_vec.push_back( m_PointMassVec[i]->m_Mass );
-        cg_vec.push_back( m_PointMassVec[i]->m_CG );
-        ixx_vec.push_back( m_PointMassVec[i]->m_Ixx );
-        iyy_vec.push_back( m_PointMassVec[i]->m_Iyy );
-        izz_vec.push_back( m_PointMassVec[i]->m_Izz );
-        ixy_vec.push_back( m_PointMassVec[i]->m_Ixy );
-        ixz_vec.push_back( m_PointMassVec[i]->m_Ixz );
-        iyz_vec.push_back( m_PointMassVec[i]->m_Iyz );
-        vol_vec.push_back( m_PointMassVec[i]->m_Vol );
-    }
+        res->Add( NameValData( "Num_Comps", ( int ) name_vec.size()));
+        res->Add( NameValData( "Comp_Name", name_vec ));
+        res->Add( NameValData( "Comp_ID", id_vec ));
+        res->Add( NameValData( "Comp_Mass", mass_vec ));
+        res->Add( NameValData( "Comp_CG", cg_vec ));
+        res->Add( NameValData( "Comp_Ixx", ixx_vec ));
+        res->Add( NameValData( "Comp_Iyy", iyy_vec ));
+        res->Add( NameValData( "Comp_Izz", izz_vec ));
+        res->Add( NameValData( "Comp_Ixy", ixy_vec ));
+        res->Add( NameValData( "Comp_Ixz", ixz_vec ));
+        res->Add( NameValData( "Comp_Iyz", iyz_vec ));
+        res->Add( NameValData( "Comp_Vol", vol_vec ));
 
-    res->Add( NameValData( "Num_Comps", (int)name_vec.size() ) );
-    res->Add( NameValData( "Comp_Name", name_vec ) );
-    res->Add( NameValData( "Comp_ID", id_vec ) );
-    res->Add( NameValData( "Comp_Mass", mass_vec ) );
-    res->Add( NameValData( "Comp_CG", cg_vec ) );
-    res->Add( NameValData( "Comp_Ixx", ixx_vec ) );
-    res->Add( NameValData( "Comp_Iyy", iyy_vec ) );
-    res->Add( NameValData( "Comp_Izz", izz_vec ) );
-    res->Add( NameValData( "Comp_Ixy", ixy_vec ) );
-    res->Add( NameValData( "Comp_Ixz", ixz_vec ) );
-    res->Add( NameValData( "Comp_Iyz", iyz_vec ) );
-    res->Add( NameValData( "Comp_Vol", vol_vec ) );
+        //==== Totals ====//
+        res->Add( NameValData( "Num_Fill_Slice", ( int ) slice_fill_vec.size()));
+        res->Add( NameValData( "Fill_Slice", slice_fill_vec ));
+        res->Add( NameValData( "Fill_Mass", mass_fill_vec ));
+        res->Add( NameValData( "Fill_CG", cg_fill_vec ));
+        res->Add( NameValData( "Fill_Ixx", ixx_fill_vec ));
+        res->Add( NameValData( "Fill_Iyy", iyy_fill_vec ));
+        res->Add( NameValData( "Fill_Izz", izz_fill_vec ));
+        res->Add( NameValData( "Fill_Ixy", ixy_fill_vec ));
+        res->Add( NameValData( "Fill_Ixz", ixz_fill_vec ));
+        res->Add( NameValData( "Fill_Iyz", iyz_fill_vec ));
+        res->Add( NameValData( "Fill_Vol", vol_fill_vec ));
 
-    //==== Totals ====//
-    res->Add( NameValData( "Num_Fill_Slice", ( int )slice_fill_vec.size() ) );
-    res->Add( NameValData( "Fill_Slice", slice_fill_vec ) );
-    res->Add( NameValData( "Fill_Mass", mass_fill_vec ) );
-    res->Add( NameValData( "Fill_CG", cg_fill_vec ) );
-    res->Add( NameValData( "Fill_Ixx", ixx_fill_vec ) );
-    res->Add( NameValData( "Fill_Iyy", iyy_fill_vec ) );
-    res->Add( NameValData( "Fill_Izz", izz_fill_vec ) );
-    res->Add( NameValData( "Fill_Ixy", ixy_fill_vec ) );
-    res->Add( NameValData( "Fill_Ixz", ixz_fill_vec ) );
-    res->Add( NameValData( "Fill_Iyz", iyz_fill_vec ) );
-    res->Add( NameValData( "Fill_Vol", vol_fill_vec ) );
-
-    //==== Totals ====//
-    res->Add( NameValData( "Total_Mass", m_TotalMass ) );
-    res->Add( NameValData( "Total_CG", m_CenterOfGrav ) );
-    res->Add( NameValData( "Total_Ixx", m_TotalIxx ) );
-    res->Add( NameValData( "Total_Iyy", m_TotalIyy ) );
-    res->Add( NameValData( "Total_Izz", m_TotalIzz ) );
-    res->Add( NameValData( "Total_Ixy", m_TotalIxy ) );
-    res->Add( NameValData( "Total_Ixz", m_TotalIxz ) );
-    res->Add( NameValData( "Total_Iyz", m_TotalIyz ) );
-    res->Add( NameValData( "Total_Volume", totalVol ) );
+        //==== Totals ====//
+        res->Add( NameValData( "Total_Mass", m_TotalMass ));
+        res->Add( NameValData( "Total_CG", m_CenterOfGrav ));
+        res->Add( NameValData( "Total_Ixx", m_TotalIxx ));
+        res->Add( NameValData( "Total_Iyy", m_TotalIyy ));
+        res->Add( NameValData( "Total_Izz", m_TotalIzz ));
+        res->Add( NameValData( "Total_Ixy", m_TotalIxy ));
+        res->Add( NameValData( "Total_Ixz", m_TotalIxz ));
+        res->Add( NameValData( "Total_Iyz", m_TotalIyz ));
+        res->Add( NameValData( "Total_Volume", totalVol ));
     }
     else
     {
 
-    bool matchFlag;
-    vector< bool > matchVec( m_TMeshVec.size(), false );
-    // For each degenGeom
-    for ( i = 0; i < ( int )degenGeom.size(); i++ )
-    {
-        matchFlag = false;
-        DegenPoint degenPoint = degenGeom[i].getDegenPoint();
-
-        // Loop through tmesh vector
-        for ( j = 0; j < m_TMeshVec.size(); j++ )
+        bool matchFlag;
+        vector < bool > matchVec( m_TMeshVec.size(), false );
+        // For each degenGeom
+        for ( i = 0; i < ( int ) degenGeom.size(); i++ )
         {
-            if ( matchVec[j] == false )
-            {
-                // If its pointer id matches the current degenGeom
-                string geomid = degenGeom[i].getParentGeom()->GetID();
-                if ( geomid.compare( 0, geomid.size(), m_TMeshVec[j]->m_OriginGeomID, 0, geomid.size() ) == 0 &&
-                     degenGeom[i].getSurfNum() == m_TMeshVec[j]->m_SurfNum )
-                {
-                    degenPoint.Isolid.push_back( compSolidI[j] );
-                    degenPoint.Ishell.push_back( compShellI[j] );
-                    degenPoint.xcgSolid.push_back( compSolidCg[j] );
-                    degenPoint.xcgShell.push_back( compShellCg[j] );
-                    matchVec[j] = true;
+            matchFlag = false;
+            DegenPoint degenPoint = degenGeom[ i ].getDegenPoint();
 
-                    matchFlag = true;
+            // Loop through tmesh vector
+            for ( j = 0; j < m_TMeshVec.size(); j++ )
+            {
+                if ( matchVec[ j ] == false )
+                {
+                    // If its pointer id matches the current degenGeom
+                    string geomid = degenGeom[ i ].getParentGeom()->GetID();
+                    if ( geomid.compare( 0, geomid.size(), m_TMeshVec[ j ]->m_OriginGeomID, 0, geomid.size()) == 0 &&
+                         degenGeom[ i ].getSurfNum() == m_TMeshVec[ j ]->m_SurfNum )
+                    {
+                        degenPoint.Isolid.push_back( compSolidI[ j ] );
+                        degenPoint.Ishell.push_back( compShellI[ j ] );
+                        degenPoint.xcgSolid.push_back( compSolidCg[ j ] );
+                        degenPoint.xcgShell.push_back( compShellCg[ j ] );
+                        matchVec[ j ] = true;
+
+                        matchFlag = true;
+                    }
                 }
             }
-        }
-        if ( !matchFlag )
-        {
-            degenPoint.Isolid.push_back( vector<double>( 6, 0.0 ) );
-            degenPoint.Ishell.push_back( vector<double>( 6, 0.0 ) );
-            degenPoint.xcgSolid.push_back( vec3d( 0.0, 0.0, 0.0 ) );
-            degenPoint.xcgShell.push_back( vec3d( 0.0, 0.0, 0.0 ) );
-        }
+            if ( !matchFlag )
+            {
+                degenPoint.Isolid.push_back( vector < double >( 6, 0.0 ));
+                degenPoint.Ishell.push_back( vector < double >( 6, 0.0 ));
+                degenPoint.xcgSolid.push_back( vec3d( 0.0, 0.0, 0.0 ));
+                degenPoint.xcgShell.push_back( vec3d( 0.0, 0.0, 0.0 ));
+            }
 
-        degenGeom[i].setDegenPoint( degenPoint );
-    }
-
+            degenGeom[ i ].setDegenPoint( degenPoint );
+        }
 
 
     }
@@ -3722,41 +3743,41 @@ void MeshGeom::MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSli
     //==== Clean Up Mess ====//
     for ( j = 0; j < tetraVecVec.size(); j++ )
     {
-        for ( i = 0 ; i < ( int )tetraVecVec[j].size() ; i++ )
+        for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
         {
-            delete tetraVecVec[j][i];
+            delete tetraVecVec[ j ][ i ];
         }
     }
 
-    for ( i = 0 ; i < ( int )triShellVec.size() ; i++ )
+    for ( i = 0; i < ( int ) triShellVec.size(); i++ )
     {
-        delete triShellVec[i];
+        delete triShellVec[ i ];
     }
 
     if ( !degen )
     {
-    //==== Get Rid of TMeshes  that are not shells ====//
-    vector<TMesh*> newTMeshVec;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        if ( m_TMeshVec[i]->m_ShellFlag )
+        //==== Get Rid of TMeshes  that are not shells ====//
+        vector < TMesh * > newTMeshVec;
+        for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
         {
-            newTMeshVec.push_back( m_TMeshVec[i] );
+            if ( m_TMeshVec[ i ]->m_ShellFlag )
+            {
+                newTMeshVec.push_back( m_TMeshVec[ i ] );
+            }
+            else
+            {
+                delete m_TMeshVec[ i ];
+            }
         }
-        else
-        {
-            delete m_TMeshVec[i];
-        }
-    }
-    m_TMeshVec = newTMeshVec;
+        m_TMeshVec = newTMeshVec;
 
 //  res->WriteCSVFile("junk.txt");
 
-    if( writefile )
-    {
-        string f_name = m_Vehicle->getExportFileName( vsp::MASS_PROP_TXT_TYPE );
-        res->WriteMassProp( f_name );
-    }
+        if ( writefile )
+        {
+            string f_name = m_Vehicle->getExportFileName( vsp::MASS_PROP_TXT_TYPE );
+            res->WriteMassProp( f_name );
+        }
     }
 }
 
