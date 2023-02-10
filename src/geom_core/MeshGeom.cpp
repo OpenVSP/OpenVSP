@@ -3355,51 +3355,51 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
         vec3d cgSolid( 0, 0, 0 ), cgShell( 0, 0, 0 );
         double compVolSolid = 0.0, compAreaShell = 0.0;
 
-            id_vec.push_back( id );
+        id_vec.push_back( id );
 
-            for ( j = 0; j < tetraVecVec.size(); j++ )
+        for ( j = 0; j < tetraVecVec.size(); j++ )
+        {
+            for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
             {
-                for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+                if ( !tetraVecVec[ j ][ i ]->m_CompId.compare( id ))
                 {
-                    if ( !tetraVecVec[ j ][ i ]->m_CompId.compare( id ))
-                    {
-                        compVol += tetraVecVec[ j ][ i ]->m_Vol;
-                        compMass += tetraVecVec[ j ][ i ]->m_Mass;
-                        cg = cg + tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Mass;
+                    compVol += tetraVecVec[ j ][ i ]->m_Vol;
+                    compMass += tetraVecVec[ j ][ i ]->m_Mass;
+                    cg = cg + tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Mass;
 
-                        compVolSolid += tetraVecVec[ j ][ i ]->m_Vol;
-                        cgSolid = cgSolid + tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Vol;
-                    }
+                    compVolSolid += tetraVecVec[ j ][ i ]->m_Vol;
+                    cgSolid = cgSolid + tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Vol;
                 }
             }
+        }
 
-            for ( i = 0; i < ( int ) triShellVec.size(); i++ )
+        for ( i = 0; i < ( int ) triShellVec.size(); i++ )
+        {
+            if ( !triShellVec[ i ]->m_CompId.compare( id ))
             {
-                if ( !triShellVec[ i ]->m_CompId.compare( id ))
-                {
-                    compMass += triShellVec[ i ]->m_Mass;
-                    cg = cg + triShellVec[ i ]->m_CG * triShellVec[ i ]->m_Mass;
+                compMass += triShellVec[ i ]->m_Mass;
+                cg = cg + triShellVec[ i ]->m_CG * triShellVec[ i ]->m_Mass;
 
-                    compAreaShell += triShellVec[ i ]->m_TriArea;
-                    cgShell = cgShell + triShellVec[ i ]->m_CG * triShellVec[ i ]->m_TriArea;
-                }
+                compAreaShell += triShellVec[ i ]->m_TriArea;
+                cgShell = cgShell + triShellVec[ i ]->m_CG * triShellVec[ i ]->m_TriArea;
             }
+        }
 
-            if ( compMass )
-            {
-                cg = cg * ( 1.0 / compMass );
-            }
-            if ( compVolSolid )
-            {
-                cgSolid = cgSolid * ( 1.0 / compVolSolid );
-            }
-            if ( compAreaShell )
-            {
-                cgShell = cgShell * ( 1.0 / compAreaShell );
-            }
+        if ( compMass )
+        {
+            cg = cg * ( 1.0 / compMass );
+        }
+        if ( compVolSolid )
+        {
+            cgSolid = cgSolid * ( 1.0 / compVolSolid );
+        }
+        if ( compAreaShell )
+        {
+            cgShell = cgShell * ( 1.0 / compAreaShell );
+        }
 
-            compSolidCg.push_back( cgSolid );
-            compShellCg.push_back( cgShell );
+        compSolidCg.push_back( cgSolid );
+        compShellCg.push_back( cgShell );
 
 
 
@@ -3424,97 +3424,97 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
         double compShellIxz = 0.0;
         double compShellIyz = 0.0;
 
-            for ( j = 0; j < tetraVecVec.size(); j++ )
+        for ( j = 0; j < tetraVecVec.size(); j++ )
+        {
+            for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
             {
-                for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
+                TetraMassProp *tet = tetraVecVec[ j ][ i ];
+                if ( !tet->m_CompId.compare( id ))
                 {
-                    TetraMassProp *tet = tetraVecVec[ j ][ i ];
-                    if ( !tet->m_CompId.compare( id ))
-                    {
-                        compIxx += tet->m_Ixx + tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()) +
-                                                               ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
-                        compIyy += tet->m_Iyy + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
-                                                               ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
-                        compIzz += tet->m_Izz + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
-                                                               ( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()));
+                    compIxx += tet->m_Ixx + tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()) +
+                                                           ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                    compIyy += tet->m_Iyy + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                                           ( cg.z() - tet->m_CG.z()) * ( cg.z() - tet->m_CG.z()));
+                    compIzz += tet->m_Izz + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.x() - tet->m_CG.x()) +
+                                                           ( cg.y() - tet->m_CG.y()) * ( cg.y() - tet->m_CG.y()));
 
-                        compIxy += tet->m_Ixy + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.y() - tet->m_CG.y()));
-                        compIxz += tet->m_Ixz + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.z() - tet->m_CG.z()));
-                        compIyz += tet->m_Iyz + tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.z() - tet->m_CG.z()));
+                    compIxy += tet->m_Ixy + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.y() - tet->m_CG.y()));
+                    compIxz += tet->m_Ixz + tet->m_Mass * (( cg.x() - tet->m_CG.x()) * ( cg.z() - tet->m_CG.z()));
+                    compIyz += tet->m_Iyz + tet->m_Mass * (( cg.y() - tet->m_CG.y()) * ( cg.z() - tet->m_CG.z()));
 
-                        compSolidIxx += tet->m_Ixx + tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()) +
-                                                                   ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
-                        compSolidIyy += tet->m_Iyy + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
-                                                                   ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
-                        compSolidIzz += tet->m_Izz + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
-                                                                   ( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()));
+                    compSolidIxx += tet->m_Ixx + tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()) +
+                                                               ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
+                    compSolidIyy += tet->m_Iyy + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
+                                                               ( cgSolid.z() - tet->m_CG.z()) * ( cgSolid.z() - tet->m_CG.z()));
+                    compSolidIzz += tet->m_Izz + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.x() - tet->m_CG.x()) +
+                                                               ( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.y() - tet->m_CG.y()));
 
-                        compSolidIxy += tet->m_Ixy + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.y() - tet->m_CG.y()));
-                        compSolidIxz += tet->m_Ixz + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.z() - tet->m_CG.z()));
-                        compSolidIyz += tet->m_Iyz + tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.z() - tet->m_CG.z()));
-                    }
+                    compSolidIxy += tet->m_Ixy + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.y() - tet->m_CG.y()));
+                    compSolidIxz += tet->m_Ixz + tet->m_Vol * (( cgSolid.x() - tet->m_CG.x()) * ( cgSolid.z() - tet->m_CG.z()));
+                    compSolidIyz += tet->m_Iyz + tet->m_Vol * (( cgSolid.y() - tet->m_CG.y()) * ( cgSolid.z() - tet->m_CG.z()));
                 }
             }
-            for ( i = 0; i < ( int ) triShellVec.size(); i++ )
+        }
+        for ( i = 0; i < ( int ) triShellVec.size(); i++ )
+        {
+            TriShellMassProp *trs = triShellVec[ i ];
+            if ( !trs->m_CompId.compare( id ))
             {
-                TriShellMassProp *trs = triShellVec[ i ];
-                if ( !trs->m_CompId.compare( id ))
-                {
-                    compIxx += trs->m_Ixx + trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()) +
-                                                           ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
-                    compIyy += trs->m_Iyy + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
-                                                           ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
-                    compIzz += trs->m_Izz + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
-                                                           ( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()));
+                compIxx += trs->m_Ixx + trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()) +
+                                                       ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+                compIyy += trs->m_Iyy + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                                       ( cg.z() - trs->m_CG.z()) * ( cg.z() - trs->m_CG.z()));
+                compIzz += trs->m_Izz + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.x() - trs->m_CG.x()) +
+                                                       ( cg.y() - trs->m_CG.y()) * ( cg.y() - trs->m_CG.y()));
 
-                    compIxy += trs->m_Ixy + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.y() - trs->m_CG.y()));
-                    compIxz += trs->m_Ixz + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.z() - trs->m_CG.z()));
-                    compIyz += trs->m_Iyz + trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.z() - trs->m_CG.z()));
+                compIxy += trs->m_Ixy + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.y() - trs->m_CG.y()));
+                compIxz += trs->m_Ixz + trs->m_Mass * (( cg.x() - trs->m_CG.x()) * ( cg.z() - trs->m_CG.z()));
+                compIyz += trs->m_Iyz + trs->m_Mass * (( cg.y() - trs->m_CG.y()) * ( cg.z() - trs->m_CG.z()));
 
-                    compShellIxx += trs->m_Ixx + trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()) +
-                                                                   ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
-                    compShellIyy += trs->m_Iyy + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
-                                                                   ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
-                    compShellIzz += trs->m_Izz + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
-                                                                   ( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()));
+                compShellIxx += trs->m_Ixx + trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()) +
+                                                               ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
+                compShellIyy += trs->m_Iyy + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
+                                                               ( cgShell.z() - trs->m_CG.z()) * ( cgShell.z() - trs->m_CG.z()));
+                compShellIzz += trs->m_Izz + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.x() - trs->m_CG.x()) +
+                                                               ( cgShell.y() - trs->m_CG.y()) * ( cgShell.y() - trs->m_CG.y()));
 
-                    compShellIxy += trs->m_Ixy + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.y() - trs->m_CG.y()));
-                    compShellIxz += trs->m_Ixz + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.z() - trs->m_CG.z()));
-                    compShellIyz += trs->m_Iyz + trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.z() - trs->m_CG.z()));
-                }
+                compShellIxy += trs->m_Ixy + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.y() - trs->m_CG.y()));
+                compShellIxz += trs->m_Ixz + trs->m_TriArea * (( cgShell.x() - trs->m_CG.x()) * ( cgShell.z() - trs->m_CG.z()));
+                compShellIyz += trs->m_Iyz + trs->m_TriArea * (( cgShell.y() - trs->m_CG.y()) * ( cgShell.z() - trs->m_CG.z()));
             }
+        }
 
-            //==== Load Component Results ====//
-            name_vec.push_back( tm->m_NameStr );
-            mass_vec.push_back( compMass );
-            cg_vec.push_back( cg );
-            ixx_vec.push_back( compIxx );
-            iyy_vec.push_back( compIyy );
-            izz_vec.push_back( compIzz );
-            ixy_vec.push_back( compIxy );
-            ixz_vec.push_back( compIxz );
-            iyz_vec.push_back( compIyz );
-            vol_vec.push_back( compVol );
+        //==== Load Component Results ====//
+        name_vec.push_back( tm->m_NameStr );
+        mass_vec.push_back( compMass );
+        cg_vec.push_back( cg );
+        ixx_vec.push_back( compIxx );
+        iyy_vec.push_back( compIyy );
+        izz_vec.push_back( compIzz );
+        ixy_vec.push_back( compIxy );
+        ixz_vec.push_back( compIxz );
+        iyz_vec.push_back( compIyz );
+        vol_vec.push_back( compVol );
 
-            vector < double > tempSolidI;
-            tempSolidI.push_back( compSolidIxx );
-            tempSolidI.push_back( compSolidIyy );
-            tempSolidI.push_back( compSolidIzz );
-            tempSolidI.push_back( compSolidIxy );
-            tempSolidI.push_back( compSolidIxz );
-            tempSolidI.push_back( compSolidIyz );
+        vector < double > tempSolidI;
+        tempSolidI.push_back( compSolidIxx );
+        tempSolidI.push_back( compSolidIyy );
+        tempSolidI.push_back( compSolidIzz );
+        tempSolidI.push_back( compSolidIxy );
+        tempSolidI.push_back( compSolidIxz );
+        tempSolidI.push_back( compSolidIyz );
 
-            compSolidI.push_back( tempSolidI );
+        compSolidI.push_back( tempSolidI );
 
-            vector < double > tempShellI;
-            tempShellI.push_back( compShellIxx );
-            tempShellI.push_back( compShellIyy );
-            tempShellI.push_back( compShellIzz );
-            tempShellI.push_back( compShellIxy );
-            tempShellI.push_back( compShellIxz );
-            tempShellI.push_back( compShellIyz );
+        vector < double > tempShellI;
+        tempShellI.push_back( compShellIxx );
+        tempShellI.push_back( compShellIyy );
+        tempShellI.push_back( compShellIzz );
+        tempShellI.push_back( compShellIxy );
+        tempShellI.push_back( compShellIxz );
+        tempShellI.push_back( compShellIyz );
 
-            compShellI.push_back( tempShellI );
+        compShellI.push_back( tempShellI );
 
     }
 
