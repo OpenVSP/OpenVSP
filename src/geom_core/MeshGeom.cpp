@@ -2319,67 +2319,8 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     }
     m_BBox = b;
 
-    double xMin;
-    double xMax;
-    if ( autoBounds )
-    {
-        xMin = m_BBox.GetMin( 0 ) - 0.0001;
-        xMax = m_BBox.GetMax( 0 ) + 0.0001;
-    }
-    else
-    {
-        xMin = start - 0.0001;
-        xMax = end + 0.0001;
-    }
-
-    vec3d norm( 1, 0, 0 );
-
-    double dxSlice = 1.0;
-    if ( numSlices > 1 )
-    {
-        dxSlice = ( xMax - xMin ) / ( double )( numSlices - 1 );
-    }
-
     vector< double > loc_vec;
-    for ( s = 0 ; s < numSlices ; s++ )
-    {
-        TMesh* tm = new TMesh();
-        m_SliceVec.push_back( tm );
-
-        tm->m_ThickSurf = false;
-        tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
-
-        double x = xMin + ( double )s * dxSlice;
-        loc_vec.push_back( x );
-
-        double ydel = 1.02 * ( m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 ) );
-        double ys   = m_BBox.GetMin( 1 ) - 0.01 * ydel;
-        double zdel = 1.02 * ( m_BBox.GetMax( 2 ) - m_BBox.GetMin( 2 ) );
-        double zs   = m_BBox.GetMin( 2 ) - 0.01 * zdel;
-
-        if ( tesselate )
-        {
-            for ( i = 0 ; i < 10 ; i++ )
-            {
-                double y0 = ys + ydel * 0.1 * ( double )i;
-                double y1 = ys + ydel * 0.1 * ( double )( i + 1 );
-
-                for ( j = 0 ; j < 10 ; j++ )
-                {
-                    double z0 = zs + zdel * 0.1 * ( double )j;
-                    double z1 = zs + zdel * 0.1 * ( double )( j + 1 );
-
-                    tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z0 ), vec3d( x, y1, z1 ), norm );
-                    tm->AddTri( vec3d( x, y0, z0 ), vec3d( x, y1, z1 ), vec3d( x, y0, z1 ), norm );
-                }
-            }
-        }
-        else
-        {
-            tm->AddTri( vec3d( x, ys, zs ), vec3d( x, ys + ydel, zs ), vec3d( x, ys + ydel, zs + zdel ), norm );
-            tm->AddTri( vec3d( x, ys, zs ), vec3d( x, ys + ydel, zs + zdel ), vec3d( x, ys, zs + zdel ), norm );
-        }
-    }
+    double dxSlice = MakeSlices( numSlices, vsp::X_DIR, loc_vec );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size() );
