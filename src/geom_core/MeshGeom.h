@@ -152,7 +152,7 @@ public:
     virtual void MassSlice( vector< DegenGeom > &degenGeom, bool degen, int numSlices, int idir = vsp::X_DIR, bool writefile = true );
     virtual double MakeSlices( int numSlices, int swdir, vector < double > &slicevec, bool mpslice = true, bool tesselate = true, bool autoBounds = true, double start = 0, double end = 0, int slctype = vsp::CFD_STRUCTURE );
 
-    virtual void AreaSlice( int numSlices, vec3d norm, bool autoBounds, double start = 0, double end = 0 );
+    virtual void AreaSlice( int numSlices, vec3d norm, bool autoBounds, double start, double end, bool measureduct );
 
     virtual void WaveStartEnd( const double &sliceAngle, const vec3d &center );
     virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,

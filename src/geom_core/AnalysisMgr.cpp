@@ -883,6 +883,7 @@ void PlanarSliceAnalysis::SetDefaults()
     m_Inputs.Add( NameValData( "AutoBoundFlag", veh->m_AutoBoundsFlag.Get() ) );
     m_Inputs.Add( NameValData( "StartVal", veh->m_PlanarStartLocation.Get() ) );
     m_Inputs.Add( NameValData( "EndVal", veh->m_PlanarEndLocation.Get() ) );
+    m_Inputs.Add( NameValData( "MeasureDuct", veh->m_PlanarMeasureDuct.Get() ) );
 }
 
 string PlanarSliceAnalysis::Execute()
@@ -898,6 +899,7 @@ string PlanarSliceAnalysis::Execute()
         vec3d axis( 1.0, 0.0, 0.0 );
         bool autobnd = true;
         double start = 0.0, end = 10.0;
+        bool measureduct = false;
 
         NameValData *nvd = NULL;
 
@@ -945,7 +947,21 @@ string PlanarSliceAnalysis::Execute()
             end = nvd->GetDouble( 0 );
         }
 
-        string geom = veh->PSliceAndFlatten( geomSet, numSlice,  axis,  autobnd,  start,  end  );
+        nvd = m_Inputs.FindPtr( "MeasureDuct", 0 );
+        if ( nvd )
+        {
+            int md = nvd->GetInt( 0 );
+            if ( md == 1 )
+            {
+                measureduct = true;
+            }
+            else
+            {
+                measureduct = false;
+            }
+        }
+
+        string geom = veh->PSliceAndFlatten( geomSet, numSlice,  axis,  autobnd,  start,  end, measureduct  );
 
         res = ResultsMgr.FindLatestResultsID( "Slice" );
     }

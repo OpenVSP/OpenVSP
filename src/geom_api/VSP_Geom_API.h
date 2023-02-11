@@ -76,7 +76,7 @@ extern void SetComputationFileName( int file_type, const std::string & file_name
 extern std::string ComputeMassProps( int set, int num_slices, int idir );
 extern std::string ComputeCompGeom( int set, bool half_mesh, int file_export_types );
 extern std::string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto_bnd,
-                                 double start_bnd = 0, double end_bnd = 0 );
+                                 double start_bnd = 0, double end_bnd = 0, bool measureduct = false );
 extern void ComputeDegenGeom( int set, int file_export_types );
 extern void ComputeCFDMesh( int set, int degenset, int file_export_types );
 extern void SetCFDMeshVal( int type, double val );

@@ -7,7 +7,7 @@
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
 
-PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 450, "Planar Slicing" )
+PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 490, "Planar Slicing" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -47,6 +47,11 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 450, "Plan
     m_BorderLayout.AddSlider( m_StartLocSlider, "Start Location", 10, "%6.3f" );
 
     m_BorderLayout.AddSlider( m_EndLocSlider, "End Location", 10, "%6.3f" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddDividerBox( "Alternate Mode" );
+
+    m_BorderLayout.AddButton( m_MeasureDuctButton, "Measure Duct" );
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddDividerBox( "Output File" );
@@ -130,6 +135,8 @@ bool PSliceScreen::Update()
 
     m_AutoButton.Update( veh->m_AutoBoundsFlag.GetID() );
 
+    m_MeasureDuctButton.Update( veh->m_PlanarMeasureDuct.GetID() );
+
     m_FileSelect.Update( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
 
     m_AxisChoice.Update( veh->m_PlanarAxisType.GetID() );
@@ -199,7 +206,7 @@ void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_StartSlicingTrigger )
     {
         string id = veh->PSliceAndFlatten( m_SelectedSetIndex, veh->m_NumPlanerSlices.Get(), m_Norm,
-                                           !!veh->m_AutoBoundsFlag.Get(), veh->m_PlanarStartLocation.Get(), veh->m_PlanarEndLocation.Get() );
+                                           !!veh->m_AutoBoundsFlag.Get(), veh->m_PlanarStartLocation.Get(), veh->m_PlanarEndLocation.Get(), veh->m_PlanarMeasureDuct.Get() );
         if ( id.compare( "NONE" ) != 0 )
         {
             m_TextBuffer->loadfile( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );

@@ -4513,9 +4513,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [in] auto_bnd Flag to automatically set the start and end bound locations
     \param [in] start_bnd Location of the first slice along the normal axis (default: 0.0)
     \param [in] end_bnd Location of the last slice along the normal axis (default: 0.0)
+    \param [in] measureduct Flag to measure negative area inside positive area (default: false)
     \return MeshGeom ID
 */)";
-    r = se->RegisterGlobalFunction( "string ComputePlaneSlice( int set, int num_slices, const vec3d & in norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0 )", vspFUNCTION( vsp::ComputePlaneSlice ), vspCALL_CDECL, doc_struct );
+    r = se->RegisterGlobalFunction( "string ComputePlaneSlice( int set, int num_slices, const vec3d & in norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0, bool measureduct = false )", vspFUNCTION( vsp::ComputePlaneSlice ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(

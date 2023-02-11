@@ -53,6 +53,7 @@ protected:
     StringOutput m_FileSelect;
 
     ToggleButton m_AutoButton;
+    ToggleButton m_MeasureDuctButton;
     TriggerButton m_FileTrigger;
     TriggerButton m_StartSlicingTrigger;
 

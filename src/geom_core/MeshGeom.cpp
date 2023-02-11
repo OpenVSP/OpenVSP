@@ -2198,7 +2198,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 
 //==== Call After BndBoxes Have Been Create But Before Intersect ====//
 void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
-                          bool autoBounds, double start, double end )
+                          bool autoBounds, double start, double end, bool measureduct )
 {
     int i, j, s;
 
@@ -2319,6 +2319,10 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     m_BBox = b;
 
     int slctype = vsp::CFD_STRUCTURE;
+    if ( measureduct )
+    {
+        slctype = vsp::CFD_MEASURE_DUCT;
+    }
 
     vector< double > loc_vec;
     bool mpslice = false; // Do counting for mass properties slicing.

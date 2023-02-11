@@ -259,8 +259,8 @@ public:
     string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE, bool hideset = true, bool suppressdisks = false );
     string MassProps( int set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
     string MassPropsAndFlatten( int set, int numSlices, int idir = vsp::X_DIR, bool hidegeom = true, bool writefile = true );
-    string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
-    string PSliceAndFlatten( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );
+    string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start, double end, bool measureduct );
+    string PSliceAndFlatten( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start, double end, bool measureduct );
 
     //==== Degenerate Geometry ====//
     void CreateDegenGeom( int set );
@@ -329,6 +329,7 @@ public:
     Parm m_PlanarStartLocation;
     Parm m_PlanarEndLocation;
     IntParm m_PlanarAxisType;
+    BoolParm m_PlanarMeasureDuct;
 
     Parm m_BbXLen;
     Parm m_BbYLen;

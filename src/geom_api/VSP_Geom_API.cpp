@@ -494,12 +494,12 @@ void ComputeDegenGeom( int set, int file_export_types )
 }
 
 //==== Compute Plane Slice =====//
-string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto_bnd, double start_bnd, double end_bnd )
+string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto_bnd, double start_bnd, double end_bnd, bool measureduct )
 {
     Update();
     Vehicle* veh = GetVehicle();
 
-    string id = veh->PSliceAndFlatten( set, num_slices, norm, auto_bnd, start_bnd, end_bnd );
+    string id = veh->PSliceAndFlatten( set, num_slices, norm, auto_bnd, start_bnd, end_bnd, measureduct );
 
     if ( id.size() == 0 )
     {

@@ -265,6 +265,9 @@ Vehicle::Vehicle()
     m_PlanarEndLocation.Init( "PlanarEndLocation", "PSlice", this, 10, -1e12, 1e12 );
     m_PlanarEndLocation.SetDescript( "Planar End Location" );
 
+    m_PlanarMeasureDuct.Init( "MeasureDuctFlag", "PSlice", this, false, false, true );
+    m_PlanarMeasureDuct.SetDescript( "Flag to measure negative area inside positive areas" );
+
     SetupPaths();
     m_VehProjectVec3d.resize( 3 );
     m_ColorCount = 0;
@@ -4732,7 +4735,7 @@ string Vehicle::MassPropsAndFlatten( int set, int numSlices, int idir, bool hide
     return id;
 }
 
-string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag, double start, double end )
+string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag, double start, double end, bool measureduct )
 {
 
     string id = AddMeshGeom( set );
@@ -4751,7 +4754,7 @@ string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag,
 
     if ( mesh_ptr->m_TMeshVec.size() )
     {
-        mesh_ptr->AreaSlice( numSlices, axis, autoBoundsFlag, start, end );
+        mesh_ptr->AreaSlice( numSlices, axis, autoBoundsFlag, start, end, measureduct );
     }
     else
     {
@@ -4763,9 +4766,9 @@ string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag,
     return id;
 }
 
-string Vehicle::PSliceAndFlatten( int set, int numSlices, vec3d axis, bool autoBoundsFlag, double start, double end )
+string Vehicle::PSliceAndFlatten( int set, int numSlices, vec3d axis, bool autoBoundsFlag, double start, double end, bool measureduct )
 {
-    string id = PSlice( set, numSlices, axis, autoBoundsFlag, start, end );
+    string id = PSlice( set, numSlices, axis, autoBoundsFlag, start, end, measureduct );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {
