@@ -719,6 +719,8 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
         return true;
     }
 
+    bool aInOneNormal = false;
+
     for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
     {
         bool aInThisB = aInB[b];
@@ -728,6 +730,11 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
         // Can make absolute decisions about deleting a triangle or not in the cases below
         if ( aInThisB && bThick )
         {
+            if( bType == vsp::CFD_NORMAL )
+            {
+                aInOneNormal = true;
+            }
+
             // Normal(Positive) inside another Normal, or Negative inside another Negative
             if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT && aType != vsp::CFD_STRUCTURE ) )
             {
@@ -761,7 +768,8 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
     // Flip sense of default value.  These things do not exist in 'free space'.
     if ( aType == vsp::CFD_NEGATIVE ||
          aType == vsp::CFD_STRUCTURE ||
-         aType == vsp::CFD_STIFFENER )   // Stiffener is special case -- always true previously.
+         aType == vsp::CFD_STIFFENER ||  // Stiffener is special case -- always true previously.
+         aType == vsp::CFD_MEASURE_DUCT )
     {
         ignoretri = true;
     }
@@ -782,6 +790,10 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
             else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NORMAL )
             {
                 return true;
+            }
+            if ( aType == vsp::CFD_MEASURE_DUCT && aInOneNormal && bType == vsp::CFD_NEGATIVE )
+            {
+                return false;
             }
         }
     }

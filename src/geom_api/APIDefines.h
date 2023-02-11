@@ -673,6 +673,7 @@ enum VSP_SURF_CFD_TYPE { CFD_NORMAL,
                          CFD_TRANSPARENT,
                          CFD_STRUCTURE,
                          CFD_STIFFENER,
+                         CFD_MEASURE_DUCT,
                          CFD_NUM_TYPES,
                        };
 
