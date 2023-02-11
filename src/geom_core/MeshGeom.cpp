@@ -2319,8 +2319,10 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     }
     m_BBox = b;
 
+    int slctype = vsp::CFD_STRUCTURE;
+
     vector< double > loc_vec;
-    double dxSlice = MakeSlices( numSlices, vsp::X_DIR, loc_vec );
+    double dxSlice = MakeSlices( numSlices, vsp::X_DIR, loc_vec, slctype );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size() );
@@ -3605,7 +3607,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
     }
 }
 
-double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicevec )
+double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicevec, int slctype )
 {
     int s, i, j;
 
@@ -3645,7 +3647,7 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
         TMesh* tm = new TMesh();
 
         tm->m_ThickSurf = false;
-        tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
+        tm->m_SurfCfdType = slctype;
 
         m_SliceVec.push_back( tm );
 
