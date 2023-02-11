@@ -2200,7 +2200,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
 void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
                           bool autoBounds, double start, double end )
 {
-    int tesselate = 0; // WARNING: Always false
     int i, j, s;
 
     //==== Transform mesh geoms to align with cutting plane normal vector ====//
@@ -2322,7 +2321,9 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     int slctype = vsp::CFD_STRUCTURE;
 
     vector< double > loc_vec;
-    double dxSlice = MakeSlices( numSlices, vsp::X_DIR, loc_vec, slctype );
+    bool mpslice = false; // Do counting for mass properties slicing.
+    bool tesselate = false; // Sub-tessellate slice into smaller triangles.
+    double dxSlice = MakeSlices( numSlices, vsp::X_DIR, loc_vec, mpslice, tesselate, autoBounds, start, end, slctype );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size() );
@@ -3607,7 +3608,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
     }
 }
 
-double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicevec, int slctype )
+double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicevec, bool mpslice, bool tesselate, bool autoBounds, double start, double end, int slctype )
 {
     int s, i, j;
 
@@ -3628,10 +3629,28 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
         dir2 = vsp::Y_DIR;
     }
 
-    double swMin = m_BBox.GetMin( swdir );
-    double swMax = m_BBox.GetMax( swdir );
+    double swMin;
+    double swMax;
+    if ( autoBounds )
+    {
+        swMin = m_BBox.GetMin( swdir ) - 0.0001;
+        swMax = m_BBox.GetMax( swdir ) + 0.0001;
+    }
+    else
+    {
+        swMin = start - 0.0001;
+        swMax = end + 0.0001;
+    }
 
-    double sliceW = ( swMax - swMin ) / ( double )( numSlices );
+    double sliceW;
+    if ( mpslice )
+    {
+        sliceW = ( swMax - swMin ) / ( double )( numSlices );
+    }
+    else
+    {
+        sliceW = ( swMax - swMin ) / ( double )( numSlices - 1 );
+    }
     slicevec.resize( numSlices );
 
     double del1 = 1.02 * ( m_BBox.GetMax( dir1 ) - m_BBox.GetMin( dir1 ) );
@@ -3651,9 +3670,19 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
 
         m_SliceVec.push_back( tm );
 
-        double sw = swMin + ( double )s * sliceW + 0.5 * sliceW;
+        double sw;
+        if ( mpslice )
+        {
+            sw = swMin + ( double )s * sliceW + 0.5 * sliceW;
+        }
+        else
+        {
+            sw = swMin + ( double )s * sliceW;
+        }
         slicevec[s] = sw;
 
+        if ( tesselate )
+        {
         for ( i = 0 ; i < 10 ; i++ )
         {
             double d10 = s1 + del1 * 0.1 * ( double )i;
@@ -3684,6 +3713,29 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
                 tm->AddTri( p1, p2, p3, n );
                 tm->AddTri( p1, p3, p4, n );
             }
+        }
+        }
+        else
+        {
+            vec3d p1, p2, p3, p4;
+            p1[swdir] = sw;
+            p1[dir1] = s1;
+            p1[dir2] = s2;
+
+            p2[swdir] = sw;
+            p2[dir1] = s1 + del1;
+            p2[dir2] = s2;
+
+            p3[swdir] = sw;
+            p3[dir1] = s1 + del1;
+            p3[dir2] = s2 + del2;
+
+            p4[swdir] = sw;
+            p4[dir1] = s1;
+            p4[dir2] = s2 + del2;
+
+            tm->AddTri( p1, p2, p3, n );
+            tm->AddTri( p1, p3, p4, n );
         }
     }
     return sliceW;
