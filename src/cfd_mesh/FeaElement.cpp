@@ -195,11 +195,20 @@ void FeaTri::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
 
 void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
 {
-    vec3d x_element = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
-    x_element.normalize();
-    vec3d x_axis = vec3d( 1.0, 0.0, 0.0 );
+    vec3d v01 = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
+    vec3d v12 = m_Corners[2]->m_Pnt - m_Corners[1]->m_Pnt;
+    v01.normalize();
+    v12.normalize();
+    vec3d norm = cross( v01, v12);
+    norm.normalize();
 
-    double theta_material = RAD_2_DEG * signed_angle( x_element, m_Orientation, x_axis );
+    double theta_material = RAD_2_DEG * signed_angle( v01, m_Orientation, norm );
+
+    if ( theta_material < 0 )
+    {
+        theta_material += 180.0;
+    }
+
 
     if ( m_ElementType == FEA_TRI_3 )
     {
@@ -339,11 +348,19 @@ void FeaQuad::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
 }
 void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
 {
-    vec3d x_element = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
-    x_element.normalize();
-    vec3d x_axis = vec3d( 1.0, 0.0, 0.0 );
+    vec3d v01 = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
+    vec3d v12 = m_Corners[2]->m_Pnt - m_Corners[1]->m_Pnt;
+    v01.normalize();
+    v12.normalize();
+    vec3d norm = cross( v01, v12);
+    norm.normalize();
 
-    double theta_material = RAD_2_DEG * signed_angle( x_element, m_Orientation, x_axis );
+    double theta_material = RAD_2_DEG * signed_angle( v01, m_Orientation, norm );
+
+    if ( theta_material < 0 )
+    {
+        theta_material += 180.0;
+    }
 
     if ( m_ElementType == FEA_QUAD_4 )
     {
