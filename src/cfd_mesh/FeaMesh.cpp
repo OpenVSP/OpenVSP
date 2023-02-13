@@ -986,7 +986,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
     {
         string name;
         vector < int > shell_elem_id_vec, beam_elem_id_vec;
-        int elem_id = 0;
+        int elem_id = 1;
 
         // Write FeaFixPoints
         for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
@@ -1375,7 +1375,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
     if ( fp )
     {
-        int elem_id = 0;
+        int elem_id = 1;
         char str[256];
 
         //==== Write Fixed Points ====//
