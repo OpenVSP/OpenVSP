@@ -637,10 +637,9 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id ) const
     fprintf( fp, "$ %s using %s\n", m_Name.c_str(), m_MaterialName.c_str() );
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
-        string format_string = "PSHELL  ,%8d,%8d," + NasFmt( m_Thickness ) + ",      -1,        ,        ,        ,        ,\n        ,        ,        ,        \n";
+        string format_string = "PSHELL  ,%8d,%8d," + NasFmt( m_Thickness ) + ",%8d,        ,        ,        ,        ,\n        ,        ,        ,        \n";
 
-        // Note: For plane strain analysis, material identification number for bending is set to -1
-        fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Thickness );
+        fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Thickness, m_SimpleFeaMatIndex + 1 );
     }
     if ( m_FeaPropertyType == vsp::FEA_BEAM )
     {
