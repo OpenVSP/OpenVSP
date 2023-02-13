@@ -792,8 +792,8 @@ void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id ) const
                                        NasFmt( m_nu12 ) + "," +
                                        NasFmt( m_G12 ) + "," +
                                        NasFmt( m_G13 ) + "," +
-                                       NasFmt( m_G23 ) + ",\n        ," +
-                                       NasFmt( m_MassDensity ) + "," +
+                                       NasFmt( m_G23 ) + "," +
+                                       NasFmt( m_MassDensity ) + ",\n        ," +
                                        NasFmt( m_A1 ) + "," +
                                        NasFmt( m_A2 ) + "\n";
 
