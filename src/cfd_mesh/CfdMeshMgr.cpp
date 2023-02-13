@@ -910,20 +910,29 @@ void CfdMeshMgrSingleton::ExportFiles()
 void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
 {
     //==== Find All Points and Tri Counts ====//
-    vector< vec3d* > allPntVec;
+    vector< vec3d > allPntVec;
+    vector < vector < int > > allPntKey;
+    allPntKey.resize( m_SurfVec.size() );
+    int k = 0;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        allPntKey[i].resize( sPntVec.size() );
         for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
         {
-            allPntVec.push_back( &sPntVec[v] );
+            allPntVec.push_back( sPntVec[v] );
+            allPntKey[i][v] = k;
+            k++;
         }
     }
 
     //==== Build Map ====//
-    map< int, vector< int > > indMap;
-    vector< int > pntShift;
-    BuildIndMap( allPntVec, indMap, pntShift );
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( allPntVec );
+
+    double tol = 1e-6;
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol );
 
     //==== Assemble Normal Tris ====//
     vector< SimpFace > allFaceVec;
@@ -933,19 +942,19 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         for ( int f = 0 ; f <  ( int )sFaceVec.size() ; f++ )
         {
-            int i0 = FindPntIndex( sPntVec[sFaceVec[f].ind0], allPntVec, indMap );
-            int i1 = FindPntIndex( sPntVec[sFaceVec[f].ind1], allPntVec, indMap );
-            int i2 = FindPntIndex( sPntVec[sFaceVec[f].ind2], allPntVec, indMap );
+            int i0 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind0] );
+            int i1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind1] );
+            int i2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind2] );
             SimpFace sface;
-            sface.ind0 = pntShift[i0];
-            sface.ind1 = pntShift[i1];
-            sface.ind2 = pntShift[i2];
+            sface.ind0 = i0;
+            sface.ind1 = i1;
+            sface.ind2 = i2;
 
             if( sFaceVec[f].m_isQuad )
             {
                 sface.m_isQuad = true;
-                int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], allPntVec, indMap );
-                sface.ind3 = pntShift[i3];
+                int i3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind3] );
+                sface.ind3 = i3;
             }
 
             sface.m_Tags = sFaceVec[f].m_Tags;
@@ -953,10 +962,10 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
         }
     }
     //==== Assemble All Used Points ====//
-    vector< vec3d* > allUsedPntVec;
+    vector< vec3d > allUsedPntVec;
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
     {
-        if ( pntShift[i] >= 0 )
+        if ( pnCloud.UsedNode( i ) )
         {
             allUsedPntVec.push_back( allPntVec[i] );
         }
@@ -978,38 +987,38 @@ void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
 
                 if ( t == tags[itag] )
                 {
-                    vec3d* p0 = allUsedPntVec[sface->ind0];
-                    vec3d* p1 = allUsedPntVec[sface->ind1];
-                    vec3d* p2 = allUsedPntVec[sface->ind2];
-                    vec3d v01 = *p1 - *p0;
-                    vec3d v12 = *p2 - *p1;
+                    vec3d p0 = allUsedPntVec[sface->ind0];
+                    vec3d p1 = allUsedPntVec[sface->ind1];
+                    vec3d p2 = allUsedPntVec[sface->ind2];
+                    vec3d v01 = p1 - p0;
+                    vec3d v12 = p2 - p1;
                     vec3d norm = cross( v01, v12 );
                     norm.normalize();
 
                     fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
                     fprintf( file_id, "   outer loop\n" );
 
-                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0->x(), p0->y(), p0->z() );
-                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p1->x(), p1->y(), p1->z() );
-                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2->x(), p2->y(), p2->z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
 
                     fprintf( file_id, "   endloop\n" );
                     fprintf( file_id, " endfacet\n" );
 
                     if ( sface->m_isQuad ) // Split quad and write additional tri.
                     {
-                        vec3d* p3 = allUsedPntVec[sface->ind3];
-                        vec3d v23 = *p3 - *p2;
-                        vec3d v30 = *p0 - *p3;
+                        vec3d p3 = allUsedPntVec[sface->ind3];
+                        vec3d v23 = p3 - p2;
+                        vec3d v30 = p0 - p3;
                         norm = cross( v23, v30 );
                         norm.normalize();
 
                         fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
                         fprintf( file_id, "   outer loop\n" );
 
-                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0->x(), p0->y(), p0->z() );
-                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2->x(), p2->y(), p2->z() );
-                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p3->x(), p3->y(), p3->z() );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p3.x(), p3.y(), p3.z() );
 
                         fprintf( file_id, "   endloop\n" );
                         fprintf( file_id, " endfacet\n" );
@@ -1068,32 +1077,42 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     }
 
     int face_cnt = 0;
-    vector< vec3d* > allPntVec;
+    vector< vec3d > allPntVec;
+    vector < vector < int > > allPntKey;
+    allPntKey.resize( m_SurfVec.size() );
+    int k = 0;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        allPntKey[i].resize( sPntVec.size() );
         for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
         {
-            allPntVec.push_back( &sPntVec[v] );
+            allPntVec.push_back( sPntVec[v] );
+            allPntKey[i][v] = k;
+            k++;
         }
         face_cnt += m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec().size();
     }
 
     //==== Build Map ====//
-    map< int, vector< int > > indMap;
-    vector< int > pntShift;
-    int numPnts = BuildIndMap( allPntVec, indMap, pntShift );
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( allPntVec );
+
+    double tol = 1e-6;
+
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol );
 
     //===== Write Num Pnts and Tris ====//
     fprintf( fp, "# Part 1 - node list\n" );
-    fprintf( fp, "%d 3 0 0\n", numPnts );
+    fprintf( fp, "%d 3 0 0\n", pnCloud.m_NumUsedPts );
 
     //==== Write Model Pnts ====//
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
     {
-        if ( pntShift[i] >= 0 )
+        if ( pnCloud.UsedNode( i ) )
         {
-            fprintf( fp, "%d %.16g %.16g %.16g\n", i + 1, allPntVec[i]->x(), allPntVec[i]->y(), allPntVec[i]->z() );
+            fprintf( fp, "%d %.16g %.16g %.16g\n", i + 1, allPntVec[i].x(), allPntVec[i].y(), allPntVec[i].z() );
         }
     }
 
@@ -1108,20 +1127,20 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
         {
-            int i0 = FindPntIndex( sPntVec[sFaceVec[f].ind0], allPntVec, indMap );
-            int i1 = FindPntIndex( sPntVec[sFaceVec[f].ind1], allPntVec, indMap );
-            int i2 = FindPntIndex( sPntVec[sFaceVec[f].ind2], allPntVec, indMap );
-            int ind1 = pntShift[i0] + 1;
-            int ind2 = pntShift[i1] + 1;
-            int ind3 = pntShift[i2] + 1;
+            int i0 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind0] );
+            int i1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind1] );
+            int i2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind2] );
+            int ind1 = i0 + 1;
+            int ind2 = i1 + 1;
+            int ind3 = i2 + 1;
             int tag = SubSurfaceMgr.GetTag( sFaceVec[f].m_Tags );
 
             // <# of polygons> [# of holes] [boundary marker]
             fprintf( fp, "1 0 %d\n", tag );
             if( sFaceVec[f].m_isQuad )
             {
-                int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], allPntVec, indMap );
-                int ind4 = pntShift[i3] + 1;
+                int i3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind3] );
+                int ind4 = i3 + 1;
 
                 // <# of corners> <corner 1> <corner 2> <corner 3> <corner 4>
                 fprintf( fp, "4 %d %d %d %d\n", ind1, ind2, ind3, ind4 );
@@ -1231,35 +1250,52 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     double tol = 1e-12;
 
     //==== Find All Points and Tri Counts ====//
-    vector< vec3d* > allPntVec;
-    vector< vec3d* > wakeAllPntVec;
+    vector< vec3d > allPntVec;
+    vector< vec3d > wakeAllPntVec;
+    vector < vector < int > > allPntKey;
+    allPntKey.resize( m_SurfVec.size() );
+    vector < vector < int > > allWPntKey;
+    allWPntKey.resize( m_SurfVec.size() );
+    int k = 0;
+    int wk = 0;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        allPntKey[i].resize( sPntVec.size() );
+        allWPntKey[i].resize( sPntVec.size() );
         for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
         {
             if ( m_SurfVec[i]->GetWakeFlag() )
             {
-                wakeAllPntVec.push_back( &sPntVec[v] );
+                wakeAllPntVec.push_back( sPntVec[v] );
+                allWPntKey[i][v] = wk;
+                wk++;
             }
             else
             {
-                allPntVec.push_back( &sPntVec[v] );
+                allPntVec.push_back( sPntVec[v] );
+                allPntKey[i][v] = k;
+                k++;
             }
         }
     }
 
     //==== Build Map ====//
-    map< int, vector< int > > indMap;
-    vector< int > pntShift;
-    BuildIndMap( allPntVec, indMap, pntShift );
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( allPntVec );
+
+    double tol2 = 1e-6;
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol2 );
 
     //==== Build Wake Map If Available ====//
     map< int, vector< int > > wakeIndMap;
     vector< int > wakePntShift;
+    PntNodeCloud wakepnCloud;
     if ( wakeAllPntVec.size() )
     {
-        BuildIndMap( wakeAllPntVec, wakeIndMap, wakePntShift );
+        wakepnCloud.AddPntNodes( wakeAllPntVec );
+        IndexPntNodes( wakepnCloud, tol2 );
     }
 
     //==== Assemble Normal Tris ====//
@@ -1277,19 +1313,19 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             vector< vec2d >& sUWVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
             for ( int t = 0 ; t <  ( int )sFaceVec.size() ; t++ )
             {
-                int i0 = FindPntIndex( sPntVec[sFaceVec[t].ind0], allPntVec, indMap );
-                int i1 = FindPntIndex( sPntVec[sFaceVec[t].ind1], allPntVec, indMap );
-                int i2 = FindPntIndex( sPntVec[sFaceVec[t].ind2], allPntVec, indMap );
+                int i0 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind0] );
+                int i1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind1] );
+                int i2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind2] );
                 SimpFace sface;
-                sface.ind0 = pntShift[i0] + 1;
-                sface.ind1 = pntShift[i1] + 1;
-                sface.ind2 = pntShift[i2] + 1;
+                sface.ind0 = i0 + 1;
+                sface.ind1 = i1 + 1;
+                sface.ind2 = i2 + 1;
 
                 if( sFaceVec[t].m_isQuad )
                 {
                     sface.m_isQuad = true;
-                    int i3 = FindPntIndex( sPntVec[sFaceVec[t].ind3], allPntVec, indMap );
-                    sface.ind3 = pntShift[i3] + 1;
+                    int i3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind3] );
+                    sface.ind3 = i3 + 1;
                     ntristrict++; // Bonus tri for split quad.
                 }
 
@@ -1322,14 +1358,15 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     if ( ( n0 + n1 + n2 + n3 ) == 2 ) // Two true, one or two false.
                     {
                         // Perform index lookup as above.
-                        int i0 = pntShift[ FindPntIndex( sPntVec[sFaceVec[t].ind0], allPntVec, indMap ) ] + 1;
-                        int i1 = pntShift[ FindPntIndex( sPntVec[sFaceVec[t].ind1], allPntVec, indMap ) ] + 1;
-                        int i2 = pntShift[ FindPntIndex( sPntVec[sFaceVec[t].ind2], allPntVec, indMap ) ] + 1;
+                        int i0 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind0] ) + 1;
+                        int i1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind1] ) + 1;
+                        int i2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind2] ) + 1;
+
 
                         int i3 = -1;
                         if( sFaceVec[t].m_isQuad )
                         {
-                            i3 = pntShift[ FindPntIndex( sPntVec[sFaceVec[t].ind3], allPntVec, indMap ) ] + 1;
+                            i3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[t].ind3] ) + 1;
                         }
 
                         // Add nodes to wake edges, lowest u first.
@@ -1437,10 +1474,10 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
 
     //==== Assemble All Used Points ====//
-    vector< vec3d* > allUsedPntVec;
+    vector< vec3d > allUsedPntVec;
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
     {
-        if ( pntShift[i] >= 0 )
+        if ( pnCloud.UsedNode( i ) )
         {
             allUsedPntVec.push_back( allPntVec[i] );
         }
@@ -1457,19 +1494,20 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             vector< vec2d >& sUWVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
             for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
             {
-                int i0 = FindPntIndex( sPntVec[sFaceVec[f].ind0], wakeAllPntVec, wakeIndMap );
-                int i1 = FindPntIndex( sPntVec[sFaceVec[f].ind1], wakeAllPntVec, wakeIndMap );
-                int i2 = FindPntIndex( sPntVec[sFaceVec[f].ind2], wakeAllPntVec, wakeIndMap );
+                int i0 = wakepnCloud.GetNodeUsedIndex( allWPntKey[i][sFaceVec[f].ind0] );
+                int i1 = wakepnCloud.GetNodeUsedIndex( allWPntKey[i][sFaceVec[f].ind1] );
+                int i2 = wakepnCloud.GetNodeUsedIndex( allWPntKey[i][sFaceVec[f].ind2] );
+
                 SimpFace sface;
-                sface.ind0 = wakePntShift[i0] + 1 + wakeIndOffset;
-                sface.ind1 = wakePntShift[i1] + 1 + wakeIndOffset;
-                sface.ind2 = wakePntShift[i2] + 1 + wakeIndOffset;
+                sface.ind0 = i0 + 1 + wakeIndOffset;
+                sface.ind1 = i1 + 1 + wakeIndOffset;
+                sface.ind2 = i2 + 1 + wakeIndOffset;
 
                 if( sFaceVec[f].m_isQuad )
                 {
                     sface.m_isQuad = true;
-                    int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], wakeAllPntVec, wakeIndMap );
-                    sface.ind3 = wakePntShift[i3] + 1 + wakeIndOffset;
+                    int i3 = wakepnCloud.GetNodeUsedIndex( allWPntKey[i][sFaceVec[f].ind3] );
+                    sface.ind3 = i3 + 1 + wakeIndOffset;
                     ntristrict++; // Bonus tri for split quad
                 }
 
@@ -1495,7 +1533,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     //==== Assemble All Used Points ====//
     for ( int i = 0 ; i < ( int )wakeAllPntVec.size() ; i++ )
     {
-        if ( wakePntShift[i] >= 0 )
+        if ( wakepnCloud.UsedNode( i ) )
         {
             allUsedPntVec.push_back( wakeAllPntVec[i] );
         }
@@ -1516,7 +1554,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Pnts ====//
             for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
             {
-                fprintf( fp, "%.16g %.16g %.16g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->z(), -allUsedPntVec[i]->y() );
+                fprintf( fp, "%.16g %.16g %.16g\n", allUsedPntVec[i].x(), allUsedPntVec[i].z(), -allUsedPntVec[i].y() );
             }
 
             //==== Write Tris ====//
@@ -1554,7 +1592,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Pnts ====//
             for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
             {
-                fprintf( fp, "v %16.10f %16.10f %16.10f\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->z(), -allUsedPntVec[i]->y() );
+                fprintf( fp, "v %16.10f %16.10f %16.10f\n", allUsedPntVec[i].x(), allUsedPntVec[i].z(), -allUsedPntVec[i].y() );
             }
             fprintf( fp, "\n" );
 
@@ -1590,7 +1628,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Pnts ====//
             for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
             {
-                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
+                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
             }
 
             //==== Write Tris ====//
@@ -1635,7 +1673,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
             {
                 fprintf( fp, "%d %16.10f %16.10f %16.10f\n", i + 1,
-                         allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
+                         allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
             }
             fprintf( fp, "$EndNodes\n" );
 
@@ -1677,7 +1715,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             //==== Write Pnts ====//
             for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
             {
-                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
+                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
             }
 
             bool allowquads = true;
@@ -1798,23 +1836,32 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
     // Note: Wake mesh not included in Facet export
 
     //==== Find All Points and Tri Counts ====//
-    vector< vec3d* > allPntVec;
+    vector< vec3d > allPntVec;
+    vector < vector < int > > allPntKey;
+    allPntKey.resize( m_SurfVec.size() );
+    int k = 0;
     for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
     {
         vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        allPntKey[i].resize( sPntVec.size() );
         for ( int v = 0; v < (int)sPntVec.size(); v++ )
         {
             if ( !m_SurfVec[i]->GetWakeFlag() )
             {
-                allPntVec.push_back( &sPntVec[v] );
+                allPntVec.push_back( sPntVec[v] );
+                allPntKey[i][v] = k;
+                k++;
             }
         }
     }
 
     //==== Build Map ====//
-    map< int, vector< int > > indMap;
-    vector< int > pntShift;
-    BuildIndMap( allPntVec, indMap, pntShift );
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( allPntVec );
+
+    double tol = 1e-6;
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol );
 
     //==== Assemble Normal Tris ====//
     vector< SimpFace > allFaceVec;
@@ -1826,29 +1873,29 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
             for ( int f = 0; f < (int)sFaceVec.size(); f++ )
             {
-                int i0 = FindPntIndex( sPntVec[sFaceVec[f].ind0], allPntVec, indMap );
-                int i1 = FindPntIndex( sPntVec[sFaceVec[f].ind1], allPntVec, indMap );
-                int i2 = FindPntIndex( sPntVec[sFaceVec[f].ind2], allPntVec, indMap );
+                int i0 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind0] );
+                int i1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind1] );
+                int i2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind2] );
                 SimpFace sface;
-                sface.ind0 = pntShift[i0] + 1;
-                sface.ind1 = pntShift[i1] + 1;
-                sface.ind2 = pntShift[i2] + 1;
+                sface.ind0 = i0 + 1;
+                sface.ind1 = i1 + 1;
+                sface.ind2 = i2 + 1;
                 sface.m_Tags = sFaceVec[f].m_Tags;
                 if ( sFaceVec[f].m_isQuad )
                 {
                     sface.m_isQuad = true;
-                    int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], allPntVec, indMap );
-                    sface.ind3 = pntShift[i3] + 1;
+                    int i3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind3] );
+                    sface.ind3 = i3 + 1;
                 }
                 allFaceVec.push_back( sface );
             }
         }
     }
     //==== Assemble All Used Points ====//
-    vector< vec3d* > allUsedPntVec;
+    vector< vec3d > allUsedPntVec;
     for ( int i = 0; i < (int)allPntVec.size(); i++ )
     {
-        if ( pntShift[i] >= 0 )
+        if ( pnCloud.UsedNode( i ) )
         {
             allUsedPntVec.push_back( allPntVec[i] );
         }
@@ -1878,7 +1925,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
             //==== Write All Pnts (Nodes) ====//
             for ( int i = 0; i < (int)allUsedPntVec.size(); i++ )
             {
-                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
+                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
             }
 
             vector < int > face_offset; // vector of number of faces for each tag
