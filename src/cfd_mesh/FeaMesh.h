@@ -145,10 +145,8 @@ public:
     vector< FeaElement* > m_FeaElementVec;
 
 
-    vector< FeaNode* > m_FeaNodeVec;
-    vector< vec3d* > m_AllPntVec;
-    map< int, vector< int > > m_IndMap;
-    vector< int > m_PntShift;
+    vector < FeaNode* > m_FeaNodeVec;
+    vector < bool > m_FeaNodeVecUsed;
 
     vector < FixPoint > m_FixPntVec; // Fix point data map.
 

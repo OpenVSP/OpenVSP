@@ -42,19 +42,12 @@ void FeaMesh::Cleanup()
     m_FeaElementVec.clear();
     m_FeaNodeVec.clear();
 
-    for ( unsigned int i = 0; i < m_AllPntVec.size(); i++ )
-    {
-        delete m_AllPntVec[i];
-    }
-    m_AllPntVec.clear();
-
     m_SimpleSubSurfaceVec.clear();
     m_PartSurfOrientation.clear();
 
     m_FixPntVec.clear();
 
-    m_IndMap.clear();
-    m_PntShift.clear();
+    m_FeaNodeVecUsed.clear();
 
     m_StructName = "";
 
@@ -180,7 +173,7 @@ void FeaMesh::UpdateDrawObjs()
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
-            if ( m_PntShift[j] >= 0 )
+            if ( m_FeaNodeVecUsed[ j ] )
             {
                 if ( m_FeaNodeVec[j]->HasTag( iprt ) )
                 {
@@ -194,7 +187,7 @@ void FeaMesh::UpdateDrawObjs()
         {
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
-                if ( m_PntShift[j] >= 0 )
+                if ( m_FeaNodeVecUsed[ j ] )
                 {
                     if ( m_FeaNodeVec[j]->HasTag( iprt ) && m_FeaNodeVec[j]->m_FixedPointFlag )
                     {
@@ -336,7 +329,7 @@ void FeaMesh::UpdateDrawObjs()
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
-            if ( m_PntShift[j] >= 0 )
+            if ( m_FeaNodeVecUsed[ j ] )
             {
                 if ( m_FeaNodeVec[j]->HasTag( iss + m_NumFeaParts ) )
                 {
@@ -857,7 +850,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
             {
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
-                    if ( m_PntShift[j] >= 0 )
+                    if ( m_FeaNodeVecUsed[ j ] )
                     {
                         if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( i ) )
                         {
@@ -893,7 +886,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
             {
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
-                    if ( m_PntShift[j] >= 0 )
+                    if ( m_FeaNodeVecUsed[ j ] )
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
@@ -919,7 +912,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
-                if ( m_PntShift[j] >= 0 )
+                if ( m_FeaNodeVecUsed[ j ] )
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
@@ -940,7 +933,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         bool IntersectHeader = false;
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
-            if ( m_PntShift[j] >= 0 )
+            if ( m_FeaNodeVecUsed[ j ] )
             {
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
                 {
@@ -968,7 +961,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         {
             node_id_vec.clear();
 
-            if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->m_Tags.size() == 0 )
+            if ( m_FeaNodeVecUsed[ i ] && m_FeaNodeVec[i]->m_Tags.size() == 0 )
             {
                 if ( !RemainingHeader )
                 {
@@ -1291,7 +1284,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
 
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
-                    if ( m_PntShift[j] >= 0 )
+                    if ( m_FeaNodeVecUsed[ j ] )
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
@@ -1317,7 +1310,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
 
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
-                if ( m_PntShift[j] >= 0 )
+                if ( m_FeaNodeVecUsed[ j ] )
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
@@ -1338,7 +1331,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         bool IntersectHeader = false;
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
-            if ( m_PntShift[j] >= 0 )
+            if ( m_FeaNodeVecUsed[ j ] )
             {
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 &&
                      !m_FeaNodeVec[j]->m_FixedPointFlag )
@@ -1362,7 +1355,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
         bool RemainingHeader = false;
         for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
         {
-            if ( m_PntShift[i] >= 0 &&
+            if ( m_FeaNodeVecUsed[ i ] &&
                  m_FeaNodeVec[i]->m_Tags.size() == 0 )
             {
                 if ( !RemainingHeader )
@@ -1794,7 +1787,7 @@ void FeaMesh::WriteGmsh()
         int node_count = 0;
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
-            if ( m_PntShift[j] >= 0 )
+            if ( m_FeaNodeVecUsed[ j ] )
             {
                 node_count++;
             }
@@ -1818,7 +1811,7 @@ void FeaMesh::WriteGmsh()
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
-            if ( m_PntShift[j] >= 0 )
+            if ( m_FeaNodeVecUsed[ j ] )
             {
                 m_FeaNodeVec[j]->WriteGmsh( fp, noffset );
             }
