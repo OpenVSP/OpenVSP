@@ -2004,31 +2004,40 @@ string CfdMeshMgrSingleton::CheckWaterTight()
 {
     vector< Face* > faceVec;
 
-    vector< vec3d* > allPntVec;
+    vector< vec3d > allPntVec;
+    vector < vector < int > > allPntKey;
+    allPntKey.resize( m_SurfVec.size() );
+    int k = 0;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         if( m_SurfVec[i]->GetSurfaceCfdType() != vsp::CFD_TRANSPARENT || m_SurfVec[i]->GetFarFlag() || m_SurfVec[i]->GetSymPlaneFlag() )
         {
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+            allPntKey[i].resize( sPntVec.size() );
             for ( int v = 0 ; v < ( int )sPntVec.size() ; v++ )
             {
-                allPntVec.push_back( &sPntVec[v] );
+                allPntVec.push_back( sPntVec[v] );
+                allPntKey[i][v] = k;
+                k++;
             }
         }
     }
 
     //==== Build Map ====//
-    map< int, vector< int > > indMap;
-    vector< int > pntShift;
-    BuildIndMap( allPntVec, indMap, pntShift );
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( allPntVec );
+
+    double tol = 1e-6;
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol );
 
     //==== Create Nodes ====//
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
     {
-        if ( pntShift[i] >= 0 )
+        if ( pnCloud.UsedNode( i ) )
         {
             Node* n = new Node();
-            n->pnt = *allPntVec[i];
+            n->pnt = allPntVec[i];
             m_nodeStore.push_back( n );
         }
     }
@@ -2044,20 +2053,16 @@ string CfdMeshMgrSingleton::CheckWaterTight()
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
             for ( int f = 0 ; f < ( int )sFaceVec.size() ; f++ )
             {
-                int i0 = FindPntIndex( sPntVec[sFaceVec[f].ind0], allPntVec, indMap );
-                int i1 = FindPntIndex( sPntVec[sFaceVec[f].ind1], allPntVec, indMap );
-                int i2 = FindPntIndex( sPntVec[sFaceVec[f].ind2], allPntVec, indMap );
-                int ind1 = pntShift[i0];
-                int ind2 = pntShift[i1];
-                int ind3 = pntShift[i2];
+                int ind1 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind0] );
+                int ind2 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind1] );
+                int ind3 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind2] );
 
                 Edge *e0, *e1, *e2, *e3;
 
                 Face* face = NULL;
                 if ( sFaceVec[f].m_isQuad )
                 {
-                    int i3 = FindPntIndex( sPntVec[sFaceVec[f].ind3], allPntVec, indMap );
-                    int ind4 = pntShift[i3];
+                    int ind4 = pnCloud.GetNodeUsedIndex( allPntKey[i][sFaceVec[f].ind3] );
 
                     e0 = FindAddEdge( edgeMap, m_nodeStore, ind1, ind2 );
                     e1 = FindAddEdge( edgeMap, m_nodeStore, ind2, ind3 );
