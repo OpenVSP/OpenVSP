@@ -157,9 +157,6 @@ public:
 
     void ExportFiles() override;
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
-    virtual int BuildIndMap( vector< vec3d* > & allPntVec, map< int, vector< int > >& indMap, vector< int > & pntShift );
-    virtual int  FindPntIndex( vec3d& pnt, vector< vec3d* > & allPntVec,
-                               map< int, vector< int > >& indMap );
 
     virtual string CheckWaterTight();
     virtual Edge* FindAddEdge( map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 );
