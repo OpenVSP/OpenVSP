@@ -13,6 +13,25 @@
 
 #include "PntNodeMerge.h"
 
+PntNodeCloud::PntNodeCloud()
+{
+    m_index = NULL;
+}
+
+PntNodeCloud::~PntNodeCloud()
+{
+    Cleanup();
+}
+
+void PntNodeCloud::Cleanup()
+{
+    m_PntNodes.clear();
+    if ( m_index )
+    {
+        delete m_index;
+        m_index = NULL;
+    }
+}
 
 void PntNodeCloud::AddPntNodes( const vector< vec3d > & pnts )
 {
@@ -57,10 +76,52 @@ int PntNodeCloud::GetNodeBaseIndex( int i )
     return m_PntNodes[i].m_Index;
 }
 
+int PntNodeCloud::LookupPntUsed( const vec3d & pnt )
+{
+    int num_results = 1;
+    vector < unsigned int > ret_index( num_results );
+    vector < double > out_dist_sqr( num_results );
+
+    num_results = m_index->knnSearch( &pnt[0], num_results, &ret_index[0], &out_dist_sqr[0] );
+
+    // In case of less points in the tree than requested:
+    ret_index.resize( num_results );
+    out_dist_sqr.resize( num_results );
+
+    if ( ret_index.size() >= 1 )
+    {
+        return GetNodeUsedIndex( ret_index[0] );
+    }
+
+    printf( "Can't find point in LookupPntUsed\n" );
+    return -1;
+}
+
+int PntNodeCloud::LookupPntBase( const vec3d & pnt )
+{
+    int num_results = 1;
+    vector < unsigned int > ret_index( num_results );
+    vector < double > out_dist_sqr( num_results );
+
+    num_results = m_index->knnSearch( &pnt[0], num_results, &ret_index[0], &out_dist_sqr[0] );
+
+    // In case of less points in the tree than requested:
+    ret_index.resize( num_results );
+    out_dist_sqr.resize( num_results );
+
+    if ( ret_index.size() >= 1 )
+    {
+        return GetNodeBaseIndex( ret_index[0] );
+    }
+
+    printf( "Can't find point in LookupPntBase\n" );
+    return -1;
+}
+
 void IndexPntNodes( PntNodeCloud & cloud, double tol )
 {
-    PNTree index( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 )  );
-    index.buildIndex();
+    cloud.m_index = new PNTree( 3, cloud, KDTreeSingleIndexAdaptorParams( 10 )  );
+    cloud.m_index->buildIndex();
 
     //==== Find Close Point Groups ====//
     int cnt = 0;
@@ -71,7 +132,7 @@ void IndexPntNodes( PntNodeCloud & cloud, double tol )
             std::vector < std::pair < unsigned int, double > > ret_matches;
 
             nanoflann::SearchParams params;
-            index.radiusSearch( &cloud.m_PntNodes[i].m_Pnt[0], tol, ret_matches, params );
+            cloud.m_index->radiusSearch( &cloud.m_PntNodes[i].m_Pnt[0], tol, ret_matches, params );
 
             for ( size_t j = 0 ; j < ret_matches.size() ; j++ )
             {

@@ -60,8 +60,14 @@ struct PntNode
 
 struct PntNodeCloud
 {
+    PntNodeCloud();
+    ~PntNodeCloud();
+
+    void Cleanup();
+
     // Underlying storage a vector.
     vector< PntNode > m_PntNodes;
+    PNTree *m_index;
 
     unsigned int m_NumUsedPts;
 
@@ -92,6 +98,9 @@ struct PntNodeCloud
     bool UsedNode( int i );
     int GetNodeUsedIndex( int i );
     int GetNodeBaseIndex( int i );
+
+    int LookupPntUsed( const vec3d & pnt );
+    int LookupPntBase( const vec3d & pnt );
 
 };
 
