@@ -851,6 +851,8 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         {
             node_id_vec.clear();
 
+            bool FPHeader = false;
+
             if ( m_FeaPartTypeVec[i] == vsp::FEA_FIX_POINT ) // FixedPoint Nodes
             {
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
@@ -859,6 +861,14 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                     {
                         if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( i ) )
                         {
+                            if ( !FPHeader )
+                            {
+                                FPHeader = true;
+
+                                fprintf( temp, "\n" );
+                                fprintf( temp, "$ %s %s Fixed Gridpoints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                            }
+
                             m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                             node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                         }
@@ -994,8 +1004,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
             FixPoint fxpt = m_FixPntVec[i];
             if ( fxpt.m_PtMassFlag )
             {
-                fprintf( temp, "\n" );
-                fprintf( temp, "$ %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
+                bool FPHeader = false;
 
                 vector < int > mass_elem_id_vec;
 
@@ -1003,6 +1012,14 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
                 {
                     if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == fxpt.m_FeaPartIndex && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
+                        if ( !FPHeader )
+                        {
+                            FPHeader = true;
+
+                            fprintf( temp, "\n" );
+                            fprintf( temp, "$ %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
+                        }
+
                         m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, -1, noffset, eoffset ); // property ID ignored for Point Masses
                         mass_elem_id_vec.push_back( elem_id );
                         elem_id++;
