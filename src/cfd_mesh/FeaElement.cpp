@@ -15,6 +15,13 @@
 
 using namespace StringUtil;
 
+// Issue 251 explains that we shouldn't need to do this, but one .inp consumer
+// that we'd like to have work needs this for now.
+static string asCalculixLabel(string text) {
+    std::replace(text.begin(), text.end(), ' ', '_');
+    return text;
+}
+
 //////////////////////////////////////////////////////
 //==================== FeaNode =====================//
 //////////////////////////////////////////////////////
@@ -679,7 +686,7 @@ void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const stri
 
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
-        fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s, ORIENTATION=%s\n", ELSET.c_str(), m_MaterialName.c_str(), ORIENTATION.c_str() );
+        fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s, ORIENTATION=%s\n", ELSET.c_str(), asCalculixLabel(m_MaterialName).c_str(), ORIENTATION.c_str() );
         fprintf( fp, "%g\n", m_Thickness );
     }
     if ( m_FeaPropertyType == vsp::FEA_BEAM )
@@ -688,32 +695,32 @@ void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const stri
         {
             // Note: *BEAM GENERAL SECTION is supported by Abaqus but not Calculix. Calculix depends on BEAM SECTION properties
             //  where the cross-section dimensions must be explicitly defined. 
-            fprintf( fp, "*BEAM SECTION, SECTION=GENERAL, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "*BEAM SECTION, SECTION=GENERAL, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), asCalculixLabel(m_MaterialName).c_str() );
             fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea, m_Izz, m_Izy, m_Iyy, m_Ixx );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_CIRC )
         {
-            fprintf( fp, "*BEAM SECTION, SECTION=CIRC, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "*BEAM SECTION, SECTION=CIRC, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), asCalculixLabel(m_MaterialName).c_str() );
             fprintf( fp, "%f\n", m_Dim1 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_PIPE )
         {
-            fprintf( fp, "*BEAM SECTION, SECTION=PIPE, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "*BEAM SECTION, SECTION=PIPE, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), asCalculixLabel(m_MaterialName).c_str() );
             fprintf( fp, "%f,%f\n", m_Dim1, ( m_Dim1 - m_Dim2 ) ); 
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_I )
         {
-            fprintf( fp, "*BEAM SECTION, SECTION=I, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "*BEAM SECTION, SECTION=I, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), asCalculixLabel(m_MaterialName).c_str() );
             fprintf( fp, "%f,%f,%f,%f,%f,%f,%f\n", ( m_Dim1 / 2 ), m_Dim1, m_Dim2, m_Dim3, m_Dim5, m_Dim6, m_Dim4 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_RECT )
         {
-            fprintf( fp, "*BEAM SECTION, SECTION=RECT, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "*BEAM SECTION, SECTION=RECT, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), asCalculixLabel(m_MaterialName).c_str() );
             fprintf( fp, "%f,%f\n", m_Dim1, m_Dim2 );
         }
         else if ( m_CrossSectType == vsp::FEA_XSEC_BOX )
         {
-            fprintf( fp, "*BEAM SECTION, SECTION=PIPE, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "*BEAM SECTION, SECTION=PIPE, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), asCalculixLabel(m_MaterialName).c_str() );
             fprintf( fp, "%f,%f,%f,%f,%f,%f\n", m_Dim1, m_Dim2, m_Dim4, m_Dim3, m_Dim4, m_Dim3 );
         }
     }
@@ -795,7 +802,7 @@ void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id ) const
 
     if ( m_FeaMaterialType == vsp::FEA_ISOTROPIC )
     {
-        fprintf( fp, "*MATERIAL, NAME=%s\n", m_Name.c_str() );
+        fprintf( fp, "*MATERIAL, NAME=%s\n", asCalculixLabel(m_Name).c_str() );
         fprintf( fp, "*DENSITY\n" );
         fprintf( fp, "%g\n", m_MassDensity );
         fprintf( fp, "*ELASTIC, TYPE=ISO\n" );
@@ -805,7 +812,7 @@ void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id ) const
     }
     else // vsp::FEA_ENG_ORTHO
     {
-        fprintf( fp, "*MATERIAL, NAME=%s\n", m_Name.c_str() );
+        fprintf( fp, "*MATERIAL, NAME=%s\n", asCalculixLabel(m_Name).c_str() );
         fprintf( fp, "*DENSITY\n" );
         fprintf( fp, "%g\n", m_MassDensity );
         fprintf( fp, "*ELASTIC, TYPE=ENGINEERING CONSTANTS\n" );
@@ -821,3 +828,6 @@ double SimpleFeaMaterial::GetShearModulus() const
 {
     return ( m_ElasticModulus / ( 2.0 * ( m_PoissonRatio + 1.0 ) ) );
 }
+
+
+
