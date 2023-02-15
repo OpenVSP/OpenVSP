@@ -2299,7 +2299,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
     }
 
     // Count fixed points for additional offset.
-    int numfixpt = 0;
+    long long int numfixpt = 0;
     for ( size_t j = 0; j < GetMeshPtr()->m_NumFeaFixPoints; j++ )
     {
         numfixpt += GetMeshPtr()->m_FixPntVec[j].m_Pnt.size();
@@ -2313,7 +2313,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
     }
 
     // Override index numbers for fixed points.  Also set other fixed point settings and add mass elements.
-    int ifixpt = 0;
+    long long int ifixpt = 0;
     for ( size_t j = 0; j < GetMeshPtr()->m_NumFeaFixPoints; j++ )
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[j];
@@ -2323,7 +2323,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
             if ( ind >= 0 )
             {
-                vector < int > matches = pnCloud.GetMatches( ind );
+                vector < long long int > matches = pnCloud.GetMatches( ind );
                 for ( size_t i = 0; i < matches.size(); i++ )
                 {
                     // Override index numbers for fixed points.
@@ -2426,7 +2426,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         }
     }
 
-    int maxid = 0;
+    long long int maxid = 0;
     for ( int i = 0; i < (int)GetMeshPtr()->m_FeaNodeVec.size(); i++ )
     {
         if ( GetMeshPtr()->m_FeaNodeVecUsed[ i ] )
@@ -2711,13 +2711,13 @@ void FeaMeshMgrSingleton::WriteAssemblyCalculix( FILE* fp, const string &assembl
     {
         fprintf( fp, "** Calculix assembly data file generated from %s\n", VSPVERSION4 );
         fprintf( fp, "\n" );
-        fprintf( fp, "** Num_Structures:  %u\n", idvec.size() );
-        fprintf( fp, "** Num_Nodes:       %u\n", feacount.m_NumNodes );
-        fprintf( fp, "** Num_Els:         %u\n", feacount.m_NumEls );
-        fprintf( fp, "** Num_Tris:        %u\n", feacount.m_NumTris );
-        fprintf( fp, "** Num_Quads:       %u\n", feacount.m_NumQuads );
-        fprintf( fp, "** Num_Beams:       %u\n", feacount.m_NumBeams );
-        fprintf( fp, "** Num_Connections: %u\n", fea_assembly->m_ConnectionVec.size() );
+        fprintf( fp, "** Num_Structures:  %lu\n", idvec.size() );
+        fprintf( fp, "** Num_Nodes:       %llu\n", feacount.m_NumNodes );
+        fprintf( fp, "** Num_Els:         %llu\n", feacount.m_NumEls );
+        fprintf( fp, "** Num_Tris:        %llu\n", feacount.m_NumTris );
+        fprintf( fp, "** Num_Quads:       %llu\n", feacount.m_NumQuads );
+        fprintf( fp, "** Num_Beams:       %llu\n", feacount.m_NumBeams );
+        fprintf( fp, "** Num_Connections: %lu\n", fea_assembly->m_ConnectionVec.size() );
         fprintf( fp, "\n" );
 
         for ( int i = 0; i < idvec.size(); i++ )
@@ -2790,7 +2790,7 @@ void FeaMeshMgrSingleton::DetermineConnectionNodes( FeaConnection* conn, int &st
         if ( startmesh )
         {
             FixPoint *fxpt = startmesh->GetFixPointByID( conn->m_StartFixPtID );
-            int noffset = startmesh->m_StructSettings.m_NodeOffset;
+            unsigned long long int noffset = startmesh->m_StructSettings.m_NodeOffset;
 
             if ( fxpt )
             {
@@ -2808,7 +2808,7 @@ void FeaMeshMgrSingleton::DetermineConnectionNodes( FeaConnection* conn, int &st
         if ( endmesh )
         {
             FixPoint *fxpt = endmesh->GetFixPointByID( conn->m_EndFixPtID );
-            int noffset = endmesh->m_StructSettings.m_NodeOffset;
+            unsigned long long int noffset = endmesh->m_StructSettings.m_NodeOffset;
 
             if ( fxpt )
             {
@@ -2866,7 +2866,7 @@ void FeaMeshMgrSingleton::WriteCalculixMaterials( FILE* fp )
     }
 }
 
-void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( const string &assembly_id, const FeaCount &feacount, int connoffset )
+void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( const string &assembly_id, const FeaCount &feacount, long long int connoffset )
 {
     string fn = m_AssemblySettings.GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
 
@@ -2896,7 +2896,7 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( const string &assembly_id, const
     }
 }
 
-void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp, const string &assembly_id, const FeaCount &feacount, int connoffset )
+void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp, const string &assembly_id, const FeaCount &feacount, long long int connoffset )
 {
     FeaAssembly* fea_assembly = StructureMgr.GetFeaAssembly( assembly_id );
 
@@ -2913,14 +2913,14 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey
     {
         fprintf( fp, "$ NASTRAN assembly data file generated from %s\n", VSPVERSION4 );
         fprintf( fp, "\n" );
-        fprintf( fp, "$ Num_Structures:     %u\n", idvec.size() );
-        fprintf( fp, "$ Num_Nodes:          %u\n", feacount.m_NumNodes );
-        fprintf( fp, "$ Num_Els:            %u\n", feacount.m_NumEls );
-        fprintf( fp, "$ Num_Tris:           %u\n", feacount.m_NumTris );
-        fprintf( fp, "$ Num_Quads:          %u\n", feacount.m_NumQuads );
-        fprintf( fp, "$ Num_Beams:          %u\n", feacount.m_NumBeams );
-        fprintf( fp, "$ Num_Connections:    %u\n", fea_assembly->m_ConnectionVec.size() );
-        fprintf( fp, "$ Connection_Offset:  %u\n", connoffset );
+        fprintf( fp, "$ Num_Structures:     %lu\n", idvec.size() );
+        fprintf( fp, "$ Num_Nodes:          %llu\n", feacount.m_NumNodes );
+        fprintf( fp, "$ Num_Els:            %llu\n", feacount.m_NumEls );
+        fprintf( fp, "$ Num_Tris:           %llu\n", feacount.m_NumTris );
+        fprintf( fp, "$ Num_Quads:          %llu\n", feacount.m_NumQuads );
+        fprintf( fp, "$ Num_Beams:          %llu\n", feacount.m_NumBeams );
+        fprintf( fp, "$ Num_Connections:    %lu\n", fea_assembly->m_ConnectionVec.size() );
+        fprintf( fp, "$ Connection_Offset:  %llu\n", connoffset );
         fprintf( fp, "\n" );
 
         for ( int i = 0; i < idvec.size(); i++ )

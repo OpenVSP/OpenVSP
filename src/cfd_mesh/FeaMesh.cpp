@@ -820,24 +820,24 @@ void FeaMesh::WriteNASTRANHeader( FILE* fp )
         // Comments can be at top of NASTRAN file before case control section
         fprintf( fp, "$ NASTRAN Data File Generated from %s\n", VSPVERSION4 );
         fprintf( fp, "$ %s\n", m_StructName.c_str() );
-        fprintf( fp, "$ Num_Nodes:       %u\n", m_NumNodes );
-        fprintf( fp, "$ Num_Els:         %u\n", m_NumEls );
-        fprintf( fp, "$ Num_Tris:        %u\n", m_NumTris );
-        fprintf( fp, "$ Num_Quads:       %u\n", m_NumQuads );
-        fprintf( fp, "$ Num_Beams:       %u\n", m_NumBeams );
-        fprintf( fp, "$ Node_Offset:     %u\n", m_StructSettings.m_NodeOffset );
-        fprintf( fp, "$ Element_Offset:  %u\n", m_StructSettings.m_ElementOffset );
+        fprintf( fp, "$ Num_Nodes:       %llu\n", m_NumNodes );
+        fprintf( fp, "$ Num_Els:         %llu\n", m_NumEls );
+        fprintf( fp, "$ Num_Tris:        %llu\n", m_NumTris );
+        fprintf( fp, "$ Num_Quads:       %llu\n", m_NumQuads );
+        fprintf( fp, "$ Num_Beams:       %llu\n", m_NumBeams );
+        fprintf( fp, "$ Node_Offset:     %llu\n", m_StructSettings.m_NodeOffset );
+        fprintf( fp, "$ Element_Offset:  %llu\n", m_StructSettings.m_ElementOffset );
         fprintf( fp, "\n" );
     }
 }
 
 void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt )
 {
-    int noffset = m_StructSettings.m_NodeOffset;
+    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
 
     if ( fp && temp )
     {
-        vector < int > node_id_vec;
+        vector < long long int > node_id_vec;
         string name;
 
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
@@ -982,13 +982,13 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
 void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt )
 {
-    int noffset = m_StructSettings.m_NodeOffset;
-    int eoffset = m_StructSettings.m_ElementOffset;
+    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
+    unsigned long long int eoffset = m_StructSettings.m_ElementOffset;
 
     if ( fp && temp )
     {
         string name;
-        vector < int > shell_elem_id_vec, beam_elem_id_vec;
+        vector < long long int > shell_elem_id_vec, beam_elem_id_vec;
         int elem_id = 1;
 
         // Write FeaFixPoints
@@ -999,7 +999,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
             {
                 bool FPHeader = false;
 
-                vector < int > mass_elem_id_vec;
+                vector < long long int > mass_elem_id_vec;
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
@@ -1153,7 +1153,7 @@ void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
     }
 }
 
-void FeaMesh::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string &set_name, const int &offset )
+void FeaMesh::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < long long int > set_ids, const string &set_name, const long long int &offset )
 {
     if ( set_ids.size() > 0 && Nastran_fid )
     {
@@ -1162,7 +1162,7 @@ void FeaMesh::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num,
 
         for ( size_t i = 0; i < set_ids.size(); i++ )
         {
-            fprintf( Nastran_fid, "%d", set_ids[i] + offset );
+            fprintf( Nastran_fid, "%lld", set_ids[i] + offset );
 
             if ( i != set_ids.size() - 1 )
             {
@@ -1219,20 +1219,20 @@ void FeaMesh::WriteCalculixHeader( FILE* fp )
     if ( fp )
     {
         fprintf( fp, "** %s\n", m_StructName.c_str() );
-        fprintf( fp, "** Num_Nodes:       %u\n", m_NumNodes );
-        fprintf( fp, "** Num_Els:         %u\n", m_NumEls );
-        fprintf( fp, "** Num_Tris:        %u\n", m_NumTris );
-        fprintf( fp, "** Num_Quads:       %u\n", m_NumQuads );
-        fprintf( fp, "** Num_Beams:       %u\n", m_NumBeams );
-        fprintf( fp, "** Node_Offset:     %u\n", m_StructSettings.m_NodeOffset );
-        fprintf( fp, "** Element_Offset:  %u\n", m_StructSettings.m_ElementOffset );
+        fprintf( fp, "** Num_Nodes:       %llu\n", m_NumNodes );
+        fprintf( fp, "** Num_Els:         %llu\n", m_NumEls );
+        fprintf( fp, "** Num_Tris:        %llu\n", m_NumTris );
+        fprintf( fp, "** Num_Quads:       %llu\n", m_NumQuads );
+        fprintf( fp, "** Num_Beams:       %llu\n", m_NumBeams );
+        fprintf( fp, "** Node_Offset:     %llu\n", m_StructSettings.m_NodeOffset );
+        fprintf( fp, "** Element_Offset:  %llu\n", m_StructSettings.m_ElementOffset );
         fprintf( fp, "\n" );
     }
 }
 
 void FeaMesh::WriteCalculixNodes( FILE* fp )
 {
-    int noffset = m_StructSettings.m_NodeOffset;
+    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
 
     // This code does not currently support mixed quads and tris.
     // Element sets must be made unique.  Properties and orientation should only be written for
@@ -1268,7 +1268,7 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
             {
                 if ( fxpt.m_NodeIndex[j] >= 0 )
                 {
-                    fprintf( fp, "%d,%f,%f,%f\n", fxpt.m_NodeIndex[j] + noffset, fxpt.m_Pnt[j][0], fxpt.m_Pnt[j][1], fxpt.m_Pnt[j][2] );
+                    fprintf( fp, "%llu,%f,%f,%f\n", fxpt.m_NodeIndex[j] + noffset, fxpt.m_Pnt[j][0], fxpt.m_Pnt[j][1], fxpt.m_Pnt[j][2] );
                 }
             }
 
@@ -1376,8 +1376,8 @@ void FeaMesh::WriteCalculixNodes( FILE* fp )
 
 void FeaMesh::WriteCalculixElements( FILE* fp )
 {
-    int noffset = m_StructSettings.m_NodeOffset;
-    int eoffset = m_StructSettings.m_ElementOffset;
+    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
+    unsigned long long int eoffset = m_StructSettings.m_ElementOffset;
 
     // This code does not currently support mixed quads and tris.
     // Element sets must be made unique.  Properties and orientation should only be written for
@@ -1605,7 +1605,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
 void FeaMesh::WriteCalculixBCs( FILE* fp )
 {
-    int noffset = m_StructSettings.m_NodeOffset;
+    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
 
     if ( fp )
     {
@@ -1769,8 +1769,8 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
 void FeaMesh::WriteGmsh()
 {
-    int noffset = m_StructSettings.m_NodeOffset;
-    int eoffset = m_StructSettings.m_ElementOffset;
+    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
+    unsigned long long int eoffset = m_StructSettings.m_ElementOffset;
 
     string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_GMSH_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
@@ -1795,7 +1795,7 @@ void FeaMesh::WriteGmsh()
 
         //==== Group and Name FeaParts ====//
         fprintf( fp, "$PhysicalNames\n" );
-        fprintf( fp, "%u\n", m_NumFeaParts - m_NumFeaFixPoints );
+        fprintf( fp, "%llu\n", m_NumFeaParts - m_NumFeaFixPoints );
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
@@ -1909,10 +1909,10 @@ void FeaMesh::ComputeWriteMass()
     {
         fprintf( fp, "...FEA Mesh...\n" );
         fprintf( fp, "Mass_Unit: %s\n", m_MassUnit.c_str() );
-        fprintf( fp, "Num_Els: %u\n", m_NumEls );
-        fprintf( fp, "Num_Tris: %u\n", m_NumTris );
-        fprintf( fp, "Num_Quads: %u\n", m_NumQuads );
-        fprintf( fp, "Num_Beams: %u\n", m_NumBeams );
+        fprintf( fp, "Num_Els: %llu\n", m_NumEls );
+        fprintf( fp, "Num_Tris: %llu\n", m_NumTris );
+        fprintf( fp, "Num_Quads: %llu\n", m_NumQuads );
+        fprintf( fp, "Num_Beams: %llu\n", m_NumBeams );
         fprintf( fp, "\n" );
 
         if ( m_NumFeaParts > 0 )

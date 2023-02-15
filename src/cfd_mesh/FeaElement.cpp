@@ -57,12 +57,12 @@ bool FeaNode::HasOnlyTag( int index )
     return true;
 }
 
-int FeaNode::GetIndex()
+long long int FeaNode::GetIndex()
 {
     return m_Index;
 }
 
-void FeaNode::WriteNASTRAN( FILE* fp, int noffset )
+void FeaNode::WriteNASTRAN( FILE* fp, long long int noffset )
 {
     double x = m_Pnt.x();
     double y = m_Pnt.y();
@@ -70,19 +70,19 @@ void FeaNode::WriteNASTRAN( FILE* fp, int noffset )
 
     string bcstr = m_BCs.AsNASTRAN();
 
-    string fmt = "GRID    ,%8d,        ," + NasFmt( x ) + "," + NasFmt( y ) + "," + NasFmt( z ) + ",        ,%s\n";
+    string fmt = "GRID    ,%8lld,        ," + NasFmt( x ) + "," + NasFmt( y ) + "," + NasFmt( z ) + ",        ,%s\n";
     fprintf( fp, fmt.c_str(), m_Index + noffset, x, y, z, bcstr.c_str() );
 }
 
-void FeaNode::WriteCalculix( FILE* fp, int noffset )
+void FeaNode::WriteCalculix( FILE* fp, long long int noffset )
 {
     if ( true )   // print 'just' nodes.
     {
-        fprintf( fp, "%d,%f,%f,%f\n", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
+        fprintf( fp, "%lld,%f,%f,%f\n", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
     }
     else          // also print node tags for debugging.
     {
-        fprintf( fp, "%d,%f,%f,%f  ** ", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
+        fprintf( fp, "%lld,%f,%f,%f  ** ", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
         for ( int i = 0; i < m_Tags.size(); i++ )
         {
             fprintf( fp, "%d ", m_Tags[ i ] );
@@ -91,7 +91,7 @@ void FeaNode::WriteCalculix( FILE* fp, int noffset )
     }
 }
 
-void FeaNode::WriteCalculixBCs( FILE* fp, int noffset )
+void FeaNode::WriteCalculixBCs( FILE* fp, long long int noffset )
 {
     int ndof = 6;
 
@@ -100,14 +100,14 @@ void FeaNode::WriteCalculixBCs( FILE* fp, int noffset )
     {
         if ( bv[i] )
         {
-            fprintf( fp, "%d,%d\n", m_Index + noffset, i + 1 );
+            fprintf( fp, "%lld,%d\n", m_Index + noffset, i + 1 );
         }
     }
 }
 
-void FeaNode::WriteGmsh( FILE* fp, int noffset )
+void FeaNode::WriteGmsh( FILE* fp, long long int noffset )
 {
-    fprintf( fp, "%d %f %f %f\n", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
+    fprintf( fp, "%lld %f %f %f\n", m_Index + noffset, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
 }
 
 //////////////////////////////////////////////////////
@@ -178,22 +178,22 @@ void FeaTri::Create( vec3d & p0, vec3d & p1, vec3d & p2, bool highorder )
     }
 }
 
-void FeaTri::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
+void FeaTri::WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset )
 {
     if ( m_ElementType == FEA_TRI_3 )
     {
-        fprintf( fp, "%d,%d,%d,%d\n", id + eoffset,
+        fprintf( fp, "%lld,%lld,%lld,%lld\n", id + eoffset,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset );
     }
     else
     {
-        fprintf( fp, "%d,%d,%d,%d,%d,%d,%d\n", id + eoffset,
+        fprintf( fp, "%lld,%lld,%lld,%lld,%lld,%lld,%lld\n", id + eoffset,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
                  m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset );
     }
 }
 
-void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
+void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset )
 {
     vec3d v01 = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
     vec3d v12 = m_Corners[2]->m_Pnt - m_Corners[1]->m_Pnt;
@@ -212,7 +212,7 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, in
 
     if ( m_ElementType == FEA_TRI_3 )
     {
-        string format_string = "CTRIA3  ,%8d,%8d,%8d,%8d,%8d," + NasFmt( theta_material ) + "\n";
+        string format_string = "CTRIA3  ,%8lld,%8lld,%8lld,%8lld,%8lld," + NasFmt( theta_material ) + "\n";
 
         fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
@@ -220,7 +220,7 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, in
     }
     else
     {
-        string format_string = "CTRIA6  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ," + NasFmt( theta_material ) + "\n";
+        string format_string = "CTRIA6  ,%8lld,%8lld,%8lld,%8lld,%8lld,%8lld,%8lld,%8lld,\n        ," + NasFmt( theta_material ) + "\n";
 
         fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
@@ -228,18 +228,18 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, in
     }
 }
 
-void FeaTri::WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset )
+void FeaTri::WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset )
 {
     if ( m_ElementType == FEA_TRI_3 )
     {
         // 3-node triangle element type (2)
-        fprintf( fp, "%d 2 1 %d %d %d %d\n", id + eoffset, fea_part_index,
+        fprintf( fp, "%lld 2 1 %d %lld %lld %lld\n", id + eoffset, fea_part_index,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset );
     }
     else
     {
         // 6-node second order triangle element type (9)
-        fprintf( fp, "%d 9 1 %d %d %d %d %d %d %d\n", id + eoffset, fea_part_index,
+        fprintf( fp, "%lld 9 1 %d %lld %lld %lld %lld %lld %lld\n", id + eoffset, fea_part_index,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset,
                  m_Mids[0]->GetIndex() + noffset,m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset );
     }
@@ -332,21 +332,21 @@ void FeaQuad::Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3, bool higho
     }
 }
 
-void FeaQuad::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
+void FeaQuad::WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset )
 {
     if ( m_ElementType == FEA_QUAD_4 )
     {
-        fprintf( fp, "%d,%d,%d,%d,%d\n", id + eoffset,
+        fprintf( fp, "%lld,%lld,%lld,%lld,%lld\n", id + eoffset,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset );
     }
     else
     {
-        fprintf( fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", id + eoffset,
+        fprintf( fp, "%lld,%lld,%lld,%lld,%lld,%lld,%lld,%lld,%lld\n", id + eoffset,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
                  m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
     }
 }
-void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
+void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset )
 {
     vec3d v01 = m_Corners[1]->m_Pnt - m_Corners[0]->m_Pnt;
     vec3d v12 = m_Corners[2]->m_Pnt - m_Corners[1]->m_Pnt;
@@ -364,14 +364,14 @@ void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, i
 
     if ( m_ElementType == FEA_QUAD_4 )
     {
-        string format_string = "CQUAD4  ,%8d,%8d,%8d,%8d,%8d,%8d," + NasFmt( theta_material ) + "\n";
+        string format_string = "CQUAD4  ,%8lld,%8d,%8lld,%8lld,%8lld,%8lld," + NasFmt( theta_material ) + "\n";
 
         fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset, theta_material );
     }
     else
     {
-        string format_string = "CQUAD8  ,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n        ,%8d,%8d,        ,        ,        ,        ," + NasFmt( theta_material ) + "\n";
+        string format_string = "CQUAD8  ,%8lld,%8d,%8lld,%8lld,%8lld,%8lld,%8lld,%8lld,\n        ,%8lld,%8lld,        ,        ,        ,        ," + NasFmt( theta_material ) + "\n";
 
         fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
@@ -380,18 +380,18 @@ void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, i
     }
 }
 
-void FeaQuad::WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset )
+void FeaQuad::WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset )
 {
     if ( m_ElementType == FEA_QUAD_4 )
     {
         // 4-node quadrangle element type (3)
-        fprintf( fp, "%d 3 1 %d %d %d %d %d\n", id + eoffset, fea_part_index,
+        fprintf( fp, "%lld 3 1 %d %lld %lld %lld %lld\n", id + eoffset, fea_part_index,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset );
     }
     else
     {
         // 8-node second order quadrangle element type (16)
-        fprintf( fp, "%d 16 1 %d %d %d %d %d %d %d %d %d\n", id + eoffset, fea_part_index,
+        fprintf( fp, "%lld 16 1 %d %lld %lld %lld %lld %lld %lld %lld %lld\n", id + eoffset, fea_part_index,
                  m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset, m_Corners[2]->GetIndex() + noffset, m_Corners[3]->GetIndex() + noffset,
                  m_Mids[0]->GetIndex() + noffset, m_Mids[1]->GetIndex() + noffset, m_Mids[2]->GetIndex() + noffset, m_Mids[3]->GetIndex() + noffset );
     }
@@ -490,22 +490,22 @@ void FeaBeam::Create( vec3d &p0, vec3d &p1, vec3d &norm0, vec3d &norm1 )
     m_Norm1 = norm1;
 }
 
-void FeaBeam::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
+void FeaBeam::WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset )
 {
-    fprintf( fp, "%d,%d,%d,%d\n", id + eoffset,
+    fprintf( fp, "%lld,%lld,%lld,%lld\n", id + eoffset,
              m_Corners[0]->GetIndex() + noffset, m_Mids[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset );
 
     m_ElementIndex = id; // Save element index 
 }
 
-void FeaBeam::WriteCalculixNormal( FILE* fp, int noffset, int eoffset )
+void FeaBeam::WriteCalculixNormal( FILE* fp, long long int noffset, long long int eoffset )
 {
     vec3d norm = ( m_Norm0 + m_Norm1 ) * 0.5;
     norm.normalize();
 
-    fprintf( fp, "%d,%d,%f,%f,%f\n", m_ElementIndex + eoffset, m_Corners[0]->GetIndex() + noffset, m_Norm0.x(), m_Norm0.y(), m_Norm0.z() );
-    fprintf( fp, "%d,%d,%f,%f,%f\n", m_ElementIndex + eoffset, m_Mids[0]->GetIndex() + noffset, norm.x(), norm.y(), norm.z() );
-    fprintf( fp, "%d,%d,%f,%f,%f\n", m_ElementIndex + eoffset, m_Corners[1]->GetIndex() + noffset, m_Norm1.x(), m_Norm1.y(), m_Norm1.z() );
+    fprintf( fp, "%lld,%lld,%f,%f,%f\n", m_ElementIndex + eoffset, m_Corners[0]->GetIndex() + noffset, m_Norm0.x(), m_Norm0.y(), m_Norm0.z() );
+    fprintf( fp, "%lld,%lld,%f,%f,%f\n", m_ElementIndex + eoffset, m_Mids[0]->GetIndex() + noffset, norm.x(), norm.y(), norm.z() );
+    fprintf( fp, "%lld,%lld,%f,%f,%f\n", m_ElementIndex + eoffset, m_Corners[1]->GetIndex() + noffset, m_Norm1.x(), m_Norm1.y(), m_Norm1.z() );
 }
 
 void FeaBeam::WriteCalculixNormal( FILE* fp )
@@ -513,19 +513,19 @@ void FeaBeam::WriteCalculixNormal( FILE* fp )
     fprintf( fp, "%f,%f,%f\n", m_Norm0.x(), m_Norm0.y(), m_Norm0.z() );
 }
 
-void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
+void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset )
 {
-    string format_string = "CBAR    ,%8d,%8d,%8d,%8d," + NasFmt( m_Norm0.x() ) + "," +
+    string format_string = "CBAR    ,%8lld,%8d,%8lld,%8lld," + NasFmt( m_Norm0.x() ) + "," +
                            NasFmt( m_Norm0.y() ) + "," + NasFmt( m_Norm0.z() ) + "\n";
 
     fprintf( fp, format_string.c_str(), id + eoffset, property_index + 1, m_Corners[0]->GetIndex() + noffset,
              m_Corners[1]->GetIndex() + noffset, m_Norm0.x(), m_Norm0.y(), m_Norm0.z() );
 }
 
-void FeaBeam::WriteGmsh( FILE* fp, int id, int fea_part_index, int noffset, int eoffset )
+void FeaBeam::WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset )
 {
     // 2 node line line (1)
-    fprintf( fp, "%d 1 1 %d %d %d\n", id + eoffset, fea_part_index,
+    fprintf( fp, "%lld 1 1 %d %lld %lld\n", id + eoffset, fea_part_index,
              m_Corners[0]->GetIndex() + noffset, m_Corners[1]->GetIndex() + noffset );
 }
 
@@ -580,15 +580,15 @@ void FeaPointMass::Create( vec3d & p0, double mass )
     m_Mass = mass;
 }
 
-void FeaPointMass::WriteCalculix( FILE* fp, int id, int noffset, int eoffset )
+void FeaPointMass::WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset )
 {
-    fprintf( fp, "%d,%d\n", id + eoffset, m_Corners[0]->GetIndex() + noffset );
+    fprintf( fp, "%lld,%lld\n", id + eoffset, m_Corners[0]->GetIndex() + noffset );
 }
 
-void FeaPointMass::WriteNASTRAN( FILE* fp, int id, int property_index, int noffset, int eoffset )
+void FeaPointMass::WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset )
 {
     // Note: property_index ignored
-    string format_string = "CONM2   ,%8d,%8d,        ," + NasFmt( m_Mass ) + "\n";
+    string format_string = "CONM2   ,%8lld,%8lld,        ," + NasFmt( m_Mass ) + "\n";
 
     fprintf( fp, format_string.c_str(), id + eoffset, m_Corners[0]->GetIndex() + noffset, m_Mass );
 }

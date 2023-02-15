@@ -97,7 +97,7 @@ public:
     virtual void WriteSTL();
 
     // Was protected.
-    virtual void WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string &set_name, const int &offset );
+    virtual void WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < long long int > set_ids, const string &set_name, const long long int &offset );
 
     virtual void ComputeWriteMass();
 
@@ -118,9 +118,9 @@ public:
 
     bool m_MeshReady;
 
-    unsigned int m_NumFeaParts;
-    unsigned int m_NumFeaFixPoints;
-    unsigned int m_NumFeaSubSurfs;
+    unsigned long long int m_NumFeaParts;
+    unsigned long long int m_NumFeaFixPoints;
+    unsigned long long int m_NumFeaSubSurfs;
 
     vector < string > m_FeaPartNameVec;
     vector < string > m_FeaPartIDVec;
@@ -130,11 +130,11 @@ public:
     vector < int > m_FeaPartPropertyIndexVec;
     vector < int > m_FeaPartCapPropertyIndexVec;
 
-    unsigned int m_NumNodes;
-    unsigned int m_NumEls;
-    unsigned int m_NumTris;
-    unsigned int m_NumQuads;
-    unsigned int m_NumBeams;
+    unsigned long long int m_NumNodes;
+    unsigned long long int m_NumEls;
+    unsigned long long int m_NumTris;
+    unsigned long long int m_NumQuads;
+    unsigned long long int m_NumBeams;
 
     vector < string > m_DrawBrowserNameVec;
     vector < int > m_DrawBrowserPartIndexVec;
