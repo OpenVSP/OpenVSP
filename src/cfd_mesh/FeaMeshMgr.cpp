@@ -2323,7 +2323,11 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
             if ( ind >= 0 )
             {
-                GetMeshPtr()->m_FeaNodeVec[ ind ]->m_Index = ifixpt + 1;
+                vector < int > matches = pnCloud.GetMatches( ind );
+                for ( size_t i = 0; i < matches.size(); i++ )
+                {
+                    GetMeshPtr()->m_FeaNodeVec[ matches[i] ]->m_Index = ifixpt + 1;
+                }
             }
             else
             {
