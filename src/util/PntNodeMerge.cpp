@@ -76,6 +76,15 @@ int PntNodeCloud::GetNodeBaseIndex( int i )
     return m_PntNodes[i].m_Index;
 }
 
+vector < int > PntNodeCloud::GetMatches( int i )
+{
+    assert ( i >= 0 && i < ( int )m_PntNodes.size() );
+
+    int ind = m_PntNodes[i].m_Index;
+
+    return m_PntNodes[ ind ].m_Matches;
+}
+
 int PntNodeCloud::LookupPntUsed( const vec3d & pnt )
 {
     int num_results = 1;
@@ -138,6 +147,7 @@ void IndexPntNodes( PntNodeCloud & cloud, double tol )
             {
                 unsigned int m_ind = ret_matches[j].first;
                 cloud.m_PntNodes[ m_ind ].m_Index = i;
+                cloud.m_PntNodes[ i ].m_Matches.push_back( m_ind );
             }
             cloud.m_PntNodes[i].m_UsedIndex = cnt;
             cnt++;

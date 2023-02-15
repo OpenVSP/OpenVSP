@@ -53,6 +53,7 @@ struct PntNode
     vec3d m_Pnt;
     int m_Index;
     int m_UsedIndex;
+    vector < int > m_Matches;
 };
 
 // The data source fed into the KD-tree library must adhere to an interface.  The following
@@ -98,6 +99,7 @@ struct PntNodeCloud
     bool UsedNode( int i );
     int GetNodeUsedIndex( int i );
     int GetNodeBaseIndex( int i );
+    vector < int > GetMatches( int i );
 
     int LookupPntUsed( const vec3d & pnt );
     int LookupPntBase( const vec3d & pnt );
