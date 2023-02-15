@@ -2649,7 +2649,8 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
             int maxn = noffset + mesh->m_NumNodes;
 
             // Round up at magnitude of number.  Consider ceil2scale( n, 1000 ); instead.
-            eoffset = magroundup( maxn );
+            // eoffset = magroundup( maxn );
+            eoffset = ceil2scale( maxn, 1000 );
 
             if ( fea_struct )
             {
@@ -2661,7 +2662,8 @@ void FeaMeshMgrSingleton::ExportAssemblyMesh( const string &assembly_id )
             }
 
             int maxe = eoffset + mesh->m_NumEls + feacount.m_NumBeams;
-            noffset = magroundup( maxe );
+            // noffset = magroundup( maxe );
+            noffset = ceil2scale( maxe, 1000 );
         }
     }
     connoffset = noffset;
