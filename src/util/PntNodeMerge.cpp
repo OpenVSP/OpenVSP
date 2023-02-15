@@ -42,7 +42,7 @@ void PntNodeCloud::AddPntNodes( const vector< vec3d > & pnts )
     }
 }
 
-void PntNodeCloud::ReserveMorePntNodes( int n )
+void PntNodeCloud::ReserveMorePntNodes( long long int n )
 {
     m_PntNodes.reserve( m_PntNodes.size() + n );
 }
@@ -52,42 +52,42 @@ void PntNodeCloud::AddPntNode( const vec3d & pnt )
     m_PntNodes.emplace_back( PntNode( pnt ) );
 }
 
-bool PntNodeCloud::UsedNode( int i )
+bool PntNodeCloud::UsedNode( long long int i )
 {
     assert ( i >= 0 && i < ( int )m_PntNodes.size() );
 
     return i == m_PntNodes[i].m_Index;
 }
 
-int PntNodeCloud::GetNodeUsedIndex( int i )
+long long int PntNodeCloud::GetNodeUsedIndex( long long int i )
 {
-    assert ( i >= 0 && i < ( int )m_PntNodes.size() );
+    assert ( i >= 0 && i < ( long long int )m_PntNodes.size() );
 
-    int ind = m_PntNodes[i].m_Index;
+    long long int ind = m_PntNodes[i].m_Index;
 
     return m_PntNodes[ind].m_UsedIndex;
 
 }
 
-int PntNodeCloud::GetNodeBaseIndex( int i )
+long long int PntNodeCloud::GetNodeBaseIndex( long long int i )
 {
-    assert ( i >= 0 && i < ( int )m_PntNodes.size() );
+    assert ( i >= 0 && i < ( long long int )m_PntNodes.size() );
 
     return m_PntNodes[i].m_Index;
 }
 
-vector < int > PntNodeCloud::GetMatches( int i )
+vector < long long int > PntNodeCloud::GetMatches( long long int i )
 {
-    assert ( i >= 0 && i < ( int )m_PntNodes.size() );
+    assert ( i >= 0 && i < ( long long int )m_PntNodes.size() );
 
-    int ind = m_PntNodes[i].m_Index;
+    long long int ind = m_PntNodes[i].m_Index;
 
     return m_PntNodes[ ind ].m_Matches;
 }
 
-int PntNodeCloud::LookupPntUsed( const vec3d & pnt )
+long long int PntNodeCloud::LookupPntUsed( const vec3d & pnt )
 {
-    int num_results = 1;
+    long long int num_results = 1;
     vector < unsigned int > ret_index( num_results );
     vector < double > out_dist_sqr( num_results );
 
@@ -106,9 +106,9 @@ int PntNodeCloud::LookupPntUsed( const vec3d & pnt )
     return -1;
 }
 
-int PntNodeCloud::LookupPntBase( const vec3d & pnt )
+long long int PntNodeCloud::LookupPntBase( const vec3d & pnt )
 {
-    int num_results = 1;
+    long long int num_results = 1;
     vector < unsigned int > ret_index( num_results );
     vector < double > out_dist_sqr( num_results );
 
