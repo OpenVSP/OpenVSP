@@ -2312,7 +2312,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         GetMeshPtr()->m_FeaNodeVec[i]->m_Index = pnCloud.GetNodeUsedIndex( i ) + 1 + numfixpt;
     }
 
-    // Override index numbers for fixed points.
+    // Override index numbers for fixed points.  Also set other fixed point settings and add mass elements.
     int ifixpt = 0;
     for ( size_t j = 0; j < GetMeshPtr()->m_NumFeaFixPoints; j++ )
     {
@@ -2326,13 +2326,34 @@ void FeaMeshMgrSingleton::TagFeaNodes()
                 vector < int > matches = pnCloud.GetMatches( ind );
                 for ( size_t i = 0; i < matches.size(); i++ )
                 {
+                    // Override index numbers for fixed points.
                     GetMeshPtr()->m_FeaNodeVec[ matches[i] ]->m_Index = ifixpt + 1;
+
+                    GetMeshPtr()->m_FeaNodeVec[ matches[i] ]->AddTag( fxpt.m_FeaPartIndex );
+                    GetMeshPtr()->m_FeaNodeVec[ matches[i] ]->m_FixedPointFlag = true;
                 }
             }
             else
             {
                 printf( "Point not found.\n" );
             }
+
+            // Set fix point node index here.
+            GetMeshPtr()->m_FixPntVec[ j ].m_NodeIndex[ k ] = ifixpt + 1;
+
+            // Create mass element if mass flag is true
+            if ( fxpt.m_PtMassFlag )
+            {
+                FeaPointMass *mass = new FeaPointMass;
+                mass->Create( GetMeshPtr()->m_FeaNodeVec[ ind ]->m_Pnt, fxpt.m_PtMass );
+                mass->SetFeaPartIndex( fxpt.m_FeaPartIndex );
+
+                mass->m_Corners[ 0 ]->m_Index = ifixpt + 1;
+
+                GetMeshPtr()->m_FeaElementVec.push_back( mass );
+            }
+
+
             ifixpt++;
         }
     }
@@ -2389,70 +2410,6 @@ void FeaMeshMgrSingleton::TagFeaNodes()
             else
             {
                 printf( "Point not found.\n" );
-            }
-        }
-    }
-
-    //==== Tag FeaFixPoints ====//
-    ifixpt = 0;
-    for ( int i = 0; i < (int)GetMeshPtr()->m_FeaNodeVec.size(); i++ )
-    {
-        for ( size_t j = 0; j < GetMeshPtr()->m_NumFeaFixPoints; j++ )
-        {
-            FixPoint fxpt = GetMeshPtr()->m_FixPntVec[ j ];
-            for ( size_t k = 0; k < fxpt.m_Pnt.size(); k++ )
-            {
-                // Compare the distance between node and fixed point, but only use nodes that have been tagged to an FeaPart
-                if (( dist( GetMeshPtr()->m_FeaNodeVec[ i ]->m_Pnt, fxpt.m_Pnt[ k ] ) <= FLT_EPSILON ) &&
-                    ( GetMeshPtr()->m_FeaNodeVec[ i ]->m_Tags.size() > 0 ))
-                {
-                    GetMeshPtr()->m_FeaNodeVec[ i ]->AddTag( fxpt.m_FeaPartIndex );
-                    GetMeshPtr()->m_FeaNodeVec[ i ]->m_FixedPointFlag = true;
-
-                    // Set fix point node index here.
-                    GetMeshPtr()->m_FixPntVec[ j ].m_NodeIndex[ k ] = GetMeshPtr()->m_FeaNodeVec[ i ]->m_Index;
-
-                    // Create mass element if mass flag is true
-                    if ( fxpt.m_PtMassFlag )
-                    {
-                        FeaPointMass *mass = new FeaPointMass;
-                        mass->Create( GetMeshPtr()->m_FeaNodeVec[ i ]->m_Pnt, fxpt.m_PtMass );
-                        mass->SetFeaPartIndex( fxpt.m_FeaPartIndex );
-
-                        mass->m_Corners[ 0 ]->m_Index = GetMeshPtr()->m_FeaNodeVec[ i ]->m_Index;
-
-                        GetMeshPtr()->m_FeaElementVec.push_back( mass );
-                    }
-
-                    // Match has occurred, force inner loops to terminate.
-                    j = GetMeshPtr()->m_NumFeaFixPoints;
-                    k = fxpt.m_Pnt.size();
-                    // Count number of matches.
-                    ifixpt++;
-                }
-            }
-        }
-
-        // All fixed points have been found.
-        if ( ifixpt >= numfixpt )
-        {
-            break;
-        }
-    }
-
-    // Moving i to outer loop above means this error can not be printed until i loop complete.
-    for ( size_t j = 0; j < GetMeshPtr()->m_NumFeaFixPoints; j++ )
-    {
-        FixPoint fxpt = GetMeshPtr()->m_FixPntVec[ j ];
-        for ( size_t k = 0; k < fxpt.m_Pnt.size(); k++ )
-        {
-            if ( GetMeshPtr()->m_FixPntVec[j].m_NodeIndex[k] < 0 )
-            {
-                char buf[512];
-                snprintf( buf, sizeof( buf ), "FixPoint %s %d not found in mesh\n",
-                         GetMeshPtr()->m_FeaPartNameVec[ GetMeshPtr()->m_FixPntVec[j].m_FeaPartIndex ].c_str(),
-                         k );
-                addOutputText( string( buf ) );
             }
         }
     }
