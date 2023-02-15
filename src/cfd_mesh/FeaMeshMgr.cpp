@@ -2426,7 +2426,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         }
     }
 
-    int maxid = -1;
+    int maxid = 0;
     for ( int i = 0; i < (int)GetMeshPtr()->m_FeaNodeVec.size(); i++ )
     {
         maxid = max( maxid, GetMeshPtr()->m_FeaNodeVec[i]->m_Index );
