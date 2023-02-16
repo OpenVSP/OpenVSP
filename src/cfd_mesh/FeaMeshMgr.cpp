@@ -2246,25 +2246,42 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
 
 void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
 {
-    for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
+    vector< FeaElement* > newFeaElementVec;
+    newFeaElementVec.reserve( GetMeshPtr()->m_FeaElementVec.size() );
+
+    for ( int j = 0; j < GetMeshPtr()->m_FeaElementVec.size(); j++ )
     {
-        for ( int j = 0; j < GetMeshPtr()->m_FeaElementVec.size(); j++ )
+        bool delj = false;
+
+        if ( GetMeshPtr()->m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_TRI_3 ||
+             GetMeshPtr()->m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_TRI_6 ||
+             GetMeshPtr()->m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_QUAD_4 ||
+             GetMeshPtr()->m_FeaElementVec[ j ]->GetElementType() == FeaElement::FEA_QUAD_8 )
         {
-            if ( GetMeshPtr()->m_FeaElementVec[j]->GetFeaSSIndex() == i &&
-               ( GetMeshPtr()->m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 ||
-                 GetMeshPtr()->m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ||
-                 GetMeshPtr()->m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 ||
-                 GetMeshPtr()->m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) )
+            for ( unsigned int i = 0; i < GetMeshPtr()->m_NumFeaSubSurfs; i++ )
             {
+                if ( GetMeshPtr()->m_FeaElementVec[ j ]->GetFeaSSIndex() == i )
                 {
                     if ( m_SimpleSubSurfaceVec[ i ].m_KeepDelShellElements == vsp::FEA_DELETE )
-                    delete GetMeshPtr()->m_FeaElementVec[j];
-                    GetMeshPtr()->m_FeaElementVec.erase( GetMeshPtr()->m_FeaElementVec.begin() + j );
-                    j--;
+                    {
+                        delj = true;
+                        break;
+                    }
                 }
             }
         }
+
+        if ( delj )
+        {
+            delete GetMeshPtr()->m_FeaElementVec[ j ];
+        }
+        else
+        {
+            newFeaElementVec.push_back( GetMeshPtr()->m_FeaElementVec[ j ] );
+        }
     }
+
+    GetMeshPtr()->m_FeaElementVec = newFeaElementVec;
 }
 
 void FeaMeshMgrSingleton::TagFeaNodes()
