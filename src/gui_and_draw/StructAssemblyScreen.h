@@ -100,6 +100,7 @@ private:
 
     TriggerButton m_AddFeaStructureButton;
     TriggerButton m_DelFeaStructureButton;
+    TriggerButton m_AddAllFeaStructureButton;
 
     //===== Connection Items =====//
     ColResizeBrowser* m_ConnectionSelectBrowser;

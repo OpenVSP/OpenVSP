@@ -135,12 +135,11 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
     m_StructureTabLayout.AddChoice( m_FeaStructureChoice, "Structure" );
 
-    m_StructureTabLayout.SetButtonWidth( m_StructureTabLayout.GetRemainX() / 2 );
-
-    m_StructureTabLayout.SetSameLineFlag( true );
-    m_StructureTabLayout.SetFitWidthFlag( false );
+    m_StructureTabLayout.SetSameLineFlag( false );
+    m_StructureTabLayout.SetFitWidthFlag( true );
 
     m_StructureTabLayout.AddButton( m_AddFeaStructureButton, "Add Structure" );
+    m_StructureTabLayout.AddButton( m_AddAllFeaStructureButton, "Add All Structures" );
     m_StructureTabLayout.AddButton( m_DelFeaStructureButton, "Delete Structure" );
 
     //=== Connection Tab ===//
@@ -855,6 +854,23 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( curr_assy )
         {
             curr_assy->AddStructure( m_StructIDs[m_StructureChoiceIndex] );
+        }
+    }
+    else if ( device == &m_AddAllFeaStructureButton )
+    {
+        if ( curr_assy )
+        {
+            for ( int i = 0; i < m_StructIDs.size(); i++ )
+            {
+                curr_assy->AddStructure( m_StructIDs[i] );
+
+                // Overwrite structure names to match Geom names.  Useful when debugging and creating a large number
+                // of structures.
+                // FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_StructIDs[i] );
+                // string geomid = fea_struct->GetParentGeomID();
+                // Geom *g = veh->FindGeom( geomid );
+                // fea_struct->SetName( g->GetName() );
+            }
         }
     }
     else if ( device == &m_DelFeaStructureButton )
