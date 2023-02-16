@@ -327,3 +327,35 @@ string GetBasename( const string &fname )
     }
     return base_name;
 }
+
+void AppendFile_BtoA( FILE* fpa, FILE* fpb )
+{
+    if ( fpa && fpb )
+    {
+        // Obtain B file size:
+        fseek( fpb, 0, SEEK_END );
+        long lSize = ftell( fpb );
+        rewind( fpb );
+
+        // Allocate memory to contain the whole file:
+        char * buffer = (char*)malloc( sizeof( char )*lSize + 1 );
+        if ( buffer == NULL )
+        {
+            printf( "AppendFile_BtoA memory error\n" );
+        }
+
+        // Copy B file into the buffer:
+        size_t result = fread( buffer, 1, lSize, fpb );
+        buffer[ result ] = '\0';
+        if ( result != lSize )
+        {
+            printf( "AppendFile_BtoA reading error\n" );
+        }
+
+        // The whole file is now loaded in the memory buffer. Write to A file
+        fprintf( fpa, "%s", buffer );
+
+        // Free memory
+        free( buffer );
+    }
+}
