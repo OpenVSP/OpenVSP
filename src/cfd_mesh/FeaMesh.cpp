@@ -6,6 +6,7 @@
 #include "main.h"  // For version numbers
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
+#include "FileUtil.h"
 
 FeaMesh::FeaMesh( string & struct_id )
 {
@@ -1145,38 +1146,15 @@ void CloseNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp )
 {
     if ( dat_fp && bdf_fp )
     {
-        // Obtain file size:
-        fseek( bdf_fp, 0, SEEK_END );
-        long lSize = ftell( bdf_fp );
-        rewind( bdf_fp );
-
-        // Allocate memory to contain the whole file:
-        char * buffer = (char*)malloc( sizeof( char )*lSize + 1 );
-        if ( buffer == NULL )
-        {
-            printf( "WriteNASTRAN memory error\n" );
-        }
-
-        // Copy the file into the buffer:
-        size_t result = fread( buffer, 1, lSize, bdf_fp );
-        buffer[ result ] = '\0';
-        if ( result != lSize )
-        {
-            printf( "WriteNASTRAN reading error\n" );
-        }
-
-        // The whole file is now loaded in the memory buffer. Write to NASTRAN file
-        fprintf( dat_fp, "%s", buffer );
-
-        // Close open files and free memory
+        AppendFile_BtoA( dat_fp, bdf_fp );
+        // Close open files
         fclose( dat_fp );
         fclose( bdf_fp );
-        free( buffer );
+    }
 
-        if ( nkey_fp )
-        {
-            fclose( nkey_fp );
-        }
+    if ( nkey_fp )
+    {
+        fclose( nkey_fp );
     }
 }
 
