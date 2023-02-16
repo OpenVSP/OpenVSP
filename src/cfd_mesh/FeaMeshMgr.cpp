@@ -464,11 +464,11 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Build Fea Mesh\n" );
     BuildFeaMesh();
 
-    addOutputText( "Tag Fea Nodes\n" );
-    TagFeaNodes();
-
     addOutputText( "Remove Subsurf FEA Tris\n" );
     RemoveSubSurfFeaTris();
+
+    addOutputText( "Tag Fea Nodes\n" );
+    TagFeaNodes();
 
     GetMeshPtr()->m_MeshReady = true;
 
