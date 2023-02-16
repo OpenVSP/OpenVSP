@@ -59,8 +59,14 @@ SubSurface::SubSurface( const string& compID, int type )
     m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
     m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
 
-    m_IncludedElements.Init( "IncludedElements", "SubSurface", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_SHELL_AND_BEAM );
-    m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the SubSurface" );
+    m_IncludedElements.Init( "IncludedElements", "SubSurface", this, vsp::FEA_DEPRECATED, vsp::FEA_DEPRECATED, vsp::FEA_SHELL_AND_BEAM );
+    m_IncludedElements.SetDescript( "DEPRECATED: Indicates the FeaElements to be Included for the SubSurface" );
+
+    m_CreateBeamElements.Init( "CreateBeamElements","SubSurface", this, false, false, true );
+    m_CreateBeamElements.SetDescript( "Flag to indicate whether to create beam elements for this subsurface" );
+
+    m_KeepDelShellElements.Init( "KeepDelShellElements", "SubSurface", this, vsp::FEA_KEEP, vsp::FEA_KEEP, vsp::FEA_NUM_SHELL_SUBSURF_TYPES - 1 );
+    m_KeepDelShellElements.SetDescript( "Indicates whether to keep or delete shell elements from this subsurface" );
 
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaSubSurface", this, true, false, true );
     m_DrawFeaPartFlag.SetDescript( "Flag to Draw FEA SubSurface" );
@@ -195,6 +201,30 @@ void SubSurface::UpdateDrawObjs()
 
 void SubSurface::Update()
 {
+    // Attempt to update deprecated options to new versions with closest meaning.
+    if ( m_IncludedElements() != vsp::FEA_DEPRECATED )
+    {
+        if ( m_IncludedElements() == vsp::FEA_SHELL )
+        {
+            m_CreateBeamElements.Set( false );
+            m_KeepDelShellElements.Set( vsp::FEA_KEEP );
+        }
+        else if ( m_IncludedElements() == vsp::FEA_BEAM )
+        {
+            m_CreateBeamElements.Set( true );
+            m_KeepDelShellElements.Set( vsp::FEA_KEEP );
+            m_TestType.Set( vsp::NONE );
+        }
+        else if ( m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+        {
+            m_CreateBeamElements.Set( true );
+            m_KeepDelShellElements.Set( vsp::FEA_KEEP );
+        }
+
+        m_IncludedElements.Set( vsp::FEA_DEPRECATED );
+    }
+
+
     UpdateOrientation();
 
     m_PolyPntsReadyFlag = false;
@@ -2180,7 +2210,7 @@ SSLineArray::SSLineArray( const string& comp_id, int type ) : SubSurface( comp_i
 
     // Set to only Beam elements (cap) with no tags (tris)
     m_TestType = SSLineSeg::NO;
-    m_IncludedElements.Set( vsp::FEA_BEAM );
+    m_CreateBeamElements = true;
 
     m_NumLines = 0;
 }
@@ -2292,7 +2322,8 @@ SSLine* SSLineArray::AddSSLine( double location, int ind )
 
     if ( ssline )
     {
-        ssline->m_IncludedElements.Set( m_IncludedElements() );
+        ssline->m_KeepDelShellElements.Set( m_KeepDelShellElements() );
+        ssline->m_CreateBeamElements.Set( m_CreateBeamElements() );
         ssline->m_ConstType.Set( m_ConstType() );
         ssline->m_ConstVal.Set( location );
         ssline->m_TestType.Set( m_TestType() );
@@ -2342,7 +2373,8 @@ SSFiniteLine::SSFiniteLine( const string& comp_id, int type ) : SubSurface( comp
     m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::NO, SSLineSeg::NO, SSLineSeg::NO );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
-    m_IncludedElements.Set( vsp::FEA_BEAM );
+    m_CreateBeamElements = true;
+
     m_LVec.resize( 1 );
 }
 

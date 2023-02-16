@@ -1376,7 +1376,7 @@ void StructScreen::UpdateFeaPartBrowser()
             fea_name = subsurf_vec[i]->GetName();
             fea_type = SubSurface::GetTypeName( subsurf_vec[i]->GetType() );
 
-            if ( subsurf_vec[i]->m_IncludedElements() == vsp::FEA_SHELL || subsurf_vec[i]->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+            if ( subsurf_vec[i]->m_KeepDelShellElements() == vsp::FEA_KEEP )
             {
                 shell = "     X";
 
@@ -1392,7 +1392,7 @@ void StructScreen::UpdateFeaPartBrowser()
                 shell_prop = "N/A";
             }
 
-            if ( subsurf_vec[i]->m_IncludedElements() == vsp::FEA_BEAM || subsurf_vec[i]->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+            if ( subsurf_vec[i]->m_CreateBeamElements() )
             {
                 cap = "   X";
 

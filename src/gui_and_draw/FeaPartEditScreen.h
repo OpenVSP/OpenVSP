@@ -63,6 +63,12 @@ private:
     Choice m_ShellPropertyChoice;
     Choice m_OrientationChoice;
     Choice m_CapPropertyChoice;
+    ToggleButton m_CreateBeamElementsToggle;
+
+    ToggleButton m_KeepShellElementsToggle;
+    ToggleButton m_DelShellElementsToggle;
+    ToggleRadioGroup m_KeepDelShellElementsToggleGroup;
+
     ToggleButton m_ShellToggle;
     ToggleButton m_CapToggle;
     ToggleButton m_ShellCapToggle;

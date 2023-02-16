@@ -366,12 +366,18 @@ enum FEA_ORIENTATION_TYPE { FEA_ORIENT_GLOBAL_X,
                             FEA_NUM_ORIENT_TYPES
                           };
 
-enum FEA_PART_ELEMENT_TYPE { FEA_SHELL = 0,
+enum FEA_PART_ELEMENT_TYPE { FEA_DEPRECATED = -1,
+                             FEA_SHELL = 0,
                              FEA_BEAM,
                              FEA_SHELL_AND_BEAM,
                              FEA_NO_ELEMENTS,
                              FEA_NUM_ELEMENT_TYPES
                            };
+
+enum FEA_SHELL_SUBSURF_TYPE { FEA_KEEP = 0,
+                              FEA_DELETE,
+                              FEA_NUM_SHELL_SUBSURF_TYPES
+                            };
 
 enum FEA_PART_TYPE { FEA_SLICE = 0,
                      FEA_RIB,

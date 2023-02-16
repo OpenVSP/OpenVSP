@@ -1772,7 +1772,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
 
                 while ( ss < (int)ss_vec.size() && ( *c )->m_BorderFlag && ( *c )->m_SSIntersectIndex < 0 )
                 {
-                    if ( ss_vec[ss].m_IncludedElements == vsp::FEA_BEAM || ss_vec[ss].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) // Only consider SubSurface if cap intersections is flagged
+                    if ( ss_vec[ss].m_CreateBeamElements ) // Only consider SubSurface if cap intersections is flagged
                     {
                         // Split SubSurfs
                         ss_vec[ss].SplitSegsU( surf_vec[i]->GetSurfCore()->GetMinU() );
@@ -2256,8 +2256,8 @@ void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
                  GetMeshPtr()->m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 ||
                  GetMeshPtr()->m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) )
             {
-                if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM )
                 {
+                    if ( m_SimpleSubSurfaceVec[ i ].m_KeepDelShellElements == vsp::FEA_DELETE )
                     delete GetMeshPtr()->m_FeaElementVec[j];
                     GetMeshPtr()->m_FeaElementVec.erase( GetMeshPtr()->m_FeaElementVec.begin() + j );
                     j--;
@@ -2450,7 +2450,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
         {
             string name = GetMeshPtr()->m_StructName + ":  " + GetMeshPtr()->m_FeaPartNameVec[i];
 
-            if ( fea_part_vec[i]->m_IncludedElements() == vsp::FEA_SHELL || fea_part_vec[i]->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+            if ( GetMeshPtr()->m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || GetMeshPtr()->m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
             {
                 GetMeshPtr()->m_DrawBrowserNameVec.push_back( name );
                 GetMeshPtr()->m_DrawBrowserPartIndexVec.push_back( i );
@@ -2478,7 +2478,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
         {
             string name = GetMeshPtr()->m_StructName + ":  " + m_SimpleSubSurfaceVec[i].GetName();
 
-            if ( m_SimpleSubSurfaceVec[i].m_TestType != vsp::NONE && ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) )
+            if ( m_SimpleSubSurfaceVec[i].m_TestType != vsp::NONE && m_SimpleSubSurfaceVec[i].m_KeepDelShellElements == vsp::FEA_KEEP )
             {
                 GetMeshPtr()->m_DrawBrowserNameVec.push_back( name );
                 GetMeshPtr()->m_DrawBrowserPartIndexVec.push_back( GetMeshPtr()->m_NumFeaParts + i );
@@ -2486,7 +2486,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
 
             GetMeshPtr()->m_DrawElementFlagVec.push_back( true );
 
-            if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
+            if ( m_SimpleSubSurfaceVec[i].m_CreateBeamElements )
             {
                 name += "_CAP";
                 GetMeshPtr()->m_DrawBrowserNameVec.push_back( name );

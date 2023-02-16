@@ -155,7 +155,9 @@ public:
     Parm m_TeTwRatio;
     Parm m_TawTwRatio;
 
-    IntParm m_IncludedElements;
+    IntParm m_IncludedElements; // Deprecated
+    BoolParm m_CreateBeamElements;
+    IntParm m_KeepDelShellElements;
     BoolParm m_DrawFeaPartFlag;
     IntParm m_FeaPropertyIndex;
     IntParm m_CapFeaPropertyIndex;

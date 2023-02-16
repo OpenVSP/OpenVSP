@@ -2514,7 +2514,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                     {
                         if ( chain->Valid() )
                         {
-                            if ( ss_vec[ss].m_IncludedElements != vsp::FEA_SHELL )
+                            if ( ss_vec[ss].m_CreateBeamElements )
                             {
                                 chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
                             }
@@ -2617,7 +2617,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
                 {
                     if ( chain->Valid() )
                     {
-                        if ( ss_vec[ss].m_IncludedElements != vsp::FEA_SHELL )
+                        if ( ss_vec[ss].m_CreateBeamElements )
                         {
                             chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
                         }

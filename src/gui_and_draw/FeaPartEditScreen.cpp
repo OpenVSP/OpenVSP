@@ -33,19 +33,20 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetFitWidthFlag( false );
 
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 3 );
-    m_GenLayout.AddButton( m_ShellToggle, "Shell" );
-    m_GenLayout.AddButton( m_CapToggle, "Cap" );
-    m_GenLayout.AddButton( m_ShellCapToggle, "Shell and Cap" );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
+    m_GenLayout.AddButton( m_KeepShellElementsToggle, "Keep Shell" );
+    m_GenLayout.AddButton( m_DelShellElementsToggle, "Delete Shell" );
 
-    m_ShellCapToggleGroup.Init( this );
-    m_ShellCapToggleGroup.AddButton( m_ShellToggle.GetFlButton() );
-    m_ShellCapToggleGroup.AddButton( m_CapToggle.GetFlButton() );
-    m_ShellCapToggleGroup.AddButton( m_ShellCapToggle.GetFlButton() );
+    m_KeepDelShellElementsToggleGroup.Init( this );
+    m_KeepDelShellElementsToggleGroup.AddButton( m_KeepShellElementsToggle.GetFlButton() );
+    m_KeepDelShellElementsToggleGroup.AddButton( m_DelShellElementsToggle.GetFlButton() );
 
     m_GenLayout.SetSameLineFlag( false );
     m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.ForceNewLine();
+
+    m_GenLayout.AddButton( m_CreateBeamElementsToggle, "Create Beam Elements" );
+
     m_GenLayout.SetChoiceButtonWidth( m_GenLayout.GetRemainX() / 3 );
 
     m_GenLayout.AddChoice( m_ShellPropertyChoice, "Shell Property" );
@@ -1493,14 +1494,15 @@ bool FeaPartEditScreen::Update()
                 {
                     m_FeaPartNameInput.Update( subsurf->GetName() );
 
-                    if ( subsurf->m_IncludedElements() == vsp::FEA_BEAM )
+                    if ( !subsurf->m_CreateBeamElements() )
+                    {
+                        m_CapPropertyChoice.Deactivate();
+                    }
+
+                    if ( subsurf->m_KeepDelShellElements() == vsp::FEA_DELETE )
                     {
                         m_ShellPropertyChoice.Deactivate();
                         m_OrientationChoice.Deactivate();
-                    }
-                    else if ( subsurf->m_IncludedElements() == vsp::FEA_SHELL )
-                    {
-                        m_CapPropertyChoice.Deactivate();
                     }
 
                     if ( subsurf->GetType() == vsp::SS_LINE )
@@ -1511,7 +1513,8 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSLineConstToggleGroup.Update( ssline->m_ConstType.GetID() );
                         m_FeaSSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
                         m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
-                        m_ShellCapToggleGroup.Update( ssline->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( ssline->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( ssline->m_KeepDelShellElements.GetID() );
 
                         if ( ssline->m_TestType() == vsp::NONE )
                         {
@@ -1531,21 +1534,8 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSRecULenSlider.Update( ssrec->m_ULength.GetID() );
                         m_FeaSSRecWLenSlider.Update( ssrec->m_WLength.GetID() );
                         m_FeaSSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
-                        m_ShellCapToggleGroup.Update( ssrec->m_IncludedElements.GetID() );
-
-                        if ( ssrec->m_IncludedElements() == vsp::FEA_BEAM )
-                        {
-                            m_FeaSSRecTestToggleGroup.Deactivate();
-                            ssrec->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
-                        }
-                        else if ( ssrec->m_IncludedElements() == vsp::FEA_SHELL )
-                        {
-                            m_FeaSSRecTestToggleGroup.Activate();
-                        }
-                        else if ( ssrec->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
-                        {
-                            m_FeaSSRecTestToggleGroup.Activate();
-                        }
+                        m_CreateBeamElementsToggle.Update( ssrec->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( ssrec->m_KeepDelShellElements.GetID() );
 
                         if ( ssrec->m_TestType() == vsp::NONE )
                         {
@@ -1566,21 +1556,8 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSEllULenSlider.Update( ssell->m_ULength.GetID() );
                         m_FeaSSEllWLenSlider.Update( ssell->m_WLength.GetID() );
                         m_FeaSSEllThetaSlider.Update( ssell->m_Theta.GetID() );
-                        m_ShellCapToggleGroup.Update( ssell->m_IncludedElements.GetID() );
-
-                        if ( ssell->m_IncludedElements() == vsp::FEA_BEAM )
-                        {
-                            m_FeaSSEllTestToggleGroup.Deactivate();
-                            ssell->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
-                        }
-                        else if ( ssell->m_IncludedElements() == vsp::FEA_SHELL )
-                        {
-                            m_FeaSSEllTestToggleGroup.Activate();
-                        }
-                        else if ( ssell->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
-                        {
-                            m_FeaSSEllTestToggleGroup.Activate();
-                        }
+                        m_CreateBeamElementsToggle.Update( ssell->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( ssell->m_KeepDelShellElements.GetID() );
 
                         if ( ssell->m_TestType() == vsp::NONE )
                         {
@@ -1604,27 +1581,14 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSConSAbsRelToggleGroup.Update( sscon->m_AbsRelFlag.GetID() );
                         m_FeaSSConSEConstButton.Update( sscon->m_ConstFlag.GetID() );
                         m_FeaSSConLEFlagButton.Update( sscon->m_LEFlag.GetID() );
-                        m_ShellCapToggleGroup.Update( sscon->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( sscon->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( sscon->m_KeepDelShellElements.GetID() );
                         m_FeaSSConSAngleButton.Update( sscon->m_StartAngleFlag.GetID() );
                         m_FeaSSConEAngleButton.Update( sscon->m_EndAngleFlag.GetID() );
                         m_FeaSSConSAngleSlider.Update( sscon->m_StartAngle.GetID() );
                         m_FeaSSConEAngleSlider.Update( sscon->m_EndAngle.GetID() );
 
                         m_FeaSSConTessSlider.Update( sscon->m_Tess.GetID() );
-
-                        if ( sscon->m_IncludedElements() == vsp::FEA_BEAM )
-                        {
-                            m_FeaSSConTestToggleGroup.Deactivate();
-                            sscon->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
-                        }
-                        else if ( sscon->m_IncludedElements() == vsp::FEA_SHELL )
-                        {
-                            m_FeaSSConTestToggleGroup.Activate();
-                        }
-                        else if ( sscon->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
-                        {
-                            m_FeaSSConTestToggleGroup.Activate();
-                        }
 
                         if ( sscon->m_TestType() == vsp::NONE )
                         {
@@ -1698,11 +1662,13 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSLineArraySpacingSlider.Update( sslinearray->m_Spacing.GetID() );
                         m_FeaSSLineArrayStartLocSlider.Update( sslinearray->m_StartLocation.GetID() );
                         m_FeaSSLineArrayEndLocSlider.Update( sslinearray->m_EndLocation.GetID() );
-                        m_ShellCapToggleGroup.Update( sslinearray->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( sslinearray->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( sslinearray->m_KeepDelShellElements.GetID() );
+
 
                         m_ShellPropertyChoice.Deactivate();
                         m_OrientationChoice.Deactivate();
-                        m_ShellCapToggleGroup.Deactivate();
+                        m_KeepDelShellElementsToggleGroup.Deactivate();
 
                         FeaPartDispGroup( &m_FeaSSLineArrayGroup );
                     }
@@ -1715,11 +1681,12 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSFLineUEndSlider.Update( ssfline->m_UEnd.GetID() );
                         m_FeaSSFLineWStartSlider.Update( ssfline->m_WStart.GetID() );
                         m_FeaSSFLineWEndSlider.Update( ssfline->m_WEnd.GetID() );
-                        m_ShellCapToggleGroup.Update( ssfline->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( ssfline->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( ssfline->m_KeepDelShellElements.GetID() );
 
                         m_ShellPropertyChoice.Deactivate();
                         m_OrientationChoice.Deactivate();
-                        m_ShellCapToggleGroup.Deactivate();
+                        m_KeepDelShellElementsToggleGroup.Deactivate();
 
                         FeaPartDispGroup( &m_FeaSSFLineGroup );
                     }

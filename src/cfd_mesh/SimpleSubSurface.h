@@ -69,7 +69,8 @@ public:
     int m_Tag;
     int m_TestType;
     int m_MainSurfIndx;
-    int m_IncludedElements;
+    bool m_CreateBeamElements;
+    int m_KeepDelShellElements;
 
 protected:
 

@@ -24,7 +24,8 @@ SimpleSubSurface::SimpleSubSurface()
     m_PolyFlag = true;
     m_TestType = vsp::INSIDE;
     m_MainSurfIndx = 0;
-    m_IncludedElements = 0;
+    m_CreateBeamElements = true;
+    m_KeepDelShellElements = 0;
     m_Type = vsp::SS_LINE;
     m_FeaPropertyIndex = 0;
     m_CapFeaPropertyIndex = 0;
@@ -46,7 +47,8 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
         m_Tag = ss->m_Tag;
         m_TestType = ss->m_TestType.Get();
         m_MainSurfIndx = ss->m_MainSurfIndx.Get();
-        m_IncludedElements = ss->m_IncludedElements.Get();
+        m_CreateBeamElements = ss->m_CreateBeamElements.Get();
+        m_KeepDelShellElements = ss->m_KeepDelShellElements.Get();
         m_FeaPropertyIndex = ss->m_FeaPropertyIndex();
         m_CapFeaPropertyIndex = ss->m_CapFeaPropertyIndex();
         m_FeaOrientationType = ss->m_FeaOrientationType();
