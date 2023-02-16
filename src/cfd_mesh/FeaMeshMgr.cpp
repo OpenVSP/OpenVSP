@@ -2887,13 +2887,13 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( const string &assembly_id, const
 {
     string fn = m_AssemblySettings.GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
 
-    FILE* fp = fopen( fn.c_str(), "w" );
+    FILE* dat_fp = fopen( fn.c_str(), "w" );
 
     // Create temporary file to store NASTRAN bulk data. Case control information (SETs) will be
     //  defined in the *_NASTRAN.dat file prior to the bulk data (elements, gridpoints, etc.)
-    FILE* temp = std::tmpfile();
+    FILE* bdf_fp = std::tmpfile();
 
-    if ( fp && temp )
+    if ( dat_fp && bdf_fp )
     {
         FILE* nkey_fp = NULL;
         if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME ) )
@@ -2907,13 +2907,13 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( const string &assembly_id, const
             }
         }
 
-        WriteAssemblyNASTRAN( fp, temp, nkey_fp, assembly_id, feacount, connoffset );
+        WriteAssemblyNASTRAN( dat_fp, bdf_fp, nkey_fp, assembly_id, feacount, connoffset );
 
-        CloseNASTRAN( fp, temp, nkey_fp );
+        CloseNASTRAN( dat_fp, bdf_fp, nkey_fp );
     }
 }
 
-void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp, const string &assembly_id, const FeaCount &feacount, long long int connoffset )
+void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, const string &assembly_id, const FeaCount &feacount, long long int connoffset )
 {
     FeaAssembly* fea_assembly = StructureMgr.GetFeaAssembly( assembly_id );
 
@@ -2926,31 +2926,31 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey
 
     vector < string > & idvec = fea_assembly->m_StructIDVec;
 
-    if ( fp )
+    if ( dat_fp )
     {
-        fprintf( fp, "$ NASTRAN assembly data file generated from %s\n", VSPVERSION4 );
-        fprintf( fp, "\n" );
-        fprintf( fp, "$ Num_Structures:     %lu\n", idvec.size() );
-        fprintf( fp, "$ Num_Nodes:          %llu\n", feacount.m_NumNodes );
-        fprintf( fp, "$ Num_Els:            %llu\n", feacount.m_NumEls );
-        fprintf( fp, "$ Num_Tris:           %llu\n", feacount.m_NumTris );
-        fprintf( fp, "$ Num_Quads:          %llu\n", feacount.m_NumQuads );
-        fprintf( fp, "$ Num_Beams:          %llu\n", feacount.m_NumBeams );
-        fprintf( fp, "$ Num_Connections:    %lu\n", fea_assembly->m_ConnectionVec.size() );
-        fprintf( fp, "$ Connection_Offset:  %llu\n", connoffset );
-        fprintf( fp, "\n" );
+        fprintf( dat_fp, "$ NASTRAN assembly data file generated from %s\n", VSPVERSION4 );
+        fprintf( dat_fp, "\n" );
+        fprintf( dat_fp, "$ Num_Structures:     %lu\n", idvec.size() );
+        fprintf( dat_fp, "$ Num_Nodes:          %llu\n", feacount.m_NumNodes );
+        fprintf( dat_fp, "$ Num_Els:            %llu\n", feacount.m_NumEls );
+        fprintf( dat_fp, "$ Num_Tris:           %llu\n", feacount.m_NumTris );
+        fprintf( dat_fp, "$ Num_Quads:          %llu\n", feacount.m_NumQuads );
+        fprintf( dat_fp, "$ Num_Beams:          %llu\n", feacount.m_NumBeams );
+        fprintf( dat_fp, "$ Num_Connections:    %lu\n", fea_assembly->m_ConnectionVec.size() );
+        fprintf( dat_fp, "$ Connection_Offset:  %llu\n", connoffset );
+        fprintf( dat_fp, "\n" );
 
         for ( int i = 0; i < idvec.size(); i++ )
         {
             FeaMesh* mesh = GetMeshPtr( idvec[i] );
             if ( mesh )
             {
-                mesh->WriteNASTRANHeader( fp );
+                mesh->WriteNASTRANHeader( dat_fp );
             }
         }
 
         // Write bulk data to temp file
-        fprintf( temp, "\nBEGIN BULK\n" );
+        fprintf( bdf_fp, "\nBEGIN BULK\n" );
 
         int set_cnt = 1;
 
@@ -2959,7 +2959,7 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey
             FeaMesh* mesh = GetMeshPtr( idvec[i] );
             if ( mesh )
             {
-                mesh->WriteNASTRANNodes( fp, temp, nkey_fp, set_cnt );
+                mesh->WriteNASTRANNodes( dat_fp, bdf_fp, nkey_fp, set_cnt );
             }
         }
 
@@ -2968,7 +2968,7 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey
             FeaMesh* mesh = GetMeshPtr( idvec[i] );
             if ( mesh )
             {
-                mesh->WriteNASTRANElements( fp, temp, nkey_fp, set_cnt );
+                mesh->WriteNASTRANElements( dat_fp, bdf_fp, nkey_fp, set_cnt );
             }
         }
 
@@ -2978,21 +2978,21 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey
             FeaConnection* conn = fea_assembly->m_ConnectionVec[i];
             if ( conn )
             {
-                WriteConnectionNASTRAN( temp, conn, connid );
+                WriteConnectionNASTRAN( bdf_fp, conn, connid );
             }
         }
 
-        WriteNASTRANProperties( temp );
+        WriteNASTRANProperties( bdf_fp );
 
-        WriteNASTRANMaterials( temp );
+        WriteNASTRANMaterials( bdf_fp );
 
-        fprintf( temp, "\nENDDATA\n" );
+        fprintf( bdf_fp, "\nENDDATA\n" );
     }
 }
 
-void FeaMeshMgrSingleton::WriteConnectionNASTRAN( FILE* fp, FeaConnection* conn, int &connid )
+void FeaMeshMgrSingleton::WriteConnectionNASTRAN( FILE* bdf_fp, FeaConnection* conn, int &connid )
 {
-    if ( fp && conn )
+    if ( bdf_fp && conn )
     {
         int startnod, endnod;
         DetermineConnectionNodes( conn, startnod, endnod );
@@ -3002,40 +3002,40 @@ void FeaMeshMgrSingleton::WriteConnectionNASTRAN( FILE* fp, FeaConnection* conn,
             BitMask dof = conn->GetAsBitMask();
             string bcstr = dof.AsNASTRAN();
 
-            fprintf( fp, "$ Connection %s\n", conn->MakeName().c_str() );
-            fprintf( fp, "RBAR1   ,%8d,%8d,%8d,%s\n", connid, startnod, endnod, bcstr.c_str() );
-            fprintf( fp, "\n" );
+            fprintf( bdf_fp, "$ Connection %s\n", conn->MakeName().c_str() );
+            fprintf( bdf_fp, "RBAR1   ,%8d,%8d,%8d,%s\n", connid, startnod, endnod, bcstr.c_str() );
+            fprintf( bdf_fp, "\n" );
             connid++;
         }
     }
 }
 
-void FeaMeshMgrSingleton::WriteNASTRANProperties( FILE* temp )
+void FeaMeshMgrSingleton::WriteNASTRANProperties( FILE* bdf_fp )
 {
-    if ( temp )
+    if ( bdf_fp )
     {
         //==== Properties ====//
-        fprintf( temp, "\n" );
-        fprintf( temp, "$Properties\n" );
+        fprintf( bdf_fp, "\n" );
+        fprintf( bdf_fp, "$Properties\n" );
 
         for ( unsigned int i = 0; i < FeaMeshMgr.GetSimplePropertyVec().size(); i++ )
         {
-            FeaMeshMgr.GetSimplePropertyVec()[i].WriteNASTRAN( temp, i + 1 );
+            FeaMeshMgr.GetSimplePropertyVec()[i].WriteNASTRAN( bdf_fp, i + 1 );
         }
     }
 }
 
-void FeaMeshMgrSingleton::WriteNASTRANMaterials( FILE* temp )
+void FeaMeshMgrSingleton::WriteNASTRANMaterials( FILE* bdf_fp )
 {
-    if ( temp )
+    if ( bdf_fp )
     {
         //==== Materials ====//
-        fprintf( temp, "\n" );
-        fprintf( temp, "$Materials\n" );
+        fprintf( bdf_fp, "\n" );
+        fprintf( bdf_fp, "$Materials\n" );
 
         for ( unsigned int i = 0; i < FeaMeshMgr.GetSimpleMaterialVec().size(); i++ )
         {
-            FeaMeshMgr.GetSimpleMaterialVec()[i].WriteNASTRAN( temp, i + 1 );
+            FeaMeshMgr.GetSimpleMaterialVec()[i].WriteNASTRAN( bdf_fp, i + 1 );
         }
     }
 }

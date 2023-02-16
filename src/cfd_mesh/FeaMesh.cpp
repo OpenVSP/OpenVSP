@@ -761,13 +761,13 @@ void FeaMesh::WriteNASTRAN()
 {
     string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
 
-    FILE* fp = fopen( fn.c_str(), "w" ); // Open *_NASTRAN.dat
+    FILE* dat_fp = fopen( fn.c_str(), "w" ); // Open *_NASTRAN.dat
 
     // Create temporary file to store NASTRAN bulk data. Case control information (SETs) will be
     //  defined in the *_NASTRAN.dat file prior to the bulk data (elements, gridpoints, etc.)
-    FILE* temp = std::tmpfile();
+    FILE* bdf_fp = std::tmpfile();
 
-    if ( fp && temp )
+    if ( dat_fp && bdf_fp )
     {
         FILE* nkey_fp = NULL;
         if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME ) )
@@ -781,61 +781,61 @@ void FeaMesh::WriteNASTRAN()
             }
         }
 
-        WriteNASTRAN( fp, temp, nkey_fp );
+        WriteNASTRAN( dat_fp, bdf_fp, nkey_fp );
 
-        CloseNASTRAN( fp, temp, nkey_fp );
+        CloseNASTRAN( dat_fp, bdf_fp, nkey_fp );
     }
 }
 
-void FeaMesh::WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
+void FeaMesh::WriteNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp )
 {
     FeaMeshMgr.ResetPropMatUse();
 
-    if ( fp && temp )
+    if ( dat_fp && bdf_fp )
     {
-        WriteNASTRANHeader( fp );
+        WriteNASTRANHeader( dat_fp );
 
         // Write bulk data to temp file
-        fprintf( temp, "\nBEGIN BULK\n" );
+        fprintf( bdf_fp, "\nBEGIN BULK\n" );
 
 
         int set_cnt = 1;
 
-        WriteNASTRANNodes( fp, temp, nkey_fp, set_cnt );
+        WriteNASTRANNodes( dat_fp, bdf_fp, nkey_fp, set_cnt );
 
-        WriteNASTRANElements( fp, temp, nkey_fp, set_cnt );
+        WriteNASTRANElements( dat_fp, bdf_fp, nkey_fp, set_cnt );
 
-        FeaMeshMgr.WriteNASTRANProperties( temp );
+        FeaMeshMgr.WriteNASTRANProperties( bdf_fp );
 
-        FeaMeshMgr.WriteNASTRANMaterials( temp );
+        FeaMeshMgr.WriteNASTRANMaterials( bdf_fp );
 
-        fprintf( temp, "\nENDDATA\n" );
+        fprintf( bdf_fp, "\nENDDATA\n" );
     }
 }
 
-void FeaMesh::WriteNASTRANHeader( FILE* fp )
+void FeaMesh::WriteNASTRANHeader( FILE* dat_fp )
 {
-    if ( fp )
+    if ( dat_fp )
     {
         // Comments can be at top of NASTRAN file before case control section
-        fprintf( fp, "$ NASTRAN Data File Generated from %s\n", VSPVERSION4 );
-        fprintf( fp, "$ %s\n", m_StructName.c_str() );
-        fprintf( fp, "$ Num_Nodes:       %llu\n", m_NumNodes );
-        fprintf( fp, "$ Num_Els:         %llu\n", m_NumEls );
-        fprintf( fp, "$ Num_Tris:        %llu\n", m_NumTris );
-        fprintf( fp, "$ Num_Quads:       %llu\n", m_NumQuads );
-        fprintf( fp, "$ Num_Beams:       %llu\n", m_NumBeams );
-        fprintf( fp, "$ Node_Offset:     %llu\n", m_StructSettings.m_NodeOffset );
-        fprintf( fp, "$ Element_Offset:  %llu\n", m_StructSettings.m_ElementOffset );
-        fprintf( fp, "\n" );
+        fprintf( dat_fp, "$ NASTRAN Data File Generated from %s\n", VSPVERSION4 );
+        fprintf( dat_fp, "$ %s\n", m_StructName.c_str() );
+        fprintf( dat_fp, "$ Num_Nodes:       %llu\n", m_NumNodes );
+        fprintf( dat_fp, "$ Num_Els:         %llu\n", m_NumEls );
+        fprintf( dat_fp, "$ Num_Tris:        %llu\n", m_NumTris );
+        fprintf( dat_fp, "$ Num_Quads:       %llu\n", m_NumQuads );
+        fprintf( dat_fp, "$ Num_Beams:       %llu\n", m_NumBeams );
+        fprintf( dat_fp, "$ Node_Offset:     %llu\n", m_StructSettings.m_NodeOffset );
+        fprintf( dat_fp, "$ Element_Offset:  %llu\n", m_StructSettings.m_ElementOffset );
+        fprintf( dat_fp, "\n" );
     }
 }
 
-void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt )
+void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt )
 {
     unsigned long long int noffset = m_StructSettings.m_NodeOffset;
 
-    if ( fp && temp )
+    if ( dat_fp && bdf_fp )
     {
         vector < long long int > node_id_vec;
         string name;
@@ -858,11 +858,11 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                             {
                                 FPHeader = true;
 
-                                fprintf( temp, "\n" );
-                                fprintf( temp, "$ %s %s Fixed Gridpoints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                                fprintf( bdf_fp, "\n" );
+                                fprintf( bdf_fp, "$ %s %s Fixed Gridpoints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
                             }
 
-                            m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
+                            m_FeaNodeVec[j]->WriteNASTRAN( bdf_fp, noffset );
                             node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                         }
                     }
@@ -871,7 +871,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
             // Write FEA part node set
             name = m_FeaPartNameVec[i] + "_" + m_StructName + "_FixedGridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
+            WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
         // FeaPart Nodes
@@ -893,11 +893,11 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                             {
                                 partheader = true;
 
-                                fprintf( temp, "\n" );
-                                fprintf( temp, "$ %s %s Gridpoints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                                fprintf( bdf_fp, "\n" );
+                                fprintf( bdf_fp, "$ %s %s Gridpoints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
                             }
 
-                            m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
+                            m_FeaNodeVec[j]->WriteNASTRAN( bdf_fp, noffset );
                             node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                         }
                     }
@@ -906,7 +906,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
             // Write FEA part node set
             name = m_FeaPartNameVec[i] + "_" + m_StructName + "_Gridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
+            WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
         // SubSurface Nodes
@@ -926,10 +926,10 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                         {
                             ssheader = true;
 
-                            fprintf( temp, "\n" );
-                            fprintf( temp, "$ %s %s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+                            fprintf( bdf_fp, "\n" );
+                            fprintf( bdf_fp, "$ %s %s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
                         }
-                        m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
+                        m_FeaNodeVec[j]->WriteNASTRAN( bdf_fp, noffset );
                         node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                     }
                 }
@@ -937,7 +937,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
             // Write subsurface node set
             name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_Gridpoints";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
+            WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
         }
 
         node_id_vec.clear();
@@ -952,11 +952,11 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                 {
                     if ( !IntersectHeader )
                     {
-                        fprintf( temp, "\n" );
-                        fprintf( temp, "$ %s Intersections\n", m_StructName.c_str() );
+                        fprintf( bdf_fp, "\n" );
+                        fprintf( bdf_fp, "$ %s Intersections\n", m_StructName.c_str() );
                         IntersectHeader = true;
                     }
-                    m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
+                    m_FeaNodeVec[j]->WriteNASTRAN( bdf_fp, noffset );
                     node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                 }
             }
@@ -964,7 +964,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
 
         // Write intersection node set
         name = m_StructName + "_Intersection_Gridpoints";
-        WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
+        WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
 
         node_id_vec.clear();
 
@@ -978,27 +978,27 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
             {
                 if ( !RemainingHeader )
                 {
-                    fprintf( temp, "\n" );
-                    fprintf( temp, "$ %s Remainingnodes\n", m_StructName.c_str() );
+                    fprintf( bdf_fp, "\n" );
+                    fprintf( bdf_fp, "$ %s Remainingnodes\n", m_StructName.c_str() );
                     RemainingHeader = true;
                 }
-                m_FeaNodeVec[i]->WriteNASTRAN( temp, noffset );
+                m_FeaNodeVec[i]->WriteNASTRAN( bdf_fp, noffset );
                 node_id_vec.push_back( m_FeaNodeVec[i]->m_Index );
             }
         }
 
         // Write remaining node set
         name = m_StructName + "_Remaining_Gridpoints";
-        WriteNASTRANSet( fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
+        WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
     }
 }
 
-void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt )
+void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt )
 {
     unsigned long long int noffset = m_StructSettings.m_NodeOffset;
     unsigned long long int eoffset = m_StructSettings.m_ElementOffset;
 
-    if ( fp && temp )
+    if ( dat_fp && bdf_fp )
     {
         string name;
         vector < long long int > shell_elem_id_vec, beam_elem_id_vec;
@@ -1022,11 +1022,11 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
                         {
                             FPHeader = true;
 
-                            fprintf( temp, "\n" );
-                            fprintf( temp, "$ %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
+                            fprintf( bdf_fp, "\n" );
+                            fprintf( bdf_fp, "$ %s %s\n", m_FeaPartNameVec[fxpt.m_FeaPartIndex].c_str(), m_StructName.c_str() );
                         }
 
-                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, -1, noffset, eoffset ); // property ID ignored for Point Masses
+                        m_FeaElementVec[j]->WriteNASTRAN( bdf_fp, elem_id, -1, noffset, eoffset ); // property ID ignored for Point Masses
                         mass_elem_id_vec.push_back( elem_id );
                         elem_id++;
                     }
@@ -1034,7 +1034,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
 
                 // Write mass element set
                 name = m_FeaPartNameVec[fxpt.m_FeaPartIndex] + "_" +  m_StructName + "_MassElements";
-                WriteNASTRANSet( fp, nkey_fp, set_cnt, mass_elem_id_vec, name, eoffset );
+                WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, mass_elem_id_vec, name, eoffset );
             }
         }
 
@@ -1059,19 +1059,19 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
                         {
                             partheader = true;
 
-                            fprintf( temp, "\n" );
-                            fprintf( temp, "$ %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str()  );
+                            fprintf( bdf_fp, "\n" );
+                            fprintf( bdf_fp, "$ %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str()  );
                         }
 
                         if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
                         {
-                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
+                            m_FeaElementVec[j]->WriteNASTRAN( bdf_fp, elem_id, property_id, noffset, eoffset );
                             shell_elem_id_vec.push_back( elem_id );
                             FeaMeshMgr.MarkPropMatUsed( property_id );
                         }
                         else
                         {
-                            m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
+                            m_FeaElementVec[j]->WriteNASTRAN( bdf_fp, elem_id, cap_property_id, noffset, eoffset );
                             beam_elem_id_vec.push_back( elem_id );
                             FeaMeshMgr.MarkPropMatUsed( cap_property_id );
                         }
@@ -1082,11 +1082,11 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
 
                 // Write shell element set
                 name = m_FeaPartNameVec[i] + "_" + m_StructName + "_ShellElements";
-                WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
+                WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
 
                 // Write beam element set
                 name = m_FeaPartNameVec[i] + "_" + m_StructName + "_BeamElements";
-                WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
+                WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
             }
         }
 
@@ -1109,19 +1109,19 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
                     {
                         ssheader = true;
 
-                        fprintf( temp, "\n" );
-                        fprintf( temp, "$ %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+                        fprintf( bdf_fp, "\n" );
+                        fprintf( bdf_fp, "$ %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
                     }
 
                     if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
                     {
-                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
+                        m_FeaElementVec[j]->WriteNASTRAN( bdf_fp, elem_id, property_id, noffset, eoffset );
                         shell_elem_id_vec.push_back( elem_id );
                         FeaMeshMgr.MarkPropMatUsed( property_id );
                     }
                     else
                     {
-                        m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, cap_property_id, noffset, eoffset );
+                        m_FeaElementVec[j]->WriteNASTRAN( bdf_fp, elem_id, cap_property_id, noffset, eoffset );
                         beam_elem_id_vec.push_back( elem_id );
                         FeaMeshMgr.MarkPropMatUsed( cap_property_id );
                     }
@@ -1132,23 +1132,23 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
 
             // Write shell element set
             name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_ShellElements";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
+            WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, shell_elem_id_vec, name, eoffset );
 
             // Write beam element set
             name = m_SimpleSubSurfaceVec[i].GetName() + "_" + m_StructName + "_BeamElements";
-            WriteNASTRANSet( fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
+            WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, beam_elem_id_vec, name, eoffset );
         }
     }
 }
 
-void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
+void CloseNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp )
 {
-    if ( fp && temp )
+    if ( dat_fp && bdf_fp )
     {
         // Obtain file size:
-        fseek( temp, 0, SEEK_END );
-        long lSize = ftell( temp );
-        rewind( temp );
+        fseek( bdf_fp, 0, SEEK_END );
+        long lSize = ftell( bdf_fp );
+        rewind( bdf_fp );
 
         // Allocate memory to contain the whole file:
         char * buffer = (char*)malloc( sizeof( char )*lSize + 1 );
@@ -1158,7 +1158,7 @@ void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
         }
 
         // Copy the file into the buffer:
-        size_t result = fread( buffer, 1, lSize, temp );
+        size_t result = fread( buffer, 1, lSize, bdf_fp );
         buffer[ result ] = '\0';
         if ( result != lSize )
         {
@@ -1166,11 +1166,11 @@ void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
         }
 
         // The whole file is now loaded in the memory buffer. Write to NASTRAN file
-        fprintf( fp, "%s", buffer );
+        fprintf( dat_fp, "%s", buffer );
 
         // Close open files and free memory
-        fclose( fp );
-        fclose( temp );
+        fclose( dat_fp );
+        fclose( bdf_fp );
         free( buffer );
 
         if ( nkey_fp )
@@ -1180,33 +1180,33 @@ void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp )
     }
 }
 
-void FeaMesh::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < long long int > set_ids, const string &set_name, const long long int &offset )
+void FeaMesh::WriteNASTRANSet( FILE* dat_fp, FILE* nkey_fp, int & set_num, vector < long long int > set_ids, const string &set_name, const long long int &offset )
 {
-    if ( set_ids.size() > 0 && Nastran_fid )
+    if ( set_ids.size() > 0 && dat_fp )
     {
-        fprintf( Nastran_fid, "\n$ %d, %s\n", set_num, set_name.c_str() );
-        fprintf( Nastran_fid, "SET %d = ", set_num );
+        fprintf( dat_fp, "\n$ %d, %s\n", set_num, set_name.c_str() );
+        fprintf( dat_fp, "SET %d = ", set_num );
 
         for ( size_t i = 0; i < set_ids.size(); i++ )
         {
-            fprintf( Nastran_fid, "%lld", set_ids[i] + offset );
+            fprintf( dat_fp, "%lld", set_ids[i] + offset );
 
             if ( i != set_ids.size() - 1 )
             {
-                fprintf( Nastran_fid, "," );
+                fprintf( dat_fp, "," );
 
                 if ( ( i + 1 ) % 9 == 0 ) // 9 IDs per line
                 {
-                    fprintf( Nastran_fid, "\n" );
+                    fprintf( dat_fp, "\n" );
                 }
             }
         }
 
-        fprintf( Nastran_fid, "\n" );
+        fprintf( dat_fp, "\n" );
 
-        if ( NKey_fid ) // Write to NASTRAN key file if defined
+        if ( nkey_fp ) // Write to NASTRAN key file if defined
         {
-            fprintf( NKey_fid, "%d,%s\n", set_num, set_name.c_str() );
+            fprintf( nkey_fp, "%d,%s\n", set_num, set_name.c_str() );
         }
 
         set_num++; // Increment set identification number

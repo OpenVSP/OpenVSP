@@ -223,10 +223,10 @@ public:
     virtual void WriteCalculixMaterials( FILE* fp );
 
     virtual void WriteAssemblyNASTRAN( const string &assembly_id, const FeaCount &feacount, long long int connoffset );
-    virtual void WriteAssemblyNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp, const string &assembly_id, const FeaCount &feacount, long long int connoffset );
-    virtual void WriteConnectionNASTRAN( FILE* fp, FeaConnection* conn, int &connid );
-    virtual void WriteNASTRANProperties( FILE* temp );
-    virtual void WriteNASTRANMaterials( FILE* temp );
+    virtual void WriteAssemblyNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, const string &assembly_id, const FeaCount &feacount, long long int connoffset );
+    virtual void WriteConnectionNASTRAN( FILE* bdf_fp, FeaConnection* conn, int &connid );
+    virtual void WriteNASTRANProperties( FILE* bdf_fp );
+    virtual void WriteNASTRANMaterials( FILE* bdf_fp );
 
     virtual void DetermineConnectionNodes( FeaConnection* conn, int &startnod, int &endnod );
 

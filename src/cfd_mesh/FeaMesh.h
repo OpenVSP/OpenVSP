@@ -10,7 +10,7 @@
 #include "SimpleSubSurface.h"
 #include "SimpleBC.h"
 
-void CloseNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp );
+void CloseNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp );
 
 class FixPoint
 {
@@ -88,16 +88,16 @@ public:
     virtual void WriteCalculixProperties( FILE* fp );
 
     virtual void WriteNASTRAN();
-    virtual void WriteNASTRAN( FILE* fp, FILE* temp, FILE* nkey_fp );
-    virtual void WriteNASTRANHeader( FILE* fp );
-    virtual void WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt );
-    virtual void WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_cnt );
+    virtual void WriteNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp );
+    virtual void WriteNASTRANHeader( FILE* dat_fp );
+    virtual void WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt );
+    virtual void WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt );
 
     virtual void WriteGmsh();
     virtual void WriteSTL();
 
     // Was protected.
-    virtual void WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < long long int > set_ids, const string &set_name, const long long int &offset );
+    virtual void WriteNASTRANSet( FILE* dat_fp, FILE* nkey_fp, int & set_num, vector < long long int > set_ids, const string &set_name, const long long int &offset );
 
     virtual void ComputeWriteMass();
 
