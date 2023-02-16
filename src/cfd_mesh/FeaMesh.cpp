@@ -879,8 +879,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         {
             node_id_vec.clear();
 
-            fprintf( temp, "\n" );
-            fprintf( temp, "$ %s %s Gridpoints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+            bool partheader = false;
 
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
@@ -890,6 +889,14 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                     {
                         if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
                         {
+                            if ( !partheader )
+                            {
+                                partheader = true;
+
+                                fprintf( temp, "\n" );
+                                fprintf( temp, "$ %s %s Gridpoints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                            }
+
                             m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                             node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                         }
@@ -905,8 +912,7 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
         // SubSurface Nodes
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            fprintf( temp, "\n" );
-            fprintf( temp, "$ %s %s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+            bool ssheader = false;
 
             node_id_vec.clear();
 
@@ -916,6 +922,13 @@ void FeaMesh::WriteNASTRANNodes( FILE* fp, FILE* temp, FILE* nkey_fp, int &set_c
                 {
                     if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
                     {
+                        if ( !ssheader )
+                        {
+                            ssheader = true;
+
+                            fprintf( temp, "\n" );
+                            fprintf( temp, "$ %s %s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+                        }
                         m_FeaNodeVec[j]->WriteNASTRAN( temp, noffset );
                         node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
                     }
@@ -1030,8 +1043,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
             {
-                fprintf( temp, "\n" );
-                fprintf( temp, "$ %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str()  );
+                bool partheader = false;
 
                 shell_elem_id_vec.clear();
                 beam_elem_id_vec.clear();
@@ -1043,6 +1055,14 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
                 {
                     if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
+                        if ( !partheader )
+                        {
+                            partheader = true;
+
+                            fprintf( temp, "\n" );
+                            fprintf( temp, "$ %s %s\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str()  );
+                        }
+
                         if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
                         {
                             m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
@@ -1073,8 +1093,7 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
         // Write FeaSubSurfaces
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            fprintf( temp, "\n" );
-            fprintf( temp, "$ %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+            bool ssheader = false;
 
             int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
             int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
@@ -1086,6 +1105,14 @@ void FeaMesh::WriteNASTRANElements( FILE* fp, FILE* temp, FILE* nkey_fp, int &se
             {
                 if ( m_FeaElementVec[j]->GetFeaSSIndex() == i )
                 {
+                    if ( !ssheader )
+                    {
+                        ssheader = true;
+
+                        fprintf( temp, "\n" );
+                        fprintf( temp, "$ %s %s\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+                    }
+
                     if ( m_FeaElementVec[j]->GetElementType() != FeaElement::FEA_BEAM )
                     {
                         m_FeaElementVec[j]->WriteNASTRAN( temp, elem_id, property_id, noffset, eoffset );
