@@ -2885,13 +2885,22 @@ void FeaMeshMgrSingleton::WriteCalculixMaterials( FILE* fp )
 
 void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( const string &assembly_id, const FeaCount &feacount, long long int connoffset )
 {
-    string fn = m_AssemblySettings.GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
+    string dat_fn = m_AssemblySettings.GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
 
-    FILE* dat_fp = fopen( fn.c_str(), "w" );
+    string bdf_fn = dat_fn;
+    int pos = bdf_fn.find( ".dat" );
+    if ( pos >= 0 )
+    {
+        bdf_fn.erase( pos, bdf_fn.length() - 1 );
+    }
+    bdf_fn.append( ".bdf" );
+
+
+    FILE* dat_fp = fopen( dat_fn.c_str(), "w" );
 
     // Create temporary file to store NASTRAN bulk data. Case control information (SETs) will be
     //  defined in the *_NASTRAN.dat file prior to the bulk data (elements, gridpoints, etc.)
-    FILE* bdf_fp = std::tmpfile();
+    FILE* bdf_fp = fopen( bdf_fn.c_str(), "w" );
 
     if ( dat_fp && bdf_fp )
     {
