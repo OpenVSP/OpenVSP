@@ -775,9 +775,11 @@ void FeaMesh::WriteNASTRAN()
 
     // Create temporary file to store NASTRAN bulk data. Case control information (SETs) will be
     //  defined in the *_NASTRAN.dat file prior to the bulk data (elements, gridpoints, etc.)
-    FILE* bdf_fp = fopen( bdf_fn.c_str(), "w" );
+    FILE* bdf_fp = std::tmpfile();
 
-    if ( dat_fp && bdf_fp )
+    FILE* bdf_header_fp = fopen( bdf_fn.c_str(), "w" );
+
+    if ( dat_fp && bdf_header_fp && bdf_fp )
     {
         FILE* nkey_fp = NULL;
         if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME ) )
@@ -791,22 +793,22 @@ void FeaMesh::WriteNASTRAN()
             }
         }
 
-        WriteNASTRAN( dat_fp, bdf_fp, nkey_fp );
+        WriteNASTRAN( dat_fp, bdf_header_fp, bdf_fp, nkey_fp );
 
-        CloseNASTRAN( dat_fp, bdf_fp, nkey_fp );
+        CloseNASTRAN( dat_fp, bdf_header_fp, bdf_fp, nkey_fp );
     }
 }
 
-void FeaMesh::WriteNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp )
+void FeaMesh::WriteNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_fp )
 {
     FeaMeshMgr.ResetPropMatUse();
 
-    if ( dat_fp && bdf_fp )
+    if ( dat_fp && bdf_header_fp && bdf_fp )
     {
         WriteNASTRANHeader( dat_fp );
 
         // Write bulk data to temp file
-        fprintf( bdf_fp, "\nBEGIN BULK\n" );
+        fprintf( bdf_header_fp, "BEGIN BULK\n" );
 
 
         int set_cnt = 1;
@@ -815,9 +817,9 @@ void FeaMesh::WriteNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp )
 
         WriteNASTRANElements( dat_fp, bdf_fp, nkey_fp, set_cnt );
 
-        FeaMeshMgr.WriteNASTRANProperties( bdf_fp );
+        FeaMeshMgr.WriteNASTRANProperties( bdf_header_fp );
 
-        FeaMeshMgr.WriteNASTRANMaterials( bdf_fp );
+        FeaMeshMgr.WriteNASTRANMaterials( bdf_header_fp );
 
         fprintf( bdf_fp, "\nENDDATA\n" );
     }
@@ -1151,12 +1153,19 @@ void FeaMesh::WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, i
     }
 }
 
-void CloseNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp )
+void CloseNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_fp )
 {
-    if ( dat_fp && bdf_fp )
+    if ( dat_fp )
     {
-        // Close open files
         fclose( dat_fp );
+    }
+
+    if ( bdf_header_fp && bdf_fp )
+    {
+        AppendFile_BtoA( bdf_header_fp, bdf_fp );
+
+        // Close open files
+        fclose( bdf_header_fp );
         fclose( bdf_fp );
     }
 

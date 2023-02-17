@@ -10,7 +10,7 @@
 #include "SimpleSubSurface.h"
 #include "SimpleBC.h"
 
-void CloseNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp );
+void CloseNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_fp );
 
 class FixPoint
 {
@@ -88,7 +88,7 @@ public:
     virtual void WriteCalculixProperties( FILE* fp );
 
     virtual void WriteNASTRAN();
-    virtual void WriteNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp );
+    virtual void WriteNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_fp );
     virtual void WriteNASTRANHeader( FILE* dat_fp );
     virtual void WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt );
     virtual void WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt );

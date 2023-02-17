@@ -2895,14 +2895,15 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( const string &assembly_id, const
     }
     bdf_fn.append( ".bdf" );
 
-
     FILE* dat_fp = fopen( dat_fn.c_str(), "w" );
 
     // Create temporary file to store NASTRAN bulk data. Case control information (SETs) will be
     //  defined in the *_NASTRAN.dat file prior to the bulk data (elements, gridpoints, etc.)
-    FILE* bdf_fp = fopen( bdf_fn.c_str(), "w" );
+    FILE* bdf_fp = std::tmpfile();
 
-    if ( dat_fp && bdf_fp )
+    FILE* bdf_header_fp = fopen( bdf_fn.c_str(), "w" );
+
+    if ( dat_fp && bdf_header_fp && bdf_fp )
     {
         FILE* nkey_fp = NULL;
         if ( m_AssemblySettings.GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME ) )
@@ -2916,13 +2917,13 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( const string &assembly_id, const
             }
         }
 
-        WriteAssemblyNASTRAN( dat_fp, bdf_fp, nkey_fp, assembly_id, feacount, connoffset );
+        WriteAssemblyNASTRAN( dat_fp, bdf_header_fp, bdf_fp, nkey_fp, assembly_id, feacount, connoffset );
 
-        CloseNASTRAN( dat_fp, bdf_fp, nkey_fp );
+        CloseNASTRAN( dat_fp, bdf_header_fp, bdf_fp, nkey_fp );
     }
 }
 
-void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, const string &assembly_id, const FeaCount &feacount, long long int connoffset )
+void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_fp, const string &assembly_id, const FeaCount &feacount, long long int connoffset )
 {
     FeaAssembly* fea_assembly = StructureMgr.GetFeaAssembly( assembly_id );
 
@@ -2959,7 +2960,7 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE
         }
 
         // Write bulk data to temp file
-        fprintf( bdf_fp, "\nBEGIN BULK\n" );
+        fprintf( bdf_header_fp, "BEGIN BULK\n" );
 
         int set_cnt = 1;
 
@@ -2991,9 +2992,9 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE* dat_fp, FILE* bdf_fp, FILE
             }
         }
 
-        WriteNASTRANProperties( bdf_fp );
+        WriteNASTRANProperties( bdf_header_fp );
 
-        WriteNASTRANMaterials( bdf_fp );
+        WriteNASTRANMaterials( bdf_header_fp );
 
         fprintf( bdf_fp, "\nENDDATA\n" );
     }
