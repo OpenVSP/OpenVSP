@@ -813,6 +813,8 @@ void FeaMesh::WriteNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FIL
 
         int set_cnt = 1;
 
+        WriteNASTRANSPC1( bdf_fp );
+
         WriteNASTRANNodes( dat_fp, bdf_fp, nkey_fp, set_cnt );
 
         WriteNASTRANElements( dat_fp, bdf_fp, nkey_fp, set_cnt );
@@ -1002,6 +1004,142 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
         // Write remaining node set
         name = m_StructName + "_Remaining_Gridpoints";
         WriteNASTRANSet( dat_fp, nkey_fp, set_cnt, node_id_vec, name, noffset );
+    }
+}
+
+void FeaMesh::WriteNASTRANSPC1( FILE *bdf_fp )
+{
+    unsigned long long int noffset = m_StructSettings.m_NodeOffset;
+
+    if ( bdf_fp )
+    {
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        {
+            bool FPHeader = false;
+
+            if ( m_FeaPartTypeVec[i] == vsp::FEA_FIX_POINT ) // FixedPoint Nodes
+            {
+                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+                {
+                    if ( m_FeaNodeVecUsed[ j ] )
+                    {
+                        if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( i ) )
+                        {
+                            if ( m_FeaNodeVec[ j ]->m_BCs.AsNum() > 0 )
+                            {
+                                if ( !FPHeader )
+                                {
+                                    FPHeader = true;
+
+                                    fprintf( bdf_fp, "\n" );
+                                    fprintf( bdf_fp, "$ %s %s Fixed point constraints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                                }
+                               m_FeaNodeVec[j]->WriteNASTRAN_SPC1( bdf_fp, noffset );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // FeaPart Nodes
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        {
+            bool partheader = false;
+
+            if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
+            {
+                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+                {
+                    if ( m_FeaNodeVecUsed[ j ] )
+                    {
+                        if ( m_FeaNodeVec[ j ]->HasOnlyTag( i ) )
+                        {
+                            if ( m_FeaNodeVec[ j ]->m_BCs.AsNum() > 0 )
+                            {
+                                if ( !partheader )
+                                {
+                                    partheader = true;
+
+                                    fprintf( bdf_fp, "\n" );
+                                    fprintf( bdf_fp, "$ %s %s Constraints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
+                                }
+                                m_FeaNodeVec[j]->WriteNASTRAN_SPC1( bdf_fp, noffset );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // SubSurface Nodes
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            bool ssheader = false;
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_FeaNodeVecUsed[ j ] )
+                {
+                    if ( m_FeaNodeVec[ j ]->HasOnlyTag( i + m_NumFeaParts ) )
+                    {
+                        if ( m_FeaNodeVec[ j ]->m_BCs.AsNum() > 0 )
+                        {
+                            if ( !ssheader )
+                            {
+                                ssheader = true;
+
+                                fprintf( bdf_fp, "\n" );
+                                fprintf( bdf_fp, "$ %s %s Constraints\n", m_SimpleSubSurfaceVec[i].GetName().c_str(), m_StructName.c_str() );
+                            }
+                            m_FeaNodeVec[j]->WriteNASTRAN_SPC1( bdf_fp, noffset );
+                        }
+                    }
+                }
+            }
+        }
+
+        // Intersection Nodes
+        bool IntersectHeader = false;
+        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+        {
+            if ( m_FeaNodeVecUsed[ j ] )
+            {
+                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
+                {
+                    if ( m_FeaNodeVec[ j ]->m_BCs.AsNum() > 0 )
+                    {
+                        if ( !IntersectHeader )
+                        {
+                            fprintf( bdf_fp, "\n" );
+                            fprintf( bdf_fp, "$ %s Intersection constraints\n", m_StructName.c_str() );
+                            IntersectHeader = true;
+                        }
+                        m_FeaNodeVec[j]->WriteNASTRAN_SPC1( bdf_fp, noffset );
+                    }
+                }
+            }
+        }
+
+        //==== Remaining Nodes ====//
+        bool RemainingHeader = false;
+        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+        {
+            if ( m_FeaNodeVecUsed[ i ] && m_FeaNodeVec[i]->m_Tags.size() == 0 )
+            {
+                if ( m_FeaNodeVec[ i ]->m_BCs.AsNum() > 0 )
+                {
+                    if ( !RemainingHeader )
+                    {
+                        fprintf( bdf_fp, "\n" );
+                        fprintf( bdf_fp, "$ %s Remaining node constraints\n", m_StructName.c_str() );
+                        RemainingHeader = true;
+                    }
+                    m_FeaNodeVec[i]->WriteNASTRAN_SPC1( bdf_fp, noffset );
+                }
+            }
+        }
+
     }
 }
 

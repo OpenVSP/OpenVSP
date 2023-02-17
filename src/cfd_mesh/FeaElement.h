@@ -49,7 +49,8 @@ public:
     bool HasOnlyTag( int ind );
     vector< int > m_Tags;
 
-    void WriteNASTRAN( FILE* fp, long long int noffset );
+    void WriteNASTRAN( FILE* fp, long long int noffset, bool includeBC = false );
+    void WriteNASTRAN_SPC1( FILE* fp, long long int noffset );
     void WriteCalculix( FILE* fp, long long int noffset );
     void WriteCalculixBCs( FILE* fp, long long int noffset );
     void WriteGmsh( FILE* fp, long long int noffset );

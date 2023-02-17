@@ -62,16 +62,30 @@ long long int FeaNode::GetIndex()
     return m_Index;
 }
 
-void FeaNode::WriteNASTRAN( FILE* fp, long long int noffset )
+void FeaNode::WriteNASTRAN( FILE* fp, long long int noffset, bool includeBC )
 {
     double x = m_Pnt.x();
     double y = m_Pnt.y();
     double z = m_Pnt.z();
 
-    string bcstr = m_BCs.AsNASTRAN();
+    string bcstr;
+    if ( includeBC )
+    {
+        bcstr = m_BCs.AsNASTRAN();
+    }
 
     string fmt = "GRID    ,%8lld,        ," + NasFmt( x ) + "," + NasFmt( y ) + "," + NasFmt( z ) + ",        ,%s\n";
     fprintf( fp, fmt.c_str(), m_Index + noffset, x, y, z, bcstr.c_str() );
+}
+
+void FeaNode::WriteNASTRAN_SPC1( FILE* fp, long long int noffset )
+{
+    if ( m_BCs.AsNum() > 0 )
+    {
+        string bcstr = m_BCs.AsNASTRAN();
+
+        fprintf( fp, "SPC1    ,       1,%8s,%8lld\n",  bcstr.c_str(), m_Index + noffset );
+    }
 }
 
 void FeaNode::WriteCalculix( FILE* fp, long long int noffset )

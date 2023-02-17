@@ -2969,6 +2969,16 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE *dat_fp, FILE *bdf_header_f
             FeaMesh* mesh = GetMeshPtr( idvec[i] );
             if ( mesh )
             {
+                mesh->WriteNASTRANSPC1( bdf_fp );
+            }
+        }
+
+
+        for ( int i = 0; i < idvec.size(); i++ )
+        {
+            FeaMesh* mesh = GetMeshPtr( idvec[i] );
+            if ( mesh )
+            {
                 mesh->WriteNASTRANNodes( dat_fp, bdf_fp, nkey_fp, set_cnt );
             }
         }

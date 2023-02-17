@@ -91,6 +91,7 @@ public:
     virtual void WriteNASTRAN( FILE *dat_fp, FILE *bdf_header_fp, FILE *bdf_fp, FILE *nkey_fp );
     virtual void WriteNASTRANHeader( FILE* dat_fp );
     virtual void WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt );
+    virtual void WriteNASTRANSPC1( FILE *bdf_fp );
     virtual void WriteNASTRANElements( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int &set_cnt );
 
     virtual void WriteGmsh();
