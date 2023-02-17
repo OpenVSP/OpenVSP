@@ -2698,16 +2698,16 @@ void * feamesh_thread_fun( void *data )
 
 void StructScreen::LaunchFEAMesh()
 {
-    // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
-    FeaMeshMgr.SetFeaMeshInProgress( true );
-
-    // Identify which structure to mesh
-    FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
-
-    m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
-
     if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
     {
+        // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
+        FeaMeshMgr.SetFeaMeshInProgress( true );
+
+        // Identify which structure to mesh
+        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+
+        m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
+
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
         structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
@@ -2732,19 +2732,25 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FeaExportFEMButton )
     {
-        FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
-        FeaMeshMgr.ExportFeaMesh( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        {
+            FeaMeshMgr.addOutputText( "Exporting Mesh Files\n" );
+            FeaMeshMgr.ExportFeaMesh( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+        }
     }
     else if ( device == &m_IntersectOnlyButton )
     {
-        // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
-        FeaMeshMgr.SetFeaMeshInProgress( true );
-        FeaMeshMgr.SetCADOnlyFlag( true );
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+        {
+            // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
+            FeaMeshMgr.SetFeaMeshInProgress( true );
+            FeaMeshMgr.SetCADOnlyFlag( true );
 
-        // Identify which structure to mesh
-        FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
+            // Identify which structure to mesh
+            FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
 
-        m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
+            m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
+        }
     }
     else if ( device == &m_ExportCADButton )
     {
