@@ -212,7 +212,11 @@ string StringUtil::NasFmt( double input )
     double ainput = std::abs( input );
     if ( input > 0 )  // Positive branch
     {
-        if ( ainput < 0.001 )  // Small magnitude, scientific notation
+        if ( ainput == 0.0 )
+        {
+            return string( "%08.2e" );
+        }
+        else if ( ainput < 0.001 )  // Small magnitude, scientific notation
         {
             return string( "%8.2e" );
         }
@@ -251,7 +255,11 @@ string StringUtil::NasFmt( double input )
     }
     else
     {
-        if ( ainput < 0.001 )  // Small magnitude, scientific notation
+        if ( ainput == 0.0 )
+        {
+            return string( "%08.1e" );
+        }
+        else if ( ainput < 0.001 )  // Small magnitude, scientific notation
         {
             return string( "%8.1e" );
         }

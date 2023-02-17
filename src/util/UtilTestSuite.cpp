@@ -670,6 +670,8 @@ void UtilTestSuite::FormatWidthTest()
 {
     double v = 1234567890.1234567890;
 
+    bool print = true;
+
     int len = 8;
     string fmt;
     char buf[50];
@@ -677,7 +679,7 @@ void UtilTestSuite::FormatWidthTest()
     for ( int i = 0; i < 20; i++ )
     {
         fmt = StringUtil::NasFmt( v ) + "\n";
-        // printf( fmt.c_str(), v );
+        if ( print ) printf( fmt.c_str(), v );
 
         snprintf( buf, sizeof( buf ), fmt.c_str(), v );
         sbuf = string( buf );
@@ -685,7 +687,7 @@ void UtilTestSuite::FormatWidthTest()
         TEST_ASSERT( sbuf.length() == len + 1 );
 
         fmt = StringUtil::NasFmt( -v ) + "\n";
-        // printf( fmt.c_str(), -v );
+        if ( print ) printf( fmt.c_str(), -v );
 
         snprintf( buf, sizeof( buf ), fmt.c_str(), -v );
         sbuf = string( buf );
@@ -695,6 +697,35 @@ void UtilTestSuite::FormatWidthTest()
         v = v / 10;
     }
 
+    v = 0.0;
+
+    fmt = StringUtil::NasFmt( v ) + "\n";
+    if ( print ) printf( fmt.c_str(), v );
+
+    snprintf( buf, sizeof( buf ), fmt.c_str(), v );
+    sbuf = string( buf );
+    StringUtil::remove_leading_trailing( sbuf, ' ' );
+    TEST_ASSERT( sbuf.length() == len + 1 );
+
+    v = -0.0;
+
+    fmt = StringUtil::NasFmt( v ) + "\n";
+    if ( print ) printf( fmt.c_str(), v );
+
+    snprintf( buf, sizeof( buf ), fmt.c_str(), v );
+    sbuf = string( buf );
+    StringUtil::remove_leading_trailing( sbuf, ' ' );
+    TEST_ASSERT( sbuf.length() == len + 1);
+
+    v += 0.0;
+
+    fmt = StringUtil::NasFmt( v ) + "\n";
+    if ( print ) printf( fmt.c_str(), v );
+
+    snprintf( buf, sizeof( buf ), fmt.c_str(), v );
+    sbuf = string( buf );
+    StringUtil::remove_leading_trailing( sbuf, ' ' );
+    TEST_ASSERT( sbuf.length() == len + 1);
 }
 
 void UtilTestSuite::NumbersTest()
