@@ -5600,6 +5600,15 @@ FeaAssembly::~FeaAssembly()
 
 void FeaAssembly::Update()
 {
+    for ( int i = 0; i < m_StructIDVec.size(); i++ )
+    {
+        FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_StructIDVec[i] );
+        if ( !fea_struct )
+        {
+            DelStructure( m_StructIDVec[i] );
+        }
+    }
+
     for ( int i = 0 ; i < ( int )m_ConnectionVec.size() ; i++ )
     {
         FeaConnection* conn = m_ConnectionVec[i];

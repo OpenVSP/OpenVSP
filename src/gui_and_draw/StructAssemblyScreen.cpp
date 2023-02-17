@@ -494,26 +494,30 @@ void StructAssemblyScreen::UpdateStructTab()
     {
         int indx = vector_find_val( m_StructIDs, idvec[i] );
 
-        string ready( "N" );
-
-        FeaStructure* fea_struct = StructureMgr.GetFeaStruct( idvec[i] );
-
-        if ( fea_struct )
+        if ( indx >= 0 )
         {
-            FeaMesh* mesh = FeaMeshMgr.GetMeshPtr( idvec[i] );
-            if ( mesh )
+            string ready( "N" );
+
+            FeaStructure *fea_struct = StructureMgr.GetFeaStruct( idvec[ i ] );
+
+            if ( fea_struct )
             {
-                if ( mesh->m_MeshReady )
+                FeaMesh *mesh = FeaMeshMgr.GetMeshPtr( idvec[ i ] );
+                if ( mesh )
                 {
-                    ready = "Y";
+                    if ( mesh->m_MeshReady )
+                    {
+                        ready = "Y";
+                    }
                 }
             }
+
+            char str[256];
+            snprintf( str, sizeof( str ),  "%s:%s:", names[indx].c_str(), ready.c_str() );
+
+
+            m_StructureSelectBrowser->add( str );
         }
-
-        char str[256];
-        snprintf( str, sizeof( str ),  "%s:%s:", names[indx].c_str(), ready.c_str() );
-
-        m_StructureSelectBrowser->add( str );
     }
 
     m_StructureSelectBrowser->select( m_StructureBrowserIndex + 2 );
