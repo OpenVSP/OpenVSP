@@ -708,7 +708,7 @@ void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET, const stri
     }
 
     string matname = m_MaterialName;
-    chance_space_to_underscore( matname );
+    change_space_to_underscore( matname );
 
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
@@ -827,7 +827,7 @@ void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id ) const
     }
 
     string matname = m_Name;
-    chance_space_to_underscore( matname );
+    change_space_to_underscore( matname );
 
     if ( m_FeaMaterialType == vsp::FEA_ISOTROPIC )
     {

@@ -616,7 +616,7 @@ void WireGeom::ReadXSec( FILE* fp )
     fscanf( fp, " PTS/CROSS SECTION = %d\n", &( num_pnts ) );
 
     m_Name = string( name_str );
-    StringUtil::chance_space_to_underscore( m_Name );
+    StringUtil::change_space_to_underscore( m_Name );
     m_WireType = type;
 
     //===== Size Cross Vec ====//

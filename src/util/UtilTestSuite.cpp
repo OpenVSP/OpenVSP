@@ -173,8 +173,8 @@ void UtilTestSuite::StringUtilTest()
     string str( "What_Up_This_Is_A_Test" );
     StringUtil::change_from_to( str, '_', ' ' );
     TEST_ASSERT( str.compare( "What Up This Is A Test" ) == 0 );
-    StringUtil::chance_space_to_underscore( str );
-    StringUtil::chance_underscore_to_space( str );
+    StringUtil::change_space_to_underscore( str );
+    StringUtil::change_underscore_to_space( str );
     TEST_ASSERT( str.compare( "What Up This Is A Test" ) == 0 );
 
     str.assign( "    Leading_Trailing_Spaces      " );

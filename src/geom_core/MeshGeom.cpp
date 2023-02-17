@@ -1201,7 +1201,7 @@ void MeshGeom::WritePovRay( FILE* fid, int comp_num )
 {
     // Make Sure FlattenTMeshVec has been called first
     string name = GetName();
-    StringUtil::chance_space_to_underscore( name );
+    StringUtil::change_space_to_underscore( name );
     Matrix4d transMat = GetTotalTransMat();
 
     fprintf( fid, "#declare %s_%d = mesh { \n", name.c_str(), comp_num );

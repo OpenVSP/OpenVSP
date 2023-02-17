@@ -67,12 +67,12 @@ void StringUtil::remove_all( string& str, const char& c )
 }
 
 //==== Change All "_" Characters -> " " Characters ====//
-void StringUtil::chance_underscore_to_space( string & str )
+void StringUtil::change_underscore_to_space( string & str )
 {
     StringUtil::change_from_to( str, '_', ' ' );
 }
 
-void StringUtil::chance_space_to_underscore( string & str )
+void StringUtil::change_space_to_underscore( string & str )
 {
     StringUtil::change_from_to( str, ' ', '_' );
 }

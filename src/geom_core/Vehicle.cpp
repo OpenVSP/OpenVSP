@@ -3189,7 +3189,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
         if (  geom_vec[i]->GetSetFlag( write_set ) )
         {
             string name = geom_vec[i]->GetName();
-            StringUtil::chance_space_to_underscore( name );
+            StringUtil::change_space_to_underscore( name );
             fprintf( pov_file, "mesh { %s_%d texture {darkgreymetal} } \n", name.c_str(), comp_num );
             comp_num++;
         }

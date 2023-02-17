@@ -17,8 +17,8 @@ namespace StringUtil
 void change_from_to( char* str, const char &from, const char &to );
 void change_from_to( string & str, const char &from, const char &to );
 void remove_all( string& str, const char& c );
-void chance_underscore_to_space( string & str );
-void chance_space_to_underscore( string & str );
+void change_underscore_to_space( string & str );
+void change_space_to_underscore( string & str );
 
 bool replace_once( string & str, const string & from, const string & to );
 void replace_all( string & str, const string & from, const string & to  );

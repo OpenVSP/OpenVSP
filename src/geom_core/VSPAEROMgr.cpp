@@ -5503,7 +5503,7 @@ void ControlSurfaceGroup::Write_STP_Data( FILE *InputFile )
 
     // Write out Control surface group to .vspaero file
     nospacename = m_Name;
-    StringUtil::chance_space_to_underscore( nospacename );
+    StringUtil::change_space_to_underscore( nospacename );
     fprintf( InputFile, "%s\n", nospacename.c_str() );
 
     // surface names ( Cannot have trailing commas )
@@ -5511,11 +5511,11 @@ void ControlSurfaceGroup::Write_STP_Data( FILE *InputFile )
     for ( i = 0; i < m_ControlSurfVec.size() - 1; i++ )
     {
         nospacename = m_ControlSurfVec[i].fullName;
-        StringUtil::chance_space_to_underscore( nospacename );
+        StringUtil::change_space_to_underscore( nospacename );
         fprintf( InputFile, "%s,", nospacename.c_str() );
     }
     nospacename = m_ControlSurfVec[i++].fullName;
-    StringUtil::chance_space_to_underscore( nospacename );
+    StringUtil::change_space_to_underscore( nospacename );
     fprintf( InputFile, "%s\n", nospacename.c_str() );
 
     // deflection mixing gains ( Cannot have trailing commas )

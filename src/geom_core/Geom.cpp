@@ -4671,7 +4671,7 @@ void Geom::WriteX3D( xmlNodePtr node )
 void Geom::WritePovRay( FILE* fid, int comp_num )
 {
     string name = GetName();
-    StringUtil::chance_space_to_underscore( name );
+    StringUtil::change_space_to_underscore( name );
     char str[4];
     snprintf( str, sizeof( str ),  "_%d", comp_num );
     name.append( str );
