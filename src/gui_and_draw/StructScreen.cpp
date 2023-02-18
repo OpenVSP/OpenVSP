@@ -119,7 +119,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_StructUnitChoice.AddItem( "MPA (tonne, mm)" );
     m_StructUnitChoice.AddItem( "BFT (slug, ft)" );
     string squared( 1, (char) 178 );
-    string bin_name = "BIN (lbf*sec" + squared + "\\/in, in)";
+    string bin_name = "BIN (lbf sec" + squared + " \/ in, in)";
     m_StructUnitChoice.AddItem( bin_name );
     m_StructureTabLayout.AddChoice( m_StructUnitChoice, "Unit System (Mass, Length)" );
 

@@ -2297,7 +2297,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
         break;
 
         case vsp::BIN_UNIT:
-        mass_unit = "lbf*sec" + squared + "/in";
+        mass_unit = "lbf sec" + squared + " / in";
         dist_unit = "in";
         break;
         }
