@@ -2276,30 +2276,30 @@ void FeaPartEditScreen::UpdateUnitLabels()
 
         switch ( veh->m_StructUnit() )
         {
-        case vsp::SI_UNIT:
-        mass_unit = "kg";
-        dist_unit = "m";
-        break;
+            case vsp::SI_UNIT:
+                mass_unit = "kg";
+                dist_unit = "m";
+                break;
 
-        case vsp::CGS_UNIT:
-        mass_unit = "g";
-        dist_unit = "cm";
-        break;
+            case vsp::CGS_UNIT:
+                mass_unit = "g";
+                dist_unit = "cm";
+                break;
 
-        case vsp::MPA_UNIT:
-        mass_unit = "tonne"; // or Mg/
-        dist_unit = "mm";
-        break;
+            case vsp::MPA_UNIT:
+                mass_unit = "tonne"; // or Mg/
+                dist_unit = "mm";
+                break;
 
-        case vsp::BFT_UNIT:
-        mass_unit = "slug";
-        dist_unit = "ft";
-        break;
+            case vsp::BFT_UNIT:
+                mass_unit = "slug";
+                dist_unit = "ft";
+                break;
 
-        case vsp::BIN_UNIT:
-        mass_unit = "lbf sec" + squared + " / in";
-        dist_unit = "in";
-        break;
+            case vsp::BIN_UNIT:
+                mass_unit = "lbf sec" + squared + " / in";
+                dist_unit = "in";
+                break;
         }
 
         m_FixPointMassUnit.GetFlButton()->copy_label( mass_unit.c_str() );
