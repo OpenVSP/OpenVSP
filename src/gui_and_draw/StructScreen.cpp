@@ -2703,6 +2703,8 @@ void StructScreen::LaunchFEAMesh()
         // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
         FeaMeshMgr.SetFeaMeshInProgress( true );
 
+        m_ConsoleBuffer->text( "" );
+
         // Identify which structure to mesh
         FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
 
