@@ -296,6 +296,7 @@ int SubSurfaceMgrSingleton::FindGNum( const string &gid )
 //==== Write Key File ====//
 void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 {
+    bool writethickthin = false;
     // figure out basename
     string base_name = file_name;
     std::string::size_type loc = base_name.find_last_of( "." );
@@ -316,7 +317,14 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
     fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
     fprintf( fid, "\n" );
-    fprintf( fid, "# tag#,geom#,surf#,gname,gid,thick,ssname1,ssname2,...,ssid1,ssid2,...\n" );
+    if ( writethickthin )
+    {
+        fprintf( fid, "# tag#,geom#,surf#,gname,gid,thick,ssname1,ssname2,...,ssid1,ssid2,...\n" );
+    }
+    else
+    {
+        fprintf( fid, "# tag#,geom#,surf#,gname,gid,ssname1,ssname2,...,ssid1,ssid2,...\n" );
+    }
 
     // Build GeomID set to have unique integer index instead of GeomID.
     std::set< string, greater< string > > gids;
@@ -379,7 +387,14 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         }
 
         // Write tag number and surface list to file
-        fprintf( fid, "%d,%d,%s,%s,%s,%d", tag , gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
+        if ( writethickthin )
+        {
+            fprintf( fid, "%d,%d,%s,%s,%s,%d", tag , gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
+        }
+        else
+        {
+            fprintf( fid, "%d,%d,%s,%s,%s", tag , gnum, snum.c_str(), gname.c_str(), gid_bare.c_str() );
+        }
 
         // Write subsurface information if there is any
         if( !ssnames.empty() )
