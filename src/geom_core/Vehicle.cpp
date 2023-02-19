@@ -238,8 +238,11 @@ Vehicle::Vehicle()
 
     m_MeasureLenUnit.Init( "LenUnit", "Measure", this, vsp::LEN_UNITLESS, vsp::LEN_MM, vsp::LEN_UNITLESS );
 
+    m_StructModelUnit.Init( "StructModelUnit", "FeaStructure", this, vsp::LEN_UNITLESS, vsp::LEN_MM, vsp::LEN_UNITLESS );
+    m_StructModelUnit.SetDescript( "OpenVSP model unit system" );
+
     m_StructUnit.Init( "StructUnit", "FeaStructure", this, vsp::BFT_UNIT, vsp::SI_UNIT, vsp::BIN_UNIT );
-    m_StructUnit.SetDescript( "Unit System for FEA Structures" );
+    m_StructUnit.SetDescript( "Unit System for output FEA Structures" );
 
     m_NumMassSlices.Init( "NumMassSlices", "MassProperties", this, 20, 10, 200 );
     m_NumMassSlices.SetDescript( "Number of slices used to display mesh" );
@@ -5575,6 +5578,44 @@ string Vehicle::ExportSurfacePatches( int set )
 
     veh_surfaces->Add( NameValData( "components", components, "ID's of component results." ) );
     return veh_surfaces->GetID();
+}
+
+double Vehicle::ComputeStructuresScaleFactor()
+{
+    if ( m_StructModelUnit() == vsp::LEN_UNITLESS )
+    {
+        return 1.0;
+    }
+
+    int to_unit = -1;
+    switch ( m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            to_unit = vsp::LEN_M;
+            break;
+
+        case vsp::CGS_UNIT:
+            to_unit = vsp::LEN_CM;
+            break;
+
+        case vsp::MPA_UNIT:
+            to_unit = vsp::LEN_MM;
+            break;
+
+        case vsp::BFT_UNIT:
+            to_unit = vsp::LEN_FT;
+            break;
+
+        case vsp::BIN_UNIT:
+            to_unit = vsp::LEN_IN;
+            break;
+
+        default:
+            return 1.0;
+            break;
+    }
+
+    return ConvertLength( 1.0, m_StructModelUnit(), to_unit );
 }
 
 void Vehicle::SetExportPropMainSurf( bool b )

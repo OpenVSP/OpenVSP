@@ -305,6 +305,8 @@ public:
     virtual vec3d GetXSecLineColor()                    { return m_XSecLineColor; }
     virtual void SetXSecLineColor( vec3d color )        { m_XSecLineColor = color; }
 
+    double ComputeStructuresScaleFactor();
+
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
@@ -485,6 +487,7 @@ public:
     IntParm m_MeasureLenUnit;
 
 
+    IntParm m_StructModelUnit;
     IntParm m_StructUnit;
 
     BoolParm m_CopySetsWithGeomsFlag;
