@@ -13,6 +13,7 @@ FeaMesh::FeaMesh( string & struct_id )
     m_ID = struct_id;
 
     m_TotalMass = 0;
+    m_LenScale = 1.0;
 
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;

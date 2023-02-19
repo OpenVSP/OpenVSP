@@ -162,7 +162,7 @@ void FeaMeshMgrSingleton::LoadSkins()
             skin->FetchFeaXFerSurf( skinxfersurfs, 0, fea_struct->GetUSuppress(), fea_struct->GetWSuppress() );
 
             // Load Skin XFerSurf to m_SurfVec
-            LoadSurfs( skinxfersurfs );
+            LoadSurfs( skinxfersurfs, GetMeshPtr()->m_LenScale );
 
             // begin should be zero here, but we copy the logic from AddStructureSurfParts for readability.
             int begin = m_SurfVec.size() - skinxfersurfs.size();
@@ -202,6 +202,11 @@ void FeaMeshMgrSingleton::TransferMeshSettings()
         }
     }
 
+    GetMeshPtr()->m_LenScale = m_Vehicle->ComputeStructuresScaleFactor();
+
+    char buf[255];
+    snprintf( buf, sizeof( buf ), "Scaling lengths by %f\n", GetMeshPtr()->m_LenScale );
+    addOutputText( buf );
 }
 
 void FeaMeshMgrSingleton::IdentifyCompIDNames()
@@ -729,7 +734,7 @@ void FeaMeshMgrSingleton::AddStructureSurfParts()
                 fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
 
                 // Load FeaPart XFerSurf to m_SurfVec
-                LoadSurfs( partxfersurfs, start_surf_id );
+                LoadSurfs( partxfersurfs, GetMeshPtr()->m_LenScale, start_surf_id );
                 start_surf_id += partxfersurfs.size();
 
                 // Identify the FeaPart index and add to m_FeaPartSurfVec

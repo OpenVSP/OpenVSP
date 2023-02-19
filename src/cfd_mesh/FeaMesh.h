@@ -117,6 +117,9 @@ public:
     double m_TotalMass;
     string m_MassUnit;
 
+    // Scale factor for OpenVSP model to FEA Output length conversion.
+    double m_LenScale;
+
     bool m_MeshReady;
 
     unsigned long long int m_NumFeaParts;
