@@ -647,7 +647,7 @@ void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
     m_Vehicle->FetchXFerSurfs( GetSettingsPtr()->m_SelectedSetIndex, GetSettingsPtr()->m_SelectedDegenSetIndex, xfersurfs );
 }
 
-void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, int start_surf_id )
+void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, double scale, int start_surf_id )
 {
     int maxcompid = -1;
     for ( int i = 0; i < xfersurfs.size(); i++ )
@@ -666,6 +666,8 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, int
         }
 
         surfPtr->SetFlipFlag( xfersurfs[i].m_FlipNormal );
+
+        surfPtr->GetSurfCore()->GetSurf()->scale( scale );
 
         //Sets whether NORMAL, NEGATIVE, TRANSPARENT
         surfPtr->SetSurfaceCfdType(xfersurfs[i].m_SurfCfdType);
