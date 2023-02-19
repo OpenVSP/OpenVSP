@@ -613,7 +613,7 @@ void GeomEngine::UpdateHighlightDrawObj()
             if ( m_engine_spec[i] )
             {
                 char str[256];
-                sprintf( str, "_%d", i );
+                snprintf( str, sizeof( str ), "_%d", i );
 
                 m_OrigSurf.TessULine( eng_loc[i] * umax, m_EngineDrawObj_vec[i].m_PntVec, tol );
                 relTrans.xformvec( m_EngineDrawObj_vec[i].m_PntVec );
