@@ -986,7 +986,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
     
     if ( NumBadLoops ) {
        
-       PRINTF("There were %d loops that we could not find upwind edges for... \n");fflush(NULL);
+       PRINTF("There were %d loops that we could not find upwind edges for... \n",NumBadLoops);fflush(NULL);
 
     }
         

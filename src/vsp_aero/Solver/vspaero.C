@@ -27,7 +27,7 @@ using namespace VSPAERO_SOLVER;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 5
+#define VER_PATCH 6
 
 // Some globals...
 
@@ -233,8 +233,6 @@ int main(int argc, char **argv)
 
     PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
 
-    PAUSE_AUTO_DIFF();
-
     if ( AUTO_DIFF_IS_RECORDING() ) PRINTF("AUTO DIFF is on and we are recording... \n");
 
 #endif
@@ -365,12 +363,8 @@ int main(int argc, char **argv)
                    
     // Setup
 
-    CONTINUE_AUTO_DIFF();
-
     VSP_VLM().Setup();
 
-    PAUSE_AUTO_DIFF();
-   
     // Force no wakes for some number of iterations
     
     if ( NoWakeIteration_ > 0 ) VSP_VLM().NoWakeIteration() = NoWakeIteration_;
@@ -2503,7 +2497,7 @@ void Solve(void)
    
              if ( DoRestartRun_    ) VSP_VLM().DoRestart() = 1;
              
-             if ( Case <= NumCases ) {
+             if ( Case == 1 || Case < NumCases ) {
                 
                 if ( DoAdjointSolve_ ) {
                    
@@ -2857,23 +2851,23 @@ void StabilityAndControlSolve(void)
                    
                 // Store aero coefficients
            
-                CLForCase[Case] = VSP_VLM().CL(); 
+                CLForCase[Case] = VSP_VLM().CL() + VSP_VLM().CLo(); 
                 CDForCase[Case] = VSP_VLM().CD();        
-                CSForCase[Case] = VSP_VLM().CS();        
+                CSForCase[Case] = VSP_VLM().CS() + VSP_VLM().CSo();        
                 
                 CDoForCase[Case] = VSP_VLM().CDo();     
          
-                CFxForCase[Case] = VSP_VLM().CFx();
-                CFyForCase[Case] = VSP_VLM().CFy();       
-                CFzForCase[Case] = VSP_VLM().CFz();       
+                CFxForCase[Case] = VSP_VLM().CFx() + VSP_VLM().CFxo();
+                CFyForCase[Case] = VSP_VLM().CFy() + VSP_VLM().CFyo();       
+                CFzForCase[Case] = VSP_VLM().CFz() + VSP_VLM().CFzo();       
                     
-                CMxForCase[Case] = VSP_VLM().CMx();       
-                CMyForCase[Case] = VSP_VLM().CMy();       
-                CMzForCase[Case] = VSP_VLM().CMz();     
+                CMxForCase[Case] = VSP_VLM().CMx() + VSP_VLM().CMxo();      
+                CMyForCase[Case] = VSP_VLM().CMy() + VSP_VLM().CMyo();      
+                CMzForCase[Case] = VSP_VLM().CMz() + VSP_VLM().CMzo();    
                 
-                CMlForCase[Case] = -VSP_VLM().CMx();       
-                CMmForCase[Case] =  VSP_VLM().CMy();       
-                CMnForCase[Case] = -VSP_VLM().CMz();                     
+                CMlForCase[Case] = -CMxForCase[Case];    
+                CMmForCase[Case] =  CMyForCase[Case];       
+                CMnForCase[Case] = -CMzForCase[Case];                  
 
                 OptimizationFunctionForCase[Case] = 0.;
 

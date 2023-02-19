@@ -192,6 +192,8 @@ void MERGESORT::merge_lists(int *list_1, int *list_2, int list_length,
     int new_list_front, i;
     int x_1, x_2;
 
+    list_1_end = list_2_end = 0;
+    
     // front position of new permutation vector
 
     new_list_front = 1;

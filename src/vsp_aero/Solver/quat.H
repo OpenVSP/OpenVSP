@@ -62,6 +62,10 @@ public:
     
     void Init(VSPAERO_DOUBLE Vec[4]) { Vec_[0] = Vec[0] ; Vec_[1] = Vec[1] ; Vec_[2] = Vec[2] ; Vec_[3] = Vec[3]; };
     
+    /** Return magnitude of quaternion vector **/
+    
+    VSPAERO_DOUBLE Magnitude(void);
+    
     /** Print out quaternion vector **/
 
     void print(char *name);

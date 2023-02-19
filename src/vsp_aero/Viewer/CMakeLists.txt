@@ -41,9 +41,6 @@ IF( NOT VSP_NO_GRAPHICS )
   ADD_EXECUTABLE(vspviewer
     EngineFace.C
     RotorDisk.C
-    TagList.C
-    TagListGroup.C
-    TagRegion.C
     VSP_Agglom.C
     VSP_Body.C
     VSP_DegenGeom.C
@@ -67,9 +64,6 @@ IF( NOT VSP_NO_GRAPHICS )
     GL_VIEWER.forward.declaration.H
     PropElement.H
     RotorDisk.H
-    TagList.H
-    TagListGroup.H
-    TagRegion.H
     VSP_Agglom.H
     VSP_Body.H
     VSP_DegenGeom.H

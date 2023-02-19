@@ -253,7 +253,7 @@ void SEARCH::create_tree_leafs(SEARCH_LEAF *root)
        root->left = left;
    
        left->number_of_nodes = icut;
-   
+
        left->node = new SURFACE_NODE[left->number_of_nodes + 1];
    
        for ( i = 1 ; i <= left->number_of_nodes ; i++ ) {
@@ -293,6 +293,8 @@ void SEARCH::create_tree_leafs(SEARCH_LEAF *root)
        delete [] root->node;
     
        root->node = NULL;
+       
+       root->number_of_nodes = 0;
        
     }
 
@@ -429,6 +431,8 @@ void SEARCH::merge_lists(int *list_1, int *list_2, int list_length, SEARCH_LEAF 
     int   list_2_front, list_2_end;
     int   new_list_front, i;
     VSPAERO_DOUBLE x_1, x_2;
+    
+    list_1_end = list_2_end = 0;
 
     // front position of new permutation vector 
 

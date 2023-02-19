@@ -95,7 +95,7 @@ clean:
 	$(MAKE) -C Adb2Load clean
 
 interface: vspaero_opt
-	CC=$(CC) CXX=$(CXX) CFLAGS="$(SOLVER_CXXFLAGS) $(OPENMP_CXXFLAGS)" LDFLAGS="$(SOLVER_LDFLAGS) $(OPENMP_LDFLAGS)" $(PIP) install -e . --verbose
+	CC=$(CC) CXX=$(CXX) CFLAGS="$(SOLVER_CXXFLAGS) $(OPENMP_CXXFLAGS)" LDFLAGS="$(SOLVER_LDFLAGS) $(OPENMP_LDFLAGS)" $(PIP) install -e .\[all\] --verbose
 
 # test_wing: vspaero vspaero_adjoint
 # 	@cd TestCases/Wing && \

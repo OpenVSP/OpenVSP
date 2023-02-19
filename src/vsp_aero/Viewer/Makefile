@@ -20,9 +20,6 @@ VSPAERO_VIEWER_SRCS	= vspaero_viewer.C    \
 					  viewerUI.C	    	\
 					  ContourLevel.C		\
 					  CuttingPlane.C		\
-					  TagList.C		\
-					  TagRegion.C		\
-					  TagListGroup.C		\
 					  binaryio.C	        \
 					  RotorDisk.C		\
 					  VSP_DegenGeom.C		\

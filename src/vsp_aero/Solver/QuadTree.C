@@ -777,15 +777,7 @@ void QUAD_TREE::SplitCell(int Cell)
           }
           
        }
-       
-       else if ( NeighborCell < 0 ) {
-          
-          PRINTF("wtf! NeighborCell: %d \n",NeighborCell);
-          fflush(NULL);
-          exit(1);
-          
-       }
-       
+
     }
     
     // 4 nodes defining the original quad

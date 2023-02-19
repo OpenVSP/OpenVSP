@@ -112,7 +112,7 @@ Coded By: David J. Kinney
 void vcopy(const float *v1, float *v2)
 {
 
-    register int i;
+    int i;
 
     for (i = 0 ; i < 3 ; i++) {
 

@@ -104,7 +104,7 @@ void VSP_OPTIMIZER::Setup(char *FileName)
    
     int p;
 
-    sprintf(FileName_,"%s",FileName);
+    snprintf(FileName_,sizeof(FileName_)*sizeof(char),"%s",FileName);
 
     printf("Working on file: %s \n",FileName_); fflush(NULL);
     
@@ -159,9 +159,7 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     // Turn on adept stack and create VSP Adjoint object
         
     Adjoint_ = new VSPAERO_ADJOINT::VSP_SOLVER;
-
-    VSPAERO_ADJOINT::PAUSE_AUTO_DIFF();
-    
+   
     // Settings
     
     Adjoint().OptimizationSolve() = 1;
@@ -190,17 +188,11 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     
     // Setup stuff
 
-    VSPAERO_ADJOINT::CONTINUE_AUTO_DIFF();
- 
     Adjoint().Setup();
-        
-    VSPAERO_ADJOINT::PAUSE_AUTO_DIFF();
-    
-    
-    
+  
     // Create some temp arrays
     
-    MaxTempArraySize_ = 3*std::max(Solver().NumberOfGridNodes(), Solver().NumberOfVortexLoops());
+    MaxTempArraySize_ = 3*std::max(std::max(Solver().NumberOfGridNodes(), Solver().NumberOfVortexLoops()), Adjoint().NumberOfAdjointEquations());
     
     TempArray_[0] = new double[MaxTempArraySize_ + 1];
     TempArray_[1] = new double[MaxTempArraySize_ + 1];
@@ -340,6 +332,21 @@ void VSP_OPTIMIZER::SetRotationalRate_r(double R)
    Solver().RotationalRate_r() = R;
    
    Adjoint().RotationalRate_r() = R;
+      
+}   
+
+/*##############################################################################
+#                                                                              #
+#               VSP_OPTIMIZER SetGroupOmegaRotationRate                        #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetGroupOmegaRotationRate(int Group, double Omega)
+{
+   
+   Solver().GroupOmegaRate(Group) = Omega;
+   
+   Adjoint().GroupOmegaRate(Group) = Omega;
       
 }   
 
@@ -510,6 +517,36 @@ void VSP_OPTIMIZER::SetFarDist(double FarDist)
 
 /*##############################################################################
 #                                                                              #
+#                 VSP_OPTIMIZER TurnOnKarmanTsienCorrection                    #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::TurnOnKarmanTsienCorrection(void)
+{
+   
+   Solver().KarmanTsienCorrection() = 1;
+   
+   Adjoint().KarmanTsienCorrection() = 1;
+      
+}
+
+/*##############################################################################
+#                                                                              #
+#                 VSP_OPTIMIZER TurnOffKarmanTsienCorrection                   #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::TurnOffKarmanTsienCorrection(void)
+{
+   
+   Solver().KarmanTsienCorrection() = 1;
+   
+   Adjoint().KarmanTsienCorrection() = 1;
+      
+}
+
+/*##############################################################################
+#                                                                              #
 #                    VSP_OPTIMIZER SetGMRESToleranceFactor                     #
 #                                                                              #
 ##############################################################################*/
@@ -610,7 +647,7 @@ void VSP_OPTIMIZER::ShiftOutputVector(double *Vec1, double *Vec2, int Length)
 
 /*##############################################################################
 #                                                                              #
-#                         VSP_OPTIMIZER Solve                                  #
+#       VSP_OPTIMIZER CalculateMatrixVectorProductAndRightHandSide             #
 #                                                                              #
 ##############################################################################*/
 
@@ -635,16 +672,16 @@ void VSP_OPTIMIZER::CalculateMatrixVectorProductAndRightHandSide(double *VecIn, 
 
 /*##############################################################################
 #                                                                              #
-#                         VSP_OPTIMIZER Solve                                  #
+#     VSP_OPTIMIZER CalculateAdjointMatrixVectorProductAndRightHandSide        #
 #                                                                              #
 ##############################################################################*/
 
-void VSP_OPTIMIZER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS )
+void VSP_OPTIMIZER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS)
 {
 
     // Shift inputs
      
-    ShiftInputVector(VecIn,TempArray_[0],Solver().NumberOfVortexLoops());
+    ShiftInputVector(VecIn,TempArray_[0],Adjoint().NumberOfAdjointEquations());
     
     // Do matrix-vector mult, and get the RHS vector
     
@@ -652,10 +689,151 @@ void VSP_OPTIMIZER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *
 
     // Shift outputs 
         
-    ShiftOutputVector(TempArray_[1],VecOut,Solver().NumberOfVortexLoops());
+    ShiftOutputVector(TempArray_[1],VecOut,Adjoint().NumberOfAdjointEquations());
     
-    ShiftOutputVector(TempArray_[2],RHS,Solver().NumberOfVortexLoops());
+    ShiftOutputVector(TempArray_[2],RHS,Adjoint().NumberOfAdjointEquations());
        
+}
+
+/*##############################################################################
+#                                                                              #
+#              VSP_OPTIMIZER CalculateForwardResidual                          #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::CalculateForwardResidual(double *Gamma, double *Residual)
+{
+
+    // Shift inputs
+    
+    ShiftInputVector(Gamma,TempArray_[0],Solver().NumberOfVortexLoops());
+    
+    // Do matrix-vector mult, and get the RHS vector
+    
+    Solver().CalculateForwardResidual(TempArray_[0], TempArray_[1]);
+
+    // Shift outputs 
+        
+    ShiftOutputVector(TempArray_[1],Residual,Solver().NumberOfVortexLoops());
+
+}
+
+
+/*##############################################################################
+#                                                                              #
+#              VSP_OPTIMIZER CalculateOptimizationFunctions                    #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::CalculateOptimizationFunctions(double *Gamma)
+{
+
+    // Shift inputs
+    
+    ShiftInputVector(Gamma,TempArray_[0],Solver().NumberOfVortexLoops());
+    
+    // Do matrix-vector mult, and get the RHS vector
+    
+    Solver().CalculateOptimizationFunctions(TempArray_[0]);
+
+}
+/*##############################################################################
+#                                                                              #
+#              VSP_OPTIMIZER SolveAdjointLinearSystem                          #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SolveAdjointLinearSystem(double *Psi, double *RHS)
+{
+
+    // Shift inputs
+     
+    ShiftInputVector(RHS,TempArray_[1],Adjoint().NumberOfAdjointEquations());
+    
+    // Do matrix-vector mult, and get the RHS vector
+    
+    Adjoint().SolveAdjointLinearSystem(TempArray_[0], TempArray_[1]);
+
+    // Shift outputs 
+        
+    ShiftOutputVector(TempArray_[0],Psi,Adjoint().NumberOfAdjointEquations());
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#            VSP_OPTIMIZER CalculateOptimizationFunctionPartials               #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::CalculateOptimizationFunctionPartials(int Case, double *pF_pMesh, double *pF_pInputVariable)
+{
+
+    int i;
+    
+    // Calculate partials of function wrt mesh and input variables
+
+    Adjoint().CalculateOptimizationFunctionPartials(Case, TempArray_[0], TempArray_[1]);
+
+    // Shift outputs for gradients wrt mesh
+    
+    for ( i = 1 ; i <= Adjoint().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
+       
+        pF_pMesh[3*i-2 - ArrayOffSet_] = TempArray_[0][3*i-2];
+        pF_pMesh[3*i-1 - ArrayOffSet_] = TempArray_[0][3*i-1];
+        pF_pMesh[3*i   - ArrayOffSet_] = TempArray_[0][3*i  ];
+        
+    }
+
+    // Shift output for gradients wrt input variables ... we assume there's just one group
+    // this needs to be updated with better logic if there's more than 1 group!
+    
+    for ( i = 1 ; i <= OPT_GRADIENT_NUMBER_OF_INPUTS + 1 ; i++ ) {
+       
+        pF_pInputVariable[i - ArrayOffSet_] = TempArray_[1][i];
+
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#            VSP_OPTIMIZER CalculateOptimizationFunctionPartials               #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::CalculateAdjointResidualPartialProducts(double *Psi, double *pR_pMesh, double *pR_pInputVariable)
+{
+
+    int i;
+
+    // Shift inputs
+     
+    ShiftInputVector(Psi,TempArray_[0],Adjoint().NumberOfAdjointEquations());
+        
+    // Calculate partials of function wrt mesh and input variables
+
+    Adjoint().CalculateAdjointResidualPartialProducts(TempArray_[0], TempArray_[1], TempArray_[2]);
+
+    // Shift outputs for gradients wrt residual - vector products
+    
+    for ( i = 1 ; i <= Adjoint().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
+       
+        pR_pMesh[3*i-2 - ArrayOffSet_] = TempArray_[1][3*i-2];
+        pR_pMesh[3*i-1 - ArrayOffSet_] = TempArray_[1][3*i-1];
+        pR_pMesh[3*i   - ArrayOffSet_] = TempArray_[1][3*i  ];
+        
+    }
+
+    // Shift output for gradients wrt input variables ... we assume there's just one group
+    // this needs to be updated with better logic if there's more than 1 group!
+    
+    for ( i = 1 ; i <= OPT_GRADIENT_NUMBER_OF_INPUTS + 1 ; i++ ) {
+       
+        pR_pInputVariable[i - ArrayOffSet_] = TempArray_[2][i];
+
+    }
+
 }
 
 /*##############################################################################
@@ -667,8 +845,6 @@ void VSP_OPTIMIZER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *
 void VSP_OPTIMIZER::SetGradientVector(int Case, double *Vec)
 {
 
-    VSPAERO_ADJOINT::CONTINUE_AUTO_DIFF();
-
     // Possible user defined input vector for gradients
     
     if ( Vec != NULL ) {
@@ -678,9 +854,6 @@ void VSP_OPTIMIZER::SetGradientVector(int Case, double *Vec)
        Adjoint().SetOptimizationFunctionInputGradientVector(Case, Solver().OptimizationFunctionLength(Case), Solver().OptimizationNumberOfTimeSteps(Case), OptimizationSet_[Case], TempArray_[0]);
        
     }
-
-    VSPAERO_ADJOINT::PAUSE_AUTO_DIFF();
-
 
 }
 
@@ -704,11 +877,11 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
 
     // Delimiters
     
-    sprintf(Comma,",");
+    snprintf(Comma,sizeof(Comma)*sizeof(char),",");
 
     // Open the case file
 
-    sprintf(file_name_w_ext,"%s.vspaero",FileName_);
+    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.vspaero",FileName_);
 
     if ( (case_file = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -1150,24 +1323,6 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
     if ( DoSymmetry_ == SYM_Y ) VSP.DoSymmetryPlaneSolve(SYM_Y);
     if ( DoSymmetry_ == SYM_Z ) VSP.DoSymmetryPlaneSolve(SYM_Z);
     
-    // Look for GMRES residual scale factor
-    
-    rewind(case_file);
-    
-    while ( fgets(DumChar,2000,case_file) != NULL ) {
-
-      if ( strstr(DumChar,"GMRESReductionFactor") != NULL ) {
-         
-         sscanf(DumChar,"GMRESReductionFactor = %lf \n",&GMRESReductionFactor_);
-         
-         printf("Setting GMRES reduction factor to: %f \n",GMRESReductionFactor_);
-         
-         VSP.User_GMRES_ToleranceFactor() = GMRESReductionFactor_;
-         
-      }
-      
-    }    
-        
     // Look for wake relaxation factor
     
     rewind(case_file);
@@ -1185,7 +1340,25 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
       }
       
     }
-            
+        
+    // Look for GMRES residual scale factor
+    
+    rewind(case_file);
+    
+    while ( fgets(DumChar,2000,case_file) != NULL ) {
+
+      if ( strstr(DumChar,"GMRESReductionFactor") != NULL ) {
+         
+         sscanf(DumChar,"GMRESReductionFactor = %lf \n",&GMRESReductionFactor_);
+         
+         printf("Setting GMRES reduction factor to: %f \n",GMRESReductionFactor_);
+         
+         VSP.User_GMRES_ToleranceFactor() = GMRESReductionFactor_;
+         
+      }
+      
+    }    
+
     // Look for coresize factor
     
     rewind(case_file);
@@ -1254,7 +1427,7 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
                 
                 DumChar[strcspn(DumChar, "\n")] = 0;
                 
-                sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(1),"%s",DumChar);
+                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(1),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(1))*sizeof(char),"%s",DumChar);
                 
                 printf("Control Surface(1): %s___ \n",ControlSurfaceGroup_[i].ControlSurface_Name(1));
                 
@@ -1280,7 +1453,7 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
                 
                 // Save a copy of Dumchar
                 
-                sprintf(DumChar2,"%s",DumChar);
+                snprintf(DumChar2,sizeof(DumChar2)*sizeof(char),"%s",DumChar);
             
                 // Figure out how many control surfaces are in the list
                 
@@ -1308,13 +1481,13 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
          
                 // Reparse the list to get the actual control surface names
                 
-                sprintf(DumChar,"%s",DumChar2);
+                snprintf(DumChar,sizeof(DumChar)*sizeof(char),"%s",DumChar2);
                 
                 Next = strtok(DumChar,Comma);
   
                 NumberOfControlSurfaces = 1;
                 
-                sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),"%s",Next);
+                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces))*sizeof(char),"%s",Next);
                 
                 ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(NumberOfControlSurfaces) = 1;
                 
@@ -1328,7 +1501,7 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
                        
                        NumberOfControlSurfaces++;
 
-                       sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),"%s", Next );
+                       snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces))*sizeof(char),"%s", Next );
                 
                        printf("Control surface(%d): %s \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces));
    
@@ -1756,6 +1929,44 @@ void VSP_OPTIMIZER::UpdateGeometry(double *NodeXYZ)
 
 /*##############################################################################
 #                                                                              #
+#                      VSP_OPTIMIZER GetForwardSolutionVector                  #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::GetForwardSolutionVector(double *Vec)
+{
+
+    int i;
+ 
+    for ( i = 1 ; i <= Solver().NumberOfVortexLoops() ; i++ ) {
+       
+       Vec[i - ArrayOffSet_] = Solver().ForwardSolutionVector(i);
+       
+    }
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER GetAdjointSolutionVector                  #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::GetAdjointSolutionVector(double *Vec)
+{
+
+    int i;
+ 
+    for ( i = 1 ; i <= Adjoint().NumberOfAdjointEquations() ; i++ ) {
+       
+       Vec[i - ArrayOffSet_] = Adjoint().AdjointSolutionVector(i);
+       
+    }
+ 
+}
+
+/*##############################################################################
+#                                                                              #
 #                      VSP_OPTIMIZER GetFunctionValue                          #
 #                                                                              #
 ##############################################################################*/
@@ -1920,6 +2131,27 @@ void VSP_OPTIMIZER::GetNodalPressures(double *Pressure)
     for ( i = 1 ; i <= Solver().VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
         Pressure[i - ArrayOffSet_] = Solver().NodalCp(i);
+
+    }
+      
+}
+
+/*##############################################################################
+#                                                                              #
+#              VSP_OPTIMIZER GetSpanWiseChordAndAreaForWing                    #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::GetSpanWiseChordAndAreaForWing(int Wing, double *Chord, double *Area)
+{
+
+    int i;
+
+    for ( i = 1 ; i <= Solver().NumberOfSpanStationsForWing(Wing) ; i++ ) {
+       
+        Chord[i - ArrayOffSet_] = Solver().SpanWiseChordForWing(Wing,i);
+
+         Area[i - ArrayOffSet_] = Solver().SpanWiseAreaForWing(Wing,i);
 
     }
       

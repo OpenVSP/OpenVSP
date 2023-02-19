@@ -61,7 +61,7 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     
     NumberOfTimeSamples_ = 0;
     
-    StartAveragingTimeStep_ = 0;
+    NumberOfIntegrationTimeSteps_ = 0;
     
     StartAveragingTime_ = 0.;
 
@@ -663,9 +663,10 @@ void COMPONENT_GROUP::UpdateSteadyRates(void)
     TVec_[2] = UserInputVelocity_[2] * TimeStep_;
     
     // Update the total quat
-    
-    if ( CurrentTime_ > 0. ) TotalQuat_ =  Quat_ * TotalQuat_;
 
+    if ( CurrentTime_ > 0. ) TotalQuat_ = Quat_ * TotalQuat_;
+
+//if ( CurrentTime_ > 0. )TotalQuat_.FormRotationQuat(RVec_,TotalRotationAngle_);
 }
 
 /*##############################################################################
@@ -1280,6 +1281,8 @@ void COMPONENT_GROUP::CalculateAverageForcesAndMoments(void)
     CQ_h_[1]  /= NumberOfTimeSamples_;
     CP_h_[1]  /= NumberOfTimeSamples_;
     FOM_[1]   /= NumberOfTimeSamples_;
+    
+    PRINTF("Averaging and NumberOfTimeSamples_: %d \n",NumberOfTimeSamples_);fflush(NULL);
        
 }
 
@@ -1352,7 +1355,7 @@ VSPAERO_DOUBLE COMPONENT_GROUP::CalculatePower(int DragComponent, int TimeType)
     
     n = RPM / 60.;
     
-    Power = 0.;
+    Power = Moment = 0.;
         
     if ( DragComponent == VISCOUS_FORCES  ) Moment = CQo_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 5.);
     if ( DragComponent == INVISCID_FORCES ) Moment =  CQ_[TimeType] * Density_ * n * n * pow(RotorDiameter_, 5.);

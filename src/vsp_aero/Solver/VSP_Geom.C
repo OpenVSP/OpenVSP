@@ -171,11 +171,7 @@ void VSP_GEOM::ReadFile(char *FileName, int &ModelType, int &SurfaceType)
     // Create meshes for the VSP geometries
     
     MeshGeom();
-    
-    // AUTODIFF: Pause recording
-    
-    PAUSE_AUTO_DIFF();
-    
+
   // // If this is a VSPGEOM, determine if it's a VLM or PANEL model
   // 
   // if ( SurfaceType_ == VSPGEOM_SURFACE ) {
@@ -621,7 +617,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     BBOX ComponentBBox;
     FILE *VSP_Degen_File;
     
-    MinVal = MaxVal = 0.;
+    MinVal = MaxVal = Epsilon = 0.;
     
     ComponentID = 0;
     
@@ -1589,9 +1585,9 @@ void VSP_GEOM::DetermineModelType(void)
 {
    
     int i, Done, Node1, Node2, Tri1, Tri2;
-    VSPAERO_DOUBLE y, Epsilon;
+    VSPAERO_DOUBLE y, z, Epsilon;
     
-    Epsilon = 0.01; // Yeah, this needs more work...
+    Epsilon = 0.0001; // Yeah, this needs more work...
     
     ModelType_ = PANEL_MODEL;
     
@@ -1618,7 +1614,17 @@ void VSP_GEOM::DetermineModelType(void)
              Done = 1;
              
           }
-          
+
+     //     z = 0.5*( Grid().NodeList(Node1).z() +  Grid().NodeList(Node2).z() );
+     //     
+     //     if ( y < Epsilon && z > Epsilon ) {
+     //        
+     //        ModelType_ = VLM_MODEL;
+     //        
+     //        Done = 1;
+     //        
+     //     }
+                    
        }
        
        i++;

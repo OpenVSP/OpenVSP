@@ -201,8 +201,8 @@ void VSP_SOLVER::init(void)
     AdjointMatrixSolve_ = 0;
     
     OptimizationSolve_ = 0;
-        
-    FreezeMeshGradients_ = 0;
+            
+    NumberOfTotalWakeResidualNodes_ = 0;
         
     CreateHighLiftFile_ = 0;
 
@@ -253,8 +253,8 @@ void VSP_SOLVER::init(void)
     Psi_       = NULL;
     pR_pMesh_  = NULL;
     pF_pMesh_  = NULL;
-    pF_pGamma_ = NULL;
-    
+    pF_pSoln_  = NULL;
+
     FlowIs2D_ = 0;
    
     NumberOfThreads_ = 1;
@@ -270,6 +270,8 @@ void VSP_SOLVER::init(void)
     CMxo_[0] = CMxo_[1] = CMxo_[2] = 0.;
     CMyo_[0] = CMyo_[1] = CMyo_[2] = 0.;
     CMzo_[0] = CMzo_[1] = CMzo_[2] = 0.;
+    
+    ExternalCoupledSolve_ = 0;
 
 }
 
@@ -416,17 +418,21 @@ void VSP_SOLVER::Setup(void)
     
     StreamDist = (Xmax_ - Xmin_);
 
-    // Surface edged cut off distance tolerance for the edges
+    // Surface edge cut off distance tolerance for the edges
     
-    CutOff = MAX3((Xmax_ - Xmin_), (Ymax_-Ymin_), (Zmax_-Zmin_));
+    CutOff = 1.e9;
+
+    for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; i++ ) {
+   
+       CutOff = MIN(CutOff,VSPGeom().Grid(1).LoopList(i).Area());
+       
+    }
     
-    CutOff = log10(CutOff);
+    PRINTF("Minimum loop area: %e \n",CutOff);
+  
+    CutOff = 1.e-4 * sqrt(CutOff);
     
-    CutOff -= 7.;
-    
-    if ( CutOff > -3. ) CutOff = -3.;
-    
-    CutOff = pow(10.,CutOff);
+    if ( CutOff <= 1.e-7 ) CutOff = 1.e-7;
 
     VSPGeom().Grid(1).EdgeList(1).SetTolerance(CutOff);
     
@@ -1229,16 +1235,19 @@ void VSP_SOLVER::Setup(void)
              
           }
           
-
-          ComponentGroupList_[c].StartAveragingTime() = NumberOfTimeSteps_ * TimeStep_ - Period;
+          ComponentGroupList_[c].StartAveragingTime() = NumberOfTimeSteps_ * TimeStep_ - Period + TimeStep_;
           
           NumberOfTimeSamples = FLOAT( ( NumberOfTimeSteps_ * TimeStep_ - ComponentGroupList_[c].StartAveragingTime() ) / TimeStep_ ) + 1;
 
-          PRINTF("TimeStep_: %f \n",TimeStep_); fflush(NULL);
+          if ( NumberOfComponentGroups_ == 1 || OptimizationSolve_ ) NumberOfTimeSamples = 20; // We assume the time step is set to give 18 degrees per step...
+          
+          ComponentGroupList_[c].NumberOfIntegrationTimeSteps() = NumberOfTimeSamples;
+
+          PRINTF("TimeStep_: %e \n",TimeStep_); fflush(NULL);
           PRINTF("NumberOfTimeSteps_: %d \n",NumberOfTimeSteps_); fflush(NULL);          
-          PRINTF("NumberOfTimeSteps_ * TimeStep_: %f \n",DOUBLE(NumberOfTimeSteps_ * TimeStep_)); fflush(NULL);         
+          PRINTF("NumberOfTimeSteps_ * TimeStep_: %e \n",DOUBLE(NumberOfTimeSteps_ * TimeStep_)); fflush(NULL);         
           PRINTF("Period: %f \n",Period); fflush(NULL);          
-          PRINTF("ComponentGroupList_[c].StartAveragingTime(): %f \n",ComponentGroupList_[c].StartAveragingTime()); fflush(NULL);          
+          PRINTF("ComponentGroupList_[c].StartAveragingTime(): %e \n",ComponentGroupList_[c].StartAveragingTime()); fflush(NULL);          
           PRINTF("NumberOfTimeSamples: %d \n",NumberOfTimeSamples); fflush(NULL);
        
           if ( NoiseAnalysis_ ) NumberOfTimeSamples = 181;
@@ -1325,7 +1334,31 @@ void VSP_SOLVER::Setup(void)
        
     }
 
-    NumberOfEquations_ = NumberOfVortexLoops_ + NumberOfKelvinConstraints_;
+    // Determine total number of adjoint equations
+    
+    NumberOfTotalWakeResidualNodes_ = 0;
+ 
+    NumberOfTotalWakeResidualNodes_ = 3 * ( VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() * ( NumberOfWakeTrailingNodes_ + 2 ) );
+
+    PRINTF("NumberOfTotalWakeResidualNodes_: %d \n",NumberOfTotalWakeResidualNodes_);fflush(NULL); 
+    
+    NumberOfAdjointEquations_ = NumberOfVortexLoops_ + NumberOfTotalWakeResidualNodes_;
+    
+    if ( DoAdjointSolve_ ) {
+       
+       NumberOfEquations_ = NumberOfVortexLoops_ + NumberOfTotalWakeResidualNodes_ + NumberOfKelvinConstraints_;
+       
+       PRINTF("NumberOfAdjointEquations_: %d \n",NumberOfTotalWakeResidualNodes_);fflush(NULL); 
+       
+    }
+    
+    else {
+       
+       NumberOfEquations_ = NumberOfVortexLoops_ + NumberOfKelvinConstraints_;
+       
+    }
+
+    PRINTF("NumberOfEquations_: %d \n",NumberOfEquations_);fflush(NULL); 
 
     // Allocate space for the vortex edges and loops
   
@@ -1347,24 +1380,26 @@ void VSP_SOLVER::Setup(void)
 
     Diagonal_ = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];     
 
-    Delta_= new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];     
-   
     zero_double_array(Gamma_[0], NumberOfVortexLoops_); Gamma_[0][0] = 0.;   
     zero_double_array(Gamma_[1], NumberOfVortexLoops_); Gamma_[1][0] = 0.;   
     zero_double_array(Gamma_[2], NumberOfVortexLoops_); Gamma_[2][0] = 0.;   
 
     zero_double_array(Diagonal_, NumberOfVortexLoops_); Diagonal_[0] = 0.;    
-    zero_double_array(Delta_,    NumberOfVortexLoops_);    Delta_[0] = 0.;
    
     Residual_ = new VSPAERO_DOUBLE[NumberOfEquations_ + 1];    
+    
+    MatrixVectorProduct_ = new VSPAERO_DOUBLE[NumberOfEquations_ + 1];        
 
     RightHandSide_ = new VSPAERO_DOUBLE[NumberOfEquations_ + 1];     
      
     MatrixVecTemp_ = new VSPAERO_DOUBLE[NumberOfEquations_ + 1];     
    
+    Delta_ = new VSPAERO_DOUBLE[NumberOfEquations_ + 1];     
+   
     zero_double_array(Residual_,      NumberOfEquations_); Residual_[0]      = 0.;
     zero_double_array(RightHandSide_, NumberOfEquations_); RightHandSide_[0] = 0.;
     zero_double_array(MatrixVecTemp_, NumberOfEquations_); RightHandSide_[0] = 0.;
+    zero_double_array(Delta_,         NumberOfEquations_); Delta_[0] = 0.;
         
     if ( NoiseAnalysis_ || DoAdjointSolve_ || DoSolutionInterrogation_ ) {
        
@@ -1693,19 +1728,11 @@ void VSP_SOLVER::Setup(void)
           LoopStackList_[cpu] = new STACK_ENTRY[MaxStackSize_ + 1];
           
        }
-    
-       // AUTODIFF: Pause recording
-       
-       PAUSE_AUTO_DIFF();
-          
+
        // Create Matrix preconditioner
        
        if ( Preconditioner_ == MATCON ) CreateMatrixPreconditionersDataStructure();  
-
-       // AUTODIFF: Continue recording
-       
-       CONTINUE_AUTO_DIFF();
-              
+             
        FirstTimeSetup_ = 0;
  
     }
@@ -1805,6 +1832,8 @@ void VSP_SOLVER::Setup(void)
        }
        
     }
+    
+    PRINTF("Done with setup... \n");fflush(NULL);
 
 }
 
@@ -2894,6 +2923,9 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
     VSPAERO_DOUBLE VecS[3], VecT[3], VecN[3], S, S1, S2, Uc, U1, U2, MaxSoverB;
     VSP_NODE VSP_Node1, VSP_Node2;
     
+    Node1 = 0;
+    Node2 = 0;
+    
     // Initial wake in the free stream direction
 
     if ( Vinf_ > 0. ) {
@@ -2911,6 +2943,8 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
        WakeAngle_[2] = 0.;
        
     }
+    
+    PRINTF("WakeAngle_: %f %f %f \n",WakeAngle_[0],WakeAngle_[1],WakeAngle_[2]);fflush(NULL);
 
     // Determine how far to allow wakes to adapt... beyond this the wakes go straight off to
     // 'infinity' in the free stream direction
@@ -3074,6 +3108,8 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
        
        // Mark those vortex sheets that come off rotors for time accurate cases
        
+       ComponentInThisGroup = NULL;
+       
        if ( TimeAccurate_ || RotorAnalysis_ == 2 ) { 
        
           // Mark any unsteady rotor components
@@ -3193,7 +3229,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                 // Pointer to the kutta node
                 
                 VortexSheet(c,k).TrailingVortex(NumEdges).Node() = VSPGeom().Grid(MGLevel_).KuttaNode(j);
-                
+     
                 // Location along span of this kutta node S over Span
                 
                 VortexSheet(c,k).TrailingVortex(NumEdges).SoverB() = VSPGeom().Grid(MGLevel_).KuttaNodeSoverB(j);
@@ -3273,13 +3309,13 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                 VSP_Node1.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j);
                 VSP_Node1.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j);
                 VSP_Node1.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j);
-   
+ 
                 VSP_Node2.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j) + WakeAngle_[0] * 1.e6;
                 VSP_Node2.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j) + WakeAngle_[1] * 1.e6;
                 VSP_Node2.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j) + WakeAngle_[2] * 1.e6;
-          
+  
                 // Set sigma
- 
+
                 VortexSheet(c,k).TrailingVortex(NumEdges).Sigma() = 0.25*Sigma[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
 
                 // Create trailing wakes... specify number of sub vortices per trail
@@ -3751,6 +3787,8 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                 j = 1;
                 
                 Done = 0;
+                
+                U1 = U2 = 0.;
                          
                 while ( j < VortexSheet(k).NumberOfTrailingVortices() && !Done ) { 
          
@@ -3856,6 +3894,8 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
        delete [] MaxNumberOfVortexSheetsForSurface;
 
        // Estimate the local chord
+       
+       S = 0.;
       
        for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
        
@@ -3903,6 +3943,12 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                    Mag = sqrt(vector_dot(Vec2,Vec2));
                    
                    if ( Mag >= SpanLoadData(k).Span_Chord(j) ) {
+                      
+                      // Store the component ID... 
+                      
+PRINTF("VSPGeom().Grid(1).NodeList(Node1).ComponentID(): %d \n",VSPGeom().Grid(1).NodeList(Node1).ComponentID());fflush(NULL);
+                      
+                      SpanLoadData(k).ComponentID(j) = VSPGeom().Grid(1).NodeList(Node1).ComponentID();
                       
                       // Store chord and direction vector
                 
@@ -4105,175 +4151,28 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
 void VSP_SOLVER::UpdateTrailingVortices(void)
 {
  
-    int i, j, k, c, NumEdges, Node1, Node2;
-    int Hits;
-    int NumWakeNodes;
-    VSPAERO_DOUBLE FarDist, *Sigma;
-    VSPAERO_DOUBLE WakeDist;
-    VSP_NODE VSP_Node1, VSP_Node2;
+    int c, j, k, p;
 
-    FarDist = FarFieldDist_;
-
-    if ( Verbose_ ) PRINTF("Updating vortex sheet data... \n"); fflush(NULL);
-    
-    // Initial wake in the free stream direction
-
-    if ( Vinf_ > 0. ) {
-       
-       WakeAngle_[0] = FreeStreamVelocity_[0] / Vinf_;
-       WakeAngle_[1] = FreeStreamVelocity_[1] / Vinf_;
-       WakeAngle_[2] = FreeStreamVelocity_[2] / Vinf_;
-       
-    }
-    
-    else {
-
-       WakeAngle_[0] = 1.;
-       WakeAngle_[1] = 0.;
-       WakeAngle_[2] = 0.;
-       
-    }
-
-    // Determine the minimum trailing edge spacing for edge kutta node
-
-    Sigma = new VSPAERO_DOUBLE[VSPGeom().Grid(MGLevel_).NumberOfNodes() + 1];
-    
-    for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfNodes() ; j++ ) {
-
-       Sigma[j] = 1.e9;
-
-    }
-  
-    Hits = 0;
-    
-    SigmaAvg_ = 0.;
-    
-    for ( i = 1 ; i <= VSPGeom().Grid(MGLevel_).NumberOfEdges() ; i++ ) {
-     
-       if ( VSPGeom().Grid(MGLevel_).EdgeList(i).IsTrailingEdge() ) {     
-
-          Node1 = VSPGeom().Grid(MGLevel_).EdgeList(i).Node1();
-          Node2 = VSPGeom().Grid(MGLevel_).EdgeList(i).Node2();
-          
-          Sigma[Node1] = MIN(Sigma[Node1], VSPGeom().Grid(MGLevel_).EdgeList(i).Length());
-          Sigma[Node2] = MIN(Sigma[Node2], VSPGeom().Grid(MGLevel_).EdgeList(i).Length());
-          
-          SigmaAvg_ += VSPGeom().Grid(MGLevel_).EdgeList(i).Length();
-          
-          Hits++;
+    // Update the wakes
         
-       }
-       
-    } 
-    
-    // Average trailing edge spacing
-    
-    if ( Hits > 0 ) SigmaAvg_ /= Hits;
-
-    // Create copy of vortex sheet data for each CPU
-    
     for ( c = 0 ; c < NumberOfThreads_ ; c++ ) {
-       
-       if ( Verbose_ ) PRINTF("Working on vortex sheet data for thread: %d \n",c);fflush(NULL);
        
        for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
 
-          if ( Verbose_ ) PRINTF("Working on vortex sheet: %d \n",k);
-
-          NumEdges = 0;
-
-          VortexSheet(c,k).CoreSizeFactor() = CoreSizeFactor_;
-                
-          if ( Vinf_ > 0. ) {
-
-             VortexSheet(c,k).FreeStreamVelocity(0) = FreeStreamVelocity_[0]/Vinf_;
-             VortexSheet(c,k).FreeStreamVelocity(1) = FreeStreamVelocity_[1]/Vinf_;
-             VortexSheet(c,k).FreeStreamVelocity(2) = FreeStreamVelocity_[2]/Vinf_;
-         
-          }
-          
-          else {
+          for ( j = 1 ; j <= VortexSheet(c,k).NumberOfTrailingVortices() ; j++ ) {
              
-             VortexSheet(c,k).FreeStreamVelocity(0) = 0.;
-             VortexSheet(c,k).FreeStreamVelocity(1) = 0.;
-             VortexSheet(c,k).FreeStreamVelocity(2) = 0.; 
-             
-          }          
-   
-          for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ; j++ ) {
-             
-             if ( VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(j) == VortexSheet(c,k).WingSurface() ) {
-             
-                NumEdges++;
-     
-                if ( RotorAnalysis_ > 0 ) {
-                   
-                   if ( Vinf_ > 0. ) {
-                      
-                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(0) = FreeStreamVelocity_[0]/Vinf_;
-                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(1) = FreeStreamVelocity_[1]/Vinf_; 
-                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(2) = FreeStreamVelocity_[2]/Vinf_; 
-                      
-                   }
-                   
-                   else {
-                      
-                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(0) = 0.;
-                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(1) = 0.; 
-                      VortexSheet(c,k).TrailingVortex(NumEdges).FreeStreamDirection(2) = 0.; 
-                      
-                   }                                                            
-       
-                }
-                
-                VortexSheet(c,k).TrailingVortex(NumEdges).Vinf() = SGN(Vinf_)*MAX(0.000001,ABS(Vinf_));
-   
-                VortexSheet(c,k).TrailingVortex(NumEdges).BladeRPM() = BladeRPM_;
-                                 
-                // Pass in edge data and create edge coefficients
-                
-                VSP_Node1.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j);
-                VSP_Node1.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j);
-                VSP_Node1.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j);
-   
-                VSP_Node2.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j) + WakeAngle_[0] * 1.e6;
-                VSP_Node2.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j) + WakeAngle_[1] * 1.e6;
-                VSP_Node2.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j) + WakeAngle_[2] * 1.e6;
-          
-                // Set sigma
- 
-                VortexSheet(c,k).TrailingVortex(NumEdges).Sigma() = 0.25*Sigma[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
+             p = VortexSheet(c,k).TrailingVortex(j).Node();
 
-                // Create trailing wakes... specify number of sub vortices per trail
-      
-                WakeDist = MAX(VSP_Node1.x() + 0.5*FarDist, Xmax_ + 0.25*FarDist) - VSP_Node1.x();
-                
-                NumWakeNodes = NumberOfWakeTrailingNodes_;
-             
-                if ( Verbose_ ) PRINTF("Updating trailing vortex: %d on vortex sheet: %d \n",NumEdges,k);fflush(NULL);
+             VortexSheet(c,k).TrailingVortex(j).UpdateNew(VSPGeom().Grid(MGLevel_).NodeList(p));     
 
-                VortexSheet(c,k).TrailingVortex(NumEdges).Update(WakeDist,VSP_Node1,VSP_Node2);     
-                
-                // Wake relaxation factor
-                                              
-                VortexSheet(c,k).TrailingVortex(NumEdges).WakeRelax() = WakeRelax_;
-
-             }
-                
           }
           
           VortexSheet(c,k).SetMachNumber(Mach_);
-
+          
        }
        
     }
-
-    if ( Verbose_ ) PRINTF("Done Updating vortex sheet data... \n");fflush(NULL);
     
-    delete [] Sigma;
-    
-    if ( Verbose_ ) PRINTF("Returning from UpdateTrailingVortices() \n");fflush(NULL);
-
 }
 
 /*##############################################################################
@@ -4351,7 +4250,7 @@ void VSP_SOLVER::Solve(int Case)
     
     Time_ = 0;
 
-    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(1);
+    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(GEOMETRY_UPDATE_DO_STARTUP);
              
     // Initialize free stream
     
@@ -4363,7 +4262,7 @@ void VSP_SOLVER::Solve(int Case)
          ( Mach_ >= 1. && LastMach_ <  1. ) ||
          ( Mach_ <  1. && LastMach_ >= 1. ) ) {
   
-       if ( LastMach_ > 0. ) PRINTF("Updating interaction lists due to subsonic / supersonic Mach change \n");
+       if ( LastMach_ > 0. && !ExternalCoupledSolve_ ) PRINTF("Updating interaction lists due to subsonic / supersonic Mach change \n");
        
        if ( !DumpGeom_ ) {
           
@@ -4469,8 +4368,8 @@ void VSP_SOLVER::Solve(int Case)
     
     if ( !TimeAccurate_ ) {
 
-                          //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456           
-       FPRINTF(StatusFile_,"      Iter             Mach             AoA              Beta              CL              CDo              CDi             CDtot              CDt            CDtot_t           CS               L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              T/QS \n");
+                          //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456           
+       FPRINTF(StatusFile_,"      Iter             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CDt            CDtot_t           CSo              CSi            CStot               L/D              E               CFxo             CFyo             CFzo             CFxi             CFyi             CFzi             CFxtot           CFytot           CFztot           CMxo             CMyo             CMzo             CMxi             CMyi             CMzi             CMxtot           CMytot           CMztot          T/QS \n");
    
     }
     
@@ -4478,22 +4377,22 @@ void VSP_SOLVER::Solve(int Case)
        
        if ( TimeAnalysisType_ == HEAVE_ANALYSIS ) {
                  
-                             //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456  
-          FPRINTF(StatusFile_,"      Time             Mach             AoA              Beta              CL              CDo              CDi             CDtot             CDt             CDtot_t            CS              L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              T/QS              H   \n");
-
+                             //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456           
+          FPRINTF(StatusFile_,"      Time             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CDt            CDtot_t           CSo              CSi            CStot               L/D              E               CFxo             CFyo             CFzo             CFxi             CFyi             CFzi             CFxtot           CFytot           CFztot           CMxo             CMyo             CMzo             CMxi             CMyi             CMzi             CMxtot           CMytot           CMztot          T/QS              H \n");
+ 
        }
        
        else if ( TimeAnalysisType_ == P_ANALYSIS || TimeAnalysisType_ == Q_ANALYSIS ||  TimeAnalysisType_ == R_ANALYSIS ) {
          
-                             //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456        
-          FPRINTF(StatusFile_,"      Time             Mach            AoA               Beta              CL              CDo              CDi             CDtot             CDt             CDtot_t            CS              L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              T/QS           UnstdyAng  \n");
+                            //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456           
+          FPRINTF(StatusFile_,"      Time             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CDt            CDtot_t           CSo              CSi            CStot               L/D              E               CFxo             CFyo             CFzo             CFxi             CFyi             CFzi             CFxtot           CFytot           CFztot           CMxo             CMyo             CMzo             CMxi             CMyi             CMzi             CMxtot           CMytot           CMztot          T/QS          UnstdyAng \n");
 
        }
        
        else {
 
-                             //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 
-          FPRINTF(StatusFile_,"     Time              Mach             AoA              Beta              CL              CDo              CDi             CDtot             CDt             CDtot_t            CS              L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              T/QS  \n");
+                            //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456           
+          FPRINTF(StatusFile_,"      Time             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CDt            CDtot_t           CSo              CSi            CStot               L/D              E               CFxo             CFyo             CFzo             CFxi             CFyi             CFzi             CFxtot           CFytot           CFztot           CMxo             CMyo             CMzo             CMxi             CMyi             CMzi             CMxtot           CMytot           CMztot          T/QS          UnstdyAng \n");
       
        }
    
@@ -4519,7 +4418,7 @@ void VSP_SOLVER::Solve(int Case)
 
     // Open the adb and case list files the first time only
     
-    if ( Case == 0 || Case == 1 ) {
+    if ( !ExternalCoupledSolve_ && ( Case == 0 || Case == 1 ) ) {
 
        SPRINTF(ADBFileName,"%s.adb",FileName_);
        
@@ -4632,7 +4531,7 @@ void VSP_SOLVER::Solve(int Case)
 
     // Write out ADB Geometry
     
-    if ( Case == 0 || Case == 1 ) {
+    if ( !ExternalCoupledSolve_ && ( Case == 0 || Case == 1 ) ) {
 
        WriteOutAerothermalDatabaseHeader();
 
@@ -4640,14 +4539,14 @@ void VSP_SOLVER::Solve(int Case)
 
     }
 
-    PRINTF("Solving... Mach: %f ... Alpha: %f ... Beta: %f \n\n",Mach_,AngleOfAttack_/TORAD,AngleOfBeta_/TORAD);fflush(NULL);
+    if ( !ExternalCoupledSolve_ ) PRINTF("Solving... Mach: %f ... Alpha: %f ... Beta: %f \n\n",Mach_,AngleOfAttack_/TORAD,AngleOfBeta_/TORAD);fflush(NULL);
 
     // Header for command line status
 
-    if ( !TimeAccurate_ ) {
+    if ( !TimeAccurate_ && !ExternalCoupledSolve_ ) {
 
              //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789          
-       PRINTF("  Iter      Mach       AoA      Beta       CL         CDo       CDi      CDtot     CDt     CDtot_t      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz      T/QS \n");
+       PRINTF("  Iter      Mach       AoA      Beta      CLtot      CDo       CDi      CDtot     CDt      CDtot_t    CStot      L/D        E       CFxtot    CFytot    CFztot    CMxtot    CMytot    CMztot    T/QS \n");
    
     }
     
@@ -4661,7 +4560,7 @@ void VSP_SOLVER::Solve(int Case)
     
     // If time accurate, write out current t=0 solution state
     
-    if ( TimeAccurate_ ) {
+    if ( !ExternalCoupledSolve_ && TimeAccurate_ ) {
        
         SPRINTF(CaseString_,"Time: %-f ...",0.);
        
@@ -4689,7 +4588,7 @@ void VSP_SOLVER::Solve(int Case)
    
              // Update geometry location and interaction lists for moving geometries
 
-             if ( !StartFromSteadyState_ || ( StartFromSteadyState_ && Time_ > 1 ) ) UpdateGeometryLocation(0);
+             if ( !StartFromSteadyState_ || ( StartFromSteadyState_ && Time_ > 1 ) ) UpdateGeometryLocation(GEOMETRY_UPDATE_DO_ALL);
 
              if ( !AllComponentsAreFixed_ && ThereIsRelativeComponentMotion_ ) {
                 
@@ -4719,195 +4618,207 @@ void VSP_SOLVER::Solve(int Case)
 
           // Solve the linear system
 
-          SolveLinearSystem();
-
-          // If time accurate we save the trailing vorticity state
-     
-          if ( TimeAccurate_ ) SaveVortexState();
-
-          // Update wake locations
-
-          if ( ( WakeIterations_ > 1                                  ) || 
-               ( TimeAccurate_ && StartFromSteadyState_ && Time_ == 1 ) ) UpdateWakeLocations();
-
-          // Calculate forces
-
-          CalculateForces();
+          if ( !ExternalCoupledSolve_ ) {
+          
+             SolveLinearSystem();
    
-          // Output status
-
-          OutputStatusFile(0);
-         
-          // Write out group data, and any rotor data
-  
-          if ( !TimeAccurate_ ) OutputForcesAndMomentsForGroup(0);   
+             // If time accurate we save the trailing vorticity state
         
-          PRINTF("\n");
-         
-          if ( RotorAnalysis_ > 0 && CurrentWakeIteration_ < WakeIterations_ ) {
-    
-             InterpolateSolutionFromGrid(1);
+             if ( TimeAccurate_ ) SaveVortexState();
+   
+             // Update wake locations
+   
+             if ( ( WakeIterations_ > 1                                  ) || 
+                  ( TimeAccurate_ && StartFromSteadyState_ && Time_ == 1 ) ) UpdateWakeLocations();
+   
+             // Calculate forces
+   
+             CalculateForces();
+      
+             // Output status
+   
+             OutputStatusFile(0);
+            
+             // Write out group data, and any rotor data
+     
+             if ( !TimeAccurate_ ) OutputForcesAndMomentsForGroup(0);   
+           
+             PRINTF("\n");
+            
+             if ( RotorAnalysis_ > 0 && CurrentWakeIteration_ < WakeIterations_ ) {
+       
+                InterpolateSolutionFromGrid(1);
+                
+                WriteOutAerothermalDatabaseSolution();    
+                
+             }      
              
-             WriteOutAerothermalDatabaseSolution();    
-             
-          }      
+          }
    
        }
   
-       if ( TimeAccurate_ && StartFromSteadyState_ ) WakeIterations_ = 1;
+       if ( !ExternalCoupledSolve_ ) {
 
-       // Write out ADB Solution for time accurate cases
-       
-       if ( TimeAccurate_ ) {
-          
-          if ( TimeAnalysisType_ == P_ANALYSIS ) {
-             
-             SPRINTF(CaseString_,"T: %-f, P: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
-             
-          }
-             
-          else if ( TimeAnalysisType_ == Q_ANALYSIS ) {
-             
-             SPRINTF(CaseString_,"T: %-f, Q: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
-
-             
-          }
-          
-          else if ( TimeAnalysisType_ == R_ANALYSIS ) {
-             
-             SPRINTF(CaseString_,"T: %-f, R: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
-             
-          }
-                
-          else {
-          
-             SPRINTF(CaseString_,"Time: %-f ...",CurrentTime_);
-             
-          }
-
-          WriteOutAerothermalDatabaseGeometry();
-  
-          InterpolateSolutionFromGrid(1);
-          
-          WriteOutAerothermalDatabaseSolution();
-
-          // Write out group data, and any rotor data
-  
-          OutputForcesAndMomentsForGroup(0);    
-          
-       }
-
-       // Calculate survey point results for steady/unsteady results
-       
-       if ( NumberofSurveyPoints_ > 0 ) {
+          if ( TimeAccurate_ && StartFromSteadyState_ ) WakeIterations_ = 1;
+   
+          // Write out ADB Solution for time accurate cases
           
           if ( TimeAccurate_ ) {
              
-             if ( NumberOfSurveyTimeSteps_ > 0 && (Time_/NumberOfSurveyTimeSteps_)*NumberOfSurveyTimeSteps_ == Time_ ) CalculateVelocitySurvey(Case);
+             if ( TimeAnalysisType_ == P_ANALYSIS ) {
+                
+                SPRINTF(CaseString_,"T: %-f, P: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
+                
+             }
+                
+             else if ( TimeAnalysisType_ == Q_ANALYSIS ) {
+                
+                SPRINTF(CaseString_,"T: %-f, Q: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
+   
+                
+             }
              
-             if ( NumberOfSurveyTimeSteps_ < 0 && Time_ >= SurveyPointsStartTime_ ) CalculateVelocitySurvey(Case);
+             else if ( TimeAnalysisType_ == R_ANALYSIS ) {
+                
+                SPRINTF(CaseString_,"T: %-f, R: %-f",CurrentTime_, Unsteady_Angle_/TORAD);
+                
+             }
+                   
+             else {
+             
+                SPRINTF(CaseString_,"Time: %-f ...",CurrentTime_);
+                
+             }
+   
+             WriteOutAerothermalDatabaseGeometry();
+     
+             InterpolateSolutionFromGrid(1);
+             
+             WriteOutAerothermalDatabaseSolution();
+   
+             // Write out group data, and any rotor data
+     
+             OutputForcesAndMomentsForGroup(0);    
+             
+          }
+   
+          // Calculate survey point results for steady/unsteady results
+          
+          if ( NumberofSurveyPoints_ > 0 ) {
+             
+             if ( TimeAccurate_ ) {
+                
+                if ( NumberOfSurveyTimeSteps_ > 0 && (Time_/NumberOfSurveyTimeSteps_)*NumberOfSurveyTimeSteps_ == Time_ ) CalculateVelocitySurvey(Case);
+                
+                if ( NumberOfSurveyTimeSteps_ < 0 && Time_ >= SurveyPointsStartTime_ ) CalculateVelocitySurvey(Case);
+                
+             }
+             
+             else {
+                
+                CalculateVelocitySurvey(Case);
+                
+             }
              
           }
           
-          else {
+          // Calculate quad tree survey points for steady cases, and for the last time step of unsteady cases
+          
+          if ( !TimeAccurate_ || ( TimeAccurate_ && Time_ == NumberOfTimeSteps_ ) ) {
+   
+             if ( NumberOfQuadTrees_ > 0 ) {
+   
+                CreateQuadTreePlaneDataStructures();
+                       
+                CalculateQuadTreeVelocitySurvey(Case);
+                
+             }
              
-             CalculateVelocitySurvey(Case);
-             
-          }
+          }          
           
        }
-       
-       // Calculate quad tree survey points for steady cases, and for the last time step of unsteady cases
-       
-       if ( !TimeAccurate_ || ( TimeAccurate_ && Time_ == NumberOfTimeSteps_ ) ) {
-
-          if ( NumberOfQuadTrees_ > 0 ) {
-
-             CreateQuadTreePlaneDataStructures();
-                    
-             CalculateQuadTreeVelocitySurvey(Case);
-             
-          }
-          
-       }          
                                             
     }
-    
-    Time_ = NumberOfTimeSteps_;
 
-    // Output status file... time averaged quantities
-
-    if ( TimeAccurate_ ) OutputStatusFile(1);  
+    if ( !ExternalCoupledSolve_ ) {
     
-    // Output zero lift data to the status file
-    
-    OutputZeroLiftDragToStatusFile();
-
-    // Open the load file the first time only
-    
-    if ( Case == 0 || Case == 1 ) {
-    
-       SPRINTF(LoadFileName,"%s.lod",FileName_);
+       Time_ = NumberOfTimeSteps_;
+   
+       // Output status file... time averaged quantities
+   
+       if ( TimeAccurate_ ) OutputStatusFile(1);  
        
-       if ( (LoadFile_ = fopen(LoadFileName, "w")) == NULL ) {
+       // Output zero lift data to the status file
+       
+       OutputZeroLiftDragToStatusFile();
    
-          PRINTF("Could not open the spanwise loading file for output! \n");
+       // Open the load file the first time only
+       
+       if ( Case == 0 || Case == 1 ) {
+       
+          SPRINTF(LoadFileName,"%s.lod",FileName_);
+          
+          if ( (LoadFile_ = fopen(LoadFileName, "w")) == NULL ) {
+      
+             PRINTF("Could not open the spanwise loading file for output! \n");
+      
+             exit(1);
+      
+          }
+          
+       }         
+      
+       // Calculate spanwise load distributions for lifting surfaces
+    
+       if ( !DumpGeom_ && NumberOfSpanLoadDataSets_ > 0 ) CalculateSpanWiseLoading();
+       
+       // Write out FEM loading file
+    
+       if ( !DumpGeom_ ) CreateFEMLoadFile(Case);
    
-          exit(1);
+       // Interpolate solution from grid 1 to 0
+    
+       InterpolateSolutionFromGrid(1);
    
+       // Write out ADB Solution
+   
+       if ( !TimeAccurate_ ) WriteOutAerothermalDatabaseSolution();
+       
+       // Write out 2d FEM geometry and solution if requested
+       
+       if ( Write2DFEMFile_ )  {
+          
+          if ( Case == 0 || Case == 1 ) WriteFEM2DGeometry();
+          
+          if ( !DumpGeom_ ) WriteFEM2DSolution();
+          
+       }          
+   
+       // Close up files
+    
+       if ( Case <= 0                    ) fclose(StatusFile_);
+       if ( Case <= 0                    ) fclose(LoadFile_);
+       if ( Case <= 0                    ) fclose(ADBFile_);
+       if ( Case <= 0                    ) fclose(ADBCaseListFile_);
+       if ( Case <= 0                    ) fclose(FEMLoadFile_);
+       if ( Case <= 0 && Write2DFEMFile_ ) fclose(FEM2DLoadFile_);
+       if ( NumberofSurveyPoints_ > 0    ) fclose(SurveyFile_);
+     
+       // Close any rotor coefficient files
+       
+       k = 0;
+       
+       for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+          
+          fclose(GroupFile_[c]);
+          
+          if ( ComponentGroupList_[c].GeometryIsARotor() ) fclose(RotorFile_[++k]);
+             
        }
        
-    }         
-   
-    // Calculate spanwise load distributions for lifting surfaces
- 
-    if ( !DumpGeom_ && NumberOfSpanLoadDataSets_ > 0 ) CalculateSpanWiseLoading();
-    
-    // Write out FEM loading file
- 
-    if ( !DumpGeom_ ) CreateFEMLoadFile(Case);
-
-    // Interpolate solution from grid 1 to 0
- 
-    InterpolateSolutionFromGrid(1);
-
-    // Write out ADB Solution
-
-    if ( !TimeAccurate_ ) WriteOutAerothermalDatabaseSolution();
-    
-    // Write out 2d FEM geometry and solution if requested
-    
-    if ( Write2DFEMFile_ )  {
+       if ( RotorFile_ != NULL ) delete [] RotorFile_;
        
-       if ( Case == 0 || Case == 1 ) WriteFEM2DGeometry();
-       
-       if ( !DumpGeom_ ) WriteFEM2DSolution();
-       
-    }          
-
-    // Close up files
- 
-    if ( Case <= 0                    ) fclose(StatusFile_);
-    if ( Case <= 0                    ) fclose(LoadFile_);
-    if ( Case <= 0                    ) fclose(ADBFile_);
-    if ( Case <= 0                    ) fclose(ADBCaseListFile_);
-    if ( Case <= 0                    ) fclose(FEMLoadFile_);
-    if ( Case <= 0 && Write2DFEMFile_ ) fclose(FEM2DLoadFile_);
-    if ( NumberofSurveyPoints_ > 0    ) fclose(SurveyFile_);
-  
-    // Close any rotor coefficient files
-    
-    k = 0;
-    
-    for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
-       
-       fclose(GroupFile_[c]);
-       
-       if ( ComponentGroupList_[c].GeometryIsARotor() ) fclose(RotorFile_[++k]);
-          
     }
-    
-    if ( RotorFile_ != NULL ) delete [] RotorFile_;
 
 }
 
@@ -4966,7 +4877,7 @@ void VSP_SOLVER::RestartAndInterrogateSolution(int Case)
     
     Time_ = 0;
              
-    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(1);
+    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(GEOMETRY_UPDATE_DO_STARTUP);
                  
     // Initialize free stream
     
@@ -5046,7 +4957,7 @@ void VSP_SOLVER::RestartAndInterrogateSolution(int Case)
        fclose(QUADTREECaseListFile_);
                
     }
-           
+      
     // Open the input adb file
     
     if ( Case == 0 || Case == 1 ) {
@@ -5137,7 +5048,7 @@ void VSP_SOLVER::RestartAndInterrogateSolution(int Case)
        
        // Update geometry location and interaction lists for moving geoemtries
 
-       if ( TimeAccurate_ ) UpdateGeometryLocation(0);     
+       if ( TimeAccurate_ ) UpdateGeometryLocation(GEOMETRY_UPDATE_DO_ALL);     
   
     }
     
@@ -5226,7 +5137,7 @@ void VSP_SOLVER::WriteOutSteadyStateNoiseFiles(int Case)
              
     Time_ = 0;
              
-    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(1);
+    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(GEOMETRY_UPDATE_DO_STARTUP);
                  
     // Initialize free stream
     
@@ -5274,10 +5185,9 @@ void VSP_SOLVER::WriteOutSteadyStateNoiseFiles(int Case)
     
     FPRINTF(StatusFile_,"\n\nSolver Case: %d \n\n",ABS(Case));
 
-
-                       //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456
-    FPRINTF(StatusFile_,"     Time              Mach             AoA              Beta              CL              CDo              CDi             CDtot             CDt             CDtot_t            CS              L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              T/QS    \n");
-
+                       //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456           
+    FPRINTF(StatusFile_,"      Time             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CDt            CDtot_t           CSo              CSi            CStot               L/D              E               CFxo             CFyo             CFzo             CFxi             CFyi             CFzi             CFxtot           CFytot           CFztot           CMxo             CMyo             CMzo             CMxi             CMyi             CMzi             CMxtot           CMytot           CMztot          T/QS \n");
+ 
     // If a rotor or unsteady path following case, open any required rotor files
     
     GroupFile_ = new FILE*[NumberOfComponentGroups_ + 1];
@@ -5452,7 +5362,7 @@ void VSP_SOLVER::WriteOutSteadyStateNoiseFiles(int Case)
 
        // Update geometry location and interaction lists for moving geoemtries
        
-       UpdateGeometryLocation(0);     
+       UpdateGeometryLocation(GEOMETRY_UPDATE_DO_ALL);     
          
     }
 
@@ -5546,7 +5456,7 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
     
     Time_ = 0;
              
-    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(1);
+    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(GEOMETRY_UPDATE_DO_STARTUP);
                    
     // Initialize free stream
     
@@ -5594,9 +5504,8 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
     
     FPRINTF(StatusFile_,"\n\nSolver Case: %d \n\n",ABS(Case));
 
-
-                       //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456
-    FPRINTF(StatusFile_,"      Time             Mach             AoA              Beta              CL              CDo              CDi             CDtot             CDt            CDtot_t             CS              L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              T/QS   \n");
+                       //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456           
+    FPRINTF(StatusFile_,"      Time             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CDt            CDtot_t           CSo              CSi            CStot               L/D              E               CFxo             CFyo             CFzo             CFxi             CFyi             CFzi             CFxtot           CFytot           CFztot           CMxo             CMyo             CMzo             CMxi             CMyi             CMzi             CMxtot           CMytot           CMztot          T/QS \n");
 
     // If a rotor or unsteady path following case, open any required rotor files
     
@@ -5951,7 +5860,7 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
   
           // Update geometry location and interaction lists for moving geoemtries
           
-          UpdateGeometryLocation(0);    
+          UpdateGeometryLocation(GEOMETRY_UPDATE_DO_ALL);    
              
        }
        
@@ -6117,6 +6026,7 @@ void VSP_SOLVER::CalculateRightHandSide(void)
        }
 
     }   
+
 
 }
 
@@ -6781,7 +6691,7 @@ void VSP_SOLVER::DoPreconditionedMatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_
     if ( !AdjointMatrixSolve_ ) {
 
        DoMatrixMultiply(vec_in,vec_out);
-       
+
        DoMatrixPrecondition(vec_out);
        
     }
@@ -6790,7 +6700,7 @@ void VSP_SOLVER::DoPreconditionedMatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_
 
        Optimization_DoAdjointMatrixMultiply(vec_in,vec_out);
        
-       DoMatrixPrecondition(vec_out);       
+       DoMatrixPrecondition(vec_out);      
  
     }
 
@@ -6866,6 +6776,8 @@ void VSP_SOLVER::MatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out)
     
     if ( !AllComponentsAreFixed_ && ThereIsRelativeComponentMotion_ ) MaxLoopTypes = 1;
 
+    U = V = W = 0.;
+    
     for ( LoopType = 0 ; LoopType <= MaxLoopTypes ; LoopType++ ) {
 
 #ifndef AUTODIFF
@@ -7356,7 +7268,7 @@ void VSP_SOLVER::MatrixTransposeMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE 
 void VSP_SOLVER::DoMatrixPrecondition(VSPAERO_DOUBLE *vec_in)
 {
 
-    int i, j, k;
+    int i, j, k, p;
 
     // Precondition using Jacobi
 
@@ -7478,7 +7390,7 @@ void VSP_SOLVER::DoMatrixPrecondition(VSPAERO_DOUBLE *vec_in)
              for ( i = 1 ; i <= MatrixPreconditionerList_[k].NumberOfVortexLoops() ; i++ ) {
    
                 MatrixPreconditionerList_[k].x(i) = vec_in[MatrixPreconditionerList_[k].VortexLoopList(i)];
-                
+                               
              }
              
              MatrixPreconditionerList_[k].SolveT();
@@ -7490,7 +7402,33 @@ void VSP_SOLVER::DoMatrixPrecondition(VSPAERO_DOUBLE *vec_in)
              }          
              
           }
-   
+          
+          for ( i = 1 ; i <= NumberOfVortexSheets_ ; i++ ) {
+             
+             for ( j = 1 ; j <= VortexSheet(i).NumberOfTrailingVortices() ; j++ ) {
+                
+                k = VortexSheet(i).TrailingVortex(j).NumberOfWakeResidualNodes();
+                
+                p = VortexSheet(i).TrailingVortex(j).WakeResidualX_EquationNumber(k);
+                      
+                vec_in[p    ] = -vec_in[p    ];     
+                vec_in[p + 1] = -vec_in[p + 1];     
+                vec_in[p + 2] = -vec_in[p + 2];     
+          
+                for ( k = VortexSheet(i).TrailingVortex(j).NumberOfWakeResidualNodes() - 1 ; k >= 1 ; k-- ) {
+                
+                   p = VortexSheet(i).TrailingVortex(j).WakeResidualX_EquationNumber(k);
+                
+                   vec_in[p + 0] = vec_in[p + 3 + 0] - vec_in[p + 0];     
+                   vec_in[p + 1] = vec_in[p + 3 + 1] - vec_in[p + 1];     
+                   vec_in[p + 2] = vec_in[p + 3 + 2] - vec_in[p + 2];     
+          
+                }
+          
+             }
+                
+          }
+          
        }       
        
     }
@@ -7545,6 +7483,8 @@ void VSP_SOLVER::CalculateVelocities(void)
     // Surface vortex induced velocities
 
     MaxLoopTypes = 0;
+    
+    U = V = W = 0.;
     
     if ( !AllComponentsAreFixed_ && ThereIsRelativeComponentMotion_ ) MaxLoopTypes = 1;
 
@@ -7857,7 +7797,7 @@ void VSP_SOLVER::CalculateEdgeVelocities(void)
     VSPAERO_DOUBLE xyz[3], q[5], dq[3], U, V, W;
     VSPAERO_DOUBLE Rate_P, Rate_Q, Rate_R;
     VSP_EDGE *VortexEdge;
-
+    
     // Initialize to free stream values
 
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
@@ -8456,8 +8396,10 @@ void VSP_SOLVER::UpdateWakeLocations(void)
 
     for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {
 
+       VortexSheet(m).SetMachNumber(Mach_);
+
        VortexSheet(m).ZeroEdgeVelocities();
- 
+  
        for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
         
           VortexSheet(m).TrailingVortex(i).FreeStreamVelocity(0) = FreeStreamVelocity_[0];
@@ -8465,17 +8407,21 @@ void VSP_SOLVER::UpdateWakeLocations(void)
           VortexSheet(m).TrailingVortex(i).FreeStreamVelocity(2) = FreeStreamVelocity_[2];
              
           for ( j = 1 ; j <= VortexSheet(m).TrailingVortex(i).NumberOfSubVortices() ; j++ ) {
-      
+
              VortexSheet(m).TrailingVortex(i).U(j) = FreeStreamVelocity_[0];
              VortexSheet(m).TrailingVortex(i).V(j) = FreeStreamVelocity_[1];
              VortexSheet(m).TrailingVortex(i).W(j) = FreeStreamVelocity_[2];
              
           }
-   
+
+          p = VortexSheet(m).TrailingVortex(i).Node();
+          
+          VortexSheet(m).TrailingVortex(i).UpdateTrailingEdgeGeometryLocation(VSPGeom().Grid(MGLevel_).NodeList(p));     
+
        }
        
     }
-    
+
     // Rotational rates... note these rates are wrt to the body stability
     // axes... so we have to convert them to equivalent freestream velocities...
     // in the VSPAERO axes system with has X and Z pointing in the opposite
@@ -8699,279 +8645,283 @@ void VSP_SOLVER::UpdateWakeLocations(void)
        }
        
     }
-             
-    // Wing surface vortex induced velocities... this is now parallelized in "CalculateSurfaceInducedVelocityAtPoint"
 
-    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
-
-       CoreWidth = VortexSheet(m).CoreSize()/10000.;
-       
-       if ( VortexSheet(m).IsARotor() ) CoreWidth = VortexSheet(m).CoreSize();
-          
-       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
-          
-          for ( j = 1 ; j <= VortexSheet(m).TrailingVortex(i).NumberOfSubVortices() ; j++ ) {
-
-             xyz[0] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[0]; 
-             xyz[1] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[1];        
-             xyz[2] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[2]; 
-                
-             CalculateSurfaceInducedVelocityAtPoint(xyz, q, CoreWidth);
+    if ( !DoAdjointSolve_ || ( DoAdjointSolve_ && WakeIterations_ > 1 ) ) {
+                         
+       // Wing surface vortex induced velocities... this is now parallelized in "CalculateSurfaceInducedVelocityAtPoint"
    
-             VortexSheet(m).TrailingVortex(i).U(j) += q[0];
-             VortexSheet(m).TrailingVortex(i).V(j) += q[1];
-             VortexSheet(m).TrailingVortex(i).W(j) += q[2];
-         
-             // If there is ground effects, z plane ...
+       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+   
+          CoreWidth = VortexSheet(m).CoreSize()/10000.;
+          
+          if ( VortexSheet(m).IsARotor() ) CoreWidth = VortexSheet(m).CoreSize();
              
-             if ( DoGroundEffectsAnalysis() ) {
-     
+          for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+             
+             for ( j = 1 ; j <= VortexSheet(m).TrailingVortex(i).NumberOfSubVortices() ; j++ ) {
+   
                 xyz[0] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[0]; 
                 xyz[1] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[1];        
                 xyz[2] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[2]; 
-                     
-                xyz[2] *= -1.;
-               
+                   
                 CalculateSurfaceInducedVelocityAtPoint(xyz, q, CoreWidth);
       
-                q[2] *= -1.;
-               
                 VortexSheet(m).TrailingVortex(i).U(j) += q[0];
                 VortexSheet(m).TrailingVortex(i).V(j) += q[1];
                 VortexSheet(m).TrailingVortex(i).W(j) += q[2];
-                
-             }
-                          
-             // If there is a symmetry plane, calculate influence of the reflection
-             
-             if ( DoSymmetryPlaneSolve_ ) {
-     
-                xyz[0] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[0]; 
-                xyz[1] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[1];        
-                xyz[2] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[2]; 
-             
-                if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
-                if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
-                if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
-               
-                CalculateSurfaceInducedVelocityAtPoint(xyz, q, CoreWidth);
-      
-                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-                if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
-               
-                VortexSheet(m).TrailingVortex(i).U(j) += q[0];
-                VortexSheet(m).TrailingVortex(i).V(j) += q[1];
-                VortexSheet(m).TrailingVortex(i).W(j) += q[2];
-                
+            
                 // If there is ground effects, z plane ...
                 
                 if ( DoGroundEffectsAnalysis() ) {
- 
+        
+                   xyz[0] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[0]; 
+                   xyz[1] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[1];        
+                   xyz[2] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[2]; 
+                        
                    xyz[2] *= -1.;
                   
                    CalculateSurfaceInducedVelocityAtPoint(xyz, q, CoreWidth);
          
-                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;         
-                                                         q[2] *= -1.;
-                  
+                   q[2] *= -1.;
+
                    VortexSheet(m).TrailingVortex(i).U(j) += q[0];
                    VortexSheet(m).TrailingVortex(i).V(j) += q[1];
                    VortexSheet(m).TrailingVortex(i).W(j) += q[2];
                    
                 }
                              
+                // If there is a symmetry plane, calculate influence of the reflection
+                
+                if ( DoSymmetryPlaneSolve_ ) {
+        
+                   xyz[0] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[0]; 
+                   xyz[1] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[1];        
+                   xyz[2] = VortexSheet(m).TrailingVortex(i).xyz_c(j)[2]; 
+                
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+                  
+                   CalculateSurfaceInducedVelocityAtPoint(xyz, q, CoreWidth);
+         
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                  
+                   VortexSheet(m).TrailingVortex(i).U(j) += q[0];
+                   VortexSheet(m).TrailingVortex(i).V(j) += q[1];
+                   VortexSheet(m).TrailingVortex(i).W(j) += q[2];
+                   
+                   // If there is ground effects, z plane ...
+                   
+                   if ( DoGroundEffectsAnalysis() ) {
+    
+                      xyz[2] *= -1.;
+                     
+                      CalculateSurfaceInducedVelocityAtPoint(xyz, q, CoreWidth);
+            
+                      if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;         
+                                                            q[2] *= -1.;
+                     
+                      VortexSheet(m).TrailingVortex(i).U(j) += q[0];
+                      VortexSheet(m).TrailingVortex(i).V(j) += q[1];
+                      VortexSheet(m).TrailingVortex(i).W(j) += q[2];
+                      
+                   }
+                                
+                }
+                
              }
              
           }
           
        }
-       
-    }
 
-    // Copy over vortex sheet data for parallel runs
+       // Copy over vortex sheet data for parallel runs
+      
+       for ( cpu = 1 ; cpu < NumberOfThreads_ ; cpu++ ) {
    
-    for ( cpu = 1 ; cpu < NumberOfThreads_ ; cpu++ ) {
-
-       for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
-       
-          VortexSheet_[cpu][k] += VortexSheet_[0][k];
-    
-       }  
-       
-    }   
-
-    for ( cpu = 0 ; cpu < NumberOfThreads_ ; cpu++ ) {
-
-       for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
-       
-          VortexSheet(cpu,k).TurnWakeDampingOn();
-    
-       }  
-       
-    }   
-    
-    // Wake vortex to wake vortex interactions
-  
-    for ( v = 1 ; v <= NumberOfVortexSheets_ ; v++ ) {
-#ifndef AUTODIFF
-#pragma omp parallel for private(cpu,Level,w,t,i,j,NumberOfSheets,VortexSheetList,xyz,xyz_te,q,U,V,W) schedule(dynamic)                            
-#endif
-       for ( p = 1 ; p <= VortexSheetVortexToVortexSet_[v].NumberOfSets() ; p++ ) { 
-
-#ifndef AUTODIFF
-
-#ifdef VSPAERO_OPENMP    
-          cpu = omp_get_thread_num();
-#else
-          cpu = 0;
-#endif          
-
-#else
-          cpu = 0;
-#endif
+          for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
           
-          w = VortexSheetVortexToVortexSet_[v].VortexW(p);
+             VortexSheet_[cpu][k] += VortexSheet_[0][k];
+       
+          }  
           
-          t = VortexSheetVortexToVortexSet_[v].TrailingVortexT(p);
-
-          for ( i = 1 ; i <= VortexSheetVortexToVortexSet_[v].NumberOfVortexSheetInteractionEdges(p) ; i++ ) {
-
-             Level           = VortexSheetVortexToVortexSet_[v].VortexSheetInteractionTrailingVortexList(p)[i].Level();
-             
-             j               = VortexSheetVortexToVortexSet_[v].VortexSheetInteractionTrailingVortexList(p)[i].Edge();
-             
-             NumberOfSheets  = VortexSheetVortexToVortexSet_[v].VortexSheetInteractionTrailingVortexList(p)[i].NumberOfVortexSheets();
-             
-             VortexSheetList = VortexSheetVortexToVortexSet_[v].VortexSheetInteractionTrailingVortexList(p)[i].VortexSheetList_;
- 
-             xyz[0] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[0];
-             xyz[1] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[1];
-             xyz[2] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[2];                
-
-             xyz_te[0] = VortexSheet(w).TrailingVortex(t).TE_Node().x();
-             xyz_te[1] = VortexSheet(w).TrailingVortex(t).TE_Node().y();
-             xyz_te[2] = VortexSheet(w).TrailingVortex(t).TE_Node().z();
-
-             VortexSheet(cpu,v).InducedVelocity(NumberOfSheets, VortexSheetList, xyz, xyz_te, q);
-             
-             U = q[0];
-             V = q[1];
-             W = q[2];
-
-             // If there is ground effects, z plane ...
+       }   
    
-             if ( DoGroundEffectsAnalysis() ) {
-
-                xyz[0] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[0];
-                xyz[1] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[1];
-                xyz[2] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[2];                
-
-                xyz_te[0] = VortexSheet(w).TrailingVortex(t).TE_Node().x();
-                xyz_te[1] = VortexSheet(w).TrailingVortex(t).TE_Node().y();
-                xyz_te[2] = VortexSheet(w).TrailingVortex(t).TE_Node().z();
-                 
-                xyz[2] *= -1.; xyz_te[2] *= -1.;
-               
-                VortexSheet(cpu,v).InducedVelocity(NumberOfSheets, VortexSheetList, xyz, xyz_te, q);
-       
-                q[2] *= -1.;
-               
-                U += q[0];
-                V += q[1];
-                W += q[2];
-               
-             }  
-                                
-             // If there is a symmetry plane, calculate influence of the reflection
+       for ( cpu = 0 ; cpu < NumberOfThreads_ ; cpu++ ) {
    
-             if ( DoSymmetryPlaneSolve_ ) {
-
-                xyz[0] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[0];
-                xyz[1] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[1];
-                xyz[2] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[2];                
-
-                xyz_te[0] = VortexSheet(w).TrailingVortex(t).TE_Node().x();
-                xyz_te[1] = VortexSheet(w).TrailingVortex(t).TE_Node().y();
-                xyz_te[2] = VortexSheet(w).TrailingVortex(t).TE_Node().z();
-                 
-                if ( DoSymmetryPlaneSolve_ == SYM_X ) { xyz[0] *= -1.; xyz_te[0] *= -1.; };
-                if ( DoSymmetryPlaneSolve_ == SYM_Y ) { xyz[1] *= -1.; xyz_te[1] *= -1.; };
-                if ( DoSymmetryPlaneSolve_ == SYM_Z ) { xyz[2] *= -1.; xyz_te[2] *= -1.; };
-               
-                VortexSheet(cpu,v).InducedVelocity(NumberOfSheets, VortexSheetList, xyz, xyz_te, q);
+          for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+          
+             VortexSheet(cpu,k).TurnWakeDampingOn();
        
-                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-                if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
-               
-                U += q[0];
-                V += q[1];
-                W += q[2];
+          }  
+          
+       }   
+
+       // Wake vortex to wake vortex interactions
+     
+       for ( v = 1 ; v <= NumberOfVortexSheets_ ; v++ ) {
+   #ifndef AUTODIFF
+   #pragma omp parallel for private(cpu,Level,w,t,i,j,NumberOfSheets,VortexSheetList,xyz,xyz_te,q,U,V,W) schedule(dynamic)                            
+   #endif
+          for ( p = 1 ; p <= VortexSheetVortexToVortexSet_[v].NumberOfSets() ; p++ ) { 
+   
+   #ifndef AUTODIFF
+   
+   #ifdef VSPAERO_OPENMP    
+             cpu = omp_get_thread_num();
+   #else
+             cpu = 0;
+   #endif          
+   
+   #else
+             cpu = 0;
+   #endif
+             
+             w = VortexSheetVortexToVortexSet_[v].VortexW(p);
+             
+             t = VortexSheetVortexToVortexSet_[v].TrailingVortexT(p);
+   
+             for ( i = 1 ; i <= VortexSheetVortexToVortexSet_[v].NumberOfVortexSheetInteractionEdges(p) ; i++ ) {
+   
+                Level           = VortexSheetVortexToVortexSet_[v].VortexSheetInteractionTrailingVortexList(p)[i].Level();
                 
+                j               = VortexSheetVortexToVortexSet_[v].VortexSheetInteractionTrailingVortexList(p)[i].Edge();
+                
+                NumberOfSheets  = VortexSheetVortexToVortexSet_[v].VortexSheetInteractionTrailingVortexList(p)[i].NumberOfVortexSheets();
+                
+                VortexSheetList = VortexSheetVortexToVortexSet_[v].VortexSheetInteractionTrailingVortexList(p)[i].VortexSheetList_;
+    
+                xyz[0] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[0];
+                xyz[1] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[1];
+                xyz[2] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[2];                
+   
+                xyz_te[0] = VortexSheet(w).TrailingVortex(t).TE_Node().x();
+                xyz_te[1] = VortexSheet(w).TrailingVortex(t).TE_Node().y();
+                xyz_te[2] = VortexSheet(w).TrailingVortex(t).TE_Node().z();
+   
+                VortexSheet(cpu,v).InducedVelocity(NumberOfSheets, VortexSheetList, xyz, xyz_te, q);
+                
+                U = q[0];
+                V = q[1];
+                W = q[2];
+   
                 // If there is ground effects, z plane ...
       
                 if ( DoGroundEffectsAnalysis() ) {
-
+   
+                   xyz[0] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[0];
+                   xyz[1] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[1];
+                   xyz[2] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[2];                
+   
+                   xyz_te[0] = VortexSheet(w).TrailingVortex(t).TE_Node().x();
+                   xyz_te[1] = VortexSheet(w).TrailingVortex(t).TE_Node().y();
+                   xyz_te[2] = VortexSheet(w).TrailingVortex(t).TE_Node().z();
+                    
                    xyz[2] *= -1.; xyz_te[2] *= -1.;
                   
                    VortexSheet(cpu,v).InducedVelocity(NumberOfSheets, VortexSheetList, xyz, xyz_te, q);
           
-                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;                
-                                                         q[2] *= -1.;
-                  
+                   q[2] *= -1.;
+
                    U += q[0];
                    V += q[1];
                    W += q[2];
                   
-                }                        
-               
-             }        
+                }  
+                                   
+                // If there is a symmetry plane, calculate influence of the reflection
+      
+                if ( DoSymmetryPlaneSolve_ ) {
+   
+                   xyz[0] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[0];
+                   xyz[1] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[1];
+                   xyz[2] = VortexSheet(w).TrailingVortex(t).xyz_c(j)[2];                
+   
+                   xyz_te[0] = VortexSheet(w).TrailingVortex(t).TE_Node().x();
+                   xyz_te[1] = VortexSheet(w).TrailingVortex(t).TE_Node().y();
+                   xyz_te[2] = VortexSheet(w).TrailingVortex(t).TE_Node().z();
+                    
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) { xyz[0] *= -1.; xyz_te[0] *= -1.; };
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) { xyz[1] *= -1.; xyz_te[1] *= -1.; };
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) { xyz[2] *= -1.; xyz_te[2] *= -1.; };
+                  
+                   VortexSheet(cpu,v).InducedVelocity(NumberOfSheets, VortexSheetList, xyz, xyz_te, q);
+          
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                  
+                   U += q[0];
+                   V += q[1];
+                   W += q[2];
+                   
+                   // If there is ground effects, z plane ...
+         
+                   if ( DoGroundEffectsAnalysis() ) {
+   
+                      xyz[2] *= -1.; xyz_te[2] *= -1.;
+                     
+                      VortexSheet(cpu,v).InducedVelocity(NumberOfSheets, VortexSheetList, xyz, xyz_te, q);
              
-             VortexSheet(w).TrailingVortex(t).U(Level,j) += U;
-             VortexSheet(w).TrailingVortex(t).V(Level,j) += V;
-             VortexSheet(w).TrailingVortex(t).W(Level,j) += W;                           
- 
+                      if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;                
+                                                            q[2] *= -1.;
+                     
+                      U += q[0];
+                      V += q[1];
+                      W += q[2];
+                     
+                   }                        
+                  
+                }        
+                
+                VortexSheet(w).TrailingVortex(t).U(Level,j) += U;
+                VortexSheet(w).TrailingVortex(t).V(Level,j) += V;
+                VortexSheet(w).TrailingVortex(t).W(Level,j) += W;                           
+    
+             }
+             
           }
+   
+       }
+   
+       for ( cpu = 0 ; cpu < NumberOfThreads_ ; cpu++ ) {
+   
+          for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+          
+             VortexSheet(cpu,k).TurnWakeDampingOff();
+       
+          }  
+          
+       }   
+   
+       for ( w = 1 ; w <= NumberOfVortexSheets_ ; w++ ) {
+         
+          VortexSheet(w).ProlongateEdgeVelocities();
           
        }
-
-    }
-
-    for ( cpu = 0 ; cpu < NumberOfThreads_ ; cpu++ ) {
-
-       for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
-       
-          VortexSheet(cpu,k).TurnWakeDampingOff();
-    
-       }  
-       
-    }   
-    
-    for ( w = 1 ; w <= NumberOfVortexSheets_ ; w++ ) {
-      
-       VortexSheet(w).ProlongateEdgeVelocities();
-       
-    }
-
+     
+    }      
+     
     // Force last segment to free stream conditions
-            
+             
     for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
-           
+          
        for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
-
+    
           j = VortexSheet(m).TrailingVortex(i).NumberOfSubVortices() + 1;
-   
+    
           VortexSheet(m).TrailingVortex(i).U(j) = FreeStreamVelocity_[0];
           VortexSheet(m).TrailingVortex(i).V(j) = FreeStreamVelocity_[1];
           VortexSheet(m).TrailingVortex(i).W(j) = FreeStreamVelocity_[2];
           
        }
        
-    }       
-
+    } 
+       
     // For any trailing vortices leaving 'identical' trailing edges to have the same velocities
     
     if ( ModelType_ == VLM_MODEL ) {
@@ -9046,19 +8996,29 @@ void VSP_SOLVER::UpdateWakeLocations(void)
        }  
               
     }
-      
+    
     // Now update the location of the wake
-              
-    MaxDelta = 0.;
-              
+          
+    MaxDelta = 1.e-9;
+             
     for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
-
+    
        if ( DoGroundEffectsAnalysis() ) VortexSheet(m).DoGroundEffectsAnalysis() = 1;
+    
+       if ( !DoAdjointSolve_ ) {
 
-       Delta = VortexSheet(m).UpdateWakeLocation();
+          Delta = VortexSheet(m).UpdateWakeLocation();
+
+       }
        
-       MaxDelta = MAX(MaxDelta,Delta);
+       else {
+          
+          Delta = VortexSheet(m).UpdateWakeLocationForAdjointSolve();
 
+       }
+                     
+       MaxDelta = MAX(MaxDelta,Delta);
+    
     }
 
     if ( Verbose_ ) PRINTF("MaxDelta: %f \n",log10(MaxDelta)); 
@@ -9082,6 +9042,44 @@ void VSP_SOLVER::SaveVortexState(void)
    
     }
    
+}
+
+/*##############################################################################
+#                                                                              #
+#                       VSP_SOLVER SaveWakeShapeState                          #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::SaveWakeShapeState(void)
+{
+   
+    int k;
+   
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+       
+       VortexSheet(k).SaveWakeShapeState();
+   
+    }
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                       VSP_SOLVER RestoreWakeShapeState                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::RestoreWakeShapeState(void)
+{
+   
+    int k;
+   
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+       
+       VortexSheet(k).RestoreWakeShapeState();
+   
+    }
+    
 }
 
 /*##############################################################################
@@ -9271,7 +9269,7 @@ void VSP_SOLVER::CalculateUnsteadyWakeVelocities(void)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
+void VSP_SOLVER::UpdateGeometryLocation(int UpdateDateType)
 {
   
     int i, j, k, m, c, p, v, w, t, NumberOfSheets, jMax, Level;
@@ -9284,7 +9282,7 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
 
     // If a full run, calculate velocities on trailing wakes
        
-    if ( !NoiseAnalysis_ && !DoStartUp ) {
+    if ( !NoiseAnalysis_ && UpdateDateType != GEOMETRY_UPDATE_DO_STARTUP && UpdateDateType != GEOMETRY_UPDATE_DO_ADJOINT ) {
 
        // Initialize to free stream values
    
@@ -9512,7 +9510,7 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
           }        
            
        }
-       
+           
        // Copy over vortex sheet data for parallel runs
 
        for ( cpu = 1 ; cpu < NumberOfThreads_ ; cpu++ ) {
@@ -9523,8 +9521,8 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
        
           }  
           
-       }   
- 
+       }
+
        // Wake vortex to vortex interactions... 
        
        if ( TimeAccurate_  && TimeAnalysisType_ == 0 ) {
@@ -9813,7 +9811,17 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
 
        }
        
-       ComponentGroupList_[c].Update(TimeStep, CurrentTime);
+       if ( UpdateDateType != GEOMETRY_UPDATE_DO_ADJOINT ) {
+          
+          ComponentGroupList_[c].Update(TimeStep, CurrentTime);
+          
+       }
+       
+       if ( UpdateDateType == GEOMETRY_UPDATE_DO_ADJOINT ) {
+          
+          ComponentGroupList_[c].UpdateQuaternions(TimeStep);
+          
+       }  
 
        OVec[0] = ComponentGroupList_[c].OVec(0); // Rotation origin
        OVec[1] = ComponentGroupList_[c].OVec(1);
@@ -9859,8 +9867,10 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
         
                 Vec2 = Quat * Vec1 * InvQuat;
 
+                if ( UpdateDateType == GEOMETRY_UPDATE_DO_ADJOINT ) Vec2 = Vec1;
+
                 // Body point velocity
- 
+                 
                 BodyVelocity = WQuat * Vec2;
 
                 LocalBodySurfaceVelocityForLoop_[i][0] = BodyVelocity(0) + ComponentGroupList_[c].Velocity(0);
@@ -9885,10 +9895,12 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
                 
                 Vec2 = Quat * Vec1 * InvQuat;
          
+                if ( UpdateDateType == GEOMETRY_UPDATE_DO_ADJOINT ) Vec2 = Vec1;
+         
                 // Body point velocity
                 
                 BodyVelocity = WQuat * Vec2;
-           
+   
                 LocalBodySurfaceVelocityForEdge_[i][0] = BodyVelocity(0) + ComponentGroupList_[c].Velocity(0);
                 LocalBodySurfaceVelocityForEdge_[i][1] = BodyVelocity(1) + ComponentGroupList_[c].Velocity(1);
                 LocalBodySurfaceVelocityForEdge_[i][2] = BodyVelocity(2) + ComponentGroupList_[c].Velocity(2);
@@ -9897,7 +9909,7 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
       
           }
                
-          if ( !DoStartUp ) {
+          if ( UpdateDateType != GEOMETRY_UPDATE_DO_STARTUP && UpdateDateType != GEOMETRY_UPDATE_DO_ADJOINT ) {
 
              // Update acuator disk locations
           
@@ -9915,7 +9927,6 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
                 
              }	     
 	     
-
              // Update grids
              
              for ( Level = 0 ; Level <= NumberOfMGLevels_ ; Level++ ) {
@@ -9933,12 +9944,12 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
              }
              
              // Update the Span Loading data
-             
+           
              if ( ModelType_ == VLM_MODEL ) {
-             
-                for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) {
-        
-                   if ( ComponentInThisGroup[VSPGeom().VSP_Surface(i).ComponentID()] ) SpanLoadData(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
+          
+                for ( i = 1 ; i <= NumberOfSpanLoadDataSets_ ; i++ ) {
+
+                   SpanLoadData(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat,ComponentInThisGroup);
         
                 }    
                
@@ -9948,24 +9959,10 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
                 
                 for ( i = 1 ; i <= NumberOfSpanLoadDataSets_ ; i++ ) {
                 
-                   Found = 0;
-                   
-                   j = 1;
-                   
-                   while ( j <= SpanLoadData(i).NumberOfSpanStations() && !Found ) {
-                         
-                      Node = VortexSheet(i).TrailingVortex(j).Node();
-                      
-                      if ( ComponentInThisGroup[VSPGeom().Grid(1).NodeList(Node).ComponentID()] ) Found = 1;
+                  SpanLoadData(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat,ComponentInThisGroup);
+                  
+                }
                      
-                      j++;
-                      
-                   }
-                   
-                   if ( Found ) SpanLoadData(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
-        
-                }    
-                                
              }         
              
              // Update the least squares coefficients for the panel solver
@@ -9984,15 +9981,27 @@ void VSP_SOLVER::UpdateGeometryLocation(int DoStartUp)
           
        }
       
-       if ( !DoStartUp ) {
+       if ( UpdateDateType != GEOMETRY_UPDATE_DO_STARTUP ) {
           
           // Update vortex sheet motion over this time step
       
           if ( NoiseAnalysis_ || DoAdjointSolve_ ) {
  
              for ( i = 1 ; i <= NumberOfVortexSheets_ ; i++ ) {
+                
+                if ( UpdateDateType != GEOMETRY_UPDATE_DO_ADJOINT ) {
              
-                VortexSheet(i).UpdateTrailingEdgeGeometryLocation(TVec,OVec,Quat,InvQuat,ComponentInThisGroup);
+                   VortexSheet(i).UpdateTrailingEdgeGeometryLocation(TVec,OVec,Quat,InvQuat,ComponentInThisGroup);
+                   
+                }
+                
+                else {
+             
+                  VortexSheet(i).SetMachNumber(Mach_);
+             
+                  VortexSheet(i).UpdateGeometryLocationForAdjointSolve(VSPGeom().Grid(MGLevel_).NodeList(), ComponentInThisGroup);
+                   
+                }                   
              
              }     
              
@@ -10193,9 +10202,9 @@ void VSP_SOLVER::ResetGeometry(void)
              
              if ( ModelType_ == VLM_MODEL ) {
              
-                for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) {
+                for ( i = 1 ; i <= NumberOfSpanLoadDataSets_ ; i++ ) {
         
-                   if ( ComponentInThisGroup[VSPGeom().VSP_Surface(i).ComponentID()] ) SpanLoadData(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
+                   SpanLoadData(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat,ComponentInThisGroup);
         
                 }    
                 
@@ -10205,21 +10214,7 @@ void VSP_SOLVER::ResetGeometry(void)
                 
                 for ( i = 1 ; i <= NumberOfSpanLoadDataSets_ ; i++ ) {
                 
-                   Found = 0;
-                   
-                   j = 1;
-                   
-                   while ( j <= SpanLoadData(i).NumberOfSpanStations() && !Found ) {
-                         
-                      Node = VortexSheet(i).TrailingVortex(j).Node();
-                      
-                      if ( ComponentInThisGroup[VSPGeom().Grid(1).NodeList(Node).ComponentID()] ) Found = 1;
-                     
-                      j++;
-                      
-                   }
-                   
-                   if ( Found ) SpanLoadData(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
+                   SpanLoadData(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat,ComponentInThisGroup);
         
                 }    
                                 
@@ -10292,8 +10287,8 @@ void VSP_SOLVER::Do_GMRES_Solve(void)
     // of magnitude per iteration... so while that not's exactly a 3 order drop in 1
     // iteration... it is similar.
     
-    if ( GMRESTightConvergence_  ) ResRed = 0.01;       
-     
+    if ( GMRESTightConvergence_  ) ResRed = 0.001;       
+  
     ResMax = 0.1*Vref_;
     
     // Apply user reduction factor
@@ -10514,38 +10509,43 @@ void VSP_SOLVER::Optimization_Solve(int Case)
        
        zero_double_array(pR_pMesh_, 3*VSPGeom().Grid(0).NumberOfNodes());
        zero_double_array(pF_pMesh_, 3*VSPGeom().Grid(0).NumberOfNodes());
+      
+       pF_pSoln_ = new VSPAERO_DOUBLE[NumberOfAdjointEquations_ + 1];
        
-       pF_pGamma_ = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
-       
-       zero_double_array(pF_pGamma_, NumberOfVortexLoops_);
-       
+       zero_double_array(pF_pSoln_, NumberOfAdjointEquations_);
+              
        for ( i = 1 ; i <= NumberOfOptimizationFunctions_ ; i++ ) {
    
-          Psi_[i]  = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
+          Psi_[i]  = new VSPAERO_DOUBLE[NumberOfAdjointEquations_ + 1];
           
-          zero_double_array(Psi_[i], NumberOfVortexLoops_);
+          zero_double_array(Psi_[i], NumberOfAdjointEquations_);
           
        }
    
-       dF_dMesh_ = new VSPAERO_DOUBLE**[OptimizationNumberOfIntegrationTimeSteps_ + 1];    
-   
-       for ( i = 0 ; i <= OptimizationNumberOfIntegrationTimeSteps_ ; i++ ) {
-          
-          dF_dMesh_[i]  = new VSPAERO_DOUBLE*[NumberOfOptimizationFunctions_ + 1];
-   
-          for ( j = 1 ; j <= NumberOfOptimizationFunctions_ ; j++ ) {
-          
-             dF_dMesh_[i][j] = new VSPAERO_DOUBLE[3*VSPGeom().Grid(0).NumberOfNodes() + 1];
-             
-             zero_double_array(dF_dMesh_[i][j], 3*VSPGeom().Grid(0).NumberOfNodes());
-             
-          }
-   
-       }
+      // MeshGradientData_ = new VSPAERO_DOUBLE**[OptimizationNumberOfIntegrationTimeSteps_ + 1];    
+      //
+      // for ( i = 0 ; i <= OptimizationNumberOfIntegrationTimeSteps_ ; i++ ) {
+      //    
+      //    MeshGradientData_[i]  = new VSPAERO_DOUBLE*[NumberOfOptimizationFunctions_ + 1];
+      //
+      //    for ( j = 1 ; j <= NumberOfOptimizationFunctions_ ; j++ ) {
+      //    
+      //       MeshGradientData_[i][j] = new VSPAERO_DOUBLE[3*VSPGeom().Grid(0).NumberOfNodes() + 1];
+      //       
+      //       zero_double_array(MeshGradientData_[i][j], 3*VSPGeom().Grid(0).NumberOfNodes());
+      //       
+      //    }
+      //
+      // }
        
-       // Gradients with respect to input variables 
+       MeshGradientData_.SizeList(3*VSPGeom().Grid(0).NumberOfNodes(), NumberOfOptimizationFunctions_, OptimizationNumberOfIntegrationTimeSteps_); 
+       
+       // Gradients with respect to input variables        
        
        NumberOfOptimizationInputIndepdendentVariables_ = OPT_GRADIENT_NUMBER_OF_INPUTS + NumberOfComponentGroups_;
+
+       if ( Verbose_ ) PRINTF("NumberOfComponentGroups_: %d \n",NumberOfComponentGroups_);
+       if ( Verbose_ ) PRINTF("NumberOfOptimizationInputIndepdendentVariables_: %d \n",NumberOfOptimizationInputIndepdendentVariables_);
        
        pR_pInputVariable_  = new VSPAERO_DOUBLE[NumberOfOptimizationInputIndepdendentVariables_ + 1];
        pF_pInputVariable_  = new VSPAERO_DOUBLE[NumberOfOptimizationInputIndepdendentVariables_ + 1];
@@ -10553,22 +10553,24 @@ void VSP_SOLVER::Optimization_Solve(int Case)
        zero_double_array(pR_pInputVariable_, NumberOfOptimizationInputIndepdendentVariables_);
        zero_double_array(pF_pInputVariable_, NumberOfOptimizationInputIndepdendentVariables_);    
        
-       dF_dInputVariable_ = new VSPAERO_DOUBLE**[OptimizationNumberOfIntegrationTimeSteps_ + 1];    
-   
-       for ( i = 0 ; i <= OptimizationNumberOfIntegrationTimeSteps_ ; i++ ) {
-          
-          dF_dInputVariable_[i]  = new VSPAERO_DOUBLE*[NumberOfOptimizationFunctions_ + 1];
-   
-          for ( j = 1 ; j <= NumberOfOptimizationFunctions_ ; j++ ) {
-          
-             dF_dInputVariable_[i][j] = new VSPAERO_DOUBLE[NumberOfOptimizationInputIndepdendentVariables_ + 1];
-             
-             zero_double_array(dF_dInputVariable_[i][j], NumberOfOptimizationInputIndepdendentVariables_);
-             
-          }
-   
-       }
+       //dF_dInputVariable_ = new VSPAERO_DOUBLE**[OptimizationNumberOfIntegrationTimeSteps_ + 1];    
+       //
+       //for ( i = 0 ; i <= OptimizationNumberOfIntegrationTimeSteps_ ; i++ ) {
+       //   
+       //   dF_dInputVariable_[i]  = new VSPAERO_DOUBLE*[NumberOfOptimizationFunctions_ + 1];
+       //
+       //   for ( j = 1 ; j <= NumberOfOptimizationFunctions_ ; j++ ) {
+       //   
+       //      dF_dInputVariable_[i][j] = new VSPAERO_DOUBLE[NumberOfOptimizationInputIndepdendentVariables_ + 1];
+       //      
+       //      zero_double_array(dF_dInputVariable_[i][j], NumberOfOptimizationInputIndepdendentVariables_);
+       //      
+       //   }
+       //
+       //}
        
+       SolutionGradientData_.SizeList(NumberOfOptimizationInputIndepdendentVariables_, NumberOfOptimizationFunctions_, OptimizationNumberOfIntegrationTimeSteps_);
+
        FirstTimeGradientSetup_ = 0;
        
     }
@@ -10579,32 +10581,52 @@ void VSP_SOLVER::Optimization_Solve(int Case)
              
     CurrentTime_ = CurrentNoiseTime_ = 0.;
 
-    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(1);
+    if ( TimeAccurate_ && !StartFromSteadyState_ ) UpdateGeometryLocation(GEOMETRY_UPDATE_DO_STARTUP);
               
     // Initialize free stream
 
     InitializeFreeStream();
 
-    if ( AUTO_DIFF_IS_RECORDING() ) PRINTF("Autodiff on and we are recording! \n");
+    if ( Verbose_ && AUTO_DIFF_IS_RECORDING() ) PRINTF("Autodiff on and we are recording! \n");
 
     // Create interaction list for fixed components
 
     CreateSurfaceVorticesInteractionList(0);
 
-    if ( AUTO_DIFF_IS_RECORDING() ) PRINTF("Autodiff on and we are recording! \n");
+    if ( Verbose_ && AUTO_DIFF_IS_RECORDING() ) PRINTF("Autodiff on and we are recording! \n");
 
     CreateInteractionListForSurfaceEdges(0);
 
-    if ( AUTO_DIFF_IS_RECORDING() ) PRINTF("Autodiff on and we are recording! \n");
-
-    // AUTODIFF: Continue recording
-    
-    CONTINUE_AUTO_DIFF();
-        
+    if ( Verbose_ && AUTO_DIFF_IS_RECORDING() ) PRINTF("Autodiff on and we are recording! \n");
+   
     // Initialize the wake trailing vortices
 
     InitializeTrailingVortices();
+   
+    // Set up trailing wake equation numbering
 
+    p = 0;
+   
+    for ( i = 1 ; i <= NumberOfVortexSheets_ ; i++ ) {
+       
+       for ( j = 1 ; j <= VortexSheet(i).NumberOfTrailingVortices() ; j++ ) {
+         
+          for ( k = 1 ; k <= VortexSheet(i).TrailingVortex(j).NumberOfWakeResidualNodes() ; k++ ) {
+            
+             VortexSheet(i).TrailingVortex(j).WakeResidualX_EquationNumber(k) = NumberOfVortexLoops_ + ++p;
+             VortexSheet(i).TrailingVortex(j).WakeResidualY_EquationNumber(k) = NumberOfVortexLoops_ + ++p; 
+             VortexSheet(i).TrailingVortex(j).WakeResidualZ_EquationNumber(k) = NumberOfVortexLoops_ + ++p; 
+             
+             VortexSheet(i).TrailingVortex(j).WakeResidualX(k) = 0.;
+             VortexSheet(i).TrailingVortex(j).WakeResidualY(k) = 0.;
+             VortexSheet(i).TrailingVortex(j).WakeResidualZ(k) = 0.;
+
+          }
+          
+       }
+       
+    }    
+        
     // Zero out group data
 
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
@@ -10619,10 +10641,6 @@ void VSP_SOLVER::Optimization_Solve(int Case)
        
     }
     
-    // AUTODIFF: Pause recording
-    
-    PAUSE_AUTO_DIFF();
-
     // Zero the vortex state 
             
     ZeroVortexState();
@@ -10665,9 +10683,8 @@ void VSP_SOLVER::Optimization_Solve(int Case)
     
     FPRINTF(StatusFile_,"\n\nSolver Case: %d \n\n",ABS(Case));
 
-
-                       //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456
-    FPRINTF(StatusFile_,"      Time             Mach             AoA              Beta              CL              CDo              CDi             CDtot             CDt             CDtot_t            CS              L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              T/QS    \n");
+                       //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456           
+    FPRINTF(StatusFile_,"      Time             Mach             AoA              Beta              CLo             CLi            CLtot              CDo              CDi             CDtot              CDt            CDtot_t           CSo              CSi            CStot               L/D              E               CFxo             CFyo             CFzo             CFxi             CFyi             CFzi             CFxtot           CFytot           CFztot           CMxo             CMyo             CMzo             CMxi             CMyi             CMzi             CMxtot           CMytot           CMztot          T/QS \n");
 
     // If a rotor or unsteady path following case, open any required rotor files
     
@@ -10747,7 +10764,7 @@ void VSP_SOLVER::Optimization_Solve(int Case)
     
     // Open the output adb file
     
-    if ( Case == 0 || Case == 1 ) {
+    if ( !ExternalCoupledSolve_ && ( Case == 0 || Case == 1 ) ) {
 
        SPRINTF(ADBFileName,"%s.optimization.adb",FileName_);
        
@@ -10759,22 +10776,22 @@ void VSP_SOLVER::Optimization_Solve(int Case)
    
        }
 
+       // Open the case file
+       
+       SPRINTF(ADBFileName,"%s.optimization.adb.cases",FileName_);
+       
+       if ( (ADBCaseListFile_ = fopen(ADBFileName, "w")) == NULL ) {
+   
+          PRINTF("Could not open the aero data base case list file for output! \n");
+   
+          exit(1);
+   
+       }       
+
     }
 
-    // Open the case file
-    
-    SPRINTF(ADBFileName,"%s.optimization.adb.cases",FileName_);
-    
-    if ( (ADBCaseListFile_ = fopen(ADBFileName, "w")) == NULL ) {
-
-       PRINTF("Could not open the aero data base case list file for output! \n");
-
-       exit(1);
-
-    }       
-
     // Write out, read in ADB Geometry
-    
+      
     if ( Case == 0 || Case == 1 ) {
 
        // Input file
@@ -10785,15 +10802,11 @@ void VSP_SOLVER::Optimization_Solve(int Case)
        
        // Output file
        
-       WriteOutAerothermalDatabaseHeader();
+       if ( !ExternalCoupledSolve_ ) WriteOutAerothermalDatabaseHeader();
 
-       WriteOutAerothermalDatabaseGeometry();
+       if ( !ExternalCoupledSolve_ ) WriteOutAerothermalDatabaseGeometry();
        
     }
- 
-    // AUTODIFF: Pause recording
-    
-    PAUSE_AUTO_DIFF();
 
     if ( TimeAccurate_ && !StartFromSteadyState_ ) WakeIterations_ = 1;
  
@@ -10805,9 +10818,9 @@ void VSP_SOLVER::Optimization_Solve(int Case)
 
     if ( !TimeAccurate_ ) NumberOfTimeSteps_ = 1;
     
-    PRINTF("NumberOfTimeSteps_: %d \n",NumberOfTimeSteps_);
+    if ( !ExternalCoupledSolve_ ) PRINTF("NumberOfTimeSteps_: %d \n",NumberOfTimeSteps_);
     
-    PRINTF("TimeStep_: %f \n",TimeStep_);
+    if ( !ExternalCoupledSolve_ ) PRINTF("TimeStep_: %f \n",TimeStep_);
       
     // Read in the ADB solution... only solution for steady state, time = 0 for unsteady
       
@@ -10828,8 +10841,10 @@ void VSP_SOLVER::Optimization_Solve(int Case)
     }
                   
     for ( Time_ = 1 ; Time_ <= NumberOfTimeSteps_ ; Time_++ ) {
+
+       START_NEW_AUTO_DIFF();
  
-       PRINTF("Time step: %d of %d \n",Time_, NumberOfTimeSteps_);fflush(NULL);
+       if ( !ExternalCoupledSolve_ ) PRINTF("Time step: %d of %d \n",Time_, NumberOfTimeSteps_);fflush(NULL);
        
        if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
        
@@ -10844,12 +10859,12 @@ void VSP_SOLVER::Optimization_Solve(int Case)
        }
 
        UpdateWakeVortexInteractionLists();
-                   
+             
        if ( TimeAccurate_ ) {
 
           // Update geometry location and interaction lists for moving geometries
 
-          UpdateGeometryLocation(0);
+          UpdateGeometryLocation(GEOMETRY_UPDATE_DO_ALL);
 
           if ( !AllComponentsAreFixed_ && ThereIsRelativeComponentMotion_ ) {
              
@@ -10886,156 +10901,209 @@ void VSP_SOLVER::Optimization_Solve(int Case)
           UpdateVortexEdgeStrengths(1, ALL_WAKE_GAMMAS);
              
           SaveVortexState();
+          
+          // At this point we are at time step N..., ie...
+          // Geometry is updated to location at N
+          // Wakes are updated to location at N
             
        }     
        
-       // Solve the adjoint and calculate the total derivatives     
+       // Save the wake shape state
 
-       if ( !TimeAccurate_ || Time_ >= NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_ + 1) {
+       SaveWakeShapeState();
        
-          // Solve the adjoint equation and calculate gradients
-       
-          for ( OptimizationCase_ = 1 ; OptimizationCase_ <= NumberOfOptimizationFunctions_ ; OptimizationCase_++ ) {
-                       
-             PRINTF("\n\n\nSolving adjoint ... \n"); fflush(NULL);
-           
-             Optimization_AdjointSolve();
-             
-             if ( Verbose_ ) AUTO_DIFF_STACK_STATUS();
-             
-             if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
-             
-             PRINTF("\n\n\nCalculating functional gradients ... \n"); fflush(NULL);
-             
-             Optimization_CalculateGradientOfDesignFunction();
-             
-             if ( Verbose_ ) AUTO_DIFF_STACK_STATUS(); fflush(NULL);
-       
-             if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY()); fflush(NULL);
-             
-          }
-         
-       }
-
-       if ( TimeAccurate_ ) {
+       if ( !ExternalCoupledSolve_ ) {
           
-          // Output the current solution 
+          // Solve the adjoint and calculate the total derivatives     
+   
+          if ( !TimeAccurate_ || Time_ >= NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_ + 1) {
           
-          WriteOutAerothermalDatabaseGeometry();
-  
-          InterpolateSolutionFromGrid(1);
+             // Solve the adjoint equation and calculate gradients
           
-          WriteOutAerothermalDatabaseSolution();
-           
-       }        
-
-       // Calculate the total derivatives     
-       
-       if ( !TimeAccurate_ || Time_ >= NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_ + 1) {
- 
-          // Output status
-          
-          if ( Verbose_ ) PRINTF("Outputting status data file... \n"); fflush(NULL);
-          
-          OutputStatusFile(0);
-          
-          // Write out any rotor coefficients
-          
-          if ( Verbose_ ) PRINTF("Outputting force and moments data file... \n"); fflush(NULL);
-          
-          OutputForcesAndMomentsForGroup(0);
+             for ( OptimizationCase_ = 1 ; OptimizationCase_ <= NumberOfOptimizationFunctions_ ; OptimizationCase_++ ) {
+                          
+                PRINTF("\n\n\nSolving adjoint ... \n"); fflush(NULL);
+              
+                Optimization_AdjointSolve();
                 
+                if ( Verbose_ ) AUTO_DIFF_STACK_STATUS();
+                
+                if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
+                
+                PRINTF("\n\n\nCalculating functional gradients ... \n"); fflush(NULL);
+                
+                Optimization_CalculateGradientOfDesignFunction();
+                
+                if ( Verbose_ ) AUTO_DIFF_STACK_STATUS(); fflush(NULL);
+          
+                if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY()); fflush(NULL);
+                
+             }
+            
+          }
+          
+          START_NEW_AUTO_DIFF();
+   
+          if ( TimeAccurate_ ) {
+             
+             // Output the current solution 
+             
+             WriteOutAerothermalDatabaseGeometry();
+     
+             InterpolateSolutionFromGrid(1);
+             
+             WriteOutAerothermalDatabaseSolution();
+              
+          }        
+   
+          // Output status files and integrated forces/moments
+          
+          if ( !TimeAccurate_ || Time_ >= NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_ + 1) {
+    
+             // Output status
+             
+             if ( Verbose_ ) PRINTF("Outputting status data file... \n"); fflush(NULL);
+             
+             OutputStatusFile(0);
+             
+             // Write out any rotor coefficients
+             
+             if ( Verbose_ ) PRINTF("Outputting force and moments data file... \n"); fflush(NULL);
+             
+             OutputForcesAndMomentsForGroup(0);
+                   
+          }
+          
        }
+       
                
     }
+
+    if ( Verbose_ ) PRINTF("\n\n\n\nCurrent AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());fflush(NULL);
+
+    START_NEW_AUTO_DIFF();
     
     if ( Verbose_ ) PRINTF("Interpolating solution from grid 1 to 0... \n"); fflush(NULL);
     
     InterpolateSolutionFromGrid(1);
+
+    START_NEW_AUTO_DIFF();
     
     if ( Verbose_ ) PRINTF("Writing out aero database... \n"); fflush(NULL);
     
-    if ( !TimeAccurate_ ) WriteOutAerothermalDatabaseSolution();
+    if ( !TimeAccurate_ && !ExternalCoupledSolve_ ) WriteOutAerothermalDatabaseSolution();
     
     // Close up files
     
-    if ( Verbose_ ) PRINTF("Closing StatusFile_... \n"); fflush(NULL);
+    if ( Case <= 0 ) {
     
-    fclose(StatusFile_);    
-
-    if ( Verbose_ ) PRINTF("Closing InputADBFile_... \n"); fflush(NULL);
-
-    fclose(InputADBFile_);
-
-    if ( Verbose_ ) PRINTF("Closing ADBFile_);... \n"); fflush(NULL);
-
-    fclose(ADBFile_);
-
-    if ( Verbose_ ) PRINTF("Closing ADBCaseListFile_... \n"); fflush(NULL);
-
-    fclose(ADBCaseListFile_);
-
-    // Close any rotor coefficient files
-
-    if ( Verbose_ ) PRINTF("Closing any rotor files... \n"); fflush(NULL);
-
-    k = 0;
-    
-    for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+       if ( Verbose_ ) PRINTF("Closing StatusFile_... \n"); fflush(NULL);
        
-       fclose(GroupFile_[c]);
+       fclose(StatusFile_);    
        
-       if ( ComponentGroupList_[c].GeometryIsARotor() ) fclose(RotorFile_[++k]);
+       if ( Verbose_ ) PRINTF("Closing InputADBFile_... \n"); fflush(NULL);
+       
+       fclose(InputADBFile_);
+       
+       if ( Verbose_ ) PRINTF("Closing ADBFile_... \n"); fflush(NULL);
+       
+       if ( !ExternalCoupledSolve_ ) fclose(ADBFile_);
+       
+       if ( Verbose_ ) PRINTF("Closing ADBCaseListFile_... \n"); fflush(NULL);
+       
+       if ( !ExternalCoupledSolve_ ) fclose(ADBCaseListFile_);
+       
+       // Close any rotor coefficient files
+       
+       if ( Verbose_ ) PRINTF("Closing any rotor files... \n"); fflush(NULL);
+       
+       k = 0;
+       
+       for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
           
-    }
-    
-    // Open the gradient file
-
-    SPRINTF(GradientFileName,"%s.gradient",FileName_);
-
-    if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
-    
-       PRINTF("Could not open the gradient output file! \n");
-    
-       exit(1);
-    
-    }
-           
-    // Output the gradient data
-
-    if ( Verbose_ ) PRINTF("Outputting the gradient file... \n"); fflush(NULL);
-
-    FPRINTF(GRADFile,"%d \n",VSPGeom().Grid(0).NumberOfNodes());
-    
-    for ( p = 1 ; p <= NumberOfOptimizationFunctions_ ; p++ ) {
-
-       if ( Verbose_ ) PRINTF("Outputting the gradient file for opt function %d ... \n",p); fflush(NULL);
-
-       FPRINTF(GRADFile,"Function: %d --> %d \n",p,OptimizationFunctionList_[p].OptimizationFunction());
-   
-                       //1234567890    1234567890 1234567890 1234567890    1234567890 1234567890 1234567890    
-       
-       FPRINTF(GRADFile,"   Node            X          Y          Z            dFdX       dFdY       dFdZ \n");
-       
-       for ( i = 1 ; i <= VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
+          fclose(GroupFile_[c]);
           
-          FPRINTF(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
-           i,
-           VSPGeom().Grid(0).NodeList(i).x(),
-           VSPGeom().Grid(0).NodeList(i).y(),
-           VSPGeom().Grid(0).NodeList(i).z(),
-           dF_dMesh_[0][p][3*i-2],
-           dF_dMesh_[0][p][3*i-1],
-           dF_dMesh_[0][p][3*i  ]);
-           
+          if ( ComponentGroupList_[c].GeometryIsARotor() ) fclose(RotorFile_[++k]);
+             
        }
        
-       FPRINTF(GRADFile," \n\n\n");
+    }
        
-    }     
-     
-    fclose(GRADFile);
+    if ( !ExternalCoupledSolve_ ) {
+       
+       // Open the gradient file
+   
+       SPRINTF(GradientFileName,"%s.gradient",FileName_);
+   
+       if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
+       
+          PRINTF("Could not open the gradient output file! \n");
+       
+          exit(1);
+       
+       }
+              
+       // Output the gradient data
+   
+       if ( Verbose_ ) PRINTF("Outputting the gradient file... \n"); fflush(NULL);
+   
+       FPRINTF(GRADFile,"%d \n",VSPGeom().Grid(0).NumberOfNodes());
+       
+       for ( p = 1 ; p <= NumberOfOptimizationFunctions_ ; p++ ) {
+   
+          if ( Verbose_ ) PRINTF("Outputting the gradient file for opt function %d ... \n",p); fflush(NULL);
+   
+          FPRINTF(GRADFile,"Function: %d --> %d \n",p,OptimizationFunctionList_[p].OptimizationFunction());
+          FPRINTF(GRADFile,"Function Value: %d --> %f \n",p,OptimizationFunctionList_[p].Function());
+      
+                          //1234567890    1234567890 1234567890 1234567890    1234567890 1234567890 1234567890    
           
+          FPRINTF(GRADFile,"   Node            X          Y          Z            dFdX       dFdY       dFdZ \n");
+          
+          for ( i = 1 ; i <= VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
+             
+           // FPRINTF(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
+           //  i,
+           //  VSPGeom().Grid(0).NodeList(i).x(),
+           //  VSPGeom().Grid(0).NodeList(i).y(),
+           //  VSPGeom().Grid(0).NodeList(i).z(),
+           //  MeshGradientData_[0][p][3*i-2],
+           //  MeshGradientData_[0][p][3*i-1],
+           //  MeshGradientData_[0][p][3*i  ]);
+              
+             FPRINTF(GRADFile,"%10d   %10.6e %10.6e %10.6e   %10.6e %10.6e %10.6e \n",
+              i,
+              VSPGeom().Grid(0).NodeList(i).x(),
+              VSPGeom().Grid(0).NodeList(i).y(),
+              VSPGeom().Grid(0).NodeList(i).z(),
+              MeshGradientData_.dF_dMesh(0,p,3*i-2),
+              MeshGradientData_.dF_dMesh(0,p,3*i-1),
+              MeshGradientData_.dF_dMesh(0,p,3*i  ));
+                            
+          }
+          
+          FPRINTF(GRADFile," \n\n\n");
+          
+       }     
+        
+       fclose(GRADFile);
+   
+       START_NEW_AUTO_DIFF();
+   
+       PRINTF("\n\n\n\n");
+       PRINTF("Optimization Function Value: %f \n",OptimizationFunctionList_[1].Function(1));
+       PRINTF("Gradient with respect to Alpha   : %e \n",dF_dInputVariable(OPT_GRADIENT_WRT_ALPHA  ));
+       PRINTF("Gradient with respect to Beta    : %e \n",dF_dInputVariable(OPT_GRADIENT_WRT_BETA   ));
+       PRINTF("Gradient with respect to Mach    : %e \n",dF_dInputVariable(OPT_GRADIENT_WRT_MACH   ));
+       PRINTF("Gradient with respect to Vinf    : %e \n",dF_dInputVariable(OPT_GRADIENT_WRT_VINF   ));
+       PRINTF("Gradient with respect to Density : %e \n",dF_dInputVariable(OPT_GRADIENT_WRT_DENSITY));
+       PRINTF("Gradient with respect to ReCref  : %e \n",dF_dInputVariable(OPT_GRADIENT_WRT_RECREF ));
+       PRINTF("Gradient with respect to P rate  : %e \n",dF_dInputVariable(OPT_GRADIENT_WRT_P_RATE ));
+       PRINTF("Gradient with respect to Q rate  : %e \n",dF_dInputVariable(OPT_GRADIENT_WRT_Q_RATE ));
+       PRINTF("Gradient with respect to R rate  : %e \n",dF_dInputVariable(OPT_GRADIENT_WRT_R_RATE ));
+       
+    }
+              
 }
 
 /*##############################################################################
@@ -11126,16 +11194,24 @@ void VSP_SOLVER::Optimization_Calculate_Total_Gradient(void)
        
        for ( i = 1 ; i <= 3*VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
           
-          dF_dMesh_[t][OptimizationCase_][i] = pF_pMesh_[i] - pR_pMesh_[i];
+      //    MeshGradientData_[t][OptimizationCase_][i] = pF_pMesh_[i] - pR_pMesh_[i];
+      
+            MeshGradientData_.pF_pMesh(t,OptimizationCase_,i) = pF_pMesh_[i];
+            MeshGradientData_.pR_pMesh(t,OptimizationCase_,i) = pR_pMesh_[i];      
+            MeshGradientData_.dF_dMesh(t,OptimizationCase_,i) = pF_pMesh_[i] - pR_pMesh_[i];
        
        }
        
-       // Save the current gradient with respect to the input varialbes if this is an unsteady case
+       // Save the current gradient with respect to the input variables if this is an unsteady case
        
        for ( i = 1 ; i <= NumberOfOptimizationInputIndepdendentVariables_ ; i++ ) {
           
-          dF_dInputVariable_[t][OptimizationCase_][i] = pF_pInputVariable_[i] - pR_pInputVariable_[i];
-          
+          //dF_dInputVariable_[t][OptimizationCase_][i] = pF_pInputVariable_[i] - pR_pInputVariable_[i];
+               
+          SolutionGradientData_.pF_pVariable(t,OptimizationCase_,i) = pF_pInputVariable_[i];                 
+          SolutionGradientData_.pR_pVariable(t,OptimizationCase_,i) = pR_pInputVariable_[i];           
+          SolutionGradientData_.dF_dVariable(t,OptimizationCase_,i) = pF_pInputVariable_[i] - pR_pInputVariable_[i];         
+                                  
        }
            
     }
@@ -11146,8 +11222,12 @@ void VSP_SOLVER::Optimization_Calculate_Total_Gradient(void)
      
     for ( i = 1 ; i <= 3*VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
        
-       dF_dMesh_[0][OptimizationCase_][i] = pF_pMesh_[i] - pR_pMesh_[i];
-   
+    //   MeshGradientData_[0][OptimizationCase_][i] = pF_pMesh_[i] - pR_pMesh_[i];
+
+       MeshGradientData_.pF_pMesh(0,OptimizationCase_,i) = pF_pMesh_[i];
+       MeshGradientData_.pR_pMesh(0,OptimizationCase_,i) = pR_pMesh_[i];      
+       MeshGradientData_.dF_dMesh(0,OptimizationCase_,i) = pF_pMesh_[i] - pR_pMesh_[i];   
+       
     }
     
     // Add in the current gradient with respect to the input variables... if this is an unsteady case this will be over written later
@@ -11156,7 +11236,11 @@ void VSP_SOLVER::Optimization_Calculate_Total_Gradient(void)
     
     for ( i = 1 ; i <= NumberOfOptimizationInputIndepdendentVariables_ ; i++ ) {
        
-       dF_dInputVariable_[0][OptimizationCase_][i] = pF_pInputVariable_[i] - pR_pInputVariable_[i];
+       //dF_dInputVariable_[0][OptimizationCase_][i] = pF_pInputVariable_[i] - pR_pInputVariable_[i];
+   
+       SolutionGradientData_.pF_pVariable(0,OptimizationCase_,i) = pF_pInputVariable_[i];                 
+       SolutionGradientData_.pR_pVariable(0,OptimizationCase_,i) = pR_pInputVariable_[i];           
+       SolutionGradientData_.dF_dVariable(0,OptimizationCase_,i) = pF_pInputVariable_[i] - pR_pInputVariable_[i];          
     
     }
           
@@ -11172,35 +11256,59 @@ void VSP_SOLVER::Optimization_Calculate_Total_Gradient(void)
        
        for ( i = 1 ; i <= 3*VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {     
        
-          dF_dMesh_[0][OptimizationCase_][i] = 0;
-          
+       //   MeshGradientData_[0][OptimizationCase_][i] = 0;
+
+          MeshGradientData_.pF_pMesh(0,OptimizationCase_,i) = 0.;
+          MeshGradientData_.pR_pMesh(0,OptimizationCase_,i) = 0.;
+          MeshGradientData_.dF_dMesh(0,OptimizationCase_,i) = 0.; 
+                 
           for ( t = 1 ; t <= OptimizationNumberOfIntegrationTimeSteps_ ; t++ ) {
           
-             dF_dMesh_[0][OptimizationCase_][i] += dF_dMesh_[t][OptimizationCase_][i];
-       
+            // MeshGradientData_[0][OptimizationCase_][i] += MeshGradientData_[t][OptimizationCase_][i];
+
+             MeshGradientData_.pF_pMesh(0,OptimizationCase_,i) += MeshGradientData_.pF_pMesh(t,OptimizationCase_,i);
+             MeshGradientData_.pR_pMesh(0,OptimizationCase_,i) += MeshGradientData_.pR_pMesh(t,OptimizationCase_,i);
+             MeshGradientData_.dF_dMesh(0,OptimizationCase_,i) += MeshGradientData_.dF_dMesh(t,OptimizationCase_,i);
+                 
           }
           
-          dF_dMesh_[0][OptimizationCase_][i] /= OptimizationNumberOfIntegrationTimeSteps_;
-     
+          //MeshGradientData_[0][OptimizationCase_][i] /= OptimizationNumberOfIntegrationTimeSteps_;
+
+          MeshGradientData_.pF_pMesh(0,OptimizationCase_,i) /= OptimizationNumberOfIntegrationTimeSteps_;
+          MeshGradientData_.pR_pMesh(0,OptimizationCase_,i) /= OptimizationNumberOfIntegrationTimeSteps_;
+          MeshGradientData_.dF_dMesh(0,OptimizationCase_,i) /= OptimizationNumberOfIntegrationTimeSteps_;
+
        }
 
        // Average gradients, these are the free stream variables
               
        for ( i = 1 ; i <= NumberOfOptimizationInputIndepdendentVariables_ ; i++ ) {     
        
-          dF_dInputVariable_[0][OptimizationCase_][i] = 0;
+          //dF_dInputVariable_[0][OptimizationCase_][i] = 0;
           
+          SolutionGradientData_.pF_pVariable(0,OptimizationCase_,i) = 0.;
+          SolutionGradientData_.pR_pVariable(0,OptimizationCase_,i) = 0.;
+          SolutionGradientData_.dF_dVariable(0,OptimizationCase_,i) = 0.;
+                     
           for ( t = 1 ; t <= OptimizationNumberOfIntegrationTimeSteps_ ; t++ ) {
           
-             dF_dInputVariable_[0][OptimizationCase_][i] += dF_dInputVariable_[t][OptimizationCase_][i];
-       
+            // dF_dInputVariable_[0][OptimizationCase_][i] += dF_dInputVariable_[t][OptimizationCase_][i];
+
+             SolutionGradientData_.pF_pVariable(0,OptimizationCase_,i) += SolutionGradientData_.pF_pVariable(t,OptimizationCase_,i);
+             SolutionGradientData_.pR_pVariable(0,OptimizationCase_,i) += SolutionGradientData_.pR_pVariable(t,OptimizationCase_,i);
+             SolutionGradientData_.dF_dVariable(0,OptimizationCase_,i) += SolutionGradientData_.dF_dVariable(t,OptimizationCase_,i);
+                 
           }
           
-          dF_dInputVariable_[0][OptimizationCase_][i] /= OptimizationNumberOfIntegrationTimeSteps_;
+          //dF_dInputVariable_[0][OptimizationCase_][i] /= OptimizationNumberOfIntegrationTimeSteps_;
+
+          SolutionGradientData_.pF_pVariable(0,OptimizationCase_,i) /= OptimizationNumberOfIntegrationTimeSteps_;
+          SolutionGradientData_.pR_pVariable(0,OptimizationCase_,i) /= OptimizationNumberOfIntegrationTimeSteps_;
+          SolutionGradientData_.dF_dVariable(0,OptimizationCase_,i) /= OptimizationNumberOfIntegrationTimeSteps_;
+
           
        }
-              
-              
+
     }
 
 }
@@ -11223,12 +11331,6 @@ void VSP_SOLVER::Optimization_Calculate_pF_pMesh(void)
     START_NEW_AUTO_DIFF();
 
     VSPGeom().UpdateMeshes();
-     
-    // Update free stream, djk
-
-    InitializeFreeStream();
-
-    if ( !TimeAccurate_ ) UpdateTrailingVortices();
 
     // Calculate the optimization function
     
@@ -11238,9 +11340,7 @@ void VSP_SOLVER::Optimization_Calculate_pF_pMesh(void)
 
     if ( Verbose_ ) PRINTF("After stepping into CalculateOptimizationFunctions \n"); fflush(NULL);
  
-    // AUTODIFF: Pause recording, and clear gradients
-    
-    PAUSE_AUTO_DIFF();
+    // AUTODIFF: Clear gradients
 
     CLEAR_GRADIENTS();
     
@@ -11282,22 +11382,22 @@ void VSP_SOLVER::Optimization_Calculate_pF_pMesh(void)
 
     if ( Verbose_ ) PRINTF("Extracting gradients with respect to free stream inputs \n"); fflush(NULL);
 
-    pF_pInputVariable_[OPT_GRADIENT_WRT_ALPHA] = GET_GRADIENT(AngleOfAttack_);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_BETA] = GET_GRADIENT(AngleOfBeta_);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_MACH] = GET_GRADIENT(Mach_);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_VINF] = GET_GRADIENT(Vinf_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_ALPHA]   = GET_GRADIENT(AngleOfAttack_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_BETA]    = GET_GRADIENT(AngleOfBeta_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_MACH]    = GET_GRADIENT(Mach_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_VINF]    = GET_GRADIENT(Vinf_);
     pF_pInputVariable_[OPT_GRADIENT_WRT_DENSITY] = GET_GRADIENT(Density_);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_RECREF] = GET_GRADIENT(ReCref_);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_P_RATE] = GET_GRADIENT(RotationalRate_[0]);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_Q_RATE] = GET_GRADIENT(RotationalRate_[1]);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_R_RATE] = GET_GRADIENT(RotationalRate_[2]);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_X_CG] = GET_GRADIENT(XYZcg_[0]);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_Y_CG] = GET_GRADIENT(XYZcg_[1]);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_Z_CG] = GET_GRADIENT(XYZcg_[2]);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_S_REF] = GET_GRADIENT(Sref_);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_B_REF] = GET_GRADIENT(Bref_);
-    pF_pInputVariable_[OPT_GRADIENT_WRT_C_REF] = GET_GRADIENT(Cref_);
-    
+    pF_pInputVariable_[OPT_GRADIENT_WRT_RECREF]  = GET_GRADIENT(ReCref_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_P_RATE]  = GET_GRADIENT(RotationalRate_[0]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_Q_RATE]  = GET_GRADIENT(RotationalRate_[1]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_R_RATE]  = GET_GRADIENT(RotationalRate_[2]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_X_CG]    = GET_GRADIENT(XYZcg_[0]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_Y_CG]    = GET_GRADIENT(XYZcg_[1]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_Z_CG]    = GET_GRADIENT(XYZcg_[2]);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_S_REF]   = GET_GRADIENT(Sref_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_B_REF]   = GET_GRADIENT(Bref_);
+    pF_pInputVariable_[OPT_GRADIENT_WRT_C_REF]   = GET_GRADIENT(Cref_);
+
     if ( Verbose_ ) PRINTF("Extracting gradients with respect to component group omegas \n"); fflush(NULL);
     
     for ( i = 1 ; i <= NumberOfComponentGroups_ ; i++ ) {
@@ -11305,6 +11405,8 @@ void VSP_SOLVER::Optimization_Calculate_pF_pMesh(void)
        pF_pInputVariable_[OPT_GRADIENT_NUMBER_OF_INPUTS + i] = GET_GRADIENT(ComponentGroupList_[i].Omega());
 
     } 
+
+    RestoreWakeShapeState();
     
     if ( Verbose_ ) PRINTF("Done with Optimization_Calculate_pF_pMesh() \n"); fflush(NULL);
     
@@ -11333,27 +11435,23 @@ void VSP_SOLVER::Optimization_Calculate_pR_pMesh(void)
 
     VSPGeom().UpdateMeshes();
 
-    // Update free stream
-
-    InitializeFreeStream();
-
-    if ( !TimeAccurate_ ) UpdateTrailingVortices();
-
-    // Calculate the residual
-    
-    CalculateRightHandSide();
+ //djk // Initialize free stream and update wakes
+ //djk 
+ //djk InitializeFreeStream();
+ //djk
+ //djk // Calculate the residual
+ //djk 
+ //djk CalculateRightHandSide();
 
     CalculateResidual();
 
-    // AUTODIFF: Pause recording, and clear gradients
-    
-    PAUSE_AUTO_DIFF();
+    // AUTODIFF: Clear gradients
 
     CLEAR_GRADIENTS();
 
     // AUTODIFF: set gradient value
     
-    for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfAdjointEquations_ ; i++ ) {
              
        SET_GRADIENT(Residual_[i], Psi_[OptimizationCase_][i].value());
        
@@ -11375,21 +11473,21 @@ void VSP_SOLVER::Optimization_Calculate_pR_pMesh(void)
     
     // Extract gradients wrt input variables
 
-    pR_pInputVariable_[OPT_GRADIENT_WRT_ALPHA] = GET_GRADIENT(AngleOfAttack_);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_BETA] = GET_GRADIENT(AngleOfBeta_);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_MACH] = GET_GRADIENT(Mach_);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_VINF] = GET_GRADIENT(Vinf_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_ALPHA]   = GET_GRADIENT(AngleOfAttack_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_BETA]    = GET_GRADIENT(AngleOfBeta_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_MACH]    = GET_GRADIENT(Mach_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_VINF]    = GET_GRADIENT(Vinf_);
     pR_pInputVariable_[OPT_GRADIENT_WRT_DENSITY] = GET_GRADIENT(Density_);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_RECREF] = GET_GRADIENT(ReCref_);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_P_RATE] = GET_GRADIENT(RotationalRate_[0]);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_Q_RATE] = GET_GRADIENT(RotationalRate_[1]);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_R_RATE] = GET_GRADIENT(RotationalRate_[2]);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_X_CG] = GET_GRADIENT(XYZcg_[0]);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_Y_CG] = GET_GRADIENT(XYZcg_[1]);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_Z_CG] = GET_GRADIENT(XYZcg_[2]);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_S_REF] = GET_GRADIENT(Sref_);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_B_REF] = GET_GRADIENT(Bref_);
-    pR_pInputVariable_[OPT_GRADIENT_WRT_C_REF] = GET_GRADIENT(Cref_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_RECREF]  = GET_GRADIENT(ReCref_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_P_RATE]  = GET_GRADIENT(RotationalRate_[0]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_Q_RATE]  = GET_GRADIENT(RotationalRate_[1]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_R_RATE]  = GET_GRADIENT(RotationalRate_[2]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_X_CG]    = GET_GRADIENT(XYZcg_[0]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_Y_CG]    = GET_GRADIENT(XYZcg_[1]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_Z_CG]    = GET_GRADIENT(XYZcg_[2]);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_S_REF]   = GET_GRADIENT(Sref_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_B_REF]   = GET_GRADIENT(Bref_);
+    pR_pInputVariable_[OPT_GRADIENT_WRT_C_REF]   = GET_GRADIENT(Cref_);
 
     
     for ( i = 1 ; i <= NumberOfComponentGroups_ ; i++ ) {
@@ -11397,6 +11495,8 @@ void VSP_SOLVER::Optimization_Calculate_pR_pMesh(void)
        pR_pInputVariable_[OPT_GRADIENT_NUMBER_OF_INPUTS + i] = GET_GRADIENT(ComponentGroupList_[i].Omega());
 
     } 
+    
+    RestoreWakeShapeState();
 
 #endif
  
@@ -11413,7 +11513,7 @@ void VSP_SOLVER::Optimization_Calculate_pF_pGamma(void)
 
 #ifdef AUTODIFF
 
-    int i, k;
+    int i, j, k, p;
  
     VSPAERO_DOUBLE time1, time2;
 
@@ -11429,9 +11529,7 @@ void VSP_SOLVER::Optimization_Calculate_pF_pGamma(void)
 
     if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
 
-    // AUTODIFF: Pause recording, and clear gradients
-    
-    PAUSE_AUTO_DIFF();
+    // AUTODIFF: Clear gradients
 
     CLEAR_GRADIENTS();
     
@@ -11444,16 +11542,36 @@ void VSP_SOLVER::Optimization_Calculate_pF_pGamma(void)
        if ( TimeAccurate_ ) k = (Time_ - (NumberOfTimeSteps_ - OptimizationNumberOfIntegrationTimeSteps_) - 1 )*OptimizationFunctionList_[OptimizationCase_].FunctionLength() + i;
        
        SET_GRADIENT(OptimizationFunctionList_[OptimizationCase_].Function(k),OptimizationFunctionList_[OptimizationCase_].UserVector(i));
-       
+
     }
 
     CALCULATE_ADJOINT();
 
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
        
-       pF_pGamma_[i] = GET_GRADIENT(Gamma_[0][i]);
+       pF_pSoln_[i] = GET_GRADIENT(Gamma_[0][i]);
 
     }
+
+    for ( i = 1 ; i <= NumberOfVortexSheets_ ; i++ ) {
+       
+       for ( j = 1 ; j <= VortexSheet(i).NumberOfTrailingVortices() ; j++ ) {
+          
+          for ( k = 1 ; k <= VortexSheet(i).TrailingVortex(j).NumberOfWakeResidualNodes() ; k++ ) {
+             
+             p = VortexSheet(i).TrailingVortex(j).WakeResidualX_EquationNumber(k);
+             
+             pF_pSoln_[p + 0] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeX(k));
+             pF_pSoln_[p + 1] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeY(k));
+             pF_pSoln_[p + 2] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeZ(k));
+
+          }
+          
+       }
+       
+    }
+
+    RestoreWakeShapeState();
 
 #endif
  
@@ -11476,16 +11594,10 @@ void VSP_SOLVER::Optimization_GMRES_AdjointSolve(void)
     if ( Verbose_ ) PRINTF("Taping J^T... \n");
 
     // AUTODIFF: Start new recording, this is used to get J^T*V...
-    
+
     START_NEW_AUTO_DIFF();
     
-    CalculateRightHandSide();
-
     CalculateResidual();
-
-    // AUTODIFF: Pause recording
-    
-    PAUSE_AUTO_DIFF();
 
     if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
 
@@ -11495,23 +11607,19 @@ void VSP_SOLVER::Optimization_GMRES_AdjointSolve(void)
     
     pfMax = 0.;
     
-    for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfAdjointEquations_ ; i++ ) {
 
-       pfMax = MAX(pfMax, ABS(pF_pGamma_[i]));
+       pfMax = MAX(pfMax, ABS(pF_pSoln_[i]));
        
     }
-
-    if ( !TimeAccurate_ ) {
-       
-       for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
-   
-          Psi_[OptimizationCase_][i] = 0.;
-          
-       }
+    
+    for ( i = 0 ; i <= NumberOfAdjointEquations_ ; i++ ) {
+    
+       Psi_[OptimizationCase_][i] = 0.;
        
     }
-        
-    ResRed = 0.001;
+  
+    ResRed = 0.0001;
     ResMax = 0.1*pfMax;
     
     // User residual reduction factor
@@ -11519,33 +11627,35 @@ void VSP_SOLVER::Optimization_GMRES_AdjointSolve(void)
     ResRed *= User_GMRES_ToleranceFactor_;
 
     // Use preconditioned GMRES to solve the linear system
-    
-    DoMatrixPrecondition(pF_pGamma_);
-     
+
+    DoMatrixPrecondition(pF_pSoln_);
+          
     AdjointMatrixSolve_ = 1;
-     
-    GMRES_Solver(NumberOfVortexLoops_+1,  // Number of Equations, 0 <= i < Neq
-                 3,                       // Max number of outer iterations
-                 500,                     // Max number of inner (restart) iterations
-                 1,                       // Output flag, verbose = 0, or 1
-                 Psi_[OptimizationCase_], // Initial guess and solution vector
-                 pF_pGamma_,              // Right hand side of Ax = b
-                 ResMax,                  // Maximum error tolerance
-                 ResRed,                  // Residual reduction factor
-                 ResFin,                  // Final log10 of residual reduction   
-                 Iters);                  // Final iteration count      
+          
+    GMRES_Solver(NumberOfAdjointEquations_+1,  // Number of Equations, 0 <= i < Neq
+                 3,                            // Max number of outer iterations
+                 500,                          // Max number of inner (restart) iterations
+                 1,                            // Output flag, verbose = 0, or 1
+                 Psi_[OptimizationCase_],      // Initial guess and solution vector
+                 pF_pSoln_,                    // Right hand side of Ax = b
+                 ResMax,                       // Maximum error tolerance
+                 ResRed,                       // Residual reduction factor
+                 ResFin,                       // Final log10 of residual reduction   
+                 Iters);                       // Final iteration count      
     
     AdjointMatrixSolve_ = 0;
     
     if ( Verbose_ ) {
           
-       for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+       for ( i = 0 ; i <= NumberOfAdjointEquations_ ; i++ ) {
    
-          PRINTF("Psi[%d]: %f \n",i,Psi_[OptimizationCase_][i]);
+          PRINTF("Psi[%d]: %e \n",i,Psi_[OptimizationCase_][i]);
           
        } 
        
     }
+
+    RestoreWakeShapeState();
        
 #endif
     
@@ -11553,7 +11663,7 @@ void VSP_SOLVER::Optimization_GMRES_AdjointSolve(void)
 
 /*##############################################################################
 #                                                                              #
-#                 VSP_SOLVER DoPreconditionedMatrixMultiply                    #
+#                 VSP_SOLVER Optimization_DoAdjointMatrixMultiply              #
 #                                                                              #
 ##############################################################################*/
 
@@ -11562,7 +11672,7 @@ void VSP_SOLVER::Optimization_DoAdjointMatrixMultiply(VSPAERO_DOUBLE *vec_in, VS
 
 #ifdef AUTODIFF
 
-    int i;
+    int i, j, k, p, NumMaxVortices;
 
     // AUTODIFF: Clear the gradients
 
@@ -11570,17 +11680,21 @@ void VSP_SOLVER::Optimization_DoAdjointMatrixMultiply(VSPAERO_DOUBLE *vec_in, VS
     
     // AUTODIFF: Set gradients (we are going to be doing a matrix multiply...)
     
-    for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfAdjointEquations_ ; i++ ) {
 
        SET_GRADIENT(Residual_[i],vec_in[i].value());
-       
+
     }
 
     // AUTODIFF: Calculate adjoint and extract J^T*V_in
         
     CALCULATE_ADJOINT();
     
-    vec_out[0] = 0.;
+    for ( i = 0 ; i <= NumberOfAdjointEquations_ ; i++ ) {
+
+       vec_out[i] = 0.;
+
+    }
 
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
 
@@ -11588,6 +11702,60 @@ void VSP_SOLVER::Optimization_DoAdjointMatrixMultiply(VSPAERO_DOUBLE *vec_in, VS
 
     }
 
+    for ( i = 1 ; i <= NumberOfVortexSheets_ ; i++ ) {
+      
+       for ( j = 1 ; j <= VortexSheet(i).NumberOfTrailingVortices() ; j++ ) {
+   
+          k = 1;
+          
+          p = VortexSheet(i).TrailingVortex(j).WakeResidualX_EquationNumber(k);
+          
+          vec_out[p + 0] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeX(k));
+          vec_out[p + 1] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeY(k));
+          vec_out[p + 2] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeZ(k));
+          
+          //vec_out[p + 0] = vec_in[p + 0].value() + vec_in[p + 0 + 3].value();     
+          //vec_out[p + 1] = vec_in[p + 1].value() + vec_in[p + 1 + 3].value();     
+          //vec_out[p + 2] = vec_in[p + 2].value() + vec_in[p + 2 + 3].value();     
+          
+          for ( k = 2 ; k <= VortexSheet(i).TrailingVortex(j).NumberOfWakeResidualNodes() - 1 ; k++ ) {
+          
+             p = VortexSheet(i).TrailingVortex(j).WakeResidualX_EquationNumber(k);
+          
+             vec_out[p + 0] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeX(k));
+             vec_out[p + 1] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeY(k));
+             vec_out[p + 2] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeZ(k));
+             
+             if ( TimeAccurate_ && k > Time_ + 1 ) {
+                
+                   vec_out[p + 0] = (-vec_in[p + 0].value() + vec_in[p + 0 + 3].value());
+                   vec_out[p + 1] = (-vec_in[p + 1].value() + vec_in[p + 1 + 3].value());
+                   vec_out[p + 2] = (-vec_in[p + 2].value() + vec_in[p + 2 + 3].value());    
+                   
+             }       
+          
+          }
+          
+          k = VortexSheet(i).TrailingVortex(j).NumberOfWakeResidualNodes();
+          
+          p = VortexSheet(i).TrailingVortex(j).WakeResidualX_EquationNumber(k);
+          
+          vec_out[p + 0] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeX(k));
+          vec_out[p + 1] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeY(k));
+          vec_out[p + 2] = GET_GRADIENT(VortexSheet(i).TrailingVortex(j).WakeNodeZ(k));
+                
+          if ( TimeAccurate_ && k > Time_ + 1 ) {
+                
+             vec_out[p + 0] = -vec_in[p + 0].value();     
+             vec_out[p + 1] = -vec_in[p + 1].value();     
+             vec_out[p + 2] = -vec_in[p + 2].value(); 
+             
+          }
+   
+       }
+      
+   }
+    
 #endif
 
 }
@@ -11736,9 +11904,31 @@ void VSP_SOLVER::CreateAdjointMatrix(void)
 void VSP_SOLVER::CalculateResidual(void)
 {
 
-    int i, k;
+    int i, j, k, p;
     VSPAERO_DOUBLE Dot;
 
+    if ( DoAdjointSolve_ ) {
+
+       if ( !TimeAccurate_ ) {
+       
+          InitializeFreeStream();
+                    
+          UpdateWakeLocations();
+          
+       }
+       
+       else {
+
+          UpdateGeometryLocation(GEOMETRY_UPDATE_DO_ADJOINT);
+
+          InitializeFreeStream();
+          
+       }
+       
+       CalculateRightHandSide();
+       
+    }
+        
     // VLM Model
    
     if ( ModelType_ == VLM_MODEL ) {
@@ -11746,6 +11936,8 @@ void VSP_SOLVER::CalculateResidual(void)
        MatrixMultiply(Gamma_[0], Residual_);
        
        for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+          
+          MatrixVectorProduct_[i] = Residual_[i];
      
           Residual_[i] = RightHandSide_[i] - Residual_[i];
 
@@ -11788,6 +11980,8 @@ void VSP_SOLVER::CalculateResidual(void)
        // Residual of tangency equations, ie b - Ax
        
        for ( i = 0 ; i <= NumberOfVortexLoops_  ; i++ ) {
+          
+          MatrixVectorProduct_[i] = Residual_[i];
     
           MatrixVecTemp_[i] = RightHandSide_[i] - Residual_[i];
 
@@ -11811,13 +12005,17 @@ void VSP_SOLVER::CalculateResidual(void)
        
        for ( k = 1 ; k <= NumberOfKelvinConstraints_ ; k++ ) {
           
+          MatrixVectorProduct_[NumberOfVortexLoops_ + k] = 0.;
+          
           MatrixVecTemp_[NumberOfVortexLoops_ + k] = 0.;
          
        }
        
-       // Residual of Kelving constraint equations, ie 0 - Sum(Gamma)
+       // Residual of Kelvin constraint equations, ie 0 - Sum(Gamma)
        
        for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+       
+          MatrixVectorProduct_[NumberOfVortexLoops_ + LoopInKelvinConstraintGroup_[i]] += KelvinLambda_*Gamma_[0][i];
        
           MatrixVecTemp_[NumberOfVortexLoops_ + LoopInKelvinConstraintGroup_[i]] -= KelvinLambda_*Gamma_[0][i];
        
@@ -11835,8 +12033,50 @@ void VSP_SOLVER::CalculateResidual(void)
      
        MatrixTransposeMultiply(MatrixVecTemp_, Residual_);
 
-    }
+       for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+          
+          MatrixVecTemp_[i] = MatrixVectorProduct_[i];
+          
+       }
+       
+       MatrixTransposeMultiply(MatrixVecTemp_, MatrixVectorProduct_);
 
+    }
+    
+    // If this is an adjoint solve we need to add in the wake residuals
+    
+    if ( DoAdjointSolve_ ) {
+       
+       for ( i = 1 ; i <= NumberOfTotalWakeResidualNodes_ ; i++ ) {
+          
+          Residual_[NumberOfVortexLoops_ + i] = 0.;
+          
+       }
+       
+    }
+    
+    if ( DoAdjointSolve_  ) {
+
+       for ( i = 1 ; i <= NumberOfVortexSheets_ ; i++ ) {
+          
+          for ( j = 1 ; j <= VortexSheet(i).NumberOfTrailingVortices() ; j++ ) {
+             
+             for ( k = 1 ; k <= VortexSheet(i).TrailingVortex(j).NumberOfWakeResidualNodes() ; k++ ) {
+               
+                p = VortexSheet(i).TrailingVortex(j).WakeResidualX_EquationNumber(k);
+           
+                Residual_[p + 0] = VortexSheet(i).TrailingVortex(j).WakeResidualX(k);
+                Residual_[p + 1] = VortexSheet(i).TrailingVortex(j).WakeResidualY(k);
+                Residual_[p + 2] = VortexSheet(i).TrailingVortex(j).WakeResidualZ(k);
+       
+             }
+             
+          }
+          
+       }      
+       
+    }
+    
 }
 
 #if not defined AUTODIFF && not defined COMPLEXDIFF
@@ -11851,103 +12091,162 @@ void VSP_SOLVER::CalculateMatrixVectorProductAndRightHandSide(double *VecIn, dou
 {
 
     int i, k;
+    VSPAERO_DOUBLE *GammaSave;
+    
+    // Call the Solve routine to set up some data structures and initialize stuff
+    
+    ExternalCoupledSolve_ = 1;
+    
+    Solve(1);
  
+    ExternalCoupledSolve_ = 0;
+    
+    // Temp storage for gamma
+    
+    GammaSave = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
+    
+    // Save Gamma state, copy in user vector
+    
     for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
        
        VecOut[i] = RHS[i] = 0.;
+       
+       GammaSave[i] = Gamma_[0][i];
+       
+       Gamma_[0][i] = VecIn[i];
 
     }
-       
-    // VLM Model
-   
-    if ( ModelType_ == VLM_MODEL ) {
-         
-       MatrixMultiply(VecIn, VecOut);
-       
-       for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
-     
-          RHS[i] = RightHandSide_[i];
-
-       }
     
-       // Add in unsteady terms
-    
-       if ( TimeAccurate_ ) {
-
-          // Time dependent wake terms
+    // Calculate the matrix vector product and right handside
        
-          for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
-
-             RHS[i] -= vector_dot(VortexLoop(i).Normal(), UnsteadyTrailingWakeVelocity_[i]);
-
-          }
+    CalculateResidual();
+  
+    for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
        
-       }
+       VecOut[i] = MatrixVectorProduct_[i];
+       
+       RHS[i] = RightHandSide_[i];
+       
+       Gamma_[0][i] = GammaSave[i];
 
     }
-   
-    // Panel model
-   
-    else if ( ModelType_ == PANEL_MODEL ) {
-       
-       // Matrix vector of the linear system... enforncing tangency
-
-       MatrixMultiply(VecIn, MatrixVecTemp_);
-       
-       // Kelvin constraint matrix vector product
-       
-       for ( k = 1 ; k <= NumberOfKelvinConstraints_ ; k++ ) {
-          
-          MatrixVecTemp_[NumberOfVortexLoops_ + k] = 0.;
-         
-       }
- 
-       for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
-       
-          MatrixVecTemp_[NumberOfVortexLoops_ + LoopInKelvinConstraintGroup_[i]] -= KelvinLambda_*VecIn[i];
-       
-       }       
-       
-       MatrixTransposeMultiply(MatrixVecTemp_, VecOut);
-       
-       DoMatrixPrecondition(VecOut);
-       
-       // Right hand side of tangency equations
-       
-       for ( i = 0 ; i <= NumberOfVortexLoops_  ; i++ ) {
     
-          MatrixVecTemp_[i] = RightHandSide_[i];
-
-       }            
-
-       // Add in unsteady terms
+    // Free up memory
     
-       if ( TimeAccurate_ ) {
-
-          // Time dependent wake terms
-          
-          for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+    delete [] GammaSave;
       
-             MatrixVecTemp_[i] -= vector_dot(VortexLoop(i).Normal(), UnsteadyTrailingWakeVelocity_[i]);
-          
-          }                 
-       
-       }   
-       
-       // Kelvin constraint right hand side... Sum of vorticity is zero
-       
-       for ( k = 1 ; k <= NumberOfKelvinConstraints_ ; k++ ) {
-          
-          MatrixVecTemp_[NumberOfVortexLoops_ + k] = 0.;
-         
-       }
-   
-       MatrixTransposeMultiply(MatrixVecTemp_, RHS);
+}
 
-       DoMatrixPrecondition(RHS);
+#endif
+
+#if not defined AUTODIFF && not defined COMPLEXDIFF
+
+/*##############################################################################
+#                                                                              #
+#                    VSP_SOLVER CalculateForwardResidual                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CalculateForwardResidual(double *VecIn, double *VecOut)
+{
+
+    int i, k;
+    VSPAERO_DOUBLE *GammaSave;
+
+    // Call the Solve routine to set up some data structures and initialize stuff
+    
+    ExternalCoupledSolve_ = 1;
+    
+    Solve(1);
+ 
+    ExternalCoupledSolve_ = 0;
+    
+    // Temp storage for gamma
+    
+    GammaSave = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
+    
+    // Save Gamma state, copy in user vector
+    
+    for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+       
+       VecOut[i] = 0.;
+       
+       GammaSave[i] = Gamma_[0][i];
+       
+       Gamma_[0][i] = VecIn[i];
 
     }
+    
+    // Calculate the matrix vector product and right handside
+       
+    CalculateResidual();
+  
+    for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+       
+       VecOut[i] = Residual_[i];
 
+       Gamma_[0][i] = GammaSave[i];
+
+    }
+    
+    // Free up memory
+    
+    delete [] GammaSave;
+      
+}
+
+#endif
+
+#if not defined AUTODIFF && not defined COMPLEXDIFF
+
+/*##############################################################################
+#                                                                              #
+#                     VSP_SOLVER CalculateOptimizationFunctions                #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CalculateOptimizationFunctions(double *VecIn)
+{
+
+    int i, k;
+    VSPAERO_DOUBLE *GammaSave;
+    
+    // Call the Solve routine to set up some data structures and initialize stuff
+    
+    ExternalCoupledSolve_ = 1;
+    
+    Solve(1);
+ 
+    ExternalCoupledSolve_ = 0;
+    
+    // Temp storage for gamma
+    
+    GammaSave = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
+    
+    // Save Gamma state, copy in user vector
+    
+    for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+      
+       GammaSave[i] = Gamma_[0][i];
+       
+       Gamma_[0][i] = VecIn[i];
+
+    }
+    
+    // Calculate the matrix vector product and right handside
+       
+    CalculateOptimizationFunctions();
+  
+    for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+
+       Gamma_[0][i] = GammaSave[i];
+
+    }
+    
+    // Free up memory
+    
+    delete [] GammaSave;
+      
 }
 
 #endif
@@ -11962,31 +12261,36 @@ void VSP_SOLVER::CalculateMatrixVectorProductAndRightHandSide(double *VecIn, dou
 
 void VSP_SOLVER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS)
 {
+   
     int i;
     VSPAERO_DOUBLE *v1, *v2;
-    
+ 
     // We assume there's just one case coming in...
     
     OptimizationCase_ = 1;
     
+    // Call the Optimization_Solve routine to set up some data structures and initialize stuff
+    
+    ExternalCoupledSolve_ = 1;
+    
+    Optimization_Solve(1);
+    
+    ExternalCoupledSolve_ = 0;
+    
     // AUTODIFF: Start new recording, this is used to get J^T*V...
     
     START_NEW_AUTO_DIFF();
-    
+            
     CalculateRightHandSide();
 
     CalculateResidual();
 
-    // AUTODIFF: Pause recording
-    
-    PAUSE_AUTO_DIFF();
-    
     // Matrix-vector product
  
-    v1 = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
-    v2 = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
+    v1 = new VSPAERO_DOUBLE[NumberOfAdjointEquations_ + 1];
+    v2 = new VSPAERO_DOUBLE[NumberOfAdjointEquations_ + 1];
 
-    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+    for ( i = 1 ; i <= NumberOfAdjointEquations_ ; i++ ) {
        
        v1[i] = VecIn[i];
        v2[i] = 0.;
@@ -11994,29 +12298,244 @@ void VSP_SOLVER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *Vec
     }
 
     Optimization_DoAdjointMatrixMultiply(v1,v2);
-   
-    DoMatrixPrecondition(v2);      
 
     // RHS
 
     Optimization_Calculate_pF_pGamma();
 
-    DoMatrixPrecondition(pF_pGamma_);     
-
     // Extract out results 
 
-    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+    for ( i = 1 ; i <= NumberOfAdjointEquations_ ; i++ ) {
        
        VecOut[i] = v2[i].value();
        
-       RHS[i] = pF_pGamma_[i].value();
+       RHS[i] = pF_pSoln_[i].value();
        
     }
+
+    RestoreWakeShapeState();
     
 } 
 
 #endif
+
+#if defined AUTODIFF
+    
+/*##############################################################################
+#                                                                              #
+#                      VSP_SOLVER SolveAdjointLinearSystem                     #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::SolveAdjointLinearSystem(double *Psi, double *RHS)
+{
+   
+    int i;
+    
+    // We assume there's just one case coming in...
+    
+    OptimizationCase_ = 1;
+    
+    // Call the Optimization_Solve routine to set up some data structures and initialize stuff
+    
+    ExternalCoupledSolve_ = 1;
+
+    Optimization_Solve(0);
+
+    ExternalCoupledSolve_ = 0;
+    
+    // Copy over user right hand side
+        
+    for ( i = 1 ; i <= NumberOfAdjointEquations_ ; i++ ) {
        
+       pF_pSoln_[i] = RHS[i];
+       
+    }
+    
+    // Perform GMRES solve of adjoint sytem
+
+    Optimization_GMRES_AdjointSolve();
+    
+    // Return the solution vector
+    
+    for ( i = 1 ; i <= NumberOfAdjointEquations_ ; i++ ) {
+       
+       Psi[i] = DOUBLE(Psi_[OptimizationCase_][i]);
+       
+    }
+        
+} 
+
+#endif
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_SOLVER ApplyMatrixPrecondition                      #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::ApplyMatrixPrecondition(double *Vec)
+{
+   
+    int i;
+    VSPAERO_DOUBLE *VecTemp;
+    
+    if ( DoAdjointSolve_ ) {
+   
+       VecTemp = new VSPAERO_DOUBLE[NumberOfAdjointEquations_ + 1];
+       
+       for ( i = 1 ; i <= NumberOfAdjointEquations_ ; i++ ) {
+          
+          VecTemp[i] = Vec[i];
+          
+       }
+       
+    }
+    
+    else {
+       
+       VecTemp = new VSPAERO_DOUBLE[NumberOfVortexLoops_ + 1];
+       
+       for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+          
+          VecTemp[i] = Vec[i];
+          
+       }
+       
+    }
+           
+    DoMatrixPrecondition(VecTemp);      
+
+    if ( DoAdjointSolve_ ) {
+       
+       for ( i = 1 ; i <= NumberOfAdjointEquations_ ; i++ ) {
+          
+          Vec[i] = GET_VALUE(VecTemp[i]);
+          
+       }
+       
+    }
+    
+    else {
+       
+       for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+          
+          Vec[i] = GET_VALUE(VecTemp[i]);
+          
+       }
+       
+    }
+    
+    delete [] VecTemp;
+       
+}
+
+#if defined AUTODIFF
+    
+/*##############################################################################
+#                                                                              #
+#         VSP_SOLVER CalculateOptimizationFunctionPartials                     #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CalculateOptimizationFunctionPartials(int Case, double *pF_pMesh, double *pF_pInputVariable)
+{
+   
+    int i;
+    
+    // We assume there's just one case coming in...
+    
+    OptimizationCase_ = Case;
+    
+    // Call the Optimization_Solve routine to set up some data structures and initialize stuff
+    
+    ExternalCoupledSolve_ = 1;
+
+    Optimization_Solve(0);
+
+    ExternalCoupledSolve_ = 0;
+    
+    // Calculate pF_pMesh
+
+    Optimization_Calculate_pF_pMesh();
+    
+    // Extract the gradients wrt mesh
+ 
+    for ( i = 1 ; i <= 3*VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
+       
+       pF_pMesh[i] = pF_pMesh_[i].value();
+
+    }
+    
+    // Extract gradients wrt input variables
+
+    for ( i = 1 ; i <= NumberOfOptimizationInputIndepdendentVariables_ ; i++ ) {
+       
+       pF_pInputVariable[i] = pF_pInputVariable_[i].value();
+    
+    }
+        
+} 
+
+#endif
+       
+#if defined AUTODIFF
+    
+/*##############################################################################
+#                                                                              #
+#           VSP_SOLVER CalculateAdjointResidualPartialProducts                 #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CalculateAdjointResidualPartialProducts(double *Psi, double *pR_pMesh, double *pR_pInputVariable)
+{
+   
+    int i;
+    
+    // We assume there's just one case coming in...
+    
+    OptimizationCase_ = 1;
+    
+    // Call the Optimization_Solve routine to set up some data structures and initialize stuff
+    
+    ExternalCoupledSolve_ = 1;
+  
+    Optimization_Solve(0);
+  
+    ExternalCoupledSolve_ = 0;
+    
+    // Copy over user right hand side
+        
+    for ( i = 1 ; i <= NumberOfAdjointEquations_ ; i++ ) {
+
+       Psi_[OptimizationCase_][i] = Psi[i];
+       
+    }
+    
+    // Calculate pR_pMesh
+
+    Optimization_Calculate_pR_pMesh();
+    
+    // Extract the gradients wrt mesh
+ 
+    for ( i = 1 ; i <= 3*VSPGeom().Grid(0).NumberOfNodes() ; i++ ) {
+       
+       pR_pMesh[i] = pR_pMesh_[i].value();
+
+    }
+    
+    // Extract gradients wrt input variables
+
+    for ( i = 1 ; i <= NumberOfOptimizationInputIndepdendentVariables_ ; i++ ) {
+       
+       pR_pInputVariable[i] = pR_pInputVariable_[i].value();
+    
+    }
+        
+} 
+
+#endif
+              
 /*##############################################################################
 #                                                                              #
 #                         VSP_SOLVER GMRES_Solver                              #
@@ -12076,7 +12595,7 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                       // Number of Equati
     for ( i = 0; i < Neq; i++ ) {
 
       r[i] = RightHandSide[i] - r[i];
-   
+     
     }
 
     rho = sqrt(VectorDot(Neq,r,r));
@@ -12085,7 +12604,7 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                       // Number of Equati
 
     rho_tol = 0.;
 
-    if ( rho <=rho_tol && rho <= ErrorMax ) return;
+    if ( rho <= rho_tol && rho <= ErrorMax ) return;
           
     // Outer iterative loop
 
@@ -12533,31 +13052,49 @@ void VSP_SOLVER::CalculateOptimizationFunctions(void)
 
 void VSP_SOLVER::CalculateOptimizationForces(void)
 {
+        
+    // Initialize free stream and update wakes
+        
+    if  ( !TimeAccurate_ ) {
+       
+       InitializeFreeStream();
+       
+       UpdateWakeLocations();
+    
+    }
+    
+    else {
 
+       UpdateGeometryLocation(GEOMETRY_UPDATE_DO_ADJOINT);
+
+       InitializeFreeStream();
+                    
+    }
+    
     // Calculate surface velocities
-
+    
     if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
-   
+    
     CalculateVelocities();
-
+    
     if ( Verbose_ ) PRINTF("CalculateVelocities: Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
            
     CalculateEdgeVelocities();
-
+    
     if ( Verbose_ ) PRINTF("CalculateEdgeVelocities: Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
-
+    
     // Calculate vorticity gradient
     
     if ( ModelType_ == PANEL_MODEL ) CalculateVorticityGradient();
     
     if ( TimeAccurate_ ) CalculateUnsteadyForces();
-
+    
     // Calculate forces by applying JK theorem to each edge
-
+    
     CalculateKuttaJukowskiForces();
-
+    
     if ( Verbose_ ) PRINTF("CalculateKuttaJukowskiForces: Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
-
+    
     // Calculate Delta-Cps, or surface pressures
     
     if ( ModelType_ == VLM_MODEL ) CalculateDeltaCPs();
@@ -12568,11 +13105,11 @@ void VSP_SOLVER::CalculateOptimizationForces(void)
     // loading information
     
     if ( ModelType_ == VLM_MODEL || ( ModelType_ == PANEL_MODEL && PanelSpanWiseLoading_ ) ) {
-
+    
        CalculateCLmaxLimitedForces();
-
+    
        if ( Verbose_ ) PRINTF("CalculateCLmaxLimitedForces: Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
-
+    
     }
     
     // Calculate nodal pressures
@@ -12582,7 +13119,7 @@ void VSP_SOLVER::CalculateOptimizationForces(void)
     // Calculate optimization functions
     
     StoreOptimizationFunction();
-
+    
     if ( Verbose_ ) PRINTF("CalculateOptimizationFunction: Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
                        
 }
@@ -12596,12 +13133,8 @@ void VSP_SOLVER::CalculateOptimizationForces(void)
 void VSP_SOLVER::SetOptimizationFunction(int Case, int OptFunctionValue )
 {
 
-    CONTINUE_AUTO_DIFF();
-
     OptimizationFunctionList_[Case].SetOptimizationFunction(OptFunctionValue);
-
-    PAUSE_AUTO_DIFF();
-        
+       
 }
 
 /*##############################################################################
@@ -12676,7 +13209,9 @@ void VSP_SOLVER::CalculateOptimizationFunctionLength(void)
                                                                                                                                           
                OptFunctionValue == OPT_ROTOR_CP_TOTAL     ||
                OptFunctionValue == OPT_ROTOR_CP_INVISCID  ||
-               OptFunctionValue == OPT_ROTOR_CP_VISCOUS      ) FunctionLength = 1; 
+               OptFunctionValue == OPT_ROTOR_CP_VISCOUS   ||   
+               
+               OptFunctionValue == OPT_ROTOR_EFFICIENCY     ) FunctionLength = 1; 
                
                
           if ( OptFunctionValue == OPT_WING_CL_TOTAL     || 
@@ -12731,8 +13266,6 @@ void VSP_SOLVER::CalculateOptimizationFunctionLength(void)
 void VSP_SOLVER::SetOptimizationFunction(int Case, int OptFunctionValue, int Set )
 {
 
-    CONTINUE_AUTO_DIFF();
-
     OptimizationFunctionList_[Case].SetOptimizationFunction(OptFunctionValue);
                                                   
     // Rotor
@@ -12743,7 +13276,9 @@ void VSP_SOLVER::SetOptimizationFunction(int Case, int OptFunctionValue, int Set
                                                                                      
          OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP_TOTAL    ||
          OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP_INVISCID ||
-         OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP_VISCOUS     ) OptimizationFunctionList_[Case].SetRotor(Set);  
+         OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP_VISCOUS  ||
+         
+         OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_EFFICIENCY   ) OptimizationFunctionList_[Case].SetRotor(Set);  
              
     // Wing
                                                                                           
@@ -12762,8 +13297,6 @@ void VSP_SOLVER::SetOptimizationFunction(int Case, int OptFunctionValue, int Set
          OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CZ_TOTAL     ||
          OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CZ_INVISCID  ||
          OptimizationFunctionList_[Case].OptimizationFunction() == OPT_WING_CZ_VISCOUS      ) OptimizationFunctionList_[Case].SetWing(Set);
-
-    PAUSE_AUTO_DIFF();
         
 }
 
@@ -12777,8 +13310,6 @@ void VSP_SOLVER::SetOptimizationFunctionInputGradientVector(int Case, int Length
 {
 
     int i;
-    
-    CONTINUE_AUTO_DIFF();
 
     OptimizationFunctionList_[Case].SetFunctionLength(Length,TimeSteps);
     
@@ -12790,7 +13321,9 @@ void VSP_SOLVER::SetOptimizationFunctionInputGradientVector(int Case, int Length
                                                                                      
          OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP_TOTAL    ||
          OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP_INVISCID ||
-         OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP_VISCOUS     ) OptimizationFunctionList_[Case].SetRotor(Set);  
+         OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_CP_VISCOUS  ||
+         
+         OptimizationFunctionList_[Case].OptimizationFunction() == OPT_ROTOR_EFFICIENCY     ) OptimizationFunctionList_[Case].SetRotor(Set);  
              
     // Wing
                                                                                           
@@ -12815,8 +13348,6 @@ void VSP_SOLVER::SetOptimizationFunctionInputGradientVector(int Case, int Length
        OptimizationFunctionList_[Case].UserVector(i) = Vec[i];
      
     }
-
-    PAUSE_AUTO_DIFF();
         
 }
 
@@ -12836,7 +13367,7 @@ void VSP_SOLVER::StoreOptimizationFunction(void)
     for ( i = 1 ; i <= NumberOfOptimizationFunctions_ ; i++ ) {
        
        OptimizationFunction = OptimizationFunctionList_[i].OptimizationFunction();
-   
+
        for ( j = 1 ; j <= OptimizationFunctionList_[i].FunctionLength() ; j++ ) {
           
           k = j;
@@ -12850,7 +13381,7 @@ void VSP_SOLVER::StoreOptimizationFunction(void)
              if ( OptimizationFunction == OPT_CL_TOTAL     ) OptimizationFunctionList_[i].Function(k) = CL_[0]  + CLo_[0];
              if ( OptimizationFunction == OPT_CL_INVISCID  ) OptimizationFunctionList_[i].Function(k) = CL_[0]; 
              if ( OptimizationFunction == OPT_CL_VISCOUS   ) OptimizationFunctionList_[i].Function(k) =           CLo_[0];
-                                                                                                                
+
              if ( OptimizationFunction == OPT_CD_TOTAL     ) OptimizationFunctionList_[i].Function(k) = CD_[0]  + CDo_[0];
              if ( OptimizationFunction == OPT_CD_INVISCID  ) OptimizationFunctionList_[i].Function(k) = CD_[0]; 
              if ( OptimizationFunction == OPT_CD_VISCOUS   ) OptimizationFunctionList_[i].Function(k) =           CDo_[0];
@@ -12891,10 +13422,12 @@ void VSP_SOLVER::StoreOptimizationFunction(void)
              
                   OptimizationFunction == OPT_ROTOR_CP_TOTAL    ||
                   OptimizationFunction == OPT_ROTOR_CP_INVISCID ||
-                  OptimizationFunction == OPT_ROTOR_CP_VISCOUS     ) {
+                  OptimizationFunction == OPT_ROTOR_CP_VISCOUS  ||
+                  
+                  OptimizationFunction == OPT_ROTOR_EFFICIENCY     ) {
 
                 c = OptimizationFunctionList_[i].Rotor();
-            
+  
                 if ( ComponentGroupList_[c].GeometryIsARotor() ) {    
                    
                    if ( OptimizationFunction == OPT_ROTOR_CT_TOTAL    ) OptimizationFunctionList_[i].Function(k) = ComponentGroupList_[c].CT() + ComponentGroupList_[c].CTo();
@@ -12904,6 +13437,8 @@ void VSP_SOLVER::StoreOptimizationFunction(void)
                    if ( OptimizationFunction == OPT_ROTOR_CP_TOTAL    ) OptimizationFunctionList_[i].Function(k) = ComponentGroupList_[c].CP() + ComponentGroupList_[c].CPo();
                    if ( OptimizationFunction == OPT_ROTOR_CP_INVISCID ) OptimizationFunctionList_[i].Function(k) = ComponentGroupList_[c].CP();
                    if ( OptimizationFunction == OPT_ROTOR_CP_VISCOUS  ) OptimizationFunctionList_[i].Function(k) =                               ComponentGroupList_[c].CPo();
+
+                   if ( OptimizationFunction == OPT_ROTOR_EFFICIENCY  ) OptimizationFunctionList_[i].Function(k) =                               ComponentGroupList_[c].EtaP();
 
                 }
 
@@ -13502,7 +14037,7 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
                                    + -VortexLoop(i).Fz() * VortexLoop(i).Nz();
                                    
        VortexLoop(i).dCp() = VortexLoop(i).NormalForce() / VortexLoop(i).Area();      
-       
+    
        VortexLoop(i).dCp() /= 0.5*Vref_*Vref_;
        
        // Unsteady component
@@ -13925,19 +14460,15 @@ void VSP_SOLVER::Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pM
 
 #ifdef AUTODIFF
 
+    PRINTF("Optimization_Calculate_pFu_pMesh() is deprecated... to the point that it's now broken... ! \n");
+    fflush(NULL);
+    exit(1);
+    
     int i;
 
     // AUTODIFF: Start a new recording
     
     START_NEW_AUTO_DIFF();
-
-    // Update free stream
-  
-    InitializeFreeStream();
-
-    if ( !TimeAccurate_ ) UpdateTrailingVortices();
-
-    CalculateRightHandSide();
 
     CalculateResidual();
 
@@ -13949,10 +14480,8 @@ void VSP_SOLVER::Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pM
     
     CalculateOptimizationFunctions();
 
-    // AUTODIFF: Pause recording, and clear gradients
+    // AUTODIFF: Clear gradients
     
-    PAUSE_AUTO_DIFF();
-
     CLEAR_GRADIENTS();
 
     // AUTODIFF: set gradient value
@@ -13974,6 +14503,8 @@ void VSP_SOLVER::Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pM
        pUF_pMesh[3*i  ] = GET_GRADIENT(VSPGeom().Grid(0).NodeList(i).z());
 
     }
+
+    RestoreWakeShapeState();
     
 #endif
  
@@ -14004,25 +14535,23 @@ VSPAERO_DOUBLE *VSP_SOLVER::Optimization_Calculate_pF_pRotorOmega(int Group)
           // AUTODIFF: Start a new recording
           
           START_NEW_AUTO_DIFF();
-
-          // Update free stream
-          
-          InitializeFreeStream();
-
-          CalculateRightHandSide();
       
           // Update the mesh data from fine down to coarse...
           
           VSPGeom().UpdateMeshes();
           
+          // Update free stream
+          
+          InitializeFreeStream();
+
+          CalculateRightHandSide();
+          
           // Calculate the optimization function, this includes the nodal pressure calculation
           
           CalculateOptimizationFunctions();
       
-          // AUTODIFF: Pause recording, and clear gradients
-          
-          PAUSE_AUTO_DIFF();
-      
+          // AUTODIFF: Clear gradients
+
           CLEAR_GRADIENTS();
       
           // AUTODIFF: Set gradient
@@ -14046,6 +14575,8 @@ VSPAERO_DOUBLE *VSP_SOLVER::Optimization_Calculate_pF_pRotorOmega(int Group)
        }
        
     }
+
+    RestoreWakeShapeState();
     
     return pF_pOmega;
 
@@ -14615,6 +15146,8 @@ void VSP_SOLVER::CalculateVorticityGradient(void)
        
        Done = 0;
        
+       ResMax0 = 0.;
+       
        while ( !Done && Iter <= 250 ) {
            
           ResMax = 0.;
@@ -14852,9 +15385,9 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
 
           if ( !TimeAccurate_ ) {
              
-             Fx = SurfaceVortexEdge(j).Unsteady_Fx();
-             Fy = SurfaceVortexEdge(j).Unsteady_Fy();
-             Fz = SurfaceVortexEdge(j).Unsteady_Fz();
+             Fx = SurfaceVortexEdge(j).Fx();
+             Fy = SurfaceVortexEdge(j).Fy();
+             Fz = SurfaceVortexEdge(j).Fz();
              
           }
           
@@ -14933,7 +15466,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
     LoadCase = 0;
 
     // Store and non-dimensionalize the forces and moments
-    
+
     CFx_[LoadCase] = Cx2;
     CFy_[LoadCase] = Cy2;
     CFz_[LoadCase] = Cz2;
@@ -15476,7 +16009,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
              // Chordwise integrated forces
              
              if ( ModelType_ != VLM_MODEL ) {
-                                
+                            
                 // Forces
                 
                 SpanLoadData(SurfaceID).Span_Cx(SpanStation) += Wgt*Fx;                      
@@ -15590,7 +16123,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
        }
 
        if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE ) VSPGeom().VSP_Surface(i).CDo() = 0.;
-      
+    
        for ( k = 1 ; k <= NumberOfStations ; k++ ) {
          
           Cx = SpanLoadData(i).Span_Cx(k);
@@ -15799,6 +16332,8 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
 
              if ( LocalVel > 0. ) CLv = SpanLoadData(i).Span_Cn(k) / pow(LocalVel, 2.);
 
+             LocalMach = 0.;
+             
              if ( Mach_ < 1. ) {
                 
                 if ( Machref_ > 0. ) {
@@ -15830,7 +16365,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
     
              // Crude reverse flow model
              
-             if ( Dot <= 0. ) ViscousForce *= 2.;
+             if ( Dot <= 0. ) ViscousForce *= -2.;
                  
              // Vector components - along local velocity
 
@@ -16109,7 +16644,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
           Vec[2] = ComponentGroupList_[c].Cmzo() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;   
           
           Momento = -vector_dot(Vec, ComponentGroupList_[c].RVec());     
-             
+            
           Vec[0] = ComponentGroupList_[c].Cmx() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;
           Vec[1] = ComponentGroupList_[c].Cmy() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Cref_;
           Vec[2] = ComponentGroupList_[c].Cmz() * 0.5 * Density_ * Vref_ * Vref_ * Sref_ * Bref_;   
@@ -16147,7 +16682,8 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
     
        // Store time history of span loading for reporting and averaging later
        
-       if ( !TimeAccurate_ || (  TimeAccurate_ && CurrentTime_ >= ComponentGroupList_[c].StartAveragingTime() ) ) {
+     //  if ( !TimeAccurate_ || (  TimeAccurate_ && CurrentTime_ >= ComponentGroupList_[c].StartAveragingTime() ) ) {
+       if ( !TimeAccurate_ || (  TimeAccurate_ && Time_ >= NumberOfTimeSteps_ - ComponentGroupList_[c].NumberOfIntegrationTimeSteps() + 1 ) ) {
 
           for ( j = 1 ; j <= ComponentGroupList_[c].NumberOfLiftingSurfaces() ; j++ ) {
           
@@ -16421,7 +16957,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
    
              // Save at surface level for degen_geom cases
    
-             if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE ) VSPGeom().VSP_Surface(i).CDo() = dCD;
+             if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE ) VSPGeom().VSP_Surface(i).CDo() = dCD/(0.5*Sref_*Vref_*Vref_);
              
              // XYZ components
              
@@ -16638,11 +17174,11 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
     TotalLift = 0.;  
 
     for ( i = StartOfSpanLoadDataSets_ ; i <= NumberOfSpanLoadDataSets_ ; i++ ) { 
+
+       NumberOfStations = 1;
       
        if ( ModelType_ == VLM_MODEL && SurfaceType_ != VSPGEOM_SURFACE ) {
-          
-          NumberOfStations = 1;
-          
+                    
           if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) {
              
              NumberOfStations = SpanLoadData(i).NumberOfSpanStations();
@@ -17281,9 +17817,12 @@ void VSP_SOLVER::WriteFEM2DSolution(void)
 void VSP_SOLVER::CreateQuadTreePlaneDataStructures(void)
 {
    
-    int i, j, k, p, InsertedPoints, Direction;
-    VSPAERO_DOUBLE s, v1, v2, xyz[3], Value, Length;
-    VSPAERO_DOUBLE xmin, xmax, ymin, ymax, zmin, zmax, distance;
+    int i, j, k, p, q, r, InsertedPoints, Direction;
+    VSPAERO_DOUBLE s, dt, t, v1, v2, xyz[3], xyz1[3], xyz2[3];
+    VSPAERO_DOUBLE Value, Length, Center[3], Normal[3];
+    VSPAERO_DOUBLE Radius, Arb[3], RadiusVector[3], dTheta, Theta;
+    VSPAERO_DOUBLE xmin, xmax, ymin, ymax, zmin, zmax, distance, Mag;
+    QUAT Quat, InvQuat, Vec;    
     
     PRINTF("Creating quad tree velocity survery data structures... \n");
     
@@ -17400,10 +17939,16 @@ void VSP_SOLVER::CreateQuadTreePlaneDataStructures(void)
         
        for ( p = 1 ; p <= NumberOfVortexSheets_ ; p++ ) {
        
-          for ( k = 1 ; k < VortexSheet(p).NumberOfTrailingVortices() ; k++ ) {
+          // Insert points down length of trailing vortices
+          
+          for ( k = 1 ; k <= VortexSheet(p).NumberOfTrailingVortices() ; k++ ) {
        
-             for ( i = 1 ; i <= VortexSheet(p).TrailingVortex(k).NumberOfSubVortices() ; i++ ) {
+             // Points in the adapted region
+       
+             for ( i = 1 ; i <= VortexSheet(p).TrailingVortex(k).NumberOfSubVortices() + 1 ; i++ ) {
   
+                v1 = v2 = 0.;
+                
                 if ( Direction == 1 ) {
                    
                    v1 = VortexSheet(p).TrailingVortex(k).xyz_c(i  )[0];
@@ -17454,11 +17999,460 @@ void VSP_SOLVER::CreateQuadTreePlaneDataStructures(void)
                 }
                 
              }
+             
+             // Points in the to infinity and beyond region...
+             
+             dt = xmax/(64-1);
+             
+             i = VortexSheet(p).TrailingVortex(k).NumberOfSubVortices() - 1;
+
+             for ( q = 1 ; q <= 64 ; q++ ) {
+                
+                t = q*dt;
+                
+                v1 = v2 = 0.;
+
+                if ( Direction == 1 ) {
+                   
+                   v1 = VortexSheet(p).TrailingVortex(k).xyz_c(i)[0] + (t   )*FreeStreamVelocity_[0]/Vinf_;
+                   v2 = VortexSheet(p).TrailingVortex(k).xyz_c(i)[0] + (t+dt)*FreeStreamVelocity_[0]/Vinf_;
+ 
+                }
+                
+                else if ( Direction == 2 ) {
+                   
+                   v1 = VortexSheet(p).TrailingVortex(k).xyz_c(i)[1] + (t   )*FreeStreamVelocity_[1]/Vinf_;
+                   v2 = VortexSheet(p).TrailingVortex(k).xyz_c(i)[1] + (t+dt)*FreeStreamVelocity_[1]/Vinf_;
+                
+                }       
+                
+                else if ( Direction == 3 ) {
+                   
+                   v1 = VortexSheet(p).TrailingVortex(k).xyz_c(i)[2] + (t   )*FreeStreamVelocity_[2]/Vinf_;
+                   v2 = VortexSheet(p).TrailingVortex(k).xyz_c(i)[2] + (t+dt)*FreeStreamVelocity_[2]/Vinf_;
+                
+                }  
+                
+                if ( Value >= MIN(v1,v2) && Value <= MAX(v1,v2) ) {
+                
+                   if ( v1 != v2 ) {
+                   
+                      s = (Value - v1)/(v2 - v1);
+                      
+                   }
+                   
+                   else {
+                      
+                      s = 0.;
+                      
+                   }
+                   
+                   xyz[0] = VortexSheet(p).TrailingVortex(k).xyz_c(i)[0] + t*FreeStreamVelocity_[0]/Vinf_ + s*( dt );
+                   xyz[1] = VortexSheet(p).TrailingVortex(k).xyz_c(i)[1] + t*FreeStreamVelocity_[1]/Vinf_ + s*( dt );
+                   xyz[2] = VortexSheet(p).TrailingVortex(k).xyz_c(i)[2] + t*FreeStreamVelocity_[2]/Vinf_ + s*( dt );
+                   
+                   if ( Direction == 1 ) xyz[0] = Value;
+                   if ( Direction == 2 ) xyz[1] = Value;
+                   if ( Direction == 3 ) xyz[2] = Value;
+                   
+                   // Insert the point
+                   
+                   InsertedPoints += QuadTreeList_[j].InsertPoint(xyz, i);
+                
+                }
+                
+             }             
    
           }
+
+          // Insert points between wake lines...
           
-       }
-              
+          for ( k = 1 ; k < VortexSheet(p).NumberOfTrailingVortices() ; k++ ) {
+       
+             // Points in the adapted region
+             
+             for ( i = 1 ; i <= VortexSheet(p).TrailingVortex(k).NumberOfSubVortices() ; i++ ) {
+  
+                if ( Direction == 1 ) {
+                   
+                   v1 = VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[0];
+                   v2 = VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[0];
+                
+                }
+                
+                else if ( Direction == 2 ) {
+                   
+                   v1 = VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[1];
+                   v2 = VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[1];
+                
+                }       
+                
+                else if ( Direction == 3 ) {
+                   
+                   v1 = VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[2];
+                   v2 = VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[2];
+                
+                }  
+                
+                if ( Value >= MIN(v1,v2) && Value <= MAX(v1,v2) ) {
+                
+                   if ( v1 != v2 ) {
+                   
+                      s = (Value - v1)/(v2 - v1);
+                      
+                   }
+                   
+                   else {
+                      
+                      s = 0.;
+                      
+                   }
+                   
+                   xyz[0] = VortexSheet(p).TrailingVortex(k).xyz_c(i)[0] + s*(VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[0] - VortexSheet(p).TrailingVortex(k).xyz_c(i)[0]);
+                   xyz[1] = VortexSheet(p).TrailingVortex(k).xyz_c(i)[1] + s*(VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[1] - VortexSheet(p).TrailingVortex(k).xyz_c(i)[1]);
+                   xyz[2] = VortexSheet(p).TrailingVortex(k).xyz_c(i)[2] + s*(VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[2] - VortexSheet(p).TrailingVortex(k).xyz_c(i)[2]);
+                   
+                   if ( Direction == 1 ) xyz[0] = Value;
+                   if ( Direction == 2 ) xyz[1] = Value;
+                   if ( Direction == 3 ) xyz[2] = Value;
+                   
+                   // Insert the point
+                   
+                   InsertedPoints += QuadTreeList_[j].InsertPoint(xyz, i);
+                
+                }
+                
+             }
+
+             // Points in the to infinity and beyond region...
+             
+             dt = xmax/(64-1);
+             
+             i = VortexSheet(p).TrailingVortex(k).NumberOfSubVortices() - 1;
+
+             for ( q = 1 ; q <= 64 ; q++ ) {
+                
+                t = q*dt;
+
+                if ( Direction == 1 ) {
+                   
+                   v1 = VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[0] + t*FreeStreamVelocity_[0]/Vinf_;
+                   v2 = VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[0] + t*FreeStreamVelocity_[0]/Vinf_;
+ 
+                }
+                
+                else if ( Direction == 2 ) {
+                   
+                   v1 = VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[1] + t*FreeStreamVelocity_[1]/Vinf_;
+                   v2 = VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[1] + t*FreeStreamVelocity_[1]/Vinf_;
+                
+                }       
+                
+                else if ( Direction == 3 ) {
+                   
+                   v1 = VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[2] + t*FreeStreamVelocity_[2]/Vinf_;
+                   v2 = VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[2] + t*FreeStreamVelocity_[2]/Vinf_;
+                
+                }  
+                
+                if ( Value >= MIN(v1,v2) && Value <= MAX(v1,v2) ) {
+                
+                   if ( v1 != v2 ) {
+                   
+                      s = (Value - v1)/(v2 - v1);
+                      
+                   }
+                   
+                   else {
+                      
+                      s = 0.;
+                      
+                   }
+                   
+                   xyz[0] = VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[0] + t*FreeStreamVelocity_[0]/Vinf_ + s*( VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[0] - VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[0] );
+                   xyz[1] = VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[1] + t*FreeStreamVelocity_[1]/Vinf_ + s*( VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[1] - VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[1] );
+                   xyz[2] = VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[2] + t*FreeStreamVelocity_[2]/Vinf_ + s*( VortexSheet(p).TrailingVortex(k+1).xyz_c(i)[2] - VortexSheet(p).TrailingVortex(k  ).xyz_c(i)[2] );
+                   
+                   if ( Direction == 1 ) xyz[0] = Value;
+                   if ( Direction == 2 ) xyz[1] = Value;
+                   if ( Direction == 3 ) xyz[2] = Value;
+                   
+                   // Insert the point
+                   
+                   InsertedPoints += QuadTreeList_[j].InsertPoint(xyz, i);
+                
+                }
+                
+             }
+                
+          }
+                    
+       }      
+       
+       // Insert jet exhaust points, streamwise direction
+    
+       for ( p = 1 ; p <= NumberOfEngineFaces_ ; p++ ) {
+    
+          if ( EngineFace(p).SurfaceType() == NOZZLE_FACE ) {
+             
+             Center[0] = EngineFace(p).NozzleXYZ(0);
+             Center[1] = EngineFace(p).NozzleXYZ(1);
+             Center[2] = EngineFace(p).NozzleXYZ(2);
+    
+             Normal[0] = EngineFace(p).NozzleNormal(0);
+             Normal[1] = EngineFace(p).NozzleNormal(1);
+             Normal[2] = EngineFace(p).NozzleNormal(2);
+             
+             Radius = EngineFace(p).NozzleRadius();
+             
+             // Arbitrary vector
+             
+             Arb[0] = 1.;
+             Arb[1] = 2.;
+             Arb[2] = 3.;
+             
+             // Cross Arb into Normal to get radius vector
+             
+             vector_cross(Normal, Arb, RadiusVector);
+             
+             Mag = sqrt(vector_dot(RadiusVector,RadiusVector));
+             
+             RadiusVector[0] /= Mag;
+             RadiusVector[1] /= Mag;
+             RadiusVector[2] /= Mag;
+             
+             RadiusVector[0] *= Radius;
+             RadiusVector[1] *= Radius;
+             RadiusVector[2] *= Radius;           
+             
+             dTheta = 2.*PI/(16-1);
+             
+             for ( r = 1 ; r <= 16 ; r++ ) {
+                
+                Theta = (r-1)*dTheta;
+                
+                Quat.FormRotationQuat(Normal,Theta);
+                
+                InvQuat = Quat;
+                
+                InvQuat.FormInverse();
+               
+                // Rotate about the normal vector
+                
+                Vec(0) = RadiusVector[0];
+                Vec(1) = RadiusVector[1];
+                Vec(2) = RadiusVector[2];
+                
+                Vec = Quat * Vec * InvQuat;
+                
+                xyz[0] = Vec(0) + Center[0];
+                xyz[1] = Vec(1) + Center[1];
+                xyz[2] = Vec(2) + Center[2];
+         
+                dt = xmax/(64 -1);
+                 
+                v1 = v2 = 0.;
+                
+                for ( k = 1 ; k <= 64 ; k++ ) {
+                   
+                   if ( Direction == 1 ) {
+                      
+                      v1 = xyz[0] + (k-1) * dt * Normal[0];
+                      v2 = xyz[0] + (k  ) * dt * Normal[0];
+                   
+                   }
+                   
+                   else if ( Direction == 2 ) {
+                      
+                      v1 = xyz[1] + (k-1) * dt * Normal[1];
+                      v2 = xyz[1] + (k  ) * dt * Normal[1];
+                   
+                   }       
+                   
+                   else if ( Direction == 3 ) {
+                      
+                      v1 = xyz[2] + (k-1) * dt * Normal[2];
+                      v2 = xyz[2] + (k  ) * dt * Normal[2];
+                   
+                   }  
+                   
+                   if ( Value >= MIN(v1,v2) && Value <= MAX(v1,v2) ) {
+                   
+                      if ( v1 != v2 ) {
+                      
+                         s = (Value - v1)/(v2 - v1);
+                         
+                      }
+                      
+                      else {
+                         
+                         s = 0.;
+                         
+                      }
+                      
+                      xyz[0] = xyz[0] + (k-1) * dt * Normal[0] + s*( dt * Normal[0] );
+                      xyz[1] = xyz[1] + (k-1) * dt * Normal[1] + s*( dt * Normal[1] );
+                      xyz[2] = xyz[2] + (k-1) * dt * Normal[2] + s*( dt * Normal[2] );
+                      
+                      if ( Direction == 1 ) xyz[0] = Value;
+                      if ( Direction == 2 ) xyz[1] = Value;
+                      if ( Direction == 3 ) xyz[2] = Value;
+                      
+                      // Insert the point
+                      
+                      InsertedPoints += QuadTreeList_[j].InsertPoint(xyz, i);
+                   
+                   }
+                   
+                }
+                
+             }
+             
+          }
+                    
+       }    
+
+       // Insert jet exhaust points... circumferential
+    
+       for ( p = 1 ; p <= NumberOfEngineFaces_ ; p++ ) {
+    
+          if ( EngineFace(p).SurfaceType() == NOZZLE_FACE ) {
+             
+             Center[0] = EngineFace(p).NozzleXYZ(0);
+             Center[1] = EngineFace(p).NozzleXYZ(1);
+             Center[2] = EngineFace(p).NozzleXYZ(2);
+    
+             Normal[0] = EngineFace(p).NozzleNormal(0);
+             Normal[1] = EngineFace(p).NozzleNormal(1);
+             Normal[2] = EngineFace(p).NozzleNormal(2);
+             
+             Radius = EngineFace(p).NozzleRadius();
+             
+             // Arbitrary vector
+             
+             Arb[0] = 1.;
+             Arb[1] = 2.;
+             Arb[2] = 3.;
+             
+             // Cross Arb into Normal to get radius vector
+             
+             vector_cross(Normal, Arb, RadiusVector);
+             
+             Mag = sqrt(vector_dot(RadiusVector,RadiusVector));
+             
+             RadiusVector[0] /= Mag;
+             RadiusVector[1] /= Mag;
+             RadiusVector[2] /= Mag;
+             
+             RadiusVector[0] *= Radius;
+             RadiusVector[1] *= Radius;
+             RadiusVector[2] *= Radius;           
+             
+             dTheta = 2.*PI/(16-1);
+             
+             for ( r = 1 ; r <= 15 ; r++ ) {
+                
+                Theta = (r-1)*dTheta;
+                
+                Quat.FormRotationQuat(Normal,Theta);
+                
+                InvQuat = Quat;
+                
+                InvQuat.FormInverse();
+               
+                // Rotate about the normal vector
+                
+                Vec(0) = RadiusVector[0];
+                Vec(1) = RadiusVector[1];
+                Vec(2) = RadiusVector[2];
+                
+                Vec = Quat * Vec * InvQuat;
+                
+                xyz1[0] = Vec(0) + Center[0];
+                xyz1[1] = Vec(1) + Center[1];
+                xyz1[2] = Vec(2) + Center[2];
+             
+                Theta = (r  )*dTheta;
+                
+                Quat.FormRotationQuat(Normal,Theta);
+                
+                InvQuat = Quat;
+                
+                InvQuat.FormInverse();
+
+                Vec(0) = RadiusVector[0];
+                Vec(1) = RadiusVector[1];
+                Vec(2) = RadiusVector[2];
+                                                
+                Vec = Quat * Vec * InvQuat;
+                
+                xyz2[0] = Vec(0) + Center[0];
+                xyz2[1] = Vec(1) + Center[1];
+                xyz2[2] = Vec(2) + Center[2];      
+                                       
+                dt = xmax/(64 -1);
+                 
+                for ( k = 1 ; k <= 64 ; k++ ) {
+                   
+                   v1 = v2 = 0.;
+                   
+                   if ( Direction == 1 ) {
+                      
+                      v1 = xyz1[0] + (k-1) * dt * Normal[0];
+                      v2 = xyz2[0] + (k-1) * dt * Normal[0];
+                   
+                   }
+                   
+                   else if ( Direction == 2 ) {
+                      
+                      v1 = xyz1[1] + (k-1) * dt * Normal[1];
+                      v2 = xyz2[1] + (k-1) * dt * Normal[1];
+                   
+                   }       
+                   
+                   else if ( Direction == 3 ) {
+                      
+                      v1 = xyz1[2] + (k-1) * dt * Normal[2];
+                      v2 = xyz2[2] + (k-1) * dt * Normal[2];
+                   
+                   }  
+                   
+                   if ( Value >= MIN(v1,v2) && Value <= MAX(v1,v2) ) {
+                   
+                      if ( v1 != v2 ) {
+                      
+                         s = (Value - v1)/(v2 - v1);
+                         
+                      }
+                      
+                      else {
+                         
+                         s = 0.;
+                         
+                      }
+                      
+                      xyz[0] = xyz1[0] + (k-1) * dt * Normal[0] + s*( xyz2[0] - xyz1[0] );
+                      xyz[1] = xyz1[1] + (k-1) * dt * Normal[1] + s*( xyz2[0] - xyz1[0] ); 
+                      xyz[2] = xyz1[2] + (k-1) * dt * Normal[2] + s*( xyz2[0] - xyz1[0] ); 
+                      
+                      if ( Direction == 1 ) xyz[0] = Value;
+                      if ( Direction == 2 ) xyz[1] = Value;
+                      if ( Direction == 3 ) xyz[2] = Value;
+                      
+                      // Insert the point
+                      
+                      InsertedPoints += QuadTreeList_[j].InsertPoint(xyz, i);
+                   
+                   }
+                   
+                }
+                
+             }
+             
+          }
+                    
+       }    
+                  
        PRINTF("Inserted: %d points \n",InsertedPoints);fflush(NULL);
    
        QuadTreeList_[j].BufferTree(1);
@@ -19296,7 +20290,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
        FWRITE(&Cp,          f_size, 1, ADBFile_); // Total Delta Cp, or CP
        FWRITE(&Cp_Unsteady, f_size, 1, ADBFile_); // Unsteady component of Delta Cp, or Cp
        FWRITE(&Gamma,       f_size, 1, ADBFile_); // Circulation strength
-
+              
     }
 
     // Write out wake shape
@@ -19400,7 +20394,7 @@ void VSP_SOLVER::ReadInAerothermalDatabaseSolution(int TimeCase)
    
           FREAD(&(      GammaNoise_[TimeCase][i]), d_size, 1, InputADBFile_);
           FREAD(&(dCpUnsteadyNoise_[TimeCase][i]), d_size, 1, InputADBFile_);
-     
+
        }  
 
     }
@@ -19637,7 +20631,7 @@ void VSP_SOLVER::InterpolateExistingSolution(VSPAERO_DOUBLE Time)
           Gamma_[0][i] = GammaNoise_[0][i];
           Gamma_[1][i] = GammaNoise_[1][i];
           Gamma_[2][i] = GammaNoise_[2][i];
-          
+        
           VortexLoop(i).U() = 0.;
           VortexLoop(i).V() = 0.;
           VortexLoop(i).W() = 0.;
@@ -20254,8 +21248,8 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(int LoopType)
     
     if ( LoopType == FIXED_LOOPS ) PRINTF("Forward sweep... \n");
 
-    if ( AUTO_DIFF_IS_RECORDING() ) PRINTF("Autodiff on and we are recording! \n");
-               
+    if ( Verbose_ && AUTO_DIFF_IS_RECORDING() ) PRINTF("Autodiff on and we are recording! \n");
+
     NumberOfInteractionLoops_[LoopType] = NumberOfVortexLoops_;
 
 #ifndef AUTODIFF
@@ -20701,7 +21695,7 @@ void VSP_SOLVER::UpdateWakeVortexInteractionLists(void)
     }
 
     // Copy over vortex sheet data for parallel runs
-    
+
     for ( cpu = 1 ; cpu < NumberOfThreads_ ; cpu++ ) {
 
        for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
@@ -21574,8 +22568,6 @@ void VSP_SOLVER::CalculateSurfaceInducedVelocityAtPoint(VSPAERO_DOUBLE xyz[3], V
      
     // Create interaction list for this xyz location
 
-    PAUSE_AUTO_DIFF();
-    
     InteractionList = CreateInteractionList(0, 0, 0, ALL_LOOPS, xyz, NumberOfEdges);
     
     U = V = W = 0.;
@@ -21594,8 +22586,6 @@ void VSP_SOLVER::CalculateSurfaceInducedVelocityAtPoint(VSPAERO_DOUBLE xyz[3], V
        W += dq[2];
   
     }
-    
-    CONTINUE_AUTO_DIFF();
 
     q[0] = U;
     q[1] = V;
@@ -21618,8 +22608,6 @@ int VSP_SOLVER::CalculateSurfaceInducedVelocityAtOffBodyPoint(VSPAERO_DOUBLE xyz
      
     // Create interaction list for this xyz location
 
-    PAUSE_AUTO_DIFF();
-    
     InteractionList = CreateInteractionList(0, 0, 0, ALL_LOOPS, xyz, NumberOfEdges);
     
     U1 = V1 = W1 = 0.;
@@ -21681,8 +22669,6 @@ int VSP_SOLVER::CalculateSurfaceInducedVelocityAtOffBodyPoint(VSPAERO_DOUBLE xyz
        W1 = W2 / Hits;
        
     }
-        
-    CONTINUE_AUTO_DIFF();
 
     q[0] = U1;
     q[1] = V1;
@@ -21911,11 +22897,7 @@ void VSP_SOLVER::CalculateWingSurfaceInducedVelocityAtPoint(VSPAERO_DOUBLE xyz[3
      
     // Create interaction list for this xyz location
 
-    PAUSE_AUTO_DIFF();
-
     InteractionList = CreateInteractionList(0, 0, 0, ALL_LOOPS, xyz, NumberOfEdges);
-
-    CONTINUE_AUTO_DIFF();
     
     U = V = W = 0.;
 
@@ -22598,7 +23580,7 @@ void VSP_SOLVER::InterpolateSolutionFromGrid(int Level)
    
        while ( !Done && Iter <= 250 ) {
           
-          ResMax = 0.;
+          ResMax = ResMax0 = 0.;
    
           // Loop over the edges and scatter fluxes
    
@@ -22971,124 +23953,172 @@ void VSP_SOLVER::OutputStatusFile(int Case)
        
        if ( CDo() + CD() > 0. ) LoD = CL()/(CDo() + CD());
        
-       FPRINTF(StatusFile_,"%16d %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",
+       FPRINTF(StatusFile_,"%16d %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
                i,
                Mach_,
-               FLOAT(AngleOfAttack_/TORAD),
-               FLOAT(AngleOfBeta_/TORAD),
+               DOUBLE(AngleOfAttack_/TORAD),
+               DOUBLE(AngleOfBeta_/TORAD),
+               CLo(),               
                CL(),
+               DOUBLE(CL() + CLo()),
                CDo(),
                CD(),
-               FLOAT(CDo() + CD()),
+               DOUBLE(CDo() + CD()),
                CDTrefftz(),
-               FLOAT(CDo() + CDTrefftz()),
-               CS(),            
+               DOUBLE(CDo() + CDTrefftz()),
+               CSo(),
+               CS(),
+               DOUBLE(CSo() + CS()),            
                LoD,
                E,
+               CFxo(),
+               CFyo(),
+               CFzo(),
                CFx(),
                CFy(),
-               CFz(),
+               CFz(), 
+               DOUBLE(CFxo() + CFx()),
+               DOUBLE(CFyo() + CFy()),            
+               DOUBLE(CFzo() + CFz()),            
+               CMxo(),
+               CMyo(),
+               CMzo(),                             
                CMx(),
                CMy(),
                CMz(),
+               DOUBLE(CMxo() + CMx()),
+               DOUBLE(CMyo() + CMy()),            
+               DOUBLE(CMzo() + CMz()),                        
                ToQS);
 
        PRINTF("%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf",
                i,
                Mach_,
-               FLOAT(AngleOfAttack_/TORAD),
-               FLOAT(AngleOfBeta_/TORAD),
-               CL(),
+               DOUBLE(AngleOfAttack_/TORAD),
+               DOUBLE(AngleOfBeta_/TORAD),
+               DOUBLE(CLo() + CL()),
                CDo(),
                CD(),
-               FLOAT(CDo() + CD()),
+               DOUBLE(CDo() + CD()),
                CDTrefftz(),
-               FLOAT(CDo() + CDTrefftz()),               
-               CS(),            
+               DOUBLE(CDo() + CDTrefftz()),               
+               DOUBLE(CSo() + CS()),            
                LoD,
                E,
-               CFx(),
-               CFy(),
-               CFz(),
-               CMx(),
-               CMy(),
-               CMz(),
+               DOUBLE(CFxo() + CFx()),            
+               DOUBLE(CFyo() + CFy()),            
+               DOUBLE(CFzo() + CFz()),            
+               DOUBLE(CMxo() + CMx()),            
+               DOUBLE(CMyo() + CMy()),            
+               DOUBLE(CMzo() + CMz()),    
                ToQS);             
           
     }
     
     else {
        
-        CL_Unsteady_[Time_] = CL();
-        CD_Unsteady_[Time_] = CD();
-        CS_Unsteady_[Time_] = CS();
-       CFx_Unsteady_[Time_] = CFx();
-       CFy_Unsteady_[Time_] = CFy();
-       CFz_Unsteady_[Time_] = CFz();
-       CMx_Unsteady_[Time_] = CMx();
-       CMy_Unsteady_[Time_] = CMy();
-       CMz_Unsteady_[Time_] = CMz();
+        CL_Unsteady_[Time_] = CLo() + CL();
+        CD_Unsteady_[Time_] = CDo() + CD();
+        CS_Unsteady_[Time_] = CSo() + CS();
+       CFx_Unsteady_[Time_] = CFxo() + CFx();
+       CFy_Unsteady_[Time_] = CFyo() + CFy();
+       CFz_Unsteady_[Time_] = CFzo() + CFz();
+       CMx_Unsteady_[Time_] = CMxo() + CMx();
+       CMy_Unsteady_[Time_] = CMyo() + CMy();
+       CMz_Unsteady_[Time_] = CMzo() + CMz();
 
        if ( TimeAnalysisType_ == HEAVE_ANALYSIS ) {
           
           LoD = 0.;
-       
+          
           if ( CDo() + CD() > 0. ) LoD = CL()/(CDo() + CD());
-       
-          FPRINTF(StatusFile_,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",
+          
+          FPRINTF(StatusFile_,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
                   CurrentTime_,
                   Mach_,
-                  FLOAT(AngleOfAttack_/TORAD),
-                  FLOAT(AngleOfBeta_/TORAD),
+                  DOUBLE(AngleOfAttack_/TORAD),
+                  DOUBLE(AngleOfBeta_/TORAD),
+                  CLo(),                  
                   CL(),
+                  DOUBLE(CL() + CLo()),
                   CDo(),
                   CD(),
-                  FLOAT(CDo() + CD()),
+                  DOUBLE(CDo() + CD()),
                   CDTrefftz(),
-                  FLOAT(CDo() + CDTrefftz()),                         
-                  CS(),            
+                  DOUBLE(CDo() + CDTrefftz()),
+                  CSo(),
+                  CS(),
+                  DOUBLE(CSo() + CS()),            
                   LoD,
                   E,
+                  CFxo(),
+                  CFyo(),
+                  CFzo(),
                   CFx(),
                   CFy(),
-                  CFz(),
+                  CFz(), 
+                  DOUBLE(CFxo() + CFx()),
+                  DOUBLE(CFyo() + CFy()),            
+                  DOUBLE(CFzo() + CFz()),            
+                  CMxo(),
+                  CMyo(),
+                  CMzo(),                             
                   CMx(),
                   CMy(),
                   CMz(),
+                  DOUBLE(CMxo() + CMx()),
+                  DOUBLE(CMyo() + CMy()),            
+                  DOUBLE(CMzo() + CMz()),                        
                   ToQS,
                   Unsteady_H_);
-                  
+                                    
        }
        
        else if ( TimeAnalysisType_ == P_ANALYSIS || TimeAnalysisType_ == Q_ANALYSIS || TimeAnalysisType_ == R_ANALYSIS ) {
-          
+
           LoD = 0.;
-       
+          
           if ( CDo() + CD() > 0. ) LoD = CL()/(CDo() + CD());
-                 
-          FPRINTF(StatusFile_,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",
+          
+          FPRINTF(StatusFile_,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf \n",
                   CurrentTime_,
                   Mach_,
-                  FLOAT(AngleOfAttack_/TORAD),
-                  FLOAT(AngleOfBeta_/TORAD),
+                  DOUBLE(AngleOfAttack_/TORAD),
+                  DOUBLE(AngleOfBeta_/TORAD),
+                  CLo(),                  
                   CL(),
+                  DOUBLE(CL() + CLo()),
                   CDo(),
                   CD(),
-                  FLOAT(CDo() + CD()),
+                  DOUBLE(CDo() + CD()),
                   CDTrefftz(),
-                  FLOAT(CDo() + CDTrefftz()),                        
-                  CS(),            
+                  DOUBLE(CDo() + CDTrefftz()),
+                  CSo(),
+                  CS(),
+                  DOUBLE(CSo() + CS()),            
                   LoD,
                   E,
+                  CFxo(),
+                  CFyo(),
+                  CFzo(),
                   CFx(),
                   CFy(),
-                  CFz(),
+                  CFz(), 
+                  DOUBLE(CFxo() + CFx()),
+                  DOUBLE(CFyo() + CFy()),            
+                  DOUBLE(CFzo() + CFz()),            
+                  CMxo(),
+                  CMyo(),
+                  CMzo(),                             
                   CMx(),
                   CMy(),
                   CMz(),
+                  DOUBLE(CMxo() + CMx()),
+                  DOUBLE(CMyo() + CMy()),            
+                  DOUBLE(CMzo() + CMz()),                        
                   ToQS,
-                  FLOAT(Unsteady_Angle_*180./3.14159));                    
-                                    
+                  DOUBLE(Unsteady_Angle_*180./3.14159));
+                                                   
        }        
        
        else {
@@ -23106,28 +24136,30 @@ void VSP_SOLVER::OutputStatusFile(int Case)
              if ( CDo() + CD() > 0. ) LoD = CL()/(CDo() + CD());
                         
              FPRINTF(StatusFile_,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",
-                     Time,
+                     CurrentTime_,
                      Mach_,
-                     FLOAT(AngleOfAttack_/TORAD),
-                     FLOAT(AngleOfBeta_/TORAD),
-                     CL(),
+                     DOUBLE(AngleOfAttack_/TORAD),
+                     DOUBLE(AngleOfBeta_/TORAD),
+                     DOUBLE(CLo() + CL()),
                      CDo(),
                      CD(),
-                     FLOAT(CDo() + CD()),
+                     DOUBLE(CDo() + CD()),
                      CDTrefftz(),
-                     FLOAT(CDo() + CDTrefftz()),      
-                     CS(),                                                      
+                     DOUBLE(CDo() + CDTrefftz()),               
+                     DOUBLE(CSo() + CS()),            
                      LoD,
                      E,
-                     CFx(),
-                     CFy(),
-                     CFz(),
-                     CMx(),
-                     CMy(),
-                     CMz(),
+                     DOUBLE(CFxo() + CFx()),            
+                     DOUBLE(CFyo() + CFy()),            
+                     DOUBLE(CFzo() + CFz()),            
+                     DOUBLE(CMxo() + CMx()),            
+                     DOUBLE(CMyo() + CMy()),            
+                     DOUBLE(CMzo() + CMz()),    
                      ToQS);      
                      
           }
+          
+          // Averaged results
           
           else { 
                               
@@ -23142,9 +24174,19 @@ void VSP_SOLVER::OutputStatusFile(int Case)
               CL_[2] /= NumberOfAveragingSets_;
               CD_[2] /= NumberOfAveragingSets_;
               CS_[2] /= NumberOfAveragingSets_;
+
+             CFxo_[2] /= NumberOfAveragingSets_;
+             CFyo_[2] /= NumberOfAveragingSets_;
+             CFzo_[2] /= NumberOfAveragingSets_;
+                                          
+             CMxo_[2] /= NumberOfAveragingSets_;
+             CMyo_[2] /= NumberOfAveragingSets_;
+             CMzo_[2] /= NumberOfAveragingSets_;
                                            
-             CDo_[2] /= NumberOfAveragingSets_;       
-       
+              CLo_[2] /= NumberOfAveragingSets_;
+              CDo_[2] /= NumberOfAveragingSets_;
+              CSo_[2] /= NumberOfAveragingSets_;
+
              E = (CL(2) * CL(2) /(PI * AR)) / CD(2) ;
 
              LoD = 0.;
@@ -23157,24 +24199,24 @@ void VSP_SOLVER::OutputStatusFile(int Case)
              FPRINTF(StatusFile_,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",
                      Time,
                      Mach_,
-                     FLOAT(AngleOfAttack_/TORAD),
-                     FLOAT(AngleOfBeta_/TORAD),
-                     CL(2),
+                     DOUBLE(AngleOfAttack_/TORAD),
+                     DOUBLE(AngleOfBeta_/TORAD),
+                     DOUBLE(CLo(2) + CL(2)),
                      CDo(2),
                      CD(2),
-                     FLOAT(CDo(2) + CD(2)),
-                     CDTrefftz(),
-                     FLOAT(CDo() + CDTrefftz()),                          
-                     CS(2),            
+                     DOUBLE(CDo(2) + CD(2)),
+                     CDTrefftz(2),
+                     DOUBLE(CDo(2) + CDTrefftz()),               
+                     DOUBLE(CSo(2) + CS(2)),            
                      LoD,
                      E,
-                     CFx(2),
-                     CFy(2),
-                     CFz(2),
-                     CMx(2),
-                     CMy(2),
-                     CMz(2),
-                     ToQS);      
+                     DOUBLE(CFxo(2) + CFx(2)),            
+                     DOUBLE(CFyo(2) + CFy(2)),            
+                     DOUBLE(CFzo(2) + CFz(2)),            
+                     DOUBLE(CMxo(2) + CMx(2)),            
+                     DOUBLE(CMyo(2) + CMy(2)),            
+                     DOUBLE(CMzo(2) + CMz(2)),    
+                     ToQS);     
                      
           }
                          
@@ -23401,7 +24443,8 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
               
           // Store time history of last rotation
           
-          if ( ( TimeAccurate_ && CurrentTime_ >= ComponentGroupList_[c].StartAveragingTime() ) || ( !TimeAccurate_ && CurrentWakeIteration_ >= WakeIterations_ ) ) ComponentGroupList_[c].UpdateAverageForcesAndMoments();
+      //   if ( ( TimeAccurate_ && CurrentTime_ >= ComponentGroupList_[c].StartAveragingTime() ) || ( !TimeAccurate_ && CurrentWakeIteration_ >= WakeIterations_ ) ) ComponentGroupList_[c].UpdateAverageForcesAndMoments();
+          if ( ( TimeAccurate_ && Time_ >= NumberOfTimeSteps_ - ComponentGroupList_[c].NumberOfIntegrationTimeSteps() + 1 ) || ( !TimeAccurate_ && CurrentWakeIteration_ >= WakeIterations_ ) ) ComponentGroupList_[c].UpdateAverageForcesAndMoments();
           
           // If this is the last time step, write out final averaged forces
              
@@ -23814,6 +24857,9 @@ void VSP_SOLVER::OutputForcesAndMomentsForGroup(int Group)
                         FOM,
                         FLOAT(ComponentGroupList_[c].TotalRotationAngle()/TORAD));
                         
+FPRINTF(RotorFile_[k],"CT: %e \n",CT);
+FPRINTF(RotorFile_[k],"CQ: %e \n",CQ);
+
                 // Write out spanwise blade loading data, again averaged over one revolution
                 
                 for ( i = 1 ; i <= ComponentGroupList_[c].NumberOfLiftingSurfaces() ; i++ ) {
@@ -27167,6 +28213,8 @@ void VSP_SOLVER::WriteOutPSUWopWopPeggNamelist(void)
     }
 
     // Calculate blade radius
+    
+    BladeRadius = 0.;
     
     for ( k = 1 ; k <= VSPGeom().NumberOfSurfaces() ; k++ ) {
          

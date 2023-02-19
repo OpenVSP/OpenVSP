@@ -19,6 +19,10 @@ SPAN_LOAD_DATA::SPAN_LOAD_DATA(void)
 
     NumberOfSpanStations_ = 0;
     
+    // Component ID
+    
+    ComponentID_ = NULL;
+    
     // Viscous forces
       
     Span_Cxo_ = NULL;
@@ -127,6 +131,12 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
        
     int i;
     
+    // Component ID
+    
+    if ( ComponentID_ == NULL ) delete ComponentID_;
+        
+    ComponentID_ = NULL;
+        
     // Viscous forces
       
     if ( Span_Cxo_ != NULL ) delete [] Span_Cxo_;
@@ -368,7 +378,11 @@ SPAN_LOAD_DATA &SPAN_LOAD_DATA::operator=(const SPAN_LOAD_DATA &SpanLoadData)
     ZeroAll();
     
     for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+
+       // Component ID
        
+       ComponentID_[i] = SpanLoadData.ComponentID_[i];;
+           
        // Viscous forces
          
        Span_Cxo_[i] = SpanLoadData.Span_Cxo_[i];
@@ -494,7 +508,11 @@ void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
     int i;
 
     NumberOfSpanStations_ = NumberOfSpanStations;
+
+    // Component ID
     
+    ComponentID_ = new int[NumberOfSpanStations_ + 1];
+           
     // Viscous forces
       
     Span_Cxo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
@@ -624,7 +642,7 @@ void SPAN_LOAD_DATA::ZeroAll(void)
     int i, j;
 
     for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
-       
+
        // Viscous forces
          
        Span_Cxo_[i] = 0.;
@@ -748,7 +766,7 @@ void SPAN_LOAD_DATA::ZeroForcesAndMoments(void)
     int i, j;
 
     for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
-       
+
        // Viscous forces
          
        Span_Cxo_[i] = 0.;
@@ -830,7 +848,7 @@ void SPAN_LOAD_DATA::ZeroForcesAndMoments(void)
 #                                                                              #
 ##############################################################################*/
 
-void SPAN_LOAD_DATA::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat)
+void SPAN_LOAD_DATA::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup)
 {
 
 
@@ -839,78 +857,82 @@ void SPAN_LOAD_DATA::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE
 
     for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
 
-       // Leading edge location
+       if ( ComponentInThisGroup[ComponentID_[i]] ) {
+          
+          // Leading edge location
+          
+          Vec(0) = Span_XLE_[i] - OVec[0];
+          Vec(1) = Span_YLE_[i] - OVec[1];
+          Vec(2) = Span_ZLE_[i] - OVec[2];   
+        
+          Vec = Quat * Vec * InvQuat;
+   
+          Span_XLE_[i] = Vec(0) + OVec[0] + TVec[0];
+          Span_YLE_[i] = Vec(1) + OVec[1] + TVec[1];
+          Span_ZLE_[i] = Vec(2) + OVec[2] + TVec[2];      
+   
+          // Trailing edge location
+          
+          Vec(0) = Span_XTE_[i] - OVec[0];
+          Vec(1) = Span_YTE_[i] - OVec[1];
+          Vec(2) = Span_ZTE_[i] - OVec[2];   
+          
+          Vec = Quat * Vec * InvQuat;
+   
+          Span_XTE_[i] = Vec(0) + OVec[0] + TVec[0];
+          Span_YTE_[i] = Vec(1) + OVec[1] + TVec[1];
+          Span_ZTE_[i] = Vec(2) + OVec[2] + TVec[2];      
+   
+          // Defelected Leading edge location
+          
+          Vec(0) = Span_XLE_Def_[i] - OVec[0];
+          Vec(1) = Span_YLE_Def_[i] - OVec[1];
+          Vec(2) = Span_ZLE_Def_[i] - OVec[2];   
+          
+          Vec = Quat * Vec * InvQuat;
+   
+          Span_XLE_Def_[i] = Vec(0) + OVec[0] + TVec[0];
+          Span_YLE_Def_[i] = Vec(1) + OVec[1] + TVec[1];
+          Span_ZLE_Def_[i] = Vec(2) + OVec[2] + TVec[2];      
+   
+          // Deflected Trailing edge location
+          
+          Vec(0) = Span_XTE_Def_[i] - OVec[0];
+          Vec(1) = Span_YTE_Def_[i] - OVec[1];
+          Vec(2) = Span_ZTE_Def_[i] - OVec[2];   
+   
+          Vec = Quat * Vec * InvQuat;
+   
+          Span_XTE_Def_[i] = Vec(0) + OVec[0] + TVec[0];
+          Span_YTE_Def_[i] = Vec(1) + OVec[1] + TVec[1];
+          Span_ZTE_Def_[i] = Vec(2) + OVec[2] + TVec[2];     
+                        
+          // Direction vector 
+   
+          Vec(0) = Span_Svec_[i][0];
+          Vec(1) = Span_Svec_[i][1];
+          Vec(2) = Span_Svec_[i][2];
+          
+          Vec = Quat * Vec * InvQuat;
        
-       Vec(0) = Span_XLE_[i] - OVec[0];
-       Vec(1) = Span_YLE_[i] - OVec[1];
-       Vec(2) = Span_ZLE_[i] - OVec[2];   
-     
-       Vec = Quat * Vec * InvQuat;
-
-       Span_XLE_[i] = Vec(0) + OVec[0] + TVec[0];
-       Span_YLE_[i] = Vec(1) + OVec[1] + TVec[1];
-       Span_ZLE_[i] = Vec(2) + OVec[2] + TVec[2];      
-
-       // Trailing edge location
-       
-       Vec(0) = Span_XTE_[i] - OVec[0];
-       Vec(1) = Span_YTE_[i] - OVec[1];
-       Vec(2) = Span_ZTE_[i] - OVec[2];   
-       
-       Vec = Quat * Vec * InvQuat;
-
-       Span_XTE_[i] = Vec(0) + OVec[0] + TVec[0];
-       Span_YTE_[i] = Vec(1) + OVec[1] + TVec[1];
-       Span_ZTE_[i] = Vec(2) + OVec[2] + TVec[2];      
-
-       // Defelected Leading edge location
-       
-       Vec(0) = Span_XLE_Def_[i] - OVec[0];
-       Vec(1) = Span_YLE_Def_[i] - OVec[1];
-       Vec(2) = Span_ZLE_Def_[i] - OVec[2];   
-       
-       Vec = Quat * Vec * InvQuat;
-
-       Span_XLE_Def_[i] = Vec(0) + OVec[0] + TVec[0];
-       Span_YLE_Def_[i] = Vec(1) + OVec[1] + TVec[1];
-       Span_ZLE_Def_[i] = Vec(2) + OVec[2] + TVec[2];      
-
-       // Deflected Trailing edge location
-       
-       Vec(0) = Span_XTE_Def_[i] - OVec[0];
-       Vec(1) = Span_YTE_Def_[i] - OVec[1];
-       Vec(2) = Span_ZTE_Def_[i] - OVec[2];   
-
-       Vec = Quat * Vec * InvQuat;
-
-       Span_XTE_Def_[i] = Vec(0) + OVec[0] + TVec[0];
-       Span_YTE_Def_[i] = Vec(1) + OVec[1] + TVec[1];
-       Span_ZTE_Def_[i] = Vec(2) + OVec[2] + TVec[2];     
-                     
-       // Direction vector 
-
-       Vec(0) = Span_Svec_[i][0];
-       Vec(1) = Span_Svec_[i][1];
-       Vec(2) = Span_Svec_[i][2];
-       
-       Vec = Quat * Vec * InvQuat;
-       
-       Span_Svec_[i][0] = Vec(0); 
-       Span_Svec_[i][1] = Vec(1); 
-       Span_Svec_[i][2] = Vec(2);    
-       
-       // Normal vector
-       
-       Vec(0) = Span_Nvec_[i][0];
-       Vec(1) = Span_Nvec_[i][1];
-       Vec(2) = Span_Nvec_[i][2];
-       Vec(3) = 0.;
-       
-       Vec = Quat * Vec * InvQuat;
-
-       Span_Nvec_[i][0] = Vec(0); 
-       Span_Nvec_[i][1] = Vec(1); 
-       Span_Nvec_[i][2] = Vec(2);    
+          Span_Svec_[i][0] = Vec(0); 
+          Span_Svec_[i][1] = Vec(1); 
+          Span_Svec_[i][2] = Vec(2);    
+          
+          // Normal vector
+          
+          Vec(0) = Span_Nvec_[i][0];
+          Vec(1) = Span_Nvec_[i][1];
+          Vec(2) = Span_Nvec_[i][2];
+          Vec(3) = 0.;
+          
+          Vec = Quat * Vec * InvQuat;
+   
+          Span_Nvec_[i][0] = Vec(0); 
+          Span_Nvec_[i][1] = Vec(1); 
+          Span_Nvec_[i][2] = Vec(2); 
+          
+       }   
                      
     }    
 

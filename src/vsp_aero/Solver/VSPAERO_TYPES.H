@@ -167,7 +167,7 @@ template <typename ... Args>
 void SPRINTF(char *str, char const * const format,
             Args const & ... args) noexcept
 {
-  sprintf(str, format, Argument(args) ...);
+  snprintf(str, sizeof( str ) * sizeof( char ), format, Argument(args) ...);
 }
 
 ///////////////////////////////////// AUTODIFF Stuff ///////////////////////////////////////////////////////////

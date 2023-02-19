@@ -43,7 +43,7 @@ SEARCH_LEAF::~SEARCH_LEAF(void)
 {
 
     if (  node != NULL ) delete [] node;
-    
+   
     if (  left != NULL ) delete  left;
   
     if ( right != NULL ) delete right;

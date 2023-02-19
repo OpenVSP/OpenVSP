@@ -223,11 +223,11 @@ glviewer->redraw();}
             label {PNG File}
             callback {const char *val;
 char dum[80];
-sprintf(dum,"");
+snprintf(dum,sizeof(dum)*sizeof(char),"");
 val = fl_input("File Name:",dum);
 if ( val != NULL ) {
 
-sprintf(dum,"%s",val);
+snprintf(dum,sizeof(dum)*sizeof(char),"%s",val);
 glviewer->WritePNGFile(dum);
 
 }}
@@ -237,11 +237,11 @@ glviewer->WritePNGFile(dum);
             label {Movie File}
             callback {const char *val;
 char dum[80];
-sprintf(dum,"");
+snprintf(dum,sizeof(dum)*sizeof(char),"");
 val = fl_input("File Name:",dum);
 if ( val != NULL ) {
 
-   sprintf(dum,"%s",val);
+   snprintf(dum,sizeof(dum)*sizeof(char),"%s",val);
    glviewer->MakeMovie(dum);
 
 }}
@@ -792,7 +792,7 @@ if (BigStep < 1 ) BigStep = 1;
 
 LoadSolutionCase->lstep((double)BigStep);
 
-sprintf(dum," of %d",UpperBound);
+snprintf(dum,sizeof(dum)*sizeof(char)," of %d",UpperBound);
 
 NumberOfSolutionCasesText->value(dum);
 

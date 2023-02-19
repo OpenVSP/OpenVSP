@@ -23,6 +23,10 @@ private:
 
     int NumberOfSpanStations_;
     
+    // Component ID
+    
+    int *ComponentID_;
+    
     // Viscous forces
       
     VSPAERO_DOUBLE *Span_Cxo_;
@@ -161,8 +165,12 @@ public:
     
     /** Update the geometry information given a translation vector, and a quaternion rotation **/
     
-    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+   void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
     
+    /** Component ID **/
+    
+    int &ComponentID(int i) { return ComponentID_[i]; };
+        
     /** Viscous force coefficient in X **/
       
     VSPAERO_DOUBLE &Span_Cxo(int i) { return Span_Cxo_[i]; };

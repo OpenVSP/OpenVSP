@@ -243,7 +243,36 @@ void QUAT::FormRotationQuat(VSPAERO_DOUBLE *Vec, VSPAERO_DOUBLE Theta)
     }
 
     (*this)(3) = cos(0.5*Theta);
+    
+}
 
+
+/*##############################################################################
+#                                                                              #
+#                           QUAT Magnitude                                     #
+#                                                                              #
+##############################################################################*/
+
+VSPAERO_DOUBLE QUAT::Magnitude(void)
+{
+
+    int i;
+    VSPAERO_DOUBLE Dot;
+
+    // Calculate Magnitude of quaternion
+
+    Dot = 0.;
+    
+    for ( i = 0 ; i <= 3 ; i++ ) {
+
+       Dot += (*this)(i) * (*this)(i);
+
+    }
+
+    Dot = sqrt(Dot);
+    
+    return Dot;
+    
 }
 
 /*##############################################################################

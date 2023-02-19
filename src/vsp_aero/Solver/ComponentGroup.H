@@ -74,7 +74,8 @@ private:
     
     int NumberOfTimeSamples_;
     
-    int StartAveragingTimeStep_;
+    int NumberOfIntegrationTimeSteps_;
+
     VSPAERO_DOUBLE StartAveragingTime_;
 
     VSPAERO_DOUBLE Cxo_[2];
@@ -477,6 +478,10 @@ public:
     /** Time to begin averaging in an unsteady analysis **/
                 
     VSPAERO_DOUBLE &StartAveragingTime(void) { return StartAveragingTime_; };
+    
+    /** Number of integration time steps for averaging process **/
+    
+    int &NumberOfIntegrationTimeSteps(void) { return NumberOfIntegrationTimeSteps_; };
     
     /** Zero out the forces and moments **/
     

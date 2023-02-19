@@ -64,6 +64,20 @@ private:
     VSP_NODE TE_Node_;
     
     VSP_NODE *NodeList_;
+    
+    // Save state data
+    
+    VSP_NODE TE_NodeSave_;
+    
+    VSP_NODE *NodeListSave_;
+ 
+    // Wake points residual
+    
+    int RecordingWasOn_;
+    int NumberOfWakeResidualNodes_;
+    int *WakeResidualEquationNumber_;
+    
+    VSPAERO_DOUBLE *WakeResidual_;
 
     // List of trailing vortices
     
@@ -122,7 +136,6 @@ private:
     VSPAERO_DOUBLE TimeStep_;
     VSPAERO_DOUBLE Vinf_;
     VSPAERO_DOUBLE *Gamma_;
-//    VSPAERO_DOUBLE *GammaNew_;
     VSPAERO_DOUBLE *GammaSave_;
 
     VSPAERO_DOUBLE *WakeAge_;
@@ -176,7 +189,15 @@ private:
     void CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
      
     VSPAERO_DOUBLE GammaScale(int i);
-     
+    
+    // Update the wake location 
+    
+    VSPAERO_DOUBLE UpdateWakeLocation_(int AdjointSolve);   
+    
+    /** Update the geometry given a translation vector and a rotating quaternion, this also shift the wake back in time  **/
+    
+    void UpdateGeometryLocation_(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int AdjointSolve);
+   
 public:
 
     // Constructor, Destructor, Copy
@@ -229,6 +250,7 @@ public:
      **/
     
     void Update(VSPAERO_DOUBLE FarDist, VSP_NODE &Node1, VSP_NODE &Node2);
+    void UpdateNew(VSP_NODE &TE_NODE);
     
     /** Calculate the induced velocity at location xyz **/
           
@@ -347,9 +369,13 @@ public:
     
     void ProlongateEdgeVelocities(void);
     
-    /**  Update the wake location **/
+    /** Update the wake location **/
     
-    VSPAERO_DOUBLE UpdateWakeLocation(void);    
+    VSPAERO_DOUBLE UpdateWakeLocation(void) { return UpdateWakeLocation_(0); }; 
+    
+    /** Update the wake location for adjoint solve **/
+    
+    VSPAERO_DOUBLE UpdateWakeLocationForAdjointSolve(void) { return UpdateWakeLocation_(1); };     
     
     /** Convec the wake vorticity in time down stream ... **/ 
     
@@ -424,11 +450,15 @@ public:
     /** Update the geometry given a translation vector and a rotating quaternion, this also shift the wake back in time  **/
     
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
-    
+ 
     /** Update the trailing edge location given a translation vector and a rotating quaternion **/
     
     void UpdateTrailingEdgeGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+
+    /** Update the trailing edge location given just the new trailing edge xyz location **/
     
+    void UpdateTrailingEdgeGeometryLocation(VSP_NODE &Node);
+       
     /** Set Mach number **/
      
     void SetMachNumber(VSPAERO_DOUBLE Mach);
@@ -449,7 +479,60 @@ public:
      * trailing vortex to move up an agglomeration level **/
     
     double &FarAwayRatio(void) { return FarAway_; };
-            
+
+    /** Save the current wake shape state **/
+    
+    void SaveWakeShapeState(void);
+    
+    /** Restore the wake shape from previously saved state **/
+    
+    void RestoreWakeShapeState(void);    
+    
+    /** Calculate the unsteady wake residual  **/
+    
+    void UpdateGeometryLocationForAdjointSolve(VSP_NODE TENode);       
+        
+    /** Number of nodes in wake that we are solving for, this is 1 less than the total
+     * since the last node is simply out at infinity from the n-1 node ... */
+     
+    int NumberOfWakeResidualNodes(void) { return NumberOfWakeResidualNodes_; };
+  
+    /** Wake node x **/
+    
+    VSPAERO_DOUBLE &WakeNodeX(int i) { return NodeList_[i].x(); };
+    
+    /** Wake node y **/
+    
+    VSPAERO_DOUBLE &WakeNodeY(int i) { return NodeList_[i].y(); };
+
+    /** Wake node z **/
+    
+    VSPAERO_DOUBLE &WakeNodeZ(int i) { return NodeList_[i].z(); };
+
+    /** Wake residual for x location at node i **/
+    
+    VSPAERO_DOUBLE &WakeResidualX(int i) { return WakeResidual_[3*i-2]; };
+    
+    /** Wake residual for y location at node i **/
+    
+    VSPAERO_DOUBLE &WakeResidualY(int i) { return WakeResidual_[3*i-1]; };
+
+    /** Wake residual for z location at node i **/
+    
+    VSPAERO_DOUBLE &WakeResidualZ(int i) { return WakeResidual_[3*i  ]; };
+    
+    /** Global wake residual equation number for x location at node i **/
+    
+    int &WakeResidualX_EquationNumber(int i) { return WakeResidualEquationNumber_[3*i-2]; };
+
+    /** Global wake residual equation number for x location at node i **/
+    
+    int &WakeResidualY_EquationNumber(int i) { return WakeResidualEquationNumber_[3*i-1]; };
+
+    /** Global wake residual equation number for x location at node i **/
+    
+    int &WakeResidualZ_EquationNumber(int i) { return WakeResidualEquationNumber_[3*i  ]; };
+                    
 };
 
 #include "END_NAME_SPACE.H"

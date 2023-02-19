@@ -1,5 +1,6 @@
 import numpy as np
 import unittest
+import sys
 from vspaero.problems.base import wrt_dict as WRT_DICT
 
 """
@@ -58,6 +59,7 @@ class PyVSPAeroTestCase:
             # solve
             funcs = self.run_solve()
 
+            #print("Self evaulation...")
             # Test functions values against historical values
             for prob in self.problems:
                 with self.subTest(problem=prob.name):
@@ -82,6 +84,7 @@ class PyVSPAeroTestCase:
             # Compute the total derivative w.r.t. flight design variables using adjoint
             func_sens = self.run_sensitivities()
 
+            #print("Sensitivities wrt flight variables...",file=sys.stderr)
             # Tests cs/fd against sensitivity from adjoint
             for prob in self.problems:
                 with self.subTest(problem=prob.name):
@@ -89,6 +92,7 @@ class PyVSPAeroTestCase:
                     symm_flag = prob.get_option("symmetry")
                     # Loop through each flight variable
                     for dv_name in WRT_DICT:
+                        #print("Gradient WRT: ",dv_name,file=sys.stderr)
                         with self.subTest(dv_name=dv_name):
                             # If symmetry is set to "y", beta var must always be 0
                             if symm_flag.lower() == "y" and dv_name == "beta":
@@ -101,6 +105,7 @@ class PyVSPAeroTestCase:
                                 funcs_pert = self.run_solve(dv=self.dv1)
                                 # Loop through each function
                                 for func_name in func_names:
+                                    #print("       ",func_name,file=sys.stderr)
                                     with self.subTest(function=func_name):
                                         func_key = f"{prob.name}_{func_name}"
                                         # project exact sens
@@ -109,6 +114,12 @@ class PyVSPAeroTestCase:
                                         f_dv_sens_approx = self.compute_fd_approx(
                                             funcs_pert[func_key], funcs[func_key]
                                         )
+                                        '''
+                                        print("value............",funcs[func_key],file=sys.stderr)
+                                        print("peturbed value...",funcs_pert[func_key],file=sys.stderr)
+                                        print("fd gradient......",f_dv_sens_approx,file=sys.stderr)
+                                        print("ad gradient......",dfddv_proj,file=sys.stderr)
+                                        '''
                                         np.testing.assert_allclose(
                                             dfddv_proj,
                                             f_dv_sens_approx,
@@ -131,6 +142,7 @@ class PyVSPAeroTestCase:
             # Run perturbed solution
             funcs_pert = self.run_solve(xyz=self.xyz1)
 
+            #print("Sensitivities wrt xyz...",file=sys.stderr)
             # Tests cs/fd against sensitivity from adjoint
             for prob in self.problems:
                 with self.subTest(problem=prob.name):

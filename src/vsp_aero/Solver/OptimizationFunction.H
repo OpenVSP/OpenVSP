@@ -87,6 +87,8 @@
 #define OPT_ROTOR_CT_VISCOUS                 3021
 #define OPT_ROTOR_CP_VISCOUS                 3022
 
+#define OPT_ROTOR_EFFICIENCY                 3031
+
 // WRT free stream inputs
 
 #define OPT_GRADIENT_NUMBER_OF_INPUTS           15

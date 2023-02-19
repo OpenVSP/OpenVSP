@@ -63,9 +63,19 @@ private:
     // Number of surface patches
     
     int NumberOfSurfacePatches_;    
+
+    // Component ID for surface patch
+    
     int *ComponentIDForSurfacePatch_;
+    
+    // Surface patch name
+    
     char **SurfacePatchNameList_;
 
+    // Surface is thin surface flag
+    
+    int *SurfaceIsThick_;
+    
     // Function data
     
     void init(void);
@@ -73,6 +83,8 @@ private:
     // Geometry data
     
     char ComponentName_[2000];
+    
+    int ThickThinDataExists_;
     
     int SurfaceType_;
     

@@ -81,9 +81,7 @@ private:
     int CurrentTimeStep_;
     
     int IsARotor_;
-    
-    int FreezeWakeGeoemtry_;
-    
+        
     VSPAERO_DOUBLE Vinf_;
     
     VSPAERO_DOUBLE FreeStreamVelocity_[3];
@@ -241,6 +239,11 @@ private:
     // Calculate distance from evaluation point to this vortex sheet
     
     VSPAERO_DOUBLE Distance(VSPAERO_DOUBLE xyz_p[3]);
+
+    // Update wake location
+        
+    VSPAERO_DOUBLE UpdateWakeLocation_(int AdjointSolve);
+    
          
 public:
 
@@ -352,6 +355,16 @@ public:
     
     void SaveVortexState(void);
     
+    /** Save the current wake shape state **/
+    
+    void SaveWakeShapeState(void);
+    
+    /** Restore the wake shape from previously saved state **/
+    
+    void RestoreWakeShapeState(void);    
+    
+    /** Calculate the unsteady wake residual  **/    
+    
     /** Update the vortex strengths **/
     
     void UpdateVortexStrengths(int UpdateType);
@@ -405,11 +418,23 @@ public:
     
     /** Update the wake location **/
     
-    VSPAERO_DOUBLE UpdateWakeLocation(void);
+    VSPAERO_DOUBLE UpdateWakeLocation(void) { return UpdateWakeLocation_(0); };
+
+    /** Update the wake location for adjoint solve **/
     
+    VSPAERO_DOUBLE UpdateWakeLocationForAdjointSolve(void) { return UpdateWakeLocation_(1); };
+
     /** Update the geometry based on an input translation vector and rotation quaternion, this also shift the wake back in time **/
     
     void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
+    
+    /** Calculate the unsteady wake residuals **/
+    
+    void UpdateGeometryLocationForAdjointSolve(VSP_NODE *NodeList, int *ComponentInThisGroup);
+        
+    /** Update geometry of bound vortices after trailing wakes have been updated externally... **/
+        
+    void Update(void);
     
     /** Update the trailing edge geometry based on an input translation vector and rotation quaternion **/
     

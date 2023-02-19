@@ -750,16 +750,23 @@ void VSP_EDGE::OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 VSPAERO_DOUBLE VSP_EDGE::Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s)
 {
  
-    VSPAERO_DOUBLE R, F, Denom;
+    VSPAERO_DOUBLE R, F, Denom, C1;
 
     R = a + b*s + c*s*s;
-
-    if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+    
+    if ( R < 0. ) R = 0.;
+    
+//  if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
 
     Denom = d * sqrt(R);
 
-    F = 2.*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + SuperSonicCoreWidth_*SuperSonicCoreWidth_ + MinCoreWidth_*MinCoreWidth_);
+    F = 2.*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + SuperSonicCoreWidth_*SuperSonicCoreWidth_ + Tolerance_4_*Tolerance_4_);
 
+    C1 = d*d;
+ 
+    F *= C1/(C1 + Tolerance_4_);
+    F *=  R/( R + Tolerance_4_);
+  
     return F;
  
 }
@@ -773,15 +780,22 @@ VSPAERO_DOUBLE VSP_EDGE::Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUB
 VSPAERO_DOUBLE VSP_EDGE::Gint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s)
 {
    
-    VSPAERO_DOUBLE R, G, Denom;
+    VSPAERO_DOUBLE R, G, Denom, C1;
     
     R = a + b*s + c*s*s;
 
-    if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+    if ( R < 0. ) R = 0.;
+
+//  if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
 
     Denom = d * sqrt(R);
 
     G = -2.*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + SuperSonicCoreWidth_*SuperSonicCoreWidth_ + MinCoreWidth_*MinCoreWidth_);
+
+    C1 = d*d;
+
+    G *= C1/(C1 + Tolerance_4_);
+    G *=  R/( R + Tolerance_1_);
     
     return G;
  
@@ -994,7 +1008,7 @@ void VSP_EDGE::CalculateForces(void)
     Forces_[0] *= Length_*Gamma_;
     Forces_[1] *= Length_*Gamma_;
     Forces_[2] *= Length_*Gamma_;
-
+    
 }
 
 /*##############################################################################

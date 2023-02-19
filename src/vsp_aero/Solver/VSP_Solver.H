@@ -33,6 +33,7 @@
 #include "QuadTree.H"
 #include "EngineFace.H"
 #include "OptimizationFunction.H"
+#include "AdjointGradient.H"
 
 #include "START_NAME_SPACE.H"
 
@@ -68,6 +69,10 @@
 #define NOISE_QUARTIC_INTERPOLATION         4
 #define NOISE_CUBIC_HERMITE_INTERPOLATION   5
 #define NOISE_QUINTIC_HERMITE_INTERPOLATION 6
+
+#define GEOMETRY_UPDATE_DO_ALL      1
+#define GEOMETRY_UPDATE_DO_STARTUP  2
+#define GEOMETRY_UPDATE_DO_ADJOINT  3
 
 // Definition of the VSP_SOLVER class
 
@@ -268,6 +273,7 @@ private:
     VSPAERO_DOUBLE *RightHandSide_;
     VSPAERO_DOUBLE *Residual_;
     VSPAERO_DOUBLE *Diagonal_;
+    VSPAERO_DOUBLE *MatrixVectorProduct_;
     VSPAERO_DOUBLE MaxDiagonal_;
     VSPAERO_DOUBLE *Delta_;
     VSPAERO_DOUBLE JacobiRelaxationFactor_;
@@ -499,7 +505,8 @@ private:
     int DoAdjointSolve_;
     int OptimizationSolve_;    
     int AdjointMatrixSolve_;    
-    int FreezeMeshGradients_;
+    int NumberOfTotalWakeResidualNodes_;
+    int NumberOfAdjointEquations_;
     
     OPTIMIZATION_FUNCTION OptimizationFunctionList_[1001];   
     
@@ -507,8 +514,9 @@ private:
     
     VSPAERO_DOUBLE *pF_pMesh_;
     VSPAERO_DOUBLE *pR_pMesh_;    
-    VSPAERO_DOUBLE *pF_pGamma_;
-    VSPAERO_DOUBLE ***dF_dMesh_;
+    VSPAERO_DOUBLE *pF_pSoln_;
+    
+    ADJOINT_GRADIENT MeshGradientData_;
     
     // Gradient data with respect to input variables
     
@@ -516,7 +524,8 @@ private:
 
     VSPAERO_DOUBLE *pR_pInputVariable_;
     VSPAERO_DOUBLE *pF_pInputVariable_;
-    VSPAERO_DOUBLE ***dF_dInputVariable_;
+    
+    ADJOINT_GRADIENT SolutionGradientData_;
     
     // Adjoint solution vector
     
@@ -596,6 +605,7 @@ private:
     int SolverType_;
     int DoRestart_;
     int SaveRestartFile_;
+    int ExternalCoupledSolve_;
     
     // Solve stuff
     
@@ -606,6 +616,8 @@ private:
     // Wake update 
     
     void UpdateWakeLocations(void);
+    
+    void UpdateWakeLocations(VSPAERO_DOUBLE *VecIn);
     
     // Calculate the unsteady wake velocities
     
@@ -760,6 +772,10 @@ private:
     void RestorePeriodicNoiseSolution(void);
   
     void SaveVortexState(void);
+    
+    void SaveWakeShapeState(void);
+    
+    void RestoreWakeShapeState(void);
     
     // Carlson's attainable leading edge suction model
     
@@ -983,6 +999,10 @@ public:
     /** Set rotational rate about z axis **/
 
     VSPAERO_DOUBLE &RotationalRate_r(void) { return RotationalRate_[2]; };    
+    
+    /** Set the angular rate, in radian/sec, for component group = Group **/
+    
+    VSPAERO_DOUBLE &GroupOmegaRate(int Group) { return ComponentGroupList_[Group].Omega(); };
 
     /** Set number of rotors ... aka... acuator disks **/
     
@@ -1058,6 +1078,18 @@ public:
                                               VSPAERO_DOUBLE &J, VSPAERO_DOUBLE &CT, VSPAERO_DOUBLE &CQ, VSPAERO_DOUBLE &CP, VSPAERO_DOUBLE &EtaP,
                                               VSPAERO_DOUBLE &CT_h, VSPAERO_DOUBLE &CQ_h, VSPAERO_DOUBLE &CP_h, VSPAERO_DOUBLE &FOM);
 
+    /** Solution vector for the forward solve ... ie the vorticity **/
+
+    double ForwardSolutionVector(int i) { return DOUBLE(Gamma_[0][i]); };
+
+    /** Solution vector for the adjoint solve ... ie Psi **/
+
+    double AdjointSolutionVector(int i) { return DOUBLE(Psi_[1][i]); };
+        
+    /** P'th solution vector for the adjoint solve ... ie Psi **/
+        
+    double AdjointSolutionVector(int p, int i) { return DOUBLE(Psi_[p][i]); };
+        
     /** Reference area **/
     
     VSPAERO_DOUBLE &Sref(void) { return Sref_; };
@@ -1070,119 +1102,119 @@ public:
     
     VSPAERO_DOUBLE &Bref(void) { return Bref_; };    
  
-    /** Force coefficient, in x axis direction ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Force coefficient, in x axis direction ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE CFx(int Type) { return CFx_[Type]; };
     
-    /** Force coefficient, in y axis directio ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Force coefficient, in y axis directio ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
     
     VSPAERO_DOUBLE CFy(int Type) { return CFy_[Type]; };
 
-    /** Force coefficient, in z axis directio ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Force coefficient, in z axis directio ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE CFz(int Type) { return CFz_[Type]; };
 
-    /** Lift coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Lift coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE  CL(int Type) { return  CL_[Type]; };
     
-    /** Drag coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Drag coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
     
     VSPAERO_DOUBLE  CD(int Type) { return  CD_[Type]; };
     
-    /** Side force coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Side force coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
     
     VSPAERO_DOUBLE  CS(int Type) { return  CS_[Type]; };
     
-    /** Moment coefficient, about x axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Moment coefficient, about x axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
     
     VSPAERO_DOUBLE CMx(int Type) { return CMx_[Type]; };
     
-    /** Moment coefficient, about y axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Moment coefficient, about y axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
     
     VSPAERO_DOUBLE CMy(int Type) { return CMy_[Type]; };
 
-    /** Moment coefficient, about z axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Moment coefficient, about z axis ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE CMz(int Type) { return CMz_[Type]; };
     
-    /** Trailing edge (sorta kinda Trefftz analysis) induced drag ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Inviscid Trailing edge (sorta kinda Trefftz analysis) induced drag ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE CDTrefftz(int Type) { return CDTrefftz_[Type]; };
 
-    /** Current Force coefficient, in x axis direction ... Steady/Unsteady **/
+    /** Inviscid Current Force coefficient, in x axis direction ... Steady/Unsteady **/
 
     VSPAERO_DOUBLE CFx(void) { return CFx_[0]; };
     
-    /** Current Force coefficient, in y axis direction ... Steady/Unsteady **/
+    /** Inviscid Current Force coefficient, in y axis direction ... Steady/Unsteady **/
     
     VSPAERO_DOUBLE CFy(void) { return CFy_[0]; };
 
-    /** Current Force coefficient, in z axis direction ... Steady/Unsteady **/
+    /** Inviscid Current Force coefficient, in z axis direction ... Steady/Unsteady **/
 
     VSPAERO_DOUBLE CFz(void) { return CFz_[0]; };
 
-    /** Current Lift coefficient ... Steady/Unsteady **/
+    /** Inviscid Current Inviscid Lift coefficient ... Steady/Unsteady **/
     
     VSPAERO_DOUBLE  CL(void) { return  CL_[0]; };
     
-    /** Current Drag coefficient ... Steady/Unsteady **/
+    /** Inviscid Current Inviscid Drag coefficient ... Steady/Unsteady **/
 
     VSPAERO_DOUBLE  CD(void) { return  CD_[0]; };
     
-    /** Current Side coefficient ... Steady/Unsteady **/
+    /**  InviscidCurrent Inviscid Side coefficient ... Steady/Unsteady **/
     
     VSPAERO_DOUBLE  CS(void) { return  CS_[0]; };
     
-    /** Current moment coefficient about x axis... Steady/Unsteady **/
+    /** Inviscid Curren Inviscidt moment coefficient about x axis... Steady/Unsteady **/
     
     VSPAERO_DOUBLE CMx(void) { return CMx_[0]; };
     
-    /** Current moment coefficient about y axis... Steady/Unsteady **/
+    /** Inviscid Current Inviscid moment coefficient about y axis... Steady/Unsteady **/
     
     VSPAERO_DOUBLE CMy(void) { return CMy_[0]; };
 
-    /** Current moment coefficient about z axis... Steady/Unsteady **/
+    /** Inviscid Current Inviscid moment coefficient about z axis... Steady/Unsteady **/
 
     VSPAERO_DOUBLE CMz(void) { return CMz_[0]; };
     
-    /** Current Trailing edge (sorta kinda Trefftz analysis) induced drag... Steady/Unsteady **/
+    /** Inviscid Current Trailing edge (sorta kinda Trefftz analysis) induced drag... Steady/Unsteady **/
     
     VSPAERO_DOUBLE CDTrefftz(void) { return CDTrefftz_[0]; };
     
-    /** Unsteady Lift coefficient at time step i **/
+    /** Unsteady Inviscid Lift coefficient at time step i **/
   
     VSPAERO_DOUBLE  CL_Unsteady(int i) { return  CL_Unsteady_[i]; };
     
-    /** Unsteady Drag coefficient at time step i **/
+    /** Unsteady Inviscid Drag coefficient at time step i **/
     
     VSPAERO_DOUBLE  CD_Unsteady(int i) { return  CD_Unsteady_[i]; };
 
-    /** Unsteady Side coefficient at time step i **/
+    /** Unsteady Inviscid Side coefficient at time step i **/
 
     VSPAERO_DOUBLE  CS_Unsteady(int i) { return  CS_Unsteady_[i]; };   
 
-    /** Unsteady force coefficient in x axis direction at time step i **/
+    /** Unsteady Inviscid force coefficient in x axis direction at time step i **/
 
     VSPAERO_DOUBLE CFx_Unsteady(int i) { return CFx_Unsteady_[i]; };
 
-    /** Unsteady force coefficient in y axis direction at time step i **/
+    /** Unsteady Inviscid force coefficient in y axis direction at time step i **/
 
     VSPAERO_DOUBLE CFy_Unsteady(int i) { return CFy_Unsteady_[i]; };
 
-    /** Unsteady force coefficient in z axis direction at time step i **/
+    /** Unsteady Inviscid force coefficient in z axis direction at time step i **/
 
     VSPAERO_DOUBLE CFz_Unsteady(int i) { return CFz_Unsteady_[i]; };
 
-    /** Unsteady moment coefficient along x axis at time step i **/
+    /** Unsteady Inviscid moment coefficient along x axis at time step i **/
 
     VSPAERO_DOUBLE CMx_Unsteady(int i) { return CMx_Unsteady_[i]; };
     
-    /** Unsteady moment coefficient along y axis at time step i **/
+    /** Unsteady Inviscid moment coefficient along y axis at time step i **/
 
     VSPAERO_DOUBLE CMy_Unsteady(int i) { return CMy_Unsteady_[i]; };
 
-    /** Unsteady moment coefficient along z axis at time step i **/
+    /** Unsteady Inviscid moment coefficient along z axis at time step i **/
 
     VSPAERO_DOUBLE CMz_Unsteady(int i) { return CMz_Unsteady_[i]; }; 
 
@@ -1209,10 +1241,18 @@ public:
     /** Viscous moment coefficient along z axis **/
 
     VSPAERO_DOUBLE CMzo(void) { return CMzo_[0]; };
+ 
+    /** Viscous lift coefficient **/
+
+    VSPAERO_DOUBLE CLo(void) { return CLo_[0]; };
     
-    /** Zero lift drag coefficient **/
+    /** Viscous drag coefficient **/
 
     VSPAERO_DOUBLE CDo(void) { return CDo_[0]; };
+            
+    /** Viscous side force coefficient **/
+
+    VSPAERO_DOUBLE CSo(void) { return CSo_[0]; };
         
     /** Viscous force coefficient in x axis direction... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/ 
         
@@ -1238,10 +1278,18 @@ public:
 
     VSPAERO_DOUBLE CMzo(int Type) { return CMzo_[Type]; };    
     
-    /** Zero lift drag coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+    /** Viscous lift coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
+
+    VSPAERO_DOUBLE CLo(int Type) { return CLo_[Type]; };
+
+    /** Viscous drag coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
     VSPAERO_DOUBLE CDo(int Type) { return CDo_[Type]; };
+    
+    /** Viscous side force coefficient ... Type == 0: Steady/Unsteady ... Type == 2: Averaged **/
 
+    VSPAERO_DOUBLE CSo(int Type) { return CSo_[Type]; };
+        
     /** Zero angle of attack lift coefficient for 2D viscous drag estimate... **/
 
     VSPAERO_DOUBLE &Clo2D(void) { return Clo_2d_; };
@@ -1256,7 +1304,7 @@ public:
     
     /** Read in the VSP geometry file **/
     
-    void ReadFile(char *FileName) { sprintf(FileName_,"%s",FileName); VSPGeom_.LoadDeformationFile() = LoadDeformationFile_;  VSPGeom_.ReadFile(FileName,ModelType_,SurfaceType_); };    
+    void ReadFile(char *FileName) { snprintf(FileName_,sizeof(FileName_)*sizeof(char),"%s",FileName); VSPGeom_.LoadDeformationFile() = LoadDeformationFile_;  VSPGeom_.ReadFile(FileName,ModelType_,SurfaceType_); };
 
     /** Read in the FEM deformation file **/
     
@@ -1309,21 +1357,54 @@ public:
     /** Write out steady state noise files for psuwopwop **/
     
     void WriteOutSteadyStateNoiseFiles(int Case);  
-      
 
 #if not defined AUTODIFF && not defined COMPLEXDIFF
 
     /** Do a matrix vector product using a user supplied vector... and also return the right hand side **/
 
     void CalculateMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
+
+#endif
+
+#if not defined AUTODIFF && not defined COMPLEXDIFF
+
+    /** Calculate residual given user supplied vector of solution vector, gamma **/
+
+    void CalculateForwardResidual(double *VecIn, double *VecOut);
+
+#endif
+
+#if not defined AUTODIFF && not defined COMPLEXDIFF
+
+    /** Calculate optimization functions given user supplied vector of solution vector, gamma **/
+
+    void CalculateOptimizationFunctions(double *VecIn);
+
 #endif
 
 #if defined AUTODIFF
 
     /** Do a matrix vector product using a user supplied vector... and also return the right hand side **/
 
-void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
+    void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
+    
+    /** Solve the adjoint equation for user defined right hand side **/
+    
+    void SolveAdjointLinearSystem(double *Psi, double *RHS);
+
+    /** Calculate partial derivatives of optimization case = Case wrt the mesh and the input variables **/
+    
+    void CalculateOptimizationFunctionPartials(int Case, double *pF_pMesh, double *pF_pInputVariable);
+    
+    /** Solve for the adjoint residual partial products given the vector Psi **/
+    
+    void CalculateAdjointResidualPartialProducts(double *Psi, double *pR_pMesh, double *pR_pInputVariable);
+        
 #endif
+
+    // Apply matrix preconditioner... the preconditioner applied depends on whether we are doing a forward or adjoint solve **/
+    
+    void ApplyMatrixPrecondition(double *Vec);
     
     /** Return the L2 residual **/
     
@@ -1499,6 +1580,14 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
     /** Number of vortex loop on the finest mesh level **/
     
     int NumberOfVortexLoops(void) { return NumberOfVortexLoops_; };
+    
+    /** Total number of adjoint equations **/
+    
+    int NumberOfAdjointEquations(void) { return NumberOfAdjointEquations_; };
+
+    /** Number of wake residual equations **/
+    
+    int NumberOfAdjointWakeResidualEquations(void) { return NumberOfTotalWakeResidualNodes_; };  
 
     /** Do an adjoint solve **/
     
@@ -1507,7 +1596,7 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
     /** Do an adjoint solve on case **/
     
     void Optimization_Solve(int Case);    
-    
+        
     /** Set the number of optimization functions **/
     
     int &NumberOfOptimizationFunctions(void) { return NumberOfOptimizationFunctions_; };
@@ -1556,43 +1645,123 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
      **/
 
     int &OptimizationSolve(void) { return OptimizationSolve_; };
+
+// Total Gradients
     
     /** Total gradient of objective function 1 wrt x for node i **/
     
-    double dF_dMesh_X(int i) { return DOUBLE(dF_dMesh_[0][1][3*i-2]); };
+    double dF_dMesh_X(int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,1,3*i-2)); };
     
     /** Total gradient of objective function 1 wrt y for node i **/
-    
-    double dF_dMesh_Y(int i) { return DOUBLE(dF_dMesh_[0][1][3*i-1]); };
+
+    double dF_dMesh_Y(int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,1,3*i-1)); };
 
     /** Total gradient of objective function 1 wrt z for node i **/
-
-    double dF_dMesh_Z(int i) { return DOUBLE(dF_dMesh_[0][1][3*i  ]); };
+ 
+    double dF_dMesh_Z(int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,1,3*i  )); };
     
     /** Total gradient of objective function p wrt x for node i **/
-
-    double dF_dMesh_X(int p, int i) { return DOUBLE(dF_dMesh_[0][p][3*i-2]); };
+  
+    double dF_dMesh_X(int p, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,p,3*i-2)); };
     
     /** Total gradient of objective function p wrt y for node i **/
-    
-    double dF_dMesh_Y(int p, int i) { return DOUBLE(dF_dMesh_[0][p][3*i-1]); };
+ 
+    double dF_dMesh_Y(int p, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,p,3*i-1)); };
 
     /** Total gradient of objective function p wrt z for node i **/
 
-    double dF_dMesh_Z(int p, int i) { return DOUBLE(dF_dMesh_[0][p][3*i  ]); };
+    double dF_dMesh_Z(int p, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(0,p,3*i  )); };
     
     /** Unsteady total gradient of objective function p, at time Time, wrt x for node i **/
-    
-    double dF_dMesh_X(int p, int Time, int i) { return DOUBLE(dF_dMesh_[Time][p][3*i-2]); };
+   
+    double dF_dMesh_X(int p, int Time, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(Time,p,3*i-2)); };
     
     /** Unsteady total gradient of objective function p, at time Time, wrt y for node i **/
-    
-    double dF_dMesh_Y(int p, int Time, int i) { return DOUBLE(dF_dMesh_[Time][p][3*i-1]); };
+
+    double dF_dMesh_Y(int p, int Time, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(Time,p,3*i-1)); };
 
     /** Unsteady total gradient of objective function p, at time Time, wrt z for node i **/
+       
+    double dF_dMesh_Z(int p, int Time, int i) { return DOUBLE(MeshGradientData_.dF_dMesh(Time,p,3*i  )); };
+    
+// Partial gradients with respect to the mesh
 
-    double dF_dMesh_Z(int p, int Time, int i) { return DOUBLE(dF_dMesh_[Time][p][3*i  ]); };
-        
+    /** Partial gradient of objective function 1 wrt mesh x for node i **/
+    
+    double pF_pMesh_X(int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,1,3*i-2)); };
+    
+    /** Partial gradient of objective function 1 wrt mesh y for node i **/
+
+    double pF_pMesh_Y(int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,1,3*i-1)); };
+
+    /** Partial gradient of objective function 1 wrt mesh z for node i **/
+ 
+    double pF_pMesh_Z(int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,1,3*i  )); };
+    
+    /** Partial gradient of objective function p wrt mesh x for node i **/
+      
+    double pF_pMesh_X(int p, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,p,3*i-2)); };
+    
+    /** Partial gradient of objective function p wrt mesh y for node i **/
+ 
+    double pF_pMesh_Y(int p, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,p,3*i-1)); };
+
+    /** Partial gradient of objective function p wrt mesh z for node i **/
+
+    double pF_pMesh_Z(int p, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(0,p,3*i  )); };
+    
+    /** Unsteady partial gradient of objective function p, at time Time, wrt mesh x for node i **/
+   
+    double pF_pMesh_X(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(Time,p,3*i-2)); };
+    
+    /** Unsteady partial gradient of objective function p, at time Time, wrt mesh y for node i **/
+
+    double pF_pMesh_Y(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(Time,p,3*i-1)); };
+
+    /** Unsteady partial gradient of objective function p, at time Time, wrt mesh z for node i **/
+       
+    double pF_pMesh_Z(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pF_pMesh(Time,p,3*i  )); };
+
+// Partial gradients with respect to the solution
+
+    /** Partial gradient of objective function 1 wrt solution, wrt x for node i **/
+    
+    double pR_pMesh_X(int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,1,3*i-2)); };
+    
+    /** Partial gradient of objective function 1 wrt solution, wrt y for node i **/
+
+    double pR_pMesh_Y(int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,1,3*i-1)); };
+
+    /** Partial gradient of objective function 1 wrt solution, wrt z for node i **/
+ 
+    double pR_pMesh_Z(int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,1,3*i  )); };
+    
+    /** Partial gradient of objective function p wrt solution, wrt x for node i **/
+      
+    double pR_pMesh_X(int p, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,p,3*i-2)); };
+    
+    /** Partial gradient of objective function p wrt solution, wrt y for node i **/
+ 
+    double pR_pMesh_Y(int p, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,p,3*i-1)); };
+
+    /** Partial gradient of objective function p wrt solution, wrt z for node i **/
+
+    double pR_pMesh_Z(int p, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(0,p,3*i  )); };
+    
+    /** Unsteady partial gradient of objective function p, at time Time, wrt solution, wrt x for node i **/
+   
+    double pR_pMesh_X(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(Time,p,3*i-2)); };
+    
+    /** Unsteady partial gradient of objective function p, at time Time, wrt solution, wrt y for node i **/
+
+    double pR_pMesh_Y(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(Time,p,3*i-1)); };
+
+    /** Unsteady partial gradient of objective function p, at time Time, wrt solution, wrt z for node i **/
+       
+    double pR_pMesh_Z(int p, int Time, int i) { return DOUBLE(MeshGradientData_.pR_pMesh(Time,p,3*i  )); };
+
+// Total gradients
+                
     /** Total gradient of objective function 1 with resepect to input variable InputVariable 
      *
      * OPT_GRADIENT_WRT_ALPHA 
@@ -1605,8 +1774,8 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
      * OPT_GRADIENT_WRT_Q_RATE       
      * OPT_GRADIENT_WRT_R_RATE       
      * **/
-    
-    double dF_dInputVariable(int InputVariable) { return DOUBLE(dF_dInputVariable_[0][1][InputVariable]); };
+     
+    double dF_dInputVariable(int InputVariable) { return DOUBLE(SolutionGradientData_.dF_dVariable(0,1,InputVariable)); };
  
     /** Total gradient of objective function p with resepect to input variable InputVariable 
      *
@@ -1620,8 +1789,8 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
      * OPT_GRADIENT_WRT_Q_RATE       
      * OPT_GRADIENT_WRT_R_RATE       
      * **/    
-
-    double dF_dInputVariable(int p, int InputVariable) { return DOUBLE(dF_dInputVariable_[0][p][InputVariable]); };
+    
+    double dF_dInputVariable(int p, int InputVariable) { return DOUBLE(SolutionGradientData_.dF_dVariable(0,p,InputVariable)); };
     
     /** Unsteady total gradient of objective function p, at time Time, with resepect to input variable InputVariable
      *
@@ -1635,9 +1804,103 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
      * OPT_GRADIENT_WRT_Q_RATE       
      * OPT_GRADIENT_WRT_R_RATE       
      * **/
+            
+    double dF_dInputVariable(int p, int Time, int InputVariable) { return DOUBLE(SolutionGradientData_.dF_dVariable(Time,p,InputVariable)); };
+
+// Partial gradients wrt mesh
+                
+    /** Partial gradient of objective function 1 with resepect to input variable InputVariable 
+     *
+     * OPT_GRADIENT_WRT_ALPHA 
+     * OPT_GRADIENT_WRT_BETA         
+     * OPT_GRADIENT_WRT_MACH         
+     * OPT_GRADIENT_WRT_VINF         
+     * OPT_GRADIENT_WRT_DENSITY      
+     * OPT_GRADIENT_WRT_RECREF       
+     * OPT_GRADIENT_WRT_P_RATE       
+     * OPT_GRADIENT_WRT_Q_RATE       
+     * OPT_GRADIENT_WRT_R_RATE       
+     * **/
+     
+    double pF_pInputVariable(int InputVariable) { return DOUBLE(SolutionGradientData_.pF_pVariable(0,1,InputVariable)); };
+ 
+    /** Partial gradient of objective function p with resepect to input variable InputVariable 
+     *
+     * OPT_GRADIENT_WRT_ALPHA 
+     * OPT_GRADIENT_WRT_BETA         
+     * OPT_GRADIENT_WRT_MACH         
+     * OPT_GRADIENT_WRT_VINF         
+     * OPT_GRADIENT_WRT_DENSITY      
+     * OPT_GRADIENT_WRT_RECREF       
+     * OPT_GRADIENT_WRT_P_RATE       
+     * OPT_GRADIENT_WRT_Q_RATE       
+     * OPT_GRADIENT_WRT_R_RATE       
+     * **/    
     
-    double dF_dInputVariable(int p, int Time, int InputVariable) { return DOUBLE(dF_dInputVariable_[Time][p][InputVariable]); };
+    double pF_pInputVariable(int p, int InputVariable) { return DOUBLE(SolutionGradientData_.pF_pVariable(0,p,InputVariable)); };
+    
+    /** Unsteady partial gradient of objective function p, at time Time, with resepect to input variable InputVariable
+     *
+     * OPT_GRADIENT_WRT_ALPHA 
+     * OPT_GRADIENT_WRT_BETA         
+     * OPT_GRADIENT_WRT_MACH         
+     * OPT_GRADIENT_WRT_VINF         
+     * OPT_GRADIENT_WRT_DENSITY      
+     * OPT_GRADIENT_WRT_RECREF       
+     * OPT_GRADIENT_WRT_P_RATE       
+     * OPT_GRADIENT_WRT_Q_RATE       
+     * OPT_GRADIENT_WRT_R_RATE       
+     * **/
+            
+    double pF_pInputVariable(int p, int Time, int InputVariable) { return DOUBLE(SolutionGradientData_.pF_pVariable(Time,p,InputVariable)); };
         
+// Partial gradients wrt residual
+                
+    /** Partial gradient of objective function 1 with resepect to residual - vector product
+     *
+     * OPT_GRADIENT_WRT_ALPHA 
+     * OPT_GRADIENT_WRT_BETA         
+     * OPT_GRADIENT_WRT_MACH         
+     * OPT_GRADIENT_WRT_VINF         
+     * OPT_GRADIENT_WRT_DENSITY      
+     * OPT_GRADIENT_WRT_RECREF       
+     * OPT_GRADIENT_WRT_P_RATE       
+     * OPT_GRADIENT_WRT_Q_RATE       
+     * OPT_GRADIENT_WRT_R_RATE       
+     * **/
+     
+    double pR_pInputVariable(int InputVariable) { return DOUBLE(SolutionGradientData_.pR_pVariable(0,1,InputVariable)); };
+ 
+    /** Partial gradient of objective function p with resepect to residual - vector product
+     *
+     * OPT_GRADIENT_WRT_ALPHA 
+     * OPT_GRADIENT_WRT_BETA         
+     * OPT_GRADIENT_WRT_MACH         
+     * OPT_GRADIENT_WRT_VINF         
+     * OPT_GRADIENT_WRT_DENSITY      
+     * OPT_GRADIENT_WRT_RECREF       
+     * OPT_GRADIENT_WRT_P_RATE       
+     * OPT_GRADIENT_WRT_Q_RATE       
+     * OPT_GRADIENT_WRT_R_RATE       
+     * **/    
+    
+    double pR_pInputVariable(int p, int InputVariable) { return DOUBLE(SolutionGradientData_.pR_pVariable(0,p,InputVariable)); };
+    
+    /** Unsteady partial gradient of objective function p, at time Time, with resepect to residual - vector product
+     *
+     * OPT_GRADIENT_WRT_ALPHA 
+     * OPT_GRADIENT_WRT_BETA         
+     * OPT_GRADIENT_WRT_MACH         
+     * OPT_GRADIENT_WRT_VINF         
+     * OPT_GRADIENT_WRT_DENSITY      
+     * OPT_GRADIENT_WRT_RECREF       
+     * OPT_GRADIENT_WRT_P_RATE       
+     * OPT_GRADIENT_WRT_Q_RATE       
+     * OPT_GRADIENT_WRT_R_RATE       
+     * **/
+            
+    double pR_pInputVariable(int p, int Time, int InputVariable) { return DOUBLE(SolutionGradientData_.pR_pVariable(Time,p,InputVariable)); };
+                 
     /** Value of objective function **/
         
     VSPAERO_DOUBLE OptimizationFunction(void);
@@ -1697,7 +1960,19 @@ void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *
     /** Pressure at node i of the mesh **/
     
     VSPAERO_DOUBLE NodalCp(int i) { return NodalCp_[i]; };
-            
+    
+    /** Number of spanwise stations for wing **/
+    
+    int NumberOfSpanStationsForWing(int Wing) { return SpanLoadData(Wing).NumberOfSpanStations(); };
+        
+    /** i'th spanwise chord value for wing = Wing **/
+    
+    VSPAERO_DOUBLE SpanWiseChordForWing(int Wing, int i) { return SpanLoadData(Wing).Span_Chord(i); };
+
+    /** i'th spanwise area value for wing = Wing **/
+    
+    VSPAERO_DOUBLE SpanWiseAreaForWing(int Wing, int i) { return SpanLoadData(Wing).Span_Area(i); };
+                
     /** Calculate partial of user input function F wrt to pressures **/
     
     void Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pMesh);

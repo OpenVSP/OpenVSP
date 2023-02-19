@@ -104,9 +104,7 @@ void VORTEX_SHEET::init(void)
     CommonTEList_ = NULL;
     
     IsARotor_ = 0;
-    
-    FreezeWakeGeoemtry_ = 0;
-    
+        
     OptimizationSolve_ = 0;
     
     Is2D_ = 0;
@@ -325,9 +323,7 @@ VORTEX_SHEET& VORTEX_SHEET::operator+=(const VORTEX_SHEET &VortexSheet)
     CurrentTimeStep_          = VortexSheet.CurrentTimeStep_;    
  
     IsARotor_                 = VortexSheet.IsARotor_;
-    
-    FreezeWakeGeoemtry_       = VortexSheet.FreezeWakeGeoemtry_;
-   
+
     Vinf_                     = VortexSheet.Vinf_;
     
     FreeStreamVelocity_[0]    = VortexSheet.FreeStreamVelocity_[0];
@@ -592,12 +588,7 @@ VORTEX_SHEET::~VORTEX_SHEET(void)
     CommonTEList_ = NULL;
     
     IsARotor_ = 0;
-    
-    FreezeWakeGeoemtry_ = 0;
-      
- //   printf("\n\n\n\n\n\n Fuck me! \n\n\n\n\n");fflush(NULL);
- //   exit(1);
-    
+
 }
 
 /*##############################################################################
@@ -1306,6 +1297,48 @@ void VORTEX_SHEET::SaveVortexState(void)
     for ( i = 1 ; i <= NumberOfTrailingVortices_  ; i++ ) {
        
        TrailingVortexList_[i]->SaveVortexState();
+
+    }   
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                       VORTEX_SHEET SaveWakeShapeState                        #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_SHEET::SaveWakeShapeState(void)
+{
+
+    int i;
+    
+    // Save the current trailing vortex state
+
+    for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+ 
+       TrailingVortexList_[i]->SaveWakeShapeState();
+
+    }   
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                       VORTEX_SHEET RestoreWakeShapeState                     #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_SHEET::RestoreWakeShapeState(void)
+{
+
+    int i;
+    
+    // Save the current trailing vortex state
+
+    for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+       
+       TrailingVortexList_[i]->RestoreWakeShapeState();
 
     }   
 
@@ -2890,7 +2923,7 @@ void VORTEX_SHEET::Setup(void)
 #                                                                              #
 ##############################################################################*/
 
-VSPAERO_DOUBLE VORTEX_SHEET::UpdateWakeLocation(void)
+VSPAERO_DOUBLE VORTEX_SHEET::UpdateWakeLocation_(int AdjointSolve)
 {
 
     int i, Level;
@@ -2902,7 +2935,17 @@ VSPAERO_DOUBLE VORTEX_SHEET::UpdateWakeLocation(void)
 
        if ( DoGroundEffectsAnalysis_ ) TrailingVortexList_[i]->DoGroundEffectsAnalysis() = 1;
        
-       Delta = TrailingVortexList_[i]->UpdateWakeLocation();
+       if ( !AdjointSolve ) {
+          
+          Delta = TrailingVortexList_[i]->UpdateWakeLocation();
+          
+       }
+       
+       else {
+          
+          Delta = TrailingVortexList_[i]->UpdateWakeLocationForAdjointSolve();
+          
+       }          
        
        MaxDelta = MAX(MaxDelta,Delta);
     
@@ -2960,6 +3003,65 @@ void VORTEX_SHEET::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *
     // Update bound vortices
     
     if ( UpdatedGeometry ) {
+       
+       for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
+          
+          for ( i = 1 ; i <= NumberOfVortexSheetsForLevel_[Level] ; i++ ) {
+             
+             VortexSheetListForLevel_[Level][i].CurrentTimeStep() = CurrentTimeStep_;
+       
+             VortexSheetListForLevel_[Level][i].UpdateGeometryLocation();
+       
+          }
+          
+       }
+       
+    }
+  
+}
+
+
+/*##############################################################################
+#                                                                              #
+#                    VORTEX_SHEET CalculateUnsteadyWakeResidual                #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_SHEET::UpdateGeometryLocationForAdjointSolve(VSP_NODE *NodeList, int *ComponentInThisGroup)
+{
+   
+    int i, p;
+   
+    // Calculate unsteady wake residuals
+
+    for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+ 
+       if ( ComponentInThisGroup[TrailingVortexList_[i]->ComponentID()] ) {
+          
+           p = TrailingVortexList_[i]->Node();
+
+           TrailingVortexList_[i]->UpdateGeometryLocationForAdjointSolve(NodeList[p]);
+    
+       }
+       
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VORTEX_SHEET Update                                  #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_SHEET::Update(void)
+{
+   
+    int i, Level, UpdatedGeometry;
+
+    // Update bound vortices
+    
+    if ( TimeAccurate_ ) {
        
        for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
           

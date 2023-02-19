@@ -14,26 +14,26 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 vsp_file = os.path.join(base_dir, "./input_files/fuselage.vsp3")
 
 class ProblemTest(PyVSPAeroTestCase.PyVSPAeroTest):
-    FUNC_REFS = {'incompressible_CL': np.array([-0.00365325]),
-                 'incompressible_CD': np.array([0.02038826]),
-                 'incompressible_CMx': np.array([6.92285735e-16]),
-                 'incompressible_CMy': np.array([0.11805778]),
-                 'incompressible_CMz': np.array([-1.41161157e-14]),
-                 'incompressible_CLi': np.array([-0.00365325]),
-                 'incompressible_CDi': np.array([-0.00025616]),
-                 'incompressible_CMxi': np.array([6.92285735e-16]),
-                 'incompressible_CMyi': np.array([0.11805778]),
-                 'incompressible_CMzi': np.array([-1.41161157e-14]),
-                 'compressible_CL': np.array([-0.01505233]),
-                 'compressible_CD': np.array([0.0191199]),
-                 'compressible_CMx': np.array([2.26436154e-15]),
-                 'compressible_CMy': np.array([-0.48437012]),
-                 'compressible_CMz': np.array([-4.44211581e-13]),
-                 'compressible_CLi': np.array([-0.01505233]),
-                 'compressible_CDi': np.array([-0.00152452]),
-                 'compressible_CMxi': np.array([2.26436154e-15]),
-                 'compressible_CMyi': np.array([-0.48437012]),
-                 'compressible_CMzi': np.array([-4.44211581e-13])}
+    FUNC_REFS = {'incompressible_CL': np.array([0.000000000000]),
+                 'incompressible_CD': np.array([0.020644420525]),
+                 'incompressible_CMx': np.array([0.000000000000]),
+                 'incompressible_CMy': np.array([0.106766373781]),
+                 'incompressible_CMz': np.array([-0.000000000000]),
+                 'incompressible_CLi': np.array([-0.000000000000]),
+                 'incompressible_CDi': np.array([0.000000367790]),
+                 'incompressible_CMxi': np.array([0.000000000000]),
+                 'incompressible_CMyi': np.array([0.106766373781]),
+                 'incompressible_CMzi': np.array([-0.000000000000]),
+                 'compressible_CL': np.array([0.000000000000]),
+                 'compressible_CD': np.array([0.020644420525]),
+                 'compressible_CMx': np.array([0.000000000000]),
+                 'compressible_CMy': np.array([-0.525242924582]),
+                 'compressible_CMz': np.array([-0.000000000000]),
+                 'compressible_CLi': np.array([0.000000000000]),
+                 'compressible_CDi': np.array([0.000000000000]),
+                 'compressible_CMxi': np.array([0.000000000000]),
+                 'compressible_CMyi': np.array([-0.525242924582]),
+                 'compressible_CMzi': np.array([-0.000000000000])}
 
     def setup_vspaero_problems(self):
         """

@@ -123,6 +123,7 @@ if(BUILD_VSPAERO)
   ENDIF()
 
   SET( VSPAERO_CORE_FILES
+  AdjointGradient.C
   BoundaryConditionData.C
   ComponentGroup.C
   ControlSurface.C
@@ -162,6 +163,7 @@ if(BUILD_VSPAERO)
   VSP_Surface.C
   VSPAERO_TYPES.C
   WOPWOP.C
+  AdjointGradient.H
   BoundaryConditionData.H
   ComponentGroup.H
   ControlSurface.H

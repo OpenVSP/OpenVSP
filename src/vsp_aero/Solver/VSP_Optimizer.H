@@ -69,6 +69,7 @@
 #undef VSPAERO_DOUBLE
 #undef AUTODIFF_IS_OFF
 #undef OPTIMIZATION_FUNCTION_H
+#undef ADJOINT_GRADIENT_H
 
 #define AUTODIFF
 #include "VSPAERO_TYPES.H"
@@ -203,24 +204,44 @@ public:
    ~VSP_OPTIMIZER(void);
     VSP_OPTIMIZER(const VSP_OPTIMIZER &Optimizer);
 
-    /** Activate/deactivate the Adept stack in case we may be running multiple optimizer insatances**/
+    /** Activate the Adept stack in case we may be running multiple optimizer insatances**/
+    
     void ActivateAutoDiffStack(void) { AutoDiffStack.activate(); };
+    
+    /** Deactivate the Adept stack in case we may be running multiple optimizer insatances**/
+    
     void DeactivateAutoDiffStack(void) { AutoDiffStack.deactivate(); };
 
-    /** Set the number of CPU threads used by OPENMP in forward solve **/
+    /** Set or get the number of CPU threads used by OPENMP in forward solve ... pass by reference **/
     
     int &NumberOfThreads(void) { return NumberOfThreads_; };
-    // Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values
-    int GetNumberOfThreads(void) { return NumberOfThreads_; };
-    void SetNumberOfThreads(int i) { NumberOfThreads_ = i; };
     
+    /** Set the number of CPU threads used by OPENMP in forward solve ... pass by value 
+    ... Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values **/
+
+    void SetNumberOfThreads(int i) { NumberOfThreads_ = i; };
+
+    /** Set the number of CPU threads used by OPENMP in forward solve ... pass by value 
+    ... Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values **/
+    
+    int GetNumberOfThreads(void) { return NumberOfThreads_; };
+        
     /** Tell the solvers this is an unsteady, time accurate, solve **/
     
     int &DoUnsteadyAnalysis(void) { return DoUnsteadyAnalysis_; };
-    // Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values
-    int GetUnsteadyAnalysis(void) { return DoUnsteadyAnalysis_; };
-    void SetUnsteadyAnalysis(int i) { DoUnsteadyAnalysis_ = i; };
     
+    // Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values
+
+    /** Tell the solvers this is an unsteady, time accurate, solve ... pass by value 
+    ... Cython doesn't support treating returned references as lvalues: https://cython. **/
+    
+    void SetUnsteadyAnalysis(int i) { DoUnsteadyAnalysis_ = i; };
+
+    /** Get the unsteady flag for the solvers  ... pass by value 
+    ... Cython doesn't support treating returned references as lvalues: https://cython. **/
+    
+    int GetUnsteadyAnalysis(void) { return DoUnsteadyAnalysis_; };
+        
     /** Number of mesh nodes **/
     
     int NumberOfNodes(void) { return Solver().VSPGeom().Grid(0).NumberOfNodes(); };
@@ -228,7 +249,15 @@ public:
     /** Number Of mesh loops **/
     
     int NumberOfLoops(void) { return Solver().VSPGeom().Grid(1).NumberOfLoops(); };
+
+    /** Total number of adjoint equations **/
     
+    int NumberOfAdjointEquations(void) { return Solver().NumberOfAdjointEquations(); };
+
+    /** Number of wake residual equations **/
+    
+    int NumberOfAdjointWakeResidualEquations(void) { return Solver().NumberOfAdjointWakeResidualEquations(); };  
+
     /** Update the geometry (mesh) **/
     
     void UpdateGeometry(double *NodeXYZ);
@@ -236,9 +265,16 @@ public:
     /** Set number of optimization functions.. ie, CL, CD, CT, SpanLoading **/
     
     int &NumberOfOptimizationFunctions(void) { return NumberOfOptimizationFunctions_; };
-    // Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values
-    int GetNumberOfOptimizationFunctions(void) { return NumberOfOptimizationFunctions_; };
+    
+    /** Set number of optimization functions.. ie, CL, CD, CT, SpanLoading ... pass by value
+    ...Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values */
+
     void SetNumberOfOptimizationFunctions(int n) { NumberOfOptimizationFunctions_ = n; };
+    
+    /** Get number of optimization functions.. ie, CL, CD, CT, SpanLoading ... pass by value
+    ...Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values */
+    
+    int GetNumberOfOptimizationFunctions(void) { return NumberOfOptimizationFunctions_; };    
  
     /** Set the Optimization function for case i
      * 
@@ -266,16 +302,32 @@ public:
      * OPT_WING_CZ:      Z component of spanwise wing load
      *
      **/
-             
+
     int &OptimizationFunction(int Case) { return OptimizationFunction_[Case]; };
-    // Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values
-    int GetOptimizationFunction(int Case) { return OptimizationFunction_[Case]; };
+
+    /** Set the Optimization function for case i ... pass by value 
+    ... Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values */
+    
     void SetOptimizationFunction(int Case, int Value) { OptimizationFunction_[Case] = Value; };
+      
+    /** Get the Optimization function for case i ... pass by value 
+    ... Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values */
+    
+    int GetOptimizationFunction(int Case) { return OptimizationFunction_[Case]; };
+
     /** Set the optimization set, this may be the wing set, or rotor set **/
     
     int &OptimizationSet(int Case) { return OptimizationSet_[Case]; };
-    int GetOptimizationSet(int Case) { return OptimizationSet_[Case]; };
+
+    /** Set the Optimization set for case i ... pass by value 
+    ... Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values */
+ 
     void SetOptimizationSet(int Case, int Value) { OptimizationSet_[Case] = Value; };
+
+    /** Get the Optimization set for case i ... pass by value 
+    ... Cython doesn't support treating returned references as lvalues: https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#c-left-values */
+    
+    int GetOptimizationSet(int Case) { return OptimizationSet_[Case]; };
         
     /** Get function length for optimization function # Case...  **/
     
@@ -324,6 +376,10 @@ public:
     /** Set roll rate about z axis **/
     
     void SetRotationalRate_r(double R);
+    
+    /** Set rotation rate, Omega, for group = Group **/
+    
+    void SetGroupOmegaRotationRate(int Group, double Omega);
     
     /** Set wing reference area **/
     
@@ -376,19 +432,19 @@ public:
     /** Set wake far distance ... this is the distance from the trailing edge that is in the adapted wake region **/
     
     void SetFarDist(double FarDist);
+    
+    /** Turn on Karman-Tsien compressibility correction ... this must be done after the call toe Setup() **/
+    
+    void TurnOnKarmanTsienCorrection(void);
 
+    /** Turn off Karman-Tsien compressibility correction **/
+    
+    void TurnOffKarmanTsienCorrection(void);
+    
     /** Set tolerance factor for GMRES solver, this scales the default residual reduction
      * ie... ResidualReduction = DefaultResidualReduction * User_GMRES_ToleranceFactor_**/
 
     void SetGMRESToleranceFactor(double tolFactor);
-    
-    /** Set the symmetry flag 
-     * N ~ no symmetry
-     * X ~ symmetry about X = 0
-     * Y ~ symmetry about Y = 0
-     * Z ~ symmetry about Z = 0
-     * 
-     **/
 
     /** Solve both the forward solve and adjoint problem **/
     
@@ -415,9 +471,45 @@ public:
     
     void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
     
+    /** Calculate the forward residual given a user supplied solution vector gammna **/
+    
+    void CalculateForwardResidual(double *Gamma, double *Residual);
+    
+    /** Update the optimization functions given a user supplied solution vector gammna **/
+    
+    void CalculateOptimizationFunctions(double *Gamma);
+    
+    /** Solve adjoint linear system with user supplied right hand side vector **/
+    
+    void SolveAdjointLinearSystem(double *Psi, double *RHS);
+   
+    /** Calculate partial derivatives of optimization case = Case wrt the mesh and the input variables **/
+    
+    void CalculateOptimizationFunctionPartials(int Case, double *pF_pMesh, double *pF_pInputVariable);
+    
+    /** Solve for the adjoint residual partial products given the vector Psi **/
+    
+    void CalculateAdjointResidualPartialProducts(double *Psi, double *pR_pMesh, double *pR_pInputVariable);
+     
+    /** Apply the forward matrix preconditioner **/
+    
+    void ApplyFowardMatrixPreconditioner(double *Vec) { Solver().ApplyMatrixPrecondition(Vec); };
+    
+    /** Apply the adjoint matrix preconditioner **/
+    
+    void ApplyAdjointMatrixPreconditioner(double *Vec) { Adjoint().ApplyMatrixPrecondition(Vec); };
+        
+    /** Get solution vector for the foward solve **/
+    
+    void GetForwardSolutionVector(double *Vec);
+
+    /** Get solution vector for the adjoint solve **/
+    
+    void GetAdjointSolutionVector(double *Vec);
+        
     /** Get the function value for a single case run, this returns a scalar in Vec **/
 
-    void GetFunctionValue(double &Vec);    
+    void GetFunctionValue(double &Vec);
 
     /** Get the function value for optimization run # Case, this returns a scalar in Vec **/
     
@@ -470,6 +562,8 @@ public:
     /** Z coordinate of node i **/
     
     double NodeZ(int i) { return Solver().VSPGeom().Grid(0).NodeList(i + ArrayOffSet_).z(); };
+
+// Total gradients
     
     /** Gradient of objective function wrt x for node i **/
 
@@ -507,6 +601,84 @@ public:
 
     double GradientZ(int Case, int Time, int i) { return Adjoint().dF_dMesh_Z(Case,Time,i + ArrayOffSet_); };
     
+// Partial gradients with respect to mesh
+    
+    /** Gradient of objective function wrt x for node i **/
+
+    double pGradient_wrtMeshX(int i) { return Adjoint().pF_pMesh_X(1,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function wrt y for node i **/
+    
+    double pGradient_wrtMeshY(int i) { return Adjoint().pF_pMesh_Y(1,i + ArrayOffSet_); };
+
+    /** Gradient of objective function wrt z for node i **/
+
+    double pGradient_wrtMeshZ(int i) { return Adjoint().pF_pMesh_Z(1,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt x for node i **/
+
+    double pGradient_wrtMeshX(int Case, int i) { return Adjoint().pF_pMesh_X(Case,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function # Case, wrt y for node i **/
+    
+    double pGradient_wrtMeshY(int Case, int i) { return Adjoint().pF_pMesh_Y(Case,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt z for node i **/
+
+    double pGradient_wrtMeshZ(int Case, int i) { return Adjoint().pF_pMesh_Z(Case,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt x for node i at averaging time, Time **/
+
+    double pGradient_wrtMeshX(int Case, int Time, int i) { return Adjoint().pF_pMesh_X(Case,Time,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function # Case, wrt y for node i at averaging time, Time **/
+    
+    double pGradient_wrtMeshY(int Case, int Time, int i) { return Adjoint().pF_pMesh_Y(Case,Time,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt z for node i at averaging time, Time **/
+
+    double pGradient_wrtMeshZ(int Case, int Time, int i) { return Adjoint().pF_pMesh_Z(Case,Time,i + ArrayOffSet_); };    
+    
+// Partial gradients with respect to residual - vector products
+    
+    /** Gradient of objective function wrt x for node i **/
+
+    double pGradient_wrtResdiualX(int i) { return Adjoint().pR_pMesh_X(1,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function wrt y for node i **/
+    
+    double pGradient_wrtResdiualY(int i) { return Adjoint().pR_pMesh_Y(1,i + ArrayOffSet_); };
+
+    /** Gradient of objective function wrt z for node i **/
+
+    double pGradient_wrtResdiualZ(int i) { return Adjoint().pR_pMesh_Z(1,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt x for node i **/
+
+    double pGradient_wrtResdiualX(int Case, int i) { return Adjoint().pR_pMesh_X(Case,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function # Case, wrt y for node i **/
+    
+    double pGradient_wrtResdiualY(int Case, int i) { return Adjoint().pR_pMesh_Y(Case,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt z for node i **/
+
+    double pGradient_wrtResdiualZ(int Case, int i) { return Adjoint().pR_pMesh_Z(Case,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt x for node i at averaging time, Time **/
+
+    double pGradient_wrtResdiualX(int Case, int Time, int i) { return Adjoint().pR_pMesh_X(Case,Time,i + ArrayOffSet_); };
+    
+    /** Gradient of objective function # Case, wrt y for node i at averaging time, Time **/
+    
+    double pGradient_wrtResdiualY(int Case, int Time, int i) { return Adjoint().pR_pMesh_Y(Case,Time,i + ArrayOffSet_); };
+
+    /** Gradient of objective function # Case, wrt z for node i at averaging time, Time **/
+
+    double pGradient_wrtResdiualZ(int Case, int Time, int i) { return Adjoint().pR_pMesh_Z(Case,Time,i + ArrayOffSet_); };    
+        
+// Total gradients with respect to input variables
+        
     /** Gradient of objective function wrt input variable **/
 
     double dF_dInputVariable(int InputVariable) { return Adjoint().dF_dInputVariable(InputVariable); };
@@ -520,9 +692,43 @@ public:
     double dF_dInputVariable(int Case, int Time, int InputVariable) { return Adjoint().dF_dInputVariable(Case,Time,InputVariable); };
         
     /** Get the pressures at the nodes of the mesh, returns a vector of length NumberOfNodes **/
+
+// Partial gradients with respect to input variables
+        
+    /** Gradient of objective function wrt input variable **/
+
+    double pF_dInputVariable(int InputVariable) { return Adjoint().pF_pInputVariable(InputVariable); };
+        
+    /** Gradient of objective function # Case, wrt input variable **/
+
+    double pF_dInputVariable(int Case, int InputVariable) { return Adjoint().pF_pInputVariable(Case,InputVariable); };
+    
+    /** Gradient of objective function # Case, wrt input variable at averaging time, Time **/
+
+    double pF_dInputVariable(int Case, int Time, int InputVariable) { return Adjoint().pF_pInputVariable(Case,Time,InputVariable); };
+        
+// Partial gradients with respect to residual - vector product
+        
+    /** Gradient of objective function wrt input variable **/
+
+    double pR_dInputVariable(int InputVariable) { return Adjoint().pR_pInputVariable(InputVariable); };
+        
+    /** Gradient of objective function # Case, wrt input variable **/
+
+    double pR_dInputVariable(int Case, int InputVariable) { return Adjoint().pR_pInputVariable(Case,InputVariable); };
+    
+    /** Gradient of objective function # Case, wrt input variable at averaging time, Time **/
+
+    double pR_dInputVariable(int Case, int Time, int InputVariable) { return Adjoint().pR_pInputVariable(Case,Time,InputVariable); };
+                
+    /** Get the pressures at the nodes of the mesh, returns a vector of length NumberOfNodes **/
     
     void GetNodalPressures(double *Pressure);
     
+    /** Get the spanwise chord and area distributions for wing = Wing **/
+    
+    void GetSpanWiseChordAndAreaForWing(int Wing, double *Chord, double *Area);
+        
     /** Calculate partial F wrt pressure for user supplied function F... both vectors are of length NumberOfNodes **/
     
     void GetpFupMesh(double *pFU_pP, double *pFU_pMesh);

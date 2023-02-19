@@ -594,8 +594,9 @@ void VSP_AGGLOM::InitializeFront_(void)
              Loop1 = FineGrid().EdgeList(j).Loop1();
              Loop2 = FineGrid().EdgeList(j).Loop2();
           
-             if ( ( Loop1 > 0 && FineGrid().LoopList(Loop1).SurfaceID() == i ) || ( Loop2 >0 && FineGrid().LoopList(Loop2).SurfaceID() == i ) ) {
-                
+             if ( ( Loop1 > 0 && FineGrid().LoopList(Loop1).SurfaceID() == i ) ||
+                  ( Loop2 > 0 && FineGrid().LoopList(Loop2).SurfaceID() == i  ) ) {
+
                 if ( EdgeIsOnFront_[j] == 0 ) {
                    
                    EdgeIsOnFront_[j] = BOUNDARY_EDGE_BC;
@@ -3224,9 +3225,13 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
                                     
                                     StackList[StackSize].Edge = Edge2;
                                     
+                                    Side = 0;
+                                    
                                     if ( CommonNode == Node1 ) Side = StackList[StackSize].Side[0] = StackList[StackSize].Side[1] = StackList[Next].Side[0];
                                     
                                     if ( CommonNode == Node2 ) Side = StackList[StackSize].Side[0] = StackList[StackSize].Side[1] = StackList[Next].Side[1];
+                                    
+                                    if ( Side == 0 ) { PRINTF("Error determining side in MergeCoLinearEdges_() ! \n");fflush(NULL); exit(1); };
                                     
                                     // Merge this edge in
                                
@@ -3629,6 +3634,8 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
     int NumberOfLoopsMerged, BestNeighborLoop;   
     VSPAERO_DOUBLE Angle, BestAngle;
 
+    Angle = 0.;
+    
     GoodQuadAngle_  = 100.*TORAD;
     WorstQuadAngle_ = 135.*TORAD;
        

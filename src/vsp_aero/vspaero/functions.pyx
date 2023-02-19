@@ -44,6 +44,7 @@ cdef extern from "Solver/OptimizationFunction.H":
     cdef int OPT_WING_CZ_VISCOUS
     cdef int OPT_ROTOR_CT_TOTAL
     cdef int OPT_ROTOR_CP_TOTAL
+    cdef int OPT_ROTOR_EFFICIENCY
     cdef int OPT_ROTOR_CT_INVISCID
     cdef int OPT_ROTOR_CP_INVISCID
     cdef int OPT_ROTOR_CT_VISCOUS
@@ -57,6 +58,7 @@ cdef extern from "Solver/OptimizationFunction.H":
     cdef int OPT_GRADIENT_WRT_P_RATE
     cdef int OPT_GRADIENT_WRT_Q_RATE
     cdef int OPT_GRADIENT_WRT_R_RATE
+
     cdef int OPT_GRADIENT_WRT_X_CG
     cdef int OPT_GRADIENT_WRT_Y_CG
     cdef int OPT_GRADIENT_WRT_Z_CG
@@ -118,6 +120,8 @@ WING_CZv = OPT_WING_CZ_VISCOUS
 
 ROTOR_CT = OPT_ROTOR_CT_TOTAL
 ROTOR_CP = OPT_ROTOR_CP_TOTAL
+
+ROTOR_ETA = OPT_ROTOR_EFFICIENCY
 
 CTi = OPT_ROTOR_CT_INVISCID
 CPi = OPT_ROTOR_CP_INVISCID

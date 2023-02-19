@@ -623,7 +623,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
     int i, j, k, n, DumInt, NumNodes, NumTris, Node1, Node2, Node3, SurfaceID, Done;
     int *SurfaceList, Found, CompID;
     int *SurfaceIsUsed, NumberOfVSPSurfaces;    
-    int NumKuttaNodeLists, NumKuttaNodes, NumNodesInList, *KuttaNodeList;
+    int NumKuttaNodeLists, NumKuttaNodes, NumNodesInList, *KuttaNodeList, *TempList;
     char DumChar[2000], Comma[2000], *Next;
     VSPAERO_DOUBLE x, y, z, u1, v1, u2, v2, u3, v3;
 
@@ -868,7 +868,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
           
           if ( SurfaceIsUsed[DumInt] ) {
 
-             PRINTF("Surface: %d exists in tringulation and has OpenVSP Name: %s \n",DumInt,DumChar);
+             PRINTF("Surface: %d exists in triangulation and has OpenVSP Name: %s \n",DumInt,DumChar);
              
              k++;
                           
@@ -887,6 +887,8 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
     }
 
     else {
+       
+       NumberOfVSPSurfaces = NumberOfSurfacePatches_;
        
        for ( n = 1 ; n <= NumberOfSurfacePatches_ ; n++ ) {
           
@@ -917,7 +919,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
              if ( VKEY_File != NULL ) {
                 
                 Grid().TriList(n).ComponentID() = ComponentIDForSurfacePatch_[Grid().TriList(n).SurfaceID()];
-                
+             
              }
              
              else {
@@ -943,7 +945,31 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
        }
        
     }
+    
+    // Renumber surface patch to componenent ID list 
+    
+    if ( VKEY_File != NULL ) {
+       
+       TempList = new int[NumberOfVSPSurfaces + 1];
+    
+       n = 0;
+       
+       for ( i = 1 ; i <= NumberOfVSPSurfaces ; i++ ) {
+          
+          if ( SurfaceIsUsed[i] ) {
+          
+             TempList[++n] = ComponentIDForSurfacePatch_[i];
+             
+          }
+          
+       }
+                    
+       delete [] ComponentIDForSurfacePatch_;
+                 
+       ComponentIDForSurfacePatch_ = TempList;
 
+    }
+    
     delete [] SurfaceList;
         
     // Do an RCM sort of the tris
@@ -962,7 +988,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
     
     // Now find sharp trailing edges
 
-    FindSharpEdges(NumKuttaNodes,KuttaNodeList);
+    if ( NumKuttaNodes > 0 ) FindSharpEdges(NumKuttaNodes,KuttaNodeList);
     
     delete [] KuttaNodeList;
 
@@ -1046,6 +1072,8 @@ void VSP_SURFACE::DoRCMSort(void)
     // Find left most tri in x
     
     XMin = 1.e9;
+    
+    iMin = 0;
     
     for ( i = 1 ; i <= Grid().NumberOfTris() ; i++ ) {
        
@@ -3106,6 +3134,14 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
     
     s_[0] = ArcLength[0] = ArcLength[1] = 0.;
  
+    VecQC_1[0] = 0.;
+    VecQC_1[1] = 0.;
+    VecQC_1[2] = 0.;
+
+    VecQC_2[0] = 0.;
+    VecQC_2[1] = 0.;
+    VecQC_2[2] = 0.;
+     
     for ( i = 1 ; i < NumPlateI_ ; i++ ) {
      
        j = 1;
@@ -3738,6 +3774,14 @@ void VSP_SURFACE::ReadBodyDataFromFile(char *Name, int Case, FILE *VSP_Degen_Fil
     
     s_[0] = ArcLength = 0.;
  
+    VecQC_1[0] = 0.;
+    VecQC_1[1] = 0.;
+    VecQC_1[2] = 0.;
+
+    VecQC_2[0] = 0.;
+    VecQC_2[1] = 0.;
+    VecQC_2[2] = 0.;
+    
     for ( i = 1 ; i < NumPlateI_ ; i++ ) {
      
        j = 1;
@@ -4654,7 +4698,15 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
     // FEM analysis was performed
     
     s_[0] = ArcLength[0] = ArcLength[1] = 0.;
- 
+
+    VecQC_1[0] = 0.;
+    VecQC_1[1] = 0.;
+    VecQC_1[2] = 0.;
+
+    VecQC_2[0] = 0.;
+    VecQC_2[1] = 0.;
+    VecQC_2[2] = 0.;
+    
     for ( i = 1 ; i < NumPlateI_ ; i++ ) {
      
        j = 1;
@@ -5237,6 +5289,14 @@ void VSP_SURFACE::CreateBodyTriMesh(int SurfaceID)
     // Calculate leading and trailing edges... these could be deformed if an
     // FEM analysis was performed
 
+    VecQC_1[0] = 0.;
+    VecQC_1[1] = 0.;
+    VecQC_1[2] = 0.;
+
+    VecQC_2[0] = 0.;
+    VecQC_2[1] = 0.;
+    VecQC_2[2] = 0.;
+    
     s_[1] = ArcLength = 0.;
  
     for ( i = 1 ; i < NumPlateI_ ; i++ ) {
