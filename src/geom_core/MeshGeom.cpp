@@ -2924,26 +2924,21 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
         res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes, "Names of removed meshes." ) );
         res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes, "Names of merged meshes." ) );
         res->Add( NameValData( "Mesh_GeomID", this->GetID(), "GeomID of MeshGeom created." ) );
-        res->Add( NameValData( "Num_Total_Meshes", ( int ) m_TMeshVec.size(), "Total number of meshes." ) );
+        res->Add( NameValData( "Num_Total_Meshes", ( int )m_TMeshVec.size(), "Number of starting meshes." ) );
 
         //==== Count Tris ====//
         for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
         {
             numTris += m_TMeshVec[ i ]->m_TVec.size();
         }
-        res->Add( NameValData( "Num_Total_Tris", numTris ));
+        res->Add( NameValData( "Num_Total_Tris", numTris, "Number of starting tris." ) );
+
     }
 
     //==== Augment ID with index to make symmetric copies unique. ====//
     for ( i = 0; i < ( int ) m_TMeshVec.size(); i++ )
     {
         m_TMeshVec[ i ]->m_OriginGeomID.append( std::to_string(( long long ) i ));
-    }
-
-    if ( !degen )
-    {
-        res->Add( NameValData( "Num_Total_Meshes", ( int )m_TMeshVec.size(), "Number of starting meshes." ) );
-        res->Add( NameValData( "Num_Total_Tris", numTris, "Number of starting tris." ) );
     }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
