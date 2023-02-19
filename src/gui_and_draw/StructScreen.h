@@ -117,6 +117,7 @@ private:
 
     //===== Structure Tab Items =====//
     TriggerButton m_WikiLinkButton;
+    Choice m_ModelUnitChoice;
     Choice m_StructUnitChoice;
     Choice m_GeomChoice;
     Choice m_SurfSel;

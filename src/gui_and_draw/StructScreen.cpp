@@ -109,10 +109,22 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
 
     m_StructureTabLayout.AddYGap();
 
-    m_StructureTabLayout.SetSameLineFlag( true );
-    m_StructureTabLayout.SetFitWidthFlag( false );
-    m_StructureTabLayout.SetChoiceButtonWidth( m_StructureTabLayout.GetRemainX() / 2 );
+    m_StructureTabLayout.AddDividerBox( "Units" );
+
+    m_StructureTabLayout.SetChoiceButtonWidth( m_StructureTabLayout.GetRemainX() * 0.65 );
     m_StructureTabLayout.SetSliderWidth( m_StructureTabLayout.GetRemainX() / 2 );
+
+    m_StructureTabLayout.SetSameLineFlag( false );
+    m_StructureTabLayout.SetFitWidthFlag( true );
+
+    m_ModelUnitChoice.AddItem( "MM", vsp::LEN_MM );
+    m_ModelUnitChoice.AddItem( "CM", vsp::LEN_CM );
+    m_ModelUnitChoice.AddItem( "M", vsp::LEN_M );
+    m_ModelUnitChoice.AddItem( "IN", vsp::LEN_IN );
+    m_ModelUnitChoice.AddItem( "FT", vsp::LEN_FT );
+    m_ModelUnitChoice.AddItem( "YD", vsp::LEN_YD );
+    m_ModelUnitChoice.AddItem( "Consistent", vsp::LEN_UNITLESS );
+    m_StructureTabLayout.AddChoice( m_ModelUnitChoice, "OpenVSP Model Unit System (Length)" );
 
     m_StructUnitChoice.AddItem( "SI (kg, m)" );
     m_StructUnitChoice.AddItem( "CGS (g, cm)" );
@@ -121,12 +133,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     string squared( 1, (char) 178 );
     string bin_name = "BIN (lbf sec" + squared + " \/ in, in)";
     m_StructUnitChoice.AddItem( bin_name );
-    m_StructureTabLayout.AddChoice( m_StructUnitChoice, "Unit System (Mass, Length)" );
+    m_StructureTabLayout.AddChoice( m_StructUnitChoice, "FEA Output Unit System (Mass, Length)" );
 
-    m_StructureTabLayout.SetSameLineFlag( false );
-    m_StructureTabLayout.SetFitWidthFlag( true );
-
-    m_StructureTabLayout.ForceNewLine();
     m_StructureTabLayout.AddYGap();
 
     m_StructureTabLayout.AddDividerBox( "Structure Selection" );
@@ -1979,6 +1987,7 @@ bool StructScreen::Update()
     {
         FeaStructDispGroup( NULL ); // Hide all initially
 
+        m_ModelUnitChoice.Update( veh->m_StructModelUnit.GetID() );
         m_StructUnitChoice.Update( veh->m_StructUnit.GetID() );
 
         //==== Update Unit Labels ====//
