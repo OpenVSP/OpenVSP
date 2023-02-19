@@ -824,7 +824,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_FeaBCCommonGroup.SetFitWidthFlag( true );
 
     m_FeaBCCommonGroup.AddYGap();
-    m_FeaBCCommonGroup.AddDividerBox( "Region" );
+    m_FeaBCCommonGroup.AddDividerBox( "Region (in FEM units)" );
 
     int bw = 50; // [X <=]  Slider button width
     int tw = 15; // Toggle button width

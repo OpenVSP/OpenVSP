@@ -108,7 +108,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SliceEditLayout.AddLabel( "Distance:", m_SliceEditLayout.GetRemainX() / 3 );
     m_SliceEditLayout.SetButtonWidth( m_SliceEditLayout.GetRemainX() / 2 );
     m_SliceEditLayout.AddButton( m_SlicePosRelToggle, "Relative" );
-    m_SliceEditLayout.AddButton( m_SlicePosAbsToggle, "Absolute" );
+    m_SliceEditLayout.AddButton( m_SlicePosAbsToggle, "Model" );
 
     m_SlicePosTypeToggleGroup.Init( this );
     m_SlicePosTypeToggleGroup.AddButton( m_SlicePosAbsToggle.GetFlButton() );
@@ -212,7 +212,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_RibEditLayout.AddLabel( "Distance:", m_RibEditLayout.GetRemainX() / 3 );
     m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 2 );
     m_RibEditLayout.AddButton( m_RibPosRelToggle, "Relative" );
-    m_RibEditLayout.AddButton( m_RibPosAbsToggle, "Absolute" );
+    m_RibEditLayout.AddButton( m_RibPosAbsToggle, "Model" );
 
     m_RibPosTypeToggleGroup.Init( this );
     m_RibPosTypeToggleGroup.AddButton( m_RibPosAbsToggle.GetFlButton() );
@@ -287,7 +287,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SparEditLayout.AddLabel( "Distance:", m_SparEditLayout.GetRemainX() / 3 );
     m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 2 );
     m_SparEditLayout.AddButton( m_SparPosRelToggle, "Relative" );
-    m_SparEditLayout.AddButton( m_SparPosAbsToggle, "Absolute" );
+    m_SparEditLayout.AddButton( m_SparPosAbsToggle, "Model" );
 
     m_SparPosTypeToggleGroup.Init( this );
     m_SparPosTypeToggleGroup.AddButton( m_SparPosAbsToggle.GetFlButton() );
@@ -513,7 +513,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_RibArrayEditLayout.AddLabel( "Distance:", m_RibArrayEditLayout.GetRemainX() / 3 );
     m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 2 );
     m_RibArrayEditLayout.AddButton( m_RibArrayPosRelToggle, "Relative" );
-    m_RibArrayEditLayout.AddButton( m_RibArrayPosAbsToggle, "Absolute" );
+    m_RibArrayEditLayout.AddButton( m_RibArrayPosAbsToggle, "Model" );
 
     m_RibArrayPosTypeToggleGroup.Init( this );
     m_RibArrayPosTypeToggleGroup.AddButton( m_RibArrayPosAbsToggle.GetFlButton() );
@@ -618,7 +618,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SliceArrayEditLayout.AddLabel( "Distance:", m_SliceArrayEditLayout.GetRemainX() / 3 );
     m_SliceArrayEditLayout.SetButtonWidth( m_SliceArrayEditLayout.GetRemainX() / 2 );
     m_SliceArrayEditLayout.AddButton( m_SliceArrayPosRelToggle, "Relative" );
-    m_SliceArrayEditLayout.AddButton( m_SliceArrayPosAbsToggle, "Absolute" );
+    m_SliceArrayEditLayout.AddButton( m_SliceArrayPosAbsToggle, "Model" );
 
     m_SliceArrayPosTypeToggleGroup.Init( this );
     m_SliceArrayPosTypeToggleGroup.AddButton( m_SliceArrayPosAbsToggle.GetFlButton() );
@@ -2271,7 +2271,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
 
     if ( veh )
     {
-        string mass_unit, dist_unit;
+        string mass_unit, dist_unit, model_dist_unit;
         string squared( 1, (char) 178 );
 
         switch ( veh->m_StructUnit() )
@@ -2302,14 +2302,45 @@ void FeaPartEditScreen::UpdateUnitLabels()
                 break;
         }
 
+        switch ( veh->m_StructModelUnit() )
+        {
+            case vsp::LEN_MM:
+                model_dist_unit = "mm";
+                break;
+
+            case vsp::LEN_CM:
+                model_dist_unit = "cm";
+                break;
+
+            case vsp::LEN_M:
+                model_dist_unit = "m";
+                break;
+
+            case vsp::LEN_IN:
+                model_dist_unit = "in";
+                break;
+
+            case vsp::LEN_FT:
+                model_dist_unit = "ft";
+                break;
+
+            case vsp::LEN_YD:
+                model_dist_unit = "yd";
+                break;
+
+            case vsp::LEN_UNITLESS:
+                model_dist_unit = "-";
+                break;
+        }
+
         m_FixPointMassUnit.GetFlButton()->copy_label( mass_unit.c_str() );
 
-        m_DomeARadUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_DomeBRadUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_DomeCRadUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_DomeXUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_DomeYUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_DomeZUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+        m_DomeARadUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+        m_DomeBRadUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+        m_DomeCRadUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+        m_DomeXUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+        m_DomeYUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+        m_DomeZUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
@@ -2322,15 +2353,15 @@ void FeaPartEditScreen::UpdateUnitLabels()
                 {
                     if ( feaprt->GetType() == vsp::FEA_SLICE || feaprt->GetType() == vsp::FEA_RIB || feaprt->GetType() == vsp::FEA_SPAR || feaprt->GetType() == vsp::FEA_RIB_ARRAY || feaprt->GetType() == vsp::FEA_SLICE_ARRAY ) // TODO: Switch to different check
                     {
-                        m_SlicePosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                        m_SparPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                        m_RibPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                        m_RibArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                        m_RibArrayEndLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                        m_RibArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                        m_SliceArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                        m_SliceArrayEndLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                        m_SliceArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        m_SlicePosUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+                        m_SparPosUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+                        m_RibPosUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+                        m_RibArrayStartLocUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+                        m_RibArrayEndLocUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+                        m_RibArrayPosUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+                        m_SliceArrayStartLocUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+                        m_SliceArrayEndLocUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+                        m_SliceArrayPosUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
 
                         if ( feaprt->m_AbsRelParmFlag() == vsp::ABS )
                         {
