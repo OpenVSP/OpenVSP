@@ -207,7 +207,7 @@ int VspGlWindow::handle( int fl_event )
         return 1;
 
     case FL_MOUSEWHEEL:
-        OnWheelScroll( dx, dy );
+        OnWheelScroll( dx, dy, x, y );
         return 1;
 
     case FL_MOVE:
@@ -2108,16 +2108,61 @@ int VspGlWindow::OnKeydown()
     return handled;
 }
 
-void VspGlWindow::OnWheelScroll(int dx, int dy )
+int VspGlWindow::OnWheelScroll( int dx, int dy, int x, int y )
 {
-    VSPGraphic::Display * display = m_GEngine->getDisplay();
+    int handled = 1;
 
-    display->zoom( dx * 0.5, dy * 0.5 );
+    float zoomChange = 1;
+    float zoomSpeed = 1.15; // size increase when zooming in
 
-    ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+    if ( dy > 0 ) // wheel pulled toward user
+    {
+        zoomChange = zoomSpeed;
+    }
+    else if ( dy < 0 ) // wheel pushed away from user
+    {
+        zoomChange = 1 / zoomSpeed;
+    }
 
-    viewScreen->UpdateZoom();
+    if ( zoomChange != 1 )
+    {
+        Viewport* viewport = m_GEngine->getDisplay()->getViewport();
+        float width = viewport->width() * pixels_per_unit();
+        float height = viewport->height() * pixels_per_unit();
+        int mx = x - viewport->x();
+        int my = y - viewport->y();
+
+        float zoom = getRelativeZoomValue();
+        glm::vec2 pan = getPanValues();
+
+        float mousePosBeforeX, mousePosBeforeY;
+        mousePosBeforeX = ( ( ( zoom * width ) * ( ( mx / width ) - 0.5 ) - pan.x ) );
+        mousePosBeforeY = ( ( ( zoom * height ) * ( ( my / height ) - 0.5 ) - pan.y ) );
+
+        relativeZoom( getRelativeZoomValue() * zoomChange );
+
+        zoom *= zoomChange;
+        pan *= zoomChange;
+
+        float mousePosAfterX, mousePosAfterY;
+        mousePosAfterX = ( ( ( zoom * width ) * ( ( mx / width ) - 0.5 ) - pan.x ) );
+        mousePosAfterY = ( ( ( zoom * height ) * ( ( my / height ) - 0.5 ) - pan.y )  );
+
+        // cancel out any effect the zoom had on pan position, so that the same location remains under the mouse
+        relativePan( pan.x + mousePosAfterX - mousePosBeforeX , pan.y + mousePosAfterY - mousePosBeforeY );
+
+        ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* > ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if ( viewScreen )
+        {
+            viewScreen->UpdateZoom();
+            viewScreen->UpdatePan();
+        }
+
+        redraw();
+    }
+
+    return handled;
 }
 
 void VspGlWindow::_sendFeedback( Selectable * selected )
