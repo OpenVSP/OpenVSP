@@ -1103,6 +1103,11 @@ void FeaPart::Update()
 
     UpdateSurface();
 
+    for ( int i = 0; i < m_MainFeaPartSurfVec.size(); i++ )
+    {
+        m_MainFeaPartSurfVec[i].InitUMapping();
+    }
+
     UpdateFlags();
 
     UpdateOrientation();
