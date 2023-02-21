@@ -2662,10 +2662,18 @@ void VspSurf::ParmReport()
 
 double VspSurf::InvertUMapping( double u ) const
 {
-    return m_UMapping.Invert( u );
+    if ( m_UMapMax >= 0 )
+    {
+        return m_UMapping.Invert( u );
+    }
+    return u;
 }
 
 double VspSurf::EvalUMapping( double u ) const
 {
-    return m_UMapping.CompPnt( u );
+    if ( m_UMapMax >= 0 )
+    {
+        return m_UMapping.CompPnt( u );
+    }
+    return u;
 }
