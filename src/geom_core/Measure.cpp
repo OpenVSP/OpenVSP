@@ -112,6 +112,10 @@ void Probe::Update()
                 double umapmax = surf->GetUMapMax();
                 double umax = surf->GetUMax();
                 double u = surf->InvertUMapping( m_OriginU() * umapmax ) / umax;
+                if ( u < 0 )
+                {
+                    u = m_OriginU();
+                }
 
                 pt = surf->CompPnt01( u, m_OriginW() );
                 norm = surf->CompNorm01( u, m_OriginW() );
@@ -275,6 +279,10 @@ void RSTProbe::Update()
                 double umapmax = surf->GetUMapMax();
                 double umax = surf->GetUMax();
                 double r = surf->InvertUMapping( m_OriginR() * umapmax ) / umax;
+                if ( r < 0 )
+                {
+                    r = m_OriginR();
+                }
 
                 pt = surf->CompPntRST( r, m_OriginS(), m_OriginT() );
                 norm = surf->CompNorm01( r, m_OriginS() );
@@ -416,7 +424,10 @@ void Ruler::Update()
                 double umapmax = osurf->GetUMapMax();
                 double umax = osurf->GetUMax();
                 double u = osurf->InvertUMapping( m_OriginU() * umapmax ) / umax;
-
+                if ( u < 0 )
+                {
+                    u = m_OriginU();
+                }
                 origin = osurf->CompPnt01( u, m_OriginW() );
             }
         }
@@ -431,7 +442,10 @@ void Ruler::Update()
                 double umapmax = esurf->GetUMapMax();
                 double umax = esurf->GetUMax();
                 double u = esurf->InvertUMapping( m_EndU() * umapmax ) / umax;
-
+                if ( u < 0 )
+                {
+                    u = m_EndU();
+                }
                 end = esurf->CompPnt01( u, m_EndW() );
             }
         }

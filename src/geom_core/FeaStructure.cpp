@@ -3454,6 +3454,10 @@ vector < vec3d > FeaFixPoint::GetPntVec()
             double umapmax = parent_surf_vec[i].GetUMapMax();
             double umax = parent_surf_vec[i].GetUMax();
             double u = parent_surf_vec[i].InvertUMapping( m_PosU() * umapmax ) / umax;
+            if ( u < 0 )
+            {
+                u = m_PosU();
+            }
 
             pnt_vec[i] = parent_surf_vec[i].CompPnt01( u, m_PosW() );
         }
@@ -3475,6 +3479,10 @@ vec2d FeaFixPoint::GetUW()
         {
             double umapmax = parent_surf_vec[0].GetUMapMax();
             double u = parent_surf_vec[0].InvertUMapping( m_PosU() * umapmax );
+            if ( u < 0 )
+            {
+                u = m_PosU();
+            }
 
             uw.set_x( u );
             uw.set_y( parent_surf_vec[0].GetWMax() * m_PosW() );
@@ -3530,6 +3538,11 @@ void FeaFixPoint::UpdateDrawObjs()
             double umapmax = parent_surf_vec[i].GetUMapMax();
             double umax = parent_surf_vec[i].GetUMax();
             double u = parent_surf_vec[i].InvertUMapping( m_PosU() * umapmax ) / umax;
+
+            if ( u < 0 )
+            {
+                u = m_PosU();
+            }
 
             vec3d fixpt = parent_surf_vec[i].CompPnt01( u, m_PosW() );
             m_FeaPartDO[i].m_PntVec.push_back( fixpt );
