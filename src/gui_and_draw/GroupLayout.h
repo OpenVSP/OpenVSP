@@ -93,7 +93,7 @@ public:
     void AddYGap()          { m_Y += m_GapHeight; }
 
     //==== Move to Beginning of Next Line (ignore SameLineFlag) ====//
-    void ForceNewLine();
+    void ForceNewLine( int dy = -1 );
 
     //==== Flag To Force GuiDevices to Fill Complete Line Width ====//
     void SetFitWidthFlag( bool f )      { m_FitWidthFlag = f; }

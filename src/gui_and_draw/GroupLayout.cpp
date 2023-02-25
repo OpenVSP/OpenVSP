@@ -116,10 +116,14 @@ void GroupLayout::NewLineX()
 }
 
 //==== Set X And Y For NewLine Ignore Flags ====//
-void GroupLayout::ForceNewLine()
+void GroupLayout::ForceNewLine( int dy )
 {
     m_X = m_Group->x();
-    m_Y += m_StdHeight;
+
+    if ( dy < 0 )
+        dy = m_StdHeight;
+
+    m_Y += dy;
 }
 
 //==== Add To Y Position ======//
