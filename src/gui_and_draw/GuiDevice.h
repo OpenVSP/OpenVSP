@@ -825,6 +825,7 @@ public:
     }
 
     void SetTextFont( Fl_Font font );
+    void SetType( int t );
 
 protected:
 

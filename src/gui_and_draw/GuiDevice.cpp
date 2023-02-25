@@ -2082,6 +2082,11 @@ void StringInput::SetTextFont( Fl_Font font )
     m_Input->textfont( font );
 }
 
+void StringInput::SetType( int t )
+{
+    m_Input->type( t );
+}
+
 //=====================================================================//
 //===========      String Output                            ===========//
 //=====================================================================//
