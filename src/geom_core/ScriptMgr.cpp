@@ -1433,6 +1433,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "LEN_UNITS", "LEN_UNITLESS", LEN_UNITLESS, "/*!< Unitless */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "LEN_UNITS", "NUM_LEN_UNIT", NUM_LEN_UNIT, "/*!< Number of length unit types */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum that describes units for mass. */";
 
@@ -1449,6 +1451,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "MASS_UNIT", "MASS_UNIT_SLUG", MASS_UNIT_SLUG, "/*!< Slug */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "MASS_UNIT", "MASS_LBFSEC2IN", MASS_LBFSEC2IN, "/*!< Pound-force-second squared per inch  */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MASS_UNIT", "NUM_MASS_UNIT", NUM_MASS_UNIT, "/*!< Number of mass unit types */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for OpenVSP's various Parm class types. */";
@@ -1525,6 +1529,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_MB", PRES_UNIT_MB, "/*!< Millibar */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_ATM", PRES_UNIT_ATM, "/*!< Atmosphere */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "NUM_PRES_UNIT", NUM_PRES_UNIT, "/*!< Number of pressure unit choices */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for Projected Area boundary option type. */";
@@ -1657,9 +1663,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_TONNE_MM3", RHO_UNIT_TONNE_MM3, "/*!< Tonne per cubic millimeter */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_LBF_FT3", RHO_UNIT_LBF_FT3, "/*!< Pound-force per cubic foot */" );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_LBM_FT3", RHO_UNIT_LBM_FT3, "/*!< Pound-mass per cubic foot */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_LBFSEC2_IN4", RHO_UNIT_LBFSEC2_IN4, "/*!< Pound-force-second squared per inch to the fourth */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_LBM_IN3", RHO_UNIT_LBM_IN3, "/*!< Pound-mass per cubic inch */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "NUM_RHO_UNIT", NUM_RHO_UNIT, "/*!< Number of density unit options */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for specifying named set types. */";
@@ -1780,6 +1790,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_F", TEMP_UNIT_F, "/*!< Fahrenheit  */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_R", TEMP_UNIT_R, "/*!< Rankine  */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TEMP_UNITS", "NUM_TEMP_UNIT", NUM_TEMP_UNIT, "/*!< Number of temperature unit choices  */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum that describes units for velocity. */";

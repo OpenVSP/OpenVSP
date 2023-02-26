@@ -409,8 +409,12 @@ double ConvertDensityToSLUG_FT3( double density, int cur_unit )
     case vsp::RHO_UNIT_SLUG_FT3:
         break;
 
-    case vsp::RHO_UNIT_LBF_FT3:
+    case vsp::RHO_UNIT_LBM_FT3:
         density /= 32.174;
+        break;
+
+    case vsp::RHO_UNIT_LBM_IN3:
+        density /= ( 32.174 / ( 12.0 * 12.0 * 12.0 ) );
         break;
 
     case vsp::RHO_UNIT_G_CM3:
@@ -439,8 +443,12 @@ double ConvertDensityFromSLUG_FT3( double density, int new_unit )
     case vsp::RHO_UNIT_SLUG_FT3:
         break;
 
-    case vsp::RHO_UNIT_LBF_FT3:
+    case vsp::RHO_UNIT_LBM_FT3:
         density *= 32.174;
+        break;
+
+    case vsp::RHO_UNIT_LBM_IN3:
+        density *= ( 32.174 / ( 12.0 * 12.0 * 12.0 ) );
         break;
 
     case vsp::RHO_UNIT_G_CM3:

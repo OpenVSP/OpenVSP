@@ -479,7 +479,8 @@ enum LEN_UNITS { LEN_MM,
                  LEN_IN,
                  LEN_FT,
                  LEN_YD,
-                 LEN_UNITLESS
+                 LEN_UNITLESS,
+                 NUM_LEN_UNIT
                };
 
 enum MASS_UNIT { MASS_UNIT_G = 0,
@@ -487,7 +488,8 @@ enum MASS_UNIT { MASS_UNIT_G = 0,
                  MASS_UNIT_TONNE,
                  MASS_UNIT_LBM,
                  MASS_UNIT_SLUG,
-                 MASS_LBFSEC2IN // lbf*sec^2/in
+                 MASS_LBFSEC2IN, // lbf*sec^2/in
+                 NUM_MASS_UNIT
                }; // Mass Units ENUM
 
 enum PARM_TYPE { PARM_DOUBLE_TYPE,
@@ -524,7 +526,8 @@ enum PRES_UNITS { PRES_UNIT_PSF = 0,
                   PRES_UNIT_MMHG,
                   PRES_UNIT_MMH20,
                   PRES_UNIT_MB,
-                  PRES_UNIT_ATM
+                  PRES_UNIT_ATM,
+                  NUM_PRES_UNIT
                 }; // Pres Units ENUM
 
 enum PROJ_BNDY_TYPE { NO_BOUNDARY,
@@ -587,8 +590,10 @@ enum RHO_UNITS { RHO_UNIT_SLUG_FT3 = 0,
                  RHO_UNIT_G_CM3,
                  RHO_UNIT_KG_M3,
                  RHO_UNIT_TONNE_MM3,
-                 RHO_UNIT_LBF_FT3,
-                 RHO_UNIT_LBFSEC2_IN4
+                 RHO_UNIT_LBM_FT3,
+                 RHO_UNIT_LBFSEC2_IN4,
+                 RHO_UNIT_LBM_IN3,
+                 NUM_RHO_UNIT
                }; // Rho Units ENUM
 
 enum SET_TYPE { SET_NONE = -1,
@@ -645,6 +650,7 @@ enum TEMP_UNITS { TEMP_UNIT_K = 0,
                   TEMP_UNIT_C,
                   TEMP_UNIT_F,
                   TEMP_UNIT_R,
+                  NUM_TEMP_UNIT
                 }; // Temp Units ENUM
 
 enum VEL_UNITS { V_UNIT_FT_S = 0,
