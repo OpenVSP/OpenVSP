@@ -674,6 +674,7 @@ void Vehicle::UpdateManagers()
     VSPAEROMgr.Update();
     WaveDragMgr.Update();
     ParasiteDragMgr.Update();
+    StructureMgr.Update();
     // MeasureMgr already updated in Update()
 }
 
