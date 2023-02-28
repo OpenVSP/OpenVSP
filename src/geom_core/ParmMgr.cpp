@@ -197,6 +197,9 @@ void ParmMgrSingleton::UnDo()
 // If oldID is already used by VSP (i.e. there are collisions), then newID will either
 // be set an optional suggestedID or randomly selected.
 //
+// Remapping is done in context of the last time ResetRemapID was called.  I.e. collisions
+// are when an ID already exists when Reset is called.
+//
 
 string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID )
 {
