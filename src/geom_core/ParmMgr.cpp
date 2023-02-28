@@ -218,7 +218,10 @@ string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID
     string newID;
 
     // Check for special cases of non random ID's
-    if( oldID.compare( "" ) == 0 || oldID.compare( "NONE" ) == 0 )
+    if( oldID.compare( "" ) == 0 ||
+        oldID.compare( "NONE" ) == 0 ||
+        oldID.substr( 0, 5 ) == "User_" ||         // User parameters.
+        oldID.substr( 0, 1 ) == "_" )              // Built-in FEA materials.
     {
         return oldID;
     }
