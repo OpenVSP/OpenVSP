@@ -10,6 +10,7 @@
 #include <deque>
 #include <map>
 #include <algorithm>
+#include <limits>
 using std::vector;
 using std::deque;
 
