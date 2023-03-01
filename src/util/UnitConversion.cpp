@@ -235,48 +235,42 @@ double ConvertTemperature( double temp, int cur_unit, int new_unit )
 //=======================================//
 //==== Thermal Expansion Coefficient ====//
 //=======================================//
-double ConvertThermalExpanCoeffToMetric( double temp, int cur_unit )
+double ConvertThermalExpanCoeffToPerK( double temp, int cur_unit )
 {
     switch ( cur_unit )
     {
-    case vsp::SI_UNIT:
+    case vsp::TEMP_UNIT_K:
         break;
 
-    case vsp::CGS_UNIT:
+    case vsp::TEMP_UNIT_C:
         break;
 
-    case vsp::MPA_UNIT:
-    break;
-
-    case vsp::BFT_UNIT:
+    case vsp::TEMP_UNIT_F:
         temp *= ( 9.0 / 5.0 );
         break;
 
-    case vsp::BIN_UNIT:
+    case vsp::TEMP_UNIT_R:
         temp *= ( 9.0 / 5.0 );
         break;
     }
     return temp;
 }
 
-double ConvertThermalExpanCoeffFromMetric( double temp, int new_unit )
+double ConvertThermalExpanCoeffFromPerK( double temp, int new_unit )
 {
     switch ( new_unit )
     {
-    case vsp::SI_UNIT:
+    case vsp::TEMP_UNIT_K:
     break;
 
-    case vsp::CGS_UNIT:
+    case vsp::TEMP_UNIT_C:
     break;
 
-    case vsp::MPA_UNIT:
-    break;
-
-    case vsp::BFT_UNIT:
+    case vsp::TEMP_UNIT_F:
     temp *= ( 5.0 / 9.0 );
     break;
 
-    case vsp::BIN_UNIT:
+    case vsp::TEMP_UNIT_R:
     temp *= ( 5.0 / 9.0 );
     break;
     }
@@ -285,8 +279,8 @@ double ConvertThermalExpanCoeffFromMetric( double temp, int new_unit )
 
 double ConvertThermalExpanCoeff( double temp, int cur_unit, int new_unit )
 {
-    double temp_metric = ConvertThermalExpanCoeffToMetric( temp, cur_unit );
-    return ConvertThermalExpanCoeffFromMetric( temp_metric, new_unit );
+    double temp_metric = ConvertThermalExpanCoeffToPerK( temp, cur_unit );
+    return ConvertThermalExpanCoeffFromPerK( temp_metric, new_unit );
 }
 
 

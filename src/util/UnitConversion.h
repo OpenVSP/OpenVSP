@@ -31,8 +31,8 @@ double ConvertTemperatureFromK( double temp, int new_unit );
 double ConvertTemperature( double temp, int cur_unit, int new_unit );
 
 // Thermal Expansion Coefficient
-double ConvertThermalExpanCoeffToMetric( double temp, int cur_unit );
-double ConvertThermalExpanCoeffFromMetric( double temp, int new_unit );
+double ConvertThermalExpanCoeffToPerK( double temp, int cur_unit );
+double ConvertThermalExpanCoeffFromPerK( double temp, int new_unit );
 double ConvertThermalExpanCoeff( double temp, int cur_unit, int new_unit );
 
 // Pressure
