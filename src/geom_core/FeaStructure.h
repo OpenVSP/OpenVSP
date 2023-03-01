@@ -117,9 +117,6 @@ public:
         m_FeaSubSurfVec.push_back( sub_surf );
     }
 
-    int GetFeaPropertyIndex( int fea_part_ind );
-    int GetCapFeaPropertyIndex( int fea_part_ind );
-
     string GetParentGeomID()
     {
         return m_ParentGeomID;
@@ -259,15 +256,14 @@ public:
     }
     virtual void DeleteFeaPartSurf( int ind );
 
-    virtual int GetFeaMaterialIndex();
-    virtual void SetFeaMaterialIndex( int index );
-
     VspSurf* GetMainSurf();
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 
     int m_MainSurfIndx;
-    IntParm m_IncludedElements;
+    IntParm m_IncludedElements; // Deprecated
+    BoolParm m_CreateBeamElements;
+    IntParm m_KeepDelShellElements;
     BoolParm m_DrawFeaPartFlag;
     IntParm m_AbsRelParmFlag;
     Parm m_AbsCenterLocation;
@@ -275,6 +271,9 @@ public:
     IntParm m_FeaPropertyIndex;
     IntParm m_CapFeaPropertyIndex;
     IntParm m_OrientationType;
+
+    string m_FeaPropertyID;
+    string m_CapFeaPropertyID;
 
 protected:
 
@@ -423,6 +422,10 @@ public:
     Parm m_PosW;
     BoolParm m_FixPointMassFlag;
     Parm m_FixPointMass;
+
+    IntParm m_MassUnit;
+
+    Parm m_FixPointMass_FEM;
 
     string m_ParentFeaPartID; // Parent FeaPart ID (FeaFixPoint is located on this surface)
 
@@ -617,6 +620,8 @@ public:
     FeaProperty();
     virtual ~FeaProperty();
 
+    virtual void Update();
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -624,6 +629,10 @@ public:
     string GetXSecName();
 
     IntParm m_FeaPropertyType;
+
+    // Units used to specify materials.
+    IntParm m_LengthUnit;
+
     Parm m_Thickness;
     Parm m_CrossSecArea;
     Parm m_Izz;
@@ -638,6 +647,21 @@ public:
     Parm m_Dim6;
     IntParm m_CrossSectType;
     IntParm m_FeaMaterialIndex;
+    string m_FeaMaterialID;
+
+
+    Parm m_Thickness_FEM;
+    Parm m_CrossSecArea_FEM;
+    Parm m_Izz_FEM;
+    Parm m_Iyy_FEM;
+    Parm m_Izy_FEM;
+    Parm m_Ixx_FEM;
+    Parm m_Dim1_FEM;
+    Parm m_Dim2_FEM;
+    Parm m_Dim3_FEM;
+    Parm m_Dim4_FEM;
+    Parm m_Dim5_FEM;
+    Parm m_Dim6_FEM;
 
 protected:
 
@@ -656,12 +680,22 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void MakeMaterial( string id );
+
     double GetShearModulus();
+    double GetShearModulus_FEM();
 
     Parm m_MassDensity;
     Parm m_ElasticModulus;
     Parm m_PoissonRatio;
     Parm m_ThermalExpanCoeff;
+
+    // Units used to specify materials.
+    IntParm m_DensityUnit;
+    IntParm m_ModulusUnit;
+    IntParm m_TemperatureUnit;
+
+    string m_Description;
 
     bool m_UserFeaMaterial;
 
@@ -680,6 +714,21 @@ public:
     Parm m_A1;
     Parm m_A2;
     Parm m_A3;
+
+    // In FEM output units.
+    Parm m_MassDensity_FEM;
+    Parm m_ElasticModulus_FEM;
+    Parm m_ThermalExpanCoeff_FEM;
+
+    Parm m_E1_FEM;
+    Parm m_E2_FEM;
+    Parm m_E3_FEM;
+    Parm m_G12_FEM;
+    Parm m_G13_FEM;
+    Parm m_G23_FEM;
+    Parm m_A1_FEM;
+    Parm m_A2_FEM;
+    Parm m_A3_FEM;
 
 };
 

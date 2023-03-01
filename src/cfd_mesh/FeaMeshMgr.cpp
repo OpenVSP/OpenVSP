@@ -250,6 +250,13 @@ void FeaMeshMgrSingleton::GetMassUnit()
 
 void FeaMeshMgrSingleton::TransferFeaData()
 {
+
+    vector < string > prop_id_vec( m_SimplePropertyVec.size() );
+    for ( int i = 0; i < m_SimplePropertyVec.size(); i++ )
+    {
+        prop_id_vec[i] = m_SimplePropertyVec[i].m_ID;
+    }
+
     // Transfer FeaPart Data
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
 
@@ -260,9 +267,12 @@ void FeaMeshMgrSingleton::TransferFeaData()
         GetMeshPtr()->m_FeaPartIDVec.resize( GetMeshPtr()->m_NumFeaParts );
         GetMeshPtr()->m_FeaPartTypeVec.resize( GetMeshPtr()->m_NumFeaParts );
         GetMeshPtr()->m_FeaPartNumSurfVec.resize( GetMeshPtr()->m_NumFeaParts );
-        GetMeshPtr()->m_FeaPartIncludedElementsVec.resize( GetMeshPtr()->m_NumFeaParts );
+        GetMeshPtr()->m_FeaPartKeepDelShellElementsVec.resize( GetMeshPtr()->m_NumFeaParts );
+        GetMeshPtr()->m_FeaPartCreateBeamElementsVec.resize( GetMeshPtr()->m_NumFeaParts );
         GetMeshPtr()->m_FeaPartPropertyIndexVec.resize( GetMeshPtr()->m_NumFeaParts );
         GetMeshPtr()->m_FeaPartCapPropertyIndexVec.resize( GetMeshPtr()->m_NumFeaParts );
+        GetMeshPtr()->m_FeaPartPropertyIDVec.resize( GetMeshPtr()->m_NumFeaParts );
+        GetMeshPtr()->m_FeaPartCapPropertyIDVec.resize( GetMeshPtr()->m_NumFeaParts );
 
         for ( size_t i = 0; i < fea_part_vec.size(); i++ )
         {
@@ -270,39 +280,53 @@ void FeaMeshMgrSingleton::TransferFeaData()
             GetMeshPtr()->m_FeaPartIDVec[i] = fea_part_vec[i]->GetID();
             GetMeshPtr()->m_FeaPartTypeVec[i] = fea_part_vec[i]->GetType();
             GetMeshPtr()->m_FeaPartNumSurfVec[i] = fea_part_vec[i]->NumFeaPartSurfs();
-            GetMeshPtr()->m_FeaPartIncludedElementsVec[i] = fea_part_vec[i]->m_IncludedElements.Get();
-            GetMeshPtr()->m_FeaPartPropertyIndexVec[i] = fea_part_vec[i]->m_FeaPropertyIndex();
-            GetMeshPtr()->m_FeaPartCapPropertyIndexVec[i] = fea_part_vec[i]->m_CapFeaPropertyIndex();
+            GetMeshPtr()->m_FeaPartKeepDelShellElementsVec[i] = fea_part_vec[i]->m_KeepDelShellElements();
+            GetMeshPtr()->m_FeaPartCreateBeamElementsVec[i] = fea_part_vec[i]->m_CreateBeamElements();
+            GetMeshPtr()->m_FeaPartPropertyIndexVec[i] = vector_find_val( prop_id_vec, fea_part_vec[i]->m_FeaPropertyID );
+            GetMeshPtr()->m_FeaPartCapPropertyIndexVec[i] = vector_find_val( prop_id_vec, fea_part_vec[i]->m_CapFeaPropertyID );
+            GetMeshPtr()->m_FeaPartPropertyIDVec[i] = fea_part_vec[i]->m_FeaPropertyID;
+            GetMeshPtr()->m_FeaPartCapPropertyIDVec[i] = fea_part_vec[i]->m_CapFeaPropertyID;
         }
     }
 }
 
 void FeaMeshMgrSingleton::TransferPropMatData()
 {
+    // Transfer FeaMaterial Data
+    vector < FeaMaterial* > fea_mat_vec = StructureMgr.GetFeaMaterialVec();
+    m_SimpleMaterialVec.resize( fea_mat_vec.size() );
+    vector < string > mat_id_vec( fea_mat_vec.size() );
+
+    for ( size_t i = 0; i < fea_mat_vec.size(); i++ )
+    {
+        fea_mat_vec[i]->Update();
+        m_SimpleMaterialVec[i] = SimpleFeaMaterial();
+        m_SimpleMaterialVec[i].CopyFrom( fea_mat_vec[i] );
+        mat_id_vec[i] = fea_mat_vec[i]->GetID();
+    }
+
     // Transfer FeaProperty Data
     vector < FeaProperty* > fea_prop_vec = StructureMgr.GetFeaPropertyVec();
     m_SimplePropertyVec.resize( fea_prop_vec.size() );
 
     for ( size_t i = 0; i < fea_prop_vec.size(); i++ )
     {
+        fea_prop_vec[i]->Update();
         m_SimplePropertyVec[i] = SimpleFeaProperty();
-        m_SimplePropertyVec[i].CopyFrom( fea_prop_vec[i] );
+        m_SimplePropertyVec[i].CopyFrom( fea_prop_vec[i], mat_id_vec );
     }
 
-    // Transfer FeaMaterial Data
-    vector < FeaMaterial* > fea_mat_vec = StructureMgr.GetFeaMaterialVec();
-    m_SimpleMaterialVec.resize( fea_mat_vec.size() );
-
-    for ( size_t i = 0; i < fea_mat_vec.size(); i++ )
-    {
-        m_SimpleMaterialVec[i] = SimpleFeaMaterial();
-        m_SimpleMaterialVec[i].CopyFrom( fea_mat_vec[i] );
-    }
 }
 
 void FeaMeshMgrSingleton::TransferSubSurfData()
 {
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaStructID );
+
+    vector < string > prop_id_vec( m_SimplePropertyVec.size() );
+    for ( int i = 0; i < m_SimplePropertyVec.size(); i++ )
+    {
+        prop_id_vec[i] = m_SimplePropertyVec[i].m_ID;
+    }
 
     if ( fea_struct )
     {
@@ -312,7 +336,7 @@ void FeaMeshMgrSingleton::TransferSubSurfData()
         for ( size_t i = 0; i < fea_ss_vec.size(); i++ )
         {
             m_SimpleSubSurfaceVec[i] = SimpleSubSurface();
-            m_SimpleSubSurfaceVec[i].CopyFrom( fea_ss_vec[i] );
+            m_SimpleSubSurfaceVec[ i ].CopyFrom( fea_ss_vec[ i ], prop_id_vec );
         }
     }
 
@@ -339,6 +363,62 @@ void FeaMeshMgrSingleton::TransferBCData()
             GetMeshPtr()->m_BCVec[i].CopyFrom( bc_vec[i] );
         }
     }
+}
+
+bool FeaMeshMgrSingleton::CheckPropMat()
+{
+    bool pass = true;
+
+    for ( size_t i = 0; i < m_SimplePropertyVec.size(); i++ )
+    {
+        if ( m_SimplePropertyVec[ i ].GetSimpFeaMatIndex() == -1 )
+        {
+            pass = false;
+        }
+    }
+
+    for ( size_t i = 0; i < m_SimpleSubSurfaceVec.size(); i++ )
+    {
+        if ( m_SimpleSubSurfaceVec[ i ].m_CreateBeamElements )
+        {
+            if ( m_SimpleSubSurfaceVec[ i ].GetFeaPropertyIndex() == -1 )
+            {
+                pass = false;
+            }
+        }
+
+        if ( m_SimpleSubSurfaceVec[ i ].m_KeepDelShellElements == vsp::FEA_KEEP )
+        {
+            if ( m_SimpleSubSurfaceVec[ i ].GetCapFeaPropertyIndex() == -1 )
+            {
+                pass = false;
+            }
+        }
+    }
+
+    for ( size_t i = 0; i < GetMeshPtr()->m_FeaPartPropertyIndexVec.size(); i++ )
+    {
+        if ( GetMeshPtr()->m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
+        {
+            if ( GetMeshPtr()->m_FeaPartPropertyIndexVec[ i ] == -1 )
+            {
+                pass = false;
+            }
+        }
+    }
+
+    for ( size_t i = 0; i < GetMeshPtr()->m_FeaPartCapPropertyIndexVec.size(); i++ )
+    {
+        if ( GetMeshPtr()->m_FeaPartCreateBeamElementsVec[i] )
+        {
+            if ( GetMeshPtr()->m_FeaPartCapPropertyIndexVec[ i ] == -1 )
+            {
+                pass = false;
+            }
+        }
+    }
+
+    return pass;
 }
 
 void FeaMeshMgrSingleton::GenerateFeaMesh()
@@ -371,11 +451,25 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     GetMassUnit();
 
+    // Transfer common property and material data to FeaMeshMgr.
+    // This is repeated in ExportAssemblyMesh() and ExportFeaMesh().
+    // Part-property associations can not change, but material thicknesses and dimensions can.
+    // This allows some level of structural redesign without regenerating a mesh.
+    TransferPropMatData();
+
     addOutputText( "Transfer FEA Data\n" );
     TransferFeaData();
 
     addOutputText( "Transfer Subsurf Data\n" );
     TransferSubSurfData();
+
+    if ( !CheckPropMat() )
+    {
+        addOutputText( "Material or property not identified.\n" );
+        m_FeaMeshInProgress = false;
+        MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+        return;
+    }
 
     // Needs to be after TransferSubSurfData so SubSurf BC's can be indexed.
     // Needs to be after TransferFeaData() so FeaParts can be indexed.
@@ -773,7 +867,16 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
 
                 fxpt.m_FeaPartIndex = i;
                 fxpt.m_PtMassFlag = fixpnt->m_FixPointMassFlag.Get();
-                fxpt.m_PtMass = fixpnt->m_FixPointMass.Get();
+                if ( fxpt.m_PtMassFlag )
+                {
+                    fxpt.m_PtMass = fixpnt->m_FixPointMass_FEM.Get();
+                }
+                else
+                {
+                    // The flag should ensure this value is ignored, but there is no harm in zeroing
+                    // it out just in case.
+                    fxpt.m_PtMass = 0.0;
+                }
                 fxpt.m_UW = uw;
                 // Initialize node vector to -1.  Set in TagFeaNodes
                 fxpt.m_NodeIndex.resize( pnt_vec.size(), -1 );
@@ -1048,8 +1151,8 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         if ( !( *c )->m_BorderFlag ) // Only include intersection curves
         {
             // Check at least one surface intersection cap flag is true
-            int FeaPartCapA = GetMeshPtr()->m_FeaPartIncludedElementsVec[( *c )->m_SurfA->GetFeaPartIndex()];
-            int FeaPartCapB = GetMeshPtr()->m_FeaPartIncludedElementsVec[( *c )->m_SurfB->GetFeaPartIndex()];
+            bool BeamElementsA = GetMeshPtr()->m_FeaPartCreateBeamElementsVec[( *c )->m_SurfA->GetFeaPartIndex()];
+            bool BeamElementsB = GetMeshPtr()->m_FeaPartCreateBeamElementsVec[( *c )->m_SurfB->GetFeaPartIndex()];
 
             vector < vec3d > ipntVec, inormVec;
             vector < vec2d > iuwVec;
@@ -1058,17 +1161,17 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             int FeaPartIndex = -1;
 
             // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)
-            if ( ( ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) || ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) ) &&
+            if ( ( BeamElementsA || BeamElementsB ) &&
                 ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
             {
                 vec3d center;
 
-                if ( ( *c )->m_SurfA->GetCompID() < 0 && ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) )
+                if ( ( *c )->m_SurfA->GetCompID() < 0 && BeamElementsA )
                 {
                     FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
                     center = ( *c )->m_SurfA->GetBBox().GetCenter();
                 }
-                else if ( ( *c )->m_SurfB->GetCompID() < 0 && ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) )
+                else if ( ( *c )->m_SurfB->GetCompID() < 0 && BeamElementsB )
                 {
                     FeaPartIndex = ( *c )->m_SurfB->GetFeaPartIndex();
                     center = ( *c )->m_SurfB->GetBBox().GetCenter();
@@ -2472,7 +2575,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
         {
             string name = GetMeshPtr()->m_StructName + ":  " + GetMeshPtr()->m_FeaPartNameVec[i];
 
-            if ( GetMeshPtr()->m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || GetMeshPtr()->m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
+            if ( GetMeshPtr()->m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
             {
                 GetMeshPtr()->m_DrawBrowserNameVec.push_back( name );
                 GetMeshPtr()->m_DrawBrowserPartIndexVec.push_back( i );
@@ -2482,7 +2585,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
 
             GetMeshPtr()->m_DrawElementFlagVec.push_back( true );
 
-            if ( GetMeshPtr()->m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || GetMeshPtr()->m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
+            if ( GetMeshPtr()->m_FeaPartCreateBeamElementsVec[i] )
             {
                 name += "_CAP";
                 GetMeshPtr()->m_DrawBrowserNameVec.push_back( name );

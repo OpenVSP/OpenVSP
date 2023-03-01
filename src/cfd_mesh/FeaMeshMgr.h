@@ -103,6 +103,7 @@ public:
     virtual void TransferFeaData();
     virtual void TransferPropMatData();
     virtual void TransferSubSurfData();
+    virtual bool CheckPropMat();
     virtual void TransferBCData();
     virtual void MergeCoplanarParts();
     virtual void AddStructureSurfParts();

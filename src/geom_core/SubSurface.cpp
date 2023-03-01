@@ -65,16 +65,16 @@ SubSurface::SubSurface( const string& compID, int type )
     m_CreateBeamElements.Init( "CreateBeamElements","SubSurface", this, false, false, true );
     m_CreateBeamElements.SetDescript( "Flag to indicate whether to create beam elements for this subsurface" );
 
-    m_KeepDelShellElements.Init( "KeepDelShellElements", "SubSurface", this, vsp::FEA_KEEP, vsp::FEA_KEEP, vsp::FEA_NUM_SHELL_SUBSURF_TYPES - 1 );
+    m_KeepDelShellElements.Init( "KeepDelShellElements", "SubSurface", this, vsp::FEA_KEEP, vsp::FEA_KEEP, vsp::FEA_NUM_SHELL_TREATMENT_TYPES - 1 );
     m_KeepDelShellElements.SetDescript( "Indicates whether to keep or delete shell elements from this subsurface" );
 
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaSubSurface", this, true, false, true );
     m_DrawFeaPartFlag.SetDescript( "Flag to Draw FEA SubSurface" );
 
-    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaSubSurface", this, 0, 0, 1e12 ); // Shell property default
+    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaSubSurface", this, -1, -1, 1e12 ); // Shell property default
     m_FeaPropertyIndex.SetDescript( "FeaPropertyIndex for Shell Elements" );
 
-    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaSubSurface", this, 1, 0, 1e12 ); // Beam property default
+    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaSubSurface", this, -1, -1, 1e12 ); // Beam property default
     m_CapFeaPropertyIndex.SetDescript( "FeaPropertyIndex for Beam (Cap) Elements" );
 
     m_FeaOrientationType.Init( "Orientation", "FeaSubSurface", this, vsp::FEA_ORIENT_PART_U, vsp::FEA_ORIENT_GLOBAL_X, vsp::FEA_NUM_ORIENT_TYPES - 1 );
@@ -212,7 +212,7 @@ void SubSurface::Update()
         else if ( m_IncludedElements() == vsp::FEA_BEAM )
         {
             m_CreateBeamElements.Set( true );
-            m_KeepDelShellElements.Set( vsp::FEA_KEEP );
+            m_KeepDelShellElements.Set( vsp::FEA_DELETE );
             m_TestType.Set( vsp::NONE );
         }
         else if ( m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
@@ -224,6 +224,43 @@ void SubSurface::Update()
         m_IncludedElements.Set( vsp::FEA_DEPRECATED );
     }
 
+    if ( m_KeepDelShellElements() == vsp::FEA_KEEP )
+    {
+        if ( m_FeaPropertyIndex() != -1 )
+        {
+            vector < FeaProperty* > prop_vec = StructureMgr.GetFeaPropertyVec();
+            if ( m_FeaPropertyIndex() < prop_vec.size() )
+            {
+                m_FeaPropertyID = prop_vec[ m_FeaPropertyIndex() ]->GetID();
+                m_FeaPropertyIndex = -1;
+            }
+        }
+
+        FeaProperty *shell_prop = StructureMgr.GetFeaProperty( m_FeaPropertyID );
+        if ( !shell_prop )
+        {
+            m_FeaPropertyID = StructureMgr.GetSomeShellProperty();
+        }
+    }
+
+    if ( m_CreateBeamElements() )
+    {
+        if ( m_CapFeaPropertyIndex() != -1 )
+        {
+            vector < FeaProperty* > prop_vec = StructureMgr.GetFeaPropertyVec();
+            if ( m_CapFeaPropertyIndex() < prop_vec.size() )
+            {
+                m_CapFeaPropertyID = prop_vec[ m_CapFeaPropertyIndex() ]->GetID();
+                m_CapFeaPropertyIndex = -1;
+            }
+        }
+
+        FeaProperty *cap_prop = StructureMgr.GetFeaProperty( m_CapFeaPropertyID );
+        if ( !cap_prop )
+        {
+            m_CapFeaPropertyID = StructureMgr.GetSomeBeamProperty();
+        }
+    }
 
     UpdateOrientation();
 
@@ -351,7 +388,6 @@ std::string SubSurface::GetTypeName( int type )
     return string( "NONE" );
 }
 
-
 // Encode Data into XML file
 xmlNodePtr SubSurface::EncodeXml( xmlNodePtr & node )
 {
@@ -360,7 +396,23 @@ xmlNodePtr SubSurface::EncodeXml( xmlNodePtr & node )
     xmlNodePtr ss_info = xmlNewChild( node, NULL, BAD_CAST "SubSurfaceInfo", NULL );
     XmlUtil::AddIntNode( ss_info, "Type", m_Type );
 
+    XmlUtil::AddStringNode( node, "FeaPropertyID", m_FeaPropertyID );
+    XmlUtil::AddStringNode( node, "CapFeaPropertyID", m_CapFeaPropertyID );
+
     return ss_info;
+}
+
+xmlNodePtr SubSurface::DecodeXml( xmlNodePtr & node )
+{
+    ParmContainer::DecodeXml( node );
+
+    if ( node )
+    {
+        m_FeaPropertyID = ParmMgr.RemapID( XmlUtil::FindString( node, "FeaPropertyID", m_FeaPropertyID ) );
+        m_CapFeaPropertyID = ParmMgr.RemapID( XmlUtil::FindString( node, "CapFeaPropertyID", m_CapFeaPropertyID ) );
+    }
+
+    return node;
 }
 
 bool SubSurface::Subtag( const vec3d & center )
@@ -392,20 +444,6 @@ bool SubSurface::Subtag( const vec3d & center )
     }
 
     return false;
-}
-
-int SubSurface::GetFeaMaterialIndex()
-{
-    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
-
-    return fea_prop->m_FeaMaterialIndex();
-}
-
-void SubSurface::SetFeaMaterialIndex( int index )
-{
-    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
-
-    fea_prop->m_FeaMaterialIndex.Set( index );
 }
 
 //==================================//
@@ -2329,6 +2367,8 @@ SSLine* SSLineArray::AddSSLine( double location, int ind )
         ssline->m_TestType.Set( m_TestType() );
         ssline->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         ssline->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
+        ssline->m_FeaPropertyID = m_FeaPropertyID;
+        ssline->m_CapFeaPropertyID = m_CapFeaPropertyID;
 
         ssline->SetName( string( m_Name + "_SSLine_" + std::to_string( ind ) ) );
 

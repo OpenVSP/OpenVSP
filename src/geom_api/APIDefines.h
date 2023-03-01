@@ -374,10 +374,10 @@ enum FEA_PART_ELEMENT_TYPE { FEA_DEPRECATED = -1,
                              FEA_NUM_ELEMENT_TYPES
                            };
 
-enum FEA_SHELL_SUBSURF_TYPE { FEA_KEEP = 0,
-                              FEA_DELETE,
-                              FEA_NUM_SHELL_SUBSURF_TYPES
-                            };
+enum FEA_SHELL_TREATMENT_TYPE { FEA_KEEP = 0,
+                                FEA_DELETE,
+                                FEA_NUM_SHELL_TREATMENT_TYPES
+                              };
 
 enum FEA_PART_TYPE { FEA_SLICE = 0,
                      FEA_RIB,

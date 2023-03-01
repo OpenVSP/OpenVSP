@@ -11,6 +11,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "SimpleSubSurface.h"
+#include "StlHelper.h"
 
 //////////////////////////////////////////////////////
 //=============== SimpleSubSurface =================//
@@ -36,7 +37,7 @@ SimpleSubSurface::~SimpleSubSurface()
 {
 }
 
-void SimpleSubSurface::CopyFrom( SubSurface* ss )
+void SimpleSubSurface::CopyFrom( SubSurface *ss, vector < string > & prop_id_vec )
 {
     if ( ss )
     {
@@ -49,8 +50,10 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
         m_MainSurfIndx = ss->m_MainSurfIndx.Get();
         m_CreateBeamElements = ss->m_CreateBeamElements.Get();
         m_KeepDelShellElements = ss->m_KeepDelShellElements.Get();
-        m_FeaPropertyIndex = ss->m_FeaPropertyIndex();
-        m_CapFeaPropertyIndex = ss->m_CapFeaPropertyIndex();
+        m_FeaPropertyID = ss->m_FeaPropertyID;
+        m_FeaPropertyIndex = vector_find_val( prop_id_vec, ss->m_FeaPropertyID );
+        m_CapFeaPropertyID = ss->m_CapFeaPropertyID;
+        m_CapFeaPropertyIndex = vector_find_val( prop_id_vec, ss->m_CapFeaPropertyID );
         m_FeaOrientationType = ss->m_FeaOrientationType();
         m_FeaOrientationVec = ss->m_FeaOrientationVec;
 

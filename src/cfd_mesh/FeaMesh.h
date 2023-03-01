@@ -130,9 +130,12 @@ public:
     vector < string > m_FeaPartIDVec;
     vector < int > m_FeaPartTypeVec;
     vector < int > m_FeaPartNumSurfVec;
-    vector < int > m_FeaPartIncludedElementsVec;
+    vector < int > m_FeaPartKeepDelShellElementsVec;
+    vector < bool > m_FeaPartCreateBeamElementsVec;
     vector < int > m_FeaPartPropertyIndexVec;
     vector < int > m_FeaPartCapPropertyIndexVec;
+    vector < string > m_FeaPartPropertyIDVec;
+    vector < string > m_FeaPartCapPropertyIDVec;
 
     unsigned long long int m_NumNodes;
     unsigned long long int m_NumEls;

@@ -34,6 +34,8 @@ public:
     void Renew();
     void Wype();
 
+    virtual void Update();
+
     void AddLinkableContainers( vector< string > & linkable_container_vec );
 
     //==== FeaStructure Management ====//
@@ -50,12 +52,8 @@ public:
     SubSurface* GetFeaSubSurf( const string & feasubsurf_id );
     int GetFeaSubSurfIndex( const string & ss_id );
     string GetFeaPartName( const string & id );
-    int GetFeaPropertyIndex( const string & FeaPartID );
-    int GetFeaMaterialIndex( const string & FeaPartID );
     void ShowAllParts();
     void HideAllParts();
-
-    void UpdateStructUnit( int new_unit );
 
     //==== FeaProperty Management ====//
     void AddFeaProperty( FeaProperty* fea_prop )
@@ -63,9 +61,9 @@ public:
         m_FeaPropertyVec.push_back( fea_prop );
     }
     FeaProperty* AddFeaProperty( int property_type );
-    void DeleteFeaProperty( int index );
+    void DeleteFeaProperty( string id );
     bool ValidFeaPropertyInd( int index );
-    FeaProperty* GetFeaProperty( int index );
+    FeaProperty* GetFeaProperty( string id );
 
     vector < FeaProperty* > GetFeaPropertyVec()
     {
@@ -75,6 +73,13 @@ public:
     {
         return m_FeaPropertyVec.size();
     }
+
+    string MakeDefaultShellProperty();
+    string MakeDefaultBeamProperty();
+
+    string GetSomeShellProperty();
+    string GetSomeBeamProperty();
+
     void InitFeaProperties();
 
     //==== FeaMaterial Management ====//
@@ -83,9 +88,9 @@ public:
         m_FeaMaterialVec.push_back( fea_mat );
     }
     FeaMaterial* AddFeaMaterial();
-    void DeleteFeaMaterial( int index );
+    bool DeleteFeaMaterial( string id );
     bool ValidFeaMaterialInd( int index );
-    FeaMaterial* GetFeaMaterial( int index );
+    FeaMaterial* GetFeaMaterial( string id );
     void InitFeaMaterials();
 
     vector < FeaMaterial* > GetFeaMaterialVec()
@@ -143,6 +148,16 @@ public:
         return m_CurrFeaMaterialIndex;
     }
 
+    FeaMaterial* GetCurrMaterial()
+    {
+        if ( ValidFeaMaterialInd( GetCurrMaterialIndex() ) )
+        {
+            return m_FeaMaterialVec[ GetCurrMaterialIndex() ];
+        }
+
+        return NULL;
+    }
+
     void SetCurrPropertyIndex( int ind )
     {
         m_CurrFeaPropertyIndex = ind;
@@ -150,6 +165,16 @@ public:
     int GetCurrPropertyIndex()
     {
         return m_CurrFeaPropertyIndex;
+    }
+
+    FeaProperty* GetCurrProperty()
+    {
+        if ( ValidFeaPropertyInd( GetCurrPropertyIndex() ) )
+        {
+            return m_FeaPropertyVec[ GetCurrPropertyIndex() ];
+        }
+
+        return NULL;
     }
 
     void SetCurrBCIndex( int ind )

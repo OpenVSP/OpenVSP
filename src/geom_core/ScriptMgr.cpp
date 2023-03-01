@@ -1142,6 +1142,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
 
     r = se->RegisterEnum( "FEA_PART_ELEMENT_TYPE", doc_struct );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_PART_ELEMENT_TYPE", "FEA_DEPRECATED", FEA_DEPRECATED, "/*!< Flag that this parameter has been deprecated. */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_ELEMENT_TYPE", "FEA_SHELL", FEA_SHELL, "/*!< Shell (tris) FEA element type */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_ELEMENT_TYPE", "FEA_BEAM", FEA_BEAM, "/*!< Beam FEA element type */" );
@@ -1151,6 +1153,17 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FEA_PART_ELEMENT_TYPE", "FEA_NO_ELEMENTS", FEA_NO_ELEMENTS, "/*!< FEA part with no elements */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_ELEMENT_TYPE", "FEA_NUM_ELEMENT_TYPES", FEA_NUM_ELEMENT_TYPES, "/*!< Number of FEA element type choices */" );
+    assert( r >= 0 );
+
+    doc_struct.comment = "/*! Enum for FEA Shell treatment types. */";
+
+    r = se->RegisterEnum( "FEA_SHELL_TREATMENT_TYPE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_SHELL_TREATMENT_TYPE", "FEA_KEEP", FEA_KEEP, "/*!< Keep shell elements */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_SHELL_TREATMENT_TYPE", "FEA_DELETE", FEA_DELETE, "/*!< Delete shell elements */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_SHELL_TREATMENT_TYPE", "FEA_NUM_SHELL_TREATMENT_TYPES", FEA_NUM_SHELL_TREATMENT_TYPES, "/*!< Number of FEA subsurface treatment choices */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum used to identify the available FEA Part types. */";

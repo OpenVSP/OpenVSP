@@ -562,10 +562,12 @@ void SurfaceIntersectionSingleton::TransferSubSurfData()
     vector < SubSurface* > ss_vec = SubSurfaceMgr.GetSubSurfs();
     m_SimpleSubSurfaceVec.resize( ss_vec.size() );
 
+    vector < string > prop_id_vec;
+
     for ( size_t i = 0; i < ss_vec.size(); i++ )
     {
         m_SimpleSubSurfaceVec[i] = SimpleSubSurface();
-        m_SimpleSubSurfaceVec[i].CopyFrom( ss_vec[i] );
+        m_SimpleSubSurfaceVec[ i ].CopyFrom( ss_vec[ i ], prop_id_vec );
     }
 }
 

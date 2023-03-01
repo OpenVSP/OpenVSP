@@ -41,17 +41,17 @@ xmlNodePtr StructureMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     ParmContainer::EncodeXml( structmgr_node );
 
-    for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
-    {
-        m_FeaPropertyVec[i]->EncodeXml( structmgr_node );
-    }
-
     for ( int i = 0; i < (int)m_FeaMaterialVec.size(); i++ )
     {
         if ( m_FeaMaterialVec[i]->m_UserFeaMaterial )
         {
             m_FeaMaterialVec[i]->EncodeXml( structmgr_node );
         }
+    }
+
+    for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
+    {
+        m_FeaPropertyVec[i]->EncodeXml( structmgr_node );
     }
 
     for ( int i = 0; i < (int)m_FeaAssemblyVec.size(); i++ )
@@ -70,25 +70,6 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
     {
         ParmContainer::DecodeXml( structmgr_node );
 
-        int num_prop = XmlUtil::GetNumNames( structmgr_node, "FeaPropertyInfo" );
-
-        for ( unsigned int i = 0; i < num_prop; i++ )
-        {
-            xmlNodePtr prop_info = XmlUtil::GetNode( structmgr_node, "FeaPropertyInfo", i );
-
-            if ( prop_info )
-            {
-                FeaProperty* fea_prop = new FeaProperty();
-
-                if ( fea_prop )
-                {
-                    fea_prop->DecodeXml( prop_info );
-
-                    AddFeaProperty( fea_prop );
-                }
-            }
-        }
-
         int num_mat = XmlUtil::GetNumNames( structmgr_node, "FeaMaterialInfo" );
 
         for ( unsigned int i = 0; i < num_mat; i++ )
@@ -105,6 +86,25 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
                     fea_mat->m_UserFeaMaterial = true;
 
                     AddFeaMaterial( fea_mat );
+                }
+            }
+        }
+
+        int num_prop = XmlUtil::GetNumNames( structmgr_node, "FeaPropertyInfo" );
+
+        for ( unsigned int i = 0; i < num_prop; i++ )
+        {
+            xmlNodePtr prop_info = XmlUtil::GetNode( structmgr_node, "FeaPropertyInfo", i );
+
+            if ( prop_info )
+            {
+                FeaProperty* fea_prop = new FeaProperty();
+
+                if ( fea_prop )
+                {
+                    fea_prop->DecodeXml( prop_info );
+
+                    AddFeaProperty( fea_prop );
                 }
             }
         }
@@ -166,6 +166,24 @@ void StructureMgrSingleton::Wype()
     m_FeaMaterialVec.clear();
 }
 
+void StructureMgrSingleton::Update()
+{
+    for ( int i = 0; i < (int)m_FeaMaterialVec.size(); i++ )
+    {
+        m_FeaMaterialVec[i]->Update();
+    }
+
+    for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
+    {
+        m_FeaPropertyVec[i]->Update();
+    }
+
+    for ( int i = 0; i < (int)m_FeaAssemblyVec.size(); i++ )
+    {
+        m_FeaAssemblyVec[i]->Update();
+    }
+}
+
 void StructureMgrSingleton::AddLinkableContainers( vector< string > & linkable_container_vec )
 {
     vector< FeaStructure* > feastructvec = GetAllFeaStructs();
@@ -173,6 +191,21 @@ void StructureMgrSingleton::AddLinkableContainers( vector< string > & linkable_c
     for ( size_t i = 0; i < feastructvec.size(); i++ )
     {
         feastructvec[i]->AddLinkableContainers( linkable_container_vec );
+    }
+
+    for ( int i = 0; i < (int)m_FeaMaterialVec.size(); i++ )
+    {
+        m_FeaMaterialVec[i]->AddLinkableContainers( linkable_container_vec );
+    }
+
+    for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
+    {
+        m_FeaPropertyVec[i]->AddLinkableContainers( linkable_container_vec );
+    }
+
+    for ( int i = 0; i < (int)m_FeaAssemblyVec.size(); i++ )
+    {
+        m_FeaAssemblyVec[i]->AddLinkableContainers( linkable_container_vec );
     }
 }
 
@@ -443,258 +476,6 @@ void StructureMgrSingleton::HideAllParts()
     }
 }
 
-void StructureMgrSingleton::UpdateStructUnit( int new_unit )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        // Update FeaMaterial Units
-        for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
-        {
-            int density_unit_new = vsp::RHO_UNIT_KG_M3;
-            int density_unit_old = vsp::RHO_UNIT_KG_M3;
-            int pressure_unit_new = vsp::PRES_UNIT_PA;
-            int pressure_unit_old = vsp::PRES_UNIT_PA;
-
-            switch ( new_unit )
-            {
-            case vsp::SI_UNIT:
-            density_unit_new = vsp::RHO_UNIT_KG_M3;
-            pressure_unit_new = vsp::PRES_UNIT_PA;
-            break;
-
-            case vsp::CGS_UNIT:
-            density_unit_new = vsp::RHO_UNIT_G_CM3;
-            pressure_unit_new = vsp::PRES_UNIT_BA;
-            break;
-
-            case vsp::MPA_UNIT:
-            density_unit_new = vsp::RHO_UNIT_TONNE_MM3;
-            pressure_unit_new = vsp::PRES_UNIT_MPA;
-            break;
-
-            case vsp::BFT_UNIT:
-            density_unit_new = vsp::RHO_UNIT_SLUG_FT3;
-            pressure_unit_new = vsp::PRES_UNIT_PSF;
-            break;
-
-            case vsp::BIN_UNIT:
-            density_unit_new = vsp::RHO_UNIT_LBFSEC2_IN4;
-            pressure_unit_new = vsp::PRES_UNIT_PSI;
-            break;
-            }
-
-            switch ( (int)veh->m_StructUnit.GetLastVal() )
-            {
-            case vsp::SI_UNIT:
-            density_unit_old = vsp::RHO_UNIT_KG_M3;
-            pressure_unit_old = vsp::PRES_UNIT_PA;
-            break;
-
-            case vsp::CGS_UNIT:
-            density_unit_old = vsp::RHO_UNIT_G_CM3;
-            pressure_unit_old = vsp::PRES_UNIT_BA;
-            break;
-
-            case vsp::MPA_UNIT:
-            density_unit_old = vsp::RHO_UNIT_TONNE_MM3;
-            pressure_unit_old = vsp::PRES_UNIT_MPA;
-            break;
-
-            case vsp::BFT_UNIT:
-            density_unit_old = vsp::RHO_UNIT_SLUG_FT3;
-            pressure_unit_old = vsp::PRES_UNIT_PSF;
-            break;
-
-            case vsp::BIN_UNIT:
-            density_unit_old = vsp::RHO_UNIT_LBFSEC2_IN4;
-            pressure_unit_old = vsp::PRES_UNIT_PSI;
-            break;
-            }
-
-            m_FeaMaterialVec[i]->m_MassDensity.Set( ConvertDensity( m_FeaMaterialVec[i]->m_MassDensity.Get(), density_unit_old, density_unit_new ) );
-            m_FeaMaterialVec[i]->m_ElasticModulus.Set( ConvertPressure( m_FeaMaterialVec[i]->m_ElasticModulus.Get(), pressure_unit_old, pressure_unit_new ) );
-            m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Get(), (int)veh->m_StructUnit.GetLastVal(), new_unit ) );
-        }
-
-        // Update FeaProperty Units
-        for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
-        {
-            int length_unit_new = vsp::LEN_FT;
-            int length_unit_old = vsp::LEN_FT;
-
-            switch ( new_unit )
-            {
-            case vsp::SI_UNIT:
-            length_unit_new = vsp::LEN_M;
-            break;
-
-            case vsp::CGS_UNIT:
-            length_unit_new = vsp::LEN_CM;
-            break;
-
-            case vsp::MPA_UNIT:
-            length_unit_new = vsp::LEN_MM;
-            break;
-
-            case vsp::BFT_UNIT:
-            length_unit_new = vsp::LEN_FT;
-            break;
-
-            case vsp::BIN_UNIT:
-            length_unit_new = vsp::LEN_IN;
-            break;
-            }
-
-            switch ( (int)veh->m_StructUnit.GetLastVal() )
-            {
-            case vsp::SI_UNIT:
-            length_unit_old = vsp::LEN_M;
-            break;
-
-            case vsp::CGS_UNIT:
-            length_unit_old = vsp::LEN_CM;
-            break;
-
-            case vsp::MPA_UNIT:
-            length_unit_old = vsp::LEN_MM;
-            break;
-
-            case vsp::BFT_UNIT:
-            length_unit_old = vsp::LEN_FT;
-            break;
-
-            case vsp::BIN_UNIT:
-            length_unit_old = vsp::LEN_IN;
-            break;
-            }
-
-            if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
-            {
-                m_FeaPropertyVec[i]->m_Thickness.Set( ConvertLength( m_FeaPropertyVec[i]->m_Thickness.Get(), length_unit_old, length_unit_new ) );
-            }
-            else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
-            {
-                if ( m_FeaPropertyVec[i]->m_CrossSectType() == vsp::FEA_XSEC_GENERAL )
-                {
-                    m_FeaPropertyVec[i]->m_CrossSecArea.Set( ConvertLength2( m_FeaPropertyVec[i]->m_CrossSecArea.Get(), length_unit_old, length_unit_new ) );
-                    m_FeaPropertyVec[i]->m_Ixx.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Ixx.Get(), length_unit_old, length_unit_new ) );
-                    m_FeaPropertyVec[i]->m_Iyy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Iyy.Get(), length_unit_old, length_unit_new ) );
-                    m_FeaPropertyVec[i]->m_Izy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izy.Get(), length_unit_old, length_unit_new ) );
-                    m_FeaPropertyVec[i]->m_Izz.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izz.Get(), length_unit_old, length_unit_new ) );
-                }
-                else
-                {
-                    m_FeaPropertyVec[i]->m_Dim1.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim1.Get(), length_unit_old, length_unit_new ) );
-                    m_FeaPropertyVec[i]->m_Dim2.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim2.Get(), length_unit_old, length_unit_new ) );
-                    m_FeaPropertyVec[i]->m_Dim3.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim3.Get(), length_unit_old, length_unit_new ) );
-                    m_FeaPropertyVec[i]->m_Dim4.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim4.Get(), length_unit_old, length_unit_new ) );
-                    m_FeaPropertyVec[i]->m_Dim5.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim5.Get(), length_unit_old, length_unit_new ) );
-                    m_FeaPropertyVec[i]->m_Dim6.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim6.Get(), length_unit_old, length_unit_new ) );
-                }
-            }
-        }
-
-        // Update Point Mass Units
-        vector < FeaStructure* > struct_vec = GetAllFeaStructs();
-        
-        for ( size_t i = 0; i < struct_vec.size(); i++ )
-        {
-            vector < FeaPart* > prt_vec = struct_vec[i]->GetFeaPartVec();
-        
-            for ( size_t j = 0; j < prt_vec.size(); j++ )
-            {
-                if ( prt_vec[j]->GetType() == vsp::FEA_FIX_POINT )
-                {
-                    FeaFixPoint* fix_pnt = dynamic_cast<FeaFixPoint*>( prt_vec[j] );
-                    assert( fix_pnt );
-        
-                    if ( fix_pnt->m_FixPointMassFlag() )
-                    {
-                        int mass_unit_new = -1;
-                        int mass_unit_old = -1;
-
-                        switch ( new_unit )
-                        {
-                        case vsp::SI_UNIT:
-                        mass_unit_new = vsp::MASS_UNIT_KG;
-                        break;
-
-                        case vsp::CGS_UNIT:
-                        mass_unit_new = vsp::MASS_UNIT_G;
-                        break;
-
-                        case vsp::MPA_UNIT:
-                        mass_unit_new = vsp::MASS_UNIT_TONNE;
-                        break;
-
-                        case vsp::BFT_UNIT:
-                        mass_unit_new = vsp::MASS_UNIT_SLUG;
-                        break;
-
-                        case vsp::BIN_UNIT:
-                        mass_unit_new = vsp::MASS_LBFSEC2IN;
-                        break;
-                        }
-
-                        switch ( (int)veh->m_StructUnit.GetLastVal() )
-                        {
-                        case vsp::SI_UNIT:
-                        mass_unit_old = vsp::MASS_UNIT_KG;
-                        break;
-
-                        case vsp::CGS_UNIT:
-                        mass_unit_old = vsp::MASS_UNIT_G;
-                        break;
-
-                        case vsp::MPA_UNIT:
-                        mass_unit_old = vsp::MASS_UNIT_TONNE;
-                        break;
-
-                        case vsp::BFT_UNIT:
-                        mass_unit_old = vsp::MASS_UNIT_SLUG;
-                        break;
-
-                        case vsp::BIN_UNIT:
-                        mass_unit_old = vsp::MASS_LBFSEC2IN;
-                        break;
-                        }
-
-                        fix_pnt->m_FixPointMass.Set( ConvertMass( fix_pnt->m_FixPointMass.Get(), mass_unit_old, mass_unit_new ) );
-                    }
-                }
-            }
-        }
-    }
-}
-
-//==== Get FeaProperty Index =====//
-int StructureMgrSingleton::GetFeaPropertyIndex( const string & FeaPartID )
-{
-    FeaPart* fea_part = GetFeaPart( FeaPartID );
-
-    if ( fea_part )
-    {
-        return fea_part->m_FeaPropertyIndex();
-    }
-
-    return -1; // indicates an error
-}
-
-//==== Get FeaMaterial Index =====//
-int StructureMgrSingleton::GetFeaMaterialIndex( const string & FeaPartID )
-{
-    FeaPart* fea_part = GetFeaPart( FeaPartID );
-
-    if ( fea_part )
-    {
-        return fea_part->GetFeaMaterialIndex();
-    }
-
-    return -1; // indicates an error
-}
-
 //==== Add FeaProperty =====//
 FeaProperty* StructureMgrSingleton::AddFeaProperty( int property_type )
 {
@@ -712,84 +493,22 @@ FeaProperty* StructureMgrSingleton::AddFeaProperty( int property_type )
 }
 
 //==== Delete FeaProperty =====//
-void StructureMgrSingleton::DeleteFeaProperty( int index )
+void StructureMgrSingleton::DeleteFeaProperty( string id )
 {
-    if ( !ValidFeaPropertyInd( index ) )
-        return;
-
-    // Check if FeaProperty is only one of it's type
-    int shell_cnt = 0;
-    int beam_cnt = 0;
+    vector < FeaProperty* > newpropvec;
 
     for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
     {
-        if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
+        if ( m_FeaPropertyVec[i]->GetID() == id )
         {
-            shell_cnt++;
+            delete m_FeaPropertyVec[i];
         }
-        else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
+        else
         {
-            beam_cnt++;
-        }
-    }
-
-    if ( m_FeaPropertyVec[index]->m_FeaPropertyType() == vsp::FEA_SHELL && shell_cnt <= 1 )
-    {
-        return;
-    }
-    else if ( m_FeaPropertyVec[index]->m_FeaPropertyType() == vsp::FEA_BEAM && beam_cnt <= 1 )
-    {
-        return;
-    }
-
-    delete m_FeaPropertyVec[index];
-    m_FeaPropertyVec.erase( m_FeaPropertyVec.begin() + index );
-
-    // Reset FEA Property index for FEA Parts using deleted property
-    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
-
-    for ( size_t i = 0; i < struct_vec.size(); i++ )
-    {
-        vector < FeaPart* > part_vec = struct_vec[i]->GetFeaPartVec();
-
-        for ( size_t j = 0; j < part_vec.size(); j++ )
-        {
-            if ( part_vec[j]->m_FeaPropertyIndex() == index )
-            {
-                for ( size_t k = 0; k < m_FeaPropertyVec.size(); k++ )
-                {
-                    if ( m_FeaPropertyVec[k]->m_FeaPropertyType() == vsp::FEA_SHELL )
-                    {
-                        part_vec[j]->m_FeaPropertyIndex.Set( k );
-                        break;
-                    }
-                }
-            }
-
-            if ( part_vec[j]->m_CapFeaPropertyIndex() == index )
-            {
-                for ( size_t k = 0; k < m_FeaPropertyVec.size(); k++ )
-                {
-                    if ( m_FeaPropertyVec[k]->m_FeaPropertyType() == vsp::FEA_BEAM )
-                    {
-                        part_vec[j]->m_CapFeaPropertyIndex.Set( k );
-                        break;
-                    }
-                }
-            }
-
-            // Decrease FEA Property index for FEA Parts with index greater than the removed index
-            if ( part_vec[j]->m_FeaPropertyIndex() > index )
-            {
-                part_vec[j]->m_FeaPropertyIndex.Set( part_vec[j]->m_FeaPropertyIndex() - 1 );
-            }
-            
-            if ( part_vec[j]->m_CapFeaPropertyIndex() > index )
-            {
-                part_vec[j]->m_CapFeaPropertyIndex.Set( part_vec[j]->m_CapFeaPropertyIndex() - 1 );
-            }
+            newpropvec.push_back( m_FeaPropertyVec[i] );
         }
     }
+    m_FeaPropertyVec = newpropvec;
 }
 
 //==== Validate FeaProperty Index ====//
@@ -802,13 +521,108 @@ bool StructureMgrSingleton::ValidFeaPropertyInd( int index )
     return false;
 }
 
-FeaProperty* StructureMgrSingleton::GetFeaProperty( int index )
+FeaProperty* StructureMgrSingleton::GetFeaProperty( string id )
 {
-    if ( ValidFeaPropertyInd( index ) )
+    if ( id == string( "NONE" ) )
     {
-        return m_FeaPropertyVec[index];
+        return NULL;
+    }
+    for ( int i = 0 ; i < ( int )m_FeaPropertyVec.size() ; i++ )
+    {
+        if ( m_FeaPropertyVec[i]->GetID() == id )
+        {
+            return m_FeaPropertyVec[i];
+        }
     }
     return NULL;
+}
+
+string StructureMgrSingleton::MakeDefaultShellProperty()
+{
+    FeaProperty* default_shell = new FeaProperty();
+
+    default_shell->SetName( "DefaultShell" );
+    default_shell->m_FeaMaterialID = "_Al6061T6";
+    default_shell->m_FeaPropertyType.Set( vsp::FEA_SHELL );
+
+    AddFeaProperty( default_shell );
+
+    return default_shell->GetID();
+}
+
+string StructureMgrSingleton::MakeDefaultBeamProperty()
+{
+    FeaProperty* default_beam = new FeaProperty();
+
+    default_beam->SetName( "DefaultBeam" );
+    default_beam->m_FeaMaterialID = "_Al6061T6";
+    default_beam->m_FeaPropertyType.Set( vsp::FEA_BEAM );
+
+    AddFeaProperty( default_beam );
+
+    return default_beam->GetID();
+}
+
+string StructureMgrSingleton::GetSomeShellProperty()
+{
+    int ifirstshell = -1;
+
+    for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
+    {
+        if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
+        {
+            if ( ifirstshell == -1 )
+            {
+                ifirstshell = i;
+            }
+
+            // If Default exists, return it.
+            if ( m_FeaPropertyVec[i]->GetName() == "DefaultShell" )
+            {
+                return m_FeaPropertyVec[i]->GetID();
+            }
+        }
+    }
+
+    // No default exists, but a shell property does exist, return the first one encountered.
+    if ( ifirstshell >= 0 )
+    {
+        return m_FeaPropertyVec[ ifirstshell ]->GetID();
+    }
+
+    // No shell property exists, make a default one and return it.
+    return MakeDefaultShellProperty();
+}
+
+string StructureMgrSingleton::GetSomeBeamProperty()
+{
+    int ifirstbeam = -1;
+
+    for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
+    {
+        if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
+        {
+            if ( ifirstbeam == -1 )
+            {
+                ifirstbeam = i;
+            }
+
+            // If Default exists, return it.
+            if ( m_FeaPropertyVec[i]->GetName() == "DefaultBeam" )
+            {
+                return m_FeaPropertyVec[i]->GetID();
+            }
+        }
+    }
+
+    // No default exists, but a beam property does exist, return the first one encountered.
+    if ( ifirstbeam >= 0 )
+    {
+        return m_FeaPropertyVec[ ifirstbeam ]->GetID();
+    }
+
+    // No beam property exists, make a default one and return it.
+    return MakeDefaultBeamProperty();
 }
 
 void StructureMgrSingleton::InitFeaProperties()
@@ -831,30 +645,12 @@ void StructureMgrSingleton::InitFeaProperties()
 
     if ( !shell_prop )
     {
-        // Add default shell and beam property if none currently
-        FeaProperty* default_shell = new FeaProperty();
-
-        if ( default_shell )
-        {
-            default_shell->SetName( "DefaultShell" );
-            default_shell->m_FeaMaterialIndex.Set( 0 ); // aluminum
-            default_shell->m_FeaPropertyType.Set( vsp::FEA_SHELL );
-
-            AddFeaProperty( default_shell );
-        }
+        MakeDefaultShellProperty();
     }
 
     if ( !beam_prop )
     {
-        FeaProperty* default_beam = new FeaProperty();
-        if ( default_beam )
-        {
-            default_beam->SetName( "DefaultBeam" );
-            default_beam->m_FeaMaterialIndex.Set( 0 ); // aluminum
-            default_beam->m_FeaPropertyType.Set( vsp::FEA_BEAM );
-
-            AddFeaProperty( default_beam );
-        }
+        MakeDefaultBeamProperty();
     }
 }
 
@@ -875,23 +671,26 @@ FeaMaterial* StructureMgrSingleton::AddFeaMaterial()
 }
 
 //==== Delete FeaMaterial =====//
-void StructureMgrSingleton::DeleteFeaMaterial( int index )
+bool StructureMgrSingleton::DeleteFeaMaterial( string id )
 {
-    if ( !ValidFeaMaterialInd( index ) || !m_FeaMaterialVec[index]->m_UserFeaMaterial ) 
-        return;
+    bool delsuccess = false;
+    vector < FeaMaterial* > newmatvec;
 
-    delete m_FeaMaterialVec[index];
-    m_FeaMaterialVec.erase( m_FeaMaterialVec.begin() + index );
-
-    // Reset FEA Material index for FEA Properties using deleted material
-    for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
+    for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
     {
-        // Decrease FEA Material index for FEA Properties with index >= removed index
-        if ( m_FeaPropertyVec[i]->m_FeaMaterialIndex() >= index )
+        // Only allow deletion of user materials.
+        if ( m_FeaMaterialVec[i]->GetID() == id && m_FeaMaterialVec[i]->m_UserFeaMaterial == true )
         {
-            m_FeaPropertyVec[i]->m_FeaMaterialIndex.Set( m_FeaPropertyVec[i]->m_FeaMaterialIndex() - 1 );
+            delete m_FeaMaterialVec[i];
+            delsuccess = true;
+        }
+        else
+        {
+            newmatvec.push_back( m_FeaMaterialVec[i] );
         }
     }
+    m_FeaMaterialVec = newmatvec;
+    return delsuccess;
 }
 
 //==== Validate FeaMaterial Index ====//
@@ -904,49 +703,47 @@ bool StructureMgrSingleton::ValidFeaMaterialInd( int index )
     return false;
 }
 
-FeaMaterial* StructureMgrSingleton::GetFeaMaterial( int index )
+FeaMaterial* StructureMgrSingleton::GetFeaMaterial( string id )
 {
-    if ( ValidFeaMaterialInd( index ) )
+    if ( id == string( "NONE" ) )
     {
-        return m_FeaMaterialVec[index];
+        return NULL;
+    }
+    for ( int i = 0 ; i < ( int )m_FeaMaterialVec.size() ; i++ )
+    {
+        if ( m_FeaMaterialVec[i]->GetID() == id )
+        {
+            return m_FeaMaterialVec[i];
+        }
     }
     return NULL;
 }
 
 void StructureMgrSingleton::InitFeaMaterials()
 {
-    // Note: Parm values set in FeaMaterial::Update()
-
-    int nmat = 15;
-    const char *matnames[] = {"Aluminum 7075-T6",
-                              "Aluminum 2024-T3",
-                              "Titanium Ti-6Al-4V",
-                              "AISI 4130 Steel",
-                              "Carbon Epoxy AS4 3501-6 [0_2/90]s",
-                              "Carbon Epoxy AS4 3501-6 [0/90]_2s",
-                              "Carbon Epoxy AS4 3501-6 [0/90/+-45]s",
-                              "Carbon Epoxy AS4 3501-6 [+-30]_2s",
-                              "Carbon Epoxy AS4 3501-6 [+-45]_2s",
-                              "Carbon Epoxy AS4 3501-6 [+-60]_2s",
-                              "Glass Epoxy S2 3501-6 [0_2/90]s",
-                              "Glass Epoxy S2 3501-6 [0/90]_2s",
-                              "Glass Epoxy S2 3501-6 [0/90/+-45]s",
-                              "Balsa LTR",
-                              "Sitka Spruce LTR"};
-
-    // These materials duplicate names above, but have different properties in the source.
-    // Keep these names here in case it gets sorted later and they need to be added.
-    /*
-            "Carbon Epoxy AS4 3501-6 [+-30]_2s",
-            "Carbon Epoxy AS4 3501-6 [+-45]_2s",
-            "Carbon Epoxy AS4 3501-6 [+-60]_2s",
-    */
+    int nmat = 16;
+    const char *matids[] = {"_Al7075T6",
+                            "_Al6061T6",
+                            "_Al2024T3",
+                            "_Ti6Al4V",
+                            "_CrMo4130",
+                            "_AS4-1",
+                            "_AS4-2",
+                            "_AS4-3",
+                            "_AS4-4",
+                            "_AS4-5",
+                            "_AS4-6",
+                            "_S2-1",
+                            "_S2-2",
+                            "_S2-3",
+                            "_Balsa",
+                            "_Spruce"
+    };
 
     for ( int i = 0; i < nmat; i++ )
     {
         FeaMaterial* mat = new FeaMaterial();
-        mat->SetName( matnames[i], false ); // false is for removeslashes
-        mat->m_UserFeaMaterial = false;
+        mat->MakeMaterial( matids[i] );
         mat->Update();
         AddFeaMaterial( mat );
     }

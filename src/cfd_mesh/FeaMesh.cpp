@@ -64,7 +64,8 @@ void FeaMesh::Cleanup()
     m_FeaPartNameVec.clear();
     m_FeaPartTypeVec.clear();
     m_FeaPartNumSurfVec.clear();
-    m_FeaPartIncludedElementsVec.clear();
+    m_FeaPartKeepDelShellElementsVec.clear();
+    m_FeaPartCreateBeamElementsVec.clear();
     m_FeaPartPropertyIndexVec.clear();
     m_FeaPartCapPropertyIndexVec.clear();
 
@@ -1590,7 +1591,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
 
                 for ( int isurf = 0; isurf < surf_num; isurf++ )
                 {
-                    if ( !m_StructSettings.m_ConvertToQuadsFlag && ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM ) )
+                    if ( !m_StructSettings.m_ConvertToQuadsFlag && m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
                     {
                         int nnode = 3;
                         if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 6;
@@ -1611,7 +1612,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                         fprintf( fp, "\n" );
                     }
 
-                    if ( m_StructSettings.m_ConvertToQuadsFlag && ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM ) )
+                    if ( m_StructSettings.m_ConvertToQuadsFlag && m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
                     {
                         int nnode = 4;
                         if ( m_StructSettings.m_HighOrderElementFlag ) nnode = 8;
@@ -1632,7 +1633,7 @@ void FeaMesh::WriteCalculixElements( FILE* fp )
                         fprintf( fp, "\n" );
                     }
 
-                    if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
+                    if ( m_FeaPartCreateBeamElementsVec[i] )
                     {
                         fprintf( fp, "*ELEMENT, TYPE=B32R, ELSET=EB%s_%s_%d_CAP\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str(), isurf );
 
@@ -1807,7 +1808,7 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
 
                 for ( int isurf = 0; isurf < surf_num; isurf++ )
                 {
-                    if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
+                    if ( m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
                     {
                         FeaMeshMgr.MarkPropMatUsed( property_id );
 
@@ -1833,7 +1834,7 @@ void FeaMesh::WriteCalculixProperties( FILE* fp )
                         fprintf( fp, "%f,%f,%f,0.0,0.0,1.0\n", orient.x(), orient.y(), orient.z());
                     }
 
-                    if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
+                    if ( m_FeaPartCreateBeamElementsVec[i] )
                     {
                         FeaMeshMgr.MarkPropMatUsed( cap_property_id );
 
@@ -2017,7 +2018,7 @@ void FeaMesh::WriteSTL()
 
             for ( int isurf = 0; isurf < surf_num; isurf++ )
             {
-                if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
+                if ( m_FeaPartKeepDelShellElementsVec[i] == vsp::FEA_KEEP )
                 {
                     fprintf( fp, "solid %s_%d\n", m_FeaPartNameVec[ i ].c_str(), isurf );
 

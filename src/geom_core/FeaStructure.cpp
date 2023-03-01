@@ -865,34 +865,6 @@ FeaPart* FeaStructure::GetFeaSkin()
     return NULL;
 }
 
-//==== Get FeaProperty Index from FeaPart Index =====//
-int FeaStructure::GetFeaPropertyIndex( int fea_part_ind )
-{
-    if ( ValidFeaPartInd( fea_part_ind ) )
-    {
-        FeaPart* fea_part = GetFeaPart( fea_part_ind );
-        if ( fea_part )
-        {
-            return fea_part->m_FeaPropertyIndex();
-        }
-    }
-    return -1; // indicates an error
-}
-
-//==== Get Cap FeaProperty Index from FeaPart Index =====//
-int FeaStructure::GetCapFeaPropertyIndex( int fea_part_ind )
-{
-    if ( ValidFeaPartInd( fea_part_ind ) )
-    {
-        FeaPart* fea_part = GetFeaPart( fea_part_ind );
-        if ( fea_part )
-        {
-            return fea_part->m_CapFeaPropertyIndex();
-        }
-    }
-    return -1; // indicates an error
-}
-
 int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
 {
     for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
@@ -1067,8 +1039,14 @@ FeaPart::FeaPart( const string &geomID, const string &structID, int type )
 
     m_MainSurfIndx = 0;
 
-    m_IncludedElements.Init( "IncludedElements", "FeaPart", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_NUM_ELEMENT_TYPES - 1 );
+    m_IncludedElements.Init( "IncludedElements", "FeaPart", this, vsp::FEA_DEPRECATED, vsp::FEA_DEPRECATED, vsp::FEA_NUM_ELEMENT_TYPES - 1 );
     m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the FeaPart" );
+
+    m_CreateBeamElements.Init( "CreateBeamElements","FeaPart", this, false, false, true );
+    m_CreateBeamElements.SetDescript( "Flag to indicate whether to create beam elements for this part" );
+
+    m_KeepDelShellElements.Init( "MarkDelShellElements", "FeaPart", this, vsp::FEA_KEEP, vsp::FEA_KEEP, vsp::FEA_NUM_SHELL_TREATMENT_TYPES - 1 );
+    m_KeepDelShellElements.SetDescript( "Indicates whether to mark or delete shell elements from this part" );
 
     m_OrientationType.Init( "Orientation", "FeaPart", this, vsp::FEA_ORIENT_PART_U, vsp::FEA_ORIENT_GLOBAL_X, vsp::FEA_NUM_ORIENT_TYPES - 1 );
     m_OrientationType.SetDescript( "Part material orientation type" );
@@ -1085,10 +1063,10 @@ FeaPart::FeaPart( const string &geomID, const string &structID, int type )
     m_RelCenterLocation.Init( "RelCenterLocation", "FeaPart", this, 0.5, 0.0, 1.0 );
     m_RelCenterLocation.SetDescript( "The Relative Location of the Center of the FeaPart" );
 
-    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaPart", this, 0, 0, 1e12 ); // Shell property default
+    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaPart", this, -1, -1, 1e12 ); // Shell property default
     m_FeaPropertyIndex.SetDescript( "FeaPropertyIndex for Shell Elements" );
 
-    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaPart", this, 1, 0, 1e12 ); // Beam property default
+    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaPart", this, -1, -1, 1e12 ); // Beam property default
     m_CapFeaPropertyIndex.SetDescript( "FeaPropertyIndex for Beam (Cap) Elements" );
 }
 
@@ -1100,6 +1078,65 @@ FeaPart::~FeaPart()
 void FeaPart::Update()
 {
     m_LateUpdateFlag = false;
+
+    if ( m_IncludedElements() != vsp::FEA_DEPRECATED )
+    {
+        if ( m_IncludedElements() == vsp::FEA_SHELL )
+        {
+            m_CreateBeamElements.Set( false );
+            m_KeepDelShellElements.Set( vsp::FEA_KEEP );
+        }
+        else if ( m_IncludedElements() == vsp::FEA_BEAM )
+        {
+            m_CreateBeamElements.Set( true );
+            m_KeepDelShellElements.Set( vsp::FEA_DELETE );
+        }
+        else if ( m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+        {
+            m_CreateBeamElements.Set( true );
+            m_KeepDelShellElements.Set( vsp::FEA_KEEP );
+        }
+
+        m_IncludedElements.Set( vsp::FEA_DEPRECATED );
+    }
+
+    if ( m_FeaPropertyIndex() != -1 )
+    {
+        vector < FeaProperty* > prop_vec = StructureMgr.GetFeaPropertyVec();
+        if ( m_FeaPropertyIndex() < prop_vec.size() )
+        {
+            m_FeaPropertyID = prop_vec[ m_FeaPropertyIndex() ]->GetID();
+            m_FeaPropertyIndex = -1;
+        }
+    }
+
+    if ( m_CapFeaPropertyIndex() != -1 )
+    {
+        vector < FeaProperty* > prop_vec = StructureMgr.GetFeaPropertyVec();
+        if ( m_CapFeaPropertyIndex() < prop_vec.size() )
+        {
+            m_CapFeaPropertyID = prop_vec[ m_CapFeaPropertyIndex() ]->GetID();
+            m_CapFeaPropertyIndex = -1;
+        }
+    }
+
+    if ( m_KeepDelShellElements() == vsp::FEA_KEEP )
+    {
+        FeaProperty *shell_prop = StructureMgr.GetFeaProperty( m_FeaPropertyID );
+        if ( !shell_prop )
+        {
+            m_FeaPropertyID = StructureMgr.GetSomeShellProperty();
+        }
+    }
+
+    if ( m_CreateBeamElements() )
+    {
+        FeaProperty *cap_prop = StructureMgr.GetFeaProperty( m_CapFeaPropertyID );
+        if ( !cap_prop )
+        {
+            m_CapFeaPropertyID = StructureMgr.GetSomeBeamProperty();
+        }
+    }
 
     UpdateSurface();
 
@@ -1127,7 +1164,7 @@ void FeaPart::UpdateFlags()
         }
         else
         {
-            if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+            if ( m_KeepDelShellElements() == vsp::FEA_KEEP )
             {
                 m_MainFeaPartSurfVec[ i ].SetSurfCfdType( vsp::CFD_STRUCTURE );
             }
@@ -1232,11 +1269,23 @@ xmlNodePtr FeaPart::EncodeXml( xmlNodePtr & node )
 
     XmlUtil::AddIntNode( part_info, "FeaPartType", m_FeaPartType );
 
+    if ( part_info )
+    {
+        XmlUtil::AddStringNode( part_info, "FeaPropertyID", m_FeaPropertyID );
+        XmlUtil::AddStringNode( part_info, "CapFeaPropertyID", m_CapFeaPropertyID );
+    }
+
     return ParmContainer::EncodeXml( part_info );
 }
 
 xmlNodePtr FeaPart::DecodeXml( xmlNodePtr & node )
 {
+    if ( node )
+    {
+        m_FeaPropertyID = ParmMgr.RemapID( XmlUtil::FindString( node, "FeaPropertyID", m_FeaPropertyID ) );
+        m_CapFeaPropertyID = ParmMgr.RemapID( XmlUtil::FindString( node, "CapFeaPropertyID", m_CapFeaPropertyID ) );
+    }
+
     return ParmContainer::DecodeXml( node );
 }
 
@@ -1486,27 +1535,6 @@ void FeaPart::SetDrawObjHighlight( bool highlight )
         {
             m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.33f;
         }
-    }
-}
-
-int FeaPart::GetFeaMaterialIndex()
-{
-    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
-
-    if ( fea_prop )
-    {
-        return fea_prop->m_FeaMaterialIndex();
-    }
-    return -1; // Indicates an error
-}
-
-void FeaPart::SetFeaMaterialIndex( int index )
-{
-    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
-
-    if ( fea_prop )
-    {
-        fea_prop->m_FeaMaterialIndex.Set( index );
     }
 }
 
@@ -3360,16 +3388,58 @@ FeaFixPoint::FeaFixPoint( const string &compID, const string &structID, const st
     m_FixPointMassFlag.Init( "FixPointMassFlag", "FeaFixPoint", this, false, false, true );
     m_FixPointMassFlag.SetDescript( "Flag to Include Mass of FeaFixPoint" );
 
-    m_FixPointMass.Init( "FixPointMass", "FeaFixPoint", this, 0.0, 0.0, 1e12 );
+    m_FixPointMass.Init( "FixPointMass", "FeaFixPoint", this, 1.0, 0.0, 1e12 );
     m_FixPointMass.SetDescript( "FeaFixPoint Mass Value" );
+
+    m_FixPointMass_FEM.Init( "FixPointMass_FEM", "FeaFixPoint", this, 0.0, 0.0, 1e12 );
+    m_FixPointMass_FEM.SetDescript( "FeaFixPoint Mass Value in FEM units." );
+
+    m_MassUnit.Init( "MassUnit", "FeaFixPoint", this, vsp::MASS_UNIT_LBM, vsp::MASS_UNIT_G, vsp::NUM_MASS_UNIT - 1 );
+    m_MassUnit.SetDescript( "Mass units used to specify point mass" );
 
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property
+    m_FeaPropertyID = "";
+    m_CapFeaPropertyID = "";
 }
 
 void FeaFixPoint::UpdateSurface()
 {
     m_MainFeaPartSurfVec.clear(); // FeaFixPoints are not a VspSurf
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    int mass_unit = -1;
+
+    switch ( ( int ) veh->m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            mass_unit = vsp::MASS_UNIT_KG;
+            break;
+
+        case vsp::CGS_UNIT:
+            mass_unit = vsp::MASS_UNIT_G;
+            break;
+
+        case vsp::MPA_UNIT:
+            mass_unit = vsp::MASS_UNIT_TONNE;
+            break;
+
+        case vsp::BFT_UNIT:
+            mass_unit = vsp::MASS_UNIT_SLUG;
+            break;
+
+        case vsp::BIN_UNIT:
+            mass_unit = vsp::MASS_LBFSEC2IN;
+            break;
+    }
+
+    m_FixPointMass_FEM = ConvertDensity( m_FixPointMass(), m_MassUnit(), mass_unit );
 }
 
 bool FeaFixPoint::PlaneAtYZero( piecewise_surface_type & surface ) const
@@ -3592,10 +3662,13 @@ int FeaFixPoint::NumFeaPartSurfs()
 
 FeaPartTrim::FeaPartTrim( const string &geomID, const string &structID, int type ) : FeaPart( geomID, structID, type )
 {
-    m_IncludedElements.Set( vsp::FEA_NO_ELEMENTS );
+    m_CreateBeamElements.Set( false );
+    m_KeepDelShellElements.Set( vsp::FEA_DELETE );
 
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property
+    m_FeaPropertyID = "";
+    m_CapFeaPropertyID = "";
 }
 
 FeaPartTrim::~FeaPartTrim()
@@ -3883,7 +3956,9 @@ void FeaPartTrim::RenameParms()
 
 FeaSkin::FeaSkin( const string &geomID, const string &structID, int type ) : FeaPart( geomID, structID, type )
 {
-    m_IncludedElements.Set( vsp::FEA_SHELL );
+    m_CreateBeamElements.Set( false );
+    m_KeepDelShellElements.Set( vsp::FEA_KEEP );
+
     m_DrawFeaPartFlag.Set( false );
 
     m_RemoveSkinFlag.Init( "RemoveSkinTrisFlag", "FeaSkin", this, false, false, true );
@@ -4448,6 +4523,8 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
 
         fearib->m_AbsRelParmFlag.Set( m_AbsRelParmFlag() );
         fearib->m_IncludedElements.Set( m_IncludedElements() );
+        fearib->m_CreateBeamElements.Set( m_CreateBeamElements() );
+        fearib->m_KeepDelShellElements.Set( m_KeepDelShellElements() );
         fearib->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         fearib->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
         fearib->m_Theta.Set( m_Theta() );
@@ -4458,6 +4535,8 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
         fearib->m_StartWingSection.Set( m_StartWingSection() );
         fearib->m_EndWingSection.Set( m_EndWingSection() );
         fearib->m_MatchDihedralFlag.Set( m_MatchDihedralFlag() );
+        fearib->m_FeaPropertyID = m_FeaPropertyID;
+        fearib->m_CapFeaPropertyID = m_CapFeaPropertyID;
 
         fearib->SetName( string( m_Name + "_Rib" + std::to_string( ind ) ) );
 
@@ -4809,8 +4888,12 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
         slice->m_OrientationPlane.Set( m_OrientationPlane() );
         slice->m_AbsRelParmFlag.Set( m_AbsRelParmFlag() );
         slice->m_IncludedElements.Set( m_IncludedElements() );
+        slice->m_CreateBeamElements.Set( m_CreateBeamElements() );
+        slice->m_KeepDelShellElements.Set( m_KeepDelShellElements() );
         slice->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         slice->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
+        slice->m_FeaPropertyID = m_FeaPropertyID;
+        slice->m_CapFeaPropertyID = m_CapFeaPropertyID;
 
         slice->SetName( string( m_Name + "_Slice" + std::to_string( ind ) ) );
 
@@ -4847,46 +4930,209 @@ FeaProperty::FeaProperty() : ParmContainer()
     m_CrossSecArea.Init( "CrossSecArea", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_CrossSecArea.SetDescript( "Cross-Sectional Area of FeaElement" );
 
-    m_Izz.Init( "Izz", "FeaProperty", this, 0.1, -1.0e12, 1.0e12 );
+    m_Izz.Init( "Izz", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Izz.SetDescript( "Area Moment of Inertia for Bending in XY Plane of FeaElement Neutral Axis (I1)" );
 
-    m_Iyy.Init( "Iyy", "FeaProperty", this, 0.1, -1.0e12, 1.0e12 );
+    m_Iyy.Init( "Iyy", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Iyy.SetDescript( "Area Moment of Inertia for Bending in XZ Plane of FeaElement Neutral Axis (I2)" );
 
-    m_Izy.Init( "Izy", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
+    m_Izy.Init( "Izy", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Izy.SetDescript( "Area Product of Inertia of FeaElement (I12)" );
 
-    m_Ixx.Init( "Ixx", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
+    m_Ixx.Init( "Ixx", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Ixx.SetDescript( "Torsional Constant About FeaElement Neutral Axis (J)" );
 
-    m_Dim1.Init( "Dim1", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim1.Init( "Dim1", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Dim1.SetDescript( "First Dimension of the Cross Section" );
 
-    m_Dim2.Init( "Dim2", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim2.Init( "Dim2", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Dim2.SetDescript( "Second Dimension of the Cross Section" );
 
-    m_Dim3.Init( "Dim3", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim3.Init( "Dim3", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Dim3.SetDescript( "Third Dimension of the Cross Section" );
 
-    m_Dim4.Init( "Dim4", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim4.Init( "Dim4", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Dim4.SetDescript( "Fourth Dimension of the Cross Section" );
 
-    m_Dim5.Init( "Dim5", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim5.Init( "Dim5", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Dim5.SetDescript( "Fifth Dimension of the Cross Section" );
 
-    m_Dim6.Init( "Dim6", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim6.Init( "Dim6", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
     m_Dim6.SetDescript( "Sixth Dimension of the Cross Section" );
+
+    m_LengthUnit.Init( "LengthUnit", "FeaProperty", this, vsp::LEN_IN, vsp::LEN_MM, vsp::NUM_LEN_UNIT - 1 );
+    m_LengthUnit.SetDescript( "Length units used to specify property information" );
+
+    m_Thickness_FEM.Init( "Thickness_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Thickness_FEM.SetDescript( "Thickness of FeaElement in FEM units" );
+
+    m_CrossSecArea_FEM.Init( "CrossSecArea_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_CrossSecArea_FEM.SetDescript( "Cross-Sectional Area of FeaElement in FEM units" );
+
+    m_Izz_FEM.Init( "Izz_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Izz_FEM.SetDescript( "Area Moment of Inertia for Bending in XY Plane of FeaElement Neutral Axis (I1) in FEM units" );
+
+    m_Iyy_FEM.Init( "Iyy_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Iyy_FEM.SetDescript( "Area Moment of Inertia for Bending in XZ Plane of FeaElement Neutral Axis (I2) in FEM units" );
+
+    m_Izy_FEM.Init( "Izy_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Izy_FEM.SetDescript( "Area Product of Inertia of FeaElement (I12) in FEM units" );
+
+    m_Ixx_FEM.Init( "Ixx_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Ixx_FEM.SetDescript( "Torsional Constant About FeaElement Neutral Axis (J) in FEM units" );
+
+    m_Dim1_FEM.Init( "Dim1_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Dim1_FEM.SetDescript( "First Dimension of the Cross Section in FEM units" );
+
+    m_Dim2_FEM.Init( "Dim2_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Dim2_FEM.SetDescript( "Second Dimension of the Cross Section in FEM units" );
+
+    m_Dim3_FEM.Init( "Dim3_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Dim3_FEM.SetDescript( "Third Dimension of the Cross Section in FEM units" );
+
+    m_Dim4_FEM.Init( "Dim4_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Dim4_FEM.SetDescript( "Fourth Dimension of the Cross Section in FEM units" );
+
+    m_Dim5_FEM.Init( "Dim5_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Dim5_FEM.SetDescript( "Fifth Dimension of the Cross Section in FEM units" );
+
+    m_Dim6_FEM.Init( "Dim6_FEM", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
+    m_Dim6_FEM.SetDescript( "Sixth Dimension of the Cross Section in FEM units" );
 
     m_CrossSectType.Init( "CrossSectType", "FeaProperty", this, vsp::FEA_XSEC_GENERAL, vsp::FEA_XSEC_GENERAL, vsp::FEA_XSEC_BOX );
     m_CrossSectType.SetDescript( "Cross Section Type" );
 
-    m_FeaMaterialIndex.Init( "FeaMaterialIndex", "FeaProperty", this, 0, 0, 1e12 );
-    m_FeaMaterialIndex.SetDescript( "FeaMaterial Index for FeaProperty" );
+    m_FeaMaterialIndex.Init( "FeaMaterialIndex", "FeaProperty", this, -1, -1, 1e12 );
+    m_FeaMaterialIndex.SetDescript( "Deprecated FeaMaterial Index for FeaProperty" );
+
+    m_FeaMaterialID = "_Al6061T6";
 }
 
 FeaProperty::~FeaProperty()
 {
 
+}
+
+void FeaProperty::Update()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    // Attempt to convert legacy Index based material association to new ID approach.
+    if ( m_FeaMaterialIndex() != -1 )
+    {
+        // Legacy matid's
+        int nlegacy = 15;
+        const char *matids[] = {"_Al7075T6",
+                                "_Al2024T3",
+                                "_Ti6Al4V",
+                                "_CrMo4130",
+                                "_AS4-1",
+                                "_AS4-2",
+                                "_AS4-3",
+                                "_AS4-4",
+                                "_AS4-5",
+                                "_AS4-6",
+                                "_S2-1",
+                                "_S2-2",
+                                "_S2-3",
+                                "_Balsa",
+                                "_Spruce",
+        };
+
+        if ( m_FeaMaterialIndex() < nlegacy ) // Legacy built-in material.
+        {
+            m_FeaMaterialID = matids[ m_FeaMaterialIndex() ];
+        }
+        else // User-defined material.
+        {
+            vector < FeaMaterial* > mat_vec = StructureMgr.GetFeaMaterialVec();
+
+            int ilastbuiltin = -1;
+            for ( int i = 0; i < mat_vec.size(); i++ )
+            {
+                if ( mat_vec[i]->m_UserFeaMaterial == false )
+                {
+                    ilastbuiltin = i;
+                }
+            }
+
+            int index = m_FeaMaterialIndex() - nlegacy + ilastbuiltin;
+
+            if ( index >= 0 && index < mat_vec.size() )
+            {
+                m_FeaMaterialID = mat_vec[ index ]->GetID();
+            }
+            else
+            {
+                m_FeaMaterialID = "_Al7075T6";
+            }
+        }
+
+        // Mark index as -1 to deprecate its use.
+        m_FeaMaterialIndex = -1;
+    }
+
+
+    if ( m_LengthUnit() == vsp::LEN_UNITLESS )
+    {
+        m_Thickness_FEM = m_Thickness.Get(), m_LengthUnit();
+        m_CrossSecArea_FEM = m_CrossSecArea.Get(), m_LengthUnit();
+        m_Ixx_FEM = m_Ixx.Get();
+        m_Iyy_FEM = m_Iyy.Get();
+        m_Izy_FEM = m_Izy.Get();
+        m_Izz_FEM = m_Izz.Get();
+        m_Dim2_FEM = m_Dim2.Get();
+        m_Dim1_FEM = m_Dim1.Get();
+        m_Dim3_FEM = m_Dim3.Get();
+        m_Dim4_FEM = m_Dim4.Get();
+        m_Dim5_FEM = m_Dim5.Get();
+        m_Dim6_FEM = m_Dim6.Get();
+    }
+    else
+    {
+        int length_unit = -1;
+
+        switch (( int ) veh->m_StructUnit())
+        {
+            case vsp::SI_UNIT:
+                length_unit = vsp::LEN_M;
+                break;
+
+            case vsp::CGS_UNIT:
+                length_unit = vsp::LEN_CM;
+                break;
+
+            case vsp::MPA_UNIT:
+                length_unit = vsp::LEN_MM;
+                break;
+
+            case vsp::BFT_UNIT:
+                length_unit = vsp::LEN_FT;
+                break;
+
+            case vsp::BIN_UNIT:
+                length_unit = vsp::LEN_IN;
+                break;
+        }
+
+        m_Thickness_FEM = ConvertLength( m_Thickness.Get(), m_LengthUnit(), length_unit );
+        m_CrossSecArea_FEM = ConvertLength2( m_CrossSecArea.Get(), m_LengthUnit(), length_unit );
+        m_Ixx_FEM = ConvertLength4( m_Ixx.Get(), m_LengthUnit(), length_unit );
+        m_Iyy_FEM = ConvertLength4( m_Iyy.Get(), m_LengthUnit(), length_unit );
+        m_Izy_FEM = ConvertLength4( m_Izy.Get(), m_LengthUnit(), length_unit );
+        m_Izz_FEM = ConvertLength4( m_Izz.Get(), m_LengthUnit(), length_unit );
+        m_Dim1_FEM = ConvertLength( m_Dim1.Get(), m_LengthUnit(), length_unit );
+        m_Dim2_FEM = ConvertLength( m_Dim2.Get(), m_LengthUnit(), length_unit );
+        m_Dim3_FEM = ConvertLength( m_Dim3.Get(), m_LengthUnit(), length_unit );
+        m_Dim4_FEM = ConvertLength( m_Dim4.Get(), m_LengthUnit(), length_unit );
+        m_Dim5_FEM = ConvertLength( m_Dim5.Get(), m_LengthUnit(), length_unit );
+        m_Dim6_FEM = ConvertLength( m_Dim6.Get(), m_LengthUnit(), length_unit );
+    }
 }
 
 xmlNodePtr FeaProperty::EncodeXml( xmlNodePtr & node )
@@ -4895,12 +5141,22 @@ xmlNodePtr FeaProperty::EncodeXml( xmlNodePtr & node )
 
     ParmContainer::EncodeXml( prop_info );
 
+    if ( prop_info )
+    {
+        XmlUtil::AddStringNode( prop_info, "FeaMaterialID", m_FeaMaterialID );
+    }
+
     return prop_info;
 }
 
 xmlNodePtr FeaProperty::DecodeXml( xmlNodePtr & node )
 {
     ParmContainer::DecodeXml( node );
+
+    if ( node )
+    {
+        m_FeaMaterialID = ParmMgr.RemapID( XmlUtil::FindString( node, "FeaMaterialID", m_FeaMaterialID ) );
+    }
 
     return node;
 }
@@ -4958,17 +5214,26 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_FeaMaterialType.Init( "FeaMaterialType", "FeaMaterial", this, vsp::FEA_ISOTROPIC, vsp::FEA_ISOTROPIC, vsp::FEA_NUM_MAT_TYPES - 1 );
     m_FeaMaterialType.SetDescript( "Fea Material Type" );
 
-    m_MassDensity.Init( "MassDensity", "FeaMaterial", this, 1.0, 0.0, 1.0e12 );
+    m_MassDensity.Init( "MassDensity", "FeaMaterial", this, 0.098, 0.0, 1.0e12 );
     m_MassDensity.SetDescript( "Mass Density of Material" );
 
-    m_ElasticModulus.Init( "ElasticModulus", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_ElasticModulus.Init( "ElasticModulus", "FeaMaterial", this, 9900000, 0.0, 1.0e12 );
     m_ElasticModulus.SetDescript( "Elastic (Young's) Modulus for Material" );
 
-    m_PoissonRatio.Init( "PoissonRatio", "FeaMaterial", this, 0.0, -1.0, 0.5 );
+    m_PoissonRatio.Init( "PoissonRatio", "FeaMaterial", this, 0.33, -1.0, 0.5 );
     m_PoissonRatio.SetDescript( "Poisson's Ratio for Material" );
 
-    m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.000013, -1.0, 1.0 );
     m_ThermalExpanCoeff.SetDescript( "Thermal Expansion Coefficient for Material" );
+
+    m_DensityUnit.Init( "DensityUnit", "FeaMaterial", this, vsp::RHO_UNIT_LBM_IN3, vsp::RHO_UNIT_SLUG_FT3, vsp::NUM_RHO_UNIT - 1 );
+    m_DensityUnit.SetDescript( "Density units used to specify material properties." );
+
+    m_ModulusUnit.Init( "ModulusUnit", "FeaMaterial", this, vsp::PRES_UNIT_PSI, vsp::PRES_UNIT_PSF, vsp::NUM_PRES_UNIT - 1 );
+    m_ModulusUnit.SetDescript( "Modulus units used to specify material properties." );
+
+    m_TemperatureUnit.Init( "TemperatureUnit", "FeaMaterial", this, vsp::TEMP_UNIT_F, vsp::TEMP_UNIT_K, vsp::NUM_TEMP_UNIT - 1 );
+    m_TemperatureUnit.SetDescript( "Temperature units used to specify material properties." );
 
     m_E1.Init( "E1", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
     m_E1.SetDescript( "E1 Elastic (Young's) Modulus for Material" );
@@ -5006,6 +5271,44 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_A3.Init( "A3", "FeaMaterial", this, 0.0, -1.0, 1.0 );
     m_A3.SetDescript( "A3 Thermal Expansion Coefficient for Material" );
 
+    // Properties in FEA units -- auto-computed.
+
+    m_MassDensity_FEM.Init( "MassDensity_FEM", "FeaMaterial", this, 1.0, 0.0, 1.0e12 );
+    m_MassDensity_FEM.SetDescript( "Mass Density of Material in FEM units" );
+
+    m_ElasticModulus_FEM.Init( "ElasticModulus_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_ElasticModulus_FEM.SetDescript( "Elastic (Young's) Modulus for Material in FEM units" );
+
+    m_ThermalExpanCoeff_FEM.Init( "ThermalExpanCoeff_FEM", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_ThermalExpanCoeff_FEM.SetDescript( "Thermal Expansion Coefficient for Material in FEM units" );
+
+    m_E1_FEM.Init( "E1_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_E1_FEM.SetDescript( "E1 Elastic (Young's) Modulus for Material in FEM units" );
+
+    m_E2_FEM.Init( "E2_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_E2_FEM.SetDescript( "E2 Elastic (Young's) Modulus for Material in FEM units" );
+
+    m_E3_FEM.Init( "E3_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_E3_FEM.SetDescript( "E3 Elastic (Young's) Modulus for Material in FEM units" );
+
+    m_G12_FEM.Init( "G12_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_G12_FEM.SetDescript( "G12 Shear Modulus for Material in FEM units" );
+
+    m_G13_FEM.Init( "G13_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_G13_FEM.SetDescript( "G13 Shear Modulus for Material in FEM units" );
+
+    m_G23_FEM.Init( "G23_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_G23_FEM.SetDescript( "G23 Shear Modulus for Material in FEM units" );
+
+    m_A1_FEM.Init( "A1_FEM", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A1_FEM.SetDescript( "A1 Thermal Expansion Coefficient for Material in FEM units" );
+
+    m_A2_FEM.Init( "A2_FEM", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A2_FEM.SetDescript( "A2 Thermal Expansion Coefficient for Material in FEM units" );
+
+    m_A3_FEM.Init( "A3_FEM", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A3_FEM.SetDescript( "A3 Thermal Expansion Coefficient for Material in FEM units" );
+
 }
 
 FeaMaterial::~FeaMaterial()
@@ -5015,378 +5318,623 @@ FeaMaterial::~FeaMaterial()
 
 void FeaMaterial::Update()
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
+    Vehicle *veh = VehicleMgr.GetVehicle();
 
     if ( !veh )
     {
         return;
     }
 
-    if ( !m_UserFeaMaterial )
+    if ( m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
     {
-        // SI Units Used
-        // Reference: http://www.matweb.com/search/datasheet.aspx?bassnum=MA0001
+        m_E1 = m_ElasticModulus();
+        m_E2 = m_ElasticModulus();
+        m_E3 = m_ElasticModulus();
 
-        int density_unit = -1;
-        int pressure_unit = -1;
+        m_nu12 = m_PoissonRatio();
+        m_nu13 = m_PoissonRatio();
+        m_nu23 = m_PoissonRatio();
 
-        switch ( (int)veh->m_StructUnit() )
-        {
+        m_G12 = GetShearModulus();
+        m_G13 = m_G12();
+        m_G23 = m_G12();
+
+        m_A1 = m_ThermalExpanCoeff();
+        m_A2 = m_ThermalExpanCoeff();
+        m_A3 = m_ThermalExpanCoeff();
+    }
+    else
+    {
+        m_ElasticModulus = m_E1();
+        m_PoissonRatio = m_nu12();
+        m_ThermalExpanCoeff = m_A1();
+    }
+
+
+    int density_unit = -1;
+    int pressure_unit = -1;
+    int temp_unit = -1;
+
+    switch ( ( int ) veh->m_StructUnit() )
+    {
         case vsp::SI_UNIT:
-        density_unit = vsp::RHO_UNIT_KG_M3;
-        pressure_unit = vsp::PRES_UNIT_PA;
-        break;
+            density_unit = vsp::RHO_UNIT_KG_M3;
+            pressure_unit = vsp::PRES_UNIT_PA;
+            temp_unit = vsp::TEMP_UNIT_K;
+            break;
 
         case vsp::CGS_UNIT:
-        density_unit = vsp::RHO_UNIT_G_CM3;
-        pressure_unit = vsp::PRES_UNIT_BA;
-        break;
+            density_unit = vsp::RHO_UNIT_G_CM3;
+            pressure_unit = vsp::PRES_UNIT_BA;
+            temp_unit = vsp::TEMP_UNIT_K;
+            break;
 
         case vsp::MPA_UNIT:
-        density_unit = vsp::RHO_UNIT_TONNE_MM3;
-        pressure_unit = vsp::PRES_UNIT_MPA;
-        break;
+            density_unit = vsp::RHO_UNIT_TONNE_MM3;
+            pressure_unit = vsp::PRES_UNIT_MPA;
+            temp_unit = vsp::TEMP_UNIT_K;
+            break;
 
         case vsp::BFT_UNIT:
-        density_unit = vsp::RHO_UNIT_SLUG_FT3;
-        pressure_unit = vsp::PRES_UNIT_PSF;
-        break;
+            density_unit = vsp::RHO_UNIT_SLUG_FT3;
+            pressure_unit = vsp::PRES_UNIT_PSF;
+            temp_unit = vsp::TEMP_UNIT_R;
+            break;
 
         case vsp::BIN_UNIT:
-        density_unit = vsp::RHO_UNIT_LBFSEC2_IN4;
-        pressure_unit = vsp::PRES_UNIT_PSI;
-        break;
-        }
-
-        if ( strcmp( m_Name.c_str(), "Aluminum 7075-T6" ) == 0 )
-        {
-            m_PoissonRatio.Set( 0.33 );
-            m_MassDensity.Set( ConvertDensity( 2810, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_ElasticModulus.Set( ConvertPressure( 71.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.6e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-�C)
-        }
-        else if ( strcmp( m_Name.c_str(), "Aluminum 2024-T3" ) == 0 )
-        {
-            m_PoissonRatio.Set( 0.33 );
-            m_MassDensity.Set( ConvertDensity( 2780, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_ElasticModulus.Set( ConvertPressure( 73.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-�C)
-        }
-        else if ( strcmp( m_Name.c_str(), "Titanium Ti-6Al-4V" ) == 0 )
-        {
-            m_PoissonRatio.Set( 0.342 );
-            m_MassDensity.Set( ConvertDensity( 4430, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_ElasticModulus.Set( ConvertPressure( 113.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 9.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-�C)
-        }
-        else if ( strcmp( m_Name.c_str(), "AISI 4130 Steel" ) == 0 )
-        {
-            m_PoissonRatio.Set( 0.29 );
-            m_MassDensity.Set( ConvertDensity( 7850, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_ElasticModulus.Set( ConvertPressure( 205e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 13.7e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-�C)
-        }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [0_2/90]s" ) == 0 )
-        {
-            /*
-            AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
-            AS4 fiber density 1.79 g/cm^3
-            3501-6 resin density 1.265 g/cm^3
-            60.5% fiber volume fraction
-            laminateDensity = ( (1-V) * resinDensity) + (V * fiberDensity)
-            laminateDensity = 1.582625
-            */
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 79.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 44.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 11.4e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.072 );
-            m_nu13.Set( 0.402 );
-            m_nu23.Set( 0.465 );
-            m_G12.Set( ConvertPressure( 6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 5.38e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 3.47e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [0/90]_2s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 62.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 62.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 11e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.052 );
-            m_nu13.Set( 0.438 );
-            m_nu23.Set( 0.427 );
-            m_G12.Set( ConvertPressure( 6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 4.22e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 3.95e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [0/90/+-45]s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 46e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 46.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 11.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.296 );
-            m_nu13.Set( 0.318 );
-            m_nu23.Set( 0.317 );
-            m_G12.Set( ConvertPressure( 17.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 4.32e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 3.58e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-30]_2s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 47.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 12.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 10.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 1.13 );
-            m_nu13.Set( -0.197 );
-            m_nu23.Set( 0.434 );
-            m_G12.Set( ConvertPressure( 23.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 4.88e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 3.55e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-45]_2s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 20.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 20.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 11.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.689 );
-            m_nu13.Set( 0.211 );
-            m_nu23.Set( 0.211 );
-            m_G12.Set( ConvertPressure( 29.4e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 4.11e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 4.11e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-60]_2s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 12.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 47.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 12e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.294 );
-            m_nu13.Set( 0.434 );
-            m_nu23.Set( -0.197 );
-            m_G12.Set( ConvertPressure( 23.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 3.55e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 4.88e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [0_2/90]s" ) == 0 )
-        {
-            /*
-            S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
-            S2 fiber density 2.49 g/cm^3
-            3501-6 resin density 1.265 g/cm^3
-            50% fiber volume fraction
-            laminateDensity = ( (1-V) * resinDensity) + (V * fiberDensity)
-            laminateDensity = 1.8775
-            */
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1878, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 38.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 26.4e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 15.9e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.165 );
-            m_nu13.Set( 0.359 );
-            m_nu23.Set( 0.427 );
-            m_G12.Set( ConvertPressure( 6.76e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 6.33e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 5.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [0/90]_2s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1878, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 32.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 32.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 15.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.135 );
-            m_nu13.Set( 0.393 );
-            m_nu23.Set( 0.392 );
-            m_G12.Set( ConvertPressure( 6.76e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 5.72e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 5.59e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Glass Epoxy S2 3501-6 [0/90/+-45]s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1878, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 26.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 26.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 16e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.28 );
-            m_nu13.Set( 0.329 );
-            m_nu23.Set( 0.329 );
-            m_G12.Set( ConvertPressure( 10.5e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 5.78e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 5.04e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Balsa LTR" ) == 0 )
-        {
-            // Wood Handbook, Wood as an Engineering Material 2010
-            // Forest Products Laboratory. General Technical Report FPL-GTR-190.
-            // Madison, WI: U.S. Department of Agriculture, Forest Service, Forest Products Laboratory
-            double EL = 1.1 * 3400e6;  // 10% Correction to modulus from bending test.
-            double ET = 0.015 * EL;
-            double ER = 0.046 * EL;
-            double GLR = 0.054 * EL;
-            double GLT = 0.037 * EL;
-            double GRT = 0.005 * EL;
-            double nuLR = 0.229;
-            double nuLT = 0.488;
-            double nuRT = 0.665;
-
-            // Calculate these using equation to ensure consistent values.
-            // Commented value is that given in the reference
-            double nuRL = nuLR * ER / EL; // 0.018;
-            double nuTL = nuLT * ET / EL; // 0.009;
-            double nuTR = nuRT * ET / ER; // 0.231;
-
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 160, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( EL, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( ET, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( ER, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( nuLT );
-            m_nu13.Set( nuLR );
-            m_nu23.Set( nuTR );
-            m_G12.Set( ConvertPressure( GLT, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( GLR, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( GRT, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Sitka Spruce LTR" ) == 0 )
-        {
-            // Elastic properties from NASA TM-104059
-            // Structural Integrity of Wind Tunnel Wooden Fan Blades
-            // Sitka Spruce 8% Moisture content
-            // Density and CTE from MatWeb
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 360, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-
-            double EL = 1772000;
-            double ET = 87000;
-            double ER = 154000;
-            double GLT = 117000;
-            double GLR = 120000;
-            double GRT = 7100;
-
-            double nuLT = 0.441;
-            double nuLR = 0.375;
-            double nuRT = 0.471;
-            // Calculate these using equation to ensure consistent values.
-            // Commented value is that given in the reference
-            double nuRL = nuLR * ER / EL; // 0.034;
-            double nuTL = nuLT * ET / EL; // 0.022;
-            double nuTR = nuRT * ET / ER; // 0.248;
-
-            m_E1.Set( ConvertPressure( EL, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( ET, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( ER, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
-            m_nu12.Set( nuLT );
-            m_nu13.Set( nuLR );
-            m_nu23.Set( nuTR );
-            m_G12.Set( ConvertPressure( GLT, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( GLR, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( GRT, vsp::PRES_UNIT_PSI, pressure_unit ) ); // Pa
-
-            m_A1.Set( ConvertThermalExpanCoeff( 5.4e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 6.3e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 34.1e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        // This group of materials seemed mis-labeled in the handbook.
-        // It duplicates another entry above -- but the values are different.
-        // It is possible that these values apply to S2/3501-6 for the indicated laminate schedules.
-        /*
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-30]_2s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 30.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 15.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 14.9e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.545 );
-            m_nu13.Set( 0.136 );
-            m_nu23.Set( 0.406 );
-            m_G12.Set( ConvertPressure( 12.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 6.17e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 5.26e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-45]_2s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 19.9e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 19.9e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 16.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.467 );
-            m_nu13.Set( 0.284 );
-            m_nu23.Set( 0.284 );
-            m_G12.Set( ConvertPressure( 14.2e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 5.67e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 5.67e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        else if ( strcmp( m_Name.c_str(), "Carbon Epoxy AS4 3501-6 [+-60]_2s" ) == 0 )
-        {
-            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
-            m_MassDensity.Set( ConvertDensity( 1583, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
-            m_E1.Set( ConvertPressure( 15.6e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E2.Set( ConvertPressure( 30.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_E3.Set( ConvertPressure( 16.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_nu12.Set( 0.277 );
-            m_nu13.Set( 0.406 );
-            m_nu23.Set( 0.136 );
-            m_G12.Set( ConvertPressure( 12.3e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G13.Set( ConvertPressure( 5.26e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_G23.Set( ConvertPressure( 6.17e9, vsp::PRES_UNIT_PA, pressure_unit ) ); //  Pa
-            m_A1.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A2.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-            m_A3.Set( ConvertThermalExpanCoeff( 0.0, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-K)
-        }
-        */
+            density_unit = vsp::RHO_UNIT_LBFSEC2_IN4;
+            pressure_unit = vsp::PRES_UNIT_PSI;
+            temp_unit = vsp::TEMP_UNIT_R;
+            break;
     }
+
+    m_MassDensity_FEM = ConvertDensity( m_MassDensity(), m_DensityUnit(), density_unit );
+    m_ElasticModulus_FEM = ConvertPressure( m_ElasticModulus(), m_ModulusUnit(), pressure_unit );
+    m_ThermalExpanCoeff_FEM = ConvertThermalExpanCoeff( m_ThermalExpanCoeff(), m_TemperatureUnit(), temp_unit );
+
+    m_E1_FEM = ConvertPressure( m_E1(), m_ModulusUnit(), pressure_unit );
+    m_E2_FEM = ConvertPressure( m_E2(), m_ModulusUnit(), pressure_unit );
+    m_E3_FEM = ConvertPressure( m_E3(), m_ModulusUnit(), pressure_unit );
+
+    m_G12_FEM = ConvertPressure( m_G12(), m_ModulusUnit(), pressure_unit );
+    m_G13_FEM = ConvertPressure( m_G13(), m_ModulusUnit(), pressure_unit );
+    m_G23_FEM = ConvertPressure( m_G23(), m_ModulusUnit(), pressure_unit );
+
+    m_A1_FEM = ConvertThermalExpanCoeff( m_A1(), m_TemperatureUnit(), temp_unit );
+    m_A2_FEM = ConvertThermalExpanCoeff( m_A2(), m_TemperatureUnit(), temp_unit );
+    m_A3_FEM = ConvertThermalExpanCoeff( m_A3(), m_TemperatureUnit(), temp_unit );
+
+}
+
+void FeaMaterial::MakeMaterial( string id )
+{
+    if ( id == "_Al7075T6" )
+    {
+        m_Name = "Aluminum 7075-T6";
+        m_Description = "Valid for T-6 sheet / -T651 plate per MIL-HDBK-5J/MMPDS";
+        m_FeaMaterialType.Set( vsp::FEA_ISOTROPIC );
+
+        m_PoissonRatio.Set( 0.33 );
+
+        m_MassDensity.Set( 0.101 ); // lbm/in^3
+        m_DensityUnit.Set( vsp::RHO_UNIT_LBM_IN3 );
+
+        m_ElasticModulus.Set( 10300000 ); // psi
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PSI );
+
+        m_ThermalExpanCoeff.Set( 0.0000128 ); // in/(in-�F)
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_F );
+    }
+    else if ( id == "_Al6061T6" )
+    {
+        m_Name = "Aluminum 6061-T6";
+        m_Description = "Per MIL-HDBK-5J/MMPDS";
+        m_FeaMaterialType.Set( vsp::FEA_ISOTROPIC );
+
+        m_PoissonRatio.Set( 0.33 );
+
+        m_MassDensity.Set( 0.098 ); // lbm/in^3
+        m_DensityUnit.Set( vsp::RHO_UNIT_LBM_IN3 );
+
+        m_ElasticModulus.Set( 9900000 ); // psi
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PSI );
+
+        m_ThermalExpanCoeff.Set( 0.000013 ); // in/(in-�F)
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_F );
+    }
+    if ( id == "_Al2024T3" )
+    {
+        m_Name = "Aluminum 2024-T3";
+        m_Description = "Per MIL-HDBK-5J/MMPDS";
+        m_FeaMaterialType.Set( vsp::FEA_ISOTROPIC );
+
+        m_PoissonRatio.Set( 0.33 );
+
+        m_MassDensity.Set( 0.1 ); // lbm/in^3
+        m_DensityUnit.Set( vsp::RHO_UNIT_LBM_IN3 );
+
+        m_ElasticModulus.Set( 10500000 ); // psi
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PSI );
+
+        m_ThermalExpanCoeff.Set( 0.000013 ); // in/(in-�F)
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_F );
+    }
+    if ( id == "_Ti6Al4V" )
+    {
+        m_Name = "Titanium Ti-6Al-4V";
+        m_Description = "Valid for annealed (AMS 4911) and solution treated and aged condition (T-9046) per MIL-HDBK-5J/MMPDS";
+        m_FeaMaterialType.Set( vsp::FEA_ISOTROPIC );
+
+        m_PoissonRatio.Set( 0.31 );
+
+        m_MassDensity.Set( 0.16 ); // lbm/in^3
+        m_DensityUnit.Set( vsp::RHO_UNIT_LBM_IN3 );
+
+        m_ElasticModulus.Set( 16000000 ); // psi
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PSI );
+
+        m_ThermalExpanCoeff.Set( 0.00000895 ); // in/(in-�F)
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_F );
+    }
+    if ( id == "_CrMo4130" )
+    {
+        m_Name = "Steel AISI 4130";
+        m_Description = "Valid for tube (AMS 6371) and sheet (6345) per MIL-HDBK-5J/MMPDS";
+        m_FeaMaterialType.Set( vsp::FEA_ISOTROPIC );
+
+        m_PoissonRatio.Set( 0.33 );
+
+        m_MassDensity.Set( 0.283 ); // lbm/in^3
+        m_DensityUnit.Set( vsp::RHO_UNIT_LBM_IN3 );
+
+        m_ElasticModulus.Set( 29000000 ); // psi
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PSI );
+
+        m_ThermalExpanCoeff.Set( 0.000007 ); // in/(in-�F)
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_F );
+    }
+    // AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
+    // AS4 fiber density 1.79 g/cm^3
+    // 3501-6 resin density 1.265 g/cm^3
+    // 60.5% fiber volume fraction
+    // laminateDensity = ( (1-V) * resinDensity) + (V * fiberDensity)
+    // laminateDensity = 1.582625
+    else if ( id == "_AS4-1" )
+    {
+        m_Name = "Carbon Epoxy AS4 3501-6 [0_2/90]s";
+        m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  60.5% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.582625 );
+        m_E1.Set( 79.3e9 );
+        m_E2.Set( 44.6e9 );
+        m_E3.Set( 11.4e9 );
+        m_nu12.Set( 0.072 );
+        m_nu13.Set( 0.402 );
+        m_nu23.Set( 0.465 );
+        m_G12.Set( 6e9 );
+        m_G13.Set( 5.38e9 );
+        m_G23.Set( 3.47e9 );
+        m_A1.Set( 0.0 );
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+    }
+    else if ( id == "_AS4-2" )
+    {
+        m_Name = "Carbon Epoxy AS4 3501-6 [0/90]_2s";
+        m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  60.5% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.582625 );
+        m_E1.Set( 62.1e9 );
+        m_E2.Set( 62.1e9 );
+        m_E3.Set( 11e9 );
+        m_nu12.Set( 0.052 );
+        m_nu13.Set( 0.438 );
+        m_nu23.Set( 0.427 );
+        m_G12.Set( 6e9 );
+        m_G13.Set( 4.22e9 );
+        m_G23.Set( 3.95e9 );
+        m_A1.Set( 0.0 );
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+    }
+    else if ( id == "_AS4-3" )
+    {
+        m_Name = "Carbon Epoxy AS4 3501-6 [0/90/+-45]s";
+        m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  60.5% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.582625 );
+        m_E1.Set( 46e9 );
+        m_E2.Set( 46.1e9 );
+        m_E3.Set( 11.1e9 );
+        m_nu12.Set( 0.296 );
+        m_nu13.Set( 0.318 );
+        m_nu23.Set( 0.317 );
+        m_G12.Set( 17.7e9 );
+        m_G13.Set( 4.32e9 );
+        m_G23.Set( 3.58e9 );
+        m_A1.Set( 0.0 );
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+    }
+    else if ( id == "_AS4-4" )
+    {
+        m_Name = "Carbon Epoxy AS4 3501-6 [+-30]_2s";
+        m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  60.5% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.582625 );
+        m_E1.Set( 47.2e9 );
+        m_E2.Set( 12.2e9 );
+        m_E3.Set( 10.3e9 );
+        m_nu12.Set( 1.13 );
+        m_nu13.Set( -0.197 );
+        m_nu23.Set( 0.434 );
+        m_G12.Set( 23.6e9 );
+        m_G13.Set( 4.88e9 );
+        m_G23.Set( 3.55e9 );
+        m_A1.Set( 0.0 );
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+    }
+    else if ( id == "_AS4-5" )
+    {
+        m_Name = "Carbon Epoxy AS4 3501-6 [+-45]_2s";
+        m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  60.5% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.582625 );
+        m_E1.Set( 20.3e9 );
+        m_E2.Set( 20.3e9 );
+        m_E3.Set( 11.8e9 );
+        m_nu12.Set( 0.689 );
+        m_nu13.Set( 0.211 );
+        m_nu23.Set( 0.211 );
+        m_G12.Set( 29.4e9 );
+        m_G13.Set( 4.11e9 );
+        m_G23.Set( 4.11e9 );
+        m_A1.Set( 0.0 );
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+    }
+    else if ( id == "_AS4-6" )
+    {
+        m_Name = "Carbon Epoxy AS4 3501-6 [+-60]_2s";
+        m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  60.5% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.582625 );
+        m_E1.Set( 12.2e9 );
+        m_E2.Set( 47.2e9 );
+        m_E3.Set( 12e9 );
+        m_nu12.Set( 0.294 );
+        m_nu13.Set( 0.434 );
+        m_nu23.Set( -0.197 );
+        m_G12.Set( 23.6e9 );
+        m_G13.Set( 3.55e9 );
+        m_G23.Set( 4.88e9 );
+        m_A1.Set( 0.0 );
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+    }
+    // S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
+    // S2 fiber density 2.49 g/cm^3
+    // 3501-6 resin density 1.265 g/cm^3
+    // 50% fiber volume fraction
+    // laminateDensity = ( (1-V) * resinDensity) + (V * fiberDensity)
+    // laminateDensity = 1.8775
+    else if ( id == "_S2-1" )
+    {
+        m_Name = "Glass Epoxy S2 3501-6 [0_2/90]s";
+        m_Description = "S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  50% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.8775 );
+        m_E1.Set( 38.1e9 );
+        m_E2.Set( 26.4e9 );
+        m_E3.Set( 15.9e9 );
+        m_nu12.Set( 0.165 );
+        m_nu13.Set( 0.359 );
+        m_nu23.Set( 0.427 );
+        m_G12.Set( 6.76e9 );
+        m_G13.Set( 6.33e9 );
+        m_G23.Set( 5.2e9 );
+        m_A1.Set( 0.0 );
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+    }
+    else if ( id == "_S2-2" )
+    {
+        m_Name = "Glass Epoxy S2 3501-6 [0/90]_2s";
+        m_Description = "S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  50% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.8775 );
+        m_E1.Set( 32.3e9 );
+        m_E2.Set( 32.3e9 );
+        m_E3.Set( 15.8e9 );
+        m_nu12.Set( 0.135 );
+        m_nu13.Set( 0.393 );
+        m_nu23.Set( 0.392 );
+        m_G12.Set( 6.76e9 );
+        m_G13.Set( 5.72e9 );
+        m_G23.Set( 5.59e9 );
+        m_A1.Set( 0.0 );
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+    }
+    else if ( id == "_S2-3" )
+    {
+        m_Name = "Glass Epoxy S2 3501-6 [0/90/+-45]s";
+        m_Description = "S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  50% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.8775 );
+        m_E1.Set( 26.8e9 );
+        m_E2.Set( 26.8e9 );
+        m_E3.Set( 16e9 );
+        m_nu12.Set( 0.28 );
+        m_nu13.Set( 0.329 );
+        m_nu23.Set( 0.329 );
+        m_G12.Set( 10.5e9 );
+        m_G13.Set( 5.78e9 );
+        m_G23.Set( 5.04e9 );
+        m_A1.Set( 0.0 );
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+    }
+    else if ( id == "_Balsa" )
+    {
+        m_Name = "Balsa LTR";
+        m_Description = "From FPL-GTR-190";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+        // Wood Handbook, Wood as an Engineering Material 2010
+        // Forest Products Laboratory. General Technical Report FPL-GTR-190.
+        // Madison, WI: U.S. Department of Agriculture, Forest Service, Forest Products Laboratory
+        double EL = 1.1 * 3400e6;  // 10% Correction to modulus from bending test.
+        double ET = 0.015 * EL;
+        double ER = 0.046 * EL;
+        double GLR = 0.054 * EL;
+        double GLT = 0.037 * EL;
+        double GRT = 0.005 * EL;
+        double nuLR = 0.229;
+        double nuLT = 0.488;
+        double nuRT = 0.665;
+
+        // Calculate these using equation to ensure consistent values.
+        // Commented value is that given in the reference
+        double nuRL = nuLR * ER / EL; // 0.018;
+        double nuTL = nuLT * ET / EL; // 0.009;
+        double nuTR = nuRT * ET / ER; // 0.231;
+
+        m_MassDensity.Set( 160 ); // kg/m^3
+        m_DensityUnit.Set( vsp::RHO_UNIT_KG_M3 );
+
+        m_E1.Set( EL ); // Pa
+        m_E2.Set( ET );
+        m_E3.Set( ER );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+
+        m_nu12.Set( nuLT );
+        m_nu13.Set( nuLR );
+        m_nu23.Set( nuTR );
+
+        m_G12.Set( GLT );
+        m_G13.Set( GLR );
+        m_G23.Set( GRT );
+
+        m_A1.Set( 0.0 ); // 1/K
+        m_A2.Set( 0.0 );
+        m_A3.Set( 0.0 );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+    }
+    else if ( id == "_Spruce" )
+    {
+        m_Name = "Sitka Spruce LTR";
+        m_Description = "From NASA TM-104059.  Sitka Spruce 8% moisture content.  Density and CTE from MatWeb.";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+        // Elastic properties from NASA TM-104059
+        // Structural Integrity of Wind Tunnel Wooden Fan Blades
+        // Sitka Spruce 8% Moisture content
+        // Density and CTE from MatWeb
+        m_MassDensity.Set( 360); // kg/m^3
+        m_DensityUnit.Set( vsp::RHO_UNIT_KG_M3 );
+
+        double EL = 1772000;
+        double ET = 87000;
+        double ER = 154000;
+        double GLT = 117000;
+        double GLR = 120000;
+        double GRT = 7100;
+
+        double nuLT = 0.441;
+        double nuLR = 0.375;
+        double nuRT = 0.471;
+        // Calculate these using equation to ensure consistent values.
+        // Commented value is that given in the reference
+        double nuRL = nuLR * ER / EL; // 0.034;
+        double nuTL = nuLT * ET / EL; // 0.022;
+        double nuTR = nuRT * ET / ER; // 0.248;
+
+        m_E1.Set( EL ); // psi
+        m_E2.Set( ET );
+        m_E3.Set( ER );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PSI );
+
+        m_nu12.Set( nuLT );
+        m_nu13.Set( nuLR );
+        m_nu23.Set( nuTR );
+
+        m_G12.Set( GLT );
+        m_G13.Set( GLR );
+        m_G23.Set( GRT );
+
+        m_A1.Set( 5.4e-6 ); // 1/K
+        m_A2.Set( 6.3e-6 );
+        m_A3.Set( 34.1e-6 );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+    }
+    m_UserFeaMaterial = false;
+
+    // Change built-in material property ID's to hard-coded values based on base material ID.
+    // This way, they will always be the same for all models and all files.
+
+    ChangeID( id );
+
+    m_FeaMaterialType.ChangeID( id + "t" );
+
+    m_MassDensity.ChangeID( id + "rho" );
+    m_ElasticModulus.ChangeID( id + "E" );
+    m_PoissonRatio.ChangeID( id + "nu" );
+    m_ThermalExpanCoeff.ChangeID( id + "a" );
+
+    m_DensityUnit.ChangeID( id + "rhou" );
+    m_ModulusUnit.ChangeID( id + "Eu" );
+    m_TemperatureUnit.ChangeID( id + "au" );
+
+    m_E1.ChangeID( id + "E1" );
+    m_E2.ChangeID( id + "E2" );
+    m_E3.ChangeID( id + "E3" );
+    m_nu12.ChangeID( id + "nu12" );
+    m_nu13.ChangeID( id + "nu13" );
+    m_nu23.ChangeID( id + "nu23" );
+    m_G12.ChangeID( id + "G12" );
+    m_G13.ChangeID( id + "G13" );
+    m_G23.ChangeID( id + "G23" );
+    m_A1.ChangeID( id + "A1" );
+    m_A2.ChangeID( id + "A2" );
+    m_A3.ChangeID( id + "A3" );
+
+    m_MassDensity_FEM.ChangeID( id + "rho_FEM" );
+    m_ElasticModulus_FEM.ChangeID( id + "E_FEM" );
+    m_ThermalExpanCoeff_FEM.ChangeID( id + "a_FEM" );
+
+    m_E1_FEM.ChangeID( id + "E1_FEM" );
+    m_E2_FEM.ChangeID( id + "E2_FEM" );
+    m_E3_FEM.ChangeID( id + "E3_FEM" );
+    m_G12_FEM.ChangeID( id + "G12_FEM" );
+    m_G13_FEM.ChangeID( id + "G13_FEM" );
+    m_G23_FEM.ChangeID( id + "G23_FEM" );
+    m_A1_FEM.ChangeID( id + "A1_FEM" );
+    m_A2_FEM.ChangeID( id + "A2_FEM" );
+    m_A3_FEM.ChangeID( id + "A3_FEM" );
+
+
+
+// This group of materials seemed mis-labeled in the handbook.
+// It duplicates another entry above -- but the values are different.
+// It is possible that these values apply to S2/3501-6 for the indicated laminate schedules.
+
+//        else if ( id == "_AS4-7" )
+//        {
+//            m_Name = "Carbon Epoxy AS4 3501-6 [+-30]_2s";
+//            m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  60.5% fiber volume fraction";
+//            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+//
+//            m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+//            m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+//            m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+//
+//            m_MassDensity.Set( 1.582625 );
+//            m_E1.Set( 30.7e9 );
+//            m_E2.Set( 15.6e9 );
+//            m_E3.Set( 14.9e9 );
+//            m_nu12.Set( 0.545 );
+//            m_nu13.Set( 0.136 );
+//            m_nu23.Set( 0.406 );
+//            m_G12.Set( 12.3e9 );
+//            m_G13.Set( 6.17e9 );
+//            m_G23.Set( 5.26e9 );
+//            m_A1.Set( 0.0 );
+//            m_A2.Set( 0.0 );
+//            m_A3.Set( 0.0 );
+//        }
+//        else if ( id == "_AS4-8" )
+//        {
+//            m_Name = "Carbon Epoxy AS4 3501-6 [+-45]_2s";
+//            m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  60.5% fiber volume fraction";
+//            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+//
+//            m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+//            m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+//            m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+//
+//            m_MassDensity.Set( 1.582625 );
+//            m_E1.Set( 19.9e9 );
+//            m_E2.Set( 19.9e9 );
+//            m_E3.Set( 16.1e9 );
+//            m_nu12.Set( 0.467 );
+//            m_nu13.Set( 0.284 );
+//            m_nu23.Set( 0.284 );
+//            m_G12.Set( 14.2e9 );
+//            m_G13.Set( 5.67e9 );
+//            m_G23.Set( 5.67e9 );
+//            m_A1.Set( 0.0 );
+//            m_A2.Set( 0.0 );
+//            m_A3.Set( 0.0 );
+//        }
+//        else if ( id == "_AS4-9" )
+//        {
+//            m_Name = "Carbon Epoxy AS4 3501-6 [+-60]_2s";
+//            m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629.  60.5% fiber volume fraction";
+//            m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
+//
+//            m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+//            m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+//            m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+//
+//            m_MassDensity.Set( 1.582625 );
+//            m_E1.Set( 15.6e9 );
+//            m_E2.Set( 30.7e9 );
+//            m_E3.Set( 16.8e9 );
+//            m_nu12.Set( 0.277 );
+//            m_nu13.Set( 0.406 );
+//            m_nu23.Set( 0.136 );
+//            m_G12.Set( 12.3e9 );
+//            m_G13.Set( 5.26e9 );
+//            m_G23.Set( 6.17e9 );
+//            m_A1.Set( 0.0 );
+//            m_A2.Set( 0.0 );
+//            m_A3.Set( 0.0 );
+//        }
 }
 
 void FeaMaterial::ParmChanged( Parm* parm_ptr, int type )
@@ -5413,6 +5961,11 @@ xmlNodePtr FeaMaterial::EncodeXml( xmlNodePtr & node )
 
     ParmContainer::EncodeXml( mat_info );
 
+    if ( mat_info )
+    {
+        XmlUtil::AddStringNode( mat_info, "Description", m_Description );
+    }
+
     return mat_info;
 }
 
@@ -5420,12 +5973,22 @@ xmlNodePtr FeaMaterial::DecodeXml( xmlNodePtr & node )
 {
     ParmContainer::DecodeXml( node );
 
+    if ( node )
+    {
+        m_Description = ParmMgr.RemapID( XmlUtil::FindString( node, "Description", m_Description ) );
+    }
+
     return node;
 }
 
 double FeaMaterial::GetShearModulus()
 {
-    return ( m_ElasticModulus() / ( 2 * ( m_PoissonRatio() + 1 ) ) );
+    return ( m_ElasticModulus() / ( 2.0 * ( m_PoissonRatio() + 1.0 ) ) );
+}
+
+double FeaMaterial::GetShearModulus_FEM()
+{
+    return ( m_ElasticModulus_FEM() / ( 2.0 * ( m_PoissonRatio() + 1.0 ) ) );
 }
 
 //////////////////////////////////////////////////////

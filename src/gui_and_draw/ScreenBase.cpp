@@ -4295,14 +4295,11 @@ bool FeaXSecScreen::Update()
 
     int xsec_type = -1;
 
-    if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
-    {
-        FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
+    FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
 
-        if ( fea_prop )
-        {
-            xsec_type = fea_prop->m_CrossSectType();
-        }
+    if ( fea_prop )
+    {
+        xsec_type = fea_prop->m_CrossSectType();
     }
 
     if ( xsec_type == vsp::FEA_XSEC_CIRC )

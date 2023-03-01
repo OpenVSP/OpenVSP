@@ -27,7 +27,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA Structure", 196 )
+StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA Structure", 196 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -117,22 +117,22 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_StructureTabLayout.SetSameLineFlag( false );
     m_StructureTabLayout.SetFitWidthFlag( true );
 
-    m_ModelUnitChoice.AddItem( "MM", vsp::LEN_MM );
-    m_ModelUnitChoice.AddItem( "CM", vsp::LEN_CM );
-    m_ModelUnitChoice.AddItem( "M", vsp::LEN_M );
     m_ModelUnitChoice.AddItem( "IN", vsp::LEN_IN );
     m_ModelUnitChoice.AddItem( "FT", vsp::LEN_FT );
     m_ModelUnitChoice.AddItem( "YD", vsp::LEN_YD );
+    m_ModelUnitChoice.AddItem( "MM", vsp::LEN_MM );
+    m_ModelUnitChoice.AddItem( "CM", vsp::LEN_CM );
+    m_ModelUnitChoice.AddItem( "M", vsp::LEN_M );
     m_ModelUnitChoice.AddItem( "Consistent", vsp::LEN_UNITLESS );
     m_StructureTabLayout.AddChoice( m_ModelUnitChoice, "OpenVSP Model Unit System (Length)" );
 
-    m_StructUnitChoice.AddItem( "SI (kg, m)" );
-    m_StructUnitChoice.AddItem( "CGS (g, cm)" );
-    m_StructUnitChoice.AddItem( "MPA (tonne, mm)" );
-    m_StructUnitChoice.AddItem( "BFT (slug, ft)" );
     string squared( 1, (char) 178 );
     string bin_name = "BIN (lbf sec" + squared + " \/ in, in)";
-    m_StructUnitChoice.AddItem( bin_name );
+    m_StructUnitChoice.AddItem( bin_name, vsp::BIN_UNIT );
+    m_StructUnitChoice.AddItem( "BFT (slug, ft)", vsp::BFT_UNIT );
+    m_StructUnitChoice.AddItem( "MPA (tonne, mm)", vsp::MPA_UNIT );
+    m_StructUnitChoice.AddItem( "CGS (g, cm)", vsp::CGS_UNIT );
+    m_StructUnitChoice.AddItem( "SI (kg, m)", vsp::SI_UNIT );
     m_StructureTabLayout.AddChoice( m_StructUnitChoice, "FEA Output Unit System (Mass, Length)" );
 
     m_StructureTabLayout.AddYGap();
@@ -319,7 +319,16 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
 
     m_MaterialEditSubGroup.AddYGap();
 
-    m_MaterialEditSubGroup.AddInput( m_FeaMaterialNameInput, "Material Name" );
+    m_MaterialEditSubGroup.AddDividerBox( "Material Name & Description" );
+
+    m_MaterialEditSubGroup.SetButtonWidth( 50 );
+    m_MaterialEditSubGroup.AddInput( m_FeaMaterialNameInput, "Name" );
+
+    m_MaterialEditSubGroup.AddYGap();
+
+    m_MaterialEditSubGroup.SetButtonWidth( -1 );
+    m_MaterialEditSubGroup.AddInput( m_FeaMaterialDescriptionInput, "", 0, 2 );
+    m_FeaMaterialDescriptionInput.SetType( FL_MULTILINE_INPUT_WRAP );
 
     m_MaterialEditSubGroup.AddYGap();
 
@@ -331,94 +340,345 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_MaterialEditSubGroup.AddYGap();
 
     m_MaterialEditSubGroup.AddDividerBox( "Material Properties" );
+    m_MaterialEditSubGroup.AddYGap();
 
-    m_MaterialEditSubGroup.SetInputWidth( m_MaterialEditSubGroup.GetW() / 6.0 );
-    int button3_w = m_MaterialEditSubGroup.GetW() / 3.0 - m_MaterialEditSubGroup.GetInputWidth();
-    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
-    int unit_w = button3_w;
+    m_MaterialEditSubGroup.AddSubGroupLayout( m_IsoSubGroup, m_MaterialEditSubGroup.GetRemainX(), m_MaterialEditSubGroup.GetRemainY() );
+    m_MaterialEditSubGroup.AddSubGroupLayout( m_OrthoSubGroup, m_MaterialEditSubGroup.GetRemainX(), m_MaterialEditSubGroup.GetRemainY() );
 
-    m_MaterialEditSubGroup.SetSameLineFlag( true );
+
+    int gapw = 5.0;
+    int labelw = 20;
+    int choicew = ( m_IsoSubGroup.GetW() - gapw ) / 4.0;
+    int smallw = ( m_IsoSubGroup.GetW() - gapw ) / 8.0;
+    int fieldw = ( m_IsoSubGroup.GetW() - gapw - labelw - 2 * choicew ) / 2.0;
 
     char rho[16];
     int indx = 0;
     indx += fl_utf8encode( 961, &rho[ indx ] ); // Greek character rho
     rho[ indx ] = 0;
 
-    m_MaterialEditSubGroup.SetFitWidthFlag( true );
-    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, rho, 1e3, "%5.3g", unit_w );
-    m_MaterialEditSubGroup.SetFitWidthFlag( false );
-    m_MaterialEditSubGroup.SetButtonWidth( unit_w );
-    m_MaterialEditSubGroup.AddButton( m_MatDensityUnit, "" );
-    m_MatDensityUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_MatDensityUnit.GetFlButton()->labelcolor( FL_BLACK );
+    char alpha[16];
+    indx = 0;
+    indx += fl_utf8encode( 961-16, &alpha[ indx ] ); // Greek character alpha
+    alpha[ indx ] = 0;
 
-    m_MaterialEditSubGroup.AddYGap();
-    m_MaterialEditSubGroup.ForceNewLine();
-    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
+    char nu[16];
+    indx = 0;
+    indx += fl_utf8encode( 961-16+12, &nu[ indx ] ); // Greek character nu
+    nu[ indx ] = 0;
 
-    m_MaterialEditSubGroup.SetFitWidthFlag( true );
-    m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "E", 1e4, "%5.3g", unit_w );
-    m_MaterialEditSubGroup.SetFitWidthFlag( false );
-    m_MaterialEditSubGroup.SetButtonWidth( unit_w );
-    m_MaterialEditSubGroup.AddButton( m_MatElasticModUnit, "" );
-    m_MatElasticModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_MatElasticModUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_IsoSubGroup.SetSameLineFlag( true );
+    m_IsoSubGroup.SetFitWidthFlag( false );
 
-    m_MaterialEditSubGroup.ForceNewLine();
-    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
+    m_IsoSubGroup.SetButtonWidth( labelw + fieldw + choicew );
+    m_IsoSubGroup.AddDividerBox( "Input" );
+    m_IsoSubGroup.AddX( gapw );
+    m_IsoSubGroup.SetButtonWidth( fieldw + choicew );
+    m_IsoSubGroup.AddDividerBox( "To FEM" );
+    m_IsoSubGroup.ForceNewLine();
 
-    m_MaterialEditSubGroup.AddInput( m_MatE1Input, "E_1", "%5.3g" );
-    m_MaterialEditSubGroup.AddInput( m_MatE2Input, "E_2", "%5.3g" );
-    m_MaterialEditSubGroup.AddInput( m_MatE3Input, "E_3", "%5.3g" );
+    m_IsoSubGroup.SetInputWidth( fieldw );
+    m_IsoSubGroup.SetChoiceButtonWidth( -1 );
+    m_IsoSubGroup.SetSliderWidth( choicew );
 
-    m_MaterialEditSubGroup.AddYGap();
-    m_MaterialEditSubGroup.ForceNewLine();
 
-    m_MaterialEditSubGroup.SetFitWidthFlag( true );
-    m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "nu", 1, "%5.3g" ); // unit_w // Reserve unit space
-    m_MaterialEditSubGroup.SetFitWidthFlag( false );
+    m_IsoSubGroup.SetButtonWidth( labelw );
 
-    m_MaterialEditSubGroup.ForceNewLine();
+    m_IsoSubGroup.AddInput( m_MatDensityInput, rho, "%5.3g" );
 
-    m_MaterialEditSubGroup.AddInput( m_Matnu12Input, "nu_12", "%5.3g", 2.0 * m_MaterialEditSubGroup.GetW() / 3.0 );
-    m_MaterialEditSubGroup.AddInput( m_Matnu13Input, "nu_13", "%5.3g", 2.0 * m_MaterialEditSubGroup.GetW() / 3.0 );
-    m_MaterialEditSubGroup.AddInput( m_Matnu23Input, "nu_23", "%5.3g", 2.0 * m_MaterialEditSubGroup.GetW() / 3.0 );
+    m_IsoSubGroup.SetButtonWidth( smallw );
 
-    m_MaterialEditSubGroup.AddYGap();
-    m_MaterialEditSubGroup.ForceNewLine();
+    m_IsoMatDensityUnitChoice.AddItem( "lbm/in^3", vsp::RHO_UNIT_LBM_IN3 );
+    m_IsoMatDensityUnitChoice.AddItem( "lbf s^2/in^4", vsp::RHO_UNIT_LBFSEC2_IN4 );
+    m_IsoMatDensityUnitChoice.AddItem( "lbm/ft^3", vsp::RHO_UNIT_LBM_FT3 );
+    m_IsoMatDensityUnitChoice.AddItem( "slug/ft^3", vsp::RHO_UNIT_SLUG_FT3 );
+    m_IsoMatDensityUnitChoice.AddItem( "g/cm^3", vsp::RHO_UNIT_G_CM3 );
+    m_IsoMatDensityUnitChoice.AddItem( "kg/m^3", vsp::RHO_UNIT_KG_M3 );
+    m_IsoMatDensityUnitChoice.AddItem( "t/mm^3", vsp::RHO_UNIT_TONNE_MM3 );
+    m_IsoSubGroup.AddChoice( m_IsoMatDensityUnitChoice, "" );
 
-    m_MaterialEditSubGroup.SetFitWidthFlag( true );
-    m_MaterialEditSubGroup.AddOutput( m_MatShearModOutput, "G", unit_w );
-    m_MaterialEditSubGroup.SetFitWidthFlag( false );
-    m_MaterialEditSubGroup.SetButtonWidth( unit_w );
-    m_MaterialEditSubGroup.AddButton( m_MatShearModUnit, "" );
-    m_MatShearModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_MatShearModUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_IsoSubGroup.AddX( gapw );
 
-    m_MaterialEditSubGroup.ForceNewLine();
-    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
+    m_IsoSubGroup.SetButtonWidth( 0 );
+    m_IsoSubGroup.AddOutput( m_MatDensity_FEMOutput, "", "%5.3g" );
 
-    m_MaterialEditSubGroup.AddInput( m_MatG12Input, "G_12", "%5.3g" );
-    m_MaterialEditSubGroup.AddInput( m_MatG13Input, "G_13", "%5.3g" );
-    m_MaterialEditSubGroup.AddInput( m_MatG23Input, "G_23", "%5.3g" );
+    m_IsoSubGroup.SetButtonWidth( choicew );
+    m_IsoSubGroup.AddButton( m_IsoMatDensityUnit_FEM, "" );
+    m_IsoMatDensityUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IsoMatDensityUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_MaterialEditSubGroup.AddYGap();
-    m_MaterialEditSubGroup.ForceNewLine();
+    m_IsoSubGroup.ForceNewLine();
 
-    m_MaterialEditSubGroup.SetFitWidthFlag( true );
-    m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "CTE", 10e-5, "%5.3g", unit_w );
-    m_MaterialEditSubGroup.SetFitWidthFlag( false );
-    m_MaterialEditSubGroup.SetButtonWidth( unit_w );
-    m_MaterialEditSubGroup.AddButton( m_MatThermalExCoeffUnit, "" );
-    m_MatThermalExCoeffUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_MatThermalExCoeffUnit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_MaterialEditSubGroup.ForceNewLine();
-    m_MaterialEditSubGroup.SetButtonWidth( button3_w );
 
-    m_MaterialEditSubGroup.AddInput( m_MatA1Input, "CTE_1", "%5.3g" );
-    m_MaterialEditSubGroup.AddInput( m_MatA2Input, "CTE_2", "%5.3g" );
-    m_MaterialEditSubGroup.AddInput( m_MatA3Input, "CTE_3", "%5.3g" );
+    m_IsoSubGroup.SetButtonWidth( labelw );
+    m_IsoSubGroup.AddInput( m_MatElasticModInput, "E", "%5.3g" );
+
+    m_IsoSubGroup.SetButtonWidth( smallw );
+    m_IsoMatElasticModUnitChoice.AddItem( "psi", vsp::PRES_UNIT_PSI );
+    m_IsoMatElasticModUnitChoice.AddItem( "psf", vsp::PRES_UNIT_PSF );
+    m_IsoMatElasticModUnitChoice.AddItem( "Pa", vsp::PRES_UNIT_PA );
+    m_IsoMatElasticModUnitChoice.AddItem( "kPa", vsp::PRES_UNIT_KPA );
+    m_IsoMatElasticModUnitChoice.AddItem( "MPa", vsp::PRES_UNIT_MPA );
+    m_IsoSubGroup.AddChoice( m_IsoMatElasticModUnitChoice, "" );
+
+    m_IsoSubGroup.AddX( gapw );
+
+    m_IsoSubGroup.SetButtonWidth( 0 );
+    m_IsoSubGroup.AddOutput( m_MatElasticMod_FEMOutput, "", "%5.3g" );
+
+    m_IsoSubGroup.SetButtonWidth( choicew );
+    m_IsoSubGroup.AddButton( m_IsoMatElasticModUnit_FEM, "" );
+    m_IsoMatElasticModUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IsoMatElasticModUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_IsoSubGroup.ForceNewLine();
+
+    m_IsoSubGroup.SetButtonWidth( labelw );
+    m_IsoSubGroup.AddInput( m_MatThermalExCoeffInput, alpha, "%5.3g" );
+
+    m_IsoSubGroup.SetButtonWidth( smallw );
+
+    m_IsoMatThermalExCoeffUnitChoice.AddItem( "1/F", vsp::TEMP_UNIT_F );
+    m_IsoMatThermalExCoeffUnitChoice.AddItem( "1/R", vsp::TEMP_UNIT_R );
+    m_IsoMatThermalExCoeffUnitChoice.AddItem( "1/C", vsp::TEMP_UNIT_C );
+    m_IsoMatThermalExCoeffUnitChoice.AddItem( "1/K", vsp::TEMP_UNIT_K );
+    m_IsoSubGroup.AddChoice( m_IsoMatThermalExCoeffUnitChoice, "" );
+
+    m_IsoSubGroup.AddX( gapw );
+
+    m_IsoSubGroup.SetButtonWidth( 0 );
+    m_IsoSubGroup.AddOutput( m_MatThermalExCoeff_FEMOutput, "", "%5.3g" );
+
+    m_IsoSubGroup.SetButtonWidth( choicew );
+    m_IsoSubGroup.AddButton( m_IsoMatThermalExCoeffUnit_FEM, "" );
+    m_IsoMatThermalExCoeffUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IsoMatThermalExCoeffUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_IsoSubGroup.ForceNewLine();
+
+    m_IsoSubGroup.SetFitWidthFlag( true );
+    m_IsoSubGroup.SetButtonWidth( labelw );
+    m_IsoSubGroup.AddInput( m_MatPoissonInput, nu, "%5.3g" );
+    m_IsoSubGroup.SetFitWidthFlag( false );
+
+    m_IsoSubGroup.ForceNewLine();
+
+
+
+    m_IsoSubGroup.SetButtonWidth( labelw );
+    m_IsoSubGroup.AddOutput( m_MatShearModOutput, "G" );
+
+    m_IsoSubGroup.SetButtonWidth( choicew );
+    m_IsoSubGroup.AddButton( m_IsoMatShearModUnit, "" );
+    m_IsoMatShearModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IsoMatShearModUnit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_IsoSubGroup.AddX( gapw );
+
+    m_IsoSubGroup.SetButtonWidth( 0 );
+    m_IsoSubGroup.AddOutput( m_MatShearMod_FEMOutput, "" );
+
+    m_IsoSubGroup.SetButtonWidth( choicew );
+    m_IsoSubGroup.AddButton( m_IsoMatShearModUnit_FEM, "" );
+    m_IsoMatShearModUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IsoMatShearModUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+
+
+
+
+    m_OrthoSubGroup.SetSameLineFlag( true );
+    m_OrthoSubGroup.SetFitWidthFlag( false );
+
+    int little = ( m_OrthoSubGroup.GetW() - gapw - labelw ) / 8.0;
+
+    m_OrthoSubGroup.SetButtonWidth( labelw + 4 * little );
+    m_OrthoSubGroup.AddDividerBox( "Input" );
+    m_OrthoSubGroup.AddX( gapw );
+    m_OrthoSubGroup.SetButtonWidth( 4 * little );
+    m_OrthoSubGroup.AddDividerBox( "To FEM" );
+    m_OrthoSubGroup.ForceNewLine();
+
+
+
+    m_OrthoSubGroup.SetChoiceButtonWidth( -1 );
+
+    m_OrthoSubGroup.SetInputWidth( little * 2 );
+    m_OrthoSubGroup.SetSliderWidth( little * 2 );
+
+
+    m_OrthoSubGroup.SetButtonWidth( labelw );
+
+    m_OrthoSubGroup.AddInput( m_OrthoMatDensityInput, rho, "%5.3g" );
+
+    m_OrthoMatDensityUnitChoice.AddItem( "lbm/in^3", vsp::RHO_UNIT_LBM_IN3 );
+    m_OrthoMatDensityUnitChoice.AddItem( "lbf s^2/in^4", vsp::RHO_UNIT_LBFSEC2_IN4 );
+    m_OrthoMatDensityUnitChoice.AddItem( "lbm/ft^3", vsp::RHO_UNIT_LBM_FT3 );
+    m_OrthoMatDensityUnitChoice.AddItem( "slug/ft^3", vsp::RHO_UNIT_SLUG_FT3 );
+    m_OrthoMatDensityUnitChoice.AddItem( "g/cm^3", vsp::RHO_UNIT_G_CM3 );
+    m_OrthoMatDensityUnitChoice.AddItem( "kg/m^3", vsp::RHO_UNIT_KG_M3 );
+    m_OrthoMatDensityUnitChoice.AddItem( "t/mm^3", vsp::RHO_UNIT_TONNE_MM3 );
+    m_OrthoSubGroup.AddChoice( m_OrthoMatDensityUnitChoice, "" );
+
+    m_OrthoSubGroup.AddX( gapw );
+
+    m_OrthoSubGroup.SetButtonWidth( 0 );
+    m_OrthoSubGroup.AddOutput( m_OrthoMatDensity_FEMOutput, "", "%5.3g" );
+
+    m_OrthoSubGroup.SetButtonWidth( choicew );
+    m_OrthoSubGroup.AddButton( m_OrthoMatDensityUnit_FEM, "" );
+    m_OrthoMatDensityUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_OrthoMatDensityUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+
+    m_OrthoSubGroup.SetInputWidth( little );
+    m_OrthoSubGroup.SetSliderWidth( little );
+
+
+    m_OrthoSubGroup.ForceNewLine();
+    m_OrthoSubGroup.AddYGap();
+
+    m_OrthoSubGroup.SetButtonWidth( little  );
+
+    m_OrthoSubGroup.AddX( labelw );
+    m_OrthoSubGroup.AddDividerBox( "1" );
+    m_OrthoSubGroup.AddDividerBox( "2" );
+    m_OrthoSubGroup.AddDividerBox( "3" );
+    m_OrthoSubGroup.AddX( little );
+    m_OrthoSubGroup.AddX( gapw );
+    m_OrthoSubGroup.AddDividerBox( "1" );
+    m_OrthoSubGroup.AddDividerBox( "2" );
+    m_OrthoSubGroup.AddDividerBox( "3" );
+    m_OrthoSubGroup.AddX( little );
+
+    m_OrthoSubGroup.ForceNewLine( m_OrthoSubGroup.GetDividerHeight() );
+
+
+    m_OrthoSubGroup.SetButtonWidth( labelw );
+
+    m_OrthoSubGroup.AddInput( m_MatE1Input, "E", "%5.3g" );
+    m_OrthoSubGroup.SetButtonWidth( 0 );
+    m_OrthoSubGroup.AddInput( m_MatE2Input, "", "%5.3g" );
+    m_OrthoSubGroup.AddInput( m_MatE3Input, "", "%5.3g" );
+
+
+    m_OrthoMatElasticModUnitChoice.AddItem( "psi", vsp::PRES_UNIT_PSI );
+    m_OrthoMatElasticModUnitChoice.AddItem( "psf", vsp::PRES_UNIT_PSF );
+    m_OrthoMatElasticModUnitChoice.AddItem( "Pa", vsp::PRES_UNIT_PA );
+    m_OrthoMatElasticModUnitChoice.AddItem( "kPa", vsp::PRES_UNIT_KPA );
+    m_OrthoMatElasticModUnitChoice.AddItem( "MPa", vsp::PRES_UNIT_MPA );
+    m_OrthoSubGroup.AddChoice( m_OrthoMatElasticModUnitChoice, "" );
+
+    m_OrthoSubGroup.AddX( gapw );
+
+
+    m_OrthoSubGroup.AddOutput( m_MatE1Output_FEM, "", "%5.3g" );
+    m_OrthoSubGroup.AddOutput( m_MatE2Output_FEM, "", "%5.3g" );
+    m_OrthoSubGroup.AddOutput( m_MatE3Output_FEM, "", "%5.3g" );
+
+
+    m_OrthoSubGroup.SetButtonWidth( little );
+    m_OrthoSubGroup.AddButton( m_OrthoMatElasticModUnit_FEM, "" );
+    m_OrthoMatElasticModUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_OrthoMatElasticModUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+
+
+    m_OrthoSubGroup.ForceNewLine();
+
+    m_OrthoSubGroup.SetButtonWidth( labelw );
+
+    m_OrthoSubGroup.AddInput( m_MatA1Input, alpha, "%5.3g" );
+    m_OrthoSubGroup.SetButtonWidth( 0 );
+    m_OrthoSubGroup.AddInput( m_MatA2Input, "", "%5.3g" );
+    m_OrthoSubGroup.AddInput( m_MatA3Input, "", "%5.3g" );
+
+    m_OrthoMatThermalExCoeffUnitChoice.AddItem( "1/F", vsp::TEMP_UNIT_F );
+    m_OrthoMatThermalExCoeffUnitChoice.AddItem( "1/R", vsp::TEMP_UNIT_R );
+    m_OrthoMatThermalExCoeffUnitChoice.AddItem( "1/C", vsp::TEMP_UNIT_C );
+    m_OrthoMatThermalExCoeffUnitChoice.AddItem( "1/K", vsp::TEMP_UNIT_K );
+    m_OrthoSubGroup.AddChoice( m_OrthoMatThermalExCoeffUnitChoice, "" );
+
+    m_OrthoSubGroup.AddX( gapw );
+
+
+    m_OrthoSubGroup.AddOutput( m_MatA1Output_FEM, "", "%5.3g" );
+    m_OrthoSubGroup.AddOutput( m_MatA2Output_FEM, "", "%5.3g" );
+    m_OrthoSubGroup.AddOutput( m_MatA3Output_FEM, "", "%5.3g" );
+
+
+    m_OrthoSubGroup.SetButtonWidth( little );
+    m_OrthoSubGroup.AddButton( m_OrthoMatThermalExCoeffUnit_FEM, "" );
+    m_OrthoMatThermalExCoeffUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_OrthoMatThermalExCoeffUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+
+    m_OrthoSubGroup.ForceNewLine();
+
+
+    m_OrthoSubGroup.AddYGap();
+
+    m_OrthoSubGroup.AddX( labelw );
+    m_OrthoSubGroup.AddDividerBox( "12" );
+    m_OrthoSubGroup.AddDividerBox( "13" );
+    m_OrthoSubGroup.AddDividerBox( "23" );
+    m_OrthoSubGroup.AddX( little );
+    m_OrthoSubGroup.AddX( gapw );
+    m_OrthoSubGroup.AddDividerBox( "12" );
+    m_OrthoSubGroup.AddDividerBox( "13" );
+    m_OrthoSubGroup.AddDividerBox( "23" );
+    m_OrthoSubGroup.AddX( little );
+
+    m_OrthoSubGroup.ForceNewLine( m_OrthoSubGroup.GetDividerHeight() );
+
+
+    m_OrthoSubGroup.SetButtonWidth( labelw );
+    m_OrthoSubGroup.AddInput( m_MatG12Input, "G", "%5.3g" );
+    m_OrthoSubGroup.SetButtonWidth( 0 );
+    m_OrthoSubGroup.AddInput( m_MatG13Input, "", "%5.3g" );
+    m_OrthoSubGroup.AddInput( m_MatG23Input, "", "%5.3g" );
+
+    m_OrthoSubGroup.SetButtonWidth( little );
+    m_OrthoSubGroup.AddButton( m_OrthoMatShearModUnit, "" );
+    m_OrthoMatShearModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_OrthoMatShearModUnit.GetFlButton()->labelcolor( FL_BLACK );
+
+
+    m_OrthoSubGroup.AddX( gapw );
+
+    m_OrthoSubGroup.SetButtonWidth( 0 );
+    m_OrthoSubGroup.AddOutput( m_MatG12Output_FEM, "", "%5.3g" );
+    m_OrthoSubGroup.AddOutput( m_MatG13Output_FEM, "", "%5.3g" );
+    m_OrthoSubGroup.AddOutput( m_MatG23Output_FEM, "", "%5.3g" );
+
+
+    m_OrthoSubGroup.SetButtonWidth( little );
+    m_OrthoSubGroup.AddButton( m_OrthoMatShearModUnit_FEM, "" );
+    m_OrthoMatShearModUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_OrthoMatShearModUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_OrthoSubGroup.ForceNewLine();
+
+
+
+    m_OrthoSubGroup.SetButtonWidth( labelw );
+    m_OrthoSubGroup.AddInput( m_Matnu12Input, nu, "%5.3g", 2.0 * m_OrthoSubGroup.GetW() / 3.0 );
+    m_OrthoSubGroup.SetButtonWidth( 0 );
+    m_OrthoSubGroup.AddInput( m_Matnu13Input, "", "%5.3g", 2.0 * m_OrthoSubGroup.GetW() / 3.0 );
+    m_OrthoSubGroup.AddInput( m_Matnu23Input, "", "%5.3g", 2.0 * m_OrthoSubGroup.GetW() / 3.0 );
+
+
+
+
+    m_IsoSubGroup.Hide();
+
+
+
+
+
+
+
 
     //=== Property Tab ===//
     m_PropertyTabLayout.SetGroupAndScreen( propTabGroup, this );
@@ -469,17 +729,38 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
 
     m_FeaPropertyShellGroup.AddChoice( m_FeaShellMaterialChoice, "Material" );
 
+    m_FeaShellLengthUnitChoice.AddItem( "IN", vsp::LEN_IN );
+    m_FeaShellLengthUnitChoice.AddItem( "FT", vsp::LEN_FT );
+    m_FeaShellLengthUnitChoice.AddItem( "YD", vsp::LEN_YD );
+    m_FeaShellLengthUnitChoice.AddItem( "MM", vsp::LEN_MM );
+    m_FeaShellLengthUnitChoice.AddItem( "CM", vsp::LEN_CM );
+    m_FeaShellLengthUnitChoice.AddItem( "M", vsp::LEN_M );
+    m_FeaShellLengthUnitChoice.AddItem( "Consistent", vsp::LEN_UNITLESS );
+    m_FeaPropertyShellGroup.AddChoice( m_FeaShellLengthUnitChoice, "Length Units" );
+
     m_FeaPropertyShellGroup.SetSameLineFlag( true );
     m_FeaPropertyShellGroup.SetFitWidthFlag( false );
 
-    m_FeaPropertyShellGroup.SetSliderWidth( m_FeaPropertyShellGroup.GetW() / 3 );
-    m_FeaPropertyShellGroup.SetInputWidth( m_FeaPropertyShellGroup.GetW() / 6 );
 
-    m_FeaPropertyShellGroup.AddSlider( m_PropThickSlider, "Thickness", 100.0, "%5.3g" );
-    m_FeaPropertyShellGroup.SetButtonWidth( m_FeaPropertyShellGroup.GetRemainX() );
+    int propw = ( m_FeaPropertyShellGroup.GetW() - gapw ) / 5.0;
+
+    m_FeaPropertyShellGroup.SetInputWidth( propw );
+    m_FeaPropertyShellGroup.SetButtonWidth( propw );
+
+    m_FeaPropertyShellGroup.AddInput( m_PropThickInput, "Thickness", "%5.3g" );
+
     m_FeaPropertyShellGroup.AddButton( m_PropThickUnit, "" );
     m_PropThickUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropThickUnit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_FeaPropertyShellGroup.AddX( gapw );
+
+    m_FeaPropertyShellGroup.SetButtonWidth( 0 );
+    m_FeaPropertyShellGroup.AddOutput( m_PropThick_FEMOutput, "", "%5.3g" );
+    m_FeaPropertyShellGroup.SetButtonWidth( propw );
+    m_FeaPropertyShellGroup.AddButton( m_PropThickUnit_FEM, "" );
+    m_PropThickUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropThickUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
 
     m_FeaPropertyShellGroup.ForceNewLine();
 
@@ -491,6 +772,15 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_FeaPropertyBeamGroup.SetChoiceButtonWidth( m_FeaPropertyBeamGroup.GetRemainX() / 3 );
 
     m_FeaPropertyBeamGroup.AddChoice( m_FeaBeamMaterialChoice, "Material" );
+
+    m_FeaBeamLengthUnitChoice.AddItem( "IN", vsp::LEN_IN );
+    m_FeaBeamLengthUnitChoice.AddItem( "FT", vsp::LEN_FT );
+    m_FeaBeamLengthUnitChoice.AddItem( "YD", vsp::LEN_YD );
+    m_FeaBeamLengthUnitChoice.AddItem( "MM", vsp::LEN_MM );
+    m_FeaBeamLengthUnitChoice.AddItem( "CM", vsp::LEN_CM );
+    m_FeaBeamLengthUnitChoice.AddItem( "M", vsp::LEN_M );
+    m_FeaBeamLengthUnitChoice.AddItem( "Consistent", vsp::LEN_UNITLESS );
+    m_FeaPropertyBeamGroup.AddChoice( m_FeaBeamLengthUnitChoice, "Length Units" );
 
     m_FeaPropertyBeamGroup.SetSameLineFlag( true );
     m_FeaPropertyBeamGroup.SetFitWidthFlag( false );
@@ -515,55 +805,109 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_GenXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
 
     m_GenXSecGroup.AddDividerBox( "General XSec" );
+    m_GenXSecGroup.AddYGap();
 
     m_GenXSecGroup.SetSameLineFlag( true );
     m_GenXSecGroup.SetFitWidthFlag( false );
 
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
-    m_GenXSecGroup.SetSliderWidth( m_GenXSecGroup.GetRemainX() / 3 );
-    m_GenXSecGroup.SetInputWidth( m_GenXSecGroup.GetRemainX() / 6 );
+    m_GenXSecGroup.SetButtonWidth( 3 * propw );
+    m_GenXSecGroup.AddDividerBox( "Input" );
+    m_GenXSecGroup.AddX( gapw );
+    m_GenXSecGroup.SetButtonWidth( 2 * propw );
+    m_GenXSecGroup.AddDividerBox( "To FEM" );
+    m_GenXSecGroup.ForceNewLine();
 
-    m_GenXSecGroup.AddSlider( m_PropAreaSlider, "Cross-Sect Area", 100.0, "%5.3g" );
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
+    m_GenXSecGroup.SetInputWidth( propw );
+    m_GenXSecGroup.SetButtonWidth( propw );
+
+    m_GenXSecGroup.AddInput( m_PropAreaInput, "Cross-Sect Area", "%5.3g" );
+
     m_GenXSecGroup.AddButton( m_PropAreaUnit, "" );
     m_PropAreaUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropAreaUnit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_GenXSecGroup.ForceNewLine();
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
+    m_GenXSecGroup.AddX( gapw );
 
-    m_GenXSecGroup.AddSlider( m_PropIzzSlider, "Izz", 100.0, "%5.3g" );
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
+    m_GenXSecGroup.SetButtonWidth( 0 );
+    m_GenXSecGroup.AddOutput( m_PropArea_FEMOutput, "", "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( propw );
+    m_GenXSecGroup.AddButton( m_PropAreaUnit_FEM, "" );
+    m_PropAreaUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropAreaUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_GenXSecGroup.ForceNewLine();
+
+
+    m_GenXSecGroup.AddInput( m_PropIzzInput, "Izz", "%5.3g" );
+
     m_GenXSecGroup.AddButton( m_PropIzzUnit, "" );
     m_PropIzzUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIzzUnit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_GenXSecGroup.ForceNewLine();
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
+    m_GenXSecGroup.AddX( gapw );
 
-    m_GenXSecGroup.AddSlider( m_PropIyySlider, "Iyy", 100.0, "%5.3g" );
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
+    m_GenXSecGroup.SetButtonWidth( 0 );
+    m_GenXSecGroup.AddOutput( m_PropIzz_FEMOutput, "", "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( propw );
+    m_GenXSecGroup.AddButton( m_PropIzzUnit_FEM, "" );
+    m_PropIzzUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropIzzUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_GenXSecGroup.ForceNewLine();
+
+
+    m_GenXSecGroup.AddInput( m_PropIyyInput, "Iyy", "%5.3g" );
+
     m_GenXSecGroup.AddButton( m_PropIyyUnit, "" );
     m_PropIyyUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIyyUnit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_GenXSecGroup.ForceNewLine();
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
+    m_GenXSecGroup.AddX( gapw );
 
-    m_GenXSecGroup.AddSlider( m_PropIzySlider, "Izy", 100.0, "%5.3g" );
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
+    m_GenXSecGroup.SetButtonWidth( 0 );
+    m_GenXSecGroup.AddOutput( m_PropIyy_FEMOutput, "", "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( propw );
+    m_GenXSecGroup.AddButton( m_PropIyyUnit_FEM, "" );
+    m_PropIyyUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropIyyUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+
+    m_GenXSecGroup.ForceNewLine();
+
+
+    m_GenXSecGroup.AddInput( m_PropIzyInput, "Izy", "%5.3g" );
+
     m_GenXSecGroup.AddButton( m_PropIzyUnit, "" );
     m_PropIzyUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIzyUnit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_GenXSecGroup.ForceNewLine();
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
+    m_GenXSecGroup.AddX( gapw );
 
-    m_GenXSecGroup.AddSlider( m_PropIxxSlider, "Ixx", 100.0, "%5.3g" );
-    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
+    m_GenXSecGroup.SetButtonWidth( 0 );
+    m_GenXSecGroup.AddOutput( m_PropIzy_FEMOutput, "", "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( propw );
+    m_GenXSecGroup.AddButton( m_PropIzyUnit_FEM, "" );
+    m_PropIzyUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropIzyUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_GenXSecGroup.ForceNewLine();
+
+
+    m_GenXSecGroup.AddInput( m_PropIxxInput, "Ixx", "%5.3g" );
+
     m_GenXSecGroup.AddButton( m_PropIxxUnit, "" );
     m_PropIxxUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIxxUnit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_GenXSecGroup.AddX( gapw );
+
+    m_GenXSecGroup.SetButtonWidth( 0 );
+    m_GenXSecGroup.AddOutput( m_PropIxx_FEMOutput, "", "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( propw );
+    m_GenXSecGroup.AddButton( m_PropIxxUnit_FEM, "" );
+    m_PropIxxUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropIxxUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
 
     m_GenXSecGroup.ForceNewLine();
 
@@ -571,181 +915,349 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 720, "FEA St
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_CircXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
 
     m_CircXSecGroup.AddDividerBox( "Circle XSec" );
+    m_CircXSecGroup.AddYGap();
 
     m_CircXSecGroup.SetSameLineFlag( true );
     m_CircXSecGroup.SetFitWidthFlag( false );
 
-    m_CircXSecGroup.SetButtonWidth( m_CircXSecGroup.GetRemainX() / 3 );
-    m_CircXSecGroup.SetSliderWidth( m_CircXSecGroup.GetRemainX() / 3 );
-    m_CircXSecGroup.SetInputWidth( m_CircXSecGroup.GetRemainX() / 6 );
+    m_CircXSecGroup.SetButtonWidth( 3 * propw );
+    m_CircXSecGroup.AddDividerBox( "Input" );
+    m_CircXSecGroup.AddX( gapw );
+    m_CircXSecGroup.SetButtonWidth( 2 * propw );
+    m_CircXSecGroup.AddDividerBox( "To FEM" );
+    m_CircXSecGroup.ForceNewLine();
 
-    m_CircXSecGroup.AddSlider( m_CircDim1Slider, "Radius", 100.0, "%5.3f" );
-    m_CircXSecGroup.SetButtonWidth( m_CircXSecGroup.GetRemainX() );
+    m_CircXSecGroup.SetInputWidth( propw );
+    m_CircXSecGroup.SetButtonWidth( propw );
+
+    m_CircXSecGroup.AddInput( m_CircDim1Input, "Radius", "%5.3f" );
+
     m_CircXSecGroup.AddButton( m_CircDim1Unit, "" );
     m_CircDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_CircDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_CircXSecGroup.AddX( gapw );
+
+    m_CircXSecGroup.SetButtonWidth( 0 );
+    m_CircXSecGroup.AddOutput( m_CircDim1_FEMOutput, "", "%5.3g" );
+    m_CircXSecGroup.SetButtonWidth( propw );
+    m_CircXSecGroup.AddButton( m_CircDim1Unit_FEM, "" );
+    m_CircDim1Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_CircDim1Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
 
     // Pipe/Tube XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_PipeXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
 
     m_PipeXSecGroup.AddDividerBox( "Pipe XSec" );
+    m_PipeXSecGroup.AddYGap();
 
     m_PipeXSecGroup.SetSameLineFlag( true );
     m_PipeXSecGroup.SetFitWidthFlag( false );
 
-    m_PipeXSecGroup.SetButtonWidth( m_PipeXSecGroup.GetRemainX() / 3 );
-    m_PipeXSecGroup.SetSliderWidth( m_PipeXSecGroup.GetRemainX() / 3 );
-    m_PipeXSecGroup.SetInputWidth( m_PipeXSecGroup.GetRemainX() / 6 );
+    m_PipeXSecGroup.SetButtonWidth( 3 * propw );
+    m_PipeXSecGroup.AddDividerBox( "Input" );
+    m_PipeXSecGroup.AddX( gapw );
+    m_PipeXSecGroup.SetButtonWidth( 2 * propw );
+    m_PipeXSecGroup.AddDividerBox( "To FEM" );
+    m_PipeXSecGroup.ForceNewLine();
 
-    m_PipeXSecGroup.AddSlider( m_PipeDim1Slider, "R_outer", 100.0, "%5.3f" );
-    m_PipeXSecGroup.SetButtonWidth( m_PipeXSecGroup.GetRemainX() );
+    m_PipeXSecGroup.SetInputWidth( propw );
+    m_PipeXSecGroup.SetButtonWidth( propw );
+
+    m_PipeXSecGroup.AddInput( m_PipeDim1Input, "R_outer", "%5.3f" );
+
     m_PipeXSecGroup.AddButton( m_PipeDim1Unit, "" );
     m_PipeDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PipeDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_PipeXSecGroup.ForceNewLine();
-    m_PipeXSecGroup.SetButtonWidth( m_PipeXSecGroup.GetW() / 3 );
+    m_PipeXSecGroup.AddX( gapw );
 
-    m_PipeXSecGroup.AddSlider( m_PipeDim2Slider, "R_inner", 100.0, "%5.3f" );
-    m_PipeXSecGroup.SetButtonWidth( m_PipeXSecGroup.GetRemainX() );
+    m_PipeXSecGroup.SetButtonWidth( 0 );
+    m_PipeXSecGroup.AddOutput( m_PipeDim1_FEMOutput, "", "%5.3g" );
+    m_PipeXSecGroup.SetButtonWidth( propw );
+    m_PipeXSecGroup.AddButton( m_PipeDim1Unit_FEM, "" );
+    m_PipeDim1Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PipeDim1Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_PipeXSecGroup.ForceNewLine();
+
+    m_PipeXSecGroup.AddInput( m_PipeDim2Input, "R_inner", "%5.3f" );
+
     m_PipeXSecGroup.AddButton( m_PipeDim2Unit, "" );
     m_PipeDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PipeDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_PipeXSecGroup.AddX( gapw );
+
+    m_PipeXSecGroup.SetButtonWidth( 0 );
+    m_PipeXSecGroup.AddOutput( m_PipeDim2_FEMOutput, "", "%5.3g" );
+    m_PipeXSecGroup.SetButtonWidth( propw );
+    m_PipeXSecGroup.AddButton( m_PipeDim2Unit_FEM, "" );
+    m_PipeDim2Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PipeDim2Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
 
     // I XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_IXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
 
     m_IXSecGroup.AddDividerBox( "I XSec" );
+    m_IXSecGroup.AddYGap();
 
     m_IXSecGroup.SetSameLineFlag( true );
     m_IXSecGroup.SetFitWidthFlag( false );
 
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
-    m_IXSecGroup.SetSliderWidth( m_IXSecGroup.GetRemainX() / 3 );
-    m_IXSecGroup.SetInputWidth( m_IXSecGroup.GetRemainX() / 6 );
+    m_IXSecGroup.SetButtonWidth( 3 * propw );
+    m_IXSecGroup.AddDividerBox( "Input" );
+    m_IXSecGroup.AddX( gapw );
+    m_IXSecGroup.SetButtonWidth( 2 * propw );
+    m_IXSecGroup.AddDividerBox( "To FEM" );
+    m_IXSecGroup.ForceNewLine();
 
-    m_IXSecGroup.AddSlider( m_IDim1Slider, "Dim1", 100.0, "%5.3f" );
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
+    m_IXSecGroup.SetInputWidth( propw );
+    m_IXSecGroup.SetButtonWidth( propw );
+
+    m_IXSecGroup.AddInput( m_IDim1Input, "Dim1", "%5.3f" );
+
     m_IXSecGroup.AddButton( m_IDim1Unit, "" );
     m_IDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_IXSecGroup.ForceNewLine();
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetW() / 3 );
+    m_PipeXSecGroup.AddX( gapw );
 
-    m_IXSecGroup.AddSlider( m_IDim2Slider, "Dim2", 100.0, "%5.3f" );
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
+    m_IXSecGroup.SetButtonWidth( 0 );
+    m_IXSecGroup.AddOutput( m_IDim1_FEMOutput, "", "%5.3g" );
+    m_IXSecGroup.SetButtonWidth( propw );
+    m_IXSecGroup.AddButton( m_IDim1Unit_FEM, "" );
+    m_IDim1Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim1Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_IXSecGroup.ForceNewLine();
+
+    m_IXSecGroup.AddInput( m_IDim2Input, "Dim2", "%5.3f" );
+
     m_IXSecGroup.AddButton( m_IDim2Unit, "" );
     m_IDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_IXSecGroup.ForceNewLine();
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
+    m_IXSecGroup.AddX( gapw );
 
-    m_IXSecGroup.AddSlider( m_IDim3Slider, "Dim3", 100.0, "%5.3f" );
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
+    m_IXSecGroup.SetButtonWidth( 0 );
+    m_IXSecGroup.AddOutput( m_IDim2_FEMOutput, "", "%5.3g" );
+    m_IXSecGroup.SetButtonWidth( propw );
+    m_IXSecGroup.AddButton( m_IDim2Unit_FEM, "" );
+    m_IDim2Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim2Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_IXSecGroup.ForceNewLine();
+
+
+    m_IXSecGroup.AddInput( m_IDim3Input, "Dim3", "%5.3f" );
+
     m_IXSecGroup.AddButton( m_IDim3Unit, "" );
     m_IDim3Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim3Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_IXSecGroup.ForceNewLine();
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
+    m_IXSecGroup.AddX( gapw );
 
-    m_IXSecGroup.AddSlider( m_IDim4Slider, "Dim4", 100.0, "%5.3f" );
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
+    m_IXSecGroup.SetButtonWidth( 0 );
+    m_IXSecGroup.AddOutput( m_IDim3_FEMOutput, "", "%5.3g" );
+    m_IXSecGroup.SetButtonWidth( propw );
+    m_IXSecGroup.AddButton( m_IDim3Unit_FEM, "" );
+    m_IDim3Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim3Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_IXSecGroup.ForceNewLine();
+
+
+    m_IXSecGroup.AddInput( m_IDim4Input, "Dim4", "%5.3f" );
+
     m_IXSecGroup.AddButton( m_IDim4Unit, "" );
     m_IDim4Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim4Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_IXSecGroup.ForceNewLine();
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
+    m_IXSecGroup.AddX( gapw );
 
-    m_IXSecGroup.AddSlider( m_IDim5Slider, "Dim5", 100.0, "%5.3f" );
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
+    m_IXSecGroup.SetButtonWidth( 0 );
+    m_IXSecGroup.AddOutput( m_IDim4_FEMOutput, "", "%5.3g" );
+    m_IXSecGroup.SetButtonWidth( propw );
+    m_IXSecGroup.AddButton( m_IDim4Unit_FEM, "" );
+    m_IDim4Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim4Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_IXSecGroup.ForceNewLine();
+
+
+    m_IXSecGroup.AddInput( m_IDim5Input, "Dim5", "%5.3f" );
+
     m_IXSecGroup.AddButton( m_IDim5Unit, "" );
     m_IDim5Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim5Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_IXSecGroup.ForceNewLine();
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
+    m_IXSecGroup.AddX( gapw );
 
-    m_IXSecGroup.AddSlider( m_IDim6Slider, "Dim6", 100.0, "%5.3f" );
-    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
+    m_IXSecGroup.SetButtonWidth( 0 );
+    m_IXSecGroup.AddOutput( m_IDim5_FEMOutput, "", "%5.3g" );
+    m_IXSecGroup.SetButtonWidth( propw );
+    m_IXSecGroup.AddButton( m_IDim5Unit_FEM, "" );
+    m_IDim5Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim5Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_IXSecGroup.ForceNewLine();
+
+
+    m_IXSecGroup.AddInput( m_IDim6Input, "Dim6", "%5.3f" );
+
     m_IXSecGroup.AddButton( m_IDim6Unit, "" );
     m_IDim6Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim6Unit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_IXSecGroup.AddX( gapw );
+
+    m_IXSecGroup.SetButtonWidth( 0 );
+    m_IXSecGroup.AddOutput( m_IDim6_FEMOutput, "", "%5.3g" );
+    m_IXSecGroup.SetButtonWidth( propw );
+    m_IXSecGroup.AddButton( m_IDim6Unit_FEM, "" );
+    m_IDim6Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim6Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
 
     // Rectangle XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_RectXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
 
     m_RectXSecGroup.AddDividerBox( "Rectangle XSec" );
+    m_RectXSecGroup.AddYGap();
 
     m_RectXSecGroup.SetSameLineFlag( true );
     m_RectXSecGroup.SetFitWidthFlag( false );
 
-    m_RectXSecGroup.SetButtonWidth( m_RectXSecGroup.GetRemainX() / 3 );
-    m_RectXSecGroup.SetSliderWidth( m_RectXSecGroup.GetRemainX() / 3 );
-    m_RectXSecGroup.SetInputWidth( m_RectXSecGroup.GetRemainX() / 6 );
+    m_RectXSecGroup.SetButtonWidth( 3 * propw );
+    m_RectXSecGroup.AddDividerBox( "Input" );
+    m_RectXSecGroup.AddX( gapw );
+    m_RectXSecGroup.SetButtonWidth( 2 * propw );
+    m_RectXSecGroup.AddDividerBox( "To FEM" );
+    m_RectXSecGroup.ForceNewLine();
 
-    m_RectXSecGroup.AddSlider( m_RectDim1Slider, "Width", 100.0, "%5.3f" );
-    m_RectXSecGroup.SetButtonWidth( m_RectXSecGroup.GetRemainX() );
+    m_RectXSecGroup.SetInputWidth( propw );
+    m_RectXSecGroup.SetButtonWidth( propw );
+
+    m_RectXSecGroup.AddInput( m_RectDim1Input, "Width", "%5.3f" );
+
     m_RectXSecGroup.AddButton( m_RectDim1Unit, "" );
     m_RectDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_RectDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_RectXSecGroup.ForceNewLine();
-    m_RectXSecGroup.SetButtonWidth( m_RectXSecGroup.GetRemainX() / 3 );
+    m_RectXSecGroup.AddX( gapw );
 
-    m_RectXSecGroup.AddSlider( m_RectDim2Slider, "Height", 100.0, "%5.3f" );
-    m_RectXSecGroup.SetButtonWidth( m_RectXSecGroup.GetRemainX() );
+    m_RectXSecGroup.SetButtonWidth( 0 );
+    m_RectXSecGroup.AddOutput( m_RectDim1_FEMOutput, "", "%5.3g" );
+    m_RectXSecGroup.SetButtonWidth( propw );
+    m_RectXSecGroup.AddButton( m_RectDim1Unit_FEM, "" );
+    m_RectDim1Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_RectDim1Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_RectXSecGroup.ForceNewLine();
+
+    m_RectXSecGroup.AddInput( m_RectDim2Input, "Height", "%5.3f" );
+
     m_RectXSecGroup.AddButton( m_RectDim2Unit, "" );
     m_RectDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_RectDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_RectXSecGroup.AddX( gapw );
+
+    m_RectXSecGroup.SetButtonWidth( 0 );
+    m_RectXSecGroup.AddOutput( m_RectDim2_FEMOutput, "", "%5.3g" );
+    m_RectXSecGroup.SetButtonWidth( propw );
+    m_RectXSecGroup.AddButton( m_RectDim2Unit_FEM, "" );
+    m_RectDim2Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_RectDim2Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
 
     // Box XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_BoxXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
 
     m_BoxXSecGroup.AddDividerBox( "Box XSec" );
+    m_BoxXSecGroup.AddYGap();
 
     m_BoxXSecGroup.SetSameLineFlag( true );
     m_BoxXSecGroup.SetFitWidthFlag( false );
 
-    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() / 3 );
-    m_BoxXSecGroup.SetSliderWidth( m_BoxXSecGroup.GetRemainX() / 3 );
-    m_BoxXSecGroup.SetInputWidth( m_BoxXSecGroup.GetRemainX() / 6 );
+    m_BoxXSecGroup.SetButtonWidth( 3 * propw );
+    m_BoxXSecGroup.AddDividerBox( "Input" );
+    m_BoxXSecGroup.AddX( gapw );
+    m_BoxXSecGroup.SetButtonWidth( 2 * propw );
+    m_BoxXSecGroup.AddDividerBox( "To FEM" );
+    m_BoxXSecGroup.ForceNewLine();
 
-    m_BoxXSecGroup.AddSlider( m_BoxDim1Slider, "Dim1", 100.0, "%5.3f" );
-    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() );
+    m_BoxXSecGroup.SetInputWidth( propw );
+    m_BoxXSecGroup.SetButtonWidth( propw );
+
+    m_BoxXSecGroup.AddInput( m_BoxDim1Input, "Dim1", "%5.3f" );
+
     m_BoxXSecGroup.AddButton( m_BoxDim1Unit, "" );
     m_BoxDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_BoxDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_BoxXSecGroup.ForceNewLine();
-    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() / 3 );
+    m_BoxXSecGroup.AddX( gapw );
 
-    m_BoxXSecGroup.AddSlider( m_BoxDim2Slider, "Dim2", 100.0, "%5.3f" );
-    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() );
+    m_BoxXSecGroup.SetButtonWidth( 0 );
+    m_BoxXSecGroup.AddOutput( m_BoxDim1_FEMOutput, "", "%5.3g" );
+    m_BoxXSecGroup.SetButtonWidth( propw );
+    m_BoxXSecGroup.AddButton( m_BoxDim1Unit_FEM, "" );
+    m_BoxDim1Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_BoxDim1Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_BoxXSecGroup.ForceNewLine();
+
+    m_BoxXSecGroup.AddInput( m_BoxDim2Input, "Dim2", "%5.3f" );
+
     m_BoxXSecGroup.AddButton( m_BoxDim2Unit, "" );
     m_BoxDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_BoxDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_BoxXSecGroup.ForceNewLine();
-    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() / 3 );
+    m_BoxXSecGroup.AddX( gapw );
 
-    m_BoxXSecGroup.AddSlider( m_BoxDim3Slider, "Dim3", 100.0, "%5.3f" );
-    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() );
+    m_BoxXSecGroup.SetButtonWidth( 0 );
+    m_BoxXSecGroup.AddOutput( m_BoxDim2_FEMOutput, "", "%5.3g" );
+    m_BoxXSecGroup.SetButtonWidth( propw );
+    m_BoxXSecGroup.AddButton( m_BoxDim2Unit_FEM, "" );
+    m_BoxDim2Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_BoxDim2Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_BoxXSecGroup.ForceNewLine();
+
+    m_BoxXSecGroup.AddInput( m_BoxDim3Input, "Dim3", "%5.3f" );
+
     m_BoxXSecGroup.AddButton( m_BoxDim3Unit, "" );
     m_BoxDim3Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_BoxDim3Unit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_BoxXSecGroup.ForceNewLine();
-    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() / 3 );
+    m_BoxXSecGroup.AddX( gapw );
 
-    m_BoxXSecGroup.AddSlider( m_BoxDim4Slider, "Dim4", 100.0, "%5.3f" );
-    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() );
+    m_BoxXSecGroup.SetButtonWidth( 0 );
+    m_BoxXSecGroup.AddOutput( m_BoxDim3_FEMOutput, "", "%5.3g" );
+    m_BoxXSecGroup.SetButtonWidth( propw );
+    m_BoxXSecGroup.AddButton( m_BoxDim3Unit_FEM, "" );
+    m_BoxDim3Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_BoxDim3Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_BoxXSecGroup.ForceNewLine();
+
+
+    m_BoxXSecGroup.AddInput( m_BoxDim4Input, "Dim4", "%5.3f" );
+
     m_BoxXSecGroup.AddButton( m_BoxDim4Unit, "" );
     m_BoxDim4Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_BoxDim4Unit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_BoxXSecGroup.AddX( gapw );
+
+    m_BoxXSecGroup.SetButtonWidth( 0 );
+    m_BoxXSecGroup.AddOutput( m_BoxDim4_FEMOutput, "", "%5.3g" );
+    m_BoxXSecGroup.SetButtonWidth( propw );
+    m_BoxXSecGroup.AddButton( m_BoxDim4Unit_FEM, "" );
+    m_BoxDim4Unit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_BoxDim4Unit_FEM.GetFlButton()->labelcolor( FL_BLACK );
 
     //=== Boundary Condition Tab ===//
     m_BCTabLayout.SetGroupAndScreen( bcTabGroup, this );
@@ -1322,11 +1834,11 @@ void StructScreen::UpdateFeaPartBrowser()
             fea_name = feaprt_vec[i]->GetName();
             fea_type = FeaPart::GetTypeName( feaprt_vec[i]->GetType() );
 
-            if ( feaprt_vec[i]->m_IncludedElements() == vsp::FEA_SHELL || feaprt_vec[i]->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+            if ( feaprt_vec[i]->m_KeepDelShellElements() == vsp::FEA_KEEP )
             {
                 shell = "     X";
 
-                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->m_FeaPropertyIndex() );
+                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->m_FeaPropertyID );
                 if ( prop )
                 {
                     shell_prop = prop->GetName();
@@ -1338,11 +1850,11 @@ void StructScreen::UpdateFeaPartBrowser()
                 shell_prop = "N/A";
             }
 
-            if ( feaprt_vec[i]->m_IncludedElements() == vsp::FEA_BEAM || feaprt_vec[i]->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+            if ( feaprt_vec[i]->m_CreateBeamElements() )
             {
                 cap = "   X";
 
-                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->m_CapFeaPropertyIndex() );
+                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->m_CapFeaPropertyID );
                 if ( prop )
                 {
                     cap_prop = prop->GetName();
@@ -1388,7 +1900,7 @@ void StructScreen::UpdateFeaPartBrowser()
             {
                 shell = "     X";
 
-                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->m_FeaPropertyIndex() );
+                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->m_FeaPropertyID );
                 if ( prop )
                 {
                     shell_prop = prop->GetName();
@@ -1404,7 +1916,7 @@ void StructScreen::UpdateFeaPartBrowser()
             {
                 cap = "   X";
 
-                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->m_CapFeaPropertyIndex() );
+                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->m_CapFeaPropertyID );
                 if ( prop )
                 {
                     cap_prop = prop->GetName();
@@ -1599,7 +2111,7 @@ void StructScreen::UpdateFeaPropertyBrowser()
             prop_xsec = property_vec[i]->GetXSecName();
         }
 
-        FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( property_vec[i]->m_FeaMaterialIndex() );
+        FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( property_vec[i]->m_FeaMaterialID );
         if ( fea_mat )
         {
             prop_mat = fea_mat->GetName();
@@ -1653,6 +2165,7 @@ void StructScreen::UpdateFeaMaterialChoice()
     //==== Material Choice ====//
     m_FeaShellMaterialChoice.ClearItems();
     m_FeaBeamMaterialChoice.ClearItems();
+    m_FeaMaterialIDVec.clear();
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -1667,6 +2180,7 @@ void StructScreen::UpdateFeaMaterialChoice()
             fltk_unicode_plusminus( mat_name );
 
             m_FeaShellMaterialChoice.AddItem( mat_name, i );
+            m_FeaMaterialIDVec.push_back( material_vec[i]->GetID() );
 
             if ( material_vec[i]->m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
             {
@@ -1676,16 +2190,13 @@ void StructScreen::UpdateFeaMaterialChoice()
         m_FeaShellMaterialChoice.UpdateItems();
         m_FeaBeamMaterialChoice.UpdateItems();
 
-        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
-        {
-            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
+        FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
 
-            if ( fea_prop )
-            {
-                // Update all FeaPart Material Choices ( Only Selected Property Visible )
-                m_FeaShellMaterialChoice.SetVal( fea_prop->m_FeaMaterialIndex() );
-                m_FeaBeamMaterialChoice.SetVal( fea_prop->m_FeaMaterialIndex() );
-            }
+        if ( fea_prop )
+        {
+            // Update all FeaPart Material Choices ( Only Selected Property Visible )
+            m_FeaShellMaterialChoice.SetVal( vector_find_val( m_FeaMaterialIDVec, fea_prop->m_FeaMaterialID ) );
+            m_FeaBeamMaterialChoice.SetVal( vector_find_val( m_FeaMaterialIDVec, fea_prop->m_FeaMaterialID ) );
         }
     }
 }
@@ -1930,7 +2441,7 @@ void StructScreen::UpdateUnitLabels()
         thick_unit = "ft";
         area_unit = "ft" + squared;
         area_moment_inertia_unit = "ft^4";
-        young_mod_unit = "lbf/ft" + squared;
+        young_mod_unit = "psf";
         temp_unit = "1/" + deg + "R";
         break;
 
@@ -1944,44 +2455,165 @@ void StructScreen::UpdateUnitLabels()
         break;
         }
 
-        m_MatDensityUnit.GetFlButton()->copy_label( density_unit.c_str() );
-        m_MatElasticModUnit.GetFlButton()->copy_label( young_mod_unit.c_str() );
-        m_MatThermalExCoeffUnit.GetFlButton()->copy_label( temp_unit.c_str() );
-        m_MatShearModUnit.GetFlButton()->copy_label( young_mod_unit.c_str() );
+        m_IsoMatDensityUnit_FEM.GetFlButton()->copy_label( density_unit.c_str() );
+        m_IsoMatElasticModUnit_FEM.GetFlButton()->copy_label( young_mod_unit.c_str() );
+        m_IsoMatThermalExCoeffUnit_FEM.GetFlButton()->copy_label( temp_unit.c_str() );
+        m_IsoMatShearModUnit_FEM.GetFlButton()->copy_label( young_mod_unit.c_str() );
 
-        m_PropThickUnit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_OrthoMatDensityUnit_FEM.GetFlButton()->copy_label( density_unit.c_str() );
+        m_OrthoMatElasticModUnit_FEM.GetFlButton()->copy_label( young_mod_unit.c_str() );
+        m_OrthoMatThermalExCoeffUnit_FEM.GetFlButton()->copy_label( temp_unit.c_str() );
+        m_OrthoMatShearModUnit_FEM.GetFlButton()->copy_label( young_mod_unit.c_str() );
 
-        m_PropAreaUnit.GetFlButton()->copy_label( area_unit.c_str() );
-        m_PropIzzUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
-        m_PropIyyUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
-        m_PropIzyUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
-        m_PropIxxUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
+        m_PropThickUnit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
 
-        m_CircDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_PropAreaUnit_FEM.GetFlButton()->copy_label( area_unit.c_str() );
+        m_PropIzzUnit_FEM.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
+        m_PropIyyUnit_FEM.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
+        m_PropIzyUnit_FEM.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
+        m_PropIxxUnit_FEM.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
 
-        m_PipeDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_PipeDim2Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_CircDim1Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
 
-        m_IDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_IDim2Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_IDim3Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_IDim4Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_IDim5Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_IDim6Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_PipeDim1Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_PipeDim2Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
 
-        m_RectDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_RectDim2Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim1Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim2Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim3Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim4Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim5Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim6Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
 
-        m_BoxDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_BoxDim2Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_BoxDim3Unit.GetFlButton()->copy_label( thick_unit.c_str() );
-        m_BoxDim4Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_RectDim1Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_RectDim2Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+
+        m_BoxDim1Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_BoxDim2Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_BoxDim3Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_BoxDim4Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+
+        FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
+        if ( fea_prop )
+        {
+            string input_len_unit;
+            string input_area_unit, input_area_moment_inertia_unit;
+
+
+            switch ( fea_prop->m_LengthUnit() )
+            {
+                case vsp::LEN_IN:
+                    input_len_unit = "in";
+                    input_area_unit = "in" + squared;
+                    input_area_moment_inertia_unit = "in^4";
+                    break;
+
+                case vsp::LEN_FT:
+                    input_len_unit = "ft";
+                    input_area_unit = "ft" + squared;
+                    input_area_moment_inertia_unit = "ft^4";
+                    break;
+
+                case vsp::LEN_YD:
+                    input_len_unit = "yd";
+                    input_area_unit = "yd" + squared;
+                    input_area_moment_inertia_unit = "yd^4";
+                    break;
+
+                case vsp::LEN_MM:
+                    input_len_unit = "mm";
+                    input_area_unit = "mm" + squared;
+                    input_area_moment_inertia_unit = "mm^4";
+                    break;
+
+                case vsp::LEN_CM:
+                    input_len_unit = "cm";
+                    input_area_unit = "cm" + squared;
+                    input_area_moment_inertia_unit = "cm^4";
+                    break;
+
+                case vsp::LEN_M:
+                    input_len_unit = "m";
+                    input_area_unit = "m" + squared;
+                    input_area_moment_inertia_unit = "m^4";
+                    break;
+
+                case vsp::LEN_UNITLESS:
+                    input_len_unit = "-";
+                    input_area_unit = "-";
+                    input_area_moment_inertia_unit = "-";
+                    break;
+            }
+
+            m_PropThickUnit.GetFlButton()->copy_label( input_len_unit.c_str());
+
+            m_PropAreaUnit.GetFlButton()->copy_label( input_area_unit.c_str());
+            m_PropIzzUnit.GetFlButton()->copy_label( input_area_moment_inertia_unit.c_str());
+            m_PropIyyUnit.GetFlButton()->copy_label( input_area_moment_inertia_unit.c_str());
+            m_PropIzyUnit.GetFlButton()->copy_label( input_area_moment_inertia_unit.c_str());
+            m_PropIxxUnit.GetFlButton()->copy_label( input_area_moment_inertia_unit.c_str());
+
+            m_CircDim1Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+
+            m_PipeDim1Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_PipeDim2Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+
+            m_IDim1Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_IDim2Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_IDim3Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_IDim4Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_IDim5Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_IDim6Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+
+            m_RectDim1Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_RectDim2Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+
+            m_BoxDim1Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_BoxDim2Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_BoxDim3Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+            m_BoxDim4Unit.GetFlButton()->copy_label( input_len_unit.c_str());
+        }
+
+
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+        if ( fea_mat )
+        {
+            string input_mod_unit;
+
+            switch ( fea_mat->m_ModulusUnit() )
+            {
+                case vsp::PRES_UNIT_PSI:
+                    input_mod_unit = "psi";
+                    break;
+
+                case vsp::PRES_UNIT_PSF:
+                    input_mod_unit = "psf";
+                    break;
+
+                case vsp::PRES_UNIT_PA:
+                    input_mod_unit = "Pa";
+                    break;
+
+                case vsp::PRES_UNIT_KPA:
+                    input_mod_unit = "kPa";
+                    break;
+
+                case vsp::PRES_UNIT_MPA:
+                    input_mod_unit = "MPA";
+                    break;
+            }
+
+            m_IsoMatShearModUnit.GetFlButton()->copy_label( input_mod_unit.c_str() );
+            m_OrthoMatShearModUnit.GetFlButton()->copy_label( input_mod_unit.c_str() );
+        }
     }
 }
 
 bool StructScreen::Update()
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    StructureMgr.Update();
 
     if ( veh )
     {
@@ -2014,84 +2646,107 @@ bool StructScreen::Update()
         //===== FeaProperty Update =====//
         UpdateFeaPropertyBrowser();
 
-        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
+
+        FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
+        if ( fea_prop )
         {
-            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
-            if ( fea_prop )
+            m_FeaPropertyNameInput.Update( fea_prop->GetName() );
+            m_FeaShellLengthUnitChoice.Update( fea_prop->m_LengthUnit.GetID() );
+            m_FeaBeamLengthUnitChoice.Update( fea_prop->m_LengthUnit.GetID() );
+
+            if ( fea_prop->m_FeaPropertyType() == vsp::FEA_SHELL )
             {
-                m_FeaPropertyNameInput.Update( fea_prop->GetName() );
+                m_PropThickInput.Update( fea_prop->m_Thickness.GetID() );
+                m_PropThick_FEMOutput.Update( fea_prop->m_Thickness_FEM.GetID() );
 
-                if ( fea_prop->m_FeaPropertyType() == vsp::FEA_SHELL )
-                {
-                    m_PropThickSlider.Update( fea_prop->m_Thickness.GetID() );
-
-                    FeaPropertyDispGroup( &m_FeaPropertyShellGroup );
-                }
-                else if ( fea_prop->m_FeaPropertyType() == vsp::FEA_BEAM )
-                {
-                    m_FeaBeamXSecChoice.Update( fea_prop->m_CrossSectType.GetID() );
-
-                    FeaPropertyDispGroup( &m_FeaPropertyBeamGroup );
-
-                    m_ShowFeaBeamXSecButton.Activate();
-
-                    if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_GENERAL )
-                    {
-                        m_ShowFeaBeamXSecButton.Deactivate();
-
-                        m_PropAreaSlider.Update( fea_prop->m_CrossSecArea.GetID() );
-                        m_PropIzzSlider.Update( fea_prop->m_Izz.GetID() );
-                        m_PropIyySlider.Update( fea_prop->m_Iyy.GetID() );
-                        m_PropIzySlider.Update( fea_prop->m_Izy.GetID() );
-                        m_PropIxxSlider.Update( fea_prop->m_Ixx.GetID() );
-
-                        BeamXSecDispGroup( &m_GenXSecGroup );
-                    }
-                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_CIRC )
-                    {
-                        m_CircDim1Slider.Update( fea_prop->m_Dim1.GetID() );
-
-                        BeamXSecDispGroup( &m_CircXSecGroup );
-                    }
-                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_PIPE )
-                    {
-                        m_PipeDim1Slider.Update( fea_prop->m_Dim1.GetID() );
-                        m_PipeDim2Slider.Update( fea_prop->m_Dim2.GetID() );
-
-                        BeamXSecDispGroup( &m_PipeXSecGroup );
-                    }
-                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_I )
-                    {
-                        m_IDim1Slider.Update( fea_prop->m_Dim1.GetID() );
-                        m_IDim2Slider.Update( fea_prop->m_Dim2.GetID() );
-                        m_IDim3Slider.Update( fea_prop->m_Dim3.GetID() );
-                        m_IDim4Slider.Update( fea_prop->m_Dim4.GetID() );
-                        m_IDim5Slider.Update( fea_prop->m_Dim5.GetID() );
-                        m_IDim6Slider.Update( fea_prop->m_Dim6.GetID() );
-
-                        BeamXSecDispGroup( &m_IXSecGroup );
-                    }
-                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_RECT )
-                    {
-                        m_RectDim1Slider.Update( fea_prop->m_Dim1.GetID() );
-                        m_RectDim2Slider.Update( fea_prop->m_Dim2.GetID() );
-
-                        BeamXSecDispGroup( &m_RectXSecGroup );
-                    }
-                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_BOX )
-                    {
-                        m_BoxDim1Slider.Update( fea_prop->m_Dim1.GetID() );
-                        m_BoxDim2Slider.Update( fea_prop->m_Dim2.GetID() );
-                        m_BoxDim3Slider.Update( fea_prop->m_Dim3.GetID() );
-                        m_BoxDim4Slider.Update( fea_prop->m_Dim4.GetID() );
-
-                        BeamXSecDispGroup( &m_BoxXSecGroup );
-                    }
-                }
+                FeaPropertyDispGroup( &m_FeaPropertyShellGroup );
             }
-            else
+            else if ( fea_prop->m_FeaPropertyType() == vsp::FEA_BEAM )
             {
-                FeaPropertyDispGroup( NULL );
+                m_FeaBeamXSecChoice.Update( fea_prop->m_CrossSectType.GetID() );
+
+                FeaPropertyDispGroup( &m_FeaPropertyBeamGroup );
+
+                m_ShowFeaBeamXSecButton.Activate();
+
+                if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_GENERAL )
+                {
+                    m_ShowFeaBeamXSecButton.Deactivate();
+
+                    m_PropAreaInput.Update( fea_prop->m_CrossSecArea.GetID() );
+                    m_PropIzzInput.Update( fea_prop->m_Izz.GetID() );
+                    m_PropIyyInput.Update( fea_prop->m_Iyy.GetID() );
+                    m_PropIzyInput.Update( fea_prop->m_Izy.GetID() );
+                    m_PropIxxInput.Update( fea_prop->m_Ixx.GetID() );
+
+                    m_PropArea_FEMOutput.Update( fea_prop->m_CrossSecArea_FEM.GetID() );
+                    m_PropIzz_FEMOutput.Update( fea_prop->m_Izz_FEM.GetID() );
+                    m_PropIyy_FEMOutput.Update( fea_prop->m_Iyy_FEM.GetID() );
+                    m_PropIzy_FEMOutput.Update( fea_prop->m_Izy_FEM.GetID() );
+                    m_PropIxx_FEMOutput.Update( fea_prop->m_Ixx_FEM.GetID() );
+
+                    BeamXSecDispGroup( &m_GenXSecGroup );
+                }
+                else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_CIRC )
+                {
+                    m_CircDim1Input.Update( fea_prop->m_Dim1.GetID() );
+
+                    m_CircDim1_FEMOutput.Update( fea_prop->m_Dim1_FEM.GetID() );
+
+                    BeamXSecDispGroup( &m_CircXSecGroup );
+                }
+                else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_PIPE )
+                {
+                    m_PipeDim1Input.Update( fea_prop->m_Dim1.GetID() );
+                    m_PipeDim2Input.Update( fea_prop->m_Dim2.GetID() );
+
+                    m_PipeDim1_FEMOutput.Update( fea_prop->m_Dim1_FEM.GetID() );
+                    m_PipeDim2_FEMOutput.Update( fea_prop->m_Dim2_FEM.GetID() );
+
+                    BeamXSecDispGroup( &m_PipeXSecGroup );
+                }
+                else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_I )
+                {
+                    m_IDim1Input.Update( fea_prop->m_Dim1.GetID() );
+                    m_IDim2Input.Update( fea_prop->m_Dim2.GetID() );
+                    m_IDim3Input.Update( fea_prop->m_Dim3.GetID() );
+                    m_IDim4Input.Update( fea_prop->m_Dim4.GetID() );
+                    m_IDim5Input.Update( fea_prop->m_Dim5.GetID() );
+                    m_IDim6Input.Update( fea_prop->m_Dim6.GetID() );
+
+                    m_IDim1_FEMOutput.Update( fea_prop->m_Dim1_FEM.GetID() );
+                    m_IDim2_FEMOutput.Update( fea_prop->m_Dim2_FEM.GetID() );
+                    m_IDim3_FEMOutput.Update( fea_prop->m_Dim3_FEM.GetID() );
+                    m_IDim4_FEMOutput.Update( fea_prop->m_Dim4_FEM.GetID() );
+                    m_IDim5_FEMOutput.Update( fea_prop->m_Dim5_FEM.GetID() );
+                    m_IDim6_FEMOutput.Update( fea_prop->m_Dim6_FEM.GetID() );
+
+                    BeamXSecDispGroup( &m_IXSecGroup );
+                }
+                else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_RECT )
+                {
+                    m_RectDim1Input.Update( fea_prop->m_Dim1.GetID() );
+                    m_RectDim2Input.Update( fea_prop->m_Dim2.GetID() );
+
+                    m_RectDim1_FEMOutput.Update( fea_prop->m_Dim1_FEM.GetID() );
+                    m_RectDim2_FEMOutput.Update( fea_prop->m_Dim2_FEM.GetID() );
+
+                    BeamXSecDispGroup( &m_RectXSecGroup );
+                }
+                else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_BOX )
+                {
+                    m_BoxDim1Input.Update( fea_prop->m_Dim1.GetID() );
+                    m_BoxDim2Input.Update( fea_prop->m_Dim2.GetID() );
+                    m_BoxDim3Input.Update( fea_prop->m_Dim3.GetID() );
+                    m_BoxDim4Input.Update( fea_prop->m_Dim4.GetID() );
+
+                    m_BoxDim1_FEMOutput.Update( fea_prop->m_Dim1_FEM.GetID() );
+                    m_BoxDim2_FEMOutput.Update( fea_prop->m_Dim2_FEM.GetID() );
+                    m_BoxDim3_FEMOutput.Update( fea_prop->m_Dim3_FEM.GetID() );
+                    m_BoxDim4_FEMOutput.Update( fea_prop->m_Dim4_FEM.GetID() );
+
+                    BeamXSecDispGroup( &m_BoxXSecGroup );
+                }
             }
         }
         else
@@ -2099,46 +2754,128 @@ bool StructScreen::Update()
             FeaPropertyDispGroup( NULL );
         }
 
+
         //===== FeaMaterial Update =====//
         UpdateFeaMaterialBrowser();
         UpdateFeaMaterialChoice();
 
-        if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+        if ( fea_mat )
         {
-            FeaMaterial* fea_mat = StructureMgr.GetFeaMaterialVec()[StructureMgr.GetCurrMaterialIndex()];
-            if ( fea_mat )
+            m_FeaMaterialTypeChoice.Update( fea_mat->m_FeaMaterialType.GetID() );
+            m_FeaMaterialNameInput.Update( fea_mat->GetName() );
+            m_FeaMaterialDescriptionInput.Update( fea_mat->m_Description );
+
+            m_MatDensityInput.Update( fea_mat->m_MassDensity.GetID() );
+            m_MatElasticModInput.Update( fea_mat->m_ElasticModulus.GetID() );
+            m_MatPoissonInput.Update( fea_mat->m_PoissonRatio.GetID() );
+
+            char str[256];
+            snprintf( str, sizeof( str ),  "%5.3g", fea_mat->GetShearModulus() );
+            m_MatShearModOutput.Update( str );
+
+            m_MatThermalExCoeffInput.Update( fea_mat->m_ThermalExpanCoeff.GetID() );
+
+            m_IsoMatDensityUnitChoice.Update( fea_mat->m_DensityUnit.GetID() );
+            m_IsoMatElasticModUnitChoice.Update( fea_mat->m_ModulusUnit.GetID() );
+            m_IsoMatThermalExCoeffUnitChoice.Update( fea_mat->m_TemperatureUnit.GetID() );
+
+            m_OrthoMatDensityInput.Update( fea_mat->m_MassDensity.GetID() );
+
+            m_MatE1Input.Update( fea_mat->m_E1.GetID() );
+            m_MatE2Input.Update( fea_mat->m_E2.GetID() );
+            m_MatE3Input.Update( fea_mat->m_E3.GetID() );
+            m_Matnu12Input.Update( fea_mat->m_nu12.GetID() );
+            m_Matnu13Input.Update( fea_mat->m_nu13.GetID() );
+            m_Matnu23Input.Update( fea_mat->m_nu23.GetID() );
+            m_MatG12Input.Update( fea_mat->m_G12.GetID() );
+            m_MatG13Input.Update( fea_mat->m_G13.GetID() );
+            m_MatG23Input.Update( fea_mat->m_G23.GetID() );
+            m_MatA1Input.Update( fea_mat->m_A1.GetID() );
+            m_MatA2Input.Update( fea_mat->m_A2.GetID() );
+            m_MatA3Input.Update( fea_mat->m_A3.GetID() );
+
+
+            m_MatDensity_FEMOutput.Update( fea_mat->m_MassDensity_FEM.GetID() );
+            m_MatElasticMod_FEMOutput.Update( fea_mat->m_ElasticModulus_FEM.GetID() );
+
+            snprintf( str, sizeof( str ),  "%5.3g", fea_mat->GetShearModulus_FEM() );
+            m_MatShearMod_FEMOutput.Update( str );
+
+            m_MatThermalExCoeff_FEMOutput.Update( fea_mat->m_ThermalExpanCoeff_FEM.GetID() );
+
+
+            m_OrthoMatDensityUnitChoice.Update( fea_mat->m_DensityUnit.GetID() );
+            m_OrthoMatElasticModUnitChoice.Update( fea_mat->m_ModulusUnit.GetID() );
+            m_OrthoMatThermalExCoeffUnitChoice.Update( fea_mat->m_TemperatureUnit.GetID() );
+
+            m_OrthoMatDensity_FEMOutput.Update( fea_mat->m_MassDensity_FEM.GetID() );
+
+            m_MatE1Output_FEM.Update( fea_mat->m_E1_FEM.GetID() );
+            m_MatE2Output_FEM.Update( fea_mat->m_E2_FEM.GetID() );
+            m_MatE3Output_FEM.Update( fea_mat->m_E3_FEM.GetID() );
+            m_MatG12Output_FEM.Update( fea_mat->m_G12_FEM.GetID() );
+            m_MatG13Output_FEM.Update( fea_mat->m_G13_FEM.GetID() );
+            m_MatG23Output_FEM.Update( fea_mat->m_G23_FEM.GetID() );
+            m_MatA1Output_FEM.Update( fea_mat->m_A1_FEM.GetID() );
+            m_MatA2Output_FEM.Update( fea_mat->m_A2_FEM.GetID() );
+            m_MatA3Output_FEM.Update( fea_mat->m_A3_FEM.GetID() );
+
+
+            if ( fea_mat->m_UserFeaMaterial )
             {
-                m_FeaMaterialTypeChoice.Update( fea_mat->m_FeaMaterialType.GetID() );
-                m_FeaMaterialNameInput.Update( fea_mat->GetName() );
-                m_MatDensitySlider.Update( fea_mat->m_MassDensity.GetID() );
-                m_MatElasticModSlider.Update( fea_mat->m_ElasticModulus.GetID() );
-                m_MatPoissonSlider.Update( fea_mat->m_PoissonRatio.GetID() );
+                m_FeaMaterialTypeChoice.Activate();
+                m_FeaMaterialNameInput.Activate();
+                m_FeaMaterialDescriptionInput.Activate();
 
-                char str[256];
-                snprintf( str, sizeof( str ),  "%5.3g", fea_mat->GetShearModulus() );
-                m_MatShearModOutput.Update( str );
+                m_MatDensityInput.Activate();
+                m_MatElasticModInput.Activate();
+                m_MatPoissonInput.Activate();
+                m_MatShearModOutput.Activate();
+                m_MatThermalExCoeffInput.Activate();
 
-                m_MatThermalExCoeffSlider.Update( fea_mat->m_ThermalExpanCoeff.GetID() );
+                m_IsoMatDensityUnitChoice.Activate();
+                m_IsoMatElasticModUnitChoice.Activate();
+                m_IsoMatThermalExCoeffUnitChoice.Activate();
+                m_IsoMatShearModUnit.Activate();
 
-                m_MatE1Input.Update( fea_mat->m_E1.GetID() );
-                m_MatE2Input.Update( fea_mat->m_E2.GetID() );
-                m_MatE3Input.Update( fea_mat->m_E3.GetID() );
-                m_Matnu12Input.Update( fea_mat->m_nu12.GetID() );
-                m_Matnu13Input.Update( fea_mat->m_nu13.GetID() );
-                m_Matnu23Input.Update( fea_mat->m_nu23.GetID() );
-                m_MatG12Input.Update( fea_mat->m_G12.GetID() );
-                m_MatG13Input.Update( fea_mat->m_G13.GetID() );
-                m_MatG23Input.Update( fea_mat->m_G23.GetID() );
-                m_MatA1Input.Update( fea_mat->m_A1.GetID() );
-                m_MatA2Input.Update( fea_mat->m_A2.GetID() );
-                m_MatA3Input.Update( fea_mat->m_A3.GetID() );
+                m_OrthoMatDensityInput.Activate();
+                m_MatE1Input.Activate();
+                m_MatE2Input.Activate();
+                m_MatE3Input.Activate();
+                m_Matnu12Input.Activate();
+                m_Matnu13Input.Activate();
+                m_Matnu23Input.Activate();
+                m_MatG12Input.Activate();
+                m_MatG13Input.Activate();
+                m_MatG23Input.Activate();
+                m_MatA1Input.Activate();
+                m_MatA2Input.Activate();
+                m_MatA3Input.Activate();
 
+                m_OrthoMatDensityUnitChoice.Activate();
+                m_OrthoMatElasticModUnitChoice.Activate();
+                m_OrthoMatThermalExCoeffUnitChoice.Activate();
+                m_OrthoMatShearModUnit.Activate();
+            }
+            else
+            {
+                m_FeaMaterialTypeChoice.Deactivate();
                 m_FeaMaterialNameInput.Deactivate();
-                m_MatDensitySlider.Deactivate();
-                m_MatElasticModSlider.Deactivate();
-                m_MatPoissonSlider.Deactivate();
+                m_FeaMaterialDescriptionInput.Deactivate();
+
+                m_MatDensityInput.Deactivate();
+                m_MatElasticModInput.Deactivate();
+                m_MatPoissonInput.Deactivate();
                 m_MatShearModOutput.Deactivate();
-                m_MatThermalExCoeffSlider.Deactivate();
+                m_MatThermalExCoeffInput.Deactivate();
+
+                m_IsoMatDensityUnitChoice.Deactivate();
+                m_IsoMatElasticModUnitChoice.Deactivate();
+                m_IsoMatThermalExCoeffUnitChoice.Deactivate();
+                m_IsoMatShearModUnit.Deactivate();
+
+                m_OrthoMatDensityInput.Deactivate();
                 m_MatE1Input.Deactivate();
                 m_MatE2Input.Deactivate();
                 m_MatE3Input.Deactivate();
@@ -2152,35 +2889,24 @@ bool StructScreen::Update()
                 m_MatA2Input.Deactivate();
                 m_MatA3Input.Deactivate();
 
-                if ( fea_mat->m_UserFeaMaterial )
-                {
-                    m_FeaMaterialNameInput.Activate();
-                    m_MatDensitySlider.Activate();
-                    if ( fea_mat->m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
-                    {
-                        m_MatElasticModSlider.Activate();
-                        m_MatPoissonSlider.Activate();
-                        m_MatShearModOutput.Activate();
-                        m_MatThermalExCoeffSlider.Activate();
-                    }
-                    else
-                    {
-                        m_MatE1Input.Activate();
-                        m_MatE2Input.Activate();
-                        m_MatE3Input.Activate();
-                        m_Matnu12Input.Activate();
-                        m_Matnu13Input.Activate();
-                        m_Matnu23Input.Activate();
-                        m_MatG12Input.Activate();
-                        m_MatG13Input.Activate();
-                        m_MatG23Input.Activate();
-                        m_MatA1Input.Activate();
-                        m_MatA2Input.Activate();
-                        m_MatA3Input.Activate();
-                    }
-                }
+                m_OrthoMatDensityUnitChoice.Deactivate();
+                m_OrthoMatElasticModUnitChoice.Deactivate();
+                m_OrthoMatThermalExCoeffUnitChoice.Deactivate();
+                m_OrthoMatShearModUnit.Deactivate();
+            }
+
+            if ( fea_mat->m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
+            {
+                m_IsoSubGroup.Show();
+                m_OrthoSubGroup.Hide();
+            }
+            else
+            {
+                m_IsoSubGroup.Hide();
+                m_OrthoSubGroup.Show();
             }
         }
+
 
 
         FeaStructure* isect_struct = StructureMgr.GetFeaStruct( FeaMeshMgr.GetIntersectStructID() );
@@ -2797,10 +3523,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         system( "xdg-open http://www.openvsp.org/wiki/doku.php?id=feamesh" );
 #endif
     }
-    else if ( device == &m_StructUnitChoice )
-    {
-        StructureMgr.UpdateStructUnit( m_StructUnitChoice.GetVal() );
-    }
     else if ( device == &m_GeomChoice )
     {
         m_SelectedGeomID = m_GeomIDVec[m_GeomChoice.GetVal()];
@@ -3196,10 +3918,11 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DelFeaPropertyButton )
     {
-        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
-        {
-            StructureMgr.DeleteFeaProperty( StructureMgr.GetCurrPropertyIndex() );
+        FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
 
+        if ( fea_prop )
+        {
+            StructureMgr.DeleteFeaProperty( fea_prop->GetID() );
             StructureMgr.SetCurrPropertyIndex( StructureMgr.GetCurrPropertyIndex() - 1 );
         }
         else
@@ -3209,15 +3932,11 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FeaPropertyNameInput )
     {
-        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
-        {
-            vector < FeaProperty* > property_vec = StructureMgr.GetFeaPropertyVec();
-            FeaProperty* fea_prop = property_vec[StructureMgr.GetCurrPropertyIndex()];
+        FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
 
-            if ( fea_prop )
-            {
-                fea_prop->SetName( m_FeaPropertyNameInput.GetString() );
-            }
+        if ( fea_prop )
+        {
+            fea_prop->SetName( m_FeaPropertyNameInput.GetString() );
         }
     }
     else if ( device == &m_AddFeaMaterialButton )
@@ -3227,11 +3946,14 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DelFeaMaterialButton )
     {
-        if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
-        {
-            StructureMgr.DeleteFeaMaterial( StructureMgr.GetCurrMaterialIndex() );
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
 
-            StructureMgr.SetCurrMaterialIndex( StructureMgr.GetCurrMaterialIndex() - 1 );
+        if ( fea_mat )
+        {
+            if ( StructureMgr.DeleteFeaMaterial( fea_mat->GetID() ) )
+            {
+                StructureMgr.SetCurrMaterialIndex( StructureMgr.GetCurrMaterialIndex() - 1 );
+            }
         }
         else
         {
@@ -3240,39 +3962,38 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FeaMaterialNameInput )
     {
-        if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
-        {
-            vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
-            FeaMaterial* fea_mat = material_vec[StructureMgr.GetCurrMaterialIndex()];
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
 
-            if ( fea_mat )
-            {
-                fea_mat->SetName( m_FeaMaterialNameInput.GetString() );
-            }
+        if ( fea_mat )
+        {
+            fea_mat->SetName( m_FeaMaterialNameInput.GetString() );
+        }
+    }
+    else if ( device == &m_FeaMaterialDescriptionInput )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat )
+        {
+            fea_mat->m_Description = m_FeaMaterialNameInput.GetString();
         }
     }
     else if ( device == &m_FeaShellMaterialChoice )
     {
-        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
-        {
-            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
+        FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
 
-            if ( fea_prop )
-            {
-                fea_prop->m_FeaMaterialIndex.Set( m_FeaShellMaterialChoice.GetVal() );
-            }
+        if ( fea_prop )
+        {
+            fea_prop->m_FeaMaterialID = m_FeaMaterialIDVec[ m_FeaShellMaterialChoice.GetVal() ];
         }
     }
     else if ( device == &m_FeaBeamMaterialChoice )
     {
-        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
-        {
-            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
+        FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
 
-            if ( fea_prop )
-            {
-                fea_prop->m_FeaMaterialIndex.Set( m_FeaBeamMaterialChoice.GetVal() );
-            }
+        if ( fea_prop )
+        {
+            fea_prop->m_FeaMaterialID = m_FeaMaterialIDVec[ m_FeaBeamMaterialChoice.GetVal() ];
         }
     }
     else if ( device == &m_ShowFeaBeamXSecButton )

@@ -47,6 +47,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_GenLayout.AddButton( m_CreateBeamElementsToggle, "Create Beam Elements" );
 
+    m_GenLayout.AddYGap();
+
     m_GenLayout.SetChoiceButtonWidth( m_GenLayout.GetRemainX() / 3 );
 
     m_GenLayout.AddChoice( m_ShellPropertyChoice, "Shell Property" );
@@ -350,20 +352,44 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_FixPointEditLayout.SetSameLineFlag( true );
     m_FixPointEditLayout.SetFitWidthFlag( false );
 
-    m_FixPointEditLayout.SetButtonWidth( m_FixPointEditLayout.GetRemainX() / 17 );
+    int togglew = m_FixPointEditLayout.GetRemainX() / 17;
+    int gapw = 5.0;
+    int massw = ( m_FixPointEditLayout.GetW() - gapw - togglew ) / 5.0;
 
+    m_FixPointEditLayout.SetButtonWidth( 3 * massw + togglew );
+    m_FixPointEditLayout.AddDividerBox( "Input" );
+    m_FixPointEditLayout.AddX( gapw );
+    m_FixPointEditLayout.SetButtonWidth( 2 * massw );
+    m_FixPointEditLayout.AddDividerBox( "To FEM" );
+    m_FixPointEditLayout.ForceNewLine();
+
+
+    m_FixPointEditLayout.SetButtonWidth( togglew );
     m_FixPointEditLayout.AddButton( m_FixPointMassToggle, "" );
 
-    m_FixPointEditLayout.SetButtonWidth( ( m_FixPointEditLayout.GetW() / 3 ) - ( m_FixPointEditLayout.GetRemainX() / 16 ) );
-    m_FixPointEditLayout.SetSliderWidth( m_FixPointEditLayout.GetW() / 4 );
-    m_FixPointEditLayout.SetInputWidth(  m_FixPointEditLayout.GetRemainX() / 6 );
+    m_FixPointEditLayout.SetButtonWidth( massw );
+    m_FixPointEditLayout.SetSliderWidth( massw );
+    m_FixPointEditLayout.SetInputWidth( massw );
 
-    m_FixPointEditLayout.AddSlider( m_FixPointMassSlider, "Mass", 100.0, "%5.3g" );
+    m_FixPointEditLayout.AddInput( m_FixPointMassInput, "Mass", "%5.3g" );
 
-    m_FixPointEditLayout.AddButton( m_FixPointMassUnit, "" );
-    m_FixPointMassUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_FixPointMassUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_FixPointMassUnit.SetWidth( ( m_FixPointEditLayout.GetW() / 5 ) );
+    m_FixPointEditLayout.SetChoiceButtonWidth( 0 );
+    m_FixPointMassUnitChoice.AddItem( "lbm", vsp::MASS_UNIT_LBM );
+    m_FixPointMassUnitChoice.AddItem( "slug", vsp::MASS_UNIT_SLUG );
+    m_FixPointMassUnitChoice.AddItem( "lbf s^2/in", vsp::MASS_LBFSEC2IN );
+    m_FixPointMassUnitChoice.AddItem( "g", vsp::MASS_UNIT_G );
+    m_FixPointMassUnitChoice.AddItem( "kg", vsp::MASS_UNIT_KG );
+    m_FixPointMassUnitChoice.AddItem( "tonne", vsp::MASS_UNIT_TONNE );
+    m_FixPointEditLayout.AddChoice( m_FixPointMassUnitChoice, "" );
+
+    m_FixPointEditLayout.AddX( gapw );
+
+    m_FixPointEditLayout.SetButtonWidth( 0 );
+    m_FixPointEditLayout.AddOutput( m_FixPointMass_FEMOutput, "", "%5.3g" );
+    m_FixPointEditLayout.SetButtonWidth( massw );
+    m_FixPointEditLayout.AddButton( m_FixPointMassUnit_FEM, "" );
+    m_FixPointMassUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_FixPointMassUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
 
     //==== FeaDome ====//
     m_GenLayout.AddSubGroupLayout( m_DomeEditLayout, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
@@ -1047,7 +1073,8 @@ bool FeaPartEditScreen::Update()
         m_ShellPropertyChoice.Activate();
         m_OrientationChoice.Activate();
         m_CapPropertyChoice.Activate();
-        m_ShellCapToggleGroup.Activate();
+        m_KeepDelShellElementsToggleGroup.Activate();
+        m_CreateBeamElementsToggle.Activate();
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {
@@ -1062,11 +1089,12 @@ bool FeaPartEditScreen::Update()
                 {
                     m_FeaPartNameInput.Update( feaprt->GetName() );
 
-                    if ( feaprt->m_IncludedElements() == vsp::FEA_SHELL )
+                    if ( !feaprt->m_CreateBeamElements() )
                     {
                         m_CapPropertyChoice.Deactivate();
                     }
-                    else if ( feaprt->m_IncludedElements() == vsp::FEA_BEAM )
+
+                    if ( feaprt->m_KeepDelShellElements() == vsp::FEA_DELETE )
                     {
                         m_ShellPropertyChoice.Deactivate();
                         m_OrientationChoice.Deactivate();
@@ -1079,7 +1107,8 @@ bool FeaPartEditScreen::Update()
 
                         m_RemoveSkinToggle.Update( skin->m_RemoveSkinFlag.GetID() );
 
-                        m_ShellCapToggleGroup.Deactivate();
+                        m_KeepDelShellElementsToggleGroup.Deactivate();
+                        m_CreateBeamElementsToggle.Deactivate();
                         m_CapPropertyChoice.Deactivate();
 
                         if ( skin->m_RemoveSkinFlag() )
@@ -1111,7 +1140,8 @@ bool FeaPartEditScreen::Update()
                         }
 
                         m_SliceRotAxisToggleGroup.Update( slice->m_RotationAxis.GetID() );
-                        m_ShellCapToggleGroup.Update( slice->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( slice->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( slice->m_KeepDelShellElements.GetID() );
 
                         m_SliceXRotSlider.Update( slice->m_XRot.GetID() );
                         m_SliceYRotSlider.Update( slice->m_YRot.GetID() );
@@ -1196,7 +1226,8 @@ bool FeaPartEditScreen::Update()
                         m_RibThetaSlider.Update( rib->m_Theta.GetID() );
                         m_RibTrimToBBoxToggle.Update( rib->m_BndBoxTrimFlag.GetID() );
                         m_RibRotateDihedralToggle.Update( rib->m_MatchDihedralFlag.GetID() );
-                        m_ShellCapToggleGroup.Update( rib->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( rib->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( rib->m_KeepDelShellElements.GetID() );
 
                         FeaPartDispGroup( &m_RibEditLayout );
                     }
@@ -1263,7 +1294,8 @@ bool FeaPartEditScreen::Update()
                         }
 
                         m_SparTrimToBBoxToggle.Update( spar->m_BndBoxTrimFlag.GetID() );
-                        m_ShellCapToggleGroup.Update( spar->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( spar->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( spar->m_KeepDelShellElements.GetID() );
 
                         FeaPartDispGroup( &m_SparEditLayout );
                     }
@@ -1274,24 +1306,33 @@ bool FeaPartEditScreen::Update()
 
                         m_FixPointULocSlider.Update( fixpt->m_PosU.GetID() );
                         m_FixPointWLocSlider.Update( fixpt->m_PosW.GetID() );
+
                         m_FixPointMassToggle.Update( fixpt->m_FixPointMassFlag.GetID() );
-                        m_FixPointMassSlider.Update( fixpt->m_FixPointMass.GetID() );
+                        m_FixPointMassUnitChoice.Update( fixpt->m_MassUnit.GetID() );
+                        m_FixPointMassInput.Update( fixpt->m_FixPointMass.GetID() );
+
+                        m_FixPointMass_FEMOutput.Update( fixpt->m_FixPointMass_FEM.GetID() );
 
                         if ( fixpt->m_FixPointMassFlag() )
                         {
-                            m_FixPointMassSlider.Activate();
-                            m_FixPointMassUnit.Activate();
+                            m_FixPointMassInput.Activate();
+                            m_FixPointMassUnitChoice.Activate();
+                            m_FixPointMass_FEMOutput.Activate();
+                            m_FixPointMassUnit_FEM.Activate();
                         }
                         else
                         {
-                            m_FixPointMassSlider.Deactivate();
-                            m_FixPointMassUnit.Deactivate();
+                            m_FixPointMassInput.Deactivate();
+                            m_FixPointMassUnitChoice.Deactivate();
+                            m_FixPointMass_FEMOutput.Deactivate();
+                            m_FixPointMassUnit_FEM.Deactivate();
                         }
 
                         m_ShellPropertyChoice.Deactivate();
                         m_OrientationChoice.Deactivate();
                         m_CapPropertyChoice.Deactivate();
-                        m_ShellCapToggleGroup.Deactivate();
+                        m_KeepDelShellElementsToggleGroup.Deactivate();
+                        m_CreateBeamElementsToggle.Deactivate();
 
                         FeaPartDispGroup( &m_FixPointEditLayout );
                     }
@@ -1313,7 +1354,8 @@ bool FeaPartEditScreen::Update()
                         m_DomeYRotSlider.Update( dome->m_YRot.GetID() );
                         m_DomeZRotSlider.Update( dome->m_ZRot.GetID() );
 
-                        m_ShellCapToggleGroup.Update( dome->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( dome->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( dome->m_KeepDelShellElements.GetID() );
 
                         if ( dome->m_SpineAttachFlag() )
                         {
@@ -1395,7 +1437,8 @@ bool FeaPartEditScreen::Update()
 
                         m_RibArrayThetaSlider.Update( rib_array->m_Theta.GetID() );
                         m_RibArrayTrimToBBoxToggle.Update( rib_array->m_BndBoxTrimFlag.GetID() );
-                        m_ShellCapToggleGroup.Update( rib_array->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( rib_array->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( rib_array->m_KeepDelShellElements.GetID() );
                         m_RibArrayPosNegDirToggleGroup.Update( rib_array->m_PositiveDirectionFlag.GetID() );
                         m_RibArrayRotateDihedralToggle.Update( rib_array->m_MatchDihedralFlag.GetID() );
 
@@ -1439,7 +1482,8 @@ bool FeaPartEditScreen::Update()
                         m_SliceArrayXRotSlider.Update( slice_array->m_XRot.GetID() );
                         m_SliceArrayYRotSlider.Update( slice_array->m_YRot.GetID() );
                         m_SliceArrayZRotSlider.Update( slice_array->m_ZRot.GetID() );
-                        m_ShellCapToggleGroup.Update( slice_array->m_IncludedElements.GetID() );
+                        m_CreateBeamElementsToggle.Update( slice_array->m_CreateBeamElements.GetID() );
+                        m_KeepDelShellElementsToggleGroup.Update( slice_array->m_KeepDelShellElements.GetID() );
 
                         if ( slice_array->m_RotationAxis() == vsp::X_DIR )
                         {
@@ -1470,7 +1514,8 @@ bool FeaPartEditScreen::Update()
                         m_ShellPropertyChoice.Deactivate();
                         m_OrientationChoice.Deactivate();
                         m_CapPropertyChoice.Deactivate();
-                        m_ShellCapToggleGroup.Deactivate();
+                        m_KeepDelShellElementsToggleGroup.Deactivate();
+                        m_CreateBeamElementsToggle.Deactivate();
 
                         FeaPartDispGroup( &m_TrimEditLayout );
                     }
@@ -1767,6 +1812,28 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                 subsurf->SetName( m_FeaPartNameInput.GetString() );
             }
         }
+        else if ( device == &m_ShellPropertyChoice )
+        {
+            if ( feaprt )
+            {
+                feaprt->m_FeaPropertyID = m_FeaPropertyIDVec[ m_ShellPropertyChoice.GetVal() ];
+            }
+            else if ( subsurf )
+            {
+                subsurf->m_FeaPropertyID = m_FeaPropertyIDVec[ m_ShellPropertyChoice.GetVal() ];
+            }
+        }
+        else if ( device == &m_CapPropertyChoice )
+        {
+            if ( feaprt )
+            {
+                feaprt->m_CapFeaPropertyID = m_FeaPropertyIDVec[ m_CapPropertyChoice.GetVal() ];
+            }
+            else if ( subsurf )
+            {
+                subsurf->m_CapFeaPropertyID = m_FeaPropertyIDVec[ m_CapPropertyChoice.GetVal() ];
+            }
+        }
         else if ( device == &m_RibPerpendicularSparChoice )
         {
             if ( feaprt && feaprt->GetType() == vsp::FEA_RIB )
@@ -1941,6 +2008,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
     //==== Property Choice ====//
     m_ShellPropertyChoice.ClearItems();
     m_CapPropertyChoice.ClearItems();
+    m_FeaPropertyIDVec.clear();
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -1950,6 +2018,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
 
         for ( int i = 0; i < property_vec.size(); ++i )
         {
+            m_FeaPropertyIDVec.push_back( property_vec[i]->GetID() );
             if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
             {
                 m_ShellPropertyChoice.AddItem( string( property_vec[i]->GetName() ), i );
@@ -1974,9 +2043,9 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 if ( feaprt )
                 {
                     // Update all FeaPart Property Choices ( Only Selected Part Visible )
-                    m_ShellPropertyChoice.Update( feaprt->m_FeaPropertyIndex.GetID() );
+                    m_ShellPropertyChoice.SetVal( vector_find_val( m_FeaPropertyIDVec, feaprt->m_FeaPropertyID ) );
                     m_OrientationChoice.Update( feaprt->m_OrientationType.GetID() );
-                    m_CapPropertyChoice.Update( feaprt->m_CapFeaPropertyIndex.GetID() );
+                    m_CapPropertyChoice.SetVal( vector_find_val( m_FeaPropertyIDVec, feaprt->m_CapFeaPropertyID ) );
 
                 }
             }
@@ -1987,9 +2056,10 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 if ( subsurf )
                 {
                     // Update all FeaSubSurface Property Choices ( Only Selected Part Visible )
-                    m_ShellPropertyChoice.Update( subsurf->m_FeaPropertyIndex.GetID() );
+                    m_ShellPropertyChoice.SetVal( vector_find_val( m_FeaPropertyIDVec, subsurf->m_FeaPropertyID ) );
                     m_OrientationChoice.Update( subsurf->m_FeaOrientationType.GetID() );
-                    m_CapPropertyChoice.Update( subsurf->m_CapFeaPropertyIndex.GetID() );
+                    m_CapPropertyChoice.SetVal( vector_find_val( m_FeaPropertyIDVec, subsurf->m_CapFeaPropertyID ) );
+
                 }
             }
         }
@@ -2333,7 +2403,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
                 break;
         }
 
-        m_FixPointMassUnit.GetFlButton()->copy_label( mass_unit.c_str() );
+        m_FixPointMassUnit_FEM.GetFlButton()->copy_label( mass_unit.c_str() );
 
         m_DomeARadUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
         m_DomeBRadUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
@@ -2341,6 +2411,11 @@ void FeaPartEditScreen::UpdateUnitLabels()
         m_DomeXUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
         m_DomeYUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
         m_DomeZUnit.GetFlButton()->copy_label( model_dist_unit.c_str() );
+
+
+
+
+
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
         {

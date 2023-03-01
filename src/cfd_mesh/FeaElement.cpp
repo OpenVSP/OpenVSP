@@ -12,6 +12,7 @@
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
 #include "StringUtil.h"
+#include "StlHelper.h"
 
 using namespace StringUtil;
 
@@ -610,29 +611,32 @@ void FeaPointMass::WriteNASTRAN( FILE* fp, int id, int property_index, long long
 //////////////////////////////////////////////////////
 //=============== SimpleFeaProperty ================//
 //////////////////////////////////////////////////////
-void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
+void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop, const vector < string > &mat_id_vec )
 {
     if ( fea_prop )
     {
         m_Name = fea_prop->GetName();
         m_FeaPropertyType = fea_prop->m_FeaPropertyType.Get();
-        m_Thickness = fea_prop->m_Thickness.Get();
-        m_CrossSecArea = fea_prop->m_CrossSecArea.Get();
-        m_Izz = fea_prop->m_Izz.Get();
-        m_Iyy = fea_prop->m_Iyy.Get();
-        m_Izy = fea_prop->m_Izy.Get();
-        m_Ixx = fea_prop->m_Ixx.Get();
-        m_Dim1 = fea_prop->m_Dim1.Get();
-        m_Dim2 = fea_prop->m_Dim2.Get();
-        m_Dim3 = fea_prop->m_Dim3.Get();
-        m_Dim4 = fea_prop->m_Dim4.Get();
-        m_Dim5 = fea_prop->m_Dim5.Get();
-        m_Dim6 = fea_prop->m_Dim6.Get();
+        m_Thickness = fea_prop->m_Thickness_FEM.Get();
+        m_CrossSecArea = fea_prop->m_CrossSecArea_FEM.Get();
+        m_Izz = fea_prop->m_Izz_FEM.Get();
+        m_Iyy = fea_prop->m_Iyy_FEM.Get();
+        m_Izy = fea_prop->m_Izy_FEM.Get();
+        m_Ixx = fea_prop->m_Ixx_FEM.Get();
+        m_Dim1 = fea_prop->m_Dim1_FEM.Get();
+        m_Dim2 = fea_prop->m_Dim2_FEM.Get();
+        m_Dim3 = fea_prop->m_Dim3_FEM.Get();
+        m_Dim4 = fea_prop->m_Dim4_FEM.Get();
+        m_Dim5 = fea_prop->m_Dim5_FEM.Get();
+        m_Dim6 = fea_prop->m_Dim6_FEM.Get();
         m_CrossSectType = fea_prop->m_CrossSectType.Get();
-        m_SimpleFeaMatIndex = fea_prop->m_FeaMaterialIndex();
+        m_ID = fea_prop->GetID();
+        m_FeaMatID = fea_prop->m_FeaMaterialID;
         m_Used = false;
 
-        FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_SimpleFeaMatIndex );
+        m_SimpleFeaMatIndex = vector_find_val( mat_id_vec, m_FeaMatID );
+
+        FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_FeaMatID );
 
         if ( fea_mat )
         {
@@ -760,24 +764,25 @@ void SimpleFeaMaterial::CopyFrom( FeaMaterial* fea_mat )
     if ( fea_mat )
     {
         m_FeaMaterialType = fea_mat->m_FeaMaterialType.Get();
-        m_MassDensity = fea_mat->m_MassDensity.Get();
-        m_ElasticModulus = fea_mat->m_ElasticModulus.Get();
+        m_MassDensity = fea_mat->m_MassDensity_FEM.Get();
+        m_ElasticModulus = fea_mat->m_ElasticModulus_FEM.Get();
         m_PoissonRatio = fea_mat->m_PoissonRatio.Get();
-        m_ThermalExpanCoeff = fea_mat->m_ThermalExpanCoeff.Get();
-        m_E1 = fea_mat->m_E1.Get();
-        m_E2 = fea_mat->m_E2.Get();
-        m_E3 = fea_mat->m_E3.Get();
+        m_ThermalExpanCoeff = fea_mat->m_ThermalExpanCoeff_FEM.Get();
+        m_E1 = fea_mat->m_E1_FEM.Get();
+        m_E2 = fea_mat->m_E2_FEM.Get();
+        m_E3 = fea_mat->m_E3_FEM.Get();
         m_nu12 = fea_mat->m_nu12.Get();
         m_nu13 = fea_mat->m_nu13.Get();
         m_nu23 = fea_mat->m_nu23.Get();
-        m_G12 = fea_mat->m_G12.Get();
-        m_G13 = fea_mat->m_G13.Get();
-        m_G23 = fea_mat->m_G23.Get();
-        m_A1 = fea_mat->m_A1.Get();
-        m_A2 = fea_mat->m_A2.Get();
-        m_A3 = fea_mat->m_A3.Get();
+        m_G12 = fea_mat->m_G12_FEM.Get();
+        m_G13 = fea_mat->m_G13_FEM.Get();
+        m_G23 = fea_mat->m_G23_FEM.Get();
+        m_A1 = fea_mat->m_A1_FEM.Get();
+        m_A2 = fea_mat->m_A2_FEM.Get();
+        m_A3 = fea_mat->m_A3_FEM.Get();
         m_Name = fea_mat->GetName();
         m_Used = false;
+        m_ID = fea_mat->GetID();
     }
 }
 

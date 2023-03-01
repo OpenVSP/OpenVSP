@@ -217,7 +217,7 @@ class SimpleFeaProperty
     };
     ~SimpleFeaProperty()    {};
 
-    void CopyFrom( FeaProperty* fea_prop );
+    void CopyFrom( FeaProperty* fea_prop, const vector < string > &mat_id_vec );
 
     void WriteNASTRAN( FILE* fp, int id ) const;
     void WriteCalculix( FILE* fp, const string &ELSET, const string &ORIENTATION ) const;
@@ -225,6 +225,10 @@ class SimpleFeaProperty
     int GetSimpFeaMatIndex() const
     {
         return m_SimpleFeaMatIndex;
+    }
+    string GetFeaMatID()
+    {
+        return m_FeaMatID;
     }
 
     bool m_Used;
@@ -244,9 +248,12 @@ class SimpleFeaProperty
     double m_Dim6;
     int m_CrossSectType;
 
+    string m_ID;
+
 protected:
 
     int m_SimpleFeaMatIndex;
+    string m_FeaMatID;
     string m_MaterialName;
     string m_Name;
 };
@@ -306,6 +313,8 @@ public:
     double m_A1;
     double m_A2;
     double m_A3;
+
+    string m_ID;
 
 protected:
 

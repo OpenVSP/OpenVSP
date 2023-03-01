@@ -20,7 +20,7 @@ public:
     SimpleSubSurface();
     virtual ~SimpleSubSurface();
 
-    void CopyFrom( SubSurface* ss );
+    void CopyFrom( SubSurface *ss, vector < string > & );
 
     void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
     void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
@@ -44,6 +44,14 @@ public:
     int GetCapFeaPropertyIndex()
     {
         return m_CapFeaPropertyIndex;
+    }
+    string GetFeaPropertyID()
+    {
+        return m_FeaPropertyID;
+    }
+    string GetCapFeaPropertyID()
+    {
+        return m_CapFeaPropertyID;
     }
     int GetFeaOrientationType()
     {
@@ -84,6 +92,9 @@ protected:
 
     int m_FeaPropertyIndex;
     int m_CapFeaPropertyIndex;
+    string m_FeaPropertyID;
+    string m_CapFeaPropertyID;
+
     int m_FeaOrientationType;
     std::vector < vec3d > m_FeaOrientationVec;
 

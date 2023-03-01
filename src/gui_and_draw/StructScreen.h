@@ -159,22 +159,39 @@ private:
     TriggerButton m_DelFeaMaterialButton;
 
     Fl_Browser* m_FeaMaterialSelectBrowser;
+    vector < string > m_FeaMaterialIDVec;
 
     GroupLayout m_MaterialEditSubGroup;
 
     Choice m_FeaMaterialTypeChoice;
 
     StringInput m_FeaMaterialNameInput;
+    StringInput m_FeaMaterialDescriptionInput;
 
-    SliderAdjRangeInput m_MatDensitySlider;
-    TriggerButton m_MatDensityUnit;
-    SliderAdjRangeInput m_MatElasticModSlider;
-    TriggerButton m_MatElasticModUnit;
-    SliderAdjRangeInput m_MatPoissonSlider;
-    SliderAdjRangeInput m_MatThermalExCoeffSlider;
-    TriggerButton m_MatThermalExCoeffUnit;
+    GroupLayout m_IsoSubGroup;
+    GroupLayout m_OrthoSubGroup;
+
+    Input m_MatDensityInput;
+    Choice m_IsoMatDensityUnitChoice;
+    Output m_MatDensity_FEMOutput;
+    TriggerButton m_IsoMatDensityUnit_FEM;
+
+    Input m_MatElasticModInput;
+    Choice m_IsoMatElasticModUnitChoice;
+    Output m_MatElasticMod_FEMOutput;
+    TriggerButton m_IsoMatElasticModUnit_FEM;
+
+    Input m_MatPoissonInput;
+
+    Input m_MatThermalExCoeffInput;
+    Choice m_IsoMatThermalExCoeffUnitChoice;
+    Output m_MatThermalExCoeff_FEMOutput;
+    TriggerButton m_IsoMatThermalExCoeffUnit_FEM;
+
     StringOutput m_MatShearModOutput;
-    TriggerButton m_MatShearModUnit;
+    TriggerButton m_IsoMatShearModUnit;
+    StringOutput m_MatShearMod_FEMOutput;
+    TriggerButton m_IsoMatShearModUnit_FEM;
 
     Input m_MatE1Input;
     Input m_MatE2Input;
@@ -188,6 +205,30 @@ private:
     Input m_MatA1Input;
     Input m_MatA2Input;
     Input m_MatA3Input;
+
+    Output m_MatE1Output_FEM;
+    Output m_MatE2Output_FEM;
+    Output m_MatE3Output_FEM;
+    Output m_MatG12Output_FEM;
+    Output m_MatG13Output_FEM;
+    Output m_MatG23Output_FEM;
+    Output m_MatA1Output_FEM;
+    Output m_MatA2Output_FEM;
+    Output m_MatA3Output_FEM;
+
+    Input m_OrthoMatDensityInput;
+    Output m_OrthoMatDensity_FEMOutput;
+    Choice m_OrthoMatDensityUnitChoice;
+    TriggerButton m_OrthoMatDensityUnit_FEM;
+
+    Choice m_OrthoMatElasticModUnitChoice;
+    TriggerButton m_OrthoMatElasticModUnit_FEM;
+
+    Choice m_OrthoMatThermalExCoeffUnitChoice;
+    TriggerButton m_OrthoMatThermalExCoeffUnit_FEM;
+
+    TriggerButton m_OrthoMatShearModUnit;
+    TriggerButton m_OrthoMatShearModUnit_FEM;
 
     //===== Property Tab =====//
     GroupLayout* m_CurFeaPropDispGroup;
@@ -205,8 +246,13 @@ private:
     GroupLayout m_FeaPropertyShellGroup;
 
     Choice m_FeaShellMaterialChoice;
-    SliderAdjRangeInput m_PropThickSlider;
+    Choice m_FeaShellLengthUnitChoice;
+
+    Input m_PropThickInput;
     TriggerButton m_PropThickUnit;
+
+    Output m_PropThick_FEMOutput;
+    TriggerButton m_PropThickUnit_FEM;
 
     // Beam Property
     GroupLayout m_FeaPropertyBeamGroup;
@@ -219,54 +265,106 @@ private:
     GroupLayout m_BoxXSecGroup;
 
     Choice m_FeaBeamMaterialChoice;
+    Choice m_FeaBeamLengthUnitChoice;
     Choice m_FeaBeamXSecChoice;
     TriggerButton m_ShowFeaBeamXSecButton;
     // General XSec
-    SliderAdjRangeInput m_PropAreaSlider;
+    Input m_PropAreaInput;
     TriggerButton m_PropAreaUnit;
-    SliderAdjRangeInput m_PropIzzSlider;
+    Input m_PropIzzInput;
     TriggerButton m_PropIzzUnit;
-    SliderAdjRangeInput m_PropIyySlider;
+    Input m_PropIyyInput;
     TriggerButton m_PropIyyUnit;
-    SliderAdjRangeInput m_PropIzySlider;
+    Input m_PropIzyInput;
     TriggerButton m_PropIzyUnit;
-    SliderAdjRangeInput m_PropIxxSlider;
+    Input m_PropIxxInput;
     TriggerButton m_PropIxxUnit;
+
+    Output m_PropArea_FEMOutput;
+    TriggerButton m_PropAreaUnit_FEM;
+    Output m_PropIzz_FEMOutput;
+    TriggerButton m_PropIzzUnit_FEM;
+    Output m_PropIyy_FEMOutput;
+    TriggerButton m_PropIyyUnit_FEM;
+    Output m_PropIzy_FEMOutput;
+    TriggerButton m_PropIzyUnit_FEM;
+    Output m_PropIxx_FEMOutput;
+    TriggerButton m_PropIxxUnit_FEM;
+
     // Circ XSec
-    SliderAdjRangeInput m_CircDim1Slider;
+    Input m_CircDim1Input;
     TriggerButton m_CircDim1Unit;
+
+    Output m_CircDim1_FEMOutput;
+    TriggerButton m_CircDim1Unit_FEM;
+
     // Pipe/Tube XSec
-    SliderAdjRangeInput m_PipeDim1Slider;
+    Input m_PipeDim1Input;
     TriggerButton m_PipeDim1Unit;
-    SliderAdjRangeInput m_PipeDim2Slider;
+    Input m_PipeDim2Input;
     TriggerButton m_PipeDim2Unit;
+
+    Output m_PipeDim1_FEMOutput;
+    TriggerButton m_PipeDim1Unit_FEM;
+    Output m_PipeDim2_FEMOutput;
+    TriggerButton m_PipeDim2Unit_FEM;
+
     // I XSec
-    SliderAdjRangeInput m_IDim1Slider;
+    Input m_IDim1Input;
     TriggerButton m_IDim1Unit;
-    SliderAdjRangeInput m_IDim2Slider;
+    Input m_IDim2Input;
     TriggerButton m_IDim2Unit;
-    SliderAdjRangeInput m_IDim3Slider;
+    Input m_IDim3Input;
     TriggerButton m_IDim3Unit;
-    SliderAdjRangeInput m_IDim4Slider;
+    Input m_IDim4Input;
     TriggerButton m_IDim4Unit;
-    SliderAdjRangeInput m_IDim5Slider;
+    Input m_IDim5Input;
     TriggerButton m_IDim5Unit;
-    SliderAdjRangeInput m_IDim6Slider;
+    Input m_IDim6Input;
     TriggerButton m_IDim6Unit;
+
+    Output m_IDim1_FEMOutput;
+    TriggerButton m_IDim1Unit_FEM;
+    Output m_IDim2_FEMOutput;
+    TriggerButton m_IDim2Unit_FEM;
+    Output m_IDim3_FEMOutput;
+    TriggerButton m_IDim3Unit_FEM;
+    Output m_IDim4_FEMOutput;
+    TriggerButton m_IDim4Unit_FEM;
+    Output m_IDim5_FEMOutput;
+    TriggerButton m_IDim5Unit_FEM;
+    Output m_IDim6_FEMOutput;
+    TriggerButton m_IDim6Unit_FEM;
+
     // Rect XSec
-    SliderAdjRangeInput m_RectDim1Slider;
+    Input m_RectDim1Input;
     TriggerButton m_RectDim1Unit;
-    SliderAdjRangeInput m_RectDim2Slider;
+    Input m_RectDim2Input;
     TriggerButton m_RectDim2Unit;
+
+    Output m_RectDim1_FEMOutput;
+    TriggerButton m_RectDim1Unit_FEM;
+    Output m_RectDim2_FEMOutput;
+    TriggerButton m_RectDim2Unit_FEM;
+
     // Box XSec
-    SliderAdjRangeInput m_BoxDim1Slider;
+    Input m_BoxDim1Input;
     TriggerButton m_BoxDim1Unit;
-    SliderAdjRangeInput m_BoxDim2Slider;
+    Input m_BoxDim2Input;
     TriggerButton m_BoxDim2Unit;
-    SliderAdjRangeInput m_BoxDim3Slider;
+    Input m_BoxDim3Input;
     TriggerButton m_BoxDim3Unit;
-    SliderAdjRangeInput m_BoxDim4Slider;
+    Input m_BoxDim4Input;
     TriggerButton m_BoxDim4Unit;
+
+    Output m_BoxDim1_FEMOutput;
+    TriggerButton m_BoxDim1Unit_FEM;
+    Output m_BoxDim2_FEMOutput;
+    TriggerButton m_BoxDim2Unit_FEM;
+    Output m_BoxDim3_FEMOutput;
+    TriggerButton m_BoxDim3Unit_FEM;
+    Output m_BoxDim4_FEMOutput;
+    TriggerButton m_BoxDim4Unit_FEM;
 
     //===== BC Tab Items =====//
     ColResizeBrowser* m_FeaBCSelectBrowser;
