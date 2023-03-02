@@ -89,7 +89,7 @@ ADBSLICER::ADBSLICER(void)
     
     OptFact_ = 1.;
     
-    snprintf(ElementLabel_,sizeof(ElementLabel_)*sizeof(char),"NONE");
+    sprintf(ElementLabel_,"NONE");
 
     AddLabel_ = 0;
 
@@ -125,11 +125,11 @@ void ADBSLICER::LoadFile(char *name)
     
     // Save the file name
 
-    snprintf(file_name,sizeof(file_name)*sizeof(char),"%s",name);
+    sprintf(file_name,"%s",name);
 
     // Determine if an adb file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.adb",file_name);
+    sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) != NULL ) {
      
@@ -182,11 +182,11 @@ void ADBSLICER::SliceGeometry(char *name)
     
     // Save the file name
 
-    snprintf(file_name,sizeof(file_name)*sizeof(char),"%s",name);
+    sprintf(file_name,"%s",name);
 
     // Determine if an cut file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.cuts",file_name);
+    sprintf(file_name_w_ext,"%s.cuts",file_name);
 
     if ( (cuts_file = fopen(file_name_w_ext,"r")) != NULL ) {
      
@@ -198,7 +198,7 @@ void ADBSLICER::SliceGeometry(char *name)
      
        // Load in the solution data and slice it
        
-       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.slc",file_name);
+       sprintf(file_name_w_ext,"%s.slc",file_name);
 
        if ( (SliceFile = fopen(file_name_w_ext,"w")) != NULL ) {
           
@@ -243,15 +243,15 @@ void ADBSLICER::ParseCalculixFile(char *name)
     FILE *InpFile;
     INTERP Interp;
 
-    if ( !AddLabel_ ) snprintf(Label_,sizeof(Label_)*sizeof(char),"");
+    if ( !AddLabel_ ) sprintf(Label_,"");
         
     // Save the file name
 
-    snprintf(CalculixFileName,sizeof(CalculixFileName)*sizeof(char),"%s",name);
+    sprintf(CalculixFileName,"%s",name);
 
     // Determine if an calculix file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",CalculixFileName);
+    sprintf(file_name_w_ext,"%s.inp",CalculixFileName);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) != NULL ) {
      
@@ -297,15 +297,15 @@ void ADBSLICER::FindNearestNodeInCalculixFile(char *name, float *xyz)
     xyz_find_[1] = xyz[1];
     xyz_find_[2] = xyz[2];
     
-    if ( !AddLabel_ ) snprintf(Label_,sizeof(Label_)*sizeof(char),"");
+    if ( !AddLabel_ ) sprintf(Label_,"");
         
     // Save the file name
 
-    snprintf(CalculixFileName,sizeof(CalculixFileName)*sizeof(char),"%s",name);
+    sprintf(CalculixFileName,"%s",name);
 
     // Determine if an calculix file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",CalculixFileName);
+    sprintf(file_name_w_ext,"%s.inp",CalculixFileName);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) != NULL ) {
      
@@ -331,17 +331,17 @@ void ADBSLICER::InterpolateSolutionToCalculix(char *name)
     FILE *InpFile;
     INTERP Interp;
 
-    if ( !AddLabel_ ) snprintf(Label_,sizeof(Label_)*sizeof(char),"");
+    if ( !AddLabel_ ) sprintf(Label_,"");
         
     // Save the file name
 
-    snprintf(CalculixFileName,sizeof(CalculixFileName)*sizeof(char),"%s",name);
+    sprintf(CalculixFileName,"%s",name);
 
     printf("CalculixFileName: %s \n",CalculixFileName);fflush(NULL);
 
     // Determine if an calculix file exists
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",CalculixFileName);
+    sprintf(file_name_w_ext,"%s.inp",CalculixFileName);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) != NULL ) {
 
@@ -425,7 +425,7 @@ void ADBSLICER::LoadMeshData(void)
 
     // Open the aerothermal data base file
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.adb",file_name);
+    sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
 
@@ -838,7 +838,7 @@ void ADBSLICER::LoadSolutionCaseList(void)
     
     // Open the solution case list
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.adb.cases",file_name);
+    sprintf(file_name_w_ext,"%s.adb.cases",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -909,7 +909,7 @@ void ADBSLICER::LoadSolutionData(int Case)
 
     // Open the aerothermal data base file
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.adb",file_name);
+    sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
 
@@ -1621,7 +1621,7 @@ void ADBSLICER::LoadCutsFile(void)
     char file_name_w_ext[10000], CutType[200];
     FILE *cut_file;
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.cuts",file_name);
+    sprintf(file_name_w_ext,"%s.cuts",file_name);
 
     if ( (cut_file = fopen(file_name_w_ext,"r")) != NULL ) {
        
@@ -1867,7 +1867,7 @@ void ADBSLICER::CleanCalculixInpFile(char *filename1, char *newfilename)
  
     // Open calculix files
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename1);
+    sprintf(file_name_w_ext,"%s.inp",filename1);
 
     if ( (File1 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -1877,7 +1877,7 @@ void ADBSLICER::CleanCalculixInpFile(char *filename1, char *newfilename)
        
     }
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",newfilename);
+    sprintf(file_name_w_ext,"%s.inp",newfilename);
 
     if ( (NewFile = fopen(file_name_w_ext,"w")) == NULL ) {
        
@@ -1993,7 +1993,7 @@ void ADBSLICER::ScaleCalulixInpPressureLoads(char *filename1, char *newfilename,
     
     // Open calculix files
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename1);
+    sprintf(file_name_w_ext,"%s.inp",filename1);
 
     if ( (File1 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -2003,7 +2003,7 @@ void ADBSLICER::ScaleCalulixInpPressureLoads(char *filename1, char *newfilename,
        
     }
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",newfilename);
+    sprintf(file_name_w_ext,"%s.inp",newfilename);
 
     if ( (NewFile = fopen(file_name_w_ext,"w")) == NULL ) {
        
@@ -2105,7 +2105,7 @@ void ADBSLICER::OptimizationCalculixInpFile(char *filename1, char *filename2, ch
     
     printf("Sizing element thickness and saving data... \n");
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.sized",filename1);
+    sprintf(file_name_w_ext,"%s.sized",filename1);
     
     if ( (SizingFile = fopen(file_name_w_ext,"w")) == NULL ) {
 
@@ -2221,7 +2221,7 @@ void ADBSLICER::SmoothSkinThickness(char *filename1)
     
     // Open calculix files
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename1);
+    sprintf(file_name_w_ext,"%s.inp",filename1);
 
     if ( (File1 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -2233,7 +2233,7 @@ void ADBSLICER::SmoothSkinThickness(char *filename1)
 
     printf("Looking for element list: %s \n",ElementLabel_);
     
-    snprintf(SearchLabel,sizeof(SearchLabel)*sizeof(char),"%s",ElementLabel_);
+    sprintf(SearchLabel,"%s",ElementLabel_);
     
     AllDone = i = 0;
         
@@ -2415,7 +2415,7 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
 
     // Open calculix files
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename1);
+    sprintf(file_name_w_ext,"%s.inp",filename1);
 
     if ( (File1 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -2425,7 +2425,7 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
        
     }
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",newfilename);
+    sprintf(file_name_w_ext,"%s.inp",newfilename);
 
     if ( (NewFile = fopen(file_name_w_ext,"w")) == NULL ) {
        
@@ -2435,7 +2435,7 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
        
     }
     
-    snprintf(SearchLabel,sizeof(SearchLabel)*sizeof(char),"%s",ElementLabel_);
+    sprintf(SearchLabel,"%s",ElementLabel_);
 
     AllDone = 0;
         
@@ -2451,7 +2451,7 @@ void ADBSLICER::ResizeCalculixInputFileSkins(char *filename1, char *newfilename)
     
           printf("Setting up thickness for... DumChar: %s \n",DumChar);
           
-          snprintf(SaveLine,sizeof(SaveLine)*sizeof(char),"%s",DumChar);
+          sprintf(SaveLine,"%s",DumChar);
 
           j = Done = 0;
           
@@ -2767,7 +2767,7 @@ void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilena
 
     // Open calculix files
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename1);
+    sprintf(file_name_w_ext,"%s.inp",filename1);
 
     if ( (File1 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -2777,7 +2777,7 @@ void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilena
        
     }
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",newfilename);
+    sprintf(file_name_w_ext,"%s.inp",newfilename);
 
     if ( (NewFile = fopen(file_name_w_ext,"w")) == NULL ) {
        
@@ -2787,7 +2787,7 @@ void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilena
        
     }
     
-    snprintf(SearchLabel,sizeof(SearchLabel)*sizeof(char),"%s",ElementLabel_);
+    sprintf(SearchLabel,"%s",ElementLabel_);
 
     AllDone = 0;
         
@@ -2803,7 +2803,7 @@ void ADBSLICER::ResizeCalculixInputFileSkinsOld(char *filename1, char *newfilena
     
           printf("Setting up thickness for... DumChar: %s \n",DumChar);
           
-          snprintf(SaveLine,sizeof(SaveLine)*sizeof(char),"%s",DumChar);
+          sprintf(SaveLine,"%s",DumChar);
 
           j = Done = 0;
           
@@ -2992,7 +2992,7 @@ void ADBSLICER::LoadCalculixINPFileSurfaceElements(char *name)
     
     // Open the aerothermal data base file
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",name);
+    sprintf(file_name_w_ext,"%s.inp",name);
 
     if ( (CalculixFile = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -3119,7 +3119,7 @@ printf("DumChar: %s \n",DumChar);
           
           DumChar[strcspn(DumChar, "\n")] = 0;
               
-          snprintf(SaveChar,sizeof(SaveChar)*sizeof(char),"%s",DumChar);
+          sprintf(SaveChar,"%s\0",DumChar);
           
           Done = 0;
           
@@ -3364,7 +3364,7 @@ int *ADBSLICER::RenumberCalulixINPFile(char *name)
 
     // Open the aerothermal data base file
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",name);
+    sprintf(file_name_w_ext,"%s.inp",name);
 
     if ( (CalculixFile = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -3484,7 +3484,7 @@ int *ADBSLICER::RenumberCalulixINPFile(char *name)
           
           DumChar[strcspn(DumChar, "\n")] = 0;
               
-          snprintf(SaveChar,sizeof(SaveChar)*sizeof(char),"%s",DumChar);
+          sprintf(SaveChar,"%s\0",DumChar);
           
           Done = 0;
           
@@ -3679,7 +3679,7 @@ void ADBSLICER::WriteOutRenumberedCalculixINPFile(char *name)
  
     // Open calculix file
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",name);
+    sprintf(file_name_w_ext,"%s.inp",name);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -3691,7 +3691,7 @@ void ADBSLICER::WriteOutRenumberedCalculixINPFile(char *name)
     
     // Open output file
               
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.renum.inp",name);
+    sprintf(file_name_w_ext,"%s.renum.inp",name);
      
     if ( (NewFile = fopen(file_name_w_ext,"w")) != NULL ) {
        
@@ -4157,7 +4157,7 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
  
     // Open calculix file
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",CalculixFileName);
+    sprintf(file_name_w_ext,"%s.inp",CalculixFileName);
 
     if ( (InpFile = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -4171,13 +4171,13 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
          
     if ( AnalysisType == CALCULIX_STATIC ) {
                       
-       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.static.inp",name);
+       sprintf(file_name_w_ext,"%s.static.inp",name);
        
     }
     
     else if ( AnalysisType == CALCULIX_BUCKLE ) {
                       
-       snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.buckle.inp",name);
+       sprintf(file_name_w_ext,"%s.buckle.inp",name);
        
     }
     
@@ -4234,7 +4234,7 @@ void ADBSLICER::WriteOutCalculixStaticAnalysisFile(char *name, int AnalysisType)
                
               if ( strstr(SetName,"NSkin") != NULL ) {
                  
-                 snprintf(NSkinLabel,sizeof(NSkinLabel)*sizeof(char),"%s",SetName);
+                 sprintf(NSkinLabel,"%s",SetName);
                  
                  printf("NSkinLabel: %s \n",NSkinLabel);
                  
@@ -4651,7 +4651,7 @@ void ADBSLICER::MergeCalculixFiles(char *filename1, char *filename2, char *newfi
  
     // Open calculix files
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename1);
+    sprintf(file_name_w_ext,"%s.inp",filename1);
 
     if ( (File1 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -4661,7 +4661,7 @@ void ADBSLICER::MergeCalculixFiles(char *filename1, char *filename2, char *newfi
        
     }
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",filename2);
+    sprintf(file_name_w_ext,"%s.inp",filename2);
 
     if ( (File2 = fopen(file_name_w_ext,"r")) == NULL ) {
        
@@ -4671,7 +4671,7 @@ void ADBSLICER::MergeCalculixFiles(char *filename1, char *filename2, char *newfi
        
     }
     
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.inp",newfilename);
+    sprintf(file_name_w_ext,"%s.inp",newfilename);
 
     if ( (NewFile = fopen(file_name_w_ext,"w")) == NULL ) {
        
@@ -4906,7 +4906,7 @@ void ADBSLICER::LoadCalculixData(char *filename)
     
     printf("Opening the Calculix frd file... \n");
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.frd",filename);
+    sprintf(file_name_w_ext,"%s.frd",filename);
     
     if ( (frd_file = fopen(file_name_w_ext,"r")) != NULL ) {
 

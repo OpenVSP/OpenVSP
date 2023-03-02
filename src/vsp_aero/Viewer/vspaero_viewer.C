@@ -18,7 +18,7 @@ float BoxSize;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 6
+#define VER_PATCH 1
 
 /*##############################################################################
 #                                                                              #
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
           Calculix = 1;
 
-          snprintf(CalculixFileName,sizeof(CalculixFileName)*sizeof(char),"%s",argv[++i]);
+          sprintf(CalculixFileName,"%s",argv[++i]);
 
 	   }      
 

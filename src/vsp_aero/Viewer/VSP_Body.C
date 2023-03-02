@@ -136,7 +136,7 @@ void VSP_BODY::ReadFile(char *Name, int Case, FILE *VSP_Degen_File)
 
     // Save the component name
 
-    snprintf(ComponentName_,sizeof(ComponentName_)*sizeof(char),"%s",Name);
+    sprintf(ComponentName_,"%s",Name);
     
     // Slice type
     

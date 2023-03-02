@@ -104,7 +104,7 @@ void VSP_OPTIMIZER::Setup(char *FileName)
    
     int p;
 
-    snprintf(FileName_,sizeof(FileName_)*sizeof(char),"%s",FileName);
+    sprintf(FileName_,"%s",FileName);
 
     printf("Working on file: %s \n",FileName_); fflush(NULL);
     
@@ -877,11 +877,11 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
 
     // Delimiters
     
-    snprintf(Comma,sizeof(Comma)*sizeof(char),",");
+    sprintf(Comma,",");
 
     // Open the case file
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.vspaero",FileName_);
+    sprintf(file_name_w_ext,"%s.vspaero",FileName_);
 
     if ( (case_file = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -1427,7 +1427,7 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
                 
                 DumChar[strcspn(DumChar, "\n")] = 0;
                 
-                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(1),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(1))*sizeof(char),"%s",DumChar);
+                sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(1),"%s",DumChar);
                 
                 printf("Control Surface(1): %s___ \n",ControlSurfaceGroup_[i].ControlSurface_Name(1));
                 
@@ -1453,7 +1453,7 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
                 
                 // Save a copy of Dumchar
                 
-                snprintf(DumChar2,sizeof(DumChar2)*sizeof(char),"%s",DumChar);
+                sprintf(DumChar2,"%s",DumChar);
             
                 // Figure out how many control surfaces are in the list
                 
@@ -1481,13 +1481,13 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
          
                 // Reparse the list to get the actual control surface names
                 
-                snprintf(DumChar,sizeof(DumChar)*sizeof(char),"%s",DumChar2);
+                sprintf(DumChar,"%s",DumChar2);
                 
                 Next = strtok(DumChar,Comma);
   
                 NumberOfControlSurfaces = 1;
                 
-                snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces))*sizeof(char),"%s",Next);
+                sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),"%s",Next);
                 
                 ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(NumberOfControlSurfaces) = 1;
                 
@@ -1501,7 +1501,7 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
                        
                        NumberOfControlSurfaces++;
 
-                       snprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),sizeof(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces))*sizeof(char),"%s", Next );
+                       sprintf(ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces),"%s", Next );
                 
                        printf("Control surface(%d): %s \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces));
    

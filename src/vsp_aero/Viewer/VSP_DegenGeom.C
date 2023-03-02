@@ -91,7 +91,7 @@ void VSP_DEGEN_GEOM::ReadFile(char *FileName)
     
     // Open setup file
 
-    snprintf(VSP_File_Name,sizeof(VSP_File_Name)*sizeof(char),"%s.csv",FileName);
+    sprintf(VSP_File_Name,"%s.csv",FileName);
 
     if ( (VSP_Degen_File = fopen(VSP_File_Name,"r")) == NULL ) {
 
@@ -258,7 +258,7 @@ void VSP_DEGEN_GEOM::MeshGeom(void)
 
        VSP_Wing(Wing).CreateMesh(Wing);
 
-//       snprintf(DumChar,sizeof(DumChar)*sizeof(char),"Wing.%d.msh",Wing);
+//       sprintf(DumChar,"Wing.%d.msh",Wing);
        
 //       VSP_Wing(Wing).Grid().WriteMesh(DumChar);
        
@@ -272,7 +272,7 @@ void VSP_DEGEN_GEOM::MeshGeom(void)
 
        VSP_Body(Body).CreateMesh(Body);
 
-//       snprintf(DumChar,sizeof(DumChar)*sizeof(char),"Body.%d.msh",Body);
+//       sprintf(DumChar,"Body.%d.msh",Body);
        
 //       VSP_Body(Body).Grid().WriteMesh(DumChar);
        
@@ -319,7 +319,7 @@ void VSP_DEGEN_GEOM::WriteMeshFile(char *FileName)
     c_size = sizeof(char);
     f_size = sizeof(float);
 
-    snprintf(adb_file_name,sizeof(adb_file_name)*sizeof(char),"%s.adb",FileName);
+    sprintf(adb_file_name,"%s.adb",FileName);
     
     if ( (adb_file_ = fopen(adb_file_name, "wb")) == NULL ) {
 
@@ -386,7 +386,7 @@ void VSP_DEGEN_GEOM::WriteMeshFile(char *FileName)
      
        fwrite(&(i), i_size, 1, adb_file_);
  
-       snprintf(DumChar,sizeof(DumChar)*sizeof(char),"%s",VSP_Wing(i).ComponentName());
+       sprintf(DumChar,"%s",VSP_Wing(i).ComponentName());
        
        fwrite(DumChar, c_size, 100, adb_file_);
      
@@ -400,7 +400,7 @@ void VSP_DEGEN_GEOM::WriteMeshFile(char *FileName)
      
        fwrite(&(i), i_size, 1, adb_file_);
        
-       snprintf(DumChar,sizeof(DumChar)*sizeof(char),"%s",VSP_Body(i).ComponentName());
+       sprintf(DumChar,"%s",VSP_Body(i).ComponentName());
 
        fwrite(DumChar, c_size, 100, adb_file_);
      

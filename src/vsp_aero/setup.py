@@ -62,7 +62,7 @@ optional_dependencies["all"] = sorted(
 )
 
 setup(name='vspaero',
-      version='6.4.6',
+      version='6.4.5',
       install_requires=['numpy'],
       extras_require=optional_dependencies,
       packages=find_packages(include=['vspaero*']),

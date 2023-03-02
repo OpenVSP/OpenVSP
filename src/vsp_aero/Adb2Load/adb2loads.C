@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
           
           Slicer.AddLabel() = AddLabel;
           
-          snprintf(Slicer.Label(), sizeof( Slicer.Label() ) * sizeof(char), "%s",Label);
+          sprintf(Slicer.Label(),"%s",Label);
           
        }
        
@@ -184,7 +184,7 @@ void ParseInput(int argc, char *argv[])
         
           DoSlice = 1;
           
-          snprintf(FileName_1,sizeof(FileName_1)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_1,"%s",argv[++i]);
           
        }  
        
@@ -192,9 +192,9 @@ void ParseInput(int argc, char *argv[])
         
           Interpolate = 1;
           
-          snprintf(FileName_1,sizeof(FileName_1)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_1,"%s",argv[++i]);
 
-          snprintf(FileName_2,sizeof(FileName_2)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_2,"%s",argv[++i]);
           
        }  
 
@@ -202,7 +202,7 @@ void ParseInput(int argc, char *argv[])
         
           CalculateOffSets = 1;
           
-          snprintf(FileName_2,sizeof(FileName_2)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_2,"%s",argv[++i]);
           
        }  
        
@@ -210,7 +210,7 @@ void ParseInput(int argc, char *argv[])
         
           ParseCalculixFile = 1;
           
-          snprintf(FileName_2,sizeof(FileName_2)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_2,"%s",argv[++i]);
           
        }  
        
@@ -218,11 +218,11 @@ void ParseInput(int argc, char *argv[])
           
           MergeCalculixFiles = 1;
           
-          snprintf(FileName_1,sizeof(FileName_1)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_1,"%s",argv[++i]);
 
-          snprintf(FileName_2,sizeof(FileName_2)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_2,"%s",argv[++i]);
 
-          snprintf(FileName_3,sizeof(FileName_3)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_3,"%s",argv[++i]);
           
        }
        
@@ -230,9 +230,9 @@ void ParseInput(int argc, char *argv[])
           
           CleanCalculixInip = 1;
           
-          snprintf(FileName_1,sizeof(FileName_1)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_1,"%s",argv[++i]);
 
-          snprintf(FileName_2,sizeof(FileName_2)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_2,"%s",argv[++i]);
           
        }
        
@@ -242,9 +242,9 @@ void ParseInput(int argc, char *argv[])
           
           ScaleFactor = atof(argv[++i]);
           
-          snprintf(FileName_1,sizeof(FileName_1)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_1,"%s",argv[++i]);
 
-          snprintf(FileName_2,sizeof(FileName_2)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_2,"%s",argv[++i]);
                     
        }
 
@@ -274,7 +274,7 @@ void ParseInput(int argc, char *argv[])
 
        else if ( strcmp(argv[i],"-elementlist") == 0 ) {
 
-          snprintf(OptElementListName,sizeof(OptElementListName)*sizeof(char),"%s",argv[++i]);
+          sprintf(OptElementListName,"%s",argv[++i]);
    
        }       
                             
@@ -282,11 +282,11 @@ void ParseInput(int argc, char *argv[])
           
           CalculixOpt = 1;
           
-          snprintf(FileName_1,sizeof(FileName_1)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_1,"%s",argv[++i]);
 
-          snprintf(FileName_2,sizeof(FileName_2)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_2,"%s",argv[++i]);
           
-          snprintf(FileName_3,sizeof(FileName_3)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_3,"%s",argv[++i]);
                     
        }
        
@@ -298,7 +298,7 @@ void ParseInput(int argc, char *argv[])
           xyz_find[1] = atof(argv[++i]);
           xyz_find[2] = atof(argv[++i]);
 
-          snprintf(FileName_2,sizeof(FileName_2)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_2,"%s",argv[++i]);
           
           printf("FileName_2: %s \n",FileName_2);
 
@@ -330,7 +330,7 @@ void ParseInput(int argc, char *argv[])
       
           AddLabel = 1;
           
-          snprintf(Label,sizeof(Label)*sizeof(char),"%s",argv[++i]);
+          sprintf(Label,"%s",argv[++i]);
           
        }  
        
@@ -338,7 +338,7 @@ void ParseInput(int argc, char *argv[])
        
           ParseCalculixFrd = 1;
           
-          snprintf(FileName_1,sizeof(FileName_1)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_1,"%s",argv[++i]);
           
        }
        
@@ -346,7 +346,7 @@ void ParseInput(int argc, char *argv[])
           
           RenumberINPFile = 1;
         
-          snprintf(FileName_1,sizeof(FileName_1)*sizeof(char),"%s",argv[++i]);
+          sprintf(FileName_1,"%s",argv[++i]);
 
        }
                                           

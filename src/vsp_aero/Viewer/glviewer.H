@@ -945,9 +945,9 @@ public:
 
     void FixViewBox(float BoxSize) { ForceView_ = 1; BoxSize_ = BoxSize; };
 
-    void SetTimeStampLabel(char *Label) { DrawTimeStampIsOn = 1 ; snprintf(TimeLabel_,sizeof(TimeLabel_)*sizeof(char),"%s",Label); };
+    void SetTimeStampLabel(char *Label) { DrawTimeStampIsOn = 1 ; sprintf(TimeLabel_,"%s",Label); };
     
-    void SetCalculixFileName(char *Name) { ThereIsCalculixData = 1 ; snprintf(CalculixFileName,sizeof(CalculixFileName)*sizeof(char),"%s",Name); };
+    void SetCalculixFileName(char *Name) { ThereIsCalculixData = 1 ; sprintf(CalculixFileName,"%s",Name); };
 
     // Script File I/O
 
@@ -1084,9 +1084,9 @@ public:
 
     // Access actual EdgeMach values for each case
 
-    void GetMachText(char *c)  { snprintf(c,sizeof(c)*sizeof(char),"%2.9f", MachList[UserChoiceMach])         ; };
-    void GetBetaText(char *c)  { snprintf(c,sizeof(c)*sizeof(char),"%2.9f", BetaList[UserChoiceBeta])         ; };
-    void GetAlphaText(char *c) { snprintf(c,sizeof(c)*sizeof(char),"%2.9f", AlphaList[UserChoiceAlpha])       ; };
+    void GetMachText(char *c)  { sprintf(c,"%2.9f", MachList[UserChoiceMach])         ; };
+    void GetBetaText(char *c)  { sprintf(c,"%2.9f", BetaList[UserChoiceBeta])         ; };
+    void GetAlphaText(char *c) { sprintf(c,"%2.9f", AlphaList[UserChoiceAlpha])       ; };
 
     // EdgeMach, Q, Alpha cases inputted by user
 
@@ -1100,9 +1100,9 @@ public:
 
     // Return actual EdgeMach, Q, Alpha after a load data set or interpolation operation
 
-    void GetCurrentMachText(char *c)  { snprintf(c,sizeof(c)*sizeof(char),"%3.3f", CurrentEdgeMach)  ; };
-    void GetCurrentBetaText(char *c) { snprintf(c,sizeof(c)*sizeof(char),"%3.3f", CurrentBeta) ; };
-    void GetCurrentAlphaText(char *c) { snprintf(c,sizeof(c)*sizeof(char),"%3.3f", CurrentAlpha) ; };
+    void GetCurrentMachText(char *c)  { sprintf(c,"%3.3f", CurrentEdgeMach)  ; };
+    void GetCurrentBetaText(char *c) { sprintf(c,"%3.3f", CurrentBeta) ; };
+    void GetCurrentAlphaText(char *c) { sprintf(c,"%3.3f", CurrentAlpha) ; };
 
     // Set min and maximum Contour levels
     

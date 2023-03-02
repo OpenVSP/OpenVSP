@@ -666,7 +666,7 @@ void INTERP::WriteADBFile(INTERP_MESH *Mesh, char *Name)
 
     // Open the aerothermal data base file
 
-    snprintf(file_name_w_ext,sizeof(file_name_w_ext)*sizeof(char),"%s.interp.adb",Name);
+    sprintf(file_name_w_ext,"%s.interp.adb",Name);
 
     if ( (adb_file = fopen(file_name_w_ext,"wb")) == NULL ) {
 

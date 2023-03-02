@@ -239,7 +239,7 @@ int TestCase_1(char *FileName)
    
     // Open the gradient file
 
-    snprintf(GradientFileName,sizeof(GradientFileName)*sizeof(char),"%s.opt.gradient",FileName);
+    sprintf(GradientFileName,"%s.opt.gradient",FileName);
 
     if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
     
@@ -337,7 +337,7 @@ int TestCase_2(char *FileName)
    
     // Open the gradient file
 
-    snprintf(GradientFileName,sizeof(GradientFileName)*sizeof(char),"%s.opt.gradient",FileName);
+    sprintf(GradientFileName,"%s.opt.gradient",FileName);
 
     if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
     
@@ -455,7 +455,7 @@ int TestCase_3(char *FileName)
     
     // Open the gradient file
 
-    snprintf(GradientFileName,sizeof(GradientFileName)*sizeof(char),"%s.opt.gradient",FileName);
+    sprintf(GradientFileName,"%s.opt.gradient",FileName);
 
     if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
     
@@ -581,7 +581,7 @@ int TestCase_4(char *FileName)
     
     // Open the gradient file
 
-    snprintf(GradientFileName,sizeof(GradientFileName)*sizeof(char),"%s.opt.gradient",FileName);
+    sprintf(GradientFileName,"%s.opt.gradient",FileName);
 
     if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
     
@@ -894,7 +894,7 @@ int TestCase_6(char *FileName)
     
     // Open the gradient file
 
-    snprintf(GradientFileName,sizeof(GradientFileName)*sizeof(char),"%s.opt.gradient",FileName);
+    sprintf(GradientFileName,"%s.opt.gradient",FileName);
 
     if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
     
@@ -996,7 +996,7 @@ int TestCase_7(char *FileName)
 
     // Read in the optimization options
     
-    snprintf(OptimizationSetupFileName,sizeof(OptimizationSetupFileName)*sizeof(char),"%s.opt",FileName);
+    sprintf(OptimizationSetupFileName,"%s.opt",FileName);
 
     if ( (OptimizationSetupFile = fopen(OptimizationSetupFileName, "r")) == NULL ) {
     
@@ -1105,7 +1105,7 @@ int TestCase_7(char *FileName)
     
     // Open the history file
 
-    snprintf(HistoryFileName,sizeof(HistoryFileName)*sizeof(char),"%s.opt.history",FileName);
+    sprintf(HistoryFileName,"%s.opt.history",FileName);
 
     if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
     
@@ -1117,7 +1117,7 @@ int TestCase_7(char *FileName)
     
     // Clean up any old opt adb files
     
-    snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"rm %s.opt.*.adb",FileName);
+    sprintf(CommandLine,"rm %s.opt.*.adb",FileName);
     
     system(CommandLine);
        
@@ -1140,7 +1140,7 @@ int TestCase_7(char *FileName)
        
        // Save the .adb file for later viewing
        
-       snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.%d.adb",FileName,FileName,Iter);
+       sprintf(CommandLine,"cp %s.adb %s.opt.%d.adb",FileName,FileName,Iter);
        
        system(CommandLine);
        
@@ -1148,13 +1148,13 @@ int TestCase_7(char *FileName)
           
           // Save the .adb file for later viewing
           
-          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.adb",FileName,FileName);
+          sprintf(CommandLine,"cp %s.adb %s.opt.adb",FileName,FileName);
           
           system(CommandLine);
           
           // Copy over the .cases file for viewer
           
-          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb.cases %s.opt.adb.cases",FileName,FileName);
+          sprintf(CommandLine,"cp %s.adb.cases %s.opt.adb.cases",FileName,FileName);
           
           system(CommandLine);          
        
@@ -1453,7 +1453,7 @@ int TestCase_8(char *FileName)
     
     // Open the history file
 
-    snprintf(HistoryFileName,sizeof(HistoryFileName)*sizeof(char),"%s.opt.history",FileName);
+    sprintf(HistoryFileName,"%s.opt.history",FileName);
 
     if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
     
@@ -1465,7 +1465,7 @@ int TestCase_8(char *FileName)
     
     // Clean up any old opt adb files
     
-    snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"rm %s.opt.*.adb",FileName);
+    sprintf(CommandLine,"rm %s.opt.*.adb",FileName);
     
     system(CommandLine);
        
@@ -1491,7 +1491,7 @@ int TestCase_8(char *FileName)
        
        // Save the .adb file for later viewing
        
-       snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.%d.adb",FileName,FileName,Iter);
+       sprintf(CommandLine,"cp %s.adb %s.opt.%d.adb",FileName,FileName,Iter);
        
        system(CommandLine);
        
@@ -1499,13 +1499,13 @@ int TestCase_8(char *FileName)
           
           // Save the .adb file for later viewing
           
-          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb %s.opt.adb",FileName,FileName);
+          sprintf(CommandLine,"cp %s.adb %s.opt.adb",FileName,FileName);
           
           system(CommandLine);
           
           // Copy over the .cases file for viewer
           
-          snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"cp %s.adb.cases %s.opt.adb.cases",FileName,FileName);
+          sprintf(CommandLine,"cp %s.adb.cases %s.opt.adb.cases",FileName,FileName);
           
           system(CommandLine);          
        
@@ -1779,7 +1779,7 @@ int TestCase_9(char *FileName)
     
     // Open the history file
 
-    snprintf(HistoryFileName,sizeof(HistoryFileName)*sizeof(char),"%s.opt.history",FileName);
+    sprintf(HistoryFileName,"%s.opt.history",FileName);
 
     if ( (HistoryFile = fopen(HistoryFileName, "w")) == NULL ) {
     
@@ -1962,7 +1962,7 @@ double *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables)
     
     // Open the OpenVSP des file
 
-    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
+    sprintf(DesignFileName,"%s.des",FileName);
     
     printf("Opening: %s \n",DesignFileName);fflush(NULL);
 
@@ -2008,7 +2008,7 @@ void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *Para
     
     // Open the OpenVSP des file
 
-    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"%s.des",FileName);
+    sprintf(DesignFileName,"%s.des",FileName);
     
     printf("Opening: %s \n",DesignFileName);fflush(NULL);
 
@@ -2022,7 +2022,7 @@ void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *Para
     
     // Open Opt des file
     
-    snprintf(DesignFileName,sizeof(DesignFileName)*sizeof(char),"Opt.des",FileName);
+    sprintf(DesignFileName,"Opt.des",FileName);
     
     printf("Opening: %s \n",DesignFileName);fflush(NULL);
 
@@ -2062,7 +2062,7 @@ void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *Para
 
     // Run vsp script to create VSPGEOM file
     
-    snprintf(CommandLine,sizeof(CommandLine)*sizeof(char),"vsp -script CreateVSPGEOM.script > vsp.out >&1 ");
+    sprintf(CommandLine,"vsp -script CreateVSPGEOM.script > vsp.out >&1 ");
     
     system(CommandLine);
  
@@ -2189,7 +2189,7 @@ double *ReadVSPGeomFile(char *FileName, int &NumberOfMeshNodes)
 
     // Open the OpenVSP des file
 
-    snprintf(VSPGeomFileName,sizeof(VSPGeomFileName)*sizeof(char),"%s.vspgeom",FileName);
+    sprintf(VSPGeomFileName,"%s.vspgeom",FileName);
     
     printf("Opening: %s \n",VSPGeomFileName);fflush(NULL);
 
@@ -2437,7 +2437,7 @@ int TestCase_10(char *FileName)
    
     // Open the gradient file
 
-    snprintf(GradientFileName,sizeof(GradientFileName)*sizeof(char),"%s.opt.gradient",FileName);
+    sprintf(GradientFileName,"%s.opt.gradient",FileName);
 
     if ( (GRADFile = fopen(GradientFileName, "w")) == NULL ) {
     

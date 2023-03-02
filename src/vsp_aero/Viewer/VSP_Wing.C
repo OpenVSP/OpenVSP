@@ -136,7 +136,7 @@ void VSP_WING::ReadFile(char *Name, FILE *VSP_Degen_File)
 
     // Save the component name
     
-    snprintf(ComponentName_,sizeof(ComponentName_)*sizeof(char),"%s",Name);
+    sprintf(ComponentName_,"%s",Name);
     
     // Read in the wing data
     
