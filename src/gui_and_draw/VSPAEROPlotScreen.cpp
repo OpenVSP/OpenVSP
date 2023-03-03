@@ -1285,7 +1285,7 @@ void VSPAEROPlotScreen::UpdateConvergenceFlowConditionBrowser()
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res, false, true );
+            ConstructFlowConditionString( strbuf, sizeof( strbuf ), res, false, true );
             m_ConvergenceFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
@@ -1329,7 +1329,7 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res, false, false );
+            ConstructFlowConditionString( strbuf, sizeof( strbuf ), res, false, false );
             m_LoadDistFlowConditionBrowser->add( strbuf );
             if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.LOAD_SELECT_TYPE )
             {
@@ -1450,7 +1450,7 @@ void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
         if( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res, false, true );
+            ConstructFlowConditionString( strbuf, sizeof( strbuf ), res, false, true );
             m_SweepFlowConditionBrowser->add( strbuf );
             if( m_SelectDefaultData )   //select ALL flow conditions
             {
@@ -1493,7 +1493,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCaseBrowser()
         if ( res )
         {
             char strbuf[1024];
-            ConstructCpSliceCaseString( strbuf, res, case_num );
+            ConstructCpSliceCaseString( strbuf, sizeof( strbuf ), res, case_num );
             case_num++;
             m_CpSliceCaseBrowser->add( strbuf );
             if ( m_SelectDefaultData )   //select ALL flow conditions
@@ -1556,7 +1556,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
         if ( res )
         {
             char strbuf[1024];
-            ConstructFlowConditionString( strbuf, res, false, true );
+            ConstructFlowConditionString( strbuf, sizeof( strbuf ), res, false, true );
             m_UnsteadyFlowConditionBrowser->add( strbuf );
             if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgr.HISTORY_SELECT_TYPE )
             {
@@ -1662,7 +1662,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
     m_UnsteadySelectBrowser->position( scrollPos );
 }
 
-void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId, bool include_recref )
+void VSPAEROPlotScreen::ConstructFlowConditionString( char *strbuf, size_t str_siz, Results *res, bool includeResultId, bool include_recref )
 {
     if( strbuf && res )
     {
@@ -1703,28 +1703,28 @@ void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * r
 
             if ( includeResultId )
             {
-                snprintf( strbuf, sizeof( strbuf ),  "a=%.2g, b=%.2g, M=%.2g, Re=%.2g, resID=%s", alpha, beta, mach, recref, res->GetID().c_str() );
+                snprintf( strbuf, str_siz,  "a=%.2g, b=%.2g, M=%.2g, Re=%.2g, resID=%s", alpha, beta, mach, recref, res->GetID().c_str() );
             }
             else
             {
-                snprintf( strbuf, sizeof( strbuf ),  "a=%.2g, b=%.2g, M=%.2g, Re=%.2g", alpha, beta, mach, recref );
+                snprintf( strbuf, str_siz,  "a=%.2g, b=%.2g, M=%.2g, Re=%.2g", alpha, beta, mach, recref );
             }
         }
         else
         {
             if ( includeResultId )
             {
-                snprintf( strbuf, sizeof( strbuf ),  "a=%.2g, b=%.2g, M=%.2g, resID=%s", alpha, beta, mach, res->GetID().c_str() );
+                snprintf( strbuf, str_siz,  "a=%.2g, b=%.2g, M=%.2g, resID=%s", alpha, beta, mach, res->GetID().c_str() );
             }
             else
             {
-                snprintf( strbuf, sizeof( strbuf ),  "a=%.2g, b=%.2g, M=%.2g", alpha, beta, mach );
+                snprintf( strbuf, str_siz,  "a=%.2g, b=%.2g, M=%.2g", alpha, beta, mach );
             }
         }
     }
 }
 
-void VSPAEROPlotScreen::ConstructCpSliceCaseString( char* strbuf, Results* res, int case_num )
+void VSPAEROPlotScreen::ConstructCpSliceCaseString( char *strbuf, size_t strsiz, Results *res, int case_num )
 {
     if ( strbuf && res )
     {
@@ -1756,7 +1756,7 @@ void VSPAEROPlotScreen::ConstructCpSliceCaseString( char* strbuf, Results* res, 
             mach = dataVector[dataVector.size() - 1];
         }
 
-        snprintf( strbuf, sizeof( strbuf ),  "Case %d: a=%.2g, b=%.2g, M=%.2g", case_num, alpha, beta, mach );
+        snprintf( strbuf, strsiz, "Case %d: a=%.2g, b=%.2g, M=%.2g", case_num, alpha, beta, mach );
     }
 }
 
@@ -2693,7 +2693,7 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                         AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
 
                         char strbuf[100];
-                        ConstructFlowConditionString( strbuf, res, false, true );
+                        ConstructFlowConditionString( strbuf, 0, res, false, true );
                         string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
                         m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
                         m_ConvergenceiPlot++;
@@ -2859,7 +2859,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
                     }
 
                     char strbuf[100];
-                    ConstructFlowConditionString( strbuf, res, false, false );
+                    ConstructFlowConditionString( strbuf, 0, res, false, false );
                     legendstr = strbuf;
                 }
                 else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
@@ -3002,7 +3002,7 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
                         }
                         else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
                         {
-                            ConstructFlowConditionString( strbuf, res, false, true );
+                            ConstructFlowConditionString( strbuf, 0, res, false, true );
                             legendstr = strbuf;
                         }
 
