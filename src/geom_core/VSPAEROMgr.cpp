@@ -2277,22 +2277,32 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
         2   0.00100  10.00000   0.00000   0.77200   0.01029   0.02600   0.03628   0.02566   0.03595   0.00001  21.27622   1.01353  -0.10846   0.00001   0.76479   0.00005  -0.88307   0.00001   0.00000
         ...
         */
-        int wake_iter_table_columns = 20;
-        int num_unsteady_pqr_col = 21;
+        int wake_iter_table_columns = 36;
+        int num_unsteady_pqr_col = 37;
         bool unsteady_flag = false;
+        bool unsteady_h = false;
         bool unsteady_pqr = false;
 
         if ( data_string_array.size() == num_unsteady_pqr_col )
         {
-            unsteady_pqr = true;
+            if ( strcmp( data_string_array[ 0 ].c_str(), "Time" ) == 0 )
+            {
+                unsteady_flag = true;
+
+                if ( strcmp( data_string_array.back().c_str(), "H" ) == 0 )
+                {
+                    unsteady_h = true;
+                }
+
+                if ( strcmp( data_string_array.back().c_str(), "UnstdyAng" ) == 0 )
+                {
+                    unsteady_pqr = true;
+                }
+            }
         }
 
         if( data_string_array.size() >= wake_iter_table_columns )
         {
-            if ( strcmp( data_string_array[0].c_str(), "Time" ) == 0 )
-            {
-                unsteady_flag = true;
-            }
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
 
@@ -2302,23 +2312,40 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
             std::vector<double> Mach;
             std::vector<double> Alpha;
             std::vector<double> Beta;
-            std::vector<double> CL;
+            std::vector<double> CLo;
+            std::vector<double> CLi;
+            std::vector<double> CLtot;
             std::vector<double> CDo;
             std::vector<double> CDi;
             std::vector<double> CDtot;
             std::vector<double> CDt;
             std::vector<double> CDtott;
-            std::vector<double> CS;
+            std::vector<double> CSo;
+            std::vector<double> CSi;
+            std::vector<double> CStot;
             std::vector<double> LoD;
             std::vector<double> E;
-            std::vector<double> CFx;
-            std::vector<double> CFy;
-            std::vector<double> CFz;
-            std::vector<double> CMx;
-            std::vector<double> CMy;
-            std::vector<double> CMz;
+            std::vector<double> CFxo;
+            std::vector<double> CFyo;
+            std::vector<double> CFzo;
+            std::vector<double> CFxi;
+            std::vector<double> CFyi;
+            std::vector<double> CFzi;
+            std::vector<double> CFxtot;
+            std::vector<double> CFytot;
+            std::vector<double> CFztot;
+            std::vector<double> CMxo;
+            std::vector<double> CMyo;
+            std::vector<double> CMzo;
+            std::vector<double> CMxi;
+            std::vector<double> CMyi;
+            std::vector<double> CMzi;
+            std::vector<double> CMxtot;
+            std::vector<double> CMytot;
+            std::vector<double> CMztot;
             std::vector<double> ToQS;
             std::vector<double> UnstdAng;
+            std::vector<double> H;
 
             while ( data_string_array.size() >= wake_iter_table_columns )
             {
@@ -2336,30 +2363,51 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 Alpha.push_back(    std::stod( data_string_array[icol] ) ); icol++;
                 Beta.push_back(     std::stod( data_string_array[icol] ) ); icol++;
 
-                CL.push_back(       std::stod( data_string_array[icol] ) ); icol++;
+                CLo.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CLi.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CLtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
                 CDo.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 CDi.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 CDtot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
                 CDt.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 CDtott.push_back(   std::stod( data_string_array[icol] ) ); icol++;
-                CS.push_back(       std::stod( data_string_array[icol] ) ); icol++;
+                CSo.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CSi.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CStot.push_back(    std::stod( data_string_array[icol] ) ); icol++;
 
                 LoD.push_back(      std::stod( data_string_array[icol] ) ); icol++;
                 E.push_back(        std::stod( data_string_array[icol] ) ); icol++;
 
-                CFx.push_back(      std::stod( data_string_array[icol] ) ); icol++;
-                CFy.push_back(      std::stod( data_string_array[icol] ) ); icol++;
-                CFz.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CFxo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFyo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFzo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFxi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFyi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFzi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CFxtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                CFytot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                CFztot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
 
-                CMx.push_back(      std::stod( data_string_array[icol] ) ); icol++;
-                CMy.push_back(      std::stod( data_string_array[icol] ) ); icol++;
-                CMz.push_back(      std::stod( data_string_array[icol] ) ); icol++;
+                CMxo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CMyo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CMzo.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CMxi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CMyi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CMzi.push_back(     std::stod( data_string_array[icol] ) ); icol++;
+                CMxtot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                CMytot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
+                CMztot.push_back(   std::stod( data_string_array[icol] ) ); icol++;
 
                 ToQS.push_back(      std::stod( data_string_array[icol] ) ); icol++;
 
                 if ( unsteady_pqr ) // Additional columns for pqr analysis
                 {
                     UnstdAng.push_back( std::stod( data_string_array[icol] ) ); icol++;
+                }
+
+                if ( unsteady_h ) // Additional columns for h analysis
+                {
+                    H.push_back( std::stod( data_string_array[icol] ) ); icol++;
                 }
 
                 data_string_array = ReadDelimLine( fp, seps );
@@ -2379,27 +2427,49 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 res->Add( NameValData( "Mach", Mach, "Mach number." ) );
                 res->Add( NameValData( "Alpha", Alpha, "Angle of attack." ) );
                 res->Add( NameValData( "Beta", Beta, "Angle of sideslip." ) );
-                res->Add( NameValData( "CL", CL, "Lift coefficient." ) );
+                res->Add( NameValData( "CLo", CLo, "Parasite component of lift coefficient." ) );
+                res->Add( NameValData( "CLi", CLi, "Inviscid component of lift coefficient." ) );
+                res->Add( NameValData( "CL", CLtot, "Lift coefficient." ) );
                 res->Add( NameValData( "CDo", CDo, "Parasite drag coefficient." ) );
                 res->Add( NameValData( "CDi", CDi, "Induced drag coefficient." ) );
                 res->Add( NameValData( "CDtot", CDtot, "Total drag coefficient." ) );
                 res->Add( NameValData( "CDt", CDt, "Induced drag coefficient from Trefftz-like calculation." ) );
                 res->Add( NameValData( "CDtott", CDtott, "Total drag coefficient from Trefftz-like calculation." ) );
-                res->Add( NameValData( "CS", CS, "Side force coefficient." ) );
+                res->Add( NameValData( "CSo", CSo, "Parasite component of side force coefficient." ) );
+                res->Add( NameValData( "CSi", CSi, "Inviscid component of side force coefficient." ) );
+                res->Add( NameValData( "CS", CStot, "Side force coefficient." ) );
                 res->Add( NameValData( "L/D", LoD, "Lift to drag ratio." ) );
                 res->Add( NameValData( "E", E, "Oswald efficiency factor." ) );
-                res->Add( NameValData( "CFx", CFx, "X force coefficient." ) );
-                res->Add( NameValData( "CFy", CFy, "Y force coefficient." ) );
-                res->Add( NameValData( "CFz", CFz, "Z force coefficient." ) );
-                res->Add( NameValData( "CMx", CMx, "X moment coefficient." ) );
-                res->Add( NameValData( "CMy", CMy, "Y moment coefficient." ) );
-                res->Add( NameValData( "CMz", CMz, "Z moment coefficient." ) );
+                res->Add( NameValData( "CFxo", CFxo, "Parasite component of X force coefficient." ) );
+                res->Add( NameValData( "CFyo", CFyo, "Parasite component of Y force coefficient." ) );
+                res->Add( NameValData( "CFzo", CFzo, "Parasite component of Z force coefficient." ) );
+                res->Add( NameValData( "CFxi", CFxi, "Inviscid component of X force coefficient." ) );
+                res->Add( NameValData( "CFyi", CFyi, "Inviscid component of Y force coefficient." ) );
+                res->Add( NameValData( "CFzi", CFzi, "Inviscid component of Z force coefficient." ) );
+                res->Add( NameValData( "CFx", CFxtot, "X force coefficient." ) );
+                res->Add( NameValData( "CFy", CFytot, "Y force coefficient." ) );
+                res->Add( NameValData( "CFz", CFztot, "Z force coefficient." ) );
+                res->Add( NameValData( "CMxo", CMxo, "Parasite component of X moment coefficient." ) );
+                res->Add( NameValData( "CMyo", CMyo, "Parasite component of Y moment coefficient." ) );
+                res->Add( NameValData( "CMzo", CMzo, "Parasite component of Z moment coefficient." ) );
+                res->Add( NameValData( "CMxi", CMxi, "Inviscid component of X moment coefficient." ) );
+                res->Add( NameValData( "CMyi", CMyi, "Inviscid component of Y moment coefficient." ) );
+                res->Add( NameValData( "CMzi", CMzi, "Inviscid component of Z moment coefficient." ) );
+                res->Add( NameValData( "CMx", CMxtot, "X moment coefficient." ) );
+                res->Add( NameValData( "CMy", CMytot, "Y moment coefficient." ) );
+                res->Add( NameValData( "CMz", CMztot, "Z moment coefficient." ) );
                 res->Add( NameValData( "T/QS", ToQS, "Thrust coefficient." ) );
 
                 if ( unsteady_pqr )
                 {
                     res->Add( NameValData( "UnstdyAng", UnstdAng, "Unsteady rotor angle." ) );
                 }
+
+                if ( unsteady_h )
+                {
+                    res->Add( NameValData( "H", H, "Unsteady heave." ) );
+                }
+
             }
 
         } // end of wake iteration
