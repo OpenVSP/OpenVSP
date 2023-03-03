@@ -25,6 +25,12 @@ MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 800, "Mesh" )
     m_OtherLayout.AddButton( m_ConvertButton, "Convert" );
 
     m_OtherLayout.AddYGap();
+    m_OtherLayout.AddDividerBox( "Convert to NGon Mesh" );
+    m_OtherLayout.AddYGap();
+
+    m_OtherLayout.AddButton( m_ConvertNGonMeshButton, "Convert" );
+
+    m_OtherLayout.AddYGap();
     m_OtherLayout.AddDividerBox( "Visualize Meshes" );
     m_OtherLayout.AddYGap();
 
@@ -90,6 +96,10 @@ void MeshScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     if ( gui_device == &m_ConvertButton )
     {
         mesh_ptr->CreatePtCloudGeom();
+    }
+    else if ( gui_device == &m_ConvertNGonMeshButton )
+    {
+        mesh_ptr->CreateNGonMeshGeom();
     }
 
     GeomScreen::GuiDeviceCallBack( gui_device );

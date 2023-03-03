@@ -17,6 +17,7 @@
 
 #include <utility>
 #include "PtCloudGeom.h"
+#include "NGonMeshGeom.h"
 #include "LinkMgr.h"
 #include "Vehicle.h"
 #include "PntNodeMerge.h"
@@ -1722,6 +1723,30 @@ void MeshGeom::CreatePtCloudGeom()
             m_Vehicle->UpdateGUI();
 
         }
+    }
+}
+
+void MeshGeom::CreateNGonMeshGeom()
+{
+
+    GeomType type = GeomType( NGON_GEOM_TYPE, "NGON", true );
+    string id = m_Vehicle->AddGeom( type );
+    if ( !id.compare( "NONE" ) )
+    {
+        return;
+    }
+
+    NGonMeshGeom* new_geom = ( NGonMeshGeom* ) m_Vehicle->FindGeom( id );
+    if ( new_geom )
+    {
+        new_geom->SetName( GetName() + "_NGon" );
+
+        Matrix4d XFormMat = GetTotalTransMat();
+
+
+        new_geom->Update();
+        m_Vehicle->UpdateGUI();
+
     }
 }
 

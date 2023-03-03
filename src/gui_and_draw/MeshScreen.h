@@ -30,6 +30,7 @@ protected:
 
     GroupLayout m_OtherLayout;
     TriggerButton m_ConvertButton;
+    TriggerButton m_ConvertNGonMeshButton;
 
     ToggleButton m_ViewMeshToggle;
     ToggleButton m_ViewSliceToggle;
