@@ -223,6 +223,7 @@ class Input : public GuiDevice
 {
 public:
     Input();
+    ~Input();
     virtual void Init( VspScreen* screen, Fl_Input* input, const char* format, VspButton* parm_button = NULL );
 
     virtual void SetFormat( const char* format )
@@ -250,7 +251,8 @@ protected:
     virtual void SetValAndLimits( Parm* parm_ptr );
 
     Fl_Input* m_Input;
-    char m_Str[256];
+    char *m_Str;
+    int m_StrSize;
     string m_Format;
 
     bool m_ParmButtonFlag;
@@ -263,6 +265,7 @@ class Output : public GuiDevice
 {
 public:
     Output();
+    ~Output();
     virtual void DeviceCB( Fl_Widget* w )               {}
     virtual void Init( VspScreen* screen, Fl_Output* output, const char* format, VspButton* parm_button = NULL );
 
@@ -294,7 +297,8 @@ protected:
     virtual void SetValAndLimits( Parm* parm_ptr );
 
     Fl_Output* m_Output;
-    char m_Str[256];
+    char *m_Str;
+    int m_StrSize;
     string m_Format;
     string m_Suffix;
     bool m_NewFormat;
@@ -745,6 +749,7 @@ class FractParmSlider : public GuiDevice
 {
 public:
     FractParmSlider();
+    ~FractParmSlider();
 
     virtual void Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
                        Fl_Button* rbutton, Fl_Input* fract_input, Fl_Input* result_input,
@@ -779,7 +784,8 @@ protected:
     Input  m_FractInput;
 
     Fl_Input* m_ResultFlInput;
-    char m_Str[256];
+    char *m_Str;
+    int m_StrSize;
     string m_Format;
 
     bool m_ParmButtonFlag;
@@ -871,6 +877,7 @@ class IndexSelector : public GuiDevice
 public:
 
     IndexSelector();
+    ~IndexSelector();
     virtual void Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_but,
                        Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but,
                        VspButton* parm_button = NULL );
@@ -907,7 +914,8 @@ protected:
     int m_MaxIndex;
     int m_BigInc;
     int m_SmallInc;
-    char m_Str[64];
+    char *m_Str;
+    int m_StrSize;
 
 };
 

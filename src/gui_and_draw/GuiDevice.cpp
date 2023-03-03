@@ -362,10 +362,17 @@ void GuiDevice::OffsetX( int x )
 //==== Constructor ====//
 Input::Input() : GuiDevice()
 {
+    m_StrSize = 256;
+    m_Str = new char[m_StrSize];
     m_Type = GDEV_INPUT;
     m_Input = NULL;
     m_Format = string( " %7.5f" );
     m_ParmButtonFlag = false;
+}
+
+Input::~Input()
+{
+    delete m_Str;
 }
 
 //==== Init ====//
@@ -410,7 +417,7 @@ void Input::SetValAndLimits( Parm* parm_ptr )
 
     if ( CheckValUpdate( new_val ) )
     {
-        snprintf( m_Str, sizeof( m_Str ), m_Format.c_str(), new_val );
+        snprintf( m_Str, m_StrSize, m_Format.c_str(), new_val );
         m_Input->value( m_Str );
     }
     m_LastVal = new_val;
@@ -469,12 +476,19 @@ void Input::DeviceCB( Fl_Widget* w )
 //==== Constructor ====//
 Output::Output() : GuiDevice()
 {
+    m_StrSize = 256;
+    m_Str = new char[m_StrSize];
     m_Type = GDEV_OUTPUT;
     m_Output = NULL;
     m_Format = string( " %7.5f" );
     m_Suffix = string();
     m_NewFormat = true;
     m_ParmButtonFlag = false;
+}
+
+Output::~Output()
+{
+    delete m_Str;
 }
 
 //==== Init ====//
@@ -506,12 +520,12 @@ void Output::SetValAndLimits( Parm* parm_ptr )
 
     if ( CheckValUpdate( new_val ) || m_NewFormat )
     {
-        snprintf( m_Str, sizeof( m_Str ), m_Format.c_str(), new_val );
+        snprintf( m_Str, m_StrSize, m_Format.c_str(), new_val );
 
         if ( m_Suffix != string() )
         {
             string tmp = string( m_Str );
-            snprintf( m_Str, sizeof( m_Str ), "%s %s", tmp.c_str(), m_Suffix.c_str() );
+            snprintf( m_Str, m_StrSize, "%s %s", tmp.c_str(), m_Suffix.c_str() );
         }
 
         m_Output->value( m_Str );
@@ -1851,11 +1865,17 @@ int Choice::IndexToVal( int indx )
 //==== Constructor ====//
 FractParmSlider::FractParmSlider() : GuiDevice()
 {
+    m_StrSize = 256;
+    m_Str = new char[m_StrSize];
     m_Type = GDEV_FRACT_PARM_SLIDER;
     m_ResultFlInput = NULL;
     m_Format = string( " %7.5f" );
 }
 
+FractParmSlider::~FractParmSlider()
+{
+    delete m_Str;
+}
 
 //==== Init ====//
 void FractParmSlider::Init( VspScreen* screen, Fl_Slider* slider, Fl_Button* lbutton,
@@ -1935,7 +1955,7 @@ void FractParmSlider::SetValAndLimits( Parm* parm_ptr )
 
         if ( CheckValUpdate( new_val ) )
         {
-            snprintf( m_Str, sizeof( m_Str ), m_Format.c_str(), new_val );
+            snprintf( m_Str, m_StrSize, m_Format.c_str(), new_val );
             m_ResultFlInput->value( m_Str );
         }
         m_LastVal = new_val;
@@ -2113,6 +2133,8 @@ void StringOutput::Update( const string & val )
 //=====================================================================//
 IndexSelector::IndexSelector()
 {
+    m_StrSize = 64;
+    m_Str = new char[m_StrSize];
     m_Type = GDEV_INDEX_SELECTOR;
     m_Screen = NULL;
     m_Input = NULL;
@@ -2122,6 +2144,11 @@ IndexSelector::IndexSelector()
 
     m_SmallInc = 1;
     m_BigInc = 10;
+}
+
+IndexSelector::~IndexSelector()
+{
+    delete m_Str;
 }
 
 void IndexSelector::Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_but,
@@ -2191,7 +2218,7 @@ void IndexSelector::SetIndex( int index )
 
     if ( m_Input  )
     {
-        snprintf( m_Str, sizeof( m_Str ), "   %d", m_Index );
+        snprintf( m_Str, m_StrSize, "   %d", m_Index );
         m_Input->value( m_Str );
     }
 }
