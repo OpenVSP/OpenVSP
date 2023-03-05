@@ -4635,6 +4635,7 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
 
         mesh_ptr->GetMeshByID( "NEGATIVE_HALF" )->m_DeleteMeFlag = true;
         mesh_ptr->DeleteMarkedMeshes();
+        mesh_ptr->RefreshTagMaps();
     }
 
     return id;
@@ -4650,7 +4651,6 @@ string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int 
     }
     MeshGeom* mesh_ptr = ( MeshGeom* )geom;
     mesh_ptr->FlattenTMeshVec();
-    mesh_ptr->SubTagTris( intSubsFlag );
     mesh_ptr->m_SurfDirty = true;
     mesh_ptr->Update();
     return id;

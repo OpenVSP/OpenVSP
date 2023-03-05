@@ -1935,6 +1935,8 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
                 sub_surf_meshes.clear();
             }
         }
+        // Tag meshes before regular intersection
+        SubTagTris( (bool)intSubsFlag );
 
         MergeRemoveOpenMeshes( &info, deleteopen );
     }
