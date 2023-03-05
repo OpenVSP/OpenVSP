@@ -10,6 +10,8 @@
 
 #include "Geom.h"
 
+#include "TMesh.h"
+#include "NGMesh.h"
 
 //==== Point Cloud Geom ====//
 class NGonMeshGeom : public Geom
@@ -34,11 +36,17 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec );
+
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;
 
 protected:
+
+
+    pmp::SurfaceMesh m_NGMesh;
+    pmp::FaceProperty<pmp::Normal> m_Normals;
 
 
 };

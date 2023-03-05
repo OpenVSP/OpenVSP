@@ -1728,6 +1728,7 @@ void MeshGeom::CreatePtCloudGeom()
 
 void MeshGeom::CreateNGonMeshGeom()
 {
+    BuildIndexedMesh( 0 );
 
     GeomType type = GeomType( NGON_GEOM_TYPE, "NGON", true );
     string id = m_Vehicle->AddGeom( type );
@@ -1743,6 +1744,9 @@ void MeshGeom::CreateNGonMeshGeom()
 
         Matrix4d XFormMat = GetTotalTransMat();
 
+        new_geom->BuildFromTMesh( m_IndexedNodeVec, m_IndexedTriVec );
+
+        new_geom->m_SurfDirty = true;
 
         new_geom->Update();
         m_Vehicle->UpdateGUI();
