@@ -30,6 +30,10 @@ utils.H
 TARGET_LINK_LIBRARIES(vsploads
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+  TARGET_COMPILE_OPTIONS( vsploads PUBLIC -Wno-deprecated-declarations)
+endif()
+
 INSTALL( TARGETS vsploads RUNTIME DESTINATION . )
 INSTALL( TARGETS vsploads RUNTIME DESTINATION python/openvsp/openvsp )
 

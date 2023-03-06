@@ -224,8 +224,8 @@ if(BUILD_VSPAERO)
     TARGET_LINK_LIBRARIES( ${sol} PUBLIC ${lib} )
 
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-      TARGET_COMPILE_OPTIONS( ${sol} PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format )
-      TARGET_COMPILE_OPTIONS( ${lib} PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format )
+      TARGET_COMPILE_OPTIONS( ${sol} PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format -Wno-deprecated-declarations)
+      TARGET_COMPILE_OPTIONS( ${lib} PUBLIC -Wno-non-pod-varargs -Wno-format-security -Wno-format -Wno-deprecated-declarations)
     endif()
 
     IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

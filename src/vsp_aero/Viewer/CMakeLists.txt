@@ -37,6 +37,9 @@ IF( NOT VSP_NO_GRAPHICS )
 
   ADD_LIBRARY(viewerscreens ${viewerscreens_FLTK_UI_SRCS} )
 
+  if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    TARGET_COMPILE_OPTIONS( viewerscreens PUBLIC -Wno-deprecated-declarations)
+  endif()
 
   ADD_EXECUTABLE(vspviewer
     EngineFace.C
@@ -84,6 +87,10 @@ IF( NOT VSP_NO_GRAPHICS )
   )
 
   TARGET_COMPILE_DEFINITIONS( vspviewer PRIVATE -DDO_GRAPHICS -DOCTREE_DO_GRAPHICS )
+
+  if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    TARGET_COMPILE_OPTIONS( vspviewer PUBLIC -Wno-deprecated-declarations)
+  endif()
 
   TARGET_LINK_LIBRARIES(vspviewer
     viewerscreens
