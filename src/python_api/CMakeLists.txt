@@ -67,6 +67,10 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         SET( PY_LIB ${PYTHON_LIBRARIES} )
     ENDIF()
 
+    if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+        TARGET_COMPILE_OPTIONS( _vsp PUBLIC -Wno-deprecated-declarations)
+    endif()
+
     SWIG_LINK_LIBRARIES( vsp
         geom_api
         geom_core

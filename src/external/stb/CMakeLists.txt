@@ -7,3 +7,7 @@ dummy.cpp
 stb_image.h
 stb_image_write.h
 )
+
+if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    TARGET_COMPILE_OPTIONS( stb_image PUBLIC -Wno-deprecated-declarations)
+endif()
