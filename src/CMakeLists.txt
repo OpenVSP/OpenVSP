@@ -58,6 +58,8 @@ CONFIGURE_FILE(
 )
 INCLUDE_DIRECTORIES( ${VSP_BINARY_DIR} )
 
+INCLUDE( extLibraryFind )
+
 ADD_SUBDIRECTORY( external )
 ADD_SUBDIRECTORY( external/angelscript/sdk )
 
