@@ -64,7 +64,7 @@ void Entity::_predraw()
 {
     switch( getRenderStyle() )
     {
-    case Common::VSP_DRAW_MESH_SHADED:
+    case Common::VSP_DRAW_SHADED:
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
 
@@ -80,7 +80,7 @@ void Entity::_predraw()
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
 
-    case Common::VSP_DRAW_MESH_TEXTURED:
+    case Common::VSP_DRAW_TEXTURED:
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
 
@@ -93,8 +93,8 @@ void Entity::_draw()
 {
     switch( getRenderStyle() )
     {
-    case Common::VSP_DRAW_MESH_SHADED:
-        _draw_Mesh_Shaded();
+    case Common::VSP_DRAW_SHADED:
+        _draw_Shaded();
         break;
 
     case Common::VSP_DRAW_WIRE_FRAME:
@@ -113,8 +113,8 @@ void Entity::_draw()
         _draw_Wire_Frame_Transparent_Back();
         break;
 
-    case Common::VSP_DRAW_MESH_TEXTURED:
-        _draw_Mesh_Textured();
+    case Common::VSP_DRAW_TEXTURED:
+        _draw_Textured();
         break;
 
     default:
@@ -122,7 +122,7 @@ void Entity::_draw()
     }
 }
 
-void Entity::_draw_Mesh_Shaded()
+void Entity::_draw_Shaded()
 {
     if( _lighting )
     {
@@ -140,7 +140,7 @@ void Entity::_draw_Mesh_Shaded()
     glDisable( GL_LIGHTING );
 }
 
-void Entity::_draw_Mesh_Textured()
+void Entity::_draw_Textured()
 {
     if( _lighting )
     {

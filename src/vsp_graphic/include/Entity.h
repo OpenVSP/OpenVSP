@@ -77,11 +77,11 @@ protected:
     /*!
     * Draw shaded mesh.
     */
-    virtual void _draw_Mesh_Shaded();
+    virtual void _draw_Shaded();
     /*!
     * Draw textured mesh.
     */
-    virtual void _draw_Mesh_Textured();
+    virtual void _draw_Textured();
     /*!
     * Draw wire frame.
     */

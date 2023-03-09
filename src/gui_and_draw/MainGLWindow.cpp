@@ -699,7 +699,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
                 eObj->setPrimType( Common::VSP_QUADS );
-                eObj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
+                eObj->setRenderStyle( Common::VSP_DRAW_SHADED );
 
                 eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
                                    objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
@@ -787,7 +787,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
                 eObj->setPrimType( Common::VSP_QUADS );
-                eObj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
+                eObj->setRenderStyle( Common::VSP_DRAW_SHADED );
 
                 eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
@@ -815,7 +815,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
                 eObj->setPrimType( Common::VSP_TRIANGLES );
-                eObj->setRenderStyle( Common::VSP_DRAW_MESH_SHADED );
+                eObj->setRenderStyle( Common::VSP_DRAW_SHADED );
 
                 eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
@@ -843,7 +843,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             {
                 eObj->setVisibility( objects[i]->m_Visible );
                 eObj->setPrimType( Common::VSP_QUADS );
-                eObj->setRenderStyle( Common::VSP_DRAW_MESH_TEXTURED );
+                eObj->setRenderStyle( Common::VSP_DRAW_TEXTURED );
 
                 eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
                     objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
