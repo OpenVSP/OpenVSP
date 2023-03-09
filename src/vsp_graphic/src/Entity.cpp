@@ -72,6 +72,10 @@ void Entity::_predraw()
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
 
+    case Common::VSP_DRAW_WIRE_FRAME:
+        // Do nothing so surface does not occlude picking.
+        break;
+
     case Common::VSP_DRAW_WIRE_FRAME_SOLID:
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
