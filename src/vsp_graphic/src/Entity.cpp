@@ -64,6 +64,10 @@ void Entity::_predraw()
 {
     switch( getRenderStyle() )
     {
+    case Common::VSP_DRAW_SOLID:
+        _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
+        break;
+
     case Common::VSP_DRAW_SHADED:
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
@@ -93,6 +97,10 @@ void Entity::_draw()
 {
     switch( getRenderStyle() )
     {
+    case Common::VSP_DRAW_SOLID:
+        _draw_Solid();
+        break;
+
     case Common::VSP_DRAW_SHADED:
         _draw_Shaded();
         break;
@@ -120,6 +128,16 @@ void Entity::_draw()
     default:
         break;
     }
+}
+
+void Entity::_draw_Solid()
+{
+    glEnable( GL_POLYGON_OFFSET_FILL );
+    glPolygonOffset( 1.f, 1.f );
+
+    _draw_Mesh( 1.f, 1.f, 1.f, 1.f );
+
+    glDisable( GL_POLYGON_OFFSET_FILL );
 }
 
 void Entity::_draw_Shaded()

@@ -75,6 +75,10 @@ protected:
 
 protected:
     /*!
+    * Draw solid mesh.
+    */
+    virtual void _draw_Solid();
+    /*!
     * Draw shaded mesh.
     */
     virtual void _draw_Shaded();
