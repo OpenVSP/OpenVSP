@@ -37,6 +37,7 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec );
+    virtual void PolygonizeMesh();
 
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;

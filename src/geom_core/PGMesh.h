@@ -119,6 +119,8 @@ public:
     list< PGFace* >::iterator m_List_it;
 
     vec3d m_Nvec;
+    int m_iQuad;
+    int m_Tag;
 
     vector< PGEdge* > m_EdgeVec;
     vector < PGNode* > m_TriNodeVec;

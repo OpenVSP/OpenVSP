@@ -1747,6 +1747,7 @@ void MeshGeom::CreateNGonMeshGeom()
         Matrix4d XFormMat = GetTotalTransMat();
 
         new_geom->BuildFromTMesh( m_IndexedNodeVec, m_IndexedTriVec );
+        new_geom->PolygonizeMesh();
 
         new_geom->m_SurfDirty = true;
 

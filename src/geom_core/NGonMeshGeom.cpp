@@ -7,6 +7,7 @@
 
 #include "NGonMeshGeom.h"
 #include "Vehicle.h"
+#include "SubSurfaceMgr.h"
 
 //==== Constructor ====//
 NGonMeshGeom::NGonMeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -103,6 +104,8 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
     {
         PGFace *f = m_PGMesh.AddFace( );
         f->m_Nvec = triVec[i]->m_Norm;
+        f->m_iQuad = triVec[i]->m_iQuad;
+        f->m_Tag = SubSurfaceMgr.GetTag( triVec[i]->m_Tags );
 
         PGEdge *e1 = m_PGMesh.AddEdge( nod[triVec[i]->m_N0->m_ID], nod[triVec[i]->m_N1->m_ID] );
         PGEdge *e2 = m_PGMesh.AddEdge( nod[triVec[i]->m_N1->m_ID], nod[triVec[i]->m_N2->m_ID] );
@@ -115,33 +118,78 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
         f->AddEdge( e1 );
         f->AddEdge( e2 );
         f->AddEdge( e3 );
+
+    }
+}
+
+void NGonMeshGeom::PolygonizeMesh()
+{
+    // Make vector copy of list so edges can be removed from list without invalidating active list iterator.
+    vector< PGEdge* > eVec( m_PGMesh.m_EdgeList.begin(), m_PGMesh.m_EdgeList.end() );
+
+    for ( int i = 0; i < eVec.size(); i++ )
+    {
+        PGEdge* e = eVec[i];
+
+        // Verify removal of (*e) is OK.
+        if ( e->m_FaceVec.size() == 2 )
+        {
+            PGFace *f0 = e->m_FaceVec[0];
+            PGFace *f1 = e->m_FaceVec[1];
+
+            if ( f0->m_iQuad >= 0 &&
+                 f0->m_iQuad == f1->m_iQuad &&
+                 f0->m_Tag == f1->m_Tag )
+            {
+                m_PGMesh.RemoveEdgeMergeFaces( e );
+            }
+        }
     }
 }
 
 void NGonMeshGeom::UpdateDrawObj()
 {
+    unsigned int num_uniq_tags = SubSurfaceMgr.GetNumTags();
+
     m_WireShadeDrawObj_vec.clear();
-    m_WireShadeDrawObj_vec.resize( 1 );
+    m_WireShadeDrawObj_vec.resize( num_uniq_tags * 2 );
 
-    unsigned int num_tris = m_PGMesh.m_FaceList.size();
-    unsigned int pi = 0;
+    map<int, DrawObj*> face_dobj_map;
+    map<int, DrawObj*> outline_dobj_map;
+    map< std::vector<int>, int >::const_iterator mit;
+    map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
+    int cnt = 0;
+    for ( mit = tagMap.begin(); mit != tagMap.end() ; ++mit )
+    {
+        outline_dobj_map[ mit->second ] = &m_WireShadeDrawObj_vec[ cnt ];
+        face_dobj_map[ mit->second ] = &m_WireShadeDrawObj_vec[ cnt + num_uniq_tags ];
+        cnt++;
+    }
 
-    m_WireShadeDrawObj_vec[0].m_PntVec.resize( num_tris * 4 );
-    m_WireShadeDrawObj_vec[0].m_NormVec.resize( num_tris * 4 );
+    for ( list< PGFace* >::iterator f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
+    {
+        DrawObj* d_obj = outline_dobj_map[ (*f)->m_Tag ];
 
+        for ( int i = 0; i < (*f)->m_EdgeVec.size(); i++ )
+        {
+            PGEdge *e = (*f)->m_EdgeVec[i];
+            d_obj->m_PntVec.push_back( e->m_N0->m_Pnt );
+            d_obj->m_PntVec.push_back( e->m_N1->m_Pnt );
+        }
+    }
 
-    list< PGFace* >::iterator f;
-    for ( f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
+    for ( list< PGFace* >::iterator f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
     {
         vector< PGNode* > nodVec;
-        (*f)-> GetNodes( nodVec );
+        (*f)->GetNodesAsTris( nodVec );
         vec3d norm = (*f)->m_Nvec;
+
+        DrawObj* d_obj = face_dobj_map[ (*f)->m_Tag ];
 
         for ( int i = 0; i < nodVec.size(); i++ )
         {
-            m_WireShadeDrawObj_vec[0].m_PntVec[pi] = nodVec[i]->m_Pnt;
-            m_WireShadeDrawObj_vec[0].m_NormVec[pi] = norm;
-            pi++;
+            d_obj->m_PntVec.push_back( nodVec[i]->m_Pnt );
+            d_obj->m_NormVec.push_back( norm );
         }
     }
 
@@ -154,76 +202,91 @@ void NGonMeshGeom::UpdateDrawObj()
 
 void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
+    unsigned int num_uniq_tags = SubSurfaceMgr.GetNumTags();
+
     // Calculate constants for color sequence.
     const int ncgrp = 6; // Number of basic colors
-    const int ncstep = (int)ceil((double)1/(double)ncgrp);
+    const int ncstep = (int)ceil((double)num_uniq_tags/(double)ncgrp);
     const double nctodeg = 360.0/(ncgrp*ncstep);
 
     Geom::LoadDrawObjs( draw_obj_vec );
-    for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
+    for ( int i = 0 ; i < num_uniq_tags ; i++ )
     {
-        if ( true )
+        // Color sequence -- go around color wheel ncstep times with slight
+        // offset from ncgrp basic colors.
+        // Note, (cnt/ncgrp) uses integer division resulting in floor.
+        double deg = 0 + ( ( i % ncgrp ) * ncstep + ( i / ncgrp ) ) * nctodeg;
+
+        if ( deg > 360 )
         {
-            // Color sequence -- go around color wheel ncstep times with slight
-            // offset from ncgrp basic colors.
-            // Note, (cnt/ncgrp) uses integer division resulting in floor.
-            double deg = 100 + ( ( i % ncgrp ) * ncstep + ( i / ncgrp ) ) * nctodeg;
-
-            if ( deg > 360 )
-            {
-                deg = (int)deg % 360;
-            }
-
-            vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
-            rgb.normalize();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = (float)rgb.x()/5.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[1] = (float)rgb.y()/5.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[2] = (float)rgb.z()/5.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[3] = (float)1.0f;
-
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[0] = 0.4f + (float)rgb.x()/10.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[1] = 0.4f + (float)rgb.y()/10.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[2] = 0.4f + (float)rgb.z()/10.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = 1.0f;
-
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[0] = 0.04f + 0.7f * (float)rgb.x();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[1] = 0.04f + 0.7f * (float)rgb.y();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = 0.04f + 0.7f * (float)rgb.z();
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = 1.0f;
-
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = (float)rgb.x()/20.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)rgb.y()/20.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)rgb.z()/20.0f;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = 1.0f;
-
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = 32.0f;
-
-            m_WireShadeDrawObj_vec[i].m_LineColor = rgb;
+            deg = (int)deg % 360;
         }
 
+        vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
+        rgb.normalize();
+
+        for ( int j = 0; j < 2; j++ )
+        {
+            int k = j * num_uniq_tags + i;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Ambient[ 0 ] = ( float ) rgb.x() / 5.0f;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Ambient[ 1 ] = ( float ) rgb.y() / 5.0f;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Ambient[ 2 ] = ( float ) rgb.z() / 5.0f;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Ambient[ 3 ] = ( float ) 1.0f;
+
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Diffuse[ 0 ] = 0.4f + ( float ) rgb.x() / 10.0f;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Diffuse[ 1 ] = 0.4f + ( float ) rgb.y() / 10.0f;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Diffuse[ 2 ] = 0.4f + ( float ) rgb.z() / 10.0f;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Diffuse[ 3 ] = 1.0f;
+
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Specular[ 0 ] = 0.04f + 0.7f * ( float ) rgb.x();
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Specular[ 1 ] = 0.04f + 0.7f * ( float ) rgb.y();
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Specular[ 2 ] = 0.04f + 0.7f * ( float ) rgb.z();
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Specular[ 3 ] = 1.0f;
+
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Emission[ 0 ] = ( float ) rgb.x() / 20.0f;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Emission[ 1 ] = ( float ) rgb.y() / 20.0f;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Emission[ 2 ] = ( float ) rgb.z() / 20.0f;
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Emission[ 3 ] = 1.0f;
+
+            m_WireShadeDrawObj_vec[ k ].m_MaterialInfo.Shininess = 32.0f;
+
+            m_WireShadeDrawObj_vec[ k ].m_LineColor = rgb;
+        }
+
+
+        // Outline.
+        m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        m_WireShadeDrawObj_vec[i].m_Visible = true;
+        // Faces.
+        int k = i + num_uniq_tags;
+        m_WireShadeDrawObj_vec[k].m_Visible = true;
 
         switch( m_GuiDraw.GetDrawType() )
         {
             case vsp::DRAW_TYPE::GEOM_DRAW_WIRE:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+                m_WireShadeDrawObj_vec[k].m_Type = DrawObj::VSP_WIRE_TRIS;
+                m_WireShadeDrawObj_vec[k].m_Visible = false;
                 break;
 
             case vsp::DRAW_TYPE::GEOM_DRAW_HIDDEN:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+                m_WireShadeDrawObj_vec[k].m_Type = DrawObj::VSP_HIDDEN_TRIS;
                 break;
 
             case vsp::DRAW_TYPE::GEOM_DRAW_SHADE:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+                m_WireShadeDrawObj_vec[k].m_Type = DrawObj::VSP_SHADED_TRIS;
+                m_WireShadeDrawObj_vec[i].m_Visible = false;
                 break;
 
             case vsp::DRAW_TYPE::GEOM_DRAW_NONE:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+                m_WireShadeDrawObj_vec[k].m_Type = DrawObj::VSP_SHADED_TRIS;
+                m_WireShadeDrawObj_vec[k].m_Visible = false;
                 m_WireShadeDrawObj_vec[i].m_Visible = false;
                 break;
 
                 // Does not support Texture Mapping.  Render Shaded instead.
             case vsp::DRAW_TYPE::GEOM_DRAW_TEXTURE:
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+                m_WireShadeDrawObj_vec[k].m_Type = DrawObj::VSP_SHADED_TRIS;
+                m_WireShadeDrawObj_vec[i].m_Visible = false;
                 break;
         }
     }
