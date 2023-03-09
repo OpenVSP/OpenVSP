@@ -226,6 +226,7 @@ public:
         VSP_SHADED_MESH,
         VSP_TEXTURED_MESH,
         VSP_WIRE_TRIS,
+        VSP_HIDDEN_TRIS,
         VSP_WIRE_HIDDEN_TRIS,
         VSP_SHADED_TRIS,
         VSP_WIRE_SHADED_TRIS,
