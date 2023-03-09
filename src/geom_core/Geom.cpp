@@ -3556,7 +3556,7 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
-                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_MESH;
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_HIDDEN_MESH;
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
@@ -3700,7 +3700,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_DegenSurfDrawObj_vec[i].m_LineColor = lineColor;
-                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_HIDDEN_QUADS;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
 
@@ -3763,7 +3763,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             case vsp::DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
-                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_HIDDEN_QUADS;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
@@ -3826,7 +3826,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
-                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_HIDDEN_QUADS;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
 

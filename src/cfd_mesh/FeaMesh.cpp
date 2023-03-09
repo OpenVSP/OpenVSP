@@ -499,10 +499,10 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                     }
                     else if ( st_settings->m_DrawMeshFlag ) // Mesh only
                     {
-                        m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_HIDDEN_TRIS;
+                        m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_WIRE_HIDDEN_TRIS;
                         m_FeaTriElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
 
-                        m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                        m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_WIRE_HIDDEN_QUADS;
                         m_FeaQuadElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                     }
                     else // Tags only
@@ -515,10 +515,10 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
             }
             else
             {
-                m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_HIDDEN_TRIS;
+                m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_WIRE_HIDDEN_TRIS;
                 m_FeaTriElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
 
-                m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_WIRE_HIDDEN_QUADS;
                 m_FeaQuadElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
             }
 
@@ -627,9 +627,9 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                 }
                 else if ( st_settings->m_DrawMeshFlag ) // Mesh only
                 {
-                    m_SSTriElementDO[iss].m_Type = DrawObj::VSP_HIDDEN_TRIS;
+                    m_SSTriElementDO[iss].m_Type = DrawObj::VSP_WIRE_HIDDEN_TRIS;
                     m_SSTriElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-                    m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                    m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_WIRE_HIDDEN_QUADS;
                     m_SSQuadElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else // Tags only
@@ -640,9 +640,9 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
             }
             else
             {
-                m_SSTriElementDO[iss].m_Type = DrawObj::VSP_HIDDEN_TRIS;
+                m_SSTriElementDO[iss].m_Type = DrawObj::VSP_WIRE_HIDDEN_TRIS;
                 m_SSTriElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-                m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_WIRE_HIDDEN_QUADS;
                 m_SSQuadElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
             }
 

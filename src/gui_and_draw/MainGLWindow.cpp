@@ -504,7 +504,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             break;
 
-        case DrawObj::VSP_HIDDEN_MESH:
+        case DrawObj::VSP_WIRE_HIDDEN_MESH:
             if( id == 0xFFFFFFFF )
             {
                 m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
@@ -534,7 +534,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             break;
 
-        case DrawObj::VSP_HIDDEN_TRIS:
+        case DrawObj::VSP_WIRE_HIDDEN_TRIS:
             if( id == 0xFFFFFFFF )
             {
                 m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
@@ -624,7 +624,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             break;
 
-        case DrawObj::VSP_HIDDEN_QUADS:
+        case DrawObj::VSP_WIRE_HIDDEN_QUADS:
             if( id == 0xFFFFFFFF )
             {
                 m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );

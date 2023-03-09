@@ -1567,7 +1567,7 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             break;
 
         case vsp::DRAW_TYPE::GEOM_DRAW_HIDDEN:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_TRIS;
+            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_HIDDEN_TRIS;
             break;
 
         case vsp::DRAW_TYPE::GEOM_DRAW_SHADE:
