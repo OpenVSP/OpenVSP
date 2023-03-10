@@ -195,6 +195,7 @@ public:
     virtual set< string > GetTMeshPtrIDs();
 
     virtual void SubTagTris( bool tag_subs );
+    virtual void RefreshTagMaps();
 
     BoolParm m_ViewMeshFlag;
     BoolParm m_ViewSliceFlag;

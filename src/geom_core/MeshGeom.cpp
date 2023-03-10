@@ -4254,3 +4254,14 @@ void MeshGeom::SubTagTris( bool tag_subs )
 
 }
 
+void MeshGeom::RefreshTagMaps()
+{
+    SubSurfaceMgr.PartialClearTagMaps();
+
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        m_TMeshVec[i]->RefreshTagMap();
+    }
+
+    SubSurfaceMgr.BuildSingleTagMap();
+}

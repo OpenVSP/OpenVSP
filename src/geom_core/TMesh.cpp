@@ -3830,6 +3830,27 @@ void TMesh::SubTag( int part_num, bool tag_subs )
     }
 }
 
+void TMesh::RefreshTagMap()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size(); t ++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        for ( int st = 0; st < ( int )tri->m_SplitVec.size() ; st++ )
+        {
+            if ( !tri->m_SplitVec[st]->m_IgnoreTriFlag )
+            {
+                SubSurfaceMgr.m_TagCombos.insert( tri->m_SplitVec[st]->m_Tags );
+            }
+        }
+
+        if ( !tri->m_IgnoreTriFlag )
+        {
+            SubSurfaceMgr.m_TagCombos.insert( tri->m_Tags );
+        }
+    }
+}
+
 vec3d TMesh::CompPnt( const vec3d & uw_pnt )
 {
     // Search through uw pnts to figure out which quad the uw_pnt is in
