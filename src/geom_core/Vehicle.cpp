@@ -4608,15 +4608,10 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
         return id;
     }
 
-    if ( halfFlag )
-    {
-        mesh_ptr->AddHalfBox( "NEGATIVE_HALF" );
-    }
-
     if ( mesh_ptr->m_TMeshVec.size() )
     {
         vector< DegenGeom > dg;
-        mesh_ptr->IntersectTrim( dg, false, intSubsFlag );
+        mesh_ptr->IntersectTrim( dg, false, intSubsFlag, halfFlag );
     }
     else
     {
@@ -4624,18 +4619,6 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
         CutActiveGeomVec();
         DeleteClipBoard();
         id = "NONE";
-    }
-
-    if ( halfFlag )
-    {
-        // This check is to ensure any triangles remaining from the positive bodies on the symmetry plane are removed.
-        // Absolute tolerance here, would be perhaps better as a fraction of the triangle's edge lengths.  Comparison
-        // based on triangle center location, so it should be reliable.
-        mesh_ptr->IgnoreYLessThan( 1e-5 );
-
-        mesh_ptr->GetMeshByID( "NEGATIVE_HALF" )->m_DeleteMeFlag = true;
-        mesh_ptr->DeleteMarkedMeshes();
-        mesh_ptr->RefreshTagMaps();
     }
 
     return id;
@@ -5382,7 +5365,7 @@ void Vehicle::CreateDegenGeom( int set )
         MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
         if ( mesh_ptr != NULL )
         {
-            mesh_ptr->IntersectTrim( m_DegenGeomVec, true, 0 );
+            mesh_ptr->IntersectTrim( m_DegenGeomVec, true, 0, false );
             DeleteGeom( id );
         }
     }

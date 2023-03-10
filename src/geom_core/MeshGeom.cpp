@@ -1823,7 +1823,7 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, const Matrix4d & Tran
     }
 }
 
-void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag )
+void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, bool halfFlag )
 {
     int i, j;
 
@@ -1941,6 +1941,11 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         MergeRemoveOpenMeshes( &info, deleteopen );
     }
 
+    if ( halfFlag )
+    {
+        AddHalfBox( "NEGATIVE_HALF" );
+    }
+
     //==== Create Bnd Box for  Mesh Geoms ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
@@ -1996,6 +2001,16 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     m_Scale = 1;
     ApplyScale();
     UpdateBBox();
+
+    if ( halfFlag )
+    {
+        IgnoreYLessThan( 1e-5 );
+        GetMeshByID( "NEGATIVE_HALF" )->IgnoreAll();
+        GetMeshByID( "NEGATIVE_HALF" )->m_DeleteMeFlag = true;
+        DeleteMarkedMeshes();
+
+        RefreshTagMaps();
+    }
 
     //==== Compute Areas ====//
     m_TotalTheoArea = m_TotalWetArea = 0.0;
