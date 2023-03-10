@@ -852,6 +852,27 @@ void TMesh::IgnoreYLessThan( const double & ytol )
     }
 }
 
+void TMesh::IgnoreAll()
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                tri->m_SplitVec[s]->m_IgnoreTriFlag = true;
+            }
+        }
+        else
+        {
+            tri->m_IgnoreTriFlag = true;
+        }
+    }
+}
+
 void TMesh::DeterIntExt( vector< TMesh* >& meshVec )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
