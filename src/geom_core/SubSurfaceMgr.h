@@ -59,6 +59,7 @@ public:
 
     // Manage tag maps
     void ClearTagMaps();
+    void PartialClearTagMaps();
     void BuildCompNameMap();
     void BuildCompIDMap();
     void BuildSingleTagMap();
