@@ -343,6 +343,16 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
+        int tag = GetTag( m_TagKeys[ i ] );
+
+        string comp_list = GetTagNames( m_TagKeys[ i ] );
+
+        printf( "%d %s\n", i, comp_list.c_str() );
+    }
+
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
         int tag = GetTag( m_TagKeys[i] );
 
         string comp_list = GetTagNames( m_TagKeys[i] );
