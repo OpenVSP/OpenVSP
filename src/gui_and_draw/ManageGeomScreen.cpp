@@ -356,6 +356,7 @@ void ManageGeomScreen::LoadSetChoice()
 void ManageGeomScreen::LoadTypeChoice()
 {
     m_GeomTypeChoice.ClearItems();
+    m_GeomTypeChoice.ClearFlags();
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -368,10 +369,6 @@ void ManageGeomScreen::LoadTypeChoice()
         GeomType type = veh->GetGeomType( i );
 
         string item = type.m_Name.c_str();
-        if ( i == ( num_fixed - 1 ) )
-        {
-            item = "_" + item;
-        }
 
         if ( !type.m_FixedFlag )
         {
@@ -380,6 +377,8 @@ void ManageGeomScreen::LoadTypeChoice()
         }
         m_GeomTypeChoice.AddItem( item.c_str() );
     }
+
+    m_GeomTypeChoice.SetFlagByVal( num_fixed - 1, FL_MENU_DIVIDER );
 
     m_GeomTypeChoice.UpdateItems();
     m_GeomTypeChoice.SetVal( m_TypeIndex );
