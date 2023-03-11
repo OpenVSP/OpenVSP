@@ -791,8 +791,8 @@ void ParasiteDragScreen::UpdateSrefChoice()
     map <string, int> WingCompIDMap;
     int iwing = 0;
 
-    // Find Correct Geoms from Active Set
-    vector <string> g_IDs = veh->GetGeomSet( ParasiteDragMgr.m_SetChoice() );
+    // Find Geoms from any set.  User may have a reference wing not included in analysis set.
+    vector <string> g_IDs = veh->GetGeomVec();
 
     if ( !ParasiteDragMgr.m_RefFlag() )
     {
