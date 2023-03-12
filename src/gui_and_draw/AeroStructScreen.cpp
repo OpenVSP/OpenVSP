@@ -535,7 +535,7 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             args.push_back( GetBasename( AeroStructMgr.m_ADBFile ) );
 
-            string command = m_ViewerProcess.PrettyCmd( veh->GetVSPAEROPath(), veh->GetVIEWERCmd(), args );
+            string command = ProcessUtil::PrettyCmd( veh->GetVSPAEROPath(), veh->GetVIEWERCmd(), args );
 
             AddOutputText( command );
 
@@ -560,7 +560,7 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             args.push_back( AeroStructMgr.m_FEAMeshFile );
 
-            string command = m_ViewerProcess.PrettyCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
+            string command = ProcessUtil::PrettyCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
 
             AddOutputText( command );
 
@@ -585,7 +585,7 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             args.push_back( AeroStructMgr.m_FEAInputFile );
 
-            string command = m_ViewerProcess.PrettyCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
+            string command = ProcessUtil::PrettyCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
 
             AddOutputText( command );
 
@@ -612,7 +612,7 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             args.push_back( AeroStructMgr.m_FEAInputFile );
 
-            string command = m_ViewerProcess.PrettyCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
+            string command = ProcessUtil::PrettyCmd( AeroStructMgr.GetCGXPath(), AeroStructMgr.GetCGXCmd(), args );
 
             AddOutputText( command );
 

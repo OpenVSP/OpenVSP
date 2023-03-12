@@ -244,7 +244,7 @@ void AeroStructSingleton::TransferLoads( FILE * logFile )
     args.push_back( string( str ) );
 
 
-    string cmdStr = m_LoadsProcess.PrettyCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
+    string cmdStr = ProcessUtil::PrettyCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
     if( logFile )
     {
         fprintf( logFile, "%s", cmdStr.c_str() );
@@ -277,7 +277,7 @@ void AeroStructSingleton::ComputeStructure( FILE * logFile )
     args.push_back( GetBasename( m_FEAInputFile ) );
 
 
-    string cmdStr = m_CalculiXProcess.PrettyCmd( m_CalculiXPath, m_CalculiXCmd, args );
+    string cmdStr = ProcessUtil::PrettyCmd( m_CalculiXPath, m_CalculiXCmd, args );
     if( logFile )
     {
         fprintf( logFile, "%s", cmdStr.c_str() );

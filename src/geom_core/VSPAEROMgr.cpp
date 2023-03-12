@@ -2082,7 +2082,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         args.push_back( modelNameBase );
 
         //Print out execute command
-        string cmdStr = m_SolverProcess.PrettyCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
+        string cmdStr = ProcessUtil::PrettyCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
         if( logFile )
         {
             fprintf( logFile, "%s", cmdStr.c_str() );
@@ -4791,7 +4791,7 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
     args.push_back( m_ModelNameBase );
 
     //Print out execute command
-    string cmdStr = m_SolverProcess.PrettyCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
+    string cmdStr = ProcessUtil::PrettyCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
     if ( logFile )
     {
         fprintf( logFile, "%s", cmdStr.c_str() );
