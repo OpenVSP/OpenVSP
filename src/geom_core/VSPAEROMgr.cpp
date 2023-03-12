@@ -3761,6 +3761,20 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     args.push_back( "-slice" );
     args.push_back( m_ModelNameBase );
 
+    //Print out execute command
+    string cmdStr = ProcessUtil::PrettyCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
+    if( logFile )
+    {
+        fprintf( logFile, "%s", cmdStr.c_str() );
+    }
+    else
+    {
+        MessageData data;
+        data.m_String = "VSPAEROSolverMessage";
+        data.m_StringVec.push_back( cmdStr );
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+    }
+
     //====== Execute VSPAERO Slicer ======//
     m_SlicerThread.ForkCmd( veh->GetVSPAEROPath(), veh->GetLOADSCmd(), args );
 
@@ -3828,6 +3842,20 @@ void VSPAEROMgrSingleton::ExecuteQuadTreeSlicer( FILE * logFile )
     }
 
     args.push_back( m_ModelNameBase );
+
+    //Print out execute command
+    string cmdStr = ProcessUtil::PrettyCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
+    if( logFile )
+    {
+        fprintf( logFile, "%s", cmdStr.c_str() );
+    }
+    else
+    {
+        MessageData data;
+        data.m_String = "VSPAEROSolverMessage";
+        data.m_StringVec.push_back( cmdStr );
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+    }
 
     //====== Execute VSPAERO Slicer ======//
     m_SolverProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVSPAEROCmd(), args );
