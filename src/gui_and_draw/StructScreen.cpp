@@ -560,7 +560,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_OrthoSubGroup.AddInput( m_MatE1Input, "E", "%5.3g" );
     m_OrthoSubGroup.SetButtonWidth( 0 );
     m_OrthoSubGroup.AddInput( m_MatE2Input, "", "%5.3g" );
+    m_MatE2Input.SetButtonNameUpdate( false );
     m_OrthoSubGroup.AddInput( m_MatE3Input, "", "%5.3g" );
+    m_MatE3Input.SetButtonNameUpdate( false );
 
 
     m_OrthoMatElasticModUnitChoice.AddItem( "psi", vsp::PRES_UNIT_PSI );
@@ -592,7 +594,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_OrthoSubGroup.AddInput( m_MatA1Input, alpha, "%5.3g" );
     m_OrthoSubGroup.SetButtonWidth( 0 );
     m_OrthoSubGroup.AddInput( m_MatA2Input, "", "%5.3g" );
+    m_MatA2Input.SetButtonNameUpdate( false );
     m_OrthoSubGroup.AddInput( m_MatA3Input, "", "%5.3g" );
+    m_MatA3Input.SetButtonNameUpdate( false );
 
     m_OrthoMatThermalExCoeffUnitChoice.AddItem( "1/F", vsp::TEMP_UNIT_F );
     m_OrthoMatThermalExCoeffUnitChoice.AddItem( "1/R", vsp::TEMP_UNIT_R );
@@ -637,7 +641,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_OrthoSubGroup.AddInput( m_MatG12Input, "G", "%5.3g" );
     m_OrthoSubGroup.SetButtonWidth( 0 );
     m_OrthoSubGroup.AddInput( m_MatG13Input, "", "%5.3g" );
+    m_MatG13Input.SetButtonNameUpdate( false );
     m_OrthoSubGroup.AddInput( m_MatG23Input, "", "%5.3g" );
+    m_MatG23Input.SetButtonNameUpdate( false );
 
     m_OrthoSubGroup.SetButtonWidth( little );
     m_OrthoSubGroup.AddButton( m_OrthoMatShearModUnit, "" );
@@ -666,7 +672,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_OrthoSubGroup.AddInput( m_Matnu12Input, nu, "%5.3g", 2.0 * m_OrthoSubGroup.GetW() / 3.0 );
     m_OrthoSubGroup.SetButtonWidth( 0 );
     m_OrthoSubGroup.AddInput( m_Matnu13Input, "", "%5.3g", 2.0 * m_OrthoSubGroup.GetW() / 3.0 );
+    m_Matnu13Input.SetButtonNameUpdate( false );
     m_OrthoSubGroup.AddInput( m_Matnu23Input, "", "%5.3g", 2.0 * m_OrthoSubGroup.GetW() / 3.0 );
+    m_Matnu23Input.SetButtonNameUpdate( false );
 
 
 
