@@ -4708,18 +4708,20 @@ string Vehicle::MassProps( int set, int numSlices, int idir, bool hidegeom, bool
 
 string Vehicle::MassPropsAndFlatten( int set, int numSlices, int idir, bool hidegeom, bool writefile )
 {
-    string id = MassProps( set, numSlices, idir, hidegeom, writefile );
-    Geom* geom = FindGeom( id );
+    DeleteGeom( m_LastMassMeshID );
+    m_LastMassMeshID = MassProps( set, numSlices, idir, hidegeom, writefile );
+    Geom* geom = FindGeom( m_LastMassMeshID );
     if ( !geom )
     {
-        return string( "NONE" );
+        m_LastMassMeshID = "NONE";
+        return m_LastMassMeshID;
     }
     MeshGeom* mesh_ptr = ( MeshGeom* )geom;
     mesh_ptr->FlattenTMeshVec();
     mesh_ptr->FlattenSliceVec();
     mesh_ptr->m_SurfDirty = true;
     mesh_ptr->Update();
-    return id;
+    return m_LastMassMeshID;
 }
 
 string Vehicle::PSlice( int set, int numSlices, vec3d axis, bool autoBoundsFlag, double start, double end, bool measureduct )

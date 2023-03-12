@@ -316,6 +316,7 @@ public:
     IntParm m_NumMassSlices;
     IntParm m_MassSliceDir;
     BoolParm m_DrawCgFlag;
+    string m_LastMassMeshID;
 
     IntParm m_NumPlanerSlices;
     BoolParm m_AutoBoundsFlag;
