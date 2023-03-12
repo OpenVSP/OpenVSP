@@ -1027,14 +1027,15 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
             else
             {
+                m_ViewerBuffer->text( "" );
+
                 vector<string> args;
                 args.push_back( VSPAEROMgr.m_ModelNameBase );
 
-                m_ViewerProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVIEWERCmd(), args );
+                string command = ProcessUtil::PrettyCmd( veh->GetVSPAEROPath(), veh->GetVIEWERCmd(), args );
+                AddOutputText( m_ViewerDisplay, command );
 
-                string command = veh->GetVSPAEROPath() + string("/") + veh->GetVIEWERCmd() + string(" ")
-                        + VSPAEROMgr.m_ModelNameBase + string("\n");
-                m_ViewerBuffer->text( command.c_str() );
+                m_ViewerProcess.ForkCmd( veh->GetVSPAEROPath(), veh->GetVIEWERCmd(), args );
 
                 m_ViewerMonitor.StartThread( monitorfun, ( void* ) &m_ViewerPair );
 
