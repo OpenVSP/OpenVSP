@@ -369,10 +369,14 @@ bool FeaMeshMgrSingleton::CheckPropMat()
 {
     bool pass = true;
 
+    char buf[512];
+
     for ( size_t i = 0; i < m_SimplePropertyVec.size(); i++ )
     {
         if ( m_SimplePropertyVec[ i ].GetSimpFeaMatIndex() == -1 )
         {
+            snprintf( buf, sizeof( buf ), "Could not find material '%s' '%s'\n", m_SimplePropertyVec[ i ].m_FeaMatID.c_str(), m_SimplePropertyVec[ i ].m_MaterialName.c_str() );
+            addOutputText( string( buf ) );
             pass = false;
         }
     }
@@ -383,14 +387,17 @@ bool FeaMeshMgrSingleton::CheckPropMat()
         {
             if ( m_SimpleSubSurfaceVec[ i ].GetFeaPropertyIndex() == -1 )
             {
+                snprintf( buf, sizeof( buf ), "Could not find subsurface shell property '%s'\n", m_SimpleSubSurfaceVec[ i ].GetFeaPropertyID().c_str() );
+                addOutputText( string( buf ) );
                 pass = false;
             }
         }
-
         if ( m_SimpleSubSurfaceVec[ i ].m_CreateBeamElements )
         {
             if ( m_SimpleSubSurfaceVec[ i ].GetCapFeaPropertyIndex() == -1 )
             {
+                snprintf( buf, sizeof( buf ), "Could not find subsurface cap property '%s'\n", m_SimpleSubSurfaceVec[ i ].GetCapFeaPropertyID().c_str() );
+                addOutputText( string( buf ) );
                 pass = false;
             }
         }
@@ -402,6 +409,8 @@ bool FeaMeshMgrSingleton::CheckPropMat()
         {
             if ( GetMeshPtr()->m_FeaPartPropertyIndexVec[ i ] == -1 )
             {
+                snprintf( buf, sizeof( buf ), "Could not find part shell property '%s'\n", GetMeshPtr()->m_FeaPartPropertyIDVec[ i ].c_str() );
+                addOutputText( string( buf ) );
                 pass = false;
             }
         }
@@ -413,6 +422,8 @@ bool FeaMeshMgrSingleton::CheckPropMat()
         {
             if ( GetMeshPtr()->m_FeaPartCapPropertyIndexVec[ i ] == -1 )
             {
+                snprintf( buf, sizeof( buf ), "Could not find part cap property '%s'\n", GetMeshPtr()->m_FeaPartCapPropertyIDVec[ i ].c_str() );
+                addOutputText( string( buf ) );
                 pass = false;
             }
         }
