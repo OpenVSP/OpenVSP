@@ -379,7 +379,7 @@ bool FeaMeshMgrSingleton::CheckPropMat()
 
     for ( size_t i = 0; i < m_SimpleSubSurfaceVec.size(); i++ )
     {
-        if ( m_SimpleSubSurfaceVec[ i ].m_CreateBeamElements )
+        if ( m_SimpleSubSurfaceVec[ i ].m_KeepDelShellElements == vsp::FEA_KEEP )
         {
             if ( m_SimpleSubSurfaceVec[ i ].GetFeaPropertyIndex() == -1 )
             {
@@ -387,7 +387,7 @@ bool FeaMeshMgrSingleton::CheckPropMat()
             }
         }
 
-        if ( m_SimpleSubSurfaceVec[ i ].m_KeepDelShellElements == vsp::FEA_KEEP )
+        if ( m_SimpleSubSurfaceVec[ i ].m_CreateBeamElements )
         {
             if ( m_SimpleSubSurfaceVec[ i ].GetCapFeaPropertyIndex() == -1 )
             {
