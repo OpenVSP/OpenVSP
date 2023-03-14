@@ -250,8 +250,6 @@ class SimpleFeaProperty
 
     string m_ID;
 
-protected:
-
     int m_SimpleFeaMatIndex;
     string m_FeaMatID;
     string m_MaterialName;
