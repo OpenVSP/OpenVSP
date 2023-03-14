@@ -5073,6 +5073,29 @@ void FeaProperty::Update()
             }
         }
 
+        switch ( veh->m_StructUnit() )
+        {
+            case vsp::SI_UNIT:
+                m_LengthUnit.Set( vsp::LEN_M );
+                break;
+
+            case vsp::CGS_UNIT:
+                m_LengthUnit.Set( vsp::LEN_CM );
+                break;
+
+            case vsp::MPA_UNIT:
+                m_LengthUnit.Set( vsp::LEN_MM );
+                break;
+
+            case vsp::BFT_UNIT:
+                m_LengthUnit.Set( vsp::LEN_FT );
+                break;
+
+            case vsp::BIN_UNIT:
+                m_LengthUnit.Set( vsp::LEN_IN );
+                break;
+        }
+
         // Mark index as -1 to deprecate its use.
         m_FeaMaterialIndex = -1;
     }
