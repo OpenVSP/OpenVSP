@@ -729,15 +729,11 @@ Ca_X_Axis::~Ca_X_Axis(){
   if(canvas_){
     Ca_ObjectChain *ochain=canvas_->first_object_;
     Ca_ObjectChain *next;
-    Ca_ObjectChain *previous=0;
     while (ochain){
       next=ochain->next;
       if(ochain->object->x_axis_==this){
         delete ochain->object;
-        if(previous)
-          previous->next=next;
-        else
-          canvas_->first_object_=next;
+        canvas_->first_object_=next;
       }
       ochain=next;
     }
@@ -1051,15 +1047,11 @@ Ca_Y_Axis::~Ca_Y_Axis(){
   if(canvas_){
     Ca_ObjectChain *ochain=canvas_->first_object_;
     Ca_ObjectChain *next;
-    Ca_ObjectChain *previous=0;
     while (ochain){
       next=ochain->next;
       if(ochain->object->y_axis_==this){
         delete ochain->object;
-        if(previous)
-          previous->next=next;
-        else
-          canvas_->first_object_=next;
+        canvas_->first_object_=next;
       }
       ochain=next;
     }
