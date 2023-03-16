@@ -738,7 +738,6 @@ Ca_X_Axis::~Ca_X_Axis(){
           previous->next=next;
         else
           canvas_->first_object_=next;
-        delete ochain;
       }
       ochain=next;
     }
@@ -1061,7 +1060,6 @@ Ca_Y_Axis::~Ca_Y_Axis(){
           previous->next=next;
         else
           canvas_->first_object_=next;
-        delete ochain;
       }
       ochain=next;
     }
