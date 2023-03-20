@@ -1514,7 +1514,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     vector< vec2d > sorted = uw_points;
     sort( sorted.begin(), sorted.end(), vec2dCompare );
 
-    sprintf( str, "%sSortedUnscaledMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
+    snprintf( str, sizeof( str ), "%sSortedUnscaledMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
 
     fprintf( fp, "u = [" );
@@ -1579,7 +1579,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
 #ifdef DEBUG_CFD_MESH
-    sprintf( str, "%sMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
+    snprintf( str, sizeof( str ), "%sMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
     fprintf( fp, "u = [" );
     for ( i = 0 ; i < num_edges ; i++ )
@@ -1804,7 +1804,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
 #ifdef DEBUG_CFD_MESH
-        sprintf( str, "%sUWTriMeshOut%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
+        snprintf( str, sizeof( str ), "%sUWTriMeshOut%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
         fp = fopen( str, "w" );
         fprintf( fp, "clear all\nformat compact\n" );
         fprintf( fp, "t = [" );

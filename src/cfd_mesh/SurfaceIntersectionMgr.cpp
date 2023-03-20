@@ -632,7 +632,7 @@ void SurfaceIntersectionSingleton::addOutputText( string str, int output_type )
         static auto tprev = std::chrono::high_resolution_clock::now();
         auto tnow = std::chrono::high_resolution_clock::now();
         char buf[256];
-        sprintf( buf, " %.3f ms\n", std::chrono::duration_cast< std::chrono::microseconds >( tnow - tprev ).count() / 1000.0 );
+        snprintf( buf, sizeof( buf ), " %.3f ms\n", std::chrono::duration_cast< std::chrono::microseconds >( tnow - tprev ).count() / 1000.0 );
         tprev = tnow;
         str.insert( 0, buf );
 #endif
@@ -2845,7 +2845,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
     if ( true )
     {
         char str2[256];
-        sprintf( str2, "%s.m", name );
+        snprintf( str2, sizeof( str2 ), "%s.m", name );
         FILE* fpmas = fopen( str2, "w" );
 
         fprintf( fpmas, "clear all; format compact; close all;\n" );
@@ -2855,7 +2855,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
         for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         {
             char str[256];
-            sprintf( str, "%s%s%d.m", m_DebugDir.c_str(), name, i );
+            snprintf( str, sizeof( str ), "%s%s%d.m", m_DebugDir.c_str(), name, i );
             FILE* fp = fopen( str, "w" );
 
             fprintf( fpmas, "run( '%s' );\n", str );
@@ -2901,7 +2901,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                         {
                             uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                             pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
-                            fprintf( fp, "%.19e;\n", pt.x();
+                            fprintf( fp, "%.19e;\n", pt.x() );
                         }
                         uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
                         pt = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
@@ -3025,7 +3025,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
         for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         {
             char str[256];
-            sprintf( str, "%s%s%d.dat", m_DebugDir.c_str(), name, i );
+            snprintf( str, sizeof( str ), "%s%s%d.dat", m_DebugDir.c_str(), name, i );
             FILE* fp = fopen( str, "w" );
 
             int cnt = 0;
