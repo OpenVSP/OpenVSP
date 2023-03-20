@@ -995,6 +995,7 @@ void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw,
 //}
 //isegVec = smallMeshSegVec;
 
+    BuildDistMap();
 
     m_Mesh.InitMesh( uwPntVec, isegVec, MeshMgr );
 }

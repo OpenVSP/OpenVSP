@@ -190,7 +190,6 @@ void WakeMgrSingleton::CreateWakesAppendBorderCurves( vector< ICurve* >& border_
     vector< SCurve* > scurve_vec;
     for ( i = 0; i < (int)wake_surfs.size(); i++ )
     {
-        wake_surfs[i]->BuildDistMap();
         wake_surfs[i]->SetGridDensityPtr( grid_density_ptr );
         wake_surfs[i]->FindBorderCurves();
         wake_surfs[i]->LoadSCurves( scurve_vec );

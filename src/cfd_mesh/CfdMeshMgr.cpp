@@ -638,7 +638,6 @@ void CfdMeshMgrSingleton::BuildGrid()
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        m_SurfVec[i]->BuildDistMap();
         m_SurfVec[i]->SetGridDensityPtr( GetGridDensityPtr() );
     }
 }
