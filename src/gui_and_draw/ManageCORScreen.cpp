@@ -47,24 +47,24 @@ bool ManageCORScreen::Update()
         geom_vec[i]->LoadDrawObjs(geom_drawObj_vec);
     }
 
-        for(int j = 0; j < (int)geom_drawObj_vec.size(); j++)
+    for(int j = 0; j < (int)geom_drawObj_vec.size(); j++)
+    {
+        if(geom_drawObj_vec[j]->m_Visible)
         {
-            if(geom_drawObj_vec[j]->m_Visible)
+            // Ignore bounding boxes & pick verts.
+            if( geom_drawObj_vec[j]->m_GeomID.compare(0, string(BBOXHEADER).size(), BBOXHEADER) != 0 &&
+                geom_drawObj_vec[j]->m_Type != DrawObj::VSP_PICK_VERTEX )
             {
-                // Ignore bounding boxes & pick verts.
-                if( geom_drawObj_vec[j]->m_GeomID.compare(0, string(BBOXHEADER).size(), BBOXHEADER) != 0 &&
-                    geom_drawObj_vec[j]->m_Type != DrawObj::VSP_PICK_VERTEX )
-                {
-                    DrawObj pickDO;
-                    pickDO.m_Type = DrawObj::VSP_PICK_VERTEX;
-                    pickDO.m_GeomID = PICKVERTEXHEADER + geom_drawObj_vec[j]->m_GeomID;
-                    pickDO.m_PickSourceID = geom_drawObj_vec[j]->m_GeomID;
-                    pickDO.m_FeedbackGroup = getFeedbackGroupName();
+                DrawObj pickDO;
+                pickDO.m_Type = DrawObj::VSP_PICK_VERTEX;
+                pickDO.m_GeomID = PICKVERTEXHEADER + geom_drawObj_vec[j]->m_GeomID;
+                pickDO.m_PickSourceID = geom_drawObj_vec[j]->m_GeomID;
+                pickDO.m_FeedbackGroup = getFeedbackGroupName();
 
-                    m_PickList.push_back(pickDO);
-                }
+                m_PickList.push_back(pickDO);
             }
         }
+    }
 
     return true;
 }
