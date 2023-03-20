@@ -41,10 +41,11 @@ bool ManageCORScreen::Update()
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     std::vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
 
+    std::vector< DrawObj* > geom_drawObj_vec;
     for(int i = 0; i < (int)geom_vec.size(); i++)
     {
-        std::vector< DrawObj* > geom_drawObj_vec;
         geom_vec[i]->LoadDrawObjs(geom_drawObj_vec);
+    }
 
         for(int j = 0; j < (int)geom_drawObj_vec.size(); j++)
         {
@@ -64,7 +65,7 @@ bool ManageCORScreen::Update()
                 }
             }
         }
-    }
+
     return true;
 }
 
