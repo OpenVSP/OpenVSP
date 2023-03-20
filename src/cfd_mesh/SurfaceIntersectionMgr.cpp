@@ -3455,6 +3455,26 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     WakeMgr.LoadDrawObjs( draw_obj_vec);
 }
 
+bool SurfaceIntersectionSingleton::GetVisBndBox( BndBox &bbox )
+{
+    bool anyvisible = false;
+
+    vector< DrawObj* > draw_obj_vec;
+    LoadDrawObjs( draw_obj_vec );
+
+    for(int j = 0; j < (int)draw_obj_vec.size(); j++)
+    {
+        if(draw_obj_vec[j]->m_Visible)
+        {
+            bbox.Update( draw_obj_vec[j]->m_PntVec );
+            bbox.Update( draw_obj_vec[j]->m_PntMesh );
+            anyvisible = true;
+        }
+    }
+
+    return anyvisible;
+}
+
 void SurfaceIntersectionSingleton::UpdateWakes()
 {
     vector< piecewise_curve_type > wake_leading_edges;

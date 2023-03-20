@@ -524,6 +524,15 @@ void SurfaceIntersectionScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     }
 }
 
+bool SurfaceIntersectionScreen::GetVisBndBox( BndBox &bbox )
+{
+    if ( IsShown() )
+    {
+        return SurfaceIntersectionMgr.GetVisBndBox( bbox );
+    }
+    return false;
+}
+
 void SurfaceIntersectionScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );

@@ -24,6 +24,11 @@
 #include "ManageGeomScreen.h"
 #include "ManageViewScreen.h"
 
+#include "CfdMeshScreen.h"
+#include "SurfaceIntersectionScreen.h"
+#include "StructScreen.h"
+#include "StructAssemblyScreen.h"
+
 using namespace vsp;
 
 using namespace vsp;
@@ -618,7 +623,45 @@ void MainVSPScreen::ActionCB( void * data )
     {
         BndBox bbox;
 
-        if ( VehicleMgr.GetVehicle()->GetVisibleBndBox( bbox ) ) // Check for any visible objects
+        bool vehvisible = VehicleMgr.GetVehicle()->GetVisibleBndBox( bbox );
+
+        bool cfdvisible = false;
+        // Load visible boundign box from CfdMeshScreen.
+        CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CFD_MESH_SCREEN ) );
+        if( cfdScreen )
+        {
+            cfdvisible = cfdScreen->GetVisBndBox( bbox );
+        }
+
+        bool surfvisible = false;
+        // Load visible boundign box from SurfaceIntersectionScreen.
+        SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_SURFACE_INTERSECTION_SCREEN ) );
+        if( surfScreen )
+        {
+            surfvisible = surfScreen->GetVisBndBox( bbox );
+        }
+
+        bool structvisible = false;
+        // Load visible boundign box from FeaStructScreen.
+        StructScreen * structScreen = dynamic_cast< StructScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_SCREEN ) );
+        if( structScreen )
+        {
+            structvisible = structScreen->GetVisBndBox( bbox );
+        }
+
+        bool assemblyvisible = false;
+        // Load visible boundign box from FeaStructAssemblyScreen.
+        StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN ) );
+        if( structAssemblyScreen )
+        {
+            assemblyvisible = structAssemblyScreen->GetVisBndBox( bbox );
+        }
+
+        if ( vehvisible || cfdvisible || surfvisible || structvisible || assemblyvisible ) // Check for any visible objects
         {
             vec3d p = bbox.GetCenter();
             double d = bbox.DiagDist();

@@ -966,6 +966,15 @@ void CfdMeshScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     }
 }
 
+bool CfdMeshScreen::GetVisBndBox( BndBox &bbox )
+{
+    if ( IsShown() )
+    {
+        return CfdMeshMgr.GetVisBndBox( bbox );
+    }
+    return false;
+}
+
 void CfdMeshScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );

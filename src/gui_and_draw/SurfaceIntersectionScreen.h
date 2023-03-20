@@ -41,6 +41,7 @@ public:
 
     void AddOutputText( const string &text );
     void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
+    virtual bool GetVisBndBox( BndBox &bbox );
 
     ProcessUtil* getIntersectProcess()
     {

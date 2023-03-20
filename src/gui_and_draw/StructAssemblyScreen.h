@@ -53,6 +53,7 @@ public:
     virtual void UpdateDrawPartBrowser();
 
     virtual void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
+    virtual bool GetVisBndBox( BndBox &bbox );
 
     ProcessUtil* getFeaMeshProcess()
     {
