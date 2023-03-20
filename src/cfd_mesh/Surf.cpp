@@ -18,6 +18,10 @@
 #include "VspUtil.h"
 #include <cfloat>  //For DBL_EPSILON
 
+#ifdef DEBUG_CFD_MESH
+#include "WriteMatlab.h"
+#endif
+
 Surf::Surf()
 {
     m_GridDensityPtr = 0;
@@ -1136,27 +1140,63 @@ void Surf::BuildDistMap()
     m_UWMap.AddPntNodes( m_STMap );
     m_UWMap.BuildIndex();
 
+#ifdef DEBUG_CFD_MESH
+    static int cnt = 0;
 
-//char str[256];
-//static int cnt = 0;
-//sprintf( str, "uwscale_%d.dat", cnt );
-//cnt++;
-//  FILE* fp = fopen(str, "w");
-//  fprintf( fp, "ws 1 2\n" );
-//  fprintf( fp, "color green\n" );
-//  for ( i = 0 ; i < (int)m_WScaleMap.size() ; i++ )
-//  {
-//      double u = (double)i/(double)(m_WScaleMap.size()-1);
-//      fprintf( fp, "%f %f \n", u, m_WScaleMap[i]  );
-//  }
-//  fprintf( fp, "color blue\n" );
-//  for ( i = 0 ; i < 1001 ; i++ )
-//  {
-//      double u = (double)i/(double)(1000);
-//      fprintf( fp, "%f %f \n", u, GetWScale(u)  );
-//  }
-//  fclose( fp );
+    if ( true )
+    {
+        char str[256];
+        snprintf( str, sizeof( str ), "uwscale_%d.m", cnt );
 
+        FILE *fp = fopen( str, "w" );
+
+        fprintf( fp, "u01=[" );
+        for ( i = 0; i < ( int ) nump; i++ )
+        {
+            double u = ( double ) i / ( double ) ( nump - 1 );
+            fprintf( fp, "%f ", u );
+        }
+        fprintf( fp, "];\n" );
+
+        fprintf( fp, "u=[" );
+        for ( i = 0; i < ( int ) nump; i++ )
+        {
+            double u = VspMinU + VspdU * ( double ) i / ( double ) ( nump - 1 );
+            fprintf( fp, "%f ", u );
+        }
+        fprintf( fp, "];\n" );
+
+        fprintf( fp, "w01=[" );
+        for ( j = 0; j < ( int ) nump; j++ )
+        {
+            double w = ( double ) j / ( double ) ( nump - 1 );
+            fprintf( fp, "%f ", w );
+        }
+        fprintf( fp, "];\n" );
+
+        fprintf( fp, "w=[" );
+        for ( j = 0; j < ( int ) nump; j++ )
+        {
+            double w = VspMinW + VspdW * ( double ) j / ( double ) ( nump - 1 );
+            fprintf( fp, "%f ", w );
+        }
+        fprintf( fp, "];\n" );
+
+        WriteMatDoubleM writeMatDouble;
+
+        writeMatDouble.write( fp, s, string( "s" ), nump, nump );
+
+        writeMatDouble.write( fp, t, string( "t" ), nump, nump );
+
+        fprintf( fp, "figure(1)\n" );
+        fprintf( fp, "plot( s, t, s', t' );\n" );
+        fprintf( fp, "ax=axis; ax(1)=0; ax(3)=0; axis(ax);\n" );
+
+        fclose( fp );
+    }
+
+    cnt++;
+#endif
 }
 
 void Surf::UtoIndexFrac( const double &u, int &indx, double &frac )
