@@ -123,11 +123,6 @@ public:
     virtual void RemoveSubSurfFeaTris();
     virtual void TagFeaNodes();
 
-    virtual int GetTotalNumSurfs()
-    {
-        return m_SurfVec.size();
-    }
-
     virtual void SetFeaMeshStructID( string struct_id )
     {
         if ( m_FeaStructID == struct_id )  // Already set, do nothing.

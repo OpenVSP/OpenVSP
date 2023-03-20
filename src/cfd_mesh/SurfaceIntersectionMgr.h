@@ -352,6 +352,11 @@ public:
         m_MeshInProgress = progress_flag;
     }
 
+    virtual int GetTotalNumSurfs()
+    {
+        return m_SurfVec.size();
+    }
+
 protected:
 
     // Iterate over m_SurfVec and initialize a NURBS surface for each.
