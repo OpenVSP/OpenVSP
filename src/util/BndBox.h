@@ -43,6 +43,9 @@ public:
     }
 
     void Update( const vec3d& pnt );
+    void Update( const std::vector < vec3d > &pntvec );
+    void Update( const std::vector < std::vector < vec3d> > &pntvecvec );
+    void Update( const std::vector < std::vector < std::vector < vec3d> > > &pntvecvecvec );
     void Update( const BndBox& bb );
     double DiagDist() const;
     double GetLargestDist() const;

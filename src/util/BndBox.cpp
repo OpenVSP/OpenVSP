@@ -105,6 +105,30 @@ void BndBox::Update( const vec3d& pnt )
     }
 }
 
+void BndBox::Update( const std::vector < vec3d > &pntvec )
+{
+    for ( int i = 0; i < pntvec.size(); i++ )
+    {
+        Update( pntvec[ i ] );
+    }
+}
+
+void BndBox::Update( const std::vector < std::vector < vec3d > > &pntvecvec )
+{
+    for ( int i = 0; i < pntvecvec.size(); i++ )
+    {
+        Update( pntvecvec[ i ] );
+    }
+}
+
+void BndBox::Update( const std::vector < std::vector < std::vector < vec3d > > > &pntvecvecvec )
+{
+    for ( int i = 0; i < pntvecvecvec.size(); i++ )
+    {
+        Update( pntvecvecvec[ i ] );
+    }
+}
+
 //==== Update Bounding Box - Bbox ====//
 void BndBox::Update( const BndBox& bb )
 {
