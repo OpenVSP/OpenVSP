@@ -178,6 +178,7 @@ public:
 
 
     void BuildDistMap();
+    void CleanupDistMap();
     double GetUScale( double w );
     double GetWScale( double u );
 

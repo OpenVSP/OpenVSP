@@ -998,6 +998,8 @@ void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw,
     BuildDistMap();
 
     m_Mesh.InitMesh( uwPntVec, isegVec, MeshMgr );
+
+    CleanupDistMap();
 }
 
 
@@ -1155,6 +1157,12 @@ void Surf::BuildDistMap()
 //  }
 //  fclose( fp );
 
+}
+
+void Surf::CleanupDistMap()
+{
+    m_UScaleMap.clear();
+    m_WScaleMap.clear();
 }
 
 double Surf::GetUScale( double w01 )      // w 0->1
