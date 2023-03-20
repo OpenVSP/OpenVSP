@@ -1535,13 +1535,30 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
 #ifdef DEBUG_CFD_MESH
     static int namecnt = 0;
-    FILE* fp;
+    FILE* fp = NULL;
+    static FILE* fpmas = NULL;
+
+    if ( namecnt == 0 )
+    {
+        char str2[256];
+        snprintf( str2, sizeof( str2 ), "%sSortedUnscaledMesh_UW.m", MeshMgr->m_DebugDir.c_str() );
+        fpmas = fopen( str2, "w" );
+
+        fprintf( fpmas, "clear all; format compact; close all;\n" );
+        fprintf( fpmas, "figure(1); hold on\n" );
+    }
 
     vector< vec2d > sorted = uw_points;
     sort( sorted.begin(), sorted.end(), vec2dCompare );
 
     snprintf( str, sizeof( str ), "%sSortedUnscaledMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
+
+    if (fpmas )
+    {
+        snprintf( str, sizeof( str ), "SortedUnscaledMesh_UW%d.m", namecnt );
+        fprintf( fpmas, "run( '%s' );\n", str );
+    }
 
     fprintf( fp, "u = [" );
     for ( i = 0 ; i < sorted.size() ; i++ )
@@ -1576,6 +1593,17 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     fprintf( fp, "axis equal;\n" );
 
     fclose( fp );
+
+    if ( namecnt == MeshMgr->GetTotalNumSurfs() - 1 )
+    {
+        fprintf( fpmas, "figure(1)\n");
+        fprintf( fpmas, "axis off\n" );
+        fprintf( fpmas, "axis equal\n" );
+        fprintf( fpmas, "hold off\n" );
+
+        fclose( fpmas );
+        fpmas = NULL;
+    }
 #endif
 
     vec2d VspMinUW = vec2d( m_Surf->GetSurfCore()->GetMinU(), m_Surf->GetSurfCore()->GetMinW() );
@@ -1597,8 +1625,29 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
 #ifdef DEBUG_CFD_MESH
+
+    static FILE* fpmas2 = NULL;
+
+    if ( namecnt == 0 )
+    {
+        char str2[256];
+        snprintf( str2, sizeof( str2 ), "%sMesh_UW.m", MeshMgr->m_DebugDir.c_str() );
+        fpmas2 = fopen( str2, "w" );
+
+        fprintf( fpmas2, "clear all; format compact; close all;\n" );
+        fprintf( fpmas2, "figure(1); hold on\n" );
+    }
+
+
     snprintf( str, sizeof( str ), "%sMesh_UW%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
     fp = fopen( str, "w" );
+
+    if (fpmas )
+    {
+        snprintf( str, sizeof( str ), "Mesh_UW%d.m", namecnt );
+        fprintf( fpmas, "run( '%s' );\n", str );
+    }
+
     fprintf( fp, "u = [" );
     for ( i = 0 ; i < num_edges ; i++ )
     {
@@ -1636,6 +1685,17 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     fprintf( fp, "axis equal;\n" );
 
     fclose( fp );
+
+    if ( namecnt == MeshMgr->GetTotalNumSurfs() - 1 )
+    {
+        fprintf( fpmas2, "figure(1)\n");
+        fprintf( fpmas2, "axis off\n" );
+        fprintf( fpmas2, "axis equal\n" );
+        fprintf( fpmas2, "hold off\n" );
+
+        fclose( fpmas2 );
+        fpmas2 = NULL;
+    }
 #endif
 
 
@@ -1823,8 +1883,29 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
 #ifdef DEBUG_CFD_MESH
+        static FILE* fpmas3 = NULL;
+
+        if ( namecnt == 0 )
+        {
+            char str2[256];
+            snprintf( str2, sizeof( str2 ), "%sUWTriMeshOut.m", MeshMgr->m_DebugDir.c_str() );
+            fpmas3 = fopen( str2, "w" );
+
+            fprintf( fpmas3, "clear all; format compact; close all;\n" );
+            fprintf( fpmas3, "figure(2); hold on\n" );
+            fprintf( fpmas3, "figure(3); hold on\n" );
+            fprintf( fpmas3, "figure(4); hold on\n" );
+        }
+
         snprintf( str, sizeof( str ), "%sUWTriMeshOut%d.m", MeshMgr->m_DebugDir.c_str(), namecnt );
         fp = fopen( str, "w" );
+
+        if (fpmas3 )
+        {
+            snprintf( str, sizeof( str ), "UWTriMeshOut%d.m", namecnt );
+            fprintf( fpmas3, "run( '%s' );\n", str );
+        }
+
         fprintf( fp, "clear all\nformat compact\n" );
         fprintf( fp, "t = [" );
         for ( i = 0 ; i < out.numberoftriangles ; i++ )
@@ -1972,6 +2053,28 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         fprintf( fp, "axis equal\n" );
 
         fclose( fp );
+
+        if ( namecnt == MeshMgr->GetTotalNumSurfs() - 1 )
+        {
+            fprintf( fpmas3, "figure(2)\n");
+            fprintf( fpmas3, "axis off\n" );
+            fprintf( fpmas3, "axis equal\n" );
+            fprintf( fpmas3, "hold off\n" );
+
+            fprintf( fpmas3, "figure(3)\n");
+            fprintf( fpmas3, "axis off\n" );
+            fprintf( fpmas3, "axis equal\n" );
+            fprintf( fpmas3, "hold off\n" );
+
+            fprintf( fpmas3, "figure(4)\n");
+            fprintf( fpmas3, "axis off\n" );
+            fprintf( fpmas3, "axis equal\n" );
+            fprintf( fpmas3, "hold off\n" );
+
+            fclose( fpmas3 );
+            fpmas3 = NULL;
+        }
+
         namecnt++;
 #endif
 

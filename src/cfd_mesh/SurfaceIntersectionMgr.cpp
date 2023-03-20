@@ -2844,7 +2844,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
     if ( true )
     {
         char str2[256];
-        snprintf( str2, sizeof( str2 ), "%s.m", name );
+        snprintf( str2, sizeof( str2 ), "%s%s.m", m_DebugDir.c_str(), name );
         FILE* fpmas = fopen( str2, "w" );
 
         fprintf( fpmas, "clear all; format compact; close all;\n" );
@@ -2857,6 +2857,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
             snprintf( str, sizeof( str ), "%s%s%d.m", m_DebugDir.c_str(), name, i );
             FILE* fp = fopen( str, "w" );
 
+            snprintf( str, sizeof( str ), "%s%d.m", name, i );
             fprintf( fpmas, "run( '%s' );\n", str );
 
             int cnt = 0;
