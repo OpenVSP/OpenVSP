@@ -39,6 +39,7 @@ Surf.cpp
 SurfaceIntersectionMgr.cpp
 SurfCore.cpp
 SurfPatch.cpp
+TwoDNN.cpp
 BezierCurve.h
 CfdMeshMgr.h
 Face.h
@@ -60,6 +61,7 @@ Surf.h
 SurfaceIntersectionMgr.h
 SurfCore.h
 SurfPatch.h
+TwoDNN.h
 )
 
 ADD_DEPENDENCIES( cfd_mesh
