@@ -40,9 +40,10 @@ int TestCase_8(char *FileName); // Dead stupid UNSTEADY optimization of a wing..
 
 int TestCase_9(char *FileName); // Unsteady rotor CT and gradients with respect to feather
 
-int TestCase_10(char *FileName);
+int TestCase_10(char *FileName); // Panel fuse test case
 
-int TestCase_11(char *FileName);
+int TestCase_11(char *FileName); // Test cases show API examples
+
 
 double *ReadOpenVSPDesFile(char *FileName, int &NumberOfDesignVariables);
 void CreateVSPGeometry(char *FileName, int NumberOfDesignVariables, double *ParameterValues);
@@ -211,7 +212,7 @@ int TestCase_1(char *FileName)
     
     Optimizer.NumberOfOptimizationFunctions() = 1;
     
-    Optimizer.OptimizationFunction(1) = OPT_CL_INVISCID;
+    Optimizer.OptimizationFunction(1) = OPT_CMY_TOTAL;
 
     Optimizer.SetArrayOffSetType(DEFAULT_ARRAYS);
 
@@ -564,11 +565,11 @@ int TestCase_4(char *FileName)
         
     Case = 1; // We have only 1 optimization function, which is a scalar... 
  
-    Vec = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
+    Vec = new double[Optimizer.OptimizationVectorLength(Case) + 1]; // Length is vectorlength  = function length X number of time averaging steps
     
-    Function = new double[Optimizer.OptimizationFunctionLength(Case) + 1];    
+    Function = new double[Optimizer.OptimizationFunctionLength(Case) + 1]; 
     
-    for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(Case) ; i++ ) {
+    for ( i = 1 ; i <= Optimizer.OptimizationVectorLength(Case) ; i++ ) {
        
        Vec[i] = 1.;
        
@@ -757,7 +758,8 @@ int TestCase_5(char *FileName)
     printf("\n");
     printf("Doing matrix-vector multiply... and grabbing rhs \n");fflush(NULL);
   
-    Optimizer.CalculateMatrixVectorProductAndRightHandSide(VecIn, VecOut, RHS);
+    Optimizer.CalculateForwardMatrixVectorProduct(VecIn, VecOut);
+    Optimizer.CalculateForwardRightHandSide(RHS);
     
     // Do adjoint matrix-vector multiply
  
@@ -775,7 +777,8 @@ int TestCase_5(char *FileName)
       
     printf("Doing adjoint matrix-vector multiply... and grabbing rhs \n");fflush(NULL);
       
-    Optimizer.CalculateAdjointMatrixVectorProductAndRightHandSide(AdjointVecIn, AdjointVecOut, AdjointRHS);
+    Optimizer.CalculateAdjointMatrixVectorProduct(AdjointVecIn, AdjointVecOut);
+    Optimizer.CalculateAdjointRightHandSide(AdjointRHS);
         
     return 1;
     
@@ -842,11 +845,11 @@ int TestCase_6(char *FileName)
  
     printf("Function %d Length: %d \n",Case,Optimizer.OptimizationFunctionLength(Case));
 
-    Vec1 = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
+    Vec1 = new double[Optimizer.OptimizationVectorLength(Case) + 1]; // Note for unsteady cases the input vector needs to be length = OptimizationVectorLength
     
     Function1 = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
     
-    for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(Case) ; i++ ) {
+    for ( i = 1 ; i <= Optimizer.OptimizationVectorLength(Case) ; i++ ) {
        
        Vec1[i] = 1.;
        
@@ -859,11 +862,11 @@ int TestCase_6(char *FileName)
  
     printf("Function %d Length: %d \n",Case,Optimizer.OptimizationFunctionLength(Case));
  
-    Vec2 = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
+    Vec2 = new double[Optimizer.OptimizationVectorLength(Case) + 1]; // Note for unsteady cases the input vector needs to be length = OptimizationVectorLength
     
     Function2 = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
     
-    for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(Case) ; i++ ) {
+    for ( i = 1 ; i <= Optimizer.OptimizationVectorLength(Case) ; i++ ) {
        
        Vec2[i] = 1.;
        
@@ -876,11 +879,11 @@ int TestCase_6(char *FileName)
 
     printf("Function %d Length: %d \n",Case,Optimizer.OptimizationFunctionLength(Case));
  
-    Vec3 = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
+    Vec3 = new double[Optimizer.OptimizationVectorLength(Case) + 1]; // Note for unsteady cases the input vector needs to be length = OptimizationVectorLength
 
     Function3 = new double[Optimizer.OptimizationFunctionLength(Case) + 1];
     
-    for ( i = 1 ; i <= Optimizer.OptimizationFunctionLength(Case) ; i++ ) {
+    for ( i = 1 ; i <= Optimizer.OptimizationVectorLength(Case) ; i++ ) {
        
        Vec3[i] = 1.;
        
@@ -1711,9 +1714,10 @@ int TestCase_8(char *FileName)
 
 int TestCase_9(char *FileName)
 {
-    int i, j, p, NumberOfParameterValues, NumberOfNodes;
+    int i, j, p, Time, NumberOfParameterValues, NumberOfNodes;
     double Function, CTGradient, CPGradient, EffGradient, Gradient, CP, CT, Eff, *NodeXYZ, *dFdMesh[3];
     double *ParameterValues, **dMesh_dParameter;
+    double *FunctionArray;
     char HistoryFileName[2000], CommandLine[2000];
     FILE *HistoryFile;
     
@@ -1723,7 +1727,7 @@ int TestCase_9(char *FileName)
     
     ParameterValues = ReadOpenVSPDesFile(FileName,NumberOfParameterValues);
 
-    ParameterValues[1] = 2.;
+    ParameterValues[1] = 2.0;
 
     // Calculate the mesh derivatives wrt the design parameters
     
@@ -1789,6 +1793,10 @@ int TestCase_9(char *FileName)
     
     }
 
+    FunctionArray = new double[1 + 1];    
+
+    Time = 1;
+
     // Do a sweep over rotor feather angle
     
     for ( p = 1 ; p <= 10 ; p++ ) {
@@ -1802,7 +1810,11 @@ int TestCase_9(char *FileName)
        Optimizer.GetFunctionValue(2,CP);
        
        Optimizer.GetFunctionValue(3,Eff);
-              
+    
+       // Optimizer.GetUnsteadyFunctionValue(1, Time, FunctionArray); CT = FunctionArray[1];
+       // Optimizer.GetUnsteadyFunctionValue(2, Time, FunctionArray); CP = FunctionArray[1];
+       // Optimizer.GetUnsteadyFunctionValue(3, Time, FunctionArray); Eff = FunctionArray[1];
+             
        // CT Gradient
        
        for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
@@ -1810,7 +1822,10 @@ int TestCase_9(char *FileName)
           dFdMesh[0][i] = Optimizer.GradientX(1,i);
           dFdMesh[1][i] = Optimizer.GradientY(1,i);
           dFdMesh[2][i] = Optimizer.GradientZ(1,i);
-               
+
+          // dFdMesh[0][i] = Optimizer.GradientX(1,Time,i);
+          // dFdMesh[1][i] = Optimizer.GradientY(1,Time,i);
+          // dFdMesh[2][i] = Optimizer.GradientZ(1,Time,i);               
        }
               
        // Chain rule... calculate derivatives wrt parameters
@@ -1832,7 +1847,11 @@ int TestCase_9(char *FileName)
           dFdMesh[0][i] = Optimizer.GradientX(2,i);
           dFdMesh[1][i] = Optimizer.GradientY(2,i);
           dFdMesh[2][i] = Optimizer.GradientZ(2,i);
-               
+
+          // dFdMesh[0][i] = Optimizer.GradientX(2,Time,i);
+          // dFdMesh[1][i] = Optimizer.GradientY(2,Time,i);
+          // dFdMesh[2][i] = Optimizer.GradientZ(2,Time,i);     
+                         
        }
               
        // Chain rule... calculate derivatives wrt parameters
@@ -1854,7 +1873,11 @@ int TestCase_9(char *FileName)
           dFdMesh[0][i] = Optimizer.GradientX(3,i);
           dFdMesh[1][i] = Optimizer.GradientY(3,i);
           dFdMesh[2][i] = Optimizer.GradientZ(3,i);
-               
+            
+          // dFdMesh[0][i] = Optimizer.GradientX(3,Time,i);
+          // dFdMesh[1][i] = Optimizer.GradientY(3,Time,i);
+          // dFdMesh[2][i] = Optimizer.GradientZ(3,Time,i);    
+                         
        }
               
        // Chain rule... calculate derivatives wrt parameters
@@ -2587,7 +2610,8 @@ int TestCase_11(char *FileName)
           
        }
        
-       Optimizer.CalculateMatrixVectorProductAndRightHandSide(ForwardVecIn, ForwardVecOut, ForwardRHS);
+       Optimizer.CalculateForwardMatrixVectorProduct(ForwardVecIn, ForwardVecOut);
+       Optimizer.CalculateForwardRightHandSide(ForwardRHS);
        
        for ( i = 1 ; i <= Optimizer.NumberOfLoops() ; i++ ) {
        
@@ -2613,7 +2637,8 @@ int TestCase_11(char *FileName)
        }    
        
        
-       Optimizer.CalculateAdjointMatrixVectorProductAndRightHandSide(AdjointVecIn, AdjointVecOut, AdjointRHS);
+       Optimizer.CalculateAdjointMatrixVectorProduct(AdjointVecIn, AdjointVecOut);
+       Optimizer.CalculateAdjointRightHandSide(AdjointRHS);
        
        for ( i = 1 ; i <= Optimizer.NumberOfAdjointEquations() ; i++ ) {
        
@@ -2645,7 +2670,8 @@ int TestCase_11(char *FileName)
        
        // Now do the matrix vector product, and get the rhs vector
        
-       Optimizer.CalculateMatrixVectorProductAndRightHandSide(ForwardVecIn, ForwardVecOut, ForwardRHS);
+       Optimizer.CalculateForwardMatrixVectorProduct(ForwardVecIn, ForwardVecOut);
+       Optimizer.CalculateForwardRightHandSide(ForwardRHS);
        
        // Compare the matrix vector product (vecout) with the rhs vector... the should be the same
        
@@ -2676,7 +2702,13 @@ int TestCase_11(char *FileName)
        
        // Calculate matrix vector product, and get RHS... we expect the matrix vector product to be equal to the rhs vector
        
-       Optimizer.CalculateAdjointMatrixVectorProductAndRightHandSide(AdjointVecIn, AdjointVecOut, AdjointRHS);
+       Optimizer.CalculateAdjointMatrixVectorProduct(AdjointVecIn, AdjointVecOut);
+
+       // Calculate partials wrt mesh and input variables
+
+       Case = 1;
+
+       Optimizer.CalculateOptimizationFunctionPartials(Case, pF_pMesh, pF_pInputVariable, AdjointRHS);
        
        for ( i = 1 ; i <= Optimizer.NumberOfAdjointEquations() ; i++ ) {
        
@@ -2698,13 +2730,7 @@ int TestCase_11(char *FileName)
                  AdjointVecOut[i],
                  AdjointPsi[i]);
                  
-       }        
-    
-    // Calculate partials wrt mesh and input variables
-    
-    Case = 1;
-
-       Optimizer.CalculateOptimizationFunctionPartials(Case, pF_pMesh, pF_pInputVariable);  
+       }
           
        for ( i = 1 ; i <= Optimizer.NumberOfNodes() ; i++ ) {
        

@@ -257,9 +257,9 @@ private:
     
     int NumberOfTrailingVortexEdges_;
     int NumberOfSubVortexNodes_;
-    float **XWake_;
-    float **YWake_;
-    float **ZWake_;
+    double **XWake_;
+    double **YWake_;
+    double **ZWake_;
     
     // Propulsion element data
     

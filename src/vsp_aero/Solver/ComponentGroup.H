@@ -683,8 +683,6 @@ public:
 
     VSPAERO_DOUBLE  Power_avg(void) { return ( Poweri_avg() + Powero_avg() ); };
     
-    /** @} **/
-        
 };
 
 #include "END_NAME_SPACE.H"

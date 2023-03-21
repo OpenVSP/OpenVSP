@@ -359,7 +359,7 @@ void GL_VIEWER::LoadInitialData(char *name)
     if (pathsep)
     {
         sprintf( file_name_no_path, "%s", pathsep + 1 );
-        sprintf( path, "%.*s", pathsep - file_name, file_name );
+        sprintf( path, "%.*s", (int) ( pathsep - file_name ), file_name );
     }
     else
     {
@@ -1641,8 +1641,8 @@ void GL_VIEWER::LoadCalculixINPFile(void)
    
              DumChar[strcspn(DumChar, "\n")] = 0;
                  
-             sprintf(SaveChar,"%s\0",DumChar);
-             
+             sprintf(SaveChar,"%s",DumChar);
+
              Done = 0;
              
              while ( !Done ) {

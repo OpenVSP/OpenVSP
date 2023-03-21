@@ -27,6 +27,10 @@ private:
     
     int *ComponentID_;
     
+    // Leading edge loop
+    
+    int *SpanLeadingEdgeVortexLoop_;
+    
     // Viscous forces
       
     VSPAERO_DOUBLE *Span_Cxo_;
@@ -84,6 +88,10 @@ private:
     VSPAERO_DOUBLE *Span_YTE_;
     VSPAERO_DOUBLE *Span_ZTE_;
     
+    VSPAERO_DOUBLE *Span_XQC_;
+    VSPAERO_DOUBLE *Span_YQC_;
+    VSPAERO_DOUBLE *Span_ZQC_;
+        
     VSPAERO_DOUBLE *Span_XLE_Def_;
     VSPAERO_DOUBLE *Span_YLE_Def_;
     VSPAERO_DOUBLE *Span_ZLE_Def_;
@@ -101,6 +109,8 @@ private:
     VSPAERO_DOUBLE **Span_Nvec_;
     
     VSPAERO_DOUBLE *Span_Area_;
+    
+    VSPAERO_DOUBLE *Span_WettedArea_;
     
     VSPAERO_DOUBLE *Span_Chord_;
     
@@ -170,7 +180,11 @@ public:
     /** Component ID **/
     
     int &ComponentID(int i) { return ComponentID_[i]; };
-        
+
+    // Leading edge loop
+    
+    int &SpanLeadingEdgeVortexLoop(int i) { return SpanLeadingEdgeVortexLoop_[i]; };
+            
     /** Viscous force coefficient in X **/
       
     VSPAERO_DOUBLE &Span_Cxo(int i) { return Span_Cxo_[i]; };
@@ -287,6 +301,18 @@ public:
 
     VSPAERO_DOUBLE &Span_ZTE( int i) { return Span_ZTE_[i]; };
 
+    /** X coordinate of quarter chord **/
+
+    VSPAERO_DOUBLE &Span_XQC( int i) { return Span_XQC_[i]; };
+    
+    /** Y coordinate of quarter chord **/
+    
+    VSPAERO_DOUBLE &Span_YQC( int i) { return Span_YQC_[i]; };
+
+    /** Z coordinate of quarter chord **/
+
+    VSPAERO_DOUBLE &Span_ZQC( int i) { return Span_ZQC_[i]; };
+        
     /** Deflected X coordinate of trailing edge **/
 
     VSPAERO_DOUBLE &Span_XLE_Def( int i) { return Span_XLE_Def_[i]; };
@@ -326,6 +352,10 @@ public:
     /** Area for this spanwise slice **/
     
     VSPAERO_DOUBLE &Span_Area(int i) { return Span_Area_[i]; };
+
+    /** Wetted area for this spanwise slice **/
+    
+    VSPAERO_DOUBLE &Span_WettedArea(int i) { return Span_WettedArea_[i]; };    
     
     /** Chord for this spanwise slice **/
     

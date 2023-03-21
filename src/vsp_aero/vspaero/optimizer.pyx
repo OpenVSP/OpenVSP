@@ -105,6 +105,10 @@ cdef class pyVSPOptimizer:
         return self.vsp_optimizer.NumberOfLoops()
 
     @_adept_stack_safe
+    def get_number_of_adjoint_equations(self):
+        return self.vsp_optimizer.NumberOfAdjointEquations()
+
+    @_adept_stack_safe
     def get_number_of_optimization_functions(self):
         return self.vsp_optimizer.GetNumberOfOptimizationFunctions()
 
@@ -178,21 +182,60 @@ cdef class pyVSPOptimizer:
         self.vsp_optimizer.SolveAdjoint()
 
     @_adept_stack_safe
-    def calculate_mat_vec_prod_rhs(self, np.ndarray[double, ndim=1] vec_in, np.ndarray[double, ndim=1] vec_out, np.ndarray[double, ndim=1] rhs):
+    def calculate_forward_matrix_vector_product(self, np.ndarray[double, ndim=1] vec_in, np.ndarray[double, ndim=1] vec_out):
         # TODO: check that all of these vectors have len == self.nloops.
         # TODO: how do we tell what case/optimization function we're working with?
-        self.vsp_optimizer.CalculateMatrixVectorProductAndRightHandSide(<double *> vec_in.data, <double *> vec_out.data, <double *> rhs.data)
+        self.vsp_optimizer.CalculateForwardMatrixVectorProduct(<double *> vec_in.data, <double *> vec_out.data)
+    @_adept_stack_safe
+    def calculate_forward_right_hand_side(self, np.ndarray[double, ndim=1] rhs):
+        # TODO: check that all of these vectors have len == self.nloops.
+        # TODO: how do we tell what case/optimization function we're working with?
+        self.vsp_optimizer.CalculateForwardRightHandSide(<double *> rhs.data)
 
     @_adept_stack_safe
-    def calculate_adjoint_mat_vec_prod_rhs(self, np.ndarray[double, ndim=1] vec_in, np.ndarray[double, ndim=1] vec_out, np.ndarray[double, ndim=1] rhs):
+    def calculate_forward_residual(self, np.ndarray[double, ndim=1] gamma, np.ndarray[double, ndim=1] res):
         # TODO: check that all of these vectors have len == self.nloops.
-        # TODO: how do we tell what case/optimization function we're working with?
-        self.vsp_optimizer.CalculateAdjointMatrixVectorProductAndRightHandSide(<double *> vec_in.data, <double *> vec_out.data, <double *> rhs.data)
+        self.vsp_optimizer.CalculateForwardResidual(<double *> gamma.data, <double *> res.data)
+
+    @_adept_stack_safe
+    def calculate_adjoint_matrix_vector_product(self, np.ndarray[double, ndim=1] vec_in, np.ndarray[double, ndim=1] vec_out):
+        # TODO: check that all of these vectors have len == self.nloops.
+        self.vsp_optimizer.CalculateAdjointMatrixVectorProduct(<double *> vec_in.data, <double *> vec_out.data)
+
+    @_adept_stack_safe
+    def calculate_adjoint_right_hand_side(self, int c, np.ndarray[double, ndim=1] rhs):
+        # TODO: check that all of these vectors have len == self.nloops.
+        self.vsp_optimizer.CalculateAdjointRightHandSide(c+1, <double *> rhs.data)
+
+    @_adept_stack_safe
+    def calculate_optimization_function_input_partials(self, int c, np.ndarray[double, ndim=1] pf_pmesh, np.ndarray[double, ndim=1] pf_pinput_variable, np.ndarray[double, ndim=1] pf_pgamma):
+        self.vsp_optimizer.CalculateOptimizationFunctionPartials(c+1, <double *> pf_pmesh.data, <double *> pf_pinput_variable.data, <double *> pf_pgamma.data)
+        # Convert angle sensitivities to deg
+        pf_pinput_variable[functions.WRT_ALPHA - 1] *= np.pi/180.0
+        pf_pinput_variable[functions.WRT_BETA - 1] *= np.pi/180.0
+
+    @_adept_stack_safe
+    def calculate_adjoint_residual_partial_products(self, np.ndarray[double, ndim=1] psi,
+                                                    np.ndarray[double, ndim=1] pr_pmesh,
+                                                    np.ndarray[double, ndim=1] pr_pinput_variable):
+        self.vsp_optimizer.CalculateAdjointResidualPartialProducts(<double *> psi.data, <double *> pr_pmesh.data,
+                                                                   <double *> pr_pinput_variable.data)
+        # Convert angle sensitivities to deg
+        pr_pinput_variable[functions.WRT_ALPHA - 1] *= np.pi/180.0
+        pr_pinput_variable[functions.WRT_BETA - 1] *= np.pi/180.0
+
+    @_adept_stack_safe
+    def solve_adjoint_linear_system(self, np.ndarray[double, ndim=1] psi, np.ndarray[double, ndim=1] adj_rhs):
+        self.vsp_optimizer.SolveAdjointLinearSystem(<double *> psi.data, <double *> adj_rhs.data)
 
     @_adept_stack_safe
     def get_function_value(self, int c, np.ndarray[double, ndim=1] vec):
         # TODO: just using the vector form of VSP_Optimizer.GetFunctionValue.
         return self.vsp_optimizer.GetFunctionValue(c+1, <double *> vec.data)
+
+    @_adept_stack_safe
+    def calculate_optimization_functions(self, np.ndarray[double, ndim=1] gamma):
+        return self.vsp_optimizer.CalculateOptimizationFunctions(<double *> gamma.data)
 
     @_adept_stack_safe
     def get_unsteady_function_value(self, c, t, np.ndarray[double, ndim=1] vec):
@@ -230,6 +273,19 @@ cdef class pyVSPOptimizer:
             xyz_view[3 * i + 1] = self.vsp_optimizer.NodeY(i)
             xyz_view[3 * i + 2] = self.vsp_optimizer.NodeZ(i)
         return xyz
+
+    @_adept_stack_safe
+    def get_forward_solution_vector(self):
+        cdef int nloops = self.vsp_optimizer.NumberOfLoops()
+        cdef np.ndarray gamma = np.zeros(nloops)
+        self.vsp_optimizer.GetForwardSolutionVector(<double *> gamma.data)
+        return gamma
+
+    @_adept_stack_safe
+    def set_forward_solution_vector(self, np.ndarray[double, ndim=1] gamma):
+        cdef int nloops = self.vsp_optimizer.NumberOfLoops()
+        assert len(gamma) == nloops
+        self.vsp_optimizer.SetForwardSolutionVector(<double *> gamma.data)
 
     @_adept_stack_safe
     def gradient_x(self, c, i):

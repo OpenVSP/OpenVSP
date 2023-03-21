@@ -66,6 +66,8 @@ cdef extern from "Solver/OptimizationFunction.H":
     cdef int OPT_GRADIENT_WRT_B_REF
     cdef int OPT_GRADIENT_WRT_C_REF
     cdef int OPT_RESIDUAL
+
+    cdef int OPT_GRADIENT_NUMBER_OF_INPUTS
     
 CL = OPT_CL_TOTAL
 CD = OPT_CD_TOTAL
@@ -149,3 +151,6 @@ WRT_Z_CG = OPT_GRADIENT_WRT_Z_CG
 WRT_S_REF = OPT_GRADIENT_WRT_S_REF
 WRT_B_REF = OPT_GRADIENT_WRT_B_REF
 WRT_C_REF = OPT_GRADIENT_WRT_C_REF
+
+# number of input (wrt) vars
+NUMBER_OF_INPUTS = OPT_GRADIENT_NUMBER_OF_INPUTS

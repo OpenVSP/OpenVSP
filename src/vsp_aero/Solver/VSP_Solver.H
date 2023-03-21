@@ -255,7 +255,7 @@ private:
 
     VSPAERO_DOUBLE *Gamma_[3];
     VSPAERO_DOUBLE &Gamma(int i) { return Gamma_[0][i]; };
-    VSPAERO_DOUBLE &GammaNM0(int i) { return Gamma_[0][i]; };    
+    VSPAERO_DOUBLE &GammaNM0(int i) { return Gamma_[0][i]; };
     VSPAERO_DOUBLE &GammaNM1(int i) { return Gamma_[1][i]; };
     VSPAERO_DOUBLE &GammaNM2(int i) { return Gamma_[2][i]; };
  
@@ -630,9 +630,13 @@ private:
     // Reset the geometry to it's initial state
     
     void ResetGeometry(void);
-
-    // Update the local values of the circulation strengths for each vortex egde
     
+    // Reset the geometry to it's initial state
+    
+    void UpdateSpanLoadData(void);
+    
+    // Update the local values of the circulation strengths for each vortex egde
+
     void UpdateVortexEdgeStrengths(int Level, int UpdateType);
     
     // Zero out vortex strengths
@@ -1080,7 +1084,7 @@ public:
 
     /** Solution vector for the forward solve ... ie the vorticity **/
 
-    double ForwardSolutionVector(int i) { return DOUBLE(Gamma_[0][i]); };
+    VSPAERO_DOUBLE &ForwardSolutionVector(int i) { return Gamma_[0][i]; };
 
     /** Solution vector for the adjoint solve ... ie Psi **/
 
@@ -1341,7 +1345,11 @@ public:
     /** Solve case, Case **/
     
     void Solve(int Case);
-
+    
+    /** Update the mesh geometry data structures **/
+    
+    void UpdateMeshes(void);
+   
     /** Recalcalculate the forces... something has been changed, usually the Re # **/
     
     void ReCalculateForces(void);    
@@ -1360,13 +1368,13 @@ public:
 
 #if not defined AUTODIFF && not defined COMPLEXDIFF
 
-    /** Do a matrix vector product using a user supplied vector... and also return the right hand side **/
+    /** Do a matrix vector product using a user supplied vector **/
 
-    void CalculateMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
+    void CalculateForwardMatrixVectorProduct(double *VecIn, double *VecOut);
 
-#endif
+    /** Calculate the right hand side of the forward equation **/
 
-#if not defined AUTODIFF && not defined COMPLEXDIFF
+    void CalculateForwardRightHandSide(double *RHS);
 
     /** Calculate residual given user supplied vector of solution vector, gamma **/
 
@@ -1384,17 +1392,21 @@ public:
 
 #if defined AUTODIFF
 
-    /** Do a matrix vector product using a user supplied vector... and also return the right hand side **/
+    /** Do a transpose matrix vector product using a user supplied vector **/
 
-    void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
+    void CalculateAdjointMatrixVectorProduct(double *VecIn, double *VecOut);
+
+    /** Calculate partial of functions wrt gamma **/
+
+    void CalculateAdjointRightHandSide(int OptimizationCase, double *RHS);
     
     /** Solve the adjoint equation for user defined right hand side **/
     
     void SolveAdjointLinearSystem(double *Psi, double *RHS);
 
-    /** Calculate partial derivatives of optimization case = Case wrt the mesh and the input variables **/
+    /** Calculate partial derivatives of optimization case = Case wrt the mesh, the input variables, and gamma **/
     
-    void CalculateOptimizationFunctionPartials(int Case, double *pF_pMesh, double *pF_pInputVariable);
+    void CalculateOptimizationFunctionPartials(int OptimizationCase, double *pF_pMesh, double *pF_pInputVariable, double *pF_pGamma);
     
     /** Solve for the adjoint residual partial products given the vector Psi **/
     

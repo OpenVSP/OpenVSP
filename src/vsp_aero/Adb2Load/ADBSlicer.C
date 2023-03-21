@@ -995,27 +995,27 @@ void ADBSLICER::LoadSolutionData(int Case)
        
        BIO.fread(&(NumberOfTrailingVortexEdges_), i_size, 1, adb_file); // Number of trailing wake vortices
    
-       XWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
-       YWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
-       ZWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
+       XWake_ = new double*[NumberOfTrailingVortexEdges_ + 1];
+       YWake_ = new double*[NumberOfTrailingVortexEdges_ + 1];
+       ZWake_ = new double*[NumberOfTrailingVortexEdges_ + 1];
        
        for ( i = 1 ; i <= NumberOfTrailingVortexEdges_ ; i++ ) {
 
           BIO.fread(&DumInt, i_size, 1, adb_file); // Wing ID
           
-          BIO.fread(&DumFloat, f_size, 1, adb_file); // Span Location
+          BIO.fread(&DumDouble, d_size, 1, adb_file); // Span Location
         
           BIO.fread(&(NumberOfSubVortexNodes_), i_size, 1, adb_file); // Number of sub vortices
    
-          XWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
-          YWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
-          ZWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
+          XWake_[i] = new double[NumberOfSubVortexNodes_ + 1];
+          YWake_[i] = new double[NumberOfSubVortexNodes_ + 1];
+          ZWake_[i] = new double[NumberOfSubVortexNodes_ + 1];
           
           for ( j = 1 ; j <= NumberOfSubVortexNodes_ ; j++ ) {
           
-             BIO.fread(&(XWake_[i][j]), f_size, 1, adb_file); // X
-             BIO.fread(&(YWake_[i][j]), f_size, 1, adb_file); // Y
-             BIO.fread(&(ZWake_[i][j]), f_size, 1, adb_file); // Z
+             BIO.fread(&(XWake_[i][j]), d_size, 1, adb_file); // X
+             BIO.fread(&(YWake_[i][j]), d_size, 1, adb_file); // Y
+             BIO.fread(&(ZWake_[i][j]), d_size, 1, adb_file); // Z
 
            }
           
@@ -3119,8 +3119,8 @@ printf("DumChar: %s \n",DumChar);
           
           DumChar[strcspn(DumChar, "\n")] = 0;
               
-          sprintf(SaveChar,"%s\0",DumChar);
-          
+          sprintf(SaveChar,"%s",DumChar);
+
           Done = 0;
           
           while ( !Done ) {
@@ -3484,8 +3484,8 @@ int *ADBSLICER::RenumberCalulixINPFile(char *name)
           
           DumChar[strcspn(DumChar, "\n")] = 0;
               
-          sprintf(SaveChar,"%s\0",DumChar);
-          
+          sprintf(SaveChar,"%s",DumChar);
+
           Done = 0;
           
           while ( !Done ) {

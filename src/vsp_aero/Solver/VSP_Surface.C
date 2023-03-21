@@ -835,6 +835,21 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
        
        PRINTF("NumberOfVSPSurfaces: %d \n",NumberOfVSPSurfaces);
        
+       if ( NumberOfVSPSurfaces > NumberOfSurfacePatches_ ) {
+          
+          delete [] SurfacePatchNameList_;
+          delete [] BoundaryConditionForSurface_;
+          delete [] ComponentIDForSurfacePatch_;
+          
+          SurfacePatchNameList_ = new char*[NumberOfVSPSurfaces + 1];
+          
+          BoundaryConditionForSurface_ = new BOUNDARY_CONDITION_DATA[NumberOfVSPSurfaces + 2];
+          
+          ComponentIDForSurfacePatch_ = new int[NumberOfVSPSurfaces + 1];
+          
+       }
+              
+       
      // if ( DumInt != NumberOfSurfacePatches_ ) {
      //    
      //    PRINTF("Error... number of surfaces in .vspgeom and .vkey files do not match! \n");
@@ -852,23 +867,25 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
           
           fgets(DumChar,2000,VKEY_File);PRINTF("n: %d --> DumChar: %s \n",n,DumChar); fflush(NULL);
           
+      // tag#,geom#,surf#,gname,gid,ssname1,ssname2,...,ssid1,ssid2,...
+          
         //  sscanf(DumChar,"%d,%d,%d,%s,%s",&DumInt,&CompID,&DumInt2,DumChar2,DumChar);
 
-          Next = strtok(DumChar,Comma);
+          Next = strtok(DumChar,Comma); // Tag
+ 
+          DumInt = atoi(Next);          
+          
+          Next = strtok(NULL,Comma);    // Geom
+          
+          CompID = atoi(Next);          
+          
+          Next = strtok(NULL,Comma);    // Surf
 
-          DumInt = atoi(Next);
-          
-          Next = strtok(NULL,Comma);
-          
-          CompID = atoi(Next);
-          
-          Next = strtok(NULL,Comma);
-
-          Next = strtok(NULL,Comma);  Next[strcspn(Next, "\n")] = 0;
+          Next = strtok(NULL,Comma);  Next[strcspn(Next, "\n")] = 0; // Name
           
           if ( SurfaceIsUsed[DumInt] ) {
 
-             PRINTF("Surface: %d exists in triangulation and has OpenVSP Name: %s \n",DumInt,DumChar);
+             PRINTF("Surface: %d exists in triangulation and has OpenVSP Name: %s \n",DumInt,Next);
              
              k++;
                           
@@ -967,7 +984,7 @@ void VSP_SURFACE::ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *
        delete [] ComponentIDForSurfacePatch_;
                  
        ComponentIDForSurfacePatch_ = TempList;
-
+       
     }
     
     delete [] SurfaceList;

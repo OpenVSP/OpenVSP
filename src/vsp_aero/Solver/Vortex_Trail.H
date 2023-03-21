@@ -197,7 +197,7 @@ private:
     /** Update the geometry given a translation vector and a rotating quaternion, this also shift the wake back in time  **/
     
     void UpdateGeometryLocation_(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int AdjointSolve);
-   
+ 
 public:
 
     // Constructor, Destructor, Copy

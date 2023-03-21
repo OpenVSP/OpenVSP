@@ -76,6 +76,11 @@
 #define OPT_WING_CY_VISCOUS                  2023
 #define OPT_WING_CZ_VISCOUS                  2024
 
+#define OPT_WING_X_QC                        2031
+#define OPT_WING_Y_QC                        2032
+#define OPT_WING_Z_QC                        2033
+#define OPT_WING_VECTOR_QC                   2034
+
 // Rotor
                                       
 #define OPT_ROTOR_CT_TOTAL                   3001
@@ -274,9 +279,11 @@ public:
     /** Return average value of the i'th scalar function  **/
     
     VSPAERO_DOUBLE &FunctionAverage(int i) { return FunctionAverage_[i]; };
+    
+    /** User pass in vector for chain rule calculations **/
          
     double &UserVector(int i) { return UserVector_[i]; };     
-         
+          
 };
 
 #include "END_NAME_SPACE.H"

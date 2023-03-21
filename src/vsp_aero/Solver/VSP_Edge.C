@@ -756,7 +756,7 @@ VSPAERO_DOUBLE VSP_EDGE::Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUB
     
     if ( R < 0. ) R = 0.;
     
-//  if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+  //if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
 
     Denom = d * sqrt(R);
 
@@ -790,7 +790,7 @@ VSPAERO_DOUBLE VSP_EDGE::Gint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUB
 
     Denom = d * sqrt(R);
 
-    G = -2.*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + SuperSonicCoreWidth_*SuperSonicCoreWidth_ + MinCoreWidth_*MinCoreWidth_);
+    G = -2.*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + SuperSonicCoreWidth_*SuperSonicCoreWidth_ + Tolerance_4_*Tolerance_4_);
 
     C1 = d*d;
 
@@ -1114,9 +1114,15 @@ void VSP_EDGE::UpdateGeometryLocation(VSP_NODE &Node1, VSP_NODE &Node2)
     
     // Get center of filament
 
-    VortexCentroid().x() = XYZc_[0] = 0.5*( X1_ + X2_ );
-    VortexCentroid().y() = XYZc_[1] = 0.5*( Y1_ + Y2_ );
-    VortexCentroid().z() = XYZc_[2] = 0.5*( Z1_ + Z2_ );
+    XYZc_[0] = 0.5*( X1_ + X2_ );
+    XYZc_[1] = 0.5*( Y1_ + Y2_ );
+    XYZc_[2] = 0.5*( Z1_ + Z2_ );
+    
+    // Update centroid node
+    
+    VortexCentroid().x() = XYZc_[0];
+    VortexCentroid().y() = XYZc_[1];
+    VortexCentroid().z() = XYZc_[2];
     
     // Unit vector in direction of edge
     

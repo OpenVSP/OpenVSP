@@ -41,6 +41,7 @@ public:
     friend QUAT operator+(const QUAT &quat1, const QUAT &quat2);
     friend QUAT operator-(const QUAT &quat1, const QUAT &quat2);
     friend QUAT operator*(const QUAT &quat1, const QUAT &quat2);
+    friend QUAT operator/(const QUAT &quat1, const QUAT &quat2);
 
     /** Form inverse of quaternion vector **/
     
@@ -49,7 +50,7 @@ public:
     /** Form rotation quaternion given rotation vector and rotation angle (in radians) **/
     
     void FormRotationQuat(VSPAERO_DOUBLE *Vec, VSPAERO_DOUBLE Theta);
-    
+
     /** Init quat vector to 0, and scalar to A **/
     
     void Init(VSPAERO_DOUBLE A) { Vec_[0] = 0. ; Vec_[1] = 0. ; Vec_[2] = 0. ; Vec_[3] = A; };

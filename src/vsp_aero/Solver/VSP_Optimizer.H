@@ -333,10 +333,14 @@ public:
     
     int OptimizationFunctionLength(int Case) { return Solver().OptimizationFunctionLength(Case); };
 
-    /** Get total vector length for optimization function # Case... this is generally the function length X Number of time sample points for an unsteady case **/
+    /** Get the number of optimization averaging time steps **/
     
     int OptimizationNumberOfTimeSteps(int Case) { return Solver().OptimizationNumberOfTimeSteps(Case); };
     
+    /** Get the total function vector length ... this is the function length X the number of averaging time steps **/
+    
+    int OptimizationVectorLength(int Case) { return Solver().OptimizationVectorLength(Case); };
+        
     /** Setup everything for both the forward solver and adjoint **/
     
     void Setup(char *FileName);
@@ -463,19 +467,29 @@ public:
     
     void SolveAdjoint(void);
     
-    /** Do a matrix-vector multiply and get the RHS for the forward problem... please do a forward solve first! **/
+    /** Do a matrix vector product using a user supplied vector... please do a forward solve first! **/
+
+    void CalculateForwardMatrixVectorProduct(double *VecIn, double *VecOut);
+
+    /** Calculate the right hand side of the forward equation **/
+
+    void CalculateForwardRightHandSide(double *RHS);
     
-    void CalculateMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
+    /** Do a transpose matrix vector product using a user supplied vector... please do a forward and adjoint solve first! **/
+
+    void CalculateAdjointMatrixVectorProduct(double *VecIn, double *VecOut);
+
+    /** Calculate partial of functions wrt gamma **/
+
+    void CalculateAdjointRightHandSide(int OptimizationCase, double *RHS);
+
+    void CalculateAdjointRightHandSide(double *RHS){ CalculateAdjointRightHandSide(1, RHS); }
     
-    /** Do a adjoint matrix-vector multiply and get the RHS for the forward problem... please do a forward and adjoint solve first! **/
-    
-    void CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS);
-    
-    /** Calculate the forward residual given a user supplied solution vector gammna **/
+    /** Calculate the forward residual given a user supplied solution vector gamma **/
     
     void CalculateForwardResidual(double *Gamma, double *Residual);
     
-    /** Update the optimization functions given a user supplied solution vector gammna **/
+    /** Update the optimization functions given a user supplied solution vector gamma **/
     
     void CalculateOptimizationFunctions(double *Gamma);
     
@@ -483,9 +497,9 @@ public:
     
     void SolveAdjointLinearSystem(double *Psi, double *RHS);
    
-    /** Calculate partial derivatives of optimization case = Case wrt the mesh and the input variables **/
+    /** Calculate partial derivatives of optimization case = Case wrt the mesh, the input variables, and gamma **/
     
-    void CalculateOptimizationFunctionPartials(int Case, double *pF_pMesh, double *pF_pInputVariable);
+    void CalculateOptimizationFunctionPartials(int Case, double *pF_pMesh, double *pF_pInputVariable, double *pF_pGamma);
     
     /** Solve for the adjoint residual partial products given the vector Psi **/
     
@@ -493,15 +507,19 @@ public:
      
     /** Apply the forward matrix preconditioner **/
     
-    void ApplyFowardMatrixPreconditioner(double *Vec) { Solver().ApplyMatrixPrecondition(Vec); };
+    void ApplyForwardMatrixPreconditioner(double *Vec) { Solver().ApplyMatrixPrecondition(Vec); };
     
     /** Apply the adjoint matrix preconditioner **/
     
     void ApplyAdjointMatrixPreconditioner(double *Vec) { Adjoint().ApplyMatrixPrecondition(Vec); };
         
-    /** Get solution vector for the foward solve **/
+    /** Get solution vector for the forward solve **/
     
     void GetForwardSolutionVector(double *Vec);
+
+    /** Set solution vector for the forward solve **/
+
+    void SetForwardSolutionVector(double *Vec);
 
     /** Get solution vector for the adjoint solve **/
     

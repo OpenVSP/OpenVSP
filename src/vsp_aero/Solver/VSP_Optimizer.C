@@ -647,11 +647,11 @@ void VSP_OPTIMIZER::ShiftOutputVector(double *Vec1, double *Vec2, int Length)
 
 /*##############################################################################
 #                                                                              #
-#       VSP_OPTIMIZER CalculateMatrixVectorProductAndRightHandSide             #
+#                VSP_OPTIMIZER CalculateForwardMatrixVectorProduct             #
 #                                                                              #
 ##############################################################################*/
 
-void VSP_OPTIMIZER::CalculateMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS )
+void VSP_OPTIMIZER::CalculateForwardMatrixVectorProduct(double *VecIn, double *VecOut)
 {
 
     // Shift inputs
@@ -660,39 +660,72 @@ void VSP_OPTIMIZER::CalculateMatrixVectorProductAndRightHandSide(double *VecIn, 
     
     // Do matrix-vector mult, and get the RHS vector
     
-    Solver().CalculateMatrixVectorProductAndRightHandSide(TempArray_[0], TempArray_[1], TempArray_[2]);
+    Solver().CalculateForwardMatrixVectorProduct(TempArray_[0], TempArray_[1]);
 
     // Shift outputs 
         
     ShiftOutputVector(TempArray_[1],VecOut,Solver().NumberOfVortexLoops());
     
-    ShiftOutputVector(TempArray_[2],RHS,Solver().NumberOfVortexLoops());
-    
 }
 
 /*##############################################################################
 #                                                                              #
-#     VSP_OPTIMIZER CalculateAdjointMatrixVectorProductAndRightHandSide        #
+#              VSP_OPTIMIZER CalculateForwardRightHandSide                     #
 #                                                                              #
 ##############################################################################*/
 
-void VSP_OPTIMIZER::CalculateAdjointMatrixVectorProductAndRightHandSide(double *VecIn, double *VecOut, double *RHS)
+void VSP_OPTIMIZER::CalculateForwardRightHandSide(double *RHS)
+{
+    // Do matrix-vector mult, and get the RHS vector
+
+    Solver().CalculateForwardRightHandSide(TempArray_[2]);
+
+    // Shift output
+
+    ShiftOutputVector(TempArray_[2],RHS,Solver().NumberOfVortexLoops());
+
+}
+
+/*##############################################################################
+#                                                                              #
+#             VSP_OPTIMIZER CalculateAdjointMatrixVectorProduct                #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::CalculateAdjointMatrixVectorProduct(double *VecIn, double *VecOut)
 {
 
     // Shift inputs
-     
-    ShiftInputVector(VecIn,TempArray_[0],Adjoint().NumberOfAdjointEquations());
-    
-    // Do matrix-vector mult, and get the RHS vector
-    
-    Adjoint().CalculateAdjointMatrixVectorProductAndRightHandSide(TempArray_[0], TempArray_[1], TempArray_[2]);
 
-    // Shift outputs 
-        
-    ShiftOutputVector(TempArray_[1],VecOut,Adjoint().NumberOfAdjointEquations());
+    ShiftInputVector(VecIn,TempArray_[1],Adjoint().NumberOfAdjointEquations());
     
+    // Do matrix-vector mult
+    
+    Adjoint().CalculateAdjointMatrixVectorProduct(TempArray_[1], TempArray_[2]);
+
+    // Shift outputs
+
+    ShiftOutputVector(TempArray_[2],VecOut,Adjoint().NumberOfAdjointEquations());
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                 VSP_OPTIMIZER CalculateAdjointRightHandSide                  #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::CalculateAdjointRightHandSide(int Case, double *RHS)
+{
+
+    // get the RHS vector
+
+    Adjoint().CalculateAdjointRightHandSide(Case, TempArray_[2]);
+
+    // Shift outputs
+
     ShiftOutputVector(TempArray_[2],RHS,Adjoint().NumberOfAdjointEquations());
-       
+
 }
 
 /*##############################################################################
@@ -705,15 +738,15 @@ void VSP_OPTIMIZER::CalculateForwardResidual(double *Gamma, double *Residual)
 {
 
     // Shift inputs
-    
+
     ShiftInputVector(Gamma,TempArray_[0],Solver().NumberOfVortexLoops());
-    
-    // Do matrix-vector mult, and get the RHS vector
-    
+
+    // Get residual
+
     Solver().CalculateForwardResidual(TempArray_[0], TempArray_[1]);
 
-    // Shift outputs 
-        
+    // Shift outputs
+
     ShiftOutputVector(TempArray_[1],Residual,Solver().NumberOfVortexLoops());
 
 }
@@ -729,14 +762,15 @@ void VSP_OPTIMIZER::CalculateOptimizationFunctions(double *Gamma)
 {
 
     // Shift inputs
-    
+
     ShiftInputVector(Gamma,TempArray_[0],Solver().NumberOfVortexLoops());
-    
-    // Do matrix-vector mult, and get the RHS vector
-    
+
+    // Update optimization functions
+
     Solver().CalculateOptimizationFunctions(TempArray_[0]);
 
 }
+
 /*##############################################################################
 #                                                                              #
 #              VSP_OPTIMIZER SolveAdjointLinearSystem                          #
@@ -762,18 +796,18 @@ void VSP_OPTIMIZER::SolveAdjointLinearSystem(double *Psi, double *RHS)
 
 /*##############################################################################
 #                                                                              #
-#            VSP_OPTIMIZER CalculateOptimizationFunctionPartials               #
+#             VSP_OPTIMIZER CalculateOptimizationFunctionPartials              #
 #                                                                              #
 ##############################################################################*/
 
-void VSP_OPTIMIZER::CalculateOptimizationFunctionPartials(int Case, double *pF_pMesh, double *pF_pInputVariable)
+void VSP_OPTIMIZER::CalculateOptimizationFunctionPartials(int Case, double *pF_pMesh, double *pF_pInputVariable, double *pF_pGamma)
 {
 
     int i;
     
     // Calculate partials of function wrt mesh and input variables
 
-    Adjoint().CalculateOptimizationFunctionPartials(Case, TempArray_[0], TempArray_[1]);
+    Adjoint().CalculateOptimizationFunctionPartials(Case, TempArray_[0], TempArray_[1], TempArray_[2]);
 
     // Shift outputs for gradients wrt mesh
     
@@ -788,11 +822,13 @@ void VSP_OPTIMIZER::CalculateOptimizationFunctionPartials(int Case, double *pF_p
     // Shift output for gradients wrt input variables ... we assume there's just one group
     // this needs to be updated with better logic if there's more than 1 group!
     
-    for ( i = 1 ; i <= OPT_GRADIENT_NUMBER_OF_INPUTS + 1 ; i++ ) {
+    for ( i = 1 ; i <= OPT_GRADIENT_NUMBER_OF_INPUTS ; i++ ) {
        
         pF_pInputVariable[i - ArrayOffSet_] = TempArray_[1][i];
 
     }
+
+    ShiftOutputVector(TempArray_[2], pF_pGamma, Adjoint().NumberOfAdjointEquations());
 
 }
 
@@ -828,7 +864,7 @@ void VSP_OPTIMIZER::CalculateAdjointResidualPartialProducts(double *Psi, double 
     // Shift output for gradients wrt input variables ... we assume there's just one group
     // this needs to be updated with better logic if there's more than 1 group!
     
-    for ( i = 1 ; i <= OPT_GRADIENT_NUMBER_OF_INPUTS + 1 ; i++ ) {
+    for ( i = 1 ; i <= OPT_GRADIENT_NUMBER_OF_INPUTS ; i++ ) {
        
         pR_pInputVariable[i - ArrayOffSet_] = TempArray_[2][i];
 
@@ -1242,6 +1278,8 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
     fscanf(case_file,"FarDist = %lf \n",&FarDist_);
     fscanf(case_file,"NumWakeNodes = %d \n",&NumberOfWakeNodes_);
     fscanf(case_file,"WakeIters = %d \n",&WakeIterations_);
+
+    if ( NumberOfWakeNodes_ > 0 ) VSP.SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);       
     
     if ( FarDist_ > 0. ) SetFarDist_ = 1;
     
@@ -1921,9 +1959,9 @@ void VSP_OPTIMIZER::UpdateGeometry(double *NodeXYZ)
                 
     }
     
-    Solver().VSPGeom().UpdateMeshes();
+    Solver().UpdateMeshes();
 
-    Adjoint().VSPGeom().UpdateMeshes();
+    Adjoint().UpdateMeshes();
       
 }
 
@@ -1944,6 +1982,26 @@ void VSP_OPTIMIZER::GetForwardSolutionVector(double *Vec)
        
     }
     
+}
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetForwardSolutionVector                  #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetForwardSolutionVector(double *Vec)
+{
+
+    int i;
+
+    for ( i = 1 ; i <= Solver().NumberOfVortexLoops() ; i++ ) {
+
+        Solver().ForwardSolutionVector(i) = Vec[i - ArrayOffSet_];
+        Adjoint().ForwardSolutionVector(i) = Vec[i - ArrayOffSet_];
+
+    }
+
 }
 
 /*##############################################################################
@@ -2049,7 +2107,7 @@ void VSP_OPTIMIZER::GetFunctionValue(int Case, double *Vec)
     Solver().OptimizationFunction(Case, TempArray_[0]);
 
     ShiftOutputVector(TempArray_[0],Vec,Solver().OptimizationFunctionLength(Case));
-      
+
 }
   
 /*##############################################################################

@@ -518,7 +518,7 @@ void COMPONENT_GROUP::Update(void)
 
     // This routine is called for the quasi-unsteady analysis.. we 
     // basically just need to get back rates
-    
+   
     QUAT Omega;
     
     // Angular rate
@@ -563,7 +563,6 @@ void COMPONENT_GROUP::Update(void)
 void COMPONENT_GROUP::Update(VSPAERO_DOUBLE TimeStep, VSPAERO_DOUBLE CurrentTime)
 {
 
-            
     // Time step and Current time
             
     TimeStep_ = TimeStep;

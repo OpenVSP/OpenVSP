@@ -12,6 +12,7 @@ customization of any or all parts of the problem setup.
 import numpy as np
 from .utilities import BaseUI
 import vspaero
+import openvsp
 
 
 class pyVSPAero(BaseUI):
@@ -35,20 +36,23 @@ class pyVSPAero(BaseUI):
             raise ImportError("OpenVSP Python API failed to import. "
                               "Python API must be installed to use pyvspaero modules.")
 
-        self.openvsp = openvsp
+        if hasattr(openvsp, "VSPVehicle"):
+            self.vsp_model = openvsp.VSPVehicle()
+        else:
+            self.vsp_model = openvsp
 
         # Clear the vsp model
-        self.openvsp.ClearVSPModel()
+        self.vsp_model.ClearVSPModel()
 
-        self.openvsp.ReadVSPFile(vsp_file)
+        self.vsp_model.ReadVSPFile(vsp_file)
 
         # List of all components returned from VSP. Note that this
         # order is important. It is the order that we use to map the
         # actual geom_id by using the geom_names
-        all_comps = self.openvsp.FindGeoms()
+        all_comps = self.vsp_model.FindGeoms()
         all_names = []
         for c in all_comps:
-            all_names.append(self.openvsp.GetContainerName(c))
+            all_names.append(self.vsp_model.GetContainerName(c))
 
         if not comps:
             # no components specified, we use all
@@ -61,12 +65,12 @@ class pyVSPAero(BaseUI):
 
         # Create a VSP set that we'll use to identify surfaces we want to output
         for geom_id in all_comps:
-            geom_name = self.openvsp.GetContainerName(geom_id)
+            geom_name = self.vsp_model.GetContainerName(geom_id)
             if geom_id in self.comps:
                 set_flag = True
             else:
                 set_flag = False
-            self.openvsp.SetSetFlag(geom_id, self.VSPAERO_VSP_SET, set_flag)
+            self.vsp_model.SetSetFlag(geom_id, self.VSPAERO_VSP_SET, set_flag)
 
         # Set default options
         self.set_options_to_default()
@@ -93,7 +97,7 @@ class pyVSPAero(BaseUI):
         """
         Clear OpenVSP model on deconstruct of class.
         """
-        self.openvsp.ClearVSPModel()
+        self.vsp_model.ClearVSPModel()
 
     def create_steady_problem(self, name, options=None, **kwargs):
         """
@@ -117,7 +121,7 @@ class pyVSPAero(BaseUI):
         flight_vars = kwargs
         sol_type = self.get_option("solver_type")
 
-        problem = vspaero.problems.SteadyProblem(name, self.openvsp, self.func_list.copy(), sol_type, options)
+        problem = vspaero.problems.SteadyProblem(name, self.vsp_model, self.func_list.copy(), sol_type, options)
         # Set with original flight vars and coordinates, in case they have changed
         problem.set_flight_vars(S_ref=self.S_ref, b_ref=self.b_ref, c_ref=self.c_ref)
         problem.set_flight_vars(**flight_vars)
@@ -147,13 +151,13 @@ class pyVSPAero(BaseUI):
 
     def _get_ref_quantities(self):
         for comp in self.comps:
-            geom_type = self.openvsp.GetGeomTypeName(comp)
+            geom_type = self.vsp_model.GetGeomTypeName(comp)
             if geom_type == "Wing":
-                sref_id = self.openvsp.FindParm(comp, "TotalArea", "WingGeom")
-                Sref = self.openvsp.GetParmVal(sref_id)
-                bref_id = self.openvsp.FindParm(comp, "TotalProjectedSpan", "WingGeom")
-                bref = self.openvsp.GetParmVal(bref_id)
-                cref_id = self.openvsp.FindParm(comp, "TotalChord", "WingGeom")
-                cref = self.openvsp.GetParmVal(cref_id)
+                sref_id = self.vsp_model.FindParm(comp, "TotalArea", "WingGeom")
+                Sref = self.vsp_model.GetParmVal(sref_id)
+                bref_id = self.vsp_model.FindParm(comp, "TotalProjectedSpan", "WingGeom")
+                bref = self.vsp_model.GetParmVal(bref_id)
+                cref_id = self.vsp_model.FindParm(comp, "TotalChord", "WingGeom")
+                cref = self.vsp_model.GetParmVal(cref_id)
                 return Sref, bref, cref
         return 100.0, 1.0, 1.0

@@ -485,7 +485,7 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
     zero_int_array(ComponentList,VSP_Surface(1).Grid().NumberOfTris());
     
     for ( i = 1 ; i <= VSP_Surface(1).Grid().NumberOfTris() ; i++ ) {
- 
+
        ComponentList[VSP_Surface(1).Grid().TriList(i).ComponentID()] = 1;
        
     }

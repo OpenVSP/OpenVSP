@@ -23,6 +23,10 @@ SPAN_LOAD_DATA::SPAN_LOAD_DATA(void)
     
     ComponentID_ = NULL;
     
+    // Leading edge loop
+    
+    SpanLeadingEdgeVortexLoop_ = NULL;
+           
     // Viscous forces
       
     Span_Cxo_ = NULL;
@@ -80,14 +84,18 @@ SPAN_LOAD_DATA::SPAN_LOAD_DATA(void)
     Span_YTE_ = NULL;
     Span_ZTE_ = NULL;    
     
+    Span_XQC_ = NULL;
+    Span_YQC_ = NULL;
+    Span_ZQC_ = NULL;
+        
     Span_XLE_Def_ = NULL;
     Span_YLE_Def_ = NULL;
     Span_ZLE_Def_ = NULL;    
         
     Span_XTE_Def_ = NULL;
     Span_YTE_Def_ = NULL;
-    Span_ZTE_Def_ = NULL;    
-        
+    Span_ZTE_Def_ = NULL;       
+                    
     Span_Xavg_ = NULL;
     Span_Yavg_ = NULL;
     Span_Zavg_ = NULL;
@@ -97,6 +105,8 @@ SPAN_LOAD_DATA::SPAN_LOAD_DATA(void)
     Span_Nvec_ = NULL;
     
     Span_Area_ = NULL;
+    
+    Span_WettedArea_ = NULL;
     
     Span_Chord_ = NULL;
     
@@ -133,10 +143,16 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
     
     // Component ID
     
-    if ( ComponentID_ == NULL ) delete ComponentID_;
+    if ( ComponentID_ != NULL ) delete ComponentID_;
         
     ComponentID_ = NULL;
         
+    // Leading edge loop
+    
+    if ( SpanLeadingEdgeVortexLoop_ != NULL ) delete SpanLeadingEdgeVortexLoop_;
+
+    SpanLeadingEdgeVortexLoop_ = NULL;
+            
     // Viscous forces
       
     if ( Span_Cxo_ != NULL ) delete [] Span_Cxo_;
@@ -232,7 +248,15 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
     Span_XTE_ = NULL;
     Span_YTE_ = NULL;
     Span_ZTE_ = NULL;
-      
+
+    if ( Span_XQC_ == NULL ) delete [] Span_XQC_;
+    if ( Span_YQC_ == NULL ) delete [] Span_YQC_;
+    if ( Span_ZQC_ == NULL ) delete [] Span_ZQC_;     
+    
+    Span_XQC_ = NULL;
+    Span_YQC_ = NULL;
+    Span_ZQC_ = NULL;
+          
     if ( Span_XLE_Def_ == NULL ) delete [] Span_XLE_Def_;
     if ( Span_YLE_Def_ == NULL ) delete [] Span_YLE_Def_;
     if ( Span_ZLE_Def_ == NULL ) delete [] Span_ZLE_Def_;   
@@ -292,6 +316,10 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
     if ( Span_Area_ != NULL ) delete [] Span_Area_;
     
     Span_Area_ = NULL;
+    
+    if ( Span_WettedArea_ != NULL ) delete [] Span_WettedArea_;
+    
+    Span_WettedArea_ = NULL;
     
     if ( Span_Chord_ != NULL ) delete [] Span_Chord_;
     
@@ -381,8 +409,12 @@ SPAN_LOAD_DATA &SPAN_LOAD_DATA::operator=(const SPAN_LOAD_DATA &SpanLoadData)
 
        // Component ID
        
-       ComponentID_[i] = SpanLoadData.ComponentID_[i];;
-           
+       ComponentID_[i] = SpanLoadData.ComponentID_[i];
+
+       // Leading edge loop
+       
+       SpanLeadingEdgeVortexLoop_[i] = SpanLoadData.SpanLeadingEdgeVortexLoop_[i];
+       
        // Viscous forces
          
        Span_Cxo_[i] = SpanLoadData.Span_Cxo_[i];
@@ -440,6 +472,10 @@ SPAN_LOAD_DATA &SPAN_LOAD_DATA::operator=(const SPAN_LOAD_DATA &SpanLoadData)
        Span_YTE_[i] = SpanLoadData.Span_YTE_[i];
        Span_ZTE_[i] = SpanLoadData.Span_ZTE_[i];   
 
+       Span_XQC_[i] = SpanLoadData.Span_XQC_[i];
+       Span_YQC_[i] = SpanLoadData.Span_YQC_[i];
+       Span_ZQC_[i] = SpanLoadData.Span_ZQC_[i];   
+    
        Span_XLE_Def_[i] = SpanLoadData.Span_XLE_Def_[i];
        Span_YLE_Def_[i] = SpanLoadData.Span_YLE_Def_[i];
        Span_ZLE_Def_[i] = SpanLoadData.Span_ZLE_Def_[i];   
@@ -465,6 +501,8 @@ SPAN_LOAD_DATA &SPAN_LOAD_DATA::operator=(const SPAN_LOAD_DATA &SpanLoadData)
        }
                      
        Span_Area_[i] = SpanLoadData.Span_Area_[i];
+
+       Span_WettedArea_[i] = SpanLoadData.Span_WettedArea_[i];
        
        Span_Chord_[i] = SpanLoadData.Span_Chord_[i];
        
@@ -512,7 +550,11 @@ void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
     // Component ID
     
     ComponentID_ = new int[NumberOfSpanStations_ + 1];
-           
+
+    // Leading edge loop
+    
+    SpanLeadingEdgeVortexLoop_ = new int[NumberOfSpanStations_ + 1];
+                  
     // Viscous forces
       
     Span_Cxo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
@@ -570,6 +612,10 @@ void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
     Span_YTE_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     Span_ZTE_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1]; 
 
+    Span_XQC_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_YQC_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_ZQC_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1]; 
+
     Span_XLE_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     Span_YLE_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     Span_ZLE_Def_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1]; 
@@ -599,7 +645,9 @@ void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
     }
             
     Span_Area_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
-    
+
+    Span_WettedArea_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+        
     Span_Chord_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     
     Span_S_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
@@ -700,6 +748,10 @@ void SPAN_LOAD_DATA::ZeroAll(void)
        Span_YTE_[i] = 0.;
        Span_ZTE_[i] = 0.;
 
+       Span_XQC_[i] = 0.;
+       Span_YQC_[i] = 0.;
+       Span_ZQC_[i] = 0.;
+    
        Span_XLE_Def_[i] = 0.;
        Span_YLE_Def_[i] = 0.;
        Span_ZLE_Def_[i] = 0.;
@@ -725,6 +777,8 @@ void SPAN_LOAD_DATA::ZeroAll(void)
        }       
               
        Span_Area_[i] = 0.;
+       
+       Span_WettedArea_[i] = 0.;
        
        Span_Chord_[i] = 0.;
        
@@ -819,11 +873,7 @@ void SPAN_LOAD_DATA::ZeroForcesAndMoments(void)
        Span_Xavg_[i] = 0.;
        Span_Yavg_[i] = 0.;
        Span_Zavg_[i] = 0.;
-              
-       // Area
-       
-       Span_Area_[i] = 0.;
-              
+    
        // Velocity
        
        for ( j = 0 ; j <= 3 ; j++ ) {
@@ -883,6 +933,18 @@ void SPAN_LOAD_DATA::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE
           Span_YTE_[i] = Vec(1) + OVec[1] + TVec[1];
           Span_ZTE_[i] = Vec(2) + OVec[2] + TVec[2];      
    
+          // Quarter chord location
+          
+          Vec(0) = Span_XQC_[i] - OVec[0];
+          Vec(1) = Span_YQC_[i] - OVec[1];
+          Vec(2) = Span_ZQC_[i] - OVec[2];   
+          
+          Vec = Quat * Vec * InvQuat;
+   
+          Span_XQC_[i] = Vec(0) + OVec[0] + TVec[0];
+          Span_YQC_[i] = Vec(1) + OVec[1] + TVec[1];
+          Span_ZQC_[i] = Vec(2) + OVec[2] + TVec[2];      
+
           // Defelected Leading edge location
           
           Vec(0) = Span_XLE_Def_[i] - OVec[0];
@@ -924,7 +986,6 @@ void SPAN_LOAD_DATA::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE
           Vec(0) = Span_Nvec_[i][0];
           Vec(1) = Span_Nvec_[i][1];
           Vec(2) = Span_Nvec_[i][2];
-          Vec(3) = 0.;
           
           Vec = Quat * Vec * InvQuat;
    

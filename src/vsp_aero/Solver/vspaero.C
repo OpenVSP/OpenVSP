@@ -27,7 +27,7 @@ using namespace VSPAERO_SOLVER;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 5
+#define VER_PATCH 6
 
 // Some globals...
 
@@ -340,7 +340,7 @@ int main(int argc, char **argv)
     if ( NoPanelSpanWiseLoading_ )  VSP_VLM().PanelSpanWiseLoading() = 0;
 
     // Set number of farfield wake nodes
-    
+
     if ( NumberOfWakeNodes_ > 0 || DoUnsteadyAnalysis_ ) VSP_VLM().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);       
 
     // We are doing an interrogation of a previous solution
@@ -3901,7 +3901,7 @@ void ComplexDiffTestSolve(void)
           
        Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).x());
       
-       VSP_VLM().VSPGeom().UpdateMeshes();
+       VSP_VLM().UpdateMeshes();
        
        VSP_VLM().Solve(Case);
       
@@ -3925,7 +3925,7 @@ void ComplexDiffTestSolve(void)
           
        Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).y());
       
-       VSP_VLM().VSPGeom().UpdateMeshes();
+       VSP_VLM().UpdateMeshes();
       
        VSP_VLM().Solve(Case);
       
@@ -3951,7 +3951,7 @@ void ComplexDiffTestSolve(void)
           
        Delta = INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSP_VLM().VSPGeom().Grid(0).NodeList(i).z());
        
-       VSP_VLM().VSPGeom().UpdateMeshes();
+       VSP_VLM().UpdateMeshes();
       
        VSP_VLM().Solve(Case);
       
@@ -4073,10 +4073,10 @@ void FiniteDiffTestSolve(void)
     
     Fo = VSP_VLM().OptimizationFunction();
         
-    Delta = 0.1;  
+    Delta = 1.e-8;  
     
- //   for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=1 ) {
-    for ( i = 100 ; i <=110 ; i+=1 ) {
+    for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=1 ) {
+ //   for ( i = 100 ; i <=110 ; i+=1 ) {
 
         PRINTF("Working on node %d of %d \n");
 
@@ -4095,7 +4095,7 @@ void FiniteDiffTestSolve(void)
           
         VSP_VLM().VSPGeom().Grid(0).NodeList(i).x() += Delta;
 
-        VSP_VLM().VSPGeom().UpdateMeshes();
+        VSP_VLM().UpdateMeshes();
  
         VSP_VLM().Solve(Case);
         
@@ -4119,7 +4119,7 @@ void FiniteDiffTestSolve(void)
            
         VSP_VLM().VSPGeom().Grid(0).NodeList(i).y() += Delta;
 
-        VSP_VLM().VSPGeom().UpdateMeshes();
+        VSP_VLM().UpdateMeshes();
  
         VSP_VLM().Solve(Case);
         
@@ -4143,7 +4143,7 @@ void FiniteDiffTestSolve(void)
 
         VSP_VLM().VSPGeom().Grid(0).NodeList(i).z() += Delta;
 
-        VSP_VLM().VSPGeom().UpdateMeshes();
+        VSP_VLM().UpdateMeshes();
  
         VSP_VLM().Solve(Case);
         

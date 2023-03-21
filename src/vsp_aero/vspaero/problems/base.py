@@ -10,6 +10,7 @@ import shutil
 from ..optimizer import pyVSPOptimizer
 from ..utilities import BaseUI
 import tempfile
+import openvsp
 import vspaero.functions
 
 wrt_dict = {"aoa": vspaero.functions.WRT_ALPHA,
@@ -25,6 +26,7 @@ wrt_dict = {"aoa": vspaero.functions.WRT_ALPHA,
             "b_ref": vspaero.functions.WRT_B_REF,
             "c_ref": vspaero.functions.WRT_C_REF
             }
+
 
 class BaseProblem(BaseUI):
     """
@@ -44,6 +46,7 @@ class BaseProblem(BaseUI):
         # Create a temp directory to hold files to initialize VSPAero
         self.tmpdir = tempfile.TemporaryDirectory()
 
+        # Set user-defined functions
         self.func_list = func_list
         noutputs = 0
         for func_idx, func in enumerate(func_list):
@@ -178,12 +181,12 @@ class BaseProblem(BaseUI):
         """
         # Check the solver type
         if self.solver_type.upper() == "PANEL":
-            analysis_method = self.openvsp_model.PANEL
+            analysis_method = openvsp.PANEL
             alternate_input = False
             if file_name.endswith("tri"):
                 file_name = f"{file_name[:-3]}.vspgeom"
         else:
-            analysis_method = self.openvsp_model.VORTEX_LATTICE
+            analysis_method = openvsp.VORTEX_LATTICE
             alternate_input = True
 
         # Check the symmetry flag
@@ -197,7 +200,7 @@ class BaseProblem(BaseUI):
             self._vspaero_error(f"Provided symmetry option '{symm}' not supported. "
                                 f"Symmetry must be either 'N' or 'Y'.")
         # Set mesh parameters
-        self.openvsp_model.SetComputationFileName(self.openvsp_model.VSPAERO_VSPGEOM_TYPE, file_name)
+        self.openvsp_model.SetComputationFileName(openvsp.VSPAERO_VSPGEOM_TYPE, file_name)
         self.openvsp_model.SetIntAnalysisInput("VSPAEROComputeGeometry", "AnalysisMethod", [analysis_method])
         self.openvsp_model.SetIntAnalysisInput("VSPAEROComputeGeometry", "AlternateInputFormatFlag", [alternate_input])
         self.openvsp_model.SetIntAnalysisInput("VSPAEROComputeGeometry", "GeomSet", [self.VSPAERO_VSP_SET])
@@ -279,10 +282,16 @@ class BaseProblem(BaseUI):
             self.set_option(option_name, self.options[option_name][1])
 
     def solve(self):
+        """
+        Compute solution of the aerodynamic problem.
+        """
         self.assembler.solve_forward()
         self.call_counter += 1
 
     def solve_adjoint(self):
+        """
+        Compute adjoint solution of the aerodynamic problem.
+        """
         self.assembler.solve_adjoint()
 
     def write_solution(self, output_dir=None, base_name=None, number=None):
@@ -290,9 +299,7 @@ class BaseProblem(BaseUI):
         This is a generic shell function that writes the output
         file(s).  The intent is that the user or calling program can
         call this function and pyVSPAero writes all the files that the
-        user has defined. It is recommended that this function is used
-        along with the associated logical flags in the options to
-        determine the desired writing procedure
+        user has defined.
 
         Parameters
         ----------
@@ -332,16 +339,45 @@ class BaseProblem(BaseUI):
             shutil.copyfile(f"{tmp_file}.cases", f"{base}.cases")
 
     def get_num_nodes(self):
+        """
+        Get number of nodes in model.
+        """
         return self.assembler.get_number_of_nodes()
 
     @property
     def num_nodes(self):
-        return  self.get_num_nodes()
+        """
+        Number of nodes in model.
+        """
+        return self.get_num_nodes()
+
+    def get_num_loops(self):
+        """
+        Get number of vortex loops in model.
+        """
+        return self.assembler.get_number_of_loops()
+
+    def get_num_adjoint_eqs(self):
+        """
+        Get number of adjoint equations in model.
+
+        NOTE: This is not equal to the number of state variables in the forward solve
+        """
+        return self.assembler.get_number_of_adjoint_equations()
 
     def get_geometry(self):
+        """
+        Get current node locations in model.
+        """
         return self.assembler.get_geometry()
 
     def set_geometry(self, xyz):
-        return self.assembler.set_geometry(xyz)
+        """
+        Set node locations in model.
 
-
+        Parameters
+        ----------
+        xyz : np.ndarray
+            Flattened array holding updated node locations
+        """
+        self.assembler.set_geometry(xyz)

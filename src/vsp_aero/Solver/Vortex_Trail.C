@@ -495,7 +495,7 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator+=(const VORTEX_TRAIL &Trailing_Vortex)
 
     for ( i = 0 ; i <= NumberOfSubVortices() + 4 ; i++ ) {
        
-        WakeAge_[i] = Trailing_Vortex.WakeAge_[i]; 
+       WakeAge_[i] = Trailing_Vortex.WakeAge_[i]; 
        
     }
 
@@ -1325,16 +1325,7 @@ void VORTEX_TRAIL::Update(VSPAERO_DOUBLE FarDist, VSP_NODE &Node1, VSP_NODE &Nod
                                                     VortexEdgeList_[Level-1][k+1]);
   
           }
- 
-          // Children
-   
-          if ( Level > 1 ) {
-
-             VortexEdgeList(Level)[j].SetupChildren(VortexEdgeList_[Level-1][k  ],
-                                                    VortexEdgeList_[Level-1][k+1]);
-  
-          }
-                    
+    
           k += 2;
           
        }
@@ -1671,7 +1662,7 @@ void VORTEX_TRAIL::UpdateGamma(void)
       
       NumSubVortices = NumberOfSubVortices(Level);
       
-      if ( TimeAccurate_ ) NumSubVortices = MIN( CurrentTimeStep_ + 1, NumberOfSubVortices(Level) );
+     // if ( TimeAccurate_ ) NumSubVortices = MIN( CurrentTimeStep_ + 1, NumberOfSubVortices(Level) );
    
       for ( i = 1 ; i <= NumSubVortices + 1 ; i++ ) {
 
@@ -2048,10 +2039,10 @@ Fact = 0.;
     
     // Calculate wake age
     
-    for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+    for ( i = 1 ; i <= NumberOfSubVortices() + 2 ; i++ ) {
        
        WakeAge_[i] = TimeStep_ * i;
-      
+             
     }
   
 }
@@ -2194,8 +2185,6 @@ void VORTEX_TRAIL::Smooth(void)
 
     VSPAERO_DOUBLE Eps;
     int i, Case, NumberOfNodes;
-
-    // Allocate space for the tridiagonal array
 
     NumberOfNodes = MIN(CurrentTimeStep_ + 1, NumberOfSubVortices() + 1);
 
@@ -2426,22 +2415,26 @@ void VORTEX_TRAIL::UpdateGeometryLocation_(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE 
        
     }
 
+    for ( i = 1 ; i <= NumberOfSubVortices() + 2 ; i++ ) {
+
+       dx_[i] = 0.;
+       dy_[i] = 0.;
+       dz_[i] = 0.;       
+       
+    }
+    
     dx_[1] = 0.;
     dy_[1] = 0.;
     dz_[1] = 0.;
            
     // Keep track of final vortex edge that goes off to infinity
-        
-    if ( !TimeAccurate_ ) {
-            
-        i = NumberOfSubVortices() + 2;
-        
-        dx_[i] = NodeList_[i].x() - NodeList_[i-1].x();
-        dy_[i] = NodeList_[i].y() - NodeList_[i-1].y();
-        dz_[i] = NodeList_[i].z() - NodeList_[i-1].z();
-        
-    }
-
+             
+    i = NumberOfSubVortices() + 2;
+    
+    dx_[i] = NodeList_[i].x() - NodeList_[i-1].x();
+    dy_[i] = NodeList_[i].y() - NodeList_[i-1].y();
+    dz_[i] = NodeList_[i].z() - NodeList_[i-1].z();
+       
     // Now do a time step and convect.. Forward Euler
     
     NumMaxSubVortices = MIN(CurrentTimeStep_, NumberOfSubVortices());
@@ -2556,7 +2549,7 @@ void VORTEX_TRAIL::UpdateGeometryLocation_(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE 
 
        k = 1;
        
-       for ( i = 1 ; i <= NumMaxSubVortices ; i+=m ) {
+       for ( i = 1 ; i <= NumberOfSubVortices() ; i+=m ) {
         
           j++;
           
@@ -2577,7 +2570,7 @@ void VORTEX_TRAIL::UpdateGeometryLocation_(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE 
           VortexEdgeList(Level)[j].S() = S_[0][i];
 
           VortexEdgeList(Level)[j].T() = 0.5*( WakeAge_[i] + WakeAge_[i+m] );
-                                      
+                       
           VortexEdgeList(Level)[j].Setup(NodeA, NodeB);          
         
           // Edge length
@@ -2596,12 +2589,12 @@ void VORTEX_TRAIL::UpdateGeometryLocation_(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE 
           }
           
           // Children
-   
+       
           if ( Level > 1 ) {
-
+       
              VortexEdgeList(Level)[j].SetupChildren(VortexEdgeList_[Level-1][k  ],
                                                     VortexEdgeList_[Level-1][k+1]);
-  
+       
           }          
           
           k += 2;
@@ -2610,21 +2603,17 @@ void VORTEX_TRAIL::UpdateGeometryLocation_(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE 
 
        // Final vortex edge trails off to infinity...
        
-       if ( !TimeAccurate_ ) {
-
-          NodeA.x() = NodeList_[NumberOfSubVortices()+1].x();
-          NodeA.y() = NodeList_[NumberOfSubVortices()+1].y();
-          NodeA.z() = NodeList_[NumberOfSubVortices()+1].z();
-          
-          NodeB.x() = NodeList_[NumberOfSubVortices()+2].x();
-          NodeB.y() = NodeList_[NumberOfSubVortices()+2].y();
-          NodeB.z() = NodeList_[NumberOfSubVortices()+2].z();
-         
-          VortexEdgeList(Level)[j+1].S() = S_[0][NumberOfSubVortices()+1];
-          
-          VortexEdgeList(Level)[j+1].Setup(NodeA, NodeB);
+       NodeA.x() = NodeList_[NumberOfSubVortices()+1].x();
+       NodeA.y() = NodeList_[NumberOfSubVortices()+1].y();
+       NodeA.z() = NodeList_[NumberOfSubVortices()+1].z();
        
-       }
+       NodeB.x() = NodeList_[NumberOfSubVortices()+2].x();
+       NodeB.y() = NodeList_[NumberOfSubVortices()+2].y();
+       NodeB.z() = NodeList_[NumberOfSubVortices()+2].z();
+       
+       VortexEdgeList(Level)[j+1].S() = S_[0][NumberOfSubVortices()+1];
+       
+       VortexEdgeList(Level)[j+1].Setup(NodeA, NodeB);
        
        m *= 2;
        
