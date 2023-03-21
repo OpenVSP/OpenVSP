@@ -93,6 +93,7 @@ public:
     double mag() const;                // x = a.mag()
     void normalize();           // a.normalize()
 
+    friend double cross( const vec2d& a, const vec2d& b );
     friend double dot( const vec2d& a, const vec2d& b ); // x = dot(a,b)
     friend double angle( const vec2d& a, const vec2d& b );
     friend double cos_angle( const vec2d& a, const vec2d& b );
@@ -111,6 +112,8 @@ public:
     friend double poly_area( const std::vector< vec2d > & pnt_vec );
     friend vec2d poly_centroid( const std::vector< vec2d > & pnt_vec );
 
+    friend void bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, vec2d const &p3, double s, double t, vec2d &p );
+    friend int inverse_bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, vec2d const &p3, const vec2d &p, double &s, double &t, double &s2, double &t2 );
 };
 
 #endif

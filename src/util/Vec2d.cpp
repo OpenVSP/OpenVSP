@@ -233,6 +233,11 @@ void vec2d::normalize()
     }
 }
 
+double cross( const vec2d& a, const vec2d& b )
+{
+    return ( a.v[0] * b.v[1] - a.v[1] * b.v[0] );
+}
+
 //******* Dot Product:  x = a.dot(b) ******//
 double dot( const vec2d& a, const vec2d& b )
 {
@@ -586,3 +591,146 @@ vec2d poly_centroid( const std::vector< vec2d > & pnt_vec )
 
     return centroid;
 }
+
+bool in_range( double val, double range_min, double range_max, double tol )
+{
+    return ( ( val + tol ) >= range_min ) && ( ( val - tol ) <= range_max );
+}
+
+/* Returns number of solutions found.  If there is one valid solution, it will be put in s and t */
+int inverse_bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, vec2d const &p3, const vec2d &p, double &s, double &t, double &s2, double &t2 )
+{
+    int t_valid, t2_valid;
+
+    double a = cross( p0 - p, p0 - p2 );
+    double b1 = cross( p0 - p, p1 - p3 );
+    double b2 = cross( p1 - p, p0 - p2 );
+    double c = cross( p1 - p, p1 - p3 );
+    double b = 0.5 * ( b1 + b2 );
+
+    double am2bpc = a - 2.0 * b + c;
+
+    int num_valid_s = 0;
+
+    if ( std::abs( am2bpc ) < 1e-10 )
+    {
+        if ( std::abs( a - c ) < 1e-10 )
+        {
+            /* Looks like the input is a line */
+            /* You could set s=0.5 and solve for t if you wanted to */
+            return 0;
+        }
+        s = a / ( a - c );
+        if ( in_range( s, 0, 1, 1e-10 ) )
+        {
+            num_valid_s = 1;
+        }
+    }
+    else
+    {
+        double sqrtbsqmac = sqrt( b * b - a * c );
+        s = ( ( a - b ) - sqrtbsqmac ) / am2bpc;
+        s2 = ( ( a - b ) + sqrtbsqmac ) / am2bpc;
+        num_valid_s = 0;
+        if ( in_range( s, 0, 1, 1e-10 ))
+        {
+            num_valid_s++;
+            if ( in_range( s2, 0, 1, 1e-10 ))
+            {
+                num_valid_s++;
+            }
+        }
+        else
+        {
+            if ( in_range( s2, 0, 1, 1e-10 ))
+            {
+                num_valid_s++;
+                s = s2;
+            }
+        }
+    }
+
+    if ( num_valid_s == 0 )
+    {
+        return 0;
+    }
+
+    t_valid = 0;
+    if ( num_valid_s >= 1 )
+    {
+        vec2d tdenom = ( 1 - s ) * ( p0 - p2 ) + s * ( p1 - p3 );
+        double tdenom_x = tdenom.x();
+        double tdenom_y = tdenom.y();
+        t_valid = 1;
+        if ( std::abs( tdenom_x ) < 1e-10 && std::abs( tdenom_y ) < 1e-10 )
+        {
+            t_valid = 0;
+        }
+        else
+        {
+            /* Choose the more robust denominator */
+            vec2d alt = ( ( 1 - s ) * ( p0 - p ) + s * ( p1 - p ) );
+            if ( std::abs( tdenom_x ) > std::abs( tdenom_y ))
+            {
+                t = alt.x() / ( tdenom_x );
+            }
+            else
+            {
+                t = alt.y() / ( tdenom_y );
+            }
+            if ( !in_range( t, 0, 1, 1e-10 ))
+            {
+                t_valid = 0;
+            }
+        }
+    }
+
+    /* Same thing for s2 and t2 */
+    t2_valid = 0;
+    if ( num_valid_s == 2 )
+    {
+        vec2d tdenom = ( 1 - s2 ) * ( p0 - p2 ) + s2 * ( p1 - p3 );
+        double tdenom_x = tdenom.x();
+        double tdenom_y = tdenom.y();
+        t2_valid = 1;
+        if ( std::abs( tdenom_x ) < 1e-10 && std::abs( tdenom_y ) < 1e-10 )
+        {
+            t2_valid = 0;
+        }
+        else
+        {
+            vec2d alt = ( ( 1 - s2 ) * ( p0 - p ) + s2 * ( p1 - p ) );
+            /* Choose the more robust denominator */
+            if ( std::abs( tdenom_x ) > std::abs( tdenom_y ))
+            {
+                t2 = alt.x() / ( tdenom_x );
+            }
+            else
+            {
+                t2 = alt.y() / ( tdenom_y );
+            }
+            if ( !in_range( t2, 0, 1, 1e-10 ))
+            {
+                t2_valid = 0;
+            }
+        }
+    }
+
+    /* Final cleanup */
+    if ( t2_valid && !t_valid )
+    {
+        s = s2;
+        t = t2;
+        t_valid = t2_valid;
+        t2_valid = 0;
+    }
+
+    return t_valid + t2_valid;
+}
+
+void bi_lin_interp( const vec2d &p0, const vec2d &p1, const vec2d &p2, vec2d const &p3, double s, double t, vec2d &p )
+{
+    p = t * ( s * p3 + ( 1.0 - s ) * p2 ) + ( 1 - t ) * ( s * p1 + ( 1.0 - s ) * p0 );
+}
+
+
