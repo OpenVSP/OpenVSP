@@ -36,6 +36,7 @@
 //
 
 #include <math.h> // fmodf() pow()
+#include <cstdint> // uint32_t uint64_t
 
 #include "as_config.h"
 #include "as_context.h"
