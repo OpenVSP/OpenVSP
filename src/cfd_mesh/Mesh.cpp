@@ -1618,10 +1618,10 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     double VspdW = VspMaxW - VspMinW;
 
     //==== Scale UW Pnts ====//
+    vector< vec2d > uw_prime( uw_points.size() );
     for ( i = 0 ; i < ( int )uw_points.size() ; i++ )
     {
-        vec2d uwprime = m_Surf->GetUWPrime( uw_points[i] );
-        uw_points[i] = uwprime;
+        uw_prime[i] = m_Surf->GetUWPrime( uw_points[i] );
     }
 
 #ifdef DEBUG_CFD_MESH
@@ -1653,7 +1653,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     {
         int ind0 = segs_indexes[i].m_Index[0];
         int ind1 = segs_indexes[i].m_Index[1];
-        fprintf( fp, "%.19e %.19e", uw_points[ind0].x(), uw_points[ind1].x() );
+        fprintf( fp, "%.19e %.19e", uw_prime[ind0].x(), uw_prime[ind1].x() );
 
         if ( i < num_edges - 1 )
         {
@@ -1669,7 +1669,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     {
         int ind0 = segs_indexes[i].m_Index[0];
         int ind1 = segs_indexes[i].m_Index[1];
-        fprintf( fp, "%.19e %.19e", uw_points[ind0].y(), uw_points[ind1].y() );
+        fprintf( fp, "%.19e %.19e", uw_prime[ind0].y(), uw_prime[ind1].y() );
 
         if ( i < num_edges - 1 )
         {
@@ -1738,9 +1738,9 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     int cnt = 0;
     for ( j = 0 ; j < num_pnts ; j++ )
     {
-        in.pointlist[cnt] = uw_points[j].x();
+        in.pointlist[cnt] = uw_prime[j].x();
         cnt++;
-        in.pointlist[cnt] = uw_points[j].y();
+        in.pointlist[cnt] = uw_prime[j].y();
         cnt++;
     }
 
@@ -1757,7 +1757,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
     //==== Constrained Delaunay Trianglulation ====//
-    double est_num_tris = ( uw_points.size() / 4 ) * ( uw_points.size() / 4 );
+    double est_num_tris = ( uw_prime.size() / 4 ) * ( uw_prime.size() / 4 );
     if ( est_num_tris < 1 )
     {
         est_num_tris = 1;
@@ -1768,9 +1768,9 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 
     BndBox box;
-    for ( i = 0 ; i < ( int )uw_points.size() ; i++ )
+    for ( i = 0 ; i < ( int )uw_prime.size() ; i++ )
     {
-        vec3d uwpnt( uw_points[i].x(), uw_points[i].y(), 0 );
+        vec3d uwpnt( uw_prime[i].x(), uw_prime[i].y(), 0 );
         box.Update( uwpnt );
     }
 
@@ -1805,11 +1805,19 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         vector< Node* > nodeVec;
         for ( i = 0; i < out.numberofpoints; i++ )
         {
-            double u = out.pointlist[i * 2];
-            double w = out.pointlist[i * 2 + 1];
+            vec2d uw;
+            if ( i < num_pnts )
+            {
+                uw = uw_points[i];
+            }
+            else
+            {
+                double u = out.pointlist[ i * 2 ];
+                double w = out.pointlist[ i * 2 + 1 ];
 
-            vec2d uwprime = vec2d( u, w );
-            vec2d uw = m_Surf->GetUW( uwprime );
+                vec2d uwprime = vec2d( u, w );
+                uw = m_Surf->GetUW( uwprime );
+            }
 
             vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
             nodeVec.push_back( AddNode( pnt, uw ) );
@@ -1949,11 +1957,19 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         fprintf( fp, "u = [" );
         for ( i = 0; i < out.numberofpoints; i++ )
         {
-            double u = out.pointlist[i * 2];
-            double w = out.pointlist[i * 2 + 1];
+            vec2d uw;
+            if ( i < num_pnts )
+            {
+                uw = uw_points[i];
+            }
+            else
+            {
+                double u = out.pointlist[ i * 2 ];
+                double w = out.pointlist[ i * 2 + 1 ];
 
-            vec2d uwprime = vec2d( u, w );
-            vec2d uw = m_Surf->GetUW( uwprime );
+                vec2d uwprime = vec2d( u, w );
+                uw = m_Surf->GetUW( uwprime );
+            }
             double uu = uw.x();
 
             fprintf( fp, "%f", uu );
@@ -1967,11 +1983,19 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         fprintf( fp, "w = [" );
         for ( i = 0; i < out.numberofpoints; i++ )
         {
-            double u = out.pointlist[i * 2];
-            double w = out.pointlist[i * 2 + 1];
+            vec2d uw;
+            if ( i < num_pnts )
+            {
+                uw = uw_points[i];
+            }
+            else
+            {
+                double u = out.pointlist[ i * 2 ];
+                double w = out.pointlist[ i * 2 + 1 ];
 
-            vec2d uwprime = vec2d( u, w );
-            vec2d uw = m_Surf->GetUW( uwprime );
+                vec2d uwprime = vec2d( u, w );
+                uw = m_Surf->GetUW( uwprime );
+            }
             double ww = uw.y();
 
             fprintf( fp, "%f", ww );
@@ -1985,11 +2009,19 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         fprintf( fp, "x = [" );
         for ( i = 0; i < out.numberofpoints; i++ )
         {
-            double u = out.pointlist[i * 2];
-            double w = out.pointlist[i * 2 + 1];
+            vec2d uw;
+            if ( i < num_pnts )
+            {
+                uw = uw_points[i];
+            }
+            else
+            {
+                double u = out.pointlist[ i * 2 ];
+                double w = out.pointlist[ i * 2 + 1 ];
 
-            vec2d uwprime = vec2d( u, w );
-            vec2d uw = m_Surf->GetUW( uwprime );
+                vec2d uwprime = vec2d( u, w );
+                uw = m_Surf->GetUW( uwprime );
+            }
 
             vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
 
@@ -2004,11 +2036,19 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         fprintf( fp, "y = [" );
         for ( i = 0; i < out.numberofpoints; i++ )
         {
-            double u = out.pointlist[i * 2];
-            double w = out.pointlist[i * 2 + 1];
+            vec2d uw;
+            if ( i < num_pnts )
+            {
+                uw = uw_points[i];
+            }
+            else
+            {
+                double u = out.pointlist[ i * 2 ];
+                double w = out.pointlist[ i * 2 + 1 ];
 
-            vec2d uwprime = vec2d( u, w );
-            vec2d uw = m_Surf->GetUW( uwprime );
+                vec2d uwprime = vec2d( u, w );
+                uw = m_Surf->GetUW( uwprime );
+            }
 
             vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
 
@@ -2023,12 +2063,19 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         fprintf( fp, "z = [" );
         for ( i = 0; i < out.numberofpoints; i++ )
         {
-            double u = out.pointlist[i * 2];
-            double w = out.pointlist[i * 2 + 1];
+            vec2d uw;
+            if ( i < num_pnts )
+            {
+                uw = uw_points[i];
+            }
+            else
+            {
+                double u = out.pointlist[ i * 2 ];
+                double w = out.pointlist[ i * 2 + 1 ];
 
-
-            vec2d uwprime = vec2d( u, w );
-            vec2d uw = m_Surf->GetUW( uwprime );
+                vec2d uwprime = vec2d( u, w );
+                uw = m_Surf->GetUW( uwprime );
+            }
 
             vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
 
