@@ -3345,8 +3345,8 @@ ChevronScreen::ChevronScreen( ScreenMgr* mgr, int w, int h, const string & title
     m_ModifyLayout.AddYGap();
     m_ModifyLayout.AddDividerBox( "Extents" );
 
-    m_ChevronExtentModeChoice.AddItem( "Start \\/ End", vsp::CHEVRON_W01_SE );
-    m_ChevronExtentModeChoice.AddItem( "Center \\/ Width", vsp::CHEVRON_W01_CW );
+    m_ChevronExtentModeChoice.AddItem( "Start / End", vsp::CHEVRON_W01_SE );
+    m_ChevronExtentModeChoice.AddItem( "Center / Width", vsp::CHEVRON_W01_CW );
     m_ModifyLayout.AddChoice( m_ChevronExtentModeChoice, "Mode:" );
 
     m_ModifyLayout.SetChoiceButtonWidth( 0 );

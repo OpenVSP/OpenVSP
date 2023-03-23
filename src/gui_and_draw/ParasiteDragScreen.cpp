@@ -283,7 +283,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_FreestreamTypeChoice.AddItem( "Pres + Density Control" );
     m_FreestreamTypeChoice.AddItem( "Pres + Temp Control" );
     m_FreestreamTypeChoice.AddItem( "Density + Temp Control" );
-    m_FreestreamTypeChoice.AddItem( "Re\\/L + Mach Control" );
+    m_FreestreamTypeChoice.AddItem( "Re/L + Mach Control" );
     // TODO: Add Total Control of All Parameters
     m_FreestreamTypeChoice.UpdateItems();
     m_OptionsLayout.AddYGap();
@@ -300,10 +300,10 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     // Velocity Input and Units
     m_OptionsLayout.AddSlider( m_FlowParmVinfSlider, "Vinf", 200.0, "%7.2f" );
     m_OptionsLayout.AddChoice( m_VinfUnitChoice, "" );
-    m_VinfUnitChoice.AddItem( "ft\\/s" );
-    m_VinfUnitChoice.AddItem( "m\\/s" );
+    m_VinfUnitChoice.AddItem( "ft/s" );
+    m_VinfUnitChoice.AddItem( "m/s" );
     m_VinfUnitChoice.AddItem( "mph" );
-    m_VinfUnitChoice.AddItem( "km\\/hr" );
+    m_VinfUnitChoice.AddItem( "km/hr" );
     m_VinfUnitChoice.AddItem( "KEAS" );
     m_VinfUnitChoice.AddItem( "KTAS" );
     m_VinfUnitChoice.AddItem( "Mach" );
@@ -344,9 +344,9 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     // Pressure Input and Units
     m_OptionsLayout.AddSlider( m_FlowParmPresSlider, "Pres", 100.0, "%7.3f" );
     m_OptionsLayout.AddChoice( m_PresUnitChoice, "" );
-    temp = "lbf\\/ft" + squared;
+    temp = "lbf/ft" + squared;
     m_PresUnitChoice.AddItem( temp );
-    temp = "lbf\\/in" + squared;
+    temp = "lbf/in" + squared;
     m_PresUnitChoice.AddItem( temp );
     m_PresUnitChoice.AddItem( "Ba" );
     m_PresUnitChoice.AddItem( "Pa" );
@@ -439,7 +439,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_excresTypeChoice.AddItem( "CD", vsp::EXCRESCENCE_CD );
     m_excresTypeChoice.AddItem( "% of CD_Geom", vsp::EXCRESCENCE_PERCENT_GEOM );
     m_excresTypeChoice.AddItem( "% Margin", vsp::EXCRESCENCE_MARGIN );
-    m_excresTypeChoice.AddItem( "Drag Area, D\\/q", vsp::EXCRESCENCE_DRAGAREA );
+    m_excresTypeChoice.AddItem( "Drag Area, D/q", vsp::EXCRESCENCE_DRAGAREA );
     m_excresTypeChoice.UpdateItems();
     m_ExcrescenceListLayout.AddButton( m_excresAdd, " Add Excrescence " );
 

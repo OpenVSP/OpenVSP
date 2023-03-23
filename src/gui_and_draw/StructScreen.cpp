@@ -127,7 +127,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_StructureTabLayout.AddChoice( m_ModelUnitChoice, "OpenVSP Model Unit System (Length)" );
 
     string squared( 1, (char) 178 );
-    string bin_name = "BIN (lbf sec" + squared + " \/ in, in)";
+    string bin_name = "BIN (lbf sec" + squared + " / in, in)";
     m_StructUnitChoice.AddItem( bin_name, vsp::BIN_UNIT );
     m_StructUnitChoice.AddItem( "BFT (slug, ft)", vsp::BFT_UNIT );
     m_StructUnitChoice.AddItem( "MPA (tonne, mm)", vsp::MPA_UNIT );
