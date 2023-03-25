@@ -46,6 +46,10 @@ public:
     {
         m_SCurve_A = crv_A;
     }
+    void SetBCurve( SCurve* crv_B )
+    {
+        m_SCurve_B = crv_B;
+    }
 
 
     void DebugEdgeMatching( FILE* fp );
