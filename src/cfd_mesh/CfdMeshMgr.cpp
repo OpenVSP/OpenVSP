@@ -2636,9 +2636,22 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
     list< ISegChain* >::iterator c;
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
-        cloud.m_IPnts.push_back( ( *c )->m_TessVec.front() ); // Add Front Point
-        cloud.m_IPnts.push_back( ( *c )->m_TessVec.back() );  // Add Back Point
+        if( (*c)->m_BorderFlag )
+        {
+            cloud.m_IPnts.push_back(( *c )->m_TessVec.front()); // Add Front Point
+            cloud.m_IPnts.push_back(( *c )->m_TessVec.back());  // Add Back Point
+        }
     }
+
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    {
+        if( !(*c)->m_BorderFlag )
+        {
+            cloud.m_IPnts.push_back(( *c )->m_TessVec.front()); // Add Front Point
+            cloud.m_IPnts.push_back(( *c )->m_TessVec.back());  // Add Back Point
+        }
+    }
+
 
     // tol_fract previously was compared to the distance between groups as a fraction of the local edge length.
     // However, it currently is simply compared to the distance between groups.
