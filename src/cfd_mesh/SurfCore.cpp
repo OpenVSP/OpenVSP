@@ -5,6 +5,8 @@
 
 #include "SurfCore.h"
 #include "BezierCurve.h"
+#include "eli/geom/intersect/distance_angle_surface.hpp"
+#include "StlHelper.h"
 
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
 
@@ -789,4 +791,81 @@ double SurfCore::FindNearest( double &u, double &w, const vec3d &pt ) const
     dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p );
 
     return dist;
+}
+
+// u0, w0 is assumed to be a corner point of a surface.
+// This finds a vector of points u,w that are distance len (doubling each point) from u0,w0 in the direction midway
+// from the u and w directions.
+void SurfCore::FindCornerPtVec( vector < vec3d > &uwvec, const double &u0, const double &w0, double len )
+{
+    double tol = 1e-6;
+
+    double umin = m_Surface.get_u0();
+    double umax = m_Surface.get_umax();
+    double wmin = m_Surface.get_v0();
+    double wmax = m_Surface.get_vmax();
+
+    // Use midpoint as initial guess and to inform marching direction if needed.
+    double umid = ( umin + umax ) * 0.5;
+    double wmid = ( wmin + wmax ) * 0.5;
+
+    // No matter where u0, w0 is, udir, wdir will point towards the center of the panel.
+    double udir = ( umid - u0 ) * 0.25;
+    if ( std::abs( udir ) < tol )
+    {
+        udir = ( umax - umin ) * 0.1;
+    }
+
+    double wdir = ( wmid - w0 ) * 0.25;
+    if ( std::abs( wdir ) < tol )
+    {
+        wdir = ( wmax - wmin ) * 0.1;
+    }
+
+    surface_point_type p( m_Surface.f( u0, w0 ) );
+
+    // Find derivative in u direction.  If that is zero, try marching out in u to find u direction.
+    surface_point_type du = sgn( udir ) * m_Surface.f_u( u0, w0 );
+    double uend = u0;
+    int i = 0;
+    while ( du.norm() < tol && i < 10 )
+    {
+        uend = clamp( uend + udir, umin, umax );
+        surface_point_type pu( m_Surface.f( uend, w0 ) );
+        du = pu - p;
+        i++;
+    }
+    du.normalize();
+
+
+    // Find derivative in w direction.  If that is zero, try marching out in w to find w direction.
+    surface_point_type dw = sgn( wdir ) * m_Surface.f_v( u0, w0 );
+    double wend = w0;
+    i = 0;
+    while ( dw.norm() < tol && i < 10 )
+    {
+        wend = clamp( wend + wdir, wmin, wmax );
+        surface_point_type pw( m_Surface.f( u0, wend ) );
+        dw = pw - p;
+        i++;
+    }
+    dw.normalize();
+
+    // Find dot product of half the angle between du and dw directions.
+    double halfdot = cos( 0.5 * acos( du.dot( dw ) ) );
+
+    int numtry = 16;
+    for ( int i = 0; i < numtry; i++ )
+    {
+        double u, w;
+        int retval;
+        eli::geom::intersect::distance_angle( u, w, m_Surface, p, du, len * len, halfdot, umid, wmid, wmin, wmax, retval );
+
+        if ( retval == 0 )
+        {
+            uwvec.push_back( vec3d( u, w, 0.0 ) );
+        }
+
+        len *= 2.0;
+    }
 }

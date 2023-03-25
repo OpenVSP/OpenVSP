@@ -125,6 +125,8 @@ public:
     double FindNearest( double &u, double &w, const vec3d &pt, double u0, double w0, double umin, double umax, double vmin, double vmax ) const;
     double FindNearest( double &u, double &w, const vec3d &pt ) const;
 
+    void FindCornerPtVec( vector < vec3d > &uwvec, const double &u0, const double &w0, double len );
+
 protected:
     piecewise_surface_type m_Surface;
 
