@@ -103,6 +103,12 @@ void CfdMeshMgrSingleton::GenerateMesh()
     // addOutputText( "Intersect\n" ); // Output in intersect() itself.
     Intersect();
 
+    addOutputText( "Degen Corners\n" );
+    FindDegenCorners();
+
+    addOutputText( "Add Degen Corner Chains\n" );
+    AddDegenCornerChains();
+
     addOutputText( "Binary Adaptation Curve Approximation\n" );
     BinaryAdaptIntCurves();
 
@@ -193,6 +199,10 @@ void CfdMeshMgrSingleton::CleanUp()
     }
     m_BadFaces.clear();
 
+    // These are freed elsewhere, just need to clear references to them.
+    m_DegenCorners.clear();
+    m_DegenCornerChains.clear();
+
     // Clean up DrawObj's
     m_MeshBadEdgeDO = DrawObj();
     m_MeshBadTriDO = DrawObj();
@@ -202,6 +212,9 @@ void CfdMeshMgrSingleton::CleanUp()
     m_BBoxLinesDO = DrawObj();
     m_BBoxLineStripSymSplit = DrawObj();
     m_BBoxLineSymSplit = DrawObj();
+
+    m_DegenCornerPointDO = DrawObj();
+    m_DegenCornerEdgeDO = DrawObj();
 
     m_TagDO.clear();
 }
@@ -3316,6 +3329,40 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
         }
     }
 
+#ifdef DEBUG_CFD_MESH
+    m_DegenCornerPointDO.m_GeomID = GetID() + "DegenCornerPts";
+    m_DegenCornerPointDO.m_Type = DrawObj::VSP_POINTS;
+    m_DegenCornerPointDO.m_PointSize = 10.0;
+    m_DegenCornerPointDO.m_PointColor = vec3d( 0, 0, 1 );
+
+    m_DegenCornerEdgeDO.m_GeomID = GetID() + "DegenCornerEdge";
+    m_DegenCornerEdgeDO.m_Type = DrawObj::VSP_LINES;
+    m_DegenCornerEdgeDO.m_LineColor = vec3d( 0, 0, 1 );
+    m_DegenCornerEdgeDO.m_LineWidth = 3.0;
+
+    m_DegenCornerPointDO.m_PntVec.clear();
+    m_DegenCornerEdgeDO.m_PntVec.clear();
+    for ( int i = 0; i < m_DegenCornerChains.size(); i++ )
+    {
+        ISegChain* dchain = m_DegenCornerChains[i];
+
+        // Add points
+        for ( int j = 0; j < dchain->m_ISegDeque.size(); j++ )
+        {
+            m_DegenCornerPointDO.m_PntVec.push_back( dchain->m_ISegDeque[j]->m_IPnt[0]->m_Pnt );
+            m_DegenCornerPointDO.m_PntVec.push_back( dchain->m_ISegDeque[j]->m_IPnt[1]->m_Pnt );
+        }
+
+        for ( int j = 0; j < dchain->m_TessVec.size() - 1; j++ )
+        {
+            m_DegenCornerEdgeDO.m_PntVec.push_back( dchain->m_TessVec[j]->m_Pnt );
+            m_DegenCornerEdgeDO.m_PntVec.push_back( dchain->m_TessVec[j+1]->m_Pnt );
+        }
+    }
+    m_DegenCornerPointDO.m_GeomChanged = true;
+    m_DegenCornerEdgeDO.m_GeomChanged = true;
+#endif
+
     // Render bad edges
     m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";
     m_MeshBadEdgeDO.m_Type = DrawObj::VSP_LINES;
@@ -3581,6 +3628,9 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     draw_obj_vec.push_back( &m_MeshBadEdgeDO );
     draw_obj_vec.push_back( &m_MeshBadTriDO );
     draw_obj_vec.push_back( &m_MeshBadQuadDO );
+
+    draw_obj_vec.push_back( &m_DegenCornerPointDO );
+    draw_obj_vec.push_back( &m_DegenCornerEdgeDO );
 }
 
 void CfdMeshMgrSingleton::UpdateBBoxDO( BndBox box )
@@ -3890,6 +3940,163 @@ void CfdMeshMgrSingleton::Subtag( Surf* surf )
             }
         }
         SubSurfaceMgr.m_TagCombos.insert( face.m_Tags );
+    }
+}
+
+void CfdMeshMgrSingleton::FindDegenCorners()
+{
+    double tol = 1e-8;
+
+    m_DegenCorners.clear();
+
+    list< ISegChain* >::iterator c, d;
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
+    {
+        if ( ( *c )->m_BorderFlag )
+        {
+            d = c;
+            for ( ++d; d != m_ISegChainList.end(); ++d )
+            {
+                if ( ( *d )->m_BorderFlag )
+                {
+                    if (((( *c )->m_SurfA == ( *d )->m_SurfA ) || (( *c )->m_SurfA == ( *d )->m_SurfB )) &&
+                        ((( *c )->m_SurfB == ( *d )->m_SurfA ) || (( *c )->m_SurfB == ( *d )->m_SurfB )))
+                    {
+                        ISeg* frontSegC = ( *c )->m_ISegDeque.front();
+                        frontSegC->m_IPnt[0]->CompPnt();
+                        vec3d pC0 = frontSegC->m_IPnt[0]->m_Pnt;
+
+                        ISeg* frontSegD = ( *d )->m_ISegDeque.front();
+                        frontSegD->m_IPnt[0]->CompPnt();
+                        vec3d pD0 = frontSegD->m_IPnt[0]->m_Pnt;
+
+                        ISeg* backSegC = ( *c )->m_ISegDeque.back();
+                        backSegC->m_IPnt[1]->CompPnt();
+                        vec3d pC1 = backSegC->m_IPnt[1]->m_Pnt;
+
+                        ISeg* backSegD = ( *d )->m_ISegDeque.back();
+                        backSegD->m_IPnt[1]->CompPnt();
+                        vec3d pD1 = backSegD->m_IPnt[1]->m_Pnt;
+
+                        int cornerC = -1;
+                        int cornerD = -1;
+
+                        if( dist_squared( pC0, pD0 ) < tol )
+                        {
+                            cornerC = 0;
+                            cornerD = 0;
+
+                            m_DegenCorners.push_back( frontSegC->m_IPnt[0] );
+                        }
+                        if( dist_squared( pC1, pD1 ) < tol )
+                        {
+                            cornerC = 1;
+                            cornerD = 1;
+
+                            m_DegenCorners.push_back( backSegC->m_IPnt[1] );
+                        }
+                        if( dist_squared( pC0, pD1 ) < tol )
+                        {
+                            cornerC = 0;
+                            cornerD = 1;
+
+                            m_DegenCorners.push_back( frontSegC->m_IPnt[0] );
+                        }
+                        if( dist_squared( pC1, pD0 ) < tol )
+                        {
+                            cornerC = 1;
+                            cornerD = 0;
+
+                            m_DegenCorners.push_back( backSegC->m_IPnt[1] );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void CfdMeshMgrSingleton::AddDegenCornerChains()
+{
+    double degen_tol = 1.0e-6;
+
+    for ( int i = 0; i < m_DegenCorners.size(); i++ )
+    {
+        IPnt* corner = m_DegenCorners[i];
+
+        for ( int j = 0; j < corner->m_Puws.size(); j++ )
+        {
+            Puw* puw_corner = corner->m_Puws[j];
+
+            Surf* s = puw_corner->m_Surf;
+            vec2d uw0 = puw_corner->m_UW;
+            double u0 = uw0.x();
+            double w0 = uw0.y();
+
+            vector < vec3d > pts;
+            pts.push_back( vec3d( u0, w0, 0.0 ) );
+
+            // Build a vector of corner points, each double the distance from the corner as the prior one.
+            // Starting at .001 * minlen, we will end at 65 * minlen.
+            double l = GetGridDensityPtr()->m_MinLen * 0.001;
+            s->GetSurfCore()->FindCornerPtVec( pts, u0, w0, l );
+
+
+            vec3d uw1_3d = pts.back();
+            vec2d uw1 = vec2d( uw1_3d.x(), uw1_3d.y() );
+
+            Puw* puwstart0 = new Puw( s, uw0 );
+            Puw* puwstart1 = new Puw( s, uw0 );
+
+            Puw* puwend0 = new Puw( s, uw1 );
+            Puw* puwend1 = new Puw( s, uw1 );
+
+
+            m_DelPuwVec.push_back( puwstart0 );                 // Save to delete later
+            m_DelPuwVec.push_back( puwstart1 );
+            m_DelPuwVec.push_back( puwend0 );
+            m_DelPuwVec.push_back( puwend1 );
+
+            IPnt* p0 = new IPnt( puwstart0, puwstart1 );
+            IPnt* p1 = new IPnt( puwend0, puwend1 );
+
+            m_DelIPntVec.push_back( p0 );           // Save to delete later
+            m_DelIPntVec.push_back( p1 );
+
+            p0->CompPnt();
+            p1->CompPnt();
+
+            ISeg* seg1 = new ISeg( s, s, p0, p1 );
+
+            ISegChain* chain = new ISegChain;           // Create New Chain
+            chain->m_SurfA = s;
+            chain->m_SurfB = s;
+            chain->m_ISegDeque.push_back( seg1 );
+
+            chain->m_BorderFlag = false;
+
+            chain->m_ACurve.InterpolateLinear( pts );
+            chain->m_ACurve.SetSurf( s );
+
+            ICurve* icrv = new ICurve;
+            icrv->SetACurve( &(chain->m_ACurve) );
+            chain->m_ACurve.SetICurve( icrv );
+
+            chain->m_BCurve = chain->m_ACurve;
+            icrv->SetBCurve( &(chain->m_BCurve) );
+            m_ICurveVec.push_back( icrv );
+
+            if ( chain->Valid() && chain->m_ACurve.Length( 10 ) > degen_tol )
+            {
+                m_ISegChainList.push_back( chain );
+                m_DegenCornerChains.push_back( chain );
+            }
+            else
+            {
+                delete chain;
+                chain = NULL;
+            }
+        }
     }
 }
 
