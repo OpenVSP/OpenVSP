@@ -859,10 +859,12 @@ void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw,
     //==== Store Only One Instance of each IPnt ====//
     set< IPnt* > ipntSet;
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
+    {
         for ( int j = 0 ; j < ( int )chains[i]->m_TessVec.size() ; j += 2 )  // Note every other point fed.
         {
             ipntSet.insert( chains[i]->m_TessVec[j] );
         }
+    }
 
     vector < vec2d > uwPntVec;
 
