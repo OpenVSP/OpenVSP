@@ -2656,7 +2656,7 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
     // tol_fract previously was compared to the distance between groups as a fraction of the local edge length.
     // However, it currently is simply compared to the distance between groups.
     // Consequently, while a reasonable value was previously 1e-2, a much smaller value is now appropriate.
-    double tol = GetGridDensityPtr()->m_MinLen / 100.0;
+    double tol = GetGridDensityPtr()->m_MinLen / 1000.0;
 
     MergeEndPointCloud( cloud, tol );
 }
