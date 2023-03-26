@@ -19,6 +19,7 @@
 #include "SurfPatch.h"
 #include "MapSource.h"
 #include "SurfCore.h"
+#include "TwoDNN.h"
 
 #include <cassert>
 
@@ -179,8 +180,8 @@ public:
 
     void BuildDistMap();
     void CleanupDistMap();
-    double GetUScale( double w );
-    double GetWScale( double u );
+    vec2d GetUWPrime( vec2d uw );
+    vec2d GetUW( vec2d uwprime );
 
     bool ValidUW( vec2d & uw, double slop = 1.0e-4 ) const;
 
@@ -359,9 +360,10 @@ protected:
     int m_NumMap;
     vector< vector< MapSource > > m_SrcMap;
 
-    bool m_ScaleUFlag;
-    vector< double > m_UScaleMap;
-    vector< double > m_WScaleMap;
+    void UtoIndexFrac( const double &u, int &indx, double &frac );
+
+    vector < vector < vec2d > > m_STMap;
+    TwoDNodeCloud m_UWMap;
 
     int m_FeaPartIndex; // Which FeaPart in the FeaStructure
     int m_FeaPartSurfNum; // Which surface in the FeaPart

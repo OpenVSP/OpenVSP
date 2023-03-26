@@ -1589,19 +1589,11 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     double VspdU = VspMaxU - VspMinU;
     double VspdW = VspMaxW - VspMinW;
 
-    for ( i = 0 ; i < num_pnts ; i++ )
-    {
-        uw_points[i] = uw_points[i] - VspMinUW;
-    }
-
-
     //==== Scale UW Pnts ====//
     for ( i = 0 ; i < ( int )uw_points.size() ; i++ )
     {
-        double su = m_Surf->GetUScale( uw_points[i].y() / VspdW );
-        double sw = m_Surf->GetWScale( uw_points[i].x() / VspdU );
-        uw_points[i].set_x( su * uw_points[i].x() );
-        uw_points[i].set_y( sw * uw_points[i].y() );
+        vec2d uwprime = m_Surf->GetUWPrime( uw_points[i] );
+        uw_points[i] = uwprime;
     }
 
 #ifdef DEBUG_CFD_MESH
@@ -1755,9 +1747,10 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         {
             double u = out.pointlist[i * 2];
             double w = out.pointlist[i * 2 + 1];
-            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
-            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
-            vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW );
+
+            vec2d uwprime = vec2d( u, w );
+            vec2d uw = m_Surf->GetUW( uwprime );
+
             vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
             nodeVec.push_back( AddNode( pnt, uw ) );
         }
@@ -1877,9 +1870,10 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         {
             double u = out.pointlist[i * 2];
             double w = out.pointlist[i * 2 + 1];
-            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
-            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
-            double uu = su * u + VspMinU;
+
+            vec2d uwprime = vec2d( u, w );
+            vec2d uw = m_Surf->GetUW( uwprime );
+            double uu = uw.x();
 
             fprintf( fp, "%f", uu );
 
@@ -1894,9 +1888,10 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         {
             double u = out.pointlist[i * 2];
             double w = out.pointlist[i * 2 + 1];
-            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
-            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
-            double ww = sw * w + VspMinW;
+
+            vec2d uwprime = vec2d( u, w );
+            vec2d uw = m_Surf->GetUW( uwprime );
+            double ww = uw.y();
 
             fprintf( fp, "%f", ww );
 
@@ -1911,9 +1906,10 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         {
             double u = out.pointlist[i * 2];
             double w = out.pointlist[i * 2 + 1];
-            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
-            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
-            vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW );
+
+            vec2d uwprime = vec2d( u, w );
+            vec2d uw = m_Surf->GetUW( uwprime );
+
             vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
 
             fprintf( fp, "%f", pnt.x() );
@@ -1929,9 +1925,10 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         {
             double u = out.pointlist[i * 2];
             double w = out.pointlist[i * 2 + 1];
-            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
-            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
-            vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW );
+
+            vec2d uwprime = vec2d( u, w );
+            vec2d uw = m_Surf->GetUW( uwprime );
+
             vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
 
             fprintf( fp, "%f", pnt.y() );
@@ -1947,9 +1944,11 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
         {
             double u = out.pointlist[i * 2];
             double w = out.pointlist[i * 2 + 1];
-            double su = 1.0 / m_Surf->GetUScale( w / VspdW );
-            double sw = 1.0 / m_Surf->GetWScale( u / VspdU );
-            vec2d uw = vec2d( su * u + VspMinU, sw * w + VspMinW );
+
+
+            vec2d uwprime = vec2d( u, w );
+            vec2d uw = m_Surf->GetUW( uwprime );
+
             vec3d pnt = m_Surf->CompPnt( uw.v[0], uw.v[1] );
 
             fprintf( fp, "%f", pnt.z() );
