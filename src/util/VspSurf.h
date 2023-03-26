@@ -246,8 +246,8 @@ public:
     // Apply STEP or IGES settings to this VSPSurf in preparation for export
     vector < piecewise_surface_type > PrepCADSurfs( bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double >& USplit, const vector < double >& WSplit ) const;
 
-    void SetUSkipFirst( bool f );
-    void SetUSkipLast( bool f );
+    void SetUSkipFirst( int nskip, bool f );
+    void SetUSkipLast( int nskip, bool f );
 
     piecewise_surface_type* GetBezierSurface()           { return &m_Surface; }
 

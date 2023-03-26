@@ -1228,19 +1228,26 @@ void VspSurf::ResetUSkip() const
     }
 }
 
-void VspSurf::SetUSkipFirst( bool f )
+void VspSurf::SetUSkipFirst( int nskip, bool f )
 {
     if( !m_USkip.empty() )
     {
-        m_USkip.front() = f;
+        for ( int iskip = 0; iskip < m_USkip.size() && iskip < nskip; iskip++ )
+        {
+            m_USkip[ iskip ] = f;
+        }
     }
 }
 
-void VspSurf::SetUSkipLast( bool f )
+void VspSurf::SetUSkipLast( int nskip, bool f )
 {
     if( !m_USkip.empty() )
     {
-        m_USkip.back() = f;
+        int n = m_USkip.size();
+        for ( int iskip = 0; iskip < n && iskip < nskip; iskip++ )
+        {
+            m_USkip[ n - iskip - 1 ] = f;
+        }
     }
 }
 
