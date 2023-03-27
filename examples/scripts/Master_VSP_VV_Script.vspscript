@@ -2979,10 +2979,10 @@ class HersheyVV : VV_Base
             SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", AlphaStart, 0);
             SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaEnd", AlphaEnd, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
-            array<double> MachNpts(1, 1); // Start and end at 0.1
+            array<int> MachNpts(1, 1); // Start and end at 0.1
             SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
             SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachEnd", m_MachVec, 0);
-            SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
 
             Update();
 
@@ -3103,9 +3103,9 @@ class HersheyVV : VV_Base
             // Freestream Parameters
             array<double> Alpha(1, 1.0);
             SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", Alpha, 0);
-            array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
             SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
-            array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
             
             Update();
 
@@ -4825,9 +4825,9 @@ class SweepVV : VV_Base
                 // Freestream Parameters
                 array<double> alpha(1, 1);
                 SetDoubleAnalysisInput(m_VSPSweepAnalysis, "AlphaStart", alpha, 0);
-                array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
                 SetDoubleAnalysisInput(m_VSPSweepAnalysis, "MachStart", m_MachVec, 0);
-                array<int> MachNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
+                SetIntAnalysisInput(m_VSPSweepAnalysis, "MachNpts", MachNpts, 0);
 
                 Update();
 
