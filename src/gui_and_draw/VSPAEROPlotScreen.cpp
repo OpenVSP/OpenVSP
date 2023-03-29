@@ -2693,7 +2693,7 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                         AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_ConvergenceiPlot ) );
 
                         char strbuf[100];
-                        ConstructFlowConditionString( strbuf, 0, res, false, true );
+                        ConstructFlowConditionString( strbuf, sizeof(strbuf), res, false, true );
                         string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
                         m_ConvergenceLegendLayout.AddLegendEntry( legendstr, c );
                         m_ConvergenceiPlot++;
@@ -2859,7 +2859,7 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
                     }
 
                     char strbuf[100];
-                    ConstructFlowConditionString( strbuf, 0, res, false, false );
+                    ConstructFlowConditionString( strbuf, sizeof(strbuf), res, false, false );
                     legendstr = strbuf;
                 }
                 else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
@@ -3002,7 +3002,7 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
                         }
                         else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
                         {
-                            ConstructFlowConditionString( strbuf, 0, res, false, true );
+                            ConstructFlowConditionString( strbuf, sizeof(strbuf), res, false, true );
                             legendstr = strbuf;
                         }
 
