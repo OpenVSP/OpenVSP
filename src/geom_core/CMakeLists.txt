@@ -76,6 +76,7 @@ ParmContainer.cpp
 ParmMgr.cpp
 ParmUndo.cpp
 PCurve.cpp
+PGMesh.cpp
 PodGeom.cpp
 ProjectionMgr.cpp
 PropGeom.cpp
@@ -159,6 +160,7 @@ ParmContainer.h
 ParmMgr.h
 ParmUndo.h
 PCurve.h
+PGMesh.h
 PodGeom.h
 ProjectionMgr.h
 PropGeom.h
