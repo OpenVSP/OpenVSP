@@ -1268,6 +1268,27 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                     break;
                 }
 
+                if ( GetMeshPtr()->m_TrimPt.size() > 0 ) // Skip if there are no trim groups.
+                {
+                    bool skipElement = false;
+                    vec3d mid_pnt = 0.5 * ( start_pnt + end_pnt );
+
+                    for ( int i = 0; i < GetMeshPtr()->m_TrimPt.size(); i++ )
+                    {
+                        // This seems convoluted, but it needs to be cumulative.
+                        if ( CullPtByTrimGroup( mid_pnt, GetMeshPtr()->m_TrimPt[ i ], GetMeshPtr()->m_TrimNorm[ i ] ) )
+                        {
+                            skipElement = true;
+                            break; // Once flagged for deletion, don't check further trim groups, go to next beam segment.
+                        }
+                    }
+
+                    if ( skipElement )
+                    {
+                        break;
+                    }
+                }
+
                 //// Use node point if close to beam endpoints (avoids tolerance errors in BuildIndMap and FindPntInd)
                 //for ( size_t k = 0; k < node_vec.size(); k++ )
                 //{
