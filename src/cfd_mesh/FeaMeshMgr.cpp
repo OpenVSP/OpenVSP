@@ -1258,8 +1258,6 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             // Define FeaBeam elements
             for ( int j = 1; j < (int)ipntVec.size(); j++ )
             {
-                FeaBeam* beam = new FeaBeam;
-
                 vec3d start_pnt = ipntVec[j - 1];
                 vec3d end_pnt = ipntVec[j];
 
@@ -1290,6 +1288,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 all_uw_vec.push_back( iuwVec[j - 1] );
                 all_uw_vec.push_back( iuwVec[j] );
 
+                FeaBeam* beam = new FeaBeam;
                 beam->Create( start_pnt, end_pnt, inormVec[ j - 1 ],  inormVec[ j ] );
                 beam->SetFeaPartIndex( FeaPartIndex );
                 beam->SetFeaSSIndex( ssindexVec[j] );
