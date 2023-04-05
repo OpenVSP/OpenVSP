@@ -829,19 +829,24 @@ bool Face::Contains( Node* a, Node* b )
         return false;
     }
 
-    if ( a == n0 || a == n1 || a == n2 )
-    {
-        if ( b == n0 || b == n1 || b == n2 )
-        {
-            return true;
-        }
-    }
-
     if ( n3 )
     {
-        if ( a == n3 || b == n3 )
+        if ( a == n0 || a == n1 || a == n2 || a == n3 )
         {
-            return true;
+            if ( b == n0 || b == n1 || b == n2 || b == n3 )
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+        if ( a == n0 || a == n1 || a == n2 )
+        {
+            if ( b == n0 || b == n1 || b == n2 )
+            {
+                return true;
+            }
         }
     }
 
