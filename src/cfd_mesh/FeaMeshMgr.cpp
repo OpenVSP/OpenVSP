@@ -1022,6 +1022,8 @@ void FeaMeshMgrSingleton::BuildMeshOrientationLookup()
     }
 }
 
+// Although this appears to be an angle comparison (via the dot product), it is actually the signed distance
+// between the point and the plane.  Hence, a comparison to the mesh minimum length as a tolerance is appropriate.
 bool FeaMeshMgrSingleton::CullPtByTrimGroup( const vec3d &pt, const vector < vec3d > & pplane, const vector < vec3d > & nplane )
 {
     double tol = 0.01 * GetGridDensityPtr()->m_MinLen;
@@ -1030,7 +1032,7 @@ bool FeaMeshMgrSingleton::CullPtByTrimGroup( const vec3d &pt, const vector < vec
     for ( int iplane = 0; iplane < numplane; iplane++ )
     {
         vec3d u = pt - pplane[ iplane ];
-        double dp = dot( u, nplane[ iplane ] );
+        double dp = dot( u, nplane[ iplane ] );  // nplane is always a unit vector.
         if ( dp < tol )
         {
             return false;
