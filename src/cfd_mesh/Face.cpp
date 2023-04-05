@@ -594,7 +594,7 @@ Edge* Face::FindEdgeWithout( Node* node_ptr )
     return NULL;
 }
 
-Edge* Face::FindLongEdge()
+Edge* Face::FindShortEdge()
 {
     if ( !e0 || !e1 || !e2 )
     {

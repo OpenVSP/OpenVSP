@@ -492,7 +492,7 @@ int Mesh::RemoveRevFaces()
 
         if ( dprod < 0.0 )
         {
-            Edge* e = (*f)->FindLongEdge();
+            Edge* e = ( *f )->FindShortEdge();
 
             remEdges.push_back( e );
 
