@@ -585,9 +585,9 @@ Edge* Face::FindEdgeWithout( Node* node_ptr )
     }
     if ( e3 )
     {
-        if ( e2->n0 != node_ptr && e2->n1 != node_ptr )
+        if ( e3->n0 != node_ptr && e3->n1 != node_ptr )
         {
-            return e2;
+            return e3;
         }
     }
 
@@ -1035,7 +1035,7 @@ void Face::BuildRemovalSet( set < Face* > &remFaces, set < Edge* > &remEdges, se
 
     if ( e3 )
     {
-        if ( e2->BothAdjoiningFacesInterior() )
+        if ( e3->BothAdjoiningFacesInterior() )
         {
             remEdges.insert( e3 );
         }
