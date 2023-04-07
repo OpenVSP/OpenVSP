@@ -111,6 +111,8 @@ public:
 
     list< PGFace* >::iterator m_List_it;
 
+    vec3d m_Nvec;
+
     vector< PGEdge* > m_EdgeVec;
 
     // Set to true if PGFace should be removed
