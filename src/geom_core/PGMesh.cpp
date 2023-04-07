@@ -238,6 +238,39 @@ PGEdge* PGFace::FindEdge( PGNode* nn0, PGNode* nn1 ) const
     return nullptr;
 }
 
+void PGFace::GetNodes( vector< PGNode* > & nodVec ) const
+{
+    nodVec.clear();
+    PGNode *nprev = NULL;
+
+    for ( int i = 0 ; i < ( int )m_EdgeVec.size() ; i++ )
+    {
+        PGEdge *e = m_EdgeVec[i];
+
+        if ( !nprev )
+        {
+            // Sort out which node order gets us started in the edge order.
+            PGEdge *enext = m_EdgeVec[ i + 1 ];
+            if ( enext->ContainsNode( e->m_N0 ) )
+            {
+                nprev = e->m_N1;
+            }
+            else
+            {
+                nprev = e->m_N0;
+            }
+
+            nodVec.push_back( nprev );
+        }
+
+        PGNode *nnext = e->OtherNode( nprev );
+
+        nodVec.push_back( nnext );
+
+        nprev = nnext;
+    }
+}
+
 void PGFace::AddEdge( PGEdge* e )
 {
     if ( vector_contains_val( m_EdgeVec, e ) )

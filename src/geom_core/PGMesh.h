@@ -104,6 +104,8 @@ public:
     PGEdge* FindEdge( PGNode* nn0, PGNode* nn1 ) const;
 
 
+    void GetNodes( vector< PGNode* > & nodVec ) const;
+
     void AddEdge( PGEdge* e );
     void RemoveEdge( PGEdge* e );
     bool Contains( PGEdge* e ) const;
