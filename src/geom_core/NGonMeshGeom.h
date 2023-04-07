@@ -11,7 +11,7 @@
 #include "Geom.h"
 
 #include "TMesh.h"
-#include "NGMesh.h"
+#include "PGMesh.h"
 
 //==== Point Cloud Geom ====//
 class NGonMeshGeom : public Geom
@@ -45,9 +45,7 @@ public:
 protected:
 
 
-    pmp::SurfaceMesh m_NGMesh;
-    pmp::FaceProperty<pmp::Normal> m_Normals;
-
+    PGMesh m_PGMesh;
 
 };
 

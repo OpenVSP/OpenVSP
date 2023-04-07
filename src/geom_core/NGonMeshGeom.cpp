@@ -91,34 +91,31 @@ xmlNodePtr NGonMeshGeom::DecodeXml( xmlNodePtr & node )
 
 void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec )
 {
-    m_NGMesh.reserve( nodeVec.size(), 3 * nodeVec.size(), triVec.size() );
 
-    pmp::Vertex v;
-
+    vector < PGNode* > nod( nodeVec.size() );
     for ( int i = 0; i < nodeVec.size(); i++ )
     {
-        v = m_NGMesh.add_vertex( pmp::Point( nodeVec[i]->m_Pnt.x(), nodeVec[i]->m_Pnt.y(), nodeVec[i]->m_Pnt.z() ) );
+        vec2d uw( nodeVec[i]->m_UWPnt.x(), nodeVec[i]->m_UWPnt.y() );
+        nod[i] = m_PGMesh.AddNode( nodeVec[i]->m_Pnt, uw );
     }
-
-    // pmp::FaceProperty<pmp::Normal> normals;
-
-    m_Normals = m_NGMesh.face_property<pmp::Normal>("f:normal");
-
-    std::vector<pmp::Vertex> vertices(3);
-
-    pmp::Face f;
 
     for ( int i = 0; i < triVec.size(); i++ )
     {
-        vertices[0] = pmp::Vertex( triVec[i]->m_N0->m_ID );
-        vertices[1] = pmp::Vertex( triVec[i]->m_N1->m_ID );
-        vertices[2] = pmp::Vertex( triVec[i]->m_N2->m_ID );
+        PGFace *f = m_PGMesh.AddFace( );
+        f->m_Nvec = triVec[i]->m_Norm;
 
-        f = m_NGMesh.add_face( vertices );
+        PGEdge *e1 = m_PGMesh.AddEdge( nod[triVec[i]->m_N0->m_ID], nod[triVec[i]->m_N1->m_ID] );
+        PGEdge *e2 = m_PGMesh.AddEdge( nod[triVec[i]->m_N1->m_ID], nod[triVec[i]->m_N2->m_ID] );
+        PGEdge *e3 = m_PGMesh.AddEdge( nod[triVec[i]->m_N2->m_ID], nod[triVec[i]->m_N0->m_ID] );
 
-        m_Normals[f] = pmp::Normal( triVec[i]->m_Norm.x(), triVec[i]->m_Norm.y(), triVec[i]->m_Norm.z() );
+        e1->AddConnectFace( f );
+        e2->AddConnectFace( f );
+        e3->AddConnectFace( f );
+
+        f->AddEdge( e1 );
+        f->AddEdge( e2 );
+        f->AddEdge( e3 );
     }
-
 }
 
 void NGonMeshGeom::UpdateDrawObj()
@@ -126,28 +123,24 @@ void NGonMeshGeom::UpdateDrawObj()
     m_WireShadeDrawObj_vec.clear();
     m_WireShadeDrawObj_vec.resize( 1 );
 
-    unsigned int num_tris = m_NGMesh.n_faces();
+    unsigned int num_tris = m_PGMesh.m_FaceList.size();
     unsigned int pi = 0;
 
-    m_WireShadeDrawObj_vec[0].m_PntVec.resize( num_tris * 3 );
-    m_WireShadeDrawObj_vec[0].m_NormVec.resize( num_tris * 3 );
+    m_WireShadeDrawObj_vec[0].m_PntVec.resize( num_tris * 4 );
+    m_WireShadeDrawObj_vec[0].m_NormVec.resize( num_tris * 4 );
 
 
-    auto points = m_NGMesh.get_vertex_property<pmp::Point>("v:point");
-
-    pmp::Normal n;
-    pmp::Point p;
-
-    for ( pmp::Face f : m_NGMesh.faces() )
+    list< PGFace* >::iterator f;
+    for ( f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
     {
-        n = m_Normals[f];
+        vector< PGNode* > nodVec;
+        (*f)-> GetNodes( nodVec );
+        vec3d norm = (*f)->m_Nvec;
 
-        for ( pmp::Vertex v : m_NGMesh.vertices(f) )
+        for ( int i = 0; i < nodVec.size(); i++ )
         {
-            p = points[v];
-
-            m_WireShadeDrawObj_vec[0].m_PntVec[pi] = vec3d( p.data() );
-            m_WireShadeDrawObj_vec[0].m_NormVec[pi] = vec3d( n.data() );
+            m_WireShadeDrawObj_vec[0].m_PntVec[pi] = nodVec[i]->m_Pnt;
+            m_WireShadeDrawObj_vec[0].m_NormVec[pi] = norm;
             pi++;
         }
     }
