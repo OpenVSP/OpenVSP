@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-BlankScreen::BlankScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Blank" )
+BlankScreen::BlankScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Blank" )
 {
     Fl_Group* mass_tab = AddTab( "Mass" );
     Fl_Group* mass_group = AddSubGroup( mass_tab, 5 );

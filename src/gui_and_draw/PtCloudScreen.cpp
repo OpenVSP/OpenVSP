@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-PtCloudScreen::PtCloudScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Point Cloud" )
+PtCloudScreen::PtCloudScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Point Cloud" )
 {
 
     RemoveTab( GetTab( m_SubSurfTab_ind ) );

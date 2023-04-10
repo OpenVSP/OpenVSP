@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-PodScreen::PodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Pod" )
+PodScreen::PodScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Pod" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );

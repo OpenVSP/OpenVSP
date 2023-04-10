@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Wireframe" )
+WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Wireframe" )
 {
 
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
