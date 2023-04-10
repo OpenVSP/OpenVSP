@@ -61,10 +61,22 @@ void NGonMeshGeom::Scale()
 
 void NGonMeshGeom::UpdateBBox()
 {
-    int i;
     m_BBox.Reset();
-    Matrix4d transMat = GetTotalTransMat();
 
+    if ( m_PGMesh.m_NodeList.size() > 0 )
+    {
+        Matrix4d transMat = GetTotalTransMat();
+
+        list< PGNode* >::iterator n;
+        for ( n = m_PGMesh.m_NodeList.begin(); n != m_PGMesh.m_NodeList.end(); ++n )
+        {
+            m_BBox.Update( transMat.xform( (*n)->m_Pnt ) );
+        }
+    }
+    else
+    {
+        m_BBox.Update( vec3d( 0.0, 0.0, 0.0 ) );
+    }
 }
 
 //==== Encode XML ====//
