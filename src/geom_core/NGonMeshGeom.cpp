@@ -161,6 +161,9 @@ void NGonMeshGeom::PolygonizeMesh()
 
 void NGonMeshGeom::UpdateDrawObj()
 {
+    Matrix4d trans = GetTotalTransMat();
+    vec3d zeroV = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
+
     unsigned int num_uniq_tags = SubSurfaceMgr.GetNumTags();
 
     m_WireShadeDrawObj_vec.clear();
@@ -185,8 +188,8 @@ void NGonMeshGeom::UpdateDrawObj()
         for ( int i = 0; i < (*f)->m_EdgeVec.size(); i++ )
         {
             PGEdge *e = (*f)->m_EdgeVec[i];
-            d_obj->m_PntVec.push_back( e->m_N0->m_Pnt );
-            d_obj->m_PntVec.push_back( e->m_N1->m_Pnt );
+            d_obj->m_PntVec.push_back( trans.xform( e->m_N0->m_Pnt ) );
+            d_obj->m_PntVec.push_back( trans.xform( e->m_N1->m_Pnt ) );
         }
     }
 
@@ -194,14 +197,17 @@ void NGonMeshGeom::UpdateDrawObj()
     {
         vector< PGNode* > nodVec;
         (*f)->GetNodesAsTris( nodVec );
-        vec3d norm = (*f)->m_Nvec;
+        vec3d norm = m_ModelMatrix.xform( (*f)->m_Nvec ) - zeroV;
 
         DrawObj* d_obj = face_dobj_map[ (*f)->m_Tag ];
 
         for ( int i = 0; i < nodVec.size(); i++ )
         {
-            d_obj->m_PntVec.push_back( nodVec[i]->m_Pnt );
-            d_obj->m_NormVec.push_back( norm );
+            if ( nodVec[i] )
+            {
+                d_obj->m_PntVec.push_back( trans.xform( nodVec[ i ]->m_Pnt ) );
+                d_obj->m_NormVec.push_back( norm );
+            }
         }
     }
 
