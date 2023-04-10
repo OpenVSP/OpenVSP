@@ -15,6 +15,10 @@
 
 #include "PGMesh.h"
 #include "StlHelper.h"
+#include "Matrix4d.h"
+
+#include "triangle.h"
+#include "triangle_api.h"
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -269,6 +273,171 @@ void PGFace::GetNodes( vector< PGNode* > & nodVec ) const
 
         nprev = nnext;
     }
+}
+
+void PGFace::GetNodesAsTris( vector < PGNode* > & trinodVec )
+{
+    if ( m_TriNodeVec.size() == 0 )
+    {
+        Triangulate();
+    }
+
+    trinodVec = m_TriNodeVec;
+}
+
+void PGFace::Triangulate()
+{
+    Triangulate_triangle();
+}
+
+void PGFace::Triangulate_triangle()
+{
+    ClearTris();
+
+    vector < PGNode* > nodVec;
+    GetNodes( nodVec );
+
+    // index to size-1 because first/last point is repeated.
+    int npt = nodVec.size() - 1;
+
+    if ( npt < 3 )
+    {
+        return;
+    }
+
+    // Get node data into simple point vector.
+    vector < vec3d > ptVec( npt );
+    for ( int i = 0; i < npt; i++ )
+    {
+        ptVec[i] = nodVec[i]->m_Pnt;
+    }
+
+    // Rotate along normal.
+    Matrix4d mat;
+    mat.rotatealongX( m_Nvec );
+    mat.xformvec( ptVec );
+
+    //==== Dump Into Triangle ====//
+    context* ctx;
+    triangleio in, out;
+    int tristatus = TRI_NULL;
+
+    // init
+    ctx = triangle_context_create();
+
+    memset( &in, 0, sizeof( in ) ); // Load Zeros
+    memset( &out, 0, sizeof( out ) );
+
+    //==== PreAllocate Data For In/Out ====//
+    in.pointlist    = ( REAL * ) malloc( npt * 2 * sizeof( REAL ) );
+    out.pointlist   = NULL;
+
+    in.segmentlist  = ( int * ) malloc( npt * 2 * sizeof( int ) );
+    out.segmentlist  = NULL;
+    out.trianglelist  = NULL;
+
+    in.numberofpointattributes = 0;
+    in.pointattributelist = NULL;
+    in.pointmarkerlist = NULL;
+    in.numberofholes = 0;
+    in.numberoftriangles = 0;
+    in.numberofpointattributes = 0;
+    in.numberofedges = 0;
+    in.trianglelist = NULL;
+    in.trianglearealist = NULL;
+    in.edgelist = NULL;
+    in.edgemarkerlist = NULL;
+    in.segmentmarkerlist = NULL;
+
+    //==== Load Points into Triangle Struct ====//
+    in.numberofpoints = npt;
+    in.numberofsegments = npt;
+
+    int ptcnt = 0;
+    int segcnt = 0;
+
+    int firstseg = segcnt;
+    for ( int j = 0 ; j < ( int )ptVec.size(); j++ )
+    {
+        vec3d pnt = ptVec[j];
+
+        in.pointlist[ptcnt] = pnt.y();
+        ptcnt++;
+        in.pointlist[ptcnt] = pnt.z();
+        ptcnt++;
+
+        in.segmentlist[2 * segcnt] = segcnt;
+        if ( j == ptVec.size() - 1 )
+        {
+            in.segmentlist[2 * segcnt + 1] = firstseg;
+        }
+        else
+        {
+            in.segmentlist[2 * segcnt + 1] = segcnt + 1;
+        }
+        segcnt++;
+    }
+
+    char cmdline[] = "zpQ";
+
+    //==== Constrained Delaunay Trianglulation ====//
+    tristatus = triangle_context_options( ctx, cmdline );
+    if ( tristatus != TRI_OK ) printf( "triangle_context_options Error\n" );
+
+    // Triangulate the polygon
+    tristatus = triangle_mesh_create( ctx, &in );
+    if ( tristatus != TRI_OK ) printf( "triangle_mesh_create Error\n" );
+
+    if ( tristatus == TRI_OK )
+    {
+        triangle_mesh_copy( ctx, &out, 1, 1 );
+
+        // Place result into node pointer vector.
+        m_TriNodeVec.resize( out.numberoftriangles * 3 );
+        for ( int i = 0; i < out.numberoftriangles * 3; i++ )
+        {
+            m_TriNodeVec[i] = nodVec[ out.trianglelist[i] ];
+        }
+    }
+
+    //==== Free Local Memory ====//
+    if ( in.pointlist )
+    {
+        free( in.pointlist );
+    }
+    if ( in.segmentlist )
+    {
+        free( in.segmentlist );
+    }
+
+    if ( out.pointlist )
+    {
+        free( out.pointlist );
+    }
+    if ( out.pointmarkerlist )
+    {
+        free( out.pointmarkerlist );
+    }
+    if ( out.trianglelist )
+    {
+        free( out.trianglelist );
+    }
+    if ( out.segmentlist )
+    {
+        free( out.segmentlist );
+    }
+    if ( out.segmentmarkerlist )
+    {
+        free( out.segmentmarkerlist );
+    }
+
+    // cleanup
+    triangle_context_destroy( ctx );
+}
+
+void PGFace::ClearTris()
+{
+    m_TriNodeVec.clear();
 }
 
 void PGFace::AddEdge( PGEdge* e )

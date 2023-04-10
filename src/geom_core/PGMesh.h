@@ -106,6 +106,11 @@ public:
 
     void GetNodes( vector< PGNode* > & nodVec ) const;
 
+    void GetNodesAsTris( vector < PGNode* > & trinodVec );
+    void Triangulate();
+    void Triangulate_triangle();
+    void ClearTris();
+
     void AddEdge( PGEdge* e );
     void RemoveEdge( PGEdge* e );
     bool Contains( PGEdge* e ) const;
@@ -116,6 +121,7 @@ public:
     vec3d m_Nvec;
 
     vector< PGEdge* > m_EdgeVec;
+    vector < PGNode* > m_TriNodeVec;
 
     // Set to true if PGFace should be removed
     bool deleteFlag;
