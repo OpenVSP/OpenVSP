@@ -268,10 +268,10 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         // Outline.
         m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-        m_WireShadeDrawObj_vec[i].m_Visible = true;
+        m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
         // Faces.
         int k = i + num_uniq_tags;
-        m_WireShadeDrawObj_vec[k].m_Visible = true;
+        m_WireShadeDrawObj_vec[k].m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
         switch( m_GuiDraw.GetDrawType() )
         {
