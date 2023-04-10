@@ -211,6 +211,9 @@ void NGonMeshGeom::UpdateDrawObj()
         }
     }
 
+    //==== Bounding Box ====//
+    m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+
     // Flag the DrawObjects as changed
     for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size(); i++ )
     {
