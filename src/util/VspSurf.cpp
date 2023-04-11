@@ -521,6 +521,61 @@ Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
     return retMat;
 }
 
+Matrix4d VspSurf::CompRotCoordSysRST( const double &r, const double &s, const double &t )
+{
+    double tol = 1e-10;
+
+    Matrix4d retMat; // Return Matrix
+
+    vec3d dr = CompTanR( r, s, t );
+    vec3d ds = CompTanS( r, s, t );
+    vec3d dt = CompTanT( r, s, t );
+
+    dr.normalize();
+    ds.normalize();
+    dt.normalize();
+
+    vec3d norm = cross( dr, ds );
+    if ( norm.mag() < tol )
+    {
+        norm = dt;
+    }
+
+    vec3d d2 = cross( norm, dr );
+    if ( d2.mag() < tol )
+    {
+        d2 = ds;
+    }
+
+    // Place axes in as cols of Rot mat
+    retMat.setBasis( dr, d2, norm );
+    return retMat;
+}
+
+Matrix4d VspSurf::CompTransCoordSysRST( const double &r, const double &s, const double &t )
+{
+    Matrix4d retMat; // Return Matrix
+
+    // Get x,y,z location of r, s, t coordinate and place in translation matrix
+    vec3d cartCoords = CompPntRST( r, s, t );
+    retMat.translatef( cartCoords.x(), cartCoords.y(), cartCoords.z() );
+    return retMat;
+}
+
+Matrix4d VspSurf::CompRotCoordSysLMN( const double &l, const double &m, const double &n )
+{
+    double r, s, t;
+    ConvertLMNtoRST( l, m, n, r, s, t );
+    return CompRotCoordSysRST( r, s, t );
+}
+
+Matrix4d VspSurf::CompTransCoordSysLMN( const double &l, const double &m, const double &n )
+{
+    double r, s, t;
+    ConvertLMNtoRST( l, m, n, r, s, t );
+    return CompTransCoordSysRST( r, s, t );
+}
+
 void VspSurf::CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm )
 {
     eli::geom::surface::create_body_of_revolution( m_Surface, input_crv.GetCurve(), 0, true, match_uparm );

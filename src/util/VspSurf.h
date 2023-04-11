@@ -151,6 +151,10 @@ public:
 
     Matrix4d CompRotCoordSys( const double &u, const double &w );
     Matrix4d CompTransCoordSys( const double &u, const double &w );
+    Matrix4d CompRotCoordSysRST( const double &r, const double &s, const double &t );
+    Matrix4d CompTransCoordSysRST(const double &r, const double &s, const double &t );
+    Matrix4d CompRotCoordSysLMN( const double &l, const double &m, const double &n );
+    Matrix4d CompTransCoordSysLMN( const double &l, const double &m, const double &n );
 
     vec3d CompPntRST( double r, double s, double t ) const;
     vec3d CompTanR( double r, double s, double t ) const;
