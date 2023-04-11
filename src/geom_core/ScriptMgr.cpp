@@ -568,6 +568,12 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_UV", ATTACH_TRANS_UV, "/*!< Translation relative to parent surface coordinate frame */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_RST", ATTACH_TRANS_RST, "/*!< Translation relative to parent per-section volume coordinate frame */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_LMN", ATTACH_TRANS_LMN, "/*!< Translation relative to parent uniform volume coordinate frame */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_NUM_TYPES", ATTACH_TRANS_NUM_TYPES, "/*!< Number of translation attachment types */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum that determines parent to child relative rotation axes. */";
 
@@ -578,6 +584,12 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_COMP", ATTACH_ROT_COMP, "/*!< Rotation relative to parent body axes */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_UV", ATTACH_ROT_UV, "/*!< Rotation relative to parent surface coordinate frame */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_RST", ATTACH_ROT_RST, "/*!< Rotation relative to parent per-section volume coordinate frame */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_LMN", ATTACH_ROT_LMN, "/*!< Rotation relative to parent uniform volume coordinate frame */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_NUM_TYPES", ATTACH_ROT_NUM_TYPES, "/*!< Number of rotation attachment types */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for Body of Revolution mode control. */";

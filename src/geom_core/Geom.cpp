@@ -483,9 +483,9 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
 
     // Attachment Parms
     m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, vsp::REL, vsp::ABS, vsp::REL );
-    m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_UV );
+    m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_NUM_TYPES - 1 );
     m_TransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
-    m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_UV );
+    m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NUM_TYPES - 1 );
     m_RotAttachFlag.SetDescript( "Determines relative rotation axes" );
     m_ULoc.Init( "U_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_ULoc.SetDescript( "U Location of Parent's Surface" );
@@ -1664,8 +1664,8 @@ void Geom::UpdateChildren( bool fullupdate )
                 }
                 // Parent surf changed and child is UV attached
                 else if ( m_UpdateSurf &&
-                      ( ( child->m_RotAttachFlag() == vsp::ATTACH_ROT_UV ) ||
-                        ( child->m_TransAttachFlag() == vsp::ATTACH_TRANS_UV ) ) )
+                      ( ( child->m_RotAttachFlag() >= vsp::ATTACH_ROT_UV ) ||
+                        ( child->m_TransAttachFlag() >= vsp::ATTACH_TRANS_UV ) ) )
                 {
                     child->m_XFormDirty = true;
                 }
