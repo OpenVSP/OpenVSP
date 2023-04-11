@@ -488,9 +488,23 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NUM_TYPES - 1 );
     m_RotAttachFlag.SetDescript( "Determines relative rotation axes" );
     m_ULoc.Init( "U_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
-    m_ULoc.SetDescript( "U Location of Parent's Surface" );
+    m_ULoc.SetDescript( "U Location on parent's surface" );
     m_WLoc.Init( "V_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
-    m_WLoc.SetDescript( "V Location of Parent's Surface" );
+    m_WLoc.SetDescript( "V Location on parent's surface" );
+
+    m_RLoc.Init( "R_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
+    m_RLoc.SetDescript( "R Location in parent's volume" );
+    m_SLoc.Init( "S_Attach_Location", "Attach", this, 0.25, 1e-6, 0.5 - 1e-6 );
+    m_SLoc.SetDescript( "S Location in parent's volume" );
+    m_TLoc.Init( "T_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
+    m_TLoc.SetDescript( "T Location in parent's volume" );
+
+    m_LLoc.Init( "L_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
+    m_LLoc.SetDescript( "L Location in parent's volume" );
+    m_MLoc.Init( "M_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
+    m_MLoc.SetDescript( "M Location in parent's volume" );
+    m_NLoc.Init( "N_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
+    m_NLoc.SetDescript( "N Location in parent's volume" );
 
     m_Scale.Init( "Scale", "XForm", this, 1, 1.0e-3, 1.0e3 );
     m_Scale.SetDescript( "Scale Geometry Size" );
@@ -716,6 +730,12 @@ void GeomXForm::DeactivateXForms()
     {
         m_ULoc.Deactivate();
         m_WLoc.Deactivate();
+        m_RLoc.Deactivate();
+        m_SLoc.Deactivate();
+        m_TLoc.Deactivate();
+        m_LLoc.Deactivate();
+        m_MLoc.Deactivate();
+        m_NLoc.Deactivate();
         m_TransAttachFlag.Deactivate();
         m_RotAttachFlag.Deactivate();
     }
@@ -723,6 +743,12 @@ void GeomXForm::DeactivateXForms()
     {
         m_ULoc.Activate();
         m_WLoc.Activate();
+        m_RLoc.Activate();
+        m_SLoc.Activate();
+        m_TLoc.Activate();
+        m_LLoc.Activate();
+        m_MLoc.Activate();
+        m_NLoc.Activate();
         m_TransAttachFlag.Activate();
         m_RotAttachFlag.Activate();
     }

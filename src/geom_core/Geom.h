@@ -325,6 +325,14 @@ public:
     Parm m_ULoc;                        // UV Attachment Parameters
     Parm m_WLoc;
 
+    Parm m_RLoc;                        // RST Attachment Parameters
+    Parm m_SLoc;
+    Parm m_TLoc;
+
+    Parm m_LLoc;                        // LMN Attachment Parameters
+    Parm m_MLoc;
+    Parm m_NLoc;
+
     Parm m_Scale;                       // Scaling Parameter
     Parm m_LastScale;
 

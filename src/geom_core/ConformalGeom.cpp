@@ -192,6 +192,12 @@ void ConformalGeom::CopyDataFrom( Geom* geom_ptr )
 
     m_ULoc.Deactivate();
     m_WLoc.Deactivate();
+    m_RLoc.Deactivate();
+    m_SLoc.Deactivate();
+    m_TLoc.Deactivate();
+    m_LLoc.Deactivate();
+    m_MLoc.Deactivate();
+    m_NLoc.Deactivate();
 
     //==== Copy Cap Options ====//
     m_CapUMinOption = geom_ptr->m_CapUMinOption();
