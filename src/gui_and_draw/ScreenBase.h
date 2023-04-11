@@ -255,15 +255,25 @@ public:
     ToggleButton m_TransNoneButton;
     ToggleButton m_TransCompButton;
     ToggleButton m_TransUVButton;
+    ToggleButton m_TransRSTButton;
+    ToggleButton m_TransLMNButton;
     ToggleRadioGroup m_TransToggleGroup;
 
     ToggleButton m_RotNoneButton;
     ToggleButton m_RotCompButton;
     ToggleButton m_RotUVButton;
+    ToggleButton m_RotRSTButton;
+    ToggleButton m_RotLMNButton;
     ToggleRadioGroup m_RotToggleGroup;
 
     SliderAdjRangeInput m_AttachUSlider;
     SliderAdjRangeInput m_AttachVSlider;
+    SliderAdjRangeInput m_AttachRSlider;
+    SliderAdjRangeInput m_AttachSSlider;
+    SliderAdjRangeInput m_AttachTSlider;
+    SliderAdjRangeInput m_AttachLSlider;
+    SliderAdjRangeInput m_AttachMSlider;
+    SliderAdjRangeInput m_AttachNSlider;
 
     //====== SubSurface Tab =====//
     int m_SubSurfTab_ind;

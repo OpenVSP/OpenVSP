@@ -470,16 +470,18 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_XFormLayout.SetSameLineFlag( false );
     m_XFormLayout.AddDividerBox( "Attach To Parent" );
 
-    m_XFormLayout.AddSubGroupLayout( m_AttachLayout, m_XFormLayout.GetW(), 4 * m_AttachLayout.GetStdHeight() + 3 * m_AttachLayout.GetGapHeight() );
+    m_XFormLayout.AddSubGroupLayout( m_AttachLayout, m_XFormLayout.GetW(), 10 * m_AttachLayout.GetStdHeight() + 5 * m_AttachLayout.GetGapHeight() );
 
     m_AttachLayout.SetFitWidthFlag( false );
     m_AttachLayout.SetSameLineFlag( true );
 
     m_AttachLayout.AddLabel( "Translate:", 74 );
-    m_AttachLayout.SetButtonWidth( ( m_AttachLayout.GetRemainX() ) / 3 );
+    m_AttachLayout.SetButtonWidth( ( m_AttachLayout.GetRemainX() ) / 5 );
     m_AttachLayout.AddButton( m_TransNoneButton, "None" );
     m_AttachLayout.AddButton( m_TransCompButton, "Comp" );
     m_AttachLayout.AddButton( m_TransUVButton, "UW" );
+    m_AttachLayout.AddButton( m_TransRSTButton, "RST" );
+    m_AttachLayout.AddButton( m_TransLMNButton, "LMN" );
     m_AttachLayout.ForceNewLine();
     m_AttachLayout.AddYGap();
 
@@ -487,11 +489,15 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_TransToggleGroup.AddButton( m_TransNoneButton.GetFlButton() );
     m_TransToggleGroup.AddButton( m_TransCompButton.GetFlButton() );
     m_TransToggleGroup.AddButton( m_TransUVButton.GetFlButton() );
+    m_TransToggleGroup.AddButton( m_TransRSTButton.GetFlButton() );
+    m_TransToggleGroup.AddButton( m_TransLMNButton.GetFlButton() );
 
     m_AttachLayout.AddLabel( "Rotate:", 74 );
     m_AttachLayout.AddButton( m_RotNoneButton, "None" );
     m_AttachLayout.AddButton( m_RotCompButton, "Comp" );
     m_AttachLayout.AddButton( m_RotUVButton, "UW" );
+    m_AttachLayout.AddButton( m_RotRSTButton, "RST" );
+    m_AttachLayout.AddButton( m_RotLMNButton, "LMN" );
     m_AttachLayout.ForceNewLine();
     m_AttachLayout.AddYGap();
 
@@ -499,12 +505,22 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_RotToggleGroup.AddButton( m_RotNoneButton.GetFlButton() );
     m_RotToggleGroup.AddButton( m_RotCompButton.GetFlButton() );
     m_RotToggleGroup.AddButton( m_RotUVButton.GetFlButton() );
+    m_RotToggleGroup.AddButton( m_RotRSTButton.GetFlButton() );
+    m_RotToggleGroup.AddButton( m_RotLMNButton.GetFlButton() );
 
     m_AttachLayout.SetFitWidthFlag( true );
     m_AttachLayout.SetSameLineFlag( false );
 
     m_AttachLayout.AddSlider( m_AttachUSlider, "U", 1, " %7.6f" );
     m_AttachLayout.AddSlider( m_AttachVSlider, "W", 1, " %7.6f" );
+    m_AttachLayout.AddYGap();
+    m_AttachLayout.AddSlider( m_AttachRSlider, "R", 1, " %7.6f" );
+    m_AttachLayout.AddSlider( m_AttachSSlider, "S", 1, " %7.6f" );
+    m_AttachLayout.AddSlider( m_AttachTSlider, "T", 1, " %7.6f" );
+    m_AttachLayout.AddYGap();
+    m_AttachLayout.AddSlider( m_AttachLSlider, "L", 1, " %7.6f" );
+    m_AttachLayout.AddSlider( m_AttachMSlider, "M", 1, " %7.6f" );
+    m_AttachLayout.AddSlider( m_AttachNSlider, "N", 1, " %7.6f" );
 
 
     //=============== SubSurface Tab ===================//
@@ -860,6 +876,12 @@ bool GeomScreen::Update()
     m_RotToggleGroup.Update( geom_ptr->m_RotAttachFlag.GetID() );
     m_AttachUSlider.Update( geom_ptr->m_ULoc.GetID() );
     m_AttachVSlider.Update( geom_ptr->m_WLoc.GetID() );
+    m_AttachRSlider.Update( geom_ptr->m_RLoc.GetID() );
+    m_AttachSSlider.Update( geom_ptr->m_SLoc.GetID() );
+    m_AttachTSlider.Update( geom_ptr->m_TLoc.GetID() );
+    m_AttachLSlider.Update( geom_ptr->m_LLoc.GetID() );
+    m_AttachMSlider.Update( geom_ptr->m_MLoc.GetID() );
+    m_AttachNSlider.Update( geom_ptr->m_NLoc.GetID() );
 
 
     if ( geom_ptr->m_ShellFlag.Get() )
