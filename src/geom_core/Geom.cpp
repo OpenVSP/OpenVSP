@@ -658,21 +658,53 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         {
             if ( !( parent->CompTransCoordSys( 0, m_ULoc(), m_WLoc(), transMat )) )
             {
-                revertCompTrans = true; // Blank components revert to the component matrix.
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
             }
         }
 
-        if ( m_RotAttachFlag() == vsp::ATTACH_ROT_UV )
+        if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_RST )
         {
-            if ( !( parent->CompRotCoordSys( 0, m_ULoc(), m_WLoc(), rotMat )) )
+            if ( !( parent->CompTransCoordSysRST( 0, m_RLoc(), m_SLoc(), m_TLoc(), transMat )) )
             {
-                revertCompRot = true; // For blank component.
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_LMN )
+        {
+            if ( !( parent->CompTransCoordSysLMN( 0, m_LLoc(), m_MLoc(), m_NLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
             }
         }
 
         if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_COMP || revertCompTrans )
         {
             transMat.translatef( tempMat[12], tempMat[13], tempMat[14] );
+        }
+
+        if ( m_RotAttachFlag() == vsp::ATTACH_ROT_UV )
+        {
+            if ( !( parent->CompRotCoordSys( 0, m_ULoc(), m_WLoc(), rotMat )) )
+            {
+                revertCompRot = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_RotAttachFlag() == vsp::ATTACH_ROT_RST )
+        {
+            if ( !( parent->CompRotCoordSysRST( 0, m_RLoc(), m_SLoc(), m_TLoc(), rotMat )) )
+            {
+                revertCompRot = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_RotAttachFlag() == vsp::ATTACH_ROT_LMN )
+        {
+            if ( !( parent->CompRotCoordSysLMN( 0, m_LLoc(), m_MLoc(), m_NLoc(), rotMat )) )
+            {
+                revertCompRot = true; // Any Geom without a surface reverts to the component matrix.
+            }
         }
 
         if ( m_RotAttachFlag() == vsp::ATTACH_ROT_COMP || revertCompRot )
@@ -684,6 +716,28 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
 
         transMat.matMult( rotMat.data() );
         attachedMat = transMat;
+
+        // If RST is active in either way and LMN is not active in any way, compute LMN from RST.
+        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_RST || m_RotAttachFlag() == vsp::ATTACH_ROT_RST ) &&
+             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_RotAttachFlag() != vsp::ATTACH_ROT_LMN ) )
+        {
+            double l, m, n;
+            parent->ConvertRSTtoLMN( 0, m_RLoc(), m_SLoc(), m_TLoc(), l, m, n );
+            m_LLoc.Set( l );
+            m_MLoc.Set( m );
+            m_NLoc.Set( n );
+        }
+        // The opposite.
+        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_RotAttachFlag() == vsp::ATTACH_ROT_LMN ) &&
+             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_RST && m_RotAttachFlag() != vsp::ATTACH_ROT_RST ) )
+        {
+            double r, s, t;
+            parent->ConvertLMNtoRST( 0, m_LLoc(), m_MLoc(), m_NLoc(), r, s, t );
+            m_RLoc.Set( r );
+            m_SLoc.Set( s );
+            m_TLoc.Set( t );
+        }
+
     }
 
     return attachedMat;
