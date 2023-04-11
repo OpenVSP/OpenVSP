@@ -234,12 +234,12 @@ enum ENGINE_LOC_MODE { ENGINE_LOC_INDEX,
                        ENGINE_LOC_U
                      };
 
-enum ENGINE_LOC_INDEX { ENGINE_LOC_INLET_LIP,
-                        ENGINE_LOC_INLET_FACE,
-                        ENGINE_LOC_OUTLET_LIP,
-                        ENGINE_LOC_OUTLET_FACE,
-                        ENGINE_LOC_NUM
-                      };
+enum ENGINE_LOC_INDEX_TYPES { ENGINE_LOC_INLET_LIP,
+                              ENGINE_LOC_INLET_FACE,
+                              ENGINE_LOC_OUTLET_LIP,
+                              ENGINE_LOC_OUTLET_FACE,
+                              ENGINE_LOC_NUM
+                            };
 
 // For inlet, all types are valid.  However, for outlet, only NATIVE through EXTEND are valid.
 // Both inlet and outlet, NATIVE is the default.  By making NATIVE the first entry, the Parm::Init
