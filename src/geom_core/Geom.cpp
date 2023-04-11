@@ -3954,6 +3954,76 @@ bool Geom::CompTransCoordSys( const int &indx, const double &u, const double &w,
     return false;
 }
 
+bool Geom::CompRotCoordSysRST( const int &indx, const double &r, const double &s, const double &t, Matrix4d &rotmat )
+{
+    VspSurf* surf_ptr = GetSurfPtr( indx );
+    if ( surf_ptr )
+    {
+        rotmat = surf_ptr->CompRotCoordSysRST( r, s, t );
+        return true;
+    }
+    return false;
+}
+
+bool Geom::CompTransCoordSysRST( const int &indx, const double &r, const double &s, const double &t, Matrix4d &transmat )
+{
+    VspSurf* surf_ptr = GetSurfPtr( indx );
+    if ( surf_ptr )
+    {
+        transmat = surf_ptr->CompTransCoordSysRST( r, s, t );
+        return true;
+    }
+    return false;
+}
+
+bool Geom::CompRotCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &rotmat )
+{
+    VspSurf* surf_ptr = GetSurfPtr( indx );
+    if ( surf_ptr )
+    {
+        rotmat = surf_ptr->CompRotCoordSysLMN( l, m, n );
+        return true;
+    }
+    return false;
+}
+
+bool Geom::CompTransCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &transmat )
+{
+    VspSurf* surf_ptr = GetSurfPtr( indx );
+    if ( surf_ptr )
+    {
+        transmat = surf_ptr->CompTransCoordSysLMN( l, m, n );
+        return true;
+    }
+    return false;
+}
+
+void Geom::ConvertRSTtoLMN( const int &indx, const double &r, const double &s, const double &t, double &l, double &m, double &n )
+{
+    VspSurf* surf_ptr = GetSurfPtr( indx );
+    if ( surf_ptr )
+    {
+        surf_ptr->ConvertRSTtoLMN( r, s, t, l, m, n );
+        return;
+    }
+    l = r;
+    m = s * 2.0;
+    n = t;
+}
+
+void Geom::ConvertLMNtoRST( const int &indx, const double &l, const double &m, const double &n, double &r, double &s, double &t )
+{
+    VspSurf* surf_ptr = GetSurfPtr( indx );
+    if ( surf_ptr )
+    {
+        surf_ptr->ConvertLMNtoRST( l, m, n, r, s, t );
+        return;
+    }
+    r = l;
+    s = m/2.0;
+    t = n;
+}
+
 double Geom::ProjPnt01I( const vec3d & pt, int &surf_indx, double &u, double &w )
 {
     double tol = 1e-12;

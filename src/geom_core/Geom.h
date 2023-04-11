@@ -450,6 +450,13 @@ public:
 
     virtual bool CompRotCoordSys( const int &indx, const double &u, const double &w, Matrix4d &rotmat );
     virtual bool CompTransCoordSys( const int &indx, const double &u, const double &w, Matrix4d &transmat );
+    virtual bool CompRotCoordSysRST( const int &indx, const double &r, const double &s, const double &t, Matrix4d &rotmat );
+    virtual bool CompTransCoordSysRST( const int &indx, const double &r, const double &s, const double &t, Matrix4d &transmat );
+    virtual bool CompRotCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &rotmat );
+    virtual bool CompTransCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &transmat );
+
+    virtual void ConvertRSTtoLMN( const int &indx, const double &r, const double &s, const double &t, double &l, double &m, double &n );
+    virtual void ConvertLMNtoRST( const int &indx, const double &l, const double &m, const double &n, double &r, double &s, double &t );
 
     virtual double ProjPnt01I( const vec3d & pt, int &surf_indx, double &u, double &w );
     virtual double AxisProjPnt01I( const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out );
