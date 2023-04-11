@@ -266,6 +266,7 @@ public:
     virtual ~GeomXForm();
 
     virtual void UpdateXForm();
+    virtual void UpdateAttachParms();
     virtual void ComposeModelMatrix();
     virtual Matrix4d ComposeAttachMatrix();
     virtual void SetCenter( double x, double y, double z )      { m_Center.set_xyz( x, y, z ); }

@@ -538,6 +538,8 @@ void GeomXForm::UpdateXForm()
         axlen = veh->m_AxisLength();
     }
 
+    UpdateAttachParms();
+
     Matrix4d attachedMat = ComposeAttachMatrix();
 
     m_AttachOrigin = attachedMat.xform( vec3d( 0.0, 0.0, 0.0 ) );
@@ -549,6 +551,128 @@ void GeomXForm::UpdateXForm()
         vec3d pt = vec3d( 0.0, 0.0, 0.0 );
         pt.v[i] = axlen;
         m_AttachAxis[i] = attachedMat.xform( pt );
+    }
+}
+
+void GeomXForm::UpdateAttachParms()
+{
+    Geom* parent = m_Vehicle->FindGeom( GetParentID() );
+
+    if ( parent )
+    {
+        // If UV is active in either way and RST is not active in any way, compute RST from UV.
+        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_UV || m_RotAttachFlag() == vsp::ATTACH_ROT_UV ) &&
+             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_RST && m_RotAttachFlag() != vsp::ATTACH_ROT_RST ) )
+        {
+            double u, w;
+            u = m_ULoc();
+            w = m_WLoc();
+            double r, s, t;
+            r = u;
+            s = w;
+            if ( w > 0.5 )
+            {
+                s = 1.0 - w;
+            }
+            t = 0.5;
+
+            m_RLoc.Set( r );
+            m_SLoc.Set( s );
+            m_TLoc.Set( t );
+        }
+
+        // If UV is active in either way and LMN is not active in any way, compute LMN from UV.
+        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_UV || m_RotAttachFlag() == vsp::ATTACH_ROT_UV ) &&
+             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_RotAttachFlag() != vsp::ATTACH_ROT_LMN ) )
+        {
+            double u, w;
+            u = m_ULoc();
+            w = m_WLoc();
+            double r, s, t;
+            r = u;
+            s = w;
+            if ( w > 0.5 )
+            {
+                s = 1.0 - w;
+            }
+            t = 0.5;
+
+
+            double l, m, n;
+
+            parent->ConvertRSTtoLMN( 0, r, s, t, l, m, n );
+            m_LLoc.Set( l );
+            m_MLoc.Set( m );
+            m_NLoc.Set( n );
+        }
+
+        // If RST is active in either way and LMN is not active in any way, compute LMN from RST.
+        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_RST || m_RotAttachFlag() == vsp::ATTACH_ROT_RST ) &&
+             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_RotAttachFlag() != vsp::ATTACH_ROT_LMN ) )
+        {
+            double l, m, n;
+            parent->ConvertRSTtoLMN( 0, m_RLoc(), m_SLoc(), m_TLoc(), l, m, n );
+            m_LLoc.Set( l );
+            m_MLoc.Set( m );
+            m_NLoc.Set( n );
+        }
+
+        // If LMN is active in either way and RST is not active in any way, compute RST from LMN.
+        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_RotAttachFlag() == vsp::ATTACH_ROT_LMN ) &&
+             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_RST && m_RotAttachFlag() != vsp::ATTACH_ROT_RST ) )
+        {
+            double r, s, t;
+            parent->ConvertLMNtoRST( 0, m_LLoc(), m_MLoc(), m_NLoc(), r, s, t );
+            m_RLoc.Set( r );
+            m_SLoc.Set( s );
+            m_TLoc.Set( t );
+        }
+
+        // If RST is active in either way and UV is not active in any way, compute UV from RST.
+        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_RST || m_RotAttachFlag() == vsp::ATTACH_ROT_RST ) &&
+             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_UV && m_RotAttachFlag() != vsp::ATTACH_ROT_UV ) )
+        {
+            double u, w;
+            double r = m_RLoc();
+            double s = m_SLoc();
+            double t = m_TLoc();
+
+            u = r;
+            if ( t < 0.5 )
+            {
+                w = s;
+            }
+            else
+            {
+                w = 1.0 - s;
+            }
+
+            m_ULoc.Set( u );
+            m_WLoc.Set( w );
+        }
+
+        // If LMN is active in either way and UV is not active in any way, compute UV from LMN.
+        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_RotAttachFlag() == vsp::ATTACH_ROT_LMN ) &&
+             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_UV && m_RotAttachFlag() != vsp::ATTACH_ROT_UV ) )
+        {
+            double u, w;
+            double r, s, t;
+
+            parent->ConvertLMNtoRST( 0, m_LLoc(), m_MLoc(), m_NLoc(), r, s, t );
+
+            u = r;
+            if ( t < 0.5 )
+            {
+                w = s;
+            }
+            else
+            {
+                w = 1.0 - s;
+            }
+
+            m_ULoc.Set( u );
+            m_WLoc.Set( w );
+        }
     }
 }
 
@@ -716,28 +840,6 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
 
         transMat.matMult( rotMat.data() );
         attachedMat = transMat;
-
-        // If RST is active in either way and LMN is not active in any way, compute LMN from RST.
-        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_RST || m_RotAttachFlag() == vsp::ATTACH_ROT_RST ) &&
-             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_RotAttachFlag() != vsp::ATTACH_ROT_LMN ) )
-        {
-            double l, m, n;
-            parent->ConvertRSTtoLMN( 0, m_RLoc(), m_SLoc(), m_TLoc(), l, m, n );
-            m_LLoc.Set( l );
-            m_MLoc.Set( m );
-            m_NLoc.Set( n );
-        }
-        // The opposite.
-        if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_RotAttachFlag() == vsp::ATTACH_ROT_LMN ) &&
-             ( m_TransAttachFlag() != vsp::ATTACH_TRANS_RST && m_RotAttachFlag() != vsp::ATTACH_ROT_RST ) )
-        {
-            double r, s, t;
-            parent->ConvertLMNtoRST( 0, m_LLoc(), m_MLoc(), m_NLoc(), r, s, t );
-            m_RLoc.Set( r );
-            m_SLoc.Set( s );
-            m_TLoc.Set( t );
-        }
-
     }
 
     return attachedMat;
