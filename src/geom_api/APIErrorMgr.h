@@ -58,7 +58,7 @@ public:
 
 
 //======================== Error Mgr ================================//
-class ErrorMgrSingleton : MessageBase
+class ErrorMgrSingleton : public MessageBase
 {
 public:
 
