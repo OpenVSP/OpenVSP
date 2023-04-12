@@ -146,6 +146,14 @@ protected:
     SliderAdjRangeInput m_ProbeSSlider;
     SliderAdjRangeInput m_ProbeTSlider;
 
+    ToggleButton m_ProbeRSTToggle;
+    ToggleButton m_ProbeLMNToggle;
+    ToggleRadioGroup m_ProbeRSTLMNToggle;
+
+    SliderAdjRangeInput m_ProbeLSlider;
+    SliderAdjRangeInput m_ProbeMSlider;
+    SliderAdjRangeInput m_ProbeNSlider;
+
     SliderAdjRangeInput m_RSTProbeLenSlider;
 
     SliderAdjRangeInput m_RSTProbePrecisionSlider;

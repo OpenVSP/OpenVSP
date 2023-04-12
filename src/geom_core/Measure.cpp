@@ -194,6 +194,12 @@ RSTProbe::RSTProbe() : ParmContainer()
     m_OriginS.Init( "OriginS", "Measure", this, 0.0, 0.0, 0.5 );
     m_OriginT.Init( "OriginT", "Measure", this, 0.0, 0.0, 1.0 );
 
+    m_LMNFlag.Init( "LMNFlag", "Measure", this, false, false, true );
+
+    m_OriginL.Init( "OriginL", "Measure", this, 0.0, 0.0, 1.0 );
+    m_OriginM.Init( "OriginM", "Measure", this, 0.0, 0.0, 1.0 );
+    m_OriginN.Init( "OriginN", "Measure", this, 0.0, 0.0, 1.0 );
+
     m_OriginIndx.Init( "OriginIndx", "Measure", this, 0, 0, 1e6 );
 
     m_Precision.Init( "Precision", "Measure", this, 3, 0, 20 );
@@ -254,6 +260,12 @@ void RSTProbe::Reset()
     m_OriginS = 0.0;
     m_OriginT = 0.0;
 
+    m_LMNFlag = false;
+
+    m_OriginL = 0.0;
+    m_OriginM = 0.0;
+    m_OriginN = 0.0;
+
     m_Len = 1.0;
 
     m_Precision = 3;
@@ -276,6 +288,23 @@ void RSTProbe::Update()
             VspSurf *surf = geom->GetSurfPtr( m_OriginIndx() );
             if ( surf )
             {
+                if ( m_LMNFlag() )
+                {
+                    double r, s, t;
+                    surf->ConvertLMNtoRST( m_OriginL(), m_OriginM(), m_OriginN(), r, s, t );
+                    m_OriginR = r;
+                    m_OriginS = s;
+                    m_OriginT = t;
+                }
+                else
+                {
+                    double l, m, n;
+                    surf->ConvertRSTtoLMN( m_OriginR(), m_OriginS(), m_OriginT(), l, m, n );
+                    m_OriginL = l;
+                    m_OriginM = m;
+                    m_OriginN = n;
+                }
+
                 double umapmax = surf->GetUMapMax();
                 double umax = surf->GetUMax();
                 double r = surf->InvertUMapping( m_OriginR() * umapmax ) / umax;

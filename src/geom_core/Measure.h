@@ -94,6 +94,12 @@ public:
     Parm m_OriginS;
     Parm m_OriginT;
 
+    BoolParm m_LMNFlag;
+
+    Parm m_OriginL;
+    Parm m_OriginM;
+    Parm m_OriginN;
+
     IntParm m_Precision;
 
     Parm m_X;

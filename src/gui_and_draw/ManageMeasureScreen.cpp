@@ -287,9 +287,27 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
 
     m_RSTProbeLayout.AddGeomPicker( m_RSTProbeGeom, 0, "Geom" );
     m_RSTProbeLayout.AddChoice( m_RSTProbeSurfChoice, "Surface" );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTProbeLayout.AddButton( m_ProbeRSTToggle, "RST" );
+    m_RSTProbeLayout.AddButton( m_ProbeLMNToggle, "LMN" );
+
+    m_ProbeRSTLMNToggle.Init( this );
+    m_ProbeRSTLMNToggle.AddButton( m_ProbeRSTToggle.GetFlButton() );
+    m_ProbeRSTLMNToggle.AddButton( m_ProbeLMNToggle.GetFlButton() );
+
     m_RSTProbeLayout.AddSlider( m_ProbeRSlider, "R", 1.0, "%5.4f" );
     m_RSTProbeLayout.AddSlider( m_ProbeSSlider, "S", 1.0, "%5.4f" );
     m_RSTProbeLayout.AddSlider( m_ProbeTSlider, "T", 1.0, "%5.4f" );
+
+    m_RSTProbeLayout.AddYGap();
+
+    m_RSTProbeLayout.AddSlider( m_ProbeLSlider, "L", 1.0, "%5.4f" );
+    m_RSTProbeLayout.AddSlider( m_ProbeMSlider, "M", 1.0, "%5.4f" );
+    m_RSTProbeLayout.AddSlider( m_ProbeNSlider, "N", 1.0, "%5.4f" );
+    m_RSTProbeLayout.AddYGap();
+
     m_RSTProbeLayout.AddSlider( m_RSTProbeLenSlider, "Len", 1.0, "%5.2f" );
 
     m_RSTProbeLayout.AddYGap();
@@ -622,9 +640,35 @@ bool ManageMeasureScreen::Update()
 
         m_RSTProbeNameInput.Update( RSTprobe->GetName() );
 
+        m_ProbeRSTLMNToggle.Update( RSTprobe->m_LMNFlag.GetID() );
+
         m_ProbeRSlider.Update( RSTprobe->m_OriginR.GetID() );
         m_ProbeSSlider.Update( RSTprobe->m_OriginS.GetID() );
         m_ProbeTSlider.Update( RSTprobe->m_OriginT.GetID() );
+
+        m_ProbeLSlider.Update( RSTprobe->m_OriginL.GetID() );
+        m_ProbeMSlider.Update( RSTprobe->m_OriginM.GetID() );
+        m_ProbeNSlider.Update( RSTprobe->m_OriginN.GetID() );
+
+        if ( RSTprobe->m_LMNFlag() )
+        {
+            m_ProbeLSlider.Activate();
+            m_ProbeMSlider.Activate();
+            m_ProbeNSlider.Activate();
+            m_ProbeRSlider.Deactivate();
+            m_ProbeSSlider.Deactivate();
+            m_ProbeTSlider.Deactivate();
+        }
+        else
+        {
+            m_ProbeLSlider.Deactivate();
+            m_ProbeMSlider.Deactivate();
+            m_ProbeNSlider.Deactivate();
+            m_ProbeRSlider.Activate();
+            m_ProbeSSlider.Activate();
+            m_ProbeTSlider.Activate();
+        }
+
         m_RSTProbeLenSlider.Update( RSTprobe->m_Len.GetID() );
 
         m_RSTProbePrecisionSlider.Update( RSTprobe->m_Precision.GetID() );
