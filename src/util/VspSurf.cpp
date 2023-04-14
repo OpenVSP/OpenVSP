@@ -538,9 +538,11 @@ Matrix4d VspSurf::CompRotCoordSysRST( const double &r, const double &s, const do
 
     Matrix4d retMat; // Return Matrix
 
-    vec3d dr = CompTanR( r, s, t );
-    vec3d ds = CompTanS( r, s, t );
-    vec3d dt = CompTanT( r, s, t );
+    double rprm = m_UMapping.Invert( r * m_UMapMax ) / GetUMax();
+
+    vec3d dr = CompTanR( rprm, s, t );
+    vec3d ds = CompTanS( rprm, s, t );
+    vec3d dt = CompTanT( rprm, s, t );
 
     dr.normalize();
     ds.normalize();
@@ -567,8 +569,10 @@ Matrix4d VspSurf::CompTransCoordSysRST( const double &r, const double &s, const 
 {
     Matrix4d retMat; // Return Matrix
 
+    double rprm = m_UMapping.Invert( r * m_UMapMax ) / GetUMax();
+
     // Get x,y,z location of r, s, t coordinate and place in translation matrix
-    vec3d cartCoords = CompPntRST( r, s, t );
+    vec3d cartCoords = CompPntRST( rprm, s, t );
     retMat.translatef( cartCoords.x(), cartCoords.y(), cartCoords.z() );
     return retMat;
 }
