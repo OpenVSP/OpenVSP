@@ -323,6 +323,7 @@ public:
     double EvalUMapping( double u ) const;
 
     void BuildLCurve();
+    void BuildMCurve( const double &r, Vsp1DCurve &c ) const;
 
 protected:
 

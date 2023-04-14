@@ -29,6 +29,9 @@
 #include "eli/geom/intersect/intersect_axis_surface.hpp"
 #include "eli/geom/intersect/intersect_segment_surface.hpp"
 
+#include "eli/geom/curve/bezier.hpp"
+#include "eli/geom/curve/piecewise.hpp"
+
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
 typedef piecewise_surface_type::rotation_matrix_type surface_rotation_matrix_type;
@@ -2781,4 +2784,51 @@ void VspSurf::BuildLCurve()
     }
 
     m_LCurve.InterpolateLinear( s, u, false );
+}
+
+void VspSurf::BuildMCurve( const double &r, Vsp1DCurve &mcurve ) const
+{
+    double umin, vmin, umax, vmax;
+    double vmid;
+
+    m_Surface.get_parameter_min( umin, vmin );
+    m_Surface.get_parameter_max( umax, vmax );
+    vmid = 0.5 * ( vmin + vmax );
+
+    double u = r * umax;
+
+    piecewise_curve_type cut, clow, cup, cspine;
+    m_Surface.get_uconst_curve( cut, u );
+
+    cut.split( clow, cup, vmid );
+    cup.reverse();
+
+    cspine.sum( clow, cup );
+    cspine.scale( 0.5 );
+
+    VspCurve spine;
+    spine.SetCurve( cspine );
+
+    vector< vec3d > x;
+    vector< double > s;
+    spine.TessAdapt( x, s, 1e-2, 10 );
+
+    vector < double > m;
+    m.resize( x.size(), 0.0 );
+    for ( int i = 1; i < x.size(); i++ )
+    {
+        vec3d dx = x[i] - x[i-1];
+        m[i] = m[ i - 1 ] + dx.mag();
+    }
+
+    double mmax = m[ x.size() - 1 ];
+    double vvmax = s[ x.size() - 1 ];
+
+    for ( int i = 0; i < x.size(); i++ )
+    {
+        m[i] /= mmax;
+        s[i] /= vmax;
+    }
+
+    mcurve.InterpolateLinear( m, s, false );
 }
