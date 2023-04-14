@@ -353,14 +353,18 @@ void VspSurf::FindRST( const vector < vec3d > & pt, vector < double > &r, vector
 void VspSurf::ConvertRSTtoLMN( const double &r, const double &s, const double &t, double &l, double &m, double &n ) const
 {
     l = m_LCurve.CompPnt( r );
-    m = 2.0 * s; // approximate for now.
+    Vsp1DCurve mcurve;
+    BuildMCurve( r, mcurve );
+    m = mcurve.CompPnt( s );
     n = t;
 }
 
 void VspSurf::ConvertLMNtoRST( const double &l, const double &m, const double &n, double &r, double &s, double &t ) const
 {
     r = m_LCurve.Invert( l );
-    s = 0.5 * m; // approximate for now.
+    Vsp1DCurve mcurve;
+    BuildMCurve( r, mcurve );
+    s = mcurve.Invert( m );
     t = n;
 }
 
