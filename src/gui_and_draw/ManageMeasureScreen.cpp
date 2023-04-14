@@ -1098,11 +1098,11 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             double r, s, t;
             r = uprm;
-            s = w;
+            s = 2.0 * w;
             t = 0.0;
             if ( w > 0.5 )
             {
-                s = 1.0 - w;
+                s = 2.0 * ( 1.0 - w );
                 t = 1.0;
             }
 

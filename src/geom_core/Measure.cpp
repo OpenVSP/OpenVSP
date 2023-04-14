@@ -191,7 +191,7 @@ RSTProbe::RSTProbe() : ParmContainer()
     m_Stage = STAGE_ZERO;
 
     m_OriginR.Init( "OriginR", "Measure", this, 0.0, 0.0, 1.0 );
-    m_OriginS.Init( "OriginS", "Measure", this, 0.0, 0.0, 0.5 );
+    m_OriginS.Init( "OriginS", "Measure", this, 0.0, 0.0, 1.0 );
     m_OriginT.Init( "OriginT", "Measure", this, 0.0, 0.0, 1.0 );
 
     m_LMNFlag.Init( "LMNFlag", "Measure", this, false, false, true );
@@ -314,7 +314,7 @@ void RSTProbe::Update()
                 }
 
                 pt = surf->CompPntRST( r, m_OriginS(), m_OriginT() );
-                norm = surf->CompNorm01( r, m_OriginS() );
+                norm = surf->CompNorm01( r, 0.5 * m_OriginS() );
             }
         }
 

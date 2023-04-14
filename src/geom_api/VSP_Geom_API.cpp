@@ -7789,7 +7789,7 @@ vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const double
         return ret;
     }
 
-    ret = geom_ptr->CompPntRST( surf_indx, clamp( r, 0.0, 1.0 ), clamp( s, 0.0, 0.5 ), clamp( t, 0.0, 1.0 ) );
+    ret = geom_ptr->CompPntRST( surf_indx, clamp( r, 0.0, 1.0 ), clamp( s, 0.0, 1.0 ), clamp( t, 0.0, 1.0 ) );
 
     ErrorMgr.NoError();
     return ret;
@@ -7840,7 +7840,7 @@ double FindRSTGuess( const std::string &geom_id, const int &surf_indx, const vec
         return dist;
     }
 
-    dist = geom->GetSurfPtr( surf_indx )->FindRST( pt, clamp( r0, 0.0, 1.0 ), clamp( s0, 0.0, 0.5 ), clamp( t0, 0.0, 1.0 ), r_out, s_out, t_out );
+    dist = geom->GetSurfPtr( surf_indx )->FindRST( pt, clamp( r0, 0.0, 1.0 ), clamp( s0, 0.0, 1.0 ), clamp( t0, 0.0, 1.0 ), r_out, s_out, t_out );
 
     ErrorMgr.NoError();
 
@@ -8268,7 +8268,7 @@ std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const int &surf
 
                 for ( int i = 0; i < rs.size(); i++ )
                 {
-                    pts[i] = surf->CompPntRST( clamp( rs[i], 0.0, 1.0 ), clamp( ss[i], 0.0, 0.5 ), clamp( ts[i], 0.0, 1.0 ) );
+                    pts[i] = surf->CompPntRST( clamp( rs[i], 0.0, 1.0 ), clamp( ss[i], 0.0, 1.0 ), clamp( ts[i], 0.0, 1.0 ) );
                 }
             }
             else
@@ -8356,7 +8356,7 @@ void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, const st
 
                 for ( int i = 0; i < pts.size(); i++ )
                 {
-                    ds[i] = surf->FindRST( pts[i], clamp( r0s[i], 0.0, 1.0 ), clamp( s0s[i], 0.0, 0.5 ), clamp( t0s[i], 0.0, 1.0 ), rs[i], ss[i], ts[i] );
+                    ds[i] = surf->FindRST( pts[i], clamp( r0s[i], 0.0, 1.0 ), clamp( s0s[i], 0.0, 1.0 ), clamp( t0s[i], 0.0, 1.0 ), rs[i], ss[i], ts[i] );
                 }
             }
             else

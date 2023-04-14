@@ -2831,7 +2831,7 @@ void VspSurf::BuildMCurve( const double &r, Vsp1DCurve &mcurve ) const
     for ( int i = 0; i < x.size(); i++ )
     {
         m[i] /= mmax;
-        s[i] /= vmax;
+        s[i] /= vvmax;
     }
 
     mcurve.InterpolateLinear( m, s, false );

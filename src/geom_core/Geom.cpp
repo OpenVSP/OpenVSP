@@ -494,7 +494,7 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
 
     m_RLoc.Init( "R_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_RLoc.SetDescript( "R Location in parent's volume" );
-    m_SLoc.Init( "S_Attach_Location", "Attach", this, 0.25, 1e-6, 0.5 - 1e-6 );
+    m_SLoc.Init( "S_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
     m_SLoc.SetDescript( "S Location in parent's volume" );
     m_TLoc.Init( "T_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
     m_TLoc.SetDescript( "T Location in parent's volume" );
@@ -569,10 +569,10 @@ void GeomXForm::UpdateAttachParms()
             w = m_WLoc();
             double r, s, t;
             r = u;
-            s = w;
+            s = 2.0 * w;
             if ( w > 0.5 )
             {
-                s = 1.0 - w;
+                s = 2.0 * ( 1.0 - w );
             }
             t = 0.5;
 
@@ -590,10 +590,10 @@ void GeomXForm::UpdateAttachParms()
             w = m_WLoc();
             double r, s, t;
             r = u;
-            s = w;
+            s = 2.0 * w;
             if ( w > 0.5 )
             {
-                s = 1.0 - w;
+                s = 2.0 * ( 1.0 - w );
             }
             t = 0.5;
 
@@ -640,11 +640,11 @@ void GeomXForm::UpdateAttachParms()
             u = r;
             if ( t < 0.5 )
             {
-                w = s;
+                w = 0.5 * s;
             }
             else
             {
-                w = 1.0 - s;
+                w = 1.0 - 0.5 * s;
             }
 
             m_ULoc.Set( u );
@@ -663,11 +663,11 @@ void GeomXForm::UpdateAttachParms()
             u = r;
             if ( t < 0.5 )
             {
-                w = s;
+                w = 0.5 * s;
             }
             else
             {
-                w = 1.0 - s;
+                w = 1.0 - 0.5 * s;
             }
 
             m_ULoc.Set( u );
