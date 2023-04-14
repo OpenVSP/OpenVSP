@@ -1333,6 +1333,7 @@ void Geom::Update( bool fullupdate )
         for ( int i = 0; i < m_MainSurfVec.size(); i++ )
         {
             m_MainSurfVec[i].InitUMapping();
+            m_MainSurfVec[i].BuildLCurve();
         }
     }
 

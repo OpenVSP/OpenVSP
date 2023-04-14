@@ -2732,3 +2732,49 @@ double VspSurf::EvalUMapping( double u ) const
     }
     return u;
 }
+
+void VspSurf::BuildLCurve()
+{
+    double umin, vmin, umax, vmax, dv;
+    double vlow, vup;
+
+    m_Surface.get_parameter_min( umin, vmin );
+    m_Surface.get_parameter_max( umax, vmax );
+    dv = vmax - vmin;
+
+    vlow = vmin + 0.25 * dv;
+    vup = vmin + 0.75 * dv;
+
+    piecewise_curve_type c, clow, cup;
+
+    m_Surface.get_vconst_curve( clow, vlow );
+    m_Surface.get_vconst_curve( cup, vup );
+
+    c.sum( clow, cup );
+    c.scale( 0.5 );
+
+    VspCurve spine;
+    spine.SetCurve( c );
+
+    vector< vec3d > x;
+    vector< double > u;
+    spine.TessSegAdapt( x, u, 1e-2, 10 );
+
+    vector < double > s;
+    s.resize( x.size(), 0.0 );
+    for ( int i = 1; i < x.size(); i++ )
+    {
+        vec3d dx = x[i] - x[i-1];
+        s[i] = s[i-1] + dx.mag();
+    }
+
+    m_Lmax = s[ x.size() - 1 ];
+
+    for ( int i = 0; i < x.size(); i++ )
+    {
+        s[i] /= m_Lmax;
+        u[i] /= umax;
+    }
+
+    m_LCurve.InterpolateLinear( s, u, false );
+}
