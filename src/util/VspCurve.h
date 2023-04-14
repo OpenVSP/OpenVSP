@@ -120,9 +120,10 @@ public:
     void TesselateNoCorner( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout );
     void Tesselate( const vector< double > &u, vector< vec3d > & output );
 
-    void TessAdapt( vector< vec3d > & output, double tol, int Nlimit );
-    void TessAdapt( double umin, double umax, std::vector< vec3d > & pnts, double tol, int Nlimit );
-    void TessAdapt( double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit, int Nadapt = 0 );
+    void TessAdapt( vector< vec3d > & pnts, double tol, int Nlimit );
+    void TessAdapt( vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
+    void TessAdapt( double umin, double umax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
+    void TessAdapt( double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit, int Nadapt = 0 );
 
     void Offset( const vec3d &offvec );
     void OffsetX( double x );
