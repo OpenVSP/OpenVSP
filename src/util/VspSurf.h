@@ -324,6 +324,7 @@ public:
 
     void BuildLCurve();
     void BuildMCurve( const double &r, Vsp1DCurve &c ) const;
+    double GetLMax() const { return m_Lmax; };
 
 protected:
 
