@@ -487,35 +487,35 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_TransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
     m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NUM_TYPES - 1 );
     m_RotAttachFlag.SetDescript( "Determines relative rotation axes" );
-    m_ULoc.Init( "U_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
+    m_ULoc.Init( "U_Attach_Location", "Attach", this, 0.0, 0.0, 1.0 );
     m_ULoc.SetDescript( "U Location on parent's surface" );
     m_U01.Init( "U_01", "Attach", this, true, false, true );
     m_U01.SetDescript( "The U value is specified in [0, 1] basis or [0, N] basis." );
     m_U0NLoc.Init( "U_Attach_Location0N", "Attach", this, 0, 0, 1e12 );
     m_U0NLoc.SetDescript( "U Location on parent's surface on [0,N] basis." );
-    m_WLoc.Init( "V_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
+    m_WLoc.Init( "V_Attach_Location", "Attach", this, 0.0, 0.0, 1.0 );
     m_WLoc.SetDescript( "V Location on parent's surface" );
 
-    m_RLoc.Init( "R_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
+    m_RLoc.Init( "R_Attach_Location", "Attach", this, 0.0, 0.0, 1.0 );
     m_RLoc.SetDescript( "R Location in parent's volume" );
     m_R01.Init( "R_01", "Attach", this, true, false, true );
     m_R01.SetDescript( "The R value is specified in [0, 1] basis or [0, N] basis." );
     m_R0NLoc.Init( "R_Attach_Location0N", "Attach", this, 0, 0, 1e12 );
     m_R0NLoc.SetDescript( "R Location in parent's volume on [0,N] basis." );
-    m_SLoc.Init( "S_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
+    m_SLoc.Init( "S_Attach_Location", "Attach", this, 0.5, 0.0, 1.0 );
     m_SLoc.SetDescript( "S Location in parent's volume" );
-    m_TLoc.Init( "T_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
+    m_TLoc.Init( "T_Attach_Location", "Attach", this, 0.5, 0.0, 1.0 );
     m_TLoc.SetDescript( "T Location in parent's volume" );
 
-    m_LLoc.Init( "L_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
+    m_LLoc.Init( "L_Attach_Location", "Attach", this, 0.0, 0.0, 1.0 );
     m_LLoc.SetDescript( "L Location in parent's volume" );
     m_L01.Init( "L_01", "Attach", this, true, false, true );
     m_L01.SetDescript( "The L value is specified in [0, 1] basis or dimensional basis." );
     m_L0LenLoc.Init( "L_Attach_Location0Len", "Attach", this, 0, 0, 1e12 );
     m_L0LenLoc.SetDescript( "L Location in parent's volume on [0,Len] basis." );
-    m_MLoc.Init( "M_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
+    m_MLoc.Init( "M_Attach_Location", "Attach", this, 0.5, 0.0, 1.0 );
     m_MLoc.SetDescript( "M Location in parent's volume" );
-    m_NLoc.Init( "N_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
+    m_NLoc.Init( "N_Attach_Location", "Attach", this, 0.5, 0.0, 1.0 );
     m_NLoc.SetDescript( "N Location in parent's volume" );
 
     m_Scale.Init( "Scale", "XForm", this, 1, 1.0e-12, 1.0e12 );
