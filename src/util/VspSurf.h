@@ -149,9 +149,9 @@ public:
     void GetU01ConstCurve( VspCurve &c, const double &u01 ) const;
     void GetW01ConstCurve( VspCurve &c, const double &w01 ) const;
 
-    Matrix4d CompRotCoordSys( const double &u, const double &w );
+    Matrix4d CompRotCoordSys( double u, double w );
     Matrix4d CompTransCoordSys( const double &u, const double &w );
-    Matrix4d CompRotCoordSysRST( const double &r, const double &s, const double &t );
+    Matrix4d CompRotCoordSysRST( double r, double s, double t );
     Matrix4d CompTransCoordSysRST(const double &r, const double &s, const double &t );
     Matrix4d CompRotCoordSysLMN( const double &l, const double &m, const double &n );
     Matrix4d CompTransCoordSysLMN( const double &l, const double &m, const double &n );

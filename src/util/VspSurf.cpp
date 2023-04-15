@@ -452,11 +452,16 @@ void VspSurf::GetW01ConstCurve( VspCurve &c, const double &w01 ) const
 
 //===== Compute a Relative Rotation Transformation Matrix from Component's
 //      Coordinate System to a Surface Coordinate System ====//
-Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
+Matrix4d VspSurf::CompRotCoordSys( double u, double w )
 {
+    double tol = 1e-10;
+
     Matrix4d retMat; // Return Matrix
 
     double uprm = m_UMapping.Invert( u * m_UMapMax ) / GetUMax();
+
+    uprm = clamp( uprm, 0.0 + tol, 1.0 - tol );
+    w = clamp( w, 0.0 + tol, 1.0 - tol );
 
     // Get du and norm, cross them to get the last orthonormal vector
     vec3d du = CompTanU01( uprm, w );
@@ -468,44 +473,44 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
     {
         double tmagic01 = TMAGIC / GetWMax();
 
-        if ( du.mag() < 1e-6 ) // Zero direction vector
+        if ( du.mag() < tol ) // Zero direction vector
         {
             if ( w <= tmagic01 ) // Near TE lower
             {
-                du = CompTanU01( uprm, tmagic01 + 1e-6 );
+                du = CompTanU01( uprm, tmagic01 + tol );
                 du.normalize();
             }
 
             if ( w >= ( 0.5 - tmagic01 ) && w <= ( 0.5 + tmagic01 ) ) // Near leading edge
             {
-                du = CompTanU01( uprm, 0.5 + tmagic01 + 1e-6 );
+                du = CompTanU01( uprm, 0.5 + tmagic01 + tol );
                 du.normalize();
             }
 
             if ( w >= ( 1.0 - tmagic01 ) ) // Near TE upper
             {
-                du = CompTanU01( uprm, 1.0 - ( tmagic01 + 1e-6 ) );
+                du = CompTanU01( uprm, 1.0 - ( tmagic01 + tol ) );
                 du.normalize();
             }
         }
 
-        if ( norm.mag() < 1e-6 ) // Zero normal vector
+        if ( norm.mag() < tol ) // Zero normal vector
         {
             if ( w <= tmagic01 ) // Near TE lower
             {
-                norm = CompNorm01( uprm, tmagic01 + 1e-6 );
+                norm = CompNorm01( uprm, tmagic01 + tol );
                 norm.normalize();
             }
 
             if ( w >= ( 0.5 - tmagic01 ) && w <= ( 0.5 + tmagic01 ) ) // Near leading edge
             {
-                norm = CompNorm01( uprm, 0.5 + tmagic01 + 1e-6 );
+                norm = CompNorm01( uprm, 0.5 + tmagic01 + tol );
                 norm.normalize();
             }
 
             if ( w >= ( 1.0 - tmagic01 ) ) // Near TE upper
             {
-                norm = CompNorm01( uprm, 1.0 - ( tmagic01 + 1e-6 ) );
+                norm = CompNorm01( uprm, 1.0 - ( tmagic01 + tol ) );
                 norm.normalize();
             }
         }
@@ -533,13 +538,17 @@ Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
     return retMat;
 }
 
-Matrix4d VspSurf::CompRotCoordSysRST( const double &r, const double &s, const double &t )
+Matrix4d VspSurf::CompRotCoordSysRST( double r, double s, double t )
 {
     double tol = 1e-10;
 
     Matrix4d retMat; // Return Matrix
 
     double rprm = m_UMapping.Invert( r * m_UMapMax ) / GetUMax();
+
+    rprm = clamp( rprm, 0.0 + tol, 1.0 - tol );
+    s = clamp( s, 0.0 + tol, 1.0 - tol );
+    t = clamp( t, 0.0 + tol, 1.0 - tol );
 
     vec3d dr = CompTanR( rprm, s, t );
     vec3d ds = CompTanS( rprm, s, t );
