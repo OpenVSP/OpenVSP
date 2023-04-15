@@ -1025,6 +1025,21 @@ bool GeomScreen::Update()
         m_ShellMassAreaInput.Deactivate();
     }
 
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        Geom* parent = veh->FindGeom( geom_ptr->GetParentID() );
+
+        if ( parent )
+        {
+            m_AttachLayout.GetGroup()->activate();
+        }
+        else
+        {
+            m_AttachLayout.GetGroup()->deactivate();
+        }
+    }
+
     m_NumUSlider.Update( geom_ptr->m_TessU.GetID() );
     m_NumWSlider.Update( geom_ptr->m_TessW.GetID() );
 
