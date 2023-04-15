@@ -129,15 +129,14 @@ void HingeGeom::UpdateSurf()
     int ndir = 3 - ( m_PrimaryDir() + m_SecondaryDir() );
 
     double tempMat[16];
-    Matrix4d attachedMat = ComposeAttachMatrix();
 
     Matrix4d attachedRotMat;
-    attachedMat.getMat( tempMat );
+    m_AttachMatrix.getMat( tempMat );
     tempMat[12] = tempMat[13] = tempMat[14] = 0;
     attachedRotMat.initMat( tempMat );
 
     Matrix4d invattachMat;
-    invattachMat = attachedMat;
+    invattachMat = m_AttachMatrix;
     invattachMat.affineInverse();
 
     if ( m_OrientType.Get() == ORIENT_ROT )
@@ -169,7 +168,7 @@ void HingeGeom::UpdateSurf()
             if ( m_PrimOffAbsRelFlag() == vsp::REL )
             {
                 endpt.set_xyz( m_PrimXOffRel(), m_PrimYOffRel(), m_PrimZOffRel() );
-                endpt = attachedMat.xform( endpt );
+                endpt = m_AttachMatrix.xform( endpt );
                 m_PrimXOff = endpt.x();
                 m_PrimYOff = endpt.y();
                 m_PrimZOff = endpt.z();

@@ -528,6 +528,11 @@ GeomXForm::~GeomXForm()
 void GeomXForm::UpdateXForm()
 {
     DeactivateXForms();
+
+    UpdateAttachParms();
+
+    ComposeAttachMatrix();
+
     ComposeModelMatrix();
 
     double axlen = 1.0;
@@ -538,11 +543,7 @@ void GeomXForm::UpdateXForm()
         axlen = veh->m_AxisLength();
     }
 
-    UpdateAttachParms();
-
-    Matrix4d attachedMat = ComposeAttachMatrix();
-
-    m_AttachOrigin = attachedMat.xform( vec3d( 0.0, 0.0, 0.0 ) );
+    m_AttachOrigin = m_AttachMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
 
     m_AttachAxis.clear();
     m_AttachAxis.resize( 3 );
@@ -550,7 +551,7 @@ void GeomXForm::UpdateXForm()
     {
         vec3d pt = vec3d( 0.0, 0.0, 0.0 );
         pt.v[i] = axlen;
-        m_AttachAxis[i] = attachedMat.xform( pt );
+        m_AttachAxis[i] = m_AttachMatrix.xform( pt );
     }
 }
 
@@ -682,8 +683,6 @@ void GeomXForm::ComposeModelMatrix()
     m_ModelMatrix.loadIdentity();
     ComputeCenter();
 
-    // Get Attament Matrix
-    Matrix4d attachedMat = ComposeAttachMatrix();
 
     if (  m_AbsRelFlag() ==  vsp::REL || ( m_ignoreAbsFlag && m_applyIgnoreAbsFlag ) )
     {
@@ -697,7 +696,7 @@ void GeomXForm::ComposeModelMatrix()
         m_ModelMatrix.translatef( -m_Center.x(), -m_Center.y(), -m_Center.z() );
 
         // Apply Attached Matrix to Relative Matrix
-        m_ModelMatrix.postMult( attachedMat.data() );
+        m_ModelMatrix.postMult( m_AttachMatrix.data() );
 
         // Update Absolute Parameters
         double tempMat[16];
@@ -723,6 +722,7 @@ void GeomXForm::ComposeModelMatrix()
         m_ModelMatrix.translatef( -m_Center.x(), -m_Center.y(), -m_Center.z() );
 
         // Update Relative Parameters
+        Matrix4d attachedMat = m_AttachMatrix;
         double tempMat[16];
         attachedMat.affineInverse();
         attachedMat.matMult( m_ModelMatrix.data() );
@@ -739,10 +739,9 @@ void GeomXForm::ComposeModelMatrix()
 
 }
 
-Matrix4d GeomXForm::ComposeAttachMatrix()
+void GeomXForm::ComposeAttachMatrix()
 {
-    Matrix4d attachedMat;
-    attachedMat.loadIdentity();
+    m_AttachMatrix.loadIdentity();
 
     Geom* parent = m_Vehicle->FindGeom( GetParentID() );
 
@@ -751,15 +750,15 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent );
         if ( hingeparent )
         {
-            attachedMat = hingeparent->GetJointMatrix();
-            return attachedMat;
+            m_AttachMatrix = hingeparent->GetJointMatrix();
+            return;
         }
     }
 
     // If both attachment flags set to none, return identity
     if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_NONE && m_RotAttachFlag() == vsp::ATTACH_ROT_NONE )
     {
-        return attachedMat;
+        return;
     }
 
     if ( parent )
@@ -839,10 +838,9 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         }
 
         transMat.matMult( rotMat.data() );
-        attachedMat = transMat;
+        m_AttachMatrix = transMat;
     }
 
-    return attachedMat;
 }
 
 //==== Set Rel or Abs Flag ====//
@@ -922,7 +920,7 @@ Matrix4d GeomXForm::GetAncestorAttachMatrix( int gen )
 
     if ( gen == 0 )
     {
-        return ComposeAttachMatrix();
+        return getAttachMatrix();
     }
 
     string id = GetAncestorID( gen );
@@ -930,7 +928,7 @@ Matrix4d GeomXForm::GetAncestorAttachMatrix( int gen )
     GeomXForm* ancestPtr = m_Vehicle->FindGeom( id );
     if ( ancestPtr )
     {
-        return ancestPtr->ComposeAttachMatrix();
+        return ancestPtr->getAttachMatrix();
     }
 
     atmat.loadIdentity();
@@ -5476,13 +5474,12 @@ void GeomXSec::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
 
-    Matrix4d attachMat;
     Matrix4d relTrans;
-    attachMat = ComposeAttachMatrix();
-    relTrans = attachMat;
+
+    relTrans = m_AttachMatrix;
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
-    relTrans.postMult( attachMat.data() );
+    relTrans.postMult( m_AttachMatrix.data() );
 
     unsigned int nxsec = m_XSecSurf.NumXSec();
     m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
@@ -5504,13 +5501,11 @@ void GeomXSec::UpdateDrawObj()
 
 void GeomXSec::UpdateHighlightDrawObj()
 {
-    Matrix4d attachMat;
     Matrix4d relTrans;
-    attachMat = ComposeAttachMatrix();
-    relTrans = attachMat;
+    relTrans = m_AttachMatrix;
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
-    relTrans.postMult( attachMat.data() );
+    relTrans.postMult( m_AttachMatrix.data() );
 
     XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec() );
     if ( axs )

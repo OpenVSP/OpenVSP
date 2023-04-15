@@ -592,13 +592,12 @@ void GeomEngine::UpdateHighlightDrawObj()
 
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
     {
-        Matrix4d attachMat;
         Matrix4d relTrans;
-        attachMat = ComposeAttachMatrix();
-        relTrans = attachMat;
+
+        relTrans = m_AttachMatrix;
         relTrans.affineInverse();
         relTrans.matMult( m_ModelMatrix.data() );
-        relTrans.postMult( attachMat.data() );
+        relTrans.postMult( m_AttachMatrix.data() );
 
         double tol = 1e-2;
 

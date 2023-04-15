@@ -2312,13 +2312,11 @@ void WingGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
 
-    Matrix4d attachMat;
     Matrix4d relTrans;
-    attachMat = ComposeAttachMatrix();
-    relTrans = attachMat;
+    relTrans = m_AttachMatrix;
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
-    relTrans.postMult( attachMat.data() );
+    relTrans.postMult( m_AttachMatrix.data() );
 
     unsigned int nxsec = m_XSecSurf.NumXSec();
     m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
@@ -2335,11 +2333,10 @@ void WingGeom::UpdateHighlightDrawObj()
 {
     Matrix4d attachMat;
     Matrix4d relTrans;
-    attachMat = ComposeAttachMatrix();
-    relTrans = attachMat;
+    relTrans = m_AttachMatrix;
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
-    relTrans.postMult( attachMat.data() );
+    relTrans.postMult( m_AttachMatrix.data() );
 
     m_HighlightXSecDrawObj.m_PntVec = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetDrawLines( relTrans );
     m_HighlightXSecDrawObj.m_GeomChanged = true;
