@@ -940,6 +940,18 @@ bool GeomScreen::Update()
     }
 
     //==== Attachments ====//
+    m_AttachUSlider.Activate();
+    m_UScaleToggleGroup.Activate();
+    m_AttachVSlider.Activate();
+    m_AttachRSlider.Activate();
+    m_RScaleToggleGroup.Activate();
+    m_AttachSSlider.Activate();
+    m_AttachTSlider.Activate();
+    m_AttachLSlider.Activate();
+    m_LScaleToggleGroup.Activate();
+    m_AttachMSlider.Activate();
+    m_AttachNSlider.Activate();
+
     m_TransToggleGroup.Update( geom_ptr->m_TransAttachFlag.GetID() );
     m_RotToggleGroup.Update( geom_ptr->m_RotAttachFlag.GetID() );
     m_UScaleToggleGroup.Update( geom_ptr->m_U01.GetID() );
@@ -981,6 +993,28 @@ bool GeomScreen::Update()
     m_AttachMSlider.Update( geom_ptr->m_MLoc.GetID() );
     m_AttachNSlider.Update( geom_ptr->m_NLoc.GetID() );
 
+    if ( geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_UV && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_ROT_UV )
+    {
+        m_AttachUSlider.Deactivate();
+        m_UScaleToggleGroup.Deactivate();
+        m_AttachVSlider.Deactivate();
+    }
+
+    if ( geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_RST && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_ROT_RST )
+    {
+        m_AttachRSlider.Deactivate();
+        m_RScaleToggleGroup.Deactivate();
+        m_AttachSSlider.Deactivate();
+        m_AttachTSlider.Deactivate();
+    }
+
+    if ( geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_LMN && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_ROT_LMN )
+    {
+        m_AttachLSlider.Deactivate();
+        m_LScaleToggleGroup.Deactivate();
+        m_AttachMSlider.Deactivate();
+        m_AttachNSlider.Deactivate();
+    }
 
     if ( geom_ptr->m_ShellFlag.Get() )
     {

@@ -539,9 +539,9 @@ GeomXForm::~GeomXForm()
 //==== Update ====//
 void GeomXForm::UpdateXForm()
 {
-    DeactivateXForms();
-
     UpdateAttachParms();
+
+    DeactivateXForms();
 
     ComposeAttachMatrix();
 
@@ -938,6 +938,20 @@ void GeomXForm::DeactivateXForms()
         m_ZRot.Activate();
     }
 
+    m_ULoc.Activate();
+    m_U0NLoc.Activate();
+    m_WLoc.Activate();
+    m_RLoc.Activate();
+    m_R0NLoc.Activate();
+    m_SLoc.Activate();
+    m_TLoc.Activate();
+    m_LLoc.Activate();
+    m_L0LenLoc.Activate();
+    m_MLoc.Activate();
+    m_NLoc.Activate();
+    m_TransAttachFlag.Activate();
+    m_RotAttachFlag.Activate();
+
     if ( IsParentJoint() )
     {
         m_ULoc.Deactivate();
@@ -951,19 +965,34 @@ void GeomXForm::DeactivateXForms()
         m_TransAttachFlag.Deactivate();
         m_RotAttachFlag.Deactivate();
     }
+
+    if ( m_U01() )
+    {
+        m_U0NLoc.Deactivate();
+    }
     else
     {
-        m_ULoc.Activate();
-        m_WLoc.Activate();
-        m_RLoc.Activate();
-        m_SLoc.Activate();
-        m_TLoc.Activate();
-        m_LLoc.Activate();
-        m_MLoc.Activate();
-        m_NLoc.Activate();
-        m_TransAttachFlag.Activate();
-        m_RotAttachFlag.Activate();
+        m_ULoc.Deactivate();
     }
+
+    if ( m_R01() )
+    {
+        m_R0NLoc.Deactivate();
+    }
+    else
+    {
+        m_RLoc.Deactivate();
+    }
+
+    if ( m_L01() )
+    {
+        m_L0LenLoc.Deactivate();
+    }
+    else
+    {
+        m_LLoc.Deactivate();
+    }
+
 }
 
 Matrix4d GeomXForm::GetAncestorAttachMatrix( int gen )
