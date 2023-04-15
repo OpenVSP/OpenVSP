@@ -511,14 +511,82 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_AttachLayout.SetFitWidthFlag( true );
     m_AttachLayout.SetSameLineFlag( false );
 
+    int actionToggleButtonWidth = 35;
+    int normalButtonWidth = 90;
+
+    m_AttachLayout.SetFitWidthFlag( false );
+    m_AttachLayout.SetSameLineFlag( true );
+
+    m_AttachLayout.SetButtonWidth( actionToggleButtonWidth );
+    m_AttachLayout.AddButton( m_U01Toggle, "01" );
+    m_AttachLayout.AddButton( m_U0NToggle, "0N" );
+
+    m_AttachLayout.SetFitWidthFlag( true );
+
+    m_AttachLayout.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
     m_AttachLayout.AddSlider( m_AttachUSlider, "U", 1, " %7.6f" );
+
+    m_UScaleToggleGroup.Init( this );
+    m_UScaleToggleGroup.AddButton( m_U0NToggle.GetFlButton() ); // 0 false added first
+    m_UScaleToggleGroup.AddButton( m_U01Toggle.GetFlButton() ); // 1 true added second
+
+    m_AttachLayout.ForceNewLine();
+    m_AttachLayout.SetFitWidthFlag( true );
+    m_AttachLayout.SetSameLineFlag( false );
+
+    m_AttachLayout.SetButtonWidth( normalButtonWidth );
+
     m_AttachLayout.AddSlider( m_AttachVSlider, "W", 1, " %7.6f" );
     m_AttachLayout.AddYGap();
+
+    m_AttachLayout.SetFitWidthFlag( false );
+    m_AttachLayout.SetSameLineFlag( true );
+
+    m_AttachLayout.SetButtonWidth( actionToggleButtonWidth );
+    m_AttachLayout.AddButton( m_R01Toggle, "01" );
+    m_AttachLayout.AddButton( m_R0NToggle, "0N" );
+
+    m_AttachLayout.SetFitWidthFlag( true );
+
+    m_AttachLayout.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
     m_AttachLayout.AddSlider( m_AttachRSlider, "R", 1, " %7.6f" );
+
+    m_RScaleToggleGroup.Init( this );
+    m_RScaleToggleGroup.AddButton( m_R0NToggle.GetFlButton() ); // 0 false added first
+    m_RScaleToggleGroup.AddButton( m_R01Toggle.GetFlButton() ); // 1 true added second
+
+    m_AttachLayout.ForceNewLine();
+    m_AttachLayout.SetFitWidthFlag( true );
+    m_AttachLayout.SetSameLineFlag( false );
+
+    m_AttachLayout.SetButtonWidth( normalButtonWidth );
+
     m_AttachLayout.AddSlider( m_AttachSSlider, "S", 1, " %7.6f" );
     m_AttachLayout.AddSlider( m_AttachTSlider, "T", 1, " %7.6f" );
     m_AttachLayout.AddYGap();
+
+    m_AttachLayout.SetFitWidthFlag( false );
+    m_AttachLayout.SetSameLineFlag( true );
+
+    m_AttachLayout.SetButtonWidth( actionToggleButtonWidth );
+    m_AttachLayout.AddButton( m_L01Toggle, "01" );
+    m_AttachLayout.AddButton( m_L0LenToggle, "0D" );
+
+    m_AttachLayout.SetFitWidthFlag( true );
+
+    m_AttachLayout.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
     m_AttachLayout.AddSlider( m_AttachLSlider, "L", 1, " %7.6f" );
+
+    m_LScaleToggleGroup.Init( this );
+    m_LScaleToggleGroup.AddButton( m_L0LenToggle.GetFlButton() ); // 0 false added first
+    m_LScaleToggleGroup.AddButton( m_L01Toggle.GetFlButton() ); // 1 true added second
+
+    m_AttachLayout.ForceNewLine();
+    m_AttachLayout.SetFitWidthFlag( true );
+    m_AttachLayout.SetSameLineFlag( false );
+
+    m_AttachLayout.SetButtonWidth( normalButtonWidth );
+
     m_AttachLayout.AddSlider( m_AttachMSlider, "M", 1, " %7.6f" );
     m_AttachLayout.AddSlider( m_AttachNSlider, "N", 1, " %7.6f" );
 
@@ -874,12 +942,42 @@ bool GeomScreen::Update()
     //==== Attachments ====//
     m_TransToggleGroup.Update( geom_ptr->m_TransAttachFlag.GetID() );
     m_RotToggleGroup.Update( geom_ptr->m_RotAttachFlag.GetID() );
-    m_AttachUSlider.Update( geom_ptr->m_ULoc.GetID() );
+    m_UScaleToggleGroup.Update( geom_ptr->m_U01.GetID() );
+
+    if ( geom_ptr->m_U01() )
+    {
+        m_AttachUSlider.Update( 1, geom_ptr->m_ULoc.GetID(), geom_ptr->m_U0NLoc.GetID());
+    }
+    else
+    {
+        m_AttachUSlider.Update( 2, geom_ptr->m_ULoc.GetID(), geom_ptr->m_U0NLoc.GetID());
+    }
+
     m_AttachVSlider.Update( geom_ptr->m_WLoc.GetID() );
-    m_AttachRSlider.Update( geom_ptr->m_RLoc.GetID() );
+    m_RScaleToggleGroup.Update( geom_ptr->m_R01.GetID() );
+
+    if ( geom_ptr->m_R01() )
+    {
+        m_AttachRSlider.Update( 1, geom_ptr->m_RLoc.GetID(), geom_ptr->m_R0NLoc.GetID());
+    }
+    else
+    {
+        m_AttachRSlider.Update( 2, geom_ptr->m_RLoc.GetID(), geom_ptr->m_R0NLoc.GetID());
+    }
+
     m_AttachSSlider.Update( geom_ptr->m_SLoc.GetID() );
     m_AttachTSlider.Update( geom_ptr->m_TLoc.GetID() );
-    m_AttachLSlider.Update( geom_ptr->m_LLoc.GetID() );
+    m_LScaleToggleGroup.Update( geom_ptr->m_L01.GetID() );
+
+    if ( geom_ptr->m_L01() )
+    {
+        m_AttachLSlider.Update( 1, geom_ptr->m_LLoc.GetID(), geom_ptr->m_L0LenLoc.GetID());
+    }
+    else
+    {
+        m_AttachLSlider.Update( 2, geom_ptr->m_LLoc.GetID(), geom_ptr->m_L0LenLoc.GetID());
+    }
+
     m_AttachMSlider.Update( geom_ptr->m_MLoc.GetID() );
     m_AttachNSlider.Update( geom_ptr->m_NLoc.GetID() );
 

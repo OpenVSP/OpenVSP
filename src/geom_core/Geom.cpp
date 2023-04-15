@@ -489,11 +489,19 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_RotAttachFlag.SetDescript( "Determines relative rotation axes" );
     m_ULoc.Init( "U_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_ULoc.SetDescript( "U Location on parent's surface" );
+    m_U01.Init( "U_01", "Attach", this, true, false, true );
+    m_U01.SetDescript( "The U value is specified in [0, 1] basis or [0, N] basis." );
+    m_U0NLoc.Init( "U_Attach_Location0N", "Attach", this, 0, 0, 1e12 );
+    m_U0NLoc.SetDescript( "U Location on parent's surface on [0,N] basis." );
     m_WLoc.Init( "V_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_WLoc.SetDescript( "V Location on parent's surface" );
 
     m_RLoc.Init( "R_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_RLoc.SetDescript( "R Location in parent's volume" );
+    m_R01.Init( "R_01", "Attach", this, true, false, true );
+    m_R01.SetDescript( "The R value is specified in [0, 1] basis or [0, N] basis." );
+    m_R0NLoc.Init( "R_Attach_Location0N", "Attach", this, 0, 0, 1e12 );
+    m_R0NLoc.SetDescript( "R Location in parent's volume on [0,N] basis." );
     m_SLoc.Init( "S_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
     m_SLoc.SetDescript( "S Location in parent's volume" );
     m_TLoc.Init( "T_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
@@ -501,6 +509,10 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
 
     m_LLoc.Init( "L_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_LLoc.SetDescript( "L Location in parent's volume" );
+    m_L01.Init( "L_01", "Attach", this, true, false, true );
+    m_L01.SetDescript( "The L value is specified in [0, 1] basis or dimensional basis." );
+    m_L0LenLoc.Init( "L_Attach_Location0Len", "Attach", this, 0, 0, 1e12 );
+    m_L0LenLoc.SetDescript( "L Location in parent's volume on [0,Len] basis." );
     m_MLoc.Init( "M_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
     m_MLoc.SetDescript( "M Location in parent's volume" );
     m_NLoc.Init( "N_Attach_Location", "Attach", this, 0.5, 1e-6, 1 - 1e-6 );
@@ -561,6 +573,46 @@ void GeomXForm::UpdateAttachParms()
 
     if ( parent )
     {
+        double umax = parent->GetMainUMapMax( 0 );
+        double lmax = parent->GetMainSurfPtr( 0 )->GetLMax();
+
+        m_U0NLoc.SetUpperLimit( umax );
+        m_R0NLoc.SetUpperLimit( umax );
+        m_L0LenLoc.SetUpperLimit( lmax );
+
+        if ( m_U01.Get() )
+        {
+            m_U0NLoc.Set( m_ULoc() * umax );
+        }
+        else
+        {
+            double val = clamp( m_U0NLoc(), 0.0, umax );
+            m_U0NLoc.Set( val );
+            m_ULoc.Set( val / umax );
+        }
+
+        if ( m_R01.Get() )
+        {
+            m_R0NLoc.Set( m_RLoc() * umax );
+        }
+        else
+        {
+            double val = clamp( m_R0NLoc(), 0.0, umax );
+            m_R0NLoc.Set( val );
+            m_RLoc.Set( val / umax );
+        }
+
+        if ( m_L01.Get() )
+        {
+            m_L0LenLoc.Set( m_LLoc() * lmax );
+        }
+        else
+        {
+            double val = clamp( m_L0LenLoc(), 0.0, lmax );
+            m_L0LenLoc.Set( val );
+            m_LLoc.Set( val / lmax );
+        }
+
         // If UV is active in either way and RST is not active in any way, compute RST from UV.
         if ( ( m_TransAttachFlag() == vsp::ATTACH_TRANS_UV || m_RotAttachFlag() == vsp::ATTACH_ROT_UV ) &&
              ( m_TransAttachFlag() != vsp::ATTACH_TRANS_RST && m_RotAttachFlag() != vsp::ATTACH_ROT_RST ) )
@@ -578,6 +630,7 @@ void GeomXForm::UpdateAttachParms()
             t = 0.5;
 
             m_RLoc.Set( r );
+            m_R0NLoc.Set( m_RLoc() * umax );
             m_SLoc.Set( s );
             m_TLoc.Set( t );
         }
@@ -603,6 +656,7 @@ void GeomXForm::UpdateAttachParms()
 
             parent->ConvertRSTtoLMN( 0, r, s, t, l, m, n );
             m_LLoc.Set( l );
+            m_L0LenLoc.Set( m_LLoc() * lmax );
             m_MLoc.Set( m );
             m_NLoc.Set( n );
         }
@@ -614,6 +668,7 @@ void GeomXForm::UpdateAttachParms()
             double l, m, n;
             parent->ConvertRSTtoLMN( 0, m_RLoc(), m_SLoc(), m_TLoc(), l, m, n );
             m_LLoc.Set( l );
+            m_L0LenLoc.Set( m_LLoc() * lmax );
             m_MLoc.Set( m );
             m_NLoc.Set( n );
         }
@@ -625,6 +680,7 @@ void GeomXForm::UpdateAttachParms()
             double r, s, t;
             parent->ConvertLMNtoRST( 0, m_LLoc(), m_MLoc(), m_NLoc(), r, s, t );
             m_RLoc.Set( r );
+            m_R0NLoc.Set( m_RLoc() * umax );
             m_SLoc.Set( s );
             m_TLoc.Set( t );
         }
@@ -649,6 +705,7 @@ void GeomXForm::UpdateAttachParms()
             }
 
             m_ULoc.Set( u );
+            m_U0NLoc.Set( m_ULoc() * umax );
             m_WLoc.Set( w );
         }
 
@@ -672,6 +729,7 @@ void GeomXForm::UpdateAttachParms()
             }
 
             m_ULoc.Set( u );
+            m_U0NLoc.Set( m_ULoc() * umax );
             m_WLoc.Set( w );
         }
     }

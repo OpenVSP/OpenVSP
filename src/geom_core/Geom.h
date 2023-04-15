@@ -329,13 +329,19 @@ public:
     IntParm m_RotAttachFlag;            // Flag to set rotation attachment
 
     Parm m_ULoc;                        // UV Attachment Parameters
+    Parm m_U0NLoc;
+    BoolParm m_U01;
     Parm m_WLoc;
 
     Parm m_RLoc;                        // RST Attachment Parameters
+    BoolParm m_R01;
+    Parm m_R0NLoc;
     Parm m_SLoc;
     Parm m_TLoc;
 
     Parm m_LLoc;                        // LMN Attachment Parameters
+    BoolParm m_L01;
+    Parm m_L0LenLoc;
     Parm m_MLoc;
     Parm m_NLoc;
 
