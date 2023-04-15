@@ -512,6 +512,7 @@ Matrix4d VspSurf::CompRotCoordSys( const double &u, const double &w )
     }
 
     vec3d dw = cross( norm, du );
+    dw.normalize();
 
     // Place axes in as cols of Rot mat
     retMat.setBasis( du, dw, norm );
@@ -553,12 +554,14 @@ Matrix4d VspSurf::CompRotCoordSysRST( const double &r, const double &s, const do
     {
         norm = dt;
     }
+    norm.normalize();
 
     vec3d d2 = cross( norm, dr );
     if ( d2.mag() < tol )
     {
         d2 = ds;
     }
+    d2.normalize();
 
     // Place axes in as cols of Rot mat
     retMat.setBasis( dr, d2, norm );
