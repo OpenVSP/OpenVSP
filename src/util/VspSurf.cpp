@@ -74,6 +74,8 @@ VspSurf::VspSurf()
     m_SkinClosedFlag = 0;
 
     m_UMapMax = -1;
+
+    m_Lmax = 0;
 }
 
 //===== Destructor  =====//
