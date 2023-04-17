@@ -2787,6 +2787,8 @@ void VspSurf::BuildLCurve()
     vector< double > u;
     spine.TessSegAdapt( x, u, 1e-2, 10 );
 
+    if ( x.size() > 0 )
+    {
     vector < double > s;
     s.resize( x.size(), 0.0 );
     for ( int i = 1; i < x.size(); i++ )
@@ -2804,6 +2806,12 @@ void VspSurf::BuildLCurve()
     }
 
     m_LCurve.InterpolateLinear( s, u, false );
+    }
+    else
+    {
+        m_Lmax = 0;
+        m_LCurve = Vsp1DCurve();
+    }
 }
 
 void VspSurf::BuildMCurve( const double &r, Vsp1DCurve &mcurve ) const
