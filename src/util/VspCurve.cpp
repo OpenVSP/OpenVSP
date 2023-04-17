@@ -1329,21 +1329,24 @@ void VspCurve::TessSegAdapt( vector< vec3d > & pnts, vector< double > & uout, do
     m_Curve.get_pmap( umap );
     int nseg = umap.size() - 1;
 
-    double usegstart = umap[0];
-    vec3d psegstart = CompPnt( usegstart );
-
-    for ( int i = 0; i < nseg; i++ )
+    if ( nseg > 0 )
     {
-        double usegend = umap[ i + 1 ];
-        vec3d psegend = CompPnt( usegend );
-        TessAdapt( usegstart, usegend, psegstart, psegend, pnts, uout, tol, Nlimit );
+        double usegstart = umap[0];
+        vec3d psegstart = CompPnt( usegstart );
 
-        usegstart = usegend;
-        psegstart = psegend;
+        for ( int i = 0; i < nseg; i++ )
+        {
+            double usegend = umap[ i + 1 ];
+            vec3d psegend = CompPnt( usegend );
+            TessAdapt( usegstart, usegend, psegstart, psegend, pnts, uout, tol, Nlimit );
+
+            usegstart = usegend;
+            psegstart = psegend;
+        }
+
+        pnts.push_back( psegstart );
+        uout.push_back( usegstart );
     }
-
-    pnts.push_back( psegstart );
-    uout.push_back( usegstart );
 }
 
 void VspCurve::TessAdapt( double umin, double umax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit )
