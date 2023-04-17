@@ -33,16 +33,16 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_V1TrimFlag.Init( "V1TrimFlag", "Design", this, false, 0, 1 );
     m_V1TrimFlag.SetDescript( "Trim in V Direction Flag" );
-    m_V1TrimBegin.Init( "V1TrimBegin", "Design", this, 0.3, 0.0, 1.0 );
+    m_V1TrimBegin.Init( "V1TrimBegin", "Design", this, 0.9, 0.0, 1.0 );
     m_V1TrimBegin.SetDescript( "Begin V Trim Value" );
-    m_V1TrimEnd.Init( "V1TrimEnd", "Design", this, 1.0, 0.0, 1.0 );
+    m_V1TrimEnd.Init( "V1TrimEnd", "Design", this, 0.1, 0.0, 1.0 );
     m_V1TrimEnd.SetDescript( "End V Trim Value" );
 
     m_V2TrimFlag.Init( "V2TrimFlag", "Design", this, false, 0, 1 );
     m_V2TrimFlag.SetDescript( "Trim in V Direction Flag" );
-    m_V2TrimBegin.Init( "V2TrimBegin", "Design", this, 0.25, 0.0, 1.0 );
+    m_V2TrimBegin.Init( "V2TrimBegin", "Design", this, 0.4, 0.0, 1.0 );
     m_V2TrimBegin.SetDescript( "Begin V Trim Value" );
-    m_V2TrimEnd.Init( "V2TrimEnd", "Design", this, 0.75, 0.0, 1.0 );
+    m_V2TrimEnd.Init( "V2TrimEnd", "Design", this, 0.6, 0.0, 1.0 );
     m_V2TrimEnd.SetDescript( "End V Trim Value" );
 
     m_ChordTrimFlag.Init( "ChordTrimFlag", "Design", this, false, 0, 1 );
