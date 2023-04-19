@@ -53,6 +53,23 @@ template <typename T> T clamp( T val, T min, T max )
     return val;
 }
 
+template <typename T> T clampCyclic( T val, T min, T max )
+{
+    T dv = max - min;
+
+    while ( val < min )
+    {
+        val += dv;
+    }
+
+    while ( val >= max )
+    {
+        val -= dv;
+    }
+
+    return val;
+}
+
 template < typename T >
 bool aboutequal( T a, T b, T tol = 1e-12 )
 {
