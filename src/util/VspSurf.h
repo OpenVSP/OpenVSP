@@ -239,6 +239,7 @@ public:
 
     void TrimU( double u, bool before );
     void TrimV( double v, bool before );
+    void TrimClosedV( double vstart, double vend );
 
     void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, const string& label, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit ) const;
 

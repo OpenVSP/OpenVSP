@@ -2418,6 +2418,19 @@ void VspSurf::TrimV( double v, bool before )
     }
 }
 
+void VspSurf::TrimClosedV( double vstart, double vend )
+{
+    piecewise_surface_type s;
+
+    if ( vstart != vend )
+    {
+        if ( m_Surface.trim_v( vstart, vend, s ) ) // Success.
+        {
+            m_Surface = s;
+        }
+    }
+}
+
 // Check for degenerate patches by looking for coincident corners and edges.
 // This will return false for normal watertight surfaces, so it should only be
 // used to test patches from split surfaces.
