@@ -50,6 +50,17 @@ public:
     Parm m_ChordTrimMin;
     Parm m_ChordTrimMax;
 
+    BoolParm m_Side1TrimFlag;
+    Parm m_Side1Trim;
+
+    BoolParm m_Side2TrimFlag;
+    Parm m_Side2Trim;
+
+    BoolParm m_Side3TrimFlag;
+    Parm m_Side3Trim;
+
+    BoolParm m_Side4TrimFlag;
+    Parm m_Side4Trim;
 
     bool IsWingParent()                             { return m_WingParentFlag; }
 

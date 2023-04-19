@@ -31,6 +31,7 @@ protected:
 
     GroupLayout m_DesignLayout;
     GroupLayout m_TrimGroup;
+    GroupLayout m_SideGroup;
     GroupLayout m_WingGroup;
 
     SliderAdjRangeInput m_OffsetSlider;
@@ -54,6 +55,18 @@ protected:
     ToggleButton m_ChordTrimToggle;
     SliderAdjRangeInput m_ChordTrimMinSlider;
     SliderAdjRangeInput m_ChordTrimMaxSlider;
+
+    ToggleButton m_Side1TrimToggle;
+    SliderAdjRangeInput m_Side1TrimSlider;
+
+    ToggleButton m_Side2TrimToggle;
+    SliderAdjRangeInput m_Side2TrimSlider;
+
+    ToggleButton m_Side3TrimToggle;
+    SliderAdjRangeInput m_Side3TrimSlider;
+
+    ToggleButton m_Side4TrimToggle;
+    SliderAdjRangeInput m_Side4TrimSlider;
 
 };
 

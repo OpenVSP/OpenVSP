@@ -59,6 +59,22 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_WingGroup.AddSlider( m_ChordTrimMaxSlider, "Chord Max", 1.0, "%5.4f" );
     m_WingGroup.AddYGap();
 
+    m_DesignLayout.AddSubGroupLayout( m_SideGroup, m_DesignLayout.GetW(), 200 );
+    m_SideGroup.AddYGap();
+    m_SideGroup.AddDividerBox( "Side Trim" );
+
+    m_SideGroup.AddButton( m_Side1TrimToggle, "Trim Side 1");
+    m_SideGroup.AddSlider( m_Side1TrimSlider, "Side 1", 1.0, "%5.4f" );
+    m_SideGroup.AddYGap();
+    m_SideGroup.AddButton( m_Side2TrimToggle, "Trim Side 2");
+    m_SideGroup.AddSlider( m_Side2TrimSlider, "Side 2", 1.0, "%5.4f" );
+    m_SideGroup.AddYGap();
+    m_SideGroup.AddButton( m_Side3TrimToggle, "Trim Side 3");
+    m_SideGroup.AddSlider( m_Side3TrimSlider, "Side 3", 1.0, "%5.4f" );
+    m_SideGroup.AddYGap();
+    m_SideGroup.AddButton( m_Side4TrimToggle, "Trim Side 4");
+    m_SideGroup.AddSlider( m_Side4TrimSlider, "Side 4", 1.0, "%5.4f" );
+    m_SideGroup.AddYGap();
 }
 
 
@@ -109,10 +125,25 @@ bool ConformalScreen::Update()
     if ( !conformal_ptr->IsWingParent() )
     {
         m_WingGroup.Hide();
+        m_SideGroup.Show();
+
+        m_Side1TrimToggle.Update( conformal_ptr->m_Side1TrimFlag.GetID() );
+        m_Side1TrimSlider.Update( conformal_ptr->m_Side1Trim.GetID() );
+
+        m_Side2TrimToggle.Update( conformal_ptr->m_Side2TrimFlag.GetID() );
+        m_Side2TrimSlider.Update( conformal_ptr->m_Side2Trim.GetID() );
+
+        m_Side3TrimToggle.Update( conformal_ptr->m_Side3TrimFlag.GetID() );
+        m_Side3TrimSlider.Update( conformal_ptr->m_Side3Trim.GetID() );
+
+        m_Side4TrimToggle.Update( conformal_ptr->m_Side4TrimFlag.GetID() );
+        m_Side4TrimSlider.Update( conformal_ptr->m_Side4Trim.GetID() );
     }
     else
     {
         m_WingGroup.Show();
+        m_SideGroup.Hide();
+
         m_ChordTrimToggle.Update( conformal_ptr->m_ChordTrimFlag.GetID() );
         m_ChordTrimMinSlider.Update( conformal_ptr->m_ChordTrimMin.GetID() );
         m_ChordTrimMaxSlider.Update( conformal_ptr->m_ChordTrimMax.GetID() );

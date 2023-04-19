@@ -52,6 +52,26 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ChordTrimMax.Init( "ChordTrimMax", "Design", this, 0.9, 0.0, 1.0 );
     m_ChordTrimMax.SetDescript( "Max Chord Trim Value" );
 
+    m_Side1TrimFlag.Init( "Side1TrimFlag", "Design", this, false, 0, 1 );
+    m_Side1TrimFlag.SetDescript( "Side1 trim flag" );
+    m_Side1Trim.Init( "Side1Trim", "Design", this, 0.1, 0.0, 1.0 );
+    m_Side1Trim.SetDescript( "Side1 Trim Value" );
+
+    m_Side2TrimFlag.Init( "Side2TrimFlag", "Design", this, false, 0, 1 );
+    m_Side2TrimFlag.SetDescript( "Side2 trim flag" );
+    m_Side2Trim.Init( "Side2Trim", "Design", this, 0.1, 0.0, 1.0 );
+    m_Side2Trim.SetDescript( "Side2 Trim Value" );
+
+    m_Side3TrimFlag.Init( "Side3TrimFlag", "Design", this, false, 0, 1 );
+    m_Side3TrimFlag.SetDescript( "Side3 trim flag" );
+    m_Side3Trim.Init( "Side3Trim", "Design", this, 0.1, 0.0, 1.0 );
+    m_Side3Trim.SetDescript( "Side3 Trim Value" );
+
+    m_Side4TrimFlag.Init( "Side4TrimFlag", "Design", this, false, 0, 1 );
+    m_Side4TrimFlag.SetDescript( "Side4 trim flag" );
+    m_Side4Trim.Init( "Side4Trim", "Design", this, 0.1, 0.0, 1.0 );
+    m_Side4Trim.SetDescript( "Side4 Trim Value" );
+
     m_WingParentFlag = false;
     m_TessU = 41;
     m_TessW = 41;
@@ -819,6 +839,51 @@ void ConformalGeom::TrimV( VspSurf & surf )
 
         surf.TrimClosedV( tb2, te2 );
     }
+
+    if ( m_Side1TrimFlag() )
+    {
+        double b = v_max * ( 1.0 - m_Side1Trim() );
+        double e = v_max * m_Side1Trim();
+
+        b = clampCyclic( b, 0.0, v_max );
+        e = clampCyclic( e, 0.0, v_max );
+
+        surf.TrimClosedV( b, e );
+    }
+
+    if ( m_Side2TrimFlag() )
+    {
+        double b = v_max * ( 0.5 - m_Side2Trim() );
+        double e = v_max * ( 0.5 + m_Side2Trim() );
+
+        b = clampCyclic( b, 0.0, v_max );
+        e = clampCyclic( e, 0.0, v_max );
+
+        surf.TrimClosedV( b, e );
+    }
+
+    if ( m_Side3TrimFlag() )
+    {
+        double b = v_max * ( 0.25 - m_Side3Trim() );
+        double e = v_max * ( 0.25 + m_Side3Trim() );
+
+        b = clampCyclic( b, 0.0, v_max );
+        e = clampCyclic( e, 0.0, v_max );
+
+        surf.TrimClosedV( b, e );
+    }
+
+    if ( m_Side4TrimFlag() )
+    {
+        double b = v_max * ( 0.75 - m_Side4Trim() );
+        double e = v_max * ( 0.75 + m_Side4Trim() );
+
+        b = clampCyclic( b, 0.0, v_max );
+        e = clampCyclic( e, 0.0, v_max );
+
+        surf.TrimClosedV( b, e );
+    }
+
 }
 
 //==== Find Distances At Point Along Curve To Surf =====//
