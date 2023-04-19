@@ -77,7 +77,8 @@ protected:
     virtual double AdjustForSurfaceDist( const VspSurf & surf, const ConformalSpine & spine, double u, double offset, bool backward_flag );
 
     virtual void TrimU( VspSurf & surf );
-    virtual void TrimV(  VspSurf & surf );
+    virtual void TrimV( VspSurf & surf );
+    virtual void TrimV_JR( VspSurf & surf );
 
     virtual void CapTrimmedSurf( piecewise_surface_type & psurf, int match_index, int stretch_index );
 

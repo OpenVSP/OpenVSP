@@ -782,8 +782,47 @@ void ConformalGeom::TrimU( VspSurf & surf )
 
 }
 
-//==== Trim In V Direction ====//
 void ConformalGeom::TrimV( VspSurf & surf )
+{
+    double v_max = surf.GetWMax();
+
+    if ( m_V1TrimFlag() )
+    {
+        double tb1 = v_max * m_V1TrimBegin();
+        double te1 = v_max * m_V1TrimEnd();
+
+        while ( tb1 >= v_max )
+        {
+            tb1 -= v_max;
+        }
+        while ( te1 >= v_max )
+        {
+            te1 -= v_max;
+        }
+
+        surf.TrimClosedV( tb1, te1 );
+    }
+
+    if ( m_V2TrimFlag() )
+    {
+        double tb2 = v_max * m_V2TrimBegin();
+        double te2 = v_max * m_V2TrimEnd();
+
+        while ( tb2 >= v_max )
+        {
+            tb2 -= v_max;
+        }
+        while ( te2 >= v_max )
+        {
+            te2 -= v_max;
+        }
+
+        surf.TrimClosedV( tb2, te2 );
+    }
+}
+
+//==== Trim In V Direction ====//
+void ConformalGeom::TrimV_JR( VspSurf & surf )
 {
     double cap_offset = 0.001;
 
