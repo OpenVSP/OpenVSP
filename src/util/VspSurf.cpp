@@ -2789,23 +2789,23 @@ void VspSurf::BuildLCurve()
 
     if ( x.size() > 0 )
     {
-    vector < double > s;
-    s.resize( x.size(), 0.0 );
-    for ( int i = 1; i < x.size(); i++ )
-    {
-        vec3d dx = x[i] - x[i-1];
-        s[i] = s[i-1] + dx.mag();
-    }
+        vector < double > s;
+        s.resize( x.size(), 0.0 );
+        for ( int i = 1; i < x.size(); i++ )
+        {
+            vec3d dx = x[i] - x[i-1];
+            s[i] = s[i-1] + dx.mag();
+        }
 
-    m_Lmax = s[ x.size() - 1 ];
+        m_Lmax = s[ x.size() - 1 ];
 
-    for ( int i = 0; i < x.size(); i++ )
-    {
-        s[i] /= m_Lmax;
-        u[i] /= umax;
-    }
+        for ( int i = 0; i < x.size(); i++ )
+        {
+            s[i] /= m_Lmax;
+            u[i] /= umax;
+        }
 
-    m_LCurve.InterpolateLinear( s, u, false );
+        m_LCurve.InterpolateLinear( s, u, false );
     }
     else
     {
