@@ -35,7 +35,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_TrimGroup.SetSameLineFlag( true );
     m_TrimGroup.SetFitWidthFlag( false );
     m_TrimGroup.SetButtonWidth( toggleW );
-    m_TrimGroup.AddButton( m_UTrimToggle, "");
+    m_TrimGroup.AddButton( m_UTrimToggle, "" );
     m_TrimGroup.SetFitWidthFlag( true );
     m_TrimGroup.SetButtonWidth( buttonW - toggleW );
     m_TrimGroup.AddSlider( m_UTrimMinSlider, "U Min", 1.0, "%5.4f" );
@@ -48,7 +48,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_TrimGroup.SetSameLineFlag( true );
     m_TrimGroup.SetFitWidthFlag( false );
     m_TrimGroup.SetButtonWidth( toggleW );
-    m_TrimGroup.AddButton(m_V1TrimToggle, "");
+    m_TrimGroup.AddButton( m_V1TrimToggle, "" );
     m_TrimGroup.SetFitWidthFlag( true );
     m_TrimGroup.SetButtonWidth( buttonW - toggleW );
     m_TrimGroup.AddSlider( m_V1TrimMinSlider, "V1 Begin", 1.0, "%5.4f" );
@@ -61,7 +61,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_TrimGroup.SetSameLineFlag( true );
     m_TrimGroup.SetFitWidthFlag( false );
     m_TrimGroup.SetButtonWidth( toggleW );
-    m_TrimGroup.AddButton(m_V2TrimToggle, "");
+    m_TrimGroup.AddButton( m_V2TrimToggle, "" );
     m_TrimGroup.SetFitWidthFlag( true );
     m_TrimGroup.SetButtonWidth( buttonW - toggleW );
     m_TrimGroup.AddSlider( m_V2TrimMinSlider, "V2 Begin", 1.0, "%5.4f" );
@@ -77,9 +77,9 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
 
     m_DesignLayout.AddSubGroupLayout( m_WingGroup, m_DesignLayout.GetW(), 200 );
     m_WingGroup.AddYGap();
-    m_WingGroup.AddDividerBox("Wing Trim");
+    m_WingGroup.AddDividerBox( "Wing Trim" );
 
-    //m_WingGroup.AddButton( m_SpanTrimToggle, "Trim Span");
+    //m_WingGroup.AddButton( m_SpanTrimToggle, "Trim Span" );
     //m_WingGroup.AddSlider( m_SpanTrimMinSlider, "Span Min", 1.0, "%5.4f" );
     //m_WingGroup.AddSlider( m_SpanTrimMaxSlider, "Span Max", 1.0, "%5.4f" );
     //m_WingGroup.AddYGap();
@@ -87,7 +87,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_WingGroup.SetSameLineFlag( true );
     m_WingGroup.SetFitWidthFlag( false );
     m_WingGroup.SetButtonWidth( toggleW );
-    m_WingGroup.AddButton( m_ChordTrimToggle, "");
+    m_WingGroup.AddButton( m_ChordTrimToggle, "" );
     m_WingGroup.SetFitWidthFlag( true );
     m_WingGroup.SetButtonWidth( buttonW - toggleW );
     m_WingGroup.AddSlider( m_ChordTrimMinSlider, "Chord Min", 1.0, "%5.4f" );
@@ -104,7 +104,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_SideGroup.SetSameLineFlag( true );
     m_SideGroup.SetFitWidthFlag( false );
     m_SideGroup.SetButtonWidth( toggleW );
-    m_SideGroup.AddButton( m_Side1TrimToggle, "");
+    m_SideGroup.AddButton( m_Side1TrimToggle, "" );
     m_SideGroup.SetFitWidthFlag( true );
     m_SideGroup.SetButtonWidth( buttonW - toggleW );
     m_SideGroup.AddSlider( m_Side1TrimSlider, "Side 1", 1.0, "%5.4f" );
@@ -114,7 +114,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_SideGroup.SetSameLineFlag( true );
     m_SideGroup.SetFitWidthFlag( false );
     m_SideGroup.SetButtonWidth( toggleW );
-    m_SideGroup.AddButton( m_Side2TrimToggle, "");
+    m_SideGroup.AddButton( m_Side2TrimToggle, "" );
     m_SideGroup.SetFitWidthFlag( true );
     m_SideGroup.SetButtonWidth( buttonW - toggleW );
     m_SideGroup.AddSlider( m_Side2TrimSlider, "Side 2", 1.0, "%5.4f" );
@@ -124,7 +124,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_SideGroup.SetSameLineFlag( true );
     m_SideGroup.SetFitWidthFlag( false );
     m_SideGroup.SetButtonWidth( toggleW );
-    m_SideGroup.AddButton( m_Side3TrimToggle, "");
+    m_SideGroup.AddButton( m_Side3TrimToggle, "" );
     m_SideGroup.SetFitWidthFlag( true );
     m_SideGroup.SetButtonWidth( buttonW - toggleW );
     m_SideGroup.AddSlider( m_Side3TrimSlider, "Side 3", 1.0, "%5.4f" );
@@ -134,7 +134,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_SideGroup.SetSameLineFlag( true );
     m_SideGroup.SetFitWidthFlag( false );
     m_SideGroup.SetButtonWidth( toggleW );
-    m_SideGroup.AddButton( m_Side4TrimToggle, "");
+    m_SideGroup.AddButton( m_Side4TrimToggle, "" );
     m_SideGroup.SetFitWidthFlag( true );
     m_SideGroup.SetButtonWidth( buttonW - toggleW );
     m_SideGroup.AddSlider( m_Side4TrimSlider, "Side 4", 1.0, "%5.4f" );
