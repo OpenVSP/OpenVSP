@@ -78,9 +78,6 @@ protected:
 
     virtual void TrimU( VspSurf & surf );
     virtual void TrimV( VspSurf & surf );
-    virtual void TrimV_JR( VspSurf & surf );
-
-    virtual void CapTrimmedSurf( piecewise_surface_type & psurf, int match_index, int stretch_index );
 
     virtual void SetWingTrimParms( VspSurf & surf );
 
