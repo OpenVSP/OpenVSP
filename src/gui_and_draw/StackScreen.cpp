@@ -32,11 +32,11 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 400, 715, "Stac
     m_DesignLayout.AddYGap();
     m_DesignLayout.AddDividerBox( "Tip Treatment" );
 
-    m_NoseCapTypeChoice.AddItem("None");
-    m_NoseCapTypeChoice.AddItem("Flat");
-    m_NoseCapTypeChoice.AddItem("Round");
-    m_NoseCapTypeChoice.AddItem("Edge");
-    m_NoseCapTypeChoice.AddItem("Sharp");
+    m_NoseCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
+    m_NoseCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
+    m_NoseCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
+    m_NoseCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
+    m_NoseCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
     m_DesignLayout.AddChoice(m_NoseCapTypeChoice, "Nose Cap Type");
 
     m_DesignLayout.AddSlider( m_NoseCapLenSlider, "Length", 1, "%6.5f" );
@@ -46,11 +46,11 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 400, 715, "Stac
 
     m_DesignLayout.AddYGap();
 
-    m_TailCapTypeChoice.AddItem("None");
-    m_TailCapTypeChoice.AddItem("Flat");
-    m_TailCapTypeChoice.AddItem("Round");
-    m_TailCapTypeChoice.AddItem("Edge");
-    m_TailCapTypeChoice.AddItem("Sharp");
+    m_TailCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
+    m_TailCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
+    m_TailCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
+    m_TailCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
+    m_TailCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
     m_DesignLayout.AddChoice(m_TailCapTypeChoice, "Tail Cap Type");
 
     m_DesignLayout.AddSlider( m_TailCapLenSlider, "Length", 1, "%6.5f" );
