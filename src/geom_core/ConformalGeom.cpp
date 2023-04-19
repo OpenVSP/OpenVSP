@@ -31,6 +31,31 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_UTrimMax.Init( "UTrimMax", "Design", this, 0.9, 0.0, 0.9999 );
     m_UTrimMax.SetDescript( "Max U Trim Value" );
 
+    // End Cap Options
+    m_CapUMinTrimOption.Init("CapUMinTrimOption", "EndCap", this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS - 1 );
+    m_CapUMinTrimOption.SetDescript("Type of End Cap on UMin end");
+
+    m_CapUMinTrimLength.Init( "CapUMinTrimLength", "EndCap", this, 1, 0, 20 );
+    m_CapUMinTrimLength.SetDescript( "Scaled length of end cap" );
+    m_CapUMinTrimOffset.Init( "CapUMinTrimOffset", "EndCap", this, 0, -20, 20 );
+    m_CapUMinTrimOffset.SetDescript( "Scaled offset of end cap" );
+    m_CapUMinTrimStrength.Init( "CapUMinTrimStrength", "EndCap", this, 0.5, 0, 1 );
+    m_CapUMinTrimStrength.SetDescript( "Tangent strength of end cap" );
+    m_CapUMinTrimSweepFlag.Init( "CapUMinTrimSweepFlag", "EndCap", this, 0, 0, 1 );
+    m_CapUMinTrimSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
+
+    m_CapUMaxTrimOption.Init("CapUMaxTrimOption", "EndCap", this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS - 1 );
+    m_CapUMaxTrimOption.SetDescript("Type of End Cap on UMax end");
+
+    m_CapUMaxTrimLength.Init( "CapUMaxTrimLength", "EndCap", this, 1, 0, 20 );
+    m_CapUMaxTrimLength.SetDescript( "Scaled length of end cap" );
+    m_CapUMaxTrimOffset.Init( "CapUMaxTrimOffset", "EndCap", this, 0, -20, 20 );
+    m_CapUMaxTrimOffset.SetDescript( "Scaled offset of end cap" );
+    m_CapUMaxTrimStrength.Init( "CapUMaxTrimStrength", "EndCap", this, 0.5, 0, 1 );
+    m_CapUMaxTrimStrength.SetDescript( "Tangent strength of end cap" );
+    m_CapUMaxTrimSweepFlag.Init( "CapUMaxTrimSweepFlag", "EndCap", this, 0, 0, 1 );
+    m_CapUMaxTrimSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
+
     m_V1TrimFlag.Init( "V1TrimFlag", "Design", this, false, 0, 1 );
     m_V1TrimFlag.SetDescript( "Trim in V Direction Flag" );
     m_V1TrimBegin.Init( "V1TrimBegin", "Design", this, 0.9, 0.0, 1.0 );
@@ -223,6 +248,16 @@ void ConformalGeom::CopyDataFrom( Geom* geom_ptr )
     m_CapUMinOption = geom_ptr->m_CapUMinOption();
     m_CapUMinTess   = geom_ptr->m_CapUMinTess();
     m_CapUMaxOption = geom_ptr->m_CapUMaxOption();
+
+    m_CapUMinLength = geom_ptr->m_CapUMinLength();
+    m_CapUMinOffset = geom_ptr->m_CapUMinOffset();
+    m_CapUMinStrength = geom_ptr->m_CapUMinStrength();
+    m_CapUMinSweepFlag = geom_ptr->m_CapUMinSweepFlag();
+
+    m_CapUMaxLength = geom_ptr->m_CapUMaxLength();
+    m_CapUMaxOffset = geom_ptr->m_CapUMaxOffset();
+    m_CapUMaxStrength = geom_ptr->m_CapUMaxStrength();
+    m_CapUMaxSweepFlag = geom_ptr->m_CapUMaxSweepFlag();
 
     //=== Let User Change Tess
     //m_TessU = geom_ptr->m_TessU();
@@ -797,8 +832,18 @@ void ConformalGeom::TrimU( VspSurf & surf )
 
     bez_surface->set_u0( u_min );
 
-    m_CapUMinOption = vsp::FLAT_END_CAP;
-    m_CapUMaxOption = vsp::FLAT_END_CAP;
+    m_CapUMinOption = m_CapUMinTrimOption();
+    m_CapUMaxOption = m_CapUMaxTrimOption();
+
+    m_CapUMinLength = m_CapUMinTrimLength();
+    m_CapUMinOffset = m_CapUMinTrimOffset();
+    m_CapUMinStrength = m_CapUMinTrimStrength();
+    m_CapUMinSweepFlag = m_CapUMinTrimSweepFlag();
+
+    m_CapUMaxLength = m_CapUMaxTrimLength();
+    m_CapUMaxOffset = m_CapUMaxTrimOffset();
+    m_CapUMaxStrength = m_CapUMaxTrimStrength();
+    m_CapUMaxSweepFlag = m_CapUMaxTrimSweepFlag();
 
 }
 

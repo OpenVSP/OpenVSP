@@ -40,6 +40,18 @@ protected:
     SliderAdjRangeInput m_UTrimMinSlider;
     SliderAdjRangeInput m_UTrimMaxSlider;
 
+    Choice m_NoseCapTypeChoice;
+    SliderAdjRangeInput m_NoseCapLenSlider;
+    SliderAdjRangeInput m_NoseCapOffsetSlider;
+    SliderAdjRangeInput m_NoseCapStrengthSlider;
+    ToggleButton m_NoseCapSweepFlagButton;
+
+    Choice m_TailCapTypeChoice;
+    SliderAdjRangeInput m_TailCapLenSlider;
+    SliderAdjRangeInput m_TailCapOffsetSlider;
+    SliderAdjRangeInput m_TailCapStrengthSlider;
+    ToggleButton m_TailCapSweepFlagButton;
+
     ToggleButton m_V1TrimToggle;
     SliderAdjRangeInput m_V1TrimMinSlider;
     SliderAdjRangeInput m_V1TrimMaxSlider;

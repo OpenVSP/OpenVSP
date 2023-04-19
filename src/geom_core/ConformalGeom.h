@@ -38,6 +38,19 @@ public:
     Parm m_UTrimMin;
     Parm m_UTrimMax;
 
+    IntParm m_CapUMinTrimOption;
+    IntParm m_CapUMaxTrimOption;
+
+    Parm m_CapUMinTrimLength;
+    Parm m_CapUMinTrimOffset;
+    Parm m_CapUMinTrimStrength;
+    BoolParm m_CapUMinTrimSweepFlag;
+
+    Parm m_CapUMaxTrimLength;
+    Parm m_CapUMaxTrimOffset;
+    Parm m_CapUMaxTrimStrength;
+    BoolParm m_CapUMaxTrimSweepFlag;
+
     BoolParm m_V1TrimFlag;
     Parm m_V1TrimBegin;
     Parm m_V1TrimEnd;

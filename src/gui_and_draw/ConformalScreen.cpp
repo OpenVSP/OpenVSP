@@ -8,7 +8,7 @@
 #include "ConformalScreen.h"
 #include "ScreenMgr.h"
 #include "ConformalGeom.h"
-
+#include "APIDefines.h"
 
 //==== Constructor ====//
 ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Conformal" )
@@ -23,7 +23,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_DesignLayout.AddSlider( m_OffsetSlider, "Offset", 0.1, "%7.3f" );
     m_DesignLayout.AddYGap();
 
-    m_DesignLayout.AddDividerBox("UV Trim");
+    m_DesignLayout.AddDividerBox( "U Trim" );
 
     m_DesignLayout.AddSubGroupLayout( m_TrimGroup, m_DesignLayout.GetW(), m_DesignLayout.GetH() );
 
@@ -44,6 +44,38 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_TrimGroup.SetButtonWidth( buttonW );
     m_TrimGroup.AddSlider( m_UTrimMaxSlider, "U Max", 1.0, "%5.4f" );
     m_TrimGroup.AddYGap();
+
+    m_TrimGroup.AddDividerBox( "U Trim Tip Treatment" );
+
+    m_NoseCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
+    m_NoseCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
+    m_NoseCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
+    m_NoseCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
+    m_NoseCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
+    m_TrimGroup.AddChoice( m_NoseCapTypeChoice, "Nose Cap Type" );
+
+    m_TrimGroup.AddSlider( m_NoseCapLenSlider, "Length", 1, "%6.5f" );
+    m_TrimGroup.AddSlider( m_NoseCapOffsetSlider, "Offset", 1, "%6.5f" );
+    m_TrimGroup.AddSlider( m_NoseCapStrengthSlider, "Strength", 1, "%6.5f" );
+    m_TrimGroup.AddButton( m_NoseCapSweepFlagButton, "Sweep Stretch" );
+
+    m_TrimGroup.AddYGap();
+
+    m_TailCapTypeChoice.AddItem( "None", vsp::NO_END_CAP );
+    m_TailCapTypeChoice.AddItem( "Flat", vsp::FLAT_END_CAP );
+    m_TailCapTypeChoice.AddItem( "Round", vsp::ROUND_END_CAP );
+    m_TailCapTypeChoice.AddItem( "Edge", vsp::EDGE_END_CAP );
+    m_TailCapTypeChoice.AddItem( "Sharp", vsp::SHARP_END_CAP );
+    m_TrimGroup.AddChoice( m_TailCapTypeChoice, "Tail Cap Type" );
+
+    m_TrimGroup.AddSlider( m_TailCapLenSlider, "Length", 1, "%6.5f" );
+    m_TrimGroup.AddSlider( m_TailCapOffsetSlider, "Offset", 1, "%6.5f" );
+    m_TrimGroup.AddSlider( m_TailCapStrengthSlider, "Strength", 1, "%6.5f" );
+    m_TrimGroup.AddButton( m_TailCapSweepFlagButton, "Sweep Stretch" );
+
+    m_TrimGroup.AddYGap();
+
+    m_TrimGroup.AddDividerBox( "V Trim" );
 
     m_TrimGroup.SetSameLineFlag( true );
     m_TrimGroup.SetFitWidthFlag( false );
@@ -179,15 +211,108 @@ bool ConformalScreen::Update()
     m_UTrimMinSlider.Update( conformal_ptr->m_UTrimMin.GetID() );
     m_UTrimMaxSlider.Update( conformal_ptr->m_UTrimMax.GetID() );
 
+    m_NoseCapTypeChoice.Update( conformal_ptr->m_CapUMinTrimOption.GetID() );
+    m_TailCapTypeChoice.Update( conformal_ptr->m_CapUMaxTrimOption.GetID() );
+
+    m_NoseCapLenSlider.Update( conformal_ptr->m_CapUMinTrimLength.GetID() );
+    m_NoseCapOffsetSlider.Update( conformal_ptr->m_CapUMinTrimOffset.GetID() );
+    m_NoseCapStrengthSlider.Update( conformal_ptr->m_CapUMinTrimStrength.GetID() );
+    m_NoseCapSweepFlagButton.Update( conformal_ptr->m_CapUMinTrimSweepFlag.GetID() );
+
+    m_NoseCapLenSlider.Deactivate();
+    m_NoseCapOffsetSlider.Deactivate();
+    m_NoseCapStrengthSlider.Deactivate();
+    m_NoseCapSweepFlagButton.Deactivate();
+
+    switch( conformal_ptr->m_CapUMinOption() ){
+        case vsp::NO_END_CAP:
+            break;
+        case vsp::FLAT_END_CAP:
+            break;
+        case vsp::ROUND_END_CAP:
+            m_NoseCapLenSlider.Activate();
+            m_NoseCapOffsetSlider.Activate();
+            m_NoseCapSweepFlagButton.Activate();
+            break;
+        case vsp::EDGE_END_CAP:
+            m_NoseCapLenSlider.Activate();
+            m_NoseCapOffsetSlider.Activate();
+            m_NoseCapSweepFlagButton.Activate();
+            break;
+        case vsp::SHARP_END_CAP:
+            m_NoseCapLenSlider.Activate();
+            m_NoseCapOffsetSlider.Activate();
+            m_NoseCapStrengthSlider.Activate();
+            m_NoseCapSweepFlagButton.Activate();
+            break;
+    }
+
+    m_TailCapLenSlider.Update( conformal_ptr->m_CapUMaxTrimLength.GetID() );
+    m_TailCapOffsetSlider.Update( conformal_ptr->m_CapUMaxTrimOffset.GetID() );
+    m_TailCapStrengthSlider.Update( conformal_ptr->m_CapUMaxTrimStrength.GetID() );
+    m_TailCapSweepFlagButton.Update( conformal_ptr->m_CapUMaxTrimSweepFlag.GetID() );
+
+    m_TailCapLenSlider.Deactivate();
+    m_TailCapOffsetSlider.Deactivate();
+    m_TailCapStrengthSlider.Deactivate();
+    m_TailCapSweepFlagButton.Deactivate();
+
+    switch( conformal_ptr->m_CapUMaxOption() ){
+        case vsp::NO_END_CAP:
+            break;
+        case vsp::FLAT_END_CAP:
+            break;
+        case vsp::ROUND_END_CAP:
+            m_TailCapLenSlider.Activate();
+            m_TailCapOffsetSlider.Activate();
+            m_TailCapSweepFlagButton.Activate();
+            break;
+        case vsp::EDGE_END_CAP:
+            m_TailCapLenSlider.Activate();
+            m_TailCapOffsetSlider.Activate();
+            m_TailCapSweepFlagButton.Activate();
+            break;
+        case vsp::SHARP_END_CAP:
+            m_TailCapLenSlider.Activate();
+            m_TailCapOffsetSlider.Activate();
+            m_TailCapStrengthSlider.Activate();
+            m_TailCapSweepFlagButton.Activate();
+            break;
+    }
+
     if ( conformal_ptr->m_UTrimFlag() )
     {
         m_UTrimMinSlider.Activate();
         m_UTrimMaxSlider.Activate();
+
+        m_NoseCapTypeChoice.Activate();
+        m_NoseCapLenSlider.Activate();
+        m_NoseCapOffsetSlider.Activate();
+        m_NoseCapStrengthSlider.Activate();
+        m_NoseCapSweepFlagButton.Activate();
+
+        m_TailCapTypeChoice.Activate();
+        m_TailCapLenSlider.Activate();
+        m_TailCapOffsetSlider.Activate();
+        m_TailCapStrengthSlider.Activate();
+        m_TailCapSweepFlagButton.Activate();
     }
     else
     {
         m_UTrimMinSlider.Deactivate();
         m_UTrimMaxSlider.Deactivate();
+
+        m_NoseCapTypeChoice.Deactivate();
+        m_NoseCapLenSlider.Deactivate();
+        m_NoseCapOffsetSlider.Deactivate();
+        m_NoseCapStrengthSlider.Deactivate();
+        m_NoseCapSweepFlagButton.Deactivate();
+
+        m_TailCapTypeChoice.Deactivate();
+        m_TailCapLenSlider.Deactivate();
+        m_TailCapOffsetSlider.Deactivate();
+        m_TailCapStrengthSlider.Deactivate();
+        m_TailCapSweepFlagButton.Deactivate();
     }
 
     m_V1TrimToggle.Update( conformal_ptr->m_V1TrimFlag.GetID() );
