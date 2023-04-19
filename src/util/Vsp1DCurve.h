@@ -31,6 +31,9 @@ public:
     Vsp1DCurve();
     virtual ~Vsp1DCurve();
 
+    double GetUMin() const { return m_Curve.get_parameter_min(); };
+    double GetUMax() const { return m_Curve.get_parameter_max(); };
+
     void Copy( Vsp1DCurve & input_crv );
     void Split( double u );
     void Append( Vsp1DCurve & input_crv ); // Append Curve
