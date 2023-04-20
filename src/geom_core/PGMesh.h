@@ -60,6 +60,7 @@ public:
     void EdgeForgetNode( PGEdge* e );
 
     bool ColinearNode( double tol );
+    bool Check();
 
 };
 
@@ -97,6 +98,7 @@ public:
 
     void SortFaces();
     bool SameFaces( PGEdge *e2 );
+    bool Check();
 
 };
 
@@ -121,6 +123,7 @@ public:
     void RemoveEdge( PGEdge* e );
     bool Contains( PGEdge* e ) const;
     void EdgeForgetFace();
+    bool Check();
 
     list< PGFace* >::iterator m_List_it;
 
@@ -174,6 +177,8 @@ public:
     }
 
     void RemoveNodeMergeEdges( PGNode* n );
+
+    bool Check();
 
     list < PGFace* > m_FaceList;
     list < PGEdge* > m_EdgeList;

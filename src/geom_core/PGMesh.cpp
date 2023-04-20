@@ -125,6 +125,24 @@ bool PGNode::ColinearNode( double tol )
     return false;
 }
 
+bool PGNode::Check()
+{
+    if ( m_DeleteMeFlag )
+    {
+        return false;
+    }
+
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        if ( !m_EdgeVec[i] )
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -255,6 +273,33 @@ bool PGEdge::SameFaces( PGEdge *e2 )
     // Comparison of std::vector checks size and then contents.  Since these are pointers that were previously sorted,
     // this should work.
     return ( m_FaceVec == e2->m_FaceVec );
+}
+
+bool PGEdge::Check()
+{
+    if ( m_DeleteMeFlag )
+    {
+        return false;
+    }
+
+    if ( !m_N0 )
+    {
+        return false;
+    }
+
+    if ( !m_N1 )
+    {
+        return false;
+    }
+
+    for ( int i = 0; i < m_FaceVec.size(); i++ )
+    {
+        if ( !m_FaceVec[i] )
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -506,6 +551,17 @@ void PGFace::EdgeForgetFace()
     }
 }
 
+bool PGFace::Check()
+{
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        if ( !m_EdgeVec[i] )
+        {
+            return false;
+        }
+    }
+    return true;
+}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -695,6 +751,38 @@ void PGMesh::RemoveNodeMergeEdges( PGNode* n )
                           // Sets deleteme flag
 
     }
+}
+
+bool PGMesh::Check()
+{
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        if ( !( *f )->Check() )
+        {
+            return false;
+        }
+    }
+
+    list< PGEdge* >::iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+        if ( !( *e )->Check() )
+        {
+            return false;
+        }
+    }
+
+    list< PGNode* >::iterator n;
+    for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
+    {
+        if ( !( *n )->Check() )
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void PGMesh::DumpGarbage()
