@@ -157,6 +157,34 @@ void NGonMeshGeom::PolygonizeMesh()
             }
         }
     }
+    m_PGMesh.DumpGarbage();
+}
+
+void NGonMeshGeom::CleanColinearVerts()
+{
+    // Node colinearity tolerance.
+    double tol = 1.0e-12;
+
+    list< PGEdge* >::iterator e;
+    for ( e = m_PGMesh.m_EdgeList.begin() ; e != m_PGMesh.m_EdgeList.end(); ++e )
+    {
+        ( *e )->SortFaces();
+    }
+
+    // Make vector copy of list so nodes can be removed from list without invalidating active list iterator.
+    vector< PGNode* > nVec( m_PGMesh.m_NodeList.begin(), m_PGMesh.m_NodeList.end() );
+
+    for ( int i = 0; i < nVec.size(); i++ )
+    {
+        PGNode *n = nVec[ i ];
+
+        if ( n->ColinearNode( tol ) )
+        {
+            m_PGMesh.RemoveNodeMergeEdges( n );
+        }
+    }
+
+    m_PGMesh.DumpGarbage();
 }
 
 void NGonMeshGeom::UpdateDrawObj()
@@ -188,8 +216,11 @@ void NGonMeshGeom::UpdateDrawObj()
         for ( int i = 0; i < (*f)->m_EdgeVec.size(); i++ )
         {
             PGEdge *e = (*f)->m_EdgeVec[i];
-            d_obj->m_PntVec.push_back( trans.xform( e->m_N0->m_Pnt ) );
-            d_obj->m_PntVec.push_back( trans.xform( e->m_N1->m_Pnt ) );
+            if ( true ) // e
+            {
+                d_obj->m_PntVec.push_back( trans.xform( e->m_N0->m_Pnt ) );
+                d_obj->m_PntVec.push_back( trans.xform( e->m_N1->m_Pnt ) );
+            }
         }
     }
 

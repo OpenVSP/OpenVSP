@@ -38,6 +38,7 @@ public:
 
     virtual void BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec );
     virtual void PolygonizeMesh();
+    virtual void CleanColinearVerts();
 
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;

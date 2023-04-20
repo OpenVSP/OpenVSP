@@ -1748,6 +1748,7 @@ void MeshGeom::CreateNGonMeshGeom()
 
         new_geom->BuildFromTMesh( m_IndexedNodeVec, m_IndexedTriVec );
         new_geom->PolygonizeMesh();
+        new_geom->CleanColinearVerts();
 
         new_geom->m_SurfDirty = true;
 

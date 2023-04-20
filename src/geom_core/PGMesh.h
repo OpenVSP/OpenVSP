@@ -59,6 +59,8 @@ public:
     void RemoveConnectEdge( PGEdge* e );
     void EdgeForgetNode( PGEdge* e );
 
+    bool ColinearNode( double tol );
+
 };
 
 
@@ -92,6 +94,10 @@ public:
     PGNode* OtherNode( const PGNode* n ) const;
 
     void NodesForgetEdge();
+
+    void SortFaces();
+    bool SameFaces( PGEdge *e2 );
+
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -166,6 +172,8 @@ public:
     {
         return m_FaceList;
     }
+
+    void RemoveNodeMergeEdges( PGNode* n );
 
     list < PGFace* > m_FaceList;
     list < PGEdge* > m_EdgeList;

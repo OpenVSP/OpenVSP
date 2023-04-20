@@ -100,6 +100,31 @@ void PGNode::EdgeForgetNode( PGEdge* e )
     e->ReplaceNode( this, nullptr );
 }
 
+bool PGNode::ColinearNode( double tol )
+{
+    if ( m_EdgeVec.size() == 2 )
+    {
+        PGEdge *e0 = m_EdgeVec[0];
+        PGEdge *e1 = m_EdgeVec[1];
+
+        if ( e0->SameFaces( e1 ) )
+        {
+            PGNode *n0 = e0->OtherNode( this );
+            PGNode *n1 = e1->OtherNode( this );
+
+            double t;
+            double d = sqrt( pointSegDistSquared( m_Pnt, n0->m_Pnt, n1->m_Pnt, &t ) );
+            double l = dist( n0->m_Pnt, n1->m_Pnt );
+
+            if ( d / l < tol )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -218,6 +243,18 @@ void PGEdge::NodesForgetEdge()
 {
     m_N0->RemoveConnectEdge( this );
     m_N1->RemoveConnectEdge( this );
+}
+
+void PGEdge::SortFaces()
+{
+    sort( m_FaceVec.begin(), m_FaceVec.end() );
+}
+
+bool PGEdge::SameFaces( PGEdge *e2 )
+{
+    // Comparison of std::vector checks size and then contents.  Since these are pointers that were previously sorted,
+    // this should work.
+    return ( m_FaceVec == e2->m_FaceVec );
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -624,6 +661,40 @@ void PGMesh::RemoveFace( PGFace* fptr ) // Seems insufficient.
 {
     m_GarbageFaceVec.push_back( fptr );
     m_FaceList.erase( fptr->m_List_it );
+}
+
+void PGMesh::RemoveNodeMergeEdges( PGNode* n )
+{
+    if ( n->m_EdgeVec.size() == 2 )
+    {
+        PGEdge *e0 = n->m_EdgeVec[0];
+        PGEdge *e1 = n->m_EdgeVec[1];
+
+        PGNode *n0 = e0->OtherNode( n );
+        PGNode *n1 = e1->OtherNode( n );
+
+        vector< PGFace* > fv = e1->m_FaceVec;
+        for ( int i = 0; i < fv.size(); i++ )
+        {
+            PGFace *f = fv[i];
+
+            e1->RemoveFace( f );  // Remove face from edge's facevec
+            f->RemoveEdge( e1 );  // Remove edge from face's edgevec
+        }
+
+        e0->ReplaceNode( n, n1 ); // Only changes node pointer, does not recurse.
+        n1->AddConnectEdge( e0 ); // Adds edge to node's edge vec.
+
+        RemoveEdge( e1 ); // Calls both nodes to RemoveConnectEdge - removes edge from node edgevec
+                          // Adds to garbage vec
+                          // Removes from mesh edge list.
+                          // Sets deleteme flag
+
+        RemoveNode( n );  // Adds to garbage vec
+                          // Removes from mesh node list.
+                          // Sets deleteme flag
+
+    }
 }
 
 void PGMesh::DumpGarbage()
