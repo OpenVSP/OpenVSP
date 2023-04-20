@@ -831,6 +831,7 @@ void ConformalGeom::TrimU( VspSurf & surf )
     *bez_surface = s4;
 
     bez_surface->set_u0( u_min );
+    bez_surface->set_umax( ceil( bez_surface->get_umax() ) );
 
     m_CapUMinOption = m_CapUMinTrimOption();
     m_CapUMaxOption = m_CapUMaxTrimOption();
