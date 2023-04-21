@@ -1499,6 +1499,21 @@ CSTAirfoil::CSTAirfoil( ) : Airfoil( )
     }
 }
 
+CSTAirfoil::~CSTAirfoil()
+{
+    for ( int i = 0; i < m_UpCoeffParmVec.size(); i++ )
+    {
+        delete m_UpCoeffParmVec[i];
+    }
+    m_UpCoeffParmVec.clear();
+
+    for ( int i = 0; i < m_LowCoeffParmVec.size(); i++ )
+    {
+        delete m_LowCoeffParmVec[i];
+    }
+    m_LowCoeffParmVec.clear();
+}
+
 //==== Update ====//
 void CSTAirfoil::UpdateCurve( bool updateParms )
 {

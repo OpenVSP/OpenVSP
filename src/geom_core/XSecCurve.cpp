@@ -3104,6 +3104,51 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
     m_EnforceG1Next = true;
 }
 
+EditCurveXSec::~EditCurveXSec()
+{
+    for ( int i = 0; i < m_UParmVec.size(); i++ )
+    {
+        delete m_UParmVec[i];
+    }
+    m_UParmVec.clear();
+
+    for ( int i = 0; i < m_XParmVec.size(); i++ )
+    {
+        delete m_XParmVec[i];
+    }
+    m_XParmVec.clear();
+
+    for ( int i = 0; i < m_YParmVec.size(); i++ )
+    {
+        delete m_YParmVec[i];
+    }
+    m_YParmVec.clear();
+
+    for ( int i = 0; i < m_ZParmVec.size(); i++ )
+    {
+        delete m_ZParmVec[i];
+    }
+    m_ZParmVec.clear();
+
+    for ( int i = 0; i < m_RParmVec.size(); i++ )
+    {
+        delete m_RParmVec[i];
+    }
+    m_RParmVec.clear();
+
+    for ( int i = 0; i < m_EnforceG1Vec.size(); i++ )
+    {
+        delete m_EnforceG1Vec[i];
+    }
+    m_EnforceG1Vec.clear();
+
+    for ( int i = 0; i < m_FixedUVec.size(); i++ )
+    {
+        delete m_FixedUVec[i];
+    }
+    m_FixedUVec.clear();
+}
+
 void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
 {
     for ( size_t i = 0; i < m_EnforceG1Vec.size(); i++ )

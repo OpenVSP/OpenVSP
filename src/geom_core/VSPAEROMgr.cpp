@@ -5587,6 +5587,11 @@ ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
 
 ControlSurfaceGroup::~ControlSurfaceGroup( void )
 {
+    for ( int i = 0 ; i < (int)m_DeflectionGainVec.size() ; i++ )
+    {
+        delete m_DeflectionGainVec[i];
+    }
+    m_DeflectionGainVec.clear();
 }
 
 void ControlSurfaceGroup::Write_STP_Data( FILE *InputFile )

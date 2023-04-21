@@ -411,6 +411,7 @@ class CSTAirfoil : public Airfoil
 public:
 
     CSTAirfoil( );
+    ~CSTAirfoil();
 
     virtual void UpdateCurve( bool updateParms = true );
 

@@ -517,6 +517,7 @@ class EditCurveXSec : public XSecCurve
 public:
 
     EditCurveXSec();
+    ~EditCurveXSec();
 
     virtual void UpdateCurve( bool updateParms = true );
 
