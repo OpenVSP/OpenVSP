@@ -4120,6 +4120,10 @@ void MeshGeom::FlattenTMeshVec()
         {
             flatTMeshVec.push_back( tm );
         }
+        else
+        {
+            delete tm;
+        }
         delete m_TMeshVec[i];
     }
     m_TMeshVec.clear();
@@ -4137,6 +4141,10 @@ void MeshGeom::FlattenSliceVec()
         if ( tm->m_TVec.size() > 0 )
         {
             flatTMeshVec.push_back( tm );
+        }
+        else
+        {
+            delete tm;
         }
         delete m_SliceVec[i];
     }
