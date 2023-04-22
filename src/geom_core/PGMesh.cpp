@@ -21,6 +21,7 @@
 #include "triangle_api.h"
 
 #include <algorithm>
+#include <cfloat>
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -142,6 +143,15 @@ bool PGNode::Check()
     return true;
 }
 
+void PGNode::DumpMatlab()
+{
+    printf( "\nx = %.*e;\n", DBL_DIG + 3, m_Pnt.x() );
+    printf( "\ny = %.*e;\n", DBL_DIG + 3, m_Pnt.y() );
+    printf( "\nz = %.*e;\n", DBL_DIG + 3, m_Pnt.z() );
+
+    printf( "plot3( x, y, z, 'bo' );\n" );
+    printf( "hold on\n" );
+}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -563,6 +573,40 @@ bool PGFace::Check()
     return true;
 }
 
+void PGFace::DumpMatlab()
+{
+    vector < PGNode* > nodVec;
+    GetNodes( nodVec );
+
+    int num = nodVec.size();
+
+    int i;
+    printf( "\nx = [" );
+    for ( i = 0; i < num - 1; i++ )
+    {
+        printf( "%.*e;\n", DBL_DIG + 3, nodVec[i]->m_Pnt.x() );
+    }
+    printf( "%.*e];\n", DBL_DIG + 3, nodVec[i]->m_Pnt.x() );
+
+    printf( "\ny = [" );
+    for ( i = 0; i < num - 1; i++ )
+    {
+        printf( "%.*e;\n", DBL_DIG + 3, nodVec[i]->m_Pnt.y() );
+    }
+    printf( "%.*e];\n", DBL_DIG + 3, nodVec[i]->m_Pnt.y() );
+
+    printf( "\nz = [" );
+    for ( i = 0; i < num - 1; i++ )
+    {
+        printf( "%.*e;\n", DBL_DIG + 3, nodVec[i]->m_Pnt.z() );
+    }
+    printf( "%.*e];\n", DBL_DIG + 3, nodVec[i]->m_Pnt.z() );
+
+    printf( "plot3( x, y, z, 'kx-' );\n" );
+    printf( "hold on\n" );
+
+}
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -783,6 +827,13 @@ bool PGMesh::Check()
     }
 
     return true;
+}
+
+void PGMesh::StartMatlab()
+{
+    printf( "clear all;\n" );
+    printf( "close all;\n" );
+    printf( "format compact;\n" );
 }
 
 void PGMesh::DumpGarbage()

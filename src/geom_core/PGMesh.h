@@ -62,6 +62,8 @@ public:
     bool ColinearNode( double tol );
     bool Check();
 
+    void DumpMatlab();
+
 };
 
 
@@ -125,6 +127,8 @@ public:
     void EdgeForgetFace();
     bool Check();
 
+    void DumpMatlab();
+
     list< PGFace* >::iterator m_List_it;
 
     vec3d m_Nvec;
@@ -183,6 +187,8 @@ public:
     list < PGFace* > m_FaceList;
     list < PGEdge* > m_EdgeList;
     list < PGNode* > m_NodeList;
+
+    void StartMatlab();
 
 protected:
     vector< PGFace* > m_GarbageFaceVec;
