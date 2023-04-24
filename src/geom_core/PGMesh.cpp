@@ -672,36 +672,19 @@ void PGFace::DumpMatlab()
 PGNode * PGFace::FindDoubleBackNode()
 {
     PGNode *retnode = NULL;
+    int nedge = m_EdgeVec.size();
 
-    PGNode *nprev = NULL;
-    for ( int i = 0 ; i < ( int )m_EdgeVec.size() ; i++ )
+    PGNode *nprev = FindPrevNode( 0 );
+    for ( int i = 0; i < ( int )nedge; i++ )
     {
         PGEdge *e = m_EdgeVec[ i ];
 
-        if ( !nprev )
+        int inext = i + 1;
+        if ( inext >= nedge )
         {
-            // Sort out which node order gets us started in the edge order.
-            PGEdge *enext = m_EdgeVec[ i + 1 ];
-            if ( enext->ContainsNode( e->m_N0 ) )
-            {
-                nprev = e->m_N1;
-            }
-            else
-            {
-                nprev = e->m_N0;
-            }
+            inext = 0;
         }
-
-
-        PGEdge *enext;
-        if ( i < m_EdgeVec.size() - 1 )
-        {
-            enext = m_EdgeVec[ i + 1 ];
-        }
-        else
-        {
-            enext = m_EdgeVec[0];
-        }
+        PGEdge *enext = m_EdgeVec[ inext ];
 
         PGNode *nnext = e->OtherNode( nprev );
 
@@ -710,7 +693,6 @@ PGNode * PGFace::FindDoubleBackNode()
             // DoubleBack detected.
             retnode = nnext;
         }
-
 
         nprev = nnext;
     }
