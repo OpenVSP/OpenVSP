@@ -16,6 +16,7 @@
 #include "PGMesh.h"
 #include "StlHelper.h"
 #include "Matrix4d.h"
+#include "VspUtil.h"
 
 #include "triangle.h"
 #include "triangle_api.h"
@@ -336,30 +337,91 @@ PGEdge* PGFace::FindEdge( PGNode* nn0, PGNode* nn1 ) const
     return nullptr;
 }
 
+// Find 'next' node of Edge i.  Walking the face's edge loop in the 'next' direction will
+// result in a properly ordered set of points.
+PGNode * PGFace::FindPrevNode( int istart ) const
+{
+    int nedge = m_EdgeVec.size();
+
+    // Preserve input index.
+    istart = clampCyclic( istart, nedge );
+
+    // Start ithis at input index
+    int ithis = istart;
+    PGEdge *ethis = m_EdgeVec[ithis];
+
+    int inext = ithis + 1;
+    if ( inext >= nedge )
+    {
+        inext -= nedge;
+    }
+    PGEdge *enext = m_EdgeVec[inext];
+
+    // Loop until ethis != enext.  I.e. we are not on a double-back edge.  This will seldom occur, but we can
+    // not consistently determine the direction of the loop on a double-back edge.
+    int iloop = 0;
+    while ( ethis == enext && iloop < nedge )
+    {
+        ithis = inext;
+        ethis = enext;
+
+        inext++;
+        if ( inext >= nedge )
+        {
+            inext -= nedge;
+        }
+        enext = m_EdgeVec[ inext ];
+
+        iloop++;
+    }
+
+    // Should be imposible. Looped through all edges and they were all identical.
+    if ( ethis == enext )
+    {
+        return NULL;
+    }
+
+    PGNode *nprev = NULL;
+    if ( enext->ContainsNode( ethis->m_N0 ) )
+    {
+        nprev = ethis->m_N1;
+    }
+    else
+    {
+        nprev = ethis->m_N0;
+    }
+
+    // Un-wind earlier advancement.
+    while ( ithis != istart )
+    {
+        ithis--;
+        if ( ithis < 0 )
+        {
+            ithis += nedge;
+        }
+
+        ethis = m_EdgeVec[ ithis ];
+        nprev = ethis->OtherNode( nprev );
+    }
+
+    return nprev;
+}
+
 void PGFace::GetNodes( vector< PGNode* > & nodVec ) const
 {
     nodVec.clear();
-    PGNode *nprev = NULL;
+    PGNode *nprev = FindPrevNode( 0 );
+
+    if ( !nprev )
+    {
+        return;
+    }
+
+    nodVec.push_back( nprev );
 
     for ( int i = 0 ; i < ( int )m_EdgeVec.size() ; i++ )
     {
         PGEdge *e = m_EdgeVec[i];
-
-        if ( !nprev )
-        {
-            // Sort out which node order gets us started in the edge order.
-            PGEdge *enext = m_EdgeVec[ i + 1 ];
-            if ( enext->ContainsNode( e->m_N0 ) )
-            {
-                nprev = e->m_N1;
-            }
-            else
-            {
-                nprev = e->m_N0;
-            }
-
-            nodVec.push_back( nprev );
-        }
 
         PGNode *nnext = e->OtherNode( nprev );
 

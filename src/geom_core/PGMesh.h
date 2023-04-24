@@ -114,6 +114,8 @@ public:
     PGEdge* FindEdge( PGNode* nn0, PGNode* nn1 ) const;
 
 
+    PGNode * FindPrevNode( int i ) const;
+
     void GetNodes( vector< PGNode* > & nodVec ) const;
 
     void GetNodesAsTris( vector < PGNode* > & trinodVec );
