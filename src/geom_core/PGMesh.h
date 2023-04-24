@@ -131,6 +131,8 @@ public:
 
     void DumpMatlab();
 
+    PGNode * FindDoubleBackNode();
+
     list< PGFace* >::iterator m_List_it;
 
     vec3d m_Nvec;
