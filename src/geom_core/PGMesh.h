@@ -140,6 +140,8 @@ public:
 
     void SplitEdge( PGEdge *e0, PGEdge *e1 );
 
+    void GetHullEdges( vector < PGEdge* > & evec ) const;
+
     list< PGFace* >::iterator m_List_it;
 
     vec3d m_Nvec;

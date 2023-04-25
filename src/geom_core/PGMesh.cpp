@@ -794,6 +794,14 @@ void PGFace::SplitEdge( PGEdge *e0, PGEdge *e1 )
     }
 }
 
+void PGFace::GetHullEdges( vector < PGEdge* > & evec ) const
+{
+    // Initialize to full edge set.
+    evec = m_EdgeVec;
+
+    while ( vector_remove_consecutive_duplicates( evec ) );
+}
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
