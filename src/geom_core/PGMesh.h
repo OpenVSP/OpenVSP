@@ -104,6 +104,8 @@ public:
     bool SameFaces( PGEdge *e2 );
     bool Check();
 
+    void DumpMatlab();
+
 };
 
 //////////////////////////////////////////////////////////////////////

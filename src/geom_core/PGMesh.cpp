@@ -331,6 +331,16 @@ bool PGEdge::Check()
     return true;
 }
 
+void PGEdge::DumpMatlab()
+{
+    printf( "x = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pnt.x(), DBL_DIG + 3, m_N1->m_Pnt.x() );
+    printf( "y = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pnt.y(), DBL_DIG + 3, m_N1->m_Pnt.y() );
+    printf( "z = [%.*e %.*e];\n", DBL_DIG + 3, m_N0->m_Pnt.z(), DBL_DIG + 3, m_N1->m_Pnt.z() );
+
+    printf( "plot3( x, y, z, 'b+:' );\n" );
+    printf( "hold on\n" );
+}
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
