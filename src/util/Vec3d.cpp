@@ -107,6 +107,11 @@ vec3d& vec3d::operator=( const threed_point_type &a )
     return *this;
 }
 
+vec2d vec3d::as_vec2d_xy()
+{
+    return vec2d( v[0], v[1] );
+}
+
 //******* Set Point Values *******//
 vec3d& vec3d::set_xyz( double xx, double yy, double zz )
 {

@@ -67,6 +67,7 @@ public:
         return v[i];
     }
 
+    vec2d as_vec2d_xy();
 
     // Set Point Values
     vec3d& set_xyz( double xx, double yy, double zz );
