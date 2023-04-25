@@ -130,6 +130,7 @@ public:
     void AddEdge( PGEdge* e );
     void RemoveEdge( PGEdge* e );
     bool Contains( PGEdge* e ) const;
+    bool Contains( PGNode* n ) const;
     void EdgeForgetFace();
     bool Check();
 

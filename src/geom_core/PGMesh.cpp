@@ -643,6 +643,33 @@ bool PGFace::Contains( PGEdge* e ) const
     return vector_contains_val( m_EdgeVec, e );
 }
 
+bool PGFace::Contains( PGNode* n ) const
+{
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        if ( m_EdgeVec[i]->ContainsNode( n ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+/*
+// Alternate form
+bool PGFace::Contains( PGNode* n ) const
+{
+    for ( int i = 0; i < n->m_EdgeVec.size(); i++ )
+    {
+        if ( n->m_EdgeVec[i]->UsedBy( this ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+*/
+
 void PGFace::EdgeForgetFace()
 {
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
