@@ -454,6 +454,8 @@ public:
     // Surface type of parent surface.
     int m_SurfType;
 
+    double m_Wmin;
+
     // UW and XYZ points used in TMesh::CompPnt only.  This is called in Intersect and SplitTri when in UV mode.  This
     // happens while intersecting subsurface curves.
     vector< vector<vec3d> > m_UWPnts;

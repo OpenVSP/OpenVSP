@@ -304,6 +304,7 @@ TMesh::TMesh()
     m_PlateNum = -1;
     m_AreaCenter = vec3d(0,0,0);
     m_GuessVol = 0;
+    m_Wmin = DBL_MAX;
 }
 
 TMesh::~TMesh()
@@ -411,6 +412,7 @@ void TMesh::CopyAttributes( TMesh* m )
     m_ShellMassArea = m->m_ShellMassArea;
 
     m_SurfType = m->m_SurfType;
+    m_Wmin = m->m_Wmin;
 
     m_UWPnts = m->m_UWPnts;
     m_XYZPnts = m->m_XYZPnts;
@@ -2283,11 +2285,12 @@ int TTri::WakeEdge()
     double tol = 1e-12;
     if ( m_TMesh )
     {
+        double wmin = m_TMesh->m_Wmin;
         if ( m_TMesh->m_SurfType == vsp::WING_SURF )
         {
-            bool n0 = m_N0->m_UWPnt.y() <= ( TMAGIC + tol );
-            bool n1 = m_N1->m_UWPnt.y() <= ( TMAGIC + tol );
-            bool n2 = m_N2->m_UWPnt.y() <= ( TMAGIC + tol );
+            bool n0 = m_N0->m_UWPnt.y() <= ( wmin + tol );
+            bool n1 = m_N1->m_UWPnt.y() <= ( wmin + tol );
+            bool n2 = m_N2->m_UWPnt.y() <= ( wmin + tol );
 
             if ( n0 && n1 )
             {
@@ -3940,6 +3943,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
     TMeshVec[itmesh]->m_PlateNum = platenum;
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;
     TMeshVec[itmesh]->m_XYZPnts = pnts;
+    TMeshVec[itmesh]->m_Wmin = uw_pnts[0][0].y();
 
     if ( cfdsurftype == vsp::CFD_NEGATIVE )
     {
