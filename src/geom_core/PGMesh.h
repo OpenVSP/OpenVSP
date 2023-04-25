@@ -136,7 +136,7 @@ public:
 
     void DumpMatlab();
 
-    PGNode * FindDoubleBackNode();
+    PGNode * FindDoubleBackNode( PGEdge* & edouble );
 
     list< PGFace* >::iterator m_List_it;
 
