@@ -257,6 +257,19 @@ PGNode* PGEdge::OtherNode( const PGNode* n ) const
     return nullptr;
 }
 
+PGNode* PGEdge::SharedNode( const PGEdge* e ) const
+{
+    if ( e->ContainsNode( m_N0 ) )
+    {
+        return m_N0;
+    }
+    if ( e->ContainsNode( m_N1 ) )
+    {
+        return m_N1;
+    }
+    return NULL;
+}
+
 void PGEdge::ReplaceNode( PGNode* curr_PGNode, PGNode* replace_PGNode )
 {
     if ( m_N0 == curr_PGNode )

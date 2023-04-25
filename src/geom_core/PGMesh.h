@@ -96,6 +96,7 @@ public:
     void ReplaceNode( PGNode* curr_PGNode, PGNode* replace_PGNode );
 
     PGNode* OtherNode( const PGNode* n ) const;
+    PGNode* SharedNode( const PGEdge* e ) const;
 
     void NodesForgetEdge();
 
