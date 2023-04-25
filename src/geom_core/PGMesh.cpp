@@ -756,6 +756,43 @@ PGNode * PGFace::FindDoubleBackNode( PGEdge* & edouble )
     return NULL;
 }
 
+// Split edge e0 into e0,e1.  Direction indeterminte (e1 can go before or after e0).
+// e0 can also appear more than once in this face.
+void PGFace::SplitEdge( PGEdge *e0, PGEdge *e1 )
+{
+
+    PGNode* ns = e0->SharedNode( e1 );
+    PGNode* n0 = e0->OtherNode( ns );
+    PGNode* n1 = e1->OtherNode( ns );
+
+
+    //int i0 = vector_find_val( m_EdgeVec, e0 );
+    vector < int > i0vec;
+    vector_find_val_multiple( m_EdgeVec, e0, i0vec );
+
+    for ( int i = i0vec.size() - 1; i >= 0; i-- )
+    {
+        int nedge = m_EdgeVec.size();
+        int i0 = i0vec[i];
+        int iprev = clampCyclic( i0 - 1, nedge );
+        PGEdge * eprev = m_EdgeVec[ iprev ];
+        int inext = clampCyclic( i0 + 1, nedge );
+        PGEdge * enext = m_EdgeVec[ inext ];
+
+        if ( eprev->ContainsNode( n1 ) )
+        {
+            // enext->ContainsNode( n0 ); Should be true.
+            // Insert e1 betweeen eprev and e0.
+            vector_insert_after( m_EdgeVec, iprev, e1 );
+        }
+        else if ( enext->ContainsNode( n1 ) )
+        {
+            // eprev->ContainsNode( n0 ); Should be true.
+            // Insert e1 betweeen e0 and enext.
+            vector_insert_after( m_EdgeVec, i0, e1 );
+        }
+    }
+}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
