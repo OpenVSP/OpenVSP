@@ -1750,6 +1750,8 @@ void MeshGeom::CreateNGonMeshGeom()
         new_geom->PolygonizeMesh();
         new_geom->CleanColinearVerts();
 
+        new_geom->SplitLEGeom();
+
         new_geom->m_SurfDirty = true;
 
         new_geom->Update();
