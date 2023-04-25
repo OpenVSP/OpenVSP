@@ -111,6 +111,25 @@ int vector_find_minimum( const vector < T > & vec )
     return imin;
 }
 
+template <class T>
+void vector_insert_after( vector< T > & vec, int indx , T const & val )
+{
+    vector< T > new_vector;
+    new_vector.reserve( vec.size() + 1 );
+    int i;
+    for ( i = 0 ; i <= indx ; i++ )
+    {
+        new_vector.push_back( vec[i] );
+    }
+    new_vector.push_back( val );
+    for ( ; i < vec.size() ; i++ )
+    {
+        new_vector.push_back( vec[i] );
+    }
+
+    vec = new_vector;
+}
+
 //==== Find Index of Vector Where Val =====//
 template <class T>
 int vector_find_val( const vector< T > & vec, T const & val )
