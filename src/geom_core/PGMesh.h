@@ -207,6 +207,8 @@ public:
 
     void SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n );
 
+    void SplitFace( PGFace *f0, PGEdge *e );
+
 protected:
     vector< PGFace* > m_GarbageFaceVec;
     vector< PGEdge* > m_GarbageEdgeVec;

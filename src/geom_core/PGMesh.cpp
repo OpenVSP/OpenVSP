@@ -1122,6 +1122,92 @@ void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n )
     }
 }
 
+// Do opposite of remove edge merge faces.
+void PGMesh::SplitFace( PGFace *f0, PGEdge *e )
+{
+    PGNode * n0 = e->m_N0;
+    PGNode * n1 = e->m_N1;
+
+    vector < PGEdge * > ev = f0->m_EdgeVec;
+    int nev = ev.size();
+
+    // Find n0 split.
+    int isplit = -1;
+    for ( int i = 0; i < nev; i++ )
+    {
+        int inext = i + 1;
+        if ( inext >= nev )
+        {
+            inext -= nev;
+        }
+
+        if ( ev[i]->ContainsNode( n0 ) && ev[inext]->ContainsNode( n0 ) )
+        {
+            isplit = inext;
+        }
+    }
+
+    // Split not found.
+    if ( isplit == -1 )
+    {
+        return;
+    }
+
+    // Rotate isplit to be first in ev.
+    std::rotate( ev.begin(), ev.begin() + isplit, ev.end() );
+
+
+    // find n1 split.
+    isplit = -1;
+    for ( int i = 0; i < nev; i++ )
+    {
+        int inext = i + 1;
+        if ( inext >= nev )
+        {
+            inext -= nev;
+        }
+
+        if ( ev[i]->ContainsNode( n1 ) && ev[inext]->ContainsNode( n1 ) )
+        {
+            isplit = inext;
+        }
+    }
+
+    // Split not found.
+    if ( isplit == -1 )
+    {
+        return;
+    }
+
+    PGFace *f1 = AddFace();
+    f1->m_iQuad = f0->m_iQuad;
+    f1->m_Nvec = f0->m_Nvec;
+    f1->m_Tag = f0->m_Tag;
+
+    // Build two new edge vectors.
+    vector < PGEdge * > ev0;
+    vector < PGEdge * > ev1;
+
+    for ( int i = 0; i < isplit; i++ )
+    {
+        ev0.push_back( ev[i] );
+    }
+    ev0.push_back( e );
+    f0->m_EdgeVec = ev0;
+
+    for ( int i = isplit; i < nev; i++ )
+    {
+        ev1.push_back( ev[i] );
+        ev[i]->RemoveFace( f0 );
+        ev[i]->AddConnectFace( f1 );
+    }
+    ev1.push_back( e );
+    f1->m_EdgeVec = ev1;
+
+    e->AddConnectFace( f0 );
+    e->AddConnectFace( f1 );
+}
+
 void PGMesh::DumpGarbage()
 {
     //==== Delete Flagged PGNodes =====//
