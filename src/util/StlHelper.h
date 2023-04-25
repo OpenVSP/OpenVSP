@@ -157,6 +157,45 @@ void vector_find_val_multiple( const vector< T > & vec, T const & val, vector< i
     }
 }
 
+template <class T>
+bool vector_remove_consecutive_duplicates( vector< T > & vec )
+{
+    bool condup = false;
+    vector < int > dupindx;
+
+    int n = vec.size();
+    for ( int i = 0 ; i < n ; i++ )
+    {
+        int inext = i + 1;
+        if ( inext >= n )
+        {
+            inext -= n;
+        }
+
+        if ( vec[i] == vec[inext] )
+        {
+            dupindx.push_back( i );
+            dupindx.push_back( inext );
+            condup = true;
+        }
+    }
+
+    if ( condup )
+    {
+        vector < T > newvec;
+        newvec.reserve( vec.size() );
+        for ( int i = 0 ; i < n ; i++ )
+        {
+            if ( !vector_contains_val( dupindx, i ) )
+            {
+                newvec.push_back( vec[i] );
+            }
+        }
+        vec = newvec;
+    }
+    return condup;
+}
+
 //==== Find Index of Vector Where Val =====//
 template <class T>
 int vector_find_val( const vector< T > & vec, T const & val, T const & tol )
