@@ -1059,6 +1059,69 @@ void PGMesh::SplitEdge( PGEdge *e0, PGNode *n )
     }
 }
 
+void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n )
+{
+    vector < PGEdge* > ehull;
+    f->GetHullEdges( ehull );
+
+    // Build face from hull to visualize.
+    if ( false )
+    {
+        PGFace *fdummy = AddFace();
+        for ( int i = 0; i < ehull.size(); i++ )
+        {
+            fdummy->AddEdge( ehull[i] );
+        }
+        fdummy->DumpMatlab();
+        RemoveFace( fdummy );
+    }
+
+    // Find other node of double-back edge.  Will be used to establish a direction.
+    PGNode *nother = e->OtherNode( n );
+
+    vec3d dir = n->m_Pnt - nother->m_Pnt;
+    dir.normalize();
+
+    int imindist = -1;
+    double mindist = DBL_MAX;
+    double tmindist = 0;
+
+    for ( int i = 0; i < ehull.size(); i++ )
+    {
+        PGEdge* eh = ehull[i];
+
+        double s, t;
+        line_line_intersect( nother->m_Pnt, n->m_Pnt, eh->m_N0->m_Pnt, eh->m_N1->m_Pnt, &s, &t );
+
+        vec3d p = ( 1.0 - t ) * eh->m_N0->m_Pnt + t * eh->m_N1->m_Pnt;
+
+        double d = dist( n->m_Pnt, p );
+
+        if ( d < mindist && s > 1.0 )
+        {
+            mindist = d;
+            imindist = i;
+            tmindist = t;
+        }
+    }
+
+    if ( imindist >= 0 )
+    {
+        PGEdge * e2split = ehull[imindist];
+
+        vec3d pmid = ( 1.0 - tmindist ) * e2split->m_N0->m_Pnt + tmindist * e2split->m_N1->m_Pnt;
+        vec2d uwmid = ( 1.0 - tmindist ) * e2split->m_N0->m_UW + tmindist * e2split->m_N1->m_UW;
+
+        PGNode * newnode = AddNode( pmid, uwmid );
+
+        SplitEdge( e2split, newnode );
+
+        PGEdge * enew = AddEdge( n, newnode );
+
+        SplitFace( f, enew );
+    }
+}
+
 void PGMesh::DumpGarbage()
 {
     //==== Delete Flagged PGNodes =====//
