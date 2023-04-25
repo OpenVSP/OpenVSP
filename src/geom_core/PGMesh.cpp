@@ -1031,6 +1031,34 @@ void PGMesh::StartMatlab()
     printf( "format compact;\n" );
 }
 
+void PGMesh::SplitEdge( PGEdge *e0, PGNode *n )
+{
+    PGNode *n0 = e0->m_N0;
+    PGNode *n1 = e0->m_N1;
+
+    e0->ReplaceNode( n1, n );
+    n1->RemoveConnectEdge( e0 );
+    n->AddConnectEdge( e0 );
+
+    PGEdge *e1 = AddEdge( n, n1 );
+
+    // Copy face vector
+    e1->m_FaceVec = e0->m_FaceVec;
+
+    //e0->DumpMatlab();
+    //e1->DumpMatlab();
+
+
+    vector <PGFace* > fv = e0->m_FaceVec;
+
+    for ( int i = 0; i < fv.size(); i++ )
+    {
+        PGFace *f = fv[i];
+        f->SplitEdge( e0, e1 );
+        //f->DumpMatlab();
+    }
+}
+
 void PGMesh::DumpGarbage()
 {
     //==== Delete Flagged PGNodes =====//
