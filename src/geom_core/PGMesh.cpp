@@ -32,10 +32,9 @@ PGNode::PGNode()
     m_DeleteMeFlag = false;
 }
 
-PGNode::PGNode( const vec3d& p, const vec2d& uw_in )
+PGNode::PGNode( const vec3d& p )
 {
     m_Pnt = p;
-    m_UW = uw_in;
     m_DeleteMeFlag = false;
 }
 
@@ -842,9 +841,9 @@ void PGMesh::Clear()
     m_NodeList.clear();
 }
 
-PGNode* PGMesh::AddNode( vec3d p, vec2d uw_in )
+PGNode* PGMesh::AddNode( vec3d p )
 {
-    PGNode* nptr = new PGNode( p, uw_in );
+    PGNode* nptr = new PGNode( p );
     m_NodeList.push_back( nptr );
     nptr->m_List_it = --m_NodeList.end();
     return nptr;
@@ -1109,10 +1108,32 @@ void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n )
     {
         PGEdge * e2split = ehull[imindist];
 
-        vec3d pmid = ( 1.0 - tmindist ) * e2split->m_N0->m_Pnt + tmindist * e2split->m_N1->m_Pnt;
-        vec2d uwmid = ( 1.0 - tmindist ) * e2split->m_N0->m_UW + tmindist * e2split->m_N1->m_UW;
+        PGNode *n0 = e2split->m_N0;
+        PGNode *n1 = e2split->m_N1;
 
-        PGNode * newnode = AddNode( pmid, uwmid );
+        vec3d p = ( 1.0 - tmindist ) * n0->m_Pnt + tmindist * n1->m_Pnt;
+
+        PGNode * newnode = AddNode( p );
+
+        // Loop over all uw's in n0's map.
+        for ( map < int, vec2d >::iterator it0 = n0->m_TagUWMap.begin(); it0 != n0->m_TagUWMap.end(); ++it0 )
+        {
+            int tag = it0->first;
+            vec2d uw0 = it0->second;
+
+            // Try to find uw with matching tag in n1's map.
+            map < int, vec2d >::iterator it1 = n1->m_TagUWMap.find( tag );
+
+            // If there is a match
+            if ( it1 != n1->m_TagUWMap.end() )
+            {
+                // Interpolate uw and add to newnode's map.
+                vec2d uw1 = it1->second;
+                vec2d uw = ( 1.0 - tmindist ) * uw0 + tmindist * uw1;
+
+                newnode->m_TagUWMap[ tag ] = uw;
+            }
+        }
 
         SplitEdge( e2split, newnode );
 

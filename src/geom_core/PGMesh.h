@@ -39,7 +39,7 @@ class PGNode
 {
 public:
     PGNode();
-    PGNode( const vec3d& p, const vec2d& uw_in );
+    PGNode( const vec3d& p );
     virtual ~PGNode();
 
     list< PGNode* >::iterator m_List_it;
@@ -47,8 +47,8 @@ public:
 
     bool m_DeleteMeFlag;
 
-    vec3d m_Pnt;              // Position
-    vec2d m_UW;               // Parametric
+    vec3d m_Pnt;                   // Position
+    map < int, vec2d > m_TagUWMap; // Parametric on a per-tag basis.
 
     void GetConnectNodes( vector< PGNode* > & cnVec ) const;
     void GetConnectFaces( vector< PGFace* > & cfVec ) const;
@@ -171,7 +171,7 @@ public:
     void DumpGarbage();
 
 
-    PGNode* AddNode( vec3d p, vec2d uw_in );
+    PGNode* AddNode( vec3d p );
     void  RemoveNode( PGNode* nptr );
 
     PGEdge* AddEdge( PGNode* n0, PGNode* n1 );

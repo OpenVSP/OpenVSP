@@ -108,8 +108,7 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
     vector < PGNode* > nod( nodeVec.size() );
     for ( int i = 0; i < nodeVec.size(); i++ )
     {
-        vec2d uw( nodeVec[i]->m_UWPnt.x(), nodeVec[i]->m_UWPnt.y() );
-        nod[i] = m_PGMesh.AddNode( nodeVec[i]->m_Pnt, uw );
+        nod[i] = m_PGMesh.AddNode( nodeVec[i]->m_Pnt );
     }
 
     for ( int i = 0; i < triVec.size(); i++ )
@@ -122,6 +121,10 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
         PGEdge *e1 = m_PGMesh.AddEdge( nod[triVec[i]->m_N0->m_ID], nod[triVec[i]->m_N1->m_ID] );
         PGEdge *e2 = m_PGMesh.AddEdge( nod[triVec[i]->m_N1->m_ID], nod[triVec[i]->m_N2->m_ID] );
         PGEdge *e3 = m_PGMesh.AddEdge( nod[triVec[i]->m_N2->m_ID], nod[triVec[i]->m_N0->m_ID] );
+
+        nod[ triVec[i]->m_N0->m_ID ]->m_TagUWMap[ f->m_Tag ] = triVec[i]->m_N0->m_UWPnt.as_vec2d_xy();
+        nod[ triVec[i]->m_N1->m_ID ]->m_TagUWMap[ f->m_Tag ] = triVec[i]->m_N1->m_UWPnt.as_vec2d_xy();
+        nod[ triVec[i]->m_N2->m_ID ]->m_TagUWMap[ f->m_Tag ] = triVec[i]->m_N2->m_UWPnt.as_vec2d_xy();
 
         e1->AddConnectFace( f );
         e2->AddConnectFace( f );
