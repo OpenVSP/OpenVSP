@@ -198,6 +198,11 @@ bool PGEdge::ContainsNode( const PGNode* in ) const
     return false;
 }
 
+bool PGEdge::UsedBy( PGFace* f ) const
+{
+    return vector_contains_val( m_FaceVec, f );
+}
+
 bool PGEdge::SetNode( PGNode* n )
 {
     // If node already set, return.

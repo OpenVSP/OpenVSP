@@ -86,6 +86,7 @@ public:
 
     bool ContainsNodes( const PGNode* in0, const PGNode* in1 ) const;
     bool ContainsNode( const PGNode* in ) const;
+    bool UsedBy( PGFace* f ) const;
 
     bool SetNode( PGNode* n );
     void AddConnectFace( PGFace* f );
