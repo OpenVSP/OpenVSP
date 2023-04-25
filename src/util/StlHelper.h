@@ -144,6 +144,19 @@ int vector_find_val( const vector< T > & vec, T const & val )
     return -1;
 }
 
+template <class T>
+void vector_find_val_multiple( const vector< T > & vec, T const & val, vector< int > & indvec )
+{
+    indvec.clear();
+    for ( int i = 0 ; i < ( int )vec.size() ; i++ )
+    {
+        if ( val == vec[i] )
+        {
+            indvec.push_back( i );
+        }
+    }
+}
+
 //==== Find Index of Vector Where Val =====//
 template <class T>
 int vector_find_val( const vector< T > & vec, T const & val, T const & tol )
