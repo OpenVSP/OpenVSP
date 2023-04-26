@@ -102,7 +102,7 @@ xmlNodePtr NGonMeshGeom::DecodeXml( xmlNodePtr & node )
     return ngon_node;
 }
 
-void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec )
+void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec, const vector < deque < TEdge > > &wakes )
 {
 
     vector < PGNode* > nod( nodeVec.size() );
@@ -134,6 +134,33 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
         f->AddEdge( e2 );
         f->AddEdge( e3 );
 
+    }
+
+    int nwake = wakes.size();
+
+    m_PGMesh.m_WakeVec.clear();
+    m_PGMesh.m_WakeVec.resize( nwake );
+
+    for ( int iwake = 0; iwake < nwake; iwake++ )
+    {
+        int nwe = wakes[iwake].size();
+
+        m_PGMesh.m_WakeVec[iwake].resize( nwe );
+
+        for ( int iwe = 0; iwe < nwe; iwe++ )
+        {
+            PGNode* n0 = nod[ wakes[iwake][iwe].m_N0->m_ID ];
+            PGNode* n1 = nod[ wakes[iwake][iwe].m_N1->m_ID ];
+
+            // Actually attempts FindEdge first and reverts to creating new edge if needed.  Should always find
+            // existing edge.
+            PGEdge* we = m_PGMesh.AddEdge( n0, n1 );
+
+            if ( we )
+            {
+                m_PGMesh.m_WakeVec[iwake][iwe] = we;
+            }
+        }
     }
 }
 

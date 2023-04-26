@@ -1749,6 +1749,7 @@ void MeshGeom::CreatePtCloudGeom()
 void MeshGeom::CreateNGonMeshGeom()
 {
     BuildIndexedMesh( 0 );
+    IdentifyWakes();
 
     GeomType type = GeomType( NGON_GEOM_TYPE, "NGON", true );
     string id = m_Vehicle->AddGeom( type );
@@ -1764,7 +1765,7 @@ void MeshGeom::CreateNGonMeshGeom()
 
         Matrix4d XFormMat = GetTotalTransMat();
 
-        new_geom->BuildFromTMesh( m_IndexedNodeVec, m_IndexedTriVec );
+        new_geom->BuildFromTMesh( m_IndexedNodeVec, m_IndexedTriVec, m_Wakes );
         new_geom->PolygonizeMesh();
         new_geom->CleanColinearVerts();
 

@@ -201,6 +201,8 @@ public:
     list < PGEdge* > m_EdgeList;
     list < PGNode* > m_NodeList;
 
+    vector < vector < PGEdge* > > m_WakeVec;
+
     void StartMatlab();
 
     void SplitEdge( PGEdge *e, PGNode *n );
