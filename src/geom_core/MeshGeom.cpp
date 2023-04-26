@@ -1133,46 +1133,47 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
 
     list < TEdge > wlist( wakeedges.begin(), wakeedges.end() );
 
-    vector < deque < TEdge > > wakes;
+
+    m_Wakes.clear();
     int iwake = 0;
 
     while ( !wlist.empty() )
     {
         list < TEdge >::iterator wit = wlist.begin();
 
-        iwake = wakes.size();
-        wakes.resize( iwake + 1 );
-        wakes[iwake].push_back( *wit );
+        iwake = m_Wakes.size();
+        m_Wakes.resize( iwake + 1 );
+        m_Wakes[iwake].push_back( *wit );
         wit = wlist.erase( wit );
 
         while ( wit != wlist.end() )
         {
-            if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
+            if ( AboutEqualWakeNodes( m_Wakes[iwake].back().m_N1, (*wit).m_N0 ) )
             {
-                wakes[iwake].push_back( *wit );
+                m_Wakes[iwake].push_back( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
+            else if ( AboutEqualWakeNodes( m_Wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
             {
-                wakes[iwake].push_front( *wit );
+                m_Wakes[iwake].push_front( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( AboutEqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N1 ) )
+            else if ( AboutEqualWakeNodes( m_Wakes[iwake].back().m_N1, (*wit).m_N1 ) )
             {
                 (*wit).SwapEdgeDirection();
-                wakes[iwake].push_back( *wit );
+                m_Wakes[iwake].push_back( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
             }
-            else if ( AboutEqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N0 ) )
+            else if ( AboutEqualWakeNodes( m_Wakes[iwake].begin()->m_N0, (*wit).m_N0 ) )
             {
                 (*wit).SwapEdgeDirection();
-                wakes[iwake].push_front( *wit );
+                m_Wakes[iwake].push_front( *wit );
                 wlist.erase( wit );
                 wit = wlist.begin();
                 continue;
@@ -1182,7 +1183,7 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
     }
 
 
-    int nwake = wakes.size();
+    int nwake = m_Wakes.size();
 
     m_PolyVec.resize( nwake );
     fprintf( file_id, "%d\n", nwake );
@@ -1191,14 +1192,14 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
     {
         int iprt = 0;
         int iwe;
-        int nwe = wakes[iwake].size();
+        int nwe = m_Wakes[iwake].size();
         m_PolyVec[iwake].resize( nwe + 1 );
         fprintf( file_id, "%d ", nwe + 1 );
 
         for ( iwe = 0; iwe < nwe; iwe++ )
         {
-            fprintf( file_id, "%d", wakes[iwake][iwe].m_N0->m_ID + 1 + offset );
-            m_PolyVec[iwake][iwe] = wakes[iwake][iwe].m_N0->m_Pnt;
+            fprintf( file_id, "%d", m_Wakes[iwake][iwe].m_N0->m_ID + 1 + offset );
+            m_PolyVec[iwake][iwe] = m_Wakes[iwake][iwe].m_N0->m_Pnt;
 
             if ( iprt < 9 )
             {
@@ -1211,8 +1212,8 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
                 iprt = 0;
             }
         }
-        fprintf( file_id, "%d\n", wakes[iwake][iwe - 1].m_N1->m_ID + 1 + offset );
-        m_PolyVec[iwake][iwe] = wakes[iwake][iwe - 1].m_N1->m_Pnt;
+        fprintf( file_id, "%d\n", m_Wakes[iwake][iwe - 1].m_N1->m_ID + 1 + offset );
+        m_PolyVec[iwake][iwe] = m_Wakes[iwake][iwe - 1].m_N1->m_Pnt;
     }
 
     return ( offset + m_IndexedNodeVec.size() );
