@@ -301,7 +301,7 @@ int SubSurfaceMgrSingleton::FindGNum( const string &gid )
 //==== Write Key File ====//
 void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 {
-    bool writethickthin = false;
+    bool writethickthin = true;
     // figure out basename
     string base_name = file_name;
     std::string::size_type loc = base_name.find_last_of( '.' );
