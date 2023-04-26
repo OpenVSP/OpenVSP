@@ -19,6 +19,7 @@
 #include "Defines.h"
 #include "Vec2d.h"
 #include "Vec3d.h"
+#include "Matrix4d.h"
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -49,6 +50,7 @@ public:
 
     vec3d m_Pnt;                   // Position
     map < int, vec2d > m_TagUWMap; // Parametric on a per-tag basis.
+    int m_ID;
 
     void GetConnectNodes( vector< PGNode* > & cnVec ) const;
     void GetConnectFaces( vector< PGFace* > & cfVec ) const;
@@ -210,6 +212,12 @@ public:
     void SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n );
 
     void SplitFace( PGFace *f0, PGEdge *e );
+
+    void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat );
+    void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
+    void WriteVSPGeomTris( FILE* file_id );
+    void WriteVSPGeomParts( FILE* file_id );
+    void WriteVSPGeomWakes( FILE* file_id );
 
 protected:
     vector< PGFace* > m_GarbageFaceVec;

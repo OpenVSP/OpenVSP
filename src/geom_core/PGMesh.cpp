@@ -30,11 +30,13 @@
 PGNode::PGNode()
 {
     m_DeleteMeFlag = false;
+    m_ID = -1;
 }
 
 PGNode::PGNode( const vec3d& p )
 {
     m_Pnt = p;
+    m_ID = -1;
     m_DeleteMeFlag = false;
 }
 
@@ -1251,6 +1253,126 @@ void PGMesh::DumpGarbage()
         delete m_GarbageFaceVec[i];
     }
     m_GarbageFaceVec.clear();
+}
+
+void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
+{
+    WriteVSPGeomPnts( file_id, XFormMat );
+    WriteVSPGeomTris( file_id );
+    WriteVSPGeomParts( file_id );
+    WriteVSPGeomWakes( file_id );
+}
+
+void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
+{
+    fprintf( file_id, "%d\n", m_NodeList.size() );
+
+    //==== Write Out Nodes ====//
+    vec3d v;
+
+    int inode = 1; // Start numbering at 1
+    list< PGNode* >::iterator n;
+    for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
+    {
+        // Assign ID number.
+        ( *n )->m_ID = inode;
+        inode++;
+
+        // Apply Transformations
+        v = XFormMat.xform( ( *n )->m_Pnt );
+        fprintf( file_id, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() ); // , tnode->m_UWPnt.x(), tnode->m_UWPnt.y() );
+    }
+}
+
+void PGMesh::WriteVSPGeomTris( FILE* file_id )
+{
+    fprintf( file_id, "%d\n", m_FaceList.size() );
+
+    //==== Write Out Tris ====//
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodes( nodVec );
+
+        // index to size-1 because first/last point is repeated.
+        int npt = nodVec.size() - 1;
+
+        fprintf( file_id, "%d", npt );
+        for ( int i = 0; i < npt; i++ )
+        {
+            fprintf( file_id, " %d", nodVec[i]->m_ID );
+        }
+        fprintf( file_id, "\n" );
+    }
+}
+
+void PGMesh::WriteVSPGeomParts( FILE* file_id )
+{
+    //==== Write Component IDs for each Tri =====//
+    int tag;
+
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodes( nodVec );
+
+        // index to size-1 because first/last point is repeated.
+        int npt = nodVec.size() - 1;
+
+        tag = ( *f )->m_Tag;
+        fprintf( file_id, "%d", tag );
+
+        for ( int i = 0; i < npt; i++ )
+        {
+            // Try to find uw with matching tag.
+            map < int, vec2d >::iterator it1 = nodVec[i]->m_TagUWMap.find( tag );
+
+            vec2d uw;
+            // If there is a match
+            if ( it1 != nodVec[i]->m_TagUWMap.end() )
+            {
+                uw = it1->second;
+            }
+
+            fprintf( file_id, " %16.10g %16.10g", uw.x(), uw.y() );
+        }
+        fprintf( file_id, "\n" );
+    }
+}
+
+void PGMesh::WriteVSPGeomWakes( FILE* file_id )
+{
+    int nwake = m_WakeVec.size();
+
+    fprintf( file_id, "%d\n", nwake );
+
+    for ( int iwake = 0; iwake < nwake; iwake++ )
+    {
+        vector< PGNode* > nodVec;
+        GetNodes( m_WakeVec[iwake], nodVec );
+
+        int nwn = nodVec.size();
+        fprintf( file_id, "%d ", nwn );
+
+        int iprt = 0;
+        for ( int i = 0; i < nwn; i++ )
+        {
+            fprintf( file_id, "%d", nodVec[i]->m_ID );
+
+            if ( iprt >= 9 || i == nwn - 1 )
+            {
+                fprintf( file_id, "\n" );
+                iprt = 0;
+            }
+            else
+            {
+                fprintf( file_id, " " );
+                iprt++;
+            }
+        }
+    }
 }
 
 PGNode* FindEndNode( const vector < PGEdge* > & eVec )
