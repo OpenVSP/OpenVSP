@@ -41,6 +41,8 @@ public:
     virtual void CleanColinearVerts();
     virtual void SplitLEGeom();
 
+    virtual void WriteVSPGEOM( string fname );
+
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;

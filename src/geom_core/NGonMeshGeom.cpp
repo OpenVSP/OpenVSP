@@ -235,6 +235,24 @@ void NGonMeshGeom::SplitLEGeom()
     }
 }
 
+void NGonMeshGeom::WriteVSPGEOM( string fname )
+{
+    Matrix4d trans = GetTotalTransMat();
+
+    FILE *file_id = fopen( fname.c_str(), "w" );
+
+    if ( file_id )
+    {
+        m_PGMesh.WriteVSPGeom( file_id, trans );
+
+        fclose ( file_id );
+
+        //==== Write Out tag key file ====//
+
+        SubSurfaceMgr.WriteVSPGEOMKeyFile( fname );
+    }
+}
+
 void NGonMeshGeom::UpdateDrawObj()
 {
     Matrix4d trans = GetTotalTransMat();
