@@ -13,8 +13,16 @@
 //==== Constructor ====//
 NGonMeshScreen::NGonMeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "NGon Mesh" )
 {
-
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
+
+    Fl_Group* other_tab = AddTab( "Other" );
+    Fl_Group* other_group = AddSubGroup( other_tab, 5 );
+
+    m_OtherLayout.SetGroupAndScreen( other_group, this );
+    m_OtherLayout.AddDividerBox( "Write to File" );
+    m_OtherLayout.AddYGap();
+
+    m_OtherLayout.AddButton( m_WriteVSPGEOMButton, "Write VSPGEOM" );
 
 }
 
@@ -68,6 +76,21 @@ void NGonMeshScreen::GuiDeviceCallBack( GuiDevice* device )
 
     NGonMeshGeom* ngon_mesh_geom_ptr = dynamic_cast< NGonMeshGeom* >( geom_ptr );
     assert( ngon_mesh_geom_ptr );
+
+    if ( !ngon_mesh_geom_ptr )
+    {
+        return;
+    }
+
+    if ( device == &m_WriteVSPGEOMButton )
+    {
+        string newfile = m_ScreenMgr->FileChooser( "Write VSPGeom Files?", "*.vspgeom", vsp::SAVE );
+
+        if ( newfile.size() != 0 && newfile[ newfile.size() - 1] != '/' )
+        {
+            ngon_mesh_geom_ptr->WriteVSPGEOM( newfile );
+        }
+    }
 
 
     GeomScreen::GuiDeviceCallBack( device );

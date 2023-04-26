@@ -18,6 +18,10 @@ public:
     virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
+    GroupLayout m_OtherLayout;
+
+    TriggerButton m_WriteVSPGEOMButton;
+
 protected:
 
 };
