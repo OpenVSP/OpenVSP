@@ -2741,6 +2741,9 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
             offset = mg->WriteVSPGeomWakes( file_id, offset );
+
+            mg->m_SurfDirty = true;
+            mg->Update();
         }
     }
 
