@@ -290,6 +290,45 @@ void NGonMeshGeom::UpdateDrawObj()
         }
     }
 
+    int nwake = m_PGMesh.m_WakeVec.size();
+    m_FeatureDrawObj_vec.resize( nwake );
+
+    // Calculate constants for color sequence.
+    const int ncgrp = nwake; // Number of basic colors
+    const int ncstep = 1;
+    const double nctodeg = 360.0/(ncgrp*ncstep);
+
+    for ( int iwake = 0; iwake < nwake; iwake++ )
+    {
+
+        // Color sequence -- go around color wheel ncstep times with slight
+        // offset from ncgrp basic colors.
+        // Note, (cnt/ncgrp) uses integer division resulting in floor.
+        double deg = 0 + ( ( iwake % ncgrp ) * ncstep + ( iwake / ncgrp ) ) * nctodeg;
+
+        if ( deg > 360 )
+        {
+            deg = (int)deg % 360;
+        }
+
+        vec3d rgb = m_FeatureDrawObj_vec[iwake].ColorWheel( deg );
+        rgb.normalize();
+
+        m_FeatureDrawObj_vec[iwake].m_LineWidth = 5;
+        m_FeatureDrawObj_vec[iwake].m_LineColor = rgb;
+
+
+        vector< PGNode* > nodVec;
+        GetNodes( m_PGMesh.m_WakeVec[iwake], nodVec );
+
+        m_FeatureDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
+
+        for ( int i = 0; i < nodVec.size(); i++ )
+        {
+            m_FeatureDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pnt );
+        }
+    }
+
     //==== Bounding Box ====//
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
 
