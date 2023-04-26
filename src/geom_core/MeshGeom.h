@@ -123,6 +123,9 @@ public:
     virtual int  WriteNascartParts( FILE* file_id, int offset );
     virtual int  WriteCart3DParts( FILE* file_id );
     virtual int  WriteVSPGeomParts( FILE* file_id );
+
+    virtual void IdentifyWakes();
+
     virtual int  WriteVSPGeomWakes( FILE* file_id, int offset );
     virtual void WritePovRay( FILE* fid, int comp_num );
     virtual void WriteX3D( xmlNodePtr node );

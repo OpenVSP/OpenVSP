@@ -3417,6 +3417,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
              geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+            mg->IdentifyWakes();
             offset = mg->WriteVSPGeomWakes( file_id, offset );
 
             mg->m_SurfDirty = true;

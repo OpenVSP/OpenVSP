@@ -1095,7 +1095,7 @@ bool AboutEqualWakeEdges ( const TEdge &a, const TEdge &b )
     return false;
 }
 
-int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
+void MeshGeom::IdentifyWakes()
 {
     vector < TEdge > wakeedges;
 
@@ -1182,11 +1182,9 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
         }
     }
 
-
     int nwake = m_Wakes.size();
 
     m_PolyVec.resize( nwake );
-    fprintf( file_id, "%d\n", nwake );
 
     for ( iwake = 0; iwake < nwake; iwake++ )
     {
@@ -1194,12 +1192,32 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
         int iwe;
         int nwe = m_Wakes[iwake].size();
         m_PolyVec[iwake].resize( nwe + 1 );
+
+        for ( iwe = 0; iwe < nwe; iwe++ )
+        {
+            m_PolyVec[iwake][iwe] = m_Wakes[iwake][iwe].m_N0->m_Pnt;
+        }
+        m_PolyVec[iwake][iwe] = m_Wakes[iwake][iwe - 1].m_N1->m_Pnt;
+    }
+}
+
+int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
+{
+    int nwake = m_Wakes.size();
+
+    fprintf( file_id, "%d\n", nwake );
+
+    for ( int iwake = 0; iwake < nwake; iwake++ )
+    {
+        int iprt = 0;
+        int iwe;
+        int nwe = m_Wakes[iwake].size();
+
         fprintf( file_id, "%d ", nwe + 1 );
 
         for ( iwe = 0; iwe < nwe; iwe++ )
         {
             fprintf( file_id, "%d", m_Wakes[iwake][iwe].m_N0->m_ID + 1 + offset );
-            m_PolyVec[iwake][iwe] = m_Wakes[iwake][iwe].m_N0->m_Pnt;
 
             if ( iprt < 9 )
             {
@@ -1213,7 +1231,6 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
             }
         }
         fprintf( file_id, "%d\n", m_Wakes[iwake][iwe - 1].m_N1->m_ID + 1 + offset );
-        m_PolyVec[iwake][iwe] = m_Wakes[iwake][iwe - 1].m_N1->m_Pnt;
     }
 
     return ( offset + m_IndexedNodeVec.size() );
