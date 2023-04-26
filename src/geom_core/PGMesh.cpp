@@ -1252,3 +1252,35 @@ void PGMesh::DumpGarbage()
     }
     m_GarbageFaceVec.clear();
 }
+
+PGNode* FindEndNode( const vector < PGEdge* > & eVec )
+{
+    if ( eVec.size() == 0 )
+    {
+        return NULL;
+    }
+
+    if ( eVec.size() == 1 )
+    {
+        if ( eVec[0] )
+        {
+            return eVec[0]->m_N0;
+        }
+        return NULL;
+    }
+
+    PGEdge* e0 = eVec[0];
+    PGEdge* e1 = eVec[1];
+
+    if ( !e0 || !e1 )
+    {
+        return NULL;
+    }
+
+    if ( e1->ContainsNode( e0->m_N0 ) )
+    {
+        return e0->m_N1;
+    }
+
+    return e0->m_N0;
+}

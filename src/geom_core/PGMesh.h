@@ -216,4 +216,5 @@ protected:
 
 };
 
+PGNode* FindEndNode( const vector < PGEdge* > & eVec );
 #endif
