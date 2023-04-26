@@ -1284,3 +1284,33 @@ PGNode* FindEndNode( const vector < PGEdge* > & eVec )
 
     return e0->m_N0;
 }
+
+void GetNodes( const vector < PGEdge* > & eVec, vector< PGNode* > & nodVec )
+{
+    nodVec.clear();
+    PGNode *nprev = FindEndNode( eVec );
+
+    if ( !nprev )
+    {
+        return;
+    }
+
+    nodVec.push_back( nprev );
+
+    for ( int i = 0 ; i < ( int )eVec.size() ; i++ )
+    {
+        PGEdge *e = eVec[i];
+
+        if ( e )
+        {
+            PGNode *nnext = e->OtherNode( nprev );
+
+            if ( nnext )
+            {
+                nodVec.push_back( nnext );
+            }
+
+            nprev = nnext;
+        }
+    }
+}
