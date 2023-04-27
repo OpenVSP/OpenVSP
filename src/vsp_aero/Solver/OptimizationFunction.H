@@ -96,7 +96,7 @@
 
 // WRT free stream inputs
 
-#define OPT_GRADIENT_NUMBER_OF_INPUTS           15
+#define OPT_GRADIENT_NUMBER_OF_INPUTS           16
 
 #define OPT_GRADIENT_WRT_ALPHA                  1
 #define OPT_GRADIENT_WRT_BETA                   2
@@ -113,10 +113,11 @@
 #define OPT_GRADIENT_WRT_S_REF                 13
 #define OPT_GRADIENT_WRT_B_REF                 14
 #define OPT_GRADIENT_WRT_C_REF                 15
+#define OPT_GRADIENT_WRT_VREF                  16
 
 // WRT Control surfaces
                               
-#define OPT_GRADIENT_WRT_CONTROL_SURFS         16
+#define OPT_GRADIENT_WRT_CONTROL_SURFS         17
                 
 // Residual
                                            

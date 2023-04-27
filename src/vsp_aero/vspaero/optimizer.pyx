@@ -225,6 +225,17 @@ cdef class pyVSPOptimizer:
         pr_pinput_variable[functions.WRT_BETA - 1] *= np.pi/180.0
 
     @_adept_stack_safe
+    def calculate_nodal_force_partial_products(self, np.ndarray[double, ndim=1] pf_pforces,
+                                                     np.ndarray[double, ndim=1] pf_pmesh,
+                                                     np.ndarray[double, ndim=1] pf_pinput_variable,
+                                                     np.ndarray[double, ndim=1] pf_pgamma):
+        self.vsp_optimizer.CalculateNodalForcePartialProducts(<double *> pf_pforces.data, <double *> pf_pmesh.data, <double *> pf_pinput_variable.data,
+                                                              <double *> pf_pgamma.data)
+        # Convert angle sensitivities to deg
+        pf_pinput_variable[functions.WRT_ALPHA - 1] *= np.pi/180.0
+        pf_pinput_variable[functions.WRT_BETA - 1] *= np.pi/180.0
+
+    @_adept_stack_safe
     def solve_adjoint_linear_system(self, np.ndarray[double, ndim=1] psi, np.ndarray[double, ndim=1] adj_rhs):
         self.vsp_optimizer.SolveAdjointLinearSystem(<double *> psi.data, <double *> adj_rhs.data)
 
@@ -265,7 +276,7 @@ cdef class pyVSPOptimizer:
 
     @_adept_stack_safe
     def get_geometry(self):
-        cdef int nnodes = self.get_number_of_nodes()
+        cdef int nnodes = self.vsp_optimizer.NumberOfNodes()
         xyz = np.zeros(3 * nnodes)
         cdef double[:] xyz_view = xyz
         for i in range(nnodes):
@@ -286,6 +297,13 @@ cdef class pyVSPOptimizer:
         cdef int nloops = self.vsp_optimizer.NumberOfLoops()
         assert len(gamma) == nloops
         self.vsp_optimizer.SetForwardSolutionVector(<double *> gamma.data)
+
+    @_adept_stack_safe
+    def get_nodal_forces(self):
+        cdef int nnodes = self.vsp_optimizer.NumberOfNodes()
+        cdef np.ndarray forces = np.zeros(3*nnodes)
+        self.vsp_optimizer.GetNodalForces(<double *> forces.data)
+        return forces
 
     @_adept_stack_safe
     def gradient_x(self, c, i):
@@ -328,6 +346,10 @@ cdef class pyVSPOptimizer:
     @_adept_stack_safe
     def set_vinf(self, vinf):
         self.vsp_optimizer.SetVinf(vinf)
+
+    @_adept_stack_safe
+    def set_vref(self, vref):
+        self.vsp_optimizer.SetVref(vref)
 
     @_adept_stack_safe
     def set_density(self, rho):
@@ -393,3 +415,12 @@ cdef class pyVSPOptimizer:
     @_adept_stack_safe
     def set_gmres_tolerance(self, tol):
         self.vsp_optimizer.SetGMRESToleranceFactor(tol)
+
+    @_adept_stack_safe
+    def get_nodal_connectivity(self):
+        cdef int conn_len = self.vsp_optimizer.GetNodalConnectivityLength()
+        cdef np.ndarray conn = np.zeros(conn_len, dtype=np.intc)
+        cdef int ptr_len = self.vsp_optimizer.NumberOfLoops() + 1
+        cdef np.ndarray ptr = np.zeros(ptr_len, dtype=np.intc)
+        self.vsp_optimizer.GetNodalConnectivity(<int *> conn.data, <int *> ptr.data)
+        return conn, ptr

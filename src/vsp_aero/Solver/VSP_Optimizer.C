@@ -61,6 +61,8 @@ VSP_OPTIMIZER::VSP_OPTIMIZER(void)
     GMRESReductionFactor_          = 1.;
     CoreSizeFactor_                = 1.;
     
+    AdjointUsePreviousSolution_    = 0;
+    
     ArrayOffSet_ = 0;
 
 }
@@ -159,8 +161,7 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     // Turn on adept stack and create VSP Adjoint object
         
     Adjoint_ = new VSPAERO_ADJOINT::VSP_SOLVER;
-   
-    // Settings
+  // Settings
     
     Adjoint().OptimizationSolve() = 1;
     
@@ -197,6 +198,7 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     TempArray_[0] = new double[MaxTempArraySize_ + 1];
     TempArray_[1] = new double[MaxTempArraySize_ + 1];
     TempArray_[2] = new double[MaxTempArraySize_ + 1];
+    TempArray_[3] = new double[MaxTempArraySize_ + 1];
 
 }
 
@@ -259,6 +261,21 @@ void VSP_OPTIMIZER::SetVinf(double Vinf)
    Adjoint().Vinf() = Vinf;
       
 }   
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_OPTIMIZER SetVref                                   #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::SetVref(double Vref)
+{
+
+   Solver().Vref() = Vref;
+
+   Adjoint().Vref() = Vref;
+
+}
 
 /*##############################################################################
 #                                                                              #
@@ -543,6 +560,66 @@ void VSP_OPTIMIZER::TurnOffKarmanTsienCorrection(void)
    
    Adjoint().KarmanTsienCorrection() = 1;
       
+}
+
+/*##############################################################################
+#                                                                              #
+#                    VSP_OPTIMIZER AdjointTurnOnUsePreviousSolution            #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::AdjointTurnOnUsePreviousSolution(void)
+{
+
+   Solver().AdjointUsePreviousSolution() = 1;
+
+   Adjoint().AdjointUsePreviousSolution() = 1;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                    VSP_OPTIMIZER AdjointTurnOffUsePreviousSolution           #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::AdjointTurnOffUsePreviousSolution(void)
+{
+
+   Solver().AdjointUsePreviousSolution() = 0;
+
+   Adjoint().AdjointUsePreviousSolution() = 0;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_OPTIMIZER TurnOnFrozenWakes                      #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::TurnOnFrozenWakes(void)
+{
+
+   Solver().FrozenWake() = 1;
+
+   Adjoint().FrozenWake() = 1;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_OPTIMIZER TurnOffFrozenWakes                     #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::TurnOffFrozenWakes(void)
+{
+
+   Solver().FrozenWake() = 0;
+
+   Adjoint().FrozenWake() = 0;
+
 }
 
 /*##############################################################################
@@ -874,6 +951,35 @@ void VSP_OPTIMIZER::CalculateAdjointResidualPartialProducts(double *Psi, double 
 
 /*##############################################################################
 #                                                                              #
+#               VSP_OPTIMIZER CalculateNodalForcePartialProducts               #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::CalculateNodalForcePartialProducts(double *pF_pForces, double* pF_pMesh, double *pF_pInputVariable, double *pF_pGamma)
+{
+
+    int i;
+
+    // Shift inputs
+
+    ShiftInputVector(pF_pForces,TempArray_[0],3*Adjoint().VSPGeom().Grid(0).NumberOfNodes());
+
+    // Calculate partials of function wrt mesh and input variables
+
+    Adjoint().CalculateNodalForcePartialProducts(TempArray_[0], TempArray_[1], TempArray_[2], TempArray_[3]);
+
+    // Shift outputs for gradients
+
+    ShiftOutputVector(TempArray_[1], pF_pMesh, 3*Adjoint().VSPGeom().Grid(0).NumberOfNodes());
+
+    ShiftOutputVector(TempArray_[2], pF_pInputVariable, OPT_GRADIENT_NUMBER_OF_INPUTS);
+
+    ShiftOutputVector(TempArray_[3], pF_pGamma, Adjoint().NumberOfAdjointEquations());
+
+}
+
+/*##############################################################################
+#                                                                              #
 #                         VSP_OPTIMIZER SetGradientVector                      #
 #                                                                              #
 ##############################################################################*/
@@ -885,7 +991,7 @@ void VSP_OPTIMIZER::SetGradientVector(int Case, double *Vec)
     
     if ( Vec != NULL ) {
        
-       ShiftInputVector(Vec,TempArray_[0],Solver().OptimizationFunctionLength(Case));
+       ShiftInputVector(Vec,TempArray_[0],Solver().OptimizationVectorLength(Case));
 
        Adjoint().SetOptimizationFunctionInputGradientVector(Case, Solver().OptimizationFunctionLength(Case), Solver().OptimizationNumberOfTimeSteps(Case), OptimizationSet_[Case], TempArray_[0]);
        
@@ -1291,6 +1397,8 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
        
        VSP.GMRESTightConvergence() = 1;
        
+       NumberOfWakeNodes_ = 4;       
+       
     }
         
     if ( MaxTurningAngle_ <= 0. ) MaxTurningAngle_ = -1.;
@@ -1379,6 +1487,24 @@ void VSP_OPTIMIZER::LoadCaseFile(T &VSP)
       
     }
         
+    // Look for adjoint use previous solution as initial guess flag
+    
+    rewind(case_file);
+    
+    while ( fgets(DumChar,2000,case_file) != NULL ) {
+
+      if ( strstr(DumChar,"AdjointUsePreviousSolution") != NULL ) {
+         
+         sscanf(DumChar,"AdjointUsePreviousSolution = %d \n",&AdjointUsePreviousSolution_);
+         
+         printf("Setting ADJOINT use previous solution as initial guess flag to: %d \n",AdjointUsePreviousSolution_);
+         
+         VSP.AdjointUsePreviousSolution() = AdjointUsePreviousSolution_;
+         
+      }
+      
+    }        
+            
     // Look for GMRES residual scale factor
     
     rewind(case_file);
@@ -2193,6 +2319,81 @@ void VSP_OPTIMIZER::GetNodalPressures(double *Pressure)
     }
       
 }
+
+/*##############################################################################
+#                                                                              #
+#                       VSP_OPTIMIZER GetNodalForces                           #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::GetNodalForces(double *Forces)
+{
+
+    // Get forces
+
+    Solver().GetNodalForces(TempArray_[0]);
+
+    // Shift outputs
+
+    ShiftOutputVector(TempArray_[0],Forces,3*Solver().VSPGeom().Grid(0).NumberOfNodes());
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                 VSP_OPTIMIZER GetNodalConnectivityLength                     #
+#                                                                              #
+##############################################################################*/
+
+int VSP_OPTIMIZER::GetNodalConnectivityLength(void)
+{
+
+    int i, length = 0;
+
+    for ( i = 1 ; i <= Solver().NumberOfVortexLoops() ; i++ ) {
+
+       // Compute loop i's contribution to connectivity length
+
+       length += Solver().VSPGeom().Grid(1).LoopList(i).NumberOfNodes();
+
+    }
+
+    return length;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                     VSP_OPTIMIZER GetNodalConnectivity                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_OPTIMIZER::GetNodalConnectivity(int *conn, int *ptr)
+{
+
+    int i, j, count = 0;
+
+    // Set first index to one or zero
+    ptr[1 - ArrayOffSet_] = 1 - ArrayOffSet_;
+
+
+    for ( i = 1 ; i <= Solver().NumberOfVortexLoops() ; i++ ) {
+
+       for ( j = 1 ; j <= Solver().VSPGeom().Grid(1).LoopList(i).NumberOfNodes() ; j++, count++ ) {
+
+          // Make sure to offset both conn index and node number
+
+          conn[count + 1 - ArrayOffSet_] = Solver().VSPGeom().Grid(1).LoopList(i).Node(j) - ArrayOffSet_;
+
+       }
+
+       // Mark the end index of this loop in the connectivity list
+       ptr[i + 1 - ArrayOffSet_] = count;
+
+    }
+
+}
+
 
 /*##############################################################################
 #                                                                              #

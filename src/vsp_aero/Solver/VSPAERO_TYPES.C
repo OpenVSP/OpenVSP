@@ -707,8 +707,8 @@ VSPAERO_DOUBLE operator* (int a,VSPAERO_DOUBLE b)
    
     VSPAERO_DOUBLE result;
 
-    result.real( a * b.real() );
-    result.imag( a * b.imag() );
+    result.real( DOUBLE(a) * b.real() );
+    result.imag( DOUBLE(a) * b.imag() );
     
     return result;
 
@@ -743,8 +743,8 @@ VSPAERO_DOUBLE operator* (VSPAERO_DOUBLE a, int b)
    
     VSPAERO_DOUBLE result;
 
-    result.real( b * a.real() );
-    result.imag( b * a.imag() );
+    result.real( DOUBLE(b) * a.real() );
+    result.imag( DOUBLE(b) * a.imag() );
     
     return result;
 
@@ -792,17 +792,17 @@ VSPAERO_DOUBLE operator/ (int a,VSPAERO_DOUBLE b)
 #                                                                              #
 ##############################################################################*/
 
-//VSPAERO_DOUBLE operator/ (double a, VSPAERO_DOUBLE b)
-//{
-//   
-//    VSPAERO_DOUBLE result;
-//
-//    result.real( b.real() / a );
-//    result.imag( b.imag() / a );
-//    
-//    return result;
-//
-//}
+VSPAERO_DOUBLE operator/ (double a, VSPAERO_DOUBLE b)
+{
+   
+    VSPAERO_DOUBLE result;
+
+    result.real( b.real() / a );
+    result.imag( b.imag() / a );
+    
+    return result;
+
+}
 
 /*##############################################################################
 #                                                                              #
@@ -815,8 +815,8 @@ VSPAERO_DOUBLE operator/ (VSPAERO_DOUBLE a, int b)
    
     VSPAERO_DOUBLE result;
 
-    result.real( a.real() / b );
-    result.imag( a.imag() / b );
+    result.real( a.real() / DOUBLE(b) );
+    result.imag( a.imag() / DOUBLE(b) );
     
     return result;
 
@@ -875,7 +875,7 @@ double operator+ (VSPAERO_DOUBLE a, double b)
 float operator+ (float a, VSPAERO_DOUBLE b)
 {
 
-    return a + b.real();
+    return DOUBLE(a) + b.real();
 
 }
 
@@ -888,7 +888,7 @@ float operator+ (float a, VSPAERO_DOUBLE b)
 float operator+ (VSPAERO_DOUBLE a, float b)
 {
 
-    return b + a.real();
+    return DOUBLE(b) + a.real();
 
 }
 
@@ -903,7 +903,7 @@ double INIT_COMPLEX_DIFF_FOR_INDEPENDENT_VARIABLE(VSPAERO_DOUBLE &X)
    
     double Delta;
 
-    Delta = 1.e-15;
+    Delta = 1.e-10;
 
     X.imag(Delta);
     

@@ -48,6 +48,8 @@ private:
 
     VSPAERO_DOUBLE Tolerance_;
     
+    VSPAERO_DOUBLE a_dist_;
+  
 public:
 
     SEARCH(void);

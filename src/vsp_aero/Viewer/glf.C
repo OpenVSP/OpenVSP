@@ -444,7 +444,9 @@ static void DrawString(char *s, void (*funct) (char s))
 				else distance -= SpaceSize;
 			}
 			else
+			{
 				if (i < ((int)strlen(s)-1))
+				{
 					if (s[i+1] == ' ')
 					{
 						if (m_direction == GLF_LEFT || m_direction == GLF_UP) distance += SymbolDist;
@@ -469,6 +471,8 @@ static void DrawString(char *s, void (*funct) (char s))
 							else distance += sda+sdb+SymbolDist;
 						}
 					}
+				}
+			}
 		}
 	}
 
@@ -514,7 +518,9 @@ static void DrawString(char *s, void (*funct) (char s))
 			}
 		}
 		else
+		{
 			if (i < ((int)strlen(s)-1))
+			{
 				if (s[i+1] == ' ')
 				{
 					switch (m_direction)
@@ -563,6 +569,8 @@ static void DrawString(char *s, void (*funct) (char s))
 					}
 
 				}
+			}
+		}
 	}
 	glPopMatrix();
 }

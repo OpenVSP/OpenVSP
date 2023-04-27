@@ -53,6 +53,7 @@ for module in cython_modules:
 optional_dependencies = {
     "testing": ["testflo>=1.4.7"],
     "openvsp": ["openvsp>=3.31.1"],
+    "mphys": ["mphys>=1.1.0", "openmdao>=3.25.0"],
 }
 
 # Add an optional dependency that concatenates all others
@@ -65,7 +66,7 @@ optional_dependencies["all"] = sorted(
 )
 
 setup(name='vspaero',
-      version='6.4.6',
+      version='6.4.7',
       install_requires=['numpy'],
       extras_require=optional_dependencies,
       packages=find_packages(include=['vspaero*']),

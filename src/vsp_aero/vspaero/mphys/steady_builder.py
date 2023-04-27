@@ -17,7 +17,7 @@ from vspaero.problems.base import wrt_dict
 from ..problems import SteadyProblem
 from .. import functions
 
-FLIGHT_VARS_NAME = wrt_dict.keys()
+FLIGHT_VARS_NAME = list(wrt_dict.keys())
 
 
 class AeroMesh(om.IndepVarComp):
@@ -62,10 +62,12 @@ class AeroSolverComponent(om.ImplicitComponent):
         self.options.declare("problem", default=None, desc="pyvspaero steady problem", types=SteadyProblem,
                              recordable=False)
         self.options.declare("init_flight_vars", recordable=False)
+        self.options.declare("check_partials", default=False)
 
     def setup(self):
         self.problem = self.options["problem"]
         init_vals = self.options["init_flight_vars"]
+        self.check_partials = self.options["check_partials"]
 
         # OpenMDAO setup
         self.nnodes = self.problem.get_num_nodes()
@@ -146,7 +148,7 @@ class AeroSolverComponent(om.ImplicitComponent):
 
                 # Compute Jac^T * psi
                 if "circulations" in d_outputs:
-                    d_outputs["circulations"] = self.problem.eval_trans_jac_vec_product(psi)
+                    d_outputs["circulations"] = self.problem.eval_trans_jac_vec_product(psi)[:nloops]
 
                 # Check if any flight vars are included in d_inputs
                 include_flight_vars = False
@@ -167,28 +169,169 @@ class AeroSolverComponent(om.ImplicitComponent):
                                 d_inputs[var_name] += sens_dict[var_name]
 
 
-class AeroCouplingGroup(om.Group):
+class VLMForces(om.ExplicitComponent):
     """
-    Group that wraps the aerodynamic states into the Mphys's broader coupling group.
-
-    This is done in four steps:
-
-        1. The deformed aero coordinates are read in as a distributed flattened array
-        and split up into multiple 3D serial arrays (one per surface).
-
-        2. The VLM problem is then solved based on the deformed mesh.
-
-        3. The aerodynamic nodal forces for each surface produced by the VLM solver
-        are concatonated into a flattened array.
-
-        4. The serial force vector is converted to a distributed array and
-        provided as output tothe rest of the Mphys coupling groups.
+    Component to compute VSPAero nodal forces
     """
 
     def initialize(self):
         self.options.declare("problem", default=None, desc="pyvspaero steady problem", types=SteadyProblem,
                              recordable=False)
         self.options.declare("init_flight_vars", recordable=False)
+        self.options.declare("init_geometry", desc="initial node locations", recordable=False)
+        self.options.declare("check_partials")
+
+        self.problem = None
+
+        self.check_partials = False
+
+    def setup(self):
+        self.problem = self.options["problem"]
+        init_vals = self.options["init_flight_vars"]
+
+        self.check_partials = self.options["check_partials"]
+
+        # OpenMDAO setup
+        self.nnodes = self.problem.get_num_nodes()
+        self.nloops = self.problem.get_num_loops()
+
+        # inputs
+        # Flight vars
+        for var_name in FLIGHT_VARS_NAME:
+            self.add_input(
+                var_name,
+                val=init_vals[f"{self.problem.name}_{var_name}"],
+                distributed=False,
+                shape=1,
+                desc="vspaero flight variables",
+                tags=["mphys_coupling"],
+            )
+        # node locations
+        self.add_input(
+            "x_aero",
+            distributed=False,
+            shape=self.nnodes * 3,
+            units="m",
+            desc="flattened aero mesh coordinates for all vlm surfaces",
+            tags=["mphys_coupling"],
+        )
+
+        # Circulation state variable
+        self.add_input(
+            "circulations",
+            distributed=False,
+            shape=self.nloops,
+            desc="vlm state vector",
+            tags=["mphys_coupling"],
+        )
+
+        # Add user-defined problem outputs
+        self.add_output("f_aero",
+                        distributed=False,
+                        shape=self.nnodes * 3,
+                        desc="vlm nodal force vector",
+                        tags=["mphys_coupling"]
+        )
+
+        self.symm_flag = self.problem.get_option("Symmetry").lower()
+        init_geom = self.options["init_geometry"].reshape(self.nnodes, 3)
+
+        if self.symm_flag == "x":
+            self.symm_nodes = np.abs(init_geom[:, 0]) <= 1e-15
+        elif self.symm_flag == "y":
+            self.symm_nodes = np.abs(init_geom[:, 1]) <= 1e-15
+        elif self.symm_flag == "z":
+            self.symm_nodes = np.abs(init_geom[:, 2]) <= 1e-15
+        else: # self.sym_flag = 'n'
+            self.symm_nodes = None
+
+    def _update_internal(self, inputs):
+        self.problem.set_flight_vars(**inputs)
+        self.problem.set_geometry(inputs["x_aero"])
+        self.problem.set_states(inputs["circulations"])
+
+    def compute(self, inputs, outputs):
+        self._update_internal(inputs)
+
+        # Evaluate forces
+        f_aero = self.problem.get_nodal_forces()
+        f_aero = f_aero.reshape(self.nnodes, 3)
+
+        # Zero out the normal forces at symmetry plane
+        if self.symm_flag == "x":
+            f_aero[self.symm_nodes, 0] = 0.0
+        elif self.symm_flag == "y":
+            f_aero[self.symm_nodes, 1] = 0.0
+        elif self.symm_flag == "z":
+            f_aero[self.symm_nodes, 2] = 0.0
+
+        outputs["f_aero"] = f_aero.flatten()
+
+    def compute_jacvec_product(self, inputs, d_inputs, d_outputs, mode):
+        if mode == "fwd":
+            if not self.check_partials:
+                raise ValueError("VSPAero forward mode requested but not implemented")
+        if mode == "rev":
+            # always update internal because multiple scenarios could use the same problem object,
+            # and we need to load this scenario's state back into the problem before doing derivatives
+            self._update_internal(inputs)
+
+            # Check if any flight vars are included in d_inputs
+            include_flight_vars = False
+            for var_name in FLIGHT_VARS_NAME:
+                if var_name in d_inputs:
+                    include_flight_vars = True
+                    break
+
+            if "f_aero" in d_outputs:
+                d_func = d_outputs["f_aero"].copy()
+                d_func = d_func.reshape(self.nnodes, 3)
+
+                # Zero out the normal forces at symmetry plane
+                if self.symm_flag == "x":
+                    d_func[self.symm_nodes, 0] = 0.0
+                elif self.symm_flag == "y":
+                    d_func[self.symm_nodes, 1] = 0.0
+                elif self.symm_flag == "z":
+                    d_func[self.symm_nodes, 2] = 0.0
+
+                d_func = d_func.flatten()
+
+                # Compute function partials
+                if "x_aero" in d_inputs or "circulations" in d_inputs or include_flight_vars:
+                    sens_dict = self.problem.calculate_nodal_force_partial_products(d_func)
+
+                    if "x_aero" in d_inputs:
+                        d_inputs["x_aero"] += sens_dict["xyz"]
+                    if include_flight_vars:
+                        for var_name in FLIGHT_VARS_NAME:
+                            if var_name in d_inputs:
+                                d_inputs[var_name] += sens_dict[var_name]
+
+                    if "circulations" in d_inputs:
+                        nloops = self.problem.get_num_loops()
+                        d_inputs["circulations"][:] += sens_dict["gamma"][:nloops]
+
+class AeroCouplingGroup(om.Group):
+    """
+    Group that wraps the aerodynamic states into the Mphys's broader coupling group.
+
+    This is done in four steps:
+
+        1. The deformed aero coordinates are read in as a distributed flattened array.
+
+        2. The VLM problem is then solved based on the deformed mesh.
+
+        3. The serial force vector is converted to a distributed array and
+        provided as output to the rest of the Mphys coupling groups.
+    """
+
+    def initialize(self):
+        self.options.declare("problem", default=None, desc="pyvspaero steady problem", types=SteadyProblem,
+                             recordable=False)
+        self.options.declare("init_flight_vars", recordable=False)
+        self.options.declare("check_partials", default=False)
+        self.options.declare("init_geometry", desc="initial node locations", recordable=False)
 
     def setup(self):
         self.problem = self.options["problem"]
@@ -199,27 +342,37 @@ class AeroCouplingGroup(om.Group):
         vars = [DistributedVariableDescription(name="x_aero", shape=(nnodes * 3), tags=["mphys_coordinates"])]
 
         self.add_subsystem("collector", DistributedConverter(distributed_inputs=vars), promotes_inputs=["x_aero"])
-        self.connect("collector.x_aero_serial", "states.x_aero")
+        self.connect("collector.x_aero_serial", ["states.x_aero", "forces.x_aero"])
 
-        prom_in = [""]
+        prom_in = FLIGHT_VARS_NAME.copy()
+        idx = prom_in.index("vref")
+        prom_in[idx] = ("vref", "vinf")
 
-        # VLM aero states group
+        # VLM aero states component
         self.add_subsystem(
             "states",
             AeroSolverComponent(problem=self.problem,
-                                init_flight_vars=self.options["init_flight_vars"]),
-            promotes_inputs=FLIGHT_VARS_NAME,
+                                init_flight_vars=self.options["init_flight_vars"],
+                                check_partials=self.options["check_partials"]),
+            promotes_inputs=prom_in,
             promotes_outputs=["*"],
         )
 
-        # TODO: Needed for aerostrutcural coupling
-        """
+        # VLM aero forces component
+        self.add_subsystem(
+            "forces",
+            VLMForces(problem=self.problem,
+                      init_flight_vars=self.options["init_flight_vars"],
+                      init_geometry=self.options["init_geometry"],
+                      check_partials=self.options["check_partials"]),
+            promotes_inputs=["circulations"] + prom_in,
+        )
+
         # Convert serial force vector to distributed, like mphys expects
         vars = [DistributedVariableDescription(name="f_aero", shape=(nnodes * 3), tags=["mphys_coupling"])]
 
         self.add_subsystem("distributor", DistributedConverter(distributed_outputs=vars), promotes_outputs=["f_aero"])
-        self.connect("states.f_aero", "distributor.f_aero_serial")
-        """
+        self.connect("forces.f_aero", "distributor.f_aero_serial")
 
 
 class AeroFuncsGroup(om.Group):
@@ -233,6 +386,7 @@ class AeroFuncsGroup(om.Group):
                              recordable=False)
         self.options.declare("init_flight_vars", recordable=False)
         self.options.declare("write_solution", default=True)
+        self.options.declare("check_partials", default=False)
         self.options.declare("output_dir")
         self.options.declare("scenario_name", default=None)
 
@@ -247,29 +401,22 @@ class AeroFuncsGroup(om.Group):
         self.add_subsystem("collector", DistributedConverter(distributed_inputs=vars), promotes_inputs=["x_aero"])
         self.connect("collector.x_aero_serial", "functions.x_aero")
 
-        prom_in = ["circulations"]
-        prom_in.extend(FLIGHT_VARS_NAME)
+        prom_in = ["circulations"] + FLIGHT_VARS_NAME
+        idx = prom_in.index("vref")
+        prom_in[idx] = ("vref", "vinf")
 
         # VLM aero functions component
         self.add_subsystem(
             "functions",
             VLMFunctions(problem=self.problem,
                          init_flight_vars=self.options["init_flight_vars"],
+                         check_partials=self.options["check_partials"],
                          write_solution=self.options["write_solution"],
                          output_dir=self.options["output_dir"],
                          scenario_name=self.options["scenario_name"]),
             promotes_inputs=prom_in,
             promotes_outputs=["*"],
         )
-
-        # TODO: Needed for aerostructural coupling
-        """
-        # Convert serial force vector to distributed, like mphys expects
-        vars = [DistributedVariableDescription(name="f_aero", shape=(nnodes * 3), tags=["mphys_coupling"])]
-
-        self.add_subsystem("distributor", DistributedConverter(distributed_outputs=vars), promotes_outputs=["f_aero"])
-        self.connect("states.f_aero", "distributor.f_aero_serial")
-        """
 
 
 class VLMFunctions(om.ExplicitComponent):
@@ -281,7 +428,7 @@ class VLMFunctions(om.ExplicitComponent):
         self.options.declare("problem", default=None, desc="pyvspaero steady problem", types=SteadyProblem,
                              recordable=False)
         self.options.declare("init_flight_vars", recordable=False)
-        self.options.declare("check_partials")
+        self.options.declare("check_partials", default=False)
         self.options.declare("scenario_name", default=None)
         self.options.declare("write_solution")
         self.options.declare("output_dir")
@@ -293,6 +440,7 @@ class VLMFunctions(om.ExplicitComponent):
     def setup(self):
         self.problem = self.options["problem"]
         init_vals = self.options["init_flight_vars"]
+        self.check_partials = self.options["check_partials"]
         self.write_solution = self.options["write_solution"]
         self.solution_counter = 0
 
@@ -402,10 +550,12 @@ class SteadyBuilder(Builder):
     Mphys builder class responsible for setting up components of VSPAero's aerodynamic solver.
     """
 
-    def_options = {"output_dir": "./", "write_solution": True}
+    def_options = {"output_dir": "./", "write_solution": True, "check_partials": False}
 
-    def __init__(self, vsp_file, options=None):
+    def __init__(self, vsp_file, comps=None, options=None):
         self.vsp_file = vsp_file
+        # VSP component names to include in analysis, defaults to all
+        self.comps = comps
         # Copy default options
         self.options = copy.deepcopy(self.def_options)
         # Update with user-defined options
@@ -423,8 +573,10 @@ class SteadyBuilder(Builder):
         else:
             function_setup = None
 
+        self.check_partials = steady_options.pop("check_partials")
+
         # Create pyvspaero instance
-        self.vlm_assembler = pyVSPAero(self.vsp_file)
+        self.vlm_assembler = pyVSPAero(self.vsp_file, comps=self.comps)
 
         # Do any pre-initialize setup requested by user
         if function_setup is not None:
@@ -441,7 +593,8 @@ class SteadyBuilder(Builder):
         self.xyz0 = self.problem.get_geometry()
 
     def get_coupling_group_subsystem(self, scenario_name=None):
-        return AeroCouplingGroup(problem=self.problem, init_flight_vars=self.dv0)
+        return AeroCouplingGroup(problem=self.problem, init_flight_vars=self.dv0, init_geometry=self.xyz0,
+                                 check_partials=self.check_partials)
 
     def get_mesh_coordinate_subsystem(self, scenario_name=None):
         return AeroMesh(problem=self.problem, init_geometry=self.xyz0)
@@ -453,6 +606,7 @@ class SteadyBuilder(Builder):
             write_solution=self.options["write_solution"],
             output_dir=self.options["output_dir"],
             scenario_name=scenario_name,
+            check_partials=self.check_partials
         )
 
     def get_ndof(self):

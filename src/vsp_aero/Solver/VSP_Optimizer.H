@@ -171,7 +171,8 @@ private:
     int NumberOfOptimizationFunctions_ ;
     int OptimizationFunction_[1001]    ;
     int OptimizationSet_[1001]         ;
-
+    int AdjointUsePreviousSolution_    ;
+    
     template <typename T>
     void LoadCaseFile(T &VSP);
     
@@ -191,7 +192,7 @@ private:
     int ArrayOffSet_;
     int MaxTempArraySize_;
     
-    double *TempArray_[3];
+    double *TempArray_[4];
 
     int stdoutfd;
 
@@ -256,7 +257,7 @@ public:
 
     /** Number of wake residual equations **/
     
-    int NumberOfAdjointWakeResidualEquations(void) { return Solver().NumberOfAdjointWakeResidualEquations(); };  
+    int NumberOfAdjointWakeResidualEquations(void) { return Solver().NumberOfAdjointWakeResidualEquations(); };
 
     /** Update the geometry (mesh) **/
     
@@ -360,7 +361,11 @@ public:
     /** Set free stream velocity **/
     
     void SetVinf(double Vinf);
-    
+
+    /** Set free stream velocity **/
+
+    void SetVref(double Vref);
+
     /** Set free stream density **/
     
     void SetDensity(double Density);
@@ -445,6 +450,22 @@ public:
     
     void TurnOffKarmanTsienCorrection(void);
     
+    /** Turn on flag for adjoint gmres solve to use previous solution as initial guess **/
+    
+    void AdjointTurnOnUsePreviousSolution(void);
+
+    /** Turn off flag for adjoint gmres solve to use previous solution as initial guess **/
+    
+    void AdjointTurnOffUsePreviousSolution(void);
+    
+    /** Turn on frozen wake option... usually just used for optimization cases **/
+    
+    void TurnOnFrozenWakes(void);    
+
+    /** Turn off frozen wake option... usually just used for optimization cases **/
+    
+    void TurnOffFrozenWakes(void);    
+            
     /** Set tolerance factor for GMRES solver, this scales the default residual reduction
      * ie... ResidualReduction = DefaultResidualReduction * User_GMRES_ToleranceFactor_**/
 
@@ -504,7 +525,11 @@ public:
     /** Solve for the adjoint residual partial products given the vector Psi **/
     
     void CalculateAdjointResidualPartialProducts(double *Psi, double *pR_pMesh, double *pR_pInputVariable);
-     
+
+    /** Calculate the mesh, the input variables, and gamma partial products given the vector pF_pForces **/
+
+    void CalculateNodalForcePartialProducts(double *pF_pForces, double* pF_pMesh, double *pF_pInputVariable, double *pF_pGamma);
+
     /** Apply the forward matrix preconditioner **/
     
     void ApplyForwardMatrixPreconditioner(double *Vec) { Solver().ApplyMatrixPrecondition(Vec); };
@@ -742,7 +767,17 @@ public:
     /** Get the pressures at the nodes of the mesh, returns a vector of length NumberOfNodes **/
     
     void GetNodalPressures(double *Pressure);
-    
+
+    /** Get the forces at the nodes of the mesh, returns a vector of length 3 * NumberOfNodes **/
+
+    void GetNodalForces(double *Force);
+
+    /** Get connectivity information for vortex loops **/
+
+    int GetNodalConnectivityLength(void);
+
+    void GetNodalConnectivity(int*, int*);
+
     /** Get the spanwise chord and area distributions for wing = Wing **/
     
     void GetSpanWiseChordAndAreaForWing(int Wing, double *Chord, double *Area);
@@ -764,11 +799,18 @@ public:
     
     void WriteOutCart3dTriFile(void) { Solver().WriteOutCart3dTriFile(); };
 
-    /** Supress/resume stdout **/
+    /** Supress stdout **/
 
     void SupressStdout(void);
+    
+    /** Resume stdout **/
+    
     void ResumeStdout(void);
-
+    
+    /** Access to timing routines **/
+    
+    double myclock(void) { return VSPAERO_SOLVER::myclock(); };
+    
 };
 
 #endif

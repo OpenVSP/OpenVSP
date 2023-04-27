@@ -17,6 +17,7 @@ wrt_dict = {"aoa": vspaero.functions.WRT_ALPHA,
             "beta": vspaero.functions.WRT_BETA,
             "mach": vspaero.functions.WRT_MACH,
             "vinf": vspaero.functions.WRT_VINF,
+            "vref": vspaero.functions.WRT_VREF,
             "rho": vspaero.functions.WRT_DENSITY,
             "recref": vspaero.functions.WRT_RECREF,
             "x_cg": vspaero.functions.WRT_X_CG,
@@ -72,6 +73,7 @@ class BaseProblem(BaseUI):
         self.aoa = 0.0
         self.beta = 0.0
         self.vinf = 1.0
+        self.vref = 1.0
         self.rho = 1.0
         self.recref = 1000000.0
         self.clmax = -1.0
@@ -113,6 +115,9 @@ class BaseProblem(BaseUI):
             if "vinf" == var.lower() or var == f"{self.name}_vinf":
                 self.vinf = flight_vars[var]
                 self.assembler.set_vinf(self.vinf)
+            if "vref" == var.lower() or var == f"{self.name}_vref":
+                self.vref = flight_vars[var]
+                self.assembler.set_vref(self.vref)
             if "rho" == var.lower() or var == f"{self.name}_rho":
                 self.rho = flight_vars[var]
                 self.assembler.set_density(self.rho)
@@ -139,6 +144,7 @@ class BaseProblem(BaseUI):
                     f"{self.name}_aoa": self.aoa,
                     f"{self.name}_beta": self.beta,
                     f"{self.name}_vinf": self.vinf,
+                    f"{self.name}_vref": self.vref,
                     f"{self.name}_rho": self.rho,
                     f"{self.name}_recref": self.recref,
                     f"{self.name}_clmax": self.clmax}

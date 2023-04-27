@@ -242,10 +242,13 @@ private:
     int WakeIterations_;
     int CurrentWakeIteration_;
     int GMRESTightConvergence_;
+    int AdjointUsePreviousSolution_;
     
     int DoSymmetryPlaneSolve_;
 
     int Preconditioner_;
+    
+    int DoVortexStretching_;
     
     VSPAERO_DOUBLE User_GMRES_ToleranceFactor_;
     
@@ -349,6 +352,8 @@ private:
     VSPAERO_DOUBLE CMyo_[3];
     VSPAERO_DOUBLE CMzo_[3];
     
+    VSPAERO_DOUBLE **NodalForces_;
+
     // Span loading data
 
     int SpanLoadingData_;
@@ -507,6 +512,7 @@ private:
     int AdjointMatrixSolve_;    
     int NumberOfTotalWakeResidualNodes_;
     int NumberOfAdjointEquations_;
+    int FrozenWake_;
     
     OPTIMIZATION_FUNCTION OptimizationFunctionList_[1001];   
     
@@ -668,7 +674,7 @@ private:
     void CalculateDeltaCPs(void);
     void CalculateVorticityGradient(void);    
     void CalculateSurfacePressures(void);
-    void CalculateOptimizationFunctions(void);
+ //djk   void CalculateOptimizationFunctions(void);
     void CalculateOptimizationForces(void);
 
     void CreateVorticityGradientDataStructure(void);
@@ -902,6 +908,9 @@ public:
    ~VSP_SOLVER(void);
     VSP_SOLVER(const VSP_SOLVER &Solver_);
 
+//djk
+    void CalculateOptimizationFunctions(void);
+
     // Copy function
 
     VSP_SOLVER& operator=(const VSP_SOLVER &Solver_);
@@ -926,9 +935,21 @@ public:
     
     VSPAERO_DOUBLE &CoreSizeFactor(void) { return CoreSizeFactor_; };
     
+    /** Turn on vortex stretching model **/
+    
+    int &DoVortexStretching(void) { return DoVortexStretching_; };
+    
     /** Turn on tight GMRES convergence **/
     
     int &GMRESTightConvergence(void) { return GMRESTightConvergence_; };
+    
+    /** Adjoint restart option... turn this on to use previous adjoint solution... for
+     * each given optimization variable ... as the initial guess for the current solve...
+     * this can drastically reduce the number of GMRES iterations for unsteady adjoint
+     * cases, and likely for steady adjoint cases as well - where the user is coming in
+     * with very similar geometries while doing an optimization **/
+     
+    int &AdjointUsePreviousSolution(void) { return AdjointUsePreviousSolution_; };
     
     /** User GMRES residual reduction factor... this scales the default residual reduction
      * ie... ResidualReductrion = DefaultResidualReduction * User_GMRES_ToleranceFactor_
@@ -1388,6 +1409,10 @@ public:
 
     void CalculateOptimizationFunctions(double *VecIn);
 
+    /** Get aerodynamic forces at nodes **/
+
+    void GetNodalForces(double *VecIn);
+
 #endif
 
 #if defined AUTODIFF
@@ -1408,10 +1433,14 @@ public:
     
     void CalculateOptimizationFunctionPartials(int OptimizationCase, double *pF_pMesh, double *pF_pInputVariable, double *pF_pGamma);
     
-    /** Solve for the adjoint residual partial products given the vector Psi **/
+    /** Calculate the adjoint residual partial products given the vector Psi **/
     
     void CalculateAdjointResidualPartialProducts(double *Psi, double *pR_pMesh, double *pR_pInputVariable);
         
+    /** Calculate the mesh, the input variables, and gamma partial products given the vector pF_pForces **/
+
+    void CalculateNodalForcePartialProducts(double *pF_pForces, double* pF_pMesh, double *pF_pInputVariable, double *pF_pGamma);
+
 #endif
 
     // Apply matrix preconditioner... the preconditioner applied depends on whether we are doing a forward or adjoint solve **/
@@ -1648,6 +1677,11 @@ public:
     /** Do the adjoint solve **/
 
     int &DoAdjointSolve(void) { return DoAdjointSolve_; };
+    
+    /** Turn on frozen wake mode for optimization solves... this turns off the wake to wake
+     * interactions **/
+     
+    int &FrozenWake(void) { return FrozenWake_; };
     
     /** This is an optimization solve
      * 

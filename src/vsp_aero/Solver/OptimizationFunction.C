@@ -151,7 +151,7 @@ void OPTIMIZATION_FUNCTION::SetFunctionLength(int Length, int NumberOfTimeSteps)
     
     NumberOfTimeSteps_ = NumberOfTimeSteps;
     
-    VectorLength_ = FunctionLength_*(NumberOfTimeSteps_ + 1);
+    VectorLength_ = FunctionLength_*NumberOfTimeSteps_;
     
     Function_ = new VSPAERO_DOUBLE[VectorLength_ + 1];
 

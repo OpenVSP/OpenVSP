@@ -566,7 +566,9 @@ Coded By: David J. Kinney
 int SEARCH::SearchTree_(SEARCH_LEAF *root, TEST_NODE &node)
 {
 
-    VSPAERO_DOUBLE ds;
+//fix this!
+//
+//    VSPAERO_DOUBLE ds;
 
     // Don't search a NULL list 
 
@@ -584,9 +586,9 @@ int SEARCH::SearchTree_(SEARCH_LEAF *root, TEST_NODE &node)
 
        SearchTree_(root->left,node);
 
-       ds = SQR(node.xyz[root->sort_direction] - root->cut_off_value);
+   //    ds = SQR(node.xyz[root->sort_direction] - root->cut_off_value);
 
-       if ( ds <= node.distance || node.xyz[root->sort_direction] == root->cut_off_value ) {
+       if ( SQR(node.xyz[root->sort_direction] - root->cut_off_value) <= node.distance || node.xyz[root->sort_direction] == root->cut_off_value ) {
 
           SearchTree_(root->right,node);
 
@@ -598,9 +600,9 @@ int SEARCH::SearchTree_(SEARCH_LEAF *root, TEST_NODE &node)
 
        SearchTree_(root->right,node);
 
-       ds = SQR(node.xyz[root->sort_direction] - root->cut_off_value);
+  //     ds = SQR(node.xyz[root->sort_direction] - root->cut_off_value);
 
-       if ( ds <= node.distance || node.xyz[root->sort_direction] == root->cut_off_value ) {
+       if ( SQR(node.xyz[root->sort_direction] - root->cut_off_value) <= node.distance || node.xyz[root->sort_direction] == root->cut_off_value ) {
 
           SearchTree_(root->left,node);
 
@@ -656,17 +658,17 @@ Coded By: David J. Kinney
 void SEARCH::test_node(SURFACE_NODE &snode, TEST_NODE &tnode)
 {
 
-    VSPAERO_DOUBLE a_dist;
+   // VSPAERO_DOUBLE a_dist;
 
     // get absolute distance 
 
-    a_dist = SQR(snode.xyz[0] - tnode.xyz[0])
-           + SQR(snode.xyz[1] - tnode.xyz[1])
-           + SQR(snode.xyz[2] - tnode.xyz[2]);
+    a_dist_ = SQR(snode.xyz[0] - tnode.xyz[0])
+            + SQR(snode.xyz[1] - tnode.xyz[1])
+            + SQR(snode.xyz[2] - tnode.xyz[2]);
 
-    if ( a_dist <= tnode.distance ) {
+    if ( a_dist_ <= tnode.distance ) {
 
-       tnode.distance = a_dist;
+       tnode.distance = a_dist_;
        
        tnode.id = snode.id;
 

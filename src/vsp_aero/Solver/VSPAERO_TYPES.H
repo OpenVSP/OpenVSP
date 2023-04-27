@@ -113,12 +113,11 @@ VSPAERO_DOUBLE operator* (VSPAERO_DOUBLE a,double b);
 VSPAERO_DOUBLE operator/ (int a,VSPAERO_DOUBLE b);   
 VSPAERO_DOUBLE operator/ (VSPAERO_DOUBLE a,int b);
 
-//VSPAERO_DOUBLE operator/ (double a,VSPAERO_DOUBLE b);
 VSPAERO_DOUBLE operator/ (VSPAERO_DOUBLE a,double b);
 
 float operator+ (float a,VSPAERO_DOUBLE b);
 float operator+ (VSPAERO_DOUBLE a,float b);
-      
+
 double operator+ (double a,VSPAERO_DOUBLE b);
 double operator+ (VSPAERO_DOUBLE a,double b);
 

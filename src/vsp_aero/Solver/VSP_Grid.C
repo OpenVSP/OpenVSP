@@ -1376,7 +1376,7 @@ void VSP_GRID::CalculateLoopNormals(void)
 #                                                                              #
 ##############################################################################*/
 /*
- * fuck
+
 void VSP_GRID::CalculateLeastSquareCoefficients(int Loop) 
 {    
 

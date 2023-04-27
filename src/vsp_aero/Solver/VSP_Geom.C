@@ -164,10 +164,6 @@ void VSP_GEOM::ReadFile(char *FileName, int &ModelType, int &SurfaceType)
     
     if ( LoadDeformationFile_ ) LoadFEMDeformationData(FileName);
 
-    // AUTODIFF: Continue recording
-   
-    CONTINUE_AUTO_DIFF();
-    
     // Create meshes for the VSP geometries
     
     MeshGeom();
@@ -2087,20 +2083,20 @@ void VSP_GEOM::UpdateCoarseMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid)
        Yb = 0.5*( CoarseGrid.LoopList(i).BoundBox().y_max + CoarseGrid.LoopList(i).BoundBox().y_min );
        Zb = 0.5*( CoarseGrid.LoopList(i).BoundBox().z_max + CoarseGrid.LoopList(i).BoundBox().z_min );
 
-       if ( Xb == CoarseGrid.LoopList(i).Xc() &&
-            Yb == CoarseGrid.LoopList(i).Yc() && 
-            Zb == CoarseGrid.LoopList(i).Zc()){
-
-           CoarseGrid.LoopList(i).CentroidOffSet() = 0.0;
-
-       }
-
-       else{
+      // if ( Xb == CoarseGrid.LoopList(i).Xc() &&
+      //      Yb == CoarseGrid.LoopList(i).Yc() && 
+      //      Zb == CoarseGrid.LoopList(i).Zc()){
+      //
+      //     CoarseGrid.LoopList(i).CentroidOffSet() = 0.0;
+      //
+      // }
+      //
+      // else{
 
            CoarseGrid.LoopList(i).CentroidOffSet() = sqrt( pow(CoarseGrid.LoopList(i).Xc() - Xb,2.)
                                                          + pow(CoarseGrid.LoopList(i).Yc() - Yb,2.)
                                                          + pow(CoarseGrid.LoopList(i).Zc() - Zb,2.) );
-       }
+    //   }
 
     }            
 
@@ -2120,7 +2116,7 @@ void VSP_GEOM::UpdateCoarseMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid)
        
           for ( j = 1 ; j <= CoarseGrid.LoopList(k).NumberOfNodes() ; j++ ) {
        
-             if ( i != j ) {
+            // if ( i != j ) {
 
                 Node2 = CoarseGrid.LoopList(k).Node(j);
        
@@ -2130,7 +2126,7 @@ void VSP_GEOM::UpdateCoarseMesh(VSP_GRID &FineGrid, VSP_GRID &CoarseGrid)
        
                 Length = MAX(Length,sqrt( pow(x1-x2,2.) + pow(y1-y2,2.) + pow(z1-z2,2.) ));
 
-             }
+          //   }
              
           }
           

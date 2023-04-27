@@ -27,7 +27,7 @@ using namespace VSPAERO_SOLVER;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 6
+#define VER_PATCH 7
 
 // Some globals...
 
@@ -195,6 +195,7 @@ int NumberOfNozzles_               = 0;
 int DoComplexDiffTest              = 0;
 int DoFiniteDiffTest               = 0;
 int FlowIs2D                       = 0;
+int AdjointUsePreviousSolution_    = 0;
 
 // Prototypes
 
@@ -236,7 +237,7 @@ int main(int argc, char **argv)
     if ( AUTO_DIFF_IS_RECORDING() ) PRINTF("AUTO DIFF is on and we are recording... \n");
 
 #endif
-
+   
     VSPAERO_DOUBLE TotalTime;
     
     TotalTime = myclock();
@@ -318,7 +319,7 @@ int main(int argc, char **argv)
     // Load in the VSP degenerate geometry file
  
     VSP_VLM().ReadFile(FileName);
-         
+   
     // Geometry dump, no solver
     
     if ( DumpGeom_ ) VSP_VLM().DumpGeom() = 1;
@@ -1739,6 +1740,8 @@ void LoadCaseFile(void)
        
        VSP_VLM().GMRESTightConvergence() = 1;
        
+       NumberOfWakeNodes_ = 4;
+       
     }
         
     if ( MaxTurningAngle_ <= 0. ) MaxTurningAngle_ = -1.;
@@ -1826,6 +1829,24 @@ void LoadCaseFile(void)
       }
       
     }
+
+    // Look for adjoint use previous solution as initial guess flag
+    
+    rewind(case_file);
+    
+    while ( fgets(DumChar,2000,case_file) != NULL ) {
+
+      if ( strstr(DumChar,"AdjointUsePreviousSolution") != NULL ) {
+         
+         sscanf(DumChar,"AdjointUsePreviousSolution = %d \n",&AdjointUsePreviousSolution_);
+         
+         PRINTF("Setting ADJOINT use previous solution as initial guess flag to: %d \n",AdjointUsePreviousSolution_);
+         
+         VSP_VLM().AdjointUsePreviousSolution() = AdjointUsePreviousSolution_;
+         
+      }
+      
+    }        
     
     // Look for GMRES residual scale factor
     
@@ -2542,26 +2563,26 @@ void Solve(void)
              }
 
              // Store aero coefficients
-        
-             CLForCase[Case] = VSP_VLM().CL(); 
-             CDForCase[Case] = VSP_VLM().CD();        
-             CSForCase[Case] = VSP_VLM().CS();        
+             
+             CLForCase[Case] = VSP_VLM().CL() + VSP_VLM().CLo(); 
+             CDForCase[Case] = VSP_VLM().CD() + VSP_VLM().CDo();       
+             CSForCase[Case] = VSP_VLM().CS() + VSP_VLM().CSo();        
+             
+             CDoForCase[Case] = VSP_VLM().CDo();     
              
              CDtForCase[Case] = VSP_VLM().CDTrefftz();        
-      
-             CFxForCase[Case] = VSP_VLM().CFx();
-             CFyForCase[Case] = VSP_VLM().CFy();       
-             CFzForCase[Case] = VSP_VLM().CFz();       
-                 
-             CMxForCase[Case] = VSP_VLM().CMx();       
-             CMyForCase[Case] = VSP_VLM().CMy();       
-             CMzForCase[Case] = VSP_VLM().CMz();     
              
-             CMlForCase[Case] = -VSP_VLM().CMx();       
-             CMmForCase[Case] =  VSP_VLM().CMy();       
-             CMnForCase[Case] = -VSP_VLM().CMz();     
-
-             CDoForCase[Case] = VSP_VLM().CDo();     
+             CFxForCase[Case] = VSP_VLM().CFx() + VSP_VLM().CFxo();
+             CFyForCase[Case] = VSP_VLM().CFy() + VSP_VLM().CFyo();       
+             CFzForCase[Case] = VSP_VLM().CFz() + VSP_VLM().CFzo();       
+                 
+             CMxForCase[Case] = VSP_VLM().CMx() + VSP_VLM().CMxo();      
+             CMyForCase[Case] = VSP_VLM().CMy() + VSP_VLM().CMyo();      
+             CMzForCase[Case] = VSP_VLM().CMz() + VSP_VLM().CMzo();    
+             
+             CMlForCase[Case] = -CMxForCase[Case];    
+             CMmForCase[Case] =  CMyForCase[Case];       
+             CMnForCase[Case] = -CMzForCase[Case];        
              
              OptimizationFunctionForCase[Case] = 0.;
              
@@ -2581,25 +2602,27 @@ void Solve(void)
                 
                 VSP_VLM().ReCalculateForces();
                 
-                CLForCase[Case] = VSP_VLM().CL(); 
-                CDForCase[Case] = VSP_VLM().CD();        
-                CSForCase[Case] = VSP_VLM().CS();        
-
-                CDtForCase[Case] = VSP_VLM().CDTrefftz();        
-         
-                CFxForCase[Case] = VSP_VLM().CFx();
-                CFyForCase[Case] = VSP_VLM().CFy();       
-                CFzForCase[Case] = VSP_VLM().CFz();       
-                    
-                CMxForCase[Case] = VSP_VLM().CMx();       
-                CMyForCase[Case] = VSP_VLM().CMy();       
-                CMzForCase[Case] = VSP_VLM().CMz();     
+                // Store aero coefficients
                 
-                CMlForCase[Case] = -VSP_VLM().CMx();       
-                CMmForCase[Case] =  VSP_VLM().CMy();       
-                CMnForCase[Case] = -VSP_VLM().CMz();     
-   
-                CDoForCase[Case] = VSP_VLM().CDo();   
+                CLForCase[Case] = VSP_VLM().CL() + VSP_VLM().CLo(); 
+                CDForCase[Case] = VSP_VLM().CD() + VSP_VLM().CDo();       
+                CSForCase[Case] = VSP_VLM().CS() + VSP_VLM().CSo();        
+                
+                CDoForCase[Case] = VSP_VLM().CDo();     
+                
+                CDtForCase[Case] = VSP_VLM().CDTrefftz();        
+                
+                CFxForCase[Case] = VSP_VLM().CFx() + VSP_VLM().CFxo();
+                CFyForCase[Case] = VSP_VLM().CFy() + VSP_VLM().CFyo();       
+                CFzForCase[Case] = VSP_VLM().CFz() + VSP_VLM().CFzo();       
+                    
+                CMxForCase[Case] = VSP_VLM().CMx() + VSP_VLM().CMxo();      
+                CMyForCase[Case] = VSP_VLM().CMy() + VSP_VLM().CMyo();      
+                CMzForCase[Case] = VSP_VLM().CMz() + VSP_VLM().CMzo();    
+                
+                CMlForCase[Case] = -CMxForCase[Case];    
+                CMmForCase[Case] =  CMyForCase[Case];       
+                CMnForCase[Case] = -CMzForCase[Case];     
                 
                 OptimizationFunctionForCase[Case] = 0.;
                 
@@ -2648,7 +2671,7 @@ void Solve(void)
                    
                 AR = Bref_ * Bref_ / Sref_;
    
-                E = ( CLForCase[Case] *CLForCase[Case] / ( PI * AR) ) / CDForCase[Case];
+                E = ( CLForCase[Case] * CLForCase[Case] / ( PI * AR) ) / CDForCase[Case];
              
                 FPRINTF(PolarFile,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",             
                         DOUBLE(BetaList_[i]),
@@ -2657,12 +2680,12 @@ void Solve(void)
                         DOUBLE(ReCrefList_[p])/1.e6,
                         DOUBLE(CLForCase[Case]),
                         DOUBLE(CDoForCase[Case]),
+                        DOUBLE(CDForCase[Case] - CDoForCase[Case]),
                         DOUBLE(CDForCase[Case]),
-                        DOUBLE(CDoForCase[Case] + CDForCase[Case]),
                         DOUBLE(CDtForCase[Case]),
                         DOUBLE(CDoForCase[Case] + CDtForCase[Case]),
                         DOUBLE(CSForCase[Case]),            
-                        DOUBLE(CLForCase[Case]/(CDoForCase[Case] + CDForCase[Case])),
+                        DOUBLE(CLForCase[Case]/(CDForCase[Case])),
                         DOUBLE(E),
                         DOUBLE(CFxForCase[Case]),
                         DOUBLE(CFyForCase[Case]),
@@ -2852,10 +2875,12 @@ void StabilityAndControlSolve(void)
                 // Store aero coefficients
            
                 CLForCase[Case] = VSP_VLM().CL() + VSP_VLM().CLo(); 
-                CDForCase[Case] = VSP_VLM().CD();        
+                CDForCase[Case] = VSP_VLM().CD() + VSP_VLM().CDo();       
                 CSForCase[Case] = VSP_VLM().CS() + VSP_VLM().CSo();        
                 
                 CDoForCase[Case] = VSP_VLM().CDo();     
+
+                CDtForCase[Case] = VSP_VLM().CDTrefftz();        
          
                 CFxForCase[Case] = VSP_VLM().CFx() + VSP_VLM().CFxo();
                 CFyForCase[Case] = VSP_VLM().CFy() + VSP_VLM().CFyo();       
@@ -2956,27 +2981,29 @@ void StabilityAndControlSolve(void)
                    VSP_VLM().Solve(-CaseTotal);
                    
                 }         
-                   
+                
                 // Store aero coefficients
-           
-                CLForCase[Case] = VSP_VLM().CL(); 
-                CDForCase[Case] = VSP_VLM().CD();        
-                CSForCase[Case] = VSP_VLM().CS();        
+                   
+                CLForCase[Case] = VSP_VLM().CL() + VSP_VLM().CLo(); 
+                CDForCase[Case] = VSP_VLM().CD() + VSP_VLM().CDo();       
+                CSForCase[Case] = VSP_VLM().CS() + VSP_VLM().CSo();        
                 
-                CDoForCase[Case] = VSP_VLM().CDo();
+                CDoForCase[Case] = VSP_VLM().CDo();     
          
-                CFxForCase[Case] = VSP_VLM().CFx();
-                CFyForCase[Case] = VSP_VLM().CFy();       
-                CFzForCase[Case] = VSP_VLM().CFz();       
+                CDtForCase[Case] = VSP_VLM().CDTrefftz();        
+         
+                CFxForCase[Case] = VSP_VLM().CFx() + VSP_VLM().CFxo();
+                CFyForCase[Case] = VSP_VLM().CFy() + VSP_VLM().CFyo();       
+                CFzForCase[Case] = VSP_VLM().CFz() + VSP_VLM().CFzo();       
                     
-                CMxForCase[Case] = VSP_VLM().CMx();       
-                CMyForCase[Case] = VSP_VLM().CMy();       
-                CMzForCase[Case] = VSP_VLM().CMz();    
+                CMxForCase[Case] = VSP_VLM().CMx() + VSP_VLM().CMxo();      
+                CMyForCase[Case] = VSP_VLM().CMy() + VSP_VLM().CMyo();      
+                CMzForCase[Case] = VSP_VLM().CMz() + VSP_VLM().CMzo();    
                 
-                CMlForCase[Case] = -VSP_VLM().CMx();       
-                CMmForCase[Case] =  VSP_VLM().CMy();       
-                CMnForCase[Case] = -VSP_VLM().CMz();                        
-      
+                CMlForCase[Case] = -CMxForCase[Case];    
+                CMmForCase[Case] =  CMyForCase[Case];       
+                CMnForCase[Case] = -CMzForCase[Case];           
+                    
                 OptimizationFunctionForCase[Case] = 0.;
                 
                 if ( OptimizationFunction_ ) OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
@@ -3733,25 +3760,27 @@ void CalculateAerodynamicCenter(void)
              
              VSP_VLM().Solve(1);
 
-             CLForCase[1] = VSP_VLM().CL(); 
-             CDForCase[1] = VSP_VLM().CD();        
-             CSForCase[1] = VSP_VLM().CS();        
-             
-             CDtForCase[1] = VSP_VLM().CDTrefftz();                     
+             // Store aero coefficients
+                
+             CLForCase[1] = VSP_VLM().CL() + VSP_VLM().CLo(); 
+             CDForCase[1] = VSP_VLM().CD() + VSP_VLM().CDo();       
+             CSForCase[1] = VSP_VLM().CS() + VSP_VLM().CSo();        
              
              CDoForCase[1] = VSP_VLM().CDo();     
-      
-             CFxForCase[1] = VSP_VLM().CFx();
-             CFyForCase[1] = VSP_VLM().CFy();       
-             CFzForCase[1] = VSP_VLM().CFz();       
+         
+             CDtForCase[1] = VSP_VLM().CDTrefftz();                     
+         
+             CFxForCase[1] = VSP_VLM().CFx() + VSP_VLM().CFxo();
+             CFyForCase[1] = VSP_VLM().CFy() + VSP_VLM().CFyo();       
+             CFzForCase[1] = VSP_VLM().CFz() + VSP_VLM().CFzo();       
                  
-             CMxForCase[1] = VSP_VLM().CMx();       
-             CMyForCase[1] = VSP_VLM().CMy();       
-             CMzForCase[1] = VSP_VLM().CMz();     
+             CMxForCase[1] = VSP_VLM().CMx() + VSP_VLM().CMxo();      
+             CMyForCase[1] = VSP_VLM().CMy() + VSP_VLM().CMyo();      
+             CMzForCase[1] = VSP_VLM().CMz() + VSP_VLM().CMzo();    
              
-             CMlForCase[1] = -VSP_VLM().CMx();       
-             CMmForCase[1] =  VSP_VLM().CMy();       
-             CMnForCase[1] = -VSP_VLM().CMz();    
+             CMlForCase[1] = -CMxForCase[1];    
+             CMmForCase[1] =  CMyForCase[1];       
+             CMnForCase[1] = -CMzForCase[1];     
                      
              // Solve the perturbed case
              
@@ -3769,26 +3798,28 @@ void CalculateAerodynamicCenter(void)
              
              VSP_VLM().Solve(-2);
 
-             CLForCase[2] = VSP_VLM().CL(); 
-             CDForCase[2] = VSP_VLM().CD();        
-             CSForCase[2] = VSP_VLM().CS();        
-
-             CDtForCase[2] = VSP_VLM().CDTrefftz();        
+             // Store aero coefficients
+                
+             CLForCase[2] = VSP_VLM().CL() + VSP_VLM().CLo(); 
+             CDForCase[2] = VSP_VLM().CD() + VSP_VLM().CDo();       
+             CSForCase[2] = VSP_VLM().CS() + VSP_VLM().CSo();        
              
              CDoForCase[2] = VSP_VLM().CDo();     
-      
-             CFxForCase[2] = VSP_VLM().CFx();
-             CFyForCase[2] = VSP_VLM().CFy();       
-             CFzForCase[2] = VSP_VLM().CFz();       
+         
+             CDtForCase[2] = VSP_VLM().CDTrefftz();                     
+         
+             CFxForCase[2] = VSP_VLM().CFx() + VSP_VLM().CFxo();
+             CFyForCase[2] = VSP_VLM().CFy() + VSP_VLM().CFyo();       
+             CFzForCase[2] = VSP_VLM().CFz() + VSP_VLM().CFzo();       
                  
-             CMxForCase[2] = VSP_VLM().CMx();       
-             CMyForCase[2] = VSP_VLM().CMy();       
-             CMzForCase[2] = VSP_VLM().CMz();     
+             CMxForCase[2] = VSP_VLM().CMx() + VSP_VLM().CMxo();      
+             CMyForCase[2] = VSP_VLM().CMy() + VSP_VLM().CMyo();      
+             CMzForCase[2] = VSP_VLM().CMz() + VSP_VLM().CMzo();    
              
-             CMlForCase[2] = -VSP_VLM().CMx();       
-             CMmForCase[2] =  VSP_VLM().CMy();       
-             CMnForCase[2] = -VSP_VLM().CMz();  
-             
+             CMlForCase[2] = -CMxForCase[2];    
+             CMmForCase[2] =  CMyForCase[2];       
+             CMnForCase[2] = -CMzForCase[2];     
+
              // Calculate aero center shift
              
              DeltaXcg = -( CMyForCase[2] - CMyForCase[1] ) / ( CFzForCase[2] - CFzForCase[1] ) * Cref_;
@@ -3870,21 +3901,21 @@ void ComplexDiffTestSolve(void)
     TempXYZ = new VSPAERO_DOUBLE[3*VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() + 1];
     
     for ( j = 1 ; j <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; j++ ) {
-    
+
+       VSP_VLM().VSPGeom().Grid(0).NodeList(j).x().imag(0.);
+       VSP_VLM().VSPGeom().Grid(0).NodeList(j).y().imag(0.);
+       VSP_VLM().VSPGeom().Grid(0).NodeList(j).z().imag(0.);
+           
        TempXYZ[3*j-2] = VSP_VLM().VSPGeom().Grid(0).NodeList(j).x();
        TempXYZ[3*j-1] = VSP_VLM().VSPGeom().Grid(0).NodeList(j).y();
        TempXYZ[3*j  ] = VSP_VLM().VSPGeom().Grid(0).NodeList(j).z();
        
+       PRINTF("TempXYZ[3*j-2].imag(): %f \n",TempXYZ[3*j-2].imag());
+       
     }
    
-   // for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=1 ) {
-//    for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=17 ) {
+    for ( i = 1 ; i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; i+=1 ) {
 
-    i = 1;
-    Iter = 1;
-    
-    while ( i <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ) {
-    
        PRINTF("\n\n\n\n Working on node %d of %d \n\n\n\n\n",i,VSP_VLM().VSPGeom().Grid(0).NumberOfNodes()); fflush(NULL);
       
        // X
@@ -3981,20 +4012,6 @@ void ComplexDiffTestSolve(void)
         dFdxyz[2]);
         
        fflush(NULL);
-        
-     //if ( Iter == 1 ) {
-     //   
-     //   i += 8; Iter = 2;
-     //      
-     //}
-     //
-     //else if ( Iter == 2 ) {
-     //   
-     //   i += 9; Iter = 1;
-     //      
-     //}
-      
-      i++;
 
     }
 
@@ -4052,7 +4069,7 @@ void FiniteDiffTestSolve(void)
     VSP_VLM().RotationalRate_p() = 0.;
     VSP_VLM().RotationalRate_q() = 0.;
     VSP_VLM().RotationalRate_r() = 0.;    
-    
+            
     // Loop over the grid nodes
     
     FPRINTF(FiniteDiffFile,"   Node            X          Y          Z            dFdX       dFdY       dFdZ \n");
@@ -4070,6 +4087,62 @@ void FiniteDiffTestSolve(void)
     Case = 1;
     
     VSP_VLM().Solve(Case);    
+    
+    
+     
+    // Partials wrt mesh test code
+    
+    if ( 0 ) {
+       
+       // debug code
+       
+       int n;
+       
+       double Delta, *F1, *F2, pFpM;
+       
+       F1 = new double[2];
+       F2 = new double[2];
+       
+       Delta = 1.e-7;
+
+       VSP_VLM().OptimizationFunction(1,20,F1);
+       
+       printf("F1: %f \n",F1[1]);
+       
+       for ( n = 1 ; n <= VSP_VLM().VSPGeom().Grid(0).NumberOfNodes() ; n++ ) {
+          
+         VSP_VLM().VSPGeom().Grid(0).NodeList(n).x() += Delta;
+         
+         VSP_VLM().UpdateMeshes();
+         
+         VSP_VLM().CalculateOptimizationFunctions();
+
+         VSP_VLM().OptimizationFunction(1,20,F2);
+         
+         printf("F2: %f \n",F2[1]);
+         
+         pFpM = (F2[1] - F1[1])/Delta;
+         
+         PRINTF("%d %15.10e \n",n,pFpM);
+         
+         VSP_VLM().VSPGeom().Grid(0).NodeList(n).x() -= Delta;
+               
+       }
+       
+       fflush(NULL);exit(1);
+       
+    }
+         
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     Fo = VSP_VLM().OptimizationFunction();
         

@@ -1515,7 +1515,7 @@ void VORTEX_TRAIL::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
    
     CoreSize_ = 0.;
 
-    if ( IsARotor_ && WakeDampingIsOn_ ) CoreSize_ = Sigma_;
+//    if ( IsARotor_ && WakeDampingIsOn_ ) CoreSize_ = Sigma_;
 
     InducedVelocity_(xyz_p, q);
      
@@ -1550,7 +1550,7 @@ void VORTEX_TRAIL::InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]
 {
  
    int i, Level;
-   VSPAERO_DOUBLE dq[3];
+ //  VSPAERO_DOUBLE dq[3];
 
    // Update the vortex strengths for all of the sub vortex elements
    // This has to be here... since the wake agglomeration routine, 
@@ -1566,13 +1566,13 @@ void VORTEX_TRAIL::InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]
 
    for ( i = 1 ; i <= NumberOfSubVortices(Level) ; i++ ) {
   
-      dq[0] = dq[1] = dq[2] = 0.;
+      dq_[0] = dq_[1] = dq_[2] = 0.;
 
-      CalculateVelocityForSubVortex(VortexEdgeList(Level)[i], xyz_p, dq);
+      CalculateVelocityForSubVortex(VortexEdgeList(Level)[i], xyz_p, dq_);
 
-      q[0] += dq[0];
-      q[1] += dq[1];
-      q[2] += dq[2];
+      q[0] += dq_[0];
+      q[1] += dq_[1];
+      q[2] += dq_[2];
      
    }
 
@@ -1584,11 +1584,11 @@ void VORTEX_TRAIL::InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]
 
    if ( !TimeAccurate_ ) {
 
-      VortexEdgeList(Level)[i].InducedVelocity(xyz_p, dq, CoreSize_);
+      VortexEdgeList(Level)[i].InducedVelocity(xyz_p, dq_, CoreSize_);
 
-      q[0] += dq[0];
-      q[1] += dq[1];
-      q[2] += dq[2];
+      q[0] += dq_[0];
+      q[1] += dq_[1];
+      q[2] += dq_[2];
       
    }
 
@@ -1603,8 +1603,8 @@ void VORTEX_TRAIL::InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]
 void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 {
  
-   VSPAERO_DOUBLE dq[3];
-//   VSPAERO_DOUBLE dq[3], Ratio, CoreWidth;
+  // VSPAERO_DOUBLE dq[3];
+ //  VSPAERO_DOUBLE dq[3], Ratio, CoreWidth;
 
    Ratio_ = sqrt( SQR(VortexEdge.Xc() - xyz_p[0]) 
                 + SQR(VortexEdge.Yc() - xyz_p[1]) 
@@ -1614,11 +1614,11 @@ void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, VSPAERO_D
 
       CoreWidth_ = sqrt(CoreSize_*CoreSize_ + 5.*0.001*ABS(VortexEdge.Gamma())*VortexEdge.T());
 
-      VortexEdge.InducedVelocity(xyz_p, dq, CoreWidth_);
+      VortexEdge.InducedVelocity(xyz_p, dq_2_, CoreWidth_);
 
-      q[0] += dq[0];
-      q[1] += dq[1];
-      q[2] += dq[2];     
+      q[0] += dq_2_[0];
+      q[1] += dq_2_[1];
+      q[2] += dq_2_[2];     
  
    }
    

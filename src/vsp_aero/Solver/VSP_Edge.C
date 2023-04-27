@@ -116,8 +116,6 @@ void VSP_EDGE::init(void)
     Gamma_ = 0.;   
 
     SuperSonicCoreWidth_ = 0.;
-    
-    MinCoreWidth_ = 0.;    
 
     Mach_ = -1.;
     
@@ -267,9 +265,7 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     Gamma_ = VSPEdge.Gamma_;
 
     CoreWidth_ = VSPEdge.CoreWidth_;
-    
-    MinCoreWidth_ = VSPEdge.MinCoreWidth_;
-    
+
     // KT correction
     
     KTFact_ = VSPEdge.KTFact_;
@@ -426,12 +422,156 @@ void VSP_EDGE::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSP
     CoreWidth_ = CoreWidth;
 
     NewBoundVortex(xyz_p, q);
-    
+        
 }
+
+#ifdef AUTODIFF
 
 /*##############################################################################
 #                                                                              #
 #                          VSP_EDGE BoundVortex                                #
+#                                                                              #
+# Note that this double version is NOT thread safe...                          # 
+#                                                                              #
+##############################################################################*/
+
+void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
+{
+
+    Beta2_ = 1. - SQR(KTFact_*Mach_);
+
+    // Constants
+ 
+    dx_ = X1_ - xyz_p[0];
+    dy_ = Y1_ - xyz_p[1];
+    dz_ = Z1_ - xyz_p[2];
+
+    // Integral constants
+    
+    a_ = dx_*dx_ + Beta2_*( dy_*dy_ + dz_*dz_ );    
+    b_ = 2.*( u_*dx_ + Beta2_*( v_*dy_ + w_*dz_ ) );
+    c_ = u_*u_ + Beta2_ * ( v_*v_ + w_*w_ );
+    d_ = 4.*a_*c_ - b_*b_;
+
+    // Leading coefficient for velocity integrals
+    
+    C_Gamma_ = Gamma_ * Beta2_ / (2.*PI*Kappa_);
+    
+    // Determine integration limits
+    
+    NoInfluence_ = 0;
+
+    if ( Mach_ > 1. ) {
+     
+       // Obvious case of no influence
+
+       if ( xyz_p[0] < X1_ && xyz_p[0] < X2_ ) {
+        
+          NoInfluence_ = 1;
+          
+       }
+       
+    }
+
+    if ( !NoInfluence_ ) {
+     
+       // F function evaluated at node 1
+
+       //SuperSonicCoreWidth_ = 0.;
+       //
+       //if ( Xp >= X1_ && Mach_ > 1. && SQR(X1_-Xp) + Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp) ) >= 0. ) {
+       //
+       //   Test = SQR(X1_-Xp)/(Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp)));
+       //
+       //   Test = sqrt(ABS(Test));
+       //
+       ////   SuperSonicCoreWidth_ = ABS(X1_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
+       //
+       //}
+       
+       F1_ = 0.;
+
+       if ( Mach_ < 1. || ( xyz_p[0] > X1_ && SQR(X1_-xyz_p[0]) + Beta2_*( SQR(Y1_-xyz_p[1]) + SQR(Z1_-xyz_p[2]) )/0.7 > 0. ) ) {
+
+          // F1_ = Fint(a_,b_,c_,d_,s1_);
+          
+           s_ = 0.;
+          
+           F1_ = Fint();
+
+       
+       }
+
+       // F function evaluated at node 2
+       
+       //SuperSonicCoreWidth_ = 0.;
+       //
+       //if ( Xp >= X2_ && Mach_ > 1. && SQR(X2_-Xp) + Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp) ) >= 0. ) {
+       //
+       //   Test = SQR(X2_-Xp)/(Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp)));
+       //   
+       //   Test = sqrt(ABS(Test));
+       //
+       // //  SuperSonicCoreWidth_ = ABS(X2_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
+       //
+       //}
+    
+       F2_ = 0.;
+       
+       if ( Mach_ < 1. || ( xyz_p[0] > X2_ && SQR(X2_-xyz_p[0]) + Beta2_*( SQR(Y2_-xyz_p[1]) + SQR(Z2_-xyz_p[2]) )/0.7 > 0. ) ) {
+      
+          // F2_ = Fint(a_,b_,c_,d_,s2_);
+          
+           s_ = 1.;
+          
+           F2_ = Fint();
+  
+       }
+       
+       // Evalulate integrals
+       
+       F_ = F2_ - F1_;
+
+       // U Velocity
+
+       U2_ =  v_ *     dz_ * F_;
+       U4_ =     -w_ * dy_ * F_;     
+       
+       q[0] = -C_Gamma_*(U2_ + U4_);
+       
+       // V Velocity
+  
+       V2_ =  u_ *     dz_ * F_;
+       V4_ =     -w_ * dx_ * F_;
+       
+       q[1] =  C_Gamma_*(V2_ + V4_);
+       
+       // W Velocity
+       
+       W2_ =  u_ *     dy_ * F_;
+       W4_ =     -v_ * dx_ * F_;
+       
+       q[2] = -C_Gamma_*(W2_ + W4_);
+
+    }
+    
+    else {
+     
+       q[0] = q[1] = q[2] = 0.;
+       
+    }
+
+}
+
+#endif
+
+#ifdef COMPLEXDIFF
+ 
+/*##############################################################################
+#                                                                              #
+#                          VSP_EDGE BoundVortex                                #
+#                                                                              #
+# Note that this double version is thread safe... for openmp!                  #
 #                                                                              #
 ##############################################################################*/
 
@@ -439,7 +579,6 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 {
 
     int NoInfluence;
-    VSPAERO_DOUBLE Xp, Yp, Zp;
     VSPAERO_DOUBLE U2, U4;
     VSPAERO_DOUBLE V2, V4;
     VSPAERO_DOUBLE W2, W4;
@@ -447,26 +586,13 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
     VSPAERO_DOUBLE a, b, c, d, dx, dy, dz;
     VSPAERO_DOUBLE s1, s2, F, F1, F2, Test;
 
-    // Debug code...
-    
-   //if ( Mach_ < 0. ) {
-   //   
-   //   PRINTF("Mach number not initialized! \n");   
-   //   fflush(NULL);exit(1);
-   //   
-   //}
-
     Beta2_ = 1. - SQR(KTFact_*Mach_);
 
     // Constants
-    
-    Xp = xyz_p[0];
-    Yp = xyz_p[1];
-    Zp = xyz_p[2];
-    
-    dx = X1_ - Xp;
-    dy = Y1_ - Yp;
-    dz = Z1_ - Zp;
+
+    dx = X1_ - xyz_p[0];
+    dy = Y1_ - xyz_p[1];
+    dz = Z1_ - xyz_p[2];
 
     // Integral constants
     
@@ -474,7 +600,7 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
     b = 2.*( u_*dx + Beta2_*( v_*dy + w_*dz ) );
     c = u_*u_ + Beta2_ * ( v_*v_ + w_*w_ );
     d = 4.*a*c - b*b;
- 
+
     // Leading coefficient for velocity integrals
     
     C_Gamma = Gamma_ * Beta2_ / (2.*PI*Kappa_);
@@ -490,7 +616,7 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
      
        // Obvious case of no influence
 
-       if ( Xp < X1_ && Xp < X2_ ) {
+       if ( xyz_p[0] < X1_ && xyz_p[0] < X2_ ) {
         
           NoInfluence = 1;
           
@@ -502,21 +628,21 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
      
        // F function evaluated at node 1
 
-       SuperSonicCoreWidth_ = 0.;
-       
-       if ( Xp >= X1_ && Mach_ > 1. && SQR(X1_-Xp) + Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp) ) >= 0. ) {
-   
-          Test = SQR(X1_-Xp)/(Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp)));
-
-          Test = sqrt(ABS(Test));
- 
-       //   SuperSonicCoreWidth_ = ABS(X1_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
-
-       }
+       //SuperSonicCoreWidth_ = 0.;
+       //
+       //if ( Xp >= X1_ && Mach_ > 1. && SQR(X1_-Xp) + Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp) ) >= 0. ) {
+       //
+       //   Test = SQR(X1_-Xp)/(Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp)));
+       //
+       //   Test = sqrt(ABS(Test));
+       //
+       ////   SuperSonicCoreWidth_ = ABS(X1_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
+       //
+       //}
        
        F1 = 0.;
 
-       if ( Mach_ < 1. || ( Xp > X1_ && SQR(X1_-Xp) + Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp) )/0.7 > 0. ) ) {
+       if ( Mach_ < 1. || ( xyz_p[0] > X1_ && SQR(X1_-xyz_p[0]) + Beta2_*( SQR(Y1_-xyz_p[1]) + SQR(Z1_-xyz_p[2]) )/0.7 > 0. ) ) {
 
            F1 = Fint(a,b,c,d,s1);
        
@@ -524,21 +650,21 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 
        // F function evaluated at node 2
        
-       SuperSonicCoreWidth_ = 0.;
-
-       if ( Xp >= X2_ && Mach_ > 1. && SQR(X2_-Xp) + Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp) ) >= 0. ) {
-     
-          Test = SQR(X2_-Xp)/(Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp)));
-          
-          Test = sqrt(ABS(Test));
- 
-        //  SuperSonicCoreWidth_ = ABS(X2_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
-
-       }
+       //SuperSonicCoreWidth_ = 0.;
+       //
+       //if ( Xp >= X2_ && Mach_ > 1. && SQR(X2_-Xp) + Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp) ) >= 0. ) {
+       //
+       //   Test = SQR(X2_-Xp)/(Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp)));
+       //   
+       //   Test = sqrt(ABS(Test));
+       //
+       // //  SuperSonicCoreWidth_ = ABS(X2_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
+       //
+       //}
     
        F2 = 0.;
        
-       if ( Mach_ < 1. || ( Xp > X2_ && SQR(X2_-Xp) + Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp) )/0.7 > 0. ) ) {
+       if ( Mach_ < 1. || ( xyz_p[0] > X2_ && SQR(X2_-xyz_p[0]) + Beta2_*( SQR(Y2_-xyz_p[1]) + SQR(Z2_-xyz_p[2]) )/0.7 > 0. ) ) {
       
            F2 = Fint(a,b,c,d,s2);
   
@@ -547,7 +673,7 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
        // Evalulate integrals
        
        F = F2 - F1;
-       
+
        // U Velocity
 
        U2 =  v_ *     dz * F;
@@ -579,67 +705,47 @@ void VSP_EDGE::NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 
 }
 
+#endif
+
+#if !defined(AUTODIFF) && !defined(COMPLEXDIFF)
+
 /*##############################################################################
 #                                                                              #
 #                          VSP_EDGE BoundVortex                                #
 #                                                                              #
+# Note that this double version is thread safe... for openmp!                  #
+#                                                                              #
 ##############################################################################*/
 
-void VSP_EDGE::OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
+void VSP_EDGE::NewBoundVortex(double xyz_p[3], double q[3])
 {
 
     int NoInfluence;
-    VSPAERO_DOUBLE Beta_2;
-    VSPAERO_DOUBLE Xp, Yp, Zp;
-    VSPAERO_DOUBLE Up, U1, U2, U3, U4;
-    VSPAERO_DOUBLE Vp, V1, V2, V3, V4;
-    VSPAERO_DOUBLE Wp, W1, W2, W3, W4;
-    VSPAERO_DOUBLE Kappa, C_Gamma;
-    VSPAERO_DOUBLE a, b, c, d, u, v, w, dx, dy, dz;
-    VSPAERO_DOUBLE s1, s2, F, F1, F2, G, G1, G2, Arg1, Arg2, Eps;
+    double U2, U4;
+    double V2, V4;
+    double W2, W4;
+    double C_Gamma;
+    double a, b, c, d, dx, dy, dz;
+    double s1, s2, F, F1, F2, Test;
 
-    Eps = 0.99;
-    
-    Beta_2 = 1. - SQR(Mach_);
-
-    if ( Beta_2 > 0. ) {
-
-       Kappa = 2.;
-
-    }
-
-    else {
-
-       Kappa = 1.;
-
-    }
-
-    // Direction vector of the edge 
-
-    u = Vec_[0] * Length_;
-    v = Vec_[1] * Length_;
-    w = Vec_[2] * Length_;
+    Beta2_ = 1. - SQR(KTFact_*Mach_);
 
     // Constants
-    
-    Xp = xyz_p[0];
-    Yp = xyz_p[1];
-    Zp = xyz_p[2];
-    
-    dx = X1_ - Xp;
-    dy = Y1_ - Yp;
-    dz = Z1_ - Zp;
+
+    dx = X1_ - xyz_p[0];
+    dy = Y1_ - xyz_p[1];
+    dz = Z1_ - xyz_p[2];
 
     // Integral constants
     
-    a = dx*dx + Beta_2*( dy*dy + dz*dz );    
-    b = 2.*( u*dx + Beta_2*( v*dy + w*dz ) );
-    c = u*u + Beta_2 * ( v*v + w*w );
+    a = dx*dx + Beta2_*( dy*dy + dz*dz );    
+    b = 2.*( u_*dx + Beta2_*( v_*dy + w_*dz ) );
+    c = u_*u_ + Beta2_ * ( v_*v_ + w_*w_ );
     d = 4.*a*c - b*b;
- 
+
     // Leading coefficient for velocity integrals
     
-    C_Gamma = Beta_2 * Gamma_ / (2.*PI*Kappa);
+    C_Gamma = Gamma_ * Beta2_ / (2.*PI*Kappa_);
     
     // Determine integration limits
     
@@ -652,7 +758,7 @@ void VSP_EDGE::OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
      
        // Obvious case of no influence
 
-       if ( Xp < X1_ && Xp < X2_ ) {
+       if ( xyz_p[0] < X1_ && xyz_p[0] < X2_ ) {
         
           NoInfluence = 1;
           
@@ -662,84 +768,299 @@ void VSP_EDGE::OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 
     if ( !NoInfluence ) {
      
-       // F and G functions evaluated at node 1
-       
-       Arg1 = SQR(X1_-Xp);
-       
-       Arg2 = Beta_2*( SQR(Y1_-Yp) + SQR(Z1_-Zp) );
-       
-       F1 = G1 = 0.;
+       // F function evaluated at node 1
 
-       if ( Mach_ < 1. || ( Xp >= X1_ && Eps*Arg1 + Arg2 > 0. ) ) {
+       //SuperSonicCoreWidth_ = 0.;
+       //
+       //if ( Xp >= X1_ && Mach_ > 1. && SQR(X1_-Xp) + Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp) ) >= 0. ) {
+       //
+       //   Test = SQR(X1_-Xp)/(Beta2_*( SQR(Y1_-Yp) + SQR(Z1_-Zp)));
+       //
+       //   Test = sqrt(ABS(Test));
+       //
+       ////   SuperSonicCoreWidth_ = ABS(X1_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
+       //
+       //}
+       
+       F1 = 0.;
+
+       if ( Mach_ < 1. || ( xyz_p[0] > X1_ && SQR(X1_-xyz_p[0]) + Beta2_*( SQR(Y1_-xyz_p[1]) + SQR(Z1_-xyz_p[2]) )/0.7 > 0. ) ) {
 
            F1 = Fint(a,b,c,d,s1);
-           G1 = Gint(a,b,c,d,s1);
-          
+       
        }
 
-       // F and G functions evaluated at node 2
-
-       Arg1 = SQR(X2_-Xp);
-     
-       Arg2 = Beta_2*( SQR(Y2_-Yp) + SQR(Z2_-Zp) );
+       // F function evaluated at node 2
        
-       F2 = G2 = 0.;
+       //SuperSonicCoreWidth_ = 0.;
+       //
+       //if ( Xp >= X2_ && Mach_ > 1. && SQR(X2_-Xp) + Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp) ) >= 0. ) {
+       //
+       //   Test = SQR(X2_-Xp)/(Beta2_*( SQR(Y2_-Yp) + SQR(Z2_-Zp)));
+       //   
+       //   Test = sqrt(ABS(Test));
+       //
+       // //  SuperSonicCoreWidth_ = ABS(X2_-Xp)*Length_*sqrt(ABS(d))*exp(-Test/0.3);
+       //
+       //}
+    
+       F2 = 0.;
        
-       if ( Mach_ < 1. || ( Xp >= X2_ && Eps*Arg1 + Arg2 > 0. ) ) {
+       if ( Mach_ < 1. || ( xyz_p[0] > X2_ && SQR(X2_-xyz_p[0]) + Beta2_*( SQR(Y2_-xyz_p[1]) + SQR(Z2_-xyz_p[2]) )/0.7 > 0. ) ) {
       
            F2 = Fint(a,b,c,d,s2);
-           G2 = Gint(a,b,c,d,s2);
-          
   
        }
        
        // Evalulate integrals
        
        F = F2 - F1;
-       G = G2 - G1;
-       
+
        // U Velocity
 
-       U1 =  v * w      * G;
-       U2 =  v *     dz * F;
-       U3 = -v * w      * G;
-       U4 =     -w * dy * F;
+       U2 =  v_ *     dz * F;
+       U4 =     -w_ * dy * F;     
        
-       Up = -C_Gamma*( U1 + U2 + U3 + U4 );
-
+       q[0] = -C_Gamma*(U2 + U4);
+       
        // V Velocity
+  
+       V2 =  u_ *     dz * F;
+       V4 =     -w_ * dx * F;
        
-       V1 =  u * w      * G;
-       V2 =  u *     dz * F;
-       V3 = -u * w      * G;
-       V4 =     -w * dx * F;
+       q[1] =  C_Gamma*(V2 + V4);
        
-       Vp = C_Gamma*( V1 + V2 + V3 + V4 );
-
        // W Velocity
        
-       W1 =  u * v      * G;
-       W2 =  u *     dy * F;
-       W3 = -u * v      * G;
-       W4 =     -v * dx * F;
+       W2 =  u_ *     dy * F;
+       W4 =     -v_ * dx * F;
        
-       Wp = -C_Gamma*( W1 + W2 + W3 + W4 );
-       
+       q[2] = -C_Gamma*(W2 + W4);
+
     }
     
     else {
      
-       Up = Vp = Wp = 0.;
+       q[0] = q[1] = q[2] = 0.;
        
     }
 
-    // Return velocities
+}
+
+#endif
+
+///*##############################################################################
+//#                                                                              #
+//#                          VSP_EDGE BoundVortex                                #
+//#                                                                              #
+//##############################################################################*/
+//
+//void VSP_EDGE::OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
+//{
+//
+//    int NoInfluence;
+//    VSPAERO_DOUBLE Beta_2;
+//    VSPAERO_DOUBLE Xp, Yp, Zp;
+//    VSPAERO_DOUBLE Up, U1, U2, U3, U4;
+//    VSPAERO_DOUBLE Vp, V1, V2, V3, V4;
+//    VSPAERO_DOUBLE Wp, W1, W2, W3, W4;
+//    VSPAERO_DOUBLE Kappa, C_Gamma;
+//    VSPAERO_DOUBLE a, b, c, d, u, v, w, dx, dy, dz;
+//    VSPAERO_DOUBLE s1, s2, F, F1, F2, G, G1, G2, Arg1, Arg2, Eps;
+//
+//    Eps = 0.99;
+//    
+//    Beta_2 = 1. - SQR(Mach_);
+//
+//    if ( Beta_2 > 0. ) {
+//
+//       Kappa = 2.;
+//
+//    }
+//
+//    else {
+//
+//       Kappa = 1.;
+//
+//    }
+//
+//    // Direction vector of the edge 
+//
+//    u = Vec_[0] * Length_;
+//    v = Vec_[1] * Length_;
+//    w = Vec_[2] * Length_;
+//
+//    // Constants
+//    
+//    Xp = xyz_p[0];
+//    Yp = xyz_p[1];
+//    Zp = xyz_p[2];
+//    
+//    dx = X1_ - Xp;
+//    dy = Y1_ - Yp;
+//    dz = Z1_ - Zp;
+//
+//    // Integral constants
+//    
+//    a = dx*dx + Beta_2*( dy*dy + dz*dz );    
+//    b = 2.*( u*dx + Beta_2*( v*dy + w*dz ) );
+//    c = u*u + Beta_2 * ( v*v + w*w );
+//    d = 4.*a*c - b*b;
+// 
+//    // Leading coefficient for velocity integrals
+//    
+//    C_Gamma = Beta_2 * Gamma_ / (2.*PI*Kappa);
+//    
+//    // Determine integration limits
+//    
+//    NoInfluence = 0;
+//    
+//    s1 = 0.;
+//    s2 = 1.;
+//       
+//    if ( Mach_ > 1. ) {
+//     
+//       // Obvious case of no influence
+//
+//       if ( Xp < X1_ && Xp < X2_ ) {
+//        
+//          NoInfluence = 1;
+//          
+//       }
+//       
+//    }
+//
+//    if ( !NoInfluence ) {
+//     
+//       // F and G functions evaluated at node 1
+//       
+//       Arg1 = SQR(X1_-Xp);
+//       
+//       Arg2 = Beta_2*( SQR(Y1_-Yp) + SQR(Z1_-Zp) );
+//       
+//       F1 = G1 = 0.;
+//
+//       if ( Mach_ < 1. || ( Xp >= X1_ && Eps*Arg1 + Arg2 > 0. ) ) {
+//
+//           F1 = Fint(a,b,c,d,s1);
+//           G1 = Gint(a,b,c,d,s1);
+//          
+//       }
+//
+//       // F and G functions evaluated at node 2
+//
+//       Arg1 = SQR(X2_-Xp);
+//     
+//       Arg2 = Beta_2*( SQR(Y2_-Yp) + SQR(Z2_-Zp) );
+//       
+//       F2 = G2 = 0.;
+//       
+//       if ( Mach_ < 1. || ( Xp >= X2_ && Eps*Arg1 + Arg2 > 0. ) ) {
+//      
+//           F2 = Fint(a,b,c,d,s2);
+//           G2 = Gint(a,b,c,d,s2);
+//          
+//  
+//       }
+//       
+//       // Evalulate integrals
+//       
+//       F = F2 - F1;
+//       G = G2 - G1;
+//       
+//       // U Velocity
+//
+//       U1 =  v * w      * G;
+//       U2 =  v *     dz * F;
+//       U3 = -v * w      * G;
+//       U4 =     -w * dy * F;
+//       
+//       Up = -C_Gamma*( U1 + U2 + U3 + U4 );
+//
+//       // V Velocity
+//       
+//       V1 =  u * w      * G;
+//       V2 =  u *     dz * F;
+//       V3 = -u * w      * G;
+//       V4 =     -w * dx * F;
+//       
+//       Vp = C_Gamma*( V1 + V2 + V3 + V4 );
+//
+//       // W Velocity
+//       
+//       W1 =  u * v      * G;
+//       W2 =  u *     dy * F;
+//       W3 = -u * v      * G;
+//       W4 =     -v * dx * F;
+//       
+//       Wp = -C_Gamma*( W1 + W2 + W3 + W4 );
+//       
+//    }
+//    
+//    else {
+//     
+//       Up = Vp = Wp = 0.;
+//       
+//    }
+//
+//    // Return velocities
+//    
+//    q[0] = Up;
+//    q[1] = Vp;
+//    q[2] = Wp;
+//
+//}
+
+/*##############################################################################
+#                                                                              #
+#                          VSP_EDGE Fint                                       #
+#                                                                              #
+##############################################################################*/
+
+VSPAERO_DOUBLE VSP_EDGE::Fint(void)
+
+{
+
+    R_ = a_ + b_*s_ + c_*s_*s_;
     
-    q[0] = Up;
-    q[1] = Vp;
-    q[2] = Wp;
+  // if ( ABS(d_) < Tolerance_2_ || R_ < Tolerance_1_ ) return 0.;
+  //
+  //  Denom_ = d_ * sqrt(R_);
+  //
+  //  return 2.*(2.*c_*s_ + b_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
+
+    if ( ABS(d_) <= Tolerance_2_ || R_ <= Tolerance_2_ ) return 0.;
+
+    Denom_ = sqrt(R_);
+
+    return (2./d_)*(2.*c_*s_ + b_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
 
 }
+
+/*##############################################################################
+#                                                                              #
+#                          VSP_EDGE Gint                                       #
+#                                                                              #
+##############################################################################*/
+
+VSPAERO_DOUBLE VSP_EDGE::Gint(void)
+{
+   
+    R_ = a_ + b_*s_ + c_*s_*s_;
+    
+    // if ( ABS(d_) < Tolerance_2_ || R_ < Tolerance_1_ ) return 0.;
+    //
+    // Denom_ = d_ * sqrt(R_);
+    //
+    // return -2.*(2.*a_+b_*s_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
+    
+    if ( ABS(d_) <= Tolerance_2_ || R_ <= Tolerance_2_ ) return 0.;
+
+    Denom_ = sqrt(R_);
+    
+    return -(2./d_)*(2.*a_+b_*s_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
+
+} 
 
 /*##############################################################################
 #                                                                              #
@@ -750,25 +1071,21 @@ void VSP_EDGE::OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 VSPAERO_DOUBLE VSP_EDGE::Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s)
 {
  
-    VSPAERO_DOUBLE R, F, Denom, C1;
+    VSPAERO_DOUBLE R, Denom;
 
     R = a + b*s + c*s*s;
     
-    if ( R < 0. ) R = 0.;
-    
-  //if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+  //  if ( ABS(d) <= Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+  //  Denom = d * sqrt(R);
+  //
+  //  return 2.*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
 
-    Denom = d * sqrt(R);
+    if ( ABS(d) <= Tolerance_2_ || R <= Tolerance_2_ ) return 0.;
 
-    F = 2.*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + SuperSonicCoreWidth_*SuperSonicCoreWidth_ + Tolerance_4_*Tolerance_4_);
+    Denom = sqrt(R);
 
-    C1 = d*d;
- 
-    F *= C1/(C1 + Tolerance_4_);
-    F *=  R/( R + Tolerance_4_);
-  
-    return F;
- 
+    return (2./d)*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
+
 }
 
 /*##############################################################################
@@ -780,25 +1097,22 @@ VSPAERO_DOUBLE VSP_EDGE::Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUB
 VSPAERO_DOUBLE VSP_EDGE::Gint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s)
 {
    
-    VSPAERO_DOUBLE R, G, Denom, C1;
+    VSPAERO_DOUBLE R, Denom;
     
     R = a + b*s + c*s*s;
 
-    if ( R < 0. ) R = 0.;
+    //if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+    //
+    //Denom = d * sqrt(R);
+    //
+    //return -2.*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
 
-//  if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+    if ( ABS(d) <= Tolerance_2_ || R <= Tolerance_2_ ) return 0.;
 
-    Denom = d * sqrt(R);
+    Denom = sqrt(R);
 
-    G = -2.*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + SuperSonicCoreWidth_*SuperSonicCoreWidth_ + Tolerance_4_*Tolerance_4_);
-
-    C1 = d*d;
-
-    G *= C1/(C1 + Tolerance_4_);
-    G *=  R/( R + Tolerance_1_);
+    return -(2./d)*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
     
-    return G;
- 
 } 
 
 /*##############################################################################
@@ -1130,7 +1444,7 @@ void VSP_EDGE::UpdateGeometryLocation(VSP_NODE &Node1, VSP_NODE &Node2)
     Vec_[1] = Y2_ - Y1_;
     Vec_[2] = Z2_ - Z1_;
     
-    Length_ = sqrt(vector_dot(Vec_,Vec_));
+   Length_ = sqrt(vector_dot(Vec_,Vec_));
     
     u_ = Vec_[0];
     v_ = Vec_[1];

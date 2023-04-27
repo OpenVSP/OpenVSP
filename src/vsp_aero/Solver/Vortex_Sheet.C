@@ -105,9 +105,13 @@ void VORTEX_SHEET::init(void)
     
     IsARotor_ = 0;
         
+    DoVortexStretching_ = 0;
+        
     OptimizationSolve_ = 0;
     
     Is2D_ = 0;
+    
+    DoAdjointSolve_ = 0;
     
 }
 
@@ -313,7 +317,7 @@ VORTEX_SHEET& VORTEX_SHEET::operator+=(const VORTEX_SHEET &VortexSheet)
     NumberOfSubVortices_      = VortexSheet.NumberOfSubVortices_;
 
     TimeAccurate_             = VortexSheet.TimeAccurate_;
-    
+
     OptimizationSolve_        = VortexSheet.OptimizationSolve_;
     
     TimeAnalysisType_         = VortexSheet.TimeAnalysisType_;
@@ -323,6 +327,10 @@ VORTEX_SHEET& VORTEX_SHEET::operator+=(const VORTEX_SHEET &VortexSheet)
     CurrentTimeStep_          = VortexSheet.CurrentTimeStep_;    
  
     IsARotor_                 = VortexSheet.IsARotor_;
+    
+    DoVortexStretching_       = VortexSheet.DoVortexStretching_;
+    
+    DoAdjointSolve_           = VortexSheet.DoAdjointSolve_;
 
     Vinf_                     = VortexSheet.Vinf_;
     
@@ -932,6 +940,9 @@ void VORTEX_SHEET::SetupPlanarVortexSheets(void)
           VortexSheetListForLevel_[Level][k].Vinf()             = Vinf_;
           VortexSheetListForLevel_[Level][k].Level()            = Level;
           VortexSheetListForLevel_[Level][k].ThereAreChildren() = 0;
+          VortexSheetListForLevel_[Level][k].TimeAnalysisType() = TimeAnalysisType_;
+          
+          if ( DoAdjointSolve_ ) VortexSheetListForLevel_[Level][k].DoAdjointSolve();
                                                                  
           VortexSheetListForLevel_[Level][k].Setup();
           
@@ -997,22 +1008,19 @@ void VORTEX_SHEET::SetupPlanarVortexSheets(void)
 
     NumberOfSubVortices_ = VortexSheetListForLevel_[1][1].NumberOfSubVortices();   
     
-    // Calculate the average core size... factor of 2 since sigma is 1/2 of 
-    // distance between each trailing vortex at the trailing edge.
+    // Calculate the average core size... 
     
     CoreSize_ = 0.;
     
     for ( j = 1 ; j <= NumberOfTrailingVortices_ ; j++ ) {
        
-       CoreSize_ += pow(TrailingVortexList_[j]->Sigma(),2.);
+       CoreSize_ += pow(3.*TrailingVortexList_[j]->Sigma(),2.);
  
     }
     
     CoreSize_ /= NumberOfTrailingVortices_;
 
     CoreSize_ = sqrt(CoreSize_); 
-
-    if ( IsARotor_ ) CoreSize_ *= 1.5; // Rotors are hard ;-)
     
     // User adjustment factor for core size
     
@@ -1191,6 +1199,8 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
           VortexSheetListForLevel_[Level][k].Vinf()             = Vinf_;
           VortexSheetListForLevel_[Level][k].Level()            = Level;
           VortexSheetListForLevel_[Level][k].ThereAreChildren() = 0;
+
+          if ( DoAdjointSolve_ ) VortexSheetListForLevel_[Level][k].DoAdjointSolve();
                                                                            
           VortexSheetListForLevel_[Level][k].Setup();
           
@@ -1256,23 +1266,20 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
 
     NumberOfSubVortices_ = VortexSheetListForLevel_[1][1].NumberOfSubVortices();       
 
-    // Calculate the average core size... factor of 2 since sigma is 1/2 of 
-    // distance between each trailing vortex at the trailing edge.
+    // Calculate the average core size... 
     
     CoreSize_ = 0.;
     
     for ( j = 1 ; j <= NumberOfTrailingVortices_ ; j++ ) {
        
-       CoreSize_ += pow(TrailingVortexList_[j]->Sigma(),2.);
+       CoreSize_ += pow(3.*TrailingVortexList_[j]->Sigma(),2.);
 
     }
     
     CoreSize_ /= NumberOfTrailingVortices_;
     
-    CoreSize_ = sqrt(CoreSize_);
-    
-    if ( IsARotor_ ) CoreSize_ *= 1.5; // Rotors are hard ;-)
-    
+    CoreSize_ = sqrt(CoreSize_); 
+
     // User adjustment factor for core size
     
     CoreSize_ *= CoreSizeFactor_;
@@ -1353,23 +1360,42 @@ void VORTEX_SHEET::RestoreWakeShapeState(void)
 void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
 {
 
-    int i, j, k, Level, NumSubVorticesMax;
+    int i, j, k, n, Level, NumSubVorticesMax;
     VSPAERO_DOUBLE S1, S2, Wgt1, Wgt2;
     
     // Steady state solution ... update strengths along entire trailing wake
 
-    if ( !TimeAccurate_ ) {
+    if ( !TimeAccurate_ || OptimizationSolve_ ) {
 
        // Steady state... trailing edge value convected to infinity
        
        for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
-      
+
           for ( j = 0 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
    
              TrailingVortexList_[i]->Gamma(j) = TrailingVortexList_[i]->Gamma();
    
           }
-
+          
+          // Don't let errors from upwind scheme propagate further than
+          // physically possible for an unsteady case...
+          
+          if ( OptimizationSolve_ && TimeAccurate_ ) {
+             
+             TrailingVortexList_[i]->CurrentTimeStep() = CurrentTimeStep_;
+             
+             TrailingVortexList_[i]->UpdateWakeAge();
+          
+             n = MIN( CurrentTimeStep_ + 1, NumberOfSubVortices() + 2);
+             
+             for ( j = n ; j <= NumberOfSubVortices() + 2 ; j++ ) {
+             
+                TrailingVortexList_[i]->Gamma(j) = 0.;
+             
+             }   
+             
+          } 
+       
        }
       
     }
@@ -1810,6 +1836,27 @@ void VORTEX_SHEET::TurnWakeDampingOff(void)
 
 /*##############################################################################
 #                                                                              #
+#                        VORTEX_SHEET DoAdjointSolve                           #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_SHEET::DoAdjointSolve(void)
+{
+   
+    int i;
+    
+    DoAdjointSolve_ = 1;
+    
+    for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+
+       TrailingVortexList_[i]->DoAdjointSolve() = 1;
+
+    }       
+    
+}
+
+/*##############################################################################
+#                                                                              #
 #                        VORTEX_SHEET InducedVelocity                          #
 #                                                                              #
 ##############################################################################*/
@@ -1933,7 +1980,6 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
 
        TrailingVortex = AgglomeratedTrailingVortexList_[i];
 
- //      TrailingVortex->InducedVelocity(xyz_p,dq,CoreSize_); // This was wrong, it should not be using the core model here!
        TrailingVortex->InducedVelocity(xyz_p,dq);
               
        U += dq[0];
@@ -1963,7 +2009,6 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
           
           dq[0] = dq[1] = dq[2] = 0.;
     
-     //     StartingVorticesInducedVelocity(*VortexSheet, xyz_p, dq, CoreSize_); // This was wrong, it should not be using the core model here!
           StartingVorticesInducedVelocity(*VortexSheet, xyz_p, dq);
           
           U += dq[0];
@@ -2568,7 +2613,7 @@ void VORTEX_SHEET::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3],
 
 void VORTEX_SHEET::InducedKuttaVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 {
-
+// fix this
     int i;
     VSPAERO_DOUBLE U, V, W, Vec[3], xyz_k[3], dq[3], Mag;
     VORTEX_TRAIL *TrailingVortex;
@@ -2817,17 +2862,17 @@ void VORTEX_SHEET::CreateVortexSheetInteractionList(VORTEX_SHEET &VortexSheet, V
 void VORTEX_SHEET::StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE dq[3])
 {
 
-    VSPAERO_DOUBLE q[3];
+    //VSPAERO_DOUBLE q[3];
 
     if ( VortexSheet.Evaluate() == 1 ) {
 
       // Calculate all shed bound vortices for the vortex sheet
 
-      VortexSheet.BoundVortex().InducedVelocity(xyz_p,q);
+      VortexSheet.BoundVortex().InducedVelocity(xyz_p,dq);
 
-      dq[0] += q[0];
-      dq[1] += q[1];
-      dq[2] += q[2];
+      dq[0] += dq[0];
+      dq[1] += dq[1];
+      dq[2] += dq[2];
         
     }
     
@@ -2923,7 +2968,7 @@ void VORTEX_SHEET::Setup(void)
 #                                                                              #
 ##############################################################################*/
 
-VSPAERO_DOUBLE VORTEX_SHEET::UpdateWakeLocation_(int AdjointSolve)
+VSPAERO_DOUBLE VORTEX_SHEET::UpdateWakeLocation_(void)
 {
 
     int i, Level;
@@ -2934,19 +2979,9 @@ VSPAERO_DOUBLE VORTEX_SHEET::UpdateWakeLocation_(int AdjointSolve)
     for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
 
        if ( DoGroundEffectsAnalysis_ ) TrailingVortexList_[i]->DoGroundEffectsAnalysis() = 1;
-       
-       if ( !AdjointSolve ) {
-          
-          Delta = TrailingVortexList_[i]->UpdateWakeLocation();
-          
-       }
-       
-       else {
-          
-          Delta = TrailingVortexList_[i]->UpdateWakeLocationForAdjointSolve();
-          
-       }          
-       
+
+       Delta = TrailingVortexList_[i]->UpdateWakeLocation();
+
        MaxDelta = MAX(MaxDelta,Delta);
     
     }
@@ -3213,27 +3248,27 @@ void VORTEX_SHEET::UpdateRotorFlags(int *ComponentInThisGroup)
 
 VSPAERO_DOUBLE VORTEX_SHEET::Distance(VSPAERO_DOUBLE xyz[3])
 {
-
+   
     VSPAERO_DOUBLE Distance;
-    TEST_NODE Test;
+//    TEST_NODE Test;
 
-    Distance = 1.e9;
+//    Distance = 1.e9;
    
     // Trail 1
     
     if ( !VortexTrail1().Searched() ) {
    
-       Test.xyz[0] = xyz[0];
-       Test.xyz[1] = xyz[1];
-       Test.xyz[2] = xyz[2];
+       TestNode_.xyz[0] = xyz[0];
+       TestNode_.xyz[1] = xyz[1];
+       TestNode_.xyz[2] = xyz[2];
        
-       Test.found = 0;
+       TestNode_.found = 0;
    
-       Test.distance = 1.e9;
+       TestNode_.distance = 1.e9;
      
-       VortexTrail1().Search().SearchTree(Test);
+       VortexTrail1().Search().SearchTree(TestNode_);
 
-       VortexTrail1().Distance() = Test.distance;
+       VortexTrail1().Distance() = TestNode_.distance;
        
        VortexTrail1().Searched() = 1;
 
@@ -3243,25 +3278,25 @@ VSPAERO_DOUBLE VORTEX_SHEET::Distance(VSPAERO_DOUBLE xyz[3])
     
     if ( !VortexTrail2().Searched() ) {
    
-       Test.xyz[0] = xyz[0];
-       Test.xyz[1] = xyz[1];
-       Test.xyz[2] = xyz[2];
+       TestNode_.xyz[0] = xyz[0];
+       TestNode_.xyz[1] = xyz[1];
+       TestNode_.xyz[2] = xyz[2];
        
-       Test.found = 0;
+       TestNode_.found = 0;
    
-       Test.distance = 1.e9;
+       TestNode_.distance = 1.e9;
      
-       VortexTrail2().Search().SearchTree(Test);
+       VortexTrail2().Search().SearchTree(TestNode_);
  
-       VortexTrail2().Distance() = Test.distance;
+       VortexTrail2().Distance() = TestNode_.distance;
        
        VortexTrail2().Searched() = 1;
        
     }    
 
-    Distance = sqrt(MIN(VortexTrail1().Distance(),VortexTrail2().Distance()));
+    return sqrt(MIN(VortexTrail1().Distance(),VortexTrail2().Distance()));
 
-    return Distance;
+//    return Distance;
 
 }
 

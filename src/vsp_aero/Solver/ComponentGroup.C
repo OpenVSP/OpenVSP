@@ -600,7 +600,6 @@ void COMPONENT_GROUP::Update(VSPAERO_DOUBLE TimeStep, VSPAERO_DOUBLE CurrentTime
 
 }
 
-
 /*##############################################################################
 #                                                                              #
 #                    COMPONENT_GROUP ZeroOutTotals                             #

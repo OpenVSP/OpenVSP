@@ -22,7 +22,7 @@
 
 #define ASSERT_NULL(a) assert ( (a) != NULL )
 
-#define TORAD (3.141592/180.)
+#define TORAD (3.141592653589793/180.)
 
 // Bounding box
 

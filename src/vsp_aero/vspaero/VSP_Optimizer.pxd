@@ -23,6 +23,7 @@ cdef extern from "Solver/VSP_Optimizer.H":
         void SetAoADegrees(double)
         void SetBetaDegrees(double)
         void SetVinf(double)
+        void SetVref(double)
         void SetDensity(double)
         void SetReCref(double)
         void SetRotationalRate_p(double)
@@ -83,7 +84,12 @@ cdef extern from "Solver/VSP_Optimizer.H":
         double dF_dInputVariable(int Case, int InputVariable)
         double dF_dInputVariable(int Case, int Time, int InputVariable)
         void GetNodalPressures(double *Pressure)
+        void GetNodalForces(double *Force)
+        void CalculateNodalForcePartialProducts(double *pF_pForces, double * pF_pMesh, double *pF_pInputVariable,
+                                                double *pF_pGamma)
         void GetpFupMesh(double *pFU_pP, double *pFU_pMesh)
+        int GetNodalConnectivityLength();
+        void GetNodalConnectivity(int *conn, int *ptr);
         void SetArrayOffSetType(int ArrayType)
         void WriteOutCart3dTriFile()
         void SupressStdout()

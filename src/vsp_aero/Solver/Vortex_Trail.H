@@ -70,11 +70,15 @@ private:
     VSP_NODE TE_NodeSave_;
     
     VSP_NODE *NodeListSave_;
+    
+    // We are doing an adjoint solve
  
+    int DoAdjointSolve_;
+
     // Wake points residual
     
-    int RecordingWasOn_;
     int NumberOfWakeResidualNodes_;
+    
     int *WakeResidualEquationNumber_;
     
     VSPAERO_DOUBLE *WakeResidual_;
@@ -128,6 +132,7 @@ private:
     int CurrentTimeStep_;
     int WakeDampingIsOn_;
     int IsARotor_;
+    int DoVortexStretching_;
     
     VSPAERO_DOUBLE RotorOrigin_[3];
     VSPAERO_DOUBLE RotorThrustVector_[3];
@@ -149,6 +154,12 @@ private:
     VSPAERO_DOUBLE *dx_;
     VSPAERO_DOUBLE *dy_;
     VSPAERO_DOUBLE *dz_;
+    
+    VSPAERO_DOUBLE CoreWidth_;
+
+    VSPAERO_DOUBLE Ratio_;
+
+    VSPAERO_DOUBLE dq_[3];
 
     // Blade analysis parameters
     
@@ -189,15 +200,11 @@ private:
     void CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
      
     VSPAERO_DOUBLE GammaScale(int i);
+
+    // Update the geometry given a translation vector and a rotating quaternion, this also shift the wake back in time
     
-    // Update the wake location 
-    
-    VSPAERO_DOUBLE UpdateWakeLocation_(int AdjointSolve);   
-    
-    /** Update the geometry given a translation vector and a rotating quaternion, this also shift the wake back in time  **/
-    
-    void UpdateGeometryLocation_(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int AdjointSolve);
- 
+    void UpdateGeometryLocation_(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat);
+
 public:
 
     // Constructor, Destructor, Copy
@@ -250,6 +257,7 @@ public:
      **/
     
     void Update(VSPAERO_DOUBLE FarDist, VSP_NODE &Node1, VSP_NODE &Node2);
+    
     void UpdateNew(VSP_NODE &TE_NODE);
     
     /** Calculate the induced velocity at location xyz **/
@@ -371,15 +379,15 @@ public:
     
     /** Update the wake location **/
     
-    VSPAERO_DOUBLE UpdateWakeLocation(void) { return UpdateWakeLocation_(0); }; 
-    
-    /** Update the wake location for adjoint solve **/
-    
-    VSPAERO_DOUBLE UpdateWakeLocationForAdjointSolve(void) { return UpdateWakeLocation_(1); };     
-    
-    /** Convec the wake vorticity in time down stream ... **/ 
+    VSPAERO_DOUBLE UpdateWakeLocation(void);
+
+    /** Convect the wake vorticity in time down stream ... **/ 
     
     void ConvectWakeVorticity(int ConvectType);
+    
+    /** Update the wake age **/
+    
+    void UpdateWakeAge(void);
     
     /** Ground effects analysis flag **/
     
@@ -428,6 +436,10 @@ public:
     
     /** Create the binary search tree for fast search of trailing wake nodes to determine
      * how far we are from a point we need to calculate the induced velocities for **/
+    
+    /** Turn on vortex stretching model **/
+    
+    int &DoVortexStretching(void) { return DoVortexStretching_; };
     
     void CreateSearchTree(void) { CreateSearchTree_(); };
 
@@ -532,6 +544,10 @@ public:
     /** Global wake residual equation number for x location at node i **/
     
     int &WakeResidualZ_EquationNumber(int i) { return WakeResidualEquationNumber_[3*i  ]; };
+    
+    /** We are doing an adjoint solve **/
+    
+    int &DoAdjointSolve(void) { return DoAdjointSolve_; };
                     
 };
 

@@ -89,6 +89,47 @@ private:
     VSPAERO_DOUBLE CoreWidth_;
     VSPAERO_DOUBLE SuperSonicCoreWidth_;
 
+//djk
+
+
+    int NoInfluence_;
+    
+ //   VSPAERO_DOUBLE Xp_;
+ //   VSPAERO_DOUBLE Yp_;
+ //   VSPAERO_DOUBLE Zp_;
+    
+    VSPAERO_DOUBLE U2_;
+    VSPAERO_DOUBLE U4_;
+    
+    VSPAERO_DOUBLE V2_;
+    VSPAERO_DOUBLE V4_;
+    
+    VSPAERO_DOUBLE W2_;
+    VSPAERO_DOUBLE W4_;
+    
+    VSPAERO_DOUBLE C_Gamma_;
+
+    VSPAERO_DOUBLE a_;
+    VSPAERO_DOUBLE b_;
+    VSPAERO_DOUBLE c_;
+    VSPAERO_DOUBLE d_;
+
+    VSPAERO_DOUBLE dx_;
+    VSPAERO_DOUBLE dy_;
+    VSPAERO_DOUBLE dz_;
+    
+    VSPAERO_DOUBLE s_;
+    VSPAERO_DOUBLE F_;
+    VSPAERO_DOUBLE F1_;
+    VSPAERO_DOUBLE F2_;
+    VSPAERO_DOUBLE Test_;
+    
+    VSPAERO_DOUBLE R_;
+    VSPAERO_DOUBLE Denom_; 
+    VSPAERO_DOUBLE C1_; 
+    
+// djk
+
     // Vortex solution data
     
     int Verbose_;
@@ -169,7 +210,12 @@ private:
     // Induced velocities
     
     void OldBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+
     void NewBoundVortex(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
+
+    VSPAERO_DOUBLE Fint(void);
+    VSPAERO_DOUBLE Gint(void);
+
     VSPAERO_DOUBLE Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s);
     VSPAERO_DOUBLE Gint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUBLE &c, VSPAERO_DOUBLE &d, VSPAERO_DOUBLE &s);
     
@@ -363,11 +409,7 @@ public:
     /** Determine if this edge is swept in front, or behind the Mach cone... hence (super,sub) sonic **/
     
     int IsSupersonic(void);
-    
-    /** Minimum core size for this edge **/
-    
-    VSPAERO_DOUBLE &MinCoreWidth(void) { return MinCoreWidth_; };
-    
+  
     /** Set zero tolerances for this edge **/
     
     void SetTolerance(VSPAERO_DOUBLE Tolerance);

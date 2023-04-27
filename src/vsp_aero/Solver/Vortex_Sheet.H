@@ -81,6 +81,10 @@ private:
     int CurrentTimeStep_;
     
     int IsARotor_;
+    
+    int DoVortexStretching_;    
+    
+    int DoAdjointSolve_;
         
     VSPAERO_DOUBLE Vinf_;
     
@@ -105,6 +109,24 @@ private:
     VSPAERO_DOUBLE CoreSizeFactor_;
     
     VSPAERO_DOUBLE Distance_;
+  
+    TEST_NODE TestNode_;    
+ // 
+ // VSPAERO_DOUBLE U_;
+ // 
+ // VSPAERO_DOUBLE V_;
+ // 
+ // VSPAERO_DOUBLE W_;
+ // 
+ // VSPAERO_DOUBLE dq_[3];
+ // 
+ // VSPAERO_DOUBLE Dist_;
+ // 
+ // VSPAERO_DOUBLE Vec_[3];
+ // 
+ // VSPAERO_DOUBLE xyz_k_[3];
+ // 
+ // VSPAERO_DOUBLE Mag_;
     
     static double FarAway_;
 
@@ -242,7 +264,7 @@ private:
 
     // Update wake location
         
-    VSPAERO_DOUBLE UpdateWakeLocation_(int AdjointSolve);
+    VSPAERO_DOUBLE UpdateWakeLocation_(void);
     
          
 public:
@@ -331,6 +353,10 @@ public:
     
     int &IsARotor(void) { return IsARotor_; };
     
+    /** Turn on vortex stretching model **/
+    
+    int &DoVortexStretching(void) { return DoVortexStretching_; };
+    
     /** Freestream velocity magnitude **/
     
     VSPAERO_DOUBLE &Vinf(void) { return Vinf_; };
@@ -418,11 +444,11 @@ public:
     
     /** Update the wake location **/
     
-    VSPAERO_DOUBLE UpdateWakeLocation(void) { return UpdateWakeLocation_(0); };
+    VSPAERO_DOUBLE UpdateWakeLocation(void) { return UpdateWakeLocation_(); };
 
-    /** Update the wake location for adjoint solve **/
-    
-    VSPAERO_DOUBLE UpdateWakeLocationForAdjointSolve(void) { return UpdateWakeLocation_(1); };
+  //  /** Update the wake location for adjoint solve **/
+  //  
+  //  VSPAERO_DOUBLE UpdateWakeLocationForAdjointSolve(void) { return UpdateWakeLocation_(1); };
 
     /** Update the geometry based on an input translation vector and rotation quaternion, this also shift the wake back in time **/
     
@@ -497,7 +523,11 @@ public:
     /** Turn off wake damping **/
     
     void TurnWakeDampingOff(void);
+
+    /** We are doing an adjoint solve **/
     
+    void DoAdjointSolve(void);
+        
 };
 
 #include "END_NAME_SPACE.H"

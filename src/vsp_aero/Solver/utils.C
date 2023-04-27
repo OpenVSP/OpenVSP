@@ -1671,7 +1671,7 @@ VSPAERO_DOUBLE MAX3(VSPAERO_DOUBLE a, VSPAERO_DOUBLE b, VSPAERO_DOUBLE c)
        
     }
     
-    else if ( DOUBLE(b) > DOUBLE(a) && DOUBLE(b) > DOUBLE(c) ) {
+    else if ( b > a && b > c ) {
        
        return b;
        
