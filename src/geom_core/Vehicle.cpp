@@ -570,11 +570,13 @@ bool Vehicle::CheckForVSPAERO( const string & path )
 
     if( !CheckForFile( path, m_VIEWERCmd ) )
     {
+#ifndef VSP_NO_GRAPHICS
         fprintf( stderr, "ERROR %d: VSPAERO Viewer Not Found. \n"
             "\tExpected here: %s\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
             ( path + string("/") + m_VIEWERCmd ).c_str() );
         ret_val = false;
+#endif
     }
     else
     {
