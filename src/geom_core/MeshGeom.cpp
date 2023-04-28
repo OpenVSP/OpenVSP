@@ -1713,8 +1713,6 @@ void MeshGeom::Scale()
 {
     double currentScale = m_Scale() / m_LastScale();
     m_ScaleFromOrig *= currentScale;
-    m_ScaleMatrix.loadIdentity();
-    m_ScaleMatrix.scale( m_ScaleFromOrig() );
     m_LastScale = m_Scale();
 }
 

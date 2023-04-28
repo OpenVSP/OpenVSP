@@ -175,7 +175,11 @@ public:
 
     virtual TMesh* GetMeshByID( const string & id );
 
-    virtual void UpdateSurf() {}
+    virtual void UpdateSurf()
+    {
+        m_ScaleMatrix.loadIdentity();
+        m_ScaleMatrix.scale( m_ScaleFromOrig() );
+    }
     virtual int GetNumMainSurfs() const
     {
         return 0;
