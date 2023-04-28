@@ -162,7 +162,7 @@ void AeroStructSingleton::FindCCX( const string & path )
     else // Check for ccx in path
     {
 #ifdef WIN32
-        system( "ccx > temp.txt" );
+        system( "ccx > temp.txt 2> nul" );
 
         // Get size of temp file
         FILE* fp = fopen( "temp.txt", "r" );
@@ -201,7 +201,7 @@ void AeroStructSingleton::FindCGX( const string & path )
     else // Check for ccx in path
     {
 #ifdef WIN32
-        system( "cgx > temp.txt" );
+        system( "cgx > temp.txt 2> nul" );
 
         // Get size of temp file
         FILE* fp = fopen( "temp.txt", "r" );
