@@ -2441,6 +2441,8 @@ void ParmPicker::Deactivate()
 
 void ParmPicker::Update( )
 {
+    static string dummymenuentry = GenerateRandomID( 14 );
+
     int i;
     char str[256];
 
@@ -2461,7 +2463,8 @@ void ParmPicker::Update( )
     for ( i = 0 ; i < ( int )containerNameVec.size() ; i++ )
     {
         snprintf( str, sizeof( str ), "%d-%s", i,  containerNameVec[i].c_str() );
-        m_ContainerChoice->add( str );
+        m_ContainerChoice->add( dummymenuentry.c_str(), 0, 0, 0, 0 );
+        m_ContainerChoice->replace( i, str );
     }
     m_ContainerChoice->value( ind );
 
@@ -2471,7 +2474,8 @@ void ParmPicker::Update( )
     ind = LinkMgr.GetCurrGroupNameVec( m_ParmIDChoice, groupNameVec );
     for ( i = 0 ; i < ( int )groupNameVec.size() ; i++ )
     {
-        m_GroupChoice->add( groupNameVec[i].c_str() );
+        m_GroupChoice->add( dummymenuentry.c_str(), 0, 0, 0, 0 );
+        m_GroupChoice->replace( i, groupNameVec[i].c_str() );
     }
     m_GroupChoice->value( ind );
 
@@ -2482,7 +2486,8 @@ void ParmPicker::Update( )
     vector< string > parmNameVec = FindParmNames( parmIDVec );
     for ( i = 0 ; i < ( int )parmNameVec.size() ; i++ )
     {
-        m_ParmChoice->add( parmNameVec[i].c_str() );
+        m_ParmChoice->add( dummymenuentry.c_str(), 0, 0, 0, 0 );
+        m_ParmChoice->replace( i, parmNameVec[i].c_str() );
     }
     m_ParmChoice->value( ind );
 
@@ -3456,10 +3461,13 @@ void GeomPicker::Deactivate()
 
 void GeomPicker::Update( )
 {
+    static string dummymenuentry = GenerateRandomID( 14 );
+
     //==== Load Geom Choice ====//
     vector< string > allGeomVec = m_Vehicle->GetGeomVec();
     m_GeomVec.clear();
     m_GeomChoice->clear();
+    int add_count = 0;
     for ( int i = 0 ; i < ( int )allGeomVec.size() ; i++ )
     {
         Geom* g = m_Vehicle->FindGeom( allGeomVec[i] );
@@ -3502,7 +3510,9 @@ void GeomPicker::Update( )
 
                     char str[256];
                     snprintf( str, sizeof( str ), "%d_%s", i, g->GetName().c_str() );
-                    m_GeomChoice->add( str );
+                    m_GeomChoice->add( dummymenuentry.c_str(), 0, 0, 0, 0 );
+                    m_GeomChoice->replace( add_count, str );
+                    add_count++;
                 }
             }
         }

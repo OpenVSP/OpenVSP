@@ -309,6 +309,8 @@ void SelectFileScreen::EnforceFilter( string &in ) const
 
 void SelectFileScreen::LoadFavsMenu()
 {
+    static string dummymenuentry = GenerateRandomID( 14 );
+
     m_FavDirVec.clear();
     m_FavsMenuButton->add( "Add to Favorites" );
     m_FavsMenuButton->add( "Delete All Favorites", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
@@ -319,6 +321,7 @@ void SelectFileScreen::LoadFavsMenu()
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
 
     //==== Load All Favorites From Preferences ====//
+    int add_count = 4;
     char tag[256], str[256];
     bool keep_looking = true;
     while ( keep_looking )
@@ -332,8 +335,9 @@ void SelectFileScreen::LoadFavsMenu()
             m_FavDirVec.push_back( string( str ) );
             
             string menu_label( str );
-            menu_label.insert( 0, "/" );
-            m_FavsMenuButton->add( menu_label.c_str() );
+            m_FavsMenuButton->add( dummymenuentry.c_str(), 0, 0, 0, 0 );
+            m_FavsMenuButton->replace( add_count, menu_label.c_str() );
+            add_count++;
         }
     }
 }
