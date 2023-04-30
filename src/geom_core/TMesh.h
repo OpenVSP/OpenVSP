@@ -134,15 +134,6 @@ public:
     TNode();
     virtual ~TNode();
 
-    vec3d m_Pnt;
-    vec3d m_UWPnt;
-    int m_ID;
-
-    vector< TTri* > m_TriVec;               // For WaterTight Check
-    vector< TEdge* > m_EdgeVec;         // For WaterTight Check
-
-    vector< TNode* > m_MergeVec;
-
     virtual void CopyFrom( const TNode* node);
     virtual void MakePntUW();
     virtual void MakePntXYZ();
@@ -167,6 +158,15 @@ public:
     virtual void SetXYZPnt( const vec3d & pnt );
     virtual void SetUWPnt( const vec3d & pnt );
 
+    vec3d m_Pnt;
+    vec3d m_UWPnt;
+    int m_ID;
+
+    vector< TTri* > m_TriVec;               // For WaterTight Check
+    vector< TEdge* > m_EdgeVec;         // For WaterTight Check
+
+    vector< TNode* > m_MergeVec;
+
 //  TNode* mapNode;
 
     int m_IsectFlag;
@@ -185,12 +185,6 @@ public:
     TEdge( TNode* n0, TNode* n1, TTri* par_tri );
     virtual ~TEdge()        {}
 
-    TNode* m_N0;
-    TNode* m_N1;
-
-    TTri* m_Tri0;                           // For WaterTight Check
-    TTri* m_Tri1;
-
     virtual void SetParTri( TTri* par_tri )
     {
         m_ParTri = par_tri;
@@ -201,6 +195,12 @@ public:
     }
 
     virtual void SortNodesByU();
+
+    TNode* m_N0;
+    TNode* m_N1;
+
+    TTri* m_Tri0;                           // For WaterTight Check
+    TTri* m_Tri1;
 
 protected:
     TTri* m_ParTri; // Tri that edge is apart of
@@ -214,18 +214,6 @@ class TTri
 public:
     TTri( TMesh* tmesh );
     virtual ~TTri();
-
-    TNode* m_N0;
-    TNode* m_N1;
-    TNode* m_N2;
-
-    vec3d m_Norm;
-
-    vector< TEdge* > m_ISectEdgeVec;        // List of Intersection Edges
-    vector< TTri* > m_SplitVec;             // List of split tris
-    vector< TNode* > m_NVec;                // Nodes for split tris
-    vector< TEdge* > m_EVec;                // Edges for split tris
-    TEdge* m_PEArr[3];                          // Perimeter Edge Array
 
     virtual void CopyFrom( const TTri* tri );
     virtual void SplitTri();              // Split Tri to Fit ISect Edges
@@ -283,6 +271,18 @@ public:
 
     virtual int WakeEdge();
 
+    TNode* m_N0;
+    TNode* m_N1;
+    TNode* m_N2;
+
+    vec3d m_Norm;
+
+    vector< TEdge* > m_ISectEdgeVec;        // List of Intersection Edges
+    vector< TTri* > m_SplitVec;             // List of split tris
+    vector< TNode* > m_NVec;                // Nodes for split tris
+    vector< TEdge* > m_EVec;                // Edges for split tris
+    TEdge* m_PEArr[3];                          // Perimeter Edge Array
+
     bool m_IgnoreTriFlag;
     vector< bool > m_insideSurf;
     string m_ID;
@@ -311,11 +311,6 @@ public:
 
     virtual void Reset();
 
-    BndBox m_Box;
-    vector< TTri* > m_TriVec;
-
-    TBndBox* m_SBoxVec[8];      // Split Bnd Boxes
-
     void SplitBox();
     void AddTri( TTri* t );
     virtual void Intersect( TBndBox* iBox, bool UWFlag = false );
@@ -324,6 +319,10 @@ public:
     virtual bool CheckIntersect( TBndBox* iBox );
     virtual double MinDistance( TBndBox* iBox, double curr_min_dist );
 
+    BndBox m_Box;
+    vector< TTri* > m_TriVec;
+
+    TBndBox* m_SBoxVec[8];      // Split Bnd Boxes
 };
 
 class Geom;
@@ -334,43 +333,12 @@ public:
     TMesh();
     virtual ~TMesh();
 
-    vector< TTri* >  m_TVec;
-    vector< TNode* > m_NVec;
-    vector< TEdge* > m_EVec;
-
-    TBndBox m_TBox;
-
     void copy( TMesh* m );
     void CopyFlatten( TMesh* m );
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual void DecodeXml( xmlNodePtr & node );
     virtual xmlNodePtr EncodeTriList( xmlNodePtr & node );
     virtual void DecodeTriList( xmlNodePtr & node, int num_tris );
-
-    //==== Stuff Copied From Geom That Created This Mesh ====//
-    string m_OriginGeomID;
-    //bool reflected_flag;
-    string m_NameStr;
-    int m_SurfNum; // To keep track of geoms with multiple surfaces
-    int m_PlateNum; // To keep track of degen plate number.  -1 for normal surfaces.
-    int m_MaterialID;
-    vec3d m_Color;
-    int m_SurfCfdType;
-    int m_ThickSurf;
-    int m_MassPrior;
-    double m_Density;
-    double m_ShellMassArea;
-    bool m_ShellFlag;
-
-    double m_TheoArea;
-    double m_WetArea;
-    vector < double > m_CompAreaVec;
-    vector < double > m_TagTheoAreaVec;
-    vector < double > m_TagWetAreaVec;
-    double m_TheoVol;
-    double m_GuessVol;
-    double m_WetVol;
-    vec3d m_AreaCenter;
 
     void LoadGeomAttributes( const Geom* geomPtr );
     int  RemoveDegenerate();
@@ -414,8 +382,6 @@ public:
     virtual void AddEdge( TTri* tri0, TTri* tri1, TNode* node0, TNode* node1 );
     virtual void SwapEdge( TEdge* edge );
 
-    bool m_DeleteMeFlag;
-    vector< TTri* > m_NonClosedTriVec;
     virtual void MergeNonClosed( TMesh* tm );
     virtual void MergeTMeshes( TMesh* tm );
     virtual void CheckIfClosed();
@@ -448,6 +414,40 @@ public:
 
     static void StressTest();
     static double Rand01();
+
+    vector< TTri* >  m_TVec;
+    vector< TNode* > m_NVec;
+    vector< TEdge* > m_EVec;
+
+    TBndBox m_TBox;
+
+    //==== Stuff Copied From Geom That Created This Mesh ====//
+    string m_OriginGeomID;
+    //bool reflected_flag;
+    string m_NameStr;
+    int m_SurfNum; // To keep track of geoms with multiple surfaces
+    int m_PlateNum; // To keep track of degen plate number.  -1 for normal surfaces.
+    int m_MaterialID;
+    vec3d m_Color;
+    int m_SurfCfdType;
+    int m_ThickSurf;
+    int m_MassPrior;
+    double m_Density;
+    double m_ShellMassArea;
+    bool m_ShellFlag;
+
+    double m_TheoArea;
+    double m_WetArea;
+    vector < double > m_CompAreaVec;
+    vector < double > m_TagTheoAreaVec;
+    vector < double > m_TagWetAreaVec;
+    double m_TheoVol;
+    double m_GuessVol;
+    double m_WetVol;
+    vec3d m_AreaCenter;
+
+    bool m_DeleteMeFlag;
+    vector< TTri* > m_NonClosedTriVec;
 
     vector< vec3d > m_VertVec;
 
