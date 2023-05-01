@@ -1667,6 +1667,11 @@ FuseXSec::FuseXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_RefLength = 1.0;
     m_RefLenVal = 1.0;
 
+    m_FwdCluster.Init( "FwdCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
+    m_FwdCluster.SetDescript( "Forward Tess Cluster Control" );
+    m_AftCluster.Init( "AftCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
+    m_AftCluster.SetDescript( "Aft Tess Cluster Control" );
+
     m_XLocPercent.Init( "XLocPercent", m_GroupName, this,  0.0, 0.0, 1.0 );
     m_XLocPercent.SetDescript( "X distance of cross section as a percent of fuselage length" );
     m_YLocPercent.Init( "YLocPercent", m_GroupName, this,  0.0, -1.0, 1.0 );
@@ -1892,6 +1897,11 @@ void FuseXSec::ReadV2FileFuse1( xmlNodePtr &root )
 StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
 {
     m_Type = XSEC_STACK;
+
+    m_FwdCluster.Init( "FwdCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
+    m_FwdCluster.SetDescript( "Forward Tess Cluster Control" );
+    m_AftCluster.Init( "AftCluster", m_GroupName, this, 1.0, 1e-4, 10.0 );
+    m_AftCluster.SetDescript( "Aft Tess Cluster Control" );
 
     m_XDelta.Init( "XDelta", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_XDelta.SetDescript( "X distance of cross section from prior cross section" );

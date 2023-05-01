@@ -309,6 +309,9 @@ public:
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
     virtual void ReadV2FileFuse1( xmlNodePtr &root );
 
+    Parm m_FwdCluster;
+    Parm m_AftCluster;
+
     FractionParm m_XLocPercent;
     FractionParm m_YLocPercent;
     FractionParm m_ZLocPercent;
@@ -338,6 +341,9 @@ public:
     virtual void CopyBasePos( XSec* xs );
 
     virtual double GetScale();
+
+    Parm m_FwdCluster;
+    Parm m_AftCluster;
 
     Parm m_XDelta;
     Parm m_YDelta;
