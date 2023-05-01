@@ -84,6 +84,9 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 400, 715, "Stac
     m_XSecLayout.AddYGap();
     int tess_w = m_XSecLayout.GetButtonWidth();
     m_XSecLayout.AddSlider( m_SectUTessSlider, "Num U", 20, " %5.0f" );
+    m_XSecLayout.AddSlider( m_FwdClusterSlider, "Fwd. Cluster", 1, "%6.5f" );
+    m_XSecLayout.AddSlider( m_AftClusterSlider, "Aft Cluster", 1, "%6.5f" );
+    m_XSecLayout.AddYGap();
 
     m_XSecLayout.SetButtonWidth( 50 );
     m_XSecLayout.AddSlider( m_XSecXDeltaSlider, "Delta X", 10.0, "%6.5f" );
@@ -219,6 +222,8 @@ bool StackScreen::Update()
         bool nextlastxs = xsid == ( stackgeom_ptr->GetXSecSurf( 0 )->NumXSec() - 2 );
 
         m_SectUTessSlider.Update( xs->m_SectTessU.GetID() );
+        m_FwdClusterSlider.Update( xs->m_FwdCluster.GetID() );
+        m_AftClusterSlider.Update( xs->m_AftCluster.GetID() );
         m_XSecXDeltaSlider.Update( xs->m_XDelta.GetID() );
         m_XSecYDeltaSlider.Update( xs->m_YDelta.GetID() );
         m_XSecZDeltaSlider.Update( xs->m_ZDelta.GetID() );
@@ -230,6 +235,8 @@ bool StackScreen::Update()
         if ( firstxs )
         {
             m_SectUTessSlider.Deactivate();
+            m_FwdClusterSlider.Deactivate();
+            m_AftClusterSlider.Deactivate();
             m_XSecXDeltaSlider.Deactivate();
             m_XSecYDeltaSlider.Deactivate();
             m_XSecZDeltaSlider.Deactivate();
@@ -241,6 +248,8 @@ bool StackScreen::Update()
         else
         {
             m_SectUTessSlider.Activate();
+            m_FwdClusterSlider.Activate();
+            m_AftClusterSlider.Activate();
             m_XSecXDeltaSlider.Activate();
             m_XSecYDeltaSlider.Activate();
             m_XSecZDeltaSlider.Activate();

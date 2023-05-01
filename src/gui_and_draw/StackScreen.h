@@ -55,6 +55,8 @@ protected:
     TriggerButton m_PasteXSec;
 
     SliderAdjRangeInput m_SectUTessSlider;
+    SliderAdjRangeInput m_FwdClusterSlider;
+    SliderAdjRangeInput m_AftClusterSlider;
 
     SliderAdjRangeInput m_XSecXDeltaSlider;
     SliderAdjRangeInput m_XSecYDeltaSlider;
