@@ -74,6 +74,8 @@ protected:
     virtual void EnforceOrder( StackXSec* xs, int indx, int policy );
 
     vector<int> m_TessUVec;
+    vector < double > m_FwdClusterVec;
+    vector < double > m_AftClusterVec;
     virtual void UpdatePreTess();
 
     bool m_Closed;

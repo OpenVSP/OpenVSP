@@ -104,6 +104,8 @@ void StackGeom::ChangeID( string id )
 void StackGeom::UpdatePreTess()
 {
     m_TessUVec.clear();
+    m_FwdClusterVec.clear();
+    m_AftClusterVec.clear();
 
     unsigned int nxsec = m_XSecSurf.NumXSec();
 
@@ -116,6 +118,8 @@ void StackGeom::UpdatePreTess()
             if ( i > 0 )
             {
                 m_TessUVec.push_back( xs->m_SectTessU() );
+                m_FwdClusterVec.push_back( xs->m_FwdCluster() );
+                m_AftClusterVec.push_back( xs->m_AftCluster() );
             }
         }
     }
@@ -195,44 +199,62 @@ void StackGeom::UpdateSurf()
 void StackGeom::UpdateTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen  ) const
 {
     vector < int > tessvec;
+    vector < double > fwdc;
+    vector < double > aftc;
 
     if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
+        fwdc.push_back( 1.0 );
+        aftc.push_back( 1.0 );
     }
 
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );
+        fwdc.push_back( m_FwdClusterVec[i] );
+        aftc.push_back( m_AftClusterVec[i] );
     }
 
     if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
+        fwdc.push_back( 1.0 );
+        aftc.push_back( 1.0 );
     }
 
+    surf_vec[indx].SetRootTipClustering( fwdc, aftc );
     surf_vec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), m_TessU(), degen );
 }
 
 void StackGeom::UpdateSplitTesselate( const vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms ) const
 {
     vector < int > tessvec;
+    vector < double > fwdc;
+    vector < double > aftc;
 
     if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
+        fwdc.push_back( 1.0 );
+        aftc.push_back( 1.0 );
     }
 
     for ( int i = 0; i < m_TessUVec.size(); i++ )
     {
         tessvec.push_back( m_TessUVec[i] );
+        fwdc.push_back( m_FwdClusterVec[i] );
+        aftc.push_back( m_AftClusterVec[i] );
     }
 
     if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
     {
         tessvec.push_back( m_CapUMinTess() );
+        fwdc.push_back( 1.0 );
+        aftc.push_back( 1.0 );
     }
 
+    surf_vec[indx].SetRootTipClustering( fwdc, aftc );
     surf_vec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), m_TessU() );
 }
 

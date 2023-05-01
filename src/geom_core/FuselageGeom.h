@@ -99,6 +99,8 @@ protected:
 
 
     vector<int> m_TessUVec;
+    vector < double > m_FwdClusterVec;
+    vector < double > m_AftClusterVec;
     virtual void UpdatePreTess();
 };
 #endif // !defined(VSPPODGEOM__INCLUDED_)
