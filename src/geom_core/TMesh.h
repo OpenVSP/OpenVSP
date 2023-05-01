@@ -215,6 +215,7 @@ public:
     TTri( TMesh* tmesh );
     virtual ~TTri();
 
+    virtual bool CleanupEdgeVec();
     virtual void CopyFrom( const TTri* tri );
     virtual void SplitTri();              // Split Tri to Fit ISect Edges
     virtual void TriangulateSplit( int flattenAxis );

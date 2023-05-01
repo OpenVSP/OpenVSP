@@ -1397,6 +1397,19 @@ TTri::~TTri()
 
 }
 
+bool TTri::CleanupEdgeVec()
+{
+    bool unexpected = false;
+    //==== Delete Split Edges ====//
+    for ( int i = 0 ; i < ( int )m_EVec.size() ; i++ )
+    {
+        delete m_EVec[i];
+        unexpected = true;
+    }
+    m_EVec.clear();
+    return unexpected;
+}
+
 void TTri::CopyFrom( const TTri* tri )
 {
     m_N0 = new TNode();
@@ -1584,6 +1597,10 @@ void TTri::SplitTri()
         uwflag = true;
     }
 
+    if ( CleanupEdgeVec() )
+    {
+        printf( "Unexpected m_EVec cleared in TTri::SplitTri().\n" );
+    }
     //==== Add Edges For Perimeter ====//
     for ( i = 0 ; i < 3 ; i++ )
     {
