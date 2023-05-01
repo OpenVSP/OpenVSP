@@ -1905,6 +1905,8 @@ void TTri::SplitTri()
     //==== Use Triangle to Split Tri ====//
     TriangulateSplit( flattenAxis );
 
+    CleanupEdgeVec();
+
     if ( !uwflag )
     {
         // Rotate Points Back
