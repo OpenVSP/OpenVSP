@@ -1039,6 +1039,19 @@ int MeshGeom::WriteVSPGeomParts( FILE* file_id  )
     return 0;
 }
 
+int MeshGeom::WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag )
+{
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    {
+        TTri* ttri = m_IndexedTriVec[t];
+        if ( SubSurfaceMgr.MatchPartAndTag( ttri->m_Tags, part, tag ) )
+        {
+            fprintf( file_id, "%d\n", t + tri_offset + 1 );
+        }
+    }
+    return tri_offset + m_IndexedTriVec.size();
+}
+
 // Wake edges are created such that N0.u < N1.u.
 // This comparator sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
 bool OrderWakeEdges ( const TEdge &a, const TEdge &b )

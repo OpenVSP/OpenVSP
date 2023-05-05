@@ -124,6 +124,8 @@ public:
     virtual int  WriteCart3DParts( FILE* file_id );
     virtual int  WriteVSPGeomParts( FILE* file_id );
 
+    virtual int  WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag );
+
     virtual void IdentifyWakes();
 
     virtual int  WriteVSPGeomWakes( FILE* file_id, int offset );
