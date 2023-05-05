@@ -317,19 +317,18 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         return;
     }
 
+    int npart = 0;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() == 1 )
+        {
+            npart++;
+        }
+    }
+
     // Write Out Header Information
     fprintf( fid, "# VSPGEOM Tag Key File\n" );
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
-    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
-    fprintf( fid, "\n" );
-    if ( writethickthin )
-    {
-        fprintf( fid, "# tag#,geom#,surf#,gname,gid,thick,ssname1,ssname2,...,ssid1,ssid2,...\n" );
-    }
-    else
-    {
-        fprintf( fid, "# tag#,geom#,surf#,gname,gid,ssname1,ssname2,...,ssid1,ssid2,...\n" );
-    }
 
     // Build GeomID set to have unique integer index instead of GeomID.
     std::set< string, greater< string > > gids;
@@ -341,19 +340,27 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         gids.insert( gid );
     }
 
-    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    fprintf( fid, "%d\n", npart );
+    fprintf( fid, "\n" );
+
+    if ( writethickthin )
     {
-        int tag = GetTag( m_TagKeys[ i ] );
-
-        string comp_list = GetTagNames( m_TagKeys[ i ] );
-
-        printf( "%d %s\n", i, comp_list.c_str() );
+        fprintf( fid, "# part#,geom#,surf#,gname,gid,thick\n" );
+    }
+    else
+    {
+        fprintf( fid, "# part#,geom#,surf#,gname,gid\n" );
     }
 
 
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
-        int tag = GetTag( m_TagKeys[i] );
+        if ( m_TagKeys[i].size() != 1 )
+        {
+            continue;
+        }
+
+        int part = GetPart( m_TagKeys[i] );
 
         string comp_list = GetTagNames( m_TagKeys[i] );
 
@@ -404,11 +411,86 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         // Write tag number and surface list to file
         if ( writethickthin )
         {
-            fprintf( fid, "%d,%d,%s,%s,%s,%d", tag , gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
+            fprintf( fid, "%d,%d,%s,%s,%s,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
         }
         else
         {
-            fprintf( fid, "%d,%d,%s,%s,%s", tag , gnum, snum.c_str(), gname.c_str(), gid_bare.c_str() );
+            fprintf( fid, "%d,%d,%s,%s,%s\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str() );
+        }
+    }
+
+    fprintf( fid, "\n" );
+    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
+    fprintf( fid, "\n" );
+
+    if ( writethickthin )
+    {
+        fprintf( fid, "# tag#,part#,geom#,surf#,gname,gid,thick,ssname1,ssname2,...,ssid1,ssid2,...\n" );
+    }
+    else
+    {
+        fprintf( fid, "# tag#,part#,geom#,surf#,gname,gid,ssname1,ssname2,...,ssid1,ssid2,...\n" );
+    }
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        int tag = GetTag( m_TagKeys[i] );
+        int part = GetPart( m_TagKeys[i] );
+
+        string comp_list = GetTagNames( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        int spos = comp_list.find( "_Surf" );
+
+        string gname = comp_list.substr( 0, spos );
+
+        string snum, ssnames, ssids;
+
+        // Find position of first comma
+        int cpos = comp_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
+            ssnames = comp_list.substr( cpos );
+        }
+        else
+        {
+            snum = comp_list.substr( spos + 5 );
+        }
+
+        string id_list = GetTagIDs( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        spos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, spos );
+        string gid_bare = gid.substr( 0, 10 );
+
+        // Find position of first comma
+        cpos = id_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            ssids = id_list.substr( cpos );
+        }
+
+        // Lookup Geom number
+        int gnum = distance( gids.begin(), gids.find( gid ) );
+
+        int thickthin = -1;
+        map<string,int>::iterator it;
+        it = m_ThickMap.find( gid_bare );
+        if ( it != m_ThickMap.end() )
+        {
+            thickthin = m_ThickMap[ gid ];
+        }
+
+        // Write tag number and surface list to file
+        if ( writethickthin )
+        {
+            fprintf( fid, "%d,%d,%d,%s,%s,%s,%d", tag, part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
+        }
+        else
+        {
+            fprintf( fid, "%d,%d,%d,%s,%s,%s", tag, part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str() );
         }
 
         // Write subsurface information if there is any
