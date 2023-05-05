@@ -3427,6 +3427,92 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
 
     fclose( file_id );
 
+
+    int ntagfile = 0;
+
+    std::vector < int > partvec;
+    SubSurfaceMgr.MakePartList( partvec );
+    vector < SubSurface* > ssurfs = SubSurfaceMgr.GetSubSurfs();
+
+    for ( int ipart = 0; ipart < partvec.size(); ipart++ )
+    {
+        int part = partvec[ ipart ];
+
+        for ( int iss = 0; iss < ssurfs.size(); iss++ )
+        {
+            SubSurface *ssurf = ssurfs[iss];
+            int tag = ssurf->m_Tag;
+
+            if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
+            {
+                ntagfile++;
+            }
+        }
+    }
+
+    if ( ntagfile > 0 )
+    {
+        string base_name = file_name;
+        std::string::size_type loc = base_name.find_last_of( "." );
+        if ( loc != base_name.npos )
+        {
+            base_name = base_name.substr( 0, loc );
+        }
+        string taglist_name = base_name + ".taglist";
+
+        FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
+        if ( taglist_fid )
+        {
+
+            fprintf( taglist_fid, "%d\n", ntagfile );
+
+            for ( int ipart = 0; ipart < partvec.size(); ipart++ )
+            {
+                int part = partvec[ ipart ];
+
+                for ( int iss = 0; iss < ssurfs.size(); iss++ )
+                {
+                    SubSurface *ssurf = ssurfs[iss];
+                    int tag = ssurf->m_Tag;
+
+                    if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
+                    {
+                        vector < int > parttag;
+                        parttag.push_back( part );
+                        parttag.push_back( tag );
+
+                        string ptagname = SubSurfaceMgr.GetTagNames( parttag );
+
+                        string tagfile_name = base_name + ptagname + ".tag";
+
+                        fprintf( taglist_fid, "%s\n", tagfile_name.c_str() );
+
+                        FILE* fid = fopen( tagfile_name.c_str(), "w" );
+                        if ( fid )
+                        {
+                            int tri_offset = 0;
+                            for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+                            {
+                                if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                                     geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+                                {
+                                    MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                                    tri_offset = mg->WriteVSPGeomPartTagTris( fid, tri_offset, part, tag );
+                                }
+                            }
+
+                            fclose( fid );
+                        }
+                    }
+                }
+            }
+
+            fclose( taglist_fid );
+        }
+    }
+
+
+
     //==== Write Out tag key file ====//
 
     SubSurfaceMgr.WriteVSPGEOMKeyFile(file_name);
