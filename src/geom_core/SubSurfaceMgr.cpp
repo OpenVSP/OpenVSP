@@ -586,6 +586,15 @@ int SubSurfaceMgrSingleton::GetTag( const vector<int> & tags )
     }
 }
 
+int SubSurfaceMgrSingleton::GetPart( const vector<int> & tags )
+{
+    if ( tags.size() > 0 )
+    {
+        return tags[0];
+    }
+    return -1;
+}
+
 std::vector< int > SubSurfaceMgrSingleton::GetAllTags()
 {
     std::vector< int > ret;
@@ -596,4 +605,101 @@ std::vector< int > SubSurfaceMgrSingleton::GetAllTags()
         ret.push_back(tag);
     }
     return ret;
+}
+
+bool SubSurfaceMgrSingleton::MatchPartAndTag( const vector < int > & tags, int part, int tag )
+{
+    if ( tags.size() > 0 )
+    {
+        if ( tags[0] == part )
+        {
+            if ( vector_contains_val( tags, tag ) )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool SubSurfaceMgrSingleton::ExistPartAndTag( int part, int tag )
+{
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( MatchPartAndTag( m_TagKeys[i], part, tag ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void SubSurfaceMgrSingleton::MakePartList( std::vector < int > & partvec )
+{
+    std::set< int > partset;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() > 0 )
+        {
+            partset.insert( m_TagKeys[i][0] );
+        }
+    }
+
+    partvec.clear();
+    partvec.reserve( partset.size() );
+    std::set< int >::iterator it;
+    for ( it = partset.begin(); it != partset.end(); ++it )
+    {
+        partvec.push_back( *it );
+    }
+}
+
+void SubSurfaceMgrSingleton::GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec )
+{
+    gidvec.clear();
+    partvec.clear();
+    surfvec.clear();
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() != 1 )
+        {
+            continue;
+        }
+
+        int part = GetPart( m_TagKeys[i] );
+
+        string comp_list = GetTagNames( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        int spos = comp_list.find( "_Surf" );
+
+        string gname = comp_list.substr( 0, spos );
+
+        string snum, ssnames, ssids;
+
+        // Find position of first comma
+        int cpos = comp_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
+            ssnames = comp_list.substr( cpos );
+        }
+        else
+        {
+            snum = comp_list.substr( spos + 5 );
+        }
+
+        string id_list = GetTagIDs( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        spos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, spos );
+        string gid_bare = gid.substr( 0, 10 );
+
+
+        gidvec.push_back( gid_bare );
+        partvec.push_back( part );
+        surfvec.push_back( stoi( snum.c_str() ) );
+    }
 }

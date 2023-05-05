@@ -64,6 +64,7 @@ public:
     void BuildCompIDMap();
     void BuildSingleTagMap();
     int GetTag( const std::vector<int> & tags );
+    int GetPart( const std::vector<int> & tags );
     std::vector< int > GetAllTags();
 
     // Returns number of tags +1 for dummy tag.
@@ -89,6 +90,12 @@ public:
 
     std::string GetTagIDs( const std::vector<int>& tags );
     std::string GetTagIDs( int indx );
+
+    bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
+    bool ExistPartAndTag( int part, int tag );
+    void MakePartList( std::vector < int > & partvec );
+
+    void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );
 
     std::set< std::vector<int> > m_TagCombos;
     std::map< int, std::string > m_TagNames;
