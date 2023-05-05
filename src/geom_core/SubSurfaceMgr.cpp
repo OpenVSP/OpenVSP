@@ -684,6 +684,16 @@ int SubSurfaceMgrSingleton::GetPart( const vector<int> & tags )
     return -1;
 }
 
+int SubSurfaceMgrSingleton::GetPart( int tag )
+{
+    if ( m_TagKeys.size() >= tag )
+    {
+        vector < int > tags = m_TagKeys[ tag - 1 ];
+        return GetPart( tags );
+    }
+    return -1;
+}
+
 std::vector< int > SubSurfaceMgrSingleton::GetAllTags()
 {
     std::vector< int > ret;
@@ -707,6 +717,15 @@ bool SubSurfaceMgrSingleton::MatchPartAndTag( const vector < int > & tags, int p
                 return true;
             }
         }
+    }
+    return false;
+}
+
+bool SubSurfaceMgrSingleton::MatchPartAndTag( int singletag, int part, int tag )
+{
+    if ( m_TagKeys.size() >= singletag )
+    {
+        return MatchPartAndTag( m_TagKeys[ singletag - 1 ], part, tag );
     }
     return false;
 }

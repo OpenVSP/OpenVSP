@@ -66,6 +66,7 @@ public:
     void BuildSingleTagMap();
     int GetTag( const std::vector<int> & tags );
     int GetPart( const std::vector<int> & tags );
+    int GetPart( int tag );
     std::vector< int > GetAllTags();
 
     // Returns number of tags +1 for dummy tag.
@@ -93,6 +94,7 @@ public:
     std::string GetTagIDs( int indx );
 
     bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
+    bool MatchPartAndTag( int singletag, int part, int tag );
     bool ExistPartAndTag( int part, int tag );
     void MakePartList( std::vector < int > & partvec );
 

@@ -247,9 +247,18 @@ void NGonMeshGeom::WriteVSPGEOM( string fname )
 
         fclose ( file_id );
 
+        m_PGMesh.WriteTagFiles( fname );
+
         //==== Write Out tag key file ====//
 
         SubSurfaceMgr.WriteVSPGEOMKeyFile( fname );
+
+        vector < string > gidvec;
+        vector < int > partvec;
+        vector < int > surfvec;
+        SubSurfaceMgr.GetPartData( gidvec, partvec, surfvec );
+
+        m_Vehicle->WriteControlSurfaceFile( fname, gidvec, partvec, surfvec );
     }
 }
 
