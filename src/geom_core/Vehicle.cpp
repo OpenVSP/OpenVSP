@@ -3265,10 +3265,10 @@ n1 i11 i12 i13...i1n         // Number of points, index 1, 2, ... n for each fac
 n2 i21 i22 i23...i2n
 ...
 nnface in1 in2... inn        // Last polygon face
-t1 u11 v11 u12 v12...u1n v1n // Tag number for face 1 followed by multi-valued nodal data -- currently parametric UV coordinate.
-t2 u21 v21 u22 v22...u2n v2n // Also any other face-centered data that we desire to add.
+p1 t1 u11 v11 u12 v12...u1n v1n // Part number then tag number for face 1 followed by multi-valued nodal data -- currently parametric UV coordinate.
+p2 t2 u21 v21 u22 v22...u2n v2n // Also any other face-centered data that we desire to add.
 ...
-tnface un1 vn2...unn vnn     // Last tag, multi-valued nodal and face-centered data
+pnface tnface un1 vn2...unn vnn // Last part then tag, multi-valued nodal and face-centered data
 nwake                        // Number of wake lines
 n1 i11 i12 i13 i14...i1n     // Number of points in wake line, indices in chain-order.  Typically line wrapped at ten indices per line.
 n2 i21 i22 i13 i24...i2n
