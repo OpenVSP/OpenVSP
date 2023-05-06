@@ -1761,6 +1761,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     //=====================================================================================//
     if ( vspgeom_fn.length() != 0 )
     {
+        bool allowquads = true;
         FILE* fp = fopen( vspgeom_fn.c_str(), "w" );
 
         if ( fp )
@@ -1774,7 +1775,6 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i].x(), allUsedPntVec[i].y(), allUsedPntVec[i].z() );
             }
 
-            bool allowquads = true;
             if ( allowquads )
             {
                 //==== Write Face Count ====//
@@ -1814,9 +1814,12 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 //==== Write Component ID ====//
                 for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
                 {
+                    int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
+                    int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
+
                     if( allFaceVec[i].m_isQuad )
                     {
-                        fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ),
+                        fprintf( fp, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
                              allUWVec[i][0].x(), allUWVec[i][0].y(),
                              allUWVec[i][1].x(), allUWVec[i][1].y(),
                              allUWVec[i][2].x(), allUWVec[i][2].y(),
@@ -1824,7 +1827,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                     }
                     else
                     {
-                        fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ),
+                        fprintf( fp, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
                                  allUWVec[i][0].x(), allUWVec[i][0].y(),
                                  allUWVec[i][1].x(), allUWVec[i][1].y(),
                                  allUWVec[i][2].x(), allUWVec[i][2].y() );
@@ -1836,13 +1839,16 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 //==== Write Component ID ====//
                 for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
                 {
-                    fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ),
+                    int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
+                    int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
+
+                    fprintf( fp, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
                              allUWVec[i][0].x(), allUWVec[i][0].y(),
                              allUWVec[i][1].x(), allUWVec[i][1].y(),
                              allUWVec[i][2].x(), allUWVec[i][2].y() );
                     if( allFaceVec[i].m_isQuad )
                     {
-                        fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags ),
+                        fprintf( fp, "%d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", part, tag,
                                  allUWVec[i][0].x(), allUWVec[i][0].y(),
                                  allUWVec[i][2].x(), allUWVec[i][2].y(),
                                  allUWVec[i][3].x(), allUWVec[i][3].y() );
@@ -1883,7 +1889,130 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             fclose( fp );
         }
 
+        WriteTagFiles( vspgeom_fn, allFaceVec, allowquads );
+
         SubSurfaceMgr.WriteVSPGEOMKeyFile( vspgeom_fn );
+
+        vector < string > gidvec;
+        vector < int > partvec;
+        vector < int > surfvec;
+        SubSurfaceMgr.GetPartData( gidvec, partvec, surfvec );
+
+        m_Vehicle->WriteControlSurfaceFile( vspgeom_fn, gidvec, partvec, surfvec );
+    }
+}
+
+void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFace > &allFaceVec, bool allowquads )
+{
+    int ntagfile = 0;
+
+    std::vector < int > partvec;
+    SubSurfaceMgr.MakePartList( partvec );
+    vector < SubSurface* > ssurfs = SubSurfaceMgr.GetSubSurfs();
+
+    for ( int ipart = 0; ipart < partvec.size(); ipart++ )
+    {
+        int part = partvec[ ipart ];
+
+        for ( int iss = 0; iss < ssurfs.size(); iss++ )
+        {
+            SubSurface *ssurf = ssurfs[iss];
+            int tag = ssurf->m_Tag;
+
+            if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
+            {
+                ntagfile++;
+            }
+        }
+    }
+
+    if ( ntagfile > 0 )
+    {
+        string base_name = file_name;
+        std::string::size_type loc = base_name.find_last_of( "." );
+        if ( loc != base_name.npos )
+        {
+            base_name = base_name.substr( 0, loc );
+        }
+        string taglist_name = base_name + ".taglist";
+
+        FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
+        if ( taglist_fid )
+        {
+
+            fprintf( taglist_fid, "%d\n", ntagfile );
+
+            for ( int ipart = 0; ipart < partvec.size(); ipart++ )
+            {
+                int part = partvec[ ipart ];
+
+                for ( int iss = 0; iss < ssurfs.size(); iss++ )
+                {
+                    SubSurface *ssurf = ssurfs[iss];
+                    int tag = ssurf->m_Tag;
+
+                    if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
+                    {
+                        vector < int > parttag;
+                        parttag.push_back( part );
+                        parttag.push_back( tag );
+
+                        string ptagname = SubSurfaceMgr.GetTagNames( parttag );
+
+                        string tagfile_name = base_name + ptagname + ".tag";
+
+                        fprintf( taglist_fid, "%s\n", tagfile_name.c_str() );
+
+                        FILE* fid = fopen( tagfile_name.c_str(), "w" );
+                        if ( fid )
+                        {
+                            WriteTagFile( fid, part, tag, allFaceVec, allowquads );
+
+                            fclose( fid );
+                        }
+                    }
+                }
+            }
+
+            fclose( taglist_fid );
+        }
+    }
+}
+
+void CfdMeshMgrSingleton::WriteTagFile( FILE* file_id, int part, int tag, const vector< SimpFace > &allFaceVec, bool allowquads )
+{
+    //==== Write Tri IDs for each tag =====//
+    if ( allowquads )
+    {
+        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+        {
+            if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
+            {
+                fprintf( file_id, "%d\n", i + 1 );
+            }
+        }
+    }
+    else
+    {
+        int iface = 0;
+
+        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+        {
+            if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
+            {
+                fprintf( file_id, "%d\n", iface + 1 );
+            }
+            iface++;
+
+            if( allFaceVec[i].m_isQuad )
+            {
+                if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
+                {
+                    fprintf( file_id, "%d\n", iface + 1 );
+                }
+                iface++;
+            }
+        }
     }
 }
 
