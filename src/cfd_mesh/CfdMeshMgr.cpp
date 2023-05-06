@@ -1908,16 +1908,15 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
 
     std::vector < int > partvec;
     SubSurfaceMgr.MakePartList( partvec );
-    vector < SubSurface* > ssurfs = SubSurfaceMgr.GetSubSurfs();
 
     for ( int ipart = 0; ipart < partvec.size(); ipart++ )
     {
         int part = partvec[ ipart ];
 
-        for ( int iss = 0; iss < ssurfs.size(); iss++ )
+        for ( int iss = 0; iss < m_SimpleSubSurfaceVec.size(); iss++ )
         {
-            SubSurface *ssurf = ssurfs[iss];
-            int tag = ssurf->m_Tag;
+            SimpleSubSurface ssurf = m_SimpleSubSurfaceVec[iss];
+            int tag = ssurf.m_Tag;
 
             if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
             {
@@ -1946,10 +1945,10 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
             {
                 int part = partvec[ ipart ];
 
-                for ( int iss = 0; iss < ssurfs.size(); iss++ )
+                for ( int iss = 0; iss < m_SimpleSubSurfaceVec.size(); iss++ )
                 {
-                    SubSurface *ssurf = ssurfs[iss];
-                    int tag = ssurf->m_Tag;
+                    SimpleSubSurface ssurf = m_SimpleSubSurfaceVec[iss];
+                    int tag = ssurf.m_Tag;
 
                     if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
                     {
