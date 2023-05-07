@@ -1,4 +1,4 @@
-function [con, p, uv1, uv2, uv3, wedata, partid, tagid] = readvspgeom( fname, plotflag )
+function [con, p, u, v, wedata, partid, tagid] = readvspgeom( fname, plotflag )
 %readvspgeom reads a *.vspgeom file into Matlab
 %
 %   *.vspgeom files are a new file format to facilitate communication
@@ -6,7 +6,7 @@ function [con, p, uv1, uv2, uv3, wedata, partid, tagid] = readvspgeom( fname, pl
 %   with three enhancements over existing file formats:
 %    1. Multi-valued nodal surface U/V parameter value.
 %    2. Explicit wake attachment line identification.
-%    3. Support for polygons, not just triangles (not yet utilized).
+%    3. Support for polygons, not just triangles.
 %
 %   Though the file format does not require explicit support for it, the
 %   intent is for *.vspgeom files to support mixed thick/thin
@@ -14,7 +14,7 @@ function [con, p, uv1, uv2, uv3, wedata, partid, tagid] = readvspgeom( fname, pl
 %   represent an aircraft where the fuselage is think and the wing,
 %   empennage, and rotors are thin.
 %
-%   [t, p, uv1, uv2, uv3, wedata, partid, tagid] = readvspgeom( fname, plotflag )
+%   [t, p, u, v, wedata, partid, tagid] = readvspgeom( fname, plotflag )
 %
 %   Reads in a *.vspgeom file passed in fname.  If plotflag is true, then
 %   a series of simple plots are generated.  If plotflag is not passed,
@@ -22,9 +22,8 @@ function [con, p, uv1, uv2, uv3, wedata, partid, tagid] = readvspgeom( fname, pl
 %
 %     con      Polygon connectivity matrix
 %     p        Point matrix
-%     uv1      U/V surface data at poly node 1
-%     uv2      U/V surface data at poly node 2
-%     uv3      U/V surface data at poly node 3
+%     u        U surface data at polygon nodes
+%     v        V surface data at polygon nodes
 %     wedata   Wake edge data cell array
 %     partid   Part id vector
 %     tagid    Tag id vector
@@ -33,6 +32,7 @@ function [con, p, uv1, uv2, uv3, wedata, partid, tagid] = readvspgeom( fname, pl
 %   Rob McDonald
 %   6 November 2020 v. 1.0
 %   6 May      2023 v. 1.1 - Part and tag ids
+%   6 May      2023 v. 1.2 - Handle arbitrary polygons.
 
 if ( nargin < 2 )
     plotflag = false;
@@ -50,26 +50,57 @@ p = ptdata(1:3,:);
 % Read in number of polygons
 npoly = fscanf(fp, '%d', 1);
 
-% Read in the connectivity.  The file format is designed to support
-% polygons, but currently is only implemented for triangles.  Hence
-% the triangle assumption here.
-condata = fscanf(fp, '%d', [4 npoly]);
-% Number of points in each polygon
-np = condata(1,:);
-% Polygon points (currently triangles)
-con = condata(2:4,:);
+% Mark this point in the file
+mark = ftell(fp);
+
+% Read in the first column of next npoly lines as number of points per line
+np = cell2mat( textscan(fp,'%d %*[^\n]',npoly) );
+
+% Find the maximum number of points per line
+mnp = max(np);
+
+% Return to marked point in file.
+fseek(fp,mark,'bof');
+
+% Initialize connectivity matrix
+con = -nan(mnp,npoly);
+
+% Read in connectivity data
+for i=1:npoly
+    c = fscanf(fp, '%d', [(np(i)+1) 1]);
+    con(1:np(i),i) = c(2:end);
+end
+
+% Initialize id and poly node data
+partid = -ones(npoly,1);
+tagid = -ones(npoly,1);
+u = nan(mnp,npoly);
+v = nan(mnp,npoly);
 
 % Read in the surface id's and poly node data
-tdata = fscanf(fp, '%f', [8 npoly]);
+for i=1:npoly
+    % Face ID
+    partid(i) = fscanf(fp,'%d',[1 1]);
+    tagid(i) = fscanf(fp,'%d',[1 1]);
 
-% Face ID
-partid = tdata(1,:);
-tagid = tdata(2,:);
-% U/V of each polygon node
-uv1 = tdata(3:4,:);
-uv2 = tdata(5:6,:);
-uv3 = tdata(7:8,:);
+    % U/V of each polygon node
+    uv = fscanf(fp,'%f',[(2*np(i)) 1]);
+    u(1:np(i),i) = uv(1:2:end);
+    v(1:np(i),i) = uv(2:2:end);
+end
 
+% Pad polygons with duplicated final point to make them all mnp-gons.
+% This makes for simplified plotting later when using the
+% patch(x,y,z,c) form.  The patch('Faces','Vertices') form does not need
+% this padding and will work with NAN in con.
+for i=2:mnp
+    mask = isnan(con(i,:));
+    con(i,mask) = con(i-1,mask);
+    %mask = isnan(u(i,:));
+    u(i,mask) = u(i-1,mask);
+    %mask = isnan(v(i,:));
+    v(i,mask) = v(i-1,mask);
+end
 
 % Read in the number of wakes
 nwake = fscanf(fp, '%d', 1);
@@ -86,7 +117,16 @@ fclose(fp);
 if ( plotflag )
 
     figure
-    trisurf(con', p(1,:), p(2,:), p(3,:),partid); %,'EdgeColor','none');
+    patch('Faces',con','Vertices',p','FaceColor','w')
+    axis equal
+    axis off
+    h = plotwakes( wedata, p );
+    set(h,'LineWidth',5);
+    %set(h,'Color','k');
+    title('Mesh with wake lines')
+
+    figure
+    patch('Faces',con','Vertices',p','FaceVertexCData',partid,'FaceColor','flat'); %,'EdgeColor','none')
     axis equal
     axis off
     h = plotwakes( wedata, p );
@@ -95,7 +135,7 @@ if ( plotflag )
     title('Mesh colored by part ID with wake lines')
 
     figure
-    trisurf(con', p(1,:), p(2,:), p(3,:),tagid); %,'EdgeColor','none');
+    patch('Faces',con','Vertices',p','FaceVertexCData',tagid,'FaceColor','flat'); %,'EdgeColor','none')
     axis equal
     axis off
     h = plotwakes( wedata, p );
@@ -115,14 +155,19 @@ if ( plotflag )
     % plotting multi-valued surface data.  In this case, u/v surface
     % data has multiple values where two surfaces intersect at a single
     % point.
-    x=[p(1,con(1,:))' p(1,con(2,:))' p(1,con(3,:))'];
-    y=[p(2,con(1,:))' p(2,con(2,:))' p(2,con(3,:))'];
-    z=[p(3,con(1,:))' p(3,con(2,:))' p(3,con(3,:))'];
-    u=[uv1(1,:)' uv2(1,:)' uv3(1,:)'];
-    v=[uv1(2,:)' uv2(2,:)' uv3(2,:)'];
+
+    x = nan(mnp,npoly);
+    y = nan(mnp,npoly);
+    z = nan(mnp,npoly);
+
+    for i=1:mnp
+        x(i,:) = p(1,con(i,:));
+        y(i,:) = p(2,con(i,:));
+        z(i,:) = p(3,con(i,:));
+    end
 
     figure
-    patch(x',y',z',u','EdgeColor','none')
+    patch(x,y,z,u,'EdgeColor','none')
     axis off
     axis equal
     h = plotwakes( wedata, p );
@@ -131,8 +176,7 @@ if ( plotflag )
     title('U surface parameter with wake lines')
 
     figure
-    patch(x',y',z',v','EdgeColor','none')
-    %patch(x',y',z',v')
+    patch(x,y,z,v,'EdgeColor','none')
     axis off
     axis equal
     h = plotwakes( wedata, p );
