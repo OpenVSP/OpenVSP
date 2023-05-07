@@ -1,4 +1,4 @@
-function [con, p, uv1, uv2, uv3, wedata, id] = readvspgeom( fname, plotflag )
+function [con, p, uv1, uv2, uv3, wedata, partid, tagid] = readvspgeom( fname, plotflag )
 %readvspgeom reads a *.vspgeom file into Matlab
 %
 %   *.vspgeom files are a new file format to facilitate communication
@@ -14,7 +14,7 @@ function [con, p, uv1, uv2, uv3, wedata, id] = readvspgeom( fname, plotflag )
 %   represent an aircraft where the fuselage is think and the wing,
 %   empennage, and rotors are thin.
 %
-%   [t, p, uv1, uv2, uv3, wedata, id] = readvspgeom( fname, plotflag )
+%   [t, p, uv1, uv2, uv3, wedata, partid, tagid] = readvspgeom( fname, plotflag )
 %
 %   Reads in a *.vspgeom file passed in fname.  If plotflag is true, then
 %   a series of simple plots are generated.  If plotflag is not passed,
@@ -26,11 +26,13 @@ function [con, p, uv1, uv2, uv3, wedata, id] = readvspgeom( fname, plotflag )
 %     uv2      U/V surface data at poly node 2
 %     uv3      U/V surface data at poly node 3
 %     wedata   Wake edge data cell array
-%     id       Surface id vector
+%     partid   Part id vector
+%     tagid    Tag id vector
 %
 
 %   Rob McDonald
 %   6 November 2020 v. 1.0
+%   6 May      2023 v. 1.1 - Part and tag ids
 
 if ( nargin < 2 )
     plotflag = false;
@@ -58,14 +60,15 @@ np = condata(1,:);
 con = condata(2:4,:);
 
 % Read in the surface id's and poly node data
-tdata = fscanf(fp, '%f', [7 npoly]);
+tdata = fscanf(fp, '%f', [8 npoly]);
 
 % Face ID
-id = tdata(1,:);
+partid = tdata(1,:);
+tagid = tdata(2,:);
 % U/V of each polygon node
-uv1 = tdata(2:3,:);
-uv2 = tdata(4:5,:);
-uv3 = tdata(6:7,:);
+uv1 = tdata(3:4,:);
+uv2 = tdata(5:6,:);
+uv3 = tdata(7:8,:);
 
 
 % Read in the number of wakes
@@ -83,13 +86,22 @@ fclose(fp);
 if ( plotflag )
 
     figure
-    trisurf(con', p(1,:), p(2,:), p(3,:),id); % 'EdgeColor','none');
+    trisurf(con', p(1,:), p(2,:), p(3,:),partid); %,'EdgeColor','none');
     axis equal
     axis off
     h = plotwakes( wedata, p );
     set(h,'LineWidth',5);
     %set(h,'Color','k');
-    title('Mesh colored by ID with wake lines')
+    title('Mesh colored by part ID with wake lines')
+
+    figure
+    trisurf(con', p(1,:), p(2,:), p(3,:),tagid); %,'EdgeColor','none');
+    axis equal
+    axis off
+    h = plotwakes( wedata, p );
+    set(h,'LineWidth',5);
+    %set(h,'Color','k');
+    title('Mesh colored by tag ID with wake lines')
 
     figure
     h = plotwakes( wedata, p );
