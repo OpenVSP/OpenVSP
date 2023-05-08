@@ -3472,6 +3472,10 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     if ( ntagfile > 0 )
     {
         string base_name = GetBasename( file_name );
+
+        string base_path, base_fname;
+        GetPathFile( base_name, base_path, base_fname );
+
         string taglist_name = base_name + ".taglist";
 
         FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
@@ -3498,8 +3502,9 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                         string ptagname = SubSurfaceMgr.GetTagNames( parttag );
 
                         string tagfile_name = base_name + ptagname + ".tag";
+                        string tagfile_localname = base_fname + ptagname + ".tag";
 
-                        fprintf( taglist_fid, "%s\n", tagfile_name.c_str() );
+                        fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
 
                         FILE* fid = fopen( tagfile_name.c_str(), "w" );
                         if ( fid )
