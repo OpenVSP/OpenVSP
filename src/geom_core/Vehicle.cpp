@@ -3255,6 +3255,7 @@ string Vehicle::WriteOBJFile( const string & file_name, int write_set, int subsF
 }
 
 /*
+# vspgeom v2                 // Header marking file version number -- added with v2.
 nnode                        // Number of nodes
 x1 y1 z1                     // Nodal position.  Also any future single-valued node-centered data that we desire to add.
 x2 y2 z2
