@@ -5343,15 +5343,17 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         char str[256];
                         snprintf( str, sizeof( str ),  "%s_Surf%zu_%s", g->GetName().c_str(), icopy, cs->GetName().c_str() );
 
-                        fprintf( csf_file, "CSurf ID %s, %s\n", cs->GetID().c_str(), cs->GetName().c_str() );
-                        fprintf( csf_file, "Geom  ID %s, %s\n", g->GetID().c_str(), g->GetName().c_str() );
-                        fprintf( csf_file, "VSPAERO Name %s\n", str );
+                        fprintf( csf_file, "CSurf ID:     %s\n", cs->GetID().c_str() );
+                        fprintf( csf_file, "CSurf Name:   %s\n", cs->GetName().c_str() );
+                        fprintf( csf_file, "Geom ID:      %s\n", g->GetID().c_str() );
+                        fprintf( csf_file, "Geom Name:    %s\n", g->GetName().c_str() );
+                        fprintf( csf_file, "VSPAERO Name: %s\n", str );
 
                         snprintf( str, sizeof( str ),  "%s%s_Surf%zu_%s", base_name.c_str(), g->GetName().c_str(), isurf, cs->GetName().c_str() );
 
-                        fprintf( csf_file, "Tagfile Name %s\n", str );
-                        fprintf( csf_file, "Surface # %d\n", isurf );
-                        fprintf( csf_file, "Part # %d\n", part );
+                        fprintf( csf_file, "Tagfile Name: %s\n", str );
+                        fprintf( csf_file, "Surface #:    %d\n", isurf );
+                        fprintf( csf_file, "Part #:       %d\n", part );
 
                         if ( cs->m_SurfType() == SSControlSurf::UPPER_SURF )
                         {
