@@ -14,21 +14,24 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid, alttr
 %   represent an aircraft where the fuselage is think and the wing,
 %   empennage, and rotors are thin.
 %
-%   [t, p, u, v, wedata, partid, utagid, itagname, itag ] = readvspgeom( fname, plotflag )
+%   [t, p, u, v, wedata, partid, utagid, itagname, itag,...
+%      altfaceid, alttri ] = readvspgeom( fname, plotflag )
 %
 %   Reads in a *.vspgeom file passed in fname.  If plotflag is true, then
 %   a series of simple plots are generated.  If plotflag is not passed,
 %   the plots are not generated.
 %
-%     con      Polygon connectivity matrix
-%     p        Point matrix
-%     u        U surface data at polygon nodes
-%     v        V surface data at polygon nodes
-%     wedata   Wake edge data cell array
-%     partid   Part id vector
-%     utagid   Unique tag id vector
-%     itagname Individual tag name cell array
-%     itag     Individual tag face set cell array
+%     con        Polygon connectivity matrix
+%     p          Point matrix
+%     u          U surface data at polygon nodes
+%     v          V surface data at polygon nodes
+%     wedata     Wake edge data cell array
+%     partid     Part id vector
+%     utagid     Unique tag id vector
+%     itagname   Individual tag name cell array
+%     itag       Individual tag face set cell array
+%     altfaceid  Alternate triangulation face id
+%     alttri     Alternate triangulation connectivity matrix
 %
 
 %   Rob McDonald
@@ -36,6 +39,8 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid, alttr
 %   6 May      2023 v. 1.1 - Part and tag ids
 %   6 May      2023 v. 1.2 - Handle arbitrary polygons.
 %   7 May      2023 v. 1.3 - Handle taglist and tag files.
+%   8 May      2023 v. 1.4 - Handle alternate triangulation.
+%   8 May      2023 v. 1.5 - Handle file versioning.
 
 if ( nargin < 2 )
     plotflag = false;
@@ -116,6 +121,10 @@ for iw = 1:nwake
     wedata{iw} = fscanf(fp, '%d', nwpt(iw) );
 end
 
+altfaceid = [];
+alttri = [];
+
+
 read_altfaceid = ones(npoly, 1);
 read_nalttri = ones(npoly, 1);
 read_alttri = cell(npoly,1);
@@ -127,6 +136,7 @@ for i=1:npoly
 end
 
 nalt = sum(read_nalttri);
+
 
 altfaceid = ones(nalt, 1);
 alttri = ones(nalt,3);
