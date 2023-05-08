@@ -109,7 +109,8 @@ end
 nwake = fscanf(fp, '%d', 1);
 
 % Loop over wakes reading in points
-wedata=[];
+nwpt = ones(nwake,1);
+wedata = cell(nwake, 1);
 for iw = 1:nwake
     nwpt(iw) = fscanf(fp, '%d', 1 );
     wedata{iw} = fscanf(fp, '%d', nwpt(iw) );
