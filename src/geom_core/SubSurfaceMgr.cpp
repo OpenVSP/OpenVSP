@@ -447,12 +447,13 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
         }
 
         // Write tag number and surface list to file
-        fprintf( fid, "%d,%d,", tag, part );
+        fprintf( fid, "%d,%d", tag, part );
 
         // Write subsurface information if there is any
         if( !ssnames.empty() )
         {
-            fprintf( fid, "%s,%s\n", ssnames.c_str(), ssids.c_str() );
+            // ssnames and ssids have leading commas
+            fprintf( fid, "%s%s\n", ssnames.c_str(), ssids.c_str() );
         }
         else
         {
