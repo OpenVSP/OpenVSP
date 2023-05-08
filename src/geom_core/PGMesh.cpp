@@ -1457,7 +1457,12 @@ void PGMesh::WriteTagFiles( string file_name )
                         parttag.push_back( part );
                         parttag.push_back( tag );
 
-                        string ptagname = SubSurfaceMgr.m_TagNames[ part ] + "_" + SubSurfaceMgr.m_TagNames[tag];
+                        string str = SubSurfaceMgr.m_TagNames[ part ];
+                        int pos = str.find_first_of( '_' );
+                        string gname = str.substr( 0, pos );
+                        string sname = str.substr( pos + 2 );
+
+                        string ptagname = gname + sname + "_" + SubSurfaceMgr.m_TagNames[tag];
 
                         string tagfile_name = base_name + ptagname + ".tag";
                         string tagfile_localname = base_fname + ptagname + ".tag";
