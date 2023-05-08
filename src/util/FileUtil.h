@@ -22,6 +22,7 @@ bool CheckForFile( const string & path, const string &file );
 bool FileExist( const string & file );
 string GetFilename( const string &pathfile );
 string GetBasename( const string &fname );
+void GetPathFile( const string &pathfile, string &path, string &file );
 
 void AppendFile_BtoA( FILE* fpa, FILE* fpb );
 
