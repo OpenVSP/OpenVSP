@@ -40,7 +40,8 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid, alttr
 %   6 May      2023 v. 1.2 - Handle arbitrary polygons.
 %   7 May      2023 v. 1.3 - Handle taglist and tag files.
 %   8 May      2023 v. 1.4 - Handle alternate triangulation.
-%   8 May      2023 v. 1.5 - Handle file versioning.
+%   8 May      2023 v. 1.5 - Handle tagfiles with local paths.
+%   8 May      2023 v. 1.6 - Handle file versioning.
 
 if ( nargin < 2 )
     plotflag = false;
