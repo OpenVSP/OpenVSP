@@ -218,6 +218,7 @@ public:
     void WriteVSPGeomFaces( FILE* file_id );
     void WriteVSPGeomParts( FILE* file_id );
     void WriteVSPGeomWakes( FILE* file_id );
+    void WriteVSPGeomAlternateTris( FILE* file_id );
     void WriteTagFiles( string file_name );
     void WriteTagFile( FILE* file_id, int part, int tag );
 

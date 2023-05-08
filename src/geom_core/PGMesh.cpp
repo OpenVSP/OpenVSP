@@ -1262,6 +1262,7 @@ void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
     WriteVSPGeomFaces( file_id );
     WriteVSPGeomParts( file_id );
     WriteVSPGeomWakes( file_id );
+    WriteVSPGeomAlternateTris( file_id );
 }
 
 void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
@@ -1374,6 +1375,29 @@ void PGMesh::WriteVSPGeomWakes( FILE* file_id )
                 iprt++;
             }
         }
+    }
+}
+
+void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
+{
+    //==== Write Out Tris ====//
+    int iface = 1;
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodesAsTris( nodVec );
+
+        int npt = nodVec.size();
+
+        fprintf( file_id, "%d %d", iface, npt );
+        for ( int i = 0; i < npt; i++ )
+        {
+            fprintf( file_id, " %d", nodVec[i]->m_ID );
+        }
+        fprintf( file_id, "\n" );
+
+        iface++;
     }
 }
 

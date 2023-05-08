@@ -3274,6 +3274,10 @@ n1 i11 i12 i13 i14...i1n     // Number of points in wake line, indices in chain-
 n2 i21 i22 i13 i24...i2n
 ...
 nnwake in1 in2 in3 in4...inn // Last wake line
+f1 n1 i11 i12 i13...i1n      // Alternate triangulation of faces (optional for triangle-only files).
+f2 n2 i21 i22 i23...i2n      // Face number, number of nodes, node-list of triangles for face
+...
+nface nn in1 in2 in3...inn   // Last alternate triangulation line
 */
 
 //==== Write VSPGeom File ====//
@@ -3424,6 +3428,8 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
             mg->Update();
         }
     }
+
+    // File is entirely triangles, no alternate triangle data needed.
 
     fclose( file_id );
 

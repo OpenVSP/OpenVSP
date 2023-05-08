@@ -1886,6 +1886,27 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
             }
 
+            // Write alternate triangulation data.
+            if ( allowquads )
+            {
+                //==== Write Faces ====//
+                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                {
+                    if( allFaceVec[i].m_isQuad )
+                    {
+                        fprintf( fp, "%d 6 %d %d %d %d %d %d\n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                    }
+                    else
+                    {
+                        fprintf( fp, "%d 3 %d %d %d\n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                    }
+                }
+            }
+            else
+            {
+                // Do nothing.  Alternate triangles not needed for triangle-only file.
+            }
+
             fclose( fp );
         }
 
