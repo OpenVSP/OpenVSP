@@ -14,7 +14,7 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid, alttr
 %   represent an aircraft where the fuselage is think and the wing,
 %   empennage, and rotors are thin.
 %
-%   [t, p, u, v, wedata, partid, tagid] = readvspgeom( fname, plotflag )
+%   [t, p, u, v, wedata, partid, utagid, itagname, itag ] = readvspgeom( fname, plotflag )
 %
 %   Reads in a *.vspgeom file passed in fname.  If plotflag is true, then
 %   a series of simple plots are generated.  If plotflag is not passed,
