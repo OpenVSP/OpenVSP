@@ -3499,7 +3499,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                         parttag.push_back( part );
                         parttag.push_back( tag );
 
-                        string ptagname = SubSurfaceMgr.GetTagNames( parttag );
+                        string ptagname = SubSurfaceMgr.m_TagNames[ part ] + "_" + SubSurfaceMgr.m_TagNames[tag];
 
                         string tagfile_name = base_name + ptagname + ".tag";
                         string tagfile_localname = base_fname + ptagname + ".tag";
