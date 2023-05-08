@@ -1895,11 +1895,11 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 {
                     if( allFaceVec[i].m_isQuad )
                     {
-                        fprintf( fp, "%d 6 %d %d %d %d %d %d\n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                        fprintf( fp, "%d 2 %d %d %d %d %d %d\n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2, allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
                     }
                     else
                     {
-                        fprintf( fp, "%d 3 %d %d %d\n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                        fprintf( fp, "%d 1 %d %d %d\n", i + 1, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
                     }
                 }
             }

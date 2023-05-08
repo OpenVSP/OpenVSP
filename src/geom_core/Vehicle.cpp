@@ -3275,7 +3275,7 @@ n2 i21 i22 i13 i24...i2n
 ...
 nnwake in1 in2 in3 in4...inn // Last wake line
 f1 n1 i11 i12 i13...i1n      // Alternate triangulation of faces (optional for triangle-only files).
-f2 n2 i21 i22 i23...i2n      // Face number, number of nodes, node-list of triangles for face
+f2 n2 i21 i22 i23...i2n      // Face number, number of triangles, node-list of triangles for face
 ...
 nface nn in1 in2 in3...inn   // Last alternate triangulation line
 */
