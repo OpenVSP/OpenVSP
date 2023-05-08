@@ -3355,6 +3355,8 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         return mesh_id;
     }
 
+    fprintf( file_id, "# vspgeom v2\n" );
+
     //==== Count Number of Points & Tris ====//
     int num_pnts = 0;
     int num_tris = 0;

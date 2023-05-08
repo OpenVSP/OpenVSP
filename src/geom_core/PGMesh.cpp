@@ -1258,6 +1258,7 @@ void PGMesh::DumpGarbage()
 
 void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 {
+    fprintf( file_id, "# vspgeom v2\n" );
     WriteVSPGeomPnts( file_id, XFormMat );
     WriteVSPGeomFaces( file_id );
     WriteVSPGeomParts( file_id );

@@ -1766,6 +1766,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 
         if ( fp )
         {
+            fprintf( fp, "# vspgeom v2\n" );
             //==== Write Pnt Count ====//
             fprintf( fp, "%d\n", ( int )allUsedPntVec.size() );
 
