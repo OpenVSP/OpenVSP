@@ -3274,7 +3274,7 @@ n1 i11 i12 i13 i14...i1n     // Number of points in wake line, indices in chain-
 n2 i21 i22 i13 i24...i2n
 ...
 nnwake in1 in2 in3 in4...inn // Last wake line
-f1 n1 i11 i12 i13...i1n      // Alternate triangulation of faces (optional for triangle-only files).
+f1 n1 i11 i12 i13...i1n      // Alternate triangulation of faces.
 f2 n2 i21 i22 i23...i2n      // Face number, number of triangles, node-list of triangles for face
 ...
 nface nn in1 in2 in3...inn   // Last alternate triangulation line
@@ -3431,8 +3431,18 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         }
     }
 
-    // File is entirely triangles, no alternate triangle data needed.
-
+    offset = 0;
+    int tcount = 1;
+    //==== Dump alternate Tris ====//
+    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+    {
+        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+            offset = mg->WriteVSPGeomAlternateTris( file_id, offset, tcount );
+        }
+    }
     fclose( file_id );
 
 

@@ -118,6 +118,7 @@ public:
     virtual int  WriteCart3DTris( FILE* file_id, int offset );
     virtual int  WriteOBJTris( FILE* file_id, int offset );
     virtual int  WriteVSPGeomTris( FILE* file_id, int offset );
+    virtual int  WriteVSPGeomAlternateTris( FILE* file_id, int noffset, int &tcount );
     virtual int  WriteGMshTris( FILE* file_id, int node_offset, int tri_offset );
     virtual void WriteFacetTriParts( FILE* file_id, int &offset, int &tri_count, int &part_count );
     virtual int  WriteNascartParts( FILE* file_id, int offset );

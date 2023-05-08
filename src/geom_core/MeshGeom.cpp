@@ -905,6 +905,20 @@ int MeshGeom::WriteVSPGeomTris( FILE* file_id, int offset )
     return ( offset + m_IndexedNodeVec.size() );
 }
 
+int MeshGeom::WriteVSPGeomAlternateTris( FILE* file_id, int noffset, int &tcount )
+{
+    //==== Write Out Tris ====//
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    {
+        TTri* ttri = m_IndexedTriVec[t];
+        fprintf(file_id, "%d 1 %d %d %d\n", tcount, ttri->m_N0->m_ID + 1 + noffset, ttri->m_N1->m_ID + 1 + noffset, ttri->m_N2->m_ID + 1 + noffset );
+        tcount++;
+    }
+
+    return ( noffset + m_IndexedNodeVec.size() );
+}
+
+
 int MeshGeom::WriteGMshTris( FILE* fp, int node_offset, int tri_offset )
 {
     //==== Write Out Tris ====//

@@ -1905,7 +1905,19 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             }
             else
             {
-                // Do nothing.  Alternate triangles not needed for triangle-only file.
+                int iface = 1;
+
+                //==== Write Tris Only ====//
+                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                {
+                    fprintf( fp, "%d 1 %d %d %d \n", iface, allFaceVec[i].ind0, allFaceVec[i].ind1, allFaceVec[i].ind2 );
+                    iface++;
+                    if( allFaceVec[i].m_isQuad )
+                    {
+                        fprintf( fp, "%d 1 %d %d %d \n", iface, allFaceVec[i].ind0, allFaceVec[i].ind2, allFaceVec[i].ind3 );
+                        iface++;
+                    }
+                }
             }
 
             fclose( fp );
