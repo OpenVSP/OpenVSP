@@ -48,6 +48,14 @@ end
 
 fp = fopen(fname,'r');
 
+ver = fgets(fp);
+if ( strfind( ver, 'v2' ) )
+    filever = 2;
+else
+    filever = 1;
+    frewind( fp );
+end
+
 % Read in number of points
 npt = fscanf(fp, '%d', 1);
 
@@ -88,7 +96,9 @@ v = nan(mnp,npoly);
 % Read in the surface id's and poly node data
 for i=1:npoly
     % Face ID
-    partid(i) = fscanf(fp,'%d',[1 1]);
+    if ( filever == 2 )
+        partid(i) = fscanf(fp,'%d',[1 1]);
+    end
     utagid(i) = fscanf(fp,'%d',[1 1]);
 
     % U/V of each polygon node
@@ -124,33 +134,34 @@ end
 altfaceid = [];
 alttri = [];
 
+if ( filever == 2 )
+    read_altfaceid = ones(npoly, 1);
+    read_nalttri = ones(npoly, 1);
+    read_alttri = cell(npoly,1);
 
-read_altfaceid = ones(npoly, 1);
-read_nalttri = ones(npoly, 1);
-read_alttri = cell(npoly,1);
+    for i=1:npoly
+        read_altfaceid(i) = fscanf(fp, '%d', 1 );
+        read_nalttri(i) = fscanf(fp, '%d', 1);
+        read_alttri{i} = fscanf(fp, '%d', read_nalttri(i) * 3 );
+    end
 
-for i=1:npoly
-    read_altfaceid(i) = fscanf(fp, '%d', 1 );
-    read_nalttri(i) = fscanf(fp, '%d', 1);
-    read_alttri{i} = fscanf(fp, '%d', read_nalttri(i) * 3 );
-end
-
-nalt = sum(read_nalttri);
+    nalt = sum(read_nalttri);
 
 
-altfaceid = ones(nalt, 1);
-alttri = ones(nalt,3);
+    altfaceid = ones(nalt, 1);
+    alttri = ones(nalt,3);
 
-ialt = 1;
-for i=1:npoly
+    ialt = 1;
+    for i=1:npoly
 
-    atv = read_alttri{i};
+        atv = read_alttri{i};
 
-    for j=1:read_nalttri(i)
-        altfaceid(ialt) = read_altfaceid(i);
-        tindex = 1 + 3 * (j - 1);
-        alttri(ialt,:) = atv(tindex:(tindex+2));
-        ialt = ialt + 1;
+        for j=1:read_nalttri(i)
+            altfaceid(ialt) = read_altfaceid(i);
+            tindex = 1 + 3 * (j - 1);
+            alttri(ialt,:) = atv(tindex:(tindex+2));
+            ialt = ialt + 1;
+        end
     end
 end
 
