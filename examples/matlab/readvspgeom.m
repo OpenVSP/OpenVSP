@@ -1,4 +1,4 @@
-function [con, p, u, v, wedata, partid, utagid, itagname, itag] = readvspgeom( fname, plotflag )
+function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid, alttri] = readvspgeom( fname, plotflag )
 %readvspgeom reads a *.vspgeom file into Matlab
 %
 %   *.vspgeom files are a new file format to facilitate communication
@@ -114,6 +114,34 @@ wedata = cell(nwake, 1);
 for iw = 1:nwake
     nwpt(iw) = fscanf(fp, '%d', 1 );
     wedata{iw} = fscanf(fp, '%d', nwpt(iw) );
+end
+
+read_altfaceid = ones(npoly, 1);
+read_nalttri = ones(npoly, 1);
+read_alttri = cell(npoly,1);
+
+for i=1:npoly
+    read_altfaceid(i) = fscanf(fp, '%d', 1 );
+    read_nalttri(i) = fscanf(fp, '%d', 1);
+    read_alttri{i} = fscanf(fp, '%d', read_nalttri(i) * 3 );
+end
+
+nalt = sum(read_nalttri);
+
+altfaceid = ones(nalt, 1);
+alttri = ones(nalt,3);
+
+ialt = 1;
+for i=1:npoly
+
+    atv = read_alttri{i};
+
+    for j=1:read_nalttri(i)
+        altfaceid(ialt) = read_altfaceid(i);
+        tindex = 1 + 3 * (j - 1);
+        alttri(ialt,:) = atv(tindex:(tindex+2));
+        ialt = ialt + 1;
+    end
 end
 
 fclose(fp);
