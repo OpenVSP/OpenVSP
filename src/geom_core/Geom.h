@@ -455,6 +455,18 @@ public:
         }
     }
 
+    virtual int GetSurfCopyIndx( int surfnum )
+    {
+        if ( surfnum >= 0 && surfnum < m_SurfCopyIndx.size() )
+        {
+            return m_SurfCopyIndx[ surfnum ];
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
     /*
     * Reset m_GeomChanged flag in DrawObj to false.
     */
