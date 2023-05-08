@@ -1,4 +1,4 @@
-function [con, p, u, v, wedata, partid, tagid] = readvspgeom( fname, plotflag )
+function [con, p, u, v, wedata, partid, utagid, itagname, itag] = readvspgeom( fname, plotflag )
 %readvspgeom reads a *.vspgeom file into Matlab
 %
 %   *.vspgeom files are a new file format to facilitate communication
@@ -26,13 +26,16 @@ function [con, p, u, v, wedata, partid, tagid] = readvspgeom( fname, plotflag )
 %     v        V surface data at polygon nodes
 %     wedata   Wake edge data cell array
 %     partid   Part id vector
-%     tagid    Tag id vector
+%     utagid   Unique tag id vector
+%     itagname Individual tag name cell array
+%     itag     Individual tag face set cell array
 %
 
 %   Rob McDonald
 %   6 November 2020 v. 1.0
 %   6 May      2023 v. 1.1 - Part and tag ids
 %   6 May      2023 v. 1.2 - Handle arbitrary polygons.
+%   7 May      2023 v. 1.3 - Handle taglist and tag files.
 
 if ( nargin < 2 )
     plotflag = false;
@@ -73,7 +76,7 @@ end
 
 % Initialize id and poly node data
 partid = -ones(npoly,1);
-tagid = -ones(npoly,1);
+utagid = -ones(npoly,1);
 u = nan(mnp,npoly);
 v = nan(mnp,npoly);
 
@@ -81,7 +84,7 @@ v = nan(mnp,npoly);
 for i=1:npoly
     % Face ID
     partid(i) = fscanf(fp,'%d',[1 1]);
-    tagid(i) = fscanf(fp,'%d',[1 1]);
+    utagid(i) = fscanf(fp,'%d',[1 1]);
 
     % U/V of each polygon node
     uv = fscanf(fp,'%f',[(2*np(i)) 1]);
@@ -135,7 +138,7 @@ if ( plotflag )
     title('Mesh colored by part ID with wake lines')
 
     figure
-    patch('Faces',con','Vertices',p','FaceVertexCData',tagid,'FaceColor','flat'); %,'EdgeColor','none')
+    patch('Faces',con','Vertices',p','FaceVertexCData',utagid,'FaceColor','flat'); %,'EdgeColor','none')
     axis equal
     axis off
     h = plotwakes( wedata, p );
@@ -184,6 +187,61 @@ if ( plotflag )
     %set(h,'Color','k');
     title('V surface parameter with wake lines')
 end
+
+pos = find(fname == '.', 1, 'last');
+basename = fname(1:(pos-1));
+taglistname = [basename '.taglist'];
+
+pos = find(basename == '/' | basename == '\', 1, 'last');
+baseprefix = basename((pos+1):end);
+
+itagname=[];
+itag=[];
+
+
+% Check for taglist file.
+if ( exist(taglistname, 'file') )
+
+    fp = fopen( taglistname );
+
+    % Read in number of tag files
+    ntf = fscanf(fp, '%d', 1);
+
+    % Loop over tag files
+    for i=1:ntf
+
+        tagfilename = fscanf(fp, '%s', 1);
+        if ( exist(tagfilename, 'file') )
+            tfp = fopen( tagfilename );
+
+            % Read in tag data.
+            itag{i} = fscanf(tfp, '%d');
+
+            % Pull tag name out of tag file name.
+            pos = find(tagfilename == '.', 1, 'last');
+            tagfullname = tagfilename(1:(pos-1));
+            pos = find(tagfullname == '/' | tagfullname == '\', 1, 'last');
+            tagfullname = tagfullname((pos+1):end);
+
+            itagname{i} = tagfullname((1+length(baseprefix)):end);
+
+            if ( plotflag )
+                figure
+                patch('Faces',con(:,itag{i})','Vertices',p','FaceColor','w')
+                axis equal
+                axis off
+                h = plotwakes( wedata, p );
+                set(h,'LineWidth',5);
+                %set(h,'Color','k');
+                title(['Tag ' itagname{i}], 'Interpreter', 'none')
+            end
+
+            fclose(tfp);
+        end
+    end
+    fclose(fp);
+end
+
 
 end % End of readvspgeom
 
