@@ -1259,7 +1259,7 @@ void PGMesh::DumpGarbage()
 void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 {
     WriteVSPGeomPnts( file_id, XFormMat );
-    WriteVSPGeomTris( file_id );
+    WriteVSPGeomFaces( file_id );
     WriteVSPGeomParts( file_id );
     WriteVSPGeomWakes( file_id );
 }
@@ -1285,7 +1285,7 @@ void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
     }
 }
 
-void PGMesh::WriteVSPGeomTris( FILE* file_id )
+void PGMesh::WriteVSPGeomFaces( FILE* file_id )
 {
     fprintf( file_id, "%d\n", m_FaceList.size() );
 

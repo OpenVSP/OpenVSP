@@ -215,7 +215,7 @@ public:
 
     void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
-    void WriteVSPGeomTris( FILE* file_id );
+    void WriteVSPGeomFaces( FILE* file_id );
     void WriteVSPGeomParts( FILE* file_id );
     void WriteVSPGeomWakes( FILE* file_id );
     void WriteTagFiles( string file_name );
