@@ -327,7 +327,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     }
 
     // Write Out Header Information
-    fprintf( fid, "# VSPGEOM Tag Key File\n" );
+    fprintf( fid, "# VSPGEOM v2 Tag Key File\n" );
     fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
 
     // Build GeomID set to have unique integer index instead of GeomID.
@@ -423,14 +423,7 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
     fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
     fprintf( fid, "\n" );
 
-    if ( writethickthin )
-    {
-        fprintf( fid, "# tag#,part#,geom#,surf#,gname,gid,thick,ssname1,ssname2,...,ssid1,ssid2,...\n" );
-    }
-    else
-    {
-        fprintf( fid, "# tag#,part#,geom#,surf#,gname,gid,ssname1,ssname2,...,ssid1,ssid2,...\n" );
-    }
+    fprintf( fid, "# tag#,part#,ssname1,ssname2,...,ssid1,ssid2,...\n" );
 
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
     {
@@ -439,31 +432,16 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
 
         string comp_list = GetTagNames( m_TagKeys[i] );
 
-        // Find position of token _Surf
-        int spos = comp_list.find( "_Surf" );
-
-        string gname = comp_list.substr( 0, spos );
-
-        string snum, ssnames, ssids;
+        string ssnames, ssids;
 
         // Find position of first comma
         int cpos = comp_list.find( "," );
         if ( cpos != std::string::npos )
         {
-            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
             ssnames = comp_list.substr( cpos );
-        }
-        else
-        {
-            snum = comp_list.substr( spos + 5 );
         }
 
         string id_list = GetTagIDs( m_TagKeys[i] );
-
-        // Find position of token _Surf
-        spos = id_list.find( "_Surf" );
-        string gid = id_list.substr( 0, spos );
-        string gid_bare = gid.substr( 0, 10 );
 
         // Find position of first comma
         cpos = id_list.find( "," );
@@ -472,31 +450,13 @@ void SubSurfaceMgrSingleton::WriteVSPGEOMKeyFile( const string & file_name )
             ssids = id_list.substr( cpos );
         }
 
-        // Lookup Geom number
-        int gnum = distance( gids.begin(), gids.find( gid ) );
-
-        int thickthin = -1;
-        map<string,int>::iterator it;
-        it = m_ThickMap.find( gid_bare );
-        if ( it != m_ThickMap.end() )
-        {
-            thickthin = m_ThickMap[ gid ];
-        }
-
         // Write tag number and surface list to file
-        if ( writethickthin )
-        {
-            fprintf( fid, "%d,%d,%d,%s,%s,%s,%d", tag, part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
-        }
-        else
-        {
-            fprintf( fid, "%d,%d,%d,%s,%s,%s", tag, part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str() );
-        }
+        fprintf( fid, "%d,%d,", tag, part );
 
         // Write subsurface information if there is any
         if( !ssnames.empty() )
         {
-            fprintf( fid, "%s%s\n", ssnames.c_str(), ssids.c_str() );
+            fprintf( fid, "%s,%s\n", ssnames.c_str(), ssids.c_str() );
         }
         else
         {
