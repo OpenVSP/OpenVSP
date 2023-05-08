@@ -227,12 +227,10 @@ if ( plotflag )
     title('V surface parameter with wake lines')
 end
 
-pos = find(fname == '.', 1, 'last');
-basename = fname(1:(pos-1));
-taglistname = [basename '.taglist'];
+[filepath,basename,~] = fileparts(fname);
 
-pos = find(basename == '/' | basename == '\', 1, 'last');
-baseprefix = basename((pos+1):end);
+taglistname = [filepath filesep basename '.taglist'];
+
 
 itagname=[];
 itag=[];
@@ -246,23 +244,27 @@ if ( exist(taglistname, 'file') )
     % Read in number of tag files
     ntf = fscanf(fp, '%d', 1);
 
+    itag = cell(ntf,1);
+    itagname = cell(ntf,1);
+
     % Loop over tag files
     for i=1:ntf
 
-        tagfilename = fscanf(fp, '%s', 1);
+        tagfile = fscanf(fp, '%s', 1);
+
+        [~,tagbasename,~] = fileparts(tagfile);
+
+        tagfilename = [filepath filesep tagbasename '.tag'];
+
+
         if ( exist(tagfilename, 'file') )
             tfp = fopen( tagfilename );
 
             % Read in tag data.
             itag{i} = fscanf(tfp, '%d');
 
-            % Pull tag name out of tag file name.
-            pos = find(tagfilename == '.', 1, 'last');
-            tagfullname = tagfilename(1:(pos-1));
-            pos = find(tagfullname == '/' | tagfullname == '\', 1, 'last');
-            tagfullname = tagfullname((pos+1):end);
-
-            itagname{i} = tagfullname((1+length(baseprefix)):end);
+            justtag = tagbasename((1+length(basename)):end);
+            itagname{i} = justtag;
 
             if ( plotflag )
                 figure
