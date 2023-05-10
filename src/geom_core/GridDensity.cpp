@@ -1198,8 +1198,18 @@ void GridDensity::ReadV2File( xmlNodePtr &root )
 
 void GridDensity::ParmChanged( Parm* parm_ptr, int type )
 {
-    VehicleMgr.GetVehicle()->UpdateGui();
-//    MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
 }
 
 double GridDensity::GetRadFrac( bool farflag )
