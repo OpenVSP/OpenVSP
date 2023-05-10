@@ -476,6 +476,16 @@ void CfdMeshMgrSingleton::DeleteAllSources()
     }
 }
 
+void CfdMeshMgrSingleton::Update()
+{
+    if ( !GetMeshInProgress() )
+    {
+        UpdateSourcesAndWakes();
+    }
+
+    UpdateDomain();
+}
+
 void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
 {
     GetGridDensityPtr()->ClearSources();

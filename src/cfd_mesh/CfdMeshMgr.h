@@ -141,6 +141,8 @@ public:
 
     virtual void AddDefaultSources();
     virtual void AddDefaultSourcesCurrGeom();
+
+    virtual void Update();
     virtual void UpdateSourcesAndWakes();
     virtual void UpdateDomain();
 

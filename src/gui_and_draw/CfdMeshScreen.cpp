@@ -506,12 +506,7 @@ bool CfdMeshScreen::Update()
         m_MeshAndExport.Activate();
     }
 
-    if ( !CfdMeshMgr.GetMeshInProgress() )
-    {
-        CfdMeshMgr.UpdateSourcesAndWakes();
-    }
-
-    CfdMeshMgr.UpdateDomain();
+    CfdMeshMgr.Update();
 
     //==== Load Geom Choice ====//
     m_GeomVec = m_Vehicle->GetGeomVec();
