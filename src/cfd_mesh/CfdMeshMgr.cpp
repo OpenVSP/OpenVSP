@@ -484,6 +484,8 @@ void CfdMeshMgrSingleton::Update()
     }
 
     UpdateDomain();
+
+    m_Vehicle->GetCfdGridDensityPtr()->Update();
 }
 
 void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
