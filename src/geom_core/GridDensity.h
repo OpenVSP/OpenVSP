@@ -34,6 +34,7 @@
 using namespace std;
 
 class Geom;
+class FeaStructure;
 
 class SourceData
 {
@@ -500,6 +501,12 @@ class FeaGridDensity : public GridDensity
 {
 public:
     FeaGridDensity();
+
+    virtual double GetModelLen();
+
+    void SetParentStruct( FeaStructure * par ) { m_ParentStruct = par; };
+
+    FeaStructure * m_ParentStruct;
 };
 
 #endif

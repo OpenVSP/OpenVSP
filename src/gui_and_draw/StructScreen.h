@@ -413,9 +413,22 @@ private:
     SliderAdjRangeInput m_ZGTValSlider;
 
     //===== Mesh Tab Items =====//
-    SliderAdjRangeInput m_MaxEdgeLen;
-    SliderAdjRangeInput m_MinEdgeLen;
-    SliderAdjRangeInput m_MaxGap;
+
+    ToggleButton m_MaxAbsToggle;
+    ToggleButton m_MaxRelToggle;
+    ToggleRadioGroup m_MaxEdgeLenToggleGroup;
+
+    ToggleButton m_MinAbsToggle;
+    ToggleButton m_MinRelToggle;
+    ToggleRadioGroup m_MinEdgeLenToggleGroup;
+
+    ToggleButton m_GapAbsToggle;
+    ToggleButton m_GapRelToggle;
+    ToggleRadioGroup m_MaxGapToggleGroup;
+
+    SliderAdjRange2Input m_MaxEdgeLen;
+    SliderAdjRange2Input m_MinEdgeLen;
+    SliderAdjRange2Input m_MaxGap;
     SliderAdjRangeInput m_NumCircleSegments;
     SliderAdjRangeInput m_GrowthRatio;
 

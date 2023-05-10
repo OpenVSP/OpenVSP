@@ -1405,10 +1405,69 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
 
     m_MeshTabLayout.AddYGap();
 
-    m_MeshTabLayout.SetButtonWidth( 175 );
+    int actionToggleButtonWidth = 45;
+    int normalButtonWidth = 175;
+
+    m_MeshTabLayout.SetFitWidthFlag( false );
+    m_MeshTabLayout.SetSameLineFlag( true );
+
+    m_MeshTabLayout.SetButtonWidth( actionToggleButtonWidth );
+    m_MeshTabLayout.AddButton( m_MaxAbsToggle, "Abs" );
+    m_MeshTabLayout.AddButton( m_MaxRelToggle, "Rel" );
+
+    m_MeshTabLayout.SetFitWidthFlag( true );
+
+    m_MeshTabLayout.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
     m_MeshTabLayout.AddSlider( m_MaxEdgeLen, "Max Edge Len", 1.0, "%7.5f" );
+
+    m_MaxEdgeLenToggleGroup.Init( this );
+    m_MaxEdgeLenToggleGroup.AddButton( m_MaxAbsToggle.GetFlButton() );
+    m_MaxEdgeLenToggleGroup.AddButton( m_MaxRelToggle.GetFlButton() );
+
+
+    m_MeshTabLayout.ForceNewLine();
+
+    m_MeshTabLayout.SetFitWidthFlag( false );
+    m_MeshTabLayout.SetSameLineFlag( true );
+
+    m_MeshTabLayout.SetButtonWidth( actionToggleButtonWidth );
+    m_MeshTabLayout.AddButton( m_MinAbsToggle, "Abs" );
+    m_MeshTabLayout.AddButton( m_MinRelToggle, "Rel" );
+
+    m_MeshTabLayout.SetFitWidthFlag( true );
+
+    m_MeshTabLayout.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
     m_MeshTabLayout.AddSlider( m_MinEdgeLen, "Min Edge Len", 1.0, "%7.5f" );
+
+    m_MinEdgeLenToggleGroup.Init( this );
+    m_MinEdgeLenToggleGroup.AddButton( m_MinAbsToggle.GetFlButton() );
+    m_MinEdgeLenToggleGroup.AddButton( m_MinRelToggle.GetFlButton() );
+
+
+    m_MeshTabLayout.ForceNewLine();
+
+    m_MeshTabLayout.SetFitWidthFlag( false );
+    m_MeshTabLayout.SetSameLineFlag( true );
+
+    m_MeshTabLayout.SetButtonWidth( actionToggleButtonWidth );
+    m_MeshTabLayout.AddButton( m_GapAbsToggle, "Abs" );
+    m_MeshTabLayout.AddButton( m_GapRelToggle, "Rel" );
+
+    m_MeshTabLayout.SetFitWidthFlag( true );
+
+    m_MeshTabLayout.SetButtonWidth( normalButtonWidth - 2 * actionToggleButtonWidth );
     m_MeshTabLayout.AddSlider( m_MaxGap, "Max Gap", 1.0, "%7.5f" );
+
+    m_MaxGapToggleGroup.Init( this );
+    m_MaxGapToggleGroup.AddButton( m_GapAbsToggle.GetFlButton() );
+    m_MaxGapToggleGroup.AddButton( m_GapRelToggle.GetFlButton() );
+
+    m_MeshTabLayout.ForceNewLine();
+    m_MeshTabLayout.SetFitWidthFlag( true );
+    m_MeshTabLayout.SetSameLineFlag( false );
+
+    m_MeshTabLayout.SetButtonWidth( normalButtonWidth );
+
     m_MeshTabLayout.AddSlider( m_NumCircleSegments, "Num Circle Segments", 100.0, "%7.5f" );
     m_MeshTabLayout.AddSlider( m_GrowthRatio, "Growth Ratio", 2.0, "%7.5f" );
 
@@ -2619,6 +2678,13 @@ void StructScreen::UpdateUnitLabels()
 
 bool StructScreen::Update()
 {
+    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
+    {
+        vector < FeaStructure * > structVec = StructureMgr.GetAllFeaStructs();
+        FeaStructure *curr_struct = structVec[ StructureMgr.m_CurrStructIndex() ];
+        curr_struct->Update();
+    }
+
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
     StructureMgr.Update();
@@ -2960,9 +3026,36 @@ bool StructScreen::Update()
             FeaStructure* curr_struct = structVec[StructureMgr.m_CurrStructIndex()];
 
             //==== Default Elem Size ====//
-            m_MaxEdgeLen.Update( curr_struct->GetFeaGridDensityPtr()->m_BaseLen.GetID() );
-            m_MinEdgeLen.Update( curr_struct->GetFeaGridDensityPtr()->m_MinLen.GetID() );
-            m_MaxGap.Update( curr_struct->GetFeaGridDensityPtr()->m_MaxGap.GetID() );
+            m_MaxEdgeLenToggleGroup.Update( curr_struct->GetFeaGridDensityPtr()->m_BaseAbsRel.GetID() );
+            if ( curr_struct->GetFeaGridDensityPtr()->m_BaseAbsRel() == vsp::ABS )
+            {
+                m_MaxEdgeLen.Update( 1, curr_struct->GetFeaGridDensityPtr()->m_BaseLen.GetID(), curr_struct->GetFeaGridDensityPtr()->m_BaseFrac.GetID() );
+            }
+            else
+            {
+                m_MaxEdgeLen.Update( 2, curr_struct->GetFeaGridDensityPtr()->m_BaseLen.GetID(), curr_struct->GetFeaGridDensityPtr()->m_BaseFrac.GetID() );
+            }
+
+            m_MinEdgeLenToggleGroup.Update( curr_struct->GetFeaGridDensityPtr()->m_MinAbsRel.GetID() );
+            if ( curr_struct->GetFeaGridDensityPtr()->m_MinAbsRel() == vsp::ABS )
+            {
+                m_MinEdgeLen.Update( 1, curr_struct->GetFeaGridDensityPtr()->m_MinLen.GetID(), curr_struct->GetFeaGridDensityPtr()->m_MinFrac.GetID() );
+            }
+            else
+            {
+                m_MinEdgeLen.Update( 2, curr_struct->GetFeaGridDensityPtr()->m_MinLen.GetID(), curr_struct->GetFeaGridDensityPtr()->m_MinFrac.GetID() );
+            }
+
+            m_MaxGapToggleGroup.Update( curr_struct->GetFeaGridDensityPtr()->m_MaxGapAbsRel.GetID() );
+            if ( curr_struct->GetFeaGridDensityPtr()->m_MaxGapAbsRel() == vsp::ABS )
+            {
+                m_MaxGap.Update( 1, curr_struct->GetFeaGridDensityPtr()->m_MaxGap.GetID(), curr_struct->GetFeaGridDensityPtr()->m_MaxGapFrac.GetID() );
+            }
+            else
+            {
+                m_MaxGap.Update( 2, curr_struct->GetFeaGridDensityPtr()->m_MaxGap.GetID(), curr_struct->GetFeaGridDensityPtr()->m_MaxGapFrac.GetID() );
+            }
+
             m_NumCircleSegments.Update( curr_struct->GetFeaGridDensityPtr()->m_NCircSeg.GetID() );
             m_GrowthRatio.Update( curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.GetID() );
             m_Rig3dGrowthLimit.Update( curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.GetID() );

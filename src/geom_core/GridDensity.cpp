@@ -1471,9 +1471,28 @@ double CfdGridDensity::GetDomainLen()
     return sqrt( l * l + w * w + h * h );
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 FeaGridDensity::FeaGridDensity() : GridDensity()
 {
     m_Name = "FEAGridDensity";
     m_GroupName = "FEAGridDensity";
     InitParms();
+}
+
+double FeaGridDensity::GetModelLen()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    string gid = m_ParentStruct->GetParentGeomID();
+
+    Geom* g = veh->FindGeom( gid );
+
+    BndBox b;
+    if ( g )
+    {
+        b.Update( g->GetBndBox() );
+    }
+
+    return b.DiagDist();
 }

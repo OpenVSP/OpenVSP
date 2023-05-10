@@ -31,6 +31,8 @@ FeaStructure::FeaStructure( const string& geomID, int surf_index )
 
     m_FeaPartCount = 0;
     m_FeaSubSurfCount = 0;
+
+    m_FeaGridDensity.SetParentStruct( this );
 }
 
 FeaStructure::~FeaStructure()
@@ -62,6 +64,7 @@ void FeaStructure::Update()
     UpdateFeaParts();
     UpdateFeaSubSurfs();
     UpdateFeaBCs();
+    m_FeaGridDensity.Update();
 }
 
 void FeaStructure::ParmChanged( Parm* parm_ptr, int type )
