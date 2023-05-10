@@ -10,6 +10,7 @@
 #include "GridDensity.h"
 #include "Geom.h"
 #include "Vehicle.h"
+#include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "VspUtil.h"
 
@@ -1127,6 +1128,80 @@ GridDensity::GridDensity() : ParmContainer()
     m_GroupName = "NONE";
 }
 
+void GridDensity::Update()
+{
+    m_BaseLen.Activate();
+    m_BaseFrac.Activate();
+    m_MinLen.Activate();
+    m_MinFrac.Activate();
+    m_MaxGap.Activate();
+    m_MaxGapFrac.Activate();
+    m_FarMaxLen.Activate();
+    m_FarFrac.Activate();
+    m_FarMaxGap.Activate();
+    m_FarMaxGapFrac.Activate();
+
+    double modellen = GetModelLen();
+    double domainlen = GetDomainLen();
+
+    if ( m_BaseAbsRel() == vsp::ABS ) // As fraction of model size.
+    {
+        m_BaseFrac = m_BaseLen() / modellen;
+        m_BaseFrac.Deactivate();
+    }
+    else
+    {
+        m_BaseLen = m_BaseFrac() * modellen;
+        m_BaseLen.Deactivate();
+    }
+
+    if ( m_MinAbsRel() == vsp::ABS ) // As fraction of maximum edge length.
+    {
+        m_MinFrac = m_MinLen() / m_BaseLen();
+        m_MinFrac.Deactivate();
+    }
+    else
+    {
+        m_MinLen = m_MinFrac() * m_BaseLen();
+        m_MinLen.Deactivate();
+    }
+
+    if ( m_MaxGapAbsRel() == vsp::ABS ) // As fraction of maximum edge length.
+    {
+        m_MaxGapFrac = m_MaxGap() / m_BaseLen();
+        m_MaxGapFrac.Deactivate();
+    }
+    else
+    {
+        m_MaxGap = m_MaxGapFrac() * m_BaseLen();
+        m_MaxGap.Deactivate();
+    }
+
+
+    if ( m_FarAbsRel() == vsp::ABS ) // As a fraction of domain size.
+    {
+        m_FarFrac = m_FarMaxLen() / domainlen;
+        m_FarFrac.Deactivate();
+    }
+    else
+    {
+        m_FarMaxLen = m_FarFrac() * domainlen;
+        m_FarMaxLen.Deactivate();
+    }
+
+    if ( m_FarMaxGapAbsRel() == vsp::ABS ) // As a fraction of far field maximum edge length.
+    {
+        m_FarMaxGapFrac = m_FarMaxGap() / m_FarMaxLen();
+        m_FarMaxGapFrac.Deactivate();
+    }
+    else
+    {
+        m_FarMaxGap = m_FarMaxGapFrac() * m_FarMaxLen();
+        m_FarMaxGap.Deactivate();
+    }
+
+}
+
 void GridDensity::InitParms()
 {
     m_RigorLimit.Init( "RigorLimit", m_GroupName, this, false, 0, 1 );
@@ -1134,11 +1209,29 @@ void GridDensity::InitParms()
     m_BaseLen.Init( "BaseLen", m_GroupName, this, 0.5, 1.0e-8, 1.0e12 );
     m_BaseLen.SetDescript( "Maximum mesh edge length" );
 
+    m_BaseFrac.Init( "BaseLenFrac", m_GroupName, this, 0.01, 1.0e-8, 1.0e12 );
+    m_BaseFrac.SetDescript( "Maximum mesh edge length as fraction of model size." );
+
+    m_BaseAbsRel.Init( "BaseAbsRel", m_GroupName, this, vsp::ABS, vsp::ABS, vsp::REL );
+    m_BaseAbsRel.SetDescript( "Absolute or relative control of maximum mesh edge length." );
+
     m_MinLen.Init( "MinLen", m_GroupName, this, 0.1, 1.0e-8, 1.0e12 );
     m_MinLen.SetDescript( "Minimum mesh edge length" );
 
+    m_MinFrac.Init( "MinFrac", m_GroupName, this, 0.01, 1.0e-8, 1.0 );
+    m_MinFrac.SetDescript( "Minimum mesh edge length as fraction of maximum mesh edge length." );
+
+    m_MinAbsRel.Init( "MinAbsRel", m_GroupName, this, vsp::ABS, vsp::ABS, vsp::REL );
+    m_MinAbsRel.SetDescript( "Absolute or relative control of minimum mesh edge length." );
+
     m_MaxGap.Init( "MaxGap", m_GroupName, this, 0.005, 1.0e-8, 1.0e12 );
     m_MaxGap.SetDescript( "Maximum mesh edge gap" );
+
+    m_MaxGapFrac.Init( "MaxGapFrac", m_GroupName, this, 0.05, 1.0e-8, 1.0 );
+    m_MaxGapFrac.SetDescript( "Maximum mesh edge gap as fraction of maximum mesh edge length." );
+
+    m_MaxGapAbsRel.Init( "MaxGapAbsRel", m_GroupName, this, vsp::ABS, vsp::ABS, vsp::REL );
+    m_MaxGapAbsRel.SetDescript( "Absolute or relative control of maximum mesh edge gap." );
 
     m_NCircSeg.Init( "NCircSeg", m_GroupName, this, 16, 1.0e-8, 1.0e12 );
     m_NCircSeg.SetDescript( "Number of edge segments to resolve circle" );
@@ -1149,8 +1242,20 @@ void GridDensity::InitParms()
     m_FarMaxLen.Init( "MaxFar", m_GroupName, this, 2.0, 1.0e-8, 1.0e12 );
     m_FarMaxLen.SetDescript( "Maximum far field mesh edge length" );
 
+    m_FarFrac.Init( "FarFrac", m_GroupName, this, 2.0, 1.0e-8, 1.0e12 );
+    m_FarFrac.SetDescript( "Maximum far field mesh edge length as fraction of far field size." );
+
+    m_FarAbsRel.Init( "FarAbsRel", m_GroupName, this, vsp::ABS, vsp::ABS, vsp::REL );
+    m_FarAbsRel.SetDescript( "Absolute or relative control of maximum far field mesh edge length." );
+
     m_FarMaxGap.Init( "MaxFarGap", m_GroupName, this, 0.02, 1.0e-8, 1.0e12 );
     m_FarMaxGap.SetDescript( "Maximum far field mesh edge gap" );
+
+    m_FarMaxGapFrac.Init( "FarMaxGapFrac", m_GroupName, this, 0.05, 1.0e-8, 1.0 );
+    m_FarMaxGapFrac.SetDescript( "Maximum far field mesh edge gap as fraction of maximum far field mesh edge length." );
+
+    m_FarMaxGapAbsRel.Init( "FarMaxGapAbsRel", m_GroupName, this, vsp::ABS, vsp::ABS, vsp::REL );
+    m_FarMaxGapAbsRel.SetDescript( "Absolute or relative control of maximum far field mesh edge gap." );
 
     m_FarNCircSeg.Init( "FarNCircSeg", m_GroupName, this, 16, 1.0e-8, 1.0e12 );
     m_FarNCircSeg.SetDescript( "Number of far field edge segments to resolve circle" );
@@ -1331,6 +1436,39 @@ CfdGridDensity::CfdGridDensity() : GridDensity()
     m_Name = "CFDGridDensity";
     m_GroupName = "CFDGridDensity";
     InitParms();
+}
+
+double CfdGridDensity::GetModelLen()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    int cfdset = veh->GetCfdSettingsPtr()->m_SelectedSetIndex();
+
+    vector < string > gids = veh->GetGeomSet( cfdset );
+    vector < Geom* > gs = veh->FindGeomVec( gids );
+
+    BndBox b;
+    for ( int i = 0; i< gs.size(); i++ )
+    {
+        Geom * g = gs[i];
+        if ( g )
+        {
+            b.Update( g->GetBndBox() );
+        }
+    }
+
+    return b.DiagDist();
+}
+
+double CfdGridDensity::GetDomainLen()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    double l = veh->GetCfdSettingsPtr()->m_FarLength();
+    double w = veh->GetCfdSettingsPtr()->m_FarWidth();
+    double h = veh->GetCfdSettingsPtr()->m_FarHeight();
+
+    return sqrt( l * l + w * w + h * h );
 }
 
 FeaGridDensity::FeaGridDensity() : GridDensity()

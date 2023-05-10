@@ -382,6 +382,8 @@ public:
     GridDensity();
     virtual ~GridDensity();
 
+    virtual void Update();
+
     virtual void InitParms();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
@@ -454,14 +456,27 @@ public:
     void Show( bool flag );
     void Highlight( BaseSource * source );
 
+    virtual double GetModelLen() { return 1.0; };
+    virtual double GetDomainLen() { return 1.0; };
+
     BoolParm m_RigorLimit;
     Parm m_BaseLen;
+    Parm m_BaseFrac;
+    IntParm m_BaseAbsRel;
     Parm m_FarMaxLen;
+    Parm m_FarFrac;
+    IntParm m_FarAbsRel;
     Parm m_MinLen;
+    Parm m_MinFrac;
+    IntParm m_MinAbsRel;
     Parm m_NCircSeg;
     Parm m_FarNCircSeg;
     Parm m_MaxGap;
+    Parm m_MaxGapFrac;
+    IntParm m_MaxGapAbsRel;
     Parm m_FarMaxGap;
+    Parm m_FarMaxGapFrac;
+    IntParm m_FarMaxGapAbsRel;
     Parm m_GrowRatio;
 
 protected:
@@ -475,6 +490,10 @@ class CfdGridDensity : public GridDensity
 {
 public:
     CfdGridDensity();
+
+    virtual double GetModelLen();
+    virtual double GetDomainLen();
+
 };
 
 class FeaGridDensity : public GridDensity
