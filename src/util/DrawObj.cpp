@@ -320,6 +320,372 @@ vec3d DrawObj::Color( int color )
         case YELLOW:
             return vec3d( 1.0, 1.0, 0.0 );
             break;
+        case ALICE_BLUE:
+            return vec3d( 240, 248, 255 ) / 255.0;
+            break;
+        case ANTIQUE_WHITE:
+            return vec3d( 250, 235, 215 ) / 255.0;
+            break;
+        case AQUA_MARINE:
+            return vec3d( 127, 255, 212 ) / 255.0;
+            break;
+        case AZURE:
+            return vec3d( 240, 255, 255 ) / 255.0;
+            break;
+        case BEIGE:
+            return vec3d( 245, 245, 220 ) / 255.0;
+            break;
+        case BISQUE:
+            return vec3d( 255, 228, 196 ) / 255.0;
+            break;
+        case BLANCHED_ALMOND:
+            return vec3d( 255, 235, 205 ) / 255.0;
+            break;
+        case BLUE_VIOLET:
+            return vec3d( 138, 43, 226 ) / 255.0;
+            break;
+        case BROWN:
+            return vec3d( 165, 42, 42 ) / 255.0;
+            break;
+        case BURLY_WOOD:
+            return vec3d( 222, 184, 135 ) / 255.0;
+            break;
+        case CADET_BLUE:
+            return vec3d( 95, 158, 160 ) / 255.0;
+            break;
+        case CHARTREUSE:
+            return vec3d( 127, 255, 0 ) / 255.0;
+            break;
+        case CHOCOLATE:
+            return vec3d( 210, 105, 30 ) / 255.0;
+            break;
+        case CORAL:
+            return vec3d( 255, 127, 80 ) / 255.0;
+            break;
+        case CORN_FLOWER_BLUE:
+            return vec3d( 100, 149, 237 ) / 255.0;
+            break;
+        case CORN_SILK:
+            return vec3d( 255, 248, 220 ) / 255.0;
+            break;
+        case CRIMSON:
+            return vec3d( 220, 20, 60 ) / 255.0;
+            break;
+        case DARK_BLUE:
+            return vec3d( 0, 0, 139 ) / 255.0;
+            break;
+        case DARK_CYAN:
+            return vec3d( 0, 139, 139 ) / 255.0;
+            break;
+        case DARK_GOLDEN_ROD:
+            return vec3d( 184, 134, 11 ) / 255.0;
+            break;
+        case DARK_GRAY:
+            return vec3d( 169, 169, 169 ) / 255.0;
+            break;
+        case DARK_GREEN:
+            return vec3d( 0, 100, 0 ) / 255.0;
+            break;
+        case DARK_KHAKI:
+            return vec3d( 189, 183, 107 ) / 255.0;
+            break;
+        case DARK_MAGENTA:
+            return vec3d( 139, 0, 139 ) / 255.0;
+            break;
+        case DARK_OLIVE_GREEN:
+            return vec3d( 85, 107, 47 ) / 255.0;
+            break;
+        case DARK_ORANGE:
+            return vec3d( 255, 140, 0 ) / 255.0;
+            break;
+        case DARK_ORCHID:
+            return vec3d( 153, 50, 204 ) / 255.0;
+            break;
+        case DARK_RED:
+            return vec3d( 139, 0, 0 ) / 255.0;
+            break;
+        case DARK_SALMON:
+            return vec3d( 233, 150, 122 ) / 255.0;
+            break;
+        case DARK_SEA_GREEN:
+            return vec3d( 143, 188, 143 ) / 255.0;
+            break;
+        case DARK_SLATE_BLUE:
+            return vec3d( 72, 61, 139 ) / 255.0;
+            break;
+        case DARK_SLATE_GRAY:
+            return vec3d( 47, 79, 79 ) / 255.0;
+            break;
+        case DARK_TURQUOISE:
+            return vec3d( 0, 206, 209 ) / 255.0;
+            break;
+        case DARK_VIOLET:
+            return vec3d( 148, 0, 211 ) / 255.0;
+            break;
+        case DEEP_PINK:
+            return vec3d( 255, 20, 147 ) / 255.0;
+            break;
+        case DEEP_SKY_BLUE:
+            return vec3d( 0, 191, 255 ) / 255.0;
+            break;
+        case DIM_GRAY:
+            return vec3d( 105, 105, 105 ) / 255.0;
+            break;
+        case DODGER_BLUE:
+            return vec3d( 30, 144, 255 ) / 255.0;
+            break;
+        case FIREBRICK:
+            return vec3d( 178, 34, 34 ) / 255.0;
+            break;
+        case FLORAL_WHITE:
+            return vec3d( 255, 250, 240 ) / 255.0;
+            break;
+        case FOREST_GREEN:
+            return vec3d( 34, 139, 34 ) / 255.0;
+            break;
+        case GAINSBORO:
+            return vec3d( 220, 220, 220 ) / 255.0;
+            break;
+        case GHOST_WHITE:
+            return vec3d( 248, 248, 255 ) / 255.0;
+            break;
+        case GOLD:
+            return vec3d( 255, 215, 0 ) / 255.0;
+            break;
+        case GOLDEN_ROD:
+            return vec3d( 218, 165, 32 ) / 255.0;
+            break;
+        case GREEN_YELLOW:
+            return vec3d( 173, 255, 47 ) / 255.0;
+            break;
+        case HONEYDEW:
+            return vec3d( 240, 255, 240 ) / 255.0;
+            break;
+        case HOT_PINK:
+            return vec3d( 255, 105, 180 ) / 255.0;
+            break;
+        case INDIAN_RED:
+            return vec3d( 205, 92, 92 ) / 255.0;
+            break;
+        case INDIGO:
+            return vec3d( 75, 0, 130 ) / 255.0;
+            break;
+        case IVORY:
+            return vec3d( 255, 255, 240 ) / 255.0;
+            break;
+        case KHAKI:
+            return vec3d( 240, 230, 140 ) / 255.0;
+            break;
+        case LAVENDER:
+            return vec3d( 230, 230, 250 ) / 255.0;
+            break;
+        case LAVENDER_BLUSH:
+            return vec3d( 255, 240, 245 ) / 255.0;
+            break;
+        case LAWN_GREEN:
+            return vec3d( 124, 252, 0 ) / 255.0;
+            break;
+        case LEMON_CHIFFON:
+            return vec3d( 255, 250, 205 ) / 255.0;
+            break;
+        case LIGHT_BLUE:
+            return vec3d( 173, 216, 230 ) / 255.0;
+            break;
+        case LIGHT_CORAL:
+            return vec3d( 240, 128, 128 ) / 255.0;
+            break;
+        case LIGHT_CYAN:
+            return vec3d( 224, 255, 255 ) / 255.0;
+            break;
+        case LIGHT_GOLDEN_ROD_YELLOW:
+            return vec3d( 250, 250, 210 ) / 255.0;
+            break;
+        case LIGHT_GRAY:
+            return vec3d( 211, 211, 211 ) / 255.0;
+            break;
+        case LIGHT_GREEN:
+            return vec3d( 144, 238, 144 ) / 255.0;
+            break;
+        case LIGHT_PINK:
+            return vec3d( 255, 182, 193 ) / 255.0;
+            break;
+        case LIGHT_SALMON:
+            return vec3d( 255, 160, 122 ) / 255.0;
+            break;
+        case LIGHT_SEA_GREEN:
+            return vec3d( 32, 178, 170 ) / 255.0;
+            break;
+        case LIGHT_SKY_BLUE:
+            return vec3d( 135, 206, 250 ) / 255.0;
+            break;
+        case LIGHT_SLATE_GRAY:
+            return vec3d( 119, 136, 153 ) / 255.0;
+            break;
+        case LIGHT_STEEL_BLUE:
+            return vec3d( 176, 196, 222 ) / 255.0;
+            break;
+        case LIGHT_YELLOW:
+            return vec3d( 255, 255, 224 ) / 255.0;
+            break;
+        case LIME_GREEN:
+            return vec3d( 50, 205, 50 ) / 255.0;
+            break;
+        case LINEN:
+            return vec3d( 250, 240, 230 ) / 255.0;
+            break;
+        case MEDIUM_AQUA_MARINE:
+            return vec3d( 102, 205, 170 ) / 255.0;
+            break;
+        case MEDIUM_BLUE:
+            return vec3d( 0, 0, 205 ) / 255.0;
+            break;
+        case MEDIUM_ORCHID:
+            return vec3d( 186, 85, 211 ) / 255.0;
+            break;
+        case MEDIUM_PURPLE:
+            return vec3d( 147, 112, 219 ) / 255.0;
+            break;
+        case MEDIUM_SEA_GREEN:
+            return vec3d( 60, 179, 113 ) / 255.0;
+            break;
+        case MEDIUM_SLATE_BLUE:
+            return vec3d( 123, 104, 238 ) / 255.0;
+            break;
+        case MEDIUM_SPRING_GREEN:
+            return vec3d( 0, 250, 154 ) / 255.0;
+            break;
+        case MEDIUM_TURQUOISE:
+            return vec3d( 72, 209, 204 ) / 255.0;
+            break;
+        case MEDIUM_VIOLET_RED:
+            return vec3d( 199, 21, 133 ) / 255.0;
+            break;
+        case MIDNIGHT_BLUE:
+            return vec3d( 25, 25, 112 ) / 255.0;
+            break;
+        case MINT_CREAM:
+            return vec3d( 245, 255, 250 ) / 255.0;
+            break;
+        case MISTY_ROSE:
+            return vec3d( 255, 228, 225 ) / 255.0;
+            break;
+        case MOCCASIN:
+            return vec3d( 255, 228, 181 ) / 255.0;
+            break;
+        case NAVAJO_WHITE:
+            return vec3d( 255, 222, 173 ) / 255.0;
+            break;
+        case OLD_LACE:
+            return vec3d( 253, 245, 230 ) / 255.0;
+            break;
+        case OLIVE_DRAB:
+            return vec3d( 107, 142, 35 ) / 255.0;
+            break;
+        case ORANGE:
+            return vec3d( 255, 165, 0 ) / 255.0;
+            break;
+        case ORANGE_RED:
+            return vec3d( 255, 69, 0 ) / 255.0;
+            break;
+        case ORCHID:
+            return vec3d( 218, 112, 214 ) / 255.0;
+            break;
+        case PALE_GOLDEN_ROD:
+            return vec3d( 238, 232, 170 ) / 255.0;
+            break;
+        case PALE_GREEN:
+            return vec3d( 152, 251, 152 ) / 255.0;
+            break;
+        case PALE_TURQUOISE:
+            return vec3d( 175, 238, 238 ) / 255.0;
+            break;
+        case PALE_VIOLET_RED:
+            return vec3d( 219, 112, 147 ) / 255.0;
+            break;
+        case PAPAYA_WHIP:
+            return vec3d( 255, 239, 213 ) / 255.0;
+            break;
+        case PEACH_PUFF:
+            return vec3d( 255, 218, 185 ) / 255.0;
+            break;
+        case PERU:
+            return vec3d( 205, 133, 63 ) / 255.0;
+            break;
+        case PINK:
+            return vec3d( 255, 192, 203 ) / 255.0;
+            break;
+        case PLUM:
+            return vec3d( 221, 160, 221 ) / 255.0;
+            break;
+        case POWDER_BLUE:
+            return vec3d( 176, 224, 230 ) / 255.0;
+            break;
+        case ROSY_BROWN:
+            return vec3d( 188, 143, 143 ) / 255.0;
+            break;
+        case ROYAL_BLUE:
+            return vec3d( 65, 105, 225 ) / 255.0;
+            break;
+        case SADDLE_BROWN:
+            return vec3d( 139, 69, 19 ) / 255.0;
+            break;
+        case SALMON:
+            return vec3d( 250, 128, 114 ) / 255.0;
+            break;
+        case SANDY_BROWN:
+            return vec3d( 244, 164, 96 ) / 255.0;
+            break;
+        case SEA_GREEN:
+            return vec3d( 46, 139, 87 ) / 255.0;
+            break;
+        case SEA_SHELL:
+            return vec3d( 255, 245, 238 ) / 255.0;
+            break;
+        case SIENNA:
+            return vec3d( 160, 82, 45 ) / 255.0;
+            break;
+        case SKY_BLUE:
+            return vec3d( 135, 206, 235 ) / 255.0;
+            break;
+        case SLATE_BLUE:
+            return vec3d( 106, 90, 205 ) / 255.0;
+            break;
+        case SLATE_GRAY:
+            return vec3d( 112, 128, 144 ) / 255.0;
+            break;
+        case SNOW:
+            return vec3d( 255, 250, 250 ) / 255.0;
+            break;
+        case SPRING_GREEN:
+            return vec3d( 0, 255, 127 ) / 255.0;
+            break;
+        case STEEL_BLUE:
+            return vec3d( 70, 130, 180 ) / 255.0;
+            break;
+        case TAN:
+            return vec3d( 210, 180, 140 ) / 255.0;
+            break;
+        case THISTLE:
+            return vec3d( 216, 191, 216 ) / 255.0;
+            break;
+        case TOMATO:
+            return vec3d( 255, 99, 71 ) / 255.0;
+            break;
+        case TURQUOISE:
+            return vec3d( 64, 224, 208 ) / 255.0;
+            break;
+        case VIOLET:
+            return vec3d( 238, 130, 238 ) / 255.0;
+            break;
+        case WHEAT:
+            return vec3d( 245, 222, 179 ) / 255.0;
+            break;
+        case WHITE_SMOKE:
+            return vec3d( 245, 245, 245 ) / 255.0;
+            break;
+        case YELLOW_GREEN:
+            return vec3d( 154, 205, 50 ) / 255.0;
+            break;
         default:
             return vec3d( 0.0, 0.0, 0.0 );
             break;
