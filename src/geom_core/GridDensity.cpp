@@ -1215,10 +1215,10 @@ void GridDensity::InitParms()
     m_BaseAbsRel.Init( "BaseAbsRel", m_GroupName, this, vsp::ABS, vsp::ABS, vsp::REL );
     m_BaseAbsRel.SetDescript( "Absolute or relative control of maximum mesh edge length." );
 
-    m_MinLen.Init( "MinLen", m_GroupName, this, 0.1, 1.0e-8, 1.0e12 );
+    m_MinLen.Init( "MinLen", m_GroupName, this, 0.025, 1.0e-8, 1.0e12 );
     m_MinLen.SetDescript( "Minimum mesh edge length" );
 
-    m_MinFrac.Init( "MinFrac", m_GroupName, this, 0.01, 1.0e-8, 1.0 );
+    m_MinFrac.Init( "MinFrac", m_GroupName, this, 0.05, 1.0e-8, 1.0 );
     m_MinFrac.SetDescript( "Minimum mesh edge length as fraction of maximum mesh edge length." );
 
     m_MinAbsRel.Init( "MinAbsRel", m_GroupName, this, vsp::ABS, vsp::ABS, vsp::REL );
