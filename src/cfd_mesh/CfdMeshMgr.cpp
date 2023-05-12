@@ -692,13 +692,15 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
             Surf* srf = ( *s )->m_Surf;
             vec2d uw = ( *s )->m_UW;
             // Initialize source with strength from underlying surface map.
-            double str = srf->InterpTargetMap( uw.x(), uw.y() );
+            int reason = -1;
+            double str = srf->InterpTargetMap( uw.x(), uw.y(), reason );
 
             vec3d pt = ( *s )->m_Pnt;
 
             MapSource *ss = new MapSource;
             ss->m_pt = pt;
             ss->m_str = str;
+            ss->m_reason = reason;
 
             splitSources.push_back( ss );
         }
@@ -3943,6 +3945,8 @@ void CfdMeshMgrSingleton::Subtag( Surf* surf )
         {
             center = ( pnts[face.ind0] + pnts[face.ind1] + pnts[face.ind2] ) * 1 / 3.0;
         }
+
+        surf->InterpTargetMap( center.x(), center.y(), face.m_reason );
 
         for ( int s = 0; s < (int)simp_s_surfs.size(); s++ )
         {

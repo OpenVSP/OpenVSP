@@ -1444,7 +1444,8 @@ void Mesh::ComputeTargetEdgeLength( Edge* edge )
         vec3d cent = ( edge->n0->pnt + edge->n1->pnt ) * 0.5;
         vec2d uwcent = ( edge->n0->uw  + edge->n1->uw ) * 0.5;
 
-        edge->target_len = m_Surf->InterpTargetMap( uwcent.x(), uwcent.y() );
+        int reason = -1;
+        edge->target_len = m_Surf->InterpTargetMap( uwcent.x(), uwcent.y(), reason );
     }
 }
 

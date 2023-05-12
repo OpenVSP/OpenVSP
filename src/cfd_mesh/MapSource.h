@@ -47,15 +47,17 @@ struct MapSource
         m_dominated = false;
         m_maxvisited = -1;
         m_surfid = -1;
+        m_reason = -1;
     };
 
-    MapSource( const vec3d &pt, double str, int surfid )
+    MapSource( const vec3d &pt, double str, int surfid, int reason )
     {
         m_pt = pt;
         m_str = str;
         m_dominated = false;
         m_maxvisited = -1;
         m_surfid = surfid;
+        m_reason = reason;
     };
 
     vec3d m_pt;
@@ -63,6 +65,7 @@ struct MapSource
     bool m_dominated;
     int m_maxvisited;
     int m_surfid;
+    int m_reason;
 };
 
 

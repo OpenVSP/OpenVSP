@@ -63,7 +63,7 @@ void SCurve::GetBorderCurve( Bezier_curve & crv ) const
     m_Surf->GetBorderCurve( uw0, uw1, crv );
 }
 
-double SCurve::GetTargetLen( SimpleGridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u )
+double SCurve::GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, vec3d p, vec3d uw, double u, int &reason )
 {
     bool limitFlag = false;
     if ( m_Surf->GetFarFlag() )
@@ -77,7 +77,12 @@ double SCurve::GetTargetLen( SimpleGridDensity* grid_den, SCurve* BCurve, vec3d 
 
     double len = grid_den->GetBaseLen( limitFlag );
 
-    len = min( len, m_Surf->InterpTargetMap( uw.x(), uw.y() ) );
+    double maplen = m_Surf->InterpTargetMap( uw.x(), uw.y(), reason );
+    if ( len < maplen )
+    {
+        reason = vsp::MAX_LEN_CONSTRAINT;
+    }
+    len = min( len, maplen );
 
     if( BCurve )
     {
@@ -95,8 +100,18 @@ double SCurve::GetTargetLen( SimpleGridDensity* grid_den, SCurve* BCurve, vec3d 
 
         double lenB = grid_den->GetBaseLen( limitFlag );
 
-        lenB = min( lenB, BCurve->m_Surf->InterpTargetMap( uwB.x(), uwB.y() ) );
+        int reasonB = -1;
+        maplen = BCurve->m_Surf->InterpTargetMap( uwB.x(), uwB.y(), reasonB );
+        if ( lenB < maplen )
+        {
+            reasonB = vsp::MAX_LEN_CONSTRAINT;
+        }
+        lenB = min( lenB, maplen );
 
+        if ( lenB < len)
+        {
+            reason = reasonB;
+        }
         len = min( len, lenB );
     }
 
@@ -201,7 +216,7 @@ void SCurve::ProjectTessToSurf( SCurve* othercurve )
     }
 }
 
-void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi )
+void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi, int &reason )
 {
     int imax = target_vec.size() - 1;
 
@@ -248,6 +263,7 @@ void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, d
     dsdi = sc - sf;
     s = sf + ifrac * dsdi;
 
+    reason = reason_vec[ round( ifloor + ifrac ) ];
 }
 
 void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
@@ -280,10 +296,12 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
         uw = m_UWCrv.CompPnt01( u );
         vec3d p = m_Surf->CompPnt( uw.x(), uw.y() );
 
-        double t = GetTargetLen( grid_den, BCurve, p, uw, u );
+        int reason = -1;
+        double t = GetTargetLen( grid_den, BCurve, p, uw, u, reason );
 
         u_vec.push_back( u );
         target_vec.push_back( t );
+        reason_vec.push_back( reason );
         pnt_vec.push_back( p );
 
         total_dist += dist( p, last_p );
@@ -311,6 +329,15 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
             if ( targetstr < target_vec[indx[i]] )
             {
                 target_vec[indx[i]] = targetstr;
+
+                if ( ( *ss )->m_reason < vsp::MIN_GROW_LIMIT )
+                {
+                    reason_vec[indx[i]] = ( *ss )->m_reason + vsp::GROW_LIMIT_INCREMENT;
+                }
+                else
+                {
+                    reason_vec[indx[i]] = ( *ss )->m_reason;
+                }
             }
             else
             {
@@ -318,6 +345,15 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
                 if ( targetrev < str )
                 {
                     ( *ss )->m_str = targetrev;
+
+                    if ( reason_vec[indx[i]] < vsp::MIN_GROW_LIMIT )
+                    {
+                        ( *ss )->m_reason = reason_vec[indx[i]] + vsp::GROW_LIMIT_INCREMENT;
+                    }
+                    else
+                    {
+                        ( *ss )->m_reason = reason_vec[indx[i]];
+                    }
                 }
             }
         }
@@ -329,6 +365,7 @@ void SCurve::CleanupDistTable()
     u_vec.clear();
     dist_vec.clear();
     target_vec.clear();
+    reason_vec.clear();
 }
 
 void SCurve::LimitTarget( SimpleGridDensity* grid_den )
@@ -345,6 +382,15 @@ void SCurve::LimitTarget( SimpleGridDensity* grid_den )
         if( dt > dtlim )
         {
             target_vec[i] = target_vec[i - 1] + dtlim;
+
+            if ( reason_vec[i - 1] < vsp::MIN_GROW_LIMIT )
+            {
+                reason_vec[i] = reason_vec[i - 1] + vsp::GROW_LIMIT_INCREMENT;
+            }
+            else
+            {
+                reason_vec[i] = reason_vec[i - 1];
+            }
         }
     }
 
@@ -358,6 +404,14 @@ void SCurve::LimitTarget( SimpleGridDensity* grid_den )
         if( dt > dtlim )
         {
             target_vec[i] = target_vec[i + 1] + dtlim;
+            if ( reason_vec[i + 1] < vsp::MIN_GROW_LIMIT )
+            {
+                reason_vec[i] = reason_vec[i + 1] + vsp::GROW_LIMIT_INCREMENT;
+            }
+            else
+            {
+                reason_vec[i] = reason_vec[i + 1];
+            }
         }
     }
 }
@@ -380,7 +434,7 @@ void SCurve::TessEndPts()
 // dsdi     i/o     ds/di at current point.  Passed in/out as optimization.
 // u        o       Final u out.
 
-bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction )
+bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int &reason, int direction )
 {
     double sold = s;
 
@@ -412,7 +466,7 @@ bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, do
     int iter = 0;
     while( std::abs( supper - slower ) / ds > tol )
     {
-        InterpDistTable( imid, tmid, umid, smid, dsdimid );
+        InterpDistTable( imid, tmid, umid, smid, dsdimid, reason );
 
         if( smid < starget )
         {
@@ -429,7 +483,7 @@ bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, do
     }
 
     ireal = imid;
-    InterpDistTable( ireal, t, u, s, dsdi );
+    InterpDistTable( ireal, t, u, s, dsdi, reason );
 
     return true; // Failure no option for bisection.
 }
@@ -443,7 +497,7 @@ bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, do
 // dsdi     i/o     ds/di at current point.  Passed in/out as optimization.
 // u        o       Final u out.
 
-bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u )
+bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int &reason )
 {
     double sold = s;
     double irorig = ireal;
@@ -461,7 +515,7 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
 
         ireal = ireal + di;
 
-        InterpDistTable( ireal, t, u, s, dsdi );
+        InterpDistTable( ireal, t, u, s, dsdi, reason );
 
         // Check to keep Newton's method from exploding.  If the solution is
         // diverging, just move one segment in the indicated direction and
@@ -479,7 +533,7 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
 
             ireal = irold + di;
 
-            InterpDistTable( ireal, t, u, s, dsdi );
+            InterpDistTable( ireal, t, u, s, dsdi, reason );
         }
 
         iter = iter + 1;
@@ -488,7 +542,7 @@ bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, do
     if( std::abs( s - starget ) > tol ) // Failed to converge.  Reset to start point and return failure.
     {
         ireal = irorig;
-        InterpDistTable( ireal, t, u, s, dsdi );
+        InterpDistTable( ireal, t, u, s, dsdi, reason );
         return false;
     }
 
@@ -531,7 +585,8 @@ void SCurve::TessIntegrate( int direction, vector< double > &stess )
     }
 
     double t, u, s, dsdi;
-    InterpDistTable( ireal, t, u, s, dsdi );
+    int reason = -1;
+    InterpDistTable( ireal, t, u, s, dsdi, reason );
 
     stess.push_back( s );
 
@@ -546,9 +601,9 @@ void SCurve::TessIntegrate( int direction, vector< double > &stess )
         }
         else
         {
-            if( !NewtonFind( starget, s, ireal, t, dsdi, u ) )
+            if( !NewtonFind( starget, s, ireal, t, dsdi, u, reason ) )
             {
-                BisectFind( starget, s, ireal, t, dsdi, u, direction );
+                BisectFind( starget, s, ireal, t, dsdi, u, reason, direction );
             }
         }
         isub = isub + 1;
@@ -692,8 +747,9 @@ void SCurve::SpreadDensity( SCurve* BCurve )
     {
         double u = u_vec[i];
         double t = target_vec[i];
-        ApplyESSurface( u, t );
-        BCurve->ApplyESSurface( u, t );
+        int reason = reason_vec[i];
+        ApplyESSurface( u, t, reason );
+        BCurve->ApplyESSurface( u, t, reason );
     }
 }
 
@@ -704,10 +760,10 @@ void SCurve::CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< Map
     LimitTarget( grid_den );
 }
 
-void SCurve::ApplyESSurface( double u, double t )
+void SCurve::ApplyESSurface( double u, double t, int reason )
 {
     vec3d uw = m_UWCrv.CompPnt01( u );
-    m_Surf->ApplyES( uw, t );
+    m_Surf->ApplyES( uw, t, reason );
 }
 
 void SCurve::DoubleTess()

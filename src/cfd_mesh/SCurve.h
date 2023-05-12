@@ -46,18 +46,18 @@ public:
         return m_Surf;
     }
 
-    double GetTargetLen( SimpleGridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u );
+    double GetTargetLen( SimpleGridDensity *grid_den, SCurve *BCurve, vec3d p, vec3d uw, double u, int &reason );
 
     void BorderTesselate( );
     void CheapTesselate( );
     void ProjectTessToSurf( SCurve* sca );
-    void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi );
+    void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi, int &reason );
     void BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
     void CleanupDistTable();
     void LimitTarget( SimpleGridDensity* grid_den );
     void TessEndPts();
-    bool NewtonFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u );
-    bool BisectFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction );
+    bool NewtonFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int &reason );
+    bool BisectFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int &reason, int direction );
     void TessIntegrate( int direction, vector< double > &stess );
     void STessToUTess();
     void STessToUTess( const vector< double > &stess, vector< double > &utess );
@@ -66,7 +66,7 @@ public:
     void UWTess();
     void SpreadDensity( SCurve* BCurve );
     void CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
-    void ApplyESSurface( double u, double t );
+    void ApplyESSurface( double u, double t, int reason );
     void Tesselate();
 
     void InterpolateLinear(vector<vec3d> &pnts_to_interpolate);
@@ -130,6 +130,7 @@ protected:
     vector< double > u_vec;
     vector< double > dist_vec;
     vector< double > target_vec;
+    vector< double > reason_vec;
 };
 
 

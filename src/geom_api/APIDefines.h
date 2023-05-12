@@ -502,6 +502,30 @@ enum MASS_UNIT { MASS_UNIT_G = 0,
                  NUM_MASS_UNIT
                }; // Mass Units ENUM
 
+// Order is important.
+enum MESH_REASON { NO_REASON,
+                   MAX_LEN_CONSTRAINT,
+                   CURV_GAP,
+                   CURV_NCIRCSEG,
+                   SOURCES,
+                   MIN_LEN_CONSTRAINT,               // MAX_LEN_CONSTRAINT + MIN_LEN_INCREMENT
+                   MIN_LEN_CONSTRAINT_CURV_GAP,      // CURV_GAP + MIN_LEN_INCREMENT
+                   MIN_LEN_CONSTRAINT_CURV_NCIRCSEG, // CURV_NCIRCSEG + MIN_LEN_INCREMENT
+                   MIN_LEN_CONSTRAINT_SOURCES,       // Placeholder -- min len not applied to sources.
+                   GROW_LIMIT_MAX_LEN_CONSTRAINT,
+                   GROW_LIMIT_CURV_GAP,
+                   GROW_LIMIT_CURV_NCIRCSEG,
+                   GROW_LIMIT_SOURCES,
+                   GROW_LIMIT_MIN_LEN_CONSTRAINT,
+                   GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_GAP,
+                   GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_NCIRCSEG,
+                   GROW_LIMIT_MIN_LEN_CONSTRAINT_SOURCES,
+                   NUM_MESH_REASON,
+                   MIN_LEN_INCREMENT = MIN_LEN_CONSTRAINT - MAX_LEN_CONSTRAINT,
+                   GROW_LIMIT_INCREMENT = GROW_LIMIT_CURV_GAP - CURV_GAP,
+                   MIN_GROW_LIMIT = GROW_LIMIT_CURV_GAP
+                 };
+
 enum PARM_TYPE { PARM_DOUBLE_TYPE,
                  PARM_INT_TYPE,
                  PARM_BOOL_TYPE,

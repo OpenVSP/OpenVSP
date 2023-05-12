@@ -82,7 +82,7 @@ int Surf::UWPointOnBorder( double u, double w, double tol ) const
     return m_SurfCore.UWPointOnBorder( u, w, tol );
 }
 
-double Surf::TargetLen( double u, double w, double gap, double radfrac )
+double Surf::TargetLen( double u, double w, double gap, double radfrac, int &reason )
 {
     double k1, k2, ka, kg;
 
@@ -134,6 +134,15 @@ double Surf::TargetLen( double u, double w, double gap, double radfrac )
         // is a required control to prevent this.
         nlen = r * radfrac;
 
+        if ( glen < nlen )
+        {
+            reason = vsp::CURV_GAP;
+        }
+        else
+        {
+            reason = vsp::CURV_NCIRCSEG;
+        }
+
         len = min( glen, nlen );
     }
     return len;
@@ -179,11 +188,22 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 
             double len = numeric_limits<double>::max( );
 
+            int reason = vsp::NO_REASON;
             // apply curvature based limits
-            double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap( limitFlag ), m_GridDensityPtr->GetRadFrac( limitFlag ) );
+            double curv_len = TargetLen( u, w, m_GridDensityPtr->GetMaxGap( limitFlag ), m_GridDensityPtr->GetRadFrac( limitFlag ), reason );
             len = min( len, curv_len );
 
             // apply minimum edge length as safety on curvature
+            if ( len <= m_GridDensityPtr->m_MinLen )
+            {
+                // Assign MIN_LEN_CONSTRAINT, MIN_LEN_CONSTRAINT_CURV_GAP, MIN_LEN_CONSTRAINT_CURV_NCIRCSEG as appropriate.
+                reason += vsp::MIN_LEN_INCREMENT;
+
+                if ( reason >= vsp::NUM_MESH_REASON ) // Should be imposible, just as a safety check.
+                {
+                    reason = vsp::MIN_LEN_CONSTRAINT;
+                }
+            }
             len = max( len, m_GridDensityPtr->m_MinLen );
 
             // apply sources
@@ -194,13 +214,21 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
             // constant U/W line sources to do some evaluation in u,w space instead
             // of just x,y,z space.
             double grid_len = m_GridDensityPtr->GetTargetLen( p, limitFlag, m_GeomID, m_MainSurfID, u, w );
+            if ( grid_len < len )
+            {
+                printf("%g %g\n", grid_len, len );
+                reason = vsp::SOURCES;
+            }
             len = min( len, grid_len );
 
             // finally check max size
+            if ( len >= m_GridDensityPtr->GetBaseLen( limitFlag ) )
+            {
+                reason = vsp::MAX_LEN_CONSTRAINT;
+            }
             len = min( len, m_GridDensityPtr->GetBaseLen( limitFlag ) );
 
-            MapSource ms = MapSource( p, len, sid );
-            m_SrcMap[i][j] = ms;
+            m_SrcMap[i][j] = MapSource( p, len, sid, reason );
             sources.push_back( &( m_SrcMap[i][j] ) );
         }
     }
@@ -266,6 +294,15 @@ void Surf::WalkMap( int istart, int jstart, int kstart )
                 m_SrcMap[ icurrent ][ jcurrent ].m_dominated = true;
                 m_SrcMap[ icurrent ][ jcurrent ].m_str = targetstr;
 
+                if ( m_SrcMap[istart][jstart].m_reason < vsp::MIN_GROW_LIMIT )
+                {
+                    m_SrcMap[ icurrent ][ jcurrent ].m_reason = m_SrcMap[istart][jstart].m_reason + vsp::GROW_LIMIT_INCREMENT;
+                }
+                else
+                {
+                    m_SrcMap[ icurrent ][ jcurrent ].m_reason = m_SrcMap[istart][jstart].m_reason;
+                }
+
                 for( int i = 0; i < 4; i++ )
                 {
                     int inext = icurrent + iadd[i];
@@ -315,6 +352,15 @@ void Surf::WalkMap( int istart, int jstart )
         {
             m_SrcMap[ icurrent ][ jcurrent ].m_str = targetstr;
 
+            if ( m_SrcMap[istart][jstart].m_reason < vsp::MIN_GROW_LIMIT )
+            {
+                m_SrcMap[ icurrent ][ jcurrent ].m_reason = m_SrcMap[istart][jstart].m_reason + vsp::GROW_LIMIT_INCREMENT;
+            }
+            else
+            {
+                m_SrcMap[ icurrent ][ jcurrent ].m_reason = m_SrcMap[istart][jstart].m_reason;
+            }
+
             for( int i = 0; i < 4; i++ )
             {
                 int inext = icurrent + iadd[i];
@@ -363,10 +409,8 @@ void Surf::LimitTargetMap()
         int i = ij.first;
         int j = ij.second;
 
-        MapSource src = m_SrcMap[i][j];
-
         // Recursively limit from small to large (skip if dominated)
-        if( !src.m_dominated )
+        if( !( m_SrcMap[i][j].m_dominated ) )
         {
             WalkMap( i, j, k );
         }
@@ -397,6 +441,7 @@ void Surf::LimitTargetMap( const MSCloud &es_cloud, MSTree &es_tree, double minm
 
             double t = m_SrcMap[i][j].m_str;
             double torig = t;
+            int reason = m_SrcMap[i][j].m_reason;
 
             double rmax = ( t - tmin ) / grm1;
             if( rmax > 0.0 )
@@ -415,11 +460,27 @@ void Surf::LimitTargetMap( const MSCloud &es_cloud, MSTree &es_tree, double minm
                     double str = es_cloud.sources[imatch]->m_str;
 
                     double ts = str + grm1 * r;
+
+                    if ( ts < t )
+                    {
+                        reason = es_cloud.sources[imatch]->m_reason;
+                    }
+
                     t = min( t, ts );
                 }
                 if( t < torig )
                 {
                     m_SrcMap[i][j].m_str = t;
+
+                    if ( reason < vsp::MIN_GROW_LIMIT )
+                    {
+                        m_SrcMap[i][j].m_reason = reason + vsp::GROW_LIMIT_INCREMENT;
+                    }
+                    else
+                    {
+                        m_SrcMap[i][j].m_reason = reason;
+                    }
+
                     WalkMap( i, j );
                 }
             }
@@ -427,7 +488,7 @@ void Surf::LimitTargetMap( const MSCloud &es_cloud, MSTree &es_tree, double minm
     }
 }
 
-double Surf::InterpTargetMap( double u, double w )
+double Surf::InterpTargetMap( double u, double w, int &reason )
 {
     int i, j;
     double fraci, fracj;
@@ -435,6 +496,9 @@ double Surf::InterpTargetMap( double u, double w )
 
     double ti = m_SrcMap[i][j].m_str + fracj * ( m_SrcMap[i][j + 1].m_str - m_SrcMap[i][j].m_str );
     double tip1 = m_SrcMap[i + 1][j].m_str + fracj * ( m_SrcMap[i + 1][j + 1].m_str - m_SrcMap[i + 1][j].m_str );
+
+    // Assign reason based on nearest map source point.
+    reason = m_SrcMap[ round( i + fraci ) ][ round( j + fracj ) ].m_reason;
 
     double t = ti + fraci * ( tip1 - ti );
     return t;
@@ -480,7 +544,7 @@ void Surf::UWtoTargetMapij( double u, double w, int &i, int &j )
     UWtoTargetMapij( u, w, i, j, fraci, fracj );
 }
 
-void Surf::ApplyES( vec3d uw, double t )
+void Surf::ApplyES( vec3d uw, double t, int reason )
 {
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
     int nmapu = m_SrcMap.size();
@@ -509,6 +573,16 @@ void Surf::ApplyES( vec3d uw, double t )
             if( m_SrcMap[ itarget ][ jtarget ].m_str > targetstr )
             {
                 m_SrcMap[ itarget ][ jtarget ].m_str = targetstr;
+
+                if ( reason < vsp::MIN_GROW_LIMIT )
+                {
+                    m_SrcMap[ itarget ][ jtarget ].m_reason = reason + vsp::GROW_LIMIT_INCREMENT;
+                }
+                else
+                {
+                    m_SrcMap[ itarget ][ jtarget ].m_reason = reason;
+                }
+
                 WalkMap( itarget, jtarget );
             }
         }
