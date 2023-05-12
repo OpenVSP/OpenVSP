@@ -398,15 +398,16 @@ double SimpleGridDensity::GetTargetLen( vec3d& pos, bool farFlag, const string &
     double target_len;
     double base_len;
 
+    target_len = numeric_limits<double>::max( );
+
     if ( !farFlag )
     {
-        target_len = m_BaseLen;
+        base_len = m_BaseLen;
     }
     else
     {
-        target_len = m_FarMaxLen;
+        base_len = m_FarMaxLen;
     }
-    base_len = target_len;
 
     for ( int i = 0; i < (int)m_Sources.size(); i++ )
     {
