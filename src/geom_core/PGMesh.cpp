@@ -1489,8 +1489,20 @@ void PGMesh::WriteTagFile( FILE* file_id, int part, int tag )
 {
     //==== Write Tri IDs for each tag =====//
 
-    int iface = 1;
+    int count = 0;
     list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        int singletag = ( *f )->m_Tag;
+
+        if ( SubSurfaceMgr.MatchPartAndTag( singletag, part, tag ) )
+        {
+            count++;
+        }
+    }
+    fprintf( file_id, "%d\n\n", count );
+
+    int iface = 1;
     for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
     {
         int singletag = ( *f )->m_Tag;

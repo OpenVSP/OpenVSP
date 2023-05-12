@@ -126,6 +126,7 @@ public:
     virtual int  WriteVSPGeomParts( FILE* file_id );
 
     virtual int  WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag );
+    virtual int  CountVSPGeomPartTagTris( int part, int tag );
 
     virtual void IdentifyWakes();
 

@@ -2021,6 +2021,37 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
 void CfdMeshMgrSingleton::WriteTagFile( FILE* file_id, int part, int tag, const vector< SimpFace > &allFaceVec, bool allowquads )
 {
     //==== Write Tri IDs for each tag =====//
+    int count = 0;
+    if ( allowquads )
+    {
+        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+        {
+            if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
+            {
+                count++;
+            }
+        }
+    }
+    else
+    {
+        for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+        {
+            if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
+            {
+                count++;
+            }
+
+            if( allFaceVec[i].m_isQuad )
+            {
+                if ( SubSurfaceMgr.MatchPartAndTag( allFaceVec[i].m_Tags, part, tag ) )
+                {
+                    count++;
+                }
+            }
+        }
+    }
+    fprintf( file_id, "%d\n\n", count );
+
     if ( allowquads )
     {
         for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )

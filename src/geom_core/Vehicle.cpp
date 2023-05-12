@@ -3514,6 +3514,18 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                         FILE* fid = fopen( tagfile_name.c_str(), "w" );
                         if ( fid )
                         {
+                            int tagcount = 0;
+                            for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+                            {
+                                if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+                                     geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+                                {
+                                    MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+                                    tagcount += mg->CountVSPGeomPartTagTris( part, tag );
+                                }
+                            }
+                            fprintf( fid, "%d\n\n", tagcount );
+
                             int tri_offset = 0;
                             for ( i = 0; i < ( int ) geom_vec.size(); i++ )
                             {
