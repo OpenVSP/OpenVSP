@@ -3525,7 +3525,7 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
                         string ptagname = gname + sname + "_" + SubSurfaceMgr.m_TagNames[tag];
 
                         string tagfile_name = base_name + ptagname + ".tag";
-                        string tagfile_localname = base_fname + ptagname + ".tag";
+                        string tagfile_localname = base_fname + ptagname;
 
                         fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
 
@@ -5395,7 +5395,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         fprintf( csf_file, "Geom Name:    %s\n", g->GetName().c_str() );
                         fprintf( csf_file, "VSPAERO Name: %s\n", str );
 
-                        snprintf( str, sizeof( str ),  "%s%s_Surf%zu_%s.tag", base_fname.c_str(), g->GetName().c_str(), isurf, cs->GetName().c_str() );
+                        snprintf( str, sizeof( str ),  "%s%s_Surf%zu_%s", base_fname.c_str(), g->GetName().c_str(), isurf, cs->GetName().c_str() );
 
                         fprintf( csf_file, "Tagfile Name: %s\n", str );
                         fprintf( csf_file, "Surface #:    %d\n", isurf );

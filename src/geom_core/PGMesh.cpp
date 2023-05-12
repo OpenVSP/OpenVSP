@@ -1483,7 +1483,7 @@ void PGMesh::WriteTagFiles( string file_name )
                         string ptagname = gname + sname + "_" + SubSurfaceMgr.m_TagNames[tag];
 
                         string tagfile_name = base_name + ptagname + ".tag";
-                        string tagfile_localname = base_fname + ptagname + ".tag";
+                        string tagfile_localname = base_fname + ptagname;
 
                         fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
 
