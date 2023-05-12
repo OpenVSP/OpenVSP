@@ -27,7 +27,8 @@ public:
     BoolParm m_SymSplittingOnFlag;
 
     BoolParm m_DrawMeshFlag;
-    BoolParm m_ColorTagsFlag;
+    BoolParm m_ColorFacesFlag;
+    BoolParm m_ColorTagReason;
 
     BoolParm m_DrawSourceWakeFlag;
 
@@ -234,7 +235,8 @@ public:
 
     BoolParm m_DrawAsMeshFlag;
     BoolParm m_DrawMeshFlag;
-    BoolParm m_ColorTagsFlag;
+    BoolParm m_ColorFacesFlag;
+    IntParm m_ColorTagReason;
 
     BoolParm m_ExportFileFlags[vsp::FEA_NUM_FILE_NAMES];
     BoolParm m_DrawNodesFlag;

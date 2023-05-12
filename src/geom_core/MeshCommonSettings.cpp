@@ -26,7 +26,8 @@ MeshCommonSettings::~MeshCommonSettings()
 void MeshCommonSettings::InitCommonParms()
 {
     m_DrawMeshFlag.Init( "DrawMeshFlag", "DrawMesh", this, true, 0, 1 );
-    m_ColorTagsFlag.Init( "ColorTagsFlag", "DrawMesh", this, true, 0, 1 );
+    m_ColorFacesFlag.Init( "ColorTagsFlag", "DrawMesh", this, true, 0, 1 );
+    m_ColorTagReason.Init( "ColorReasonFlag", "DrawMesh", this, false, 0, 1 );
 
     m_DrawBorderFlag.Init( "DrawBorderFlag", "DrawMesh", this, true, 0, 1 );
     m_DrawIsectFlag.Init( "DrawIsectFlag", "DrawMesh", this, true, 0, 1 );
@@ -585,7 +586,8 @@ AssemblySettings::AssemblySettings() : ParmContainer()
     m_DrawAsMeshFlag.Init( "DrawAsPartsFlag", "DrawMesh", this, true, false, true );
 
     m_DrawMeshFlag.Init( "DrawMeshFlag", "DrawMesh", this, true, 0, 1 );
-    m_ColorTagsFlag.Init( "ColorTagsFlag", "DrawMesh", this, true, 0, 1 );
+    m_ColorFacesFlag.Init( "ColorTagsFlag", "DrawMesh", this, true, 0, 1 );
+    m_ColorTagReason.Init( "ColorTagReason", "DrawMesh", this, vsp::TAG, vsp::TAG, vsp::REASON );
 
     m_DrawNodesFlag.Init( "DrawNodesFlag", "StructSettings", this, false, false, true );
     m_DrawNodesFlag.SetDescript( "Flag to Draw FeaNodes" );

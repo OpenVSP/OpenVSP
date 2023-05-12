@@ -217,6 +217,7 @@ void CfdMeshMgrSingleton::CleanUp()
     m_DegenCornerEdgeDO = DrawObj();
 
     m_TagDO.clear();
+    m_ReasonDO.clear();
 }
 
 void CfdMeshMgrSingleton::AdjustAllSourceLen( double mult )
@@ -3274,6 +3275,57 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
 {
     SurfaceIntersectionSingleton::UpdateDrawObjs();
 
+    unsigned int num_reason = vsp::NUM_MESH_REASON;
+    m_ReasonDO.resize( num_reason * 2 );
+
+    char str[256];
+    for ( int i = 0; i < num_reason; i++ )
+    {
+        snprintf( str, sizeof( str ), "%s_TREASON_%d", GetID().c_str(), i );
+        m_ReasonDO[i].m_GeomID = string( str );
+
+        snprintf( str, sizeof( str ), "%s_QREASON_%d", GetID().c_str(), i + num_reason );
+        m_ReasonDO[ i + num_reason ].m_GeomID = string( str );
+    }
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+        vector < SimpFace > fVec = m_SurfVec[ i ]->GetMesh()->GetSimpFaceVec();
+        for ( int f = 0 ; f < ( int ) fVec.size() ; f++ )
+        {
+            SimpFace* sface = &fVec[f];
+
+            if ( sface->m_reason >= 0 && sface->m_reason < vsp::NUM_MESH_REASON )
+            {
+                int ido = sface->m_reason;
+                if ( sface->m_isQuad )
+                {
+                    ido += num_reason;
+                }
+
+                vec3d norm = cross( pVec[sface->ind1] - pVec[sface->ind0], pVec[sface->ind2] - pVec[sface->ind0] );
+                norm.normalize();
+                m_ReasonDO[ ido ].m_PntVec.push_back( pVec[sface->ind0] );
+                m_ReasonDO[ ido ].m_PntVec.push_back( pVec[sface->ind1] );
+                m_ReasonDO[ ido ].m_PntVec.push_back( pVec[sface->ind2] );
+                m_ReasonDO[ ido ].m_NormVec.push_back( norm );
+                m_ReasonDO[ ido ].m_NormVec.push_back( norm );
+                m_ReasonDO[ ido ].m_NormVec.push_back( norm );
+                if ( sface->m_isQuad )
+                {
+                    m_ReasonDO[ ido ].m_PntVec.push_back( pVec[sface->ind3] );
+                    m_ReasonDO[ ido ].m_NormVec.push_back( norm );
+                }
+            }
+            else
+            {
+                printf( "Invalid reason %d\n", sface->m_reason );
+            }
+        }
+    }
+
+
     // Render Tag Colors
     unsigned int num_tags = SubSurfaceMgr.GetNumTags();
     m_TagDO.resize( num_tags * 2 );
@@ -3285,7 +3337,6 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
 
     int cnt = 0;
 
-    char str[256];
     for ( mit = tagMap.begin(); mit != tagMap.end() ; ++mit )
     {
         tag_tri_dobj_map[ mit->second ] = &m_TagDO[cnt];
@@ -3427,6 +3478,66 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
     m_MeshBadQuadDO.m_NormVec = badQuadData;
 }
 
+int CfdMeshMgrSingleton::reasonColorMap( int reason )
+{
+    switch( reason ) {
+        case vsp::NO_REASON:
+            return DrawObj::WHITE;
+            break;
+        case vsp::MAX_LEN_CONSTRAINT:
+            return DrawObj::TOMATO;
+            break;
+        case vsp::CURV_GAP:
+            return DrawObj::LIME_GREEN;
+            break;
+        case vsp::CURV_NCIRCSEG:
+            return DrawObj::DODGER_BLUE;
+            break;
+        case vsp::SOURCES:
+            return DrawObj::MAGENTA;
+            break;
+        case vsp::MIN_LEN_CONSTRAINT:
+            return DrawObj::BLACK;
+            break;
+        case vsp::MIN_LEN_CONSTRAINT_CURV_GAP:
+            return DrawObj::GREEN;
+            break;
+        case vsp::MIN_LEN_CONSTRAINT_CURV_NCIRCSEG:
+            return DrawObj::DARK_BLUE;
+            break;
+        case vsp::MIN_LEN_CONSTRAINT_SOURCES:
+            return DrawObj::BLACK;
+            break;
+        case vsp::GROW_LIMIT_MAX_LEN_CONSTRAINT:
+            return DrawObj::TOMATO;
+            break;
+        case vsp::GROW_LIMIT_CURV_GAP:
+            return DrawObj::LIGHT_GREEN;
+            break;
+        case vsp::GROW_LIMIT_CURV_NCIRCSEG:
+            return DrawObj::LIGHT_SKY_BLUE;
+            break;
+        case vsp::GROW_LIMIT_SOURCES:
+            return DrawObj::VIOLET;
+            break;
+        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT:
+            return DrawObj::LIGHT_SALMON;
+            break;
+        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_GAP:
+            return DrawObj::LIGHT_GREEN;
+            break;
+        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_NCIRCSEG:
+            return DrawObj::LIGHT_SKY_BLUE;
+            break;
+        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT_SOURCES:
+            return DrawObj::VIOLET;
+            break;
+        default:
+            return DrawObj::BLACK;
+            break;
+    }
+}
+
 void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
     if ( m_MeshInProgress )
@@ -3454,6 +3565,100 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_BBoxLineSymSplit.m_Visible = m_BBoxLineStripSymSplit.m_Visible;
     draw_obj_vec.push_back( &m_BBoxLineSymSplit );
 
+    unsigned int num_reason = vsp::NUM_MESH_REASON;
+
+    if ( m_ReasonDO.size() == 2 * num_reason )
+    {
+        for ( int i = 0; i < num_reason; i++ )
+        {
+
+            if ( GetCfdSettingsPtr()->m_ColorFacesFlag && GetCfdSettingsPtr()->m_ColorTagReason == vsp::REASON )
+            {
+                m_ReasonDO[i].m_Visible = true;
+                m_ReasonDO[i + num_reason].m_Visible = true;
+
+                if ( GetCfdSettingsPtr()->m_DrawMeshFlag &&
+                     GetCfdSettingsPtr()->m_ColorFacesFlag ) // Both are visible.
+                {
+                    m_ReasonDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                    m_ReasonDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+
+                    m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                    m_ReasonDO[i + num_reason].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                }
+                else
+                {
+                    m_ReasonDO[i].m_Type = DrawObj::VSP_SHADED_TRIS;
+                    m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_SHADED_QUADS;
+                }
+            }
+            else
+            {
+                // Need to set some m_Type so objects are created in vsp_graphic on first time through.
+                m_ReasonDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                m_ReasonDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                m_ReasonDO[i].m_Visible = false;
+
+                m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                m_ReasonDO[i + num_reason].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                m_ReasonDO[i + num_reason].m_Visible = false;
+            }
+
+            if ( GetCfdSettingsPtr()->m_ColorFacesFlag && GetCfdSettingsPtr()->m_ColorTagReason == vsp::REASON  )
+            {
+                vec3d rgb = m_ReasonDO[i].Color( reasonColorMap( i ) );
+
+                for ( int icomp = 0; icomp < 3; icomp++ )
+                {
+                    m_ReasonDO[i].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp];
+                    m_ReasonDO[i].m_MaterialInfo.Diffuse[icomp] = 0;
+                    m_ReasonDO[i].m_MaterialInfo.Specular[icomp] = 0;
+                    m_ReasonDO[i].m_MaterialInfo.Emission[icomp] = 0;
+
+                    m_ReasonDO[i + num_reason].m_MaterialInfo.Ambient[icomp] = (float)rgb.v[icomp];
+                    m_ReasonDO[i + num_reason].m_MaterialInfo.Diffuse[icomp] = 0;
+                    m_ReasonDO[i + num_reason].m_MaterialInfo.Specular[icomp] = 0;
+                    m_ReasonDO[i + num_reason].m_MaterialInfo.Emission[icomp] = 0;
+                }
+                m_ReasonDO[i].m_MaterialInfo.Ambient[3] = 1.0f;
+                m_ReasonDO[i].m_MaterialInfo.Diffuse[3] = 1.0f;
+                m_ReasonDO[i].m_MaterialInfo.Specular[3] = 1.0f;
+                m_ReasonDO[i].m_MaterialInfo.Emission[3] = 1.0f;
+
+                m_ReasonDO[i].m_MaterialInfo.Shininess = 0; // 32.0f;
+
+
+                m_ReasonDO[i + num_reason].m_MaterialInfo.Ambient[3] = 1.0f;
+                m_ReasonDO[i + num_reason].m_MaterialInfo.Diffuse[3] = 1.0f;
+                m_ReasonDO[i + num_reason].m_MaterialInfo.Specular[3] = 1.0f;
+                m_ReasonDO[i + num_reason].m_MaterialInfo.Emission[3] = 1.0f;
+
+                m_ReasonDO[i + num_reason].m_MaterialInfo.Shininess = 0; // 32.0f;
+            }
+            else
+            {
+                for ( int icomp = 0; icomp < 4; icomp++ )
+                {
+                    m_ReasonDO[i].m_MaterialInfo.Ambient[icomp] = 1.0f;
+                    m_ReasonDO[i].m_MaterialInfo.Diffuse[icomp] = 1.0f;
+                    m_ReasonDO[i].m_MaterialInfo.Specular[icomp] = 1.0f;
+                    m_ReasonDO[i].m_MaterialInfo.Emission[icomp] = 1.0f;
+
+                    m_ReasonDO[i + num_reason].m_MaterialInfo.Ambient[icomp] = 1.0f;
+                    m_ReasonDO[i + num_reason].m_MaterialInfo.Diffuse[icomp] = 1.0f;
+                    m_ReasonDO[i + num_reason].m_MaterialInfo.Specular[icomp] = 1.0f;
+                    m_ReasonDO[i + num_reason].m_MaterialInfo.Emission[icomp] = 1.0f;
+                }
+                m_ReasonDO[i].m_MaterialInfo.Shininess = 1.0f;
+                m_ReasonDO[i + num_reason].m_MaterialInfo.Shininess = 1.0f;
+            }
+
+
+            draw_obj_vec.push_back( &m_ReasonDO[i] );
+            draw_obj_vec.push_back( &m_ReasonDO[i + num_reason] );
+        }
+    }
+
     unsigned int num_tags = SubSurfaceMgr.GetNumTags();
     // Calculate constants for color sequence.
     const int ncgrp = 6; // Number of basic colors
@@ -3465,22 +3670,13 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         for ( int i = 0; i < num_tags; i++ )
         {
 
-            if ( GetCfdSettingsPtr()->m_DrawMeshFlag ||
-                 GetCfdSettingsPtr()->m_ColorTagsFlag )   // At least mesh or tags are visible.
+            if ( GetCfdSettingsPtr()->m_ColorFacesFlag && GetCfdSettingsPtr()->m_ColorTagReason == vsp::TAG )   // At least mesh or tags are visible.
             {
                 m_TagDO[i].m_Visible = true;
                 m_TagDO[i + num_tags].m_Visible = true;
 
                 if ( GetCfdSettingsPtr()->m_DrawMeshFlag &&
-                     GetCfdSettingsPtr()->m_ColorTagsFlag ) // Both are visible.
-                {
-                    m_TagDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-                    m_TagDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-
-                    m_TagDO[i + num_tags].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
-                    m_TagDO[i + num_tags].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-                }
-                else if ( GetCfdSettingsPtr()->m_DrawMeshFlag ) // Mesh only
+                     GetCfdSettingsPtr()->m_ColorFacesFlag ) // Both are visible.
                 {
                     m_TagDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
                     m_TagDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
@@ -3494,6 +3690,17 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     m_TagDO[i + num_tags].m_Type = DrawObj::VSP_SHADED_QUADS;
                 }
             }
+            else if ( GetCfdSettingsPtr()->m_DrawMeshFlag && !GetCfdSettingsPtr()->m_ColorFacesFlag )
+            {
+                m_TagDO[i].m_Visible = true;
+                m_TagDO[i + num_tags].m_Visible = true;
+
+                m_TagDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                m_TagDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+
+                m_TagDO[i + num_tags].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                m_TagDO[i + num_tags].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+            }
             else
             {
                 // Need to set some m_Type so objects are created in vsp_graphic on first time through.
@@ -3506,7 +3713,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_TagDO[i + num_tags].m_Visible = false;
             }
 
-            if ( GetCfdSettingsPtr()->m_ColorTagsFlag )
+            if ( GetCfdSettingsPtr()->m_ColorFacesFlag && GetCfdSettingsPtr()->m_ColorTagReason == vsp::TAG )
             {
                 // Color sequence -- go around color wheel ncstep times with slight
                 // offset from ncgrp basic colors.
@@ -3564,7 +3771,6 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             draw_obj_vec.push_back( &m_TagDO[i + num_tags] );
         }
     }
-
 
     map<int, DrawObj*> tag_tri_dobj_map;
     map<int, DrawObj*> tag_quad_dobj_map;
@@ -4127,7 +4333,8 @@ void CfdMeshMgrSingleton::UpdateDisplaySettings()
         GetCfdSettingsPtr()->m_DrawSymmFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawSymmFlag.Get();
         GetCfdSettingsPtr()->m_DrawFarFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawFarFlag.Get();
         GetCfdSettingsPtr()->m_DrawBadFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawBadFlag.Get();
-        GetCfdSettingsPtr()->m_ColorTagsFlag = m_Vehicle->GetCfdSettingsPtr()->m_ColorTagsFlag.Get();
+        GetCfdSettingsPtr()->m_ColorFacesFlag = m_Vehicle->GetCfdSettingsPtr()->m_ColorFacesFlag.Get();
+        GetCfdSettingsPtr()->m_ColorTagReason = m_Vehicle->GetCfdSettingsPtr()->m_ColorTagReason.Get();
 
         GetCfdSettingsPtr()->m_DrawBorderFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawBorderFlag.Get();
         GetCfdSettingsPtr()->m_DrawIsectFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawIsectFlag.Get();

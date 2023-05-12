@@ -363,7 +363,7 @@ bool StructAssemblyScreen::Update()
 
     //===== Display Tab Toggle Update =====//
     m_DrawMeshButton.Update( curr_assy->m_AssemblySettings.m_DrawMeshFlag.GetID() );
-    m_ColorElementsButton.Update( curr_assy->m_AssemblySettings.m_ColorTagsFlag.GetID() );
+    m_ColorElementsButton.Update( curr_assy->m_AssemblySettings.m_ColorFacesFlag.GetID() );
     m_DrawNodesToggle.Update( curr_assy->m_AssemblySettings.m_DrawNodesFlag.GetID() );
     m_DrawBCNodesToggle.Update( curr_assy->m_AssemblySettings.m_DrawBCNodesFlag.GetID() );
     m_DrawElementOrientVecToggle.Update( curr_assy->m_AssemblySettings.m_DrawElementOrientVecFlag.GetID() );

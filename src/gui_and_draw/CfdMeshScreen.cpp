@@ -197,7 +197,24 @@ void CfdMeshScreen::CreateDisplayTab()
     m_DisplayTabLayout.AddDividerBox( "Mesh Display" );
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton(m_ShowMesh, "Show Mesh");
-    m_DisplayTabLayout.AddButton(m_ColorTags, "Color Tags");
+
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 3.0 );
+
+    m_DisplayTabLayout.SetFitWidthFlag( false );
+    m_DisplayTabLayout.SetSameLineFlag( true );
+
+    m_DisplayTabLayout.AddButton( m_ColorFaces, "Color Mesh");
+    m_DisplayTabLayout.AddButton( m_ColorByTag, "By Tag" );
+    m_DisplayTabLayout.AddButton( m_ColorByReason, "By Reason" );
+    m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.SetFitWidthFlag( true );
+    m_DisplayTabLayout.SetSameLineFlag( false );
+
+    m_ColorByToggleGroup.Init( this );
+    m_ColorByToggleGroup.AddButton( m_ColorByTag.GetFlButton() );
+    m_ColorByToggleGroup.AddButton( m_ColorByReason.GetFlButton() );
+
     m_DisplayTabLayout.AddButton(m_ShowBadEdgesAndTriangles, "Show Bad Edges and Triangles");
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton(m_ShowSourcesAndWakePreview, "Show Sources and Wake Preview");
@@ -811,7 +828,14 @@ void CfdMeshScreen::UpdateDisplayTab()
     m_ShowSymmetryPlane.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawSymmFlag.GetID() );
     m_ShowFarField.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawFarFlag.GetID() );
     m_ShowBadEdgesAndTriangles.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawBadFlag.GetID() );
-    m_ColorTags.Update( m_Vehicle->GetCfdSettingsPtr()->m_ColorTagsFlag.GetID() );
+    m_ColorFaces.Update( m_Vehicle->GetCfdSettingsPtr()->m_ColorFacesFlag.GetID() );
+    m_ColorByToggleGroup.Update( m_Vehicle->GetCfdSettingsPtr()->m_ColorTagReason.GetID() );
+
+    m_ColorByToggleGroup.Deactivate();
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_ColorFacesFlag() )
+    {
+        m_ColorByToggleGroup.Activate();
+    }
 
     m_DrawIsect.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawIsectFlag.GetID() );
     m_DrawBorder.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawBorderFlag.GetID() );

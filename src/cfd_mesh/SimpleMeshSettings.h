@@ -32,7 +32,8 @@ public:
     bool m_SymSplittingOnFlag;
 
     bool m_DrawMeshFlag;
-    bool m_ColorTagsFlag;
+    bool m_ColorFacesFlag;
+    int m_ColorTagReason;
 
     bool m_DrawSourceWakeFlag;
 

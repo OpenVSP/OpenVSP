@@ -110,7 +110,11 @@ protected:
     ToggleButton m_ShowSymmetryPlane;
     ToggleButton m_ShowFarField;
     ToggleButton m_ShowBadEdgesAndTriangles;
-    ToggleButton m_ColorTags;
+    ToggleButton m_ColorFaces;
+
+    ToggleButton m_ColorByTag;
+    ToggleButton m_ColorByReason;
+    ToggleRadioGroup m_ColorByToggleGroup;
 
     ToggleButton m_DrawIsect;
     ToggleButton m_DrawBorder;

@@ -119,6 +119,10 @@ enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
                             NUM_SOURCE_TYPES,
                           };
 
+enum CFD_VIS_TYPE { TAG,
+                    REASON
+                  };
+
 enum CF_LAM_EQN { CF_LAM_BLASIUS = 0,
                   CF_LAM_BLASIUS_W_HEAT,
                 }; // Friction Coefficient Laminar Eqns ENUM

@@ -2704,7 +2704,8 @@ void FeaMeshMgrSingleton::UpdateAssemblyDisplaySettings( const string &assembly_
     {
         m_AssemblySettings.m_DrawAsMeshFlag = fea_assembly->m_AssemblySettings.m_DrawAsMeshFlag.Get();
         m_AssemblySettings.m_DrawMeshFlag = fea_assembly->m_AssemblySettings.m_DrawMeshFlag.Get();
-        m_AssemblySettings.m_ColorTagsFlag = fea_assembly->m_AssemblySettings.m_ColorTagsFlag.Get();
+        m_AssemblySettings.m_ColorFacesFlag = fea_assembly->m_AssemblySettings.m_ColorFacesFlag.Get();
+        m_AssemblySettings.m_ColorTagReason = fea_assembly->m_AssemblySettings.m_ColorTagReason.Get();
 
         m_AssemblySettings.m_DrawNodesFlag = fea_assembly->m_AssemblySettings.m_DrawNodesFlag.Get();
         m_AssemblySettings.m_DrawBCNodesFlag = fea_assembly->m_AssemblySettings.m_DrawBCNodesFlag.Get();

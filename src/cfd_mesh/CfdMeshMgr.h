@@ -216,6 +216,8 @@ public:
     void FindDegenCorners();
     void AddDegenCornerChains();
 
+    virtual int reasonColorMap( int reason );
+
 protected:
 
     /*
@@ -249,6 +251,7 @@ private:
     DrawObj m_BBoxLineStripSymSplit;
     DrawObj m_BBoxLineSymSplit;
     vector< DrawObj > m_TagDO;
+    vector< DrawObj > m_ReasonDO;
 
     DrawObj m_DegenCornerPointDO;
     DrawObj m_DegenCornerEdgeDO;
