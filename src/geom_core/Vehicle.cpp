@@ -5301,6 +5301,9 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
     string base_name = GetBasename( file_name );
     string csf_name = base_name + ".csf";
 
+    string base_path, base_fname;
+    GetPathFile( base_name, base_path, base_fname );
+
     FILE* csf_file = fopen( csf_name.c_str(), "w" );
 
     if ( csf_file )
@@ -5361,7 +5364,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                         fprintf( csf_file, "Geom Name:    %s\n", g->GetName().c_str() );
                         fprintf( csf_file, "VSPAERO Name: %s\n", str );
 
-                        snprintf( str, sizeof( str ),  "%s%s_Surf%zu_%s", base_name.c_str(), g->GetName().c_str(), isurf, cs->GetName().c_str() );
+                        snprintf( str, sizeof( str ),  "%s%s_Surf%zu_%s.tag", base_fname.c_str(), g->GetName().c_str(), isurf, cs->GetName().c_str() );
 
                         fprintf( csf_file, "Tagfile Name: %s\n", str );
                         fprintf( csf_file, "Surface #:    %d\n", isurf );
