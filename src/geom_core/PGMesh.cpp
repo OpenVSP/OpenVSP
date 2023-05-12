@@ -1406,6 +1406,7 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
 void PGMesh::WriteTagFiles( string file_name )
 {
     int ntagfile = 0;
+    int ncsffile = 0;
 
     std::vector < int > partvec;
     SubSurfaceMgr.MakePartList( partvec );
@@ -1423,6 +1424,11 @@ void PGMesh::WriteTagFiles( string file_name )
             if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
             {
                 ntagfile++;
+
+                if ( ssurf->GetType() == vsp::SS_CONTROL )
+                {
+                    ncsffile++;
+                }
             }
         }
     }
@@ -1434,13 +1440,25 @@ void PGMesh::WriteTagFiles( string file_name )
         string base_path, base_fname;
         GetPathFile( base_name, base_path, base_fname );
 
-        string taglist_name = base_name + ".taglist";
+        string taglist_name = base_name + ".ALL.taglist";
+        string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
 
         FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
+        FILE* csf_taglist_fid = NULL;
+        if ( ncsffile > 0 )
+        {
+            csf_taglist_fid = fopen( csf_taglist_name.c_str(), "w" );
+        }
+
         if ( taglist_fid )
         {
 
             fprintf( taglist_fid, "%d\n", ntagfile );
+
+            if ( csf_taglist_fid )
+            {
+                fprintf( csf_taglist_fid, "%d\n", ncsffile );
+            }
 
             for ( int ipart = 0; ipart < partvec.size(); ipart++ )
             {
@@ -1469,6 +1487,14 @@ void PGMesh::WriteTagFiles( string file_name )
 
                         fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
 
+                        if ( csf_taglist_fid )
+                        {
+                            if ( ssurf->GetType() == vsp::SS_CONTROL )
+                            {
+                                fprintf( csf_taglist_fid, "%s\n", tagfile_localname.c_str() );
+                            }
+                        }
+
                         FILE* fid = fopen( tagfile_name.c_str(), "w" );
                         if ( fid )
                         {
@@ -1481,6 +1507,11 @@ void PGMesh::WriteTagFiles( string file_name )
             }
 
             fclose( taglist_fid );
+
+            if ( csf_taglist_fid )
+            {
+                fclose( csf_taglist_fid );
+            }
         }
     }
 }

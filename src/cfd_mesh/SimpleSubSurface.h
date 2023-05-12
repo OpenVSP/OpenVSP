@@ -73,6 +73,10 @@ public:
     {
         return m_SSID;
     }
+    int GetType()
+    {
+        return m_Type;
+    }
 
     int m_Tag;
     int m_TestType;

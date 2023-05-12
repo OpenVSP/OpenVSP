@@ -1940,6 +1940,7 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFace > &allFaceVec, bool allowquads )
 {
     int ntagfile = 0;
+    int ncsffile = 0;
 
     std::vector < int > partvec;
     SubSurfaceMgr.MakePartList( partvec );
@@ -1956,6 +1957,11 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
             if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
             {
                 ntagfile++;
+
+                if ( ssurf.GetType() == vsp::SS_CONTROL )
+                {
+                    ncsffile++;
+                }
             }
         }
     }
@@ -1967,13 +1973,25 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
         string base_path, base_fname;
         GetPathFile( base_name, base_path, base_fname );
 
-        string taglist_name = base_name + ".taglist";
+        string taglist_name = base_name + ".ALL.taglist";
+        string csf_taglist_name = base_name + ".ControlSurfaces.taglist";
 
         FILE* taglist_fid = fopen( taglist_name.c_str(), "w" );
+        FILE* csf_taglist_fid = NULL;
+        if ( ncsffile > 0 )
+        {
+            csf_taglist_fid = fopen( csf_taglist_name.c_str(), "w" );
+        }
+
         if ( taglist_fid )
         {
 
             fprintf( taglist_fid, "%d\n", ntagfile );
+
+            if ( csf_taglist_fid )
+            {
+                fprintf( csf_taglist_fid, "%d\n", ncsffile );
+            }
 
             for ( int ipart = 0; ipart < partvec.size(); ipart++ )
             {
@@ -2002,6 +2020,14 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
 
                         fprintf( taglist_fid, "%s\n", tagfile_localname.c_str() );
 
+                        if ( csf_taglist_fid )
+                        {
+                            if ( ssurf.GetType() == vsp::SS_CONTROL )
+                            {
+                                fprintf( csf_taglist_fid, "%s\n", tagfile_localname.c_str() );
+                            }
+                        }
+
                         FILE* fid = fopen( tagfile_name.c_str(), "w" );
                         if ( fid )
                         {
@@ -2014,6 +2040,11 @@ void CfdMeshMgrSingleton::WriteTagFiles( string file_name, const vector< SimpFac
             }
 
             fclose( taglist_fid );
+
+            if ( csf_taglist_fid )
+            {
+                fclose( csf_taglist_fid );
+            }
         }
     }
 }
