@@ -1570,8 +1570,22 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_FemTabLayout.SetSameLineFlag( true );
 
     m_FemTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
+
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 6.0 );
+
     m_FemTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
+    m_FemTabLayout.AddButton( m_ColorByTag, "By Tag" );
+    m_FemTabLayout.AddButton( m_ColorByReason, "By Reason" );
     m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.SetFitWidthFlag( true );
+    m_FemTabLayout.SetSameLineFlag( false );
+
+    m_ColorByToggleGroup.Init( this );
+    m_ColorByToggleGroup.AddButton( m_ColorByTag.GetFlButton() );
+    m_ColorByToggleGroup.AddButton( m_ColorByReason.GetFlButton() );
+
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 2 );
 
     m_FemTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
     m_FemTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation" );
@@ -3088,6 +3102,15 @@ bool StructScreen::Update()
             //===== Display Tab Toggle Update =====//
             m_DrawMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
             m_ColorElementsButton.Update( curr_struct->GetStructSettingsPtr()->m_ColorFacesFlag.GetID() );
+
+            m_ColorByToggleGroup.Update( curr_struct->GetStructSettingsPtr()->m_ColorTagReason.GetID() );
+
+            m_ColorByToggleGroup.Deactivate();
+            if ( curr_struct->GetStructSettingsPtr()->m_ColorFacesFlag() )
+            {
+                m_ColorByToggleGroup.Activate();
+            }
+
             m_DrawNodesToggle.Update( curr_struct->GetStructSettingsPtr()->m_DrawNodesFlag.GetID() );
             m_DrawBCNodesToggle.Update( curr_struct->GetStructSettingsPtr()->m_DrawBCNodesFlag.GetID() );
             m_DrawElementOrientVecToggle.Update( curr_struct->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.GetID() );

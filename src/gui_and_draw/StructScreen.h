@@ -468,6 +468,11 @@ private:
 
     ToggleButton m_DrawMeshButton;
     ToggleButton m_ColorElementsButton;
+
+    ToggleButton m_ColorByTag;
+    ToggleButton m_ColorByReason;
+    ToggleRadioGroup m_ColorByToggleGroup;
+
     ToggleButton m_DrawNodesToggle;
     ToggleButton m_DrawBCNodesToggle;
     ToggleButton m_DrawElementOrientVecToggle;
