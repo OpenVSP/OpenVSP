@@ -11,7 +11,7 @@ Pickable::Pickable(Renderable * source) : SceneObject()
 {
     _rSource = source;
 
-    _cIndexBuffer = new ColorBuffer();
+    _cIndexBuffer = new ColorBuffer( GL_UNSIGNED_BYTE );
 
     _highlighted = false;
 

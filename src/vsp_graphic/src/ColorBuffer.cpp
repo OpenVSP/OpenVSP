@@ -4,8 +4,9 @@
 
 namespace VSPGraphic
 {
-ColorBuffer::ColorBuffer() : VBO( GL_ARRAY_BUFFER )
+ColorBuffer::ColorBuffer( unsigned int t ) : VBO( GL_ARRAY_BUFFER )
 {
+    _type = t;
 }
 ColorBuffer::~ColorBuffer()
 {
@@ -15,7 +16,7 @@ void ColorBuffer::bind()
 {
     // Bind Color Buffer
     VBO::bind();
-    glColorPointer( COLOR_SIZE, GL_UNSIGNED_BYTE, 0, ( void * )0 );
+    glColorPointer( COLOR_SIZE, _type, 0, ( void * )0 );
     VBO::unbind();
 
     // Enable Color Buffer

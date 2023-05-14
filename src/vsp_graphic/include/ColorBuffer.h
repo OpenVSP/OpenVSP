@@ -14,7 +14,7 @@ public:
     /*!
     * Constructor.
     */
-    ColorBuffer();
+    ColorBuffer( unsigned int t );
     /*!
     * Destructor.
     */
@@ -29,6 +29,8 @@ public:
     * Overwrite VBO, unbind color buffer.
     */
     void unbind();
+
+    unsigned int _type;
 };
 }
 #endif

@@ -12,7 +12,7 @@ Renderable::Renderable() : SceneObject()
     _style = Common::VSP_DRAW_WIRE_FRAME;
 
     _vBuffer = new VertexBuffer();
-    _cBuffer = new ColorBuffer();
+    _cBuffer = new ColorBuffer( GL_FLOAT );
     _eBuffer = new ElementBuffer();
 
     _meshColor.red = _meshColor.green = _meshColor.blue = 1.f;
