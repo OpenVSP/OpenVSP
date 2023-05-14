@@ -225,11 +225,11 @@ void Entity::_draw_Wire_Frame_Transparent_Back()
 
 void Entity::_draw_Mesh()
 {
-    bool cBufferEnabled = _getCBufferFlag();
+    bool cBufferEnabled = _getLineCBufferFlag();
 
     if( cBufferEnabled )
     {
-        _cBuffer->bind();
+        _lineColorBuffer->bind();
     }
 
     Color color = _getMeshColor();
@@ -237,7 +237,7 @@ void Entity::_draw_Mesh()
 
     if( cBufferEnabled )
     {
-        _cBuffer->unbind();
+        _lineColorBuffer->unbind();
     }
 }
 
@@ -259,11 +259,11 @@ void Entity::_draw_Mesh( float r, float g, float b, float a )
 
 void Entity::_draw_Wire()
 {
-    bool cBufferEnabled = _getCBufferFlag();
+    bool cBufferEnabled = _getLineCBufferFlag();
 
     if( cBufferEnabled )
     {
-        _cBuffer->bind();
+        _lineColorBuffer->bind();
     }
 
     float lineWidth = _getLineWidth();
@@ -272,7 +272,7 @@ void Entity::_draw_Wire()
 
     if( cBufferEnabled )
     {
-        _cBuffer->unbind();
+        _lineColorBuffer->unbind();
     }
 }
 

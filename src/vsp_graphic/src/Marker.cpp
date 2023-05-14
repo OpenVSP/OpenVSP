@@ -46,19 +46,19 @@ void Marker::_draw()
 
 void Marker::_draw_Points()
 {
-    bool cBufferEnabled = _getCBufferFlag();
+    bool cBufferEnabled = _getLineCBufferFlag();
     Color color = _getPointColor();
 
     if( cBufferEnabled )
     {
-        _cBuffer->bind();
+        _lineColorBuffer->bind();
     }
 
     _draw_Points( color.red, color.green, color.blue, color.alpha );
 
     if( cBufferEnabled )
     {
-        _cBuffer->unbind();
+        _lineColorBuffer->unbind();
     }
 }
 
@@ -88,19 +88,19 @@ void Marker::_draw_Points( float r, float g, float b, float a, float size )
 
 void Marker::_draw_Lines()
 {
-    bool cBufferEnabled = _getCBufferFlag();
+    bool cBufferEnabled = _getLineCBufferFlag();
     Color color = _getLineColor();
 
     if( cBufferEnabled )
     {
-        _cBuffer->bind();
+        _lineColorBuffer->bind();
     }
 
     _draw_Lines( color.red, color.green, color.blue, color.alpha );
 
     if( cBufferEnabled )
     {
-        _cBuffer->unbind();
+        _lineColorBuffer->unbind();
     }
 }
 

@@ -12,7 +12,7 @@ Renderable::Renderable() : SceneObject()
     _style = Common::VSP_DRAW_WIRE_FRAME;
 
     _vBuffer = new VertexBuffer();
-    _cBuffer = new ColorBuffer( GL_FLOAT );
+    _lineColorBuffer = new ColorBuffer( GL_FLOAT );
     _eBuffer = new ElementBuffer();
 
     _meshColor.red = _meshColor.green = _meshColor.blue = 1.f;
@@ -25,14 +25,14 @@ Renderable::Renderable() : SceneObject()
 
     _lineWidth = _pointSize = _textSize = 1.0f;
 
-    _cBufferFlag = _eBufferFlag = false;
+    _lineColorBufferFlag = _eBufferFlag = false;
 
     _facingCWFlag = false;
 }
 Renderable::~Renderable()
 {
     delete _vBuffer;
-    delete _cBuffer;
+    delete _lineColorBuffer;
     delete _eBuffer;
 }
 
@@ -61,19 +61,20 @@ void Renderable::enableEBuffer( bool enable )
     _eBufferFlag = enable;
 }
 
-void Renderable::appendCBuffer( void * mem_ptr, unsigned int mem_size )
+void Renderable::appendLineCBuffer( void * mem_ptr, unsigned int mem_size )
 {
-    _cBuffer->append( mem_ptr, mem_size );
+    _lineColorBuffer->append( mem_ptr, mem_size );
 }
 
-void Renderable::emptyCBuffer()
+void Renderable::emptyLineCBuffer()
 {
-    _cBuffer->empty();
+    _lineColorBuffer->empty();
 }
 
-void Renderable::enableCBuffer( bool enable )
+void Renderable::enableLineCBuffer( bool enable )
 {
-    _cBufferFlag = enable;
+    _lineColorBufferFlag = enable;
+}
 }
 
 void Renderable::setFacingCW( bool flag )
@@ -172,9 +173,9 @@ bool Renderable::getEBufferFlag()
     return _eBufferFlag;
 }
 
-bool Renderable::_getCBufferFlag()
+bool Renderable::_getLineCBufferFlag()
 {
-    return _cBufferFlag;
+    return _lineColorBufferFlag;
 }
 
 bool Renderable::_getFacingCWFlag()
