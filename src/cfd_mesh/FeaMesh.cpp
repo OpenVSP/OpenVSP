@@ -532,10 +532,18 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                     if ( st_settings->m_DrawMeshFlag &&
                          st_settings->m_ColorFacesFlag ) // Both are visible.
                     {
-                        m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
-                        m_FeaTriElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
+                        if ( st_settings->m_ColorTagReason == vsp::TAG )
+                        {
+                            m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
+                            m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_WIRE_SHADED_QUADS;
+                        }
+                        else
+                        {
+                            m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_WIRE_MAPPED_TRIS;
+                            m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_WIRE_MAPPED_QUADS;
+                        }
 
-                        m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_WIRE_SHADED_QUADS;
+                        m_FeaTriElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                         m_FeaQuadElementDO[iprt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                     }
                     else if ( st_settings->m_DrawMeshFlag ) // Mesh only
@@ -548,9 +556,16 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                     }
                     else // Tags only
                     {
-                        m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_SHADED_TRIS;
-
-                        m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_SHADED_QUADS;
+                        if ( st_settings->m_ColorTagReason == vsp::TAG )
+                        {
+                            m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_SHADED_TRIS;
+                            m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_SHADED_QUADS;
+                        }
+                        else
+                        {
+                            m_FeaTriElementDO[iprt].m_Type = DrawObj::VSP_MAPPED_TRIS;
+                            m_FeaQuadElementDO[iprt].m_Type = DrawObj::VSP_MAPPED_QUADS;
+                        }
                     }
                 }
             }
@@ -661,9 +676,18 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                 if ( st_settings->m_DrawMeshFlag &&
                      st_settings->m_ColorFacesFlag ) // Both are visible.
                 {
-                    m_SSTriElementDO[iss].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
+                    if ( st_settings->m_ColorTagReason == vsp::TAG )
+                    {
+                        m_SSTriElementDO[iss].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
+                        m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_WIRE_SHADED_QUADS;
+                    }
+                    else
+                    {
+                        m_SSTriElementDO[iss].m_Type = DrawObj::VSP_WIRE_MAPPED_TRIS;
+                        m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_WIRE_MAPPED_QUADS;
+                    }
+
                     m_SSTriElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
-                    m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_WIRE_SHADED_QUADS;
                     m_SSQuadElementDO[iss].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else if ( st_settings->m_DrawMeshFlag ) // Mesh only
@@ -675,8 +699,17 @@ void FeaMesh::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, SimpleFeaMeshSetti
                 }
                 else // Tags only
                 {
-                    m_SSTriElementDO[iss].m_Type = DrawObj::VSP_SHADED_TRIS;
-                    m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_SHADED_QUADS;
+
+                    if ( st_settings->m_ColorTagReason == vsp::TAG )
+                    {
+                        m_SSTriElementDO[iss].m_Type = DrawObj::VSP_SHADED_TRIS;
+                        m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_SHADED_QUADS;
+                    }
+                    else
+                    {
+                        m_SSTriElementDO[iss].m_Type = DrawObj::VSP_MAPPED_TRIS;
+                        m_SSQuadElementDO[iss].m_Type = DrawObj::VSP_MAPPED_QUADS;
+                    }
                 }
             }
             else
