@@ -134,6 +134,7 @@ FeaElement::FeaElement()
     m_ElementType = FEA_TRI_6;
     m_FeaPartIndex = -1;
     m_FeaSSIndex = -1;
+    m_reason = -1;
 }
 
 void FeaElement::DeleteAllNodes()

@@ -1487,6 +1487,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         }
         elem->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
         elem->SetFeaPartSurfNum( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum() );
+        elem->SetReason( all_face_vec[i].m_reason );
 
         vec2d closest_uw = m_SurfVec[tri_surf_ind_vec[i]]->ClosestUW( avg_pnt, uw_guess[0], uw_guess[1] );
 

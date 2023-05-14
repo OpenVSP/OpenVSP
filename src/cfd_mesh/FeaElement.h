@@ -85,6 +85,15 @@ public:
     {
         m_FeaPartSurfNum = part_surf_num;
     }
+    virtual void SetReason( int r )
+    {
+        m_reason = r;
+    }
+    virtual int GetReason()
+    {
+        return m_reason;
+    }
+
     virtual void WriteCalculix( FILE* fp, int id, long long int noffset, long long int eoffset ) = 0;
     virtual void WriteNASTRAN( FILE* fp, int id, int property_index, long long int noffset, long long int eoffset ) = 0;
     virtual void WriteGmsh( FILE* fp, int id, int fea_part_index, long long int noffset, long long int eoffset ) = 0;
@@ -114,6 +123,7 @@ protected:
     int m_FeaPartIndex; // Corresponds to index in FeaStructure m_FeaPartVec
     int m_FeaSSIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
     int m_FeaPartSurfNum; // corresponds to m_SurfVec->GetFeaPartSurfNum();
+    int m_reason;
 };
 
 //==== 6 Point Triangle Element ====//
