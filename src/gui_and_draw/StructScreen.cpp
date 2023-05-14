@@ -1573,13 +1573,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
 
     m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 6.0 );
 
-    m_FemTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
+    m_FemTabLayout.AddButton( m_ColorElementsButton, "Color" );
     m_FemTabLayout.AddButton( m_ColorByTag, "By Tag" );
     m_FemTabLayout.AddButton( m_ColorByReason, "By Reason" );
     m_FemTabLayout.ForceNewLine();
-
-    m_FemTabLayout.SetFitWidthFlag( true );
-    m_FemTabLayout.SetSameLineFlag( false );
 
     m_ColorByToggleGroup.Init( this );
     m_ColorByToggleGroup.AddButton( m_ColorByTag.GetFlButton() );
