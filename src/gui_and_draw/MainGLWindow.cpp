@@ -624,7 +624,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             }
             break;
 
-        case DrawObj::VSP_HIDDEN_TRIS_CFD:
+        case DrawObj::VSP_CFD_HIDDEN_TRIS:
             if( id == 0xFFFFFFFF )
             {
                 m_GEngine->getScene()->createObject( Common::VSP_OBJECT_CFD_ENTITY, &id );
