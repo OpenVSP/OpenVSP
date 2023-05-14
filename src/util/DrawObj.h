@@ -541,6 +541,12 @@ public:
     vector< vector< vector< double > > > m_uTexMesh;
     vector< vector< vector< double > > > m_vTexMesh;
 
+    vector< vec3d > m_WireColorVec;
+    vector< float > m_WireAlphaVec;
+
+    vector< vec3d > m_FaceColorVec;
+    vector< float > m_FaceAlphaVec;
+
     /*
     * List of attached textures to this drawobj.  Default is empty.
     */

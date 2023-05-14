@@ -1538,6 +1538,54 @@ void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
 
     destObj->emptyVBuffer();
     destObj->appendVBuffer( data.data(), sizeof( float ) * data.size() );
+
+    if ( drawObj->m_WireColorVec.size() == drawObj->m_PntVec.size() )
+    {
+        std::vector<float> cdata( n * 4, 0.0f );
+
+        for ( int i = 0; i < ( int )drawObj->m_WireColorVec.size(); i++ )
+        {
+            const int j = i * 4;
+            cdata[ j + 0 ] = ( float )drawObj->m_WireColorVec[i].x();
+            cdata[ j + 1 ] = ( float )drawObj->m_WireColorVec[i].y();
+            cdata[ j + 2 ] = ( float )drawObj->m_WireColorVec[i].z();
+
+            cdata[ j + 3 ] = ( float )drawObj->m_WireAlphaVec[i];
+        }
+
+        destObj->emptyLineCBuffer();
+        destObj->appendLineCBuffer( cdata.data(), sizeof( float ) * cdata.size());
+        destObj->enableLineCBuffer( true );
+    }
+    else
+    {
+        destObj->emptyLineCBuffer();
+        destObj->enableLineCBuffer( false );
+    }
+
+    if ( drawObj->m_FaceColorVec.size() == drawObj->m_PntVec.size() )
+    {
+        std::vector<float> cdata( n * 4, 0.0f );
+
+        for ( int i = 0; i < ( int )drawObj->m_FaceColorVec.size(); i++ )
+        {
+            const int j = i * 4;
+            cdata[ j + 0 ] = ( float )drawObj->m_FaceColorVec[i].x();
+            cdata[ j + 1 ] = ( float )drawObj->m_FaceColorVec[i].y();
+            cdata[ j + 2 ] = ( float )drawObj->m_FaceColorVec[i].z();
+
+            cdata[ j + 3 ] = ( float )drawObj->m_FaceAlphaVec[i];
+        }
+
+        destObj->emptyMeshCBuffer();
+        destObj->appendMeshCBuffer( cdata.data(), sizeof( float ) * cdata.size());
+        destObj->enableMeshCBuffer( true );
+    }
+    else
+    {
+        destObj->emptyMeshCBuffer();
+        destObj->enableMeshCBuffer( false );
+    }
 }
 
 // Tri and Quad data is loaded identically.  Differences are actually based on
