@@ -225,19 +225,19 @@ void Entity::_draw_Wire_Frame_Transparent_Back()
 
 void Entity::_draw_Mesh()
 {
-    bool cBufferEnabled = _getLineCBufferFlag();
+    bool meshCBufferEnabled = _getMeshCBufferFlag();
 
-    if( cBufferEnabled )
+    if( meshCBufferEnabled )
     {
-        _lineColorBuffer->bind();
+        _meshColorBuffer->bind();
     }
 
     Color color = _getMeshColor();
     _draw_Mesh( color.red, color.green, color.blue, color.alpha );
 
-    if( cBufferEnabled )
+    if( meshCBufferEnabled )
     {
-        _lineColorBuffer->unbind();
+        _meshColorBuffer->unbind();
     }
 }
 

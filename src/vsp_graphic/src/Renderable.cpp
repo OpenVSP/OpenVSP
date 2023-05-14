@@ -13,6 +13,7 @@ Renderable::Renderable() : SceneObject()
 
     _vBuffer = new VertexBuffer();
     _lineColorBuffer = new ColorBuffer( GL_FLOAT );
+    _meshColorBuffer = new ColorBuffer( GL_FLOAT );
     _eBuffer = new ElementBuffer();
 
     _meshColor.red = _meshColor.green = _meshColor.blue = 1.f;
@@ -25,7 +26,7 @@ Renderable::Renderable() : SceneObject()
 
     _lineWidth = _pointSize = _textSize = 1.0f;
 
-    _lineColorBufferFlag = _eBufferFlag = false;
+    _meshColorBufferFlag = _lineColorBufferFlag = _eBufferFlag = false;
 
     _facingCWFlag = false;
 }
@@ -33,6 +34,7 @@ Renderable::~Renderable()
 {
     delete _vBuffer;
     delete _lineColorBuffer;
+    delete _meshColorBuffer;
     delete _eBuffer;
 }
 
@@ -75,6 +77,20 @@ void Renderable::enableLineCBuffer( bool enable )
 {
     _lineColorBufferFlag = enable;
 }
+
+void Renderable::appendMeshCBuffer( void * mem_ptr, unsigned int mem_size )
+{
+    _meshColorBuffer->append( mem_ptr, mem_size );
+}
+
+void Renderable::emptyMeshCBuffer()
+{
+    _meshColorBuffer->empty();
+}
+
+void Renderable::enableMeshCBuffer( bool enable )
+{
+    _meshColorBufferFlag = enable;
 }
 
 void Renderable::setFacingCW( bool flag )
@@ -176,6 +192,11 @@ bool Renderable::getEBufferFlag()
 bool Renderable::_getLineCBufferFlag()
 {
     return _lineColorBufferFlag;
+}
+
+bool Renderable::_getMeshCBufferFlag()
+{
+    return _meshColorBufferFlag;
 }
 
 bool Renderable::_getFacingCWFlag()

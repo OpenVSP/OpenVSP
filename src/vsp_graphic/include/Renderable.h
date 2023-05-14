@@ -72,6 +72,22 @@ public:
 
 public:
     /*!
+    * Push a block of data from memory to the back of Color Buffer.
+    * mem_ptr points to the beginning of memory block, mem_size defines the size of the data.
+    */
+    virtual void appendMeshCBuffer( void * mem_ptr, unsigned int mem_size );
+    /*!
+    * Reset Color Buffer append location to start of the buffer.
+    */
+    virtual void emptyMeshCBuffer();
+    /*!
+    * Enable or Disable Color Buffer usage.  Enable this will render color base on Color Buffer.
+    * Disabled by default.
+    */
+    void enableMeshCBuffer( bool enable );
+
+public:
+    /*!
     * Define font and back facing polygons.  If  true, set facing to clock wise, else counter 
     * clock wise.
     */
@@ -156,6 +172,7 @@ protected:
 
 protected:
     bool _getLineCBufferFlag();
+    bool _getMeshCBufferFlag();
     bool _getFacingCWFlag();
 
     Color _getMeshColor();
@@ -179,6 +196,7 @@ protected:
 protected:
     VertexBuffer * _vBuffer;
     ColorBuffer * _lineColorBuffer;
+    ColorBuffer * _meshColorBuffer;
     ElementBuffer * _eBuffer;
 
 private:
@@ -187,7 +205,7 @@ private:
     Color _meshColor, _lineColor, _pointColor, _textColor;
     float _lineWidth, _pointSize, _textSize;
 
-    bool _eBufferFlag, _lineColorBufferFlag;
+    bool _eBufferFlag, _lineColorBufferFlag, _meshColorBufferFlag;
 
     bool _facingCWFlag;
 };
