@@ -203,6 +203,8 @@ void FeaMesh::UpdateDrawObjs()
         {
             for ( int j = 0; j < m_FeaElementVec.size(); j++ )
             {
+                vec3d c = DrawObj::Color( DrawObj::reasonColorMap( m_FeaElementVec[j]->GetReason() ) );
+
                 if ( m_FeaElementVec[j]->GetFeaPartIndex() == iprt && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                 {
                     if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
@@ -215,6 +217,15 @@ void FeaMesh::UpdateDrawObjs()
                         m_FeaTriElementDO[iprt].m_NormVec.push_back( norm );
                         m_FeaTriElementDO[iprt].m_NormVec.push_back( norm );
                         m_FeaTriElementDO[iprt].m_NormVec.push_back( norm );
+
+
+                        m_FeaTriElementDO[iprt].m_FaceColorVec.push_back( c );
+                        m_FeaTriElementDO[iprt].m_FaceColorVec.push_back( c );
+                        m_FeaTriElementDO[iprt].m_FaceColorVec.push_back( c );
+
+                        m_FeaTriElementDO[iprt].m_FaceAlphaVec.push_back( 1.0f );
+                        m_FeaTriElementDO[iprt].m_FaceAlphaVec.push_back( 1.0f );
+                        m_FeaTriElementDO[iprt].m_FaceAlphaVec.push_back( 1.0f );
                     }
                     else if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 )
                     {
@@ -228,6 +239,16 @@ void FeaMesh::UpdateDrawObjs()
                         m_FeaQuadElementDO[iprt].m_NormVec.push_back( norm );
                         m_FeaQuadElementDO[iprt].m_NormVec.push_back( norm );
                         m_FeaQuadElementDO[iprt].m_NormVec.push_back( norm );
+
+                        m_FeaQuadElementDO[iprt].m_FaceColorVec.push_back( c );
+                        m_FeaQuadElementDO[iprt].m_FaceColorVec.push_back( c );
+                        m_FeaQuadElementDO[iprt].m_FaceColorVec.push_back( c );
+                        m_FeaQuadElementDO[iprt].m_FaceColorVec.push_back( c );
+
+                        m_FeaQuadElementDO[iprt].m_FaceAlphaVec.push_back( 1.0f );
+                        m_FeaQuadElementDO[iprt].m_FaceAlphaVec.push_back( 1.0f );
+                        m_FeaQuadElementDO[iprt].m_FaceAlphaVec.push_back( 1.0f );
+                        m_FeaQuadElementDO[iprt].m_FaceAlphaVec.push_back( 1.0f );
                     }
                 }
             }
@@ -343,6 +364,8 @@ void FeaMesh::UpdateDrawObjs()
 
         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
         {
+            vec3d c = DrawObj::Color( DrawObj::reasonColorMap( m_FeaElementVec[j]->GetReason() ) );
+
             if (( m_FeaElementVec[j]->GetFeaSSIndex() == iss ) &&
                 ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_3 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 ) )
             {
@@ -354,6 +377,14 @@ void FeaMesh::UpdateDrawObjs()
                 m_SSTriElementDO[iss].m_NormVec.push_back( norm );
                 m_SSTriElementDO[iss].m_NormVec.push_back( norm );
                 m_SSTriElementDO[iss].m_NormVec.push_back( norm );
+
+                m_SSTriElementDO[iss].m_FaceColorVec.push_back( c );
+                m_SSTriElementDO[iss].m_FaceColorVec.push_back( c );
+                m_SSTriElementDO[iss].m_FaceColorVec.push_back( c );
+
+                m_SSTriElementDO[iss].m_FaceAlphaVec.push_back( 1.0f );
+                m_SSTriElementDO[iss].m_FaceAlphaVec.push_back( 1.0f );
+                m_SSTriElementDO[iss].m_FaceAlphaVec.push_back( 1.0f );
             }
             else if (( m_FeaElementVec[j]->GetFeaSSIndex() == iss ) &&
                      ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_4 || m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_QUAD_8 ) )
@@ -368,6 +399,16 @@ void FeaMesh::UpdateDrawObjs()
                 m_SSQuadElementDO[iss].m_NormVec.push_back( norm );
                 m_SSQuadElementDO[iss].m_NormVec.push_back( norm );
                 m_SSQuadElementDO[iss].m_NormVec.push_back( norm );
+
+                m_SSQuadElementDO[iss].m_FaceColorVec.push_back( c );
+                m_SSQuadElementDO[iss].m_FaceColorVec.push_back( c );
+                m_SSQuadElementDO[iss].m_FaceColorVec.push_back( c );
+                m_SSQuadElementDO[iss].m_FaceColorVec.push_back( c );
+
+                m_SSQuadElementDO[iss].m_FaceAlphaVec.push_back( 1.0f );
+                m_SSQuadElementDO[iss].m_FaceAlphaVec.push_back( 1.0f );
+                m_SSQuadElementDO[iss].m_FaceAlphaVec.push_back( 1.0f );
+                m_SSQuadElementDO[iss].m_FaceAlphaVec.push_back( 1.0f );
             }
         }
 
