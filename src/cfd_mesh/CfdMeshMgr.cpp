@@ -3448,12 +3448,12 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
 
 
     m_MeshBadTriDO.m_GeomID = GetID() + "BADTRI";
-    m_MeshBadTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+    m_MeshBadTriDO.m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
     m_MeshBadTriDO.m_LineColor = vec3d( 1, 0, 0 );
     m_MeshBadTriDO.m_LineWidth = 3.0;
 
     m_MeshBadQuadDO.m_GeomID = GetID() + "BADQUAD";
-    m_MeshBadQuadDO.m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+    m_MeshBadQuadDO.m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
     m_MeshBadQuadDO.m_LineColor = vec3d( 1, 0, 0 );
     m_MeshBadQuadDO.m_LineWidth = 3.0;
 
@@ -3580,10 +3580,10 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 if ( GetCfdSettingsPtr()->m_DrawMeshFlag &&
                      GetCfdSettingsPtr()->m_ColorFacesFlag ) // Both are visible.
                 {
-                    m_ReasonDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                    m_ReasonDO[i].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
                     m_ReasonDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
 
-                    m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                    m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
                     m_ReasonDO[i + num_reason].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else
@@ -3595,11 +3595,11 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             else
             {
                 // Need to set some m_Type so objects are created in vsp_graphic on first time through.
-                m_ReasonDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                m_ReasonDO[i].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
                 m_ReasonDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 m_ReasonDO[i].m_Visible = false;
 
-                m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                m_ReasonDO[i + num_reason].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
                 m_ReasonDO[i + num_reason].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 m_ReasonDO[i + num_reason].m_Visible = false;
             }
@@ -3678,10 +3678,10 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 if ( GetCfdSettingsPtr()->m_DrawMeshFlag &&
                      GetCfdSettingsPtr()->m_ColorFacesFlag ) // Both are visible.
                 {
-                    m_TagDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                    m_TagDO[i].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
                     m_TagDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
 
-                    m_TagDO[i + num_tags].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                    m_TagDO[i + num_tags].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
                     m_TagDO[i + num_tags].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else // Tags only
@@ -3695,20 +3695,20 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_TagDO[i].m_Visible = true;
                 m_TagDO[i + num_tags].m_Visible = true;
 
-                m_TagDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                m_TagDO[i].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
                 m_TagDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
 
-                m_TagDO[i + num_tags].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                m_TagDO[i + num_tags].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
                 m_TagDO[i + num_tags].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
             }
             else
             {
                 // Need to set some m_Type so objects are created in vsp_graphic on first time through.
-                m_TagDO[i].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                m_TagDO[i].m_Type = DrawObj::VSP_CFD_HIDDEN_TRIS;
                 m_TagDO[i].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 m_TagDO[i].m_Visible = false;
 
-                m_TagDO[i + num_tags].m_Type = DrawObj::VSP_HIDDEN_QUADS_CFD;
+                m_TagDO[i + num_tags].m_Type = DrawObj::VSP_CFD_HIDDEN_QUADS;
                 m_TagDO[i + num_tags].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 m_TagDO[i + num_tags].m_Visible = false;
             }
