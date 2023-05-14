@@ -240,6 +240,8 @@ public:
         VSP_CFD_HIDDEN_TRIS,
         VSP_WIRE_HIDDEN_TRIS,
         VSP_HIDDEN_TRIS,
+        VSP_MAPPED_TRIS,
+        VSP_WIRE_MAPPED_TRIS,
         VSP_WIRE_SHADED_TRIS,
         VSP_SHADED_TRIS,
         VSP_WIRE_TRIS,

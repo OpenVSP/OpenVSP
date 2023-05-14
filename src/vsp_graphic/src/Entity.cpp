@@ -80,6 +80,14 @@ void Entity::_predraw()
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
 
+    case Common::VSP_DRAW_WIRE_FRAME_MAPPED:
+        _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
+        break;
+
+    case Common::VSP_DRAW_MAPPED:
+        _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
+        break;
+
     case Common::VSP_DRAW_WIRE_FRAME_SHADED:
         _draw_Mesh( 0.f, 0.f, 0.f, 0.f );
         break;
@@ -116,6 +124,14 @@ void Entity::_draw()
     case Common::VSP_DRAW_WIRE_FRAME_SOLID:
         _draw_Wire_Frame_Solid();
         break;
+
+    case Common::VSP_DRAW_WIRE_FRAME_MAPPED:
+        _draw_Wire_Frame_Mapped();
+         break;
+
+    case Common::VSP_DRAW_MAPPED:
+        _draw_Mapped();
+         break;
 
     case Common::VSP_DRAW_WIRE_FRAME_SHADED:
         _draw_Wire_Frame_Shaded();
@@ -201,6 +217,28 @@ void Entity::_draw_Wire_Frame_Solid()
     glDisable( GL_POLYGON_OFFSET_FILL );
 
     _draw_Wire();
+}
+
+void Entity::_draw_Wire_Frame_Mapped()
+{
+    glEnable( GL_POLYGON_OFFSET_FILL );
+    glPolygonOffset( 1.f, 1.f );
+
+    _draw_Mesh();
+
+    glDisable( GL_POLYGON_OFFSET_FILL );
+
+    _draw_Wire();
+}
+
+void Entity::_draw_Mapped()
+{
+    glEnable( GL_POLYGON_OFFSET_FILL );
+    glPolygonOffset( 1.f, 1.f );
+
+    _draw_Mesh();
+
+    glDisable( GL_POLYGON_OFFSET_FILL );
 }
 
 void Entity::_draw_Wire_Frame_Shaded()
