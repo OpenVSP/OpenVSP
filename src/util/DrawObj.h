@@ -65,6 +65,7 @@ public:
 
     static vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
     static vec3d Color( int color );
+    static int reasonColorMap( int reason );
 
     // Colors match https://www.rapidtables.com/web/color/RGB_Color.html
     enum COLOR

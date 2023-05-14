@@ -3478,66 +3478,6 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
     m_MeshBadQuadDO.m_NormVec = badQuadData;
 }
 
-int CfdMeshMgrSingleton::reasonColorMap( int reason )
-{
-    switch( reason ) {
-        case vsp::NO_REASON:
-            return DrawObj::WHITE;
-            break;
-        case vsp::MAX_LEN_CONSTRAINT:
-            return DrawObj::TOMATO;
-            break;
-        case vsp::CURV_GAP:
-            return DrawObj::LIME_GREEN;
-            break;
-        case vsp::CURV_NCIRCSEG:
-            return DrawObj::DODGER_BLUE;
-            break;
-        case vsp::SOURCES:
-            return DrawObj::MAGENTA;
-            break;
-        case vsp::MIN_LEN_CONSTRAINT:
-            return DrawObj::BLACK;
-            break;
-        case vsp::MIN_LEN_CONSTRAINT_CURV_GAP:
-            return DrawObj::GREEN;
-            break;
-        case vsp::MIN_LEN_CONSTRAINT_CURV_NCIRCSEG:
-            return DrawObj::DARK_BLUE;
-            break;
-        case vsp::MIN_LEN_CONSTRAINT_SOURCES:
-            return DrawObj::BLACK;
-            break;
-        case vsp::GROW_LIMIT_MAX_LEN_CONSTRAINT:
-            return DrawObj::TOMATO;
-            break;
-        case vsp::GROW_LIMIT_CURV_GAP:
-            return DrawObj::LIGHT_GREEN;
-            break;
-        case vsp::GROW_LIMIT_CURV_NCIRCSEG:
-            return DrawObj::LIGHT_SKY_BLUE;
-            break;
-        case vsp::GROW_LIMIT_SOURCES:
-            return DrawObj::VIOLET;
-            break;
-        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT:
-            return DrawObj::LIGHT_SALMON;
-            break;
-        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_GAP:
-            return DrawObj::LIGHT_GREEN;
-            break;
-        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_NCIRCSEG:
-            return DrawObj::LIGHT_SKY_BLUE;
-            break;
-        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT_SOURCES:
-            return DrawObj::VIOLET;
-            break;
-        default:
-            return DrawObj::BLACK;
-            break;
-    }
-}
-
 void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
     if ( m_MeshInProgress )
@@ -3606,7 +3546,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             if ( GetCfdSettingsPtr()->m_ColorFacesFlag && GetCfdSettingsPtr()->m_ColorTagReason == vsp::REASON  )
             {
-                vec3d rgb = m_ReasonDO[i].Color( reasonColorMap( i ) );
+                vec3d rgb = DrawObj::Color( DrawObj::reasonColorMap( i ) );
 
                 for ( int icomp = 0; icomp < 3; icomp++ )
                 {

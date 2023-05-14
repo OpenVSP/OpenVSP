@@ -216,7 +216,6 @@ public:
     void FindDegenCorners();
     void AddDegenCornerChains();
 
-    virtual int reasonColorMap( int reason );
 
 protected:
 

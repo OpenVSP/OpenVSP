@@ -11,6 +11,7 @@
 
 #include "DrawObj.h"
 #include "Matrix4d.h"
+#include "APIDefines.h"
 
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts )
 {
@@ -688,6 +689,66 @@ vec3d DrawObj::Color( int color )
             break;
         default:
             return vec3d( 0.0, 0.0, 0.0 );
+            break;
+    }
+}
+
+int DrawObj::reasonColorMap( int reason )
+{
+    switch( reason ) {
+        case vsp::NO_REASON:
+            return DrawObj::WHITE;
+            break;
+        case vsp::MAX_LEN_CONSTRAINT:
+            return DrawObj::TOMATO;
+            break;
+        case vsp::CURV_GAP:
+            return DrawObj::LIME_GREEN;
+            break;
+        case vsp::CURV_NCIRCSEG:
+            return DrawObj::DODGER_BLUE;
+            break;
+        case vsp::SOURCES:
+            return DrawObj::MAGENTA;
+            break;
+        case vsp::MIN_LEN_CONSTRAINT:
+            return DrawObj::BLACK;
+            break;
+        case vsp::MIN_LEN_CONSTRAINT_CURV_GAP:
+            return DrawObj::GREEN;
+            break;
+        case vsp::MIN_LEN_CONSTRAINT_CURV_NCIRCSEG:
+            return DrawObj::DARK_BLUE;
+            break;
+        case vsp::MIN_LEN_CONSTRAINT_SOURCES:
+            return DrawObj::BLACK;
+            break;
+        case vsp::GROW_LIMIT_MAX_LEN_CONSTRAINT:
+            return DrawObj::TOMATO;
+            break;
+        case vsp::GROW_LIMIT_CURV_GAP:
+            return DrawObj::LIGHT_GREEN;
+            break;
+        case vsp::GROW_LIMIT_CURV_NCIRCSEG:
+            return DrawObj::LIGHT_SKY_BLUE;
+            break;
+        case vsp::GROW_LIMIT_SOURCES:
+            return DrawObj::VIOLET;
+            break;
+        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT:
+            return DrawObj::LIGHT_SALMON;
+            break;
+        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_GAP:
+            return DrawObj::LIGHT_GREEN;
+            break;
+        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_NCIRCSEG:
+            return DrawObj::LIGHT_SKY_BLUE;
+            break;
+        case vsp::GROW_LIMIT_MIN_LEN_CONSTRAINT_SOURCES:
+            return DrawObj::VIOLET;
+            break;
+        default:
+            return DrawObj::BLACK;
             break;
     }
 }
