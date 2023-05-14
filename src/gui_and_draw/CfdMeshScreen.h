@@ -126,6 +126,20 @@ protected:
     ToggleButton m_ShowCurve;
     ToggleButton m_ShowPts;
 
+
+    TriggerButton m_MaxLenConstraintLabel;
+
+    TriggerButton m_MinLenCurvGapLabel;
+    TriggerButton m_CurvGapLabel;
+    TriggerButton m_GrowLimitCurvGapLabel;
+
+    TriggerButton m_MinLenCurvNCircSegLabel;
+    TriggerButton m_NCircSegLabel;
+    TriggerButton m_GrowLimitNCircSegLabel;
+
+    TriggerButton m_SourcesLabel;
+    TriggerButton m_GrowLimitSourcesLabel;
+
     //===== Output Tab Items =====//
 
     ToggleButton m_StlFile;

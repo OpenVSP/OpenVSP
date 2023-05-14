@@ -208,33 +208,112 @@ void CfdMeshScreen::CreateDisplayTab()
     m_DisplayTabLayout.AddButton( m_ColorByReason, "By Reason" );
     m_DisplayTabLayout.ForceNewLine();
 
-    m_DisplayTabLayout.SetFitWidthFlag( true );
-    m_DisplayTabLayout.SetSameLineFlag( false );
-
     m_ColorByToggleGroup.Init( this );
     m_ColorByToggleGroup.AddButton( m_ColorByTag.GetFlButton() );
     m_ColorByToggleGroup.AddButton( m_ColorByReason.GetFlButton() );
 
+    m_DisplayTabLayout.SetFitWidthFlag( true );
+    m_DisplayTabLayout.SetSameLineFlag( false );
+
     m_DisplayTabLayout.AddButton(m_ShowBadEdgesAndTriangles, "Show Bad Edges and Triangles");
     m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton(m_ShowSourcesAndWakePreview, "Show Sources and Wake Preview");
+
+    m_DisplayTabLayout.SetFitWidthFlag( false );
+    m_DisplayTabLayout.SetSameLineFlag( true );
+
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2.0 );
+
+    m_DisplayTabLayout.AddButton(m_ShowSourcesAndWakePreview, "Show Sources & Wake Preview");
     m_DisplayTabLayout.AddButton(m_ShowWake, "Show Wake");
-    m_DisplayTabLayout.AddButton(m_ShowSymmetryPlane, "Show Symmetry Plane");
+    m_DisplayTabLayout.ForceNewLine();
+
     m_DisplayTabLayout.AddButton(m_ShowFarFieldPreview, "Show Far Field Preview");
     m_DisplayTabLayout.AddButton(m_ShowFarField, "Show Far Field");
+    m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.SetFitWidthFlag( true );
+    m_DisplayTabLayout.SetSameLineFlag( false );
+    m_DisplayTabLayout.AddButton(m_ShowSymmetryPlane, "Show Symmetry Plane");
+
     m_DisplayTabLayout.AddYGap();
 
     m_DisplayTabLayout.AddDividerBox( "Intersection Curve Display" );
 
     m_DisplayTabLayout.AddYGap();
+
+    m_DisplayTabLayout.SetFitWidthFlag( false );
+    m_DisplayTabLayout.SetSameLineFlag( true );
+
     m_DisplayTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
     m_DisplayTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
-    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.ForceNewLine();
     m_DisplayTabLayout.AddButton( m_ShowCurve, "Show Curves");
     m_DisplayTabLayout.AddButton( m_ShowPts, "Show Points");
-    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.ForceNewLine();
     m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
     m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
+    m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.SetFitWidthFlag( true );
+    m_DisplayTabLayout.SetSameLineFlag( false );
+
+    m_DisplayTabLayout.AddYGap();
+
+    m_DisplayTabLayout.AddDividerBox( "Mesh Edge Length Reason Key" );
+
+    m_DisplayTabLayout.AddYGap();
+
+    vec3d c;
+
+
+    m_DisplayTabLayout.AddButton( m_MaxLenConstraintLabel, "Max Edge Len" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::MAX_LEN_CONSTRAINT ) );
+    m_MaxLenConstraintLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+
+    m_DisplayTabLayout.SetFitWidthFlag( false );
+    m_DisplayTabLayout.SetSameLineFlag( true );
+
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 3.0 );
+
+    m_DisplayTabLayout.AddButton( m_GrowLimitCurvGapLabel, "Growth Ratio" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_CURV_GAP ) );
+    m_GrowLimitCurvGapLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_DisplayTabLayout.AddButton( m_GrowLimitNCircSegLabel, "Growth Ratio" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_CURV_NCIRCSEG ) );
+    m_GrowLimitNCircSegLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_DisplayTabLayout.AddButton( m_GrowLimitSourcesLabel, "Growth Ratio" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_SOURCES ) );
+    m_GrowLimitSourcesLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.AddButton( m_CurvGapLabel, "Max Gap" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::CURV_GAP ) );
+    m_CurvGapLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_DisplayTabLayout.AddButton( m_NCircSegLabel, "Num Circle Segments" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::CURV_NCIRCSEG ) );
+    m_NCircSegLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_DisplayTabLayout.AddButton( m_SourcesLabel, "Sources" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::SOURCES ) );
+    m_SourcesLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_DisplayTabLayout.ForceNewLine();
+
+    m_DisplayTabLayout.AddButton( m_MinLenCurvGapLabel, "Min Edge Len" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::MIN_LEN_CONSTRAINT_CURV_GAP ) );
+    m_MinLenCurvGapLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+    m_MinLenCurvGapLabel.SetLabelColor( FL_WHITE );
+
+    m_DisplayTabLayout.AddButton( m_MinLenCurvNCircSegLabel, "Min Edge Len" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::MIN_LEN_CONSTRAINT_CURV_NCIRCSEG ) );
+    m_MinLenCurvNCircSegLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+    m_MinLenCurvNCircSegLabel.SetLabelColor( FL_WHITE );
+
 
     displayTab->show();
 }

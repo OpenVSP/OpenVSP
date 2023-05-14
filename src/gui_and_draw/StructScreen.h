@@ -482,6 +482,19 @@ private:
     TriggerButton m_DrawAllButton;
     TriggerButton m_HideAllButton;
 
+    TriggerButton m_MaxLenConstraintLabel;
+
+    TriggerButton m_MinLenCurvGapLabel;
+    TriggerButton m_CurvGapLabel;
+    TriggerButton m_GrowLimitCurvGapLabel;
+
+    TriggerButton m_MinLenCurvNCircSegLabel;
+    TriggerButton m_NCircSegLabel;
+    TriggerButton m_GrowLimitNCircSegLabel;
+
+    TriggerButton m_SourcesLabel;
+    TriggerButton m_GrowLimitSourcesLabel;
+
     //===== CAD Items =====//
     ToggleButton m_SrfFile;
     ToggleButton m_XYZIntCurves;

@@ -1597,10 +1597,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
 
     m_FemTabLayout.AddDividerBox( "Element Sets" );
 
-    m_DrawPartSelectBrowser = m_FemTabLayout.AddCheckBrowser( browser_h );
+    m_DrawPartSelectBrowser = m_FemTabLayout.AddCheckBrowser( browser_h - 40 );
     m_DrawPartSelectBrowser->callback( staticScreenCB, this );
 
-    m_FemTabLayout.AddY( 125 );
+    m_FemTabLayout.AddY( 125 - 40 );
     m_FemTabLayout.AddYGap();
 
     m_FemTabLayout.SetSameLineFlag( true );
@@ -1611,6 +1611,65 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_FemTabLayout.AddButton( m_DrawAllButton, "Draw All Elements" );
     m_FemTabLayout.AddButton( m_HideAllButton, "Hide All Elements" );
     m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.SetFitWidthFlag( true );
+    m_FemTabLayout.SetSameLineFlag( false );
+
+    m_FemTabLayout.AddYGap();
+
+    m_FemTabLayout.AddDividerBox( "Mesh Edge Length Reason Key" );
+
+    vec3d c;
+    m_FemTabLayout.AddButton( m_MaxLenConstraintLabel, "Max Edge Len" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::MAX_LEN_CONSTRAINT ) );
+    m_MaxLenConstraintLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+
+    m_FemTabLayout.SetFitWidthFlag( false );
+    m_FemTabLayout.SetSameLineFlag( true );
+
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 3.0 );
+
+    m_FemTabLayout.AddButton( m_GrowLimitCurvGapLabel, "Growth Ratio" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_CURV_GAP ) );
+    m_GrowLimitCurvGapLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_FemTabLayout.AddButton( m_GrowLimitNCircSegLabel, "Growth Ratio" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_CURV_NCIRCSEG ) );
+    m_GrowLimitNCircSegLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_FemTabLayout.AddButton( m_GrowLimitSourcesLabel, "Growth Ratio" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::GROW_LIMIT_SOURCES ) );
+    m_GrowLimitSourcesLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.AddButton( m_CurvGapLabel, "Max Gap" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::CURV_GAP ) );
+    m_CurvGapLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_FemTabLayout.AddButton( m_NCircSegLabel, "Num Circle Segments" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::CURV_NCIRCSEG ) );
+    m_NCircSegLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_FemTabLayout.AddButton( m_SourcesLabel, "Sources" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::SOURCES ) );
+    m_SourcesLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+
+    m_FemTabLayout.ForceNewLine();
+
+    m_FemTabLayout.AddButton( m_MinLenCurvGapLabel, "Min Edge Len" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::MIN_LEN_CONSTRAINT_CURV_GAP ) );
+    m_MinLenCurvGapLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+    m_MinLenCurvGapLabel.SetLabelColor( FL_WHITE );
+
+    m_FemTabLayout.AddButton( m_MinLenCurvNCircSegLabel, "Min Edge Len" );
+    c = 255 * DrawObj::Color( DrawObj::reasonColorMap( vsp::MIN_LEN_CONSTRAINT_CURV_NCIRCSEG ) );
+    m_MinLenCurvNCircSegLabel.SetColor( fl_rgb_color( c.x(), c.y(), c.z() ) );
+    m_MinLenCurvNCircSegLabel.SetLabelColor( FL_WHITE );
+
+
+
 
     //=== CAD TAB ===//
     m_CadTabLayout.SetGroupAndScreen( cadTabGroup, this );
