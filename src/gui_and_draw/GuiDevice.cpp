@@ -1573,6 +1573,15 @@ void TriggerButton::SetColor( Fl_Color c )
     }
 }
 
+void TriggerButton::SetLabelColor( Fl_Color c )
+{
+    if ( m_Button )
+    {
+        m_Button->labelcolor( c );
+        m_Button->damage( 1 );
+    }
+}
+
 //==== Gets the underlying fl button ====//
 Fl_Button* TriggerButton::GetFlButton()
 {
