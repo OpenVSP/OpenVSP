@@ -1010,6 +1010,18 @@ void SliderAdjRange2Input::Deactivate()
     }
 }
 
+void SliderAdjRange2Input::ActivateInput1()
+{
+    m_Input1.Activate();
+    m_Input2.Deactivate();
+}
+
+void SliderAdjRange2Input::ActivateInput2()
+{
+    m_Input1.Deactivate();
+    m_Input2.Activate();
+}
+
 //=====================================================================//
 //======================           ParmButton        ==================//
 //=====================================================================//

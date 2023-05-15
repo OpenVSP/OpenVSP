@@ -727,7 +727,8 @@ public:
 
     virtual void Activate();
     virtual void Deactivate();
-
+    virtual void ActivateInput1();
+    virtual void ActivateInput2();
 
 protected:
     SliderAdjRange m_Slider;
