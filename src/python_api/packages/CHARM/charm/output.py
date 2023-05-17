@@ -799,13 +799,15 @@ class CharmResults:
             self.alpha = math.atan2(aircraft_velocity[2], aircraft_velocity[0]) * u.rad2deg
 
         cq_data = pd.DataFrame()
+        df_list = []
         for ir, res in enumerate(rotor_results):
             df_new = pd.DataFrame(vars(res.cq_data))
             df_new['rotor'] = ir+1
             df_new['rev'] = range(len(res.cq_data.a1s))
-            cq_data = cq_data.append(df_new, ignore_index=True)
+            df_list.append(df_new)
 
-        cq_data = cq_data.pivot('rev', 'rotor')
+        cq_data = pd.concat(df_list, ignore_index=True)
+        cq_data = cq_data.pivot(index='rev', columns='rotor')
 
         self.cq_data = cq_data
         """
