@@ -67,6 +67,8 @@ public:
 
     WingSect( XSecCurve *xsc );
 
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
     virtual void SetScale( double scale );
     virtual void Update();
     virtual void UpdateFromWing();

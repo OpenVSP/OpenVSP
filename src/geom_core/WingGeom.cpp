@@ -658,6 +658,33 @@ WingSect::WingSect( XSecCurve *xsc ) : BlendWingSect( xsc)
     m_TipCluster.SetDescript( "Outboard Tess Cluster Control" );
 }
 
+//==== Parm Changed ====//
+void WingSect::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+
+        //==== Notify Parent Container (XSecSurf) ====//
+        ParmContainer* pc = GetParentContainerPtr();
+        if ( pc )
+        {
+            pc->ParmChanged( parm_ptr, type );
+        }
+
+        return;
+    }
+
+    Update();
+
+    //==== Notify Parent Container (XSecSurf) ====//
+    ParmContainer* pc = GetParentContainerPtr();
+    if ( pc )
+    {
+        pc->ParmChanged( parm_ptr, type );
+    }
+}
+
 //==== Set Scale ====//
 void WingSect::SetScale( double scale )
 {
