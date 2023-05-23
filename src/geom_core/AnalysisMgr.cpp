@@ -1493,7 +1493,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
     {
 
         // Output redirection
-        m_Inputs.Add( NameValData( "RedirectFile",                  string( "stdout" )                                ) );
+        m_Inputs.Add( NameValData( "RedirectFile",                  string( "stdout" )                                , "File to redirect output ('stdout' to console,  '' to suppress)." ) );
 
         //Case Setup
         m_Inputs.Add( NameValData( "GeomSet",                       VSPAEROMgr.m_GeomSet.Get()                        , "Geometry Set for analysis." ) );
