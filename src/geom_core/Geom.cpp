@@ -4937,7 +4937,7 @@ void Geom::WritePMARCWakeFile( FILE *fp, int &ipatch, vector<int> &idpat )
             }
 
             // Wake definition
-            fprintf(fp," &WAKE1   IDWAK=1,  IFLXW= 1,   ITRFTZ=1,  INTRW=1,  &END\n" );
+            fprintf(fp," &WAKE1   IDWAK=1,  IFLXW= 0,   ITRFTZ=1,  INTRW=1,  &END\n" );
             fprintf(fp," Wing Wake\n");
             // Wake separation information.  Patch 1, side 2.
             fprintf(fp," &WAKE2   KWPACH=%d, KWSIDE=2, KWLINE=0,  KWPAN1=0,\n", ipatch + 1 );
