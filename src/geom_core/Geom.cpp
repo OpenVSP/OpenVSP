@@ -4890,7 +4890,7 @@ void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat)
             {
                 for ( int nn = 0; nn < 3; nn++ )
                 {
-                    fprintf(fp, "%10.4f ", pnts[ll][mm].v[nn]);
+                    fprintf(fp, "%16.8f ", pnts[ll][mm].v[nn]);
                 }
                 fprintf(fp, "\n");
             }
