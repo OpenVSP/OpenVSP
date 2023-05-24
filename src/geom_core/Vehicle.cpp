@@ -3279,6 +3279,10 @@ f1 n1 i11 i12 i13...i1n      // Alternate triangulation of faces.
 f2 n2 i21 i22 i23...i2n      // Face number, number of triangles, node-list of triangles for face
 ...
 nface nn in1 in2 in3...inn   // Last alternate triangulation line
+f1 p1 t1 u11 v11 u12 v12...u1n v1n // Face number then part number then tag number for alternate tri's for face 1 followed by multi-valued nodal data -- currently parametric UV coordinate.
+f2 p2 t2 u21 v21 u22 v22...u2n v2n // Also any other face-centered data that we desire to add.
+...
+fnalt pnalt tnalt un1 vn2...unn vnn // Last face then part then tag, multi-valued nodal and face-centered data
 */
 
 //==== Write VSPGeom File ====//
@@ -3442,6 +3446,17 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
         {
             MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
             offset = mg->WriteVSPGeomAlternateTris( file_id, offset, tcount );
+        }
+    }
+
+    tcount = 1;
+    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+    {
+        if ( ( geom_vec[i]->GetSetFlag( write_set ) || geom_vec[i]->GetSetFlag( degen_set ) ) &&
+             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+            mg->WriteVSPGeomAlternateParts( file_id, tcount );
         }
     }
     fclose( file_id );

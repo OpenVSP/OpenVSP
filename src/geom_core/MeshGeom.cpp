@@ -1054,6 +1054,25 @@ int MeshGeom::WriteVSPGeomParts( FILE* file_id  )
     return 0;
 }
 
+int MeshGeom::WriteVSPGeomAlternateParts( FILE* file_id, int &tcount  )
+{
+    //==== Write Component IDs for each Tri =====//
+    int part, tag;
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    {
+        TTri* ttri = m_IndexedTriVec[t];
+        tag = SubSurfaceMgr.GetTag( ttri->m_Tags );
+        part = SubSurfaceMgr.GetPart( ttri->m_Tags );
+
+        fprintf( file_id, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", tcount, part, tag,
+                 ttri->m_N0->m_UWPnt.x(), ttri->m_N0->m_UWPnt.y(),
+                 ttri->m_N1->m_UWPnt.x(), ttri->m_N1->m_UWPnt.y(),
+                 ttri->m_N2->m_UWPnt.x(), ttri->m_N2->m_UWPnt.y() );
+        tcount++;
+    }
+    return 0;
+}
+
 int MeshGeom::WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag )
 {
     for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )

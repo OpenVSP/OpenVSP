@@ -124,6 +124,7 @@ public:
     virtual int  WriteNascartParts( FILE* file_id, int offset );
     virtual int  WriteCart3DParts( FILE* file_id );
     virtual int  WriteVSPGeomParts( FILE* file_id );
+    virtual int  WriteVSPGeomAlternateParts( FILE* file_id, int &tcount );
 
     virtual int  WriteVSPGeomPartTagTris( FILE* file_id, int tri_offset, int part, int tag );
     virtual int  CountVSPGeomPartTagTris( int part, int tag );

@@ -1921,6 +1921,58 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 }
             }
 
+            if ( allowquads )
+            {
+                //==== Write Component ID ====//
+                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                {
+                    int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
+                    int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
+
+                    if( allFaceVec[i].m_isQuad )
+                    {
+                        fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", i + 1, part, tag,
+                             allUWVec[i][0].x(), allUWVec[i][0].y(),
+                             allUWVec[i][1].x(), allUWVec[i][1].y(),
+                             allUWVec[i][2].x(), allUWVec[i][2].y(),
+                             allUWVec[i][0].x(), allUWVec[i][0].y(),
+                             allUWVec[i][2].x(), allUWVec[i][2].y(),
+                             allUWVec[i][3].x(), allUWVec[i][3].y() );
+                    }
+                    else
+                    {
+                        fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", i + 1, part, tag,
+                                 allUWVec[i][0].x(), allUWVec[i][0].y(),
+                                 allUWVec[i][1].x(), allUWVec[i][1].y(),
+                                 allUWVec[i][2].x(), allUWVec[i][2].y() );
+                    }
+                }
+            }
+            else
+            {
+                int iface = 1;
+                //==== Write Component ID ====//
+                for ( int i = 0 ; i < ( int )allFaceVec.size() ; i++ )
+                {
+                    int tag = SubSurfaceMgr.GetTag( allFaceVec[i].m_Tags );
+                    int part = SubSurfaceMgr.GetPart( allFaceVec[i].m_Tags );
+
+                    fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", iface, part, tag,
+                             allUWVec[i][0].x(), allUWVec[i][0].y(),
+                             allUWVec[i][1].x(), allUWVec[i][1].y(),
+                             allUWVec[i][2].x(), allUWVec[i][2].y() );
+                    iface++;
+                    if( allFaceVec[i].m_isQuad )
+                    {
+                        fprintf( fp, "%d %d %d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", iface, part, tag,
+                                 allUWVec[i][0].x(), allUWVec[i][0].y(),
+                                 allUWVec[i][2].x(), allUWVec[i][2].y(),
+                                 allUWVec[i][3].x(), allUWVec[i][3].y() );
+                        iface++;
+                    }
+                }
+            }
+
             fclose( fp );
         }
 

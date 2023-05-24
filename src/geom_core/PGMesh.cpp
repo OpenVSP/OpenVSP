@@ -1265,6 +1265,7 @@ void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
     WriteVSPGeomParts( file_id );
     WriteVSPGeomWakes( file_id );
     WriteVSPGeomAlternateTris( file_id );
+    WriteVSPGeomAlternateParts( file_id );
 }
 
 void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
@@ -1396,6 +1397,44 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
         for ( int i = 0; i < npt; i++ )
         {
             fprintf( file_id, " %d", nodVec[i]->m_ID );
+        }
+        fprintf( file_id, "\n" );
+
+        iface++;
+    }
+}
+
+void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
+{
+    //==== Write Component IDs for each Tri =====//
+    int tag;
+
+    int iface = 1;
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodesAsTris( nodVec );
+
+        int npt = nodVec.size();
+
+        tag = ( *f )->m_Tag;
+        int part = SubSurfaceMgr.GetPart( tag );
+        fprintf( file_id, "%d %d %d", iface, part, tag );
+
+        for ( int i = 0; i < npt; i++ )
+        {
+            // Try to find uw with matching tag.
+            map < int, vec2d >::iterator it1 = nodVec[i]->m_TagUWMap.find( tag );
+
+            vec2d uw;
+            // If there is a match
+            if ( it1 != nodVec[i]->m_TagUWMap.end() )
+            {
+                uw = it1->second;
+            }
+
+            fprintf( file_id, " %16.10g %16.10g", uw.x(), uw.y() );
         }
         fprintf( file_id, "\n" );
 
