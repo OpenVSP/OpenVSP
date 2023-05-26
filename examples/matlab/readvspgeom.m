@@ -1,4 +1,5 @@
-function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid, alttri] = readvspgeom( fname, plotflag )
+function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid,...
+    alttri, altpartid, altutagid, altu, altv] = readvspgeom( fname, plotflag )
 %readvspgeom reads a *.vspgeom file into Matlab
 %
 %   *.vspgeom files are a new file format to facilitate communication
@@ -15,7 +16,7 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid, alttr
 %   empennage, and rotors are thin.
 %
 %   [t, p, u, v, wedata, partid, utagid, itagname, itag,...
-%      altfaceid, alttri ] = readvspgeom( fname, plotflag )
+%      altfaceid, alttri, altpartid, altutagid, altu, altv ] = readvspgeom( fname, plotflag )
 %
 %   Reads in a *.vspgeom file passed in fname.  If plotflag is true, then
 %   a series of simple plots are generated.  If plotflag is not passed,
@@ -32,6 +33,10 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid, alttr
 %     itag       Individual tag face set cell array
 %     altfaceid  Alternate triangulation face id
 %     alttri     Alternate triangulation connectivity matrix
+%     altpartid  Alternate triangulation part id vector
+%     altutagid  Alternate triangulation unique tag id vector
+%     altu       Alternate triangulation U surface data
+%     altv       Alternate triangulation V surface data
 %
 
 %   Rob McDonald
@@ -42,6 +47,7 @@ function [con, p, u, v, wedata, partid, utagid, itagname, itag, altfaceid, alttr
 %   8 May      2023 v. 1.4 - Handle alternate triangulation.
 %   8 May      2023 v. 1.5 - Handle tagfiles with local paths.
 %   8 May      2023 v. 1.6 - Handle file versioning.
+%  26 May      2023 v. 1.7 - Read in alt triangulation aux data.
 
 if ( nargin < 2 )
     plotflag = false;
@@ -164,6 +170,50 @@ if ( filever == 2 )
             ialt = ialt + 1;
         end
     end
+
+
+    % Initialize id and poly node data
+
+    % Max number of alternate triangles for a polygon.
+    mnat = max(read_nalttri);
+
+    read_altfaceid = ones(npoly, 1);
+    read_altpartid = ones(npoly, 1);
+    read_altutagid = ones(npoly,1);
+
+    altpartid = -ones(nalt,1);
+    altutagid = -ones(nalt,1);
+    altu = nan(3,nalt);
+    altv = nan(3,nalt);
+
+    ialt = 1;
+
+    % Read in the surface id's and poly node data
+    for i=1:npoly
+        % Face ID
+        read_altfaceid(i) = fscanf( fp, '%d', [1 1] );
+        read_altpartid(i) = fscanf( fp, '%d', [1 1] );
+        read_altutagid(i) = fscanf( fp, '%d', [1 1] );
+
+        % U/V of each polygon node
+        read_uv = fscanf(fp,'%f',[(2*3*read_nalttri(i)) 1]);
+
+        read_altu = read_uv(1:2:end);
+        read_altv = read_uv(2:2:end);
+
+        for j=1:read_nalttri(i)
+
+            % altfaceid(ialt) = read_altfaceid(i);
+            altpartid(ialt) = read_altpartid(i);
+            altutagid(ialt) = read_altutagid(i);
+
+            tindex = 1 + 3 * (j - 1);
+            altu(:,ialt) = read_altu(tindex:(tindex+2));
+            altv(:,ialt) = read_altv(tindex:(tindex+2));
+
+            ialt = ialt + 1;
+        end
+    end
 end
 
 fclose(fp);
@@ -237,6 +287,53 @@ if ( plotflag )
     set(h,'LineWidth',5);
     %set(h,'Color','k');
     title('V surface parameter with wake lines')
+
+
+    if ( filever == 2 )
+        figure
+        trisurf(alttri, p(1,:), p(2,:), p(3,:),altpartid); % 'EdgeColor','none');
+        axis equal
+        axis off
+        h = plotwakes( wedata, p );
+        set(h,'LineWidth',5);
+        %set(h,'Color','k');
+        title('Alternate triangular colored by part ID with wake lines')
+
+        figure
+        trisurf(alttri, p(1,:), p(2,:), p(3,:),altutagid); % 'EdgeColor','none');
+        axis equal
+        axis off
+        h = plotwakes( wedata, p );
+        set(h,'LineWidth',5);
+        %set(h,'Color','k');
+        title('Alternate triangular colored by tag ID with wake lines')
+
+        % Format data in manner appropriate for 'patch'.  This allows
+        % plotting multi-valued surface data.  In this case, u/v surface
+        % data has multiple values where two surfaces intersect at a single
+        % point.
+        x=[p(1,alttri(:,1))' p(1,alttri(:,2))' p(1,alttri(:,3))'];
+        y=[p(2,alttri(:,1))' p(2,alttri(:,2))' p(2,alttri(:,3))'];
+        z=[p(3,alttri(:,1))' p(3,alttri(:,2))' p(3,alttri(:,3))'];
+
+        figure
+        patch(x',y',z',altu,'EdgeColor','none')
+        axis off
+        axis equal
+        h = plotwakes( wedata, p );
+        set(h,'LineWidth',5);
+        %set(h,'Color','k');
+        title('Alternate triangular U surface parameter with wake lines')
+
+        figure
+        patch(x',y',z',altv,'EdgeColor','none')
+        axis off
+        axis equal
+        h = plotwakes( wedata, p );
+        set(h,'LineWidth',5);
+        %set(h,'Color','k');
+        title('Alternate triangular V surface parameter with wake lines')
+    end
 end
 
 [filepath,basename,~] = fileparts(fname);
