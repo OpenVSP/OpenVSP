@@ -5,6 +5,8 @@ find_path( TRIANGLE_INCLUDE_DIR triangle.h
     HINTS
         ${TRIANGLE_INSTALL_DIR}/include
         ${TRIANGLE_INSTALL_DIR}
+        ${CMAKE_PREFIX_PATH}/include
+        ${CMAKE_PREFIX_PATH}
         /usr/include
         /usr/local/include
         /sw/include
@@ -16,6 +18,8 @@ find_path( TRIANGLE_API_INCLUDE_DIR triangle_api.h
     HINTS
         ${TRIANGLE_INSTALL_DIR}/include
         ${TRIANGLE_INSTALL_DIR}
+        ${CMAKE_PREFIX_PATH}/include
+        ${CMAKE_PREFIX_PATH}
         /usr/include
         /usr/local/include
         /sw/include
@@ -27,6 +31,8 @@ find_library( TRIANGLE_LIBRARY triangle
     HINTS
         ${TRIANGLE_INSTALL_DIR}/lib
         ${TRIANGLE_INSTALL_DIR}
+        ${CMAKE_PREFIX_PATH}/lib
+        ${CMAKE_PREFIX_PATH}
         /usr/lib64
         /usr/lib
         /usr/local/lib64
@@ -40,6 +46,8 @@ find_library( TRIANGLE_API_LIBRARY triangle-api
     HINTS
         ${TRIANGLE_INSTALL_DIR}/lib
         ${TRIANGLE_INSTALL_DIR}
+        ${CMAKE_PREFIX_PATH}/lib
+        ${CMAKE_PREFIX_PATH}
         /usr/lib64
         /usr/lib
         /usr/local/lib64
