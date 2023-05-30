@@ -76,6 +76,7 @@ public:
     }
 
     std::map< std::vector<int>, int > GetSingleTagMap() { return m_SingleTagMap; }
+    std::vector< std::vector<int> > GetTagKeys() { return m_TagKeys; }
 
     int FindGNum( const string &gid );
 

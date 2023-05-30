@@ -1327,7 +1327,7 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
         int npt = nodVec.size() - 1;
 
         tag = ( *f )->m_Tag;
-        int part = SubSurfaceMgr.GetPart( tag );
+        int part = GetPart( tag );
         fprintf( file_id, "%d %d", part, tag );
 
         for ( int i = 0; i < npt; i++ )
@@ -1419,7 +1419,7 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
         int npt = nodVec.size();
 
         tag = ( *f )->m_Tag;
-        int part = SubSurfaceMgr.GetPart( tag );
+        int part = GetPart( tag );
         fprintf( file_id, "%d %d %d", iface, part, tag );
 
         for ( int i = 0; i < npt; i++ )
@@ -1448,7 +1448,7 @@ void PGMesh::WriteTagFiles( string file_name )
     int ncsffile = 0;
 
     std::vector < int > partvec;
-    SubSurfaceMgr.MakePartList( partvec );
+    MakePartList( partvec );
     vector < SubSurface* > ssurfs = SubSurfaceMgr.GetSubSurfs();
 
     for ( int ipart = 0; ipart < partvec.size(); ipart++ )
@@ -1460,7 +1460,7 @@ void PGMesh::WriteTagFiles( string file_name )
             SubSurface *ssurf = ssurfs[iss];
             int tag = ssurf->m_Tag;
 
-            if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
+            if ( ExistPartAndTag( part, tag ) )
             {
                 ntagfile++;
 
@@ -1508,18 +1508,18 @@ void PGMesh::WriteTagFiles( string file_name )
                     SubSurface *ssurf = ssurfs[iss];
                     int tag = ssurf->m_Tag;
 
-                    if ( SubSurfaceMgr.ExistPartAndTag( part, tag ) )
+                    if ( ExistPartAndTag( part, tag ) )
                     {
                         vector < int > parttag;
                         parttag.push_back( part );
                         parttag.push_back( tag );
 
-                        string str = SubSurfaceMgr.m_TagNames[ part ];
+                        string str = m_TagNames[ part ];
                         int pos = str.find_first_of( '_' );
                         string gname = str.substr( 0, pos );
                         string sname = str.substr( pos + 2 );
 
-                        string ptagname = gname + sname + "_" + SubSurfaceMgr.m_TagNames[tag];
+                        string ptagname = gname + sname + "_" + m_TagNames[tag];
 
                         string tagfile_name = base_name + ptagname + ".tag";
                         string tagfile_localname = base_fname + ptagname;
@@ -1565,7 +1565,7 @@ void PGMesh::WriteTagFile( FILE* file_id, int part, int tag )
     {
         int singletag = ( *f )->m_Tag;
 
-        if ( SubSurfaceMgr.MatchPartAndTag( singletag, part, tag ) )
+        if ( MatchPartAndTag( singletag, part, tag ) )
         {
             count++;
         }
@@ -1577,11 +1577,408 @@ void PGMesh::WriteTagFile( FILE* file_id, int part, int tag )
     {
         int singletag = ( *f )->m_Tag;
 
-        if ( SubSurfaceMgr.MatchPartAndTag( singletag, part, tag ) )
+        if ( MatchPartAndTag( singletag, part, tag ) )
         {
             fprintf( file_id, "%d\n", iface );
         }
         iface++;
+    }
+}
+
+//==== Write Key File ====//
+void PGMesh::WriteVSPGEOMKeyFile( const string & file_name )
+{
+    bool writethickthin = true;
+    // figure out basename
+    string base_name = GetBasename( file_name );
+    string key_name = base_name + ".vkey";
+
+    FILE* fid = fopen( key_name.c_str(), "w" );
+    if ( !fid )
+    {
+        return;
+    }
+
+    int npart = 0;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() == 1 )
+        {
+            npart++;
+        }
+    }
+
+    // Write Out Header Information
+    fprintf( fid, "# VSPGEOM v2 Tag Key File\n" );
+    fprintf( fid, "%s\n", file_name.c_str() ); // Write out the file that this key information is for
+
+    // Build GeomID set to have unique integer index instead of GeomID.
+    std::set< string, greater< string > > gids;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        string id_list = GetTagIDs( m_TagKeys[i] );
+        int pos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, pos );
+        gids.insert( gid );
+    }
+
+    fprintf( fid, "%d\n", npart );
+    fprintf( fid, "\n" );
+
+    if ( writethickthin )
+    {
+        fprintf( fid, "# part#,geom#,surf#,gname,gid,thick\n" );
+    }
+    else
+    {
+        fprintf( fid, "# part#,geom#,surf#,gname,gid\n" );
+    }
+
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() != 1 )
+        {
+            continue;
+        }
+
+        int part = GetPart( m_TagKeys[i] );
+
+        string comp_list = GetTagNames( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        int spos = comp_list.find( "_Surf" );
+
+        string gname = comp_list.substr( 0, spos );
+
+        string snum, ssnames, ssids;
+
+        // Find position of first comma
+        int cpos = comp_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
+            ssnames = comp_list.substr( cpos );
+        }
+        else
+        {
+            snum = comp_list.substr( spos + 5 );
+        }
+
+        string id_list = GetTagIDs( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        spos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, spos );
+        string gid_bare = gid.substr( 0, 10 );
+
+        // Find position of first comma
+        cpos = id_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            ssids = id_list.substr( cpos );
+        }
+
+        // Lookup Geom number
+        int gnum = distance( gids.begin(), gids.find( gid ) );
+
+        int thickthin = -1;
+        map<string,int>::iterator it;
+        it = m_ThickMap.find( gid_bare );
+        if ( it != m_ThickMap.end() )
+        {
+            thickthin = m_ThickMap[ gid ];
+        }
+
+        // Write tag number and surface list to file
+        if ( writethickthin )
+        {
+            fprintf( fid, "%d,%d,%s,%s,%s,%d\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str(), thickthin );
+        }
+        else
+        {
+            fprintf( fid, "%d,%d,%s,%s,%s\n", part, gnum, snum.c_str(), gname.c_str(), gid_bare.c_str() );
+        }
+    }
+
+    fprintf( fid, "\n" );
+    fprintf( fid, "%lu\n", m_SingleTagMap.size() - 1 ); // Total number of tags ( the minus 1 is from the dummy tags )
+    fprintf( fid, "\n" );
+
+    fprintf( fid, "# tag#,part#,ssname1,ssname2,...,ssid1,ssid2,...\n" );
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        int tag = GetTag( m_TagKeys[i] );
+        int part = GetPart( m_TagKeys[i] );
+
+        string comp_list = GetTagNames( m_TagKeys[i] );
+
+        string ssnames, ssids;
+
+        // Find position of first comma
+        int cpos = comp_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            ssnames = comp_list.substr( cpos );
+        }
+
+        string id_list = GetTagIDs( m_TagKeys[i] );
+
+        // Find position of first comma
+        cpos = id_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            ssids = id_list.substr( cpos );
+        }
+
+        // Write tag number and surface list to file
+        fprintf( fid, "%d,%d", tag, part );
+
+        // Write subsurface information if there is any
+        if( !ssnames.empty() )
+        {
+            // ssnames and ssids have leading commas
+            fprintf( fid, "%s%s\n", ssnames.c_str(), ssids.c_str() );
+        }
+        else
+        {
+            fprintf( fid, "\n" );
+        }
+    }
+    fclose( fid );
+}
+
+string PGMesh::GetTagNames( const vector<int> & tags )
+{
+    string comp_list;
+    map< int, string >::iterator si;
+
+    int tag = GetTag( tags );
+
+    if ( tag == -1 )
+    {
+        comp_list = "Error_Tag";
+        return comp_list;
+    }
+    else
+    {
+        for ( int i = 0 ; i < ( int )tags.size() ; i++ )
+        {
+            si = m_TagNames.find( tags[i] );
+
+            if ( si == m_TagNames.end() )
+            {
+                comp_list += ",Error_SubSurf";
+            }
+            else if ( si != m_TagNames.end() )
+            {
+                comp_list += "," + si->second ;
+            }
+
+            // Remove leading comma on first loop
+            if ( i == 0 )
+            { comp_list.erase( comp_list.begin(), comp_list.begin() + 1 ); }
+        }
+    }
+
+    return comp_list;
+}
+
+string PGMesh::GetTagNames( int indx )
+{
+    if ( indx < m_TagKeys.size() && indx >= 0 )
+    {
+        return GetTagNames( m_TagKeys[indx] );
+    }
+    return string( "Error_Tag" );
+}
+
+string PGMesh::GetTagIDs( const vector<int>& tags )
+{
+    string comp_list;
+    map< int, string >::iterator si;
+
+    int tag = GetTag( tags );
+
+    if ( tag == -1 )
+    {
+        comp_list = "Error_Tag";
+        return comp_list;
+    }
+    else
+    {
+        for ( int i = 0; i < (int)tags.size(); i++ )
+        {
+            si = m_TagIDs.find( tags[i] );
+
+            if ( si == m_TagIDs.end() )
+            {
+                comp_list += ",Error_SubSurf";
+            }
+            else if ( si != m_TagIDs.end() )
+            {
+                comp_list += "," + si->second;
+            }
+
+            // Remove leading comma on first loop
+            if ( i == 0 )
+            {
+                comp_list.erase( comp_list.begin(), comp_list.begin() + 1 );
+            }
+        }
+    }
+
+    return comp_list;
+}
+
+string PGMesh::GetTagIDs( int indx )
+{
+    if ( indx < m_TagKeys.size() && indx >= 0 )
+    {
+        return GetTagIDs( m_TagKeys[indx] );
+    }
+    return string( "Error_Tag" );
+}
+
+
+bool PGMesh::MatchPartAndTag( const vector < int > & tags, int part, int tag )
+{
+    if ( tags.size() > 0 )
+    {
+        if ( tags[0] == part )
+        {
+            if ( vector_contains_val( tags, tag ) )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool PGMesh::MatchPartAndTag( int singletag, int part, int tag )
+{
+    if ( m_TagKeys.size() >= singletag )
+    {
+        return MatchPartAndTag( m_TagKeys[ singletag - 1 ], part, tag );
+    }
+    return false;
+}
+
+bool PGMesh::ExistPartAndTag( int part, int tag )
+{
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( MatchPartAndTag( m_TagKeys[i], part, tag ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void PGMesh::MakePartList( std::vector < int > & partvec )
+{
+    std::set< int > partset;
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() > 0 )
+        {
+            partset.insert( m_TagKeys[i][0] );
+        }
+    }
+
+    partvec.clear();
+    partvec.reserve( partset.size() );
+    std::set< int >::iterator it;
+    for ( it = partset.begin(); it != partset.end(); ++it )
+    {
+        partvec.push_back( *it );
+    }
+}
+
+int PGMesh::GetTag( const vector<int> & tags )
+{
+    map< vector<int>, int >::iterator mi;
+    mi = m_SingleTagMap.find( tags );
+
+    if ( mi != m_SingleTagMap.end() )
+    {
+        return mi->second;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+int PGMesh::GetPart( const vector<int> & tags )
+{
+    if ( tags.size() > 0 )
+    {
+        return tags[0];
+    }
+    return -1;
+}
+
+int PGMesh::GetPart( int tag )
+{
+    if ( m_TagKeys.size() >= tag )
+    {
+        vector < int > tags = m_TagKeys[ tag - 1 ];
+        return GetPart( tags );
+    }
+    return -1;
+}
+
+void PGMesh::GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec )
+{
+    gidvec.clear();
+    partvec.clear();
+    surfvec.clear();
+
+    for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )
+    {
+        if ( m_TagKeys[i].size() != 1 )
+        {
+            continue;
+        }
+
+        int part = GetPart( m_TagKeys[i] );
+
+        string comp_list = GetTagNames( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        int spos = comp_list.find( "_Surf" );
+
+        string gname = comp_list.substr( 0, spos );
+
+        string snum, ssnames, ssids;
+
+        // Find position of first comma
+        int cpos = comp_list.find( "," );
+        if ( cpos != std::string::npos )
+        {
+            snum = comp_list.substr( spos + 5, cpos - ( spos + 5 ) );
+            ssnames = comp_list.substr( cpos );
+        }
+        else
+        {
+            snum = comp_list.substr( spos + 5 );
+        }
+
+        string id_list = GetTagIDs( m_TagKeys[i] );
+
+        // Find position of token _Surf
+        spos = id_list.find( "_Surf" );
+        string gid = id_list.substr( 0, spos );
+        string gid_bare = gid.substr( 0, 10 );
+
+
+        gidvec.push_back( gid_bare );
+        partvec.push_back( part );
+        surfvec.push_back( stoi( snum.c_str() ) );
     }
 }
 

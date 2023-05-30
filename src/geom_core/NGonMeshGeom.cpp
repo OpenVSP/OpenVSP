@@ -8,6 +8,7 @@
 #include "NGonMeshGeom.h"
 #include "Vehicle.h"
 #include "SubSurfaceMgr.h"
+#include "MeshGeom.h"
 
 //==== Constructor ====//
 NGonMeshGeom::NGonMeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -104,6 +105,12 @@ xmlNodePtr NGonMeshGeom::DecodeXml( xmlNodePtr & node )
 
 void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec, const vector < deque < TEdge > > &wakes )
 {
+    // Archive tag data at time of NGonMeshGeom creation.
+    m_PGMesh.m_TagNames = SubSurfaceMgr.m_TagNames;
+    m_PGMesh.m_TagIDs = SubSurfaceMgr.m_TagIDs;
+    m_PGMesh.m_ThickMap = SubSurfaceMgr.m_ThickMap;
+    m_PGMesh.m_TagKeys = SubSurfaceMgr.GetTagKeys();
+    m_PGMesh.m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
 
     vector < PGNode* > nod( nodeVec.size() );
     for ( int i = 0; i < nodeVec.size(); i++ )
@@ -116,7 +123,7 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
         PGFace *f = m_PGMesh.AddFace( );
         f->m_Nvec = triVec[i]->m_Norm;
         f->m_iQuad = triVec[i]->m_iQuad;
-        f->m_Tag = SubSurfaceMgr.GetTag( triVec[i]->m_Tags );
+        f->m_Tag = m_PGMesh.GetTag( triVec[i]->m_Tags );
 
         PGEdge *e1 = m_PGMesh.AddEdge( nod[triVec[i]->m_N0->m_ID], nod[triVec[i]->m_N1->m_ID] );
         PGEdge *e2 = m_PGMesh.AddEdge( nod[triVec[i]->m_N1->m_ID], nod[triVec[i]->m_N2->m_ID] );
@@ -251,12 +258,12 @@ void NGonMeshGeom::WriteVSPGEOM( string fname )
 
         //==== Write Out tag key file ====//
 
-        SubSurfaceMgr.WriteVSPGEOMKeyFile( fname );
+        m_PGMesh.WriteVSPGEOMKeyFile( fname );
 
         vector < string > gidvec;
         vector < int > partvec;
         vector < int > surfvec;
-        SubSurfaceMgr.GetPartData( gidvec, partvec, surfvec );
+        m_PGMesh.GetPartData( gidvec, partvec, surfvec );
 
         m_Vehicle->WriteControlSurfaceFile( fname, gidvec, partvec, surfvec );
     }
@@ -267,7 +274,7 @@ void NGonMeshGeom::UpdateDrawObj()
     Matrix4d trans = GetTotalTransMat();
     vec3d zeroV = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
 
-    unsigned int num_uniq_tags = SubSurfaceMgr.GetNumTags();
+    unsigned int num_uniq_tags = m_PGMesh.GetNumTags();
 
     m_WireShadeDrawObj_vec.clear();
     m_WireShadeDrawObj_vec.resize( num_uniq_tags * 2 );
@@ -275,7 +282,7 @@ void NGonMeshGeom::UpdateDrawObj()
     map<int, DrawObj*> face_dobj_map;
     map<int, DrawObj*> outline_dobj_map;
     map< std::vector<int>, int >::const_iterator mit;
-    map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
+    map< std::vector<int>, int > tagMap = m_PGMesh.GetSingleTagMap();
     int cnt = 0;
     for ( mit = tagMap.begin(); mit != tagMap.end() ; ++mit )
     {
@@ -368,7 +375,7 @@ void NGonMeshGeom::UpdateDrawObj()
 
 void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    unsigned int num_uniq_tags = SubSurfaceMgr.GetNumTags();
+    unsigned int num_uniq_tags = m_PGMesh.GetNumTags();
 
     // Calculate constants for color sequence.
     const int ncgrp = 6; // Number of basic colors
@@ -463,4 +470,45 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
     }
 
+}
+
+vector<TMesh*> NGonMeshGeom::CreateTMeshVec() const
+{
+    vector<TMesh*> retTMeshVec(1);
+    retTMeshVec[0] = new TMesh();
+    retTMeshVec[0]->LoadGeomAttributes( this );
+
+
+//    retTMeshVec[0]->m_SurfCfdType = cfdsurftype;
+//    retTMeshVec[0]->m_ThickSurf = thicksurf;
+//    retTMeshVec[0]->m_SurfType = surftype;
+//    retTMeshVec[0]->m_SurfNum = indx;
+//    retTMeshVec[0]->m_PlateNum = platenum;
+//    retTMeshVec[0]->m_UWPnts = uw_pnts;
+//    retTMeshVec[0]->m_XYZPnts = pnts;
+//    retTMeshVec[0]->m_Wmin = uw_pnts[0][0].y();
+
+
+    for ( list< PGFace* >::const_iterator f = m_PGMesh.m_FaceList.begin() ; f != m_PGMesh.m_FaceList.end(); ++f )
+    {
+        vector< PGNode* > nodVec;
+        (*f)->GetNodesAsTris( nodVec );
+
+        int ntri = nodVec.size() / 3;
+
+        for ( int i = 0; i < ntri; i++ )
+        {
+            int inod = 3 * i;
+            vec3d v0 = nodVec[ inod ]->m_Pnt;
+            vec3d v1 = nodVec[ inod + 1 ]->m_Pnt;
+            vec3d v2 = nodVec[ inod + 2 ]->m_Pnt;
+            retTMeshVec[0]->AddTri( v0, v2, v1, (*f)->m_Nvec, (*f)->m_iQuad );
+        }
+    }
+
+    // Apply Transformations
+    Matrix4d TransMat = GetTotalTransMat();
+    TransformMeshVec( retTMeshVec, TransMat );
+
+    return retTMeshVec;
 }

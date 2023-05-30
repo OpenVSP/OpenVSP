@@ -43,6 +43,8 @@ public:
 
     virtual void WriteVSPGEOM( string fname );
 
+    virtual vector< TMesh* > CreateTMeshVec() const;
+
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;

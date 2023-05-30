@@ -205,6 +205,13 @@ public:
 
     vector < vector < PGEdge* > > m_WakeVec;
 
+    std::map< int, std::string > m_TagNames;
+    std::map< int, std::string > m_TagIDs;
+    std::map< std::string, int > m_ThickMap;
+
+    std::vector< std::vector<int> > m_TagKeys;
+    std::map< std::vector<int>, int > m_SingleTagMap;
+
     void StartMatlab();
 
     void SplitEdge( PGEdge *e, PGNode *n );
@@ -222,6 +229,27 @@ public:
     void WriteVSPGeomAlternateParts( FILE* file_id );
     void WriteTagFiles( string file_name );
     void WriteTagFile( FILE* file_id, int part, int tag );
+    void WriteVSPGEOMKeyFile(const string & file_name );
+
+    // Get Comma Delimited list of names for a set of tags
+    std::string GetTagNames( const std::vector<int> & tags );
+    std::string GetTagNames( int indx );
+
+    std::string GetTagIDs( const std::vector<int>& tags );
+    std::string GetTagIDs( int indx );
+
+    bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
+    bool MatchPartAndTag( int singletag, int part, int tag );
+    bool ExistPartAndTag( int part, int tag );
+    void MakePartList( std::vector < int > & partvec );
+
+    int GetTag( const std::vector<int> & tags );
+    int GetPart( const std::vector<int> & tags );
+    int GetPart( int tag );
+    void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );
+
+    std::map< std::vector<int>, int > GetSingleTagMap() { return m_SingleTagMap; }
+    unsigned int GetNumTags() { return m_SingleTagMap.size(); }
 
 protected:
     vector< PGFace* > m_GarbageFaceVec;
