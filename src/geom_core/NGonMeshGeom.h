@@ -40,6 +40,7 @@ public:
     virtual void PolygonizeMesh();
     virtual void CleanColinearVerts();
     virtual void SplitLEGeom();
+    virtual void Triangulate();
 
     virtual void WriteVSPGEOM( string fname );
 

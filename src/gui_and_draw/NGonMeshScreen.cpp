@@ -19,6 +19,12 @@ NGonMeshScreen::NGonMeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "N
     Fl_Group* other_group = AddSubGroup( other_tab, 5 );
 
     m_OtherLayout.SetGroupAndScreen( other_group, this );
+
+    m_OtherLayout.AddDividerBox( "Convert Mesh" );
+    m_OtherLayout.AddYGap();
+
+    m_OtherLayout.AddButton( m_TriangulateButton, "Triangulate" );
+
     m_OtherLayout.AddDividerBox( "Write to File" );
     m_OtherLayout.AddYGap();
 
@@ -90,6 +96,10 @@ void NGonMeshScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             ngon_mesh_geom_ptr->WriteVSPGEOM( newfile );
         }
+    }
+    else if ( device == & m_TriangulateButton )
+    {
+        ngon_mesh_geom_ptr->Triangulate();
     }
 
 

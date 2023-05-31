@@ -220,6 +220,8 @@ public:
 
     void SplitFace( PGFace *f0, PGEdge *e );
 
+    void Triangulate();
+
     void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomFaces( FILE* file_id );

@@ -242,6 +242,16 @@ void NGonMeshGeom::SplitLEGeom()
     }
 }
 
+void NGonMeshGeom::Triangulate()
+{
+    m_PGMesh.Triangulate();
+
+    m_PGMesh.DumpGarbage();
+
+    m_SurfDirty = true;
+    Update();
+}
+
 void NGonMeshGeom::WriteVSPGEOM( string fname )
 {
     Matrix4d trans = GetTotalTransMat();

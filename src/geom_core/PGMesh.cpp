@@ -1233,6 +1233,58 @@ void PGMesh::SplitFace( PGFace *f0, PGEdge *e )
     e->AddConnectFace( f1 );
 }
 
+void PGMesh::Triangulate()
+{
+    vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
+
+    for ( int iface = 0; iface < fVec.size(); iface++ )
+    {
+        PGFace *fpoly = fVec[iface];
+
+        if ( fpoly->m_EdgeVec.size() > 3 )
+        {
+            vector < PGNode * > nodVec;
+            fpoly->GetNodesAsTris( nodVec );
+
+            int npt = nodVec.size();
+            int ntri = npt / 3;
+
+            for ( int i = 0; i < ntri; i++ )
+            {
+                int inod = 3 * i;
+                nodVec[ inod ];
+
+                PGFace *f = AddFace();
+
+                f->m_Nvec = fpoly->m_Nvec;
+                f->m_iQuad = fpoly->m_iQuad;
+                f->m_Tag = fpoly->m_Tag;
+
+                PGEdge *e1 = AddEdge( nodVec [ inod ], nodVec[ inod + 1 ] );
+                PGEdge *e2 = AddEdge( nodVec [ inod + 1 ], nodVec[ inod + 2 ] );
+                PGEdge *e3 = AddEdge( nodVec [ inod + 2 ], nodVec[ inod ] );
+
+                e1->AddConnectFace( f );
+                e2->AddConnectFace( f );
+                e3->AddConnectFace( f );
+
+                f->AddEdge( e1 );
+                f->AddEdge( e2 );
+                f->AddEdge( e3 );
+            }
+
+            vector < PGEdge * > ev = fpoly->m_EdgeVec;
+
+            for ( int i = 0; i < ev.size(); i++ )
+            {
+                ev[ i ]->RemoveFace( fpoly );
+            }
+            fpoly->ClearTris();
+            RemoveFace( fpoly );
+        }
+    }
+}
+
 void PGMesh::DumpGarbage()
 {
     //==== Delete Flagged PGNodes =====//

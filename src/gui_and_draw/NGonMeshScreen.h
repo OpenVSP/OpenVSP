@@ -20,6 +20,8 @@ public:
 
     GroupLayout m_OtherLayout;
 
+    TriggerButton m_TriangulateButton;
+
     TriggerButton m_WriteVSPGEOMButton;
 
 protected:
