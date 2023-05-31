@@ -661,6 +661,19 @@ WingSect::WingSect( XSecCurve *xsc ) : BlendWingSect( xsc)
 //==== Parm Changed ====//
 void WingSect::ParmChanged( Parm* parm_ptr, int type )
 {
+    if ( parm_ptr == &m_RootChord )
+    {
+        XSecSurf *xss = dynamic_cast< XSecSurf * > ( GetParentContainerPtr() );
+        if ( xss )
+        {
+            WingGeom *wg = dynamic_cast< WingGeom * > ( xss->GetParentContainerPtr() );
+            if ( wg )
+            {
+                wg->ChangeRC( parm_ptr, this );
+            }
+        }
+    }
+
     if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;
@@ -2863,4 +2876,16 @@ void WingGeom::OffsetXSecs( double off )
 
     GeomXSec::OffsetXSecs( off );
 
+}
+
+void WingGeom::ChangeRC( Parm * p, WingSect * sect )
+{
+    if ( sect == m_XSecSurf.FindXSec( 1 ) )
+    {
+        WingSect * ghost_sect = dynamic_cast< WingSect *> ( m_XSecSurf.FindXSec( 0 ) );
+        if ( ghost_sect )
+        {
+            ghost_sect->m_TipChord = p->Get();
+        }
+    }
 }

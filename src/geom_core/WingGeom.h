@@ -195,6 +195,8 @@ public:
     virtual void ReadV2File( xmlNodePtr &root );
     virtual void OffsetXSecs( double off );
 
+    virtual void ChangeRC( Parm * p, WingSect * sect );
+
     //==== Planform Parms ====//
     Parm m_TotalSpan;
     Parm m_TotalProjSpan;
