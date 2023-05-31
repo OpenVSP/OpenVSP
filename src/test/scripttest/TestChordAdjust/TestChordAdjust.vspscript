@@ -1,0 +1,76 @@
+int checkGeom( int failure )
+{
+    vec3d p;
+
+    // Check wing points
+    p = CompPnt01( 'IRCCKDQEGC', 0, 0.1, 0 );
+    if ( !closeTo( p.x(), 8.0 ) ) failure++;
+    p = CompPnt01( 'IRCCKDQEGC', 0, 0.2, 0 );
+    if ( !closeTo( p.x(), 7.0 ) ) failure++;
+    p = CompPnt01( 'IRCCKDQEGC', 0, 0.3, 0 );
+    if ( !closeTo( p.x(), 6.0 ) ) failure++;
+    p = CompPnt01( 'IRCCKDQEGC', 0, 0.4, 0 );
+    if ( !closeTo( p.x(), 5.0 ) ) failure++;
+    p = CompPnt01( 'IRCCKDQEGC', 0, 0.5, 0 );
+    if ( !closeTo( p.x(), 4.0 ) ) failure++;
+    p = CompPnt01( 'IRCCKDQEGC', 0, 0.6, 0 );
+    if ( !closeTo( p.x(), 3.0 ) ) failure++;
+    p = CompPnt01( 'IRCCKDQEGC', 0, 0.7, 0 );
+    if ( !closeTo( p.x(), 2.0 ) ) failure++;
+    p = CompPnt01( 'IRCCKDQEGC', 0, 0.8, 0 );
+    if ( !closeTo( p.x(), 1.0 ) ) failure++;
+    p = CompPnt01( 'IRCCKDQEGC', 0, 0.9, 0 );
+    if ( !closeTo( p.x(), 0.1 ) ) failure++;
+
+    // Check pod points
+    p = CompPnt01( 'VVMJBNYQFD', 0, 0.0, 0 ); // Check position
+    if ( !closeTo( p.x(), 2.0 ) ) failure++;
+    p = CompPnt01( 'VVMJBNYQFD', 0, 1.0, 0 ); // Check length
+    if ( !closeTo( p.x(), 6.0 ) ) failure++;
+    p = CompPnt01( 'VVMJBNYQFD', 0, 0.5, 0 ); // Check fineness
+    if ( !closeTo( p.z(), 0.8 ) ) failure++;
+
+    return failure;
+}
+
+int main()
+{
+    int failure = 0;
+
+    ReadVSPFile( "TestChordAdjust.vsp3" );
+
+    // Apply parameters as determined from Design Var file.
+    SetParmVal( 'ZHMTPQPPTTH', 5 ); // ZHMTPQPPTTH:PodGeom:Design:FineRatio: 5
+    SetParmVal( 'PUEEUGUFHCI', 4 ); // PUEEUGUFHCI:PodGeom:Design:Length: 4
+    SetParmVal( 'USZKLSRLJKJ', 2 ); // USZKLSRLJKJ:PodGeom:XForm:X_Rel_Location: 2
+    SetParmVal( 'OUTGIMZHQWJ', 1 ); // OUTGIMZHQWJ:WingGeom:XSec_7:Tip_Chord: 1
+    SetParmVal( 'AXMFHPCTXLU', 6 ); // AXMFHPCTXLU:WingGeom:XSec_2:Tip_Chord: 6
+    SetParmVal( 'PGHISXKFHTB', 2 ); // PGHISXKFHTB:WingGeom:XSec_6:Tip_Chord: 2
+    SetParmVal( 'ACYSLVVAWSW', 4 ); // ACYSLVVAWSW:WingGeom:XSec_4:Tip_Chord: 4
+    SetParmVal( 'BKQWYGUTWCH', 8 ); // BKQWYGUTWCH:WingGeom:XSec_1:Root_Chord: 8
+    SetParmVal( 'QQCTIDXEFPZ', 7 ); // QQCTIDXEFPZ:WingGeom:XSec_1:Tip_Chord: 7
+    SetParmVal( 'MIRCQJBBGQM', 5 ); // MIRCQJBBGQM:WingGeom:XSec_3:Tip_Chord: 5
+    SetParmVal( 'EFATHAAEGBX', 3 ); // EFATHAAEGBX:WingGeom:XSec_5:Tip_Chord: 3
+    SetParmVal( 'WYDZRMNLFMU', 0.1 ); // WYDZRMNLFMU:WingGeom:XSec_8:Tip_Chord: 0
+
+    Update();
+
+    failure = checkGeom( failure );
+
+    ClearVSPModel();
+
+    ReadVSPFile( "TestChordAdjust.vsp3" );
+    ReadApplyDESFile( "TestChordAdjust.des" );
+
+    failure = checkGeom( failure );
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+        failure++;
+    }
+
+    return failure;
+}
