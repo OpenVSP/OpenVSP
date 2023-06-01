@@ -252,6 +252,11 @@ void NGonMeshGeom::Triangulate()
     Update();
 }
 
+void NGonMeshGeom::Report()
+{
+    m_PGMesh.Report();
+}
+
 void NGonMeshGeom::WriteVSPGEOM( string fname )
 {
     Matrix4d trans = GetTotalTransMat();

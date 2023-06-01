@@ -222,6 +222,7 @@ public:
 
     void Triangulate();
 
+    void Report();
     void ResetNodeNumbers();
     void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );

@@ -1285,6 +1285,49 @@ void PGMesh::Triangulate()
     }
 }
 
+void PGMesh::Report()
+{
+    ResetNodeNumbers();
+
+    printf( "%10d   Nodes\n", m_NodeList.size() );
+    printf( "%10d   Edges\n", m_EdgeList.size() );
+    printf( "%10d   Faces\n", m_FaceList.size() );
+
+    int inode = 1; // Start numbering at 1
+    list< PGNode* >::iterator n;
+    for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
+    {
+        inode++;
+    }
+
+    int iedge = 1;
+    list< PGEdge* >::iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+        if ( ( *e )->m_FaceVec.size() != 2 )
+        {
+            printf( "Edge %d has %d faces\n", iedge, ( *e )->m_FaceVec.size() );
+            printf( "    Node %d %f %f %f\n", ( *e )->m_N0->m_ID, ( *e )->m_N0->m_Pnt.x(), ( *e )->m_N0->m_Pnt.y(), ( *e )->m_N0->m_Pnt.z() );
+            printf( "    Node %d %f %f %f\n", ( *e )->m_N1->m_ID, ( *e )->m_N1->m_Pnt.x(), ( *e )->m_N1->m_Pnt.y(), ( *e )->m_N1->m_Pnt.z() );
+        }
+
+        iedge++;
+    }
+
+
+
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+
+    }
+
+
+    printf( "Done\n" );
+
+
+}
+
 void PGMesh::ResetNodeNumbers()
 {
     int inode = 1; // Start numbering at 1

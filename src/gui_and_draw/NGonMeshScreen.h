@@ -22,6 +22,8 @@ public:
 
     TriggerButton m_TriangulateButton;
 
+    TriggerButton m_ReportButton;
+
     TriggerButton m_WriteVSPGEOMButton;
 
 protected:
