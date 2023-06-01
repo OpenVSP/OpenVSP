@@ -1285,6 +1285,18 @@ void PGMesh::Triangulate()
     }
 }
 
+void PGMesh::ResetNodeNumbers()
+{
+    int inode = 1; // Start numbering at 1
+    list< PGNode* >::iterator n;
+    for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
+    {
+        // Assign ID number.
+        ( *n )->m_ID = inode;
+        inode++;
+    }
+}
+
 void PGMesh::DumpGarbage()
 {
     //==== Delete Flagged PGNodes =====//
@@ -1322,19 +1334,16 @@ void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 
 void PGMesh::WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat )
 {
+    ResetNodeNumbers();
+
     fprintf( file_id, "%d\n", m_NodeList.size() );
 
     //==== Write Out Nodes ====//
     vec3d v;
 
-    int inode = 1; // Start numbering at 1
     list< PGNode* >::iterator n;
     for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
     {
-        // Assign ID number.
-        ( *n )->m_ID = inode;
-        inode++;
-
         // Apply Transformations
         v = XFormMat.xform( ( *n )->m_Pnt );
         fprintf( file_id, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() ); // , tnode->m_UWPnt.x(), tnode->m_UWPnt.y() );
