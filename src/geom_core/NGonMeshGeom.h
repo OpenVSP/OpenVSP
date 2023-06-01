@@ -9,6 +9,7 @@
 #define VSPNGonMeshGeom__INCLUDED_
 
 #include "Geom.h"
+#include "DrawObj.h"
 
 #include "TMesh.h"
 #include "PGMesh.h"
@@ -50,6 +51,9 @@ public:
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;
+
+    DrawObj m_BadEdgeTooFewDO;
+    DrawObj m_BadEdgeTooManyDO;
 
 protected:
 

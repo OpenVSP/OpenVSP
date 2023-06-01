@@ -386,6 +386,33 @@ void NGonMeshGeom::UpdateDrawObj()
     {
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
     }
+
+
+    m_BadEdgeTooFewDO.m_PntVec.clear();
+    m_BadEdgeTooFewDO.m_LineWidth = 8;
+    m_BadEdgeTooFewDO.m_LineColor = DrawObj::Color( DrawObj::MAGENTA );
+
+    m_BadEdgeTooManyDO.m_PntVec.clear();
+    m_BadEdgeTooManyDO.m_LineWidth = 8;
+    m_BadEdgeTooManyDO.m_LineColor = DrawObj::Color( DrawObj::AQUA );
+
+    list< PGEdge* >::iterator e;
+    for ( e = m_PGMesh.m_EdgeList.begin() ; e != m_PGMesh.m_EdgeList.end(); ++e )
+    {
+        if ( ( *e )->m_FaceVec.size() < 2 )
+        {
+            m_BadEdgeTooFewDO.m_PntVec.push_back( ( *e )->m_N0->m_Pnt );
+            m_BadEdgeTooFewDO.m_PntVec.push_back( ( *e )->m_N1->m_Pnt );
+        }
+        if ( ( *e )->m_FaceVec.size() > 2 )
+        {
+            m_BadEdgeTooManyDO.m_PntVec.push_back( ( *e )->m_N0->m_Pnt );
+            m_BadEdgeTooManyDO.m_PntVec.push_back( ( *e )->m_N1->m_Pnt );
+        }
+    }
+    m_BadEdgeTooFewDO.m_GeomChanged = true;
+    m_BadEdgeTooManyDO.m_GeomChanged = true;
+
 }
 
 void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -485,6 +512,13 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
     }
 
+    m_BadEdgeTooFewDO.m_Visible = true;
+    m_BadEdgeTooFewDO.m_Type = DrawObj::VSP_LINES;
+    m_BadEdgeTooManyDO.m_Visible = true;
+    m_BadEdgeTooManyDO.m_Type = DrawObj::VSP_LINES;
+
+    draw_obj_vec.push_back( &m_BadEdgeTooFewDO );
+    draw_obj_vec.push_back( &m_BadEdgeTooManyDO );
 }
 
 vector<TMesh*> NGonMeshGeom::CreateTMeshVec() const
