@@ -1210,9 +1210,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMinSweepFlag.Init( "CapUMinSweepFlag", "EndCap", this, 0, 0, 1 );
     m_CapUMinSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
 
-    m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 3, 51);
+    m_CapUMinTess.Init("CapUMinTess", "EndCap", this, 3, 2, 51);
     m_CapUMinTess.SetDescript("Number of tessellated curves on capped ends");
-    m_CapUMinTess.SetMultShift(2, 1);
 
     m_CapUMaxOption.Init("CapUMaxOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
     m_CapUMaxOption.SetDescript("Type of End Cap on UMax end");

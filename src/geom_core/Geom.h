@@ -688,7 +688,7 @@ public:
 
     //=== End Cap Parms ===//
     IntParm m_CapUMinOption;
-    LimIntParm m_CapUMinTess;
+    IntParm m_CapUMinTess;
     IntParm m_CapUMaxOption;
 
     Parm m_CapUMinLength;
