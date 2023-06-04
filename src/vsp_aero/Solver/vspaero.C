@@ -27,7 +27,7 @@ using namespace VSPAERO_SOLVER;
 
 #define VER_MAJOR 6
 #define VER_MINOR 4
-#define VER_PATCH 7
+#define VER_PATCH 8
 
 // Some globals...
 
@@ -448,8 +448,21 @@ int main(int argc, char **argv)
 
 void PrintUsageHelp()
 {
-       PRINTF("VSPAERO v.%d.%d.%d --- Compiled on: %s at %s PST \n", VER_MAJOR, VER_MINOR, VER_PATCH, __DATE__, __TIME__);
-       PRINTF("\n\n\n\n");
+       PRINTF("VSPAERO v.%d.%d.%d --- Compiled on: %s at %s PST --- Options: ", VER_MAJOR, VER_MINOR, VER_PATCH, __DATE__, __TIME__);
+
+#ifdef VSPAERO_OPENMP
+       PRINTF( "OpenMP " );
+#endif
+
+#ifdef AUTODIFF
+       PRINTF( "AutoDiff " );
+#endif
+
+#ifdef COMPLEXDIFF
+       PRINTF( "ComplexDiff " );
+#endif
+
+       PRINTF("\n\n\n\n\n");
 
        PRINTF("Usage: vspaero [options] <FileName>\n");
        PRINTF("\n\n");

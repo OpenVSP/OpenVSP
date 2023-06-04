@@ -32,28 +32,6 @@ MATRIX::MATRIX(void)
 #                                                                              #
 ##############################################################################*/
 
-MATRIX::MATRIX(int size)
-{
-
-    // Allocate space for the matrix
-
-    row = size;
-    col = 1;
-
-    coef = new VSPAERO_DOUBLE[row*col];
-
-    // Initialize to zero
-
-    (*this) = (VSPAERO_DOUBLE) 0.;
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                             MATRIX Constructor                               #
-#                                                                              #
-##############################################################################*/
-
 MATRIX::MATRIX(int row_, int col_)
 {
 
@@ -1386,7 +1364,7 @@ MATRIX MATRIX::gauss_solve(MATRIX &vec, int max_iters, VSPAERO_DOUBLE toler)
 
     int i, j, neq, iter;
     VSPAERO_DOUBLE res, delta, max_res;
-    MATRIX x(this->row);
+    MATRIX x(this->row,1);
 
     // Perform Gauss-Seidel iteration to solve Ax = b
 

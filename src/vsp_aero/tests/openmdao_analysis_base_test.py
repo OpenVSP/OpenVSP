@@ -1,5 +1,6 @@
 import unittest
 import numpy as np
+from openmdao.utils.assert_utils import assert_check_totals
 
 """
 This is a base class for running openmdao unit test cases.
@@ -119,10 +120,4 @@ class OpenMDAOTestCase:
             """
             Check total sensitivity vector calculated analytically vs fd approximation.
             """
-            for func_name, wrt in data:
-                np.testing.assert_allclose(
-                    data[func_name, wrt]["J_fwd"],
-                    data[func_name, wrt]["J_fd"],
-                    rtol=self.rtol,
-                    atol=self.atol,
-                )
+            assert_check_totals(data, atol=self.atol, rtol=self.rtol)

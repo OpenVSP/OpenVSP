@@ -18,9 +18,12 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #else
+#include <io.h>
 #define open            _open
 #define O_WRONLY        _O_WRONLY
 #define close           _close
+#define dup             _dup
+#define dup2            _dup2
 #endif
 
 #include "VSPAERO_TYPES.H"

@@ -1401,6 +1401,24 @@ public:
 
     void CalculateForwardResidual(double *VecIn, double *VecOut);
 
+#else
+    void CalculateForwardMatrixVectorProduct(double *VecIn, double *VecOut)
+    {
+        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
+        exit(1);
+    };
+
+    void CalculateForwardRightHandSide(double *RHS)
+    {
+        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
+        exit(1);
+    };
+
+    void CalculateForwardResidual(double *VecIn, double *VecOut)
+    {
+        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
+        exit(1);
+    };
 #endif
 
 #if not defined AUTODIFF && not defined COMPLEXDIFF
@@ -1413,6 +1431,18 @@ public:
 
     void GetNodalForces(double *VecIn);
 
+#else
+    void CalculateOptimizationFunctions(double *VecIn)
+    {
+        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
+        exit(1);
+    };
+
+    void GetNodalForces(double *VecIn)
+    {
+        PRINTF( "Function %s not defined for non-DIFF version of VSP_SOLVER.\n", __FUNCTION__ );
+        exit(1);
+    };
 #endif
 
 #if defined AUTODIFF

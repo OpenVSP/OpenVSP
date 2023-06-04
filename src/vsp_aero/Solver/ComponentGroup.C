@@ -765,7 +765,7 @@ void COMPONENT_GROUP::UpdateDynamicSystem(void)
 
     VSPAERO_DOUBLE Dot;
     QUAT Omega, DQuat, InvDQuat_, Half, dTime, Mass, Inertia;
-    MATRIX Force(3), Moment(3), OmegaVec(3);
+    MATRIX Force(3,1), Moment(3,1), OmegaVec(3,1);
 
     dTime.Init(TimeStep_);
     

@@ -1026,7 +1026,7 @@ int lines_intersect(VSPAERO_DOUBLE *u, VSPAERO_DOUBLE *v, VSPAERO_DOUBLE *p, VSP
                     VSPAERO_DOUBLE &ds1, VSPAERO_DOUBLE &ds2 )
 {
 
-    MATRIX A(3,2), b(3), At(2,3), AA(2,2), bb(2), xx(2);
+    MATRIX A(3,2), b(3,1), At(2,3), AA(2,2), bb(2,1), xx(2,1);
     VSPAERO_DOUBLE det;
 
     // Find intersection of two lines given by

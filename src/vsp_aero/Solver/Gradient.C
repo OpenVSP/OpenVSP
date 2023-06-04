@@ -156,7 +156,7 @@ void GRADIENT::Solve(void)
 {
  
     int i;
-    MATRIX bb(NumberOfDegreesOfFreedom_), b(NumberOfEquations_);
+    MATRIX bb(NumberOfDegreesOfFreedom_,1), b(NumberOfEquations_,1);
     
     for ( i = 1 ; i <= NumberOfEquations_ ; i++ ) {
        

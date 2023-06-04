@@ -33,7 +33,6 @@ private:
 public:
 
     MATRIX(void);
-    MATRIX(int size);
     MATRIX(int row_, int col_);
    ~MATRIX(void);
     MATRIX(const MATRIX &mat);
