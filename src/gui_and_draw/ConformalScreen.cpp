@@ -11,7 +11,7 @@
 #include "APIDefines.h"
 
 //==== Constructor ====//
-ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Conformal" )
+ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 + 25, "Conformal" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -28,21 +28,98 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, 
     m_DesignLayout.AddSubGroupLayout( m_TrimGroup, m_DesignLayout.GetW(), m_DesignLayout.GetH() );
 
     int buttonW = m_DesignLayout.GetButtonWidth();
-    int toggleW = 20;
+    int buttonSMW = buttonW - 25;
+    int toggleW = 35;
+    int blankW = 20;
+    int buttonLGW = buttonSMW + 2 * toggleW;
 
     int start_y = m_TrimGroup.GetY();
 
+    m_TrimGroup.SetSameLineFlag( false );
+    m_TrimGroup.SetFitWidthFlag( true );
+    m_TrimGroup.AddButton( m_UTrimToggle, "Enable U Trimming" );
+
     m_TrimGroup.SetSameLineFlag( true );
     m_TrimGroup.SetFitWidthFlag( false );
-    m_TrimGroup.SetButtonWidth( toggleW );
-    m_TrimGroup.AddButton( m_UTrimToggle, "" );
+
+    m_TrimGroup.SetButtonWidth( blankW );
+    m_TrimGroup.AddButton( m_UMinUTrimButton, "" );
+
     m_TrimGroup.SetFitWidthFlag( true );
-    m_TrimGroup.SetButtonWidth( buttonW - toggleW );
+
+    m_TrimGroup.SetButtonWidth( buttonLGW );
     m_TrimGroup.AddSlider( m_UTrimMinSlider, "U Min", 1.0, "%5.4f" );
+
     m_TrimGroup.ForceNewLine();
+
+    m_TrimGroup.SetFitWidthFlag( false );
+
+    m_TrimGroup.SetButtonWidth( blankW );
+    m_TrimGroup.AddButton( m_UminLTrimButton, "" );
+    m_TrimGroup.SetButtonWidth( toggleW );
+    m_TrimGroup.AddButton( m_L01MinTrimToggle, "01" );
+    m_TrimGroup.AddButton( m_L0LenMinTrimToggle, "0D" );
+
+    m_TrimGroup.SetFitWidthFlag( true );
+
+    m_TrimGroup.SetButtonWidth( buttonSMW );
+    m_TrimGroup.AddSlider( m_LTrimMinSlider, "L Min", 1.0, "%5.4f" );
+
+
+    m_UMinTrimToggleGroup.Init( this );
+    m_UMinTrimToggleGroup.AddButton( m_UMinUTrimButton.GetFlButton() );
+    m_UMinTrimToggleGroup.AddButton( m_UminLTrimButton.GetFlButton() );
+
+    m_LMinScaleTrimToggleGroup.Init( this );
+    m_LMinScaleTrimToggleGroup.AddButton( m_L0LenMinTrimToggle.GetFlButton() ); // 0 false added first
+    m_LMinScaleTrimToggleGroup.AddButton( m_L01MinTrimToggle.GetFlButton() ); // 1 true added second
+
+    m_TrimGroup.ForceNewLine();
+
+    m_TrimGroup.SetSameLineFlag( true );
+    m_TrimGroup.SetFitWidthFlag( false );
+    m_TrimGroup.SetButtonWidth( blankW );
+
+    m_TrimGroup.AddButton( m_UMaxUTrimButton, "" );
+
+    m_TrimGroup.SetFitWidthFlag( true );
+
+    m_TrimGroup.SetButtonWidth( buttonLGW );
+    m_TrimGroup.AddSlider( m_UTrimMaxSlider, "U Max", 1.0, "%5.4f" );
+
+    m_TrimGroup.ForceNewLine();
+
+    m_TrimGroup.SetFitWidthFlag( false );
+
+    m_TrimGroup.SetButtonWidth( blankW );
+    m_TrimGroup.AddButton( m_UmaxLTrimButton, "" );
+    m_TrimGroup.SetButtonWidth( toggleW );
+    m_TrimGroup.AddButton( m_L01MaxTrimToggle, "01" );
+    m_TrimGroup.AddButton( m_L0LenMaxTrimToggle, "0D" );
+
+    m_TrimGroup.SetFitWidthFlag( true );
+
+    m_TrimGroup.SetButtonWidth( buttonSMW );
+    m_TrimGroup.AddSlider( m_LTrimMaxSlider, "L Max", 1.0, "%5.4f" );
+
+
+    m_UMaxTrimToggleGroup.Init( this );
+    m_UMaxTrimToggleGroup.AddButton( m_UMaxUTrimButton.GetFlButton() );
+    m_UMaxTrimToggleGroup.AddButton( m_UmaxLTrimButton.GetFlButton() );
+
+    m_LMaxScaleTrimToggleGroup.Init( this );
+    m_LMaxScaleTrimToggleGroup.AddButton( m_L0LenMaxTrimToggle.GetFlButton() ); // 0 false added first
+    m_LMaxScaleTrimToggleGroup.AddButton( m_L01MaxTrimToggle.GetFlButton() ); // 1 true added second
+
+    m_TrimGroup.ForceNewLine();
+
+    m_TrimGroup.SetFitWidthFlag( true );
     m_TrimGroup.SetSameLineFlag( false );
     m_TrimGroup.SetButtonWidth( buttonW );
-    m_TrimGroup.AddSlider( m_UTrimMaxSlider, "U Max", 1.0, "%5.4f" );
+
+
+    toggleW = 20;
+
     m_TrimGroup.AddYGap();
 
     m_TrimGroup.AddDividerBox( "U Trim Tip Treatment" );
@@ -211,6 +288,30 @@ bool ConformalScreen::Update()
     m_UTrimMinSlider.Update( conformal_ptr->m_UTrimMin.GetID() );
     m_UTrimMaxSlider.Update( conformal_ptr->m_UTrimMax.GetID() );
 
+    m_UMinTrimToggleGroup.Update( conformal_ptr->m_UMinTrimTypeFlag.GetID() );
+    m_LMinScaleTrimToggleGroup.Update( conformal_ptr->m_L01Min.GetID() );
+
+    if ( conformal_ptr->m_L01Min() )
+    {
+        m_LTrimMinSlider.Update( 1, conformal_ptr->m_LTrimMin.GetID(), conformal_ptr->m_L0LenTrimMin.GetID());
+    }
+    else
+    {
+        m_LTrimMinSlider.Update( 2, conformal_ptr->m_LTrimMin.GetID(), conformal_ptr->m_L0LenTrimMin.GetID());
+    }
+
+    m_UMaxTrimToggleGroup.Update( conformal_ptr->m_UMaxTrimTypeFlag.GetID() );
+    m_LMaxScaleTrimToggleGroup.Update( conformal_ptr->m_L01Max.GetID() );
+
+    if ( conformal_ptr->m_L01Max() )
+    {
+        m_LTrimMaxSlider.Update( 1, conformal_ptr->m_LTrimMax.GetID(), conformal_ptr->m_L0LenTrimMax.GetID());
+    }
+    else
+    {
+        m_LTrimMaxSlider.Update( 2, conformal_ptr->m_LTrimMax.GetID(), conformal_ptr->m_L0LenTrimMax.GetID());
+    }
+
     m_NoseCapTypeChoice.Update( conformal_ptr->m_CapUMinTrimOption.GetID() );
     m_TailCapTypeChoice.Update( conformal_ptr->m_CapUMaxTrimOption.GetID() );
 
@@ -282,8 +383,58 @@ bool ConformalScreen::Update()
 
     if ( conformal_ptr->m_UTrimFlag() )
     {
-        m_UTrimMinSlider.Activate();
-        m_UTrimMaxSlider.Activate();
+        m_UMinTrimToggleGroup.Activate();
+
+        if ( conformal_ptr->m_UMinTrimTypeFlag() == 0 ) // Trim based on U
+        {
+            m_UTrimMinSlider.Activate();
+
+            m_LMinScaleTrimToggleGroup.Deactivate();
+            m_LTrimMinSlider.Deactivate();
+        }
+        else // Trim based on L
+        {
+            m_UTrimMinSlider.Deactivate();
+
+            m_LMinScaleTrimToggleGroup.Activate();
+            m_LTrimMinSlider.Activate();
+
+            if ( conformal_ptr->m_L01Min() )
+            {
+                m_LTrimMinSlider.ActivateInput1();
+            }
+            else
+            {
+                m_LTrimMinSlider.ActivateInput2();
+            }
+        }
+
+
+        m_UMaxTrimToggleGroup.Activate();
+
+        if ( conformal_ptr->m_UMaxTrimTypeFlag() == 0 ) // Trim based on U
+        {
+            m_UTrimMaxSlider.Activate();
+
+            m_LMaxScaleTrimToggleGroup.Deactivate();
+            m_LTrimMaxSlider.Deactivate();
+        }
+        else // Trim based on L
+        {
+            m_UTrimMaxSlider.Deactivate();
+
+            m_LMaxScaleTrimToggleGroup.Activate();
+            m_LTrimMaxSlider.Activate();
+
+            if ( conformal_ptr->m_L01Max() )
+            {
+                m_LTrimMaxSlider.ActivateInput1();
+            }
+            else
+            {
+                m_LTrimMaxSlider.ActivateInput2();
+            }
+        }
 
         m_NoseCapTypeChoice.Activate();
         m_NoseCapLenSlider.Activate();
@@ -301,6 +452,14 @@ bool ConformalScreen::Update()
     {
         m_UTrimMinSlider.Deactivate();
         m_UTrimMaxSlider.Deactivate();
+
+        m_UMinTrimToggleGroup.Deactivate();
+        m_LMinScaleTrimToggleGroup.Deactivate();
+        m_LTrimMinSlider.Deactivate();
+
+        m_UMaxTrimToggleGroup.Deactivate();
+        m_LMaxScaleTrimToggleGroup.Deactivate();
+        m_LTrimMaxSlider.Deactivate();
 
         m_NoseCapTypeChoice.Deactivate();
         m_NoseCapLenSlider.Deactivate();

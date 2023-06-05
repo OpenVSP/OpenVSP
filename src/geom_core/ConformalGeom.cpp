@@ -31,6 +31,17 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_UTrimMax.Init( "UTrimMax", "Design", this, 0.9, 0.0, 0.9999 );
     m_UTrimMax.SetDescript( "Max U Trim Value" );
 
+    m_UMinTrimTypeFlag.Init( "UMinTrimTypeFalg", "Design", this, 0, 0, 1 );
+    m_UMaxTrimTypeFlag.Init( "UMaxTrimTypeFalg", "Design", this, 0, 0, 1 );
+
+    m_LTrimMin.Init( "LTrimMin", "Design", this, 0.1, 0.0, 0.9999 );
+    m_L01Min.Init( "L01Min", "Design", this, true, false, true );
+    m_L0LenTrimMin.Init( "L0LenTrimMin", "Design", this, 0, 0, 1e12 );
+
+    m_LTrimMax.Init( "LTrimMax", "Design", this, 0.9, 0.0, 0.9999 );
+    m_L01Max.Init( "L01Max", "Design", this, true, false, true );
+    m_L0LenTrimMax.Init( "L0LenTrimMax", "Design", this, 0, 0, 1e12 );
+
     // End Cap Options
     m_CapUMinTrimOption.Init("CapUMinTrimOption", "EndCap", this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS - 1 );
     m_CapUMinTrimOption.SetDescript("Type of End Cap on UMin end");
@@ -794,6 +805,58 @@ void ConformalGeom::TrimU( VspSurf & surf )
     if ( !m_UTrimFlag() )
     {
         return;
+    }
+
+    double lmax = surf.GetLMax();
+
+    if ( m_UMinTrimTypeFlag() == 0 ) // Trim based on U.
+    {
+        double l, m, n;
+        surf.ConvertRSTtoLMN( m_UTrimMin(), 0.5, 0.5, l, m, n );
+        m_LTrimMin.Set( l );
+        m_L0LenTrimMin.Set( m_LTrimMin() * lmax );
+    }
+    else // Trim based on L.
+    {
+        if ( m_L01Min() )
+        {
+            m_L0LenTrimMin.Set( m_LTrimMin() * lmax );
+        }
+        else
+        {
+            double val = clamp( m_L0LenTrimMin(), 0.0, lmax );
+            m_L0LenTrimMin.Set( val );
+            m_LTrimMin.Set( val / lmax );
+        }
+
+        double r, s, t;
+        surf.ConvertLMNtoRST( m_LTrimMin(), 0.5, 0.5, r, s, t );
+        m_UTrimMin.Set( r );
+    }
+
+    if ( m_UMaxTrimTypeFlag() == 0 ) // Trim based on U.
+    {
+        double l, m, n;
+        surf.ConvertRSTtoLMN( m_UTrimMax(), 0.5, 0.5, l, m, n );
+        m_LTrimMax.Set( l );
+        m_L0LenTrimMax.Set( m_LTrimMax() * lmax );
+    }
+    else // Trim based on L.
+    {
+        if ( m_L01Max() )
+        {
+            m_L0LenTrimMax.Set( m_LTrimMax() * lmax );
+        }
+        else
+        {
+            double val = clamp( m_L0LenTrimMax(), 0.0, lmax );
+            m_L0LenTrimMax.Set( val );
+            m_LTrimMax.Set( val / lmax );
+        }
+
+        double r, s, t;
+        surf.ConvertLMNtoRST( m_LTrimMax(), 0.5, 0.5, r, s, t );
+        m_UTrimMax.Set( r );
     }
 
     // Prevent UTrim crossover.

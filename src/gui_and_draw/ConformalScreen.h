@@ -40,6 +40,26 @@ protected:
     SliderAdjRangeInput m_UTrimMinSlider;
     SliderAdjRangeInput m_UTrimMaxSlider;
 
+    ToggleButton m_UMinUTrimButton;
+    ToggleButton m_UminLTrimButton;
+    ToggleRadioGroup m_UMinTrimToggleGroup;
+
+    ToggleButton m_L01MinTrimToggle;
+    ToggleButton m_L0LenMinTrimToggle;
+    ToggleRadioGroup m_LMinScaleTrimToggleGroup;
+
+    SliderAdjRange2Input m_LTrimMinSlider;
+
+    ToggleButton m_UMaxUTrimButton;
+    ToggleButton m_UmaxLTrimButton;
+    ToggleRadioGroup m_UMaxTrimToggleGroup;
+
+    ToggleButton m_L01MaxTrimToggle;
+    ToggleButton m_L0LenMaxTrimToggle;
+    ToggleRadioGroup m_LMaxScaleTrimToggleGroup;
+
+    SliderAdjRange2Input m_LTrimMaxSlider;
+
     Choice m_NoseCapTypeChoice;
     SliderAdjRangeInput m_NoseCapLenSlider;
     SliderAdjRangeInput m_NoseCapOffsetSlider;

@@ -34,9 +34,20 @@ public:
 
     Parm m_Offset;                  // Offset to Conformal Surface
 
+    IntParm m_UMinTrimTypeFlag;
+    IntParm m_UMaxTrimTypeFlag;
+
     BoolParm m_UTrimFlag;
     Parm m_UTrimMin;
     Parm m_UTrimMax;
+
+    Parm m_LTrimMin;
+    BoolParm m_L01Min;
+    Parm m_L0LenTrimMin;
+
+    Parm m_LTrimMax;
+    BoolParm m_L01Max;
+    Parm m_L0LenTrimMax;
 
     IntParm m_CapUMinTrimOption;
     IntParm m_CapUMaxTrimOption;
