@@ -799,6 +799,10 @@ void ConformalGeom::SetWingTrimParms(  VspSurf & surf )
 
 }
 
+// Possibly disable spanwise offset for wings.  As option.  Probably future work.
+// Someday add span fraction coordinate for wings (eta).  do when spanwise coordinate for control surfaces is done.
+// Posibly make U1 and U2 trimming separate options - if compatible means can be figured out.
+
 //==== Trim In U Direction - Use Flat Cap ====//
 void ConformalGeom::TrimU( VspSurf & surf )
 {
