@@ -888,8 +888,8 @@ void ConformalGeom::TrimV( VspSurf & surf )
 
     if ( m_Side1TrimFlag() )
     {
-        double b = v_max * ( 1.0 - m_Side1Trim() );
-        double e = v_max * m_Side1Trim();
+        double b = v_max * ( 1.0 - m_Side1Trim() * 0.5 );
+        double e = v_max * m_Side1Trim() * 0.5;
 
         b = clampCyclic( b, 0.0, v_max );
         e = clampCyclic( e, 0.0, v_max );
@@ -899,8 +899,8 @@ void ConformalGeom::TrimV( VspSurf & surf )
 
     if ( m_Side2TrimFlag() )
     {
-        double b = v_max * ( 0.5 - m_Side2Trim() );
-        double e = v_max * ( 0.5 + m_Side2Trim() );
+        double b = v_max * ( 0.5 - m_Side2Trim() * 0.5 );
+        double e = v_max * ( 0.5 + m_Side2Trim() * 0.5 );
 
         b = clampCyclic( b, 0.0, v_max );
         e = clampCyclic( e, 0.0, v_max );
@@ -910,8 +910,8 @@ void ConformalGeom::TrimV( VspSurf & surf )
 
     if ( m_Side3TrimFlag() )
     {
-        double b = v_max * ( 0.25 - m_Side3Trim() );
-        double e = v_max * ( 0.25 + m_Side3Trim() );
+        double b = v_max * ( 0.25 - m_Side3Trim() * 0.5 );
+        double e = v_max * ( 0.25 + m_Side3Trim() * 0.5 );
 
         b = clampCyclic( b, 0.0, v_max );
         e = clampCyclic( e, 0.0, v_max );
@@ -921,8 +921,8 @@ void ConformalGeom::TrimV( VspSurf & surf )
 
     if ( m_Side4TrimFlag() )
     {
-        double b = v_max * ( 0.75 - m_Side4Trim() );
-        double e = v_max * ( 0.75 + m_Side4Trim() );
+        double b = v_max * ( 0.75 - m_Side4Trim() * 0.5 );
+        double e = v_max * ( 0.75 + m_Side4Trim() * 0.5 );
 
         b = clampCyclic( b, 0.0, v_max );
         e = clampCyclic( e, 0.0, v_max );
