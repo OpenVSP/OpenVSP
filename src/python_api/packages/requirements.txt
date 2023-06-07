@@ -2,3 +2,5 @@ utilities/.
 degen_geom/.
 openvsp/.
 CHARM/.
+AvlPy/.
+pyPMARC/.

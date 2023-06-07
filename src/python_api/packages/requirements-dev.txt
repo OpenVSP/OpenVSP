@@ -2,4 +2,6 @@
 -e degen_geom
 -e openvsp
 -e CHARM
+-e AvlPy
+-e pyPMARC
 pytest
