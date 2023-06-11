@@ -967,7 +967,7 @@ void DegenGeom::write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, DegenPl
     {
         for ( int j = 0; j < ( num_pnts + 1 ) / 2; j++ )
         {
-            fprintf( file_id, makeCsvFmt( 11 ).c_str(),    \
+            fprintf( file_id, makeCsvFmt( 14 ).c_str(),    \
                      degenPlate.x[i][j].x(),             \
                      degenPlate.x[i][j].y(),             \
                      degenPlate.x[i][j].z(),             \
