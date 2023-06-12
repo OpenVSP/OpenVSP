@@ -14,10 +14,11 @@
 #include "Link.h"
 #include "UserParmContainer.h"
 #include <deque>
+#include <set>
 using std::string;
 using std::vector;
 using std::deque;
-
+using std::set;
 
 //==== Parm Link Manager ====//
 class LinkMgrSingleton
@@ -37,6 +38,7 @@ public:
 
     virtual bool AddCurrLink();                 // Add Link (A Copy of Working Link
     virtual void DelCurrLink();                 // Delete Currently Selected Link
+    virtual void DelLinks(const set<int>);
     virtual void DelAllLinks();
     virtual bool LinkAllComp();                 // Link All Parms in Selected Parm Containers
     virtual bool LinkAllGroup();                // Link All Parms in Selected Group
@@ -47,7 +49,7 @@ public:
     virtual bool AddLink( const string& pA, const string& pB, bool init_link_parms = true );         // Link Two Parms
     virtual void AddLink( Link* link )                      {  m_LinkVec.push_back( link ); }
     virtual void ParmChanged( const string& pid, bool start_flag );     // A Parm Has Changed Check Links
-
+    
     virtual void SetCurrLinkIndex( int i )                  { m_CurrLinkIndex = i; }
     virtual int  GetCurrLinkIndex()                         { return m_CurrLinkIndex; }
     virtual Link* GetCurrLink();
