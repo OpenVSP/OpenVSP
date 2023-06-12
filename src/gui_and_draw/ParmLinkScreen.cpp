@@ -238,12 +238,9 @@ bool ParmLinkScreen::Update()
                  c_name_B.c_str(), g_name_B.c_str(), p_name_B.c_str() );
 
         m_LinkBrowser->add( str );
-    }
-
-    int index = LinkMgr.GetCurrLinkIndex();
-    if ( index >= 0 && index < num_links )
-    {
-        m_LinkBrowser->select( index + 2 );
+        if (selected.count(i) != 0) {
+            m_LinkBrowser->select(i+2);
+        }
     }
 
     m_LinkBrowser->hposition( h_pos );
@@ -261,8 +258,14 @@ void ParmLinkScreen::CallBack( Fl_Widget* w )
 
     if ( w == m_LinkBrowser )
     {
-        int sel = m_LinkBrowser->value();
-        LinkMgr.SetCurrLinkIndex( sel - 2 );
+        // build up the set of all selected links
+        selected.clear();
+        for (int i = 2; i <= m_LinkBrowser->size(); i++) {
+            if (m_LinkBrowser->selected(i)) {
+                selected.insert(i-2);
+                LinkMgr.SetCurrLinkIndex( i - 2 );
+            }
+        }
     }
     // Check that Parm is dropped on top of ParmPicker A
     else if ( w == ( m_ParmAGroup.GetGroup() ) && Fl::event_inside( w ) )
@@ -298,6 +301,7 @@ void ParmLinkScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         LinkMgr.SetParm( true, m_ParmAPicker.GetParmChoice() );
         LinkMgr.SetParm( false, m_ParmBPicker.GetParmChoice() );
+        selected.clear();
         LinkMgr.SetCurrLinkIndex( -1 );
     }
     else if( device == &m_AddLink )
@@ -307,14 +311,21 @@ void ParmLinkScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             fl_alert( "Error: Identical Parms or Already Linked" );
         }
+        selected.clear();
     }
     else if ( device == &m_DeleteLink )
     {
-        LinkMgr.DelCurrLink();
+        if (selected.size() > 1) {
+            LinkMgr.DelLinks(selected);            
+        } else {
+            LinkMgr.DelCurrLink();
+        }
+        selected.clear();
     }
     else if ( device == &m_DeleteAllLinks )
     {
         LinkMgr.DelAllLinks();
+        selected.clear();
     }
     else if ( device == &m_LinkConts )
     {
@@ -323,6 +334,7 @@ void ParmLinkScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             fl_alert( "Error: Identical Comps" );
         }
+        selected.clear();
     }
     else if ( device == &m_LinkGroups )
     {
@@ -331,6 +343,7 @@ void ParmLinkScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             fl_alert( "Error: Identical Group" );
         }
+        selected.clear();
     }
     else if ( device == &m_OffsetTog )
     {
@@ -408,10 +421,12 @@ void ParmLinkScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_ASort )
     {
         LinkMgr.SortLinksByA();
+        selected.clear();
     }
     else if ( device == &m_BSort )
     {
         LinkMgr.SortLinksByB();
+        selected.clear();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

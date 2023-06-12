@@ -270,6 +270,24 @@ void LinkMgrSingleton::DelCurrLink()
     m_CurrLinkIndex = -1;
 }
 
+void LinkMgrSingleton::DelLinks(set<int> toDel)
+{
+    deque<Link *> keep;
+    for (int i = 0; i < (int)m_LinkVec.size() ; i++) {
+        if (toDel.count(i) == 0) {
+            keep.push_back(m_LinkVec[i]);
+        } else {
+            delete m_LinkVec[i];
+        }
+    }
+    m_LinkVec.clear();
+    for (int i = 0; i < (int)keep.size() ; i++) {
+        m_LinkVec.push_back(keep[i]);
+    }
+    keep.clear();
+    m_CurrLinkIndex = -1;
+}
+
 //==== Delete All Links ====//
 void LinkMgrSingleton::DelAllLinks()
 {
