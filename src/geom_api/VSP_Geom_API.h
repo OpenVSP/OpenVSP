@@ -38,6 +38,9 @@ extern void Update( bool update_managers = true );
 extern void VSPExit( int error_code );
 
 extern std::string GetVSPVersion();
+extern int GetVSPVersionMajor();
+extern int GetVSPVersionMinor();
+extern int GetVSPVersionChange();
 extern std::string GetVSPExePath();
 
 extern bool SetVSPAEROPath( const std::string & path );

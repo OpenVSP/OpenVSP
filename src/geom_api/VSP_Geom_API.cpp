@@ -8544,7 +8544,22 @@ void DeleteAllProbes()
 
 string GetVSPVersion()
 {
-    return VSPVERSION4;
+    return string( VSPVERSION4 );
+}
+
+int GetVSPVersionMajor()
+{
+    return VSP_VERSION_MAJOR;
+}
+
+int GetVSPVersionMinor()
+{
+    return VSP_VERSION_MINOR;
+}
+
+int GetVSPVersionChange()
+{
+    return VSP_VERSION_CHANGE;
 }
 
 string GetVSPExePath()

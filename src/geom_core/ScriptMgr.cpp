@@ -12930,6 +12930,57 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Get the major version of the OpenVSP instance currently running as an integer
+    \code{.cpp}
+    Print( "The current OpenVSP version is: ", false );
+
+    int major = GetVSPVersionMajor();
+    int minor = GetVSPVersionMinor();
+    int change = GetVSPVersionChange();
+
+    Print( formatInt(major) + "." + formatInt(minor) + "." + formatInt(change) );
+    \endcode
+    \return OpenVSP major version number (i.e. 3 in 3.X.Y)
+*/)";
+    r = se->RegisterGlobalFunction( "int GetVSPVersionMajor( )", vspFUNCTION( vsp::GetVSPVersionMajor ), vspCALL_CDECL, doc_struct);
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the minor version of the OpenVSP instance currently running as an integer
+    \code{.cpp}
+    Print( "The current OpenVSP version is: ", false );
+
+    int major = GetVSPVersionMajor();
+    int minor = GetVSPVersionMinor();
+    int change = GetVSPVersionChange();
+
+    Print( formatInt(major) + "." + formatInt(minor) + "." + formatInt(change) );
+    \endcode
+    \return OpenVSP minor version number (i.e. X in 3.X.Y)
+*/)";
+    r = se->RegisterGlobalFunction( "int GetVSPVersionMinor( )", vspFUNCTION( vsp::GetVSPVersionMinor ), vspCALL_CDECL, doc_struct);
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the change version of the OpenVSP instance currently running as an integer
+    \code{.cpp}
+    Print( "The current OpenVSP version is: ", false );
+
+    int major = GetVSPVersionMajor();
+    int minor = GetVSPVersionMinor();
+    int change = GetVSPVersionChange();
+
+    Print( formatInt(major) + "." + formatInt(minor) + "." + formatInt(change) );
+    \endcode
+    \return OpenVSP change version number (i.e. Y in 3.X.Y)
+*/)";
+    r = se->RegisterGlobalFunction( "int GetVSPVersionChange( )", vspFUNCTION( vsp::GetVSPVersionChange ), vspCALL_CDECL, doc_struct);
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Get the path to the OpenVSP executable. OpenVSP will assume that the VSPAERO, VSPSLICER, and VSPVIEWER are in the same directory unless 
     instructed otherwise.
     \code{.cpp}
