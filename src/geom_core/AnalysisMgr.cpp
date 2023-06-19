@@ -608,6 +608,13 @@ void AnalysisMgrSingleton::RegisterBuiltins()
         delete vsasa;
     }
 
+    VSPAEROReadPreviousAnalysis *vsaprev = new VSPAEROReadPreviousAnalysis();
+
+    if ( vsaprev && !RegisterAnalysis( vsaprev ) )
+    {
+        delete vsaprev;
+    }
+
     ParasiteDragFullAnalysis *vspdbu = new ParasiteDragFullAnalysis();
 
     if ( vspdbu && !RegisterAnalysis( vspdbu ) )
@@ -2088,6 +2095,24 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_NoiseCalcType.Set( noiseCalcTypeOrig );
         VSPAEROMgr.m_NoiseUnits.Set( noiseUnitsOrig );
     }
+
+    return resId;
+}
+
+VSPAEROReadPreviousAnalysis::VSPAEROReadPreviousAnalysis() : Analysis( "VSPAEROReadPreviousAnalysis", "Read prior VSPAERO analysis from file." )
+{
+}
+
+void VSPAEROReadPreviousAnalysis::SetDefaults()
+{
+    // SetDefaults() is called when the analysis is registered.  Do nothing.
+}
+
+string VSPAEROReadPreviousAnalysis::Execute()
+{
+    string resId;
+
+    resId = VSPAEROMgr.LoadExistingVSPAEROResults();
 
     return resId;
 }

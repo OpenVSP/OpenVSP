@@ -270,6 +270,17 @@ public:
 
 };
 
+class VSPAEROReadPreviousAnalysis : public Analysis
+{
+public:
+
+    VSPAEROReadPreviousAnalysis();
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
 class ParasiteDragFullAnalysis : public Analysis
 {
 public:
