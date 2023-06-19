@@ -568,14 +568,20 @@ def ReadPMARC12SurfData(fname='DATA22', plotflag=True):
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
 
-        norm = matplotlib.colors.Normalize(vmin=-3, vmax=1)
+        cpmax = max(max(map(np.amax, cp_center)),max(map(np.amax, cp_corner)))
+        cpmin = min(min(map(np.amin, cp_center)),min(map(np.amin, cp_corner)))
+
+        print( cpmax )
+        print( cpmin )
+
+        norm = matplotlib.colors.Normalize(vmin=-2.5, vmax=0.5)
 
         for ipatch in range(sd.npatch):
             ax.plot_surface(sd.x_corner[ipatch], sd.y_corner[ipatch], sd.z_corner[ipatch],
-                            facecolors=matplotlib.cm.jet(norm(sd.cp_center[-1][ipatch])), shade=False)
+                            facecolors=matplotlib.cm.jet(norm(sd.cp_center[-1][ipatch])), shade=False, linewidth=0.5,linestyle='-',edgecolor='k')
 
         for iwake in range(sd.nwake):
-            ax.plot_wireframe(sd.xw_corner[-1][iwake], sd.yw_corner[-1][iwake], sd.zw_corner[-1][iwake])
+            ax.plot_wireframe(sd.xw_corner[-1][iwake], sd.yw_corner[-1][iwake], sd.zw_corner[-1][iwake], linewidth=0.5)
 
         fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap=matplotlib.cm.jet), ax=ax)
         ax.axis('off')
