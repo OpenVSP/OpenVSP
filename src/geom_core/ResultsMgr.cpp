@@ -1250,7 +1250,15 @@ void ResultsMgrSingleton::PrintResults( const string &results_id )
 
 void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &results_id )
 {
-    fprintf( outputStream, "\n   %-30s%-13s\t%s\t%s\n", "[result_name]", "[type]", "[#]", "[current values-->]" );
+    Results* res_ptr = FindResultsPtr( results_id );
+
+    if ( res_ptr )
+    {
+        fprintf( outputStream, "\n\n%s\n", res_ptr->GetName().c_str() );
+        fprintf( outputStream, "%s\n", res_ptr->GetDoc().c_str() );
+    }
+
+    fprintf( outputStream, "   %-30s%-13s\t%s\t%s\n", "[result_name]", "[type]", "[#]", "[current values-->]" );
 
     vector<string> results_names = GetAllDataNames( results_id );
     for ( unsigned int i_result_name = 0; i_result_name < results_names.size(); i_result_name++ )
