@@ -2128,7 +2128,8 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         // CpSlice *.adb File and slices are defined
         if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
         {
-            ComputeCpSlices();
+            string slice_res_id = ComputeCpSlices();
+            res_id_vector.push_back( slice_res_id );
         }
 
         if ( unsteady_flag )
