@@ -1241,7 +1241,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
     if ( m_AlternateInputFormatFlag() && m_AnalysisMethod() == vsp::VORTEX_LATTICE )
     {
-        m_LastPanelMeshGeomId = veh->WriteVSPGeomFile( m_VSPGeomFileFull, -1, m_GeomSet(), halfFlag, false, true );
+        m_LastPanelMeshGeomId = veh->WriteVSPGeomFile( m_VSPGeomFileFull, vsp::SET_NONE, m_GeomSet(), 0 /*subsFlag*/, halfFlag, false, true );
 
         WaitForFile( m_VSPGeomFileFull );
         if ( !FileExist( m_VSPGeomFileFull ) )
@@ -1273,14 +1273,14 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         if ( !last_mesh )
         {
             // Compute intersected and trimmed geometry
-            m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag, 1, vsp::SET_NONE, false, true );
+            m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag, 1 /*subsFlag*/, vsp::SET_NONE, false, true );
             mesh_set = vsp::SET_SHOWN; // Only MeshGeom is shown after geometry is computed
         }
 
         if ( !m_AlternateInputFormatFlag() )
         {
             // Write out mesh to *.vspgeom file. Only the MeshGeom is shown
-            veh->WriteVSPGeomFile( m_VSPGeomFileFull, mesh_set, -1, 1 );
+            veh->WriteVSPGeomFile( m_VSPGeomFileFull, mesh_set, vsp::SET_NONE, 1 /*subsFlag*/ );
             WaitForFile( m_VSPGeomFileFull );
             if ( !FileExist( m_VSPGeomFileFull ) )
             {
@@ -1290,7 +1290,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         else
         {
             // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
-            veh->WriteTRIFile( m_CompGeomFileFull, mesh_set, 1 );
+            veh->WriteTRIFile( m_CompGeomFileFull, mesh_set, 1 /*subsFlag*/ );
             WaitForFile( m_CompGeomFileFull );
             if ( !FileExist( m_CompGeomFileFull ) )
             {
