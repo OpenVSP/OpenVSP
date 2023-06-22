@@ -4122,6 +4122,8 @@ void Vehicle::WritePMARCFile( const string & file_name, int write_set )
     }
 
     vector < int > idpat( ntotal );
+    vector < int > wstart( ntotal );
+    vector < int > wend( ntotal );
 
     int ipatch = 0;
     //==== Write surface boundary points ====//
@@ -4139,7 +4141,7 @@ void Vehicle::WritePMARCFile( const string & file_name, int write_set )
     {
         if ( geom_vec[i]->GetSetFlag( write_set ) )
         {
-            geom_vec[i]->WritePMARCGeomFile(fp, ipatch, idpat);
+            geom_vec[i]->WritePMARCGeomFile(fp, ipatch, idpat, wstart, wend);
         }
     }
 
@@ -4149,7 +4151,7 @@ void Vehicle::WritePMARCFile( const string & file_name, int write_set )
     {
         if ( geom_vec[i]->GetSetFlag( write_set ) )
         {
-            geom_vec[i]->WritePMARCWakeFile(fp, ipatch, idpat);
+            geom_vec[i]->WritePMARCWakeFile(fp, ipatch, idpat, wstart, wend);
         }
     }
 

@@ -532,8 +532,8 @@ public:
     virtual void WritePLOT3DFileXYZ( FILE* dump_file );
 
     virtual void SetupPMARCFile( int &ipatch, vector < int > &idpat );
-    virtual void WritePMARCGeomFile(FILE *dump_file, int &ipatch, vector<int> &idpat);
-    virtual void WritePMARCWakeFile(FILE *dump_file, int &ipatch, vector<int> &idpat);
+    virtual void WritePMARCGeomFile(FILE *dump_file, int &ipatch, vector<int> &idpat, vector < int > &wstart, vector < int > &wend);
+    virtual void WritePMARCWakeFile(FILE *dump_file, int &ipatch, vector<int> &idpat, vector < int > &wstart, vector < int > &wend);
     virtual void WriteStl( FILE* fid ) {};
     virtual void WriteX3D( xmlNodePtr node );
     virtual void WritePovRay( FILE* fid, int comp_num );

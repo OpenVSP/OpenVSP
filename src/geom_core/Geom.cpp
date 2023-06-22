@@ -4832,7 +4832,7 @@ void Geom::SetupPMARCFile( int &ipatch, vector < int > &idpat )
     }
 }
 
-void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat)
+void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat, vector < int > &wstart, vector < int > &wend)
 {
     bool pmtippatch = false; // WARNING: Always false
 
@@ -4843,6 +4843,22 @@ void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat)
         vector< vector< vec3d > > norms;
 
         UpdateTesselate( i, pnts, norms, false );
+
+        wstart[ipatch] = 0;
+        wend[ipatch] = 0;
+
+        if ( idpat[ipatch] == 1 ) // WING_SURF
+        {
+            if( m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
+            {
+                wstart[ipatch] = m_CapUMinTess();
+            }
+
+            if( m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
+            {
+                wend[ipatch] = pnts.size() - m_CapUMinTess();
+            }
+        }
 
         int irev = 0;
         if ( !GetFlipNormal(i) )
@@ -4914,7 +4930,7 @@ void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat)
     }
 }
 
-void Geom::WritePMARCWakeFile( FILE *fp, int &ipatch, vector<int> &idpat )
+void Geom::WritePMARCWakeFile( FILE *fp, int &ipatch, vector<int> &idpat, vector < int > &wstart, vector < int > &wend )
 {
     int ilastwake = -1;
     for ( int i = 0; i < idpat.size(); i++ )
@@ -4939,9 +4955,9 @@ void Geom::WritePMARCWakeFile( FILE *fp, int &ipatch, vector<int> &idpat )
             fprintf(fp," &WAKE1   IDWAK=1,  IFLXW= 0,   ITRFTZ=1,  INTRW=1,  &END\n" );
             fprintf(fp," Wing Wake\n");
             // Wake separation information.  Patch 1, side 2.
-            fprintf(fp," &WAKE2   KWPACH=%d, KWSIDE=2, KWLINE=0,  KWPAN1=0,\n", ipatch + 1 );
+            fprintf(fp," &WAKE2   KWPACH=%d, KWSIDE=2, KWLINE=0,  KWPAN1=%d,\n", ipatch + 1, wstart[ipatch] );
             // More wakes to follow. (NODEW)
-            fprintf(fp,"          KWPAN2=0, NODEW=%d,  INITIAL=0,             &END\n", nodew);
+            fprintf(fp,"          KWPAN2=%d, NODEW=%d,  INITIAL=0,             &END\n", wend[ipatch], nodew);
         }
 
         ipatch++;
