@@ -45,7 +45,6 @@ else()
 		--without-iconv
 		--without-zlib
 		--without-lzma
-		--disable-shared
   )
   set(libxml2_build_command "")
   set(libxml2_install_command "")
