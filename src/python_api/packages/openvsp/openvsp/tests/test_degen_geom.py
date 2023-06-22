@@ -325,6 +325,7 @@ class TestOpenVSP(TestCase):
 
 if __name__ == "__main__":
     t = TestOpenVSP()
+    t.setUpClass()
     t.test_parse_degen_geom()
     t.test_degen_geom()
     t.test_parasite_drag()
