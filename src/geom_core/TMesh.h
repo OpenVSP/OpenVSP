@@ -56,7 +56,9 @@ public:
     }
     ~TetraMassProp()        {}
 
-    void SetPointMass( double massIn, const vec3d& posIn );           // For Point Mass
+    void SetDistributedMass( double massIn, const vec3d& cgIn, const double & IxxIn, const double & IyyIn, const double & IzzIn,
+                                                               const double & IxyIn, const double & IxzIn, const double & IyzIn,
+                                                               Matrix4d transMatIn );
 
     vec3d m_v0;
     vec3d m_v1;

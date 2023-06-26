@@ -208,31 +208,46 @@ TetraMassProp::TetraMassProp( const string& id, double denIn, const vec3d& p0, c
 
 }
 
-
-void TetraMassProp::SetPointMass( double massIn, const vec3d& pos )
+void TetraMassProp::SetDistributedMass( double massIn, const vec3d& cgIn, const double & IxxIn, const double & IyyIn, const double & IzzIn,
+                                                                          const double & IxyIn, const double & IxzIn, const double & IyzIn, Matrix4d transMatIn )
 {
     m_CompId = "NONE";
     m_Density = 0.0;
-    m_CG = pos;
+    m_CG = transMatIn.xform( cgIn );
     m_Vol  = 0.0;
     m_Mass = massIn;
 
-    m_Ixx = 0.0;
-    m_Iyy = 0.0;
-    m_Izz = 0.0;
+    double Idat[16];
+    Matrix4d::setIdentity( Idat );
 
-    m_Ixy = 0.0;
-    m_Iyz = 0.0;
-    m_Ixz = 0.0;
+    Idat[0] = IxxIn;
+    Idat[5] = IyyIn;
+    Idat[10] = IzzIn;
 
+    Idat[4] = Idat[1] = -IxyIn;
+    Idat[8] = Idat[2] = -IxzIn;
+    Idat[9] = Idat[6] = -IyzIn;
+
+    Matrix4d Imat;
+    Imat.initMat( Idat );
+
+    transMatIn.zeroTranslations();
+    transMatIn.affineInverse();
+
+    Imat.matMult( transMatIn );
+    transMatIn.affineInverse();
+    Imat.postMult( transMatIn );
+
+    Imat.getMat( Idat );
+
+    m_Ixx = Idat[0];
+    m_Iyy = Idat[5];
+    m_Izz = Idat[10];
+
+    m_Ixy = -Idat[1];
+    m_Ixz = -Idat[2];
+    m_Iyz = -Idat[6];
 }
-
-
-
-
-
-
-
 
 //=======================================================================//
 //=======================================================================//

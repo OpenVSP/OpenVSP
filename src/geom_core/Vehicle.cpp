@@ -4671,16 +4671,23 @@ string Vehicle::MassProps( int set, int numSlices, int idir, bool hidegeom, bool
             Geom* geom_ptr = FindGeom( geom_vec[i] );
             if ( geom_ptr )
             {
-                if ( geom_ptr->GetSetFlag( set ) && geom_ptr->GetType().m_Type == BLANK_GEOM_TYPE )
+                if ( geom_ptr->GetSetFlag( set ) )
                 {
-                    BlankGeom* BGeom = ( BlankGeom* ) geom_ptr;
-
-                    if ( BGeom->m_PointMassFlag() )
+                    if ( geom_ptr->m_PointMass() != 0.0 )
                     {
-                        TetraMassProp* pm = new TetraMassProp(); // Deleted by mesh_ptr
-                        pm->SetPointMass( BGeom->m_PointMass(), BGeom->getModelMatrix().getTranslation() );
-                        pm->m_CompId = BGeom->GetID();
-                        mesh_ptr->AddPointMass( pm );
+                        vector <Matrix4d> tmv = geom_ptr->GetTransMatVec();
+
+                        for ( int j = 0; j < tmv.size(); j++ )
+                        {
+                            TetraMassProp *pm = new TetraMassProp(); // Deleted by mesh_ptr
+
+                            pm->SetDistributedMass( geom_ptr->m_PointMass(),
+                                                    vec3d( geom_ptr->m_CGx(), geom_ptr->m_CGy(), geom_ptr->m_CGz()),
+                                                    geom_ptr->m_Ixx(), geom_ptr->m_Iyy(), geom_ptr->m_Izz(),
+                                                    geom_ptr->m_Ixy(), geom_ptr->m_Ixz(), geom_ptr->m_Iyz(), tmv[ j ] );
+                            pm->m_CompId = geom_ptr->GetID();
+                            mesh_ptr->AddPointMass( pm );
+                        }
                         
                     }
                 }
