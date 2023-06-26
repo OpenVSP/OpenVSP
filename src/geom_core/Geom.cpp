@@ -1194,6 +1194,18 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_ShellFlag.Init( "Shell_Flag", "Mass_Props", this, false, 0, 1 );
     m_ShellFlag.SetDescript("Flag to turn on/off area-based mass contribution");
 
+    m_PointMass.Init( "PointMass", "Mass_Props", this, 0, 0,1e12 );
+    m_CGx.Init( "CGx", "Mass_Props", this, 0, -1e12, 1e12 );
+    m_CGy.Init( "CGy", "Mass_Props", this, 0, -1e12, 1e12 );
+    m_CGz.Init( "CGz", "Mass_Props", this, 0, -1e12, 1e12 );
+    m_Ixx.Init( "Ixx", "Mass_Props", this, 0, 0, 1e12 );
+    m_Iyy.Init( "Iyy", "Mass_Props", this, 0, 0, 1e12 );
+    m_Izz.Init( "Izz", "Mass_Props", this, 0, 0, 1e12 );
+    m_Ixy.Init( "Ixy", "Mass_Props", this, 0, -1e12, 1e12 );
+    m_Ixz.Init( "Ixz", "Mass_Props", this, 0, -1e12, 1e12 );
+    m_Iyz.Init( "Iyz", "Mass_Props", this, 0, -1e12, 1e12 );
+
+
     // Negative Volume Properties
     m_NegativeVolumeFlag.Init( "Negative_Volume_Flag", "Negative_Volume_Props", this, false, 0, 1);
 

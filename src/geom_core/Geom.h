@@ -601,6 +601,16 @@ public:
     Parm     m_Density;
     Parm     m_MassArea;
     BoolParm m_ShellFlag;
+    Parm     m_PointMass;
+    Parm     m_CGx;
+    Parm     m_CGy;
+    Parm     m_CGz;
+    Parm     m_Ixx;
+    Parm     m_Iyy;
+    Parm     m_Izz;
+    Parm     m_Ixy;
+    Parm     m_Ixz;
+    Parm     m_Iyz;
 
     //==== Negative Volume Properties (GUI Purposes) ====//
     BoolParm m_NegativeVolumeFlag;
