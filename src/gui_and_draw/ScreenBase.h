@@ -186,11 +186,10 @@ public:
 
     //==== Group Layouts ====//
     GroupLayout m_GenLayout;
-    GroupLayout m_Density;
-    GroupLayout m_Shell;
 
     GroupLayout m_XFormLayout;
     GroupLayout m_SubSurfLayout;
+    GroupLayout m_MassPropLayout;
 
     GroupLayout m_SymmLayout;
     GroupLayout m_AttachLayout;
@@ -205,12 +204,6 @@ public:
     //==== Tessellation ====//
     SliderInput m_NumUSlider;
     SliderInput m_NumWSlider;
-
-    //==== Mass Props ====//
-    Input m_DensityInput;
-    Input m_ShellMassAreaInput;
-    ToggleButton m_ThinShellButton;
-    Counter m_PriorCounter;
 
     //==== Negative Volume Props ====//
     ToggleButton m_NegativeVolumeBtn;
@@ -375,6 +368,27 @@ public:
     SliderAdjRangeInput m_SSFLineUEndSlider;
     SliderAdjRangeInput m_SSFLineWStartSlider;
     SliderAdjRangeInput m_SSFLineWEndSlider;
+
+    //======Mass Prop Tab=====//
+    int m_MassPropTab_ind;
+
+    Input m_DensityInput;
+    Input m_ShellMassAreaInput;
+    ToggleButton m_ThinShellButton;
+    Counter m_PriorCounter;
+
+    SliderAdjRangeInput m_MassSlider;
+
+    SliderAdjRangeInput m_CGxSlider;
+    SliderAdjRangeInput m_CGySlider;
+    SliderAdjRangeInput m_CGzSlider;
+
+    SliderAdjRangeInput m_IxxSlider;
+    SliderAdjRangeInput m_IyySlider;
+    SliderAdjRangeInput m_IzzSlider;
+    SliderAdjRangeInput m_IxySlider;
+    SliderAdjRangeInput m_IxzSlider;
+    SliderAdjRangeInput m_IyzSlider;
 
 protected:
     bool m_RotActive;

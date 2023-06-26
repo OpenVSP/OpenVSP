@@ -285,10 +285,13 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     Fl_Group* gen_tab = AddTab( "Gen" );
     Fl_Group* xform_tab = AddTab( "XForm" );
+    Fl_Group* massprop_tab = AddTab( "Mass" );
     Fl_Group* subsurf_tab = AddTab( "Sub" );
+    m_MassPropTab_ind = m_TabGroupVec.size() - 2;
     m_SubSurfTab_ind = m_TabGroupVec.size() - 1;
     Fl_Group* gen_group = AddSubGroup( gen_tab, 5 );
     Fl_Group* xform_group = AddSubGroup( xform_tab, 5 );
+    Fl_Group* massprop_group = AddSubGroup( massprop_tab, 5 );
     Fl_Group* subsurf_group = AddSubGroup( subsurf_tab, 5 );
 
     // Identify the Geom type name:
@@ -322,22 +325,6 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_GenLayout.AddSlider( m_NumUSlider, "Num_U", 100, " %5.0f" );
     m_GenLayout.AddSlider( m_NumWSlider, "Num_W", 100, " %5.0f" );
 
-    m_GenLayout.AddYGap();
-    m_GenLayout.AddDividerBox( "Mass Properties" );
-
-    //==== Two Columns ====//
-    m_GenLayout.AddSubGroupLayout( m_Density, gen_group->w() / 2 - 2, 2 * m_GenLayout.GetStdHeight() );
-    m_GenLayout.AddX( gen_group->w() / 2 + 2 );
-    m_GenLayout.AddSubGroupLayout( m_Shell,   gen_group->w() / 2 - 2, 2 * m_GenLayout.GetStdHeight() );
-
-    m_Density.AddInput( m_DensityInput, "Density", " %7.5f" );
-    m_Density.AddCounter( m_PriorCounter, "Priority" );
-
-    m_Shell.AddButton( m_ThinShellButton, "Thin Shell" );
-    m_Shell.AddInput( m_ShellMassAreaInput, "Mass/Area", " %7.5f" );
-
-    m_GenLayout.ForceNewLine();
-    m_GenLayout.AddY( m_GenLayout.GetStdHeight() );
     m_GenLayout.AddYGap();
 
     //=== Negative Volumes ===//
@@ -823,6 +810,40 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSFLineGroup.AddSlider( m_SSFLineWEndSlider, "W End", 1, "%7.6f" );
 
     m_RotActive = true;
+
+    //=============== MassProp Tab ===================//
+    m_MassPropLayout.SetGroupAndScreen( massprop_group, this );
+
+    m_MassPropLayout.AddDividerBox( "Volume-Based Mass Properties" );
+
+    m_MassPropLayout.AddInput( m_DensityInput, "Density", " %7.6f" );
+    m_MassPropLayout.AddCounter( m_PriorCounter, "Priority" );
+
+    m_MassPropLayout.AddYGap();
+    m_MassPropLayout.AddDividerBox( "OML-Based Mass Properties" );
+
+    m_MassPropLayout.AddButton( m_ThinShellButton, "Include Thin Shell" );
+    m_MassPropLayout.AddInput( m_ShellMassAreaInput, "Mass/Area", " %7.6f" );
+
+    m_MassPropLayout.AddYGap();
+    m_MassPropLayout.AddDividerBox( "Specified Mass Properties" );
+
+    m_MassPropLayout.AddSlider( m_MassSlider, "Mass ", 100, "%7.6f" );
+    m_MassPropLayout.AddYGap();
+
+    m_MassPropLayout.AddSlider( m_CGxSlider, "X CG", 1e4, "%7.6f" );
+    m_MassPropLayout.AddSlider( m_CGySlider, "Y CG", 1e4, "%7.6f" );
+    m_MassPropLayout.AddSlider( m_CGzSlider, "Z CG", 1e4, "%7.6f" );
+    m_MassPropLayout.AddYGap();
+
+    m_MassPropLayout.AddSlider( m_IxxSlider, "Ixx", 100, "%7.6f" );
+    m_MassPropLayout.AddSlider( m_IyySlider, "Iyy", 100, "%7.6f" );
+    m_MassPropLayout.AddSlider( m_IzzSlider, "Izz", 100, "%7.6f" );
+    m_MassPropLayout.AddYGap();
+
+    m_MassPropLayout.AddSlider( m_IxySlider, "Ixy", 100, "%7.6f" );
+    m_MassPropLayout.AddSlider( m_IxzSlider, "Ixz", 100, "%7.6f" );
+    m_MassPropLayout.AddSlider( m_IyzSlider, "Iyz", 100, "%7.6f" );
 }
 
 bool GeomScreen::Update()
@@ -919,12 +940,6 @@ bool GeomScreen::Update()
     m_YZSymToggle.Update( geom_ptr->m_SymPlanFlag.GetID() );
     m_AxialToggleGroup.Update( geom_ptr->m_SymAxFlag.GetID() );
     m_AxialNSlider.Update( geom_ptr->m_SymRotN.GetID() );
-
-    //==== Mass Props ====//
-    m_DensityInput.Update( geom_ptr->m_Density.GetID() );
-    m_ShellMassAreaInput.Update( geom_ptr->m_MassArea.GetID() );
-    m_ThinShellButton.Update( geom_ptr->m_ShellFlag.GetID() );
-    m_PriorCounter.Update( geom_ptr->m_MassPrior.GetID() );
 
     //==== Negative Volume Props ====/
     m_NegativeVolumeBtn.Update(geom_ptr->m_NegativeVolumeFlag.GetID());
@@ -1294,6 +1309,23 @@ bool GeomScreen::Update()
 
     m_SubSurfBrowser->hposition( h_pos );
     m_SubSurfBrowser->position( v_pos );
+
+    //================= Mass Prop Tab =======================//
+    m_DensityInput.Update( geom_ptr->m_Density.GetID() );
+    m_ShellMassAreaInput.Update( geom_ptr->m_MassArea.GetID() );
+    m_ThinShellButton.Update( geom_ptr->m_ShellFlag.GetID() );
+    m_PriorCounter.Update( geom_ptr->m_MassPrior.GetID() );
+
+    m_MassSlider.Update( geom_ptr->m_PointMass.GetID() );
+    m_CGxSlider.Update( geom_ptr->m_CGx.GetID() );
+    m_CGySlider.Update( geom_ptr->m_CGy.GetID() );
+    m_CGzSlider.Update( geom_ptr->m_CGz.GetID() );
+    m_IxxSlider.Update( geom_ptr->m_Ixx.GetID() );
+    m_IyySlider.Update( geom_ptr->m_Iyy.GetID() );
+    m_IzzSlider.Update( geom_ptr->m_Izz.GetID() );
+    m_IxySlider.Update( geom_ptr->m_Ixy.GetID() );
+    m_IxzSlider.Update( geom_ptr->m_Ixz.GetID() );
+    m_IyzSlider.Update( geom_ptr->m_Iyz.GetID() );
 
     return true;
 }
