@@ -30,6 +30,7 @@ public:
 
     void rotatealongX( const vec3d & dir1 );
 
+    void zeroTranslations();
     void affineInverse();
     void scale( const double &scale );
 
