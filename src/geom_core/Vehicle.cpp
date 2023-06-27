@@ -4686,6 +4686,7 @@ string Vehicle::MassProps( int set, int numSlices, int idir, bool hidegeom, bool
                                                     geom_ptr->m_Ixx(), geom_ptr->m_Iyy(), geom_ptr->m_Izz(),
                                                     geom_ptr->m_Ixy(), geom_ptr->m_Ixz(), geom_ptr->m_Iyz(), tmv[ j ] );
                             pm->m_CompId = geom_ptr->GetID();
+                            pm->m_Name = geom_ptr->GetName() + "_pm_" + to_string( j );
                             mesh_ptr->AddPointMass( pm );
                         }
                         

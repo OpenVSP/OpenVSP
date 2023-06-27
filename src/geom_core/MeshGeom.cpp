@@ -3481,20 +3481,10 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
     if ( !degen )
     {
 
-        for ( int i = 0; i < m_PointMassVec.size(); i++ )
+        for ( i = 0; i < m_PointMassVec.size(); i++ )
         {
             id_vec.push_back( m_PointMassVec[ i ]->m_CompId );
-
-            Geom *geom = m_Vehicle->FindGeom( m_PointMassVec[ i ]->m_CompId );
-            if ( geom )
-            {
-                name_vec.push_back( geom->GetName());
-            }
-            else
-            {
-                name_vec.push_back( "" );
-            }
-
+            name_vec.push_back( m_PointMassVec[ i ]->m_Name );
             mass_vec.push_back( m_PointMassVec[ i ]->m_Mass );
             cg_vec.push_back( m_PointMassVec[ i ]->m_CG );
             ixx_vec.push_back( m_PointMassVec[ i ]->m_Ixx );

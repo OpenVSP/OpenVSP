@@ -66,6 +66,7 @@ public:
     vec3d m_v3;
 
     string m_CompId;
+    string m_Name;
 
     vec3d m_CG;
 
