@@ -15,7 +15,7 @@ void Matrix4d::loadIdentity()
     setIdentity( mat );
 }
 
-void Matrix4d::setIdentity( double* m ) const
+void Matrix4d::setIdentity( double* m )
 {
     for ( int i = 0 ; i < 4 ; i++ )
         for ( int j = 0 ; j < 4 ; j++ )

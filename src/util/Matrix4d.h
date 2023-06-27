@@ -20,7 +20,7 @@ public:
     Matrix4d();
 
     void loadIdentity();
-    void setIdentity( double* m ) const;
+    static void setIdentity( double* m );
     void translatef( const double &x, const double &y, const double &z );
     void translatev( const vec3d &v );
     void rotateX( const double &ang );
