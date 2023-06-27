@@ -3408,13 +3408,17 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
                     compIxy += tet->m_Ixy + tet->m_Mass * x * y;
                     compIxz += tet->m_Ixz + tet->m_Mass * x * z;
                     compIyz += tet->m_Iyz + tet->m_Mass * y * z;
-                    compSolidIxx += tet->m_Ixx + tet->m_Vol * ((y * y) + (z * z));
-                    compSolidIyy += tet->m_Iyy + tet->m_Vol * ((x * x) + (z * z));
-                    compSolidIzz += tet->m_Izz + tet->m_Vol * ((x * x) + (y * y));
 
-                    compSolidIxy += tet->m_Ixy + tet->m_Vol * x * y;
-                    compSolidIxz += tet->m_Ixz + tet->m_Vol * x * z;
-                    compSolidIyz += tet->m_Iyz + tet->m_Vol * y * z;
+                    if ( tet->m_Vol > 0.0 )
+                    {
+                        compSolidIxx += tet->m_Ixx + tet->m_Vol * ((y * y) + (z * z));
+                        compSolidIyy += tet->m_Iyy + tet->m_Vol * ((x * x) + (z * z));
+                        compSolidIzz += tet->m_Izz + tet->m_Vol * ((x * x) + (y * y));
+
+                        compSolidIxy += tet->m_Ixy + tet->m_Vol * x * y;
+                        compSolidIxz += tet->m_Ixz + tet->m_Vol * x * z;
+                        compSolidIyz += tet->m_Iyz + tet->m_Vol * y * z;
+                    }
                 }
             }
         }
