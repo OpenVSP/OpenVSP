@@ -5357,11 +5357,11 @@ void Vehicle::CreateDegenGeom( int set )
             if( geom_vec[i]->GetType().m_Type == BLANK_GEOM_TYPE )
             {
                 BlankGeom *g = (BlankGeom*) geom_vec[i];
-                if( g->m_BlankPointMassFlag() )
+                if( g->m_PointMass() != 0.0 )
                 {
                     DegenPtMass pm;
                     pm.name = g->GetName();
-                    pm.mass = g->m_BlankPointMass();
+                    pm.mass = g->m_PointMass();
                     pm.x = g->getModelMatrix().getTranslation();
                     pm.geom_id = g->GetID();
                     m_DegenPtMassVec.push_back( pm );

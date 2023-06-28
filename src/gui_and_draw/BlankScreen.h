@@ -19,10 +19,6 @@ public:
 
 protected:
 
-    GroupLayout m_MassLayout;
-    ToggleButton m_PointMassButton;
-    Input m_MassInput;
-
 };
 
 

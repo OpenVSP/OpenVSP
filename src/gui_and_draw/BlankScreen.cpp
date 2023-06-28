@@ -13,24 +13,7 @@
 //==== Constructor ====//
 BlankScreen::BlankScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Blank" )
 {
-    Fl_Group* mass_tab = AddTab( "Mass" );
-    Fl_Group* mass_group = AddSubGroup( mass_tab, 5 );
-
-    m_MassLayout.SetGroupAndScreen( mass_group, this );
-
-    m_MassLayout.AddDividerBox( "Point Mass" );
-    m_MassLayout.AddYGap();
-
-    m_MassLayout.SetFitWidthFlag( false );
-    m_MassLayout.SetSameLineFlag( true );
-    m_MassLayout.SetButtonWidth( 100 );
-    m_MassLayout.AddButton( m_PointMassButton, "Point Mass" );
-    m_MassLayout.SetButtonWidth( 50 );
-    m_MassLayout.SetInputWidth( m_MassLayout.GetRemainX() - 50 );
-    m_MassLayout.AddInput( m_MassInput, "Mass", " %7.5f" );
-
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
-
 }
 
 
@@ -59,8 +42,6 @@ bool BlankScreen::Update()
     //==== Update Blank Specific Parms ====//
     BlankGeom* blank_geom_ptr = dynamic_cast< BlankGeom* >( geom_ptr );
     assert( blank_geom_ptr );
-    m_PointMassButton.Update( blank_geom_ptr->m_BlankPointMassFlag.GetID() );
-    m_MassInput.Update( blank_geom_ptr->m_BlankPointMass.GetID() );
 
     return true;
 }
