@@ -59,8 +59,8 @@ bool BlankScreen::Update()
     //==== Update Blank Specific Parms ====//
     BlankGeom* blank_geom_ptr = dynamic_cast< BlankGeom* >( geom_ptr );
     assert( blank_geom_ptr );
-    m_PointMassButton.Update( blank_geom_ptr->m_PointMassFlag.GetID() );
-    m_MassInput.Update( blank_geom_ptr->m_PointMass.GetID() );
+    m_PointMassButton.Update( blank_geom_ptr->m_BlankPointMassFlag.GetID() );
+    m_MassInput.Update( blank_geom_ptr->m_BlankPointMass.GetID() );
 
     return true;
 }

@@ -29,8 +29,8 @@ public:
 
     virtual void ReadV2File( xmlNodePtr &root );
 
-    BoolParm m_PointMassFlag;
-    Parm     m_PointMass;
+    BoolParm m_BlankPointMassFlag;
+    Parm     m_BlankPointMass;
 
 protected:
 

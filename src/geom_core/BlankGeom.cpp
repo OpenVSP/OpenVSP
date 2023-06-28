@@ -17,8 +17,8 @@ BlankGeom::BlankGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Type = BLANK_GEOM_TYPE;
 
     // Point Mass Parms
-    m_PointMassFlag.Init( "Point_Mass_Flag", "Mass", this, false, 0, 1 );
-    m_PointMass.Init( "Point_Mass", "Mass", this, 0, 0, 1e12 );
+    m_BlankPointMassFlag.Init( "Point_Mass_Flag", "Mass", this, false, 0, 1 );
+    m_BlankPointMass.Init( "Point_Mass", "Mass", this, 0, 0, 1e12 );
 
     // Disable Parameters that don't make sense for BlankGeom
     m_SymPlanFlag.Deactivate();
@@ -39,13 +39,13 @@ BlankGeom::~BlankGeom()
 
 void BlankGeom::UpdateSurf()
 {
-    if ( m_PointMassFlag.Get() )
+    if ( m_BlankPointMassFlag.Get() )
     {
-        m_PointMass.Activate();
+        m_BlankPointMass.Activate();
     }
     else
     {
-        m_PointMass.Deactivate();
+        m_BlankPointMass.Deactivate();
     }
 }
 
@@ -156,7 +156,7 @@ void BlankGeom::ReadV2File( xmlNodePtr &root )
     xmlNodePtr blank_node = XmlUtil::GetNode( root, "Blank_Parms", 0 );
     if ( blank_node )
     {
-        m_PointMassFlag = XmlUtil::FindInt( blank_node, "PointMassFlag", m_PointMassFlag() );
-        m_PointMass = XmlUtil::FindDouble( blank_node, "PointMass", m_PointMass() );
+        m_BlankPointMassFlag = XmlUtil::FindInt( blank_node, "PointMassFlag", m_BlankPointMassFlag() );
+        m_BlankPointMass = XmlUtil::FindDouble( blank_node, "PointMass", m_BlankPointMass() );
     }
 }
