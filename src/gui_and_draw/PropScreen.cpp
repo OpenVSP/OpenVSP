@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 400+40, 700, "Propeller" )
+PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 700, "Propeller" )
 {
     m_CurrDisplayGroup = NULL;
 

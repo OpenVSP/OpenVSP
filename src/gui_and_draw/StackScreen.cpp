@@ -12,7 +12,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 400, 715, "Stack" )
+StackScreen::StackScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 715, "Stack" )
 {
     m_CurrDisplayGroup = NULL;
 
