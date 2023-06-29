@@ -3746,37 +3746,39 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
 
         if ( tesselate )
         {
-        for ( i = 0 ; i < 10 ; i++ )
-        {
-            double d10 = s1 + del1 * 0.1 * ( double )i;
-            double d11 = s1 + del1 * 0.1 * ( double )( i + 1 );
-
-            for ( j = 0 ; j < 10 ; j++ )
+            int ntess = 10;
+            double ds = 1.0 / (double) ntess;
+            for ( i = 0 ; i < ntess ; i++ )
             {
-                double d20 = s2 + del2 * 0.1 * ( double )j;
-                double d21 = s2 + del2 * 0.1 * ( double )( j + 1 );
+                double d10 = s1 + del1 * ds * ( double )i;
+                double d11 = s1 + del1 * ds * ( double )( i + 1 );
 
-                vec3d p1, p2, p3, p4;
-                p1[swdir] = sw;
-                p1[dir1] = d10;
-                p1[dir2] = d20;
+                for ( j = 0 ; j < ntess ; j++ )
+                {
+                    double d20 = s2 + del2 * ds * ( double )j;
+                    double d21 = s2 + del2 * ds * ( double )( j + 1 );
 
-                p2[swdir] = sw;
-                p2[dir1] = d11;
-                p2[dir2] = d20;
+                    vec3d p1, p2, p3, p4;
+                    p1[swdir] = sw;
+                    p1[dir1] = d10;
+                    p1[dir2] = d20;
 
-                p3[swdir] = sw;
-                p3[dir1] = d11;
-                p3[dir2] = d21;
+                    p2[swdir] = sw;
+                    p2[dir1] = d11;
+                    p2[dir2] = d20;
 
-                p4[swdir] = sw;
-                p4[dir1] = d10;
-                p4[dir2] = d21;
+                    p3[swdir] = sw;
+                    p3[dir1] = d11;
+                    p3[dir2] = d21;
 
-                tm->AddTri( p1, p2, p3, n );
-                tm->AddTri( p1, p3, p4, n );
+                    p4[swdir] = sw;
+                    p4[dir1] = d10;
+                    p4[dir2] = d21;
+
+                    tm->AddTri( p1, p2, p3, n );
+                    tm->AddTri( p1, p3, p4, n );
+                }
             }
-        }
         }
         else
         {
