@@ -831,9 +831,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_MassPropLayout.AddSlider( m_MassSlider, "Mass ", 100, "%7.6f" );
     m_MassPropLayout.AddYGap();
 
-    m_MassPropLayout.AddSlider( m_CGxSlider, "X CG", 1e4, "%7.6f" );
-    m_MassPropLayout.AddSlider( m_CGySlider, "Y CG", 1e4, "%7.6f" );
-    m_MassPropLayout.AddSlider( m_CGzSlider, "Z CG", 1e4, "%7.6f" );
+    m_MassPropLayout.AddSlider( m_CGxSlider, "X CG", 100, "%7.6f" );
+    m_MassPropLayout.AddSlider( m_CGySlider, "Y CG", 100, "%7.6f" );
+    m_MassPropLayout.AddSlider( m_CGzSlider, "Z CG", 100, "%7.6f" );
     m_MassPropLayout.AddYGap();
 
     m_MassPropLayout.AddSlider( m_IxxSlider, "Ixx", 100, "%7.6f" );
