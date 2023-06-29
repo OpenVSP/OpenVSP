@@ -3746,7 +3746,7 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
 
         if ( tesselate )
         {
-            int ntess = 10;
+            int ntess = numSlices;
             double ds = 1.0 / (double) ntess;
             for ( i = 0 ; i < ntess ; i++ )
             {
