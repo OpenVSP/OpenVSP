@@ -13,6 +13,7 @@
 #include "Defines.h"
 #include <cfloat> //For DBL_EPSILON
 #include "Vec3d.h"
+#include "VspUtil.h"
 
 using std::cout;
 using std::endl;
@@ -959,9 +960,9 @@ int plane_ray_intersect( vec3d& orig, vec3d& norm, vec3d& D, vec3d& E, double& t
 //*******       Three Vecs From Common Pnt        ******//
 double tetra_volume( vec3d& A, vec3d& B, vec3d& C )
 {
-    double determ = A.v[0] * B.v[1] * C.v[2] + B.v[0] * C.v[1] * A.v[2]
-                    + C.v[0] * A.v[1] * B.v[2] - C.v[0] * B.v[1] * A.v[2]
-                    - B.v[0] * A.v[1] * C.v[2] - A.v[0] * C.v[1] * B.v[2];
+    vector < double > dt = { A.v[0] * B.v[1] * C.v[2], B.v[0] * C.v[1] * A.v[2], C.v[0] * A.v[1] * B.v[2], - C.v[0] * B.v[1] * A.v[2], - B.v[0] * A.v[1] * C.v[2], - A.v[0] * C.v[1] * B.v[2] };
+
+    double determ = compsum( dt );
 
     return( determ / 6.0 );
 }

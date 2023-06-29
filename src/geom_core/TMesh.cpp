@@ -28,7 +28,7 @@
 
 #include "triangle.h"
 #include "triangle_api.h"
-
+#include "VspUtil.h"
 
 #include <math.h>
 
@@ -184,27 +184,30 @@ TetraMassProp::TetraMassProp( const string& id, double denIn, const vec3d& p0, c
     m_Vol  = tetra_volume( m_v1, m_v2, m_v3 );
     m_Mass = m_Density * m_Vol;
 
-    double Ix = m_Mass / 10.0 * ( m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() + m_v3.x() * m_v3.x() +
-                                  m_v1.x() * m_v2.x() + m_v1.x() * m_v3.x() + m_v2.x() * m_v3.x() );
+    vector < double > vx = { m_v1.x() * m_v1.x(), m_v2.x() * m_v2.x(), m_v3.x() * m_v3.x(), m_v1.x() * m_v2.x(), m_v1.x() * m_v3.x(), m_v2.x() * m_v3.x() };
+    double Ix = m_Mass / 10.0 * compsum( vx );
 
-    double Iy = m_Mass / 10.0 * ( m_v1.y() * m_v1.y() + m_v2.y() * m_v2.y() + m_v3.y() * m_v3.y() +
-                                  m_v1.y() * m_v2.y() + m_v1.y() * m_v3.y() + m_v2.y() * m_v3.y() );
+    vector < double > vy = { m_v1.y() * m_v1.y(), m_v2.y() * m_v2.y(), m_v3.y() * m_v3.y(), m_v1.y() * m_v2.y(), m_v1.y() * m_v3.y(), m_v2.y() * m_v3.y() };
+    double Iy = m_Mass / 10.0 * compsum( vy );
 
-    double Iz = m_Mass / 10.0 * ( m_v1.z() * m_v1.z() + m_v2.z() * m_v2.z() + m_v3.z() * m_v3.z() +
-                                  m_v1.z() * m_v2.z() + m_v1.z() * m_v3.z() + m_v2.z() * m_v3.z() );
+    vector < double > vz = { m_v1.z() * m_v1.z(), m_v2.z() * m_v2.z(), m_v3.z() * m_v3.z(), m_v1.z() * m_v2.z(), m_v1.z() * m_v3.z(), m_v2.z() * m_v3.z() };
+    double Iz = m_Mass / 10.0 * compsum( vz );
 
     m_Ixx = Iy + Iz;
     m_Iyy = Ix + Iz;
     m_Izz = Ix + Iy;
 
-    m_Ixy = m_Mass / 20.0 * ( 2.0 * ( m_v1.x() * m_v1.y() + m_v2.x() * m_v2.y() + m_v3.x() * m_v3.y() ) +
-                              m_v1.x() * m_v2.y() + m_v2.x() * m_v1.y() + m_v1.x() * m_v3.y() + m_v3.x() * m_v1.y() + m_v2.x() * m_v3.y() + m_v3.x() * m_v2.y() );
+    vector < double > vxy1 = { m_v1.x() * m_v1.y(), m_v2.x() * m_v2.y(), m_v3.x() * m_v3.y() };
+    vector < double > vxy2 = { m_v1.x() * m_v2.y(), m_v2.x() * m_v1.y(), m_v1.x() * m_v3.y(), m_v3.x() * m_v1.y(), m_v2.x() * m_v3.y(), m_v3.x() * m_v2.y() };
+    m_Ixy = m_Mass / 20.0 * ( 2.0 * compsum( vxy1 ) + compsum( vxy2 ) );
 
-    m_Iyz = m_Mass / 20.0 * ( 2.0 * ( m_v1.y() * m_v1.z() + m_v2.y() * m_v2.z() + m_v3.y() * m_v3.z() ) +
-                              m_v1.y() * m_v2.z() + m_v2.y() * m_v1.z() + m_v1.y() * m_v3.z() + m_v3.y() * m_v1.z() + m_v2.y() * m_v3.z() + m_v3.y() * m_v2.z() );
+    vector < double > vyz1 = { m_v1.y() * m_v1.z(), m_v2.y() * m_v2.z(), m_v3.y() * m_v3.z() };
+    vector < double > vyz2 = { m_v1.y() * m_v2.z(), m_v2.y() * m_v1.z(), m_v1.y() * m_v3.z(), m_v3.y() * m_v1.z(), m_v2.y() * m_v3.z(), m_v3.y() * m_v2.z() };
+    m_Iyz = m_Mass / 20.0 * ( 2.0 * compsum( vyz1 ) + compsum( vyz2 ) );
 
-    m_Ixz = m_Mass / 20.0 * ( 2.0 * ( m_v1.x() * m_v1.z() + m_v2.x() * m_v2.z() + m_v3.x() * m_v3.z() ) +
-                              m_v1.x() * m_v2.z() + m_v2.x() * m_v1.z() + m_v1.x() * m_v3.z() + m_v3.x() * m_v1.z() + m_v2.x() * m_v3.z() + m_v3.x() * m_v2.z() );
+    vector < double > vxz1 = { m_v1.x() * m_v1.z(), m_v2.x() * m_v2.z(), m_v3.x() * m_v3.z()};
+    vector < double > vxz2 = { m_v1.x() * m_v2.z(), m_v2.x() * m_v1.z(), m_v1.x() * m_v3.z(), m_v3.x() * m_v1.z(), m_v2.x() * m_v3.z(), m_v3.x() * m_v2.z() };
+    m_Ixz = m_Mass / 20.0 * ( 2.0 * compsum( vxz1 ) + compsum( vxz2 ) );
 
 }
 
@@ -268,27 +271,30 @@ TriShellMassProp::TriShellMassProp( const string& id, double mass_area_in, const
 
     m_Mass = m_TriArea * m_MassArea;
 
-    double Ix = m_Mass / 10.0 * ( m_v0.x() * m_v0.x() + m_v1.x() * m_v1.x() + m_v2.x() * m_v2.x() +
-                                  m_v0.x() * m_v1.x() + m_v0.x() * m_v2.x() + m_v1.x() * m_v2.x() );
+    vector < double > vx = { m_v0.x() * m_v0.x(), m_v1.x() * m_v1.x(), m_v2.x() * m_v2.x(), m_v0.x() * m_v1.x(), m_v0.x() * m_v2.x(), m_v1.x() * m_v2.x() };
+    double Ix = m_Mass / 10.0 * compsum( vx );
 
-    double Iy = m_Mass / 10.0 * ( m_v0.y() * m_v0.y() + m_v1.y() * m_v1.y() + m_v2.y() * m_v2.y() +
-                                  m_v0.y() * m_v1.y() + m_v0.y() * m_v2.y() + m_v1.y() * m_v2.y() );
+    vector < double > vy = { m_v0.y() * m_v0.y(), m_v1.y() * m_v1.y(), m_v2.y() * m_v2.y(), m_v0.y() * m_v1.y(), m_v0.y() * m_v2.y(), m_v1.y() * m_v2.y() };
+    double Iy = m_Mass / 10.0 * compsum( vy );
 
-    double Iz = m_Mass / 10.0 * ( m_v0.z() * m_v0.z() + m_v1.z() * m_v1.z() + m_v2.z() * m_v2.z() +
-                                  m_v0.z() * m_v1.z() + m_v0.z() * m_v2.z() + m_v1.z() * m_v2.z() );
+    vector < double > vz = {m_v0.z() * m_v0.z(), m_v1.z() * m_v1.z(), m_v2.z() * m_v2.z(), m_v0.z() * m_v1.z(), m_v0.z() * m_v2.z(), m_v1.z() * m_v2.z() };
+    double Iz = m_Mass / 10.0 * compsum( vz );
 
     m_Ixx = Iy + Iz;
     m_Iyy = Ix + Iz;
     m_Izz = Ix + Iy;
 
-    m_Ixy = m_Mass / 20.0 * ( 2.0 * ( m_v0.x() * m_v0.y() + m_v1.x() * m_v1.y() + m_v2.x() * m_v2.y() ) +
-                              m_v0.x() * m_v1.y() + m_v1.x() * m_v0.y() + m_v0.x() * m_v2.y() + m_v2.x() * m_v0.y() + m_v1.x() * m_v2.y() + m_v2.x() * m_v1.y() );
+    vector < double > vxy1 = { m_v0.x() * m_v0.y(), m_v1.x() * m_v1.y(), m_v2.x() * m_v2.y() };
+    vector < double > vxy2 = { m_v0.x() * m_v1.y(), m_v1.x() * m_v0.y(), m_v0.x() * m_v2.y(), m_v2.x() * m_v0.y(), m_v1.x() * m_v2.y(), m_v2.x() * m_v1.y() };
+    m_Ixy = m_Mass / 20.0 * ( 2.0 * compsum( vxy1 ) + compsum( vxy2 ) );
 
-    m_Iyz = m_Mass / 20.0 * ( 2.0 * ( m_v0.y() * m_v0.z() + m_v1.y() * m_v1.z() + m_v2.y() * m_v2.z() ) +
-                              m_v0.y() * m_v1.z() + m_v1.y() * m_v0.z() + m_v0.y() * m_v2.z() + m_v2.y() * m_v0.z() + m_v1.y() * m_v2.z() + m_v2.y() * m_v1.z() );
+    vector < double > vyz1 = { m_v0.y() * m_v0.z(), m_v1.y() * m_v1.z(), m_v2.y() * m_v2.z() };
+    vector < double > vyz2 = { m_v0.y() * m_v1.z(), m_v1.y() * m_v0.z(), m_v0.y() * m_v2.z(), m_v2.y() * m_v0.z(), m_v1.y() * m_v2.z(), m_v2.y() * m_v1.z() };
+    m_Iyz = m_Mass / 20.0 * ( 2.0 * compsum( vyz1 ) + compsum( vyz2 ) );
 
-    m_Ixz = m_Mass / 20.0 * ( 2.0 * ( m_v0.x() * m_v0.z() + m_v1.x() * m_v1.z() + m_v2.x() * m_v2.z() ) +
-                              m_v0.x() * m_v1.z() + m_v1.x() * m_v0.z() + m_v0.x() * m_v2.z() + m_v2.x() * m_v0.z() + m_v1.x() * m_v2.z() + m_v2.x() * m_v1.z() );
+    vector < double > vxz1 = { m_v0.x() * m_v0.z(), m_v1.x() * m_v1.z(), m_v2.x() * m_v2.z() };
+    vector < double > vxz2 = { m_v0.x() * m_v1.z(), m_v1.x() * m_v0.z(), m_v0.x() * m_v2.z(), m_v2.x() * m_v0.z(), m_v1.x() * m_v2.z(), m_v2.x() * m_v1.z() };
+    m_Ixz = m_Mass / 20.0 * ( 2.0 * compsum( vxz1 ) + compsum( vxz2 ) );
 
 
 }

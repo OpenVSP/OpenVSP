@@ -3117,7 +3117,6 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
     }
 
     double totalVol = 0.0;
-    vec3d cg( 0, 0, 0 );
 
     vector < double > mass_fill_vec;
     vector < vec3d > cg_fill_vec;
@@ -3228,29 +3227,52 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
             tetraVecVec[ jpointmass ].push_back( m_PointMassVec[ i ] );
         }
 
+        int ntet = 0;
+        for ( j = 0; j < tetraVecVec.size(); j++ )
+        {
+            ntet += tetraVecVec[ j ].size();
+        }
+        int nshell = triShellVec.size();
+
+        vector < double > dv( ntet );
+        int k = 0;
         for ( j = 0; j < tetraVecVec.size(); j++ )
         {
             for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
             {
-                totalVol += tetraVecVec[ j ][ i ]->m_Vol;
+                dv[k] = tetraVecVec[ j ][ i ]->m_Vol;
+                k++;
             }
         }
-
+        totalVol = compsum( dv );
+        dv.clear();
 
         m_TotalMass = 0.0;
+        vector < double > dm( ntet + nshell );
+        vec3d cg( 0, 0, 0 );
+        vector < vec3d > dcg( ntet + nshell );
+        k = 0;
         for ( j = 0; j < tetraVecVec.size(); j++ )
         {
             for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
             {
-                m_TotalMass += tetraVecVec[ j ][ i ]->m_Mass;
-                cg = cg + tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Mass;
+                dm[k] = tetraVecVec[ j ][ i ]->m_Mass;
+
+                dcg[k] = tetraVecVec[ j ][ i ]->m_CG * tetraVecVec[ j ][ i ]->m_Mass;
+                k++;
             }
         }
         for ( i = 0; i < ( int ) triShellVec.size(); i++ )
         {
-            m_TotalMass += triShellVec[ i ]->m_Mass;
-            cg = cg + triShellVec[ i ]->m_CG * triShellVec[ i ]->m_Mass;
+            dm[k] = triShellVec[ i ]->m_Mass;
+
+            dcg[k] = triShellVec[ i ]->m_CG * triShellVec[ i ]->m_Mass;
+            k++;
         }
+        m_TotalMass = compsum( dm );
+        dm.clear();
+        cg = compsum( dcg );
+        dcg.clear();
 
         if ( m_TotalMass )
         {
@@ -3261,6 +3283,13 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
 
         m_TotalIxx = m_TotalIyy = m_TotalIzz = 0.0;
         m_TotalIxy = m_TotalIxz = m_TotalIyz = 0.0;
+        vector < double > dIxx( ntet + nshell );
+        vector < double > dIyy( ntet + nshell );
+        vector < double > dIzz( ntet + nshell );
+        vector < double > dIxy( ntet + nshell );
+        vector < double > dIxz( ntet + nshell );
+        vector < double > dIyz( ntet + nshell );
+        k = 0;
         for ( j = 0; j < tetraVecVec.size(); j++ )
         {
             for ( i = 0; i < ( int ) tetraVecVec[ j ].size(); i++ )
@@ -3269,13 +3298,15 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
                 double x = cg.x() - tet->m_CG.x();
                 double y = cg.y() - tet->m_CG.y();
                 double z = cg.z() - tet->m_CG.z();
-                m_TotalIxx += tet->m_Ixx + tet->m_Mass * ((y * y) + (z * z));
-                m_TotalIyy += tet->m_Iyy + tet->m_Mass * ((x * x) + (z * z));
-                m_TotalIzz += tet->m_Izz + tet->m_Mass * ((x * x) + (y * y));
 
-                m_TotalIxy += tet->m_Ixy + tet->m_Mass * x * y;
-                m_TotalIxz += tet->m_Ixz + tet->m_Mass * x * z;
-                m_TotalIyz += tet->m_Iyz + tet->m_Mass * y * z;
+                dIxx[k] = tet->m_Ixx + tet->m_Mass * ((y * y) + (z * z));
+                dIyy[k] = tet->m_Iyy + tet->m_Mass * ((x * x) + (z * z));
+                dIzz[k] = tet->m_Izz + tet->m_Mass * ((x * x) + (y * y));
+
+                dIxy[k] = tet->m_Ixy + tet->m_Mass * x * y;
+                dIxz[k] = tet->m_Ixz + tet->m_Mass * x * z;
+                dIyz[k] = tet->m_Iyz + tet->m_Mass * y * z;
+                k++;
             }
         }
         for ( i = 0; i < ( int ) triShellVec.size(); i++ )
@@ -3284,14 +3315,29 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
             double x = cg.x() - trs->m_CG.x();
             double y = cg.y() - trs->m_CG.y();
             double z = cg.z() - trs->m_CG.z();
-            m_TotalIxx += trs->m_Ixx + trs->m_Mass * ((y * y) + (z * z));
-            m_TotalIyy += trs->m_Iyy + trs->m_Mass * ((x * x) + (z * z));
-            m_TotalIzz += trs->m_Izz + trs->m_Mass * ((x * x) + (y * y));
 
-            m_TotalIxy += trs->m_Ixy + trs->m_Mass * x * y;
-            m_TotalIxz += trs->m_Ixz + trs->m_Mass * x * z;
-            m_TotalIyz += trs->m_Iyz + trs->m_Mass * y * z;
+            dIxx[k] = trs->m_Ixx + trs->m_Mass * ((y * y) + (z * z));
+            dIyy[k] = trs->m_Iyy + trs->m_Mass * ((x * x) + (z * z));
+            dIzz[k] = trs->m_Izz + trs->m_Mass * ((x * x) + (y * y));
+
+            dIxy[k] = trs->m_Ixy + trs->m_Mass * x * y;
+            dIxz[k] = trs->m_Ixz + trs->m_Mass * x * z;
+            dIyz[k] = trs->m_Iyz + trs->m_Mass * y * z;
+            k++;
         }
+        m_TotalIxx = compsum( dIxx );
+        m_TotalIyy = compsum( dIyy );
+        m_TotalIzz = compsum( dIzz );
+        m_TotalIxy = compsum( dIxy );
+        m_TotalIxz = compsum( dIxz );
+        m_TotalIyz = compsum( dIyz );
+
+        dIxx.clear();
+        dIyy.clear();
+        dIzz.clear();
+        dIxy.clear();
+        dIxz.clear();
+        dIyz.clear();
     }
 
     vector < string > name_vec;
@@ -3317,7 +3363,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
         id_vec.push_back( id );
 
         double compVol = 0.0;
-        cg = vec3d( 0, 0, 0 );
+        vec3d cg = vec3d( 0, 0, 0 );
         double compMass = 0.0;
         vec3d cgSolid( 0, 0, 0 ), cgShell( 0, 0, 0 );
         double compVolSolid = 0.0, compAreaShell = 0.0;
