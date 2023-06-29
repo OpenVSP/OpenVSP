@@ -3809,8 +3809,6 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
 //==== Create a Prism Made of Tetras - Extrude Tri +- len/2 ====//
 void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir  )
 {
-    vec3d cnt = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt + tri->m_N2->m_Pnt ) * ( 1.0 / 3.0 );
-
     vec3d p0 = tri->m_N0->m_Pnt;
     vec3d p1 = tri->m_N1->m_Pnt;
     vec3d p2 = tri->m_N2->m_Pnt;
@@ -3825,14 +3823,9 @@ void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, doubl
     p4.offset_i( -len / 2.0, idir );
     p5.offset_i( -len / 2.0, idir );
 
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p0, p1, p2 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p3, p5, p4 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p0, p3, p1 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p3, p4, p1 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p1, p4, p2 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p4, p5, p2 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p0, p2, p3 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p3, p2, p5 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, p0, p2, p1, p3 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, p2, p3, p5, p1 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, p5, p3, p4, p1 ) );
 }
 
 //==== Check Current Geom For Problems ====//
