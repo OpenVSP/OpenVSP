@@ -3666,6 +3666,7 @@ void MeshGeom::MassSlice( vector < DegenGeom > &degenGeom, bool degen, int numSl
 double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicevec, bool mpslice, bool tesselate, bool autoBounds, double start, double end, int slctype )
 {
     int s, i, j;
+    double offset = 0.0001; // Amount to extend slicing bounds.
 
     int dir1, dir2;
     if ( swdir == vsp::X_DIR )
@@ -3688,13 +3689,20 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
     double swMax;
     if ( autoBounds )
     {
-        swMin = m_BBox.GetMin( swdir ) - 0.0001;
-        swMax = m_BBox.GetMax( swdir ) + 0.0001;
+        swMin = m_BBox.GetMin( swdir ) - offset;
+        swMax = m_BBox.GetMax( swdir ) + offset;
     }
     else
     {
-        swMin = start - 0.0001;
-        swMax = end + 0.0001;
+        swMin = start - offset;
+        swMax = end + offset;
+    }
+
+    // MassProp slice always uses autobounds.  Does not need offset because slices are later shifted by width/2.
+    if ( mpslice )
+    {
+        swMin = m_BBox.GetMin( swdir );
+        swMax = m_BBox.GetMax( swdir );
     }
 
     double sliceW;
