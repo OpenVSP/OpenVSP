@@ -144,3 +144,23 @@ int toint( double x )
 {
     return x >= 0 ? (int)( x + 0.5 ) : (int)( x - 0.5 );
 }
+
+// Simple implementation required for vec3d
+// More complex templated implementation requires branching based on the magnitude of values.
+// This does not make sense for a vec3d.
+vec3d compsum( const vector < vec3d > &x )
+{
+    vec3d e; // constructor must set to zero
+    vec3d sum;
+
+    for ( int i = 0; i < x.size(); i++ )
+    {
+        vec3d d = x[ i ] + e;
+        vec3d n = sum + d;
+        e = d - ( n - sum );
+        sum = n;
+    }
+    sum += e;
+
+    return sum;
+}
