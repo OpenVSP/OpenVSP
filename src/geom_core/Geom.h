@@ -792,6 +792,7 @@ protected:
     vector<DrawObj> m_WireShadeDrawObj_vec;
     vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;
+    DrawObj m_PtMassCGDrawObj;
     vector<DrawObj> m_AxisDrawObj_vec;
     vector<DrawObj> m_DegenPlateDrawObj_vec;
     vector<DrawObj> m_DegenSurfDrawObj_vec;

@@ -71,11 +71,20 @@ void BlankGeom::UpdateDrawObj()
     m_HighlightDrawObj.m_PntVec.clear();
     m_HighlightDrawObj.m_PointSize = 10.0;
 
+    m_PtMassCGDrawObj.m_PntVec.clear();
+    m_PtMassCGDrawObj.m_GeomChanged = true;
+
     for ( int j = 0; j < m_TransMatVec.size(); j++ )
     {
         vec3d blankOrigin = m_TransMatVec[ j ].getTranslation();
 
         m_HighlightDrawObj.m_PntVec.push_back( blankOrigin );
+
+        if ( m_PointMass() > 0.0 )
+        {
+            vec3d cg = m_TransMatVec[ j ].xform( vec3d( m_CGx(), m_CGy(), m_CGz() ) );
+            m_PtMassCGDrawObj.m_PntVec.push_back( cg );
+        }
 
         for ( int i = 0; i < 3; i++ )
         {
@@ -115,6 +124,13 @@ void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
         m_HighlightDrawObj.m_Type = DrawObj::VSP_POINTS;
         draw_obj_vec.push_back( &m_HighlightDrawObj) ;
 
+        m_PtMassCGDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_PtMassCGDrawObj.m_GeomID = m_ID + string( "PtMassCG" );
+        m_PtMassCGDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        m_PtMassCGDrawObj.m_PointSize = 10.0;
+        m_PtMassCGDrawObj.m_PointColor = vec3d( 0, 0, 1 );
+        m_PtMassCGDrawObj.m_Type = DrawObj::VSP_POINTS;
+        draw_obj_vec.push_back( &m_PtMassCGDrawObj );
 
         for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
         {
