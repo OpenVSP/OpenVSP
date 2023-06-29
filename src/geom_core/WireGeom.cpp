@@ -26,6 +26,17 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_MassArea.Deactivate();
     m_MassPrior.Deactivate();
 
+    m_PointMass.Deactivate();
+    m_CGx.Deactivate();
+    m_CGy.Deactivate();
+    m_CGz.Deactivate();
+    m_Ixx.Deactivate();
+    m_Iyy.Deactivate();
+    m_Izz.Deactivate();
+    m_Ixy.Deactivate();
+    m_Ixz.Deactivate();
+    m_Iyz.Deactivate();
+
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
 

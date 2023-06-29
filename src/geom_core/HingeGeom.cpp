@@ -66,10 +66,22 @@ HingeGeom::HingeGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_SymPlanFlag.Deactivate();
     m_SymAxFlag.Deactivate();
     m_SymRotN.Deactivate();
+
     m_Density.Deactivate();
     m_ShellFlag.Deactivate();
     m_MassArea.Deactivate();
     m_MassPrior.Deactivate();
+
+    m_PointMass.Deactivate();
+    m_CGx.Deactivate();
+    m_CGy.Deactivate();
+    m_CGz.Deactivate();
+    m_Ixx.Deactivate();
+    m_Iyy.Deactivate();
+    m_Izz.Deactivate();
+    m_Ixy.Deactivate();
+    m_Ixz.Deactivate();
+    m_Iyz.Deactivate();
 
     Update();
 }
