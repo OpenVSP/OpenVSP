@@ -15,6 +15,7 @@ PtCloudScreen::PtCloudScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Poi
 {
 
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
+    RemoveTab( GetTab( m_MassPropTab_ind ) );
 
     Fl_Group* project_tab = AddTab( "Project" );
     Fl_Group* project_group = AddSubGroup( project_tab, 5 );

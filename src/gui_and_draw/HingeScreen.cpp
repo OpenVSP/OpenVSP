@@ -272,7 +272,7 @@ HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Hinge" 
     m_MotionLayout.ForceNewLine();
 
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
-
+    RemoveTab( GetTab( m_MassPropTab_ind ) );
 }
 
 

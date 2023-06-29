@@ -15,6 +15,7 @@ WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Wireframe
 {
 
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
+    RemoveTab( GetTab( m_MassPropTab_ind ) );
 
     Fl_Group* wire_tab = AddTab( "WireFrame" );
     Fl_Group* wire_group = AddSubGroup( wire_tab, 5 );

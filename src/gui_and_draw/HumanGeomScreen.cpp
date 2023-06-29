@@ -162,6 +162,7 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657, 
     m_PoseLayout.AddSlider( m_KneeLtSlider, "Knee ", 100, "%7.3f" );
     m_PoseLayout.AddSlider( m_AnkleLtSlider, "Ankle", 100, "%7.3f" );
 
+    RemoveTab( GetTab( m_SubSurfTab_ind ) );
 }
 
 
