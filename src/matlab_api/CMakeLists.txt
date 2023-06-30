@@ -18,24 +18,25 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
       set(LIBXML2_LIBRARIES ${LIBXML2_LIBRARY})
     endif()
     
-    INCLUDE_DIRECTORIES( ${VSP_SOURCE_DIR}
-        ${Matlab_INCLUDE_DIRS}
-        ${UTIL_INCLUDE_DIR}
-        ${GEOM_CORE_INCLUDE_DIR}
-        ${GEOM_API_INCLUDE_DIR}
-        ${GUI_AND_DRAW_INCLUDE_DIR}
-        ${TRIANGLE_INCLUDE_DIR}
-        ${NANOFLANN_INCLUDE_DIR}
+    INCLUDE_DIRECTORIES(
         ${CLIPPER_INCLUDE_DIR}
-        ${CPPTEST_INCLUDE_DIR}
-        ${XMLVSP_INCLUDE_DIR}
-        ${CPPTEST_INCLUDE_DIR}
-        ${FLTK_INCLUDE_DIR}
-        ${LIBXML2_INCLUDE_DIR}
-        ${EIGEN3_INCLUDE_DIR}
         ${CodeEli_INCLUDE_DIRS}
-        ${STEPCODE_INCLUDE_DIR}
+        ${CPPTEST_INCLUDE_DIR}
+        ${CPPTEST_INCLUDE_DIR}
+        ${EIGEN3_INCLUDE_DIR}
+        ${FLTK_INCLUDE_DIR}
+        ${GEOM_API_INCLUDE_DIR}
+        ${GEOM_CORE_INCLUDE_DIR}
+        ${GUI_AND_DRAW_INCLUDE_DIR}
         ${LIBIGES_INCLUDE_DIR}
+        ${LIBXML2_INCLUDE_DIR}
+        ${Matlab_INCLUDE_DIRS}
+        ${NANOFLANN_INCLUDE_DIR}
+        ${STEPCODE_INCLUDE_DIR}
+        ${TRIANGLE_INCLUDE_DIR}
+        ${UTIL_INCLUDE_DIR}
+        ${XMLVSP_INCLUDE_DIR}
+        ${VSP_SOURCE_DIR}
      )
 
     # TODO get both Matrix.h files included in vspMATLAB_wrap.cxx

@@ -10,60 +10,60 @@ INCLUDE( SetupC++11 )
 
 INCLUDE( ExternalProject )
 
-IF( NOT VSP_USE_SYSTEM_CPPTEST )
-	INCLUDE( External_CppTest )
+IF( NOT VSP_USE_SYSTEM_ADEPT2 )
+	INCLUDE( External_Adept2 )
 ENDIF()
 
-IF( NOT VSP_USE_SYSTEM_LIBXML2 )
-	INCLUDE( External_LibXml2 )
-ENDIF()
-
-IF( NOT VSP_USE_SYSTEM_EIGEN )
-	INCLUDE( External_Eigen )
+IF( NOT VSP_USE_SYSTEM_CMINPACK )
+	INCLUDE( External_CMinpack )
 ENDIF()
 
 IF( NOT VSP_USE_SYSTEM_CODEELI )
 	INCLUDE( External_CodeEli )
 ENDIF()
 
-IF( NOT VSP_USE_SYSTEM_CMINPACK )
-    INCLUDE( External_CMinpack )
+IF( NOT VSP_USE_SYSTEM_CPPTEST )
+	INCLUDE( External_CppTest )
+ENDIF()
+
+IF( NOT VSP_USE_SYSTEM_EIGEN )
+	INCLUDE( External_Eigen )
 ENDIF()
 
 IF( NOT VSP_USE_SYSTEM_LIBIGES )
-    INCLUDE( External_libIGES )
+	INCLUDE( External_libIGES )
+ENDIF()
+
+IF( NOT VSP_USE_SYSTEM_LIBXML2 )
+	INCLUDE( External_LibXml2 )
 ENDIF()
 
 IF( NOT VSP_USE_SYSTEM_STEPCODE )
     INCLUDE( External_STEPCode )
 ENDIF()
 
+IF( NOT VSP_USE_SYSTEM_TRIANGLE )
+	INCLUDE( External_Triangle )
+ENDIF()
+
 IF( NOT VSP_NO_GRAPHICS )
-	IF( NOT VSP_USE_SYSTEM_FLTK )
-		INCLUDE( External_FLTK )
+	IF( NOT NOREGEXP )
+		IF ( NOT VSP_USE_SYSTEM_EXPRPARSE )
+			INCLUDE( External_exprparse )
+		ENDIF()
 	ENDIF()
 
-	IF( NOT VSP_USE_SYSTEM_GLM )
-		INCLUDE( External_GLM )
+	IF( NOT VSP_USE_SYSTEM_FLTK )
+		INCLUDE( External_FLTK )
 	ENDIF()
 
 	IF( NOT VSP_USE_SYSTEM_GLEW )
 		INCLUDE( External_GLEW )
 	ENDIF()
 
-	IF( NOT NOREGEXP )
-		IF ( NOT VSP_USE_SYSTEM_EXPRPARSE )
-			INCLUDE( External_exprparse )
-		ENDIF()
+	IF( NOT VSP_USE_SYSTEM_GLM )
+		INCLUDE( External_GLM )
 	ENDIF()
-ENDIF()
-
-IF( NOT VSP_USE_SYSTEM_TRIANGLE )
-	INCLUDE( External_Triangle )
-ENDIF()
-
-IF( NOT VSP_USE_SYSTEM_ADEPT2 )
-	INCLUDE( External_Adept2 )
 ENDIF()
 
 # Set targeted variables in file to be read by VSP's CMake
