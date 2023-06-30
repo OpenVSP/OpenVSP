@@ -19,6 +19,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         ${CodeEli_INCLUDE_DIRS}
         ${CPPTEST_INCLUDE_DIR}
         ${CPPTEST_INCLUDE_DIR}
+        ${DELABELLA_INCLUDE_DIR}
         ${EIGEN3_INCLUDE_DIR}
         ${FLTK_INCLUDE_DIR}
         ${GEOM_API_INCLUDE_DIR}
@@ -92,6 +93,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         ${STEPCODE_LIBRARIES}
         ${LIBIGES_LIBRARIES}
         ${TRIANGLE_LIBRARIES}
+        ${DELABELLA_LIBRARIES}
     )
 
     CONFIGURE_FILE(packages/openvsp/setup.py.in python/packages/openvsp/setup.py)
