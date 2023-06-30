@@ -116,6 +116,9 @@
    - [exprparse](http://github.com/amgary/exprparse) - A simple c++ library to
     compute values from simple math expressions stored as strings.
 
+   - [delabella](https://github.com/msokalski/delabella) - A c++ Delaunay
+   triangulation library.
+
 ##### Bundled with OpenVSP.
 
    - [AngelScript](http://www.angelcode.com/angelscript) - Embedded scripting
@@ -254,6 +257,7 @@
       - 'CMINPACK_INSTALL_DIR'
       - 'CODEELI_INSTALL_DIR'
       - 'CPPTEST_INSTALL_DIR'
+      - 'DELABELLA_INSTALL_DIR'
       - 'EIGEN_INSTALL_DIR'
       - 'EXPRPARSE_INSTALL_DIR'
       - 'FLTK_INSTALL_DIR'
@@ -276,6 +280,7 @@
       - 'VSP_USE_SYSTEM_CMINPACK'
       - 'VSP_USE_SYSTEM_CODEELI'
       - 'VSP_USE_SYSTEM_CPPTEST'
+      - 'VSP_USE_SYSTEM_DELABELLA'
       - 'VSP_USE_SYSTEM_EIGEN'
       - 'VSP_USE_SYSTEM_EXPRPARSE'
       - 'VSP_USE_SYSTEM_FLTK'
