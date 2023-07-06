@@ -733,10 +733,16 @@ void TMesh::Split()
     int t;
     for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
-        bool erf = m_TVec[t]->SplitTri();
+        //printf( "Splitting tri %d\n", t );
+        bool dumpCase = false;
+        if ( false && t == 198 )
+        {
+            dumpCase = true;
+        }
+        bool erf = m_TVec[ t ]->SplitTri( dumpCase );
         if ( !erf )
         {
-            printf( "Fail in triangle %d\n", t );
+//            printf( "Fail in triangle %d\n", t );
         }
     }
 }
@@ -1572,7 +1578,7 @@ bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
 #define ON_EDGE_TOL 1e-5
 
 //==== Split A Triangle Along Edges in ISectEdges Vec =====//
-bool TTri::SplitTri()
+bool TTri::SplitTri( bool dumpCase )
 {
     bool erflag = true;
     int i, j;
@@ -1946,7 +1952,7 @@ bool TTri::SplitTri()
 
 
     //==== Use Triangle to Split Tri ====//
-    TriangulateSplit( flattenAxis, ptvec );
+    TriangulateSplit( flattenAxis, ptvec, dumpCase );
 
     CleanupEdgeVec();
 
@@ -1970,12 +1976,12 @@ bool TTri::SplitTri()
     return erflag;
 }
 
-void TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > & ptvec )
+void TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase )
 {
-    TriangulateSplit_DBA( flattenAxis, ptvec );
+    TriangulateSplit_DBA( flattenAxis, ptvec, dumpCase );
 }
 
-void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > & ptvec )
+void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > & ptvec, bool dumpCase )
 {
     int i, j;
 
@@ -2258,7 +2264,7 @@ int errlog(void* stream, const char* fmt, ...)
     return ret;
 }
 
-void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec )
+void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec, bool dumpCase )
 {
     int i, j;
 
@@ -2306,10 +2312,18 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec
         }
     }
 
-    IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
-    // idb->SetErrLog( errlog, stdout );
+    FILE * fpdump = NULL;
+    if ( dumpCase )
+    {
+        fpdump = fopen( "dumpcase.txt", "w" );
 
-    int verts = idb->Triangulate( npt, &cloud->x, &cloud->y, sizeof( dba_point ) );
+        fprintf( fpdump, "%d\n", npt );
+        for ( j = 0; j < npt; j++ )
+        {
+            fprintf( fpdump, "%d %.18e %.18e\n", j, cloud[ j ].x, cloud[ j ].y );
+        }
+    }
+
 
     int nedg = m_EVec.size();
 
@@ -2321,6 +2335,22 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec
         bounds[i].b = m_EVec[i]->m_N1->m_ID;
     }
 
+    if ( dumpCase )
+    {
+        fprintf( fpdump, "%d\n", nedg );
+
+        for ( i = 0 ; i < ( int )nedg ; i++ )
+        {
+            fprintf( fpdump, "%d %d %d\n", i, bounds[i].a, bounds[i].b );
+        }
+        fclose( fpdump );
+    }
+
+
+    IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
+    // idb->SetErrLog( errlog, stdout );
+
+    int verts = idb->Triangulate( npt, &cloud->x, &cloud->y, sizeof( dba_point ) );
 
     if ( verts > 0 )
     {
@@ -3841,8 +3871,8 @@ void TMesh::StressTest()
                 t1->m_ISectEdgeVec.push_back( ie1 );
             }
         }
-        t0->SplitTri();
-        t1->SplitTri();
+        t0->SplitTri( false );
+        t1->SplitTri( false );
 
         delete t0->m_N0;
         delete t0->m_N1;
