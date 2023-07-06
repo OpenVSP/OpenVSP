@@ -1,0 +1,15 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+
+INCLUDE_DIRECTORIES(
+        ${DELABELLA_INCLUDE_DIR}
+)
+
+ADD_EXECUTABLE( dba_test
+        dba_test.cpp
+)
+
+TARGET_LINK_LIBRARIES( dba_test
+        ${DELABELLA_LIBRARIES}
+)
+
+
