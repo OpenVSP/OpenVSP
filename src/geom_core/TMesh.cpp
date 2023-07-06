@@ -1901,12 +1901,19 @@ void TTri::SplitTri()
         }
     }
 
+    vector < vec3d > ptvec( m_NVec.size() );
+
     //==== Determine Which Axis to Flatten ====//
     Matrix4d rot_mat;
     int flattenAxis = 0;
     if ( uwflag )
     {
         flattenAxis = 2;
+
+        for ( unsigned int n=0; n < m_NVec.size(); n++ )
+        {
+            ptvec[n] = m_NVec[n]->m_Pnt;
+        }
     }
     else
     {
@@ -1922,7 +1929,7 @@ void TTri::SplitTri()
 
         for ( unsigned int n=0; n < m_NVec.size(); n++ )
         {
-            m_NVec[n]->m_Pnt = rot_mat.xform(m_NVec[n]->m_Pnt);
+            ptvec[n] = rot_mat.xform(m_NVec[n]->m_Pnt);
         }
     }
 
@@ -1933,19 +1940,10 @@ void TTri::SplitTri()
 
 
     //==== Use Triangle to Split Tri ====//
-    TriangulateSplit( flattenAxis );
+    TriangulateSplit( flattenAxis, ptvec );
 
     CleanupEdgeVec();
 
-    if ( !uwflag )
-    {
-        // Rotate Points Back
-        rot_mat.affineInverse();
-        for ( unsigned int n=0; n < m_NVec.size(); n++ )
-        {
-            m_NVec[n]->m_Pnt = rot_mat.xform(m_NVec[n]->m_Pnt);
-        }
-    }
 
     //=== Orient Tris to Match Normal ====//
     for ( i = 0 ; i < ( int )m_SplitVec.size() ; i++ )
@@ -1965,14 +1963,16 @@ void TTri::SplitTri()
     }
 }
 
-void TTri::TriangulateSplit( int flattenAxis )
+void TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > & ptvec )
 {
-    TriangulateSplit_DBA( flattenAxis );
+    TriangulateSplit_DBA( flattenAxis, ptvec );
 }
 
-void TTri::TriangulateSplit_TRI( int flattenAxis )
+void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > & ptvec )
 {
     int i, j;
+
+    int npt = ptvec.size();
 
     //==== Dump Into Triangle ====//
     context* ctx;
@@ -2012,9 +2012,9 @@ void TTri::TriangulateSplit_TRI( int flattenAxis )
 
     //==== Find Bounds of NVec ====//
     BndBox box;
-    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
+    for ( j = 0 ; j < npt ; j++ )
     {
-        box.Update( m_NVec[j]->m_Pnt );
+        box.Update( ptvec[j] );
     }
 
     vec3d center = box.GetCenter();
@@ -2025,9 +2025,9 @@ void TTri::TriangulateSplit_TRI( int flattenAxis )
     double sz = max( box.GetMax( 2 ) - box.GetMin( 2 ), min_s );
 
     int cnt = 0;
-    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
+    for ( j = 0 ; j < npt ; j++ )
     {
-        vec3d pnt = m_NVec[j]->m_Pnt - center;
+        vec3d pnt = ptvec[j] - center;
         pnt.scale_x( 1.0 / sx );
         pnt.scale_y( 1.0 / sy );
         pnt.scale_z( 1.0 / sz );
@@ -2143,9 +2143,9 @@ void TTri::TriangulateSplit_TRI( int flattenAxis )
         cnt = 0;
         for ( i = 0; i < out.numberoftriangles; i++ )
         {
-            if ( out.trianglelist[cnt] < (int)m_NVec.size() &&
-                out.trianglelist[cnt + 1] < (int)m_NVec.size() &&
-                out.trianglelist[cnt + 2] < (int)m_NVec.size() )
+            if ( out.trianglelist[cnt] < npt &&
+                out.trianglelist[cnt + 1] < npt &&
+                out.trianglelist[cnt + 2] < npt )
             {
                 TTri* t = new TTri( m_TMesh );
                 t->m_N0 = m_NVec[out.trianglelist[cnt]];
@@ -2251,20 +2251,20 @@ int errlog(void* stream, const char* fmt, ...)
     return ret;
 }
 
-void TTri::TriangulateSplit_DBA( int flattenAxis )
+void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec )
 {
     int i, j;
 
-    int npt = m_NVec.size();
+    int npt = ptvec.size();
 
     dba_point* cloud = new dba_point[npt];
 
 
     //==== Find Bounds of NVec ====//
     BndBox box;
-    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
+    for ( j = 0 ; j < npt ; j++ )
     {
-        box.Update( m_NVec[j]->m_Pnt );
+        box.Update( ptvec[j] );
         m_NVec[j]->m_ID = j;
     }
 
@@ -2275,9 +2275,9 @@ void TTri::TriangulateSplit_DBA( int flattenAxis )
     double sy = max( box.GetMax( 1 ) - box.GetMin( 1 ), min_s );
     double sz = max( box.GetMax( 2 ) - box.GetMin( 2 ), min_s );
 
-    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
+    for ( j = 0 ; j < npt ; j++ )
     {
-        vec3d pnt = m_NVec[j]->m_Pnt - center;
+        vec3d pnt = ptvec[j] - center;
         pnt.scale_x( 1.0 / sx );
         pnt.scale_y( 1.0 / sy );
         pnt.scale_z( 1.0 / sz );

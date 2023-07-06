@@ -221,9 +221,9 @@ public:
     virtual bool CleanupEdgeVec();
     virtual void CopyFrom( const TTri* tri );
     virtual void SplitTri();              // Split Tri to Fit ISect Edges
-    virtual void TriangulateSplit( int flattenAxis );
-    virtual void TriangulateSplit_TRI( int flattenAxis );
-    virtual void TriangulateSplit_DBA( int flattenAxis );
+    virtual void TriangulateSplit( int flattenAxis, const vector < vec3d > & ptvec );
+    virtual void TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > & ptvec );
+    virtual void TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec );
     virtual vec3d ComputeCenter()
     {
         return ( m_N0->m_Pnt + m_N1->m_Pnt + m_N2->m_Pnt ) / 3.0;
