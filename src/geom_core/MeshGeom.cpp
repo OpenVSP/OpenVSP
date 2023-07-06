@@ -1878,6 +1878,8 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     UpdateBBox();
     m_LastScale = 1.0;
     m_Scale = 1000.0 / m_BBox.GetLargestDist();
+    printf("Scale factor %.12e\n", m_Scale() );
+    // m_Scale = 1.0;
     ApplyScale();
 
     if ( !degen )

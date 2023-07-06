@@ -733,7 +733,11 @@ void TMesh::Split()
     int t;
     for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
-        m_TVec[t]->SplitTri();
+        bool erf = m_TVec[t]->SplitTri();
+        if ( !erf )
+        {
+            printf( "Fail in triangle %d\n", t );
+        }
     }
 }
 
@@ -1568,8 +1572,9 @@ bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
 #define ON_EDGE_TOL 1e-5
 
 //==== Split A Triangle Along Edges in ISectEdges Vec =====//
-void TTri::SplitTri()
+bool TTri::SplitTri()
 {
+    bool erflag = true;
     int i, j;
     double onEdgeTol = ON_EDGE_TOL; // was 1e-5
     double uvMinTol  = 1e-3; // was 1e-3
@@ -1578,7 +1583,7 @@ void TTri::SplitTri()
     //==== No Need To Split ====//
     if ( m_ISectEdgeVec.size() == 0 )
     {
-        return;
+        return erflag;
     }
 
     //==== Delete Duplicate Edges ====//
@@ -1647,6 +1652,7 @@ void TTri::SplitTri()
     {
         pVec[i * 2] = m_ISectEdgeVec[i]->m_N0->GetXYZPnt();
         pVec[i * 2 + 1] = m_ISectEdgeVec[i]->m_N1->GetXYZPnt();
+
         uwVec[i * 2] =  m_ISectEdgeVec[i]->m_N0->GetUWPnt();
         uwVec[i * 2 + 1] =  m_ISectEdgeVec[i]->m_N1->GetUWPnt();
     }
@@ -1961,6 +1967,7 @@ void TTri::SplitTri()
             t->m_N2 = tmp;
         }
     }
+    return erflag;
 }
 
 void TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > & ptvec )
@@ -2326,11 +2333,22 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec
         {
             for ( j = 0; j < 3; j++ )
             {
-                vec3d p = m_NVec[ dela->v[ j ]->i ]->m_Pnt;
-                if ( !box.CheckPnt( p ) )
+                if ( dela->v[ j ]->i >= npt || dela->v[ j ]->i < 0 )
                 {
-                    printf( "Point outside of box.\n" );
+                    printf( "Invalid index.\n" );
                 }
+
+                if ( m_NVec[ dela->v[ j ]->i ]->m_ID != dela->v[ j ]->i )
+                {
+                    printf( "Non-matching index.\n" );
+                }
+
+                vec3d p = m_NVec[ dela->v[ j ]->i ]->m_Pnt;
+//                if ( !box.CheckPnt( p ) )
+//                {
+//                    printf( "Point outside of box.\n" );
+//                }
+
             }
 
 

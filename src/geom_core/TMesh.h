@@ -220,7 +220,7 @@ public:
 
     virtual bool CleanupEdgeVec();
     virtual void CopyFrom( const TTri* tri );
-    virtual void SplitTri();              // Split Tri to Fit ISect Edges
+    virtual bool SplitTri();              // Split Tri to Fit ISect Edges
     virtual void TriangulateSplit( int flattenAxis, const vector < vec3d > & ptvec );
     virtual void TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > & ptvec );
     virtual void TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec );
