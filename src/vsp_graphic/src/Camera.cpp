@@ -130,8 +130,8 @@ void Camera::changeView( Common::VSPenum type )
 void Camera::_calculateProjection()
 {
     float range = 0;
-    int w = _vWidth / 2;
-    int h = _vHeight / 2;
+    float w = _vWidth / 2.0;
+    float h = _vHeight / 2.0;
 
     switch( _projectionType )
     {
