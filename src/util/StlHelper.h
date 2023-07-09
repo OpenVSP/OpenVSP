@@ -94,6 +94,22 @@ void vector_remove_vector( vector< T > & vec, const vector< T > & rem_vec )
     }
 }
 
+template <class T>
+int vector_find_minimum( const vector < T > & vec )
+{
+    int imin = 0;
+    T vmin = vec[imin];
+    for ( int i = 1; i < vec.size(); i++ )
+    {
+        if ( vec[i] < vmin )
+        {
+            imin = i;
+            vmin = vec[imin];
+        }
+    }
+    return imin;
+}
+
 //==== Find Index of Vector Where Val =====//
 template <class T>
 int vector_find_val( const vector< T > & vec, T const & val )
