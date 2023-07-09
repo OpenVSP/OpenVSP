@@ -32,6 +32,7 @@
 #include "VspUtil.h"
 
 #include "delabella.h"
+#include "StlHelper.h"
 
 #include <math.h>
 
@@ -1952,7 +1953,9 @@ bool TTri::SplitTri( bool dumpCase )
 
 
     //==== Use Triangle to Split Tri ====//
-    TriangulateSplit( flattenAxis, ptvec, dumpCase );
+    bool match = TriangulateSplit( flattenAxis, ptvec, dumpCase );
+
+    erflag = !match;
 
     CleanupEdgeVec();
 
@@ -2068,8 +2071,28 @@ void TTri::SortConnList( vector < vector < int > > & cl )
 
 bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase )
 {
+    vector < vector < int > > othercl;
     vector < vector < int > > cl_DBA;
-    TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA );
+    TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA, othercl );
+    OrientConnList( cl_DBA );
+    SortConnList( cl_DBA );
+
+    vector < vector < int > > cl_TRI;
+    TriangulateSplit_TRI( flattenAxis, ptvec, false, cl_TRI );
+    OrientConnList( cl_TRI );
+    SortConnList( cl_TRI );
+
+    bool match = CompConnList( cl_TRI, cl_DBA );
+
+    if ( !match )
+    {
+        TriangulateSplit_DBA( flattenAxis, ptvec, true, cl_DBA, cl_TRI );
+    }
+    else
+    {
+        printf( "Matching result!\n" );
+    }
+
     int ntri = cl_DBA.size();
     for ( int i = 0; i < ntri; i++ )
     {
@@ -2081,6 +2104,8 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
         t->m_Norm = m_Norm;
         m_SplitVec.push_back( t );
     }
+
+    return match;
 }
 
 void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
@@ -2366,8 +2391,9 @@ int errlog(void* stream, const char* fmt, ...)
 }
 
 void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
-                                 vector < vector < int > > & connlist )
+                                 vector < vector < int > > & connlist, const vector < vector < int > > & otherconnlist  )
 {
+    static int idump = 0;
     int i, j;
 
     int npt = ptvec.size();
@@ -2417,7 +2443,9 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     FILE * fpdump = NULL;
     if ( dumpCase )
     {
-        fpdump = fopen( "dumpcase.txt", "w" );
+        string fname = string( "dlbtest_" ) + to_string( idump ) + string( ".txt" );
+        fpdump = fopen( fname.c_str(), "w" );
+        idump++;
 
         fprintf( fpdump, "%d\n", npt );
         for ( j = 0; j < npt; j++ )
@@ -2445,7 +2473,6 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
         {
             fprintf( fpdump, "%d %d %d\n", i, bounds[i].a, bounds[i].b );
         }
-        fclose( fpdump );
     }
 
 
@@ -2508,6 +2535,30 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     delete[] bounds;
 
     idb->Destroy();
+
+
+    if ( dumpCase )
+    {
+        OrientConnList( connlist );
+        SortConnList( connlist );
+
+        fprintf( fpdump, "DLB\n" );
+        fprintf( fpdump, "%d\n", connlist.size() );
+        for ( int i = 0; i < connlist.size(); i++ )
+        {
+            fprintf( fpdump, "%d %d %d %d\n", i, connlist[i][0], connlist[i][1], connlist[i][2] );
+        }
+
+        fprintf( fpdump, "TRI\n" );
+        fprintf( fpdump, "%d\n", otherconnlist.size() );
+        for ( int i = 0; i < otherconnlist.size(); i++ )
+        {
+            fprintf( fpdump, "%d %d %d %d\n", i, otherconnlist[i][0], otherconnlist[i][1], otherconnlist[i][2] );
+        }
+
+
+        fclose( fpdump );
+    }
 }
 
 bool TTri::InTri( const vec3d & p )

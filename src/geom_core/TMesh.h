@@ -222,15 +222,17 @@ public:
     virtual void CopyFrom( const TTri* tri );
     virtual bool SplitTri( bool dumpCase );              // Split Tri to Fit ISect Edges
 
-    virtual void TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase );
-    virtual void TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > & ptvec, bool dumpCase );
-    virtual void TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec, bool dumpCase );
     virtual void OrientTri( vector < int > & tri );
     virtual void OrientConnList( vector < vector < int > > & cl );
     virtual bool CompConnList( const vector < vector < int > > & cla, const vector < vector < int > > & clb );
     virtual void SortTri( vector < int > & tri );
     virtual void SortConnList( vector < vector < int > > & cl );
 
+    virtual bool TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase );
+    virtual void TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
+                                       vector < vector < int > > & connlist );
+    virtual void TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
+                                       vector < vector < int > > & connlist, const vector < vector < int > > & otherconnlist );
     virtual vec3d ComputeCenter()
     {
         return ( m_N0->m_Pnt + m_N1->m_Pnt + m_N2->m_Pnt ) / 3.0;
