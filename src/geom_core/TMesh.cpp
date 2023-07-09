@@ -1976,6 +1976,96 @@ bool TTri::SplitTri( bool dumpCase )
     return erflag;
 }
 
+void TTri::OrientTri( vector < int > & tri )
+{
+    vec3d n0 = m_NVec[ tri[0] ]->GetXYZPnt();
+    vec3d n1 = m_NVec[ tri[1] ]->GetXYZPnt();
+    vec3d n2 = m_NVec[ tri[2] ]->GetXYZPnt();
+
+    vec3d d01 = n0 - n1;
+    vec3d d21 = n2 - n1;
+
+    vec3d cx = cross( d21, d01 );
+
+    if ( dot( cx, m_Norm ) < 0.0 )
+    {
+        int tmp = tri[1];
+        tri[1] = tri[2];
+        tri[2] = tmp;
+    }
+}
+
+void TTri::OrientConnList( vector < vector < int > > & cl )
+{
+    for ( int i = 0; i < cl.size(); i++ )
+    {
+        OrientTri( cl[i] );
+    }
+}
+
+bool TTri::CompConnList( const vector < vector < int > > & cla, const vector < vector < int > > & clb )
+{
+    if ( cla.size() != clb.size() )
+    {
+        return false;
+    }
+
+    for ( int i = 0; i < cla.size(); i++ )
+    {
+        if ( cla[i].size() != clb[i].size() )
+        {
+            return false;
+        }
+
+        for ( int j = 0; j < cla[i].size(); j++ )
+        {
+            if ( cla[i][j] != clb[i][j] )
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void TTri::SortTri( vector < int > & tri )
+{
+    int imin = vector_find_minimum( tri );
+    std::rotate( tri.begin(), tri.begin() + imin, tri.end() );
+}
+
+bool clcmp( const vector < int > & a, const vector < int > & b )
+{
+    if ( a.size() == b.size() )
+    {
+        for ( int i = 0; i < a.size(); i++ )
+        {
+            if ( a[i] != b[i] )
+            {
+                return a[i] < b[i];
+            }
+        }
+    }
+    else
+    {
+        return a.size() < b.size();
+    }
+    return a < b;
+}
+
+void TTri::SortConnList( vector < vector < int > > & cl )
+{
+    int ntri = cl.size();
+
+    for ( int itri = 0; itri < ntri; itri++ )
+    {
+        SortTri( cl[itri] );
+    }
+
+    std::sort( cl.begin(), cl.end(), clcmp );
+
+}
+
 bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase )
 {
     vector < vector < int > > cl_DBA;
