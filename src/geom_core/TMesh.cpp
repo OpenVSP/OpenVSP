@@ -1976,12 +1976,25 @@ bool TTri::SplitTri( bool dumpCase )
     return erflag;
 }
 
-void TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase )
+bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase )
 {
-    TriangulateSplit_DBA( flattenAxis, ptvec, dumpCase );
+    vector < vector < int > > cl_DBA;
+    TriangulateSplit_DBA( flattenAxis, ptvec, false, cl_DBA );
+    int ntri = cl_DBA.size();
+    for ( int i = 0; i < ntri; i++ )
+    {
+        TTri* t = new TTri( m_TMesh );
+        t->m_N0 = m_NVec[ cl_DBA[i][0] ];
+        t->m_N1 = m_NVec[ cl_DBA[i][1] ];
+        t->m_N2 = m_NVec[ cl_DBA[i][2] ];
+        t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
+        t->m_Norm = m_Norm;
+        m_SplitVec.push_back( t );
+    }
 }
 
-void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > & ptvec, bool dumpCase )
+void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
+                                 vector < vector < int > > & connlist )
 {
     int i, j;
 
@@ -2152,6 +2165,8 @@ void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > & ptvec
     {
         triangle_mesh_copy( ctx, &out, 1, 1 );
 
+        connlist.resize( out.numberoftriangles );
+
         //==== Load Triangles if No New Point Created ====//
         cnt = 0;
         for ( i = 0; i < out.numberoftriangles; i++ )
@@ -2160,13 +2175,9 @@ void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > & ptvec
                 out.trianglelist[cnt + 1] < npt &&
                 out.trianglelist[cnt + 2] < npt )
             {
-                TTri* t = new TTri( m_TMesh );
-                t->m_N0 = m_NVec[out.trianglelist[cnt]];
-                t->m_N1 = m_NVec[out.trianglelist[cnt + 1]];
-                t->m_N2 = m_NVec[out.trianglelist[cnt + 2]];
-                t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
-                t->m_Norm = m_Norm;
-                m_SplitVec.push_back( t );
+                connlist[i].push_back( out.trianglelist[cnt] );
+                connlist[i].push_back( out.trianglelist[cnt + 1] );
+                connlist[i].push_back( out.trianglelist[cnt + 2] );
             }
             else
             {
@@ -2264,7 +2275,8 @@ int errlog(void* stream, const char* fmt, ...)
     return ret;
 }
 
-void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec, bool dumpCase )
+void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec, bool dumpCase,
+                                 vector < vector < int > > & connlist )
 {
     int i, j;
 
@@ -2359,6 +2371,9 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec
         int tris = idb->FloodFill( false, 0, 1 ); // idb->GetNumPolygons();
 
         const IDelaBella2<double>::Simplex* dela = idb->GetFirstDelaunaySimplex();
+
+        connlist.clear();
+        connlist.resize( tris );
         for ( i = 0; i < tris; i++ )
         {
             for ( j = 0; j < 3; j++ )
@@ -2381,14 +2396,10 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > & ptvec
 
             }
 
-
-            TTri* t = new TTri( m_TMesh );
-            t->m_N0 = m_NVec[ dela->v[ 0 ]->i ];
-            t->m_N1 = m_NVec[ dela->v[ 1 ]->i ];
-            t->m_N2 = m_NVec[ dela->v[ 2 ]->i ];
-            t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
-            t->m_Norm = m_Norm;
-            m_SplitVec.push_back( t );
+            // Note winding order!
+            connlist[i].push_back( dela->v[ 0 ]->i );
+            connlist[i].push_back( dela->v[ 1 ]->i );
+            connlist[i].push_back( dela->v[ 2 ]->i );
 
             dela = dela->next;
         }
