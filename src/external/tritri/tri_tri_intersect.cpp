@@ -254,6 +254,9 @@ int coplanar_tri_tri3d(double p1[3], double q1[3], double r1[3],
    if they are not coplanar.
 */
 
+// NOTE: a faster, but possibly less precise, method of computing
+// point B is described here: https://github.com/erich666/jgt-code/issues/5
+
 #define CONSTRUCT_INTERSECTION(p1,q1,r1,p2,q2,r2) { \
   SUB(v1,q1,p1) \
   SUB(v2,r2,p1) \
