@@ -2086,11 +2086,18 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
 
     if ( !match )
     {
-        TriangulateSplit_DBA( flattenAxis, ptvec, true, cl_DBA, cl_TRI );
+        vector < vector < int > > cl_DBA2;
+        TriangulateSplit_DBA( flattenAxis, ptvec, true, cl_DBA2, cl_TRI );
+
+        bool match2 = CompConnList( cl_DBA, cl_DBA2 );
+        if ( !match2 )
+        {
+            printf( "Subsequent calls to DBA don't match!\n" );
+        }
     }
     else
     {
-        printf( "Matching result!\n" );
+        // printf( "Matching result!\n" );
     }
 
     int ntri = cl_DBA.size();
