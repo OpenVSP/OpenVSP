@@ -1923,6 +1923,12 @@ void TTri::SplitTri()
         }
     }
 
+    if ( m_EVec.size() <= 3 )
+    {
+        return erflag;
+    }
+
+
     //==== Use Triangle to Split Tri ====//
     TriangulateSplit( flattenAxis );
 
