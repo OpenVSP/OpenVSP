@@ -47,7 +47,7 @@ int tri_tri_intersection_test_3d(double p1[3], double q1[3], double r1[3],
 
 int coplanar_tri_tri3d(double  p1[3], double  q1[3], double  r1[3],
            double  p2[3], double  q2[3], double  r2[3],
-           double  N1[3], double  N2[3]);
+           double  N1[3]);
 
 
 // Two dimensional Triangle-Triangle Overlap Test

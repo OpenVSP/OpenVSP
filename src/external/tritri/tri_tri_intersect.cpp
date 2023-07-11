@@ -100,7 +100,7 @@
     else  { \
       if (dr2 > 0.0f) CHECK_MIN_MAX(p1,q1,r1,r2,p2,q2)\
       else if (dr2 < 0.0f) CHECK_MIN_MAX(p1,r1,q1,r2,p2,q2)\
-      else return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1,N2);\
+      else return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1);\
      }}}
   
 
@@ -177,7 +177,7 @@ int tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
     else  {
       if (dr1 > 0.0f) TRI_TRI_3D(r1,p1,q1,p2,q2,r2,dp2,dq2,dr2)
       else if (dr1 < 0.0f) TRI_TRI_3D(r1,p1,q1,p2,r2,q2,dp2,dr2,dq2)
-      else return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1,N2);
+      else return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1);
     }
   }
 };
@@ -186,7 +186,7 @@ int tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3],
 
 int coplanar_tri_tri3d(double p1[3], double q1[3], double r1[3],
            double p2[3], double q2[3], double r2[3],
-           double normal_1[3], double normal_2[3]){
+           double normal_1[3]){
   
   double P1[2],Q1[2],R1[2];
   double P2[2],Q2[2],R2[2];
@@ -352,7 +352,7 @@ int coplanar_tri_tri3d(double p1[3], double q1[3], double r1[3],
       else if (dr2 < 0.0f) CONSTRUCT_INTERSECTION(p1,r1,q1,r2,p2,q2)\
       else { \
         *coplanar = 1; \
-  return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1,N2);\
+  return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1);\
      } \
   }} }
   
@@ -437,7 +437,7 @@ int tri_tri_intersection_test_3d(double p1[3], double q1[3], double r1[3],
   // triangles are co-planar
 
   *coplanar = 1;
-  return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1,N2);
+  return coplanar_tri_tri3d(p1,q1,r1,p2,q2,r2,N1);
       }
     }
   }
