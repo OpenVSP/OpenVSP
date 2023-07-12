@@ -2000,6 +2000,11 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         // Set stability run arguments
         if ( stabilityType != vsp::STABILITY_OFF )
         {
+// Disable "enumeration values not handled in switch" warning
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch"
             switch ( stabilityType )
             {
                 case vsp::STABILITY_DEFAULT:
@@ -2035,6 +2040,8 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
                     args.push_back( "-acstab" );
                     break;
             }
+#pragma GCC diagnostic pop
+#pragma clang diagnostic pop
         }
 
         if ( m_FromSteadyState() )
