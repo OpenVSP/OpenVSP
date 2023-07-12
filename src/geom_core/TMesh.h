@@ -31,6 +31,14 @@
 #include <list>
 using namespace std;            //jrg windows??
 
+//#ifndef DEBUG_TMESH
+//#define DEBUG_TMESH
+//#endif
+
+//#ifndef COMPARE_TRIANGLE
+//#define COMPARE_TRIANGLE
+//#endif
+
 class TEdge;
 class TTri;
 class TBndBox;
