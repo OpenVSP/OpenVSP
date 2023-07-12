@@ -2217,6 +2217,11 @@ void TTri::TriangulateSplit( int flattenAxis )
     triangle_context_destroy( ctx );
 }
 
+bool TTri::InTri( const vec3d & p )
+{
+    return PtInTri( m_N0->m_Pnt, m_N1->m_Pnt, m_N2->m_Pnt, p );
+}
+
 int TTri::OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t )
 {
     //==== Make Sure Not Duplicate Points ====//

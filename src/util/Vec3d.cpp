@@ -1488,6 +1488,33 @@ double poly_area( const vector< vec3d > & pnt_vec )
     return std::abs( total_area );
 }
 
+bool PtInTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p )
+{
+    double tol = 1e-6;
+    vec3d w = BarycentricWeights( v0, v1, v2, p );
+
+    double sum = 0;
+    for ( int i = 0; i < 3; i++ )
+    {
+        if ( w[i] < -tol )
+        {
+            return false;
+        }
+        if ( w[i] > ( 1.0 + tol ) )
+        {
+            return false;
+        }
+        sum += w[i];
+    }
+
+    if ( sum > ( 1.0 + tol ) )
+    {
+        return false;
+    }
+
+    return true;
+}
+
 vec3d BarycentricWeights( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & p )
 {
     // Compute the Barycentric Weights of a point, p, inside of the triangle with vertices v0,v1, and v3

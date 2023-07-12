@@ -269,6 +269,7 @@ public:
 
     virtual void BuildPermEdges();
 
+    virtual bool InTri( const vec3d & p );
     virtual int OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t = NULL );
     virtual vec3d CompPnt( const vec3d & uw_pnt );
     virtual vec3d CompUW( const vec3d & pnt );
