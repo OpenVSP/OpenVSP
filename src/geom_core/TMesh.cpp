@@ -2077,12 +2077,15 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
     OrientConnList( cl_DBA );
     SortConnList( cl_DBA );
 
+    bool match = true;
+#ifdef DEBUG_TMESH
+#ifdef COMPARE_TRIANGLE
     vector < vector < int > > cl_TRI;
     TriangulateSplit_TRI( flattenAxis, ptvec, false, cl_TRI );
     OrientConnList( cl_TRI );
     SortConnList( cl_TRI );
 
-    bool match = CompConnList( cl_TRI, cl_DBA );
+    match = CompConnList( cl_TRI, cl_DBA );
 
     if ( !match )
     {
@@ -2099,6 +2102,8 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
     {
         // printf( "Matching result!\n" );
     }
+#endif
+#endif
 
     int ntri = cl_DBA.size();
     for ( int i = 0; i < ntri; i++ )
@@ -2457,7 +2462,9 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     }
 
     IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
-    // idb->SetErrLog( errlog, stdout );
+#ifdef DEBUG_TMESH
+    idb->SetErrLog( errlog, stdout );
+#endif
 
     int verts = idb->Triangulate( npt, &cloud->x, &cloud->y, sizeof( dba_point ) );
 
