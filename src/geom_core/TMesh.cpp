@@ -2503,26 +2503,6 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
         connlist.resize( tris );
         for ( int i = 0; i < tris; i++ )
         {
-            for ( j = 0; j < 3; j++ )
-            {
-                if ( dela->v[ j ]->i >= npt || dela->v[ j ]->i < 0 )
-                {
-                    printf( "Invalid index.\n" );
-                }
-
-                if ( m_NVec[ dela->v[ j ]->i ]->m_ID != dela->v[ j ]->i )
-                {
-                    printf( "Non-matching index.\n" );
-                }
-
-                vec3d p = m_NVec[ dela->v[ j ]->i ]->m_Pnt;
-//                if ( !box.CheckPnt( p ) )
-//                {
-//                    printf( "Point outside of box.\n" );
-//                }
-
-            }
-
             // Note winding order!
             connlist[i].push_back( dela->v[ 0 ]->i );
             connlist[i].push_back( dela->v[ 1 ]->i );
