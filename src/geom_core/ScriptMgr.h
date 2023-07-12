@@ -1,4 +1,4 @@
-//
+    //
 // This file is released under the terms of the NASA Open Source Agreement (NOSA)
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
@@ -218,6 +218,7 @@ private:
     CScriptArray* FindContainersWithName( const string & name );
     CScriptArray* FindContainerGroupNames( const string & parm_container_id );
     CScriptArray* FindContainerParmIDs( const string & parm_container_id );
+    CScriptArray* GetAllUserParms();
     CScriptArray* GetUpperCSTCoefs( const string & xsec_id );
     CScriptArray* GetLowerCSTCoefs( const string & xsec_id );
     CScriptArray* GetBORUpperCSTCoefs( const string & bor_id );
