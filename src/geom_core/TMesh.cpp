@@ -1690,6 +1690,14 @@ bool TTri::SplitTri( bool dumpCase )
                 m_NVec.push_back( sn );
                 matchNodeIndex[i] = m_NVec.size() - 1;
                 sn->SetXYZPnt( pVec[i] );
+
+#ifdef DEBUG_TMESH
+                if ( !PtInTri( m_NVec[0]->m_Pnt, m_NVec[1]->m_Pnt, m_NVec[2]->m_Pnt, sn->m_Pnt ) )
+                {
+                    printf( "Outlier point added %s : %d.\n", __FILE__, __LINE__ );
+                }
+#endif
+
                 sn->SetUWPnt( uwVec[i] );
                 if ( uwflag )
                 {
@@ -1739,6 +1747,14 @@ bool TTri::SplitTri( bool dumpCase )
             m_NVec.push_back( sn );
             matchNodeIndex[i] = m_NVec.size() - 1;
             sn->SetXYZPnt( pVec[i] );
+
+#ifdef DEBUG_TMESH
+            if ( !PtInTri( m_NVec[0]->m_Pnt, m_NVec[1]->m_Pnt, m_NVec[2]->m_Pnt, sn->m_Pnt ) )
+            {
+                printf( "Outlier point added %s : %d.\n", __FILE__, __LINE__ );
+            }
+#endif
+
             sn->SetUWPnt( uwVec[i] );
             if ( uwflag )
             {
@@ -1884,6 +1900,13 @@ bool TTri::SplitTri( bool dumpCase )
                                 sn->SetUWPnt( cn_uw );
                                 sn->SetXYZPnt( crossing_node );
                             }
+
+#ifdef DEBUG_TMESH
+                            if ( !PtInTri( m_NVec[0]->m_Pnt, m_NVec[1]->m_Pnt, m_NVec[2]->m_Pnt, sn->m_Pnt ) )
+                            {
+                                printf( "Outlier point added %s : %d.\n", __FILE__, __LINE__ );
+                            }
+#endif
 
                             TEdge* se0 = new TEdge();       // New Edge
                             se0->m_N0 = en0;
@@ -2910,6 +2933,10 @@ double TBndBox::MinDistance( TBndBox* iBox, double curr_min_dist )
 
 void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
 {
+#ifdef DEBUG_TMESH
+    static int fig = 0;
+#endif
+
     int i;
 
     double tol = 1e-6; // was 1e-6
@@ -3003,6 +3030,41 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                             t0->m_ISectEdgeVec.push_back( ie0 );
                             t1->m_ISectEdgeVec.push_back( ie1 );
 
+#ifdef DEBUG_TMESH
+                            if ( !t0->InTri( e0xyz ) || !t0->InTri( e1xyz ) || !t1->InTri( e0xyz ) || !t1->InTri( e1xyz ) )
+                            {
+                                printf( "%% Outlier point created %s : %d\n", __FILE__, __LINE__ );
+
+                                printf( "t0 = [%.24e %.24e %.24e;\n", t0->m_N0->m_Pnt.x(), t0->m_N0->m_Pnt.y(), t0->m_N0->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t0->m_N1->m_Pnt.x(), t0->m_N1->m_Pnt.y(), t0->m_N1->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t0->m_N2->m_Pnt.x(), t0->m_N2->m_Pnt.y(), t0->m_N2->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e];\n", t0->m_N0->m_Pnt.x(), t0->m_N0->m_Pnt.y(), t0->m_N0->m_Pnt.z() );
+
+                                printf( "t1 = [%.24e %.24e %.24e;\n", t1->m_N0->m_Pnt.x(), t1->m_N0->m_Pnt.y(), t1->m_N0->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t1->m_N1->m_Pnt.x(), t1->m_N1->m_Pnt.y(), t1->m_N1->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t1->m_N2->m_Pnt.x(), t1->m_N2->m_Pnt.y(), t1->m_N2->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e];\n", t1->m_N0->m_Pnt.x(), t1->m_N0->m_Pnt.y(), t1->m_N0->m_Pnt.z() );
+
+                                printf( "e0 = [%.24e %.24e %.24e;\n", e0.x(), e0.y(), e0.z() );
+                                printf( "      %.24e %.24e %.24e];\n", e1.x(), e1.y(), e1.z() );
+
+                                printf( "figure( %d );\n", fig + 2 );
+                                printf( "plot3( t0(:,1), t0(:,2), t0(:,3) )\n" );
+                                printf( "hold on;\n" );
+                                printf( "plot3( t1(:,1), t1(:,2), t1(:,3) )\n" );
+                                printf( "plot3( e0(:,1), e0(:,2), e0(:,3), '-o' )\n" );
+                                printf( "hold off;\n\n" );
+
+                                printf( "figure( 1 );\n" );
+                                printf( "plot3( t0(:,1), t0(:,2), t0(:,3) )\n" );
+                                printf( "hold on;\n" );
+                                printf( "plot3( t1(:,1), t1(:,2), t1(:,3) )\n" );
+                                printf( "plot3( e0(:,1), e0(:,2), e0(:,3), '-o' )\n" );
+
+                                fig++;
+                            }
+#endif
+
                             if ( tri->GetTMeshPtr() )
                             {
                                 tri->GetTMeshPtr()->SplitAliasEdges( tri, tri->m_ISectEdgeVec.back() );
@@ -3037,6 +3099,41 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
 
                             t0->m_ISectEdgeVec.push_back( ie0 );
                             t1->m_ISectEdgeVec.push_back( ie1 );
+
+#ifdef DEBUG_TMESH
+                            if ( !t0->InTri( e0 ) || !t0->InTri( e1 ) || !t1->InTri( e0 ) || !t1->InTri( e1 ) && false )
+                            {
+                                printf( "%% Outlier point created %s : %d\n", __FILE__, __LINE__ );
+
+                                printf( "t0 = [%.24e %.24e %.24e;\n", t0->m_N0->m_Pnt.x(), t0->m_N0->m_Pnt.y(), t0->m_N0->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t0->m_N1->m_Pnt.x(), t0->m_N1->m_Pnt.y(), t0->m_N1->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t0->m_N2->m_Pnt.x(), t0->m_N2->m_Pnt.y(), t0->m_N2->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e];\n", t0->m_N0->m_Pnt.x(), t0->m_N0->m_Pnt.y(), t0->m_N0->m_Pnt.z() );
+
+                                printf( "t1 = [%.24e %.24e %.24e;\n", t1->m_N0->m_Pnt.x(), t1->m_N0->m_Pnt.y(), t1->m_N0->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t1->m_N1->m_Pnt.x(), t1->m_N1->m_Pnt.y(), t1->m_N1->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e;\n", t1->m_N2->m_Pnt.x(), t1->m_N2->m_Pnt.y(), t1->m_N2->m_Pnt.z() );
+                                printf( "      %.24e %.24e %.24e];\n", t1->m_N0->m_Pnt.x(), t1->m_N0->m_Pnt.y(), t1->m_N0->m_Pnt.z() );
+
+                                printf( "e0 = [%.24e %.24e %.24e;\n", e0.x(), e0.y(), e0.z() );
+                                printf( "      %.24e %.24e %.24e];\n", e1.x(), e1.y(), e1.z() );
+
+                                printf( "figure( %d );\n", fig + 2 );
+                                printf( "plot3( t0(:,1), t0(:,2), t0(:,3) )\n" );
+                                printf( "hold on;\n" );
+                                printf( "plot3( t1(:,1), t1(:,2), t1(:,3) )\n" );
+                                printf( "plot3( e0(:,1), e0(:,2), e0(:,3), '-o' )\n" );
+                                printf( "hold off;\n\n" );
+
+                                printf( "figure( 1 );\n" );
+                                printf( "plot3( t0(:,1), t0(:,2), t0(:,3) )\n" );
+                                printf( "hold on;\n" );
+                                printf( "plot3( t1(:,1), t1(:,2), t1(:,3) )\n" );
+                                printf( "plot3( e0(:,1), e0(:,2), e0(:,3), '-o' )\n" );
+
+                                fig++;
+                            }
+#endif
                         }
                     }
                 }
