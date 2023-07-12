@@ -381,6 +381,15 @@ extern std::vector<std::string> FindContainerGroupNames( const std::string & par
 extern std::vector<std::string> FindContainerParmIDs( const std::string & parm_container_id );
 extern std::string GetVehicleID();
 
+//======================== User Parm Functions ======================//
+extern int GetNumUserParms();
+extern int GetNumPredefinedUserParms();
+extern std::vector < std::string > GetAllUserParms();
+extern std::string GetUserParmContainer();
+extern string AddUserParm(int type, const string & name, const string & group );
+extern void DeleteUserParm( const std::string & id );
+extern void DeleteAllUserParm();
+
 //======================== Snap To Functions ======================//
 extern double ComputeMinClearanceDistance( const std::string & geom_id, int set  = SET_ALL );
 extern double SnapParm( const std::string & parm_id, double target_min_dist, bool inc_flag, int set = SET_ALL );

@@ -6727,6 +6727,83 @@ string GetVehicleID()
 }
 
 //===================================================================//
+//===============         User Parm  Functions         ==============//
+//===================================================================//
+
+int GetNumUserParms()
+{
+    int nup = LinkMgr.GetNumUserParms();
+
+    ErrorMgr.NoError();
+
+    return nup;
+}
+
+int GetNumPredefinedUserParms()
+{
+    int npdup = LinkMgr.GetNumPredefinedUserParms();
+
+    ErrorMgr.NoError();
+
+    return npdup;
+}
+
+vector < std::string > GetAllUserParms()
+{
+    vector < string > ret = LinkMgr.GetAllUserParms();
+
+    ErrorMgr.NoError();
+
+    return ret;
+}
+
+string GetUserParmContainer()
+{
+    ParmContainer *pc = LinkMgr.GetUserParmContainer();
+
+    if ( !pc )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetUserParmContainer::Invalid UserParmContainer " );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+
+    return pc->GetID();
+}
+
+string AddUserParm(int type, const string & name, const string & group )
+{
+    string ret = LinkMgr.AddUserParm( type, name, group );
+
+    ErrorMgr.NoError();
+
+    return ret;
+}
+
+void DeleteUserParm( const std::string & id )
+{
+    int indx = LinkMgr.GetUserParmIndex( id );
+
+    if ( indx < 0 )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "DeleteUserParm::Invalid UserParm ID " );
+        return;
+    }
+
+    LinkMgr.DeleteUserParm( indx );
+
+    ErrorMgr.NoError();
+}
+
+void DeleteAllUserParm()
+{
+    LinkMgr.DeleteAllUserParm();
+
+    ErrorMgr.NoError();
+}
+
+//===================================================================//
 //===============           Snap To Functions          ==============//
 //===================================================================//
 double ComputeMinClearanceDistance( const string & geom_id, int set )
