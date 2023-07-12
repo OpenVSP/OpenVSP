@@ -2401,7 +2401,6 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
                                  vector < vector < int > > & connlist, const vector < vector < int > > & otherconnlist  )
 {
     static int idump = 0;
-    int i, j;
 
     int npt = ptvec.size();
 
@@ -2410,10 +2409,10 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
 
     //==== Find Bounds of NVec ====//
     BndBox box;
-    for ( j = 0 ; j < npt ; j++ )
+    for ( int i = 0 ; i < npt ; i++ )
     {
-        box.Update( ptvec[j] );
-        m_NVec[j]->m_ID = j;
+        box.Update( ptvec[i] );
+        m_NVec[i]->m_ID = i;
     }
 
     vec3d center = box.GetCenter();
@@ -2423,27 +2422,27 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     double sy = max( box.GetMax( 1 ) - box.GetMin( 1 ), min_s );
     double sz = max( box.GetMax( 2 ) - box.GetMin( 2 ), min_s );
 
-    for ( j = 0 ; j < npt ; j++ )
+    for ( int i = 0 ; i < npt ; i++ )
     {
-        vec3d pnt = ptvec[j] - center;
+        vec3d pnt = ptvec[i] - center;
         pnt.scale_x( 1.0 / sx );
         pnt.scale_y( 1.0 / sy );
         pnt.scale_z( 1.0 / sz );
 
         if ( flattenAxis == 0 )
         {
-            cloud[j].x = pnt.y();
-            cloud[j].y = pnt.z();
+            cloud[i].x = pnt.y();
+            cloud[i].y = pnt.z();
         }
         else if ( flattenAxis == 1 )
         {
-            cloud[j].x = pnt.x();
-            cloud[j].y = pnt.z();
+            cloud[i].x = pnt.x();
+            cloud[i].y = pnt.z();
         }
         else if ( flattenAxis == 2 )
         {
-            cloud[j].x = pnt.x();
-            cloud[j].y = pnt.y();
+            cloud[i].x = pnt.x();
+            cloud[i].y = pnt.y();
         }
     }
 
@@ -2466,7 +2465,7 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
 
     dba_edge* bounds = new dba_edge[nedg];
 
-    for ( i = 0 ; i < ( int )nedg ; i++ )
+    for ( int i = 0 ; i < ( int )nedg ; i++ )
     {
         bounds[i].a = m_EVec[i]->m_N0->m_ID;
         bounds[i].b = m_EVec[i]->m_N1->m_ID;
@@ -2498,7 +2497,7 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
 
         connlist.clear();
         connlist.resize( tris );
-        for ( i = 0; i < tris; i++ )
+        for ( int i = 0; i < tris; i++ )
         {
             for ( j = 0; j < 3; j++ )
             {
@@ -2533,9 +2532,9 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
         printf( "DLB Error! %d\n", verts );
     }
 
-    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
+    for ( int i = 0 ; i < npt; i++ )
     {
-        m_NVec[j]->m_ID = -1;
+        m_NVec[i]->m_ID = -1;
     }
 
     delete[] cloud;
