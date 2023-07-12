@@ -89,6 +89,36 @@ string UserParmContainer::GetUserParmId( int index )
 
 }
 
+vector < string > UserParmContainer::GetAllUserParms()
+{
+    vector < string > ret;
+    for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
+    {
+        Parm* p = m_UserParmVec[i];
+        if ( p )
+        {
+            ret.push_back( p->GetID() );
+        }
+    }
+    return ret;
+}
+
+int UserParmContainer::GetUserParmIndex( const string & id )
+{
+    for ( int i = 0; i < static_cast<int>( m_UserParmVec.size() ); i++ )
+    {
+        Parm* p = m_UserParmVec[i];
+        if ( p )
+        {
+            if ( p->GetID() == id )
+            {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr UserParmContainer::EncodeXml( xmlNodePtr & node )
 {

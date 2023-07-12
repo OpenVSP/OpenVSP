@@ -41,6 +41,8 @@ public:
 
     int GetNumUserParms()                                   { return m_UserParmVec.size(); }
     string GetUserParmId( int index );
+    vector < string > GetAllUserParms();
+    virtual int GetUserParmIndex( const string & id );
     virtual string AddParm(int type, const string & name, const string & group );
     virtual void DeleteParm( int index );
 
