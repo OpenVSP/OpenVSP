@@ -2446,21 +2446,6 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
         }
     }
 
-    FILE * fpdump = NULL;
-    if ( dumpCase )
-    {
-        string fname = string( "dlbtest_" ) + to_string( idump ) + string( ".txt" );
-        fpdump = fopen( fname.c_str(), "w" );
-        idump++;
-
-        fprintf( fpdump, "%d\n", npt );
-        for ( j = 0; j < npt; j++ )
-        {
-            fprintf( fpdump, "%d %.18e %.18e\n", j, cloud[ j ].x, cloud[ j ].y );
-        }
-    }
-
-
     int nedg = m_EVec.size();
 
     dba_edge* bounds = new dba_edge[nedg];
@@ -2470,17 +2455,6 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
         bounds[i].a = m_EVec[i]->m_N0->m_ID;
         bounds[i].b = m_EVec[i]->m_N1->m_ID;
     }
-
-    if ( dumpCase )
-    {
-        fprintf( fpdump, "%d\n", nedg );
-
-        for ( i = 0 ; i < ( int )nedg ; i++ )
-        {
-            fprintf( fpdump, "%d %d %d\n", i, bounds[i].a, bounds[i].b );
-        }
-    }
-
 
     IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
     // idb->SetErrLog( errlog, stdout );
@@ -2537,14 +2511,27 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
         m_NVec[i]->m_ID = -1;
     }
 
-    delete[] cloud;
-    delete[] bounds;
-
-    idb->Destroy();
-
 
     if ( dumpCase )
     {
+        FILE * fpdump = NULL;
+
+        string fname = string( "dlbtest_" ) + to_string( idump ) + string( ".txt" );
+        fpdump = fopen( fname.c_str(), "w" );
+        idump++;
+
+        fprintf( fpdump, "%d\n", npt );
+        for ( int i = 0; i < npt; i++ )
+        {
+            fprintf( fpdump, "%d %.18e %.18e\n", i, cloud[ i ].x, cloud[ i ].y );
+        }
+
+        fprintf( fpdump, "%d\n", nedg );
+        for ( int i = 0 ; i < ( int )nedg ; i++ )
+        {
+            fprintf( fpdump, "%d %d %d\n", i, bounds[i].a, bounds[i].b );
+        }
+
         OrientConnList( connlist );
         SortConnList( connlist );
 
@@ -2565,6 +2552,11 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
 
         fclose( fpdump );
     }
+
+    delete[] cloud;
+    delete[] bounds;
+
+    idb->Destroy();
 }
 
 bool TTri::InTri( const vec3d & p )
