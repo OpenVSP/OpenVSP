@@ -28,7 +28,10 @@
 
 #include "triangle.h"
 #include "triangle_api.h"
+
 #include "VspUtil.h"
+
+#include "delabella.h"
 
 #include <math.h>
 
@@ -1964,6 +1967,11 @@ void TTri::SplitTri()
 
 void TTri::TriangulateSplit( int flattenAxis )
 {
+    TriangulateSplit_DBA( flattenAxis );
+}
+
+void TTri::TriangulateSplit_TRI( int flattenAxis )
+{
     int i, j;
 
     //==== Dump Into Triangle ====//
@@ -2221,6 +2229,136 @@ void TTri::TriangulateSplit( int flattenAxis )
 
     // cleanup
     triangle_context_destroy( ctx );
+}
+
+struct dba_point
+{
+    double x, y;
+};
+
+struct dba_edge
+{
+    int a, b;
+};
+
+int errlog(void* stream, const char* fmt, ...)
+{
+    va_list arg;
+    va_start(arg,fmt);
+    int ret = vfprintf((FILE*)stream, fmt, arg);
+    va_end(arg);
+    //fflush((FILE*)stream);
+    return ret;
+}
+
+void TTri::TriangulateSplit_DBA( int flattenAxis )
+{
+    int i, j;
+
+    int npt = m_NVec.size();
+
+    dba_point* cloud = new dba_point[npt];
+
+
+    //==== Find Bounds of NVec ====//
+    BndBox box;
+    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
+    {
+        box.Update( m_NVec[j]->m_Pnt );
+        m_NVec[j]->m_ID = j;
+    }
+
+    vec3d center = box.GetCenter();
+
+    double min_s = 0.0001;
+    double sx = max( box.GetMax( 0 ) - box.GetMin( 0 ), min_s );
+    double sy = max( box.GetMax( 1 ) - box.GetMin( 1 ), min_s );
+    double sz = max( box.GetMax( 2 ) - box.GetMin( 2 ), min_s );
+
+    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
+    {
+        vec3d pnt = m_NVec[j]->m_Pnt - center;
+        pnt.scale_x( 1.0 / sx );
+        pnt.scale_y( 1.0 / sy );
+        pnt.scale_z( 1.0 / sz );
+
+        if ( flattenAxis == 0 )
+        {
+            cloud[j].x = pnt.y();
+            cloud[j].y = pnt.z();
+        }
+        else if ( flattenAxis == 1 )
+        {
+            cloud[j].x = pnt.x();
+            cloud[j].y = pnt.z();
+        }
+        else if ( flattenAxis == 2 )
+        {
+            cloud[j].x = pnt.x();
+            cloud[j].y = pnt.y();
+        }
+    }
+
+    IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
+    // idb->SetErrLog( errlog, stdout );
+
+    int verts = idb->Triangulate( npt, &cloud->x, &cloud->y, sizeof( dba_point ) );
+
+    int nedg = m_EVec.size();
+
+    dba_edge* bounds = new dba_edge[nedg];
+
+    for ( i = 0 ; i < ( int )nedg ; i++ )
+    {
+        bounds[i].a = m_EVec[i]->m_N0->m_ID;
+        bounds[i].b = m_EVec[i]->m_N1->m_ID;
+    }
+
+
+    if ( verts > 0 )
+    {
+        idb->ConstrainEdges( nedg, &bounds->a, &bounds->b, sizeof( dba_edge ) );
+
+        int tris = idb->FloodFill( false, 0, 1 ); // idb->GetNumPolygons();
+
+        const IDelaBella2<double>::Simplex* dela = idb->GetFirstDelaunaySimplex();
+        for ( i = 0; i < tris; i++ )
+        {
+            for ( j = 0; j < 3; j++ )
+            {
+                vec3d p = m_NVec[ dela->v[ j ]->i ]->m_Pnt;
+                if ( !box.CheckPnt( p ) )
+                {
+                    printf( "Point outside of box.\n" );
+                }
+            }
+
+
+            TTri* t = new TTri( m_TMesh );
+            t->m_N0 = m_NVec[ dela->v[ 0 ]->i ];
+            t->m_N1 = m_NVec[ dela->v[ 1 ]->i ];
+            t->m_N2 = m_NVec[ dela->v[ 2 ]->i ];
+            t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
+            t->m_Norm = m_Norm;
+            m_SplitVec.push_back( t );
+
+            dela = dela->next;
+        }
+    }
+    else
+    {
+        printf( "DLB Error! %d\n", verts );
+    }
+
+    for ( j = 0 ; j < ( int )m_NVec.size() ; j++ )
+    {
+        m_NVec[j]->m_ID = -1;
+    }
+
+    delete[] cloud;
+    delete[] bounds;
+
+    idb->Destroy();
 }
 
 bool TTri::InTri( const vec3d & p )
