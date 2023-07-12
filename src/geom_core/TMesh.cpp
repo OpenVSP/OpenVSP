@@ -2522,6 +2522,7 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     }
 
 
+#ifdef DEBUG_TMESH
     if ( dumpCase )
     {
         FILE * fpdump = NULL;
@@ -2562,6 +2563,7 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
 
         fclose( fpdump );
     }
+#endif
 
     delete[] cloud;
     delete[] bounds;
