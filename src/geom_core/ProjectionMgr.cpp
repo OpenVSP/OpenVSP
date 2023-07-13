@@ -878,26 +878,60 @@ void ProjectionMgrSingleton::Triangulate()
 {
     vector < vector < int > > connlist;
     Triangulate_TRI( connlist );
+
+
+    int ntri = connlist.size();
+
+    if ( ntri > 0 )
+    {
+        TMesh *tMesh = new TMesh();
+        m_SolutionTMeshVec.push_back( tMesh );
+
+        for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
+        {
+            for ( int j = 0; j < ( int ) m_SolutionPolyVec3d[ i ].size() - 1; j++ )
+            {
+                TNode *n = new TNode();
+                n->m_Pnt = m_SolutionPolyVec3d[ i ][ j ];
+                tMesh->m_NVec.push_back( n );
+            }
+        }
+
+        //==== Load Triangles if No New Point Created ====//
+        for ( int i = 0; i < ntri; i++ )
+        {
+            TTri *tPtr = new TTri( tMesh );
+
+            //==== Put Nodes Into Tri ====//
+            tPtr->m_N0 = tMesh->m_NVec[ connlist[ i ][ 0 ] ];
+            tPtr->m_N1 = tMesh->m_NVec[ connlist[ i ][ 1 ] ];
+            tPtr->m_N2 = tMesh->m_NVec[ connlist[ i ][ 2 ] ];
+
+            //tPtr->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
+            tPtr->m_Norm = vec3d( -1, 0, 0 );
+
+            vec3d c = tPtr->ComputeCenter();
+            vec2d c2d = vec2d( c.y(), c.z() );
+
+            if ( PtInHole( c2d ) )
+            {
+                delete tPtr;
+            }
+            else
+            {
+                tMesh->m_TVec.push_back( tPtr );
+            }
+        }
+    }
 }
 
 void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlist )
 {
-
     int npt = 0;
     for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
     {
         npt += m_SolutionPolyVec3d[i].size() - 1; // Subtract off repeated first point.
     }
-
-    double x = 0.0;
-    if ( m_SolutionPolyVec3d.size() > 0 )
-    {
-        if ( m_SolutionPolyVec3d[0].size() > 0 )
-        {
-            x = m_SolutionPolyVec3d[0][0].x();
-        }
-    }
-
 
     //==== Dump Into Triangle ====//
     context* ctx;
@@ -977,17 +1011,6 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
     {
         triangle_mesh_copy( ctx, &out, 1, 1 );
 
-        vector < vec3d > outpts;
-        outpts.resize( out.numberofpoints );
-
-        for ( int i = 0; i < out.numberofpoints; i++ )
-        {
-            outpts[i] = vec3d( x, out.pointlist[2 * i], out.pointlist[2 * i + 1] );
-        }
-
-        TMesh* tMesh = new TMesh();
-        m_SolutionTMeshVec.push_back( tMesh );
-
         connlist.clear();
         connlist.resize( out.numberoftriangles);
 
@@ -995,39 +1018,9 @@ void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlis
         ptcnt = 0;
         for ( int i = 0; i < out.numberoftriangles; i++ )
         {
-            TTri* tPtr = new TTri( tMesh );
-
-            //==== Put Nodes Into Tri ====//
-            tPtr->m_N0 = new TNode();
-            tPtr->m_N1 = new TNode();
-            tPtr->m_N2 = new TNode();
-
-            tPtr->m_N0->m_Pnt = outpts[out.trianglelist[ptcnt]];
-            tPtr->m_N1->m_Pnt = outpts[out.trianglelist[ptcnt + 1]];
-            tPtr->m_N2->m_Pnt = outpts[out.trianglelist[ptcnt + 2]];
-
             connlist[i].push_back( out.trianglelist[ptcnt] );
             connlist[i].push_back( out.trianglelist[ptcnt + 1] );
             connlist[i].push_back( out.trianglelist[ptcnt + 2] );
-
-            tMesh->m_NVec.push_back( tPtr->m_N0 );
-            tMesh->m_NVec.push_back( tPtr->m_N1 );
-            tMesh->m_NVec.push_back( tPtr->m_N2 );
-
-            //tPtr->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
-            tPtr->m_Norm = vec3d( -1, 0, 0 );
-
-            vec3d c = tPtr->ComputeCenter();
-            vec2d c2d = vec2d( c.y(), c.z() );
-
-            if ( PtInHole( c2d ) )
-            {
-                delete tPtr;
-            }
-            else
-            {
-                tMesh->m_TVec.push_back( tPtr );
-            }
 
             ptcnt += 3;
         }
