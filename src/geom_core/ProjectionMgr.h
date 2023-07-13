@@ -117,6 +117,7 @@ protected:
     virtual void Intersect( vector < ClipperLib::Paths > & pthsvecA, ClipperLib::Paths & pthB, vector < ClipperLib::Paths > & solvec );
 
     virtual void Triangulate();
+    virtual void Triangulate_TRI( vector < vector < int > > &connlist );
 
     virtual bool PtInHole( const vec2d &p );
 

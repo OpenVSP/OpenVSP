@@ -876,6 +876,12 @@ void ProjectionMgrSingleton::Intersect( vector < ClipperLib::Paths > & pthsvecA,
 
 void ProjectionMgrSingleton::Triangulate()
 {
+    vector < vector < int > > connlist;
+    Triangulate_TRI( connlist );
+}
+
+void ProjectionMgrSingleton::Triangulate_TRI( vector < vector < int > > &connlist )
+{
 
     int npt = 0;
     for ( int i = 0; i < m_SolutionPolyVec3d.size(); i++ )
@@ -982,6 +988,9 @@ void ProjectionMgrSingleton::Triangulate()
         TMesh* tMesh = new TMesh();
         m_SolutionTMeshVec.push_back( tMesh );
 
+        connlist.clear();
+        connlist.resize( out.numberoftriangles);
+
         //==== Load Triangles if No New Point Created ====//
         ptcnt = 0;
         for ( int i = 0; i < out.numberoftriangles; i++ )
@@ -996,6 +1005,10 @@ void ProjectionMgrSingleton::Triangulate()
             tPtr->m_N0->m_Pnt = outpts[out.trianglelist[ptcnt]];
             tPtr->m_N1->m_Pnt = outpts[out.trianglelist[ptcnt + 1]];
             tPtr->m_N2->m_Pnt = outpts[out.trianglelist[ptcnt + 2]];
+
+            connlist[i].push_back( out.trianglelist[ptcnt] );
+            connlist[i].push_back( out.trianglelist[ptcnt + 1] );
+            connlist[i].push_back( out.trianglelist[ptcnt + 2] );
 
             tMesh->m_NVec.push_back( tPtr->m_N0 );
             tMesh->m_NVec.push_back( tPtr->m_N1 );
