@@ -32,7 +32,7 @@ struct Face
     }
 };
 
-int errlog(void* stream, const char* fmt, ...)
+int dba_errlog( void* stream, const char* fmt, ...)
 {
     va_list arg;
     va_start(arg,fmt);
@@ -138,7 +138,7 @@ int main( int argc, char* argv[] )
 
     // Process points
     IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
-    idb->SetErrLog( errlog, stdout );
+    idb->SetErrLog( dba_errlog, stdout );
 
     printf( "Triangulate\n" );
 
