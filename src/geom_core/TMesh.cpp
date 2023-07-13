@@ -2485,7 +2485,7 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
     {
         idb->ConstrainEdges( nedg, &bounds->a, &bounds->b, sizeof( dba_edge ) );
 
-        int tris = idb->FloodFill( false, 0, 1 ); // idb->GetNumPolygons();
+        int tris = idb->FloodFill( false, 0, 1 );
 
         const IDelaBella2<double>::Simplex* dela = idb->GetFirstDelaunaySimplex();
 
