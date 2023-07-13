@@ -45,6 +45,18 @@ class TBndBox;
 class NBndBox;
 class TMesh;
 
+struct dba_point
+{
+    double x, y;
+};
+
+struct dba_edge
+{
+    int a, b;
+};
+
+int dba_errlog( void* stream, const char* fmt, ...);
+
 class TetraMassProp
 {
 public:

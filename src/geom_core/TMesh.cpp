@@ -2405,17 +2405,7 @@ void TTri::TriangulateSplit_TRI( int flattenAxis, const vector < vec3d > &ptvec,
     triangle_context_destroy( ctx );
 }
 
-struct dba_point
-{
-    double x, y;
-};
-
-struct dba_edge
-{
-    int a, b;
-};
-
-int errlog(void* stream, const char* fmt, ...)
+int dba_errlog( void* stream, const char* fmt, ...)
 {
     va_list arg;
     va_start(arg,fmt);
@@ -2486,7 +2476,7 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
 
     IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
 #ifdef DEBUG_TMESH
-    idb->SetErrLog( errlog, stdout );
+    idb->SetErrLog( dba_errlog, stdout );
 #endif
 
     int verts = idb->Triangulate( npt, &cloud->x, &cloud->y, sizeof( dba_point ) );
