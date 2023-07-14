@@ -369,6 +369,7 @@ extern std::string GetParmGroupName( const std::string & parm_id );
 extern std::string GetParmDisplayGroupName( const std::string & parm_id );
 extern std::string GetParmContainer( const std::string & parm_id );
 extern void SetParmDescript( const std::string & parm_id, const std::string & desc );
+extern std::string GetParmDescript( const std::string & parm_id );
 extern std::string FindParm( const std::string & parm_container_id, const std::string& parm_name, const std::string& group_name );
 
 //======================== Parm Container Functions ======================//

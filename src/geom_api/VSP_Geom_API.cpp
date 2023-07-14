@@ -6567,6 +6567,19 @@ void SetParmDescript( const string & parm_id, const string & desc )
     return p->SetDescript( desc );
 }
 
+/// Get the parm description
+string GetParmDescript( const string & parm_id )
+{
+    Parm* p = ParmMgr.FindParm( parm_id );
+    if ( !p )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmDescript::Can't Find Parm " + parm_id );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return p->GetDescript();
+}
+
 ///  Find a parm id given parm container, name and group
 string FindParm( const string & parm_container_id, const string& parm_name, const string& group_name )
 {
