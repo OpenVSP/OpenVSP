@@ -9661,6 +9661,25 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Get the description of the specified Parm
+    \code{.cpp}
+    string pod_id = AddGeom( "POD" );
+
+    string length = FindParm( pod_id, "Length", "Design" );
+
+    SetParmValLimits( length, 10.0, 0.001, 1.0e12 );
+
+    string desc = GetParmDescript( length );
+    Print( desc );
+    \endcode
+    \param [in] parm_id Parm ID
+    \return desc Parm description
+*/)";
+    r = se->RegisterGlobalFunction( "string GetParmDescript( const string & in parm_id )", vspFUNCTION( vsp::GetParmDescript ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Find a Parm ID given the Parm Container ID, Parm name, and Parm group
     \code{.cpp}
     //==== Add Wing Geometry ====//
