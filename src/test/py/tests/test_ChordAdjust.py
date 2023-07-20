@@ -32,7 +32,7 @@ def checkGeom():
 
 
 def testChordAdjust():
-    errorMgr = vsp.ErrorMgrSingleton_getInstance()
+    errorMgr = vsp.ErrorMgrSingleton.getInstance()
 
     vsp.ReadVSPFile( "tests/TestChordAdjust.vsp3" )
 
