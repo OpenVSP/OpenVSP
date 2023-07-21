@@ -1389,6 +1389,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "GDEV_SET_FORMAT", GDEV_SET_FORMAT, "/*!< Set format label for custom GUI */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "NUM_GDEV_TYPES", NUM_GDEV_TYPES, "/*!< Number of GDEV types */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for OpenVSP Human component gender types. */";
 
