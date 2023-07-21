@@ -258,18 +258,18 @@ void ScreenMgr::APIHideScreens()
         veh->ClearActiveGeom();
     }
 
-    ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *> ( m_ScreenVec[ ScreenMgr::VSP_MANAGE_GEOM_SCREEN ] );
+    ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *> ( m_ScreenVec[ vsp::VSP_MANAGE_GEOM_SCREEN ] );
     if( geomScreen )
     {
         geomScreen->ShowHideGeomScreens();
     }
 
     m_APIScreenOpenVec.clear();
-    m_APIScreenOpenVec.resize( VSP_NUM_SCREENS, false );
+    m_APIScreenOpenVec.resize( vsp::VSP_NUM_SCREENS, false );
 
-    for ( int i = 0; i < VSP_NUM_SCREENS; i++ )
+    for ( int i = 0; i < vsp::VSP_NUM_SCREENS; i++ )
     {
-        if ( i == VSP_COR_SCREEN || i == VSP_MAIN_SCREEN ) // Closing these causes crashes.
+        if ( i == vsp::VSP_COR_SCREEN || i == vsp::VSP_MAIN_SCREEN ) // Closing these causes crashes.
         {
             continue;
         }
@@ -287,11 +287,11 @@ void ScreenMgr::APIHideScreens()
 
 void ScreenMgr::APIShowScreens()
 {
-    if ( m_APIScreenOpenVec.size() <= VSP_NUM_SCREENS )
+    if ( m_APIScreenOpenVec.size() <= vsp::VSP_NUM_SCREENS )
     {
         for ( int i = 0; i < m_APIScreenOpenVec.size(); i++ )
         {
-            if ( i == VSP_COR_SCREEN )
+            if ( i == vsp::VSP_COR_SCREEN )
             {
                 continue;
             }
