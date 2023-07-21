@@ -90,6 +90,7 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     m_UpdateCount = 0;
 
     m_DisabledGUIElements.resize( vsp::NUM_GDEV_TYPES, false );
+    m_DisabledGUIScreens.resize( vsp::VSP_NUM_SCREENS, false );
 }
 
 //==== Destructor ====//
@@ -326,6 +327,23 @@ void ScreenMgr::SetGUIElementDisable( int e, bool state )
     }
 }
 
+bool ScreenMgr::IsGUIScreenDisabled( int s ) const
+{
+    if ( s >= 0 && s < m_DisabledGUIScreens.size() )
+    {
+        return m_DisabledGUIScreens[ s ];
+    }
+    return false;
+}
+
+void ScreenMgr::SetGUIScreenDisable( int s, bool state )
+{
+    if ( s >= 0 && s < m_DisabledGUIScreens.size() )
+    {
+        m_DisabledGUIScreens[ s ] = state;
+    }
+}
+
 //==== Init All Screens ====//
 void ScreenMgr::Init()
 {
@@ -411,6 +429,8 @@ void ScreenMgr::Init()
 
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
     {
+        m_ScreenVec[i]->SetScreenType( i );
+
         if( i != vsp::VSP_MAIN_SCREEN && i != vsp::VSP_COR_SCREEN )
         {
             m_ScreenVec[i]->GetFlWindow()->set_non_modal();

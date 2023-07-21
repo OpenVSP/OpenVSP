@@ -69,13 +69,15 @@ public:
     virtual void Show();
     virtual bool IsShown();
     virtual void Hide();
-    virtual bool Update()
-    {
-        return false;
-    }
+    virtual bool Update();
     ScreenMgr* GetScreenMgr()
     {
         return m_ScreenMgr;
+    }
+
+    virtual void SetScreenType( int t )
+    {
+        m_ScreenType = t;
     }
 
     /*!
@@ -92,6 +94,7 @@ protected:
 
     Fl_Double_Window* m_FLTK_Window;
 
+    int m_ScreenType;
 
 };
 

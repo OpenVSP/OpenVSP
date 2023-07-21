@@ -37,6 +37,7 @@ VspScreen::VspScreen( ScreenMgr* mgr )
 {
     m_ScreenMgr = mgr;
     m_FLTK_Window = NULL;
+    m_ScreenType = -1;
 }
 
 
@@ -49,6 +50,13 @@ VspScreen::~VspScreen()
 //==== Show Window ====//
 void VspScreen::Show()
 {
+    if ( m_ScreenType > 0 )
+    {
+        if ( m_ScreenMgr->IsGUIScreenDisabled( m_ScreenType ) )
+        {
+            return;
+        }
+    }
     assert( m_FLTK_Window );
     m_FLTK_Window->show();
 }
@@ -65,6 +73,18 @@ void VspScreen::Hide()
 {
     assert( m_FLTK_Window );
     m_FLTK_Window->hide();
+}
+
+bool VspScreen::Update()
+{
+    if ( m_ScreenType > 0 )
+    {
+        if ( m_ScreenMgr->IsGUIScreenDisabled( m_ScreenType ) )
+        {
+            Hide();
+        }
+    }
+    return false;
 }
 
 std::string VspScreen::getFeedbackGroupName()

@@ -87,6 +87,8 @@ public:
 
     bool IsGUIElementDisabled( int e ) const;
     void SetGUIElementDisable( int e, bool state );
+    bool IsGUIScreenDisabled( int s ) const;
+    void SetGUIScreenDisable( int s, bool state );
     bool m_ShowPlotScreenOnce;
 
 protected:
@@ -116,6 +118,7 @@ protected:
     unsigned long m_UpdateCount;
 
     vector < bool > m_DisabledGUIElements;
+    vector < bool > m_DisabledGUIScreens;
 };
 
 
