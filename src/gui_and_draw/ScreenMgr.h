@@ -85,6 +85,8 @@ public:
     void APIHideScreens();
     void APIShowScreens();
 
+    bool IsGUIElementDisabled( int e ) const;
+    void SetGUIElementDisable( int e, bool state );
     bool m_ShowPlotScreenOnce;
 
 protected:
@@ -112,6 +114,8 @@ protected:
     bool m_RunGUI;
 
     unsigned long m_UpdateCount;
+
+    vector < bool > m_DisabledGUIElements;
 };
 
 

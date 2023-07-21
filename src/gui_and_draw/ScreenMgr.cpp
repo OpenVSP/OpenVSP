@@ -88,6 +88,8 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
 
     m_ShowPlotScreenOnce = false;
     m_UpdateCount = 0;
+
+    m_DisabledGUIElements.resize( vsp::NUM_GDEV_TYPES, false );
 }
 
 //==== Destructor ====//
@@ -304,6 +306,23 @@ void ScreenMgr::APIShowScreens()
                 }
             }
         }
+    }
+}
+
+bool ScreenMgr::IsGUIElementDisabled( int e ) const
+{
+    if ( e >= 0 && e < m_DisabledGUIElements.size() )
+    {
+        return m_DisabledGUIElements[ e ];
+    }
+    return false;
+}
+
+void ScreenMgr::SetGUIElementDisable( int e, bool state )
+{
+    if ( e >= 0 && e < m_DisabledGUIElements.size() )
+    {
+        m_DisabledGUIElements[ e ] = state;
     }
 }
 

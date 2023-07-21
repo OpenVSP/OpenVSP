@@ -426,6 +426,12 @@ void Input::SetValAndLimits( Parm* parm_ptr )
 //==== CallBack ====//
 void Input::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     //==== Set ParmID And Check For Valid ParmPtr ====//
      Parm* parm_ptr = SetParmID( m_ParmID );
     if ( !parm_ptr )
@@ -611,6 +617,12 @@ void Slider::SetValAndLimits( Parm* parm_ptr )
 //==== CallBack ====//
 void Slider::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     //==== Set ParmID And Check For Valid ParmPtr ====//
     Parm* parm_ptr = SetParmID( m_ParmID );
     if ( !parm_ptr )
@@ -738,6 +750,12 @@ void SliderAdjRange::SetValAndLimits( Parm* parm_ptr )
 //==== CallBack ====//
 void SliderAdjRange::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     //==== Set ParmID And Check For Valid ParmPtr ====//
     Parm* parm_ptr = SetParmID( m_ParmID );
     if ( !parm_ptr )
@@ -876,6 +894,7 @@ void SliderInput::Init( VspScreen* screen, Fl_Slider* slider, Fl_Input* input,
                         double range, const char* format, VspButton* parm_button,
                         bool log_slider )
 {
+    m_Type = vsp::GDEV_SLIDER_INPUT;
     m_ParmButtonFlag = false;
     if ( parm_button )
     {
@@ -1207,6 +1226,12 @@ void CheckButton::SetValAndLimits( Parm* p )
 //==== CallBack ====//
 void CheckButton::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     //==== Set ParmID And Check For Valid ParmPtr ====//
     Parm* parm_ptr = SetParmID( m_ParmID );
     if ( !parm_ptr )
@@ -1280,6 +1305,12 @@ void CheckButtonBit::SetValAndLimits( Parm* p )
 //==== Callback ====//
 void CheckButtonBit::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     Parm* parm_ptr = SetParmID( m_ParmID );
     if ( !parm_ptr )
     {
@@ -1358,6 +1389,12 @@ void RadioButton::SetValAndLimits( Parm* p )
 //==== Callback ====//
 void RadioButton::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     Parm* parm_ptr = SetParmID( m_ParmID );
 //    if ( !parm_ptr )
 //    {
@@ -1431,6 +1468,12 @@ void ToggleButton::SetValAndLimits( Parm* p )
 //==== Callback ====//
 void ToggleButton::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     Parm* parm_ptr = SetParmID( m_ParmID );
 
     if ( w == m_Button && parm_ptr )
@@ -1521,6 +1564,12 @@ void ToggleRadioGroup::SetValAndLimits( Parm* p )
 //==== Callback ====//
 void ToggleRadioGroup::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     Parm* parm_ptr = SetParmID( m_ParmID );
     if ( !parm_ptr )
     {
@@ -1604,6 +1653,12 @@ Fl_Button* TriggerButton::GetFlButton()
 //==== Callback ====//
 void TriggerButton::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     //==== Set ParmID And Check For Valid ParmPtr ====//
     Parm* parm_ptr = SetParmID( m_ParmID );
 
@@ -1661,6 +1716,12 @@ void Counter::SetValAndLimits( Parm* p )
 //==== Callback ====//
 void Counter::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     Parm* parm_ptr = SetParmID( m_ParmID );
     if ( !parm_ptr )
     {
@@ -1819,6 +1880,12 @@ void Choice::UpdateItems( bool keepsetting )
 //==== CallBack ====//
 void Choice::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     //==== Set ParmID And Check For Valid ParmPtr ====//
     Parm* parm_ptr = SetParmID( m_ParmID );
 
@@ -1973,6 +2040,12 @@ void FractParmSlider::SetValAndLimits( Parm* parm_ptr )
 //==== CallBack ====//
 void FractParmSlider::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     assert( m_Screen );
 
     //==== Set ParmID And Check For Valid ParmPtr ====//
@@ -2094,6 +2167,12 @@ void StringInput::Update( const string & val )
 //==== CallBack ====//
 void StringInput::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     if ( w == m_Input )
     {
         m_String = string( m_Input->value() );
@@ -2236,6 +2315,12 @@ void IndexSelector::SetBigSmallIncrements( int big_inc, int small_inc )
 
 void IndexSelector::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     int ind = m_Index;
     if ( w == m_Input )
     {
@@ -2396,6 +2481,12 @@ void ColorPicker::Update( const vec3d& rgb )
 
 void ColorPicker::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     assert( m_Screen );
 
     //==== Check Color Buttons ====//
@@ -2517,6 +2608,12 @@ void ParmPicker::Update( )
 
 void ParmPicker::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     assert( m_Screen );
 
     if ( w == m_ContainerChoice  ||
@@ -2637,6 +2734,12 @@ void ParmTreePicker::UnselectAll()
 
 void ParmTreePicker::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     assert( m_Screen );
 
     m_EventType = NONE;
@@ -3058,6 +3161,12 @@ void DriverGroupBank::Init( VspScreen* screen, vector< vector < Fl_Button* > > b
 
 void DriverGroupBank::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     assert( m_Screen );
 
     if ( m_DriverGroup )
@@ -3567,6 +3676,12 @@ void GeomPicker::Update( )
 
 void GeomPicker::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     assert( m_Screen );
 
     if ( w == m_GeomChoice )
@@ -3925,6 +4040,12 @@ void PCurveEditor::UpdateIndexSelector( int curve_type )
 
 void PCurveEditor::DeviceCB( Fl_Widget* w )
 {
+    if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
+    {
+        m_Screen->GuiDeviceCallBack( this );
+        return;
+    }
+
     if ( Fl::event_inside( m_canvas ) )
     {
     }
