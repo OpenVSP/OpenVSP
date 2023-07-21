@@ -697,13 +697,20 @@ void ManageGeomScreen::ShowHideGeomScreens()
     {
         m_GeomScreenVec[i]->Hide();
     }
-    //==== Show Screen - Each Screen Will Test Check Valid Active Geom Type ====//
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
-    {
-        m_GeomScreenVec[i]->Show();
-    }
 
-    m_GeomScreenVec[vsp::MULT_GEOM_SCREEN]->Show();
+    if ( !m_ScreenMgr->IsGeomScreenDisabled( vsp::ALL_GEOM_SCREENS ) )
+    {
+        //==== Show Screen - Each Screen Will Test Check Valid Active Geom Type ====//
+        for ( int i = 0; i < ( int ) m_GeomScreenVec.size(); i++ )
+        {
+            if ( !m_ScreenMgr->IsGeomScreenDisabled( i ))
+            {
+                m_GeomScreenVec[ i ]->Show();
+            }
+        }
+
+        m_GeomScreenVec[ vsp::MULT_GEOM_SCREEN ]->Show();
+    }
 }
 
 //==== Show or Hide Subsurface Lines ====//

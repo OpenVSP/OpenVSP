@@ -89,6 +89,9 @@ public:
     void SetGUIElementDisable( int e, bool state );
     bool IsGUIScreenDisabled( int s ) const;
     void SetGUIScreenDisable( int s, bool state );
+    bool IsGeomScreenDisabled( int s ) const;
+    void SetGeomScreenDisable( int s, bool state );
+
     bool m_ShowPlotScreenOnce;
 
 protected:
@@ -119,6 +122,7 @@ protected:
 
     vector < bool > m_DisabledGUIElements;
     vector < bool > m_DisabledGUIScreens;
+    vector < bool > m_DisabledGeomScreens;
 };
 
 
