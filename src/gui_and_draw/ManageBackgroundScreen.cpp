@@ -101,7 +101,7 @@ void ManageBackgroundScreen::Hide()
 
 bool ManageBackgroundScreen::Update()
 {
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     if( !main )
     {
         return false;
@@ -169,7 +169,7 @@ void ManageBackgroundScreen::CallBack( Fl_Widget* w )
 {
     assert( m_ScreenMgr );
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     if( !main )
     {
         return;
@@ -201,7 +201,7 @@ void ManageBackgroundScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     if( !main )
     {
         return;

@@ -1042,7 +1042,7 @@ bool FeaPartEditScreen::Update()
     BasicScreen::Update();
 
     // Close the screen if StructScreen is not open
-    VspScreen* struct_screen = m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_SCREEN );
+    VspScreen* struct_screen = m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_SCREEN );
     if ( !struct_screen )
     {
         Hide();

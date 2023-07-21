@@ -106,8 +106,8 @@ void ScreenMgr::TimerCB()
         if (m_ShowPlotScreenOnce)
         {
             m_ShowPlotScreenOnce = false;
-            m_ScreenVec[VSP_MAIN_SCREEN]->Show();   //set main screen as "current" before show
-            m_ScreenVec[VSP_VSPAERO_PLOT_SCREEN]->Show();
+            m_ScreenVec[vsp::VSP_MAIN_SCREEN]->Show();   //set main screen as "current" before show
+            m_ScreenVec[vsp::VSP_VSPAERO_PLOT_SCREEN]->Show();
         }
         m_UpdateFlag = false;
         UpdateAllScreens();
@@ -132,7 +132,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     }
     else if ( data.m_String == string( "VSPAEROSolverMessage" ) )
     {
-        VSPAEROScreen* scr = ( VSPAEROScreen* ) m_ScreenVec[VSP_VSPAERO_SCREEN];
+        VSPAEROScreen* scr = ( VSPAEROScreen* ) m_ScreenVec[vsp::VSP_VSPAERO_SCREEN];
         if ( scr )
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
@@ -141,7 +141,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
             }
         }
         // Also dump to aero-structure console.
-        AeroStructScreen* asscr = ( AeroStructScreen* ) m_ScreenVec[VSP_AERO_STRUCT_SCREEN];
+        AeroStructScreen* asscr = ( AeroStructScreen* ) m_ScreenVec[vsp::VSP_AERO_STRUCT_SCREEN];
         if ( asscr )
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
@@ -152,7 +152,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     }
     else if ( data.m_String == string( "FEAMessage" ) )
     {
-        StructScreen* scr = ( StructScreen* ) m_ScreenVec[VSP_STRUCT_SCREEN];
+        StructScreen* scr = ( StructScreen* ) m_ScreenVec[vsp::VSP_STRUCT_SCREEN];
         if ( scr )
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
@@ -161,7 +161,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
             }
         }
         // Also dump to aero-structure console.
-        AeroStructScreen* asscr = ( AeroStructScreen* ) m_ScreenVec[VSP_AERO_STRUCT_SCREEN];
+        AeroStructScreen* asscr = ( AeroStructScreen* ) m_ScreenVec[vsp::VSP_AERO_STRUCT_SCREEN];
         if ( asscr )
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
@@ -170,7 +170,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
             }
         }
         // And to structures assembly console.
-        StructAssemblyScreen* assyscr = ( StructAssemblyScreen* ) m_ScreenVec[VSP_STRUCT_ASSEMBLY_SCREEN];
+        StructAssemblyScreen* assyscr = ( StructAssemblyScreen* ) m_ScreenVec[vsp::VSP_STRUCT_ASSEMBLY_SCREEN];
         if ( assyscr )
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
@@ -181,7 +181,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     }
     else if ( data.m_String == string( "AeroStructMessage" ) )
     {
-        AeroStructScreen* asscr = ( AeroStructScreen* ) m_ScreenVec[VSP_AERO_STRUCT_SCREEN];
+        AeroStructScreen* asscr = ( AeroStructScreen* ) m_ScreenVec[vsp::VSP_AERO_STRUCT_SCREEN];
         if ( asscr )
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
@@ -192,7 +192,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     }
     else if ( data.m_String == string( "CFDMessage" ) )
     {
-        CfdMeshScreen* scr = (CfdMeshScreen*)m_ScreenVec[VSP_CFD_MESH_SCREEN];
+        CfdMeshScreen* scr = (CfdMeshScreen*)m_ScreenVec[vsp::VSP_CFD_MESH_SCREEN];
         if ( scr )
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
@@ -203,7 +203,7 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     }
     else if ( data.m_String == string( "SurfIntersectMessage" ) )
     {
-        SurfaceIntersectionScreen* scr = (SurfaceIntersectionScreen*)m_ScreenVec[VSP_SURFACE_INTERSECTION_SCREEN];
+        SurfaceIntersectionScreen* scr = (SurfaceIntersectionScreen*)m_ScreenVec[vsp::VSP_SURFACE_INTERSECTION_SCREEN];
         if ( scr )
         {
             for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
@@ -234,93 +234,93 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
 void ScreenMgr::Init()
 {
     //==== Build All Screens ====//
-    m_ScreenVec.resize( VSP_NUM_SCREENS );
-    m_ScreenVec[VSP_ADV_LINK_SCREEN] = new AdvLinkScreen( this );
-    m_ScreenVec[VSP_AERO_STRUCT_SCREEN] = new AeroStructScreen( this );
-    m_ScreenVec[VSP_AIRFOIL_CURVES_EXPORT_SCREEN] = new BezierAirfoilExportScreen( this );
-    m_ScreenVec[VSP_AIRFOIL_POINTS_EXPORT_SCREEN] = new SeligAirfoilExportScreen( this );
-    m_ScreenVec[VSP_BACKGROUND_SCREEN] = new ManageBackgroundScreen( this );
-    m_ScreenVec[VSP_BEM_OPTIONS_SCREEN] = new BEMOptionsScreen( this );
-    m_ScreenVec[VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
-    m_ScreenVec[VSP_CLIPPING_SCREEN] = new ClippingScreen( this );
-    m_ScreenVec[VSP_COMP_GEOM_SCREEN] = new CompGeomScreen( this );
-    m_ScreenVec[VSP_COR_SCREEN] = new ManageCORScreen( this );
-    m_ScreenVec[VSP_CURVE_EDIT_SCREEN] = new CurveEditScreen( this );
-    m_ScreenVec[VSP_DEGEN_GEOM_SCREEN] = new DegenGeomScreen( this );
-    m_ScreenVec[VSP_DESIGN_VAR_SCREEN] = new DesignVarScreen( this );
-    m_ScreenVec[VSP_DXF_OPTIONS_SCREEN] = new DXFOptionsScreen( this);
-    m_ScreenVec[VSP_EXPORT_SCREEN] = new ExportScreen( this );
-    m_ScreenVec[VSP_FEA_PART_EDIT_SCREEN] = new FeaPartEditScreen( this );
-    m_ScreenVec[VSP_FEA_XSEC_SCREEN] = new FeaXSecScreen( this );
-    m_ScreenVec[VSP_FIT_MODEL_SCREEN] = new FitModelScreen( this );
-    m_ScreenVec[VSP_IGES_OPTIONS_SCREEN] = new IGESOptionsScreen( this );
-    m_ScreenVec[VSP_IGES_STRUCTURE_OPTIONS_SCREEN] = new IGESStructureOptionsScreen( this );
-    m_ScreenVec[VSP_EXPORT_CUSTOM_SCRIPT] = new CustomGeomExportScreen( this );
-    m_ScreenVec[VSP_IMPORT_SCREEN] = new ImportScreen( this );
-    m_ScreenVec[VSP_MEASURE_SCREEN] = new ManageMeasureScreen( this );
-    m_ScreenVec[VSP_LIGHTING_SCREEN] = new ManageLightingScreen( this );
-    m_ScreenVec[VSP_MAIN_SCREEN] = new MainVSPScreen( this  );
-    m_ScreenVec[VSP_MANAGE_GEOM_SCREEN] = new ManageGeomScreen( this );
-    m_ScreenVec[VSP_MANAGE_TEXTURE_SCREEN] = new ManageTextureScreen( this );
-    m_ScreenVec[VSP_MASS_PROP_SCREEN] = new MassPropScreen( this );
-    m_ScreenVec[VSP_MATERIAL_EDIT_SCREEN] = new MaterialEditScreen( this );
-    m_ScreenVec[VSP_SNAP_TO_SCREEN] = new SnapToScreen( this );
-    m_ScreenVec[VSP_PARASITE_DRAG_SCREEN] = new ParasiteDragScreen( this );
-    m_ScreenVec[VSP_PARM_DEBUG_SCREEN] = new ParmDebugScreen( this );
-    m_ScreenVec[VSP_PARM_LINK_SCREEN] = new ParmLinkScreen( this );
-    m_ScreenVec[VSP_PARM_SCREEN] = new ParmScreen( this );
-    m_ScreenVec[VSP_PICK_SET_SCREEN] = new PickSetScreen( this );
-    m_ScreenVec[VSP_PROJECTION_SCREEN] = new ProjectionScreen( this );
-    m_ScreenVec[VSP_PSLICE_SCREEN] = new PSliceScreen( this );
-    m_ScreenVec[VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
-    m_ScreenVec[VSP_SELECT_FILE_SCREEN] = new SelectFileScreen( this );
-    m_ScreenVec[VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );
-    m_ScreenVec[VSP_STEP_OPTIONS_SCREEN] = new STEPOptionsScreen( this );
-    m_ScreenVec[VSP_STEP_STRUCTURE_OPTIONS_SCREEN] = new STEPStructureOptionsScreen( this );
-    m_ScreenVec[VSP_STL_OPTIONS_SCREEN] = new STLOptionsScreen( this );
-    m_ScreenVec[VSP_STRUCT_SCREEN] = new StructScreen( this );
-    m_ScreenVec[VSP_STRUCT_ASSEMBLY_SCREEN] = new StructAssemblyScreen( this );
-    m_ScreenVec[VSP_SURFACE_INTERSECTION_SCREEN] = new SurfaceIntersectionScreen( this );
-    m_ScreenVec[VSP_SVG_OPTIONS_SCREEN] = new SVGOptionsScreen( this );
-    m_ScreenVec[VSP_USER_PARM_SCREEN] = new UserParmScreen( this );
-    m_ScreenVec[VSP_VIEW_SCREEN] = new ManageViewScreen( this );
-    m_ScreenVec[VSP_VAR_PRESET_SCREEN] = new VarPresetScreen( this );
-    m_ScreenVec[VSP_VSPAERO_PLOT_SCREEN] = new VSPAEROPlotScreen( this );
-    m_ScreenVec[VSP_VSPAERO_SCREEN] = new VSPAEROScreen( this );
-    m_ScreenVec[VSP_WAVEDRAG_SCREEN] = new WaveDragScreen( this );
-    m_ScreenVec[VSP_XSEC_SCREEN] = new XSecViewScreen( this );
+    m_ScreenVec.resize( vsp::VSP_NUM_SCREENS );
+    m_ScreenVec[vsp::VSP_ADV_LINK_SCREEN] = new AdvLinkScreen( this );
+    m_ScreenVec[vsp::VSP_AERO_STRUCT_SCREEN] = new AeroStructScreen( this );
+    m_ScreenVec[vsp::VSP_AIRFOIL_CURVES_EXPORT_SCREEN] = new BezierAirfoilExportScreen( this );
+    m_ScreenVec[vsp::VSP_AIRFOIL_POINTS_EXPORT_SCREEN] = new SeligAirfoilExportScreen( this );
+    m_ScreenVec[vsp::VSP_BACKGROUND_SCREEN] = new ManageBackgroundScreen( this );
+    m_ScreenVec[vsp::VSP_BEM_OPTIONS_SCREEN] = new BEMOptionsScreen( this );
+    m_ScreenVec[vsp::VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
+    m_ScreenVec[vsp::VSP_CLIPPING_SCREEN] = new ClippingScreen( this );
+    m_ScreenVec[vsp::VSP_COMP_GEOM_SCREEN] = new CompGeomScreen( this );
+    m_ScreenVec[vsp::VSP_COR_SCREEN] = new ManageCORScreen( this );
+    m_ScreenVec[vsp::VSP_CURVE_EDIT_SCREEN] = new CurveEditScreen( this );
+    m_ScreenVec[vsp::VSP_DEGEN_GEOM_SCREEN] = new DegenGeomScreen( this );
+    m_ScreenVec[vsp::VSP_DESIGN_VAR_SCREEN] = new DesignVarScreen( this );
+    m_ScreenVec[vsp::VSP_DXF_OPTIONS_SCREEN] = new DXFOptionsScreen( this);
+    m_ScreenVec[vsp::VSP_EXPORT_SCREEN] = new ExportScreen( this );
+    m_ScreenVec[vsp::VSP_FEA_PART_EDIT_SCREEN] = new FeaPartEditScreen( this );
+    m_ScreenVec[vsp::VSP_FEA_XSEC_SCREEN] = new FeaXSecScreen( this );
+    m_ScreenVec[vsp::VSP_FIT_MODEL_SCREEN] = new FitModelScreen( this );
+    m_ScreenVec[vsp::VSP_IGES_OPTIONS_SCREEN] = new IGESOptionsScreen( this );
+    m_ScreenVec[vsp::VSP_IGES_STRUCTURE_OPTIONS_SCREEN] = new IGESStructureOptionsScreen( this );
+    m_ScreenVec[vsp::VSP_EXPORT_CUSTOM_SCRIPT] = new CustomGeomExportScreen( this );
+    m_ScreenVec[vsp::VSP_IMPORT_SCREEN] = new ImportScreen( this );
+    m_ScreenVec[vsp::VSP_MEASURE_SCREEN] = new ManageMeasureScreen( this );
+    m_ScreenVec[vsp::VSP_LIGHTING_SCREEN] = new ManageLightingScreen( this );
+    m_ScreenVec[vsp::VSP_MAIN_SCREEN] = new MainVSPScreen( this  );
+    m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN] = new ManageGeomScreen( this );
+    m_ScreenVec[vsp::VSP_MANAGE_TEXTURE_SCREEN] = new ManageTextureScreen( this );
+    m_ScreenVec[vsp::VSP_MASS_PROP_SCREEN] = new MassPropScreen( this );
+    m_ScreenVec[vsp::VSP_MATERIAL_EDIT_SCREEN] = new MaterialEditScreen( this );
+    m_ScreenVec[vsp::VSP_SNAP_TO_SCREEN] = new SnapToScreen( this );
+    m_ScreenVec[vsp::VSP_PARASITE_DRAG_SCREEN] = new ParasiteDragScreen( this );
+    m_ScreenVec[vsp::VSP_PARM_DEBUG_SCREEN] = new ParmDebugScreen( this );
+    m_ScreenVec[vsp::VSP_PARM_LINK_SCREEN] = new ParmLinkScreen( this );
+    m_ScreenVec[vsp::VSP_PARM_SCREEN] = new ParmScreen( this );
+    m_ScreenVec[vsp::VSP_PICK_SET_SCREEN] = new PickSetScreen( this );
+    m_ScreenVec[vsp::VSP_PROJECTION_SCREEN] = new ProjectionScreen( this );
+    m_ScreenVec[vsp::VSP_PSLICE_SCREEN] = new PSliceScreen( this );
+    m_ScreenVec[vsp::VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
+    m_ScreenVec[vsp::VSP_SELECT_FILE_SCREEN] = new SelectFileScreen( this );
+    m_ScreenVec[vsp::VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );
+    m_ScreenVec[vsp::VSP_STEP_OPTIONS_SCREEN] = new STEPOptionsScreen( this );
+    m_ScreenVec[vsp::VSP_STEP_STRUCTURE_OPTIONS_SCREEN] = new STEPStructureOptionsScreen( this );
+    m_ScreenVec[vsp::VSP_STL_OPTIONS_SCREEN] = new STLOptionsScreen( this );
+    m_ScreenVec[vsp::VSP_STRUCT_SCREEN] = new StructScreen( this );
+    m_ScreenVec[vsp::VSP_STRUCT_ASSEMBLY_SCREEN] = new StructAssemblyScreen( this );
+    m_ScreenVec[vsp::VSP_SURFACE_INTERSECTION_SCREEN] = new SurfaceIntersectionScreen( this );
+    m_ScreenVec[vsp::VSP_SVG_OPTIONS_SCREEN] = new SVGOptionsScreen( this );
+    m_ScreenVec[vsp::VSP_USER_PARM_SCREEN] = new UserParmScreen( this );
+    m_ScreenVec[vsp::VSP_VIEW_SCREEN] = new ManageViewScreen( this );
+    m_ScreenVec[vsp::VSP_VAR_PRESET_SCREEN] = new VarPresetScreen( this );
+    m_ScreenVec[vsp::VSP_VSPAERO_PLOT_SCREEN] = new VSPAEROPlotScreen( this );
+    m_ScreenVec[vsp::VSP_VSPAERO_SCREEN] = new VSPAEROScreen( this );
+    m_ScreenVec[vsp::VSP_WAVEDRAG_SCREEN] = new WaveDragScreen( this );
+    m_ScreenVec[vsp::VSP_XSEC_SCREEN] = new XSecViewScreen( this );
 
-    m_ScreenVec[VSP_MAIN_SCREEN]->Show();
+    m_ScreenVec[vsp::VSP_MAIN_SCREEN]->Show();
 
     // Set manage geom screen to show up to the main screen as the default.
     int x,y,w,h1,h2;
-    x = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->x();
-    y = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->y();
-    w = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->w();
-    h1 = m_ScreenVec[VSP_MAIN_SCREEN]->GetFlWindow()->h();
+    x = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->x();
+    y = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->y();
+    w = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->w();
+    h1 = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->h();
 
-    m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
+    m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
 
-    h2 = m_ScreenVec[VSP_XSEC_SCREEN]->GetFlWindow()->h();
-    m_ScreenVec[VSP_XSEC_SCREEN]->GetFlWindow()->position( x + w + 5, y + h1 - h2 );
+    h2 = m_ScreenVec[vsp::VSP_XSEC_SCREEN]->GetFlWindow()->h();
+    m_ScreenVec[vsp::VSP_XSEC_SCREEN]->GetFlWindow()->position( x + w + 5, y + h1 - h2 );
 
-    x = m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->x();
-    y = m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->y();
-    w = m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->w();
+    x = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->x();
+    y = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->y();
+    w = m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->w();
 
     VSP_Window::SetGeomX( x + w );
     VSP_Window::SetGeomY( y );
 
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
     {
-        if( i != VSP_MAIN_SCREEN && i != VSP_COR_SCREEN )
+        if( i != vsp::VSP_MAIN_SCREEN && i != vsp::VSP_COR_SCREEN )
         {
             m_ScreenVec[i]->GetFlWindow()->set_non_modal();
         }
     }
 
     // Show() after setting non_modal, as modality can not change if window shown.
-    m_ScreenVec[VSP_MANAGE_GEOM_SCREEN]->Show();
+    m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->Show();
 }
 
 //==== Update All Displayed Screens ====//
@@ -333,7 +333,7 @@ void ScreenMgr::UpdateAllScreens()
     for ( int i = 0 ; i < ( int )m_ScreenVec.size() ; i++ )
     {
         //===== Force Update Of ManageGeomScreen ====//
-        if ( m_ScreenVec[i]->IsShown() || (i == VSP_MANAGE_GEOM_SCREEN) )
+        if ( m_ScreenVec[i]->IsShown() || (i == vsp::VSP_MANAGE_GEOM_SCREEN) )
         {
             m_ScreenVec[i]->Update();
         }
@@ -343,7 +343,7 @@ void ScreenMgr::UpdateAllScreens()
 //==== Show Screen ====//
 void ScreenMgr::ShowScreen( int id )
 {
-    if ( id >= 0 && id < VSP_NUM_SCREENS )
+    if ( id >= 0 && id < vsp::VSP_NUM_SCREENS )
     {
         m_ScreenVec[id]->Show();
     }
@@ -352,7 +352,7 @@ void ScreenMgr::ShowScreen( int id )
 //==== Hide Screen ====//
 void ScreenMgr::HideScreen( int id )
 {
-    if ( id >= 0 && id < VSP_NUM_SCREENS )
+    if ( id >= 0 && id < vsp::VSP_NUM_SCREENS )
     {
         m_ScreenVec[id]->Hide();
     }
@@ -372,7 +372,7 @@ Geom* ScreenMgr::GetCurrGeom()
 
 VspScreen * ScreenMgr::GetScreen( int id )
 {
-    if( id >= 0 && id < VSP_NUM_SCREENS )
+    if( id >= 0 && id < vsp::VSP_NUM_SCREENS )
     {
         return m_ScreenVec[id];
     }

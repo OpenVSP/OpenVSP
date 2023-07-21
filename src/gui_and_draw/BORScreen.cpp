@@ -1409,12 +1409,12 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
         if ( t == vsp::XS_EDIT_CURVE )
         {
-            m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+            m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
         }
     }
     else if ( gui_device == &m_ShowXSecButton )
     {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_XSEC_SCREEN );
     }
     else if ( gui_device == &m_ConvertCEDITButton )
     {
@@ -1422,12 +1422,12 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
         if ( edit_xsec )
         {
-            m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+            m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
         }
     }
     else if ( gui_device == &m_EditCEDITButton )
     {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
     }
     else if ( gui_device == &m_ReadFuseFileButton  )
     {

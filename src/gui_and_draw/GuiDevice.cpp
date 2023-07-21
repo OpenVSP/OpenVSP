@@ -1141,7 +1141,7 @@ void ParmButton::DeviceCB( Fl_Widget* w )
             if( Fl::event_inside( w ) )
             {
                 ParmMgr.SetActiveParm( m_ParmID );
-                m_Screen->GetScreenMgr()->ShowScreen( ScreenMgr::VSP_PARM_SCREEN );
+                m_Screen->GetScreenMgr()->ShowScreen( vsp::VSP_PARM_SCREEN );
             }
 
             break;

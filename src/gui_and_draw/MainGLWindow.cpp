@@ -155,7 +155,7 @@ void VspGlWindow::draw()
         m_GEngine->getDisplay()->resize( pixel_w(), pixel_h() );
 
         ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if ( viewScreen->IsShown() )
         {
@@ -163,7 +163,7 @@ void VspGlWindow::draw()
         }
 
         //Make sure the current width and height update
-        m_ScreenMgr->GetScreen( ScreenMgr::VSP_SCREENSHOT_SCREEN )->Update();
+        m_ScreenMgr->GetScreen( vsp::VSP_SCREENSHOT_SCREEN )->Update();
     }
 
     m_GEngine->draw( m_mouse_x, m_mouse_y );
@@ -270,7 +270,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from fitModelScreen.
         FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_FIT_MODEL_SCREEN ) );
         if ( fitModelScreen )
         {
             fitModelScreen->LoadDrawObjs( drawObjs );
@@ -278,7 +278,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from massPropScreen.
         MassPropScreen* massPropScreen = dynamic_cast<MassPropScreen*>
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MASS_PROP_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_MASS_PROP_SCREEN ) );
         if ( massPropScreen )
         {
             massPropScreen->LoadDrawObjs( drawObjs );
@@ -286,7 +286,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from CfdMeshScreen.
         CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CFD_MESH_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_CFD_MESH_SCREEN ) );
         if( cfdScreen )
         {
             cfdScreen->LoadDrawObjs( drawObjs );
@@ -294,7 +294,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from SurfaceIntersectionScreen.
         SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_SURFACE_INTERSECTION_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_SURFACE_INTERSECTION_SCREEN ) );
         if( surfScreen )
         {
             surfScreen->LoadDrawObjs( drawObjs );
@@ -306,7 +306,7 @@ void VspGlWindow::update()
         MeasureMgr.Update();
         // Load Render Objects from measureScreen.
         ManageMeasureScreen * measureScreen = dynamic_cast< ManageMeasureScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MEASURE_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_MEASURE_SCREEN ) );
         if( measureScreen )
         {
             measureScreen->LoadDrawObjs( drawObjs );
@@ -314,7 +314,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from FeaStructScreen.
         StructScreen * structScreen = dynamic_cast< StructScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_SCREEN ) );
         if( structScreen )
         {
             structScreen->LoadDrawObjs( drawObjs );
@@ -322,7 +322,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from FeaStructAssemblyScreen.
         StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_ASSEMBLY_SCREEN ) );
         if( structAssemblyScreen )
         {
             structAssemblyScreen->LoadDrawObjs( drawObjs );
@@ -330,7 +330,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from lightScreen.
         ManageLightingScreen * lightScreen = dynamic_cast< ManageLightingScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_LIGHTING_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_LIGHTING_SCREEN ) );
         if( lightScreen )
         {
             lightScreen->LoadDrawObjs( drawObjs );
@@ -338,7 +338,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from geomScreen.
         ManageGeomScreen * geomScreen = dynamic_cast< ManageGeomScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
         if( geomScreen )
         {
             geomScreen->LoadDrawObjs( drawObjs );
@@ -346,7 +346,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from corScreen ( Center of Rotation ).
         ManageCORScreen * corScreen = dynamic_cast< ManageCORScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
         if( corScreen )
         {
             corScreen->LoadDrawObjs( drawObjs );
@@ -354,7 +354,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from clipScreen ( Clipping ).
         ClippingScreen * clipScreen = dynamic_cast< ClippingScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CLIPPING_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_CLIPPING_SCREEN ) );
         if( clipScreen )
         {
             clipScreen->LoadDrawObjs( drawObjs );
@@ -362,7 +362,7 @@ void VspGlWindow::update()
 
         // Load Render Objects from WDSrceen ( Wave Drag Tool)
         WaveDragScreen * WDScreen = dynamic_cast< WaveDragScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_WAVEDRAG_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_WAVEDRAG_SCREEN ) );
         if( WDScreen )
         {
             WDScreen->LoadDrawObjs( drawObjs );
@@ -370,7 +370,7 @@ void VspGlWindow::update()
 
         // Load Render Objects for VSP AERO Screen
         VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_VSPAERO_SCREEN ) );
         if ( AeroScreen )
         {
             AeroScreen->LoadDrawObjs( drawObjs );
@@ -1857,7 +1857,7 @@ void VspGlWindow::OnPush( int x, int y )
         if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
         {
             FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
-                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
+                ( m_ScreenMgr->GetScreen( vsp::VSP_FIT_MODEL_SCREEN ) );
             if ( fitModelScreen )
             {
                 if (fitModelScreen->IsShown() )
@@ -1945,7 +1945,7 @@ void VspGlWindow::OnDrag( int x, int y )
             display->zoom( ( int )m_prevLBRB.x, ( int )m_prevLBRB.y, x, y );
 
             ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
             viewScreen->UpdateZoom();
         }
@@ -1957,7 +1957,7 @@ void VspGlWindow::OnDrag( int x, int y )
         if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
         {
             FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
-                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
+                ( m_ScreenMgr->GetScreen( vsp::VSP_FIT_MODEL_SCREEN ) );
             if ( fitModelScreen )
             {
                 if (fitModelScreen->IsShown() )
@@ -1983,7 +1983,7 @@ void VspGlWindow::OnDrag( int x, int y )
                 display->pan( ( int )m_prevAltLB.x, ( int )m_prevAltLB.y, x, y );
 
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
                 if ( viewScreen->IsShown() )
                 {
@@ -2000,7 +2000,7 @@ void VspGlWindow::OnDrag( int x, int y )
                 display->zoom( ( int )m_prevCtrlLB.x, ( int )m_prevCtrlLB.y, x, y );
 
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
                 viewScreen->UpdateZoom();
             }
@@ -2013,7 +2013,7 @@ void VspGlWindow::OnDrag( int x, int y )
                 display->zoom( ( int )m_prevMetaLB.x, ( int )m_prevMetaLB.y, x, y );
 
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
                 viewScreen->UpdateZoom();
             }
@@ -2027,7 +2027,7 @@ void VspGlWindow::OnDrag( int x, int y )
                 display->rotate( ( int )m_prevLB.x, ( int )m_prevLB.y, x, y );
 
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
                 viewScreen->UpdateRotations();
             }
@@ -2042,7 +2042,7 @@ void VspGlWindow::OnDrag( int x, int y )
             display->zoom( ( int )m_prevMB.x, ( int )m_prevMB.y, x, y );
 
             ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
             viewScreen->UpdateZoom();
         }
@@ -2056,7 +2056,7 @@ void VspGlWindow::OnDrag( int x, int y )
             display->pan( ( int )m_prevRB.x, ( int )m_prevRB.y, x, y );
 
             ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
             if ( viewScreen->IsShown() )
             {
@@ -2082,7 +2082,7 @@ void VspGlWindow::OnRelease( int x, int y )
         if( Fl::event_shift() || vPtr->m_SelectBoxFlag() )
         {
             FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
-                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_FIT_MODEL_SCREEN ) );
+                ( m_ScreenMgr->GetScreen( vsp::VSP_FIT_MODEL_SCREEN ) );
             if ( fitModelScreen )
             {
                 if (fitModelScreen->IsShown() )
@@ -2116,7 +2116,7 @@ int VspGlWindow::OnKeyup( int x, int y )
     VSPGraphic::Display * display = m_GEngine->getDisplay();
 
     ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+    ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
     int handled = 0;
 
@@ -2329,7 +2329,7 @@ int VspGlWindow::OnWheelScroll( int dx, int dy, int x, int y )
         // cancel out any effect the zoom had on pan position, so that the same location remains under the mouse
         relativePan( pan.x + mousePosAfterX - mousePosBeforeX , pan.y + mousePosAfterY - mousePosBeforeY );
 
-        ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* > ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if ( viewScreen )
         {
@@ -2350,7 +2350,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
 
     // Probe Screen Feedback
     ManageMeasureScreen * measureScreen = dynamic_cast<ManageMeasureScreen*>
-    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MEASURE_SCREEN ) );
+    ( m_ScreenMgr->GetScreen( vsp::VSP_MEASURE_SCREEN ) );
 
     if( measureScreen && measureScreen->getFeedbackGroupName() == selectedFeedbackName )
     {
@@ -2392,7 +2392,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
 
     // Geom Screen Feedback
     ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
 
     if( geomScreen && geomScreen->getFeedbackGroupName() == selectedFeedbackName )
     {
@@ -2420,7 +2420,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
 
     // Center of rotation Screen Feedback
     ManageCORScreen * corScreen = dynamic_cast<ManageCORScreen*>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
 
     if( corScreen && corScreen->getFeedbackGroupName() == selectedFeedbackName )
     {
@@ -2435,7 +2435,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
                 m_GEngine->getDisplay()->setCOR( -placement.x, -placement.y, -placement.z );
 
                 ManageViewScreen * viewScreen = dynamic_cast< ManageViewScreen* >
-                ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+                ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
                 if ( viewScreen->IsShown() )
                 {
@@ -2505,7 +2505,7 @@ void EditXSecWindow::update()
 
         // Load Render Objects for Curve Edit Screen
         CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
         if ( curve_editor )
         {
             curve_editor->LoadDrawObjs( drawObjs );
@@ -2521,7 +2521,7 @@ int EditXSecWindow::handle( int fl_event )
     int ret_val = VspGlWindow::handle( fl_event );
 
     CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
     if ( !curve_editor )
     {
         return ret_val;
@@ -2643,7 +2643,7 @@ vec3d EditXSecWindow::PixelToCoord( int x_pix, int y_pix )
 
     //==== Find EditCurveXSec Ptr ====//
     CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
     if ( !curve_editor )
     {
         return coord;
@@ -2697,7 +2697,7 @@ int EditXSecWindow::ihit( const vec3d & mpt, double r_test )
 {
     //==== Find EditCurveXSec Ptr ====//
     CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
     if ( !curve_editor )
     {
         return -1;
@@ -2747,7 +2747,7 @@ vector < vec3d > EditXSecWindow::proj_pt_vec( const vector < vec3d > & pt_in )
 {
     //==== Find EditCurveXSec Ptr ====//
     CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
     if ( !curve_editor )
     {
         return pt_in;
@@ -2805,7 +2805,7 @@ void EditXSecWindow::InitZoom()
 
     //==== Find EditCurveXSec Ptr ====//
     CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_CURVE_EDIT_SCREEN ) );
     if ( !curve_editor )
     {
         return;

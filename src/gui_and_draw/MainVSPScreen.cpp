@@ -79,8 +79,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_SaveAsMenuItem.Init( this, m_MenuBar, "File/Save As..." );
     m_SaveSetMenuItem.Init( this, m_MenuBar, "File/Save Set..." );
     m_InsertMenuItem.Init( this, m_MenuBar, "File/Insert..." );
-    m_ImportMenuItem.Init( mgr, m_MenuBar, "File/Import...", ScreenMgr::VSP_IMPORT_SCREEN );
-    m_ExportMenuItem.Init( mgr, m_MenuBar, "File/Export...", ScreenMgr::VSP_EXPORT_SCREEN );
+    m_ImportMenuItem.Init( mgr, m_MenuBar, "File/Import...", vsp::VSP_IMPORT_SCREEN );
+    m_ExportMenuItem.Init( mgr, m_MenuBar, "File/Export...", vsp::VSP_EXPORT_SCREEN );
     // m_SetTempDirMenuItem.Init( this, m_MenuBar, "File/Set Temp Dir..." );
     m_RunScriptMenuItem.Init( this, m_MenuBar, "File/Run Script..." );
     m_ExitMenuItem.Init( this, m_MenuBar, "File/Exit" );
@@ -97,8 +97,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_FourMenuItem.Init( this, m_MenuBar, "Window/Four" );
     m_TwoHMenuItem.Init( this, m_MenuBar, "Window/Two Horizontal" );
     m_TwoVMenuItem.Init( this, m_MenuBar, "Window/Two Vertical" );
-    m_BackgroundMenuItem.Init( mgr, m_MenuBar, "Window/Background...", ScreenMgr::VSP_BACKGROUND_SCREEN );
-    m_ScreenshotMenuItem.Init( mgr, m_MenuBar, "Window/Screenshot...", ScreenMgr::VSP_SCREENSHOT_SCREEN );
+    m_BackgroundMenuItem.Init( mgr, m_MenuBar, "Window/Background...", vsp::VSP_BACKGROUND_SCREEN );
+    m_ScreenshotMenuItem.Init( mgr, m_MenuBar, "Window/Screenshot...", vsp::VSP_SCREENSHOT_SCREEN );
     m_AxisMenuItem.Init( this, m_MenuBar, "Window/Axis Toggle" );
     m_AxisMenuItem.Update( m_ShowXYZArrow );
     m_BorderMenuItem.Init( this, m_MenuBar, "Window/Border Toggle" );
@@ -115,38 +115,38 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_CenterMenuItem.Init( this, m_MenuBar, "View/Center", 'c' );
     m_SetCORMenuItem.Init( this, m_MenuBar, "View/Set Rotation Center", 'r' );
     m_FitViewMenuItem.Init( this, m_MenuBar, "View/Fit On Screen", 'f' );
-    m_AdjustMenuItem.Init( mgr, m_MenuBar, "View/Adjust...", ScreenMgr::VSP_VIEW_SCREEN );
+    m_AdjustMenuItem.Init( mgr, m_MenuBar, "View/Adjust...", vsp::VSP_VIEW_SCREEN );
     // m_AntialiasMenuItem.Init( this, m_MenuBar, "View/New" );
 
-    m_GeomMenuItem.Init( mgr, m_MenuBar, "Model/Geometry...", ScreenMgr::VSP_MANAGE_GEOM_SCREEN );
-    m_SetEditMenuItem.Init( mgr, m_MenuBar, "Model/Set Editor...", ScreenMgr::VSP_SET_EDITOR_SCREEN );
-    m_LinkMenuItem.Init( mgr, m_MenuBar, "Model/Link...", ScreenMgr::VSP_PARM_LINK_SCREEN );
-    m_DesVarMenuItem.Init( mgr, m_MenuBar, "Model/Design Variables...", ScreenMgr::VSP_DESIGN_VAR_SCREEN );
-    m_LabelMenuItem.Init( mgr, m_MenuBar, "Model/Measure...", ScreenMgr::VSP_MEASURE_SCREEN );
-    m_LightMenuItem.Init( mgr, m_MenuBar, "Model/Lighting...", ScreenMgr::VSP_LIGHTING_SCREEN );
-    m_ClipMenuItem.Init( mgr, m_MenuBar, "Model/Clipping...", ScreenMgr::VSP_CLIPPING_SCREEN );
-    m_TextureMenuItem.Init( mgr, m_MenuBar, "Model/Texture...", ScreenMgr::VSP_MANAGE_TEXTURE_SCREEN );
-    m_AdvLinkMenuItem.Init( mgr, m_MenuBar, "Model/Adv Link...", ScreenMgr::VSP_ADV_LINK_SCREEN );
-    m_UserParmMenuItem.Init( mgr, m_MenuBar, "Model/User Parms...", ScreenMgr::VSP_USER_PARM_SCREEN );
-    m_FitModelMenuItem.Init( mgr, m_MenuBar, "Model/Fit Model...", ScreenMgr::VSP_FIT_MODEL_SCREEN );
-    m_SnapToMenuItem.Init( mgr, m_MenuBar, "Model/Snap To...", ScreenMgr::VSP_SNAP_TO_SCREEN );
-    m_VarPresetMenuItem.Init( mgr, m_MenuBar, "Model/Variable Presets...", ScreenMgr::VSP_VAR_PRESET_SCREEN );
+    m_GeomMenuItem.Init( mgr, m_MenuBar, "Model/Geometry...", vsp::VSP_MANAGE_GEOM_SCREEN );
+    m_SetEditMenuItem.Init( mgr, m_MenuBar, "Model/Set Editor...", vsp::VSP_SET_EDITOR_SCREEN );
+    m_LinkMenuItem.Init( mgr, m_MenuBar, "Model/Link...", vsp::VSP_PARM_LINK_SCREEN );
+    m_DesVarMenuItem.Init( mgr, m_MenuBar, "Model/Design Variables...", vsp::VSP_DESIGN_VAR_SCREEN );
+    m_LabelMenuItem.Init( mgr, m_MenuBar, "Model/Measure...", vsp::VSP_MEASURE_SCREEN );
+    m_LightMenuItem.Init( mgr, m_MenuBar, "Model/Lighting...", vsp::VSP_LIGHTING_SCREEN );
+    m_ClipMenuItem.Init( mgr, m_MenuBar, "Model/Clipping...", vsp::VSP_CLIPPING_SCREEN );
+    m_TextureMenuItem.Init( mgr, m_MenuBar, "Model/Texture...", vsp::VSP_MANAGE_TEXTURE_SCREEN );
+    m_AdvLinkMenuItem.Init( mgr, m_MenuBar, "Model/Adv Link...", vsp::VSP_ADV_LINK_SCREEN );
+    m_UserParmMenuItem.Init( mgr, m_MenuBar, "Model/User Parms...", vsp::VSP_USER_PARM_SCREEN );
+    m_FitModelMenuItem.Init( mgr, m_MenuBar, "Model/Fit Model...", vsp::VSP_FIT_MODEL_SCREEN );
+    m_SnapToMenuItem.Init( mgr, m_MenuBar, "Model/Snap To...", vsp::VSP_SNAP_TO_SCREEN );
+    m_VarPresetMenuItem.Init( mgr, m_MenuBar, "Model/Variable Presets...", vsp::VSP_VAR_PRESET_SCREEN );
 
-    m_CompGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/CompGeom...", ScreenMgr::VSP_COMP_GEOM_SCREEN );
-    m_PSliceMenuItem.Init( mgr, m_MenuBar, "Analysis/Planar Slice...", ScreenMgr::VSP_PSLICE_SCREEN );
-    m_MassPropMenuItem.Init( mgr, m_MenuBar, "Analysis/Mass Prop...", ScreenMgr::VSP_MASS_PROP_SCREEN );
-    m_ProjectionMenuItem.Init( mgr, m_MenuBar, "Analysis/Projected Area...", ScreenMgr::VSP_PROJECTION_SCREEN );
-    m_DegenGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/DegenGeom...", ScreenMgr::VSP_DEGEN_GEOM_SCREEN );
-    m_SurfIntMenuItem.Init( mgr, m_MenuBar, "Analysis/Trimmed Surfaces...", ScreenMgr::VSP_SURFACE_INTERSECTION_SCREEN );
-    m_CFDMeshMenuItem.Init( mgr, m_MenuBar, "Analysis/CFD Mesh...", ScreenMgr::VSP_CFD_MESH_SCREEN );
+    m_CompGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/CompGeom...", vsp::VSP_COMP_GEOM_SCREEN );
+    m_PSliceMenuItem.Init( mgr, m_MenuBar, "Analysis/Planar Slice...", vsp::VSP_PSLICE_SCREEN );
+    m_MassPropMenuItem.Init( mgr, m_MenuBar, "Analysis/Mass Prop...", vsp::VSP_MASS_PROP_SCREEN );
+    m_ProjectionMenuItem.Init( mgr, m_MenuBar, "Analysis/Projected Area...", vsp::VSP_PROJECTION_SCREEN );
+    m_DegenGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/DegenGeom...", vsp::VSP_DEGEN_GEOM_SCREEN );
+    m_SurfIntMenuItem.Init( mgr, m_MenuBar, "Analysis/Trimmed Surfaces...", vsp::VSP_SURFACE_INTERSECTION_SCREEN );
+    m_CFDMeshMenuItem.Init( mgr, m_MenuBar, "Analysis/CFD Mesh...", vsp::VSP_CFD_MESH_SCREEN );
 
-    m_StructMenuItem.Init( mgr, m_MenuBar, "Analysis/Structure/FEA Structure...", ScreenMgr::VSP_STRUCT_SCREEN );
-    m_StructAssemblyMenuItem.Init( mgr, m_MenuBar, "Analysis/Structure/FEA Assembly...", ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN );
-    m_AeroStructMenuItem.Init( mgr, m_MenuBar, "Analysis/Structure/Aero Structural...", ScreenMgr::VSP_AERO_STRUCT_SCREEN );
+    m_StructMenuItem.Init( mgr, m_MenuBar, "Analysis/Structure/FEA Structure...", vsp::VSP_STRUCT_SCREEN );
+    m_StructAssemblyMenuItem.Init( mgr, m_MenuBar, "Analysis/Structure/FEA Assembly...", vsp::VSP_STRUCT_ASSEMBLY_SCREEN );
+    m_AeroStructMenuItem.Init( mgr, m_MenuBar, "Analysis/Structure/Aero Structural...", vsp::VSP_AERO_STRUCT_SCREEN );
 
-    m_VSPAEROMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero/VSPAERO...", ScreenMgr::VSP_VSPAERO_SCREEN );
-    m_WaveDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero/Wave Drag...", ScreenMgr::VSP_WAVEDRAG_SCREEN );
-    m_ParasiteDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero/Parasite Drag...", ScreenMgr::VSP_PARASITE_DRAG_SCREEN );
+    m_VSPAEROMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero/VSPAERO...", vsp::VSP_VSPAERO_SCREEN );
+    m_WaveDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero/Wave Drag...", vsp::VSP_WAVEDRAG_SCREEN );
+    m_ParasiteDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Aero/Parasite Drag...", vsp::VSP_PARASITE_DRAG_SCREEN );
 
 
     // m_AboutMenuItem.Init( mgr, m_MenuBar, "Help/About...", ScreenMgr:: );
@@ -410,7 +410,7 @@ void MainVSPScreen::ActionCB( void * data )
 
         ManageGeomScreen * geomScreen = NULL;
         geomScreen = dynamic_cast<ManageGeomScreen *>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
         if( geomScreen )
         {
             geomScreen->ShowHideGeomScreens();
@@ -420,7 +420,7 @@ void MainVSPScreen::ActionCB( void * data )
     {
         ManageGeomScreen * geomScreen = NULL;
         geomScreen = dynamic_cast<ManageGeomScreen *>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MANAGE_GEOM_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
         if( geomScreen )
         {
             geomScreen->TriggerPickSwitch();
@@ -463,7 +463,7 @@ void MainVSPScreen::ActionCB( void * data )
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_TOP );
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if( viewScreen )
         {
@@ -480,7 +480,7 @@ void MainVSPScreen::ActionCB( void * data )
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_FRONT );
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if( viewScreen )
         {
@@ -497,7 +497,7 @@ void MainVSPScreen::ActionCB( void * data )
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_LEFT );
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if( viewScreen )
         {
@@ -514,7 +514,7 @@ void MainVSPScreen::ActionCB( void * data )
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_LEFT_ISO );
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if( viewScreen )
         {
@@ -531,7 +531,7 @@ void MainVSPScreen::ActionCB( void * data )
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_BOTTOM );
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if( viewScreen )
         {
@@ -548,7 +548,7 @@ void MainVSPScreen::ActionCB( void * data )
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_REAR );
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if( viewScreen )
         {
@@ -565,7 +565,7 @@ void MainVSPScreen::ActionCB( void * data )
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_RIGHT );
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if( viewScreen )
         {
@@ -582,7 +582,7 @@ void MainVSPScreen::ActionCB( void * data )
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_RIGHT_ISO );
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if( viewScreen )
         {
@@ -600,7 +600,7 @@ void MainVSPScreen::ActionCB( void * data )
 
         ManageViewScreen * viewScreen = NULL;
         viewScreen = dynamic_cast< ManageViewScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
         if( viewScreen )
         {
@@ -615,7 +615,7 @@ void MainVSPScreen::ActionCB( void * data )
     {
         ManageCORScreen * corScreen = NULL;
         corScreen = dynamic_cast<ManageCORScreen *>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
         if( corScreen )
         {
             corScreen->EnableSelection();
@@ -630,7 +630,7 @@ void MainVSPScreen::ActionCB( void * data )
         bool cfdvisible = false;
         // Load visible boundign box from CfdMeshScreen.
         CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CFD_MESH_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_CFD_MESH_SCREEN ) );
         if( cfdScreen )
         {
             cfdvisible = cfdScreen->GetVisBndBox( bbox );
@@ -639,7 +639,7 @@ void MainVSPScreen::ActionCB( void * data )
         bool surfvisible = false;
         // Load visible boundign box from SurfaceIntersectionScreen.
         SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_SURFACE_INTERSECTION_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_SURFACE_INTERSECTION_SCREEN ) );
         if( surfScreen )
         {
             surfvisible = surfScreen->GetVisBndBox( bbox );
@@ -648,7 +648,7 @@ void MainVSPScreen::ActionCB( void * data )
         bool structvisible = false;
         // Load visible boundign box from FeaStructScreen.
         StructScreen * structScreen = dynamic_cast< StructScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_SCREEN ) );
         if( structScreen )
         {
             structvisible = structScreen->GetVisBndBox( bbox );
@@ -657,7 +657,7 @@ void MainVSPScreen::ActionCB( void * data )
         bool assemblyvisible = false;
         // Load visible boundign box from FeaStructAssemblyScreen.
         StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_ASSEMBLY_SCREEN ) );
         if( structAssemblyScreen )
         {
             assemblyvisible = structAssemblyScreen->GetVisBndBox( bbox );
@@ -678,7 +678,7 @@ void MainVSPScreen::ActionCB( void * data )
 
             ManageViewScreen * viewScreen = NULL;
             viewScreen = dynamic_cast< ManageViewScreen* >
-            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+            ( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
             if ( viewScreen->IsShown() )
             {

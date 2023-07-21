@@ -128,7 +128,7 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int degen_set, in
     }
     else if ( type == EXPORT_STL )
     {
-        if ( (( STLOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_STL_OPTIONS_SCREEN ))->ShowSTLOptionsScreen() )
+        if ( (( STLOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_STL_OPTIONS_SCREEN ))->ShowSTLOptionsScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STL File?", "*.stl" );
         }
@@ -163,49 +163,49 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int degen_set, in
     }
     else if ( type == EXPORT_STEP )
     {
-        if ( (( STEPOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_STEP_OPTIONS_SCREEN ))->ShowSTEPOptionsScreen() )
+        if ( (( STEPOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_STEP_OPTIONS_SCREEN ))->ShowSTEPOptionsScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STEP File?", "*.stp" );
         }
     }
     else if ( type == EXPORT_STEP_STRUCTURE )
     {
-        if ( (( STEPStructureOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_STEP_STRUCTURE_OPTIONS_SCREEN ))->ShowSTEPOptionsScreen() )
+        if ( (( STEPStructureOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_STEP_STRUCTURE_OPTIONS_SCREEN ))->ShowSTEPOptionsScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STEP Structures File?", "*.stp" );
         }
     }
     else if ( type == EXPORT_IGES )
     {
-        if ( (( IGESOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_IGES_OPTIONS_SCREEN ))->ShowIGESOptionsScreen() )
+        if ( (( IGESOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_IGES_OPTIONS_SCREEN ))->ShowIGESOptionsScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write IGES File?", "*.igs" );
         }
     }
     else if ( type == EXPORT_IGES_STRUCTURE )
     {
-        if ( (( IGESStructureOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_IGES_STRUCTURE_OPTIONS_SCREEN ))->ShowIGESOptionsScreen() )
+        if ( (( IGESStructureOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_IGES_STRUCTURE_OPTIONS_SCREEN ))->ShowIGESOptionsScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write IGES Structures File?", "*.igs" );
         }
     }
     else if ( type == EXPORT_BEM )
     {
-        if ( (( BEMOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_BEM_OPTIONS_SCREEN ))->ShowBEMOptionsScreen() )
+        if ( (( BEMOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_BEM_OPTIONS_SCREEN ))->ShowBEMOptionsScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Blade Element File?", "*.bem" );
         }
     }
     else if ( type == EXPORT_DXF )
     {
-        if ( (( DXFOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_DXF_OPTIONS_SCREEN ))->ShowDXFOptionsScreen() )
+        if ( (( DXFOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_DXF_OPTIONS_SCREEN ))->ShowDXFOptionsScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write DXF File?", "*.dxf" );
         }
     }
     else if ( type == EXPORT_SVG )
     {
-        if ( (( SVGOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_SVG_OPTIONS_SCREEN ))->ShowSVGOptionsScreen( ) )
+        if ( (( SVGOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_SVG_OPTIONS_SCREEN ))->ShowSVGOptionsScreen( ) )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write SVG File?", "*.svg" );
         }
@@ -221,14 +221,14 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int degen_set, in
     }
     else if ( type == EXPORT_SELIG_AIRFOIL )
     {
-        if ( ( (SeligAirfoilExportScreen*)m_ScreenMgr->GetScreen( ScreenMgr::VSP_AIRFOIL_POINTS_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
+        if ( ( (SeligAirfoilExportScreen*)m_ScreenMgr->GetScreen( vsp::VSP_AIRFOIL_POINTS_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Airfoil Metadata File?", "*.csv" );
         }
     }
     else if ( type == EXPORT_BEZIER_AIRFOIL )
     {
-        if ( ( (BezierAirfoilExportScreen*)m_ScreenMgr->GetScreen( ScreenMgr::VSP_AIRFOIL_CURVES_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
+        if ( ( (BezierAirfoilExportScreen*)m_ScreenMgr->GetScreen( vsp::VSP_AIRFOIL_CURVES_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Airfoil Metadata File?", "*.csv" );
         }
@@ -365,7 +365,7 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_CustomScriptButton )
     {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_EXPORT_CUSTOM_SCRIPT );
+        m_ScreenMgr->ShowScreen( vsp::VSP_EXPORT_CUSTOM_SCRIPT );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

@@ -26,63 +26,6 @@
 class ScreenMgr : MessageBase
 {
 public:
-    enum { VSP_ADV_LINK_SCREEN,
-           VSP_AERO_STRUCT_SCREEN,
-           VSP_AIRFOIL_CURVES_EXPORT_SCREEN,
-           VSP_AIRFOIL_POINTS_EXPORT_SCREEN,
-           VSP_BACKGROUND_SCREEN,
-           VSP_BEM_OPTIONS_SCREEN,
-           VSP_CFD_MESH_SCREEN,
-           VSP_CLIPPING_SCREEN,
-           VSP_COMP_GEOM_SCREEN,
-           VSP_COR_SCREEN,
-           VSP_CURVE_EDIT_SCREEN,
-           VSP_DEGEN_GEOM_SCREEN,
-           VSP_DESIGN_VAR_SCREEN,
-           VSP_DXF_OPTIONS_SCREEN,
-           VSP_EXPORT_SCREEN,
-           VSP_FEA_PART_EDIT_SCREEN,
-           VSP_FEA_XSEC_SCREEN,
-           VSP_FIT_MODEL_SCREEN,
-           VSP_IGES_OPTIONS_SCREEN,
-           VSP_IGES_STRUCTURE_OPTIONS_SCREEN,
-           VSP_EXPORT_CUSTOM_SCRIPT,
-           VSP_IMPORT_SCREEN,
-           VSP_LIGHTING_SCREEN,
-           VSP_MANAGE_GEOM_SCREEN,
-           VSP_MANAGE_TEXTURE_SCREEN,
-           VSP_MASS_PROP_SCREEN,
-           VSP_MATERIAL_EDIT_SCREEN,
-           VSP_MEASURE_SCREEN,
-           VSP_SNAP_TO_SCREEN,
-           VSP_PARASITE_DRAG_SCREEN,
-           VSP_PARM_DEBUG_SCREEN,
-           VSP_PARM_LINK_SCREEN,
-           VSP_PARM_SCREEN,
-           VSP_PICK_SET_SCREEN,
-           VSP_PROJECTION_SCREEN,
-           VSP_PSLICE_SCREEN,
-           VSP_SCREENSHOT_SCREEN,
-           VSP_SELECT_FILE_SCREEN,
-           VSP_SET_EDITOR_SCREEN,
-           VSP_STEP_OPTIONS_SCREEN,
-           VSP_STEP_STRUCTURE_OPTIONS_SCREEN,
-           VSP_STL_OPTIONS_SCREEN,
-           VSP_STRUCT_SCREEN,
-           VSP_STRUCT_ASSEMBLY_SCREEN,
-           VSP_SURFACE_INTERSECTION_SCREEN,
-           VSP_SVG_OPTIONS_SCREEN,
-           VSP_USER_PARM_SCREEN,
-           VSP_VAR_PRESET_SCREEN,
-           VSP_VIEW_SCREEN,
-           VSP_VSPAERO_PLOT_SCREEN,
-           VSP_VSPAERO_SCREEN,
-           VSP_XSEC_SCREEN,
-           VSP_WAVEDRAG_SCREEN,
-           VSP_MAIN_SCREEN,   /* Leave at end of list, helps draw after update. */
-           VSP_NUM_SCREENS
-         };
-
     ScreenMgr( Vehicle* vPtr );
     virtual ~ScreenMgr();
 
@@ -99,11 +42,11 @@ public:
 
     SelectFileScreen * GetSelectFileScreen()
     {
-        return ( SelectFileScreen * )m_ScreenVec[VSP_SELECT_FILE_SCREEN];
+        return ( SelectFileScreen * )m_ScreenVec[vsp::VSP_SELECT_FILE_SCREEN];
     }
     PickSetScreen* GetPickSetScreen()
     {
-        return (PickSetScreen *)m_ScreenVec[VSP_PICK_SET_SCREEN];
+        return (PickSetScreen *)m_ScreenVec[vsp::VSP_PICK_SET_SCREEN];
     }
 
     /*!
@@ -124,11 +67,11 @@ public:
     };
     void ShowReturnToAPI()
     {
-//        ( ( MainVSPScreen* ) m_ScreenVec[VSP_MAIN_SCREEN] )->ShowReturnToAPI();
+//        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowReturnToAPI();
     };
     void HideReturnToAPI()
     {
-//        ( ( MainVSPScreen* ) m_ScreenVec[VSP_MAIN_SCREEN] )->HideReturnToAPI();
+//        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideReturnToAPI();
     };
 
     bool m_ShowPlotScreenOnce;

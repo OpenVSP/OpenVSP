@@ -96,7 +96,7 @@ void ManageViewScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     if( main )
     {
         Vehicle *veh = VehicleMgr.GetVehicle();
@@ -140,7 +140,7 @@ bool ManageViewScreen::Update()
 {
     BasicScreen::Update();
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     if( !main )
     {
         return false;
@@ -204,7 +204,7 @@ bool ManageViewScreen::Update()
 
 void ManageViewScreen::UpdateViewport()
 {
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     if( main )
     {
         Vehicle *veh = VehicleMgr.GetVehicle();
@@ -218,7 +218,7 @@ void ManageViewScreen::UpdateViewport()
 
 void ManageViewScreen::UpdateCOR()
 {
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( main )
     {
@@ -238,7 +238,7 @@ void ManageViewScreen::UpdateCOR()
 
 void ManageViewScreen::UpdatePan()
 {
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( main )
     {
@@ -255,7 +255,7 @@ void ManageViewScreen::UpdatePan()
 
 void ManageViewScreen::UpdateZoom()
 {
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( main )
     {
@@ -269,7 +269,7 @@ void ManageViewScreen::UpdateZoom()
 //===== Attempt at Euler Angle Rotation =====//
 void ManageViewScreen::UpdateRotations()
 {
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( main )
     {
@@ -317,7 +317,7 @@ void ManageViewScreen::GuiDeviceCallBack( GuiDevice* device )
     //===== Trigger Buttons =====//
     if ( device == &m_SetDefaultViewportSize )
     {
-        MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
         if( main )
         {
             VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
@@ -329,7 +329,7 @@ void ManageViewScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_PickLookAtBtn )
     {
         ManageCORScreen* corScreen = dynamic_cast<ManageCORScreen *>
-        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_COR_SCREEN ) );
+        ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
         if( corScreen )
         {
             corScreen->EnableSelection();
@@ -345,7 +345,7 @@ void ManageViewScreen::GuiDeviceCallBack( GuiDevice* device )
         m_CORY.Update( veh->m_CORYValue.GetID() );
         m_CORZ.Update( veh->m_CORZValue.GetID() );
 
-        MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
         if( main )
         {
             VSPGUI::VspGlWindow * glwin = main->GetGLWindow();

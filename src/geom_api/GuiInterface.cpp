@@ -57,7 +57,7 @@ void GuiInterface::StartGuiAPI( )
     {
         m_ScreenMgr->SetRunGui( true );
         m_ScreenMgr->ShowReturnToAPI();
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MAIN_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_MAIN_SCREEN );
         while( m_ScreenMgr->CheckRunGui() && Fl::wait() );
     }
 #endif
@@ -93,7 +93,7 @@ void GuiInterface::ScreenGrab( const std::string &fname, int w, int h, bool tran
     if ( m_ScreenMgr )
     {
         m_ScreenMgr->ForceUpdate();
-        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
         if( main )
         {
             main->ScreenGrab( fname, w, h, transparentBG, autocrop );
@@ -107,7 +107,7 @@ void GuiInterface::SetViewAxis( bool vaxis )
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
         if( main )
         {
             main->SetViewAxis( vaxis );
@@ -121,7 +121,7 @@ void GuiInterface::SetShowBorders( bool brdr )
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
         if( main )
         {
             main->SetShowBorders( brdr );
@@ -135,7 +135,7 @@ void GuiInterface::SetBackground( double r, double g, double b )
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
         if( main )
         {
             main->SetBackground( r, g, b );

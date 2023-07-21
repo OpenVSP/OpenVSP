@@ -952,7 +952,7 @@ void * solver_thread_fun( void *data )
         vsscreen->GetScreenMgr()->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
 
         // Display default view settings
-        VSPAEROPlotScreen* vspapscreen = (VSPAEROPlotScreen*)vsscreen->GetScreenMgr()->GetScreen( ScreenMgr::VSP_VSPAERO_PLOT_SCREEN );
+        VSPAEROPlotScreen* vspapscreen = (VSPAEROPlotScreen*)vsscreen->GetScreenMgr()->GetScreen( vsp::VSP_VSPAERO_PLOT_SCREEN );
         if ( vspapscreen )
         {
             vspapscreen->SetDefaultView();
@@ -1101,7 +1101,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                 m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
 
                 // Display default view settings
-                VSPAEROPlotScreen* vspapscreen = (VSPAEROPlotScreen*)m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_PLOT_SCREEN );
+                VSPAEROPlotScreen* vspapscreen = (VSPAEROPlotScreen*)m_ScreenMgr->GetScreen( vsp::VSP_VSPAERO_PLOT_SCREEN );
                 if ( vspapscreen )
                 {
                     vspapscreen->SetDefaultView();

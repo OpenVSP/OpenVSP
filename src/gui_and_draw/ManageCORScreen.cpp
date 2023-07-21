@@ -56,7 +56,7 @@ bool ManageCORScreen::Update()
 
     // Load Render Objects from CfdMeshScreen.
     CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
-    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_CFD_MESH_SCREEN ) );
+    ( m_ScreenMgr->GetScreen( vsp::VSP_CFD_MESH_SCREEN ) );
     if( cfdScreen )
     {
         cfdScreen->LoadDrawObjs( geom_drawObj_vec );
@@ -64,7 +64,7 @@ bool ManageCORScreen::Update()
 
     // Load Render Objects from SurfaceIntersectionScreen.
     SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
-    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_SURFACE_INTERSECTION_SCREEN ) );
+    ( m_ScreenMgr->GetScreen( vsp::VSP_SURFACE_INTERSECTION_SCREEN ) );
     if( surfScreen )
     {
         surfScreen->LoadDrawObjs( geom_drawObj_vec );
@@ -72,7 +72,7 @@ bool ManageCORScreen::Update()
 
     // Load Render Objects from FeaStructScreen.
     StructScreen * structScreen = dynamic_cast< StructScreen* >
-    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_SCREEN ) );
+    ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_SCREEN ) );
     if( structScreen )
     {
         structScreen->LoadDrawObjs( geom_drawObj_vec );
@@ -80,7 +80,7 @@ bool ManageCORScreen::Update()
 
     // Load Render Objects from FeaStructAssemblyScreen.
     StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
-    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN ) );
+    ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_ASSEMBLY_SCREEN ) );
     if( structAssemblyScreen )
     {
         structAssemblyScreen->LoadDrawObjs( geom_drawObj_vec );

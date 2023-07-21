@@ -98,7 +98,7 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 23
     //Initialize Width and Height Values
     m_SelectRatio.GetFlButton()->value( 1 );
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
 
     m_NewWidth.SetRange( 10.0 );
     m_NewHeight.SetRange( 10.0 );
@@ -141,7 +141,7 @@ bool ScreenshotScreen::Update()
 {
     BasicScreen::Update();
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     if( !main )
     {
         return false;
@@ -232,7 +232,7 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
 
-    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+    MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
     if( !main )
     {
         return;

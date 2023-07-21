@@ -117,7 +117,7 @@ bool AeroStructScreen::Update()
 
     m_DynPressSlider.Update( AeroStructMgr.m_DynPress.GetID() );
 
-    VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* > ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_SCREEN ) );
+    VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_VSPAERO_SCREEN ) );
 
     if ( AeroScreen )
     {
@@ -435,11 +435,11 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
     if ( gui_device == &m_ShowVSPAEROGUI )
     {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_VSPAERO_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_VSPAERO_SCREEN );
     }
     else if( gui_device == &m_ExecuteVSPAERO )
     {
-        VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* > ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_SCREEN ) );
+        VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* > ( m_ScreenMgr->GetScreen( vsp::VSP_VSPAERO_SCREEN ) );
         if ( AeroScreen )
         {
             // Clear the console
@@ -450,11 +450,11 @@ void AeroStructScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ShowFEAMeshGUI )
     {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_STRUCT_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_STRUCT_SCREEN );
     }
     else if ( gui_device == &m_ShowFEAAssemblyGUI )
     {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_STRUCT_ASSEMBLY_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_STRUCT_ASSEMBLY_SCREEN );
     }
     else if ( gui_device == &m_ExecuteRemeshAllFEAMesh )
     {

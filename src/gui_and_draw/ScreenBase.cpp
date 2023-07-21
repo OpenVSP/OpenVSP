@@ -1379,9 +1379,9 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_CustomMaterialButton )
     {
-        ( ( MaterialEditScreen* ) ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MATERIAL_EDIT_SCREEN ) ) )->m_OrigColor = geom_ptr->GetMaterial()->m_Name;
+        ( ( MaterialEditScreen* ) ( m_ScreenMgr->GetScreen( vsp::VSP_MATERIAL_EDIT_SCREEN ) ) )->m_OrigColor = geom_ptr->GetMaterial()->m_Name;
         geom_ptr->GetMaterial()->m_Name = "Custom";
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_MATERIAL_EDIT_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_MATERIAL_EDIT_SCREEN );
     }
     else if ( device == &m_ScaleAcceptButton )
     {
@@ -2579,12 +2579,12 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
         if (t == XS_EDIT_CURVE)
         {
-            m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+            m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
         }
     }
     else if (gui_device == &m_ShowXSecButton)
     {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_XSEC_SCREEN );
     }
     else if (gui_device == &m_ConvertCEDITButton)
     {
@@ -2596,7 +2596,7 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
             if (edit_xsec)
             {
-                m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+                m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
             }
 
             // Deactivate width and/or height parms for Prop and Wing
@@ -2625,7 +2625,7 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if (gui_device == &m_EditCEDITButton)
     {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_CURVE_EDIT_SCREEN );
     }
     else if (gui_device == &m_ReadFuseFileButton)
     {

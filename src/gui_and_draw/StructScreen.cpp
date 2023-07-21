@@ -3550,7 +3550,7 @@ void StructScreen::CallBack( Fl_Widget* w )
                     if ( m_SelectedPartIndexVec.size() == 1 )
                     {
                         StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
-                        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_FEA_PART_EDIT_SCREEN );
+                        m_ScreenMgr->ShowScreen( vsp::VSP_FEA_PART_EDIT_SCREEN );
                     }
                 }
             }
@@ -3829,7 +3829,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
 
-            m_ScreenMgr->ShowScreen( ScreenMgr::VSP_FEA_PART_EDIT_SCREEN );
+            m_ScreenMgr->ShowScreen( vsp::VSP_FEA_PART_EDIT_SCREEN );
         }
         else
         {
@@ -4181,7 +4181,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_ShowFeaBeamXSecButton )
     {
         // Show XSec Diagram with Dimensions
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_FEA_XSEC_SCREEN );
+        m_ScreenMgr->ShowScreen( vsp::VSP_FEA_XSEC_SCREEN );
     }
     else if ( device == &m_SelectStlFile )
     {
@@ -4448,7 +4448,7 @@ void StructScreen::OrientStructure( VSPGraphic::Common::VSPenum type )
     {
         Geom* curr_geom = veh->FindGeom( curr_struct->GetParentGeomID() );
 
-        MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
 
         if ( curr_geom && main )
         {
@@ -4504,7 +4504,7 @@ void StructScreen::OrientStructure( VSPGraphic::Common::VSPenum type )
             glwin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
             glwin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
 
-            ManageViewScreen * viewScreen = dynamic_cast<ManageViewScreen*>( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+            ManageViewScreen * viewScreen = dynamic_cast<ManageViewScreen*>( m_ScreenMgr->GetScreen( vsp::VSP_VIEW_SCREEN ) );
 
             if ( viewScreen )
             {
