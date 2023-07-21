@@ -1231,8 +1231,8 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
         // Setting FF Eqn Choice for Selected Row
         for ( int i = 0; i < m_ffType.size(); i++ )
         {
-            if ( device->GetType() == GDEV_CHOICE || device->GetType() == GDEV_TRIGGER_BUTTON ||
-                    device->GetType() == GDEV_STRING_INPUT )
+            if ( device->GetType() == vsp::GDEV_CHOICE || device->GetType() == vsp::GDEV_TRIGGER_BUTTON ||
+                    device->GetType() == vsp::GDEV_STRING_INPUT )
             {
                 break;
             }

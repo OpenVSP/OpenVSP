@@ -81,7 +81,7 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
 {
     GuiDevice* gui_dev = NULL;
 
-    if ( def.m_Type == GDEV_TAB )
+    if ( def.m_Type == vsp::GDEV_TAB )
     {
         Fl_Group* tab_group = AddTab( def.m_Label );
         Fl_Group* design_group = AddSubGroup( tab_group, 5 );
@@ -91,7 +91,7 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
         t->Init( tab_group );
         gui_dev = t;
     }
-    else if ( def.m_Type == GDEV_SCROLL_TAB )
+    else if ( def.m_Type == vsp::GDEV_SCROLL_TAB )
     {
         Fl_Group* tab_group = AddTab( def.m_Label );
         Fl_Scroll* design_scroll = AddSubScroll( tab_group, 5 );
@@ -102,70 +102,70 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
         t->Init( tab_group );
         gui_dev = t;
     }
-    else if ( def.m_Type == GDEV_SLIDER_ADJ_RANGE_INPUT )
+    else if ( def.m_Type == vsp::GDEV_SLIDER_ADJ_RANGE_INPUT )
     {
         SliderAdjRangeInput* slider = new SliderAdjRangeInput();
         m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), def.m_Range, m_Format.c_str() );
         gui_dev = slider;
     }
-    else if ( def.m_Type == GDEV_SLIDER_INPUT )
+    else if ( def.m_Type == vsp::GDEV_SLIDER_INPUT )
     {
         SliderInput* slider = new SliderInput();
         m_Layout.AddSlider( *slider, ( const char* )def.m_Label.c_str(), def.m_Range, m_Format.c_str() );
         gui_dev = slider;
     }
-    else if ( def.m_Type == GDEV_INPUT )
+    else if ( def.m_Type == vsp::GDEV_INPUT )
     {
         Input* input = new Input();
         m_Layout.AddInput( *input, ( const char* )def.m_Label.c_str(), m_Format.c_str() );
         gui_dev = input;
     }
-    else if ( def.m_Type == GDEV_PARM_BUTTON )
+    else if ( def.m_Type == vsp::GDEV_PARM_BUTTON )
     {
         ParmButton* pb = new ParmButton();
         m_Layout.AddButton( *pb, ( const char* )def.m_Label.c_str() );
         gui_dev = pb;
     }
-   else if ( def.m_Type == GDEV_YGAP )
+   else if ( def.m_Type == vsp::GDEV_YGAP )
     {
         m_Layout.AddYGap();
     }
-    else if ( def.m_Type == GDEV_DIVIDER_BOX )
+    else if ( def.m_Type == vsp::GDEV_DIVIDER_BOX )
     {
         m_Layout.AddDividerBox( ( const char* )def.m_Label.c_str() );
     }
-    else if ( def.m_Type == GDEV_TOGGLE_BUTTON )
+    else if ( def.m_Type == vsp::GDEV_TOGGLE_BUTTON )
     {
         ToggleButton* tb = new ToggleButton();
         m_Layout.AddButton( *tb, ( const char* )def.m_Label.c_str() );
         gui_dev = tb;
     }
-    else if ( def.m_Type == GDEV_TRIGGER_BUTTON )
+    else if ( def.m_Type == vsp::GDEV_TRIGGER_BUTTON )
     {
         TriggerButton* tb = new TriggerButton();
         m_Layout.AddButton( *tb, ( const char* )def.m_Label.c_str() );
         gui_dev = tb;
     }
-    else if ( def.m_Type == GDEV_INDEX_SELECTOR )
+    else if ( def.m_Type == vsp::GDEV_INDEX_SELECTOR )
     {
         IndexSelector* tb = new IndexSelector();
         m_Layout.AddIndexSelector( *tb );
         gui_dev = tb;
     }
-    else if ( def.m_Type == GDEV_COUNTER )
+    else if ( def.m_Type == vsp::GDEV_COUNTER )
     {
         Counter* tb = new Counter();
         m_Layout.AddCounter( *tb,  ( const char* )def.m_Label.c_str() );
         gui_dev = tb;
     }
-    else if ( def.m_Type == GDEV_CHOICE )
+    else if ( def.m_Type == vsp::GDEV_CHOICE )
     {
         Choice* ch = new Choice();
         m_LastChoiceGui = ch;
         m_Layout.AddChoice( *ch,  ( const char* )def.m_Label.c_str() );
         gui_dev = ch;
     }
-    else if ( def.m_Type == GDEV_ADD_CHOICE_ITEM )
+    else if ( def.m_Type == vsp::GDEV_ADD_CHOICE_ITEM )
     {
         if ( m_LastChoiceGui )
         {
@@ -173,14 +173,14 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
             m_LastChoiceGui->UpdateItems();
         }
     }
-    else if ( def.m_Type == GDEV_BEGIN_SAME_LINE )
+    else if ( def.m_Type == vsp::GDEV_BEGIN_SAME_LINE )
     {
         m_Layout.SetFitWidthFlag( false );
         m_Layout.SetSameLineFlag( true );
         m_SameLineVec.clear();
         m_SameLineFlag = true;
     }
-    else if ( def.m_Type == GDEV_END_SAME_LINE )
+    else if ( def.m_Type == vsp::GDEV_END_SAME_LINE )
     {
         m_Layout.SetFitWidthFlag( true );
         m_Layout.SetSameLineFlag( false );
@@ -206,7 +206,7 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
             }
         }
     }
-    else if ( def.m_Type == GDEV_FORCE_WIDTH )
+    else if ( def.m_Type == vsp::GDEV_FORCE_WIDTH )
     {
         int w = std::stoi( def.m_Label );
         if ( w > 0 && w < 1000 )
@@ -215,7 +215,7 @@ GuiDevice* CustomScreen::AddGuiItem( GuiDef & def, int id )
             m_ForceWidth = std::stoi( def.m_Label );
         }
     }
-    else if ( def.m_Type == GDEV_SET_FORMAT )
+    else if ( def.m_Type == vsp::GDEV_SET_FORMAT )
     {
         m_Format = def.m_Label;
     }
@@ -255,7 +255,7 @@ void CustomScreen::ShowTabs( const string & custom_type_name )
         for ( unsigned int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
             GuiDevice* gd = iter->second.at( i );
-            if ( gd && gd->GetType() == GDEV_TAB )
+            if ( gd && gd->GetType() == vsp::GDEV_TAB )
             {
                 Tab* gd_tab = dynamic_cast< Tab* > ( gd );
 
@@ -271,7 +271,7 @@ void CustomScreen::ShowTabs( const string & custom_type_name )
         for ( unsigned int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
             GuiDevice* gd = iter->second.at( i );
-            if ( gd && gd->GetType() == GDEV_TAB )
+            if ( gd && gd->GetType() == vsp::GDEV_TAB )
             {
                 Tab* gd_tab = dynamic_cast< Tab* > ( gd );
                 TabScreen::AddTab( gd_tab->GetGroup() );
