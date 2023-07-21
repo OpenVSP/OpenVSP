@@ -211,7 +211,7 @@ void ParmScreen::Show()
 {
     if ( Update() )
     {
-        m_FLTK_Window->show();
+        TabScreen::Show();
     }
 }
 

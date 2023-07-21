@@ -1031,7 +1031,7 @@ void FeaPartEditScreen::Show()
 {
     if ( Update() )
     {
-        m_FLTK_Window->show();
+        BasicScreen::Show();
     }
 }
 

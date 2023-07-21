@@ -501,7 +501,7 @@ void FitModelScreen::RebuildAdjustTab()
 void FitModelScreen::Show()
 {
     Update();
-    m_FLTK_Window->show();
+    TabScreen::Show();
     FitModelMgr.SetGUIShown( true );
     m_ScreenMgr->SetUpdateFlag( true );
 }

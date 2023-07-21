@@ -167,7 +167,7 @@ bool PSliceScreen::Update()
 void PSliceScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 void PSliceScreen::Hide()

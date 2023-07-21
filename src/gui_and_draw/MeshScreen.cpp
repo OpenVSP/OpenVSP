@@ -43,7 +43,7 @@ void MeshScreen::Show()
 {
     if ( Update() )
     {
-        m_FLTK_Window->show();
+        GeomScreen::Show();
     }
 }
 

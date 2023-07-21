@@ -463,7 +463,7 @@ void PropScreen::Show()
 {
     if ( Update() )
     {
-        m_FLTK_Window->show();
+        XSecScreen::Show();
     }
 }
 

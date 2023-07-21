@@ -18,7 +18,7 @@ ManageCORScreen::~ManageCORScreen()
 void ManageCORScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    VspScreen::Show();
 }
 
 bool ManageCORScreen::IsShown()

@@ -90,7 +90,7 @@ ManageBackgroundScreen::~ManageBackgroundScreen()
 void ManageBackgroundScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 void ManageBackgroundScreen::Hide()

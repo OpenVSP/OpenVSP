@@ -378,7 +378,7 @@ void VarPresetScreen::CheckSaveStatus( int g_index, int s_index )
 void VarPresetScreen::Show()
 {
     Update();
-    m_FLTK_Window->show();
+    TabScreen::Show();
 }
 
 void VarPresetScreen::Hide()

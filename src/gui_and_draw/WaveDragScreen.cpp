@@ -385,7 +385,7 @@ bool WaveDragScreen::Update()
 void WaveDragScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    TabScreen::Show();
 }
 
 void WaveDragScreen::Hide()

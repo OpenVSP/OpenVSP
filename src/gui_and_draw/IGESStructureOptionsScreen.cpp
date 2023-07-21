@@ -112,7 +112,7 @@ bool IGESStructureOptionsScreen::Update()
 void IGESStructureOptionsScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 void IGESStructureOptionsScreen::CallBack( Fl_Widget* w )

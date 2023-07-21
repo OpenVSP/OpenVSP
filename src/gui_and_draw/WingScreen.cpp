@@ -418,7 +418,7 @@ void WingScreen::Show()
 {
     if ( Update() )
     {
-        m_FLTK_Window->show();
+        BlendScreen::Show();
     }
 }
 

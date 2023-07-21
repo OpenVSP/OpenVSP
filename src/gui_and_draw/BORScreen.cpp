@@ -724,7 +724,7 @@ void BORScreen::Show()
 {
     if ( Update() )
     {
-        m_FLTK_Window->show();
+        GeomScreen::Show();
     }
 }
 

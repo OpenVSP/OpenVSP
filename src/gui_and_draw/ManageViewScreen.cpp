@@ -127,7 +127,7 @@ void ManageViewScreen::Show()
         m_windowDY = main->GetFlWindow()->h() - glwin->h();
     }
 
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 void ManageViewScreen::Hide()

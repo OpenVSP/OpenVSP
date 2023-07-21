@@ -1045,7 +1045,7 @@ void ParasiteDragScreen::UpdateDependentUnitLabels()
 void ParasiteDragScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    TabScreen::Show();
 }
 
 void ParasiteDragScreen::Hide()

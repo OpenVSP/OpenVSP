@@ -351,7 +351,7 @@ void CurveEditScreen::Show()
 {
     if( m_FLTK_Window )
     {
-        m_FLTK_Window->show();
+        TabScreen::Show();
     }
 
     if ( m_XSecGlWin )

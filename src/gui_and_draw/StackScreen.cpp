@@ -115,7 +115,7 @@ void StackScreen::Show()
 {
     if ( Update() )
     {
-        m_FLTK_Window->show();
+        ChevronScreen::Show();
     }
 }
 

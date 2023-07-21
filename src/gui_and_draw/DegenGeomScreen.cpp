@@ -94,7 +94,7 @@ void DegenGeomScreen::LoadSetChoice()
 void DegenGeomScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 void DegenGeomScreen::Hide()

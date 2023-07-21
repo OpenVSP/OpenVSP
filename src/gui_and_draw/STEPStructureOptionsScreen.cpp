@@ -118,7 +118,7 @@ bool STEPStructureOptionsScreen::Update()
 void STEPStructureOptionsScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 void STEPStructureOptionsScreen::CallBack( Fl_Widget* w )

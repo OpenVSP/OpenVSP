@@ -64,7 +64,7 @@ bool STLOptionsScreen::Update()
 void STLOptionsScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 void STLOptionsScreen::CallBack( Fl_Widget* w )

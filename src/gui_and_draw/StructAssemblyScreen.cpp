@@ -338,7 +338,7 @@ void StructAssemblyScreen::CloseCallBack( Fl_Widget *w )
 
 void StructAssemblyScreen::Show()
 {
-    m_FLTK_Window->show();
+    TabScreen::Show();
 
     m_ScreenMgr->SetUpdateFlag( true );
 }

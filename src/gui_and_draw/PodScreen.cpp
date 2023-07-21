@@ -32,7 +32,7 @@ void PodScreen::Show()
 {
     if ( Update() )
     {
-        m_FLTK_Window->show();
+        GeomScreen::Show();
     }
 }
 

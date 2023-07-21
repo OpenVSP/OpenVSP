@@ -227,7 +227,7 @@ void UserParmScreen::RebuildAdjustGroup()
 void UserParmScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    TabScreen::Show();
 }
 
 

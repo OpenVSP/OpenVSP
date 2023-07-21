@@ -120,7 +120,7 @@ void ScreenshotScreen::Show()
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 
     //===== We only need OpenGL version 2.1. Framebuffer objects offered as an extension. =====//
     //===== GLEW associates the framebuffer calls to their appropriate extension calls. =====//

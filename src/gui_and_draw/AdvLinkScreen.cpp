@@ -289,7 +289,7 @@ bool AdvLinkScreen::Update()
 void AdvLinkScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 

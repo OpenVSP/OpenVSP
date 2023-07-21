@@ -820,7 +820,7 @@ bool VSPAEROScreen::Update()
 void VSPAEROScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    TabScreen::Show();
 }
 
 void VSPAEROScreen::Hide()

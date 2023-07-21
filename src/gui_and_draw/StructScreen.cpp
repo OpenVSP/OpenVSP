@@ -2460,7 +2460,7 @@ void StructScreen::CloseCallBack( Fl_Widget *w )
 
 void StructScreen::Show()
 {
-    m_FLTK_Window->show();
+    TabScreen::Show();
 
     m_ScreenMgr->SetUpdateFlag( true );
 }

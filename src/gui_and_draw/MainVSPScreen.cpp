@@ -200,7 +200,7 @@ void MainVSPScreen::Show()
 {
     if ( m_FLTK_Window )
     {
-        m_FLTK_Window->show();
+        ActionScreen::Show();
     }
 
     if ( m_GlWin )

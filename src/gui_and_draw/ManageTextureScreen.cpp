@@ -99,7 +99,7 @@ ManageTextureScreen::~ManageTextureScreen()
 void ManageTextureScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 void ManageTextureScreen::Hide()

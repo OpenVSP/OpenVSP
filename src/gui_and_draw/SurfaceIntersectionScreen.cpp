@@ -536,7 +536,7 @@ bool SurfaceIntersectionScreen::GetVisBndBox( BndBox &bbox )
 void SurfaceIntersectionScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    TabScreen::Show();
 }
 
 void SurfaceIntersectionScreen::Hide()

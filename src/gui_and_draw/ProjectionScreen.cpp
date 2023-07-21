@@ -220,7 +220,7 @@ void ProjectionScreen::LoadSetChoice( Choice & c, int & index )
 void ProjectionScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
-    m_FLTK_Window->show();
+    BasicScreen::Show();
 }
 
 void ProjectionScreen::Hide()
