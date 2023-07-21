@@ -149,6 +149,8 @@ bool AdvLinkScreen::Update()
 {
     char str[512];
 
+    BasicScreen::Update();
+
     AdvLinkMgr.CheckLinks();
 
     int edit_link_index = AdvLinkMgr.GetEditLinkIndex();

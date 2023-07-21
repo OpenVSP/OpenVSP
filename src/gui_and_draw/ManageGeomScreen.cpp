@@ -136,6 +136,8 @@ ManageGeomScreen::~ManageGeomScreen()
 //==== Update Screen ====//
 bool ManageGeomScreen::Update()
 {
+    BasicScreen::Update();
+
     if ( IsShown() )
     {
         LoadBrowser();

@@ -146,6 +146,8 @@ bool ParmLinkScreen::Update()
     int i;
     char str[256];
 
+    BasicScreen::Update();
+
     LinkMgr.CheckLinks();
     if ( ParmMgr.GetDirtyFlag() )
     {

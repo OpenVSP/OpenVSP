@@ -71,6 +71,8 @@ void ManageLightingScreen::Show()
 
 bool ManageLightingScreen::Update()
 {
+    BasicScreen::Update();
+
     m_LightChoice.SetVal( m_CurrentSelected );
 
     Light * currLight = LightMgr.Get( m_CurrentSelected );

@@ -112,6 +112,8 @@ bool ManageTextureScreen::Update()
 {
     char str[256];
 
+    BasicScreen::Update();
+
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 

@@ -109,6 +109,8 @@ bool AeroStructScreen::Update()
         return false;
     }
 
+    BasicScreen::Update();
+
     AeroStructMgr.Update();
 
     bool structselected = AeroStructMgr.m_CurrStructAssyIndex() >= 0;

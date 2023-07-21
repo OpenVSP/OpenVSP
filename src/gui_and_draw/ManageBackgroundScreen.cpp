@@ -107,6 +107,8 @@ bool ManageBackgroundScreen::Update()
         return false;
     }
 
+    BasicScreen::Update();
+
     Vehicle * veh = m_ScreenMgr->GetVehiclePtr();
 
     VSPGUI::VspGlWindow * glwin = main->GetGLWindow();

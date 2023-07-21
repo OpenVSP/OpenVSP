@@ -649,6 +649,8 @@ void VSPAEROPlotScreen::SetDefaultView()
 
 bool VSPAEROPlotScreen::Update()
 {
+    TabScreen::Update();
+
     Results* res = ResultsMgr.FindResults( "VSPAERO_Stab", 0 );
     bool stabFlag = false;
     int stabType = -1;

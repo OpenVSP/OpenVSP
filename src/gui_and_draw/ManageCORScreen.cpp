@@ -34,6 +34,8 @@ void ManageCORScreen::Hide()
 
 bool ManageCORScreen::Update()
 {
+    VspScreen::Update();
+
     m_PickList.clear();
 
     // Update picking list if needed.

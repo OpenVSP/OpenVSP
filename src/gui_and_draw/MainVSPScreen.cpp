@@ -212,6 +212,8 @@ void MainVSPScreen::Show()
 //==== Update Main VSP Screen ====//
 bool MainVSPScreen::Update()
 {
+    ActionScreen::Update();
+
     // Not sure all three of these are needed.
     m_GlWin->update();
     m_GlWin->redraw();

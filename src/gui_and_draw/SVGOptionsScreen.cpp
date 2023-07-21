@@ -191,6 +191,8 @@ SVGOptionsScreen::~SVGOptionsScreen()
 
 bool SVGOptionsScreen::Update()
 {
+    BasicScreen::Update();
+
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if( veh )

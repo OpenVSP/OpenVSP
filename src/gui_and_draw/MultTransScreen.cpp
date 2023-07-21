@@ -92,6 +92,8 @@ bool MultTransScreen::Update()
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     assert( veh );
 
+    TabScreen::Update();
+
     // Check that more than one Geom is active
     if ( veh->GetActiveGeomVec().size() <= 1 )
     {

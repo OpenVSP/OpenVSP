@@ -695,6 +695,8 @@ void CfdMeshScreen::CreateWakesTab()
 
 bool CfdMeshScreen::Update()
 {
+    TabScreen::Update();
+
     LoadSetChoice();
 
     if ( CfdMeshMgr.GetMeshInProgress() )

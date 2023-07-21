@@ -97,6 +97,8 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
 //==== Update Screen ====//
 bool UserParmScreen::Update()
 {
+    TabScreen::Update();
+
     //===== Predefined Parms ====//
     for ( int i = 0 ; i < (int)m_PredefSliderVec.size() ; i++ )
     {

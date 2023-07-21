@@ -68,6 +68,8 @@ ClippingScreen::~ClippingScreen()
 
 bool ClippingScreen::Update()
 {
+    BasicScreen::Update();
+
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if( veh )

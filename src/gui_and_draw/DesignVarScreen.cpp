@@ -104,6 +104,8 @@ bool DesignVarScreen::Update()
     int i;
     char str[256];
 
+    TabScreen::Update();
+
     // Check that all Parms exist.  Needed in case a Geom with DesVars is
     // deleted.
     DesignVarMgr.CheckVars();

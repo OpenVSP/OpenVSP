@@ -440,6 +440,8 @@ bool CurveEditScreen::Update()
 {
     assert( m_ScreenMgr );
 
+    TabScreen::Update();
+
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
     XSecCurve* xsc = GetXSecCurve();

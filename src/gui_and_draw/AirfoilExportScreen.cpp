@@ -52,6 +52,7 @@ bool SeligAirfoilExportScreen::Update()
     {
         return false;
     }
+    BasicScreen::Update();
 
     m_WTessFactorSlider.Update( veh->m_AFWTessFactor.GetID() );
     m_AppendGeomIDToggle.Update( veh->m_AFAppendGeomIDFlag.GetID() );
@@ -140,6 +141,7 @@ bool BezierAirfoilExportScreen::Update()
     {
         return false;
     }
+    BasicScreen::Update();
 
     m_AppendGeomIDToggle.Update( veh->m_AFAppendGeomIDFlag.GetID() );
 

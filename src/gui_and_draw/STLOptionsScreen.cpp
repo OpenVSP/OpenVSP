@@ -47,6 +47,8 @@ STLOptionsScreen::~STLOptionsScreen()
 
 bool STLOptionsScreen::Update()
 {
+    BasicScreen::Update();
+
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if( veh )

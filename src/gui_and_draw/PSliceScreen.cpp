@@ -97,6 +97,8 @@ PSliceScreen::~PSliceScreen()
 
 bool PSliceScreen::Update()
 {
+    BasicScreen::Update();
+
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 

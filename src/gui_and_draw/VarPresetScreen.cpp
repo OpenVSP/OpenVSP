@@ -119,6 +119,8 @@ VarPresetScreen::~VarPresetScreen()
 
 bool VarPresetScreen::Update()
 {
+    TabScreen::Update();
+
     int i;
     char str[256];
 

@@ -238,6 +238,8 @@ WaveDragScreen::~WaveDragScreen()
 
 bool WaveDragScreen::Update()
 {
+    TabScreen::Update();
+
     char str[256];
     WaveDragMgr.Update();
 

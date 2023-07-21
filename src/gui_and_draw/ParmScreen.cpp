@@ -78,6 +78,8 @@ ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 250, "Parm" )
 //==== Update Screen ====//
 bool ParmScreen::Update()
 {
+    TabScreen::Update();
+
     Parm* parm_ptr = ParmMgr.GetActiveParm();
 
     if ( !parm_ptr )

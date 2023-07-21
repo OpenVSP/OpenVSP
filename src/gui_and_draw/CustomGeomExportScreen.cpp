@@ -50,6 +50,8 @@ bool CustomGeomExportScreen::Update()
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
+    BasicScreen::Update();
+
     m_CustomScriptsBrowser->clear();
     vector< string > mod_name_vec = CustomGeomMgr.GetCustomScriptModuleNames();
     for ( int i = 0 ; i < ( int )mod_name_vec.size() ; i++ )

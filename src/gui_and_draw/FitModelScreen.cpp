@@ -295,6 +295,8 @@ bool FitModelScreen::Update()
     int index;
     char str[256];
 
+    TabScreen::Update();
+
     Vehicle * veh = VehicleMgr.GetVehicle();
 
     // Update the number of selected points.

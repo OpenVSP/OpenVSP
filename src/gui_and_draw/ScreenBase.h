@@ -102,6 +102,12 @@ public:
     virtual ~ActionScreen();
 
     virtual void ActionCB( void * data )         {}
+
+    virtual bool Update()
+    {
+        VspScreen::Update();
+        return false;
+    }
 };
 
 //==== Basic Screen ====//
@@ -117,6 +123,7 @@ public:
 
     virtual bool Update()
     {
+        VspScreen::Update();
         return false;
     }
 
@@ -138,6 +145,7 @@ public:
 
     virtual bool Update()
     {
+        BasicScreen::Update();
         return false;
     }
 

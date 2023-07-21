@@ -88,6 +88,8 @@ bool IGESOptionsScreen::Update()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
+    BasicScreen::Update();
+
     if( veh )
     {
         m_LenUnitChoice.Update( veh->m_IGESLenUnit.GetID() );

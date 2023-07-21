@@ -2748,6 +2748,8 @@ void StructScreen::UpdateUnitLabels()
 
 bool StructScreen::Update()
 {
+    TabScreen::Update();
+
     if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.m_CurrStructIndex() ) )
     {
         vector < FeaStructure * > structVec = StructureMgr.GetAllFeaStructs();

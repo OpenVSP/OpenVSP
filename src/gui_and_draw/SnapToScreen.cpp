@@ -83,6 +83,8 @@ SnapToScreen::~SnapToScreen()
 
 bool SnapToScreen::Update()
 {
+    BasicScreen::Update();
+
     Vehicle *veh = VehicleMgr.GetVehicle();
     SnapTo *snap = veh->GetSnapToPtr();
 

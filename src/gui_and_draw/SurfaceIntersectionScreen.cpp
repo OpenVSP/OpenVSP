@@ -283,6 +283,8 @@ void SurfaceIntersectionScreen::CreateWakesTab()
 
 bool SurfaceIntersectionScreen::Update()
 {
+    TabScreen::Update();
+
     LoadSetChoice();
 
     if ( SurfaceIntersectionMgr.GetMeshInProgress() )

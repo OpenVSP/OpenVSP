@@ -352,6 +352,8 @@ void ManageMeasureScreen::Hide()
 
 bool ManageMeasureScreen::Update()
 {
+    TabScreen::Update();
+
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     std::vector < Ruler * > rulers = MeasureMgr.GetRulerVec();
 

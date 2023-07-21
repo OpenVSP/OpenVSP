@@ -345,6 +345,8 @@ void StructAssemblyScreen::Show()
 
 bool StructAssemblyScreen::Update()
 {
+    TabScreen::Update();
+
     FeaAssembly* curr_assy = StructureMgr.GetFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
 
     // This makes sure connection DO's are updated.

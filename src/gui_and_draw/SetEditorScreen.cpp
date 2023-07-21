@@ -110,6 +110,8 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 370, 
 //If we have events from callbacks this is were we update logic based on any changes
 bool SetEditorScreen::Update()
 {
+    BasicScreen::Update();
+
     assert(m_ScreenMgr);
 
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();

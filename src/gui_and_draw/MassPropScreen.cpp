@@ -100,6 +100,8 @@ MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 440, "
 
 bool MassPropScreen::Update()
 {
+    BasicScreen::Update();
+
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 

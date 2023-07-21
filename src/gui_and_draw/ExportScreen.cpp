@@ -72,6 +72,8 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 200, 25 + 3*20 
 //==== Update Screen ====//
 bool ExportScreen::Update()
 {
+    BasicScreen::Update();
+
     LoadSetChoice();
 
     return true;

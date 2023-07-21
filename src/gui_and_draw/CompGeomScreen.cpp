@@ -120,6 +120,8 @@ void CompGeomScreen::Hide()
 
 bool CompGeomScreen::Update()
 {
+    BasicScreen::Update();
+
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
     LoadSetChoice( m_UseSet, m_SelectedSetIndex );

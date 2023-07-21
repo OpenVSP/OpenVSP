@@ -57,6 +57,8 @@ MaterialEditScreen::~MaterialEditScreen()
 
 bool MaterialEditScreen::Update()
 {
+    BasicScreen::Update();
+
     assert( m_ScreenMgr );
     Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
     if ( !geom_ptr )

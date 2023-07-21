@@ -231,6 +231,8 @@ void ProjectionScreen::Hide()
 
 bool ProjectionScreen::Update()
 {
+    BasicScreen::Update();
+
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
     m_BoundaryTypeGroup.Update( vehiclePtr->m_BoundaryType.GetID() );

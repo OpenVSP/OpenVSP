@@ -139,6 +139,8 @@ void ScreenshotScreen::Hide()
 
 bool ScreenshotScreen::Update()
 {
+    BasicScreen::Update();
+
     MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
     if( !main )
     {

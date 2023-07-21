@@ -4254,6 +4254,8 @@ bool XSecViewScreen::Update()
         return false;
     }
 
+    BasicScreen::Update();
+
     XSecCurve* xsc = NULL;
 
     Geom* geom = geom_vec[0];
@@ -4485,6 +4487,8 @@ FeaXSecScreen::FeaXSecScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 300, "FE
 bool FeaXSecScreen::Update()
 {
     assert( m_ScreenMgr );
+
+    BasicScreen::Update();
 
     VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
     assert( viewport );

@@ -774,6 +774,8 @@ VSPAEROScreen::~VSPAEROScreen()
 
 bool VSPAEROScreen::Update()
 {
+    TabScreen::Update();
+
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     VSPAEROMgr.Update();

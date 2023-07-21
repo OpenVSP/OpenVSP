@@ -612,6 +612,8 @@ ParasiteDragScreen::~ParasiteDragScreen()
 
 bool ParasiteDragScreen::Update()
 {
+    TabScreen::Update();
+
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {

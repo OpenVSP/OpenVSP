@@ -45,6 +45,8 @@ BEMOptionsScreen::~BEMOptionsScreen()
 
 bool BEMOptionsScreen::Update()
 {
+    BasicScreen::Update();
+
     m_PropGeomPicker.Update();
 
     m_FLTK_Window->redraw();

@@ -77,6 +77,8 @@ bool IGESStructureOptionsScreen::Update()
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
+    BasicScreen::Update();
+
     if( veh )
     {
         m_StructureChoice.ClearItems();

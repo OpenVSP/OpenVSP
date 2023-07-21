@@ -90,6 +90,8 @@ STEPOptionsScreen::~STEPOptionsScreen()
 
 bool STEPOptionsScreen::Update()
 {
+    BasicScreen::Update();
+
     Vehicle *veh = VehicleMgr.GetVehicle();
 
     if( veh )

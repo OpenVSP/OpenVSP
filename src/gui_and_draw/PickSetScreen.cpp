@@ -69,6 +69,8 @@ int PickSetScreen::PickSet( const string & title )
 //==== Update Screen ====//
 bool PickSetScreen::Update()
 {
+    BasicScreen::Update();
+
     LoadSetChoice();
 
     m_FLTK_Window->redraw();

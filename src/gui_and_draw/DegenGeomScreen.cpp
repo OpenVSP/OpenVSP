@@ -107,6 +107,8 @@ bool DegenGeomScreen::Update()
 {
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
+    BasicScreen::Update();
+
     LoadSetChoice();
 
     //===== Update File Toggle Buttons =====//
