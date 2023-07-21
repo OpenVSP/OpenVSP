@@ -665,23 +665,23 @@ void ManageGeomScreen::EditName( string name )
 //==== Create Screens ====//
 void ManageGeomScreen::CreateScreens()
 {
-    m_GeomScreenVec.resize( NUM_GEOM_SCREENS );
-    m_GeomScreenVec[POD_GEOM_SCREEN] = new PodScreen( m_ScreenMgr );
-    m_GeomScreenVec[FUSELAGE_GEOM_SCREEN] = new FuselageScreen( m_ScreenMgr );
-    m_GeomScreenVec[MS_WING_GEOM_SCREEN] = new WingScreen( m_ScreenMgr );
-    m_GeomScreenVec[BLANK_GEOM_SCREEN] = new BlankScreen( m_ScreenMgr );
-    m_GeomScreenVec[MESH_GEOM_SCREEN] = new MeshScreen( m_ScreenMgr );
-    m_GeomScreenVec[STACK_GEOM_SCREEN] = new StackScreen( m_ScreenMgr );
-    m_GeomScreenVec[CUSTOM_GEOM_SCREEN] = new CustomScreen( m_ScreenMgr );
-    m_GeomScreenVec[PT_CLOUD_GEOM_SCREEN] = new PtCloudScreen( m_ScreenMgr );
-    m_GeomScreenVec[PROP_GEOM_SCREEN] = new PropScreen( m_ScreenMgr );
-    m_GeomScreenVec[HINGE_GEOM_SCREEN] = new HingeScreen( m_ScreenMgr );
-    m_GeomScreenVec[MULT_GEOM_SCREEN] = new MultTransScreen( m_ScreenMgr );
-    m_GeomScreenVec[CONFORMAL_SCREEN] = new ConformalScreen( m_ScreenMgr );
-    m_GeomScreenVec[ELLIPSOID_GEOM_SCREEN] = new EllipsoidScreen( m_ScreenMgr );
-    m_GeomScreenVec[BOR_GEOM_SCREEN] = new BORScreen( m_ScreenMgr );
-    m_GeomScreenVec[HUMAN_GEOM_SCREEN] = new HumanGeomScreen( m_ScreenMgr );
-    m_GeomScreenVec[WIRE_FRAME_GEOM_SCREEN] = new WireScreen( m_ScreenMgr );
+    m_GeomScreenVec.resize( vsp::NUM_GEOM_SCREENS );
+    m_GeomScreenVec[vsp::POD_GEOM_SCREEN] = new PodScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::FUSELAGE_GEOM_SCREEN] = new FuselageScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::MS_WING_GEOM_SCREEN] = new WingScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::BLANK_GEOM_SCREEN] = new BlankScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::MESH_GEOM_SCREEN] = new MeshScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::STACK_GEOM_SCREEN] = new StackScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::CUSTOM_GEOM_SCREEN] = new CustomScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::PT_CLOUD_GEOM_SCREEN] = new PtCloudScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::PROP_GEOM_SCREEN] = new PropScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::HINGE_GEOM_SCREEN] = new HingeScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::MULT_GEOM_SCREEN] = new MultTransScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::CONFORMAL_SCREEN] = new ConformalScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::ELLIPSOID_GEOM_SCREEN] = new EllipsoidScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::BOR_GEOM_SCREEN] = new BORScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::HUMAN_GEOM_SCREEN] = new HumanGeomScreen( m_ScreenMgr );
+    m_GeomScreenVec[vsp::WIRE_FRAME_GEOM_SCREEN] = new WireScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
@@ -703,7 +703,7 @@ void ManageGeomScreen::ShowHideGeomScreens()
         m_GeomScreenVec[i]->Show();
     }
 
-    m_GeomScreenVec[MULT_GEOM_SCREEN]->Show();
+    m_GeomScreenVec[vsp::MULT_GEOM_SCREEN]->Show();
 }
 
 //==== Show or Hide Subsurface Lines ====//
