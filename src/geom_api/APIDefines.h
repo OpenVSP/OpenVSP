@@ -459,10 +459,6 @@ enum FREESTREAM_PD_UNITS { PD_UNITS_IMPERIAL = 0,
                            PD_UNITS_METRIC
                          }; // Parasite Drag Freestream Units
 
-enum GENDER { MALE,
-              FEMALE
-            };
-
 enum GDEV { GDEV_TAB,
             GDEV_SCROLL_TAB,
             GDEV_GROUP,
@@ -495,6 +491,10 @@ enum GDEV { GDEV_TAB,
             GDEV_SET_FORMAT,
             NUM_GDEV_TYPES
           };
+
+enum GENDER { MALE,
+              FEMALE
+            };
 
 enum GUI_GEOM_SCREEN { POD_GEOM_SCREEN,
                        FUSELAGE_GEOM_SCREEN,
