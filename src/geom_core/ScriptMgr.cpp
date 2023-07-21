@@ -1401,6 +1401,47 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GENDER", "FEMALE", FEMALE, "/*!< Female Human component */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum for geom screen types. */";
+
+    r = se->RegisterEnum( "GUI_GEOM_SCREEN", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "POD_GEOM_SCREEN", POD_GEOM_SCREEN, "/*!< Pod geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "FUSELAGE_GEOM_SCREEN", FUSELAGE_GEOM_SCREEN, "/*!< Fuselage geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "MS_WING_GEOM_SCREEN", MS_WING_GEOM_SCREEN, "/*!< Wing geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "BLANK_GEOM_SCREEN", BLANK_GEOM_SCREEN, "/*!< Blank geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "MESH_GEOM_SCREEN", MESH_GEOM_SCREEN, "/*!< Mesh geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "STACK_GEOM_SCREEN", STACK_GEOM_SCREEN, "/*!< Stack geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "CUSTOM_GEOM_SCREEN", CUSTOM_GEOM_SCREEN, "/*!< Custom geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "PT_CLOUD_GEOM_SCREEN", PT_CLOUD_GEOM_SCREEN, "/*!< Point cloud geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "PROP_GEOM_SCREEN", PROP_GEOM_SCREEN, "/*!< Propeller geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "HINGE_GEOM_SCREEN", HINGE_GEOM_SCREEN, "/*!< Hinge geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "MULT_GEOM_SCREEN", MULT_GEOM_SCREEN, "/*!< Multiple geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "CONFORMAL_SCREEN", CONFORMAL_SCREEN, "/*!< Conformal geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "ELLIPSOID_GEOM_SCREEN", ELLIPSOID_GEOM_SCREEN, "/*!< Ellipsoid geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "BOR_GEOM_SCREEN", BOR_GEOM_SCREEN, "/*!< Body of revolution geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "WIRE_FRAME_GEOM_SCREEN", WIRE_FRAME_GEOM_SCREEN, "/*!< Wireframe geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "HUMAN_GEOM_SCREEN", HUMAN_GEOM_SCREEN, "/*!< Human geom screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "NUM_GEOM_SCREENS", NUM_GEOM_SCREENS, "/*!< Number of geom screens */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_GEOM_SCREEN", "ALL_GEOM_SCREENS", ALL_GEOM_SCREENS, "/*!< All geom screens */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Initial shape enums for XS_EDIT_CURVE type XSecs. */";
 
     r = se->RegisterEnum( "INIT_EDIT_XSEC_TYPE", doc_struct );
