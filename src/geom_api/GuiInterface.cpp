@@ -159,3 +159,33 @@ void GuiInterface::SetBackground( double r, double g, double b )
     }
 #endif
 }
+
+void GuiInterface::SetGUIElementDisable( int e, bool state )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->SetGUIElementDisable( e, state );
+    }
+#endif
+}
+
+void GuiInterface::SetGUIScreenDisable( int s, bool state )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->SetGUIScreenDisable( s, state );
+    }
+#endif
+}
+
+void GuiInterface::SetGeomScreenDisable( int s, bool state )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->SetGeomScreenDisable( s, state );
+    }
+#endif
+}

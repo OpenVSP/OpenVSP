@@ -157,6 +157,9 @@ extern void SetShowBorders( bool brdr );
 extern void SetGeomDrawType(const string &geom_id, int type);
 extern void SetGeomDisplayType(const string &geom_id, int type);
 extern void SetBackground( double r, double g, double b );
+extern void SetGUIElementDisable( int e, bool state );
+extern void SetGUIScreenDisable( int s, bool state );
+extern void SetGeomScreenDisable( int s, bool state );
 
 //======================== Geom Functions ================================//
 extern std::vector<std::string> GetGeomTypes();

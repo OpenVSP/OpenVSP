@@ -1785,6 +1785,27 @@ void SetBackground( double r, double g, double b )
 #endif
 }
 
+void SetGUIElementDisable( int e, bool state )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetGUIElementDisable( e, state );
+#endif
+}
+
+void SetGUIScreenDisable( int s, bool state )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetGUIScreenDisable( s, state );
+#endif
+}
+
+void SetGeomScreenDisable( int s, bool state )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetGeomScreenDisable( s, state );
+#endif
+}
+
 //===================================================================//
 //===============       Geom Functions            ===================//
 //===================================================================//

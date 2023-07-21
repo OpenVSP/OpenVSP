@@ -4911,6 +4911,42 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SetBackground( double r, double g, double b )", vspFUNCTION( vsp::SetBackground ), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
+    doc_struct.comment = R"(
+/*!
+    Set whether GUI Element is disabled
+    \code{.cpp}
+    SetGUIElementDisable( GDEV_INPUT, true );
+    \endcode
+    \param [in] e
+    \param [in] state
+*/)";
+    r = se->RegisterGlobalFunction( "void SetGUIElementDisable( int e, bool state )", vspFUNCTION( vsp::SetGUIElementDisable ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set whether screen is disabled
+    \code{.cpp}
+    SetGUIScreenDisable( VSP_CFD_MESH_SCREEN, true );
+    \endcode
+    \param [in] e
+    \param [in] state
+*/)";
+    r = se->RegisterGlobalFunction( "void SetGUIScreenDisable( int s, bool state )", vspFUNCTION( vsp::SetGUIScreenDisable ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set whether geom screen is disabled
+    \code{.cpp}
+    SetGeomScreenDisable( ALL_GEOM_SCREENS, true );
+    \endcode
+    \param [in] e
+    \param [in] state
+*/)";
+    r = se->RegisterGlobalFunction( "void SetGeomScreenDisable( int s, bool state )", vspFUNCTION( vsp::SetGeomScreenDisable ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
     //==== Vehicle Functions ====//
     group = "Vehicle";
     doc_struct.group = group.c_str();
