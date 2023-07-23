@@ -9929,7 +9929,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
   */)";
 
     r = se->RegisterGlobalFunction( "string AddUserParm( int type, const string & in name, const string & in group )",
-                                    vspFUNCTION( AddUserParm ), vspCALL_THISCALL_ASGLOBAL, doc_struct );
+                                    vspFUNCTION( vsp::AddUserParm ), vspCALL_CDECL, doc_struct );
     assert( r );
 
     doc_struct.comment = R"(
