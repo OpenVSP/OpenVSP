@@ -64,6 +64,6 @@ protected:
 
     ColResizeBrowser* m_LinkBrowser;
 private:
-    set<int> selected;
+    set < int > m_SelectedLinks;
 };
 #endif
