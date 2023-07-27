@@ -5394,7 +5394,7 @@ void Vehicle::CreateDegenGeom( int set )
         MeshGeom* mesh_ptr = dynamic_cast<MeshGeom*> ( FindGeom( id ) );
         if ( mesh_ptr != NULL )
         {
-            mesh_ptr->MassSlice( m_DegenGeomVec, true, 250, vsp::X_DIR, false );
+            mesh_ptr->MassSlice( m_DegenGeomVec, true, 25, vsp::X_DIR, false );
             DeleteGeom( id );
         }
     }
