@@ -243,6 +243,10 @@ public:
     int major_comp() const;
     int minor_comp() const;
 
+    bool isnan() const;
+    bool isinf() const;
+    bool isfinite() const;
+
     friend double dot( const vec3d& a, const vec3d& b ); // x = dot(a,b)
     friend vec3d cross( const vec3d& a, const vec3d& b ); // a = cross(b,c)
     friend double angle( const vec3d& a, const vec3d& b );

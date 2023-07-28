@@ -12,6 +12,7 @@
 
 #include "Defines.h"
 #include <cfloat> //For DBL_EPSILON
+#include <cmath>
 #include "Vec3d.h"
 #include "VspUtil.h"
 
@@ -424,6 +425,42 @@ int vec3d::minor_comp() const
         c = std::abs( v[i] );
     }
     return i;
+}
+
+bool vec3d::isnan() const
+{
+    for ( int i = 0; i < 3; i++ )
+    {
+        if ( std::isnan( v[ i ] ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool vec3d::isinf() const
+{
+    for ( int i = 0; i < 3; i++ )
+    {
+        if ( std::isinf( v[ i ] ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool vec3d::isfinite() const
+{
+    for ( int i = 0; i < 3; i++ )
+    {
+        if ( !std::isfinite( v[ i ] ) )
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 //******* Dot Product:  x = a.dot(b) ******//
