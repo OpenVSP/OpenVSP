@@ -1621,6 +1621,33 @@ bool TTri::SplitTri( bool dumpCase )
     }
     m_ISectEdgeVec = noDupVec;
 
+    vector< TEdge* > keepVec;
+    for ( i = 0 ; i < ( int )m_ISectEdgeVec.size(); i++ )
+    {
+        bool keep = true;
+        if ( !m_ISectEdgeVec[i]->m_N0->GetXYZPnt().isfinite() )
+        {
+            keep = false;
+        }
+
+        if ( !m_ISectEdgeVec[i]->m_N1->GetXYZPnt().isfinite() )
+        {
+            keep = false;
+        }
+
+        if ( keep )
+        {
+            keepVec.push_back( m_ISectEdgeVec[i] );
+        }
+        else
+        {
+            delete m_ISectEdgeVec[i]->m_N0;
+            delete m_ISectEdgeVec[i]->m_N1;
+            delete m_ISectEdgeVec[i];
+        }
+    }
+    m_ISectEdgeVec = keepVec;
+
     //==== Add Corners of Triangle ====//           //jrg figure who should allocate data...
     m_NVec.push_back( m_N0 );
     m_NVec.push_back( m_N1 );
