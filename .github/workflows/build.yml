@@ -6,39 +6,22 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     env:
-      BUILD_ARCH: ${{ matrix.config.arch }}
+      BUILD_ARCH: ${{ matrix.arch }}
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.6, 3.9] # specify more python versions here (i.e. 3.9)
-        config:
-        - {
-            name: "Windows 64",
-            os: windows-2019,
-            arch: x64,
-            python-arch: x64,
-          }
-        - {
-            name: "Ubuntu 20.04",
-            os: ubuntu-20.04,
-            arch: x64,
-            python-arch: x64,
-          }
-        - {
-            name: "Ubuntu 22.04",
-            os: ubuntu-22.04,
-            arch: x64,
-            python-arch: x64,
-          }
-        - {
-            name: "macOS 11",
-            os: macos-11,
-            arch: x64,
-            python-arch: x64,
-          }
+        arch: [x64]
+        python-arch: [x64]
+        os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, macos-11 ]
+        exclude:
+          - os: ubuntu-20.04
+            python-version: 3.6
+          - os: ubuntu-22.04
+            python-version: 3.6
 
     steps:
     - name: Checkout
@@ -49,7 +32,7 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-        architecture: ${{ matrix.config.python-arch }}
+        architecture: ${{ matrix.python-arch }}
 
     - name:  Install Linux
       if: runner.os == 'Linux'
@@ -139,7 +122,7 @@ jobs:
         ls $DEPLOY_FILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1)
 
     - name: Generate Documentation
-      if: matrix.config.os == 'ubuntu-20.04'
+      if: matrix.os == 'ubuntu-20.04'
       shell: bash
       run:    |
         cd build
