@@ -2474,6 +2474,30 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
         bounds[i].b = m_EVec[i]->m_N1->m_ID;
     }
 
+#ifdef DEBUG_TMESH
+    if ( dumpCase )
+    {
+        FILE *fpdump = NULL;
+
+        string fname = string( "dlbtest_" ) + to_string( idump ) + string( ".txt" );
+        fpdump = fopen( fname.c_str(), "w" );
+        idump++;
+
+        fprintf( fpdump, "%d\n", npt );
+        for ( int i = 0; i < npt; i++ )
+        {
+            fprintf( fpdump, "%d %.18e %.18e\n", i, cloud[ i ].x, cloud[ i ].y );
+        }
+
+        fprintf( fpdump, "%d\n", nedg );
+        for ( int i = 0; i < ( int ) nedg; i++ )
+        {
+            fprintf( fpdump, "%d %d %d\n", i, bounds[ i ].a, bounds[ i ].b );
+        }
+        // fclose( fpdump );
+    }
+#endif
+
     IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
 #ifdef DEBUG_TMESH
     idb->SetErrLog( dba_errlog, stdout );
@@ -2515,24 +2539,6 @@ void TTri::TriangulateSplit_DBA( int flattenAxis, const vector < vec3d > &ptvec,
 #ifdef DEBUG_TMESH
     if ( dumpCase )
     {
-        FILE * fpdump = NULL;
-
-        string fname = string( "dlbtest_" ) + to_string( idump ) + string( ".txt" );
-        fpdump = fopen( fname.c_str(), "w" );
-        idump++;
-
-        fprintf( fpdump, "%d\n", npt );
-        for ( int i = 0; i < npt; i++ )
-        {
-            fprintf( fpdump, "%d %.18e %.18e\n", i, cloud[ i ].x, cloud[ i ].y );
-        }
-
-        fprintf( fpdump, "%d\n", nedg );
-        for ( int i = 0 ; i < ( int )nedg ; i++ )
-        {
-            fprintf( fpdump, "%d %d %d\n", i, bounds[i].a, bounds[i].b );
-        }
-
         OrientConnList( connlist );
         SortConnList( connlist );
 
