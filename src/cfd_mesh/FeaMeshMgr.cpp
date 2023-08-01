@@ -517,11 +517,14 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     // addOutputText( "Intersect\n" ); // Output in intersect() itself.
     Intersect();
 
+    if ( false )
+    {
     addOutputText( "Degen Corners\n" );
     FindDegenCorners();
 
     addOutputText( "Add Degen Corner Chains\n" );
     AddDegenCornerChains();
+    }
 
     addOutputText( "Binary Adaptation Curve Approximation\n" );
     BinaryAdaptIntCurves();
