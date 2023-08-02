@@ -754,6 +754,8 @@ void Mesh::SplitEdge( Edge* edge )
         Edge* ea0 = fa->FindEdge( n0, na );
         Edge* ea1 = fa->FindEdge( na, n1 );
 
+        if ( !ea0 || !ea1 ) return;
+
         ea0->RemoveFace( fa );
         ea1->RemoveFace( fa );
 
@@ -770,6 +772,8 @@ void Mesh::SplitEdge( Edge* edge )
 
         Edge* eb0 = fb->FindEdge( n0, nb );
         Edge* eb1 = fb->FindEdge( nb, n1 );
+
+        if ( !eb0 || !eb1 ) return;
 
         eb0->RemoveFace( fb );
         eb1->RemoveFace( fb );
@@ -864,6 +868,8 @@ void Mesh::SwapEdge( Edge* edge )
     Edge* ea1 = fa->FindEdge( na, n1 );
     Edge* eb0 = fb->FindEdge( n0, nb );
     Edge* eb1 = fb->FindEdge( nb, n1 );
+
+    if ( !ea0 || !ea1 || !eb0 || !eb1 ) return;
 
     edge->n0 = na;
     edge->n1 = nb;
@@ -1117,11 +1123,15 @@ void Mesh::CollapseEdge( Edge* edge )
     Edge* ea1 = fa->FindEdge( na, n1 );
     Edge* eb0 = fb->FindEdge( nb, n0 );
     Edge* eb1 = fb->FindEdge( nb, n1 );
+
+    if ( !ea0 || !ea1 || !eb0 || !eb1 ) return;
+
     Face* fa0 = ea0->OtherFace( fa );
     Face* fa1 = ea1->OtherFace( fa );
     Face* fb0 = eb0->OtherFace( fb );
     Face* fb1 = eb1->OtherFace( fb );
 
+    if ( !fa0 || !fa1 || !fb0 || !fb1 ) return;
 
     if ( fa0 && fa1 )
     {
@@ -2474,6 +2484,8 @@ void Mesh::ConvertToQuads()
         Edge* e0 = ( *f )->FindEdge( n0, n1 );
         Edge* e1 = ( *f )->FindEdge( n1, n2 );
         Edge* e2 = ( *f )->FindEdge( n2, n0 );
+
+        if ( !e0 || !e1 || !e2 ) continue;
 
         // Get split data for existing edges.
         splitData sd0 = splitEdgeMap[ e0 ];
