@@ -96,7 +96,7 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     // Last column width must be 0
     static int assy_col_widths[] = { 400, 0 }; // widths for each column
 
-    int browser_h = 150;
+    int browser_h = 120;
     m_AssemblySelectBrowser = m_AssemblyTabLayout.AddColResizeBrowser( assy_col_widths, 1, browser_h );
     m_AssemblySelectBrowser->callback( staticScreenCB, this );
 
@@ -270,12 +270,9 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
     m_FemTabLayout.SetSameLineFlag( true );
     m_FemTabLayout.SetFitWidthFlag( false );
-    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 2 );
+    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 4.0 );
 
     m_FemTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
-
-    m_FemTabLayout.SetButtonWidth( m_FemTabLayout.GetW() / 6.0 );
-
     m_FemTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
     m_FemTabLayout.AddButton( m_ColorByTag, "By Tag" );
     m_FemTabLayout.AddButton( m_ColorByReason, "By Reason" );
@@ -292,11 +289,7 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
     m_FemTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
     m_FemTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
-    m_FemTabLayout.ForceNewLine();
-
     m_FemTabLayout.AddButton( m_DrawBCNodesToggle, "Draw BCs" );
-    m_FemTabLayout.ForceNewLine();
-
     m_FemTabLayout.AddYGap();
 
     m_FemTabLayout.SetSameLineFlag( false );
@@ -307,7 +300,7 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     m_DrawPartSelectBrowser = m_FemTabLayout.AddCheckBrowser( browser_h );
     m_DrawPartSelectBrowser->callback( staticScreenCB, this );
 
-    m_FemTabLayout.AddY( 125 );
+    m_FemTabLayout.AddY( browser_h - m_FemTabLayout.GetStdHeight() );
     m_FemTabLayout.AddYGap();
 
     m_FemTabLayout.SetSameLineFlag( true );
@@ -315,7 +308,6 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
 
     m_FemTabLayout.AddButton( m_DrawAllButton, "Draw All Elements" );
     m_FemTabLayout.AddButton( m_HideAllButton, "Hide All Elements" );
-    m_FemTabLayout.ForceNewLine();
 
 
     m_StructureBrowserIndex = 0;
