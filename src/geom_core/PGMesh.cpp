@@ -476,7 +476,7 @@ void PGFace::GetNodesAsTris( vector < PGNode* > & trinodVec )
 
 void PGFace::Triangulate()
 {
-    Triangulate_triangle();
+    Triangulate_DBA();
 }
 
 void PGFace::Triangulate_triangle()
