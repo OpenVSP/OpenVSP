@@ -127,6 +127,7 @@ public:
     void GetNodesAsTris( vector < PGNode* > & trinodVec );
     void Triangulate();
     void Triangulate_triangle();
+    void Triangulate_DBA();
     void ClearTris();
 
     void AddEdge( PGEdge* e );

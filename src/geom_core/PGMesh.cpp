@@ -23,6 +23,8 @@
 #include "triangle.h"
 #include "triangle_api.h"
 
+#include "delabella.h"
+
 #include <algorithm>
 #include <cfloat>
 
@@ -620,6 +622,120 @@ void PGFace::Triangulate_triangle()
 
     // cleanup
     triangle_context_destroy( ctx );
+}
+
+void PGFace::Triangulate_DBA()
+{
+    ClearTris();
+
+    vector < PGNode* > nodVec;
+    GetNodes( nodVec );
+
+    // index to size-1 because first/last point is repeated.
+    int npt = nodVec.size() - 1;
+
+    if ( npt < 3 )
+    {
+        return;
+    }
+
+    // Get node data into simple point vector.
+    vector < vec3d > ptVec( npt );
+    for ( int i = 0; i < npt; i++ )
+    {
+        if ( nodVec[i] )
+        {
+            ptVec[i] = nodVec[i]->m_Pnt;
+        }
+    }
+
+    // Rotate along normal.
+    Matrix4d mat;
+    mat.rotatealongX( m_Nvec );
+    mat.xformvec( ptVec );
+
+    dba_point* cloud = new dba_point[npt];
+    for ( int i = 0 ; i < npt; i++ )
+    {
+        vec3d pnt = ptVec[ i ];
+
+        cloud[ i ].x = pnt.y();
+        cloud[ i ].y = pnt.z();
+    }
+
+    int nedg = npt;
+    dba_edge* bounds = new dba_edge[nedg];
+    int firstseg = 0;
+    for ( int i = 0 ; i < nedg; i++ )
+    {
+        bounds[ i ].a = i;
+        if ( i == nedg - 1 )
+        {
+            bounds[i].b = firstseg;
+        }
+        else
+        {
+            bounds[i].b = i + 1;
+        }
+    }
+
+    if ( false )
+    {
+        static int idump = 0;
+        FILE *fpdump = NULL;
+
+        string fname = string( "dlbtest_" ) + to_string( idump ) + string( ".txt" );
+        fpdump = fopen( fname.c_str(), "w" );
+        idump++;
+
+        fprintf( fpdump, "%d\n", npt );
+        for ( int i = 0; i < npt; i++ )
+        {
+            fprintf( fpdump, "%d %.18e %.18e\n", i, cloud[ i ].x, cloud[ i ].y );
+        }
+
+        fprintf( fpdump, "%d\n", nedg );
+        for ( int i = 0; i < ( int ) nedg; i++ )
+        {
+            fprintf( fpdump, "%d %d %d\n", i, bounds[ i ].a, bounds[ i ].b );
+        }
+        fclose( fpdump );
+    }
+
+    IDelaBella2 < double > * idb = IDelaBella2 < double > ::Create();
+
+    int verts = idb->Triangulate( npt, &cloud->x, &cloud->y, sizeof( dba_point ) );
+
+    if ( verts > 0 )
+    {
+        idb->ConstrainEdges( nedg, &bounds->a, &bounds->b, sizeof( dba_edge ) );
+
+        int tris = idb->FloodFill( false, 0, 1 );
+
+        const IDelaBella2<double>::Simplex* dela = idb->GetFirstDelaunaySimplex();
+
+        m_TriNodeVec.clear();
+        m_TriNodeVec.reserve( tris * 3 );
+        for ( int i = 0; i < tris; i++ )
+        {
+            // Note winding order!
+            m_TriNodeVec.push_back( nodVec[ dela->v[ 0 ]->i ] );
+            m_TriNodeVec.push_back( nodVec[ dela->v[ 1 ]->i ] );
+            m_TriNodeVec.push_back( nodVec[ dela->v[ 2 ]->i ] );
+
+            dela = dela->next;
+        }
+    }
+    else
+    {
+        printf( "DLB Error! %d\n", verts );
+    }
+
+
+    delete[] cloud;
+    delete[] bounds;
+
+    idb->Destroy();
 }
 
 void PGFace::ClearTris()
