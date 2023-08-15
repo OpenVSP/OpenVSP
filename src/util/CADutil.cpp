@@ -923,7 +923,7 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, const string& label,
         surf->u_knots_()->AddNode( new RealNode( ip ) );
     }
     surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
-    surf->u_knots_()->AddNode( new RealNode( nupatch + 1 ) );
+    surf->u_knots_()->AddNode( new RealNode( nupatch ) );
 
     surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
     surf->v_knots_()->AddNode( new RealNode( 0.0 ) );
@@ -933,7 +933,7 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, const string& label,
         surf->v_knots_()->AddNode( new RealNode( jp ) );
     }
     surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
-    surf->v_knots_()->AddNode( new RealNode( nvpatch + 1 ) );
+    surf->v_knots_()->AddNode( new RealNode( nvpatch ) );
 
     surf->knot_spec_( Knot_type__piecewise_bezier_knots );
 
