@@ -3364,7 +3364,7 @@ void FeaFixPoint::UpdateSurface()
             break;
     }
 
-    m_FixPointMass_FEM = ConvertDensity( m_FixPointMass(), m_MassUnit(), mass_unit );
+    m_FixPointMass_FEM = ConvertMass( m_FixPointMass(), m_MassUnit(), mass_unit );
 }
 
 bool FeaFixPoint::PlaneAtYZero( piecewise_surface_type & surface ) const
