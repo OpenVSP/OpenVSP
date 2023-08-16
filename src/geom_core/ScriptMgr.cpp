@@ -1147,6 +1147,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_MATERIAL_TYPE", "FEA_ENG_ORTHO", FEA_ENG_ORTHO, "/*!< Orthotropic material in engineering parameters */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_MATERIAL_TYPE", "FEA_LAMINATE", FEA_LAMINATE, "/*!< Laminate buildup material */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_MATERIAL_TYPE", "FEA_NUM_MAT_TYPES", FEA_NUM_MAT_TYPES, "/*!< Number of FEA material types */" );
     assert( r >= 0 );
 

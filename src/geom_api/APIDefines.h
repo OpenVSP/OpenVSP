@@ -372,6 +372,7 @@ enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,
 
 enum FEA_MATERIAL_TYPE { FEA_ISOTROPIC,
                          FEA_ENG_ORTHO,
+                         FEA_LAMINATE,
                          FEA_NUM_MAT_TYPES
                        };
 
