@@ -4157,7 +4157,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( fea_mat )
         {
-            fea_mat->m_Description = m_FeaMaterialNameInput.GetString();
+            fea_mat->m_Description = m_FeaMaterialDescriptionInput.GetString();
         }
     }
     else if ( device == &m_FeaShellMaterialChoice )
