@@ -5370,6 +5370,7 @@ void FeaMaterial::Update()
             m_LayerVec[i]->Update();
         }
 
+        LaminateTheory();
     }
 
     if ( m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
@@ -6151,6 +6152,23 @@ int FeaMaterial::GetCurrLayerIndex()
 void FeaMaterial::SetCurrLayerIndex( int index )
 {
     m_CurrentLayerIndex = index;
+}
+
+void FeaMaterial::LaminateTheory()
+{
+    m_MassDensity = 0;
+    m_E1 = 0;
+    m_E2 = 0;
+    m_E3 = 0;
+    m_nu12 = 0;
+    m_nu13 = 0;
+    m_nu23 = 0;
+    m_G12 = 0;
+    m_G13 = 0;
+    m_G23 = 0;
+    m_A1 = 0;
+    m_A2 = 0;
+    m_A3 = 0;
 }
 
 //////////////////////////////////////////////////////

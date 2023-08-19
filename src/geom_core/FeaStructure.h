@@ -727,6 +727,8 @@ public:
         return m_LayerVec.size();
     }
 
+    void LaminateTheory();
+
     Parm m_MassDensity;
     Parm m_ElasticModulus;
     Parm m_PoissonRatio;
