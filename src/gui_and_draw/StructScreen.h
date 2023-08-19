@@ -241,6 +241,7 @@ private:
 
     Choice m_LaminateChoice;
 
+    StringInput m_LaminateNameInput;
     StringInput m_LaminateDescriptionInput;
 
     ColResizeBrowser* m_FeaLayerSelectBrowser;

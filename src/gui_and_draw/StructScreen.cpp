@@ -696,6 +696,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
 
     m_LaminateTabLayout.AddChoice( m_LaminateChoice, "Laminate" );
 
+    m_LaminateTabLayout.SetButtonWidth( 50 );
+    m_LaminateTabLayout.AddInput( m_LaminateNameInput, "Name" );
 
     m_LaminateTabLayout.AddYGap();
 
@@ -2410,6 +2412,8 @@ void StructScreen::UpdateFeaMaterialChoice()
     //==== Material Choice ====//
     m_FeaShellMaterialChoice.ClearItems();
     m_FeaBeamMaterialChoice.ClearItems();
+    m_LaminateChoice.ClearItems();
+    m_LayerChoice.ClearItems();
     m_FeaMaterialIDVec.clear();
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
@@ -2427,13 +2431,22 @@ void StructScreen::UpdateFeaMaterialChoice()
             m_FeaShellMaterialChoice.AddItem( mat_name, i );
             m_FeaMaterialIDVec.push_back( material_vec[i]->GetID() );
 
+            m_LayerChoice.AddItem( mat_name, i );
+
             if ( material_vec[i]->m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
             {
                 m_FeaBeamMaterialChoice.AddItem( mat_name, i );
             }
+
+            if ( material_vec[i]->m_FeaMaterialType() == FEA_LAMINATE )
+            {
+                m_LaminateChoice.AddItem( mat_name, i );
+            }
         }
         m_FeaShellMaterialChoice.UpdateItems();
         m_FeaBeamMaterialChoice.UpdateItems();
+        m_LaminateChoice.UpdateItems();
+        m_LayerChoice.UpdateItems();
 
         FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
 
@@ -2442,6 +2455,22 @@ void StructScreen::UpdateFeaMaterialChoice()
             // Update all FeaPart Material Choices ( Only Selected Property Visible )
             m_FeaShellMaterialChoice.SetVal( vector_find_val( m_FeaMaterialIDVec, fea_prop->m_FeaMaterialID ) );
             m_FeaBeamMaterialChoice.SetVal( vector_find_val( m_FeaMaterialIDVec, fea_prop->m_FeaMaterialID ) );
+        }
+
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat )
+        {
+            if ( fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
+            {
+                m_LaminateChoice.SetVal( vector_find_val( m_FeaMaterialIDVec, fea_mat->GetID() ) );
+
+                FeaLayer * fea_layer = fea_mat->GetCurrLayer();
+                if ( fea_layer )
+                {
+                    m_LayerChoice.SetVal( vector_find_val( m_FeaMaterialIDVec, fea_layer->m_FeaMaterialID ) );
+                }
+            }
         }
     }
 }
@@ -2533,6 +2562,35 @@ void StructScreen::UpdateBCSubSurfChoice()
         }
 
         m_FeaBCSubSurfChoice.UpdateItems();
+    }
+}
+
+void StructScreen::UpdateLayerBrowser()
+{
+    int scroll_pos = m_FeaLayerSelectBrowser->position();
+    m_FeaLayerSelectBrowser->clear();
+
+    FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+    if ( fea_mat )
+    {
+        if ( fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
+        {
+            vector < FeaLayer* > layer_vec = fea_mat->GetLayerVec();
+
+            for ( int i = 0; i < (int)layer_vec.size(); i++ )
+            {
+                string lam_name = layer_vec[i]->GetName();
+                m_FeaLayerSelectBrowser->add( lam_name.c_str() );
+            }
+
+            if ( fea_mat->ValidLayerInd( fea_mat->GetCurrLayerIndex() ) )
+            {
+                m_FeaLayerSelectBrowser->select( fea_mat->GetCurrLayerIndex() + 1 );
+            }
+
+            m_FeaLayerSelectBrowser->position( scroll_pos );
+        }
     }
 }
 
@@ -2738,6 +2796,8 @@ void StructScreen::UpdateUnitLabels()
         m_BoxDim3Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
         m_BoxDim4Unit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
 
+        m_LayerThickUnit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+
         FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
         if ( fea_prop )
         {
@@ -2900,6 +2960,30 @@ bool StructScreen::Update()
         //===== FeaProperty Update =====//
         UpdateFeaPropertyBrowser();
 
+        UpdateLayerBrowser();
+
+
+        FeaMaterial* fea_laminate = StructureMgr.GetCurrMaterial();
+        if ( fea_laminate )
+        {
+            if ( fea_laminate->m_FeaMaterialType() == FEA_LAMINATE )
+            {
+                m_LaminateNameInput.Update( fea_laminate->GetName() );
+                m_LaminateDescriptionInput.Update( fea_laminate->m_Description );
+
+                FeaLayer* fea_layer = fea_laminate->GetCurrLayer();
+
+                if ( fea_layer )
+                {
+                    m_FeaLayerLengthUnitChoice.Update( fea_layer->m_LengthUnit.GetID() );
+
+                    m_LayerThickInput.Update( fea_layer->m_Thickness.GetID() );
+                    m_LayerThetaInput.Update( fea_layer->m_Theta.GetID() );
+
+                    m_LayerThick_FEMOutput.Update( fea_layer->m_Thickness_FEM.GetID() );
+                }
+            }
+        }
 
         FeaProperty* fea_prop = StructureMgr.GetCurrProperty();
         if ( fea_prop )
@@ -3705,6 +3789,19 @@ void StructScreen::CallBack( Fl_Widget* w )
         {
             StructureMgr.SetCurrBCIndex( m_FeaBCSelectBrowser->value() - 1 );
         }
+        else if ( w == m_FeaLayerSelectBrowser )
+        {
+            FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+            if ( fea_mat )
+            {
+                if ( fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
+                {
+                    fea_mat->SetCurrLayerIndex( m_FeaLayerSelectBrowser->value() - 1 );
+                }
+            }
+        }
+
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -4290,6 +4387,73 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         // Show XSec Diagram with Dimensions
         m_ScreenMgr->ShowScreen( vsp::VSP_FEA_XSEC_SCREEN );
+    }
+    else if ( device == &m_LaminateChoice )
+    {
+        StructureMgr.SetCurrMaterialIndex( vector_find_val( m_FeaMaterialIDVec, m_FeaMaterialIDVec[ m_LaminateChoice.GetVal()] )  );
+    }
+    else if ( device == &m_LayerChoice )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat )
+        {
+            if ( fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
+            {
+                FeaLayer * fea_layer = fea_mat->GetCurrLayer();
+                if ( fea_layer )
+                {
+                    fea_layer->m_FeaMaterialID = m_FeaMaterialIDVec[ m_LayerChoice.GetVal() ];
+                }
+            }
+        }
+    }
+    else if ( device == &m_AddFeaLayerToLaminateButton )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
+        {
+            fea_mat->AddLayer();
+            fea_mat->SetCurrLayerIndex( fea_mat->NumLayers() - 1 );
+        }
+    }
+    else if ( device == &m_RemoveFeaLayerFromLaminateButton )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
+        {
+            FeaLayer* fea_layer = fea_mat->GetCurrLayer();
+
+            if ( fea_layer )
+            {
+                fea_mat->DeleteLayer( fea_layer->GetID() );
+                fea_mat->SetCurrLayerIndex( fea_mat->GetCurrLayerIndex() - 1 );
+            }
+            else
+            {
+                fea_mat->SetCurrLayerIndex( -1 );
+            }
+        }
+    }
+    else if ( device == &m_LaminateDescriptionInput )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat )
+        {
+            fea_mat->m_Description = m_LaminateDescriptionInput.GetString();
+        }
+    }
+    else if ( device == &m_LaminateNameInput )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat )
+        {
+            fea_mat->SetName( m_LaminateNameInput.GetString() );
+        }
     }
     else if ( device == &m_SelectStlFile )
     {
