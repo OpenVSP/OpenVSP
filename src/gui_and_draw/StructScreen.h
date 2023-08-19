@@ -44,6 +44,8 @@ public:
     virtual void UpdateBCPartChoice();
     virtual void UpdateBCSubSurfChoice();
 
+    virtual void UpdateLayerBrowser();
+
     virtual void UpdateUnitLabels();
 
     virtual void OrientWing();
@@ -88,6 +90,7 @@ private:
     GroupLayout m_FeaPartBrowserLayout;
     GroupLayout m_MaterialTabLayout;
     GroupLayout m_MaterialEditGroup;
+    GroupLayout m_LaminateTabLayout;
     GroupLayout m_PropertyTabLayout;
     GroupLayout m_PropertyEditGroup;
     GroupLayout m_BCTabLayout;
@@ -158,6 +161,9 @@ private:
     //===== Material Tab =====//
     TriggerButton m_AddFeaMaterialButton;
     TriggerButton m_DelFeaMaterialButton;
+
+    TriggerButton m_EditLaminateButton;
+    TriggerButton m_EditLaminaButton;
 
     Fl_Browser* m_FeaMaterialSelectBrowser;
     vector < string > m_FeaMaterialIDVec;
@@ -230,6 +236,26 @@ private:
 
     TriggerButton m_OrthoMatShearModUnit;
     TriggerButton m_OrthoMatShearModUnit_FEM;
+
+    //===== Laminate Tab =====//
+
+    Choice m_LaminateChoice;
+
+    StringInput m_LaminateDescriptionInput;
+
+    ColResizeBrowser* m_FeaLayerSelectBrowser;
+
+    TriggerButton m_AddFeaLayerToLaminateButton;
+    TriggerButton m_RemoveFeaLayerFromLaminateButton;
+
+    Choice m_LayerChoice;
+
+    Input m_LayerThickInput;
+    Choice m_FeaLayerLengthUnitChoice;
+    Output m_LayerThick_FEMOutput;
+    TriggerButton m_LayerThickUnit_FEM;
+
+    Input m_LayerThetaInput;
 
     //===== Property Tab =====//
     GroupLayout* m_CurFeaPropDispGroup;

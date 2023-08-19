@@ -39,6 +39,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     Fl_Group* partTabGroup = AddSubGroup( partTab, border );
     Fl_Group* matTab = AddTab( "Material" );
     Fl_Group* matTabGroup = AddSubGroup( matTab, border );
+    Fl_Group* laminateTab = AddTab( "Laminate" );
+    Fl_Group* laminateTabGroup = AddSubGroup( laminateTab, border );
     Fl_Group* propTab = AddTab( "Property" );
     Fl_Group* propTabGroup = AddSubGroup( propTab, border );
     Fl_Group* bcTab = AddTab( "BCs" );
@@ -335,6 +337,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_MaterialEditSubGroup.AddChoice( m_FeaMaterialTypeChoice, "Type" );
     m_FeaMaterialTypeChoice.AddItem( "Isotropic", vsp::FEA_ISOTROPIC );
     m_FeaMaterialTypeChoice.AddItem( "Orthotropic", vsp::FEA_ENG_ORTHO );
+    m_FeaMaterialTypeChoice.AddItem( "Laminate", vsp::FEA_LAMINATE );
     m_FeaMaterialTypeChoice.UpdateItems();
 
     m_MaterialEditSubGroup.AddYGap();
@@ -366,6 +369,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     indx = 0;
     indx += fl_utf8encode( 961-16+12, &nu[ indx ] ); // Greek character nu
     nu[ indx ] = 0;
+
+    char theta[16];
+    indx = 0;
+    indx += fl_utf8encode( 952, &theta[ indx ] ); // Greek character theta
+    theta[ indx ] = 0;
 
     m_IsoSubGroup.SetSameLineFlag( true );
     m_IsoSubGroup.SetFitWidthFlag( false );
@@ -677,16 +685,116 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_Matnu23Input.SetButtonNameUpdate( false );
 
 
-
-
     m_IsoSubGroup.Hide();
 
+    //=== Laminate Tab ===//
+    m_LaminateTabLayout.SetGroupAndScreen( laminateTabGroup, this );
+
+    m_LaminateTabLayout.AddYGap();
+
+    m_LaminateTabLayout.AddDividerBox( "Laminate Name & Description" );
+
+    m_LaminateTabLayout.AddChoice( m_LaminateChoice, "Laminate" );
+
+
+    m_LaminateTabLayout.AddYGap();
+
+    m_LaminateTabLayout.SetButtonWidth( -1 );
+    m_LaminateTabLayout.AddInput( m_LaminateDescriptionInput, "", 0, 2 );
+    m_LaminateDescriptionInput.SetType( FL_MULTILINE_INPUT_WRAP );
+
+    m_LaminateTabLayout.AddYGap();
 
 
 
+    m_LaminateTabLayout.AddDividerBox( "Lamina Schedule" );
+
+    // Pointer for the widths of each column in the browser to support resizing
+    // Last column width must be 0
+    static int laminate_col_widths[] = { 130, 70, 80, 130, 0 }; // widths for each column
+
+    m_FeaLayerSelectBrowser = m_LaminateTabLayout.AddColResizeBrowser( laminate_col_widths, 4, browser_h - 20 );
+    m_FeaLayerSelectBrowser->labelfont( 13 );
+    m_FeaLayerSelectBrowser->labelsize( 12 );
+    m_FeaLayerSelectBrowser->callback( staticScreenCB, this );
 
 
 
+    m_LaminateTabLayout.SetSameLineFlag( true );
+    m_LaminateTabLayout.SetFitWidthFlag( false );
+
+    m_LaminateTabLayout.SetButtonWidth( m_LaminateTabLayout.GetRemainX() / 2 );
+
+    m_LaminateTabLayout.AddButton( m_AddFeaLayerToLaminateButton, "Add Lamina" );
+    m_LaminateTabLayout.AddButton( m_RemoveFeaLayerFromLaminateButton, "Remove Lamina" );
+    m_LaminateTabLayout.ForceNewLine();
+
+    m_LaminateTabLayout.SetSameLineFlag( false );
+    m_LaminateTabLayout.SetFitWidthFlag( true );
+
+    m_LaminateTabLayout.AddYGap();
+
+    m_LaminateTabLayout.AddDividerBox( "Layer Properties" );
+
+    m_LaminateTabLayout.AddChoice( m_LayerChoice, "Lamina" );
+
+
+    m_LaminateTabLayout.SetSameLineFlag( true );
+    m_LaminateTabLayout.SetFitWidthFlag( false );
+
+    little = ( m_LaminateTabLayout.GetW() - gapw ) / 5.0;
+
+    m_LaminateTabLayout.AddYGap();
+
+    m_LaminateTabLayout.AddX( little );
+    m_LaminateTabLayout.SetButtonWidth( 2 * little );
+    m_LaminateTabLayout.AddDividerBox( "Input" );
+    m_LaminateTabLayout.AddX( gapw );
+    m_LaminateTabLayout.AddDividerBox( "To FEM" );
+    m_LaminateTabLayout.ForceNewLine();
+
+    m_LaminateTabLayout.SetChoiceButtonWidth( -1 );
+
+    m_LaminateTabLayout.SetInputWidth( little );
+    m_LaminateTabLayout.SetSliderWidth( little );
+
+
+    m_LaminateTabLayout.SetButtonWidth( little );
+
+    m_LaminateTabLayout.AddInput( m_LayerThickInput, "Thickness", "%5.3g" );
+
+    m_FeaLayerLengthUnitChoice.AddItem( "IN", vsp::LEN_IN );
+    m_FeaLayerLengthUnitChoice.AddItem( "FT", vsp::LEN_FT );
+    m_FeaLayerLengthUnitChoice.AddItem( "YD", vsp::LEN_YD );
+    m_FeaLayerLengthUnitChoice.AddItem( "MM", vsp::LEN_MM );
+    m_FeaLayerLengthUnitChoice.AddItem( "CM", vsp::LEN_CM );
+    m_FeaLayerLengthUnitChoice.AddItem( "M", vsp::LEN_M );
+    m_FeaLayerLengthUnitChoice.AddItem( "Consistent", vsp::LEN_UNITLESS );
+    m_LaminateTabLayout.AddChoice( m_FeaLayerLengthUnitChoice, "" );
+
+    m_LaminateTabLayout.AddX( gapw );
+
+    m_LaminateTabLayout.SetButtonWidth( 0 );
+    m_LaminateTabLayout.AddOutput( m_LayerThick_FEMOutput, "", "%5.3g" );
+
+    m_LaminateTabLayout.SetButtonWidth( little );
+    m_LaminateTabLayout.AddButton( m_LayerThickUnit_FEM, "" );
+    m_LayerThickUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_LayerThickUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+
+    m_LaminateTabLayout.ForceNewLine();
+
+    m_LaminateTabLayout.SetFitWidthFlag( false );
+    m_LaminateTabLayout.SetButtonWidth( little );
+    m_LaminateTabLayout.AddInput( m_LayerThetaInput, theta, "%5.3g" );
+
+    m_LaminateTabLayout.ForceNewLine();
+
+    m_LaminateTabLayout.SetSameLineFlag( false );
+    m_LaminateTabLayout.SetFitWidthFlag( true );
+
+    m_LaminateTabLayout.AddYGap();
 
     //=== Property Tab ===//
     m_PropertyTabLayout.SetGroupAndScreen( propTabGroup, this );
