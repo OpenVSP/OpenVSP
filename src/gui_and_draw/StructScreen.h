@@ -177,6 +177,7 @@ private:
 
     GroupLayout m_IsoSubGroup;
     GroupLayout m_OrthoSubGroup;
+    GroupLayout m_LaminateSubGroup;
 
     Input m_MatDensityInput;
     Choice m_IsoMatDensityUnitChoice;
@@ -236,6 +237,31 @@ private:
 
     TriggerButton m_OrthoMatShearModUnit;
     TriggerButton m_OrthoMatShearModUnit_FEM;
+
+    Output m_LaminateMatDensity_FEMOutput;
+    Output m_LaminateMatThickness_FEMOutput;
+
+    Output m_LaminateMatE1Output_FEM;
+    Output m_LaminateMatE2Output_FEM;
+    Output m_LaminateMatE3Output_FEM;
+    Output m_LaminateMatnu12Output;
+    Output m_LaminateMatnu13Output;
+    Output m_LaminateMatnu23Output;
+    Output m_LaminateMatG12Output_FEM;
+    Output m_LaminateMatG13Output_FEM;
+    Output m_LaminateMatG23Output_FEM;
+    Output m_LaminateMatA1Output_FEM;
+    Output m_LaminateMatA2Output_FEM;
+    Output m_LaminateMatA3Output_FEM;
+
+    TriggerButton m_LaminateMatDensityUnit_FEM;
+    TriggerButton m_LaminateThicknessUnit_FEM;
+
+    TriggerButton m_LaminateMatElasticModUnit_FEM;
+
+    TriggerButton m_LaminateMatThermalExCoeffUnit_FEM;
+
+    TriggerButton m_LaminateMatShearModUnit_FEM;
 
     //===== Laminate Tab =====//
 

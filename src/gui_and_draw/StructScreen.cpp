@@ -347,6 +347,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
 
     m_MaterialEditSubGroup.AddSubGroupLayout( m_IsoSubGroup, m_MaterialEditSubGroup.GetRemainX(), m_MaterialEditSubGroup.GetRemainY() );
     m_MaterialEditSubGroup.AddSubGroupLayout( m_OrthoSubGroup, m_MaterialEditSubGroup.GetRemainX(), m_MaterialEditSubGroup.GetRemainY() );
+    m_MaterialEditSubGroup.AddSubGroupLayout( m_LaminateSubGroup, m_MaterialEditSubGroup.GetRemainX(), m_MaterialEditSubGroup.GetRemainY() );
 
 
     int gapw = 5.0;
@@ -685,7 +686,129 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     m_Matnu23Input.SetButtonNameUpdate( false );
 
 
+
+
+
+
+    little = ( m_LaminateSubGroup.GetW() - labelw ) / 4.0;
+
+    m_LaminateSubGroup.SetSameLineFlag( true );
+    m_LaminateSubGroup.SetFitWidthFlag( false );
+
+
+    m_LaminateSubGroup.SetInputWidth( little * 3 );
+    m_LaminateSubGroup.SetButtonWidth( labelw );
+
+    m_LaminateSubGroup.AddOutput( m_LaminateMatThickness_FEMOutput, "t", "%5.3g" );
+
+    m_LaminateSubGroup.SetButtonWidth( choicew );
+    m_LaminateSubGroup.AddButton( m_LaminateThicknessUnit_FEM, "" );
+    m_LaminateThicknessUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_LaminateThicknessUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_LaminateSubGroup.ForceNewLine();
+
+    m_LaminateSubGroup.SetButtonWidth( labelw );
+
+    m_LaminateSubGroup.AddOutput( m_LaminateMatDensity_FEMOutput, rho, "%5.3g" );
+
+    m_LaminateSubGroup.SetButtonWidth( choicew );
+    m_LaminateSubGroup.AddButton( m_LaminateMatDensityUnit_FEM, "" );
+    m_LaminateMatDensityUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_LaminateMatDensityUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_LaminateSubGroup.ForceNewLine();
+
+
+
+    m_LaminateSubGroup.AddYGap();
+
+    m_LaminateSubGroup.SetInputWidth( little );
+    m_LaminateSubGroup.SetButtonWidth( little  );
+
+    m_LaminateSubGroup.AddX( labelw );
+    m_LaminateSubGroup.AddDividerBox( "1" );
+    m_LaminateSubGroup.AddDividerBox( "2" );
+    m_LaminateSubGroup.AddDividerBox( "3" );
+
+    m_LaminateSubGroup.ForceNewLine( m_LaminateSubGroup.GetDividerHeight() );
+
+
+    m_LaminateSubGroup.SetButtonWidth( labelw );
+
+    m_LaminateSubGroup.AddOutput( m_LaminateMatE1Output_FEM, "E", "%5.3g" );
+    m_LaminateSubGroup.SetButtonWidth( 0 );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatE2Output_FEM, "", "%5.3g" );
+    m_MatE2Input.SetButtonNameUpdate( false );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatE3Output_FEM, "", "%5.3g" );
+    m_MatE3Input.SetButtonNameUpdate( false );
+
+    m_LaminateSubGroup.SetButtonWidth( little );
+    m_LaminateSubGroup.AddButton( m_LaminateMatElasticModUnit_FEM, "" );
+    m_LaminateMatElasticModUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_LaminateMatElasticModUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+
+
+    m_LaminateSubGroup.ForceNewLine();
+
+    m_LaminateSubGroup.SetButtonWidth( labelw );
+
+    m_LaminateSubGroup.AddOutput( m_LaminateMatA1Output_FEM, alpha, "%5.3g" );
+    m_LaminateSubGroup.SetButtonWidth( 0 );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatA2Output_FEM, "", "%5.3g" );
+    m_MatA2Input.SetButtonNameUpdate( false );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatA3Output_FEM, "", "%5.3g" );
+    m_MatA3Input.SetButtonNameUpdate( false );
+
+
+    m_LaminateSubGroup.SetButtonWidth( little );
+    m_LaminateSubGroup.AddButton( m_LaminateMatThermalExCoeffUnit_FEM, "" );
+    m_LaminateMatThermalExCoeffUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_LaminateMatThermalExCoeffUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+
+    m_LaminateSubGroup.ForceNewLine();
+
+
+    m_LaminateSubGroup.AddYGap();
+
+    m_LaminateSubGroup.AddX( labelw );
+    m_LaminateSubGroup.AddDividerBox( "12" );
+    m_LaminateSubGroup.AddDividerBox( "13" );
+    m_LaminateSubGroup.AddDividerBox( "23" );
+
+
+    m_LaminateSubGroup.ForceNewLine( m_LaminateSubGroup.GetDividerHeight() );
+
+
+    m_LaminateSubGroup.SetButtonWidth( labelw );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatG12Output_FEM, "G", "%5.3g" );
+    m_LaminateSubGroup.SetButtonWidth( 0 );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatG13Output_FEM, "", "%5.3g" );
+    m_MatG13Input.SetButtonNameUpdate( false );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatG23Output_FEM, "", "%5.3g" );
+    m_MatG23Input.SetButtonNameUpdate( false );
+
+    m_LaminateSubGroup.SetButtonWidth( little );
+    m_LaminateSubGroup.AddButton( m_LaminateMatShearModUnit_FEM, "" );
+    m_LaminateMatShearModUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_LaminateMatShearModUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_LaminateSubGroup.ForceNewLine();
+
+
+    m_LaminateSubGroup.SetButtonWidth( labelw );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatnu12Output, nu, "%5.3g", 2.0 * m_LaminateSubGroup.GetW() / 3.0 );
+    m_LaminateSubGroup.SetButtonWidth( 0 );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatnu13Output, "", "%5.3g", 2.0 * m_LaminateSubGroup.GetW() / 3.0 );
+    m_Matnu13Input.SetButtonNameUpdate( false );
+    m_LaminateSubGroup.AddOutput( m_LaminateMatnu23Output, "", "%5.3g", 2.0 * m_LaminateSubGroup.GetW() / 3.0 );
+    m_Matnu23Input.SetButtonNameUpdate( false );
+
+
     m_IsoSubGroup.Hide();
+    m_OrthoSubGroup.Hide();
 
     //=== Laminate Tab ===//
     m_LaminateTabLayout.SetGroupAndScreen( laminateTabGroup, this );
@@ -2768,6 +2891,12 @@ void StructScreen::UpdateUnitLabels()
         m_OrthoMatThermalExCoeffUnit_FEM.GetFlButton()->copy_label( temp_unit.c_str() );
         m_OrthoMatShearModUnit_FEM.GetFlButton()->copy_label( young_mod_unit.c_str() );
 
+        m_LaminateMatDensityUnit_FEM.GetFlButton()->copy_label( density_unit.c_str() );
+        m_LaminateMatElasticModUnit_FEM.GetFlButton()->copy_label( young_mod_unit.c_str() );
+        m_LaminateMatThermalExCoeffUnit_FEM.GetFlButton()->copy_label( temp_unit.c_str() );
+        m_LaminateMatShearModUnit_FEM.GetFlButton()->copy_label( young_mod_unit.c_str() );
+        m_LaminateThicknessUnit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
+
         m_PropThickUnit_FEM.GetFlButton()->copy_label( thick_unit.c_str() );
 
         m_PropAreaUnit_FEM.GetFlButton()->copy_label( area_unit.c_str() );
@@ -3159,6 +3288,21 @@ bool StructScreen::Update()
             m_MatA2Output_FEM.Update( fea_mat->m_A2_FEM.GetID() );
             m_MatA3Output_FEM.Update( fea_mat->m_A3_FEM.GetID() );
 
+            m_LaminateMatDensity_FEMOutput.Update( fea_mat->m_MassDensity_FEM.GetID() );
+            m_LaminateMatThickness_FEMOutput.Update( fea_mat->m_Thickness_FEM.GetID() );
+
+            m_LaminateMatE1Output_FEM.Update( fea_mat->m_E1_FEM.GetID() );
+            m_LaminateMatE2Output_FEM.Update( fea_mat->m_E2_FEM.GetID() );
+            m_LaminateMatE3Output_FEM.Update( fea_mat->m_E3_FEM.GetID() );
+            m_LaminateMatnu12Output.Update( fea_mat->m_nu12.GetID() );
+            m_LaminateMatnu13Output.Update( fea_mat->m_nu13.GetID() );
+            m_LaminateMatnu23Output.Update( fea_mat->m_nu23.GetID() );
+            m_LaminateMatG12Output_FEM.Update( fea_mat->m_G12_FEM.GetID() );
+            m_LaminateMatG13Output_FEM.Update( fea_mat->m_G13_FEM.GetID() );
+            m_LaminateMatG23Output_FEM.Update( fea_mat->m_G23_FEM.GetID() );
+            m_LaminateMatA1Output_FEM.Update( fea_mat->m_A1_FEM.GetID() );
+            m_LaminateMatA2Output_FEM.Update( fea_mat->m_A2_FEM.GetID() );
+            m_LaminateMatA3Output_FEM.Update( fea_mat->m_A3_FEM.GetID() );
 
             if ( fea_mat->m_UserFeaMaterial )
             {
@@ -3237,11 +3381,19 @@ bool StructScreen::Update()
             {
                 m_IsoSubGroup.Show();
                 m_OrthoSubGroup.Hide();
+                m_LaminateSubGroup.Hide();
             }
-            else
+            else if ( fea_mat->m_FeaMaterialType() == vsp::FEA_ENG_ORTHO )
             {
                 m_IsoSubGroup.Hide();
                 m_OrthoSubGroup.Show();
+                m_LaminateSubGroup.Hide();
+            }
+            else // Laminate
+            {
+                m_IsoSubGroup.Hide();
+                m_OrthoSubGroup.Hide();
+                m_LaminateSubGroup.Show();
             }
         }
 
