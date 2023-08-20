@@ -5366,16 +5366,6 @@ void FeaMaterial::Update()
         return;
     }
 
-    if ( m_FeaMaterialType() == vsp::FEA_LAMINATE )
-    {
-        for ( int i = 0; i < m_LayerVec.size(); i++ )
-        {
-            m_LayerVec[i]->Update();
-        }
-
-        LaminateTheory();
-    }
-
     if ( m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
     {
         m_E1 = m_ElasticModulus();
@@ -5394,6 +5384,15 @@ void FeaMaterial::Update()
         m_A2 = m_ThermalExpanCoeff();
         m_A3 = m_ThermalExpanCoeff();
     }
+    else if ( m_FeaMaterialType() == vsp::FEA_LAMINATE )
+    {
+        for ( int i = 0; i < m_LayerVec.size(); i++ )
+        {
+            m_LayerVec[i]->Update();
+        }
+
+        LaminateTheory();
+    }
     else
     {
         m_ElasticModulus = m_E1();
@@ -5401,60 +5400,61 @@ void FeaMaterial::Update()
         m_ThermalExpanCoeff = m_A1();
     }
 
-
-    int density_unit = -1;
-    int pressure_unit = -1;
-    int temp_unit = -1;
-
-    switch ( ( int ) veh->m_StructUnit() )
+    if ( m_FeaMaterialType() != vsp::FEA_LAMINATE )
     {
-        case vsp::SI_UNIT:
-            density_unit = vsp::RHO_UNIT_KG_M3;
-            pressure_unit = vsp::PRES_UNIT_PA;
-            temp_unit = vsp::TEMP_UNIT_K;
-            break;
+        int density_unit = -1;
+        int pressure_unit = -1;
+        int temp_unit = -1;
 
-        case vsp::CGS_UNIT:
-            density_unit = vsp::RHO_UNIT_G_CM3;
-            pressure_unit = vsp::PRES_UNIT_BA;
-            temp_unit = vsp::TEMP_UNIT_K;
-            break;
+        switch ( ( int ) veh->m_StructUnit() )
+        {
+            case vsp::SI_UNIT:
+                density_unit = vsp::RHO_UNIT_KG_M3;
+                pressure_unit = vsp::PRES_UNIT_PA;
+                temp_unit = vsp::TEMP_UNIT_K;
+                break;
 
-        case vsp::MPA_UNIT:
-            density_unit = vsp::RHO_UNIT_TONNE_MM3;
-            pressure_unit = vsp::PRES_UNIT_MPA;
-            temp_unit = vsp::TEMP_UNIT_K;
-            break;
+            case vsp::CGS_UNIT:
+                density_unit = vsp::RHO_UNIT_G_CM3;
+                pressure_unit = vsp::PRES_UNIT_BA;
+                temp_unit = vsp::TEMP_UNIT_K;
+                break;
 
-        case vsp::BFT_UNIT:
-            density_unit = vsp::RHO_UNIT_SLUG_FT3;
-            pressure_unit = vsp::PRES_UNIT_PSF;
-            temp_unit = vsp::TEMP_UNIT_R;
-            break;
+            case vsp::MPA_UNIT:
+                density_unit = vsp::RHO_UNIT_TONNE_MM3;
+                pressure_unit = vsp::PRES_UNIT_MPA;
+                temp_unit = vsp::TEMP_UNIT_K;
+                break;
 
-        case vsp::BIN_UNIT:
-            density_unit = vsp::RHO_UNIT_LBFSEC2_IN4;
-            pressure_unit = vsp::PRES_UNIT_PSI;
-            temp_unit = vsp::TEMP_UNIT_R;
-            break;
+            case vsp::BFT_UNIT:
+                density_unit = vsp::RHO_UNIT_SLUG_FT3;
+                pressure_unit = vsp::PRES_UNIT_PSF;
+                temp_unit = vsp::TEMP_UNIT_R;
+                break;
+
+            case vsp::BIN_UNIT:
+                density_unit = vsp::RHO_UNIT_LBFSEC2_IN4;
+                pressure_unit = vsp::PRES_UNIT_PSI;
+                temp_unit = vsp::TEMP_UNIT_R;
+                break;
+        }
+
+        m_MassDensity_FEM = ConvertDensity( m_MassDensity(), m_DensityUnit(), density_unit );
+        m_ElasticModulus_FEM = ConvertPressure( m_ElasticModulus(), m_ModulusUnit(), pressure_unit );
+        m_ThermalExpanCoeff_FEM = ConvertThermalExpanCoeff( m_ThermalExpanCoeff(), m_TemperatureUnit(), temp_unit );
+
+        m_E1_FEM = ConvertPressure( m_E1(), m_ModulusUnit(), pressure_unit );
+        m_E2_FEM = ConvertPressure( m_E2(), m_ModulusUnit(), pressure_unit );
+        m_E3_FEM = ConvertPressure( m_E3(), m_ModulusUnit(), pressure_unit );
+
+        m_G12_FEM = ConvertPressure( m_G12(), m_ModulusUnit(), pressure_unit );
+        m_G13_FEM = ConvertPressure( m_G13(), m_ModulusUnit(), pressure_unit );
+        m_G23_FEM = ConvertPressure( m_G23(), m_ModulusUnit(), pressure_unit );
+
+        m_A1_FEM = ConvertThermalExpanCoeff( m_A1(), m_TemperatureUnit(), temp_unit );
+        m_A2_FEM = ConvertThermalExpanCoeff( m_A2(), m_TemperatureUnit(), temp_unit );
+        m_A3_FEM = ConvertThermalExpanCoeff( m_A3(), m_TemperatureUnit(), temp_unit );
     }
-
-    m_MassDensity_FEM = ConvertDensity( m_MassDensity(), m_DensityUnit(), density_unit );
-    m_ElasticModulus_FEM = ConvertPressure( m_ElasticModulus(), m_ModulusUnit(), pressure_unit );
-    m_ThermalExpanCoeff_FEM = ConvertThermalExpanCoeff( m_ThermalExpanCoeff(), m_TemperatureUnit(), temp_unit );
-
-    m_E1_FEM = ConvertPressure( m_E1(), m_ModulusUnit(), pressure_unit );
-    m_E2_FEM = ConvertPressure( m_E2(), m_ModulusUnit(), pressure_unit );
-    m_E3_FEM = ConvertPressure( m_E3(), m_ModulusUnit(), pressure_unit );
-
-    m_G12_FEM = ConvertPressure( m_G12(), m_ModulusUnit(), pressure_unit );
-    m_G13_FEM = ConvertPressure( m_G13(), m_ModulusUnit(), pressure_unit );
-    m_G23_FEM = ConvertPressure( m_G23(), m_ModulusUnit(), pressure_unit );
-
-    m_A1_FEM = ConvertThermalExpanCoeff( m_A1(), m_TemperatureUnit(), temp_unit );
-    m_A2_FEM = ConvertThermalExpanCoeff( m_A2(), m_TemperatureUnit(), temp_unit );
-    m_A3_FEM = ConvertThermalExpanCoeff( m_A3(), m_TemperatureUnit(), temp_unit );
-
 }
 
 void FeaMaterial::MakeMaterial( string id )
