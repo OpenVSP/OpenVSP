@@ -5318,6 +5318,9 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_ThermalExpanCoeff_FEM.Init( "ThermalExpanCoeff_FEM", "FeaMaterial", this, 0.0, -1.0, 1.0 );
     m_ThermalExpanCoeff_FEM.SetDescript( "Thermal Expansion Coefficient for Material in FEM units" );
 
+    m_Thickness_FEM.Init( "Thickness_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
+    m_Thickness_FEM.SetDescript( "Thickness of Material in FEM units" );
+
     m_E1_FEM.Init( "E1_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
     m_E1_FEM.SetDescript( "E1 Elastic (Young's) Modulus for Material in FEM units" );
 

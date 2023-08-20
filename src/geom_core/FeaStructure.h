@@ -763,6 +763,7 @@ public:
     Parm m_MassDensity_FEM;
     Parm m_ElasticModulus_FEM;
     Parm m_ThermalExpanCoeff_FEM;
+    Parm m_Thickness_FEM;
 
     Parm m_E1_FEM;
     Parm m_E2_FEM;
