@@ -175,14 +175,16 @@ int sgn( T val )
 }
 
 template < typename T >
-void ReorderVectorIndex( vector < T > &vec, int index, int action )
+int ReorderVectorIndex( vector < T > &vec, int index, int action )
 {
+    int new_index = index;
     vector< T > new_vec;
     if ( action == vsp::REORDER_MOVE_TOP || action == vsp::REORDER_MOVE_BOTTOM )
     {
         if ( action == vsp::REORDER_MOVE_TOP )
         {
             new_vec.push_back( vec[index] );
+            new_index = 0;
         }
 
         for ( int i = 0 ; i < ( int )vec.size() ; i++ )
@@ -195,6 +197,7 @@ void ReorderVectorIndex( vector < T > &vec, int index, int action )
 
         if ( action == vsp::REORDER_MOVE_BOTTOM )
         {
+            new_index = new_vec.size();
             new_vec.push_back( vec[index] );
         }
     }
@@ -209,6 +212,15 @@ void ReorderVectorIndex( vector < T > &vec, int index, int action )
                 new_vec.push_back( vec[i + 1] );
                 new_vec.push_back( vec[i] );
                 i++;
+
+                if ( action == vsp::REORDER_MOVE_UP )
+                {
+                    new_index = index - 1;
+                }
+                else if (action == vsp::REORDER_MOVE_DOWN )
+                {
+                    new_index = index + 1;
+                }
             }
             else
             {
@@ -218,6 +230,8 @@ void ReorderVectorIndex( vector < T > &vec, int index, int action )
     }
 
     vec = new_vec;
+
+    return new_index;
 }
 
 #endif
