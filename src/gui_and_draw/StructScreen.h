@@ -238,6 +238,9 @@ private:
     TriggerButton m_OrthoMatShearModUnit;
     TriggerButton m_OrthoMatShearModUnit_FEM;
 
+
+    Choice m_LaminateLengthUnitChoice;
+
     Output m_LaminateMatDensity_FEMOutput;
     Output m_LaminateMatThickness_FEMOutput;
 
@@ -278,7 +281,7 @@ private:
     Choice m_LayerChoice;
 
     Input m_LayerThickInput;
-    Choice m_FeaLayerLengthUnitChoice;
+    TriggerButton m_LayerThickUnit;
     Output m_LayerThick_FEMOutput;
     TriggerButton m_LayerThickUnit_FEM;
 

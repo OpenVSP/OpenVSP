@@ -27,7 +27,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA Structure", 196 )
+StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA Structure", 196 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -690,36 +690,53 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
 
 
 
-    little = ( m_LaminateSubGroup.GetW() - labelw ) / 4.0;
+    little = ( m_LaminateSubGroup.GetW() ) / 2.0;
 
     m_LaminateSubGroup.SetSameLineFlag( true );
     m_LaminateSubGroup.SetFitWidthFlag( false );
 
+    m_LaminateSubGroup.SetButtonWidth( little );
+    m_LaminateSubGroup.SetSliderWidth( little );
+    m_LaminateSubGroup.SetChoiceButtonWidth( little );
 
-    m_LaminateSubGroup.SetInputWidth( little * 3 );
+    m_LaminateLengthUnitChoice.AddItem( "IN", vsp::LEN_IN );
+    m_LaminateLengthUnitChoice.AddItem( "FT", vsp::LEN_FT );
+    m_LaminateLengthUnitChoice.AddItem( "YD", vsp::LEN_YD );
+    m_LaminateLengthUnitChoice.AddItem( "MM", vsp::LEN_MM );
+    m_LaminateLengthUnitChoice.AddItem( "CM", vsp::LEN_CM );
+    m_LaminateLengthUnitChoice.AddItem( "M", vsp::LEN_M );
+    m_LaminateLengthUnitChoice.AddItem( "Consistent", vsp::LEN_UNITLESS );
+    m_LaminateSubGroup.AddChoice( m_LaminateLengthUnitChoice, "Input Thickness Units" );
+
+    m_LaminateSubGroup.ForceNewLine();
+    m_LaminateSubGroup.AddYGap();
+
+    little = ( m_LaminateSubGroup.GetW() - 2 * labelw - gapw ) / 4.0;
+
+    m_LaminateSubGroup.SetInputWidth( little );
     m_LaminateSubGroup.SetButtonWidth( labelw );
+
+    m_LaminateSubGroup.AddOutput( m_LaminateMatDensity_FEMOutput, rho, "%5.3g" );
+
+    m_LaminateSubGroup.SetButtonWidth( little );
+    m_LaminateSubGroup.AddButton( m_LaminateMatDensityUnit_FEM, "" );
+    m_LaminateMatDensityUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_LaminateMatDensityUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_LaminateSubGroup.SetButtonWidth( labelw );
+
+    m_LaminateSubGroup.AddX( gapw );
 
     m_LaminateSubGroup.AddOutput( m_LaminateMatThickness_FEMOutput, "t", "%5.3g" );
 
-    m_LaminateSubGroup.SetButtonWidth( choicew );
+    m_LaminateSubGroup.SetButtonWidth( little );
     m_LaminateSubGroup.AddButton( m_LaminateThicknessUnit_FEM, "" );
     m_LaminateThicknessUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
     m_LaminateThicknessUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
 
     m_LaminateSubGroup.ForceNewLine();
 
-    m_LaminateSubGroup.SetButtonWidth( labelw );
-
-    m_LaminateSubGroup.AddOutput( m_LaminateMatDensity_FEMOutput, rho, "%5.3g" );
-
-    m_LaminateSubGroup.SetButtonWidth( choicew );
-    m_LaminateSubGroup.AddButton( m_LaminateMatDensityUnit_FEM, "" );
-    m_LaminateMatDensityUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_LaminateMatDensityUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
-
-    m_LaminateSubGroup.ForceNewLine();
-
-
+    little = ( m_LaminateSubGroup.GetW() - labelw ) / 4.0;
 
     m_LaminateSubGroup.AddYGap();
 
@@ -888,14 +905,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
 
     m_LaminateTabLayout.AddInput( m_LayerThickInput, "Thickness", "%5.3g" );
 
-    m_FeaLayerLengthUnitChoice.AddItem( "IN", vsp::LEN_IN );
-    m_FeaLayerLengthUnitChoice.AddItem( "FT", vsp::LEN_FT );
-    m_FeaLayerLengthUnitChoice.AddItem( "YD", vsp::LEN_YD );
-    m_FeaLayerLengthUnitChoice.AddItem( "MM", vsp::LEN_MM );
-    m_FeaLayerLengthUnitChoice.AddItem( "CM", vsp::LEN_CM );
-    m_FeaLayerLengthUnitChoice.AddItem( "M", vsp::LEN_M );
-    m_FeaLayerLengthUnitChoice.AddItem( "Consistent", vsp::LEN_UNITLESS );
-    m_LaminateTabLayout.AddChoice( m_FeaLayerLengthUnitChoice, "" );
+    m_LaminateTabLayout.SetButtonWidth( little );
+    m_LaminateTabLayout.AddButton( m_LayerThickUnit, "" );
+    m_LayerThickUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_LayerThickUnit.GetFlButton()->labelcolor( FL_BLACK );
 
     m_LaminateTabLayout.AddX( gapw );
 
@@ -3039,6 +3052,41 @@ void StructScreen::UpdateUnitLabels()
 
             m_IsoMatShearModUnit.GetFlButton()->copy_label( input_mod_unit.c_str() );
             m_OrthoMatShearModUnit.GetFlButton()->copy_label( input_mod_unit.c_str() );
+
+            string input_len_unit;
+
+            switch ( fea_mat->m_LengthUnit() )
+            {
+                case vsp::LEN_IN:
+                    input_len_unit = "in";
+                    break;
+
+                case vsp::LEN_FT:
+                    input_len_unit = "ft";
+                    break;
+
+                case vsp::LEN_YD:
+                    input_len_unit = "yd";
+                    break;
+
+                case vsp::LEN_MM:
+                    input_len_unit = "mm";
+                    break;
+
+                case vsp::LEN_CM:
+                    input_len_unit = "cm";
+                    break;
+
+                case vsp::LEN_M:
+                    input_len_unit = "m";
+                    break;
+
+                case vsp::LEN_UNITLESS:
+                    input_len_unit = "-";
+                    break;
+            }
+
+            m_LayerThickUnit.GetFlButton()->copy_label( input_len_unit.c_str() );
         }
     }
 }
@@ -3104,8 +3152,6 @@ bool StructScreen::Update()
 
                 if ( fea_layer )
                 {
-                    m_FeaLayerLengthUnitChoice.Update( fea_layer->m_LengthUnit.GetID() );
-
                     m_LayerThickInput.Update( fea_layer->m_Thickness.GetID() );
                     m_LayerThetaInput.Update( fea_layer->m_Theta.GetID() );
 
@@ -3287,6 +3333,8 @@ bool StructScreen::Update()
             m_MatA1Output_FEM.Update( fea_mat->m_A1_FEM.GetID() );
             m_MatA2Output_FEM.Update( fea_mat->m_A2_FEM.GetID() );
             m_MatA3Output_FEM.Update( fea_mat->m_A3_FEM.GetID() );
+
+            m_LaminateLengthUnitChoice.Update( fea_mat->m_LengthUnit.GetID() );
 
             m_LaminateMatDensity_FEMOutput.Update( fea_mat->m_MassDensity_FEM.GetID() );
             m_LaminateMatThickness_FEMOutput.Update( fea_mat->m_Thickness_FEM.GetID() );

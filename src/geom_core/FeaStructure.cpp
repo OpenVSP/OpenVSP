@@ -5159,9 +5159,6 @@ string FeaProperty::GetXSecName()
 
 FeaLayer::FeaLayer() : ParmContainer()
 {
-    m_LengthUnit.Init( "LengthUnit", "FeaLayer", this, vsp::LEN_IN, vsp::LEN_MM, vsp::NUM_LEN_UNIT - 1 );
-    m_LengthUnit.SetDescript( "Length units used to specify property information" );
-
     m_Thickness.Init( "Thickness", "FeaLayer", this, 0.1, 0.0, 1.0e12 );
     m_Thickness.SetDescript( "Thickness of FeaElement" );
 
@@ -5178,7 +5175,7 @@ FeaLayer::~FeaLayer()
 {
 }
 
-void FeaLayer::Update()
+void FeaLayer::Update( int cur_len_unit )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
 
@@ -5212,7 +5209,7 @@ void FeaLayer::Update()
             break;
     }
 
-    m_Thickness_FEM = ConvertLength( m_Thickness.Get(), m_LengthUnit(), length_unit );
+    m_Thickness_FEM = ConvertLength( m_Thickness.Get(), cur_len_unit, length_unit );
 }
 
 xmlNodePtr FeaLayer::EncodeXml( xmlNodePtr & node )
@@ -5283,6 +5280,9 @@ FeaMaterial::FeaMaterial() : ParmContainer()
 
     m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.000013, -1.0, 1.0 );
     m_ThermalExpanCoeff.SetDescript( "Thermal Expansion Coefficient for Material" );
+
+    m_LengthUnit.Init( "LengthUnit", "FeaMaterial", this, vsp::LEN_IN, vsp::LEN_MM, vsp::NUM_LEN_UNIT - 1 );
+    m_LengthUnit.SetDescript( "Length units used to specify property information" );
 
     m_DensityUnit.Init( "DensityUnit", "FeaMaterial", this, vsp::RHO_UNIT_LBM_IN3, vsp::RHO_UNIT_SLUG_FT3, vsp::NUM_RHO_UNIT - 1 );
     m_DensityUnit.SetDescript( "Density units used to specify material properties." );
@@ -5410,7 +5410,7 @@ void FeaMaterial::Update()
     {
         for ( int i = 0; i < m_LayerVec.size(); i++ )
         {
-            m_LayerVec[i]->Update();
+            m_LayerVec[i]->Update( m_LengthUnit() );
         }
 
         LaminateTheory();

@@ -676,15 +676,13 @@ public:
     FeaLayer( );
     virtual ~FeaLayer();
 
-    virtual void Update();
+    virtual void Update( int cur_len_unit );
 
     virtual void GetTransMat( mat3 & T );
     virtual void GetInvTransMat( mat3 & Tinv );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-
-    IntParm m_LengthUnit;
 
     string m_FeaMaterialID;
 
@@ -742,6 +740,7 @@ public:
     Parm m_ThermalExpanCoeff;
 
     // Units used to specify materials.
+    IntParm m_LengthUnit;
     IntParm m_DensityUnit;
     IntParm m_ModulusUnit;
     IntParm m_TemperatureUnit;
