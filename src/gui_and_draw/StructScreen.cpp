@@ -830,8 +830,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
     //=== Laminate Tab ===//
     m_LaminateTabLayout.SetGroupAndScreen( laminateTabGroup, this );
 
-    m_LaminateTabLayout.AddYGap();
-
     m_LaminateTabLayout.AddDividerBox( "Laminate Name & Description" );
 
     m_LaminateTabLayout.AddChoice( m_LaminateChoice, "Laminate" );
@@ -851,16 +849,48 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
 
     m_LaminateTabLayout.AddDividerBox( "Lamina Schedule" );
 
+
+
+    start_x = m_LaminateTabLayout.GetX();
+    start_y = m_LaminateTabLayout.GetY();
+
+
+    m_LaminateTabLayout.AddSubGroupLayout( m_MoveLayerButtonLayout, 20, browser_h - 20 );
+
+    m_MoveLayerButtonLayout.SetSameLineFlag( false );
+    m_MoveLayerButtonLayout.SetFitWidthFlag( false );
+
+    m_MoveLayerButtonLayout.SetStdHeight( 20 );
+    m_MoveLayerButtonLayout.SetButtonWidth( 20 );
+    m_MoveLayerButtonLayout.AddButton( m_MoveLayerTopButton, "@2<<" );
+    m_MoveLayerButtonLayout.AddYGap();
+    m_MoveLayerButtonLayout.AddButton( m_MoveLayerUpButton, "@2<" );
+    m_MoveLayerButtonLayout.AddY( browser_h - 75 - m_LaminateTabLayout.GetStdHeight() - 20 );
+    m_MoveLayerButtonLayout.AddButton( m_MoveLayerDownButton, "@2>" );
+    m_MoveLayerButtonLayout.AddYGap();
+    m_MoveLayerButtonLayout.AddButton( m_MoveLayerBotButton, "@2>>" );
+
+    m_LaminateTabLayout.SetY( start_y );
+    m_LaminateTabLayout.AddX( 20 );
+    m_LaminateTabLayout.SetFitWidthFlag( true );
+
+
+    m_LaminateTabLayout.AddSubGroupLayout( m_LayerBrowserLayout, m_LaminateTabLayout.GetRemainX(), browser_h - 20 );
+    m_LaminateTabLayout.AddY( browser_h - 20 );
+
+
+
+
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
     static int laminate_col_widths[] = { 130, 70, 80, 130, 0 }; // widths for each column
 
-    m_FeaLayerSelectBrowser = m_LaminateTabLayout.AddColResizeBrowser( laminate_col_widths, 4, browser_h - 20 );
+    m_FeaLayerSelectBrowser = m_LayerBrowserLayout.AddColResizeBrowser( laminate_col_widths, 4, browser_h - 20 );
     m_FeaLayerSelectBrowser->labelfont( 13 );
     m_FeaLayerSelectBrowser->labelsize( 12 );
     m_FeaLayerSelectBrowser->callback( staticScreenCB, this );
 
-
+    m_LaminateTabLayout.SetX( start_x );
 
     m_LaminateTabLayout.SetSameLineFlag( true );
     m_LaminateTabLayout.SetFitWidthFlag( false );
@@ -4648,6 +4678,42 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 fea_mat->SetCurrLayerIndex( -1 );
             }
+        }
+    }
+    else if ( device == &m_MoveLayerUpButton )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat )
+        {
+            fea_mat->ReorderCurrentLayer( vsp::REORDER_MOVE_UP );
+        }
+    }
+    else if ( device == &m_MoveLayerDownButton )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat )
+        {
+            fea_mat->ReorderCurrentLayer( vsp::REORDER_MOVE_DOWN );
+        }
+    }
+    else if ( device == &m_MoveLayerTopButton )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat )
+        {
+            fea_mat->ReorderCurrentLayer( vsp::REORDER_MOVE_TOP );
+        }
+    }
+    else if ( device == &m_MoveLayerBotButton )
+    {
+        FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
+
+        if ( fea_mat )
+        {
+            fea_mat->ReorderCurrentLayer( vsp::REORDER_MOVE_BOTTOM );
         }
     }
     else if ( device == &m_LaminateDescriptionInput )

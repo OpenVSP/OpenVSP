@@ -91,6 +91,8 @@ private:
     GroupLayout m_MaterialTabLayout;
     GroupLayout m_MaterialEditGroup;
     GroupLayout m_LaminateTabLayout;
+    GroupLayout m_MoveLayerButtonLayout;
+    GroupLayout m_LayerBrowserLayout;
     GroupLayout m_PropertyTabLayout;
     GroupLayout m_PropertyEditGroup;
     GroupLayout m_BCTabLayout;
@@ -274,6 +276,11 @@ private:
     StringInput m_LaminateDescriptionInput;
 
     ColResizeBrowser* m_FeaLayerSelectBrowser;
+
+    TriggerButton m_MoveLayerUpButton;
+    TriggerButton m_MoveLayerDownButton;
+    TriggerButton m_MoveLayerTopButton;
+    TriggerButton m_MoveLayerBotButton;
 
     TriggerButton m_AddFeaLayerToLaminateButton;
     TriggerButton m_RemoveFeaLayerFromLaminateButton;
