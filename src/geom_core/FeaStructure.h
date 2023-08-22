@@ -28,6 +28,9 @@
 
 #define FEA_PART_EXPANSION_FACTOR 1e-4
 
+typedef Eigen::Matrix< long double, 3, 3 > mat3;
+typedef Eigen::Matrix< long double, 6, 6 > mat6;
+
 // Forward declaration
 class FeaPart;
 class FeaBC;
@@ -675,6 +678,9 @@ public:
 
     virtual void Update();
 
+    virtual void GetTransMat( mat3 & T );
+    virtual void GetInvTransMat( mat3 & Tinv );
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -728,6 +734,7 @@ public:
     }
 
     void LaminateTheory();
+    void GetCompliance( mat3 & S );
 
     Parm m_MassDensity;
     Parm m_ElasticModulus;

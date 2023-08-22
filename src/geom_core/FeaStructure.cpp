@@ -5241,6 +5241,28 @@ xmlNodePtr FeaLayer::DecodeXml( xmlNodePtr & node )
     return node;
 }
 
+void FeaLayer::GetTransMat( mat3 & T )
+{
+    long double ttheta = m_Theta() * PI / 180.0;
+    long double c( std::cos( ttheta ) ), s(std::sin( ttheta ) );
+    long double c2( c * c ), s2( s * s ), sc( c * s );
+
+    T << c2,  s2,   2.*sc,
+         s2,  c2,  -2.*sc,
+        -sc,  sc, c2 - s2;
+}
+
+void FeaLayer::GetInvTransMat( mat3 & Tinv )
+{
+    long double ttheta = m_Theta() * PI / 180.0;
+    long double c( std::cos( ttheta ) ), s(std::sin( ttheta ) );
+    long double c2( c * c ), s2( s * s ), sc( c * s );
+
+    Tinv << c2,  s2,  -2.*sc,
+            s2,  c2,   2.*sc,
+            sc, -sc, c2 - s2;
+}
+
 ////////////////////////////////////////////////////
 //================= FeaMaterial ==================//
 ////////////////////////////////////////////////////
@@ -5867,6 +5889,7 @@ void FeaMaterial::MakeMaterial( string id )
     {
         m_Name = "HM Carbon Epoxy";
         m_Description = "Generic high modulus carbon";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO );
 
         m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
         m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
@@ -6159,6 +6182,8 @@ void FeaMaterial::SetCurrLayerIndex( int index )
 
 void FeaMaterial::LaminateTheory()
 {
+    // printf( "\nCLT Calculations for %s\n", m_Name.c_str() );
+
     m_MassDensity = 0;
     m_E1 = 0;
     m_E2 = 0;
@@ -6172,6 +6197,161 @@ void FeaMaterial::LaminateTheory()
     m_A1 = 0;
     m_A2 = 0;
     m_A3 = 0;
+
+    m_Thickness_FEM = 0;
+    m_MassDensity_FEM = 0;
+    m_E1_FEM = 0;
+    m_E2_FEM = 0;
+    m_E3_FEM = 0;
+    m_G12_FEM = 0;
+    m_G13_FEM = 0;
+    m_G23_FEM = 0;
+    m_A1_FEM = 0;
+    m_A2_FEM = 0;
+    m_A3_FEM = 0;
+
+
+    mat3 R, Rinv;
+    R << 1, 0, 0,
+         0, 1, 0,
+         0, 0, 2;
+
+    Rinv << 1, 0, 0,
+            0, 1, 0,
+            0, 0, 0.5;
+
+    int nlayer = m_LayerVec.size();
+
+    // Build laminate coordinate system.
+    vector < long double > z( nlayer + 1, 0.0 );
+    for ( int ilay = 0; ilay < nlayer; ilay++ )
+    {
+        FeaLayer* lay = m_LayerVec[ ilay ];
+        if ( lay )
+        {
+            z[ilay + 1] = z[ilay] + lay->m_Thickness_FEM();
+        }
+    }
+
+    long double thickness = z[ nlayer ];
+
+    // Shift to laminate geometric mid-plane.
+    long double z0 = 0.5 * thickness;
+    for ( int ilay = 0; ilay <= nlayer; ilay++ )
+    {
+        z[ilay] = z[ilay] - z0;
+    }
+
+    mat3 A = mat3::Zero();
+    mat3 B = mat3::Zero();
+    mat3 D = mat3::Zero();
+
+    double m = 0.0;
+    bool findlayer = true;
+    for ( int ilay = 0; ilay < nlayer; ilay++ )
+    {
+        FeaLayer *lay = m_LayerVec[ ilay ];
+
+        if ( lay )
+        {
+            FeaMaterial *mat = StructureMgr.GetFeaMaterial( lay->m_FeaMaterialID );
+            if ( mat )
+            {
+                // Sum mass per square of laminate.
+                m += lay->m_Thickness_FEM() * mat->m_MassDensity_FEM();
+
+                // Get lamina transformation matrices.
+                mat3 T, Tinv;
+                lay->GetTransMat( T );
+                lay->GetInvTransMat( Tinv );
+
+                // Get lamina compliance matrix
+                mat3 S;
+                mat->GetCompliance( S );
+
+                mat3 Sbar;
+                Sbar = R * Tinv * Rinv * S * T;
+
+                // Lamina stiffness
+                mat3 Qbar;
+                Qbar = Sbar.inverse();
+
+                // Assemble laminate stiffness contributions
+                long double z1, z2, z3;
+                long double zip1, zi;
+                zi = z[ ilay ];
+                zip1 = z[ ilay + 1 ];
+                z1 = zip1 - zi;
+                z2 = ( zip1 * zip1 - zi * zi ) * 0.5;
+                z3 = ( zip1 * zip1 * zip1 - zi * zi * zi ) / 3.0;
+
+                A += z1 * Qbar;
+                B += z2 * Qbar;
+                D += z3 * Qbar;
+            }
+            else
+            {
+                findlayer = false;
+            }
+        }
+        else
+        {
+            findlayer = false;
+        }
+    }
+
+    if ( findlayer )
+    {
+        // Assemble laminate stiffness matrix.
+        mat6 ABD = mat6::Zero();
+        ABD.topLeftCorner( 3, 3 ) = A;
+        ABD.topRightCorner( 3, 3 ) = B;
+        ABD.bottomLeftCorner( 3, 3 ) = B;
+        ABD.bottomRightCorner( 3, 3 ) = D;
+
+        // printf( "ABD Matrix\n" );
+        // std::cout << ABD << "\n\n\n";
+
+        mat6 Slam;
+        Slam = ABD.inverse();
+
+        // printf( "ABD Inverse\n" );
+        // std::cout << Slam << "\n\n\n";
+
+
+        // Extract laminate properties from laminate compliance matrix.
+        long double E1, E2, G12, nu12, nu21;
+        E1 = ( 1.0 / Slam( 0, 0 )) / thickness;
+        E2 = ( 1.0 / Slam( 1, 1 )) / thickness;
+        G12 = ( 1.0 / Slam( 2, 2 )) / thickness;
+        nu12 = -Slam( 1, 0 ) / Slam( 0, 0 );
+        nu21 = -Slam( 0, 1 ) / Slam( 1, 1 );
+
+
+        // printf( "Laminate Properties\n" );
+        // printf( "E1:  %Lg\n", E1 );
+        // printf( "E2:  %Lg\n", E2 );
+        // printf( "nu:  %Lf\n", nu12 );
+        // printf( "G12: %Lg\n\n\n", G12 );
+
+        m_E1_FEM = E1;
+        m_E2_FEM = E2;
+        m_nu12 = nu12;
+        m_G12_FEM = G12;
+        m_Thickness_FEM = thickness;
+        m_MassDensity_FEM = m / thickness;
+    }
+}
+
+void FeaMaterial::GetCompliance( mat3 & S )
+{
+    long double nu( m_nu12() );
+    long double E1( m_E1_FEM() ), E2( m_E2_FEM() );
+    long double G12( m_G12_FEM() );
+
+    S <<  1. / E1, -nu / E1,        0.,
+         -nu / E1,  1. / E2,        0.,
+               0.,        0., 1. / G12;
 }
 
 //////////////////////////////////////////////////////
