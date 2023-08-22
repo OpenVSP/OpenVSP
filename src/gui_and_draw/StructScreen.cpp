@@ -4614,7 +4614,20 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( fea_mat->m_FeaMaterialType() == FEA_LAMINATE )
         {
-            fea_mat->AddLayer();
+            FeaLayer * fea_prev_layer = fea_mat->GetCurrLayer();
+
+            string curr_matid = m_FeaMaterialIDVec[ m_LayerChoice.GetVal() ];
+            FeaLayer* fea_layer = fea_mat->AddLayer();
+            if ( fea_layer )
+            {
+                fea_layer->m_FeaMaterialID = curr_matid;
+
+                if ( fea_prev_layer )
+                {
+                    fea_layer->m_Thickness = fea_prev_layer->m_Thickness();
+                    fea_layer->m_Theta = fea_prev_layer->m_Theta();
+                }
+            }
             fea_mat->SetCurrLayerIndex( fea_mat->NumLayers() - 1 );
         }
     }
