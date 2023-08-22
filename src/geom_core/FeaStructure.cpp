@@ -6154,6 +6154,14 @@ bool FeaMaterial::ValidLayerInd( int index )
     return false;
 }
 
+void FeaMaterial::ReorderCurrentLayer( int action )
+{
+    int index = GetCurrLayerIndex();
+    index = ReorderVectorIndex( m_LayerVec, index, action );
+
+    SetCurrLayerIndex( index );
+}
+
 FeaLayer* FeaMaterial::GetFeaLayer( string id )
 {
     if ( id == string( "NONE" ) )

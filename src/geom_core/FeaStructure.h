@@ -718,6 +718,7 @@ public:
     FeaLayer* GetCurrLayer();
     bool DeleteLayer( const string &id );
     bool ValidLayerInd( int index );
+    void ReorderCurrentLayer( int action );
     FeaLayer* GetFeaLayer( string id );
     int GetCurrLayerIndex();
     void SetCurrLayerIndex( int index );
