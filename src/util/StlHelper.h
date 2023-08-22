@@ -13,6 +13,7 @@
 #include <limits>
 using std::vector;
 using std::deque;
+#include <APIDefines.h>
 
 //==== Find Interval for Single Valued Increasing or Decreasing Array ===//
 int find_interval( const vector< double > & vals, double val );
@@ -171,6 +172,52 @@ template < typename T >
 int sgn( T val )
 {
     return ( T( 0 ) < val ) - ( val < T( 0 ) );
+}
+
+template < typename T >
+void ReorderVectorIndex( vector < T > &vec, int index, int action )
+{
+    vector< T > new_vec;
+    if ( action == vsp::REORDER_MOVE_TOP || action == vsp::REORDER_MOVE_BOTTOM )
+    {
+        if ( action == vsp::REORDER_MOVE_TOP )
+        {
+            new_vec.push_back( vec[index] );
+        }
+
+        for ( int i = 0 ; i < ( int )vec.size() ; i++ )
+        {
+            if ( i != index )
+            {
+                new_vec.push_back( vec[ i ] );
+            }
+        }
+
+        if ( action == vsp::REORDER_MOVE_BOTTOM )
+        {
+            new_vec.push_back( vec[index] );
+        }
+    }
+    else if ( action == vsp::REORDER_MOVE_UP || action == vsp::REORDER_MOVE_DOWN )
+    {
+        for ( int i = 0 ; i < ( int )vec.size() ; i++ )
+        {
+            if ( i < ( int )( vec.size() - 1 ) &&
+                 ( ( action == vsp::REORDER_MOVE_DOWN && i == index ) ||
+                   ( action == vsp::REORDER_MOVE_UP   && ( i + 1 ) == index ) ) )
+            {
+                new_vec.push_back( vec[i + 1] );
+                new_vec.push_back( vec[i] );
+                i++;
+            }
+            else
+            {
+                new_vec.push_back( vec[i] );
+            }
+        }
+    }
+
+    vec = new_vec;
 }
 
 #endif

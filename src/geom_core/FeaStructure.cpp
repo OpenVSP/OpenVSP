@@ -311,46 +311,7 @@ void FeaStructure::ReorderFeaPart( int ind, int action )
         return;
     }
 
-    vector < FeaPart* > new_prt_vec;
-
-    if ( action == vsp::REORDER_MOVE_TOP || action == vsp::REORDER_MOVE_BOTTOM )
-    {
-        if ( action == vsp::REORDER_MOVE_TOP )
-        {
-            new_prt_vec.push_back( GetFeaPart( ind ) );
-        }
-
-        for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
-            if ( m_FeaPartVec[i] != GetFeaPart( ind ) )
-            {
-                new_prt_vec.push_back( m_FeaPartVec[i] );
-            }
-
-        if ( action == vsp::REORDER_MOVE_BOTTOM )
-        {
-            new_prt_vec.push_back( GetFeaPart( ind ) );
-        }
-    }
-    else if ( action == vsp::REORDER_MOVE_UP || action == vsp::REORDER_MOVE_DOWN )
-    {
-        for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
-        {
-            if ( i < (int)( m_FeaPartVec.size() - 1 ) &&
-                ( ( action == vsp::REORDER_MOVE_DOWN && m_FeaPartVec[i] == GetFeaPart( ind ) ) ||
-                  ( action == vsp::REORDER_MOVE_UP   && m_FeaPartVec[i + 1] == GetFeaPart( ind ) ) ) )
-            {
-                new_prt_vec.push_back( m_FeaPartVec[i + 1] );
-                new_prt_vec.push_back( m_FeaPartVec[i] );
-                i++;
-            }
-            else
-            {
-                new_prt_vec.push_back( m_FeaPartVec[i] );
-            }
-        }
-    }
-
-    m_FeaPartVec = new_prt_vec;
+    ReorderVectorIndex( m_FeaPartVec, ind, action );
 }
 
 //==== Highlight Active FeaParts ====//
@@ -480,46 +441,7 @@ void FeaStructure::ReorderFeaSubSurf( int ind, int action )
         return;
     }
 
-    vector < SubSurface* > new_ss_vec;
-
-    if ( action == vsp::REORDER_MOVE_TOP || action == vsp::REORDER_MOVE_BOTTOM )
-    {
-        if ( action == vsp::REORDER_MOVE_TOP )
-        {
-            new_ss_vec.push_back( GetFeaSubSurf( ind ) );
-        }
-
-        for ( int i = 0; i < (int)m_FeaSubSurfVec.size(); i++ )
-            if ( m_FeaSubSurfVec[i] != GetFeaSubSurf( ind ) )
-            {
-                new_ss_vec.push_back( m_FeaSubSurfVec[i] );
-            }
-
-        if ( action == vsp::REORDER_MOVE_BOTTOM )
-        {
-            new_ss_vec.push_back( GetFeaSubSurf( ind ) );
-        }
-    }
-    else if ( action == vsp::REORDER_MOVE_UP || action == vsp::REORDER_MOVE_DOWN )
-    {
-        for ( int i = 0; i < (int)m_FeaSubSurfVec.size(); i++ )
-        {
-            if ( i < (int)( m_FeaSubSurfVec.size() - 1 ) &&
-                ( ( action == vsp::REORDER_MOVE_DOWN && m_FeaSubSurfVec[i] == GetFeaSubSurf( ind ) ) ||
-                 ( action == vsp::REORDER_MOVE_UP   && m_FeaSubSurfVec[i + 1] == GetFeaSubSurf( ind ) ) ) )
-            {
-                new_ss_vec.push_back( m_FeaSubSurfVec[i + 1] );
-                new_ss_vec.push_back( m_FeaSubSurfVec[i] );
-                i++;
-            }
-            else
-            {
-                new_ss_vec.push_back( m_FeaSubSurfVec[i] );
-            }
-        }
-    }
-
-    m_FeaSubSurfVec = new_ss_vec;
+    ReorderVectorIndex( m_FeaSubSurfVec, ind, action );
 }
 
 bool FeaStructure::ValidFeaPartInd( int ind )

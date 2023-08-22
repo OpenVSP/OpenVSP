@@ -1236,51 +1236,16 @@ void Vehicle::ReorderActiveGeom( int action )
         id_vec = parent_geom->GetChildIDVec();
     }
 
-    vector< string > new_id_vec;
-    if ( action == vsp::REORDER_MOVE_TOP || action == vsp::REORDER_MOVE_BOTTOM )
-    {
-        if ( action == vsp::REORDER_MOVE_TOP )
-        {
-            new_id_vec.push_back( active_geom_id );
-        }
-
-        for ( int i = 0 ; i < ( int )id_vec.size() ; i++ )
-            if ( id_vec[i] != active_geom_id )
-            {
-                new_id_vec.push_back( id_vec[i] );
-            }
-
-        if ( action == vsp::REORDER_MOVE_BOTTOM )
-        {
-            new_id_vec.push_back( active_geom_id );
-        }
-    }
-    else if ( action == vsp::REORDER_MOVE_UP || action == vsp::REORDER_MOVE_DOWN )
-    {
-        for ( int i = 0 ; i < ( int )id_vec.size() ; i++ )
-        {
-            if ( i < ( int )( id_vec.size() - 1 ) &&
-                    ( ( action == vsp::REORDER_MOVE_DOWN && id_vec[i] == active_geom_id ) ||
-                      ( action == vsp::REORDER_MOVE_UP   && id_vec[i + 1] == active_geom_id ) ) )
-            {
-                new_id_vec.push_back( id_vec[i + 1] );
-                new_id_vec.push_back( id_vec[i] );
-                i++;
-            }
-            else
-            {
-                new_id_vec.push_back( id_vec[i] );
-            }
-        }
-    }
+    int index = vector_find_val( id_vec, active_geom_id );
+    ReorderVectorIndex( id_vec, index, action );
 
     if ( !parent_geom )
     {
-        m_TopGeom = new_id_vec;
+        m_TopGeom = id_vec;
     }
     else
     {
-        parent_geom->SetChildIDVec( new_id_vec );
+        parent_geom->SetChildIDVec( id_vec );
     }
 
 }
