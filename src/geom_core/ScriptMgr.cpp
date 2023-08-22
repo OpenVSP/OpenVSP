@@ -1807,6 +1807,21 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PROP_PCURVE", "NUM_PROP_PCURVE", NUM_PROP_PCURVE, "/*!< Number of propeller blade curve parameterization options */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum used to identify array reordering instructions. */";
+
+    r = se->RegisterEnum( "REORDER_TYPE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "REORDER_TYPE", "REORDER_MOVE_UP", REORDER_MOVE_UP, "/*!< Move up one position */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "REORDER_TYPE", "REORDER_MOVE_DOWN", REORDER_MOVE_DOWN, "/*!< Move down one position */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "REORDER_TYPE", "REORDER_MOVE_TOP", REORDER_MOVE_TOP, "/*!< Move to top */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "REORDER_TYPE", "REORDER_MOVE_BOTTOM", REORDER_MOVE_BOTTOM, "/*!< Move to bottom */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "REORDER_TYPE", "NUM_REORDER_TYPES", NUM_REORDER_TYPES, "/*!< Number reordering instructions */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum used to indicate manual or component reference type. */";
 
     r = se->RegisterEnum( "REF_WING_TYPE", doc_struct );

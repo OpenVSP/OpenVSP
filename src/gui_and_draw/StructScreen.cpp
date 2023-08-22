@@ -4005,7 +4005,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_UP );
+                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], vsp::REORDER_MOVE_UP );
 
                 if ( m_SelectedPartIndexVec[0] != 0 )
                 {
@@ -4015,7 +4015,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             }
             else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_UP );
+                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts(), vsp::REORDER_MOVE_UP );
 
                 if ( m_SelectedPartIndexVec[0] != structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
                 {
@@ -4033,7 +4033,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_DOWN );
+                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], vsp::REORDER_MOVE_DOWN );
 
                 if ( m_SelectedPartIndexVec[0] != structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() - 1 )
                 {
@@ -4043,7 +4043,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             }
             else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_DOWN );
+                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts(), vsp::REORDER_MOVE_DOWN );
 
                 if ( m_SelectedPartIndexVec[0] != structvec[StructureMgr.m_CurrStructIndex()]->NumFeaSubSurfs() + structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() - 1 )
                 {
@@ -4061,13 +4061,13 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_TOP );
+                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], vsp::REORDER_MOVE_TOP );
                 m_SelectedPartIndexVec[0] = 0;
                 StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
             }
             else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_TOP );
+                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts(), vsp::REORDER_MOVE_TOP );
                 m_SelectedPartIndexVec[0] = structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts();
                 StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
             }
@@ -4081,13 +4081,13 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_BOTTOM );
+                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], vsp::REORDER_MOVE_BOTTOM );
                 m_SelectedPartIndexVec[0] = structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() - 1;
                 StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
             }
             else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() )
             {
-                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_BOTTOM );
+                structvec[StructureMgr.m_CurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts(), vsp::REORDER_MOVE_BOTTOM );
                 m_SelectedPartIndexVec[0] = structvec[StructureMgr.m_CurrStructIndex()]->NumFeaParts() + structvec[StructureMgr.m_CurrStructIndex()]->NumFeaSubSurfs() - 1;
                 StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
             }

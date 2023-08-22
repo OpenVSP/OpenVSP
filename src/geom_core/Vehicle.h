@@ -149,8 +149,6 @@ public:
 
     xmlNodePtr DecodeXmlGeomsOnly( xmlNodePtr & node );
 
-    enum { REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM };
-
     bool ExistMesh( int set );
 
     vector < string > GetPtCloudGeoms();

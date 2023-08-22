@@ -1237,9 +1237,9 @@ void Vehicle::ReorderActiveGeom( int action )
     }
 
     vector< string > new_id_vec;
-    if ( action == REORDER_MOVE_TOP || action == REORDER_MOVE_BOTTOM )
+    if ( action == vsp::REORDER_MOVE_TOP || action == vsp::REORDER_MOVE_BOTTOM )
     {
-        if ( action == REORDER_MOVE_TOP )
+        if ( action == vsp::REORDER_MOVE_TOP )
         {
             new_id_vec.push_back( active_geom_id );
         }
@@ -1250,18 +1250,18 @@ void Vehicle::ReorderActiveGeom( int action )
                 new_id_vec.push_back( id_vec[i] );
             }
 
-        if ( action == REORDER_MOVE_BOTTOM )
+        if ( action == vsp::REORDER_MOVE_BOTTOM )
         {
             new_id_vec.push_back( active_geom_id );
         }
     }
-    else if ( action == REORDER_MOVE_UP || action == REORDER_MOVE_DOWN )
+    else if ( action == vsp::REORDER_MOVE_UP || action == vsp::REORDER_MOVE_DOWN )
     {
         for ( int i = 0 ; i < ( int )id_vec.size() ; i++ )
         {
             if ( i < ( int )( id_vec.size() - 1 ) &&
-                    ( ( action == REORDER_MOVE_DOWN && id_vec[i] == active_geom_id ) ||
-                      ( action == REORDER_MOVE_UP   && id_vec[i + 1] == active_geom_id ) ) )
+                    ( ( action == vsp::REORDER_MOVE_DOWN && id_vec[i] == active_geom_id ) ||
+                      ( action == vsp::REORDER_MOVE_UP   && id_vec[i + 1] == active_geom_id ) ) )
             {
                 new_id_vec.push_back( id_vec[i + 1] );
                 new_id_vec.push_back( id_vec[i] );

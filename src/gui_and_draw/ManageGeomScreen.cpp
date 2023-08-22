@@ -824,19 +824,19 @@ void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_MoveUpButton )
     {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_UP );
+        m_VehiclePtr->ReorderActiveGeom( vsp::REORDER_MOVE_UP );
     }
     else if ( device == &m_MoveDownButton )
     {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_DOWN );
+        m_VehiclePtr->ReorderActiveGeom( vsp::REORDER_MOVE_DOWN );
     }
     else if ( device == &m_MoveTopButton )
     {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_TOP );
+        m_VehiclePtr->ReorderActiveGeom( vsp::REORDER_MOVE_TOP );
     }
     else if ( device == &m_MoveBotButton )
     {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_BOTTOM );
+        m_VehiclePtr->ReorderActiveGeom( vsp::REORDER_MOVE_BOTTOM );
     }
     else if ( device == &m_SetChoice )
     {
