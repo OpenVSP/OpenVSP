@@ -16,6 +16,7 @@
 #include "Camera.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
+#include "UnitConversion.h"
 
 using namespace vsp;
 
@@ -883,9 +884,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
 
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
-    static int laminate_col_widths[] = { 130, 70, 80, 130, 0 }; // widths for each column
+    static int laminate_col_widths[] = { 75, 75, 400, 0 }; // widths for each column
 
-    m_FeaLayerSelectBrowser = m_LayerBrowserLayout.AddColResizeBrowser( laminate_col_widths, 4, browser_h - 20 );
+    m_FeaLayerSelectBrowser = m_LayerBrowserLayout.AddColResizeBrowser( laminate_col_widths, 3, browser_h - 20 );
     m_FeaLayerSelectBrowser->labelfont( 13 );
     m_FeaLayerSelectBrowser->labelsize( 12 );
     m_FeaLayerSelectBrowser->callback( staticScreenCB, this );
@@ -933,7 +934,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
 
     m_LaminateTabLayout.SetButtonWidth( little );
 
-    m_LaminateTabLayout.AddInput( m_LayerThickInput, "Thickness", "%5.3g" );
+    m_LaminateTabLayout.AddInput( m_LayerThickInput, "Thickness", "%7.5g" );
 
     m_LaminateTabLayout.SetButtonWidth( little );
     m_LaminateTabLayout.AddButton( m_LayerThickUnit, "" );
@@ -943,7 +944,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
     m_LaminateTabLayout.AddX( gapw );
 
     m_LaminateTabLayout.SetButtonWidth( 0 );
-    m_LaminateTabLayout.AddOutput( m_LayerThick_FEMOutput, "", "%5.3g" );
+    m_LaminateTabLayout.AddOutput( m_LayerThick_FEMOutput, "", "%7.5g" );
 
     m_LaminateTabLayout.SetButtonWidth( little );
     m_LaminateTabLayout.AddButton( m_LayerThickUnit_FEM, "" );
@@ -955,7 +956,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
 
     m_LaminateTabLayout.SetFitWidthFlag( false );
     m_LaminateTabLayout.SetButtonWidth( little );
-    m_LaminateTabLayout.AddInput( m_LayerThetaInput, theta, "%5.3g" );
+    m_LaminateTabLayout.AddInput( m_LayerThetaInput, theta, "%7.5g" );
 
     m_LaminateTabLayout.ForceNewLine();
 
@@ -2735,6 +2736,7 @@ void StructScreen::UpdateLayerBrowser()
 {
     int scroll_pos = m_FeaLayerSelectBrowser->position();
     m_FeaLayerSelectBrowser->clear();
+    m_FeaLayerSelectBrowser->column_char( ':' );         // use : as the column character
 
     FeaMaterial* fea_mat = StructureMgr.GetCurrMaterial();
 
@@ -2744,10 +2746,28 @@ void StructScreen::UpdateLayerBrowser()
         {
             vector < FeaLayer* > layer_vec = fea_mat->GetLayerVec();
 
+            char str[256];
+            string deg( 1, (char) 176 );
+
             for ( int i = 0; i < (int)layer_vec.size(); i++ )
             {
-                string lam_name = layer_vec[i]->GetName();
-                m_FeaLayerSelectBrowser->add( lam_name.c_str() );
+                string matid = layer_vec[i]->m_FeaMaterialID;
+                FeaMaterial* lam_mat = StructureMgr.GetFeaMaterial( matid );
+                string mat_name;
+
+                if ( lam_mat )
+                {
+                    mat_name = lam_mat->GetName();
+                }
+
+                double thickness = layer_vec[i]->m_Thickness();
+
+                string len_unit = LenUnitName( fea_mat->m_LengthUnit() );
+
+                double theta = layer_vec[i]->m_Theta();
+
+                snprintf( str, sizeof( str ),  "%7.5g%c:%7.5g %s:%s", theta, (char)176, thickness, len_unit.c_str(), mat_name.c_str() );
+                m_FeaLayerSelectBrowser->add( str );
             }
 
             if ( fea_mat->ValidLayerInd( fea_mat->GetCurrLayerIndex() ) )
