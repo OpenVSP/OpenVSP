@@ -5278,7 +5278,7 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_PoissonRatio.Init( "PoissonRatio", "FeaMaterial", this, 0.33, -1.0, 0.5 );
     m_PoissonRatio.SetDescript( "Poisson's Ratio for Material" );
 
-    m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.000013, -1.0, 1.0 );
+    m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.000013, -1.0e12, 1.0e12 );
     m_ThermalExpanCoeff.SetDescript( "Thermal Expansion Coefficient for Material" );
 
     m_LengthUnit.Init( "LengthUnit", "FeaMaterial", this, vsp::LEN_IN, vsp::LEN_MM, vsp::NUM_LEN_UNIT - 1 );
@@ -5320,13 +5320,13 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_G23.Init( "G23", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
     m_G23.SetDescript( "G23 Shear Modulus for Material" );
 
-    m_A1.Init( "A1", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A1.Init( "A1", "FeaMaterial", this, 0.0, -1.0e12, 1.0e12 );
     m_A1.SetDescript( "A1 Thermal Expansion Coefficient for Material" );
 
-    m_A2.Init( "A2", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A2.Init( "A2", "FeaMaterial", this, 0.0, -1.0e12, 1.0e12 );
     m_A2.SetDescript( "A2 Thermal Expansion Coefficient for Material" );
 
-    m_A3.Init( "A3", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A3.Init( "A3", "FeaMaterial", this, 0.0, -1.0e12, 1.0e12 );
     m_A3.SetDescript( "A3 Thermal Expansion Coefficient for Material" );
 
     // Properties in FEA units -- auto-computed.
@@ -5361,13 +5361,13 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_G23_FEM.Init( "G23_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
     m_G23_FEM.SetDescript( "G23 Shear Modulus for Material in FEM units" );
 
-    m_A1_FEM.Init( "A1_FEM", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A1_FEM.Init( "A1_FEM", "FeaMaterial", this, 0.0, -1.0e12, 1.0e12 );
     m_A1_FEM.SetDescript( "A1 Thermal Expansion Coefficient for Material in FEM units" );
 
-    m_A2_FEM.Init( "A2_FEM", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A2_FEM.Init( "A2_FEM", "FeaMaterial", this, 0.0, -1.0e12, 1.0e12 );
     m_A2_FEM.SetDescript( "A2 Thermal Expansion Coefficient for Material in FEM units" );
 
-    m_A3_FEM.Init( "A3_FEM", "FeaMaterial", this, 0.0, -1.0, 1.0 );
+    m_A3_FEM.Init( "A3_FEM", "FeaMaterial", this, 0.0, -1.0e12, 1.0e12 );
     m_A3_FEM.SetDescript( "A3 Thermal Expansion Coefficient for Material in FEM units" );
 
     m_CurrentLayerIndex = 0;
