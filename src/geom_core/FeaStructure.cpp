@@ -6253,6 +6253,7 @@ void FeaMaterial::LaminateTheory()
     mat3 A = mat3::Zero();
     mat3 B = mat3::Zero();
     mat3 D = mat3::Zero();
+    vec3 E = vec3::Zero();
 
     double m = 0.0;
     bool findlayer = true;
@@ -6277,8 +6278,15 @@ void FeaMaterial::LaminateTheory()
                 mat3 S;
                 mat->GetCompliance( S );
 
+                // Get lamina CTE vector
+                vec3 alpha;
+                mat->GetCTEVec( alpha );
+
                 mat3 Sbar;
                 Sbar = R * Tinv * Rinv * S * T;
+
+                vec3 alphabar;
+                alphabar = T * alpha;
 
                 // Lamina stiffness
                 mat3 Qbar;
@@ -6296,6 +6304,7 @@ void FeaMaterial::LaminateTheory()
                 A += z1 * Qbar;
                 B += z2 * Qbar;
                 D += z3 * Qbar;
+                E += z1 * Qbar * alphabar;
             }
             else
             {
@@ -6326,14 +6335,18 @@ void FeaMaterial::LaminateTheory()
         // printf( "ABD Inverse\n" );
         // std::cout << Slam << "\n\n\n";
 
+        vec3 alpha = A.inverse() * E;
 
         // Extract laminate properties from laminate compliance matrix.
-        long double E1, E2, G12, nu12, nu21;
+        long double E1, E2, G12, nu12, nu21, a1, a2, a12;
         E1 = ( 1.0 / Slam( 0, 0 )) / thickness;
         E2 = ( 1.0 / Slam( 1, 1 )) / thickness;
         G12 = ( 1.0 / Slam( 2, 2 )) / thickness;
         nu12 = -Slam( 1, 0 ) / Slam( 0, 0 );
         nu21 = -Slam( 0, 1 ) / Slam( 1, 1 );
+        a1 = alpha( 0 );
+        a2 = alpha( 1 );
+        a12 = alpha( 2 );
 
 
         // printf( "Laminate Properties\n" );
@@ -6341,6 +6354,9 @@ void FeaMaterial::LaminateTheory()
         // printf( "E2:  %Lg\n", E2 );
         // printf( "nu:  %Lf\n", nu12 );
         // printf( "G12: %Lg\n\n\n", G12 );
+        // printf( "a1:  %Lg\n", a1 );
+        // printf( "a2:  %Lg\n", a2 );
+        // printf( "a12:  %Lg\n", a12 );
 
         m_E1_FEM = E1;
         m_E2_FEM = E2;
@@ -6348,6 +6364,9 @@ void FeaMaterial::LaminateTheory()
         m_G12_FEM = G12;
         m_Thickness_FEM = thickness;
         m_MassDensity_FEM = m / thickness;
+
+        m_A1_FEM = a1;
+        m_A2_FEM = a2;
     }
 }
 
@@ -6360,6 +6379,14 @@ void FeaMaterial::GetCompliance( mat3 & S )
     S <<  1. / E1, -nu / E1,        0.,
          -nu / E1,  1. / E2,        0.,
                0.,        0., 1. / G12;
+}
+
+void FeaMaterial::GetCTEVec( vec3 & alpha )
+{
+    long double a1( m_A1_FEM() );
+    long double a2( m_A2_FEM() );
+
+    alpha << a1, a2, 0.0;
 }
 
 //////////////////////////////////////////////////////

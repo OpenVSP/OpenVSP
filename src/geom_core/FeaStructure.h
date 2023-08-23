@@ -30,6 +30,7 @@
 
 typedef Eigen::Matrix< long double, 3, 3 > mat3;
 typedef Eigen::Matrix< long double, 6, 6 > mat6;
+typedef Eigen::Matrix< long double, 3, 1 > vec3;
 
 // Forward declaration
 class FeaPart;
@@ -734,6 +735,7 @@ public:
 
     void LaminateTheory();
     void GetCompliance( mat3 & S );
+    void GetCTEVec( vec3 & alpha );
 
     Parm m_MassDensity;
     Parm m_ElasticModulus;
