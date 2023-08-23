@@ -5422,6 +5422,21 @@ void FeaMaterial::Update()
         m_ThermalExpanCoeff = m_A1();
     }
 
+    if ( m_FeaMaterialType() == vsp::FEA_ENG_ORTHO_TRANS_ISO )
+    {
+        // Apply assumption of transverse isotropy according to MIL-HDBK-17-3F
+        // Eq. 10.2.4.1(b)
+
+        m_E3 = m_E2();
+        m_G13 = m_G12();
+        m_nu13 = m_nu12();
+        m_G23 = m_E2() / ( 2.0 * (1.0 + m_nu23() ) );
+
+        // Transverse isotropy applied to CTE.  Not explicitly stated in MIL-HDBK-17-3F, but
+        // it carries from the same arguments.
+        m_A3 = m_A2();
+    }
+
     if ( m_FeaMaterialType() != vsp::FEA_LAMINATE )
     {
         int density_unit = -1;

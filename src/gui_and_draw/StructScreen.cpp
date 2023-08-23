@@ -338,6 +338,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
     m_MaterialEditSubGroup.AddChoice( m_FeaMaterialTypeChoice, "Type" );
     m_FeaMaterialTypeChoice.AddItem( "Isotropic", vsp::FEA_ISOTROPIC );
     m_FeaMaterialTypeChoice.AddItem( "Orthotropic", vsp::FEA_ENG_ORTHO );
+    m_FeaMaterialTypeChoice.AddItem( "Orthotropic w/ Transverse Isotropy", vsp::FEA_ENG_ORTHO_TRANS_ISO );
     m_FeaMaterialTypeChoice.AddItem( "Laminate", vsp::FEA_LAMINATE );
     m_FeaMaterialTypeChoice.UpdateItems();
 
@@ -3422,16 +3423,28 @@ bool StructScreen::Update()
                 m_OrthoMatDensityInput.Activate();
                 m_MatE1Input.Activate();
                 m_MatE2Input.Activate();
-                m_MatE3Input.Activate();
                 m_Matnu12Input.Activate();
-                m_Matnu13Input.Activate();
                 m_Matnu23Input.Activate();
                 m_MatG12Input.Activate();
-                m_MatG13Input.Activate();
-                m_MatG23Input.Activate();
                 m_MatA1Input.Activate();
                 m_MatA2Input.Activate();
-                m_MatA3Input.Activate();
+
+                if ( fea_mat->m_FeaMaterialType() == vsp::FEA_ENG_ORTHO_TRANS_ISO )
+                {
+                    m_MatE3Input.Deactivate();
+                    m_MatG13Input.Deactivate();
+                    m_Matnu13Input.Deactivate();
+                    m_MatG23Input.Deactivate();
+                    m_MatA3Input.Deactivate();
+                }
+                else
+                {
+                    m_MatE3Input.Activate();
+                    m_MatG13Input.Activate();
+                    m_Matnu13Input.Activate();
+                    m_MatG23Input.Activate();
+                    m_MatA3Input.Activate();
+                }
 
                 m_OrthoMatDensityUnitChoice.Activate();
                 m_OrthoMatElasticModUnitChoice.Activate();
@@ -3481,7 +3494,7 @@ bool StructScreen::Update()
                 m_OrthoSubGroup.Hide();
                 m_LaminateSubGroup.Hide();
             }
-            else if ( fea_mat->m_FeaMaterialType() == vsp::FEA_ENG_ORTHO )
+            else if ( fea_mat->m_FeaMaterialType() == vsp::FEA_ENG_ORTHO || fea_mat->m_FeaMaterialType() == vsp::FEA_ENG_ORTHO_TRANS_ISO )
             {
                 m_IsoSubGroup.Hide();
                 m_OrthoSubGroup.Show();
