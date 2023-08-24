@@ -154,6 +154,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             ${STEPCODE_LIBRARIES}
             ${LIBIGES_LIBRARIES}
             ${TRIANGLE_LIBRARIES}
+			${DELABELLA_LIBRARIES}
         )
 
         add_custom_command( TARGET _vsp_g POST_BUILD
