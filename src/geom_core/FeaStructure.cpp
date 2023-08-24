@@ -5581,6 +5581,39 @@ void FeaMaterial::MakeMaterial( string id )
         m_ThermalExpanCoeff.Set( 0.000007 ); // in/(in-�F)
         m_TemperatureUnit.Set( vsp::TEMP_UNIT_F );
     }
+    // AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 627
+    // AS4 fiber density 1.79 g/cm^3
+    // 3501-6 resin density 1.265 g/cm^3
+    // 59.5% fiber volume fraction
+    else if ( id == "_AS4-Uni" )
+    {
+        m_Name = "Carbon Epoxy AS4 3501-6";
+        m_Description = "AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 627.  59.5% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO_TRANS_ISO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        double v = 0.595;
+        double rhof= 1.79;
+        double rhor = 1.265;
+        double rho = ( ( 1.0 - v ) * rhor ) + ( v * rhof );
+
+        m_MassDensity.Set( rho );
+        m_E1.Set( 113.6e9 );
+        m_E2.Set( 9.65e9 );
+        // m_E3.Set( 9.65e9 );
+        m_nu12.Set( 0.334 );
+        // m_nu13.Set( 0.328 );
+        m_nu23.Set( 0.540 );
+        m_G12.Set( 6.0e9 );
+        // m_G13.Set( 6.0e9 );
+        // m_G23.Set( 3.1e9 );
+        m_A1.Set( 0.018e-6 ); // -0.9e-6   0.72e-6
+        m_A2.Set( 28.8e-6 );  // 27.0e-6   29.5e-6
+        // m_A3.Set( 28.8e-6 );
+    }
     // AS4 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
     // AS4 fiber density 1.79 g/cm^3
     // 3501-6 resin density 1.265 g/cm^3
@@ -5730,6 +5763,39 @@ void FeaMaterial::MakeMaterial( string id )
         m_A1.Set( 0.0 );
         m_A2.Set( 0.0 );
         m_A3.Set( 0.0 );
+    }
+    // S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 627
+    // S2 fiber density 2.49 g/cm^3
+    // 3501-6 resin density 1.265 g/cm^3
+    // 59.5% fiber volume fraction
+    else if ( id == "_S2-Uni" )
+    {
+        m_Name = "Glass Epoxy S2 3501-6";
+        m_Description = "S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 627.  56.5% fiber volume fraction";
+        m_FeaMaterialType.Set( vsp::FEA_ENG_ORTHO_TRANS_ISO );
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        double v = 0.565;
+        double rhof = 2.49;
+        double rhor = 1.265;
+        double rho = ( ( 1.0 - v ) * rhor ) + ( v * rhof );
+
+        m_MassDensity.Set( rho );
+        m_E1.Set( 49.3e9 );
+        m_E2.Set( 14.7e9 );
+        // m_E3.Set( 14.7e9 );
+        m_nu12.Set( 0.296 );
+        // m_nu13.Set( 0.306 );
+        m_nu23.Set( 0.499 );
+        m_G12.Set( 6.8e9 );
+        // m_G13.Set( 6.8e9 );
+        // m_G23.Set( 4.9e9 );
+        m_A1.Set( 0.0e-6 );  // 3.78e-6
+        m_A2.Set( 0.0e-6 );  // 16.7e-6
+        // m_A3.Set( 0.0e-6 );
     }
     // S2 3501-6 elasticity data from MIL-HDBK-17-3F p. 629
     // S2 fiber density 2.49 g/cm^3
