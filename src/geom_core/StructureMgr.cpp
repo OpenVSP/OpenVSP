@@ -721,7 +721,6 @@ FeaMaterial* StructureMgrSingleton::GetFeaMaterial( string id )
 
 void StructureMgrSingleton::InitFeaMaterials()
 {
-    int nmat = 16;
     const char *matids[] = {"_Al7075T6",
                             "_Al6061T6",
                             "_Al2024T3",
@@ -739,6 +738,7 @@ void StructureMgrSingleton::InitFeaMaterials()
                             "_Balsa",
                             "_Spruce"
     };
+    int nmat = sizeof( matids ) / sizeof( matids[0] );
 
     for ( int i = 0; i < nmat; i++ )
     {
