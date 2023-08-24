@@ -736,7 +736,8 @@ void StructureMgrSingleton::InitFeaMaterials()
                             "_S2-2",
                             "_S2-3",
                             "_Balsa",
-                            "_Spruce"
+                            "_Spruce",
+                            "_hmce"
     };
     int nmat = sizeof( matids ) / sizeof( matids[0] );
 

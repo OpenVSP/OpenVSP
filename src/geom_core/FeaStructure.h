@@ -667,6 +667,27 @@ protected:
 
 };
 
+class FeaLayer : public ParmContainer
+{
+public:
+    FeaLayer( );
+    virtual ~FeaLayer();
+
+    virtual void Update();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    IntParm m_LengthUnit;
+
+    string m_FeaMaterialID;
+
+    Parm m_Thickness;
+    Parm m_Theta;
+
+    Parm m_Thickness_FEM;
+};
+
 class FeaMaterial : public ParmContainer
 {
 public:
@@ -684,6 +705,27 @@ public:
 
     double GetShearModulus();
     double GetShearModulus_FEM();
+
+    void AddLayer( FeaLayer *lay )
+    {
+        m_LayerVec.push_back( lay );
+    }
+    FeaLayer* AddLayer();
+    FeaLayer* GetCurrLayer();
+    bool DeleteLayer( const string &id );
+    bool ValidLayerInd( int index );
+    FeaLayer* GetFeaLayer( string id );
+    int GetCurrLayerIndex();
+    void SetCurrLayerIndex( int index );
+
+    vector < FeaLayer* > GetLayerVec()
+    {
+        return m_LayerVec;
+    }
+    int NumLayers()
+    {
+        return m_LayerVec.size();
+    }
 
     Parm m_MassDensity;
     Parm m_ElasticModulus;
@@ -730,6 +772,9 @@ public:
     Parm m_A2_FEM;
     Parm m_A3_FEM;
 
+    vector < FeaLayer* > m_LayerVec;
+    int m_CurrentLayerIndex;
+    int m_FeaLayerCount;
 };
 
 class FeaConnection : public ParmContainer

@@ -5154,6 +5154,94 @@ string FeaProperty::GetXSecName()
 }
 
 ////////////////////////////////////////////////////
+//================== FeaLayer ====================//
+////////////////////////////////////////////////////
+
+FeaLayer::FeaLayer() : ParmContainer()
+{
+    m_LengthUnit.Init( "LengthUnit", "FeaLayer", this, vsp::LEN_IN, vsp::LEN_MM, vsp::NUM_LEN_UNIT - 1 );
+    m_LengthUnit.SetDescript( "Length units used to specify property information" );
+
+    m_Thickness.Init( "Thickness", "FeaLayer", this, 0.1, 0.0, 1.0e12 );
+    m_Thickness.SetDescript( "Thickness of FeaElement" );
+
+    m_Theta.Init( "Theta", "FeaLayer", this, 0.0, -360.0, 360.0 );
+    m_Theta.SetDescript( "Lamina orientation angle (degrees)" );
+
+    m_Thickness_FEM.Init( "Thickness_FEM", "FeaLayer", this, 0.1, 0.0, 1.0e12 );
+    m_Thickness_FEM.SetDescript( "Thickness of FeaElement in FEM units" );
+
+    m_FeaMaterialID = "_hmce";
+}
+
+FeaLayer::~FeaLayer()
+{
+}
+
+void FeaLayer::Update()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    int length_unit = -1;
+
+    switch ( ( int ) veh->m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            length_unit = vsp::LEN_M;
+            break;
+
+        case vsp::CGS_UNIT:
+            length_unit = vsp::LEN_CM;
+            break;
+
+        case vsp::MPA_UNIT:
+            length_unit = vsp::LEN_MM;
+            break;
+
+        case vsp::BFT_UNIT:
+            length_unit = vsp::LEN_FT;
+            break;
+
+        case vsp::BIN_UNIT:
+            length_unit = vsp::LEN_IN;
+            break;
+    }
+
+    m_Thickness_FEM = ConvertLength( m_Thickness.Get(), m_LengthUnit(), length_unit );
+}
+
+xmlNodePtr FeaLayer::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr prop_info = xmlNewChild( node, NULL, BAD_CAST "FeaLayerInfo", NULL );
+
+    ParmContainer::EncodeXml( prop_info );
+
+    if ( prop_info )
+    {
+        XmlUtil::AddStringNode( prop_info, "FeaLaminaID", m_FeaMaterialID );
+    }
+
+    return prop_info;
+}
+
+xmlNodePtr FeaLayer::DecodeXml( xmlNodePtr & node )
+{
+    ParmContainer::DecodeXml( node );
+
+    if ( node )
+    {
+        m_FeaMaterialID = ParmMgr.RemapID( XmlUtil::FindString( node, "FeaLaminaID", m_FeaMaterialID ) );
+    }
+
+    return node;
+}
+
+////////////////////////////////////////////////////
 //================= FeaMaterial ==================//
 ////////////////////////////////////////////////////
 
@@ -5257,6 +5345,8 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_A3_FEM.Init( "A3_FEM", "FeaMaterial", this, 0.0, -1.0, 1.0 );
     m_A3_FEM.SetDescript( "A3 Thermal Expansion Coefficient for Material in FEM units" );
 
+    m_CurrentLayerIndex = 0;
+    m_FeaLayerCount = 0;
 }
 
 FeaMaterial::~FeaMaterial()
@@ -5271,6 +5361,15 @@ void FeaMaterial::Update()
     if ( !veh )
     {
         return;
+    }
+
+    if ( m_FeaMaterialType() == vsp::FEA_LAMINATE )
+    {
+        for ( int i = 0; i < m_LayerVec.size(); i++ )
+        {
+            m_LayerVec[i]->Update();
+        }
+
     }
 
     if ( m_FeaMaterialType() == vsp::FEA_ISOTROPIC )
@@ -5760,6 +5859,23 @@ void FeaMaterial::MakeMaterial( string id )
         m_A3.Set( 34.1e-6 );
         m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
     }
+    else if ( id == "_hmce" )
+    {
+        m_Name = "HM Carbon Epoxy";
+        m_Description = "Generic high modulus carbon";
+
+        m_DensityUnit.Set( vsp::RHO_UNIT_G_CM3 );
+        m_ModulusUnit.Set( vsp::PRES_UNIT_PA );
+        m_TemperatureUnit.Set( vsp::TEMP_UNIT_K );
+
+        m_MassDensity.Set( 1.63 );
+        m_E1.Set( 230.0e9 );
+        m_E2.Set( 6.6e9 );
+        m_nu12.Set( 0.25 );
+        m_G12.Set( 4.8e9 );
+        m_A1.Set( -0.7e-6 );
+        m_A2.Set( 28.0e-6 );
+    }
     m_UserFeaMaterial = false;
 
     // Change built-in material property ID's to hard-coded values based on base material ID.
@@ -5912,6 +6028,11 @@ xmlNodePtr FeaMaterial::EncodeXml( xmlNodePtr & node )
     if ( mat_info )
     {
         XmlUtil::AddStringNode( mat_info, "Description", m_Description );
+
+        for ( unsigned int i = 0; i < m_LayerVec.size(); i++ )
+        {
+            m_LayerVec[i]->EncodeXml( mat_info );
+        }
     }
 
     return mat_info;
@@ -5924,6 +6045,19 @@ xmlNodePtr FeaMaterial::DecodeXml( xmlNodePtr & node )
     if ( node )
     {
         m_Description = ParmMgr.RemapID( XmlUtil::FindString( node, "Description", m_Description ) );
+
+        int numlayers = XmlUtil::GetNumNames( node, "FeaLayerInfo" );
+
+        for ( unsigned int i = 0; i < numlayers; i++ )
+        {
+            xmlNodePtr layer_info = XmlUtil::GetNode( node, "FeaLayerInfo", i );
+
+            if ( layer_info )
+            {
+                FeaLayer* fealayer = AddLayer();
+                fealayer->DecodeXml( layer_info );
+            }
+        }
     }
 
     return node;
@@ -5937,6 +6071,86 @@ double FeaMaterial::GetShearModulus()
 double FeaMaterial::GetShearModulus_FEM()
 {
     return ( m_ElasticModulus_FEM() / ( 2.0 * ( m_PoissonRatio() + 1.0 ) ) );
+}
+
+FeaLayer* FeaMaterial::AddLayer()
+{
+    FeaLayer* fealayer = new FeaLayer();
+
+    if ( fealayer )
+    {
+        fealayer->SetName( string( "Layer" + std::to_string( m_FeaLayerCount ) ), false ); // false is for removeslashes
+        m_LayerVec.push_back( fealayer );
+        m_FeaLayerCount++;
+    }
+
+    return fealayer;
+}
+
+FeaLayer * FeaMaterial::GetCurrLayer()
+{
+    if ( ValidLayerInd( GetCurrLayerIndex() ) )
+    {
+        return m_LayerVec[ GetCurrLayerIndex() ];
+    }
+
+    return NULL;
+}
+
+bool FeaMaterial::DeleteLayer( const string &id )
+{
+    bool delsuccess = false;
+    vector < FeaLayer* > newlayervec;
+
+    for ( size_t i = 0; i < m_LayerVec.size(); i++ )
+    {
+        if ( m_LayerVec[i]->GetID() == id )
+        {
+            delete m_LayerVec[i];
+            delsuccess = true;
+        }
+        else
+        {
+            newlayervec.push_back( m_LayerVec[i] );
+        }
+    }
+    m_LayerVec = newlayervec;
+    return delsuccess;
+}
+
+bool FeaMaterial::ValidLayerInd( int index )
+{
+    if ( (int)m_LayerVec.size() > 0 && index >= 0 && index < (int)m_LayerVec.size() )
+    {
+        return true;
+    }
+    return false;
+}
+
+FeaLayer* FeaMaterial::GetFeaLayer( string id )
+{
+    if ( id == string( "NONE" ) )
+    {
+        return NULL;
+    }
+    for ( int i = 0 ; i < ( int )m_LayerVec.size() ; i++ )
+    {
+        if ( m_LayerVec[i]->GetID() == id )
+        {
+            return m_LayerVec[i];
+        }
+    }
+    return NULL;
+}
+
+int FeaMaterial::GetCurrLayerIndex()
+{
+    return m_CurrentLayerIndex;
+}
+
+void FeaMaterial::SetCurrLayerIndex( int index )
+{
+    m_CurrentLayerIndex = index;
 }
 
 //////////////////////////////////////////////////////
