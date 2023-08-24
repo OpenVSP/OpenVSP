@@ -169,6 +169,11 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         INSTALL( TARGETS _vsp_g LIBRARY DESTINATION python/openvsp/openvsp )
         INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py DESTINATION python/openvsp/openvsp )
 
+		IF (FACADE)
+			add_custom_command( TARGET _vsp_g POST_BUILD
+		        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp)
+		ENDIF()
+
         # vsp_g_facade.py Gets copied to install location via 'INSTALL( DIRECTORY' below.
         # Similarly, it will get copied to the python_pseudo package via 'add_custom_target( copy_package' bwlow.
         # Later, vsp_g_facade.py will be generated here.  It will need to be placed in the above two locations.
@@ -246,5 +251,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     SET( PYTHON_VENV_DIR ${PYTHON_VENV_DIR} PARENT_SCOPE )
 
     ADD_CUSTOM_TARGET( pyvsp ${PYTHON_VENV_EXE} -m pyvsp.pyvsp )
+
+
 
 ENDIF(SWIG_FOUND AND PYTHONLIBS_FOUND)

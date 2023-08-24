@@ -2,9 +2,10 @@ import openvsp_config
 
 if openvsp_config.LOAD_GRAPHICS:
   if openvsp_config.LOAD_FACADE:
-    from .vsp_g_facade import *
+    from .facade import *
   elif openvsp_config.LOAD_MULTI_FACADE:
-    from .vsp_g_facade_multi import *
+	print("multi facade not supported")
+    #from .vsp_g_facade_multi import *
   else:
     from .vsp_g import *
 else:
