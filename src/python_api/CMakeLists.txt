@@ -173,6 +173,8 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		IF (FACADE)
 			add_custom_command( TARGET _vsp_g POST_BUILD
 		        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp)
+			INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade.py DESTINATION python/openvsp/openvsp )
+			INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade_server.py DESTINATION python/openvsp/openvsp )
 		ENDIF()
 
         # vsp_g_facade.py Gets copied to install location via 'INSTALL( DIRECTORY' below.
