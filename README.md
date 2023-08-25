@@ -227,6 +227,10 @@
      headless batch-mode VSP, API, and bindings.  This is ideal
      for building VSP on a HPC machine with limited access.
 
+   - 'VSP_NO_VSPAERO' -- Set this variable to disable everything
+     to do with VSPAERO.  The build system will not build VSPAERO
+     or any of its associated utilities.
+
    - `XXX_OMP_COMPILER` -- Set these variables to point at secondary
      compilers to use when the primary compiler does not support
      OpenMP.  This will allow the VSPAERO solver to be built as
