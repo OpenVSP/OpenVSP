@@ -44,7 +44,11 @@ class DemoFrame(wx.Frame):
             There are some weird interactions between the vtk panel and OpenVSP
         """
         global vsp
-        import openvsp.vsp_g_facade as vsp
+        import openvsp_config
+        openvsp_config.LOAD_GRAPHICS = True
+        openvsp_config.LOAD_FACADE = True
+        import openvsp as vsp
+
         wx.Frame.__init__(
             self,
             None,
@@ -368,6 +372,8 @@ class DemoFrame(wx.Frame):
     def on_check_updates(self, event):
         cnt = vsp.GetAndResetUpdateCount()
         self.update_count.SetLabel( str(cnt) )
+        if cnt > 0:
+            self.vsp_update()
 
     def on_refresh_model(self, event):
         """
@@ -397,6 +403,7 @@ class DemoFrame(wx.Frame):
         self.geom_file = os.path.basename(geom_file_path)
         print("Opening OpenVSP file: %s" % self.geom_file)
         vsp.ReadVSPFile(os.path.join(self.dir, self.geom_file))
+        vsp.open_gui()
         self.vsp_update()
 
     def vsp_update(self):
