@@ -6228,6 +6228,12 @@ bool FeaMaterial::DeleteLayer( const string &id )
     bool delsuccess = false;
     vector < FeaLayer* > newlayervec;
 
+    // Don't allow deletion of last layer.
+    if ( m_LayerVec.size() <= 1 )
+    {
+        return delsuccess;
+    }
+
     for ( size_t i = 0; i < m_LayerVec.size(); i++ )
     {
         if ( m_LayerVec[i]->GetID() == id )
