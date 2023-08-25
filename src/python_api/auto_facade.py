@@ -14,7 +14,7 @@ import pickle
 START_SERVER_CODE = """
 # Starting the server
 HOST = 'localhost'
-PORT = 6000"
+PORT = 6000
 server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'facade_server.py')
 proc = subprocess.Popen([sys.executable, server_file])
 
@@ -26,7 +26,7 @@ sock.connect((HOST, PORT))
 
 DECORATOR_CODE = """
 # decorator for wrapping every function
-def test_wrap(func):
+def client_wrap(func):
     def wrapper(*args, **kwargs):
         return send_recieve(func.__name__, args, kwargs) #I think we might need something for kwargs
     return wrapper
@@ -73,6 +73,7 @@ def make_facade(file_path,
         removed_class_list[class_name] = False
 
     new_facade_string = ''
+    new_facade_string += DECORATOR_CODE
 
     with open(file_path, 'r') as f:
         for line in f.readlines():
@@ -112,13 +113,13 @@ def make_facade(file_path,
     #adding required code
     new_facade_string += f"del _{module_name}\n"
     for class_name in classes_to_remove:
-
-        new_facade_string += f"from {module_name} import {class_name}\n"
+        #special code that has not been made generalized
+        new_facade_string += f"from openvsp.{module_name} import {class_name}\n"
 
 
     new_facade_string += HEADER
     new_facade_string += START_SERVER_CODE
-    new_facade_string += DECORATOR_CODE
+
     new_facade_string += SEND_RECIEVE_START
     new_facade_string += non_serializable_code
     new_facade_string += SEND_RECIEVE_END
@@ -139,7 +140,11 @@ def make_server(module_name,
 from threading import Thread, Event
 import pickle
 
-from . import {module_name} as module
+#special code that is not generalizable
+import openvsp_config
+openvsp_config._IGNORE_IMPORTS = True
+openvsp_config.LOAD_GRAPHICS = True
+import openvsp as module
 
 HOST = 'localhost'
 PORT = 6000
@@ -156,7 +161,7 @@ def start_server():
             s.listen()
             conn, addr = s.accept()
             with conn:
-                print("Connected by %s" % addr)
+                print("Connected by %s, %s"%(addr[0], addr[1]))
                 while True:
                     b_data = []
                     while True:
@@ -245,7 +250,7 @@ custom_server_func = """
 
 server_non_serializable_code = """
                     try:
-                        if isinstance(result, vsp.vec3d):
+                        if isinstance(result, module.vec3d):
                             result = {"name":'vec3d',
                                 "x":result.x(),
                                 "y":result.y(),
