@@ -3312,6 +3312,22 @@ bool StructScreen::Update()
                     BeamXSecDispGroup( &m_BoxXSecGroup );
                 }
             }
+
+            m_FeaShellLengthUnitChoice.Activate();
+            m_FeaBeamLengthUnitChoice.Activate();
+            m_PropThickInput.Activate();
+
+            FeaMaterial *prop_mat = StructureMgr.GetFeaMaterial( fea_prop->m_FeaMaterialID );
+            if ( prop_mat )
+            {
+                if ( prop_mat->m_FeaMaterialType() == vsp::FEA_LAMINATE )
+                {
+                    m_FeaShellLengthUnitChoice.Deactivate();
+                    m_FeaBeamLengthUnitChoice.Deactivate();
+                    m_PropThickInput.Deactivate();
+                }
+            }
+
         }
         else
         {
