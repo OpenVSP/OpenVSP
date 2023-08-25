@@ -5421,6 +5421,11 @@ void FeaMaterial::Update()
     }
     else if ( m_FeaMaterialType() == vsp::FEA_LAMINATE )
     {
+        if ( m_LayerVec.size() == 0 )
+        {
+            AddLayer();
+        }
+
         for ( int i = 0; i < m_LayerVec.size(); i++ )
         {
             m_LayerVec[i]->Update( m_LengthUnit() );
