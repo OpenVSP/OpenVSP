@@ -5178,7 +5178,7 @@ FeaLayer::FeaLayer() : ParmContainer()
     m_Thickness_FEM.Init( "Thickness_FEM", "FeaLayer", this, 0.1, 0.0, 1.0e12 );
     m_Thickness_FEM.SetDescript( "Thickness of layer in FEM units" );
 
-    m_FeaMaterialID = "_hmce";
+    m_FeaMaterialID = "_AS4-Uni";
 }
 
 FeaLayer::~FeaLayer()
