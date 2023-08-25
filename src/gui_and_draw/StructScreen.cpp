@@ -836,28 +836,33 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
 
     m_LaminateTabLayout.AddChoice( m_LaminateChoice, "Laminate" );
 
-    m_LaminateTabLayout.SetButtonWidth( 50 );
-    m_LaminateTabLayout.AddInput( m_LaminateNameInput, "Name" );
 
-    m_LaminateTabLayout.AddYGap();
+    m_LaminateTabLayout.AddSubGroupLayout( m_LaminateEditGroup, m_LaminateTabLayout.GetW(), m_LaminateTabLayout.GetRemainY() );
 
-    m_LaminateTabLayout.SetButtonWidth( -1 );
-    m_LaminateTabLayout.AddInput( m_LaminateDescriptionInput, "", 0, 2 );
+
+
+    m_LaminateEditGroup.SetButtonWidth( 50 );
+    m_LaminateEditGroup.AddInput( m_LaminateNameInput, "Name" );
+
+    m_LaminateEditGroup.AddYGap();
+
+    m_LaminateEditGroup.SetButtonWidth( -1 );
+    m_LaminateEditGroup.AddInput( m_LaminateDescriptionInput, "", 0, 2 );
     m_LaminateDescriptionInput.SetType( FL_MULTILINE_INPUT_WRAP );
 
-    m_LaminateTabLayout.AddYGap();
+    m_LaminateEditGroup.AddYGap();
 
 
 
-    m_LaminateTabLayout.AddDividerBox( "Lamina Schedule" );
+    m_LaminateEditGroup.AddDividerBox( "Lamina Schedule" );
 
 
 
-    start_x = m_LaminateTabLayout.GetX();
-    start_y = m_LaminateTabLayout.GetY();
+    start_x = m_LaminateEditGroup.GetX();
+    start_y = m_LaminateEditGroup.GetY();
 
 
-    m_LaminateTabLayout.AddSubGroupLayout( m_MoveLayerButtonLayout, 20, browser_h - 20 );
+    m_LaminateEditGroup.AddSubGroupLayout( m_MoveLayerButtonLayout, 20, browser_h - 20 );
 
     m_MoveLayerButtonLayout.SetSameLineFlag( false );
     m_MoveLayerButtonLayout.SetFitWidthFlag( false );
@@ -867,18 +872,18 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
     m_MoveLayerButtonLayout.AddButton( m_MoveLayerTopButton, "@2<<" );
     m_MoveLayerButtonLayout.AddYGap();
     m_MoveLayerButtonLayout.AddButton( m_MoveLayerUpButton, "@2<" );
-    m_MoveLayerButtonLayout.AddY( browser_h - 75 - m_LaminateTabLayout.GetStdHeight() - 20 );
+    m_MoveLayerButtonLayout.AddY( browser_h - 75 - m_LaminateEditGroup.GetStdHeight() - 20 );
     m_MoveLayerButtonLayout.AddButton( m_MoveLayerDownButton, "@2>" );
     m_MoveLayerButtonLayout.AddYGap();
     m_MoveLayerButtonLayout.AddButton( m_MoveLayerBotButton, "@2>>" );
 
-    m_LaminateTabLayout.SetY( start_y );
-    m_LaminateTabLayout.AddX( 20 );
-    m_LaminateTabLayout.SetFitWidthFlag( true );
+    m_LaminateEditGroup.SetY( start_y );
+    m_LaminateEditGroup.AddX( 20 );
+    m_LaminateEditGroup.SetFitWidthFlag( true );
 
 
-    m_LaminateTabLayout.AddSubGroupLayout( m_LayerBrowserLayout, m_LaminateTabLayout.GetRemainX(), browser_h - 20 );
-    m_LaminateTabLayout.AddY( browser_h - 20 );
+    m_LaminateEditGroup.AddSubGroupLayout( m_LayerBrowserLayout, m_LaminateEditGroup.GetRemainX(), browser_h - 20 );
+    m_LaminateEditGroup.AddY( browser_h - 20 );
 
 
 
@@ -892,79 +897,79 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
     m_FeaLayerSelectBrowser->labelsize( 12 );
     m_FeaLayerSelectBrowser->callback( staticScreenCB, this );
 
-    m_LaminateTabLayout.SetX( start_x );
+    m_LaminateEditGroup.SetX( start_x );
 
-    m_LaminateTabLayout.SetSameLineFlag( true );
-    m_LaminateTabLayout.SetFitWidthFlag( false );
+    m_LaminateEditGroup.SetSameLineFlag( true );
+    m_LaminateEditGroup.SetFitWidthFlag( false );
 
-    m_LaminateTabLayout.SetButtonWidth( m_LaminateTabLayout.GetRemainX() / 2 );
+    m_LaminateEditGroup.SetButtonWidth( m_LaminateEditGroup.GetRemainX() / 2 );
 
-    m_LaminateTabLayout.AddButton( m_AddFeaLayerToLaminateButton, "Add Lamina" );
-    m_LaminateTabLayout.AddButton( m_RemoveFeaLayerFromLaminateButton, "Remove Lamina" );
-    m_LaminateTabLayout.ForceNewLine();
+    m_LaminateEditGroup.AddButton( m_AddFeaLayerToLaminateButton, "Add Lamina" );
+    m_LaminateEditGroup.AddButton( m_RemoveFeaLayerFromLaminateButton, "Remove Lamina" );
+    m_LaminateEditGroup.ForceNewLine();
 
-    m_LaminateTabLayout.SetSameLineFlag( false );
-    m_LaminateTabLayout.SetFitWidthFlag( true );
+    m_LaminateEditGroup.SetSameLineFlag( false );
+    m_LaminateEditGroup.SetFitWidthFlag( true );
 
-    m_LaminateTabLayout.AddYGap();
+    m_LaminateEditGroup.AddYGap();
 
-    m_LaminateTabLayout.AddDividerBox( "Layer Properties" );
+    m_LaminateEditGroup.AddDividerBox( "Layer Properties" );
 
-    m_LaminateTabLayout.AddChoice( m_LayerChoice, "Lamina" );
-
-
-    m_LaminateTabLayout.SetSameLineFlag( true );
-    m_LaminateTabLayout.SetFitWidthFlag( false );
-
-    little = ( m_LaminateTabLayout.GetW() - gapw ) / 5.0;
-
-    m_LaminateTabLayout.AddYGap();
-
-    m_LaminateTabLayout.AddX( little );
-    m_LaminateTabLayout.SetButtonWidth( 2 * little );
-    m_LaminateTabLayout.AddDividerBox( "Input" );
-    m_LaminateTabLayout.AddX( gapw );
-    m_LaminateTabLayout.AddDividerBox( "To FEM" );
-    m_LaminateTabLayout.ForceNewLine();
-
-    m_LaminateTabLayout.SetChoiceButtonWidth( -1 );
-
-    m_LaminateTabLayout.SetInputWidth( little );
-    m_LaminateTabLayout.SetSliderWidth( little );
+    m_LaminateEditGroup.AddChoice( m_LayerChoice, "Lamina" );
 
 
-    m_LaminateTabLayout.SetButtonWidth( little );
+    m_LaminateEditGroup.SetSameLineFlag( true );
+    m_LaminateEditGroup.SetFitWidthFlag( false );
 
-    m_LaminateTabLayout.AddInput( m_LayerThickInput, "Thickness", "%7.5g" );
+    little = ( m_LaminateEditGroup.GetW() - gapw ) / 5.0;
 
-    m_LaminateTabLayout.SetButtonWidth( little );
-    m_LaminateTabLayout.AddButton( m_LayerThickUnit, "" );
+    m_LaminateEditGroup.AddYGap();
+
+    m_LaminateEditGroup.AddX( little );
+    m_LaminateEditGroup.SetButtonWidth( 2 * little );
+    m_LaminateEditGroup.AddDividerBox( "Input" );
+    m_LaminateEditGroup.AddX( gapw );
+    m_LaminateEditGroup.AddDividerBox( "To FEM" );
+    m_LaminateEditGroup.ForceNewLine();
+
+    m_LaminateEditGroup.SetChoiceButtonWidth( -1 );
+
+    m_LaminateEditGroup.SetInputWidth( little );
+    m_LaminateEditGroup.SetSliderWidth( little );
+
+
+    m_LaminateEditGroup.SetButtonWidth( little );
+
+    m_LaminateEditGroup.AddInput( m_LayerThickInput, "Thickness", "%7.5g" );
+
+    m_LaminateEditGroup.SetButtonWidth( little );
+    m_LaminateEditGroup.AddButton( m_LayerThickUnit, "" );
     m_LayerThickUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_LayerThickUnit.GetFlButton()->labelcolor( FL_BLACK );
 
-    m_LaminateTabLayout.AddX( gapw );
+    m_LaminateEditGroup.AddX( gapw );
 
-    m_LaminateTabLayout.SetButtonWidth( 0 );
-    m_LaminateTabLayout.AddOutput( m_LayerThick_FEMOutput, "", "%7.5g" );
+    m_LaminateEditGroup.SetButtonWidth( 0 );
+    m_LaminateEditGroup.AddOutput( m_LayerThick_FEMOutput, "", "%7.5g" );
 
-    m_LaminateTabLayout.SetButtonWidth( little );
-    m_LaminateTabLayout.AddButton( m_LayerThickUnit_FEM, "" );
+    m_LaminateEditGroup.SetButtonWidth( little );
+    m_LaminateEditGroup.AddButton( m_LayerThickUnit_FEM, "" );
     m_LayerThickUnit_FEM.GetFlButton()->box( FL_THIN_UP_BOX );
     m_LayerThickUnit_FEM.GetFlButton()->labelcolor( FL_BLACK );
 
 
-    m_LaminateTabLayout.ForceNewLine();
+    m_LaminateEditGroup.ForceNewLine();
 
-    m_LaminateTabLayout.SetFitWidthFlag( false );
-    m_LaminateTabLayout.SetButtonWidth( little );
-    m_LaminateTabLayout.AddInput( m_LayerThetaInput, theta, "%7.5g" );
+    m_LaminateEditGroup.SetFitWidthFlag( false );
+    m_LaminateEditGroup.SetButtonWidth( little );
+    m_LaminateEditGroup.AddInput( m_LayerThetaInput, theta, "%7.5g" );
 
-    m_LaminateTabLayout.ForceNewLine();
+    m_LaminateEditGroup.ForceNewLine();
 
-    m_LaminateTabLayout.SetSameLineFlag( false );
-    m_LaminateTabLayout.SetFitWidthFlag( true );
+    m_LaminateEditGroup.SetSameLineFlag( false );
+    m_LaminateEditGroup.SetFitWidthFlag( true );
 
-    m_LaminateTabLayout.AddYGap();
+    m_LaminateEditGroup.AddYGap();
 
     //=== Property Tab ===//
     m_PropertyTabLayout.SetGroupAndScreen( propTabGroup, this );
@@ -2590,6 +2595,8 @@ void StructScreen::UpdateFeaMaterialChoice()
     {
         vector< FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
 
+        m_LaminateChoice.AddItem( "Not a laminate", -1 );
+
         for ( int i = 0; i < material_vec.size(); ++i )
         {
             string mat_name = material_vec[i]->GetName();
@@ -3521,6 +3528,15 @@ bool StructScreen::Update()
                 m_IsoSubGroup.Hide();
                 m_OrthoSubGroup.Hide();
                 m_LaminateSubGroup.Show();
+            }
+
+            if ( fea_mat->m_FeaMaterialType() == vsp::FEA_LAMINATE )
+            {
+                m_LaminateEditGroup.Show();
+            }
+            else
+            {
+                m_LaminateEditGroup.Hide();
             }
         }
 

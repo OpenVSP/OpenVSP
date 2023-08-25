@@ -91,6 +91,7 @@ private:
     GroupLayout m_MaterialTabLayout;
     GroupLayout m_MaterialEditGroup;
     GroupLayout m_LaminateTabLayout;
+    GroupLayout m_LaminateEditGroup;
     GroupLayout m_MoveLayerButtonLayout;
     GroupLayout m_LayerBrowserLayout;
     GroupLayout m_PropertyTabLayout;
