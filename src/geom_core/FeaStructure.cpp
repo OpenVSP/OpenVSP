@@ -5160,13 +5160,13 @@ string FeaProperty::GetXSecName()
 FeaLayer::FeaLayer() : ParmContainer()
 {
     m_Thickness.Init( "Thickness", "FeaLayer", this, 0.1, 0.0, 1.0e12 );
-    m_Thickness.SetDescript( "Thickness of FeaElement" );
+    m_Thickness.SetDescript( "Thickness of layer" );
 
     m_Theta.Init( "Theta", "FeaLayer", this, 0.0, -360.0, 360.0 );
     m_Theta.SetDescript( "Lamina orientation angle (degrees)" );
 
     m_Thickness_FEM.Init( "Thickness_FEM", "FeaLayer", this, 0.1, 0.0, 1.0e12 );
-    m_Thickness_FEM.SetDescript( "Thickness of FeaElement in FEM units" );
+    m_Thickness_FEM.SetDescript( "Thickness of layer in FEM units" );
 
     m_FeaMaterialID = "_hmce";
 }
@@ -5341,7 +5341,7 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_ThermalExpanCoeff_FEM.SetDescript( "Thermal Expansion Coefficient for Material in FEM units" );
 
     m_Thickness_FEM.Init( "Thickness_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
-    m_Thickness_FEM.SetDescript( "Thickness of Material in FEM units" );
+    m_Thickness_FEM.SetDescript( "Thickness of laminate in FEM units" );
 
     m_E1_FEM.Init( "E1_FEM", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
     m_E1_FEM.SetDescript( "E1 Elastic (Young's) Modulus for Material in FEM units" );
