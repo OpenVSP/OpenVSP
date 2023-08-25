@@ -741,6 +741,7 @@ public:
     Parm m_ElasticModulus;
     Parm m_PoissonRatio;
     Parm m_ThermalExpanCoeff;
+    Parm m_Thickness;
 
     // Units used to specify materials.
     IntParm m_LengthUnit;

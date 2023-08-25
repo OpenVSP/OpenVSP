@@ -5281,6 +5281,9 @@ FeaMaterial::FeaMaterial() : ParmContainer()
     m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.000013, -1.0e12, 1.0e12 );
     m_ThermalExpanCoeff.SetDescript( "Thermal Expansion Coefficient for Material" );
 
+    m_Thickness.Init( "Thickness", "FeaMaterial", this, 0.1, 0.0, 1.0e12 );
+    m_Thickness.SetDescript( "Thickness of laminate" );
+
     m_LengthUnit.Init( "LengthUnit", "FeaMaterial", this, vsp::LEN_IN, vsp::LEN_MM, vsp::NUM_LEN_UNIT - 1 );
     m_LengthUnit.SetDescript( "Length units used to specify property information" );
 
@@ -6273,6 +6276,7 @@ void FeaMaterial::LaminateTheory()
 {
     // printf( "\nCLT Calculations for %s\n", m_Name.c_str() );
 
+    m_Thickness = 0;
     m_MassDensity = 0;
     m_E1 = 0;
     m_E2 = 0;
@@ -6319,6 +6323,7 @@ void FeaMaterial::LaminateTheory()
         if ( lay )
         {
             z[ilay + 1] = z[ilay] + lay->m_Thickness_FEM();
+            m_Thickness = m_Thickness() + lay->m_Thickness();
         }
     }
 
