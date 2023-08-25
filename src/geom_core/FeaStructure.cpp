@@ -5028,8 +5028,8 @@ void FeaProperty::Update()
 
     if ( m_LengthUnit() == vsp::LEN_UNITLESS )
     {
-        m_Thickness_FEM = m_Thickness.Get(), m_LengthUnit();
-        m_CrossSecArea_FEM = m_CrossSecArea.Get(), m_LengthUnit();
+        m_Thickness_FEM = m_Thickness.Get();
+        m_CrossSecArea_FEM = m_CrossSecArea.Get();
         m_Ixx_FEM = m_Ixx.Get();
         m_Iyy_FEM = m_Iyy.Get();
         m_Izy_FEM = m_Izy.Get();
