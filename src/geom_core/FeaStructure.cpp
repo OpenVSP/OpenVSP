@@ -5025,6 +5025,16 @@ void FeaProperty::Update()
         m_FeaMaterialIndex = -1;
     }
 
+    FeaMaterial *fea_mat = StructureMgr.GetFeaMaterial( m_FeaMaterialID );
+    if ( fea_mat )
+    {
+        if ( fea_mat->m_FeaMaterialType() == vsp::FEA_LAMINATE )
+        {
+            m_Thickness = fea_mat->m_Thickness();
+            m_Thickness_FEM = fea_mat->m_Thickness_FEM();
+            m_LengthUnit = fea_mat->m_LengthUnit();
+        }
+    }
 
     if ( m_LengthUnit() == vsp::LEN_UNITLESS )
     {
