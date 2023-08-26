@@ -91,7 +91,7 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
 
     m_DisabledGUIElements.resize( vsp::NUM_GDEV_TYPES, false );
     m_DisabledGUIScreens.resize( vsp::VSP_NUM_SCREENS, false );
-    m_DisabledGeomScreens.resize( vsp::NUM_GEOM_SCREENS + 2, false );
+    m_DisabledGeomScreens.resize( vsp::NUM_GEOM_SCREENS, false );
 }
 
 //==== Destructor ====//
@@ -349,11 +349,6 @@ bool ScreenMgr::IsGeomScreenDisabled( int s ) const
 {
     if ( s >= 0 && s < m_DisabledGeomScreens.size() )
     {
-        if ( m_DisabledGeomScreens[ vsp::ALL_GEOM_SCREENS ] )
-        {
-            return true;
-        }
-
         return m_DisabledGeomScreens[ s ];
     }
     return false;
@@ -361,9 +356,19 @@ bool ScreenMgr::IsGeomScreenDisabled( int s ) const
 
 void ScreenMgr::SetGeomScreenDisable( int s, bool state )
 {
-    if ( s >= 0 && s < m_DisabledGeomScreens.size() )
+    if ( s == vsp::ALL_GEOM_SCREENS )
     {
-        m_DisabledGeomScreens[ s ] = state;
+        for ( int i = 0; i < m_DisabledGeomScreens.size(); i++ )
+        {
+            m_DisabledGeomScreens[ i ] = state;
+        }
+    }
+    else
+    {
+        if ( s >= 0 && s < m_DisabledGeomScreens.size() )
+        {
+            m_DisabledGeomScreens[ s ] = state;
+        }
     }
 }
 
