@@ -1457,6 +1457,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GDEV", "NUM_GDEV_TYPES", NUM_GDEV_TYPES, "/*!< Number of GDEV types */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GDEV", "ALL_GDEV_TYPES", ALL_GDEV_TYPES, "/*!< Flag for all GDEV types */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for OpenVSP Human component gender types. */";
 
@@ -1625,6 +1627,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_MAIN_SCREEN", VSP_MAIN_SCREEN, "/*!< Main screen */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_NUM_SCREENS", VSP_NUM_SCREENS, "/*!< Number of screens */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_ALL_SCREENS", VSP_ALL_SCREENS, "/*!< Flag for all screens */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Initial shape enums for XS_EDIT_CURVE type XSecs. */";

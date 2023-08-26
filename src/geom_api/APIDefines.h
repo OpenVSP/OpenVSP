@@ -522,7 +522,8 @@ enum GDEV { GDEV_TAB,
             GDEV_END_SAME_LINE,
             GDEV_FORCE_WIDTH,
             GDEV_SET_FORMAT,
-            NUM_GDEV_TYPES
+            NUM_GDEV_TYPES,
+            ALL_GDEV_TYPES
           };
 
 enum GENDER { MALE,
@@ -605,7 +606,8 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,
                       VSP_XSEC_SCREEN,
                       VSP_WAVEDRAG_SCREEN,
                       VSP_MAIN_SCREEN,   /* Leave at end of list, helps draw after update. */
-                      VSP_NUM_SCREENS
+                      VSP_NUM_SCREENS,
+                      VSP_ALL_SCREENS
                      };
 
 enum INIT_EDIT_XSEC_TYPE { EDIT_XSEC_CIRCLE,

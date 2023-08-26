@@ -322,9 +322,19 @@ bool ScreenMgr::IsGUIElementDisabled( int e ) const
 
 void ScreenMgr::SetGUIElementDisable( int e, bool state )
 {
-    if ( e >= 0 && e < m_DisabledGUIElements.size() )
+    if ( e == vsp::ALL_GDEV_TYPES )
     {
-        m_DisabledGUIElements[ e ] = state;
+        for ( int i = 0; i < m_DisabledGUIElements.size(); i++ )
+        {
+            m_DisabledGUIElements[ i ] = state;
+        }
+    }
+    else
+    {
+        if ( e >= 0 && e < m_DisabledGUIElements.size() )
+        {
+            m_DisabledGUIElements[ e ] = state;
+        }
     }
 }
 
@@ -339,9 +349,19 @@ bool ScreenMgr::IsGUIScreenDisabled( int s ) const
 
 void ScreenMgr::SetGUIScreenDisable( int s, bool state )
 {
-    if ( s >= 0 && s < m_DisabledGUIScreens.size() )
+    if ( s == vsp::VSP_ALL_SCREENS )
     {
-        m_DisabledGUIScreens[ s ] = state;
+        for ( int i = 0; i < m_DisabledGUIScreens.size(); i++ )
+        {
+            m_DisabledGUIScreens[ i ] = state;
+        }
+    }
+    else
+    {
+        if ( s >= 0 && s < m_DisabledGUIScreens.size() )
+        {
+            m_DisabledGUIScreens[ s ] = state;
+        }
     }
 }
 
