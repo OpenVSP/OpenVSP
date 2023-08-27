@@ -4357,8 +4357,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [in] file_name Export file name
     \param [in] thick_set Set index to export (i.e. SET_ALL)
     \param [in] file_type File type enum (i.e. EXPORT_IGES)
-    \param [in] file_type File type enum (i.e. EXPORT_VSPGEOM)
     \param [in] subsFlag Flag to tag subsurfaces if MeshGeom is created
+    \param [in] thin_set Set index to export as degenerate geometry (i.e. SET_NONE)
     \return Mesh Geom ID if the export generates a mesh
 */)";
     r = se->RegisterGlobalFunction( "string ExportFile( const string & in file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = -1 )", vspFUNCTION( vsp::ExportFile ), vspCALL_CDECL, doc_struct );
