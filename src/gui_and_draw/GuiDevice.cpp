@@ -1829,6 +1829,24 @@ void Choice::ClearFlags()
 
 void Choice::UpdateItems( bool keepsetting )
 {
+    // Activate();
+    if ( m_Screen )
+    {
+        ScreenMgr *scmgr = m_Screen->GetScreenMgr();
+        if (scmgr )
+        {
+            if ( scmgr->IsGUIElementDisabled( m_Type ) )
+            {
+                Deactivate();
+                return;
+            }
+            else
+            {
+                Activate();
+            }
+        }
+    }
+
     static string dummymenuentry = GenerateRandomID( 14 );
 
     if ( m_Flags.size() != m_Items.size() )
