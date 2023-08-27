@@ -126,7 +126,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_AdjustMenuItem.Init( mgr, m_MenuBar, "View/Adjust...", vsp::VSP_VIEW_SCREEN );
     // m_AntialiasMenuItem.Init( this, m_MenuBar, "View/New" );
 
-    m_GeomMenuItem.Init( mgr, m_MenuBar, "Model/Geometry...", vsp::VSP_MANAGE_GEOM_SCREEN );
+    m_GeomMenuItem.Init( mgr, m_MenuBar, "Model/Geometry...", vsp::VSP_MANAGE_GEOM_SCREEN, vsp::VSP_NERF_MANAGE_GEOM_SCREEN );
     m_SetEditMenuItem.Init( mgr, m_MenuBar, "Model/Set Editor...", vsp::VSP_SET_EDITOR_SCREEN );
     m_LinkMenuItem.Init( mgr, m_MenuBar, "Model/Link...", vsp::VSP_PARM_LINK_SCREEN );
     m_DesVarMenuItem.Init( mgr, m_MenuBar, "Model/Design Variables...", vsp::VSP_DESIGN_VAR_SCREEN );
