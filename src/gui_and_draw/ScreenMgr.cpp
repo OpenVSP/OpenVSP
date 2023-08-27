@@ -41,6 +41,7 @@
 #include "ManageViewScreen.h"
 #include "MassPropScreen.h"
 #include "MaterialEditScreen.h"
+#include "NerfManageGeomScreen.h"
 #include "SnapToScreen.h"
 #include "ParasiteDragScreen.h"
 #include "ParmDebugScreen.h"
@@ -427,6 +428,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_MANAGE_TEXTURE_SCREEN] = new ManageTextureScreen( this );
     m_ScreenVec[vsp::VSP_MASS_PROP_SCREEN] = new MassPropScreen( this );
     m_ScreenVec[vsp::VSP_MATERIAL_EDIT_SCREEN] = new MaterialEditScreen( this );
+    m_ScreenVec[vsp::VSP_NERF_MANAGE_GEOM_SCREEN] = new NerfManageGeomScreen( this );
     m_ScreenVec[vsp::VSP_SNAP_TO_SCREEN] = new SnapToScreen( this );
     m_ScreenVec[vsp::VSP_PARASITE_DRAG_SCREEN] = new ParasiteDragScreen( this );
     m_ScreenVec[vsp::VSP_PARM_DEBUG_SCREEN] = new ParmDebugScreen( this );
@@ -464,6 +466,7 @@ void ScreenMgr::Init()
     h1 = m_ScreenVec[vsp::VSP_MAIN_SCREEN]->GetFlWindow()->h();
 
     m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
+    m_ScreenVec[vsp::VSP_NERF_MANAGE_GEOM_SCREEN]->GetFlWindow()->position(x+w+5,y);
 
     h2 = m_ScreenVec[vsp::VSP_XSEC_SCREEN]->GetFlWindow()->h();
     m_ScreenVec[vsp::VSP_XSEC_SCREEN]->GetFlWindow()->position( x + w + 5, y + h1 - h2 );
@@ -487,6 +490,7 @@ void ScreenMgr::Init()
 
     // Show() after setting non_modal, as modality can not change if window shown.
     m_ScreenVec[vsp::VSP_MANAGE_GEOM_SCREEN]->Show();
+    m_ScreenVec[vsp::VSP_NERF_MANAGE_GEOM_SCREEN]->Show();
 }
 
 //==== Update All Displayed Screens ====//
