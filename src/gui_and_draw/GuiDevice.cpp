@@ -428,7 +428,6 @@ void Input::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -619,7 +618,6 @@ void Slider::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -752,7 +750,6 @@ void SliderAdjRange::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -1228,7 +1225,6 @@ void CheckButton::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -1307,7 +1303,6 @@ void CheckButtonBit::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -1391,7 +1386,6 @@ void RadioButton::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -1470,7 +1464,6 @@ void ToggleButton::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -1566,7 +1559,6 @@ void ToggleRadioGroup::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -1655,7 +1647,6 @@ void TriggerButton::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -1718,7 +1709,6 @@ void Counter::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -1882,7 +1872,6 @@ void Choice::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -2042,7 +2031,6 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -2169,7 +2157,6 @@ void StringInput::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -2317,7 +2304,6 @@ void IndexSelector::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -2483,7 +2469,6 @@ void ColorPicker::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -2610,7 +2595,6 @@ void ParmPicker::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -2736,7 +2720,6 @@ void ParmTreePicker::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -3163,7 +3146,6 @@ void DriverGroupBank::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -3678,7 +3660,6 @@ void GeomPicker::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
@@ -4042,7 +4023,6 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
-        m_Screen->GuiDeviceCallBack( this );
         return;
     }
 
