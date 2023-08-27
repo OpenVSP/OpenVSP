@@ -200,10 +200,11 @@ void GuiDevice::AddWidget( Fl_Widget* w, bool resizable_flag )
     if ( w )
     {
         m_WidgetVec.push_back( w );
-    }
-    if ( resizable_flag )
-    {
-        m_ResizableWidgetIndex = (int)m_WidgetVec.size() - 1;
+
+        if ( resizable_flag )
+        {
+            m_ResizableWidgetIndex = (int)m_WidgetVec.size() - 1;
+        }
     }
 }
 
