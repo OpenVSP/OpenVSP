@@ -197,17 +197,6 @@ bool AdvLink::BuildScript()
 
     m_ValidScript = false;
 
-    //==== Find All Var Names ====//
-    vector< string > var_vec;
-    for ( int i = 0 ; i < (int)m_InputVars.size() ; i++ )
-    {
-        var_vec.push_back( m_InputVars[i].m_VarName );
-    }
-    for ( int i = 0 ; i < (int)m_OutputVars.size() ; i++ )
-    {
-        var_vec.push_back( m_OutputVars[i].m_VarName );
-    }
-
     //==== Write Comment ====//
     string comment;
     comment = "//==== Adv Link: " + m_Name + " Generated Script ====//\n\n";
