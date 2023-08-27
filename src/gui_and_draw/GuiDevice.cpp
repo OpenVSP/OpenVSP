@@ -274,7 +274,7 @@ void GuiDevice::Update( const string& parm_id )
 
     SetValAndLimits( parm_ptr );
 
-    if ( parm_ptr->GetActiveFlag() )
+    if ( parm_ptr->GetActiveFlag() && !m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
         Activate();
     }
@@ -1981,7 +1981,7 @@ void FractParmSlider::Update( const string& parm_id )
     //else
     //  Deactivate();
 
-    if ( parm_ptr->GetActiveFlag() )
+    if ( parm_ptr->GetActiveFlag() && !m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
         m_ResultFlInput->activate();
     }
