@@ -93,6 +93,8 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     m_DisabledGUIElements.resize( vsp::NUM_GDEV_TYPES, false );
     m_DisabledGUIScreens.resize( vsp::VSP_NUM_SCREENS, false );
     m_DisabledGeomScreens.resize( vsp::NUM_GEOM_SCREENS, false );
+
+    SetGUIScreenDisable( vsp::VSP_NERF_MANAGE_GEOM_SCREEN, true );
 }
 
 //==== Destructor ====//
