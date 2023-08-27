@@ -1647,6 +1647,7 @@ void TriggerButton::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
+        Deactivate();
         return;
     }
 
@@ -1890,6 +1891,7 @@ void Choice::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
+        Deactivate();
         return;
     }
 
