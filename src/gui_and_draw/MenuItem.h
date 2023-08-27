@@ -31,8 +31,9 @@ protected:
 class ScreenMenuItem : BaseMenuItem
 {
 public:
+    ScreenMenuItem();
 
-    virtual void Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, std::string mpath, int sid );
+    virtual void Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, std::string mpath, int sid, int secondary_sid = -1 );
 
     void ShowScreenCallBack( void* data );
 
@@ -46,6 +47,7 @@ protected:
     ScreenMgr* m_ScreenMgr;
 
     int m_ScreenID;
+    int m_SecondaryScreenID;
 
 };
 

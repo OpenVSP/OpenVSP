@@ -39,12 +39,19 @@ bool BaseMenuItem::IsShown()
     return false;
 }
 
-void ScreenMenuItem::Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, std::string mpath, int sid )
+ScreenMenuItem::ScreenMenuItem()
+{
+    m_ScreenID = -1;
+    m_SecondaryScreenID = -1;
+}
+
+void ScreenMenuItem::Init( ScreenMgr *mgr, Fl_Sys_Menu_Bar *mbar, std::string mpath, int sid, int secondary_sid )
 {
     m_ScreenMgr = mgr;
     m_MenuBar = mbar;
     m_MenuPath = mpath;
     m_ScreenID = sid;
+    m_SecondaryScreenID = secondary_sid;
 
     m_MenuBar->add( m_MenuPath.c_str(), "", staticShowScreenCB, this );
 
@@ -54,6 +61,10 @@ void ScreenMenuItem::ShowScreenCallBack( void* data )
 {
     assert( m_ScreenMgr );
     m_ScreenMgr->ShowScreen( m_ScreenID );
+    if ( m_SecondaryScreenID >= 0 )
+    {
+        m_ScreenMgr->ShowScreen( m_SecondaryScreenID );
+    }
 }
 
 void ActionMenuItem::Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, std::string mpath, int scut )
