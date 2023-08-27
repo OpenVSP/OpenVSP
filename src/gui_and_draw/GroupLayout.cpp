@@ -842,7 +842,12 @@ void GroupLayout::AddOutput( StringOutput& string_output, const char* label, int
     assert( m_Group && m_Screen );
 
     //==== Button ====//
-    VspButton* button = AddParmButton( label );
+    VspButton* button = NULL;
+
+    if ( m_ButtonWidth > 0 )
+    {
+        button = AddParmButton( label );
+    }
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
@@ -866,7 +871,12 @@ void GroupLayout::AddOutput( Output& output, const char* label, const char* form
     assert( m_Group && m_Screen );
 
     //==== Parm Button ====//
-    VspButton* button = AddParmButton( label );
+    VspButton* button = NULL;
+
+    if ( m_ButtonWidth > 0 )
+    {
+        button = AddParmButton( label );
+    }
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
@@ -892,7 +902,12 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format,
     assert( m_Group && m_Screen );
 
     //==== Parm Button ====//
-    VspButton* button = AddParmButton( label );
+    VspButton* button = NULL;
+
+    if ( m_ButtonWidth > 0 )
+    {
+        button = AddParmButton( label );
+    }
 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
