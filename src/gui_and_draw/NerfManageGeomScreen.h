@@ -54,7 +54,6 @@ public:
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
-    void CreateScreens();
     void ShowHideGeomScreens();
 
     void UpdateGeomScreens();
@@ -82,9 +81,7 @@ protected:
 
     GroupLayout m_HeadLayout;
 
-    Choice m_GeomTypeChoice;
-    TriggerButton m_AddGeomButton;
-    StringInput m_ActiveGeomInput;
+    StringOutput m_ActiveGeomOutput;
 
     GroupLayout m_BodyLayout;
 
@@ -92,17 +89,7 @@ protected:
     GroupLayout m_MidLayout;
     GroupLayout m_RightLayout;
 
-    TriggerButton m_MoveTopButton;
-    TriggerButton m_MoveUpButton;
-    TriggerButton m_MoveDownButton;
-    TriggerButton m_MoveBotButton;
-
     Fl_Browser * m_GeomBrowser;
-
-    TriggerButton m_DeleteButton;
-    TriggerButton m_CopyButton;
-    TriggerButton m_PasteButton;
-    TriggerButton m_CutButton;
 
     TriggerButton m_SelectAllButton;
     ToggleButton m_PickButton;
@@ -130,21 +117,17 @@ protected:
 
     int m_LastTopLine;
     int m_SetIndex;
-    int m_TypeIndex;
     bool m_CollapseFlag;
     string m_LastSelectedGeomID;
     Vehicle* m_VehiclePtr;
-    vector< VspScreen* > m_GeomScreenVec;
 
     vector< string > m_DisplayedGeomVec;
 
     std::vector<DrawObj> m_PickList;
 
-    void AddGeom();
     void LoadBrowser();
     void LoadActiveGeomOutput();
     void LoadSetChoice();
-    void LoadTypeChoice();
     void LoadDisplayChoice();
     void UpdateDrawType();
     void GeomBrowserCallback();

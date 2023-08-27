@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "NerfManageGeomScreen.h"
+#include "ManageGeomScreen.h"
 #include "ScreenMgr.h"
 #include "StlHelper.h"
 
@@ -13,13 +14,12 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-NerfManageGeomScreen::NerfManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 645, "Nerf Geom Browser" )
+NerfManageGeomScreen::NerfManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235-10, 645, "Nerf Geom Browser" )
 {
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
     m_LastTopLine = 0;
     m_SetIndex = 0;
-    m_TypeIndex = 0;
     m_CollapseFlag = false;
     m_LastSelectedGeomID = "NONE";
 
@@ -30,62 +30,31 @@ NerfManageGeomScreen::NerfManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr,
     m_MainLayout.AddX( 5 );
     m_MainLayout.AddY( 25 );
     m_MainLayout.AddSubGroupLayout( m_HeadLayout, m_MainLayout.GetRemainX() - 5, 50 );
-    m_MainLayout.AddY( 70 );
+    m_MainLayout.AddY( 50 );
     m_MainLayout.SetX( 0 );
     m_MainLayout.AddSubGroupLayout( m_BodyLayout, m_MainLayout.GetRemainX() - 5, m_MainLayout.GetRemainY() );
     m_MainLayout.GetGroup()->resizable( m_BodyLayout.GetGroup() );
 
-    m_HeadLayout.SetSameLineFlag( true );
-    m_HeadLayout.SetChoiceButtonWidth( 0 );
-    m_HeadLayout.AddChoice( m_GeomTypeChoice, "", m_HeadLayout.GetButtonWidth() );
-    m_HeadLayout.SetFitWidthFlag( false );
-    m_HeadLayout.AddButton( m_AddGeomButton, "Add" );
-    m_HeadLayout.SetSameLineFlag( false );
-    m_HeadLayout.ForceNewLine();
     m_HeadLayout.SetFitWidthFlag( true );
 
     m_HeadLayout.SetButtonWidth( 0 );
     m_HeadLayout.AddYGap();
     m_HeadLayout.AddDividerBox( "Active:" );
-    m_HeadLayout.AddInput( m_ActiveGeomInput, "" );
+    m_HeadLayout.AddOutput( m_ActiveGeomOutput, "" );
 
     m_BodyLayout.SetSameLineFlag( true );
     m_BodyLayout.SetFitWidthFlag( false );
-    m_BodyLayout.AddSubGroupLayout( m_LeftLayout, 15, m_BodyLayout.GetRemainY() );
-    m_BodyLayout.AddX( 15 );
+    m_BodyLayout.AddX( 5 );
     m_BodyLayout.AddSubGroupLayout( m_MidLayout, 140, m_BodyLayout.GetRemainY() );
     m_BodyLayout.GetGroup()->resizable( m_MidLayout.GetGroup() );
     m_BodyLayout.AddX( 145 );
     m_BodyLayout.AddSubGroupLayout( m_RightLayout, m_BodyLayout.GetRemainX(), m_BodyLayout.GetRemainY());
-
-    m_LeftLayout.SetStdHeight( 50 );
-    m_LeftLayout.AddButton( m_MoveTopButton, "@2<<" );
-    m_LeftLayout.AddYGap();
-    m_LeftLayout.AddButton( m_MoveUpButton, "@2<" );
-    m_LeftLayout.AddY( m_LeftLayout.GetRemainY() - 100 - 6 - 5 - m_LeftLayout.GetStdHeight() );
-    m_LeftLayout.AddResizeBox();
-    m_LeftLayout.AddButton( m_MoveDownButton, "@2>" );
-    m_LeftLayout.AddYGap();
-    m_LeftLayout.AddButton( m_MoveBotButton, "@2>>" );
 
     m_GeomBrowser = m_MidLayout.AddFlBrowser( m_MidLayout.GetH() - 5 );
     m_GeomBrowser->callback( staticScreenCB, this );
     m_GeomBrowser->type( FL_MULTI_BROWSER );
 
 
-    m_RightLayout.AddButton( m_DeleteButton, "Delete" );
-
-    m_RightLayout.AddYGap();
-    m_RightLayout.AddDividerBox( "Clipboard" );
-    m_RightLayout.AddButton( m_CopyButton, "Copy" );
-    m_RightLayout.AddButton( m_PasteButton, "Paste" );
-    m_RightLayout.AddButton( m_CutButton, "Cut" );
-
-    m_CopyButton.GetFlButton()->shortcut( FL_CTRL + 'c' );
-    m_PasteButton.GetFlButton()->shortcut( FL_CTRL + 'v' );
-    m_CutButton.GetFlButton()->shortcut( FL_CTRL + 'x' );
-
-    m_RightLayout.AddYGap();
     m_RightLayout.AddDividerBox( "Selection" );
     m_RightLayout.AddButton( m_SelectAllButton, "Sel All" );
     m_RightLayout.AddButton( m_PickButton, "Pick" );
@@ -120,17 +89,11 @@ NerfManageGeomScreen::NerfManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr,
     m_RightLayout.AddButton( m_SelectSetButton, "Select" );
 
     m_RightLayout.AddResizeBox();
-
-    CreateScreens();
 }
 
 //==== Destructor ====//
 NerfManageGeomScreen::~NerfManageGeomScreen()
 {
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
-    {
-        delete m_GeomScreenVec[i];
-    }
 }
 
 //==== Update Screen ====//
@@ -143,7 +106,6 @@ bool NerfManageGeomScreen::Update()
         LoadBrowser();
         LoadActiveGeomOutput();
         LoadSetChoice();
-        LoadTypeChoice();
         LoadDisplayChoice();
         UpdateDrawType();
     }
@@ -156,13 +118,7 @@ bool NerfManageGeomScreen::Update()
 //==== Update All Geom Screens ====//
 void NerfManageGeomScreen::UpdateGeomScreens()
 {
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
-    {
-        if ( m_GeomScreenVec[i]->IsShown() )
-        {
-            m_GeomScreenVec[i]->Update();
-        }
-    }
+    ( ( ManageGeomScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) )->UpdateGeomScreens();
 }
 
 //==== Show Screen ====//
@@ -321,19 +277,19 @@ void NerfManageGeomScreen::LoadActiveGeomOutput()
     vector< string > activeVec = m_VehiclePtr->GetActiveGeomVec();
     if ( activeVec.size() == 0 )
     {
-        m_ActiveGeomInput.Update( m_VehiclePtr->GetName().c_str() );
+        m_ActiveGeomOutput.Update( m_VehiclePtr->GetName().c_str() );
     }
     else if ( activeVec.size() == 1 )
     {
         Geom* gptr = m_VehiclePtr->FindGeom( activeVec[0] );
         if ( gptr )
         {
-            m_ActiveGeomInput.Update( gptr->GetName().c_str() );
+            m_ActiveGeomOutput.Update( gptr->GetName().c_str() );
         }
     }
     else
     {
-        m_ActiveGeomInput.Update( "<multiple>" );
+        m_ActiveGeomOutput.Update( "<multiple>" );
     }
 }
 
@@ -352,53 +308,6 @@ void NerfManageGeomScreen::LoadSetChoice()
 
     m_SetChoice.UpdateItems();
     m_SetChoice.SetVal( m_SetIndex );
-}
-
-//==== Load Type Choice ====//
-void NerfManageGeomScreen::LoadTypeChoice()
-{
-    m_GeomTypeChoice.ClearItems();
-    m_GeomTypeChoice.ClearFlags();
-
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    int num_type  = veh->GetNumGeomTypes();
-    int num_fixed = veh->GetNumFixedGeomTypes();
-    int cnt = 1;
-
-    for ( int i = 0 ; i < num_type ; i++ )
-    {
-        GeomType type = veh->GetGeomType( i );
-
-        string item = type.m_Name.c_str();
-
-        if ( !type.m_FixedFlag )
-        {
-            item = StringUtil::int_to_string( cnt, "%d.  " ) + item;
-            cnt++;
-        }
-        m_GeomTypeChoice.AddItem( item.c_str() );
-    }
-
-    m_GeomTypeChoice.SetFlagByVal( num_fixed - 1, FL_MENU_DIVIDER );
-
-    m_GeomTypeChoice.UpdateItems();
-    m_GeomTypeChoice.SetVal( m_TypeIndex );
-}
-
-//==== Add Geom - Type From Type Choice ====//
-void NerfManageGeomScreen::AddGeom()
-{
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    GeomType type = veh->GetGeomType( m_TypeIndex );
-
-    if ( type.m_Type < NUM_GEOM_TYPE )
-    {
-        string added_id = m_VehiclePtr->AddGeom( type );
-        m_VehiclePtr->SetActiveGeom( added_id );
-        ShowHideGeomScreens();
-    }
 }
 
 //==== Load Display Choice ====//
@@ -662,55 +571,10 @@ void NerfManageGeomScreen::EditName( string name )
 //  if (src == ScriptMgr::GUI) scriptMgr->addLine("select none");
 //}
 
-//==== Create Screens ====//
-void NerfManageGeomScreen::CreateScreens()
-{
-    m_GeomScreenVec.resize( vsp::NUM_GEOM_SCREENS );
-    m_GeomScreenVec[vsp::POD_GEOM_SCREEN] = new PodScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::FUSELAGE_GEOM_SCREEN] = new FuselageScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::MS_WING_GEOM_SCREEN] = new WingScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::BLANK_GEOM_SCREEN] = new BlankScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::MESH_GEOM_SCREEN] = new MeshScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::STACK_GEOM_SCREEN] = new StackScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::CUSTOM_GEOM_SCREEN] = new CustomScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::PT_CLOUD_GEOM_SCREEN] = new PtCloudScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::PROP_GEOM_SCREEN] = new PropScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::HINGE_GEOM_SCREEN] = new HingeScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::MULT_GEOM_SCREEN] = new MultTransScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::CONFORMAL_SCREEN] = new ConformalScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::ELLIPSOID_GEOM_SCREEN] = new EllipsoidScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::BOR_GEOM_SCREEN] = new BORScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::HUMAN_GEOM_SCREEN] = new HumanGeomScreen( m_ScreenMgr );
-    m_GeomScreenVec[vsp::WIRE_FRAME_GEOM_SCREEN] = new WireScreen( m_ScreenMgr );
-
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
-    {
-        m_GeomScreenVec[i]->GetFlWindow()->set_non_modal();
-    }
-}
-
 //==== Show Hide Geom Screen Depending on Active Geoms ====//
 void NerfManageGeomScreen::ShowHideGeomScreens()
 {
-    //==== Hide All Geom Screens =====//
-    for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
-    {
-        m_GeomScreenVec[i]->Hide();
-    }
-
-    if ( !m_ScreenMgr->IsGeomScreenDisabled( vsp::ALL_GEOM_SCREENS ) )
-    {
-        //==== Show Screen - Each Screen Will Test Check Valid Active Geom Type ====//
-        for ( int i = 0; i < ( int ) m_GeomScreenVec.size(); i++ )
-        {
-            if ( !m_ScreenMgr->IsGeomScreenDisabled( i ))
-            {
-                m_GeomScreenVec[ i ]->Show();
-            }
-        }
-
-        m_GeomScreenVec[ vsp::MULT_GEOM_SCREEN ]->Show();
-    }
+    ( ( ManageGeomScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) )->ShowHideGeomScreens();
 }
 
 //==== Show or Hide Subsurface Lines ====//
@@ -760,15 +624,7 @@ void NerfManageGeomScreen::CallBack( Fl_Widget *w )
 
 void NerfManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
 {
-    if ( device == &m_GeomTypeChoice )
-    {
-        m_TypeIndex = m_GeomTypeChoice.GetVal();
-    }
-    else if ( device == &m_AddGeomButton)
-    {
-        AddGeom();
-    }
-    else if ( device == &m_NoShowButton )
+    if ( device == &m_NoShowButton )
     {
         NoShowActiveGeoms( true );
     }
@@ -785,25 +641,9 @@ void NerfManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         SelectAll();
     }
-    else if ( device == &m_ActiveGeomInput )      // Geom or Aircraft Name
+    else if ( device == &m_ActiveGeomOutput )      // Geom or Aircraft Name
     {
-        EditName( m_ActiveGeomInput.GetString() );
-    }
-    else if ( device == &m_CutButton )
-    {
-        m_VehiclePtr->CutActiveGeomVec();
-    }
-    else if ( device == &m_DeleteButton )
-    {
-        m_VehiclePtr->DeleteActiveGeomVec();
-    }
-    else if ( device == &m_CopyButton )
-    {
-        m_VehiclePtr->CopyActiveGeomVec();
-    }
-    else if ( device == &m_PasteButton )
-    {
-        m_VehiclePtr->PasteClipboard();
+        EditName( m_ActiveGeomOutput.GetString() );
     }
     else if ( device == &m_DisplayChoice )
     {
@@ -828,22 +668,6 @@ void NerfManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_NoneGeomButton )
     {
         SetGeomDisplayType( DRAW_TYPE::GEOM_DRAW_NONE );
-    }
-    else if ( device == &m_MoveUpButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_UP );
-    }
-    else if ( device == &m_MoveDownButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_DOWN );
-    }
-    else if ( device == &m_MoveTopButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_TOP );
-    }
-    else if ( device == &m_MoveBotButton )
-    {
-        m_VehiclePtr->ReorderActiveGeom( Vehicle::REORDER_MOVE_BOTTOM );
     }
     else if ( device == &m_SetChoice )
     {
