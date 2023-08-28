@@ -41,6 +41,8 @@ public:
         ( static_cast <AdvLinkScreen*> ( data ) )->TextCallBack( pos, nInserted, nDeleted, nRestyled, deletedText );
     }
 
+    void AddInput( const string & parmid, const string & name );
+    void AddOutput( const string & parmid, const string & name );
 
     void GuiDeviceCallBack( GuiDevice* gui_device );
 

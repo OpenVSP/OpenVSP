@@ -503,6 +503,57 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+void AdvLinkScreen::AddInput( const string & parmid, const string & name )
+{
+    int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
+    AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
+
+    if ( edit_link )
+    {
+        vector < VarDef > ivars = edit_link->GetInputVars();
+        int nbefore = ivars.size();
+
+        AdvLinkMgr.AddInput( parmid, name );
+
+        ivars = edit_link->GetInputVars();
+        int nafter = ivars.size();
+
+        if ( nafter > nbefore )
+        {
+            m_InputBrowserSelect = nafter - 1;
+            m_VarNameInput.Update( name );
+            m_ParmPicker.SetParmChoice( parmid );
+
+            m_OutputBrowserSelect = -1;
+        }
+    }
+}
+
+void AdvLinkScreen::AddOutput( const string & parmid, const string & name )
+{
+    int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
+    AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
+
+    if ( edit_link )
+    {
+        vector < VarDef > ovars = edit_link->GetOutputVars();
+        int nbefore = ovars.size();
+
+        AdvLinkMgr.AddOutput(  parmid, name );
+
+        ovars = edit_link->GetOutputVars();
+        int nafter = ovars.size();
+
+        if ( nafter > nbefore )
+        {
+            m_OutputBrowserSelect = nafter - 1;
+            m_VarNameInput.Update( name );
+            m_ParmPicker.SetParmChoice( parmid );
+
+            m_InputBrowserSelect = -1;
+        }
+    }
+}
 
 void AdvLinkScreen::TextCallBack( int pos, int nInserted, int nDeleted, int nRestyled, const char* deletedText )
 {
