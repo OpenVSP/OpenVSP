@@ -8,6 +8,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "AdvLinkMgr.h"
 #include "VSP_Geom_API.h"
 #include "VehicleMgr.h"
 #include "Vehicle.h"
@@ -8690,6 +8691,243 @@ bool CheckForVSPAERO( const std::string & path )
         return veh->CheckForVSPAERO( path );
     }
     return false;
-} 
+}
+
+//======================= Advanced Link Functions ============================//
+
+std::vector< std::string > GetAdvLinkNames()
+{
+    ErrorMgr.NoError();
+    return AdvLinkMgr.GetLinkNames();
+}
+
+void DelAdvLink( int index )
+{
+    AdvLinkMgr.DelLink( index );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void DelAllAdvLinks()
+{
+    AdvLinkMgr.DelAllLinks();
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void AddAdvLink( const string & name )
+{
+    AdvLinkMgr.AddLink( name );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void AddAdvLinkInput( int index, const string & parm_id, const string & var_name )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddAdvLinkInput::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->AddVar( parm_id, var_name, true );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void AddAdvLinkOutput( int index, const string & parm_id, const string & var_name )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddAdvLinkOutput::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->AddVar( parm_id, var_name, false );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void DelAdvLinkInput( int index, const string & var_name )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelAdvLinkInput::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->DeleteVar( index, true );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+void DelAdvLinkOutput( int index, const string & var_name )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "DelAdvLinkOutput::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->DeleteVar( index, false );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+std::vector< std::string > GetAdvLinkInputNames( int index )
+{
+    vector < string > ret;
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAdvLinkInputNames::Invalid Advanced Link Index " + to_string( index ) );
+        return ret;
+    }
+
+    ret = adv_link->GetInputNames();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+std::vector< std::string > GetAdvLinkInputParms( int index )
+{
+    vector < string > ret;
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAdvLinkInputParms::Invalid Advanced Link Index " + to_string( index ) );
+        return ret;
+    }
+
+    ret = adv_link->GetInputParms();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+std::vector< std::string > GetAdvLinkOutputNames( int index )
+{
+    vector < string > ret;
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAdvLinkOutputNames::Invalid Advanced Link Index " + to_string( index ) );
+        return ret;
+    }
+
+    ret = adv_link->GetOutputNames();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+std::vector< std::string > GetAdvLinkOutputParms( int index )
+{
+    vector < string > ret;
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAdvLinkOutputParms::Invalid Advanced Link Index " + to_string( index ) );
+        return ret;
+    }
+
+    ret = adv_link->GetOutputParms();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+bool ValidateAdvLinkParms( int index )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ValidateAdvLinkParms::Invalid Advanced Link Index " + to_string( index ) );
+        return false;
+    }
+
+    // Errors thrown by ValidateParms if problems are encountered.
+    bool ret = adv_link->ValidateParms();
+
+    if ( ret )
+    {
+        ErrorMgr.NoError();
+    }
+    return ret;
+}
+
+void SetAdvLinkCode( int index, const string & code )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetAdvLinkCode::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->SetScriptCode( code );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+std::string GetAdvLinkCode( int index )
+{
+    string ret;
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAdvLinkCode::Invalid Advanced Link Index " + to_string( index ) );
+        return ret;
+    }
+
+    ret = adv_link->GetScriptCode();
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+bool BuildAdvLinkScript( int index )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "BuildAdvLinkScript::Invalid Advanced Link Index " + to_string( index ) );
+        return false;
+    }
+
+    // Errors thrown by BuildScript if problems are encountered.
+    bool ret = adv_link->BuildScript();
+
+    if ( ret )
+    {
+        ErrorMgr.NoError();
+    }
+    return ret;
+}
 
 }// vsp namespace

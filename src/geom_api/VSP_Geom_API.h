@@ -522,6 +522,25 @@ extern std::vector < string > GetAllProbes();
 extern void DelProbe( const string &id );
 extern void DeleteAllProbes();
 
+//======================= Advanced Link Functions ============================//
+
+extern std::vector< std::string > GetAdvLinkNames();
+extern void DelAdvLink( int index );
+extern void DelAllAdvLinks();
+extern void AddAdvLink( const string & name );
+extern void AddAdvLinkInput( int index, const string & parm_id, const string & var_name );
+extern void AddAdvLinkOutput( int index, const string & parm_id, const string & var_name );
+extern void DelAdvLinkInput( int index, const string & var_name );
+extern void DelAdvLinkOutput( int index, const string & var_name );
+extern std::vector< std::string > GetAdvLinkInputNames( int index );
+extern std::vector< std::string > GetAdvLinkInputParms( int index );
+extern std::vector< std::string > GetAdvLinkOutputNames( int index );
+extern std::vector< std::string > GetAdvLinkOutputParms( int index );
+extern bool ValidateAdvLinkParms( int index );
+extern void SetAdvLinkCode( int index, const string & code );
+extern std::string GetAdvLinkCode( int index );
+extern bool BuildAdvLinkScript( int index );
+
 }           // End vsp namespace
 
 
