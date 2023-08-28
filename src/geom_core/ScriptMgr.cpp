@@ -3933,6 +3933,480 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     \ref index "Click here to return to the main page" )";
     se->AddGroup( group.c_str(), "Advanced Link Functions", group_description.c_str() );
 
+    doc_struct.comment = R"(
+/*!
+    Get an array of all advanced link names
+    \code{.cpp}
+    array< string > @link_array = GetAdvLinkNames();
+
+    for( int n = 0 ; n < int( link_array.length() ) ; n++ )
+    {
+        Print( link_array[n] );
+    }
+    \endcode
+    \return Array of advanced link names
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkNames()", vspMETHOD( ScriptMgrSingleton, GetAdvLinkNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct);
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Delete an advanced link specified by index
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    DelAdvLink( indx );
+
+    array< string > @link_array = GetAdvLinkNames();
+
+    // Should print nothing.
+    for( int n = 0 ; n < int( link_array.length() ) ; n++ )
+    {
+        Print( link_array[n] );
+    }
+
+    \endcode
+    \param [in] index Index for advanced link
+*/)";
+    r = se->RegisterGlobalFunction( "void DelAdvLink( int index )", vspFUNCTION( vsp::DelAdvLink ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Delete all advanced links
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    DelAllAdvLinks();
+
+    array< string > @link_array = GetAdvLinkNames();
+
+    // Should print nothing.
+    for( int n = 0 ; n < int( link_array.length() ) ; n++ )
+    {
+        Print( link_array[n] );
+    }
+
+    \endcode
+*/)";
+    r = se->RegisterGlobalFunction( "void DelAllAdvLinks()", vspFUNCTION( vsp::DelAllAdvLinks ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Add an advanced link
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    \endcode
+    \param [in] string Name for advanced link
+*/)";
+    r = se->RegisterGlobalFunction( "void AddAdvLink( const string & in name )", vspFUNCTION( vsp::AddAdvLink ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Add an input variable to an advanced link
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    \endcode
+    \param [in] int Advanced link index
+    \param [in] string parm_id for advanced link input variable
+    \param [in] string name for advanced link input variable
+*/)";
+    r = se->RegisterGlobalFunction( "void AddAdvLinkInput( int index, const string & in parm_id, const string & in var_name )", vspFUNCTION( vsp::AddAdvLinkInput ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Add an output variable to an advanced link
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    \endcode
+    \param [in] int Advanced link index
+    \param [in] string parm_id for advanced link output variable
+    \param [in] string name for advanced link output variable
+*/)";
+    r = se->RegisterGlobalFunction( "void AddAdvLinkOutput( int index, const string & in parm_id, const string & in var_name )", vspFUNCTION( vsp::AddAdvLinkOutput ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Delete an input variable from an advanced link
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+    string y_pos = GetParm( pod, "Y_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+    AddAdvLinkInput( indx, y_pos, "y" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    DelAdvLinkInput( indx, "y" );
+
+    BuildAdvLinkScript( indx );
+
+    \endcode
+    \param [in] int Advanced link index
+    \param [in] string name for advanced link input variable to delete
+*/)";
+    r = se->RegisterGlobalFunction( "void DelAdvLinkInput( int index, const string & in var_name )", vspFUNCTION( vsp::DelAdvLinkInput ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Delete an output variable from an advanced link
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+    string y_pos = GetParm( pod, "Y_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+    AddAdvLinkOutput( indx, y_pos, "y" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    DelAdvLinkOutput( indx, "y" );
+
+    BuildAdvLinkScript( indx );
+
+    \endcode
+    \param [in] int Advanced link index
+    \param [in] string name for advanced link output variable to delete
+*/)";
+    r = se->RegisterGlobalFunction( "void DelAdvLinkOutput( int index, const string & in var_name )", vspFUNCTION( vsp::DelAdvLinkOutput ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the name of all the inputs to a specified advanced link index
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    array< string > @name_array = GetAdvLinkInputNames( indx );
+
+    for( int n = 0 ; n < int( name_array.length() ) ; n++ )
+    {
+        Print( name_array[n] );
+    }
+
+    \endcode
+    \param [in] index Advanced link index
+    \return Array of advanced link input names
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkInputNames( int index )", vspMETHOD( ScriptMgrSingleton, GetAdvLinkInputNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct);
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the Parm IDs of all the inputs to a specified advanced link index
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    array< string > @parm_array = GetAdvLinkInputParms( indx );
+
+    for( int n = 0 ; n < int( parm_array.length() ) ; n++ )
+    {
+        Print( parm_array[n] );
+    }
+
+    \endcode
+    \param [in] index Advanced link index
+    \return Array of advanced link input Parm IDs
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkInputParms( int index )", vspMETHOD( ScriptMgrSingleton, GetAdvLinkInputParms ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct);
+    assert( r >= 0 );
+
+
+    doc_struct.comment = R"(
+/*!
+    Get the Parm IDs of all the outputs to a specified advanced link index
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    array< string > @name_array = GetAdvLinkOutputNames( indx );
+
+    for( int n = 0 ; n < int( name_array.length() ) ; n++ )
+    {
+        Print( name_array[n] );
+    }
+
+    \endcode
+    \param [in] index Advanced link index
+    \return Array of advanced link output names
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkOutputNames( int index )", vspMETHOD( ScriptMgrSingleton, GetAdvLinkOutputNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct);
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the Parm IDs of all the outputs to a specified advanced link index
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    array< string > @parm_array = GetAdvLinkOutputParms( indx );
+
+    for( int n = 0 ; n < int( parm_array.length() ) ; n++ )
+    {
+        Print( parm_array[n] );
+    }
+
+    \endcode
+    \param [in] index Advanced link index
+    \return Array of advanced link output Parm IDs
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkOutputParms( int index )", vspMETHOD( ScriptMgrSingleton, GetAdvLinkOutputParms ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct);
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Validate the input and output parameters for an advanced link
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    bool valid = ValidateAdvLinkParms( indx );
+
+    if ( valid )
+    {
+        Print( "Advanced link Parms are valid." );
+    }
+    else
+    {
+        Print( "Advanced link Parms are not valid." );
+    }
+
+    \endcode
+    \param [in] index Index for advanced link
+    \return Flag indicating whether parms are valid
+*/)";
+    r = se->RegisterGlobalFunction( "bool ValidateAdvLinkParms( int index )", vspFUNCTION( vsp::ValidateAdvLinkParms ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the code from an advanced link
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    \endcode
+    \param [in] index Index for advanced link
+    \param [in] string Code for advanced link
+*/)";
+    r = se->RegisterGlobalFunction( "void SetAdvLinkCode( int index, const string & in code )", vspFUNCTION( vsp::SetAdvLinkCode ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the code from an advanced link
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    string code = GetAdvLinkCode( indx );
+
+    Print( code );
+
+    \endcode
+    \param [in] index Index for advanced link
+    \return String containing advanced link code
+*/)";
+    r = se->RegisterGlobalFunction( "string GetAdvLinkCode( int index )", vspFUNCTION( vsp::GetAdvLinkCode ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Build (ready for execution and perform syntax check) an advanced link.
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = 0;
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    bool success = BuildAdvLinkScript( indx );
+
+    if ( success )
+    {
+        Print( "Advanced link build successful." );
+    }
+    else
+    {
+        Print( "Advanced link build not successful." );
+    }
+
+    \endcode
+    \param [in] index Index for advanced link
+    \return Flag indicating whether advanced link build was successful
+*/)";
+    r = se->RegisterGlobalFunction( "bool BuildAdvLinkScript( int index )", vspFUNCTION( vsp::BuildAdvLinkScript ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
 //
 // These methods appear to have been mistakenly exposed to the API.
 //
@@ -14447,4 +14921,35 @@ void ScriptMgrSingleton::Print( int data, bool new_line )
 {
     printf( " %d ", data );
     if ( new_line ) printf( "\n" );
+}
+
+//=== Register Advanced Link Functions ===//
+CScriptArray* ScriptMgrSingleton::GetAdvLinkNames()
+{
+    m_ProxyStringArray = vsp::GetAdvLinkNames();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAdvLinkInputNames( int index )
+{
+    m_ProxyStringArray = vsp::GetAdvLinkInputNames( index );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAdvLinkInputParms( int index )
+{
+    m_ProxyStringArray = vsp::GetAdvLinkInputParms( index );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAdvLinkOutputNames( int index )
+{
+    m_ProxyStringArray = vsp::GetAdvLinkOutputNames( index );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAdvLinkOutputParms( int index )
+{
+    m_ProxyStringArray = vsp::GetAdvLinkOutputParms( index );
+    return GetProxyStringArray();
 }

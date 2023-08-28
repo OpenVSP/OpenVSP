@@ -298,6 +298,13 @@ private:
     CScriptArray* GetAllRulers();
     CScriptArray* GetAllProbes();
 
+    //=== Register Advanced Link Functions ===//
+    CScriptArray* GetAdvLinkNames();
+    CScriptArray* GetAdvLinkInputNames( int index );
+    CScriptArray* GetAdvLinkInputParms( int index );
+    CScriptArray* GetAdvLinkOutputNames( int index );
+    CScriptArray* GetAdvLinkOutputParms( int index );
+
     CScriptArray* CompVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws);
     CScriptArray* CompVecPntRST(const string &geom_id, const int &surf_indx, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts);
     CScriptArray* CompVecNorm01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws);
