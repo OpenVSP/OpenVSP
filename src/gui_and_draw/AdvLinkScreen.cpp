@@ -495,6 +495,23 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             }
         }
     }
+    else if ( gui_device == &m_VarNameInput )
+    {
+        if ( edit_link )
+        {
+            vector< VarDef > input_vars = edit_link->GetInputVars();
+            vector< VarDef > output_vars = edit_link->GetOutputVars();
+
+            if ( m_InputBrowserSelect >= 0 && m_InputBrowserSelect < (int)input_vars.size() )
+            {
+                edit_link->UpdateInputVarName( m_InputBrowserSelect, m_VarNameInput.GetString() );
+            }
+            else if ( m_OutputBrowserSelect >= 0 && m_OutputBrowserSelect < (int)output_vars.size() )
+            {
+                edit_link->UpdateOutputVarName( m_OutputBrowserSelect, m_VarNameInput.GetString() );
+            }
+        }
+    }
     else
     {
         return;
