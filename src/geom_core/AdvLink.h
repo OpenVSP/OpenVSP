@@ -58,6 +58,7 @@ public:
     string GetScriptErrors()                                        { return m_ScriptErrors; }
     bool ValidateParms();
 
+    void AddVar( const string & parm_id, const string & var_name, bool input_flag );
     void AddVar( const VarDef & pd, bool input_flag );
     void DeleteVar( int index, bool input_flag );
     void DeleteAllVars( bool input_flag );
@@ -70,6 +71,11 @@ public:
 
     vector< VarDef > GetInputVars()                               { return m_InputVars; }
     vector< VarDef > GetOutputVars()                              { return m_OutputVars; }
+
+    vector< string > GetInputNames();
+    vector< string > GetInputParms();
+    vector< string > GetOutputNames();
+    vector< string > GetOutputParms();
 
     virtual void ParmChanged( Parm*, int )                        {}
 

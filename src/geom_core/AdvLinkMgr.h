@@ -34,6 +34,7 @@ public:
 
     AdvLink* AddLink( const string & name );
     void DelLink( AdvLink* link_ptr );
+    void DelLink( int index );
     void DelAllLinks();
     void CheckLinks();                  // Check If All Links Are Still Valid
 
@@ -54,6 +55,8 @@ public:
     AdvLink* GetLink( int index );
     void SetEditLinkIndex( int index )                                  { m_EditLinkIndex = index; }
     int GetEditLinkIndex()                                              { return m_EditLinkIndex; }
+
+    vector< string > GetLinkNames();
 
     bool DuplicateLinkName( const string & name );
 

@@ -98,6 +98,13 @@ void AdvLinkMgrSingleton::DelLink( AdvLink* link_ptr )
     delete link_ptr;
 }
 
+void AdvLinkMgrSingleton::DelLink( int index )
+{
+    AdvLink * link_ptr = GetLink( index );
+
+    DelLink( link_ptr );
+}
+
 void AdvLinkMgrSingleton::DelAllLinks( )
 {
     m_EditLinkIndex = -1;
@@ -137,6 +144,17 @@ AdvLink* AdvLinkMgrSingleton::GetLink( int index )
     }
     return NULL;
 
+}
+
+vector< string > AdvLinkMgrSingleton::GetLinkNames()
+{
+    vector < string > link_names;
+
+    for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
+    {
+        link_names.push_back( m_LinkVec[i]->GetName() );
+    }
+    return link_names;
 }
 
 void AdvLinkMgrSingleton::AddInput( const string & parm_id, const string & var_name )

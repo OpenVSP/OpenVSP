@@ -124,6 +124,19 @@ bool AdvLink::DuplicateVarName( const string & name )
     return false;
 }
 
+void AdvLink::AddVar( const string & parm_id, const string & var_name, bool input_flag )
+{
+    Parm* parm_ptr = ParmMgr.FindParm( parm_id );
+    if ( !parm_ptr )
+        return;
+
+    VarDef pd;
+    pd.m_ParmID = parm_id;
+    pd.m_VarName = var_name;
+
+    AddVar( pd, input_flag );
+}
+
 void AdvLink::AddVar( const VarDef & pd, bool input_flag )
 {
     if ( input_flag )
@@ -303,6 +316,58 @@ void AdvLink::ForceUpdate()
 
     //==== Call Script ====//
     ScriptMgr.ExecuteScript( m_ScriptModule.c_str(), "void UpdateLink()" );
+}
+
+vector< string > AdvLink::GetInputNames()
+{
+    vector< VarDef > in_vars = GetInputVars();
+    vector < string > in_names;
+
+    for ( int i = 0; i < in_vars.size(); i++ )
+    {
+        in_names.push_back( in_vars[i].m_VarName );
+    }
+
+    return in_names;
+}
+
+vector< string > AdvLink::GetInputParms()
+{
+    vector< VarDef > in_vars = GetInputVars();
+    vector < string > in_parms;
+
+    for ( int i = 0; i < in_vars.size(); i++ )
+    {
+        in_parms.push_back( in_vars[i].m_ParmID );
+    }
+
+    return in_parms;
+}
+
+vector< string > AdvLink::GetOutputNames()
+{
+    vector< VarDef > out_vars = GetOutputVars();
+    vector < string > out_names;
+
+    for ( int i = 0; i < out_vars.size(); i++ )
+    {
+        out_names.push_back( out_vars[i].m_VarName );
+    }
+
+    return out_names;
+}
+
+vector< string > AdvLink::GetOutputParms()
+{
+    vector< VarDef > out_vars = GetOutputVars();
+    vector < string > out_parms;
+
+    for ( int i = 0; i < out_vars.size(); i++ )
+    {
+        out_parms.push_back( out_vars[i].m_ParmID );
+    }
+
+    return out_parms;
 }
 
 //==== Encode Contents of Adv Link Into XML Tree ====//
