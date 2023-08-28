@@ -473,6 +473,28 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
 
             pB->SetFromLink( val );
         }
+        else if ( pB )
+        {
+            MessageData errMsgData;
+            errMsgData.m_String = "Error";
+
+            errMsgData.m_IntVec.push_back( vsp::VSP_LINK_LOOP_DETECTED );
+            char buf[255];
+            snprintf( buf, sizeof( buf ), "Error: Updating link output variable '%s' (%s) would initiate a link loop.  Stopping.\n", pB->GetName().c_str(), pB->GetID().c_str() );
+            errMsgData.m_StringVec.emplace_back( string( buf ) );
+            MessageMgr::getInstance().SendAll( errMsgData );
+        }
+        else
+        {
+            MessageData errMsgData;
+            errMsgData.m_String = "Error";
+
+            errMsgData.m_IntVec.push_back( vsp::VSP_CANT_FIND_PARM );
+            char buf[255];
+            snprintf( buf, sizeof( buf ), "Error: Link Output parm '%s' not found.\n", pl->GetParmB().c_str() );
+            errMsgData.m_StringVec.emplace_back( string( buf ) );
+            MessageMgr::getInstance().SendAll( errMsgData );
+        }
     }
 
     //==== Update Adv Link ===//

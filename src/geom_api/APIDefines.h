@@ -286,8 +286,10 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_INVALID_CF_EQN,
                     VSP_INVALID_DRIVERS,
                     VSP_ADV_LINK_BUILD_FAIL,
-                    VSP_DEPRECATED
-                };
+                    VSP_DEPRECATED,
+                    VSP_LINK_LOOP_DETECTED,
+                    VSP_NUM_ERROR_CODE
+};
 
 enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,
                    EXCRESCENCE_CD,
