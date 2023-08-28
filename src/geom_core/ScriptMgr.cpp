@@ -3974,17 +3974,11 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Set an Advanced Link variable to the specified value
-    \code{.cpp}
-    // Add Pod Geom
-    string pid = AddGeom( "POD" );
+    This function is used internally by OpenVSP to pass an input variable's value into an advanced link script before
+    it runs.  This function should never be called by a user.
 
-    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
+    This function is only available in AngelScript and is not a part of the general API.
 
-    AddInput( tess_u_id, "ExampleVariable" );
-
-    SetVar( "ExampleVariable", 20 );
-    \endcode
     \param [in] var_name Advanced Link variable name
     \param [in] val Value for the variable
 */)";
@@ -3993,21 +3987,11 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the value of the specified Advanced Link variable
-    \code{.cpp}
-    // Add Pod Geom
-    string pid = AddGeom( "POD" );
+    This function is used internally by OpenVSP to get an output variable's value from an advanced link script after
+    it completes.  This function should never be called by a user.
 
-    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
+    This function is only available in AngelScript and is not a part of the general API.
 
-    AddInput( tess_u_id, "ExampleVariable" );
-
-    SetVar( "ExampleVariable", 20 );
-
-    Print( "ExampleVariable: ", false );
-
-    Print( GetVar( "ExampleVariable" ) );
-    \endcode
     \param [in] var_name Advanced Link variable name
     \return Value for the variable
 */)";
