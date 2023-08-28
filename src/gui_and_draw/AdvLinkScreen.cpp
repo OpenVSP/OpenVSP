@@ -326,6 +326,14 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
                 m_InputBrowserSelect = ibs;
                 m_VarNameInput.Update( ivars[ m_InputBrowserSelect ].m_VarName );
                 m_ParmPicker.SetParmChoice( ivars[ m_InputBrowserSelect ].m_ParmID );
+
+                m_OutputBrowserSelect = -1;
+            }
+            else
+            {
+                m_InputBrowserSelect = -1;
+                m_VarNameInput.Update( "" );
+                m_ParmPicker.SetParmChoice( "" );
             }
         }
     }
@@ -341,6 +349,14 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
                 m_OutputBrowserSelect = obs;
                 m_VarNameInput.Update( ovars[ m_OutputBrowserSelect ].m_VarName );
                 m_ParmPicker.SetParmChoice( ovars[ m_OutputBrowserSelect ].m_ParmID );
+
+                m_InputBrowserSelect = -1;
+            }
+            else
+            {
+                m_OutputBrowserSelect = -1;
+                m_VarNameInput.Update( "" );
+                m_ParmPicker.SetParmChoice( "" );
             }
         }
     }
