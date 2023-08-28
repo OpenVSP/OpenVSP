@@ -170,6 +170,22 @@ void AdvLink::DeleteAllVars( bool input_flag )
     }
 }
 
+void AdvLink::UpdateInputVarName( int index, const string & var_name )
+{
+    if ( index >= 0 && index < (int)m_InputVars.size() )
+    {
+        m_InputVars[ index ].m_VarName = var_name;
+    }
+}
+
+void AdvLink::UpdateOutputVarName( int index, const string & var_name )
+{
+    if ( index >= 0 && index < (int)m_OutputVars.size() )
+    {
+        m_OutputVars[ index ].m_VarName = var_name;
+    }
+}
+
 void AdvLink::SetVar( const string & var_name, double val )
 {
     //==== Look For Var ====//
