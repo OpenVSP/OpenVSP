@@ -361,12 +361,12 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
                 else if ( w == m_InputGroup.GetGroup() )
                 {
                     string ParmID( Fl::event_text() );
-                    AdvLinkMgr.AddInput( ParmID, m_VarNameInput.GetString() );
+                    AddInput( ParmID, m_VarNameInput.GetString() );
                 }
                 else if ( w == m_OutputGroup.GetGroup() )
                 {
                     string ParmID( Fl::event_text() );
-                    AdvLinkMgr.AddOutput( ParmID, m_VarNameInput.GetString() );
+                    AddOutput( ParmID, m_VarNameInput.GetString() );
                 }
             }
         }
@@ -401,11 +401,11 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             }
             else if ( gui_device == &m_PickInput )
             {
-                AdvLinkMgr.AddInput(  m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
+                AddInput(  m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
             }
             else
             {
-                AdvLinkMgr.AddOutput(  m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
+                AddOutput(  m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
             }
         }
     }
