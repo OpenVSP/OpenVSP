@@ -3933,41 +3933,44 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     \ref index "Click here to return to the main page" )";
     se->AddGroup( group.c_str(), "Advanced Link Functions", group_description.c_str() );
 
-    doc_struct.comment = R"(
-/*!
-    Add an Advanced Link input Parm
-    \code{.cpp}
-    // Add Pod Geom
-    string pid = AddGeom( "POD" );
-
-    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
-
-    AddInput( tess_u_id, "ExampleVariable" );
-    \endcode
-    \param [in] parm_id Parm ID
-    \param [in] var_name Advanced Link variable name
-*/)";
-    r = se->RegisterGlobalFunction( "void AddInput( const string & in parm_id, const string & in var_name )",
-                                    vspMETHOD( AdvLinkMgrSingleton, AddInput ), vspCALL_THISCALL_ASGLOBAL, &AdvLinkMgr, doc_struct );
-    assert( r );
-
-    doc_struct.comment = R"(
-/*!
-    Add an Advanced Link output Parm
-    \code{.cpp}
-    // Add Pod Geom
-    string pid = AddGeom( "POD" );
-
-    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
-
-    AddOutput( tess_u_id, "ExampleVariable" );
-    \endcode
-    \param [in] parm_id Parm ID
-    \param [in] var_name Advanced Link variable name
-*/)";
-    r = se->RegisterGlobalFunction( "void AddOutput( const string & in parm_id, const string & in var_name )",
-                                    vspMETHOD( AdvLinkMgrSingleton, AddOutput ), vspCALL_THISCALL_ASGLOBAL, &AdvLinkMgr, doc_struct );
-    assert( r );
+//
+// These methods appear to have been mistakenly exposed to the API.
+//
+//    doc_struct.comment = R"(
+///*!
+//    Add an Advanced Link input Parm
+//    \code{.cpp}
+//    // Add Pod Geom
+//    string pid = AddGeom( "POD" );
+//
+//    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
+//
+//    AddInput( tess_u_id, "ExampleVariable" );
+//    \endcode
+//    \param [in] parm_id Parm ID
+//    \param [in] var_name Advanced Link variable name
+//*/)";
+//    r = se->RegisterGlobalFunction( "void AddInput( const string & in parm_id, const string & in var_name )",
+//                                    vspMETHOD( AdvLinkMgrSingleton, AddInput ), vspCALL_THISCALL_ASGLOBAL, &AdvLinkMgr, doc_struct );
+//    assert( r );
+//
+//    doc_struct.comment = R"(
+///*!
+//    Add an Advanced Link output Parm
+//    \code{.cpp}
+//    // Add Pod Geom
+//    string pid = AddGeom( "POD" );
+//
+//    string tess_u_id = FindParm( pid, "Tess_U", "Shape" );
+//
+//    AddOutput( tess_u_id, "ExampleVariable" );
+//    \endcode
+//    \param [in] parm_id Parm ID
+//    \param [in] var_name Advanced Link variable name
+//*/)";
+//    r = se->RegisterGlobalFunction( "void AddOutput( const string & in parm_id, const string & in var_name )",
+//                                    vspMETHOD( AdvLinkMgrSingleton, AddOutput ), vspCALL_THISCALL_ASGLOBAL, &AdvLinkMgr, doc_struct );
+//    assert( r );
 
     doc_struct.comment = R"(
 /*!
