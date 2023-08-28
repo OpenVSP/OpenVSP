@@ -366,13 +366,33 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
         {
             if ( edit_link )
             {
-                if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) )
+                if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) || m_VarNameInput.GetString() == "" )
                 {
-                    m_ScreenMgr->Alert( "Duplicate Var Name" );
-                }
-                else if ( m_VarNameInput.GetString() == "" )
-                {
-                    m_ScreenMgr->Alert( "Invalid Var Name" );
+                    bool add_parm = false;
+                    string ParmID( Fl::event_text() );
+                    Parm *p = ParmMgr.FindParm( ParmID );
+                    if ( p )
+                    {
+                        string name = p->GetName();
+                        if ( !edit_link->DuplicateVarName( name ) )
+                        {
+                            if ( w == m_InputGroup.GetGroup() )
+                            {
+                                AddInput( ParmID, name );
+                                add_parm = true;
+                            }
+                            else if ( w == m_OutputGroup.GetGroup() )
+                            {
+                                AddOutput( ParmID, name );
+                                add_parm = true;
+                            }
+                        }
+                    }
+
+                    if ( !add_parm )
+                    {
+                        m_ScreenMgr->Alert( "Duplicate Var Name" );
+                    }
                 }
                 else if ( w == m_InputGroup.GetGroup() )
                 {
@@ -407,13 +427,33 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         if ( edit_link )
         {
-            if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) )
+            if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) || m_VarNameInput.GetString() == "" )
             {
-                m_ScreenMgr->Alert( "Duplicate Var Name" );
-            }
-            else if ( m_VarNameInput.GetString() == "" )
-            {
-                m_ScreenMgr->Alert( "Invalid Var Name" );
+                bool add_parm = false;
+                string ParmID( m_ParmPicker.GetParmChoice() );
+                Parm *p = ParmMgr.FindParm( ParmID );
+                if ( p )
+                {
+                    string name = p->GetName();
+                    if ( !edit_link->DuplicateVarName( name ) )
+                    {
+                        if ( gui_device == &m_PickInput )
+                        {
+                            AddInput( ParmID, name );
+                            add_parm = true;
+                        }
+                        else
+                        {
+                            AddOutput( ParmID, name );
+                            add_parm = true;
+                        }
+                    }
+                }
+
+                if ( !add_parm )
+                {
+                    m_ScreenMgr->Alert( "Duplicate Var Name" );
+                }
             }
             else if ( gui_device == &m_PickInput )
             {
