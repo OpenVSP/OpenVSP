@@ -3112,7 +3112,28 @@ void FeaMeshMgrSingleton::WriteAssemblyNASTRAN( FILE *dat_fp, FILE *bdf_header_f
         }
 
         // Write bulk data to temp file
-        fprintf( bdf_header_fp, "BEGIN BULK\n" );
+        fprintf(bdf_header_fp, "$EXECUTIVE CONTROL DECK\n");
+        fprintf(bdf_header_fp, "ID TEMP\n");
+        fprintf(bdf_header_fp, "SOL 1\n");
+        fprintf(bdf_header_fp, "CEND\n");
+        fprintf(bdf_header_fp, "$CASE CONTROL DECK\n");
+        fprintf(bdf_header_fp, "DISPLACEMENT(PRINT,PLOT) = ALL\n");
+        fprintf(bdf_header_fp, "ECHO = UNSORT\n");
+        fprintf(bdf_header_fp, "ELDATA(5,PRINT) = ALL\n");
+        fprintf(bdf_header_fp, "FORCE(PRINT,PLOT) = ALL\n");
+        fprintf(bdf_header_fp, "GPFORCE = ALL\n");
+        fprintf(bdf_header_fp, "MPCFORCES(PRINT,PLOT) = ALL\n");
+        fprintf(bdf_header_fp, "OLOAD(PRINT,PLOT) = ALL\n");
+        fprintf(bdf_header_fp, "SPC = 1\n");
+        fprintf(bdf_header_fp, "SPCFORCES(PRINT,PLOT) = ALL\n");
+        fprintf(bdf_header_fp, "STRESS(PRINT,PLOT) = ALL\n");
+        fprintf(bdf_header_fp, "STRAIN(PRINT,PLOT) = ALL\n");
+        fprintf(bdf_header_fp, "SUBTITLE = TEMP\n");
+        fprintf(bdf_header_fp, "TITLE = TEMP LOAD CASES\n");
+        fprintf(bdf_header_fp, "SUBCASE 1\n");
+        fprintf(bdf_header_fp, "    LABEL = TEMPSUB\n");
+        fprintf(bdf_header_fp, "    LOAD = 1\n");
+        fprintf(bdf_header_fp, "BEGIN BULK\n");
 
         int set_cnt = 1;
 
