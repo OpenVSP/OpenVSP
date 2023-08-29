@@ -685,59 +685,59 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
         // Generate the base name based on the vsp3filename without the extension
         int pos = -1;
 
-                m_VSPGeomFileFull = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
-                m_CompGeomFileFull = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
+        m_VSPGeomFileFull = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
+        m_CompGeomFileFull = veh->getExportFileName( vsp::VSPAERO_VSPGEOM_TYPE );
 
-                m_ModelNameBase = m_VSPGeomFileFull;
-                pos = m_ModelNameBase.find( ".vspgeom" );
-                if ( pos >= 0 )
-                {
-                    m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
-                }
+        m_ModelNameBase = m_VSPGeomFileFull;
+        pos = m_ModelNameBase.find( ".vspgeom" );
+        if ( pos >= 0 )
+        {
+            m_ModelNameBase.erase( pos, m_ModelNameBase.length() - 1 );
+        }
 
-                m_CompGeomFileFull = m_ModelNameBase + string( ".tri" );
+        m_CompGeomFileFull = m_ModelNameBase + string( ".tri" );
 
-            m_DegenFileFull     = m_ModelNameBase + string( "_DegenGeom.csv" );
-            m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
-            m_AdbFile           = m_ModelNameBase + string( ".adb" );
-            m_HistoryFile       = m_ModelNameBase + string( ".history" );
-            m_PolarFile         = m_ModelNameBase + string( ".polar" );
-            m_LoadFile          = m_ModelNameBase + string( ".lod" );
+        m_DegenFileFull     = m_ModelNameBase + string( "_DegenGeom.csv" );
+        m_SetupFile         = m_ModelNameBase + string( ".vspaero" );
+        m_AdbFile           = m_ModelNameBase + string( ".adb" );
+        m_HistoryFile       = m_ModelNameBase + string( ".history" );
+        m_PolarFile         = m_ModelNameBase + string( ".polar" );
+        m_LoadFile          = m_ModelNameBase + string( ".lod" );
 
-            if ( m_StabilityType() == vsp::STABILITY_P_ANALYSIS )
-            {
-                m_StabFile = m_ModelNameBase + string( ".pstab" );
-            }
-            else if ( m_StabilityType() == vsp::STABILITY_Q_ANALYSIS )
-            {
-                m_StabFile = m_ModelNameBase + string( ".qstab" );
-            }
-            else if ( m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
-            {
-                m_StabFile = m_ModelNameBase + string( ".rstab" );
-            }
-            else if ( m_StabilityType() == vsp::STABILITY_PITCH )
-            {
-                m_StabFile = m_ModelNameBase + string( ".aerocenter.stab" );
-            }
-            else
-            {
-                m_StabFile = m_ModelNameBase + string( ".stab" );
-            }
+        if ( m_StabilityType() == vsp::STABILITY_P_ANALYSIS )
+        {
+            m_StabFile = m_ModelNameBase + string( ".pstab" );
+        }
+        else if ( m_StabilityType() == vsp::STABILITY_Q_ANALYSIS )
+        {
+            m_StabFile = m_ModelNameBase + string( ".qstab" );
+        }
+        else if ( m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
+        {
+            m_StabFile = m_ModelNameBase + string( ".rstab" );
+        }
+        else if ( m_StabilityType() == vsp::STABILITY_PITCH )
+        {
+            m_StabFile = m_ModelNameBase + string( ".aerocenter.stab" );
+        }
+        else
+        {
+            m_StabFile = m_ModelNameBase + string( ".stab" );
+        }
 
-            m_CutsFile          = m_ModelNameBase + string( ".cuts" );
-            m_SliceFile         = m_ModelNameBase + string( ".slc" );
-            m_GroupsFile        = m_ModelNameBase + string( ".groups" );
+        m_CutsFile          = m_ModelNameBase + string( ".cuts" );
+        m_SliceFile         = m_ModelNameBase + string( ".slc" );
+        m_GroupsFile        = m_ModelNameBase + string( ".groups" );
 
-            for ( size_t i = 0; i < m_GroupResFiles.size(); i++ )
-            {
-                m_GroupResFiles[i] = m_ModelNameBase + string( ".group." ) + to_string( i + 1 );
-            }
+        for ( size_t i = 0; i < m_GroupResFiles.size(); i++ )
+        {
+            m_GroupResFiles[i] = m_ModelNameBase + string( ".group." ) + to_string( i + 1 );
+        }
 
-            for ( size_t i = 0; i < m_RotorResFiles.size(); i++ )
-            {
-                m_RotorResFiles[i] = m_ModelNameBase + string( ".rotor." ) + to_string( i + 1 );
-            }
+        for ( size_t i = 0; i < m_RotorResFiles.size(); i++ )
+        {
+            m_RotorResFiles[i] = m_ModelNameBase + string( ".rotor." ) + to_string( i + 1 );
+        }
 
         for ( size_t i = 0; i < m_UnsteadyGroupResNames.size(); i++ )
         {
