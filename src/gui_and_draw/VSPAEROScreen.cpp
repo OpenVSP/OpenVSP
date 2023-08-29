@@ -1140,7 +1140,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_ViewerButton )
         {
-            if( !veh->GetVIEWERFound() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || m_ViewerProcess.IsRunning() )
+            if( !veh->GetVIEWERFound() || !FileExist( VSPAEROMgr.m_AdbFile ) || m_ViewerProcess.IsRunning() )
             { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
             else
             {
