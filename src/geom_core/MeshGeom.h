@@ -137,7 +137,7 @@ public:
     virtual void CreateGeomResults( Results* res );
 
     virtual void CreatePtCloudGeom();
-    virtual void CreateNGonMeshGeom();
+    virtual string CreateNGonMeshGeom();
 
     virtual void Scale();
 

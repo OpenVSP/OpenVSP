@@ -1807,7 +1807,7 @@ void MeshGeom::CreatePtCloudGeom()
     }
 }
 
-void MeshGeom::CreateNGonMeshGeom()
+string MeshGeom::CreateNGonMeshGeom()
 {
     BuildIndexedMesh( 0 );
     IdentifyWakes();
@@ -1816,7 +1816,7 @@ void MeshGeom::CreateNGonMeshGeom()
     string id = m_Vehicle->AddGeom( type );
     if ( !id.compare( "NONE" ) )
     {
-        return;
+        return id;
     }
 
     NGonMeshGeom* new_geom = ( NGonMeshGeom* ) m_Vehicle->FindGeom( id );
@@ -1838,6 +1838,7 @@ void MeshGeom::CreateNGonMeshGeom()
         m_Vehicle->UpdateGUI();
 
     }
+    return id;
 }
 
 void MeshGeom::Scale()
