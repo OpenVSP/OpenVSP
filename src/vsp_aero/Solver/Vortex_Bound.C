@@ -43,6 +43,8 @@ void VORTEX_BOUND::init(void)
     BoundVortexList_ = NULL;
        
     CoreSize_ = 0.;
+    
+    InitialSpan_ = 0.;
  
 }
 
@@ -161,7 +163,7 @@ void VORTEX_BOUND::Setup(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Trail2)
     int i;
     VSP_NODE NodeA, NodeB;
 
-    NumberOfStartingVortices_ = Trail1.NumberOfSubVortices() + 1;
+    NumberOfStartingVortices_ = Trail1.NumberOfSubVortices();
 
     // Fine level list of bound vortices
 
@@ -186,7 +188,11 @@ void VORTEX_BOUND::Setup(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Trail2)
        BoundVortexList(i).S() = 0.5*( Trail1.S(i) + Trail2.S(i) );
        
     }
- 
+    
+    InitialSpan_ = sqrt( pow(Trail1.VortexEdge(1).X1() - Trail2.VortexEdge(1).X1(),2.)
+                       + pow(Trail1.VortexEdge(1).Y1() - Trail2.VortexEdge(1).Y1(),2.)
+                       + pow(Trail1.VortexEdge(1).Z1() - Trail2.VortexEdge(1).Z1(),2.) );
+     
 }
 
 /*##############################################################################
@@ -231,19 +237,19 @@ void VORTEX_BOUND::InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]
     int i, NumVortices;
     VSPAERO_DOUBLE dq[3];
 
-    NumVortices = MIN(CurrentTimeStep_ + 1, NumberOfStartingVortices_);
+    NumVortices = MIN(CurrentTimeStep_ - 1, NumberOfStartingVortices_);
 
     // Calculate induced velocity
-    
+
     q[0] = q[1] = q[2] = 0.;
     
     for ( i = 1 ; i <= NumVortices ; i++ ) {
 
        BoundVortexList_[i].InducedVelocity(xyz_p,dq,CoreSize_);
 
-       q[0] += dq[0];
-       q[1] += dq[1];
-       q[2] += dq[2];
+    //  q[0] += dq[0];
+    //  q[1] += dq[1];
+    //  q[2] += dq[2];
 
     }      
 
@@ -258,14 +264,22 @@ void VORTEX_BOUND::InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]
 void VORTEX_BOUND::UpdateGamma(void)
 {
 
-    int i;
+    int i, NumVortices;
     
-    for ( i = 1 ; i <= NumberOfStartingVortices_ ; i++ ) {
-       
+    NumVortices = MIN(CurrentTimeStep_, NumberOfStartingVortices_);
+
+    for ( i = 1 ; i <= NumVortices ; i++ ) {
+
        BoundVortexList_[i].Gamma() = Gamma_[i];
        
     }
     
+    for ( i = NumVortices + 1 ; i <= NumberOfStartingVortices_ ; i++ ) {
+       
+       BoundVortexList_[i].Gamma() = 0.;
+       
+    }
+        
 }
 
 /*##############################################################################
@@ -299,9 +313,13 @@ void VORTEX_BOUND::UpdateGeometryLocation(VORTEX_TRAIL &Trail1, VORTEX_TRAIL &Tr
        BoundVortexList(i).Sigma() = 0.5*( Trail1.Sigma() + Trail2.Sigma() );
        
        BoundVortexList(i).S() = 0.5*( Trail1.S(i) + Trail2.S(i) );
-       
+              
     }
- 
+    
+    InitialSpan_ = sqrt( pow(Trail1.VortexEdge(1).X1() - Trail2.VortexEdge(1).X1(),2.)
+                       + pow(Trail1.VortexEdge(1).Y1() - Trail2.VortexEdge(1).Y1(),2.)
+                       + pow(Trail1.VortexEdge(1).Z1() - Trail2.VortexEdge(1).Z1(),2.) );
+     
 }    
 
 /*##############################################################################

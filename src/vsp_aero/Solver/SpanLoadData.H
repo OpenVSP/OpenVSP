@@ -23,6 +23,10 @@ private:
 
     int NumberOfSpanStations_;
     
+    // Surface ID
+    
+    int *SurfaceID_;
+    
     // Component ID
     
     int *ComponentID_;
@@ -67,7 +71,13 @@ private:
     VSPAERO_DOUBLE *Span_Cmyi_;
     VSPAERO_DOUBLE *Span_Cmzi_;
     
-    // Lift, drag, normal, spanwise forces
+    // Viscous lift, drag, spanwise forces
+            
+    VSPAERO_DOUBLE *Span_Clo_;
+    VSPAERO_DOUBLE *Span_Cso_;
+    VSPAERO_DOUBLE *Span_Cdo_;
+        
+    // Inviscid lift, drag, normal, spanwise forces
             
     VSPAERO_DOUBLE *Span_Cn_;
     VSPAERO_DOUBLE *Span_Cl_;
@@ -175,7 +185,11 @@ public:
     
     /** Update the geometry information given a translation vector, and a quaternion rotation **/
     
-   void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
+    void UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
+   
+    /** Surface ID **/
+    
+    int &SurfaceID(int i) { return SurfaceID_[i]; };
     
     /** Component ID **/
     
@@ -257,21 +271,33 @@ public:
 
     VSPAERO_DOUBLE &Span_Cmzi(int i) { return Span_Cmzi_[i]; };
     
-    /** Normal force coefficient **/
+    /** Inviscid normal force coefficient **/
             
     VSPAERO_DOUBLE &Span_Cn(int i) { return Span_Cn_[i]; };
     
-    /** Lift coefficient **/
+    /** Inviscid lift coefficient **/
     
     VSPAERO_DOUBLE &Span_Cl(int i) { return Span_Cl_[i]; };
     
-    /** Side force coefficient **/
+    /** Inviscid side force coefficient **/
     
     VSPAERO_DOUBLE &Span_Cs(int i) { return Span_Cs_[i]; };
     
-    /** Drag coefficient **/
+    /** Inviscid drag coefficient **/
     
     VSPAERO_DOUBLE &Span_Cd(int i) { return Span_Cd_[i]; };
+
+    /** Viscous lift coefficient **/
+    
+    VSPAERO_DOUBLE &Span_Clo(int i) { return Span_Clo_[i]; };
+    
+    /** Viscous side force coefficient **/
+    
+    VSPAERO_DOUBLE &Span_Cso(int i) { return Span_Cso_[i]; };
+    
+    /** Viscous drag coefficient **/
+    
+    VSPAERO_DOUBLE &Span_Cdo(int i) { return Span_Cdo_[i]; };
     
     /** Minimum Cp at this span station **/
     

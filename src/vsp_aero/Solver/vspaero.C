@@ -26,8 +26,8 @@ using namespace VSPAERO_SOLVER;
 #endif
 
 #define VER_MAJOR 6
-#define VER_MINOR 4
-#define VER_PATCH 8
+#define VER_MINOR 5
+#define VER_PATCH 0
 
 // Some globals...
 
@@ -158,6 +158,7 @@ VSPAERO_DOUBLE dCMn_wrt[MAXRUNCASES];
 FILE *StabFile;
 FILE *VorviewFlt;
 
+/** this is a test **/
 int WakeIterations_                = 0;
 int NumberOfRotors_                = 0;
 int NumStabCases_                  = 7;
@@ -196,16 +197,18 @@ int DoComplexDiffTest              = 0;
 int DoFiniteDiffTest               = 0;
 int FlowIs2D                       = 0;
 int AdjointUsePreviousSolution_    = 0;
+int SolveOnMGLevel_                = 0;
+int doQuest                        = 0;
 
 // Prototypes
 
 int main(int argc, char **argv);
 void PrintUsageHelp();
 void ParseInput(int argc, char *argv[]);
-void CreateInputFile(char *argv[], int argc, int &i);
 void LoadCaseFile(void);
 void ApplyControlDeflections(void);
 void Solve(void);
+void QuestSolve(void);
 void StabilityAndControlSolve(void);
 void CalculateStabilityDerivatives(void);
 void WriteOutVorviewFLTFile(void);
@@ -274,7 +277,7 @@ int main(int argc, char **argv)
         
     // Read in FEM deformation file
     
-    if ( LoadFEMDeformation_ ) VSP_VLM().LoadFEMDeformation() = 1;
+//broken    if ( LoadFEMDeformation_ ) VSP_VLM().LoadFEMDeformation() = 1;
     
     // Do ground effects analysis
     
@@ -361,10 +364,16 @@ int main(int argc, char **argv)
     // Force flow into '2D' mode
     
     if ( FlowIs2D ) VSP_VLM().FlowIs2D() = 1;
+    
+    // User choosing specific grid level to set as finest level
+    
+    if ( SolveOnMGLevel_ > 0 ) VSP_VLM().SolveOnMGLevel() = SolveOnMGLevel_;
                    
     // Setup
 
     VSP_VLM().Setup();
+
+PRINTF("fuck... \n");fflush(NULL);
 
     // Force no wakes for some number of iterations
     
@@ -508,7 +517,8 @@ void PrintUsageHelp()
        PRINTF(" -interrogate -unsteady             Reload an existing unsteady solution, and interrogate the data using survey points list. \n");
        PRINTF("\n");                                                   
        PRINTF(" -2d                                Turn off trailing wakes and approximate 2D flow \n");
-       PRINTF("\n");                                                   
+       PRINTF("\n");
+       PRINTF(" -quest                             Runs Quest\n");                                                                                                   
        PRINTF(" -setup                             Write template *.vspaero file, can specify parameters below:\n");
        PRINTF("     -sref  <S>                     Reference area S.\n");
        PRINTF("     -bref  <b>                     Reference span b.\n");
@@ -757,17 +767,7 @@ void ParseInput(int argc, char *argv[])
           DumpGeom_ = 1;
           
        }           
-       
-       else if ( strcmp(argv[i],"-setup") == 0 ) {
 
-          PRINTF("Creating vspaero input file... \n");fflush(NULL);
-          
-          CreateInputFile(argv,argc,i);
-          
-          exit(1);
-          
-       }                
-       
        else if ( strcmp(argv[i],"-nowake") == 0 ) {
 
           NoWakeIteration_ = atoi(argv[++i]);
@@ -927,6 +927,18 @@ void ParseInput(int argc, char *argv[])
           FlowIs2D = 1;
           
        }
+       
+       else if ( strcmp(argv[i],"-mglevel") == 0 ) {
+          
+          SolveOnMGLevel_ = atof(argv[++i]);
+          
+       }
+
+       else if ( strcmp(argv[i], "-quest") == 0) {
+
+         doQuest = 1;
+
+       }
            
        else if ( strcmp(argv[i],"END") == 0 ) {
 
@@ -939,7 +951,6 @@ void ParseInput(int argc, char *argv[])
        else {
 
           PRINTF("Unknown option argv[%d]: %s \n",i,argv[i]);
-          
           PrintUsageHelp();
 
           exit(1);
@@ -950,412 +961,6 @@ void ParseInput(int argc, char *argv[])
 
     }
 
-}
-
-/*##############################################################################
-#                                                                              #
-#                                   CreateInputFile                            #
-#                                                                              #
-##############################################################################*/
-
-void CreateInputFile(char *argv[], int argc, int &i)
-{
-
-    int k, p, k2, p2, NumberOfControlGroups, Group, NumControls;
-    int NumberOfUsedRotors, *RotorIsUsed;
-    FILE *case_file;
-    char file_name_w_ext[2000], SymmetryFlag[80];
-    
-    // Defaults
-    
-    Sref_              = 1.0;
-    Cref_              = 1.0;  
-    Bref_              = 1.0; 
-    Xcg_               = 0.0;
-    Ycg_               = 0.0;
-    Zcg_               = 0.0;
-    Mach_              = 0.3;
-    AoA_               = 5.0;
-    Beta_              = 0.0;
-    Vinf_              = 100.;
-    Vref_              = 100.;
-    Machref_           = 0.3;    
-    Rho_               = 0.002377;
-    ReCref_            = 10000000.;
-    ClMax_             = -1.;
-    Clo2D_             =  0.;    
-    MaxTurningAngle_   = -1.;
-    FarDist_           = -1.;
-    NumberOfWakeNodes_ = -1;
-    WakeIterations_    = 5;
-    NumberOfRotors_    = 0;
-    
-    NumberOfMachs_     = 1;
-    NumberOfAoAs_      = 1;
-    NumberOfBetas_     = 1;    
-    
-    MachList_[1] = Mach_;
-    AoAList_[1] = AoA_;
-    BetaList_[1] = Beta_;
-
-    SPRINTF(SymmetryFlag,"NO");
-        
-    // Read in the degen geometry file
-    
-    VSP_VLM().ReadFile(FileName);
-
-    // Open the case file
-
-    SPRINTF(file_name_w_ext,"%s.vspaero",FileName);
-
-    if ( (case_file = fopen(file_name_w_ext,"w")) == NULL ) {
-
-       PRINTF("Could not open the file: %s for input! \n",file_name_w_ext);
-
-       exit(1);
-
-    }
-    
-    // Check for any user supplied values on the command line
-    
-    while ( i <= argc - 2 ) {
-    
-       if ( strcmp(argv[i],"-sref") == 0 ) {
-          
-          Sref_ = atof(argv[++i]);
-          
-       }
-
-       else if ( strcmp(argv[i],"-cref") == 0 ) {
-          
-          Cref_ = atof(argv[++i]);
-          
-       }
-       
-       else if ( strcmp(argv[i],"-bref") == 0 ) {
-          
-          Bref_ = atof(argv[++i]);
-          
-       }                     
-
-       else if ( strcmp(argv[i],"-cg") == 0 ) {
-          
-          Xcg_ = atof(argv[++i]);
-          
-          Ycg_ = atof(argv[++i]);
-          
-          Zcg_ = atof(argv[++i]);
-          
-       }     
-       
-       else if ( strcmp(argv[i],"-mach") == 0 ) {
-          
-          NumberOfMachs_ = 0;
-          
-          while ( strcmp(argv[i+1],"END") != 0 ) {
-          
-             MachList_[++NumberOfMachs_] = atof(argv[++i]);
-          
-          }
-          
-       }     
-       
-       else if ( strcmp(argv[i],"-aoa") == 0 ) {
-          
-          NumberOfAoAs_ = 0;
-          
-          while ( strcmp(argv[i+1],"END") != 0 ) {
-          
-             AoAList_[++NumberOfAoAs_] = atof(argv[++i]);
-             
-          }
-
-       }     
-       
-       else if ( strcmp(argv[i],"-beta") == 0 ) {
-          
-          NumberOfBetas_ = 0;    
-          
-          while ( strcmp(argv[i+1],"END") != 0 ) {
-          
-             BetaList_[++NumberOfBetas_] = atof(argv[++i]);
-             
-          }          
-          
-       }    
-       
-       else if ( strcmp(argv[i],"-symx") == 0 ) {
-          
-          SPRINTF(SymmetryFlag,"X");
-          
-          DoSymmetry_ = SYM_X;
-          
-       }         
-         
-       else if ( strcmp(argv[i],"-symy") == 0 ) {
-          
-          SPRINTF(SymmetryFlag,"Y");
-          
-          DoSymmetry_ = SYM_Y;
-          
-       }  
-       
-       else if ( strcmp(argv[i],"-symz") == 0 ) {
-          
-          SPRINTF(SymmetryFlag,"Z");
-          
-          DoSymmetry_ = SYM_Z;
-          
-       }  
-                     
-       else if ( strcmp(argv[i],"-wakeiters") == 0 ) {
-
-          WakeIterations_ = atoi(argv[++i]);
-
-       }
-       i++; 
-       
-    }
-                                
-    FPRINTF(case_file,"Sref = %lf \n",Sref_);
-    FPRINTF(case_file,"Cref = %lf \n",Cref_);
-    FPRINTF(case_file,"Bref = %lf \n",Bref_);
-    FPRINTF(case_file,"X_cg = %lf \n",Xcg_);
-    FPRINTF(case_file,"Y_cg = %lf \n",Ycg_);
-    FPRINTF(case_file,"Z_cg = %lf \n",Zcg_);
-    
-    FPRINTF(case_file,"Mach = "); for ( i = 1 ; i < NumberOfMachs_ ; i++ ) { FPRINTF(case_file,"%lf, ",MachList_[i]); }; FPRINTF(case_file,"%lf \n",MachList_[NumberOfMachs_]);
-    FPRINTF(case_file,"AoA = ");  for ( i = 1 ; i < NumberOfAoAs_  ; i++ ) { FPRINTF(case_file,"%lf, ", AoAList_[i]); }; FPRINTF(case_file,"%lf \n", AoAList_[NumberOfAoAs_]);
-    FPRINTF(case_file,"Beta = "); for ( i = 1 ; i < NumberOfBetas_ ; i++ ) { FPRINTF(case_file,"%lf, ",BetaList_[i]); }; FPRINTF(case_file,"%lf \n",BetaList_[NumberOfBetas_]);
-    
-    FPRINTF(case_file,"Vinf = %lf \n",Vinf_);
-    FPRINTF(case_file,"Vref = %lf \n",Vref_);
-    FPRINTF(case_file,"Machref = %lf \n",Machref_);
-    FPRINTF(case_file,"Rho = %lf \n",Rho_);
-    FPRINTF(case_file,"ReCref = %lf \n",ReCref_);
-    FPRINTF(case_file,"ClMax = %lf \n",ClMax_);
-    FPRINTF(case_file,"Clo2D = %lf \n",Clo2D_);    
-    FPRINTF(case_file,"MaxTurningAngle = %lf \n",MaxTurningAngle_);
-    FPRINTF(case_file,"Symmetry = %s \n",SymmetryFlag);
-    FPRINTF(case_file,"FarDist = %lf \n",FarDist_);
-    FPRINTF(case_file,"NumWakeNodes = %d \n",NumberOfWakeNodes_);
-    FPRINTF(case_file,"WakeIters = %d \n",WakeIterations_);
-    
-    PRINTF("VSP_VLM().VSPGeom().NumberOfRotors(): %d \n",VSP_VLM().VSPGeom().NumberOfRotors());
-    
-    if ( VSP_VLM().VSPGeom().NumberOfRotors() != 0 ) NumberOfRotors_ = VSP_VLM().VSPGeom().NumberOfRotors();
- 
-    NumberOfUsedRotors = 0;
-       
-    // Adjust rotors for symmetry
-    
-    if ( NumberOfRotors_ > 0 ) {
-       
-       RotorIsUsed = new int[NumberOfRotors_ + 1];
-       
-       zero_int_array(RotorIsUsed, NumberOfRotors_);
-    
-       if ( DoSymmetry_ == SYM_X ) {
-          
-          for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
-             
-             if ( VSP_VLM().VSPGeom().RotorDisk(i).XYZ(0) >= 0. ) { NumberOfUsedRotors++ ; RotorIsUsed[i] = 1; };
-             
-          }
-          
-       }
-       
-       if ( DoSymmetry_ == SYM_Y ) {
-                 
-          for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
-             
-             if ( VSP_VLM().VSPGeom().RotorDisk(i).XYZ(1) >= 0. ) { NumberOfUsedRotors++ ; RotorIsUsed[i] = 1; };
-             
-          }
-          
-       }
-       
-       if ( DoSymmetry_ == SYM_Z ) {
-          
-          for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
-             
-             if ( VSP_VLM().VSPGeom().RotorDisk(i).XYZ(2) >= 0. ) { NumberOfUsedRotors++ ; RotorIsUsed[i] = 1; };
-             
-          }
-          
-       }       
-       
-       if ( DoSymmetry_ == 0 ) {
-          
-          for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
-             
-             NumberOfUsedRotors++ ; RotorIsUsed[i] = 1;;
-             
-          }
-          
-       }       
-       
-       FPRINTF(case_file,"NumberOfRotors = %d \n",NumberOfUsedRotors);
-       
-       for ( i = 1 ;  i <= NumberOfRotors_ ; i++ ) {
-          
-          if ( RotorIsUsed[i] ) {
-             
-             FPRINTF(case_file,"PropElement_%-d\n",i);
-             FPRINTF(case_file,"%d\n",i);
-             
-             VSP_VLM().VSPGeom().RotorDisk(i).Write_STP_Data(case_file);
-             
-          }
-          
-       }
-        
-       delete [] RotorIsUsed;
-       
-    }
-    
-    else {
-       
-       FPRINTF(case_file,"NumberOfRotors = %d \n",NumberOfUsedRotors);
-       
-    }
-    
-    // Control surface groups
-    
-    NumberOfControlGroups = 0;
-    
-    for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k++ ) {
-            
-      for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
-         
-         NumberOfControlGroups++;
-         
-      }
-      
-    }
-
-    for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k++ ) {
-            
-       for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
-          
-          for ( k2 = k ; k2 <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k2++ ) {
-            
-             for ( p2 = p ; p2 <= VSP_VLM().VSPGeom().VSP_Surface(k2).NumberOfControlSurfaces() ; p2++ ) {
-                
-                if ( (p != p2) || ( k != k2 ) ) {
-            
-                   if ( strcmp(VSP_VLM().VSPGeom().VSP_Surface(k ).ControlSurface(p ).Name(),
-                               VSP_VLM().VSPGeom().VSP_Surface(k2).ControlSurface(p2).Name() ) == 0 ) {
-
-                       PRINTF( "\nERROR - duplicate control surface name: %s\n", VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() );
-                       PRINTF( "\tSurface 1 [VSP_Surface].[ControlSurface]: %s.%s\n", VSP_VLM().VSPGeom().VSP_Surface( k ).ComponentName(), VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() );
-                       PRINTF( "\tSurface 2 [VSP_Surface].[ControlSurface]: %s.%s\n", VSP_VLM().VSPGeom().VSP_Surface( k2 ).ComponentName(), VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).Name() );
-
-                       NumberOfControlGroups--; // this ensures unique names for all sub-surfaces deflecting a control surface requires a unique name
-                      
-                   }
-                               
-                }
-                
-             }
-             
-          }
-          
-       }
-       
-    }
-
-    FPRINTF(case_file,"NumberOfControlGroups = %d \n",NumberOfControlGroups);
-
-    // Group control surfaces and write successful groupings to string buffer
-
-    char tempStrBuf[2000];
-    char controlGroupStrBuf[10000];
-    strcpy( controlGroupStrBuf, "\0" );
-   
-    // Control surface groups
-   
-    NumberOfControlGroups = 0;
-   
-    Group = 0;
-   
-    for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k++ ) {
-        
-       for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
-   
-          if ( VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).ControlGroup() == 0 ) {
-      
-             Group++;
-      
-             NumControls = 1;
-   
-             SPRINTF( tempStrBuf,"ControlGroup_%d\n",Group);
-             strcat( controlGroupStrBuf, tempStrBuf );
-   
-             SPRINTF( tempStrBuf,"%s",VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name());
-             strcat( controlGroupStrBuf, tempStrBuf );
-         
-             for ( k2 = k ; k2 <= VSP_VLM().VSPGeom().NumberOfSurfaces() ; k2++ ) {
-           
-                for ( p2 = p ; p2 <= VSP_VLM().VSPGeom().VSP_Surface(k2).NumberOfControlSurfaces() ; p2++ ) {
-               
-                   if ( (p != p2) || ( k != k2 ) ) {
-   
-                       // Compare parent component name then compare surface short name for grouping
-                       //   Note: the Name field gets filled with a unique name in OpenVSP versions 
-                       //   where the geomID is appended to the name.  This allows for fewer naming 
-                       //   restrictions on the user
-                       
-                       if ( strcmp( VSP_VLM().VSPGeom().VSP_Surface( k  ).ComponentName(),
-                                    VSP_VLM().VSPGeom().VSP_Surface( k2 ).ComponentName() ) == 0 ){
-   
-                           if ( strcmp( VSP_VLM().VSPGeom().VSP_Surface( k  ).ControlSurface( p  ).ShortName(),
-                                        VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).ShortName() ) == 0 ){
-   
-                             SPRINTF( tempStrBuf,",%s", VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).Name() );
-                             strcat( controlGroupStrBuf, tempStrBuf );
-                     
-                             NumControls++;
-                     
-                             VSP_VLM().VSPGeom().VSP_Surface(k ).ControlSurface(p ).ControlGroup() = Group;
-                             VSP_VLM().VSPGeom().VSP_Surface(k2).ControlSurface(p2).ControlGroup() = Group;
-                     
-                          }
-   
-                       }
-   
-                   }
-               
-                }
-            
-             }
-         
-             strcat( controlGroupStrBuf, "\n" );
-         
-             for ( i = 1 ; i < NumControls ; i++ ) {
-                
-                strcat( controlGroupStrBuf,"1., ");
-                
-             }
-                
-             strcat( controlGroupStrBuf,"1. \n");
-         
-             strcat( controlGroupStrBuf, "10. \n" );
-         
-          }
-      
-       }
-   
-    }
-    
-    NumberOfControlGroups = Group;
-   
-    // Final writing of control surface grouping to the file if successful at grouping
-
-    FPRINTF( case_file, "%s", controlGroupStrBuf );
-
-    fclose(case_file);       
- 
 }
 
 /*##############################################################################
@@ -1371,8 +976,8 @@ void LoadCaseFile(void)
     VSPAERO_DOUBLE x,y,z, DumDouble, HingeVec[3], RotAngle, DeltaHeight;
     VSPAERO_DOUBLE Value, MassFlow, Velocity, DeltaCp;
     FILE *case_file;
-    char file_name_w_ext[2000], DumChar[2000], DumChar2[2000], Comma[2000], *Next;
-    char SymmetryFlag[2000];
+    char file_name_w_ext[20000], DumChar[20000], DumChar2[20000], Comma[20000], *Next;
+    char SymmetryFlag[20000];
     QUAT Quat, InvQuat, Vec;
 
     // Delimiters
@@ -1391,26 +996,27 @@ void LoadCaseFile(void)
 
     }
 
-    Sref_              = 1.0;
-    Cref_              = 1.0;  
-    Bref_              = 1.0; 
-    Xcg_               = 0.0;
-    Ycg_               = 0.0;
-    Zcg_               = 0.0;
-    Mach_              = 0.3;
-    AoA_               = 5.0;
-    Beta_              = 0.0;
-    Vinf_              = 100.;
-    Vref_              = 100.;
-    Machref_           = 0.3;
-    Rho_               = 0.002377;
-    ReCref_            = 10000000.;
-    ClMax_             = -1.;
-    Clo2D_             =  0.;    
-    MaxTurningAngle_   = -1.;
-    FarDist_           = -1.;
-    NumberOfWakeNodes_ = -1;
-    WakeIterations_    = 5;
+    Sref_                 = 1.0;
+    Cref_                 = 1.0;  
+    Bref_                 = 1.0; 
+    Xcg_                  = 0.0;
+    Ycg_                  = 0.0;
+    Zcg_                  = 0.0;
+    Mach_                 = 0.3;
+    AoA_                  = 5.0;
+    Beta_                 = 0.0;
+    Vinf_                 = 100.;
+    Vref_                 = 100.;
+    Machref_              = 0.3;
+    Rho_                  = 0.002377;
+    ReCref_               = 10000000.;
+    ClMax_                = -1.;
+    Clo2D_                =  0.;    
+    MaxTurningAngle_      = -1.;
+    FarDist_              = -1.;
+    NumberOfWakeNodes_    = -1;
+    WakeIterations_       = 3;
+    GMRESReductionFactor_ = 1.;
 
     fscanf(case_file,"Sref = %lf \n",&Sref_);
     fscanf(case_file,"Cref = %lf \n",&Cref_);
@@ -1421,7 +1027,7 @@ void LoadCaseFile(void)
 
     // Load in Mach list
     
-    fgets(DumChar,2000,case_file);
+    fgets(DumChar,20000,case_file);
 
     if ( strstr(DumChar,Comma) == NULL ) {
 
@@ -1493,7 +1099,7 @@ void LoadCaseFile(void)
     
     // Load in AoA list
     
-    fgets(DumChar,2000,case_file);
+    fgets(DumChar,20000,case_file);
 
     if ( strstr(DumChar,Comma) == NULL ) {
 
@@ -1565,7 +1171,7 @@ void LoadCaseFile(void)
     
     // Load in Beta list
     
-    fgets(DumChar,2000,case_file);
+    fgets(DumChar,20000,case_file);
 
     if ( strstr(DumChar,Comma) == NULL ) {
 
@@ -1639,7 +1245,7 @@ void LoadCaseFile(void)
     
     // Look for Vref
     
-    fgets(DumChar,2000,case_file);
+    fgets(DumChar,20000,case_file);
     
     if ( strstr(DumChar,"Vref") != NULL ) {
        
@@ -1647,7 +1253,7 @@ void LoadCaseFile(void)
 
        // Look for Machref
        
-       fgets(DumChar,2000,case_file);
+       fgets(DumChar,20000,case_file);
        
        if ( strstr(DumChar,"Machref") != NULL ) {
           
@@ -1679,7 +1285,7 @@ void LoadCaseFile(void)
 
     // Load in ReCref list
     
-    fgets(DumChar,2000,case_file);
+    fgets(DumChar,20000,case_file);
 
     if ( strstr(DumChar,Comma) == NULL ) {
 
@@ -1723,7 +1329,7 @@ void LoadCaseFile(void)
 
     // Look for Clo2D
     
-    fgets(DumChar,2000,case_file);
+    fgets(DumChar,20000,case_file);
     
     if ( strstr(DumChar,"Clo2D") != NULL ) {    
        
@@ -1911,7 +1517,7 @@ void LoadCaseFile(void)
 
           PRINTF( "NumberOfControlGroups = %d \n", NumberOfControlGroups_ );
 
-          if (NumberOfControlGroups_ < 0) {
+          if ( NumberOfControlGroups_ < 0 ) {
 
               PRINTF( "INVALID NumberOfControlGroups: %d\n", NumberOfControlGroups_ );
 
@@ -2011,7 +1617,7 @@ void LoadCaseFile(void)
                 
                 ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(NumberOfControlSurfaces) = 1;
                 
-                PRINTF("Control surface(%d): %s___ \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces));
+                PRINTF("Control surface(%d): %s \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_Name(NumberOfControlSurfaces));
    
                 while ( Next != NULL ) {
                    
@@ -2400,60 +2006,53 @@ void LoadCaseFile(void)
 
 void ApplyControlDeflections()
 {
-    int i, j, k, p, Found;
+    int i, j, k, Found;
 
     // Set control surface deflections
+ 
+    Found = 0;
+ 
+    for ( i = 1; i <= NumberOfControlGroups_; i++ ) {
 
-    for ( i = 1; i <= NumberOfControlGroups_; i++ )
-    {
+       for ( j = 1 ; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces(); j++ ) {
 
-        for ( j = 1; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces(); j++ )
-        {
+          Found = 0;
+          
+          for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfControlSurfaces() ; k++ ) {
 
-            Found = 0;
+             if ( strstr( VSP_VLM().VSPGeom().ControlSurface(k).Name(), ControlSurfaceGroup_[i].ControlSurface_Name(j) ) != NULL ) {
+
+                 Found = 1;
             
-            k = 1;
+                 VSP_VLM().VSPGeom().ControlSurface(k).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
 
-            while ( k <= VSP_VLM().VSPGeom().NumberOfSurfaces() && !Found )
-            {
-
-                for ( p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface( k ).NumberOfControlSurfaces(); p++ )
-                {
-
-                    if ( strcmp( ControlSurfaceGroup_[i].ControlSurface_Name( j ), VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() ) == 0 )
-                    {
-
-                        Found = 1;
-
-                        VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection( j ) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
-
-                    }
-
-                }
-
-                k++;
-
-            }
-
-            // Print out error report
-            if ( !Found )
-            {
-                PRINTF( "Could not find control surface: %s in control surface group: %s \n",
-                    ControlSurfaceGroup_[i].ControlSurface_Name( j ),
-                    ControlSurfaceGroup_[i].Name() );
-
-                // print out names of all known surfaces
-                PRINTF( "Known control surfaces:\n" );
-                for ( k = 1; k <= VSP_VLM().VSPGeom().NumberOfSurfaces(); k++ )
-                {
-                    for ( p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface( k ).NumberOfControlSurfaces(); p++ )
-                    {
-                        PRINTF( "\t%20s\n", VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() );
-                    }
-                }
-            }
-
-        }
+             }
+ 
+          }
+          
+          // Print out error report
+          
+          if ( !Found ) {
+             
+              PRINTF("Could not find control surface: %s in control surface group: %s \n",
+                     ControlSurfaceGroup_[i].ControlSurface_Name(j),
+                     ControlSurfaceGroup_[i].Name() );
+    
+              // print out names of all known surfaces
+              
+              PRINTF( "Known control surfaces:\n" );
+              
+              for ( k = 1 ; k <= VSP_VLM().VSPGeom().NumberOfControlSurfaces() ; k++ ) {
+                 
+                 PRINTF( "\t%20s\n", VSP_VLM().VSPGeom().ControlSurface(k).Name() );
+              
+              }
+              
+              fflush(NULL);exit(1);
+         
+          }
+       
+       }
 
     }
 
@@ -2725,6 +2324,179 @@ void Solve(void)
 
 /*##############################################################################
 #                                                                              #
+#                               Quest Solve                                    #
+#                                                                              #
+##############################################################################*/
+void QuestSolve(void)
+{
+   int i, j, k, p, Case, NumCases, *CaseList;
+   VSPAERO_DOUBLE AR, E;
+   char PolarFileName[2000];
+   FILE *PolarFile;
+   
+   ApplyControlDeflections();
+    
+   NumCases = NumberOfBetas_;  
+   Case = 0;
+
+   for ( i = 1 ; i <= NumberOfBetas_ ; i++ ) {
+      std::cout << "BETAS: " << NumberOfBetas_;
+      Case++;
+
+      // Set free stream conditions
+      VSP_VLM().AngleOfBeta()   = BetaList_[Case] * TORAD;
+      VSP_VLM().Mach()          = MachList_[Case];  
+      VSP_VLM().AngleOfAttack() = AoAList_[Case] * TORAD;
+
+      ReCref_ = ReCrefList_[1];
+
+      VSP_VLM().ReCref() = ReCref_;
+      
+      VSP_VLM().ReCalculateForces();
+
+      VSP_VLM().RotationalRate_p() = 0.;
+      VSP_VLM().RotationalRate_q() = 0.;
+      VSP_VLM().RotationalRate_r() = 0.;
+
+      // Set a comment line
+      SPRINTF(VSP_VLM().CaseString(),"Case: %-d ...",Case);
+      
+      if ( DoGroundEffectsAnalysis_ ) SPRINTF(VSP_VLM().CaseString(),"AoA: %7.3f ... H: %8.3f",-VSP_VLM().VehicleRotationAngleVector(1),HeightAboveGround_);
+
+      // Solve this case
+
+      if ( SaveRestartFile_ ) VSP_VLM().SaveRestartFile() = 1;
+
+      if ( DoRestartRun_    ) VSP_VLM().DoRestart() = 1;
+      
+      if ( Case == 1 || Case < NumCases ) {
+         
+         if ( DoAdjointSolve_ ) {
+            
+            VSP_VLM().Optimization_Solve(Case); 
+         
+         }
+         
+         else if ( RestartAndInterrogateSolution_ ) {
+            
+            VSP_VLM().RestartAndInterrogateSolution(Case);
+            
+         }
+         
+         else {
+   
+            VSP_VLM().Solve(Case);
+            
+         }
+         
+      }  
+      
+      else {
+      
+         if ( DoAdjointSolve_ ) {
+            
+            VSP_VLM().Optimization_Solve(-Case); 
+         
+         }
+
+         else if ( RestartAndInterrogateSolution_ ) {
+            
+            VSP_VLM().RestartAndInterrogateSolution(-Case);
+            
+         }
+                        
+         else {
+                           
+            VSP_VLM().Solve(-Case);
+            
+         }
+         
+      }
+
+      // Store aero coefficients
+      CLForCase[Case] = VSP_VLM().CL() + VSP_VLM().CLo(); 
+      CDForCase[Case] = VSP_VLM().CD() + VSP_VLM().CDo();       
+      CSForCase[Case] = VSP_VLM().CS() + VSP_VLM().CSo();        
+      
+      CDoForCase[Case] = VSP_VLM().CDo();     
+      
+      CDtForCase[Case] = VSP_VLM().CDTrefftz();        
+      
+      CFxForCase[Case] = VSP_VLM().CFx() + VSP_VLM().CFxo();
+      CFyForCase[Case] = VSP_VLM().CFy() + VSP_VLM().CFyo();       
+      CFzForCase[Case] = VSP_VLM().CFz() + VSP_VLM().CFzo();       
+         
+      CMxForCase[Case] = VSP_VLM().CMx() + VSP_VLM().CMxo();      
+      CMyForCase[Case] = VSP_VLM().CMy() + VSP_VLM().CMyo();      
+      CMzForCase[Case] = VSP_VLM().CMz() + VSP_VLM().CMzo();    
+      
+      CMlForCase[Case] = -CMxForCase[Case];    
+      CMmForCase[Case] =  CMyForCase[Case];       
+      CMnForCase[Case] = -CMzForCase[Case];        
+      
+      OptimizationFunctionForCase[Case] = 0.;
+      
+      if ( OptimizationFunction_ ) OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();
+
+      PRINTF("\n"); 
+   }
+
+   // Write out final integrated force data
+   
+   SPRINTF(PolarFileName,"%s.polar",FileName);
+
+   if ( (PolarFile = fopen(PolarFileName,"w")) == NULL ) {
+
+      PRINTF("Could not open the polar file output! \n");
+
+      exit(1);
+
+   }    
+
+                     //1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456 1234567890123456      
+    FPRINTF(PolarFile,"      Beta             Mach             AoA             Re/1e6             CL              CDo              CDi             CDtot             CDt            CDtot_t             CS              L/D               E               CFx              CFy              CFz              CMx              CMy              CMz              CMl              CMm              CMn              FOpt \n");
+
+    // Write out polars, note these are written out in a different order than they were calculated above - we group them by Re number
+    
+    for ( i = 1; i <= NumCases; i++) {
+      Case = i;
+
+      AR = Bref_ * Bref_ / Sref_;
+         
+      E = ( CLForCase[Case] * CLForCase[Case] / ( PI * AR) ) / CDForCase[Case];
+                  
+      FPRINTF(PolarFile,"%16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf %16.12lf\n",             
+               DOUBLE(BetaList_[Case]),
+               DOUBLE(MachList_[Case]),
+               DOUBLE(AoAList_[Case]),
+               DOUBLE(ReCrefList_[Case])/1.e6,
+               DOUBLE(CLForCase[Case]),
+               DOUBLE(CDoForCase[Case]),
+               DOUBLE(CDForCase[Case] - CDoForCase[Case]),
+               DOUBLE(CDForCase[Case]),
+               DOUBLE(CDtForCase[Case]),
+               DOUBLE(CDoForCase[Case] + CDtForCase[Case]),
+               DOUBLE(CSForCase[Case]),            
+               DOUBLE(CLForCase[Case]/(CDForCase[Case])),
+               DOUBLE(E),
+               DOUBLE(CFxForCase[Case]),
+               DOUBLE(CFyForCase[Case]),
+               DOUBLE(CFzForCase[Case]),
+               DOUBLE(CMxForCase[Case]),
+               DOUBLE(CMyForCase[Case]),
+               DOUBLE(CMzForCase[Case]),
+               DOUBLE(CMlForCase[Case]),       
+               DOUBLE(CMmForCase[Case]),       
+               DOUBLE(CMnForCase[Case]),
+               DOUBLE(OptimizationFunctionForCase[Case]));
+    }
+    
+    fclose(PolarFile);
+
+}
+
+/*##############################################################################
+#                                                                              #
 #                           StabilityAndControlSolve                           #
 #                                                                              #
 ##############################################################################*/
@@ -2758,6 +2530,10 @@ void StabilityAndControlSolve(void)
        exit(1);
 
     }
+    
+    GMRESReductionFactor_ = MIN(GMRESReductionFactor_,0.01);
+    
+    VSP_VLM().User_GMRES_ToleranceFactor() = GMRESReductionFactor_;
      
     TotalCases = ( NumStabCases_ + NumberOfControlGroups_) * NumberOfMachs_ * NumberOfAoAs_ * NumberOfBetas_;
     
@@ -2932,39 +2708,41 @@ void StabilityAndControlSolve(void)
                 VSP_VLM().Mach()          = Stab_MachList_[1];
                 VSP_VLM().AngleOfAttack() =  Stab_AoAList_[1] * TORAD;
                 VSP_VLM().AngleOfBeta()   = Stab_BetaList_[1] * TORAD;
-         
+             
                 VSP_VLM().RotationalRate_p() = RotationalRate_pList_[1];
                 VSP_VLM().RotationalRate_q() = RotationalRate_qList_[1];
                 VSP_VLM().RotationalRate_r() = RotationalRate_rList_[1];
-
+             
                 // Perturb controls
-
+             
                 Case++;
                 
                 k = 1;
                 
                 for ( j = 1 ; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces() ; j++ ) {
                   
+                   PRINTF("Looking for: %s \n",ControlSurfaceGroup_[i].ControlSurface_Name(j));fflush(NULL);
+                   
                    Found = 0;
-         
-                   while ( k <= VSP_VLM().VSPGeom().NumberOfSurfaces() && !Found ) {
-                     
-                      for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
-              
-                         if ( strcmp(ControlSurfaceGroup_[i].ControlSurface_Name(j), VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name()) == 0 ) {
-                  
-                            Found = 1;
-                           
-                            VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
+             
+                   p = 1;
+                   
+                   while ( p <= VSP_VLM().VSPGeom().NumberOfControlSurfaces() && !Found ) {
+                      
+                      PRINTF("Checking: %s \n",VSP_VLM().VSPGeom().ControlSurface(p).Name());fflush(NULL);
            
-                         }
+                      if ( strstr(VSP_VLM().VSPGeom().ControlSurface(p).Name(), ControlSurfaceGroup_[i].ControlSurface_Name(j)) != NULL ) {
+               
+                         Found = 1;
                         
+                         VSP_VLM().VSPGeom().ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
+          
                       }
-                     
-                      k++;
+                      
+                      p++;
                      
                    }
-                  
+                     
                    if ( !Found ) {
                       
                       PRINTF("Could not find control surface: %s in control surface group: %s \n",
@@ -2978,7 +2756,7 @@ void StabilityAndControlSolve(void)
                 }
                 
                 // Set a comment line
-
+             
                 SPRINTF(VSP_VLM().CaseString(),"Deflecting Control Group: %-d",i);
                
                 // Now solve
@@ -2994,37 +2772,35 @@ void StabilityAndControlSolve(void)
                    VSP_VLM().Solve(-CaseTotal);
                    
                 }         
-                
-                // Store aero coefficients
                    
-                CLForCase[Case] = VSP_VLM().CL() + VSP_VLM().CLo(); 
-                CDForCase[Case] = VSP_VLM().CD() + VSP_VLM().CDo();       
-                CSForCase[Case] = VSP_VLM().CS() + VSP_VLM().CSo();        
+                // Store aero coefficients
+             
+                CLForCase[Case] = VSP_VLM().CL(); 
+                CDForCase[Case] = VSP_VLM().CD();        
+                CSForCase[Case] = VSP_VLM().CS();        
                 
-                CDoForCase[Case] = VSP_VLM().CDo();     
-         
-                CDtForCase[Case] = VSP_VLM().CDTrefftz();        
-         
-                CFxForCase[Case] = VSP_VLM().CFx() + VSP_VLM().CFxo();
-                CFyForCase[Case] = VSP_VLM().CFy() + VSP_VLM().CFyo();       
-                CFzForCase[Case] = VSP_VLM().CFz() + VSP_VLM().CFzo();       
+                CDoForCase[Case] = VSP_VLM().CDo();
+             
+                CFxForCase[Case] = VSP_VLM().CFx();
+                CFyForCase[Case] = VSP_VLM().CFy();       
+                CFzForCase[Case] = VSP_VLM().CFz();       
                     
-                CMxForCase[Case] = VSP_VLM().CMx() + VSP_VLM().CMxo();      
-                CMyForCase[Case] = VSP_VLM().CMy() + VSP_VLM().CMyo();      
-                CMzForCase[Case] = VSP_VLM().CMz() + VSP_VLM().CMzo();    
+                CMxForCase[Case] = VSP_VLM().CMx();       
+                CMyForCase[Case] = VSP_VLM().CMy();       
+                CMzForCase[Case] = VSP_VLM().CMz();    
                 
-                CMlForCase[Case] = -CMxForCase[Case];    
-                CMmForCase[Case] =  CMyForCase[Case];       
-                CMnForCase[Case] = -CMzForCase[Case];           
-                    
+                CMlForCase[Case] = -VSP_VLM().CMx();       
+                CMmForCase[Case] =  VSP_VLM().CMy();       
+                CMnForCase[Case] = -VSP_VLM().CMz();                        
+             
                 OptimizationFunctionForCase[Case] = 0.;
                 
                 if ( OptimizationFunction_ ) OptimizationFunctionForCase[Case] = VSP_VLM().OptimizationFunction();     
-         
+             
                 // Reset Control surface group deflection to un-perturbed control surface deflections
-
+             
                 ApplyControlDeflections();
-
+             
              }
              
              // Now calculate actual stability derivatives 

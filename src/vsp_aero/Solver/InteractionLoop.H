@@ -24,14 +24,18 @@ class LOOP_INTERACTION_ENTRY {
 private:
 
     int Level_;
+
     int Loop_;
 
     int NumberOfVortexEdges_;
     
     VSP_EDGE **SurfaceVortexEdgeInteractionList_;
-    
-public:
 
+    int NumberOfVortexLoops_;
+    
+    VSP_LOOP **SurfaceVortexLoopInteractionList_;
+        
+public:
 
     LOOP_INTERACTION_ENTRY(void);
    ~LOOP_INTERACTION_ENTRY(void);
@@ -39,17 +43,29 @@ public:
 
     LOOP_INTERACTION_ENTRY& operator=(const LOOP_INTERACTION_ENTRY &LoopInteractionEntry);
 
-    /** Size the list **/
+    /** Size the edge list **/
         
-    void SizeList(int NumberOfVortexEdges);
+    void SizeEdgeList(int NumberOfVortexEdges);
     
-    /** Delete the list **/
+    /** Size the loop list **/
     
-    void DeleteList(void);
+    void SizeLoopList(int NumberOfVortexLoops);
     
-    /** Pass in pointer to an existing list... and well, use it ;-) **/
+    /** Delete edge the list **/
     
-    void UseList(int NumberOfVortexEdges, VSP_EDGE **TempList);
+    void DeleteEdgeList(void);
+    
+    /** Delete loop the list **/
+    
+    void DeleteLoopList(void);
+    
+    /** Pass in pointer to an existing edge list... and well, use it ;-) **/
+    
+    void UseEdgeList(int NumberOfVortexEdges, VSP_EDGE **List);
+    
+    /** Pass in pointer to an existing loop list... and well, use it ;-) **/
+    
+    void UseLoopList(int NumberOfVortexLoops, VSP_LOOP **List);
     
     /** Mesh level this list corresponds to, ie in the full multipole we may be calculating 
      * induced velocities for a group of loops (agglomerated) at a coarse level as we 
@@ -66,14 +82,26 @@ public:
 
     int NumberOfVortexEdges(void) { return NumberOfVortexEdges_; };
     
-    /** Access the ith entry of the vortex interaction list **/
+    /** Access the ith entry of the vortex edge interaction list **/
 
     VSP_EDGE *SurfaceVortexEdgeInteractionList(int i) { return SurfaceVortexEdgeInteractionList_[i]; };
 
-    /** Pointer access to the full interaction list **/
+    /** Pointer access to the full interaction vortex edge list **/
         
     VSP_EDGE **SurfaceVortexEdgeInteractionList(void) { return SurfaceVortexEdgeInteractionList_; };
     
+    /** Number of vortex loops in this interaction list * */
+
+    int NumberOfVortexLoops(void) { return NumberOfVortexLoops_; };
+    
+    /** Access the ith entry of the vortex loop interaction list **/
+
+    VSP_LOOP *SurfaceVortexLoopInteractionList(int i) { return SurfaceVortexLoopInteractionList_[i]; };
+
+    /** Pointer access to the full vortex loop interaction list **/
+        
+    VSP_LOOP **SurfaceVortexLoopInteractionList(void) { return SurfaceVortexLoopInteractionList_; };
+        
 };
 
 #include "END_NAME_SPACE.H"

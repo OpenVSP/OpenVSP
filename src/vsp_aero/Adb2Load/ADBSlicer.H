@@ -232,13 +232,8 @@ private:
     float Zcg;
     float ScaleFactor;
     
-    int NumberOfWings_;
-    int NumberOfBodies_;
-    int NumberOfCart3dSurfaces_;
-    
-    char **BodyListName_;
-    char **WingListName_;
-    char **Cart3dListName_;
+    int NumberOfSurfaces_;
+    char **SurfaceName_;
 
     int NumberOfMachs;
     int NumberOfBetas;

@@ -28,6 +28,7 @@
 #include "InteractionLoop.H"
 #include "VortexSheetInteractionLoop.H"
 #include "VortexSheetVortex_To_VortexInteractionSet.H"
+#include "FastMatrix.H"
 #include "ComponentGroup.H"
 #include "SpanLoadData.H"
 #include "QuadTree.H"
@@ -55,13 +56,6 @@
 #define P_ANALYSIS         3
 #define Q_ANALYSIS         4
 #define R_ANALYSIS         5
-
-#define ALL_LOOPS          1
-#define RELATIVE_MOTION    2
-#define NO_RELATIVE_MOTION 3
-
-#define FIXED_LOOPS  0
-#define MOVING_LOOPS 1
 
 #define NOISE_LINEAR_INTERPOLATION          1
 #define NOISE_QUADRATIC_INTERPOLATION       2
@@ -128,6 +122,10 @@ private:
     // Multigrid level we are solving on
     
     int MGLevel_;
+    
+    // User specified mglevel to perform solve on
+    
+    int SolveOnMGLevel_;
     
     // VSP Geometry
     
@@ -305,7 +303,6 @@ private:
     VSPAERO_DOUBLE Sref_;
     VSPAERO_DOUBLE Cref_;
     VSPAERO_DOUBLE Bref_;
-    VSPAERO_DOUBLE AverageVehicleChord_;
     
     VSPAERO_DOUBLE XYZcg_[3];
 
@@ -397,12 +394,16 @@ private:
 
     VORTEX_SHEET &VortexSheet(int i) { return VortexSheet_[0][i]; };
 
-    // Vortex/grid edge interaction lists
+    // Vortex edge to vortex loop, and loop to loop interaction lists
 
-    int NumberOfInteractionLoops_[2];
-    
-    LOOP_INTERACTION_ENTRY *InteractionLoopList_[2];
-    
+
+    // Vortex edge to vortex loop interaction lists
+
+//    int NumberOfInteractionLoops_[2];    
+//    LOOP_INTERACTION_ENTRY *InteractionLoopToEdgeList_[2];
+
+    FAST_MATRIX FastMatrix_;
+
     // Vortex Sheet/grid interaction lists
     
     int *NumberOfVortexSheetInteractionLoops_;
@@ -464,6 +465,12 @@ private:
     void DoMatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out);
     
     void MatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out);    
+    
+    void TransposeMatrixMultiply(VSPAERO_DOUBLE *vec_in, VSPAERO_DOUBLE *vec_out);
+
+    VSPAERO_DOUBLE CalculateAdjointExpansion(int &Level, int &Loop, VSPAERO_DOUBLE q[3]);
+    
+    void DistributeAdjointExpansion(int &iLevel, int &iLoop, VSPAERO_DOUBLE &Coef, VSPAERO_DOUBLE *Vec);
 
     void ZeroLoopVelocities(void);
    
@@ -583,16 +590,16 @@ private:
     void CalculateSurfaceInducedVelocityAtPoint(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3]);
     
     int CalculateSurfaceInducedVelocityAtOffBodyPoint(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3]);
-    
-    void CalculateWingSurfaceInducedVelocityAtPoint(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3]);
 
-    void CalculateSurfaceInducedVelocityAtPoint(int GeomID, int ComponentID, int pLoop, VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3]);
+    void CalculateSurfaceInducedVelocityAtPoint(int ComponentID, int pLoop, VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3]);
      
     void CalculateSurfaceInducedVelocityAtPoint(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CoreWidth);
 
     void AdjustNearSurfaceVelocities(VSPAERO_DOUBLE xyz[3], VSPAERO_DOUBLE q[3], int NumberOfEdges, VSP_EDGE **InteractionList);
     
-    VSP_EDGE **CreateInteractionList(int GeomID, int ComponentID, int pLoop, int InteractionType, VSPAERO_DOUBLE xyz[3], int &NumberOfInteractionEdges);
+    void CreateTranposeMatrixInteractionList(void);
+
+    INTERACTION_LISTS *CreateInteractionList(int ComponentID, int pLoop, int InteractionType, VSPAERO_DOUBLE xyz[3]);
 
     int NodeIsInsideLoop(VSP_LOOP &Loop, VSPAERO_DOUBLE xyz[3]);
 
@@ -600,11 +607,18 @@ private:
     int FirstTimeGradientSetup_;
     int MaxStackSize_;
     int ***EdgeIsUsed_;    
+    int ***LoopIsUsed_;
     int *SearchID_;
-    
+        
     VSPAERO_DOUBLE AdjointTime_;
     
-    VSP_EDGE ***TempInteractionList_;
+    // Interaction data
+    
+    INTERACTION_LISTS *TempInteractionList_;
+    
+//    VSP_EDGE ***TempEdgeInteractionList_;
+    
+//    VSP_LOOP ***TempLoopInteractionList_;
 
     STACK_ENTRY **LoopStackList_;    
         
@@ -636,8 +650,12 @@ private:
     // Reset the geometry to it's initial state
     
     void ResetGeometry(void);
+
+    // Initialize the span load data structure
     
-    // Reset the geometry to it's initial state
+    void InitializeSpanLoadData(void);
+    
+    // Update the span load data structure as mesh may have changed
     
     void UpdateSpanLoadData(void);
     
@@ -645,6 +663,14 @@ private:
 
     void UpdateVortexEdgeStrengths(int Level, int UpdateType);
     
+    // Zero out the gamma on the trailing edge kutta edges.. this is done before the
+    // velocity (and hence matrix) evaluations and allows us to just loop over all the
+    // edges without having to check if we are on the trailing edge... This should
+    // not be called before evaluation of the forces and the trailing edge drag 
+    // method requires the value of gamma on the trailing edge.
+    
+    void ZeroTrailingEdgeGammas(void);
+
     // Zero out vortex strengths
     
     void ZeroVortexState(void);
@@ -674,7 +700,7 @@ private:
     void CalculateDeltaCPs(void);
     void CalculateVorticityGradient(void);    
     void CalculateSurfacePressures(void);
- //djk   void CalculateOptimizationFunctions(void);
+    void CalculateSurfacePressuresOld(void);
     void CalculateOptimizationForces(void);
 
     void CreateVorticityGradientDataStructure(void);
@@ -744,11 +770,7 @@ private:
     // FEM file (beam)
     
     FILE *FEMLoadFile_;
-    
-    // FEM Analysis
-    
-    int LoadDeformationFile_;
-    
+
     // 2D Fem loads files
     
     FILE *FEM2DLoadFile_;
@@ -1329,12 +1351,8 @@ public:
     
     /** Read in the VSP geometry file **/
     
-    void ReadFile(char *FileName) { sprintf(FileName_,"%s",FileName); VSPGeom_.LoadDeformationFile() = LoadDeformationFile_;  VSPGeom_.ReadFile(FileName,ModelType_,SurfaceType_); };    
+    void ReadFile(char *FileName) { sprintf(FileName_,"%s",FileName);  VSPGeom_.ReadFile(FileName,ModelType_,SurfaceType_); };    
 
-    /** Read in the FEM deformation file **/
-    
-    void LoadFEMDeformationData(void) { VSPGeom_.LoadFEMDeformationData(FileName_); };
-    
     /** Turn on ground effects analysis **/
     
     int &DoGroundEffectsAnalysis(void) { return VSPGeom_.DoGroundEffectsAnalysis(); };
@@ -1505,10 +1523,6 @@ public:
     
     int &CreateHighLiftFile(void) { return CreateHighLiftFile_; };
 
-    /** Load in the fem deformation file **/
-    
-    int &LoadFEMDeformation(void) { return LoadDeformationFile_; };
-    
     /** Write out 2D FEM load file **/
     
     int &Write2DFEMFile(void) { return Write2DFEMFile_; };
@@ -1570,6 +1584,14 @@ public:
     /** Force the solver into 2D mode ... mostly for testing purposes **/
     
     int &FlowIs2D(void) { return FlowIs2D_; };
+    
+    /** Perform the solve on MGLevel = SolveOnMGLevel ... this has the solver
+     * run using SolveOnMGLevel_ level as the finest grid level. This allows
+     * the user to get a flow solution on one of the coarser, agglomerated, grids.
+     * There MUST be at least 1 level of coarse mesh than SolveOnMGLevel_ otherwise
+     * the solve will fail **/
+     
+     int & SolveOnMGLevel(void) { return SolveOnMGLevel_; };
     
     /** Turn off the calculation of spanwise loading for a panel solver...
      * 
@@ -2048,10 +2070,6 @@ public:
     /** i'th spanwise area value for wing = Wing **/
     
     VSPAERO_DOUBLE SpanWiseAreaForWing(int Wing, int i) { return SpanLoadData(Wing).Span_Area(i); };
-                
-    /** Calculate partial of user input function F wrt to pressures **/
-    
-    void Optimization_Calculate_pFu_pMesh(double *pUF_pP, double *pUF_pMesh);
 
     /** Over ride default edge by edge ssor preconditioner **/
     

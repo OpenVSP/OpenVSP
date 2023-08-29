@@ -420,7 +420,7 @@ VORTEX_SHEET& VORTEX_SHEET::operator+=(const VORTEX_SHEET &VortexSheet)
 
        for ( i = 1 ; i <= NumberOfTrailingVorticesForLevel_[Level] ; i++ ) {
     
-          for ( j = 0 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
+          for ( j = 0 ; j <= NumberOfSubVortices() + 0 ; j++ ) {
  
              TrailingGammaListForLevel_[Level][i][j] = VortexSheet.TrailingGammaListForLevel_[Level][i][j];
 
@@ -436,7 +436,7 @@ VORTEX_SHEET& VORTEX_SHEET::operator+=(const VORTEX_SHEET &VortexSheet)
       
        for ( i = 1 ; i <= NumberOfVortexSheetsForLevel_[Level] ; i++ ) {   
              
-          for ( j = 1 ; j <= NumberOfSubVortices() + 1 ; j++ ) {  
+          for ( j = 1 ; j <= NumberOfSubVortices() ; j++ ) {  
 
               VortexSheetListForLevel_[Level][i].BoundVortex().Gamma(j) = VortexSheetListForLevel_[Level][i].StartingGamma(j);
             
@@ -1014,7 +1014,7 @@ void VORTEX_SHEET::SetupPlanarVortexSheets(void)
     
     for ( j = 1 ; j <= NumberOfTrailingVortices_ ; j++ ) {
        
-       CoreSize_ += pow(3.*TrailingVortexList_[j]->Sigma(),2.);
+       CoreSize_ += pow(2.*TrailingVortexList_[j]->Sigma(),2.);
  
     }
     
@@ -1272,7 +1272,7 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
     
     for ( j = 1 ; j <= NumberOfTrailingVortices_ ; j++ ) {
        
-       CoreSize_ += pow(3.*TrailingVortexList_[j]->Sigma(),2.);
+       CoreSize_ += pow(2.*TrailingVortexList_[j]->Sigma(),2.);
 
     }
     
@@ -1543,7 +1543,7 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
  
     if ( TimeAccurate_ ) {
        
-       NumSubVorticesMax = MIN(CurrentTimeStep_ + 1, NumberOfSubVortices());
+       NumSubVorticesMax = MIN(CurrentTimeStep_, NumberOfSubVortices());
 
        // Zero out starting vortices
        
@@ -1890,7 +1890,7 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
     }
         
     // Evaluate the sheets that were marked
-           
+ 
     for ( i = 1 ; i <= NumberOfSheets ; i++ ) {
 
        // Grab the level and sheet 
@@ -1928,7 +1928,7 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
        
        else {
           
-          NumVortices = MIN( CurrentTimeStep_ + 1, NumberOfSubVortices());
+          NumVortices = MIN( CurrentTimeStep_, NumberOfSubVortices());
 
           if ( VortexSheet->Level() > VortexSheet->VortexTrail1().Evaluate() ) {
  
@@ -1985,6 +1985,8 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
        U += dq[0];
        V += dq[1];
        W += dq[2];
+
+    if ( Verbose_ ) PRINTF("Current AUTO_DIFF_STACK_MEMORY: %f gigabytes \n",AUTO_DIFF_STACK_MEMORY());
 
     } 
 
@@ -2098,7 +2100,7 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
        
        else {
           
-          NumVortices = MIN( CurrentTimeStep_ + 1, NumberOfSubVortices());
+          NumVortices = MIN( CurrentTimeStep_, NumberOfSubVortices());
    
           if ( VortexSheet->Level() > VortexSheet->VortexTrail1().Evaluate() ) {
  
@@ -2274,7 +2276,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *
        
        else {
           
-          NumVortices = MIN( CurrentTimeStep_ + 1, NumberOfSubVortices());
+          NumVortices = MIN( CurrentTimeStep_, NumberOfSubVortices());
     
           if ( VortexSheet->Level() > VortexSheet->VortexTrail1().Evaluate() ) {
  
@@ -2613,7 +2615,7 @@ void VORTEX_SHEET::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3],
 
 void VORTEX_SHEET::InducedKuttaVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3])
 {
-// fix this
+
     int i;
     VSPAERO_DOUBLE U, V, W, Vec[3], xyz_k[3], dq[3], Mag;
     VORTEX_TRAIL *TrailingVortex;
@@ -2774,7 +2776,7 @@ void VORTEX_SHEET::CreateTrailingVortexInteractionList(VORTEX_SHEET &VortexSheet
        
        else {
           
-          NumVortices = MIN( CurrentTimeStep_ + 1, NumberOfSubVortices());
+          NumVortices = MIN( CurrentTimeStep_, NumberOfSubVortices());
     
           if ( VortexSheet.Level() > VortexSheet.VortexTrail1().Evaluate() ) {
  
@@ -2862,17 +2864,17 @@ void VORTEX_SHEET::CreateVortexSheetInteractionList(VORTEX_SHEET &VortexSheet, V
 void VORTEX_SHEET::StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE dq[3])
 {
 
-    //VSPAERO_DOUBLE q[3];
+    VSPAERO_DOUBLE q[3];
 
     if ( VortexSheet.Evaluate() == 1 ) {
 
       // Calculate all shed bound vortices for the vortex sheet
 
-      VortexSheet.BoundVortex().InducedVelocity(xyz_p,dq);
-
-      dq[0] += dq[0];
-      dq[1] += dq[1];
-      dq[2] += dq[2];
+      VortexSheet.BoundVortex().InducedVelocity(xyz_p,q);
+   
+      dq[0] += q[0];
+      dq[1] += q[1];
+      dq[2] += q[2];
         
     }
     
@@ -2902,7 +2904,7 @@ void VORTEX_SHEET::StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, VS
       // Calculate all shed bound vortices for the vortex sheet
 
       VortexSheet.BoundVortex().InducedVelocity(xyz_p,q,CoreSize);
-
+  
       dq[0] += q[0];
       dq[1] += q[1];
       dq[2] += q[2];

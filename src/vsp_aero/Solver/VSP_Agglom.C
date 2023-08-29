@@ -144,10 +144,6 @@ VSP_GRID* VSP_AGGLOM::SimplifyMesh_(VSP_GRID &Grid)
     FineGrid_ = &Grid;
     
     CheckMesh_(FineGrid());
-    
-    // Delete duplicates nodes
-    
- //   FineGrid_ = DeleteDuplicateNodes_(*FineGrid_);
 
     // Create fast search of edge list
     
@@ -168,8 +164,55 @@ VSP_GRID* VSP_AGGLOM::SimplifyMesh_(VSP_GRID &Grid)
     }
     
     // Merge as many tris into quads as possible
-   
+
     CreateMixedMesh_();
+       
+    // Create the course mesh data
+
+    CreateCoarseMesh_();
+
+    // Check the mesh for any errors
+
+    CheckMesh_(CoarseGrid());
+
+    // Delete up the search tree
+    
+    delete Search_;
+    
+    // Return pointer to the coarse mesh
+            
+    return CoarseGrid_;
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                          VSP_AGGLOM  SimplifyMesh_                           #
+#                                                                              #
+##############################################################################*/
+
+VSP_GRID* VSP_AGGLOM::SimplifyMesh_(VSP_GRID &Grid, VSP_GRID &GridC)
+{
+ 
+    // Copy pointer to the fine grid
+    
+    FineGrid_ = &Grid;
+    
+    CheckMesh_(FineGrid());
+
+    // Create fast search of edge list
+    
+    Search_ = new SEARCH;
+
+    Search_->CreateSearchTree(FineGrid());
+        
+    // Initialize the front
+    
+    InitializeFront_();    
+
+    // Merge as many tris into quads as possible
+
+    CreateMixedMesh_(GridC);
        
     // Create the course mesh data
 
@@ -472,43 +515,7 @@ void VSP_AGGLOM::InitializeFront_(void)
        }        
        
     }
- 
-    // Check if edge is on leading edge of wing
- 
-    for ( i = 1 ; i <= FineGrid().NumberOfEdges() ; i++ ) {
-      
-       if ( FineGrid().EdgeList(i).IsLeadingEdge() ) {
 
-          if ( EdgeIsOnFront_[i] == 0 ) {
-        
-             EdgeIsOnFront_[i] = LE_EDGE_BC;
-             
-             FrontEdgeQueue_[++NextEdgeInQueue_] = i;
-       
-             NumberOfEdgesOnLE_++;
-             
-             k = FindMatchingSymmetryEdge_(i);
-             
-             if ( k != 0 && EdgeIsOnFront_[k] == 0 ) {
-                
-                if ( FineGrid().EdgeList(k).IsLeadingEdge()  ) {
-                   
-                   EdgeIsOnFront_[k] = LE_EDGE_BC;
-                   
-                   FrontEdgeQueue_[++NextEdgeInQueue_] = k;
-                   
-                   NumberOfEdgesOnLE_++;    
-                   
-                }
-                
-             }
-                          
-          }
-       
-       }    
-       
-    }
-       
     // Check if edge is on any general boundry
        
     for ( i = 1 ; i <= FineGrid().NumberOfEdges() ; i++ ) {
@@ -796,8 +803,7 @@ void VSP_AGGLOM::MergeVortexLoopsOld_(void)
              
              if ( i != NextBestEdgeOnFront_                &&
                   !FineGrid().EdgeList(i).IsTrailingEdge() &&
-                  !FineGrid().EdgeList(i).IsBoundaryEdge() &&
-                  !FineGrid().EdgeList(i).IsLeadingEdge()     ) {
+                  !FineGrid().EdgeList(i).IsBoundaryEdge()    ) {
               
                 // Don't merge if this is just the loop on the other side of this edge (or similar edges)
                 
@@ -828,8 +834,7 @@ void VSP_AGGLOM::MergeVortexLoopsOld_(void)
                             Edge = FineGrid().LoopList(Loop1).Edge(p);
                             
                             if ( FineGrid().EdgeList(Edge).IsTrailingEdge() ||
-                                 FineGrid().EdgeList(Edge).IsBoundaryEdge() ||
-                                 FineGrid().EdgeList(Edge).IsLeadingEdge() ) {
+                                 FineGrid().EdgeList(Edge).IsBoundaryEdge()    ) {
                        
                                LoopC = MIN(ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop1()]), ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop2()]));
                                LoopD = MAX(ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop1()]), ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop2()]));
@@ -845,8 +850,7 @@ void VSP_AGGLOM::MergeVortexLoopsOld_(void)
                             Edge = FineGrid().LoopList(Loop2).Edge(p);
                             
                             if ( FineGrid().EdgeList(Edge).IsTrailingEdge() ||
-                                 FineGrid().EdgeList(Edge).IsBoundaryEdge() ||
-                                 FineGrid().EdgeList(Edge).IsLeadingEdge() ) {
+                                 FineGrid().EdgeList(Edge).IsBoundaryEdge()    ) {
                         
                                LoopC = MIN(ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop1()]), ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop2()]));
                                LoopD = MAX(ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop1()]), ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop2()]));
@@ -974,7 +978,6 @@ void VSP_AGGLOM::MergeVortexLoopsOld_(void)
                 if ( VortexLoopWasAgglomerated_[NewLoop] > 0     &&
                      !FineGrid().EdgeList(Edge).IsTrailingEdge() &&
                      !FineGrid().EdgeList(Edge).IsBoundaryEdge() &&
-                     !FineGrid().EdgeList(Edge).IsLeadingEdge()  &&                
                      NewLoop != MergedLoop                       && 
                      NewLoop != Loop3                            &&
                      LoopHits_[NewLoop] >=2                      &&                     
@@ -996,8 +999,7 @@ void VSP_AGGLOM::MergeVortexLoopsOld_(void)
                             Edge = FineGrid().LoopList(LoopE).Edge(p);
                             
                             if ( FineGrid().EdgeList(Edge).IsTrailingEdge() ||
-                                 FineGrid().EdgeList(Edge).IsBoundaryEdge() ||
-                                 FineGrid().EdgeList(Edge).IsLeadingEdge() ) {
+                                 FineGrid().EdgeList(Edge).IsBoundaryEdge()    ) {
                                
                                LoopC = MIN(FineGrid().EdgeList(Edge).Loop1(), FineGrid().EdgeList(Edge).Loop2());
                                LoopD = MAX(FineGrid().EdgeList(Edge).Loop1(), FineGrid().EdgeList(Edge).Loop2());
@@ -1013,8 +1015,7 @@ void VSP_AGGLOM::MergeVortexLoopsOld_(void)
                             Edge = FineGrid().LoopList(NewLoop).Edge(p);
                             
                             if ( FineGrid().EdgeList(Edge).IsTrailingEdge() ||
-                                 FineGrid().EdgeList(Edge).IsBoundaryEdge() ||
-                                 FineGrid().EdgeList(Edge).IsLeadingEdge() ) {
+                                 FineGrid().EdgeList(Edge).IsBoundaryEdge()    ) {
                                
                                LoopC = MIN(FineGrid().EdgeList(Edge).Loop1(), FineGrid().EdgeList(Edge).Loop2());
                                LoopD = MAX(FineGrid().EdgeList(Edge).Loop1(), FineGrid().EdgeList(Edge).Loop2());
@@ -1436,8 +1437,7 @@ void VSP_AGGLOM::MergeSmallLoops_(void)
              Edge = FineGrid().LoopList(Loop1).Edge(p);
              
              if ( FineGrid().EdgeList(Edge).IsTrailingEdge() ||
-                  FineGrid().EdgeList(Edge).IsBoundaryEdge() ||
-                  FineGrid().EdgeList(Edge).IsLeadingEdge() ) {
+                  FineGrid().EdgeList(Edge).IsBoundaryEdge()    ) {
           
               // LoopC = MIN(ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop1()]), ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop2()]));
               // LoopD = MAX(ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop1()]), ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop2()]));
@@ -1455,8 +1455,7 @@ void VSP_AGGLOM::MergeSmallLoops_(void)
              Edge = FineGrid().LoopList(Loop2).Edge(p);
              
              if ( FineGrid().EdgeList(Edge).IsTrailingEdge() ||
-                  FineGrid().EdgeList(Edge).IsBoundaryEdge() ||
-                  FineGrid().EdgeList(Edge).IsLeadingEdge() ) {
+                  FineGrid().EdgeList(Edge).IsBoundaryEdge()    ) {
           
               //  LoopC = MIN(ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop1()]), ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop2()]));
               //  LoopD = MAX(ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop1()]), ABS(VortexLoopWasAgglomerated_[FineGrid().EdgeList(Edge).Loop2()]));
@@ -1812,8 +1811,7 @@ void VSP_AGGLOM::MergeSmallLoopsOld_(void)
              Edge = FineGrid().LoopList(Loop1).Edge(i);
 
              if ( !FineGrid().EdgeList(Edge).IsTrailingEdge() &&
-                  !FineGrid().EdgeList(Edge).IsBoundaryEdge() &&
-                  !FineGrid().EdgeList(Edge).IsLeadingEdge() ) {                
+                  !FineGrid().EdgeList(Edge).IsBoundaryEdge()    ) {                
 
 
 
@@ -2084,7 +2082,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        NumberOfCoarseGridEdges += CoarseEdgeList_[i];
        
     }
-     
+
     // Create a list of the fine nodes still in use on the coarse grid
         
     for ( i = 1 ; i <= FineGrid().NumberOfEdges() ; i++ ) {
@@ -2121,7 +2119,11 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        if ( VortexLoopWasAgglomerated_[i] < 0 ) VortexLoopWasAgglomerated_[i] = VortexLoopWasAgglomerated_[ABS(VortexLoopWasAgglomerated_[i])];
                
     } 
-
+    
+    PRINTF("There are: %d coarse grid nodes \n",NumberOfCoarseGridNodes);
+    PRINTF("There are: %d coarse grid edges \n",NumberOfCoarseGridEdges);
+    PRINTF("There are: %d coarse grid loops \n",NumberOfCoarseGridLoops);
+    
     // Allocate space for the coarse grid
 
     CoarseGrid_ = new VSP_GRID;
@@ -2165,7 +2167,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
     for ( i = 1 ; i <= FineGrid().NumberOfEdges() ; i++ ) {
      
        if ( CoarseEdgeList_[i] ) {
-        
+                
           Next++;
           
           // Copy over data
@@ -2252,7 +2254,7 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
 
        CoarseGrid().LoopList(i).BoundBox().z_min =  1.e9;
        CoarseGrid().LoopList(i).BoundBox().z_max = -1.e9;     
-     
+
     }
 
     // Agglomerate, area weighted, the fine grid data to the coarse grid
@@ -2267,9 +2269,12 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        CoarseGrid().LoopList(Next).ComponentID() = FineGrid().LoopList(i).ComponentID();     
        CoarseGrid().LoopList(Next).SpanStation() = FineGrid().LoopList(i).SpanStation(); 
        CoarseGrid().LoopList(Next).SurfaceType() = FineGrid().LoopList(i).SurfaceType(); 
-       CoarseGrid().LoopList(Next).DegenBodyID() = FineGrid().LoopList(i).DegenBodyID(); 
-       CoarseGrid().LoopList(Next).DegenWingID() = FineGrid().LoopList(i).DegenWingID();        
-
+       CoarseGrid().LoopList(Next).VortexSheet() = FineGrid().LoopList(i).VortexSheet(); 
+       
+       // Move up one level
+       
+       CoarseGrid().LoopList(Next).Level() = FineGrid().LoopList(i).Level() + 1;
+                 
        // Area
        
        Area = FineGrid().LoopList(i).Area();
@@ -2541,9 +2546,10 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
 
           for ( j = 1 ; j <= CoarseGrid().LoopList(i).NumberOfEdges() ; j++ ) {
              
-             PRINTF("Local Edge: %d is global edge: %d with Loops: %d \n",
+             PRINTF("Local Edge: %d is global edge: %d with boundary edge flag of: %d and with Loops: %d %d \n",
              j,
              CoarseGrid().LoopList(i).Edge(j),
+             CoarseGrid().EdgeList(CoarseGrid().LoopList(i).Edge(j)).IsBoundaryEdge(),
              CoarseGrid().EdgeList(CoarseGrid().LoopList(i).Edge(j)).Loop1(),
              CoarseGrid().EdgeList(CoarseGrid().LoopList(i).Edge(j)).Loop2());
              
@@ -2551,7 +2557,18 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
           
           for ( j = 1 ; j <= CoarseGrid().LoopList(i).NumberOfFineGridLoops() ; j++ ) {
              
-             PRINTF("Fine grid tri %d is: %d \n",j,CoarseGrid().LoopList(i).FineGridLoop(j));
+             PRINTF("Fine grid tri %d is: %d with surface ID: %d \n",
+             j,
+             CoarseGrid().LoopList(i).FineGridLoop(j),
+             FineGrid().LoopList(CoarseGrid().LoopList(i).FineGridLoop(j)).SurfaceID());
+             
+             for ( k = 1 ; k <= FineGrid().LoopList(CoarseGrid().LoopList(i).FineGridLoop(j)).NumberOfEdges() ; k++ ) {
+                
+                PRINTF("Fine Loop Edge: %d has boundary edge flag of: %d \n",
+                FineGrid().LoopList(CoarseGrid().LoopList(i).FineGridLoop(j)).Edge(k),
+                FineGrid().EdgeList(FineGrid().LoopList(CoarseGrid().LoopList(i).FineGridLoop(j)).Edge(k)).IsBoundaryEdge());
+                
+             }
           
           }
      
@@ -2736,48 +2753,52 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
     KuttaNode = new int[CoarseGrid().NumberOfNodes() + 1];
     
     zero_int_array(KuttaNode, CoarseGrid().NumberOfNodes());
-    
+   
     for ( i = 1 ; i <= CoarseGrid().NumberOfEdges() ; i++ ) {
      
        if ( CoarseGrid().EdgeList(i).IsTrailingEdge() ) {
-        
+      
           Node1 = CoarseGrid().EdgeList(i).Node1();
           Node2 = CoarseGrid().EdgeList(i).Node2();
 
-          Loop = MAX(CoarseGrid().EdgeList(i).Loop1(), CoarseGrid().EdgeList(i).Loop2());
+       //   Loop = MAX(CoarseGrid().EdgeList(i).Loop1(), CoarseGrid().EdgeList(i).Loop2());
           
-          // Node 1
+          KuttaNode[Node1] = 1;
+          KuttaNode[Node2] = 1;
           
-          if ( KuttaNode[Node1] == 0 ) {
-           
-             KuttaNode[Node1]  = Loop;
-             
-          }
-          
-          else {
-           
-             KuttaNode[Node1] -= Loop;
-           
-          }
-
-          // Node 2
-          
-          if ( KuttaNode[Node2] == 0 ) {
-           
-             KuttaNode[Node2]  = Loop;
-             
-          }
-          
-          else {
-           
-             KuttaNode[Node2] -= Loop;
-           
-          }
+//PRINTF("i: %d --> Node1,2: %d %d --> Loop: %d \n",i,Node1,Node2,Loop);          
+//          // Node 1
+//          
+//          if ( KuttaNode[Node1] == 0 ) {
+//           
+//             KuttaNode[Node1]  = Loop;
+//             
+//          }
+//          
+//          else {
+//  
+//             KuttaNode[Node1] -= Loop;
+//           
+//          }
+//
+//          // Node 2
+//          
+//          if ( KuttaNode[Node2] == 0 ) {
+//           
+//             KuttaNode[Node2]  = Loop;
+//             
+//          }
+//          
+//          else {
+//           
+//             KuttaNode[Node2] -= Loop;
+//           
+//          }
           
        }
        
     }  
- 
+
     NumberOfKuttaNodes = 0;
     
     for ( i = 1 ; i <= FineGrid().NumberOfKuttaNodes() ; i++ ) {
@@ -2795,7 +2816,9 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
     // Copy over any kutta node information
 
     CoarseGrid().SizeKuttaNodeList(NumberOfKuttaNodes);
-            
+         
+    PRINTF("Number of Kutta Nodes: %d \n",  NumberOfKuttaNodes);
+          
     NumberOfKuttaNodes = 0;
 
     for ( i = 1 ; i <= FineGrid().NumberOfKuttaNodes() ; i++ ) {
@@ -3084,6 +3107,7 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
     int Loop1, Loop2, LoopA, LoopB, UpdateFineGrid, FineGridNode, Next, Side;
     int NumberOfNodes, NumberOfEdges, NumberOfEdgesMerged, NumberOfLoopNodes;
     int Node1, Node2, NodeA, NodeB, *NodeIsUsed, *EdgeIsUsed, FineGridEdge, CommonNode;
+    int NumberOfKuttaNodes, NumberOfSheets, NumberOfVortexSheets;
     VSP_GRID *NewGrid;
     EDGE_STACK_LIST *StackList, *EdgeIsMerged;
     
@@ -3145,14 +3169,17 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
              
              Edge1 = CoarseGrid().LoopList(Loop).Edge(i);
                                             
-             // Only look an unmerged edges ... and no trailing edges
+             // Only look an unmerged edges ... and unlike before, we DO merge trailing edges
              
-             if (  EdgeIsMerged[Edge1].Edge > 0                  &&
-                  !CoarseGrid().EdgeList(Edge1).IsTrailingEdge() &&
-                  !CoarseGrid().EdgeList(Edge1).IsBoundaryEdge() &&
-                  !CoarseGrid().EdgeList(Edge1).IsLeadingEdge()     ) {               
+//djk             if (  EdgeIsMerged[Edge1].Edge > 0                  &&
+//djk               !CoarseGrid().EdgeList(Edge1).IsTrailingEdge() &&
+//djk               !CoarseGrid().EdgeList(Edge1).IsBoundaryEdge()    ) {               
 
+             if (   EdgeIsMerged[Edge1].Edge > 0                                                                     &&
+                  (!CoarseGrid().EdgeList(Edge1).IsBoundaryEdge() || CoarseGrid().EdgeList(Edge1).IsTrailingEdge() )    ) {       
+                
                 // Mark it as merged... at least to itself
+                
                 
                 EdgeIsMerged[Edge1].Edge = -Edge1;
                 
@@ -3182,10 +3209,12 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
                      
                      Edge2 = CoarseGrid().LoopList(Loop).Edge(j);
                      
-                     if ( EdgeIsMerged[Edge2].Edge > 0 &&
-                        !CoarseGrid().EdgeList(Edge2).IsTrailingEdge() &&
-                        !CoarseGrid().EdgeList(Edge2).IsBoundaryEdge() &&
-                        !CoarseGrid().EdgeList(Edge2).IsLeadingEdge() ) {       
+//djk                     if ( EdgeIsMerged[Edge2].Edge > 0 &&
+//djk                        !CoarseGrid().EdgeList(Edge2).IsTrailingEdge() &&
+//djk                        !CoarseGrid().EdgeList(Edge2).IsBoundaryEdge()    ) {       
+
+                     if (   EdgeIsMerged[Edge2].Edge > 0                                                                    &&
+                          (!CoarseGrid().EdgeList(Edge2).IsBoundaryEdge() || CoarseGrid().EdgeList(Edge2).IsTrailingEdge()     ) ) {       
                                             
                         NodeA = CoarseGrid().EdgeList(Edge2).Node1(); 
                         NodeB = CoarseGrid().EdgeList(Edge2).Node2();
@@ -3209,7 +3238,7 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
                              // Edges must be colinear
                             
                               if ( EdgesAreColinear_(CoarseGrid(), CurrentEdge, Edge2, 10.) ) {       
-                                 
+       
                                  if ( NumberOfEdgesMerged + 1 < CoarseGrid().LoopList(Loop).NumberOfEdges() - 3 ) {
                                     
                                     // Add it to the stack
@@ -3334,6 +3363,8 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
        if ( EdgeIsUsed[i] ) EdgeIsUsed[i] = ++NumberOfEdges;
        
     }    
+    
+    PRINTF("Merged: %d edges that were colinear \n",CoarseGrid().NumberOfEdges()-NumberOfEdges);
         
     // Create new coarse mesh
     
@@ -3581,14 +3612,122 @@ VSP_GRID* VSP_AGGLOM::MergeCoLinearEdges_(void)
           
           if ( NodeIsUsed[CoarseGrid().LoopList(i).Node(j)] ) {
              
-             NewGrid->LoopList(i).Node(++NumberOfLoopNodes) = NodeIsUsed[CoarseGrid().LoopList(i).Node(j)];
+             NumberOfLoopNodes++;
+             
+             NewGrid->LoopList(i).Node(NumberOfLoopNodes) = NodeIsUsed[CoarseGrid().LoopList(i).Node(j)];
+             
+             NewGrid->LoopList(i).U_Node(NumberOfLoopNodes) = CoarseGrid().LoopList(i).U_Node(j);
+
+             NewGrid->LoopList(i).V_Node(NumberOfLoopNodes) = CoarseGrid().LoopList(i).V_Node(j);
 
           }
           
        }
 
-    }        
+    }
+    
+    // Determine the number of vortex sheets
+    
+    NumberOfSheets = 0;
+    
+    for ( j = 1 ; j <= CoarseGrid().NumberOfKuttaNodes() ; j++ ) {
 
+       NumberOfSheets = MAX(NumberOfSheets,CoarseGrid().WingSurfaceForKuttaNode(j));
+       
+    }    
+   
+    NumberOfVortexSheets = 0;
+    
+    for ( k = 1 ; k <= NumberOfSheets ; k++ ) {
+       
+       NumberOfKuttaNodes = 0;
+       
+       for ( j = 1 ; j <= CoarseGrid().NumberOfKuttaNodes() ; j++ ) {
+          
+          if ( CoarseGrid().WingSurfaceForKuttaNode(j) == k ) NumberOfKuttaNodes++;
+          
+       }
+       
+       if ( NumberOfKuttaNodes > 1 ) NumberOfVortexSheets++;
+       
+    }
+    
+    // Fix the kutta node list
+    
+    NumberOfKuttaNodes = 0;
+
+    for ( i = 1 ; i <= CoarseGrid().NumberOfKuttaNodes() ; i++ ) {
+
+       if ( NodeIsUsed[CoarseGrid().KuttaNode(i)] ) NumberOfKuttaNodes++;
+       
+    }
+     
+    NewGrid->SizeKuttaNodeList(NumberOfKuttaNodes);
+        
+    NumberOfKuttaNodes = 0;
+     
+    for ( k = 1 ; k <= NumberOfVortexSheets ; k++ ) {
+        
+       for ( i = 1 ; i <= CoarseGrid().NumberOfKuttaNodes() ; i++ ) {
+       
+          if ( NodeIsUsed[CoarseGrid().KuttaNode(i)] ) {
+    
+             if ( CoarseGrid().WingSurfaceForKuttaNode(i) == k ) {
+       
+                NumberOfKuttaNodes++;        
+        
+                NewGrid->KuttaNode(NumberOfKuttaNodes) = NodeIsUsed[CoarseGrid().KuttaNode(i)];
+                
+                NewGrid->WingSurfaceForKuttaNode(NumberOfKuttaNodes) = CoarseGrid().WingSurfaceForKuttaNode(i);
+                
+                NewGrid->ComponentIDForKuttaNode(NumberOfKuttaNodes) = CoarseGrid().ComponentIDForKuttaNode(i);
+                
+                NewGrid->WingSurfaceForKuttaNodeIsPeriodic(NumberOfKuttaNodes) = CoarseGrid().WingSurfaceForKuttaNodeIsPeriodic(i);
+                
+                NewGrid->WakeTrailingEdgeX(NumberOfKuttaNodes) = CoarseGrid().WakeTrailingEdgeX(i);
+                NewGrid->WakeTrailingEdgeY(NumberOfKuttaNodes) = CoarseGrid().WakeTrailingEdgeY(i);
+                NewGrid->WakeTrailingEdgeZ(NumberOfKuttaNodes) = CoarseGrid().WakeTrailingEdgeZ(i);
+
+                NewGrid->KuttaNodeSoverB(NumberOfKuttaNodes) = CoarseGrid().KuttaNodeSoverB(i);
+                
+                NewGrid->KuttaNodeIsOnWingTip(NumberOfKuttaNodes) = CoarseGrid().KuttaNodeIsOnWingTip(i);     
+                
+             }
+             
+          }
+          
+       }
+       
+    }   
+      
+ //NumberOfKuttaNodes = 0;
+ //    
+ //for ( i = 1 ; i <= CoarseGrid().NumberOfKuttaNodes() ; i++ ) {
+ //
+ //   if ( NodeIsUsed[CoarseGrid().KuttaNode(i)] ) {
+ //    
+ //      NumberOfKuttaNodes++;
+ //                
+ //      NewGrid->KuttaNode(NumberOfKuttaNodes) = NodeIsUsed[CoarseGrid().KuttaNode(i)];
+ //
+ //      NewGrid->WingSurfaceForKuttaNode(NumberOfKuttaNodes) = CoarseGrid().WingSurfaceForKuttaNode(i);
+ //
+ //      NewGrid->ComponentIDForKuttaNode(NumberOfKuttaNodes) = CoarseGrid().ComponentIDForKuttaNode(i);
+ //
+ //      NewGrid->WingSurfaceForKuttaNodeIsPeriodic(NumberOfKuttaNodes) = CoarseGrid().WingSurfaceForKuttaNodeIsPeriodic(i);
+ //    
+ //      NewGrid->WakeTrailingEdgeX(NumberOfKuttaNodes) = CoarseGrid().WakeTrailingEdgeX(i);
+ //      NewGrid->WakeTrailingEdgeY(NumberOfKuttaNodes) = CoarseGrid().WakeTrailingEdgeY(i);
+ //      NewGrid->WakeTrailingEdgeZ(NumberOfKuttaNodes) = CoarseGrid().WakeTrailingEdgeZ(i);
+ //  
+ //      NewGrid->KuttaNodeSoverB(NumberOfKuttaNodes) = CoarseGrid().KuttaNodeSoverB(i);
+ //      
+ //      NewGrid->KuttaNodeIsOnWingTip(NumberOfKuttaNodes) = CoarseGrid().KuttaNodeIsOnWingTip(i);
+ //      
+ //   }
+ //   
+ //}
+    
     zero_int_array(EdgeDegree_, FineGrid().NumberOfNodes());
     
     // Create node degree array
@@ -3719,6 +3858,35 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
 
 /*##############################################################################
 #                                                                              #
+#                      VSP_AGGLOM  CreateMixedMesh_                            #
+#                                                                              #
+##############################################################################*/
+
+void VSP_AGGLOM::CreateMixedMesh_(VSP_GRID &GridC)
+{
+ 
+    int i, j, LoopF;
+
+    for ( i = 1 ; i <= GridC.NumberOfLoops() ; i++ ) {
+       
+       if ( GridC.LoopList(i).NumberOfFineGridLoops() > 1 ) {
+          
+          for ( j = 1 ; j <= GridC.LoopList(i).NumberOfFineGridLoops() ; j++ ) {
+             
+             LoopF = GridC.LoopList(i).FineGridLoop(j);
+            
+             VortexLoopWasAgglomerated_[LoopF] = -GridC.LoopList(i).FineGridLoop(1);
+             
+          }
+          
+       }
+       
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
 #                            VSP_AGGLOM  CheckMesh_                            #
 #                                                                              #
 ##############################################################################*/
@@ -3812,9 +3980,9 @@ void VSP_AGGLOM::CheckMesh_(VSP_GRID &ThisGrid)
 void VSP_AGGLOM::CleanUpMesh_(void)
 {
    
-    int Edge, Loop1, Loop2;
+    int i;
     
-    PRINTF("Cleaning up PANEL mesh... \n");fflush(NULL);
+    PRINTF("\n\n\nCleaning up PANEL mesh... \n\n\n");fflush(NULL);
     
     // Create a list of those nodes on surface borders
     
@@ -3822,25 +3990,32 @@ void VSP_AGGLOM::CleanUpMesh_(void)
     
     zero_int_array(NodeOnSurfaceBorder_, FineGrid().NumberOfNodes());
     
-    for ( Edge = 1 ; Edge <= FineGrid().NumberOfEdges() ; Edge++ ) {
+//int Loop1, Loop2, Edge;    
+//    for ( Edge = 1 ; Edge <= FineGrid().NumberOfEdges() ; Edge++ ) {
+//       
+//       Loop1 = FineGrid().EdgeList(Edge).Loop1();
+//       Loop2 = FineGrid().EdgeList(Edge).Loop2();
+//      
+//       if ( FineGrid().LoopList(Loop1).SurfaceID() != FineGrid().LoopList(Loop2).SurfaceID() ) {
+//          
+//          NodeOnSurfaceBorder_[FineGrid().EdgeList(Edge).Node1()] = 1;
+//          NodeOnSurfaceBorder_[FineGrid().EdgeList(Edge).Node2()] = 1;
+//          
+//       }
+//    
+//    }
+    
+    for ( i = 1 ; i <= FineGrid().NumberOfNodes() ; i++ ) {
        
-       Loop1 = FineGrid().EdgeList(Edge).Loop1();
-       Loop2 = FineGrid().EdgeList(Edge).Loop2();
+       if ( FineGrid().NodeList(i).IsBoundaryEdgeNode() ) NodeOnSurfaceBorder_[i] = 1;
        
-       if ( FineGrid().LoopList(Loop1).SurfaceID() != FineGrid().LoopList(Loop2).SurfaceID() ) {
-          
-          NodeOnSurfaceBorder_[FineGrid().EdgeList(Edge).Node1()] = 1;
-          NodeOnSurfaceBorder_[FineGrid().EdgeList(Edge).Node2()] = 1;
-          
-       }
-  
     }
     
     NumberOfLoopsMerged_ = 0;
    
     CleanUpFans_();
   
-    CleanUpHighAspectRatioTris_();
+  //  CleanUpHighAspectRatioTris_(); // Deprecated
   
     CleanUpSmallAreaLoops_();
     
@@ -3922,11 +4097,11 @@ void VSP_AGGLOM::CleanUpFans_(void)
     for ( i = 1 ; i <= FineGrid().NumberOfNodes() ; i ++ ) {
        
        if ( NodeOnSurfaceBorder_[i] == 0 ) {
-          
+         
           Done = 0;
           
           while ( !Done ) {
-             
+            
              // Find tri with the smallest angle
              
              MinAngle = 1.e9;
@@ -3950,7 +4125,7 @@ void VSP_AGGLOM::CleanUpFans_(void)
                    
                 }
                 
-                if ( Loop > 0 && VortexLoopWasAgglomerated_[Loop] ) {
+                if ( Loop > 0 && VortexLoopWasAgglomerated_[Loop] > 0 ) {
                 
                    MaxArea = MAX(FineGrid().LoopList(Loop).Area(),MaxArea);
                    
@@ -3961,8 +4136,8 @@ void VSP_AGGLOM::CleanUpFans_(void)
              // Calculate aspect ratio
 
              AspectRatio = MaxArea / MinArea;
-                                                                          
-             // If the minimum angle is small and it has a high aspect ration...then try and merge this tri with a neighbor
+                                                                       
+             // If the minimum angle is small and it has a high aspect ratio...then try and merge this tri with a neighbor
             
              if ( MinAngle <= LimitAngle && AspectRatio > 10. ) {
 
@@ -4019,10 +4194,11 @@ void VSP_AGGLOM::CleanUpFans_(void)
                   
                    for ( j = 1 ; j <= NumberOfLoopsForNode[i] ; j++ ) {
                          
+                         
                       Loop = ABS(NodeToLoopList[i][j]);
-                                      
+                                       
                       if ( Loop != CurrentLoop && NodeToLoopList[i][j] > 0 ) {
-                        
+            
                          if ( i == FineGrid().LoopList(Loop).Node1() ) {
                             
                             NodeA = FineGrid().LoopList(Loop).Node1();
@@ -4061,22 +4237,22 @@ void VSP_AGGLOM::CleanUpFans_(void)
                          if ( Node2 == NodeB || Node2 == NodeC ) iNode = Node2;
                          
                          if ( Node3 == NodeB || Node3 == NodeC ) iNode = Node3;
-                         
+ 
                          if ( iNode > 0 && NodeOnSurfaceBorder_[iNode] ) {
-                       
+             
                             // Check if the loops are nearly coplanar
                                           
                             if ( LoopsAreCoplanar_(FineGrid(), CurrentLoop, Loop, 5.) ) {      
-                                      
+                              
                                // Check if the new total angle is ok
                     
                                if ( ( TotalAngle + NodeToLoopAngleList[i][j] <= 60.                   ) ||
                                     ( TotalAngle + NodeToLoopAngleList[i][j] <= 90. && MinAngle <= 5. )    ) {   
-                               
+                       
                                   // Neighbor loop is not already agglomerated
               
                                   if ( VortexLoopWasAgglomerated_[Loop] > 0 ) { 
-                                                                 
+                                                              
                                      VortexLoopWasAgglomerated_[CurrentLoop] = -MinLoop;
                            
                                      VortexLoopWasAgglomerated_[Loop] = -MinLoop;
@@ -4159,7 +4335,7 @@ void VSP_AGGLOM::CleanUpHighAspectRatioTris_(void)
        if ( VortexLoopWasAgglomerated_[Loop] > 0 ) {
         
           if ( BadTriangle_(FineGrid(), Loop, MinEdge) ) {
-             
+
              if ( MinEdge == 1 ) {
              
                 EdgeList[0] = FineGrid().LoopList(Loop).Edge2();
@@ -4849,6 +5025,8 @@ int VSP_AGGLOM::BadTriangle_(VSP_GRID &ThisGrid, int Loop, int &MinEdge)
     
     AspectRatio = MaxDist/MinDist;
         
+    if ( MinDist / AspectRatio <= 1.e-3 ) return 1;
+        
     return 0;
     
 } 
@@ -5021,7 +5199,7 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPA
 {
    
     int Node0, Node1, Node2, NodeA, NodeB;
-    VSPAERO_DOUBLE Vec1[3], Vec2[3], Dot;
+    VSPAERO_DOUBLE Vec1[3], Vec2[3], Dot, Angle;
     
     Node1 = ThisGrid.EdgeList(Edge1).Node1();
     Node2 = ThisGrid.EdgeList(Edge1).Node2();
@@ -5048,7 +5226,7 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPA
     else if ( Node2 == NodeA ) {
        
        Node0 = Node2;
-       // Node1 = Node1;
+       Node1 = Node1;
        Node2 = NodeB;
        
     }
@@ -5056,7 +5234,7 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPA
     else if ( Node2 == NodeB ) {
        
        Node0 = Node2;
-       // Node1 = Node1;
+       Node1 = Node1;
        Node2 = NodeA;
        
     }
@@ -5091,8 +5269,15 @@ int VSP_AGGLOM::EdgesAreColinear_(VSP_GRID &ThisGrid, int Edge1, int Edge2, VSPA
             
     Dot = vector_dot(Vec1,Vec2);
     
-    if ( Dot >= cos(MaxAngle*PI/180) ) return 1;
+    Dot = MAX(Dot,-1.);
     
+  //  if ( Dot >= cos(MaxAngle*PI/180) ) return 1; ... this was Tim's mod, and it's borked... 
+  // so I'm returning to what worked.... 
+    
+    Angle = 180. - acos(Dot)*180./PI;
+ 
+    if ( Angle <= MaxAngle ) return 1;
+        
     return 0;
     
 } 

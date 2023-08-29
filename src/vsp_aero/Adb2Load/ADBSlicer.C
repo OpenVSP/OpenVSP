@@ -509,69 +509,29 @@ void ADBSLICER::LoadMeshData(void)
     BetaList = new float[NumberOfBetas + 1];
     AlphaList = new float[NumberOfAlphas + 1];
 
-    // Read in wing ID flags, names...
+    // Read in surface names
  
-    fread(&NumberOfWings_, i_size, 1, adb_file);
+    fread(&NumberOfSurfaces_, i_size, 1, adb_file);
     
-    WingListName_ = new char*[NumberOfWings_ + 1];
+    printf("There are: %d surfaces \n",NumberOfSurfaces_);
+    
+    SurfaceName_ = new char*[NumberOfSurfaces_ + 1];
   
-    for ( i = 1 ; i <= NumberOfWings_ ; i++ ) { 
+    for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) { 
      
        fread(&DumInt, i_size, 1, adb_file);
        
-       WingListName_[i] = new char[200];
+       SurfaceName_[i] = new char[100];
  
-       fread(WingListName_[i], c_size, 100, adb_file);
+       fread(SurfaceName_[i], c_size, 100, adb_file);
        
-       printf("Wing: %d ... %s \n",i,WingListName_[i]);fflush(NULL);
+       printf("Surface: %d ... %s \n",i,SurfaceName_[i]);fflush(NULL);
        
        fread(&DumInt, i_size, 1, adb_file);
        
        printf("ComponentID: %d \n",DumInt);
      
     }
-    
-    // Read in body ID flags, names...
-
-    fread(&NumberOfBodies_, i_size, 1, adb_file);
-    
-    BodyListName_ = new char*[NumberOfBodies_ + 1];
-    
-    for ( i = 1 ; i <= NumberOfBodies_ ; i++ ) { 
-     
-       fread(&DumInt, i_size, 1, adb_file);
-       
-       BodyListName_[i] = new char[200];
-
-       fread(BodyListName_[i], c_size, 100, adb_file);
-       
-       printf("Body: %d ... %s \n",i,BodyListName_[i]);fflush(NULL);
-
-       fread(&DumInt, i_size, 1, adb_file);
-       
-       printf("ComponentID: %d \n",DumInt);
-            
-    } 
-    
-    // Read in Cart3d ID flags, names...
-
-    fread(&NumberOfCart3dSurfaces_, i_size, 1, adb_file);
-    
-    Cart3dListName_ = new char*[NumberOfCart3dSurfaces_ + 1];
-    
-    for ( i = 1 ; i <= NumberOfCart3dSurfaces_ ; i++ ) { 
-     
-       fread(&DumInt, i_size, 1, adb_file);
-       
-       Cart3dListName_[i] = new char[200];
-
-       fread(Cart3dListName_[i], c_size, 100, adb_file);
-       
-       fread(&DumInt, i_size, 1, adb_file);
-       
-       printf("Cart3d: %d ... %s \n",i,Cart3dListName_[i]);fflush(NULL);
-     
-    }     
 
     // Load in the geometry and surface information
 
@@ -3119,8 +3079,8 @@ printf("DumChar: %s \n",DumChar);
           
           DumChar[strcspn(DumChar, "\n")] = 0;
               
-          sprintf(SaveChar,"%s",DumChar);
-
+          sprintf(SaveChar,"%s\0",DumChar);
+          
           Done = 0;
           
           while ( !Done ) {
@@ -3484,8 +3444,8 @@ int *ADBSLICER::RenumberCalulixINPFile(char *name)
           
           DumChar[strcspn(DumChar, "\n")] = 0;
               
-          sprintf(SaveChar,"%s",DumChar);
-
+          sprintf(SaveChar,"%s\0",DumChar);
+          
           Done = 0;
           
           while ( !Done ) {

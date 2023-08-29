@@ -64,14 +64,11 @@ void VSP_EDGE::init(void)
     
     VortexEdge_ = 0;
     
-    DegenWing_ = 0;
-    DegenBody_ = 0;
+    Wing_ = 0;
     SurfaceID_ = 0;
     ComponentID_ = 0;
-    GeomID_ = 0;
 
     IsTrailingEdge_ = 0;
-    IsLeadingEdge_ = 0;
     IsBoundaryEdge_ = 0;
     
     CoarseGridEdge_ = 0;
@@ -83,15 +80,14 @@ void VSP_EDGE::init(void)
     Sigma_ = 0.;
     Length_ = 0.;
     
-                 Forces_[0] =              Forces_[1] =              Forces_[2] = 0.;
-         Trefftz_Forces_[0] =      Trefftz_Forces_[1] =      Trefftz_Forces_[2] = 0.;
-        Unsteady_Forces_[0] =     Unsteady_Forces_[1] =     Unsteady_Forces_[2] = 0.;
-          InducedForces_[0] =       InducedForces_[1] =       InducedForces_[2] = 0.;
+             Forces_[0] =              Forces_[1] =              Forces_[2] = 0.;
+     Trefftz_Forces_[0] =      Trefftz_Forces_[1] =      Trefftz_Forces_[2] = 0.;
+    Unsteady_Forces_[0] =     Unsteady_Forces_[1] =     Unsteady_Forces_[2] = 0.;
+      InducedForces_[0] =       InducedForces_[1] =       InducedForces_[2] = 0.;
   
     Verbose_ = 0;
  
-    DegenWing_ = 0;
-    DegenBody_ = 0;
+    Wing_ = 0;
 
     X1_ = 0.;
     Y1_ = 0.;
@@ -188,11 +184,9 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     // Edge type
     
     IsTrailingEdge_ = VSPEdge.IsTrailingEdge_;
-    IsLeadingEdge_  = VSPEdge.IsLeadingEdge_; 
     IsBoundaryEdge_ = VSPEdge.IsBoundaryEdge_;
     ComponentID_    = VSPEdge.ComponentID_;
     SurfaceID_      = VSPEdge.SurfaceID_;    
-    GeomID_         = VSPEdge.GeomID_;
 
     // Multi-Grid stuff
     
@@ -200,10 +194,9 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     FineGridEdge_       = VSPEdge.FineGridEdge_;     
     Level_              = VSPEdge.Level_;     
      
-    // Surface type
+    // Wing
     
-    DegenWing_      = VSPEdge.DegenWing_;
-    DegenBody_      = VSPEdge.DegenBody_;
+    Wing_               = VSPEdge.Wing_;
     
     // XYZ of end points
     
@@ -422,7 +415,7 @@ void VSP_EDGE::InducedVelocity(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSP
     CoreWidth_ = CoreWidth;
 
     NewBoundVortex(xyz_p, q);
-        
+    
 }
 
 #ifdef AUTODIFF
@@ -1023,17 +1016,17 @@ VSPAERO_DOUBLE VSP_EDGE::Fint(void)
 
     R_ = a_ + b_*s_ + c_*s_*s_;
     
-  // if ( ABS(d_) < Tolerance_2_ || R_ < Tolerance_1_ ) return 0.;
+    if ( ABS(d_) < Tolerance_2_ || R_ < Tolerance_1_ ) return 0.;
+  
+    Denom_ = d_ * sqrt(R_);
+  
+    return 2.*(2.*c_*s_ + b_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
+
+  //  if ( ABS(d_) <= Tolerance_2_ || R_ <= Tolerance_1_ ) return 0.;
   //
-  //  Denom_ = d_ * sqrt(R_);
+  //  Denom_ = sqrt(R_);
   //
-  //  return 2.*(2.*c_*s_ + b_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
-
-    if ( ABS(d_) <= Tolerance_2_ || R_ <= Tolerance_2_ ) return 0.;
-
-    Denom_ = sqrt(R_);
-
-    return (2./d_)*(2.*c_*s_ + b_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
+  //  return (2./d_)*(2.*c_*s_ + b_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
 
 }
 
@@ -1048,17 +1041,17 @@ VSPAERO_DOUBLE VSP_EDGE::Gint(void)
    
     R_ = a_ + b_*s_ + c_*s_*s_;
     
-    // if ( ABS(d_) < Tolerance_2_ || R_ < Tolerance_1_ ) return 0.;
-    //
-    // Denom_ = d_ * sqrt(R_);
-    //
-    // return -2.*(2.*a_+b_*s_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
+    if ( ABS(d_) < Tolerance_2_ || R_ < Tolerance_1_ ) return 0.;
     
-    if ( ABS(d_) <= Tolerance_2_ || R_ <= Tolerance_2_ ) return 0.;
-
-    Denom_ = sqrt(R_);
+    Denom_ = d_ * sqrt(R_);
     
-    return -(2./d_)*(2.*a_+b_*s_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
+    return -2.*(2.*a_+b_*s_)*Denom_/(Denom_*Denom_ + 10.*CoreWidth_*CoreWidth_);
+    
+  // if ( ABS(d_) <= Tolerance_2_ || R_ <= Tolerance_1_ ) return 0.;
+  //
+  // Denom_ = sqrt(R_);
+  // 
+  // return -(2./d_)*(2.*a_+b_*s_)*Denom_/(Denom_*Denom_ + CoreWidth_*CoreWidth_);
 
 } 
 
@@ -1075,16 +1068,19 @@ VSPAERO_DOUBLE VSP_EDGE::Fint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUB
 
     R = a + b*s + c*s*s;
     
-  //  if ( ABS(d) <= Tolerance_2_ || R < Tolerance_1_ ) return 0.;
-  //  Denom = d * sqrt(R);
-  //
-  //  return 2.*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
+    if ( ABS(d) <= Tolerance_2_ || R < Tolerance_1_ ) return 0.;
 
-    if ( ABS(d) <= Tolerance_2_ || R <= Tolerance_2_ ) return 0.;
+   //  if ( ABS(d) <= Tolerance_4_  ) return 0.;
+    
+    Denom = d * sqrt(R);
+  
+    return 2.*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
 
-    Denom = sqrt(R);
-
-    return (2./d)*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
+ // if ( ABS(d) <= Tolerance_2_ || R <= Tolerance_1_ ) return 0.;
+ //
+ // Denom = sqrt(R);
+ //
+ // return (2./d)*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
 
 }
 
@@ -1101,17 +1097,17 @@ VSPAERO_DOUBLE VSP_EDGE::Gint(VSPAERO_DOUBLE &a, VSPAERO_DOUBLE &b, VSPAERO_DOUB
     
     R = a + b*s + c*s*s;
 
-    //if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
-    //
-    //Denom = d * sqrt(R);
-    //
-    //return -2.*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
+    if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
+    
+    Denom = d * sqrt(R);
+    
+    return -2.*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
 
-    if ( ABS(d) <= Tolerance_2_ || R <= Tolerance_2_ ) return 0.;
-
-    Denom = sqrt(R);
-
-    return -(2./d)*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
+  //  if ( ABS(d) <= Tolerance_2_ || R <= Tolerance_1_ ) return 0.;
+  //
+  //  Denom = sqrt(R);
+  //
+  //  return -(2./d)*(2.*a+b*s)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_);
     
 } 
 
@@ -1444,7 +1440,7 @@ void VSP_EDGE::UpdateGeometryLocation(VSP_NODE &Node1, VSP_NODE &Node2)
     Vec_[1] = Y2_ - Y1_;
     Vec_[2] = Z2_ - Z1_;
     
-   Length_ = sqrt(vector_dot(Vec_,Vec_));
+    Length_ = sqrt(vector_dot(Vec_,Vec_));
     
     u_ = Vec_[0];
     v_ = Vec_[1];

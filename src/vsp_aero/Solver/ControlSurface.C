@@ -21,37 +21,29 @@ CONTROL_SURFACE::CONTROL_SURFACE(void)
     
     NumberOfLoops_ = 0;
 
-    LoopList_     = NULL;
-    XYZ_NodeList_ = NULL;
-    UV_NodeList_  = NULL;
-           
-    // Control surface type
-    
-    Type_ = 0;
-    
-    // Control surface bounding box
-    
-    u_min_ = u_max_ = 0.;
-    v_min_ = v_max_ = 0.;
-    
+    LoopList_ = NULL;
+
     // Node list
     
     NumberOfNodes_ = 0;
     
     XYZ_NodeList_ = NULL;
     
-     UV_NodeList_ = NULL;
+    // Control surface type
+    
+    Type_ = 0;
 
-    // Hinge line
+    // Hinge line data
     
     HingeNode_1_[0] = HingeNode_1_[1] = HingeNode_1_[2] = 0.;
+    
     HingeNode_2_[0] = HingeNode_2_[1] = HingeNode_2_[2] = 0.;
     
     HingeVec_[0] = HingeVec_[1] = HingeVec_[2] = 0.;
     
-    DeflectionAngle_ = 0.;
+    // Deflection angle
     
-    ControlGroup_ = 0;
+    DeflectionAngle_ = 0.;
 
 }
 
@@ -81,38 +73,12 @@ void CONTROL_SURFACE::SizeNodeList(int NumberOfNodes)
 
     int i;
     
-    if ( NumberOfNodes_ != 0 ) {
+    if ( XYZ_NodeList_ != NULL ) delete [] XYZ_NodeList_;
        
-       for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
-          
-          delete [] XYZ_NodeList_[i];
-          delete []  UV_NodeList_[i];
-          
-          XYZ_NodeList_[i] = NULL;
-           UV_NodeList_[i] = NULL;
-          
-       }
-       
-       delete [] XYZ_NodeList_;
-       delete []  UV_NodeList_;
-       
-       XYZ_NodeList_ = NULL;
-        UV_NodeList_ = NULL;
-       
-    } 
-           
     NumberOfNodes_ = NumberOfNodes;
 
-    XYZ_NodeList_ = new VSPAERO_DOUBLE*[NumberOfNodes + 1];
-     UV_NodeList_ = new VSPAERO_DOUBLE*[NumberOfNodes + 1];
-    
-    for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
-       
-       XYZ_NodeList_[i] = new VSPAERO_DOUBLE[3];
-        UV_NodeList_[i] = new VSPAERO_DOUBLE[3];
-       
-    }
-  
+    XYZ_NodeList_ = new VSPAERO_DOUBLE[3*NumberOfNodes + 1];
+
 }
 
 /*##############################################################################
@@ -127,9 +93,7 @@ void CONTROL_SURFACE::SizeLoopList(int NumberOfLoops)
     NumberOfLoops_ = NumberOfLoops;
 
     if ( LoopList_ != NULL ) delete [] LoopList_; 
-    
-    LoopList_ = NULL;
-    
+        
     LoopList_ = new int[NumberOfLoops + 1];
   
 }
@@ -161,24 +125,6 @@ CONTROL_SURFACE& CONTROL_SURFACE::operator=(const CONTROL_SURFACE &ControlSurfac
 
     }
 
-    u_min_ = ControlSurface.u_min_;
-    u_max_ = ControlSurface.u_max_;
-    v_min_ = ControlSurface.v_min_;
-    v_max_ = ControlSurface.v_max_;
-    
-    // XYZ coordinates of control surface box
-    
-    for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
-    
-       XYZ_NodeList_[i][0] = ControlSurface. XYZ_NodeList_[i][0];
-       XYZ_NodeList_[i][1] = ControlSurface. XYZ_NodeList_[i][1];
-       XYZ_NodeList_[i][1] = ControlSurface. XYZ_NodeList_[i][2];
-
-        UV_NodeList_[i][0] =   ControlSurface.UV_NodeList_[i][0];
-        UV_NodeList_[i][1] =   ControlSurface.UV_NodeList_[i][1];
-        
-    }
-
     // Hinge line
     
     HingeNode_1_[0] = ControlSurface.HingeNode_1_[0];
@@ -206,33 +152,9 @@ CONTROL_SURFACE& CONTROL_SURFACE::operator=(const CONTROL_SURFACE &ControlSurfac
 CONTROL_SURFACE::~CONTROL_SURFACE(void)
 {
 
-    int i;
-    
     if ( LoopList_ != NULL ) delete [] LoopList_;     
     
     LoopList_ = NULL;    
-
-    if ( NumberOfNodes_ != 0 ) {
-       
-       for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
-          
-          delete [] XYZ_NodeList_[i];
-          delete []  UV_NodeList_[i];
-          
-          XYZ_NodeList_[i] = NULL;
-           UV_NodeList_[i] = NULL;
-          
-       }
-       
-       delete [] XYZ_NodeList_;
-       delete []  UV_NodeList_;
-       
-       XYZ_NodeList_ = NULL;
-        UV_NodeList_ = NULL;
-       
-    } 
-    
-    NumberOfNodes_ = 0;
 
     NumberOfLoops_= 0;;
     
@@ -281,60 +203,151 @@ void CONTROL_SURFACE::RotateNormal(VSPAERO_DOUBLE *Normal)
 
 /*##############################################################################
 #                                                                              #
-#                          CONTROL_SURFACE TriInside                           #
+#                          CONTROL_SURFACE LoadFile                            #
 #                                                                              #
 ##############################################################################*/
 
-int CONTROL_SURFACE::TriInside(VSPAERO_DOUBLE *UV) 
+void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
 {
-  
-    int i, j, Intersect;
-    VSPAERO_DOUBLE Uint;
- 
-    // Check bounding box
-    
-    if ( UV[0] >= u_min_ && UV[0] <= u_max_ ) {
 
-       if ( UV[1] >= v_min_ && UV[1] <= v_max_ ) {
+    int i, Found, Surface;
+    double x1,y1,z1, x2,y2,z2;
+    VSPAERO_DOUBLE Mag;
+    char FileNameWithExtension[2000], DumChar[2000];
+    FILE *TagFile, *CSFFile;
+    
+    // Save file name
+    
+    sprintf(Name_,"%s",TagFileName);
+    
+    // Read in tag file data
+    
+    SPRINTF(FileNameWithExtension,"%s.tag",TagFileName);
+
+    if ( (TagFile = fopen(FileNameWithExtension,"r")) == NULL ) {
+
+       PRINTF("Could not load %s tag file... \n", FileNameWithExtension);fflush(NULL);
+
+       exit(1);
+
+    }   
+    
+    fscanf(TagFile,"%d",&NumberOfLoops_);    
+    
+    PRINTF("Control surface has %d loops \n",NumberOfLoops_);
+
+    fgets(DumChar,2000,TagFile);
+
+    SizeLoopList(NumberOfLoops_);
+
+    for ( i = 1 ; i <= NumberOfLoops_ ; i ++ ) {
+       
+       fscanf(TagFile,"%d",&(LoopList_[i]));    
+  
+    }
+    
+    fclose(TagFile);
+    
+    // Read in .csf file data
+        
+    SPRINTF(FileNameWithExtension,"%s.csf",FileName);
+    
+    if ( (CSFFile = fopen(FileNameWithExtension,"r")) == NULL ) {
+
+       PRINTF("Could not load %s tag file... \n", FileNameWithExtension);fflush(NULL);
+
+       exit(1);
+
+    }   
+    
+    Found = 0;
+
+    while ( !Found && fgets(DumChar,2000,CSFFile) != NULL ) {
+       
+       if ( strstr(DumChar,TagFileName) != NULL ) Found = 1;
+       
+    }
+    
+    if ( !Found ) {
+       
+       PRINTF("Could not find start of control surface %s data in csf for control surface: %s \n",
+       FileNameWithExtension, TagFileName);
+       
+       fflush(NULL);exit(1);
+       
+    }
+    
+    else {
+       
+       HingeNode_1_[0] = 0.;
+       HingeNode_1_[1] = 0.;
+       HingeNode_1_[2] = 0.;
+                      
+       HingeNode_2_[0] = 0.;
+       HingeNode_2_[1] = 0.;
+       HingeNode_2_[2] = 0.;
+                
+       // Loop over hinge location for upper and lower surface
+                
+       for ( Surface = 1 ; Surface <= 2 ; Surface++ ) {
+                                 
+          Found = 0;
           
-          // Simple box... we are inside
+          while ( !Found && fgets(DumChar,2000,CSFFile) != NULL ) {
           
-          if ( NumberOfNodes_ == 5 ) {
-             
-             return 1;
+             if ( strstr(DumChar,"Hinge XYZ") != NULL ) Found = 1;
              
           }
           
-          // More complex polygon, so must do further checking
+          if ( !Found ) {
+             
+             PRINTF("Could not find corresponding hinge line data in %s file for control surface: %s \n",
+             FileNameWithExtension, TagFileName);
+             
+             fflush(NULL);exit(1);
+          
+          }
           
           else {
+             
+             fscanf(CSFFile,"%lf %lf %lf \n",&x1,&y1,&z1);
+             fscanf(CSFFile,"%lf %lf %lf \n",&x2,&y2,&z2);
+             
+             // Average hinge location across upper and lower surface
+             
+             HingeNode_1_[0] += 0.5*x1;
+             HingeNode_1_[1] += 0.5*y1;
+             HingeNode_1_[2] += 0.5*z1;
+   
+             HingeNode_2_[0] += 0.5*x2;
+             HingeNode_2_[1] += 0.5*y2;
+             HingeNode_2_[2] += 0.5*z2;
+                       
+             PRINTF("xyz1: %f %f %f \n",x1,y1,z1);
+             PRINTF("xyz2: %f %f %f \n",x2,y2,z2);
           
-             Intersect = 0;
-             
-             for ( i = 1 ; i < NumberOfNodes_ ; i++ ) {
-                
-                j = i + 1;
-                
-                if ( UV_NodeList_[i][1] > UV[1] != UV_NodeList_[j][1] > UV[1] ) {
-                   
-                   Uint = ( UV_NodeList_[j][0] - UV[0] ) * ( UV[1] - UV_NodeList_[i][1] ) / ( UV_NodeList_[j][1] - UV_NodeList_[i][1] ) + UV_NodeList_[i][0];
-                   
-                   if ( UV[0] < Uint ) Intersect = !Intersect;
-                   
-                }
-                
-             }
- 
-             return Intersect;
-             
+             PRINTF("HingeNode_1_: %f %f %f \n",HingeNode_1_[0],HingeNode_1_[1],HingeNode_1_[2]);
+             PRINTF("HingeNode_2_: %f %f %f \n",HingeNode_2_[0],HingeNode_2_[1],HingeNode_2_[2]);
+          
           }
           
        }
+       
+       HingeVec_[0] = HingeNode_2_[0] - HingeNode_1_[0];
+       HingeVec_[1] = HingeNode_2_[1] - HingeNode_1_[1];
+       HingeVec_[2] = HingeNode_2_[2] - HingeNode_1_[2];
 
+       Mag = sqrt(vector_dot(HingeVec_,HingeVec_));
+       
+       HingeVec_[0] /= Mag;
+       HingeVec_[1] /= Mag;
+       HingeVec_[2] /= Mag;        
+                          
+       fclose(CSFFile);
+       
     }
-    
-    return 0;
-  
+       
+
 }
 
 #include "END_NAME_SPACE.H"

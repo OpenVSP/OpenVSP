@@ -18,7 +18,11 @@ SPAN_LOAD_DATA::SPAN_LOAD_DATA(void)
 {
 
     NumberOfSpanStations_ = 0;
+
+    // Surface ID 
     
+    SurfaceID_ = NULL;
+        
     // Component ID
     
     ComponentID_ = NULL;
@@ -63,13 +67,19 @@ SPAN_LOAD_DATA::SPAN_LOAD_DATA(void)
     Span_Cmyi_ = NULL;
     Span_Cmzi_ = NULL;
     
-    // Lift, drag, normal, spanwise forces
+    // Inviscid ift, drag, normal, spanwise forces
             
     Span_Cn_ = NULL;
     Span_Cl_ = NULL;
     Span_Cs_ = NULL;
     Span_Cd_ = NULL;
     
+    // Viscous lift, drag, spanwise forces
+            
+    Span_Clo_ = NULL;
+    Span_Cso_ = NULL;
+    Span_Cdo_ = NULL;
+        
     // Span Min Cp
     
     Span_CpMin_ = NULL;
@@ -141,6 +151,12 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
        
     int i;
     
+    // Surface ID
+    
+    if ( SurfaceID_ != NULL ) delete SurfaceID_;
+
+    SurfaceID_ = NULL;
+
     // Component ID
     
     if ( ComponentID_ != NULL ) delete ComponentID_;
@@ -213,7 +229,7 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
     Span_Cmyi_ = NULL;
     Span_Cmzi_ = NULL;
 
-    // Lift, drag, normal, spanwise forces
+    // Inviscid lift, drag, normal, spanwise forces
             
     if ( Span_Cn_ != NULL ) delete [] Span_Cn_; 
     if ( Span_Cl_ != NULL ) delete [] Span_Cl_; 
@@ -224,7 +240,17 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
     Span_Cl_ = NULL;
     Span_Cs_ = NULL;
     Span_Cd_ = NULL;
-        
+
+    // Viscous lift, drag, spanwise forces
+            
+    if ( Span_Clo_ != NULL ) delete [] Span_Clo_; 
+    if ( Span_Cso_ != NULL ) delete [] Span_Cso_; 
+    if ( Span_Cdo_ != NULL ) delete [] Span_Cdo_; 
+    
+    Span_Clo_ = NULL;
+    Span_Cso_ = NULL;
+    Span_Cdo_ = NULL;
+            
     // Span Min Cp
 
     if ( Span_CpMin_ != NULL ) delete [] Span_CpMin_; 
@@ -283,7 +309,7 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
     
     if ( Span_Svec_ != NULL ) {
 
-       for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+       for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
                  
           delete [] Span_Svec_[i];
           
@@ -299,7 +325,7 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
     
     if ( Span_Nvec_ != NULL ) {
 
-       for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+       for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
                  
           delete [] Span_Nvec_[i];
           
@@ -335,7 +361,7 @@ SPAN_LOAD_DATA::~SPAN_LOAD_DATA(void)
 
     if ( Local_Velocity_ != NULL ) {
 
-       for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+       for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
                  
           delete [] Local_Velocity_[i];
           
@@ -405,8 +431,12 @@ SPAN_LOAD_DATA &SPAN_LOAD_DATA::operator=(const SPAN_LOAD_DATA &SpanLoadData)
     
     ZeroAll();
     
-    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
 
+       // Surface ID
+       
+       SurfaceID_[i] = SpanLoadData.SurfaceID_[i];
+       
        // Component ID
        
        ComponentID_[i] = SpanLoadData.ComponentID_[i];
@@ -451,13 +481,19 @@ SPAN_LOAD_DATA &SPAN_LOAD_DATA::operator=(const SPAN_LOAD_DATA &SpanLoadData)
        Span_Cmyi_[i] = SpanLoadData.Span_Cmyi_[i];
        Span_Cmzi_[i] = SpanLoadData.Span_Cmzi_[i];
        
-       // Lift, drag, normal, spanwise forces
+       // Inviscid lift, drag, normal, spanwise forces
                
        Span_Cn_[i] = SpanLoadData.Span_Cn_[i];
        Span_Cl_[i] = SpanLoadData.Span_Cl_[i];
        Span_Cs_[i] = SpanLoadData.Span_Cs_[i];
        Span_Cd_[i] = SpanLoadData.Span_Cd_[i];
-       
+
+       // Viscous lift, drag, spanwise forces
+               
+       Span_Clo_[i] = SpanLoadData.Span_Clo_[i];
+       Span_Cso_[i] = SpanLoadData.Span_Cso_[i];
+       Span_Cdo_[i] = SpanLoadData.Span_Cdo_[i];
+              
        // Span Min Cp
 
        Span_CpMin_[i] = SpanLoadData.Span_CpMin_[i];
@@ -546,6 +582,10 @@ void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
     int i;
 
     NumberOfSpanStations_ = NumberOfSpanStations;
+    
+    // Surface ID
+    
+    SurfaceID_ = new int[NumberOfSpanStations_ + 1];
 
     // Component ID
     
@@ -591,13 +631,19 @@ void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
     Span_Cmyi_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     Span_Cmzi_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     
-    // Lift, drag, normal, spanwise forces
+    // Inviscid lift, drag, normal, spanwise forces
             
     Span_Cn_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     Span_Cl_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     Span_Cs_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
     Span_Cd_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
-    
+
+    // Viscous ift, drag, spanwise forces
+            
+    Span_Clo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cso_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+    Span_Cdo_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
+        
     // Span Min Cp
     
     Span_CpMin_ = new VSPAERO_DOUBLE[NumberOfSpanStations_ + 1];
@@ -630,7 +676,7 @@ void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
 
     Span_Svec_ = new VSPAERO_DOUBLE*[NumberOfSpanStations_ + 1];
 
-    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
               
        Span_Svec_[i] = new VSPAERO_DOUBLE[3];
        
@@ -638,7 +684,7 @@ void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
     
     Span_Nvec_= new VSPAERO_DOUBLE*[NumberOfSpanStations_ + 1];
     
-    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
               
        Span_Nvec_[i] = new VSPAERO_DOUBLE[3];
        
@@ -656,7 +702,7 @@ void SPAN_LOAD_DATA::Size(int NumberOfSpanStations)
 
     Local_Velocity_ = new VSPAERO_DOUBLE*[NumberOfSpanStations_ + 1];
     
-    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
               
        Local_Velocity_[i] = new VSPAERO_DOUBLE[4];
        
@@ -689,7 +735,7 @@ void SPAN_LOAD_DATA::ZeroAll(void)
 
     int i, j;
 
-    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
 
        // Viscous forces
          
@@ -727,13 +773,19 @@ void SPAN_LOAD_DATA::ZeroAll(void)
        Span_Cmyi_[i] = 0.;
        Span_Cmzi_[i] = 0.;
        
-       // Lift, drag, normal, spanwise forces
+       // Invsicid ift, drag, normal, spanwise forces
                
        Span_Cn_[i] = 0.;
        Span_Cl_[i] = 0.;
        Span_Cs_[i] = 0.;
        Span_Cd_[i] = 0.;
-       
+
+       // Viscous lift, drag, spanwise forces
+               
+       Span_Clo_[i] = 0.;
+       Span_Cso_[i] = 0.;
+       Span_Cdo_[i] = 0.;
+              
        // Span Min Cp
        
        Span_CpMin_[i] = 0.;
@@ -819,7 +871,7 @@ void SPAN_LOAD_DATA::ZeroForcesAndMoments(void)
 
     int i, j;
 
-    for ( i = 1 ; i <= NumberOfSpanStations_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfSpanStations_ ; i++ ) {
 
        // Viscous forces
          
@@ -857,13 +909,19 @@ void SPAN_LOAD_DATA::ZeroForcesAndMoments(void)
        Span_Cmyi_[i] = 0.;
        Span_Cmzi_[i] = 0.;
        
-       // Lift, drag, normal, spanwise forces
+       // Inviscid lift, drag, normal, spanwise forces
                
        Span_Cn_[i] = 0.;
        Span_Cl_[i] = 0.;
        Span_Cs_[i] = 0.;
        Span_Cd_[i] = 0.;
-              
+
+       // Viscous lift, drag, spanwise forces
+               
+       Span_Clo_[i] = 0.;
+       Span_Cso_[i] = 0.;
+       Span_Cdo_[i] = 0.;
+                     
        // Span Min Cp
        
        Span_CpMin_[i] = 0.;       

@@ -31,7 +31,6 @@
 #include <VSP_Loop.H>
 #include <VSP_Node.H>
 #include <VSP_Solver.H>
-#include <VSP_Surface.H>
 #include <VortexSheetInteractionLoop.H>
 #include <VortexSheetVortex_To_VortexInteractionSet.H>
 #include <Vortex_Bound.H>
@@ -72,7 +71,6 @@
 #undef VSP_LOOP_H
 #undef VSP_NODE_H
 #undef VSP_SOLVER_H
-#undef VSP_SURFACE_H
 #undef VORTEX_SHEET_LOOP_INTERACTION_ENTRY_H
 #undef VORTEX_SHEET_VORTEX_TO_VORTEX_INTERACTION_SET_H
 #undef VORTEX_BOUND_H
@@ -120,7 +118,6 @@
 #include <VSP_Loop.H>
 #include <VSP_Node.H>
 #include <VSP_Solver.H>
-#include <VSP_Surface.H>
 #include <VortexSheetInteractionLoop.H>
 #include <VortexSheetVortex_To_VortexInteractionSet.H>
 #include <Vortex_Bound.H>

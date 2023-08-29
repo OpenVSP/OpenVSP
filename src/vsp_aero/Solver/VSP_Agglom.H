@@ -16,7 +16,7 @@
 #include "VSP_Node.H"
 #include "VSP_Loop.H"
 #include "VSP_Grid.H"
-#include "VSP_Surface.H"
+#include "VSP_Geom.H"
 #include "Search.H"
 
 #include "START_NAME_SPACE.H"
@@ -123,12 +123,16 @@ private:
  
     VSP_GRID* SimplifyMesh_(VSP_GRID &Grid);
 
+    VSP_GRID* SimplifyMesh_(VSP_GRID &Grid, VSP_GRID &GridC);
+
     VSP_GRID* MergeHighAspectRatioQuads_(VSP_GRID &Grid);
     
     void CheckMesh_(VSP_GRID &ThisGrid);
     
     void CreateMixedMesh_(void);
     
+    void CreateMixedMesh_(VSP_GRID &GridC);
+        
     VSP_GRID* DeleteDuplicateNodes_(VSP_GRID &Grid);
     
     void CleanUpMesh_(void);
@@ -200,6 +204,8 @@ public:
      * merge splinter tris at intersections into general polygons **/
     
     VSP_GRID* SimplifyMesh(VSP_GRID &Grid) { return SimplifyMesh_(Grid); };
+
+    VSP_GRID* SimplifyMesh(VSP_GRID &Grid, VSP_GRID &GridC) { return SimplifyMesh_(Grid, GridC); };
 
 };
 

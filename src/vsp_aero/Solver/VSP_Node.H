@@ -26,13 +26,11 @@ private:
     // Node based data
     
     int IsTrailingEdgeNode_;
-    int IsLeadingEdgeNode_;
     int IsBoundaryEdgeNode_;
     int IsBoundaryCornerNode_;
     
     int ComponentID_;
     int SurfaceID_;
-    int GeomID_;
 
     VSPAERO_DOUBLE x_;
     VSPAERO_DOUBLE y_;
@@ -69,10 +67,6 @@ public:
     /** Node is on trailing edge **/
     
     int &IsTrailingEdgeNode(void) { return IsTrailingEdgeNode_; };
-    
-    /** Node is on leading edge **/
-    
-    int &IsLeadingEdgeNode(void) { return IsLeadingEdgeNode_; };
 
     /** Node is on boundary edge **/
 
@@ -89,11 +83,7 @@ public:
     /** Surface ID **/
     
     int &SurfaceID(void) { return SurfaceID_; };
-    
-    /** Geom ID **/
-    
-    int &GeomID(void) { return GeomID_; };
-    
+      
     /** Delta gamma **/
     
     VSPAERO_DOUBLE &dGamma(void) { return dGamma_; };

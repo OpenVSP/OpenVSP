@@ -236,6 +236,10 @@ public:
     
     void CreateTriEdges(void);
     
+    /** Check consistency of the grid... must be called after CreateTriEdges **/
+    
+    int CheckGridConsistency(void);
+    
     /** Calculate normals and centroids for a triangular mesh **/
     
     void CalculateTriNormalsAndCentroids(void);
@@ -247,6 +251,10 @@ public:
     /** Calculate upwind edge data **/
     
     void CreateUpwindEdgeData(void);
+    
+    /** Mark boundary edges **/
+    
+    void MarkBoundaries(void);
     
     /** Contraint on the minimum loop sized used during agglomeration **/
     

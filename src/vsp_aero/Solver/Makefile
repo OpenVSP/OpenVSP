@@ -26,10 +26,10 @@ VSPAERO_SRCS = matrix.C	        \
                VSP_Node.C		       \
                VSP_Loop.C          \
                VSP_Solver.C		   \
-               VSP_Surface.C		   \
                RotorDisk.C		    \
                VSP_Agglom.C		   \
                time.C 			\
+               FastMatrix.C 			\
                FEM_Node.C    \
                ControlSurface.C    \
                ControlSurfaceGroup.C    \

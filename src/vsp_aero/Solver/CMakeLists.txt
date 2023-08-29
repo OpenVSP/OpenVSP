@@ -133,6 +133,7 @@ if(BUILD_VSPAERO)
   ControlSurface.C
   ControlSurfaceGroup.C
   EngineFace.C
+  FastMatrix.C
   FEM_Node.C
   Gradient.C
   InteractionLoop.C
@@ -164,7 +165,6 @@ if(BUILD_VSPAERO)
   VSP_Loop.C
   VSP_Node.C
   VSP_Solver.C
-  VSP_Surface.C
   VSPAERO_TYPES.C
   WOPWOP.C
   AdjointGradient.H
@@ -173,6 +173,7 @@ if(BUILD_VSPAERO)
   ControlSurface.H
   ControlSurfaceGroup.H
   EngineFace.H
+  FastMatrix.H
   FEM_Node.H
   Gradient.H
   InteractionLoop.H
@@ -204,7 +205,6 @@ if(BUILD_VSPAERO)
   VSP_Loop.H
   VSP_Node.H
   VSP_Solver.H
-  VSP_Surface.H
   VSPAERO_TYPES.H
   WOPWOP.H
   )

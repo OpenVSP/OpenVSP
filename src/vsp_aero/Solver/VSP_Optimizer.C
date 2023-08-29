@@ -161,7 +161,8 @@ void VSP_OPTIMIZER::Setup(char *FileName)
     // Turn on adept stack and create VSP Adjoint object
         
     Adjoint_ = new VSPAERO_ADJOINT::VSP_SOLVER;
-  // Settings
+   
+    // Settings
     
     Adjoint().OptimizationSolve() = 1;
     
@@ -2414,19 +2415,6 @@ void VSP_OPTIMIZER::GetSpanWiseChordAndAreaForWing(int Wing, double *Chord, doub
 
     }
       
-}
-
-/*##############################################################################
-#                                                                              #
-#                      VSP_OPTIMIZER GetpFupMesh                               #
-#                                                                              #
-##############################################################################*/
-
-void VSP_OPTIMIZER::GetpFupMesh(double *pFu_pP, double *pFu_pMesh)
-{
-
-    Adjoint().Optimization_Calculate_pFu_pMesh(pFu_pP,pFu_pMesh );
-          
 }
 
 /*##############################################################################

@@ -18,7 +18,6 @@ VSP_NODE::VSP_NODE(void)
 {
 
     IsTrailingEdgeNode_   = 0;
-    IsLeadingEdgeNode_    = 0;
     IsBoundaryEdgeNode_   = 0;
     IsBoundaryCornerNode_ = 0;
 
@@ -33,7 +32,6 @@ VSP_NODE::VSP_NODE(void)
     
     ComponentID_          = 0.;
     SurfaceID_            = 0.;
-    GeomID_               = 0.;
     
 }
 
@@ -62,13 +60,11 @@ VSP_NODE& VSP_NODE::operator=(const VSP_NODE &VSPNode)
 {
 
     IsTrailingEdgeNode_   = VSPNode.IsTrailingEdgeNode_;
-    IsLeadingEdgeNode_    = VSPNode.IsLeadingEdgeNode_;  
     IsBoundaryEdgeNode_   = VSPNode.IsBoundaryEdgeNode_;  
     IsBoundaryCornerNode_ = VSPNode.IsBoundaryCornerNode_;
 
     ComponentID_          = VSPNode.ComponentID_;
     SurfaceID_            = VSPNode.SurfaceID_;
-    GeomID_               = VSPNode.GeomID_;
 
     x_                    = VSPNode.x_;
     y_                    = VSPNode.y_;

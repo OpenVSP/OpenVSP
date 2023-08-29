@@ -8,8 +8,36 @@
 #define INTERACTION_CLASSES_H
 
 #include "utils.H"
-
+#include "InteractionLoop.H"
 #include "START_NAME_SPACE.H"
+
+// Class to store loop to edge, loop to loop interaction lists
+
+class INTERACTION_LOOP_LIST {
+
+public:
+   
+    int NumberOfInteractionLoops[2];   
+     
+    LOOP_INTERACTION_ENTRY *InteractionLoopList[2];
+ 
+};
+
+// Small class to return both the edge and loop lists
+
+class INTERACTION_LISTS {
+
+public:
+   
+    int NumberOfInteractionEdges;
+    int NumberOfInteractionLoops;
+    
+    VSP_EDGE **EdgeInteractionList;    
+    VSP_LOOP **LoopInteractionList;
+   
+};
+
+// Loop entry class
 
 class LOOP_ENTRY {
 
@@ -19,6 +47,10 @@ public:
     int NumberOfVortexEdges;
     VSP_EDGE** Edge;
     
+    int NextLoop;
+    int NumberOfVortexLoops;
+    VSP_LOOP** Loop;
+        
 };
 
 // Small class for stack list

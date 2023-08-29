@@ -61,7 +61,6 @@ private:
     int VortexEdge_;
     
     int IsTrailingEdge_;
-    int IsLeadingEdge_;
     int IsBoundaryEdge_;
     
     int CoarseGridEdge_;
@@ -89,15 +88,8 @@ private:
     VSPAERO_DOUBLE CoreWidth_;
     VSPAERO_DOUBLE SuperSonicCoreWidth_;
 
-//djk
-
-
     int NoInfluence_;
-    
- //   VSPAERO_DOUBLE Xp_;
- //   VSPAERO_DOUBLE Yp_;
- //   VSPAERO_DOUBLE Zp_;
-    
+
     VSPAERO_DOUBLE U2_;
     VSPAERO_DOUBLE U4_;
     
@@ -127,8 +119,6 @@ private:
     VSPAERO_DOUBLE R_;
     VSPAERO_DOUBLE Denom_; 
     VSPAERO_DOUBLE C1_; 
-    
-// djk
 
     // Vortex solution data
     
@@ -136,11 +126,9 @@ private:
  
     // Wing and edge, or trailing node this vortex belongs to
     
-    int DegenWing_;
-    int DegenBody_;
     int SurfaceID_;
     int ComponentID_;
-    int GeomID_;
+    int Wing_;
 
     // Edge nodes - true geometry (camber line, or actual)
     
@@ -309,11 +297,7 @@ public:
     /** Edge is on trailing edge of lifting surface **/
     
     int &IsTrailingEdge(void) { return IsTrailingEdge_; };
-    
-    /** Edge on leading edge of lifting surface **/
-    
-    int &IsLeadingEdge(void) { return IsLeadingEdge_; };
-    
+
     /** Edge is on boundary edge (intersection) of two surface **/
     
     int &IsBoundaryEdge(void) { return IsBoundaryEdge_; };
@@ -356,14 +340,10 @@ public:
     
     VSPAERO_DOUBLE &ReferenceLength(void) { return ReferenceLength_; };
 
-    /** Edge is on degen wing **/
+    /** Edge is on wing **/
 
-    int &DegenWing(void) { return DegenWing_; };
-    
-    /** Edge is on degen body **/
-    
-    int &DegenBody(void) { return DegenBody_; };
-    
+    int &Wing(void) { return Wing_; };
+
     /** Edge is on Surface **/
     
     int &SurfaceID(void) { return SurfaceID_; };
@@ -371,11 +351,7 @@ public:
     /** Edge is on Component **/
     
     int &ComponentID(void) { return ComponentID_; };
-    
-    /** Tied to OpenVSP unique GeomID flag **/
-    
-    int &GeomID(void) { return GeomID_; };
-    
+
     /** Set up the edge data structure given these 2 mesh nodes **/
 
     void Setup(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };

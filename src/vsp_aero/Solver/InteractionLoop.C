@@ -26,6 +26,10 @@ LOOP_INTERACTION_ENTRY::LOOP_INTERACTION_ENTRY(void)
     NumberOfVortexEdges_ = 0;
 
     SurfaceVortexEdgeInteractionList_ = NULL;
+    
+    NumberOfVortexLoops_ = 0;
+    
+    SurfaceVortexLoopInteractionList_ = NULL;
 
 }
 
@@ -38,7 +42,7 @@ LOOP_INTERACTION_ENTRY::LOOP_INTERACTION_ENTRY(void)
 LOOP_INTERACTION_ENTRY::~LOOP_INTERACTION_ENTRY(void)
 {
 
-    // Just zero the matrix
+    // Delete the edge list
 
     if ( SurfaceVortexEdgeInteractionList_ != NULL ) {
        
@@ -49,18 +53,32 @@ LOOP_INTERACTION_ENTRY::~LOOP_INTERACTION_ENTRY(void)
     SurfaceVortexEdgeInteractionList_ = NULL;
     
     NumberOfVortexEdges_ = 0;
+
+    // Delete the loop list
     
+    if ( SurfaceVortexLoopInteractionList_ != NULL ) {
+       
+       delete [] SurfaceVortexLoopInteractionList_;
+       
+    }
+    
+    SurfaceVortexLoopInteractionList_ = NULL;
+    
+    NumberOfVortexLoops_ = 0;
+        
 }
 
 /*##############################################################################
 #                                                                              #
-#                      LOOP_INTERACTION_ENTRY SizeList                         #
+#                      LOOP_INTERACTION_ENTRY SizeEdgeList                     #
 #                                                                              #
 ##############################################################################*/
 
-void LOOP_INTERACTION_ENTRY::SizeList(int NumberOfVortexEdges)
+void LOOP_INTERACTION_ENTRY::SizeEdgeList(int NumberOfVortexEdges)
 {
 
+    int i;
+    
     if ( SurfaceVortexEdgeInteractionList_ != NULL ) {
        
        delete [] SurfaceVortexEdgeInteractionList_;
@@ -70,16 +88,22 @@ void LOOP_INTERACTION_ENTRY::SizeList(int NumberOfVortexEdges)
     NumberOfVortexEdges_ = NumberOfVortexEdges;
     
     SurfaceVortexEdgeInteractionList_ = new VSP_EDGE*[NumberOfVortexEdges_ + 1];
-
+    
+    for ( i = 1 ; i <= NumberOfVortexEdges_ ; i++ ) {
+       
+       SurfaceVortexEdgeInteractionList_[i] = NULL;
+       
+    }
+    
 }
 
 /*##############################################################################
 #                                                                              #
-#                    LOOP_INTERACTION_ENTRY DeleteList                         #
+#                    LOOP_INTERACTION_ENTRY DeleteEdgeList                     #
 #                                                                              #
 ##############################################################################*/
 
-void LOOP_INTERACTION_ENTRY::DeleteList(void)
+void LOOP_INTERACTION_ENTRY::DeleteEdgeList(void)
 {
 
     if ( SurfaceVortexEdgeInteractionList_ != NULL ) {
@@ -91,6 +115,58 @@ void LOOP_INTERACTION_ENTRY::DeleteList(void)
     SurfaceVortexEdgeInteractionList_ = NULL;
     
     NumberOfVortexEdges_ = 0;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                      LOOP_INTERACTION_ENTRY SizeLoopList                     #
+#                                                                              #
+##############################################################################*/
+
+void LOOP_INTERACTION_ENTRY::SizeLoopList(int NumberOfVortexLoops)
+{
+
+    int i;
+    
+    if ( NumberOfVortexLoops_ > 0 && SurfaceVortexLoopInteractionList_ != NULL ) {
+       
+       delete [] SurfaceVortexLoopInteractionList_;
+       
+       SurfaceVortexLoopInteractionList_ = NULL;
+       
+    }
+    
+    NumberOfVortexLoops_ = NumberOfVortexLoops;
+    
+    SurfaceVortexLoopInteractionList_ = new VSP_LOOP*[NumberOfVortexLoops_ + 1];
+    
+    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+       
+       SurfaceVortexLoopInteractionList_[i] = NULL;
+       
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                    LOOP_INTERACTION_ENTRY DeleteLoopList                     #
+#                                                                              #
+##############################################################################*/
+
+void LOOP_INTERACTION_ENTRY::DeleteLoopList(void)
+{
+
+    if ( SurfaceVortexLoopInteractionList_ != NULL ) {
+       
+       delete [] SurfaceVortexLoopInteractionList_;
+       
+    }
+    
+    SurfaceVortexLoopInteractionList_ = NULL;
+    
+    NumberOfVortexLoops_ = 0;
 
 }
 
@@ -124,9 +200,13 @@ LOOP_INTERACTION_ENTRY &LOOP_INTERACTION_ENTRY::operator=(const LOOP_INTERACTION
     
     NumberOfVortexEdges_ = LoopInteractionEntry.NumberOfVortexEdges_;
     
-    SizeList(NumberOfVortexEdges_);
+    SizeEdgeList(NumberOfVortexEdges_);
+    
+    NumberOfVortexLoops_ = LoopInteractionEntry.NumberOfVortexLoops_;
+    
+    SizeLoopList(NumberOfVortexLoops_);
    
-    // Copy contents of list
+    // Copy contents of edge list
     
     for ( i = 1 ; i <= NumberOfVortexEdges_ ; i++ ) {
 
@@ -134,17 +214,25 @@ LOOP_INTERACTION_ENTRY &LOOP_INTERACTION_ENTRY::operator=(const LOOP_INTERACTION
 
     }
 
+    // Copy contents of loop list
+    
+    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+
+       SurfaceVortexLoopInteractionList_[i] = LoopInteractionEntry.SurfaceVortexLoopInteractionList_[i];
+
+    }
+    
     return *this;
 
 }
 
 /*##############################################################################
 #                                                                              #
-#                      LOOP_INTERACTION_ENTRY UseList                          #
+#                      LOOP_INTERACTION_ENTRY UseEdgeList                      #
 #                                                                              #
 ##############################################################################*/
 
-void LOOP_INTERACTION_ENTRY::UseList(int NumberOfVortexEdges, VSP_EDGE **TempList)
+void LOOP_INTERACTION_ENTRY::UseEdgeList(int NumberOfVortexEdges, VSP_EDGE **List)
 {
 
     if ( SurfaceVortexEdgeInteractionList_ != NULL ) {
@@ -155,7 +243,28 @@ void LOOP_INTERACTION_ENTRY::UseList(int NumberOfVortexEdges, VSP_EDGE **TempLis
     
     NumberOfVortexEdges_ = NumberOfVortexEdges;
 
-    SurfaceVortexEdgeInteractionList_= TempList;
+    SurfaceVortexEdgeInteractionList_ = List;
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                      LOOP_INTERACTION_ENTRY UseLoopList                      #
+#                                                                              #
+##############################################################################*/
+
+void LOOP_INTERACTION_ENTRY::UseLoopList(int NumberOfVortexLoops, VSP_LOOP **List)
+{
+
+    if ( SurfaceVortexLoopInteractionList_ != NULL ) {
+       
+       delete [] SurfaceVortexLoopInteractionList_;
+       
+    }
+        
+    NumberOfVortexLoops_ = NumberOfVortexLoops;
+
+    SurfaceVortexLoopInteractionList_ = List;
     
 }
 

@@ -292,7 +292,6 @@ void VSP_GRID::CreateTriEdges(void)
     int i, j, k, nod1, nod2, noda, nodb, start_edge, Node1, Node2, Edge;
     int level, edge_to_node[4][3], nod_list[4], Tri1, Tri2, Node;
     int max_edge, new_edge, *jump_pnt;
-    VSPAERO_DOUBLE x1, y1, z1, x2, y2, z2, Normal[3], Dot;
     EDGE_ENTRY *list, *tlist;
 
     if ( Verbose_ ) PRINTF("Finding tri edges... \n");
@@ -578,7 +577,6 @@ void VSP_GRID::CreateTriEdges(void)
     for ( j = 1 ; j <= NumberOfEdges() ; j++ ) {
      
        EdgeList(j).IsTrailingEdge() = 0;
-       EdgeList(j).IsLeadingEdge()  = 0;
        EdgeList(j).IsBoundaryEdge() = 0;
        
     }    
@@ -644,6 +642,118 @@ void VSP_GRID::CreateTriEdges(void)
   
     }
     
+}
+
+/*##############################################################################
+#                                                                              #
+#                           VSP_GRID CheckGridConsistency                      #
+#                                                                              #
+##############################################################################*/
+
+int VSP_GRID::CheckGridConsistency(void)
+{
+   
+    int i, j, Tri, BadMesh;
+    int *NumberOfTrisForEdge, **EdgeToTriList;
+    
+    NumberOfTrisForEdge = new int[NumberOfEdges() + 1];
+    
+    zero_int_array(NumberOfTrisForEdge, NumberOfEdges());
+    
+    EdgeToTriList = new int*[NumberOfEdges() + 1];
+    
+    for ( i = 1 ; i <= NumberOfTris() ; i++ ) {
+       
+       for ( j = 1 ; j <= 3 ; j++ ) {
+          
+          NumberOfTrisForEdge[LoopList(i).Edge(j)]++;
+          
+       }
+       
+    }
+       
+    for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
+       
+       EdgeToTriList[i] = new int[NumberOfTrisForEdge[i] + 1];
+       
+    }
+    
+    zero_int_array(NumberOfTrisForEdge, NumberOfEdges());
+    
+    for ( i = 1 ; i <= NumberOfTris() ; i++ ) {
+       
+       for ( j = 1 ; j <= 3 ; j++ ) {
+          
+          if ( LoopList(i).Edge(j) <= 0 ) PRINTF("LoopList(i).Edge(j): %d \n",LoopList(i).Edge(j));
+
+          NumberOfTrisForEdge[LoopList(i).Edge(j)]++;
+          
+          EdgeToTriList[LoopList(i).Edge(j)][NumberOfTrisForEdge[LoopList(i).Edge(j)]] = i;
+                  
+       }
+       
+    }    
+    
+    // List any whacky tris...
+    
+    BadMesh = 0;
+    
+    for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
+    
+       if ( NumberOfTrisForEdge[i] > 2 ) {
+          
+          BadMesh = 1;
+          
+          PRINTF("Danger, Will Robinson!....Edge: %d has %d tris attached to it... okey dokey! \n",i,NumberOfTrisForEdge[i]);fflush(NULL);
+          
+          for ( j = 1 ; j <= NumberOfTrisForEdge[i] ; j++ ) {
+             
+             Tri = EdgeToTriList[i][j];
+             
+             PRINTF("Tri: %d \n",Tri);fflush(NULL);
+             
+             PRINTF("Edge %d with nodes: %d, %d is attached to tri %d with nodes %d %d %d \n",
+             i,
+             EdgeList(i).Node1(),
+             EdgeList(i).Node2(),
+             EdgeToTriList[i][j],
+             LoopList(EdgeToTriList[i][j]).Node1(),
+             LoopList(EdgeToTriList[i][j]).Node2(),
+             LoopList(EdgeToTriList[i][j]).Node3());
+             
+             LoopList(EdgeToTriList[i][j]).SurfaceID() = 999;
+             
+          }
+             
+       }
+       
+    }
+    
+    for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
+       
+       delete [] EdgeToTriList[i];
+       
+    }
+    
+    delete [] EdgeToTriList;
+    delete [] NumberOfTrisForEdge;
+    
+    return BadMesh;
+        
+}
+
+/*##############################################################################
+#                                                                              #
+#                           VSP_GRID MakeBoundaries                            #
+#                                                                              #
+##############################################################################*/
+
+void VSP_GRID::MarkBoundaries(void)
+{
+   
+    int i, j, Node, Node1, Node2, Edge, Tri1, Tri2;
+    VSPAERO_DOUBLE x1, y1, z1, x2, y2, z2, Normal[3], Dot;
+
     // Mark edges to the surface they belong to
 
     for ( j = 1 ; j <= NumberOfTris() ; j++ ) {
@@ -651,48 +761,29 @@ void VSP_GRID::CreateTriEdges(void)
        // Edge 1
        
        Edge = LoopList(j).Edge1();
- 
-       EdgeList(Edge).DegenWing() = LoopList(j).DegenWingID();
-       
-       EdgeList(Edge).DegenBody() = LoopList(j).DegenBodyID();
-       
+
        EdgeList(Edge).SurfaceID() = LoopList(j).SurfaceID();
        
        EdgeList(Edge).ComponentID() = LoopList(j).ComponentID();
-       
-       EdgeList(Edge).GeomID() = LoopList(j).GeomID();
 
        // Edge 2
        
        Edge = LoopList(j).Edge2();
-  
-       EdgeList(Edge).DegenWing() = LoopList(j).DegenWingID();
-       
-       EdgeList(Edge).DegenBody() = LoopList(j).DegenBodyID();
-       
+
        EdgeList(Edge).SurfaceID() = LoopList(j).SurfaceID();
 
        EdgeList(Edge).ComponentID() = LoopList(j).ComponentID();
-       
-       EdgeList(Edge).GeomID() = LoopList(j).GeomID();
-       
+             
        // Edge 3
        
        Edge = LoopList(j).Edge3();
-  
-       EdgeList(Edge).DegenWing() = LoopList(j).DegenWingID();
-       
-       EdgeList(Edge).DegenBody() = LoopList(j).DegenBodyID();       
-       
+
        EdgeList(Edge).SurfaceID() = LoopList(j).SurfaceID();
        
        EdgeList(Edge).ComponentID() = LoopList(j).ComponentID();
-       
-       EdgeList(Edge).GeomID() = LoopList(j).GeomID();
-       
+      
     }
      
-    
     // Mark nodes to the component and surface they belong to
 
     for ( j = 1 ; j <= NumberOfTris() ; j++ ) {
@@ -704,8 +795,6 @@ void VSP_GRID::CreateTriEdges(void)
        NodeList(Node).ComponentID() = LoopList(j).ComponentID();
        
        NodeList(Node).SurfaceID() = LoopList(j).SurfaceID();
-              
-       NodeList(Node).GeomID() = LoopList(j).GeomID();
 
        // Node 2
        
@@ -714,9 +803,7 @@ void VSP_GRID::CreateTriEdges(void)
        NodeList(Node).ComponentID() = LoopList(j).ComponentID();
        
        NodeList(Node).SurfaceID() = LoopList(j).SurfaceID();
-       
-       NodeList(Node).GeomID() = LoopList(j).GeomID();
-       
+      
        // Node 3
        
        Node = LoopList(j).Node3();
@@ -724,16 +811,18 @@ void VSP_GRID::CreateTriEdges(void)
        NodeList(Node).ComponentID() = LoopList(j).ComponentID();
        
        NodeList(Node).SurfaceID() = LoopList(j).SurfaceID();
-       
-       NodeList(Node).GeomID() = LoopList(j).GeomID();
-       
+     
     }
+    
+    // Mark trailing and open boundary edges
                
     for ( j = 1 ; j <= NumberOfEdges() ; j++ ) {
      
        // Leading, trailing, and general edge list information
 
        if ( EdgeList(j).Tri2() == EdgeList(j).Tri1() ) {
+
+          EdgeList(j).IsBoundaryEdge() = 1;
    
           if ( NodeList(EdgeList(j).Node1()).IsTrailingEdgeNode() &&
                NodeList(EdgeList(j).Node2()).IsTrailingEdgeNode()     ) {
@@ -741,32 +830,18 @@ void VSP_GRID::CreateTriEdges(void)
              EdgeList(j).IsTrailingEdge() = 1;
              
           }
-          
-          if ( NodeList(EdgeList(j).Node1()).IsLeadingEdgeNode() &&
-               NodeList(EdgeList(j).Node2()).IsLeadingEdgeNode()     ) {
-      
-             EdgeList(j).IsLeadingEdge() = 1;
-             
-          }          
- 
-          if ( NodeList(EdgeList(j).Node1()).IsBoundaryEdgeNode() &&
-               NodeList(EdgeList(j).Node2()).IsBoundaryEdgeNode()     ) {
-
-             if ( EdgeList(j).IsBoundaryEdge() == 0 ) EdgeList(j).IsBoundaryEdge() = 1;
-             
-          }    
-          
+   
        }
 
     }
-        
-    // Mark edges on boarders of diffrent surface IDs, and calculate normal
+
+    // Mark edges on borders of different surface IDs, and calculate normal
     
     for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
        
        Tri1 = EdgeList(i).Tri1();
        Tri2 = EdgeList(i).Tri2();
-       
+
        // Mark boundary edges
        
        if ( LoopList(Tri1).SurfaceID() != LoopList(Tri2).SurfaceID() ) {
@@ -774,7 +849,7 @@ void VSP_GRID::CreateTriEdges(void)
           if ( EdgeList(i).IsTrailingEdge() == 0 ) EdgeList(i).IsBoundaryEdge() = 1;
              
        }
-       
+
        // Calculate average normal
        
        Normal[0] = LoopList(Tri1).Area() * LoopList(Tri1).Nx() + LoopList(Tri2).Area() * LoopList(Tri2).Nx();
@@ -811,6 +886,26 @@ void VSP_GRID::CreateTriEdges(void)
        EdgeList(j).Length() = sqrt( pow(x2-x1,2.) + pow(y2-y1,2.) + pow(z2-z1,2.) );    
        
     }
+    
+    // Mark nodes on leading edges and boundary edges
+    
+    for ( j = 1 ; j <= NumberOfEdges() ; j++ ) {
+     
+       if ( EdgeList(j).IsBoundaryEdge() ) {
+          
+          NodeList(EdgeList(j).Node1()).IsBoundaryEdgeNode() = 1;
+          NodeList(EdgeList(j).Node2()).IsBoundaryEdgeNode() = 1;
+          
+       }
+          
+       if ( EdgeList(j).IsTrailingEdge() ) {
+          
+          NodeList(EdgeList(j).Node1()).IsTrailingEdgeNode() = 1;
+          NodeList(EdgeList(j).Node2()).IsTrailingEdgeNode() = 1;
+          
+       }   
+
+    }    
  
 }
 
@@ -1376,7 +1471,7 @@ void VSP_GRID::CalculateLoopNormals(void)
 #                                                                              #
 ##############################################################################*/
 /*
-
+ * fuck
 void VSP_GRID::CalculateLeastSquareCoefficients(int Loop) 
 {    
 

@@ -57,6 +57,10 @@ private:
     void InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3]);
     
     void InducedVelocity_(VSPAERO_DOUBLE xyz_p[3], VSPAERO_DOUBLE q[3], VSPAERO_DOUBLE CoreSize);
+    
+    // Initial span
+    
+    VSPAERO_DOUBLE InitialSpan_;
 
 public:
 

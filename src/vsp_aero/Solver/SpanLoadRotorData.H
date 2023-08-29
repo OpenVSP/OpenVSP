@@ -20,7 +20,7 @@ class SPAN_LOAD_ROTOR_DATA {
 
 private:
 
-    int SurfaceID_;
+    int WakeSurface_;
     int LiftingSurface_;
     
     // Spanwise forces and moments, for wings and rotors
@@ -81,7 +81,7 @@ public:
 
     SPAN_LOAD_ROTOR_DATA& operator=(const SPAN_LOAD_ROTOR_DATA &SPAN_LOAD_ROTOR_DATA);
     
-    int &SurfaceID(void) { return SurfaceID_; };
+    int &WakeSurface(void) { return WakeSurface_; };
     int &LiftingSurface(void) { return LiftingSurface_; };
 
     /** Set number of spanwise stations **/

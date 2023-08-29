@@ -41,11 +41,11 @@ private:
 
     int SurfaceID_;
     int ComponentID_;
-    int GeomID_;
     int IsTrailingEdgeTri_;
-    int IsLeadingEdgeTri_;
     int VortexLoop_;
     int IsSonic_;
+    
+    int MGVortexLoop_;
     
     int SpanStation_;
 
@@ -83,8 +83,7 @@ private:
     VSPAERO_DOUBLE KTFact_;
     
     int SurfaceType_;
-    int DegenBodyID_;
-    int DegenWingID_;        
+    int VortexSheetID_;        
 
     // Agglomeration data
     
@@ -92,6 +91,8 @@ private:
     
     int NumberOfFineGridLoops_;
     int *FineGridLoopList_;
+    
+    int Level_;
     
     BBOX BoundBox_;
     
@@ -271,20 +272,18 @@ public:
     int &ComponentID(void) { return ComponentID_; };  
     
     /** Geom ID for this loop **/
-    
-    int &GeomID(void) { return GeomID_; };  
-    
+
     /** Tri/Loop is on trailing edge **/
     
     int &IsTrailingEdgeTri(void) { return IsTrailingEdgeTri_; };
-    
-    /** Tri/Loop is on leading edge **/
-    
-    int &IsLeadingEdgeTri(void) { return IsLeadingEdgeTri_; };
-    
-    /** Global vortex loop value **/
+
+    /** Vortex loop value for the mesh level this loop sits on **/
     
     int &VortexLoop(void) { return VortexLoop_; };
+    
+    /** Vortex loop value for the over all multi-grid mesh system **/
+    
+    int &MGVortexLoop(void) { return MGVortexLoop_; };
     
     /** Loop is sonic, ie upwind edges are swept in front of Mach lines **/
     
@@ -294,9 +293,9 @@ public:
     
     int &SpanStation(void) { return SpanStation_; };
     
-    /** Vortex Sheet this loop belongs to ...  We are double book keeping DegenWingID_ **/
+    /** Vortex Sheet this loop belongs to **/
     
-    int &VortexSheet(void) { return DegenWingID_; }; 
+    int &VortexSheet(void) { return VortexSheetID_; }; 
     
     /** Area of loop **/
     
@@ -401,14 +400,6 @@ public:
     /** Surface type **/
     
     int &SurfaceType(void) { return SurfaceType_; };
-    
-    /** Degen Body ID **/
-    
-    int &DegenBodyID(void) { return DegenBodyID_; };
-    
-    /** Degen Wing ID **/
-    
-    int &DegenWingID(void) { return DegenWingID_; };    
    
     /** Coarse grid loop this loop was agglomerated into **/
     
@@ -429,6 +420,10 @@ public:
     /** Fine grid loop list **/
     
     int &FineGridLoop(int i) { return FineGridLoopList_[i-1]; };
+    
+    /** Agglomeration level this loop sits on **/
+    
+    int &Level(void) { return Level_; };
     
     /** Bounding box **/
     

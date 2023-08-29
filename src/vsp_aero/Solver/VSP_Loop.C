@@ -69,16 +69,12 @@ VSP_LOOP::VSP_LOOP(void)
     
     SurfaceType_ = 0;
     
-    DegenBodyID_ = 0;
-    
-    DegenWingID_ = 0;    
+    VortexSheetID_ = 0;
 
     SurfaceID_ = 0;
     
     ComponentID_ = 0;
-    
-    GeomID_ = 0;
-    
+        
     SpanStation_ = 0;
     
     LocalFreeStreamVelocity_[0] = 0.;
@@ -92,7 +88,15 @@ VSP_LOOP::VSP_LOOP(void)
     DownWash_Velocity_[2] = 0.;
     
     IsSonic_ = 0;
-
+    
+    CoarseGridLoop_        = 0;
+    NumberOfFineGridLoops_ = 0;
+    FineGridLoopList_      = NULL;
+    Level_                 = 0;
+   
+    VortexLoop_            = 0;
+    MGVortexLoop_          = 0;
+     
 }
 
 /*##############################################################################
@@ -158,10 +162,9 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
 
     SurfaceID_              = VSPTri.SurfaceID_;
     ComponentID_            = VSPTri.ComponentID_;
-    GeomID_                 = VSPTri.GeomID_;
     IsTrailingEdgeTri_      = VSPTri.IsTrailingEdgeTri_;
-    IsLeadingEdgeTri_       = VSPTri.IsLeadingEdgeTri_;
     VortexLoop_             = VSPTri.VortexLoop_;
+    MGVortexLoop_           = VSPTri.MGVortexLoop_;
     
     SpanStation_            = VSPTri.SpanStation_;
 
@@ -199,14 +202,16 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
     KTFact_                 = VSPTri.KTFact_;
     
     SurfaceType_            = VSPTri.SurfaceType_;
-    DegenBodyID_            = VSPTri.DegenBodyID_;
-    DegenWingID_            = VSPTri.DegenWingID_;
+
+    VortexSheetID_          = VSPTri.VortexSheetID_;
     
     CoarseGridLoop_         = VSPTri.CoarseGridLoop_;
     
     NumberOfFineGridLoops_  = VSPTri.NumberOfFineGridLoops_;
     
     SizeFineGridLoopList(NumberOfFineGridLoops_);
+    
+    Level_ = VSPTri.Level_;
 
     for ( i = 0 ; i < NumberOfFineGridLoops_ ; i++ ) {
      
@@ -274,6 +279,8 @@ void VSP_LOOP::SizeNodeList(int NumberOfNodes)
     // Delete any old list
     
     if ( NumberOfNodes_ != 0 && NodeList_ != NULL ) delete [] NodeList_;
+
+    if ( NumberOfNodes_ != 0 && UVNodeList_ != NULL ) delete [] UVNodeList_;
     
     // Allocate space for list
     
@@ -412,5 +419,6 @@ void VSP_LOOP::UpdateGeometryLocation(VSPAERO_DOUBLE *TVec, VSPAERO_DOUBLE *OVec
     BoundBox_.z_max = Vec(2) + OVec[2] + TVec[2];            
 
 }
+
 
 #include "END_NAME_SPACE.H"

@@ -13,18 +13,37 @@
 #include <math.h>
 #include <assert.h>
 #include "utils.H"
-#include "VSP_Surface.H"
 #include "VSP_Agglom.H"
 #include "RotorDisk.H"
+#include "BoundaryConditionData.H"
+#include "ControlSurface.H"
 
 #include "START_NAME_SPACE.H"
 
 #define   VLM_MODEL 1
 #define PANEL_MODEL 2
 
+#define CART3D_SURFACE       3
+#define VSPGEOM_SURFACE      4
+#define THIN_SURFACE        10
+#define THICK_SURFACE       20
+
 #define SYM_X 1
 #define SYM_Y 2
 #define SYM_Z 3
+
+// Simple kutta node structure
+
+class KUTTA_NODE {
+
+public:
+
+   int IsKuttaNode;
+   int Node;
+   int Edge1;
+   int Edge2;
+
+};
 
 // Definition of the VSP_GEOM_H class
 
@@ -40,6 +59,10 @@ private:
     
     void init(void);
     
+    // Max number of grid levels
+    
+    int MaxNumberOfGridLevels_;
+    
     // Model type
     
     int ModelType_;
@@ -51,32 +74,73 @@ private:
     // Symmetry flag
     
     int DoSymmetryPlaneSolve_;
+
+    // Component name
     
-    // Geometry data
+    char ComponentName_[2000];
+    
+    // Number of surface patches
+    
+    int NumberOfSurfaces_;    
+
+    // Component ID for surface patch
+    
+    int *ComponentIDForSurface_;
+    
+    // Number of components
     
     int NumberOfComponents_;
     
-    // Wing Data
+    // Component ID for component
     
-    int NumberOfDegenWings_;
-
-    // Body Data
+    int *ComponentIDForComponent_;
     
-    int NumberOfDegenBodies_;
+    // Surface patch name
+    
+    char **SurfaceNameList_;
 
+    // Surface is thick surface flag
+    
+    int *SurfaceIsThick_;
+    
+    // Component is thick surface flag
+    
+    int *ComponentIsThick_;
+
+    // Number of kutta nodes provided by vspgeom file
+        
+    int NumberOfKuttaNodes_;
+    
+    // Kutta node list provided by vpsgeom file
+        
+    int *KuttaNodeList_;
+    
+    // Number of thin surfaces
+    
+    int NumberOfThinSurfaces_;
+    
+    // Number of thick surfaces
+    
+    int NumberOfThickSurfaces_;
+    
+    // Number of thin components
+    
+    int NumberOfThinComponents_;
+    
+    // Number of thick components
+    
+    int NumberOfThickComponents_;  
+    
+    // Boundary condition data
+    
+    BOUNDARY_CONDITION_DATA *BoundaryConditionForSurface_;
+            
     // Rotor Disk Data
     
     int NumberOfRotors_;
+    
     ROTOR_DISK *RotorDisk_;
 
-    // Surface Data
-    
-    int NumberOfSurfaces_;
-    
-    int NumberOfSurfacePatches_;
-   
-    VSP_SURFACE *VSP_Surface_;
-    
     // Bounding Box data for each component
     
     BBOX *BBoxForComponent_;
@@ -84,18 +148,49 @@ private:
     // Merged global mesh
     
     int NumberOfGridLevels_;
+    
     VSP_GRID **Grid_;
     
-    // Agglomeration routines
+    // Possible simplified mesh provided by user
     
-    void AgglomerateMeshes(void);
+    VSP_GRID *GridC_;
+    
+    // Possible fine, original mesh provided by user
+    
+    VSP_GRID *GridF_;
+    
+    int InputMeshIsMixedPolys_;
+    
+    // Node to tri list
+        
+    int *NumberOfTrisForNode_;                    
+    
+    int **NodeToTriList_;
 
+    // Control surface information
+    
+    int NumberOfControlSurfaces_;
+    
+    CONTROL_SURFACE *ControlSurface_;
+        
     // I/O
     
     void Read_CART3D_File(char *FileName);
-    void Read_VSPGEOM_File(char *FileName);
-    void Read_VSP_Degen_File(char *FileName);
     
+    void Read_VSPGEOM_File(char *FileName);
+    
+    void ReadCart3DDataFromFile(char *Name, FILE *CART3D_File, FILE *TKEY_File);
+    
+    void ReadVSPGeomDataFromFile(char *Name, FILE *VSPGeom_File, FILE *VKEY_File);
+
+    void ReadControlSurfaceInformation(char *FileName);
+    
+    void RotateGeometry_About_Y_Axis(void);
+
+    void FindSharpEdges(int NumberOfSharpNodes, int *SharpNodeList);
+        
+    int SurfaceAtNodeIsConvex(int Node);
+        
     // FEM Analysis
     
     int LoadDeformationFile_;
@@ -109,7 +204,7 @@ private:
     VSPAERO_DOUBLE VehicleRotationAxisLocation_[3];
     
     VSPAERO_DOUBLE HeightAboveGround_;
-    
+
     // Control surface routines
     
     void FindControlSurfaceVortexLoops(void);
@@ -124,6 +219,15 @@ private:
     
     void MeshGeom(void);
     
+    // Write out cart3d tri formatted file for the finest mesh... typicall used
+    // for writing out a whacked mesh with the whacky tris marked as surface 999
+    
+    void WriteOutTriMesh(void);
+    
+    // Sanitize meshes with thin surfaces
+    
+    void SanitizeThinMeshes(void);
+        
     // Try and figure out if this a panel or VLM mesh
     
     void DetermineModelType(void);
@@ -135,7 +239,7 @@ private:
     // Bounding Box data
     
     void CreateComponentBBoxData(void);
-            
+
 public:
 
     // Constructor, Destructor, Copy
@@ -151,38 +255,58 @@ public:
     // Read in the VSP degenerate geometry file
     
     void ReadFile(char *FileName, int& ModelType, int& SurfaceType);
-    
-    /** Load in a FEM (beam method) FEM deformation file **/
 
-    int &LoadDeformationFile(void) { return LoadDeformationFile_; };    
- 
-    /** Load in FEM (beam data) deformation data file **/
+    /** Component name **/
     
-    void LoadFEMDeformationData(char *FileName);
+    char* ComponentName(void) { return ComponentName_; };
+    
+    /** Surface type **/
+    
+    int SurfaceType(void) { return SurfaceType_; };
+    
+    /** Number of surface patches **/
 
-    /** Number of Components **/
+    int NumberOfSurfaces(void) { return NumberOfSurfaces_; };    
+
+    /** Component ID for surfac patch i **/
+    
+    int ComponentIDForSurface(int i) { return ComponentIDForSurface_[i]; };
+        
+    /** Number of components **/
     
     int NumberOfComponents(void) { return NumberOfComponents_; };
     
-    /** Number of degen wings **/
+    /** Component ID for component **/
     
-    int NumberOfDegenWings(void) { return NumberOfDegenWings_; };
-
-    /** Number of degen bodies **/
+    int ComponentIDForSurfaceComponent(int i) { return ComponentIDForComponent_[i]; };
+   
+    /** Name for surface patch i **/
     
-    int NumberOfDegenBodies(void) { return NumberOfDegenBodies_; };
-
-    /** Number of surfaces **/
+    char *SurfaceNameList(int i) { return SurfaceNameList_[i]; };
     
-    int NumberOfSurfaces(void) { return NumberOfSurfaces_; };
+    /** Surface is thick surface flag **/
     
-    /** Number of surface patches **/
-        
-    int NumberOfSurfacePatches(void) { return NumberOfSurfacePatches_; };
+    int SurfaceIsThick(int i) { return SurfaceIsThick_[i]; };
     
-    /** Access to the VSP_SURFACE object list **/
+    /** Component is thick surface flag **/
     
-    VSP_SURFACE &VSP_Surface(int i) { return VSP_Surface_[i]; };
+    int ComponentIsThick(int i) { return ComponentIsThick_[i]; };
+    
+    /** Number of thin surfaces **/
+    
+    int NumberOfThinSurfaces(void) { return NumberOfThinSurfaces_; };
+    
+    /** Number of thick surfaces **/
+    
+    int NumberOfThickSurfaces(void) { return NumberOfThickSurfaces_; };
+    
+    /** Number of thin components **/
+    
+    int NumberOfThinComponents(void) { return NumberOfThinComponents_; };
+    
+    /** Number of thick components **/
+    
+    int NumberOfThickComponents(void) { return NumberOfThickComponents_; };    
 
     /** Bounding box for each component **/
     
@@ -191,7 +315,11 @@ public:
     /** Number of agglomeration levels **/
        
     int NumberOfGridLevels(void) { return NumberOfGridLevels_; };
+        
+    /** Boundary condition data for surface i **/
     
+    BOUNDARY_CONDITION_DATA &BoundaryConditionForSurface(int i) { return BoundaryConditionForSurface_[i]; };
+          
     /** Access to the finest, user supplied grid **/
     
     VSP_GRID &Grid(void) { return *(Grid_[0]); };
@@ -228,7 +356,15 @@ public:
     /** Height above the ground for ground effects model **/
     
     VSPAERO_DOUBLE &HeightAboveGround(void) { return HeightAboveGround_; };
+
+    /** Number of control surfaces **/
     
+    int NumberOfControlSurfaces(void) { return NumberOfControlSurfaces_; };
+    
+    /** Control surface data **/
+    
+    CONTROL_SURFACE &ControlSurface(int i) { return ControlSurface_[i]; };
+            
     /** Update the mesh ... user has updated xyz points on the mesh, so we need to update
      * all the mesh dependent stuff... **/
 

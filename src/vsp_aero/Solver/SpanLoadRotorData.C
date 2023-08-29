@@ -23,7 +23,7 @@ SPAN_LOAD_ROTOR_DATA::SPAN_LOAD_ROTOR_DATA(void)
 
     ActualTimeSamples_ = 0;
     
-    SurfaceID_ = 0;
+    WakeSurface_ = 0;
     
     Span_Cxo_ = NULL;
     Span_Cyo_ = NULL;
@@ -138,7 +138,7 @@ SPAN_LOAD_ROTOR_DATA::~SPAN_LOAD_ROTOR_DATA(void)
 
     ActualTimeSamples_ = 0;
     
-    SurfaceID_ = 0;
+    WakeSurface_ = 0;
     
     Span_Cxo_ = NULL;
     Span_Cyo_ = NULL;
@@ -216,7 +216,7 @@ SPAN_LOAD_ROTOR_DATA &SPAN_LOAD_ROTOR_DATA::operator=(const SPAN_LOAD_ROTOR_DATA
 
     int i;
     
-    SurfaceID_ = SpanLoadData.SurfaceID_;
+    WakeSurface_ = SpanLoadData.WakeSurface_;
 
     if ( Span_Cxo_       != NULL ) delete [] Span_Cxo_;  
     if ( Span_Cyo_       != NULL ) delete [] Span_Cyo_;  

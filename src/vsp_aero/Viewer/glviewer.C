@@ -705,46 +705,8 @@ void GL_VIEWER::LoadMeshData(int ReLoad)
     BetaList = new float[NumberOfBetas + 1];
     AlphaList = new float[NumberOfAlphas + 1];
        
-    // Read in wing ID flags, names...
- 
-    fread(&NumberOfWings_, i_size, 1, adb_file);
-    
-    if ( !ReLoad ) WingListName_ = new char*[NumberOfWings_ + 1];
-    
-    if ( !ReLoad ) WingGroupID_ = new int[NumberOfWings_ + 1];
-  
-    for ( i = 1 ; i <= NumberOfWings_ ; i++ ) { 
-     
-       fread(&DumInt, i_size, 1, adb_file);
-       
-       WingListName_[i] = new char[200];
- 
-       fread(WingListName_[i], c_size, 100, adb_file);
-       
-       fread(&(WingGroupID_[i]), i_size, 1, adb_file);
- 
-    }
-    
-    // Read in body ID flags, names...
+    NumberOfWings_ = NumberOfBodies_ = 0;
 
-    fread(&NumberOfBodies_, i_size, 1, adb_file);
-    
-    if ( !ReLoad ) BodyListName_ = new char*[NumberOfBodies_ + 1];
-    
-    if ( !ReLoad ) BodyGroupID_ = new int[NumberOfBodies_ + 1];
-     
-    for ( i = 1 ; i <= NumberOfBodies_ ; i++ ) { 
-     
-       fread(&DumInt, i_size, 1, adb_file);
-       
-       if ( !ReLoad ) BodyListName_[i] = new char[200];
-
-       fread(BodyListName_[i], c_size, 100, adb_file);
-       
-       fread(&(BodyGroupID_[i]), i_size, 1, adb_file);
-
-    } 
-    
     NumberOfSurfaces_ = NumberOfWings_ + NumberOfBodies_;
     
     // Read in Cart3d ID flags, names...
@@ -9298,7 +9260,7 @@ void GL_VIEWER::DrawFEMBoundaryNodes(void)
 
 /*##############################################################################
 #                                                                              #
-#                              GL_VIEWER DrawWireFrame                         #
+#                   GL_VIEWER DrawCoarseMeshEdgesForLevel                      #
 #                                                                              #
 ##############################################################################*/
 
@@ -9516,7 +9478,7 @@ void GL_VIEWER::DrawWakes(void)
 
     glPolygonOffset(0.,-10.);
    
-    for ( i = 1 ; i <= NumberOfTrailingVortexEdges_; i++ ) {
+    for ( i = 1 ; i <= NumberOfTrailingVortexEdges_ ; i++ ) {
 
        glLineWidth(2.);
 
@@ -9524,7 +9486,7 @@ void GL_VIEWER::DrawWakes(void)
 
        if ( DrawWakesToInfinityIsOn ) NumberNodes = NumberOfSubVortexNodesForEdge_[i];
 
-       if ( TimeAccurate_ ) NumberNodes = MAX(0, NumberOfSubVortexNodesForEdge_[i] - 1);
+       if ( TimeAccurate_ ) NumberNodes = MAX(0, NumberOfSubVortexNodesForEdge_[i]);
 
        KuttaNode = WingWakeNode_[i];
        
@@ -12299,7 +12261,7 @@ void GL_VIEWER::SetTagSurfaceColor(int SurfaceID, int MaxVals)
   rgb[2] = blu[index]/255.;
   rgb[3] = 1.;
 
-  if ( SurfaceID > NumberOfColors ) {
+  if ( SurfaceID > NumberOfColors && MaxVals > 0 ) {
 
      Scale = 3.*(SurfaceID)/((float)NumberOfColors)/MaxVals;
 

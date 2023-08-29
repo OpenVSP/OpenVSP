@@ -29,13 +29,10 @@ private:
 
     // Control surface type
     
-    char TypeName_[2000];
     int Type_;
     
-    // Control Surface group 
-    
-    int ControlGroup_;
-    
+    char TypeName_[2000];
+
     // Control surface name
     
     char Name_[2000];
@@ -43,23 +40,18 @@ private:
     // Control surface short name
     
     char ShortName_[2000];
+
+    // XYZ coordinates of control surface box
     
-    // List of affected vortex loops
+    int NumberOfNodes_;
+    
+    VSPAERO_DOUBLE *XYZ_NodeList_;
+    
+    // List of loops on the control surface
     
     int NumberOfLoops_;
     int *LoopList_;
     
-    // Control surface bounding box
-    
-    VSPAERO_DOUBLE u_min_, u_max_;
-    VSPAERO_DOUBLE v_min_, v_max_;
-    
-    // XYZ coordinates of control surface box
-    
-    int NumberOfNodes_;
-    VSPAERO_DOUBLE **UV_NodeList_;
-    VSPAERO_DOUBLE **XYZ_NodeList_;
-
     // Hinge line
     
     VSPAERO_DOUBLE HingeNode_1_[3];
@@ -83,23 +75,7 @@ public:
      * the control surface definition **/
     
     void SizeLoopList(int NumberOfLoops);
-    
-    /** u min value of control surface bounding box in u,v space **/
-    
-    VSPAERO_DOUBLE &u_min(void) { return u_min_; };
-
-    /** u max value of control surface bounding box in u,v space **/
-
-    VSPAERO_DOUBLE &u_max(void) { return u_max_; };
-
-    /** v min value of control surface bounding box in u,v space **/
-
-    VSPAERO_DOUBLE &v_min(void) { return v_min_; };
-
-    /** v max value of control surface bounding box in u,v space **/
-
-    VSPAERO_DOUBLE &v_max(void) { return v_max_; };
-    
+ 
     /** Number of loops contained in this control surface definition **/
     
     int NumberOfLoops(void) { return NumberOfLoops_; };
@@ -116,45 +92,17 @@ public:
     
     int NumberOfNodes(void) { return NumberOfNodes_; };
     
-    /** XYZ vector of ith control surface defining node **/
+    /** x location of i'th polygon node **/
     
-    VSPAERO_DOUBLE *XYZ_Node(int i) { return XYZ_NodeList_[i]; };
+    VSPAERO_DOUBLE &X(int i) { return XYZ_NodeList_[3*i-2]; };
     
-    //** 1st node of control surface polygon, and ith direction 0:x, 1:y, 2:z ... **/
+    /** y location of i'th polygon node **/
     
-    VSPAERO_DOUBLE &XYZ_Node_1(int i) { return XYZ_NodeList_[1][i]; };
-    
-    //** 2nd node of control surface polygon, and ith direction 0:x, 1:y, 2:z ... **/
-    
-    VSPAERO_DOUBLE &XYZ_Node_2(int i) { return XYZ_NodeList_[2][i]; };
+    VSPAERO_DOUBLE &Y(int i) { return XYZ_NodeList_[3*i-1]; };
 
-    //** 3rd node of control surface polygon, and ith direction 0:x, 1:y, 2:z ... **/
-
-    VSPAERO_DOUBLE &XYZ_Node_3(int i) { return XYZ_NodeList_[3][i]; };
-
-    //** 4th node of control surface polygon, and ith direction 0:x, 1:y, 2:z ... **/
-
-    VSPAERO_DOUBLE &XYZ_Node_4(int i) { return XYZ_NodeList_[4][i]; };
+    /** z location of i'th polygon node **/
     
-    /** UV vector of ith control surface defining node **/
-    
-    VSPAERO_DOUBLE *UV_Node(int i) { return UV_NodeList_[i]; };
-    
-    //** 1st node of control surface polygon, and ith direction 0:y, 1:v ... **/
-    
-    VSPAERO_DOUBLE &UV_Node_1(int i) { return UV_NodeList_[1][i]; };
-    
-    //** 2nd node of control surface polygon, and ith direction 0:y, 1:v ... **/
-    
-    VSPAERO_DOUBLE &UV_Node_2(int i) { return UV_NodeList_[2][i]; };
-
-    //** 3rd node of control surface polygon, and ith direction 0:y, 1:v ... **/
-
-    VSPAERO_DOUBLE &UV_Node_3(int i) { return UV_NodeList_[3][i]; };
-
-    //** 4th node of control surface polygon, and ith direction 0:y, 1:v ... **/
-
-    VSPAERO_DOUBLE &UV_Node_4(int i) { return UV_NodeList_[4][i]; };    
+    VSPAERO_DOUBLE &Z(int i) { return XYZ_NodeList_[3*i  ]; };
 
     /** Hinge node 1 **/
     
@@ -188,17 +136,17 @@ public:
     
     char *TypeName(void) { return TypeName_; };
 
-    // Type of control surface **/
+    /** Type of control surface **/
     
     int &Type(void) { return Type_; };
     
     /** Control surface deflection angle **/
     
     VSPAERO_DOUBLE &DeflectionAngle(void) { return DeflectionAngle_; };
+
+    /** Load in the tag region file data **/
     
-    /** Control group ID number **/
-    
-    int &ControlGroup(void) { return ControlGroup_; };
+    void LoadFile(char *FileName, char *TagFileName);
     
 };
 
