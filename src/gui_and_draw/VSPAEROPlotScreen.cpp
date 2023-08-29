@@ -613,11 +613,6 @@ VSPAEROPlotScreen::~VSPAEROPlotScreen()
 void VSPAEROPlotScreen::SetDefaultView()
 {
     Results* res = ResultsMgr.FindResults( "VSPAERO_History", 0 );
-    int analysis_type = -1;
-    if ( res )
-    {
-        analysis_type = res->FindPtr( "AnalysisMethod" )->GetInt( 0 );
-    }
 
     res = ResultsMgr.FindResults( "VSPAERO_Stab", 0 );
     int stab_type = -1;
