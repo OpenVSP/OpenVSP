@@ -1466,21 +1466,12 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         }
     }
 
-    if ( m_AnalysisMethod.Get() == vsp::PANEL )
+    fprintf( case_file, "NumberOfControlGroups = %u \n", numUsedCSGs );
+    for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
     {
-        // control surfaces are currently not supported for panel method
-        numUsedCSGs = 0;
-        fprintf( case_file, "NumberOfControlGroups = %u \n", numUsedCSGs );
-    }
-    else
-    {
-        fprintf( case_file, "NumberOfControlGroups = %u \n", numUsedCSGs );
-        for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size() > 0 )
         {
-            if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size() > 0 )
-            {
-                m_ControlSurfaceGroupVec[iCSG]->Write_STP_Data( case_file );
-            }
+            m_ControlSurfaceGroupVec[iCSG]->Write_STP_Data( case_file );
         }
     }
 
