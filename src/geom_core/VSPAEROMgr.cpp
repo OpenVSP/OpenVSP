@@ -214,8 +214,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
     m_Write2DFEMFlag.SetDescript( "Toggle File Write for 2D FEM" );
-    m_AlternateInputFormatFlag.Init( "AlternateInputFormatFlag", groupname, this, false, false, true );
-    m_AlternateInputFormatFlag.SetDescript( "Flag to Use Alternate Geometry Input File Format" );
     m_ClMax.Init( "Clmax", groupname, this, -1, -1, 1e3 );
     m_ClMax.SetDescript( "Cl Max of Aircraft" );
     m_ClMaxToggle.Init( "ClmaxToggle", groupname, this, vsp::CLMAX_OFF, vsp::CLMAX_OFF, vsp::CLMAX_CARLSON );
