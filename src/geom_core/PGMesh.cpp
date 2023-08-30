@@ -720,8 +720,8 @@ void PGFace::Triangulate_DBA()
         {
             // Note winding order!
             m_TriNodeVec.push_back( nodVec[ dela->v[ 0 ]->i ] );
-            m_TriNodeVec.push_back( nodVec[ dela->v[ 1 ]->i ] );
             m_TriNodeVec.push_back( nodVec[ dela->v[ 2 ]->i ] );
+            m_TriNodeVec.push_back( nodVec[ dela->v[ 1 ]->i ] );
 
             dela = dela->next;
         }
