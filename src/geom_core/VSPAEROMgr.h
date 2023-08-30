@@ -543,8 +543,6 @@ private:
     vector < CpSlice* > m_CpSliceVec;
     vector < UnsteadyGroup* > m_UnsteadyGroupVec;
 
-    vector < DegenGeom > m_DegenGeomVec;
-
     int m_CurrentRotorDiskIndex;
     int m_CurrentCSGroupIndex;
     int m_CurrentCpSliceIndex;

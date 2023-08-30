@@ -354,7 +354,6 @@ void VSPAEROMgrSingleton::Renew()
 
     ClearUnsteadyGroupVec();
 
-    m_DegenGeomVec.clear();
 
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
@@ -777,14 +776,6 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
 
         // Ensure that a deleted component is still not in the DegenGeom vector
         vector < Geom* > geom_ptr_vec = veh->FindGeomVec( currgeomvec );
-        vector < DegenGeom > degen_vec;
-        for ( size_t k = 0; k < m_DegenGeomVec.size(); ++k )
-        {
-            if ( std::find( geom_ptr_vec.begin(), geom_ptr_vec.end(), m_DegenGeomVec[k].getParentGeom() ) != geom_ptr_vec.end() )
-            {
-                degen_vec.push_back( m_DegenGeomVec[k] );
-            }
-        }
 
         for ( size_t i = 0; i < currgeomvec.size(); ++i )
         {
@@ -803,30 +794,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                             {
                                 contained = true;
                                 temp.push_back(m_RotorDiskVec[j]);
-                                for (size_t k = 0; k < degen_vec.size(); ++k)
-                                {
-                                    if ( degen_vec[k].getParentGeom()->GetID().compare(m_RotorDiskVec[j]->m_ParentGeomId) == 0)
-                                    {
-                                        int indxToSearch = k + temp.back()->m_ParentGeomSurfNdx;
-                                        temp.back()->m_XYZ = degen_vec[indxToSearch].getDegenDisk().x;
-                                        // Get flag to flip normal vector but don't actually flip the normal vector. Instead flip the sign of RPM
-                                        temp.back()->m_FlipNormalFlag = geom->GetFlipNormal( iSubsurf );
 
-                                        // Identify normal vector before it has been flipped. 
-                                        // Alternatively, we could get the normal vector from degen_vec[indxToSearch].getDegenDisk().nvec 
-                                        // and flip it. Note, for unsteady propellers we flip the normal vector but keep the sign of RPM
-                                        // if the Prop is reversed
-                                        vector < Matrix4d > trans_mat_vec = geom->GetTransMatVec();
-                                        Matrix4d trans_mat = trans_mat_vec[iSubsurf]; // Translations for the specific symmetric copy
-
-                                        vec3d rotdir( 1, 0, 0 );
-
-                                        vec3d r_vec = trans_mat.xform( rotdir ) - temp.back()->m_XYZ;
-                                        temp.back()->m_Normal = r_vec;
-
-                                        break;
-                                    }
-                                }
                                 snprintf( str, sizeof( str ),  "%s_%zu", geom->GetName().c_str(), iSubsurf);
                                 temp.back()->SetName(str);
                             }
@@ -1772,16 +1740,6 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 {
     Update(); // Force update to ensure correct number of unstead groups, actuator disks, etc when run though the API.
     UpdateFilenames(); // Do we really need this? is also called by Update() moments before
-
-    if ( m_DegenGeomVec.size() == 0 )
-    {
-        // Note: Using errMsgData.m_String = "Error" will fail when this function 
-        // is not called from the main VSP thread
-        MessageData errMsgData;
-        errMsgData.m_String = "VSPAEROSolverMessage";
-        errMsgData.m_StringVec.emplace_back( string( "Error: No Geometry in DegenGeom Vector\n" ) );
-        MessageMgr::getInstance().SendAll( errMsgData );
-    }
 
     return ComputeSolverBatch( logFile );
 }
