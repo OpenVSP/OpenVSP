@@ -92,7 +92,7 @@ public:
     void UpdateUnsteadyGroups();
     void UpdateUnsteadyGroupBrowser();
 
-    void DisplayDegenVLMPreview();
+    void DisplayVSPAEROPreview();
 
     void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
 
@@ -130,7 +130,7 @@ protected:
     vector < string > m_ModeIDs;
 
     // Additional options
-    TriggerButton m_PreviewDegenButton;
+    TriggerButton m_PreviewVSPAEROButton;
 
     // Ref Length Layout
     // Reference lengths & areas

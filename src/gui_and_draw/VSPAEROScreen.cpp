@@ -1166,9 +1166,9 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
         }
-        else if ( device == &m_PreviewDegenButton )
+        else if ( device == &m_PreviewVSPAEROButton )
         {
-            DisplayDegenVLMPreview();
+            DisplayVSPAEROPreview();
         }
         else if ( device == &m_ModeChoice )
         {
@@ -2117,7 +2117,7 @@ void VSPAEROScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-void VSPAEROScreen::DisplayDegenVLMPreview()
+void VSPAEROScreen::DisplayVSPAEROPreview()
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
