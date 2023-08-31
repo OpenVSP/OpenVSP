@@ -525,6 +525,7 @@ extern void DeleteAllProbes();
 //======================= Advanced Link Functions ============================//
 
 extern std::vector< std::string > GetAdvLinkNames();
+extern int GetLinkIndex( const string & name );
 extern void DelAdvLink( int index );
 extern void DelAllAdvLinks();
 extern void AddAdvLink( const string & name );

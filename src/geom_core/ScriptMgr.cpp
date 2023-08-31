@@ -3955,6 +3955,32 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Find the index of a specific advanced link.
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+
+    BuildAdvLinkScript( indx );
+
+    \endcode
+    \param [in] string Name for advanced link
+    \return index for advanced link
+
+*/)";
+    r = se->RegisterGlobalFunction( "int GetLinkIndex( const string & in name )", vspFUNCTION( vsp::GetLinkIndex ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Delete an advanced link specified by index
     \code{.cpp}
 
@@ -3963,7 +3989,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -3997,7 +4023,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4030,7 +4056,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4054,7 +4080,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4080,7 +4106,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4107,7 +4133,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string y_pos = GetParm( pod, "Y_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
     AddAdvLinkInput( indx, y_pos, "y" );
@@ -4138,7 +4164,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string y_pos = GetParm( pod, "Y_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
     AddAdvLinkOutput( indx, y_pos, "y" );
@@ -4168,7 +4194,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4200,7 +4226,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4233,7 +4259,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4265,7 +4291,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4297,7 +4323,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4333,7 +4359,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4358,7 +4384,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 
@@ -4387,7 +4413,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
 
     AddAdvLink( "ExampleLink" );
-    int indx = 0;
+    int indx = GetLinkIndex( "ExampleLink" );
     AddAdvLinkInput( indx, length, "len" );
     AddAdvLinkOutput( indx, x_pos, "x" );
 

@@ -53,6 +53,7 @@ public:
     void SetActiveLink( AdvLink* adv_link )                             { m_ActiveLink = adv_link; }
 
     AdvLink* GetLink( int index );
+    int GetLinkIndex( const string & name );
     void SetEditLinkIndex( int index )                                  { m_EditLinkIndex = index; }
     int GetEditLinkIndex()                                              { return m_EditLinkIndex; }
 

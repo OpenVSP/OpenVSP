@@ -8701,6 +8701,20 @@ std::vector< std::string > GetAdvLinkNames()
     return AdvLinkMgr.GetLinkNames();
 }
 
+int GetLinkIndex( const string & name )
+{
+    int indx = AdvLinkMgr.GetLinkIndex( name );
+
+    if ( indx < 0 )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetLinkIndex::Can't find advanced link with name: " + name );
+        return indx;
+    }
+
+    ErrorMgr.NoError();
+    return indx;
+}
+
 void DelAdvLink( int index )
 {
     AdvLinkMgr.DelLink( index );
