@@ -480,7 +480,7 @@ void LinkMgrSingleton::ParmChanged( const string& pid, bool start_flag  )
 
             errMsgData.m_IntVec.push_back( vsp::VSP_LINK_LOOP_DETECTED );
             char buf[255];
-            snprintf( buf, sizeof( buf ), "Error: Updating link output variable '%s' (%s) would initiate a link loop.  Stopping.\n", pB->GetName().c_str(), pB->GetID().c_str() );
+            snprintf( buf, sizeof( buf ), "Warning: Updating link output variable '%s' (%s) would initiate a link loop.  Stopping.\n", pB->GetName().c_str(), pB->GetID().c_str() );
             errMsgData.m_StringVec.emplace_back( string( buf ) );
             MessageMgr::getInstance().SendAll( errMsgData );
         }
