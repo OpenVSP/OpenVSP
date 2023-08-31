@@ -1647,6 +1647,15 @@ void TriggerButton::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+
+        errMsgData.m_IntVec.push_back( vsp::VSP_GUI_DEVICE_DEACTIVATED );
+        char buf[255];
+        snprintf( buf, sizeof( buf ), "Error: This GUI Device has been deactivated.\n" );
+        errMsgData.m_StringVec.emplace_back( string( buf ) );
+        MessageMgr::getInstance().SendAll( errMsgData );
+
         Deactivate();
         return;
     }
@@ -1891,6 +1900,15 @@ void Choice::DeviceCB( Fl_Widget* w )
 {
     if ( m_Screen->GetScreenMgr()->IsGUIElementDisabled( m_Type ) )
     {
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+
+        errMsgData.m_IntVec.push_back( vsp::VSP_GUI_DEVICE_DEACTIVATED );
+        char buf[255];
+        snprintf( buf, sizeof( buf ), "Error: This GUI Device has been deactivated.\n" );
+        errMsgData.m_StringVec.emplace_back( string( buf ) );
+        MessageMgr::getInstance().SendAll( errMsgData );
+
         Deactivate();
         return;
     }

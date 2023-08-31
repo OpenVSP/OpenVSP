@@ -298,6 +298,7 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_DEPRECATED,
                     VSP_LINK_LOOP_DETECTED,
                     VSP_DUPLICATE_NAME,
+                    VSP_GUI_DEVICE_DEACTIVATED,
                     VSP_NUM_ERROR_CODE
 };
 
