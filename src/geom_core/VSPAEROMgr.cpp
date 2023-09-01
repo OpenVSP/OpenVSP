@@ -1179,10 +1179,13 @@ string VSPAEROMgrSingleton::ComputeGeometry()
             ngon_mesh_geom->WriteVSPGEOM( m_VSPGeomFileFull, all_fnames );
 
             // Write out mesh to *.vspgeom file. Only the MeshGeom is shown
-            WaitForFile( m_VSPGeomFileFull );
-            if ( !FileExist( m_VSPGeomFileFull ) )
+            WaitForFiles( all_fnames );
+            for ( int ifile = 0; ifile < all_fnames.size(); ifile++ )
             {
-                fprintf( stderr, "WARNING: VSPGeom file not found: %s\n\tFile: %s \tLine:%d\n", m_VSPGeomFileFull.c_str(), __FILE__, __LINE__ );
+                if ( !FileExist( all_fnames[ifile] ) )
+                {
+                    fprintf( stderr, "WARNING: File not found: %s\n\tFile: %s \tLine:%d\n", m_VSPGeomFileFull.c_str(), __FILE__, __LINE__ );
+                }
             }
 
             veh->NoShowSet( vsp::SET_ALL );
