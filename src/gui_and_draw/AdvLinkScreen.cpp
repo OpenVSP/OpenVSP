@@ -592,7 +592,8 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         if ( edit_link )
         {
-            Fl::awake( RenameVarsMessageBox, ( void* ) this );
+            // Fl::awake( RenameVarsMessageBox, ( void* ) this );
+            Fl::add_timeout( .001, RenameVarsMessageBox, this );
         }
     }
     else
