@@ -21,6 +21,7 @@ string PathToCWD();
 bool CheckForFile( const string & path, const string &file );
 bool FileExist( const string & file );
 int WaitForFile( const string &filename );
+int WaitForFiles( const vector < string > & fnames );
 string GetFilename( const string &pathfile );
 string GetBasename( const string &fname );
 void GetPathFile( const string &pathfile, string &path, string &file );

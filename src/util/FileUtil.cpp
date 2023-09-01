@@ -315,6 +315,39 @@ int WaitForFile( const string &filename )
         return vsp::VSP_FILE_DOES_NOT_EXIST;
     }
 }
+
+int WaitForFiles( const vector < string > & fnames )
+{
+    int n_wait = 0;
+    int ifile = 0;
+    int nfile = fnames.size();
+
+    bool lastfile = false;
+
+    while ( ( ifile < nfile ) && ( n_wait < 100 ) )
+    {
+        lastfile = FileExist( fnames[ifile] );
+        if ( lastfile )
+        {
+            ifile++;
+        }
+        else
+        {
+            n_wait++;
+            SleepForMilliseconds( 50 );
+        }
+    }
+
+    if ( lastfile )
+    {
+        return vsp::VSP_OK;
+    }
+    else
+    {
+        return vsp::VSP_FILE_DOES_NOT_EXIST;
+    }
+}
+
 // This is similar to basename() on linux and returns the last portion of the pathfile string
 string GetFilename( const string &pathfile )
 {
