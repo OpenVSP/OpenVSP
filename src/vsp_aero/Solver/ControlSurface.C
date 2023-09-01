@@ -254,7 +254,7 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     
     if ( (CSFFile = fopen(FileNameWithExtension,"r")) == NULL ) {
 
-       PRINTF("Could not load %s tag file... \n", FileNameWithExtension);fflush(NULL);
+       PRINTF("Could not load %s csf file... \n", FileNameWithExtension);fflush(NULL);
 
        exit(1);
 
