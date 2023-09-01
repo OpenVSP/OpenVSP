@@ -1175,7 +1175,8 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         {
             veh->DeleteGeomVec( vector< string >{ mesh_geom_id } );
 
-            ngon_mesh_geom->WriteVSPGEOM( m_VSPGeomFileFull );
+            vector < string > all_fnames;
+            ngon_mesh_geom->WriteVSPGEOM( m_VSPGeomFileFull, all_fnames );
 
             // Write out mesh to *.vspgeom file. Only the MeshGeom is shown
             WaitForFile( m_VSPGeomFileFull );

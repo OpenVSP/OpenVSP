@@ -1662,7 +1662,7 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
     }
 }
 
-void PGMesh::WriteTagFiles( string file_name )
+void PGMesh::WriteTagFiles( string file_name, vector < string > &all_fnames )
 {
     int ntagfile = 0;
     int ncsffile = 0;
@@ -1711,11 +1711,13 @@ void PGMesh::WriteTagFiles( string file_name )
 
         if ( taglist_fid )
         {
+            all_fnames.push_back( taglist_name );
 
             fprintf( taglist_fid, "%d\n", ntagfile );
 
             if ( csf_taglist_fid )
             {
+                all_fnames.push_back( csf_taglist_name );
                 fprintf( csf_taglist_fid, "%d\n", ncsffile );
             }
 
@@ -1757,6 +1759,8 @@ void PGMesh::WriteTagFiles( string file_name )
                         FILE* fid = fopen( tagfile_name.c_str(), "w" );
                         if ( fid )
                         {
+                            all_fnames.push_back( tagfile_name );
+
                             WriteTagFile( fid, part, tag );
 
                             fclose( fid );
@@ -1806,7 +1810,7 @@ void PGMesh::WriteTagFile( FILE* file_id, int part, int tag )
 }
 
 //==== Write Key File ====//
-void PGMesh::WriteVSPGEOMKeyFile( const string & file_name )
+void PGMesh::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &all_fnames )
 {
     bool writethickthin = true;
     // figure out basename
@@ -1818,6 +1822,8 @@ void PGMesh::WriteVSPGEOMKeyFile( const string & file_name )
     {
         return;
     }
+
+    all_fnames.push_back( key_name );
 
     int npart = 0;
     for ( int i = 0 ; i < ( int )m_TagKeys.size() ; i++ )

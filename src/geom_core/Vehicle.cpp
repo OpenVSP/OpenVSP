@@ -3605,7 +3605,8 @@ string Vehicle::WriteVSPGeomFile( const string &file_name, int write_set, int de
     SubSurfaceMgr.GetPartData( gidvec, partvec2, surfvec );
 
 
-    WriteControlSurfaceFile( file_name, gidvec, partvec2, surfvec );
+    vector < string > all_files;
+    WriteControlSurfaceFile( file_name, gidvec, partvec2, surfvec, all_files );
 
     return mesh_id;
 
@@ -5342,7 +5343,7 @@ void Vehicle::WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox 
     }
 }
 
-void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < string > &gidvec, const vector < int > &partvec, const vector < int > &surfvec )
+void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < string > &gidvec, const vector < int > &partvec, const vector < int > &surfvec, vector < string > &all_fnames )
 {
     string base_name = GetBasename( file_name );
     string csf_name = base_name + ".csf";
@@ -5354,6 +5355,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
 
     if ( csf_file )
     {
+        all_fnames.push_back( csf_name );
         int ncsurf = 0;
 
         for ( int ipart = 0; ipart < ( int )gidvec.size(); ipart++ ) // Loop over all geoms.

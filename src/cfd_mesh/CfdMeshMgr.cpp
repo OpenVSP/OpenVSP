@@ -1985,7 +1985,8 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
         vector < int > surfvec;
         SubSurfaceMgr.GetPartData( gidvec, partvec, surfvec );
 
-        m_Vehicle->WriteControlSurfaceFile( vspgeom_fn, gidvec, partvec, surfvec );
+        vector < string > all_files;
+        m_Vehicle->WriteControlSurfaceFile( vspgeom_fn, gidvec, partvec, surfvec, all_files );
     }
 }
 

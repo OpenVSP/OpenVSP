@@ -94,7 +94,8 @@ void NGonMeshScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( newfile.size() != 0 && newfile[ newfile.size() - 1] != '/' )
         {
-            ngon_mesh_geom_ptr->WriteVSPGEOM( newfile );
+            vector < string > all_files;
+            ngon_mesh_geom_ptr->WriteVSPGEOM( newfile, all_files );
         }
     }
     else if ( device == & m_TriangulateButton )

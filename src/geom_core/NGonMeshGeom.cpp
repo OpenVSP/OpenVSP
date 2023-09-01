@@ -257,7 +257,7 @@ void NGonMeshGeom::Report()
     m_PGMesh.Report();
 }
 
-void NGonMeshGeom::WriteVSPGEOM( string fname )
+void NGonMeshGeom::WriteVSPGEOM( string fname, vector < string > &all_fnames )
 {
     Matrix4d trans = GetTotalTransMat();
 
@@ -265,22 +265,23 @@ void NGonMeshGeom::WriteVSPGEOM( string fname )
 
     if ( file_id )
     {
+        all_fnames.push_back( fname );
         m_PGMesh.WriteVSPGeom( file_id, trans );
 
         fclose ( file_id );
 
-        m_PGMesh.WriteTagFiles( fname );
+        m_PGMesh.WriteTagFiles( fname, all_fnames );
 
         //==== Write Out tag key file ====//
 
-        m_PGMesh.WriteVSPGEOMKeyFile( fname );
+        m_PGMesh.WriteVSPGEOMKeyFile( fname, all_fnames );
 
         vector < string > gidvec;
         vector < int > partvec;
         vector < int > surfvec;
         m_PGMesh.GetPartData( gidvec, partvec, surfvec );
 
-        m_Vehicle->WriteControlSurfaceFile( fname, gidvec, partvec, surfvec );
+        m_Vehicle->WriteControlSurfaceFile( fname, gidvec, partvec, surfvec, all_fnames );
     }
 }
 

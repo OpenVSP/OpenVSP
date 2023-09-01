@@ -44,7 +44,7 @@ public:
     virtual void Triangulate();
     virtual void Report();
 
-    virtual void WriteVSPGEOM( string fname );
+    virtual void WriteVSPGEOM( string fname, vector < string > &all_fnames );
 
     virtual vector< TMesh* > CreateTMeshVec() const;
 

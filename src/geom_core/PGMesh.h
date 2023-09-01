@@ -232,9 +232,9 @@ public:
     void WriteVSPGeomWakes( FILE* file_id );
     void WriteVSPGeomAlternateTris( FILE* file_id );
     void WriteVSPGeomAlternateParts( FILE* file_id );
-    void WriteTagFiles( string file_name );
+    void WriteTagFiles( string file_name, vector < string > &all_fnames );
     void WriteTagFile( FILE* file_id, int part, int tag );
-    void WriteVSPGEOMKeyFile(const string & file_name );
+    void WriteVSPGEOMKeyFile(const string & file_name, vector < string > &all_fnames );
 
     // Get Comma Delimited list of names for a set of tags
     std::string GetTagNames( const std::vector<int> & tags );
