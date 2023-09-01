@@ -4405,6 +4405,36 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Search and replace strings in the advanced link code
+    \code{.cpp}
+
+    string pod = AddGeom( "POD", "" );
+    string length = FindParm( pod, "Length", "Design" );
+    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" );
+
+    AddAdvLink( "ExampleLink" );
+    int indx = GetLinkIndex( "ExampleLink" );
+    AddAdvLinkInput( indx, length, "len" );
+    AddAdvLinkOutput( indx, x_pos, "x" );
+
+    SetAdvLinkCode( indx, "x = 10.0 - len;" );
+    SearchReplaceAdvLinkCode( indx, "10.0", "12.3" );
+
+    string code = GetAdvLinkCode( indx );
+
+    Print( code );
+
+    BuildAdvLinkScript( indx );
+
+    \endcode
+    \param [in] index Index for advanced link
+    \param [in] string Code for advanced link
+*/)";
+    r = se->RegisterGlobalFunction( "void SearchReplaceAdvLinkCode( int index, const string & in from, const string & in to )", vspFUNCTION( vsp::SearchReplaceAdvLinkCode ), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Build (ready for execution and perform syntax check) an advanced link.
     \code{.cpp}
 

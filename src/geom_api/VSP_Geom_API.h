@@ -540,6 +540,7 @@ extern std::vector< std::string > GetAdvLinkOutputParms( int index );
 extern bool ValidateAdvLinkParms( int index );
 extern void SetAdvLinkCode( int index, const string & code );
 extern std::string GetAdvLinkCode( int index );
+extern void SearchReplaceAdvLinkCode( int index, const string & from, const string & to );
 extern bool BuildAdvLinkScript( int index );
 
 }           // End vsp namespace

@@ -62,8 +62,8 @@ public:
     void AddVar( const VarDef & pd, bool input_flag );
     void DeleteVar( int index, bool input_flag );
     void DeleteAllVars( bool input_flag );
-    void UpdateInputVarName( int index, const string & var_name );
-    void UpdateOutputVarName( int index, const string & var_name );
+    void UpdateInputVarName( int index, const string & var_name, bool changeincode );
+    void UpdateOutputVarName( int index, const string & var_name, bool changeincode );
 
     void SetVar( const string & var_name, double val );
     double GetVar( const string & var_name );
@@ -86,6 +86,7 @@ public:
 
     void SaveCode( const string & file_name );
     void ReadCode( const string & file_name );
+    void SearchReplaceCode( const string & from, const string & to );
 
 
 protected:

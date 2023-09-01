@@ -11,6 +11,7 @@
 #include "ParmMgr.h"
 #include "ScriptMgr.h"
 #include "APIErrorMgr.h"
+#include "StringUtil.h"
 
 //===== Encode Variable Def =====//
 xmlNodePtr VarDef::EncodeXml( xmlNodePtr & node )
@@ -170,18 +171,28 @@ void AdvLink::DeleteAllVars( bool input_flag )
     }
 }
 
-void AdvLink::UpdateInputVarName( int index, const string & var_name )
+void AdvLink::UpdateInputVarName( int index, const string & var_name, bool changeincode )
 {
     if ( index >= 0 && index < (int)m_InputVars.size() )
     {
+        if ( changeincode )
+        {
+            SearchReplaceCode( m_InputVars[ index ].m_VarName, var_name );
+        }
+
         m_InputVars[ index ].m_VarName = var_name;
     }
 }
 
-void AdvLink::UpdateOutputVarName( int index, const string & var_name )
+void AdvLink::UpdateOutputVarName( int index, const string & var_name, bool changeincode )
 {
     if ( index >= 0 && index < (int)m_OutputVars.size() )
     {
+        if ( changeincode )
+        {
+            SearchReplaceCode( m_OutputVars[ index ].m_VarName, var_name );
+        }
+
         m_OutputVars[ index ].m_VarName = var_name;
     }
 }
@@ -465,3 +476,7 @@ void AdvLink::ReadCode( const string & file_name )
     }
 }
 
+void AdvLink::SearchReplaceCode( const string & from, const string & to )
+{
+    StringUtil::replace_all( m_ScriptCode, from, to );
+}

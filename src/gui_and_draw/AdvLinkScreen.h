@@ -46,6 +46,12 @@ public:
 
     void GuiDeviceCallBack( GuiDevice* gui_device );
 
+
+    // Needs to be public.
+    StringInput m_VarNameInput;
+
+    int m_InputBrowserSelect;
+    int m_OutputBrowserSelect;
 protected:
 
     Fl_Browser* m_LinkBrowser;
@@ -69,7 +75,6 @@ protected:
     TriggerButton m_DelAllLink;
 
     ParmPicker m_ParmPicker;
-    StringInput m_VarNameInput;
 
     TriggerButton m_PickInput;
     TriggerButton m_PickOutput;
@@ -87,9 +92,6 @@ protected:
 
     TriggerButton m_SaveCode;
     TriggerButton m_ReadCode;
-
-    int m_InputBrowserSelect;
-    int m_OutputBrowserSelect;
 
 };
 

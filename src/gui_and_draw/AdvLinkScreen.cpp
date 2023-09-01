@@ -415,6 +415,43 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+//==== Create Message Pop-Up ====//
+void RenameVarsMessageBox( void * data )
+{
+    AdvLinkScreen* advLinkScreen = (AdvLinkScreen*) data;
+
+    int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
+    AdvLink* edit_link = AdvLinkMgr.GetLink( edit_link_index );
+
+    if ( edit_link && advLinkScreen )
+    {
+        int retval = fl_choice( "Variable rename requested.", "Preserve code", "Change in code", "Cancel" );
+
+        if ( retval != 2 )
+        {
+            bool changeincode = true;
+            if ( retval == 0 )
+            {
+                changeincode = false;
+            }
+
+            vector< VarDef > input_vars = edit_link->GetInputVars();
+            vector< VarDef > output_vars = edit_link->GetOutputVars();
+
+            if ( advLinkScreen->m_InputBrowserSelect >= 0 && advLinkScreen->m_InputBrowserSelect < ( int ) input_vars.size() )
+            {
+                edit_link->UpdateInputVarName( advLinkScreen->m_InputBrowserSelect, advLinkScreen->m_VarNameInput.GetString(), changeincode );
+            }
+            else if ( advLinkScreen->m_OutputBrowserSelect >= 0 && advLinkScreen->m_OutputBrowserSelect < ( int ) output_vars.size() )
+            {
+                edit_link->UpdateOutputVarName( advLinkScreen->m_OutputBrowserSelect, advLinkScreen->m_VarNameInput.GetString(), changeincode );
+            }
+        }
+    }
+
+    advLinkScreen->GetScreenMgr()->SetUpdateFlag( true );
+}
+
 //==== Gui Device CallBacks ====//
 void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
@@ -555,17 +592,7 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         if ( edit_link )
         {
-            vector< VarDef > input_vars = edit_link->GetInputVars();
-            vector< VarDef > output_vars = edit_link->GetOutputVars();
-
-            if ( m_InputBrowserSelect >= 0 && m_InputBrowserSelect < (int)input_vars.size() )
-            {
-                edit_link->UpdateInputVarName( m_InputBrowserSelect, m_VarNameInput.GetString() );
-            }
-            else if ( m_OutputBrowserSelect >= 0 && m_OutputBrowserSelect < (int)output_vars.size() )
-            {
-                edit_link->UpdateOutputVarName( m_OutputBrowserSelect, m_VarNameInput.GetString() );
-            }
+            Fl::awake( RenameVarsMessageBox, ( void* ) this );
         }
     }
     else

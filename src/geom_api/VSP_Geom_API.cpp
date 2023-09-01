@@ -8924,6 +8924,22 @@ std::string GetAdvLinkCode( int index )
     return ret;
 }
 
+void SearchReplaceAdvLinkCode( int index, const string & from, const string & to )
+{
+    AdvLink * adv_link = AdvLinkMgr.GetLink( index );
+
+    if ( !adv_link )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SearchReplaceAdvLinkCode::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    adv_link->SearchReplaceCode( from, to );
+
+    ErrorMgr.NoError();
+    return;
+}
+
 bool BuildAdvLinkScript( int index )
 {
     AdvLink * adv_link = AdvLinkMgr.GetLink( index );
