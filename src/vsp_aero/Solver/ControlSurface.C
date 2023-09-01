@@ -213,16 +213,38 @@ void CONTROL_SURFACE::LoadFile(char *FileName, char *TagFileName)
     int i, Found, Surface;
     double x1,y1,z1, x2,y2,z2;
     VSPAERO_DOUBLE Mag;
-    char FileNameWithExtension[2000], DumChar[2000];
+    char FileNameWithExtension[2000], DumChar[2000], Path[2000];
     FILE *TagFile, *CSFFile;
     
     // Save file name
     
     sprintf(Name_,"%s",TagFileName);
-    
+
+    sprintf( Path, "%s", FileName );
+    char* pch = NULL;
+    pch = strrchr( Path, '\\' );
+    if ( pch )
+    {
+        pch++;
+        *pch = '\0';
+    }
+    else
+    {
+        pch = strrchr( Path, '/' );
+        if ( pch )
+        {
+            pch++;
+            *pch = '\0';
+        }
+        else
+        {
+            Path[0] = '\0';
+        }
+    }
+
     // Read in tag file data
     
-    SPRINTF(FileNameWithExtension,"%s.tag",TagFileName);
+    SPRINTF(FileNameWithExtension,"%s%s.tag",Path, TagFileName);
 
     if ( (TagFile = fopen(FileNameWithExtension,"r")) == NULL ) {
 
