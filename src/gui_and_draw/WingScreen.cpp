@@ -16,7 +16,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 680 + 40, "Win
 {
     m_CurrDisplayGroup = NULL;
 
-    Fl_Group* plan_tab = AddTab( "Plan", 3 );
+    Fl_Group* plan_tab = AddTab( "Plan", 4 );
     Fl_Group* plan_group = AddSubGroup( plan_tab, 5 );
 
     m_PlanLayout.SetGroupAndScreen( plan_group, this );
@@ -119,7 +119,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 460, 680 + 40, "Win
     m_PlanLayout.AddButton( m_RotateRootFoilMatchDihedral, "Rotate Wing Root Foil To Match Dihedral" );
     m_PlanLayout.AddButton( m_CorrectFoil, "Correct Foil Thickness For Dihedral Rotation" );
 
-    Fl_Group* sect_tab = AddTab( "Sect", 4 );
+    Fl_Group* sect_tab = AddTab( "Sect", 5 );
     Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
 
     m_SectionLayout.SetGroupAndScreen( sect_group, this );

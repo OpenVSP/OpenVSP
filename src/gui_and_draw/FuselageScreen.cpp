@@ -18,7 +18,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : ChevronScreen( mgr, 460, 715,
 {
     m_CurrDisplayGroup = NULL;
 
-    Fl_Group* design_tab = AddTab( "Design", 3 );
+    Fl_Group* design_tab = AddTab( "Design", 4 );
 
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
 

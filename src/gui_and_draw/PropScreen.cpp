@@ -18,7 +18,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : XSecScreen( mgr, 460, 700, "Propeller
 {
     m_CurrDisplayGroup = NULL;
 
-    Fl_Group* design_tab = AddTab( "Design", 3 );
+    Fl_Group* design_tab = AddTab( "Design", 4 );
 
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
 
