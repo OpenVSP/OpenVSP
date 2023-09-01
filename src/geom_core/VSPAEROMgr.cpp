@@ -2207,29 +2207,6 @@ ProcessUtil* VSPAEROMgrSingleton::GetSolverProcess()
     return &m_SolverProcess;
 }
 
-// function is used to wait for the result to show up on the file system
-int VSPAEROMgrSingleton::WaitForFile( string filename )
-{
-    // Wait until the results show up on the file system
-    int n_wait = 0;
-    // wait no more than 5 seconds = (50*100)/1000
-    while ( ( !FileExist( filename ) ) && ( n_wait < 100 ) )
-    {
-        n_wait++;
-        SleepForMilliseconds( 50 );
-    }
-    SleepForMilliseconds( 100 );  //additional wait for file
-
-    if ( FileExist( filename ) )
-    {
-        return vsp::VSP_OK;
-    }
-    else
-    {
-        return vsp::VSP_FILE_DOES_NOT_EXIST;
-    }
-}
-
 /*******************************************************
 Read .HISTORY file output from VSPAERO
 analysisMethod is passed in because the parm it is set by might change by the time we are done calculating the solution

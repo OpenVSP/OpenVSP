@@ -24,6 +24,9 @@
 #include <libgen.h>
 #endif
 
+#include <APIDefines.h>
+#include <ProcessUtil.h>
+
 vector< string > ScanFolder( const char* dir_path )
 {
     vector< string > file_vec;
@@ -282,6 +285,36 @@ bool FileExist( const string & file )
     }
 }
 
+// function is used to wait for the result to show up on the file system
+int WaitForFile( const string &filename )
+{
+    // Wait until the results show up on the file system
+    int n_wait = 0;
+    // wait no more than 5 seconds = (50*100)/1000
+    bool lastfile = FileExist( filename );
+    while ( !lastfile && ( n_wait < 100 ) )
+    {
+        n_wait++;
+        SleepForMilliseconds( 50 );
+        lastfile = FileExist( filename );
+    }
+
+    if ( lastfile )
+    {
+        return vsp::VSP_OK;
+    }
+
+    SleepForMilliseconds( 100 );  //additional wait for file
+
+    if ( FileExist( filename ) )
+    {
+        return vsp::VSP_OK;
+    }
+    else
+    {
+        return vsp::VSP_FILE_DOES_NOT_EXIST;
+    }
+}
 // This is similar to basename() on linux and returns the last portion of the pathfile string
 string GetFilename( const string &pathfile )
 {

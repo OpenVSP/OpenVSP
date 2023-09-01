@@ -497,7 +497,6 @@ public:
     ProcessUtil m_SlicerThread;
 
 protected:
-    static int WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
     void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec, vector<double> &recrefVec );
 
     bool m_SolverProcessKill;
