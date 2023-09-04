@@ -41,6 +41,8 @@ public:
     RotorDisk( void );
     ~RotorDisk( void );
 
+    void Update( double V, double rho );
+
     // Setup File I/O
     void Write_STP_Data( FILE * InputFile );
 
@@ -65,6 +67,10 @@ public:
     BoolParm m_AutoHubDiaFlag; // Flag to pull hub diameter automatically from Prop Geom
     Parm m_CT;          // Rotor_CT_
     Parm m_CP;          // Rotor_CP_
+
+    Parm m_T;
+    Parm m_J;
+    Parm m_eta;
 
     bool m_FlipNormalFlag;
 

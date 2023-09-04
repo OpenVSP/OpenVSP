@@ -258,6 +258,9 @@ protected:
     SliderAdjRangeInput m_PropElemRPM;
     SliderAdjRangeInput m_PropElemCT;
     SliderAdjRangeInput m_PropElemCP;
+    Output m_PropThrust;
+    Output m_PropAdvance;
+    Output m_PropEfficiency;
 
     // Deflection Angle Layout
     Fl_Scroll* m_DeflectionAngleScroll;

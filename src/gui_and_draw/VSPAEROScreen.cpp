@@ -665,9 +665,9 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_PropElemLayout.AddDividerBox( "Rotor Disk Element Settings" );
 
     // Initial column widths
-    static int prop_col_widths[] = { 73, 122, 73, 73, 73, 73, 73, 73, 0 };
+    static int prop_col_widths[] = { 50, 100, 70, 70, 70, 50, 50, 50, 50, 50, 0 };
 
-    m_PropElemBrowser = m_PropElemLayout.AddColResizeBrowser( prop_col_widths, 8, prop_elem_browser_h );
+    m_PropElemBrowser = m_PropElemLayout.AddColResizeBrowser( prop_col_widths, 11, prop_elem_browser_h );
     m_PropElemBrowser->callback( staticScreenCB, this );
 
     input_width = 60;
@@ -696,6 +696,10 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_PropElemLayout.AddSlider( m_PropElemRPM, "RPM", 10000, "%7.2f" );
     m_PropElemLayout.AddSlider( m_PropElemCT, "CT", 1, "%2.3f" );
     m_PropElemLayout.AddSlider( m_PropElemCP, "CP", 1, "%2.3f" );
+
+    m_PropElemLayout.AddOutput( m_PropThrust, "Thrust", "%7.3f" );
+    m_PropElemLayout.AddOutput( m_PropAdvance, "Advance Ratio", "%5.3f" );
+    m_PropElemLayout.AddOutput( m_PropEfficiency, "Efficiency", "%5.3f" );
 
     m_PropGeneralLayout.AddYGap();
 
@@ -1734,6 +1738,11 @@ void VSPAEROScreen::UpdatePropElemDevices()
         m_PropElemRPM.Update( rotordiskvec[ index ]->m_RPM.GetID());
         m_PropElemCP.Update( rotordiskvec[ index ]->m_CP.GetID());
         m_PropElemCT.Update( rotordiskvec[ index ]->m_CT.GetID());
+
+        m_PropThrust.Update( rotordiskvec[ index ]->m_T.GetID() );
+        m_PropAdvance.Update( rotordiskvec[ index ]->m_J.GetID() );
+        m_PropEfficiency.Update( rotordiskvec[ index ]->m_eta.GetID() );
+
     }
 
     if (index > rotordiskvec.size())
@@ -1751,17 +1760,18 @@ void VSPAEROScreen::UpdatePropElemBrowser()
 
     m_PropElemBrowser->column_char(':');         // use : as the column character
 
-    snprintf( str, sizeof( str ),  "@b@.INDX:@b@.NAME:@b@.DIA:@b@.HUB DIA:@b@.RPM:@b@.CP:@b@.CT");
+    snprintf( str, sizeof( str ),  "@b@.INDX:@b@.NAME:@b@.DIA:@b@.HUB DIA:@b@.RPM:@b@.CP:@b@.CT:@b@.T:@b@.J:@b@.eta");
     m_PropElemBrowser->add(str);
     for (size_t i = 0; i < VSPAEROMgr.GetRotorDiskVec().size(); ++i)
     {
         RotorDisk* curr_rot = VSPAEROMgr.GetRotorDiskVec()[i];
         if (curr_rot)
         {
-            snprintf( str, sizeof( str ),  "%i:%s:%4.2f:%4.2f:%6.1f:%4.2f:%4.2f", curr_rot->m_GroupSuffix,
+            snprintf( str, sizeof( str ),  "%i:%s:%4.2f:%4.2f:%6.1f:%4.2f:%4.2f:%7.2f:%4.2f:%4.2f", curr_rot->m_GroupSuffix,
                 curr_rot->GetName().c_str(),
                 curr_rot->m_Diameter(), curr_rot->m_HubDiameter(),
-                curr_rot->m_RPM(), curr_rot->m_CP(), curr_rot->m_CT());
+                curr_rot->m_RPM(), curr_rot->m_CP(), curr_rot->m_CT(),
+                curr_rot->m_T(), curr_rot->m_J(), curr_rot->m_eta() );
             m_PropElemBrowser->add(str);
         }
     }

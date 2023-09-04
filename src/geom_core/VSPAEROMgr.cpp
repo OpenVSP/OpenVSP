@@ -875,6 +875,9 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                         {
                             temp.back()->m_HubDiameter.Set(temp.back()->m_Diameter());
                         }
+
+                        temp.back()->Update( m_Vinf(), m_Rho() );
+
                     }
                 }
             }
@@ -5448,6 +5451,15 @@ RotorDisk::RotorDisk( void ) : ParmContainer()
     m_CP.Init( "RotorCP", m_GroupName, this, 0.6, -1e3, 1e3 );        // Rotor_CP_
     m_CP.SetDescript( "Rotor Coefficient of Power" );
 
+    m_T.Init( "RotorThrust", m_GroupName, this,  1.0, -1e12, 1e12 );
+    m_T.SetDescript( "Rotor thrust" );
+
+    m_J.Init( "RotorJ", m_GroupName, this, 0.6, -1e6, 1e6 );
+    m_J.SetDescript( "Rotor advance ratio" );
+
+    m_eta.Init( "RotorEta", m_GroupName, this, 0.9, -1.0, 1.0 );
+    m_eta.SetDescript( "Rotor efficiency" );
+
     m_ParentGeomId = "";
     m_ParentGeomSurfNdx = -1;
     m_FlipNormalFlag = false;
@@ -5456,6 +5468,34 @@ RotorDisk::RotorDisk( void ) : ParmContainer()
 
 RotorDisk::~RotorDisk( void )
 {
+}
+
+void RotorDisk::Update( double V, double rho )
+{
+    double D = m_Diameter();
+    double D2 = D * D;
+    double D4 = D2 * D2;
+    double D5 = D4 * D;
+
+    double nrps = std::abs( m_RPM() ) / 60.0;
+    double n2 = nrps * nrps;
+    double n3 = n2 * nrps;
+
+    double CT = m_CT();
+    double CP = m_CP();
+
+    double J = V / ( nrps * D );
+
+    double eta = J * CT / CP;
+
+    double T = CT * rho * n2 * D4;
+    double P = CP * rho * n3 * D5;
+    double CQ = CP / ( 2.0 * PI );
+    double Q = CQ * rho * n2 * D5;
+
+    m_T = T;
+    m_J = J;
+    m_eta = eta;
 }
 
 void RotorDisk::Write_STP_Data( FILE *InputFile )
