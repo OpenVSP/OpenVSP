@@ -184,9 +184,9 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 {
 
     int i, Done, *ComponentList;
-    char VSP_File_Name[2000], TKEY_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
+    char VSP_File_Name[2000], TKEY_File_Name[2000], Name[2000], DumChar[2000];
     VSPAERO_DOUBLE Diam, x, y, z, nx, ny, nz;
-    FILE *Cart3D_File, *TKEY_File, *VSP_Degen_File;
+    FILE *Cart3D_File, *TKEY_File;
  
     SPRINTF(VSP_File_Name,"%s.tri",FileName);
     
@@ -239,94 +239,6 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
     fclose(Cart3D_File);
     
     if ( TKEY_File != NULL ) fclose(TKEY_File);
-    
-    // Now see if a degen file exists
-
-    SPRINTF(VSP_Degen_File_Name,"%s_DegenGeom.csv",FileName);
-
-    if ( (VSP_Degen_File = fopen(VSP_Degen_File_Name,"r")) != NULL ) {
-
-       // See if any rotors are defined
-       
-       NumberOfRotors_ = 0;
-       
-       Done = 0;
-       
-       while ( !Done ) {
-        
-          if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
-          
-          if ( strncmp(DumChar,"DISK",4) == 0 ) NumberOfRotors_++;
-          
-       }        
-          
-       if ( NumberOfRotors_ > 0 ) {
-          
-          rewind(VSP_Degen_File);  
-       
-          RotorDisk_ = new ROTOR_DISK[NumberOfRotors_ + 1];
-          
-          NumberOfRotors_ = 0;
-          
-          Done = 0;
-          
-          while ( !Done ) {
-        
-             if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
-          
-             if ( strncmp(DumChar,"DISK",4) == 0 ) {
-                
-                NumberOfRotors_++;
-                
-                fgets(DumChar,1000,VSP_Degen_File);  
-                fgets(DumChar,1000,VSP_Degen_File);  
-                fgets(DumChar,1000,VSP_Degen_File);  
-                fgets(DumChar,1000,VSP_Degen_File);  
-             
-                sscanf(DumChar,"%lf, %lf, %lf, %lf, %lf, %lf, %lf",
-                       &Diam,
-                       &x,
-                       &y,
-                       &z,
-                       &nx,
-                       &ny,
-                       &nz);
-                
-                // VSP supplied information
-                       
-                RotorDisk(NumberOfRotors_).Radius() = 0.5*Diam;
-   
-                RotorDisk(NumberOfRotors_).XYZ(0) = x;
-                RotorDisk(NumberOfRotors_).XYZ(1) = y;
-                RotorDisk(NumberOfRotors_).XYZ(2) = z;
-   
-                RotorDisk(NumberOfRotors_).Normal(0) = -nx;
-                RotorDisk(NumberOfRotors_).Normal(1) = -ny;
-                RotorDisk(NumberOfRotors_).Normal(2) = -nz;
-                
-                // Some defaults
-                
-                RotorDisk(NumberOfRotors_).CT() = 0.400;
-                RotorDisk(NumberOfRotors_).CP() = 0.600;
-                RotorDisk(NumberOfRotors_).RPM() = 2000.;
-                
-             }
-             
-          }
-          
-       }
-       
-       PRINTF("Found: %d Rotors \n",NumberOfRotors_);
-       
-       rewind(VSP_Degen_File);  
-              
-       // Now search for control surface hinges
-       
-       // Close file
-       
-       fclose(VSP_Degen_File);
-       
-    }    
 
 }
 
@@ -340,10 +252,10 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
 {
 
     int i, Done, *ComponentList;
-    char VSPGEOM_File_Name[2000], VSP_Degen_File_Name[2000], Name[2000], DumChar[2000];
+    char VSPGEOM_File_Name[2000], Name[2000], DumChar[2000];
     char VKEY_File_Name[2000];
     VSPAERO_DOUBLE Diam, x, y, z, nx, ny, nz;
-    FILE *VSPGEOM_File, *VKEY_File, *VSP_Degen_File;
+    FILE *VSPGEOM_File, *VKEY_File;
  
     SPRINTF(VSPGEOM_File_Name,"%s.vspgeom",FileName);
     
@@ -375,94 +287,6 @@ void VSP_GEOM::Read_VSPGEOM_File(char *FileName)
     
     if ( VKEY_File != NULL ) fclose(VKEY_File);
  
-    // Now see if a degen file exists
-
-    SPRINTF(VSP_Degen_File_Name,"%s_DegenGeom.csv",FileName);
-
-    if ( (VSP_Degen_File = fopen(VSP_Degen_File_Name,"r")) != NULL ) {
-
-       // See if any rotors are defined
-       
-       NumberOfRotors_ = 0;
-       
-       Done = 0;
-       
-       while ( !Done ) {
-        
-          if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
-          
-          if ( strncmp(DumChar,"DISK",4) == 0 ) NumberOfRotors_++;
-          
-       }        
-          
-       if ( NumberOfRotors_ > 0 ) {
-          
-          rewind(VSP_Degen_File);  
-       
-          RotorDisk_ = new ROTOR_DISK[NumberOfRotors_ + 1];
-          
-          NumberOfRotors_ = 0;
-          
-          Done = 0;
-          
-          while ( !Done ) {
-        
-             if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
-          
-             if ( strncmp(DumChar,"DISK",4) == 0 ) {
-                
-                NumberOfRotors_++;
-                
-                fgets(DumChar,1000,VSP_Degen_File);  
-                fgets(DumChar,1000,VSP_Degen_File);  
-                fgets(DumChar,1000,VSP_Degen_File);  
-                fgets(DumChar,1000,VSP_Degen_File);  
-             
-                sscanf(DumChar,"%lf, %lf, %lf, %lf, %lf, %lf, %lf",
-                       &Diam,
-                       &x,
-                       &y,
-                       &z,
-                       &nx,
-                       &ny,
-                       &nz);
-                
-                // VSP supplied information
-                       
-                RotorDisk(NumberOfRotors_).Radius() = 0.5*Diam;
-   
-                RotorDisk(NumberOfRotors_).XYZ(0) = x;
-                RotorDisk(NumberOfRotors_).XYZ(1) = y;
-                RotorDisk(NumberOfRotors_).XYZ(2) = z;
-   
-                RotorDisk(NumberOfRotors_).Normal(0) = -nx;
-                RotorDisk(NumberOfRotors_).Normal(1) = -ny;
-                RotorDisk(NumberOfRotors_).Normal(2) = -nz;
-                
-                // Some defaults
-                
-                RotorDisk(NumberOfRotors_).CT() = 0.400;
-                RotorDisk(NumberOfRotors_).CP() = 0.600;
-                RotorDisk(NumberOfRotors_).RPM() = 2000.;
-                
-             }
-             
-          }
-          
-       }
-       
-       PRINTF("Found: %d Rotors \n",NumberOfRotors_);
-       
-       rewind(VSP_Degen_File);  
-              
-       // Now search for control surface hinges
-       
-       // Close file
-       
-       fclose(VSP_Degen_File);
-       
-    }    
-
 }
 
 /*##############################################################################

@@ -135,12 +135,6 @@ private:
     
     BOUNDARY_CONDITION_DATA *BoundaryConditionForSurface_;
             
-    // Rotor Disk Data
-    
-    int NumberOfRotors_;
-    
-    ROTOR_DISK *RotorDisk_;
-
     // Bounding Box data for each component
     
     BBOX *BBoxForComponent_;
@@ -327,14 +321,6 @@ public:
     /** Access to the i'th level grid **/
     
     VSP_GRID &Grid(int i) { return *(Grid_[i]); };
-    
-    /** Number of rotors, aka actuator disks **/
-    
-    int NumberOfRotors(void) { return NumberOfRotors_; };
-    
-    /** Rotor disk list **/
-    
-    ROTOR_DISK &RotorDisk(int i) { return RotorDisk_[i]; };
     
     /** Flag that we are doing a symmetry plane analysis... **/
     
