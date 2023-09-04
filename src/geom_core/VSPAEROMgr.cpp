@@ -823,7 +823,25 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
 
                         string dia_id = geom->FindParm("Diameter", "Design");
                         temp.back()->m_Diameter.Set(ParmMgr.FindParm(dia_id)->Get());
-                        
+
+                        temp.back()->m_XYZ = geom->CompPnt01( iSubsurf, 0, 0 );
+
+                        // Get flag to flip normal vector but don't actually flip the normal vector. Instead flip the sign of RPM
+                        temp.back()->m_FlipNormalFlag = geom->GetFlipNormal( iSubsurf );
+
+                        // Identify normal vector before it has been flipped.
+                        // Alternatively, we could get the normal vector from degen_vec[indxToSearch].getDegenDisk().nvec
+                        // and flip it. Note, for unsteady propellers we flip the normal vector but keep the sign of RPM
+                        // if the Prop is reversed
+                        vector < Matrix4d > trans_mat_vec = geom->GetTransMatVec();
+                        Matrix4d trans_mat = trans_mat_vec[iSubsurf]; // Translations for the specific symmetric copy
+
+                        vec3d rotdir( 1, 0, 0 );
+
+                        vec3d r_vec = trans_mat.xform( rotdir ) - temp.back()->m_XYZ;
+                        temp.back()->m_Normal = r_vec;
+
+
                         // Set hub diameter from geometry
                         bool hub_set = false;
                         XSecSurf* xsecsurf = geom->GetXSecSurf( 0 );
@@ -5477,11 +5495,11 @@ void RotorDisk::Write_STP_Data( FILE *InputFile )
 
     if ( m_FlipNormalFlag )
     {
-        fprintf( InputFile, "%lf \n", m_RPM() );
+        fprintf( InputFile, "%lf \n", -m_RPM() );
     }
     else
     {
-        fprintf( InputFile, "%lf \n", -m_RPM() );
+        fprintf( InputFile, "%lf \n", m_RPM() );
     }
 
     fprintf( InputFile, "%lf \n", m_CT() );
