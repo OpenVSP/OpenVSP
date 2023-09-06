@@ -653,10 +653,10 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_PropGeneralLayout.SetGroupAndScreen( rotor_group, this );
 
     // Prop Element Layout
-    int prop_elem_browser_h = 100;
+    int prop_elem_browser_h = 140;
     m_PropGeneralLayout.AddSubGroupLayout( m_PropElemLayout,
         m_PropGeneralLayout.GetW(),
-        13 * m_PropGeneralLayout.GetStdHeight() + prop_elem_browser_h );
+        11 * m_PropGeneralLayout.GetStdHeight() + m_PropGeneralLayout.GetGapHeight() + prop_elem_browser_h );
     m_PropGeneralLayout.AddY( m_PropElemLayout.GetH() );
 
     m_PropElemLayout.SetSameLineFlag( false );
@@ -670,30 +670,33 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_PropElemBrowser = m_PropElemLayout.AddColResizeBrowser( prop_col_widths, 11, prop_elem_browser_h );
     m_PropElemBrowser->callback( staticScreenCB, this );
 
-    input_width = 60;
+    input_width = 100;
     int XYZ_button_width = 20;
     int else_button_width = 120;
     int browser_augment = 40;
 
-    m_PropElemLayout.SetButtonWidth( else_button_width );
+    m_PropElemLayout.SetButtonWidth( else_button_width + 17 * 3 );
     m_PropElemLayout.SetInputWidth( input_width );
-    m_PropElemLayout.AddOutput( m_PropElemDiaOutput, "Dia.", "%3.3f" );
+    m_PropElemLayout.AddOutput( m_PropElemDiaOutput, "Diameter", "%3.3f" );
 
     m_PropElemLayout.SetFitWidthFlag( false );
     m_PropElemLayout.SetSameLineFlag( true );
-    m_PropElemLayout.SetButtonWidth( else_button_width / 2 );
+    m_PropElemLayout.SetButtonWidth( 17 * 3 );
 
     m_PropElemLayout.AddButton( m_PropAutoHubDiaButton, "Auto" );
 
     m_PropElemLayout.SetFitWidthFlag( true );
+    m_PropElemLayout.SetButtonWidth( else_button_width );
 
-    m_PropElemLayout.AddSlider( m_PropElemHubDiaSlider, "Hub Dia.", 100, "%3.3f" );
+    m_PropElemLayout.AddSlider( m_PropElemHubDiaSlider, "Hub Diameter", 100, "%3.3f" );
 
     m_PropElemLayout.SetButtonWidth( else_button_width );
     m_PropElemLayout.ForceNewLine();
     m_PropElemLayout.SetSameLineFlag( false );
 
-    m_PropElemLayout.AddButton( m_TestDriverGroupButton, "Test Drivers" );
+    m_PropElemLayout.AddYGap();
+
+    // m_PropElemLayout.AddButton( m_TestDriverGroupButton, "Test Drivers" );
 
     vector < string > prop_driver_labels;
     prop_driver_labels.resize( vsp::NUM_PROP_DRIVER );
@@ -709,8 +712,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_PropElemDriverGroupBank.SetDriverGroup( &m_DefaultPropDriverGroup );
     m_PropElemLayout.AddDriverGroupBank( m_PropElemDriverGroupBank, prop_driver_labels, 10, "%6.2f" );
-
-    m_PropGeneralLayout.AddYGap();
 
     //==== Unsteady Group Tab ====//
     m_PropellerTab = AddTab( "Propeller" );
