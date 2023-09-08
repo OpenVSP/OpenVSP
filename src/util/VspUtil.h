@@ -38,6 +38,7 @@ vector <double> logspace( double a, double b, double n);
 
 double linterp( double a, double b, double frac );
 
+/*
 template <typename T> T clamp( T val, T min, T max )
 {
     if ( val < min )
@@ -52,6 +53,7 @@ template <typename T> T clamp( T val, T min, T max )
 
     return val;
 }
+*/
 
 template <typename T> T clampCyclic( T val, T min, T max )
 {

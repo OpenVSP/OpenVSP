@@ -6,7 +6,7 @@ set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_SOURCE_DIR}/../src/cmak
 
 INCLUDE( VSP_Version )
 
-INCLUDE( SetupC++11 )
+SET( CMAKE_CXX_STANDARD 17 )
 
 INCLUDE( ExternalProject )
 
