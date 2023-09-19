@@ -302,6 +302,18 @@ void AdvLinkScreen::Hide()
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
+string AdvLinkScreen::MakeDefaultName( const string & parmid )
+{
+    string name;
+    Parm *p = ParmMgr.FindParm( parmid );
+    if ( p )
+    {
+        name = p->GetName();
+    }
+
+    return name;
+}
+
 //==== Callbacks ====//
 void AdvLinkScreen::CallBack( Fl_Widget *w )
 {
@@ -373,7 +385,7 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
                     Parm *p = ParmMgr.FindParm( ParmID );
                     if ( p )
                     {
-                        string name = p->GetName();
+                        string name = MakeDefaultName( ParmID );
                         if ( !edit_link->DuplicateVarName( name ) )
                         {
                             if ( w == m_InputGroup.GetGroup() )
@@ -471,7 +483,7 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 Parm *p = ParmMgr.FindParm( ParmID );
                 if ( p )
                 {
-                    string name = p->GetName();
+                    string name = MakeDefaultName( ParmID );
                     if ( !edit_link->DuplicateVarName( name ) )
                     {
                         if ( gui_device == &m_PickInput )

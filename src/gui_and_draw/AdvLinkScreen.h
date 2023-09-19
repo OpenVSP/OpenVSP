@@ -29,6 +29,8 @@ public:
     void Hide();
     bool Update();
 
+    string MakeDefaultName( const string & parmid );
+
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
