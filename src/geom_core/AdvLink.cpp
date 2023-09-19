@@ -13,6 +13,10 @@
 #include "APIErrorMgr.h"
 #include "StringUtil.h"
 
+#ifndef NOREGEXP
+#include <regex>
+#endif
+
 //===== Encode Variable Def =====//
 xmlNodePtr VarDef::EncodeXml( xmlNodePtr & node )
 {
@@ -478,5 +482,9 @@ void AdvLink::ReadCode( const string & file_name )
 
 void AdvLink::SearchReplaceCode( const string & from, const string & to )
 {
+#ifdef NOREGEXP
     StringUtil::replace_all( m_ScriptCode, from, to );
+#else
+    m_ScriptCode = regex_replace( m_ScriptCode, regex( "([^\\w]|^)" + from + "([^\\w]|$)" ), "$1" + to + "$2" );
+#endif
 }
