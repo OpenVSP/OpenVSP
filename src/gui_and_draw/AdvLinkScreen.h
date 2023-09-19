@@ -84,6 +84,9 @@ protected:
     GroupLayout m_InputGroup;
     GroupLayout m_OutputGroup;
 
+    ToggleButton m_DefNameNameToggle;
+    ToggleButton m_DefNameGroupToggle;
+    ToggleButton m_DefNameContainerToggle;
 
     TriggerButton m_DelInput;
     TriggerButton m_DelAllInput;

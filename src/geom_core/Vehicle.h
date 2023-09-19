@@ -463,6 +463,12 @@ public:
     Parm m_UserParmMin;
     Parm m_UserParmMax;
 
+    // AdvancedLinkScreen
+
+    BoolParm m_AdvLinkDefNameContainer;
+    BoolParm m_AdvLinkDefNameGroup;
+    BoolParm m_AdvLinkDefNameName;
+
     // ManageBackgroundScreen
     FractionParm m_BGWidthScaleValue;
     FractionParm m_BGHeightScaleValue;

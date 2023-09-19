@@ -48,14 +48,28 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
 
     m_BigGroup.AddParmPicker( m_ParmPicker );
 
+    int gap = 4;
+
     m_BigGroup.SetButtonWidth(110);
-    m_BigGroup.AddYGap();
-    m_BigGroup.AddInput( m_VarNameInput, "Var Name:" );
+    m_BigGroup.SetInputWidth( m_BigGroup.GetW() - ( 4 * m_BigGroup.GetW() / 10.0 ) - m_BigGroup.GetButtonWidth() - gap );
     m_BigGroup.AddYGap();
 
-    int gap = 4;
     m_BigGroup.SetFitWidthFlag( false );
     m_BigGroup.SetSameLineFlag( true );
+
+    m_BigGroup.AddInput( m_VarNameInput, "Var Name:" );
+    m_BigGroup.AddX( gap );
+
+    m_BigGroup.SetButtonWidth( ( m_BigGroup.GetW() - gap ) / 10.0 );
+
+    m_BigGroup.AddLabel( "Default:", m_BigGroup.GetButtonWidth() );
+    m_BigGroup.AddButton( m_DefNameContainerToggle, "Container" );
+    m_BigGroup.AddButton( m_DefNameGroupToggle, "Group" );
+    m_BigGroup.AddButton( m_DefNameNameToggle, "Name" );
+    m_BigGroup.ForceNewLine();
+
+    m_BigGroup.AddYGap();
+
     m_BigGroup.SetButtonWidth( m_BigGroup.GetRemainX()/2 - gap/2 );
     m_BigGroup.AddButton( m_PickInput, "Add Input Var" );
     m_BigGroup.AddX( gap );
@@ -151,6 +165,8 @@ bool AdvLinkScreen::Update()
 
     BasicScreen::Update();
 
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
     AdvLinkMgr.CheckLinks();
 
     int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
@@ -205,6 +221,13 @@ bool AdvLinkScreen::Update()
     {
         snprintf( str, sizeof( str ),  "  %s", link_vec[i]->GetName().c_str() );
         m_LinkBrowser->add( str );
+    }
+
+    if( veh )
+    {
+        m_DefNameContainerToggle.Update( veh->m_AdvLinkDefNameContainer.GetID() );
+        m_DefNameGroupToggle.Update( veh->m_AdvLinkDefNameGroup.GetID() );
+        m_DefNameNameToggle.Update( veh->m_AdvLinkDefNameName.GetID() );
     }
 
     //==== Set Current Link ====//
@@ -305,10 +328,36 @@ void AdvLinkScreen::Hide()
 string AdvLinkScreen::MakeDefaultName( const string & parmid )
 {
     string name;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
     Parm *p = ParmMgr.FindParm( parmid );
-    if ( p )
+    if ( p && veh )
     {
-        name = p->GetName();
+        string c_name, g_name, p_name;
+        ParmMgr.GetNames( parmid, c_name, g_name, p_name );
+
+        if ( veh->m_AdvLinkDefNameContainer() )
+        {
+            name = c_name;
+        }
+
+        if ( veh->m_AdvLinkDefNameGroup() )
+        {
+            if ( !name.empty() )
+            {
+                name += "_";
+            }
+            name += g_name;
+        }
+
+        if ( veh->m_AdvLinkDefNameName() )
+        {
+            if ( !name.empty() )
+            {
+                name += "_";
+            }
+            name += p_name;
+        }
     }
 
     return name;
