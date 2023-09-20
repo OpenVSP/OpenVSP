@@ -1132,8 +1132,7 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         }
         else if( gui_device == &m_ImageFileSelect )
         {
-            std::string fileName = m_ScreenMgr->FileChooser(
-                "Select Image File", "*.{jpg,png,tga,bmp,gif}", false );
+            std::string fileName = m_ScreenMgr->FileChooser( "Select Image File", "*.{jpg,png,tga,bmp,gif}", false );
 
             if( !fileName.empty() )
             {

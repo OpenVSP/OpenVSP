@@ -271,8 +271,7 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_CapturePNG )
     {
-        std::string fileName = m_ScreenMgr->FileChooser(
-                "Create or Select a PNG File", "*.png" );
+        std::string fileName = m_ScreenMgr->FileChooser( "Create or Select a PNG File", "*.png" );
 
         if( !fileName.empty() && glwin )
         {

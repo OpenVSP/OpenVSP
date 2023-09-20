@@ -201,9 +201,7 @@ void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_FileTrigger )
     {
-         veh->setExportFileName( vsp::SLICE_TXT_TYPE,
-                                       m_ScreenMgr->FileChooser(
-                                               "Select Mass Prop output file.", "*.txt" ) );
+         veh->setExportFileName( vsp::SLICE_TXT_TYPE, m_ScreenMgr->FileChooser( "Select Mass Prop output file.", "*.txt" ) );
     }
     else if ( device == &m_StartSlicingTrigger )
     {
