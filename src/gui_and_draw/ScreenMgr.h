@@ -40,7 +40,7 @@ public:
     virtual void ForceUpdate();
     virtual void Alert( const char * message );
 
-    string FileChooser( const char* title, const char* filter, bool forceext = true, const string &dir = string() );
+    string FileChooser( const string &title, const string &filter, bool forceext = true, const string &dir = string() );
 
     PickSetScreen* GetPickSetScreen()
     {

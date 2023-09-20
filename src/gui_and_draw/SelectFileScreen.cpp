@@ -325,7 +325,7 @@ void SelectFileScreen::LoadFavsMenu()
     }
 }
 
-string SelectFileScreen::FileChooser( const char* title, const char* filter, bool forceext, const string &dir )
+string SelectFileScreen::FileChooser( const string &title, const string &filter, bool forceext, const string &dir )
 {
     string file_name;
     m_AcceptFlag = false;
@@ -339,9 +339,9 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter, boo
     m_FileName = string();
 
     char filter_str[256];
-    snprintf( filter_str, sizeof( filter_str ), "   (%s)", filter );
+    snprintf( filter_str, sizeof( filter_str ), "   (%s)", filter.c_str() );
 
-    SetTitle( string( title ).append( filter_str ) );
+    SetTitle( title + filter_str );
 
     m_FilterString = filter;
 

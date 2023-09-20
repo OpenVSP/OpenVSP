@@ -387,7 +387,7 @@ void MessageBox( void * data )
     fl_message( "%s", ( char* )data );
 }
 
-string ScreenMgr::FileChooser( const char* title, const char* filter, bool forceext, const string &dir )
+string ScreenMgr::FileChooser( const string &title, const string &filter, bool forceext, const string &dir )
 {
     SelectFileScreen * sfc = ( SelectFileScreen * )m_ScreenVec[vsp::VSP_SELECT_FILE_SCREEN];
 
