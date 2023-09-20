@@ -342,11 +342,16 @@ void SelectFileScreen::LoadFavsMenu()
     }
 }
 
-string SelectFileScreen::FileChooser( const char* title, const char* filter, bool forceext )
+string SelectFileScreen::FileChooser( const char* title, const char* filter, bool forceext, const string &dir )
 {
     string file_name;
     m_AcceptFlag = false;
     m_SelectFileScreenIsOpen = true;
+
+    if ( !dir.empty() )
+    {
+        m_DirString = dir;
+    }
 
     m_FileName = string();
 
@@ -383,10 +388,3 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter, boo
 
     return file_name;
 }
-
-string SelectFileScreen::FileChooser( const char* title, const char* filter, const char* dir, bool forceext )
-{
-    m_DirString = dir;
-    return FileChooser( title, filter, forceext );
-}
-

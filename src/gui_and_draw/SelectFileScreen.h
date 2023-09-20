@@ -50,8 +50,7 @@ public:
     virtual void CloseCallBack( Fl_Widget* w );
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
-    string FileChooser( const char* title, const char* filter, bool forceext = true );
-    string FileChooser( const char* title, const char* filter, const char* dir, bool forceext = true );
+    string FileChooser( const char* title, const char* filter, bool forceext = true, const string &dir = string() );
 
     void MassageDirString( string &in ) const;
 
