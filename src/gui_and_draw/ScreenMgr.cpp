@@ -387,6 +387,13 @@ void MessageBox( void * data )
     fl_message( "%s", ( char* )data );
 }
 
+string ScreenMgr::FileChooser( const char* title, const char* filter, bool forceext, const string &dir )
+{
+    SelectFileScreen * sfc = ( SelectFileScreen * )m_ScreenVec[vsp::VSP_SELECT_FILE_SCREEN];
+
+    return sfc->FileChooser( title, filter, forceext, dir );
+}
+
 //==== Create Pop-Up Message Window ====//
 void ScreenMgr::Alert( const char * message )
 {

@@ -40,10 +40,8 @@ public:
     virtual void ForceUpdate();
     virtual void Alert( const char * message );
 
-    SelectFileScreen * GetSelectFileScreen()
-    {
-        return ( SelectFileScreen * )m_ScreenVec[vsp::VSP_SELECT_FILE_SCREEN];
-    }
+    string FileChooser( const char* title, const char* filter, bool forceext = true, const string &dir = string() );
+
     PickSetScreen* GetPickSetScreen()
     {
         return (PickSetScreen *)m_ScreenVec[vsp::VSP_PICK_SET_SCREEN];
