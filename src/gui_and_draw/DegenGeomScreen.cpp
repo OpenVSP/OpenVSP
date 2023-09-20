@@ -147,11 +147,11 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_CsvSelect )
     {
-        vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, m_ScreenMgr->FileChooser( "Select degen geom CSV output file.", "*.csv" ) );
+        vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_CSV_TYPE, m_ScreenMgr->FileChooser( "Select degen geom CSV output file.", "*.csv", vsp::SAVE ) );
     }
     else if ( device == &m_MSelect )
     {
-        vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_M_TYPE, m_ScreenMgr->FileChooser( "Select degen geom Matlab output file.", "*.m" ) );
+        vehiclePtr->setExportFileName( vsp::DEGEN_GEOM_M_TYPE, m_ScreenMgr->FileChooser( "Select degen geom Matlab output file.", "*.m", vsp::SAVE ) );
     }
     else if ( device == &m_UseSet )
     {

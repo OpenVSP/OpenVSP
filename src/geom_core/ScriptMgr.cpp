@@ -1331,6 +1331,17 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FREESTREAM_PD_UNITS", "PD_UNITS_METRIC", PD_UNITS_METRIC, "/*!< Metric unit system */"  );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum for setting the mode ofthe file chooser. */";
+
+    r = se->RegisterEnum( "FILE_CHOOSER_MODE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FILE_CHOOSER_MODE", "OPEN", OPEN, "/*!< Browse files that already exist */"  );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FILE_CHOOSER_MODE", "SAVE", SAVE, "/*!< Browse file system and enter file name */"  );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FILE_CHOOSER_MODE", "NUM_FILE_CHOOSER_MODES", NUM_FILE_CHOOSER_MODES, "/*!< Number of file chooser modes */"  );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum used for custom GUI development. */";
 
     r = se->RegisterEnum( "GDEV", doc_struct );

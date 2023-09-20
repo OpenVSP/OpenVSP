@@ -280,7 +280,7 @@ void MainVSPScreen::ExitVSP()
 
             if ( savefile.compare( "Unnamed.vsp3" ) == 0 )
             {
-                savefile = m_ScreenMgr->FileChooser( "Save VSP File", "*.vsp3" );
+                savefile = m_ScreenMgr->FileChooser( "Save VSP File", "*.vsp3", vsp::SAVE );
             }
 
             if ( savefile.compare( "" ) != 0 )
@@ -326,7 +326,7 @@ void MainVSPScreen::ActionCB( void * data )
 
         if ( savefile.compare( "Unnamed.vsp3" ) == 0 )
         {
-            savefile = m_ScreenMgr->FileChooser( "Save VSP File", "*.vsp3" );
+            savefile = m_ScreenMgr->FileChooser( "Save VSP File", "*.vsp3", vsp::SAVE );
         }
 
         if ( savefile.compare( "" ) != 0 )
@@ -339,7 +339,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_SaveAsMenuItem )
     {
-        string savefile = m_ScreenMgr->FileChooser( "Save VSP File As", "*.vsp3" );
+        string savefile = m_ScreenMgr->FileChooser( "Save VSP File As", "*.vsp3", vsp::SAVE );
         if ( savefile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
@@ -354,7 +354,7 @@ void MainVSPScreen::ActionCB( void * data )
 
         if( set >= 0 )
         {
-            string savefile = m_ScreenMgr->FileChooser( "Save VSP Set File As", "*.vsp3" );
+            string savefile = m_ScreenMgr->FileChooser( "Save VSP Set File As", "*.vsp3", vsp::SAVE );
             if ( savefile.compare( "" ) != 0 )
             {
                 VehicleMgr.GetVehicle()->WriteXMLFile( savefile, set );

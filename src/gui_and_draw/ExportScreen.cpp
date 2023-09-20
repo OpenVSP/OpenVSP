@@ -120,117 +120,117 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int degen_set, in
 
     if ( type == EXPORT_XSEC )
     {
-        newfile = m_ScreenMgr->FileChooser( "Write XSec File?", "*.hrm" );
+        newfile = m_ScreenMgr->FileChooser( "Write XSec File?", "*.hrm", vsp::SAVE );
     }
     else if ( type == EXPORT_PLOT3D )
     {
-        newfile = m_ScreenMgr->FileChooser( "Write PLOT3D File?", "*.p3d" );
+        newfile = m_ScreenMgr->FileChooser( "Write PLOT3D File?", "*.p3d", vsp::SAVE );
     }
     else if ( type == EXPORT_STL )
     {
         if ( (( STLOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_STL_OPTIONS_SCREEN ))->ShowSTLOptionsScreen() )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write STL File?", "*.stl" );
+            newfile = m_ScreenMgr->FileChooser( "Write STL File?", "*.stl", vsp::SAVE );
         }
     }
     else if ( type == EXPORT_NASCART )
     {
-        newfile = m_ScreenMgr->FileChooser( "Write NASCART Files?", "*.dat" );
+        newfile = m_ScreenMgr->FileChooser( "Write NASCART Files?", "*.dat", vsp::SAVE );
     }
     else if ( type == EXPORT_CART3D )
     {
-        newfile = m_ScreenMgr->FileChooser( "Write Cart3D Files?", "*.tri" );
+        newfile = m_ScreenMgr->FileChooser( "Write Cart3D Files?", "*.tri", vsp::SAVE );
     }
     else if ( type == EXPORT_OBJ )
     {
-        newfile = m_ScreenMgr->FileChooser( "Write OBJ Files?", "*.obj" );
+        newfile = m_ScreenMgr->FileChooser( "Write OBJ Files?", "*.obj", vsp::SAVE );
     }
     else if ( type == EXPORT_VSPGEOM )
     {
-        newfile = m_ScreenMgr->FileChooser( "Write VSPGeom Files?", "*.vspgeom" );
+        newfile = m_ScreenMgr->FileChooser( "Write VSPGeom Files?", "*.vspgeom", vsp::SAVE );
     }
     else if ( type == EXPORT_GMSH )
     {
-        newfile = m_ScreenMgr->FileChooser( "Write GMsh Files?", "*.msh" );
+        newfile = m_ScreenMgr->FileChooser( "Write GMsh Files?", "*.msh", vsp::SAVE );
     }
     else if ( type == EXPORT_POVRAY )
     {
-        newfile = m_ScreenMgr->FileChooser( "Write POVRAY File?", "*.pov" );
+        newfile = m_ScreenMgr->FileChooser( "Write POVRAY File?", "*.pov", vsp::SAVE );
     }
     else if ( type == EXPORT_X3D )
     {
-        newfile = m_ScreenMgr->FileChooser( "Write X3D File?", "*.x3d" );
+        newfile = m_ScreenMgr->FileChooser( "Write X3D File?", "*.x3d", vsp::SAVE );
     }
     else if ( type == EXPORT_STEP )
     {
         if ( (( STEPOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_STEP_OPTIONS_SCREEN ))->ShowSTEPOptionsScreen() )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write STEP File?", "*.stp" );
+            newfile = m_ScreenMgr->FileChooser( "Write STEP File?", "*.stp", vsp::SAVE );
         }
     }
     else if ( type == EXPORT_STEP_STRUCTURE )
     {
         if ( (( STEPStructureOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_STEP_STRUCTURE_OPTIONS_SCREEN ))->ShowSTEPOptionsScreen() )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write STEP Structures File?", "*.stp" );
+            newfile = m_ScreenMgr->FileChooser( "Write STEP Structures File?", "*.stp", vsp::SAVE );
         }
     }
     else if ( type == EXPORT_IGES )
     {
         if ( (( IGESOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_IGES_OPTIONS_SCREEN ))->ShowIGESOptionsScreen() )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write IGES File?", "*.igs" );
+            newfile = m_ScreenMgr->FileChooser( "Write IGES File?", "*.igs", vsp::SAVE );
         }
     }
     else if ( type == EXPORT_IGES_STRUCTURE )
     {
         if ( (( IGESStructureOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_IGES_STRUCTURE_OPTIONS_SCREEN ))->ShowIGESOptionsScreen() )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write IGES Structures File?", "*.igs" );
+            newfile = m_ScreenMgr->FileChooser( "Write IGES Structures File?", "*.igs", vsp::SAVE );
         }
     }
     else if ( type == EXPORT_BEM )
     {
         if ( (( BEMOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_BEM_OPTIONS_SCREEN ))->ShowBEMOptionsScreen() )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write Blade Element File?", "*.bem" );
+            newfile = m_ScreenMgr->FileChooser( "Write Blade Element File?", "*.bem", vsp::SAVE );
         }
     }
     else if ( type == EXPORT_DXF )
     {
         if ( (( DXFOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_DXF_OPTIONS_SCREEN ))->ShowDXFOptionsScreen() )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write DXF File?", "*.dxf" );
+            newfile = m_ScreenMgr->FileChooser( "Write DXF File?", "*.dxf", vsp::SAVE );
         }
     }
     else if ( type == EXPORT_SVG )
     {
         if ( (( SVGOptionsScreen* ) m_ScreenMgr->GetScreen( vsp::VSP_SVG_OPTIONS_SCREEN ))->ShowSVGOptionsScreen( ) )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write SVG File?", "*.svg" );
+            newfile = m_ScreenMgr->FileChooser( "Write SVG File?", "*.svg", vsp::SAVE );
         }
     }
     else if ( type == EXPORT_FACET )
     {
-        newfile = m_ScreenMgr->FileChooser("Write Facet File?", "*.facet");
+        newfile = m_ScreenMgr->FileChooser( "Write Facet File?", "*.facet", vsp::SAVE );
     }
 
     else if ( type == EXPORT_PMARC )
     {
-        newfile = m_ScreenMgr->FileChooser("Write PMARC File?", "*.pmin");
+        newfile = m_ScreenMgr->FileChooser( "Write PMARC File?", "*.pmin", vsp::SAVE );
     }
     else if ( type == EXPORT_SELIG_AIRFOIL )
     {
         if ( ( (SeligAirfoilExportScreen*)m_ScreenMgr->GetScreen( vsp::VSP_AIRFOIL_POINTS_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write Airfoil Metadata File?", "*.csv" );
+            newfile = m_ScreenMgr->FileChooser( "Write Airfoil Metadata File?", "*.csv", vsp::SAVE );
         }
     }
     else if ( type == EXPORT_BEZIER_AIRFOIL )
     {
         if ( ( (BezierAirfoilExportScreen*)m_ScreenMgr->GetScreen( vsp::VSP_AIRFOIL_CURVES_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
         {
-            newfile = m_ScreenMgr->FileChooser( "Write Airfoil Metadata File?", "*.csv" );
+            newfile = m_ScreenMgr->FileChooser( "Write Airfoil Metadata File?", "*.csv", vsp::SAVE );
         }
     }
     else if ( type == -1 )

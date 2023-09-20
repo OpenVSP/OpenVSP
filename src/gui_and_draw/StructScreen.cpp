@@ -4189,7 +4189,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select .stl file.", "*.stl" );
+            string newfile = m_ScreenMgr->FileChooser( "Select .stl file.", "*.stl", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_STL_FILE_NAME );
@@ -4202,7 +4202,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select mass .txt file.", "*.txt" );
+            string newfile = m_ScreenMgr->FileChooser( "Select mass .txt file.", "*.txt", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_MASS_FILE_NAME );
@@ -4215,7 +4215,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select NASTRAN .dat file.", "*.dat" );
+            string newfile = m_ScreenMgr->FileChooser( "Select NASTRAN .dat file.", "*.dat", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_NASTRAN_FILE_NAME );
@@ -4228,7 +4228,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select NASTRAN key file.", "*.nkey" );
+            string newfile = m_ScreenMgr->FileChooser( "Select NASTRAN key file.", "*.nkey", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_NKEY_FILE_NAME );
@@ -4241,7 +4241,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select Calculix .dat file.", "*.dat" );
+            string newfile = m_ScreenMgr->FileChooser( "Select Calculix .dat file.", "*.dat", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_CALCULIX_FILE_NAME );
@@ -4254,7 +4254,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select .msh file.", "*.msh" );
+            string newfile = m_ScreenMgr->FileChooser( "Select .msh file.", "*.msh", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_GMSH_FILE_NAME );
@@ -4267,7 +4267,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select .srf file.", "*.srf" );
+            string newfile = m_ScreenMgr->FileChooser( "Select .srf file.", "*.srf", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_SRF_FILE_NAME );
@@ -4280,7 +4280,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select GridTool .curv file.", "*.curv" );
+            string newfile = m_ScreenMgr->FileChooser( "Select GridTool .curv file.", "*.curv", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_CURV_FILE_NAME );
@@ -4293,7 +4293,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select Plot3D .p3d file.", "*.p3d" );
+            string newfile = m_ScreenMgr->FileChooser( "Select Plot3D .p3d file.", "*.p3d", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_PLOT3D_FILE_NAME );
@@ -4306,7 +4306,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select IGES .igs file.", "*.igs" );
+            string newfile = m_ScreenMgr->FileChooser( "Select IGES .igs file.", "*.igs", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_IGES_FILE_NAME );
@@ -4319,7 +4319,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->FileChooser( "Select STEP .stp file.", "*.stp" );
+            string newfile = m_ScreenMgr->FileChooser( "Select STEP .stp file.", "*.stp", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.m_CurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_STEP_FILE_NAME );

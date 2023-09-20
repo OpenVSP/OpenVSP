@@ -1193,7 +1193,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
         // Export to CSV
         if ( ParasiteDragMgr.GetMainTableVec().size() > 0 )
         {
-            vptr->setExportFileName( vsp::DRAG_BUILD_CSV_TYPE, m_ScreenMgr->FileChooser( "Select ParasiteBuildUp output file.", "*.csv" ) );
+            vptr->setExportFileName( vsp::DRAG_BUILD_CSV_TYPE, m_ScreenMgr->FileChooser( "Select ParasiteBuildUp output file.", "*.csv", vsp::SAVE ) );
 
             ParasiteDragMgr.ExportToCSV( vptr->getExportFileName( vsp::DRAG_BUILD_CSV_TYPE ) );
         }

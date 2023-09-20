@@ -325,7 +325,7 @@ void SelectFileScreen::LoadFavsMenu()
     }
 }
 
-string SelectFileScreen::FileChooser( const string &title, const string &filter, const string &dir )
+string SelectFileScreen::FileChooser( const string &title, const string &filter, int mode, const string &dir )
 {
     string file_name;
     m_AcceptFlag = false;

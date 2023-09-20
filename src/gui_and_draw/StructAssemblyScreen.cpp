@@ -945,7 +945,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( curr_assy )
         {
-            string newfile = m_ScreenMgr->FileChooser( "Select .stl file.", "*.stl" );
+            string newfile = m_ScreenMgr->FileChooser( "Select .stl file.", "*.stl", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_STL_FILE_NAME );
@@ -956,7 +956,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( curr_assy )
         {
-            string newfile = m_ScreenMgr->FileChooser( "Select mass .txt file.", "*.txt" );
+            string newfile = m_ScreenMgr->FileChooser( "Select mass .txt file.", "*.txt", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_MASS_FILE_NAME );
@@ -967,7 +967,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( curr_assy )
         {
-            string newfile = m_ScreenMgr->FileChooser( "Select NASTRAN .dat file.", "*.dat" );
+            string newfile = m_ScreenMgr->FileChooser( "Select NASTRAN .dat file.", "*.dat", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_NASTRAN_FILE_NAME );
@@ -978,7 +978,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( curr_assy )
         {
-            string newfile = m_ScreenMgr->FileChooser( "Select NASTRAN key file.", "*.nkey" );
+            string newfile = m_ScreenMgr->FileChooser( "Select NASTRAN key file.", "*.nkey", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_NKEY_FILE_NAME );
@@ -989,7 +989,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( curr_assy )
         {
-            string newfile = m_ScreenMgr->FileChooser( "Select Calculix .dat file.", "*.dat" );
+            string newfile = m_ScreenMgr->FileChooser( "Select Calculix .dat file.", "*.dat", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_CALCULIX_FILE_NAME );
@@ -1000,7 +1000,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( curr_assy )
         {
-            string newfile = m_ScreenMgr->FileChooser( "Select .msh file.", "*.msh" );
+            string newfile = m_ScreenMgr->FileChooser( "Select .msh file.", "*.msh", vsp::SAVE );
             if ( newfile.compare( "" ) != 0 )
             {
                 curr_assy->m_AssemblySettings.SetExportFileName( newfile, vsp::FEA_GMSH_FILE_NAME );

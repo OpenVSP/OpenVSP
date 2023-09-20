@@ -688,7 +688,7 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_SaveSelect )
     {
-        string newfile = m_ScreenMgr->FileChooser( "Create or Select .fit file.", "*.fit" );
+        string newfile = m_ScreenMgr->FileChooser( "Create or Select .fit file.", "*.fit", vsp::SAVE );
         if ( newfile.compare( "" ) != 0 )
         {
             FitModelMgr.SetSaveFitFileName( newfile );
