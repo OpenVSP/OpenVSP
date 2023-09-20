@@ -11,6 +11,8 @@
 #if !defined(SCREENMGR__INCLUDED_)
 #define SCREENMGR__INCLUDED_
 
+#include <FL/Fl_Native_File_Chooser.H>
+
 #include "ScreenBase.h"
 #include "Vehicle.h"
 #include "MessageMgr.h"
@@ -85,6 +87,9 @@ protected:
 
     Vehicle* m_VehiclePtr;
     vector< VspScreen* > m_ScreenVec;
+
+    string NativeFileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &dir = string() );
+    Fl_Native_File_Chooser * m_NativeFileChooser;
 
     virtual void TimerCB();
     static void StaticTimerCB( void* data )

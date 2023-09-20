@@ -7,6 +7,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "FileUtil.h"
+
 #include "AdvLinkScreen.h"
 #include "AeroStructScreen.h"
 #include "AirfoilExportScreen.h"
@@ -73,6 +75,8 @@ ScreenMgr::ScreenMgr( Vehicle* vPtr )
     Fl::add_timeout( UPDATE_TIME, StaticTimerCB, this );
     Fl::add_handler( GlobalHandler );
 
+    m_NativeFileChooser = NULL;
+
     m_RunGUI = true;
 
     m_ShowPlotScreenOnce = false;
@@ -89,6 +93,10 @@ ScreenMgr::~ScreenMgr()
     m_ScreenVec.clear();
     MessageMgr::getInstance().UnRegister( this );
 
+    if ( m_NativeFileChooser )
+    {
+        delete m_NativeFileChooser;
+    }
 }
 
 //==== Force Update ====//
@@ -389,9 +397,71 @@ void MessageBox( void * data )
 
 string ScreenMgr::FileChooser( const string &title, const string &filter, int mode, const string &dir )
 {
-    SelectFileScreen * sfc = ( SelectFileScreen * )m_ScreenVec[vsp::VSP_SELECT_FILE_SCREEN];
+    if ( false )
+    {
+        SelectFileScreen * sfc = ( SelectFileScreen * )m_ScreenVec[vsp::VSP_SELECT_FILE_SCREEN];
 
-    return sfc->FileChooser( title, filter, forceext, dir );
+        return sfc->FileChooser( title, filter, mode, dir );
+    }
+    else
+    {
+        return NativeFileChooser( title, filter, mode, dir );
+    }
+}
+
+string ScreenMgr::NativeFileChooser( const string &title, const string &filter, int mode, const string &dir )
+{
+    if ( !m_NativeFileChooser )
+    {
+        m_NativeFileChooser = new Fl_Native_File_Chooser();
+    }
+
+    if ( mode == vsp::OPEN )
+    {
+        m_NativeFileChooser->type( Fl_Native_File_Chooser::BROWSE_FILE );
+        m_NativeFileChooser->options( Fl_Native_File_Chooser::PREVIEW );
+    }
+    else
+    {
+        m_NativeFileChooser->type( Fl_Native_File_Chooser::BROWSE_SAVE_FILE );
+        m_NativeFileChooser->options( Fl_Native_File_Chooser::NEW_FOLDER | Fl_Native_File_Chooser::SAVEAS_CONFIRM | Fl_Native_File_Chooser::USE_FILTER_EXT );
+    }
+
+    if ( !dir.empty() )
+    {
+        m_NativeFileChooser->directory( dir.c_str() );
+    }
+
+    bool forceext = true;
+    if ( filter.find( ',' ) != string::npos ) // A comma was found
+    {
+        forceext = false;
+    }
+
+    m_NativeFileChooser->title( title.c_str() );
+    m_NativeFileChooser->filter( filter.c_str() );
+
+    string fname;
+    switch ( m_NativeFileChooser->show() )
+    {
+        case -1:
+            printf( "ERROR: %s\n", m_NativeFileChooser->errmsg() );
+            break;
+        case 1:
+            // Cancel
+            break;
+        default:
+            fname = string( m_NativeFileChooser->filename() );
+
+            if ( forceext )
+            {
+                ::EnforceFilter( fname, filter );
+            }
+
+            break;
+    }
+
+    return fname;
 }
 
 //==== Create Pop-Up Message Window ====//
