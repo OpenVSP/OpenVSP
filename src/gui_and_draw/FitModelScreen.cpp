@@ -688,7 +688,7 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_SaveSelect )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Create or Select .fit file.", "*.fit" );
+        string newfile = m_ScreenMgr->FileChooser( "Create or Select .fit file.", "*.fit" );
         if ( newfile.compare( "" ) != 0 )
         {
             FitModelMgr.SetSaveFitFileName( newfile );
@@ -696,7 +696,7 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_LoadSelect )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .fit file.", "*.fit" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .fit file.", "*.fit" );
         if ( newfile.compare( "" ) != 0 )
         {
             FitModelMgr.SetLoadFitFileName( newfile );

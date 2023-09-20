@@ -461,7 +461,7 @@ void WaveDragScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 
     if ( gui_device == &m_FileTrigger  )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Choose Wave Drag Output File", "*.txt" );
+        string newfile = m_ScreenMgr->FileChooser( "Choose Wave Drag Output File", "*.txt" );
         veh->setExportFileName( vsp::WAVE_DRAG_TXT_TYPE, newfile );
     }
     else if ( gui_device == &m_StartSlicingTrigger )

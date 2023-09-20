@@ -603,7 +603,7 @@ void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
 {
     if ( device == &m_SelectSrfFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .srf file.", "*.srf" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .srf file.", "*.srf" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_SRF_FILE_NAME );
@@ -611,7 +611,7 @@ void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectCurvFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select GridTool .curv file.", "*.curv" );
+        string newfile = m_ScreenMgr->FileChooser( "Select GridTool .curv file.", "*.curv" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_CURV_FILE_NAME );
@@ -619,7 +619,7 @@ void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectPlot3DFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Plot3D .p3d file.", "*.p3d" );
+        string newfile = m_ScreenMgr->FileChooser( "Select Plot3D .p3d file.", "*.p3d" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_PLOT3D_FILE_NAME );
@@ -627,7 +627,7 @@ void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectIGESFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select IGES .igs file.", "*.igs" );
+        string newfile = m_ScreenMgr->FileChooser( "Select IGES .igs file.", "*.igs" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_IGES_FILE_NAME );
@@ -635,7 +635,7 @@ void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectSTEPFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select STEP .stp file.", "*.stp" );
+        string newfile = m_ScreenMgr->FileChooser( "Select STEP .stp file.", "*.stp" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_STEP_FILE_NAME );

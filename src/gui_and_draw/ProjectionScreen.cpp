@@ -344,7 +344,7 @@ void ProjectionScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FileTrigger  )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Choose Projected Area Output File", "*.csv" );
+        string newfile = m_ScreenMgr->FileChooser( "Choose Projected Area Output File", "*.csv" );
         vehiclePtr->setExportFileName( vsp::PROJ_AREA_CSV_TYPE, newfile );
     }
     else if ( device == &m_Execute )

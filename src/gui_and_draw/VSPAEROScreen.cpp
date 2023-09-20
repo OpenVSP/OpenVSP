@@ -1077,7 +1077,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                 message = "Select degen geom VSPGEOM output file.";
             }
 
-            veh->setExportFileName( file_type, m_ScreenMgr->GetSelectFileScreen()->FileChooser( message.c_str(), file_ext.c_str() ) );
+            veh->setExportFileName( file_type, m_ScreenMgr->FileChooser( message.c_str(), file_ext.c_str() ) );
         }
         else if( device == &m_CompGeomFileButton )
         {
@@ -1092,7 +1092,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                 message = "Select comp geom TRI output file.";
             }
 
-            veh->setExportFileName( file_type, m_ScreenMgr->GetSelectFileScreen()->FileChooser( message.c_str(), file_ext.c_str() ) );
+            veh->setExportFileName( file_type, m_ScreenMgr->FileChooser( message.c_str(), file_ext.c_str() ) );
         }
         else if ( device == &m_LoadExistingResultsButton )
         {
@@ -1123,7 +1123,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if( device == &m_ExportResultsToCsvButton )
         {
-            string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select CSV File", "*.csv" );
+            string fileName = m_ScreenMgr->FileChooser( "Select CSV File", "*.csv" );
             if ( fileName.size() > 0 )
             {
                 int status = VSPAEROMgr.ExportResultsToCSV( fileName );

@@ -236,7 +236,7 @@ void ManageBackgroundScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FileSelect )
     {
-        std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+        std::string fileName = m_ScreenMgr->FileChooser(
                 "Select Image File", "*.{jpg,png,tga,bmp,gif}", false );
 
         if( !fileName.empty() )

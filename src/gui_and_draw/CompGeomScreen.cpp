@@ -161,13 +161,13 @@ void CompGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_TxtSelect )
     {
         vehiclePtr->setExportFileName( vsp::COMP_GEOM_TXT_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                                       m_ScreenMgr->FileChooser(
                                                "Select comp_geom output file.", "*.txt" ) );
     }
     else if ( device == &m_CsvSelect )
     {
         vehiclePtr->setExportFileName( vsp::COMP_GEOM_CSV_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                                       m_ScreenMgr->FileChooser(
                                                "Select comp_geom output file.", "*.csv" ) );
     }
     else if ( device == &m_UseSet )

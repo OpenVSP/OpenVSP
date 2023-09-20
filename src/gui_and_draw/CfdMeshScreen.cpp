@@ -1332,7 +1332,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
 {
     if ( device == &m_SelectStlFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .stl file.", "*.stl" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_STL_FILE_NAME );
@@ -1340,7 +1340,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectPolyFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .poly file.", "*.poly" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .poly file.", "*.poly" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_POLY_FILE_NAME );
@@ -1348,7 +1348,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectTriFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tri file.", "*.tri" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .tri file.", "*.tri" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_TRI_FILE_NAME );
@@ -1356,7 +1356,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectFacFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .facet file.", "*.facet" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .facet file.", "*.facet" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_FACET_FILE_NAME );
@@ -1364,7 +1364,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectObjFile  )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .obj file.", "*.obj" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .obj file.", "*.obj" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_OBJ_FILE_NAME );
@@ -1372,7 +1372,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectMshFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .msh file.", "*.msh" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .msh file.", "*.msh" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_GMSH_FILE_NAME );
@@ -1380,7 +1380,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectDatFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASCART .dat file.", "*.dat" );
+        string newfile = m_ScreenMgr->FileChooser( "Select NASCART .dat file.", "*.dat" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_DAT_FILE_NAME );
@@ -1388,7 +1388,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectKeyFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASCART .key file.", "*.key" );
+        string newfile = m_ScreenMgr->FileChooser( "Select NASCART .key file.", "*.key" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_KEY_FILE_NAME );
@@ -1396,7 +1396,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectTkeyFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .tkey file.", "*.tkey" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .tkey file.", "*.tkey" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_TKEY_FILE_NAME );
@@ -1404,7 +1404,7 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
     }
     else if ( device == &m_SelectVspgeomFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .vspgeom file.", "*.vspgeom" );
+        string newfile = m_ScreenMgr->FileChooser( "Select .vspgeom file.", "*.vspgeom" );
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_VSPGEOM_FILE_NAME );

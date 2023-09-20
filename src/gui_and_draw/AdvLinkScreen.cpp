@@ -812,7 +812,7 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         if ( edit_link )
         {
-            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Code File", "*.vspcode" );
+            string newfile = m_ScreenMgr->FileChooser( "Select Code File", "*.vspcode" );
             if ( newfile.size() > 0 )
             {
                 edit_link->SaveCode( newfile );
@@ -823,7 +823,7 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         if ( edit_link )
         {
-            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Code File", "*.vspcode" );
+            string newfile = m_ScreenMgr->FileChooser( "Select Code File", "*.vspcode" );
             if ( newfile.size() > 0 )
             {
                 edit_link->ReadCode( newfile );

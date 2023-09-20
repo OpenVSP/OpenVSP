@@ -285,7 +285,7 @@ void DesignVarScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( m_FileTypeChoice.GetVal() == 0 )
         {
-            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Design File", "*.des" );
+            string newfile = m_ScreenMgr->FileChooser( "Design File", "*.des" );
             if ( newfile.size() != 0 && newfile[ newfile.size() - 1] != '/' )
             {
                 DesignVarMgr.WriteDesVarsDES( newfile );
@@ -293,7 +293,7 @@ void DesignVarScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else
         {
-            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Cart3D XDDM File", "*.xddm" );
+            string newfile = m_ScreenMgr->FileChooser( "Cart3D XDDM File", "*.xddm" );
             if ( newfile.size() != 0 && newfile[ newfile.size() - 1] != '/' )
             {
                 DesignVarMgr.WriteDesVarsXDDM( newfile );
@@ -304,7 +304,7 @@ void DesignVarScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         if ( m_FileTypeChoice.GetVal() == 0 )
         {
-            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Design File", "*.des" );
+            string newfile = m_ScreenMgr->FileChooser( "Design File", "*.des" );
             if ( newfile.size() != 0 && newfile[ newfile.size() - 1] != '/' )
             {
                 DesignVarMgr.ReadDesVarsDES( newfile );
@@ -313,7 +313,7 @@ void DesignVarScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else
         {
-            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Cart3D XDDM File", "*.xddm" );
+            string newfile = m_ScreenMgr->FileChooser( "Cart3D XDDM File", "*.xddm" );
             if ( newfile.size() != 0 && newfile[ newfile.size() - 1] != '/' )
             {
                 DesignVarMgr.ReadDesVarsXDDM( newfile );

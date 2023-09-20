@@ -211,7 +211,7 @@ void MassPropScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_FileTrigger )
     {
         veh->setExportFileName( vsp::MASS_PROP_TXT_TYPE,
-                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                                       m_ScreenMgr->FileChooser(
                                                "Select Mass Prop output file.", "*.txt" ) );
     }
 

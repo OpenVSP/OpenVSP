@@ -46,35 +46,35 @@ void ImportScreen::ImportFile( string & in_file, int type )
 
     if ( type == IMPORT_STL )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import STL file?", "*.stl" );
+        in_file = m_ScreenMgr->FileChooser( "Import STL file?", "*.stl" );
     }
     else if ( type == IMPORT_NASCART )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import NASCART file?", "*.dat" );
+        in_file = m_ScreenMgr->FileChooser( "Import NASCART file?", "*.dat" );
     }
     else if ( type == IMPORT_CART3D_TRI )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import Cart3D Tri File?", "*.tri" );
+        in_file = m_ScreenMgr->FileChooser( "Import Cart3D Tri File?", "*.tri" );
     }
     else if ( type == IMPORT_XSEC_MESH || type == IMPORT_XSEC_WIRE )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import XSec File?", "*.hrm" );
+        in_file = m_ScreenMgr->FileChooser( "Import XSec File?", "*.hrm" );
     }
     else if ( type == IMPORT_PTS )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import Points File?", "*.pts" );
+        in_file = m_ScreenMgr->FileChooser( "Import Points File?", "*.pts" );
     }
     else if ( type == IMPORT_V2 )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import OpenVSP v2 File?", "*.vsp" );
+        in_file = m_ScreenMgr->FileChooser( "Import OpenVSP v2 File?", "*.vsp" );
     }
     else if ( type == IMPORT_BEM )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import Blade Element File?", "*.bem" );
+        in_file = m_ScreenMgr->FileChooser( "Import Blade Element File?", "*.bem" );
     }
     else if ( type == IMPORT_P3D_WIRE )
     {
-        in_file = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Import Plot3D Unformatted File?", "*.p3d" );
+        in_file = m_ScreenMgr->FileChooser( "Import Plot3D Unformatted File?", "*.p3d" );
     }
     else
     {

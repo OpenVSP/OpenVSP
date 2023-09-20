@@ -280,7 +280,7 @@ void MainVSPScreen::ExitVSP()
 
             if ( savefile.compare( "Unnamed.vsp3" ) == 0 )
             {
-                savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP File", "*.vsp3" );
+                savefile = m_ScreenMgr->FileChooser( "Save VSP File", "*.vsp3" );
             }
 
             if ( savefile.compare( "" ) != 0 )
@@ -306,7 +306,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_OpenMenuItem )
     {
-        string openfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Open VSP File", "*.vsp3" );
+        string openfile = m_ScreenMgr->FileChooser( "Open VSP File", "*.vsp3" );
         if ( openfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->Renew();
@@ -326,7 +326,7 @@ void MainVSPScreen::ActionCB( void * data )
 
         if ( savefile.compare( "Unnamed.vsp3" ) == 0 )
         {
-            savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP File", "*.vsp3" );
+            savefile = m_ScreenMgr->FileChooser( "Save VSP File", "*.vsp3" );
         }
 
         if ( savefile.compare( "" ) != 0 )
@@ -339,7 +339,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_SaveAsMenuItem )
     {
-        string savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP File As", "*.vsp3" );
+        string savefile = m_ScreenMgr->FileChooser( "Save VSP File As", "*.vsp3" );
         if ( savefile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
@@ -354,7 +354,7 @@ void MainVSPScreen::ActionCB( void * data )
 
         if( set >= 0 )
         {
-            string savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save VSP Set File As", "*.vsp3" );
+            string savefile = m_ScreenMgr->FileChooser( "Save VSP Set File As", "*.vsp3" );
             if ( savefile.compare( "" ) != 0 )
             {
                 VehicleMgr.GetVehicle()->WriteXMLFile( savefile, set );
@@ -363,7 +363,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_InsertMenuItem )
     {
-        string openfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Insert VSP File", "*.vsp3" );
+        string openfile = m_ScreenMgr->FileChooser( "Insert VSP File", "*.vsp3" );
         if ( openfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->ReadXMLFileGeomsOnly( openfile );
@@ -374,7 +374,7 @@ void MainVSPScreen::ActionCB( void * data )
     // }
     else if ( data == &m_RunScriptMenuItem )
     {
-        string scriptfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Script File To Run", "*.vspscript" );
+        string scriptfile = m_ScreenMgr->FileChooser( "Script File To Run", "*.vspscript" );
         if ( scriptfile.compare( "" ) != 0 )
         {
             VehicleMgr.GetVehicle()->RunScript( scriptfile );

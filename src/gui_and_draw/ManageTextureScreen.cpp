@@ -255,7 +255,7 @@ void ManageTextureScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( device == &m_AddButton )
         {
-            std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+            std::string fileName = m_ScreenMgr->FileChooser(
                 "Select Image File", "*.{tga,png,jpg}", false );
 
             if ( !fileName.empty() )
