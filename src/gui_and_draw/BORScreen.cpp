@@ -1455,7 +1455,7 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             {
                 FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
                 assert( affile_xs );
-                string newfile = m_ScreenMgr->FileChooser( "Airfoil File", "*.{af,dat}", false  );
+                string newfile = m_ScreenMgr->FileChooser( "Airfoil File", "*.{af,dat}"  );
 
                 affile_xs->ReadFile( newfile );
                 affile_xs->Update();

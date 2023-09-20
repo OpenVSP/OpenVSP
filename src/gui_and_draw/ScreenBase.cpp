@@ -2663,7 +2663,7 @@ void XSecScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 {
                     FileAirfoil* affile_xs = dynamic_cast<FileAirfoil*>(xsc);
                     assert( affile_xs );
-                    string newfile = m_ScreenMgr->FileChooser( "Airfoil File", "*.{af,dat}", false );
+                    string newfile = m_ScreenMgr->FileChooser( "Airfoil File", "*.{af,dat}" );
 
                     affile_xs->ReadFile( newfile );
                     affile_xs->Update();
@@ -4428,7 +4428,7 @@ void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FileSelect )
     {
-        std::string fileName = m_ScreenMgr->FileChooser( "Select Image File", "*.{jpg,png,tga,bmp,gif}", false );
+        std::string fileName = m_ScreenMgr->FileChooser( "Select Image File", "*.{jpg,png,tga,bmp,gif}" );
 
         if ( !fileName.empty() )
         {

@@ -325,7 +325,7 @@ void SelectFileScreen::LoadFavsMenu()
     }
 }
 
-string SelectFileScreen::FileChooser( const string &title, const string &filter, bool forceext, const string &dir )
+string SelectFileScreen::FileChooser( const string &title, const string &filter, const string &dir )
 {
     string file_name;
     m_AcceptFlag = false;
@@ -334,6 +334,12 @@ string SelectFileScreen::FileChooser( const string &title, const string &filter,
     if ( !dir.empty() )
     {
         m_DirString = dir;
+    }
+
+    bool forceext = true;
+    if ( filter.find( ',' ) != string::npos ) // A comma was found
+    {
+        forceext = false;
     }
 
     m_FileName = string();
