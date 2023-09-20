@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "SelectFileScreen.h"
+#include "FileUtil.h"
 
 #ifdef WIN32
 #include <direct.h>
@@ -286,25 +287,7 @@ void SelectFileScreen::MassageDirString( string &in ) const
 
 void SelectFileScreen::EnforceFilter( string &in ) const
 {
-    string desiredext = m_FilterString.substr( 1, string::npos ); // Skip leading character probably '*'.
-    string desiredlower = desiredext;
-    std::transform( desiredlower.begin(), desiredlower.end(), desiredlower.begin(), ::tolower );
-
-    std::string::size_type extIndex = in.find_last_of( '.' );
-
-    if( extIndex == std::string::npos )
-    {
-        in += desiredext;
-    }
-    else
-    {
-        std::string ext = in.substr( extIndex, in.size() - extIndex );
-        std::transform( ext.begin(), ext.end(), ext.begin(), ::tolower );
-        if( ext != desiredlower ) // compare in lower case
-        {
-            in += desiredext;
-        }
-    }
+    ::EnforceFilter( in, m_FilterString );
 }
 
 void SelectFileScreen::LoadFavsMenu()

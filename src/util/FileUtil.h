@@ -25,5 +25,7 @@ string GetBasename( const string &fname );
 
 void AppendFile_BtoA( FILE* fpa, FILE* fpb );
 
+void EnforceFilter( string &in, const string & filter );
+
 #endif
 

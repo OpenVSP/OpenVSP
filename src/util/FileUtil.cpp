@@ -359,3 +359,26 @@ void AppendFile_BtoA( FILE* fpa, FILE* fpb )
         free( buffer );
     }
 }
+
+void EnforceFilter( string &in, const string & filter )
+{
+    string desiredext = filter.substr( 1, string::npos ); // Skip leading character probably '*'.
+    string desiredlower = desiredext;
+    std::transform( desiredlower.begin(), desiredlower.end(), desiredlower.begin(), ::tolower );
+
+    std::string::size_type extIndex = in.find_last_of( '.' );
+
+    if( extIndex == std::string::npos )
+    {
+        in += desiredext;
+    }
+    else
+    {
+        std::string ext = in.substr( extIndex, in.size() - extIndex );
+        std::transform( ext.begin(), ext.end(), ext.begin(), ::tolower );
+        if( ext != desiredlower ) // compare in lower case
+        {
+            in += desiredext;
+        }
+    }
+}
