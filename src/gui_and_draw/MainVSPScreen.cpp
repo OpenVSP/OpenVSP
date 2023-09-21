@@ -83,6 +83,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_ExportMenuItem.Init( mgr, m_MenuBar, "File/Export...", vsp::VSP_EXPORT_SCREEN );
     // m_SetTempDirMenuItem.Init( this, m_MenuBar, "File/Set Temp Dir..." );
     m_RunScriptMenuItem.Init( this, m_MenuBar, "File/Run Script..." );
+    m_PreferencesMenuItem.Init( mgr, m_MenuBar, "File/Preferences...", vsp::VSP_PREFERENCES_SCREEN );
     m_ExitMenuItem.Init( this, m_MenuBar, "File/Exit" );
 
     m_UndoMenuItem.Init( this, m_MenuBar, "Edit/Undo Parameter Change", FL_COMMAND + 'z' );
@@ -379,6 +380,10 @@ void MainVSPScreen::ActionCB( void * data )
         {
             VehicleMgr.GetVehicle()->RunScript( scriptfile );
         }
+    }
+    else if ( data == &m_PreferencesMenuItem )
+    {
+
     }
     else if ( data == &m_ExitMenuItem )
     {

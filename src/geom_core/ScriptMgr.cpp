@@ -1342,6 +1342,17 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FILE_CHOOSER_MODE", "NUM_FILE_CHOOSER_MODES", NUM_FILE_CHOOSER_MODES, "/*!< Number of file chooser modes */"  );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum for file chooser type. */";
+
+    r = se->RegisterEnum( "FILE_CHOOSER_TYPE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FILE_CHOOSER_TYPE", "FC_OPENVSP", FC_OPENVSP, "/*!< OpenVSP's own file chooser with directory preferences. */"  );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FILE_CHOOSER_TYPE", "FC_NATIVE", FC_NATIVE, "/*!< Operating system's native file chooser */"  );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FILE_CHOOSER_TYPE", "NUM_FILE_CHOOSER_TYPES", NUM_FILE_CHOOSER_TYPES, "/*!< Number of file chooser types */"  );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum used for custom GUI development. */";
 
     r = se->RegisterEnum( "GDEV", doc_struct );
@@ -1528,6 +1539,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_PARM_SCREEN", VSP_PARM_SCREEN, "/*!< Parameter screen */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_PICK_SET_SCREEN", VSP_PICK_SET_SCREEN, "/*!< Pick set screen */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_PREFERENCES_SCREEN", VSP_PREFERENCES_SCREEN, "/*!< Preferences screen */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_PROJECTION_SCREEN", VSP_PROJECTION_SCREEN, "/*!< Projected area screen */" );
     assert( r >= 0 );

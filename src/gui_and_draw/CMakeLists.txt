@@ -75,6 +75,7 @@ ParmLinkScreen.cpp
 ParmScreen.cpp
 PickSetScreen.cpp
 PodScreen.cpp
+PreferencesScreen.cpp
 ProjectionScreen.cpp
 PropScreen.cpp
 PSliceScreen.cpp
@@ -151,6 +152,7 @@ ParmLinkScreen.h
 ParmScreen.h
 PickSetScreen.h
 PodScreen.h
+PreferencesScreen.h
 ProjectionScreen.h
 PropScreen.h
 PSliceScreen.h

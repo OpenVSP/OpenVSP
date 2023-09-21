@@ -71,6 +71,7 @@ protected:
     ScreenMenuItem m_ExportMenuItem;
     // ActionMenuItem m_SetTempDirMenuItem;
     ActionMenuItem m_RunScriptMenuItem;
+    ScreenMenuItem m_PreferencesMenuItem;
     ActionMenuItem m_ExitMenuItem;
 
     ActionMenuItem m_UndoMenuItem;

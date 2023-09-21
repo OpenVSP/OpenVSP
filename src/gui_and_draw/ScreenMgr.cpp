@@ -40,6 +40,7 @@
 #include "ParmDebugScreen.h"
 #include "ParmLinkScreen.h"
 #include "ParmScreen.h"
+#include "PreferencesScreen.h"
 #include "ProjectionScreen.h"
 #include "PSliceScreen.h"
 #include "ScreenshotScreen.h"
@@ -278,6 +279,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_PARM_LINK_SCREEN] = new ParmLinkScreen( this );
     m_ScreenVec[vsp::VSP_PARM_SCREEN] = new ParmScreen( this );
     m_ScreenVec[vsp::VSP_PICK_SET_SCREEN] = new PickSetScreen( this );
+    m_ScreenVec[vsp::VSP_PREFERENCES_SCREEN] = new PreferencesScreen( this );
     m_ScreenVec[vsp::VSP_PROJECTION_SCREEN] = new ProjectionScreen( this );
     m_ScreenVec[vsp::VSP_PSLICE_SCREEN] = new PSliceScreen( this );
     m_ScreenVec[vsp::VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
@@ -397,13 +399,18 @@ void MessageBox( void * data )
 
 string ScreenMgr::FileChooser( const string &title, const string &filter, int mode, const string &dir )
 {
-    if ( false )
-    {
-        SelectFileScreen * sfc = ( SelectFileScreen * )m_ScreenVec[vsp::VSP_SELECT_FILE_SCREEN];
+    Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+    Fl_Preferences app( prefs, "Application" );
 
+    int fc_type = vsp::FC_OPENVSP;
+    app.get( "File_Chooser", fc_type, vsp::FC_OPENVSP );
+
+    if ( fc_type == vsp::FC_OPENVSP )
+    {
+        SelectFileScreen * sfc = ( SelectFileScreen * ) m_ScreenVec[ vsp::VSP_SELECT_FILE_SCREEN ];
         return sfc->FileChooser( title, filter, mode, dir );
     }
-    else
+    else // FC_NATIVE
     {
         return NativeFileChooser( title, filter, mode, dir );
     }

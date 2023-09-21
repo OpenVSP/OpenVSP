@@ -466,6 +466,11 @@ enum FILE_CHOOSER_MODE { OPEN,
                          NUM_FILE_CHOOSER_MODES
                        };
 
+enum FILE_CHOOSER_TYPE { FC_OPENVSP,
+                         FC_NATIVE,
+                         NUM_FILE_CHOOSER_TYPES
+                       };
+
 enum GDEV { GDEV_TAB,
             GDEV_SCROLL_TAB,
             GDEV_GROUP,
@@ -557,6 +562,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,
                       VSP_PARM_LINK_SCREEN,
                       VSP_PARM_SCREEN,
                       VSP_PICK_SET_SCREEN,
+                      VSP_PREFERENCES_SCREEN,
                       VSP_PROJECTION_SCREEN,
                       VSP_PSLICE_SCREEN,
                       VSP_SCREENSHOT_SCREEN,
