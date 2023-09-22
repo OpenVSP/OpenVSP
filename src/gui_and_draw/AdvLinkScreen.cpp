@@ -599,26 +599,30 @@ void RenameVarsMessageBox( void * data )
 
     if ( edit_link && advLinkScreen )
     {
-        int retval = fl_choice( "Variable rename requested.", "Preserve code", "Change in code", "Cancel" );
+        vector< VarDef > input_vars = edit_link->GetInputVars();
+        vector< VarDef > output_vars = edit_link->GetOutputVars();
 
-        if ( retval != 2 )
+        if ( ( advLinkScreen->m_InputBrowserSelect >= 0 && advLinkScreen->m_InputBrowserSelect < ( int ) input_vars.size() ) ||
+             ( advLinkScreen->m_OutputBrowserSelect >= 0 && advLinkScreen->m_OutputBrowserSelect < ( int ) output_vars.size() ) )
         {
-            bool changeincode = true;
-            if ( retval == 0 )
-            {
-                changeincode = false;
-            }
+            int retval = fl_choice( "Variable rename requested.", "Preserve code", "Change in code", "Cancel" );
 
-            vector< VarDef > input_vars = edit_link->GetInputVars();
-            vector< VarDef > output_vars = edit_link->GetOutputVars();
+            if ( retval != 2 )
+            {
+                bool changeincode = true;
+                if ( retval == 0 )
+                {
+                    changeincode = false;
+                }
 
-            if ( advLinkScreen->m_InputBrowserSelect >= 0 && advLinkScreen->m_InputBrowserSelect < ( int ) input_vars.size() )
-            {
-                edit_link->UpdateInputVarName( advLinkScreen->m_InputBrowserSelect, advLinkScreen->m_VarNameInput.GetString(), changeincode );
-            }
-            else if ( advLinkScreen->m_OutputBrowserSelect >= 0 && advLinkScreen->m_OutputBrowserSelect < ( int ) output_vars.size() )
-            {
-                edit_link->UpdateOutputVarName( advLinkScreen->m_OutputBrowserSelect, advLinkScreen->m_VarNameInput.GetString(), changeincode );
+                if ( advLinkScreen->m_InputBrowserSelect >= 0 && advLinkScreen->m_InputBrowserSelect < ( int ) input_vars.size() )
+                {
+                    edit_link->UpdateInputVarName( advLinkScreen->m_InputBrowserSelect, advLinkScreen->m_VarNameInput.GetString(), changeincode );
+                }
+                else if ( advLinkScreen->m_OutputBrowserSelect >= 0 && advLinkScreen->m_OutputBrowserSelect < ( int ) output_vars.size() )
+                {
+                    edit_link->UpdateOutputVarName( advLinkScreen->m_OutputBrowserSelect, advLinkScreen->m_VarNameInput.GetString(), changeincode );
+                }
             }
         }
     }
