@@ -481,7 +481,15 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     {
         if ( edit_link )
         {
-            int ibs = m_InputBrowser->value() - 2;
+            int ibs = -1;
+            for ( size_t i = 2; i <= m_InputBrowser->size(); i++ )
+            {
+                if ( m_InputBrowser->selected( i ) )
+                {
+                    ibs = i - 2;
+                    break;
+                }
+            }
 
             vector <VarDef> ivars = edit_link->GetInputVars();
             if ( ibs >= 0 && ibs < ivars.size() )
@@ -504,7 +512,15 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     {
         if ( edit_link )
         {
-            int obs = m_OutputBrowser->value() - 2;
+            int obs = -1;
+            for ( size_t i = 2; i <= m_OutputBrowser->size(); i++ )
+            {
+                if ( m_OutputBrowser->selected( i ) )
+                {
+                    obs = i - 2;
+                    break;
+                }
+            }
 
             vector < VarDef > ovars = edit_link->GetOutputVars();
             if ( obs >= 0 && obs < ovars.size())
