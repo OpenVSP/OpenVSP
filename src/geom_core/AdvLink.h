@@ -27,6 +27,9 @@ public:
 
     string m_VarName;
     string m_ParmID;
+    string m_CName;
+    string m_GName;
+    string m_PName;
 
     xmlNodePtr EncodeXml( xmlNodePtr & node );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -67,6 +70,13 @@ public:
 
     int ReorderInputVar( int index, int action );
     int ReorderOutputVar( int index, int action );
+
+    void UpdateInputsCGPNames();
+    void UpdateOutputsCGPNames();
+    int SortInputsVar( int index );
+    int SortInputsCGP( int index );
+    int SortOutputsVar( int index );
+    int SortOutputsCGP( int index );
 
     void SetVar( const string & var_name, double val );
     double GetVar( const string & var_name );

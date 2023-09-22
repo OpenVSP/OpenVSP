@@ -134,6 +134,10 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_InputGroup.AddButton( m_DelInput, "Del" );
     m_InputGroup.AddX( 20 );
     m_InputGroup.AddButton( m_DelAllInput, "Del All" );
+    m_InputGroup.AddX( 20 );
+    m_InputGroup.AddButton( m_SortVarInput, "Sort Var" );
+    m_InputGroup.AddX( 20 );
+    m_InputGroup.AddButton( m_SortCGPInput, "Sort CGP" );
 
     m_OutputGroup.AddDividerBox("Output Parms");
 
@@ -179,6 +183,10 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_OutputGroup.AddButton( m_DelOutput, "Del" );
     m_OutputGroup.AddX( 20 );
     m_OutputGroup.AddButton( m_DelAllOutput, "Del All" );
+    m_OutputGroup.AddX( 20 );
+    m_OutputGroup.AddButton( m_SortVarOutput, "Sort Var" );
+    m_OutputGroup.AddX( 20 );
+    m_OutputGroup.AddButton( m_SortCGPOutput, "Sort CGP" );
 
     m_BigGroup.ForceNewLine();
     m_BigGroup.AddY( 120 );
@@ -257,6 +265,10 @@ bool AdvLinkScreen::Update()
         m_MoveOutputDownButton.Activate();
         m_MoveOutputTopButton.Activate();
         m_MoveOutputBotButton.Activate();
+        m_SortVarInput.Activate();
+        m_SortCGPInput.Activate();
+        m_SortVarOutput.Activate();
+        m_SortCGPOutput.Activate();
     }
     else
     {
@@ -284,6 +296,10 @@ bool AdvLinkScreen::Update()
         m_MoveOutputDownButton.Deactivate();
         m_MoveOutputTopButton.Deactivate();
         m_MoveOutputBotButton.Deactivate();
+        m_SortVarInput.Deactivate();
+        m_SortCGPInput.Deactivate();
+        m_SortVarOutput.Deactivate();
+        m_SortCGPOutput.Deactivate();
     }
 
     //==== Update Parm Picker ====//
@@ -691,6 +707,14 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         m_InputBrowserSelect = edit_link->ReorderInputVar( m_InputBrowserSelect, vsp::REORDER_MOVE_BOTTOM );
     }
+    else if ( gui_device == &m_SortVarInput )
+    {
+        m_InputBrowserSelect = edit_link->SortInputsVar( m_InputBrowserSelect );
+    }
+    else if ( gui_device == &m_SortCGPInput )
+    {
+        m_InputBrowserSelect = edit_link->SortInputsCGP( m_InputBrowserSelect );
+    }
     else if ( gui_device == &m_DelOutput )
     {
         if ( edit_link )
@@ -720,6 +744,14 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( gui_device == &m_MoveOutputBotButton )
     {
         m_OutputBrowserSelect = edit_link->ReorderOutputVar( m_OutputBrowserSelect, vsp::REORDER_MOVE_BOTTOM );
+    }
+    else if ( gui_device == &m_SortVarOutput )
+    {
+        m_OutputBrowserSelect = edit_link->SortOutputsVar( m_OutputBrowserSelect );
+    }
+    else if ( gui_device == &m_SortCGPOutput )
+    {
+        m_OutputBrowserSelect = edit_link->SortOutputsCGP( m_OutputBrowserSelect );
     }
     else if ( gui_device == &m_SaveCode )
     {

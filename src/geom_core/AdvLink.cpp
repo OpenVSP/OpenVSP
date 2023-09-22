@@ -220,6 +220,122 @@ int AdvLink::ReorderOutputVar( int index, int action )
     return index;
 }
 
+void AdvLink::UpdateInputsCGPNames()
+{
+    for ( int i = 0; i < m_InputVars.size(); i++ )
+    {
+        ParmMgr.GetNames( m_InputVars[i].m_ParmID, m_InputVars[i].m_CName, m_InputVars[i].m_GName, m_InputVars[i].m_PName );
+    }
+}
+
+void AdvLink::UpdateOutputsCGPNames()
+{
+    for ( int i = 0; i < m_OutputVars.size(); i++ )
+    {
+        ParmMgr.GetNames( m_OutputVars[i].m_ParmID, m_OutputVars[i].m_CName, m_OutputVars[i].m_GName, m_OutputVars[i].m_PName );
+    }
+}
+
+bool cmpVarDefVar ( const VarDef & a, const VarDef & b )
+{
+    return ( a.m_VarName < b.m_VarName );
+}
+
+bool cmpVarDefCGP ( const VarDef & a, const VarDef & b )
+{
+    if ( a.m_CName != b.m_CName )
+    {
+        return a.m_CName < b.m_CName;
+    }
+
+    if ( a.m_GName != b.m_GName )
+    {
+        return a.m_GName < b.m_GName;
+    }
+
+    return a.m_PName < b.m_PName;
+}
+
+int AdvLink::SortInputsVar( int index )
+{
+    if ( index >= 0 && index < (int)m_InputVars.size() )
+    {
+        string parmid = m_InputVars[ index ].m_ParmID;
+
+        sort( m_InputVars.begin(), m_InputVars.end(), cmpVarDefVar );
+
+        for ( int i = 0; i < m_InputVars.size(); i++ )
+        {
+            if ( parmid == m_InputVars[ i ].m_ParmID )
+            {
+                return i;
+            }
+        }
+    }
+    return index;
+}
+
+int AdvLink::SortInputsCGP( int index )
+{
+    UpdateInputsCGPNames();
+
+    if ( index >= 0 && index < (int)m_InputVars.size() )
+    {
+        string parmid = m_InputVars[ index ].m_ParmID;
+
+        sort( m_InputVars.begin(), m_InputVars.end(), cmpVarDefCGP );
+
+        for ( int i = 0; i < m_InputVars.size(); i++ )
+        {
+            if ( parmid == m_InputVars[ i ].m_ParmID )
+            {
+                return i;
+            }
+        }
+    }
+    return index;
+}
+
+int AdvLink::SortOutputsVar( int index )
+{
+    if ( index >= 0 && index < (int)m_OutputVars.size() )
+    {
+        string parmid = m_OutputVars[ index ].m_ParmID;
+
+        sort( m_OutputVars.begin(), m_OutputVars.end(), cmpVarDefVar );
+
+        for ( int i = 0; i < m_OutputVars.size(); i++ )
+        {
+            if ( parmid == m_OutputVars[ i ].m_ParmID )
+            {
+                return i;
+            }
+        }
+    }
+    return index;
+}
+
+int AdvLink::SortOutputsCGP( int index )
+{
+    UpdateOutputsCGPNames();
+
+    if ( index >= 0 && index < (int)m_OutputVars.size() )
+    {
+        string parmid = m_OutputVars[ index ].m_ParmID;
+
+        sort( m_OutputVars.begin(), m_OutputVars.end(), cmpVarDefCGP );
+
+        for ( int i = 0; i < m_OutputVars.size(); i++ )
+        {
+            if ( parmid == m_OutputVars[ i ].m_ParmID )
+            {
+                return i;
+            }
+        }
+    }
+    return index;
+}
+
 void AdvLink::SetVar( const string & var_name, double val )
 {
     //==== Look For Var ====//

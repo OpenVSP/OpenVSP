@@ -107,6 +107,11 @@ protected:
     TriggerButton m_DelOutput;
     TriggerButton m_DelAllOutput;
 
+    TriggerButton m_SortVarInput;
+    TriggerButton m_SortCGPInput;
+    TriggerButton m_SortVarOutput;
+    TriggerButton m_SortCGPOutput;
+
     TriggerButton m_CompileCode;
 
     TriggerButton m_SaveCode;
