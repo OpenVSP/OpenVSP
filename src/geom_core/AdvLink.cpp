@@ -12,6 +12,7 @@
 #include "ScriptMgr.h"
 #include "APIErrorMgr.h"
 #include "StringUtil.h"
+#include "StlHelper.h"
 
 #ifndef NOREGEXP
 #include <regex>
@@ -199,6 +200,24 @@ void AdvLink::UpdateOutputVarName( int index, const string & var_name, bool chan
 
         m_OutputVars[ index ].m_VarName = var_name;
     }
+}
+
+int AdvLink::ReorderInputVar( int index, int action )
+{
+    if ( index >= 0 && index < (int)m_InputVars.size() )
+    {
+        return ReorderVectorIndex( m_InputVars, index, action );
+    }
+    return index;
+}
+
+int AdvLink::ReorderOutputVar( int index, int action )
+{
+    if ( index >= 0 && index < (int)m_OutputVars.size() )
+    {
+        return ReorderVectorIndex( m_OutputVars, index, action );
+    }
+    return index;
 }
 
 void AdvLink::SetVar( const string & var_name, double val )
