@@ -91,12 +91,42 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
 
     m_InputGroup.AddDividerBox("Input Parms");
 
+    int start_x = m_InputGroup.GetX();
+    int start_y = m_InputGroup.GetY();
+    int browser_h = 100;
+
+    m_InputGroup.AddSubGroupLayout( m_MoveInputButtonLayout, 20, browser_h );
+
+    m_MoveInputButtonLayout.SetSameLineFlag( false );
+    m_MoveInputButtonLayout.SetFitWidthFlag( false );
+
+    m_MoveInputButtonLayout.SetStdHeight( 20 );
+    m_MoveInputButtonLayout.SetButtonWidth( 20 );
+    m_MoveInputButtonLayout.AddButton( m_MoveInputTopButton, "@2<<" );
+    m_MoveInputButtonLayout.AddYGap();
+    m_MoveInputButtonLayout.AddButton( m_MoveInputUpButton, "@2<" );
+    m_MoveInputButtonLayout.AddY( browser_h - 75 - m_InputGroup.GetStdHeight() );
+    m_MoveInputButtonLayout.AddButton( m_MoveInputDownButton, "@2>" );
+    m_MoveInputButtonLayout.AddYGap();
+    m_MoveInputButtonLayout.AddButton( m_MoveInputBotButton, "@2>>" );
+
+    m_InputGroup.SetY( start_y );
+    m_InputGroup.AddX( 20 );
+    m_InputGroup.SetFitWidthFlag( true );
+
+
+    m_InputGroup.AddSubGroupLayout( m_InputBrowserLayout, m_InputGroup.GetRemainX(), browser_h );
+    m_InputGroup.AddY( browser_h );
+
+
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
     static int in_col_widths[] = { 160, 85, 80, 85, 0 }; // widths for each column
 
-    m_InputBrowser = m_InputGroup.AddColResizeBrowser( in_col_widths, 4, 100 );
+    m_InputBrowser = m_InputBrowserLayout.AddColResizeBrowser( in_col_widths, 4, browser_h );
     m_InputBrowser->callback( staticScreenCB, this );
+
+    m_InputGroup.SetX( start_x );
 
     m_InputGroup.SetFitWidthFlag( false );
     m_InputGroup.SetSameLineFlag( true );
@@ -107,12 +137,41 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
 
     m_OutputGroup.AddDividerBox("Output Parms");
 
+    start_x = m_OutputGroup.GetX();
+    start_y = m_OutputGroup.GetY();
+
+    m_OutputGroup.AddSubGroupLayout( m_MoveOutputButtonLayout, 20, browser_h );
+
+    m_MoveOutputButtonLayout.SetSameLineFlag( false );
+    m_MoveOutputButtonLayout.SetFitWidthFlag( false );
+
+    m_MoveOutputButtonLayout.SetStdHeight( 20 );
+    m_MoveOutputButtonLayout.SetButtonWidth( 20 );
+    m_MoveOutputButtonLayout.AddButton( m_MoveOutputTopButton, "@2<<" );
+    m_MoveOutputButtonLayout.AddYGap();
+    m_MoveOutputButtonLayout.AddButton( m_MoveOutputUpButton, "@2<" );
+    m_MoveOutputButtonLayout.AddY( browser_h - 75 - m_OutputGroup.GetStdHeight() );
+    m_MoveOutputButtonLayout.AddButton( m_MoveOutputDownButton, "@2>" );
+    m_MoveOutputButtonLayout.AddYGap();
+    m_MoveOutputButtonLayout.AddButton( m_MoveOutputBotButton, "@2>>" );
+
+    m_OutputGroup.SetY( start_y );
+    m_OutputGroup.AddX( 20 );
+    m_OutputGroup.SetFitWidthFlag( true );
+
+
+    m_OutputGroup.AddSubGroupLayout( m_OutputBrowserLayout, m_OutputGroup.GetRemainX(), browser_h );
+    m_OutputGroup.AddY( browser_h );
+
+
     // Pointer for the widths of each column in the browser to support resizing
     // Last column width must be 0
     static int out_col_widths[] = { 160, 85, 80, 85, 0 }; // widths for each column
 
-    m_OutputBrowser = m_OutputGroup.AddColResizeBrowser( out_col_widths, 4, 100 );
+    m_OutputBrowser = m_OutputBrowserLayout.AddColResizeBrowser( out_col_widths, 4, browser_h );
     m_OutputBrowser->callback( staticScreenCB, this );
+
+    m_OutputGroup.SetX( start_x );
 
     m_OutputGroup.SetFitWidthFlag( false );
     m_OutputGroup.SetSameLineFlag( true );
@@ -190,6 +249,14 @@ bool AdvLinkScreen::Update()
         m_CompileCode.Activate();
         m_SaveCode.Activate();
         m_ReadCode.Activate();
+        m_MoveInputUpButton.Activate();
+        m_MoveInputDownButton.Activate();
+        m_MoveInputTopButton.Activate();
+        m_MoveInputBotButton.Activate();
+        m_MoveOutputUpButton.Activate();
+        m_MoveOutputDownButton.Activate();
+        m_MoveOutputTopButton.Activate();
+        m_MoveOutputBotButton.Activate();
     }
     else
     {
@@ -209,6 +276,14 @@ bool AdvLinkScreen::Update()
         m_CompileCode.Deactivate();
         m_SaveCode.Deactivate();
         m_ReadCode.Deactivate();
+        m_MoveInputUpButton.Deactivate();
+        m_MoveInputDownButton.Deactivate();
+        m_MoveInputTopButton.Deactivate();
+        m_MoveInputBotButton.Deactivate();
+        m_MoveOutputUpButton.Deactivate();
+        m_MoveOutputDownButton.Deactivate();
+        m_MoveOutputTopButton.Deactivate();
+        m_MoveOutputBotButton.Deactivate();
     }
 
     //==== Update Parm Picker ====//
@@ -600,6 +675,22 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             edit_link->DeleteAllVars( true );
         }
     }
+    else if ( gui_device == &m_MoveInputUpButton )
+    {
+        m_InputBrowserSelect = edit_link->ReorderInputVar( m_InputBrowserSelect, vsp::REORDER_MOVE_UP );
+    }
+    else if ( gui_device == &m_MoveInputDownButton )
+    {
+        m_InputBrowserSelect = edit_link->ReorderInputVar( m_InputBrowserSelect, vsp::REORDER_MOVE_DOWN );
+    }
+    else if ( gui_device == &m_MoveInputTopButton )
+    {
+        m_InputBrowserSelect = edit_link->ReorderInputVar( m_InputBrowserSelect, vsp::REORDER_MOVE_TOP );
+    }
+    else if ( gui_device == &m_MoveInputBotButton )
+    {
+        m_InputBrowserSelect = edit_link->ReorderInputVar( m_InputBrowserSelect, vsp::REORDER_MOVE_BOTTOM );
+    }
     else if ( gui_device == &m_DelOutput )
     {
         if ( edit_link )
@@ -613,6 +704,22 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         {
             edit_link->DeleteAllVars( false );
         }
+    }
+    else if ( gui_device == &m_MoveOutputUpButton )
+    {
+        m_OutputBrowserSelect = edit_link->ReorderOutputVar( m_OutputBrowserSelect, vsp::REORDER_MOVE_UP );
+    }
+    else if ( gui_device == &m_MoveOutputDownButton )
+    {
+        m_OutputBrowserSelect = edit_link->ReorderOutputVar( m_OutputBrowserSelect, vsp::REORDER_MOVE_DOWN );
+    }
+    else if ( gui_device == &m_MoveOutputTopButton )
+    {
+        m_OutputBrowserSelect = edit_link->ReorderOutputVar( m_OutputBrowserSelect, vsp::REORDER_MOVE_TOP );
+    }
+    else if ( gui_device == &m_MoveOutputBotButton )
+    {
+        m_OutputBrowserSelect = edit_link->ReorderOutputVar( m_OutputBrowserSelect, vsp::REORDER_MOVE_BOTTOM );
     }
     else if ( gui_device == &m_SaveCode )
     {

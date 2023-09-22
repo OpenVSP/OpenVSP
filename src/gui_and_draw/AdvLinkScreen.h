@@ -82,11 +82,25 @@ protected:
     TriggerButton m_PickOutput;
 
     GroupLayout m_InputGroup;
+    GroupLayout m_MoveInputButtonLayout;
+    GroupLayout m_InputBrowserLayout;
     GroupLayout m_OutputGroup;
+    GroupLayout m_MoveOutputButtonLayout;
+    GroupLayout m_OutputBrowserLayout;
 
     ToggleButton m_DefNameNameToggle;
     ToggleButton m_DefNameGroupToggle;
     ToggleButton m_DefNameContainerToggle;
+
+    TriggerButton m_MoveInputUpButton;
+    TriggerButton m_MoveInputDownButton;
+    TriggerButton m_MoveInputTopButton;
+    TriggerButton m_MoveInputBotButton;
+
+    TriggerButton m_MoveOutputUpButton;
+    TriggerButton m_MoveOutputDownButton;
+    TriggerButton m_MoveOutputTopButton;
+    TriggerButton m_MoveOutputBotButton;
 
     TriggerButton m_DelInput;
     TriggerButton m_DelAllInput;
