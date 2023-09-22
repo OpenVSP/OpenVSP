@@ -62,10 +62,10 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
 
     m_BigGroup.SetButtonWidth( ( m_BigGroup.GetW() - gap ) / 10.0 );
 
-    m_BigGroup.AddLabel( "Default:", m_BigGroup.GetButtonWidth() );
+    m_BigGroup.AddButton( m_GenDefNameToggle, "Auto" );
     m_BigGroup.AddButton( m_DefNameContainerToggle, "Container" );
     m_BigGroup.AddButton( m_DefNameGroupToggle, "Group" );
-    m_BigGroup.AddButton( m_DefNameNameToggle, "Name" );
+    m_BigGroup.AddButton( m_DefNameParmDummy, "Parm" );
     m_BigGroup.ForceNewLine();
 
     m_BigGroup.AddYGap();
@@ -269,6 +269,10 @@ bool AdvLinkScreen::Update()
         m_SortCGPInput.Activate();
         m_SortVarOutput.Activate();
         m_SortCGPOutput.Activate();
+        m_GenDefNameToggle.Activate();
+        m_DefNameContainerToggle.Activate();
+        m_DefNameGroupToggle.Activate();
+        m_DefNameParmDummy.Activate();
     }
     else
     {
@@ -300,6 +304,10 @@ bool AdvLinkScreen::Update()
         m_SortCGPInput.Deactivate();
         m_SortVarOutput.Deactivate();
         m_SortCGPOutput.Deactivate();
+        m_GenDefNameToggle.Deactivate();
+        m_DefNameContainerToggle.Deactivate();
+        m_DefNameGroupToggle.Deactivate();
+        m_DefNameParmDummy.Deactivate();
     }
 
     //==== Update Parm Picker ====//
@@ -318,7 +326,20 @@ bool AdvLinkScreen::Update()
     {
         m_DefNameContainerToggle.Update( veh->m_AdvLinkDefNameContainer.GetID() );
         m_DefNameGroupToggle.Update( veh->m_AdvLinkDefNameGroup.GetID() );
-        m_DefNameNameToggle.Update( veh->m_AdvLinkDefNameName.GetID() );
+        m_GenDefNameToggle.Update( veh->m_AdvLinkGenDefName.GetID() );
+
+        if ( veh->m_AdvLinkGenDefName() )
+        {
+            m_DefNameContainerToggle.Activate();
+            m_DefNameGroupToggle.Activate();
+            m_DefNameParmDummy.Activate();
+        }
+        else
+        {
+            m_DefNameContainerToggle.Deactivate();
+            m_DefNameGroupToggle.Deactivate();
+            m_DefNameParmDummy.Deactivate();
+        }
     }
 
     //==== Set Current Link ====//
@@ -429,26 +450,15 @@ string AdvLinkScreen::MakeDefaultName( const string & parmid )
 
         if ( veh->m_AdvLinkDefNameContainer() )
         {
-            name = c_name;
+            name = c_name + "_";
         }
 
         if ( veh->m_AdvLinkDefNameGroup() )
         {
-            if ( !name.empty() )
-            {
-                name += "_";
-            }
-            name += g_name;
+            name += g_name + "_";
         }
 
-        if ( veh->m_AdvLinkDefNameName() )
-        {
-            if ( !name.empty() )
-            {
-                name += "_";
-            }
-            name += p_name;
-        }
+        name += p_name;
     }
 
     return name;
@@ -457,6 +467,7 @@ string AdvLinkScreen::MakeDefaultName( const string & parmid )
 //==== Callbacks ====//
 void AdvLinkScreen::CallBack( Fl_Widget *w )
 {
+    Vehicle *veh = VehicleMgr.GetVehicle();
 
     int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
     AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
@@ -516,9 +527,9 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     {
         if ( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
         {
-            if ( edit_link )
+            if ( veh && edit_link )
             {
-                if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) || m_VarNameInput.GetString() == "" )
+                if ( veh->m_AdvLinkGenDefName() )
                 {
                     bool add_parm = false;
                     string ParmID( Fl::event_text() );
@@ -546,15 +557,26 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
                         m_ScreenMgr->Alert( "Duplicate Var Name" );
                     }
                 }
-                else if ( w == m_InputGroup.GetGroup() )
+                else
                 {
-                    string ParmID( Fl::event_text() );
-                    AddInput( ParmID, m_VarNameInput.GetString() );
-                }
-                else if ( w == m_OutputGroup.GetGroup() )
-                {
-                    string ParmID( Fl::event_text() );
-                    AddOutput( ParmID, m_VarNameInput.GetString() );
+                    if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) )
+                    {
+                        m_ScreenMgr->Alert( "Duplicate Var Name" );
+                    }
+                    else if ( m_VarNameInput.GetString() == "" )
+                    {
+                        m_ScreenMgr->Alert( "Invalid Var Name" );
+                    }
+                    else if ( w == m_InputGroup.GetGroup() )
+                    {
+                        string ParmID( Fl::event_text() );
+                        AddInput( ParmID, m_VarNameInput.GetString() );
+                    }
+                    else if ( w == m_OutputGroup.GetGroup() )
+                    {
+                        string ParmID( Fl::event_text() );
+                        AddOutput( ParmID, m_VarNameInput.GetString() );
+                    }
                 }
             }
         }
@@ -609,14 +631,16 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
     assert( m_ScreenMgr );
 
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
     int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
     AdvLink* edit_link = AdvLinkMgr.GetLink(edit_link_index);
 
     if ( gui_device == &m_PickInput ||  gui_device == &m_PickOutput )
     {
-        if ( edit_link )
+        if ( veh && edit_link )
         {
-            if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) || m_VarNameInput.GetString() == "" )
+            if ( veh->m_AdvLinkGenDefName() )
             {
                 bool add_parm = false;
                 string ParmID( m_ParmPicker.GetParmChoice() );
@@ -644,13 +668,24 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                     m_ScreenMgr->Alert( "Duplicate Var Name" );
                 }
             }
-            else if ( gui_device == &m_PickInput )
-            {
-                AddInput(  m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
-            }
             else
             {
-                AddOutput(  m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
+                if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) )
+                {
+                    m_ScreenMgr->Alert( "Duplicate Var Name" );
+                }
+                else if ( m_VarNameInput.GetString() == "" )
+                {
+                    m_ScreenMgr->Alert( "Invalid Var Name" );
+                }
+                else if ( gui_device == &m_PickInput )
+                {
+                    AddInput( m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
+                }
+                else
+                {
+                    AddOutput( m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
+                }
             }
         }
     }

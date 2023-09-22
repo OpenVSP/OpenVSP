@@ -88,9 +88,10 @@ protected:
     GroupLayout m_MoveOutputButtonLayout;
     GroupLayout m_OutputBrowserLayout;
 
-    ToggleButton m_DefNameNameToggle;
-    ToggleButton m_DefNameGroupToggle;
+    ToggleButton m_GenDefNameToggle;
     ToggleButton m_DefNameContainerToggle;
+    ToggleButton m_DefNameGroupToggle;
+    TriggerButton m_DefNameParmDummy;
 
     TriggerButton m_MoveInputUpButton;
     TriggerButton m_MoveInputDownButton;

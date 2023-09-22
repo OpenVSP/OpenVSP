@@ -194,9 +194,9 @@ Vehicle::Vehicle()
     m_UserParmMin.Init( "Min", "UserParm", this, -1.0e5, -1.0e12, 1.0e12 );
     m_UserParmMax.Init( "Max", "UserParm", this, 1.0e5, -1.0e12, 1.0e12 );
 
+    m_AdvLinkGenDefName.Init( "AdvLinkGenDefName", "AdvLinkSettings", this, false, false, true );
     m_AdvLinkDefNameContainer.Init( "AdvLinkDefNameContainer", "AdvLinkSettings", this, true, false, true );
     m_AdvLinkDefNameGroup.Init( "AdvLinkDefNameGroup", "AdvLinkSettings", this, false, false, true );
-    m_AdvLinkDefNameName.Init( "AdvLinkDefNameName", "AdvLinkSettings", this, true, false, true );
 
     m_BGWidthScaleValue.Init( "WidthScale", "Background", this, 1.0, -1.0e12, 1.0e12 );
     m_BGHeightScaleValue.Init( "HeightScale", "Background", this, 1.0, -1.0e12, 1.0e12 );
