@@ -258,12 +258,16 @@ bool cmpVarDefCGP ( const VarDef & a, const VarDef & b )
 
 int AdvLink::SortInputsVar( int index )
 {
+    string parmid;
     if ( index >= 0 && index < (int)m_InputVars.size() )
     {
-        string parmid = m_InputVars[ index ].m_ParmID;
+        parmid = m_InputVars[ index ].m_ParmID;
+    }
 
-        sort( m_InputVars.begin(), m_InputVars.end(), cmpVarDefVar );
+    sort( m_InputVars.begin(), m_InputVars.end(), cmpVarDefVar );
 
+    if ( !parmid.empty() )
+    {
         for ( int i = 0; i < m_InputVars.size(); i++ )
         {
             if ( parmid == m_InputVars[ i ].m_ParmID )
@@ -279,12 +283,16 @@ int AdvLink::SortInputsCGP( int index )
 {
     UpdateInputsCGPNames();
 
+    string parmid;
     if ( index >= 0 && index < (int)m_InputVars.size() )
     {
-        string parmid = m_InputVars[ index ].m_ParmID;
+        parmid = m_InputVars[ index ].m_ParmID;
+    }
 
-        sort( m_InputVars.begin(), m_InputVars.end(), cmpVarDefCGP );
+    sort( m_InputVars.begin(), m_InputVars.end(), cmpVarDefCGP );
 
+    if ( !parmid.empty() )
+    {
         for ( int i = 0; i < m_InputVars.size(); i++ )
         {
             if ( parmid == m_InputVars[ i ].m_ParmID )
@@ -298,12 +306,16 @@ int AdvLink::SortInputsCGP( int index )
 
 int AdvLink::SortOutputsVar( int index )
 {
+    string parmid;
     if ( index >= 0 && index < (int)m_OutputVars.size() )
     {
-        string parmid = m_OutputVars[ index ].m_ParmID;
+        parmid = m_OutputVars[ index ].m_ParmID;
+    }
 
-        sort( m_OutputVars.begin(), m_OutputVars.end(), cmpVarDefVar );
+    sort( m_OutputVars.begin(), m_OutputVars.end(), cmpVarDefVar );
 
+    if ( !parmid.empty() )
+    {
         for ( int i = 0; i < m_OutputVars.size(); i++ )
         {
             if ( parmid == m_OutputVars[ i ].m_ParmID )
@@ -319,12 +331,16 @@ int AdvLink::SortOutputsCGP( int index )
 {
     UpdateOutputsCGPNames();
 
+    string parmid;
     if ( index >= 0 && index < (int)m_OutputVars.size() )
     {
-        string parmid = m_OutputVars[ index ].m_ParmID;
+        parmid = m_OutputVars[ index ].m_ParmID;
+    }
 
-        sort( m_OutputVars.begin(), m_OutputVars.end(), cmpVarDefCGP );
+    sort( m_OutputVars.begin(), m_OutputVars.end(), cmpVarDefCGP );
 
+    if ( !parmid.empty() )
+    {
         for ( int i = 0; i < m_OutputVars.size(); i++ )
         {
             if ( parmid == m_OutputVars[ i ].m_ParmID )
