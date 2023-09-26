@@ -2253,16 +2253,19 @@ bool XSecScreen::Update()
                 {
                     m_FourCamberSlider.Deactivate();
                     m_FourCLiSlider.Deactivate();
+                    m_FourCamberGroup.Deactivate();
                 }
-                if (fs_xs->m_CamberInputFlag() == MAX_CAMB)
+                else if (fs_xs->m_CamberInputFlag() == MAX_CAMB)
                 {
                     m_FourCamberSlider.Activate();
                     m_FourCLiSlider.Deactivate();
+                    m_FourCamberGroup.Activate();
                 }
                 else
                 {
                     m_FourCamberSlider.Deactivate();
                     m_FourCLiSlider.Activate();
+                    m_FourCamberGroup.Activate();
                 }
                 m_FourCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
                 m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
@@ -2425,15 +2428,23 @@ bool XSecScreen::Update()
                 m_FourModCamberSlider.Update( fs_xs->m_Camber.GetID() );
                 m_FourModCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
                 m_FourModCamberGroup.Update( fs_xs->m_CamberInputFlag.GetID() );
-                if (fs_xs->m_CamberInputFlag() == MAX_CAMB)
+                if (geom_ptr->GetType().m_Type == PROP_GEOM_TYPE)
+                {
+                    m_FourModCamberSlider.Deactivate();
+                    m_FourModCLiSlider.Deactivate();
+                    m_FourModCamberGroup.Deactivate();
+                }
+                else if (fs_xs->m_CamberInputFlag() == MAX_CAMB)
                 {
                     m_FourModCamberSlider.Activate();
                     m_FourModCLiSlider.Deactivate();
+                    m_FourModCamberGroup.Activate();
                 }
                 else
                 {
                     m_FourModCamberSlider.Deactivate();
                     m_FourModCLiSlider.Activate();
+                    m_FourModCamberGroup.Activate();
                 }
                 m_FourModCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
                 m_FourModInvertButton.Update( fs_xs->m_Invert.GetID() );
