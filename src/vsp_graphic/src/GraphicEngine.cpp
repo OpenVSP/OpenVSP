@@ -133,11 +133,11 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
 
 void GraphicEngine::initGlew()
 {
-    GLenum error = glewInit();
-    if( error != GLEW_OK )
+    GLenum glew_status = glewInit();
+    if ( glew_status != GLEW_OK )
     {
-        // Failed to initialize glew.
-        assert( false );
+        fprintf( stderr, "Error: %s\n", glewGetErrorString( glew_status ) );
+        exit( -1 );
     }
 }
 
