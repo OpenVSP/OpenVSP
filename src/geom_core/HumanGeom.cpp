@@ -15,8 +15,7 @@
 
 #include "UnitConversion.h"
 
-// Pinocchio #includes
-#include "pinocchioApi.h"
+
 
 #include "HumanGeomData.h"
 

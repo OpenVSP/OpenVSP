@@ -24,9 +24,8 @@
 #include "Vsp1DCurve.h"
 #include "ResultsMgr.h"
 
-#include "attachment.h"
-#include "pin_mesh.h"
-#include "skeleton.h"
+// Pinocchio #includes
+#include "pinocchioApi.h"
 
 #define REAL_T float
 
