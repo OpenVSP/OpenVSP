@@ -1,8 +1,5 @@
 ExternalProject_Add( PINOCCHIO
-	# URL ${CMAKE_CURRENT_SOURCE_DIR}/Pinocchio-eab01ad0cf70.zip
-    URL /Users/ramcdona/Documents/OpenVSP/pinocchio
-	DOWNLOAD_COMMAND ""
-	SOURCE_DIR /Users/ramcdona/Documents/OpenVSP/pinocchio
+	URL ${CMAKE_CURRENT_SOURCE_DIR}/Pinocchio-bdeb02edc683.zip
 		CMAKE_ARGS -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 		-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
 		-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
