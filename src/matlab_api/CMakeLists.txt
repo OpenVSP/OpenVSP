@@ -82,7 +82,6 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
         clipper
         Angelscript
         wavedragEL
-        pinocchio
         ${CPPTEST_LIBRARIES}
         ${LIBXML2_LIBRARIES}
         ${WINSOCK_LIBRARIES}
@@ -91,6 +90,7 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
         ${LIBIGES_LIBRARIES}
         ${TRIANGLE_LIBRARIES}
         ${DELABELLA_LIBRARIES}
+        ${PINOCCHIO_LIBRARIES}
     )
     
     MESSAGE(STATUS "${VSPMEX_LIBS}")

@@ -84,7 +84,6 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         clipper
         Angelscript
         wavedragEL
-        pinocchio
         ${CPPTEST_LIBRARIES}
         ${LIBXML2_LIBRARIES}
         ${WINSOCK_LIBRARIES}
@@ -94,6 +93,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         ${LIBIGES_LIBRARIES}
         ${TRIANGLE_LIBRARIES}
         ${DELABELLA_LIBRARIES}
+        ${PINOCCHIO_LIBRARIES}
     )
 
     CONFIGURE_FILE(packages/openvsp/setup.py.in python/packages/openvsp/setup.py)

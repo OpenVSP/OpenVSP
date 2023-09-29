@@ -10,7 +10,6 @@ ENDIF()
 
 ADD_SUBDIRECTORY( clipper )
 ADD_SUBDIRECTORY( nanoflann )
-ADD_SUBDIRECTORY( Pinocchio )
 ADD_SUBDIRECTORY( sixseries )
 ADD_SUBDIRECTORY( tritri )
 ADD_SUBDIRECTORY( wavedragEL )

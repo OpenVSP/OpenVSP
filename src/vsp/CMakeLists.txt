@@ -65,7 +65,6 @@ IF( NOT VSP_NO_GRAPHICS )
         Angelscript
         cartesian
         wavedragEL
-        pinocchio
         ${CPPTEST_LIBRARIES}
         ${LIBXML2_LIBRARIES}
         ${FLTK_LIBRARIES}
@@ -77,6 +76,7 @@ IF( NOT VSP_NO_GRAPHICS )
         ${LIBIGES_LIBRARIES}
         ${TRIANGLE_LIBRARIES}
         ${DELABELLA_LIBRARIES}
+        ${PINOCCHIO_LIBRARIES}
     )
 
     INSTALL( TARGETS vsp RUNTIME DESTINATION . )
@@ -107,7 +107,6 @@ IF( NOT VSP_NO_GRAPHICS )
         sixseries
         cartesian
         wavedragEL
-        pinocchio
         ${CPPTEST_LIBRARIES}
         ${LIBXML2_LIBRARIES}
         ${FLTK_LIBRARIES}
@@ -118,6 +117,7 @@ IF( NOT VSP_NO_GRAPHICS )
         ${LIBIGES_LIBRARIES}
         ${TRIANGLE_LIBRARIES}
         ${DELABELLA_LIBRARIES}
+        ${PINOCCHIO_LIBRARIES}
     )
 
 #    INSTALL( TARGETS apitest_g RUNTIME DESTINATION . )
@@ -145,7 +145,6 @@ TARGET_LINK_LIBRARIES(apitest
     clipper
     Angelscript
     wavedragEL
-    pinocchio
     ${CPPTEST_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${WINSOCK_LIBRARIES}
@@ -154,6 +153,7 @@ TARGET_LINK_LIBRARIES(apitest
     ${LIBIGES_LIBRARIES}
     ${TRIANGLE_LIBRARIES}
     ${DELABELLA_LIBRARIES}
+    ${PINOCCHIO_LIBRARIES}
 )
 
 IF( VSP_INSTALL_API_TEST )
@@ -178,7 +178,6 @@ TARGET_LINK_LIBRARIES(vspscript
     clipper
     Angelscript
     wavedragEL
-    pinocchio
     ${CPPTEST_LIBRARIES}
     ${LIBXML2_LIBRARIES}
     ${WINSOCK_LIBRARIES}
@@ -187,6 +186,7 @@ TARGET_LINK_LIBRARIES(vspscript
     ${LIBIGES_LIBRARIES}
     ${TRIANGLE_LIBRARIES}
     ${DELABELLA_LIBRARIES}
+    ${PINOCCHIO_LIBRARIES}
 )
 
 INSTALL( TARGETS vspscript RUNTIME DESTINATION . )
