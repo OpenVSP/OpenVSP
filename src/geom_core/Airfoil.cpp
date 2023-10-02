@@ -782,11 +782,11 @@ string SixSeries::GetAirfoilName()
     char str[255];
     if ( sixser > 0 )
     {
-        snprintf( str, sizeof( str ),  "  NACA %d%d%02d  a=%.1f",  sixser, icl, ithick, fa );
+        snprintf( str, sizeof( str ),  "  NACA %d-%d%02d  a=%.1f",  sixser, icl, ithick, fa );
     }
     else
     {
-        snprintf( str, sizeof( str ),  "  NACA %dA%d%02d  a=%.1f",  -sixser, icl, ithick, fa );
+        snprintf( str, sizeof( str ),  "  NACA %dA%d%02d  a=%.1f mod",  -sixser, icl, ithick, fa );
     }
     return string( str );
 }

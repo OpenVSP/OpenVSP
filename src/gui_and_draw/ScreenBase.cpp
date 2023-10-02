@@ -1761,14 +1761,14 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_SixSeriesGroup.AddOutput( m_SixNameOutput, "Name" );
     m_SixSeriesGroup.AddYGap();
 
-    m_SixSeriesChoice.AddItem( "63" );
-    m_SixSeriesChoice.AddItem( "64" );
-    m_SixSeriesChoice.AddItem( "65" );
-    m_SixSeriesChoice.AddItem( "66" );
-    m_SixSeriesChoice.AddItem( "67" );
-    m_SixSeriesChoice.AddItem( "63a" );
-    m_SixSeriesChoice.AddItem( "64a" );
-    m_SixSeriesChoice.AddItem( "65a" );
+    m_SixSeriesChoice.AddItem( "63-" );
+    m_SixSeriesChoice.AddItem( "64-" );
+    m_SixSeriesChoice.AddItem( "65-" );
+    m_SixSeriesChoice.AddItem( "66-" );
+    m_SixSeriesChoice.AddItem( "67-" );
+    m_SixSeriesChoice.AddItem( "63A" );
+    m_SixSeriesChoice.AddItem( "64A" );
+    m_SixSeriesChoice.AddItem( "65A" );
     m_SixSeriesGroup.AddChoice( m_SixSeriesChoice, "Series" );
 
     m_SixSeriesGroup.AddYGap();
@@ -1777,7 +1777,7 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     m_SixSeriesGroup.AddSlider( m_SixThickChordSlider, "T/C", 1, "%7.5f" );
     m_SixSeriesGroup.AddYGap();
     m_SixSeriesGroup.AddSlider( m_SixIdealClSlider, "Ideal CL", 1, "%7.5f" );
-    m_SixSeriesGroup.AddSlider( m_SixASlider, "A", 1, "%7.5f" );
+    m_SixSeriesGroup.AddSlider( m_SixASlider, "a", 1, "%7.5f" );
     m_SixSeriesGroup.AddYGap();
     m_SixSeriesGroup.AddButton( m_SixInvertButton, "Invert Airfoil" );
     m_SixSeriesGroup.AddYGap();
