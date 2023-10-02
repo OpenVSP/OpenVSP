@@ -410,8 +410,8 @@ string WaveDragSingleton::WaveDragSlice( int set, int numSlices, int numRots, do
     }
     else
     {
-        veh->CutActiveGeomVec();
-        veh->DeleteClipBoard();
+        veh->DeleteGeom( id );
+        veh->ClearActiveGeom(); // AddMeshGeom() makes id Active.
         id = "NONE";
     }
 

@@ -5842,9 +5842,8 @@ string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag, 
     }
     else
     {
-        // Not sure if this is the best way to delete a mesh geom with no tMeshVec
-        CutActiveGeomVec();
-        DeleteClipBoard();
+        DeleteGeom( id );
+        ClearActiveGeom(); // AddMeshGeom() makes id Active.
         id = "NONE";
     }
 
@@ -5944,8 +5943,8 @@ string Vehicle::MassProps( int set, int degen_set, int numSlices, int idir, bool
     }
     else
     {
-        CutActiveGeomVec();
-        DeleteClipBoard();
+        DeleteGeom( id );
+        ClearActiveGeom(); // AddMeshGeom() makes id Active.
         id = "NONE";
     }
 
@@ -6002,8 +6001,8 @@ string Vehicle::PSlice( int set, int numSlices, const vec3d &axis, bool autoBoun
     }
     else
     {
-        CutActiveGeomVec();
-        DeleteClipBoard();
+        DeleteGeom( id );
+        ClearActiveGeom(); // AddMeshGeom() makes id Active.
         id = "NONE";
     }
 
