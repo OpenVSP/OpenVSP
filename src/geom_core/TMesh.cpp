@@ -1610,6 +1610,54 @@ void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
     }
 }
 
+void TMesh::WriteSTL( string fname, double scale )
+{
+    FILE* fp = fopen( fname.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    fprintf( fp, "solid\n" );
+    Matrix4d mScale;
+    mScale.scale( scale );
+    WriteSTLTris( fp, mScale );
+    fprintf( fp, "endsolid\n" );
+    fclose( fp );
+}
+
+void TMesh::WriteOBJ( string fname, double scale )
+{
+    FILE* fp = fopen( fname.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    int npt = m_NVec.size();
+    int ntri = m_TVec.size();
+
+    for ( int i = 0; i < npt; i++ )
+    {
+        m_NVec[i]->m_ID = i;
+
+        vec3d v = m_NVec[i]->m_Pnt;
+        fprintf( fp, "v %16.10g %16.10g %16.10g\n", v.x() * scale, v.y() * scale,  v.z() * scale );
+    }
+
+    fprintf( fp, "g Surface\n" );
+
+    for ( int i = 0; i < ntri; i++ )
+    {
+        TTri *ttri = m_TVec[i];
+        fprintf( fp, "f %d %d %d\n", ttri->m_N0->m_ID + 1,  ttri->m_N1->m_ID + 1, ttri->m_N2->m_ID + 1 );
+    }
+    fclose( fp );
+
+}
+
 vec3d TMesh::GetVertex( int index )
 {
     if ( index < 0 )

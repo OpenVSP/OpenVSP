@@ -466,6 +466,9 @@ public:
 
     virtual void WriteSTLTris( FILE* file_id, Matrix4d XFormMat );
 
+    virtual void WriteSTL( string fname, double scale = 1.0 );
+    virtual void WriteOBJ( string fname, double scale = 1.0 );
+
     virtual vec3d GetVertex( int index );
     virtual int   NumVerts();
 
