@@ -5132,7 +5132,9 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
             d03 = v0 - v3;
             d23 = v2 - v3;
 
-            if ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) )
+            bool evencorners = ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) );
+
+            if ( evencorners )
             {
                 d20 = v2 - v0;
                 if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
