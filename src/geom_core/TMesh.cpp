@@ -5093,11 +5093,11 @@ void CreateTMeshVecFromPts( const Geom * geom,
         flipnormal = !flipnormal;
     }
 
-    BuildTMeshTris( TMeshVec[itmesh], flipnormal, wmax );
+    BuildTMeshTris( TMeshVec[itmesh], flipnormal, wmax, platenum );
 
 }
 
-void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
+void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum )
 {
     double tol=1.0e-12;
 
@@ -5111,9 +5111,61 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
 
     int iQuad = 0;
 
-    for ( int j = 0 ; j < ( int )(*pnts).size() - 1 ; j++ )
+    int nj = (*pnts).size();
+    int nk = (*pnts)[0].size();
+
+    // Find first non-degenerate j section.
+    int firstj = -1;
+    for ( int j = 0; j < nj - 1; j++ )
     {
-        for ( int k = 0 ; k < ( int )(*pnts)[0].size() - 1 ; k++ )
+        double areaj = 0.0;
+
+        for ( int k = 0; k < nk - 1; k++ )
+        {
+            v0 = (*pnts)[j][k];
+            v1 = (*pnts)[j + 1][k];
+            v2 = (*pnts)[j + 1][k + 1];
+            v3 = (*pnts)[j][k + 1];
+
+            areaj += area( v0, v1, v2 ) + area( v0, v2, v3 );
+        }
+        if ( areaj > tol )
+        {
+            firstj = j;
+            break;
+        }
+    }
+
+    // Find last non-degenerate j section.
+    int lastj = -1;
+    for ( int j = nj - 2; j >= 0; j-- )
+    {
+        double areaj = 0.0;
+
+        for ( int k = 0; k < nk - 1; k++ )
+        {
+            v0 = (*pnts)[j][k];
+            v1 = (*pnts)[j + 1][k];
+            v2 = (*pnts)[j + 1][k + 1];
+            v3 = (*pnts)[j][k + 1];
+
+            areaj += area( v0, v1, v2 ) + area( v0, v2, v3 );
+        }
+        if ( areaj > tol )
+        {
+            lastj = j;
+            break;
+        }
+    }
+
+    // Use degenerate j sections to find u to set condition
+    double umin = (*uw_pnts)[ firstj ][ 0 ].x();
+    double umax = (*uw_pnts)[ lastj + 1 ][ nk - 1 ].x();
+    double umid = 0.5 * ( umin + umax );
+
+    for ( int j = 0; j < nj - 1; j++ )
+    {
+        for ( int k = 0; k < nk - 1; k++ )
         {
             v0 = (*pnts)[j][k];
             v1 = (*pnts)[j + 1][k];
@@ -5125,14 +5177,28 @@ void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
             uw2 = (*uw_pnts)[j + 1][k + 1];
             uw3 = (*uw_pnts)[j][k + 1];
 
-            double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / wmax; // * 4 * 0.25 canceled.
-
             d21 = v2 - v1;
             d01 = v0 - v1;
             d03 = v0 - v3;
             d23 = v2 - v3;
 
+            double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / wmax; // * 4 * 0.25 canceled.
+            double uave = ( uw0.x() + uw1.x() + uw2.x() + uw3.x() ) / 4.0;
+
+            // Set up evencorners based on quadrants 0 and 2.
             bool evencorners = ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) );
+
+            // Flip evencorners for second half of u.
+            if ( uave > umid )
+            {
+                evencorners = !evencorners;
+            }
+
+            // Flip evencorners for every other degenerate plate (handles cruciform).
+            if ( platenum % 2 )
+            {
+                evencorners = !evencorners;
+            }
 
             if ( evencorners )
             {

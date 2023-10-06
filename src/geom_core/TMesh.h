@@ -574,7 +574,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             const vector< vector<vec3d> > & uw_pnts,
                             int indx, int platenum, int surftype, int cfdsurftype, bool thicksurf, bool flipnormal, double wmax );
 
-void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax );
+void BuildTMeshTris( TMesh *tmesh, bool f_norm, double wmax, int platenum );
 
 vector<TMesh*> CopyTMeshVec( const vector<TMesh*> &tmv );
 void DeleteTMeshVec(  vector<TMesh*> &tmv );
