@@ -686,7 +686,13 @@ int TMesh::RemoveDegenerate()
 
 void TMesh::BuildEdges()
 {
-    int n, s, t;
+    int n, e, s, t;
+
+    for ( e = 0; e < (int ) m_EVec.size(); e++ )
+    {
+        delete m_EVec[e];
+    }
+    m_EVec.clear();
 
     MatchNodes();
 
@@ -711,7 +717,7 @@ void TMesh::BuildEdges()
     for ( n = 0 ; n < ( int )m_NVec.size() ; n++ )
     {
         TNode* n0 = m_NVec[n];
-        for ( t = 0 ; t < ( int )n0->m_TriVec.size() ; t++ )
+        for ( t = 0 ; t < ( int )n0->m_TriVec.size() - 1 ; t++ )
         {
             for ( s = t + 1 ; s < ( int )n0->m_TriVec.size() ; s++ )
             {
