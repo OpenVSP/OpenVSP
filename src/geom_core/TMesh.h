@@ -197,6 +197,8 @@ public:
     virtual vec3d GetUWPnt();
     virtual void SetXYZPnt( const vec3d & pnt );
     virtual void SetUWPnt( const vec3d & pnt );
+    virtual bool OnBoundary();
+    virtual vec3d CompNorm();
 
     vec3d m_Pnt;
     vec3d m_UWPnt;
@@ -337,6 +339,8 @@ public:
     virtual vec3d CompUW( const vec3d & pnt );
 
     virtual int WakeEdge();
+
+    virtual bool OnBoundary( TNode* n );
 
     TNode* m_N0;
     TNode* m_N1;

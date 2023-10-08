@@ -138,6 +138,35 @@ void TNode::SetUWPnt( const vec3d & pnt )
     m_CoordInfo |= HAS_UW;
 }
 
+bool TNode::OnBoundary()
+{
+    for ( int t = 0; t < m_TriVec.size(); t++ )
+    {
+        if ( m_TriVec[t]->OnBoundary( this ) )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+vec3d TNode::CompNorm()
+{
+    vec3d nsum;
+    double Asum;
+    for ( int t = 0; t < m_TriVec.size(); t++ )
+    {
+        double a = m_TriVec[t]->ComputeArea();
+        vec3d n = m_TriVec[t]->CompNorm();
+
+        Asum += a;
+        nsum += n * a;
+    }
+    nsum *= 1.0/Asum;
+    nsum.normalize();
+    return nsum;
+}
+
 //=======================================================================//
 //===================            TEdge          =========================//
 //=======================================================================//
@@ -3137,7 +3166,33 @@ int TTri::WakeEdge()
     return 0;
 }
 
+bool TTri::OnBoundary( TNode *n )
+{
+    TNode *n0;
+    TNode *n1;
 
+    if ( n == m_N0 )
+    {
+        n0 = m_N1;
+        n1 = m_N2;
+    }
+    else if ( n == m_N1 )
+    {
+        n0 = m_N0;
+        n1 = m_N2;
+    }
+    else
+    {
+        n0 = m_N0;
+        n1 = m_N1;
+    }
+
+    if ( CheckEdge( n, n0 ) && CheckEdge( n, n1 ) )
+    {
+        return false;
+    }
+    return true;
+}
 
 
 //===============================================//
