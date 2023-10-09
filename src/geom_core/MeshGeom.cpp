@@ -3873,21 +3873,6 @@ TMesh* MeshGeom::AddHalfBox( const string &id )
 
     double ymin = box.GetMin( 1 );
 
-    ////==== Y=0 Plane ====//
-    //for ( int i = 0 ; i < num_div-1 ; i++ )
-    //{
-    //  for ( int j = 0 ; j < num_div-1 ; j++ )
-    //  {
-    //      double x0 = xmin + (double)i*xdel;
-    //      double x1 = xmin + (double)(i+1)*xdel;
-    //      double z0 = zmin + (double)j*zdel;
-    //      double z1 = zmin + (double)(j+1)*zdel;
-
-    //      tm->addTri( vec3d(x0, 0, z0), vec3d( x1, 0, z0 ), vec3d( x0,  0, z1 ), vec3d(0,1,0) );
-    //      tm->addTri( vec3d(x1, 0, z0), vec3d( x1, 0, z1 ), vec3d( x0,  0, z1 ), vec3d(0,1,0) );
-    //  }
-    //}
-
     //==== Add Other Sides ====//
     vec3d A = vec3d( xmin, 0, zmin );
     vec3d B = vec3d( xmax, 0, zmin );
@@ -3897,24 +3882,6 @@ TMesh* MeshGeom::AddHalfBox( const string &id )
     vec3d F = vec3d( xmax, ymin, zmin );
     vec3d G = vec3d( xmin, ymin, zmax );
     vec3d H = vec3d( xmax, ymin, zmax );
-
-    //tm->addTri( E, G, H, vec3d(0,-1,0) );
-    //tm->addTri( E, H, F, vec3d(0,-1,0) );
-
-    //tm->addTri( A, B, D, vec3d(0, 1,0) );
-    //tm->addTri( A, D, C, vec3d(0, 1,0) );
-
-    //tm->addTri( A, C, E, vec3d( -1, 0, 0) );
-    //tm->addTri( C, G, E, vec3d( -1, 0, 0) );
-
-    //tm->addTri( B, F, D, vec3d(  1, 0, 0) );
-    //tm->addTri( D, F, H, vec3d(  1, 0, 0) );
-
-    //tm->addTri( C, D, G, vec3d( 0, 0, 1) );
-    //tm->addTri( D, H, G, vec3d( 0, 0, 1) );
-
-    //tm->addTri( A, E, B, vec3d( 0, 0, -1) );
-    //tm->addTri( B, E, F, vec3d( 0, 0, -1) );
 
     tm->AddTri( G, E, H, vec3d( 0, -1, 0 ), 1 );
     tm->AddTri( H, E, F, vec3d( 0, -1, 0 ), 1 );
