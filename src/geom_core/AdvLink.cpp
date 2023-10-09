@@ -130,6 +130,31 @@ bool AdvLink::DuplicateVarName( const string & name )
     return false;
 }
 
+string AdvLink::MakeVarNameUnique( const string & name )
+{
+    string base_name = name;
+    std::string::size_type loc = base_name.find_last_of( "_" );
+    if ( loc != base_name.npos )
+    {
+        string suffix = base_name.substr( loc + 1 );
+
+        if ( StringUtil::string_is_number( suffix ) )
+        {
+            base_name = base_name.substr( 0, loc );
+        }
+    }
+
+    string candidate = base_name;
+
+    int i = 1;
+    while ( DuplicateVarName( candidate ) )
+    {
+        candidate = base_name + "_" + to_string( i );
+        i++;
+    }
+    return candidate;
+}
+
 void AdvLink::AddVar( const string & parm_id, const string & var_name, bool input_flag )
 {
     Parm* parm_ptr = ParmMgr.FindParm( parm_id );

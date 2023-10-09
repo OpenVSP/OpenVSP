@@ -49,6 +49,7 @@ public:
     virtual ~AdvLink();
 
     bool DuplicateVarName( const string & name );
+    string MakeVarNameUnique( const string & name );
 
     void SetName( const string & name )                             { m_Name = name; }
     string GetName()                                                { return m_Name; }
