@@ -6,11 +6,11 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "AdvLinkScreen.h"
+#include "AdvLinkVarRenameScreen.h"
 #include "AdvLinkMgr.h"
 #include "ScreenMgr.h"
 #include "ParmMgr.h"
 
-#include <FL/fl_ask.H>
 
 
 //==== Constructor ====//
@@ -128,15 +128,20 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
 
     m_InputGroup.SetX( start_x );
 
+    int space_x = ( m_InputGroup.GetW() - 20 - 5 * m_InputGroup.GetButtonWidth() ) / 4;
+
     m_InputGroup.SetFitWidthFlag( false );
     m_InputGroup.SetSameLineFlag( true );
+
     m_InputGroup.AddX( 20 );
     m_InputGroup.AddButton( m_DelInput, "Del" );
-    m_InputGroup.AddX( 20 );
+    m_InputGroup.AddX( space_x );
     m_InputGroup.AddButton( m_DelAllInput, "Del All" );
-    m_InputGroup.AddX( 20 );
+    m_InputGroup.AddX( space_x );
+    m_InputGroup.AddButton( m_RenInput, "Rename" );
+    m_InputGroup.AddX( space_x );
     m_InputGroup.AddButton( m_SortVarInput, "Sort Var" );
-    m_InputGroup.AddX( 20 );
+    m_InputGroup.AddX( space_x );
     m_InputGroup.AddButton( m_SortCGPInput, "Sort CGP" );
 
     m_OutputGroup.AddDividerBox("Output Parms");
@@ -181,11 +186,13 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_OutputGroup.SetSameLineFlag( true );
     m_OutputGroup.AddX( 20 );
     m_OutputGroup.AddButton( m_DelOutput, "Del" );
-    m_OutputGroup.AddX( 20 );
+    m_OutputGroup.AddX( space_x );
     m_OutputGroup.AddButton( m_DelAllOutput, "Del All" );
-    m_OutputGroup.AddX( 20 );
+    m_OutputGroup.AddX( space_x );
+    m_OutputGroup.AddButton( m_RenOutput, "Rename" );
+    m_OutputGroup.AddX( space_x );
     m_OutputGroup.AddButton( m_SortVarOutput, "Sort Var" );
-    m_OutputGroup.AddX( 20 );
+    m_OutputGroup.AddX( space_x );
     m_OutputGroup.AddButton( m_SortCGPOutput, "Sort CGP" );
 
     m_BigGroup.ForceNewLine();
@@ -252,8 +259,10 @@ bool AdvLinkScreen::Update()
         m_PickOutput.Activate();
         m_DelInput.Activate();
         m_DelAllInput.Activate();
+        m_RenInput.Activate();
         m_DelOutput.Activate();
         m_DelAllOutput.Activate();
+        m_RenOutput.Activate();
         m_CompileCode.Activate();
         m_SaveCode.Activate();
         m_ReadCode.Activate();
@@ -287,8 +296,10 @@ bool AdvLinkScreen::Update()
         m_PickOutput.Deactivate();
         m_DelInput.Deactivate();
         m_DelAllInput.Deactivate();
+        m_RenInput.Deactivate();
         m_DelOutput.Deactivate();
         m_DelAllOutput.Deactivate();
+        m_RenOutput.Deactivate();
         m_CompileCode.Deactivate();
         m_SaveCode.Deactivate();
         m_ReadCode.Deactivate();
@@ -605,47 +616,6 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-//==== Create Message Pop-Up ====//
-void RenameVarsMessageBox( void * data )
-{
-    AdvLinkScreen* advLinkScreen = (AdvLinkScreen*) data;
-
-    int edit_link_index = AdvLinkMgr.GetEditLinkIndex();
-    AdvLink* edit_link = AdvLinkMgr.GetLink( edit_link_index );
-
-    if ( edit_link && advLinkScreen )
-    {
-        vector< VarDef > input_vars = edit_link->GetInputVars();
-        vector< VarDef > output_vars = edit_link->GetOutputVars();
-
-        if ( ( advLinkScreen->m_InputBrowserSelect >= 0 && advLinkScreen->m_InputBrowserSelect < ( int ) input_vars.size() ) ||
-             ( advLinkScreen->m_OutputBrowserSelect >= 0 && advLinkScreen->m_OutputBrowserSelect < ( int ) output_vars.size() ) )
-        {
-            int retval = fl_choice( "Variable rename requested.", "Preserve code", "Change in code", "Cancel" );
-
-            if ( retval != 2 )
-            {
-                bool changeincode = true;
-                if ( retval == 0 )
-                {
-                    changeincode = false;
-                }
-
-                if ( advLinkScreen->m_InputBrowserSelect >= 0 && advLinkScreen->m_InputBrowserSelect < ( int ) input_vars.size() )
-                {
-                    edit_link->UpdateInputVarName( advLinkScreen->m_InputBrowserSelect, advLinkScreen->m_VarNameInput.GetString(), changeincode );
-                }
-                else if ( advLinkScreen->m_OutputBrowserSelect >= 0 && advLinkScreen->m_OutputBrowserSelect < ( int ) output_vars.size() )
-                {
-                    edit_link->UpdateOutputVarName( advLinkScreen->m_OutputBrowserSelect, advLinkScreen->m_VarNameInput.GetString(), changeincode );
-                }
-            }
-        }
-    }
-
-    advLinkScreen->GetScreenMgr()->SetUpdateFlag( true );
-}
-
 //==== Gui Device CallBacks ====//
 void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
@@ -746,6 +716,20 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             edit_link->DeleteAllVars( true );
         }
     }
+    else if ( gui_device == &m_RenInput )
+    {
+        AdvLinkVarRenameScreen * vrScreen = dynamic_cast< AdvLinkVarRenameScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_ADV_LINK_VAR_RENAME_SCREEN ) );
+
+        if ( vrScreen && edit_link )
+        {
+            vector < VarDef > ivars = edit_link->GetInputVars();
+            if ( m_InputBrowserSelect >= 0 && m_InputBrowserSelect < ivars.size() )
+            {
+                vrScreen->SetupAndShow( m_InputBrowserSelect, ivars[ m_InputBrowserSelect ].m_VarName, true );
+            }
+        }
+    }
     else if ( gui_device == &m_MoveInputUpButton )
     {
         m_InputBrowserSelect = edit_link->ReorderInputVar( m_InputBrowserSelect, vsp::REORDER_MOVE_UP );
@@ -782,6 +766,20 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         if ( edit_link )
         {
             edit_link->DeleteAllVars( false );
+        }
+    }
+    else if ( gui_device == &m_RenOutput )
+    {
+        AdvLinkVarRenameScreen * vrScreen = dynamic_cast< AdvLinkVarRenameScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_ADV_LINK_VAR_RENAME_SCREEN ) );
+
+        if ( vrScreen && edit_link )
+        {
+            vector < VarDef > ovars = edit_link->GetOutputVars();
+            if ( m_OutputBrowserSelect >= 0 && m_OutputBrowserSelect < ovars.size() )
+            {
+                vrScreen->SetupAndShow( m_OutputBrowserSelect, ovars[ m_OutputBrowserSelect ].m_VarName, false );
+            }
         }
     }
     else if ( gui_device == &m_MoveOutputUpButton )
@@ -841,14 +839,6 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             {
                 edit_link->ForceUpdate();
             }
-        }
-    }
-    else if ( gui_device == &m_VarNameInput )
-    {
-        if ( edit_link )
-        {
-            // Fl::awake( RenameVarsMessageBox, ( void* ) this );
-            Fl::add_timeout( .001, RenameVarsMessageBox, this );
         }
     }
     else

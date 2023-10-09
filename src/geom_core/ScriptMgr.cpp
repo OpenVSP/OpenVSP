@@ -1474,6 +1474,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_ADV_LINK_SCREEN", VSP_ADV_LINK_SCREEN, "/*!< Advanced linking screen */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_ADV_LINK_VAR_RENAME_SCREEN", VSP_ADV_LINK_VAR_RENAME_SCREEN, "/*!< Advanced link variable rename screen */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_AERO_STRUCT_SCREEN", VSP_AERO_STRUCT_SCREEN, "/*!< Aero / structural analysis screen */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "GUI_VSP_SCREEN", "VSP_AIRFOIL_CURVES_EXPORT_SCREEN", VSP_AIRFOIL_CURVES_EXPORT_SCREEN, "/*!< Airfoil curves export screen */" );

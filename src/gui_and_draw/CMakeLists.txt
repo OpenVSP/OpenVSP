@@ -28,6 +28,7 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(gui_and_draw
 AdvLinkScreen.cpp
+AdvLinkVarRenameScreen.cpp
 AeroStructScreen.cpp
 AirfoilExportScreen.cpp
 BlankScreen.cpp
@@ -105,6 +106,7 @@ WaveDragScreen.cpp
 WingScreen.cpp
 WireScreen.cpp
 AdvLinkScreen.h
+AdvLinkVarRenameScreen.h
 AeroStructScreen.h
 AirfoilExportScreen.h
 BlankScreen.h

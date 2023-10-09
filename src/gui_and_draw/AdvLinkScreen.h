@@ -49,11 +49,6 @@ public:
     void GuiDeviceCallBack( GuiDevice* gui_device );
 
 
-    // Needs to be public.
-    StringInput m_VarNameInput;
-
-    int m_InputBrowserSelect;
-    int m_OutputBrowserSelect;
 protected:
 
     Fl_Browser* m_LinkBrowser;
@@ -88,6 +83,11 @@ protected:
     GroupLayout m_MoveOutputButtonLayout;
     GroupLayout m_OutputBrowserLayout;
 
+    StringInput m_VarNameInput;
+
+    int m_InputBrowserSelect;
+    int m_OutputBrowserSelect;
+
     ToggleButton m_GenDefNameToggle;
     ToggleButton m_DefNameContainerToggle;
     ToggleButton m_DefNameGroupToggle;
@@ -105,8 +105,10 @@ protected:
 
     TriggerButton m_DelInput;
     TriggerButton m_DelAllInput;
+    TriggerButton m_RenInput;
     TriggerButton m_DelOutput;
     TriggerButton m_DelAllOutput;
+    TriggerButton m_RenOutput;
 
     TriggerButton m_SortVarInput;
     TriggerButton m_SortCGPInput;

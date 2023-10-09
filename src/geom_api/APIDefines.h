@@ -529,6 +529,7 @@ enum GUI_GEOM_SCREEN { POD_GEOM_SCREEN,
                      };
 
 enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,
+                      VSP_ADV_LINK_VAR_RENAME_SCREEN,
                       VSP_AERO_STRUCT_SCREEN,
                       VSP_AIRFOIL_CURVES_EXPORT_SCREEN,
                       VSP_AIRFOIL_POINTS_EXPORT_SCREEN,
