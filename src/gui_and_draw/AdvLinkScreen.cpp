@@ -554,56 +554,76 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
     {
         if ( Fl::event() == FL_PASTE || Fl::event() == FL_DND_RELEASE )
         {
+            string ParmID( Fl::event_text() );
+
             if ( veh && edit_link )
             {
                 if ( veh->m_AdvLinkGenDefName() )
                 {
-                    bool add_parm = false;
-                    string ParmID( Fl::event_text() );
                     Parm *p = ParmMgr.FindParm( ParmID );
                     if ( p )
                     {
                         string name = MakeDefaultName( ParmID );
-                        if ( !edit_link->DuplicateVarName( name ) )
+
+                        bool cancel = false;
+                        if ( edit_link->DuplicateVarName( name ) )
+                        {
+                            string new_name = edit_link->MakeVarNameUnique( name );
+
+                            if ( 0 == fl_choice( "%s is not unique, use %s instead?", "Cancel", "Use Suggestion",  0, name.c_str(), new_name.c_str() ) )
+                            {
+                                cancel = true;
+                            }
+                            name = new_name;
+                        }
+
+                        if ( !cancel )
                         {
                             if ( w == m_InputGroup.GetGroup() )
                             {
                                 AddInput( ParmID, name );
-                                add_parm = true;
                             }
                             else if ( w == m_OutputGroup.GetGroup() )
                             {
                                 AddOutput( ParmID, name );
-                                add_parm = true;
                             }
                         }
                     }
 
-                    if ( !add_parm )
-                    {
-                        m_ScreenMgr->Alert( "Duplicate Var Name" );
-                    }
                 }
                 else
                 {
                     string name = m_VarNameInput.GetString();
-                    if ( edit_link->DuplicateVarName( name ) )
-                    {
-                        m_ScreenMgr->Alert( "Duplicate Var Name" );
-                    }
-                    else if ( name == "" )
+
+                    if ( name == "" )
                     {
                         m_ScreenMgr->Alert( "Invalid Var Name" );
                     }
-                    else if ( w == m_InputGroup.GetGroup() )
+                    else
                     {
-                        string ParmID( Fl::event_text() );
-                        AddInput( ParmID, name );
-                    }
-                    else if ( w == m_OutputGroup.GetGroup() )
-                    {
-                        string ParmID( Fl::event_text() );
-                        AddOutput( ParmID, name );
+                        bool cancel = false;
+                        if ( edit_link->DuplicateVarName( name ) )
+                        {
+                            string new_name = edit_link->MakeVarNameUnique( name );
+
+                            if ( 0 == fl_choice( "%s is not unique, use %s instead?", "Cancel", "Use Suggestion",  0, name.c_str(), new_name.c_str() ) )
+                            {
+                                cancel = true;
+                            }
+                            name = new_name;
+                        }
+
+                        if ( !cancel )
+                        {
+                            if ( w == m_InputGroup.GetGroup() )
+                            {
+                                AddInput( ParmID, name );
+                            }
+                            else if ( w == m_OutputGroup.GetGroup() )
+                            {
+                                AddOutput( ParmID, name );
+                            }
+                        }
                     }
                 }
             }
@@ -631,51 +651,73 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         if ( veh && edit_link )
         {
+            string ParmID( m_ParmPicker.GetParmChoice() );
+
             if ( veh->m_AdvLinkGenDefName() )
             {
-                bool add_parm = false;
-                string ParmID( m_ParmPicker.GetParmChoice() );
                 Parm *p = ParmMgr.FindParm( ParmID );
                 if ( p )
                 {
                     string name = MakeDefaultName( ParmID );
-                    if ( !edit_link->DuplicateVarName( name ) )
+
+                    bool cancel = false;
+                    if ( edit_link->DuplicateVarName( name ) )
+                    {
+                        string new_name = edit_link->MakeVarNameUnique( name );
+
+                        if ( 0 == fl_choice( "%s is not unique, use %s instead?", "Cancel", "Use Suggestion",  0, name.c_str(), new_name.c_str() ) )
+                        {
+                            cancel = true;
+                        }
+                        name = new_name;
+                    }
+
+                    if ( !cancel )
                     {
                         if ( gui_device == &m_PickInput )
                         {
                             AddInput( ParmID, name );
-                            add_parm = true;
                         }
                         else
                         {
                             AddOutput( ParmID, name );
-                            add_parm = true;
                         }
                     }
-                }
-
-                if ( !add_parm )
-                {
-                    m_ScreenMgr->Alert( "Duplicate Var Name" );
                 }
             }
             else
             {
-                if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) )
-                {
-                    m_ScreenMgr->Alert( "Duplicate Var Name" );
-                }
-                else if ( m_VarNameInput.GetString() == "" )
+                string name = m_VarNameInput.GetString();
+
+                if ( name == "" )
                 {
                     m_ScreenMgr->Alert( "Invalid Var Name" );
                 }
-                else if ( gui_device == &m_PickInput )
-                {
-                    AddInput( m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
-                }
                 else
                 {
-                    AddOutput( m_ParmPicker.GetParmChoice(), m_VarNameInput.GetString() );
+                    bool cancel = false;
+                    if ( edit_link->DuplicateVarName( name ) )
+                    {
+                        string new_name = edit_link->MakeVarNameUnique( name );
+
+                        if ( 0 == fl_choice( "%s is not unique, use %s instead?", "Cancel", "Use Suggestion",  0, name.c_str(), new_name.c_str() ) )
+                        {
+                            cancel = true;
+                        }
+                        name = new_name;
+                    }
+
+                    if ( !cancel )
+                    {
+                        if ( gui_device == &m_PickInput )
+                        {
+                            AddInput( ParmID, name );
+                        }
+                        else
+                        {
+                            AddOutput( ParmID, name );
+                        }
+                    }
                 }
             }
         }
