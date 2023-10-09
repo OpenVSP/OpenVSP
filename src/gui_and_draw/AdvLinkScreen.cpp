@@ -586,23 +586,24 @@ void AdvLinkScreen::CallBack( Fl_Widget *w )
                 }
                 else
                 {
-                    if ( edit_link->DuplicateVarName( m_VarNameInput.GetString() ) )
+                    string name = m_VarNameInput.GetString();
+                    if ( edit_link->DuplicateVarName( name ) )
                     {
                         m_ScreenMgr->Alert( "Duplicate Var Name" );
                     }
-                    else if ( m_VarNameInput.GetString() == "" )
+                    else if ( name == "" )
                     {
                         m_ScreenMgr->Alert( "Invalid Var Name" );
                     }
                     else if ( w == m_InputGroup.GetGroup() )
                     {
                         string ParmID( Fl::event_text() );
-                        AddInput( ParmID, m_VarNameInput.GetString() );
+                        AddInput( ParmID, name );
                     }
                     else if ( w == m_OutputGroup.GetGroup() )
                     {
                         string ParmID( Fl::event_text() );
-                        AddOutput( ParmID, m_VarNameInput.GetString() );
+                        AddOutput( ParmID, name );
                     }
                 }
             }
