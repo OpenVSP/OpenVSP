@@ -119,6 +119,17 @@ void StringUtil::remove_leading_trailing( string & str, char c )
     remove_trailing( str, c );
 }
 
+bool StringUtil::string_is_number( const string &str )
+{
+    for (char const &c : str)
+    {
+        // using the std::isdigit() function
+        if ( std::isdigit( c ) == 0 )
+            return false;
+    }
+    return true;
+}
+
 //==== Convert Int To String =====//
 string StringUtil::int_to_string( int i, const char* format )
 {

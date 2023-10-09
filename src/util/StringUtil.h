@@ -27,6 +27,7 @@ void remove_leading( string & str, char c );
 void remove_trailing( string & str, char c );
 void remove_leading_trailing( string & str, char c );
 
+bool string_is_number( const string &str );
 string int_to_string( int i, const char* format );
 string double_to_string( double v, const char* format );
 string vec3d_to_string( const vec3d & vec, const char* format );
