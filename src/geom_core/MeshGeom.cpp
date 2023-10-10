@@ -2064,6 +2064,13 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         RefreshTagMaps();
     }
 
+    PostIntersectTrim( degenGeom, degen, intSubsFlag, info, res );
+}
+
+void MeshGeom::PostIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res )
+{
+    int i, j;
+
     //==== Compute Areas ====//
     m_TotalTheoArea = m_TotalWetArea = 0.0;
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
