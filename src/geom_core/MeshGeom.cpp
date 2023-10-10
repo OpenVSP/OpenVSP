@@ -3872,6 +3872,8 @@ TMesh* MeshGeom::AddHalfBox( const string &id )
         for ( int t = 0 ; t < ( int )m_TMeshVec[m]->m_TVec.size() ; t++ )
         {
             box.Update( m_TMeshVec[m]->m_TVec[t]->m_N0->m_Pnt );
+            box.Update( m_TMeshVec[m]->m_TVec[t]->m_N1->m_Pnt );
+            box.Update( m_TMeshVec[m]->m_TVec[t]->m_N2->m_Pnt );
         }
     }
 
