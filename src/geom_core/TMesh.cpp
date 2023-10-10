@@ -536,6 +536,9 @@ void TMesh::CopyAttributes( TMesh* m )
 
     m_TheoArea   = m->m_TheoArea;
     m_WetArea    = m->m_WetArea;
+    m_CompAreaVec = m->m_CompAreaVec;
+    m_TagTheoAreaVec = m->m_TagTheoAreaVec;
+    m_TagWetAreaVec = m->m_TagWetAreaVec;
     m_TheoVol    = m->m_TheoVol;
     m_GuessVol   = m->m_GuessVol;
     m_WetVol     = m->m_WetVol;
