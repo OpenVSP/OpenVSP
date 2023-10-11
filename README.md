@@ -89,6 +89,9 @@
    Mac OS X systems.  Windows users must download the source and
    build this library following the Libxml2 instructions.
 
+   - [Clipper2](http://www.angusj.com/clipper2/Docs/Overview.htm) - An open
+  source library for clipping and offsetting 2D lines and polygons.
+
    - [CMinpack](http://devernay.free.fr/hacks/cminpack/) - C/C++ port of
    standard Fortran Levenberg-Marquardt implementation.
 
@@ -153,9 +156,6 @@
 
    - [cartesian](https://sourceforge.net/p/rfltk/code/HEAD/tree/cartesian/) -
    Simple 2D plotting library for FLTK.  GRAPHICS_ONLY
-
-   - [clipper](http://www.angusj.com/delphi/clipper.php) - An open source
-   freeware library for clipping and offsetting lines and polygons.
 
    - [Pinocchio](https://github.com/elrond79/Pinocchio) - The pinocchio
    auto-rigging / weighting tool.
@@ -258,6 +258,7 @@
      overwrite them.  Acceptable versions of this variable are:
 
       - 'Adept2_INSTALL_DIR'
+      - 'CLIPPER2_INSTALL_DIR'
       - 'CMINPACK_INSTALL_DIR'
       - 'CODEELI_INSTALL_DIR'
       - 'CPPTEST_INSTALL_DIR'
@@ -281,6 +282,7 @@
      Acceptable versions of this variable are:
 
       - 'VSP_USE_SYSTEM_ADEPT2'
+      - 'VSP_USE_SYSTEM_CLIPPER2'
       - 'VSP_USE_SYSTEM_CMINPACK'
       - 'VSP_USE_SYSTEM_CODEELI'
       - 'VSP_USE_SYSTEM_CPPTEST'
