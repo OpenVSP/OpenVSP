@@ -8,7 +8,6 @@ IF( NOT VSP_NO_GRAPHICS )
     ADD_SUBDIRECTORY( cartesian )
 ENDIF()
 
-ADD_SUBDIRECTORY( clipper )
 ADD_SUBDIRECTORY( nanoflann )
 ADD_SUBDIRECTORY( sixseries )
 ADD_SUBDIRECTORY( tritri )
