@@ -296,11 +296,11 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
 
     TransformMesh( targetTMeshVec, toclipper );
 
-    vector < ClipperLib::Paths > targetvec;
+    vector < Clipper2Lib::Paths64 > targetvec;
     vector < string > targetids;
     MeshToPathsVec( targetTMeshVec, targetvec, targetids );
 
-    vector < ClipperLib::Paths > utargetvec;
+    vector < Clipper2Lib::Paths64 > utargetvec;
 
     Union( targetvec, utargetvec, targetids );
 
@@ -325,7 +325,7 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, con
 
     AreaReport( res, "Comp_Areas", "Component projected areas.", utargetvec, scale );
 
-    ClipperLib::Paths solution;
+    Clipper2Lib::Paths64 solution;
     Union( utargetvec, solution );
 
     AreaReport( res, "Area", "Projected area.", solution, scale, true );
@@ -391,11 +391,11 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
     TransformMesh( targetTMeshVec, toclipper );
     TransformMesh( boundaryTMeshVec, toclipper );
 
-    vector < ClipperLib::Paths > targetvec;
+    vector < Clipper2Lib::Paths64 > targetvec;
     vector < string > targetids;
     MeshToPathsVec( targetTMeshVec, targetvec, targetids );
 
-    vector < ClipperLib::Paths > utargetvec;
+    vector < Clipper2Lib::Paths64 > utargetvec;
 
     Union( targetvec, utargetvec, targetids );
 
@@ -420,22 +420,22 @@ Results* ProjectionMgrSingleton::Project( vector < TMesh* > &targetTMeshVec, vec
 
     AreaReport( res, "Comp_Areas", "Component projected areas.", utargetvec, scale );
 
-    ClipperLib::Paths boundary;
+    Clipper2Lib::Paths64 boundary;
     MeshToPaths( boundaryTMeshVec, boundary );
 
 
-    ClipperLib::Paths bunion;
+    Clipper2Lib::Paths64 bunion;
 
     Union( boundary, bunion );
 
     AreaReport( res, "Boundary_Area", "Boundary projected area.", bunion, scale );
 
-    vector < ClipperLib::Paths > solvec;
+    vector < Clipper2Lib::Paths64 > solvec;
     Intersect( utargetvec, bunion, solvec );
 
     AreaReport( res, "Comp_Bounded_Areas", "Bounded component projected areas.", solvec, scale );
 
-    ClipperLib::Paths solution;
+    Clipper2Lib::Paths64 solution;
 
     Union( solvec, solution );
 
@@ -515,12 +515,12 @@ void ProjectionMgrSingleton::ExportProjectLines( vector < TMesh* > targetTMeshVe
 
         for ( int k = 0; k < proj_dir_vec.size(); k++ )
         {
-            vector < ClipperLib::Paths > targetvec;
+            vector < Clipper2Lib::Paths64 > targetvec;
             vector < string > targetids;
 
             MeshToPathsVec( targetTMeshVec, targetvec, targetids, proj_dir_vec[k].x(), proj_dir_vec[k].y() );
 
-            vector < ClipperLib::Paths > utargetvec;
+            vector < Clipper2Lib::Paths64 > utargetvec;
 
             Union( targetvec, utargetvec, targetids );
 
@@ -544,7 +544,7 @@ void ProjectionMgrSingleton::ExportProjectLines( vector < TMesh* > targetTMeshVe
                 }
             }
 
-            ClipperLib::Paths solution;
+            Clipper2Lib::Paths64 solution;
             Union( utargetvec, solution );
 
             // Total projection Lines:
@@ -656,7 +656,7 @@ void ProjectionMgrSingleton::UpdateBBox( vector < TMesh* > & tmv )
     }
 }
 
-void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, ClipperLib::Paths & pths )
+void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, Clipper2Lib::Paths64 & pths )
 {
     unsigned int ntri = 0;
     for ( unsigned int i = 0 ; i < ( int )tmv.size() ; i++ )
@@ -675,12 +675,12 @@ void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, Clipper
             for ( int k = 0; k < 3; k++ )
             {
                 vec3d p = tmv[i]->m_TVec[j]->GetTriNode( k )->m_Pnt;
-                pths[itri][k] = ClipperLib::IntPoint( (int) p.y(), (int) p.z() );
+                pths[itri][k] = Clipper2Lib::Point64( (int) p.y(), (int) p.z() );
             }
 
-            if ( !ClipperLib::Orientation( pths[itri] ) )
+            if ( !Clipper2Lib::IsPositive( pths[itri] ) )
             {
-                ClipperLib::ReversePath( pths[itri] );
+                std::reverse( pths[itri].begin(), pths[itri].end() );
             }
 
             itri++;
@@ -688,7 +688,7 @@ void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, Clipper
     }
 }
 
-void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vector < ClipperLib::Paths > & pthvec, vector < string > & ids, const int keepdir1, const int keepdir2 )
+void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pthvec, vector < string > & ids, const int keepdir1, const int keepdir2 )
 {
     pthvec.resize( tmv.size() );
     ids.resize( tmv.size() );
@@ -700,24 +700,24 @@ void ProjectionMgrSingleton::MeshToPathsVec( const vector < TMesh* > & tmv, vect
 
         for ( int j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
         {
-            ClipperLib::Path pth;
+            Clipper2Lib::Paths64 pth;
             pthvec[i][j].resize( 3 );
 
             for ( int k = 0; k < 3; k++ )
             {
                 vec3d p = tmv[i]->m_TVec[j]->GetTriNode( k )->m_Pnt;
-                pthvec[i][j][k] = ClipperLib::IntPoint( (int) p.v[keepdir1], (int) p.v[keepdir2] );
+                pthvec[i][j][k] = Clipper2Lib::Point64( (int) p.v[keepdir1], (int) p.v[keepdir2] );
             }
 
-            if ( !ClipperLib::Orientation( pthvec[i][j] ) )
+            if ( !Clipper2Lib::IsPositive( pthvec[i][j] ) )
             {
-                ClipperLib::ReversePath( pthvec[i][j] );
+                std::reverse( pthvec[i][j].begin(), pthvec[i][j].end() );
             }
         }
     }
 }
 
-void ProjectionMgrSingleton::PathsToPolyVec( const ClipperLib::Paths & pths, vector < vector < vec3d > > & polyvec, const int keepdir1, const int keepdir2 )
+void ProjectionMgrSingleton::PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, const int keepdir1, const int keepdir2 )
 {
     polyvec.clear();
     polyvec.reserve( pths.size() );
@@ -731,10 +731,10 @@ void ProjectionMgrSingleton::PathsToPolyVec( const ClipperLib::Paths & pths, vec
             polyvec[k].resize( pths[i].size() );
             for ( int j = 0; j < pths[i].size(); j++ )
             {
-                ClipperLib::IntPoint p = pths[i][j];
+                Clipper2Lib::Point64 p = pths[i][j];
                 vec3d pv;
-                pv[keepdir1] = p.X;
-                pv[keepdir2] = p.Y;
+                pv[keepdir1] = p.x;
+                pv[keepdir2] = p.y;
                 polyvec[k][j] = pv;
             }
             k++;
@@ -758,7 +758,8 @@ void ProjectionMgrSingleton::Poly3dToPoly2d( vector < vector < vec3d > > & invec
 double ProjectionMgrSingleton::BuildToFromClipper( Matrix4d & toclip, Matrix4d & fromclip, bool translate_to_max )
 {
     vec3d center = m_BBox.GetCenter();
-    double scale = ClipperLib::loRange/m_BBox.GetLargestDist();
+    signed long long loRange = 0x3FFF;
+    double scale = loRange/m_BBox.GetLargestDist();
 
     toclip.loadIdentity();
     toclip.scale( scale );
@@ -781,7 +782,7 @@ double ProjectionMgrSingleton::BuildToFromClipper( Matrix4d & toclip, Matrix4d &
     return scale;
 }
 
-void ProjectionMgrSingleton::ClosePaths( ClipperLib::Paths & pths )
+void ProjectionMgrSingleton::ClosePaths( Clipper2Lib::Paths64 & pths )
 {
     for ( int i = 0; i < pths.size(); i++ )
     {
@@ -792,24 +793,24 @@ void ProjectionMgrSingleton::ClosePaths( ClipperLib::Paths & pths )
     }
 }
 
-void ProjectionMgrSingleton::Union( ClipperLib::Paths & pths, ClipperLib::Paths & sol )
+void ProjectionMgrSingleton::Union( Clipper2Lib::Paths64 & pths, Clipper2Lib::Paths64 & sol )
 {
-    ClipperLib::Clipper clpr;
-    clpr.AddPaths( pths, ClipperLib::ptSubject, true );
+    Clipper2Lib::Clipper64 clpr;
+    clpr.AddSubject( pths );
 
-    if ( !clpr.Execute( ClipperLib::ctUnion, sol, ClipperLib::pftPositive, ClipperLib::pftPositive ) )
+    if ( !clpr.Execute( Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::Positive, sol ) )
     {
         printf( "Clipper error\n" );
     }
 
-    CleanPolygons( sol );
-    SimplifyPolygons( sol );
+    // CleanPolygons( sol );
+    // SimplifyPolygons( sol );
 }
 
-void ProjectionMgrSingleton::Union( vector < ClipperLib::Paths > & pthsvec,  ClipperLib::Paths & sol )
+void ProjectionMgrSingleton::Union( vector < Clipper2Lib::Paths64 > & pthsvec,  Clipper2Lib::Paths64 & sol )
 {
     // Append all paths into one path.
-    ClipperLib::Paths pth;
+    Clipper2Lib::Paths64 pth;
 
     for ( int j = 0; j < pthsvec.size(); j++ )
     {
@@ -820,7 +821,7 @@ void ProjectionMgrSingleton::Union( vector < ClipperLib::Paths > & pthsvec,  Cli
     Union( pth, sol );
 }
 
-void ProjectionMgrSingleton::Union( vector < ClipperLib::Paths > & pthsvec, vector < ClipperLib::Paths > & solvec, vector < string > & ids )
+void ProjectionMgrSingleton::Union( vector < Clipper2Lib::Paths64 > & pthsvec, vector < Clipper2Lib::Paths64 > & solvec, vector < string > & ids )
 {
     // Sort ids and make unique.
     vector < string > uids = ids;
@@ -834,7 +835,7 @@ void ProjectionMgrSingleton::Union( vector < ClipperLib::Paths > & pthsvec, vect
     for ( int i = 0; i < uids.size(); i++ )
     {
         // Append all matching paths into one path.
-        ClipperLib::Paths pth;
+        Clipper2Lib::Paths64 pth;
 
         for ( int j = 0; j < ids.size(); j++ )
         {
@@ -852,22 +853,22 @@ void ProjectionMgrSingleton::Union( vector < ClipperLib::Paths > & pthsvec, vect
     ids = uids;
 }
 
-void ProjectionMgrSingleton::Intersect( ClipperLib::Paths & pthA, ClipperLib::Paths & pthB, ClipperLib::Paths & sol )
+void ProjectionMgrSingleton::Intersect( Clipper2Lib::Paths64 & pthA, Clipper2Lib::Paths64 & pthB, Clipper2Lib::Paths64 & sol )
 {
-    ClipperLib::Clipper clpr;
-    clpr.AddPaths( pthA, ClipperLib::ptSubject, true );
-    clpr.AddPaths( pthB, ClipperLib::ptClip, true );
+    Clipper2Lib::Clipper64 clpr;
+    clpr.AddSubject( pthA );
+    clpr.AddClip( pthB );
 
-    if ( !clpr.Execute( ClipperLib::ctIntersection, sol, ClipperLib::pftPositive, ClipperLib::pftPositive ) )
+    if ( !clpr.Execute( Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::Positive, sol ) )
     {
         printf( "Clipper error\n" );
     }
 
-    CleanPolygons( sol );
-    SimplifyPolygons( sol );
+    // CleanPolygons( sol );
+    // SimplifyPolygons( sol );
 }
 
-void ProjectionMgrSingleton::Intersect( vector < ClipperLib::Paths > & pthsvecA, ClipperLib::Paths & pthB, vector < ClipperLib::Paths > & solvec )
+void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsvecA, Clipper2Lib::Paths64 & pthB, vector < Clipper2Lib::Paths64 > & solvec )
 {
     solvec.resize( pthsvecA.size() );
 
@@ -1198,7 +1199,7 @@ string ProjectionMgrSingleton::MakeMeshGeom()
     return id;
 }
 
-void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, const string &doc, const ClipperLib::Paths & pths, double scale, bool holerpt )
+void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, const string &doc, const Clipper2Lib::Paths64 & pths, double scale, bool holerpt )
 {
     if ( holerpt )
     {
@@ -1208,7 +1209,7 @@ void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, co
     double asum = 0;
     for ( int i = 0; i < pths.size(); i++ )
     {
-        double area = ClipperLib::Area( pths[i] );
+        double area = Clipper2Lib::Area( pths[i] );
         asum += area;
 
         if ( holerpt )
@@ -1227,7 +1228,7 @@ void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, co
     res->Add( NameValData( resname, asum/(scale*scale), doc ) );
 }
 
-void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, const string &doc, const vector < ClipperLib::Paths > & pthsvec, double scale )
+void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, const string &doc, const vector < Clipper2Lib::Paths64 > & pthsvec, double scale )
 {
     vector < double > areavec( pthsvec.size() );
 
@@ -1236,7 +1237,7 @@ void ProjectionMgrSingleton::AreaReport( Results* res, const string &resname, co
         double asum = 0;
         for ( int j = 0; j < pthsvec[i].size(); j++ )
         {
-            double area = ClipperLib::Area( pthsvec[i][j] );
+            double area = Clipper2Lib::Area( pthsvec[i][j] );
             asum += area;
         }
 

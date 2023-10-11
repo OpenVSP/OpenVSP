@@ -10,7 +10,7 @@
 #if !defined(PROJECTION__INCLUDED_)
 #define PROJECTION__INCLUDED_
 
-#include <clipper.hpp>
+#include "clipper2/clipper.h"
 
 #include "Vec3d.h"
 #include "Vec2d.h"
@@ -97,24 +97,24 @@ protected:
 
     virtual void UpdateBBox( vector < TMesh* > & tmv );
 
-    virtual void MeshToPaths( const vector < TMesh* > & tmv, ClipperLib::Paths & pths );
+    virtual void MeshToPaths( const vector < TMesh* > & tmv, Clipper2Lib::Paths64 & pths );
 
-    virtual void MeshToPathsVec( const vector < TMesh* > & tmv, vector < ClipperLib::Paths > & pths, vector < string > & ids, const int keepdir1 = 1, const int keepdir2 = 2 );
+    virtual void MeshToPathsVec( const vector < TMesh* > & tmv, vector < Clipper2Lib::Paths64 > & pths, vector < string > & ids, const int keepdir1 = 1, const int keepdir2 = 2 );
 
-    virtual void PathsToPolyVec( const ClipperLib::Paths & pths, vector < vector < vec3d > > & polyvec, const int keepdir1 = 1, const int keepdir2 = 2 );
+    virtual void PathsToPolyVec( const Clipper2Lib::Paths64 & pths, vector < vector < vec3d > > & polyvec, const int keepdir1 = 1, const int keepdir2 = 2 );
 
     virtual void Poly3dToPoly2d( vector < vector < vec3d > > & invec, vector < vector < vec2d > > & outvec );
 
     virtual double BuildToFromClipper( Matrix4d & toclip, Matrix4d & fromclip, bool translate_to_max = true );
 
-    virtual void ClosePaths( ClipperLib::Paths & pths );
+    virtual void ClosePaths( Clipper2Lib::Paths64 & pths );
 
-    virtual void Union( ClipperLib::Paths & pths, ClipperLib::Paths & sol );
-    virtual void Union( vector < ClipperLib::Paths > & pthsvec,  ClipperLib::Paths & sol );
-    virtual void Union( vector < ClipperLib::Paths > & pthsvec, vector < ClipperLib::Paths > & solvec, vector < string > & ids );
+    virtual void Union( Clipper2Lib::Paths64 & pths, Clipper2Lib::Paths64 & sol );
+    virtual void Union( vector < Clipper2Lib::Paths64 > & pthsvec,  Clipper2Lib::Paths64 & sol );
+    virtual void Union( vector < Clipper2Lib::Paths64 > & pthsvec, vector < Clipper2Lib::Paths64 > & solvec, vector < string > & ids );
 
-    virtual void Intersect( ClipperLib::Paths & pthA, ClipperLib::Paths & pthB, ClipperLib::Paths & sol );
-    virtual void Intersect( vector < ClipperLib::Paths > & pthsvecA, ClipperLib::Paths & pthB, vector < ClipperLib::Paths > & solvec );
+    virtual void Intersect( Clipper2Lib::Paths64 & pthA, Clipper2Lib::Paths64 & pthB, Clipper2Lib::Paths64 & sol );
+    virtual void Intersect( vector < Clipper2Lib::Paths64 > & pthsvecA, Clipper2Lib::Paths64 & pthB, vector < Clipper2Lib::Paths64 > & solvec );
 
     virtual void Triangulate();
     virtual void Triangulate_TRI( vector < vector < int > > &connlist );
@@ -122,9 +122,9 @@ protected:
 
     virtual bool PtInHole( const vec2d &p );
 
-    virtual void AreaReport( Results* res, const string &resname, const string &doc, const ClipperLib::Paths & pths, double scale, bool holerpt = false );
+    virtual void AreaReport( Results* res, const string &resname, const string &doc, const Clipper2Lib::Paths64 & pths, double scale, bool holerpt = false );
 
-    virtual void AreaReport( Results* res, const string &resname, const string &doc, const vector < ClipperLib::Paths > & pthsvec, double scale );
+    virtual void AreaReport( Results* res, const string &resname, const string &doc, const vector < Clipper2Lib::Paths64 > & pthsvec, double scale );
 
     virtual Results* Project( vector < TMesh* > &targetTMeshVec, const vec3d & dir );
     virtual Results* Project( vector < TMesh* > &targetTMeshVec, vector < TMesh* > &boundaryTMeshVec, const vec3d & dir );
