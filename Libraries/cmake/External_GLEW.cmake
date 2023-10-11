@@ -14,6 +14,7 @@ configure_file(
 
 ExternalProject_Add( GLEW
 	URL ${CMAKE_SOURCE_DIR}/${glew_file}
+	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 	PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		"${CMAKE_CURRENT_BINARY_DIR}/glew.CMakeLists.txt"
 		"<SOURCE_DIR>/CMakeLists.txt"
