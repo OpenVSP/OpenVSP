@@ -15,7 +15,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     MESSAGE( STATUS "Configuring Python API" )
 
     INCLUDE_DIRECTORIES(
-        ${CLIPPER_INCLUDE_DIR}
+        ${CLIPPER2_INCLUDE_DIR}
         ${CodeEli_INCLUDE_DIRS}
         ${CPPTEST_INCLUDE_DIR}
         ${CPPTEST_INCLUDE_DIR}
@@ -81,7 +81,6 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         sixseries
         util
         tritri
-        clipper
         Angelscript
         wavedragEL
         ${CPPTEST_LIBRARIES}
@@ -94,6 +93,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         ${TRIANGLE_LIBRARIES}
         ${DELABELLA_LIBRARIES}
         ${PINOCCHIO_LIBRARIES}
+        ${CLIPPER2_LIBRARIES}
     )
 
     CONFIGURE_FILE(packages/openvsp/setup.py.in python/packages/openvsp/setup.py)

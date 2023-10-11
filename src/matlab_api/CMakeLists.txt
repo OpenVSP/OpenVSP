@@ -19,7 +19,7 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
     endif()
     
     INCLUDE_DIRECTORIES(
-        ${CLIPPER_INCLUDE_DIR}
+        ${CLIPPER2_INCLUDE_DIR}
         ${CodeEli_INCLUDE_DIRS}
         ${CPPTEST_INCLUDE_DIR}
         ${CPPTEST_INCLUDE_DIR}
@@ -79,7 +79,6 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
         sixseries
         util
         tritri
-        clipper
         Angelscript
         wavedragEL
         ${CPPTEST_LIBRARIES}
@@ -91,6 +90,7 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
         ${TRIANGLE_LIBRARIES}
         ${DELABELLA_LIBRARIES}
         ${PINOCCHIO_LIBRARIES}
+        ${CLIPPER2_LIBRARIES}
     )
     
     MESSAGE(STATUS "${VSPMEX_LIBS}")

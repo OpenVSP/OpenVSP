@@ -19,7 +19,7 @@ if(DEFINED LIBXML2_LIBRARY AND NOT DEFINED LIBXML2_LIBRARIES)
 endif()
 
 INCLUDE_DIRECTORIES(
-    ${CLIPPER_INCLUDE_DIR}
+    ${CLIPPER2_INCLUDE_DIR}
     ${CodeEli_INCLUDE_DIRS}
     ${CPPTEST_INCLUDE_DIR}
     ${CPPTEST_INCLUDE_DIRS}
@@ -61,7 +61,6 @@ IF( NOT VSP_NO_GRAPHICS )
         sixseries
         util
         tritri
-        clipper
         Angelscript
         cartesian
         wavedragEL
@@ -77,6 +76,7 @@ IF( NOT VSP_NO_GRAPHICS )
         ${TRIANGLE_LIBRARIES}
         ${DELABELLA_LIBRARIES}
         ${PINOCCHIO_LIBRARIES}
+        ${CLIPPER2_LIBRARIES}
     )
 
     INSTALL( TARGETS vsp RUNTIME DESTINATION . )
@@ -101,7 +101,6 @@ IF( NOT VSP_NO_GRAPHICS )
         cfd_mesh
         util
         tritri
-        clipper
         Angelscript
         xmlvsp
         sixseries
@@ -118,6 +117,7 @@ IF( NOT VSP_NO_GRAPHICS )
         ${TRIANGLE_LIBRARIES}
         ${DELABELLA_LIBRARIES}
         ${PINOCCHIO_LIBRARIES}
+        ${CLIPPER2_LIBRARIES}
     )
 
 #    INSTALL( TARGETS apitest_g RUNTIME DESTINATION . )
@@ -142,7 +142,6 @@ TARGET_LINK_LIBRARIES(apitest
     sixseries
     util
     tritri
-    clipper
     Angelscript
     wavedragEL
     ${CPPTEST_LIBRARIES}
@@ -154,6 +153,7 @@ TARGET_LINK_LIBRARIES(apitest
     ${TRIANGLE_LIBRARIES}
     ${DELABELLA_LIBRARIES}
     ${PINOCCHIO_LIBRARIES}
+    ${CLIPPER2_LIBRARIES}
 )
 
 IF( VSP_INSTALL_API_TEST )
@@ -175,7 +175,6 @@ TARGET_LINK_LIBRARIES(vspscript
     sixseries
     util
     tritri
-    clipper
     Angelscript
     wavedragEL
     ${CPPTEST_LIBRARIES}
@@ -187,6 +186,7 @@ TARGET_LINK_LIBRARIES(vspscript
     ${TRIANGLE_LIBRARIES}
     ${DELABELLA_LIBRARIES}
     ${PINOCCHIO_LIBRARIES}
+    ${CLIPPER2_LIBRARIES}
 )
 
 INSTALL( TARGETS vspscript RUNTIME DESTINATION . )
