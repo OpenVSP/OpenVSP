@@ -758,8 +758,7 @@ void ProjectionMgrSingleton::Poly3dToPoly2d( vector < vector < vec3d > > & invec
 double ProjectionMgrSingleton::BuildToFromClipper( Matrix4d & toclip, Matrix4d & fromclip, bool translate_to_max )
 {
     vec3d center = m_BBox.GetCenter();
-    signed long long loRange = 0x3FFF;
-    double scale = loRange/m_BBox.GetLargestDist();
+    double scale = 1e8 / m_BBox.GetLargestDist();
 
     toclip.loadIdentity();
     toclip.scale( scale );
