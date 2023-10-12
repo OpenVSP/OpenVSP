@@ -610,12 +610,13 @@ void ProjectionMgrSingleton::TransformMesh( vector < TMesh* > & tmv, const Matri
 
     for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
+        for ( int j = 0 ; j < ( int )tmv[i]->m_NVec.size() ; j++ )
+        {
+            tmv[i]->m_NVec[j]->m_Pnt = mat.xform( tmv[i]->m_NVec[j]->m_Pnt );
+        }
+
         for ( int j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
         {
-            for ( int k = 0; k < 3; k++ )
-            {
-               tmv[i]->m_TVec[j]->GetTriNode( k )->m_Pnt = mat.xform( tmv[i]->m_TVec[j]->GetTriNode( k )->m_Pnt );
-            }
             tmv[i]->m_TVec[j]->m_Norm = mat.xform( tmv[i]->m_TVec[j]->m_Norm ) - zeroV;
         }
     }
