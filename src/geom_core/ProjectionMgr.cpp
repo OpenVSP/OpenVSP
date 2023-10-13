@@ -802,14 +802,6 @@ void ProjectionMgrSingleton::Union( Clipper2Lib::Paths64 & pths, Clipper2Lib::Pa
     {
         printf( "Clipper error\n" );
     }
-
-    for ( int i = 0; i < sol.size(); i++ )
-    {
-        TrimCollinear( sol[i] );
-    }
-
-    // CleanPolygons( sol );
-    // SimplifyPolygons( sol );
 }
 
 void ProjectionMgrSingleton::Union( vector < Clipper2Lib::Paths64 > & pthsvec,  Clipper2Lib::Paths64 & sol )
@@ -869,14 +861,6 @@ void ProjectionMgrSingleton::Intersect( Clipper2Lib::Paths64 & pthA, Clipper2Lib
     {
         printf( "Clipper error\n" );
     }
-
-    for ( int i = 0; i < sol.size(); i++ )
-    {
-        TrimCollinear( sol[i] );
-    }
-
-    // CleanPolygons( sol );
-    // SimplifyPolygons( sol );
 }
 
 void ProjectionMgrSingleton::Intersect( vector < Clipper2Lib::Paths64 > & pthsvecA, Clipper2Lib::Paths64 & pthB, vector < Clipper2Lib::Paths64 > & solvec )
