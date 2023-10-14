@@ -5431,6 +5431,7 @@ void Vehicle::WriteControlSurfaceFile( const string & file_name, const vector < 
                             fprintf( csf_file, "2 Both\n" );
                         }
 
+                        cs->UpdatePolygonPnts();
                         std::vector< std::vector< vec2d > > ppvec = cs->GetPolyPntsVec();
 
                         int nhinge = cs->m_UWStart.size();
