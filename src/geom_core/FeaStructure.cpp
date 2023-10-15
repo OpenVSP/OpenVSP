@@ -3512,38 +3512,25 @@ xmlNodePtr FeaFixPoint::DecodeXml( xmlNodePtr & node )
 
 void FeaFixPoint::UpdateDrawObjs()
 {
-    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
+    vector < vec3d > pnt_vec = GetPntVec();
 
-    if ( parent_part )
+    if ( pnt_vec.size() > 0 )
     {
-        vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
-        m_FeaPartDO.resize( parent_surf_vec.size() );
+        m_FeaPartDO.resize( 1 );
 
-        for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
-        {
-            m_FeaPartDO[i].m_PntVec.clear();
+        m_FeaPartDO[0].m_GeomID = string( GetID() + "_" + "_FeaFixPoint" );
+        m_FeaPartDO[0].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_FeaPartDO[0].m_Type = DrawObj::VSP_POINTS;
+        m_FeaPartDO[0].m_PointSize = 8.0;
 
-            m_FeaPartDO[i].m_GeomID = string( GetID() + "_" + std::to_string( i ) + "_FeaFixPoint" );
-            m_FeaPartDO[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            m_FeaPartDO[i].m_Type = DrawObj::VSP_POINTS;
-            m_FeaPartDO[i].m_PointSize = 8.0;
+        m_FeaPartDO[0].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
 
-            m_FeaPartDO[i].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
-
-            double umapmax = parent_surf_vec[i].GetUMapMax();
-            double umax = parent_surf_vec[i].GetUMax();
-            double u = parent_surf_vec[i].InvertUMapping( m_PosU() * umapmax ) / umax;
-
-            if ( u < 0 )
-            {
-                u = m_PosU();
-            }
-
-            vec3d fixpt = parent_surf_vec[i].CompPnt01( u, m_PosW() );
-            m_FeaPartDO[i].m_PntVec.push_back( fixpt );
-
-            m_FeaPartDO[i].m_GeomChanged = true;
-        }
+        m_FeaPartDO[0].m_PntVec = pnt_vec;
+        m_FeaPartDO[0].m_GeomChanged = true;
+    }
+    else
+    {
+        m_FeaPartDO.clear();
     }
 }
 
@@ -3551,16 +3538,16 @@ void FeaFixPoint::SetDrawObjHighlight( bool highlight )
 {
     if ( highlight )
     {
-        for ( unsigned int j = 0; j < m_FeaPartDO.size(); j++ )
+        if ( m_FeaPartDO.size() > 0 )
         {
-            m_FeaPartDO[j].m_PointColor = vec3d( 1.0, 0.0, 0.0 );
+            m_FeaPartDO[0].m_PointColor = vec3d( 1.0, 0.0, 0.0 );
         }
     }
     else
     {
-        for ( unsigned int j = 0; j < m_FeaPartDO.size(); j++ )
+        if ( m_FeaPartDO.size() > 0 )
         {
-            m_FeaPartDO[j].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
+            m_FeaPartDO[0].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
         }
     }
 }
