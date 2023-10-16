@@ -13,7 +13,7 @@
 #include "FeaMeshMgr.h"
 #include "StlHelper.h"
 
-FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 475, "FEA Part Edit" )
+FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 475 + 80, "FEA Part Edit" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -341,10 +341,36 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_FixPointEditLayout.SetChoiceButtonWidth( m_FixPointEditLayout.GetRemainX() / 3 );
     m_FixPointEditLayout.SetButtonWidth( m_FixPointEditLayout.GetRemainX() / 3 );
 
-    m_FixPointEditLayout.AddChoice( m_FixPointParentSurfChoice, "Parent Surface" );
+    m_FixPointEditLayout.AddChoice( m_FixPointTypeChoice, "Type" );
+    m_FixPointTypeChoice.AddItem( "On Body", vsp::FEA_FIX_PT_ON_BODY );
+    m_FixPointTypeChoice.AddItem( "Global XYZ", vsp::FEA_FIX_PT_GLOBAL_XYZ );
+    m_FixPointTypeChoice.AddItem( "Delta XYZ", vsp::FEA_FIX_PT_DELTA_XYZ );
+    m_FixPointTypeChoice.AddItem( "Delta UVN", vsp::FEA_FIX_PT_DELTA_UVN );
+    m_FixPointTypeChoice.AddItem( "Geom Origin", vsp::FEA_FIX_PT_GEOM_ORIGIN );
+    m_FixPointTypeChoice.AddItem( "Geom CG", vsp::FEA_FIX_PT_GEOM_CG );
+    m_FixPointTypeChoice.UpdateItems();
+
+    m_FixPointEditLayout.AddChoice( m_FixPointParentSurfChoice, "Parent Part" );
+
+    // Not sure about this exclude list yet.
+    m_FixPointOtherGeomPicker.AddExcludeType( MESH_GEOM_TYPE );
+    m_FixPointOtherGeomPicker.AddExcludeType( HUMAN_GEOM_TYPE );
+    m_FixPointOtherGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_FixPointOtherGeomPicker.AddExcludeType( WIRE_FRAME_GEOM_TYPE );
+    m_FixPointOtherGeomPicker.AddExcludeType( BLANK_GEOM_TYPE );
+    m_FixPointEditLayout.AddGeomPicker( m_FixPointOtherGeomPicker, 0, "Parent Geom" );
 
     m_FixPointEditLayout.AddSlider( m_FixPointULocSlider, "U Location", 1, "%5.3f" );
     m_FixPointEditLayout.AddSlider( m_FixPointWLocSlider, "W Location", 1, "%5.3f" );
+    m_FixPointEditLayout.AddSlider( m_FixPointAbsXSlider, "Abs X", 1, "%5.3f" );
+    m_FixPointEditLayout.AddSlider( m_FixPointAbsYSlider, "Abs Y", 1, "%5.3f" );
+    m_FixPointEditLayout.AddSlider( m_FixPointAbsZSlider, "Abs Z", 1, "%5.3f" );
+    m_FixPointEditLayout.AddSlider( m_FixPointDeltaXSlider, "Delta X", 1, "%5.3f" );
+    m_FixPointEditLayout.AddSlider( m_FixPointDeltaYSlider, "Delta Y", 1, "%5.3f" );
+    m_FixPointEditLayout.AddSlider( m_FixPointDeltaZSlider, "Delta Z", 1, "%5.3f" );
+    m_FixPointEditLayout.AddSlider( m_FixPointDeltaUSlider, "Delta U", 1, "%5.3f" );
+    m_FixPointEditLayout.AddSlider( m_FixPointDeltaVSlider, "Delta V", 1, "%5.3f" );
+    m_FixPointEditLayout.AddSlider( m_FixPointDeltaNSlider, "Delta N", 1, "%5.3f" );
 
     m_FixPointEditLayout.AddYGap();
     m_FixPointEditLayout.AddDividerBox( "Element" );
@@ -1306,8 +1332,30 @@ bool FeaPartEditScreen::Update()
                         FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt );
                         assert( fixpt );
 
+                        m_FixPointTypeChoice.Update( fixpt->m_FixedPointType.GetID() );
+
+                        if ( fixpt->m_FixedPointType() == vsp::FEA_FIX_PT_GEOM_ORIGIN ||
+                             fixpt->m_FixedPointType() == vsp::FEA_FIX_PT_GEOM_CG )
+                        {
+                            m_FixPointOtherGeomPicker.SetGeomChoice( fixpt->m_OtherGeomID );
+                        }
+                        else
+                        {
+                            m_FixPointOtherGeomPicker.SetGeomChoice( "" );
+                        }
+                        m_FixPointOtherGeomPicker.Update();
+
                         m_FixPointULocSlider.Update( fixpt->m_PosU.GetID() );
                         m_FixPointWLocSlider.Update( fixpt->m_PosW.GetID() );
+                        m_FixPointAbsXSlider.Update( fixpt->m_AbsX.GetID() );
+                        m_FixPointAbsYSlider.Update( fixpt->m_AbsY.GetID() );
+                        m_FixPointAbsZSlider.Update( fixpt->m_AbsZ.GetID() );
+                        m_FixPointDeltaXSlider.Update( fixpt->m_DeltaX.GetID() );
+                        m_FixPointDeltaYSlider.Update( fixpt->m_DeltaY.GetID() );
+                        m_FixPointDeltaZSlider.Update( fixpt->m_DeltaZ.GetID() );
+                        m_FixPointDeltaUSlider.Update( fixpt->m_DeltaU.GetID() );
+                        m_FixPointDeltaVSlider.Update( fixpt->m_DeltaV.GetID() );
+                        m_FixPointDeltaNSlider.Update( fixpt->m_DeltaN.GetID() );
 
                         m_FixPointMassToggle.Update( fixpt->m_FixPointMassFlag.GetID() );
                         m_FixPointMassUnitChoice.Update( fixpt->m_MassUnit.GetID() );
@@ -1328,6 +1376,102 @@ bool FeaPartEditScreen::Update()
                             m_FixPointMassUnitChoice.Deactivate();
                             m_FixPointMass_FEMOutput.Deactivate();
                             m_FixPointMassUnit_FEM.Deactivate();
+                        }
+
+                        if ( fixpt->m_FixedPointType() == vsp::FEA_FIX_PT_ON_BODY )
+                        {
+                            m_FixPointAbsXSlider.Deactivate();
+                            m_FixPointAbsYSlider.Deactivate();
+                            m_FixPointAbsZSlider.Deactivate();
+
+                            m_FixPointDeltaXSlider.Deactivate();
+                            m_FixPointDeltaYSlider.Deactivate();
+                            m_FixPointDeltaZSlider.Deactivate();
+
+                            m_FixPointDeltaUSlider.Deactivate();
+                            m_FixPointDeltaVSlider.Deactivate();
+                            m_FixPointDeltaNSlider.Deactivate();
+
+                            m_FixPointParentSurfChoice.Activate();
+                            m_FixPointULocSlider.Activate();
+                            m_FixPointWLocSlider.Activate();
+
+                            m_FixPointOtherGeomPicker.Deactivate();
+                        }
+                        else if ( fixpt->m_FixedPointType() == vsp::FEA_FIX_PT_GLOBAL_XYZ )
+                        {
+                            m_FixPointAbsXSlider.Activate();
+                            m_FixPointAbsYSlider.Activate();
+                            m_FixPointAbsZSlider.Activate();
+
+                            m_FixPointDeltaXSlider.Deactivate();
+                            m_FixPointDeltaYSlider.Deactivate();
+                            m_FixPointDeltaZSlider.Deactivate();
+
+                            m_FixPointDeltaUSlider.Deactivate();
+                            m_FixPointDeltaVSlider.Deactivate();
+                            m_FixPointDeltaNSlider.Deactivate();
+
+                            m_FixPointParentSurfChoice.Deactivate();
+                            m_FixPointULocSlider.Deactivate();
+                            m_FixPointWLocSlider.Deactivate();
+
+                            m_FixPointOtherGeomPicker.Deactivate();
+                        }
+                        else if ( fixpt->m_FixedPointType() == vsp::FEA_FIX_PT_DELTA_XYZ ||
+                                  fixpt->m_FixedPointType() == vsp::FEA_FIX_PT_GEOM_ORIGIN ||
+                                  fixpt->m_FixedPointType() == vsp::FEA_FIX_PT_GEOM_CG )
+                        {
+
+                            m_FixPointAbsXSlider.Deactivate();
+                            m_FixPointAbsYSlider.Deactivate();
+                            m_FixPointAbsZSlider.Deactivate();
+
+                            m_FixPointDeltaXSlider.Activate();
+                            m_FixPointDeltaYSlider.Activate();
+                            m_FixPointDeltaZSlider.Activate();
+
+                            m_FixPointDeltaUSlider.Deactivate();
+                            m_FixPointDeltaVSlider.Deactivate();
+                            m_FixPointDeltaNSlider.Deactivate();
+
+                            if ( fixpt->m_FixedPointType() == vsp::FEA_FIX_PT_DELTA_XYZ )
+                            {
+                                m_FixPointParentSurfChoice.Activate();
+                                m_FixPointULocSlider.Activate();
+                                m_FixPointWLocSlider.Activate();
+
+                                m_FixPointOtherGeomPicker.Deactivate();
+                            }
+                            else
+                            {
+                                m_FixPointParentSurfChoice.Deactivate();
+                                m_FixPointULocSlider.Deactivate();
+                                m_FixPointWLocSlider.Deactivate();
+
+                                m_FixPointOtherGeomPicker.Activate();
+                            }
+
+                        }
+                        else if ( fixpt->m_FixedPointType() == vsp::FEA_FIX_PT_DELTA_UVN )
+                        {
+                            m_FixPointAbsXSlider.Deactivate();
+                            m_FixPointAbsYSlider.Deactivate();
+                            m_FixPointAbsZSlider.Deactivate();
+
+                            m_FixPointDeltaXSlider.Deactivate();
+                            m_FixPointDeltaYSlider.Deactivate();
+                            m_FixPointDeltaZSlider.Deactivate();
+
+                            m_FixPointDeltaUSlider.Activate();
+                            m_FixPointDeltaVSlider.Activate();
+                            m_FixPointDeltaNSlider.Activate();
+
+                            m_FixPointParentSurfChoice.Activate();
+                            m_FixPointULocSlider.Activate();
+                            m_FixPointWLocSlider.Activate();
+
+                            m_FixPointOtherGeomPicker.Deactivate();
                         }
 
                         m_ShellPropertyChoice.Deactivate();
@@ -1871,6 +2015,19 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     assert( fixpt );
 
                     fixpt->m_ParentFeaPartID = parent_feaprt->GetID();
+                }
+            }
+        }
+        else if ( device == & m_FixPointOtherGeomPicker )
+        {
+            if ( feaprt )
+            {
+                if ( feaprt->GetType() == vsp::FEA_FIX_POINT )
+                {
+                    FeaFixPoint *fixpt = dynamic_cast<FeaFixPoint *>( feaprt );
+                    assert( fixpt );
+
+                    fixpt->m_OtherGeomID = m_FixPointOtherGeomPicker.GetGeomChoice();
                 }
             }
         }

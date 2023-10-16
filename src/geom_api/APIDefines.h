@@ -371,6 +371,15 @@ enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,
                        FEA_NUM_FILE_NAMES
                      };
 
+enum FEA_FIX_PT_TYPE { FEA_FIX_PT_ON_BODY,
+                       FEA_FIX_PT_GLOBAL_XYZ,
+                       FEA_FIX_PT_DELTA_XYZ,
+                       FEA_FIX_PT_DELTA_UVN,
+                       FEA_FIX_PT_GEOM_ORIGIN,
+                       FEA_FIX_PT_GEOM_CG,
+                       FEA_NUM_FIX_PT_TYPES
+};
+
 enum FEA_MATERIAL_TYPE { FEA_ISOTROPIC,
                          FEA_ENG_ORTHO,
                          FEA_ENG_ORTHO_TRANS_ISO,

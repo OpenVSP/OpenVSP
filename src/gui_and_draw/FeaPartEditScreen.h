@@ -125,9 +125,22 @@ private:
     ToggleButton m_SparTrimToBBoxToggle;
 
     //===== Fix Point =====//
+    Choice m_FixPointTypeChoice;
     Choice m_FixPointParentSurfChoice;
+    GeomPicker m_FixPointOtherGeomPicker;
+
     SliderAdjRangeInput m_FixPointULocSlider;
     SliderAdjRangeInput m_FixPointWLocSlider;
+    SliderAdjRangeInput m_FixPointAbsXSlider;
+    SliderAdjRangeInput m_FixPointAbsYSlider;
+    SliderAdjRangeInput m_FixPointAbsZSlider;
+    SliderAdjRangeInput m_FixPointDeltaXSlider;
+    SliderAdjRangeInput m_FixPointDeltaYSlider;
+    SliderAdjRangeInput m_FixPointDeltaZSlider;
+    SliderAdjRangeInput m_FixPointDeltaUSlider;
+    SliderAdjRangeInput m_FixPointDeltaVSlider;
+    SliderAdjRangeInput m_FixPointDeltaNSlider;
+
     ToggleButton m_FixPointMassToggle;
     Input m_FixPointMassInput;
     Choice m_FixPointMassUnitChoice;

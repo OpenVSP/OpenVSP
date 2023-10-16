@@ -3303,6 +3303,7 @@ VspSurf FeaRib::ComputeRibSurf()
 FeaFixPoint::FeaFixPoint( const string &compID, const string &structID, const string &partID, int type ) : FeaPart( compID, structID, type )
 {
     m_ParentFeaPartID = partID;
+    m_OtherGeomID = "";
 
     m_PosU.Init( "PosU", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
     m_PosU.SetDescript( "Percent U Location" );
@@ -3321,6 +3322,36 @@ FeaFixPoint::FeaFixPoint( const string &compID, const string &structID, const st
 
     m_MassUnit.Init( "MassUnit", "FeaFixPoint", this, vsp::MASS_UNIT_LBM, vsp::MASS_UNIT_G, vsp::NUM_MASS_UNIT - 1 );
     m_MassUnit.SetDescript( "Mass units used to specify point mass" );
+
+    m_FixedPointType.Init( "FixedPointType", "FeaFixPoint", this, vsp::FEA_FIX_PT_ON_BODY, vsp::FEA_FIX_PT_ON_BODY, vsp::FEA_NUM_FIX_PT_TYPES - 1 );
+    m_FixedPointType.SetDescript( "Type of fixed point" );
+
+    m_AbsX.Init( "AbsX", "FeaFixPoint", this, 0.0, -1e12, 1e12 );
+    m_AbsX.SetDescript( "Absolute X Location" );
+
+    m_AbsY.Init( "AbsY", "FeaFixPoint", this, 0.0, -1e12, 1e12 );
+    m_AbsY.SetDescript( "Absolute Y Location" );
+
+    m_AbsZ.Init( "AbsZ", "FeaFixPoint", this, 0.0, -1e12, 1e12 );
+    m_AbsZ.SetDescript( "Absolute Z Location" );
+
+    m_DeltaX.Init( "DeltaX", "FeaFixPoint", this, 0.0, -1e12, 1e12 );
+    m_DeltaX.SetDescript( "X Displacement" );
+
+    m_DeltaY.Init( "DeltaY", "FeaFixPoint", this, 0.0, -1e12, 1e12 );
+    m_DeltaY.SetDescript( "Y Displacement" );
+
+    m_DeltaZ.Init( "DeltaZ", "FeaFixPoint", this, 0.0, -1e12, 1e12 );
+    m_DeltaZ.SetDescript( "Z Displacement" );
+
+    m_DeltaU.Init( "DeltaU", "FeaFixPoint", this, 0.0, -1e12, 1e12 );
+    m_DeltaU.SetDescript( "U Displacement" );
+
+    m_DeltaV.Init( "DeltaV", "FeaFixPoint", this, 0.0, -1e12, 1e12 );
+    m_DeltaV.SetDescript( "V Displacement" );
+
+    m_DeltaN.Init( "DeltaN", "FeaFixPoint", this, 0.0, -1e12, 1e12 );
+    m_DeltaN.SetDescript( "N Displacement" );
 
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property
@@ -3493,6 +3524,7 @@ xmlNodePtr FeaFixPoint::EncodeXml( xmlNodePtr & node )
     if ( fea_prt_node )
     {
         XmlUtil::AddStringNode( fea_prt_node, "ParentFeaPartID", m_ParentFeaPartID );
+        XmlUtil::AddStringNode( fea_prt_node, "OtherGeomID", m_OtherGeomID );
     }
 
     return fea_prt_node;
@@ -3505,6 +3537,7 @@ xmlNodePtr FeaFixPoint::DecodeXml( xmlNodePtr & node )
     if ( fea_prt_node )
     {
         m_ParentFeaPartID = ParmMgr.RemapID( XmlUtil::FindString( fea_prt_node, "ParentFeaPartID", m_ParentFeaPartID ) );
+        m_OtherGeomID = ParmMgr.RemapID( XmlUtil::FindString( fea_prt_node, "OtherGeomID", m_OtherGeomID ) );
     }
 
     return fea_prt_node;

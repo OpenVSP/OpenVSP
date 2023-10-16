@@ -431,7 +431,21 @@ public:
 
     Parm m_FixPointMass_FEM;
 
+    IntParm m_FixedPointType;
+
+    Parm m_AbsX;
+    Parm m_AbsY;
+    Parm m_AbsZ;
+    Parm m_DeltaX;
+    Parm m_DeltaY;
+    Parm m_DeltaZ;
+    Parm m_DeltaU;
+    Parm m_DeltaV;
+    Parm m_DeltaN;
+
     string m_ParentFeaPartID; // Parent FeaPart ID (FeaFixPoint is located on this surface)
+
+    string m_OtherGeomID;
 
 protected:
 

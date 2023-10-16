@@ -1141,6 +1141,21 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FEA_EXPORT_TYPE", "FEA_NUM_FILE_NAMES", FEA_NUM_FILE_NAMES, "/*!< Number of FEA Mesh export type. */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum for FEA fixed point types. */";
+
+    r = se->RegisterEnum( "FEA_FIX_PT_TYPE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_FIX_PT_TYPE", "FEA_FIX_PT_ON_BODY", FEA_FIX_PT_ON_BODY, "/*!< On body fixed point type */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_FIX_PT_TYPE", "FEA_FIX_PT_GLOBAL_XYZ", FEA_FIX_PT_GLOBAL_XYZ, "/*!< Global XYZ off body fixed point type */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_FIX_PT_TYPE", "FEA_FIX_PT_DELTA_XYZ", FEA_FIX_PT_DELTA_XYZ, "/*!< Delta XYZ off body fixed point type */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_FIX_PT_TYPE", "FEA_FIX_PT_DELTA_UVN", FEA_FIX_PT_DELTA_UVN, "/*!< Delta UVN off body fixed point type */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_FIX_PT_TYPE", "FEA_NUM_FIX_PT_TYPES", FEA_NUM_FIX_PT_TYPES, "/*!< Number of off body fixed point types */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum for FEA material types. */";
 
     r = se->RegisterEnum( "FEA_MATERIAL_TYPE", doc_struct );
