@@ -701,27 +701,40 @@ void Protractor::Update()
         vec3d u = origin - mid;
         vec3d v = end - mid;
 
+        vec3d thetas;
+
+        char dir[4] = {'\0',':',' ','\0'}; // set up string with first char null to skip
+        if ( m_Component() == vsp::ALL_DIR )
+        {
+            for ( int i = 0; i < 3; i++ )
+            {
+                vec3d uprime = u;
+                vec3d vprime = v;
+                uprime[i] = 0;
+                vprime[i] = 0;
+                thetas[i] = angle( uprime, vprime );
+            }
+        }
+        else
+        {
+            u[m_Component()] = 0;
+            v[m_Component()] = 0;
+
+            thetas[m_Component()] = angle( u, v );
+            dir[0] = 88 + m_Component(); // Set first char to X, Y, Z
+        }
+
         vec3d w = slerp( u, v, 0.5 );
         w.normalize();
 
         m_Theta = angle( u, v ) * 180.0 / PI;
-
-        vec3d thetas;
-        for ( int i = 0; i < 3; i++ )
-        {
-            vec3d uprime = u;
-            vec3d vprime = v;
-            uprime[i] = 0;
-            vprime[i] = 0;
-            thetas[i] = angle( uprime, vprime );
-        }
 
         m_ThetaX = thetas.x() * 180.0 / PI;
         m_ThetaY = thetas.y() * 180.0 / PI;
         m_ThetaZ = thetas.z() * 180.0 / PI;
 
         char str[255];
-        snprintf( str, sizeof( str ), "%.*f deg", m_Precision(), m_Theta() );
+        snprintf( str, sizeof( str ), "%s%.*f deg", dir, m_Precision(), m_Theta() );
 
         m_LabelDO.m_Protractor.Start = origin;
         m_LabelDO.m_Protractor.Mid = mid;

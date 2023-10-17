@@ -96,6 +96,9 @@ void Protractor::reset()
 
 void Protractor::_draw()
 {
+    glm::vec3 protractorStart;
+    glm::vec3 protractorEnd;
+
     glm::vec3 textLocation = glm::vec3(0);
 
     glColor3f(1.0, 0.5, 0.0);
@@ -105,16 +108,33 @@ void Protractor::_draw()
     // Last Stage.
     if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 != glm::vec3(0xFFFFFFFF) && _v3 != glm::vec3(0xFFFFFFFF) && _offset != (float) 0xFFFFFFFF )
     {
-        glBegin(GL_POINTS);
-        glVertex3f(_v1[0], _v1[1], _v1[2]);
-        glVertex3f(_v2[0], _v2[1], _v2[2]);
-        glVertex3f(_v3[0], _v3[1], _v3[2]);
+        protractorStart = _v1;
+        protractorEnd = _v3;
+
+        if ( _dir != 3 ) // 3 means all directions.
+        {
+            for ( int i = 0; i < 3; i++ )
+            {
+                if ( i == _dir )
+                {
+                    protractorStart[i] = _v2[i];
+                    protractorEnd[i] = _v2[i];
+                }
+            }
+        }
+
+        glBegin( GL_POINTS );
+        glVertex3f( _v1[0], _v1[1], _v1[2] );
+        glVertex3f( _v2[0], _v2[1], _v2[2] );
+        glVertex3f( _v3[0], _v3[1], _v3[2] );
         glEnd();
 
-        glBegin(GL_LINE_STRIP);
-        glVertex3f(_v1[0], _v1[1], _v1[2]);
-        glVertex3f(_v2[0], _v2[1], _v2[2]);
-        glVertex3f(_v3[0], _v3[1], _v3[2]);
+        glBegin( GL_LINE_STRIP );
+        glVertex3f( _v1[0], _v1[1], _v1[2] );
+        glVertex3f( protractorStart.x, protractorStart.y, protractorStart.z );
+        glVertex3f( _v2[0], _v2[1], _v2[2] );
+        glVertex3f( protractorEnd.x, protractorEnd.y, protractorEnd.z );
+        glVertex3f( _v3[0], _v3[1], _v3[2] );
         glEnd();
 
         textLocation = _v2 + _label_dir * _offset;
