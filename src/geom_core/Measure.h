@@ -228,6 +228,7 @@ public:
 protected:
 
     DrawObj m_LabelDO;
+    DrawObj m_ArcDO;
 
 };
 

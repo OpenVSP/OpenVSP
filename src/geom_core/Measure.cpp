@@ -612,7 +612,8 @@ Protractor::Protractor() : ParmContainer()
 
     m_Component.Init( "Component", "Measure", this, vsp::ALL_DIR, vsp::X_DIR, vsp::ALL_DIR );
 
-    m_LabelDO.m_GeomID = GenerateRandomID( 4 ) + "_Protractor";
+    string tmpID = GenerateRandomID( 4 );
+    m_LabelDO.m_GeomID = tmpID + "_Protractor";
     m_LabelDO.m_Type = DrawObj::VSP_PROTRACTOR;
     m_LabelDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_LabelDO.m_Protractor.Step = DrawObj::VSP_PROTRACTOR_STEP_ZERO;
@@ -620,6 +621,14 @@ Protractor::Protractor() : ParmContainer()
     m_LabelDO.m_TextSize = 0;
     m_LabelDO.m_Visible = true;
 
+    m_ArcDO.m_GeomID = tmpID + "_Arc";
+    m_ArcDO.m_Type = DrawObj::VSP_LINE_STRIP;
+    m_ArcDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_ArcDO.m_TextColor = vec3d( 0, 0, 0 );
+    m_ArcDO.m_LineColor = vec3d( 1.0, 0.5, 0.0);
+    m_ArcDO.m_LineWidth = 3.0;
+    m_ArcDO.m_TextSize = 0;
+    m_ArcDO.m_Visible = true;
 
     LinkMgr.RegisterContainer( GetID() );
 
@@ -653,6 +662,7 @@ void Protractor::Reset()
 void Protractor::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     draw_obj_vec.push_back( &m_LabelDO );
+    draw_obj_vec.push_back( &m_ArcDO );
 }
 
 void Protractor::Update()
@@ -727,6 +737,16 @@ void Protractor::Update()
         vec3d w = slerp( u, v, 0.5 );
         w.normalize();
 
+        int npts = 11;
+        vector < vec3d > arcpts;
+        arcpts.push_back( mid );
+        for ( int i = 0; i < npts; i++ )
+        {
+            vec3d rvec = slerp( u, v, (double) i / (double) ( npts - 1 ) );
+            arcpts.push_back( mid + rvec * m_Offset() );
+        }
+        arcpts.push_back( mid );
+
         m_Theta = angle( u, v ) * 180.0 / PI;
 
         m_ThetaX = thetas.x() * 180.0 / PI;
@@ -747,6 +767,10 @@ void Protractor::Update()
         m_LabelDO.m_Visible = m_Visible();
 
         m_LabelDO.m_TextSize = veh->m_TextSize();
+
+        m_ArcDO.m_PntVec = arcpts;
+        m_ArcDO.m_GeomChanged = true;
+        m_ArcDO.m_Visible = m_Visible();
     }
 }
 
