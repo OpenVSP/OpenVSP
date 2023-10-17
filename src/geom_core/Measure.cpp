@@ -600,7 +600,7 @@ Protractor::Protractor() : ParmContainer()
 
     m_Offset.Init( "Offset", "Measure", this, 0.0, 0, 1.0e12 );
 
-    m_Precision.Init( "Precision", "Measure", this, 3, 0, 20 );
+    m_Precision.Init( "Precision", "Measure", this, 1, 0, 20 );
 
     m_Visible.Init( "Visible", "Measure", this, 1, 0, 1 );
 
@@ -645,7 +645,7 @@ void Protractor::Reset()
 
     m_Offset = 0.0;
 
-    m_Precision = 3;
+    m_Precision = 1;
 
     m_Component = vsp::ALL_DIR;
 }
