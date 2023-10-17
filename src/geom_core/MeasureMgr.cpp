@@ -4,6 +4,7 @@
 MeasureMgrSingleton::MeasureMgrSingleton()
 {
     m_CurrRulerIndex = 0;
+    m_CurrRulerIndex = 0;
     m_CurrProbeIndex = 0;
     m_CurrRSTProbeIndex = 0;
     Init();
@@ -15,6 +16,12 @@ void MeasureMgrSingleton::Init()
 
 void MeasureMgrSingleton::Wype()
 {
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        delete m_Protractors[i];
+    }
+    m_Protractors.clear();
+
     for( int i = 0; i < ( int )m_Rulers.size(); i++ )
     {
         delete m_Rulers[i];
@@ -39,6 +46,44 @@ void MeasureMgrSingleton::Renew()
     Wype();
     Init();
 }
+
+Protractor * MeasureMgrSingleton::CreateAndAddProtractor()
+{
+    Protractor * protractor = new Protractor();
+
+    m_Protractors.push_back( protractor );
+
+    m_CurrProtractorIndex = m_Protractors.size() - 1;
+    return protractor;
+}
+
+string MeasureMgrSingleton::CreateAndAddProtractor( const string & startgeomid, int startsurfindx, double startu, double startw,
+                                                    const string & midgeomid, int midsurfindx, double midu, double midw,
+                                                    const string & endgeomid, int endsurfindx, double endu, double endw, const string & name )
+{
+    Protractor * protractor = CreateAndAddProtractor();
+
+    protractor->m_OriginGeomID = startgeomid;
+    protractor->m_OriginIndx = startsurfindx;
+    protractor->m_OriginU = startu;
+    protractor->m_OriginW = startw;
+
+    protractor->m_MidGeomID = midgeomid;
+    protractor->m_MidIndx = midsurfindx;
+    protractor->m_MidU = midu;
+    protractor->m_MidW = midw;
+
+    protractor->m_EndGeomID = endgeomid;
+    protractor->m_EndIndx = endsurfindx;
+    protractor->m_EndU = endu;
+    protractor->m_EndW = endw;
+
+    protractor->SetName( name );
+    protractor->m_Stage = STAGE_COMPLETE;
+
+    return protractor->GetID();
+}
+
 
 Ruler * MeasureMgrSingleton::CreateAndAddRuler()
 {
@@ -122,6 +167,16 @@ string MeasureMgrSingleton::CreateAndAddRSTProbe(const string & geomid, int surf
     return RSTprobe->GetID();
 }
 
+Protractor * MeasureMgrSingleton::GetCurrentProtractor()
+{
+    if ( m_CurrProtractorIndex < 0 || m_CurrProtractorIndex >= ( int )m_Protractors.size() )
+    {
+        return NULL;
+    }
+
+    return m_Protractors[ m_CurrProtractorIndex ];
+}
+
 Ruler * MeasureMgrSingleton::GetCurrentRuler()
 {
     if ( m_CurrRulerIndex < 0 || m_CurrRulerIndex >= ( int )m_Rulers.size() )
@@ -152,6 +207,11 @@ RSTProbe * MeasureMgrSingleton::GetCurrentRSTProbe()
     return m_RSTProbes[ m_CurrRSTProbeIndex ];
 }
 
+std::vector < Protractor * > MeasureMgrSingleton::GetProtractorVec()
+{
+    return m_Protractors;
+}
+
 std::vector < Ruler * > MeasureMgrSingleton::GetRulerVec()
 {
     return m_Rulers;
@@ -172,6 +232,16 @@ xmlNodePtr MeasureMgrSingleton::EncodeXml( xmlNodePtr & node )
     char labelName[256];
 
     xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "Measure", NULL );
+
+    XmlUtil::AddIntNode( child_node, "Num_of_Protractors", m_Protractors.size() );
+
+    for ( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        snprintf( labelName, sizeof( labelName ), "Protractor_%d", i );
+        xmlNodePtr label_node = xmlNewChild( child_node, NULL, BAD_CAST labelName, NULL );
+        m_Protractors[i]->EncodeXml( label_node );
+    }
+
     XmlUtil::AddIntNode( child_node, "Num_of_Rulers", m_Rulers.size() );
 
     for ( int i = 0; i < ( int )m_Rulers.size(); i++ )
@@ -207,6 +277,22 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
     char labelName[256];
 
     xmlNodePtr label_root_node = XmlUtil::GetNode( node, "Measure", 0 );
+
+    int numofProtractors = XmlUtil::FindInt( label_root_node, "Num_of_Protractors", 0 );
+    for ( int i = 0; i < numofProtractors; i++ )
+    {
+        snprintf( labelName, sizeof( labelName ), "Protractor_%d", i );
+        xmlNodePtr label_node = XmlUtil::GetNode( label_root_node, labelName, 0 );
+        if( label_node )
+        {
+            xmlNodePtr parmcontain_node = XmlUtil::GetNode( label_node, "ParmContainer", 0 );
+            if ( parmcontain_node )
+            {
+                CreateAndAddProtractor();
+                GetCurrentProtractor()->DecodeXml( label_node );
+            }
+        }
+    }
 
     int numofLabels = XmlUtil::FindInt( label_root_node, "Num_of_Rulers", 0 );
     for ( int i = 0; i < numofLabels; i++ )
@@ -261,6 +347,20 @@ xmlNodePtr MeasureMgrSingleton::DecodeXml( xmlNodePtr & node )
 
 void MeasureMgrSingleton::DeleteInvalid()
 {
+    std::vector < Protractor * > valid_protractors;
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        if ( m_Protractors[i]->Valid() )
+        {
+            valid_protractors.push_back( m_Protractors[i] );
+        }
+        else
+        {
+            delete m_Protractors[i];
+        }
+    }
+    m_Protractors = valid_protractors;
+
     std::vector < Ruler * > valid_rulers;
     for( int i = 0; i < ( int )m_Rulers.size(); i++ )
     {
@@ -308,6 +408,11 @@ void MeasureMgrSingleton::Update()
 {
     DeleteInvalid();
 
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        m_Protractors[i]->Update();
+    }
+
     for( int i = 0; i < ( int )m_Rulers.size(); i++ )
     {
         m_Rulers[i]->Update();
@@ -322,6 +427,87 @@ void MeasureMgrSingleton::Update()
     {
         m_RSTProbes[i]->Update();
     }
+}
+
+void MeasureMgrSingleton::DelAllProtractors()
+{
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        delete m_Protractors[i];
+    }
+    m_Protractors.clear();
+
+    m_CurrProtractorIndex = -1;
+}
+
+void MeasureMgrSingleton::ShowAllProtractors()
+{
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        m_Protractors[i]->m_Visible = true;
+    }
+}
+
+void MeasureMgrSingleton::HideAllProtractors()
+{
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        m_Protractors[i]->m_Visible = false;
+    }
+}
+
+Protractor * MeasureMgrSingleton::GetProtractor( const string &id )
+{
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        if ( m_Protractors[i]->GetID() == id )
+        {
+            return m_Protractors[i];
+        }
+    }
+
+    return NULL;
+}
+
+vector < string > MeasureMgrSingleton::GetAllProtractors()
+{
+    vector < string > protractorList( m_Protractors.size() );
+
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        protractorList[i] = m_Protractors[i]->GetID();
+    }
+
+    return protractorList;
+}
+
+void MeasureMgrSingleton::DelProtractor( const int & i )
+{
+    if ( i < 0 || i >= ( int )m_Protractors.size() )
+    {
+        return;
+    }
+
+    Protractor* protractor = m_Protractors[i];
+
+    m_Protractors.erase( m_Protractors.begin() +  i );
+
+    delete protractor;
+}
+
+void MeasureMgrSingleton::DelProtractor( const string &id )
+{
+    int idel = -1;
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        if ( m_Protractors[i]->GetID() == id )
+        {
+            idel = i;
+            break;
+        }
+    }
+
+    DelProtractor( idel );
 }
 
 void MeasureMgrSingleton::DelAllRulers()
@@ -571,6 +757,11 @@ void MeasureMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     UpdateDrawObjs();
 
+    for( int i = 0; i < ( int )m_Protractors.size(); i++ )
+    {
+        m_Protractors[i]->LoadDrawObjs( draw_obj_vec );
+    }
+
     for( int i = 0; i < ( int )m_Rulers.size(); i++ )
     {
         m_Rulers[i]->LoadDrawObjs( draw_obj_vec );
@@ -589,6 +780,55 @@ void MeasureMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
 void MeasureMgrSingleton::UpdateDrawObjs()
 {
+    std::vector < Protractor * > protractorList = MeasureMgr.GetProtractorVec();
+    for( int i = 0; i < ( int )protractorList.size(); i++ )
+    {
+        // Find out label type.
+        Protractor * protractor = protractorList[i];
+
+        vector < DrawObj * > draw_obj_vec;
+        protractor->LoadDrawObjs( draw_obj_vec );
+
+
+        if ( draw_obj_vec.size() > 0 )
+        {
+            DrawObj * match = draw_obj_vec[0];
+            if( !match )
+            {
+                return;
+            }
+
+            // Set label base on type.
+            if( protractor )
+            {
+                match->m_Type = DrawObj::VSP_PROTRACTOR;
+
+                // Set label stage.  Load stage data.
+                match->m_Protractor.Step = DrawObj::VSP_PROTRACTOR_STEP_ZERO;
+
+                if ( protractor->m_Stage == STAGE_ONE )
+                {
+                    match->m_Protractor.Step = DrawObj::VSP_PROTRACTOR_STEP_ONE;
+                }
+                else if ( protractor->m_Stage == STAGE_TWO )
+                {
+                    match->m_Protractor.Step = DrawObj::VSP_PROTRACTOR_STEP_TWO;
+                }
+                else if ( protractor->m_Stage == STAGE_THREE )
+                {
+                    match->m_Protractor.Step = DrawObj::VSP_PROTRACTOR_STEP_THREE;
+                }
+                else if ( protractor->m_Stage == STAGE_COMPLETE )
+                {
+                    match->m_Protractor.Step = DrawObj::VSP_PROTRACTOR_STEP_COMPLETE;
+
+                    // Load placement info to DrawObj.
+                    match->m_Protractor.Offset = protractor->m_Offset.Get();
+                }
+            }
+        }
+    }
+
     std::vector < Ruler * > rulerList = MeasureMgr.GetRulerVec();
     for( int i = 0; i < ( int )rulerList.size(); i++ )
     {

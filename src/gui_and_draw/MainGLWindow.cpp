@@ -17,6 +17,7 @@
 #include "Image.h"
 #include "Texture2D.h"
 #include "Entity.h"
+#include "Protractor.h"
 #include "Ruler.h"
 #include "Probe.h"
 #include "GraphicEngine.h"
@@ -1034,9 +1035,94 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
 
         VSPGraphic::Probe * probe;
         VSPGraphic::Ruler * ruler;
+        VSPGraphic::Protractor * protractor;
 
         switch( objects[i]->m_Type )
         {
+        case DrawObj::VSP_PROTRACTOR:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_PROTRACTOR, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+            protractor = dynamic_cast<VSPGraphic::Protractor*> ( m_GEngine->getScene()->getObject( id ) );
+            if( protractor )
+            {
+                protractor->setVisibility( objects[i]->m_Visible );
+
+                protractor->setTextColor( (float)objects[i]->m_TextColor.x(),
+                    (float)objects[i]->m_TextColor.y(),
+                    (float)objects[i]->m_TextColor.z() );
+
+                protractor->setTextSize( (float)objects[i]->m_TextSize );
+
+                glm::vec3 start, mid, end, label_dir;
+
+                switch( objects[i]->m_Protractor.Step )
+                {
+                case DrawObj::VSP_PROTRACTOR_STEP_ZERO:
+                    protractor->reset();
+                    break;
+
+                case DrawObj::VSP_PROTRACTOR_STEP_ONE:
+                    start = glm::vec3( objects[i]->m_Protractor.Start.x(),
+                        objects[i]->m_Protractor.Start.y(),
+                        objects[i]->m_Protractor.Start.z() );
+                    protractor->placeProtractor( start );
+                    break;
+
+                case DrawObj::VSP_PROTRACTOR_STEP_TWO:
+                    start = glm::vec3( objects[i]->m_Protractor.Start.x(),
+                        objects[i]->m_Protractor.Start.y(),
+                        objects[i]->m_Protractor.Start.z() );
+                    mid = glm::vec3( objects[i]->m_Protractor.Mid.x(),
+                        objects[i]->m_Protractor.Mid.y(),
+                        objects[i]->m_Protractor.Mid.z() );
+                    protractor->placeProtractor( start, mid );
+                    break;
+
+                case DrawObj::VSP_PROTRACTOR_STEP_THREE:
+                    start = glm::vec3( objects[i]->m_Protractor.Start.x(),
+                        objects[i]->m_Protractor.Start.y(),
+                        objects[i]->m_Protractor.Start.z() );
+                    mid = glm::vec3( objects[i]->m_Protractor.Mid.x(),
+                        objects[i]->m_Protractor.Mid.y(),
+                        objects[i]->m_Protractor.Mid.z() );
+                    end = glm::vec3( objects[i]->m_Protractor.End.x(),
+                        objects[i]->m_Protractor.End.y(),
+                        objects[i]->m_Protractor.End.z() );
+                    label_dir = glm::vec3( objects[i]->m_Protractor.Label_Dir.x(),
+                                           objects[i]->m_Protractor.Label_Dir.y(),
+                                           objects[i]->m_Protractor.Label_Dir.z() );
+                    protractor->placeProtractor( start, mid, end, label_dir, objects[i]->m_Protractor.Label );
+                    break;
+
+                case DrawObj::VSP_PROTRACTOR_STEP_COMPLETE:
+                    start = glm::vec3( objects[i]->m_Protractor.Start.x(),
+                        objects[i]->m_Protractor.Start.y(),
+                        objects[i]->m_Protractor.Start.z() );
+                    mid = glm::vec3( objects[i]->m_Protractor.Mid.x(),
+                        objects[i]->m_Protractor.Mid.y(),
+                        objects[i]->m_Protractor.Mid.z() );
+                    end = glm::vec3( objects[i]->m_Protractor.End.x(),
+                        objects[i]->m_Protractor.End.y(),
+                        objects[i]->m_Protractor.End.z() );
+                    label_dir = glm::vec3( objects[i]->m_Protractor.Label_Dir.x(),
+                                           objects[i]->m_Protractor.Label_Dir.y(),
+                                           objects[i]->m_Protractor.Label_Dir.z() );
+                    protractor->placeProtractor( start, mid, end, label_dir, objects[i]->m_Protractor.Offset, objects[i]->m_Protractor.Label, objects[i]->m_Protractor.Dir );
+                    break;
+
+                default:
+                    break;
+                }
+            }
+            break;
+
         case DrawObj::VSP_RULER:
             if( id == 0xFFFFFFFF )
             {

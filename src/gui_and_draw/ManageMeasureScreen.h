@@ -42,6 +42,7 @@ protected:
     GroupLayout m_RulerLayout;
     GroupLayout m_ProbeLayout;
     GroupLayout m_RSTProbeLayout;
+    GroupLayout m_ProtractorLayout;
 
     Choice m_RulerLengthUnitChoice;
     Choice m_RulerDirectionChoice;
@@ -161,6 +162,49 @@ protected:
     Output m_RSTXOutput;
     Output m_RSTYOutput;
     Output m_RSTZOutput;
+
+    Choice m_ProtractorDirectionChoice;
+
+    SliderAdjRangeInput m_ProtractorPrecisionSlider;
+
+    TriggerButton m_AddProtractorButton;
+    TriggerButton m_RemoveProtractorButton;
+    TriggerButton m_RemoveAllProtractorsButton;
+
+    TriggerButton m_ShowAllProtractorsButton;
+    TriggerButton m_HideAllProtractorsButton;
+
+    StringInput m_ProtractorNameInput;
+
+    TriggerButton m_AttachProtractorButton;
+
+    ToggleButton m_VisibleProtractorButton;
+
+    Fl_Browser* m_ProtractorBrowser;
+
+    GeomPicker m_ProtractorStartGeom;
+    Choice m_ProtractorStartSurfChoice;
+
+    GeomPicker m_ProtractorMidGeom;
+    Choice m_ProtractorMidSurfChoice;
+
+    GeomPicker m_ProtractorEndGeom;
+    Choice m_ProtractorEndSurfChoice;
+
+    SliderAdjRangeInput m_ProtractorStartUSlider;
+    SliderAdjRangeInput m_ProtractorStartWSlider;
+    SliderAdjRangeInput m_ProtractorMidUSlider;
+    SliderAdjRangeInput m_ProtractorMidWSlider;
+    SliderAdjRangeInput m_ProtractorEndUSlider;
+    SliderAdjRangeInput m_ProtractorEndWSlider;
+
+    SliderAdjRangeInput m_ProtractorOffsetSlider;
+
+    Output m_ThetaXOutput;
+    Output m_ThetaYOutput;
+    Output m_ThetaZOutput;
+
+    Output m_ThetaOutput;
 
 private:
 

@@ -3,6 +3,7 @@
 #include "Viewport.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "Protractor.h"
 #include "Ruler.h"
 #include "Probe.h"
 
@@ -148,6 +149,7 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
 
         // Set mouse location for ruler.
         glm::vec3 mouseInWorld = _viewportList[i]->screenToWorld( glm::vec2( x, y ) );
+        Protractor::updateMouseLocation( mouseInWorld );
         Ruler::updateMouseLocation( mouseInWorld );
         Probe::updateMouseLocation( mouseInWorld );
 

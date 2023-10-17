@@ -213,7 +213,11 @@ DrawObj::DrawObj()
 
     m_TextSize = 0;
 
+    m_Protractor.Step = DrawObj::VSP_PROTRACTOR_STEP_ZERO;
+
     m_Ruler.Step = DrawObj::VSP_RULER_STEP_ZERO;
+
+    m_Probe.Step = DrawObj::VSP_PROBE_STEP_ZERO;
 
     m_MaterialInfo.Ambient[0] = m_MaterialInfo.Ambient[1] = 
         m_MaterialInfo.Ambient[2] = m_MaterialInfo.Ambient[3] = 1.0f;

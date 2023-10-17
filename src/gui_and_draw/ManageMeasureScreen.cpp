@@ -4,7 +4,7 @@
 #include "VSP_Geom_API.h"
 #include "UnitConversion.h"
 
-ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 700+35, "Measure" )
+ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 300, 700+35+50, "Measure" )
 {
     Fl_Group* ruler_tab = AddTab( "Rulers" );
     Fl_Group* ruler_group = AddSubGroup( ruler_tab, 5 );
@@ -17,6 +17,10 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
     Fl_Group* RSTprobe_tab = AddTab( "RST Probe" );
     Fl_Group* RSTprobe_group = AddSubGroup( RSTprobe_tab, 5 );
     m_RSTProbeLayout.SetGroupAndScreen( RSTprobe_group, this );
+
+    Fl_Group* protractor_tab = AddTab( "Protractors" );
+    Fl_Group* protractor_group = AddSubGroup( protractor_tab, 5 );
+    m_ProtractorLayout.SetGroupAndScreen( protractor_group, this );
 
     m_RulerLayout.SetInputWidth( 100 );
     m_RulerLayout.SetButtonWidth( 75 );
@@ -330,6 +334,112 @@ ManageMeasureScreen::ManageMeasureScreen( ScreenMgr * mgr ) : TabScreen( mgr, 30
     m_RSTProbeLayout.AddOutput( m_RSTXOutput, "X", "%6.5g" );
     m_RSTProbeLayout.AddOutput( m_RSTYOutput, "Y", "%6.5g" );
     m_RSTProbeLayout.AddOutput( m_RSTZOutput, "Z", "%6.5g" );
+
+    /* Protractor Layout  ***********************************************/
+
+    m_ProtractorLayout.SetInputWidth( 100 );
+    m_ProtractorLayout.SetButtonWidth( 75 );
+
+    m_ProtractorLayout.SetSameLineFlag( true );
+    m_ProtractorLayout.SetFitWidthFlag( false );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorLayout.AddInput( m_ProtractorNameInput, "Name:" );
+
+    m_ProtractorLayout.SetFitWidthFlag( true );
+    m_ProtractorLayout.AddButton( m_AddProtractorButton, "Add", m_ProtractorLayout.GetX() );
+
+    m_ProtractorLayout.ForceNewLine();
+    m_ProtractorLayout.SetSameLineFlag( false );
+
+    m_ProtractorBrowser = m_ProtractorLayout.AddFlBrowser( 75 );
+    m_ProtractorBrowser->callback( staticScreenCB, this );
+
+
+    m_ProtractorLayout.SetButtonWidth( m_ProtractorLayout.GetW() / 2.0 );
+    m_ProtractorLayout.SetSameLineFlag( true );
+    m_ProtractorLayout.SetFitWidthFlag( false );
+
+    m_ProtractorLayout.AddButton( m_RemoveProtractorButton, "Delete" );
+    m_ProtractorLayout.AddButton( m_RemoveAllProtractorsButton, "Delete All" );
+
+    m_ProtractorLayout.ForceNewLine();
+
+    m_ProtractorLayout.AddButton( m_ShowAllProtractorsButton, "Show All" );
+    m_ProtractorLayout.AddButton( m_HideAllProtractorsButton, "Hide All" );
+
+    m_ProtractorLayout.ForceNewLine();
+    m_ProtractorLayout.SetSameLineFlag( false );
+    m_ProtractorLayout.SetFitWidthFlag( true );
+    m_ProtractorLayout.SetButtonWidth( 75 );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorLayout.AddDividerBox( "Protractor Control" );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorDirectionChoice.AddItem( "All", vsp::ALL_DIR );
+    m_ProtractorDirectionChoice.AddItem( "X", vsp::X_DIR );
+    m_ProtractorDirectionChoice.AddItem( "Y", vsp::Y_DIR );
+    m_ProtractorDirectionChoice.AddItem( "Z", vsp::Z_DIR );
+
+    m_ProtractorLayout.AddChoice( m_ProtractorDirectionChoice, "Direction" );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorStartGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_ProtractorMidGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+    m_ProtractorEndGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
+
+    m_ProtractorLayout.AddGeomPicker( m_ProtractorStartGeom, 0, "Start Geom" );
+    m_ProtractorLayout.AddChoice( m_ProtractorStartSurfChoice, "Surface" );
+    m_ProtractorLayout.AddSlider( m_ProtractorStartUSlider, "Start U", 1.0, "%5.4f" );
+    m_ProtractorLayout.AddSlider( m_ProtractorStartWSlider, "Start W", 1.0, "%5.4f" );
+
+    m_ProtractorLayout.AddGeomPicker( m_ProtractorMidGeom, 0, "Mid Geom" );
+    m_ProtractorLayout.AddChoice( m_ProtractorMidSurfChoice, "Surface" );
+    m_ProtractorLayout.AddSlider( m_ProtractorMidUSlider, "Mid U", 1.0, "%5.4f" );
+    m_ProtractorLayout.AddSlider( m_ProtractorMidWSlider, "Mid W", 1.0, "%5.4f" );
+
+    m_ProtractorLayout.AddGeomPicker( m_ProtractorEndGeom, 0, "End Geom" );
+    m_ProtractorLayout.AddChoice( m_ProtractorEndSurfChoice, "Surface" );
+    m_ProtractorLayout.AddSlider( m_ProtractorEndUSlider, "End U", 1.0, "%5.4f" );
+    m_ProtractorLayout.AddSlider( m_ProtractorEndWSlider, "End W", 1.0, "%5.4f" );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorLayout.AddButton( m_AttachProtractorButton, "Re-Attach" );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorLayout.AddSlider( m_ProtractorOffsetSlider, "Offset", 10.0, "%5.4f" );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorLayout.AddSlider( m_ProtractorPrecisionSlider, "Precision", 10.0, "%5.0f" );
+    m_ProtractorLayout.AddButton( m_VisibleProtractorButton, "Visible" );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorLayout.AddDividerBox( "Results" );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorLayout.AddDividerBox( "Projected Angles" );
+
+    m_ProtractorLayout.AddOutput( m_ThetaXOutput, "Theta X", "%6.5g" );
+    m_ProtractorLayout.AddOutput( m_ThetaYOutput, "Theta Y", "%6.5g" );
+    m_ProtractorLayout.AddOutput( m_ThetaZOutput, "Theta Z", "%6.5g" );
+
+    m_ProtractorLayout.AddYGap();
+
+    m_ProtractorLayout.AddDividerBox( "Angle" );
+
+    m_ProtractorLayout.AddOutput( m_ThetaOutput, "Theta", "%6.5g" );
+
+
 
     ruler_tab->show();
 }
@@ -735,6 +845,168 @@ bool ManageMeasureScreen::Update()
 
     m_RSTProbeGeom.Update();
 
+    std::vector < Protractor * > protractors = MeasureMgr.GetProtractorVec();
+
+    m_ProtractorBrowser->clear();
+    // Add protractors to browser.
+    for( int i = 0; i < ( int )protractors.size(); i++ )
+    {
+        m_ProtractorBrowser->add( protractors[i]->GetName().c_str() );
+    }
+
+    index = MeasureMgr.GetCurrProtractorIndex();
+    if ( index >= 0 && index < ( int )protractors.size() )
+    {
+        m_ProtractorBrowser->select( index + 1 );
+    }
+
+
+    m_ProtractorStartSurfChoice.ClearItems();
+    m_ProtractorMidSurfChoice.ClearItems();
+    m_ProtractorEndSurfChoice.ClearItems();
+
+    // Protractor / Text Panel.
+    Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+
+    if ( protractor )
+    {
+        m_ProtractorDirectionChoice.Update( protractor->m_Component.GetID() );
+
+        m_ProtractorStartGeom.SetGeomChoice( protractor->m_OriginGeomID );
+
+        m_ProtractorNameInput.Update( protractor->GetName() );
+
+        m_ProtractorStartUSlider.Update( protractor->m_OriginU.GetID() );
+        m_ProtractorStartWSlider.Update( protractor->m_OriginW.GetID() );
+
+        m_ProtractorPrecisionSlider.Update( protractor->m_Precision.GetID() );
+
+        m_VisibleProtractorButton.Update( protractor->m_Visible.GetID() );
+
+        m_ProtractorOffsetSlider.Update( protractor->m_Offset.GetID() );
+
+        Geom* geom_start = vPtr->FindGeom( protractor->m_OriginGeomID );
+
+        if ( geom_start )
+        {
+            int nsurf = geom_start->GetNumTotalSurfs();
+            char str[256];
+            for ( int i = 0; i < nsurf; ++i )
+            {
+                snprintf( str, sizeof( str ),  "Surf_%d", i );
+                m_ProtractorStartSurfChoice.AddItem( str );
+            }
+            m_ProtractorStartSurfChoice.UpdateItems();
+
+
+            if( protractor->m_OriginIndx() < 0 || protractor->m_OriginIndx() >= nsurf )
+            {
+                protractor->m_OriginIndx = 0;
+            }
+            m_ProtractorStartSurfChoice.SetVal( protractor->m_OriginIndx() );
+        }
+
+        m_ProtractorMidGeom.SetGeomChoice( protractor->m_MidGeomID );
+
+        m_ProtractorMidUSlider.Update( protractor->m_MidU.GetID() );
+        m_ProtractorMidWSlider.Update( protractor->m_MidW.GetID() );
+
+
+        Geom* geom_mid = vPtr->FindGeom( protractor->m_OriginGeomID );
+
+        if ( geom_mid )
+        {
+            int nsurf = geom_mid->GetNumTotalSurfs();
+            char str[256];
+            for ( int i = 0; i < nsurf; ++i )
+            {
+                snprintf( str, sizeof( str ),  "Surf_%d", i );
+                m_ProtractorMidSurfChoice.AddItem( str );
+            }
+            m_ProtractorMidSurfChoice.UpdateItems();
+
+
+            if( protractor->m_MidIndx() < 0 || protractor->m_MidIndx() >= nsurf )
+            {
+                protractor->m_MidIndx = 0;
+            }
+            m_ProtractorMidSurfChoice.SetVal( protractor->m_OriginIndx() );
+        }
+
+        m_ProtractorEndGeom.SetGeomChoice( protractor->m_EndGeomID );
+
+        m_ProtractorEndUSlider.Update( protractor->m_EndU.GetID() );
+        m_ProtractorEndWSlider.Update( protractor->m_EndW.GetID() );
+
+        char str[255];
+        snprintf( str, sizeof( str ),  "%%.%df", protractor->m_Precision() );
+
+        m_ThetaXOutput.SetFormat( str );
+        m_ThetaYOutput.SetFormat( str );
+        m_ThetaZOutput.SetFormat( str );
+        m_ThetaOutput.SetFormat( str );
+
+        const string deg = string( "deg" ); // ( 1, (char) 176 );
+
+        m_ThetaXOutput.SetSuffix( deg );
+        m_ThetaYOutput.SetSuffix( deg );
+        m_ThetaZOutput.SetSuffix( deg );
+        m_ThetaOutput.SetSuffix( deg );
+
+        m_ThetaXOutput.Update( protractor->m_ThetaX.GetID() );
+        m_ThetaYOutput.Update( protractor->m_ThetaY.GetID() );
+        m_ThetaZOutput.Update( protractor->m_ThetaZ.GetID() );
+        m_ThetaOutput.Update( protractor->m_Theta.GetID() );
+
+        Geom* geom_end = vPtr->FindGeom( protractor->m_EndGeomID );
+
+        if ( geom_end )
+        {
+            int nsurf = geom_end->GetNumTotalSurfs();
+            char str[256];
+            for ( int i = 0; i < nsurf; ++i )
+            {
+                snprintf( str, sizeof( str ),  "Surf_%d", i );
+                m_ProtractorEndSurfChoice.AddItem( str );
+            }
+            m_ProtractorEndSurfChoice.UpdateItems();
+
+            if( protractor->m_EndIndx() < 0 || protractor->m_EndIndx() >= nsurf )
+            {
+                protractor->m_EndIndx = 0;
+            }
+            m_ProtractorEndSurfChoice.SetVal( protractor->m_EndIndx() );
+        }
+    }
+    else
+    {
+        m_ProtractorStartGeom.SetGeomChoice( "" );
+        m_ProtractorMidGeom.SetGeomChoice( "" );
+        m_ProtractorEndGeom.SetGeomChoice( "" );
+
+        m_ProtractorStartUSlider.Update( "" );
+        m_ProtractorStartWSlider.Update( "" );
+        m_ProtractorMidUSlider.Update( "" );
+        m_ProtractorMidWSlider.Update( "" );
+        m_ProtractorEndUSlider.Update( "" );
+        m_ProtractorEndWSlider.Update( "" );
+
+        m_ProtractorOffsetSlider.Update( "" );
+
+        m_ProtractorPrecisionSlider.Update( "" );
+        m_ProtractorNameInput.Update( "" );
+
+        m_ThetaXOutput.Update( "" );
+        m_ThetaYOutput.Update( "" );
+        m_ThetaZOutput.Update( "" );
+
+        m_ThetaOutput.Update( "" );
+    }
+
+    m_ProtractorStartGeom.Update();
+    m_ProtractorMidGeom.Update();
+    m_ProtractorEndGeom.Update();
+
     m_FLTK_Window->redraw();
     return true;
 }
@@ -756,9 +1028,10 @@ void ManageMeasureScreen::CallBack( Fl_Widget * w )
         int sel = m_RSTProbeBrowser->value();
         MeasureMgr.SetCurrRSTProbeIndex(sel - 1);
     }
-    else
+    if ( w == m_ProtractorBrowser )
     {
-        return;
+        int sel = m_ProtractorBrowser->value();
+        MeasureMgr.SetCurrProtractorIndex( sel - 1 );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -938,9 +1211,81 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
             RSTprobe->m_OriginIndx = m_RSTProbeSurfChoice.GetVal();
         }
     }
-    else
+    if ( device == &m_AddProtractorButton )
     {
-        return;
+        MeasureMgr.CreateAndAddProtractor();
+    }
+    else if ( device == &m_RemoveProtractorButton )
+    {
+        MeasureMgr.DelProtractor( MeasureMgr.GetCurrProtractorIndex() );
+    }
+    else if ( device == &m_RemoveAllProtractorsButton )
+    {
+        MeasureMgr.DelAllProtractors();
+    }
+    else if ( device == &m_ShowAllProtractorsButton )
+    {
+        MeasureMgr.ShowAllProtractors();
+    }
+    else if ( device == &m_HideAllProtractorsButton )
+    {
+        MeasureMgr.HideAllProtractors();
+    }
+    else if ( device == &m_ProtractorNameInput )
+    {
+        Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+        if ( protractor )
+        {
+            protractor->SetName( m_ProtractorNameInput.GetString() );
+        }
+    }
+    else if ( device == &m_AttachProtractorButton )
+    {
+        Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+        if ( protractor )
+        {
+            protractor->Reset();
+        }
+    }
+    else if ( device == & m_ProtractorStartGeom )
+    {
+        Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+        if ( protractor )
+        {
+            protractor->m_OriginGeomID = m_ProtractorStartGeom.GetGeomChoice();
+        }
+    }
+    else if ( device == & m_ProtractorMidGeom )
+    {
+        Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+        if ( protractor )
+        {
+            protractor->m_MidGeomID = m_ProtractorMidGeom.GetGeomChoice();
+        }
+    }
+    else if ( device == & m_ProtractorEndGeom )
+    {
+        Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+        if ( protractor )
+        {
+            protractor->m_EndGeomID = m_ProtractorEndGeom.GetGeomChoice();
+        }
+    }
+    else if ( device == &m_ProtractorStartSurfChoice )
+    {
+        Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+        if ( protractor )
+        {
+            protractor->m_OriginIndx = m_ProtractorStartSurfChoice.GetVal();
+        }
+    }
+    else if ( device == &m_ProtractorMidSurfChoice )
+    {
+        Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+        if ( protractor )
+        {
+            protractor->m_MidIndx = m_ProtractorMidSurfChoice.GetVal();
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -1112,6 +1457,96 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             RSTprobe->m_OriginS = s;
             RSTprobe->m_OriginT = t;
             RSTprobe->m_OriginIndx = index;
+        }
+    }
+
+    Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+    if ( protractor )
+    {
+        if( protractor->m_Stage == STAGE_THREE )
+        {
+            protractor->m_Stage = STAGE_COMPLETE;
+
+            protractor->m_Offset = ( placement - protractor->GetMidPt() ).mag();
+        }
+    }
+
+    if( protractor && geom )
+    {
+        if ( protractor->m_Stage == STAGE_ZERO )
+        {
+            protractor->m_Stage = STAGE_ONE;
+            protractor->m_OriginGeomID = targetGeomId;
+
+            int index;
+            double u, w;
+            geom->ProjPnt01I( placement, index, u, w );
+
+            VspSurf * surf = geom->GetSurfPtr( index );
+
+            double umapmax = surf->GetUMapMax();
+            double umax = surf->GetUMax();
+
+            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+
+            if ( uprm < 0 )
+            {
+                uprm = u;
+            }
+
+            protractor->m_OriginU = uprm;
+            protractor->m_OriginW = w;
+            protractor->m_OriginIndx = index;
+        }
+        else if ( protractor->m_Stage == STAGE_ONE )
+        {
+            protractor->m_Stage = STAGE_TWO;
+            protractor->m_MidGeomID = targetGeomId;
+
+            int index;
+            double u, w;
+            geom->ProjPnt01I( placement, index, u, w );
+
+            VspSurf * surf = geom->GetSurfPtr( index );
+
+            double umapmax = surf->GetUMapMax();
+            double umax = surf->GetUMax();
+
+            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+
+            if ( uprm < 0 )
+            {
+                uprm = u;
+            }
+
+            protractor->m_MidU = uprm;
+            protractor->m_MidW = w;
+            protractor->m_MidIndx = index;
+        }
+        else if ( protractor->m_Stage == STAGE_TWO )
+        {
+            protractor->m_Stage = STAGE_THREE;
+            protractor->m_EndGeomID = targetGeomId;
+
+            int index;
+            double u, w;
+            geom->ProjPnt01I( placement, index, u, w );
+
+            VspSurf * surf = geom->GetSurfPtr( index );
+
+            double umapmax = surf->GetUMapMax();
+            double umax = surf->GetUMax();
+
+            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+
+            if ( uprm < 0 )
+            {
+                uprm = u;
+            }
+
+            protractor->m_EndU = uprm;
+            protractor->m_EndW = w;
+            protractor->m_EndIndx = index;
         }
     }
 }
@@ -1301,4 +1736,56 @@ void ManageMeasureScreen::UpdatePickList()
         }
     }
 
+    Protractor * protractor = MeasureMgr.GetCurrentProtractor();
+
+    if ( protractor )
+    {
+        vector < DrawObj *> drawobj;
+        protractor->LoadDrawObjs( drawobj );
+
+        if( drawobj.size() > 0 )
+        {
+            DrawObj * currDrawObj = drawobj[0];
+            if( currDrawObj && currDrawObj->m_Protractor.Step == DrawObj::VSP_PROTRACTOR_STEP_COMPLETE )
+            {
+                // Do nothing.
+            }
+            else if( currDrawObj && currDrawObj->m_Protractor.Step == DrawObj::VSP_PROTRACTOR_STEP_THREE )
+            {
+                DrawObj pickDO;
+                pickDO.m_Type = DrawObj::VSP_PICK_LOCATION;
+                pickDO.m_GeomID = PICKLOCHEADER + currDrawObj->m_GeomID;
+                pickDO.m_PickSourceID = "";
+                pickDO.m_FeedbackGroup = getFeedbackGroupName();
+
+                m_PickList.push_back( pickDO );
+            }
+            else if( currDrawObj )
+            {
+                for ( int i = 0; i < ( int ) geom_vec.size(); i++ )
+                {
+                    vector<DrawObj *> geom_drawObj_vec;
+                    geom_vec[i]->LoadMainDrawObjs( geom_drawObj_vec );
+
+                    for ( int j = 0; j < ( int ) geom_drawObj_vec.size(); j++ )
+                    {
+                        if ( geom_drawObj_vec[j]->m_Visible )
+                        {
+                            // Ignore bounding boxes.
+                            if ( geom_drawObj_vec[j]->m_GeomID.compare( 0, string( BBOXHEADER ).size(), BBOXHEADER ) != 0 )
+                            {
+                                DrawObj pickDO;
+                                pickDO.m_Type = DrawObj::VSP_PICK_VERTEX;
+                                pickDO.m_GeomID = PICKVERTEXHEADER + geom_drawObj_vec[j]->m_GeomID;
+                                pickDO.m_PickSourceID = geom_drawObj_vec[j]->m_GeomID;
+                                pickDO.m_FeedbackGroup = getFeedbackGroupName();
+
+                                m_PickList.push_back( pickDO );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

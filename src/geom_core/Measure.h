@@ -12,6 +12,7 @@
 enum MEASURE_STAGE { STAGE_ZERO,
                      STAGE_ONE,
                      STAGE_TWO,
+                     STAGE_THREE,
                      STAGE_COMPLETE
                    };
 
@@ -168,4 +169,66 @@ protected:
     DrawObj m_LabelDO;
 
 };
+
+class Protractor : public ParmContainer
+{
+public:
+    Protractor();
+    virtual ~Protractor();
+
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void Reset();
+
+    virtual void Update();
+    bool Valid();
+
+    vec3d GetMidPt();
+
+    std::string m_EndGeomID;
+
+    IntParm m_EndIndx;
+
+    Parm m_EndU;
+    Parm m_EndW;
+
+    Parm m_Offset;
+
+    IntParm m_Precision;
+
+    Parm m_ThetaX;
+    Parm m_ThetaY;
+    Parm m_ThetaZ;
+
+    Parm m_Theta;
+
+    int m_Stage;
+
+    std::string m_OriginGeomID;
+
+    IntParm m_OriginIndx;
+
+    Parm m_OriginU;
+    Parm m_OriginW;
+
+    std::string m_MidGeomID;
+
+    IntParm m_MidIndx;
+
+    Parm m_MidU;
+    Parm m_MidW;
+
+    BoolParm m_Visible;
+
+    IntParm m_Component;
+
+protected:
+
+    DrawObj m_LabelDO;
+
+};
+
 #endif

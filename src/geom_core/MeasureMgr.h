@@ -18,6 +18,11 @@ public:
 
     void Renew();
 
+    Protractor * CreateAndAddProtractor();
+    string CreateAndAddProtractor( const string & startgeomid, int startsurfindx, double startu, double startw,
+                                   const string & midgeomid, int midsurfindx, double midu, double midw,
+                                   const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );
+
     Ruler * CreateAndAddRuler();
     string CreateAndAddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
                             const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );
@@ -27,6 +32,9 @@ public:
 
     RSTProbe * CreateAndAddRSTProbe();
     string CreateAndAddRSTProbe(const string & geomid, int surfindx, double r, double s, double t, const string & name );
+
+    Protractor * GetCurrentProtractor();
+    std::vector < Protractor * > GetProtractorVec();
 
     Ruler * GetCurrentRuler();
     std::vector < Ruler * > GetRulerVec();
@@ -41,6 +49,16 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     void LoadDrawObjs( vector < DrawObj * > & draw_obj_vec );
+
+    void SetCurrProtractorIndex( int i )             { m_CurrProtractorIndex = i; }
+    int GetCurrProtractorIndex()                   { return m_CurrProtractorIndex; }
+    void DelAllProtractors();
+    void ShowAllProtractors();
+    void HideAllProtractors();
+    Protractor *  GetProtractor( const string &id );
+    vector < string > GetAllProtractors();
+    void DelProtractor( const int &i );
+    void DelProtractor( const string &id );
 
     void SetCurrRulerIndex( int i )             { m_CurrRulerIndex = i; }
     int GetCurrRulerIndex()                   { return m_CurrRulerIndex; }
@@ -77,10 +95,12 @@ public:
 
 private:
 
+    std::vector < Protractor * > m_Protractors;
     std::vector < Ruler * > m_Rulers;
     std::vector < Probe * > m_Probes;
     std::vector < RSTProbe * > m_RSTProbes;
 
+    int m_CurrProtractorIndex;
     int m_CurrRulerIndex;
     int m_CurrProbeIndex;
     int m_CurrRSTProbeIndex;

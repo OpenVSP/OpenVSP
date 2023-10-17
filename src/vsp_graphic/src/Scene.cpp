@@ -4,6 +4,7 @@
 #include "Pickable.h"
 #include "Entity.h"
 #include "Marker.h"
+#include "Protractor.h"
 #include "Ruler.h"
 #include "Probe.h"
 #include "PickablePnts.h"
@@ -64,6 +65,10 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
 
     case Common::VSP_OBJECT_CFD_ENTITY:
         object = new Entity(_lights);
+        break;
+
+    case Common::VSP_OBJECT_PROTRACTOR:
+        object = new Protractor();
         break;
 
     case Common::VSP_OBJECT_RULER:

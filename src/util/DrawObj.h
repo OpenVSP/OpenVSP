@@ -225,6 +225,7 @@ public:
         VSP_POINTS,
         VSP_PROBE,
         VSP_RULER,
+        VSP_PROTRACTOR,
         VSP_SETTING,
         VSP_PICK_GEOM,
         VSP_PICK_LOCATION,
@@ -278,7 +279,6 @@ public:
     {
         VSP_PROBE_STEP_ZERO,
         VSP_PROBE_STEP_ONE,
-        VSP_PROBE_STEP_TWO,
         VSP_PROBE_STEP_COMPLETE,
     };
 
@@ -297,6 +297,27 @@ public:
         VSP_RULER_STEP_ONE,
         VSP_RULER_STEP_TWO,
         VSP_RULER_STEP_COMPLETE,
+    };
+
+    /*
+    * Protractor step enum.
+    * A protractor requires four steps to complete.  On first
+    * step, only start point is given.  Protractor is drawn
+    * between start point and mouse location.  On second
+    * step, both start and mid point are given.  Ruler is
+    * drawn between those points and on to mouse location.
+    * On third step, start, mid, and end points are given.
+    * Ruler is drawn between those points and arc is drawn
+    * at mouse location.  Lastly, offset is set and
+    * protractor is set to appropriate size.
+    */
+    enum ProtractorEnum
+    {
+        VSP_PROTRACTOR_STEP_ZERO,
+        VSP_PROTRACTOR_STEP_ONE,
+        VSP_PROTRACTOR_STEP_TWO,
+        VSP_PROTRACTOR_STEP_THREE,
+        VSP_PROTRACTOR_STEP_COMPLETE,
     };
 
     /*
@@ -328,6 +349,26 @@ public:
         vec3d Start;
         vec3d End;
         vec3d Offset;
+        string Label;
+        int Dir;
+    };
+
+    /*
+    * Protractor Information.
+    * Step - Current step of building a protractor.
+    * Start - Vertex Information of starting point.
+    * Mid - Vertex Information of middle point.
+    * End - Vertex Information of ending point.
+    * Offset - placement of the protractor.
+    */
+    struct Protractor
+    {
+        ProtractorEnum Step;
+        vec3d Start;
+        vec3d Mid;
+        vec3d End;
+        vec3d Label_Dir;
+        float Offset;
         string Label;
         int Dir;
     };
@@ -479,6 +520,8 @@ public:
     * ruler is set to appropriate height.
     */
     Ruler m_Ruler;
+
+    Protractor m_Protractor;
 
     /*
     * Line thickness.
