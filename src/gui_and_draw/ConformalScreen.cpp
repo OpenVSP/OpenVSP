@@ -27,6 +27,7 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
 
     m_DesignLayout.AddSubGroupLayout( m_TrimGroup, m_DesignLayout.GetW(), m_DesignLayout.GetH() );
 
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetButtonWidth() + 15 );
     int buttonW = m_DesignLayout.GetButtonWidth();
     int buttonSMW = buttonW - 25;
     int toggleW = 35;
@@ -206,6 +207,31 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
     m_WingGroup.AddSlider( m_ChordTrimMaxSlider, "Chord Max", 1.0, "%5.4f" );
     m_WingGroup.AddYGap();
 
+    m_WingGroup.SetFitWidthFlag( false );
+    m_WingGroup.SetSameLineFlag( true );
+
+    m_WingGroup.SetButtonWidth( toggleW );
+    m_WingGroup.AddButton( m_UMinEtaTrimButton, "" );
+    m_UMinTrimToggleGroup.AddButton( m_UMinEtaTrimButton.GetFlButton() );
+
+    m_WingGroup.SetFitWidthFlag( true );
+
+    m_WingGroup.SetButtonWidth( buttonW - toggleW );
+    m_WingGroup.AddSlider( m_EtaTrimMinSlider, "Eta Min", 1.0, "%5.4f" );
+
+    m_WingGroup.SetFitWidthFlag( false );
+    m_WingGroup.ForceNewLine();
+
+    m_WingGroup.SetButtonWidth( toggleW );
+    m_WingGroup.AddButton( m_UmaxEtaTrimButton, "" );
+    m_UMaxTrimToggleGroup.AddButton( m_UmaxEtaTrimButton.GetFlButton() );
+
+    m_WingGroup.SetFitWidthFlag( true );
+
+    m_WingGroup.SetButtonWidth( buttonW - toggleW );
+    m_WingGroup.AddSlider( m_EtaTrimMaxSlider, "Eta Max", 1.0, "%5.4f" );
+
+
     m_DesignLayout.AddSubGroupLayout( m_SideGroup, m_DesignLayout.GetW(), 200 );
     m_SideGroup.AddYGap();
     m_SideGroup.AddDividerBox( "Side Trim" );
@@ -287,6 +313,9 @@ bool ConformalScreen::Update()
     m_UTrimToggle.Update( conformal_ptr->m_UTrimFlag.GetID() );
     m_UTrimMinSlider.Update( conformal_ptr->m_UTrimMin.GetID() );
     m_UTrimMaxSlider.Update( conformal_ptr->m_UTrimMax.GetID() );
+
+    m_EtaTrimMinSlider.Update( conformal_ptr->m_EtaTrimMin.GetID() );
+    m_EtaTrimMaxSlider.Update( conformal_ptr->m_EtaTrimMax.GetID() );
 
     m_UMinTrimToggleGroup.Update( conformal_ptr->m_UMinTrimTypeFlag.GetID() );
     m_LMinScaleTrimToggleGroup.Update( conformal_ptr->m_L01Min.GetID() );
@@ -391,6 +420,8 @@ bool ConformalScreen::Update()
 
             m_LMinScaleTrimToggleGroup.Deactivate();
             m_LTrimMinSlider.Deactivate();
+
+            m_EtaTrimMinSlider.Deactivate();
         }
         else if ( conformal_ptr->m_UMinTrimTypeFlag() == vsp::L_TRIM ) // Trim based on L
         {
@@ -398,6 +429,8 @@ bool ConformalScreen::Update()
 
             m_LMinScaleTrimToggleGroup.Activate();
             m_LTrimMinSlider.Activate();
+
+            m_EtaTrimMinSlider.Deactivate();
 
             if ( conformal_ptr->m_L01Min() )
             {
@@ -407,6 +440,15 @@ bool ConformalScreen::Update()
             {
                 m_LTrimMinSlider.ActivateInput2();
             }
+        }
+        else // Trim based on eta
+        {
+            m_UTrimMinSlider.Deactivate();
+
+            m_LMinScaleTrimToggleGroup.Deactivate();
+            m_LTrimMinSlider.Deactivate();
+
+            m_EtaTrimMinSlider.Activate();
         }
 
 
@@ -418,6 +460,8 @@ bool ConformalScreen::Update()
 
             m_LMaxScaleTrimToggleGroup.Deactivate();
             m_LTrimMaxSlider.Deactivate();
+
+            m_EtaTrimMaxSlider.Deactivate();
         }
         else if ( conformal_ptr->m_UMaxTrimTypeFlag() == vsp::L_TRIM ) // Trim based on L
         {
@@ -425,6 +469,8 @@ bool ConformalScreen::Update()
 
             m_LMaxScaleTrimToggleGroup.Activate();
             m_LTrimMaxSlider.Activate();
+
+            m_EtaTrimMaxSlider.Deactivate();
 
             if ( conformal_ptr->m_L01Max() )
             {
@@ -434,6 +480,15 @@ bool ConformalScreen::Update()
             {
                 m_LTrimMaxSlider.ActivateInput2();
             }
+        }
+        else // Trim based on eta
+        {
+            m_UTrimMaxSlider.Deactivate();
+
+            m_LMaxScaleTrimToggleGroup.Deactivate();
+            m_LTrimMaxSlider.Deactivate();
+
+            m_EtaTrimMaxSlider.Activate();
         }
 
         m_NoseCapTypeChoice.Activate();
@@ -460,6 +515,9 @@ bool ConformalScreen::Update()
         m_UMaxTrimToggleGroup.Deactivate();
         m_LMaxScaleTrimToggleGroup.Deactivate();
         m_LTrimMaxSlider.Deactivate();
+
+        m_EtaTrimMinSlider.Deactivate();
+        m_EtaTrimMaxSlider.Deactivate();
 
         m_NoseCapTypeChoice.Deactivate();
         m_NoseCapLenSlider.Deactivate();

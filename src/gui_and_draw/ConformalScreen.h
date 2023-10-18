@@ -42,6 +42,7 @@ protected:
 
     ToggleButton m_UMinUTrimButton;
     ToggleButton m_UminLTrimButton;
+    ToggleButton m_UMinEtaTrimButton;
     ToggleRadioGroup m_UMinTrimToggleGroup;
 
     ToggleButton m_L01MinTrimToggle;
@@ -52,6 +53,7 @@ protected:
 
     ToggleButton m_UMaxUTrimButton;
     ToggleButton m_UmaxLTrimButton;
+    ToggleButton m_UmaxEtaTrimButton;
     ToggleRadioGroup m_UMaxTrimToggleGroup;
 
     ToggleButton m_L01MaxTrimToggle;
@@ -59,6 +61,9 @@ protected:
     ToggleRadioGroup m_LMaxScaleTrimToggleGroup;
 
     SliderAdjRange2Input m_LTrimMaxSlider;
+
+    SliderAdjRangeInput m_EtaTrimMinSlider;
+    SliderAdjRangeInput m_EtaTrimMaxSlider;
 
     Choice m_NoseCapTypeChoice;
     SliderAdjRangeInput m_NoseCapLenSlider;
