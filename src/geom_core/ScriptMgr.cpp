@@ -878,6 +878,19 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "VSPAERO_VSPGEOM_TYPE", VSPAERO_VSPGEOM_TYPE, "/*!< VSPAERO VSPGEOM file type */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum used to identify conformal component trim type. */";
+
+    r = se->RegisterEnum( "CONFORMAL_TRIM_TYPE", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CONFORMAL_TRIM_TYPE", "U_TRIM", U_TRIM, "/*!< Trim by U coordinate */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CONFORMAL_TRIM_TYPE", "L_TRIM", L_TRIM, "/*!< Trim by L coordinate */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CONFORMAL_TRIM_TYPE", "ETA_TRIM", ETA_TRIM, "/*!< Trim by Eta coordinate */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CONFORMAL_TRIM_TYPE", "NUM_TRIM_TYPES", NUM_TRIM_TYPES, "/*!< Number of conformal component trim types */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum used to identify delimiter type. */";
 
     r = se->RegisterEnum( "DELIM_TYPE", doc_struct );

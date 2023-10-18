@@ -194,6 +194,12 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 VSPAERO_VSPGEOM_TYPE = 1<<24,
                             };
 
+enum CONFORMAL_TRIM_TYPE { U_TRIM,
+                           L_TRIM,
+                           ETA_TRIM,
+                           NUM_TRIM_TYPES
+                         };
+
 enum DELIM_TYPE { DELIM_COMMA,
                   DELIM_USCORE,
                   DELIM_SPACE,

@@ -31,8 +31,8 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_UTrimMax.Init( "UTrimMax", "Design", this, 0.9, 0.0, 0.9999 );
     m_UTrimMax.SetDescript( "Max U Trim Value" );
 
-    m_UMinTrimTypeFlag.Init( "UMinTrimTypeFalg", "Design", this, 0, 0, 1 );
-    m_UMaxTrimTypeFlag.Init( "UMaxTrimTypeFalg", "Design", this, 0, 0, 1 );
+    m_UMinTrimTypeFlag.Init( "UMinTrimTypeFalg", "Design", this, vsp::U_TRIM, vsp::U_TRIM, vsp::NUM_TRIM_TYPES - 1 );
+    m_UMaxTrimTypeFlag.Init( "UMaxTrimTypeFalg", "Design", this, vsp::U_TRIM, vsp::U_TRIM, vsp::NUM_TRIM_TYPES - 1 );
 
     m_LTrimMin.Init( "LTrimMin", "Design", this, 0.1, 0.0, 0.9999 );
     m_L01Min.Init( "L01Min", "Design", this, true, false, true );
@@ -806,14 +806,14 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
 
     double lmax = surf.GetLMax();
 
-    if ( m_UMinTrimTypeFlag() == 0 ) // Trim based on U.
+    if ( m_UMinTrimTypeFlag() == vsp::U_TRIM ) // Trim based on U.
     {
         double l, m, n;
         surf.ConvertRSTtoLMN( m_UTrimMin(), 0.5, 0.5, l, m, n );
         m_LTrimMin.Set( l );
         m_L0LenTrimMin.Set( m_LTrimMin() * lmax );
     }
-    else // Trim based on L.
+    else if ( m_UMinTrimTypeFlag() == vsp::L_TRIM ) // Trim based on L.
     {
         if ( m_L01Min() )
         {
@@ -831,14 +831,14 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         m_UTrimMin.Set( r );
     }
 
-    if ( m_UMaxTrimTypeFlag() == 0 ) // Trim based on U.
+    if ( m_UMaxTrimTypeFlag() == U_TRIM ) // Trim based on U.
     {
         double l, m, n;
         surf.ConvertRSTtoLMN( m_UTrimMax(), 0.5, 0.5, l, m, n );
         m_LTrimMax.Set( l );
         m_L0LenTrimMax.Set( m_LTrimMax() * lmax );
     }
-    else // Trim based on L.
+    else if ( m_UMaxTrimTypeFlag() == L_TRIM ) // Trim based on L.
     {
         if ( m_L01Max() )
         {

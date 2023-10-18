@@ -385,14 +385,14 @@ bool ConformalScreen::Update()
     {
         m_UMinTrimToggleGroup.Activate();
 
-        if ( conformal_ptr->m_UMinTrimTypeFlag() == 0 ) // Trim based on U
+        if ( conformal_ptr->m_UMinTrimTypeFlag() == vsp::U_TRIM ) // Trim based on U
         {
             m_UTrimMinSlider.Activate();
 
             m_LMinScaleTrimToggleGroup.Deactivate();
             m_LTrimMinSlider.Deactivate();
         }
-        else // Trim based on L
+        else if ( conformal_ptr->m_UMinTrimTypeFlag() == vsp::L_TRIM ) // Trim based on L
         {
             m_UTrimMinSlider.Deactivate();
 
@@ -412,14 +412,14 @@ bool ConformalScreen::Update()
 
         m_UMaxTrimToggleGroup.Activate();
 
-        if ( conformal_ptr->m_UMaxTrimTypeFlag() == 0 ) // Trim based on U
+        if ( conformal_ptr->m_UMaxTrimTypeFlag() == vsp::U_TRIM ) // Trim based on U
         {
             m_UTrimMaxSlider.Activate();
 
             m_LMaxScaleTrimToggleGroup.Deactivate();
             m_LTrimMaxSlider.Deactivate();
         }
-        else // Trim based on L
+        else if ( conformal_ptr->m_UMaxTrimTypeFlag() == vsp::L_TRIM ) // Trim based on L
         {
             m_UTrimMaxSlider.Deactivate();
 
