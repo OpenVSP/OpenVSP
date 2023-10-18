@@ -192,6 +192,8 @@ void ConformalGeom::UpdateSurf()
         {
             int skin_type = m_MainSurfVec[i].GetSkinType();
 
+            UpdateParms( m_MainSurfVec[i] );
+
             //==== Only Works for Skin Ribs for Now ====//
             if (skin_type == VspSurf::SKIN_RIBS)
             {
@@ -799,17 +801,8 @@ void ConformalGeom::SetWingTrimParms(  VspSurf & surf )
 
 }
 
-// Possibly disable spanwise offset for wings.  As option.  Probably future work.
-// Someday add span fraction coordinate for wings (eta).  do when spanwise coordinate for control surfaces is done.
-// Posibly make U1 and U2 trimming separate options - if compatible means can be figured out.
-
-//==== Trim In U Direction - Use Flat Cap ====//
-void ConformalGeom::TrimU( VspSurf & surf )
+void ConformalGeom::UpdateParms( VspSurf & surf )
 {
-    if ( !m_UTrimFlag() )
-    {
-        return;
-    }
 
     double lmax = surf.GetLMax();
 
@@ -870,6 +863,19 @@ void ConformalGeom::TrimU( VspSurf & surf )
     if ( m_UTrimMin() >= m_UTrimMax() )
     {
         m_UTrimMin = MAX( m_UTrimMax() - 0.001, 0.0 );
+    }
+}
+
+// Possibly disable spanwise offset for wings.  As option.  Probably future work.
+// Someday add span fraction coordinate for wings (eta).  do when spanwise coordinate for control surfaces is done.
+// Posibly make U1 and U2 trimming separate options - if compatible means can be figured out.
+
+//==== Trim In U Direction - Use Flat Cap ====//
+void ConformalGeom::TrimU( VspSurf & surf )
+{
+    if ( !m_UTrimFlag() )
+    {
+        return;
     }
 
     piecewise_surface_type* bez_surface = surf.GetBezierSurface();

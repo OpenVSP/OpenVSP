@@ -115,6 +115,7 @@ protected:
     virtual void TrimV( VspSurf & surf );
 
     virtual void SetWingTrimParms( VspSurf & surf );
+    virtual void UpdateParms( VspSurf & surf );
 
     virtual void FindDists( const VspSurf & surf, piecewise_curve_type & curve, double u0, vector< double > & dist_vec );
     virtual double ComputeAvgOffset( VspSurf & surf, const VspSurf & ref_surf, double u );
