@@ -2534,12 +2534,12 @@ void WingGeom::UpdateEta()
     m_EtatoT.InterpolateLinear( t, run_span, false );
 }
 
-double WingGeom::UtoEta( const double &u )
+double WingGeom::UtoEta( const double &u, bool ignoreCap )
 {
     double t = u;
 
     int indx = 0;
-    if ( m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if ( !ignoreCap && m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
     {
         t = t - 1.0;
     }
@@ -2547,13 +2547,13 @@ double WingGeom::UtoEta( const double &u )
     return m_TtoEta.CompPnt( t );
 }
 
-double WingGeom::EtatoU( const double &eta )
+double WingGeom::EtatoU( const double &eta, bool ignoreCap )
 {
     double t = m_EtatoT.CompPnt( eta );
     double u = t;
 
     int indx = 0;
-    if ( m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    if ( !ignoreCap && m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
     {
         u = u + 1.0;
     }

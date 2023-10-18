@@ -197,8 +197,8 @@ public:
 
     virtual void ChangeRC( Parm * p, WingSect * sect );
 
-    virtual double UtoEta( const double &u );
-    virtual double EtatoU( const double &eta );
+    virtual double UtoEta( const double &u, bool ignoreCap = false );
+    virtual double EtatoU( const double &eta, bool ignoreCap = false );
 
     //==== Planform Parms ====//
     Parm m_TotalSpan;
