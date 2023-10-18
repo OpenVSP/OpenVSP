@@ -49,6 +49,9 @@ public:
     BoolParm m_L01Max;
     Parm m_L0LenTrimMax;
 
+    Parm m_EtaTrimMin;
+    Parm m_EtaTrimMax;
+
     IntParm m_CapUMinTrimOption;
     IntParm m_CapUMaxTrimOption;
 

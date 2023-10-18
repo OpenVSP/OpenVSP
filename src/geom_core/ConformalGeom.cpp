@@ -10,6 +10,7 @@
 #include "ConformalGeom.h"
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"
+#include "WingGeom.h"
 #include <cfloat>  //For DBL_EPSILON
 
 using namespace vsp;
@@ -41,6 +42,11 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_LTrimMax.Init( "LTrimMax", "Design", this, 0.9, 0.0, 0.9999 );
     m_L01Max.Init( "L01Max", "Design", this, true, false, true );
     m_L0LenTrimMax.Init( "L0LenTrimMax", "Design", this, 0, 0, 1e12 );
+
+    m_EtaTrimMin.Init( "EtaTrimMin", "Design", this, 0.1, -1000.0, 1000.0 );
+    m_EtaTrimMin.SetDescript( "Min eta Trim Value" );
+    m_EtaTrimMax.Init( "EtaTrimMax", "Design", this, 0.9, -1000.0, 1000.0 );
+    m_EtaTrimMax.SetDescript( "Max eta Trim Value" );
 
     // End Cap Options
     m_CapUMinTrimOption.Init("CapUMinTrimOption", "EndCap", this, FLAT_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS - 1 );
@@ -803,6 +809,13 @@ void ConformalGeom::SetWingTrimParms(  VspSurf & surf )
 
 void ConformalGeom::UpdateParms( VspSurf & surf )
 {
+    Geom* parent_geom = m_Vehicle->FindGeom( m_ParentID );
+    if ( !parent_geom )
+    {
+        return;
+    }
+
+    WingGeom* wing_geom = dynamic_cast < WingGeom* > ( parent_geom );
 
     double lmax = surf.GetLMax();
 
@@ -812,6 +825,12 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         surf.ConvertRSTtoLMN( m_UTrimMin(), 0.5, 0.5, l, m, n );
         m_LTrimMin.Set( l );
         m_L0LenTrimMin.Set( m_LTrimMin() * lmax );
+
+        if ( wing_geom )
+        {
+            double umax = wing_geom->NumXSec() - 1;
+            m_EtaTrimMin = wing_geom->UtoEta( m_UTrimMin() * umax, true );
+        }
     }
     else if ( m_UMinTrimTypeFlag() == vsp::L_TRIM ) // Trim based on L.
     {
@@ -829,6 +848,25 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         double r, s, t;
         surf.ConvertLMNtoRST( m_LTrimMin(), 0.5, 0.5, r, s, t );
         m_UTrimMin.Set( r );
+
+        if ( wing_geom )
+        {
+            double umax = wing_geom->NumXSec() - 1;
+            m_EtaTrimMin = wing_geom->UtoEta( m_UTrimMin() * umax, true );
+        }
+    }
+    else // Trim based on eta
+    {
+        if ( wing_geom )
+        {
+            double umax = wing_geom->NumXSec() - 1;
+            m_UTrimMin = wing_geom->EtatoU( m_EtaTrimMin(), true ) / umax;
+
+            double l, m, n;
+            surf.ConvertRSTtoLMN( m_UTrimMin(), 0.5, 0.5, l, m, n );
+            m_LTrimMin.Set( l );
+            m_L0LenTrimMin.Set( m_LTrimMin() * lmax );
+        }
     }
 
     if ( m_UMaxTrimTypeFlag() == U_TRIM ) // Trim based on U.
@@ -837,6 +875,12 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         surf.ConvertRSTtoLMN( m_UTrimMax(), 0.5, 0.5, l, m, n );
         m_LTrimMax.Set( l );
         m_L0LenTrimMax.Set( m_LTrimMax() * lmax );
+
+        if ( wing_geom )
+        {
+            double umax = wing_geom->NumXSec() - 1;
+            m_EtaTrimMax = wing_geom->UtoEta( m_UTrimMax() * umax, true );
+        }
     }
     else if ( m_UMaxTrimTypeFlag() == L_TRIM ) // Trim based on L.
     {
@@ -854,6 +898,25 @@ void ConformalGeom::UpdateParms( VspSurf & surf )
         double r, s, t;
         surf.ConvertLMNtoRST( m_LTrimMax(), 0.5, 0.5, r, s, t );
         m_UTrimMax.Set( r );
+
+        if ( wing_geom )
+        {
+            double umax = wing_geom->NumXSec() - 1;
+            m_EtaTrimMax = wing_geom->UtoEta( m_UTrimMax() * umax, true );
+        }
+    }
+    else // Trim based on eta
+    {
+        if ( wing_geom )
+        {
+            double umax = wing_geom->NumXSec() - 1;
+            m_UTrimMax = wing_geom->EtatoU( m_EtaTrimMax(), true ) / umax;
+
+            double l, m, n;
+            surf.ConvertRSTtoLMN( m_UTrimMax(), 0.5, 0.5, l, m, n );
+            m_LTrimMax.Set( l );
+            m_L0LenTrimMax.Set( m_LTrimMax() * lmax );
+        }
     }
 
     // Prevent UTrim crossover.
