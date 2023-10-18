@@ -262,6 +262,11 @@ public:
 
     Parm m_UStart; // U Starting location for control surface
     Parm m_UEnd;   // U End location for control surface
+
+    BoolParm m_EtaFlag;
+    Parm m_EtaStart;
+    Parm m_EtaEnd;
+
     Parm m_StartLenFrac; // Percent chord that the control surface should occupy
     Parm m_EndLenFrac; // Percent chord that the control surface should occupy
     Parm m_StartLength; // Dimensional distance for control surface

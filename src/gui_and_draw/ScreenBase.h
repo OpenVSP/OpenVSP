@@ -344,6 +344,11 @@ public:
     GroupLayout m_SSConGroup;
     SliderAdjRangeInput m_SSConUSSlider;
     SliderAdjRangeInput m_SSConUESlider;
+
+    ToggleButton m_SSConEtaButton;
+    SliderAdjRangeInput m_SSConEtaSSlider;
+    SliderAdjRangeInput m_SSConEtaESlider;
+
     SliderAdjRangeInput m_SSConSFracSlider;
     SliderAdjRangeInput m_SSConSLenSlider;
     SliderAdjRangeInput m_SSConEFracSlider;

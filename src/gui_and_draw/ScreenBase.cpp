@@ -750,6 +750,11 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConGroup.AddSlider(m_SSConUSSlider, "Start U", 1, "%7.6f");
     m_SSConGroup.AddSlider(m_SSConUESlider, "End U", 1, "%7.6f");
 
+    m_SSConGroup.AddButton( m_SSConEtaButton, "Use Eta for Spanwise Coordinate" );
+
+    m_SSConGroup.AddSlider(m_SSConEtaSSlider, "Start Eta", 1, "%7.6f");
+    m_SSConGroup.AddSlider(m_SSConEtaESlider, "End Eta", 1, "%7.6f");
+
     m_SSConGroup.AddYGap();
     m_SSConGroup.AddDividerBox( "Chordwise" );
 
@@ -1152,8 +1157,29 @@ bool GeomScreen::Update()
             assert(sscon);
 
             m_SSConTestToggleGroup.Update(sscon->m_TestType.GetID());
+
+            m_SSConEtaButton.Update(sscon->m_EtaFlag.GetID());
+
             m_SSConUESlider.Update(sscon->m_UEnd.GetID());
             m_SSConUSSlider.Update(sscon->m_UStart.GetID());
+
+            m_SSConEtaESlider.Update(sscon->m_EtaEnd.GetID());
+            m_SSConEtaSSlider.Update(sscon->m_EtaStart.GetID());
+
+            if ( sscon->m_EtaFlag() )
+            {
+                m_SSConUSSlider.Deactivate();
+                m_SSConUESlider.Deactivate();
+                m_SSConEtaSSlider.Activate();
+                m_SSConEtaESlider.Activate();
+            }
+            else
+            {
+                m_SSConUSSlider.Activate();
+                m_SSConUESlider.Activate();
+                m_SSConEtaSSlider.Deactivate();
+                m_SSConEtaESlider.Deactivate();
+            }
 
             m_SSConSFracSlider.Update(sscon->m_StartLenFrac.GetID());
             m_SSConSLenSlider.Update(sscon->m_StartLength.GetID());

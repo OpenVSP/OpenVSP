@@ -10,6 +10,7 @@
 
 #include "SubSurface.h"
 #include "Geom.h"
+#include "WingGeom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
 #include "StructureMgr.h"
@@ -1096,6 +1097,15 @@ SSControlSurf::SSControlSurf( const string& compID, int type ) : SubSurface( com
     m_UEnd.Init( "UEnd", "SS_Control", this, 0.6, 0, 1 );
     m_UEnd.SetDescript( "The U ending location of the control surface" );
 
+    m_EtaStart.Init( "EtaStart", "SS_Control", this, 0.4, 0, 1 );
+    m_EtaStart.SetDescript( "The eta starting location of the control surface" );
+
+    m_EtaEnd.Init( "EtaEnd", "SS_Control", this, 0.6, 0, 1 );
+    m_EtaEnd.SetDescript( "The eta ending location of the control surface" );
+
+    m_EtaFlag.Init( "EtaFlag", "SS_Control", this, false, 0, 1 );
+    m_EtaFlag.SetDescript( "Use eta (true) or u (false) for spanwise coordinate." );
+
     m_TestType.Init( "Test_Type", "SS_Control", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
@@ -1154,6 +1164,23 @@ void SSControlSurf::Update()
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom ) { return; }
 
+    double umax = geom->GetUMax(0);
+
+    WingGeom * wing = dynamic_cast< WingGeom* > ( geom );
+    if ( wing )
+    {
+        if ( m_EtaFlag() )
+        {
+            m_UStart = wing->EtatoU( m_EtaStart() ) / umax;
+            m_UEnd = wing->EtatoU( m_EtaEnd() ) / umax;
+        }
+        else
+        {
+            m_EtaStart = wing->UtoEta( m_UStart() * umax );
+            m_EtaEnd = wing->UtoEta( m_UEnd() * umax );
+        }
+    }
+
     VspSurf* surf = geom->GetMainSurfPtr(0);
     if ( !surf ) { return; }
 
@@ -1168,7 +1195,6 @@ void SSControlSurf::Update()
     double vmin = c.get_parameter_min(); // Really must be 0.0
     double vmax = c.get_parameter_max(); // Really should be 4.0
 
-    double umax = geom->GetUMax(0);
     double umin = 0.0;
     double ucs = m_UStart() * umax;
 
