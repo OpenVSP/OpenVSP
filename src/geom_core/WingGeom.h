@@ -197,6 +197,9 @@ public:
 
     virtual void ChangeRC( Parm * p, WingSect * sect );
 
+    virtual double UtoEta( const double &u );
+    virtual double EtatoU( const double &eta );
+
     //==== Planform Parms ====//
     Parm m_TotalSpan;
     Parm m_TotalProjSpan;
@@ -239,6 +242,7 @@ protected:
     virtual void CalculateMeshMetrics();
 
     virtual double ComputeTotalSpan();
+    virtual void UpdateEta();
     virtual double ComputeTotalProjSpan();
     virtual double ComputeTotalChord();
     virtual double ComputeTotalArea();
@@ -265,6 +269,9 @@ protected:
     bool m_Closed;
 
     VspSurf m_FoilSurf;
+
+    Vsp1DCurve m_TtoEta;
+    Vsp1DCurve m_EtatoT;
 
 };
 #endif // !defined(VSPWINGGEOM__INCLUDED_)

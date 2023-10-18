@@ -2162,6 +2162,7 @@ void WingGeom::UpdateSurf()
 
     //==== Load Totals ====//
     UpdateTotalParameters();
+    UpdateEta();
 }
 
 void WingGeom::CalculateMeshMetrics()
@@ -2495,6 +2496,70 @@ double WingGeom::ComputeTotalSpan()
     return ts;
 }
 
+// The eta coordinate is a fraction [0, 1] of the span, where the total span is the sum of the
+// trapezoidal equivalent spans.  The U parameter varies [0, N+1] over an N section wing.  Over
+// section i, the U parameter varies [i, i+1].  Because of the way wings are lofted in OpenVSP,
+// we know that the inter-section U parameter [i, i+1] is linear with span for section i.
+//
+// Consequently, it is easy to eta at the wing section boundaries, where the U values are known
+// integers.  The eta=f(U) function is linear between these points.  Its inverse is similarly
+// easy to construct.
+//
+// t is substantially similar to U, but it only runs along the 'main' wing surface, it does not
+// include wing caps at the root or tip.  Since the U here is [0, N], the transformation from
+// t to/from U is a simple shift by 1.0.
+//
+void WingGeom::UpdateEta()
+{
+    vector < double > run_span;
+    vector < double > t;
+
+    run_span.push_back( 0 );
+    t.push_back( 0 );
+
+    vector< WingSect* > ws_vec = GetWingSectVec();
+    for ( int i = 1 ; i < (int)ws_vec.size() ; i++ )
+    {
+        run_span.push_back( run_span.back() + ws_vec[i]->m_Span() );
+        t.push_back( i );
+    }
+
+    double end_span = run_span[ run_span.size() - 1 ];
+    for ( int i = 0 ; i < (int)run_span.size() ; i++ )
+    {
+        run_span[i] = run_span[i] / end_span;
+    }
+
+    m_TtoEta.InterpolateLinear( run_span, t, false );
+    m_EtatoT.InterpolateLinear( t, run_span, false );
+}
+
+double WingGeom::UtoEta( const double &u )
+{
+    double t = u;
+
+    int indx = 0;
+    if ( m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        t = t - 1.0;
+    }
+
+    return m_TtoEta.CompPnt( t );
+}
+
+double WingGeom::EtatoU( const double &eta )
+{
+    double t = m_EtatoT.CompPnt( eta );
+    double u = t;
+
+    int indx = 0;
+    if ( m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        u = u + 1.0;
+    }
+
+    return u;
+}
 
 
 //==== Compute Total Proj Span ====//
