@@ -984,6 +984,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_FILE_READ_FAILURE", vsp::VSP_FILE_READ_FAILURE, "/*!< File read failure error */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_WRONG_GEOM_TYPE", vsp::VSP_WRONG_GEOM_TYPE, "/*!< Wrong Geom type error */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_WRONG_XSEC_TYPE", vsp::VSP_WRONG_XSEC_TYPE, "/*!< Wrong XSec type error */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_WRONG_FILE_TYPE", vsp::VSP_WRONG_FILE_TYPE, "/*!< Wrong file type error */" );
@@ -12063,6 +12065,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Convert R volumetric coordinate to L coordinate.
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double r = 0.12;
+    double l;
+
+    ConvertRtoL( geom_id, surf_indx, r, l );
+
+    \endcode
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] r R (0 - 1) volume coordinate
+    \param [out] l L (0 - 1) linear volume coordinate
+    \return void
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d ConvertRtoL( const string & in geom_id, const int & in surf_indx, const double & in r, double & out l )", vspFUNCTION(vsp::ConvertRtoL), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Convert LMN volumetric coordinates to RST coordinates.
     \code{.cpp}
     // Add Pod Geom
@@ -12091,6 +12117,75 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "vec3d ConvertLMNtoRST( const string & in geom_id, const int & in surf_indx, const double & in l, const double & in m, const double & in n, double & out r, double & out s, double & out t )", vspFUNCTION(vsp::ConvertLMNtoRST), vspCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
+    doc_struct.comment = R"(
+/*!
+    Convert L volumetric coordinate to R coordinate.
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
+
+    int surf_indx = 0;
+
+    double l = 0.12;
+    double r;
+
+    ConvertLtoR( geom_id, surf_indx, l, r );
+
+    \endcode
+    \param [in] geom_id Parent Geom ID
+    \param [in] surf_indx Main surface index from the parent Geom
+    \param [in] l L (0 - 1) linear volume coordinate
+    \param [out] r R (0 - 1) volume coordinate
+    \return void
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d ConvertLtoR( const string & in geom_id, const int & in surf_indx, const double & in l, double & out r )", vspFUNCTION(vsp::ConvertLMNtoRST), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Convert U coordinate to eta wing coordinate.
+    \code{.cpp}
+    // Add Wing Geom
+    string geom_id = AddGeom( "WING", "" );
+
+    int surf_indx = 0;
+
+    double u = 0.25;
+    double eta;
+
+    ConvertUtoEta( geom_id, u, eta );
+
+    \endcode
+    \param [in] geom_id Parent Geom ID
+    \param [in] u U (0 - 1) surface coordinate
+    \param [out] eta Eta (0 - 1) wing spanwise coordinate
+    \return void
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d ConvertUtoEta( const string & in geom_id, const double & in u, double & out eta )", vspFUNCTION(vsp::ConvertUtoEta), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Convert eta wing coordinate to u coordinate.
+    \code{.cpp}
+    // Add Wing Geom
+    string geom_id = AddGeom( "WING", "" );
+
+    int surf_indx = 0;
+
+    double eta= 0.25;
+    double u;
+
+    ConvertEtatoU( geom_id, eta, u );
+
+    \endcode
+    \param [in] geom_id Parent Geom ID
+    \param [in] eta Eta (0 - 1) wing spanwise coordinate
+    \param [out] u U (0 - 1) surface coordinate
+    \return void
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d ConvertEtatoU( const string & in geom_id, const double & in eta, double & out u )", vspFUNCTION(vsp::ConvertEtatoU), vspCALL_CDECL, doc_struct );
+    assert( r >= 0 );
 
     doc_struct.comment = R"(
 /*!

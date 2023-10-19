@@ -487,7 +487,11 @@ extern double FindRST( const std::string &geom_id, const int &surf_indx, const v
 extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &r0, const double &s0, const double &t0, double &r_out, double &s_out, double &t_out );
 
 extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l, double &m, double &n );
+extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double &r, double &l );
 extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r, double &s, double &t );
+extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r );
+extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta );
+extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u );
 
 extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int &surf_indx, const std::vector < double > &u_in_vec, const std::vector < double > &w_in_vec);
 extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int &surf_indx, const std::vector < double > &us, const std::vector < double > &ws);

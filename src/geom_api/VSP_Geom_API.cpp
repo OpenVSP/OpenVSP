@@ -7962,6 +7962,30 @@ void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const do
     return;
 }
 
+void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double &r, double &l )
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertRtoL::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertRtoL::Invalid Surface Index " + to_string( surf_indx ) );
+        return;
+    }
+
+    geom->GetSurfPtr( surf_indx )->ConvertRtoL( r, l );
+
+    ErrorMgr.NoError();
+
+    return;
+}
+
 void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r, double &s, double &t )
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
@@ -7980,6 +8004,92 @@ void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const do
     }
 
     geom->GetSurfPtr( surf_indx )->ConvertLMNtoRST( l, m, n, r, s, t );
+
+    ErrorMgr.NoError();
+
+    return;
+}
+
+void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r )
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertLtoR::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ConvertLtoR::Invalid Surface Index " + to_string( surf_indx ) );
+        return;
+    }
+
+    geom->GetSurfPtr( surf_indx )->ConvertLtoR( l, r );
+
+    ErrorMgr.NoError();
+
+    return;
+}
+
+void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta )
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    eta = u;
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertUtoEta::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    WingGeom *wg = dynamic_cast<WingGeom *>( geom );
+
+    if ( geom->GetType().m_Type != MS_WING_GEOM_TYPE || !wg )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertUtoEta::Geom is not a WingGeom" );
+        return;
+    }
+
+    if ( wg )
+    {
+        eta = wg->UtoEta( u );
+    }
+
+    ErrorMgr.NoError();
+
+    return;
+}
+
+void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u )
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    u = eta;
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ConvertEtatoU::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    WingGeom *wg = dynamic_cast<WingGeom *>( geom );
+
+    if ( geom->GetType().m_Type != MS_WING_GEOM_TYPE || !wg )
+    {
+        ErrorMgr.AddError( VSP_WRONG_GEOM_TYPE, "ConvertEtatoU::Geom is not a WingGeom" );
+        return;
+    }
+
+    if ( wg )
+    {
+        u = wg->EtatoU( eta );
+    }
 
     ErrorMgr.NoError();
 
