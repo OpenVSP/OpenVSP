@@ -4353,6 +4353,17 @@ void Geom::ConvertRSTtoLMN( const int &indx, const double &r, const double &s, c
     n = t;
 }
 
+void Geom::ConvertRtoL( const int &indx, const double &r, double &l )
+{
+    VspSurf* surf_ptr = GetSurfPtr( indx );
+    if ( surf_ptr )
+    {
+        surf_ptr->ConvertRtoL( r, l );
+        return;
+    }
+    l = r;
+}
+
 void Geom::ConvertLMNtoRST( const int &indx, const double &l, const double &m, const double &n, double &r, double &s, double &t )
 {
     VspSurf* surf_ptr = GetSurfPtr( indx );
@@ -4364,6 +4375,17 @@ void Geom::ConvertLMNtoRST( const int &indx, const double &l, const double &m, c
     r = l;
     s = m/2.0;
     t = n;
+}
+
+void Geom::ConvertLtoR( const int &indx, const double &l, double &r )
+{
+    VspSurf* surf_ptr = GetSurfPtr( indx );
+    if ( surf_ptr )
+    {
+        surf_ptr->ConvertLtoR( l, r );
+        return;
+    }
+    r = l;
 }
 
 double Geom::ProjPnt01I( const vec3d & pt, int &surf_indx, double &u, double &w )

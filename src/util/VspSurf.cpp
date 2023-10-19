@@ -361,6 +361,11 @@ void VspSurf::ConvertRSTtoLMN( const double &r, const double &s, const double &t
     n = t;
 }
 
+void VspSurf::ConvertRtoL( const double &r, double &l ) const
+{
+    l = m_LCurve.CompPnt( r );
+}
+
 void VspSurf::ConvertLMNtoRST( const double &l, const double &m, const double &n, double &r, double &s, double &t ) const
 {
     r = m_LCurve.Invert( l );
@@ -368,6 +373,11 @@ void VspSurf::ConvertLMNtoRST( const double &l, const double &m, const double &n
     BuildMCurve( r, mcurve );
     s = mcurve.Invert( m );
     t = n;
+}
+
+void VspSurf::ConvertLtoR( const double &l, double &r ) const
+{
+    r = m_LCurve.Invert( l );
 }
 
 double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d &outpt ) const
