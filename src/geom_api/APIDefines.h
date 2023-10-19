@@ -38,6 +38,7 @@ enum ATTACH_TRANS_TYPE { ATTACH_TRANS_NONE = 0,
                          ATTACH_TRANS_UV,
                          ATTACH_TRANS_RST,
                          ATTACH_TRANS_LMN,
+                         ATTACH_TRANS_EtaMN,
                          ATTACH_TRANS_NUM_TYPES
 };
 
@@ -46,6 +47,7 @@ enum ATTACH_ROT_TYPE { ATTACH_ROT_NONE = 0,
                        ATTACH_ROT_UV,
                        ATTACH_ROT_RST,
                        ATTACH_ROT_LMN,
+                       ATTACH_ROT_EtaMN,
                        ATTACH_ROT_NUM_TYPES
 };
 

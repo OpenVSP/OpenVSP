@@ -574,6 +574,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_LMN", ATTACH_TRANS_LMN, "/*!< Translation relative to parent uniform volume coordinate frame */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_EtaMN", ATTACH_TRANS_EtaMN, "/*!< Translation relative to wing parent uniform eta volume coordinate frame */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_NUM_TYPES", ATTACH_TRANS_NUM_TYPES, "/*!< Number of translation attachment types */" );
     assert( r >= 0 );
 
@@ -590,6 +592,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_RST", ATTACH_ROT_RST, "/*!< Rotation relative to parent per-section volume coordinate frame */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_LMN", ATTACH_ROT_LMN, "/*!< Rotation relative to parent uniform volume coordinate frame */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_EtaMN", ATTACH_ROT_EtaMN, "/*!< Rotation relative to wing parent eta volume coordinate frame */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_NUM_TYPES", ATTACH_ROT_NUM_TYPES, "/*!< Number of rotation attachment types */" );
     assert( r >= 0 );
