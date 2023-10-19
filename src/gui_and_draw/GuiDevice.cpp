@@ -38,7 +38,7 @@ void fltk_unicode_subscripts( string & str )
             int n = str[i+1] - 48;
             if ( n >= 0 && n <= 9 )
             {
-                char buf[16];
+                char buf[5];
                 int indx = 0;
                 indx += fl_utf8encode( 8320 + n, &buf[ indx ] );
                 buf[ indx ] = 0;
@@ -52,7 +52,7 @@ void fltk_unicode_subscripts( string & str )
 
 void fltk_unicode_plusminus( string & str )
 {
-    char buf[16];
+    char buf[5];
     int indx = 0;
     indx += fl_utf8encode( 177, &buf[ indx ] );
     buf[ indx ] = 0;

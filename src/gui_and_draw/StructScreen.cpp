@@ -352,17 +352,17 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 740, "FEA St
     int smallw = ( m_IsoSubGroup.GetW() - gapw ) / 8.0;
     int fieldw = ( m_IsoSubGroup.GetW() - gapw - labelw - 2 * choicew ) / 2.0;
 
-    char rho[16];
+    char rho[5];
     int indx = 0;
     indx += fl_utf8encode( 961, &rho[ indx ] ); // Greek character rho
     rho[ indx ] = 0;
 
-    char alpha[16];
+    char alpha[5];
     indx = 0;
     indx += fl_utf8encode( 961-16, &alpha[ indx ] ); // Greek character alpha
     alpha[ indx ] = 0;
 
-    char nu[16];
+    char nu[5];
     indx = 0;
     indx += fl_utf8encode( 961-16+12, &nu[ indx ] ); // Greek character nu
     nu[ indx ] = 0;
