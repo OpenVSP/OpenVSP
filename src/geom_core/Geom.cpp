@@ -7,6 +7,7 @@
 
 #include "Geom.h"
 #include "Vehicle.h"
+#include "WingGeom.h"
 #include "StlHelper.h"
 #include "DXFUtil.h"
 #include "SVGUtil.h"
@@ -518,6 +519,9 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_NLoc.Init( "N_Attach_Location", "Attach", this, 0.5, 0.0, 1.0 );
     m_NLoc.SetDescript( "N Location in parent's volume" );
 
+    m_EtaLoc.Init( "Eta_Attach_Location", "Attach", this, 0.0, 0.0, 1.0 );
+    m_EtaLoc.SetDescript( "Eta Location in parent's volume" );
+
     m_Scale.Init( "Scale", "XForm", this, 1, 1.0e-12, 1.0e12 );
     m_Scale.SetDescript( "Scale Geometry Size" );
 
@@ -583,6 +587,8 @@ void GeomXForm::UpdateAttachParms()
             return;
         }
 
+        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+
         double umax = parent->GetMainUMapMax( 0 );
         double lmax = parent->GetMainSurfPtr( 0 )->GetLMax();
 
@@ -621,6 +627,98 @@ void GeomXForm::UpdateAttachParms()
             double val = clamp( m_L0LenLoc(), 0.0, lmax );
             m_L0LenLoc.Set( val );
             m_LLoc.Set( val / lmax );
+        }
+
+        if ( wing_parent )
+        {
+            if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_EtaMN || m_RotAttachFlag() == vsp::ATTACH_ROT_EtaMN ) // Eta is active.
+            {
+                if ( m_TransAttachFlag() != vsp::ATTACH_TRANS_UV && m_RotAttachFlag() != vsp::ATTACH_ROT_UV ) // U is not active.
+                {
+                    double u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+
+                    double r;
+                    r = u;
+
+                    double l;
+                    parent->ConvertRtoL( 0, r, l );
+
+                    double s, t;
+                    parent->ConvertLMNtoRST( 0, l, m_MLoc(), m_NLoc(), r, s, t );
+
+                    double w;
+                    if ( t < 0.5 )
+                    {
+                        w = 0.5 * s;
+                    }
+                    else
+                    {
+                        w = 1.0 - 0.5 * s;
+                    }
+
+                    m_ULoc.Set( u );
+                    m_U0NLoc.Set( m_ULoc() * umax );
+                    m_WLoc.Set( w );
+                }
+
+                if ( m_TransAttachFlag() != vsp::ATTACH_TRANS_RST && m_RotAttachFlag() != vsp::ATTACH_ROT_RST ) // R is not active
+                {
+                    double u, w;
+                    u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+                    w = m_WLoc();
+                    double r, s, t;
+                    r = u;
+
+                    double l;
+                    parent->ConvertRtoL( 0, r, l );
+
+                    parent->ConvertLMNtoRST( 0, m_LLoc(), m_MLoc(), m_NLoc(), r, s, t );
+                    m_RLoc.Set( r );
+                    m_R0NLoc.Set( m_RLoc() * umax );
+                    m_SLoc.Set( s );
+                    m_TLoc.Set( t );
+                }
+
+                if ( m_TransAttachFlag() != vsp::ATTACH_TRANS_LMN && m_RotAttachFlag() != vsp::ATTACH_ROT_LMN ) // L is not active
+                {
+                    double u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+
+                    double r;
+                    r = u;
+
+                    double l;
+                    parent->ConvertRtoL( 0, r, l );
+
+                    m_LLoc.Set( l );
+                    m_L0LenLoc.Set( m_LLoc() * lmax );
+                }
+
+            }
+            else // Eta is not active
+            {
+                if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_UV || m_RotAttachFlag() == vsp::ATTACH_ROT_UV ) // UV is active
+                {
+                    m_EtaLoc = wing_parent->UtoEta( m_ULoc() * umax );
+                }
+                else if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_RST || m_RotAttachFlag() == vsp::ATTACH_ROT_RST ) // RST is active
+                {
+                    double r = m_RLoc();
+                    double u = r;
+                    m_EtaLoc = wing_parent->UtoEta( u * umax );
+                }
+                else if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_LMN || m_RotAttachFlag() == vsp::ATTACH_ROT_LMN ) // LMN is active
+                {
+                    double l = m_LLoc();
+                    double r;
+                    parent->ConvertLtoR( 0, l, r );
+                    double u = r;
+                    m_EtaLoc = wing_parent->UtoEta( u * umax );
+                }
+                else // Nothing is active, use U value anyway.
+                {
+                    m_EtaLoc = wing_parent->UtoEta( m_ULoc() * umax );
+                }
+            }
         }
 
         // If UV is active in either way and RST is not active in any way, compute RST from UV.
@@ -842,6 +940,8 @@ void GeomXForm::ComposeAttachMatrix()
         bool revertCompTrans = false;
         bool revertCompRot = false;
 
+        WingGeom* wing_parent = dynamic_cast < WingGeom * > ( parent );
+
         // Parent CompXXXCoordSys methods query the positioned m_SurfVec[0] surface,
         // not m_MainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
         // these calculations and does not need to be applied again.
@@ -864,6 +964,25 @@ void GeomXForm::ComposeAttachMatrix()
         if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_LMN )
         {
             if ( !( parent->CompTransCoordSysLMN( 0, m_LLoc(), m_MLoc(), m_NLoc(), transMat )) )
+            {
+                revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_EtaMN )
+        {
+            double l = m_EtaLoc();
+
+            if ( wing_parent )
+            {
+                double umax = parent->GetMainUMapMax( 0 );
+                double u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+
+                double r = u;
+                parent->ConvertRtoL( 0, r, l );
+            }
+
+            if ( !( parent->CompTransCoordSysLMN( 0, l, m_MLoc(), m_NLoc(), transMat )) )
             {
                 revertCompTrans = true; // Any Geom without a surface reverts to the component matrix.
             }
@@ -893,6 +1012,25 @@ void GeomXForm::ComposeAttachMatrix()
         if ( m_RotAttachFlag() == vsp::ATTACH_ROT_LMN )
         {
             if ( !( parent->CompRotCoordSysLMN( 0, m_LLoc(), m_MLoc(), m_NLoc(), rotMat )) )
+            {
+                revertCompRot = true; // Any Geom without a surface reverts to the component matrix.
+            }
+        }
+
+        if ( m_RotAttachFlag() == vsp::ATTACH_ROT_EtaMN )
+        {
+            double l = m_EtaLoc();
+
+            if ( wing_parent )
+            {
+                double umax = parent->GetMainUMapMax( 0 );
+                double u = wing_parent->EtatoU( m_EtaLoc() ) / umax;
+
+                double r = u;
+                parent->ConvertRtoL( 0, r, l );
+            }
+
+            if ( !( parent->CompRotCoordSysLMN( 0, l, m_MLoc(), m_NLoc(), rotMat )) )
             {
                 revertCompRot = true; // Any Geom without a surface reverts to the component matrix.
             }

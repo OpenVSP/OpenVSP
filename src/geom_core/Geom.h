@@ -345,6 +345,8 @@ public:
     Parm m_MLoc;
     Parm m_NLoc;
 
+    Parm m_EtaLoc;                      // Eta attachment parameter
+
     Parm m_Scale;                       // Scaling Parameter
     Parm m_LastScale;
 
