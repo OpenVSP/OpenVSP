@@ -457,18 +457,26 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_XFormLayout.SetSameLineFlag( false );
     m_XFormLayout.AddDividerBox( "Attach To Parent" );
 
-    m_XFormLayout.AddSubGroupLayout( m_AttachLayout, m_XFormLayout.GetW(), 10 * m_AttachLayout.GetStdHeight() + 5 * m_AttachLayout.GetGapHeight() );
+    m_XFormLayout.AddSubGroupLayout( m_AttachLayout, m_XFormLayout.GetW(), 11 * m_AttachLayout.GetStdHeight() + 5 * m_AttachLayout.GetGapHeight() );
 
     m_AttachLayout.SetFitWidthFlag( false );
     m_AttachLayout.SetSameLineFlag( true );
 
+    char etaMN[7];
+    int indx = 0;
+    indx += fl_utf8encode( 951, &etaMN[ indx ] ); // Greek character eta
+    etaMN[ indx ] = 'M';
+    etaMN[ indx + 1 ] = 'N';
+    etaMN[ indx + 2 ] = 0;
+
     m_AttachLayout.AddLabel( "Translate:", 74 );
-    m_AttachLayout.SetButtonWidth( ( m_AttachLayout.GetRemainX() ) / 5 );
+    m_AttachLayout.SetButtonWidth( ( m_AttachLayout.GetRemainX() ) / 6 );
     m_AttachLayout.AddButton( m_TransNoneButton, "None" );
     m_AttachLayout.AddButton( m_TransCompButton, "Comp" );
     m_AttachLayout.AddButton( m_TransUVButton, "UW" );
     m_AttachLayout.AddButton( m_TransRSTButton, "RST" );
     m_AttachLayout.AddButton( m_TransLMNButton, "LMN" );
+    m_AttachLayout.AddButton( m_TransEtaMNButton, etaMN );
     m_AttachLayout.ForceNewLine();
     m_AttachLayout.AddYGap();
 
@@ -478,6 +486,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_TransToggleGroup.AddButton( m_TransUVButton.GetFlButton() );
     m_TransToggleGroup.AddButton( m_TransRSTButton.GetFlButton() );
     m_TransToggleGroup.AddButton( m_TransLMNButton.GetFlButton() );
+    m_TransToggleGroup.AddButton( m_TransEtaMNButton.GetFlButton() );
 
     m_AttachLayout.AddLabel( "Rotate:", 74 );
     m_AttachLayout.AddButton( m_RotNoneButton, "None" );
@@ -485,6 +494,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_AttachLayout.AddButton( m_RotUVButton, "UW" );
     m_AttachLayout.AddButton( m_RotRSTButton, "RST" );
     m_AttachLayout.AddButton( m_RotLMNButton, "LMN" );
+    m_AttachLayout.AddButton( m_RotEtaMNButton, etaMN );
     m_AttachLayout.ForceNewLine();
     m_AttachLayout.AddYGap();
 
@@ -494,6 +504,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_RotToggleGroup.AddButton( m_RotUVButton.GetFlButton() );
     m_RotToggleGroup.AddButton( m_RotRSTButton.GetFlButton() );
     m_RotToggleGroup.AddButton( m_RotLMNButton.GetFlButton() );
+    m_RotToggleGroup.AddButton( m_RotEtaMNButton.GetFlButton() );
 
     m_AttachLayout.SetFitWidthFlag( true );
     m_AttachLayout.SetSameLineFlag( false );
@@ -573,6 +584,13 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_AttachLayout.SetSameLineFlag( false );
 
     m_AttachLayout.SetButtonWidth( normalButtonWidth );
+
+    char eta[5];
+    indx = 0;
+    indx += fl_utf8encode( 951, &eta[ indx ] ); // Greek character eta
+    eta[ indx ] = 0;
+
+    m_AttachLayout.AddSlider( m_AttachEtaSlider, eta, 1, " %7.6f" );
 
     m_AttachLayout.AddSlider( m_AttachMSlider, "M", 1, " %7.6f" );
     m_AttachLayout.AddSlider( m_AttachNSlider, "N", 1, " %7.6f" );
@@ -861,6 +879,23 @@ bool GeomScreen::Update()
         return false;
     }
 
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    bool wing_parent = false;
+    if ( veh )
+    {
+        Geom* parent = veh->FindGeom( geom_ptr->GetParentID() );
+
+        if ( parent )
+        {
+            WingGeom* wing_ptr = dynamic_cast< WingGeom* >( parent );
+            if ( wing_ptr )
+            {
+                wing_parent = true;
+            }
+        }
+    }
+
     char str[256];
 
     TabScreen::Update();
@@ -971,6 +1006,7 @@ bool GeomScreen::Update()
     m_LScaleToggleGroup.Activate();
     m_AttachMSlider.Activate();
     m_AttachNSlider.Activate();
+    m_AttachEtaSlider.Activate();
 
     m_TransToggleGroup.Update( geom_ptr->m_TransAttachFlag.GetID() );
     m_RotToggleGroup.Update( geom_ptr->m_RotAttachFlag.GetID() );
@@ -1013,6 +1049,7 @@ bool GeomScreen::Update()
     m_AttachMSlider.Update( geom_ptr->m_MLoc.GetID() );
     m_AttachNSlider.Update( geom_ptr->m_NLoc.GetID() );
 
+    m_AttachEtaSlider.Update( geom_ptr->m_EtaLoc.GetID() );
     if ( geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_UV && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_ROT_UV )
     {
         m_AttachUSlider.Deactivate();
@@ -1032,8 +1069,18 @@ bool GeomScreen::Update()
     {
         m_AttachLSlider.Deactivate();
         m_LScaleToggleGroup.Deactivate();
+    }
+
+    if ( geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_LMN && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_ROT_LMN &&
+         geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_EtaMN && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_TRANS_EtaMN )
+    {
         m_AttachMSlider.Deactivate();
         m_AttachNSlider.Deactivate();
+    }
+
+    if ( geom_ptr->m_TransAttachFlag() != vsp::ATTACH_TRANS_EtaMN && geom_ptr->m_RotAttachFlag() != vsp::ATTACH_ROT_EtaMN )
+    {
+        m_AttachEtaSlider.Deactivate();
     }
 
     if ( geom_ptr->m_ShellFlag.Get() )
@@ -1045,7 +1092,18 @@ bool GeomScreen::Update()
         m_ShellMassAreaInput.Deactivate();
     }
 
-    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( wing_parent )
+    {
+        m_TransEtaMNButton.Activate();
+        m_RotEtaMNButton.Activate();
+    }
+    else
+    {
+        m_TransEtaMNButton.Deactivate();
+        m_RotEtaMNButton.Deactivate();
+        m_AttachEtaSlider.Deactivate();
+    }
+
     if ( veh )
     {
         Geom* parent = veh->FindGeom( geom_ptr->GetParentID() );
