@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-BlankScreen::BlankScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Blank" )
+BlankScreen::BlankScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677, "Blank" )
 {
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
 }

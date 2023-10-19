@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Hinge" )
+HingeScreen::HingeScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677, "Hinge" )
 {
     Fl_Group* orient_tab = AddTab( "Orient" );
     Fl_Group* orient_group = AddSubGroup( orient_tab, 5 );

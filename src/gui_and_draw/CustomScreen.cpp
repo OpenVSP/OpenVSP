@@ -11,7 +11,7 @@
 
 
 //==== Constructor ====//
-CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 657, "Custom" )
+CustomScreen::CustomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677, "Custom" )
 {
     m_FLTK_Window->copy_label( "Custom Geom" );
     m_SameLineFlag = false;
