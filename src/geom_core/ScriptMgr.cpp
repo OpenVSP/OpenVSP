@@ -367,12 +367,14 @@ int ScriptMgrSingleton::ExecuteScript( const char* module_name, const char* func
             // An exception occurred, let the script writer know what happened so it can be corrected.
             printf( "An exception '%s' occurred \n", ctx->GetExceptionString() );
         }
+        ctx->Release();
         return 1;
     }
 
     asDWORD ret = ctx->GetReturnDWord();
     int32_t rval = ret;
 
+    ctx->Release();
     return rval;
 }
 
