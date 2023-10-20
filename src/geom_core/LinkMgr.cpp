@@ -49,7 +49,6 @@ void LinkMgrSingleton::Wype()
     m_WorkingLink = NULL;
 
     DelAllLinks();
-    m_LinkVec = deque< Link* >();
 
     m_UpdatedParmVec = vector< string >();
 
@@ -125,7 +124,8 @@ void LinkMgrSingleton::CheckLinks()
 
     check_links_stamp = ParmMgr.GetNumParmChanges();
 
-    deque< int > del_indices;
+    vector< Link* > keep;
+    int num_delete = 0;
     for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
     {
         Parm* pA = ParmMgr.FindParm( m_LinkVec[i]->GetParmA() );
@@ -133,20 +133,20 @@ void LinkMgrSingleton::CheckLinks()
 
         if ( !pA || !pB )
         {
-            del_indices.push_front( i );
+            num_delete++;
+            delete m_LinkVec[i];
+        }
+        else
+        {
+            keep.push_back( m_LinkVec[i] );
         }
     }
+    m_LinkVec = keep;
 
-    if ( del_indices.size() )
+    if ( num_delete > 0 )
     {
         m_CurrLinkIndex = -1;
     }
-
-    for ( int i = 0 ; i < ( int )del_indices.size() ; i++ )
-    {
-        m_LinkVec.erase( m_LinkVec.begin() + del_indices[i] );
-    }
-
 }
 
 
@@ -272,7 +272,7 @@ void LinkMgrSingleton::DelCurrLink()
 
 void LinkMgrSingleton::DelLinks( const set < int > &toDel )
 {
-    deque < Link * > keep;
+    vector < Link * > keep;
     for ( int i = 0; i < (int)m_LinkVec.size() ; i++ )
     {
         if ( toDel.count( i ) == 0 )

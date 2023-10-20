@@ -122,7 +122,7 @@ private:
 
     bool m_FreezeUpdateFlag; // Flag to disable updating links when ParmChanged is called. This prevents geoms not being updated properly on XML import
 
-    deque< Link* > m_LinkVec;
+    vector< Link* > m_LinkVec;
 
     vector< string > m_UpdatedParmVec;      // Keep Track Of Linked Parm To Prevent Circular Links
 
