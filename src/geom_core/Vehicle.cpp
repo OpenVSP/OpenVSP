@@ -504,6 +504,8 @@ void Vehicle::Wype()
     MeasureMgr.Renew();
     StructureMgr.Renew();
 
+    ResultsMgr.DeleteAllResults();
+
     // Need to renew FeaMeshMgr to  FeaMeshMgr.CleanMeshMap() however, it is invisible from here.
 
     LightMgr.Wype();
