@@ -159,12 +159,12 @@ StructAssemblyScreen::StructAssemblyScreen( ScreenMgr* mgr ) : TabScreen( mgr, 4
     m_ConnectionsTabLayout.SetChoiceButtonWidth( m_ConnectionsTabLayout.GetRemainX() / 4 );
     m_ConnectionsTabLayout.SetSliderWidth( m_ConnectionsTabLayout.GetRemainX() / 4 );
 
-    m_ConnectionsTabLayout.AddChoice( m_ConnectionStartChoice, "Start" );
+    m_ConnectionsTabLayout.AddChoice( m_ConnectionStartChoice, "Independent" );
     m_ConnectionsTabLayout.AddChoice( m_ConnectionStartSurfIndxChoice, "Index" );
 
     m_ConnectionsTabLayout.ForceNewLine();
 
-    m_ConnectionsTabLayout.AddChoice( m_ConnectionEndChoice, "End" );
+    m_ConnectionsTabLayout.AddChoice( m_ConnectionEndChoice, "Dependent" );
     m_ConnectionsTabLayout.AddChoice( m_ConnectionEndSurfIndxChoice, "Index" );
 
     m_ConnectionsTabLayout.ForceNewLine();
