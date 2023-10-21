@@ -3013,7 +3013,7 @@ void FeaMeshMgrSingleton::WriteConnectionCalculix( FILE* fp, FeaConnection* conn
                 {
                     fprintf( fp, "*EQUATION\n" );
                     fprintf( fp, "2\n" );                // Two terms in equation.
-                    fprintf( fp, "%d,%d,%f,%d,%d,%f\n", startnod, i, 1.0, endnod, i, -1.0 ); // LHS of equation = 0
+                    fprintf( fp, "%d,%d,%f,%d,%d,%f\n", endnod, i, 1.0, startnod, i, -1.0 ); // LHS of equation = 0
                 }
             }
             fprintf( fp, "\n" );
