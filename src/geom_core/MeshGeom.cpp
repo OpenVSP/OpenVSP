@@ -2345,7 +2345,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     vector< double > loc_vec;
     bool mpslice = false; // Do counting for mass properties slicing.
     bool tesselate = false; // Sub-tessellate slice into smaller triangles.
-    double dxSlice = MakeSlices( numSlices, vsp::X_DIR, loc_vec, mpslice, tesselate, autoBounds, start, end, slctype );
+    MakeSlices( numSlices, vsp::X_DIR, loc_vec, mpslice, tesselate, autoBounds, start, end, slctype );
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size() );
