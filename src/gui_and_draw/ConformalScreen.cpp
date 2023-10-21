@@ -21,6 +21,8 @@ ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 657 +
 
     //==== Design ====//
     m_DesignLayout.AddSlider( m_OffsetSlider, "Offset", 0.1, "%7.3f" );
+    m_DesignLayout.AddButton( m_OffsetEndsToggle, "Offset Ends" );
+
     m_DesignLayout.AddYGap();
 
     m_DesignLayout.AddDividerBox( "U Trim" );
@@ -309,6 +311,8 @@ bool ConformalScreen::Update()
     assert( conformal_ptr );
 
     m_OffsetSlider.Update( conformal_ptr->m_Offset.GetID() );
+
+    m_OffsetEndsToggle.Update( conformal_ptr->m_OffsetEnds.GetID() );
 
     m_UTrimToggle.Update( conformal_ptr->m_UTrimFlag.GetID() );
     m_UTrimMinSlider.Update( conformal_ptr->m_UTrimMin.GetID() );

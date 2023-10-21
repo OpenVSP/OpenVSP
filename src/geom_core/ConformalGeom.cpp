@@ -25,6 +25,9 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Offset.Init( "Offset", "Design", this, 0.1, -1e12, 1.0e12 );
     m_Offset.SetDescript( "Internal Offset Distance to Conformal Surface" );
 
+    m_OffsetEnds.Init( "OffSetEnds", "Design", this, true, false, true );
+    m_OffsetEnds.SetDescript( "Flag to offset the ends of a conformal component.");
+
     m_UTrimFlag.Init( "UTrimFlag", "Design", this, false, 0, 1 );
     m_UTrimFlag.SetDescript( "Trim in U Direction Flag" );
     m_UTrimMin.Init( "UTrimMin", "Design", this, 0.1, 0.0, 0.9999 );
@@ -214,7 +217,10 @@ void ConformalGeom::UpdateSurf()
                 CenterRibCurves(m_MainSurfVec[i], parent_surf_vec[i], offset);
 
                 //==== Offset Ribs ====//
-                OffsetEndRibs(m_MainSurfVec[i], offset);
+                if ( m_OffsetEnds() )
+                {
+                    OffsetEndRibs(m_MainSurfVec[i], offset);
+                }
 
                 //==== Adjust Shape By Scaling Fp and Moving End Ribs ====//
                 if (!m_WingParentFlag)
