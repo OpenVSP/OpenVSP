@@ -3196,7 +3196,7 @@ void FeaMeshMgrSingleton::WriteConnectionNASTRAN( FILE* bdf_fp, FeaConnection* c
             string bcstr = dof.AsNASTRAN();
 
             fprintf( bdf_fp, "$ Connection %s\n", conn->MakeName().c_str() );
-            fprintf( bdf_fp, "RBAR1   ,%8d,%8d,%8d,%s\n", connid, startnod, endnod, bcstr.c_str() );
+            fprintf( bdf_fp, "RBE2    ,%8d,%8d,%s,%8d\n", connid, startnod, bcstr.c_str(), endnod);
             fprintf( bdf_fp, "\n" );
             connid++;
         }
