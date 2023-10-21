@@ -47,6 +47,36 @@ bool run_tests()
     return ts.run(output, cont_after_fail) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+void planarSliceTest()
+{
+    string filename = "Stack.vsp3";
+
+    int nmax = 1000;
+    for ( int i = 0; i < nmax; i++ )
+    {
+        //Block
+        vsp::ReadVSPFile( filename );
+        vsp::SetIntAnalysisInput( "PlanarSlice", "AutoBoundFlag", { 1 } );
+        vector < vec3d > norm = vsp::GetVec3dAnalysisInput( "PlanarSlice", "Norm" );
+        norm[ 0 ].set_xyz( 1.0, 0.0, 0.0 );
+        vsp::SetVec3dAnalysisInput( "PlanarSlice", "Norm", norm );
+        vsp::SetIntAnalysisInput( "PlanarSlice", "NumSlices", { 30 } );
+        vsp::SetIntAnalysisInput( "PlanarSlice", "Set", { 6 } );
+
+        string result_id = vsp::ExecAnalysis( "PlanarSlice" );
+
+        // Delete the resulting mesh
+        vector < string > mesh_id = vsp::GetStringResults( result_id, "Mesh_GeomID" );
+        vsp::DeleteGeomVec( mesh_id );
+
+        // Get Data
+        vector < double > locs = vsp::GetDoubleResults( result_id, "Slice_Loc" );
+        vector < double > areas = vsp::GetDoubleResults( result_id, "Slice_Area" );
+
+        vsp::VSPRenew();
+    }
+}
+
 //========================================================//
 //========================================================//
 //========================= Main =========================//
