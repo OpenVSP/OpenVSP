@@ -3713,7 +3713,14 @@ double MeshGeom::MakeSlices( int numSlices, int swdir, vector < double > &slicev
     }
     else
     {
-        sliceW = ( swMax - swMin ) / ( double )( numSlices - 1 );
+        if ( numSlices > 1 )
+        {
+            sliceW = ( swMax - swMin ) / ( double )( numSlices - 1 );
+        }
+        else
+        {
+            sliceW = 0.0;
+        }
     }
     slicevec.resize( numSlices );
 
