@@ -121,7 +121,7 @@ IF( SWIG_FOUND )
 
 ENDIF( SWIG_FOUND )
 
-# INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
+INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
 
 SET( CPACK_PACKAGE_NAME OpenVSP )
 SET( CPACK_PACKAGE_VERSION_MAJOR ${VSPVER_MAJOR} )
