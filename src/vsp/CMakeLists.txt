@@ -46,7 +46,7 @@ IF( NOT VSP_NO_GRAPHICS )
     common.cpp
     main.cpp
     common.h
-    main.h
+    main.h.in
     )
 
     set_target_properties( vsp PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
