@@ -54,26 +54,25 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     SET_SOURCE_FILES_PROPERTIES(${I_FILES} PROPERTIES CPLUSPLUS ON)
 
-    IF (${CMAKE_VERSION} VERSION_LESS "3.8.0")
-        SWIG_ADD_MODULE( vsp python ${I_FILES} )
-    ELSE()
-        SWIG_ADD_LIBRARY( vsp
+    SWIG_ADD_LIBRARY( pyvsp
         LANGUAGE python
-        SOURCES ${I_FILES} )
-    ENDIF()
+        SOURCES ${I_FILES}
+    )
+
+    SET_TARGET_PROPERTIES( pyvsp PROPERTIES OUTPUT_NAME "vsp" )
 
     IF( APPLE )
         SET( PY_LIB "" )
-        SET_TARGET_PROPERTIES(_vsp PROPERTIES LINK_FLAGS "-undefined dynamic_lookup" )
+        SET_TARGET_PROPERTIES( pyvsp PROPERTIES LINK_FLAGS "-undefined dynamic_lookup" )
     ELSE()
         SET( PY_LIB ${PYTHON_LIBRARIES} )
     ENDIF()
 
     if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        TARGET_COMPILE_OPTIONS( _vsp PUBLIC -Wno-deprecated-declarations)
+        TARGET_COMPILE_OPTIONS( pyvsp PUBLIC -Wno-deprecated-declarations)
     endif()
 
-    SWIG_LINK_LIBRARIES( vsp
+    SWIG_LINK_LIBRARIES( pyvsp
         geom_api
         geom_core
         cfd_mesh
@@ -105,7 +104,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             PATTERN meta.yaml.in EXCLUDE
             PATTERN environment.yml.in EXCLUDE)
 
-    INSTALL( TARGETS _vsp LIBRARY DESTINATION python/openvsp/openvsp )
+    INSTALL( TARGETS pyvsp LIBRARY DESTINATION python/openvsp/openvsp )
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp.py DESTINATION python/openvsp/openvsp )
     INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/test.py DESTINATION python/openvsp/openvsp/tests )
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py DESTINATION python/openvsp)
@@ -122,20 +121,20 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/packages/
             ${CMAKE_BINARY_DIR}/python_pseudo/ )
-    add_dependencies( _vsp copy_package ) # Make _vsp depend on copy_package.  Not sure this is required.
+    add_dependencies( pyvsp copy_package ) # Make _vsp depend on copy_package.  Not sure this is required.
 
     # Copy _vsp library post build.
-    add_custom_command( TARGET _vsp POST_BUILD
+    add_custom_command( TARGET pyvsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E remove
             ${CMAKE_BINARY_DIR}/python_pseudo/environment.yml.in )
 
-    add_custom_command( TARGET _vsp POST_BUILD
+    add_custom_command( TARGET pyvsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
-            $<TARGET_FILE:_vsp>
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:_vsp> )
+            $<TARGET_FILE:pyvsp>
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:pyvsp> )
 
     # Copy vsp.py wrapper post SWIG generation.
-    add_custom_command( TARGET _vsp POST_BUILD
+    add_custom_command( TARGET pyvsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_BINARY_DIR}/vsp.py
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py )
@@ -145,7 +144,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     CONFIGURE_FILE( packages/openvsp/setup.py.in ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/setup.py )
     CONFIGURE_FILE( packages/openvsp/conda-recipe/meta.yaml.in ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/conda-recipe/meta.yaml )
 
-    add_custom_command( TARGET _vsp POST_BUILD
+    add_custom_command( TARGET pyvsp POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_BINARY_DIR}/python/packages/environment.yml
             ${CMAKE_BINARY_DIR}/python_pseudo/environment.yml )

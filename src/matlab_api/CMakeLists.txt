@@ -62,14 +62,11 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
     
     SET_SOURCE_FILES_PROPERTIES(${I_FILES} PROPERTIES CPLUSPLUS ON)
 
-    IF (${CMAKE_VERSION} VERSION_LESS "3.8.0")
-        SWIG_ADD_MODULE( vspMEX matlab ${I_FILES} )
-    ELSE()
-        SWIG_ADD_LIBRARY( vspMEX
+    SWIG_ADD_LIBRARY( vspMEX
         LANGUAGE matlab
-        SOURCES ${I_FILES} )
-    ENDIF()
-        
+        SOURCES ${I_FILES}
+    )
+
     list(APPEND VSPMEX_LIBS 
         ${Matlab_LIBRARIES}
         geom_api
