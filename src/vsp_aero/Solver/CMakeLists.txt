@@ -52,6 +52,7 @@ else()
         DEPENDS ${SOLVER_SOURCES}
         DEPENDEES download
         DEPENDERS patch
+        INDEPENDENT TRUE
     )
 
     INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION . )
