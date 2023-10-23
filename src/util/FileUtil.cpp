@@ -27,6 +27,8 @@
 #include <APIDefines.h>
 #include <ProcessUtil.h>
 
+#include <algorithm>
+
 vector< string > ScanFolder( const char* dir_path )
 {
     vector< string > file_vec;
