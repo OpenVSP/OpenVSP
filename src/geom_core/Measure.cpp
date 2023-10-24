@@ -4,6 +4,8 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#include "Defines.h"
+
 #include "Measure.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
