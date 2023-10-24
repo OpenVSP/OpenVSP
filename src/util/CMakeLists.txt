@@ -68,6 +68,7 @@ StlHelper.h
 StreamUtil.h
 StringUtil.h
 SuperEllipse.h
+tinydir.h
 UnitConversion.h
 UtilTestSuite.h
 UsingCpp11.h
