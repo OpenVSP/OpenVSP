@@ -5,6 +5,7 @@
 
 #include "StringUtil.h"
 #include "APIDefines.h"
+#include <cctype>
 
 void StringUtil::change_from_to( char *str, const char &from, const char &to )
 {
