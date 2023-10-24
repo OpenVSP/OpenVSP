@@ -5,8 +5,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "ProjectionScreen.h"
 #include "ProjectionMgr.h"
+#include "ProjectionScreen.h"
 
 ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 397, "Projected Area Analysis" )
 {
