@@ -6,12 +6,9 @@
 #if !defined(PROCESS_UTIL__INCLUDED_)
 #define PROCESS_UTIL__INCLUDED_
 
-#include <string>
-#include <vector>
-using std::string;
-using std::vector;
-
 #ifdef WIN32
+#undef _HAS_STD_BYTE
+#define _HAS_STD_BYTE 0
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -19,14 +16,19 @@ using std::vector;
 #include <pthread.h>
 #endif
 
-#define PIPE_READ 0
-#define PIPE_WRITE 1
-
 #ifdef WIN32
 #define BUF_READ_TYPE DWORD
 #else
 #define BUF_READ_TYPE int
 #endif
+
+#include <string>
+#include <vector>
+using std::string;
+using std::vector;
+
+#define PIPE_READ 0
+#define PIPE_WRITE 1
 
 class ProcessUtil;
 

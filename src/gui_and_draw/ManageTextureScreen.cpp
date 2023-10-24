@@ -1,3 +1,12 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+#ifdef WIN32
+#undef _HAS_STD_BYTE
+#define _HAS_STD_BYTE 0
+#endif
 
 #include "ManageTextureScreen.h"
 #include "GraphicEngine.h"

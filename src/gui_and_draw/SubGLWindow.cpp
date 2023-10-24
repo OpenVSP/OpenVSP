@@ -1,3 +1,8 @@
+#ifdef WIN32
+#undef _HAS_STD_BYTE
+#define _HAS_STD_BYTE 0
+#endif
+
 #include "SubGLWindow.h"
 #include "VehicleMgr.h"
 #include "Vehicle.h"

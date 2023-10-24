@@ -7,6 +7,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#ifdef WIN32
+#undef _HAS_STD_BYTE
+#define _HAS_STD_BYTE 0
+#endif
+
 #include "VSPAEROScreen.h"
 #include "VSPAEROPlotScreen.h"
 #include "FileUtil.h"

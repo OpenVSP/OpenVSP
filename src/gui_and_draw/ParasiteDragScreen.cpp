@@ -7,6 +7,12 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#ifdef WIN32
+#undef _HAS_STD_BYTE
+#define _HAS_STD_BYTE 0
+#include <windows.h>
+#endif
+
 #include "ParasiteDragScreen.h"
 #include "ParasiteDragMgr.h"
 #include "StlHelper.h"

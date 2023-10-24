@@ -7,14 +7,15 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "Vehicle.h"
-#include "VspUtil.h"
-#include "StlHelper.h"
-
 #ifdef WIN32
+#undef _HAS_STD_BYTE
+#define _HAS_STD_BYTE 0
 #include <windows.h>
 #endif
 
+#include "Vehicle.h"
+#include "VspUtil.h"
+#include "StlHelper.h"
 
 //==== Default Results Data ====//
 NameValData::NameValData()

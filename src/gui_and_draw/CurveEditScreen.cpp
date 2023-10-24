@@ -6,6 +6,11 @@
 // Justin Gravett, ESAero, 7/10/19
 //////////////////////////////////////////////////////////////////////
 
+#ifdef WIN32
+#undef _HAS_STD_BYTE
+#define _HAS_STD_BYTE 0
+#endif
+
 #include "CurveEditScreen.h"
 #include "BORGeom.h"
 #include "WingGeom.h"

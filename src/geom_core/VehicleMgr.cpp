@@ -7,11 +7,13 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "Vehicle.h"
-
 #ifdef WIN32
+#undef _HAS_STD_BYTE
+#define _HAS_STD_BYTE 0
 #include <windows.h>
 #endif
+
+#include "Vehicle.h"
 
 bool VehicleMgrSingleton::m_firsttime = true;
 
