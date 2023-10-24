@@ -11,9 +11,6 @@
 #if !defined(GRIDDENSITY_GRIDDENSITY__INCLUDED_)
 #define GRIDDENSITY_GRIDDENSITY__INCLUDED_
 
-#ifdef WIN32
-#include <windows.h>
-#endif
 
 #include "Defines.h"
 #include <stdio.h>
