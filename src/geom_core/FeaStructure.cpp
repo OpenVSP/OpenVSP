@@ -3466,28 +3466,89 @@ bool FeaFixPoint::LessThanY( piecewise_surface_type & surface, double val ) cons
 
 vector < vec3d > FeaFixPoint::GetPntVec()
 {
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
     vector < vec3d > pnt_vec;
 
-    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
-
-    if ( parent_part )
+    if ( !veh )
     {
-        vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
-        pnt_vec.resize( parent_surf_vec.size() );
+        return pnt_vec;
+    }
 
-        for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
+    if ( m_FixedPointType() == vsp::FEA_FIX_PT_ON_BODY ||
+        m_FixedPointType() == vsp::FEA_FIX_PT_DELTA_XYZ ||
+        m_FixedPointType() == vsp::FEA_FIX_PT_DELTA_UVN )
+    {
+        FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
+
+        if ( parent_part )
         {
-            double umapmax = parent_surf_vec[i].GetUMapMax();
-            double umax = parent_surf_vec[i].GetUMax();
-            double u = parent_surf_vec[i].InvertUMapping( m_PosU() * umapmax ) / umax;
-            if ( u < 0 )
-            {
-                u = m_PosU();
-            }
+            vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
+            pnt_vec.resize( parent_surf_vec.size() );
 
-            pnt_vec[i] = parent_surf_vec[i].CompPnt01( u, m_PosW() );
+            for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
+            {
+                double umapmax = parent_surf_vec[i].GetUMapMax();
+                double umax = parent_surf_vec[i].GetUMax();
+                double u = parent_surf_vec[i].InvertUMapping( m_PosU() * umapmax ) / umax;
+                if ( u < 0 )
+                {
+                    u = m_PosU();
+                }
+
+                vec3d base_pt = parent_surf_vec[i].CompPnt01( u, m_PosW() );
+
+                if ( m_FixedPointType() == vsp::FEA_FIX_PT_ON_BODY )
+                {
+                    pnt_vec[i] = base_pt;
+                }
+                else if ( m_FixedPointType() == vsp::FEA_FIX_PT_DELTA_XYZ )
+                {
+                    pnt_vec[i] = base_pt + vec3d( m_DeltaX(), m_DeltaY(), m_DeltaZ() );
+                }
+                else if ( m_FixedPointType() == vsp::FEA_FIX_PT_DELTA_UVN )
+                {
+                    vec3d nvec = parent_surf_vec[i].CompNorm01( u, m_PosW() );
+                    nvec.normalize();
+                    vec3d uvec = parent_surf_vec[i].CompTanU01( u, m_PosW() );
+                    uvec.normalize();
+                    vec3d vvec = parent_surf_vec[i].CompTanW01( u, m_PosW() );
+                    vvec.normalize();
+
+                    pnt_vec[i] = base_pt + m_DeltaU() * uvec + m_DeltaV() * vvec + m_DeltaN() * nvec;
+                }
+            }
         }
     }
+    else if ( m_FixedPointType() == vsp::FEA_FIX_PT_GLOBAL_XYZ )
+    {
+        pnt_vec.push_back( vec3d( m_AbsX(), m_AbsY(), m_AbsZ() ) );
+    }
+    else if ( m_FixedPointType() == vsp::FEA_FIX_PT_GEOM_ORIGIN ||
+              m_FixedPointType() == vsp::FEA_FIX_PT_GEOM_CG )
+    {
+        Geom *other_geom = veh->FindGeom( m_OtherGeomID );
+
+        if ( other_geom )
+        {
+            vector <Matrix4d> tmv = other_geom->GetTransMatVec();
+
+            pnt_vec.resize( tmv.size() );
+
+            vec3d base_pt( m_DeltaX(), m_DeltaY(), m_DeltaZ() );
+
+            if ( m_FixedPointType() == vsp::FEA_FIX_PT_GEOM_CG )
+            {
+                base_pt = base_pt + vec3d( other_geom->m_CGx(), other_geom->m_CGy(), other_geom->m_CGz());
+            }
+
+            for ( int i = 0; i < tmv.size(); i++ )
+            {
+                pnt_vec[i] = tmv[ i ].xform( base_pt );
+            }
+        }
+    }
+
     return pnt_vec;
 }
 
