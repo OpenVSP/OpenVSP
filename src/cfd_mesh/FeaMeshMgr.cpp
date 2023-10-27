@@ -1684,72 +1684,115 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
 
         if ( fxpt.m_OnBody )
         {
-        for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
-        {
-            bool split = false;
-            list< ISegChain* >::iterator c;
-            for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
+            for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
             {
-                Puw* p0 = NULL;
-                Puw* p1 = NULL;
-                bool success = false;
-                double tol = 1e-3;
-
-                if ( !( *c )->m_BorderFlag && fxpt.m_SurfInd[j].size() == 1 )
+                bool split = false;
+                list< ISegChain* >::iterator c;
+                for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
                 {
-                    if ( fxpt.m_SurfInd[j][0] >= 0 )
+                    Puw* p0 = NULL;
+                    Puw* p1 = NULL;
+                    bool success = false;
+                    double tol = 1e-3;
+
+                    if ( !( *c )->m_BorderFlag && fxpt.m_SurfInd[j].size() == 1 )
                     {
-                        if ( ( *c )->m_SurfA != ( *c )->m_SurfB ) // Check for intersection between two FeaPart surfaces
+                        if ( fxpt.m_SurfInd[j][0] >= 0 )
                         {
-                            if ( ( *c )->m_SurfA == m_SurfVec[fxpt.m_SurfInd[j][0]] )
+                            if ( ( *c )->m_SurfA != ( *c )->m_SurfB ) // Check for intersection between two FeaPart surfaces
                             {
-                                vec2d closest_uw = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j] );
-                                vec3d closest_pnt = ( *c )->m_SurfB->CompPnt( closest_uw[0], closest_uw[1] );
-
-                                if ( ( *c )->m_SurfA->GetCompID() < 0 ) // Looser tolerance for FeaParts
+                                if ( ( *c )->m_SurfA == m_SurfVec[fxpt.m_SurfInd[j][0]] )
                                 {
-                                    tol = 1e-2;
+                                    vec2d closest_uw = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j] );
+                                    vec3d closest_pnt = ( *c )->m_SurfB->CompPnt( closest_uw[0], closest_uw[1] );
+
+                                    if ( ( *c )->m_SurfA->GetCompID() < 0 ) // Looser tolerance for FeaParts
+                                    {
+                                        tol = 1e-2;
+                                    }
+
+                                    // Compare FeaFixPoint to closest point on other surface
+                                    if ( dist( closest_pnt, fxpt.m_Pnt[j] ) <= tol )
+                                    {
+                                        vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+                                        vec2d closest_uwB = closest_uw;
+
+                                        if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
+                                        {
+                                            p0 = new Puw( ( *c )->m_SurfA, closest_uwA );
+                                        }
+                                        if ( ( *c )->m_SurfB->ValidUW( closest_uwB ) )
+                                        {
+                                            p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
+                                        }
+
+                                        if ( p0 )
+                                        {
+                                            success = ( *c )->AddBorderSplit( p0 );
+                                        }
+                                        if ( p1 && !success )
+                                        {
+                                            success = ( *c )->AddBorderSplit( p1 );
+                                        }
+                                    }
                                 }
-
-                                // Compare FeaFixPoint to closest point on other surface
-                                if ( dist( closest_pnt, fxpt.m_Pnt[j] ) <= tol )
+                                else if ( ( *c )->m_SurfB == m_SurfVec[fxpt.m_SurfInd[j][0]] )
                                 {
-                                    vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
-                                    vec2d closest_uwB = closest_uw;
+                                    vec2d closest_uw = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j] );
+                                    vec3d closest_pnt = ( *c )->m_SurfA->CompPnt( closest_uw[0], closest_uw[1] );
 
-                                    if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
+                                    if ( ( *c )->m_SurfB->GetCompID() < 0 ) // Looser tolerance for FeaParts
                                     {
-                                        p0 = new Puw( ( *c )->m_SurfA, closest_uwA );
-                                    }
-                                    if ( ( *c )->m_SurfB->ValidUW( closest_uwB ) )
-                                    {
-                                        p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
+                                        tol = 1e-2;
                                     }
 
-                                    if ( p0 )
+                                    // Compare FeaFixPoint to closest point on other surface
+                                    if ( dist( closest_pnt, fxpt.m_Pnt[j] ) <= tol )
                                     {
-                                        success = ( *c )->AddBorderSplit( p0 );
-                                    }
-                                    if ( p1 && !success )
-                                    {
-                                        success = ( *c )->AddBorderSplit( p1 );
+                                        vec2d closest_uwA = closest_uw;
+                                        vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+
+                                        if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
+                                        {
+                                            p0 = new Puw( ( *c )->m_SurfA, closest_uwA );
+                                        }
+                                        if ( ( *c )->m_SurfB->ValidUW( closest_uwB ) )
+                                        {
+                                            p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
+                                        }
+
+                                        if ( p0 )
+                                        {
+                                            success = ( *c )->AddBorderSplit( p0 );
+                                        }
+                                        if ( p1 && !success )
+                                        {
+                                            success = ( *c )->AddBorderSplit( p1 );
+                                        }
                                     }
                                 }
                             }
-                            else if ( ( *c )->m_SurfB == m_SurfVec[fxpt.m_SurfInd[j][0]] )
+                            else if ( ( *c )->m_SurfA == ( *c )->m_SurfB && ( *c )->m_SurfA->GetSurfID() == fxpt.m_SurfInd[j][0] ) // Indicates SubSurface Edge
                             {
-                                vec2d closest_uw = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j] );
-                                vec3d closest_pnt = ( *c )->m_SurfA->CompPnt( closest_uw[0], closest_uw[1] );
+                                double closest_dist = FLT_MAX;
 
-                                if ( ( *c )->m_SurfB->GetCompID() < 0 ) // Looser tolerance for FeaParts
+                                for ( size_t m = 0; m < ( *c )->m_ISegDeque.size(); m++ )
                                 {
-                                    tol = 1e-2;
+                                    vec3d ipnt0 = ( *c )->m_ISegDeque[m]->m_IPnt[0]->m_Pnt;
+                                    vec3d ipnt1 = ( *c )->m_ISegDeque[m]->m_IPnt[1]->m_Pnt;
+
+                                    // Find perpendicular distance from FeaFixPoint to ISeg
+                                    double distance = ( cross(( fxpt.m_Pnt[j] - ipnt0 ), ( fxpt.m_Pnt[j] - ipnt1 ) ).mag() ) / ( ( ipnt1 - ipnt0 ).mag() );
+
+                                    if ( distance <= closest_dist )
+                                    {
+                                        closest_dist = distance;
+                                    }
                                 }
 
-                                // Compare FeaFixPoint to closest point on other surface
-                                if ( dist( closest_pnt, fxpt.m_Pnt[j] ) <= tol )
+                                if ( closest_dist < tol )
                                 {
-                                    vec2d closest_uwA = closest_uw;
+                                    vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
                                     vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
 
                                     if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
@@ -1771,79 +1814,36 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                     }
                                 }
                             }
-                        }
-                        else if ( ( *c )->m_SurfA == ( *c )->m_SurfB && ( *c )->m_SurfA->GetSurfID() == fxpt.m_SurfInd[j][0] ) // Indicates SubSurface Edge
-                        {
-                            double closest_dist = FLT_MAX;
 
-                            for ( size_t m = 0; m < ( *c )->m_ISegDeque.size(); m++ )
+                            if ( success )
                             {
-                                vec3d ipnt0 = ( *c )->m_ISegDeque[m]->m_IPnt[0]->m_Pnt;
-                                vec3d ipnt1 = ( *c )->m_ISegDeque[m]->m_IPnt[1]->m_Pnt;
+                                GetMeshPtr()->m_FixPntVec[n].m_BorderFlag[j] = INTERSECT_FIX_POINT;
 
-                                // Find perpendicular distance from FeaFixPoint to ISeg
-                                double distance = ( cross(( fxpt.m_Pnt[j] - ipnt0 ), ( fxpt.m_Pnt[j] - ipnt1 ) ).mag() ) / ( ( ipnt1 - ipnt0 ).mag() );
-
-                                if ( distance <= closest_dist )
-                                {
-                                    closest_dist = distance;
-                                }
+                                string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex];
+                                string message = "\tIntersection Found for " + fix_point_name + "\n";
+                                addOutputText( message );
+                                split = true;
                             }
-
-                            if ( closest_dist < tol )
+                            else // Free memory
                             {
-                                vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
-                                vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
-
-                                if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
-                                {
-                                    p0 = new Puw( ( *c )->m_SurfA, closest_uwA );
-                                }
-                                if ( ( *c )->m_SurfB->ValidUW( closest_uwB ) )
-                                {
-                                    p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
-                                }
-
                                 if ( p0 )
                                 {
-                                    success = ( *c )->AddBorderSplit( p0 );
+                                    delete p0;
                                 }
-                                if ( p1 && !success )
+                                if ( p1 )
                                 {
-                                    success = ( *c )->AddBorderSplit( p1 );
+                                    delete p1;
                                 }
                             }
                         }
 
-                        if ( success )
+                        if ( split )
                         {
-                            GetMeshPtr()->m_FixPntVec[n].m_BorderFlag[j] = INTERSECT_FIX_POINT;
-
-                            string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex];
-                            string message = "\tIntersection Found for " + fix_point_name + "\n";
-                            addOutputText( message );
-                            split = true;
+                            break;
                         }
-                        else // Free memory
-                        {
-                            if ( p0 )
-                            {
-                                delete p0;
-                            }
-                            if ( p1 )
-                            {
-                                delete p1;
-                            }
-                        }
-                    }
-
-                    if ( split )
-                    {
-                        break;
                     }
                 }
             }
-        }
         }
     }
 }
