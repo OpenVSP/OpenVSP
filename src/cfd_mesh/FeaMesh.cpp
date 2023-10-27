@@ -7,6 +7,7 @@
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
 #include "FileUtil.h"
+#include "StringUtil.h"
 
 FeaMesh::FeaMesh( string & struct_id )
 {
@@ -937,32 +938,24 @@ void FeaMesh::WriteNASTRANNodes( FILE* dat_fp, FILE* bdf_fp, FILE* nkey_fp, int 
         vector < long long int > node_id_vec;
         string name;
 
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        //==== Write Fixed Points ====//
+        for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
         {
             node_id_vec.clear();
 
-            bool FPHeader = false;
+            FixPoint fxpt = m_FixPntVec[i];
 
-            if ( m_FeaPartTypeVec[i] == vsp::FEA_FIX_POINT ) // FixedPoint Nodes
+            fprintf( bdf_fp, "\n" );
+            fprintf( bdf_fp, "$ %s %s Fixed Gridpoints\n", m_FeaPartNameVec[ fxpt.m_FeaPartIndex ].c_str(), m_StructName.c_str() );
+
+            for ( unsigned int j = 0; j < (int)fxpt.m_Pnt.size(); j++ )
             {
-                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+                if ( fxpt.m_NodeIndex[j] >= 0 )
                 {
-                    if ( m_FeaNodeVecUsed[ j ] )
-                    {
-                        if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( i ) )
-                        {
-                            if ( !FPHeader )
-                            {
-                                FPHeader = true;
+                    string fmt = "GRID    ,%8lld,        ," + StringUtil::NasFmt( fxpt.m_Pnt[j][0] ) + "," + StringUtil::NasFmt( fxpt.m_Pnt[j][1] ) + "," + StringUtil::NasFmt( fxpt.m_Pnt[j][2] ) + ",        ,%s\n";
+                    fprintf( bdf_fp, fmt.c_str(), fxpt.m_NodeIndex[j] + noffset, fxpt.m_Pnt[j][0], fxpt.m_Pnt[j][1], fxpt.m_Pnt[j][2], "" );
 
-                                fprintf( bdf_fp, "\n" );
-                                fprintf( bdf_fp, "$ %s %s Fixed Gridpoints\n", m_FeaPartNameVec[i].c_str(), m_StructName.c_str() );
-                            }
-
-                            m_FeaNodeVec[j]->WriteNASTRAN( bdf_fp, noffset );
-                            node_id_vec.push_back( m_FeaNodeVec[j]->m_Index );
-                        }
-                    }
+                    node_id_vec.push_back( fxpt.m_NodeIndex[j] );
                 }
             }
 
