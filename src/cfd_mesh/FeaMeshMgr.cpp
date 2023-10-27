@@ -1558,6 +1558,9 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
     for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[n];
+
+        if ( fxpt.m_OnBody )
+        {
         for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
         {
             if ( fxpt.m_BorderFlag[j] == SURFACE_FIX_POINT && fxpt.m_SurfInd[j].size() == 1 )
@@ -1577,6 +1580,7 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
                     }
                 }
             }
+        }
         }
     }
 }
