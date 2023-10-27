@@ -3554,27 +3554,31 @@ vector < vec3d > FeaFixPoint::GetPntVec()
 
 vec2d FeaFixPoint::GetUW()
 {
-    vec2d uw;
+    vec2d uw( -1.0, -1.0 );
 
-    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
-
-    if ( parent_part )
+    if ( m_FixedPointType() == vsp::FEA_FIX_PT_ON_BODY )
     {
-        vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
+        FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
 
-        if ( parent_surf_vec.size() > 0 ) // Only consider main parent surface (same UW for symmetric copies)
+        if ( parent_part )
         {
-            double umapmax = parent_surf_vec[0].GetUMapMax();
-            double u = parent_surf_vec[0].InvertUMapping( m_PosU() * umapmax );
-            if ( u < 0 )
-            {
-                u = m_PosU();
-            }
+            vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
 
-            uw.set_x( u );
-            uw.set_y( parent_surf_vec[0].GetWMax() * m_PosW() );
+            if ( parent_surf_vec.size() > 0 ) // Only consider main parent surface (same UW for symmetric copies)
+            {
+                double umapmax = parent_surf_vec[0].GetUMapMax();
+                double u = parent_surf_vec[0].InvertUMapping( m_PosU() * umapmax );
+                if ( u < 0 )
+                {
+                    u = m_PosU();
+                }
+
+                uw.set_x( u );
+                uw.set_y( parent_surf_vec[0].GetWMax() * m_PosW() );
+            }
         }
     }
+
     return uw;
 }
 
