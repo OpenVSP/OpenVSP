@@ -221,6 +221,7 @@ string StringUtil::truncateFileName( const string &fn, int len )
 
 string StringUtil::NasFmt( double input )
 {
+    input = input + 0.0;
     double ainput = std::abs( input );
     if ( input > 0 )  // Positive branch
     {
