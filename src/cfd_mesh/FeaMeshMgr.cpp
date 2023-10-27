@@ -915,73 +915,73 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
 
                 if ( fxpt.m_OnBody )
                 {
-                for ( size_t j = 0; j < npt; j++ )
-                {
-                    bool onborder = false;
-                    int iborder = -1;
-
-                    // Identify the surface index and coordinate points for the fixed point
-                    vector < int > surf_index;
-                    for ( size_t k = 0; k < m_SurfVec.size(); k++ )
+                    for ( size_t j = 0; j < npt; j++ )
                     {
-                        if ( m_SurfVec[k]->GetFeaPartIndex() == fea_struct->GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) &&
-                             m_SurfVec[k]->GetFeaPartSurfNum() == j )
-                        {
-                            // Surfaces here are patches.  We're detecting points that fall on two patches because the border
-                            // values of the parameter are valid on both patches.  This is not true when you reach the max/min
-                            // limit of a patch.  I.e. W=0.0 and W=1.0 are the same point, but both do not get added by this
-                            // logic.
-                            if ( m_SurfVec[k]->ValidUW( fxpt.m_UW, 0.0 ) )
-                            {
-                                surf_index.push_back( k );
+                        bool onborder = false;
+                        int iborder = -1;
 
-                                int border = m_SurfVec[k]->UWPointOnBorder( fxpt.m_UW.x(), fxpt.m_UW.y(), 1e-6 );
-                                if ( border != SurfCore::NOBNDY )
-                                {
-                                    onborder = true;
-                                    iborder = border;
-                                }
-                            }
-                        }
-                    }
-
-
-                    // Identify points on border where uw does not match up.
-                    if ( onborder && surf_index.size() == 1 )  // Point is on border, but no second surface identified.
-                    {
-                        for ( size_t k = 0; k < m_SurfVec.size(); k++ )  // Loop over surface patches again.
+                        // Identify the surface index and coordinate points for the fixed point
+                        vector < int > surf_index;
+                        for ( size_t k = 0; k < m_SurfVec.size(); k++ )
                         {
                             if ( m_SurfVec[k]->GetFeaPartIndex() == fea_struct->GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) &&
-                                 m_SurfVec[k]->GetFeaPartSurfNum() == j )  // Apply same condition as before.
+                                 m_SurfVec[k]->GetFeaPartSurfNum() == j )
                             {
-                                if ( surf_index[0] != k ) // Skip already identified patch.
+                                // Surfaces here are patches.  We're detecting points that fall on two patches because the border
+                                // values of the parameter are valid on both patches.  This is not true when you reach the max/min
+                                // limit of a patch.  I.e. W=0.0 and W=1.0 are the same point, but both do not get added by this
+                                // logic.
+                                if ( m_SurfVec[k]->ValidUW( fxpt.m_UW, 0.0 ) )
                                 {
-                                    if ( m_SurfVec[surf_index[0]]->BorderMatch( iborder, m_SurfVec[k] ) )
+                                    surf_index.push_back( k );
+
+                                    int border = m_SurfVec[k]->UWPointOnBorder( fxpt.m_UW.x(), fxpt.m_UW.y(), 1e-6 );
+                                    if ( border != SurfCore::NOBNDY )
                                     {
-                                        surf_index.push_back( k );
+                                        onborder = true;
+                                        iborder = border;
                                     }
                                 }
                             }
                         }
-                    }
 
-                    if ( surf_index.empty() )
-                    {
-                        surf_index.push_back( -1 );
-                    }
 
-                    fxpt.m_SurfInd.push_back( surf_index );
+                        // Identify points on border where uw does not match up.
+                        if ( onborder && surf_index.size() == 1 )  // Point is on border, but no second surface identified.
+                        {
+                            for ( size_t k = 0; k < m_SurfVec.size(); k++ )  // Loop over surface patches again.
+                            {
+                                if ( m_SurfVec[k]->GetFeaPartIndex() == fea_struct->GetFeaPartIndex( fixpnt->m_ParentFeaPartID ) &&
+                                     m_SurfVec[k]->GetFeaPartSurfNum() == j )  // Apply same condition as before.
+                                {
+                                    if ( surf_index[0] != k ) // Skip already identified patch.
+                                    {
+                                        if ( m_SurfVec[surf_index[0]]->BorderMatch( iborder, m_SurfVec[k] ) )
+                                        {
+                                            surf_index.push_back( k );
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
-                    if ( surf_index.size() > 1 )
-                    {
-                        fxpt.m_BorderFlag.push_back( BORDER_FIX_POINT );
-                    }
-                    else
-                    {
-                        fxpt.m_BorderFlag.push_back( SURFACE_FIX_POINT ); // Possibly re-set in CheckFixPointIntersects()
-                    }
+                        if ( surf_index.empty() )
+                        {
+                            surf_index.push_back( -1 );
+                        }
 
-                }
+                        fxpt.m_SurfInd.push_back( surf_index );
+
+                        if ( surf_index.size() > 1 )
+                        {
+                            fxpt.m_BorderFlag.push_back( BORDER_FIX_POINT );
+                        }
+                        else
+                        {
+                            fxpt.m_BorderFlag.push_back( SURFACE_FIX_POINT ); // Possibly re-set in CheckFixPointIntersects()
+                        }
+
+                    }
                 }
 
                 GetMeshPtr()->m_FixPntVec.push_back( fxpt );
