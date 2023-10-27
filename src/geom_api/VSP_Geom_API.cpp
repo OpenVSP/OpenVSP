@@ -8864,6 +8864,12 @@ void AddAdvLinkInput( int index, const string & parm_id, const string & var_name
         return;
     }
 
+    if ( adv_link->DuplicateVarName( var_name ) )
+    {
+        ErrorMgr.AddError( VSP_DUPLICATE_NAME, "AddAdvLinkInput::Duplicate advanced link input name " + var_name );
+        return;
+    }
+
     adv_link->AddVar( parm_id, var_name, true );
 
     ErrorMgr.NoError();
@@ -8877,6 +8883,12 @@ void AddAdvLinkOutput( int index, const string & parm_id, const string & var_nam
     if ( !adv_link )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddAdvLinkOutput::Invalid Advanced Link Index " + to_string( index ) );
+        return;
+    }
+
+    if ( adv_link->DuplicateVarName( var_name ) )
+    {
+        ErrorMgr.AddError( VSP_DUPLICATE_NAME, "AddAdvLinkInput::Duplicate advanced link output name " + var_name );
         return;
     }
 

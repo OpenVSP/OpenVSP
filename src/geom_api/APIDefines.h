@@ -297,6 +297,7 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_ADV_LINK_BUILD_FAIL,
                     VSP_DEPRECATED,
                     VSP_LINK_LOOP_DETECTED,
+                    VSP_DUPLICATE_NAME,
                     VSP_NUM_ERROR_CODE
 };
 
