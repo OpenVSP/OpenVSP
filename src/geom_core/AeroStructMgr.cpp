@@ -11,6 +11,8 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#include <filesystem>
+
 #include "AeroStructMgr.h"
 #include "Vehicle.h"
 #include "MeshGeom.h"
@@ -167,15 +169,20 @@ void AeroStructSingleton::FindCCX( const string & path )
     else // Check for ccx in path
     {
 #ifdef WIN32
-        system( "ccx > temp.txt 2> nul" );
+        string tmppath = std::filesystem::temp_directory_path().generic_string();
+        string tmpfile = tmppath + "temp.txt";
+
+        string cmd = "ccx > " + tmpfile + " 2> nul";
+        system( cmd.c_str() );
 
         // Get size of temp file
-        FILE* fp = fopen( "temp.txt", "r" );
+        FILE* fp = fopen( tmpfile.c_str(), "r" );
         fseek(fp, 0L, SEEK_END);
         size_t sz = ftell( fp );
         fclose( fp );
 
-        system( "del temp.txt" );
+        string delcmd = "del " + tmpfile;
+        system( delcmd.c_str() );
 
         if ( sz != 0 )
 #else
@@ -206,15 +213,20 @@ void AeroStructSingleton::FindCGX( const string & path )
     else // Check for ccx in path
     {
 #ifdef WIN32
-        system( "cgx > temp.txt 2> nul" );
+        string tmppath = std::filesystem::temp_directory_path().generic_string();
+        string tmpfile = tmppath + "temp.txt";
+
+        string cmd = "cgx > " + tmpfile + " 2> nul";
+        system( cmd.c_str() );
 
         // Get size of temp file
-        FILE* fp = fopen( "temp.txt", "r" );
+        FILE* fp = fopen( tmpfile.c_str(), "r" );
         fseek(fp, 0L, SEEK_END);
         size_t sz = ftell( fp );
         fclose( fp );
 
-        system( "del temp.txt" );
+        string delcmd = "del " + tmpfile;
+        system( delcmd.c_str() );
 
         if ( sz != 0 )
 #else
