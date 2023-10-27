@@ -65,9 +65,9 @@ long long int FeaNode::GetIndex()
 
 void FeaNode::WriteNASTRAN( FILE* fp, long long int noffset, bool includeBC )
 {
-    double x = m_Pnt.x() + 0.0;
-    double y = m_Pnt.y() + 0.0;
-    double z = m_Pnt.z() + 0.0;
+    double x = m_Pnt.x();
+    double y = m_Pnt.y();
+    double z = m_Pnt.z();
 
     string bcstr;
     if ( includeBC )
