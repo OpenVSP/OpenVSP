@@ -152,6 +152,7 @@ public:
 
     vector< FeaElement* > m_FeaElementVec;
 
+    vector < FeaNode* > m_FeaOffBodyFixPointNodeVec;
 
     vector < FeaNode* > m_FeaNodeVec;
     vector < bool > m_FeaNodeVecUsed;

@@ -42,6 +42,13 @@ void FeaMesh::Cleanup()
         delete m_FeaElementVec[i];
     }
     m_FeaElementVec.clear();
+
+    for ( unsigned int i = 0; i < m_FeaOffBodyFixPointNodeVec.size(); i++ )
+    {
+        delete m_FeaOffBodyFixPointNodeVec[i];
+    }
+    m_FeaOffBodyFixPointNodeVec.clear();
+
     m_FeaNodeVec.clear();
 
     m_SimpleSubSurfaceVec.clear();
