@@ -1589,6 +1589,9 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
     for ( size_t n = 0; n < GetMeshPtr()->m_NumFeaFixPoints; n++ )
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[n];
+
+        if ( fxpt.m_OnBody )
+        {
         // Identify and set FeaFixPoints on border curves
         for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
         {
@@ -1671,6 +1674,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                     }
                 }
             }
+        }
         }
     }
 }
