@@ -907,14 +907,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                     fxpt.m_OnBody = true;
                     vec2d uw = fixpnt->GetUW();
                     fxpt.m_UW = uw;
-                }
-                else
-                {
-                    fxpt.m_OnBody = false;
-                }
 
-                if ( fxpt.m_OnBody )
-                {
                     for ( size_t j = 0; j < npt; j++ )
                     {
                         bool onborder = false;
@@ -982,6 +975,10 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                         }
 
                     }
+                }
+                else
+                {
+                    fxpt.m_OnBody = false;
                 }
 
                 GetMeshPtr()->m_FixPntVec.push_back( fxpt );
