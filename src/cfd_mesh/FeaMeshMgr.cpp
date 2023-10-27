@@ -1592,89 +1592,89 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 
         if ( fxpt.m_OnBody )
         {
-        // Identify and set FeaFixPoints on border curves
-        for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
-        {
-            // Only check for FeaFixPoints on two surfaces. Nodes are automatically set for more than two surface intersections
-            if ( fxpt.m_BorderFlag[j] == BORDER_FIX_POINT && fxpt.m_SurfInd[j].size() == 2 )
+            // Identify and set FeaFixPoints on border curves
+            for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
             {
-                bool split = false;
-                list< ISegChain* >::iterator c;
-                for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
+                // Only check for FeaFixPoints on two surfaces. Nodes are automatically set for more than two surface intersections
+                if ( fxpt.m_BorderFlag[j] == BORDER_FIX_POINT && fxpt.m_SurfInd[j].size() == 2 )
                 {
-                    if (( ( *c )->m_SurfA == m_SurfVec[fxpt.m_SurfInd[j][1]] && ( *c )->m_SurfB == m_SurfVec[fxpt.m_SurfInd[j][0]] ) ||
-                        ( ( *c )->m_SurfA == m_SurfVec[fxpt.m_SurfInd[j][0]] && ( *c )->m_SurfB == m_SurfVec[fxpt.m_SurfInd[j][1]] ) )
+                    bool split = false;
+                    list< ISegChain* >::iterator c;
+                    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
                     {
-                        vec2d closest_uwA, closest_uwB;
+                        if (( ( *c )->m_SurfA == m_SurfVec[fxpt.m_SurfInd[j][1]] && ( *c )->m_SurfB == m_SurfVec[fxpt.m_SurfInd[j][0]] ) ||
+                            ( ( *c )->m_SurfA == m_SurfVec[fxpt.m_SurfInd[j][0]] && ( *c )->m_SurfB == m_SurfVec[fxpt.m_SurfInd[j][1]] ) )
+                        {
+                            vec2d closest_uwA, closest_uwB;
 
-                        if ( ( *c )->m_SurfA->ValidUW( fxpt.m_UW ) )
-                        {
-                            closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
-                        }
-                        else
-                        {
-                            closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j] );
-                        }
+                            if ( ( *c )->m_SurfA->ValidUW( fxpt.m_UW ) )
+                            {
+                                closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+                            }
+                            else
+                            {
+                                closest_uwA = ( *c )->m_SurfA->ClosestUW( fxpt.m_Pnt[j] );
+                            }
 
-                        if ( ( *c )->m_SurfB->ValidUW( fxpt.m_UW ) )
-                        {
-                            closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
-                        }
-                        else
-                        {
-                            closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j] );
-                        }
+                            if ( ( *c )->m_SurfB->ValidUW( fxpt.m_UW ) )
+                            {
+                                closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j], fxpt.m_UW[0], fxpt.m_UW[1] );
+                            }
+                            else
+                            {
+                                closest_uwB = ( *c )->m_SurfB->ClosestUW( fxpt.m_Pnt[j] );
+                            }
 
-                        Puw* p0 = NULL;
-                        Puw* p1 = NULL;
+                            Puw* p0 = NULL;
+                            Puw* p1 = NULL;
 
-                        if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
-                        {
-                            p0 = new Puw( ( *c )->m_SurfA, closest_uwA );
-                        }
-                        if ( ( *c )->m_SurfB->ValidUW( closest_uwB ) )
-                        {
-                            p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
-                        }
+                            if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
+                            {
+                                p0 = new Puw( ( *c )->m_SurfA, closest_uwA );
+                            }
+                            if ( ( *c )->m_SurfB->ValidUW( closest_uwB ) )
+                            {
+                                p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
+                            }
 
-                        bool success = false;
+                            bool success = false;
 
-                        if ( p0 )
-                        {
-                            success = ( *c )->AddBorderSplit( p0 );
-                        }
-                        if ( p1 && !success )
-                        {
-                            success = ( *c )->AddBorderSplit( p1 );
-                        }
-
-                        if ( success )
-                        {
-                            string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex];
-                            string message = "\tBorder Intersect Point Set for " + fix_point_name + "\n";
-                            addOutputText( message );
-                            split = true;
-                        }
-                        else // Free memory
-                        {
                             if ( p0 )
                             {
-                                delete p0;
+                                success = ( *c )->AddBorderSplit( p0 );
                             }
-                            if ( p1 )
+                            if ( p1 && !success )
                             {
-                                delete p1;
+                                success = ( *c )->AddBorderSplit( p1 );
+                            }
+
+                            if ( success )
+                            {
+                                string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[fxpt.m_FeaPartIndex];
+                                string message = "\tBorder Intersect Point Set for " + fix_point_name + "\n";
+                                addOutputText( message );
+                                split = true;
+                            }
+                            else // Free memory
+                            {
+                                if ( p0 )
+                                {
+                                    delete p0;
+                                }
+                                if ( p1 )
+                                {
+                                    delete p1;
+                                }
                             }
                         }
-                    }
 
-                    if ( split )
-                    {
-                        break;
+                        if ( split )
+                        {
+                            break;
+                        }
                     }
                 }
             }
-        }
         }
     }
 }
