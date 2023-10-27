@@ -1561,26 +1561,26 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
 
         if ( fxpt.m_OnBody )
         {
-        for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
-        {
-            if ( fxpt.m_BorderFlag[j] == SURFACE_FIX_POINT && fxpt.m_SurfInd[j].size() == 1 )
+            for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )
             {
-                if ( fxpt.m_SurfInd[j][0] >= 0 )
+                if ( fxpt.m_BorderFlag[j] == SURFACE_FIX_POINT && fxpt.m_SurfInd[j].size() == 1 )
                 {
-                    string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[ fxpt.m_FeaPartIndex ];
+                    if ( fxpt.m_SurfInd[j][0] >= 0 )
+                    {
+                        string fix_point_name = GetMeshPtr()->m_FeaPartNameVec[ fxpt.m_FeaPartIndex ];
 
-                    if ( m_SurfVec[ fxpt.m_SurfInd[j][0] ]->GetMesh()->SetFixPoint( fxpt.m_Pnt[j], fxpt.m_UW ) )
-                    {
-                        // No message on success.
-                    }
-                    else
-                    {
-                        string message = "\tNo node found for " + fix_point_name + ". Adjust GridDensity.\n";
-                        addOutputText( message );
+                        if ( m_SurfVec[ fxpt.m_SurfInd[j][0] ]->GetMesh()->SetFixPoint( fxpt.m_Pnt[j], fxpt.m_UW ) )
+                        {
+                            // No message on success.
+                        }
+                        else
+                        {
+                            string message = "\tNo node found for " + fix_point_name + ". Adjust GridDensity.\n";
+                            addOutputText( message );
+                        }
                     }
                 }
             }
-        }
         }
     }
 }
