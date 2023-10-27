@@ -993,6 +993,8 @@ void FeaMeshMgrSingleton::ForceSurfaceFixPoints( int surf_indx, vector < vec2d >
     {
         FixPoint fxpt = GetMeshPtr()->m_FixPntVec[ n ];       // This fix point
 
+        if ( fxpt.m_OnBody )
+        {
         for ( size_t j = 0; j < fxpt.m_SurfInd.size(); j++ )  // For all multiplicity of points (symmetry, arrays, etc)
         {
             if ( fxpt.m_SurfInd[j].size() == 1 )      // On one surface only (not a boundary or intersection)
@@ -1005,6 +1007,7 @@ void FeaMeshMgrSingleton::ForceSurfaceFixPoints( int surf_indx, vector < vec2d >
                     }
                 }
             }
+        }
         }
     }
 }
