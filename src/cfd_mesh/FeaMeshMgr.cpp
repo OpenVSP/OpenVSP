@@ -882,8 +882,9 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                 assert( fixpnt );
                 FixPoint fxpt;
 
-                vector < vec3d > pnt_vec = fixpnt->GetPntVec();
-                vec2d uw = fixpnt->GetUW();
+                fxpt.m_Pnt = fixpnt->GetPntVec();
+
+                int npt = fxpt.m_Pnt.size();
 
                 fxpt.m_FeaPartIndex = i;
                 fxpt.m_PtMassFlag = fixpnt->m_FixPointMassFlag.Get();
@@ -897,16 +898,27 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                     // it out just in case.
                     fxpt.m_PtMass = 0.0;
                 }
-                fxpt.m_UW = uw;
-                // Initialize node vector to -1.  Set in TagFeaNodes
-                fxpt.m_NodeIndex.resize( pnt_vec.size(), -1 );
 
-                for ( size_t j = 0; j < pnt_vec.size(); j++ )
+                // Initialize node vector to -1.  Set in TagFeaNodes
+                fxpt.m_NodeIndex.resize( npt, -1 );
+
+                if ( fixpnt->m_FixedPointType() == vsp::FEA_FIX_PT_ON_BODY )
+                {
+                    fxpt.m_OnBody = true;
+                    vec2d uw = fixpnt->GetUW();
+                    fxpt.m_UW = uw;
+                }
+                else
+                {
+                    fxpt.m_OnBody = false;
+                }
+
+                if ( fxpt.m_OnBody )
+                {
+                for ( size_t j = 0; j < npt; j++ )
                 {
                     bool onborder = false;
                     int iborder = -1;
-
-                    fxpt.m_Pnt.push_back( pnt_vec[j] );
 
                     // Identify the surface index and coordinate points for the fixed point
                     vector < int > surf_index;
@@ -919,11 +931,11 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                             // values of the parameter are valid on both patches.  This is not true when you reach the max/min
                             // limit of a patch.  I.e. W=0.0 and W=1.0 are the same point, but both do not get added by this
                             // logic.
-                            if ( m_SurfVec[k]->ValidUW( uw, 0.0 ) )
+                            if ( m_SurfVec[k]->ValidUW( fxpt.m_UW, 0.0 ) )
                             {
                                 surf_index.push_back( k );
 
-                                int border = m_SurfVec[k]->UWPointOnBorder( uw.x(), uw.y(), 1e-6 );
+                                int border = m_SurfVec[k]->UWPointOnBorder( fxpt.m_UW.x(), fxpt.m_UW.y(), 1e-6 );
                                 if ( border != SurfCore::NOBNDY )
                                 {
                                     onborder = true;
@@ -969,6 +981,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                         fxpt.m_BorderFlag.push_back( SURFACE_FIX_POINT ); // Possibly re-set in CheckFixPointIntersects()
                     }
 
+                }
                 }
 
                 GetMeshPtr()->m_FixPntVec.push_back( fxpt );

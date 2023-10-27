@@ -16,6 +16,7 @@ class FixPoint
 {
 public:
     vector < vec3d > m_Pnt;              // Vector 3D coordinates for FeaFixPoints
+    bool m_OnBody;
     vec2d m_UW;                          // UW coordinates for FeaFixPoints
     int m_FeaPartIndex;                  // FixPoint FeaPart index
     vector < int > m_BorderFlag;         // Indicates if the FixPoint lies on a surface, border, or intersection
