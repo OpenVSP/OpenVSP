@@ -3186,6 +3186,31 @@ int TTri::WakeEdge()
     return 0;
 }
 
+// XOR (^) of anything with itself will return zero.  So, by performing a bitwise XOR chain of all the pointers
+// n0^n1^n2^a^b, a and b clobber their match among n0,n1,n2 leaving just the odd pointer out to be returned.
+TNode* TTri::GetOtherNode( TNode* a, TNode* b )
+{
+    return (TNode *) ((uintptr_t) m_N0 ^ (uintptr_t) m_N1 ^ (uintptr_t) m_N2 ^ (uintptr_t) a ^ (uintptr_t) b);
+}
+
+bool TTri::CorrectOrder( TNode* n0, TNode* n1 )
+{
+    if ( n0 == m_N0 && n1 == m_N1 )
+    {
+        return true;
+    }
+    if ( n0 == m_N1 && n1 == m_N2 )
+    {
+        return true;
+    }
+    if ( n0 == m_N2 && n1 == m_N0 )
+    {
+        return true;
+    }
+
+    return false;
+}
+
 bool TTri::OnBoundary( TNode *n )
 {
     TNode *n0;
