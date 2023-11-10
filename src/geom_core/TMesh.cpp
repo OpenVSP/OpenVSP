@@ -4286,59 +4286,49 @@ void TMesh::AddEdge( TTri* tri0, TTri* tri1, TNode* node0, TNode* node1 )
 
 void TMesh::SwapEdge( TEdge* edge )
 {
-    if ( !edge->m_Tri0 )
-    {
-        return;
-    }
-    if ( !edge->m_Tri1 )
+    TTri *t0 = edge->m_Tri0;
+    TTri *t1 = edge->m_Tri1;
+
+    if ( !t0 || !t1 )
     {
         return;
     }
 
     TNode *n0, *n1, *n2, *n3;
     n0 = edge->m_N0;
-    n1 = nullptr;
-    n2 = nullptr;
-    n3 = nullptr;
-
-    if ( edge->m_Tri0->m_N0 != edge->m_N0 && edge->m_Tri0->m_N0 != edge->m_N1 )
-    {
-        n1 = edge->m_Tri0->m_N0;
-    }
-    else if ( edge->m_Tri0->m_N1 != edge->m_N0 && edge->m_Tri0->m_N1 != edge->m_N1 )
-    {
-        n1 = edge->m_Tri0->m_N1;
-    }
-    else if ( edge->m_Tri0->m_N2 != edge->m_N0 && edge->m_Tri0->m_N2 != edge->m_N1 )
-    {
-        n1 = edge->m_Tri0->m_N2;
-    }
-
     n2 = edge->m_N1;
 
-    if ( edge->m_Tri1->m_N0 != edge->m_N0 && edge->m_Tri1->m_N0 != edge->m_N1 )
+    n1 = t0->GetOtherNode( n0, n2 );
+    n3 = t1->GetOtherNode( n0, n2 );
+
+    if ( t0->CorrectOrder( n0, n2 ) )
     {
-        n3 = edge->m_Tri1->m_N0;
+        t0->m_N0 = n0;
+        t0->m_N1 = n3;
+        t0->m_N2 = n1;
     }
-    else if ( edge->m_Tri1->m_N1 != edge->m_N0 && edge->m_Tri1->m_N1 != edge->m_N1 )
+    else
     {
-        n3 = edge->m_Tri1->m_N1;
+        t0->m_N0 = n0;
+        t0->m_N1 = n1;
+        t0->m_N2 = n3;
     }
-    else if ( edge->m_Tri1->m_N2 != edge->m_N0 && edge->m_Tri1->m_N2 != edge->m_N1 )
+
+    if ( t1->CorrectOrder( n0, n2 ) )
     {
-        n3 = edge->m_Tri1->m_N2;
+        t1->m_N0 = n1;
+        t1->m_N1 = n2;
+        t1->m_N2 = n3;
+    }
+    else
+    {
+        t1->m_N0 = n1;
+        t1->m_N1 = n3;
+        t1->m_N2 = n2;
     }
 
-    edge->m_Tri0->m_N0 = n0;
-    edge->m_Tri0->m_N1 = n1;
-    edge->m_Tri0->m_N2 = n3;
-
-    edge->m_Tri0->m_Norm = edge->m_Tri1->m_Norm;
-
-    edge->m_Tri1->m_N0 = n1;
-    edge->m_Tri1->m_N1 = n2;
-    edge->m_Tri1->m_N2 = n3;
-
+    edge->m_N0 = n1;
+    edge->m_N1 = n3;
 }
 
 void TMesh::BuildMergeMaps()
