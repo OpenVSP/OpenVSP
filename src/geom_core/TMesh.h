@@ -341,6 +341,8 @@ public:
     virtual vec3d CompUW( const vec3d & pnt );
 
     virtual int WakeEdge();
+    virtual TEdge* QuadEdge();
+
     virtual TNode* GetOtherNode( TNode* a, TNode* b );
 
     virtual bool CorrectOrder( TNode* n0, TNode* n1 );
