@@ -3274,6 +3274,25 @@ TEdge* TTri::QuadEdge()
     return NULL;
 }
 
+TEdge* TTri::EdgeOpposite( TNode * n )
+{
+    if ( m_E0 && !m_E0->UsesNode( n ) )
+    {
+        return m_E0;
+    }
+
+    if ( m_E1 && !m_E1->UsesNode( n ) )
+    {
+        return m_E1;
+    }
+
+    if ( m_E2 && !m_E2->UsesNode( n ) )
+    {
+        return m_E2;
+    }
+    return NULL;
+}
+
 // XOR (^) of anything with itself will return zero.  So, by performing a bitwise XOR chain of all the pointers
 // n0^n1^n2^a^b, a and b clobber their match among n0,n1,n2 leaving just the odd pointer out to be returned.
 TNode* TTri::GetOtherNode( TNode* a, TNode* b )

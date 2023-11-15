@@ -345,6 +345,8 @@ public:
     virtual int WakeEdge();
     virtual TEdge* QuadEdge();
 
+    virtual TEdge* EdgeOpposite( TNode* n );
+
     virtual TNode* GetOtherNode( TNode* a, TNode* b );
 
     virtual bool CorrectOrder( TNode* n0, TNode* n1 );
