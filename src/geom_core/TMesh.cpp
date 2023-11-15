@@ -4362,6 +4362,16 @@ void TMesh::SwapEdge( TEdge* edge )
     n1 = t0->GetOtherNode( n0, n2 );
     n3 = t1->GetOtherNode( n0, n2 );
 
+    TEdge *e0, *e1, *e2, *e3;
+
+    e0 = t0->EdgeOpposite( n0 );
+    e1 = t0->EdgeOpposite( n2 );
+    e2 = t1->EdgeOpposite( n0 );
+    e3 = t1->EdgeOpposite( n2 );
+
+    edge->m_N0 = n1;
+    edge->m_N1 = n3;
+
     if ( t0->CorrectOrder( n0, n2 ) )
     {
         t0->m_N0 = n0;
@@ -4388,8 +4398,27 @@ void TMesh::SwapEdge( TEdge* edge )
         t1->m_N2 = n2;
     }
 
-    edge->m_N0 = n1;
-    edge->m_N1 = n3;
+    t0->m_E0 = edge;
+    t0->m_E1 = e1;
+    t0->m_E2 = e3;
+
+    t1->m_E0 = edge;
+    t1->m_E1 = e0;
+    t1->m_E2 = e2;
+
+    if ( e0 )
+    {
+        e0->ReplaceTri( t0, t1 );
+    }
+    if ( e3 )
+    {
+        e3->ReplaceTri( t1, t0 );
+    }
+
+    vector_remove_val( n0->m_TriVec, t1 );
+    vector_remove_val( n2->m_TriVec, t0 );
+    n1->m_TriVec.push_back( t1 );
+    n3->m_TriVec.push_back( t0 );
 }
 
 void TMesh::BuildMergeMaps()
