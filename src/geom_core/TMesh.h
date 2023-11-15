@@ -519,6 +519,7 @@ public:
     virtual void DeleteDupNodes();
 
     virtual void MatchNodes();
+    virtual void CheckQualitySwapEdges();
     virtual void CheckValid( FILE* fid );
     virtual void SwapEdges( double size );
     virtual vec3d ProjectOnISectPairs( vec3d & offPnt, vector< vec3d > & pairVec );

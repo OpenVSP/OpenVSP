@@ -4637,6 +4637,47 @@ void TMesh::MatchNodes()
     DeleteDupNodes();
 }
 
+void TMesh::CheckQualitySwapEdges()
+{
+    // Make vector copy of list so edges can be removed from list without invalidating active list iterator.
+    vector< TEdge* > eVec( m_EVec.begin(), m_EVec.end() );
+
+    for ( int i = 0; i < eVec.size(); i++ )
+    {
+        TEdge *e = eVec[ i ];
+
+        if ( e->m_Tri0 && e->m_Tri1 )
+        {
+            TTri *t0 = e->m_Tri0;
+            TTri *t1 = e->m_Tri1;
+
+            if ( t0->m_iQuad == t1->m_iQuad &&
+                 t0->m_Tags == t1->m_Tags )
+            {
+                TNode* n0 = e->m_N0;
+                TNode* n1 = e->m_N1;
+
+                TNode* na = t0->GetOtherNode( n0, n1 );
+                TNode* nb = t1->GetOtherNode( n0, n1 );
+
+                double qa = t0->ComputeTriQual();
+                double qb = t1->ComputeTriQual();
+                double qc = TTri::ComputeTriQual( n0, nb, na );
+                double qd = TTri::ComputeTriQual( n1, na, nb );
+
+                // Require 5 degree improvement in minimum angle to bother flipping.  This reduces frivilous flips
+                // and maintains mostly the original diagonal orientation.
+                if ( min( qc, qd ) <= ( min( qa, qb ) + PI / 36.0 ) )
+                {
+                    continue;
+                }
+
+                SwapEdge( e );
+            }
+        }
+    }
+}
+
 void TMesh::SwapEdges( double ang )
 {
     int t, ot;
