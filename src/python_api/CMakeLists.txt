@@ -30,7 +30,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         ${VSP_SOURCE_DIR}
      )
 
-    SET(CMAKE_SWIG_FLAGS "")
+    SET(CMAKE_SWIG_FLAGS "-doxygen")
 
     SET( SWIG_MODULE_pyvsp_EXTRA_DEPS
         ${UTIL_INCLUDE_DIR}/Defines.h
