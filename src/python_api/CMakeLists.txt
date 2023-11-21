@@ -7,6 +7,20 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     MESSAGE( STATUS "Configuring Python API" )
 
+    execute_process(
+		COMMAND pip show sphinx
+		RESULT_VARIABLE EXIT_CODE
+		OUTPUT_QUIET
+	)
+
+	if (${EXIT_CODE} EQUAL 0)
+		SET ( SPHINX_FOUND true CACHE BOOL "SPHINX" )
+		mark_as_advanced(SPHINX_FOUND)
+		MESSAGE( STATUS "Sphinx found, Python API doc will be generated." )
+	ELSE(${EXIT_CODE} EQUAL 0)
+		MESSAGE( STATUS "Sphinx not found, Python API doc will not be generated." )
+	endif()
+
     INCLUDE_DIRECTORIES(
         ${CLIPPER2_INCLUDE_DIR}
         ${CodeEli_INCLUDE_DIRS}
@@ -146,7 +160,10 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/packages/ DESTINATION python
             PATTERN setup.py.in EXCLUDE
             PATTERN meta.yaml.in EXCLUDE
-            PATTERN environment.yml.in EXCLUDE)
+            PATTERN environment.yml.in EXCLUDE
+            PATTERN conf.py EXCLUDE
+            PATTERN index.rst EXCLUDE
+            PATTERN openvsp.rst EXCLUDE)
 
     INSTALL( TARGETS pyvsp LIBRARY DESTINATION python/openvsp/openvsp )
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp.py DESTINATION python/openvsp/openvsp )
@@ -154,6 +171,9 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py DESTINATION python/openvsp)
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml DESTINATION python/openvsp/conda-recipe)
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/environment.yml DESTINATION python)
+
+    INSTALL( DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc DESTINATION python/openvsp )
+    INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/tests/test_vsp_api.py DESTINATION python/openvsp/openvsp/tests )
 
     # Copy python package files to ${CMAKE_BINARY_DIR}/python_pseudo such that a virtual environment can be
     # built from there.  This brings both generated files (from BINARY_DIR) and source files (from SOURCE_DIR) together
@@ -182,6 +202,20 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_BINARY_DIR}/vsp.py
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py )
+
+    # Create openvsp Python API Documentation and generate unit tests
+    if ( SPHINX_FOUND )
+        add_custom_command( TARGET pyvsp POST_BUILD
+            COMMAND sphinx-build 
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc
+        )
+    ENDIF( SPHINX_FOUND )
+    add_custom_command( TARGET pyvsp POST_BUILD
+        COMMAND ${PYTHON_EXECUTABLE}
+        ${CMAKE_CURRENT_SOURCE_DIR}/gen_unit_test.py
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp
+    )
 
     # Configure files to pseudo install -- redundant to package configure above, but tracks dependencies best.
     # Unfortunately, it does not know if you delete the files from ${CMAKE_BINARY_DIR}.
