@@ -183,24 +183,24 @@ namespace vsp
 	\ingroup APIUtilities
 */
 /*!
-    Check if OpenVSP has been initialized successfully. If not, the OpenVSP instance will be exited. This call should be placed at the 
+    Check if OpenVSP has been initialized successfully. If not, the OpenVSP instance will be exited. This call should be placed at the
     beginning of all API scripts.
     \forcpponly
     \code{.cpp}
-    
+
     VSPCheckSetup();
 
     // Continue to do things...
-    
+
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        
+
     VSPCheckSetup()
 
     # Continue to do things...
-    
+
 
     \endcode
     \endPythonOnly
@@ -248,8 +248,8 @@ extern void VSPRenew();
 */
 /*!
     Update the entire vehicle and all lower level children. An input, which is true by default, is available to specify
-    if managers should be updated as well. The managers are typically updated by their respective GUI, so must be 
-    updated through the API as well to avoid unexpected behavior. 
+    if managers should be updated as well. The managers are typically updated by their respective GUI, so must be
+    updated through the API as well to avoid unexpected behavior.
     \forcpponly
     \code{.cpp}
     string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
@@ -427,7 +427,7 @@ extern int GetVSPVersionChange();
 	\ingroup APIUtilities
 */
 /*!
-    Get the path to the OpenVSP executable. OpenVSP will assume that the VSPAERO, VSPSLICER, and VSPVIEWER are in the same directory unless 
+    Get the path to the OpenVSP executable. OpenVSP will assume that the VSPAERO, VSPSLICER, and VSPVIEWER are in the same directory unless
     instructed otherwise.
     \forcpponly
     \code{.cpp}
@@ -458,7 +458,7 @@ extern std::string GetVSPExePath();
     Set the path to the VSPAERO executables (Solver, Viewer, and Slicer). By default, OpenVSP will assume that the VSPAERO executables are in the
     same directory as the VSP executable. However, this may need to be changed when using certain API languages like MATLAB and Python. For example,
     Python may treat the location of the Python executable as the VSP executable path, so either the VSPAERO executable needs to be moved to the same
-    directory or this function can be called to tell Python where to look for VSPAERO. 
+    directory or this function can be called to tell Python where to look for VSPAERO.
     \forcpponly
     \code{.cpp}
     if ( !CheckForVSPAERO( GetVSPExePath() ) )
@@ -515,9 +515,9 @@ extern std::string GetVSPAEROPath();
 	\ingroup APIUtilities
 */
 /*!
-    Check if all VSPAERO executables (Solver, Viewer, and Slicer) are in a given directory. Note that this function will return false 
-    if only one or two VSPAERO executables are found. An error message will indicate the executables that are missing. This may be 
-    acceptable, as only the Solver is needed in all cases. The Viewer and Slicer may not be needed. 
+    Check if all VSPAERO executables (Solver, Viewer, and Slicer) are in a given directory. Note that this function will return false
+    if only one or two VSPAERO executables are found. An error message will indicate the executables that are missing. This may be
+    acceptable, as only the Solver is needed in all cases. The Viewer and Slicer may not be needed.
     \forcpponly
     \code{.cpp}
     string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5";
@@ -825,8 +825,8 @@ extern void InsertVSPFile( const std::string & file_name, const std::string & pa
 	\ingroup FileIO
 */
 /*!
-    Export a file from OpenVSP. Many formats are available, such as STL, IGES, and SVG. If a mesh is generated for a particular export, 
-    the ID of the MeshGeom will be returned. If no mesh is generated an empty string will be returned. 
+    Export a file from OpenVSP. Many formats are available, such as STL, IGES, and SVG. If a mesh is generated for a particular export,
+    the ID of the MeshGeom will be returned. If no mesh is generated an empty string will be returned.
     \forcpponly
     \code{.cpp}
     string wid = AddGeom( "WING" );             // Add Wing
@@ -1262,7 +1262,7 @@ extern void SetCFDMeshVal( int type, double val );
 	\ingroup CFDMesh
 */
 /*!
-    Activate or deactivate the CFD Mesh wake for a particular Geom. Note, the wake flag is only applicable for wing-type surfaces. 
+    Activate or deactivate the CFD Mesh wake for a particular Geom. Note, the wake flag is only applicable for wing-type surfaces.
     Also, this function is simply an alternative to setting the value of the Parm with the available Parm setting API functions.
     \forcpponly
     \code{.cpp}
@@ -1587,6 +1587,22 @@ extern std::vector<std::string> GetAnalysisInputNames( const std::string & analy
 
 extern std::string GetAnalysisDoc( const std::string & analysis );
 
+/*!
+	\ingroup Analysis
+*/
+/*!
+    Get the documentation string for the particular analysis and input
+    \forcpponly
+
+    \endforcpponly
+    \beginPythonOnly
+
+    \endPythonOnly
+    \param [in] analysis Analysis name
+    \param [in] name Input name
+    \return Documentation string
+*/
+
 extern std::string GetAnalysisInputDoc( const std::string & analysis, const std::string & name );
 
 /*!
@@ -1893,7 +1909,7 @@ extern void SetIntAnalysisInput( const std::string & analysis, const std::string
     ycuts.push_back( 2.0 );
     ycuts.push_back( 4.5 );
     ycuts.push_back( 8.0 );
-    
+
     SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 );
     \endcode
     \endforcpponly
@@ -1907,7 +1923,7 @@ extern void SetIntAnalysisInput( const std::string & analysis, const std::string
     ycuts.push_back( 2.0 )
     ycuts.push_back( 4.5 )
     ycuts.push_back( 8.0 )
-    
+
     SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 )
 
     \endcode
@@ -2323,11 +2339,11 @@ extern std::string FindLatestResultsID( const std::string & name );
     string res_id = FindResultsID( "Test_Results" );
 
     if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
-    
+
     array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 );
 
     if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); }
-    
+
     int_arr = GetIntResults( res_id, "Test_Int", 1 );
 
     if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); }
@@ -2341,11 +2357,11 @@ extern std::string FindLatestResultsID( const std::string & name );
     string res_id = FindResultsID( "Test_Results" )
 
     if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
-    
+
     array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 )
 
     if  int_arr[0] != 1 : Print( "---> Error: API GetIntResults" ); }
-    
+
     int_arr = GetIntResults( res_id, "Test_Int", 1 )
 
     if  int_arr[0] != 2 : Print( "---> Error: API GetIntResults" ); }
@@ -2415,11 +2431,11 @@ extern int GetResultsType( const std::string & results_id, const std::string & d
     string res_id = FindResultsID( "Test_Results" );
 
     if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
-    
+
     array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 );
 
     if ( int_arr[0] != 1 )                                    { Print( "---> Error: API GetIntResults" ); }
-    
+
     int_arr = GetIntResults( res_id, "Test_Int", 1 );
 
     if ( int_arr[0] != 2 )                                    { Print( "---> Error: API GetIntResults" ); }
@@ -2433,11 +2449,11 @@ extern int GetResultsType( const std::string & results_id, const std::string & d
     string res_id = FindResultsID( "Test_Results" )
 
     if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
-    
+
     array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 )
 
     if  int_arr[0] != 1 : Print( "---> Error: API GetIntResults" ); }
-    
+
     int_arr = GetIntResults( res_id, "Test_Int", 1 )
 
     if  int_arr[0] != 2 : Print( "---> Error: API GetIntResults" ); }
@@ -2957,14 +2973,14 @@ extern void SetGeomDrawType(const string &geom_id, int type);
     \code{.cpp}
     string pid = AddGeom( "POD" );                             // Add Pod for testing
 
-    SetGeomDisplayType( pid, DISPLAY_DEGEN_PLATE );                       // Make pod appear as Bezier plate (Degen Geom) 
+    SetGeomDisplayType( pid, DISPLAY_DEGEN_PLATE );                       // Make pod appear as Bezier plate (Degen Geom)
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
         string pid = AddGeom( "POD" )                             # Add Pod for testing
 
-    SetGeomDisplayType( pid, DISPLAY_DEGEN_PLATE )                       # Make pod appear as Bezier plate (Degen Geom) 
+    SetGeomDisplayType( pid, DISPLAY_DEGEN_PLATE )                       # Make pod appear as Bezier plate (Degen Geom)
 
     \endcode
     \endPythonOnly
@@ -3069,7 +3085,7 @@ extern std::vector<std::string> GetGeomTypes();
 	\ingroup Geom
 */
 /*!
-    Add a new Geom of given type as a child of the specified parent. If no parent or an invalid parent is given, the Geom is placed at the top level 
+    Add a new Geom of given type as a child of the specified parent. If no parent or an invalid parent is given, the Geom is placed at the top level
     \forcpponly
     \code{.cpp}
     //==== Add Wing Geometry ====//
@@ -3438,7 +3454,7 @@ extern std::vector<std::string> FindGeomsWithName( const std::string & name );
     \endPythonOnly
     \sa FindGeomsWithName
     \param [in] name Geom name
-    \param [in] index 
+    \param [in] index
     \return Geom ID with name at specified index
 */
 
@@ -3745,7 +3761,7 @@ extern int GetNumXSecSurfs( const std::string & geom_id );
 	\ingroup Geom
 */
 /*!
-    Get the number of main surfaces for the specified Geom. Multiple main surfaces may exist for CustoGeoms, propellors, etc., but 
+    Get the number of main surfaces for the specified Geom. Multiple main surfaces may exist for CustoGeoms, propellors, etc., but
     does not include surfaces created due to symmetry.
     \forcpponly
     \code{.cpp}
@@ -3786,8 +3802,8 @@ extern int GetNumMainSurfs( const std::string & geom_id );
 	\ingroup Geom
 */
 /*!
-    Get the total number of surfaces for the specified Geom. This is equivalent to the number of main surface multiplied 
-    by the number of symmetric copies. 
+    Get the total number of surfaces for the specified Geom. This is equivalent to the number of main surface multiplied
+    by the number of symmetric copies.
     \forcpponly
     \code{.cpp}
     //==== Add Wing Geometry ====//
@@ -3896,7 +3912,7 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
 */
 /*!
     Get the the maximum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
-    box may be specified in absolute or body reference frame. 
+    box may be specified in absolute or body reference frame.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//
@@ -3906,7 +3922,7 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
     SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 );
 
     Update();
-    
+
     vec3d max_pnt = GetGeomBBoxMax( pid, 0, false );
     \endcode
     \endforcpponly
@@ -3919,7 +3935,7 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
     SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 )
 
     Update()
-    
+
     vec3d max_pnt = GetGeomBBoxMax( pid, 0, False )
 
     \endcode
@@ -3938,7 +3954,7 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
 */
 /*!
     Get the the minimum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
-    box may be specified in absolute or body reference frame. 
+    box may be specified in absolute or body reference frame.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//
@@ -3948,7 +3964,7 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
     SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 );
 
     Update();
-    
+
     vec3d min_pnt = GetGeomBBoxMin( pid, 0, false );
     \endcode
     \endforcpponly
@@ -3961,7 +3977,7 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
     SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 )
 
     Update()
-    
+
     vec3d min_pnt = GetGeomBBoxMin( pid, 0, False )
 
     \endcode
@@ -4113,7 +4129,7 @@ extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const s
     Print("Delete SS_Line\n");
 
     DeleteSubSurf( wid, ss_line_id );
-    
+
     int num_ss = GetNumSubSurf( wid );
 
     string num_str = string("Number of SubSurfaces: ") + formatInt( num_ss, '' ) + string("\n");
@@ -4131,7 +4147,7 @@ extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const s
     Print("Delete SS_Line\n")
 
     DeleteSubSurf( wid, ss_line_id )
-    
+
     num_ss = GetNumSubSurf( wid )
 
     string num_str = string("Number of SubSurfaces: ") + formatInt( num_ss, '' ) + string("\n")
@@ -4161,7 +4177,7 @@ extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_
     Print("Delete SS_Line\n");
 
     DeleteSubSurf( wid, ss_line_id );
-    
+
     int num_ss = GetNumSubSurf( wid );
 
     string num_str = string("Number of SubSurfaces: ") + formatInt( num_ss, '' ) + string("\n");
@@ -4179,7 +4195,7 @@ extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_
     Print("Delete SS_Line\n")
 
     DeleteSubSurf( wid, ss_line_id )
-    
+
     num_ss = GetNumSubSurf( wid )
 
     string num_str = string("Number of SubSurfaces: ") + formatInt( num_ss, '' ) + string("\n")
@@ -4397,7 +4413,7 @@ extern int GetSubSurfIndex( const std::string & sub_id );
     array<string> id_vec = GetSubSurfIDVec( wid );
 
     string id_type_str = string( "SubSurface IDs and Type Indexes -> ");
-    
+
     for ( uint i = 0; i < uint(id_vec.length()); i++ )
     {
         id_type_str += id_vec[i];
@@ -4408,7 +4424,7 @@ extern int GetSubSurfIndex( const std::string & sub_id );
 
         id_type_str += string("\t");
     }
-    
+
     id_type_str += string("\n");
 
     Print( id_type_str );
@@ -4424,7 +4440,7 @@ extern int GetSubSurfIndex( const std::string & sub_id );
     array<string> id_vec = GetSubSurfIDVec( wid )
 
     string id_type_str = string( "SubSurface IDs and Type Indexes -> ")
-    
+
     for ( uint i = 0; i < uint(id_vec.length()); i++ )
     {
         id_type_str += id_vec[i]
@@ -4434,7 +4450,7 @@ extern int GetSubSurfIndex( const std::string & sub_id );
         id_type_str += GetSubSurfType(id_vec[i])
 
         id_type_str += string("\t")
-    
+
     id_type_str += string("\n")
 
     Print( id_type_str )
@@ -4512,7 +4528,7 @@ extern int GetNumSubSurf( const std::string & geom_id );
     array<string> id_vec = GetSubSurfIDVec( wid );
 
     string id_type_str = string( "SubSurface IDs and Type Indexes -> ");
-    
+
     for ( uint i = 0; i < uint(id_vec.length()); i++ )
     {
         id_type_str += id_vec[i];
@@ -4523,7 +4539,7 @@ extern int GetNumSubSurf( const std::string & geom_id );
 
         id_type_str += string("\t");
     }
-    
+
     id_type_str += string("\n");
 
     Print( id_type_str );
@@ -4539,7 +4555,7 @@ extern int GetNumSubSurf( const std::string & geom_id );
     array<string> id_vec = GetSubSurfIDVec( wid )
 
     string id_type_str = string( "SubSurface IDs and Type Indexes -> ")
-    
+
     for ( uint i = 0; i < uint(id_vec.length()); i++ )
     {
         id_type_str += id_vec[i]
@@ -4549,7 +4565,7 @@ extern int GetNumSubSurf( const std::string & geom_id );
         id_type_str += GetSubSurfType(id_vec[i])
 
         id_type_str += string("\t")
-    
+
     id_type_str += string("\n")
 
     Print( id_type_str )
@@ -4576,7 +4592,7 @@ extern int GetSubSurfType( const std::string & sub_id );
 
     // Get and list all Parm info for SS_Line
     array<string> parm_id_vec = GetSubSurfParmIDs( ss_line_id );
-    
+
     for ( uint i = 0; i < uint(parm_id_vec.length()); i++ )
     {
         string id_name_str = string("\tName: ") + GetParmName( parm_id_vec[i] ) + string(", Group: ") + GetParmDisplayGroupName( parm_id_vec[i] ) +
@@ -4594,7 +4610,7 @@ extern int GetSubSurfType( const std::string & sub_id );
 
     # Get and list all Parm info for SS_Line
     array<string> parm_id_vec = GetSubSurfParmIDs( ss_line_id )
-    
+
     for ( uint i = 0; i < uint(parm_id_vec.length()); i++ )
     {
         string id_name_str = string("\tName: ") + GetParmName( parm_id_vec[i] ) + string(", Group: ") + GetParmDisplayGroupName( parm_id_vec[i] ) +
@@ -4616,7 +4632,7 @@ extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
 */
 /*!
     Add an FEA Structure to a specified Geom
-    \warning init_skin should ALWAYS be set to true. 
+    \warning init_skin should ALWAYS be set to true.
     \forcpponly
     \code{.cpp}
     //==== Add Pod Geometry ====//
@@ -4665,7 +4681,7 @@ extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     #==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" )
 
@@ -4850,11 +4866,11 @@ extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
     \code{.cpp}
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
-    
+
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
 
-    //==== Get Structure Name ====// 
+    //==== Get Structure Name ====//
     string parm_container_name = GetFeaStructName( pod_id, struct_ind );
 
     string display_name = string("Current Structure Parm Container Name: ") + parm_container_name + string("\n");
@@ -4866,11 +4882,11 @@ extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
     \code{.py}
         #==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" )
-    
+
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    #==== Get Structure Name ====// 
+    #==== Get Structure Name ====//
     string parm_container_name = GetFeaStructName( pod_id, struct_ind )
 
     string display_name = string("Current Structure Parm Container Name: ") + parm_container_name + string("\n")
@@ -4896,11 +4912,11 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
     \code{.cpp}
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
-    
+
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
 
-    //==== Change the Structure Name ====// 
+    //==== Change the Structure Name ====//
     SetFeaStructName( pod_id, struct_ind, "Example_Struct" );
 
     string parm_container_id = FindContainer( "Example_Struct", struct_ind );
@@ -4914,11 +4930,11 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
     \code{.py}
         #==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" )
-    
+
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    #==== Change the Structure Name ====// 
+    #==== Change the Structure Name ====//
     SetFeaStructName( pod_id, struct_ind, "Example_Struct" )
 
     string parm_container_id = FindContainer( "Example_Struct", struct_ind )
@@ -4947,7 +4963,7 @@ extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, c
     //==== Add Geometries ====//
     string pod_id = AddGeom( "POD" );
     string wing_id = AddGeom( "WING" );
-    
+
     //==== Add FeaStructures ====//
     int pod_struct_ind = AddFeaStruct( pod_id );
     int wing_struct_ind = AddFeaStruct( wing_id );
@@ -4960,7 +4976,7 @@ extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, c
         #==== Add Geometries ====//
     string pod_id = AddGeom( "POD" )
     string wing_id = AddGeom( "WING" )
-    
+
     #==== Add FeaStructures ====//
     pod_struct_ind = AddFeaStruct( pod_id )
     wing_struct_ind = AddFeaStruct( wing_id )
@@ -5276,7 +5292,7 @@ extern int GetFeaPartType( const std::string & part_id );
 
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
-    
+
     string struct_id = GetFeaStructID( pod_id, struct_ind );
 
     //==== Add FEA Parts ====//
@@ -5293,7 +5309,7 @@ extern int GetFeaPartType( const std::string & part_id );
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
-    
+
     string struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Add FEA Parts ====//
@@ -5434,7 +5450,7 @@ extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std
 */
 /*!
     Get the ID of the perpendicular spar for an FEA Rib or Rib Array. Note, the FEA Rib or Rib Array doesn't have to have "SPAR_NORMAL"
-    set for the "PerpendicularEdgeType" Parm for this function to still return a value. 
+    set for the "PerpendicularEdgeType" Parm for this function to still return a value.
     \forcpponly
     \code{.cpp}
     //==== Add Wing Geometry ====//
@@ -5613,7 +5629,7 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
 
     //==== Add LineArray ====//
     string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
-    
+
     //==== Add Rectangle ====//
     string rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE );
 
@@ -5636,7 +5652,7 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
 
     #==== Add LineArray ====//
     string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
-    
+
     #==== Add Rectangle ====//
     string rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE )
 
@@ -5799,7 +5815,7 @@ extern int NumFeaSubSurfs( const std::string & fea_struct_id );
 	\ingroup FEAMesh
 */
 /*!
-    Add an FEA Material the FEA Mesh material library. Materials are available across all Geoms and Structures. 
+    Add an FEA Material the FEA Mesh material library. Materials are available across all Geoms and Structures.
     \forcpponly
     \code{.cpp}
     //==== Create FeaMaterial ====//
@@ -5826,7 +5842,7 @@ extern std::string AddFeaMaterial();
 	\ingroup FEAMesh
 */
 /*!
-    Add aa FEA Property the FEA Mesh property library. Properties are available across all Geoms and Structures. Currently only beam and 
+    Add aa FEA Property the FEA Mesh property library. Properties are available across all Geoms and Structures. Currently only beam and
     shell properties are available. Note FEA_SHELL_AND_BEAM is not a valid property type.
     \forcpponly
     \code{.cpp}
@@ -5846,7 +5862,7 @@ extern std::string AddFeaMaterial();
     \endcode
     \endPythonOnly
     \sa FEA_PART_ELEMENT_TYPE
-    \param [in] property_type FEA Property type enum (i.e. FEA_SHELL). 
+    \param [in] property_type FEA Property type enum (i.e. FEA_SHELL).
     \return FEA Property ID
 */
 
@@ -5856,7 +5872,7 @@ extern std::string AddFeaProperty( int property_type = 0 );
 	\ingroup FEAMesh
 */
 /*!
-    Set the value of a particular FEA Mesh option for the specified Structure. Note, FEA Mesh makes use of enums initially created for CFD Mesh 
+    Set the value of a particular FEA Mesh option for the specified Structure. Note, FEA Mesh makes use of enums initially created for CFD Mesh
     but not all CFD Mesh options are available for FEA Mesh.
     \forcpponly
     \code{.cpp}
@@ -6395,7 +6411,7 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
     ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
 
     string xsec_2 = GetXSec( xsec_surf, 2 );
-    
+
     if ( GetXSecShape( xsec_2 ) != XS_EDIT_CURVE )
     {
         Print( "Error: ChangeXSecShape" );
@@ -6415,7 +6431,7 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
     ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE )
 
     string xsec_2 = GetXSec( xsec_surf, 2 )
-    
+
     if  GetXSecShape( xsec_2 ) != XS_EDIT_CURVE :
         Print( "Error: ChangeXSecShape" )
 
@@ -6582,8 +6598,8 @@ extern double GetXSecHeight( const std::string& xsec_id );
 	\ingroup XSec
 */
 /*!
-    Set the width and height of an XSec. Note, if the XSec is an EDIT_CURVE type and PreserveARFlag is true, the input width value will be 
-    ignored and instead set from on the input height and aspect ratio. Use SetXSecWidth and SetXSecHeight directly to avoid this. 
+    Set the width and height of an XSec. Note, if the XSec is an EDIT_CURVE type and PreserveARFlag is true, the input width value will be
+    ignored and instead set from on the input height and aspect ratio. Use SetXSecWidth and SetXSecHeight directly to avoid this.
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -6887,7 +6903,7 @@ extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_
 	\ingroup XSec
 */
 /*!
-    Compute 3D coordinate for a point on an XSec curve given the parameter value (U) along the curve 
+    Compute 3D coordinate for a point on an XSec curve given the parameter value (U) along the curve
     \forcpponly
     \code{.cpp}
     //==== Add Geom ====//
@@ -6930,7 +6946,7 @@ extern vec3d ComputeXSecPnt( const std::string& xsec_id, double fract );
 	\ingroup XSec
 */
 /*!
-    Compute the tangent vector of a point on an XSec curve given the parameter value (U) along the curve 
+    Compute the tangent vector of a point on an XSec curve given the parameter value (U) along the curve
     \forcpponly
     \code{.cpp}
     //==== Add Geom ====//
@@ -7271,7 +7287,7 @@ extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top,
 	\ingroup XSec
 */
 /*!
-    Read in XSec shape from airfoil file and set to the specified XSec. The XSec must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with *.af or *.dat extensions. 
+    Read in XSec shape from airfoil file and set to the specified XSec. The XSec must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with *.af or *.dat extensions.
     \forcpponly
     \code{.cpp}
     // Add Fuselage Geom
@@ -7491,7 +7507,7 @@ extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d
 	\ingroup XSec
 */
 /*!
-    Get the theoretical lift (Cl) distribution for a Hershey Bar wing with unit chord length using Glauert's Method. This function was initially created to compare VSPAERO results to Lifting Line Theory. 
+    Get the theoretical lift (Cl) distribution for a Hershey Bar wing with unit chord length using Glauert's Method. This function was initially created to compare VSPAERO results to Lifting Line Theory.
     If full_span_flag is set to true symmetry is applied to the results.
     \forcpponly
     \code{.cpp}
@@ -7540,7 +7556,7 @@ extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &
 	\ingroup XSec
 */
 /*!
-    Get the theoretical drag (Cd) distribution for a Hershey Bar wing with unit chord length using Glauert's Method. This function was initially created to compare VSPAERO results to Lifting Line Theory. 
+    Get the theoretical drag (Cd) distribution for a Hershey Bar wing with unit chord length using Glauert's Method. This function was initially created to compare VSPAERO results to Lifting Line Theory.
     If full_span_flag is set to true symmetry is applied to the results.
     \forcpponly
     \code{.cpp}
@@ -7698,7 +7714,7 @@ extern std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const doubl
 	\ingroup XSec
 */
 /*!
-    Generate the surface coordinate points for a ellipsoid at specified center of input radius along each axis. 
+    Generate the surface coordinate points for a ellipsoid at specified center of input radius along each axis.
     Based on the MATLAB function ellipsoid (https://in.mathworks.com/help/matlab/ref/ellipsoid.html).
     \sa GetVKTAirfoilPnts
     \param [in] center 3D location of the ellipsoid center
@@ -7726,7 +7742,7 @@ extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
 */
 /*!
     Generate Analytical Solution for Potential Flow for specified ellipsoid shape at input surface points for input velocity vector.
-    Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally Through a Perfect 
+    Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally Through a Perfect
     Fluid,' NACA TN-196, June 1924. Function initially created to compare VSPAERO results to theory.
     \forcpponly
     \code{.cpp}
@@ -8639,7 +8655,7 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
 */
 /*!
     Write out the untwisted unit-length 2D Bezier curve for the specified airfoil in custom *.bz format. The output will describe the analytical shape of the airfoil. See BezierAirfoilExample.m and BezierCtrlToCoordPnts.m for examples of
-    discretizing the Bezier curve and generating a Selig airfoil file. 
+    discretizing the Bezier curve and generating a Selig airfoil file.
     \forcpponly
     \code{.cpp}
     //==== Add Wing Geometry and Set Parms ====//
@@ -8674,7 +8690,7 @@ extern void WriteBezierAirfoil( const std::string & file_name, const std::string
 	\ingroup XSec
 */
 /*!
-    Write out the untwisted unit-length 2D coordinate points for the specified airfoil in Selig format. Coordinate points follow the on-screen wire frame W tessellation. 
+    Write out the untwisted unit-length 2D coordinate points for the specified airfoil in Selig format. Coordinate points follow the on-screen wire frame W tessellation.
     \forcpponly
     \code{.cpp}
     //==== Add Wing Geometry and Set Parms ====//
@@ -8774,8 +8790,8 @@ extern void EditXSecInitShape( const std::string & xsec_id );
 	\ingroup EditCurveXSec
 */
 /*!
-    Convert the EditCurveXSec curve type to the specified new type. Note, EditCurveXSec uses the same enumerations for PCurve to identify curve type, 
-    but APPROX_CEDIT is not supported at this time. 
+    Convert the EditCurveXSec curve type to the specified new type. Note, EditCurveXSec uses the same enumerations for PCurve to identify curve type,
+    but APPROX_CEDIT is not supported at this time.
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -8822,7 +8838,7 @@ extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype 
 	\ingroup EditCurveXSec
 */
 /*!
-    Get the U parameter vector for an EditCurveXSec. The vector will be in increasing order with a range of 0 - 1. 
+    Get the U parameter vector for an EditCurveXSec. The vector will be in increasing order with a range of 0 - 1.
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -8931,8 +8947,8 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
 	\ingroup EditCurveXSec
 */
 /*!
-    Set the U parameter vector and the control point vector for an EditCurveXSec. The arrays must be of equal length, with the values for U defined in 
-    increasing order and range 0 - 1. The input control points to SetEditXSecPnts must be nondimensionalized in the approximate range of [-0.5, 0.5]. 
+    Set the U parameter vector and the control point vector for an EditCurveXSec. The arrays must be of equal length, with the values for U defined in
+    increasing order and range 0 - 1. The input control points to SetEditXSecPnts must be nondimensionalized in the approximate range of [-0.5, 0.5].
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -8952,7 +8968,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     // Turn off R/L symmetry
     SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE );
 
-    // Define a square 
+    // Define a square
     array < vec3d > xsec2_pts(5);
 
     xsec2_pts[0] = vec3d( 0.5, 0.5, 0.0 );
@@ -8981,8 +8997,8 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     SetEditXSecPnts( xsec_2, u_vec, xsec2_pts, r_vec ); // Note: points are unscaled by the width and height parms
 
     array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
-    
-    if ( dist( new_pnts[3], xsec2_pts[3] ) > 1e-6 ) 
+
+    if ( dist( new_pnts[3], xsec2_pts[3] ) > 1e-6 )
     {
         Print( "Error: SetEditXSecPnts");
     }
@@ -9007,7 +9023,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     # Turn off R/L symmetry
     SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE )
 
-    # Define a square 
+    # Define a square
     array < vec3d > xsec2_pts(5)
 
     xsec2_pts[0] = vec3d( 0.5, 0.5, 0.0 )
@@ -9036,7 +9052,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     SetEditXSecPnts( xsec_2, u_vec, xsec2_pts, r_vec ) # Note: points are unscaled by the width and height parms
 
     array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
-    
+
     if  dist( new_pnts[3], xsec2_pts[3] ) > 1e-6 :
         Print( "Error: SetEditXSecPnts")
 
@@ -9056,7 +9072,7 @@ extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double >
 /*!
     Delete an EditCurveXSec control point. Note, cubic Bezier intermediate control points (those not on the curve) cannot be deleted.
     The previous and next Bezier control point will be deleted along with the point on the curve. Regardless of curve type, the first
-    and last points may not be deleted. 
+    and last points may not be deleted.
     \forcpponly
     \code{.cpp}
     // Add Stack
@@ -9074,12 +9090,12 @@ extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double >
     SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE );
 
     array < vec3d > old_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
-    
+
     EditXSecDelPnt( xsec_2, 3 ); // Remove control point at bottom of circle
 
     array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
-    
-    if ( old_pnts.size() - new_pnts.size() != 3  ) 
+
+    if ( old_pnts.size() - new_pnts.size() != 3  )
     {
         Print( "Error: EditXSecDelPnt");
     }
@@ -9102,11 +9118,11 @@ extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double >
     SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE )
 
     array < vec3d > old_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
-    
+
     EditXSecDelPnt( xsec_2, 3 ) # Remove control point at bottom of circle
 
     array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
-    
+
     if  old_pnts.size() - new_pnts.size() != 3  :
         Print( "Error: EditXSecDelPnt")
 
@@ -9144,8 +9160,8 @@ extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
     int new_pnt_ind = EditXSecSplit01( xsec_2, 0.375 );
 
     array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
-    
-    if ( new_pnts.size() - old_pnts.size() != 3  ) 
+
+    if ( new_pnts.size() - old_pnts.size() != 3  )
     {
         Print( "Error: EditXSecSplit01");
     }
@@ -9172,7 +9188,7 @@ extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
     new_pnt_ind = EditXSecSplit01( xsec_2; 0.375 )
 
     array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
-    
+
     if  new_pnts.size() - old_pnts.size() != 3  :
         Print( "Error: EditXSecSplit01")
 
@@ -9189,7 +9205,7 @@ extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
 	\ingroup EditCurveXSec
 */
 /*!
-    Move an EditCurveXSec control point. The XSec points are nondimensionalized by m_Width and m_Height and 
+    Move an EditCurveXSec control point. The XSec points are nondimensionalized by m_Width and m_Height and
     defined in 2D, so the Z value of the new coordinate point will be ignored.
     \forcpponly
     \code{.cpp}
@@ -9323,8 +9339,8 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
 	\ingroup EditCurveXSec
 */
 /*!
-    Get the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the 
-    U parameter of the control point constant when performing an equal arc length reparameterization of the curve. 
+    Get the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the
+    U parameter of the control point constant when performing an equal arc length reparameterization of the curve.
     \forcpponly
     \code{.cpp}
     // Add Wing
@@ -9341,7 +9357,7 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
     array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
 
     fixed_u_vec[3] = true; // change a flag
-    
+
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
 
     ReparameterizeEditXSec( xsec_1 );
@@ -9363,7 +9379,7 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
     array < > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
 
     fixed_u_vec[3] = True # change a flag
-    
+
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec )
 
     ReparameterizeEditXSec( xsec_1 )
@@ -9381,8 +9397,8 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
 	\ingroup EditCurveXSec
 */
 /*!
-    Set the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the 
-    U parameter of the control point constant when performing an equal arc length reparameterization of the curve. 
+    Set the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the
+    U parameter of the control point constant when performing an equal arc length reparameterization of the curve.
     \forcpponly
     \code{.cpp}
     // Add Wing
@@ -9399,7 +9415,7 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
     array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
 
     fixed_u_vec[3] = true; // change a flag
-    
+
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
 
     ReparameterizeEditXSec( xsec_1 );
@@ -9421,7 +9437,7 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
     array < > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
 
     fixed_u_vec[3] = True # change a flag
-    
+
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec )
 
     ReparameterizeEditXSec( xsec_1 )
@@ -9439,9 +9455,9 @@ extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool
 	\ingroup EditCurveXSec
 */
 /*!
-    Perform an equal arc length repareterization on an EditCurveXSec. The reparameterization is performed between 
+    Perform an equal arc length repareterization on an EditCurveXSec. The reparameterization is performed between
     specific U values if the Fixed U flag is true. This allows corners, such as at 0.25, 0.5, and 0.75 U, to be held
-    constant while everything between them is reparameterized. 
+    constant while everything between them is reparameterized.
     \forcpponly
     \code{.cpp}
     // Add Wing
@@ -9458,7 +9474,7 @@ extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool
     array < bool > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 );
 
     fixed_u_vec[3] = true; // change a flag
-    
+
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec );
 
     ReparameterizeEditXSec( xsec_1 );
@@ -9480,7 +9496,7 @@ extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool
     array < > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
 
     fixed_u_vec[3] = True # change a flag
-    
+
     SetEditXSecFixedUVec( xsec_1, fixed_u_vec )
 
     ReparameterizeEditXSec( xsec_1 )
@@ -9500,7 +9516,7 @@ extern void ReparameterizeEditXSec( const std::string & xsec_id );
 */
 /*!
     Get the total number of defined sets. Named sets are used to group components and read/write on them. The number of named
-    sets will be 10 for OpenVSP versions up to 3.17.1 and 20 for later versions. 
+    sets will be 10 for OpenVSP versions up to 3.17.1 and 20 for later versions.
     \forcpponly
     \code{.cpp}
     if ( GetNumSets() <= 0 )                            { Print( "---> Error: API GetNumSets " ); }
@@ -9736,7 +9752,7 @@ extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
 	\ingroup Sets
 */
 /*!
-    Copies all the states of a geom set and pastes them into a specific set based on passed in indexs 
+    Copies all the states of a geom set and pastes them into a specific set based on passed in indexs
     \forcpponly
     \code{.cpp}
     // Add Fuselage Geom
@@ -10552,14 +10568,14 @@ extern int GetParmType( const std::string & parm_id );
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
 
-    //==== Get Structure Name and Parm Container ID ====// 
+    //==== Get Structure Name and Parm Container ID ====//
     string parm_container_name = GetFeaStructName( pod_id, struct_ind );
 
     string parm_container_id = FindContainer( parm_container_name, struct_ind );
 
-    //==== Get and List All Parms in the Container ====// 
+    //==== Get and List All Parms in the Container ====//
     array<string> parm_ids = FindContainerParmIDs( parm_container_id );
-    
+
     for ( uint i = 0; i < uint(parm_ids.length()); i++ )
     {
         string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
@@ -10576,14 +10592,14 @@ extern int GetParmType( const std::string & parm_id );
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    #==== Get Structure Name and Parm Container ID ====// 
+    #==== Get Structure Name and Parm Container ID ====//
     string parm_container_name = GetFeaStructName( pod_id, struct_ind )
 
     string parm_container_id = FindContainer( parm_container_name, struct_ind )
 
-    #==== Get and List All Parms in the Container ====// 
+    #==== Get and List All Parms in the Container ====//
     array<string> parm_ids = FindContainerParmIDs( parm_container_id )
-    
+
     for ( uint i = 0; i < uint(parm_ids.length()); i++ )
     {
         string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
@@ -10607,7 +10623,7 @@ extern std::string GetParmName( const std::string & parm_id );
     \code{.cpp}
     string veh_id = FindContainer( "Vehicle", 0 );
 
-    //==== Get and List All Parms in the Container ====// 
+    //==== Get and List All Parms in the Container ====//
     array<string> parm_ids = FindContainerParmIDs( veh_id );
 
     Print( "Parm Groups and IDs in Vehicle Parm Container: " );
@@ -10624,7 +10640,7 @@ extern std::string GetParmName( const std::string & parm_id );
     \code{.py}
         string veh_id = FindContainer( "Vehicle", 0 )
 
-    #==== Get and List All Parms in the Container ====// 
+    #==== Get and List All Parms in the Container ====//
     array<string> parm_ids = FindContainerParmIDs( veh_id )
 
     Print( "Parm Groups and IDs in Vehicle Parm Container: " )
@@ -10652,7 +10668,7 @@ extern std::string GetParmGroupName( const std::string & parm_id );
     \code{.cpp}
     string veh_id = FindContainer( "Vehicle", 0 );
 
-    //==== Get and List All Parms in the Container ====// 
+    //==== Get and List All Parms in the Container ====//
     array<string> parm_ids = FindContainerParmIDs( veh_id );
 
     Print( "Parm Group Display Names and IDs in Vehicle Parm Container: " );
@@ -10669,7 +10685,7 @@ extern std::string GetParmGroupName( const std::string & parm_id );
     \code{.py}
         string veh_id = FindContainer( "Vehicle", 0 )
 
-    #==== Get and List All Parms in the Container ====// 
+    #==== Get and List All Parms in the Container ====//
     array<string> parm_ids = FindContainerParmIDs( veh_id )
 
     Print( "Parm Group Display Names and IDs in Vehicle Parm Container: " )
@@ -11015,14 +11031,14 @@ extern std::vector<std::string> FindContainerGroupNames( const std::string & par
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );
 
-    //==== Get Structure Name and Parm Container ID ====// 
+    //==== Get Structure Name and Parm Container ID ====//
     string parm_container_name = GetFeaStructName( pod_id, struct_ind );
 
     string parm_container_id = FindContainer( parm_container_name, struct_ind );
 
-    //==== Get and List All Parms in the Container ====// 
+    //==== Get and List All Parms in the Container ====//
     array<string> parm_ids = FindContainerParmIDs( parm_container_id );
-    
+
     for ( uint i = 0; i < uint(parm_ids.length()); i++ )
     {
         string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
@@ -11039,14 +11055,14 @@ extern std::vector<std::string> FindContainerGroupNames( const std::string & par
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    #==== Get Structure Name and Parm Container ID ====// 
+    #==== Get Structure Name and Parm Container ID ====//
     string parm_container_name = GetFeaStructName( pod_id, struct_ind )
 
     string parm_container_id = FindContainer( parm_container_name, struct_ind )
 
-    #==== Get and List All Parms in the Container ====// 
+    #==== Get and List All Parms in the Container ====//
     array<string> parm_ids = FindContainerParmIDs( parm_container_id )
-    
+
     for ( uint i = 0; i < uint(parm_ids.length()); i++ )
     {
         string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
@@ -11243,7 +11259,7 @@ extern string AddUserParm(int type, const string & name, const string & group );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     n = GetNumPredefinedUserParms()
     array<string> @id_arr = GetAllUserParms()
 
@@ -11747,7 +11763,7 @@ extern void SwitchVarPreset( const std::string &group_name, const std::string &s
     AddVarPresetGroup( "Tess" );
 
     AddVarPresetSetting( "Fine" );
-    
+
     DeleteVarPresetSet( "Tess", "Fine" );
 
     if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 0 )    { Print ( "---> Error: DeleteVarPresetSet" ); }
@@ -11758,7 +11774,7 @@ extern void SwitchVarPreset( const std::string &group_name, const std::string &s
         AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Fine" )
-    
+
     DeleteVarPresetSet( "Tess", "Fine" )
 
     if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 0 )    { Print ( "---> Error: DeleteVarPresetSet" ); }
@@ -12474,7 +12490,7 @@ extern void AutoGroupVSPAEROControlSurfaces();
 */
 /*!
     Add a new VSPAERO control surface group using the default naming convention. The control surface group will not contain any
-    control surfaces until they are added. 
+    control surfaces until they are added.
     \forcpponly
     \code{.cpp}
     string wid = AddGeom( "WING", "" );                             // Add Wing
@@ -12808,9 +12824,9 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
 	\ingroup CSGroup
 */
 /*!
-    Add each control surfaces in the array of control surface indexes to the control surface group at the specified index. 
+    Add each control surfaces in the array of control surface indexes to the control surface group at the specified index.
 
-    \warning The indexes in input "selected" must be matched with available control surfaces identified by GetAvailableCSNameVec. 
+    \warning The indexes in input "selected" must be matched with available control surfaces identified by GetAvailableCSNameVec.
     The "selected" input uses one- based indexing to associate available control surfaces.
 
     \forcpponly
@@ -12864,10 +12880,10 @@ extern void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex);
 	\ingroup CSGroup
 */
 /*!
-    Remove each control surfaces in the array of control surface indexes from the control surface group at the specified index. 
+    Remove each control surfaces in the array of control surface indexes from the control surface group at the specified index.
 
-    \warning The indexes in input "selected" must be matched with active control surfaces identified by GetActiveCSNameVec. The 
-    "selected" input uses one-based indexing to associate available control surfaces. 
+    \warning The indexes in input "selected" must be matched with active control surfaces identified by GetActiveCSNameVec. The
+    "selected" input uses one-based indexing to associate available control surfaces.
 
     \forcpponly
     \code{.cpp}
@@ -13311,9 +13327,9 @@ extern int GetNumUnsteadyGroups();
 	\ingroup VSPAERODiskAndProp
 */
 /*!
-    Get the number of unsteady rotor groups in the current VSPAERO set. This is equivalent to the total number of propeller Geoms, 
-    including each symmetric copy, in the current VSPAERO set. While all fixed components (wings, fuseleage, etc.) are placed in 
-    their own unsteady group, this function does not consider them. 
+    Get the number of unsteady rotor groups in the current VSPAERO set. This is equivalent to the total number of propeller Geoms,
+    including each symmetric copy, in the current VSPAERO set. While all fixed components (wings, fuseleage, etc.) are placed in
+    their own unsteady group, this function does not consider them.
     \forcpponly
     \code{.cpp}
     // Set VSPAERO set index to SET_ALL
@@ -13437,7 +13453,7 @@ extern void UpdateParasiteDrag();
 	\ingroup ParasiteDrag
 */
 /*!
-    Calculate the atmospheric properties determined by a specified model for a preset array of altitudes ranging from 0 to 90000 m and 
+    Calculate the atmospheric properties determined by a specified model for a preset array of altitudes ranging from 0 to 90000 m and
     write the results to a CSV output file
     \forcpponly
     \code{.cpp}
@@ -13465,7 +13481,7 @@ extern void WriteAtmosphereCSVFile( const std::string & file_name, const int &at
 	\ingroup ParasiteDrag
 */
 /*!
-    Calculate the atmospheric properties determined by a specified model at input altitude and temperature deviation. This function may 
+    Calculate the atmospheric properties determined by a specified model at input altitude and temperature deviation. This function may
     not be used for any manual atmospheric model types (i.e. ATMOS_TYPE_MANUAL_P_T). This function assumes freestream units are metric,
     temperature units are Kelvin, and pressure units are kPA.
     \forcpponly
@@ -13481,7 +13497,7 @@ extern void WriteAtmosphereCSVFile( const std::string & file_name, const int &at
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     alt = 4000
 
     delta_temp = 0
@@ -13835,7 +13851,7 @@ extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, co
 	\ingroup SurfaceQuery
 */
 /*!
-    Determine the nearest surface coordinate for an input 3D coordinate point and calculate the distance between the 
+    Determine the nearest surface coordinate for an input 3D coordinate point and calculate the distance between the
     3D point and the closest point of the surface.
     \forcpponly
     \code{.cpp}
@@ -13972,8 +13988,8 @@ extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_
 	\ingroup SurfaceQuery
 */
 /*!
-    Determine the nearest surface coordinate for an input 3D coordinate point and calculate the distance between the 
-    3D point and the closest point of the surface. This function takes an input surface coordinate guess for, offering 
+    Determine the nearest surface coordinate for an input 3D coordinate point and calculate the distance between the
+    3D point and the closest point of the surface. This function takes an input surface coordinate guess for, offering
     a potential decrease in computation time compared to ProjPnt01.
     \forcpponly
     \code{.cpp}
@@ -14196,7 +14212,7 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     double u = 0.12345;
     double w = 0.67890;
 
-    
+
 
     vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w );
     vec3d pt = surf_pt;
@@ -14225,7 +14241,7 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     u = 0.12345
     w = 0.67890
 
-    
+
 
     vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w )
     vec3d pt = surf_pt
@@ -14913,7 +14929,7 @@ extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx,
 	\ingroup SurfaceQuery
 */
 /*!
-    Determine the nearest surface coordinates for an input array of 3D coordinate points and calculate the distance between each 
+    Determine the nearest surface coordinates for an input array of 3D coordinate points and calculate the distance between each
     3D point and the closest point of the surface.
     \forcpponly
     \code{.cpp}
@@ -14995,7 +15011,7 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
 	\ingroup SurfaceQuery
 */
 /*!
-    Determine the nearest surface coordinates for an input array of 3D coordinate points and calculate the distance between each 
+    Determine the nearest surface coordinates for an input array of 3D coordinate points and calculate the distance between each
     3D point and the closest point of the surface. This function takes an input array of surface coordinate guesses for each 3D
     coordinate, offering a potential decrease in computation time compared to ProjVecPnt01.
     \forcpponly
@@ -15082,7 +15098,7 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
 
     \endcode
     \endPythonOnly
-    \sa ProjVecPnt01, 
+    \sa ProjVecPnt01,
     \param [in] geom_id Parent Geom ID
     \param [in] surf_indx Main surface index from the parent Geom
     \param [in] pts Input array of 3D coordinate points
@@ -16246,7 +16262,7 @@ extern std::vector< std::string > GetAdvLinkNames();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16305,7 +16321,7 @@ extern int GetLinkIndex( const string & name );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16371,7 +16387,7 @@ extern void DelAdvLink( int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16426,7 +16442,7 @@ extern void DelAllAdvLinks();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16473,7 +16489,7 @@ extern void AddAdvLink( const string & name );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16522,7 +16538,7 @@ extern void AddAdvLinkInput( int index, const string & parm_id, const string & v
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16577,7 +16593,7 @@ extern void AddAdvLinkOutput( int index, const string & parm_id, const string & 
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16637,7 +16653,7 @@ extern void DelAdvLinkInput( int index, const string & var_name );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16698,7 +16714,7 @@ extern void DelAdvLinkOutput( int index, const string & var_name );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16759,7 +16775,7 @@ extern std::vector< std::string > GetAdvLinkInputNames( int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16820,7 +16836,7 @@ extern std::vector< std::string > GetAdvLinkInputParms( int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16881,7 +16897,7 @@ extern std::vector< std::string > GetAdvLinkOutputNames( int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -16946,7 +16962,7 @@ extern std::vector< std::string > GetAdvLinkOutputParms( int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -17001,7 +17017,7 @@ extern bool ValidateAdvLinkParms( int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -17053,7 +17069,7 @@ extern void SetAdvLinkCode( int index, const string & code );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -17110,7 +17126,7 @@ extern std::string GetAdvLinkCode( int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
@@ -17172,7 +17188,7 @@ extern void SearchReplaceAdvLinkCode( int index, const string & from, const stri
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    
+
     string pod = AddGeom( "POD", "" )
     string length = FindParm( pod, "Length", "Design" )
     string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
