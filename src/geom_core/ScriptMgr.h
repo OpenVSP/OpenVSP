@@ -98,7 +98,7 @@ public:
 
     void AddToMessages( const string & msg )                { m_ScriptMessages += msg; }
     void ClearMessages()                                    { m_ScriptMessages.clear(); }
-    string GetMessages()                                    { return m_ScriptMessages; }   
+    string GetMessages()                                    { return m_ScriptMessages; }
 
     string FindModuleContent( const string & module_name );
     static string ExtractContent( const string & file_name );
@@ -137,11 +137,6 @@ public:
     double Deg2Rad( double d )                      { return d*DEG_2_RAD; }
     double Min( double x, double y )                { return  (x < y ) ? x : y; }
     double Max( double x, double y )                { return  (x > y ) ? x : y; }
-
-    void GenAPIDocs( const string & file_name )
-    {
-        GenerateDocument( m_ScriptEngine, file_name.c_str() );
-    }
 
 private:
 
@@ -289,7 +284,7 @@ private:
     // ==== Parasite Drag Tool Functions ====//
     static void AddExcrescence(const std::string & excresName, int excresType, double excresVal);
     static void DeleteExcrescence(int index);
-    
+
     CScriptArray* GetFeaStructIDVec();
     CScriptArray* GetFeaPartIDVec( const std::string & fea_struct_id );
     CScriptArray* GetFeaSubSurfIDVec( const std::string & fea_struct_id );

@@ -35,7 +35,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr, int &ret )
     int scriptModeFlag = 0;
     int desModeFlag = 0;
     int xddmModeFlag = 0;
-    int genDocFlag = 0;
     int vspFileFlag = 0;
 
     string vsp_filename;
@@ -71,10 +70,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr, int &ret )
                 xddmModeFlag = 1;
             }
         }
-        else if ( strcmp( argv[i], "-doc" ) == 0 )
-        {
-            genDocFlag = 1;
-        }
         else
         {
             vsp_filename = string( argv[i] );
@@ -94,7 +89,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr, int &ret )
             printf( "  -help              This message\n" );
             printf( "  -des <desfile>     Set variables according to *.des file\n" );
             printf( "  -xddm <xddmfile>   Set variables according to *.xddm file\n" );
-            printf( "  -doc               Generate an API header file for Doxygen (openvsp_as.h)\n" );
             printf( "\n" );
             printf( "-----------------------------------------------------------\n" );
             return 1;
@@ -117,12 +111,6 @@ int batchMode( int argc, char *argv[], Vehicle* vPtr, int &ret )
     if ( xddmModeFlag && vspFileFlag )
     {
         DesignVarMgr.ReadDesVarsXDDM( xddm_filename );
-    }
-
-    if ( genDocFlag )
-    {
-        vPtr->GenAPIDocs( ( "openvsp_as.h" ) ); // vPtr->GetExePath() + "/" + 
-        return 1; // Exit VSP
     }
 
     if ( scriptModeFlag )

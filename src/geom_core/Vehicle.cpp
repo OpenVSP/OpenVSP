@@ -270,7 +270,7 @@ Vehicle::Vehicle()
 
     m_PlanarAxisType.Init( "PlanarAxisType", "PSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
     m_PlanarAxisType.SetDescript( "Selects from X,Y,Z Axis for Planar Slice" );
-    
+
     m_PlanarStartLocation.Init( "PlanarStartLocation", "PSlice", this, 0, -1e12, 1e12 );
     m_PlanarStartLocation.SetDescript( "Planar Start Location" );
 
@@ -534,8 +534,8 @@ void Vehicle::SetupPaths()
 {
     m_ExePath = PathToExe();
     m_HomePath = PathToHome();
-    
-    // Initialize VSPAERO directory as VSP executable directory. 
+
+    // Initialize VSPAERO directory as VSP executable directory.
     // This may be overwritten from the API, where the VSP executable
     // path and VSPAERO executable path may differ
     m_VSPAEROPath = m_ExePath;
@@ -628,11 +628,6 @@ void Vehicle::Renew()
     Init();
 }
 
-void Vehicle::GenAPIDocs( const string & file_name )
-{
-    ScriptMgr.GenAPIDocs( file_name );
-}
-
 //==== Parm Changed ====//
 void Vehicle::ParmChanged( Parm* parm_ptr, int type )
 {
@@ -680,7 +675,7 @@ void Vehicle::Update( bool fullupdate )
     MeasureMgr.Update();
 }
 
-// Update managers that are normally only updated by their 
+// Update managers that are normally only updated by their
 // associated GUI. This enables update from the API
 void Vehicle::UpdateManagers()
 {
@@ -3799,7 +3794,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
         fclose( dxf_file );
 
         // Clear Projection Line Vec:
-        m_VehProjectVec3d.clear(); 
+        m_VehProjectVec3d.clear();
 
         // Restore Color Counter:
         m_ColorCount = 0;
@@ -3823,7 +3818,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
 
     xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"svg" );
     doc->standalone=0;
-    
+
     xmlDocSetRootElement( doc, root );
 
     // Tessellation adjustment
@@ -3917,7 +3912,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
         // Generate Geom and Vehicle Projection Line Vectors:
         ProjectionMgr.ExportProjectLines( TotalProjectMeshVec );
 
-        // Delete TMesh Pointers 
+        // Delete TMesh Pointers
         for ( unsigned int i = 0; i < TotalProjectMeshVec.size(); i++ )
         {
             delete TotalProjectMeshVec[i];
@@ -4638,12 +4633,12 @@ string Vehicle::MassProps( int set, int numSlices, int idir, bool hidegeom, bool
 
     //==== Load Point Mass Properties From Blank Geom ====//
     vector<string> geom_vec = GetGeomVec();
- 
+
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i].compare( id ) != 0 )
         {
-  
+
             Geom* geom_ptr = FindGeom( geom_vec[i] );
             if ( geom_ptr )
             {
@@ -4665,7 +4660,7 @@ string Vehicle::MassProps( int set, int numSlices, int idir, bool hidegeom, bool
                             pm->m_Name = geom_ptr->GetName() + "_pm";
                             mesh_ptr->AddPointMass( pm );
                         }
-                        
+
                     }
                 }
             }

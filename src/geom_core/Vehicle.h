@@ -64,8 +64,6 @@ public:
     static void RunTestScripts();
     void Renew();
 
-    void GenAPIDocs( const string & file_name );
-
     void ParmChanged( Parm* parm_ptr, int type );
     static void UnDo();
 
@@ -181,7 +179,7 @@ public:
     vector < string > GetCustomScriptDirs()                 { return m_CustomScriptDirs; }
 
     //=== Export Files ===//
-    // Return Mesh Geom ID if the export generates a mesh, otherwise return an 
+    // Return Mesh Geom ID if the export generates a mesh, otherwise return an
     // empty string. This facilitates deleting the generated mesh from the API.
     string ExportFile( const string & file_name, int write_set, int degen_set, int subsFlag, int file_type );
     bool WriteXMLFile( const string & file_name, int set );
