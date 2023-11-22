@@ -93,6 +93,7 @@ public:
 
 	// Global properties
 	virtual int    RegisterGlobalProperty(const char *declaration, void *pointer);
+	virtual int    RegisterGlobalProperty(const char *declaration, void *pointer, const char *comment );
 	virtual asUINT GetGlobalPropertyCount() const;
 	virtual int    GetGlobalPropertyByIndex(asUINT index, const char **name, const char **nameSpace = 0, int *typeId = 0, bool *isConst = 0, const char **configGroup = 0, void **pointer = 0, asDWORD *accessMask = 0) const;
 	virtual int    GetGlobalPropertyIndexByName(const char *name) const;
@@ -108,6 +109,9 @@ public:
 	virtual asUINT         GetObjectTypeCount() const;
 	virtual asITypeInfo   *GetObjectTypeByIndex(asUINT index) const;
 
+    virtual void          AddSkipComment( const char* declaration, const char* comment );
+    virtual void          AddGroup( const char* group, const char* title, const char* description );
+
 	// String factory
 	virtual int RegisterStringFactory(const char *datatype, asIStringFactory *factory);
 	virtual int GetStringFactoryReturnTypeId(asDWORD *flags) const;
@@ -119,6 +123,7 @@ public:
 	// Enums
 	virtual int          RegisterEnum(const char *type);
 	virtual int          RegisterEnumValue(const char *type, const char *name, int value);
+	virtual int          RegisterEnumValue(const char *type, const char *name, int value, const char *comment );
 	virtual asUINT       GetEnumCount() const;
 	virtual asITypeInfo *GetEnumByIndex(asUINT index) const;
 
@@ -306,7 +311,7 @@ public:
 	asCFuncdefType    *FindMatchingFuncdef(asCScriptFunction *func, asCModule *mod);
 
 	int                DetermineNameAndNamespace(const char *in_name, asSNameSpace *implicitNs, asCString &out_name, asSNameSpace *&out_ns) const;
-	
+
 	// Global property management
 	asCGlobalProperty *AllocateGlobalProperty();
 	void RemoveGlobalProperty(asCGlobalProperty *prop);
@@ -451,6 +456,9 @@ public:
 
 	// User data
 	asCArray<asPWORD>       userData;
+
+	// Map to identify member and function names after they've been reformatted by Angelscript registration
+	asCMap < asCString, unsigned int > m_ObjTypeMap;
 
 	struct SEngineClean    { asPWORD type; asCLEANENGINEFUNC_t       cleanFunc; };
 	asCArray<SEngineClean>    cleanEngineFuncs;
