@@ -228,6 +228,7 @@ public:
     void SplitFace( PGFace *f0, PGEdge *e );
 
     void Triangulate();
+    void ClearTris();
 
     void Report();
     void ResetNodeNumbers();

@@ -1568,6 +1568,15 @@ void PGMesh::Triangulate()
     }
 }
 
+void PGMesh::ClearTris()
+{
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        ( *f )->ClearTris();
+    }
+}
+
 void PGMesh::Report()
 {
     ResetNodeNumbers();
