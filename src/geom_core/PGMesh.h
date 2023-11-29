@@ -196,6 +196,8 @@ public:
 
     void  RemoveFace( PGFace* fptr );
 
+    void RemoveNegativeiQuadFaces();
+
     int GetNumFaces()
     {
         return m_FaceList.size();

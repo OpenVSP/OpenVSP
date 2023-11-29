@@ -1344,6 +1344,28 @@ void PGMesh::RemoveFace( PGFace* fptr )
     fptr->m_DeleteMeFlag = true;
 }
 
+void PGMesh::RemoveNegativeiQuadFaces()
+{
+    int iremove = 0;
+    vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
+
+    for ( int i = 0; i < fVec.size(); i++ )
+    {
+        PGFace *f = fVec[i];
+
+        if ( f->m_iQuad < 0 )
+        {
+            RemoveFace( f );
+            iremove++;
+        }
+    }
+    printf( "Removed %d\n", iremove );
+
+    CleanUnused();
+
+    DumpGarbage();
+}
+
 void PGMesh::RemoveNodeMergeEdges( PGNode* n )
 {
     if ( n->m_EdgeVec.size() == 2 )
