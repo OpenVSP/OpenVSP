@@ -257,6 +257,11 @@ void NGonMeshGeom::Report()
     m_PGMesh.Report();
 }
 
+void NGonMeshGeom::ClearTris()
+{
+    m_PGMesh.ClearTris();
+}
+
 void NGonMeshGeom::WriteVSPGEOM( string fname, vector < string > &all_fnames )
 {
     Matrix4d trans = GetTotalTransMat();

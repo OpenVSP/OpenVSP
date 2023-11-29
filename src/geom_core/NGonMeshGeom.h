@@ -43,6 +43,7 @@ public:
     virtual void SplitLEGeom();
     virtual void Triangulate();
     virtual void Report();
+    virtual void ClearTris();
 
     virtual void WriteVSPGEOM( string fname, vector < string > &all_fnames );
 
