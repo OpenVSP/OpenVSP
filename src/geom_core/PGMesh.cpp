@@ -1108,7 +1108,6 @@ void PGMesh::RemoveEdgeMergeFaces( PGEdge* e )
 
             for ( int i = 0; i < ev1.size(); i++ )
             {
-                ev1[ i ]->RemoveFace( f1 );
                 ev1[ i ]->AddConnectFace( f0 );
             }
 
@@ -1282,8 +1281,17 @@ PGFace* PGMesh::AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
     return f;
 }
 
-void PGMesh::RemoveFace( PGFace* fptr ) // Seems insufficient.
+void PGMesh::RemoveFace( PGFace* fptr )
 {
+    vector < PGEdge * > ev = fptr->m_EdgeVec;
+
+    for ( int i = 0; i < ev.size(); i++ )
+    {
+        ev[ i ]->RemoveFace( fptr );
+    }
+
+    fptr->ClearTris();
+
     m_GarbageFaceVec.push_back( fptr );
     m_FaceList.erase( fptr->m_List_it );
 }
@@ -1600,13 +1608,6 @@ void PGMesh::Triangulate()
                 f->AddEdge( e3 );
             }
 
-            vector < PGEdge * > ev = fpoly->m_EdgeVec;
-
-            for ( int i = 0; i < ev.size(); i++ )
-            {
-                ev[ i ]->RemoveFace( fpoly );
-            }
-            fpoly->ClearTris();
             RemoveFace( fpoly );
         }
     }
