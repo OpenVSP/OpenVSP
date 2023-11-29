@@ -120,27 +120,11 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
 
     for ( int i = 0; i < triVec.size(); i++ )
     {
-        PGFace *f = m_PGMesh.AddFace( );
-        f->m_Nvec = triVec[i]->m_Norm;
-        f->m_iQuad = triVec[i]->m_iQuad;
-        f->m_Tag = m_PGMesh.GetTag( triVec[i]->m_Tags );
-
-        PGEdge *e1 = m_PGMesh.AddEdge( nod[triVec[i]->m_N0->m_ID], nod[triVec[i]->m_N1->m_ID] );
-        PGEdge *e2 = m_PGMesh.AddEdge( nod[triVec[i]->m_N1->m_ID], nod[triVec[i]->m_N2->m_ID] );
-        PGEdge *e3 = m_PGMesh.AddEdge( nod[triVec[i]->m_N2->m_ID], nod[triVec[i]->m_N0->m_ID] );
-
-        nod[ triVec[i]->m_N0->m_ID ]->m_TagUWMap[ f->m_Tag ] = triVec[i]->m_N0->m_UWPnt.as_vec2d_xy();
-        nod[ triVec[i]->m_N1->m_ID ]->m_TagUWMap[ f->m_Tag ] = triVec[i]->m_N1->m_UWPnt.as_vec2d_xy();
-        nod[ triVec[i]->m_N2->m_ID ]->m_TagUWMap[ f->m_Tag ] = triVec[i]->m_N2->m_UWPnt.as_vec2d_xy();
-
-        e1->AddConnectFace( f );
-        e2->AddConnectFace( f );
-        e3->AddConnectFace( f );
-
-        f->AddEdge( e1 );
-        f->AddEdge( e2 );
-        f->AddEdge( e3 );
-
+        TTri *t = triVec[i];
+        int tag = m_PGMesh.GetTag( t->m_Tags );
+        PGFace *f = m_PGMesh.AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
+                                      t->m_N0->m_UWPnt.as_vec2d_xy(), t->m_N1->m_UWPnt.as_vec2d_xy(), t->m_N2->m_UWPnt.as_vec2d_xy(),
+                                      t->m_Norm, t->m_iQuad, tag );
     }
 
     int nwake = wakes.size();
