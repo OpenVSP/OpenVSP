@@ -1043,6 +1043,14 @@ PGNode* PGMesh::AddNode( vec3d p )
 
 void PGMesh::RemoveNode( PGNode* nptr )
 {
+    for ( int i = 0; i < nptr->m_EdgeVec.size(); i++ )
+    {
+        nptr->EdgeForgetNode( nptr->m_EdgeVec[i] );
+    }
+    nptr->m_EdgeVec.clear();
+
+    nptr->m_TagUWMap.clear();
+
     m_GarbageNodeVec.push_back( nptr );
     m_NodeList.erase( nptr->m_List_it );
 
@@ -1069,7 +1077,15 @@ PGEdge* PGMesh::AddEdge( PGNode* n0, PGNode* n1 )
 void PGMesh::RemoveEdge( PGEdge* e )
 {
     e->m_N0->RemoveConnectEdge( e );
+    e->m_N0 = NULL;
     e->m_N1->RemoveConnectEdge( e );
+    e->m_N1 = NULL;
+
+    for ( int i = 0; i < e->m_FaceVec.size(); i++ )
+    {
+        e->m_FaceVec[i]->RemoveEdge( e );
+    }
+    e->m_FaceVec.clear();
 
     m_GarbageEdgeVec.push_back( e );
     m_EdgeList.erase( e->m_List_it );
@@ -1313,24 +1329,21 @@ void PGMesh::RemoveNodeMergeEdges( PGNode* n )
         PGNode *n0 = e0->OtherNode( n );
         PGNode *n1 = e1->OtherNode( n );
 
-        vector< PGFace* > fv = e1->m_FaceVec;
-        for ( int i = 0; i < fv.size(); i++ )
-        {
-            PGFace *f = fv[i];
-
-            e1->RemoveFace( f );  // Remove face from edge's facevec
-            f->RemoveEdge( e1 );  // Remove edge from face's edgevec
-        }
-
         e0->ReplaceNode( n, n1 ); // Only changes node pointer, does not recurse.
         n1->AddConnectEdge( e0 ); // Adds edge to node's edge vec.
 
         RemoveEdge( e1 ); // Calls both nodes to RemoveConnectEdge - removes edge from node edgevec
+                          // Sets nodes to null
+                          // Removes edge from all faces.
+                          // Clears face list.
                           // Adds to garbage vec
                           // Removes from mesh edge list.
                           // Sets deleteme flag
 
-        RemoveNode( n );  // Adds to garbage vec
+        RemoveNode( n ); // Removes node from all edges
+                          // Clears edge list
+                          // Clears TagUWMap
+                          // Adds to garbage vec
                           // Removes from mesh node list.
                           // Sets deleteme flag
 
