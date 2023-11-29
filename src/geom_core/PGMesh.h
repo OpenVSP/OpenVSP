@@ -146,6 +146,9 @@ public:
 
     void GetHullEdges( vector < PGEdge* > & evec ) const;
 
+    double ComputeTriQual();
+    static double ComputeTriQual( PGNode* n0, PGNode* n1, PGNode* n2 );
+    static void ComputeCosAngles( PGNode* n0, PGNode* n1, PGNode* n2, double* ang0, double* ang1, double* ang2 );
     list< PGFace* >::iterator m_List_it;
 
     vec3d m_Nvec;
