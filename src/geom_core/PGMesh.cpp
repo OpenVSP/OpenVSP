@@ -1238,6 +1238,34 @@ PGFace* PGMesh::AddFace()
     return fptr;
 }
 
+PGFace* PGMesh::AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
+                         const vec2d &uw0, const vec2d &uw1, const vec2d &uw2,
+                         const vec3d & norm, int iQuad, int tag )
+{
+    PGFace *f = AddFace( );
+    f->m_Nvec = norm;
+    f->m_iQuad = iQuad;
+    f->m_Tag = tag;
+
+    PGEdge *e1 = AddEdge( n0, n1 );
+    PGEdge *e2 = AddEdge( n1, n2 );
+    PGEdge *e3 = AddEdge( n2, n0 );
+
+    n0->m_TagUWMap[ f->m_Tag ] = uw0;
+    n1->m_TagUWMap[ f->m_Tag ] = uw1;
+    n2->m_TagUWMap[ f->m_Tag ] = uw2;
+
+    e1->AddConnectFace( f );
+    e2->AddConnectFace( f );
+    e3->AddConnectFace( f );
+
+    f->AddEdge( e1 );
+    f->AddEdge( e2 );
+    f->AddEdge( e3 );
+
+    return f;
+}
+
 void PGMesh::RemoveFace( PGFace* fptr ) // Seems insufficient.
 {
     m_GarbageFaceVec.push_back( fptr );

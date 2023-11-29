@@ -189,6 +189,9 @@ public:
     PGEdge* FindEdge( const PGNode* n0, const PGNode* n1 ) const;
 
     PGFace* AddFace();
+    PGFace* AddFace( PGNode* n0, PGNode* n1, PGNode* n2,
+                             const vec2d &uw0, const vec2d &uw1, const vec2d &uw2,
+                             const vec3d & norm, int iQuad, int tag );
 
     void  RemoveFace( PGFace* fptr );
 
