@@ -236,6 +236,9 @@ public:
     void WriteTagFile( FILE* file_id, int part, int tag );
     void WriteVSPGEOMKeyFile(const string & file_name, vector < string > &all_fnames );
 
+    void WriteSTL( string fname );
+    void WriteTRI( string fname );
+
     // Get Comma Delimited list of names for a set of tags
     std::string GetTagNames( const std::vector<int> & tags );
     std::string GetTagNames( int indx );

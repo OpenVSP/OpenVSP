@@ -1975,6 +1975,97 @@ void PGMesh::WriteVSPGEOMKeyFile( const string & file_name, vector < string > &a
     fclose( fid );
 }
 
+void PGMesh::WriteSTL( string fname )
+{
+    FILE* fp = fopen( fname.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    fprintf( fp, "solid\n" );
+
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodesAsTris( nodVec );
+
+        vec3d norm = (*f)->m_Nvec;
+
+        int ntri = nodVec.size() / 3;
+        int inod = 0;
+        for ( int i = 0; i < ntri; i++ )
+        {
+            fprintf( fp, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+            fprintf( fp, "   outer loop\n" );
+            for ( int j = 0; j < 3; j++ )
+            {
+                vec3d v = nodVec[ inod ]->m_Pnt;
+                fprintf( fp, "     vertex %2.10le %2.10le %2.10le\n", v.x(), v.y(), v.z() );
+                inod++;
+            }
+            fprintf( fp, "   endloop\n" );
+            fprintf( fp, " endfacet\n" );
+        }
+    }
+    fprintf( fp, "endsolid\n" );
+    fclose( fp );
+}
+
+void PGMesh::WriteTRI( string fname )
+{
+    FILE* fp = fopen( fname.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    ResetNodeNumbers(); // Start numbering at 1.
+
+    fprintf( fp, "%d\n", m_NodeList.size() );
+
+    int ntri = 0;
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        vector < PGNode * > nodVec;
+        ( *f )->GetNodesAsTris( nodVec );
+        ntri += nodVec.size() / 3;
+    }
+
+    fprintf( fp, "%d\n", ntri );
+
+    list< PGNode* >::iterator n;
+    for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
+    {
+        vec3d v = ( *n )->m_Pnt;
+        fprintf( fp, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() );
+    }
+
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodesAsTris( nodVec );
+
+        int nt = nodVec.size() / 3;
+
+        int inod = 0;
+        for ( int i = 0; i < nt; i++ )
+        {
+            fprintf( fp, "%d ", nodVec[ inod ]->m_ID );
+            inod++;
+            fprintf( fp, "%d ", nodVec[ inod ]->m_ID );
+            inod++;
+            fprintf( fp, "%d\n", nodVec[ inod ]->m_ID );
+            inod++;
+        }
+    }
+    fclose( fp );
+}
+
 string PGMesh::GetTagNames( const vector<int> & tags )
 {
     string comp_list;
