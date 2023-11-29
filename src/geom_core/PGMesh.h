@@ -184,6 +184,8 @@ public:
     PGEdge* AddEdge( PGNode* n0, PGNode* n1 );
     void  RemoveEdge( PGEdge* e );
     void  RemoveEdgeMergeFaces( PGEdge* e );
+    void SwapEdge( PGEdge* e );
+    void CheckQualitySwapEdges();
     PGEdge* FindEdge( const PGNode* n0, const PGNode* n1 ) const;
 
     PGFace* AddFace();

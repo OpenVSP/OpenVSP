@@ -1101,6 +1101,122 @@ void PGMesh::RemoveEdgeMergeFaces( PGEdge* e )
     }
 }
 
+void PGMesh::SwapEdge( PGEdge* e )
+{
+    if ( e->m_FaceVec.size() != 2 )
+    {
+        return;
+    }
+
+    PGFace *f0 = e->m_FaceVec[0];
+    PGFace *f1 = e->m_FaceVec[1];
+
+    if ( f0->m_EdgeVec.size() == 3 &&
+         f1->m_EdgeVec.size() == 3 )
+    {
+        // Grab edge loops.
+        vector < PGEdge * > ev0 = f0->m_EdgeVec;
+        vector < PGEdge * > ev1 = f1->m_EdgeVec;
+
+        // Find edge in each loop.
+        int i0 = vector_find_val( ev0, e );
+        int i1 = vector_find_val( ev1, e );
+
+        if ( i0 >= 0 && i1 >= 0 )
+        {
+            // Rotate edge loop such that e is at the start.
+            std::rotate( ev0.begin(), ev0.begin() + i0, ev0.end());
+            std::rotate( ev1.begin(), ev1.begin() + i1, ev1.end());
+
+            PGEdge * ea = ev0[1];
+            PGEdge * eb = ev0[2];
+            PGEdge * ec = ev1[1];
+            PGEdge * ed = ev1[2];
+
+            PGNode* na = ea->SharedNode( eb );
+            PGNode* nc = ec->SharedNode( ed );
+
+            if ( na && nc )
+            {
+                // Clear old edge.
+                e->m_N0->RemoveConnectEdge( e );
+                e->m_N1->RemoveConnectEdge( e );
+
+                // Reconnect edge
+                na->AddConnectEdge( e );
+                e->m_N0 = na;
+                nc->AddConnectEdge( e );
+                e->m_N1 = nc;
+
+                ea->RemoveFace( f0 );
+                ea->AddConnectFace( f1 );
+                // eb No change.
+                ec->RemoveFace( f1 );
+                ec->AddConnectFace( f0 );
+                // ed No change.
+
+                vector < PGEdge * > ev0new = { e, eb, ec };
+                vector < PGEdge * > ev1new = { e, ed, ea };
+
+                f0->m_EdgeVec = ev0new;
+                f1->m_EdgeVec = ev1new;
+            }
+        }
+    }
+}
+
+void PGMesh::CheckQualitySwapEdges()
+{
+    // Make vector copy of list so edges can be removed from list without invalidating active list iterator.
+    vector< PGEdge* > eVec( m_EdgeList.begin(), m_EdgeList.end() );
+
+    for ( int i = 0; i < eVec.size(); i++ )
+    {
+        PGEdge *e = eVec[ i ];
+
+        if ( e->m_FaceVec.size() == 2 )
+        {
+            PGFace *f0 = e->m_FaceVec[0];
+            PGFace *f1 = e->m_FaceVec[1];
+
+            if ( f0->m_EdgeVec.size() == 3 &&
+                 f1->m_EdgeVec.size() == 3 &&
+                 f0->m_iQuad == f1->m_iQuad &&
+                 f0->m_Tag == f1->m_Tag )
+            {
+                PGNode* n0 = e->m_N0;
+                PGNode* n1 = e->m_N1;
+
+                vector < PGNode* > commonNodVec = { n0, n1 };
+
+                vector < PGNode* > t0nodVec;
+                vector < PGNode* > t1nodVec;
+                f0->GetOtherNodes( t0nodVec, commonNodVec );
+                f1->GetOtherNodes( t1nodVec, commonNodVec );
+
+                PGNode* na = t0nodVec[0];
+                PGNode* nb = t1nodVec[0];
+
+                double qa = f0->ComputeTriQual();
+                double qb = f1->ComputeTriQual();
+                double qc = PGFace::ComputeTriQual( n0, nb, na );
+                double qd = PGFace::ComputeTriQual( n1, na, nb );
+
+                // Require 5 degree improvement in minimum angle to bother flipping.  This reduces frivilous flips
+                // and maintains mostly the original diagonal orientation.
+                if ( min( qc, qd ) <= ( min( qa, qb ) + PI / 36.0 ) )
+                {
+                    continue;
+                }
+
+                SwapEdge( e );
+            }
+        }
+    }
+
+    ClearTris();
+}
+
 PGEdge* PGMesh::FindEdge( const PGNode* n0, const PGNode* n1 ) const
 {
     PGEdge *e;
