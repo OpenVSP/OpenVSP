@@ -159,7 +159,7 @@ public:
     vector < PGNode* > m_TriNodeVec;
 
     // Set to true if PGFace should be removed
-    bool deleteFlag;
+    bool m_DeleteMeFlag;
 
 };
 

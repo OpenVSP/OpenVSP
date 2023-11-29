@@ -351,7 +351,7 @@ void PGEdge::DumpMatlab()
 
 PGFace::PGFace()
 {
-    deleteFlag = false;
+    m_DeleteMeFlag = false;
 }
 
 PGFace::~PGFace()
@@ -821,6 +821,11 @@ void PGFace::EdgeForgetFace()
 
 bool PGFace::Check()
 {
+    if ( m_DeleteMeFlag )
+    {
+        return false;
+    }
+
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
         if ( !m_EdgeVec[i] )
@@ -1294,6 +1299,8 @@ void PGMesh::RemoveFace( PGFace* fptr )
 
     m_GarbageFaceVec.push_back( fptr );
     m_FaceList.erase( fptr->m_List_it );
+
+    fptr->m_DeleteMeFlag = true;
 }
 
 void PGMesh::RemoveNodeMergeEdges( PGNode* n )
