@@ -500,6 +500,14 @@ void PGFace::Triangulate_triangle()
         return;
     }
 
+    if ( npt == 3 )
+    {
+        m_TriNodeVec.push_back( nodVec[ 0 ] );
+        m_TriNodeVec.push_back( nodVec[ 1 ] );
+        m_TriNodeVec.push_back( nodVec[ 2 ] );
+        return;
+    }
+
     // Get node data into simple point vector.
     vector < vec3d > ptVec( npt );
     for ( int i = 0; i < npt; i++ )
@@ -642,6 +650,14 @@ void PGFace::Triangulate_DBA()
 
     if ( npt < 3 )
     {
+        return;
+    }
+
+    if ( npt == 3 )
+    {
+        m_TriNodeVec.push_back( nodVec[ 0 ] );
+        m_TriNodeVec.push_back( nodVec[ 1 ] );
+        m_TriNodeVec.push_back( nodVec[ 2 ] );
         return;
     }
 
