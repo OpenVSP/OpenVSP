@@ -464,6 +464,12 @@ void PGFace::GetNodes( vector< PGNode* > & nodVec ) const
     }
 }
 
+void PGFace::GetOtherNodes( vector< PGNode* > & nodVec, const vector< PGNode* > & skipNodVec ) const
+{
+    GetNodes( nodVec );
+    vector_remove_vector( nodVec, skipNodVec );
+}
+
 void PGFace::GetNodesAsTris( vector < PGNode* > & trinodVec )
 {
     if ( m_TriNodeVec.size() == 0 )

@@ -123,6 +123,7 @@ public:
     PGNode * FindPrevNode( int i ) const;
 
     void GetNodes( vector< PGNode* > & nodVec ) const;
+    void GetOtherNodes( vector< PGNode* > & nodVec, const vector< PGNode* > & skipNodVec ) const;
 
     void GetNodesAsTris( vector < PGNode* > & trinodVec );
     void Triangulate();
