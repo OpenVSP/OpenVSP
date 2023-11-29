@@ -174,6 +174,7 @@ public:
 
     void Clear();
 
+    void CleanUnused();
 
     void DumpGarbage();
 

@@ -1033,6 +1033,31 @@ void PGMesh::Clear()
     m_NodeList.clear();
 }
 
+void PGMesh::CleanUnused()
+{
+    // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGEdge* > eVec( m_EdgeList.begin(), m_EdgeList.end() );
+    for ( int i = 0; i < eVec.size(); i++ )
+    {
+        PGEdge *e = eVec[ i ];
+        if ( e->m_FaceVec.empty() )
+        {
+            RemoveEdge( e );
+        }
+    }
+
+    // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGNode* > nVec( m_NodeList.begin(), m_NodeList.end() );
+    for ( int i = 0; i < nVec.size(); i++ )
+    {
+        PGNode *n = nVec[ i ];
+        if ( n->m_EdgeVec.empty() )
+        {
+            RemoveNode( n );
+        }
+    }
+}
+
 PGNode* PGMesh::AddNode( vec3d p )
 {
     PGNode* nptr = new PGNode( p );
