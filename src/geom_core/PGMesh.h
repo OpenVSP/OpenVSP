@@ -259,6 +259,7 @@ public:
     void MakePartList( std::vector < int > & partvec );
 
     int GetTag( const std::vector<int> & tags );
+    vector< int > GetTagVec( const int &t );
     int GetPart( const std::vector<int> & tags );
     int GetPart( int tag );
     void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );

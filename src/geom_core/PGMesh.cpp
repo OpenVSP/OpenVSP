@@ -2406,6 +2406,36 @@ int PGMesh::GetTag( const vector<int> & tags )
     }
 }
 
+vector< int > PGMesh::GetTagVec( const int &tin )
+{
+    vector < int > ret;
+
+    int t = tin;
+
+    if ( t > 1000 )
+    {
+        t -= 1000;
+    }
+
+    t -= 1;
+
+    if ( t >=0 && t < m_TagKeys.size() )
+    {
+        ret = m_TagKeys[ t ];
+        if ( GetTag( ret ) == tin )
+        {
+            return ret;
+        }
+        printf( "Error in PGMesh::GetTagVec.  Unable to invert %d.\n", tin );
+    }
+    else
+    {
+        printf( "Error in PGMesh::GetTagVec.  Out of range %d.\n", tin );
+    }
+
+    return vector<int> { -1 };
+}
+
 int PGMesh::GetPart( const vector<int> & tags )
 {
     if ( tags.size() > 0 )
