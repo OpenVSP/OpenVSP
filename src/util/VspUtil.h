@@ -74,16 +74,18 @@ template <typename T> T clampCyclic( T val, T min, T max )
 
 template <typename T> T clampCyclic( T val, T max )
 {
-    while ( val < 0 )
+    if ( max != 0 )
     {
-        val += max;
-    }
+        while ( val < 0 )
+        {
+            val += max;
+        }
 
-    while ( val >= max )
-    {
-        val -= max;
+        while ( val >= max )
+        {
+            val -= max;
+        }
     }
-
     return val;
 }
 
