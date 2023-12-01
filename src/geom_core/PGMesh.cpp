@@ -742,7 +742,6 @@ void PGFace::Triangulate_DBA()
 
         const IDelaBella2<double>::Simplex* dela = idb->GetFirstDelaunaySimplex();
 
-        m_TriNodeVec.clear();
         m_TriNodeVec.reserve( tris * 3 );
         for ( int i = 0; i < tris; i++ )
         {
