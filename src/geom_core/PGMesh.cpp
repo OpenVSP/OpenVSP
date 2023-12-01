@@ -1048,6 +1048,17 @@ void PGMesh::Clear()
 void PGMesh::CleanUnused()
 {
     // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
+    for ( int i = 0; i < fVec.size(); i++ )
+    {
+        PGFace *f = fVec[ i ];
+        if ( f->m_EdgeVec.empty() )
+        {
+            RemoveFace( f );
+        }
+    }
+
+    // Copy list to vector because removal from list will corrupt list in-use.
     vector< PGEdge* > eVec( m_EdgeList.begin(), m_EdgeList.end() );
     for ( int i = 0; i < eVec.size(); i++ )
     {
