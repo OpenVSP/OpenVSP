@@ -779,6 +779,17 @@ void PGFace::RemoveEdge( PGEdge* e )
     vector_remove_val( m_EdgeVec, e );
 }
 
+void PGFace::ReplaceEdge( PGEdge *eold, PGEdge *enew )
+{
+    for ( int i = 0 ; i < ( int )m_EdgeVec.size() ; i++ )
+    {
+        if ( eold == m_EdgeVec[i] )
+        {
+            m_EdgeVec[i] = enew;
+        }
+    }
+}
+
 bool PGFace::Contains( PGEdge* e ) const
 {
     return vector_contains_val( m_EdgeVec, e );
