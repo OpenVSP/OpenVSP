@@ -376,6 +376,11 @@ PGNode * PGFace::FindPrevNode( int istart ) const
 {
     int nedge = m_EdgeVec.size();
 
+    if ( nedge == 0 )
+    {
+        return NULL;
+    }
+
     // Preserve input index.
     istart = clampCyclic( istart, nedge );
 
