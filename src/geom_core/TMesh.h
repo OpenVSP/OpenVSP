@@ -545,6 +545,8 @@ public:
     static void StressTest();
     static double Rand01();
 
+    void CopyAttributes( TMesh* m );
+
     vector< TTri* >  m_TVec;
     vector< TNode* > m_NVec;
     vector< TEdge* > m_EVec;
@@ -591,7 +593,6 @@ public:
     vector< vector<vec3d> > m_XYZPnts;
 
 protected:
-    void CopyAttributes( TMesh* m );
 
     unordered_map< TNode*, list<TNode*> > m_NAMap; // Map from a master node to list of nodes that are aliases
     unordered_map< TNode*, TNode* > m_NSMMap;      // Map of node slave to master node
