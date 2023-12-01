@@ -180,6 +180,9 @@ void NGonMeshGeom::PolygonizeMesh()
         }
     }
     m_PGMesh.DumpGarbage();
+    m_PGMesh.ResetNodeNumbers();
+
+//    m_PGMesh.ClearTris(); // Does not help.
 }
 
 void NGonMeshGeom::CleanColinearVerts()
