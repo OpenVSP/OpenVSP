@@ -1734,8 +1734,8 @@ void PGMesh::Report()
         if ( ( *e )->m_FaceVec.size() != 2 )
         {
             printf( "Edge %d has %d faces\n", iedge, ( *e )->m_FaceVec.size() );
-            printf( "    Node %d %f %f %f\n", ( *e )->m_N0->m_ID, ( *e )->m_N0->m_Pnt.x(), ( *e )->m_N0->m_Pnt.y(), ( *e )->m_N0->m_Pnt.z() );
-            printf( "    Node %d %f %f %f\n", ( *e )->m_N1->m_ID, ( *e )->m_N1->m_Pnt.x(), ( *e )->m_N1->m_Pnt.y(), ( *e )->m_N1->m_Pnt.z() );
+            printf( "    Node %d %f %f %f\n", ( *e )->m_N0->m_ID + 1, ( *e )->m_N0->m_Pnt.x(), ( *e )->m_N0->m_Pnt.y(), ( *e )->m_N0->m_Pnt.z() );
+            printf( "    Node %d %f %f %f\n", ( *e )->m_N1->m_ID + 1, ( *e )->m_N1->m_Pnt.x(), ( *e )->m_N1->m_Pnt.y(), ( *e )->m_N1->m_Pnt.z() );
         }
 
         iedge++;
@@ -1757,7 +1757,7 @@ void PGMesh::Report()
 
 void PGMesh::ResetNodeNumbers()
 {
-    int inode = 1; // Start numbering at 1
+    int inode = 0; // Start numbering at 0
     list< PGNode* >::iterator n;
     for ( n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
     {
@@ -1837,7 +1837,7 @@ void PGMesh::WriteVSPGeomFaces( FILE* file_id )
         fprintf( file_id, "%d", npt );
         for ( int i = 0; i < npt; i++ )
         {
-            fprintf( file_id, " %d", nodVec[i]->m_ID );
+            fprintf( file_id, " %d", nodVec[i]->m_ID + 1 );
         }
         fprintf( file_id, "\n" );
     }
@@ -1896,7 +1896,7 @@ void PGMesh::WriteVSPGeomWakes( FILE* file_id )
         int iprt = 0;
         for ( int i = 0; i < nwn; i++ )
         {
-            fprintf( file_id, "%d", nodVec[i]->m_ID );
+            fprintf( file_id, "%d", nodVec[i]->m_ID + 1 );
 
             if ( iprt >= 9 || i == nwn - 1 )
             {
@@ -1927,7 +1927,7 @@ void PGMesh::WriteVSPGeomAlternateTris( FILE* file_id )
         fprintf( file_id, "%d %d", iface, npt / 3 );
         for ( int i = 0; i < npt; i++ )
         {
-            fprintf( file_id, " %d", nodVec[i]->m_ID );
+            fprintf( file_id, " %d", nodVec[i]->m_ID + 1 );
         }
         fprintf( file_id, "\n" );
 
@@ -2366,11 +2366,11 @@ void PGMesh::WriteTRI( string fname )
         int inod = 0;
         for ( int i = 0; i < nt; i++ )
         {
-            fprintf( fp, "%d ", nodVec[ inod ]->m_ID );
+            fprintf( fp, "%d ", nodVec[ inod ]->m_ID + 1 );
             inod++;
-            fprintf( fp, "%d ", nodVec[ inod ]->m_ID );
+            fprintf( fp, "%d ", nodVec[ inod ]->m_ID + 1 );
             inod++;
-            fprintf( fp, "%d\n", nodVec[ inod ]->m_ID );
+            fprintf( fp, "%d\n", nodVec[ inod ]->m_ID + 1 );
             inod++;
         }
     }
