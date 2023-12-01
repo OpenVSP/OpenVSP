@@ -199,6 +199,16 @@ public:
 
     void RemoveNegativeiQuadFaces();
 
+    void MergeNodes( PGNode* na, PGNode* nb );
+    void MergeCoincidentNodes();
+
+    void MergeEdges( PGEdge *ea, PGEdge *eb );
+    void MergeDuplicateEdges();
+
+    void RemoveDegenEdges();
+
+    void RemoveDegenFaces();
+
     int GetNumFaces()
     {
         return m_FaceList.size();

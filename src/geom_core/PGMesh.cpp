@@ -19,6 +19,7 @@
 #include "VspUtil.h"
 #include "SubSurfaceMgr.h"
 #include "FileUtil.h"
+#include "PntNodeMerge.h"
 
 #include "triangle.h"
 #include "triangle_api.h"
@@ -1388,6 +1389,239 @@ void PGMesh::RemoveNegativeiQuadFaces()
 
     DumpGarbage();
 }
+
+void PGMesh::MergeNodes( PGNode* na, PGNode* nb )
+{
+    // Copy unique UW map information from nb to na.
+    for ( map < int, vec2d >::iterator it0 = nb->m_TagUWMap.begin(); it0 != nb->m_TagUWMap.end(); ++it0 )
+    {
+        int tag = it0->first;
+        vec2d uw0 = it0->second;
+
+        // Try to find uw with matching tag in na's map.
+        map < int, vec2d >::iterator it1 = na->m_TagUWMap.find( tag );
+
+        // If there is no existing entry, add tag UW pair to node.
+        if ( it1 == na->m_TagUWMap.end() )
+        {
+            na->m_TagUWMap[ tag ] = uw0;
+        }
+    }
+
+    PGEdge *eab = na->FindEdge( nb );
+    if ( eab ) // Edge between na and nb exists.
+    {
+        RemoveEdge( eab );
+    }
+
+    // Look for edges with common destinations.
+    vector < PGEdge* > evec = nb->m_EdgeVec;
+    for ( int i = 0; i < evec.size(); i++ )
+    {
+        PGEdge *e = evec[i];
+
+        PGNode *nc = e->OtherNode( nb );
+
+        PGEdge *e2 = na->FindEdge( nc );
+
+        MergeEdges( e2, e );
+    }
+
+    evec = nb->m_EdgeVec;
+    for ( int i = 0; i < evec.size(); i++ )
+    {
+        PGEdge *e = evec[i];
+
+        e->ReplaceNode( nb, na );
+        na->AddConnectEdge( e );
+        nb->RemoveConnectEdge( e );
+    }
+}
+
+void PGMesh::MergeCoincidentNodes()
+{
+    vector< vec3d > allPntVec( m_NodeList.size() );
+
+    // Make vector copy of list so nodes can be removed from list without invalidating active list iterator.
+    vector< PGNode* > nVec( m_NodeList.begin(), m_NodeList.end() );
+
+    for ( int i = 0; i < nVec.size(); i++ )
+    {
+        PGNode *n = nVec[ i ];
+        allPntVec[ i ] = n->m_Pnt;
+    }
+
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( allPntVec );
+
+    // m_BBox.GetLargestDist() *
+    double tol = 1.0e-10;
+
+    if ( tol < 1.0e-10 )
+    {
+        tol = 1.0e-10;
+    }
+
+    IndexPntNodes( pnCloud, tol );
+
+    int nmerge = 0;
+
+    vector < bool > masflag( nVec.size(), false );
+
+    for ( int islave = 0 ; islave < ( int )nVec.size() ; islave++ )
+    {
+        if ( !(pnCloud.UsedNode( islave )) ) // This point is a NanoFlann slave.
+        {
+            int imaster = pnCloud.GetNodeBaseIndex( islave );
+            masflag[imaster] = true;
+            // printf( "Merge %d master: %d slave: %d\n", nmerge, imaster, islave );
+            //vec3d p = nVec[imaster]->m_Pnt;
+            //printf( "%f %f %f\n", p.x(), p.y(), p.z() );
+
+            MergeNodes( nVec[imaster], nVec[islave] );
+
+            nmerge++;
+        }
+    }
+
+    printf( "%d coincident nodes merged\n", nmerge );
+
+
+//    for ( int imaster = 0 ; imaster < ( int )nVec.size() ; imaster++ )
+//    {
+//        if ( masflag[ imaster ] )
+//        {
+//            vec3d p = nVec[imaster]->m_Pnt;
+//            printf( "%f %f %f\n", p.x(), p.y(), p.z() );
+//        }
+//    }
+
+
+    CleanUnused();
+
+    DumpGarbage();
+
+    ResetNodeNumbers();
+
+    ClearTris();
+
+}
+
+void PGMesh::MergeEdges( PGEdge *ea, PGEdge *eb )
+{
+    if ( ea && eb && ea != eb )
+    {
+        for ( int i = 0; i < eb->m_FaceVec.size(); i++ )
+        {
+            PGFace *f = eb->m_FaceVec[i];
+
+            ea->AddConnectFace( f );
+            f->ReplaceEdge( eb, ea );
+
+        }
+        eb->m_FaceVec.clear();
+
+        RemoveEdge( eb );
+    }
+}
+
+void PGMesh::MergeDuplicateEdges()
+{
+    int nmerged = 0;
+    vector < bool > dupflag( m_EdgeList.size(), false );
+
+    // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGEdge* > eVec( m_EdgeList.begin(), m_EdgeList.end() );
+    for ( int i = 0; i < eVec.size(); i++ )
+    {
+        if ( !dupflag[i] )
+        {
+            PGEdge *e1 = eVec[ i ];
+            for ( int j = i + 1; j < eVec.size(); j++ )
+            {
+                if ( !dupflag[j] )
+                {
+                    PGEdge *e2 = eVec[ j ];
+                    if ( e2->ContainsNode( e1->m_N0 ) && e2->ContainsNode( e1->m_N1 ))
+                    {
+                        MergeEdges( e1, e2 );
+                        dupflag[ j ] = true;
+                        nmerged++;
+                    }
+                }
+            }
+        }
+    }
+
+    printf( "%d duplicate edges merged.\n", nmerged );
+
+    CleanUnused();
+
+    DumpGarbage();
+
+    ResetNodeNumbers();
+
+    ClearTris();
+}
+
+void PGMesh::RemoveDegenEdges()
+{
+    int ndegen = 0;
+
+    vector< PGEdge* > eVec( m_EdgeList.begin(), m_EdgeList.end() );
+    for ( int i = 0; i < eVec.size(); i++ )
+    {
+        PGEdge *e1 = eVec[ i ];
+
+        if ( e1->m_N0 == e1->m_N1 )
+        {
+            RemoveEdge( e1 );
+            ndegen++;
+        }
+    }
+
+    printf( "%d degen edges removed\n", ndegen );
+
+    CleanUnused();
+
+    DumpGarbage();
+
+    ResetNodeNumbers();
+
+    ClearTris();
+}
+
+void PGMesh::RemoveDegenFaces()
+{
+    int ndegen = 0;
+
+    // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
+    for ( int i = 0; i < fVec.size(); i++ )
+    {
+        PGFace *f = fVec[ i ];
+
+        vector < PGEdge* > evec;
+        f->GetHullEdges( evec );
+
+        if ( evec.empty() )
+        {
+            RemoveFace( f );
+            ndegen++;
+        }
+    }
+
+    printf( "%d degen faces removed\n", ndegen );
+
+    CleanUnused();
+
+    DumpGarbage();
+
+    ResetNodeNumbers();
+
+    ClearTris();
+}
+
 
 void PGMesh::RemoveNodeMergeEdges( PGNode* n )
 {
