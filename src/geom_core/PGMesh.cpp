@@ -767,10 +767,6 @@ void PGFace::ClearTris()
 
 void PGFace::AddEdge( PGEdge* e )
 {
-    if ( vector_contains_val( m_EdgeVec, e ) )
-    {
-        return;
-    }
     m_EdgeVec.push_back( e );
 }
 
