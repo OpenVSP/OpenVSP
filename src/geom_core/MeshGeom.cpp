@@ -1832,6 +1832,12 @@ string MeshGeom::CreateNGonMeshGeom()
 
         new_geom->SplitLEGeom();
 
+        new_geom->m_PGMesh.MergeCoincidentNodes();
+        new_geom->m_PGMesh.MergeDuplicateEdges();
+        new_geom->m_PGMesh.RemoveDegenEdges();
+        new_geom->m_PGMesh.RemoveDegenFaces();
+
+
         new_geom->m_SurfDirty = true;
 
         new_geom->Update();
