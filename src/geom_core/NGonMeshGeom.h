@@ -56,10 +56,11 @@ public:
     DrawObj m_BadEdgeTooFewDO;
     DrawObj m_BadEdgeTooManyDO;
 
-protected:
 
 
     PGMesh m_PGMesh;
+
+protected:
 
 };
 
