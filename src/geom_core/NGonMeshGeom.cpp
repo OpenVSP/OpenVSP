@@ -115,6 +115,7 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
     vector < PGNode* > nod( nodeVec.size() );
     for ( int i = 0; i < nodeVec.size(); i++ )
     {
+        nodeVec[i]->m_ID = i;
         nod[i] = m_PGMesh.AddNode( nodeVec[i]->m_Pnt );
     }
 
