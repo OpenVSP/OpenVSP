@@ -172,9 +172,9 @@ enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,	/*!< Point source */
 /*!
 	\ingroup Enumerations
 */
-
-enum CFD_VIS_TYPE { TAG,	
-                    REASON	
+/*! Enum that identifies how CFD and FEA meshes are colored. */
+enum CFD_VIS_TYPE { TAG,    /*!< Color mesh by tag value (component, subsurface, part, etc) */
+                    REASON    /*!< Color mesh by local edge length reason */
 };
 
 /*!
@@ -335,55 +335,55 @@ enum DRAW_TYPE { GEOM_DRAW_WIRE,	/*!< Draw the wireframe mesh (see through) */
 /*!
 	\ingroup Enumerations
 */
-
-enum ENGINE_GEOM_IO_TYPE { ENGINE_GEOM_NONE,	
-                           ENGINE_GEOM_INLET,	
-                           ENGINE_GEOM_INLET_OUTLET,	
-                           ENGINE_GEOM_OUTLET,	
-                           ENGINE_GEOM_IO_NUM_TYPES	
+/*! Enum for identifying which kind of integrated flowpath modeling components is modeled. */
+enum ENGINE_GEOM_IO_TYPE { ENGINE_GEOM_NONE,	/*!< Component is not an integrated flowpath component. */
+                           ENGINE_GEOM_INLET,	/*!< Component represents integrated flowpath inlet. */
+                           ENGINE_GEOM_INLET_OUTLET,	/*!< Component represents integrated flowpath inlet and outlet. */
+                           ENGINE_GEOM_OUTLET,	/*!< Component represents integrated flowpath outlet. */
+                           ENGINE_GEOM_IO_NUM_TYPES	/*!< Number of integrated flowpath component types. */
 };
 
 /*!
 	\ingroup Enumerations
 */
-
-enum ENGINE_GEOM_TYPE { ENGINE_GEOM_FLOWTHROUGH,	
-                        ENGINE_GEOM_TO_LIP,	
-                        ENGINE_GEOM_FLOWPATH,	
-                        ENGINE_GEOM_TO_FACE,	
-                        ENGINE_GEOM_NUM_TYPES	
+/*! Enum for identifying how integrated flowpath modeling engine is represented. */
+enum ENGINE_GEOM_TYPE { ENGINE_GEOM_FLOWTHROUGH,	/*!< Component is modeled as flowthrough engine. */
+                        ENGINE_GEOM_TO_LIP,	/*!< Component is modeled to the lip. */
+                        ENGINE_GEOM_FLOWPATH,	/*!< Component flowpath is modeled. */
+                        ENGINE_GEOM_TO_FACE,	/*!< Component is modeled to face. */
+                        ENGINE_GEOM_NUM_TYPES	/*!< Number of integrated flowpath modeling types. */
 };
 
 /*!
 	\ingroup Enumerations
 */
-
-enum ENGINE_LOC_MODE { ENGINE_LOC_INDEX,	
-                       ENGINE_LOC_U	
+/*! Enum for how integrated flowpath modeling key points are identified. */
+enum ENGINE_LOC_MODE { ENGINE_LOC_INDEX,	/*!< Integrated flowpath key point identified by XSec index. */
+                       ENGINE_LOC_U	/*!< Integrated flowpath key point identified by U parameter. */
 };
 
 /*!
 	\ingroup Enumerations
 */
-
-enum ENGINE_LOC_INDEX_TYPES { ENGINE_LOC_INLET_LIP,	
-                              ENGINE_LOC_INLET_FACE,	
-                              ENGINE_LOC_OUTLET_LIP,	
-                              ENGINE_LOC_OUTLET_FACE,	
-                              ENGINE_LOC_NUM	
+/*! Enum for integrated flowpath modeling key points. */
+enum ENGINE_LOC_INDEX_TYPES { ENGINE_LOC_INLET_LIP,	/*!< Integrated flowpath key point is inlet lip. */
+                              ENGINE_LOC_INLET_FACE,	/*!< Integrated flowpath key point is inlet face. */
+                              ENGINE_LOC_OUTLET_LIP,	/*!< Integrated flowpath key point is outlet lip. */
+                              ENGINE_LOC_OUTLET_FACE,	/*!< Integrated flowpath key point is outlet face. */
+                              ENGINE_LOC_NUM	/*!< Number of integrated flowpath key point locations. */
 };
 
 /*!
 	\ingroup Enumerations
 */
-
-enum ENGINE_MODE_TYPE { ENGINE_MODE_FLOWTHROUGH,	
-                        ENGINE_MODE_FLOWTHROUGH_NEG,	
-                        ENGINE_MODE_TO_LIP,	
-                        ENGINE_MODE_TO_FACE,	
-                        ENGINE_MODE_TO_FACE_NEG,	
-                        ENGINE_MODE_EXTEND,	
-                        ENGINE_MODE_NUM_TYPES	
+/*! Enum for identifying how integrated flowpath modeling components are modeled. */
+enum ENGINE_MODE_TYPE { ENGINE_MODE_FLOWTHROUGH,	/*!< Represent integrated flowpath as flowthrough engine. */
+                        ENGINE_MODE_FLOWTHROUGH_NEG,	/*!< Represent integrated flowpath as flowthrough engine with negative flowpath. */
+                        ENGINE_MODE_TO_LIP,	/*!< Represent integrated flowpath to the lip. */
+                        ENGINE_MODE_TO_FACE,	/*!< Represent integrated flowpath to the face. */
+                        ENGINE_MODE_TO_FACE_NEG,	/*!< Represent integrated flowpath to the face with negative flowpath to the face. */
+                        ENGINE_MODE_EXTEND,	/*!< Represent integrated flowpath with farfield extensions. */
+                        ENGINE_MODE_NUM_TYPES	/*!< Number of integrated flowpath representations. */
 };
 
 /*!
@@ -468,23 +468,23 @@ enum EXPORT_TYPE {  EXPORT_FELISA,	/*!< FELISA export type (NOT IMPLEMENTED) */ 
 /*!
 	\ingroup Enumerations
 */
-
-enum FEA_BC_TYPE { FEA_BC_STRUCTURE,	
-                   FEA_BC_PART,	
-                   FEA_BC_SUBSURF,	
-                   FEA_NUM_BC_TYPES	
+/*! Enum used to indicate FEA boundary condition definition type. */
+enum FEA_BC_TYPE { FEA_BC_STRUCTURE,	/*!< FEA boundary condition assigned to structure. */
+                   FEA_BC_PART,	/*!< FEA boundary condition assigned to part. */
+                   FEA_BC_SUBSURF,	/*!< FEA boundary condition assigned to subsurface. */
+                   FEA_NUM_BC_TYPES	/*!< Number of FEA boundary condition definition types. */
 };
 
 /*!
 	\ingroup Enumerations
 */
-
-enum FEA_BC_MODE { FEA_BCM_USER,	
-                   FEA_BCM_ALL,	
-                   FEA_BCM_PIN,	
-                   FEA_BCM_SYMM,	
-                   FEA_BCM_ASYMM,	
-                   FEA_NUM_BCM_MODES	
+/*! Enum used to indicate FEA boundary condition constraint type. */
+enum FEA_BC_MODE { FEA_BCM_USER,	/*!< FEA boundary condition constraints user defined. */
+                   FEA_BCM_ALL,	/*!< FEA boundary condition constrains all DOF. */
+                   FEA_BCM_PIN,	/*!< FEA boundary condition pin constraints. */
+                   FEA_BCM_SYMM,	/*!< FEA boundary condition symmetrical constraints. */
+                   FEA_BCM_ASYMM,	/*!< FEA boundary condition antisymmetrical constraints. */
+                   FEA_NUM_BCM_MODES	/*!< Number of FEA boundary condition constraint types. */
 };
 
 /*!
@@ -895,28 +895,28 @@ enum MASS_UNIT { MASS_UNIT_G = 0,	/*!< Gram */
 /*!
 	\ingroup Enumerations
 */
-
-enum MESH_REASON { NO_REASON,	
-                   MAX_LEN_CONSTRAINT,	
-                   CURV_GAP,	
-                   CURV_NCIRCSEG,	
-                   SOURCES,	
-                   MIN_LEN_CONSTRAINT,               // MAX_LEN_CONSTRAINT + MIN_LEN_INCREMENT	
-                   MIN_LEN_CONSTRAINT_CURV_GAP,      // CURV_GAP + MIN_LEN_INCREMENT	
-                   MIN_LEN_CONSTRAINT_CURV_NCIRCSEG, // CURV_NCIRCSEG + MIN_LEN_INCREMENT	
-                   MIN_LEN_CONSTRAINT_SOURCES,       // Placeholder -- min len not applied to sources.	
-                   GROW_LIMIT_MAX_LEN_CONSTRAINT,	
-                   GROW_LIMIT_CURV_GAP,	
-                   GROW_LIMIT_CURV_NCIRCSEG,	
-                   GROW_LIMIT_SOURCES,	
-                   GROW_LIMIT_MIN_LEN_CONSTRAINT,	
-                   GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_GAP,	
-                   GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_NCIRCSEG,	
-                   GROW_LIMIT_MIN_LEN_CONSTRAINT_SOURCES,	
-                   NUM_MESH_REASON,	
-                   MIN_LEN_INCREMENT = MIN_LEN_CONSTRAINT - MAX_LEN_CONSTRAINT,	
-                   GROW_LIMIT_INCREMENT = GROW_LIMIT_CURV_GAP - CURV_GAP,	
-                   MIN_GROW_LIMIT = GROW_LIMIT_CURV_GAP	
+/*! Enum that describes the criteria that set the local minimum edge length. */
+enum MESH_REASON { NO_REASON,	/*!< No reason determined. */
+                   MAX_LEN_CONSTRAINT,	/*!< Maximum edge length. */
+                   CURV_GAP,	/*!< Maximum gap curvature based criteria. */
+                   CURV_NCIRCSEG,	/*!< Minimum number of segments to define a circle curvature based criteria. */
+                   SOURCES,	/*!< Mesh sources. */
+                   MIN_LEN_CONSTRAINT,  /*!< Minimum edge length. */                                                                 // MAX_LEN_CONSTRAINT + MIN_LEN_INCREMENT
+                   MIN_LEN_CONSTRAINT_CURV_GAP, /*!< Maximum gap constrained by minimum length. */                                   // CURV_GAP + MIN_LEN_INCREMENT
+                   MIN_LEN_CONSTRAINT_CURV_NCIRCSEG,    /*!< Number of segments to define a circle constrained by minimum length. */ // CURV_NCIRCSEG + MIN_LEN_INCREMENT
+                   MIN_LEN_CONSTRAINT_SOURCES,  /*!< Mesh sources constrained by minimum length (not applied). */                    // Placeholder -- min len not applied to sources.
+                   GROW_LIMIT_MAX_LEN_CONSTRAINT,	/*!< Maximum growth limit from maximum edge length (not used, growth limited small to large). */
+                   GROW_LIMIT_CURV_GAP,	/*!< Maximum growth limit from maximum gap. */
+                   GROW_LIMIT_CURV_NCIRCSEG,	/*!< Maximum growth limit from number of segments to define a circle. */
+                   GROW_LIMIT_SOURCES,	/*!< Maximum growth limit from mesh sources. */
+                   GROW_LIMIT_MIN_LEN_CONSTRAINT,	/*!< Maximum growth limit from minimum length constraint. */
+                   GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_GAP,	/*!< Maximum growth limit from maximum gap constrained by minimum length. */
+                   GROW_LIMIT_MIN_LEN_CONSTRAINT_CURV_NCIRCSEG,	/*!< Maximum growth limit from number of segments to define a circle constrained by minimum length. */
+                   GROW_LIMIT_MIN_LEN_CONSTRAINT_SOURCES,	/*!< Maximum growth limit from sources constrained by minimum length. */
+                   NUM_MESH_REASON,	/*!< Number of reasons that can set the mesh local minimum edge length. */
+                   MIN_LEN_INCREMENT = MIN_LEN_CONSTRAINT - MAX_LEN_CONSTRAINT,	/*!< Reason increment when adding minimum length constraint. */
+                   GROW_LIMIT_INCREMENT = GROW_LIMIT_CURV_GAP - CURV_GAP,	/*!< Reason increment when adding growth limit constraint. */
+                   MIN_GROW_LIMIT = GROW_LIMIT_CURV_GAP	/*!< Reason marker for minimum reason to apply growth limit. */
 };
 
 /*!
@@ -1147,24 +1147,24 @@ enum SUBSURF_TYPE { SS_LINE,	/*!< Line sub-surface type */
 	\ingroup Enumerations
 */
 /*! Enum that represents various symmetry types. */
-enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),	
-                 SYM_XZ = ( 1 << 1 ),	
-                 SYM_YZ = ( 1 << 2 ),	
-                 SYM_ROT_X = ( 1 << 3 ),	
-                 SYM_ROT_Y = ( 1 << 4 ),	
-                 SYM_ROT_Z = ( 1 << 5 ),	
-                 SYM_PLANAR_TYPES = 3,	
-                 SYM_NUM_TYPES = 6	
+enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),    /*!< XY planar symmetry. */
+                 SYM_XZ = ( 1 << 1 ),	/*!< XZ planar symmetry. */
+                 SYM_YZ = ( 1 << 2 ),	/*!< YZ planar symmetry. */
+                 SYM_ROT_X = ( 1 << 3 ),	/*!< X rotational symmetry. */
+                 SYM_ROT_Y = ( 1 << 4 ),	/*!< Y rotational symmetry. */
+                 SYM_ROT_Z = ( 1 << 5 ),	/*!< Z rotational symmetry. */
+                 SYM_PLANAR_TYPES = 3,	/*!< Number of planar symmetry types. */
+                 SYM_NUM_TYPES = 6	/*!< Number of symmetry types. */
 };
 
 /*!
 	\ingroup Enumerations
 */
-
-enum SYM_XSEC_TYP { SYM_NONE,	
-                    SYM_RL, // Right/Left Symmetry	
-                    SYM_TB,  // Top/Bottom Symmetry	
-                    SYM_ALL	
+/*! Enum that represents various cross section symmetry types. */
+enum SYM_XSEC_TYP { SYM_NONE,    /*!< No cross section symmetry. */
+                    SYM_RL,    /*!< Right/left cross section symmetry. */
+                    SYM_TB,    /*!< Top/bottom cross section symmetry. */
+                    SYM_ALL    /*!< All cross section symmetry. */
 };
 
 /*!
@@ -1307,13 +1307,13 @@ enum VSP_SURF_TYPE { NORMAL_SURF,	/*!< Normal VSP surface */
 /*!
 	\ingroup Enumerations
 */
-
-enum W_HINT { W_RIGHT_0,	
-              W_BOTTOM,	
-              W_LEFT,	
-              W_TOP,	
-              W_RIGHT_1,	
-              W_FREE,	
+/*! Enum for chevron W parameter start/end hints. */
+enum W_HINT { W_RIGHT_0,    /*!< Chevron start/ends at right (W = 0) of cross section */
+              W_BOTTOM,    /*!< Chevron start/ends at bottom of cross section */
+              W_LEFT,	/*!< Chevron start/ends at left of cross section */
+              W_TOP,	/*!< Chevron start/ends at top of cross section */
+              W_RIGHT_1,	/*!< Chevron start/ends at right (W = 1) of cross section */
+              W_FREE,	/*!< Chevron start/ends at user specified point on cross section */
 };
 
 /*!
