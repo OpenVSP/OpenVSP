@@ -39,7 +39,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     SET(CMAKE_SWIG_FLAGS "")
 
-    SET( SWIG_MODULE_vsp_EXTRA_DEPS
+    SET( SWIG_MODULE_pyvsp_EXTRA_DEPS
         ${UTIL_INCLUDE_DIR}/Defines.h
         ${GEOM_API_INCLUDE_DIR}/APIDefines.h
         ${GEOM_API_INCLUDE_DIR}/APIErrorMgr.h
@@ -210,7 +210,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/packages/
             ${CMAKE_BINARY_DIR}/python_pseudo/ )
-    add_dependencies( pyvsp copy_package ) # Make _vsp depend on copy_package.  Not sure this is required.
+    add_dependencies( pyvsp copy_package ) # Make pyvsp depend on copy_package.  Not sure this is required.
 
     # Copy _vsp library post build.
     add_custom_command( TARGET pyvsp POST_BUILD
