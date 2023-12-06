@@ -100,7 +100,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     IF( NOT VSP_NO_GRAPHICS )
 
-        SET( SWIG_MODULE_vsp_g_EXTRA_DEPS
+        SET( SWIG_MODULE_pyvsp_g_EXTRA_DEPS
             ${UTIL_INCLUDE_DIR}/Defines.h
             ${GEOM_API_INCLUDE_DIR}/APIDefines.h
             ${GEOM_API_INCLUDE_DIR}/APIErrorMgr.h
@@ -115,22 +115,24 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
         SET_SOURCE_FILES_PROPERTIES(${I_FILES_g} PROPERTIES CPLUSPLUS ON)
 
-        IF (${CMAKE_VERSION} VERSION_LESS "3.8.0")
-            SWIG_ADD_MODULE( vsp_g python ${I_FILES_g} )
-        ELSE()
-            SWIG_ADD_LIBRARY( vsp_g
-            LANGUAGE python
-            SOURCES ${I_FILES_g} )
-        ENDIF()
+        SWIG_ADD_LIBRARY( pyvsp_g
+        LANGUAGE python
+        SOURCES ${I_FILES_g} )
+
+        SET_TARGET_PROPERTIES( pyvsp_g PROPERTIES OUTPUT_NAME "vsp_g" )
 
         IF( APPLE )
             SET( PY_LIB "" )
-            SET_TARGET_PROPERTIES(_vsp_g PROPERTIES LINK_FLAGS "-undefined dynamic_lookup" )
+            SET_TARGET_PROPERTIES( pyvsp_g PROPERTIES LINK_FLAGS "-undefined dynamic_lookup" )
         ELSE()
             SET( PY_LIB ${PYTHON_LIBRARIES} )
         ENDIF()
 
-        SWIG_LINK_LIBRARIES( vsp_g
+        if( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+            TARGET_COMPILE_OPTIONS( pyvsp_g PUBLIC -Wno-deprecated-declarations)
+        endif()
+
+        SWIG_LINK_LIBRARIES( pyvsp_g
             geom_api_g
             geom_core
             gui_and_draw
@@ -157,21 +159,23 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			${DELABELLA_LIBRARIES}
         )
 
-        add_custom_command( TARGET _vsp_g POST_BUILD
+        add_custom_command( TARGET pyvsp_g POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
-                $<TARGET_FILE:_vsp_g>
-                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:_vsp_g> )
+                $<TARGET_FILE:pyvsp_g>
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:pyvsp_g> )
 
-        add_custom_command( TARGET _vsp_g POST_BUILD
+        add_custom_command( TARGET pyvsp_g POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py
                 ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py )
 
-        INSTALL( TARGETS _vsp_g LIBRARY DESTINATION python/openvsp/openvsp )
+        INSTALL( TARGETS pyvsp_g LIBRARY DESTINATION python/openvsp/openvsp )
         INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py DESTINATION python/openvsp/openvsp )
 
+        add_dependencies( pyvsp_g copy_package ) # Make pyvsp depend on copy_package.  Not sure this is required.
+
 		IF (FACADE)
-			add_custom_command( TARGET _vsp_g POST_BUILD
+			add_custom_command( TARGET pyvsp_g POST_BUILD
 		        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp)
 			INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade.py DESTINATION python/openvsp/openvsp )
 			INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade_server.py DESTINATION python/openvsp/openvsp )
