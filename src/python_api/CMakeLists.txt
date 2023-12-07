@@ -55,7 +55,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         ${UTIL_INCLUDE_DIR}/Vec3d.h
     )
 
-    set(I_FILES 
+    set(I_FILES
         ../geom_api/vsp.i
         )
 
@@ -83,6 +83,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     SWIG_LINK_LIBRARIES( pyvsp
         ${VSP_LIBRARIES}
+        ${PY_LIB}
     )
 
 
@@ -122,6 +123,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
         SWIG_LINK_LIBRARIES( pyvsp_g
             ${VSP_G_LIBRARIES}
+            ${PY_LIB}
         )
 
         add_custom_command( TARGET pyvsp_g POST_BUILD
