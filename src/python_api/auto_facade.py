@@ -1,6 +1,6 @@
 import os
 import sys
-CLIENT = """
+CLIENT = r"""
 # Facade Code
 # **********************************************************************************
 import os
