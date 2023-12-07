@@ -16279,7 +16279,7 @@ extern std::vector< std::string > GetAdvLinkNames();
 
     \endcode
     \endPythonOnly
-    \param [in] string Name for advanced link
+    \param [in] name string Name for advanced link
     \return index for advanced link
 
 */
@@ -16459,7 +16459,7 @@ extern void DelAllAdvLinks();
 
     \endcode
     \endPythonOnly
-    \param [in] string Name for advanced link
+    \param [in] name string Name for advanced link
 */
 
 extern void AddAdvLink( const string & name );
@@ -16506,9 +16506,9 @@ extern void AddAdvLink( const string & name );
 
     \endcode
     \endPythonOnly
-    \param [in] int Advanced link index
-    \param [in] string parm_id for advanced link input variable
-    \param [in] string name for advanced link input variable
+    \param [in] index int Advanced link index
+    \param [in] parm_id string Parameter ID for advanced link input variable
+    \param [in] var_name string Name for advanced link input variable
 */
 
 extern void AddAdvLinkInput( int index, const string & parm_id, const string & var_name );
@@ -16555,9 +16555,9 @@ extern void AddAdvLinkInput( int index, const string & parm_id, const string & v
 
     \endcode
     \endPythonOnly
-    \param [in] int Advanced link index
-    \param [in] string parm_id for advanced link output variable
-    \param [in] string name for advanced link output variable
+    \param [in] index int Advanced link index
+    \param [in] parm_id string Parameter ID for advanced link output variable
+    \param [in] var_name string Name for advanced link output variable
 */
 
 extern void AddAdvLinkOutput( int index, const string & parm_id, const string & var_name );
@@ -16616,8 +16616,8 @@ extern void AddAdvLinkOutput( int index, const string & parm_id, const string & 
 
     \endcode
     \endPythonOnly
-    \param [in] int Advanced link index
-    \param [in] string name for advanced link input variable to delete
+    \param [in] index int Advanced link index
+    \param [in] var_name string Name for advanced link input variable to delete
 */
 
 extern void DelAdvLinkInput( int index, const string & var_name );
@@ -16676,8 +16676,8 @@ extern void DelAdvLinkInput( int index, const string & var_name );
 
     \endcode
     \endPythonOnly
-    \param [in] int Advanced link index
-    \param [in] string name for advanced link output variable to delete
+    \param [in] index int Advanced link index
+    \param [in] var_name string Name for advanced link output variable to delete
 */
 
 extern void DelAdvLinkOutput( int index, const string & var_name );
@@ -16737,7 +16737,7 @@ extern void DelAdvLinkOutput( int index, const string & var_name );
 
     \endcode
     \endPythonOnly
-    \param [in] index Advanced link index
+    \param [in] index int Advanced link index
     \return Array of advanced link input names
 */
 
@@ -16798,7 +16798,7 @@ extern std::vector< std::string > GetAdvLinkInputNames( int index );
 
     \endcode
     \endPythonOnly
-    \param [in] index Advanced link index
+    \param [in] index int Advanced link index
     \return Array of advanced link input Parm IDs
 */
 
@@ -16859,7 +16859,7 @@ extern std::vector< std::string > GetAdvLinkInputParms( int index );
 
     \endcode
     \endPythonOnly
-    \param [in] index Advanced link index
+    \param [in] index int Advanced link index
     \return Array of advanced link output names
 */
 
@@ -16920,7 +16920,7 @@ extern std::vector< std::string > GetAdvLinkOutputNames( int index );
 
     \endcode
     \endPythonOnly
-    \param [in] index Advanced link index
+    \param [in] index int Advanced link index
     \return Array of advanced link output Parm IDs
 */
 
@@ -16986,7 +16986,7 @@ extern std::vector< std::string > GetAdvLinkOutputParms( int index );
 
     \endcode
     \endPythonOnly
-    \param [in] index Index for advanced link
+    \param [in] index int Index for advanced link
     \return Flag indicating whether parms are valid
 */
 
@@ -17034,8 +17034,8 @@ extern bool ValidateAdvLinkParms( int index );
 
     \endcode
     \endPythonOnly
-    \param [in] index Index for advanced link
-    \param [in] string Code for advanced link
+    \param [in] index int Index for advanced link
+    \param [in] code string Code for advanced link
 */
 
 extern void SetAdvLinkCode( int index, const string & code );
@@ -17090,7 +17090,7 @@ extern void SetAdvLinkCode( int index, const string & code );
 
     \endcode
     \endPythonOnly
-    \param [in] index Index for advanced link
+    \param [in] index int Index for advanced link
     \return String containing advanced link code
 */
 
@@ -17148,8 +17148,9 @@ extern std::string GetAdvLinkCode( int index );
 
     \endcode
     \endPythonOnly
-    \param [in] index Index for advanced link
-    \param [in] string Code for advanced link
+    \param [in] index int Index for advanced link
+    \param [in] from string Search token
+    \param [in] to string Replace token
 */
 
 extern void SearchReplaceAdvLinkCode( int index, const string & from, const string & to );
@@ -17210,7 +17211,7 @@ extern void SearchReplaceAdvLinkCode( int index, const string & from, const stri
 
     \endcode
     \endPythonOnly
-    \param [in] index Index for advanced link
+    \param [in] index int Index for advanced link
     \return Flag indicating whether advanced link build was successful
 */
 
