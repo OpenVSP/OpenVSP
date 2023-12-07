@@ -11,13 +11,6 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
     MESSAGE(STATUS "    MATLAB_MEX_LIBRARY:  ${Matlab_MEX_LIBRARY}")
     MESSAGE(STATUS "    MATLAB_MX_LIBRARY:   ${Matlab_MX_LIBRARY}")
             
-    # CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of
-    # the cache entry storing the find_library result.  Use the
-    # value if it was set by the project or user.
-    if(DEFINED LIBXML2_LIBRARY AND NOT DEFINED LIBXML2_LIBRARIES)
-      set(LIBXML2_LIBRARIES ${LIBXML2_LIBRARY})
-    endif()
-    
     INCLUDE_DIRECTORIES(
         ${CLIPPER2_INCLUDE_DIR}
         ${CodeEli_INCLUDE_DIRS}
@@ -69,25 +62,7 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
 
     list(APPEND VSPMEX_LIBS 
         ${Matlab_LIBRARIES}
-        geom_api
-        geom_core
-        cfd_mesh
-        xmlvsp
-        sixseries
-        util
-        tritri
-        Angelscript
-        wavedragEL
-        ${CPPTEST_LIBRARIES}
-        ${LIBXML2_LIBRARIES}
-        ${WINSOCK_LIBRARIES}
-        ${CMINPACK_LIBRARIES}
-        ${STEPCODE_LIBRARIES}
-        ${LIBIGES_LIBRARIES}
-        ${TRIANGLE_LIBRARIES}
-        ${DELABELLA_LIBRARIES}
-        ${PINOCCHIO_LIBRARIES}
-        ${CLIPPER2_LIBRARIES}
+        ${VSP_LIBRARIES}
     )
     
     MESSAGE(STATUS "${VSPMEX_LIBS}")

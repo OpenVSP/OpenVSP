@@ -79,6 +79,52 @@ IF( NOT VSP_NO_GRAPHICS )
 ENDIF()
 
 ADD_SUBDIRECTORY( geom_api )
+
+IF("${CMAKE_SYSTEM}" MATCHES "Linux")
+    SET( LINUX_LIBS
+        pthread
+    )
+ELSE()
+    SET ( LINUX_LIBS )
+ENDIF()
+
+SET( VSP_COMMON_LIBRARIES
+    geom_core
+    cfd_mesh
+    xmlvsp
+    sixseries
+    util
+    tritri
+    Angelscript
+    wavedragEL
+    ${CPPTEST_LIBRARIES}
+    ${LIBXML2_LIBRARIES}
+    ${WINSOCK_LIBRARIES}
+    ${CMINPACK_LIBRARIES}
+    ${STEPCODE_LIBRARIES}
+    ${LIBIGES_LIBRARIES}
+    ${TRIANGLE_LIBRARIES}
+    ${DELABELLA_LIBRARIES}
+    ${PINOCCHIO_LIBRARIES}
+    ${CLIPPER2_LIBRARIES}
+)
+
+SET( VSP_LIBRARIES
+    ${VSP_COMMON_LIBRARIES}
+    geom_api
+)
+
+SET( VSP_G_LIBRARIES
+    ${VSP_COMMON_LIBRARIES}
+    gui_interface_g
+    gui_and_draw
+    geom_api_g
+    cartesian
+    ${FLTK_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    ${LINUX_LIBS}
+)
+
 ADD_SUBDIRECTORY( vsp )
 
 IF( NOT VSP_NO_VSPAERO )

@@ -3,13 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.24)
 # include the CTest framework
 include(CTest)
 
-# CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of
-# the cache entry storing the find_library result.  Use the
-# value if it was set by the project or user.
-if(DEFINED LIBXML2_LIBRARY AND NOT DEFINED LIBXML2_LIBRARIES)
-  set(LIBXML2_LIBRARIES ${LIBXML2_LIBRARY})
-endif()
-
 IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     MESSAGE( STATUS "Configuring Python API" )
@@ -75,26 +68,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     endif()
 
     SWIG_LINK_LIBRARIES( pyvsp
-        geom_api
-        geom_core
-        cfd_mesh
-        xmlvsp
-        sixseries
-        util
-        tritri
-        Angelscript
-        wavedragEL
-        ${CPPTEST_LIBRARIES}
-        ${LIBXML2_LIBRARIES}
-        ${WINSOCK_LIBRARIES}
-        ${PY_LIB}
-        ${CMINPACK_LIBRARIES}
-        ${STEPCODE_LIBRARIES}
-        ${LIBIGES_LIBRARIES}
-        ${TRIANGLE_LIBRARIES}
-        ${DELABELLA_LIBRARIES}
-        ${PINOCCHIO_LIBRARIES}
-        ${CLIPPER2_LIBRARIES}
+        ${VSP_LIBRARIES}
     )
 
 
@@ -133,30 +107,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         endif()
 
         SWIG_LINK_LIBRARIES( pyvsp_g
-            geom_api_g
-            geom_core
-            gui_and_draw
-            cfd_mesh
-            util
-            tritri
-            Angelscript
-            xmlvsp
-            sixseries
-            cartesian
-            wavedragEL
-            ${CPPTEST_LIBRARIES}
-            ${LIBXML2_LIBRARIES}
-            ${FLTK_LIBRARIES}
-            ${OPENGL_LIBRARIES}
-            ${WINSOCK_LIBRARIES}
-            ${PY_LIB}
-            ${CMINPACK_LIBRARIES}
-            ${STEPCODE_LIBRARIES}
-            ${LIBIGES_LIBRARIES}
-            ${TRIANGLE_LIBRARIES}
-            ${DELABELLA_LIBRARIES}
-            ${PINOCCHIO_LIBRARIES}
-            ${CLIPPER2_LIBRARIES}
+            ${VSP_G_LIBRARIES}
         )
 
         add_custom_command( TARGET pyvsp_g POST_BUILD
