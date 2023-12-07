@@ -1,6 +1,6 @@
 import os
 import sys
-HEADER = """
+CLIENT = """
 # Facade Code
 # **********************************************************************************
 import os
@@ -9,9 +9,9 @@ import socket
 from time import sleep
 import subprocess
 import pickle
-"""
+from openvsp.facade_server import pack_data, unpack_data
+from traceback import format_exception
 
-START_SERVER_CODE = """
 # Starting the server
 HOST = 'localhost'
 PORT = 6000
@@ -22,22 +22,53 @@ sleep(1)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((HOST, PORT))
-"""
 
-DECORATOR_CODE = """
-# decorator for wrapping every function
-def client_wrap(func):
-    def wrapper(*args, **kwargs):
-        return send_recieve(func.__name__, args, kwargs) #I think we might need something for kwargs
-    return wrapper
-"""
+def exception_hook(exc_type, exc_value, tb):
+    regular_traceback = []
+    facade_traceback = []
+    for line in exc_value.args[0].split("\n")[:3]:
+        facade_traceback.append(line)
 
+    for line in format_exception(exc_type, exc_value, tb)[:-1]:
+        if "facade.py" in line or "facade_server.py" in line:
+            facade_traceback.append(line.strip("\n"))
+        else:
+            regular_traceback.append(line.strip("\n"))
+    for line in exc_value.args[0].split("\n")[3:]:
+        regular_traceback.append(line)
 
+    print("This error occured while using the facade API")
+    print("Facade Traceback:")
+    for line in facade_traceback:
+        print(line)
+    print("")
+    print("Regular Traceback:")
+    for line in regular_traceback:
+        print(line)
 
-SEND_RECIEVE_START = """
 # function to send and recieve data from the facade server
 def send_recieve(func_name, args, kwargs):
-    b_data = pickle.dumps([func_name, args, kwargs])
+    b_data = pack_data([func_name, args, kwargs], True)
+    sock.sendall(b_data)
+    result = None
+    b_result = []
+    while True:
+        packet = sock.recv(202400)
+        if not packet: break
+        b_result.append(packet)
+        try:
+            result = unpack_data(b_result)
+            break
+        except:
+            pass
+    if isinstance(result, list) and result[0] == "error":
+        sys.excepthook = exception_hook
+        raise Exception(result[1])
+    return result
+
+# special function to open the OpenVSP GUI
+def open_gui():
+    b_data = pack_data(['opengui', [], {}], True)
     sock.sendall(b_data)
     result = None
     b_result = []
@@ -47,19 +78,23 @@ def send_recieve(func_name, args, kwargs):
         b_result.append(packet)
         try:
             result = pickle.loads(b"".join(b_result))
-"""
-
-SEND_RECIEVE_END = """
             break
         except:
             pass
     return result
 """
 
+DECORATOR_CODE = """
+# decorator for wrapping every function
+def client_wrap(func):
+    def wrapper(*args, **kwargs):
+        return send_recieve(func.__name__, args, kwargs)
+    return wrapper
+"""
+
+
 def make_facade(file_path,
     classes_to_remove = [],
-    custom_code = "",
-    non_serializable_code = "",
 
     ):
     module_name = file_path.split(".")[0]
@@ -80,7 +115,7 @@ def make_facade(file_path,
             # adds comment to header
             if in_header_comment and not "#" in line:
                 in_header_comment = False
-                new_facade_string += "# This file has been modified by the OpenVSP automated facade script\n"
+                new_facade_string += "\n#\n# This file has been modified by the OpenVSP automated facade script\n"
 
 
             #removing classes
@@ -117,28 +152,17 @@ def make_facade(file_path,
         new_facade_string += f"from openvsp.{module_name} import {class_name}\n"
 
 
-    new_facade_string += HEADER
-    new_facade_string += START_SERVER_CODE
-
-    new_facade_string += SEND_RECIEVE_START
-    new_facade_string += non_serializable_code
-    new_facade_string += SEND_RECIEVE_END
-    new_facade_string += custom_code
+    new_facade_string += CLIENT
 
     with open('facade.py', 'w') as f:
         f.write(new_facade_string)
 
-def make_server(module_name,
-    custom_server_func = "",
-    lock_func_name = None,
-    unlock_func_name = None,
-    second_thread_code = "",
-    non_serializable_code = ""
-
-):
-    server_string = f"""
+def make_server():
+    server_string = r"""
 from threading import Thread, Event
 import pickle
+import traceback
+import sys
 
 #special code that is not generalizable
 import openvsp_config
@@ -148,8 +172,81 @@ import openvsp as module
 
 HOST = 'localhost'
 PORT = 6000
-
 event = Event()
+
+def pack_data(data, is_command_list=False):
+    def sub_pack(sub_data):
+        new_data = sub_data
+        if isinstance(sub_data, module.vec3d):
+            new_data = {"name":'vec3d',
+                "x":sub_data.x(),
+                "y":sub_data.y(),
+                "z":sub_data.z(),
+            }
+        elif isinstance(sub_data,list) or isinstance(sub_data, tuple):
+            if len(sub_data) > 0:
+                if isinstance(sub_data[0], module.vec3d):
+                    new_data = {
+                        "name": "vec3d_list",
+                        "list": []
+                    }
+                    for p in sub_data:
+                        thing = {
+                            "x":p.x(),
+                            "y":p.y(),
+                            "z":p.z(),
+                        }
+                        new_data['list'].append(thing)
+                elif sub_data[0] == "error":
+                    pass
+                # else:
+                #     print(data)
+                #     raise RuntimeError( f"unable to pack data of list containing type {type(data[0])}")
+
+        return new_data
+
+    if is_command_list:
+
+        #commands look like this: [func_name (str), args (list [arg1, arg2, argn]), kwargs (dict keyword1: arg1, kw2: arg2)  ]
+        # example
+        #                               [comp_name,     args,       dict]
+        # vsp.compvecpnt01(uv_array) -> ["compvepnt01", [uv_array], {}  ]
+        #
+        new_data = [data[0],[],{}]
+        for value in data[1]:
+            new_data[1].append(sub_pack(value))
+        for key, value in data[2].items():
+            new_data[2][key] = sub_pack(value)
+        new_data[1] = tuple(new_data[1])
+    else:
+       new_data = sub_pack(data)
+    b_data = pickle.dumps(new_data)
+    return b_data
+
+def unpack_data(b_data, is_command_list=False):
+    def sub_unpack(sub_data):
+        n_data = sub_data
+        if isinstance(sub_data, dict):
+            if sub_data['name'] == 'vec3d':
+                n_data = module.vec3d(sub_data['x'],sub_data['y'],sub_data['z'])
+            elif sub_data['name'] == 'vec3d_list':
+                n_data = []
+                for r in sub_data['list']:
+                    n_data.append(module.vec3d(r['x'],r['y'],r['z']))
+        return n_data
+
+    data = pickle.loads(b"".join(b_data))
+    if is_command_list:
+        new_data = [data[0],[],{}]
+        for value in data[1]:
+            new_data[1].append(sub_unpack(value))
+        for key, value in data[2].items():
+            new_data[2][key] = sub_unpack(value)
+        new_data[1] = tuple(new_data[1])
+    else:
+       new_data = sub_unpack(data)
+
+    return new_data
 
 def start_server():
     import socket
@@ -165,72 +262,54 @@ def start_server():
                 while True:
                     b_data = []
                     while True:
-                        packet = conn.recv(1024)
+                        try:
+                            packet = conn.recv(1024)
+                        except ConnectionResetError:
+                            socket_open = False
+                            break
                         if not packet: break
                         b_data.append(packet)
                         try:
-                            data = pickle.loads(b"".join(b_data))
+                            data = unpack_data(b_data, is_command_list=True)
                             break
-                        except:
+                        except (pickle.UnpicklingError, EOFError):
                             pass
-                    {custom_server_func}
+
+                    if data[0] == 'opengui':
+                        result = 0
+                        b_result = pickle.dumps(result)
+                        conn.sendall(b_result)
+                        event.set()
+                        continue
+
                     func_name = data[0]
                     args = data[1]
                     kwargs = data[2]
                     foo = getattr(module, func_name)
-"""
-    if lock_func_name:
-        server_string += f"                    module.{lock_func_name}()\n"
-    server_string += f"                    result = foo(*args, **kwargs)\n"
-    if unlock_func_name:
-        server_string += f"                    module.{unlock_func_name}()\n"
-    server_string+= "                    new_result = []"
-    server_string += non_serializable_code
-    server_string += """
-                    b_result = pickle.dumps(result)
-                    conn.sendall(b_result)
+                    try:
+                        module.Lock()
+                        result = foo(*args, **kwargs)
+                        module.Unlock()
+                    except Exception as e:
+                        exc_info = sys.exc_info()
+                        result = ["error", ''.join(traceback.format_exception(*exc_info))]
+                    b_result = pack_data(result)
+                    try:
+                        conn.sendall(b_result)
+                    except ConnectionResetError:
+                        socket_open = False
+                        break
     print("socket closed")
-t = Thread(target=start_server, args=())
-t.start()
+if __name__ == "__main__":
+    t = Thread(target=start_server, args=())
+    t.start()
+
+    event.wait()
+    module.InitGui()
+    module.StartGui()
 """
-    server_string += second_thread_code
     with open('facade_server.py', 'w') as f:
         f.write(server_string)
-
-
-
-non_serializable_code = """
-            # tailored code to handle non-serializable data
-            try:
-                if result['name'] == 'vec3d':
-                    new_result = vec3d(result['x'],result['y'],result['z'])
-                elif result['name'] == 'vec3d_list':
-                    new_result = []
-                    for r in result['list']:
-                        new_result.append(vec3d(r['x'],r['y'],r['z']))
-                result = new_result
-            except:
-                pass
-"""
-
-custom_code = """
-# special function to open the OpenVSP GUI
-def open_gui():
-    b_data = pickle.dumps(['opengui'])
-    sock.sendall(b_data)
-    result = None
-    b_result = []
-    while True:
-        packet = sock.recv(202400)
-        if not packet: break
-        b_result.append(packet)
-        try:
-            result = pickle.loads(b"".join(b_result))
-            break
-        except:
-            pass
-    return result
-"""
 
 classes_to_remove = [
     "ErrorObj",
@@ -239,53 +318,13 @@ classes_to_remove = [
     "Matrix4d"
 ]
 
-custom_server_func = """
-                    if data[0] == 'opengui':
-                        result = 0
-                        b_result = pickle.dumps(result)
-                        conn.sendall(b_result)
-                        event.set()
-                        continue
-"""
-
-server_non_serializable_code = """
-                    try:
-                        if isinstance(result, module.vec3d):
-                            result = {"name":'vec3d',
-                                "x":result.x(),
-                                "y":result.y(),
-                                "z":result.z(),
-                            }
-                        else:
-                            new_result = {
-                                "name": "vec3d_list",
-                                "list": []
-                            }
-                            for p in result:
-                                thing = {
-                                    "x":p.x(),
-                                    "y":p.y(),
-                                    "z":p.z(),
-                                }
-                                new_result['list'].append(thing)
-                            result = new_result
-                    except:
-                        pass
-"""
-second_thread_code = """
-event.wait()
-module.InitGui()
-module.StartGui()
-"""
-
-
 def make_vsp_facade(directory):
 
     old_cwd = os.getcwd()
     os.chdir(directory)
-    make_facade(r"vsp_g.py", classes_to_remove = classes_to_remove, custom_code = custom_code, non_serializable_code = non_serializable_code)
-    make_server("vsp_g",custom_server_func,"Lock","Unlock",second_thread_code, server_non_serializable_code)
+    make_facade(r"vsp_g.py", classes_to_remove=classes_to_remove)
+    make_server()
     os.chdir(old_cwd)
-    
+
 if __name__ == "__main__":
     make_vsp_facade(sys.argv[1])
