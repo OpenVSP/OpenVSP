@@ -139,13 +139,11 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             cfd_mesh
             util
             tritri
-            clipper
             Angelscript
             xmlvsp
             sixseries
             cartesian
             wavedragEL
-            pinocchio
             ${CPPTEST_LIBRARIES}
             ${LIBXML2_LIBRARIES}
             ${FLTK_LIBRARIES}
@@ -156,7 +154,9 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             ${STEPCODE_LIBRARIES}
             ${LIBIGES_LIBRARIES}
             ${TRIANGLE_LIBRARIES}
-			${DELABELLA_LIBRARIES}
+            ${DELABELLA_LIBRARIES}
+            ${PINOCCHIO_LIBRARIES}
+            ${CLIPPER2_LIBRARIES}
         )
 
         add_custom_command( TARGET pyvsp_g POST_BUILD
