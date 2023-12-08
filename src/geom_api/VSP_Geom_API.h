@@ -13,33 +13,41 @@
     \defgroup APIError API Error Functions
     \brief Handling of OpenVSP ErrorObj information is accomplished through this group of API functions.
     \ref index "Click here to return to the main page"
+
     \defgroup APIUtilities General API Utility Functions
     \brief This group of functions is provided for general API utilities, such as printing to stdout, performing
     basic math functions, and identifying basic OpenVSP information.
     \ref index "Click here to return to the main page"
+
     \defgroup AdvancedLink Advanced Link Functions
     \brief The following functions are available for the Advanced Link tool.
     \ref index "Click here to return to the main page"
+
     \defgroup Analysis Analysis Manager Functions
     \brief This group is for functions included in the Analysis Manager. The Analysis Manager allows for
     OpenVSP analyses to be setup and run through the API without having to modify Parms directly. Examples
     are available for every available analysis type. The results of running an analysis can be accessed
     through the functions defined in the Results group.
     \ref index "Click here to return to the main page"
+
     \defgroup BOR BOR Functions
     \brief This group of API functions provides capabilities related to the body of revolution (BOR) geometry type in OpenVSP.
     \ref index "Click here to return to the main page"
+
     \defgroup CFDMesh CFD Mesh Functions
     \brief This group of functions is used to setup and run the CFD Mesh tool through the API.
     \ref index "Click here to return to the main page"
+
     \defgroup CSGroup VSPAERO Control Surface Group Functions
     \brief This group of functions is available for manipulating VSPAERO control surface groups through the API.
     Note, VSPAERO also includes rectangle type sub-surfaces as possible control surfaces.
     \ref index "Click here to return to the main page"
+
     \defgroup Computations General Computation Functions
     \brief The following group of API functions are available for general computations. In general, it is best practice to
     perform computations through the the Analysis group instead of calling these functions directly.
     \ref index "Click here to return to the main page"
+
     \defgroup CustomGeom Custom Geometry Functions
     \brief This functions grouped here are used to create and manipulate Custom Components. Custom components
     are defined in *.vsppart files included in the /"Custom Scripts/" directory. Examples of Custom Components
@@ -49,75 +57,96 @@
     (i.e. *.vspscript). However, a Custom Component can be created as a *.vsppart file and then accessed through
     secondary API scripts.
     \ref index "Click here to return to the main page"
+
     \defgroup DesignFile Design File Functions
     \brief This group of functions is available for managing Design Variables through the API.
     \ref index "Click here to return to the main page"
+
     \defgroup EditCurveXSec Edit Curve XSec Functions
     \brief Functions for modifying XSecs of type XS_EDIT_CURVE are defined here.
     \ref index "Click here to return to the main page"
+
     \defgroup Enumerations Enumerations
     \brief All API enumerations are defined in this group.
     \ref index "Click here to return to the main page"
+
     \defgroup FEAMesh FEA Mesh Functions
     \brief The following group of API functions supports all functionality of the FEA Mesh Tool. Structures, FEA Parts,
     materials, and properties can be defined and manipulated. Mesh and output file settings can be adjusted, and an FEA
     mesh can be generated.
     \ref index "Click here to return to the main page"
+
     \defgroup FileIO File Input and Output Functions
     \brief This group of functions provides file input and output interfacing through the API.
     \ref index "Click here to return to the main page"
+
     \defgroup Geom Geom Functions
     \brief This group of functions is available for adding, deleting, and modifying OpenVSP Geoms through the API.
     \ref index "Click here to return to the main page"
+
     \defgroup GroupMod Group Modification Functions
     \brief The functions in this group allow for sets to be scaled, rotated, and translated.
     \ref index "Click here to return to the main page"
+
     \defgroup Matrix4d Matrix4d Functions
     \brief API functions that utilize the Matrix4d class are grouped here. For details of the class, including member functions, see Matrix4d.
     \ref index "Click here to return to the main page"
+
     \defgroup Measure Measure Tool Functions
     \brief This group of API functions can be used to control the Ruler Tool through the API.
     \ref index "Click here to return to the main page"
+
     \defgroup PCurve Propeller Blade Curve Functions
     \brief The following group of API functions may be used to control parametric propeller blade curves (PCurves).
     \ref index "Click here to return to the main page"
+
     \defgroup ParasiteDrag Parasite Drag Functions
     \brief This group of API functions is supplemental to performing a Paraste Drag analysis through the Analysis Manager. They include
     functions to write out Parasite Drag Tool equations, calculate atmospheric properties, and control excrescences.
     \ref index "Click here to return to the main page"
+
     \defgroup Parm Parm Functions
     \brief Every Parm in OpenVSP can be accessed and modified through the functions defined in this API group.
     Every Parm has an associated ParmContainer.
     \ref index "Click here to return to the main page"
+
     \defgroup ParmContainer Parm Container Functions
     \brief All Parms in OpenVSP are stored in Parm Containers. The functions in this group can be used to
     work with Parm Containers through the API.
     \ref index "Click here to return to the main page"
+
     \defgroup ProxyUtitity API Proxy Utility Functions
     \brief The API functions defined in this group enable conversion between AngelScript and OpenVSP C++ data types,
     such as array and vector.
     \ref index "Click here to return to the main page"
+
     \defgroup Results Results Manager Functions
     \brief This group is for functions included in the Results Manager. The Results Manager stores
     analysis results and provides methods to get, print, and export them.
     \ref index "Click here to return to the main page"
+
     \defgroup Sets Functions for Sets
     \brief The following group of API functions deals with set manipulation.
     \ref index "Click here to return to the main page"
+
     \defgroup SnapTo Snap-To Functions
     \brief This group of API functions provide the capabilities available in the Snap-To tool.
     \ref index "Click here to return to the main page"
+
     \defgroup SubSurface Sub-Surface Functions
     \brief Functions related to Sub-Surfaces are defined in this group.
     \ref index "Click here to return to the main page"
+
     \defgroup SurfaceQuery Geom Surface Query Functions
     \brief This group of API functions pertains to general surface queries for Geom surfaces, such as computing
     3D location from surface coordinates, identifying curvature, and performing point projections.
     \ref index "Click here to return to the main page"
+
     \defgroup VSPAERO VSPAERO Functions
     \brief The following group of functions are specific to VSPAERO. However, their relevance has been
     mostly replaced by Analysis Manager capabilities.
     \ref index "Click here to return to the main page"
+
     \defgroup VSPAERODiskAndProp VSPAERO Actuator Disk and Propeller Functions
     \brief The following group of functions provide API capability for setting up actuator disks (Disk tab
     of VSPAERO GUI) and propellers (Propeller tab of VSPAERO GUI) for VSPAERO analysis. If a propeller
@@ -125,23 +154,29 @@
     Alternatively, the "PropMode" but be set to PROP_BLADE or PROP_BOTH for unsteady analysis.
     must be set to PROP_DISK or PROP_BOTH.
     \ref index "Click here to return to the main page"
+
     \defgroup VariablePreset Variable Preset Functions
     \brief This group of functions can be used to add, remove, and modify Variable Presets through the API.
     \ref index "Click here to return to the main page"
+
     \defgroup Vehicle Vehicle Functions
     \brief The Vehicle group of functions are high-level commands that pertain to the entire OpenVSP model.
     \ref index "Click here to return to the main page"
+
     \defgroup Visualization Visualization Functions
     \brief The following group of functions allow for the OpenVSP GUI to be manipulated through the API.
     \ref index "Click here to return to the main page"
+
     \defgroup XSec XSec and Airfoil Functions
     \brief This group of functions provides API control of cross-sections (XSecs). Airfoils are a type of
     XSec included in this group as well. API functions for Body of Revolution XSecs are included in the
     Specialized Geometry group.
     \ref index "Click here to return to the main page"
+
     \defgroup XSecSurf XSecSurf Functions
     \brief This group of API functions provides capabilities related to the XSecSurf class in OpenVSP.
     \ref index "Click here to return to the main page"
+
     \defgroup vec3d Vec3D Functions
     \brief API functions that utilize the vec3d class are grouped here. For details of the class, including member functions, see vec3d.
     \ref index "Click here to return to the main page"
