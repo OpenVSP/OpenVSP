@@ -49,6 +49,10 @@ class DemoFrame(wx.Frame):
         openvsp_config.LOAD_FACADE = True
         import openvsp as vsp
 
+        vsp_version = vsp.GetVSPVersion()
+        assert "VSP" in vsp_version, "Could not load or verify OpenVSP"
+        print(f"Loadad {vsp_version}")
+
         wx.Frame.__init__(
             self,
             None,

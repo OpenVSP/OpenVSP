@@ -298,7 +298,8 @@ def start_server():
                             break
                         except (pickle.UnpicklingError, EOFError):
                             pass
-
+                    if b_data == []:
+                        break
                     if data[0] == 'opengui':
                         result = 0
                         b_result = pickle.dumps(result)
