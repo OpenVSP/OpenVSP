@@ -525,8 +525,8 @@ enum FEA_FIX_PT_TYPE { FEA_FIX_PT_ON_BODY,	/*!< On body fixed point type */
                        FEA_FIX_PT_GLOBAL_XYZ,	/*!< Global XYZ off body fixed point type */
                        FEA_FIX_PT_DELTA_XYZ,	/*!< Delta XYZ off body fixed point type */
                        FEA_FIX_PT_DELTA_UVN,	/*!< Delta UVN off body fixed point type */
-                       FEA_FIX_PT_GEOM_ORIGIN,	
-                       FEA_FIX_PT_GEOM_CG,	
+                       FEA_FIX_PT_GEOM_ORIGIN,	/*!< Geom origin off body fixed point type */
+                       FEA_FIX_PT_GEOM_CG,	/*!< Geom CG off body fixed point type */
                        FEA_NUM_FIX_PT_TYPES	/*!< Number of off body fixed point types */
 };
 
@@ -565,7 +565,7 @@ enum FEA_ORIENTATION_TYPE { FEA_ORIENT_GLOBAL_X,	/*!< FEA Global X material orie
 	\ingroup Enumerations
 */
 /*! Enum for FEA Part element types. */
-enum FEA_PART_ELEMENT_TYPE { FEA_DEPRECATED = -1,	
+enum FEA_PART_ELEMENT_TYPE { FEA_DEPRECATED = -1,	/*!< Flag for deprecated element type option */
                              FEA_SHELL = 0,	/*!< Shell (tris) FEA element type */
                              FEA_BEAM,	/*!< Beam FEA element type */
                              FEA_SHELL_AND_BEAM,	/*!< Both Shell and Beam FEA element types */
@@ -614,12 +614,12 @@ enum FEA_SLICE_TYPE { XY_BODY = 0,	/*!< Slice is parallel to parent Geom body XY
 /*!
 	\ingroup Enumerations
 */
-/*! Enum used to identify the FEA Mesh unit system. */
-enum FEA_UNIT_TYPE { SI_UNIT = 0, // m, kg	
-                     CGS_UNIT, // cm, g	
-                     MPA_UNIT, // mm, tonne	
-                     BFT_UNIT, // ft, slug	
-                     BIN_UNIT // in, lbf*sec^2/in	
+/*! Enum used to identify the FEA Mesh unit system (length, mass). */
+enum FEA_UNIT_TYPE { SI_UNIT = 0, /*!< FEA Files output in (m, kg) */
+                     CGS_UNIT, /*!< FEA Files output in (cm, g) */
+                     MPA_UNIT, /*!< FEA Files output in (mm, tonne) */
+                     BFT_UNIT, /*!< FEA Files output in (ft, slug) */
+                     BIN_UNIT /*!< FEA Files output in (in, lbf*sec^2/in) */
 };
 
 /*!
@@ -707,7 +707,7 @@ enum GDEV { GDEV_TAB,	/*!< Custom GUI Tab */
             GDEV_SLIDER,	/*!< Custom GUI Slider */
             GDEV_SLIDER_ADJ_RANGE,	/*!< Custom GUI SliderAdjRangeInput */
             GDEV_CHECK_BUTTON,	/*!< Custom GUI CheckButton */
-            GDEV_CHECK_BUTTON_BIT,	
+            GDEV_CHECK_BUTTON_BIT,	/*!< Custom GUI CheckButtonBit */
             GDEV_RADIO_BUTTON,	/*!< Custom GUI RadioButton */
             GDEV_TOGGLE_BUTTON,	/*!< Custom GUI ToggleButton */
             GDEV_TOGGLE_RADIO_GROUP,	/*!< Custom GUI ToggleRadioGroup (NOT IMPLEMENTED) */  // TODO: Implement or remove
@@ -824,7 +824,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_VSPAERO_SCREEN,	/*!< VSPAERO screen */
                       VSP_XSEC_SCREEN,	/*!< XSec screen */
                       VSP_WAVEDRAG_SCREEN,	/*!< Wave drag screen */
-                      VSP_MAIN_SCREEN,   /* Leave at end of list, helps draw after update. */	
+                      VSP_MAIN_SCREEN,   /*!< Main screen */ // Leave at end of list, helps draw after update.
                       VSP_NUM_SCREENS,	/*!< Number of screens */
                       VSP_ALL_SCREENS   /*!< Flag for all screens */
 };
@@ -888,7 +888,7 @@ enum MASS_UNIT { MASS_UNIT_G = 0,	/*!< Gram */
                  MASS_UNIT_TONNE,	/*!< Tonne */
                  MASS_UNIT_LBM,	/*!< Pound-mass */
                  MASS_UNIT_SLUG,	/*!< Slug */
-                 MASS_LBFSEC2IN, // lbf*sec^2/in	
+                 MASS_LBFSEC2IN,    /*!< lbf*sec^2/in */
                  NUM_MASS_UNIT	/*!< Number of mass unit types */
 };
 
@@ -929,7 +929,7 @@ enum PARM_TYPE { PARM_DOUBLE_TYPE,	/*!< Double Parm type (Parm) */
                  PARM_FRACTION_TYPE,	/*!< Fraction Parm type (FractionParm) */
                  PARM_LIMITED_INT_TYPE,	/*!< Limited integer Parm type (LimIntParm) */
                  PARM_NOTEQ_TYPE,	/*!< Not equal Parm type (NotEqParm) */
-                 PARM_POWER_INT_TYPE	
+                 PARM_POWER_INT_TYPE	/*!< Power integer Parm type (PowIntParm) */
 };
 
 /*!
@@ -1044,8 +1044,8 @@ enum REORDER_TYPE { REORDER_MOVE_UP,	/*!< Move up one position */
 	\ingroup Enumerations
 */
 /*! Enum used to indicate manual or component reference type. */
-enum REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the reference areas and lengths	
-                     COMPONENT_REF,      // use a particular wing to calculate the reference area and lengths	
+enum REF_WING_TYPE { MANUAL_REF = 0,    /*!< Manually specify the reference areas and lengths */
+                     COMPONENT_REF, /*!< Use a particular wing to calculate the reference area and lengths */
                      NUM_REF_TYPES	/*!< Number of wing reference types */
 };
 
@@ -1053,12 +1053,12 @@ enum REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the reference areas
 	\ingroup Enumerations
 */
 /*! Enum representing the possible data types returned from the ResultsMgr. */
-enum RES_DATA_TYPE {    INVALID_TYPE = -1,	
+enum RES_DATA_TYPE {    INVALID_TYPE = -1,	/*!< Invalid result data type */
                         INT_DATA = 0,	/*!< Integer result data type */
-                        DOUBLE_DATA = 1,	
-                        STRING_DATA = 2,	
-                        VEC3D_DATA = 3,	
-                        DOUBLE_MATRIX_DATA = 4,	
+                        DOUBLE_DATA = 1,	/*!< Double result data type */
+                        STRING_DATA = 2,	/*!< String result data type */
+                        VEC3D_DATA = 3,	/*!< Vec3d result data type */
+                        DOUBLE_MATRIX_DATA = 4,	/*!< Double matrix result data type */
 };
 
 /*!
@@ -1089,11 +1089,11 @@ enum RHO_UNITS { RHO_UNIT_SLUG_FT3 = 0,	/*!< Slug per cubic foot */
 	\ingroup Enumerations
 */
 /*! Enum for specifying named set types. */
-enum SET_TYPE { SET_NONE = -1,	
+enum SET_TYPE { SET_NONE = -1,	/*!< None set */
                 SET_ALL = 0,	/*!< All set */
-                SET_SHOWN = 1,	
-                SET_NOT_SHOWN = 2,	
-                SET_FIRST_USER = 3	
+                SET_SHOWN = 1,	/*!< Shown set */
+                SET_NOT_SHOWN = 2,	/*!< Not shown set */
+                SET_FIRST_USER = 3	/*!< First user-defined set */
 };
 
 /*!
@@ -1222,7 +1222,7 @@ enum VIEW_TYPE { VIEW_LEFT,	/*!< Left 2D view type */
                  VIEW_FRONT,	/*!< Front 2D view type */
                  VIEW_REAR,	/*!< Rear 2D view type */
                  VIEW_NONE,	/*!< No 2D view type */
-                 VIEW_NUM_TYPES	
+                 VIEW_NUM_TYPES	/*!< Number of 2D view types */
 };
 
 /*!
@@ -1264,12 +1264,12 @@ enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,	/*!< Matrix preconditioner */
 */
 /*! Enum for the types of VSPAERO stability analyses. */
 enum VSPAERO_STABILITY_TYPE { STABILITY_OFF = 0,	/*!< No stability analysis (off) */
-                              STABILITY_DEFAULT = 1,	
-                              STABILITY_P_ANALYSIS = 2,	
-                              STABILITY_Q_ANALYSIS = 3,	
-                              STABILITY_R_ANALYSIS = 4,	
-                              STABILITY_PITCH = 5,	
-                              STABILITY_NUM_TYPES = 6	
+                              STABILITY_DEFAULT = 1,	/*!< Steady 6DOF stability analysis */
+                              STABILITY_P_ANALYSIS = 2,	/*!< Unsteady roll stability analysis */
+                              STABILITY_Q_ANALYSIS = 3,	/*!< Unsteady pitch stability analysis */
+                              STABILITY_R_ANALYSIS = 4,	/*!< Unsteady yaw stability analysis */
+                              STABILITY_PITCH = 5,	/*!< Simplified pitch stability analysis */
+                              STABILITY_NUM_TYPES = 6	/*!< Number of stability analysis types */
 };
 
 /*!
@@ -1278,7 +1278,7 @@ enum VSPAERO_STABILITY_TYPE { STABILITY_OFF = 0,	/*!< No stability analysis (off
 /*! Enum for the VSPAERO stall modeling options (Cl Max VSPAERO input). */
 enum VSPAERO_CLMAX_TYPE { CLMAX_OFF,	/*!< Stall modeling off (Cl Max = 0) */
                           CLMAX_2D,	/*!< 2D Cl Max stall modeling with user defined value */
-                          CLMAX_CARLSON // Carlson's Pressure Correlation	
+                          CLMAX_CARLSON    /*!< Carlson's Pressure Correlation */
 };
 
 /*!
@@ -1290,7 +1290,7 @@ enum VSP_SURF_CFD_TYPE { CFD_NORMAL,	/*!< Normal CFD Mesh surface */
                          CFD_TRANSPARENT,	/*!< Transparent CFD Mesh surface */
                          CFD_STRUCTURE,	/*!< FEA structure CFD Mesh surface */
                          CFD_STIFFENER,	/*!< FEA stiffener CFD Mesh surface */
-                         CFD_MEASURE_DUCT,	
+                         CFD_MEASURE_DUCT,	/*!< Measure duct cross sectional area surface */
                          CFD_NUM_TYPES,	/*!< Number of CFD Mesh surface types */
 };
 
