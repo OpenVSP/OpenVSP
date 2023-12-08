@@ -84,6 +84,15 @@ void ScriptMgrSingleton::Init( )
     int r = se->SetMessageCallback( vspFUNCTION( MessageCallback ), 0, vspCALL_CDECL );
     assert( r >= 0 );
 
+    //==== Register Addons ====//
+    RegisterStdString( m_ScriptEngine );
+    RegisterScriptArray( m_ScriptEngine, true );
+    RegisterScriptDateTime( m_ScriptEngine );
+    RegisterScriptFile( m_ScriptEngine );
+    RegisterScriptFileSystem( m_ScriptEngine );
+    RegisterStdStringUtils( m_ScriptEngine );
+    RegisterScriptMath( m_ScriptEngine );
+    RegisterScriptAny( m_ScriptEngine );
     //==== Cache Some Common Types ====//
     m_IntArrayType    = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<int>" ) );
     assert( m_IntArrayType );
