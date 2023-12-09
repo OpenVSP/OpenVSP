@@ -174,7 +174,10 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml DESTINATION python/openvsp/conda-recipe)
     INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/environment.yml DESTINATION python)
 
-    INSTALL( DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc DESTINATION python/openvsp )
+    if ( SPHINX_FOUND )
+        INSTALL( DIRECTORY ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc DESTINATION python/openvsp )
+    endif( SPHINX_FOUND )
+
     INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/tests/test_vsp_api.py DESTINATION python/openvsp/openvsp/tests )
 
     # Copy python package files to ${CMAKE_BINARY_DIR}/python_pseudo such that a virtual environment can be
@@ -212,7 +215,8 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc
         )
-    ENDIF( SPHINX_FOUND )
+    endif( SPHINX_FOUND )
+
     add_custom_command( TARGET pyvsp POST_BUILD
         COMMAND ${PYTHON_EXECUTABLE}
         ${CMAKE_CURRENT_SOURCE_DIR}/gen_unit_test.py
