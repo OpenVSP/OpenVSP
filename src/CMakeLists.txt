@@ -113,16 +113,16 @@ SET( VSP_COMMON_LIBRARIES
 )
 
 SET( VSP_LIBRARIES
-    ${VSP_COMMON_LIBRARIES}
     geom_api
+    ${VSP_COMMON_LIBRARIES}
 )
 
 SET( VSP_G_LIBRARIES
-    ${VSP_COMMON_LIBRARIES}
     gui_interface_g
     gui_and_draw
     geom_api_g
     cartesian
+    ${VSP_COMMON_LIBRARIES}
     ${FLTK_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${LINUX_LIBS}
