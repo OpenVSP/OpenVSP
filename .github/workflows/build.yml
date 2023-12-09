@@ -122,7 +122,7 @@ jobs:
         ls $DEPLOY_FILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1)
 
     - name: Generate Documentation
-      if: matrix.os == 'ubuntu-20.04'
+      if: matrix.os == 'ubuntu-22.04'
       shell: bash
       run:    |
         cd $GITHUB_WORKSPACE/build
