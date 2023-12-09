@@ -125,12 +125,9 @@ jobs:
       if: matrix.os == 'ubuntu-20.04'
       shell: bash
       run:    |
-        cd build
-        cd vsp
-        ./vsp -doc
+        cd $GITHUB_WORKSPACE/build
 
-        cp ../Doxyfile .
-        doxygen Doxyfile
+        make doc
 
         cd doc
         zip -r html.zip html
