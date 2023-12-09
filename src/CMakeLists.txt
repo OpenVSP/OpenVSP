@@ -92,7 +92,6 @@ ELSE()
 ENDIF()
 
 SET( VSP_COMMON_LIBRARIES
-    geom_core
     cfd_mesh
     xmlvsp
     sixseries
@@ -112,17 +111,37 @@ SET( VSP_COMMON_LIBRARIES
     ${CLIPPER2_LIBRARIES}
 )
 
-SET( VSP_LIBRARIES
+SET( VSP_LIBRARIES_API_FIRST
+    geom_api
+    geom_core
+    ${VSP_COMMON_LIBRARIES}
+)
+
+SET( VSP_LIBRARIES_CORE_FIRST
+    geom_core
     geom_api
     ${VSP_COMMON_LIBRARIES}
 )
 
-SET( VSP_G_LIBRARIES
+SET( VSP_G_LIBRARIES_API_FIRST
+    geom_api_g
+    geom_core
+    ${VSP_COMMON_LIBRARIES}
     gui_interface_g
     gui_and_draw
-    geom_api_g
     cartesian
+    ${FLTK_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    ${LINUX_LIBS}
+)
+
+SET( VSP_G_LIBRARIES_CORE_FIRST
+    geom_core
+    geom_api_g
     ${VSP_COMMON_LIBRARIES}
+    gui_interface_g
+    gui_and_draw
+    cartesian
     ${FLTK_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${LINUX_LIBS}

@@ -37,7 +37,7 @@ IF( NOT VSP_NO_GRAPHICS )
     set_target_properties( vsp PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 
     TARGET_LINK_LIBRARIES(vsp
-        ${VSP_G_LIBRARIES}
+        ${VSP_G_LIBRARIES_CORE_FIRST}
     )
 
     INSTALL( TARGETS vsp RUNTIME DESTINATION . )
@@ -55,7 +55,7 @@ IF( NOT VSP_NO_GRAPHICS )
     set_target_properties( apitest_g PROPERTIES COMPILE_FLAGS "-DVSP_USE_FLTK=1")
 
     TARGET_LINK_LIBRARIES(apitest_g
-        ${VSP_G_LIBRARIES}
+        ${VSP_G_LIBRARIES_API_FIRST}
     )
 
 #    INSTALL( TARGETS apitest_g RUNTIME DESTINATION . )
@@ -73,7 +73,7 @@ apitest_main.cpp
 )
 
 TARGET_LINK_LIBRARIES(apitest
-    ${VSP_LIBRARIES}
+    ${VSP_LIBRARIES_API_FIRST}
 )
 
 IF( VSP_INSTALL_API_TEST )
@@ -88,7 +88,7 @@ common.h
 )
 
 TARGET_LINK_LIBRARIES(vspscript
-    ${VSP_LIBRARIES}
+    ${VSP_LIBRARIES_CORE_FIRST}
 )
 
 INSTALL( TARGETS vspscript RUNTIME DESTINATION . )

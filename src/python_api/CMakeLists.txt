@@ -82,7 +82,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
     endif()
 
     SWIG_LINK_LIBRARIES( pyvsp
-        ${VSP_LIBRARIES}
+        ${VSP_LIBRARIES_API_FIRST}
         ${PY_LIB}
     )
 
@@ -122,7 +122,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         endif()
 
         SWIG_LINK_LIBRARIES( pyvsp_g
-            ${VSP_G_LIBRARIES}
+            ${VSP_G_LIBRARIES_API_FIRST}
             ${PY_LIB}
         )
 

@@ -62,7 +62,7 @@ IF(SWIG_FOUND AND MATLAB_FOUND)
 
     list(APPEND VSPMEX_LIBS 
         ${Matlab_LIBRARIES}
-        ${VSP_LIBRARIES}
+        ${VSP_LIBRARIES_API_FIRST}
     )
     
     MESSAGE(STATUS "${VSPMEX_LIBS}")
