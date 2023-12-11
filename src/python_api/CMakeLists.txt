@@ -44,8 +44,6 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         ${VSP_SOURCE_DIR}
      )
 
-    SET(CMAKE_SWIG_FLAGS "-doxygen")
-
     SET( SWIG_MODULE_pyvsp_EXTRA_DEPS
         ${UTIL_INCLUDE_DIR}/Defines.h
         ${GEOM_API_INCLUDE_DIR}/APIDefines.h
@@ -61,7 +59,9 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     SET_SOURCE_FILES_PROPERTIES(${I_FILES} PROPERTIES CPLUSPLUS ON)
 
+    # Although not documented this way, CMAKE_SWIG_FLAGS is apparently a list and must be built up this way.
     SET( CMAKE_SWIG_FLAGS "-threads" )
+    list( APPEND CMAKE_SWIG_FLAGS "-doxygen" )
 
     SWIG_ADD_LIBRARY( pyvsp
         LANGUAGE python
