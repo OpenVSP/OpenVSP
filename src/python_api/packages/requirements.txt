@@ -1,6 +1,6 @@
 utilities/.
 degen_geom/.
-OpenVSP_Config/.
+openvsp_config/.
 openvsp/.
 CHARM/.
 AvlPy/.

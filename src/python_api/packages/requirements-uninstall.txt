@@ -1,5 +1,6 @@
 utilities
 degen_geom
+openvsp_config
 openvsp
 charm
 avlpy
