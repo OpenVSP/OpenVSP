@@ -1,5 +1,30 @@
 import os
 import sys
+
+CLASSES_TO_REMOVE = [
+    "ErrorObj",
+    "ErrorMgrSingleton",
+    "vec3d",
+    "Matrix4d"
+]
+
+OPEN_GUI_DOC = """
+    \"\"\"
+    Starts the GUI through the facade API. See InitGui and StartGui if not using the facade.
+
+
+    .. code-block:: python
+
+        if is_facade():
+            open_gui()
+    \"\"\"
+"""
+
+PLACEHOLDER_OPEN_GUI = "# **Placeholder start**\n" + "def open_gui():" + OPEN_GUI_DOC + r"""
+    print("WARNING: open_gui only has functionality if the facade API is active. \nSee InitGui and StartGui for non-facade GUI")
+"""
+
+
 CLIENT = r"""
 # Facade Code
 # **********************************************************************************
@@ -23,7 +48,7 @@ sleep(1)
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((HOST, PORT))
 
-def exception_hook(exc_type, exc_value, tb):
+def _exception_hook(exc_type, exc_value, tb):
     regular_traceback = []
     facade_traceback = []
     for line in exc_value.args[0].split("\n")[:3]:
@@ -47,7 +72,7 @@ def exception_hook(exc_type, exc_value, tb):
         print(line)
 
 # function to send and recieve data from the facade server
-def send_recieve(func_name, args, kwargs):
+def _send_recieve(func_name, args, kwargs):
     b_data = pack_data([func_name, args, kwargs], True)
     sock.sendall(b_data)
     result = None
@@ -62,12 +87,12 @@ def send_recieve(func_name, args, kwargs):
         except:
             pass
     if isinstance(result, list) and result[0] == "error":
-        sys.excepthook = exception_hook
+        sys.excepthook = _exception_hook
         raise Exception(result[1])
     return result
 
 # special function to open the OpenVSP GUI
-def open_gui():
+def open_gui():""" + OPEN_GUI_DOC + r"""
     b_data = pack_data(['opengui', [], {}], True)
     sock.sendall(b_data)
     result = None
@@ -88,22 +113,19 @@ DECORATOR_CODE = """
 # decorator for wrapping every function
 def client_wrap(func):
     def wrapper(*args, **kwargs):
-        return send_recieve(func.__name__, args, kwargs)
+        return _send_recieve(func.__name__, args, kwargs)
     return wrapper
 """
 
 
-def make_facade(file_path,
-    classes_to_remove = [],
-
-    ):
+def write_facade(file_path):
     module_name = file_path.split(".")[0]
 
     in_header_comment = True
 
     in_class_list = {}
     removed_class_list = {}
-    for class_name in classes_to_remove:
+    for class_name in CLASSES_TO_REMOVE:
         in_class_list[class_name] = False
         removed_class_list[class_name] = False
 
@@ -112,6 +134,8 @@ def make_facade(file_path,
 
     with open(file_path, 'r') as f:
         for line in f.readlines():
+            if "**Placeholder start**" in line:
+                break
             # adds comment to header
             if in_header_comment and not "#" in line:
                 in_header_comment = False
@@ -147,7 +171,7 @@ def make_facade(file_path,
 
     #adding required code
     new_facade_string += f"del _{module_name}\n"
-    for class_name in classes_to_remove:
+    for class_name in CLASSES_TO_REMOVE:
         #special code that has not been made generalized
         new_facade_string += f"from openvsp.{module_name} import {class_name}\n"
 
@@ -311,20 +335,36 @@ if __name__ == "__main__":
     with open('facade_server.py', 'w') as f:
         f.write(server_string)
 
-classes_to_remove = [
-    "ErrorObj",
-    "ErrorMgrSingleton",
-    "vec3d",
-    "Matrix4d"
-]
+def modify_vsp_py(filepath):
 
-def make_vsp_facade(directory):
+    with open(filepath, 'a') as vsp_py:
+        vsp_py.write(PLACEHOLDER_OPEN_GUI)
+
+
+
+def make_vsp_facade(source_file):
+    directory = os.path.dirname(source_file)
+    file_name = os.path.basename(source_file)
 
     old_cwd = os.getcwd()
     os.chdir(directory)
-    make_facade(r"vsp_g.py", classes_to_remove=classes_to_remove)
+    write_facade(file_name)
     make_server()
     os.chdir(old_cwd)
 
+def add_placeholder_funcs(source_file):
+    directory = os.path.dirname(source_file)
+    file_name = os.path.basename(source_file)
+    old_cwd = os.getcwd()
+    os.chdir(directory)
+    modify_vsp_py(file_name)
+    os.chdir(old_cwd)
+
 if __name__ == "__main__":
-    make_vsp_facade(sys.argv[1])
+    source_file = sys.argv[1]
+    make_facade = sys.argv[2]
+    if make_facade == "True":
+        make_vsp_facade(source_file)
+        add_placeholder_funcs(source_file)
+    else:
+        add_placeholder_funcs(source_file)

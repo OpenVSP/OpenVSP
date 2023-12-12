@@ -131,27 +131,37 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
                 $<TARGET_FILE:pyvsp_g>
                 ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:pyvsp_g> )
 
+        IF (FACADE)
+            set(POST_COPY_COMMANDS
+                COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py True
+            )
+        ELSE()
+            set(POST_COPY_COMMANDS
+                COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py False
+            )
+        ENDIF()
+        #copy vsp_g to folder and add "placeholder" facade functions
         add_custom_command( TARGET pyvsp_g POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py
-                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py )
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py
+
+                ${POST_COPY_COMMANDS}
+        )
 
         INSTALL( TARGETS pyvsp_g LIBRARY DESTINATION python/openvsp/openvsp )
         INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py DESTINATION python/openvsp/openvsp )
 
         add_dependencies( pyvsp_g copy_package ) # Make pyvsp depend on copy_package.  Not sure this is required.
 
-		IF (FACADE)
-			add_custom_command( TARGET pyvsp_g POST_BUILD
-		        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp)
-			INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade.py DESTINATION python/openvsp/openvsp )
-			INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade_server.py DESTINATION python/openvsp/openvsp )
-		ENDIF()
+    ENDIF()
 
-        # vsp_g_facade.py Gets copied to install location via 'INSTALL( DIRECTORY' below.
-        # Similarly, it will get copied to the python_pseudo package via 'add_custom_target( copy_package' bwlow.
-        # Later, vsp_g_facade.py will be generated here.  It will need to be placed in the above two locations.
-
+    # If Facade is enabled, add facade files to intstall
+    IF (FACADE)
+        INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade.py DESTINATION python/openvsp/openvsp )
+        INSTALL( FILES ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/facade_server.py DESTINATION python/openvsp/openvsp )
     ENDIF()
 
 
@@ -202,20 +212,37 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
             $<TARGET_FILE:pyvsp>
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:pyvsp> )
 
-    # Copy vsp.py wrapper post SWIG generation.
-    add_custom_command( TARGET pyvsp POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_BINARY_DIR}/vsp.py
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py )
 
-    # Create openvsp Python API Documentation and generate unit tests
-    if ( SPHINX_FOUND )
-        add_custom_command( TARGET pyvsp POST_BUILD
-            COMMAND sphinx-build 
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc
+    # create post copy commands for vsp.py
+    # Always adds "placeholder" facade commands to vsp.py
+    # If Facade and no graphics, builds facade using vsp.py
+    # If Sphinx, builds docs from vsp.py
+    IF (FACADE AND VSP_NO_GRAPHICS)
+        set(POST_COPY_COMMANDS
+            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py True
         )
-    endif( SPHINX_FOUND )
+    ELSE()
+        set(POST_COPY_COMMANDS
+            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py False
+        )
+    ENDIF()
+    if ( SPHINX_FOUND )
+        set(POST_COPY_COMMANDS ${POST_COPY_COMMANDS}
+        COMMAND sphinx-build
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc )
+    ENDIF()
+
+    # Copy vsp.py wrapper post SWIG generation and run post copy commands.
+    add_custom_command( TARGET pyvsp POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_BINARY_DIR}/vsp.py
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py
+
+        ${POST_COPY_COMMANDS}
+    )
 
     add_custom_command( TARGET pyvsp POST_BUILD
         COMMAND ${PYTHON_EXECUTABLE}
