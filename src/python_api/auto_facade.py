@@ -15,13 +15,28 @@ OPEN_GUI_DOC = """
 
     .. code-block:: python
 
-        if is_facade():
-            open_gui()
+        if IsFacade():
+            OpenGUI()
     \"\"\"
 """
 
-PLACEHOLDER_OPEN_GUI = "# **Placeholder start**\n" + "def open_gui():" + OPEN_GUI_DOC + r"""
-    print("WARNING: open_gui only has functionality if the facade API is active. \nSee InitGui and StartGui for non-facade GUI")
+IS_FACADE_DOC = """
+    \"\"\"
+    Returns True if the facade API is in use.
+
+
+    .. code-block:: python
+
+        is_facade = IsFacade()
+
+    \"\"\"
+"""
+
+
+PLACEHOLDER_OPEN_GUI = "# **Placeholder start**\n" + "def OpenGUI():" + OPEN_GUI_DOC + r"""
+    print("WARNING: OpenGUI only has functionality if the facade API is active. \nSee InitGui and StartGui for non-facade GUI")
+def IsFacade():""" + IS_FACADE_DOC + r"""
+    return False
 """
 
 
@@ -92,7 +107,7 @@ def _send_recieve(func_name, args, kwargs):
     return result
 
 # special function to open the OpenVSP GUI
-def open_gui():""" + OPEN_GUI_DOC + r"""
+def OpenGUI():""" + OPEN_GUI_DOC + r"""
     b_data = pack_data(['opengui', [], {}], True)
     sock.sendall(b_data)
     result = None
@@ -107,6 +122,8 @@ def open_gui():""" + OPEN_GUI_DOC + r"""
         except:
             pass
     return result
+def IsFacade():"""+IS_FACADE_DOC+r"""
+    return True
 """
 
 DECORATOR_CODE = """
@@ -339,11 +356,8 @@ if __name__ == "__main__":
         f.write(server_string)
 
 def modify_vsp_py(filepath):
-
     with open(filepath, 'a') as vsp_py:
         vsp_py.write(PLACEHOLDER_OPEN_GUI)
-
-
 
 def make_vsp_facade(source_file):
     directory = os.path.dirname(source_file)

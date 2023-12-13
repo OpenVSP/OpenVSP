@@ -1,9 +1,20 @@
-import openvsp_config
+try:
+    import openvsp_config
+    load_graphics = openvsp_config.LOAD_GRAPHICS
+    load_facade = openvsp_config.LOAD_FACADE
+    load_multi_facade = openvsp_config.LOAD_MULTI_FACADE
+    ignore_imports = openvsp_config._IGNORE_IMPORTS
+except ModuleNotFoundError:
+    # if openvsp_config is not setup, loads default vsp
+    load_graphics = False
+    load_facade = False
+    load_multi_facade = False
+    ignore_imports = False
 
-if openvsp_config.LOAD_GRAPHICS:
-	if openvsp_config.LOAD_FACADE:
+if load_graphics:
+	if load_facade:
 		from .facade import *
-	elif openvsp_config.LOAD_MULTI_FACADE:
+	elif load_multi_facade:
 		print("multi facade not supported")
 		#from .vsp_g_facade_multi import *
 	else:
@@ -11,10 +22,10 @@ if openvsp_config.LOAD_GRAPHICS:
 else:
 	from .vsp import *
 
-if openvsp_config._IGNORE_IMPORTS:
+if ignore_imports:
     pass
 
-elif not (openvsp_config.LOAD_FACADE or openvsp_config.LOAD_MULTI_FACADE):
+elif not (load_facade or load_multi_facade):
 
 	from .degen_geom_parse import *
 	from .parasite_drag import *
