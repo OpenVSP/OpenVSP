@@ -1715,6 +1715,15 @@ extern void UpdateGui()
 #endif
 }
 
+extern bool IsGuiBuild()
+{
+#ifdef VSP_USE_FLTK
+    return true;
+#else
+    return false;
+#endif
+}
+
 extern void Lock( )
 {
 #ifdef VSP_USE_FLTK

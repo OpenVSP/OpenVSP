@@ -2892,6 +2892,7 @@ extern void InitGui();
 extern void StartGui();
 extern void InitStartGui();
 extern void UpdateGui();
+extern bool IsGuiBuild();
 extern void Lock( );
 extern void Unlock( );
 
