@@ -2888,11 +2888,230 @@ extern void PrintResultsDocs( const std::string &results_id );
 
 
 //======================== GUI Functions ================================//
+
+/*!
+	\ingroup Visualization
+*/
+/*!
+    Initialize the GUI so it can be called from the API.  Must be called before other GUI related API calls.
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    StartGui();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    StartGui()
+
+    \endcode
+    \endPythonOnly
+
+    \sa StartGui
+*/
+
 extern void InitGui();
+
+/*!
+	\ingroup Visualization
+*/
+/*!
+    Launch the interactive OpenVSP GUI.
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    StartGui();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    StartGui()
+
+    \endcode
+    \endPythonOnly
+
+    \sa InitGui
+*/
+
 extern void StartGui();
+
+/*!
+	\ingroup Visualization
+*/
+/*!
+    Tell OpenVSP that the GUI needs to be updated.
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    StartGui();
+
+    string pod_id = AddGeom( "POD" );
+
+    string length = FindParm( pod_id, "Length", "Design" );
+
+    SetParmVal( length, 13.0 );
+
+    UpdateGui();    string pod_id = AddGeom( "POD" )
+
+    string length = FindParm( pod_id, "Length", "Design" )
+
+    SetParmVal( length, 13.0 )
+
+    UpdateGui()
+
+    \endcode
+    \endPythonOnly
+
+    \sa InitGui, StartGui
+*/
+
 extern void UpdateGui();
+
+/*!
+	\ingroup Visualization
+*/
+/*!
+    Test if the current OpenVSP build includes graphics capabilities.
+    \forcpponly
+    \code{.cpp}
+
+    if ( IsGuiBuild() )
+    {
+        Print( "OpenVSP build is graphics capable." );
+    }
+    else
+    {
+        Print( "OpenVSP build is not graphics capable." );
+    }
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    if ( IsGuiBuild() )
+    {
+        Print( "OpenVSP build is graphics capable." )
+    }
+    else
+    {
+        Print( "OpenVSP build is not graphics capable." )
+    }
+
+    \endcode
+    \endPythonOnly
+
+    \return bool True if the current OpenVSP build includes graphics capabilities.  False otherwise.
+*/
+
 extern bool IsGuiBuild();
+
+/*!
+	\ingroup Visualization
+*/
+/*!
+    Obtain the lock on the OpenVSP GUI event loop.  This will prevent the interactive GUI from
+    updating or accepting user input until the lock is released -- thereby allowing longer-time
+    commands including analyses to execute without the chance of the OpenVSP state changing during
+    execution.
+
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    StartGui();
+
+    string pod_id = AddGeom( "POD" );
+
+    Lock();
+    string rid = ExecAnalysis( "CompGeom" );
+
+    array<string>@ mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" );
+
+    DeleteGeomVec( mesh_id_vec );
+    Unlock();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    StartGui()
+
+    string pod_id = AddGeom( "POD" )
+
+    Lock()
+    string rid = ExecAnalysis( "CompGeom" )
+
+    array<string>@ mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" )
+
+    DeleteGeomVec( mesh_id_vec )
+    Unlock()
+
+    \endcode
+    \endPythonOnly
+
+    \sa Unlock
+*/
+
 extern void Lock( );
+
+/*!
+	\ingroup Visualization
+*/
+/*!
+    Release the lock on the OpenVSP GUI event loop.
+
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    StartGui();
+
+    string pod_id = AddGeom( "POD" );
+
+    Lock();
+    string rid = ExecAnalysis( "CompGeom" );
+
+    array<string>@ mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" );
+
+    DeleteGeomVec( mesh_id_vec );
+    Unlock();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    StartGui()
+
+    string pod_id = AddGeom( "POD" )
+
+    Lock()
+    string rid = ExecAnalysis( "CompGeom" )
+
+    array<string>@ mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" )
+
+    DeleteGeomVec( mesh_id_vec )
+    Unlock()
+
+    \endcode
+    \endPythonOnly
+
+    \sa Lock
+*/
+
 extern void Unlock( );
 
 /*!
