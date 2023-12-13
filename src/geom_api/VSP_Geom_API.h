@@ -2890,7 +2890,6 @@ extern void PrintResultsDocs( const std::string &results_id );
 //======================== GUI Functions ================================//
 extern void InitGui();
 extern void StartGui();
-extern void InitStartGui();
 extern void UpdateGui();
 extern bool IsGuiBuild();
 extern void Lock( );
