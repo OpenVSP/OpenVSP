@@ -131,24 +131,14 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
                 $<TARGET_FILE:pyvsp_g>
                 ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:pyvsp_g> )
 
-        IF (FACADE)
-            set(POST_COPY_COMMANDS
-                COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
-                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py True
-            )
-        ELSE()
-            set(POST_COPY_COMMANDS
-                COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
-                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py False
-            )
-        ENDIF()
         #copy vsp_g to folder and add "placeholder" facade functions
         add_custom_command( TARGET pyvsp_g POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy
                 ${CMAKE_CURRENT_BINARY_DIR}/vsp_g.py
                 ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py
 
-                ${POST_COPY_COMMANDS}
+                COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp_g.py False
         )
 
         INSTALL( TARGETS pyvsp_g LIBRARY DESTINATION python/openvsp/openvsp )
@@ -215,19 +205,11 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
     # create post copy commands for vsp.py
     # Always adds "placeholder" facade commands to vsp.py
-    # If Facade and no graphics, builds facade using vsp.py
+    # Builds facade using vsp.py
     # If Sphinx, builds docs from vsp.py
-    IF (FACADE AND VSP_NO_GRAPHICS)
-        set(POST_COPY_COMMANDS
-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py True
-        )
-    ELSE()
-        set(POST_COPY_COMMANDS
-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py False
-        )
-    ENDIF()
+
+    set( POST_COPY_COMMANDS "" )
+
     if ( SPHINX_FOUND )
         set(POST_COPY_COMMANDS ${POST_COPY_COMMANDS}
         COMMAND sphinx-build
@@ -240,6 +222,9 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_BINARY_DIR}/vsp.py
         ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py
+
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
+        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py True
 
         ${POST_COPY_COMMANDS}
     )
