@@ -328,6 +328,8 @@ def start_server():
 if __name__ == "__main__":
     t = Thread(target=start_server, args=())
     t.start()
+    module.Lock()
+    module.Unlock()
 
     event.wait()
     module.InitGui()
