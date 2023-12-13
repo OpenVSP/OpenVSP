@@ -2803,6 +2803,24 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //==== Visualization Functions ====//
 
+    r = se->RegisterGlobalFunction( "void InitGui()", vspFUNCTION( vsp::InitGui ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void StartGui()", vspFUNCTION( vsp::StartGui ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void UpdateGui()", vspFUNCTION( vsp::UpdateGui ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "bool IsGuiBuild()", vspFUNCTION( vsp::IsGuiBuild ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void Lock()", vspFUNCTION( vsp::Lock ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void Unlock()", vspFUNCTION( vsp::Unlock ), vspCALL_CDECL );
+    assert( r >= 0 );
+
     r = se->RegisterGlobalFunction( "void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG, bool autocrop = false )", vspFUNCTION( vsp::ScreenGrab ), vspCALL_CDECL );
     assert( r >= 0 );
 
