@@ -156,7 +156,7 @@ void* CheckVersionNumber( void *threadid )
                 {
                     // Send message to main thread to display new version message.
                     printf( "A new version is available\n" );
-                    GuiInterface::getInstance().PopupMsg( "A new version of OpenVSP is available at http://www.openvsp.org/", false );
+                    GuiInterface::getInstance().PopupMsg( "A new version of OpenVSP is available at http://www.openvsp.org/" );
                 }
             }
         }

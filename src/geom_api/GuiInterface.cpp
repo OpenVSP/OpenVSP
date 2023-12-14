@@ -78,7 +78,7 @@ void GuiInterface::UpdateGui( )
 
 }
 
-void GuiInterface::PopupMsg( const char* message, bool lock_out )
+void GuiInterface::PopupMsg( const char* message )
 {
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )

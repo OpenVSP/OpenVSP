@@ -37,7 +37,7 @@ public:
     void StartGui( );
     void StartGuiAPI( );
     void UpdateGui( );
-    void PopupMsg( const char * message, bool lock_out );
+    void PopupMsg( const char * message );
 
     void Lock();
     void Unlock();
