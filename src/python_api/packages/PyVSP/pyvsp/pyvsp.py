@@ -407,7 +407,7 @@ class DemoFrame(wx.Frame):
         self.geom_file = os.path.basename(geom_file_path)
         print("Opening OpenVSP file: %s" % self.geom_file)
         vsp.ReadVSPFile(os.path.join(self.dir, self.geom_file))
-        vsp.open_gui()
+        vsp.OpenGUI()
         self.vsp_update()
 
     def vsp_update(self):
