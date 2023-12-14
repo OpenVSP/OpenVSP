@@ -3279,34 +3279,64 @@ extern void SetGeomDisplayType(const string &geom_id, int type);
 extern void SetBackground( double r, double g, double b );
 
 /*!
-    Set whether GUI Element is disabled
+	\ingroup Visualization
+*/
+/*!
+    Set whether all instances of GUI device type are disabled
+    \forcpponly
     \code{.cpp}
     SetGUIElementDisable( GDEV_INPUT, true );
     \endcode
-    \param [in] e
-    \param [in] state
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    SetGUIElementDisable( GDEV_INPUT, true )
+    \endcode
+    \endPythonOnly
+    \param [in] e int GDEV enum for GUI device type
+    \param [in] state bool True to disable GUI device type
 */
 
 extern void SetGUIElementDisable( int e, bool state );
 
 /*!
+	\ingroup Visualization
+*/
+/*!
     Set whether screen is disabled
+    \forcpponly
     \code{.cpp}
     SetGUIScreenDisable( VSP_CFD_MESH_SCREEN, true );
     \endcode
-    \param [in] e
-    \param [in] state
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    SetGUIScreenDisable( VSP_CFD_MESH_SCREEN, true )
+    \endcode
+    \endPythonOnly
+    \param [in] e int GUI_VSP_SCREEN enum for screen
+    \param [in] state bool True to disable screen
 */
 
 extern void SetGUIScreenDisable( int s, bool state );
 
 /*!
+	\ingroup Visualization
+*/
+/*!
     Set whether geom screen is disabled
+    \forcpponly
     \code{.cpp}
     SetGeomScreenDisable( ALL_GEOM_SCREENS, true );
     \endcode
-    \param [in] e
-    \param [in] state
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    SetGeomScreenDisable( ALL_GEOM_SCREENS, true )
+    \endcode
+    \endPythonOnly
+    \param [in] e int GUI_GEOM_SCREEN enum for geom screen
+    \param [in] state bool True to disable geom screen
 */
 extern void SetGeomScreenDisable( int s, bool state );
 
