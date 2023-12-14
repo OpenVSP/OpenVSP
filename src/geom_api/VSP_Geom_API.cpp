@@ -6971,60 +6971,60 @@ void AddVarPresetSetting( const string &setting_name )
     ErrorMgr.NoError();
 }
 
-void AddVarPresetParm( const string &parm_ID )
+void AddVarPresetParm( const string &parm_id )
 {
-    if ( !VarPresetMgr.AddVar( parm_ID ) )
+    if ( !VarPresetMgr.AddVar( parm_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_ID );
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_id );
     }
     VarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
 }
 
-void AddVarPresetParm( const string &parm_ID, const string &group_name )
+void AddVarPresetParm( const string &parm_id, const string &group_name )
 {
     VarPresetMgr.GroupChange( group_name );
-    if ( !VarPresetMgr.AddVar( parm_ID ) )
+    if ( !VarPresetMgr.AddVar( parm_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_ID );
+        ErrorMgr.AddError( VSP_INVALID_ID, "AddVarPresetParm::Failed to add Variable Preset " + parm_id );
     }
     VarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
 }
 
-void EditVarPresetParm( const string &parm_ID, double parm_val )
+void EditVarPresetParm( const string &parm_id, double parm_val )
 {
-    Parm *p = ParmMgr.FindParm( parm_ID );
+    Parm *p = ParmMgr.FindParm( parm_id );
     if ( p )
     {
         p->Set( parm_val );
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "EditVarPresetParm::Can't Find Parm " + parm_ID );
+        ErrorMgr.AddError( VSP_INVALID_ID, "EditVarPresetParm::Can't Find Parm " + parm_id );
     }
     VarPresetMgr.SavePreset();
 }
 
-void EditVarPresetParm( const string &parm_ID, double parm_val, const string &group_name,
+void EditVarPresetParm( const string &parm_id, double parm_val, const string &group_name,
     const string &setting_name )
 {
     SwitchVarPreset( group_name, setting_name );
-    EditVarPresetParm( parm_ID, parm_val );
+    EditVarPresetParm( parm_id, parm_val );
 }
 
-void DeleteVarPresetParm( const string &parm_ID )
+void DeleteVarPresetParm( const string &parm_id )
 {
-    VarPresetMgr.SetWorkingParmID( parm_ID );
+    VarPresetMgr.SetWorkingParmID( parm_id );
     VarPresetMgr.DelCurrVar();
     VarPresetMgr.SavePreset();
 
     ErrorMgr.NoError();
 }
 
-void DeleteVarPresetParm( const string &parm_ID, const string &group_name )
+void DeleteVarPresetParm( const string &parm_id, const string &group_name )
 {
     VarPresetMgr.GroupChange( group_name );
     if (VarPresetMgr.GetActiveGroupText().compare( group_name ) == 0 )
@@ -7035,7 +7035,7 @@ void DeleteVarPresetParm( const string &parm_ID, const string &group_name )
     {
         ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "DeleteVarPresetParm::Can't Find Group " + group_name );
     }
-    DeleteVarPresetParm( parm_ID );
+    DeleteVarPresetParm( parm_id );
 }
 
 void SwitchVarPreset( const string &group_name, const string &setting_name )
