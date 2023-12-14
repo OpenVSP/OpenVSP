@@ -2960,7 +2960,17 @@ extern void StartGui();
 
     SetParmVal( length, 13.0 );
 
-    UpdateGui();    string pod_id = AddGeom( "POD" )
+    UpdateGui();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    StartGui()
+
+    string pod_id = AddGeom( "POD" )
 
     string length = FindParm( pod_id, "Length", "Design" )
 
