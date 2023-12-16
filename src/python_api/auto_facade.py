@@ -351,6 +351,7 @@ if __name__ == "__main__":
 
     event.wait()
     module.InitGui()
+    module.EnableReturnToAPI()
     module.StartGui()
 """
     with open('facade_server.py', 'w') as f:
