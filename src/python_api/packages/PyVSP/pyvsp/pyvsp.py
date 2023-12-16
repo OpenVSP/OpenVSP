@@ -177,10 +177,6 @@ class DemoFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_run_automated_script, run_automated_script)
         button_buffer_box.Add(run_automated_script)
 
-        # start_openvsp = wx.Button(button_buffer, wx.ID_ANY, u"Init OpenVSP GUI", wx.DefaultPosition, wx.DefaultSize, 0)
-        # self.Bind(wx.EVT_BUTTON, self.on_start_openvsp, start_openvsp)
-        # button_buffer_box.Add(start_openvsp)
-
         # screenshot = wx.Button(button_buffer, wx.ID_ANY, u"Take Screenshot", wx.DefaultPosition, wx.DefaultSize, 0)
         # self.Bind(wx.EVT_BUTTON, self.on_screenshot, screenshot)
         # button_buffer_box.Add(screenshot)
@@ -200,34 +196,6 @@ class DemoFrame(wx.Frame):
 
     def on_screenshot(self, event):
         vsp.ScreenGrab(r'C:\work\gmdao\test_app_server\test.png',400,400,False)
-
-    def on_start_openvsp(self, event):
-        """
-        event called to initialize the openvsp gui
-
-        Parameters
-        ----------
-        event : wx.Event
-            The button event
-        """
-        def start_gui():
-
-            print("before start gui")
-            sleep(1)
-            vsp.InitGui()
-            sleep(1)
-            vsp.StartGui()
-            print("after start gui")
-            # event.set()
-        if self.did_init_gui:
-            print("init gui already called")
-            return
-
-        print("before thread")
-        t = Thread(target=start_gui, args=())
-        t.start()
-        print("after thread")
-        self.did_init_gui = True
 
     def on_switch_to_openvsp(self, event):
         """
