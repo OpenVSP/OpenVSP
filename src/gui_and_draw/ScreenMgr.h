@@ -82,6 +82,11 @@ public:
         ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideExit();
     };
 
+    void ReturnToAPI()
+    {
+        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ReturnToAPI();
+    };
+
     void APIHideScreens();
     void APIShowScreens();
 

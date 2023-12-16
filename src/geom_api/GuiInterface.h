@@ -36,6 +36,7 @@ public:
     void InitGui( Vehicle* vPtr );
     void StartGui( );
     void StartGuiAPI( );
+    void StopGui();
     void UpdateGui( );
     void PopupMsg( const char * message );
 

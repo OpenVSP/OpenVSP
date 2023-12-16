@@ -2983,6 +2983,41 @@ extern void StartGui();
 extern void EnableReturnToAPI();
 
 /*!
+    \ingroup Visualization
+*/
+/*!
+    Stop OpenVSP GUI event loop and close most screens.  Keep OpenVSP running and in memory.
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    StartGui();
+
+    StopGui();
+
+    StartGui();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    StartGui()
+
+    StopGui()
+
+    StartGui()
+
+    \endcode
+    \endPythonOnly
+
+    \sa InitGui, StartGui
+*/
+
+extern void StopGui();
+
+/*!
 	\ingroup Visualization
 */
 /*!

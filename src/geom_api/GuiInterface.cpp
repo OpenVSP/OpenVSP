@@ -65,6 +65,16 @@ void GuiInterface::StartGuiAPI( )
 
 }
 
+void GuiInterface::StopGui()
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->ReturnToAPI();
+    }
+#endif
+}
+
 void GuiInterface::UpdateGui( )
 {
 #ifdef VSP_USE_FLTK
