@@ -2953,7 +2953,8 @@ extern void InitGui();
     \sa InitGui
 */
 
-extern void StartGui();
+    extern void StartGui();
+
 /*!
     \ingroup Visualization
 */
