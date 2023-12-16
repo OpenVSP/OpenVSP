@@ -56,7 +56,6 @@ void GuiInterface::StartGuiAPI( )
     if ( m_ScreenMgr )
     {
         m_ScreenMgr->SetRunGui( true );
-        m_ScreenMgr->ShowReturnToAPI();
         m_ScreenMgr->HideExit();
         m_ScreenMgr->ShowScreen( vsp::VSP_MAIN_SCREEN );
         m_ScreenMgr->APIShowScreens();
@@ -156,6 +155,16 @@ void GuiInterface::SetBackground( double r, double g, double b )
         {
             main->SetBackground( r, g, b );
         }
+    }
+#endif
+}
+
+void GuiInterface::EnableReturnToAPI()
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->ShowReturnToAPI();
     }
 #endif
 }

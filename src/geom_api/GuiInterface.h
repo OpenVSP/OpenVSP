@@ -47,6 +47,8 @@ public:
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
 
+    void EnableReturnToAPI();
+
     void SetGUIElementDisable( int e, bool state );
     void SetGUIScreenDisable( int s, bool state );
     void SetGeomScreenDisable( int s, bool state );

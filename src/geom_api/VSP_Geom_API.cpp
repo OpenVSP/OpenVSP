@@ -1679,6 +1679,13 @@ extern void StartGui( )
 #endif
 }
 
+extern void EnableReturnToAPI( )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().EnableReturnToAPI( );
+#endif
+}
+
 extern void UpdateGui()
 {
 #ifdef VSP_USE_FLTK

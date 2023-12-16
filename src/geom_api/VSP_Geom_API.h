@@ -2942,6 +2942,45 @@ extern void InitGui();
 */
 
 extern void StartGui();
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Enable Return to API functionality from the OpenVSP GUI.
+
+    Typically used for the blocking-mode OpenVSP GUI from the API.  This should not be enabled for a non-blocking
+    use of the OpenVSP GUI.
+
+    This will add a "Return to API" option to the file pulldown menu and will also cause the exit button on the
+    window frame to have the same effect.  When selected, these options will stop the OpenVSP GUI event loop,
+    returning control to the API program.  OpenVSP will not terminate, the model will remain in memory and will
+    be responsive to subsequent API calls.
+
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    DisableExit();
+    EnableReturnToAPI();
+    StartGui();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    DisableExit()
+    EnableReturnToAPI()
+    StartGui()
+
+    \endcode
+    \endPythonOnly
+
+    \sa InitGui
+*/
+
+extern void EnableReturnToAPI();
 
 /*!
 	\ingroup Visualization
