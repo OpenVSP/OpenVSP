@@ -63,6 +63,9 @@ class DemoFrame(wx.Frame):
             style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL
         )
 
+        print("Binding EVT_CLOSE")
+        self.Bind( wx.EVT_CLOSE, self.onClose )
+
         #creating main layout splitters
         self.vtkPanel = None
         mainSplitter = wx.SplitterWindow(
@@ -545,6 +548,15 @@ class DemoFrame(wx.Frame):
         else:
             print("UNKNOWN SYM VALUE FOUND")
             return []
+    def onClose(self, event):
+        """
+
+        :param event:
+        :return:
+        """
+        vsp.StopGui()
+        sleep(1)
+        self.Destroy()
 
 class VTK_Panel_Vehicle(wx.Panel):
     def __init__(self, parent):
