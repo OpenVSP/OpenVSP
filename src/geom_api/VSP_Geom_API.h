@@ -331,6 +331,18 @@ extern void Update( bool update_managers = true );
 
 extern void VSPExit( int error_code );
 
+/*!
+    \ingroup Vehicle
+*/
+/*!
+    Return the OpenVSP update count and also reset it to zero.
+
+    The OpenVSP update count tracks how many times the GUI has been told to update screens (set to dirty).  It
+    provides a simple means of testing whether the OpenVSP state has possibly changed (non-zero returned).
+
+    \return int OpenVSP update count
+*/
+
 extern int GetAndResetUpdateCount();
 
 
