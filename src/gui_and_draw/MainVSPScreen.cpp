@@ -283,7 +283,7 @@ void MainVSPScreen::CloseCallBack( Fl_Widget *w )
     {
         ReturnToAPI();
     }
-    else
+    else if ( m_ExitMenuItem.IsShown() )
     {
         ExitVSP();
     }
