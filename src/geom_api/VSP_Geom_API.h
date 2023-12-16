@@ -215,7 +215,7 @@ namespace vsp
 
 //======================== API Functions ================================//
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Check if OpenVSP has been initialized successfully. If not, the OpenVSP instance will be exited. This call should be placed at the
@@ -244,7 +244,7 @@ namespace vsp
 extern void VSPCheckSetup();
 
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Clear and reinitialize OpenVSP to all default settings
@@ -279,7 +279,7 @@ extern void VSPRenew();
 
 
 /*!
-	\ingroup Vehicle
+    \ingroup Vehicle
 */
 /*!
     Update the entire vehicle and all lower level children. An input, which is true by default, is available to specify
@@ -322,7 +322,7 @@ extern void VSPRenew();
 extern void Update( bool update_managers = true );
 
 /*!
-	\ingroup Vehicle
+    \ingroup Vehicle
 */
 /*!
     Exit the program with a specific error code
@@ -347,7 +347,7 @@ extern int GetAndResetUpdateCount();
 
 
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Get the version of the OpenVSP instance currently running
@@ -372,7 +372,7 @@ extern int GetAndResetUpdateCount();
 extern std::string GetVSPVersion();
 
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Get the major version of the OpenVSP instance currently running as an integer
@@ -405,7 +405,7 @@ extern std::string GetVSPVersion();
 extern int GetVSPVersionMajor();
 
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Get the minor version of the OpenVSP instance currently running as an integer
@@ -438,7 +438,7 @@ extern int GetVSPVersionMajor();
 extern int GetVSPVersionMinor();
 
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Get the change version of the OpenVSP instance currently running as an integer
@@ -471,7 +471,7 @@ extern int GetVSPVersionMinor();
 extern int GetVSPVersionChange();
 
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Get the path to the OpenVSP executable. OpenVSP will assume that the VSPAERO, VSPSLICER, and VSPVIEWER are in the same directory unless
@@ -499,7 +499,7 @@ extern std::string GetVSPExePath();
 
 
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Set the path to the VSPAERO executables (Solver, Viewer, and Slicer). By default, OpenVSP will assume that the VSPAERO executables are in the
@@ -531,7 +531,7 @@ extern std::string GetVSPExePath();
 extern bool SetVSPAEROPath( const std::string & path );
 
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Get the path that OpenVSP will use to look for all VSPAERO executables (Solver, Slicer, and Viewer) when attempting to execute
@@ -559,7 +559,7 @@ extern bool SetVSPAEROPath( const std::string & path );
 extern std::string GetVSPAEROPath();
 
 /*!
-	\ingroup APIUtilities
+    \ingroup APIUtilities
 */
 /*!
     Check if all VSPAERO executables (Solver, Viewer, and Slicer) are in a given directory. Note that this function will return false
@@ -597,7 +597,7 @@ extern void RegisterCFDMeshAnalyses();
 
 //======================== File I/O ================================//
 /*!
-	\ingroup FileIO
+    \ingroup FileIO
 */
 /*!
     Load an OpenVSP project from a VSP3 file
@@ -658,7 +658,7 @@ extern void RegisterCFDMeshAnalyses();
 extern void ReadVSPFile( const std::string & file_name );
 
 /*!
-	\ingroup FileIO
+    \ingroup FileIO
 */
 /*!
     Save the current OpenVSP project to a VSP3 file
@@ -720,7 +720,7 @@ extern void ReadVSPFile( const std::string & file_name );
 extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
 
 /*!
-	\ingroup FileIO
+    \ingroup FileIO
 */
 /*!
     Set the file name of a OpenVSP project
@@ -781,7 +781,7 @@ extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
 extern void SetVSP3FileName( const std::string & file_name );
 
 /*!
-	\ingroup Vehicle
+    \ingroup Vehicle
 */
 /*!
     Get the file name of the current OpenVSP project
@@ -828,7 +828,7 @@ extern void SetVSP3FileName( const std::string & file_name );
 extern std::string GetVSPFileName();
 
 /*!
-	\ingroup Vehicle
+    \ingroup Vehicle
 */
 /*!
     Clear the current OpenVSP model
@@ -856,7 +856,7 @@ extern std::string GetVSPFileName();
 extern void ClearVSPModel();
 
 /*!
-	\ingroup FileIO
+    \ingroup FileIO
 */
 /*!
     Insert an external OpenVSP project into the current project. All Geoms in the external project are placed as children of the specified parent.
@@ -869,7 +869,7 @@ extern void InsertVSPFile( const std::string & file_name, const std::string & pa
 
 
 /*!
-	\ingroup FileIO
+    \ingroup FileIO
 */
 /*!
     Export a file from OpenVSP. Many formats are available, such as STL, IGES, and SVG. If a mesh is generated for a particular export,
@@ -907,7 +907,7 @@ extern void InsertVSPFile( const std::string & file_name, const std::string & pa
 extern std::string ExportFile( const std::string & file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = vsp::SET_NONE );
 
 /*!
-	\ingroup FileIO
+    \ingroup FileIO
 */
 /*!
     Import a file into OpenVSP. Many formats are available, such as NASCART, V2, and BEM). The imported Geom, mesh, or other object is inserted
@@ -922,7 +922,7 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
 
 
 /*!
-	\ingroup FileIO
+    \ingroup FileIO
 */
 /*!
     Set the ID of the propeller to be exported to a BEM file. Call this function before ExportFile.
@@ -957,7 +957,7 @@ extern void SetBEMPropID( const string & prop_id );
 //======================== Design Files ================================//
 
 /*!
-	\ingroup DesignFile
+    \ingroup DesignFile
 */
 /*!
     Read in and apply a design file (*.des) to the current OpenVSP project
@@ -967,7 +967,7 @@ extern void SetBEMPropID( const string & prop_id );
 extern void ReadApplyDESFile( const std::string & file_name );
 
 /*!
-	\ingroup DesignFile
+    \ingroup DesignFile
 */
 /*!
     Write all design variables to a design file (*.des)
@@ -977,7 +977,7 @@ extern void ReadApplyDESFile( const std::string & file_name );
 extern void WriteDESFile( const std::string & file_name );
 
 /*!
-	\ingroup DesignFile
+    \ingroup DesignFile
 */
 /*!
     Read in and apply a Cart3D XDDM file (*.xddm) to the current OpenVSP project
@@ -987,7 +987,7 @@ extern void WriteDESFile( const std::string & file_name );
 extern void ReadApplyXDDMFile( const std::string & file_name );
 
 /*!
-	\ingroup DesignFile
+    \ingroup DesignFile
 */
 /*!
     Write all design variables to a Cart3D XDDM file (*.xddm)
@@ -997,7 +997,7 @@ extern void ReadApplyXDDMFile( const std::string & file_name );
 extern void WriteXDDMFile( const std::string & file_name );
 
 /*!
-	\ingroup DesignFile
+    \ingroup DesignFile
 */
 /*!
     Get the number of design variables
@@ -1007,7 +1007,7 @@ extern void WriteXDDMFile( const std::string & file_name );
 extern int GetNumDesignVars();
 
 /*!
-	\ingroup DesignFile
+    \ingroup DesignFile
 */
 /*!
     Add a design variable
@@ -1019,7 +1019,7 @@ extern int GetNumDesignVars();
 extern void AddDesignVar( const std::string & parm_id, int type );
 
 /*!
-	\ingroup DesignFile
+    \ingroup DesignFile
 */
 /*!
     Delete all design variables
@@ -1028,7 +1028,7 @@ extern void AddDesignVar( const std::string & parm_id, int type );
 extern void DeleteAllDesignVars();
 
 /*!
-	\ingroup DesignFile
+    \ingroup DesignFile
 */
 /*!
     Get the Parm ID of the specified design variable
@@ -1039,7 +1039,7 @@ extern void DeleteAllDesignVars();
 extern std::string GetDesignVar( int index );
 
 /*!
-	\ingroup DesignFile
+    \ingroup DesignFile
 */
 /*!
     Get the XDDM type of the specified design variable
@@ -1053,7 +1053,7 @@ extern int GetDesignVarType( int index );
 
 //======================== Computations ================================//
 /*!
-	\ingroup CFDMesh
+    \ingroup CFDMesh
 */
 /*!
     Get the file name of a specified file type. Note, this function cannot be used to set FEA Mesh file names.
@@ -1084,7 +1084,7 @@ extern int GetDesignVarType( int index );
 extern void SetComputationFileName( int file_type, const std::string & file_name );
 
 /*!
-	\ingroup Computations
+    \ingroup Computations
 */
 /*!
     Compute mass properties for the components in the set. Alternatively can be run through the Analysis Manager with 'MassProp'.
@@ -1127,7 +1127,7 @@ extern void SetComputationFileName( int file_type, const std::string & file_name
 extern std::string ComputeMassProps( int set, int num_slices, int idir );
 
 /*!
-	\ingroup Computations
+    \ingroup Computations
 */
 /*!
     Mesh, intersect, and trim components in the set. Alternatively can be run through the Analysis Manager with 'CompGeom'.
@@ -1168,7 +1168,7 @@ extern std::string ComputeMassProps( int set, int num_slices, int idir );
 extern std::string ComputeCompGeom( int set, bool half_mesh, int file_export_types );
 
 /*!
-	\ingroup Computations
+    \ingroup Computations
 */
 /*!
     Slice and mesh the components in the set. Alternatively can be run through the Analysis Manager with 'PlanarSlice'.
@@ -1218,7 +1218,7 @@ extern std::string ComputePlaneSlice( int set, int num_slices, const vec3d & nor
 
                                  double start_bnd = 0, double end_bnd = 0, bool measureduct = false );
 /*!
-	\ingroup Computations
+    \ingroup Computations
 */
 /*!
     Compute the degenerate geometry representation for the components in the set. Alternatively can be run through the Analysis Manager with 'DegenGeom' or 'VSPAERODegenGeom'.
@@ -1249,7 +1249,7 @@ extern std::string ComputePlaneSlice( int set, int num_slices, const vec3d & nor
 extern void ComputeDegenGeom( int set, int file_export_types );
 
 /*!
-	\ingroup CFDMesh
+    \ingroup CFDMesh
 */
 /*!
     Create a CFD Mesh for the components in the set. This analysis cannot be run through the Analysis Manager.
@@ -1283,7 +1283,7 @@ extern void ComputeDegenGeom( int set, int file_export_types );
 extern void ComputeCFDMesh( int set, int degenset, int file_export_types );
 
 /*!
-	\ingroup CFDMesh
+    \ingroup CFDMesh
 */
 /*!
     Set the value of a specific CFD Mesh option
@@ -1306,7 +1306,7 @@ extern void ComputeCFDMesh( int set, int degenset, int file_export_types );
 extern void SetCFDMeshVal( int type, double val );
 
 /*!
-	\ingroup CFDMesh
+    \ingroup CFDMesh
 */
 /*!
     Activate or deactivate the CFD Mesh wake for a particular Geom. Note, the wake flag is only applicable for wing-type surfaces.
@@ -1342,7 +1342,7 @@ extern void SetCFDMeshVal( int type, double val );
 extern void SetCFDWakeFlag( const std::string & geom_id, bool flag );
 
 /*!
-	\ingroup CFDMesh
+    \ingroup CFDMesh
 */
 /*!
     Delete all CFD Mesh sources for all Geoms
@@ -1372,7 +1372,7 @@ extern void SetCFDWakeFlag( const std::string & geom_id, bool flag );
 extern void DeleteAllCFDSources();
 
 /*!
-	\ingroup CFDMesh
+    \ingroup CFDMesh
 */
 /*!
     Add default CFD Mesh sources for all Geoms
@@ -1398,7 +1398,7 @@ extern void DeleteAllCFDSources();
 extern void AddDefaultSources();
 
 /*!
-	\ingroup CFDMesh
+    \ingroup CFDMesh
 */
 /*!
     Add a CFD Mesh default source for the indicated Geom. Note, certain input params may not be used depending on the source type
@@ -1439,7 +1439,7 @@ extern void AddCFDSource( int type, const std::string & geom_id, int surf_index,
                           double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 );
 
 /*!
-	\ingroup VSPAERO
+    \ingroup VSPAERO
 */
 /*!
     Get ID of the current VSPAERO reference Geom
@@ -1449,7 +1449,7 @@ extern void AddCFDSource( int type, const std::string & geom_id, int surf_index,
 extern string GetVSPAERORefWingID();
 
 /*!
-	\ingroup VSPAERO
+    \ingroup VSPAERO
 */
 /*!
     Set the current VSPAERO reference Geom ID
@@ -1511,7 +1511,7 @@ extern string SetVSPAERORefWingID( const std::string & geom_id );
 //======================== Analysis ================================//
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the number of analysis types available in the Analysis Manager
@@ -1536,7 +1536,7 @@ extern string SetVSPAERORefWingID( const std::string & geom_id );
 extern int GetNumAnalysis();
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the name of every available analysis in the Analysis Manager
@@ -1570,7 +1570,7 @@ extern int GetNumAnalysis();
 extern std::vector<std::string> ListAnalysis();
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the name of every available input for a particular analysis
@@ -1609,7 +1609,7 @@ extern std::vector<std::string> ListAnalysis();
 extern std::vector<std::string> GetAnalysisInputNames( const std::string & analysis );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the analysis documentation string
@@ -1635,7 +1635,7 @@ extern std::vector<std::string> GetAnalysisInputNames( const std::string & analy
 extern std::string GetAnalysisDoc( const std::string & analysis );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the documentation string for the particular analysis and input
@@ -1653,7 +1653,7 @@ extern std::string GetAnalysisDoc( const std::string & analysis );
 extern std::string GetAnalysisInputDoc( const std::string & analysis, const std::string & name );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Execute an analysis through the Analysis Manager
@@ -1680,7 +1680,7 @@ extern std::string ExecAnalysis( const std::string & analysis );
 
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the documentation string for the particular analysis and input
@@ -1692,7 +1692,7 @@ extern std::string ExecAnalysis( const std::string & analysis );
 extern int GetNumAnalysisInputData( const std::string & analysis, const std::string & name );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the data type for a particulat analysis type and input
@@ -1729,7 +1729,7 @@ extern int GetNumAnalysisInputData( const std::string & analysis, const std::str
 extern int GetAnalysisInputType( const std::string & analysis, const std::string & name );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the current integer values for the particular analysis, input, and data index
@@ -1770,7 +1770,7 @@ extern int GetAnalysisInputType( const std::string & analysis, const std::string
 extern const std::vector< int > & GetIntAnalysisInput( const std::string & analysis, const std::string & name, int index = 0 );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the current double values for the particular analysis, input, and data index
@@ -1803,7 +1803,7 @@ extern const std::vector< int > & GetIntAnalysisInput( const std::string & analy
 extern const std::vector< double > & GetDoubleAnalysisInput( const std::string & analysis, const std::string & name, int index = 0 );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the current string values for the particular analysis, input, and data index
@@ -1836,7 +1836,7 @@ extern const std::vector< double > & GetDoubleAnalysisInput( const std::string &
 extern const std::vector<std::string> & GetStringAnalysisInput( const std::string & analysis, const std::string & name, int index = 0 );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Get the current vec3d values for the particular analysis, input, and data index
@@ -1872,7 +1872,7 @@ extern const std::vector< vec3d > & GetVec3dAnalysisInput( const std::string & a
 
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
    Set all input values to their defaults for a specific analysis
@@ -1901,7 +1901,7 @@ extern const std::vector< vec3d > & GetVec3dAnalysisInput( const std::string & a
 extern void SetAnalysisInputDefaults( const std::string & analysis );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Set the value of a particular analysis input of integer type
@@ -1942,7 +1942,7 @@ extern void SetAnalysisInputDefaults( const std::string & analysis );
 extern void SetIntAnalysisInput( const std::string & analysis, const std::string & name, const std::vector< int > & indata, int index = 0 );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Set the value of a particular analysis input of double type
@@ -1985,7 +1985,7 @@ extern void SetIntAnalysisInput( const std::string & analysis, const std::string
 extern void SetDoubleAnalysisInput( const std::string & analysis, const std::string & name, const std::vector< double > & indata, int index = 0 );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Set the value of a particular analysis input of string type
@@ -2018,7 +2018,7 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
 extern void SetStringAnalysisInput( const std::string & analysis, const std::string & name, const std::vector<std::string> & indata, int index = 0 );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Set the value of a particular analysis input of vec3d type
@@ -2054,7 +2054,7 @@ extern void SetVec3dAnalysisInput( const std::string & analysis, const std::stri
 
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Print to stdout all current input values for a specific analysis
@@ -2083,7 +2083,7 @@ extern void SetVec3dAnalysisInput( const std::string & analysis, const std::stri
 extern void PrintAnalysisInputs( const std::string & analysis_name );
 
 /*!
-	\ingroup Analysis
+    \ingroup Analysis
 */
 /*!
     Print to stdout all current input documentation for a specific analysis
@@ -2114,7 +2114,7 @@ extern void PrintAnalysisDocs( const std::string & analysis_name );
 
 //======================== Results ================================//
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get the name of all results in the Results Manager
@@ -2152,7 +2152,7 @@ extern void PrintAnalysisDocs( const std::string & analysis_name );
 extern std::vector<std::string> GetAllResultsNames();
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get all data names for a particular result
@@ -2188,7 +2188,7 @@ extern std::vector<std::string> GetAllResultsNames();
 extern std::vector<std::string> GetAllDataNames( const std::string & results_id );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get the number of results for a particular result name
@@ -2216,7 +2216,7 @@ extern std::vector<std::string> GetAllDataNames( const std::string & results_id 
 extern int GetNumResults( const std::string & name );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get the name of a result given its ID
@@ -2258,7 +2258,7 @@ extern int GetNumResults( const std::string & name );
 extern std::string GetResultsName(const std::string & results_id );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get the documentation string for a result given its ID
@@ -2302,7 +2302,7 @@ extern std::string GetResultsSetDoc( const std::string & results_id );
 extern std::string GetResultsEntryDoc( const std::string & results_id, const std::string & data_name );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Find a results ID given its name and index
@@ -2335,7 +2335,7 @@ extern std::string GetResultsEntryDoc( const std::string & results_id, const std
 extern std::string FindResultsID( const std::string & name, int index = 0 );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Find the latest results ID for particular result name
@@ -2374,7 +2374,7 @@ extern std::string FindResultsID( const std::string & name, int index = 0 );
 extern std::string FindLatestResultsID( const std::string & name );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get the number of data values for a given result ID and data name
@@ -2423,7 +2423,7 @@ extern std::string FindLatestResultsID( const std::string & name );
 extern int GetNumData( const std::string & results_id, const std::string & data_name );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get the data type for a given result ID and data name
@@ -2466,7 +2466,7 @@ extern int GetNumData( const std::string & results_id, const std::string & data_
 extern int GetResultsType( const std::string & results_id, const std::string & data_name );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get all integer values for a particular result, name, and index
@@ -2516,7 +2516,7 @@ extern int GetResultsType( const std::string & results_id, const std::string & d
 extern const std::vector< int > & GetIntResults( const std::string & id, const std::string & name, int index = 0 );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get all double values for a particular result, name, and index
@@ -2556,7 +2556,7 @@ extern const std::vector< int > & GetIntResults( const std::string & id, const s
 extern const std::vector< double > & GetDoubleResults( const std::string & id, const std::string & name, int index = 0 );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get all matrix (vector<vector<double>>) values for a particular result, name, and index
@@ -2569,7 +2569,7 @@ extern const std::vector< double > & GetDoubleResults( const std::string & id, c
 extern const std::vector< std::vector< double > > & GetDoubleMatResults( const std::string & id, const std:: string & name, int index = 0 );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get all string values for a particular result, name, and index
@@ -2607,7 +2607,7 @@ extern const std::vector< std::vector< double > > & GetDoubleMatResults( const s
 extern const std::vector<std::string> & GetStringResults( const std::string & id, const std::string & name, int index = 0 );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Get all vec3d values for a particular result, name, and index
@@ -2665,7 +2665,7 @@ extern const std::vector<std::string> & GetStringResults( const std::string & id
 extern const std::vector< vec3d > & GetVec3dResults( const std::string & id, const std::string & name, int index = 0 );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Create a new result for a Geom
@@ -2708,7 +2708,7 @@ extern const std::vector< vec3d > & GetVec3dResults( const std::string & id, con
 extern std::string CreateGeomResults( const std::string & geom_id, const std::string & name );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Delete all results
@@ -2748,7 +2748,7 @@ extern std::string CreateGeomResults( const std::string & geom_id, const std::st
 extern void DeleteAllResults();
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Delete a particular result
@@ -2789,7 +2789,7 @@ extern void DeleteAllResults();
 extern void DeleteResult( const std::string & id );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Export a result to CSV
@@ -2825,7 +2825,7 @@ extern void DeleteResult( const std::string & id );
 extern void WriteResultsCSVFile( const std::string & id, const std::string & file_name );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Print a result's name value pairs to stdout
@@ -2862,7 +2862,7 @@ extern void WriteResultsCSVFile( const std::string & id, const std::string & fil
 extern void PrintResults( const std::string &results_id );
 
 /*!
-	\ingroup Results
+    \ingroup Results
 */
 /*!
     Print a result's names and documentation to stdout
@@ -2902,7 +2902,7 @@ extern void PrintResultsDocs( const std::string &results_id );
 //======================== GUI Functions ================================//
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Initialize the GUI so it can be called from the API.  Must be called before other GUI related API calls.
@@ -2929,7 +2929,7 @@ extern void PrintResultsDocs( const std::string &results_id );
 extern void InitGui();
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Launch the interactive OpenVSP GUI.
@@ -3062,7 +3062,7 @@ extern void StopGui();
 extern void PopupMsg( string msg );
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Tell OpenVSP that the GUI needs to be updated.
@@ -3105,7 +3105,7 @@ extern void PopupMsg( string msg );
 extern void UpdateGui();
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Test if the current OpenVSP build includes graphics capabilities.
@@ -3144,7 +3144,7 @@ extern void UpdateGui();
 extern bool IsGuiBuild();
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Obtain the lock on the OpenVSP GUI event loop.  This will prevent the interactive GUI from
@@ -3195,7 +3195,7 @@ extern bool IsGuiBuild();
 extern void Lock( );
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Release the lock on the OpenVSP GUI event loop.
@@ -3243,7 +3243,7 @@ extern void Lock( );
 extern void Unlock( );
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Capture the specified screen and save to file. Note, VSP_USE_FLTK must be defined
@@ -3278,7 +3278,7 @@ extern void Unlock( );
 extern void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop = false );
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Toggle viewing the axis
@@ -3299,7 +3299,7 @@ extern void ScreenGrab( const string & fname, int w, int h, bool transparentBG, 
 extern void SetViewAxis( bool vaxis );
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Toggle viewing the border frame
@@ -3320,7 +3320,7 @@ extern void SetViewAxis( bool vaxis );
 extern void SetShowBorders( bool brdr );
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Set the draw type of the specified goemetry
@@ -3347,7 +3347,7 @@ extern void SetShowBorders( bool brdr );
 extern void SetGeomDrawType(const string &geom_id, int type);
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Set the display type of the specified goemetry
@@ -3374,7 +3374,7 @@ extern void SetGeomDrawType(const string &geom_id, int type);
 extern void SetGeomDisplayType(const string &geom_id, int type);
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Set the background color
@@ -3397,7 +3397,7 @@ extern void SetGeomDisplayType(const string &geom_id, int type);
 extern void SetBackground( double r, double g, double b );
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Set whether all instances of GUI device type are disabled
@@ -3418,7 +3418,7 @@ extern void SetBackground( double r, double g, double b );
 extern void SetGUIElementDisable( int e, bool state );
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Set whether screen is disabled
@@ -3439,7 +3439,7 @@ extern void SetGUIElementDisable( int e, bool state );
 extern void SetGUIScreenDisable( int s, bool state );
 
 /*!
-	\ingroup Visualization
+    \ingroup Visualization
 */
 /*!
     Set whether geom screen is disabled
@@ -3461,7 +3461,7 @@ extern void SetGeomScreenDisable( int s, bool state );
 
 //======================== Geom Functions ================================//
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get an array of all Geom types (i.e FUSELAGE, POD, etc.)
@@ -3494,7 +3494,7 @@ extern void SetGeomScreenDisable( int s, bool state );
 extern std::vector<std::string> GetGeomTypes();
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Add a new Geom of given type as a child of the specified parent. If no parent or an invalid parent is given, the Geom is placed at the top level
@@ -3519,7 +3519,7 @@ extern std::vector<std::string> GetGeomTypes();
 extern std::string AddGeom( const std::string & type, const std::string & parent = std::string() );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Perform an update for the specified Geom
@@ -3557,7 +3557,7 @@ extern std::string AddGeom( const std::string & type, const std::string & parent
 extern void UpdateGeom( const std::string & geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Delete a particular Geom
@@ -3590,7 +3590,7 @@ extern void UpdateGeom( const std::string & geom_id );
 extern void DeleteGeom( const std::string & geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Delete multiple Geoms
@@ -3625,7 +3625,7 @@ extern void DeleteGeom( const std::string & geom_id );
 extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Cut Geom from current location and store on clipboard
@@ -3667,7 +3667,7 @@ extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
 extern void CutGeomToClipboard( const std::string & geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Copy Geom from current location and store on clipboard
@@ -3709,7 +3709,7 @@ extern void CutGeomToClipboard( const std::string & geom_id );
 extern void CopyGeomToClipboard( const std::string & geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Paste Geom from clipboard into the model. The Geom is pasted as a child of the specified parent, but will be placed at top level if no parent or an invalid one is provided.
@@ -3751,7 +3751,7 @@ extern void CopyGeomToClipboard( const std::string & geom_id );
 extern std::vector<std::string> PasteGeomClipboard( const std::string & parent = std::string() );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Find and return all Geom IDs in the model
@@ -3786,7 +3786,7 @@ extern std::vector<std::string> PasteGeomClipboard( const std::string & parent =
 extern std::vector<std::string> FindGeoms();
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Find and return all Geom IDs with the specified name
@@ -3827,7 +3827,7 @@ extern std::vector<std::string> FindGeoms();
 extern std::vector<std::string> FindGeomsWithName( const std::string & name );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Find and return the Geom ID with the specified name at given index. Equivalent to FindGeomsWithName( name )[index].
@@ -3873,7 +3873,7 @@ extern std::vector<std::string> FindGeomsWithName( const std::string & name );
 extern std::string FindGeom( const std::string & name, int index );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Set the name of the specified Geom
@@ -3913,7 +3913,7 @@ extern std::string FindGeom( const std::string & name, int index );
 extern void SetGeomName( const std::string & geom_id, const std::string & name );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the name of a specific Geom
@@ -3949,7 +3949,7 @@ extern void SetGeomName( const std::string & geom_id, const std::string & name )
 extern std::string GetGeomName( const std::string & geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get all Parm IDs associated with this Geom Parm container
@@ -3985,7 +3985,7 @@ extern std::string GetGeomName( const std::string & geom_id );
 extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the type name of specified Geom (i.e. FUSELAGE)
@@ -4017,7 +4017,7 @@ extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
 extern std::string GetGeomTypeName( const std::string & geom_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get Parm ID
@@ -4051,7 +4051,7 @@ extern std::string GetGeomTypeName( const std::string & geom_id );
 extern std::string GetParm( const std::string & geom_id, const std::string & name, const std::string & group );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the parent Geom ID for the input child Geom. "NONE" is returned if the Geom has no parent.
@@ -4087,7 +4087,7 @@ extern std::string GetParm( const std::string & geom_id, const std::string & nam
 extern std::string GetGeomParent( const std::string& geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the IDs for each child of the input parent Geom.
@@ -4138,7 +4138,7 @@ extern std::string GetGeomParent( const std::string& geom_id );
 extern std::vector< std::string > GetGeomChildren( const std::string& geom_id );
 
 /*!
-	\ingroup XSecSurf
+    \ingroup XSecSurf
 */
 /*!
     Get the number of XSecSurfs for the specified Geom
@@ -4170,7 +4170,7 @@ extern std::vector< std::string > GetGeomChildren( const std::string& geom_id );
 extern int GetNumXSecSurfs( const std::string & geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the number of main surfaces for the specified Geom. Multiple main surfaces may exist for CustoGeoms, propellors, etc., but
@@ -4211,7 +4211,7 @@ extern int GetNumXSecSurfs( const std::string & geom_id );
 extern int GetNumMainSurfs( const std::string & geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the total number of surfaces for the specified Geom. This is equivalent to the number of main surface multiplied
@@ -4252,7 +4252,7 @@ extern int GetNumMainSurfs( const std::string & geom_id );
 extern int GetTotalNumSurfs( const std::string& geom_id );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the VSP surface type of the specified Geom
@@ -4286,7 +4286,7 @@ extern int GetTotalNumSurfs( const std::string& geom_id );
 extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0 );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the VSP surface CFD type of the specified Geom
@@ -4320,7 +4320,7 @@ extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0
 extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind = 0 );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the the maximum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
@@ -4362,7 +4362,7 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
 extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true );
 
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Get the the minimum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
@@ -4406,7 +4406,7 @@ extern vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind = 0, 
 
 //======================== SubSurface Functions ================================//
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Add a sub-surface to the specified Geom
@@ -4441,7 +4441,7 @@ extern vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind = 0, 
 extern std::string AddSubSurf( const std::string & geom_id, int type, int surfindex = 0 );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get the ID of the specified sub-surface
@@ -4484,7 +4484,7 @@ extern std::string AddSubSurf( const std::string & geom_id, int type, int surfin
 extern std::string GetSubSurf( const std::string & geom_id, int index );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get the ID of the specified sub-surface
@@ -4527,7 +4527,7 @@ extern std::string GetSubSurf( const std::string & geom_id, int index );
 extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const std::string & name );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Delete the specified sub-surface
@@ -4575,7 +4575,7 @@ extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const s
 extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_id );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Delete the specified sub-surface
@@ -4622,7 +4622,7 @@ extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_
 extern void DeleteSubSurf( const std::string & sub_id );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Set the name of the specified sub-surface
@@ -4657,7 +4657,7 @@ extern void DeleteSubSurf( const std::string & sub_id );
 extern void SetSubSurfName(const std::string & geom_id, const std::string & sub_id, const std::string & name);
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Set the name of the specified sub-surface
@@ -4691,7 +4691,7 @@ extern void SetSubSurfName(const std::string & geom_id, const std::string & sub_
 extern void SetSubSurfName( const std::string & sub_id, const std::string & name );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get the name of the specified sub-surface
@@ -4730,7 +4730,7 @@ extern void SetSubSurfName( const std::string & sub_id, const std::string & name
 extern std::string GetSubSurfName( const std::string & geom_id, const std::string & sub_id );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get the name of the specified sub-surface
@@ -4768,7 +4768,7 @@ extern std::string GetSubSurfName( const std::string & geom_id, const std::strin
 extern std::string GetSubSurfName( const std::string & sub_id );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get the index of the specified sub-surface in its parent Geom's sub-surface vector
@@ -4808,7 +4808,7 @@ extern std::string GetSubSurfName( const std::string & sub_id );
 extern int GetSubSurfIndex( const std::string & sub_id );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get a vector of all sub-surface IDs for the specified geometry
@@ -4873,7 +4873,7 @@ extern int GetSubSurfIndex( const std::string & sub_id );
 extern std::vector<std::string> GetSubSurfIDVec( const std::string & geom_id );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get a vector of all sub-surface IDs for the entire model
@@ -4883,7 +4883,7 @@ extern std::vector<std::string> GetSubSurfIDVec( const std::string & geom_id );
 extern std::vector<std::string> GetAllSubSurfIDs();
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get the number of sub-surfaces for the specified Geom
@@ -4923,7 +4923,7 @@ extern std::vector<std::string> GetAllSubSurfIDs();
 extern int GetNumSubSurf( const std::string & geom_id );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get the type for the specified sub-surface (i.e. SS_RECTANGLE)
@@ -4989,7 +4989,7 @@ extern int GetNumSubSurf( const std::string & geom_id );
 extern int GetSubSurfType( const std::string & sub_id );
 
 /*!
-	\ingroup SubSurface
+    \ingroup SubSurface
 */
 /*!
     Get the vector of Parm IDs for specified sub-surface
@@ -5037,7 +5037,7 @@ extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
 
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Add an FEA Structure to a specified Geom
@@ -5070,7 +5070,7 @@ extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
 extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int surfindex = 0 );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Sets FeaMeshMgr m_FeaMeshStructIndex member using passed in index of a FeaStructure
@@ -5108,7 +5108,7 @@ extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int
 extern void SetFeaMeshStructIndex( int struct_index );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Delete an FEA Structure and all FEA Parts and FEA SubSurfaces associated with it
@@ -5146,7 +5146,7 @@ extern void SetFeaMeshStructIndex( int struct_index );
 extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the ID of an FEA Structure
@@ -5181,7 +5181,7 @@ extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
 extern std::string GetFeaStructID( const std::string & geom_id, int fea_struct_ind );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the index of an FEA Structure in its Parent Geom's vector of Structures
@@ -5227,7 +5227,7 @@ extern std::string GetFeaStructID( const std::string & geom_id, int fea_struct_i
 extern int GetFeaStructIndex( const std::string & struct_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the Parent Geom ID for an FEA Structure
@@ -5267,7 +5267,7 @@ extern int GetFeaStructIndex( const std::string & struct_id );
 extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the name of an FEA Structure. The FEA Structure name functions as the the Parm Container name
@@ -5313,7 +5313,7 @@ extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
 extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct_ind );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Set the name of an FEA Structure
@@ -5363,7 +5363,7 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
 extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, const std::string & name );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the IDs of all FEA Structures in the vehicle
@@ -5401,7 +5401,7 @@ extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, c
 extern std::vector< std::string > GetFeaStructIDVec();
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Set the name of an FEA Part
@@ -5442,7 +5442,7 @@ extern std::vector< std::string > GetFeaStructIDVec();
 extern void SetFeaPartName( const std::string & part_id, const std::string & name );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Add an FEA Part to a Structure
@@ -5489,7 +5489,7 @@ extern void SetFeaPartName( const std::string & part_id, const std::string & nam
 extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, int type );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Delete an FEA Part from a Structure
@@ -5538,7 +5538,7 @@ extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, 
 extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, const std::string & part_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the Parm ID of an FEA Part, identified from a FEA Structure Parm ID and FEA Part index.
@@ -5592,7 +5592,7 @@ extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, cons
 extern std::string GetFeaPartID( const std::string & fea_struct_id, int fea_part_index );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the name of an FEA Part
@@ -5644,7 +5644,7 @@ extern std::string GetFeaPartID( const std::string & fea_struct_id, int fea_part
 extern std::string GetFeaPartName( const std::string & part_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the type of an FEA Part
@@ -5690,7 +5690,7 @@ extern std::string GetFeaPartName( const std::string & part_id );
 extern int GetFeaPartType( const std::string & part_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the IDs of all FEA Parts in the given FEA Structure
@@ -5737,7 +5737,7 @@ extern int GetFeaPartType( const std::string & part_id );
 extern std::vector< std::string > GetFeaPartIDVec( const std::string & fea_struct_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the IDs of all FEA SubSurfaces in the given FEA Structure
@@ -5784,7 +5784,7 @@ extern std::vector< std::string > GetFeaPartIDVec( const std::string & fea_struc
 extern std::vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_struct_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Set the ID of the perpendicular spar for an FEA Rib or Rib Array. Note, the FEA Rib or Rib Array should have "SPAR_NORMAL"
@@ -5855,7 +5855,7 @@ extern std::vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_st
 extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std::string& perpendicular_spar_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the ID of the perpendicular spar for an FEA Rib or Rib Array. Note, the FEA Rib or Rib Array doesn't have to have "SPAR_NORMAL"
@@ -5925,7 +5925,7 @@ extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std
 extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Add an FEA SubSurface to a Structure
@@ -5972,7 +5972,7 @@ extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
 extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_ind, int type );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Delete an FEA SubSurface from a Structure
@@ -6021,7 +6021,7 @@ extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_in
 extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, const std::string & ss_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the index of an FEA SubSurface give the SubSurface ID
@@ -6078,7 +6078,7 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
 extern int GetFeaSubSurfIndex( const string & ss_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the total number of FEA Subsurfaces in the vehicle
@@ -6118,7 +6118,7 @@ extern int GetFeaSubSurfIndex( const string & ss_id );
 extern int NumFeaStructures();
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the number of FEA Parts for a particular FEA Structure
@@ -6170,7 +6170,7 @@ extern int NumFeaStructures();
 extern int NumFeaParts( const std::string & fea_struct_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Get the number of FEA Subsurfaces for a particular FEA Structure
@@ -6221,7 +6221,7 @@ extern int NumFeaParts( const std::string & fea_struct_id );
 extern int NumFeaSubSurfs( const std::string & fea_struct_id );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Add an FEA Material the FEA Mesh material library. Materials are available across all Geoms and Structures.
@@ -6248,7 +6248,7 @@ extern int NumFeaSubSurfs( const std::string & fea_struct_id );
 extern std::string AddFeaMaterial();
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Add aa FEA Property the FEA Mesh property library. Properties are available across all Geoms and Structures. Currently only beam and
@@ -6278,7 +6278,7 @@ extern std::string AddFeaMaterial();
 extern std::string AddFeaProperty( int property_type = 0 );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Set the value of a particular FEA Mesh option for the specified Structure. Note, FEA Mesh makes use of enums initially created for CFD Mesh
@@ -6322,7 +6322,7 @@ extern std::string AddFeaProperty( int property_type = 0 );
 extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type, double val );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Set the name of a particular FEA Mesh output file for a specified Structure
@@ -6374,7 +6374,7 @@ extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int 
 extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type, const string & file_name );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Compute an FEA Mesh for a Structure. Only a single output file can be generated with this function.
@@ -6427,7 +6427,7 @@ extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind,
 extern void ComputeFeaMesh( const std::string & geom_id, int fea_struct_ind, int file_type );
 
 /*!
-	\ingroup FEAMesh
+    \ingroup FEAMesh
 */
 /*!
     Compute an FEA Mesh for a Structure. Only a single output file can be generated with this function.
@@ -6480,7 +6480,7 @@ extern void ComputeFeaMesh( const std::string & struct_id, int file_type );
 
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Cut a cross-section from the specified geometry and maintain it in memory
@@ -6521,7 +6521,7 @@ extern void ComputeFeaMesh( const std::string & struct_id, int file_type );
 extern void CutXSec( const std::string & geom_id, int index );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Copy a cross-section from the specified geometry and maintain it in memory
@@ -6558,7 +6558,7 @@ extern void CutXSec( const std::string & geom_id, int index );
 extern void CopyXSec( const std::string & geom_id, int index );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Paste the cross-section currently held in memory to the specified geometry
@@ -6595,7 +6595,7 @@ extern void CopyXSec( const std::string & geom_id, int index );
 extern void PasteXSec( const std::string & geom_id, int index );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Insert a cross-section of particular type to the specified geometry after the given index
@@ -6627,7 +6627,7 @@ extern void InsertXSec( const std::string & geom_id, int index, int type );
 
 //======================== Wing Section Functions ===================//
 /*!
-	\ingroup Geom
+    \ingroup Geom
 */
 /*!
     Set the driver group for a wing section or a XSecCurve. Care has to be taken when setting these driver groups to ensure a valid combination.
@@ -6679,7 +6679,7 @@ extern void SetDriverGroup( const std::string & geom_id, int section_index, int 
 
 //======================== XSecSurf ================================//
 /*!
-	\ingroup XSecSurf
+    \ingroup XSecSurf
 */
 /*!
     Get the XSecSurf ID for a particular Geom and XSecSurf index
@@ -6710,7 +6710,7 @@ extern void SetDriverGroup( const std::string & geom_id, int section_index, int 
 extern std::string GetXSecSurf( const std::string & geom_id, int index );
 
 /*!
-	\ingroup XSecSurf
+    \ingroup XSecSurf
 */
 /*!
     Get number of XSecs in an XSecSurf
@@ -6763,7 +6763,7 @@ extern std::string GetXSecSurf( const std::string & geom_id, int index );
 extern int GetNumXSec( const std::string & xsec_surf_id );
 
 /*!
-	\ingroup XSecSurf
+    \ingroup XSecSurf
 */
 /*!
     Get Xsec ID for a particular XSecSurf at given index
@@ -6800,7 +6800,7 @@ extern int GetNumXSec( const std::string & xsec_surf_id );
 extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
 
 /*!
-	\ingroup XSecSurf
+    \ingroup XSecSurf
 */
 /*!
     Change the shape of a particular XSec, identified by an XSecSurf ID and XSec index
@@ -6852,7 +6852,7 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
 extern void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, int type );
 
 /*!
-	\ingroup XSecSurf
+    \ingroup XSecSurf
 */
 /*!
     Set the global surface transform matrix for given XSecSurf
@@ -6863,7 +6863,7 @@ extern void ChangeXSecShape( const std::string & xsec_surf_id, int xsec_index, i
 extern void SetXSecSurfGlobalXForm( const std::string & xsec_surf_id, const Matrix4d & mat );
 
 /*!
-	\ingroup XSecSurf
+    \ingroup XSecSurf
 */
 /*!
     Get the global surface transform matrix for given XSecSurf
@@ -6876,7 +6876,7 @@ extern Matrix4d GetXSecSurfGlobalXForm( const std::string & xsec_surf_id );
 
 //======================== XSec ================================//
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the shape of an XSec
@@ -6919,7 +6919,7 @@ extern Matrix4d GetXSecSurfGlobalXForm( const std::string & xsec_surf_id );
 extern int GetXSecShape( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the width of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what width and height it is set to.
@@ -6960,7 +6960,7 @@ extern int GetXSecShape( const std::string& xsec_id );
 extern double GetXSecWidth( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the height of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what width and height it is set to.
@@ -7001,7 +7001,7 @@ extern double GetXSecWidth( const std::string& xsec_id );
 extern double GetXSecHeight( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the width and height of an XSec. Note, if the XSec is an EDIT_CURVE type and PreserveARFlag is true, the input width value will be
@@ -7044,7 +7044,7 @@ extern double GetXSecHeight( const std::string& xsec_id );
 extern void SetXSecWidthHeight( const std::string& xsec_id, double w, double h );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the width of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what is input to SetXSecWidth.
@@ -7085,7 +7085,7 @@ extern void SetXSecWidthHeight( const std::string& xsec_id, double w, double h )
 extern void SetXSecWidth( const std::string& xsec_id, double w );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the height of an XSec. Note that POINT type XSecs have a width and height of 0, regardless of what is input to SetXSecHeight.
@@ -7126,7 +7126,7 @@ extern void SetXSecWidth( const std::string& xsec_id, double w );
 extern void SetXSecHeight( const std::string& xsec_id, double h );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get all Parm IDs for specified XSec Parm Container
@@ -7166,7 +7166,7 @@ extern void SetXSecHeight( const std::string& xsec_id, double h );
 extern std::vector<std::string> GetXSecParmIDs( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get a specific Parm ID from an Xsec
@@ -7211,7 +7211,7 @@ extern std::vector<std::string> GetXSecParmIDs( const std::string& xsec_id );
 extern std::string GetXSecParm( const std::string& xsec_id, const std::string& name );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Read in XSec shape from fuselage (*.fsx) file and set to the specified XSec. The XSec must be of type XS_FILE_FUSE.
@@ -7252,7 +7252,7 @@ extern std::string GetXSecParm( const std::string& xsec_id, const std::string& n
 extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::string& file_name );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the coordinate points for a specific XSec. The XSec must be of type XS_FILE_FUSE.
@@ -7306,7 +7306,7 @@ extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::s
 extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_vec );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Compute 3D coordinate for a point on an XSec curve given the parameter value (U) along the curve
@@ -7349,7 +7349,7 @@ extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_
 extern vec3d ComputeXSecPnt( const std::string& xsec_id, double fract );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Compute the tangent vector of a point on an XSec curve given the parameter value (U) along the curve
@@ -7392,7 +7392,7 @@ extern vec3d ComputeXSecPnt( const std::string& xsec_id, double fract );
 extern vec3d ComputeXSecTan( const std::string& xsec_id, double fract );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Reset all skinning Parms for a specified XSec. Set top, bottom, left, and right strengths, slew, angle, and curvature to 0. Set all symmetry and equality conditions to false.
@@ -7435,7 +7435,7 @@ extern vec3d ComputeXSecTan( const std::string& xsec_id, double fract );
 extern void ResetXSecSkinParms( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set C-type continuity enforcement for a particular XSec
@@ -7478,7 +7478,7 @@ extern void ResetXSecSkinParms( const std::string& xsec_id );
 extern void SetXSecContinuity( const std::string& xsec_id, int cx );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the tangent angles for the specified XSec
@@ -7530,7 +7530,7 @@ extern void SetXSecContinuity( const std::string& xsec_id, int cx );
 extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the tangent slew angles for the specified XSec
@@ -7582,7 +7582,7 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
 extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the tangent strengths for the specified XSec
@@ -7636,7 +7636,7 @@ extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, d
 extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set curvatures for the specified XSec
@@ -7690,7 +7690,7 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Read in XSec shape from airfoil file and set to the specified XSec. The XSec must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with *.af or *.dat extensions.
@@ -7730,7 +7730,7 @@ extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top,
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the upper points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
@@ -7787,7 +7787,7 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
 extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< vec3d > & up_pnt_vec );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the lower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
@@ -7844,7 +7844,7 @@ extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< 
 extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< vec3d > & low_pnt_vec );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the upper and lower points for an airfoil. The XSec must be of type XS_FILE_AIRFOIL.
@@ -7910,7 +7910,7 @@ extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< 
 extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d > & up_pnt_vec, const std::vector< vec3d > & low_pnt_vec );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the theoretical lift (Cl) distribution for a Hershey Bar wing with unit chord length using Glauert's Method. This function was initially created to compare VSPAERO results to Lifting Line Theory.
@@ -7959,7 +7959,7 @@ extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d
 extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the theoretical drag (Cd) distribution for a Hershey Bar wing with unit chord length using Glauert's Method. This function was initially created to compare VSPAERO results to Lifting Line Theory.
@@ -8008,7 +8008,7 @@ extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &
 extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the 2D coordinates an input number of points along a Von K�rm�n-Trefftz airfoil of specified shape
@@ -8062,7 +8062,7 @@ extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &
 extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the pressure coefficient (Cp) along a Von Kármán-Trefftz airfoil of specified shape at specified points along the airfoil
@@ -8117,7 +8117,7 @@ extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alph
 extern std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, std::vector<vec3d> xyz_data );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Generate the surface coordinate points for a ellipsoid at specified center of input radius along each axis.
@@ -8133,7 +8133,7 @@ extern std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const doubl
 extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d &abc_rad, int u_npts = 20, int w_npts = 20 );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the points along the feature lines of a particular Geom
@@ -8144,7 +8144,7 @@ extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d
 extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Generate Analytical Solution for Potential Flow for specified ellipsoid shape at input surface points for input velocity vector.
@@ -8230,7 +8230,7 @@ extern std::vector<double> GetEllipsoidCpDist( const std::vector<vec3d> &surf_pn
 extern double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the coordinate points for the upper surface of an airfoil. The XSec must be of type XS_FILE_AIRFOIL
@@ -8275,7 +8275,7 @@ extern double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index
 extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the coordinate points for the lower surface of an airfoil. The XSec must be of type XS_FILE_AIRFOIL
@@ -8320,7 +8320,7 @@ extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );
 extern std::vector<vec3d> GetAirfoilLowerPnts( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the CST coefficients for the upper surface of an airfoil. The XSec must be of type XS_CST_AIRFOIL
@@ -8332,7 +8332,7 @@ extern std::vector<vec3d> GetAirfoilLowerPnts( const std::string& xsec_id );
 extern std::vector<double> GetUpperCSTCoefs( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the CST coefficients for the lower surface of an airfoil. The XSec must be of type XS_CST_AIRFOIL
@@ -8344,7 +8344,7 @@ extern std::vector<double> GetUpperCSTCoefs( const std::string& xsec_id );
 extern std::vector<double> GetLowerCSTCoefs( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the CST degree for the upper surface of an airfoil. The XSec must be of type XS_CST_AIRFOIL
@@ -8356,7 +8356,7 @@ extern std::vector<double> GetLowerCSTCoefs( const std::string& xsec_id );
 extern int GetUpperCSTDegree( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the CST degree for the lower surface of an airfoil. The XSec must be of type XS_CST_AIRFOIL
@@ -8368,7 +8368,7 @@ extern int GetUpperCSTDegree( const std::string& xsec_id );
 extern int GetLowerCSTDegree( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the CST degree and coefficients for the upper surface of an airfoil. The number of coefficients should be one more than the CST degree. The XSec must be of type XS_CST_AIRFOIL
@@ -8381,7 +8381,7 @@ extern int GetLowerCSTDegree( const std::string& xsec_id );
 extern void SetUpperCST( const std::string& xsec_id, int deg, const std::vector<double> &coefs );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Set the CST degree and coefficients for the lower surface of an airfoil. The number of coefficients should be one more than the CST degree. The XSec must be of type XS_CST_AIRFOIL
@@ -8394,7 +8394,7 @@ extern void SetUpperCST( const std::string& xsec_id, int deg, const std::vector<
 extern void SetLowerCST( const std::string& xsec_id, int deg, const std::vector<double> &coefs );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Promote the CST for the upper airfoil surface. The XSec must be of type XS_CST_AIRFOIL
@@ -8405,7 +8405,7 @@ extern void SetLowerCST( const std::string& xsec_id, int deg, const std::vector<
 extern void PromoteCSTUpper( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Promote the CST for the lower airfoil surface. The XSec must be of type XS_CST_AIRFOIL
@@ -8416,7 +8416,7 @@ extern void PromoteCSTUpper( const std::string& xsec_id );
 extern void PromoteCSTLower( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Demote the CST for the upper airfoil surface. The XSec must be of type XS_CST_AIRFOIL
@@ -8427,7 +8427,7 @@ extern void PromoteCSTLower( const std::string& xsec_id );
 extern void DemoteCSTUpper( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Demote the CST for the lower airfoil surface. The XSec must be of type XS_CST_AIRFOIL
@@ -8438,7 +8438,7 @@ extern void DemoteCSTUpper( const std::string& xsec_id );
 extern void DemoteCSTLower( const std::string& xsec_id );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Fit a CST airfoil for an existing airfoil of type XS_FOUR_SERIES, XS_SIX_SERIES, XS_FOUR_DIGIT_MOD, XS_FIVE_DIGIT, XS_FIVE_DIGIT_MOD, XS_ONE_SIX_SERIES, or XS_FILE_AIRFOIL.
@@ -8452,7 +8452,7 @@ extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg 
 
 //======================== BOR Functions ======================//
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Set the XSec type for a BOR component
@@ -8485,7 +8485,7 @@ extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg 
 extern void ChangeBORXSecShape( const string & bor_id, int type );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Get the XSec type for a BOR component
@@ -8517,7 +8517,7 @@ extern void ChangeBORXSecShape( const string & bor_id, int type );
 extern int GetBORXSecShape( const string & bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Set the coordinate points for a specific BOR. The BOR XSecCurve must be of type XS_FILE_FUSE.
@@ -8550,7 +8550,7 @@ extern int GetBORXSecShape( const string & bor_id );
 extern std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std::string& file_name );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Set the coordinate points for a specific BOR. The BOR XSecCurve must be of type XS_FILE_FUSE.
@@ -8596,7 +8596,7 @@ extern std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std:
 extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pnt_vec );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Compute 3D coordinate for a point on a BOR XSecCurve given the parameter value (U) along the curve
@@ -8631,7 +8631,7 @@ extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pn
 extern vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Compute the tangent vector of a point on a BOR XSecCurve given the parameter value (U) along the curve
@@ -8664,7 +8664,7 @@ extern vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract );
 extern vec3d ComputeBORXSecTan( const std::string& bor_id, double fract );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Read in shape from airfoil file and set to the specified BOR XSecCurve. The XSecCurve must be of type XS_FILE_AIRFOIL. Airfoil files may be in Lednicer or Selig format with *.af or *.dat extensions.
@@ -8696,7 +8696,7 @@ extern vec3d ComputeBORXSecTan( const std::string& bor_id, double fract );
 extern void ReadBORFileAirfoil( const std::string& bor_id, const std::string& file_name );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Set the upper points for an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL.
@@ -8745,7 +8745,7 @@ extern void ReadBORFileAirfoil( const std::string& bor_id, const std::string& fi
 extern void SetBORAirfoilUpperPnts( const std::string& bor_id, const std::vector< vec3d > & up_pnt_vec );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Set the lower points for an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL.
@@ -8794,7 +8794,7 @@ extern void SetBORAirfoilUpperPnts( const std::string& bor_id, const std::vector
 extern void SetBORAirfoilLowerPnts( const std::string& bor_id, const std::vector< vec3d > & low_pnt_vec );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Set the upper and lower points for an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL.
@@ -8852,7 +8852,7 @@ extern void SetBORAirfoilLowerPnts( const std::string& bor_id, const std::vector
 extern void SetBORAirfoilPnts( const std::string& bor_id, const std::vector< vec3d > & up_pnt_vec, const std::vector< vec3d > & low_pnt_vec );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Get the coordinate points for the upper surface of an airfoil on a BOR. The BOR XSecCurve must be of type XS_FILE_AIRFOIL
@@ -8889,7 +8889,7 @@ extern void SetBORAirfoilPnts( const std::string& bor_id, const std::vector< vec
 extern std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Get the coordinate points for the lower surface of an airfoil of a BOR. The XSecCurve must be of type XS_FILE_AIRFOIL
@@ -8926,7 +8926,7 @@ extern std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id );
 extern std::vector<vec3d> GetBORAirfoilLowerPnts( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Get the CST coefficients for the upper surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -8938,7 +8938,7 @@ extern std::vector<vec3d> GetBORAirfoilLowerPnts( const std::string& bor_id );
 extern std::vector<double> GetBORUpperCSTCoefs( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Get the CST coefficients for the lower surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -8950,7 +8950,7 @@ extern std::vector<double> GetBORUpperCSTCoefs( const std::string& bor_id );
 extern std::vector<double> GetBORLowerCSTCoefs( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Get the CST degree for the upper surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -8962,7 +8962,7 @@ extern std::vector<double> GetBORLowerCSTCoefs( const std::string& bor_id );
 extern int GetBORUpperCSTDegree( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Get the CST degree for the lower surface of an airfoil of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -8974,7 +8974,7 @@ extern int GetBORUpperCSTDegree( const std::string& bor_id );
 extern int GetBORLowerCSTDegree( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Set the CST degree and coefficients for the upper surface of an airfoil of a BOR. The number of coefficients should be one more than the CST degree. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -8987,7 +8987,7 @@ extern int GetBORLowerCSTDegree( const std::string& bor_id );
 extern void SetBORUpperCST( const std::string& bor_id, int deg, const std::vector<double> &coefs );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Set the CST degree and coefficients for the lower surface of an airfoil of a BOR. The number of coefficients should be one more than the CST degree. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -9000,7 +9000,7 @@ extern void SetBORUpperCST( const std::string& bor_id, int deg, const std::vecto
 extern void SetBORLowerCST( const std::string& bor_id, int deg, const std::vector<double> &coefs );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Promote the CST for the upper airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -9011,7 +9011,7 @@ extern void SetBORLowerCST( const std::string& bor_id, int deg, const std::vecto
 extern void PromoteBORCSTUpper( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Promote the CST for the lower airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -9022,7 +9022,7 @@ extern void PromoteBORCSTUpper( const std::string& bor_id );
 extern void PromoteBORCSTLower( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Demote the CST for the upper airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -9033,7 +9033,7 @@ extern void PromoteBORCSTLower( const std::string& bor_id );
 extern void DemoteBORCSTUpper( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Demote the CST for the lower airfoil surface of a BOR. The XSecCurve must be of type XS_CST_AIRFOIL
@@ -9044,7 +9044,7 @@ extern void DemoteBORCSTUpper( const std::string& bor_id );
 extern void DemoteBORCSTLower( const std::string& bor_id );
 
 /*!
-	\ingroup BOR
+    \ingroup BOR
 */
 /*!
     Fit a CST airfoil for an existing airfoil of a BOR of type XS_FOUR_SERIES, XS_SIX_SERIES, XS_FOUR_DIGIT_MOD, XS_FIVE_DIGIT, XS_FIVE_DIGIT_MOD, XS_ONE_SIX_SERIES, or XS_FILE_AIRFOIL.
@@ -9057,7 +9057,7 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
 
 //======================== FoilSurf Functions ======================//
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Write out the untwisted unit-length 2D Bezier curve for the specified airfoil in custom *.bz format. The output will describe the analytical shape of the airfoil. See BezierAirfoilExample.m and BezierCtrlToCoordPnts.m for examples of
@@ -9093,7 +9093,7 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
 extern void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Write out the untwisted unit-length 2D coordinate points for the specified airfoil in Selig format. Coordinate points follow the on-screen wire frame W tessellation.
@@ -9129,7 +9129,7 @@ extern void WriteBezierAirfoil( const std::string & file_name, const std::string
 extern void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u );
 
 /*!
-	\ingroup XSec
+    \ingroup XSec
 */
 /*!
     Get the untwisted unit-length 2D coordinate points for the specified airfoil
@@ -9143,7 +9143,7 @@ extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id,
 
 //======================== Edit Curve XSec Functions ======================//
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Initialize the EditCurveXSec to the current value of m_ShapeType (i.e. EDIT_XSEC_ELLIPSE)
@@ -9193,7 +9193,7 @@ extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id,
 extern void EditXSecInitShape( const std::string & xsec_id );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Convert the EditCurveXSec curve type to the specified new type. Note, EditCurveXSec uses the same enumerations for PCurve to identify curve type,
@@ -9241,7 +9241,7 @@ extern void EditXSecInitShape( const std::string & xsec_id );
 extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Get the U parameter vector for an EditCurveXSec. The vector will be in increasing order with a range of 0 - 1.
@@ -9299,7 +9299,7 @@ extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype 
 extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Get the control point vector for an EditCurveXSec. Note, the returned array of vec3d values will be represented in 2D with Z set to 0.
@@ -9350,7 +9350,7 @@ extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
 extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, const bool non_dimensional = true );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Set the U parameter vector and the control point vector for an EditCurveXSec. The arrays must be of equal length, with the values for U defined in
@@ -9473,7 +9473,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
 extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double > u_vec, std::vector < vec3d > control_pts, std::vector < double > r_vec );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Delete an EditCurveXSec control point. Note, cubic Bezier intermediate control points (those not on the curve) cannot be deleted.
@@ -9541,7 +9541,7 @@ extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double >
 extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Split the EditCurveXSec at the specified U value
@@ -9608,7 +9608,7 @@ extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
 extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Move an EditCurveXSec control point. The XSec points are nondimensionalized by m_Width and m_Height and
@@ -9690,7 +9690,7 @@ extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
 extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d & new_pnt );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Convert any XSec type into an EditCurveXSec. This function will work for BOR Geoms, in which case the input XSec index is ignored.
@@ -9742,7 +9742,7 @@ extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, cons
 extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0 );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Get the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the
@@ -9800,7 +9800,7 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
 extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Set the vector of fixed U flags for each control point in an EditCurveXSec. The fixed U flag is used to hold the
@@ -9858,7 +9858,7 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
 extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool > fixed_u_vec );
 
 /*!
-	\ingroup EditCurveXSec
+    \ingroup EditCurveXSec
 */
 /*!
     Perform an equal arc length repareterization on an EditCurveXSec. The reparameterization is performed between
@@ -9918,7 +9918,7 @@ extern void ReparameterizeEditXSec( const std::string & xsec_id );
 
 //======================== Sets ================================//
 /*!
-	\ingroup Sets
+    \ingroup Sets
 */
 /*!
     Get the total number of defined sets. Named sets are used to group components and read/write on them. The number of named
@@ -9940,7 +9940,7 @@ extern void ReparameterizeEditXSec( const std::string & xsec_id );
 extern int GetNumSets();
 
 /*!
-	\ingroup Sets
+    \ingroup Sets
 */
 /*!
     Set the name of a set at specified index
@@ -9967,7 +9967,7 @@ extern int GetNumSets();
 extern void SetSetName( int index, const std::string& name );
 
 /*!
-	\ingroup Sets
+    \ingroup Sets
 */
 /*!
     Get the name of a set at specified index
@@ -9994,7 +9994,7 @@ extern void SetSetName( int index, const std::string& name );
 extern std::string GetSetName( int index );
 
 /*!
-	\ingroup Sets
+    \ingroup Sets
 */
 /*!
     Get an array of Geom IDs for the specified set index
@@ -10029,7 +10029,7 @@ extern std::string GetSetName( int index );
 extern std::vector<std::string> GetGeomSetAtIndex( int index );
 
 /*!
-	\ingroup Sets
+    \ingroup Sets
 */
 /*!
     Get an array of Geom IDs for the specified set name
@@ -10063,7 +10063,7 @@ extern std::vector<std::string> GetGeomSetAtIndex( int index );
 extern std::vector<std::string> GetGeomSet( const std::string & name );
 
 /*!
-	\ingroup Sets
+    \ingroup Sets
 */
 /*!
     Get the set index for the specified set name
@@ -10089,7 +10089,7 @@ extern std::vector<std::string> GetGeomSet( const std::string & name );
 extern int GetSetIndex( const std::string & name );
 
 /*!
-	\ingroup Sets
+    \ingroup Sets
 */
 /*!
     Check if a Geom is in the set at the specified set index
@@ -10122,7 +10122,7 @@ extern int GetSetIndex( const std::string & name );
 extern bool GetSetFlag( const std::string & geom_id, int set_index );
 
 /*!
-	\ingroup Sets
+    \ingroup Sets
 */
 /*!
     Set whether or not a Geom is a member of the set at specified set index
@@ -10155,7 +10155,7 @@ extern bool GetSetFlag( const std::string & geom_id, int set_index );
 extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
 
 /*!
-	\ingroup Sets
+    \ingroup Sets
 */
 /*!
     Copies all the states of a geom set and pastes them into a specific set based on passed in indexs
@@ -10203,7 +10203,7 @@ extern void CopyPasteSet( int copyIndex, int pasteIndex );
 
 //======================== Group Modifications ================================//
 /*!
-	\ingroup GroupMod
+    \ingroup GroupMod
 */
 /*!
     Apply a scale factor to a set
@@ -10237,7 +10237,7 @@ extern void CopyPasteSet( int copyIndex, int pasteIndex );
 extern void ScaleSet( int set_index, double scale );
 
 /*!
-	\ingroup GroupMod
+    \ingroup GroupMod
 */
 /*!
     Rotate a set about the global X, Y, and Z axes
@@ -10273,7 +10273,7 @@ extern void ScaleSet( int set_index, double scale );
 extern void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg );
 
 /*!
-	\ingroup GroupMod
+    \ingroup GroupMod
 */
 /*!
     Translate a set along a given vector
@@ -10307,7 +10307,7 @@ extern void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double
 extern void TranslateSet( int set_index, const vec3d &translation_vec );
 
 /*!
-	\ingroup GroupMod
+    \ingroup GroupMod
 */
 /*!
     Apply translation, rotation, and scale transformations to a set
@@ -10349,7 +10349,7 @@ extern void TransformSet( int set_index, const vec3d &translation_vec, double x_
 
 //======================== Parm Functions ================================//
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Check if given Parm is valid
@@ -10381,7 +10381,7 @@ extern void TransformSet( int set_index, const vec3d &translation_vec, double x_
 extern bool ValidParm( const std::string & id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Set the value of the specified Parm.
@@ -10431,7 +10431,7 @@ extern bool ValidParm( const std::string & id );
 extern double SetParmVal( const std::string & parm_id, double val );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Set the value of the specified Parm.
@@ -10483,7 +10483,7 @@ extern double SetParmVal( const std::string & parm_id, double val );
 extern double SetParmVal( const std::string & geom_id, const std::string & name, const std::string & group, double val );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Set the value along with the upper and lower limits of the specified Parm
@@ -10521,7 +10521,7 @@ extern double SetParmVal( const std::string & geom_id, const std::string & name,
 extern double SetParmValLimits( const std::string & parm_id, double val, double lower_limit, double upper_limit );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Set the value of the specified Parm and force an Update.
@@ -10555,7 +10555,7 @@ extern double SetParmValLimits( const std::string & parm_id, double val, double 
 extern double SetParmValUpdate( const std::string & parm_id, double val );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Set the value of the specified Parm and force an Update.
@@ -10591,7 +10591,7 @@ extern double SetParmValUpdate( const std::string & parm_id, double val );
 extern double SetParmValUpdate( const std::string & geom_id, const std::string & parm_name, const std::string & parm_group_name, double val );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the value of the specified Parm. The data type of the Parm value will be cast to a double
@@ -10639,7 +10639,7 @@ extern double SetParmValUpdate( const std::string & geom_id, const std::string &
 extern double GetParmVal( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the value of the specified Parm. The data type of the Parm value will be cast to a double
@@ -10689,7 +10689,7 @@ extern double GetParmVal( const std::string & parm_id );
 extern double GetParmVal( const std::string & geom_id, const std::string & name, const std::string & group );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the value of the specified int type Parm
@@ -10721,7 +10721,7 @@ extern double GetParmVal( const std::string & geom_id, const std::string & name,
 extern int GetIntParmVal( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the value of the specified bool type Parm
@@ -10753,7 +10753,7 @@ extern int GetIntParmVal( const std::string & parm_id );
 extern bool GetBoolParmVal( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Set the upper limit value for the specified Parm
@@ -10806,7 +10806,7 @@ extern bool GetBoolParmVal( const std::string & parm_id );
 extern void SetParmUpperLimit( const std::string & parm_id, double val );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the upper limit value for the specified Parm
@@ -10838,7 +10838,7 @@ extern void SetParmUpperLimit( const std::string & parm_id, double val );
 extern double GetParmUpperLimit( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Set the lower limit value for the specified Parm
@@ -10891,7 +10891,7 @@ extern double GetParmUpperLimit( const std::string & parm_id );
 extern void SetParmLowerLimit( const std::string & parm_id, double val );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the lower limit value for the specified Parm
@@ -10923,7 +10923,7 @@ extern void SetParmLowerLimit( const std::string & parm_id, double val );
 extern double GetParmLowerLimit( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the data type for the specified Parm
@@ -10968,7 +10968,7 @@ extern double GetParmLowerLimit( const std::string & parm_id );
 extern int GetParmType( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the name for the specified Parm
@@ -11027,7 +11027,7 @@ extern int GetParmType( const std::string & parm_id );
 extern std::string GetParmName( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the group name for the specified Parm
@@ -11072,7 +11072,7 @@ extern std::string GetParmName( const std::string & parm_id );
 extern std::string GetParmGroupName( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the display group name for the specified Parm
@@ -11117,7 +11117,7 @@ extern std::string GetParmGroupName( const std::string & parm_id );
 extern std::string GetParmDisplayGroupName( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get Parm Container ID for the specified Parm
@@ -11165,7 +11165,7 @@ extern std::string GetParmDisplayGroupName( const std::string & parm_id );
 extern std::string GetParmContainer( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Set the description of the specified Parm
@@ -11199,7 +11199,7 @@ extern std::string GetParmContainer( const std::string & parm_id );
 extern void SetParmDescript( const std::string & parm_id, const std::string & desc );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Get the description of the specified Parm
@@ -11235,7 +11235,7 @@ extern void SetParmDescript( const std::string & parm_id, const std::string & de
 extern std::string GetParmDescript( const std::string & parm_id );
 
 /*!
-	\ingroup Parm
+    \ingroup Parm
 */
 /*!
     Find a Parm ID given the Parm Container ID, Parm name, and Parm group
@@ -11274,7 +11274,7 @@ extern std::string FindParm( const std::string & parm_container_id, const std::s
 //======================== Parm Container Functions ======================//
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get an array of all Parm Container IDs
@@ -11312,7 +11312,7 @@ extern std::string FindParm( const std::string & parm_container_id, const std::s
 extern std::vector<std::string> FindContainers();
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get an array of Parm Container IDs for Containers with the specified name
@@ -11338,7 +11338,7 @@ extern std::vector<std::string> FindContainers();
 extern std::vector<std::string> FindContainersWithName( const std::string & name );
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get the ID of a Parm Container with specified name at input index
@@ -11364,7 +11364,7 @@ extern std::vector<std::string> FindContainersWithName( const std::string & name
 extern std::string FindContainer( const std::string & name, int index );
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get the name of the specified Parm Container
@@ -11390,7 +11390,7 @@ extern std::string FindContainer( const std::string & name, int index );
 extern std::string GetContainerName( const std::string & parm_container_id );
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get an array of Parm group names included in the specified Container
@@ -11431,7 +11431,7 @@ extern std::string GetContainerName( const std::string & parm_container_id );
 extern std::vector<std::string> FindContainerGroupNames( const std::string & parm_container_id );
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get an array of Parm IDs included in the specified Container
@@ -11490,7 +11490,7 @@ extern std::vector<std::string> FindContainerGroupNames( const std::string & par
 extern std::vector<std::string> FindContainerParmIDs( const std::string & parm_container_id );
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get the ID of the Vehicle Parm Container
@@ -11515,7 +11515,7 @@ extern std::string GetVehicleID();
 
 //======================== User Parm Functions ======================//
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get the number of user parameters
@@ -11538,7 +11538,7 @@ extern std::string GetVehicleID();
 extern int GetNumUserParms();
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get the number of pre-defined user parameters
@@ -11561,7 +11561,7 @@ extern int GetNumUserParms();
 extern int GetNumPredefinedUserParms();
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get the vector of id's for all user parameters
@@ -11599,7 +11599,7 @@ extern int GetNumPredefinedUserParms();
 extern std::vector < std::string > GetAllUserParms();
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get the user parm container ID
@@ -11620,7 +11620,7 @@ extern std::vector < std::string > GetAllUserParms();
 extern std::string GetUserParmContainer();
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
   /*!
     Function to add a new user Parm of input type, name, and group
@@ -11653,7 +11653,7 @@ extern std::string GetUserParmContainer();
 extern string AddUserParm(int type, const string & name, const string & group );
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get the user parm container ID
@@ -11685,7 +11685,7 @@ extern string AddUserParm(int type, const string & name, const string & group );
 extern void DeleteUserParm( const std::string & id );
 
 /*!
-	\ingroup ParmContainer
+    \ingroup ParmContainer
 */
 /*!
     Get the user parm container ID
@@ -11707,7 +11707,7 @@ extern void DeleteAllUserParm();
 
 //======================== Snap To Functions ======================//
 /*!
-	\ingroup SnapTo
+    \ingroup SnapTo
 */
 /*!
     Compute the minimum clearance distance for the specified geometry
@@ -11750,7 +11750,7 @@ extern void DeleteAllUserParm();
 extern double ComputeMinClearanceDistance( const std::string & geom_id, int set  = SET_ALL );
 
 /*!
-	\ingroup SnapTo
+    \ingroup SnapTo
 */
 /*!
     Snap the specified Parm to input target minimum clearance distance
@@ -11799,7 +11799,7 @@ extern double SnapParm( const std::string & parm_id, double target_min_dist, boo
 
 //======================== Variable Preset Functions ======================//
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Add a Variable Presets group
@@ -11830,7 +11830,7 @@ extern double SnapParm( const std::string & parm_id, double target_min_dist, boo
 extern void AddVarPresetGroup( const std::string &group_name );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Add a setting to the currently active Variable Preset
@@ -11865,7 +11865,7 @@ extern void AddVarPresetGroup( const std::string &group_name );
 extern void AddVarPresetSetting( const std::string &setting_name );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Add a Parm to the currently active Variable Preset
@@ -11904,7 +11904,7 @@ extern void AddVarPresetSetting( const std::string &setting_name );
 extern void AddVarPresetParm( const std::string &parm_id );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Add a Parm to the currently active Variable Preset
@@ -11944,7 +11944,7 @@ extern void AddVarPresetParm( const std::string &parm_id );
 extern void AddVarPresetParm( const std::string &parm_id, const std::string &group_name );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Edit the value of a Parm in the currently active Variable Preset
@@ -11988,7 +11988,7 @@ extern void AddVarPresetParm( const std::string &parm_id, const std::string &gro
 extern void EditVarPresetParm( const std::string &parm_id, double parm_val );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Edit the value of a Parm in the currently active Variable Preset
@@ -12034,7 +12034,7 @@ extern void EditVarPresetParm( const std::string &parm_id, double parm_val );
 extern void EditVarPresetParm( const std::string &parm_id, double parm_val, const std::string &group_name, const std::string &setting_name );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Remove a Parm from the currently active Variable Preset group
@@ -12077,7 +12077,7 @@ extern void EditVarPresetParm( const std::string &parm_id, double parm_val, cons
 extern void DeleteVarPresetParm( const std::string &parm_id );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Remove a Parm from the currently active Variable Preset group
@@ -12121,7 +12121,7 @@ extern void DeleteVarPresetParm( const std::string &parm_id );
 extern void DeleteVarPresetParm( const std::string &parm_id, const std::string &group_name );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Change the currently active Variable Preset
@@ -12169,7 +12169,7 @@ extern void DeleteVarPresetParm( const std::string &parm_id, const std::string &
 extern void SwitchVarPreset( const std::string &group_name, const std::string &setting_name );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Delete a Variable Preset
@@ -12204,7 +12204,7 @@ extern void SwitchVarPreset( const std::string &group_name, const std::string &s
 extern bool DeleteVarPresetSet( const std::string &group_name, const std::string &setting_name );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Get the currently active Variable Presets group name
@@ -12259,7 +12259,7 @@ extern bool DeleteVarPresetSet( const std::string &group_name, const std::string
 extern std::string GetCurrentGroupName();
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Get the currently active Variable Presets setting name
@@ -12314,7 +12314,7 @@ extern std::string GetCurrentGroupName();
 extern std::string GetCurrentSettingName();
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Get all Variable Preset group names
@@ -12345,7 +12345,7 @@ extern std::string GetCurrentSettingName();
 extern std::vector< std::string > GetVarPresetGroupNames();
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Get the name of each settings in the specified Variable Presets group name
@@ -12381,7 +12381,7 @@ extern std::vector< std::string > GetVarPresetGroupNames();
 extern std::vector< std::string > GetVarPresetSettingNamesWName( const std::string &group_name );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Get the name of each settings in the specified Variable Presets group index
@@ -12439,7 +12439,7 @@ extern std::vector< std::string > GetVarPresetSettingNamesWName( const std::stri
 extern std::vector< std::string > GetVarPresetSettingNamesWIndex( int group_index );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Get the value of each Parm in the currently active Variable Preset group and setting
@@ -12490,7 +12490,7 @@ extern std::vector< std::string > GetVarPresetSettingNamesWIndex( int group_inde
 extern std::vector< double > GetVarPresetParmVals();
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Get the value of each Parm in the specified Variable Preset group and setting
@@ -12549,7 +12549,7 @@ extern std::vector< double > GetVarPresetParmVals();
 extern std::vector< double > GetVarPresetParmValsWNames( const std::string &group_name, const std::string &setting_name );
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Get the Parm IDs contained in the currently active Variable Presets group
@@ -12596,7 +12596,7 @@ extern std::vector< double > GetVarPresetParmValsWNames( const std::string &grou
 extern std::vector< std::string > GetVarPresetParmIDs();
 
 /*!
-	\ingroup VariablePreset
+    \ingroup VariablePreset
 */
 /*!
     Get the Parm IDs contained in the specitied Variable Presets group
@@ -12652,7 +12652,7 @@ extern std::vector< std::string > GetVarPresetParmIDsWName( const std::string &g
 
 //======================== Parametric Curve Functions ======================//
 /*!
-	\ingroup PCurve
+    \ingroup PCurve
 */
 /*!
     Set the parameters, values, and curve type of a propeller blade curve (P Curve)
@@ -12668,7 +12668,7 @@ extern void SetPCurve( const std::string & geom_id, const int & pcurveid, const 
 
     const std::vector < double > & valvec, const int & newtype );
 /*!
-	\ingroup PCurve
+    \ingroup PCurve
 */
 /*!
     Change the type of a propeller blade curve (P Curve)
@@ -12681,7 +12681,7 @@ extern void SetPCurve( const std::string & geom_id, const int & pcurveid, const 
 extern void PCurveConvertTo( const std::string & geom_id, const int & pcurveid, const int & newtype );
 
 /*!
-	\ingroup PCurve
+    \ingroup PCurve
 */
 /*!
     Get the type of a propeller blade curve (P Curve)
@@ -12694,7 +12694,7 @@ extern void PCurveConvertTo( const std::string & geom_id, const int & pcurveid, 
 extern int PCurveGetType( const std::string & geom_id, const int & pcurveid );
 
 /*!
-	\ingroup PCurve
+    \ingroup PCurve
 */
 /*!
     Get the parameters of a propeller blade curve (P Curve). Each parameter is a fraction of propeller radius.
@@ -12706,7 +12706,7 @@ extern int PCurveGetType( const std::string & geom_id, const int & pcurveid );
 extern std::vector < double > PCurveGetTVec( const std::string & geom_id, const int & pcurveid );
 
 /*!
-	\ingroup PCurve
+    \ingroup PCurve
 */
 /*!
     Get the values of a propeller blade curve (P Curve). What the values represent id dependent on the curve type (i.e. twist, chord, etc.).
@@ -12718,7 +12718,7 @@ extern std::vector < double > PCurveGetTVec( const std::string & geom_id, const 
 extern std::vector < double > PCurveGetValVec( const std::string & geom_id, const int & pcurveid );
 
 /*!
-	\ingroup PCurve
+    \ingroup PCurve
 */
 /*!
     Delete a propeller blade curve (P Curve) point
@@ -12730,7 +12730,7 @@ extern std::vector < double > PCurveGetValVec( const std::string & geom_id, cons
 extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const int & indx );
 
 /*!
-	\ingroup PCurve
+    \ingroup PCurve
 */
 /*!
     Split a propeller blade curve (P Curve) at the specified 1D parameter
@@ -12743,7 +12743,7 @@ extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, c
 extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const double & tsplit );
 
 /*!
-	\ingroup PCurve
+    \ingroup PCurve
 */
 /*!
     Approximate all propeller blade curves with cubic Bezier curves.
@@ -12772,7 +12772,7 @@ extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const
 extern void ApproximateAllPropellerPCurves( const std::string & geom_id );
 
 /*!
-	\ingroup PCurve
+    \ingroup PCurve
 */
 /*!
     Reset propeller T/C curve to match basic thickness of file-type airfoils.  Typically only used for a propeller that
@@ -12805,7 +12805,7 @@ extern void ResetPropellerThicknessCurve( const std::string & geom_id );
 
 //======================== VSPAERO Functions ======================//
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Creates the initial default grouping for the control surfaces.
@@ -12901,7 +12901,7 @@ extern void ResetPropellerThicknessCurve( const std::string & geom_id );
 extern void AutoGroupVSPAEROControlSurfaces();
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Add a new VSPAERO control surface group using the default naming convention. The control surface group will not contain any
@@ -12940,7 +12940,7 @@ extern void AutoGroupVSPAEROControlSurfaces();
 extern int CreateVSPAEROControlSurfaceGroup();
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Add all available control surfaces to the control surface group at the specified index
@@ -12973,7 +12973,7 @@ extern int CreateVSPAEROControlSurfaceGroup();
 extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Remove all used control surfaces from the control surface group at the specified index
@@ -13010,7 +13010,7 @@ extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
 extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Get the names of each active (used) control surface in the control surface group at the specified index
@@ -13063,7 +13063,7 @@ extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
 extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Get the names of all control surfaces. Some may be active (used) while others may be available.
@@ -13109,7 +13109,7 @@ extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
 extern std::vector < std::string > GetCompleteCSNameVec();
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Get the names of each available (not used) control surface in the control surface group at the specified index
@@ -13153,7 +13153,7 @@ extern std::vector < std::string > GetCompleteCSNameVec();
 extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Set the name for the control surface group at the specified index
@@ -13195,7 +13195,7 @@ extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
 extern void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex);
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Get the name of the control surface group at the specified index
@@ -13236,7 +13236,7 @@ extern void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex);
 extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Add each control surfaces in the array of control surface indexes to the control surface group at the specified index.
@@ -13292,7 +13292,7 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
 extern void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex);
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Remove each control surfaces in the array of control surface indexes from the control surface group at the specified index.
@@ -13358,7 +13358,7 @@ extern void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex);
 extern void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex);
 
 /*!
-	\ingroup CSGroup
+    \ingroup CSGroup
 */
 /*!
     Get the total number of control surface groups
@@ -13417,7 +13417,7 @@ extern int GetNumControlSurfaceGroups();
 
 //================ VSPAERO Actuator Disk and Unsteady Functions ==============//
 /*!
-	\ingroup VSPAERODiskAndProp
+    \ingroup VSPAERODiskAndProp
 */
 /*!
     Get the ID of a VSPAERO actuator disk at the specified index. An empty string is returned if
@@ -13467,7 +13467,7 @@ extern int GetNumControlSurfaceGroups();
 extern std::string FindActuatorDisk( int disk_index );
 
 /*!
-	\ingroup VSPAERODiskAndProp
+    \ingroup VSPAERODiskAndProp
 */
 /*!
     Get the number of actuator disks in the current VSPAERO set. This is equivalent to the number of disk surfaces in the VSPAERO set.
@@ -13511,7 +13511,7 @@ extern std::string FindActuatorDisk( int disk_index );
 extern int GetNumActuatorDisks();
 
 /*!
-	\ingroup VSPAERODiskAndProp
+    \ingroup VSPAERODiskAndProp
 */
 /*!
     Get the ID of the VSPAERO unsteady group at the specified index. An empty string is returned if
@@ -13559,7 +13559,7 @@ extern int GetNumActuatorDisks();
 extern std::string FindUnsteadyGroup( int group_index );
 
 /*!
-	\ingroup VSPAERODiskAndProp
+    \ingroup VSPAERODiskAndProp
 */
 /*!
     Get the name of the unsteady group at the specified index.
@@ -13596,7 +13596,7 @@ extern std::string FindUnsteadyGroup( int group_index );
 extern std::string GetUnsteadyGroupName( int group_index );
 
 /*!
-	\ingroup VSPAERODiskAndProp
+    \ingroup VSPAERODiskAndProp
 */
 /*!
     Get an array of IDs for all components in the unsteady group at the specified index.
@@ -13641,7 +13641,7 @@ extern std::string GetUnsteadyGroupName( int group_index );
 extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
 
 /*!
-	\ingroup VSPAERODiskAndProp
+    \ingroup VSPAERODiskAndProp
 */
 /*!
     Get an array of surface indexes for all components in the unsteady group at the specified index.
@@ -13686,7 +13686,7 @@ extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
 extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
 
 /*!
-	\ingroup VSPAERODiskAndProp
+    \ingroup VSPAERODiskAndProp
 */
 /*!
     Get the number of unsteady groups in the current VSPAERO set. Each propeller is placed in its own unsteady group. All symmetric copies
@@ -13739,7 +13739,7 @@ extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
 extern int GetNumUnsteadyGroups();
 
 /*!
-	\ingroup VSPAERODiskAndProp
+    \ingroup VSPAERODiskAndProp
 */
 /*!
     Get the number of unsteady rotor groups in the current VSPAERO set. This is equivalent to the total number of propeller Geoms,
@@ -13795,7 +13795,7 @@ extern int GetNumUnsteadyRotorGroups();
 
 //======================== Parasite Drag Tool Functions ======================//
 /*!
-	\ingroup ParasiteDrag
+    \ingroup ParasiteDrag
 */
 /*!
     Add an Excresence to the Parasite Drag Tool
@@ -13823,7 +13823,7 @@ extern int GetNumUnsteadyRotorGroups();
 extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);
 
 /*!
-	\ingroup ParasiteDrag
+    \ingroup ParasiteDrag
 */
 /*!
     Delete an Excresence from the Parasite Drag Tool
@@ -13856,7 +13856,7 @@ extern void AddExcrescence(const std::string & excresName, const int & excresTyp
 extern void DeleteExcrescence(const int & index);
 
 /*!
-	\ingroup ParasiteDrag
+    \ingroup ParasiteDrag
 */
 /*!
     Update any reference geometry, atmospheric properties, excressences, etc. in the Parasite Drag Tool
@@ -13865,7 +13865,7 @@ extern void DeleteExcrescence(const int & index);
 extern void UpdateParasiteDrag();
 
 /*!
-	\ingroup ParasiteDrag
+    \ingroup ParasiteDrag
 */
 /*!
     Calculate the atmospheric properties determined by a specified model for a preset array of altitudes ranging from 0 to 90000 m and
@@ -13893,7 +13893,7 @@ extern void UpdateParasiteDrag();
 extern void WriteAtmosphereCSVFile( const std::string & file_name, const int &atmos_type );
 
 /*!
-	\ingroup ParasiteDrag
+    \ingroup ParasiteDrag
 */
 /*!
     Calculate the atmospheric properties determined by a specified model at input altitude and temperature deviation. This function may
@@ -13935,7 +13935,7 @@ extern void CalcAtmosphere( const double & alt, const double & delta_temp, const
 
     double & temp, double & pres, double & pres_ratio, double & rho_ratio );
 /*!
-	\ingroup ParasiteDrag
+    \ingroup ParasiteDrag
 */
 /*!
     Calculate the form factor from each body FF equation (i.e. Hoerner Streamlined Body) and write the results to a CSV output file
@@ -13958,7 +13958,7 @@ extern void CalcAtmosphere( const double & alt, const double & delta_temp, const
 extern void WriteBodyFFCSVFile( const std::string & file_name );
 
 /*!
-	\ingroup ParasiteDrag
+    \ingroup ParasiteDrag
 */
 /*!
     Calculate the form factor from each wing FF equation (i.e. Schemensky 4 Series Airfoil) and write the results to a CSV output file
@@ -13981,7 +13981,7 @@ extern void WriteBodyFFCSVFile( const std::string & file_name );
 extern void WriteWingFFCSVFile( const std::string & file_name );
 
 /*!
-	\ingroup ParasiteDrag
+    \ingroup ParasiteDrag
 */
 /*!
     Calculate the coefficient of friction from each Cf equation (i.e. Power Law Blasius) and write the results to a CSV output file
@@ -14004,7 +14004,7 @@ extern void WriteWingFFCSVFile( const std::string & file_name );
 extern void WriteCfEqnCSVFile( const std::string & file_name );
 
 /*!
-	\ingroup ParasiteDrag
+    \ingroup ParasiteDrag
 */
 /*!
     Calculate the partial coefficient of friction and write the results to a CSV output file
@@ -14029,7 +14029,7 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
 
 //======================== Surface Query Functions ======================//
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Calculate the 3D coordinate equivalent for the input surface coordinate point
@@ -14074,7 +14074,7 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
 extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Calculate the normal vector on the specified surface at input surface coordinate
@@ -14119,7 +14119,7 @@ extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const d
 extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Calculate the vector tangent to the specified surface at input surface coordinate in the U direction
@@ -14164,7 +14164,7 @@ extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const 
 extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Calculate the vector tangent to the specified surface at input surface coordinate in the W direction
@@ -14209,7 +14209,7 @@ extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const 
 extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the curvature of a specified surface at the input surface coordinate point
@@ -14262,7 +14262,7 @@ extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, co
                             double &k1_out, double &k2_out, double &ka_out, double &kg_out);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the nearest surface coordinate for an input 3D coordinate point and calculate the distance between the
@@ -14327,7 +14327,7 @@ extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, co
 extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u_out, double &w_out);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the nearest surface coordinate and corresponding parent Geom main surface index for an input 3D coordinate point. Return the distance between
@@ -14399,7 +14399,7 @@ extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const 
 extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the nearest surface coordinate for an input 3D coordinate point and calculate the distance between the
@@ -14472,7 +14472,7 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
 
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Project an input 3D coordinate point onto a surface along a specified axis.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.
@@ -14541,7 +14541,7 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
 extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, double &u_out, double &w_out, vec3d &p_out);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Project an input 3D coordinate point onto a Geom along a specified axis.  The intersecting surface index is also returned.  If the axis-aligned ray from the point intersects the Geom multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the Geom, the original point is returned and -1 is returned in the other output parameters.
@@ -14611,7 +14611,7 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
 extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Project an input 3D coordinate point onto a surface along a specified axis given an initial guess of surface parameter.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.  The surface parameter guess should allow this call to be faster than calling AxisProjPnt01 without a guess.
@@ -14690,7 +14690,7 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
 extern double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out, vec3d &p_out);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Test whether a given point is inside a specified surface.
@@ -14755,7 +14755,7 @@ extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const 
 
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Calculate the (X, Y, Z) coordinate for the input volume (R, S, T) coordinate point
@@ -14803,7 +14803,7 @@ extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const 
 extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the nearest (R, S, T) volume coordinate for an input (X, Y, Z) 3D coordinate point and calculate the distance between the
@@ -14861,7 +14861,7 @@ extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const
 extern double FindRST( const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &r_out, double &s_out, double &t_out );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the nearest (R, S, T) volume coordinate for an input (X, Y, Z) 3D coordinate point given an initial guess of volume coordinates.  Also calculate the distance between the
@@ -14932,7 +14932,7 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
 
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Convert RST volumetric coordinates to LMN coordinates.
@@ -14981,7 +14981,7 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
 extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l, double &m, double &n );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Convert R volumetric coordinate to L coordinate.
@@ -15022,7 +15022,7 @@ extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, c
 extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double &r, double &l );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Convert LMN volumetric coordinates to RST coordinates.
@@ -15073,7 +15073,7 @@ extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, c
 extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Convert U coordinate to eta wing coordinate.
@@ -15113,7 +15113,7 @@ extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const
 extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Convert eta wing coordinate to u coordinate.
@@ -15154,7 +15154,7 @@ extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double
 
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine 3D coordinate for each surface coordinate point in the input arrays
@@ -15212,7 +15212,7 @@ extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double
 extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int &surf_indx, const std::vector < double > &u_in_vec, const std::vector < double > &w_in_vec);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the normal vector on a surface for each surface coordinate point in the input arrays
@@ -15270,7 +15270,7 @@ extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int 
 extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int &surf_indx, const std::vector < double > &us, const std::vector < double > &ws);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the curvature of a specified surface at each surface coordinate point in the input arrays
@@ -15335,7 +15335,7 @@ extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int
 extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx, const std::vector < double > &us, const std::vector < double > &ws, std::vector < double > &k1_out_vec, std::vector < double > &k2_out_vec, std::vector < double > &ka_out_vec, std::vector < double > &kg_out_vec);
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the nearest surface coordinates for an input array of 3D coordinate points and calculate the distance between each
@@ -15417,7 +15417,7 @@ extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx,
 extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the nearest surface coordinates for an input array of 3D coordinate points and calculate the distance between each
@@ -15522,7 +15522,7 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
 
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Project an input array of 3D coordinate points onto a surface along a specified axis.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.
@@ -15632,7 +15632,7 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
 extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < vec3d > &pt_out_vec, std::vector < double > &d_out_vec );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Project an input array of 3D coordinate points onto a surface along a specified axis given initial guess arrays of surface parameter.  If the axis-aligned ray from the point intersects the surface multiple times, the nearest intersection is returned.  If the axis-aligned ray from the point does not intersect the surface, the original point is returned and -1 is returned in the other output parameters.  The surface parameter guess should allow this call to be faster than calling AxisProjVecPnt01 without a guess.
@@ -15753,7 +15753,7 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
 extern void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, const std::vector < double > &u0s, const std::vector < double > &w0s, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < vec3d > &pt_out_vec, std::vector < double > &d_out_vec );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Test whether a vector of points are inside a specified surface.
@@ -15831,7 +15831,7 @@ extern std::vector < bool > VecInsideSurf( const std::string &geom_id, const int
 
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine 3D coordinate for each volume coordinate point in the input arrays
@@ -15896,7 +15896,7 @@ extern std::vector < bool > VecInsideSurf( const std::string &geom_id, const int
 extern std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const int &surf_indx, const std::vector < double > &r_in_vec, const std::vector < double > &s_in_vec, const std::vector < double > &t_in_vec );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the nearest volume coordinates for an input array of 3D coordinate points and calculate the distance between each
@@ -15972,7 +15972,7 @@ extern std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const in
 extern void FindRSTVec( const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, std::vector < double > &r_out_vec, std::vector < double > &s_out_vec, std::vector < double > &t_out_vec, std::vector < double > &d_out_vec );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Determine the nearest volume coordinates for an input array of 3D coordinate points and calculate the distance between each
@@ -16062,7 +16062,7 @@ extern void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, c
 
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Convert vector of RST volumetric coordinates to LMN coordinates.
@@ -16134,7 +16134,7 @@ extern void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx
                                 std::vector < double > &l_out_vec, std::vector < double > &m_out_vec, std::vector < double > &n_out_vec );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Convert vector of LMN volumetric coordinates to RST coordinates.
@@ -16207,7 +16207,7 @@ extern void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx
                                 std::vector < double > &r_out_vec, std::vector < double > &s_out_vec, std::vector < double > &t_out_vec );
 
 /*!
-	\ingroup SurfaceQuery
+    \ingroup SurfaceQuery
 */
 /*!
     Get the surface coordinate point of each intersection of the tessellated wireframe for a particular surface
@@ -16247,7 +16247,7 @@ extern void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::v
 
 //======================= Measure Functions ============================//
 /*!
-	\ingroup Measure
+    \ingroup Measure
 */
 /*!
     Create a new Ruler and add it to the Measure Tool
@@ -16297,7 +16297,7 @@ extern void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::v
 extern string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
                         const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );
 /*!
-	\ingroup Measure
+    \ingroup Measure
 */
 /*!
     Get an array of all Ruler IDs from the Measure Tool
@@ -16355,7 +16355,7 @@ extern string AddRuler( const string & startgeomid, int startsurfindx, double st
 extern std::vector < string > GetAllRulers();
 
 /*!
-	\ingroup Measure
+    \ingroup Measure
 */
 /*!
     Delete a particular Ruler from the Measure Tool
@@ -16404,7 +16404,7 @@ extern std::vector < string > GetAllRulers();
 extern void DelRuler( const string &id );
 
 /*!
-	\ingroup Measure
+    \ingroup Measure
 */
 /*!
     Delete all Rulers from the Measure Tool
@@ -16449,7 +16449,7 @@ extern void DeleteAllRulers();
 
 
 /*!
-	\ingroup Measure
+    \ingroup Measure
 */
 /*!
     Create a new Probe and add it to the Measure Tool
@@ -16487,7 +16487,7 @@ extern void DeleteAllRulers();
 extern string AddProbe( const string & geomid, int surfindx, double u, double w, const string & name );
 
 /*!
-	\ingroup Measure
+    \ingroup Measure
 */
 /*!
     Get an array of all Probe IDs from the Measure Tool
@@ -16528,7 +16528,7 @@ extern string AddProbe( const string & geomid, int surfindx, double u, double w,
 extern std::vector < string > GetAllProbes();
 
 /*!
-	\ingroup Measure
+    \ingroup Measure
 */
 /*!
     Delete a specific Probe from the Measure Tool
@@ -16571,7 +16571,7 @@ extern std::vector < string > GetAllProbes();
 extern void DelProbe( const string &id );
 
 /*!
-	\ingroup Measure
+    \ingroup Measure
 */
 /*!
     Delete all Probes from the Measure Tool
@@ -16616,7 +16616,7 @@ extern void DeleteAllProbes();
 //======================= Advanced Link Functions ============================//
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Get an array of all advanced link names
@@ -16646,7 +16646,7 @@ extern void DeleteAllProbes();
 extern std::vector< std::string > GetAdvLinkNames();
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Find the index of a specific advanced link.
@@ -16695,7 +16695,7 @@ extern std::vector< std::string > GetAdvLinkNames();
 extern int GetLinkIndex( const string & name );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Delete an advanced link specified by index
@@ -16761,7 +16761,7 @@ extern int GetLinkIndex( const string & name );
 extern void DelAdvLink( int index );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Delete all advanced links
@@ -16826,7 +16826,7 @@ extern void DelAdvLink( int index );
 extern void DelAllAdvLinks();
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Add an advanced link
@@ -16873,7 +16873,7 @@ extern void DelAllAdvLinks();
 extern void AddAdvLink( const string & name );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Add an input variable to an advanced link
@@ -16922,7 +16922,7 @@ extern void AddAdvLink( const string & name );
 extern void AddAdvLinkInput( int index, const string & parm_id, const string & var_name );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Add an output variable to an advanced link
@@ -16971,7 +16971,7 @@ extern void AddAdvLinkInput( int index, const string & parm_id, const string & v
 extern void AddAdvLinkOutput( int index, const string & parm_id, const string & var_name );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Delete an input variable from an advanced link
@@ -17031,7 +17031,7 @@ extern void AddAdvLinkOutput( int index, const string & parm_id, const string & 
 extern void DelAdvLinkInput( int index, const string & var_name );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Delete an output variable from an advanced link
@@ -17091,7 +17091,7 @@ extern void DelAdvLinkInput( int index, const string & var_name );
 extern void DelAdvLinkOutput( int index, const string & var_name );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Get the name of all the inputs to a specified advanced link index
@@ -17152,7 +17152,7 @@ extern void DelAdvLinkOutput( int index, const string & var_name );
 extern std::vector< std::string > GetAdvLinkInputNames( int index );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Get the Parm IDs of all the inputs to a specified advanced link index
@@ -17213,7 +17213,7 @@ extern std::vector< std::string > GetAdvLinkInputNames( int index );
 extern std::vector< std::string > GetAdvLinkInputParms( int index );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Get the Parm IDs of all the outputs to a specified advanced link index
@@ -17274,7 +17274,7 @@ extern std::vector< std::string > GetAdvLinkInputParms( int index );
 extern std::vector< std::string > GetAdvLinkOutputNames( int index );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Get the Parm IDs of all the outputs to a specified advanced link index
@@ -17335,7 +17335,7 @@ extern std::vector< std::string > GetAdvLinkOutputNames( int index );
 extern std::vector< std::string > GetAdvLinkOutputParms( int index );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Validate the input and output parameters for an advanced link
@@ -17401,7 +17401,7 @@ extern std::vector< std::string > GetAdvLinkOutputParms( int index );
 extern bool ValidateAdvLinkParms( int index );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Get the code from an advanced link
@@ -17449,7 +17449,7 @@ extern bool ValidateAdvLinkParms( int index );
 extern void SetAdvLinkCode( int index, const string & code );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Get the code from an advanced link
@@ -17505,7 +17505,7 @@ extern void SetAdvLinkCode( int index, const string & code );
 extern std::string GetAdvLinkCode( int index );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Search and replace strings in the advanced link code
@@ -17564,7 +17564,7 @@ extern std::string GetAdvLinkCode( int index );
 extern void SearchReplaceAdvLinkCode( int index, const string & from, const string & to );
 
 /*!
-	\ingroup AdvancedLink
+    \ingroup AdvancedLink
 */
 /*!
     Build (ready for execution and perform syntax check) an advanced link.
