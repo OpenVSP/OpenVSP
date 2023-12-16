@@ -138,6 +138,7 @@ def client_wrap(func):
 def write_facade(file_path):
     module_name = file_path.split(".")[0]
 
+    print( "Writing facade for " + module_name + "." )
     in_header_comment = True
 
     in_class_list = {}
@@ -370,6 +371,7 @@ def make_vsp_facade(source_file):
     os.chdir(old_cwd)
 
 def add_placeholder_funcs(source_file):
+    print( "Writing placeholders to " + source_file + "." )
     directory = os.path.dirname(source_file)
     file_name = os.path.basename(source_file)
     old_cwd = os.getcwd()
