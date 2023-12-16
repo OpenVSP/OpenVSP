@@ -3018,6 +3018,37 @@ extern void EnableReturnToAPI();
 extern void StopGui();
 
 /*!
+    \ingroup Visualization
+*/
+/*!
+    Cause OpenVSP to display a popup message.
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    StartGui();
+
+    PopupMsg( "This is a popup message." );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    StartGui()
+
+    PopupMsg( "This is a popup message." )
+
+    \endcode
+    \endPythonOnly
+
+    \param [in] msg string Message to display.
+*/
+
+extern void PopupMsg( string msg );
+
+/*!
 	\ingroup Visualization
 */
 /*!

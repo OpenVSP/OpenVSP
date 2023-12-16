@@ -1693,6 +1693,13 @@ extern void EnableReturnToAPI( )
 #endif
 }
 
+extern void PopupMsg( string msg )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().PopupMsg( msg.c_str() );
+#endif
+}
+
 extern void UpdateGui()
 {
 #ifdef VSP_USE_FLTK
