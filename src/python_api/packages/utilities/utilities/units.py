@@ -279,7 +279,7 @@ def degF2r(f):
 
 
 def k2degF(k):
-    return degF2r(k2r * k)
+    return r2degF(k2r * k)
 
 
 def degF2degC(f):
