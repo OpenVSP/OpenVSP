@@ -385,7 +385,9 @@ int MeshGeom::ReadSTL( const char* file_name )
                 tPtr->m_N0->m_Pnt = vec3d( v0[0], v0[1], v0[2] );
                 tPtr->m_N1->m_Pnt = vec3d( v1[0], v1[1], v1[2] );
                 tPtr->m_N2->m_Pnt = vec3d( v2[0], v2[1], v2[2] );
-
+                tMesh->m_NVec.push_back( tPtr->m_N0 );
+                tMesh->m_NVec.push_back( tPtr->m_N1 );
+                tMesh->m_NVec.push_back( tPtr->m_N2 );
             }
         }
         fclose( file_id );
