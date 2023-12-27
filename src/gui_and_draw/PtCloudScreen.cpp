@@ -44,6 +44,11 @@ PtCloudScreen::PtCloudScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 677, "Poi
     m_ProjectLayout.AddYGap();
     m_ProjectLayout.AddButton( m_ProjectButton, "Project" );
 
+    m_ProjectLayout.AddYGap();
+
+    m_ProjectLayout.AddDividerBox( "Convex Hull" );
+    m_ProjectLayout.AddYGap();
+    m_ProjectLayout.AddButton( m_ConvexHullButton, "Create Convex Hull Mesh" );
 }
 
 
@@ -125,6 +130,10 @@ void PtCloudScreen::GuiDeviceCallBack( GuiDevice* device )
 
             pt_cloud_geom_ptr->ProjectPts( geomid, surfid, idir );
         }
+    }
+    else if ( device == &m_ConvexHullButton )
+    {
+        pt_cloud_geom_ptr->CreateConvexHull();
     }
 
     GeomScreen::GuiDeviceCallBack( device );

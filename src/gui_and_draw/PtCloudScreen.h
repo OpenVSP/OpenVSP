@@ -21,6 +21,7 @@ public:
 protected:
     GroupLayout m_ProjectLayout;
     TriggerButton m_ProjectButton;
+    TriggerButton m_ConvexHullButton;
 
     Choice m_DirChoice;
     GeomPicker m_GeomPicker;
