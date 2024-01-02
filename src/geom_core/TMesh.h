@@ -369,7 +369,7 @@ public:
     void SplitBox();
     void AddTri( TTri* t );
     virtual void Intersect( TBndBox* iBox, bool UWFlag = false );
-    virtual void RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec ) const;
+    virtual void RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec, vector <TTri*> & triVec ) const;
 
     virtual bool CheckIntersect( TBndBox* iBox );
     virtual double MinDistance( TBndBox* iBox, double curr_min_dist, vec3d &p1, vec3d &p2 );

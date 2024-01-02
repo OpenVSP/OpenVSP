@@ -3493,7 +3493,7 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
     }
 }
 
-void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec ) const
+void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec, vector <TTri*> & triVec ) const
 {
     if ( m_Box.IsEmpty() )
     {
@@ -3513,7 +3513,7 @@ void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec ) c
     {
         for ( i = 0 ; i < 8 ; i++ )
         {
-            m_SBoxVec[i]->RayCast( orig, dir, tParmVec );
+            m_SBoxVec[i]->RayCast( orig, dir, tParmVec, triVec );
         }
         return;
     }
@@ -3543,6 +3543,7 @@ void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec ) c
             if ( !dupFlag )
             {
                 tParmVec.push_back( tparm );
+                triVec.push_back( tri );
             }
         }
     }
@@ -5966,7 +5967,8 @@ void DeterIntExtTri( TTri* tri, const vector< TMesh* >& meshVec )
         if ( meshVec[m] != tri->GetTMeshPtr() && meshVec[m]->m_ThickSurf )
         {
             vector<double > tParmVec;
-            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
+            vector <TTri*> triVec;
+            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec, triVec );
             if ( tParmVec.size() % 2 )
             {
                 tri->m_insideSurf[m] = true;
