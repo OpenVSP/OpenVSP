@@ -8,6 +8,18 @@ class ResultsDialog(wx.Dialog):
     sash = .5
 
     def __init__(self, parent, results_id, vsp):
+        """
+        Initialize the results dialog
+
+        Parameters
+        ----------
+        parent : wx.Window
+            The parent window
+        results_id : str
+            The id of the results to display
+        vsp : _type_
+            the active vsp module
+        """
         self.results_id = results_id
         self.vsp = vsp
         wx.Dialog.__init__(self, parent, id=wx.ID_ANY, title=self.title, size=self.size, style=wx.DEFAULT_DIALOG_STYLE)

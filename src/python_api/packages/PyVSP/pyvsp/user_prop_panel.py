@@ -1,4 +1,3 @@
-
 import wx
 import wx.propgrid as pg
 

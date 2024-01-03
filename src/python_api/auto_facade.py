@@ -19,7 +19,17 @@ OPEN_GUI_DOC = """
             OpenGUI()
     \"\"\"
 """
+CLOSE_GUI_DOC = """
+    \"\"\"
+    Closes the GUI through the facade API. See StopGui if not using the facade.
 
+
+    .. code-block:: python
+
+        if IsFacade():
+            CloseGUI()
+    \"\"\"
+"""
 IS_FACADE_DOC = """
     \"\"\"
     Returns True if the facade API is in use.
@@ -33,8 +43,10 @@ IS_FACADE_DOC = """
 """
 
 
-PLACEHOLDER_OPEN_GUI = "# **Placeholder start**\n" + "def OpenGUI():" + OPEN_GUI_DOC + r"""
+PLACEHOLDER_FUNCS = "# **Placeholder start**\n" + "def OpenGUI():" + OPEN_GUI_DOC + r"""
     print("WARNING: OpenGUI only has functionality if the facade API is active. \nSee InitGui and StartGui for non-facade GUI")
+def CloseGUI():""" + CLOSE_GUI_DOC + r"""
+    print("WARNING: CloseGui only has functionality if the facade API is active. \nSee StopGui for non-facade GUI")
 def IsFacade():""" + IS_FACADE_DOC + r"""
     return False
 """
@@ -109,6 +121,23 @@ def _send_recieve(func_name, args, kwargs):
 # special function to open the OpenVSP GUI
 def OpenGUI():""" + OPEN_GUI_DOC + r"""
     b_data = pack_data(['opengui', [], {}], True)
+    sock.sendall(b_data)
+    result = None
+    b_result = []
+    while True:
+        packet = sock.recv(202400)
+        if not packet: break
+        b_result.append(packet)
+        try:
+            result = pickle.loads(b"".join(b_result))
+            break
+        except:
+            pass
+    return result
+
+# special function to close the OpenVSP GUI
+def CloseGUI():""" + CLOSE_GUI_DOC + r"""
+    b_data = pack_data(['closegui', [], {}], True)
     sock.sendall(b_data)
     result = None
     b_result = []
@@ -215,6 +244,8 @@ import openvsp as module
 HOST = 'localhost'
 PORT = 6000
 event = Event()
+global gui_wait
+gui_wait = True
 
 def pack_data(data, is_command_list=False):
     def sub_pack(sub_data):
@@ -241,9 +272,6 @@ def pack_data(data, is_command_list=False):
                         new_data['list'].append(thing)
                 elif sub_data[0] == "error":
                     pass
-                # else:
-                #     print(data)
-                #     raise RuntimeError( f"unable to pack data of list containing type {type(data[0])}")
 
         return new_data
 
@@ -296,17 +324,19 @@ def start_server():
         s.bind((HOST,PORT))
         socket_open = True
         while socket_open:
-            print("listening...")
+            print("Server Socket Thread: listening...")
             s.listen()
             conn, addr = s.accept()
             with conn:
-                print("Connected by %s, %s"%(addr[0], addr[1]))
+                print("Server Socket Thread: Connected by %s, %s"%(addr[0], addr[1]))
                 while True:
                     b_data = []
+                    # Wait for command
                     while True:
                         try:
                             packet = conn.recv(1024)
                         except ConnectionResetError:
+                            print("Socket ConnectionResetError")
                             socket_open = False
                             break
                         if not packet: break
@@ -318,48 +348,87 @@ def start_server():
                             pass
                     if b_data == []:
                         break
-                    if data[0] == 'opengui':
-                        result = 0
-                        b_result = pickle.dumps(result)
-                        conn.sendall(b_result)
-                        event.set()
-                        continue
 
-                    func_name = data[0]
-                    args = data[1]
-                    kwargs = data[2]
-                    foo = getattr(module, func_name)
+                    # Special functionality for OpenGUI
+                    if data[0] == 'opengui':
+                        print("Server Socket Thread: OpenGui called")
+                        if event.is_set():
+                            print("Server Socket Thread: The OpenVSP GUI should already be running")
+                        result = 0
+                        b_result = pack_data(result)
+                        event.set()
+
+                    # Special functionality for CloseGUI
+                    elif data[0] == 'closegui':
+                        if not event.is_set():
+                            print("Server Socket Thread: The OpenVSP GUI is not running")
+                        print("Server Socket Thread: About to call StopGui()")
+                        module.StopGui()
+                        print("Server Socket Thread: After StopGui() called")
+                        result = 0
+                        b_result = pack_data(result)
+
+                    # Regular functionality
+                    else:
+                        func_name = data[0]
+                        args = data[1]
+                        kwargs = data[2]
+                        foo = getattr(module, func_name)
+                        try:
+                            print("Server Socket Thread: A1 Waiting for Lock")
+                            module.Lock()
+                            print("Server Socket Thread: A2 Lock obtained")
+                            result = foo(*args, **kwargs)
+                            print("Server Socket Thread: A3 VSP function called")
+                            module.Unlock()
+                            print("Server Socket Thread: A4 Lock released")
+                        except Exception as e:
+                            exc_info = sys.exc_info()
+                            result = ["error", ''.join(traceback.format_exception(*exc_info))]
+                        b_result = pack_data(result)
+
+                    # Try to send response back
                     try:
-                        module.Lock()
-                        result = foo(*args, **kwargs)
-                        module.Unlock()
-                    except Exception as e:
-                        exc_info = sys.exc_info()
-                        result = ["error", ''.join(traceback.format_exception(*exc_info))]
-                    b_result = pack_data(result)
-                    try:
+                        print("Server Socket Thread: sending data back")
                         conn.sendall(b_result)
                     except ConnectionResetError:
+                        print("Server Socket Thread: Unable to send data to socket, closing server.")
                         socket_open = False
                         break
-    print("socket closed")
+
+    print("Server Socket Thread: server closing")
+    global gui_wait
+    gui_wait = False
+    event.set()
+    module.StopGui()
+    print("Server Socket Thread: End of thead")
+
+
 if __name__ == "__main__":
+    did_init = False
     t = Thread(target=start_server, args=())
     t.start()
     module.Lock()
     module.Unlock()
+    while gui_wait:
+        event.wait()
+        print("Server GUI Thread: Starting GUI")
+        if gui_wait: #makes sure this didnt change while waiting
+            if not did_init:
+                module.InitGui()
+                did_init = True
+            module.StartGui()
+        print("Server GUI Thread: GUI stopped")
+        event.clear()
+    print("Server GUI Thread: End of thread")
 
-    event.wait()
-    module.InitGui()
-    module.EnableReturnToAPI()
-    module.StartGui()
 """
     with open('facade_server.py', 'w') as f:
         f.write(server_string)
 
 def modify_vsp_py(filepath):
     with open(filepath, 'a') as vsp_py:
-        vsp_py.write(PLACEHOLDER_OPEN_GUI)
+        vsp_py.write(PLACEHOLDER_FUNCS)
 
 def make_vsp_facade(source_file):
     directory = os.path.dirname(source_file)

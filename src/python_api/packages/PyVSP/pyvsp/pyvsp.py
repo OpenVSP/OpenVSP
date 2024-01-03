@@ -1,5 +1,4 @@
 import os
-import sys
 
 import wx
 import vtk
@@ -12,13 +11,12 @@ import vtk.util.numpy_support as npsup
 from pyvsp.user_prop_panel import UserPropertyPanel
 from pyvsp.analysis_panel import AnalysisPanel
 
-from threading import Thread
-from time import sleep
-
 class DemoFrame(wx.Frame):
     """
     The main wxpython frame for the demo app
     Contains 4 main panels
+    |------------------------------|
+    |-MenuBar----------------------|
     |---------------------|--------|
     |                     |        |
     |                     |        |
@@ -29,7 +27,7 @@ class DemoFrame(wx.Frame):
     |                     |        |
     |------------------------------|
     |               |              |
-    |    blank      |     user     |
+    |    buttons    |     user     |
     |               |     Parms    |
     |---------------|--------------|
     """
@@ -63,7 +61,6 @@ class DemoFrame(wx.Frame):
             style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL
         )
 
-        print("Binding EVT_CLOSE")
         self.Bind( wx.EVT_CLOSE, self.onClose )
 
         #creating main layout splitters
@@ -80,8 +77,6 @@ class DemoFrame(wx.Frame):
             mainSplitter,
             style=wx.SP_LIVE_UPDATE | wx.SP_3D
         )
-
-
 
         mainSplitter.SplitHorizontally(top_splitter, bottom_splitter)
         mainSplitter.SetSashGravity(0.75)
@@ -180,14 +175,17 @@ class DemoFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_run_automated_script, run_automated_script)
         button_buffer_box.Add(run_automated_script)
 
+        start_gui = wx.Button(button_buffer, wx.ID_ANY, u"Start GUI", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_start_gui, start_gui)
+        button_buffer_box.Add(start_gui)
+
+        stop_gui = wx.Button(button_buffer, wx.ID_ANY, u"Stop GUI", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_stop_gui, stop_gui)
+        button_buffer_box.Add(stop_gui)
+
         # screenshot = wx.Button(button_buffer, wx.ID_ANY, u"Take Screenshot", wx.DefaultPosition, wx.DefaultSize, 0)
         # self.Bind(wx.EVT_BUTTON, self.on_screenshot, screenshot)
         # button_buffer_box.Add(screenshot)
-
-
-        # switch_to_openvsp = wx.Button(button_buffer, wx.ID_ANY, u"Switch to OpenVSP GUI", wx.DefaultPosition, wx.DefaultSize, 0)
-        # self.Bind(wx.EVT_BUTTON, self.on_switch_to_openvsp, switch_to_openvsp)
-        # button_buffer_box.Add(switch_to_openvsp)
 
         self.update_count = wx.StaticText(button_buffer, wx.ID_ANY, '0')
         self.update_count.SetFont(wx.Font(20,wx.FONTFAMILY_DEFAULT,wx.FONTSTYLE_NORMAL,wx.FONTWEIGHT_NORMAL))
@@ -197,27 +195,36 @@ class DemoFrame(wx.Frame):
         self.Bind( wx.EVT_TIMER, self.on_check_updates, self.timer )
         self.timer.Start(1000) # 1 Hz
 
-    def on_screenshot(self, event):
-        vsp.ScreenGrab(r'C:\work\gmdao\test_app_server\test.png',400,400,False)
-
-    def on_switch_to_openvsp(self, event):
+    def on_start_gui(self, event):
         """
-        event called to switch to the openvsp gui
+        event called when user clicks the start gui button
+        Starts the OpenVSP gui
 
         Parameters
         ----------
         event : wx.Event
             the button event
         """
-        self.Freeze() # weird interactions happen between openvsp and wxpython if not frozen
-        if self.did_init_gui:
-            vsp.StartGui()
-            print("return from vsp gui")
-            wx.CallAfter(self.vsp_update)
-        else:
-            print("need to init gui first")
+        print("PyVSP, Attempting to open VSP GUI")
+        vsp.OpenGUI() # run the facade version of "StartGUI"
+        print("PyVSP, VSP GUI Opened")
 
-        self.Thaw()
+    def on_stop_gui(self, event):
+        """
+        event called when user clicks the stop gui button
+        Stops the OpenVSP gui
+
+        Parameters
+        ----------
+        event : wx.Event
+            the button event
+        """
+        print("PyVSP, Attempting to close VSP GUI")
+        vsp.CloseGUI() # run the facade version of "StopGUI"
+        print("PyVSP, VSP GUI Closed")
+
+    def on_screenshot(self, event):
+        vsp.ScreenGrab(r'C:\work\gmdao\test_app_server\test.png',400,400,False)
 
     def on_load_model(self, event):
         """
@@ -251,7 +258,6 @@ class DemoFrame(wx.Frame):
             self.is_open = True
             self.load_vsp(geom_file_path)
 
-
     @property
     def is_file_loaded(self):
         """
@@ -261,6 +267,7 @@ class DemoFrame(wx.Frame):
         if name == 'Unnamed.vsp3':
             return False
         return True
+
     def on_save_model(self, event):
         """
         event called when the user clicks the save model button
@@ -309,6 +316,7 @@ class DemoFrame(wx.Frame):
             print("no model loaded")
             return
         vsp.ClearVSPModel()
+
     def on_edit_model(self, event):
         """
         event called when the user clicks the edit model button
@@ -378,7 +386,6 @@ class DemoFrame(wx.Frame):
         self.geom_file = os.path.basename(geom_file_path)
         print("Opening OpenVSP file: %s" % self.geom_file)
         vsp.ReadVSPFile(os.path.join(self.dir, self.geom_file))
-        vsp.OpenGUI()
         self.vsp_update()
 
     def vsp_update(self):
@@ -388,6 +395,7 @@ class DemoFrame(wx.Frame):
         self.refresh_actors()
         self.prop_panel.vsp_update()
         self.analysis_panel.vsp_update()
+
     def refresh_actors(self):
         """
         updates vtk window
@@ -440,7 +448,6 @@ class DemoFrame(wx.Frame):
             return
         wx.CallLater(1000, lambda: self.automation(x))
 
-
     def make_tesselations(self,):
         """
         generates tesselations for viewing in VTK
@@ -463,6 +470,7 @@ class DemoFrame(wx.Frame):
                         print("Only one main surface is handled. VSP component \"%s\" has many" % geom_id)
                     tess[geom_id] = self.get_tesselation(geom_id, surf_indx)
         return tess
+
     def get_tesselation(self, geom_id, surf_indx):
         """
         returns points needed to draw openvsp components
@@ -519,6 +527,7 @@ class DemoFrame(wx.Frame):
             point_tess.reshape((len(u_vec), len(w_vec), 3)),
             [xy_sym, xz_sym, yz_sym]
         )
+
     def get_symmetry(self, geom_id):
         """
         returns symmetry plane of the openVSP component
@@ -548,14 +557,10 @@ class DemoFrame(wx.Frame):
         else:
             print("UNKNOWN SYM VALUE FOUND")
             return []
+
     def onClose(self, event):
         """
-
-        :param event:
-        :return:
         """
-        vsp.StopGui()
-        sleep(1)
         self.Destroy()
 
 class VTK_Panel_Vehicle(wx.Panel):
@@ -603,14 +608,13 @@ class VTK_Panel_Vehicle(wx.Panel):
             pass
         self.widget.Render()
         self.renderVTKScreen()
-    def updateDrawData(self,):
-        pass
+
     def redraw(self):
         """
         redraws model
         """
-        self.updateDrawData()  # Update draw data dictionary
         self.renderVTKScreen()  # Redraw VTK Panel
+
     def renderVTKScreen(self):
         """
         renders model
@@ -622,6 +626,7 @@ class VTK_Panel_Vehicle(wx.Panel):
             for sym in self.geom_mesh_sym_actors[geom]:
                 self.ren.AddActor(sym)
         self.ren.SetBackground([255, 255, 255])
+
     def _quad_tess(self, xyz_grid):
         """
         returns a vtk actor that draws the xyz grid as a quad tess
