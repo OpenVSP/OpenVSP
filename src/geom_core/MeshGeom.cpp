@@ -3668,7 +3668,6 @@ void MeshGeom::WaterTightCheck( FILE* fid )
 
     //==== Load All Meshes into One ====//
     TMesh* oneMesh = new TMesh();
-    oneMesh->m_Color = m_TMeshVec[0]->m_Color;
 
     for ( m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
     {

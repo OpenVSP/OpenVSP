@@ -503,7 +503,6 @@ public:
     int m_SurfNum; // To keep track of geoms with multiple surfaces
     int m_PlateNum; // To keep track of degen plate number.  -1 for normal surfaces.
     int m_MaterialID;
-    vec3d m_Color;
     int m_SurfCfdType;
     int m_ThickSurf;
     int m_MassPrior;

@@ -426,7 +426,6 @@ void TMesh::CopyAttributes( TMesh* m )
     m_PlateNum = m->m_PlateNum;
     m_NameStr   = m->m_NameStr;
     m_MaterialID = m->m_MaterialID;
-    m_Color      = m->m_Color;
     m_SurfCfdType = m->m_SurfCfdType;
     m_ThickSurf = m->m_ThickSurf;
 
