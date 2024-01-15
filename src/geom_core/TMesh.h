@@ -392,7 +392,9 @@ class TMesh
 {
 public:
     TMesh();
+    virtual void Init();
     virtual ~TMesh();
+    virtual void Wype();
 
     void copy( TMesh* m );
     void CopyFlatten( TMesh* m );

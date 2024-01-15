@@ -319,6 +319,11 @@ TriShellMassProp::TriShellMassProp( const string& id, double mass_area_in, const
 //===============================================//
 TMesh::TMesh()
 {
+    Init();
+}
+
+void TMesh::Init()
+{
     m_MaterialID = 0;
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_SurfType = vsp::NORMAL_SURF;
@@ -335,26 +340,59 @@ TMesh::TMesh()
     m_AreaCenter = vec3d(0,0,0);
     m_GuessVol = 0;
     m_Wmin = DBL_MAX;
+
+
+    m_OriginGeomID = "";
+    m_NameStr = "";
+
+    m_SurfType = -1;
 }
 
 TMesh::~TMesh()
 {
+    Wype();
+}
 
-    int i;
-
-    for ( i = 0 ; i < ( int )m_TVec.size() ; i++ )
+void TMesh::Wype()
+{
+    for ( int i = 0 ; i < ( int )m_TVec.size() ; i++ )
     {
         delete m_TVec[i];
     }
-    for ( i = 0 ; i < ( int )m_NVec.size() ; i++ )
+    m_TVec.clear();
+
+    for ( int i = 0 ; i < ( int )m_NVec.size() ; i++ )
     {
         delete m_NVec[i];
     }
-    for ( i = 0 ; i < ( int )m_EVec.size() ; i++ )
+    m_NVec.clear();
+
+    for ( int i = 0 ; i < ( int )m_EVec.size() ; i++ )
     {
         delete m_EVec[i];
     }
+    m_EVec.clear();
 
+
+    m_TBox.Reset();
+
+    m_CompAreaVec.clear();
+    m_TagTheoAreaVec.clear();
+    m_TagWetAreaVec.clear();
+
+    m_NonClosedTriVec.clear();
+
+    m_VertVec.clear();
+
+    m_UWPnts.clear();
+    m_XYZPnts.clear();
+
+    m_NAMap.clear();
+    m_NSMMap.clear();
+    m_EAMap.clear();
+    m_ESMMap.clear();
+
+    Init();
 }
 
 void TMesh::copy( TMesh* m )
