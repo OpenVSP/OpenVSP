@@ -1617,12 +1617,12 @@ double nearSegSeg( const vec3d& L0, const vec3d& L1, const vec3d& S0, const vec3
 }
 
 
-double pointLineDistSquared( const vec3d& X0, const vec3d& X1, const vec3d& X2, double &t, vec3d &pon )
+double pointLineDistSquared( const vec3d& p, const vec3d& lp0, const vec3d& lp1, double &t, vec3d &pon )
 {
-    vec3d X10 = X1 - X0;
-    vec3d X21 = X2 - X1;
+    vec3d X10 = lp0 - p;
+    vec3d X21 = lp1 - lp0;
 
-    double denom = dist_squared( X2, X1 );
+    double denom = dist_squared( lp1, lp0 );
 
     if ( denom < 1e-9 ) // was 1e-9
     {
@@ -1633,9 +1633,9 @@ double pointLineDistSquared( const vec3d& X0, const vec3d& X1, const vec3d& X2, 
         t = -dot( X10, X21 ) / denom;
     }
 
-    pon = X1 + X21 * t;
+    pon = lp0 + X21 * t;
 
-    return dist_squared( pon, X0 );
+    return dist_squared( pon, p );
 }
 
 vec3d point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t )
