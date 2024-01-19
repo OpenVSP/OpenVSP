@@ -14,6 +14,8 @@ sys.path.insert(1, vsp_path)
 from openvsp import *
 
 class TestOpenVSP(unittest.TestCase):
+	def setUp(self):
+		vsp.VSPRenew()
 '''
     with open(vsp_file, 'r') as vsp:
 
@@ -22,7 +24,7 @@ class TestOpenVSP(unittest.TestCase):
         for iline, line in enumerate(lines):
             check_line = line.replace(' ','').lower()
 
-            if 'def' in check_line and '):' in check_line:
+            if 'def' in check_line and '):' in check_line and not "(self" in check_line:
                 func_line = line
 
                 idx = iline + 1
@@ -66,6 +68,8 @@ class TestOpenVSP(unittest.TestCase):
 
 
     for k, v in func_dict.items():
+        if not 'def ' == k.lstrip()[:4]:
+            unit_test += '\t'
         unit_test += '\t' + k.lstrip() +'\n'
         unit_test += v
 
@@ -108,13 +112,10 @@ def clean_up(code):
     return new_code
 
 def add_test(line):
-	words = line.strip().split(' ')
-
-	for i, word in enumerate(words):
-		if word == 'def':
-			words[i+1] = 'test_' + words[i+1]
-
-	return ' '.join(words)
+    new_line = line[:4] + 'test_' + line[4:]
+    split_line = new_line.split('(')
+    new_line = split_line[0] + '(self):'
+    return new_line
 
 if __name__ == '__main__':
     base_dir = sys.argv[1]
