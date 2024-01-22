@@ -6,3 +6,5 @@ inst/
 __pycache__/
 *.egg-info
 *.vscode
+CMakeSettings.json
+*.vs
