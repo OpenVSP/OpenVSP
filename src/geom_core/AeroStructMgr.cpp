@@ -181,8 +181,7 @@ void AeroStructSingleton::FindCCX( const string & path )
         size_t sz = ftell( fp );
         fclose( fp );
 
-        string delcmd = "del " + tmpfile;
-        system( delcmd.c_str() );
+        DeleteFile( tmpfile.c_str() );
 
         if ( sz != 0 )
 #else
@@ -225,8 +224,7 @@ void AeroStructSingleton::FindCGX( const string & path )
         size_t sz = ftell( fp );
         fclose( fp );
 
-        string delcmd = "del " + tmpfile;
-        system( delcmd.c_str() );
+        DeleteFile( tmpfile.c_str() );
 
         if ( sz != 0 )
 #else
