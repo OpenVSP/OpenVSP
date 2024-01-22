@@ -307,12 +307,12 @@ if(BUILD_VSPAERO)
     add_custom_command(TARGET vspaero POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:vspaero>
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vspaero )
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/ )
 
     add_custom_command(TARGET vspaero POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:vspaero>
-            ${CMAKE_BINARY_DIR}/src/vsp/vspaero )
+            ${CMAKE_BINARY_DIR}/src/vsp/$<CONFIG>/ )
 
     # INSTALL( TARGETS solver LIBRARY DESTINATION . )
 
