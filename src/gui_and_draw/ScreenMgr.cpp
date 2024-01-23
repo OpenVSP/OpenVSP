@@ -276,7 +276,7 @@ void ScreenMgr::APIHideScreens()
 
     for ( int i = 0; i < vsp::VSP_NUM_SCREENS; i++ )
     {
-        if ( i == vsp::VSP_COR_SCREEN ) // || i == vsp::VSP_MAIN_SCREEN ) // Closing these causes crashes.
+        if ( i == vsp::VSP_COR_SCREEN || i == vsp::VSP_MAIN_SCREEN ) // Closing these causes crashes.
         {
             continue;
         }
@@ -298,7 +298,7 @@ void ScreenMgr::APIShowScreens()
     {
         for ( int i = 0; i < m_APIScreenOpenVec.size(); i++ )
         {
-            if ( i == vsp::VSP_COR_SCREEN )
+            if ( i == vsp::VSP_COR_SCREEN || i == vsp::VSP_MAIN_SCREEN )
             {
                 continue;
             }
