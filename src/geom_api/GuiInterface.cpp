@@ -75,6 +75,26 @@ void GuiInterface::StopGui()
 #endif
 }
 
+void GuiInterface::HideScreens()
+{
+#ifdef VSP_USE_FLTK
+    if (m_ScreenMgr)
+    {
+        m_ScreenMgr->APIHideScreens();
+    }
+#endif
+}
+
+void GuiInterface::ShowScreens()
+{
+#ifdef VSP_USE_FLTK
+    if (m_ScreenMgr)
+    {
+        m_ScreenMgr->APIShowScreens();
+    }
+#endif
+}
+
 void GuiInterface::UpdateGui( )
 {
 #ifdef VSP_USE_FLTK

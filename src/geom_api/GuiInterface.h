@@ -37,6 +37,8 @@ public:
     void StartGui( );
     void StartGuiAPI( );
     void StopGui();
+    void HideScreens();
+    void ShowScreens();
     void UpdateGui( );
     void PopupMsg( const char * message );
 

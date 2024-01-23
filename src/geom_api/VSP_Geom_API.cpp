@@ -1693,6 +1693,20 @@ extern void EnableReturnToAPI( )
 #endif
 }
 
+extern void HideScreens()
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().HideScreens();
+#endif
+}
+
+extern void ShowScreens()
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().ShowScreens();
+#endif
+}
+
 extern void PopupMsg( string msg )
 {
 #ifdef VSP_USE_FLTK

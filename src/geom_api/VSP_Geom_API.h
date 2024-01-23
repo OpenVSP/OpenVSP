@@ -3030,6 +3030,11 @@ extern void EnableReturnToAPI();
 
 extern void StopGui();
 
+extern void HideScreens();
+
+extern void ShowScreens();
+
+
 /*!
     \ingroup Visualization
 */
