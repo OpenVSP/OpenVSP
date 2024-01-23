@@ -325,7 +325,6 @@ void MainVSPScreen::ExitVSP()
 
 void MainVSPScreen::ReturnToAPI()
 {
-    m_ScreenMgr->APIHideScreens();
     // m_ScreenMgr->ForceUpdate();
     m_ScreenMgr->SetRunGui( false );
 }
