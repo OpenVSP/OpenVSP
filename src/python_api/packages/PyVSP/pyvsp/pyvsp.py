@@ -179,6 +179,18 @@ class DemoFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_start_gui, start_gui)
         button_buffer_box.Add(start_gui)
 
+        hide_gui = wx.Button(button_buffer, wx.ID_ANY, u"Hide GUI", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_hide_gui, hide_gui)
+        button_buffer_box.Add(hide_gui)
+
+        show_gui = wx.Button(button_buffer, wx.ID_ANY, u"Show GUI", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_show_gui, show_gui)
+        button_buffer_box.Add(show_gui)
+
+        popup_gui = wx.Button(button_buffer, wx.ID_ANY, u"Popup Message", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_popup_gui, popup_gui)
+        button_buffer_box.Add(popup_gui)
+
         stop_gui = wx.Button(button_buffer, wx.ID_ANY, u"Stop GUI", wx.DefaultPosition, wx.DefaultSize, 0)
         self.Bind(wx.EVT_BUTTON, self.on_stop_gui, stop_gui)
         button_buffer_box.Add(stop_gui)
@@ -208,6 +220,48 @@ class DemoFrame(wx.Frame):
         print("PyVSP, Attempting to open VSP GUI")
         vsp.OpenGUI() # run the facade version of "StartGUI"
         print("PyVSP, VSP GUI Opened")
+
+    def on_hide_gui(self, event):
+        """
+        event called when user clicks the hide gui button
+        Hides the OpenVSP gui
+
+        Parameters
+        ----------
+        event : wx.Event
+            the button event
+        """
+        print("PyVSP, Attempting to hide VSP GUI")
+        vsp.HideScreens()
+        print("PyVSP, VSP GUI hide screens")
+
+    def on_show_gui(self, event):
+        """
+        event called when user clicks the show gui button
+        Shows the OpenVSP gui
+
+        Parameters
+        ----------
+        event : wx.Event
+            the button event
+        """
+        print("PyVSP, Attempting to show VSP GUI")
+        vsp.ShowScreens()
+        print("PyVSP, VSP GUI show screens")
+
+    def on_popup_gui(self, event):
+        """
+        event called when user clicks the popup gui button
+        Popus up a message in the OpenVSP gui
+
+        Parameters
+        ----------
+        event : wx.Event
+            the button event
+        """
+        print("PyVSP, Attempting to popup message in VSP GUI")
+        vsp.PopupMsg( "Hello World!" )
+        print("PyVSP, VSP GUI popup screens")
 
     def on_stop_gui(self, event):
         """
