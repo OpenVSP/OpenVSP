@@ -553,12 +553,6 @@ VspScreen * ScreenMgr::GetScreen( int id )
     return NULL;
 }
 
-//==== Create Message Pop-Up ====//
-void MessageBox( void * data )
-{
-    fl_message( "%s", ( char* )data );
-}
-
 string ScreenMgr::FileChooser( const string &title, const string &filter, int mode, const string &dir )
 {
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
@@ -633,10 +627,21 @@ string ScreenMgr::NativeFileChooser( const string &title, const string &filter, 
     return fname;
 }
 
-//==== Create Pop-Up Message Window ====//
-void ScreenMgr::Alert( const char * message )
+//==== Create Message Pop-Up ====//
+void MessageBox( void * data )
 {
-    Fl::awake( MessageBox, ( void* )message );
+    fl_message( "%s", (char*)data );
+    ((char*)data)[0] = '\0';
+    delete[] data;
+}
+
+//==== Create Pop-Up Message Window ====//
+void ScreenMgr::Alert( const string &message )
+{
+    char *buf = new char[ message.size() + 1 ];
+    memcpy( buf, &message[0], message.size() );
+    buf[message.size()] = '\0';
+    Fl::awake( MessageBox, ( void* )buf );
 }
 
 int ScreenMgr::GlobalHandler(int event)

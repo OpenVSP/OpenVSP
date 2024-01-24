@@ -3064,7 +3064,7 @@ extern void ShowScreens();
     \param [in] msg string Message to display.
 */
 
-extern void PopupMsg( string msg );
+extern void PopupMsg( const std::string &msg );
 
 /*!
     \ingroup Visualization

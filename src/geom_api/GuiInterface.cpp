@@ -107,7 +107,7 @@ void GuiInterface::UpdateGui( )
 
 }
 
-void GuiInterface::PopupMsg( const char* message )
+void GuiInterface::PopupMsg( const std::string &message )
 {
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )

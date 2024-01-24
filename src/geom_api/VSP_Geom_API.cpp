@@ -1707,10 +1707,10 @@ extern void ShowScreens()
 #endif
 }
 
-extern void PopupMsg( string msg )
+extern void PopupMsg( const std::string &msg )
 {
 #ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().PopupMsg( msg.c_str() );
+    GuiInterface::getInstance().PopupMsg( msg );
 #endif
 }
 

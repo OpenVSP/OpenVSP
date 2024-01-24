@@ -40,7 +40,7 @@ public:
     void HideScreens();
     void ShowScreens();
     void UpdateGui( );
-    void PopupMsg( const char * message );
+    void PopupMsg( const std::string &message );
 
     void Lock();
     void Unlock();

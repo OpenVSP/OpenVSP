@@ -40,7 +40,7 @@ public:
     virtual Geom* GetCurrGeom();
     virtual void SetUpdateFlag( bool flag );
     virtual void ForceUpdate();
-    virtual void Alert( const char * message );
+    virtual void Alert( const string &message );
 
     string FileChooser( const string &title, const string &filter, int mode = vsp::OPEN, const string &dir = string() );
 
