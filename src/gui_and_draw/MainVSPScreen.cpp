@@ -281,7 +281,7 @@ void MainVSPScreen::CloseCallBack( Fl_Widget *w )
 {
     if ( m_ReturnToAPIMenuItem.IsShown() )
     {
-        ReturnToAPI();
+        m_ScreenMgr->ReturnToAPI();
     }
     else if ( m_ExitMenuItem.IsShown() )
     {
@@ -421,7 +421,7 @@ void MainVSPScreen::ActionCB( void * data )
     }
     else if ( data == &m_ReturnToAPIMenuItem )
     {
-        ReturnToAPI();
+        m_ScreenMgr->ReturnToAPI();
     }
     else if ( data == &m_UndoMenuItem )
     {
