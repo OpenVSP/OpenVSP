@@ -223,4 +223,5 @@ int main( int argc, char** argv )
 
     //==== Start Gui - FLTK Now Control Process ====//
     GuiInterface::getInstance().StartGui();
+    return 0;
 }
