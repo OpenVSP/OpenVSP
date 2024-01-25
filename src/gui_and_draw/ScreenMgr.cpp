@@ -668,7 +668,7 @@ void MessageBox( void * data )
 {
     fl_message( "%s", (char*)data );
     ((char*)data)[0] = '\0';
-    delete[] data;
+    delete[] (char*)data;
 }
 
 //==== Create Pop-Up Message Window ====//
