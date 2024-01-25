@@ -50,34 +50,10 @@ public:
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
 
-    void ShowReturnToAPI()
-    {
-        m_ReturnToAPIMenuItem.Show();
-#if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304) // Before this version, update() was private.
-        m_MenuBar->update();
-#endif
-    }
-    void HideReturnToAPI()
-    {
-        m_ReturnToAPIMenuItem.Hide();
-#if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
-        m_MenuBar->update();
-#endif
-    }
-    void ShowExit()
-    {
-        m_ExitMenuItem.Show();
-#if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
-        m_MenuBar->update();
-#endif
-    }
-    void HideExit()
-    {
-        m_ExitMenuItem.Hide();
-#if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
-        m_MenuBar->update();
-#endif
-    }
+    void ShowReturnToAPI();
+    void HideReturnToAPI();
+    void ShowExit();
+    void HideExit();
 
     virtual void ReturnToAPI();
 

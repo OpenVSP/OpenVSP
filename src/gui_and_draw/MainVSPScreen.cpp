@@ -801,3 +801,35 @@ void MainVSPScreen::SetBackground( double r, double g, double b )
         }
     }
 }
+
+void MainVSPScreen::ShowReturnToAPI()
+{
+    m_ReturnToAPIMenuItem.Show();
+#if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304) // Before this version, update() was private.
+    m_MenuBar->update();
+#endif
+}
+
+void MainVSPScreen::HideReturnToAPI()
+{
+    m_ReturnToAPIMenuItem.Hide();
+#if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
+    m_MenuBar->update();
+#endif
+}
+
+void MainVSPScreen::ShowExit()
+{
+    m_ExitMenuItem.Show();
+#if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
+    m_MenuBar->update();
+#endif
+}
+
+void MainVSPScreen::HideExit()
+{
+    m_ExitMenuItem.Hide();
+#if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
+    m_MenuBar->update();
+#endif
+}
