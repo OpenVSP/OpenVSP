@@ -292,7 +292,7 @@ void ScreenMgr::ReturnToAPI()
     SetRunGui( false );
 }
 
-void ScreenMgr::APIHideScreens()
+void ScreenMgr::APIHideScreensImplementation()
 {
     // De-select all Geoms
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -328,7 +328,7 @@ void ScreenMgr::APIHideScreens()
     }
 }
 
-void ScreenMgr::APIShowScreens()
+void ScreenMgr::APIShowScreensImplementation()
 {
     if ( m_APIScreenOpenVec.size() <= vsp::VSP_NUM_SCREENS )
     {
@@ -348,6 +348,34 @@ void ScreenMgr::APIShowScreens()
             }
         }
     }
+}
+
+void APIHideScreenHandler( void * data )
+{
+    ScreenMgr * m_ScreenMgr = (ScreenMgr*) data;
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->APIHideScreensImplementation();
+    }
+}
+
+void APIShowScreenHandler( void * data )
+{
+    ScreenMgr * m_ScreenMgr = (ScreenMgr*) data;
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->APIShowScreensImplementation();
+    }
+}
+
+void ScreenMgr::APIHideScreens()
+{
+    Fl::awake( APIHideScreenHandler, ( void* )this );
+}
+
+void ScreenMgr::APIShowScreens()
+{
+    Fl::awake( APIShowScreenHandler, ( void* )this );
 }
 
 bool ScreenMgr::IsGUIElementDisabled( int e ) const

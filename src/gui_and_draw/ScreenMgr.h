@@ -66,6 +66,8 @@ public:
 
     void ReturnToAPI();
 
+    void APIHideScreensImplementation();
+    void APIShowScreensImplementation();
     void APIHideScreens();
     void APIShowScreens();
 
