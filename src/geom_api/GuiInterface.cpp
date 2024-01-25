@@ -13,6 +13,10 @@
 #include <windows.h>
 #endif
 
+#ifdef __JETBRAINS_IDE__
+#define VSP_USE_FLTK 1
+#endif
+
 #ifdef VSP_USE_FLTK
 #include "ScreenMgr.h"
 #endif
