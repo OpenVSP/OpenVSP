@@ -307,18 +307,18 @@ if(BUILD_VSPAERO)
     add_custom_command(TARGET vspaero POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:vspaero>
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/ )
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:vspaero> )
 
     get_property( is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG )
 
     if ( is_multi_config )
-            SET( conf_suffix "$<CONFIG>" )
+            SET( conf_suffix "$<CONFIG>/" )
     endif()
 
     add_custom_command(TARGET vspaero POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:vspaero>
-            ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix} )
+            ${CMAKE_BINARY_DIR}/src/vsp/${conf_suffix}$<TARGET_FILE_NAME:vspaero> )
 
     # INSTALL( TARGETS solver LIBRARY DESTINATION . )
 
