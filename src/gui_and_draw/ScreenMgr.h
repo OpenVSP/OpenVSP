@@ -57,36 +57,14 @@ public:
     virtual void MessageCallback( const MessageBase* from, const MessageData& data );
 
 
-    bool CheckRunGui()
-    {
-        return m_RunGUI;
-    };
-    void SetRunGui( bool r )
-    {
-        m_RunGUI = r;
-    };
-    void ShowReturnToAPI()
-    {
-        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowReturnToAPI();
-    };
-    void HideReturnToAPI()
-    {
-        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideReturnToAPI();
-    };
-    void ShowExit()
-    {
-        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowExit();
-    };
-    void HideExit()
-    {
-        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideExit();
-    };
+    bool CheckRunGui();
+    void SetRunGui( bool r );
+    void ShowReturnToAPI();
+    void HideReturnToAPI();
+    void ShowExit();
+    void HideExit();
 
-    void ReturnToAPI()
-    {
-        // ForceUpdate();
-        SetRunGui( false );
-    };
+    void ReturnToAPI();
 
     void APIHideScreens();
     void APIShowScreens();

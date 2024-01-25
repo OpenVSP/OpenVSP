@@ -256,6 +256,42 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     }
 }
 
+bool ScreenMgr::CheckRunGui()
+{
+    return m_RunGUI;
+}
+
+void ScreenMgr::SetRunGui( bool r )
+{
+    m_RunGUI = r;
+}
+
+void ScreenMgr::ShowReturnToAPI()
+{
+    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowReturnToAPI();
+}
+
+void ScreenMgr::HideReturnToAPI()
+{
+    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideReturnToAPI();
+}
+
+void ScreenMgr::ShowExit()
+{
+    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowExit();
+}
+
+void ScreenMgr::HideExit()
+{
+    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideExit();
+}
+
+void ScreenMgr::ReturnToAPI()
+{
+    // ForceUpdate();
+    SetRunGui( false );
+}
+
 void ScreenMgr::APIHideScreens()
 {
     // De-select all Geoms
