@@ -47,6 +47,7 @@ void GuiInterface::StartGui()
 #ifdef VSP_USE_FLTK
     Fl::lock();
     Fl::run();
+    Fl::unlock();  // We wont' ever get here.
 #endif
 }
 
@@ -59,7 +60,9 @@ void GuiInterface::StartGuiAPI( )
         m_ScreenMgr->HideExit();
         m_ScreenMgr->ShowScreen( vsp::VSP_MAIN_SCREEN );
         m_ScreenMgr->APIShowScreens();
+        Fl::lock();
         while( m_ScreenMgr->CheckRunGui() && Fl::wait() );
+        Fl::unlock();
     }
 #endif
 
