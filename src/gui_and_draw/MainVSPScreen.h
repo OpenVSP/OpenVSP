@@ -55,8 +55,6 @@ public:
     void ShowExit();
     void HideExit();
 
-    virtual void ReturnToAPI();
-
 protected:
 
     virtual void ActionCB( void * data );

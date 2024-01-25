@@ -84,7 +84,8 @@ public:
 
     void ReturnToAPI()
     {
-        ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ReturnToAPI();
+        // ForceUpdate();
+        SetRunGui( false );
     };
 
     void APIHideScreens();

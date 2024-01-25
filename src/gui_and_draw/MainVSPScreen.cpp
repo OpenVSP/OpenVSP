@@ -323,12 +323,6 @@ void MainVSPScreen::ExitVSP()
     }
 }
 
-void MainVSPScreen::ReturnToAPI()
-{
-    // m_ScreenMgr->ForceUpdate();
-    m_ScreenMgr->SetRunGui( false );
-}
-
 void MainVSPScreen::ActionCB( void * data )
 {
     if ( !m_GlWin || !m_FLTK_Window || !m_ScreenMgr )
