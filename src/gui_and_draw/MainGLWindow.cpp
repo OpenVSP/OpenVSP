@@ -289,6 +289,125 @@ void VspGlWindow::update()
     }
 }
 
+void VspGlWindow::LoadAllDrawObjs( vector< DrawObj* > & drawObjs )
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+
+    if ( vPtr )
+    {
+        // Get Render Objects from Vehicle.
+        vPtr->LoadDrawObjs( drawObjs );
+
+        // Load Render Objects from fitModelScreen.
+        FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_FIT_MODEL_SCREEN ) );
+        if ( fitModelScreen )
+        {
+            fitModelScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from massPropScreen.
+        MassPropScreen* massPropScreen = dynamic_cast<MassPropScreen*>
+            ( m_ScreenMgr->GetScreen( vsp::VSP_MASS_PROP_SCREEN ) );
+        if ( massPropScreen )
+        {
+            massPropScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from CfdMeshScreen.
+        CfdMeshScreen * cfdScreen = dynamic_cast< CfdMeshScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_CFD_MESH_SCREEN ) );
+        if( cfdScreen )
+        {
+            cfdScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from SurfaceIntersectionScreen.
+        SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_SURFACE_INTERSECTION_SCREEN ) );
+        if( surfScreen )
+        {
+            surfScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // I don't like having this Update() here.  However, there does not appear
+        // to be a better place to put it.  Vehicle::Update does not get called
+        // frequently enough.
+        MeasureMgr.Update();
+        // Load Render Objects from measureScreen.
+        ManageMeasureScreen * measureScreen = dynamic_cast< ManageMeasureScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_MEASURE_SCREEN ) );
+        if( measureScreen )
+        {
+            measureScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from FeaStructScreen.
+        StructScreen * structScreen = dynamic_cast< StructScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_SCREEN ) );
+        if( structScreen )
+        {
+            structScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from FeaStructAssemblyScreen.
+        StructAssemblyScreen * structAssemblyScreen = dynamic_cast< StructAssemblyScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_STRUCT_ASSEMBLY_SCREEN ) );
+        if( structAssemblyScreen )
+        {
+            structAssemblyScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from lightScreen.
+        ManageLightingScreen * lightScreen = dynamic_cast< ManageLightingScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_LIGHTING_SCREEN ) );
+        if( lightScreen )
+        {
+            lightScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from geomScreen.
+        ManageGeomScreen * geomScreen = dynamic_cast< ManageGeomScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_MANAGE_GEOM_SCREEN ) );
+        if( geomScreen )
+        {
+            geomScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from corScreen ( Center of Rotation ).
+        ManageCORScreen * corScreen = dynamic_cast< ManageCORScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_COR_SCREEN ) );
+        if( corScreen )
+        {
+            corScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from clipScreen ( Clipping ).
+        ClippingScreen * clipScreen = dynamic_cast< ClippingScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_CLIPPING_SCREEN ) );
+        if( clipScreen )
+        {
+            clipScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from WDSrceen ( Wave Drag Tool)
+        WaveDragScreen * WDScreen = dynamic_cast< WaveDragScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_WAVEDRAG_SCREEN ) );
+        if( WDScreen )
+        {
+            WDScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects for VSP AERO Screen
+        VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* >
+            ( m_ScreenMgr->GetScreen( vsp::VSP_VSPAERO_SCREEN ) );
+        if ( AeroScreen )
+        {
+            AeroScreen->LoadDrawObjs( drawObjs );
+        }
+    }
+}
+
 void VspGlWindow::_initGLEW()
 {
     if( !m_initialized )

@@ -130,6 +130,8 @@ public:
 public:
     virtual void update();
 
+    virtual void LoadAllDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
 // Private helper functions.
 private:
     void _initGLEW();
