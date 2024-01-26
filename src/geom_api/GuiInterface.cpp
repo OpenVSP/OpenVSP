@@ -35,6 +35,7 @@ GuiInterface::~GuiInterface()
 #endif
 }
 
+// In a multi-threaded environment, this must be called from the main thread only.
 void GuiInterface::InitGui( Vehicle* vPtr )
 {
 #ifdef VSP_USE_FLTK
@@ -46,6 +47,7 @@ void GuiInterface::InitGui( Vehicle* vPtr )
 
 }
 
+// In a multi-threaded environment, this must be called from the main thread only.
 void GuiInterface::StartGui()
 {
 #ifdef VSP_USE_FLTK
@@ -55,6 +57,7 @@ void GuiInterface::StartGui()
 #endif
 }
 
+// In a multi-threaded environment, this must be called from the main thread only.
 void GuiInterface::StartGuiAPI( )
 {
 #ifdef VSP_USE_FLTK
@@ -75,6 +78,7 @@ void GuiInterface::StartGuiAPI( )
 
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::StopGui()
 {
 #ifdef VSP_USE_FLTK
@@ -85,6 +89,7 @@ void GuiInterface::StopGui()
 #endif
 }
 
+// In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
 void GuiInterface::HideScreens()
 {
 #ifdef VSP_USE_FLTK
@@ -95,6 +100,7 @@ void GuiInterface::HideScreens()
 #endif
 }
 
+// In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
 void GuiInterface::ShowScreens()
 {
 #ifdef VSP_USE_FLTK
@@ -105,18 +111,19 @@ void GuiInterface::ShowScreens()
 #endif
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::UpdateGui( )
 {
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
         m_ScreenMgr->SetUpdateFlag( true );
-//      m_ScreenMgr->UpdateAllScreens();
     }
 #endif
 
 }
 
+// In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
 void GuiInterface::PopupMsg( const std::string &message )
 {
 #ifdef VSP_USE_FLTK
@@ -128,6 +135,7 @@ void GuiInterface::PopupMsg( const std::string &message )
 
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::Lock()
 {
 #ifdef VSP_USE_FLTK
@@ -135,6 +143,7 @@ void GuiInterface::Lock()
 #endif
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::Unlock()
 {
 #ifdef VSP_USE_FLTK
@@ -157,6 +166,7 @@ void GuiInterface::ScreenGrab( const std::string &fname, int w, int h, bool tran
 #endif
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::SetViewAxis( bool vaxis )
 {
 #ifdef VSP_USE_FLTK
@@ -171,6 +181,7 @@ void GuiInterface::SetViewAxis( bool vaxis )
 #endif
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::SetShowBorders( bool brdr )
 {
 #ifdef VSP_USE_FLTK
@@ -185,6 +196,7 @@ void GuiInterface::SetShowBorders( bool brdr )
 #endif
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::SetBackground( double r, double g, double b )
 {
 #ifdef VSP_USE_FLTK
@@ -199,6 +211,7 @@ void GuiInterface::SetBackground( double r, double g, double b )
 #endif
 }
 
+// In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
 void GuiInterface::EnableReturnToAPI()
 {
 #ifdef VSP_USE_FLTK
@@ -209,6 +222,7 @@ void GuiInterface::EnableReturnToAPI()
 #endif
 }
 
+// In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
 void GuiInterface::DisableReturnToAPI()
 {
 #ifdef VSP_USE_FLTK
@@ -219,6 +233,7 @@ void GuiInterface::DisableReturnToAPI()
 #endif
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::SetGUIElementDisable( int e, bool state )
 {
 #ifdef VSP_USE_FLTK
@@ -229,6 +244,7 @@ void GuiInterface::SetGUIElementDisable( int e, bool state )
 #endif
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::SetGUIScreenDisable( int s, bool state )
 {
 #ifdef VSP_USE_FLTK
@@ -239,6 +255,7 @@ void GuiInterface::SetGUIScreenDisable( int s, bool state )
 #endif
 }
 
+// In a multi-threaded environment, this is safe to run from a secondary thread.
 void GuiInterface::SetGeomScreenDisable( int s, bool state )
 {
 #ifdef VSP_USE_FLTK
