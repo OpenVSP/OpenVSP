@@ -467,11 +467,6 @@ public:
         }
     }
 
-    /*
-    * Reset m_GeomChanged flag in DrawObj to false.
-    */
-    virtual void ResetGeomChangedFlag( bool flag = false );
-
     virtual vec3d CompPnt01(const int &indx, const double &u, const double &w);
     virtual void GetUWTess01( const int &indx, vector < double > &u, vector < double > &w );
 

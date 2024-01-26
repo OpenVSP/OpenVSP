@@ -3655,14 +3655,6 @@ void Geom::ReadV2File( xmlNodePtr &root )
 */
 }
 
-void Geom::ResetGeomChangedFlag( bool flag )
-{
-    for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
-    {
-        m_WireShadeDrawObj_vec[i].m_GeomChanged = flag;
-    }
-}
-
 void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     char str[256];

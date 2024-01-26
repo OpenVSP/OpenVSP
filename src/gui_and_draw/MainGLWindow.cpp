@@ -390,9 +390,10 @@ void VspGlWindow::update()
         // Load Objects to Renderer.
         _update( drawObjs );
 
-        // Once updated data is stored in buffer, 
-        // reset geometry changed flag to false.
-        vPtr->ResetDrawObjsGeomChangedFlags();
+        for( int i = 0; i < (int)drawObjs.size(); i++ )
+        {
+            drawObjs[i]->m_GeomChanged = false;
+        }
     }
 }
 

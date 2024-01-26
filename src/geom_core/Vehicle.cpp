@@ -1469,15 +1469,6 @@ void Vehicle::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-void Vehicle::ResetDrawObjsGeomChangedFlags()
-{
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
-    {
-        geom_vec[i]->ResetGeomChangedFlag();
-    }
-}
-
 void Vehicle::SetSetName( int index, const string& name )
 {
     char str[256];

@@ -111,9 +111,6 @@ public:
 
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    //==== Reset DrawObjs' m_GeomChanged flag to false. ====//
-    void ResetDrawObjsGeomChangedFlags();
-
     //==== Geom Sets ====//
     void SetSetName( int index, const string& name );
     vector< string > GetSetNameVec( bool includeNone = false );
