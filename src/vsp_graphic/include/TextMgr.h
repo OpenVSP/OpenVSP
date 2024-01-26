@@ -27,6 +27,8 @@ public:
     */
     virtual ~TextMgr();
 
+    virtual void clearFont();
+
     /*!
     * Load font from file and return the font object.
     */

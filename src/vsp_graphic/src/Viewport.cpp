@@ -335,6 +335,20 @@ Background * Viewport::getBackground()
     return _background;
 }
 
+void Viewport::clearBackground()
+{
+    if ( _background )
+    {
+        delete _background;
+    }
+    _background = NULL;
+}
+
+void Viewport::clearFont()
+{
+    _textMgr->clearFont();
+}
+
 void Viewport::showBorders( bool showFlag )
 {
     _showBorders = showFlag;

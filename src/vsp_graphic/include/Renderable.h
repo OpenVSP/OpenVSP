@@ -27,6 +27,9 @@ public:
     */
     virtual ~Renderable();
 
+    virtual void init();
+    virtual void clear();
+
 public:
     /*!
     * Push a block of data from memory to the back of Vertex Buffer.

@@ -36,17 +36,25 @@ Scene::~Scene()
     delete _lights;
     delete _clip;
 
+    clearScene();
+}
+
+void Scene::clearScene()
+{
     // Clean Scene Objects.
     for(int i = 0; i < (int)_sceneList.size(); i++)
     {
+        _recycleBin.push_back(_sceneList[i]->getID());
         delete _sceneList[i];
     }
+    _sceneList.clear();
 
     // Clean all selections.
     for(int i = 0; i < (int)_selections.size(); i++)
     {
         delete _selections[i];
     }
+    _selections.clear();
 }
 
 void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)

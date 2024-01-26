@@ -32,6 +32,8 @@ public:
     */
     virtual ~Scene();
 
+    virtual void clearScene();
+
 public:
     /*!
     * Add an object to scene. ( Normal Entity )

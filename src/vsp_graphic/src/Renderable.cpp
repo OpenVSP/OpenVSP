@@ -8,6 +8,15 @@ namespace VSPGraphic
 {
 Renderable::Renderable() : SceneObject()
 {
+    init();
+}
+Renderable::~Renderable()
+{
+    clear();
+}
+
+void Renderable::init()
+{
     _type = Common::VSP_QUADS;
     _style = Common::VSP_DRAW_WIRE_FRAME;
 
@@ -30,7 +39,8 @@ Renderable::Renderable() : SceneObject()
 
     _facingCWFlag = false;
 }
-Renderable::~Renderable()
+
+void Renderable::clear()
 {
     delete _vBuffer;
     delete _lineColorBuffer;

@@ -18,10 +18,17 @@ namespace VSPGraphic
     }
     TextMgr::~TextMgr()
     {
+        clearFont();
+    }
+
+    void TextMgr::clearFont()
+    {
         if( _font )
         {
             glDeleteTextures(1, &(this->texID) );
             delete _font;
+            _font = NULL;
+            texID = 0;
         }
     }
 

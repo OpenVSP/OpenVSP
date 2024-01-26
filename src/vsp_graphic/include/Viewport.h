@@ -76,6 +76,9 @@ public:
     */
     Background * getBackground();
 
+    virtual void clearBackground();
+    virtual void clearFont();
+
 public:
     /*!
     * x
