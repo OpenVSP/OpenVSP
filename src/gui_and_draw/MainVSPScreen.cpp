@@ -795,7 +795,7 @@ void MainVSPScreen::SetBackground( double r, double g, double b )
     }
 }
 
-void MainVSPScreen::ShowReturnToAPI()
+void MainVSPScreen::ShowReturnToAPIImplementation()
 {
     m_ReturnToAPIMenuItem.Show();
 #if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304) // Before this version, update() was private.
@@ -803,7 +803,7 @@ void MainVSPScreen::ShowReturnToAPI()
 #endif
 }
 
-void MainVSPScreen::HideReturnToAPI()
+void MainVSPScreen::HideReturnToAPIImplementation()
 {
     m_ReturnToAPIMenuItem.Hide();
 #if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
@@ -811,7 +811,7 @@ void MainVSPScreen::HideReturnToAPI()
 #endif
 }
 
-void MainVSPScreen::ShowExit()
+void MainVSPScreen::ShowExitImplementation()
 {
     m_ExitMenuItem.Show();
 #if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
@@ -819,10 +819,66 @@ void MainVSPScreen::ShowExit()
 #endif
 }
 
-void MainVSPScreen::HideExit()
+void MainVSPScreen::HideExitImplementation()
 {
     m_ExitMenuItem.Hide();
 #if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
     m_MenuBar->update();
 #endif
+}
+
+void ShowReturnToAPIHandler( void * data )
+{
+    MainVSPScreen * main_scr = (MainVSPScreen*) data;
+    if ( main_scr )
+    {
+        main_scr->ShowReturnToAPIImplementation();
+    }
+}
+
+void HideReturnToAPIHandler( void * data )
+{
+    MainVSPScreen * main_scr = (MainVSPScreen*) data;
+    if ( main_scr )
+    {
+        main_scr->HideReturnToAPIImplementation();
+    }
+}
+
+void ShowExitHandler( void * data )
+{
+    MainVSPScreen * main_scr = (MainVSPScreen*) data;
+    if ( main_scr )
+    {
+        main_scr->ShowExitImplementation();
+    }
+}
+
+void HideExitHandler( void * data )
+{
+    MainVSPScreen * main_scr = (MainVSPScreen*) data;
+    if ( main_scr )
+    {
+        main_scr->HideExitImplementation();
+    }
+}
+
+void MainVSPScreen::ShowReturnToAPI()
+{
+    Fl::awake( ShowReturnToAPIHandler, ( void* )this );
+}
+
+void MainVSPScreen::HideReturnToAPI()
+{
+    Fl::awake( HideReturnToAPIHandler, ( void* )this );
+}
+
+void MainVSPScreen::ShowExit()
+{
+    Fl::awake( ShowExitHandler, ( void* )this );
+}
+
+void MainVSPScreen::HideExit()
+{
+    Fl::awake( HideExitHandler, ( void* )this );
 }

@@ -45,6 +45,11 @@ public:
         return m_GlWin;
     }
 
+    void ShowReturnToAPIImplementation();
+    void HideReturnToAPIImplementation();
+    void ShowExitImplementation();
+    void HideExitImplementation();
+
     void ScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop );
     void SetViewAxis( bool vaxis );
     void SetShowBorders( bool brdr );
