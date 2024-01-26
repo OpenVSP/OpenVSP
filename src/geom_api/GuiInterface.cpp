@@ -209,6 +209,16 @@ void GuiInterface::EnableReturnToAPI()
 #endif
 }
 
+void GuiInterface::DisableReturnToAPI()
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->HideReturnToAPI();
+    }
+#endif
+}
+
 void GuiInterface::SetGUIElementDisable( int e, bool state )
 {
 #ifdef VSP_USE_FLTK

@@ -1698,6 +1698,13 @@ extern void EnableReturnToAPI( )
 #endif
 }
 
+extern void DisableReturnToAPI( )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().DisableReturnToAPI( );
+#endif
+}
+
 extern void HideScreens()
 {
 #ifdef VSP_USE_FLTK

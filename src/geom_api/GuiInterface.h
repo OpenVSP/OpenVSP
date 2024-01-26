@@ -51,6 +51,7 @@ public:
     void SetBackground( double r, double g, double b );
 
     void EnableReturnToAPI();
+    void DisableReturnToAPI();
 
     void SetGUIElementDisable( int e, bool state );
     void SetGUIScreenDisable( int s, bool state );

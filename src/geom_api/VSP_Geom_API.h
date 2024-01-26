@@ -3034,6 +3034,41 @@ extern void EnableReturnToAPI();
     \ingroup Visualization
 */
 /*!
+    Disable Return to API functionality from the OpenVSP GUI.
+
+    This reverses the operation of EnableReturnToAPI.
+
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    DisableExit();
+    EnableReturnToAPI();
+    StartGui();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    DisableExit()
+    EnableReturnToAPI()
+    DisableReturnToAPI()
+    StartGui()
+
+    \endcode
+    \endPythonOnly
+
+    \sa InitGui, EnableReturnToAPI
+*/
+
+extern void DisableReturnToAPI();
+
+/*!
+    \ingroup Visualization
+*/
+/*!
     Stop OpenVSP GUI event loop and close most screens.  Keep OpenVSP running and in memory.
     \forcpponly
     \code{.cpp}
