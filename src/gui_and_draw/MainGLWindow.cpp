@@ -424,6 +424,14 @@ void VspGlWindow::ResetDrawObjsGeomChangedFlags( bool flag )
     ResetDrawObjsGeomChangedFlags( drawObjs, flag );
 }
 
+void VspGlWindow::clearScene()
+{
+    m_GEngine->getScene()->clearScene();
+    m_ids.clear();
+    m_GEngine->getDisplay()->getViewport()->clearBackground();
+    m_GEngine->getDisplay()->getViewport()->clearFont();
+}
+
 void VspGlWindow::_initGLEW()
 {
     if( !m_initialized )

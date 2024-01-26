@@ -136,6 +136,8 @@ public:
 
     virtual void ResetDrawObjsGeomChangedFlags( bool flag = false );
 
+    virtual void clearScene();
+
 // Private helper functions.
 private:
     void _initGLEW();

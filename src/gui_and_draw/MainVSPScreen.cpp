@@ -206,8 +206,6 @@ MainVSPScreen::~MainVSPScreen()
 //==== Show Main VSP Screen ====//
 void MainVSPScreen::Show()
 {
-    m_ScreenMgr->SetUpdateFlag( true );
-
     if ( m_FLTK_Window )
     {
         ActionScreen::Show();
@@ -215,7 +213,7 @@ void MainVSPScreen::Show()
 
     if ( m_GlWin )
     {
-//        m_GlWin->show();
+        m_GlWin->show();
     }
 }
 
@@ -228,9 +226,10 @@ void MainVSPScreen::Hide()
 
     if ( m_GlWin )
     {
-//        m_GlWin->hide();
+        m_GlWin->ResetDrawObjsGeomChangedFlags( true );
+        m_GlWin->clearScene();
+        m_GlWin->hide();
     }
-    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 //==== Update Main VSP Screen ====//
