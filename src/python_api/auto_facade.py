@@ -246,6 +246,8 @@ PORT = 6000
 event = Event()
 global gui_wait
 gui_wait = True
+global gui_active
+gui_active = False
 
 def pack_data(data, is_command_list=False):
     def sub_pack(sub_data):
@@ -320,6 +322,7 @@ def unpack_data(b_data, is_command_list=False):
 
 def start_server():
     import socket
+    global gui_active
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST,PORT))
         socket_open = True
@@ -364,6 +367,7 @@ def start_server():
                             print("Server Socket Thread: The OpenVSP GUI is not running")
                         print("Server Socket Thread: About to call StopGui()")
                         module.StopGui()
+                        gui_active = False
                         print("Server Socket Thread: After StopGui() called")
                         result = 0
                         b_result = pack_data(result)
@@ -376,12 +380,14 @@ def start_server():
                         foo = getattr(module, func_name)
                         try:
                             print("Server Socket Thread: A1 Waiting for Lock")
-                            module.Lock()
-                            print("Server Socket Thread: A2 Lock obtained")
+                            if gui_active:
+                                module.Lock()
+                                print("Server Socket Thread: A2 Lock obtained")
                             result = foo(*args, **kwargs)
                             print("Server Socket Thread: A3 VSP function called")
-                            module.Unlock()
-                            print("Server Socket Thread: A4 Lock released")
+                            if gui_active:
+                                module.Unlock()
+                                print("Server Socket Thread: A4 Lock released")
                         except Exception as e:
                             exc_info = sys.exc_info()
                             result = ["error", ''.join(traceback.format_exception(*exc_info))]
@@ -417,6 +423,7 @@ if __name__ == "__main__":
             if not did_init:
                 module.InitGui()
                 did_init = True
+            gui_active = True
             module.StartGui()
         print("Server GUI Thread: GUI stopped")
         event.clear()
