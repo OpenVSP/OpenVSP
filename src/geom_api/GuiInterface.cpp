@@ -65,7 +65,10 @@ void GuiInterface::StartGuiAPI( )
         m_ScreenMgr->ShowScreen( vsp::VSP_MAIN_SCREEN );
         m_ScreenMgr->APIShowScreens();
         Fl::lock();
-        while( m_ScreenMgr->CheckRunGui() && Fl::wait() );
+        while( m_ScreenMgr->CheckRunGui() )
+        {
+            Fl::wait( 1e20 );
+        }
         Fl::unlock();
     }
 #endif
