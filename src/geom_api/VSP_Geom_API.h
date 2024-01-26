@@ -2941,6 +2941,7 @@ extern void WriteTestResults();
 */
 /*!
     Initialize the GUI so it can be called from the API.  Must be called before other GUI related API calls.
+    In a multi-threaded environment, this must be called from the main thread only.
     \forcpponly
     \code{.cpp}
 
@@ -2967,7 +2968,8 @@ extern void InitGui();
     \ingroup Visualization
 */
 /*!
-    Launch the interactive OpenVSP GUI.
+    Launch the interactive OpenVSP GUI.  In a multi-threaded environment, this must be called from the main thread only.
+    This starts the GUI event loop.
     \forcpponly
     \code{.cpp}
 
@@ -3025,7 +3027,7 @@ extern void InitGui();
     \endcode
     \endPythonOnly
 
-    \sa InitGui
+    \sa InitGui, DisableReturnToAPI
 */
 
 extern void EnableReturnToAPI();
@@ -3069,7 +3071,7 @@ extern void DisableReturnToAPI();
     \ingroup Visualization
 */
 /*!
-    Stop OpenVSP GUI event loop and close most screens.  Keep OpenVSP running and in memory.
+    Stop OpenVSP GUI event loop.  Keep OpenVSP running and in memory.
     \forcpponly
     \code{.cpp}
 
@@ -3100,7 +3102,73 @@ extern void DisableReturnToAPI();
 
 extern void StopGui();
 
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Hide OpenVSP screens.  Keep OpenVSP event loop running and in memory.
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    StartGui();
+
+    HideScreens();
+
+    ShowScreens();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    StartGui()
+
+    HideScreens()
+
+    ShowScreens()
+
+    \endcode
+    \endPythonOnly
+
+    \sa InitGui, StartGui, ShowScreens
+*/
+
 extern void HideScreens();
+
+/*!
+    \ingroup Visualization
+*/
+/*!
+    Show OpenVSP screens.  Event loop must be running.
+    \forcpponly
+    \code{.cpp}
+
+    InitGui();
+    StartGui();
+
+    HideScreens();
+
+    ShowScreens();
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+
+    InitGui()
+    StartGui()
+
+    HideScreens()
+
+    ShowScreens()
+
+    \endcode
+    \endPythonOnly
+
+    \sa InitGui, StartGui, HideScreens
+*/
 
 extern void ShowScreens();
 
