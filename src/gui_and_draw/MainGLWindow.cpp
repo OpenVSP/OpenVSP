@@ -408,6 +408,22 @@ void VspGlWindow::LoadAllDrawObjs( vector< DrawObj* > & drawObjs )
     }
 }
 
+void VspGlWindow::ResetDrawObjsGeomChangedFlags( vector< DrawObj* > & drawObjs, bool flag )
+{
+    for( int i = 0; i < (int)drawObjs.size(); i++ )
+    {
+        drawObjs[i]->m_GeomChanged = flag;
+    }
+}
+
+void VspGlWindow::ResetDrawObjsGeomChangedFlags( bool flag )
+{
+    vector<DrawObj *> drawObjs;
+    LoadAllDrawObjs( drawObjs );
+
+    ResetDrawObjsGeomChangedFlags( drawObjs, flag );
+}
+
 void VspGlWindow::_initGLEW()
 {
     if( !m_initialized )

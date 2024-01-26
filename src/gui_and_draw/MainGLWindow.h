@@ -132,6 +132,10 @@ public:
 
     virtual void LoadAllDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    virtual void ResetDrawObjsGeomChangedFlags( vector< DrawObj* > & drawObjs, bool flag = false );
+
+    virtual void ResetDrawObjsGeomChangedFlags( bool flag = false );
+
 // Private helper functions.
 private:
     void _initGLEW();
