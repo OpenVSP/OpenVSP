@@ -2898,6 +2898,41 @@ extern void PrintResults( const std::string &results_id );
 
 extern void PrintResultsDocs( const std::string &results_id );
 
+/*!
+    \ingroup Results
+*/
+/*!
+    Generate some example results for testing.
+    \forcpponly
+    \code{.cpp}
+    //==== Write Some Fake Test Results =====//
+    WriteTestResults();
+
+    array< string > @results_array = GetAllResultsNames();
+
+    for ( int i = 0; i < int( results_array.size() ); i++ )
+    {
+        string resid = FindLatestResultsID( results_array[i] );
+        PrintResults( resid );
+    }
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    #==== Write Some Fake Test Results =====//
+    WriteTestResults()
+
+    array< string > @results_array = GetAllResultsNames()
+
+    for ( i = 0; i < int( results_array.size() ); i++ )
+        string resid = FindLatestResultsID( results_array[i] )
+        PrintResults( resid )
+
+    \endcode
+    \endPythonOnly
+*/
+
+extern void WriteTestResults();
 
 //======================== GUI Functions ================================//
 

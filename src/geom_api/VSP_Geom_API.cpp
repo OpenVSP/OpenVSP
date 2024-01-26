@@ -1643,6 +1643,11 @@ void PrintResultsDocs( const std::string &results_id )
     ResultsMgr.PrintResultsDocs( results_id );
 }
 
+void WriteTestResults()
+{
+    ResultsMgr.WriteTestResults();
+}
+
 //===================================================================//
 //===============        GUI Functions            ===================//
 //===================================================================//
