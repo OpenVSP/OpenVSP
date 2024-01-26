@@ -991,11 +991,13 @@ void FitModelMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     m_TargetPntDrawObj.m_Type = DrawObj::VSP_POINTS;
     m_TargetPntDrawObj.m_PointSize = 8.0;
     m_TargetPntDrawObj.m_PointColor = vec3d ( 0.0, 0.0, 0.0 );
+    m_TargetPntDrawObj.m_GeomChanged = true;
 
     m_TargetLineDrawObj.m_GeomID = "IDFORTARGETLINEDO";
     m_TargetLineDrawObj.m_Type = DrawObj::VSP_LINES;
     m_TargetLineDrawObj.m_LineWidth = 1.0;
     m_TargetLineDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+    m_TargetLineDrawObj.m_GeomChanged = true;
 
     ValidateTargetPts();
 

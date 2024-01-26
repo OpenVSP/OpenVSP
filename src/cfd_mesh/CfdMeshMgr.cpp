@@ -3289,6 +3289,9 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
 
         snprintf( str, sizeof( str ), "%s_QREASON_%d", GetID().c_str(), i + num_reason );
         m_ReasonDO[ i + num_reason ].m_GeomID = string( str );
+
+        m_ReasonDO[i].m_GeomChanged = true;
+        m_ReasonDO[ i + num_reason ].m_GeomChanged = true;
     }
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
@@ -3349,6 +3352,9 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
         tag_quad_dobj_map[ mit->second ] = &m_TagDO[cnt + num_tags];
         snprintf( str, sizeof( str ), "%s_QTAG_%d", GetID().c_str(), cnt + num_tags );
         m_TagDO[cnt + num_tags].m_GeomID = string( str );
+
+        m_TagDO[cnt].m_GeomChanged = true;
+        m_TagDO[cnt + num_tags].m_GeomChanged = true;
 
         cnt++;
     }
@@ -3446,6 +3452,7 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
         badEdgeData.push_back( ( *e )->n1->pnt );
     }
     m_MeshBadEdgeDO.m_PntVec = badEdgeData;
+    m_MeshBadEdgeDO.m_GeomChanged = true;
     // Normal Vec is not required, load placeholder.
     m_MeshBadEdgeDO.m_NormVec = badEdgeData;
 
@@ -3476,6 +3483,8 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
     }
     m_MeshBadTriDO.m_PntVec = badTriData;
     m_MeshBadQuadDO.m_PntVec = badQuadData;
+    m_MeshBadTriDO.m_GeomChanged = true;
+    m_MeshBadQuadDO.m_GeomChanged = true;
     // Normal Vec is not required, load placeholder.
     m_MeshBadTriDO.m_NormVec = badTriData;
     m_MeshBadQuadDO.m_NormVec = badQuadData;

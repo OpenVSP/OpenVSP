@@ -454,6 +454,7 @@ void HingeGeom::UpdateDrawObj()
     m_HighlightDrawObj.m_PntVec.resize(1);
     m_HighlightDrawObj.m_PntVec[0] = baseOrigin;
     m_HighlightDrawObj.m_PointSize = 10.0;
+    m_HighlightDrawObj.m_GeomChanged = true;
 
     m_FeatureDrawObj_vec.clear();
     m_FeatureDrawObj_vec.resize( 6 );

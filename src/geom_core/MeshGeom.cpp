@@ -1443,6 +1443,7 @@ void MeshGeom::UpdateDrawObj()
 
     //==== Bounding Box ====//
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+    m_HighlightDrawObj.m_GeomChanged = true;
 
     if ( m_ViewSliceFlag.Get() )
     {
@@ -1502,6 +1503,7 @@ void MeshGeom::UpdateDrawObj()
         m_FeatureDrawObj_vec[i].m_PntVec.resize( m_PolyVec[i].size() );
         m_FeatureDrawObj_vec[i].m_LineWidth = 5;
         m_FeatureDrawObj_vec[i].m_LineColor = rgb;
+        m_FeatureDrawObj_vec[i].m_GeomChanged = true;
 
         for ( int j = 0; j < m_PolyVec[i].size(); j++ )
         {

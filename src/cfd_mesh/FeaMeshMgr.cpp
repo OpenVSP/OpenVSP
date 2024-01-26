@@ -3300,6 +3300,8 @@ void FeaMeshMgrSingleton::ModifyConnDO( FeaConnection* conn, vector < DrawObj* >
                 {
                     connDO[ 0 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ];
                     connDO[ 1 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ];
+                    connDO[ 0 ]->m_GeomChanged = true;
+                    connDO[ 1 ]->m_GeomChanged = true;
                 }
             }
         }
@@ -3319,6 +3321,8 @@ void FeaMeshMgrSingleton::ModifyConnDO( FeaConnection* conn, vector < DrawObj* >
                 {
                     connDO[0]->m_PntVec[1] = fxpt->m_Pnt[ indx ];
                     connDO[1]->m_PntVec[1] = fxpt->m_Pnt[ indx ];
+                    connDO[ 0 ]->m_GeomChanged = true;
+                    connDO[ 1 ]->m_GeomChanged = true;
                 }
             }
         }

@@ -2445,6 +2445,7 @@ void WingGeom::UpdateHighlightDrawObj()
     oBBox.Update( iBBox );
 
     m_HighlightWingSecDrawObj.m_PntVec = oBBox.GetBBoxDrawLines();
+    m_HighlightWingSecDrawObj.m_GeomChanged = true;
 }
 
 void WingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )

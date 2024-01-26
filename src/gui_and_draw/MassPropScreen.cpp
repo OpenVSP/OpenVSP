@@ -122,6 +122,7 @@ bool MassPropScreen::Update()
     {
         m_CGDrawObj.m_Visible = false;
     }
+    m_CGDrawObj.m_GeomChanged = true;
 
     char str[255];
     char format[10] = " %6.3f";

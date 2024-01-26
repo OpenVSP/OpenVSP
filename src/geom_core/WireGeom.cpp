@@ -483,6 +483,7 @@ void WireGeom::UpdateDrawObj()
     m_WireShadeDrawObj_vec[0].m_vTexMesh[0].insert( m_WireShadeDrawObj_vec[0].m_vTexMesh[0].end(), dum.begin(), dum.end() );
 
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+    m_HighlightDrawObj.m_GeomChanged = true;
 
     //=== Axis ===//
     m_AxisDrawObj_vec.clear();

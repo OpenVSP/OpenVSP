@@ -999,6 +999,7 @@ void HumanGeom::UpdateDrawObj()
 
     //==== Bounding Box ====//
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+    m_HighlightDrawObj.m_GeomChanged = true;
 
 
     // Flag the DrawObjects as changed

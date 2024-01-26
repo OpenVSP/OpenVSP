@@ -182,6 +182,11 @@ void FeaMesh::UpdateDrawObjs()
         snprintf( str, sizeof( str ), "%s_Cap_Element_Tag_%d", GetID().c_str(), iprt );
         m_CapFeaElementDO[iprt].m_GeomID = string( str );
 
+        m_FeaNodeDO[iprt].m_GeomChanged = true;
+        m_FeaTriElementDO[iprt].m_GeomChanged = true;
+        m_FeaQuadElementDO[iprt].m_GeomChanged = true;
+        m_CapFeaElementDO[iprt].m_GeomChanged = true;
+
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
             if ( m_FeaNodeVecUsed[ j ] )
@@ -281,12 +286,14 @@ void FeaMesh::UpdateDrawObjs()
         m_ElOrientationDO[iprt].m_Type = DrawObj::VSP_LINES;
         m_ElOrientationDO[iprt].m_LineWidth = 1.0;
         m_ElOrientationDO[iprt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+        m_ElOrientationDO[iprt].m_GeomChanged = true;
 
         snprintf( str, sizeof( str ), "%s_Cap_Norm_%d", GetID().c_str(), iprt );
         m_CapNormDO[iprt].m_GeomID = string( str );
         m_CapNormDO[iprt].m_Type = DrawObj::VSP_LINES;
         m_CapNormDO[iprt].m_LineWidth = 1.0;
         m_CapNormDO[iprt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+        m_CapNormDO[iprt].m_GeomChanged = true;
 
         vector < vec3d > el_orient_pnt_vec, cap_norm_pnt_vec;
 
@@ -358,6 +365,11 @@ void FeaMesh::UpdateDrawObjs()
         m_SSQuadElementDO[iss].m_GeomID = string( str );
         snprintf( str, sizeof( str ), "%s_SSCap_Element_Tag_%d", GetID().c_str(), iss );
         m_SSCapFeaElementDO[iss].m_GeomID = string( str );
+
+        m_SSFeaNodeDO[iss].m_GeomChanged = true;
+        m_SSTriElementDO[iss].m_GeomChanged = true;
+        m_SSQuadElementDO[iss].m_GeomChanged = true;
+        m_SSCapFeaElementDO[iss].m_GeomChanged = true;
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
@@ -438,12 +450,14 @@ void FeaMesh::UpdateDrawObjs()
         m_SSElOrientationDO[iss].m_Type = DrawObj::VSP_LINES;
         m_SSElOrientationDO[iss].m_LineWidth = 1.0;
         m_SSElOrientationDO[iss].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+        m_SSElOrientationDO[iss].m_GeomChanged = true;
 
         snprintf( str, sizeof( str ), "%s_SSCap_Norm_%u", GetID().c_str(), iss );
         m_SSCapNormDO[iss].m_GeomID = string( str );
         m_SSCapNormDO[iss].m_Type = DrawObj::VSP_LINES;
         m_SSCapNormDO[iss].m_LineWidth = 1.0;
         m_SSCapNormDO[iss].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+        m_SSCapNormDO[iss].m_GeomChanged = true;
 
         vector < vec3d > ss_el_orient_pnt_vec, ss_cap_norm_pnt_vec;
 

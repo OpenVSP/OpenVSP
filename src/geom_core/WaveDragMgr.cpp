@@ -151,6 +151,9 @@ void WaveDragSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_ShadeMeshViewPlane.m_NormVec.clear();
     m_ViewPlaneLine.m_PntVec.clear();
 
+    m_ShadeMeshViewPlane.m_GeomChanged = true;
+    m_ViewPlaneLine.m_GeomChanged = true;
+
     // Get bounding box size for cutting plane visualizer dimensions
     veh->UpdateBBox();
     BndBox BBox;

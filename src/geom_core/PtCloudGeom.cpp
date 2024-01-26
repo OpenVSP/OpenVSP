@@ -50,6 +50,7 @@ void PtCloudGeom::UpdateDrawObj()
     m_PickDrawObj.m_PointSize = 4.0;
 
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+    m_HighlightDrawObj.m_GeomChanged = true;
 
     Matrix4d transMat = GetTotalTransMat();
     m_XformPts.resize( m_Pts.size() );
@@ -79,6 +80,10 @@ void PtCloudGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
     m_ShownIndx.clear();
     m_PtsDrawObj.m_PntVec.clear();
     m_SelDrawObj.m_PntVec.clear();
+
+    m_PtsDrawObj.m_GeomChanged = true;
+    m_SelDrawObj.m_GeomChanged = true;
+    m_PickDrawObj.m_GeomChanged = true;
 
     if ( FitModelMgr.IsGUIShown() )
     {

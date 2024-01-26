@@ -316,6 +316,7 @@ void WakeMgrSingleton::UpdateDrawObjs()
     m_WakeDO.m_Type = DrawObj::VSP_LINES;
     m_WakeDO.m_LineColor = vec3d( 1, 204.0 / 255, 51.0 / 255 );
     m_WakeDO.m_PntVec = wakeData;
+    m_WakeDO.m_GeomChanged = true;
 }
 
 void WakeMgrSingleton::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
@@ -3302,6 +3303,15 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
     m_RawBorderCurveDO.m_NormVec = m_RawBorderCurveDO.m_PntVec;
     m_RawBorderPtsDO.m_NormVec = m_RawBorderPtsDO.m_PntVec;
 
+    m_IsectCurveDO.m_GeomChanged = true;
+    m_IsectPtsDO.m_GeomChanged = true;
+    m_BorderCurveDO.m_GeomChanged = true;
+    m_BorderPtsDO.m_GeomChanged = true;
+
+    m_RawIsectCurveDO.m_GeomChanged = true;
+    m_RawIsectPtsDO.m_GeomChanged = true;
+    m_RawBorderCurveDO.m_GeomChanged = true;
+    m_RawBorderPtsDO.m_GeomChanged = true;
 
     //=====  Visualizatino tools for SurfaceINtersectionMgr debugging =====//
     if ( false ) // Set to true to turn visualization tools ON
@@ -3324,12 +3334,14 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
         m_ApproxPlanesDO.m_LineColor = vec3d( .2, .2, .2 );
         m_ApproxPlanesDO.m_LineWidth = 1.0;
         m_ApproxPlanesDO.m_NormVec = m_ApproxPlanesDO.m_PntVec;
+        m_ApproxPlanesDO.m_GeomChanged = true;
 
         m_DelPtsDO.m_GeomID = GetID() + "m_DelPtsDO";
         m_DelPtsDO.m_Type = DrawObj::VSP_POINTS;
         m_DelPtsDO.m_PointColor = vec3d( .2, .4, .6 );
         m_DelPtsDO.m_PointSize = 10.0;
         m_DelPtsDO.m_PntVec.clear();
+        m_DelPtsDO.m_GeomChanged = true;
 
         for ( int indx = 0; indx < m_DelIPntVec.size(); indx++ )
         {
@@ -3347,6 +3359,7 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
                 m_IPatchADO[i].m_LineColor = vec3d( .4, .5, .6 );
                 m_IPatchADO[i].m_LineWidth = 1.5;
                 m_IPatchADO[i].m_PntVec.clear();
+                m_IPatchADO[i].m_GeomChanged = true;
 
                 m_IPatchADO[i].m_Type = m_IPatchBDO[i].VSP_LINES;
 
@@ -3365,6 +3378,7 @@ void SurfaceIntersectionSingleton::UpdateDrawObjs()
                 m_IPatchBDO[i].m_LineColor = vec3d( .7, .8, .9 );
                 m_IPatchBDO[i].m_LineWidth = 1.5;
                 m_IPatchBDO[i].m_PntVec.clear();
+                m_IPatchBDO[i].m_GeomChanged = true;
 
                 m_IPatchBDO[i].m_Type = m_IPatchBDO[i].VSP_LINES;
 

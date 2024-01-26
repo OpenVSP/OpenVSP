@@ -70,6 +70,7 @@ void BlankGeom::UpdateDrawObj()
 
     m_HighlightDrawObj.m_PntVec.clear();
     m_HighlightDrawObj.m_PointSize = 10.0;
+    m_HighlightDrawObj.m_GeomChanged = true;
 
     m_PtMassCGDrawObj.m_PntVec.clear();
     m_PtMassCGDrawObj.m_GeomChanged = true;

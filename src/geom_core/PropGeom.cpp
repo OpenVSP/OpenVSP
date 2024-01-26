@@ -532,6 +532,9 @@ void PropGeom::UpdateDrawObj()
     m_ArrowLinesDO.m_PntVec.clear();
     m_ArrowHeadDO.m_PntVec.clear();
 
+    m_ArrowLinesDO.m_GeomChanged = true;
+    m_ArrowHeadDO.m_GeomChanged = true;
+
     double axlen = 1.0;
 
     Vehicle *veh = VehicleMgr.GetVehicle();

@@ -412,6 +412,7 @@ void PointSimpleSource::Update( Geom* geomPtr )
 void PointSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     m_PointDO.m_PntVec = CreateSphere( m_Rad, m_Loc );
+    m_PointDO.m_GeomChanged = true;
     draw_obj_vec.push_back( &m_PointDO );
 }
 
@@ -614,6 +615,10 @@ void LineSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     lines.push_back( vec3d( m_Pnt2[0] - m_Rad2, m_Pnt2[1], m_Pnt2[2] ) );
     m_LineDO3.m_PntVec = lines;
 
+    m_LineDO1.m_GeomChanged = true;
+    m_LineDO2.m_GeomChanged = true;
+    m_LineDO3.m_GeomChanged = true;
+
     draw_obj_vec.push_back( &m_LineDO1 );
     draw_obj_vec.push_back( &m_LineDO2 );
     draw_obj_vec.push_back( &m_LineDO3 );
@@ -797,12 +802,14 @@ void BoxSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     loop1.push_back( m_Box.GetCornerPnt( 3 ) );
     loop1.push_back( m_Box.GetCornerPnt( 2 ) );
     m_BoxDO1.m_PntVec = loop1;
+    m_BoxDO1.m_GeomChanged = true;
 
     loop2.push_back( m_Box.GetCornerPnt( 4 ) );
     loop2.push_back( m_Box.GetCornerPnt( 5 ) );
     loop2.push_back( m_Box.GetCornerPnt( 7 ) );
     loop2.push_back( m_Box.GetCornerPnt( 6 ) );
     m_BoxDO2.m_PntVec = loop2;
+    m_BoxDO2.m_GeomChanged = true;
 
     lines.push_back( m_Box.GetCornerPnt( 0 ) );
     lines.push_back( m_Box.GetCornerPnt( 4 ) );
@@ -813,6 +820,7 @@ void BoxSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     lines.push_back( m_Box.GetCornerPnt( 2 ) );
     lines.push_back( m_Box.GetCornerPnt( 6 ) );
     m_BoxDO3.m_PntVec = lines;
+    m_BoxDO3.m_GeomChanged = true;
 
     draw_obj_vec.push_back( &m_BoxDO1 );
     draw_obj_vec.push_back( &m_BoxDO2 );
@@ -1040,6 +1048,9 @@ void ConstLineSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
 
     m_LinesDO.m_PntVec = m_Pts;
+
+    m_LinesDO.m_GeomChanged = true;
+    m_SpheresDO.m_GeomChanged = true;
 
     draw_obj_vec.push_back( &m_SpheresDO );
     draw_obj_vec.push_back( &m_LinesDO );

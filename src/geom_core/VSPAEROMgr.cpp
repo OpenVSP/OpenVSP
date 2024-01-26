@@ -3617,6 +3617,7 @@ void VSPAEROMgrSingleton::UpdateBBox( vector < DrawObj* > & draw_obj_vec )
     m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
 
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+    m_HighlightDrawObj.m_GeomChanged = true;
 
     draw_obj_vec.push_back( &m_HighlightDrawObj );
 }
@@ -4705,6 +4706,7 @@ void VSPAEROMgrSingleton::HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_
     m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
 
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+    m_HighlightDrawObj.m_GeomChanged = true;
 
     draw_obj_vec.push_back( &m_HighlightDrawObj );
 }

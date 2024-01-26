@@ -193,6 +193,7 @@ void SubSurface::UpdateDrawObjs()
                 m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.end(), pts.begin(), pts.end());
                 m_SubSurfHighlightDO[ind].m_Type = DrawObj::VSP_LINES;
                 m_SubSurfHighlightDO[ind].m_LineWidth = 5.0;
+                m_SubSurfHighlightDO[ind].m_GeomChanged = true;
                 ++ind;
             }
         }
