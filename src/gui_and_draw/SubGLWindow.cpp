@@ -83,7 +83,9 @@ void VspSubGlWindow::update()
     {
         if( this->context_valid() )
         {
-            _update( vPtr->GetDrawObjs() );
+            vector<DrawObj*> drawObjs;
+            vPtr->LoadDrawObjs( drawObjs );
+            _update( drawObjs );
         }
     }
 }

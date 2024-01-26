@@ -277,7 +277,7 @@ void VspGlWindow::update()
         }
 
         // Get Render Objects from Vehicle.
-        vector<DrawObj *> drawObjs = vPtr->GetDrawObjs();
+        vPtr->LoadDrawObjs( drawObjs );
 
         // Load Render Objects from fitModelScreen.
         FitModelScreen * fitModelScreen = dynamic_cast< FitModelScreen* >
@@ -2597,7 +2597,8 @@ void EditXSecWindow::update()
         make_current();
 
         // Get Render Objects from Vehicle.
-        vector<DrawObj*> drawObjs = vPtr->GetDrawObjs();
+        vector<DrawObj*> drawObjs;
+        vPtr->LoadDrawObjs( drawObjs );
 
         // Load Render Objects for Curve Edit Screen
         CurveEditScreen* curve_editor = dynamic_cast <CurveEditScreen*>

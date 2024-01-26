@@ -1459,18 +1459,14 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
 }
 
 //==== Get Draw Objects ====//
-vector< DrawObj* > Vehicle::GetDrawObjs()
+void Vehicle::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    vector< DrawObj* > draw_obj_vec;
-
     //==== Traverse All Active Displayed Geom and Load DrawObjs ====//
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         geom_vec[i]->LoadDrawObjs( draw_obj_vec );
     }
-
-    return draw_obj_vec;
 }
 
 void Vehicle::ResetDrawObjsGeomChangedFlags()

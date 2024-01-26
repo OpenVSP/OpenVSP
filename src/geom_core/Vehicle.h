@@ -109,7 +109,7 @@ public:
     vector< string > PasteClipboard();
     vector< string > CopyGeomVec( const vector<string> & geom_vec );
 
-    vector< DrawObj* > GetDrawObjs();
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     //==== Reset DrawObjs' m_GeomChanged flag to false. ====//
     void ResetDrawObjsGeomChangedFlags();
