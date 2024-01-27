@@ -195,9 +195,9 @@ class DemoFrame(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.on_stop_gui, stop_gui)
         button_buffer_box.Add(stop_gui)
 
-        # screenshot = wx.Button(button_buffer, wx.ID_ANY, u"Take Screenshot", wx.DefaultPosition, wx.DefaultSize, 0)
-        # self.Bind(wx.EVT_BUTTON, self.on_screenshot, screenshot)
-        # button_buffer_box.Add(screenshot)
+        screenshot = wx.Button(button_buffer, wx.ID_ANY, u"Take Screenshot", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_screenshot, screenshot)
+        button_buffer_box.Add(screenshot)
 
         self.update_count = wx.StaticText(button_buffer, wx.ID_ANY, '0')
         self.update_count.SetFont(wx.Font(20,wx.FONTFAMILY_DEFAULT,wx.FONTSTYLE_NORMAL,wx.FONTWEIGHT_NORMAL))
@@ -278,7 +278,7 @@ class DemoFrame(wx.Frame):
         print("PyVSP, VSP GUI Closed")
 
     def on_screenshot(self, event):
-        vsp.ScreenGrab(r'C:\work\gmdao\test_app_server\test.png',400,400,False)
+        vsp.ScreenGrab(r'test.png',400,400,True,True)
 
     def on_load_model(self, event):
         """
