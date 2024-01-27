@@ -156,12 +156,7 @@ void GuiInterface::ScreenGrab( const std::string &fname, int w, int h, bool tran
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        m_ScreenMgr->ForceUpdate();
-        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( vsp::VSP_MAIN_SCREEN ) );
-        if( main )
-        {
-            main->ScreenGrab( fname, w, h, transparentBG, autocrop );
-        }
+        m_ScreenMgr->APIScreenGrab( fname, w, h, transparentBG, autocrop );
     }
 #endif
 }

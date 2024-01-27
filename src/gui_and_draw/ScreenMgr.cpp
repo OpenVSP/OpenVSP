@@ -378,6 +378,41 @@ void ScreenMgr::APIShowScreens()
     Fl::awake( APIShowScreenHandler, ( void* )this );
 }
 
+void ScreenMgr::APIScreenGrabImplementation( const string & fname, int w, int h, bool transparentBG, bool autocrop )
+{
+    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ScreenGrab( fname, w, h, transparentBG, autocrop );
+}
+
+struct ScreenGrabStruct {
+    string m_fname;
+    int m_w;
+    int m_h;
+    bool m_TransparentBG;
+    bool m_AutoCrop;
+    ScreenMgr * m_ScrMgr;
+};
+
+void APIScreenGrabHandler( void * data )
+{
+    ScreenGrabStruct * sg = ( ScreenGrabStruct * ) data;
+    // scmgr->ForceUpdate();
+    sg->m_ScrMgr->APIScreenGrabImplementation( sg->m_fname, sg->m_w, sg->m_h, sg->m_TransparentBG, sg->m_AutoCrop );
+    delete sg;
+}
+
+void ScreenMgr::APIScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop )
+{
+    ScreenGrabStruct *sg = new ScreenGrabStruct;
+    sg->m_fname = fname;
+    sg->m_w = w;
+    sg->m_h = h;
+    sg->m_TransparentBG = transparentBG;
+    sg->m_AutoCrop = autocrop;
+    sg->m_ScrMgr = this;
+
+    Fl::awake( APIScreenGrabHandler, sg );
+}
+
 bool ScreenMgr::IsGUIElementDisabled( int e ) const
 {
     if ( e >= 0 && e < m_DisabledGUIElements.size() )

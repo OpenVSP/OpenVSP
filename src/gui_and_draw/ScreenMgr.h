@@ -71,6 +71,9 @@ public:
     void APIHideScreens();
     void APIShowScreens();
 
+    void APIScreenGrabImplementation( const string & fname, int w, int h, bool transparentBG, bool autocrop );
+    void APIScreenGrab( const string & fname, int w, int h, bool transparentBG, bool autocrop );
+
     bool IsGUIElementDisabled( int e ) const;
     void SetGUIElementDisable( int e, bool state );
     bool IsGUIScreenDisabled( int s ) const;
