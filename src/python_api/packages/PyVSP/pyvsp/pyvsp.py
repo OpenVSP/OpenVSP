@@ -278,7 +278,31 @@ class DemoFrame(wx.Frame):
         print("PyVSP, VSP GUI Closed")
 
     def on_screenshot(self, event):
-        vsp.ScreenGrab(r'test.png',400,400,True,True)
+        """
+        Prompts user for save locaiton, then takes a screenshot
+        It uses a default width/height of 400
+        It uses a default trasperency flag of False
+
+        Parameters
+        ----------
+        event : wx.Event
+            the button event
+        """
+        print("screenshot button clicked")
+        dlg = wx.FileDialog(self,
+                    message="Save screenshot as...",
+                    defaultFile="openvsp_screenshot.png",
+                    wildcard="PNG (*.png)|*.png;",
+                    style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
+        result = dlg.ShowModal()
+        png_path = ""
+        if result == wx.ID_OK:
+            png_path = dlg.GetPath()
+        else:
+            return
+        dlg.Destroy()
+        if png_path != "":
+            vsp.ScreenGrab(png_path, 400, 400, False)
 
     def on_load_model(self, event):
         """
