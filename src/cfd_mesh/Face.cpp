@@ -417,6 +417,11 @@ Face* Edge::OtherFace( Face* f )
 
 Node* Edge::OtherNode( Node* n )
 {
+    if ( !n || !n0 || !n1 )
+    {
+        return NULL;
+    }
+
     if ( n == n0 )
     {
         return n1;
@@ -536,29 +541,38 @@ void Face::SetNodesEdges( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0,
 
 Edge* Face::FindEdge( Node* nn0, Node* nn1 )
 {
-    if ( e0->n0 == nn0 && e0->n1 == nn1 )
+    if ( e0 )
     {
-        return e0;
+        if ( e0->n0 == nn0 && e0->n1 == nn1 )
+        {
+            return e0;
+        }
+        if ( e0->n0 == nn1 && e0->n1 == nn0 )
+        {
+            return e0;
+        }
     }
-    if ( e0->n0 == nn1 && e0->n1 == nn0 )
+    if ( e1 )
     {
-        return e0;
+        if ( e1->n0 == nn0 && e1->n1 == nn1 )
+        {
+            return e1;
+        }
+        if ( e1->n0 == nn1 && e1->n1 == nn0 )
+        {
+            return e1;
+        }
     }
-    if ( e1->n0 == nn0 && e1->n1 == nn1 )
+    if ( e2 )
     {
-        return e1;
-    }
-    if ( e1->n0 == nn1 && e1->n1 == nn0 )
-    {
-        return e1;
-    }
-    if ( e2->n0 == nn0 && e2->n1 == nn1 )
-    {
-        return e2;
-    }
-    if ( e2->n0 == nn1 && e2->n1 == nn0 )
-    {
-        return e2;
+        if ( e2->n0 == nn0 && e2->n1 == nn1 )
+        {
+            return e2;
+        }
+        if ( e2->n0 == nn1 && e2->n1 == nn0 )
+        {
+            return e2;
+        }
     }
     if ( e3 )
     {
@@ -831,7 +845,14 @@ Node* Face::OtherNodeTri( Node* a, Node* b )
         // Force error in Address Sanitizer
         int *p = NULL;
         *p = 1;
+        return NULL;
     }
+
+    if ( !a || !b || !n0 || !n1 || !n2 )
+    {
+        return NULL;
+    }
+
     return (Node *) ((uintptr_t) n0 ^ (uintptr_t) n1 ^ (uintptr_t) n2 ^ (uintptr_t) a ^ (uintptr_t) b);
 }
 
