@@ -497,9 +497,12 @@ int Mesh::RemoveRevFaces()
         {
             Edge* e = ( *f )->FindShortEdge();
 
-            remEdges.push_back( e );
+            if ( e )
+            {
+                remEdges.push_back( e );
 
-            badcount++;
+                badcount++;
+            }
         }
     }
 

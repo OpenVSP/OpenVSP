@@ -606,6 +606,11 @@ Edge* Face::FindShortEdge()
         return NULL;
     }
 
+    if ( !e0->n0 || !e1->n0 || !e2->n0 || !e0->n1 || !e1->n1 || !e2->n1 )
+    {
+        return NULL;
+    }
+
     double dsqr0 = dist_squared( e0->n0->pnt, e0->n1->pnt );
     double dsqr1 = dist_squared( e1->n0->pnt, e1->n1->pnt );
     double dsqr2 = dist_squared( e2->n0->pnt, e2->n1->pnt );
@@ -626,10 +631,13 @@ Edge* Face::FindShortEdge()
 
     if ( e3 )
     {
-        double dsqr3 = dist_squared( e3->n0->pnt, e3->n1->pnt );
-        if ( dsqr3 < dsqr0 )
+        if ( e3->n0 && e3->n1 )
         {
-            e = e3;
+            double dsqr3 = dist_squared( e3->n0->pnt, e3->n1->pnt );
+            if ( dsqr3 < dsqr0 )
+            {
+                e = e3;
+            }
         }
     }
 
