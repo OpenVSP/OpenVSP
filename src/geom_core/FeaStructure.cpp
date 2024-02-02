@@ -1252,14 +1252,10 @@ void FeaPart::UpdateSymmParts()
 
     m_FeaPartSurfVec.resize( nsurf * nsymm );
 
-    // Surface vector -- used for checking flipnormal.  Seems wasteful, but it works.
-    vector< VspSurf > surf_vec;
-    surf_vec = currgeom->GetSurfVecConstRef();
-
     // Translation matrices for all Geom's surfaces.
     vector<Matrix4d> transMats = currgeom->GetFeaTransMatVec();
 
-    bool flipnormal = surf_vec[ m_MainSurfIndx ].GetFlipNormal();
+    bool flipnormal = currgeom->GetFlipNormal( m_MainSurfIndx );
 
     for ( size_t i = 0; i < nsurf; i++ )
     {
@@ -1276,7 +1272,7 @@ void FeaPart::UpdateSymmParts()
         {
             m_FeaPartSurfVec[ nsurf * j + i ] = m_FeaPartSurfVec[ i ]; // Copy from base set.
 
-            flipnormal = surf_vec[ m_SymmIndexVec[j] ].GetFlipNormal();
+            flipnormal = currgeom->GetFlipNormal( m_SymmIndexVec[j] );
             if ( m_FeaPartSurfVec[ nsurf * j + i ].GetFlipNormal() != flipnormal ) // Make sure symmetric copies oriented right.
             {
                 m_FeaPartSurfVec[ nsurf * j + i ].FlipNormal();
