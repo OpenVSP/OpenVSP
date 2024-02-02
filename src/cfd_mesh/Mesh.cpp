@@ -595,13 +595,23 @@ Edge* Mesh::AddEdge( Node* n0, Node* n1 )
 
 void Mesh::RemoveEdge( Edge* eptr )
 {
-    eptr->n0->RemoveConnectEdge( eptr );
-    eptr->n1->RemoveConnectEdge( eptr );
+    if ( eptr && !eptr->m_DeleteMeFlag )
+    {
+        if ( eptr->n0 )
+        {
+            eptr->n0->RemoveConnectEdge( eptr );
+        }
+        if ( eptr->n1 )
+        {
+            eptr->n1->RemoveConnectEdge( eptr );
+        }
 
-    garbageEdgeVec.push_back( eptr );
-    edgeList.erase( eptr->list_ptr );
+        garbageEdgeVec.push_back( eptr );
 
-    eptr->m_DeleteMeFlag = true;
+        edgeList.erase( eptr->list_ptr );
+
+        eptr->m_DeleteMeFlag = true;
+    }
 }
 
 Edge* Mesh::FindEdge( Node* n0, Node* n1 )
@@ -653,10 +663,13 @@ Face* Mesh::AddFace( Node* nn0, Node* nn1, Node* nn2, Node* nn3, Edge* ee0, Edge
 
 void Mesh::RemoveFace( Face* fptr )
 {
-    garbageFaceVec.push_back( fptr );
-    faceList.erase( fptr->list_ptr );
-    fptr->m_DeleteMeFlag = true;
-    fptr->EdgeForgetFace();
+    if ( fptr && ! fptr->m_DeleteMeFlag )
+    {
+        garbageFaceVec.push_back( fptr );
+        faceList.erase( fptr->list_ptr );
+        fptr->m_DeleteMeFlag = true;
+        fptr->EdgeForgetFace();
+    }
 }
 
 void Mesh::DumpGarbage()

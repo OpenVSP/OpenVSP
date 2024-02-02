@@ -20,14 +20,17 @@ Node::~Node()
 
 void Node::AddConnectEdge( Edge* e )
 {
-    for ( int i = 0 ; i < ( int )edgeVec.size() ; i++ ) //jrg not sure I need this check???
+    if ( e )
     {
-        if ( e == edgeVec[i] )
+        for ( int i = 0; i < ( int ) edgeVec.size(); i++ ) //jrg not sure I need this check???
         {
-            return;
+            if ( e == edgeVec[ i ] )
+            {
+                return;
+            }
         }
+        edgeVec.push_back( e );
     }
-    edgeVec.push_back( e );
 }
 
 void Node::RemoveConnectEdge( Edge* e )
@@ -1107,9 +1110,18 @@ void Face::BuildRemovalSet( set < Face* > &remFaces, set < Edge* > &remEdges, se
 
 void Face::EdgeForgetFace()
 {
-    e0->ReplaceFace( this, NULL );
-    e1->ReplaceFace( this, NULL );
-    e2->ReplaceFace( this, NULL );
+    if ( e0 )
+    {
+        e0->ReplaceFace( this, NULL );
+    }
+    if ( e1 )
+    {
+        e1->ReplaceFace( this, NULL );
+    }
+    if ( e2 )
+    {
+        e2->ReplaceFace( this, NULL );
+    }
     if ( e3 )
     {
         e3->ReplaceFace( this, NULL );
