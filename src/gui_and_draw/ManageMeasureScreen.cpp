@@ -1326,7 +1326,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            VspSurf * surf = geom->GetSurfPtr( index );
+            const VspSurf * surf = geom->GetSurfPtr( index );
 
             double umapmax = surf->GetUMapMax();
             double umax = surf->GetUMax();
@@ -1351,7 +1351,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            VspSurf * surf = geom->GetSurfPtr( index );
+            const VspSurf * surf = geom->GetSurfPtr( index );
 
             double umapmax = surf->GetUMapMax();
             double umax = surf->GetUMax();
@@ -1391,7 +1391,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            VspSurf * surf = geom->GetSurfPtr( index );
+            const VspSurf * surf = geom->GetSurfPtr( index );
 
             double umapmax = surf->GetUMapMax();
             double umax = surf->GetUMax();
@@ -1431,7 +1431,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            VspSurf * surf = geom->GetSurfPtr( index );
+            const VspSurf * surf = geom->GetSurfPtr( index );
 
             double umapmax = surf->GetUMapMax();
             double umax = surf->GetUMax();
@@ -1482,7 +1482,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            VspSurf * surf = geom->GetSurfPtr( index );
+            const VspSurf * surf = geom->GetSurfPtr( index );
 
             double umapmax = surf->GetUMapMax();
             double umax = surf->GetUMax();
@@ -1507,7 +1507,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            VspSurf * surf = geom->GetSurfPtr( index );
+            const VspSurf * surf = geom->GetSurfPtr( index );
 
             double umapmax = surf->GetUMapMax();
             double umax = surf->GetUMax();
@@ -1532,7 +1532,7 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
 
-            VspSurf * surf = geom->GetSurfPtr( index );
+            const VspSurf * surf = geom->GetSurfPtr( index );
 
             double umapmax = surf->GetUMapMax();
             double umax = surf->GetUMax();

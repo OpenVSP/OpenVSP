@@ -30,7 +30,7 @@ vec3d TargetPt::GetMatchPt(Geom* matchgeom)
     {
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        VspSurf* s = matchgeom->GetSurfPtr(0);
+        const VspSurf* s = matchgeom->GetSurfPtr(0);
         vec3d ps = s->CompPnt01( m_UW.x(), m_UW.y() );
 
         return ps;
@@ -56,7 +56,7 @@ vec3d TargetPt::CalcDelta(Geom* matchgeom)
 
         vec3d pt = GetPt();
 
-        VspSurf* s = matchgeom->GetSurfPtr(0);
+        const VspSurf* s = matchgeom->GetSurfPtr(0);
         vec3d ps = s->CompPnt01( m_UW.x(), m_UW.y() );
 
         return (ps - pt);
@@ -70,7 +70,7 @@ vec3d TargetPt::CalcDerivU( Geom* matchgeom )
     {
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        VspSurf* s = matchgeom->GetSurfPtr(0);
+        const VspSurf* s = matchgeom->GetSurfPtr(0);
 
         return s->CompTanU01( m_UW.x(), m_UW.y() );
     }
@@ -83,7 +83,7 @@ vec3d TargetPt::CalcDerivW( Geom* matchgeom )
     {
         assert( matchgeom->GetID() == m_MatchGeom );
 
-        VspSurf* s = matchgeom->GetSurfPtr(0);
+        const VspSurf* s = matchgeom->GetSurfPtr(0);
 
         return s->CompTanW01( m_UW.x(), m_UW.y() );
     }
@@ -108,7 +108,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             d0 = CalcDelta( matchgeom ).mag();
 
-            VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = matchgeom->GetSurfPtr(0);
             d = s->FindNearest01( u, w, pt );
 
             if ( d0 < d )
@@ -133,7 +133,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             w = w0;
 
-            VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = matchgeom->GetSurfPtr(0);
             VspCurve c;
             s->GetW01ConstCurve( c, w );
 
@@ -159,7 +159,7 @@ void TargetPt::SearchUW( Geom* matchgeom )
 
             u = u0;
 
-            VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = matchgeom->GetSurfPtr(0);
             VspCurve c;
             s->GetU01ConstCurve( c, u );
 
@@ -195,7 +195,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
             u0=m_UW.x();
             w0=m_UW.y();
 
-            VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = matchgeom->GetSurfPtr(0);
             s->FindNearest01( u, w, pt, u0, w0 );
 
             m_UW.set_xy( u, w );
@@ -210,7 +210,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
             u0=m_UW.x();
             w=m_UW.y();
 
-            VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = matchgeom->GetSurfPtr(0);
             VspCurve c;
             s->GetW01ConstCurve( c, w );
 
@@ -227,7 +227,7 @@ void TargetPt::RefineUW( Geom* matchgeom )
             u=m_UW.x();
             w0=m_UW.y();
 
-            VspSurf* s = matchgeom->GetSurfPtr(0);
+            const VspSurf* s = matchgeom->GetSurfPtr(0);
             VspCurve c;
             s->GetU01ConstCurve( c, u );
 

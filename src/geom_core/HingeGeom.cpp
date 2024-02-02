@@ -220,7 +220,7 @@ void HingeGeom::UpdateSurf()
                 parent->CompRotCoordSys( 0, m_PrimULoc(), m_PrimWLoc(), rotMat );
 
                 double u = m_PrimULoc();
-                VspSurf* surf = parent->GetMainSurfPtr( 0 );
+                const VspSurf* surf = parent->GetMainSurfPtr( 0 );
                 if ( surf )
                 {
                     u = surf->InvertUMapping( m_PrimULoc() * parent->GetUMapMax( 0 ) ) / parent->GetUMax( 0 );

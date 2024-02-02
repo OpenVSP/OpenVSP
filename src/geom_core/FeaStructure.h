@@ -260,7 +260,7 @@ public:
     }
     virtual void DeleteFeaPartSurf( int ind );
 
-    VspSurf* GetMainSurf();
+    const VspSurf* GetMainSurf();
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 

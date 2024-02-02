@@ -797,7 +797,7 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
         {
             string ssurfParentName = ssurfParentGeom->GetName();
 
-            VspSurf *surf = ssurfParentGeom->GetSurfPtr( surfIndx );
+            const VspSurf *surf = ssurfParentGeom->GetSurfPtr( surfIndx );
 
             for ( int i = 0; i < ppvec.size(); i++ )
             {
@@ -861,7 +861,7 @@ void DegenGeom::addDegenHingeLine( SSControlSurf *csurf, int surfIndx )
         Geom *ssurfParentGeom = veh->FindGeom( ssurfParentGeomId );
         if ( ssurfParentGeom )
         {
-            VspSurf *surf = ssurfParentGeom->GetSurfPtr( surfIndx );
+            const VspSurf *surf = ssurfParentGeom->GetSurfPtr( surfIndx );
 
             DegenHingeLine dghl;
 

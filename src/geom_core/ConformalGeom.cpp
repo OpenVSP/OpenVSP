@@ -157,10 +157,6 @@ void ConformalGeom::UpdateSurf()
     //==== Copy XForm/Tess Data From Parent ====//
     CopyDataFrom( parent_geom );
 
-    //==== Parent Reference Surfaces  ====//
-    vector< VspSurf > parent_surf_vec;
-    parent_surf_vec = parent_geom->GetMainSurfVecConstRef();
-
     //===== Copy Parent ====//
     vector< string > parent_id_vec;
     parent_id_vec.push_back( parent_geom->GetID() );
@@ -182,7 +178,7 @@ void ConformalGeom::UpdateSurf()
     double offset = m_Offset();
     copy_geom->OffsetXSecs( offset );
     copy_geom->Update();
-    copy_geom->GetMainSurfVec( m_MainSurfVec );
+    copy_geom->GetMainSurfVecCopy( m_MainSurfVec );
 
     for ( int i = 0 ; i < (int)m_MainSurfVec.size() ; i++ )
     {
@@ -214,7 +210,7 @@ void ConformalGeom::UpdateSurf()
                 }
 
                 //==== Make Sure Ribs Are Centered ====//
-                CenterRibCurves(m_MainSurfVec[i], parent_surf_vec[i], offset);
+                CenterRibCurves(m_MainSurfVec[i], *( parent_geom->GetMainSurfPtr( i ) ), offset);
 
                 //==== Offset Ribs ====//
                 if ( m_OffsetEnds() )
@@ -227,7 +223,7 @@ void ConformalGeom::UpdateSurf()
                 {
 // Measure Error - Expensive
 //ComputeMaxOffsetError( m_MainSurfVec[i], parent_surf_vec[i], offset, 20, 8 );
-                    AdjustShape(m_MainSurfVec[i], parent_surf_vec[i], offset);
+                    AdjustShape(m_MainSurfVec[i], *( parent_geom->GetMainSurfPtr( i ) ), offset);
 //ComputeMaxOffsetError( m_MainSurfVec[i], parent_surf_vec[i], offset, 20, 8 );
                 }
 

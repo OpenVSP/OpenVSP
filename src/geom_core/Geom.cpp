@@ -2220,9 +2220,6 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 
     bool color = m_Vehicle->m_DXFColorFlag.Get();
 
-    vector<VspSurf> surf_vec;
-    surf_vec = GetSurfVecConstRef();
-
     // Bounding box diagonal, used to separate multi-view drawings
     vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
 
@@ -2233,12 +2230,12 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
     {
         vector < vector < vec3d > > allflines, allflines1, allflines2, allflines3, allflines4;
 
-        unsigned int nu = surf_vec[i].GetNumUFeature();
-        unsigned int nw = surf_vec[i].GetNumWFeature();
+        unsigned int nu = m_SurfVec[i].GetNumUFeature();
+        unsigned int nw = m_SurfVec[i].GetNumWFeature();
         allflines.resize( nu + nw );
         for ( int j = 0; j < nu; j++ )
         {
-            surf_vec[i].TessUFeatureLine( j, allflines[j], tol );
+            m_SurfVec[i].TessUFeatureLine( j, allflines[j], tol );
 
             // Shift Feature Lines back near the orgin for multi-view case:
             if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
@@ -2253,7 +2250,7 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 
             for ( int j = 0; j < nw; j++ )
             {
-                surf_vec[i].TessWFeatureLine( j, allflines[j + nu], tol );
+                m_SurfVec[i].TessWFeatureLine( j, allflines[j + nu], tol );
 
                 // Shift Feature Lines back near the orgin for multi-view case:
                 if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
@@ -2539,9 +2536,6 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
 {
     double tol = 10e-2; // Feature line Tessellation tolerance
 
-    vector<VspSurf> surf_vec;
-    surf_vec = GetSurfVecConstRef();
-
     // Bounding box diagonal, used to separate multi-view drawings
     vec3d shiftvec = svgbox.GetMax() - svgbox.GetMin();
 
@@ -2552,12 +2546,12 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
     {
         vector < vector < vec3d > > allflines, allflines1, allflines2, allflines3, allflines4;
 
-        unsigned int nu = surf_vec[i].GetNumUFeature();
-        unsigned int nw = surf_vec[i].GetNumWFeature();
+        unsigned int nu = m_SurfVec[i].GetNumUFeature();
+        unsigned int nw = m_SurfVec[i].GetNumWFeature();
         allflines.resize( nw + nu );
         for( int j = 0; j < nw; j++ )
         {
-            surf_vec[i].TessWFeatureLine( j, allflines[ j ], tol );
+            m_SurfVec[i].TessWFeatureLine( j, allflines[ j ], tol );
 
             // To Do: multiple view ports instead of shifting feature lines in a single view port
 
@@ -2571,7 +2565,7 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
         }
         for( int j = 0; j < nu; j++ )
         {
-            surf_vec[i].TessUFeatureLine( j, allflines[ j + nw ], tol );
+            m_SurfVec[i].TessUFeatureLine( j, allflines[ j + nw ], tol );
 
             // Shift Feature Lines back near the orgin :
             for ( unsigned int k = 0; k < allflines[j + nw].size(); k++ )
@@ -4218,7 +4212,7 @@ int Geom::GetSymFlag() const
 }
 
 //==== Return Pointer to Surface indx ====//
-VspSurf* Geom::GetSurfPtr( int indx )
+const VspSurf* Geom::GetSurfPtr( int indx ) const
 {
     if ( indx >= 0 && indx < GetNumTotalSurfs() )
     {
@@ -4229,7 +4223,7 @@ VspSurf* Geom::GetSurfPtr( int indx )
 }
 
 //==== Return Pointer to Surface indx ====//
-VspSurf* Geom::GetMainSurfPtr( int indx )
+const VspSurf* Geom::GetMainSurfPtr( int indx ) const
 {
     if ( indx >= 0 && indx < GetNumMainSurfs() )
     {
@@ -4289,30 +4283,27 @@ int Geom::GetNumSymFlags() const
 
 vector<VspSurf> Geom::GetDegenSurfVec()
 {
-    vector<VspSurf> surf_vec;
-    surf_vec = GetSurfVecConstRef();
-
     vector<VspSurf> degen_surf_vec;
-    degen_surf_vec.reserve( surf_vec.size() * 2 );
-    for ( int i = 0; i < surf_vec.size(); i++ )
+    degen_surf_vec.reserve( m_SurfVec.size() * 2 );
+    for ( int i = 0; i < m_SurfVec.size(); i++ )
     {
-        if ( surf_vec[i].GetSurfType() == vsp::WING_SURF )
+        if ( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
         {
             int isurf = degen_surf_vec.size();
-            degen_surf_vec.push_back( surf_vec[i] ); // Start with copy.
-            degen_surf_vec[isurf].DegenCamberSurf( surf_vec[i] );
+            degen_surf_vec.push_back( m_SurfVec[i] ); // Start with copy.
+            degen_surf_vec[isurf].DegenCamberSurf( m_SurfVec[i] );
             degen_surf_vec[isurf].SetPlateNum( 0 );
         }
         else
         {
             int isurf = degen_surf_vec.size();
-            degen_surf_vec.push_back( surf_vec[i] ); // Start with copy.
-            degen_surf_vec[isurf].DegenPlanarSurf( surf_vec[i], 1 ); // Vertical
+            degen_surf_vec.push_back( m_SurfVec[i] ); // Start with copy.
+            degen_surf_vec[isurf].DegenPlanarSurf( m_SurfVec[i], 1 ); // Vertical
             degen_surf_vec[isurf].SetPlateNum( 0 );
 
             isurf = degen_surf_vec.size();
-            degen_surf_vec.push_back( surf_vec[i] ); // Start with copy.
-            degen_surf_vec[isurf].DegenPlanarSurf( surf_vec[i], 0 ); // Horizontal
+            degen_surf_vec.push_back( m_SurfVec[i] ); // Start with copy.
+            degen_surf_vec[isurf].DegenPlanarSurf( m_SurfVec[i], 0 ); // Horizontal
             degen_surf_vec[isurf].SetPlateNum( 1 );
         }
     }
@@ -4415,7 +4406,7 @@ vec3d Geom::CompTanT( const int &indx, const double &r, const double &s, const d
 
 bool Geom::CompRotCoordSys( const int &indx, const double &u, const double &w, Matrix4d &rotmat )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         rotmat = surf_ptr->CompRotCoordSys( u, w );
@@ -4426,7 +4417,7 @@ bool Geom::CompRotCoordSys( const int &indx, const double &u, const double &w, M
 
 bool Geom::CompTransCoordSys( const int &indx, const double &u, const double &w, Matrix4d &transmat )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         transmat = surf_ptr->CompTransCoordSys( u, w );
@@ -4437,7 +4428,7 @@ bool Geom::CompTransCoordSys( const int &indx, const double &u, const double &w,
 
 bool Geom::CompRotCoordSysRST( const int &indx, const double &r, const double &s, const double &t, Matrix4d &rotmat )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         rotmat = surf_ptr->CompRotCoordSysRST( r, s, t );
@@ -4448,7 +4439,7 @@ bool Geom::CompRotCoordSysRST( const int &indx, const double &r, const double &s
 
 bool Geom::CompTransCoordSysRST( const int &indx, const double &r, const double &s, const double &t, Matrix4d &transmat )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         transmat = surf_ptr->CompTransCoordSysRST( r, s, t );
@@ -4459,7 +4450,7 @@ bool Geom::CompTransCoordSysRST( const int &indx, const double &r, const double 
 
 bool Geom::CompRotCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &rotmat )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         rotmat = surf_ptr->CompRotCoordSysLMN( l, m, n );
@@ -4470,7 +4461,7 @@ bool Geom::CompRotCoordSysLMN( const int &indx, const double &l, const double &m
 
 bool Geom::CompTransCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &transmat )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         transmat = surf_ptr->CompTransCoordSysLMN( l, m, n );
@@ -4481,7 +4472,7 @@ bool Geom::CompTransCoordSysLMN( const int &indx, const double &l, const double 
 
 void Geom::ConvertRSTtoLMN( const int &indx, const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         surf_ptr->ConvertRSTtoLMN( r, s, t, l_out, m_out, n_out );
@@ -4494,7 +4485,7 @@ void Geom::ConvertRSTtoLMN( const int &indx, const double &r, const double &s, c
 
 void Geom::ConvertRtoL( const int &indx, const double &r, double &l_out )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         surf_ptr->ConvertRtoL( r, l_out );
@@ -4505,7 +4496,7 @@ void Geom::ConvertRtoL( const int &indx, const double &r, double &l_out )
 
 void Geom::ConvertLMNtoRST( const int &indx, const double &l, const double &m, const double &n, double &r, double &s, double &t )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         surf_ptr->ConvertLMNtoRST( l, m, n, r, s, t );
@@ -4518,7 +4509,7 @@ void Geom::ConvertLMNtoRST( const int &indx, const double &l, const double &m, c
 
 void Geom::ConvertLtoR( const int &indx, const double &l, double &r_out )
 {
-    VspSurf* surf_ptr = GetSurfPtr( indx );
+    const VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
         surf_ptr->ConvertLtoR( l, r_out );
@@ -5731,15 +5722,12 @@ void Geom::AppendWakeData( vector < piecewise_curve_type >& curve_vec, vector < 
 {
     if( m_WakeActiveFlag() )
     {
-        vector<VspSurf> surf_vec;
-        surf_vec = GetSurfVecConstRef();
-
         for( int i = 0; i < GetNumTotalSurfs(); i++ )
         {
             if( GetSurfType(i) == vsp::WING_SURF )
             {
                 piecewise_curve_type curve;
-                surf_vec[i].GetWakeTECurve( curve );
+                m_SurfVec[i].GetWakeTECurve( curve );
 
                 curve_vec.push_back( curve );
                 wake_scale_vec.push_back( m_WakeScale() );

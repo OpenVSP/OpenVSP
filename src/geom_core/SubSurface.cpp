@@ -166,8 +166,6 @@ void SubSurface::UpdateDrawObjs()
     m_SubSurfDO.m_Type = DrawObj::VSP_LINES;
     if ( geom )
     {
-        vector< VspSurf > surf_vec;
-        surf_vec = geom->GetSurfVecConstRef();
         int ncopy = geom->GetNumSymmCopies();
 
         m_SubSurfHighlightDO.resize( m_LVec.size()*ncopy, DrawObj() );
@@ -187,7 +185,7 @@ void SubSurface::UpdateDrawObjs()
             for ( int s = 0 ; s < ncopy ; s++ )
             {
                 vector < vec3d > pts;
-                m_LVec[ls].GetDOPts( &surf_vec[symms[s]], geom, pts, num_pnts );
+                m_LVec[ls].GetDOPts( geom->GetSurfPtr( symms[s] ), geom, pts, num_pnts );
                 m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.end(), pts.begin(), pts.end() );
 
                 m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.end(), pts.begin(), pts.end());
@@ -672,7 +670,7 @@ void SSLineSeg::Update( Geom *geom, const int &indx )
     double umax = geom->GetUMapMax( indx );
     double wmax = geom->GetWMax( indx );
 
-    VspSurf* surf = geom->GetMainSurfPtr( indx );
+    const VspSurf* surf = geom->GetMainSurfPtr( indx );
     double u0 = surf->InvertUMapping( m_SP0[0] * umax );
     double u1 = surf->InvertUMapping( m_SP1[0] * umax );
 
@@ -684,7 +682,7 @@ void SSLineSeg::Update( Geom *geom, const int &indx )
     m_line = m_P1 - m_P0;
 }
 
-int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
+int SSLineSeg::CompNumDrawPnts( const VspSurf* surf, const Geom* geom ) const
 {
     if ( !surf || !geom )
     {
@@ -696,7 +694,7 @@ int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
     return ( int )( ( avg_num_secs ) * ( avg_tess - 1 ) );
 }
 
-void SSLineSeg::GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, int num_pnts )
+void SSLineSeg::GetDOPts( const VspSurf* surf, const Geom* geom, vector < vec3d > &pts, int num_pnts ) const
 {
     if ( num_pnts < 0 )
     {
@@ -717,7 +715,7 @@ void SSLineSeg::GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, int 
     }
 }
 
-vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
+vec3d SSLineSeg::CompPnt( const VspSurf* surf, vec3d uw_pnt ) const
 {
     if ( !surf )
     {
@@ -1182,7 +1180,7 @@ void SSControlSurf::Update()
         }
     }
 
-    VspSurf* surf = geom->GetMainSurfPtr(0);
+    const VspSurf* surf = geom->GetMainSurfPtr(0);
     if ( !surf ) { return; }
 
     m_UWStart01.clear();
@@ -2081,8 +2079,6 @@ void SSControlSurf::UpdateDrawObjs()
     Geom* geom = veh->FindGeom( m_CompID );
     if ( geom )
     {
-        vector< VspSurf > surf_vec;
-        surf_vec = geom->GetSurfVecConstRef();
         int ncopy = geom->GetNumSymmCopies();
 
         m_HingeDO.m_PntVec.clear();
@@ -2118,7 +2114,7 @@ void SSControlSurf::UpdateDrawObjs()
 
         for ( int s = 0 ; s < ncopy ; s++ )
         {
-            VspSurf* surf = &( surf_vec[ symms[ s ] ] );
+            const VspSurf* surf = geom->GetSurfPtr( symms[ s ] );
 
             vec3d pst, pend;
             for ( int i = 0; i < npt; i++ )
@@ -2338,10 +2334,6 @@ void SSLineArray::CalcNumLines()
         {
             return;
         }
-
-        vector< VspSurf > surf_vec;
-        surf_vec = current_geom->GetSurfVecConstRef();
-        VspSurf current_surf = surf_vec[m_MainSurfIndx()];
 
         if ( m_PositiveDirectionFlag() )
         {

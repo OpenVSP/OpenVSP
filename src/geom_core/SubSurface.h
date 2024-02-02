@@ -62,14 +62,14 @@ public:
     {
         return m_P1;
     }
-    virtual void GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, int num_pnts );
-    virtual int CompNumDrawPnts( VspSurf* surf, Geom* geom );
+    virtual void GetDOPts( const VspSurf* surf, const Geom* geom, vector < vec3d > &pts, int num_pnts ) const;
+    virtual int CompNumDrawPnts( const VspSurf* surf, const Geom* geom ) const;
 
 protected:
     vec3d m_SP0; // scaled uw points
     vec3d m_SP1;
 
-    vec3d CompPnt( VspSurf* surf, vec3d uw_pnt ) const;
+    vec3d CompPnt( const VspSurf* surf, vec3d uw_pnt ) const;
 
 private:
     vec3d m_P0; // none scaled uw points

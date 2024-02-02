@@ -420,7 +420,7 @@ double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, const double &u
     return idist;
 }
 
-bool VspSurf::IsInside( const vec3d &pt )
+bool VspSurf::IsInside( const vec3d &pt ) const
 {
     surface_point_type p;
     p << pt.x(), pt.y(), pt.z();
@@ -462,7 +462,7 @@ void VspSurf::GetW01ConstCurve( VspCurve &c, const double &w01 ) const
 
 //===== Compute a Relative Rotation Transformation Matrix from Component's
 //      Coordinate System to a Surface Coordinate System ====//
-Matrix4d VspSurf::CompRotCoordSys( double u, double w )
+Matrix4d VspSurf::CompRotCoordSys( double u, double w ) const
 {
     double tol = 1e-10;
 
@@ -536,7 +536,7 @@ Matrix4d VspSurf::CompRotCoordSys( double u, double w )
 
 //===== Compute a Relative Translation Transformation Matrix from Component's
 //      Coordinate System to a Surface Coordinate System ====//
-Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
+Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w ) const
 {
     Matrix4d retMat; // Return Matrix
 
@@ -548,7 +548,7 @@ Matrix4d VspSurf::CompTransCoordSys( const double &u, const double &w )
     return retMat;
 }
 
-Matrix4d VspSurf::CompRotCoordSysRST( double r, double s, double t )
+Matrix4d VspSurf::CompRotCoordSysRST( double r, double s, double t ) const
 {
     double tol = 1e-10;
 
@@ -587,7 +587,7 @@ Matrix4d VspSurf::CompRotCoordSysRST( double r, double s, double t )
     return retMat;
 }
 
-Matrix4d VspSurf::CompTransCoordSysRST( const double &r, const double &s, const double &t )
+Matrix4d VspSurf::CompTransCoordSysRST( const double &r, const double &s, const double &t ) const
 {
     Matrix4d retMat; // Return Matrix
 
@@ -599,14 +599,14 @@ Matrix4d VspSurf::CompTransCoordSysRST( const double &r, const double &s, const 
     return retMat;
 }
 
-Matrix4d VspSurf::CompRotCoordSysLMN( const double &l, const double &m, const double &n )
+Matrix4d VspSurf::CompRotCoordSysLMN( const double &l, const double &m, const double &n ) const
 {
     double r, s, t;
     ConvertLMNtoRST( l, m, n, r, s, t );
     return CompRotCoordSysRST( r, s, t );
 }
 
-Matrix4d VspSurf::CompTransCoordSysLMN( const double &l, const double &m, const double &n )
+Matrix4d VspSurf::CompTransCoordSysLMN( const double &l, const double &m, const double &n ) const
 {
     double r, s, t;
     ConvertLMNtoRST( l, m, n, r, s, t );

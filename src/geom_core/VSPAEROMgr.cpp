@@ -3597,12 +3597,10 @@ void VSPAEROMgrSingleton::UpdateBBox( vector < DrawObj* > & draw_obj_vec )
     }
     else
     {
-        vector < VspSurf > surf_vec;
         Geom* geom = veh->FindGeom( m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID() );
         if ( geom )
         {
-            surf_vec = geom->GetSurfVecConstRef();
-            surf_vec[m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetSurfNum()].GetBoundingBox( bb );
+            geom->GetSurfPtr( m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetSurfNum() )->GetBoundingBox( bb );
             m_BBox.Update( bb );
         }
         else
@@ -4666,7 +4664,6 @@ void VSPAEROMgrSingleton::HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_
     }
     else
     {
-        vector < VspSurf > surf_vec;
         UnsteadyGroup* select_group = m_UnsteadyGroupVec[m_CurrentUnsteadyGroupIndex];
 
         if ( select_group )
@@ -4682,12 +4679,11 @@ void VSPAEROMgrSingleton::HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_
                     continue;
                 }
 
-                surf_vec = geom->GetSurfVecConstRef();
                 int num_main_surf = geom->GetNumMainSurfs();
 
                 for ( size_t j = 0; j < num_main_surf; j++ )
                 {
-                    surf_vec[j + num_main_surf * ( comp_vec[i].second - 1 )].GetBoundingBox( bb );
+                    geom->GetSurfPtr(j + num_main_surf * ( comp_vec[i].second - 1 ))->GetBoundingBox( bb );
                     m_BBox.Update( bb );
                 }
             }

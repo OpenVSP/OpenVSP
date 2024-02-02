@@ -118,7 +118,7 @@ void Probe::Update()
 
         if ( geom )
         {
-            VspSurf *surf = geom->GetSurfPtr( m_OriginIndx() );
+            const VspSurf *surf = geom->GetSurfPtr( m_OriginIndx() );
             if ( surf )
             {
                 double umapmax = surf->GetUMapMax();
@@ -297,7 +297,7 @@ void RSTProbe::Update()
         Geom *geom = veh->FindGeom( m_OriginGeomID );
         if ( geom )
         {
-            VspSurf *surf = geom->GetSurfPtr( m_OriginIndx() );
+            const VspSurf *surf = geom->GetSurfPtr( m_OriginIndx() );
             if ( surf )
             {
                 if ( m_LMNFlag() )
@@ -459,7 +459,7 @@ void Ruler::Update()
         Geom *ogeom = veh->FindGeom( m_OriginGeomID );
         if ( ogeom )
         {
-            VspSurf *osurf = ogeom->GetSurfPtr( m_OriginIndx() );
+            const VspSurf *osurf = ogeom->GetSurfPtr( m_OriginIndx() );
             if ( osurf )
             {
                 double umapmax = osurf->GetUMapMax();
@@ -477,7 +477,7 @@ void Ruler::Update()
         Geom *egeom = veh->FindGeom( m_EndGeomID );
         if ( egeom )
         {
-            VspSurf *esurf = egeom->GetSurfPtr( m_EndIndx() );
+            const VspSurf *esurf = egeom->GetSurfPtr( m_EndIndx() );
             if ( esurf )
             {
                 double umapmax = esurf->GetUMapMax();
@@ -686,7 +686,7 @@ void Protractor::Update()
         Geom *ogeom = veh->FindGeom( m_OriginGeomID );
         if ( ogeom )
         {
-            VspSurf *osurf = ogeom->GetSurfPtr( m_OriginIndx() );
+            const VspSurf *osurf = ogeom->GetSurfPtr( m_OriginIndx() );
             if ( osurf )
             {
                 double umapmax = osurf->GetUMapMax();
@@ -706,7 +706,7 @@ void Protractor::Update()
         Geom *egeom = veh->FindGeom( m_EndGeomID );
         if ( egeom )
         {
-            VspSurf *esurf = egeom->GetSurfPtr( m_EndIndx() );
+            const VspSurf *esurf = egeom->GetSurfPtr( m_EndIndx() );
             if ( esurf )
             {
                 double umapmax = esurf->GetUMapMax();
@@ -796,7 +796,7 @@ vec3d Protractor::GetMidPt()
         Geom *mgeom = veh->FindGeom( m_MidGeomID );
         if ( mgeom )
         {
-            VspSurf *msurf = mgeom->GetSurfPtr( m_MidIndx());
+            const VspSurf *msurf = mgeom->GetSurfPtr( m_MidIndx());
             if ( msurf )
             {
                 double umapmax = msurf->GetUMapMax();

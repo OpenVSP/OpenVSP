@@ -84,7 +84,7 @@ vec3d ProjectionMgrSingleton::GetDirection( int dirtype, string dirid )
                 Geom* g = veh->FindGeom( dirid );
                 if ( g )
                 {
-                    VspSurf *s = g->GetSurfPtr(0);
+                    const VspSurf *s = g->GetSurfPtr(0);
                     if ( s )
                     {
                         dir = vec3d( 0, 0, 0 ) - s->CompNorm01( 0, 0 );

@@ -2264,32 +2264,28 @@ vec3d GetGeomBBoxMax( const string& geom_id, int main_surf_ind, bool ref_frame_i
         return vec3d();
     }
 
-    vector< VspSurf > surf_vec;
-    surf_vec = geom_ptr->GetSurfVecConstRef();
+    int num_surf = geom_ptr->GetNumTotalSurfs();
 
-    if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
+    if ( main_surf_ind < 0 || main_surf_ind >= num_surf )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMax::Main Surf Index " + to_string( main_surf_ind) + " Out of Range" );
     }
-
-    VspSurf current_surf = surf_vec[main_surf_ind];
 
     // Determine BndBox dimensions prior to rotating and translating
     Matrix4d model_matrix = geom_ptr->getModelMatrix();
     model_matrix.affineInverse();
 
-    VspSurf orig_surf = current_surf;
-    orig_surf.Transform( model_matrix );
-
     BndBox bbox;
 
     if ( !ref_frame_is_absolute )
     {
+        VspSurf orig_surf = *( geom_ptr->GetSurfPtr( main_surf_ind ) );
+        orig_surf.Transform( model_matrix );
         orig_surf.GetBoundingBox( bbox );
     }
     else
     {
-        current_surf.GetBoundingBox( bbox );
+        geom_ptr->GetSurfPtr( main_surf_ind )->GetBoundingBox( bbox );
     }
 
     return bbox.GetMax();
@@ -2306,32 +2302,28 @@ vec3d GetGeomBBoxMin( const string& geom_id, int main_surf_ind, bool ref_frame_i
         return vec3d();
     }
 
-    vector< VspSurf > surf_vec;
-    surf_vec = geom_ptr->GetSurfVecConstRef();
+    int num_surf = geom_ptr->GetNumTotalSurfs();
 
-    if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
+    if ( main_surf_ind < 0 || main_surf_ind >= num_surf )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMin::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
     }
-
-    VspSurf current_surf = surf_vec[main_surf_ind];
 
     // Determine BndBox dimensions prior to rotating and translating
     Matrix4d model_matrix = geom_ptr->getModelMatrix();
     model_matrix.affineInverse();
 
-    VspSurf orig_surf = current_surf;
-    orig_surf.Transform( model_matrix );
-
     BndBox bbox;
 
     if ( !ref_frame_is_absolute )
     {
+        VspSurf orig_surf = *( geom_ptr->GetSurfPtr( main_surf_ind ) );
+        orig_surf.Transform( model_matrix );
         orig_surf.GetBoundingBox( bbox );
     }
     else
     {
-        current_surf.GetBoundingBox( bbox );
+        geom_ptr->GetSurfPtr( main_surf_ind )->GetBoundingBox( bbox );
     }
 
     return bbox.GetMin();
@@ -4407,18 +4399,18 @@ std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
         return pnt_vec;
     }
 
-    vector<VspSurf> surf_vec;
-    surf_vec = geom_ptr->GetSurfVecConstRef();
+    int num_surf = geom_ptr->GetNumTotalSurfs();
 
     double tol = 1e-2;
 
-    for ( size_t i = 0; i < surf_vec.size(); i++ )
+    for ( size_t i = 0; i < num_surf; i++ )
     {
+        const VspSurf *surf = geom_ptr->GetSurfPtr( i );
         // U feature lines
-        for ( int j = 0; j < surf_vec[0].GetNumUFeature(); j++ )
+        for ( int j = 0; j < surf->GetNumUFeature(); j++ )
         {
             vector < vec3d > ptline;
-            surf_vec[i].TessUFeatureLine( j, ptline, tol );
+            surf->TessUFeatureLine( j, ptline, tol );
 
             for ( size_t k = 0; k < ptline.size(); k++ )
             {
@@ -4427,10 +4419,10 @@ std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
         }
 
         // V feature lines
-        for ( int j = 0; j < surf_vec[0].GetNumWFeature(); j++ )
+        for ( int j = 0; j < surf->GetNumWFeature(); j++ )
         {
             vector < vec3d > ptline;
-            surf_vec[i].TessWFeatureLine( j, ptline, tol );
+            surf->TessWFeatureLine( j, ptline, tol );
 
             for ( size_t k = 0; k < ptline.size(); k++ )
             {
@@ -7740,7 +7732,7 @@ vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const double 
         return ret;
     }
 
-    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
     ret = surf->CompNorm01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
 
     ErrorMgr.NoError();
@@ -7764,7 +7756,7 @@ vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const double 
         return ret;
     }
 
-    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
     ret = surf->CompTanU01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
 
     ErrorMgr.NoError();
@@ -7788,7 +7780,7 @@ vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const double 
         return ret;
     }
 
-    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
     ret = surf->CompTanW01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
 
     ErrorMgr.NoError();
@@ -7818,7 +7810,7 @@ void CompCurvature01(const std::string &geom_id, const int &surf_indx, const dou
         return;
     }
 
-    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
     surf->CompCurvature01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ), k1_out, k2_out, ka_out, kg_out );
 
     ErrorMgr.NoError();
@@ -8237,7 +8229,7 @@ vector < vec3d > CompVecPnt01( const std::string &geom_id, const int &surf_indx,
     {
         if ( us.size() == ws.size() )
         {
-            VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+            const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
 
             if ( surf )
             {
@@ -8282,7 +8274,7 @@ vector < vec3d > CompVecNorm01( const std::string &geom_id, const int &surf_indx
     {
         if ( us.size() == ws.size() )
         {
-            VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+            const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
 
             if ( surf )
             {
@@ -8329,7 +8321,7 @@ void CompVecCurvature01( const std::string &geom_id, const int &surf_indx, const
     {
         if ( us.size() == ws.size() )
         {
-            VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+            const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
 
             if ( surf )
             {
@@ -8375,7 +8367,7 @@ void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector
 
     if ( geom_ptr )
     {
-        VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+        const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
 
         if ( surf )
         {
@@ -8416,7 +8408,7 @@ void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const 
     {
         if ( pts.size() == u0s.size() && pts.size() == w0s.size() )
         {
-            VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
+            const VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
 
             if ( surf )
             {
@@ -8461,7 +8453,7 @@ void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const in
 
     if ( geom_ptr )
     {
-        VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+        const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
 
         if ( surf )
         {
@@ -8502,7 +8494,7 @@ void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, con
     {
         if ( pts.size() == u0s.size() && pts.size() == w0s.size() )
         {
-            VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
+            const VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
 
             if ( surf )
             {
@@ -8546,7 +8538,7 @@ std::vector < bool > VecInsideSurf( const std::string &geom_id, const int &surf_
 
     if ( geom_ptr )
     {
-        VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+        const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
 
         if ( surf )
         {
@@ -8585,7 +8577,7 @@ std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const int &surf
     {
         if ( rs.size() == ss.size() && rs.size() == ts.size() )
         {
-            VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+            const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
 
             if ( surf )
             {
@@ -8630,7 +8622,7 @@ void FindRSTVec( const std::string &geom_id, const int &surf_indx, const std::ve
 
     if ( geom_ptr )
     {
-        VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+        const VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
 
         if ( surf )
         {
@@ -8670,7 +8662,7 @@ void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, const st
     {
         if ( pts.size() == r0s.size() && pts.size() == s0s.size() && pts.size() == t0s.size() )
         {
-            VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
+            const VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
 
             if ( surf )
             {
@@ -8720,7 +8712,7 @@ void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx,
     {
         if ( r_vec.size() == s_vec.size() && r_vec.size() == t_vec.size() )
         {
-            VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
+            const VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
 
             if ( surf )
             {
@@ -8769,7 +8761,7 @@ void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx,
     {
         if ( l_vec.size() == m_vec.size() && l_vec.size() == n_vec.size() )
         {
-            VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
+            const VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
 
             if ( surf )
             {

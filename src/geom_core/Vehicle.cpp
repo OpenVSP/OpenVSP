@@ -3176,20 +3176,24 @@ void Vehicle::FetchXFerSurfs(int normal_set, int degen_set, vector< XferSurf > &
         bool indegenset = geom_vec[i]->GetSetFlag( degen_set );
         if( innormalset || indegenset )
         {
+            int num_surf = geom_vec[i]->GetNumTotalSurfs();
+
             vector<VspSurf> surf_vec;
+            const vector<VspSurf> *surf_vec_ptr = NULL;
 
             if ( innormalset )
             {
-                surf_vec = geom_vec[i]->GetSurfVecConstRef();
+                surf_vec_ptr = geom_vec[i]->GetSurfVecPtr();
             }
             else // indegenset
             {
                 surf_vec = geom_vec[i]->GetDegenSurfVec();
+                surf_vec_ptr = &surf_vec;
             }
 
-            for ( int j = 0; j < ( int )surf_vec.size(); j++ )
+            for ( int j = 0; j < num_surf; j++ )
             {
-                surf_vec[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetMainSurfID( j ), icomp, j, xfersurfs );
+                (*surf_vec_ptr)[j].FetchXFerSurf( geom_vec[i]->GetID(), geom_vec[i]->GetMainSurfID( j ), icomp, j, xfersurfs );
                 icomp++;
             }
         }
@@ -3213,12 +3217,12 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
     {
         if( geom_vec[i]->GetSetFlag( write_set ) )
         {
-            vector<VspSurf> surf_vec;
-            surf_vec = geom_vec[i]->GetSurfVecConstRef();
+            int num_surf = geom_vec[i]->GetNumTotalSurfs();
 
-            for ( int j = 0; j < surf_vec.size(); j++ )
+            for ( int j = 0; j < num_surf; j++ )
             {
                 int mainid = geom_vec[i]->GetMainSurfID( j );
+                const VspSurf *surf = geom_vec[i]->GetSurfPtr(j);
 
                 vector < double > usplit;
                 vector < double > wsplit;
@@ -3240,11 +3244,11 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
 
                                     if( subline->m_ConstType() == vsp::CONST_U )
                                     {
-                                        usplit.push_back( subline->m_ConstVal() * surf_vec[j].GetUMax() );
+                                        usplit.push_back( subline->m_ConstVal() * surf->GetUMax() );
                                     }
                                     else
                                     {
-                                        wsplit.push_back( subline->m_ConstVal() * surf_vec[j].GetWMax() );
+                                        wsplit.push_back( subline->m_ConstVal() * surf->GetWMax() );
                                     }
                                 }
                             }
@@ -3278,7 +3282,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
                 }
 
                 vector < SdaiB_spline_surface_with_knots* > surfs;
-                surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, prefix, m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit );
+                surf->ToSTEP_BSpline_Quilt( &step, surfs, prefix, m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit );
 
                 step.RepresentUntrimmedSurfs( surfs, prefix );
             }
@@ -3393,11 +3397,11 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
     {
         if( geom_vec[i]->GetSetFlag( write_set ) )
         {
-            vector<VspSurf> surf_vec;
-            surf_vec = geom_vec[i]->GetSurfVecConstRef();
+            int num_surf = geom_vec[i]->GetNumTotalSurfs();
 
-            for ( int j = 0; j < surf_vec.size(); j++ )
+            for ( int j = 0; j < num_surf; j++ )
             {
+                const VspSurf *surf = geom_vec[i]->GetSurfPtr(j);
                 int mainid = geom_vec[i]->GetMainSurfID( j );
 
                 vector < double > usplit;
@@ -3420,11 +3424,11 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
 
                                     if( subline->m_ConstType() == vsp::CONST_U )
                                     {
-                                        usplit.push_back( subline->m_ConstVal() * surf_vec[j].GetUMax() );
+                                        usplit.push_back( subline->m_ConstVal() * surf->GetUMax() );
                                     }
                                     else
                                     {
-                                        wsplit.push_back( subline->m_ConstVal() * surf_vec[j].GetWMax()  );
+                                        wsplit.push_back( subline->m_ConstVal() * surf->GetWMax()  );
                                     }
                                 }
                             }
@@ -3457,7 +3461,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
                     prefix.append( to_string( j ) );
                 }
 
-                surf_vec[j].ToIGES( &iges, splitSurfs, toCubic, toCubicTol, trimTE, usplit, wsplit, prefix, labelSplitNo, delim );
+                surf->ToIGES( &iges, splitSurfs, toCubic, toCubicTol, trimTE, usplit, wsplit, prefix, labelSplitNo, delim );
             }
         }
     }

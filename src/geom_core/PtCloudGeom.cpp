@@ -452,7 +452,7 @@ void PtCloudGeom::ProjectPts( string geomid, int surfid, int idir )
 
     if ( g )
     {
-        VspSurf *surf = g->GetSurfPtr( surfid );
+        const VspSurf *surf = g->GetSurfPtr( surfid );
 
         for ( int i = 0 ; i < ( int )m_Pts.size() ; i++ )
         {

@@ -143,7 +143,7 @@ public:
     double ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, double &w_out ) const;
     double ProjectPt01( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out ) const;
 
-    bool IsInside( const vec3d &pt );
+    bool IsInside( const vec3d &pt ) const;
 
     void GetUConstCurve( VspCurve &c, const double &u ) const;
     void GetWConstCurve( VspCurve &c, const double &w ) const;
@@ -151,12 +151,12 @@ public:
     void GetU01ConstCurve( VspCurve &c, const double &u01 ) const;
     void GetW01ConstCurve( VspCurve &c, const double &w01 ) const;
 
-    Matrix4d CompRotCoordSys( double u, double w );
-    Matrix4d CompTransCoordSys( const double &u, const double &w );
-    Matrix4d CompRotCoordSysRST( double r, double s, double t );
-    Matrix4d CompTransCoordSysRST(const double &r, const double &s, const double &t );
-    Matrix4d CompRotCoordSysLMN( const double &l, const double &m, const double &n );
-    Matrix4d CompTransCoordSysLMN( const double &l, const double &m, const double &n );
+    Matrix4d CompRotCoordSys( double u, double w ) const;
+    Matrix4d CompTransCoordSys( const double &u, const double &w ) const;
+    Matrix4d CompRotCoordSysRST( double r, double s, double t ) const;
+    Matrix4d CompTransCoordSysRST(const double &r, const double &s, const double &t ) const;
+    Matrix4d CompRotCoordSysLMN( const double &l, const double &m, const double &n ) const;
+    Matrix4d CompTransCoordSysLMN( const double &l, const double &m, const double &n ) const;
 
     vec3d CompPntRST( double r, double s, double t ) const;
     vec3d CompTanR( double r, double s, double t ) const;
