@@ -179,7 +179,7 @@ public:
     virtual ~GeomBase();                        // Destructor
 
     // Only used internally.  Do not need to move to API.
-    enum { NONE, XFORM, TESS, SURF, HIGHLIGHT, FEA };
+    enum { NONE, XFORM, TESS, SURF, HIGHLIGHT };
 
     virtual GeomType GetType()
     {

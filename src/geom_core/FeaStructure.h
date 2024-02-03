@@ -184,6 +184,8 @@ public:
     }
     void UpdateFeaBCs();
 
+    void SetDirtyFlag();
+
 protected:
 
     string m_ParentGeomID;
@@ -279,7 +281,11 @@ public:
     string m_FeaPropertyID;
     string m_CapFeaPropertyID;
 
+    bool m_SurfDirty;
+
 protected:
+
+    void SetDirtyFlags( Parm* parm_ptr );
 
     int m_FeaPartType;
 

@@ -110,7 +110,6 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
     m_SurfDirty = true;
     m_TessDirty = true;
     m_HighlightDirty = true;
-    m_FeaDirty = true;
 }
 
 //==== Destructor ====//
@@ -197,7 +196,9 @@ void GeomBase::SetDirtyFlags( Parm* parm_ptr )
     }
     else if ( gname.substr(0, 3) == string("Fea") )
     {
-        m_FeaDirty = true;
+        // Do nothing here, FeaParts set their own internal dirty flags.  However, it is important to prevent
+        // "Fea" tagged Parms from setting m_SurfDirty below as that will defeat FeaPart's ability to do more
+        // fine-grained marking.
     }
     else
     {
@@ -223,10 +224,6 @@ void GeomBase::SetDirtyFlag( int dflag )
     else if ( dflag == HIGHLIGHT )
     {
         m_HighlightDirty = true;
-    }
-    else if ( dflag == FEA )
-    {
-        m_FeaDirty = true;
     }
 }
 
@@ -1620,11 +1617,11 @@ void Geom::Update( bool fullupdate )
             m_SubSurfVec[i]->Update();  // Can be protected by m_SurfDirty, except for call to UpdateDrawObj - perhaps should be split out.  Some may depend on m_SurfVec, but could be switched to m_MainSurfVec instead.
         }
 
-        if ( m_XFormDirty || m_SurfDirty || m_FeaDirty ) // Everything except m_TessDirty
+        if ( m_XFormDirty || m_SurfDirty ) // Everything except m_TessDirty
         {
             for ( int i = 0; i < (int)m_FeaStructVec.size(); i++ )
             {
-                m_FeaStructVec[i]->Update();
+                m_FeaStructVec[i]->SetDirtyFlag();
             }
         }
     }
@@ -1677,8 +1674,6 @@ void Geom::Update( bool fullupdate )
     m_TessDirty = false;
 
     m_HighlightDirty = false;
-
-    m_FeaDirty = false;
 
     UpdateChildren( fullupdate );
 

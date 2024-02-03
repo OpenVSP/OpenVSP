@@ -952,6 +952,14 @@ int FeaStructure::GetFeaBCIndex( FeaBC* fea_bc )
     return -1; // indicates an error
 }
 
+void FeaStructure::SetDirtyFlag()
+{
+    for ( unsigned int i = 0; i < m_FeaPartVec.size(); i++ )
+    {
+        m_FeaPartVec[ i ]->m_SurfDirty = true;
+    }
+}
+
 //////////////////////////////////////////////////////
 //==================== FeaPart =====================//
 //////////////////////////////////////////////////////
@@ -993,6 +1001,8 @@ FeaPart::FeaPart( const string &geomID, const string &structID, int type )
 
     m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaPart", this, -1, -1, 1e12 ); // Beam property default
     m_CapFeaPropertyIndex.SetDescript( "FeaPropertyIndex for Beam (Cap) Elements" );
+
+    m_SurfDirty = true;
 }
 
 FeaPart::~FeaPart()
@@ -1063,20 +1073,25 @@ void FeaPart::Update()
         }
     }
 
-    UpdateSurface();
-
-    for ( int i = 0; i < m_MainFeaPartSurfVec.size(); i++ )
+    if ( m_SurfDirty )
     {
-        m_MainFeaPartSurfVec[i].InitUMapping();
+        UpdateSurface();
+
+        for ( int i = 0; i < m_MainFeaPartSurfVec.size(); i++ )
+        {
+            m_MainFeaPartSurfVec[ i ].InitUMapping();
+        }
+
+        UpdateFlags();
+
+        UpdateOrientation();
+
+        UpdateSymmParts();
+
+        UpdateDrawObjs();
     }
 
-    UpdateFlags();
-
-    UpdateOrientation();
-
-    UpdateSymmParts();
-
-    UpdateDrawObjs();
+    m_SurfDirty = false;
 }
 
 void FeaPart::UpdateFlags()
@@ -1180,12 +1195,27 @@ void FeaPart::UpdateOrientation()
 
 void FeaPart::ParmChanged( Parm* parm_ptr, int type )
 {
+    if ( parm_ptr )
+    {
+        SetDirtyFlags( parm_ptr );
+    }
+
     FeaStructure *pstruct = StructureMgr.GetFeaStruct( m_StructID );
 
     if ( pstruct )
     {
         pstruct->ParmChanged( parm_ptr, type );
     }
+}
+
+void FeaPart::SetDirtyFlags( Parm* parm_ptr )
+{
+    if ( !parm_ptr )
+    {
+        return;
+    }
+
+    m_SurfDirty = true;
 }
 
 xmlNodePtr FeaPart::EncodeXml( xmlNodePtr & node )
