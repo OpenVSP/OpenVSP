@@ -111,18 +111,6 @@ void GuiInterface::ShowScreens()
 #endif
 }
 
-// In a multi-threaded environment, this is safe to run from a secondary thread.
-void GuiInterface::UpdateGui( )
-{
-#ifdef VSP_USE_FLTK
-    if ( m_ScreenMgr )
-    {
-        m_ScreenMgr->SetUpdateFlag( true );
-    }
-#endif
-
-}
-
 // In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
 void GuiInterface::PopupMsg( const std::string &message )
 {

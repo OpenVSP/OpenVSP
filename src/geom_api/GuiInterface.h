@@ -39,7 +39,6 @@ public:
     void StopGui();
     void HideScreens();
     void ShowScreens();
-    void UpdateGui( );
     void PopupMsg( const std::string &message );
 
     void Lock();
