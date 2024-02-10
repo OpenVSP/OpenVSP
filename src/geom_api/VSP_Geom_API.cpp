@@ -39,6 +39,10 @@
 
 #include "eli/mutil/quad/simpson.hpp"
 
+#ifdef __JETBRAINS_IDE__
+#define VSP_USE_FLTK 1
+#endif
+
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
 #endif
