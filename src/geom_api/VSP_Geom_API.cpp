@@ -1753,14 +1753,14 @@ extern bool IsGUIBuild()
 extern void Lock( )
 {
 #ifdef VSP_USE_FLTK
-        GuiInterface::getInstance().Lock( );
+    GuiInterface::getInstance().Lock( );
 #endif
 }
 
 extern void Unlock( )
 {
 #ifdef VSP_USE_FLTK
-        GuiInterface::getInstance().Unlock( );
+    GuiInterface::getInstance().Unlock( );
 #endif
 }
 
