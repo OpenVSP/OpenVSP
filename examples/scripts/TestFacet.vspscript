@@ -29,7 +29,7 @@ void TestFacet()
 
     Print( string( "---> Computing CFDMesh..." ), false );
 
-    ComputeCFDMesh( SET_ALL, CFD_FACET_TYPE );
+    ComputeCFDMesh( SET_ALL, SET_NONE, CFD_FACET_TYPE );
 
     Print( string( "COMPLETE" ) );
 

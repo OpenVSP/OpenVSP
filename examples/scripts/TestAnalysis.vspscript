@@ -216,6 +216,9 @@ void main()
     DeleteGeomVec( GetStringResults( ridslice, "Mesh_GeomID" ) );
 
     // WaveDrag
+    array<int> wdset = GetIntAnalysisInput( "WaveDrag", "Set" );
+    wdset[0] = SET_ALL;
+    SetIntAnalysisInput( "WaveDrag", "Set", wdset );
     string ridwd = ExecAnalysis( "WaveDrag" );
     PrintResultsExample( ridwd );
     DeleteGeomVec( GetStringResults( ridwd, "Mesh_GeomID" ) );

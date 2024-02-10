@@ -107,7 +107,7 @@ void OldCFDMeshAnalysisExample(string pod_id)
 
 	Print( string( "--> CFD Mesh Export File Name Set to CFDMeshTest_STL.stl" ) );
 	SetComputationFileName( CFD_STL_TYPE, "CFDMeshTest_STL.stl" );
-	ComputeCFDMesh( SET_ALL, CFD_STL_TYPE ); 
+	ComputeCFDMesh( SET_ALL, SET_NONE, CFD_STL_TYPE );
 	
 	Print( string( "--> CFD Mesh Export File Name Set to CFDMeshTest_TRI.tri" ) );
 	SetComputationFileName( CFD_TRI_TYPE, "CFDMeshTest_TRI.tri" );
@@ -115,7 +115,7 @@ void OldCFDMeshAnalysisExample(string pod_id)
 	//==== Generate CFD Mesh and Export ====//
     Print( string( "--> Generating CFDMesh " ) );
 	
-	ComputeCFDMesh( SET_ALL, CFD_TRI_TYPE ); 
+	ComputeCFDMesh( SET_ALL, SET_NONE, CFD_TRI_TYPE );
 	
 	//==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )

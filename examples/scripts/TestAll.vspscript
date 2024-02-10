@@ -429,7 +429,7 @@ void TestAPIScript()
     string mesh_id = ComputeCompGeom( 0, false, 0 );
     string comp_res_id = FindLatestResultsID( "Comp_Geom" );
     double_arr = GetDoubleResults( comp_res_id, "Wet_Area" );
-    if ( double_arr.size() != 2 )                                    { Print( "---> Error: API ComputeCompGeom" ); }
+    if ( double_arr.size() != 1 )                                    { Print( "---> Error: API ComputeCompGeom" ); }
 
     //==== Test Comp Geom Mesh Results ====//
     string mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" );
@@ -477,7 +477,7 @@ void TestAPIScript()
 
     string slice_geom_results = CreateGeomResults( slice_mesh_id, "Slice_Mesh" );
     int_arr = GetIntResults( slice_geom_results, "Num_Slices" );
-    if ( int_arr[0] != 6 )                                            { Print( "---> Error: API CreateGeomResults (Slice)" ); }
+    if ( int_arr[0] != 4 )                                            { Print( "---> Error: API CreateGeomResults (Slice)" ); }
 
     //===== Write File With Slice Triangles  ====//
     if( f.open( "slice_tris.stl", "w" ) >= 0 )
@@ -510,7 +510,7 @@ void TestAPIScript()
     ClearVSPModel();
 
     array<string> @ctr_arr = FindContainers();
-    if ( ctr_arr.size() != 8 )            { Print( "---> Error: API FindContainers " ); }
+    if ( ctr_arr.size() != 28 )            { Print( "---> Error: API FindContainers " ); }
 
     ctr_arr = FindContainersWithName( "UserParms" );
     if ( ctr_arr.size() != 1 )            { Print( "---> Error: API FindContainersWithName " ); }

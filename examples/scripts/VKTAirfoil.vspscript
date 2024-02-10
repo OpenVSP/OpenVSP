@@ -29,7 +29,7 @@ void main()
     
     Print(string("-->Writing VKT Airfoil Points\n"));
     
-    for ( int i = 0; i < xyz_airfoil.length(); i++ )
+    for ( int i = 0; i < xyz_airfoil.size(); i++ )
     {
         string line = xyz_airfoil[i][0] + string( ", " ) + xyz_airfoil[i][1] + string( "\n" );
         fid.writeString( line );
