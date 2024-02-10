@@ -1657,6 +1657,7 @@ void WingGeom::PasteWingSect( int index  )
         XSec* xs = m_XSecSurf.FindXSec( index );
         if ( xs )
             xs->SetLateUpdateFlag( true );
+        m_SurfDirty = true;
         Update();
     }
 }
