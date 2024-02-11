@@ -10,7 +10,7 @@ IF( NOT VSP_NO_GRAPHICS )
     add_custom_command(
       OUTPUT ${basename}.C ${basename}.H
       MAIN_DEPENDENCY ${basename}.fl
-      COMMAND ${FLTK_FLUID_EXECUTABLE} -o .C -h .H -c ${CMAKE_CURRENT_SOURCE_DIR}/${basename}.fl
+      COMMAND fltk::fluid -o .C -h .H -c ${CMAKE_CURRENT_SOURCE_DIR}/${basename}.fl
     )
     set( ${prjname}_FLTK_UI_SRCS
       ${${prjname}_FLTK_UI_SRCS} ${basename}.C

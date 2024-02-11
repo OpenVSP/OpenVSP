@@ -57,7 +57,7 @@ jobs:
       run:   |
         mkdir build buildlibs artifacts
         cd $GITHUB_WORKSPACE/buildlibs
-        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DVSP_USE_SYSTEM_CPPTEST=false ../Libraries
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true ../Libraries
         make -j2
         
         cd $GITHUB_WORKSPACE/build
