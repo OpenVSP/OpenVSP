@@ -263,13 +263,13 @@ extern void VSPCheckSetup();
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     SetParmVal( pod_id, "Y_Rel_Location", "XForm", 2.0 )
 
     VSPRenew()
 
-    if  FindGeoms().size() != 0 : Print( "ERROR: VSPRenew" ); }
+    if  len(FindGeoms()) != 0 : print( "ERROR: VSPRenew" )
 
     \endcode
     \endPythonOnly
@@ -302,9 +302,9 @@ extern void VSPRenew();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
-    string xsec_surf = GetXSecSurf( fid, 0 )           # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( fid, 0 )           # Get First (and Only) XSec Surf
 
     num_xsecs = GetNumXSec( xsec_surf )
 
@@ -360,9 +360,9 @@ extern int GetAndResetUpdateCount();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "The current OpenVSP version is: ", False )
+    print( "The current OpenVSP version is: ", False )
 
-    Print( GetVSPVersion() )
+    print( GetVSPVersion() )
 
     \endcode
     \endPythonOnly
@@ -389,13 +389,13 @@ extern std::string GetVSPVersion();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "The current OpenVSP version is: ", False )
+    print( "The current OpenVSP version is: ", False )
 
     major = GetVSPVersionMajor()
     minor = GetVSPVersionMinor()
     change = GetVSPVersionChange()
 
-    Print( formatInt(major) + "." + formatInt(minor) + "." + formatInt(change) )
+    print( f"{major}.{minor}.{change}" )
 
     \endcode
     \endPythonOnly
@@ -422,13 +422,13 @@ extern int GetVSPVersionMajor();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "The current OpenVSP version is: ", False )
+    print( "The current OpenVSP version is: ", False )
 
     major = GetVSPVersionMajor()
     minor = GetVSPVersionMinor()
     change = GetVSPVersionChange()
 
-    Print( formatInt(major) + "." + formatInt(minor) + "." + formatInt(change) )
+    print( f"{major}.{minor}.{change}" )
 
     \endcode
     \endPythonOnly
@@ -455,13 +455,13 @@ extern int GetVSPVersionMinor();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "The current OpenVSP version is: ", False )
+    print( "The current OpenVSP version is: ", False )
 
     major = GetVSPVersionMajor()
     minor = GetVSPVersionMinor()
     change = GetVSPVersionChange()
 
-    Print( formatInt(major) + "." + formatInt(minor) + "." + formatInt(change) )
+    print( f"{major}.{minor}.{change}" )
 
     \endcode
     \endPythonOnly
@@ -485,9 +485,9 @@ extern int GetVSPVersionChange();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "The current VSP executable path is: ", False )
+    print( "The current VSP executable path is: ", False )
 
-    Print( GetVSPExePath() )
+    print( GetVSPExePath() )
 
     \endcode
     \endPythonOnly
@@ -518,7 +518,7 @@ extern std::string GetVSPExePath();
     \beginPythonOnly
     \code{.py}
     if  not CheckForVSPAERO( GetVSPExePath() ) :
-        string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5"
+        vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5"
         SetVSPAEROPath( vspaero_path )
 
     \endcode
@@ -548,7 +548,7 @@ extern bool SetVSPAEROPath( const std::string & path );
     \beginPythonOnly
     \code{.py}
     if  not CheckForVSPAERO( GetVSPAEROPath() ) :
-        Print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." )
+        print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." )
 
     \endcode
     \endPythonOnly
@@ -577,7 +577,7 @@ extern std::string GetVSPAEROPath();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5"
+    vspaero_path = "C:/Users/example_user/Documents/OpenVSP_3.4.5"
 
     if  CheckForVSPAERO( vspaero_path ) :
         SetVSPAEROPath( vspaero_path )
@@ -628,23 +628,23 @@ extern void RegisterCFDMeshAnalyses();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
-    string fname = "example_fuse.vsp3"
+    fname = "example_fuse.vsp3"
 
     SetVSP3FileName( fname )
 
     Update()
 
     #==== Save Vehicle to File ====//
-    Print( "\tSaving vehicle file to: ", False )
+    print( "\tSaving vehicle file to: ", False )
 
-    Print( fname )
+    print( fname )
 
     WriteVSPFile( GetVSPFileName(), SET_ALL )
 
     #==== Reset Geometry ====//
-    Print( string( "--->Resetting VSP model to blank slate\n" ) )
+    print( "--->Resetting VSP model to blank slate\n" )
 
     ClearVSPModel()
 
@@ -689,23 +689,23 @@ extern void ReadVSPFile( const std::string & file_name );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
-    string fname = "example_fuse.vsp3"
+    fname = "example_fuse.vsp3"
 
     SetVSP3FileName( fname )
 
     Update()
 
     #==== Save Vehicle to File ====//
-    Print( "\tSaving vehicle file to: ", False )
+    print( "\tSaving vehicle file to: ", False )
 
-    Print( fname )
+    print( fname )
 
     WriteVSPFile( GetVSPFileName(), SET_ALL )
 
     #==== Reset Geometry ====//
-    Print( string( "--->Resetting VSP model to blank slate\n" ) )
+    print( "--->Resetting VSP model to blank slate\n" )
 
     ClearVSPModel()
 
@@ -751,23 +751,23 @@ extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
-    string fname = "example_fuse.vsp3"
+    fname = "example_fuse.vsp3"
 
     SetVSP3FileName( fname )
 
     Update()
 
     #==== Save Vehicle to File ====//
-    Print( "\tSaving vehicle file to: ", False )
+    print( "\tSaving vehicle file to: ", False )
 
-    Print( fname )
+    print( fname )
 
     WriteVSPFile( GetVSPFileName(), SET_ALL )
 
     #==== Reset Geometry ====//
-    Print( string( "--->Resetting VSP model to blank slate\n" ) )
+    print( "--->Resetting VSP model to blank slate\n" )
 
     ClearVSPModel()
 
@@ -805,18 +805,18 @@ extern void SetVSP3FileName( const std::string & file_name );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
-    string fname = "example_fuse.vsp3"
+    fname = "example_fuse.vsp3"
 
     SetVSP3FileName( fname )
 
     Update()
 
     #==== Save Vehicle to File ====//
-    Print( "\tSaving vehicle file to: ", False )
+    print( "\tSaving vehicle file to: ", False )
 
-    Print( fname )
+    print( fname )
 
     WriteVSPFile( GetVSPFileName(), SET_ALL )
 
@@ -843,10 +843,10 @@ extern std::string GetVSPFileName();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
     #==== Reset Geometry ====//
-    Print( string( "--->Resetting VSP model to blank slate\n" ) )
+    print( "--->Resetting VSP model to blank slate\n" )
     ClearVSPModel()
 
     \endcode
@@ -886,11 +886,11 @@ extern void InsertVSPFile( const std::string & file_name, const std::string & pa
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING" )             # Add Wing
+    wid = AddGeom( "WING" )             # Add Wing
 
     ExportFile( "Airfoil_Metadata.csv", SET_ALL, EXPORT_SELIG_AIRFOIL )
 
-    string mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH )
+    mesh_id = ExportFile( "Example_Mesh.msh", SET_ALL, EXPORT_GMSH )
     DeleteGeom( mesh_id ) # Delete the mesh generated by the GMSH export
 
     \endcode
@@ -939,7 +939,7 @@ extern std::string ImportFile( const std::string & file_name, int file_type, con
     \beginPythonOnly
     \code{.py}
     #==== Add Prop Geometry ====//
-    string prop_id = AddGeom( "PROP" )
+    prop_id = AddGeom( "PROP" )
 
     SetBEMPropID( prop_id )
 
@@ -1105,15 +1105,15 @@ extern void SetComputationFileName( int file_type, const std::string & file_name
     \beginPythonOnly
     \code{.py}
     #==== Test Mass Props ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
-    string mesh_id = ComputeMassProps( SET_ALL, 20, X_DIR )
+    mesh_id = ComputeMassProps( SET_ALL, 20, X_DIR )
 
-    string mass_res_id = FindLatestResultsID( "Mass_Properties" )
+    mass_res_id = FindLatestResultsID( "Mass_Properties" )
 
-    array<double> @double_arr = GetDoubleResults( mass_res_id, "Total_Mass" )
+    double_arr = GetDoubleResults( mass_res_id, "Total_Mass" )
 
-    if  double_arr.size() != 1 : Print( "---> Error: API ComputeMassProps" ); }
+    if  len(double_arr) != 1 : print( "---> Error: API ComputeMassProps" )
 
     \endcode
     \endPythonOnly
@@ -1147,14 +1147,14 @@ extern std::string ComputeMassProps( int set, int num_slices, int idir );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geom ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     #==== Run CompGeom And Get Results ====//
-    string mesh_id = ComputeCompGeom( SET_ALL, False, 0 )                      # Half Mesh false and no file export
+    mesh_id = ComputeCompGeom( SET_ALL, False, 0 )                      # Half Mesh false and no file export
 
-    string comp_res_id = FindLatestResultsID( "Comp_Geom" )                    # Find Results ID
+    comp_res_id = FindLatestResultsID( "Comp_Geom" )                    # Find Results ID
 
-    array<double> @double_arr = GetDoubleResults( comp_res_id, "Wet_Area" )    # Extract Results
+    double_arr = GetDoubleResults( comp_res_id, "Wet_Area" )    # Extract Results
 
     \endcode
     \endPythonOnly
@@ -1190,16 +1190,16 @@ extern std::string ComputeCompGeom( int set, bool half_mesh, int file_export_typ
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geom ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     #==== Test Plane Slice ====//
-    string slice_mesh_id = ComputePlaneSlice( 0, 6, vec3d( 0.0, 0.0, 1.0 ), True )
+    slice_mesh_id = ComputePlaneSlice( 0, 6, vec3d( 0.0, 0.0, 1.0 ), True )
 
-    string pslice_results = FindLatestResultsID( "Slice" )
+    pslice_results = FindLatestResultsID( "Slice" )
 
-    array<double> @double_arr = GetDoubleResults( pslice_results, "Slice_Area" )
+    double_arr = GetDoubleResults( pslice_results, "Slice_Area" )
 
-    if  double_arr.size() != 6 : Print( "---> Error: API ComputePlaneSlice" ); }
+    if  len(double_arr) != 6 : print( "---> Error: API ComputePlaneSlice" )
 
     \endcode
     \endPythonOnly
@@ -1268,7 +1268,7 @@ extern void ComputeDegenGeom( int set, int file_export_types );
     #==== CFDMesh Method Facet Export =====//
     SetComputationFileName( CFD_FACET_TYPE, "TestCFDMeshFacet_API.facet" )
 
-   Print( "\tComputing CFDMesh..." )
+   print( "\tComputing CFDMesh..." )
 
     ComputeCFDMesh( SET_ALL, SET_NONE, CFD_FACET_TYPE )
 
@@ -1325,7 +1325,7 @@ extern void SetCFDMeshVal( int type, double val );
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geom ====//
-    string wid = AddGeom( "WING", "" )
+    wid = AddGeom( "WING", "" )
 
     SetCFDWakeFlag( wid, True )
     # This is equivalent to SetParmValUpdate( wid, "Wake", "Shape", 1.0 )
@@ -1359,7 +1359,7 @@ extern void SetCFDWakeFlag( const std::string & geom_id, bool flag );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geom ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
 
@@ -1387,7 +1387,7 @@ extern void DeleteAllCFDSources();
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geom ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     AddDefaultSources() # 3 Sources: Def_Fwd_PS, Def_Aft_PS, Def_Fwd_Aft_LS
 
@@ -1413,7 +1413,7 @@ extern void AddDefaultSources();
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geom ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 )      # Add A Point Source
 
@@ -1480,12 +1480,12 @@ extern string GetVSPAERORefWingID();
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geom and set some parameters =====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     SetGeomName( wing_id, "MainWing" )
 
     #==== Add Vertical tail and set some parameters =====//
-    string vert_id = AddGeom( "WING" )
+    vert_id = AddGeom( "WING" )
 
     SetGeomName( vert_id, "Vert" )
 
@@ -1496,9 +1496,9 @@ extern string GetVSPAERORefWingID();
     #==== Set VSPAERO Reference lengths & areas ====//
     SetVSPAERORefWingID( wing_id ) # Set as reference wing for VSPAERO
 
-    Print( "VSPAERO Reference Wing ID: ", False )
+    print( "VSPAERO Reference Wing ID: ", False )
 
-    Print( GetVSPAERORefWingID() )
+    print( GetVSPAERORefWingID() )
 
     \endcode
     \endPythonOnly
@@ -1526,7 +1526,7 @@ extern string SetVSPAERORefWingID( const std::string & geom_id );
     \code{.py}
     nanalysis = GetNumAnalysis()
 
-    Print( "Number of registered analyses: " + nanalysis )
+    print( "Number of registered analyses: " + nanalysis )
 
     \endcode
     \endPythonOnly
@@ -1554,13 +1554,13 @@ extern int GetNumAnalysis();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    array< string > @analysis_array = ListAnalysis()
+    analysis_array = ListAnalysis()
 
-    Print( "List of Available Analyses: " )
+    print( "List of Available Analyses: " )
 
-    for ( i = 0; i < int( analysis_array.size() ); i++ )
-    {
-        Print( "    " + analysis_array[i] )
+    for i in range(int( len(analysis_array) )):
+
+        print( "    " + analysis_array[i] )
 
     \endcode
     \endPythonOnly
@@ -1590,15 +1590,15 @@ extern std::vector<std::string> ListAnalysis();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
-    array<string>@ in_names =  GetAnalysisInputNames( analysis_name )
+    in_names =  GetAnalysisInputNames( analysis_name )
 
-    Print("Analysis Inputs: ")
+    print("Analysis Inputs: ")
 
-    for ( i = 0; i < int( in_names.size() ); i++)
-    {
-        Print( ( "\t" + in_names[i] + "\n" ) )
+    for i in range(int( len(in_names) )):
+
+        print( ( "\t" + in_names[i] + "\n" ) )
 
     \endcode
     \endPythonOnly
@@ -1622,9 +1622,9 @@ extern std::vector<std::string> GetAnalysisInputNames( const std::string & analy
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
-    string doc = GetAnalysisDoc( analysis_name )
+    doc = GetAnalysisDoc( analysis_name )
 
     \endcode
     \endPythonOnly
@@ -1666,9 +1666,9 @@ extern std::string GetAnalysisInputDoc( const std::string & analysis, const std:
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
-    string res_id = ExecAnalysis( analysis_name )
+    res_id = ExecAnalysis( analysis_name )
 
     \endcode
     \endPythonOnly
@@ -1710,13 +1710,13 @@ extern int GetNumAnalysisInputData( const std::string & analysis, const std::str
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string analysis = "VSPAEROComputeGeometry"
+    analysis = "VSPAEROComputeGeometry"
 
-    array < string > @ inp_array = GetAnalysisInputNames( analysis )
+    inp_array = GetAnalysisInputNames( analysis )
 
-    for ( j = 0; j < int( inp_array.size() ); j++ )
-    {
-        typ = GetAnalysisInputType( analysis; inp_array[j] )
+    for j in range(int( len(inp_array) )):
+
+        typ = GetAnalysisInputType( analysis, inp_array[j] )
 
     \endcode
     \endPythonOnly
@@ -1749,12 +1749,12 @@ extern int GetAnalysisInputType( const std::string & analysis, const std::string
     \beginPythonOnly
     \code{.py}
     #==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
     # Set to panel method
-    array< > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" )
+    analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" )
 
-    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE )
+    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD.VORTEX_LATTICE )
 
     SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method )
 
@@ -1785,7 +1785,7 @@ extern const std::vector< int > & GetIntAnalysisInput( const std::string & analy
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    array<double> vinfFCinput = GetDoubleAnalysisInput( "ParasiteDrag", "Vinf" )
+    vinfFCinput = GetDoubleAnalysisInput( "ParasiteDrag", "Vinf" )
 
     vinfFCinput[0] = 629
 
@@ -1818,7 +1818,7 @@ extern const std::vector< double > & GetDoubleAnalysisInput( const std::string &
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    array<string> fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" )
+    fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" )
 
     fileNameInput[0] = "ParasiteDragExample"
 
@@ -1853,7 +1853,7 @@ extern const std::vector<std::string> & GetStringAnalysisInput( const std::strin
     \beginPythonOnly
     \code{.py}
     # PlanarSlice
-    array<vec3d> norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" )
+    norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" )
 
     norm[0].set_xyz( 0.23, 0.6, 0.15 )
 
@@ -1888,7 +1888,7 @@ extern const std::vector< vec3d > & GetVec3dAnalysisInput( const std::string & a
     \beginPythonOnly
     \code{.py}
     #==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
     # Set defaults
     SetAnalysisInputDefaults( analysis_name )
@@ -1921,12 +1921,12 @@ extern void SetAnalysisInputDefaults( const std::string & analysis );
     \beginPythonOnly
     \code{.py}
     #==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
     # Set to panel method
-    array< > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" )
+    analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" )
 
-    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE )
+    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD.VORTEX_LATTICE )
 
     SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method )
 
@@ -1963,13 +1963,13 @@ extern void SetIntAnalysisInput( const std::string & analysis, const std::string
     \beginPythonOnly
     \code{.py}
     #==== Analysis: CpSlicer ====//
-    string analysis_name = "CpSlicer"
+    analysis_name = "CpSlicer"
 
     # Setup cuts
-    array < > ycuts
-    ycuts.push_back( 2.0 )
-    ycuts.push_back( 4.5 )
-    ycuts.push_back( 8.0 )
+    ycuts = []
+    ycuts.append( 2.0 )
+    ycuts.append( 4.5 )
+    ycuts.append( 8.0 )
 
     SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 )
 
@@ -2000,7 +2000,7 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    array<string> fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" )
+    fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" )
 
     fileNameInput[0] = "ParasiteDragExample"
 
@@ -2035,7 +2035,7 @@ extern void SetStringAnalysisInput( const std::string & analysis, const std::str
     \beginPythonOnly
     \code{.py}
     # PlanarSlice
-    array<vec3d> norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" )
+    norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" )
 
     norm[0].set_xyz( 0.23, 0.6, 0.15 )
 
@@ -2070,7 +2070,7 @@ extern void SetVec3dAnalysisInput( const std::string & analysis, const std::stri
     \beginPythonOnly
     \code{.py}
     #==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
     # list inputs, type, and current values
     PrintAnalysisInputs( analysis_name )
@@ -2099,7 +2099,7 @@ extern void PrintAnalysisInputs( const std::string & analysis_name );
     \beginPythonOnly
     \code{.py}
     #==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
     # list inputs, type, and documentation
     PrintAnalysisDocs( analysis_name )
@@ -2137,11 +2137,11 @@ extern void PrintAnalysisDocs( const std::string & analysis_name );
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    array< string > @results_array = GetAllResultsNames()
+    results_array = GetAllResultsNames()
 
-    for ( i = 0; i < int( results_array.size() ); i++ )
-    {
-        string resid = FindLatestResultsID( results_array[i] )
+    for i in range(int( len(results_array) )):
+
+        resid = FindLatestResultsID( results_array[i] )
         PrintResults( resid )
 
     \endcode
@@ -2173,11 +2173,11 @@ extern std::vector<std::string> GetAllResultsNames();
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    string res_id = FindResultsID( "Test_Results" )
+    res_id = FindResultsID( "Test_Results" )
 
-    array< string > @data_names = GetAllDataNames( res_id )
+    data_names = GetAllDataNames( res_id )
 
-    if  data_names.size() != 5 : Print( "---> Error: API GetAllDataNames" ); }
+    if  len(data_names) != 5 : print( "---> Error: API GetAllDataNames" )
 
     \endcode
     \endPythonOnly
@@ -2205,7 +2205,7 @@ extern std::vector<std::string> GetAllDataNames( const std::string & results_id 
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    if ( GetNumResults( "Test_Results" ) != 2 )                { Print( "---> Error: API GetNumResults" ); }
+    if ( GetNumResults( "Test_Results" ) != 2 ): print( "---> Error: API GetNumResults" )
 
     \endcode
     \endPythonOnly
@@ -2238,16 +2238,16 @@ extern int GetNumResults( const std::string & name );
     \beginPythonOnly
     \code{.py}
     #==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
     # Set defaults
     SetAnalysisInputDefaults( analysis_name )
 
-    string res_id = ( ExecAnalysis( analysis_name ) )
+    res_id = ( ExecAnalysis( analysis_name ) )
 
-    Print( "Results Name: ", False )
+    print( "Results Name: ", False )
 
-    Print( GetResultsName( res_id ) )
+    print( GetResultsName( res_id ) )
 
     \endcode
     \endPythonOnly
@@ -2280,16 +2280,16 @@ extern std::string GetResultsName(const std::string & results_id );
     \beginPythonOnly
     \code{.py}
     #==== Analysis: VSPAero Compute Geometry ====//
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
     # Set defaults
     SetAnalysisInputDefaults( analysis_name )
 
-    string res_id = ( ExecAnalysis( analysis_name ) )
+    res_id = ( ExecAnalysis( analysis_name ) )
 
-    Print( "Results doc: ", False )
+    print( "Results doc: ", False )
 
-    Print( GetResultsSetDoc( res_id ) )
+    print( GetResultsSetDoc( res_id ) )
 
     \endcode
     \endPythonOnly
@@ -2321,9 +2321,9 @@ extern std::string GetResultsEntryDoc( const std::string & results_id, const std
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    string res_id = FindResultsID( "Test_Results" )
+    res_id = FindResultsID( "Test_Results" )
 
-    if  res_id.size() == 0 : Print( "---> Error: API FindResultsID" ); }
+    if  len(res_id) == 0 : print( "---> Error: API FindResultsID" )
 
     \endcode
     \endPythonOnly
@@ -2358,11 +2358,11 @@ extern std::string FindResultsID( const std::string & name, int index = 0 );
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    array< string > @results_array = GetAllResultsNames()
+    results_array = GetAllResultsNames()
 
-    for ( i = 0; i < int( results_array.size() ); i++ )
-    {
-        string resid = FindLatestResultsID( results_array[i] )
+    for i in range(int( len(results_array) )):
+
+        resid = FindLatestResultsID( results_array[i] )
         PrintResults( resid )
 
     \endcode
@@ -2401,17 +2401,17 @@ extern std::string FindLatestResultsID( const std::string & name );
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    string res_id = FindResultsID( "Test_Results" )
+    res_id = FindResultsID( "Test_Results" )
 
-    if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
+    if ( GetNumData( res_id, "Test_Int" ) != 2 ): print( "---> Error: API GetNumData " )
 
-    array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 )
+    int_arr = GetIntResults( res_id, "Test_Int", 0 )
 
-    if  int_arr[0] != 1 : Print( "---> Error: API GetIntResults" ); }
+    if  int_arr[0] != 1 : print( "---> Error: API GetIntResults" )
 
     int_arr = GetIntResults( res_id, "Test_Int", 1 )
 
-    if  int_arr[0] != 2 : Print( "---> Error: API GetIntResults" ); }
+    if  int_arr[0] != 2 : print( "---> Error: API GetIntResults" )
 
     \endcode
     \endPythonOnly
@@ -2447,12 +2447,12 @@ extern int GetNumData( const std::string & results_id, const std::string & data_
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    string res_id = FindResultsID( "Test_Results" )
+    res_id = FindResultsID( "Test_Results" )
 
-    array < string > @ res_array = GetAllDataNames( res_id )
+    res_array = GetAllDataNames( res_id )
 
-    for ( j = 0; j < int( res_array.size() ); j++ )
-    {
+    for j in range(int( len(res_array) )):
+
         typ = GetResultsType( res_id; res_array[j] )
 
     \endcode
@@ -2493,17 +2493,17 @@ extern int GetResultsType( const std::string & results_id, const std::string & d
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    string res_id = FindResultsID( "Test_Results" )
+    res_id = FindResultsID( "Test_Results" )
 
-    if ( GetNumData( res_id, "Test_Int" ) != 2 )            { Print( "---> Error: API GetNumData " ); }
+    if ( GetNumData( res_id, "Test_Int" ) != 2 ): print( "---> Error: API GetNumData " )
 
-    array<int> @int_arr = GetIntResults( res_id, "Test_Int", 0 )
+    int_arr = GetIntResults( res_id, "Test_Int", 0 )
 
-    if  int_arr[0] != 1 : Print( "---> Error: API GetIntResults" ); }
+    if  int_arr[0] != 1 : print( "---> Error: API GetIntResults" )
 
     int_arr = GetIntResults( res_id, "Test_Int", 1 )
 
-    if  int_arr[0] != 2 : Print( "---> Error: API GetIntResults" ); }
+    if  int_arr[0] != 2 : print( "---> Error: API GetIntResults" )
 
     \endcode
     \endPythonOnly
@@ -2536,14 +2536,14 @@ extern const std::vector< int > & GetIntResults( const std::string & id, const s
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geom ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     #==== Run CompGeom And View Results ====//
-    string mesh_id = ComputeCompGeom( SET_ALL, False, 0 )                      # Half Mesh false and no file export
+    mesh_id = ComputeCompGeom( SET_ALL, False, 0 )                      # Half Mesh false and no file export
 
-    string comp_res_id = FindLatestResultsID( "Comp_Geom" )                    # Find Results ID
+    comp_res_id = FindLatestResultsID( "Comp_Geom" )                    # Find Results ID
 
-    array<double> @double_arr = GetDoubleResults( comp_res_id, "Wet_Area" )    # Extract Results
+    double_arr = GetDoubleResults( comp_res_id, "Wet_Area" )    # Extract Results
 
     \endcode
     \endPythonOnly
@@ -2590,11 +2590,11 @@ extern const std::vector< std::vector< double > > & GetDoubleMatResults( const s
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    string res_id = FindResultsID( "Test_Results" )
+    res_id = FindResultsID( "Test_Results" )
 
-    array<string> @str_arr = GetStringResults( res_id, "Test_String" )
+    str_arr = GetStringResults( res_id, "Test_String" )
 
-    if ( str_arr[0] != "This Is A Test" )                    { Print( "---> Error: API GetStringResults" ); }
+    if ( str_arr[0] != "This Is A Test" ): print( "---> Error: API GetStringResults" )
 
     \endcode
     \endPythonOnly
@@ -2641,18 +2641,18 @@ extern const std::vector<std::string> & GetStringResults( const std::string & id
 
     WriteTestResults()
 
-    string res_id = FindLatestResultsID( "Test_Results" )
+    res_id = FindLatestResultsID( "Test_Results" )
 
-    array<vec3d> @vec3d_vec = GetVec3dResults( res_id, "Test_Vec3d" )
+    vec3d_vec = GetVec3dResults( res_id, "Test_Vec3d" )
 
-    Print( "X: ", False )
-    Print( vec3d_vec[0].x(), False )
+    print( "X: ", False )
+    print( vec3d_vec[0].x(), False )
 
-    Print( "\tY: ", False )
-    Print( vec3d_vec[0].y(), False )
+    print( "\tY: ", False )
+    print( vec3d_vec[0].y(), False )
 
-    Print( "\tZ: ", False )
-    Print( vec3d_vec[0].z() )
+    print( "\tZ: ", False )
+    print( vec3d_vec[0].z() )
 
     \endcode
     \endPythonOnly
@@ -2687,16 +2687,16 @@ extern const std::vector< vec3d > & GetVec3dResults( const std::string & id, con
     \beginPythonOnly
     \code{.py}
     #==== Test Comp Geom ====//
-    string gid1 = AddGeom( "POD", "" )
+    gid1 = AddGeom( "POD", "" )
 
-    string mesh_id = ComputeCompGeom( 0, False, 0 )
+    mesh_id = ComputeCompGeom( 0, False, 0 )
 
     #==== Test Comp Geom Mesh Results ====//
-    string mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" )
+    mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" )
 
-    array<int> @int_arr = GetIntResults( mesh_geom_res_id, "Num_Tris" )
+    int_arr = GetIntResults( mesh_geom_res_id, "Num_Tris" )
 
-    if  int_arr[0] < 4 : Print( "---> Error: API CreateGeomResults" ); }
+    if  int_arr[0] < 4 : print( "---> Error: API CreateGeomResults" )
 
     \endcode
     \endPythonOnly
@@ -2730,16 +2730,16 @@ extern std::string CreateGeomResults( const std::string & geom_id, const std::st
     \beginPythonOnly
     \code{.py}
     #==== Test Comp Geom ====//
-    string gid1 = AddGeom( "POD", "" )
+    gid1 = AddGeom( "POD", "" )
 
-    string mesh_id = ComputeCompGeom( 0, False, 0 )
+    mesh_id = ComputeCompGeom( 0, False, 0 )
 
     #==== Test Comp Geom Mesh Results ====//
-    string mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" )
+    mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" )
 
     DeleteAllResults()
 
-    if ( GetNumResults( "Comp_Mesh" ) != 0 )                { Print( "---> Error: API DeleteAllResults" ); }
+    if ( GetNumResults( "Comp_Mesh" ) != 0 ): print( "---> Error: API DeleteAllResults" )
 
     \endcode
     \endPythonOnly
@@ -2770,16 +2770,16 @@ extern void DeleteAllResults();
     \beginPythonOnly
     \code{.py}
     #==== Test Comp Geom ====//
-    string gid1 = AddGeom( "POD", "" )
+    gid1 = AddGeom( "POD", "" )
 
-    string mesh_id = ComputeCompGeom( 0, False, 0 )
+    mesh_id = ComputeCompGeom( 0, False, 0 )
 
     #==== Test Comp Geom Mesh Results ====//
-    string mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" )
+    mesh_geom_res_id = CreateGeomResults( mesh_id, "Comp_Mesh" )
 
     DeleteResult( mesh_geom_res_id )
 
-    if ( GetNumResults( "Comp_Mesh" ) != 0 )                { Print( "---> Error: API DeleteResult" ); }
+    if ( GetNumResults( "Comp_Mesh" ) != 0 ): print( "---> Error: API DeleteResult" )
 
     \endcode
     \endPythonOnly
@@ -2808,11 +2808,11 @@ extern void DeleteResult( const std::string & id );
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pid = AddGeom( "POD" )
+    pid = AddGeom( "POD" )
 
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
-    string rid = ExecAnalysis( analysis_name )
+    rid = ExecAnalysis( analysis_name )
 
     WriteResultsCSVFile( rid, "CompGeomRes.csv" )
 
@@ -2845,11 +2845,11 @@ extern void WriteResultsCSVFile( const std::string & id, const std::string & fil
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pid = AddGeom( "POD" )
+    pid = AddGeom( "POD" )
 
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
-    string rid = ExecAnalysis( analysis_name )
+    rid = ExecAnalysis( analysis_name )
 
     # Get & Display Results
     PrintResults( rid )
@@ -2882,11 +2882,11 @@ extern void PrintResults( const std::string &results_id );
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pid = AddGeom( "POD" )
+    pid = AddGeom( "POD" )
 
-    string analysis_name = "VSPAEROComputeGeometry"
+    analysis_name = "VSPAEROComputeGeometry"
 
-    string rid = ExecAnalysis( analysis_name )
+    rid = ExecAnalysis( analysis_name )
 
     # Get & Display Results Docs
     PrintResultsDoc( rid )
@@ -3231,9 +3231,9 @@ extern void PopupMsg( const std::string &msg );
     InitGUI()
     StartGUI()
 
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
-    string length = FindParm( pod_id, "Length", "Design" )
+    length = FindParm( pod_id, "Length", "Design" )
 
     SetParmVal( length, 13.0 )
 
@@ -3269,14 +3269,10 @@ extern void UpdateGUI();
     \beginPythonOnly
     \code{.py}
 
-    if ( IsGUIBuild() )
-    {
-        Print( "OpenVSP build is graphics capable." )
-    }
-    else
-    {
-        Print( "OpenVSP build is not graphics capable." )
-    }
+    if ( IsGUIBuild() ):
+        print( "OpenVSP build is graphics capable." )
+    else:
+        print( "OpenVSP build is not graphics capable." )
 
     \endcode
     \endPythonOnly
@@ -3319,12 +3315,12 @@ extern bool IsGUIBuild();
     InitGUI()
     StartGUI()
 
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     Lock()
-    string rid = ExecAnalysis( "CompGeom" )
+    rid = ExecAnalysis( "CompGeom" )
 
-    array<string>@ mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" )
+    mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" )
 
     DeleteGeomVec( mesh_id_vec )
     Unlock()
@@ -3367,12 +3363,12 @@ extern void Lock( );
     InitGUI()
     StartGUI()
 
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     Lock()
-    string rid = ExecAnalysis( "CompGeom" )
+    rid = ExecAnalysis( "CompGeom" )
 
-    array<string>@ mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" )
+    mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" )
 
     DeleteGeomVec( mesh_id_vec )
     Unlock()
@@ -3405,7 +3401,7 @@ extern void Unlock( );
     screenw = 2000                                             # Set screenshot width and height
     screenh = 2000
 
-    string fname = "test_screen_grab.png"
+    fname = "test_screen_grab.png"
 
     ScreenGrab( fname, screenw, screenh, True, True )                # Take PNG screenshot
 
@@ -3476,7 +3472,7 @@ extern void SetShowBorders( bool brdr );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid = AddGeom( "POD", "" )                             # Add Pod for testing
+    pid = AddGeom( "POD", "" )                             # Add Pod for testing
 
     SetGeomDrawType( pid, GEOM_DRAW_SHADE )                       # Make pod appear as shaded
 
@@ -3503,7 +3499,7 @@ extern void SetGeomDrawType(const string &geom_id, int type);
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid = AddGeom( "POD" )                             # Add Pod for testing
+    pid = AddGeom( "POD" )                             # Add Pod for testing
 
     SetGeomDisplayType( pid, DISPLAY_DEGEN_PLATE )                       # Make pod appear as Bezier plate (Degen Geom)
 
@@ -3610,7 +3606,7 @@ extern void SetGeomScreenDisable( int s, bool state );
     Get an array of all Geom types (i.e FUSELAGE, POD, etc.)
     \forcpponly
     \code{.cpp}
-        //==== Add Pod Geometries ====//
+    //==== Add Pod Geometries ====//
     string pod1 = AddGeom( "POD", "" );
     string pod2 = AddGeom( "POD", "" );
 
@@ -3621,13 +3617,13 @@ extern void SetGeomScreenDisable( int s, bool state );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-        #==== Add Pod Geometries ====//
-    string pod1 = AddGeom( "POD", "" )
-    string pod2 = AddGeom( "POD", "" )
+    #==== Add Pod Geometries ====//
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
 
-    array< string > @type_array = GetGeomTypes()
+    type_array = GetGeomTypes()
 
-    if ( type_array[0] != "POD" )                { Print( "---> Error: API GetGeomTypes  " ); }
+    if ( type_array[0] != "POD" ): print( "---> Error: API GetGeomTypes  " )
 
     \endcode
     \endPythonOnly
@@ -3650,7 +3646,7 @@ extern std::vector<std::string> GetGeomTypes();
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     \endcode
     \endPythonOnly
@@ -3682,10 +3678,10 @@ extern std::string AddGeom( const std::string & type, const std::string & parent
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     SetParmVal( pod_id, "X_Rel_Location", "XForm", 5.0 )
 
@@ -3718,10 +3714,10 @@ extern void UpdateGeom( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     DeleteGeom( wing_id )
 
@@ -3752,11 +3748,11 @@ extern void DeleteGeom( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
-    string rid = ExecAnalysis( "CompGeom" )
+    rid = ExecAnalysis( "CompGeom" )
 
-    array<string>@ mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" )
+    mesh_id_vec = GetStringResults( rid, "Mesh_GeomID" )
 
     DeleteGeomVec( mesh_id_vec )
 
@@ -3790,16 +3786,16 @@ extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometries ====//
-    string pid1 = AddGeom( "POD", "" )
-    string pid2 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
+    pid2 = AddGeom( "POD", "" )
 
     CutGeomToClipboard( pid1 )
 
     PasteGeomClipboard( pid2 ) # Paste Pod 1 as child of Pod 2
 
-    array< string > @geom_ids = FindGeoms()
+    geom_ids = FindGeoms()
 
-    if  geom_ids.size() != 2 : Print( "---> Error: API Cut/Paste Geom  " ); }
+    if  len(geom_ids) != 2 : print( "---> Error: API Cut/Paste Geom  " )
 
     \endcode
     \endPythonOnly
@@ -3832,16 +3828,16 @@ extern void CutGeomToClipboard( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometries ====//
-    string pid1 = AddGeom( "POD", "" )
-    string pid2 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
+    pid2 = AddGeom( "POD", "" )
 
     CopyGeomToClipboard( pid1 )
 
     PasteGeomClipboard( pid2 ) # Paste Pod 1 as child of Pod 2
 
-    array< string > @geom_ids = FindGeoms()
+    geom_ids = FindGeoms()
 
-    if  geom_ids.size() != 3 : Print( "---> Error: API Copy/Paste Geom  " ); }
+    if  len(geom_ids) != 3 : print( "---> Error: API Copy/Paste Geom  " )
 
     \endcode
     \endPythonOnly
@@ -3874,16 +3870,16 @@ extern void CopyGeomToClipboard( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometries ====//
-    string pid1 = AddGeom( "POD", "" )
-    string pid2 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
+    pid2 = AddGeom( "POD", "" )
 
     CutGeomToClipboard( pid1 )
 
     PasteGeomClipboard( pid2 ) # Paste Pod 1 as child of Pod 2
 
-    array< string > @geom_ids = FindGeoms()
+    geom_ids = FindGeoms()
 
-    if  geom_ids.size() != 2 : Print( "---> Error: API Cut/Paste Geom  " ); }
+    if  len(geom_ids) != 2 : print( "---> Error: API Cut/Paste Geom  " )
 
     \endcode
     \endPythonOnly
@@ -3913,13 +3909,13 @@ extern std::vector<std::string> PasteGeomClipboard( const std::string & parent =
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometries ====//
-    string pod1 = AddGeom( "POD", "" )
-    string pod2 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
+    pod2 = AddGeom( "POD", "" )
 
     #==== There Should Be Two Geoms =====//
-    array< string > @geom_ids = FindGeoms()
+    geom_ids = FindGeoms()
 
-    if  geom_ids.size() != 2 : Print( "---> Error: API FindGeoms " ); }
+    if  len(geom_ids) != 2 : print( "---> Error: API FindGeoms " )
 
     \endcode
     \endPythonOnly
@@ -3951,14 +3947,14 @@ extern std::vector<std::string> FindGeoms();
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     SetGeomName( pid, "ExamplePodName" )
 
-    array< string > @geom_ids = FindGeomsWithName( "ExamplePodName" )
+    geom_ids = FindGeomsWithName( "ExamplePodName" )
 
-    if  geom_ids.size() != 1 :
-        Print( "---> Error: API FindGeomsWithName " )
+    if  len(geom_ids) != 1 :
+        print( "---> Error: API FindGeomsWithName " )
 
     \endcode
     \endPythonOnly
@@ -3994,16 +3990,16 @@ extern std::vector<std::string> FindGeomsWithName( const std::string & name );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     SetGeomName( pid, "ExamplePodName" )
 
-    string geom_id = FindGeom( "ExamplePodName", 0 )
+    geom_id = FindGeom( "ExamplePodName", 0 )
 
-    array< string > @geom_ids = FindGeomsWithName( "ExamplePodName" )
+    geom_ids = FindGeomsWithName( "ExamplePodName" )
 
     if  geom_ids[0] != geom_id :
-        Print( "---> Error: API FindGeom & FindGeomsWithName" )
+        print( "---> Error: API FindGeom & FindGeomsWithName" )
 
     \endcode
     \endPythonOnly
@@ -4038,14 +4034,14 @@ extern std::string FindGeom( const std::string & name, int index );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     SetGeomName( pid, "ExamplePodName" )
 
-    array< string > @geom_ids = FindGeomsWithName( "ExamplePodName" )
+    geom_ids = FindGeomsWithName( "ExamplePodName" )
 
-    if  geom_ids.size() != 1 :
-        Print( "---> Error: API FindGeomsWithName " )
+    if  len(geom_ids) != 1 :
+        print( "---> Error: API FindGeomsWithName " )
 
     \endcode
     \endPythonOnly
@@ -4075,13 +4071,13 @@ extern void SetGeomName( const std::string & geom_id, const std::string & name )
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
     SetGeomName( pid, "ExamplePodName" )
 
-    string name_str = "Geom Name: " + GetGeomName( pid )
+    name_str = "Geom Name: " + GetGeomName( pid )
 
-    Print( name_str )
+    print( name_str )
 
     \endcode
     \endPythonOnly
@@ -4111,13 +4107,13 @@ extern std::string GetGeomName( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD", "" )
+    pid = AddGeom( "POD", "" )
 
-    Print( string( "---> Test Get Parm Arrays" ) )
+    print( "---> Test Get Parm Arrays" )
 
-    array< string > @parm_array = GetGeomParmIDs( pid )
+    parm_array = GetGeomParmIDs( pid )
 
-    if  parm_array.size() < 1 : Print( "---> Error: API GetGeomParmIDs " ); }
+    if  len(parm_array) < 1 : print( "---> Error: API GetGeomParmIDs " )
 
     \endcode
     \endPythonOnly
@@ -4145,11 +4141,11 @@ extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
-    Print( "Geom Type Name: ", False )
+    print( "Geom Type Name: ", False )
 
-    Print( GetGeomTypeName( wing_id ) )
+    print( GetGeomTypeName( wing_id ) )
 
     \endcode
     \endPythonOnly
@@ -4177,11 +4173,11 @@ extern std::string GetGeomTypeName( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD" )
+    pid = AddGeom( "POD" )
 
-    string lenid = GetParm( pid, "Length", "Design" )
+    lenid = GetParm( pid, "Length", "Design" )
 
-    if  not ValidParm( lenid ) : Print( "---> Error: API GetParm  " ); }
+    if  not ValidParm( lenid ) : print( "---> Error: API GetParm  " )
 
     \endcode
     \endPythonOnly
@@ -4213,13 +4209,13 @@ extern std::string GetParm( const std::string & geom_id, const std::string & nam
     \beginPythonOnly
     \code{.py}
     #==== Add Parent and Child Geometry ====//
-    string pod1 = AddGeom( "POD" )
+    pod1 = AddGeom( "POD" )
 
-    string pod2 = AddGeom( "POD", pod1 )
+    pod2 = AddGeom( "POD", pod1 )
 
-    Print( "Parent ID of Pod #2: ", False )
+    print( "Parent ID of Pod #2: ", False )
 
-    Print( GetGeomParent( pod2 ) )
+    print( GetGeomParent( pod2 ) )
 
     \endcode
     \endPythonOnly
@@ -4257,20 +4253,20 @@ extern std::string GetGeomParent( const std::string& geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Parent and Child Geometry ====//
-    string pod1 = AddGeom( "POD" )
+    pod1 = AddGeom( "POD" )
 
-    string pod2 = AddGeom( "POD", pod1 )
+    pod2 = AddGeom( "POD", pod1 )
 
-    string pod3 = AddGeom( "POD", pod2 )
+    pod3 = AddGeom( "POD", pod2 )
 
-    Print( "Children of Pod #1: " )
+    print( "Children of Pod #1: " )
 
-    array<string> children = GetGeomChildren( pod1 )
+    children = GetGeomChildren( pod1 )
 
-    for ( i = 0; i < int( children.size() ); i++ )
-    {
-        Print( "\t", False )
-        Print( children[i] )
+    for i in range(int( len(children) )):
+
+        print( "\t", False )
+        print( children[i] )
 
     \endcode
     \endPythonOnly
@@ -4298,11 +4294,11 @@ extern std::vector< std::string > GetGeomChildren( const std::string& geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Fuselage Geometry ====//
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
     num_xsec_surfs = GetNumXSecSurfs( fuseid )
 
-    if  num_xsec_surfs != 1 : Print( "---> Error: API GetNumXSecSurfs  " ); }
+    if  num_xsec_surfs != 1 : print( "---> Error: API GetNumXSecSurfs  " )
 
     \endcode
     \endPythonOnly
@@ -4335,15 +4331,15 @@ extern int GetNumXSecSurfs( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Prop Geometry ====//
-    string prop_id = AddGeom( "PROP" )
+    prop_id = AddGeom( "PROP" )
 
     num_surf = 0
 
     num_surf = GetNumMainSurfs( prop_id ) # Should be the same as the number of blades
 
-    Print( "Number of Propeller Surfaces: ", False )
+    print( "Number of Propeller Surfaces: ", False )
 
-    Print( num_surf )
+    print( num_surf )
 
     \endcode
     \endPythonOnly
@@ -4376,15 +4372,15 @@ extern int GetNumMainSurfs( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     num_surf = 0
 
     num_surf = GetTotalNumSurfs( wing_id ) # Wings default with XZ symmetry on -> 2 surfaces
 
-    Print( "Total Number of Wing Surfaces: ", False )
+    print( "Total Number of Wing Surfaces: ", False )
 
-    Print( num_surf )
+    print( num_surf )
 
     \endcode
     \endPythonOnly
@@ -4413,10 +4409,10 @@ extern int GetTotalNumSurfs( const std::string& geom_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     if  GetGeomVSPSurfType( wing_id ) != WING_SURF :
-        Print( "---> Error: API GetGeomVSPSurfType " )
+        print( "---> Error: API GetGeomVSPSurfType " )
 
     \endcode
     \endPythonOnly
@@ -4447,10 +4443,10 @@ extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     if  GetGeomVSPSurfCfdType( wing_id ) != CFD_NORMAL :
-        Print( "---> Error: API GetGeomVSPSurfCfdType " )
+        print( "---> Error: API GetGeomVSPSurfCfdType " )
 
     \endcode
     \endPythonOnly
@@ -4484,14 +4480,14 @@ extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind 
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD" )
+    pid = AddGeom( "POD" )
 
     SetParmVal( FindParm( pid, "Y_Rotation", "XForm" ), 45 )
     SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 )
 
     Update()
 
-    vec3d max_pnt = GetGeomBBoxMax( pid, 0, False )
+    max_pnt = GetGeomBBoxMax( pid, 0, False )
 
     \endcode
     \endPythonOnly
@@ -4526,14 +4522,14 @@ extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, 
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD" )
+    pid = AddGeom( "POD" )
 
     SetParmVal( FindParm( pid, "Y_Rotation", "XForm" ), 45 )
     SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 )
 
     Update()
 
-    vec3d min_pnt = GetGeomBBoxMin( pid, 0, False )
+    min_pnt = GetGeomBBoxMin( pid, 0, False )
 
     \endcode
     \endPythonOnly
@@ -4565,10 +4561,10 @@ extern vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind = 0, 
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
     # Note: Parm Group for SubSurfaces in the form: "SS_" + type + "_" + count (initialized at 1)
-    string ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
+    ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
 
     SetParmVal( wid, "Const_Line_Value", "SubSurface_1", 0.4 )     # Change Location
 
@@ -4605,17 +4601,17 @@ extern std::string AddSubSurf( const std::string & geom_id, int type, int surfin
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" ) # Add Wing
+    wid = AddGeom( "WING", "" ) # Add Wing
 
-    string ss_rec_1 = AddSubSurf( wid, SS_RECTANGLE ) # Add Sub Surface Rectangle #1
+    ss_rec_1 = AddSubSurf( wid, SS_RECTANGLE ) # Add Sub Surface Rectangle #1
 
-    string ss_rec_2 = AddSubSurf( wid, SS_RECTANGLE ) # Add Sub Surface Rectangle #2
+    ss_rec_2 = AddSubSurf( wid, SS_RECTANGLE ) # Add Sub Surface Rectangle #2
 
-    Print( ss_rec_2, False )
+    print( ss_rec_2, False )
 
-    Print( " = ", False )
+    print( " = ", False )
 
-    Print( GetSubSurf( wid, 1 ) )
+    print( GetSubSurf( wid, 1 ) )
 
     \endcode
     \endPythonOnly
@@ -4648,17 +4644,17 @@ extern std::string GetSubSurf( const std::string & geom_id, int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" ) # Add Wing
+    wid = AddGeom( "WING", "" ) # Add Wing
 
-    string ss_rec_1 = AddSubSurf( wid, SS_RECTANGLE ) # Add Sub Surface Rectangle #1
+    ss_rec_1 = AddSubSurf( wid, SS_RECTANGLE ) # Add Sub Surface Rectangle #1
 
-    string ss_rec_2 = AddSubSurf( wid, SS_RECTANGLE ) # Add Sub Surface Rectangle #2
+    ss_rec_2 = AddSubSurf( wid, SS_RECTANGLE ) # Add Sub Surface Rectangle #2
 
-    Print( ss_rec_2, False )
+    print( ss_rec_2, False )
 
-    Print( " = ", False )
+    print( " = ", False )
 
-    Print( GetSubSurf( wid, 1 ) )
+    print( GetSubSurf( wid, 1 ) )
 
     \endcode
     \endPythonOnly
@@ -4694,20 +4690,20 @@ extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const s
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
-    Print("Delete SS_Line\n")
+    print("Delete SS_Line\n")
 
     DeleteSubSurf( wid, ss_line_id )
 
     num_ss = GetNumSubSurf( wid )
 
-    string num_str = string("Number of SubSurfaces: ") + formatInt( num_ss, '' ) + string("\n")
+    num_str = f"Number of SubSurfaces: {num_ss}\n")
 
-    Print( num_str )
+    print( num_str )
 
     \endcode
     \endPythonOnly
@@ -4742,20 +4738,20 @@ extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
-    Print("Delete SS_Line\n")
+    print("Delete SS_Line\n")
 
     DeleteSubSurf( ss_line_id )
 
     num_ss = GetNumSubSurf( wid )
 
-    string num_str = string("Number of SubSurfaces: ") + formatInt( num_ss, '' ) + string("\n")
+    num_str = f"Number of SubSurfaces: {num_ss}\n"
 
-    Print( num_str )
+    print( num_str )
 
     \endcode
     \endPythonOnly
@@ -4782,11 +4778,11 @@ extern void DeleteSubSurf( const std::string & sub_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
-    string new_name = string("New_SS_Rec_Name")
+    new_name = "New_SS_Rec_Name"
 
     SetSubSurfName( wid, ss_rec_id, new_name )
 
@@ -4817,11 +4813,11 @@ extern void SetSubSurfName(const std::string & geom_id, const std::string & sub_
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
-    string new_name = string("New_SS_Rec_Name")
+    new_name = "New_SS_Rec_Name"
 
     SetSubSurfName( ss_rec_id, new_name )
 
@@ -4853,15 +4849,15 @@ extern void SetSubSurfName( const std::string & sub_id, const std::string & name
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
-    string rec_name = GetSubSurfName( wid, ss_rec_id )
+    rec_name = GetSubSurfName( wid, ss_rec_id )
 
-    string name_str = string("Current Name of SS_Rectangle: ") + rec_name + string("\n")
+    name_str = "Current Name of SS_Rectangle: " + rec_name + "\n"
 
-    Print( name_str )
+    print( name_str )
 
     \endcode
     \endPythonOnly
@@ -4892,15 +4888,15 @@ extern std::string GetSubSurfName( const std::string & geom_id, const std::strin
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
-    string rec_name = GetSubSurfName( wid, ss_rec_id )
+    rec_name = GetSubSurfName( wid, ss_rec_id )
 
-    string name_str = string("Current Name of SS_Rectangle: ") + rec_name + string("\n")
+    name_str = "Current Name of SS_Rectangle: " + rec_name + "\n"
 
-    Print( name_str )
+    print( name_str )
 
     \endcode
     \endPythonOnly
@@ -4931,16 +4927,16 @@ extern std::string GetSubSurfName( const std::string & sub_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
     ind = GetSubSurfIndex( ss_rec_id )
 
-    string ind_str = string("Index of SS_Rectangle: ") + ind + string("\n")
+    ind_str = "Index of SS_Rectangle: " + ind + "\n"
 
-    Print( ind_str )
+    print( ind_str )
 
     \endcode
     \endPythonOnly
@@ -4984,28 +4980,28 @@ extern int GetSubSurfIndex( const std::string & sub_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
-    array<string> id_vec = GetSubSurfIDVec( wid )
+    id_vec = GetSubSurfIDVec( wid )
 
-    string id_type_str = string( "SubSurface IDs and Type Indexes -> ")
+    id_type_str = "SubSurface IDs and Type Indexes -> "
 
-    for ( uint i = 0; i < uint(id_vec.length()); i++ )
-    {
+    for ( uint i = 0; i < uint(len(id_vec))):
+
         id_type_str += id_vec[i]
 
-        id_type_str += string(": ")
+        id_type_str += ": "
 
         id_type_str += GetSubSurfType(id_vec[i])
 
-        id_type_str += string("\t")
+        id_type_str += "\t"
 
-    id_type_str += string("\n")
+    id_type_str += "\n"
 
-    Print( id_type_str )
+    print( id_type_str )
 
     \endcode
     \endPythonOnly
@@ -5046,16 +5042,16 @@ extern std::vector<std::string> GetAllSubSurfIDs();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
     num_ss = GetNumSubSurf( wid )
 
-    string num_str = string("Number of SubSurfaces: ") + num_ss + string("\n")
+    num_str = string("Number of SubSurfaces: ") + num_ss + string("\n")
 
-    Print( num_str )
+    print( num_str )
 
     \endcode
     \endPythonOnly
@@ -5099,17 +5095,17 @@ extern int GetNumSubSurf( const std::string & geom_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
-    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
+    ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
+    ss_rec_id = AddSubSurf( wid, SS_RECTANGLE )                        # Add Sub Surface Rectangle
 
-    array<string> id_vec = GetSubSurfIDVec( wid )
+    id_vec = GetSubSurfIDVec( wid )
 
-    string id_type_str = string( "SubSurface IDs and Type Indexes -> ")
+    id_type_str = string( "SubSurface IDs and Type Indexes -> ")
 
-    for ( uint i = 0; i < uint(id_vec.length()); i++ )
-    {
+    for ( uint i = 0; i < uint(len(id_vec))):
+
         id_type_str += id_vec[i]
 
         id_type_str += string(": ")
@@ -5120,7 +5116,7 @@ extern int GetNumSubSurf( const std::string & geom_id );
 
     id_type_str += string("\n")
 
-    Print( id_type_str )
+    print( id_type_str )
 
     \endcode
     \endPythonOnly
@@ -5156,19 +5152,19 @@ extern int GetSubSurfType( const std::string & sub_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
+    ss_line_id = AddSubSurf( wid, SS_LINE )                      # Add Sub Surface Line
 
     # Get and list all Parm info for SS_Line
-    array<string> parm_id_vec = GetSubSurfParmIDs( ss_line_id )
+    parm_id_vec = GetSubSurfParmIDs( ss_line_id )
 
-    for ( uint i = 0; i < uint(parm_id_vec.length()); i++ )
-    {
-        string id_name_str = string("\tName: ") + GetParmName( parm_id_vec[i] ) + string(", Group: ") + GetParmDisplayGroupName( parm_id_vec[i] ) +
+    for ( uint i = 0; i < uint(len(parm_id_vec))):
+
+        id_name_str = string("\tName: ") + GetParmName( parm_id_vec[i] ) + string(", Group: ") + GetParmDisplayGroupName( parm_id_vec[i] ) +
             string(", ID: ") + parm_id_vec[i] + string("\n")
 
-        Print( id_name_str )
+        print( id_name_str )
 
     \endcode
     \endPythonOnly
@@ -5197,7 +5193,7 @@ extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
@@ -5235,14 +5231,14 @@ extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int
     \code{.py}
 
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     SetFeaMeshStructIndex( struct_ind )
 
-    if  FindGeoms().size() != 0 : Print( "ERROR: VSPRenew" ); }
+    if  FindGeoms()len() != 0 : print( "ERROR: VSPRenew" )
 
     \endcode
     \endPythonOnly
@@ -5271,7 +5267,7 @@ extern void SetFeaMeshStructIndex( int struct_index );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind_1 = AddFeaStruct( pod_id )
@@ -5307,12 +5303,12 @@ extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    string struct_id = GetFeaStructID( pod_id, struct_ind )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
 
     \endcode
     \endPythonOnly
@@ -5348,14 +5344,14 @@ extern std::string GetFeaStructID( const std::string & geom_id, int fea_struct_i
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind_1 = AddFeaStruct( pod_id )
 
     struct_ind_2 = AddFeaStruct( pod_id )
 
-    string struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 )
+    struct_id_2 = GetFeaStructID( pod_id, struct_ind_2 )
 
     DeleteFeaStruct( pod_id, struct_ind_1 )
 
@@ -5391,15 +5387,15 @@ extern int GetFeaStructIndex( const std::string & struct_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    string struct_id = GetFeaStructID( pod_id, struct_ind )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Get Parent Geom ID and Index ====//
-    string parent_id = GetFeaStructParentGeomID( struct_id )
+    parent_id = GetFeaStructParentGeomID( struct_id )
 
     \endcode
     \endPythonOnly
@@ -5433,17 +5429,17 @@ extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Get Structure Name ====//
-    string parm_container_name = GetFeaStructName( pod_id, struct_ind )
+    parm_container_name = GetFeaStructName( pod_id, struct_ind )
 
-    string display_name = string("Current Structure Parm Container Name: ") + parm_container_name + string("\n")
+    display_name = string("Current Structure Parm Container Name: ") + parm_container_name + string("\n")
 
-    Print( display_name )
+    print( display_name )
 
     \endcode
     \endPythonOnly
@@ -5481,7 +5477,7 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
@@ -5489,11 +5485,11 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
     #==== Change the Structure Name ====//
     SetFeaStructName( pod_id, struct_ind, "Example_Struct" )
 
-    string parm_container_id = FindContainer( "Example_Struct", struct_ind )
+    parm_container_id = FindContainer( "Example_Struct", struct_ind )
 
-    string display_id = string("New Structure Parm Container ID: ") + parm_container_id + string("\n")
+    display_id = string("New Structure Parm Container ID: ") + parm_container_id + string("\n")
 
-    Print( display_id )
+    print( display_id )
 
     \endcode
     \endPythonOnly
@@ -5526,14 +5522,14 @@ extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, c
     \beginPythonOnly
     \code{.py}
     #==== Add Geometries ====//
-    string pod_id = AddGeom( "POD" )
-    string wing_id = AddGeom( "WING" )
+    pod_id = AddGeom( "POD" )
+    wing_id = AddGeom( "WING" )
 
     #==== Add FeaStructures ====//
     pod_struct_ind = AddFeaStruct( pod_id )
     wing_struct_ind = AddFeaStruct( wing_id )
 
-    array < string > struct_id_vec = GetFeaStructIDVec()
+    struct_id_vec = GetFeaStructIDVec()
 
     \endcode
     \endPythonOnly
@@ -5565,13 +5561,13 @@ extern std::vector< std::string > GetFeaStructIDVec();
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Add Bulkead ====//
-    string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+    bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
 
     SetFeaPartName( bulkhead_id, "Bulkhead" )
 
@@ -5608,13 +5604,13 @@ extern void SetFeaPartName( const std::string & part_id, const std::string & nam
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Add Bulkead ====//
-    string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+    bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
 
     SetParmVal( FindParm( bulkhead_id, "IncludedElements", "FeaPart" ), FEA_SHELL_AND_BEAM )
 
@@ -5657,16 +5653,16 @@ extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, 
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Add Bulkead ====//
-    string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+    bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
 
     #==== Add Fixed Point ====//
-    string fixed_id = AddFeaPart( pod_id, struct_ind, FEA_FIX_POINT )
+    fixed_id = AddFeaPart( pod_id, struct_ind, FEA_FIX_POINT )
 
     #==== Delete Bulkead ====//
     DeleteFeaPart( pod_id, struct_ind, bulkhead_id )
@@ -5709,21 +5705,21 @@ extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, cons
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    string struct_id = GetFeaStructID( pod_id, struct_ind )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Add Bulkead ====//
-    string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+    bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
 
     Update()
 
     if  bulkhead_id != GetFeaPartID( struct_id, 1 ) : # These should be equivalent (index 0 is skin)
-    {
-        Print( "Error: GetFeaPartID" )
+
+        print( "Error: GetFeaPartID" )
 
     \endcode
     \endPythonOnly
@@ -5762,20 +5758,20 @@ extern std::string GetFeaPartID( const std::string & fea_struct_id, int fea_part
     \beginPythonOnly
     \code{.py}
     #==== Add Fuselage Geometry ====//
-    string fuse_id = AddGeom( "FUSELAGE" )
+    fuse_id = AddGeom( "FUSELAGE" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( fuse_id )
 
     #==== Add Bulkead ====//
-    string bulkhead_id = AddFeaPart( fuse_id, struct_ind, FEA_SLICE )
+    bulkhead_id = AddFeaPart( fuse_id, struct_ind, FEA_SLICE )
 
-    string name = "example_name"
+    name = "example_name"
     SetFeaPartName( bulkhead_id, name )
 
     if  name != GetFeaPartName( bulkhead_id ) : # These should be equivalent
-    {
-        Print( "Error: GetFeaPartName" )
+
+        print( "Error: GetFeaPartName" )
 
     \endcode
     \endPythonOnly
@@ -5811,17 +5807,17 @@ extern std::string GetFeaPartName( const std::string & part_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Add Slice ====//
-    string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+    slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
 
     if  FEA_SLICE != GetFeaPartType( slice_id ) : # These should be equivalent
-    {
-        Print( "Error: GetFeaPartType" )
+
+        print( "Error: GetFeaPartType" )
 
     \endcode
     \endPythonOnly
@@ -5857,18 +5853,18 @@ extern int GetFeaPartType( const std::string & part_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Geometries ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    string struct_id = GetFeaStructID( pod_id, struct_ind )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Add FEA Parts ====//
-    string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
-    string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME )
+    slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+    dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME )
 
-    array < string > part_id_vec = GetFeaPartIDVec( struct_id ) # Should include slice_id & dome_id
+    part_id_vec = GetFeaPartIDVec( struct_id ) # Should include slice_id & dome_id
 
     \endcode
     \endPythonOnly
@@ -5904,18 +5900,18 @@ extern std::vector< std::string > GetFeaPartIDVec( const std::string & fea_struc
     \beginPythonOnly
     \code{.py}
     #==== Add Geometries ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    string struct_id = GetFeaStructID( pod_id, struct_ind )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Add SubSurfaces ====//
-    string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
-    string rectangle_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE )
+    line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
+    rectangle_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE )
 
-    array < string > part_id_vec = GetFeaSubSurfIDVec( struct_id ) # Should include line_array_id & rectangle_id
+    part_id_vec = GetFeaSubSurfIDVec( struct_id ) # Should include line_array_id & rectangle_id
 
     \endcode
     \endPythonOnly
@@ -5965,17 +5961,17 @@ extern std::vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_st
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     #==== Add FeaStructure to Wing ====//
     struct_ind = AddFeaStruct( wing_id )
 
     #==== Add Rib ====//
-    string rib_id = AddFeaPart( wing_id, struct_ind, FEA_RIB )
+    rib_id = AddFeaPart( wing_id, struct_ind, FEA_RIB )
 
     #==== Add Spars ====//
-    string spar_id_1 = AddFeaPart( wing_id, struct_ind, FEA_SPAR )
-    string spar_id_2 = AddFeaPart( wing_id, struct_ind, FEA_SPAR )
+    spar_id_1 = AddFeaPart( wing_id, struct_ind, FEA_SPAR )
+    spar_id_2 = AddFeaPart( wing_id, struct_ind, FEA_SPAR )
 
     SetParmVal( FindParm( spar_id_1, "RelCenterLocation", "FeaPart" ), 0.25 )
     SetParmVal( FindParm( spar_id_2, "RelCenterLocation", "FeaPart" ), 0.75 )
@@ -5986,7 +5982,7 @@ extern std::vector< std::string > GetFeaSubSurfIDVec( const std::string & fea_st
     SetFeaPartPerpendicularSparID( rib_id, spar_id_2 )
 
     if  spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) :
-        Print( "Error: SetFeaPartPerpendicularSparID" )
+        print( "Error: SetFeaPartPerpendicularSparID" )
 
     \endcode
     \endPythonOnly
@@ -6035,17 +6031,17 @@ extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     #==== Add FeaStructure to Wing ====//
     struct_ind = AddFeaStruct( wing_id )
 
     #==== Add Rib ====//
-    string rib_id = AddFeaPart( wing_id, struct_ind, FEA_RIB )
+    rib_id = AddFeaPart( wing_id, struct_ind, FEA_RIB )
 
     #==== Add Spars ====//
-    string spar_id_1 = AddFeaPart( wing_id, struct_ind, FEA_SPAR )
-    string spar_id_2 = AddFeaPart( wing_id, struct_ind, FEA_SPAR )
+    spar_id_1 = AddFeaPart( wing_id, struct_ind, FEA_SPAR )
+    spar_id_2 = AddFeaPart( wing_id, struct_ind, FEA_SPAR )
 
     SetParmVal( FindParm( spar_id_1, "RelCenterLocation", "FeaPart" ), 0.25 )
     SetParmVal( FindParm( spar_id_2, "RelCenterLocation", "FeaPart" ), 0.75 )
@@ -6056,7 +6052,7 @@ extern void SetFeaPartPerpendicularSparID( const std::string& part_id, const std
     SetFeaPartPerpendicularSparID( rib_id, spar_id_2 )
 
     if  spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) :
-        Print( "Error: GetFeaPartPerpendicularSparID" )
+        print( "Error: GetFeaPartPerpendicularSparID" )
 
     \endcode
     \endPythonOnly
@@ -6091,13 +6087,13 @@ extern std::string GetFeaPartPerpendicularSparID( const std::string& part_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Add LineArray ====//
-    string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
+    line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
 
     SetParmVal( FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), 1 ) # Constant W
 
@@ -6140,16 +6136,16 @@ extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_in
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Add LineArray ====//
-    string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
+    line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
 
     #==== Add Rectangle ====//
-    string rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE )
+    rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE )
 
     #==== Delete LineArray ====//
     DeleteFeaSubSurf( pod_id, struct_ind, line_array_id )
@@ -6194,23 +6190,23 @@ extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, c
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Add Slice ====//
-    string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+    slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
 
     #==== Add LineArray ====//
-    string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
+    line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY )
 
     #==== Add Rectangle ====//
-    string rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE )
+    rect_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE )
 
     if  1 != GetFeaSubSurfIndex( rect_id ) : # These should be equivalent
-    {
-        Print( "Error: GetFeaSubSurfIndex" )
+
+        print( "Error: GetFeaSubSurfIndex" )
 
     \endcode
     \endPythonOnly
@@ -6243,14 +6239,14 @@ extern int GetFeaSubSurfIndex( const string & ss_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     #==== Add FeaStructure to Pod ====//
     struct_1 = AddFeaStruct( wing_id )
     struct_2 = AddFeaStruct( wing_id )
 
     if  NumFeaStructures() != 2 :
-        Print( "Error: NumFeaStructures" )
+        print( "Error: NumFeaStructures" )
 
     \endcode
     \endPythonOnly
@@ -6288,20 +6284,20 @@ extern int NumFeaStructures();
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    string struct_id = GetFeaStructID( pod_id, struct_ind )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Add FEA Parts ====//
-    string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
-    string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME )
+    slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE )
+    dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME )
 
     if  NumFeaParts( struct_id ) != 3 : # Includes FeaSkin
-    {
-        Print( "Error: NumFeaParts" )
+
+        print( "Error: NumFeaParts" )
 
     \endcode
     \endPythonOnly
@@ -6340,19 +6336,19 @@ extern int NumFeaParts( const std::string & fea_struct_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( wing_id )
 
-    string struct_id = GetFeaStructID( wing_id, struct_ind )
+    struct_id = GetFeaStructID( wing_id, struct_ind )
 
     #==== Add SubSurfaces ====//
-    string line_array_id = AddFeaSubSurf( wing_id, struct_ind, SS_LINE_ARRAY )
-    string rectangle_id = AddFeaSubSurf( wing_id, struct_ind, SS_RECTANGLE )
+    line_array_id = AddFeaSubSurf( wing_id, struct_ind, SS_LINE_ARRAY )
+    rectangle_id = AddFeaSubSurf( wing_id, struct_ind, SS_RECTANGLE )
 
     if  NumFeaSubSurfs( struct_id ) != 2 :
-        Print( "Error: NumFeaSubSurfs" )
+        print( "Error: NumFeaSubSurfs" )
 
     \endcode
     \endPythonOnly
@@ -6379,7 +6375,7 @@ extern int NumFeaSubSurfs( const std::string & fea_struct_id );
     \beginPythonOnly
     \code{.py}
     #==== Create FeaMaterial ====//
-    string mat_id = AddFeaMaterial()
+    mat_id = AddFeaMaterial()
 
     SetParmVal( FindParm( mat_id, "MassDensity", "FeaMaterial" ), 0.016 )
 
@@ -6407,7 +6403,7 @@ extern std::string AddFeaMaterial();
     \beginPythonOnly
     \code{.py}
     #==== Create FeaProperty ====//
-    string prop_id = AddFeaProperty()
+    prop_id = AddFeaProperty()
 
     SetParmVal( FindParm( prop_id, "Thickness", "FeaProperty" ), 0.01 )
 
@@ -6443,7 +6439,7 @@ extern std::string AddFeaProperty( int property_type = 0 );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
@@ -6491,18 +6487,18 @@ extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int 
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    string struct_id = GetFeaStructID( pod_id, struct_ind )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #=== Set Export File Name ===//
-    string export_name = "FEAMeshTest_calculix.dat"
+    export_name = "FEAMeshTest_calculix.dat"
 
     #==== Get Parent Geom ID and Index ====//
-    string parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
+    parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
 
     SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name )
 
@@ -6544,18 +6540,18 @@ extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind,
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    string struct_id = GetFeaStructID( pod_id, struct_ind )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Generate FEA Mesh and Export ====//
-    Print( string( "--> Generating FeaMesh " ) )
+    print( string( "--> Generating FeaMesh " ) )
 
     #==== Get Parent Geom ID and Index ====//
-    string parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
+    parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
 
     ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME )
 
@@ -6597,18 +6593,18 @@ extern void ComputeFeaMesh( const std::string & geom_id, int fea_struct_ind, int
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
-    string struct_id = GetFeaStructID( pod_id, struct_ind )
+    struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Generate FEA Mesh and Export ====//
-    Print( string( "--> Generating FeaMesh " ) )
+    print( string( "--> Generating FeaMesh " ) )
 
     #==== Get Parent Geom ID and Index ====//
-    string parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
+    parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
 
     Could also call ComputeFeaMesh ( struct_id, FEA_CALCULIX_FILE_NAME )
 
@@ -6643,7 +6639,7 @@ extern void ComputeFeaMesh( const std::string & struct_id, int file_type );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
     #==== Insert, Cut, Paste Example ====//
     InsertXSec( fid, 1, XS_ROUNDED_RECTANGLE )         # Insert A Cross-Section
@@ -6683,7 +6679,7 @@ extern void CutXSec( const std::string & geom_id, int index );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Copy XSec To Clipboard
     CopyXSec( sid, 1 )
@@ -6720,7 +6716,7 @@ extern void CopyXSec( const std::string & geom_id, int index );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Copy XSec To Clipboard
     CopyXSec( sid, 1 )
@@ -6752,7 +6748,7 @@ extern void PasteXSec( const std::string & geom_id, int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     #===== Add XSec ====//
     InsertXSec( wing_id, 1, XS_SIX_SERIES )
@@ -6794,7 +6790,7 @@ extern void InsertXSec( const std::string & geom_id, int index, int type );
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry and Set Parms ====//
-    string wing_id = AddGeom( "WING", "" )
+    wing_id = AddGeom( "WING", "" )
 
     #==== Set Wing Section Controls ====//
     SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER )
@@ -6838,10 +6834,10 @@ extern void SetDriverGroup( const std::string & geom_id, int section_index, int 
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     \endcode
     \endPythonOnly
@@ -6881,17 +6877,17 @@ extern std::string GetXSecSurf( const std::string & geom_id, int index );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     # Flatten ends
     num_xsecs = GetNumXSec( xsec_surf )
 
-    for ( i = 0 ; i < num_xsecs ; i++ )
-    {
-        string xsec = GetXSec( xsec_surf, i )
+    for i in range(num_xsecs):
+
+        xsec = GetXSec( xsec_surf, i )
 
         SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0 )       # Set Tangent Angles At Cross Section
 
@@ -6925,13 +6921,13 @@ extern int GetNumXSec( const std::string & xsec_surf_id );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     # Identify XSec 1
-    string xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
 
     \endcode
     \endPythonOnly
@@ -6970,19 +6966,19 @@ extern std::string GetXSec( const std::string & xsec_surf_id, int xsec_index );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     # Set XSec 1 & 2 to Edit Curve type
     ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE )
     ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE )
 
-    string xsec_2 = GetXSec( xsec_surf, 2 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
 
     if  GetXSecShape( xsec_2 ) != XS_EDIT_CURVE :
-        Print( "Error: ChangeXSecShape" )
+        print( "Error: ChangeXSecShape" )
 
     \endcode
     \endPythonOnly
@@ -7041,16 +7037,16 @@ extern Matrix4d GetXSecSurfGlobalXForm( const std::string & xsec_surf_id );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE )
 
-    string xsec = GetXSec( xsec_surf, 1 )
+    xsec = GetXSec( xsec_surf, 1 )
 
-    if  GetXSecShape( xsec ) != XS_EDIT_CURVE : Print( "ERROR: GetXSecShape" ); }
+    if  GetXSecShape( xsec ) != XS_EDIT_CURVE : print( "ERROR: GetXSecShape" )
 
     \endcode
     \endPythonOnly
@@ -7083,15 +7079,15 @@ extern int GetXSecShape( const std::string& xsec_id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 2 ) # Get 2nd to last XSec
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 2 ) # Get 2nd to last XSec
 
     SetXSecWidthHeight( xsec, 3.0, 6.0 )
 
-    if  abs( GetXSecWidth( xsec ) - 3.0 ) > 1e-6 : Print( "---> Error: API Get/Set Width " ); }
+    if  abs( GetXSecWidth( xsec ) - 3.0 ) > 1e-6 : print( "---> Error: API Get/Set Width " )
 
     \endcode
     \endPythonOnly
@@ -7124,15 +7120,15 @@ extern double GetXSecWidth( const std::string& xsec_id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 2 ) # Get 2nd to last XSec
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 2 ) # Get 2nd to last XSec
 
     SetXSecWidthHeight( xsec, 3.0, 6.0 )
 
-    if  abs( GetXSecHeight( xsec ) - 6.0 ) > 1e-6 : Print( "---> Error: API Get/Set Width " ); }
+    if  abs( GetXSecHeight( xsec ) - 6.0 ) > 1e-6 : print( "---> Error: API Get/Set Width " )
 
     \endcode
     \endPythonOnly
@@ -7166,13 +7162,13 @@ extern double GetXSecHeight( const std::string& xsec_id );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     # Identify XSec 2
-    string xsec_2 = GetXSec( xsec_surf, 2 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
 
     SetXSecWidthHeight( xsec_2, 1.5, 1.5 )
 
@@ -7208,13 +7204,13 @@ extern void SetXSecWidthHeight( const std::string& xsec_id, double w, double h )
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     # Identify XSec 2
-    string xsec_2 = GetXSec( xsec_surf, 2 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
 
     SetXSecWidth( xsec_2, 1.5 )
 
@@ -7249,13 +7245,13 @@ extern void SetXSecWidth( const std::string& xsec_id, double w );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     # Identify XSec 2
-    string xsec_2 = GetXSec( xsec_surf, 2 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
 
     SetXSecHeight( xsec_2, 1.5 )
 
@@ -7290,15 +7286,15 @@ extern void SetXSecHeight( const std::string& xsec_id, double h );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    array< string > @parm_array = GetXSecParmIDs( xsec )
+    parm_array = GetXSecParmIDs( xsec )
 
-    if  parm_array.size() < 1 : Print( "---> Error: API GetXSecParmIDs " ); }
+    if  len(parm_array) < 1 : print( "---> Error: API GetXSecParmIDs " )
 
     \endcode
     \endPythonOnly
@@ -7332,17 +7328,17 @@ extern std::vector<std::string> GetXSecParmIDs( const std::string& xsec_id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    string wid = GetXSecParm( xsec, "RoundedRect_Width" )
+    wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
-    if  not ValidParm( wid ) : Print( "---> Error: API GetXSecParm " ); }
+    if  not ValidParm( wid ) : print( "---> Error: API GetXSecParm " )
 
     \endcode
     \endPythonOnly
@@ -7375,15 +7371,15 @@ extern std::string GetXSecParm( const std::string& xsec_id, const std::string& n
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, 2, XS_FILE_FUSE )
 
-    string xsec = GetXSec( xsec_surf, 2 )
+    xsec = GetXSec( xsec_surf, 2 )
 
-    array< vec3d > @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" )
+    @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" )
 
     \endcode
     \endPythonOnly
@@ -7424,17 +7420,17 @@ extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::s
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, 2, XS_FILE_FUSE )
 
-    string xsec = GetXSec( xsec_surf, 2 )
+    xsec = GetXSec( xsec_surf, 2 )
 
-    array< vec3d > @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" )
+    @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" )
 
-    if  vec_array.size() > 0 :
+    if  len(vec_array) > 0 :
         vec_array[1] = vec_array[1] * 2.0
         vec_array[3] = vec_array[3] * 2.0
 
@@ -7471,12 +7467,12 @@ extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_
     \beginPythonOnly
     \code{.py}
     #==== Add Geom ====//
-    string stack_id = AddGeom( "STACK" )
+    stack_id = AddGeom( "STACK" )
 
     #==== Get The XSec Surf ====//
-    string xsec_surf = GetXSecSurf( stack_id, 0 )
+    xsec_surf = GetXSecSurf( stack_id, 0 )
 
-    string xsec = GetXSec( xsec_surf, 2 )
+    xsec = GetXSec( xsec_surf, 2 )
 
     u_fract = 0.25
 
@@ -7514,12 +7510,12 @@ extern vec3d ComputeXSecPnt( const std::string& xsec_id, double fract );
     \beginPythonOnly
     \code{.py}
     #==== Add Geom ====//
-    string stack_id = AddGeom( "STACK" )
+    stack_id = AddGeom( "STACK" )
 
     #==== Get The XSec Surf ====//
-    string xsec_surf = GetXSecSurf( stack_id, 0 )
+    xsec_surf = GetXSecSurf( stack_id, 0 )
 
-    string xsec = GetXSec( xsec_surf, 2 )
+    xsec = GetXSec( xsec_surf, 2 )
 
     u_fract = 0.25
 
@@ -7557,13 +7553,13 @@ extern vec3d ComputeXSecTan( const std::string& xsec_id, double fract );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
-    string xsec_surf = GetXSecSurf( fid, 0 )           # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( fid, 0 )           # Get First (and Only) XSec Surf
 
     num_xsecs = GetNumXSec( xsec_surf )
 
-    string xsec = GetXSec( xsec_surf, 1 )
+    xsec = GetXSec( xsec_surf, 1 )
 
     SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0.0 )       # Set Tangent Angles At Cross Section
     SetXSecContinuity( xsec, 1 )                       # Set Continuity At Cross Section
@@ -7600,15 +7596,15 @@ extern void ResetXSecSkinParms( const std::string& xsec_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
-    string xsec_surf = GetXSecSurf( fid, 0 )           # Get First (and Only) XSec Surf
+    xsec_surf = GetXSecSurf( fid, 0 )           # Get First (and Only) XSec Surf
 
     num_xsecs = GetNumXSec( xsec_surf )
 
-    for ( i = 0 ; i < num_xsecs ; i++ )
-    {
-        string xsec = GetXSec( xsec_surf, i )
+    for i in range(num_xsecs):
+
+        xsec = GetXSec( xsec_surf, i )
 
         SetXSecContinuity( xsec, 1 )                       # Set Continuity At Cross Section
 
@@ -7646,16 +7642,16 @@ extern void SetXSecContinuity( const std::string& xsec_id, int cx );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     num_xsecs = GetNumXSec( xsec_surf )
 
-    for ( i = 0 ; i < num_xsecs ; i++ )
-    {
-        string xsec = GetXSec( xsec_surf, i )
+    for i in range(num_xsecs):
+
+        xsec = GetXSec( xsec_surf, i )
 
         SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 10.0 )       # Set Tangent Angles At Cross Section
 
@@ -7698,16 +7694,16 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     num_xsecs = GetNumXSec( xsec_surf )
 
-    for ( i = 0 ; i < num_xsecs ; i++ )
-    {
-        string xsec = GetXSec( xsec_surf, i )
+    for i in range(num_xsecs):
+
+        xsec = GetXSec( xsec_surf, i )
 
         SetXSecTanSlews( xsec, XSEC_BOTH_SIDES, 5.0 )       # Set Tangent Slews At Cross Section
 
@@ -7751,17 +7747,17 @@ extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, d
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     # Flatten ends
     num_xsecs = GetNumXSec( xsec_surf )
 
-    for ( i = 0 ; i < num_xsecs ; i++ )
-    {
-        string xsec = GetXSec( xsec_surf, i )
+    for i in range(num_xsecs):
+
+        xsec = GetXSec( xsec_surf, i )
 
         SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.8 )  # Set Tangent Strengths At Cross Section
 
@@ -7805,17 +7801,17 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     # Flatten ends
     num_xsecs = GetNumXSec( xsec_surf )
 
-    for ( i = 0 ; i < num_xsecs ; i++ )
-    {
-        string xsec = GetXSec( xsec_surf, i )
+    for i in range(num_xsecs):
+
+        xsec = GetXSec( xsec_surf, i )
 
         SetXSecCurvatures( xsec, XSEC_BOTH_SIDES, 0.2 )  # Set Tangent Strengths At Cross Section
 
@@ -7854,13 +7850,13 @@ extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top,
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL )
 
-    string xsec = GetXSec( xsec_surf, 1 )
+    xsec = GetXSec( xsec_surf, 1 )
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
@@ -7903,20 +7899,20 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL )
 
-    string xsec = GetXSec( xsec_surf, 1 )
+    xsec = GetXSec( xsec_surf, 1 )
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @up_array = GetAirfoilUpperPnts( xsec )
+    @up_array = GetAirfoilUpperPnts( xsec )
 
-    for ( i = 0 ; i < int( up_array.size() ) ; i++ )
-    {
+    for i in range(int( len(up_array) )):
+
         up_array[i].scale_y( 2.0 )
 
     SetAirfoilUpperPnts( xsec, up_array )
@@ -7960,20 +7956,20 @@ extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< 
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL )
 
-    string xsec = GetXSec( xsec_surf, 1 )
+    xsec = GetXSec( xsec_surf, 1 )
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @low_array = GetAirfoilLowerPnts( xsec )
+    @low_array = GetAirfoilLowerPnts( xsec )
 
-    for ( i = 0 ; i < int( low_array.size() ) ; i++ )
-    {
+    for i in range(int( len(low_array) )):
+
         low_array[i].scale_y( 0.5 )
 
     SetAirfoilUpperPnts( xsec, up_array )
@@ -8021,22 +8017,22 @@ extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< 
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL )
 
-    string xsec = GetXSec( xsec_surf, 1 )
+    xsec = GetXSec( xsec_surf, 1 )
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @up_array = GetAirfoilUpperPnts( xsec )
+    @up_array = GetAirfoilUpperPnts( xsec )
 
-    array< vec3d > @low_array = GetAirfoilLowerPnts( xsec )
+    @low_array = GetAirfoilLowerPnts( xsec )
 
-    for ( i = 0 ; i < int( up_array.size() ) ; i++ )
-    {
+    for i in range(int( len(up_array) )):
+
         up_array[i].scale_y( 2.0 )
 
         low_array[i].scale_y( 0.5 )
@@ -8085,9 +8081,9 @@ extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d
 
     n_pts = 100
 
-    array<vec3d> cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
+    cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
 
-    array<vec3d> cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
+    cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
 
     \endcode
     \endPythonOnly
@@ -8134,9 +8130,9 @@ extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &
 
     n_pts = 100
 
-    array<vec3d> cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
+    cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
 
-    array<vec3d> cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
+    cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
 
     \endcode
     \endPythonOnly
@@ -8188,9 +8184,9 @@ extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &
 
     const tau = 10
 
-    array<vec3d> xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) )
+    xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) )
 
-    array<double> cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil )
+    cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil )
 
     \endcode
     \endPythonOnly
@@ -8242,9 +8238,9 @@ extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alph
 
     const tau = 10
 
-    array<vec3d> xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) )
+    xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) )
 
-    array<double> cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil )
+    cp_dist = GetVKTAirfoilCpDist( alpha, epsilon, kappa, tau*(pi/180), xyz_airfoil )
 
     \endcode
     \endPythonOnly
@@ -8342,22 +8338,22 @@ extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
 
     const V_inf = 100.0
 
-    array < vec3d > x_slice_pnt_vec(npts)
-    array<double> theta_vec(npts)
+    x_slice_pnt_vec(npts)
+    theta_vec(npts)
 
     theta_vec[0] = 0
 
-    for ( i = 1; i < npts; i++ )
-    {
+    for ( i = 1; i < npts):
+
         theta_vec[i] = theta_vec[i-1] + (2 * pi / ( npts - 1) )
 
-    for ( i = 0; i < npts; i++ )
-    {
+    for i in range(npts):
+
         x_slice_pnt_vec[i] = vec3d( 0, abc_rad[1] * math.cos( theta_vec[i] ), abc_rad[2] *math.sin( theta_vec[i] ) )
 
     vec3d V_vec = vec3d( ( V_inf * math.cos( Deg2Rad( alpha ) ) * math.cos( Deg2Rad( beta ) ) ), ( V_inf * math.sin( Deg2Rad( beta ) ) ), ( V_inf * math.sin( Deg2Rad( alpha ) ) * math.cos( Deg2Rad( beta ) ) ) )
 
-    array < > cp_dist = GetEllipsoidCpDist( x_slice_pnt_vec, abc_rad, V_vec )
+    cp_dist = GetEllipsoidCpDist( x_slice_pnt_vec, abc_rad, V_vec )
 
     \endcode
     \endPythonOnly
@@ -8396,17 +8392,17 @@ extern double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL )
 
-    string xsec = GetXSec( xsec_surf, 1 )
+    xsec = GetXSec( xsec_surf, 1 )
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @up_array = GetAirfoilUpperPnts( xsec )
+    @up_array = GetAirfoilUpperPnts( xsec )
 
     \endcode
     \endPythonOnly
@@ -8441,17 +8437,17 @@ extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL )
 
-    string xsec = GetXSec( xsec_surf, 1 )
+    xsec = GetXSec( xsec_surf, 1 )
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @low_array = GetAirfoilLowerPnts( xsec )
+    @low_array = GetAirfoilLowerPnts( xsec )
 
     \endcode
     \endPythonOnly
@@ -8612,11 +8608,11 @@ extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg 
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_ROUNDED_RECTANGLE )
 
-    if  GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE : Print( "ERROR: ChangeBORXSecShape" ); }
+    if  GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE : print( "ERROR: ChangeBORXSecShape" )
 
     \endcode
     \endPythonOnly
@@ -8645,11 +8641,11 @@ extern void ChangeBORXSecShape( const string & bor_id, int type );
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_ROUNDED_RECTANGLE )
 
-    if  GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE : Print( "ERROR: GetBORXSecShape" ); }
+    if  GetBORXSecShape( bor_id ) != XS_ROUNDED_RECTANGLE : print( "ERROR: GetBORXSecShape" )
 
     \endcode
     \endPythonOnly
@@ -8677,11 +8673,11 @@ extern int GetBORXSecShape( const string & bor_id );
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_FILE_FUSE )
 
-    array< vec3d > @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
+    @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
 
     \endcode
     \endPythonOnly
@@ -8718,13 +8714,13 @@ extern std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std:
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_FILE_FUSE )
 
-    array< vec3d > @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
+    @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
 
-    if  vec_array.size() > 0 :
+    if  len(vec_array) > 0 :
         vec_array[1] = vec_array[1] * 2.0
         vec_array[3] = vec_array[3] * 2.0
 
@@ -8758,7 +8754,7 @@ extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pn
     \code{.py}
     #==== Add Geom ====//
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     u_fract = 0.25
 
@@ -8791,7 +8787,7 @@ extern vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract );
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     u_fract = 0.25
 
@@ -8824,7 +8820,7 @@ extern vec3d ComputeBORXSecTan( const std::string& bor_id, double fract );
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL )
 
@@ -8865,16 +8861,16 @@ extern void ReadBORFileAirfoil( const std::string& bor_id, const std::string& fi
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL )
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id )
+    @up_array = GetBORAirfoilUpperPnts( bor_id )
 
-    for ( i = 0 ; i < int( up_array.size() ) ; i++ )
-    {
+    for i in range(int( len(up_array) )):
+
         up_array[i].scale_y( 2.0 )
 
     SetBORAirfoilUpperPnts( bor_id, up_array )
@@ -8914,16 +8910,16 @@ extern void SetBORAirfoilUpperPnts( const std::string& bor_id, const std::vector
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL )
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id )
+    @low_array = GetBORAirfoilLowerPnts( bor_id )
 
-    for ( i = 0 ; i < int( low_array.size() ) ; i++ )
-    {
+    for i in range(int( len(low_array) )):
+
         low_array[i].scale_y( 0.5 )
 
     SetBORAirfoilLowerPnts( bor_id, low_array )
@@ -8967,18 +8963,18 @@ extern void SetBORAirfoilLowerPnts( const std::string& bor_id, const std::vector
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL )
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id )
+    @up_array = GetBORAirfoilUpperPnts( bor_id )
 
-    array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id )
+    @low_array = GetBORAirfoilLowerPnts( bor_id )
 
-    for ( i = 0 ; i < int( up_array.size() ) ; i++ )
-    {
+    for i in range(int( len(up_array) )):
+
         up_array[i].scale_y( 2.0 )
 
         low_array[i].scale_y( 0.5 )
@@ -9014,13 +9010,13 @@ extern void SetBORAirfoilPnts( const std::string& bor_id, const std::vector< vec
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL )
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @up_array = GetBORAirfoilUpperPnts( bor_id )
+    @up_array = GetBORAirfoilUpperPnts( bor_id )
 
     \endcode
     \endPythonOnly
@@ -9051,13 +9047,13 @@ extern std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id );
     \beginPythonOnly
     \code{.py}
     # Add Body of Recolution
-    string bor_id = AddGeom( "BODYOFREVOLUTION", "" )
+    bor_id = AddGeom( "BODYOFREVOLUTION", "" )
 
     ChangeBORXSecShape( bor_id, XS_FILE_AIRFOIL )
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    array< vec3d > @low_array = GetBORAirfoilLowerPnts( bor_id )
+    @low_array = GetBORAirfoilLowerPnts( bor_id )
 
     \endcode
     \endPythonOnly
@@ -9219,7 +9215,7 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry and Set Parms ====//
-    string wing_id = AddGeom( "WING", "" )
+    wing_id = AddGeom( "WING", "" )
 
     const u = 0.5 # export airfoil at mid span location
 
@@ -9254,7 +9250,7 @@ extern void WriteBezierAirfoil( const std::string & file_name, const std::string
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry and Set Parms ====//
-    string wing_id = AddGeom( "WING", "" )
+    wing_id = AddGeom( "WING", "" )
 
     const u = 0.5 # export airfoil at mid span location
 
@@ -9312,15 +9308,15 @@ extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id,
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE )
 
     # Identify XSec 2
-    string xsec_2 = GetXSec( xsec_surf, 2 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
 
     # Set XSec 2 to linear
     EditXSecConvertTo( xsec_2, LINEAR )
@@ -9361,15 +9357,15 @@ extern void EditXSecInitShape( const std::string & xsec_id );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE )
 
     # Identify XSec 1
-    string xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
 
     # Set XSec 1 to Linear
     EditXSecConvertTo( xsec_1, LINEAR )
@@ -9415,23 +9411,23 @@ extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype 
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE )
 
     # Identify XSec 2
-    string xsec_2 = GetXSec( xsec_surf, 2 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
 
     # Set XSec 2 to linear
     EditXSecConvertTo( xsec_2, LINEAR )
 
-    array < > u_vec = GetEditXSecUVec( xsec_2 )
+    u_vec = GetEditXSecUVec( xsec_2 )
 
     if  u_vec[1] - 0.25 > 1e-6 :
-        Print( "Error: GetEditXSecUVec" )
+        print( "Error: GetEditXSecUVec" )
 
     \endcode
     \endPythonOnly
@@ -9468,20 +9464,20 @@ extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE )
 
     # Identify XSec 1
-    string xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
 
     # Get the control points for the default shape
-    array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
+    xsec1_pts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
 
-    Print( "Normalized Bottom Point of XSecCurve: " + xsec1_pts[3].x() + ", " + xsec1_pts[3].y() + ", " + xsec1_pts[3].z() )
+    print( "Normalized Bottom Point of XSecCurve: " + xsec1_pts[3].x() + ", " + xsec1_pts[3].y() + ", " + xsec1_pts[3].z() )
 
     \endcode
     \endPythonOnly
@@ -9556,15 +9552,15 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE )
 
     # Identify XSec 2
-    string xsec_2 = GetXSec( xsec_surf, 2 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
 
     # Set XSec 2 to linear
     EditXSecConvertTo( xsec_2, LINEAR )
@@ -9573,7 +9569,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE )
 
     # Define a square
-    array < vec3d > xsec2_pts(5)
+    xsec2_pts(5)
 
     xsec2_pts[0] = vec3d( 0.5, 0.5, 0.0 )
     xsec2_pts[1] = vec3d( 0.5, -0.5, 0.0 )
@@ -9582,7 +9578,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     xsec2_pts[4] = vec3d( 0.5, 0.5, 0.0 )
 
     # u vec must start at 0.0 and end at 1.0
-    array < > u_vec(5)
+    u_vec(5)
 
     u_vec[0] = 0.0
     u_vec[1] = 0.25
@@ -9590,7 +9586,7 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     u_vec[3] = 0.75
     u_vec[4] = 1.0
 
-    array < > r_vec(5)
+    r_vec(5)
 
     r_vec[0] = 0.0
     r_vec[1] = 0.0
@@ -9600,10 +9596,10 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
 
     SetEditXSecPnts( xsec_2, u_vec, xsec2_pts, r_vec ) # Note: points are unscaled by the width and height parms
 
-    array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
+    new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
 
     if  dist( new_pnts[3], xsec2_pts[3] ) > 1e-6 :
-        Print( "Error: SetEditXSecPnts")
+        print( "Error: SetEditXSecPnts")
 
     \endcode
     \endPythonOnly
@@ -9653,27 +9649,27 @@ extern void SetEditXSecPnts( const std::string & xsec_id, std::vector < double >
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE )
 
     # Identify XSec 2
-    string xsec_2 = GetXSec( xsec_surf, 2 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
 
     # Turn off R/L symmetry
     SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE )
 
-    array < vec3d > old_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
+    old_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
 
     EditXSecDelPnt( xsec_2, 3 ) # Remove control point at bottom of circle
 
-    array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
+    new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
 
-    if  old_pnts.size() - new_pnts.size() != 3  :
-        Print( "Error: EditXSecDelPnt")
+    if  len(old_pnts) - len(new_pnts) != 3  :
+        print( "Error: EditXSecDelPnt")
 
     \endcode
     \endPythonOnly
@@ -9719,27 +9715,27 @@ extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE )
 
     # Identify XSec 2
-    string xsec_2 = GetXSec( xsec_surf, 2 )
+    xsec_2 = GetXSec( xsec_surf, 2 )
 
     # Turn off R/L symmetry
     SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE )
 
-    array < vec3d > old_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
+    old_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
 
     new_pnt_ind = EditXSecSplit01( xsec_2; 0.375 )
 
-    array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
+    new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
 
-    if  new_pnts.size() - old_pnts.size() != 3  :
-        Print( "Error: EditXSecSplit01")
+    if  len(new_pnts) - len(old_pnts) != 3  :
+        print( "Error: EditXSecSplit01")
 
     \endcode
     \endPythonOnly
@@ -9794,21 +9790,21 @@ extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE )
 
     # Identify XSec 1
-    string xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
 
     # Turn off R/L symmetry
     SetParmVal( GetXSecParm( xsec_1, "SymType"), SYM_NONE )
 
     # Get the control points for the default shape
-    array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
+    xsec1_pts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
 
     # Identify a control point that lies on the curve and shift it in Y
     move_pnt_ind = 3
@@ -9818,10 +9814,10 @@ extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
     # Move the control point
     MoveEditXSecPnt( xsec_1, move_pnt_ind, new_pnt )
 
-    array < vec3d > new_pnts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
+    new_pnts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
 
     if  dist( new_pnt, new_pnts[move_pnt_ind] ) > 1e-6 :
-        Print( "Error: MoveEditXSecPnt" )
+        print( "Error: MoveEditXSecPnt" )
 
     \endcode
     \endPythonOnly
@@ -9860,10 +9856,10 @@ extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, cons
     \beginPythonOnly
     \code{.py}
     # Add Stack
-    string sid = AddGeom( "STACK", "" )
+    sid = AddGeom( "STACK", "" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( sid, 0 )
+    xsec_surf = GetXSecSurf( sid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_ROUNDED_RECTANGLE )
 
@@ -9871,10 +9867,10 @@ extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, cons
     ConvertXSecToEdit( sid, 1 )
 
     # Identify XSec 1
-    string xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
 
     # Get the control points for the default shape
-    array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
+    xsec1_pts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
 
     \endcode
     \endPythonOnly
@@ -9915,17 +9911,17 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
     \beginPythonOnly
     \code{.py}
     # Add Wing
-    string wid = AddGeom( "WING" )
+    wid = AddGeom( "WING" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( wid, 0 )
+    xsec_surf = GetXSecSurf( wid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE )
 
     # Identify XSec 1
-    string xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
 
-    array < > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
+    @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
 
     fixed_u_vec[3] = True # change a flag
 
@@ -9973,17 +9969,17 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
     \beginPythonOnly
     \code{.py}
     # Add Wing
-    string wid = AddGeom( "WING" )
+    wid = AddGeom( "WING" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( wid, 0 )
+    xsec_surf = GetXSecSurf( wid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE )
 
     # Identify XSec 1
-    string xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
 
-    array < > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
+    @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
 
     fixed_u_vec[3] = True # change a flag
 
@@ -10032,17 +10028,17 @@ extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool
     \beginPythonOnly
     \code{.py}
     # Add Wing
-    string wid = AddGeom( "WING" )
+    wid = AddGeom( "WING" )
 
     # Get First (and Only) XSec Surf
-    string xsec_surf = GetXSecSurf( wid, 0 )
+    xsec_surf = GetXSecSurf( wid, 0 )
 
     ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE )
 
     # Identify XSec 1
-    string xsec_1 = GetXSec( xsec_surf, 1 )
+    xsec_1 = GetXSec( xsec_surf, 1 )
 
-    array < > @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
+    @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
 
     fixed_u_vec[3] = True # change a flag
 
@@ -10073,7 +10069,7 @@ extern void ReparameterizeEditXSec( const std::string & xsec_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    if  GetNumSets() <= 0 : Print( "---> Error: API GetNumSets " ); }
+    if  GetNumSets() <= 0 : print( "---> Error: API GetNumSets " )
 
     \endcode
     \endPythonOnly
@@ -10098,7 +10094,7 @@ extern int GetNumSets();
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    if  GetSetName( 3 : != "SetFromScript" )            { Print( "---> Error: API Get/Set Set Name " ); }
+    if  GetSetName( 3 : != "SetFromScript" ): print( "---> Error: API Get/Set Set Name " )
 
     \endcode
     \endPythonOnly
@@ -10125,7 +10121,7 @@ extern void SetSetName( int index, const std::string& name );
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    if  GetSetName( 3 : != "SetFromScript" )            { Print( "---> Error: API Get/Set Set Name " ); }
+    if  GetSetName( 3 : != "SetFromScript" ): print( "---> Error: API Get/Set Set Name " )
 
     \endcode
     \endPythonOnly
@@ -10156,11 +10152,11 @@ extern std::string GetSetName( int index );
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    array<string> @geom_arr1 = GetGeomSetAtIndex( 3 )
+    @geom_arr1 = GetGeomSetAtIndex( 3 )
 
-    array<string> @geom_arr2 = GetGeomSet( "SetFromScript" )
+    @geom_arr2 = GetGeomSet( "SetFromScript" )
 
-    if  geom_arr1.size() != geom_arr2.size() : Print( "---> Error: API GetGeomSet " ); }
+    if  len(geom_arr1) != len(geom_arr2) : print( "---> Error: API GetGeomSet " )
 
     \endcode
     \endPythonOnly
@@ -10191,11 +10187,11 @@ extern std::vector<std::string> GetGeomSetAtIndex( int index );
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    array<string> @geom_arr1 = GetGeomSetAtIndex( 3 )
+    @geom_arr1 = GetGeomSetAtIndex( 3 )
 
-    array<string> @geom_arr2 = GetGeomSet( "SetFromScript" )
+    @geom_arr2 = GetGeomSet( "SetFromScript" )
 
-    if  geom_arr1.size() != geom_arr2.size() : Print( "---> Error: API GetGeomSet " ); }
+    if  len(geom_arr1) != len(geom_arr2) : print( "---> Error: API GetGeomSet " )
 
     \endcode
     \endPythonOnly
@@ -10221,7 +10217,7 @@ extern std::vector<std::string> GetGeomSet( const std::string & name );
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    if ( GetSetIndex( "SetFromScript" ) != 3 ) { Print( "ERROR: GetSetIndex" ); }
+    if ( GetSetIndex( "SetFromScript" ) != 3 ) { print( "ERROR: GetSetIndex" )
 
     \endcode
     \endPythonOnly
@@ -10249,11 +10245,11 @@ extern int GetSetIndex( const std::string & name );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
     SetSetFlag( fuseid, 3, True )
 
-    if  not GetSetFlag( fuseid, 3 ) : Print( "---> Error: API Set/Get Set Flag " ); }
+    if  not GetSetFlag( fuseid, 3 ) : print( "---> Error: API Set/Get Set Flag " )
 
     \endcode
     \endPythonOnly
@@ -10282,11 +10278,11 @@ extern bool GetSetFlag( const std::string & geom_id, int set_index );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
     SetSetFlag( fuseid, 3, True )
 
-    if  not GetSetFlag( fuseid, 3 ) : Print( "---> Error: API Set/Get Set Flag " ); }
+    if  not GetSetFlag( fuseid, 3 ) : print( "---> Error: API Set/Get Set Flag " )
 
     \endcode
     \endPythonOnly
@@ -10322,7 +10318,7 @@ extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
     #set fuseid's state for set 3 to true
     SetSetFlag( fuseid, 3, True )
@@ -10333,7 +10329,7 @@ extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
     #get fuseid's state for set 4
     flag_value = GetSetFlag( fuseid; 4 )
 
-    if  flag_value != True: Print( "---> Error: API CopyPasteSet " ); }
+    if  flag_value != True: print( "---> Error: API CopyPasteSet " )
 
     \endcode
     \endPythonOnly
@@ -10364,7 +10360,7 @@ extern void CopyPasteSet( int copyIndex, int pasteIndex );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE" )
+    fuseid = AddGeom( "FUSELAGE" )
 
     SetSetFlag( fuseid, 3, True )
 
@@ -10398,7 +10394,7 @@ extern void ScaleSet( int set_index, double scale );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE" )
+    fuseid = AddGeom( "FUSELAGE" )
 
     SetSetFlag( fuseid, 3, True )
 
@@ -10434,7 +10430,7 @@ extern void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE" )
+    fuseid = AddGeom( "FUSELAGE" )
 
     SetSetFlag( fuseid, 3, True )
 
@@ -10468,7 +10464,7 @@ extern void TranslateSet( int set_index, const vec3d &translation_vec );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE" )
+    fuseid = AddGeom( "FUSELAGE" )
 
     SetSetFlag( fuseid, 3, True )
 
@@ -10509,11 +10505,11 @@ extern void TransformSet( int set_index, const vec3d &translation_vec, double x_
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pid = AddGeom( "POD" )
+    pid = AddGeom( "POD" )
 
-    string lenid = GetParm( pid, "Length", "Design" )
+    lenid = GetParm( pid, "Length", "Design" )
 
-    if  not ValidParm( lenid ) : Print( "---> Error: API GetParm  " ); }
+    if  not ValidParm( lenid ) : print( "---> Error: API GetParm  " )
 
     \endcode
     \endPythonOnly
@@ -10549,19 +10545,19 @@ extern bool ValidParm( const std::string & id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    string wid = GetXSecParm( xsec, "RoundedRect_Width" )
+    wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
     SetParmVal( wid, 23.0 )
 
-    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : Print( "---> Error: API Parm Val Set/Get " ); }
+    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : print( "---> Error: API Parm Val Set/Get " )
 
     \endcode
     \endPythonOnly
@@ -10599,19 +10595,19 @@ extern double SetParmVal( const std::string & parm_id, double val );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    string wid = GetXSecParm( xsec, "RoundedRect_Width" )
+    wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
     SetParmVal( wid, 23.0 )
 
-    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : Print( "---> Error: API Parm Val Set/Get " ); }
+    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : print( "---> Error: API Parm Val Set/Get " )
 
     \endcode
     \endPythonOnly
@@ -10643,9 +10639,9 @@ extern double SetParmVal( const std::string & geom_id, const std::string & name,
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
-    string length = FindParm( pod_id, "Length", "Design" )
+    length = FindParm( pod_id, "Length", "Design" )
 
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 )
 
@@ -10681,9 +10677,9 @@ extern double SetParmValLimits( const std::string & parm_id, double val, double 
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
-    string parm_id = GetParm( pod_id, "X_Rel_Location", "XForm" )
+    parm_id = GetParm( pod_id, "X_Rel_Location", "XForm" )
 
     SetParmValUpdate( parm_id, 5.0 )
 
@@ -10715,9 +10711,9 @@ extern double SetParmValUpdate( const std::string & parm_id, double val );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
-    string parm_id = GetParm( pod_id, "X_Rel_Location", "XForm" )
+    parm_id = GetParm( pod_id, "X_Rel_Location", "XForm" )
 
     SetParmValUpdate( parm_id, 5.0 )
 
@@ -10759,19 +10755,19 @@ extern double SetParmValUpdate( const std::string & geom_id, const std::string &
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    string wid = GetXSecParm( xsec, "RoundedRect_Width" )
+    wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
     SetParmVal( wid, 23.0 )
 
-    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : Print( "---> Error: API Parm Val Set/Get " ); }
+    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : print( "---> Error: API Parm Val Set/Get " )
 
     \endcode
     \endPythonOnly
@@ -10807,19 +10803,19 @@ extern double GetParmVal( const std::string & parm_id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    string wid = GetXSecParm( xsec, "RoundedRect_Width" )
+    wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
     SetParmVal( wid, 23.0 )
 
-    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : Print( "---> Error: API Parm Val Set/Get " ); }
+    if  abs( GetParmVal( wid ) - 23 ) > 1e-6 : print( "---> Error: API Parm Val Set/Get " )
 
     \endcode
     \endPythonOnly
@@ -10849,9 +10845,9 @@ extern double GetParmVal( const std::string & geom_id, const std::string & name,
     \beginPythonOnly
     \code{.py}
     #==== Add Prop Geometry ====//
-    string prop_id = AddGeom( "PROP" )
+    prop_id = AddGeom( "PROP" )
 
-    string num_blade_id = GetParm( prop_id, "NumBlade", "Design" )
+    num_blade_id = GetParm( prop_id, "NumBlade", "Design" )
 
     num_blade = GetIntParmVal( num_blade_id )
 
@@ -10881,9 +10877,9 @@ extern int GetIntParmVal( const std::string & parm_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Prop Geometry ====//
-    string prop_id = AddGeom( "PROP" )
+    prop_id = AddGeom( "PROP" )
 
-    string rev_flag_id = GetParm( prop_id, "ReverseFlag", "Design" )
+    rev_flag_id = GetParm( prop_id, "ReverseFlag", "Design" )
 
     reverse_flag = GetBoolParmVal( rev_flag_id )
 
@@ -10923,21 +10919,21 @@ extern bool GetBoolParmVal( const std::string & parm_id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    string wid = GetXSecParm( xsec, "RoundedRect_Width" )
+    wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
     SetParmVal( wid, 23.0 )
 
     SetParmUpperLimit( wid, 13.0 )
 
-    if  abs( GetParmVal( wid ) - 13 ) > 1e-6 : Print( "---> Error: API SetParmUpperLimit " ); }
+    if  abs( GetParmVal( wid ) - 13 ) > 1e-6 : print( "---> Error: API SetParmUpperLimit " )
 
     \endcode
     \endPythonOnly
@@ -10966,9 +10962,9 @@ extern void SetParmUpperLimit( const std::string & parm_id, double val );
     \beginPythonOnly
     \code{.py}
     #==== Add Prop Geometry ====//
-    string prop_id = AddGeom( "PROP" )
+    prop_id = AddGeom( "PROP" )
 
-    string num_blade_id = GetParm( prop_id, "NumBlade", "Design" )
+    num_blade_id = GetParm( prop_id, "NumBlade", "Design" )
 
     max_blade = GetParmUpperLimit( num_blade_id )
 
@@ -11008,21 +11004,21 @@ extern double GetParmUpperLimit( const std::string & parm_id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    string wid = GetXSecParm( xsec, "RoundedRect_Width" )
+    wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
     SetParmVal( wid, 13.0 )
 
     SetParmLowerLimit( wid, 15.0 )
 
-    if  abs( GetParmVal( wid ) - 15 ) > 1e-6 : Print( "---> Error: API SetParmLowerLimit " ); }
+    if  abs( GetParmVal( wid ) - 15 ) > 1e-6 : print( "---> Error: API SetParmLowerLimit " )
 
     \endcode
     \endPythonOnly
@@ -11051,9 +11047,9 @@ extern void SetParmLowerLimit( const std::string & parm_id, double val );
     \beginPythonOnly
     \code{.py}
     #==== Add Prop Geometry ====//
-    string prop_id = AddGeom( "PROP" )
+    prop_id = AddGeom( "PROP" )
 
-    string num_blade_id = GetParm( prop_id, "NumBlade", "Design" )
+    num_blade_id = GetParm( prop_id, "NumBlade", "Design" )
 
     min_blade = GetParmLowerLimit( num_blade_id )
 
@@ -11089,17 +11085,17 @@ extern double GetParmLowerLimit( const std::string & parm_id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    string wid = GetXSecParm( xsec, "RoundedRect_Width" )
+    wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
-    if  GetParmType( wid ) != PARM_DOUBLE_TYPE : Print( "---> Error: API GetParmType " ); }
+    if  GetParmType( wid ) != PARM_DOUBLE_TYPE : print( "---> Error: API GetParmType " )
 
     \endcode
     \endPythonOnly
@@ -11142,24 +11138,24 @@ extern int GetParmType( const std::string & parm_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Get Structure Name and Parm Container ID ====//
-    string parm_container_name = GetFeaStructName( pod_id, struct_ind )
+    parm_container_name = GetFeaStructName( pod_id, struct_ind )
 
-    string parm_container_id = FindContainer( parm_container_name, struct_ind )
+    parm_container_id = FindContainer( parm_container_name, struct_ind )
 
     #==== Get and List All Parms in the Container ====//
-    array<string> parm_ids = FindContainerParmIDs( parm_container_id )
+    parm_ids = FindContainerParmIDs( parm_container_id )
 
-    for ( uint i = 0; i < uint(parm_ids.length()); i++ )
-    {
-        string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+    for ( uint i = 0; i < uint(len(parm_ids))):
 
-        Print( name_id )
+        name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+
+        print( name_id )
 
     \endcode
     \endPythonOnly
@@ -11193,18 +11189,18 @@ extern std::string GetParmName( const std::string & parm_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string veh_id = FindContainer( "Vehicle", 0 )
+    veh_id = FindContainer( "Vehicle", 0 )
 
     #==== Get and List All Parms in the Container ====//
-    array<string> parm_ids = FindContainerParmIDs( veh_id )
+    parm_ids = FindContainerParmIDs( veh_id )
 
-    Print( "Parm Groups and IDs in Vehicle Parm Container: " )
+    print( "Parm Groups and IDs in Vehicle Parm Container: " )
 
-    for ( uint i = 0; i < uint(parm_ids.length()); i++ )
-    {
-        string group_str = GetParmGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+    for ( uint i = 0; i < uint(len(parm_ids))):
 
-        Print( group_str )
+        group_str = GetParmGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+
+        print( group_str )
 
     \endcode
     \endPythonOnly
@@ -11238,18 +11234,18 @@ extern std::string GetParmGroupName( const std::string & parm_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string veh_id = FindContainer( "Vehicle", 0 )
+    veh_id = FindContainer( "Vehicle", 0 )
 
     #==== Get and List All Parms in the Container ====//
-    array<string> parm_ids = FindContainerParmIDs( veh_id )
+    parm_ids = FindContainerParmIDs( veh_id )
 
-    Print( "Parm Group Display Names and IDs in Vehicle Parm Container: " )
+    print( "Parm Group Display Names and IDs in Vehicle Parm Container: " )
 
-    for ( uint i = 0; i < uint(parm_ids.length()); i++ )
-    {
-        string group_str = GetParmDisplayGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+    for ( uint i = 0; i < uint(len(parm_ids))):
 
-        Print( group_str )
+        group_str = GetParmDisplayGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+
+        print( group_str )
 
     \endcode
     \endPythonOnly
@@ -11285,19 +11281,19 @@ extern std::string GetParmDisplayGroupName( const std::string & parm_id );
     \beginPythonOnly
     \code{.py}
     # Add Fuselage Geom
-    string fuseid = AddGeom( "FUSELAGE", "" )
+    fuseid = AddGeom( "FUSELAGE", "" )
 
-    string xsec_surf = GetXSecSurf( fuseid, 0 )
+    xsec_surf = GetXSecSurf( fuseid, 0 )
 
     ChangeXSecShape( xsec_surf, GetNumXSec( xsec_surf ) - 1, XS_ROUNDED_RECTANGLE )
 
-    string xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
+    xsec = GetXSec( xsec_surf, GetNumXSec( xsec_surf ) - 1 )
 
-    string wid = GetXSecParm( xsec, "RoundedRect_Width" )
+    wid = GetXSecParm( xsec, "RoundedRect_Width" )
 
-    string cid = GetParmContainer( wid )
+    cid = GetParmContainer( wid )
 
-    if  cid.size() == 0 : Print( "---> Error: API GetParmContainer " ); }
+    if  len(cid) == 0 : print( "---> Error: API GetParmContainer " )
 
     \endcode
     \endPythonOnly
@@ -11325,9 +11321,9 @@ extern std::string GetParmContainer( const std::string & parm_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
-    string length = FindParm( pod_id, "Length", "Design" )
+    length = FindParm( pod_id, "Length", "Design" )
 
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 )
 
@@ -11360,14 +11356,14 @@ extern void SetParmDescript( const std::string & parm_id, const std::string & de
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
-    string length = FindParm( pod_id, "Length", "Design" )
+    length = FindParm( pod_id, "Length", "Design" )
 
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 )
 
-    string desc = GetParmDescript( length )
-    Print( desc )
+    desc = GetParmDescript( length )
+    print( desc )
 
     \endcode
     \endPythonOnly
@@ -11396,10 +11392,10 @@ extern std::string GetParmDescript( const std::string & parm_id );
     \beginPythonOnly
     \code{.py}
     #==== Add Wing Geometry ====//
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     #==== Turn Symmetry OFF ====//
-    string sym_id = FindParm( wing_id, "Sym_Planar_Flag", "Sym")
+    sym_id = FindParm( wing_id, "Sym_Planar_Flag", "Sym")
 
     SetParmVal( sym_id, 0.0 ) # Note: bool input not supported in SetParmVal
 
@@ -11437,15 +11433,15 @@ extern std::string FindParm( const std::string & parm_container_id, const std::s
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    array<string> @ctr_arr = FindContainers()
+    @ctr_arr = FindContainers()
 
-    Print( "---> API Parm Container IDs: " )
+    print( "---> API Parm Container IDs: " )
 
-    for ( i = 0; i < int( ctr_arr.size() ); i++ )
-    {
-        string message = "\t" + ctr_arr[i] + "\n"
+    for i in range(int( len(ctr_arr) )):
 
-        Print( message )
+        message = "\t" + ctr_arr[i] + "\n"
+
+        print( message )
 
     \endcode
     \endPythonOnly
@@ -11468,9 +11464,9 @@ extern std::vector<std::string> FindContainers();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    array<string> @ctr_arr = FindContainersWithName( "UserParms" )
+    @ctr_arr = FindContainersWithName( "UserParms" )
 
-    if  ctr_arr.size() > 0 : Print( ( "UserParms Parm Container ID: " + ctr_arr[0] ) ); }
+    if  len(ctr_arr) > 0 : print( ( "UserParms Parm Container ID: " + ctr_arr[0] ) )
 
     \endcode
     \endPythonOnly
@@ -11494,7 +11490,7 @@ extern std::vector<std::string> FindContainersWithName( const std::string & name
     \beginPythonOnly
     \code{.py}
     #===== Get Vehicle Parm Container ID ====//
-    string veh_id = FindContainer( "Vehicle", 0 )
+    veh_id = FindContainer( "Vehicle", 0 )
 
     \endcode
     \endPythonOnly
@@ -11520,9 +11516,9 @@ extern std::string FindContainer( const std::string & name, int index );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string veh_id = FindContainer( "Vehicle", 0 )
+    veh_id = FindContainer( "Vehicle", 0 )
 
-    if  GetContainerName( veh_id : != "Vehicle" )         { Print( "---> Error: API GetContainerName" ); }
+    if  GetContainerName( veh_id : != "Vehicle" )      print( "---> Error: API GetContainerName" )
 
     \endcode
     \endPythonOnly
@@ -11554,16 +11550,16 @@ extern std::string GetContainerName( const std::string & parm_container_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string user_ctr = FindContainer( "UserParms", 0 )
+    user_ctr = FindContainer( "UserParms", 0 )
 
-    array<string> @grp_arr = FindContainerGroupNames( user_ctr )
+    @grp_arr = FindContainerGroupNames( user_ctr )
 
-    Print( "---> UserParms Container Group IDs: " )
-    for ( i = 0; i < int( grp_arr.size() ); i++ )
-    {
-        string message = "\t" + grp_arr[i] + "\n"
+    print( "---> UserParms Container Group IDs: " )
+    for i in range(int( len(grp_arr) )):
 
-        Print( message )
+        message = "\t" + grp_arr[i] + "\n"
+
+        print( message )
 
     \endcode
     \endPythonOnly
@@ -11605,24 +11601,24 @@ extern std::vector<std::string> FindContainerGroupNames( const std::string & par
     \beginPythonOnly
     \code{.py}
     #==== Add Pod Geometry ====//
-    string pod_id = AddGeom( "POD" )
+    pod_id = AddGeom( "POD" )
 
     #==== Add FeaStructure to Pod ====//
     struct_ind = AddFeaStruct( pod_id )
 
     #==== Get Structure Name and Parm Container ID ====//
-    string parm_container_name = GetFeaStructName( pod_id, struct_ind )
+    parm_container_name = GetFeaStructName( pod_id, struct_ind )
 
-    string parm_container_id = FindContainer( parm_container_name, struct_ind )
+    parm_container_id = FindContainer( parm_container_name, struct_ind )
 
     #==== Get and List All Parms in the Container ====//
-    array<string> parm_ids = FindContainerParmIDs( parm_container_id )
+    parm_ids = FindContainerParmIDs( parm_container_id )
 
-    for ( uint i = 0; i < uint(parm_ids.length()); i++ )
-    {
-        string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+    for ( uint i = 0; i < uint(len(parm_ids))):
 
-        Print( name_id )
+        name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+
+        print( name_id )
 
     \endcode
     \endPythonOnly
@@ -11646,7 +11642,7 @@ extern std::vector<std::string> FindContainerParmIDs( const std::string & parm_c
     \beginPythonOnly
     \code{.py}
     #===== Get Vehicle Parm Container ID ====//
-    string veh_id = GetVehicleID()
+    veh_id = GetVehicleID()
 
     \endcode
     \endPythonOnly
@@ -11724,15 +11720,15 @@ extern int GetNumPredefinedUserParms();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    array<string> @id_arr = GetAllUserParms()
+    @id_arr = GetAllUserParms()
 
-    Print( "---> User Parm IDs: " )
+    print( "---> User Parm IDs: " )
 
-    for ( i = 0; i < int( id_arr.size() ); i++ )
-    {
-        string message = "\t" + id_arr[i] + "\n"
+    for i in range(int( len(id_arr) )):
 
-        Print( message )
+        message = "\t" + id_arr[i] + "\n"
+
+        print( message )
 
     \endcode
     \endPythonOnly
@@ -11753,7 +11749,7 @@ extern std::vector < std::string > GetAllUserParms();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string up_id = GetUserParmContainer()
+    up_id = GetUserParmContainer()
 
     \endcode
     \endPythonOnly
@@ -11778,7 +11774,7 @@ extern std::string GetUserParmContainer();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string length = AddUserParm( PARM_DOUBLE_TYPE, "Length", "Design" )
+    length = AddUserParm( PARM_DOUBLE_TYPE, "Length", "Design" )
 
     SetParmValLimits( length, 10.0, 0.001, 1.0e12 )
 
@@ -11816,9 +11812,9 @@ extern string AddUserParm(int type, const string & name, const string & group );
     \code{.py}
 
     n = GetNumPredefinedUserParms()
-    array<string> @id_arr = GetAllUserParms()
+    @id_arr = GetAllUserParms()
 
-    if  id_arr.size() > n :
+    if  len(id_arr) > n :
         DeleteUserParm( id_arr[n] )
 
     \endcode
@@ -11871,11 +11867,11 @@ extern void DeleteAllUserParm();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
-    string pid = AddGeom( "POD", "" )                     # Add Pod
+    pid = AddGeom( "POD", "" )                     # Add Pod
 
-    string x = GetParm( pid, "X_Rel_Location", "XForm" )
+    x = GetParm( pid, "X_Rel_Location", "XForm" )
 
     SetParmVal( x, 3.0 )
 
@@ -11916,11 +11912,11 @@ extern double ComputeMinClearanceDistance( const std::string & geom_id, int set 
     \beginPythonOnly
     \code{.py}
     #Add Geoms
-    string fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
+    fid = AddGeom( "FUSELAGE", "" )             # Add Fuselage
 
-    string pid = AddGeom( "POD", "" )                     # Add Pod
+    pid = AddGeom( "POD", "" )                     # Add Pod
 
-    string x = GetParm( pid, "X_Rel_Location", "XForm" )
+    x = GetParm( pid, "X_Rel_Location", "XForm" )
 
     SetParmVal( x, 3.0 )
 
@@ -11959,11 +11955,11 @@ extern double SnapParm( const std::string & parm_id, double target_min_dist, boo
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
-    if  GetVarPresetGroupNames().size() != 1 : Print( "---> Error: API AddVarPresetGroup" ); }
+    if  GetVarPresetGroupNames()len() != 1 : print( "---> Error: API AddVarPresetGroup" )
 
     \endcode
     \endPythonOnly
@@ -11992,13 +11988,13 @@ extern void AddVarPresetGroup( const std::string &group_name );
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 1 )            { Print( "---> Error: API AddVarPresetSetting" ); }
+    if ( GetVarPresetSettingNamesWName( "Tess" )len() != 1 ): print( "---> Error: API AddVarPresetSetting" )
 
     \endcode
     \endPythonOnly
@@ -12029,13 +12025,13 @@ extern void AddVarPresetSetting( const std::string &setting_name );
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
@@ -12068,13 +12064,13 @@ extern void AddVarPresetParm( const std::string &parm_id );
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
@@ -12110,13 +12106,13 @@ extern void AddVarPresetParm( const std::string &parm_id, const std::string &gro
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
@@ -12154,13 +12150,13 @@ extern void EditVarPresetParm( const std::string &parm_id, double parm_val );
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
@@ -12200,13 +12196,13 @@ extern void EditVarPresetParm( const std::string &parm_id, double parm_val, cons
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
@@ -12243,13 +12239,13 @@ extern void DeleteVarPresetParm( const std::string &parm_id );
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
@@ -12289,14 +12285,14 @@ extern void DeleteVarPresetParm( const std::string &parm_id, const std::string &
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Config" )
 
     AddVarPresetSetting( "Default" )
 
-    string p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" )
-    string p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" )
+    p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" )
+    p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" )
 
     AddVarPresetParm( p1 )
     AddVarPresetParm( p2 )
@@ -12335,7 +12331,7 @@ extern void SwitchVarPreset( const std::string &group_name, const std::string &s
 
     DeleteVarPresetSet( "Tess", "Fine" )
 
-    if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 0 )    { Print ( "---> Error: DeleteVarPresetSet" ); }
+    if ( GetVarPresetSettingNamesWName( "Tess" )len() != 0 ) Print ( "---> Error: DeleteVarPresetSet" )
 
     \endcode
     \endPythonOnly
@@ -12376,13 +12372,13 @@ extern bool DeleteVarPresetSet( const std::string &group_name, const std::string
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
@@ -12390,9 +12386,9 @@ extern bool DeleteVarPresetSet( const std::string &group_name, const std::string
 
     AddVarPresetSetting( "New_Setting" )
 
-    Print( "Current Group: " )
+    print( "Current Group: " )
 
-    Print( GetCurrentGroupName() )
+    print( GetCurrentGroupName() )
 
     \endcode
     \endPythonOnly
@@ -12431,13 +12427,13 @@ extern std::string GetCurrentGroupName();
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
@@ -12445,9 +12441,9 @@ extern std::string GetCurrentGroupName();
 
     AddVarPresetSetting( "New_Setting" )
 
-    Print( "Current Setting: " )
+    print( "Current Setting: " )
 
-    Print( GetCurrentSettingName() )
+    print( GetCurrentSettingName() )
 
     \endcode
     \endPythonOnly
@@ -12474,11 +12470,11 @@ extern std::string GetCurrentSettingName();
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
-    if  GetVarPresetGroupNames().size() != 1 : Print( "---> Error: API AddVarPresetGroup" ); }
+    if  GetVarPresetGroupNames()len() != 1 : print( "---> Error: API AddVarPresetGroup" )
 
     \endcode
     \endPythonOnly
@@ -12507,13 +12503,13 @@ extern std::vector< std::string > GetVarPresetGroupNames();
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    if ( GetVarPresetSettingNamesWName( "Tess" ).size() != 1 )            { Print( "---> Error: API AddVarPresetSetting" ); }
+    if ( GetVarPresetSettingNamesWName( "Tess" )len() != 1 ): print( "---> Error: API AddVarPresetSetting" )
 
     \endcode
     \endPythonOnly
@@ -12554,13 +12550,13 @@ extern std::vector< std::string > GetVarPresetSettingNamesWName( const std::stri
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
@@ -12569,9 +12565,9 @@ extern std::vector< std::string > GetVarPresetSettingNamesWName( const std::stri
     AddVarPresetSetting( "New_Setting_1" )
     AddVarPresetSetting( "New_Setting_2" )
 
-    array < string > group_1_settings = GetVarPresetSettingNamesWIndex( 1 )
+    group_1_settings = GetVarPresetSettingNamesWIndex( 1 )
 
-    if  group_1_settings.size() != 2 : Print( "---> Error: API GetVarPresetSettingNamesWIndex" ); }
+    if  len(group_1_settings) != 2 : print( "---> Error: API GetVarPresetSettingNamesWIndex" )
 
     \endcode
     \endPythonOnly
@@ -12609,21 +12605,21 @@ extern std::vector< std::string > GetVarPresetSettingNamesWIndex( int group_inde
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
     EditVarPresetParm( p1, 5 )
 
-    array <double> p_vals = GetVarPresetParmVals()
+    p_vals = GetVarPresetParmVals()
 
-    if  p_vals[0] != 5 : Print ( "---> Error: API EditVarPresetParm" ); }
+    if  p_vals[0] != 5 : Print ( "---> Error: API EditVarPresetParm" )
 
     \endcode
     \endPythonOnly
@@ -12665,24 +12661,24 @@ extern std::vector< double > GetVarPresetParmVals();
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "New_Group" )
 
     AddVarPresetSetting( "New_Setting_1" )
     AddVarPresetSetting( "New_Setting_2" )
 
-    string p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" )
-    string p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" )
+    p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" )
+    p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" )
 
     AddVarPresetParm( p1 )
     AddVarPresetParm( p2 )
 
     EditVarPresetParm( p2, 2, "New_Group", "New_Setting_2" )
 
-    array < > parm_vals = GetVarPresetParmValsWNames( "New_Group", "New_Setting_2" )
+    parm_vals = GetVarPresetParmValsWNames( "New_Group", "New_Setting_2" )
 
-    if  parm_vals.size() != 2 : Print( "---> Error: API GetVarPresetParmValsWNames" ); }
+    if  len(parm_vals) != 2 : print( "---> Error: API GetVarPresetParmValsWNames" )
 
     \endcode
     \endPythonOnly
@@ -12717,19 +12713,19 @@ extern std::vector< double > GetVarPresetParmValsWNames( const std::string &grou
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "Tess" )
 
     AddVarPresetSetting( "Coarse" )
 
-    string p1 = FindParm( pod1, "Tess_U", "Shape" )
+    p1 = FindParm( pod1, "Tess_U", "Shape" )
 
     AddVarPresetParm( p1 )
 
-    array <string> p_IDs = GetVarPresetParmIDs()
+    p_IDs = GetVarPresetParmIDs()
 
-    if  p_IDs.size() != 1 : Print( "---> Error: API AddVarPresetParm" ); }
+    if  len(p_IDs) != 1 : print( "---> Error: API AddVarPresetParm" )
 
     \endcode
     \endPythonOnly
@@ -12767,22 +12763,22 @@ extern std::vector< std::string > GetVarPresetParmIDs();
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string pod1 = AddGeom( "POD", "" )
+    pod1 = AddGeom( "POD", "" )
 
     AddVarPresetGroup( "New_Group" )
 
     AddVarPresetSetting( "New_Setting_1" )
     AddVarPresetSetting( "New_Setting_2" )
 
-    string p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" )
-    string p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" )
+    p1 = FindParm( pod1, "Y_Rel_Rotation", "XForm" )
+    p2 = FindParm( pod1, "Z_Rel_Rotation", "XForm" )
 
     AddVarPresetParm( p1 )
     AddVarPresetParm( p2 )
 
-    array < string > parm_ids = GetVarPresetParmIDsWName( "New_Group" )
+    parm_ids = GetVarPresetParmIDsWName( "New_Group" )
 
-    if  parm_ids.size() != 2 : Print( "---> Error: API GetVarPresetParmIDsWName" ); }
+    if  len(parm_ids) != 2 : print( "---> Error: API GetVarPresetParmIDsWName" )
 
     \endcode
     \endPythonOnly
@@ -12902,7 +12898,7 @@ extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const
     \beginPythonOnly
     \code{.py}
     # Add Propeller
-    string prop = AddGeom( "PROP", "" )
+    prop = AddGeom( "PROP", "" )
 
     ApproximateAllPropellerPCurves( prop )
 
@@ -12933,7 +12929,7 @@ extern void ApproximateAllPropellerPCurves( const std::string & geom_id );
     \beginPythonOnly
     \code{.py}
     # Add Propeller
-    string prop = AddGeom( "PROP", "" )
+    prop = AddGeom( "PROP", "" )
 
     ResetPropellerThicknessCurve( prop )
 
@@ -12999,12 +12995,12 @@ extern void ResetPropellerThicknessCurve( const std::string & geom_id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
 
     #==== Add Vertical tail and set some parameters =====//
-    string vert_id = AddGeom( "WING" )
+    vert_id = AddGeom( "WING" )
 
     SetGeomName( vert_id, "Vert" )
 
@@ -13012,20 +13008,20 @@ extern void ResetPropellerThicknessCurve( const std::string & geom_id );
     SetParmValUpdate( vert_id, "X_Rel_Location", "XForm", 8.5 )
     SetParmValUpdate( vert_id, "X_Rel_Rotation", "XForm", 90 )
 
-    string rudder_id = AddSubSurf( vert_id, SS_CONTROL )                      # Add Control Surface Sub-Surface
+    rudder_id = AddSubSurf( vert_id, SS_CONTROL )                      # Add Control Surface Sub-Surface
 
     AutoGroupVSPAEROControlSurfaces()
 
     Update()
 
-    Print( "COMPLETE\n" )
-    string control_group_settings_container_id = FindContainer( "VSPAEROSettings", 0 )   # auto grouping produces parm containers within VSPAEROSettings
+    print( "COMPLETE\n" )
+    control_group_settings_container_id = FindContainer( "VSPAEROSettings", 0 )   # auto grouping produces parm containers within VSPAEROSettings
 
     #==== Set Control Surface Group Deflection Angle ====//
-    Print( "\tSetting control surface group deflection angles..." )
+    print( "\tSetting control surface group deflection angles..." )
 
     #  setup asymmetric deflection for aileron
-    string deflection_gain_id
+    deflection_gain_id
 
     # subsurfaces get added to groups with "CSGQualities_[geom_name]_[control_surf_name]"
     # subsurfaces gain parm name is "Surf[surfndx]_Gain" starting from 0 to NumSymmetricCopies-1
@@ -13034,7 +13030,7 @@ extern void ResetPropellerThicknessCurve( const std::string & geom_id );
     deflection_gain_id = FindParm( control_group_settings_container_id, "Surf_" + aileron_id + "_1_Gain", "ControlSurfaceGroup_0" )
 
     #  deflect aileron
-    string deflection_angle_id = FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0" )
+    deflection_angle_id = FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0" )
 
     \endcode
     \endPythonOnly
@@ -13064,15 +13060,15 @@ extern void AutoGroupVSPAEROControlSurfaces();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
     num_group = GetNumControlSurfaceGroups()
 
-    if  num_group != 1 : Print( "Error: CreateVSPAEROControlSurfaceGroup" ); }
+    if  num_group != 1 : print( "Error: CreateVSPAEROControlSurfaceGroup" )
 
     \endcode
     \endPythonOnly
@@ -13100,9 +13096,9 @@ extern int CreateVSPAEROControlSurfaceGroup();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
@@ -13135,9 +13131,9 @@ extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
@@ -13180,22 +13176,22 @@ extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
     AddAllToVSPAEROControlSurfaceGroup( group_index )
 
-    array<string> @cs_name_vec = GetActiveCSNameVec( group_index )
+    @cs_name_vec = GetActiveCSNameVec( group_index )
 
-    Print( "Active CS in Group Index #", False )
-    Print( group_index )
+    print( "Active CS in Group Index #", False )
+    print( group_index )
 
-    for ( i = 0; i < int( cs_name_vec.size() ); i++ )
-    {
-        Print( cs_name_vec[i] )
+    for i in range(int( len(cs_name_vec) )):
+
+        print( cs_name_vec[i] )
 
     \endcode
     \endPythonOnly
@@ -13230,19 +13226,19 @@ extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
-    array<string> @cs_name_vec = GetCompleteCSNameVec()
+    @cs_name_vec = GetCompleteCSNameVec()
 
-    Print( "All Control Surfaces: ", False )
+    print( "All Control Surfaces: ", False )
 
-    for ( i = 0; i < int( cs_name_vec.size() ); i++ )
-    {
-        Print( cs_name_vec[i] )
+    for i in range(int( len(cs_name_vec) )):
+
+        print( cs_name_vec[i] )
 
     \endcode
     \endPythonOnly
@@ -13274,15 +13270,15 @@ extern std::vector < std::string > GetCompleteCSNameVec();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" ) # Add Wing
+    wid = AddGeom( "WING", "" ) # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
-    array<string> @cs_name_vec = GetAvailableCSNameVec( group_index )
+    @cs_name_vec = GetAvailableCSNameVec( group_index )
 
-    array < > cs_ind_vec(1)
+    cs_ind_vec(1)
     cs_ind_vec[0] = 1
 
     AddSelectedToCSGroup( cs_ind_vec, group_index ) # Add the first available control surface to the group
@@ -13317,17 +13313,17 @@ extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" ) # Add Wing
+    wid = AddGeom( "WING", "" ) # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
     SetVSPAEROControlGroupName( "Example_CS_Group", group_index )
 
-    Print( "CS Group name: ", False )
+    print( "CS Group name: ", False )
 
-    Print( GetVSPAEROControlGroupName( group_index ) )
+    print( GetVSPAEROControlGroupName( group_index ) )
 
     \endcode
     \endPythonOnly
@@ -13359,17 +13355,17 @@ extern void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex);
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" ) # Add Wing
+    wid = AddGeom( "WING", "" ) # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
     SetVSPAEROControlGroupName( "Example_CS_Group", group_index )
 
-    Print( "CS Group name: ", False )
+    print( "CS Group name: ", False )
 
-    Print( GetVSPAEROControlGroupName( group_index ) )
+    print( GetVSPAEROControlGroupName( group_index ) )
 
     \endcode
     \endPythonOnly
@@ -13409,18 +13405,18 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" ) # Add Wing
+    wid = AddGeom( "WING", "" ) # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
-    array < string > cs_name_vec = GetAvailableCSNameVec( group_index )
+    cs_name_vec = GetAvailableCSNameVec( group_index )
 
-    array < > cs_ind_vec( cs_name_vec.size() )
+    cs_ind_vec( len(cs_name_vec) )
 
-    for ( i = 0; i < int( cs_name_vec.size() ); i++ )
-    {
+    for i in range(int( len(cs_name_vec) )):
+
         cs_ind_vec[i] = i + 1
 
     AddSelectedToCSGroup( cs_ind_vec, group_index ) # Add all available control surfaces to the group
@@ -13470,23 +13466,23 @@ extern void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex);
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" ) # Add Wing
+    wid = AddGeom( "WING", "" ) # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL ) # Add Control Surface Sub-Surface
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
-    array < string > cs_name_vec = GetAvailableCSNameVec( group_index )
+    cs_name_vec = GetAvailableCSNameVec( group_index )
 
-    array < > cs_ind_vec( cs_name_vec.size() )
+    cs_ind_vec( len(cs_name_vec) )
 
-    for ( i = 0; i < int( cs_name_vec.size() ); i++ )
-    {
+    for i in range(int( len(cs_name_vec) )):
+
         cs_ind_vec[i] = i + 1
 
     AddSelectedToCSGroup( cs_ind_vec, group_index ) # Add the available control surfaces to the group
 
-    array < > remove_cs_ind_vec( 1 )
+    remove_cs_ind_vec( 1 )
     remove_cs_ind_vec[0] = 1
 
     RemoveSelectedFromCSGroup( remove_cs_ind_vec, group_index ) # Remove the first control surface
@@ -13530,25 +13526,25 @@ extern void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex);
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wid = AddGeom( "WING", "" )                             # Add Wing
+    wid = AddGeom( "WING", "" )                             # Add Wing
 
-    string aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
+    aileron_id = AddSubSurf( wid, SS_CONTROL )                      # Add Control Surface Sub-Surface
 
     #==== Add Horizontal tail and set some parameters =====//
-    string horiz_id = AddGeom( "WING", "" )
+    horiz_id = AddGeom( "WING", "" )
 
     SetGeomName( horiz_id, "Vert" )
 
     SetParmValUpdate( horiz_id, "TotalArea", "WingGeom", 10.0 )
     SetParmValUpdate( horiz_id, "X_Rel_Location", "XForm", 8.5 )
 
-    string elevator_id = AddSubSurf( horiz_id, SS_CONTROL )                      # Add Control Surface Sub-Surface
+    elevator_id = AddSubSurf( horiz_id, SS_CONTROL )                      # Add Control Surface Sub-Surface
 
     AutoGroupVSPAEROControlSurfaces()
 
     num_group = GetNumControlSurfaceGroups()
 
-    if  num_group != 2 : Print( "Error: GetNumControlSurfaceGroups" ); }
+    if  num_group != 2 : print( "Error: GetNumControlSurfaceGroups" )
 
     \endcode
     \endPythonOnly
@@ -13586,14 +13582,14 @@ extern int GetNumControlSurfaceGroups();
     \beginPythonOnly
     \code{.py}
     # Add a propeller
-    string prop_id = AddGeom( "PROP", "" )
+    prop_id = AddGeom( "PROP", "" )
     SetParmVal( prop_id, "PropMode", "Design", PROP_DISK )
     SetParmVal( prop_id, "Diameter", "Design", 6.0 )
 
     Update()
 
     # Setup the actuator disk VSPAERO parms
-    string disk_id = FindActuatorDisk( 0 )
+    disk_id = FindActuatorDisk( 0 )
 
     SetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ), 1234.0 )
     SetParmVal( FindParm( disk_id, "RotorCT", "Rotor" ), 0.35 )
@@ -13636,7 +13632,7 @@ extern std::string FindActuatorDisk( int disk_index );
     SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL )
 
     # Add a propeller
-    string prop_id = AddGeom( "PROP", "" )
+    prop_id = AddGeom( "PROP", "" )
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES )
 
     num_disk = GetNumActuatorDisks() # Should be 0
@@ -13678,17 +13674,17 @@ extern int GetNumActuatorDisks();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string wing_id = AddGeom( "WING" )
-    string pod_id = AddGeom( "POD" )
+    wing_id = AddGeom( "WING" )
+    pod_id = AddGeom( "POD" )
 
     # Create an actuator disk
-    string prop_id = AddGeom( "PROP", "" )
+    prop_id = AddGeom( "PROP", "" )
     SetParmVal( prop_id, "PropMode", "Design", PROP_BLADES )
 
     Update()
 
     # Setup the unsteady group VSPAERO parms
-    string disk_id = FindUnsteadyGroup( 1 ) # fixed components are in group 0 (wing & pod)
+    disk_id = FindUnsteadyGroup( 1 ) # fixed components are in group 0 (wing & pod)
 
     SetParmVal( FindParm( disk_id, "RPM", "UnsteadyGroup" ), 1234.0 )
 
@@ -13721,13 +13717,13 @@ extern std::string FindUnsteadyGroup( int group_index );
     \beginPythonOnly
     \code{.py}
     # Add a pod and wing
-    string pod_id = AddGeom( "POD", "" )
-    string wing_id = AddGeom( "WING", pod_id )
+    pod_id = AddGeom( "POD", "" )
+    wing_id = AddGeom( "WING", pod_id )
 
     SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 )
     Update()
 
-    Print( GetUnsteadyGroupName( 0 ) )
+    print( GetUnsteadyGroupName( 0 ) )
 
     \endcode
     \endPythonOnly
@@ -13763,16 +13759,16 @@ extern std::string GetUnsteadyGroupName( int group_index );
     \beginPythonOnly
     \code{.py}
     # Add a pod and wing
-    string pod_id = AddGeom( "POD", "" )
-    string wing_id = AddGeom( "WING", pod_id ) # Default with symmetry on -> 2 surfaces
+    pod_id = AddGeom( "POD", "" )
+    wing_id = AddGeom( "WING", pod_id ) # Default with symmetry on -> 2 surfaces
 
     SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 )
     Update()
 
-    array < string > comp_ids = GetUnsteadyGroupCompIDs( 0 )
+    comp_ids = GetUnsteadyGroupCompIDs( 0 )
 
-    if  comp_ids.size() != 3 :
-        Print( "ERROR: GetUnsteadyGroupCompIDs" )
+    if  len(comp_ids) != 3 :
+        print( "ERROR: GetUnsteadyGroupCompIDs" )
 
     \endcode
     \endPythonOnly
@@ -13808,16 +13804,16 @@ extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
     \beginPythonOnly
     \code{.py}
     # Add a pod and wing
-    string pod_id = AddGeom( "POD", "" )
-    string wing_id = AddGeom( "WING", pod_id ) # Default with symmetry on -> 2 surfaces
+    pod_id = AddGeom( "POD", "" )
+    wing_id = AddGeom( "WING", pod_id ) # Default with symmetry on -> 2 surfaces
 
     SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 )
     Update()
 
-    array < > surf_indexes = GetUnsteadyGroupSurfIndexes( 0 )
+    surf_indexes = GetUnsteadyGroupSurfIndexes( 0 )
 
-    if  surf_indexes.size() != 3 :
-        Print( "ERROR: GetUnsteadyGroupSurfIndexes" )
+    if  len(surf_indexes) != 3 :
+        print( "ERROR: GetUnsteadyGroupSurfIndexes" )
 
     \endcode
     \endPythonOnly
@@ -13860,7 +13856,7 @@ extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
     SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL )
 
     # Add a propeller
-    string prop_id = AddGeom( "PROP" )
+    prop_id = AddGeom( "PROP" )
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK )
 
     num_group = GetNumUnsteadyGroups() # Should be 0
@@ -13869,7 +13865,7 @@ extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
 
     num_group = GetNumUnsteadyGroups() # Should be 1
 
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     num_group = GetNumUnsteadyGroups() # Should be 2 (includes fixed component group)
 
@@ -13914,7 +13910,7 @@ extern int GetNumUnsteadyGroups();
     SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL )
 
     # Add a propeller
-    string prop_id = AddGeom( "PROP" )
+    prop_id = AddGeom( "PROP" )
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK )
 
     num_group = GetNumUnsteadyRotorGroups() # Should be 0
@@ -13923,7 +13919,7 @@ extern int GetNumUnsteadyGroups();
 
     num_group = GetNumUnsteadyRotorGroups() # Should be 1
 
-    string wing_id = AddGeom( "WING" )
+    wing_id = AddGeom( "WING" )
 
     num_group = GetNumUnsteadyRotorGroups() # Should be 1 still (fixed group not included)
 
@@ -14022,7 +14018,7 @@ extern void UpdateParasiteDrag();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "Starting USAF Atmosphere 1966 Table Creation. \n" )
+    print( "Starting USAF Atmosphere 1966 Table Creation. \n" )
 
     WriteAtmosphereCSVFile( "USAFAtmosphere1966Data.csv", ATMOS_TYPE_HERRINGTON_1966 )
 
@@ -14090,7 +14086,7 @@ extern void CalcAtmosphere( const double & alt, const double & delta_temp, const
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "Starting Body Form Factor Data Creation. \n" )
+    print( "Starting Body Form Factor Data Creation. \n" )
     WriteBodyFFCSVFile( "BodyFormFactorData.csv" )
 
     \endcode
@@ -14113,7 +14109,7 @@ extern void WriteBodyFFCSVFile( const std::string & file_name );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "Starting Wing Form Factor Data Creation. \n" )
+    print( "Starting Wing Form Factor Data Creation. \n" )
     WriteWingFFCSVFile( "WingFormFactorData.csv" )
 
     \endcode
@@ -14136,7 +14132,7 @@ extern void WriteWingFFCSVFile( const std::string & file_name );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "Starting Turbulent Friciton Coefficient Data Creation. \n" )
+    print( "Starting Turbulent Friciton Coefficient Data Creation. \n" )
     WriteCfEqnCSVFile( "FrictionCoefficientData.csv" )
 
     \endcode
@@ -14159,7 +14155,7 @@ extern void WriteCfEqnCSVFile( const std::string & file_name );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    Print( "Starting Partial Friction Method Data Creation. \n" )
+    print( "Starting Partial Friction Method Data Creation. \n" )
     WritePartialCfMethodCSVFile( "PartialFrictionMethodData.csv" )
 
     \endcode
@@ -14194,7 +14190,7 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14203,7 +14199,7 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
 
     vec3d pnt = CompPnt01( geom_id, surf_indx, u, w )
 
-    Print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' )
+    print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' )
 
     \endcode
     \endPythonOnly
@@ -14239,7 +14235,7 @@ extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const d
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14248,7 +14244,7 @@ extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const d
 
     vec3d norm = CompNorm01( geom_id, surf_indx, u, w )
 
-    Print( "Point: ( " + norm.x() + ', ' + norm.y() + ', ' + norm.z() + ' )' )
+    print( "Point: ( " + norm.x() + ', ' + norm.y() + ', ' + norm.z() + ' )' )
 
     \endcode
     \endPythonOnly
@@ -14284,7 +14280,7 @@ extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const 
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14293,7 +14289,7 @@ extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const 
 
     vec3d tanu = CompTanU01( geom_id, surf_indx, u, w )
 
-    Print( "Point: ( " + tanu.x() + ', ' + tanu.y() + ', ' + tanu.z() + ' )' )
+    print( "Point: ( " + tanu.x() + ', ' + tanu.y() + ', ' + tanu.z() + ' )' )
 
     \endcode
     \endPythonOnly
@@ -14329,7 +14325,7 @@ extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const 
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14338,7 +14334,7 @@ extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const 
 
     vec3d tanw = CompTanW01( geom_id, surf_indx, u, w )
 
-    Print( "Point: ( " + tanw.x() + ', ' + tanw.y() + ', ' + tanw.z() + ' )' )
+    print( "Point: ( " + tanw.x() + ', ' + tanw.y() + ', ' + tanw.z() + ' )' )
 
     \endcode
     \endPythonOnly
@@ -14377,7 +14373,7 @@ extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const 
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14387,7 +14383,7 @@ extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const 
 
     CompCurvature01( geom_id, surf_indx, u, w, k1, k2, ka, kg )
 
-    Print( "Curvature : k1 " + k1 + " k2 " + k2 + " ka " + ka + " kg " + kg )
+    print( "Curvature : k1 " + k1 + " k2 " + k2 + " ka " + ka + " kg " + kg )
 
     \endcode
     \endPythonOnly
@@ -14437,7 +14433,7 @@ extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, co
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14454,7 +14450,7 @@ extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, co
 
     d = ProjPnt01( geom_id; wout )
 
-    Print( "Dist " + d + " u " + uout + " w " + wout )
+    print( "Dist " + d + " u " + uout + " w " + wout )
 
     \endcode
     \endPythonOnly
@@ -14506,7 +14502,7 @@ extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const 
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14526,7 +14522,7 @@ extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const 
 
     d = ProjPnt01I( geom_id, pnt, surf_indx_out, uout, wout )
 
-    Print( "Dist " + d + " u " + uout + " w " + wout + " surf_index " + surf_indx_out )
+    print( "Dist " + d + " u " + uout + " w " + wout + " surf_index " + surf_indx_out )
 
     \endcode
     \endPythonOnly
@@ -14577,7 +14573,7 @@ extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14596,7 +14592,7 @@ extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_
 
     d = ProjPnt01Guess( geom_id, surf_indx, pnt, u + 0.1, w + 0.1, uout, wout )
 
-    Print( "Dist " + d + " u " + uout + " w " + wout )
+    print( "Dist " + d + " u " + uout + " w " + wout )
 
     \endcode
     \endPythonOnly
@@ -14648,7 +14644,7 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14664,9 +14660,9 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
 
     idist = AxisProjPnt01( geom_id; p_out)
 
-    Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out )
-    Print( "3D Offset ", False)
-    Print( surf_pt - p_out )
+    print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out )
+    print( "3D Offset ", False)
+    print( surf_pt - p_out )
 
     \endcode
     \endPythonOnly
@@ -14718,7 +14714,7 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14734,9 +14730,9 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
 
     idist = AxisProjPnt01I( geom_id; p_out)
 
-    Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out )
-    Print( "3D Offset ", False)
-    Print( surf_pt - p_out )
+    print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out )
+    print( "3D Offset ", False)
+    print( surf_pt - p_out )
 
     \endcode
     \endPythonOnly
@@ -14791,7 +14787,7 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14813,7 +14809,7 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
 
     d = AxisProjPnt01Guess( geom_id; p_out)
 
-    Print( "Dist " + d + " u " + uout + " w " + wout )
+    print( "Dist " + d + " u " + uout + " w " + wout )
 
     \endcode
     \endPythonOnly
@@ -14867,7 +14863,7 @@ extern double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_ind
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14921,7 +14917,7 @@ extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const 
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14931,7 +14927,7 @@ extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const 
 
     vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t )
 
-    Print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' )
+    print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' )
 
     \endcode
     \endPythonOnly
@@ -14974,7 +14970,7 @@ extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -14987,7 +14983,7 @@ extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const
 
     d = FindRST( geom_id; tout )
 
-    Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout )
+    print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout )
 
     \endcode
     \endPythonOnly
@@ -15037,7 +15033,7 @@ extern double FindRST( const std::string &geom_id, const int &surf_indx, const v
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -15054,7 +15050,7 @@ extern double FindRST( const std::string &geom_id, const int &surf_indx, const v
 
     d = FindRSTGuess( geom_id; tout )
 
-    Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout )
+    print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout )
 
     \endcode
     \endPythonOnly
@@ -15098,7 +15094,7 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -15145,7 +15141,7 @@ extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, c
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -15188,7 +15184,7 @@ extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
@@ -15237,7 +15233,7 @@ extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const
     \beginPythonOnly
     \code{.py}
     # Add Wing Geom
-    string geom_id = AddGeom( "WING", "" )
+    geom_id = AddGeom( "WING", "" )
 
     surf_indx = 0
 
@@ -15277,7 +15273,7 @@ extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &
     \beginPythonOnly
     \code{.py}
     # Add Wing Geom
-    string geom_id = AddGeom( "WING", "" )
+    geom_id = AddGeom( "WING", "" )
 
     surf_indx = 0
 
@@ -15326,22 +15322,22 @@ extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> uvec, wvec
+    uvec, wvec
 
     uvec.resize( n )
     wvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         uvec[i] = (i+1)*1.0/(n+1)
 
         wvec[i] = (n-i)*1.0/(n+1)
 
-    array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec )
+    ptvec = CompVecPnt01( geom_id, 0, uvec, wvec )
 
     \endcode
     \endPythonOnly
@@ -15384,22 +15380,22 @@ extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int 
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> uvec, wvec
+    uvec, wvec
 
     uvec.resize( n )
     wvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         uvec[i] = (i+1)*1.0/(n+1)
 
         wvec[i] = (n-i)*1.0/(n+1)
 
-    array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec )
+    normvec = CompVecNorm01( geom_id, 0, uvec, wvec )
 
     \endcode
     \endPythonOnly
@@ -15444,22 +15440,22 @@ extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> uvec, wvec
+    uvec, wvec
 
     uvec.resize( n )
     wvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         uvec[i] = (i+1)*1.0/(n+1)
 
         wvec[i] = (n-i)*1.0/(n+1)
 
-    array<double> k1vec, k2vec, kavec, kgvec
+    k1vec, k2vec, kavec, kgvec
 
     CompVecCurvature01( geom_id, 0, uvec, wvec, k1vec, k2vec, kavec, kgvec )
 
@@ -15519,30 +15515,30 @@ extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx,
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> uvec, wvec
+    uvec, wvec
 
     uvec.resize( n )
     wvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         uvec[i] = (i+1)*1.0/(n+1)
 
         wvec[i] = (n-i)*1.0/(n+1)
 
-    array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec )
+    ptvec = CompVecPnt01( geom_id, 0, uvec, wvec )
 
-    array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec )
+    normvec = CompVecNorm01( geom_id, 0, uvec, wvec )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         ptvec[i] = ptvec[i] + normvec[i]
 
-    array<double> uoutv, woutv, doutv
+    uoutv, woutv, doutv
 
     ProjVecPnt01( geom_id, 0, ptvec, uoutv, woutv, doutv )
 
@@ -15612,36 +15608,36 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> uvec, wvec
+    uvec, wvec
 
     uvec.resize( n )
     wvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         uvec[i] = (i+1)*1.0/(n+1)
 
         wvec[i] = (n-i)*1.0/(n+1)
 
-    array< vec3d > ptvec = CompVecPnt01( geom_id, 0, uvec, wvec )
+    ptvec = CompVecPnt01( geom_id, 0, uvec, wvec )
 
-    array< vec3d > normvec = CompVecNorm01( geom_id, 0, uvec, wvec )
+    normvec = CompVecNorm01( geom_id, 0, uvec, wvec )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         ptvec[i] = ptvec[i] + normvec[i]
 
-    array<double> uoutv, woutv, doutv, u0v, w0v
+    uoutv, woutv, doutv, u0v, w0v
 
     u0v.resize( n )
     w0v.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         u0v[i] = uvec[i] + 0.01234
 
         w0v[i] = wvec[i] - 0.05678
@@ -15720,43 +15716,43 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
     \beginPythonOnly
     \code{.py}
        # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
     surf_indx = 0
 
     n = 5
 
-    array<double> uvec, wvec
+    uvec, wvec
 
     uvec.resize( n )
     wvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         uvec[i] = (i+1)*1.0/(n+1)
 
         wvec[i] = (n-i)*1.0/(n+1)
 
-    array< vec3d > ptvec = CompVecPnt01( geom_id, surf_indx, uvec, wvec )
+    ptvec = CompVecPnt01( geom_id, surf_indx, uvec, wvec )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         ptvec[i].offset_y( -5.0 )
 
-    array<double> uoutv, woutv, doutv
-    array< vec3d > poutv
+    uoutv, woutv, doutv
+    poutv
 
     AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, poutv, doutv )
 
     # Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
     # the pod from the originally computed point.  I.e. there were multiple solutions and the original point
     # is not the closest intersection point.  We could offset those points in the +Y direction instead of -Y.
-    for( i = 0 ; i < n ; i++ )
-    {
-        Print( i, False )
-        Print( "U delta ", False )
-        Print( uvec[i] - uoutv[i], False )
-        Print( "W delta ", False )
-        Print( wvec[i] - woutv[i] )
+    for i in range(n):
+
+        print( i, False )
+        print( "U delta ", False )
+        print( uvec[i] - uoutv[i], False )
+        print( "W delta ", False )
+        print( wvec[i] - woutv[i] )
 
 
     \endcode
@@ -15834,48 +15830,48 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
     surf_indx = 0
 
     n = 5
 
-    array<double> uvec, wvec
+    uvec, wvec
 
     uvec.resize( n )
     wvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         uvec[i] = (i+1)*1.0/(n+1)
 
         wvec[i] = (n-i)*1.0/(n+1)
 
-    array< vec3d > ptvec = CompVecPnt01( geom_id, surf_indx, uvec, wvec )
+    ptvec = CompVecPnt01( geom_id, surf_indx, uvec, wvec )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         ptvec[i].offset_y( -5.0 )
 
-    array<double> uoutv, woutv, doutv, u0v, w0v
-    array< vec3d > poutv
+    uoutv, woutv, doutv, u0v, w0v
+    poutv
 
     u0v.resize( n )
     w0v.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         u0v[i] = uvec[i] + 0.01234
         w0v[i] = wvec[i] - 0.05678
 
     AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v,  uoutv, woutv, poutv, doutv )
 
-    for( i = 0 ; i < n ; i++ )
-    {
-        Print( i, False )
-        Print( "U delta ", False )
-        Print( uvec[i] - uoutv[i], False )
-        Print( "W delta ", False )
-        Print( wvec[i] - woutv[i] )
+    for i in range(n):
+
+        print( i, False )
+        print( "U delta ", False )
+        print( uvec[i] - uoutv[i], False )
+        print( "W delta ", False )
+        print( wvec[i] - woutv[i] )
 
 
     \endcode
@@ -15935,29 +15931,29 @@ extern void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_in
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
     n = 5
 
-    array<double> rvec, svec, tvec
+    rvec, svec, tvec
 
     rvec.resize( n )
     svec.resize( n )
     tvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         rvec[i] = (i+1)*1.0/(n+1)
 
         svec[i] = (n-i)*1.0/(n+1)
 
         tvec[i] = (i+1)*1.0/(n+1)
 
-    array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
+    ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
 
-    array<bool> res
+    res
     res = VecInsideSurf( geom_id, surf_indx, ptvec )
 
 
@@ -16006,25 +16002,25 @@ extern std::vector < bool > VecInsideSurf( const std::string &geom_id, const int
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> rvec, svec, tvec
+    rvec, svec, tvec
 
     rvec.resize( n )
     svec.resize( n )
     tvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         rvec[i] = (i+1)*1.0/(n+1)
 
         svec[i] = (n-i)*1.0/(n+1)
 
         tvec[i] = (i+1)*1.0/(n+1)
 
-    array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
+    ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
 
     \endcode
     \endPythonOnly
@@ -16076,27 +16072,27 @@ extern std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const in
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> rvec, svec, tvec
+    rvec, svec, tvec
 
     rvec.resize( n )
     svec.resize( n )
     tvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         rvec[i] = (i+1)*1.0/(n+1)
 
         svec[i] = (n-i)*1.0/(n+1)
 
         tvec[i] = (i+1)*1.0/(n+1)
 
-    array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
+    ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
 
-    array<double> routv, soutv, toutv, doutv
+    routv, soutv, toutv, doutv
 
     FindRSTVec( geom_id, 0, ptvec, routv, soutv, toutv, doutv )
 
@@ -16158,30 +16154,30 @@ extern void FindRSTVec( const std::string &geom_id, const int &surf_indx, const 
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> rvec, svec, tvec
+    rvec, svec, tvec
 
     rvec.resize( n )
     svec.resize( n )
     tvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         rvec[i] = (i+1)*1.0/(n+1)
 
         svec[i] = (n-i)*1.0/(n+1)
 
         tvec[i] = (i+1)*1.0/(n+1)
 
-    array< vec3d > ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
+    ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
 
-    array<double> routv, soutv, toutv, doutv
+    routv, soutv, toutv, doutv
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         ptvec[i] = ptvec[i] * 0.9
 
     FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec, routv, soutv, toutv, doutv )
@@ -16239,23 +16235,23 @@ extern void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, c
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> rvec, svec, tvec
+    rvec, svec, tvec
 
     rvec.resize( n )
     svec.resize( n )
     tvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         rvec[i] = (i+1)*1.0/(n+1)
         svec[i] = (n-i)*1.0/(n+1)
         tvec[i] = (i+1)*1.0/(n+1)
 
-    array<double> lvec, mvec, nvec
+    lvec, mvec, nvec
 
     ConvertRSTtoLMNVec( geom_id, 0, rvec, svec, tvec, lvec, mvec, nvec )
 
@@ -16311,23 +16307,23 @@ extern void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     n = 5
 
-    array<double> lvec, mvec, nvec
+    lvec, mvec, nvec
 
     lvec.resize( n )
     mvec.resize( n )
     nvec.resize( n )
 
-    for( i = 0 ; i < n ; i++ )
-    {
+    for i in range(n):
+
         lvec[i] = (i+1)*1.0/(n+1)
         mvec[i] = (n-i)*1.0/(n+1)
         nvec[i] = (i+1)*1.0/(n+1)
 
-    array<double> rvec, svec, tvec
+    rvec, svec, tvec
 
     ConvertLMNtoRSTVec( geom_id, 0, lvec, mvec, nvec, rvec, svec, tvec )
 
@@ -16369,11 +16365,11 @@ extern void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx
     \beginPythonOnly
     \code{.py}
     # Add Pod Geom
-    string geom_id = AddGeom( "POD", "" )
+    geom_id = AddGeom( "POD", "" )
 
     surf_indx = 0
 
-    array<double> utess, wtess
+    utess, wtess
 
     GetUWTess01( geom_id, surf_indx, utess, wtess )
 
@@ -16411,15 +16407,15 @@ extern void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::v
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid1 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
 
     SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 )
 
-    string pid2 = AddGeom( "POD", "" )
+    pid2 = AddGeom( "POD", "" )
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 )
 
-    string rid = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
+    rid = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
 
     SetParmVal( FindParm( rid, "X_Offset", "Measure" ), 6.0 )
 
@@ -16470,25 +16466,25 @@ extern string AddRuler( const string & startgeomid, int startsurfindx, double st
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid1 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
 
     SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 )
 
-    string pid2 = AddGeom( "POD", "" )
+    pid2 = AddGeom( "POD", "" )
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 )
 
-    string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
+    rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
 
-    string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
+    rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
 
-    array< string > @ruler_array = GetAllRulers()
+    ruler_array = GetAllRulers()
 
-    Print("Two Rulers")
+    print("Two Rulers")
 
-    for( n = 0 ; n < int( ruler_array.length() ) ; n++ )
-    {
-        Print( ruler_array[n] )
+    for( n = 0 ; n < int( len(ruler_array) ) ; n++ )
+
+        print( ruler_array[n] )
 
     \endcode
     \endPythonOnly
@@ -16523,19 +16519,19 @@ extern std::vector < string > GetAllRulers();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid1 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
 
     SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 )
 
-    string pid2 = AddGeom( "POD", "" )
+    pid2 = AddGeom( "POD", "" )
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 )
 
-    string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
+    rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
 
-    string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
+    rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
 
-    array< string > @ruler_array = GetAllRulers()
+    ruler_array = GetAllRulers()
 
     DelRuler( ruler_array[0] )
 
@@ -16570,17 +16566,17 @@ extern void DelRuler( const string &id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid1 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
 
     SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 )
 
-    string pid2 = AddGeom( "POD", "" )
+    pid2 = AddGeom( "POD", "" )
 
     SetParmVal( pid2, "Z_Rel_Location", "XForm", 4.0 )
 
-    string rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
+    rid1 = AddRuler( pid1, 1, 0.2, 0.3, pid2, 0, 0.2, 0.3, "Ruler 1" )
 
-    string rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
+    rid2 = AddRuler( pid1, 0, 0.4, 0.6, pid1, 1, 0.8, 0.9, "Ruler 2" )
 
     DeleteAllRulers()
 
@@ -16609,11 +16605,11 @@ extern void DeleteAllRulers();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid1 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
 
     SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 )
 
-    string probe_id = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" )
+    probe_id = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" )
 
     SetParmVal( FindParm( probe_id, "Len", "Measure" ), 3.0 )
 
@@ -16651,17 +16647,17 @@ extern string AddProbe( const string & geomid, int surfindx, double u, double w,
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid1 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
 
     SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 )
 
-    string probe_id = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" )
+    probe_id = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" )
 
-    array< string > @probe_array = GetAllProbes()
+    probe_array = GetAllProbes()
 
-    Print( "One Probe: ", False )
+    print( "One Probe: ", False )
 
-    Print( probe_array[0] )
+    print( probe_array[0] )
 
     \endcode
     \endPythonOnly
@@ -16693,18 +16689,18 @@ extern std::vector < string > GetAllProbes();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid1 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
 
     SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 )
 
-    string probe_id_1 = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" )
-    string probe_id_2 = AddProbe( pid1, 0, 0.2, 0.3, "Probe 2" )
+    probe_id_1 = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" )
+    probe_id_2 = AddProbe( pid1, 0, 0.2, 0.3, "Probe 2" )
 
     DelProbe( probe_id_1 )
 
-    array< string > @probe_array = GetAllProbes()
+    probe_array = GetAllProbes()
 
-    if  probe_array.size() != 1 : Print( "Error: DelProbe" ); }
+    if  len(probe_array) != 1 : print( "Error: DelProbe" )
 
     \endcode
     \endPythonOnly
@@ -16736,18 +16732,18 @@ extern void DelProbe( const string &id );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    string pid1 = AddGeom( "POD", "" )
+    pid1 = AddGeom( "POD", "" )
 
     SetParmVal( pid1, "Y_Rel_Location", "XForm", 2.0 )
 
-    string probe_id_1 = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" )
-    string probe_id_2 = AddProbe( pid1, 0, 0.2, 0.3, "Probe 2" )
+    probe_id_1 = AddProbe( pid1, 0, 0.5, 0.8, "Probe 1" )
+    probe_id_2 = AddProbe( pid1, 0, 0.2, 0.3, "Probe 2" )
 
     DeleteAllProbes()
 
-    array< string > @probe_array = GetAllProbes()
+    probe_array = GetAllProbes()
 
-    if  probe_array.size() != 0 : Print( "Error: DeleteAllProbes" ); }
+    if  len(probe_array) != 0 : print( "Error: DeleteAllProbes" )
 
     \endcode
     \endPythonOnly
@@ -16775,11 +16771,11 @@ extern void DeleteAllProbes();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    array< string > @link_array = GetAdvLinkNames()
+    link_array = GetAdvLinkNames()
 
-    for( n = 0 ; n < int( link_array.length() ) ; n++ )
-    {
-        Print( link_array[n] )
+    for( n = 0 ; n < int( len(link_array) ) ; n++ )
+
+        print( link_array[n] )
 
     \endcode
     \endPythonOnly
@@ -16814,9 +16810,9 @@ extern std::vector< std::string > GetAdvLinkNames();
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -16873,9 +16869,9 @@ extern int GetLinkIndex( const string & name );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -16888,12 +16884,12 @@ extern int GetLinkIndex( const string & name );
 
     DelAdvLink( indx )
 
-    array< string > @link_array = GetAdvLinkNames()
+    link_array = GetAdvLinkNames()
 
     # Should print nothing.
-    for( n = 0 ; n < int( link_array.length() ) ; n++ )
-    {
-        Print( link_array[n] )
+    for( n = 0 ; n < int( len(link_array) ) ; n++ )
+
+        print( link_array[n] )
 
 
     \endcode
@@ -16939,9 +16935,9 @@ extern void DelAdvLink( int index );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -16954,12 +16950,12 @@ extern void DelAdvLink( int index );
 
     DelAllAdvLinks()
 
-    array< string > @link_array = GetAdvLinkNames()
+    link_array = GetAdvLinkNames()
 
     # Should print nothing.
-    for( n = 0 ; n < int( link_array.length() ) ; n++ )
-    {
-        Print( link_array[n] )
+    for( n = 0 ; n < int( len(link_array) ) ; n++ )
+
+        print( link_array[n] )
 
 
     \endcode
@@ -16994,9 +16990,9 @@ extern void DelAllAdvLinks();
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17041,9 +17037,9 @@ extern void AddAdvLink( const string & name );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17090,9 +17086,9 @@ extern void AddAdvLinkInput( int index, const string & parm_id, const string & v
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17145,10 +17141,10 @@ extern void AddAdvLinkOutput( int index, const string & parm_id, const string & 
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
-    string y_pos = GetParm( pod, "Y_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    y_pos = GetParm( pod, "Y_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17205,10 +17201,10 @@ extern void DelAdvLinkInput( int index, const string & var_name );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
-    string y_pos = GetParm( pod, "Y_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    y_pos = GetParm( pod, "Y_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17266,9 +17262,9 @@ extern void DelAdvLinkOutput( int index, const string & var_name );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17279,11 +17275,11 @@ extern void DelAdvLinkOutput( int index, const string & var_name );
 
     BuildAdvLinkScript( indx )
 
-    array< string > @name_array = GetAdvLinkInputNames( indx )
+    name_array = GetAdvLinkInputNames( indx )
 
-    for( n = 0 ; n < int( name_array.length() ) ; n++ )
-    {
-        Print( name_array[n] )
+    for( n = 0 ; n < int( len(name_array) ) ; n++ )
+
+        print( name_array[n] )
 
 
     \endcode
@@ -17327,9 +17323,9 @@ extern std::vector< std::string > GetAdvLinkInputNames( int index );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17340,11 +17336,11 @@ extern std::vector< std::string > GetAdvLinkInputNames( int index );
 
     BuildAdvLinkScript( indx )
 
-    array< string > @parm_array = GetAdvLinkInputParms( indx )
+    parm_array = GetAdvLinkInputParms( indx )
 
-    for( n = 0 ; n < int( parm_array.length() ) ; n++ )
-    {
-        Print( parm_array[n] )
+    for( n = 0 ; n < int( len(parm_array) ) ; n++ )
+
+        print( parm_array[n] )
 
 
     \endcode
@@ -17388,9 +17384,9 @@ extern std::vector< std::string > GetAdvLinkInputParms( int index );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17401,11 +17397,11 @@ extern std::vector< std::string > GetAdvLinkInputParms( int index );
 
     BuildAdvLinkScript( indx )
 
-    array< string > @name_array = GetAdvLinkOutputNames( indx )
+    name_array = GetAdvLinkOutputNames( indx )
 
-    for( n = 0 ; n < int( name_array.length() ) ; n++ )
-    {
-        Print( name_array[n] )
+    for( n = 0 ; n < int( len(name_array) ) ; n++ )
+
+        print( name_array[n] )
 
 
     \endcode
@@ -17449,9 +17445,9 @@ extern std::vector< std::string > GetAdvLinkOutputNames( int index );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17462,11 +17458,11 @@ extern std::vector< std::string > GetAdvLinkOutputNames( int index );
 
     BuildAdvLinkScript( indx )
 
-    array< string > @parm_array = GetAdvLinkOutputParms( indx )
+    parm_array = GetAdvLinkOutputParms( indx )
 
-    for( n = 0 ; n < int( parm_array.length() ) ; n++ )
-    {
-        Print( parm_array[n] )
+    for( n = 0 ; n < int( len(parm_array) ) ; n++ )
+
+        print( parm_array[n] )
 
 
     \endcode
@@ -17514,9 +17510,9 @@ extern std::vector< std::string > GetAdvLinkOutputParms( int index );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17530,9 +17526,9 @@ extern std::vector< std::string > GetAdvLinkOutputParms( int index );
     valid = ValidateAdvLinkParms( indx )
 
     if  valid :
-        Print( "Advanced link Parms are valid." )
+        print( "Advanced link Parms are valid." )
     else:
-        Print( "Advanced link Parms are not valid." )
+        print( "Advanced link Parms are not valid." )
 
 
     \endcode
@@ -17569,9 +17565,9 @@ extern bool ValidateAdvLinkParms( int index );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17621,9 +17617,9 @@ extern void SetAdvLinkCode( int index, const string & code );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17634,9 +17630,9 @@ extern void SetAdvLinkCode( int index, const string & code );
 
     BuildAdvLinkScript( indx )
 
-    string code = GetAdvLinkCode( indx )
+    code = GetAdvLinkCode( indx )
 
-    Print( code )
+    print( code )
 
 
     \endcode
@@ -17678,9 +17674,9 @@ extern std::string GetAdvLinkCode( int index );
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17690,9 +17686,9 @@ extern std::string GetAdvLinkCode( int index );
     SetAdvLinkCode( indx, "x = 10.0 - len;" )
     SearchReplaceAdvLinkCode( indx, "10.0", "12.3" )
 
-    string code = GetAdvLinkCode( indx )
+    code = GetAdvLinkCode( indx )
 
-    Print( code )
+    print( code )
 
     BuildAdvLinkScript( indx )
 
@@ -17741,9 +17737,9 @@ extern void SearchReplaceAdvLinkCode( int index, const string & from, const stri
     \beginPythonOnly
     \code{.py}
 
-    string pod = AddGeom( "POD", "" )
-    string length = FindParm( pod, "Length", "Design" )
-    string x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
+    pod = AddGeom( "POD", "" )
+    length = FindParm( pod, "Length", "Design" )
+    x_pos = GetParm( pod, "X_Rel_Location", "XForm" )
 
     AddAdvLink( "ExampleLink" )
     indx = GetLinkIndex( "ExampleLink" )
@@ -17755,9 +17751,9 @@ extern void SearchReplaceAdvLinkCode( int index, const string & from, const stri
     success = BuildAdvLinkScript( indx )
 
     if  success :
-        Print( "Advanced link build successful." )
+        print( "Advanced link build successful." )
     else:
-        Print( "Advanced link build not successful." )
+        print( "Advanced link build not successful." )
 
 
     \endcode
