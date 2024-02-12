@@ -2922,10 +2922,10 @@ extern void PrintResultsDocs( const std::string &results_id );
     #==== Write Some Fake Test Results =====//
     WriteTestResults()
 
-    array< string > @results_array = GetAllResultsNames()
+    results_array = GetAllResultsNames()
 
-    for ( i = 0; i < int( results_array.size() ); i++ )
-        string resid = FindLatestResultsID( results_array[i] )
+    for i in range( len( results_array ) ):
+        resid = FindLatestResultsID( results_array[i] )
         PrintResults( resid )
 
     \endcode
