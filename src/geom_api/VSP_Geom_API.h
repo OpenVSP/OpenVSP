@@ -309,8 +309,8 @@ extern void VSPRenew();
     num_xsecs = GetNumXSec( xsec_surf )
 
     #==== Set Tan Angles At Nose/Tail
-    SetXSecTanAngles( GetXSec( xsec_surf, 0 ), XSEC_BOTH_SIDES, 90 )
-    SetXSecTanAngles( GetXSec( xsec_surf, num_xsecs - 1 ), XSEC_BOTH_SIDES, -90 )
+    SetXSecTanAngles( GetXSec( xsec_surf, 0 ), XSEC_BOTH_SIDES, 90, -1.0e12, -1.0e12, -1.0e12 )
+    SetXSecTanAngles( GetXSec( xsec_surf, num_xsecs - 1 ), XSEC_BOTH_SIDES, -90, -1.0e12, -1.0e12, -1.0e12 )
 
     Update()       # Force Surface Update
 
@@ -1526,7 +1526,7 @@ extern string SetVSPAERORefWingID( const std::string & geom_id );
     \code{.py}
     nanalysis = GetNumAnalysis()
 
-    print( "Number of registered analyses: " + nanalysis )
+    print( f"Number of registered analyses: {nanalysis}" )
 
     \endcode
     \endPythonOnly
@@ -1754,7 +1754,7 @@ extern int GetAnalysisInputType( const std::string & analysis, const std::string
     # Set to panel method
     analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" )
 
-    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD.VORTEX_LATTICE )
+    analysis_method = [VORTEX_LATTICE]
 
     SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method )
 
@@ -1785,7 +1785,7 @@ extern const std::vector< int > & GetIntAnalysisInput( const std::string & analy
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    vinfFCinput = GetDoubleAnalysisInput( "ParasiteDrag", "Vinf" )
+    vinfFCinput = list( GetDoubleAnalysisInput( "ParasiteDrag", "Vinf" ) )
 
     vinfFCinput[0] = 629
 
@@ -1820,7 +1820,7 @@ extern const std::vector< double > & GetDoubleAnalysisInput( const std::string &
     \code{.py}
     fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" )
 
-    fileNameInput[0] = "ParasiteDragExample"
+    fileNameInput = ["ParasiteDragExample"]
 
     SetStringAnalysisInput( "ParasiteDrag", "FileName", fileNameInput )
 
@@ -1926,7 +1926,7 @@ extern void SetAnalysisInputDefaults( const std::string & analysis );
     # Set to panel method
     analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" )
 
-    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD.VORTEX_LATTICE )
+    analysis_method = [VORTEX_LATTICE]
 
     SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method )
 
@@ -2002,7 +2002,7 @@ extern void SetDoubleAnalysisInput( const std::string & analysis, const std::str
     \code{.py}
     fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" )
 
-    fileNameInput[0] = "ParasiteDragExample"
+    fileNameInput = ["ParasiteDragExample"]
 
     SetStringAnalysisInput( "ParasiteDrag", "FileName", fileNameInput )
 
@@ -2889,7 +2889,7 @@ extern void PrintResults( const std::string &results_id );
     rid = ExecAnalysis( analysis_name )
 
     # Get & Display Results Docs
-    PrintResultsDoc( rid )
+    PrintResultsDocs( rid )
 
     \endcode
     \endPythonOnly
@@ -3547,7 +3547,7 @@ extern void SetBackground( double r, double g, double b );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    SetGUIElementDisable( GDEV_INPUT, true )
+    SetGUIElementDisable( GDEV_INPUT, True )
     \endcode
     \endPythonOnly
     \param [in] e int GDEV enum for GUI device type
@@ -3568,7 +3568,7 @@ extern void SetGUIElementDisable( int e, bool state );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    SetGUIScreenDisable( VSP_CFD_MESH_SCREEN, true )
+    SetGUIScreenDisable( VSP_CFD_MESH_SCREEN, True )
     \endcode
     \endPythonOnly
     \param [in] e int GUI_VSP_SCREEN enum for screen
@@ -3589,7 +3589,7 @@ extern void SetGUIScreenDisable( int s, bool state );
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    SetGeomScreenDisable( ALL_GEOM_SCREENS, true )
+    SetGeomScreenDisable( ALL_GEOM_SCREENS, True )
     \endcode
     \endPythonOnly
     \param [in] e int GUI_GEOM_SCREEN enum for geom screen
@@ -4934,7 +4934,7 @@ extern std::string GetSubSurfName( const std::string & sub_id );
 
     ind = GetSubSurfIndex( ss_rec_id )
 
-    ind_str = "Index of SS_Rectangle: " + ind + "\n"
+    ind_str = f"Index of SS_Rectangle: {ind}"
 
     print( ind_str )
 
@@ -4995,7 +4995,7 @@ extern int GetSubSurfIndex( const std::string & sub_id );
 
         id_type_str += ": "
 
-        id_type_str += GetSubSurfType(id_vec[i])
+        id_type_str += f'{GetSubSurfType(id_vec[i])}'
 
         id_type_str += "\t"
 
@@ -5049,7 +5049,7 @@ extern std::vector<std::string> GetAllSubSurfIDs();
 
     num_ss = GetNumSubSurf( wid )
 
-    num_str = "Number of SubSurfaces: " + num_ss + "\n"
+    num_str = "Number of SubSurfaces: {num_ss}"
 
     print( num_str )
 
@@ -5110,7 +5110,7 @@ extern int GetNumSubSurf( const std::string & geom_id );
 
         id_type_str += ": "
 
-        id_type_str += GetSubSurfType(id_vec[i])
+        id_type_str += f'{GetSubSurfType(id_vec[i])}'
 
         id_type_str += "\t"
 
@@ -6889,9 +6889,9 @@ extern std::string GetXSecSurf( const std::string & geom_id, int index );
 
         xsec = GetXSec( xsec_surf, i )
 
-        SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0 )       # Set Tangent Angles At Cross Section
+        SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0, -1.0e12, -1.0e12, -1.0e12 )       # Set Tangent Angles At Cross Section
 
-        SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.0 )  # Set Tangent Strengths At Cross Section
+        SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.0, -1.0e12, -1.0e12, -1.0e12 )  # Set Tangent Strengths At Cross Section
 
     \endcode
     \endPythonOnly
@@ -7564,7 +7564,7 @@ extern vec3d ComputeXSecTan( const std::string& xsec_id, double fract );
 
     xsec = GetXSec( xsec_surf, 1 )
 
-    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0.0 )       # Set Tangent Angles At Cross Section
+    SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0.0, -1.0e12, -1.0e12, -1.0e12 )       # Set Tangent Angles At Cross Section
     SetXSecContinuity( xsec, 1 )                       # Set Continuity At Cross Section
 
     ResetXSecSkinParms( xsec )
@@ -7656,7 +7656,7 @@ extern void SetXSecContinuity( const std::string& xsec_id, int cx );
 
         xsec = GetXSec( xsec_surf, i )
 
-        SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 10.0 )       # Set Tangent Angles At Cross Section
+        SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 10.0, -1.0e12, -1.0e12, -1.0e12 )       # Set Tangent Angles At Cross Section
 
     \endcode
     \endPythonOnly
@@ -7708,7 +7708,7 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
 
         xsec = GetXSec( xsec_surf, i )
 
-        SetXSecTanSlews( xsec, XSEC_BOTH_SIDES, 5.0 )       # Set Tangent Slews At Cross Section
+        SetXSecTanSlews( xsec, XSEC_BOTH_SIDES, 5.0, -1.0e12, -1.0e12, -1.0e12 )       # Set Tangent Slews At Cross Section
 
     \endcode
     \endPythonOnly
@@ -7762,7 +7762,7 @@ extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, d
 
         xsec = GetXSec( xsec_surf, i )
 
-        SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.8 )  # Set Tangent Strengths At Cross Section
+        SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.8, -1.0e12, -1.0e12, -1.0e12 )  # Set Tangent Strengths At Cross Section
 
     \endcode
     \endPythonOnly
@@ -7816,7 +7816,7 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
 
         xsec = GetXSec( xsec_surf, i )
 
-        SetXSecCurvatures( xsec, XSEC_BOTH_SIDES, 0.2 )  # Set Tangent Strengths At Cross Section
+        SetXSecCurvatures( xsec, XSEC_BOTH_SIDES, 0.2, -1.0e12, -1.0e12, -1.0e12 )  # Set Tangent Strengths At Cross Section
 
     \endcode
     \endPythonOnly
@@ -8075,6 +8075,7 @@ extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    pi = 3.14159265358979323846
     # Compute theoretical lift and drag distributions using 100 points
     Vinf = 100
 
@@ -8084,9 +8085,9 @@ extern void SetAirfoilPnts( const std::string& xsec_id, const std::vector< vec3d
 
     n_pts = 100
 
-    cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
+    cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), alpha_deg*pi/180, Vinf, ( 2 * halfAR ), False )
 
-    cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
+    cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), alpha_deg*pi/180, Vinf, ( 2 * halfAR ), False )
 
     \endcode
     \endPythonOnly
@@ -8124,6 +8125,7 @@ extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &
     \endforcpponly
     \beginPythonOnly
     \code{.py}
+    pi = 3.14159265358979323846
     # Compute theoretical lift and drag distributions using 100 points
     Vinf = 100
 
@@ -8133,9 +8135,9 @@ extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &
 
     n_pts = 100
 
-    cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
+    cl_dist_theo = GetHersheyBarLiftDist( int( n_pts ), alpha_deg*pi/180, Vinf, ( 2 * halfAR ), False )
 
-    cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), Deg2Rad( alpha_deg ), Vinf, ( 2 * halfAR ), False )
+    cd_dist_theo = GetHersheyBarDragDist( int( n_pts ), alpha_deg*pi/180, Vinf, ( 2 * halfAR ), False )
 
     \endcode
     \endPythonOnly
@@ -8352,9 +8354,9 @@ extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
 
     for i in range(npts):
 
-        x_slice_pnt_vec[i] = vec3d( 0, abc_rad[1] * math.cos( theta_vec[i] ), abc_rad[2] *math.sin( theta_vec[i] ) )
+        x_slice_pnt_vec[i] = vec3d( 0, abc_rad.y() * math.cos( theta_vec[i] ), abc_rad.z() * math.sin( theta_vec[i] ) )
 
-    V_vec = vec3d( ( V_inf * math.cos( Deg2Rad( alpha ) ) * math.cos( Deg2Rad( beta ) ) ), ( V_inf * math.sin( Deg2Rad( beta ) ) ), ( V_inf * math.sin( Deg2Rad( alpha ) ) * math.cos( Deg2Rad( beta ) ) ) )
+    V_vec = vec3d( ( V_inf * math.cos( alpha*pi/180 ) * math.cos( beta*pi/180 ) ), ( V_inf * math.sin( beta*pi/180 ) ), ( V_inf * math.sin( alpha*pi/180 ) * math.cos( beta*pi/180 ) ) )
 
     cp_dist = GetEllipsoidCpDist( x_slice_pnt_vec, abc_rad, V_vec )
 
@@ -9480,7 +9482,7 @@ extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
     # Get the control points for the default shape
     xsec1_pts = GetEditXSecCtrlVec( xsec_1, True ) # The returned control points will not be scaled by width and height
 
-    print( "Normalized Bottom Point of XSecCurve: " + xsec1_pts[3].x() + ", " + xsec1_pts[3].y() + ", " + xsec1_pts[3].z() )
+    print( f"Normalized Bottom Point of XSecCurve: {xsec1_pts[3].x()}, {xsec1_pts[3].y()}, {xsec1_pts[3].z()}" )
 
     \endcode
     \endPythonOnly
@@ -9910,7 +9912,7 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
     # Identify XSec 1
     xsec_1 = GetXSec( xsec_surf, 1 )
 
-    fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
+    fixed_u_vec = list(GetEditXSecFixedUVec( xsec_1 ))
 
     fixed_u_vec[3] = True # change a flag
 
@@ -9968,7 +9970,7 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
     # Identify XSec 1
     xsec_1 = GetXSec( xsec_surf, 1 )
 
-    fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
+    fixed_u_vec = list(GetEditXSecFixedUVec( xsec_1 ))
 
     fixed_u_vec[3] = True # change a flag
 
@@ -10027,7 +10029,7 @@ extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool
     # Identify XSec 1
     xsec_1 = GetXSec( xsec_surf, 1 )
 
-    fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
+    fixed_u_vec = list(GetEditXSecFixedUVec( xsec_1 ))
 
     fixed_u_vec[3] = True # change a flag
 
@@ -13019,9 +13021,6 @@ extern void ResetPropellerThicknessCurve( const std::string & geom_id );
     #==== Set Control Surface Group Deflection Angle ====//
     print( "\tSetting control surface group deflection angles..." )
 
-    #  setup asymmetric deflection for aileron
-    deflection_gain_id
-
     # subsurfaces get added to groups with "CSGQualities_[geom_name]_[control_surf_name]"
     # subsurfaces gain parm name is "Surf[surfndx]_Gain" starting from 0 to NumSymmetricCopies-1
 
@@ -14196,7 +14195,7 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
 
     pnt = CompPnt01( geom_id, surf_indx, u, w )
 
-    print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' )
+    print( f"Point: ( {pnt.x()}, {pnt.y()}, {pnt.z()} )" )
 
     \endcode
     \endPythonOnly
@@ -14241,7 +14240,7 @@ extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const d
 
     norm = CompNorm01( geom_id, surf_indx, u, w )
 
-    print( "Point: ( " + norm.x() + ', ' + norm.y() + ', ' + norm.z() + ' )' )
+    print( "Point: ( {norm.x()}, {norm.y()}, {norm.z()} )" )
 
     \endcode
     \endPythonOnly
@@ -14286,7 +14285,7 @@ extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const 
 
     tanu = CompTanU01( geom_id, surf_indx, u, w )
 
-    print( "Point: ( " + tanu.x() + ', ' + tanu.y() + ', ' + tanu.z() + ' )' )
+    print( f"Point: ( {tanu.x()}, {tanu.y()}, {tanu.z()} )" )
 
     \endcode
     \endPythonOnly
@@ -14331,7 +14330,7 @@ extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const 
 
     tanw = CompTanW01( geom_id, surf_indx, u, w )
 
-    print( "Point: ( " + tanw.x() + ', ' + tanw.y() + ', ' + tanw.z() + ' )' )
+    print( f"Point: ( {tanw.x()}, {tanw.y()}, {tanw.z()} )" )
 
     \endcode
     \endPythonOnly
@@ -14380,7 +14379,7 @@ extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const 
 
     k1, k2, ka, kg = CompCurvature01( geom_id, surf_indx, u, w )
 
-    print( "Curvature : k1 " + k1 + " k2 " + k2 + " ka " + ka + " kg " + kg )
+    print( f"Curvature : k1 {k1} k2 {k2} ka {ka} kg {kg}" )
 
     \endcode
     \endPythonOnly
@@ -14443,11 +14442,11 @@ extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, co
 
 
     # Offset point from surface
-    pnt = pnt + norm
+    pnt.set_xyz( pnt.x() + norm.x(), pnt.y() + norm.y(), pnt.z() + norm.z() )
 
-    d, uout, wout = ProjPnt01( geom_id )
+    d, uout, wout = ProjPnt01( geom_id, surf_indx, pnt )
 
-    print( "Dist " + d + " u " + uout + " w " + wout )
+    print( f"Dist {d} u {uout} w {wout}" )
 
     \endcode
     \endPythonOnly
@@ -14515,11 +14514,11 @@ extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const 
 
 
     # Offset point from surface
-    pnt = pnt + norm
+    pnt.set_xyz( pnt.x() + norm.x(), pnt.y() + norm.y(), pnt.z() + norm.z() )
 
     d, surf_indx_out, uout, wout = ProjPnt01I( geom_id, pnt )
 
-    print( "Dist " + d + " u " + uout + " w " + wout + " surf_index " + surf_indx_out )
+    print( f"Dist {d} u {uout} w {wout} surf_index {surf_indx_out}" )
 
     \endcode
     \endPythonOnly
@@ -14585,11 +14584,11 @@ extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_
 
 
     # Offset point from surface
-    pnt = pnt + norm
+    pnt.set_xyz( pnt.x() + norm.x(), pnt.y() + norm.y(), pnt.z() + norm.z() )
 
     d, uout, wout = ProjPnt01Guess( geom_id, surf_indx, pnt, u + 0.1, w + 0.1 )
 
-    print( "Dist " + d + " u " + uout + " w " + wout )
+    print( f"Dist {d} u {uout} w {wout}" )
 
     \endcode
     \endPythonOnly
@@ -14653,7 +14652,7 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
 
     pt.offset_y( -5.0 )
 
-    idist, u_out, w_out, p_out = AxisProjPnt01( geom_id )
+    idist, u_out, w_out, p_out = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt )
 
     print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out )
     print( "3D Offset ", False)
@@ -14722,7 +14721,7 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
     pt.offset_y( -5.0 )
 
 
-    idist, surf_indx_out, u_out, w_out, p_out = AxisProjPnt01I( geom_id )
+    idist, surf_indx_out, u_out, w_out, p_out = AxisProjPnt01I( geom_id, Y_DIR, pt )
 
     print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out )
     print( "3D Offset ", False)
@@ -14799,9 +14798,9 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     u0 = u + 0.01234
     w0 = w - 0.05678
 
-    d, uout, wout, p_out = AxisProjPnt01Guess( geom_id )
+    d, uout, wout, p_out = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0 )
 
-    print( "Dist " + d + " u " + uout + " w " + wout )
+    print( f"Dist {d} u {uout} w {wout}" )
 
     \endcode
     \endPythonOnly
@@ -14865,7 +14864,7 @@ extern double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_ind
 
     pnt = CompPntRST( geom_id, surf_indx, r, s, t )
 
-    res = InsideSurf( geom_id, pnt )
+    res = InsideSurf( geom_id, surf_indx, pnt )
 
     if  res :
         print( "Inside" )
@@ -14919,7 +14918,7 @@ extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const 
 
     pnt = CompPntRST( geom_id, surf_indx, r, s, t )
 
-    print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' )
+    print( f"Point: ( {pnt.x()}, {pnt.y()}, {pnt.z()} )" )
 
     \endcode
     \endPythonOnly
@@ -14973,9 +14972,9 @@ extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const
     pnt = CompPntRST( geom_id, surf_indx, r, s, t )
 
 
-    d, rout, sout, tout = FindRST( geom_id )
+    d, rout, sout, tout = FindRST( geom_id, surf_indx, pnt )
 
-    print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout )
+    print( f"Dist {d} r {rout} s {sout} t {tout}" )
 
     \endcode
     \endPythonOnly
@@ -15040,9 +15039,9 @@ extern double FindRST( const std::string &geom_id, const int &surf_indx, const v
     s0 = 0.6
     t0 = 0.5
 
-    d, rout, sout, tout = FindRSTGuess( geom_id )
+    d, rout, sout, tout = FindRSTGuess( geom_id, surf_indx, pnt, r0, s0, t0 )
 
-    print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout )
+    print( f"Dist {d} r {rout} s {sout} t {tout}" )
 
     \endcode
     \endPythonOnly
@@ -15520,8 +15519,7 @@ extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx,
 
     for i in range(n):
 
-        ptvec[i] = ptvec[i] + normvec[i]
-
+        ptvec[i].set_xyz( ptvec[i].x() + normvec[i].x(), ptvec[i].y() + normvec[i].y(), ptvec[i].z() + normvec[i].z() )
 
     uoutv, woutv, doutv = ProjVecPnt01( geom_id, 0, ptvec )
 
@@ -15610,7 +15608,7 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
 
     for i in range(n):
 
-        ptvec[i] = ptvec[i] + normvec[i]
+        ptvec[i].set_xyz( ptvec[i].x() + normvec[i].x(), ptvec[i].y() + normvec[i].y(), ptvec[i].z() + normvec[i].z() )
 
     u0v = [0]*n
     w0v = [0]*n
@@ -15715,7 +15713,7 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
 
         ptvec[i].offset_y( -5.0 )
 
-    uoutv, woutv, poutv, doutv = AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, poutv, doutv )
+    uoutv, woutv, poutv, doutv = AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec )
 
     # Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
     # the pod from the originally computed point.  I.e. there were multiple solutions and the original point
@@ -15920,7 +15918,7 @@ extern void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_in
 
     ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
 
-    res
+
     res = VecInsideSurf( geom_id, surf_indx, ptvec )
 
 
@@ -16137,7 +16135,7 @@ extern void FindRSTVec( const std::string &geom_id, const int &surf_indx, const 
 
     for i in range(n):
 
-        ptvec[i] = ptvec[i] * 0.9
+        ptvec[i].set_xyz(ptvec[i].x() * 0.9, ptvec[i].y() * 0.9, ptvec[i].z() * 0.9)
 
      routv, soutv, toutv, doutv = FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec )
 
@@ -16322,10 +16320,7 @@ extern void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx
 
     surf_indx = 0
 
-    utess = []
-    wtess = []
-
-    GetUWTess01( geom_id, surf_indx, utess, wtess )
+    utess, wtess = GetUWTess01( geom_id, surf_indx )
 
     \endcode
     \endPythonOnly
