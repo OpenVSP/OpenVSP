@@ -218,7 +218,7 @@ class DemoFrame(wx.Frame):
             the button event
         """
         print("PyVSP, Attempting to open VSP GUI")
-        vsp.OpenGUI() # run the facade version of "StartGUI"
+        vsp.StartGUI()
         print("PyVSP, VSP GUI Opened")
 
     def on_hide_gui(self, event):
@@ -274,7 +274,7 @@ class DemoFrame(wx.Frame):
             the button event
         """
         print("PyVSP, Attempting to close VSP GUI")
-        vsp.CloseGUI() # run the facade version of "StopGUI"
+        vsp.StopGUI()
         print("PyVSP, VSP GUI Closed")
 
     def on_screenshot(self, event):

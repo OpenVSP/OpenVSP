@@ -8,28 +8,6 @@ CLASSES_TO_REMOVE = [
     "Matrix4d"
 ]
 
-OPEN_GUI_DOC = """
-    \"\"\"
-    Starts the GUI through the facade API. See InitGUI and StartGUI if not using the facade.
-
-
-    .. code-block:: python
-
-        if IsFacade():
-            OpenGUI()
-    \"\"\"
-"""
-CLOSE_GUI_DOC = """
-    \"\"\"
-    Closes the GUI through the facade API. See StopGUI if not using the facade.
-
-
-    .. code-block:: python
-
-        if IsFacade():
-            CloseGUI()
-    \"\"\"
-"""
 IS_FACADE_DOC = """
     \"\"\"
     Returns True if the facade API is in use.
@@ -43,13 +21,7 @@ IS_FACADE_DOC = """
 """
 
 
-PLACEHOLDER_FUNCS = "# **Placeholder start**\n" + "def OpenGUI():" + OPEN_GUI_DOC + r"""
-    print("WARNING: OpenGUI only has functionality if the facade API is active. \nSee InitGUI and StartGUI for non-facade GUI")
-def CloseGUI():""" + CLOSE_GUI_DOC + r"""
-    print("WARNING: CloseGUI only has functionality if the facade API is active. \nSee StopGUI for non-facade GUI")
-def IsFacade():""" + IS_FACADE_DOC + r"""
-    return False
-"""
+PLACEHOLDER_FUNCS = "# **Placeholder start**\n" + "def IsFacade():" + IS_FACADE_DOC + "\n    return False"
 
 
 CLIENT = r"""
@@ -118,39 +90,6 @@ def _send_recieve(func_name, args, kwargs):
         raise Exception(result[1])
     return result
 
-# special function to open the OpenVSP GUI
-def OpenGUI():""" + OPEN_GUI_DOC + r"""
-    b_data = pack_data(['opengui', [], {}], True)
-    sock.sendall(b_data)
-    result = None
-    b_result = []
-    while True:
-        packet = sock.recv(202400)
-        if not packet: break
-        b_result.append(packet)
-        try:
-            result = pickle.loads(b"".join(b_result))
-            break
-        except:
-            pass
-    return result
-
-# special function to close the OpenVSP GUI
-def CloseGUI():""" + CLOSE_GUI_DOC + r"""
-    b_data = pack_data(['closegui', [], {}], True)
-    sock.sendall(b_data)
-    result = None
-    b_result = []
-    while True:
-        packet = sock.recv(202400)
-        if not packet: break
-        b_result.append(packet)
-        try:
-            result = pickle.loads(b"".join(b_result))
-            break
-        except:
-            pass
-    return result
 def IsFacade():"""+IS_FACADE_DOC+r"""
     return True
 """
@@ -352,17 +291,17 @@ def start_server():
                     if b_data == []:
                         break
 
-                    # Special functionality for OpenGUI
-                    if data[0] == 'opengui':
-                        print("Server Socket Thread: OpenGUI called")
+                    # Special functionality for StartGUI
+                    if data[0] == 'StartGUI':
+                        print("Server Socket Thread: StartGUI called")
                         if event.is_set():
                             print("Server Socket Thread: The OpenVSP GUI should already be running")
                         result = 0
                         b_result = pack_data(result)
                         event.set()
 
-                    # Special functionality for CloseGUI
-                    elif data[0] == 'closegui':
+                    # Special functionality for StopGUI
+                    elif data[0] == 'StopGUI':
                         if not event.is_set():
                             print("Server Socket Thread: The OpenVSP GUI is not running")
                         print("Server Socket Thread: About to call StopGUI()")
