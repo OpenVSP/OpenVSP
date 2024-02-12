@@ -2453,7 +2453,7 @@ extern int GetNumData( const std::string & results_id, const std::string & data_
 
     for j in range(int( len(res_array) )):
 
-        typ = GetResultsType( res_id; res_array[j] )
+        typ = GetResultsType( res_id, res_array[j] )
 
     \endcode
     \endPythonOnly
@@ -4701,7 +4701,7 @@ extern std::vector<std::string> GetSubSurf( const std::string & geom_id, const s
 
     num_ss = GetNumSubSurf( wid )
 
-    num_str = f"Number of SubSurfaces: {num_ss}\n")
+    num_str = f"Number of SubSurfaces: {num_ss}\n"
 
     print( num_str )
 
@@ -4989,7 +4989,7 @@ extern int GetSubSurfIndex( const std::string & sub_id );
 
     id_type_str = "SubSurface IDs and Type Indexes -> "
 
-    for ( uint i = 0; i < uint(len(id_vec))):
+    for i in range(len(id_vec)):
 
         id_type_str += id_vec[i]
 
@@ -5049,7 +5049,7 @@ extern std::vector<std::string> GetAllSubSurfIDs();
 
     num_ss = GetNumSubSurf( wid )
 
-    num_str = string("Number of SubSurfaces: ") + num_ss + string("\n")
+    num_str = "Number of SubSurfaces: " + num_ss + "\n"
 
     print( num_str )
 
@@ -5102,19 +5102,19 @@ extern int GetNumSubSurf( const std::string & geom_id );
 
     id_vec = GetSubSurfIDVec( wid )
 
-    id_type_str = string( "SubSurface IDs and Type Indexes -> ")
+    id_type_str = "SubSurface IDs and Type Indexes -> "
 
-    for ( uint i = 0; i < uint(len(id_vec))):
+    for i in range(len(id_vec)):
 
         id_type_str += id_vec[i]
 
-        id_type_str += string(": ")
+        id_type_str += ": "
 
         id_type_str += GetSubSurfType(id_vec[i])
 
-        id_type_str += string("\t")
+        id_type_str += "\t"
 
-    id_type_str += string("\n")
+    id_type_str += "\n"
 
     print( id_type_str )
 
@@ -5159,10 +5159,10 @@ extern int GetSubSurfType( const std::string & sub_id );
     # Get and list all Parm info for SS_Line
     parm_id_vec = GetSubSurfParmIDs( ss_line_id )
 
-    for ( uint i = 0; i < uint(len(parm_id_vec))):
+    for i in range(len(parm_id_vec)):
 
-        id_name_str = string("\tName: ") + GetParmName( parm_id_vec[i] ) + string(", Group: ") + GetParmDisplayGroupName( parm_id_vec[i] ) +
-            string(", ID: ") + parm_id_vec[i] + string("\n")
+        id_name_str = "\tName: " + GetParmName(parm_id_vec[i]) + ", Group: " + GetParmDisplayGroupName(parm_id_vec[i]) + ", ID: " + str(parm_id_vec[i]) + "\n"
+
 
         print( id_name_str )
 
@@ -5238,7 +5238,7 @@ extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int
 
     SetFeaMeshStructIndex( struct_ind )
 
-    if  FindGeoms()len() != 0 : print( "ERROR: VSPRenew" )
+    if  len(FindGeoms()) != 0 : print( "ERROR: VSPRenew" )
 
     \endcode
     \endPythonOnly
@@ -5437,7 +5437,7 @@ extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
     #==== Get Structure Name ====//
     parm_container_name = GetFeaStructName( pod_id, struct_ind )
 
-    display_name = string("Current Structure Parm Container Name: ") + parm_container_name + string("\n")
+    display_name = "Current Structure Parm Container Name: " + parm_container_name + "\n"
 
     print( display_name )
 
@@ -5487,7 +5487,7 @@ extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct
 
     parm_container_id = FindContainer( "Example_Struct", struct_ind )
 
-    display_id = string("New Structure Parm Container ID: ") + parm_container_id + string("\n")
+    display_id = "New Structure Parm Container ID: " + parm_container_id + "\n"
 
     print( display_id )
 
@@ -6548,7 +6548,7 @@ extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind,
     struct_id = GetFeaStructID( pod_id, struct_ind )
 
     #==== Generate FEA Mesh and Export ====//
-    print( string( "--> Generating FeaMesh " ) )
+    print( "--> Generating FeaMesh " )
 
     #==== Get Parent Geom ID and Index ====//
     parent_id = GetFeaStructParentGeomID( struct_id ) # same as pod_id
@@ -7379,7 +7379,8 @@ extern std::string GetXSecParm( const std::string& xsec_id, const std::string& n
 
     xsec = GetXSec( xsec_surf, 2 )
 
-    @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" )
+    vec_array = ReadFileXSec(xsec, "TestXSec.fxs")
+
 
     \endcode
     \endPythonOnly
@@ -7428,7 +7429,8 @@ extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::s
 
     xsec = GetXSec( xsec_surf, 2 )
 
-    @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" )
+    vec_array = ReadFileXSec(xsec, "TestXSec.fxs")
+
 
     if  len(vec_array) > 0 :
         vec_array[1] = vec_array[1] * 2.0
@@ -7476,7 +7478,8 @@ extern void SetXSecPnts( const std::string& xsec_id, std::vector< vec3d > & pnt_
 
     u_fract = 0.25
 
-    vec3d pnt = ComputeXSecPnt( xsec, u_fract )
+    pnt = ComputeXSecPnt(xsec, u_fract)
+
 
     \endcode
     \endPythonOnly
@@ -7519,7 +7522,7 @@ extern vec3d ComputeXSecPnt( const std::string& xsec_id, double fract );
 
     u_fract = 0.25
 
-    vec3d tan = ComputeXSecTan( xsec, u_fract )
+    tan = ComputeXSecTan( xsec, u_fract )
 
     \endcode
     \endPythonOnly
@@ -7909,7 +7912,7 @@ extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    @up_array = GetAirfoilUpperPnts( xsec )
+    up_array = GetAirfoilUpperPnts( xsec )
 
     for i in range(int( len(up_array) )):
 
@@ -7950,7 +7953,7 @@ extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< 
         low_array[i].scale_y( 0.5 );
     }
 
-    SetAirfoilUpperPnts( xsec, up_array );
+    SetAirfoilUpperPnts( xsec, low_array );
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -7966,13 +7969,13 @@ extern void SetAirfoilUpperPnts( const std::string& xsec_id, const std::vector< 
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    @low_array = GetAirfoilLowerPnts( xsec )
+    low_array = GetAirfoilLowerPnts( xsec )
 
     for i in range(int( len(low_array) )):
 
         low_array[i].scale_y( 0.5 )
 
-    SetAirfoilUpperPnts( xsec, up_array )
+    SetAirfoilUpperPnts( xsec, low_array )
 
     \endcode
     \endPythonOnly
@@ -8027,9 +8030,9 @@ extern void SetAirfoilLowerPnts( const std::string& xsec_id, const std::vector< 
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    @up_array = GetAirfoilUpperPnts( xsec )
+    up_array = GetAirfoilUpperPnts( xsec )
 
-    @low_array = GetAirfoilLowerPnts( xsec )
+    low_array = GetAirfoilLowerPnts( xsec )
 
     for i in range(int( len(up_array) )):
 
@@ -8172,17 +8175,17 @@ extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    const pi = 3.14159265358979323846
+    pi = 3.14159265358979323846
 
-    const npts = 122
+    npts = 122
 
-    const alpha = 0.0
+    alpha = 0.0
 
-    const epsilon = 0.1
+    epsilon = 0.1
 
-    const kappa = 0.1
+    kappa = 0.1
 
-    const tau = 10
+    tau = 10
 
     xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) )
 
@@ -8226,17 +8229,17 @@ extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alph
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    const pi = 3.14159265358979323846
+    pi = 3.14159265358979323846
 
-    const npts = 122
+    npts = 122
 
-    const alpha = 0.0
+    alpha = 0.0
 
-    const epsilon = 0.1
+    epsilon = 0.1
 
-    const kappa = 0.1
+    kappa = 0.1
 
-    const tau = 10
+    tau = 10
 
     xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) )
 
@@ -8326,32 +8329,32 @@ extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
     \beginPythonOnly
     \code{.py}
     import math
-    const pi = 3.14159265358979323846
+    pi = 3.14159265358979323846
 
-    const npts = 101
+    npts = 101
 
-    const vec3d abc_rad = vec3d(1.0, 2.0, 3.0)
+    abc_rad = vec3d(1.0, 2.0, 3.0)
 
-    const alpha = 5 # deg
+    alpha = 5 # deg
 
-    const beta = 5 # deg
+    beta = 5 # deg
 
-    const V_inf = 100.0
+    V_inf = 100.0
 
-    x_slice_pnt_vec(npts)
-    theta_vec(npts)
+    x_slice_pnt_vec = [None]*npts
+    theta_vec = [None]*npts
 
     theta_vec[0] = 0
 
-    for ( i = 1; i < npts):
+    for i in range(1, npts):
+        theta_vec[i] = theta_vec[i-1] + (2 * pi / (npts - 1))
 
-        theta_vec[i] = theta_vec[i-1] + (2 * pi / ( npts - 1) )
 
     for i in range(npts):
 
         x_slice_pnt_vec[i] = vec3d( 0, abc_rad[1] * math.cos( theta_vec[i] ), abc_rad[2] *math.sin( theta_vec[i] ) )
 
-    vec3d V_vec = vec3d( ( V_inf * math.cos( Deg2Rad( alpha ) ) * math.cos( Deg2Rad( beta ) ) ), ( V_inf * math.sin( Deg2Rad( beta ) ) ), ( V_inf * math.sin( Deg2Rad( alpha ) ) * math.cos( Deg2Rad( beta ) ) ) )
+    V_vec = vec3d( ( V_inf * math.cos( Deg2Rad( alpha ) ) * math.cos( Deg2Rad( beta ) ) ), ( V_inf * math.sin( Deg2Rad( beta ) ) ), ( V_inf * math.sin( Deg2Rad( alpha ) ) * math.cos( Deg2Rad( beta ) ) ) )
 
     cp_dist = GetEllipsoidCpDist( x_slice_pnt_vec, abc_rad, V_vec )
 
@@ -8402,7 +8405,7 @@ extern double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    @up_array = GetAirfoilUpperPnts( xsec )
+    up_array = GetAirfoilUpperPnts( xsec )
 
     \endcode
     \endPythonOnly
@@ -8447,7 +8450,7 @@ extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );
 
     ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" )
 
-    @low_array = GetAirfoilLowerPnts( xsec )
+    low_array = GetAirfoilLowerPnts( xsec )
 
     \endcode
     \endPythonOnly
@@ -8677,7 +8680,7 @@ extern int GetBORXSecShape( const string & bor_id );
 
     ChangeBORXSecShape( bor_id, XS_FILE_FUSE )
 
-    @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
+    vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
 
     \endcode
     \endPythonOnly
@@ -8718,7 +8721,7 @@ extern std::vector<vec3d> ReadBORFileXSec( const std::string& bor_id, const std:
 
     ChangeBORXSecShape( bor_id, XS_FILE_FUSE )
 
-    @vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
+    vec_array = ReadBORFileXSec( bor_id, "TestXSec.fxs" )
 
     if  len(vec_array) > 0 :
         vec_array[1] = vec_array[1] * 2.0
@@ -8758,7 +8761,7 @@ extern void SetBORXSecPnts( const std::string& bor_id, std::vector< vec3d > & pn
 
     u_fract = 0.25
 
-    vec3d pnt = ComputeBORXSecPnt( bor_id, u_fract )
+    pnt = ComputeBORXSecPnt( bor_id, u_fract )
 
     \endcode
     \endPythonOnly
@@ -8791,7 +8794,7 @@ extern vec3d ComputeBORXSecPnt( const std::string& bor_id, double fract );
 
     u_fract = 0.25
 
-    vec3d tan = ComputeBORXSecTan( bor_id, u_fract )
+    tan = ComputeBORXSecTan( bor_id, u_fract )
 
     \endcode
     \endPythonOnly
@@ -8867,7 +8870,7 @@ extern void ReadBORFileAirfoil( const std::string& bor_id, const std::string& fi
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    @up_array = GetBORAirfoilUpperPnts( bor_id )
+    up_array = GetBORAirfoilUpperPnts( bor_id )
 
     for i in range(int( len(up_array) )):
 
@@ -8916,7 +8919,7 @@ extern void SetBORAirfoilUpperPnts( const std::string& bor_id, const std::vector
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    @low_array = GetBORAirfoilLowerPnts( bor_id )
+    low_array = GetBORAirfoilLowerPnts( bor_id )
 
     for i in range(int( len(low_array) )):
 
@@ -8969,9 +8972,9 @@ extern void SetBORAirfoilLowerPnts( const std::string& bor_id, const std::vector
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    @up_array = GetBORAirfoilUpperPnts( bor_id )
+    up_array = GetBORAirfoilUpperPnts( bor_id )
 
-    @low_array = GetBORAirfoilLowerPnts( bor_id )
+    low_array = GetBORAirfoilLowerPnts( bor_id )
 
     for i in range(int( len(up_array) )):
 
@@ -9016,7 +9019,7 @@ extern void SetBORAirfoilPnts( const std::string& bor_id, const std::vector< vec
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    @up_array = GetBORAirfoilUpperPnts( bor_id )
+    up_array = GetBORAirfoilUpperPnts( bor_id )
 
     \endcode
     \endPythonOnly
@@ -9053,7 +9056,7 @@ extern std::vector<vec3d> GetBORAirfoilUpperPnts( const std::string& bor_id );
 
     ReadBORFileAirfoil( bor_id, "airfoil/N0012_VSP.af" )
 
-    @low_array = GetBORAirfoilLowerPnts( bor_id )
+    low_array = GetBORAirfoilLowerPnts( bor_id )
 
     \endcode
     \endPythonOnly
@@ -9217,7 +9220,7 @@ extern void FitBORAfCST( const std::string & bor_id, int deg );
     #==== Add Wing Geometry and Set Parms ====//
     wing_id = AddGeom( "WING", "" )
 
-    const u = 0.5 # export airfoil at mid span location
+    u = 0.5 # export airfoil at mid span location
 
     #==== Write Bezier Airfoil File ====//
     WriteBezierAirfoil( "Example_Bezier.bz", wing_id, u )
@@ -9252,7 +9255,7 @@ extern void WriteBezierAirfoil( const std::string & file_name, const std::string
     #==== Add Wing Geometry and Set Parms ====//
     wing_id = AddGeom( "WING", "" )
 
-    const u = 0.5 # export airfoil at mid span location
+    u = 0.5 # export airfoil at mid span location
 
     #==== Write Selig Airfoil File ====//
     WriteSeligAirfoil( "Example_Selig.dat", wing_id, u )
@@ -9569,30 +9572,16 @@ extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, co
     SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE )
 
     # Define a square
-    xsec2_pts(5)
-
-    xsec2_pts[0] = vec3d( 0.5, 0.5, 0.0 )
-    xsec2_pts[1] = vec3d( 0.5, -0.5, 0.0 )
-    xsec2_pts[2] = vec3d( -0.5, -0.5, 0.0 )
-    xsec2_pts[3] = vec3d( -0.5, 0.5, 0.0 )
-    xsec2_pts[4] = vec3d( 0.5, 0.5, 0.0 )
+    xsec2_pts = [vec3d(0.5, 0.5, 0.0),
+             vec3d(0.5, -0.5, 0.0),
+             vec3d(-0.5, -0.5, 0.0),
+             vec3d(-0.5, 0.5, 0.0),
+             vec3d(0.5, 0.5, 0.0)]
 
     # u vec must start at 0.0 and end at 1.0
-    u_vec(5)
+    u_vec = [0.0, 0.25, 0.5, 0.75, 1.0]
 
-    u_vec[0] = 0.0
-    u_vec[1] = 0.25
-    u_vec[2] = 0.5
-    u_vec[3] = 0.75
-    u_vec[4] = 1.0
-
-    r_vec(5)
-
-    r_vec[0] = 0.0
-    r_vec[1] = 0.0
-    r_vec[2] = 0.0
-    r_vec[3] = 0.0
-    r_vec[4] = 0.0
+    r_vec = [0.0, 0.0, 0.0, 0.0, 0.0]
 
     SetEditXSecPnts( xsec_2, u_vec, xsec2_pts, r_vec ) # Note: points are unscaled by the width and height parms
 
@@ -9730,7 +9719,7 @@ extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
 
     old_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
 
-    new_pnt_ind = EditXSecSplit01( xsec_2; 0.375 )
+    new_pnt_ind = EditXSecSplit01( xsec_2, 0.375 )
 
     new_pnts = GetEditXSecCtrlVec( xsec_2, True ) # The returned control points will not be scaled by width and height
 
@@ -9809,7 +9798,7 @@ extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
     # Identify a control point that lies on the curve and shift it in Y
     move_pnt_ind = 3
 
-    vec3d new_pnt = vec3d( xsec1_pts[move_pnt_ind].x(), 2 * xsec1_pts[move_pnt_ind].y(), 0.0 )
+    new_pnt = vec3d( xsec1_pts[move_pnt_ind].x(), 2 * xsec1_pts[move_pnt_ind].y(), 0.0 )
 
     # Move the control point
     MoveEditXSecPnt( xsec_1, move_pnt_ind, new_pnt )
@@ -9921,7 +9910,7 @@ extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0
     # Identify XSec 1
     xsec_1 = GetXSec( xsec_surf, 1 )
 
-    @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
+    fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
 
     fixed_u_vec[3] = True # change a flag
 
@@ -9979,7 +9968,7 @@ extern std::vector < bool > GetEditXSecFixedUVec( const std::string& xsec_id );
     # Identify XSec 1
     xsec_1 = GetXSec( xsec_surf, 1 )
 
-    @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
+    fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
 
     fixed_u_vec[3] = True # change a flag
 
@@ -10038,7 +10027,7 @@ extern void SetEditXSecFixedUVec( const std::string& xsec_id, std::vector < bool
     # Identify XSec 1
     xsec_1 = GetXSec( xsec_surf, 1 )
 
-    @ fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
+    fixed_u_vec = GetEditXSecFixedUVec( xsec_1 )
 
     fixed_u_vec[3] = True # change a flag
 
@@ -10094,7 +10083,9 @@ extern int GetNumSets();
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    if  GetSetName( 3 : != "SetFromScript" ): print( "---> Error: API Get/Set Set Name " )
+    if GetSetName(3) != "SetFromScript":
+        print("---> Error: API Get/Set Set Name")
+
 
     \endcode
     \endPythonOnly
@@ -10114,14 +10105,16 @@ extern void SetSetName( int index, const std::string& name );
     \code{.cpp}
     SetSetName( 3, "SetFromScript" );
 
-    if ( GetSetName( 3 ) != "SetFromScript" )            { Print( "---> Error: API Get/Set Set Name " ); }
+    if GetSetName(3) != "SetFromScript":
+        print("---> Error: API Get/Set Set Name")
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    if  GetSetName( 3 : != "SetFromScript" ): print( "---> Error: API Get/Set Set Name " )
+    if GetSetName(3) != "SetFromScript":
+        print("---> Error: API Get/Set Set Name")
 
     \endcode
     \endPythonOnly
@@ -10152,9 +10145,9 @@ extern std::string GetSetName( int index );
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    @geom_arr1 = GetGeomSetAtIndex( 3 )
+    geom_arr1 = GetGeomSetAtIndex( 3 )
 
-    @geom_arr2 = GetGeomSet( "SetFromScript" )
+    geom_arr2 = GetGeomSet( "SetFromScript" )
 
     if  len(geom_arr1) != len(geom_arr2) : print( "---> Error: API GetGeomSet " )
 
@@ -10187,9 +10180,9 @@ extern std::vector<std::string> GetGeomSetAtIndex( int index );
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    @geom_arr1 = GetGeomSetAtIndex( 3 )
+    geom_arr1 = GetGeomSetAtIndex( 3 )
 
-    @geom_arr2 = GetGeomSet( "SetFromScript" )
+    geom_arr2 = GetGeomSet( "SetFromScript" )
 
     if  len(geom_arr1) != len(geom_arr2) : print( "---> Error: API GetGeomSet " )
 
@@ -10217,7 +10210,9 @@ extern std::vector<std::string> GetGeomSet( const std::string & name );
     \code{.py}
     SetSetName( 3, "SetFromScript" )
 
-    if ( GetSetIndex( "SetFromScript" ) != 3 ) { print( "ERROR: GetSetIndex" )
+    if GetSetIndex("SetFromScript") != 3:
+        print("ERROR: GetSetIndex")
+
 
     \endcode
     \endPythonOnly
@@ -10249,7 +10244,9 @@ extern int GetSetIndex( const std::string & name );
 
     SetSetFlag( fuseid, 3, True )
 
-    if  not GetSetFlag( fuseid, 3 ) : print( "---> Error: API Set/Get Set Flag " )
+    if not GetSetFlag(fuseid, 3):
+        print("---> Error: API Set/Get Set Flag")
+
 
     \endcode
     \endPythonOnly
@@ -10282,7 +10279,9 @@ extern bool GetSetFlag( const std::string & geom_id, int set_index );
 
     SetSetFlag( fuseid, 3, True )
 
-    if  not GetSetFlag( fuseid, 3 ) : print( "---> Error: API Set/Get Set Flag " )
+    if not GetSetFlag(fuseid, 3):
+        print("---> Error: API Set/Get Set Flag")
+
 
     \endcode
     \endPythonOnly
@@ -10327,7 +10326,7 @@ extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
     CopyPasteSet( 3, 4 )
 
     #get fuseid's state for set 4
-    flag_value = GetSetFlag( fuseid; 4 )
+    flag_value = GetSetFlag( fuseid, 4 )
 
     if  flag_value != True: print( "---> Error: API CopyPasteSet " )
 
@@ -11151,9 +11150,9 @@ extern int GetParmType( const std::string & parm_id );
     #==== Get and List All Parms in the Container ====//
     parm_ids = FindContainerParmIDs( parm_container_id )
 
-    for ( uint i = 0; i < uint(len(parm_ids))):
+    for i in range(len(parm_ids)):
 
-        name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+        name_id = GetParmName( parm_ids[i] ) + ": " + parm_ids[i] + "\n"
 
         print( name_id )
 
@@ -11196,9 +11195,9 @@ extern std::string GetParmName( const std::string & parm_id );
 
     print( "Parm Groups and IDs in Vehicle Parm Container: " )
 
-    for ( uint i = 0; i < uint(len(parm_ids))):
+    for i in range(len(parm_ids)):
 
-        group_str = GetParmGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+        group_str = GetParmGroupName( parm_ids[i] ) + ": " + parm_ids[i] + "\n"
 
         print( group_str )
 
@@ -11241,9 +11240,9 @@ extern std::string GetParmGroupName( const std::string & parm_id );
 
     print( "Parm Group Display Names and IDs in Vehicle Parm Container: " )
 
-    for ( uint i = 0; i < uint(len(parm_ids))):
+    for i in range(len(parm_ids)):
 
-        group_str = GetParmDisplayGroupName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+        group_str = GetParmDisplayGroupName( parm_ids[i] ) + ": " + parm_ids[i] + "\n"
 
         print( group_str )
 
@@ -11433,7 +11432,7 @@ extern std::string FindParm( const std::string & parm_container_id, const std::s
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    @ctr_arr = FindContainers()
+    ctr_arr = FindContainers()
 
     print( "---> API Parm Container IDs: " )
 
@@ -11464,7 +11463,7 @@ extern std::vector<std::string> FindContainers();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    @ctr_arr = FindContainersWithName( "UserParms" )
+    ctr_arr = FindContainersWithName( "UserParms" )
 
     if  len(ctr_arr) > 0 : print( ( "UserParms Parm Container ID: " + ctr_arr[0] ) )
 
@@ -11518,7 +11517,7 @@ extern std::string FindContainer( const std::string & name, int index );
     \code{.py}
     veh_id = FindContainer( "Vehicle", 0 )
 
-    if  GetContainerName( veh_id : != "Vehicle" )      print( "---> Error: API GetContainerName" )
+    if  GetContainerName( veh_id) != "Vehicle":       print( "---> Error: API GetContainerName" )
 
     \endcode
     \endPythonOnly
@@ -11552,7 +11551,7 @@ extern std::string GetContainerName( const std::string & parm_container_id );
     \code{.py}
     user_ctr = FindContainer( "UserParms", 0 )
 
-    @grp_arr = FindContainerGroupNames( user_ctr )
+    grp_arr = FindContainerGroupNames( user_ctr )
 
     print( "---> UserParms Container Group IDs: " )
     for i in range(int( len(grp_arr) )):
@@ -11614,9 +11613,9 @@ extern std::vector<std::string> FindContainerGroupNames( const std::string & par
     #==== Get and List All Parms in the Container ====//
     parm_ids = FindContainerParmIDs( parm_container_id )
 
-    for ( uint i = 0; i < uint(len(parm_ids))):
+    for i in range(len(parm_ids)):
 
-        name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n")
+        name_id = GetParmName( parm_ids[i] ) + ": " + parm_ids[i] + "\n"
 
         print( name_id )
 
@@ -11720,7 +11719,7 @@ extern int GetNumPredefinedUserParms();
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-    @id_arr = GetAllUserParms()
+    id_arr = GetAllUserParms()
 
     print( "---> User Parm IDs: " )
 
@@ -11812,7 +11811,7 @@ extern string AddUserParm(int type, const string & name, const string & group );
     \code{.py}
 
     n = GetNumPredefinedUserParms()
-    @id_arr = GetAllUserParms()
+    id_arr = GetAllUserParms()
 
     if  len(id_arr) > n :
         DeleteUserParm( id_arr[n] )
@@ -11877,7 +11876,7 @@ extern void DeleteAllUserParm();
 
     Update()
 
-    min_dist = ComputeMinClearanceDistance( pid; SET_ALL )
+    min_dist = ComputeMinClearanceDistance( pid, SET_ALL )
 
     \endcode
     \endPythonOnly
@@ -11922,7 +11921,7 @@ extern double ComputeMinClearanceDistance( const std::string & geom_id, int set 
 
     Update()
 
-    min_dist = SnapParm( x; 0.1 SET_ALL )
+    min_dist = SnapParm( x, 0.1, True, SET_ALL )
 
     \endcode
     \endPythonOnly
@@ -11959,7 +11958,7 @@ extern double SnapParm( const std::string & parm_id, double target_min_dist, boo
 
     AddVarPresetGroup( "Tess" )
 
-    if  GetVarPresetGroupNames()len() != 1 : print( "---> Error: API AddVarPresetGroup" )
+    if  len(GetVarPresetGroupNames()) != 1 : print( "---> Error: API AddVarPresetGroup" )
 
     \endcode
     \endPythonOnly
@@ -11994,7 +11993,7 @@ extern void AddVarPresetGroup( const std::string &group_name );
 
     AddVarPresetSetting( "Coarse" )
 
-    if ( GetVarPresetSettingNamesWName( "Tess" )len() != 1 ): print( "---> Error: API AddVarPresetSetting" )
+    if len(GetVarPresetSettingNamesWName( "Tess" )) != 1 : print( "---> Error: API AddVarPresetSetting" )
 
     \endcode
     \endPythonOnly
@@ -12331,7 +12330,7 @@ extern void SwitchVarPreset( const std::string &group_name, const std::string &s
 
     DeleteVarPresetSet( "Tess", "Fine" )
 
-    if ( GetVarPresetSettingNamesWName( "Tess" )len() != 0 ) Print ( "---> Error: DeleteVarPresetSet" )
+    if  len(GetVarPresetSettingNamesWName( "Tess" )) != 0 : print( "---> Error: DeleteVarPresetSet" )
 
     \endcode
     \endPythonOnly
@@ -12474,7 +12473,7 @@ extern std::string GetCurrentSettingName();
 
     AddVarPresetGroup( "Tess" )
 
-    if  GetVarPresetGroupNames()len() != 1 : print( "---> Error: API AddVarPresetGroup" )
+    if  len(GetVarPresetGroupNames()) != 1 : print( "---> Error: API AddVarPresetGroup" )
 
     \endcode
     \endPythonOnly
@@ -12509,7 +12508,7 @@ extern std::vector< std::string > GetVarPresetGroupNames();
 
     AddVarPresetSetting( "Coarse" )
 
-    if ( GetVarPresetSettingNamesWName( "Tess" )len() != 1 ): print( "---> Error: API AddVarPresetSetting" )
+    if len(GetVarPresetSettingNamesWName( "Tess" )) != 1 : print( "---> Error: API AddVarPresetSetting" )
 
     \endcode
     \endPythonOnly
@@ -12619,7 +12618,7 @@ extern std::vector< std::string > GetVarPresetSettingNamesWIndex( int group_inde
 
     p_vals = GetVarPresetParmVals()
 
-    if  p_vals[0] != 5 : Print ( "---> Error: API EditVarPresetParm" )
+    if  p_vals[0] != 5 : print ( "---> Error: API EditVarPresetParm" )
 
     \endcode
     \endPythonOnly
@@ -13184,7 +13183,7 @@ extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
 
     AddAllToVSPAEROControlSurfaceGroup( group_index )
 
-    @cs_name_vec = GetActiveCSNameVec( group_index )
+    cs_name_vec = GetActiveCSNameVec( group_index )
 
     print( "Active CS in Group Index #", False )
     print( group_index )
@@ -13232,7 +13231,7 @@ extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
-    @cs_name_vec = GetCompleteCSNameVec()
+    cs_name_vec = GetCompleteCSNameVec()
 
     print( "All Control Surfaces: ", False )
 
@@ -13276,10 +13275,9 @@ extern std::vector < std::string > GetCompleteCSNameVec();
 
     group_index = CreateVSPAEROControlSurfaceGroup() # Empty control surface group
 
-    @cs_name_vec = GetAvailableCSNameVec( group_index )
+    cs_name_vec = GetAvailableCSNameVec( group_index )
 
-    cs_ind_vec(1)
-    cs_ind_vec[0] = 1
+    cs_ind_vec = [1]
 
     AddSelectedToCSGroup( cs_ind_vec, group_index ) # Add the first available control surface to the group
 
@@ -13413,7 +13411,7 @@ extern std::string GetVSPAEROControlGroupName( int CSGroupIndex );
 
     cs_name_vec = GetAvailableCSNameVec( group_index )
 
-    cs_ind_vec( len(cs_name_vec) )
+    cs_ind_vec = [0] * len(cs_name_vec)
 
     for i in range(int( len(cs_name_vec) )):
 
@@ -13474,7 +13472,7 @@ extern void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex);
 
     cs_name_vec = GetAvailableCSNameVec( group_index )
 
-    cs_ind_vec( len(cs_name_vec) )
+    cs_ind_vec = [0] * len(cs_name_vec)
 
     for i in range(int( len(cs_name_vec) )):
 
@@ -13482,8 +13480,7 @@ extern void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex);
 
     AddSelectedToCSGroup( cs_ind_vec, group_index ) # Add the available control surfaces to the group
 
-    remove_cs_ind_vec( 1 )
-    remove_cs_ind_vec[0] = 1
+    remove_cs_ind_vec = [1]
 
     RemoveSelectedFromCSGroup( remove_cs_ind_vec, group_index ) # Remove the first control surface
 
@@ -14056,7 +14053,7 @@ extern void WriteAtmosphereCSVFile( const std::string & file_name, const int &at
 
     delta_temp = 0
 
-    CalcAtmosphere( alt, delta_temp, ATMOS_TYPE_US_STANDARD_1976, temp, pres, pres_ratio, rho_ratio )
+    temp, pres, pres_ratio, rho_ratio = CalcAtmosphere( alt, delta_temp, ATMOS_TYPE_US_STANDARD_1976)
 
     \endcode
     \endPythonOnly
@@ -14197,7 +14194,7 @@ extern void WritePartialCfMethodCSVFile( const std::string & file_name );
     u = 0.12345
     w = 0.67890
 
-    vec3d pnt = CompPnt01( geom_id, surf_indx, u, w )
+    pnt = CompPnt01( geom_id, surf_indx, u, w )
 
     print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' )
 
@@ -14242,7 +14239,7 @@ extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const d
     u = 0.12345
     w = 0.67890
 
-    vec3d norm = CompNorm01( geom_id, surf_indx, u, w )
+    norm = CompNorm01( geom_id, surf_indx, u, w )
 
     print( "Point: ( " + norm.x() + ', ' + norm.y() + ', ' + norm.z() + ' )' )
 
@@ -14287,7 +14284,7 @@ extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const 
     u = 0.12345
     w = 0.67890
 
-    vec3d tanu = CompTanU01( geom_id, surf_indx, u, w )
+    tanu = CompTanU01( geom_id, surf_indx, u, w )
 
     print( "Point: ( " + tanu.x() + ', ' + tanu.y() + ', ' + tanu.z() + ' )' )
 
@@ -14332,7 +14329,7 @@ extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const 
     u = 0.12345
     w = 0.67890
 
-    vec3d tanw = CompTanW01( geom_id, surf_indx, u, w )
+    tanw = CompTanW01( geom_id, surf_indx, u, w )
 
     print( "Point: ( " + tanw.x() + ', ' + tanw.y() + ', ' + tanw.z() + ' )' )
 
@@ -14381,7 +14378,7 @@ extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const 
     u = 0.25
     w = 0.75
 
-    CompCurvature01( geom_id, surf_indx, u, w, k1, k2, ka, kg )
+    k1, k2, ka, kg = CompCurvature01( geom_id, surf_indx, u, w )
 
     print( "Curvature : k1 " + k1 + " k2 " + k2 + " ka " + ka + " kg " + kg )
 
@@ -14440,15 +14437,15 @@ extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, co
     u = 0.12345
     w = 0.67890
 
-    vec3d pnt = CompPnt01( geom_id, surf_indx, u, w )
+    pnt = CompPnt01( geom_id, surf_indx, u, w )
 
-    vec3d norm = CompNorm01( geom_id, surf_indx, u, w )
+    norm = CompNorm01( geom_id, surf_indx, u, w )
 
 
     # Offset point from surface
     pnt = pnt + norm
 
-    d = ProjPnt01( geom_id; wout )
+    d, uout, wout = ProjPnt01( geom_id )
 
     print( "Dist " + d + " u " + uout + " w " + wout )
 
@@ -14511,16 +14508,16 @@ extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const 
 
     d = 0
 
-    vec3d pnt = CompPnt01( geom_id, surf_indx, u, w )
+    pnt = CompPnt01( geom_id, surf_indx, u, w )
 
-    vec3d norm = CompNorm01( geom_id, surf_indx, u, w )
+    norm = CompNorm01( geom_id, surf_indx, u, w )
 
 
 
     # Offset point from surface
     pnt = pnt + norm
 
-    d = ProjPnt01I( geom_id, pnt, surf_indx_out, uout, wout )
+    d, surf_indx_out, uout, wout = ProjPnt01I( geom_id, pnt )
 
     print( "Dist " + d + " u " + uout + " w " + wout + " surf_index " + surf_indx_out )
 
@@ -14582,15 +14579,15 @@ extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_
 
     d = 0
 
-    vec3d pnt = CompPnt01( geom_id, surf_indx, u, w )
+    pnt = CompPnt01( geom_id, surf_indx, u, w )
 
-    vec3d norm = CompNorm01( geom_id, surf_indx, u, w )
+    norm = CompNorm01( geom_id, surf_indx, u, w )
 
 
     # Offset point from surface
     pnt = pnt + norm
 
-    d = ProjPnt01Guess( geom_id, surf_indx, pnt, u + 0.1, w + 0.1, uout, wout )
+    d, uout, wout = ProjPnt01Guess( geom_id, surf_indx, pnt, u + 0.1, w + 0.1 )
 
     print( "Dist " + d + " u " + uout + " w " + wout )
 
@@ -14651,14 +14648,12 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
     u = 0.12345
     w = 0.67890
 
-    vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w )
-    vec3d pt = surf_pt
+    surf_pt = CompPnt01( geom_id, surf_indx, u, w )
+    pt = surf_pt
 
     pt.offset_y( -5.0 )
 
-    vec3d p_out
-
-    idist = AxisProjPnt01( geom_id; p_out)
+    idist, u_out, w_out, p_out = AxisProjPnt01( geom_id )
 
     print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out )
     print( "3D Offset ", False)
@@ -14721,14 +14716,13 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
     u = 0.12345
     w = 0.67890
 
-    vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w )
-    vec3d pt = surf_pt
+    surf_pt = CompPnt01( geom_id, surf_indx, u, w )
+    pt = surf_pt
 
     pt.offset_y( -5.0 )
 
-    vec3d p_out
 
-    idist = AxisProjPnt01I( geom_id; p_out)
+    idist, surf_indx_out, u_out, w_out, p_out = AxisProjPnt01I( geom_id )
 
     print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out )
     print( "3D Offset ", False)
@@ -14796,8 +14790,8 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
 
 
 
-    vec3d surf_pt = CompPnt01( geom_id, surf_indx, u, w )
-    vec3d pt = surf_pt
+    surf_pt = CompPnt01( geom_id, surf_indx, u, w )
+    pt = surf_pt
 
     pt.offset_y( -5.0 )
 
@@ -14805,9 +14799,7 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     u0 = u + 0.01234
     w0 = w - 0.05678
 
-    vec3d p_out
-
-    d = AxisProjPnt01Guess( geom_id; p_out)
+    d, uout, wout, p_out = AxisProjPnt01Guess( geom_id )
 
     print( "Dist " + d + " u " + uout + " w " + wout )
 
@@ -14871,9 +14863,9 @@ extern double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_ind
     s = 0.68
     t = 0.56
 
-    vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t )
+    pnt = CompPntRST( geom_id, surf_indx, r, s, t )
 
-    res = InsideSurf( geom_id; pt )
+    res = InsideSurf( geom_id, pnt )
 
     if  res :
         print( "Inside" )
@@ -14925,7 +14917,7 @@ extern bool InsideSurf( const std::string &geom_id, const int &surf_indx, const 
     s = 0.68
     t = 0.56
 
-    vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t )
+    pnt = CompPntRST( geom_id, surf_indx, r, s, t )
 
     print( "Point: ( " + pnt.x() + ', ' + pnt.y() + ', ' + pnt.z() + ' )' )
 
@@ -14962,7 +14954,7 @@ extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const
 
     double rout, sout, tout;
 
-    double d = FindRST( geom_id, surf_indx, pnt, rout, sout, tout );
+    double d = FindRST( geom_id, surf_indx, pnt );
 
     Print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout );
     \endcode
@@ -14978,10 +14970,10 @@ extern vec3d CompPntRST( const std::string &geom_id, const int &surf_indx, const
     s = 0.68
     t = 0.56
 
-    vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t )
+    pnt = CompPntRST( geom_id, surf_indx, r, s, t )
 
 
-    d = FindRST( geom_id; tout )
+    d, rout, sout, tout = FindRST( geom_id )
 
     print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout )
 
@@ -15041,14 +15033,14 @@ extern double FindRST( const std::string &geom_id, const int &surf_indx, const v
     s = 0.68
     t = 0.56
 
-    vec3d pnt = CompPntRST( geom_id, surf_indx, r, s, t )
+    pnt = CompPntRST( geom_id, surf_indx, r, s, t )
 
 
     r0 = 0.1
     s0 = 0.6
     t0 = 0.5
 
-    d = FindRSTGuess( geom_id; tout )
+    d, rout, sout, tout = FindRSTGuess( geom_id )
 
     print( "Dist " + d + " r " + rout + " s " + sout + " t " + tout )
 
@@ -15102,7 +15094,7 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
     s = 0.68
     t = 0.56
 
-    ConvertRSTtoLMN( geom_id, surf_indx, r, s, t, l, m, n )
+    l, m, n = ConvertRSTtoLMN( geom_id, surf_indx, r, s, t )
 
 
     \endcode
@@ -15147,7 +15139,7 @@ extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, c
 
     r = 0.12
 
-    ConvertRtoL( geom_id, surf_indx, r, l )
+    l = ConvertRtoL( geom_id, surf_indx, r )
 
 
     \endcode
@@ -15192,7 +15184,7 @@ extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const
     m = 0.34
     n = 0.56
 
-    ConvertLMNtoRST( geom_id, surf_indx, l, m, n, r, s, t )
+    r, s, t = ConvertLMNtoRST( geom_id, surf_indx, l, m, n )
 
 
     \endcode
@@ -15239,7 +15231,7 @@ extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const
 
     u = 0.25
 
-    ConvertUtoEta( geom_id, u, eta )
+    eta = ConvertUtoEta( geom_id, u )
 
 
     \endcode
@@ -15279,7 +15271,7 @@ extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &
 
     eta= 0.25
 
-    ConvertEtatoU( geom_id, eta, u )
+    u = ConvertEtatoU( geom_id, eta )
 
 
     \endcode
@@ -15326,10 +15318,8 @@ extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double
 
     n = 5
 
-    uvec, wvec
-
-    uvec.resize( n )
-    wvec.resize( n )
+    uvec = [0]*n
+    wvec = [0]*n
 
     for i in range(n):
 
@@ -15384,10 +15374,8 @@ extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int 
 
     n = 5
 
-    uvec, wvec
-
-    uvec.resize( n )
-    wvec.resize( n )
+    uvec = [0]*n
+    wvec = [0]*n
 
     for i in range(n):
 
@@ -15444,10 +15432,8 @@ extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int
 
     n = 5
 
-    uvec, wvec
-
-    uvec.resize( n )
-    wvec.resize( n )
+    uvec = [0]*n
+    wvec = [0]*n
 
     for i in range(n):
 
@@ -15455,9 +15441,9 @@ extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int
 
         wvec[i] = (n-i)*1.0/(n+1)
 
-    k1vec, k2vec, kavec, kgvec
 
-    CompVecCurvature01( geom_id, 0, uvec, wvec, k1vec, k2vec, kavec, kgvec )
+
+    k1vec, k2vec, kavec, kgvec = CompVecCurvature01( geom_id, 0, uvec, wvec )
 
     \endcode
     \endPythonOnly
@@ -15519,10 +15505,8 @@ extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx,
 
     n = 5
 
-    uvec, wvec
-
-    uvec.resize( n )
-    wvec.resize( n )
+    uvec = [0]*n
+    wvec = [0]*n
 
     for i in range(n):
 
@@ -15538,9 +15522,8 @@ extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx,
 
         ptvec[i] = ptvec[i] + normvec[i]
 
-    uoutv, woutv, doutv
 
-    ProjVecPnt01( geom_id, 0, ptvec, uoutv, woutv, doutv )
+    uoutv, woutv, doutv = ProjVecPnt01( geom_id, 0, ptvec )
 
     \endcode
     \endPythonOnly
@@ -15612,10 +15595,8 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
 
     n = 5
 
-    uvec, wvec
-
-    uvec.resize( n )
-    wvec.resize( n )
+    uvec = [0]*n
+    wvec = [0]*n
 
     for i in range(n):
 
@@ -15631,10 +15612,8 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
 
         ptvec[i] = ptvec[i] + normvec[i]
 
-    uoutv, woutv, doutv, u0v, w0v
-
-    u0v.resize( n )
-    w0v.resize( n )
+    u0v = [0]*n
+    w0v = [0]*n
 
     for i in range(n):
 
@@ -15642,7 +15621,7 @@ extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const
 
         w0v[i] = wvec[i] - 0.05678
 
-    ProjVecPnt01Guess( geom_id, 0, ptvec, u0v,  w0v,  uoutv, woutv, doutv )
+    uoutv, woutv, doutv = ProjVecPnt01Guess( geom_id, 0, ptvec, u0v,  w0v )
 
     \endcode
     \endPythonOnly
@@ -15715,16 +15694,14 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
     \endforcpponly
     \beginPythonOnly
     \code{.py}
-       # Add Pod Geom
+    # Add Pod Geom
     geom_id = AddGeom( "POD", "" )
     surf_indx = 0
 
     n = 5
 
-    uvec, wvec
-
-    uvec.resize( n )
-    wvec.resize( n )
+    uvec = [0]*n
+    wvec = [0]*n
 
     for i in range(n):
 
@@ -15738,10 +15715,7 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
 
         ptvec[i].offset_y( -5.0 )
 
-    uoutv, woutv, doutv
-    poutv
-
-    AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, poutv, doutv )
+    uoutv, woutv, poutv, doutv = AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, poutv, doutv )
 
     # Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
     # the pod from the originally computed point.  I.e. there were multiple solutions and the original point
@@ -15835,10 +15809,8 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
 
     n = 5
 
-    uvec, wvec
-
-    uvec.resize( n )
-    wvec.resize( n )
+    uvec = [0]*n
+    wvec = [0]*n
 
     for i in range(n):
 
@@ -15852,18 +15824,15 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
 
         ptvec[i].offset_y( -5.0 )
 
-    uoutv, woutv, doutv, u0v, w0v
-    poutv
-
-    u0v.resize( n )
-    w0v.resize( n )
+    u0v = [0]*n
+    w0v = [0]*n
 
     for i in range(n):
 
         u0v[i] = uvec[i] + 0.01234
         w0v[i] = wvec[i] - 0.05678
 
-    AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v,  uoutv, woutv, poutv, doutv )
+    uoutv, woutv, poutv, doutv = AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v )
 
     for i in range(n):
 
@@ -15937,11 +15906,9 @@ extern void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_in
 
     n = 5
 
-    rvec, svec, tvec
-
-    rvec.resize( n )
-    svec.resize( n )
-    tvec.resize( n )
+    rvec = [0]*n
+    svec = [0]*n
+    tvec = [0]*n
 
     for i in range(n):
 
@@ -16006,11 +15973,9 @@ extern std::vector < bool > VecInsideSurf( const std::string &geom_id, const int
 
     n = 5
 
-    rvec, svec, tvec
-
-    rvec.resize( n )
-    svec.resize( n )
-    tvec.resize( n )
+    rvec = [0]*n
+    svec = [0]*n
+    tvec = [0]*n
 
     for i in range(n):
 
@@ -16076,11 +16041,9 @@ extern std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const in
 
     n = 5
 
-    rvec, svec, tvec
-
-    rvec.resize( n )
-    svec.resize( n )
-    tvec.resize( n )
+    rvec = [0]*n
+    svec = [0]*n
+    tvec = [0]*n
 
     for i in range(n):
 
@@ -16092,9 +16055,9 @@ extern std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const in
 
     ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
 
-    routv, soutv, toutv, doutv
 
-    FindRSTVec( geom_id, 0, ptvec, routv, soutv, toutv, doutv )
+
+    routv, soutv, toutv, doutv = FindRSTVec( geom_id, 0, ptvec )
 
     \endcode
     \endPythonOnly
@@ -16158,11 +16121,9 @@ extern void FindRSTVec( const std::string &geom_id, const int &surf_indx, const 
 
     n = 5
 
-    rvec, svec, tvec
-
-    rvec.resize( n )
-    svec.resize( n )
-    tvec.resize( n )
+    rvec = [0]*n
+    svec = [0]*n
+    tvec = [0]*n
 
     for i in range(n):
 
@@ -16174,13 +16135,11 @@ extern void FindRSTVec( const std::string &geom_id, const int &surf_indx, const 
 
     ptvec = CompVecPntRST( geom_id, 0, rvec, svec, tvec )
 
-    routv, soutv, toutv, doutv
-
     for i in range(n):
 
         ptvec[i] = ptvec[i] * 0.9
 
-    FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec, routv, soutv, toutv, doutv )
+     routv, soutv, toutv, doutv = FindRSTVecGuess( geom_id, 0, ptvec, rvec, svec, tvec )
 
     \endcode
     \endPythonOnly
@@ -16239,11 +16198,9 @@ extern void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, c
 
     n = 5
 
-    rvec, svec, tvec
-
-    rvec.resize( n )
-    svec.resize( n )
-    tvec.resize( n )
+    rvec = [0]*n
+    svec = [0]*n
+    tvec = [0]*n
 
     for i in range(n):
 
@@ -16251,9 +16208,9 @@ extern void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, c
         svec[i] = (n-i)*1.0/(n+1)
         tvec[i] = (i+1)*1.0/(n+1)
 
-    lvec, mvec, nvec
 
-    ConvertRSTtoLMNVec( geom_id, 0, rvec, svec, tvec, lvec, mvec, nvec )
+
+    lvec, mvec, nvec = ConvertRSTtoLMNVec( geom_id, 0, rvec, svec, tvec )
 
 
     \endcode
@@ -16311,11 +16268,9 @@ extern void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx
 
     n = 5
 
-    lvec, mvec, nvec
-
-    lvec.resize( n )
-    mvec.resize( n )
-    nvec.resize( n )
+    lvec = [0]*n
+    mvec = [0]*n
+    nvec = [0]*n
 
     for i in range(n):
 
@@ -16323,9 +16278,7 @@ extern void ConvertRSTtoLMNVec( const std::string &geom_id, const int &surf_indx
         mvec[i] = (n-i)*1.0/(n+1)
         nvec[i] = (i+1)*1.0/(n+1)
 
-    rvec, svec, tvec
-
-    ConvertLMNtoRSTVec( geom_id, 0, lvec, mvec, nvec, rvec, svec, tvec )
+    rvec, svec, tvec = ConvertLMNtoRSTVec( geom_id, 0, lvec, mvec, nvec )
 
 
     \endcode
@@ -16369,7 +16322,8 @@ extern void ConvertLMNtoRSTVec( const std::string &geom_id, const int &surf_indx
 
     surf_indx = 0
 
-    utess, wtess
+    utess = []
+    wtess = []
 
     GetUWTess01( geom_id, surf_indx, utess, wtess )
 
@@ -16482,7 +16436,7 @@ extern string AddRuler( const string & startgeomid, int startsurfindx, double st
 
     print("Two Rulers")
 
-    for( n = 0 ; n < int( len(ruler_array) ) ; n++ )
+    for n in range(len(ruler_array)):
 
         print( ruler_array[n] )
 
@@ -16773,7 +16727,7 @@ extern void DeleteAllProbes();
     \code{.py}
     link_array = GetAdvLinkNames()
 
-    for( n = 0 ; n < int( len(link_array) ) ; n++ )
+    for n in range(len(link_array) ):
 
         print( link_array[n] )
 
@@ -16887,7 +16841,7 @@ extern int GetLinkIndex( const string & name );
     link_array = GetAdvLinkNames()
 
     # Should print nothing.
-    for( n = 0 ; n < int( len(link_array) ) ; n++ )
+    for n in range(len(link_array) ):
 
         print( link_array[n] )
 
@@ -16953,7 +16907,7 @@ extern void DelAdvLink( int index );
     link_array = GetAdvLinkNames()
 
     # Should print nothing.
-    for( n = 0 ; n < int( len(link_array) ) ; n++ )
+    for n in range( len(link_array) ):
 
         print( link_array[n] )
 
@@ -17277,7 +17231,7 @@ extern void DelAdvLinkOutput( int index, const string & var_name );
 
     name_array = GetAdvLinkInputNames( indx )
 
-    for( n = 0 ; n < int( len(name_array) ) ; n++ )
+    for n in range(len(name_array) ):
 
         print( name_array[n] )
 
@@ -17338,7 +17292,7 @@ extern std::vector< std::string > GetAdvLinkInputNames( int index );
 
     parm_array = GetAdvLinkInputParms( indx )
 
-    for( n = 0 ; n < int( len(parm_array) ) ; n++ )
+    for n in range( len(parm_array) ):
 
         print( parm_array[n] )
 
@@ -17399,7 +17353,7 @@ extern std::vector< std::string > GetAdvLinkInputParms( int index );
 
     name_array = GetAdvLinkOutputNames( indx )
 
-    for( n = 0 ; n < int( len(name_array) ) ; n++ )
+    for n in range( len(name_array) ):
 
         print( name_array[n] )
 
@@ -17460,7 +17414,7 @@ extern std::vector< std::string > GetAdvLinkOutputNames( int index );
 
     parm_array = GetAdvLinkOutputParms( indx )
 
-    for( n = 0 ; n < int( len(parm_array) ) ; n++ )
+    for n in range( len(parm_array) ):
 
         print( parm_array[n] )
 
