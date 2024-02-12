@@ -258,6 +258,8 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
     ADD_CUSTOM_TARGET( run_pyvsp ${PYTHON_VENV_EXE} -m pyvsp.pyvsp )
 
+    ADD_CUSTOM_TARGET( run_pyvsp_unittests ${PYTHON_VENV_EXE} -m unittest openvsp.tests.test_vsp_api  )
+
 
 
 ENDIF(SWIG_FOUND AND PYTHONLIBS_FOUND)
