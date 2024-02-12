@@ -81,7 +81,7 @@ void ScriptMgrSingleton::Init( )
     asIScriptEngine* se = m_ScriptEngine;
 
     //==== Set the message callback to receive information on errors in human readable form.  ====//
-    int r = se->SetMessageCallback( vspFUNCTION( MessageCallback ), 0, vspCALL_CDECL );
+    int r = se->SetMessageCallback( asFUNCTION( MessageCallback ), 0, asCALL_CDECL );
     assert( r >= 0 );
 
     //==== Register Addons ====//
@@ -2286,137 +2286,137 @@ void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
     assert( r >= 0 );
 
     //==== Register the vec3d Constructors  ====//
-    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f()", vspFUNCTION( Vec3dDefaultConstructor ), vspCALL_CDECL_OBJLAST );
+    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION( Vec3dDefaultConstructor ), asCALL_CDECL_OBJLAST );
     assert( r >= 0 );
 
-    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f(double, double, double)", vspFUNCTION( Vec3dInitConstructor ), vspCALL_CDECL_OBJLAST );
+    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f(double, double, double)", asFUNCTION( Vec3dInitConstructor ), asCALL_CDECL_OBJLAST );
     assert( r >= 0 );
 
-    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f(const vec3d &in)", vspFUNCTION( Vec3dCopyConstructor ), vspCALL_CDECL_OBJLAST );
+    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f(const vec3d &in)", asFUNCTION( Vec3dCopyConstructor ), asCALL_CDECL_OBJLAST );
     assert( r >= 0 );
 
     //==== Register the vec3d Methods  ====//
-    r = se->RegisterObjectMethod( "vec3d", "double& opIndex(int) const", vspMETHODPR( vec3d, operator[], ( int ), double& ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "double& opIndex(int) const", asMETHODPR( vec3d, operator[], ( int ), double& ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "double x() const", vspMETHOD( vec3d, x ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "double x() const", asMETHOD( vec3d, x ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "double y() const", vspMETHOD( vec3d, y ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "double y() const", asMETHOD( vec3d, y ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "double z() const", vspMETHOD( vec3d, z ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "double z() const", asMETHOD( vec3d, z ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_xyz(double x, double y, double z)", vspMETHOD( vec3d, set_xyz ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_xyz(double x, double y, double z)", asMETHOD( vec3d, set_xyz ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_x(double x)", vspMETHOD( vec3d, set_x ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_x(double x)", asMETHOD( vec3d, set_x ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_y(double y)", vspMETHOD( vec3d, set_y ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_y(double y)", asMETHOD( vec3d, set_y ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_z(double z)", vspMETHOD( vec3d, set_z ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_z(double z)", asMETHOD( vec3d, set_z ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_x(double cos_alpha, double sin_alpha)", vspMETHOD( vec3d, rotate_x ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_x(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_x ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_y(double cos_alpha, double sin_alpha)", vspMETHOD( vec3d, rotate_y ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_y(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_y ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_z(double cos_alpha, double sin_alpha)", vspMETHOD( vec3d, rotate_z ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_z(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void scale_x(double scale)", vspMETHOD( vec3d, scale_x ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void scale_x(double scale)", asMETHOD( vec3d, scale_x ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void scale_y(double scale)", vspMETHOD( vec3d, scale_y ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void scale_y(double scale)", asMETHOD( vec3d, scale_y ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void scale_z(double scale)", vspMETHOD( vec3d, scale_z ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void scale_z(double scale)", asMETHOD( vec3d, scale_z ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void offset_x(double offset)", vspMETHOD( vec3d, offset_x ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void offset_x(double offset)", asMETHOD( vec3d, offset_x ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void offset_y(double offset)", vspMETHOD( vec3d, offset_y ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void offset_y(double offset)", asMETHOD( vec3d, offset_y ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void offset_z(double offset)", vspMETHOD( vec3d, offset_z ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void offset_z(double offset)", asMETHOD( vec3d, offset_z ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_z_zero_x(double cos_alpha, double sin_alpha)", vspMETHOD( vec3d, rotate_z_zero_x ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_z_zero_x(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z_zero_x ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_z_zero_y(double cos_alpha, double sin_alpha)", vspMETHOD( vec3d, rotate_z_zero_y ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_z_zero_y(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z_zero_y ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_xy()", vspMETHOD( vec3d, reflect_xy ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_xy()", asMETHOD( vec3d, reflect_xy ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_xz()", vspMETHOD( vec3d, reflect_xz ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_xz()", asMETHOD( vec3d, reflect_xz ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_yz()", vspMETHOD( vec3d, reflect_yz ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_yz()", asMETHOD( vec3d, reflect_yz ), asCALL_THISCALL );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opAdd(const vec3d &in) const", vspFUNCTIONPR( operator+, ( const vec3d&, const vec3d& ), vec3d ), vspCALL_CDECL_OBJFIRST );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opAdd(const vec3d &in) const", asFUNCTIONPR( operator+, ( const vec3d&, const vec3d& ), vec3d ), asCALL_CDECL_OBJFIRST );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opSub(const vec3d &in) const", vspFUNCTIONPR( operator-, ( const vec3d&, const vec3d& ), vec3d ), vspCALL_CDECL_OBJFIRST );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opSub(const vec3d &in) const", asFUNCTIONPR( operator-, ( const vec3d&, const vec3d& ), vec3d ), asCALL_CDECL_OBJFIRST );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opMul(double b) const", vspFUNCTIONPR( operator*, ( const vec3d & a, double b ), vec3d ), vspCALL_CDECL_OBJFIRST );
-    assert( r >= 0 );
-
-
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opMul_r(const vec3d &in) const", vspFUNCTIONPR( operator*, ( const vec3d&, const vec3d& ), vec3d ), vspCALL_CDECL_OBJFIRST );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opMul(double b) const", asFUNCTIONPR( operator*, ( const vec3d & a, double b ), vec3d ), asCALL_CDECL_OBJFIRST );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opDiv(double b) const", vspFUNCTIONPR( operator/, ( const vec3d&, double b ), vec3d ), vspCALL_CDECL_OBJFIRST );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opMul_r(const vec3d &in) const", asFUNCTIONPR( operator*, ( const vec3d&, const vec3d& ), vec3d ), asCALL_CDECL_OBJFIRST );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "vec3d", "double mag() const", vspMETHOD( vec3d, mag ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opDiv(double b) const", asFUNCTIONPR( operator/, ( const vec3d&, double b ), vec3d ), asCALL_CDECL_OBJFIRST );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "vec3d", "void normalize()", vspMETHOD( vec3d, normalize ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "vec3d", "double mag() const", asMETHOD( vec3d, mag ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double dist(const vec3d& in a, const vec3d& in b)", vspFUNCTIONPR( dist, ( const vec3d&, const vec3d& ), double  ), vspCALL_CDECL );
+    r = se->RegisterObjectMethod( "vec3d", "void normalize()", asMETHOD( vec3d, normalize ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double dist_squared(const vec3d& in a, const vec3d& in b)", vspFUNCTIONPR( dist_squared, ( const vec3d&, const vec3d& ), double  ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double dist(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( dist, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double dot(const vec3d& in a, const vec3d& in b)", vspFUNCTIONPR( dot, ( const vec3d&, const vec3d& ), double  ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double dist_squared(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( dist_squared, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d cross(const vec3d& in a, const vec3d& in b)", vspFUNCTIONPR( cross, ( const vec3d&, const vec3d& ), vec3d  ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double dot(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( dot, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double angle(const vec3d& in a, const vec3d& in b)", vspFUNCTIONPR( angle, ( const vec3d&, const vec3d& ), double  ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d cross(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( cross, ( const vec3d&, const vec3d& ), vec3d  ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double signed_angle(const vec3d& in a, const vec3d& in b, const vec3d& in ref )", vspFUNCTIONPR( signed_angle, ( const vec3d & a, const vec3d & b, const vec3d & ref ), double  ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double angle(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( angle, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double cos_angle(const vec3d& in a, const vec3d& in b )", vspFUNCTIONPR( cos_angle, ( const vec3d & a, const vec3d & b ), double  ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double signed_angle(const vec3d& in a, const vec3d& in b, const vec3d& in ref )", asFUNCTIONPR( signed_angle, ( const vec3d & a, const vec3d & b, const vec3d & ref ), double  ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d RotateArbAxis(const vec3d& in p, double theta, const vec3d& in axis )", vspFUNCTIONPR( RotateArbAxis, ( const vec3d & p, double theta, const vec3d & axis ), vec3d ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double cos_angle(const vec3d& in a, const vec3d& in b )", asFUNCTIONPR( cos_angle, ( const vec3d & a, const vec3d & b ), double  ), asCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "vec3d RotateArbAxis(const vec3d& in p, double theta, const vec3d& in axis )", asFUNCTIONPR( RotateArbAxis, ( const vec3d & p, double theta, const vec3d & axis ), vec3d ), asCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -2438,65 +2438,65 @@ void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
     assert( r >= 0 );
 
     //===== Register the Matrix4d constructor =====//
-    r = se->RegisterObjectBehaviour( "Matrix4d", asBEHAVE_CONSTRUCT, "void f()", vspFUNCTION( Matrix4dDefaultConstructor ), vspCALL_CDECL_OBJLAST );
+    r = se->RegisterObjectBehaviour( "Matrix4d", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION( Matrix4dDefaultConstructor ), asCALL_CDECL_OBJLAST );
     assert( r >= 0 ); // TODO?
 
     //===== Register the Matrix4d methods =====//
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void loadIdentity()", vspMETHOD( Matrix4d, loadIdentity ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void loadIdentity()", asMETHOD( Matrix4d, loadIdentity ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void translatef( const double & in x, const double & in y, const double & in z)", vspMETHOD( Matrix4d, translatef ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void translatef( const double & in x, const double & in y, const double & in z)", asMETHOD( Matrix4d, translatef ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotateX( const double & in ang )", vspMETHOD( Matrix4d, rotateX ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateX( const double & in ang )", asMETHOD( Matrix4d, rotateX ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotateY( const double & in ang )", vspMETHOD( Matrix4d, rotateY ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateY( const double & in ang )", asMETHOD( Matrix4d, rotateY ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotateZ( const double & in ang )", vspMETHOD( Matrix4d, rotateZ ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateZ( const double & in ang )", asMETHOD( Matrix4d, rotateZ ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotate( const double & in ang, const vec3d & in axis )", vspMETHOD( Matrix4d, rotate ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotate( const double & in ang, const vec3d & in axis )", asMETHOD( Matrix4d, rotate ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void scale( const double & in scale )", vspMETHOD( Matrix4d, scale ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void scale( const double & in scale )", asMETHOD( Matrix4d, scale ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "vec3d xform( const vec3d & in v )", vspMETHOD( Matrix4d, xform ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "vec3d xform( const vec3d & in v )", asMETHOD( Matrix4d, xform ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "vec3d getAngles()", vspMETHOD( Matrix4d, getAngles ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "vec3d getAngles()", asMETHOD( Matrix4d, getAngles ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void loadXZRef()", vspMETHOD( Matrix4d, loadXZRef ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void loadXZRef()", asMETHOD( Matrix4d, loadXZRef ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void loadXYRef()", vspMETHOD( Matrix4d, loadXYRef ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void loadXYRef()", asMETHOD( Matrix4d, loadXYRef ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void loadYZRef()", vspMETHOD( Matrix4d, loadYZRef ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void loadYZRef()", asMETHOD( Matrix4d, loadYZRef ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void affineInverse()", vspMETHOD( Matrix4d, affineInverse ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "Matrix4d", "void affineInverse()", asMETHOD( Matrix4d, affineInverse ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod("Matrix4d", "void buildXForm( const vec3d & in pos, const vec3d & in rot, const vec3d & in cent_rot )", vspMETHOD(Matrix4d, buildXForm), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod("Matrix4d", "void buildXForm( const vec3d & in pos, const vec3d & in rot, const vec3d & in cent_rot )", asMETHOD(Matrix4d, buildXForm), asCALL_THISCALL );
     assert( r >= 0 ); // TODO: Example
 
     //TODO: Expose additional functions to the API (i.e. matMult)
@@ -2509,140 +2509,140 @@ void ScriptMgrSingleton::RegisterCustomGeomMgr( asIScriptEngine* se )
 
     int r;
     r = se->RegisterGlobalFunction( "string AddParm( int type, const string & in name, const string & in group )",
-                                    vspMETHOD( CustomGeomMgrSingleton, AddParm ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, AddParm ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "string GetCurrCustomGeom()",
-                                    vspMETHOD( CustomGeomMgrSingleton, GetCurrCustomGeom ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, GetCurrCustomGeom ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "string GetCustomParm( int index )",
-                                    vspMETHOD( CustomGeomMgrSingleton, GetCustomParm ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, GetCustomParm ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "int AddGui( int type, const string & in label = string(), const string & in parm_name = string(), const string & in group_name = string(), double range = 10.0 )",
-                                    vspMETHOD( CustomGeomMgrSingleton, AddGui ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, AddGui ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void UpdateGui( int gui_id, const string & in parm_id )",
-                                    vspMETHOD( CustomGeomMgrSingleton, AddUpdateGui ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, AddUpdateGui ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "string AddXSecSurf()",
-                                    vspMETHOD( CustomGeomMgrSingleton, AddXSecSurf ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, AddXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void RemoveXSecSurf(const string & in xsec_id)",
-                                    vspMETHOD( CustomGeomMgrSingleton, RemoveXSecSurf ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, RemoveXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void ClearXSecSurfs()",
-                                    vspMETHOD( CustomGeomMgrSingleton, ClearXSecSurfs ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, ClearXSecSurfs ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void SkinXSecSurf( bool closed_flag = false )",
-                                    vspMETHOD( CustomGeomMgrSingleton, SkinXSecSurf ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, SkinXSecSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void CloneSurf(int index, Matrix4d & in mat)",
-                                    vspMETHOD( CustomGeomMgrSingleton, CloneSurf ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, CloneSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void TransformSurf(int index, Matrix4d & in mat)",
-                                    vspMETHOD( CustomGeomMgrSingleton, TransformSurf ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, TransformSurf ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "void SetVspSurfType( int type, int surf_index = -1 )",
-                                    vspMETHOD( CustomGeomMgrSingleton, SetVspSurfType ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, SetVspSurfType ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void SetVspSurfCfdType( int type, int surf_index = -1 )",
-                                    vspMETHOD( CustomGeomMgrSingleton, SetVspSurfCfdType ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, SetVspSurfCfdType ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void SetCustomXSecLoc( const string & in xsec_id, const vec3d & in loc )",
-                                    vspMETHOD( CustomGeomMgrSingleton, SetCustomXSecLoc ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, SetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "vec3d GetCustomXSecLoc( const string & in xsec_id )",
-                                    vspMETHOD( CustomGeomMgrSingleton, GetCustomXSecLoc ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, GetCustomXSecLoc ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void SetCustomXSecRot( const string & in xsec_id, const vec3d & in rot )",
-                                    vspMETHOD( CustomGeomMgrSingleton, SetCustomXSecRot ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, SetCustomXSecRot ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "vec3d GetCustomXSecRot( const string & in xsec_id )",
-                                    vspMETHOD( CustomGeomMgrSingleton, GetCustomXSecRot ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, GetCustomXSecRot ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "bool CheckClearTriggerEvent( int gui_id )",
-                                    vspMETHOD( CustomGeomMgrSingleton, CheckClearTriggerEvent ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, CheckClearTriggerEvent ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction(
         "void SetupCustomDefaultSource( int type, int surf_index, double l1, double r1, double u1, double w1, double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 )",
-        vspMETHOD( CustomGeomMgrSingleton, SetupCustomDefaultSource ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+        asMETHOD( CustomGeomMgrSingleton, SetupCustomDefaultSource ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void ClearAllCustomDefaultSources()",
-                                    vspMETHOD( CustomGeomMgrSingleton, ClearAllCustomDefaultSources ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, ClearAllCustomDefaultSources ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void SetCustomCenter( double x, double y, double z )",
-                                    vspMETHOD( CustomGeomMgrSingleton, SetCustomCenter ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, SetCustomCenter ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "string AppendXSec( const string & in xsec_surf_id, int type )",
-                                    vspMETHOD( CustomGeomMgrSingleton, AppendCustomXSec ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, AppendCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
     // WARNING: Both versions of the AppendCustomXSec must be available to avoid breaking existing CustomGeom scripts
 
 
     r = se->RegisterGlobalFunction( "string AppendCustomXSec( const string & in xsec_surf_id, int type )",
-                                    vspMETHOD( CustomGeomMgrSingleton, AppendCustomXSec ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, AppendCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r );
 
 
     r = se->RegisterGlobalFunction( "void CutCustomXSec( const string & in xsec_surf_id, int index )",
-                                    vspMETHOD( CustomGeomMgrSingleton, CutCustomXSec ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, CutCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "void CopyCustomXSec( const string & in xsec_surf_id, int index )",
-                                    vspMETHOD( CustomGeomMgrSingleton, CopyCustomXSec ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, CopyCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "void PasteCustomXSec( const string & in xsec_surf_id, int index )",
-                                    vspMETHOD( CustomGeomMgrSingleton, PasteCustomXSec ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, PasteCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r ); // TODO: Example
 
 
     r = se->RegisterGlobalFunction( "string InsertCustomXSec( const string & in xsec_surf_id, int type, int index )",
-                                    vspMETHOD( CustomGeomMgrSingleton, InsertCustomXSec ), vspCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
+                                    asMETHOD( CustomGeomMgrSingleton, InsertCustomXSec ), asCALL_THISCALL_ASGLOBAL, &CustomGeomMgr );
     assert( r ); // TODO: Example
 
 
@@ -2655,76 +2655,76 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 {
     int r;
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkNames()", vspMETHOD( ScriptMgrSingleton, GetAdvLinkNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkNames()", asMETHOD( ScriptMgrSingleton, GetAdvLinkNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetLinkIndex( const string & in name )", vspFUNCTION( vsp::GetLinkIndex ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetLinkIndex( const string & in name )", asFUNCTION( vsp::GetLinkIndex ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DelAdvLink( int index )", vspFUNCTION( vsp::DelAdvLink ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DelAdvLink( int index )", asFUNCTION( vsp::DelAdvLink ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DelAllAdvLinks()", vspFUNCTION( vsp::DelAllAdvLinks ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DelAllAdvLinks()", asFUNCTION( vsp::DelAllAdvLinks ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void AddAdvLink( const string & in name )", vspFUNCTION( vsp::AddAdvLink ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddAdvLink( const string & in name )", asFUNCTION( vsp::AddAdvLink ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void AddAdvLinkInput( int index, const string & in parm_id, const string & in var_name )", vspFUNCTION( vsp::AddAdvLinkInput ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddAdvLinkInput( int index, const string & in parm_id, const string & in var_name )", asFUNCTION( vsp::AddAdvLinkInput ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void AddAdvLinkOutput( int index, const string & in parm_id, const string & in var_name )", vspFUNCTION( vsp::AddAdvLinkOutput ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddAdvLinkOutput( int index, const string & in parm_id, const string & in var_name )", asFUNCTION( vsp::AddAdvLinkOutput ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DelAdvLinkInput( int index, const string & in var_name )", vspFUNCTION( vsp::DelAdvLinkInput ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DelAdvLinkInput( int index, const string & in var_name )", asFUNCTION( vsp::DelAdvLinkInput ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DelAdvLinkOutput( int index, const string & in var_name )", vspFUNCTION( vsp::DelAdvLinkOutput ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DelAdvLinkOutput( int index, const string & in var_name )", asFUNCTION( vsp::DelAdvLinkOutput ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkInputNames( int index )", vspMETHOD( ScriptMgrSingleton, GetAdvLinkInputNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkInputNames( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkInputNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkInputParms( int index )", vspMETHOD( ScriptMgrSingleton, GetAdvLinkInputParms ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkInputParms( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkInputParms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkOutputNames( int index )", vspMETHOD( ScriptMgrSingleton, GetAdvLinkOutputNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkOutputNames( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkOutputNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkOutputParms( int index )", vspMETHOD( ScriptMgrSingleton, GetAdvLinkOutputParms ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkOutputParms( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkOutputParms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "bool ValidateAdvLinkParms( int index )", vspFUNCTION( vsp::ValidateAdvLinkParms ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool ValidateAdvLinkParms( int index )", asFUNCTION( vsp::ValidateAdvLinkParms ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAdvLinkCode( int index, const string & in code )", vspFUNCTION( vsp::SetAdvLinkCode ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetAdvLinkCode( int index, const string & in code )", asFUNCTION( vsp::SetAdvLinkCode ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetAdvLinkCode( int index )", vspFUNCTION( vsp::GetAdvLinkCode ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetAdvLinkCode( int index )", asFUNCTION( vsp::GetAdvLinkCode ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SearchReplaceAdvLinkCode( int index, const string & in from, const string & in to )", vspFUNCTION( vsp::SearchReplaceAdvLinkCode ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SearchReplaceAdvLinkCode( int index, const string & in from, const string & in to )", asFUNCTION( vsp::SearchReplaceAdvLinkCode ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "bool BuildAdvLinkScript( int index )", vspFUNCTION( vsp::BuildAdvLinkScript ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool BuildAdvLinkScript( int index )", asFUNCTION( vsp::BuildAdvLinkScript ), asCALL_CDECL );
     assert( r >= 0 );
 
 //
@@ -2732,20 +2732,20 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 //
 //
 //    r = se->RegisterGlobalFunction( "void AddInput( const string & in parm_id, const string & in var_name )",
-//                                    vspMETHOD( AdvLinkMgrSingleton, AddInput ), vspCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
+//                                    asMETHOD( AdvLinkMgrSingleton, AddInput ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
 //    assert( r );
 //
 //
 //    r = se->RegisterGlobalFunction( "void AddOutput( const string & in parm_id, const string & in var_name )",
-//                                    vspMETHOD( AdvLinkMgrSingleton, AddOutput ), vspCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
+//                                    asMETHOD( AdvLinkMgrSingleton, AddOutput ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
 //    assert( r );
 
 
-    r = se->RegisterGlobalFunction( "void SetVar( const string & in var_name, double val )", vspMETHOD( AdvLinkMgrSingleton, SetVar ), vspCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
+    r = se->RegisterGlobalFunction( "void SetVar( const string & in var_name, double val )", asMETHOD( AdvLinkMgrSingleton, SetVar ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
     assert( r );
 
 
-    r = se->RegisterGlobalFunction( "double GetVar( const string & in var_name )", vspMETHOD( AdvLinkMgrSingleton, GetVar ), vspCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
+    r = se->RegisterGlobalFunction( "double GetVar( const string & in var_name )", asMETHOD( AdvLinkMgrSingleton, GetVar ), asCALL_THISCALL_ASGLOBAL, &AdvLinkMgr );
     assert( r );
 }
 
@@ -2758,11 +2758,11 @@ void ScriptMgrSingleton::RegisterAPIErrorObj( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "ErrorObj", "ERROR_CODE GetErrorCode()", vspMETHOD( vsp::ErrorObj, GetErrorCode ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "ErrorObj", "ERROR_CODE GetErrorCode()", asMETHOD( vsp::ErrorObj, GetErrorCode ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
-    r = se->RegisterObjectMethod( "ErrorObj", "string GetErrorString()", vspMETHOD( vsp::ErrorObj, GetErrorString ), vspCALL_THISCALL );
+    r = se->RegisterObjectMethod( "ErrorObj", "string GetErrorString()", asMETHOD( vsp::ErrorObj, GetErrorString ), asCALL_THISCALL );
     assert( r >= 0 );
 
 
@@ -2778,1702 +2778,1702 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     //==== API Error Functions ====//
     // TODO: Move to ErrorObj group
 
-    r = se->RegisterGlobalFunction( "bool GetErrorLastCallFlag()", vspMETHOD( vsp::ErrorMgrSingleton, GetErrorLastCallFlag ), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
+    r = se->RegisterGlobalFunction( "bool GetErrorLastCallFlag()", asMETHOD( vsp::ErrorMgrSingleton, GetErrorLastCallFlag ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
     assert( r );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumTotalErrors()", vspMETHOD( vsp::ErrorMgrSingleton, GetNumTotalErrors ), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
+    r = se->RegisterGlobalFunction( "int GetNumTotalErrors()", asMETHOD( vsp::ErrorMgrSingleton, GetNumTotalErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
     assert( r );
 
 
-    r = se->RegisterGlobalFunction( "ErrorObj PopLastError()", vspMETHOD( vsp::ErrorMgrSingleton, PopLastError ), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
+    r = se->RegisterGlobalFunction( "ErrorObj PopLastError()", asMETHOD( vsp::ErrorMgrSingleton, PopLastError ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
     assert( r );
 
 
-    r = se->RegisterGlobalFunction( "ErrorObj GetLastError()", vspMETHOD( vsp::ErrorMgrSingleton, GetLastError ), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
+    r = se->RegisterGlobalFunction( "ErrorObj GetLastError()", asMETHOD( vsp::ErrorMgrSingleton, GetLastError ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
     assert( r );
 
 
-    r = se->RegisterGlobalFunction( "void SilenceErrors()", vspMETHOD( vsp::ErrorMgrSingleton, SilenceErrors ), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
+    r = se->RegisterGlobalFunction( "void SilenceErrors()", asMETHOD( vsp::ErrorMgrSingleton, SilenceErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
     assert( r );
 
 
-    r = se->RegisterGlobalFunction( "void PrintOnErrors()", vspMETHOD( vsp::ErrorMgrSingleton, PrintOnErrors ), vspCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
+    r = se->RegisterGlobalFunction( "void PrintOnErrors()", asMETHOD( vsp::ErrorMgrSingleton, PrintOnErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr );
     assert( r );
 
     //==== Visualization Functions ====//
 
-    r = se->RegisterGlobalFunction( "void InitGUI()", vspFUNCTION( vsp::InitGUI ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void InitGUI()", asFUNCTION( vsp::InitGUI ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void StartGUI()", vspFUNCTION( vsp::StartGUI ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void StartGUI()", asFUNCTION( vsp::StartGUI ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void EnableReturnToAPI()", vspFUNCTION( vsp::EnableReturnToAPI ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void EnableReturnToAPI()", asFUNCTION( vsp::EnableReturnToAPI ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DisableReturnToAPI()", vspFUNCTION( vsp::DisableReturnToAPI ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DisableReturnToAPI()", asFUNCTION( vsp::DisableReturnToAPI ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void StopGUI()", vspFUNCTION( vsp::StopGUI ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void StopGUI()", asFUNCTION( vsp::StopGUI ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void HideScreens()", vspFUNCTION( vsp::HideScreens ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void HideScreens()", asFUNCTION( vsp::HideScreens ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ShowScreens()", vspFUNCTION( vsp::ShowScreens ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ShowScreens()", asFUNCTION( vsp::ShowScreens ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void PopupMsg( const string & in msg )", vspFUNCTION( vsp::PopupMsg ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PopupMsg( const string & in msg )", asFUNCTION( vsp::PopupMsg ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void UpdateGUI()", vspFUNCTION( vsp::UpdateGUI ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void UpdateGUI()", asFUNCTION( vsp::UpdateGUI ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "bool IsGUIBuild()", vspFUNCTION( vsp::IsGUIBuild ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool IsGUIBuild()", asFUNCTION( vsp::IsGUIBuild ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void Lock()", vspFUNCTION( vsp::Lock ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void Lock()", asFUNCTION( vsp::Lock ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void Unlock()", vspFUNCTION( vsp::Unlock ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void Unlock()", asFUNCTION( vsp::Unlock ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG, bool autocrop = false )", vspFUNCTION( vsp::ScreenGrab ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG, bool autocrop = false )", asFUNCTION( vsp::ScreenGrab ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetViewAxis( bool vaxis )", vspFUNCTION( vsp::SetViewAxis ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetViewAxis( bool vaxis )", asFUNCTION( vsp::SetViewAxis ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetShowBorders( bool brdr )", vspFUNCTION( vsp::SetShowBorders ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetShowBorders( bool brdr )", asFUNCTION( vsp::SetShowBorders ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction("void SetGeomDrawType( const string & in geom_id, int type )", vspFUNCTION(vsp::SetGeomDrawType), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction("void SetGeomDrawType( const string & in geom_id, int type )", asFUNCTION(vsp::SetGeomDrawType), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction("void SetGeomDisplayType( const string & in geom_id, int type )", vspFUNCTION(vsp::SetGeomDisplayType), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction("void SetGeomDisplayType( const string & in geom_id, int type )", asFUNCTION(vsp::SetGeomDisplayType), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetBackground( double r, double g, double b )", vspFUNCTION( vsp::SetBackground ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetBackground( double r, double g, double b )", asFUNCTION( vsp::SetBackground ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetGUIElementDisable( int e, bool state )", vspFUNCTION( vsp::SetGUIElementDisable ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetGUIElementDisable( int e, bool state )", asFUNCTION( vsp::SetGUIElementDisable ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetGUIScreenDisable( int s, bool state )", vspFUNCTION( vsp::SetGUIScreenDisable ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetGUIScreenDisable( int s, bool state )", asFUNCTION( vsp::SetGUIScreenDisable ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetGeomScreenDisable( int s, bool state )", vspFUNCTION( vsp::SetGeomScreenDisable ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetGeomScreenDisable( int s, bool state )", asFUNCTION( vsp::SetGeomScreenDisable ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== Vehicle Functions ====//
 
-    r = se->RegisterGlobalFunction( "void Update( bool update_managers = true)", vspFUNCTION( vsp::Update ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void Update( bool update_managers = true)", asFUNCTION( vsp::Update ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void VSPExit( int error_code )", vspFUNCTION( vsp::VSPExit ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void VSPExit( int error_code )", asFUNCTION( vsp::VSPExit ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void ClearVSPModel()", vspFUNCTION( vsp::ClearVSPModel ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ClearVSPModel()", asFUNCTION( vsp::ClearVSPModel ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetVSPFileName()", vspFUNCTION( vsp::GetVSPFileName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetVSPFileName()", asFUNCTION( vsp::GetVSPFileName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     //==== File I/O Functions ====//
 
-    r = se->RegisterGlobalFunction( "void ReadVSPFile( const string & in file_name )", vspFUNCTION( vsp::ReadVSPFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ReadVSPFile( const string & in file_name )", asFUNCTION( vsp::ReadVSPFile ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void WriteVSPFile( const string & in file_name, int set )", vspFUNCTION( vsp::WriteVSPFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteVSPFile( const string & in file_name, int set )", asFUNCTION( vsp::WriteVSPFile ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetVSP3FileName( const string & in file_name )", vspFUNCTION( vsp::SetVSP3FileName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetVSP3FileName( const string & in file_name )", asFUNCTION( vsp::SetVSP3FileName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void InsertVSPFile( const string & in file_name, const string & in parent )", vspFUNCTION( vsp::InsertVSPFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void InsertVSPFile( const string & in file_name, const string & in parent )", asFUNCTION( vsp::InsertVSPFile ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "string ExportFile( const string & in file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = -1 )", vspFUNCTION( vsp::ExportFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string ExportFile( const string & in file_name, int thick_set, int file_type, int subsFlag = 1, int thin_set = -1 )", asFUNCTION( vsp::ExportFile ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string ImportFile( const string & in file_name, int file_type, const string & in parent )", vspFUNCTION( vsp::ImportFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string ImportFile( const string & in file_name, int file_type, const string & in parent )", asFUNCTION( vsp::ImportFile ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void SetBEMPropID( const string & in prop_id )", vspFUNCTION( vsp::SetBEMPropID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetBEMPropID( const string & in prop_id )", asFUNCTION( vsp::SetBEMPropID ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== Design File Functions ====//
 
-    r = se->RegisterGlobalFunction( "void ReadApplyDESFile( const string & in file_name )", vspFUNCTION( vsp::ReadApplyDESFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ReadApplyDESFile( const string & in file_name )", asFUNCTION( vsp::ReadApplyDESFile ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void WriteDESFile( const string & in file_name )", vspFUNCTION( vsp::WriteDESFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteDESFile( const string & in file_name )", asFUNCTION( vsp::WriteDESFile ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void ReadApplyXDDMFile( const string & in file_name )", vspFUNCTION( vsp::ReadApplyXDDMFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ReadApplyXDDMFile( const string & in file_name )", asFUNCTION( vsp::ReadApplyXDDMFile ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void WriteXDDMFile( const string & in file_name )", vspFUNCTION( vsp::WriteXDDMFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteXDDMFile( const string & in file_name )", asFUNCTION( vsp::WriteXDDMFile ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "int GetNumDesignVars()", vspFUNCTION( vsp::GetNumDesignVars ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumDesignVars()", asFUNCTION( vsp::GetNumDesignVars ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void AddDesignVar( const string & in parm_id, int type )", vspFUNCTION( vsp::AddDesignVar ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddDesignVar( const string & in parm_id, int type )", asFUNCTION( vsp::AddDesignVar ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void DeleteAllDesignVars()", vspFUNCTION( vsp::DeleteAllDesignVars ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteAllDesignVars()", asFUNCTION( vsp::DeleteAllDesignVars ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "string GetDesignVar( int index )", vspFUNCTION( vsp::GetDesignVar ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetDesignVar( int index )", asFUNCTION( vsp::GetDesignVar ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "int GetDesignVarType( int index )", vspFUNCTION( vsp::GetDesignVarType ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetDesignVarType( int index )", asFUNCTION( vsp::GetDesignVarType ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
     //==== Computations ====//
 
-    r = se->RegisterGlobalFunction( "string ComputeMassProps( int set, int num_slices, int idir = X_DIR )", vspFUNCTION( vsp::ComputeMassProps ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string ComputeMassProps( int set, int num_slices, int idir = X_DIR )", asFUNCTION( vsp::ComputeMassProps ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string ComputeCompGeom( int set, bool half_mesh, int file_export_types )", vspFUNCTION( vsp::ComputeCompGeom ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string ComputeCompGeom( int set, bool half_mesh, int file_export_types )", asFUNCTION( vsp::ComputeCompGeom ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string ComputePlaneSlice( int set, int num_slices, const vec3d & in norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0, bool measureduct = false )", vspFUNCTION( vsp::ComputePlaneSlice ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string ComputePlaneSlice( int set, int num_slices, const vec3d & in norm, bool auto_bnd, double start_bnd = 0, double end_bnd = 0, bool measureduct = false )", asFUNCTION( vsp::ComputePlaneSlice ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ComputeDegenGeom( int set, int file_type )", vspFUNCTION( vsp::ComputeDegenGeom ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ComputeDegenGeom( int set, int file_type )", asFUNCTION( vsp::ComputeDegenGeom ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== CFD Mesh ====//
 
-    r = se->RegisterGlobalFunction( "void SetComputationFileName( int file_type, const string & in file_name )", vspFUNCTION( vsp::SetComputationFileName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetComputationFileName( int file_type, const string & in file_name )", asFUNCTION( vsp::SetComputationFileName ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: FIXME for FEA Mesh
 
 
-    r = se->RegisterGlobalFunction( "void ComputeCFDMesh( int set, int degenset, int file_type )", vspFUNCTION( vsp::ComputeCFDMesh ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ComputeCFDMesh( int set, int degenset, int file_type )", asFUNCTION( vsp::ComputeCFDMesh ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetCFDMeshVal( int type, double val )", vspFUNCTION( vsp::SetCFDMeshVal ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetCFDMeshVal( int type, double val )", asFUNCTION( vsp::SetCFDMeshVal ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetCFDWakeFlag( const string & in geom_id, bool flag )", vspFUNCTION( vsp::SetCFDWakeFlag ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetCFDWakeFlag( const string & in geom_id, bool flag )", asFUNCTION( vsp::SetCFDWakeFlag ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteAllCFDSources()", vspFUNCTION( vsp::DeleteAllCFDSources ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteAllCFDSources()", asFUNCTION( vsp::DeleteAllCFDSources ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void AddDefaultSources()", vspFUNCTION( vsp::AddDefaultSources ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddDefaultSources()", asFUNCTION( vsp::AddDefaultSources ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction(
         "void AddCFDSource( int type, const string & in geom_id, int surf_index, double l1, double r1, double u1, double w1, double l2 = 0, double r2 = 0, double u2 = 0, double w2 = 0 )",
-        vspFUNCTION( vsp::AddCFDSource ), vspCALL_CDECL );
+        asFUNCTION( vsp::AddCFDSource ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     //==== Analysis Functions ====//
 
-    r = se->RegisterGlobalFunction( "int GetNumAnalysis( )", vspFUNCTION( vsp::GetNumAnalysis ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumAnalysis( )", asFUNCTION( vsp::GetNumAnalysis ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ ListAnalysis()", vspMETHOD( ScriptMgrSingleton, ListAnalysis ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ ListAnalysis()", asMETHOD( ScriptMgrSingleton, ListAnalysis ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAnalysisInputNames(const string & in analysis )", vspMETHOD( ScriptMgrSingleton, GetAnalysisInputNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetAnalysisInputNames(const string & in analysis )", asMETHOD( ScriptMgrSingleton, GetAnalysisInputNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetAnalysisDoc( const string & in analysis )", vspFUNCTION( vsp::GetAnalysisDoc ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetAnalysisDoc( const string & in analysis )", asFUNCTION( vsp::GetAnalysisDoc ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetAnalysisInputDoc( const string & in analysis, const string & in name )", vspFUNCTION( vsp::GetNumAnalysisInputData ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetAnalysisInputDoc( const string & in analysis, const string & in name )", asFUNCTION( vsp::GetNumAnalysisInputData ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string ExecAnalysis( const string & in analysis )", vspFUNCTION( vsp::ExecAnalysis ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string ExecAnalysis( const string & in analysis )", asFUNCTION( vsp::ExecAnalysis ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumAnalysisInputData( const string & in analysis, const string & in name )", vspFUNCTION( vsp::GetNumAnalysisInputData ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumAnalysisInputData( const string & in analysis, const string & in name )", asFUNCTION( vsp::GetNumAnalysisInputData ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetAnalysisInputType( const string & in analysis, const string & in name )", vspFUNCTION( vsp::GetAnalysisInputType ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetAnalysisInputType( const string & in analysis, const string & in name )", asFUNCTION( vsp::GetAnalysisInputType ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<int>@ GetIntAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", vspMETHOD( ScriptMgrSingleton, GetIntAnalysisInput ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<int>@ GetIntAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetIntAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetDoubleAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", vspMETHOD( ScriptMgrSingleton, GetDoubleAnalysisInput ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetDoubleAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetStringAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", vspMETHOD( ScriptMgrSingleton, GetStringAnalysisInput ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetStringAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetStringAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetVec3dAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", vspMETHOD( ScriptMgrSingleton, GetVec3dAnalysisInput ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetVec3dAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetVec3dAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void PrintAnalysisInputs( const string & in analysis )", vspFUNCTION( vsp::PrintAnalysisInputs ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PrintAnalysisInputs( const string & in analysis )", asFUNCTION( vsp::PrintAnalysisInputs ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void PrintAnalysisDocs( const string & in analysis )", vspFUNCTION( vsp::PrintAnalysisDocs ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PrintAnalysisDocs( const string & in analysis )", asFUNCTION( vsp::PrintAnalysisDocs ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAnalysisInputDefaults( const string & in analysis )", vspFUNCTION( vsp::SetAnalysisInputDefaults ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetAnalysisInputDefaults( const string & in analysis )", asFUNCTION( vsp::SetAnalysisInputDefaults ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetIntAnalysisInput( const string & in analysis, const string & in name, array<int>@ indata_arr, int index = 0 )", vspMETHOD( ScriptMgrSingleton, SetIntAnalysisInput ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetIntAnalysisInput( const string & in analysis, const string & in name, array<int>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetIntAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetDoubleAnalysisInput( const string & in analysis, const string & in name, array<double>@ indata_arr, int index = 0 )", vspMETHOD( ScriptMgrSingleton, SetDoubleAnalysisInput ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetDoubleAnalysisInput( const string & in analysis, const string & in name, array<double>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetDoubleAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetStringAnalysisInput( const string & in analysis, const string & in name, array<string>@ indata_arr, int index = 0 )", vspMETHOD( ScriptMgrSingleton, SetStringAnalysisInput ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetStringAnalysisInput( const string & in analysis, const string & in name, array<string>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetStringAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetVec3dAnalysisInput( const string & in analysis, const string & in name, array<vec3d>@ indata_arr, int index = 0 )", vspMETHOD( ScriptMgrSingleton, SetVec3dAnalysisInput ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetVec3dAnalysisInput( const string & in analysis, const string & in name, array<vec3d>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetVec3dAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
     //==== Results Functions ====//
 
-    r = se->RegisterGlobalFunction( "int GetNumResults( const string & in name )", vspFUNCTION( vsp::GetNumResults ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumResults( const string & in name )", asFUNCTION( vsp::GetNumResults ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetResultsName( const string & in results_id )", vspFUNCTION( vsp::GetResultsName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetResultsName( const string & in results_id )", asFUNCTION( vsp::GetResultsName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "string GetResultsSetDoc( const string & in results_id )",
-                                    vspFUNCTION( vsp::GetResultsSetDoc ), vspCALL_CDECL );
+                                    asFUNCTION( vsp::GetResultsSetDoc ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction(
             "string GetResultsEntryDoc( const string & in results_id, const string & in data_name )",
-            vspFUNCTION( vsp::GetResultsSetDoc ), vspCALL_CDECL );
+            asFUNCTION( vsp::GetResultsSetDoc ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string FindResultsID( const string & in name, int index = 0 )", vspFUNCTION( vsp::FindResultsID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string FindResultsID( const string & in name, int index = 0 )", asFUNCTION( vsp::FindResultsID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string FindLatestResultsID( const string & in name )", vspFUNCTION( vsp::FindLatestResultsID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string FindLatestResultsID( const string & in name )", asFUNCTION( vsp::FindLatestResultsID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumData( const string & in results_id, const string & in data_name )", vspFUNCTION( vsp::GetNumData ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumData( const string & in results_id, const string & in data_name )", asFUNCTION( vsp::GetNumData ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetResultsType( const string & in results_id, const string & in data_name )", vspFUNCTION( vsp::GetResultsType ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetResultsType( const string & in results_id, const string & in data_name )", asFUNCTION( vsp::GetResultsType ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllResultsNames()", vspMETHOD( ScriptMgrSingleton, GetAllResultsNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetAllResultsNames()", asMETHOD( ScriptMgrSingleton, GetAllResultsNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllDataNames(const string & in results_id )", vspMETHOD( ScriptMgrSingleton, GetAllDataNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetAllDataNames(const string & in results_id )", asMETHOD( ScriptMgrSingleton, GetAllDataNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<int>@ GetIntResults( const string & in id, const string & in name, int index = 0 )", vspMETHOD( ScriptMgrSingleton, GetIntResults ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<int>@ GetIntResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetIntResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetDoubleResults( const string & in id, const string & in name, int index = 0 )", vspMETHOD( ScriptMgrSingleton, GetDoubleResults ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetDoubleResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<array<double>@>@ GetDoubleMatResults( const string & in id, const string & in name, int index = 0 )", vspMETHOD( ScriptMgrSingleton, GetDoubleMatResults ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<array<double>@>@ GetDoubleMatResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleMatResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetStringResults( const string & in id, const string & in name, int index = 0 )", vspMETHOD( ScriptMgrSingleton, GetStringResults ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetStringResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetStringResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetVec3dResults( const string & in id, const string & in name, int index = 0 )", vspMETHOD( ScriptMgrSingleton, GetVec3dResults ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetVec3dResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetVec3dResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string CreateGeomResults( const string & in geom_id, const string & in name )", vspFUNCTION( vsp::CreateGeomResults ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string CreateGeomResults( const string & in geom_id, const string & in name )", asFUNCTION( vsp::CreateGeomResults ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteAllResults()", vspFUNCTION( vsp::DeleteAllResults ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteAllResults()", asFUNCTION( vsp::DeleteAllResults ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteResult( const string & in id )", vspFUNCTION( vsp::DeleteResult ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteResult( const string & in id )", asFUNCTION( vsp::DeleteResult ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void WriteResultsCSVFile( const string & in id, const string & in file_name )", vspFUNCTION( vsp::WriteResultsCSVFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteResultsCSVFile( const string & in id, const string & in file_name )", asFUNCTION( vsp::WriteResultsCSVFile ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void PrintResults( const string & in id )", vspFUNCTION( vsp::PrintResults ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PrintResults( const string & in id )", asFUNCTION( vsp::PrintResults ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void PrintResultsDoc( const string & in id )", vspFUNCTION( vsp::PrintResultsDocs ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PrintResultsDoc( const string & in id )", asFUNCTION( vsp::PrintResultsDocs ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void WriteTestResults()", vspMETHOD( ResultsMgrSingleton, WriteTestResults ), vspCALL_THISCALL_ASGLOBAL, &ResultsMgr );
+    r = se->RegisterGlobalFunction( "void WriteTestResults()", asMETHOD( ResultsMgrSingleton, WriteTestResults ), asCALL_THISCALL_ASGLOBAL, &ResultsMgr );
     assert( r >= 0 );
 
 
     //==== Geom Functions ====//
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomTypes()", vspMETHOD( ScriptMgrSingleton, GetGeomTypes ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetGeomTypes()", asMETHOD( ScriptMgrSingleton, GetGeomTypes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddGeom( const string & in type, const string & in parent = string() )", vspFUNCTION( vsp::AddGeom ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddGeom( const string & in type, const string & in parent = string() )", asFUNCTION( vsp::AddGeom ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void UpdateGeom(const string & in geom_id)", vspFUNCTION( vsp::UpdateGeom ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void UpdateGeom(const string & in geom_id)", asFUNCTION( vsp::UpdateGeom ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteGeom(const string & in geom_id)", vspFUNCTION( vsp::DeleteGeom ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteGeom(const string & in geom_id)", asFUNCTION( vsp::DeleteGeom ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteGeomVec( array<string>@ del_arr )", vspMETHOD( ScriptMgrSingleton, DeleteGeomVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void DeleteGeomVec( array<string>@ del_arr )", asMETHOD( ScriptMgrSingleton, DeleteGeomVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void CutGeomToClipboard(const string & in geom_id)", vspFUNCTION( vsp::CutGeomToClipboard ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void CutGeomToClipboard(const string & in geom_id)", asFUNCTION( vsp::CutGeomToClipboard ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void CopyGeomToClipboard(const string & in geom_id)", vspFUNCTION( vsp::CopyGeomToClipboard ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void CopyGeomToClipboard(const string & in geom_id)", asFUNCTION( vsp::CopyGeomToClipboard ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ PasteGeomClipboard( const string & in parent_id = \"\" )", vspMETHOD( ScriptMgrSingleton, PasteGeomClipboard ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ PasteGeomClipboard( const string & in parent_id = \"\" )", asMETHOD( ScriptMgrSingleton, PasteGeomClipboard ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindGeoms()", vspMETHOD( ScriptMgrSingleton, FindGeoms ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ FindGeoms()", asMETHOD( ScriptMgrSingleton, FindGeoms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindGeomsWithName(const string & in name)", vspMETHOD( ScriptMgrSingleton, FindGeomsWithName ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ FindGeomsWithName(const string & in name)", asMETHOD( ScriptMgrSingleton, FindGeomsWithName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string FindGeom(const string & in name, int index)", vspFUNCTION( vsp::FindGeom ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string FindGeom(const string & in name, int index)", asFUNCTION( vsp::FindGeom ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetGeomName( const string & in geom_id, const string & in name )", vspFUNCTION( vsp::SetGeomName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetGeomName( const string & in geom_id, const string & in name )", asFUNCTION( vsp::SetGeomName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetGeomName( const string & in geom_id )", vspFUNCTION( vsp::GetGeomName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetGeomName( const string & in geom_id )", asFUNCTION( vsp::GetGeomName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomParmIDs(const string & in geom_id )", vspMETHOD( ScriptMgrSingleton, GetGeomParmIDs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetGeomParmIDs(const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetGeomVSPSurfCfdType( const string & in geom_id, int main_surf_ind = 0 )", vspFUNCTION( vsp::GetGeomVSPSurfCfdType ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetGeomVSPSurfCfdType( const string & in geom_id, int main_surf_ind = 0 )", asFUNCTION( vsp::GetGeomVSPSurfCfdType ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetGeomVSPSurfType( const string & in geom_id, int main_surf_ind = 0 )", vspFUNCTION( vsp::GetGeomVSPSurfType ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetGeomVSPSurfType( const string & in geom_id, int main_surf_ind = 0 )", asFUNCTION( vsp::GetGeomVSPSurfType ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetGeomTypeName(const string & in geom_id )", vspFUNCTION( vsp::GetGeomTypeName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetGeomTypeName(const string & in geom_id )", asFUNCTION( vsp::GetGeomTypeName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumMainSurfs( const string & in geom_id )", vspFUNCTION( vsp::GetNumMainSurfs ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumMainSurfs( const string & in geom_id )", asFUNCTION( vsp::GetNumMainSurfs ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetTotalNumSurfs( const string & in geom_id )", vspFUNCTION( vsp::GetTotalNumSurfs ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetTotalNumSurfs( const string & in geom_id )", asFUNCTION( vsp::GetTotalNumSurfs ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d GetGeomBBoxMax( const string & in geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true )", vspFUNCTION( vsp::GetGeomBBoxMax ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d GetGeomBBoxMax( const string & in geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true )", asFUNCTION( vsp::GetGeomBBoxMax ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d GetGeomBBoxMin( const string & in geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true )", vspFUNCTION( vsp::GetGeomBBoxMin ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d GetGeomBBoxMin( const string & in geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true )", asFUNCTION( vsp::GetGeomBBoxMin ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetGeomParent( const string & in geom_id )", vspFUNCTION( vsp::GetGeomParent ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetGeomParent( const string & in geom_id )", asFUNCTION( vsp::GetGeomParent ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomChildren( const string & in geom_id )", vspMETHOD( ScriptMgrSingleton, GetGeomChildren ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetGeomChildren( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomChildren ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetDriverGroup( const string & in geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1)", vspFUNCTION( vsp::SetDriverGroup ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetDriverGroup( const string & in geom_id, int section_index, int driver_0, int driver_1 = -1, int driver_2 = -1)", asFUNCTION( vsp::SetDriverGroup ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== SubSurface Functions ====//
 
-    r = se->RegisterGlobalFunction( "string AddSubSurf( const string & in geom_id, int type, int surfindex = 0 )", vspFUNCTION( vsp::AddSubSurf ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddSubSurf( const string & in geom_id, int type, int surfindex = 0 )", asFUNCTION( vsp::AddSubSurf ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteSubSurf( const string & in geom_id, const string & in sub_id )", vspFUNCTIONPR( vsp::DeleteSubSurf, ( const string &, const string & ), void ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteSubSurf( const string & in geom_id, const string & in sub_id )", asFUNCTIONPR( vsp::DeleteSubSurf, ( const string &, const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
     // TODO: Why are there two DeleteSubSurf if Geom ID isn't needed?
 
-    r = se->RegisterGlobalFunction( "void DeleteSubSurf( const string & in sub_id )", vspFUNCTIONPR( vsp::DeleteSubSurf, ( const string & ), void ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteSubSurf( const string & in sub_id )", asFUNCTIONPR( vsp::DeleteSubSurf, ( const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetSubSurf( const string & in geom_id, int index )", vspFUNCTIONPR( vsp::GetSubSurf, ( const string &, int ), string ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetSubSurf( const string & in geom_id, int index )", asFUNCTIONPR( vsp::GetSubSurf, ( const string &, int ), string ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurf( const string & in geom_id, const string & in name )", vspMETHOD( ScriptMgrSingleton, GetSubSurf ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurf( const string & in geom_id, const string & in name )", asMETHOD( ScriptMgrSingleton, GetSubSurf ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetSubSurfName( const string & in geom_id, const string & in sub_id, const string & in name )", vspFUNCTIONPR( vsp::SetSubSurfName, ( const string &, const string &, const string & ), void ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetSubSurfName( const string & in geom_id, const string & in sub_id, const string & in name )", asFUNCTIONPR( vsp::SetSubSurfName, ( const string &, const string &, const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
     // TODO: Why are there two SetSubSurfName if Geom ID isn't needed?
 
-    r = se->RegisterGlobalFunction( "void SetSubSurfName( const string & in sub_id, const string & in name )", vspFUNCTIONPR( vsp::SetSubSurfName, ( const string &, const string & ), void ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetSubSurfName( const string & in sub_id, const string & in name )", asFUNCTIONPR( vsp::SetSubSurfName, ( const string &, const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetSubSurfName( const string & in geom_id, const string & in sub_id )", vspFUNCTIONPR( vsp::GetSubSurfName, ( const string &, const string & ), string ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetSubSurfName( const string & in geom_id, const string & in sub_id )", asFUNCTIONPR( vsp::GetSubSurfName, ( const string &, const string & ), string ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetSubSurfName( const string & in sub_id )", vspFUNCTIONPR( vsp::GetSubSurfName, ( const string & ), string ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetSubSurfName( const string & in sub_id )", asFUNCTIONPR( vsp::GetSubSurfName, ( const string & ), string ), asCALL_CDECL );
     assert( r >= 0 );
     // TODO: Why are there two GetSubSurfName if Geom ID isn't needed?
 
-    r = se->RegisterGlobalFunction( "int GetSubSurfIndex( const string & in sub_id )", vspFUNCTION( vsp::GetSubSurfIndex ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetSubSurfIndex( const string & in sub_id )", asFUNCTION( vsp::GetSubSurfIndex ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurfIDVec( const string & in geom_id )", vspMETHOD( ScriptMgrSingleton, GetSubSurfIDVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurfIDVec( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllSubSurfIDs()", vspMETHOD( ScriptMgrSingleton, GetAllSubSurfIDs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetAllSubSurfIDs()", asMETHOD( ScriptMgrSingleton, GetAllSubSurfIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumSubSurf( const string & in geom_id )", vspFUNCTION( vsp::GetNumSubSurf ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumSubSurf( const string & in geom_id )", asFUNCTION( vsp::GetNumSubSurf ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetSubSurfType( const string & in sub_id )", vspFUNCTION( vsp::GetSubSurfType ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetSubSurfType( const string & in sub_id )", asFUNCTION( vsp::GetSubSurfType ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurfParmIDs(const string & in sub_id )", vspMETHOD( ScriptMgrSingleton, GetSubSurfParmIDs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurfParmIDs(const string & in sub_id )", asMETHOD( ScriptMgrSingleton, GetSubSurfParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     //==== VSPAERO CS Group Functions ====//
 
-    r = se->RegisterGlobalFunction("void AutoGroupVSPAEROControlSurfaces()", vspFUNCTION(vsp::AutoGroupVSPAEROControlSurfaces), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction("void AutoGroupVSPAEROControlSurfaces()", asFUNCTION(vsp::AutoGroupVSPAEROControlSurfaces), asCALL_CDECL );
     assert(r >= 0);
 
 
-    r = se->RegisterGlobalFunction( "int GetNumControlSurfaceGroups()", vspFUNCTION( vsp::GetNumControlSurfaceGroups ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumControlSurfaceGroups()", asFUNCTION( vsp::GetNumControlSurfaceGroups ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction("int CreateVSPAEROControlSurfaceGroup()", vspFUNCTION(vsp::CreateVSPAEROControlSurfaceGroup), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction("int CreateVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::CreateVSPAEROControlSurfaceGroup), asCALL_CDECL );
     assert(r >= 0);
 
 
-    r = se->RegisterGlobalFunction("void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )", vspFUNCTION(vsp::AddAllToVSPAEROControlSurfaceGroup ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction("void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )", asFUNCTION(vsp::AddAllToVSPAEROControlSurfaceGroup ), asCALL_CDECL );
     assert(r >= 0);
 
 
-    r = se->RegisterGlobalFunction("void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )", vspFUNCTION(vsp::RemoveAllFromVSPAEROControlSurfaceGroup ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction("void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )", asFUNCTION(vsp::RemoveAllFromVSPAEROControlSurfaceGroup ), asCALL_CDECL );
     assert(r >= 0);
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetActiveCSNameVec( int CSGroupIndex )", vspMETHOD( ScriptMgrSingleton, GetActiveCSNameVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetActiveCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetActiveCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetCompleteCSNameVec( )", vspMETHOD( ScriptMgrSingleton, GetCompleteCSNameVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetCompleteCSNameVec( )", asMETHOD( ScriptMgrSingleton, GetCompleteCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAvailableCSNameVec( int CSGroupIndex )", vspMETHOD( ScriptMgrSingleton, GetAvailableCSNameVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetAvailableCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetAvailableCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction("void SetVSPAEROControlGroupName( const string & in name, int CSGroupIndex )", vspFUNCTION(vsp::SetVSPAEROControlGroupName), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction("void SetVSPAEROControlGroupName( const string & in name, int CSGroupIndex )", asFUNCTION(vsp::SetVSPAEROControlGroupName), asCALL_CDECL );
     assert(r >= 0);
 
 
-    r = se->RegisterGlobalFunction( "string GetVSPAEROControlGroupName( int CSGroupIndex )", vspFUNCTION( vsp::GetVSPAEROControlGroupName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetVSPAEROControlGroupName( int CSGroupIndex )", asFUNCTION( vsp::GetVSPAEROControlGroupName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void AddSelectedToCSGroup( array<int>@ selected, int CSGroupIndex )", vspMETHOD( ScriptMgrSingleton, AddSelectedToCSGroup ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void AddSelectedToCSGroup( array<int>@ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, AddSelectedToCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void RemoveSelectedFromCSGroup( array<int>@ selected, int CSGroupIndex )", vspMETHOD( ScriptMgrSingleton, RemoveSelectedFromCSGroup ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void RemoveSelectedFromCSGroup( array<int>@ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, RemoveSelectedFromCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // FIXME: RemoveSelectedFromCSGroup not working
 
     //==== VSPAERO Functions ====//
 
-    r = se->RegisterGlobalFunction( "string GetVSPAERORefWingID()", vspFUNCTION( vsp::GetVSPAERORefWingID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetVSPAERORefWingID()", asFUNCTION( vsp::GetVSPAERORefWingID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string SetVSPAERORefWingID( const string & in geom_id )", vspFUNCTION( vsp::SetVSPAERORefWingID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string SetVSPAERORefWingID( const string & in geom_id )", asFUNCTION( vsp::SetVSPAERORefWingID ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== VSPAERO Disk and Prop Functions ====//
 
-    r = se->RegisterGlobalFunction( "string FindActuatorDisk( int disk_index )", vspFUNCTION( vsp::FindActuatorDisk ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string FindActuatorDisk( int disk_index )", asFUNCTION( vsp::FindActuatorDisk ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumActuatorDisks()", vspFUNCTION( vsp::GetNumActuatorDisks ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumActuatorDisks()", asFUNCTION( vsp::GetNumActuatorDisks ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string FindUnsteadyGroup( int group_index )", vspFUNCTION( vsp::FindUnsteadyGroup ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string FindUnsteadyGroup( int group_index )", asFUNCTION( vsp::FindUnsteadyGroup ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetUnsteadyGroupName( int group_index )", vspFUNCTION( vsp::GetUnsteadyGroupName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetUnsteadyGroupName( int group_index )", asFUNCTION( vsp::GetUnsteadyGroupName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetUnsteadyGroupCompIDs( int group_index )", vspMETHOD( ScriptMgrSingleton, GetUnsteadyGroupCompIDs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetUnsteadyGroupCompIDs( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupCompIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<int>@ GetUnsteadyGroupSurfIndexes( int group_index )", vspMETHOD( ScriptMgrSingleton, GetUnsteadyGroupSurfIndexes ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<int>@ GetUnsteadyGroupSurfIndexes( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupSurfIndexes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumUnsteadyGroups()", vspFUNCTION( vsp::GetNumUnsteadyGroups ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumUnsteadyGroups()", asFUNCTION( vsp::GetNumUnsteadyGroups ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumUnsteadyRotorGroups()", vspFUNCTION( vsp::GetNumUnsteadyRotorGroups ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumUnsteadyRotorGroups()", asFUNCTION( vsp::GetNumUnsteadyRotorGroups ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== XSecSurf Functions ====//
 
-    r = se->RegisterGlobalFunction( "int GetNumXSecSurfs( const string & in geom_id )", vspFUNCTION( vsp::GetNumXSecSurfs ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumXSecSurfs( const string & in geom_id )", asFUNCTION( vsp::GetNumXSecSurfs ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetXSecSurf( const string & in geom_id, int index )", vspFUNCTION( vsp::GetXSecSurf ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetXSecSurf( const string & in geom_id, int index )", asFUNCTION( vsp::GetXSecSurf ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumXSec( const string & in xsec_surf_id )", vspFUNCTION( vsp::GetNumXSec ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumXSec( const string & in xsec_surf_id )", asFUNCTION( vsp::GetNumXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetXSec( const string & in xsec_surf_id, int xsec_index )", vspFUNCTION( vsp::GetXSec ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetXSec( const string & in xsec_surf_id, int xsec_index )", asFUNCTION( vsp::GetXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ChangeXSecShape( const string & in xsec_surf_id, int xsec_index, int type )", vspFUNCTION( vsp::ChangeXSecShape ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ChangeXSecShape( const string & in xsec_surf_id, int xsec_index, int type )", asFUNCTION( vsp::ChangeXSecShape ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecSurfGlobalXForm( const string & in xsec_surf_id, const Matrix4d & in mat )", vspFUNCTION( vsp::SetXSecSurfGlobalXForm ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetXSecSurfGlobalXForm( const string & in xsec_surf_id, const Matrix4d & in mat )", asFUNCTION( vsp::SetXSecSurfGlobalXForm ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Add Example
 
 
-    r = se->RegisterGlobalFunction( "Matrix4d GetXSecSurfGlobalXForm( const string & in xsec_surf_id )", vspFUNCTION( vsp::GetXSecSurfGlobalXForm ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "Matrix4d GetXSecSurfGlobalXForm( const string & in xsec_surf_id )", asFUNCTION( vsp::GetXSecSurfGlobalXForm ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Add Example
 
     //==== XSec Functions ====//
 
-    r = se->RegisterGlobalFunction( "void CutXSec( const string & in geom_id, int index )", vspFUNCTION( vsp::CutXSec ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void CutXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CutXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void CopyXSec( const string & in geom_id, int index )", vspFUNCTION( vsp::CopyXSec ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void CopyXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CopyXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void PasteXSec( const string & in geom_id, int index )", vspFUNCTION( vsp::PasteXSec ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PasteXSec( const string & in geom_id, int index )", asFUNCTION( vsp::PasteXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void InsertXSec( const string & in geom_id, int index, int type )", vspFUNCTION( vsp::InsertXSec ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void InsertXSec( const string & in geom_id, int index, int type )", asFUNCTION( vsp::InsertXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetXSecShape( const string& in xsec_id )", vspFUNCTION( vsp::GetXSecShape ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetXSecShape( const string& in xsec_id )", asFUNCTION( vsp::GetXSecShape ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double GetXSecWidth( const string& in xsec_id )", vspFUNCTION( vsp::GetXSecWidth ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double GetXSecWidth( const string& in xsec_id )", asFUNCTION( vsp::GetXSecWidth ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double GetXSecHeight( const string& in xsec_id )", vspFUNCTION( vsp::GetXSecHeight ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double GetXSecHeight( const string& in xsec_id )", asFUNCTION( vsp::GetXSecHeight ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecWidth( const string& in xsec_id, double w )", vspFUNCTION( vsp::SetXSecWidth ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetXSecWidth( const string& in xsec_id, double w )", asFUNCTION( vsp::SetXSecWidth ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecHeight( const string& in xsec_id, double h )", vspFUNCTION( vsp::SetXSecHeight ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetXSecHeight( const string& in xsec_id, double h )", asFUNCTION( vsp::SetXSecHeight ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecWidthHeight( const string& in xsec_id, double w, double h )", vspFUNCTION( vsp::SetXSecWidthHeight ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetXSecWidthHeight( const string& in xsec_id, double w, double h )", asFUNCTION( vsp::SetXSecWidthHeight ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetXSecParmIDs(const string & in xsec_id )", vspMETHOD( ScriptMgrSingleton, GetXSecParmIDs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetXSecParmIDs(const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetXSecParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetXSecParm( const string& in xsec_id, const string& in name )", vspFUNCTION( vsp::GetXSecParm ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetXSecParm( const string& in xsec_id, const string& in name )", asFUNCTION( vsp::GetXSecParm ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ ReadFileXSec(const string& in xsec_id, const string& in file_name )", vspMETHOD( ScriptMgrSingleton, ReadFileXSec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ ReadFileXSec(const string& in xsec_id, const string& in file_name )", asMETHOD( ScriptMgrSingleton, ReadFileXSec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecPnts( const string& in xsec_id, array<vec3d>@ pnt_arr )", vspMETHOD( ScriptMgrSingleton, SetXSecPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetXSecPnts( const string& in xsec_id, array<vec3d>@ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ComputeXSecPnt( const string& in xsec_id, double fract )", vspFUNCTION( vsp::ComputeXSecPnt ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ComputeXSecPnt( const string& in xsec_id, double fract )", asFUNCTION( vsp::ComputeXSecPnt ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ComputeXSecTan( const string& in xsec_id, double fract )", vspFUNCTION( vsp::ComputeXSecTan ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ComputeXSecTan( const string& in xsec_id, double fract )", asFUNCTION( vsp::ComputeXSecTan ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ResetXSecSkinParms( const string& in xsec_id )", vspFUNCTION( vsp::ResetXSecSkinParms ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ResetXSecSkinParms( const string& in xsec_id )", asFUNCTION( vsp::ResetXSecSkinParms ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecContinuity( const string& in xsec_id, int cx )", vspFUNCTION( vsp::SetXSecContinuity ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetXSecContinuity( const string& in xsec_id, int cx )", asFUNCTION( vsp::SetXSecContinuity ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecTanAngles( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", vspFUNCTION( vsp::SetXSecTanAngles ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetXSecTanAngles( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", asFUNCTION( vsp::SetXSecTanAngles ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecTanSlews( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", vspFUNCTION( vsp::SetXSecTanSlews ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetXSecTanSlews( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", asFUNCTION( vsp::SetXSecTanSlews ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecTanStrengths( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", vspFUNCTION( vsp::SetXSecTanStrengths ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetXSecTanStrengths( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", asFUNCTION( vsp::SetXSecTanStrengths ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecCurvatures( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", vspFUNCTION( vsp::SetXSecCurvatures ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetXSecCurvatures( const string& in xsec_id, int side, double top, double right = -1.0e12, double bottom = -1.0e12, double left = -1.0e12 )", asFUNCTION( vsp::SetXSecCurvatures ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ReadFileAirfoil( const string& in xsec_id, const string& in file_name )", vspFUNCTION( vsp::ReadFileAirfoil ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ReadFileAirfoil( const string& in xsec_id, const string& in file_name )", asFUNCTION( vsp::ReadFileAirfoil ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAirfoilUpperPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec )", vspMETHOD( ScriptMgrSingleton, SetAirfoilUpperPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetAirfoilUpperPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAirfoilLowerPnts( const string& in xsec_id, array<vec3d>@ low_pnt_vec )", vspMETHOD( ScriptMgrSingleton, SetAirfoilLowerPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetAirfoilLowerPnts( const string& in xsec_id, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAirfoilPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", vspMETHOD( ScriptMgrSingleton, SetAirfoilPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetAirfoilPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetHersheyBarLiftDist( const int& in npts, const double& in alpha, const double& in Vinf, const double& in span, bool full_span_flag = false )", vspMETHOD( ScriptMgrSingleton, GetHersheyBarLiftDist ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetHersheyBarLiftDist( const int& in npts, const double& in alpha, const double& in Vinf, const double& in span, bool full_span_flag = false )", asMETHOD( ScriptMgrSingleton, GetHersheyBarLiftDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetHersheyBarDragDist( const int& in npts, const double& in alpha, const double& in Vinf, const double& in span, bool full_span_flag = false )", vspMETHOD( ScriptMgrSingleton, GetHersheyBarDragDist ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetHersheyBarDragDist( const int& in npts, const double& in alpha, const double& in Vinf, const double& in span, bool full_span_flag = false )", asMETHOD( ScriptMgrSingleton, GetHersheyBarDragDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetVKTAirfoilPnts( const int& in npts, const double& in alpha, const double& in epsilon, const double& in kappa, const double& in tau )", vspMETHOD( ScriptMgrSingleton, GetVKTAirfoilPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetVKTAirfoilPnts( const int& in npts, const double& in alpha, const double& in epsilon, const double& in kappa, const double& in tau )", asMETHOD( ScriptMgrSingleton, GetVKTAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetVKTAirfoilCpDist( const double& in alpha, const double& in epsilon, const double& in kappa, const double& in tau, array<vec3d>@ xydata )", vspMETHOD( ScriptMgrSingleton, GetVKTAirfoilCpDist ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetVKTAirfoilCpDist( const double& in alpha, const double& in epsilon, const double& in kappa, const double& in tau, array<vec3d>@ xydata )", asMETHOD( ScriptMgrSingleton, GetVKTAirfoilCpDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEllipsoidSurfPnts( const vec3d& in center, const vec3d& in abc_rad, int u_npts = 20, int w_npts = 20 )", vspMETHOD( ScriptMgrSingleton, GetEllipsoidSurfPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEllipsoidSurfPnts( const vec3d& in center, const vec3d& in abc_rad, int u_npts = 20, int w_npts = 20 )", asMETHOD( ScriptMgrSingleton, GetEllipsoidSurfPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetFeatureLinePnts( const string& in geom_id )", vspMETHOD( ScriptMgrSingleton, GetFeatureLinePnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetFeatureLinePnts( const string& in geom_id )", asMETHOD( ScriptMgrSingleton, GetFeatureLinePnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetEllipsoidCpDist( array<vec3d>@ surf_pnt_arr, const vec3d& in abc_rad, const vec3d& in V_inf )", vspMETHOD( ScriptMgrSingleton, GetEllipsoidCpDist ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetEllipsoidCpDist( array<vec3d>@ surf_pnt_arr, const vec3d& in abc_rad, const vec3d& in V_inf )", asMETHOD( ScriptMgrSingleton, GetEllipsoidCpDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilUpperPnts(const string& in xsec_id )", vspMETHOD( ScriptMgrSingleton, GetAirfoilUpperPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilUpperPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilLowerPnts(const string& in xsec_id )", vspMETHOD( ScriptMgrSingleton, GetAirfoilLowerPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilLowerPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetUpperCSTCoefs( const string & in xsec_id )", vspMETHOD( ScriptMgrSingleton, GetUpperCSTCoefs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetUpperCSTCoefs( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetUpperCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetLowerCSTCoefs( const string & in xsec_id )", vspMETHOD( ScriptMgrSingleton, GetLowerCSTCoefs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetLowerCSTCoefs( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetLowerCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "int GetUpperCSTDegree( const string& in xsec_id )", vspFUNCTION( vsp::GetUpperCSTDegree ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetUpperCSTDegree( const string& in xsec_id )", asFUNCTION( vsp::GetUpperCSTDegree ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "int GetLowerCSTDegree( const string& in xsec_id )", vspFUNCTION( vsp::GetLowerCSTDegree ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetLowerCSTDegree( const string& in xsec_id )", asFUNCTION( vsp::GetLowerCSTDegree ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void SetUpperCST( const string& in xsec_id, int deg, array<double>@ coeff_arr )", vspMETHOD( ScriptMgrSingleton, SetUpperCST ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetUpperCST( const string& in xsec_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetUpperCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void SetLowerCST( const string& in xsec_id, int deg, array<double>@ coeff_arr )", vspMETHOD( ScriptMgrSingleton, SetLowerCST ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetLowerCST( const string& in xsec_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetLowerCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void PromoteCSTUpper( const string& in xsec_id )", vspFUNCTION( vsp::PromoteCSTUpper ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PromoteCSTUpper( const string& in xsec_id )", asFUNCTION( vsp::PromoteCSTUpper ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void PromoteCSTLower( const string& in xsec_id )", vspFUNCTION( vsp::PromoteCSTLower ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PromoteCSTLower( const string& in xsec_id )", asFUNCTION( vsp::PromoteCSTLower ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void DemoteCSTUpper( const string& in xsec_id )", vspFUNCTION( vsp::DemoteCSTUpper ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DemoteCSTUpper( const string& in xsec_id )", asFUNCTION( vsp::DemoteCSTUpper ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void DemoteCSTLower( const string& in xsec_id )", vspFUNCTION( vsp::DemoteCSTLower ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DemoteCSTLower( const string& in xsec_id )", asFUNCTION( vsp::DemoteCSTLower ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void FitAfCST( const string& in xsec_surf_id, int xsec_index, int deg )", vspFUNCTION( vsp::FitAfCST ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void FitAfCST( const string& in xsec_surf_id, int xsec_index, int deg )", asFUNCTION( vsp::FitAfCST ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void WriteBezierAirfoil( const string& in file_name, const string& in geom_id, const double& in foilsurf_u )", vspFUNCTION( vsp::WriteBezierAirfoil ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteBezierAirfoil( const string& in file_name, const string& in geom_id, const double& in foilsurf_u )", asFUNCTION( vsp::WriteBezierAirfoil ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void WriteSeligAirfoil( const string& in file_name, const string& in geom_id, const double& in foilsurf_u )", vspFUNCTION( vsp::WriteSeligAirfoil ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteSeligAirfoil( const string& in file_name, const string& in geom_id, const double& in foilsurf_u )", asFUNCTION( vsp::WriteSeligAirfoil ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilCoordinates( const string& in geom_id, const double& in foilsurf_u )", vspMETHOD( ScriptMgrSingleton, GetAirfoilCoordinates ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilCoordinates( const string& in geom_id, const double& in foilsurf_u )", asMETHOD( ScriptMgrSingleton, GetAirfoilCoordinates ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     //==== Edit Curve XSec Functions ====//
 
-    r = se->RegisterGlobalFunction( "void EditXSecInitShape( const string& in xsec_id )", vspFUNCTION( vsp::EditXSecInitShape ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void EditXSecInitShape( const string& in xsec_id )", asFUNCTION( vsp::EditXSecInitShape ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void EditXSecConvertTo( const string& in xsec_id, const int& in newtype )", vspFUNCTION( vsp::EditXSecConvertTo ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void EditXSecConvertTo( const string& in xsec_id, const int& in newtype )", asFUNCTION( vsp::EditXSecConvertTo ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetEditXSecUVec( const string& in xsec_id )", vspMETHOD( ScriptMgrSingleton, GetEditXSecUVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetEditXSecUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEditXSecCtrlVec( const string& in xsec_id, const bool non_dimensional = true )", vspMETHOD( ScriptMgrSingleton, GetEditXSecCtrlVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEditXSecCtrlVec( const string& in xsec_id, const bool non_dimensional = true )", asMETHOD( ScriptMgrSingleton, GetEditXSecCtrlVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@ u_vec, array<vec3d>@ control_pts, array<double>@ r_vec )", vspMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
-    assert( r >= 0 );
-
-
-    r = se->RegisterGlobalFunction( "void EditXSecDelPnt( const string& in xsec_id, const int& in indx )", vspFUNCTION( vsp::EditXSecDelPnt ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@ u_vec, array<vec3d>@ control_pts, array<double>@ r_vec )", asMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int EditXSecSplit01( const string& in xsec_id, const double& in u )", vspFUNCTION( vsp::EditXSecSplit01 ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void EditXSecDelPnt( const string& in xsec_id, const int& in indx )", asFUNCTION( vsp::EditXSecDelPnt ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void MoveEditXSecPnt( const string& in xsec_id, const int& in indx, const vec3d& in new_pnt )", vspFUNCTION( vsp::MoveEditXSecPnt ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int EditXSecSplit01( const string& in xsec_id, const double& in u )", asFUNCTION( vsp::EditXSecSplit01 ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ConvertXSecToEdit( const string& in geom_id, const int& in indx = 0 )", vspFUNCTION( vsp::ConvertXSecToEdit ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void MoveEditXSecPnt( const string& in xsec_id, const int& in indx, const vec3d& in new_pnt )", asFUNCTION( vsp::MoveEditXSecPnt ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<bool>@ GetEditXSecFixedUVec( const string& in xsec_id )", vspMETHOD( ScriptMgrSingleton, GetEditXSecFixedUVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void ConvertXSecToEdit( const string& in geom_id, const int& in indx = 0 )", asFUNCTION( vsp::ConvertXSecToEdit ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetEditXSecFixedUVec( const string& in xsec_id, array<bool>@ fixed_u_vec )", vspMETHOD( ScriptMgrSingleton, SetEditXSecFixedUVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<bool>@ GetEditXSecFixedUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecFixedUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ReparameterizeEditXSec( const string& in xsec_id )", vspFUNCTION( vsp::ReparameterizeEditXSec ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetEditXSecFixedUVec( const string& in xsec_id, array<bool>@ fixed_u_vec )", asMETHOD( ScriptMgrSingleton, SetEditXSecFixedUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void ReparameterizeEditXSec( const string& in xsec_id )", asFUNCTION( vsp::ReparameterizeEditXSec ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== BOR Functions ====//
 
-    r = se->RegisterGlobalFunction( "void ChangeBORXSecShape( const string & in geom_id, int type )", vspFUNCTION( vsp::ChangeBORXSecShape ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ChangeBORXSecShape( const string & in geom_id, int type )", asFUNCTION( vsp::ChangeBORXSecShape ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetBORXSecShape( const string & in geom_id )", vspFUNCTION( vsp::GetBORXSecShape ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetBORXSecShape( const string & in geom_id )", asFUNCTION( vsp::GetBORXSecShape ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ ReadBORFileXSec(const string& in bor_id, const string& in file_name )", vspMETHOD( ScriptMgrSingleton, ReadBORFileXSec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ ReadBORFileXSec(const string& in bor_id, const string& in file_name )", asMETHOD( ScriptMgrSingleton, ReadBORFileXSec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetBORXSecPnts( const string& in bor_id, array<vec3d>@ pnt_arr )", vspMETHOD( ScriptMgrSingleton, SetBORXSecPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORXSecPnts( const string& in bor_id, array<vec3d>@ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetBORXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ComputeBORXSecPnt( const string& in bor_id, double fract )", vspFUNCTION( vsp::ComputeBORXSecPnt ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ComputeBORXSecPnt( const string& in bor_id, double fract )", asFUNCTION( vsp::ComputeBORXSecPnt ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ComputeBORXSecTan( const string& in bor_id, double fract )", vspFUNCTION( vsp::ComputeBORXSecTan ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ComputeBORXSecTan( const string& in bor_id, double fract )", asFUNCTION( vsp::ComputeBORXSecTan ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ReadBORFileAirfoil( const string& in bor_id, const string& in file_name )", vspFUNCTION( vsp::ReadBORFileAirfoil ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ReadBORFileAirfoil( const string& in bor_id, const string& in file_name )", asFUNCTION( vsp::ReadBORFileAirfoil ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetBORAirfoilUpperPnts( const string& in bor_id, array<vec3d>@ up_pnt_vec )", vspMETHOD( ScriptMgrSingleton, SetBORAirfoilUpperPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORAirfoilUpperPnts( const string& in bor_id, array<vec3d>@ up_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
 
-    r = se->RegisterGlobalFunction( "void SetBORAirfoilLowerPnts( const string& in bor_id, array<vec3d>@ low_pnt_vec )", vspMETHOD( ScriptMgrSingleton, SetBORAirfoilLowerPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORAirfoilLowerPnts( const string& in bor_id, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetBORAirfoilPnts( const string& in bor_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", vspMETHOD( ScriptMgrSingleton, SetBORAirfoilPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORAirfoilPnts( const string& in bor_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetBORAirfoilUpperPnts(const string& in bor_id )", vspMETHOD( ScriptMgrSingleton, GetBORAirfoilUpperPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetBORAirfoilUpperPnts(const string& in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetBORAirfoilLowerPnts(const string& in bor_id )", vspMETHOD( ScriptMgrSingleton, GetBORAirfoilLowerPnts ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetBORAirfoilLowerPnts(const string& in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetBORUpperCSTCoefs( const string & in bor_id )", vspMETHOD( ScriptMgrSingleton, GetBORUpperCSTCoefs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetBORUpperCSTCoefs( const string & in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORUpperCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetBORLowerCSTCoefs( const string & in bor_id )", vspMETHOD( ScriptMgrSingleton, GetBORLowerCSTCoefs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ GetBORLowerCSTCoefs( const string & in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORLowerCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "int GetBORUpperCSTDegree( const string& in bor_id )", vspFUNCTION( vsp::GetBORUpperCSTDegree ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetBORUpperCSTDegree( const string& in bor_id )", asFUNCTION( vsp::GetBORUpperCSTDegree ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "int GetBORLowerCSTDegree( const string& in bor_id )", vspFUNCTION( vsp::GetBORLowerCSTDegree ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetBORLowerCSTDegree( const string& in bor_id )", asFUNCTION( vsp::GetBORLowerCSTDegree ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void SetBORUpperCST( const string& in bor_id, int deg, array<double>@ coeff_arr )", vspMETHOD( ScriptMgrSingleton, SetBORUpperCST ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORUpperCST( const string& in bor_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetBORUpperCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void SetBORLowerCST( const string& in bor_id, int deg, array<double>@ coeff_arr )", vspMETHOD( ScriptMgrSingleton, SetBORLowerCST ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORLowerCST( const string& in bor_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetBORLowerCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void PromoteBORCSTUpper( const string& in bor_id )", vspFUNCTION( vsp::PromoteBORCSTUpper ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PromoteBORCSTUpper( const string& in bor_id )", asFUNCTION( vsp::PromoteBORCSTUpper ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void PromoteBORCSTLower( const string& in bor_id )", vspFUNCTION( vsp::PromoteBORCSTLower ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PromoteBORCSTLower( const string& in bor_id )", asFUNCTION( vsp::PromoteBORCSTLower ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void DemoteBORCSTUpper( const string& in bor_id )", vspFUNCTION( vsp::DemoteBORCSTUpper ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DemoteBORCSTUpper( const string& in bor_id )", asFUNCTION( vsp::DemoteBORCSTUpper ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void DemoteBORCSTLower( const string& in bor_id )", vspFUNCTION( vsp::DemoteBORCSTLower ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DemoteBORCSTLower( const string& in bor_id )", asFUNCTION( vsp::DemoteBORCSTLower ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void FitBORAfCST( const string& in bor_id, int deg )", vspFUNCTION( vsp::FitBORAfCST ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void FitBORAfCST( const string& in bor_id, int deg )", asFUNCTION( vsp::FitBORAfCST ), asCALL_CDECL );
     assert( r >= 0 );  // TODO: Example
 
     //==== Sets Functions ====//
 
-    r = se->RegisterGlobalFunction( "int GetNumSets()", vspFUNCTION( vsp::GetNumSets ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetNumSets()", asFUNCTION( vsp::GetNumSets ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetSetName( int index, const string& in name )", vspFUNCTION( vsp::SetSetName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetSetName( int index, const string& in name )", asFUNCTION( vsp::SetSetName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetSetName( int index )", vspFUNCTION( vsp::GetSetName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetSetName( int index )", asFUNCTION( vsp::GetSetName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomSetAtIndex( int index )", vspMETHOD( ScriptMgrSingleton, GetGeomSetAtIndex ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetGeomSetAtIndex( int index )", asMETHOD( ScriptMgrSingleton, GetGeomSetAtIndex ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomSet( const string & in name )", vspMETHOD( ScriptMgrSingleton, GetGeomSet ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetGeomSet( const string & in name )", asMETHOD( ScriptMgrSingleton, GetGeomSet ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetSetIndex( const string & in name )", vspFUNCTION( vsp::GetSetIndex ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetSetIndex( const string & in name )", asFUNCTION( vsp::GetSetIndex ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "bool GetSetFlag( const string & in geom_id, int set_index )", vspFUNCTION( vsp::GetSetFlag ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool GetSetFlag( const string & in geom_id, int set_index )", asFUNCTION( vsp::GetSetFlag ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetSetFlag( const string & in geom_id, int set_index, bool flag )", vspFUNCTION( vsp::SetSetFlag ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetSetFlag( const string & in geom_id, int set_index, bool flag )", asFUNCTION( vsp::SetSetFlag ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void CopyPasteSet(  int copyIndex, int pasteIndex  )", vspFUNCTION( vsp::CopyPasteSet ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void CopyPasteSet(  int copyIndex, int pasteIndex  )", asFUNCTION( vsp::CopyPasteSet ), asCALL_CDECL );
     assert( r >= 0 );
 
     //=== Group Modifications ===//
 
-    r = se->RegisterGlobalFunction( "void ScaleSet( int set_index, double scale )", vspFUNCTION( vsp::ScaleSet ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ScaleSet( int set_index, double scale )", asFUNCTION( vsp::ScaleSet ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg )", vspFUNCTION( vsp::RotateSet ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg )", asFUNCTION( vsp::RotateSet ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void TranslateSet( int set_index, const vec3d & in translation_vec )", vspFUNCTION( vsp::TranslateSet ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void TranslateSet( int set_index, const vec3d & in translation_vec )", asFUNCTION( vsp::TranslateSet ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void TransformSet( int set_index, const vec3d & in translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )", vspFUNCTION( vsp::TransformSet ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void TransformSet( int set_index, const vec3d & in translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )", asFUNCTION( vsp::TransformSet ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== Parm Functions ====//
 
-    r = se->RegisterGlobalFunction( "bool ValidParm( const string & in id )", vspFUNCTION( vsp::ValidParm ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool ValidParm( const string & in id )", asFUNCTION( vsp::ValidParm ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "double SetParmVal(const string & in parm_id, double val )",
-                                    vspFUNCTIONPR( vsp::SetParmVal, ( const string &, double val ), double ), vspCALL_CDECL );
+                                    asFUNCTIONPR( vsp::SetParmVal, ( const string &, double val ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "double SetParmValLimits(const string & in parm_id, double val, double lower_limit, double upper_limit )",
-                                    vspFUNCTION( vsp::SetParmValLimits ), vspCALL_CDECL );
+                                    asFUNCTION( vsp::SetParmValLimits ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "double SetParmValUpdate(const string & in parm_id, double val )",
-                                    vspFUNCTIONPR( vsp::SetParmValUpdate, ( const string &, double val ), double ), vspCALL_CDECL );
+                                    asFUNCTIONPR( vsp::SetParmValUpdate, ( const string &, double val ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "double SetParmVal(const string & in container_id, const string & in name, const string & in group, double val )",
-                                    vspFUNCTIONPR( vsp::SetParmVal, ( const string &, const string &, const string &, double val ), double ), vspCALL_CDECL );
+                                    asFUNCTIONPR( vsp::SetParmVal, ( const string &, const string &, const string &, double val ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "double SetParmValUpdate(const string & in container_id, const string & in parm_name, const string & in parm_group_name, double val )",
-                                    vspFUNCTIONPR( vsp::SetParmValUpdate, ( const string &, const string &, const string &, double val ), double ), vspCALL_CDECL );
+                                    asFUNCTIONPR( vsp::SetParmValUpdate, ( const string &, const string &, const string &, double val ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double GetParmVal(const string & in parm_id )", vspFUNCTIONPR( vsp::GetParmVal, ( const string & ), double ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double GetParmVal(const string & in parm_id )", asFUNCTIONPR( vsp::GetParmVal, ( const string & ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "double GetParmVal(const string & in container_id, const string & in name, const string & in group )",
-                                    vspFUNCTIONPR( vsp::GetParmVal, ( const string &, const string &, const string & ), double ), vspCALL_CDECL );
+                                    asFUNCTIONPR( vsp::GetParmVal, ( const string &, const string &, const string & ), double ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetIntParmVal(const string & in parm_id )", vspFUNCTION( vsp::GetIntParmVal ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetIntParmVal(const string & in parm_id )", asFUNCTION( vsp::GetIntParmVal ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "bool GetBoolParmVal(const string & in parm_id )", vspFUNCTION( vsp::GetBoolParmVal ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool GetBoolParmVal(const string & in parm_id )", asFUNCTION( vsp::GetBoolParmVal ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetParmUpperLimit( const string & in parm_id, double val )", vspFUNCTION( vsp::SetParmUpperLimit ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetParmUpperLimit( const string & in parm_id, double val )", asFUNCTION( vsp::SetParmUpperLimit ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double GetParmUpperLimit( const string & in parm_id )", vspFUNCTION( vsp::GetParmUpperLimit ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double GetParmUpperLimit( const string & in parm_id )", asFUNCTION( vsp::GetParmUpperLimit ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetParmLowerLimit( const string & in parm_id, double val )", vspFUNCTION( vsp::SetParmLowerLimit ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetParmLowerLimit( const string & in parm_id, double val )", asFUNCTION( vsp::SetParmLowerLimit ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double GetParmLowerLimit( const string & in parm_id )", vspFUNCTION( vsp::GetParmLowerLimit ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double GetParmLowerLimit( const string & in parm_id )", asFUNCTION( vsp::GetParmLowerLimit ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetParmType( const string & in parm_id )", vspFUNCTION( vsp::GetParmType ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetParmType( const string & in parm_id )", asFUNCTION( vsp::GetParmType ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetParmName( const string & in parm_id )", vspFUNCTION( vsp::GetParmName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetParmName( const string & in parm_id )", asFUNCTION( vsp::GetParmName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetParmGroupName( const string & in parm_id )", vspFUNCTION( vsp::GetParmGroupName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetParmGroupName( const string & in parm_id )", asFUNCTION( vsp::GetParmGroupName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetParmDisplayGroupName( const string & in parm_id )", vspFUNCTION( vsp::GetParmDisplayGroupName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetParmDisplayGroupName( const string & in parm_id )", asFUNCTION( vsp::GetParmDisplayGroupName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetParmContainer( const string & in parm_id )", vspFUNCTION( vsp::GetParmContainer ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetParmContainer( const string & in parm_id )", asFUNCTION( vsp::GetParmContainer ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetParmDescript( const string & in parm_id, const string & in desc )", vspFUNCTION( vsp::SetParmDescript ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetParmDescript( const string & in parm_id, const string & in desc )", asFUNCTION( vsp::SetParmDescript ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetParmDescript( const string & in parm_id )", vspFUNCTION( vsp::GetParmDescript ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetParmDescript( const string & in parm_id )", asFUNCTION( vsp::GetParmDescript ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string FindParm( const string & in parm_container_id, const string & in parm_name, const string & in group_name )", vspFUNCTION( vsp::FindParm ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string FindParm( const string & in parm_container_id, const string & in parm_name, const string & in group_name )", asFUNCTION( vsp::FindParm ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetParm(const string & in container_id, const string & in name, const string & in group )", vspFUNCTION( vsp::GetParm ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetParm(const string & in container_id, const string & in name, const string & in group )", asFUNCTION( vsp::GetParm ), asCALL_CDECL );
     assert( r >= 0 );
 
     //=== Parm Container Functions ===//
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindContainers()", vspMETHOD( ScriptMgrSingleton, FindContainers ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ FindContainers()", asMETHOD( ScriptMgrSingleton, FindContainers ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindContainersWithName( const string & in name )", vspMETHOD( ScriptMgrSingleton, FindContainersWithName ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ FindContainersWithName( const string & in name )", asMETHOD( ScriptMgrSingleton, FindContainersWithName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string FindContainer( const string & in name, int index )", vspFUNCTION( vsp::FindContainer ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string FindContainer( const string & in name, int index )", asFUNCTION( vsp::FindContainer ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetContainerName( const string & in parm_container_id )", vspFUNCTION( vsp::GetContainerName ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string GetContainerName( const string & in parm_container_id )", asFUNCTION( vsp::GetContainerName ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindContainerGroupNames( const string & in parm_container_id )", vspMETHOD( ScriptMgrSingleton, FindContainerGroupNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ FindContainerGroupNames( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerGroupNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindContainerParmIDs( const string & in parm_container_id )", vspMETHOD( ScriptMgrSingleton, FindContainerParmIDs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ FindContainerParmIDs( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetVehicleID()", vspFUNCTION( vsp::GetVehicleID ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string GetVehicleID()", asFUNCTION( vsp::GetVehicleID ), asCALL_CDECL);
     assert( r >= 0 );
 
     //=== Register User Parm Functions ====//
 
-    r = se->RegisterGlobalFunction( "int GetNumUserParms()", vspFUNCTION( vsp::GetNumUserParms ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "int GetNumUserParms()", asFUNCTION( vsp::GetNumUserParms ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetNumPredefinedUserParms()", vspFUNCTION( vsp::GetNumPredefinedUserParms ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "int GetNumPredefinedUserParms()", asFUNCTION( vsp::GetNumPredefinedUserParms ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllUserParms()", vspMETHOD( ScriptMgrSingleton, GetAllUserParms ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetAllUserParms()", asMETHOD( ScriptMgrSingleton, GetAllUserParms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetUserParmContainer()", vspFUNCTION( vsp::GetUserParmContainer ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string GetUserParmContainer()", asFUNCTION( vsp::GetUserParmContainer ), asCALL_CDECL);
     assert( r >= 0 );
 
 
 
     r = se->RegisterGlobalFunction( "string AddUserParm( int type, const string & in name, const string & in group )",
-                                    vspFUNCTION( vsp::AddUserParm ), vspCALL_CDECL );
+                                    asFUNCTION( vsp::AddUserParm ), asCALL_CDECL );
     assert( r );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteUserParm( const string & in parm_id)", vspFUNCTION( vsp::DeleteUserParm ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void DeleteUserParm( const string & in parm_id)", asFUNCTION( vsp::DeleteUserParm ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteAllUserParm()", vspFUNCTION( vsp::DeleteAllUserParm ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void DeleteAllUserParm()", asFUNCTION( vsp::DeleteAllUserParm ), asCALL_CDECL);
     assert( r >= 0 );
 
     //=== Register Snap To Functions ====//
 
-    r = se->RegisterGlobalFunction( "double ComputeMinClearanceDistance( const string & in geom_id, int set )", vspFUNCTION( vsp::ComputeMinClearanceDistance ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double ComputeMinClearanceDistance( const string & in geom_id, int set )", asFUNCTION( vsp::ComputeMinClearanceDistance ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double SnapParm( const string & in parm_id, double target_min_dist, bool inc_flag, int set )", vspFUNCTION( vsp::SnapParm ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double SnapParm( const string & in parm_id, double target_min_dist, bool inc_flag, int set )", asFUNCTION( vsp::SnapParm ), asCALL_CDECL );
     assert( r >= 0 );
 
     //=== Register Var Preset Functions ====//
 
-    r = se->RegisterGlobalFunction( "void AddVarPresetGroup( const string & in group_name )", vspFUNCTION( vsp::AddVarPresetGroup ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void AddVarPresetGroup( const string & in group_name )", asFUNCTION( vsp::AddVarPresetGroup ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void AddVarPresetSetting( const string & in setting_name )", vspFUNCTION( vsp::AddVarPresetSetting ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void AddVarPresetSetting( const string & in setting_name )", asFUNCTION( vsp::AddVarPresetSetting ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string & in parm_ID )", vspFUNCTIONPR( vsp::AddVarPresetParm, ( const string & ), void ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string & in parm_ID )", asFUNCTIONPR( vsp::AddVarPresetParm, ( const string & ), void ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string & in parm_ID, const string & in group_name )", vspFUNCTIONPR( vsp::AddVarPresetParm, ( const string &, const string & ), void ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void AddVarPresetParm( const string & in parm_ID, const string & in group_name )", asFUNCTIONPR( vsp::AddVarPresetParm, ( const string &, const string & ), void ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string & in parm_ID, double parm_val )", vspFUNCTIONPR( vsp::EditVarPresetParm, ( const string &, double ), void ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string & in parm_ID, double parm_val )", asFUNCTIONPR( vsp::EditVarPresetParm, ( const string &, double ), void ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string & in parm_ID, double parm_val, const string & in group_name, const string & in setting_name )", vspFUNCTIONPR( vsp::EditVarPresetParm,
-        ( const string &, double, const string &, const string & ), void ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void EditVarPresetParm( const string & in parm_ID, double parm_val, const string & in group_name, const string & in setting_name )", asFUNCTIONPR( vsp::EditVarPresetParm,
+        ( const string &, double, const string &, const string & ), void ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string & in parm_ID )", vspFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string & ), void ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string & in parm_ID )", asFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string & ), void ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string & in parm_ID, const string & in group_name )", vspFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string &, const string & ), void ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void DeleteVarPresetParm( const string & in parm_ID, const string & in group_name )", asFUNCTIONPR( vsp::DeleteVarPresetParm, ( const string &, const string & ), void ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SwitchVarPreset( const string & in group_name, const string & in setting_name )", vspFUNCTION( vsp::SwitchVarPreset ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void SwitchVarPreset( const string & in group_name, const string & in setting_name )", asFUNCTION( vsp::SwitchVarPreset ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "bool DeleteVarPresetSet( const string & in group_name, const string & in setting_name )", vspFUNCTION( vsp::DeleteVarPresetSet ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "bool DeleteVarPresetSet( const string & in group_name, const string & in setting_name )", asFUNCTION( vsp::DeleteVarPresetSet ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetCurrentGroupName()", vspFUNCTION( vsp::GetCurrentGroupName ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string GetCurrentGroupName()", asFUNCTION( vsp::GetCurrentGroupName ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetCurrentSettingName()", vspFUNCTION( vsp::GetCurrentSettingName ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string GetCurrentSettingName()", asFUNCTION( vsp::GetCurrentSettingName ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetGroupNames()", vspMETHOD( ScriptMgrSingleton, GetVarPresetGroupNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetGroupNames()", asMETHOD( ScriptMgrSingleton, GetVarPresetGroupNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWName( const string & in group_name )", vspMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWName ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWName( const string & in group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWIndex( int group_index )", vspMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWIndex ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWIndex( int group_index )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWIndex ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmVals()", vspMETHOD( ScriptMgrSingleton, GetVarPresetParmVals ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmVals()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmVals ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmValsWNames( const string & in group_name, const string & in setting_name )", vspMETHOD( ScriptMgrSingleton, GetVarPresetParmValsWNames ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmValsWNames( const string & in group_name, const string & in setting_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmValsWNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDs()", vspMETHOD( ScriptMgrSingleton, GetVarPresetParmIDs ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDs()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDsWName( const string & in group_name )", vspMETHOD( ScriptMgrSingleton, GetVarPresetParmIDsWName ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDsWName( const string & in group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDsWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
     //=== Register PCurve Functions ====//
 
-    r = se->RegisterGlobalFunction( "void SetPCurve( const string& in geom_id, const int & in pcurveid, array<double>@ tvec, array<double>@ valvec, const int & in newtype )", vspMETHOD( ScriptMgrSingleton, SetPCurve ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetPCurve( const string& in geom_id, const int & in pcurveid, array<double>@ tvec, array<double>@ valvec, const int & in newtype )", asMETHOD( ScriptMgrSingleton, SetPCurve ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void PCurveConvertTo( const string & in geom_id, const int & in pcurveid, const int & in newtype )", vspFUNCTION( vsp::PCurveConvertTo ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void PCurveConvertTo( const string & in geom_id, const int & in pcurveid, const int & in newtype )", asFUNCTION( vsp::PCurveConvertTo ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "int PCurveGetType( const string & in geom_id, const int & in pcurveid )", vspFUNCTION( vsp::PCurveGetType ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int PCurveGetType( const string & in geom_id, const int & in pcurveid )", asFUNCTION( vsp::PCurveGetType ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ PCurveGetTVec( const string & in geom_id, const int & in pcurveid )", vspMETHOD( ScriptMgrSingleton, PCurveGetTVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ PCurveGetTVec( const string & in geom_id, const int & in pcurveid )", asMETHOD( ScriptMgrSingleton, PCurveGetTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ PCurveGetValVec( const string & in geom_id, const int & in pcurveid )", vspMETHOD( ScriptMgrSingleton, PCurveGetValVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@ PCurveGetValVec( const string & in geom_id, const int & in pcurveid )", asMETHOD( ScriptMgrSingleton, PCurveGetValVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void PCurveDeletePt( const string & in geom_id, const int & in pcurveid, const int & in indx )", vspFUNCTION( vsp::PCurveDeletePt ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void PCurveDeletePt( const string & in geom_id, const int & in pcurveid, const int & in indx )", asFUNCTION( vsp::PCurveDeletePt ), asCALL_CDECL);
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "int PCurveSplit( const string & in geom_id, const int & in pcurveid, const double & in tsplit )", vspFUNCTION( vsp::PCurveSplit ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "int PCurveSplit( const string & in geom_id, const int & in pcurveid, const double & in tsplit )", asFUNCTION( vsp::PCurveSplit ), asCALL_CDECL);
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void ApproximateAllPropellerPCurves( const string & in geom_id )", vspFUNCTION( vsp::ApproximateAllPropellerPCurves ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void ApproximateAllPropellerPCurves( const string & in geom_id )", asFUNCTION( vsp::ApproximateAllPropellerPCurves ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ResetPropellerThicknessCurve( const string & in geom_id )", vspFUNCTION( vsp::ResetPropellerThicknessCurve ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void ResetPropellerThicknessCurve( const string & in geom_id )", asFUNCTION( vsp::ResetPropellerThicknessCurve ), asCALL_CDECL);
     assert( r >= 0 );
 
     //=== Register ParasiteDragTool Functions ====//
 
-    r = se->RegisterGlobalFunction( "void AddExcrescence(const string & in excresName, const int & in excresType, const double & in excresVal)", vspFUNCTION( vsp::AddExcrescence ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AddExcrescence(const string & in excresName, const int & in excresType, const double & in excresVal)", asFUNCTION( vsp::AddExcrescence ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteExcrescence(const int & in excresName)", vspFUNCTION( vsp::DeleteExcrescence ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteExcrescence(const int & in excresName)", asFUNCTION( vsp::DeleteExcrescence ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void UpdateParasiteDrag()", vspFUNCTION( vsp::UpdateParasiteDrag ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void UpdateParasiteDrag()", asFUNCTION( vsp::UpdateParasiteDrag ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void WriteAtmosphereCSVFile( const string & in file_name, const int & in atmos_type )", vspFUNCTION( vsp::WriteAtmosphereCSVFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteAtmosphereCSVFile( const string & in file_name, const int & in atmos_type )", asFUNCTION( vsp::WriteAtmosphereCSVFile ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void CalcAtmosphere( const double & in alt, const double & in delta_temp, const int & in atmos_type, double & out temp, double & out pres, double & out pres_ratio, double & out rho_ratio )", vspFUNCTION( vsp::CalcAtmosphere ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void CalcAtmosphere( const double & in alt, const double & in delta_temp, const int & in atmos_type, double & out temp, double & out pres, double & out pres_ratio, double & out rho_ratio )", asFUNCTION( vsp::CalcAtmosphere ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void WriteBodyFFCSVFile( const string & in file_name )", vspFUNCTION( vsp::WriteBodyFFCSVFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteBodyFFCSVFile( const string & in file_name )", asFUNCTION( vsp::WriteBodyFFCSVFile ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void WriteWingFFCSVFile( const string & in file_name )", vspFUNCTION( vsp::WriteWingFFCSVFile ), vspCALL_CDECL );
-    assert( r >= 0 );
-
-     // TODO: Improve description
-    r = se->RegisterGlobalFunction( "void WriteCfEqnCSVFile( const string & in file_name )", vspFUNCTION( vsp::WriteCfEqnCSVFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteWingFFCSVFile( const string & in file_name )", asFUNCTION( vsp::WriteWingFFCSVFile ), asCALL_CDECL );
     assert( r >= 0 );
 
      // TODO: Improve description
-    r = se->RegisterGlobalFunction( "void WritePartialCfMethodCSVFile( const string & in file_name )", vspFUNCTION( vsp::WritePartialCfMethodCSVFile ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void WriteCfEqnCSVFile( const string & in file_name )", asFUNCTION( vsp::WriteCfEqnCSVFile ), asCALL_CDECL );
+    assert( r >= 0 );
+
+     // TODO: Improve description
+    r = se->RegisterGlobalFunction( "void WritePartialCfMethodCSVFile( const string & in file_name )", asFUNCTION( vsp::WritePartialCfMethodCSVFile ), asCALL_CDECL );
     assert( r >= 0 );
 
     //=== Register Surface Query Functions ===//
 
-    r = se->RegisterGlobalFunction( "vec3d CompPnt01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w )", vspFUNCTION(vsp::CompPnt01), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d CompPnt01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w )", asFUNCTION(vsp::CompPnt01), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d CompNorm01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w )", vspFUNCTION(vsp::CompNorm01), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d CompNorm01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w )", asFUNCTION(vsp::CompNorm01), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d CompTanU01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w )", vspFUNCTION(vsp::CompTanU01), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d CompTanU01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w )", asFUNCTION(vsp::CompTanU01), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d CompTanW01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w )", vspFUNCTION(vsp::CompTanW01), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d CompTanW01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w )", asFUNCTION(vsp::CompTanW01), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void CompCurvature01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w, double & out k1, double & out k2, double & out ka, double & out kg )", vspFUNCTION(vsp::CompCurvature01), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void CompCurvature01( const string & in geom_id, const int & in surf_indx, const double & in u, const double & in w, double & out k1, double & out k2, double & out ka, double & out kg )", asFUNCTION(vsp::CompCurvature01), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double ProjPnt01( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, double & out u, double & out w )", vspFUNCTION(vsp::ProjPnt01), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double ProjPnt01( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, double & out u, double & out w )", asFUNCTION(vsp::ProjPnt01), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double ProjPnt01I( const string & in geom_id, const vec3d & in pt, int & out surf_indx, double & out u, double & out w )", vspFUNCTION(vsp::ProjPnt01I), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double ProjPnt01I( const string & in geom_id, const vec3d & in pt, int & out surf_indx, double & out u, double & out w )", asFUNCTION(vsp::ProjPnt01I), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double ProjPnt01Guess( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, const double & in u0, const double & in w0, double & out u, double & out w )", vspFUNCTION(vsp::ProjPnt01Guess), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double ProjPnt01Guess( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, const double & in u0, const double & in w0, double & out u, double & out w )", asFUNCTION(vsp::ProjPnt01Guess), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double AxisProjPnt01( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, double & out u_out, double & out w_out )", vspFUNCTION(vsp::AxisProjPnt01), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, double & out u_out, double & out w_out )", asFUNCTION(vsp::AxisProjPnt01), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double AxisProjPnt01I( const string & in geom_id, const int & in iaxis, const vec3d & in pt, int & out surf_indx_out, double & out u_out, double & out w_out )", vspFUNCTION(vsp::AxisProjPnt01I), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01I( const string & in geom_id, const int & in iaxis, const vec3d & in pt, int & out surf_indx_out, double & out u_out, double & out w_out )", asFUNCTION(vsp::AxisProjPnt01I), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double AxisProjPnt01Guess( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, const double & in u0, const double & in w0, double & out u_out, double & out w_out )", vspFUNCTION(vsp::AxisProjPnt01Guess), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01Guess( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, const double & in u0, const double & in w0, double & out u_out, double & out w_out )", asFUNCTION(vsp::AxisProjPnt01Guess), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "bool InsideSurf( const string & in geom_id, const int & in surf_indx, const vec3d & in pt )", vspFUNCTION(vsp::InsideSurf), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool InsideSurf( const string & in geom_id, const int & in surf_indx, const vec3d & in pt )", asFUNCTION(vsp::InsideSurf), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double FindRST( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, double & out r, double & out s, double & out t )", vspFUNCTION(vsp::FindRST), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double FindRST( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, double & out r, double & out s, double & out t )", asFUNCTION(vsp::FindRST), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double FindRSTGuess( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, const double & in r0, const double & in s0, const double & in t0, double & out r, double & out s, double & out t )", vspFUNCTION(vsp::FindRSTGuess), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double FindRSTGuess( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, const double & in r0, const double & in s0, const double & in t0, double & out r, double & out s, double & out t )", asFUNCTION(vsp::FindRSTGuess), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d CompPntRST( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t )", vspFUNCTION(vsp::CompPntRST), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d CompPntRST( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t )", asFUNCTION(vsp::CompPntRST), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecPntRST(const string & in geom_id, const int & in surf_indx, array<double>@ rs, array<double>@ ss, array<double>@ ts )", vspMETHOD( ScriptMgrSingleton, CompVecPntRST ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecPntRST(const string & in geom_id, const int & in surf_indx, array<double>@ rs, array<double>@ ss, array<double>@ ts )", asMETHOD( ScriptMgrSingleton, CompVecPntRST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertRSTtoLMN( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t, double & out l_out, double & out m_out, double & out n_out )", vspFUNCTION(vsp::ConvertRSTtoLMN), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertRSTtoLMN( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t, double & out l_out, double & out m_out, double & out n_out )", asFUNCTION(vsp::ConvertRSTtoLMN), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertRtoL( const string & in geom_id, const int & in surf_indx, const double & in r, double & out l_out )", vspFUNCTION(vsp::ConvertRtoL), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertRtoL( const string & in geom_id, const int & in surf_indx, const double & in r, double & out l_out )", asFUNCTION(vsp::ConvertRtoL), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertLMNtoRST( const string & in geom_id, const int & in surf_indx, const double & in l, const double & in m, const double & in n, double & out r_out, double & out s_out, double & out t_out )", vspFUNCTION(vsp::ConvertLMNtoRST), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertLMNtoRST( const string & in geom_id, const int & in surf_indx, const double & in l, const double & in m, const double & in n, double & out r_out, double & out s_out, double & out t_out )", asFUNCTION(vsp::ConvertLMNtoRST), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertLtoR( const string & in geom_id, const int & in surf_indx, const double & in l, double & out r_out )", vspFUNCTION(vsp::ConvertLtoR), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertLtoR( const string & in geom_id, const int & in surf_indx, const double & in l, double & out r_out )", asFUNCTION(vsp::ConvertLtoR), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertUtoEta( const string & in geom_id, const double & in u, double & out eta )", vspFUNCTION(vsp::ConvertUtoEta), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertUtoEta( const string & in geom_id, const double & in u, double & out eta )", asFUNCTION(vsp::ConvertUtoEta), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertEtatoU( const string & in geom_id, const double & in eta, double & out u_out )", vspFUNCTION(vsp::ConvertEtatoU), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertEtatoU( const string & in geom_id, const double & in eta, double & out u_out )", asFUNCTION(vsp::ConvertEtatoU), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ConvertRSTtoLMNVec(const string & in geom_id, const int & in surf_indx, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ls, array<double>@ ms, array<double>@ ns )", vspMETHOD( ScriptMgrSingleton, ConvertRSTtoLMNVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void ConvertRSTtoLMNVec(const string & in geom_id, const int & in surf_indx, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ls, array<double>@ ms, array<double>@ ns )", asMETHOD( ScriptMgrSingleton, ConvertRSTtoLMNVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ConvertLMNtoRSTVec(const string & in geom_id, const int & in surf_indx, array<double>@ ls, array<double>@ ms, array<double>@ ns, array<double>@ rs, array<double>@ ss, array<double>@ ts )", vspMETHOD( ScriptMgrSingleton, ConvertLMNtoRSTVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void ConvertLMNtoRSTVec(const string & in geom_id, const int & in surf_indx, array<double>@ ls, array<double>@ ms, array<double>@ ns, array<double>@ rs, array<double>@ ss, array<double>@ ts )", asMETHOD( ScriptMgrSingleton, ConvertLMNtoRSTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void GetUWTess01(const string & in geom_id, int & in surf_indx, array<double>@ us, array<double>@ ws )", vspMETHOD( ScriptMgrSingleton, GetUWTess01 ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void GetUWTess01(const string & in geom_id, int & in surf_indx, array<double>@ us, array<double>@ ws )", asMETHOD( ScriptMgrSingleton, GetUWTess01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecPnt01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ ws )", vspMETHOD( ScriptMgrSingleton, CompVecPnt01 ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecPnt01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ ws )", asMETHOD( ScriptMgrSingleton, CompVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecNorm01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ws )", vspMETHOD( ScriptMgrSingleton, CompVecNorm01 ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecNorm01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ws )", asMETHOD( ScriptMgrSingleton, CompVecNorm01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void CompVecCurvature01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ ws, array<double>@ k1s, array<double>@ k2s, array<double>@ kas, array<double>@ kgs)", vspMETHOD( ScriptMgrSingleton, CompVecCurvature01 ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void CompVecCurvature01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ ws, array<double>@ k1s, array<double>@ k2s, array<double>@ kas, array<double>@ kgs)", asMETHOD( ScriptMgrSingleton, CompVecCurvature01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ProjVecPnt01(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, ProjVecPnt01 ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void ProjVecPnt01(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void ProjVecPnt01Guess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, ProjVecPnt01Guess ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void ProjVecPnt01Guess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01(const string & in geom_id, const int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, AxisProjVecPnt01 ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01(const string & in geom_id, const int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, AxisProjVecPnt01Guess ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
-    assert( r >= 0 );
-
-
-    r = se->RegisterGlobalFunction( "array<bool>@  VecInsideSurf( const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts )", vspFUNCTION(vsp::VecInsideSurf), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void FindRSTVec(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, FindRSTVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<bool>@  VecInsideSurf( const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts )", asFUNCTION(vsp::VecInsideSurf), asCALL_CDECL );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void FindRSTVecGuess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ r0s, array<double>@ s0s, array<double>@ t0s, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, FindRSTVecGuess ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+
+    r = se->RegisterGlobalFunction( "void FindRSTVec(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, FindRSTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void FindRSTVecGuess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ r0s, array<double>@ s0s, array<double>@ t0s, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, FindRSTVecGuess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     //=== Register Measure Functions ===//
 
-    r = se->RegisterGlobalFunction( "string AddRuler( const string & in startgeomid, int startsurfindx, double startu, double startw, const string & in endgeomid, int endsurfindx, double endu, double endw, const string & in name )", vspFUNCTION( vsp::AddRuler ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddRuler( const string & in startgeomid, int startsurfindx, double startu, double startw, const string & in endgeomid, int endsurfindx, double endu, double endw, const string & in name )", asFUNCTION( vsp::AddRuler ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllRulers()", vspMETHOD( ScriptMgrSingleton, GetAllRulers ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetAllRulers()", asMETHOD( ScriptMgrSingleton, GetAllRulers ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DelRuler( const string & in id )", vspFUNCTION( vsp::DelRuler ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void DelRuler( const string & in id )", asFUNCTION( vsp::DelRuler ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteAllRulers()", vspFUNCTION( vsp::DeleteAllRulers ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void DeleteAllRulers()", asFUNCTION( vsp::DeleteAllRulers ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddProbe( const string & in geomid, int surfindx, double u, double w, const string & in name )", vspFUNCTION( vsp::AddProbe ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string AddProbe( const string & in geomid, int surfindx, double u, double w, const string & in name )", asFUNCTION( vsp::AddProbe ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllProbes()", vspMETHOD( ScriptMgrSingleton, GetAllProbes ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@ GetAllProbes()", asMETHOD( ScriptMgrSingleton, GetAllProbes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DelProbe( const string & in id )", vspFUNCTION( vsp::DelProbe ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void DelProbe( const string & in id )", asFUNCTION( vsp::DelProbe ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteAllProbes()", vspFUNCTION( vsp::DeleteAllProbes ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void DeleteAllProbes()", asFUNCTION( vsp::DeleteAllProbes ), asCALL_CDECL);
     assert( r >= 0 );
 
     //=== Register FeaStructure and FEA Mesh Functions ====//
 
-    r = se->RegisterGlobalFunction( "int AddFeaStruct( const string & in geom_id, bool init_skin = true, int surfindex = 0 )", vspFUNCTION( vsp::AddFeaStruct ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int AddFeaStruct( const string & in geom_id, bool init_skin = true, int surfindex = 0 )", asFUNCTION( vsp::AddFeaStruct ), asCALL_CDECL );
     assert( r >= 0 ); // TODO: Force init_skin to true always
 
 
-    r = se->RegisterGlobalFunction( "void DeleteFeaStruct( const string & in geom_id, int fea_struct_ind )", vspFUNCTION( vsp::DeleteFeaStruct ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteFeaStruct( const string & in geom_id, int fea_struct_ind )", asFUNCTION( vsp::DeleteFeaStruct ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetFeaMeshStructIndex( int struct_index )", vspFUNCTION( vsp::SetFeaMeshStructIndex ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void SetFeaMeshStructIndex( int struct_index )", asFUNCTION( vsp::SetFeaMeshStructIndex ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetFeaStructID( const string & in geom_id, int fea_struct_ind )", vspFUNCTION( vsp::GetFeaStructID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetFeaStructID( const string & in geom_id, int fea_struct_ind )", asFUNCTION( vsp::GetFeaStructID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetFeaStructIndex( const string & in struct_id )", vspFUNCTION( vsp::GetFeaStructIndex ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetFeaStructIndex( const string & in struct_id )", asFUNCTION( vsp::GetFeaStructIndex ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetFeaStructParentGeomID( const string & in struct_id )", vspFUNCTION( vsp::GetFeaStructParentGeomID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetFeaStructParentGeomID( const string & in struct_id )", asFUNCTION( vsp::GetFeaStructParentGeomID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetFeaStructName( const string & in geom_id, int fea_struct_ind )", vspFUNCTION( vsp::GetFeaStructName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetFeaStructName( const string & in geom_id, int fea_struct_ind )", asFUNCTION( vsp::GetFeaStructName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetFeaStructName( const string & in geom_id, int fea_struct_ind, const string & in name )", vspFUNCTION( vsp::SetFeaStructName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetFeaStructName( const string & in geom_id, int fea_struct_ind, const string & in name )", asFUNCTION( vsp::SetFeaStructName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetFeaStructIDVec()", vspMETHOD( ScriptMgrSingleton, GetFeaStructIDVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetFeaStructIDVec()", asMETHOD( ScriptMgrSingleton, GetFeaStructIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetFeaPartName( const string & in part_id, const string & in name )", vspFUNCTION( vsp::SetFeaPartName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetFeaPartName( const string & in part_id, const string & in name )", asFUNCTION( vsp::SetFeaPartName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetFeaMeshVal( const string & in geom_id, int fea_struct_ind, int type, double val )", vspFUNCTION( vsp::SetFeaMeshVal ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetFeaMeshVal( const string & in geom_id, int fea_struct_ind, int type, double val )", asFUNCTION( vsp::SetFeaMeshVal ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetFeaMeshFileName( const string & in geom_id, int fea_struct_ind, int file_type, const string & in file_name )", vspFUNCTION( vsp::SetFeaMeshFileName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetFeaMeshFileName( const string & in geom_id, int fea_struct_ind, int file_type, const string & in file_name )", asFUNCTION( vsp::SetFeaMeshFileName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ComputeFeaMesh( const string & in geom_id, int fea_struct_ind, int file_type )", vspFUNCTIONPR( vsp::ComputeFeaMesh, ( const string & in, int, int ), void ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ComputeFeaMesh( const string & in geom_id, int fea_struct_ind, int file_type )", asFUNCTIONPR( vsp::ComputeFeaMesh, ( const string & in, int, int ), void ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ComputeFeaMesh( const string & in struct_id, int file_type )", vspFUNCTIONPR( vsp::ComputeFeaMesh, ( const string & in, int ), void ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ComputeFeaMesh( const string & in struct_id, int file_type )", asFUNCTIONPR( vsp::ComputeFeaMesh, ( const string & in, int ), void ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddFeaPart( const string & in geom_id, int fea_struct_ind, int type )", vspFUNCTION( vsp::AddFeaPart ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddFeaPart( const string & in geom_id, int fea_struct_ind, int type )", asFUNCTION( vsp::AddFeaPart ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteFeaPart( const string & in geom_id, int fea_struct_ind, const string & in part_id )", vspFUNCTION( vsp::DeleteFeaPart ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteFeaPart( const string & in geom_id, int fea_struct_ind, const string & in part_id )", asFUNCTION( vsp::DeleteFeaPart ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetFeaPartID( const string & in fea_struct_id, int fea_part_index )", vspFUNCTION( vsp::GetFeaPartID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetFeaPartID( const string & in fea_struct_id, int fea_part_index )", asFUNCTION( vsp::GetFeaPartID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetFeaPartName( const string & in part_id )", vspFUNCTION( vsp::GetFeaPartName ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetFeaPartName( const string & in part_id )", asFUNCTION( vsp::GetFeaPartName ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetFeaPartType( const string & in part_id )", vspFUNCTION( vsp::GetFeaPartType ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetFeaPartType( const string & in part_id )", asFUNCTION( vsp::GetFeaPartType ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetFeaSubSurfIndex( const string & in ss_id )", vspFUNCTION( vsp::GetFeaSubSurfIndex ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int GetFeaSubSurfIndex( const string & in ss_id )", asFUNCTION( vsp::GetFeaSubSurfIndex ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int NumFeaStructures()", vspFUNCTION( vsp::NumFeaStructures ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int NumFeaStructures()", asFUNCTION( vsp::NumFeaStructures ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int NumFeaParts( const string & in fea_struct_id )", vspFUNCTION( vsp::NumFeaParts ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int NumFeaParts( const string & in fea_struct_id )", asFUNCTION( vsp::NumFeaParts ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int NumFeaSubSurfs( const string & in fea_struct_id )", vspFUNCTION( vsp::NumFeaSubSurfs ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "int NumFeaSubSurfs( const string & in fea_struct_id )", asFUNCTION( vsp::NumFeaSubSurfs ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetFeaPartIDVec(const string & in fea_struct_id)", vspMETHOD( ScriptMgrSingleton, GetFeaPartIDVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetFeaPartIDVec(const string & in fea_struct_id)", asMETHOD( ScriptMgrSingleton, GetFeaPartIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetFeaSubSurfIDVec(const string & in fea_struct_id)", vspMETHOD( ScriptMgrSingleton, GetFeaSubSurfIDVec ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@ GetFeaSubSurfIDVec(const string & in fea_struct_id)", asMETHOD( ScriptMgrSingleton, GetFeaSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetFeaPartPerpendicularSparID( const string & in part_id, const string & in perpendicular_spar_id )", vspFUNCTION( vsp::SetFeaPartPerpendicularSparID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void SetFeaPartPerpendicularSparID( const string & in part_id, const string & in perpendicular_spar_id )", asFUNCTION( vsp::SetFeaPartPerpendicularSparID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetFeaPartPerpendicularSparID( const string & in part_id )", vspFUNCTION( vsp::GetFeaPartPerpendicularSparID ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetFeaPartPerpendicularSparID( const string & in part_id )", asFUNCTION( vsp::GetFeaPartPerpendicularSparID ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddFeaSubSurf( const string & in geom_id, int fea_struct_ind, int type )", vspFUNCTION( vsp::AddFeaSubSurf ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddFeaSubSurf( const string & in geom_id, int fea_struct_ind, int type )", asFUNCTION( vsp::AddFeaSubSurf ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteFeaSubSurf( const string & in geom_id, int fea_struct_ind, const string & in ss_id )", vspFUNCTION( vsp::DeleteFeaSubSurf ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DeleteFeaSubSurf( const string & in geom_id, int fea_struct_ind, const string & in ss_id )", asFUNCTION( vsp::DeleteFeaSubSurf ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddFeaMaterial()", vspFUNCTION( vsp::AddFeaMaterial ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddFeaMaterial()", asFUNCTION( vsp::AddFeaMaterial ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string AddFeaProperty( int property_type = 0 )", vspFUNCTION( vsp::AddFeaProperty ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string AddFeaProperty( int property_type = 0 )", asFUNCTION( vsp::AddFeaProperty ), asCALL_CDECL );
     assert( r >= 0 );
 }
 
@@ -4482,80 +4482,80 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     int r;
     //==== Register Utility Functions ====//
 
-    r = se->RegisterGlobalFunction( "void Print(const string & in data, bool new_line = true )", vspMETHODPR( ScriptMgrSingleton, Print, (const string &, bool), void ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void Print(const string & in data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (const string &, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void Print(const vec3d & in data, bool new_line = true )", vspMETHODPR( ScriptMgrSingleton, Print, (const vec3d &, bool), void ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void Print(const vec3d & in data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (const vec3d &, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void Print(double data, bool new_line = true )", vspMETHODPR( ScriptMgrSingleton, Print, (double, bool), void ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void Print(double data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (double, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void Print(int data, bool new_line = true )", vspMETHODPR( ScriptMgrSingleton, Print, (int, bool), void ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void Print(int data, bool new_line = true )", asMETHODPR( ScriptMgrSingleton, Print, (int, bool), void ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double Min( double x, double y)", vspMETHOD( ScriptMgrSingleton, Min ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "double Min( double x, double y)", asMETHOD( ScriptMgrSingleton, Min ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double Max( double x, double y)", vspMETHOD( ScriptMgrSingleton, Max ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "double Max( double x, double y)", asMETHOD( ScriptMgrSingleton, Max ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double Rad2Deg( double r )", vspMETHOD( ScriptMgrSingleton, Rad2Deg ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "double Rad2Deg( double r )", asMETHOD( ScriptMgrSingleton, Rad2Deg ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double Deg2Rad( double d )", vspMETHOD( ScriptMgrSingleton, Deg2Rad ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "double Deg2Rad( double d )", asMETHOD( ScriptMgrSingleton, Deg2Rad ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetVSPVersion( )", vspFUNCTION( vsp::GetVSPVersion ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string GetVSPVersion( )", asFUNCTION( vsp::GetVSPVersion ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetVSPVersionMajor( )", vspFUNCTION( vsp::GetVSPVersionMajor ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "int GetVSPVersionMajor( )", asFUNCTION( vsp::GetVSPVersionMajor ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetVSPVersionMinor( )", vspFUNCTION( vsp::GetVSPVersionMinor ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "int GetVSPVersionMinor( )", asFUNCTION( vsp::GetVSPVersionMinor ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "int GetVSPVersionChange( )", vspFUNCTION( vsp::GetVSPVersionChange ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "int GetVSPVersionChange( )", asFUNCTION( vsp::GetVSPVersionChange ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetVSPExePath()", vspFUNCTION( vsp::GetVSPExePath ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "string GetVSPExePath()", asFUNCTION( vsp::GetVSPExePath ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "bool SetVSPAEROPath( const string & in path )", vspFUNCTION( vsp::SetVSPAEROPath ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool SetVSPAEROPath( const string & in path )", asFUNCTION( vsp::SetVSPAEROPath ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "string GetVSPAEROPath()", vspFUNCTION( vsp::GetVSPAEROPath ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "string GetVSPAEROPath()", asFUNCTION( vsp::GetVSPAEROPath ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "bool CheckForVSPAERO( const string & in path )", vspFUNCTION( vsp::CheckForVSPAERO ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool CheckForVSPAERO( const string & in path )", asFUNCTION( vsp::CheckForVSPAERO ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void VSPCheckSetup()", vspFUNCTION( vsp::VSPCheckSetup ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void VSPCheckSetup()", asFUNCTION( vsp::VSPCheckSetup ), asCALL_CDECL);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void VSPRenew()", vspFUNCTION( vsp::VSPRenew ), vspCALL_CDECL);
+    r = se->RegisterGlobalFunction( "void VSPRenew()", asFUNCTION( vsp::VSPRenew ), asCALL_CDECL);
     assert( r >= 0 );
 
     //====  Register Proxy Utility Functions ====//
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetProxyVec3dArray()", vspMETHOD( ScriptMgrSingleton, GetProxyVec3dArray ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetProxyVec3dArray()", asMETHOD( ScriptMgrSingleton, GetProxyVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 }
