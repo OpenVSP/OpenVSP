@@ -277,7 +277,7 @@ int main( int argc, char** argv )
         printf( "err = %s\n", err.m_ErrorString.c_str() );
     }
 
-    vsp::InitGui();
-    vsp::StartGui();
+    vsp::InitGUI();
+    vsp::StartGUI();
 
 }

@@ -2803,16 +2803,16 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //==== Visualization Functions ====//
 
-    r = se->RegisterGlobalFunction( "void InitGui()", vspFUNCTION( vsp::InitGui ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void InitGUI()", vspFUNCTION( vsp::InitGUI ), vspCALL_CDECL );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void StartGui()", vspFUNCTION( vsp::StartGui ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void StartGUI()", vspFUNCTION( vsp::StartGUI ), vspCALL_CDECL );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void UpdateGui()", vspFUNCTION( vsp::UpdateGui ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void UpdateGUI()", vspFUNCTION( vsp::UpdateGUI ), vspCALL_CDECL );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "bool IsGuiBuild()", vspFUNCTION( vsp::IsGuiBuild ), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "bool IsGUIBuild()", vspFUNCTION( vsp::IsGUIBuild ), vspCALL_CDECL );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "void Lock()", vspFUNCTION( vsp::Lock ), vspCALL_CDECL );

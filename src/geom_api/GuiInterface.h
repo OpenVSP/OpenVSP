@@ -33,10 +33,10 @@ public:
         static GuiInterface instance;
         return instance;
     }
-    void InitGui( Vehicle* vPtr );
-    void StartGui( );
-    void StartGuiAPI( );
-    void StopGui();
+    void InitGUI( Vehicle* vPtr );
+    void StartGUI( );
+    void StartGUIAPI( );
+    void StopGUI();
     void HideScreens();
     void ShowScreens();
     void PopupMsg( const std::string &message );

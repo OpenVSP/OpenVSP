@@ -10,7 +10,7 @@ CLASSES_TO_REMOVE = [
 
 OPEN_GUI_DOC = """
     \"\"\"
-    Starts the GUI through the facade API. See InitGui and StartGui if not using the facade.
+    Starts the GUI through the facade API. See InitGUI and StartGUI if not using the facade.
 
 
     .. code-block:: python
@@ -21,7 +21,7 @@ OPEN_GUI_DOC = """
 """
 CLOSE_GUI_DOC = """
     \"\"\"
-    Closes the GUI through the facade API. See StopGui if not using the facade.
+    Closes the GUI through the facade API. See StopGUI if not using the facade.
 
 
     .. code-block:: python
@@ -44,9 +44,9 @@ IS_FACADE_DOC = """
 
 
 PLACEHOLDER_FUNCS = "# **Placeholder start**\n" + "def OpenGUI():" + OPEN_GUI_DOC + r"""
-    print("WARNING: OpenGUI only has functionality if the facade API is active. \nSee InitGui and StartGui for non-facade GUI")
+    print("WARNING: OpenGUI only has functionality if the facade API is active. \nSee InitGUI and StartGUI for non-facade GUI")
 def CloseGUI():""" + CLOSE_GUI_DOC + r"""
-    print("WARNING: CloseGui only has functionality if the facade API is active. \nSee StopGui for non-facade GUI")
+    print("WARNING: CloseGUI only has functionality if the facade API is active. \nSee StopGUI for non-facade GUI")
 def IsFacade():""" + IS_FACADE_DOC + r"""
     return False
 """
@@ -354,7 +354,7 @@ def start_server():
 
                     # Special functionality for OpenGUI
                     if data[0] == 'opengui':
-                        print("Server Socket Thread: OpenGui called")
+                        print("Server Socket Thread: OpenGUI called")
                         if event.is_set():
                             print("Server Socket Thread: The OpenVSP GUI should already be running")
                         result = 0
@@ -365,10 +365,10 @@ def start_server():
                     elif data[0] == 'closegui':
                         if not event.is_set():
                             print("Server Socket Thread: The OpenVSP GUI is not running")
-                        print("Server Socket Thread: About to call StopGui()")
-                        module.StopGui()
+                        print("Server Socket Thread: About to call StopGUI()")
+                        module.StopGUI()
                         gui_active = False
-                        print("Server Socket Thread: After StopGui() called")
+                        print("Server Socket Thread: After StopGUI() called")
                         result = 0
                         b_result = pack_data(result)
 
@@ -406,7 +406,7 @@ def start_server():
     global gui_wait
     gui_wait = False
     event.set()
-    module.StopGui()
+    module.StopGUI()
     print("Server Socket Thread: End of thead")
 
 
@@ -421,10 +421,10 @@ if __name__ == "__main__":
         print("Server GUI Thread: Starting GUI")
         if gui_wait: #makes sure this didnt change while waiting
             if not did_init:
-                module.InitGui()
+                module.InitGUI()
                 did_init = True
             gui_active = True
-            module.StartGui()
+            module.StartGUI()
         print("Server GUI Thread: GUI stopped")
         event.clear()
     print("Server GUI Thread: End of thread")

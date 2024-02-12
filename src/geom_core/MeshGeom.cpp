@@ -1705,7 +1705,7 @@ void MeshGeom::CreatePtCloudGeom()
             new_geom->InitPts();
 
             new_geom->Update();
-            m_Vehicle->UpdateGui();
+            m_Vehicle->UpdateGUI();
 
         }
     }

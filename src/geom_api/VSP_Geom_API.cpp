@@ -1658,9 +1658,9 @@ void WriteTestResults()
 
 /// Check VehicleMgr for a valid vehicle pointer.  Create vehicle
 /// pointer on first call.  There is a check to prevent multiple calls.
-extern void InitGui()
+extern void InitGUI()
 {
-    printf( "InitGui()\n" );
+    printf( "InitGUI()\n" );
     //==== Make Sure Init is Only Called Once ===//
     static bool once = false;
     if ( once )
@@ -1674,24 +1674,24 @@ extern void InitGui()
     if ( VehicleMgr.GetVehicle() )
     {
         printf( "Initing GUI\n" );
-        GuiInterface::getInstance().InitGui( VehicleMgr.GetVehicle() );
+        GuiInterface::getInstance().InitGUI( VehicleMgr.GetVehicle() );
     }
 #endif
 
     ErrorMgr.NoError();
 }
 
-extern void StartGui( )
+extern void StartGUI( )
 {
 #ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().StartGuiAPI( );
+    GuiInterface::getInstance().StartGUIAPI( );
 #endif
 }
 
-extern void StopGui( )
+extern void StopGUI( )
 {
 #ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().StopGui( );
+    GuiInterface::getInstance().StopGUI( );
 #endif
 }
 
@@ -1730,18 +1730,18 @@ extern void PopupMsg( const std::string &msg )
 #endif
 }
 
-extern void UpdateGui()
+extern void UpdateGUI()
 {
 #ifdef VSP_USE_FLTK
     Vehicle* veh = GetVehicle();
     if ( veh )
     {
-        veh->UpdateGui();
+        veh->UpdateGUI();
     }
 #endif
 }
 
-extern bool IsGuiBuild()
+extern bool IsGUIBuild()
 {
 #ifdef VSP_USE_FLTK
     return true;

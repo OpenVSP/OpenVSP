@@ -645,11 +645,11 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
         ForceUpdate( GeomBase::XFORM );
     }
 
-    UpdateGui();
+    UpdateGUI();
 }
 
 //==== Update All Screens ====//
-void Vehicle::UpdateGui()
+void Vehicle::UpdateGUI()
 {
     MessageMgr::getInstance().Send( "ScreenMgr", "UpdateAllScreens" );
 }

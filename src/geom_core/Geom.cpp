@@ -264,7 +264,7 @@ void GeomBase::ForceUpdate()
 {
     m_LateUpdateFlag = true;
     m_Vehicle->Update();
-    m_Vehicle->UpdateGui();
+    m_Vehicle->UpdateGUI();
 
     m_UpdatedParmVec.clear();
 }

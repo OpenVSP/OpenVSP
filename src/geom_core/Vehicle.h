@@ -71,7 +71,7 @@ public:
     void UpdateManagers();
     void UpdateGeom( const string &geom_id );
     void ForceUpdate( int dirtyflag = GeomBase::NONE );
-    static void UpdateGui();
+    static void UpdateGUI();
     static int RunScript( const string & file_name, const string & function_name = "main" );
 
     Geom* FindGeom( const string & geom_id );

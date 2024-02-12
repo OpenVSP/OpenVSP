@@ -2945,24 +2945,24 @@ extern void WriteTestResults();
     \forcpponly
     \code{.cpp}
 
-    InitGui();
-    StartGui();
+    InitGUI();
+    StartGUI();
 
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
-    StartGui()
+    InitGUI()
+    StartGUI()
 
     \endcode
     \endPythonOnly
 
-    \sa StartGui
+    \sa StartGUI
 */
 
-extern void InitGui();
+extern void InitGUI();
 
 /*!
     \ingroup Visualization
@@ -2973,24 +2973,24 @@ extern void InitGui();
     \forcpponly
     \code{.cpp}
 
-    InitGui();
-    StartGui();
+    InitGUI();
+    StartGUI();
 
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
-    StartGui()
+    InitGUI()
+    StartGUI()
 
     \endcode
     \endPythonOnly
 
-    \sa InitGui
+    \sa InitGUI
 */
 
-    extern void StartGui();
+    extern void StartGUI();
 
 /*!
     \ingroup Visualization
@@ -3009,25 +3009,25 @@ extern void InitGui();
     \forcpponly
     \code{.cpp}
 
-    InitGui();
+    InitGUI();
     DisableExit();
     EnableReturnToAPI();
-    StartGui();
+    StartGUI();
 
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
+    InitGUI()
     DisableExit()
     EnableReturnToAPI()
-    StartGui()
+    StartGUI()
 
     \endcode
     \endPythonOnly
 
-    \sa InitGui, DisableReturnToAPI
+    \sa InitGUI, DisableReturnToAPI
 */
 
 extern void EnableReturnToAPI();
@@ -3043,26 +3043,26 @@ extern void EnableReturnToAPI();
     \forcpponly
     \code{.cpp}
 
-    InitGui();
+    InitGUI();
     DisableExit();
     EnableReturnToAPI();
-    StartGui();
+    StartGUI();
 
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
+    InitGUI()
     DisableExit()
     EnableReturnToAPI()
     DisableReturnToAPI()
-    StartGui()
+    StartGUI()
 
     \endcode
     \endPythonOnly
 
-    \sa InitGui, EnableReturnToAPI
+    \sa InitGUI, EnableReturnToAPI
 */
 
 extern void DisableReturnToAPI();
@@ -3075,32 +3075,32 @@ extern void DisableReturnToAPI();
     \forcpponly
     \code{.cpp}
 
-    InitGui();
-    StartGui();
+    InitGUI();
+    StartGUI();
 
-    StopGui();
+    StopGUI();
 
-    StartGui();
+    StartGUI();
 
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
-    StartGui()
+    InitGUI()
+    StartGUI()
 
-    StopGui()
+    StopGUI()
 
-    StartGui()
+    StartGUI()
 
     \endcode
     \endPythonOnly
 
-    \sa InitGui, StartGui
+    \sa InitGUI, StartGUI
 */
 
-extern void StopGui();
+extern void StopGUI();
 
 /*!
     \ingroup Visualization
@@ -3110,8 +3110,8 @@ extern void StopGui();
     \forcpponly
     \code{.cpp}
 
-    InitGui();
-    StartGui();
+    InitGUI();
+    StartGUI();
 
     HideScreens();
 
@@ -3122,8 +3122,8 @@ extern void StopGui();
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
-    StartGui()
+    InitGUI()
+    StartGUI()
 
     HideScreens()
 
@@ -3132,7 +3132,7 @@ extern void StopGui();
     \endcode
     \endPythonOnly
 
-    \sa InitGui, StartGui, ShowScreens
+    \sa InitGUI, StartGUI, ShowScreens
 */
 
 extern void HideScreens();
@@ -3145,8 +3145,8 @@ extern void HideScreens();
     \forcpponly
     \code{.cpp}
 
-    InitGui();
-    StartGui();
+    InitGUI();
+    StartGUI();
 
     HideScreens();
 
@@ -3157,8 +3157,8 @@ extern void HideScreens();
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
-    StartGui()
+    InitGUI()
+    StartGUI()
 
     HideScreens()
 
@@ -3167,7 +3167,7 @@ extern void HideScreens();
     \endcode
     \endPythonOnly
 
-    \sa InitGui, StartGui, HideScreens
+    \sa InitGUI, StartGUI, HideScreens
 */
 
 extern void ShowScreens();
@@ -3181,8 +3181,8 @@ extern void ShowScreens();
     \forcpponly
     \code{.cpp}
 
-    InitGui();
-    StartGui();
+    InitGUI();
+    StartGUI();
 
     PopupMsg( "This is a popup message." );
 
@@ -3191,8 +3191,8 @@ extern void ShowScreens();
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
-    StartGui()
+    InitGUI()
+    StartGUI()
 
     PopupMsg( "This is a popup message." )
 
@@ -3212,8 +3212,8 @@ extern void PopupMsg( const std::string &msg );
     \forcpponly
     \code{.cpp}
 
-    InitGui();
-    StartGui();
+    InitGUI();
+    StartGUI();
 
     string pod_id = AddGeom( "POD" );
 
@@ -3221,15 +3221,15 @@ extern void PopupMsg( const std::string &msg );
 
     SetParmVal( length, 13.0 );
 
-    UpdateGui();
+    UpdateGUI();
 
     \endcode
     \endforcpponly
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
-    StartGui()
+    InitGUI()
+    StartGUI()
 
     string pod_id = AddGeom( "POD" )
 
@@ -3237,15 +3237,15 @@ extern void PopupMsg( const std::string &msg );
 
     SetParmVal( length, 13.0 )
 
-    UpdateGui()
+    UpdateGUI()
 
     \endcode
     \endPythonOnly
 
-    \sa InitGui, StartGui
+    \sa InitGUI, StartGUI
 */
 
-extern void UpdateGui();
+extern void UpdateGUI();
 
 /*!
     \ingroup Visualization
@@ -3255,7 +3255,7 @@ extern void UpdateGui();
     \forcpponly
     \code{.cpp}
 
-    if ( IsGuiBuild() )
+    if ( IsGUIBuild() )
     {
         Print( "OpenVSP build is graphics capable." );
     }
@@ -3269,7 +3269,7 @@ extern void UpdateGui();
     \beginPythonOnly
     \code{.py}
 
-    if ( IsGuiBuild() )
+    if ( IsGUIBuild() )
     {
         Print( "OpenVSP build is graphics capable." )
     }
@@ -3284,7 +3284,7 @@ extern void UpdateGui();
     \return bool True if the current OpenVSP build includes graphics capabilities.  False otherwise.
 */
 
-extern bool IsGuiBuild();
+extern bool IsGUIBuild();
 
 /*!
     \ingroup Visualization
@@ -3298,8 +3298,8 @@ extern bool IsGuiBuild();
     \forcpponly
     \code{.cpp}
 
-    InitGui();
-    StartGui();
+    InitGUI();
+    StartGUI();
 
     string pod_id = AddGeom( "POD" );
 
@@ -3316,8 +3316,8 @@ extern bool IsGuiBuild();
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
-    StartGui()
+    InitGUI()
+    StartGUI()
 
     string pod_id = AddGeom( "POD" )
 
@@ -3346,8 +3346,8 @@ extern void Lock( );
     \forcpponly
     \code{.cpp}
 
-    InitGui();
-    StartGui();
+    InitGUI();
+    StartGUI();
 
     string pod_id = AddGeom( "POD" );
 
@@ -3364,8 +3364,8 @@ extern void Lock( );
     \beginPythonOnly
     \code{.py}
 
-    InitGui()
-    StartGui()
+    InitGUI()
+    StartGUI()
 
     string pod_id = AddGeom( "POD" )
 

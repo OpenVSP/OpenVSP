@@ -211,7 +211,7 @@ int main( int argc, char** argv )
     }
 
     //==== Init Gui ====//
-    GuiInterface::getInstance().InitGui( vPtr );
+    GuiInterface::getInstance().InitGUI( vPtr );
 
     //==== Check Server For Version Number ====//
     ThreadCheckVersionNumber();
@@ -222,6 +222,6 @@ int main( int argc, char** argv )
 #endif
 
     //==== Start Gui - FLTK Now Control Process ====//
-    GuiInterface::getInstance().StartGui();
+    GuiInterface::getInstance().StartGUI();
     return 0;
 }

@@ -427,7 +427,7 @@ class DemoFrame(wx.Frame):
         geom_list = vsp.FindGeoms()
         vsp.SetParmVal(geom_list[0], 'X_Location', 'XForm', new_x_value)
         vsp.Update()
-        vsp.UpdateGui()
+        vsp.UpdateGUI()
         self.refresh_actors()
 
     def on_check_updates(self, event):
@@ -518,7 +518,7 @@ class DemoFrame(wx.Frame):
         geom_list = vsp.FindGeoms()
         vsp.SetParmVal(geom_list[0], 'X_Location', 'XForm', x)
         vsp.Update()
-        vsp.UpdateGui()
+        vsp.UpdateGUI()
         self.refresh_actors()
         x += 10
         if x > 100:

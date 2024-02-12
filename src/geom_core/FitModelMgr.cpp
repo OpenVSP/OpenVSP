@@ -1050,7 +1050,7 @@ void FitModelMgrSingleton::SelectPoint( string gid, int index )
     m_NumSelected++;
     m_LastSelGeom = gid;
 
-    VehicleMgr.GetVehicle()->UpdateGui();
+    VehicleMgr.GetVehicle()->UpdateGUI();
 }
 
 void FitModelMgrSingleton::SelectAllShown()

@@ -36,7 +36,7 @@ GuiInterface::~GuiInterface()
 }
 
 // In a multi-threaded environment, this must be called from the main thread only.
-void GuiInterface::InitGui( Vehicle* vPtr )
+void GuiInterface::InitGUI( Vehicle* vPtr )
 {
 #ifdef VSP_USE_FLTK
     if( !m_ScreenMgr )
@@ -48,7 +48,7 @@ void GuiInterface::InitGui( Vehicle* vPtr )
 }
 
 // In a multi-threaded environment, this must be called from the main thread only.
-void GuiInterface::StartGui()
+void GuiInterface::StartGUI()
 {
 #ifdef VSP_USE_FLTK
     Fl::lock();
@@ -58,7 +58,7 @@ void GuiInterface::StartGui()
 }
 
 // In a multi-threaded environment, this must be called from the main thread only.
-void GuiInterface::StartGuiAPI( )
+void GuiInterface::StartGUIAPI( )
 {
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
@@ -79,7 +79,7 @@ void GuiInterface::StartGuiAPI( )
 }
 
 // In a multi-threaded environment, this is safe to run from a secondary thread.
-void GuiInterface::StopGui()
+void GuiInterface::StopGUI()
 {
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
