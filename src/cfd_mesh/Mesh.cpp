@@ -1633,17 +1633,6 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     }
 #endif
 
-    vec2d VspMinUW = vec2d( m_Surf->GetSurfCore()->GetMinU(), m_Surf->GetSurfCore()->GetMinW() );
-    double VspMinU = VspMinUW.v[0];
-    double VspMinW = VspMinUW.v[1];
-
-    vec2d VspMaxUW = vec2d( m_Surf->GetSurfCore()->GetMaxU(), m_Surf->GetSurfCore()->GetMaxW() );
-    double VspMaxU = VspMaxUW.v[0];
-    double VspMaxW = VspMaxUW.v[1];
-
-    double VspdU = VspMaxU - VspMinU;
-    double VspdW = VspMaxW - VspMinW;
-
     //==== Scale UW Pnts ====//
     vector< vec2d > uw_prime( uw_points.size() );
     for ( i = 0 ; i < ( int )uw_points.size() ; i++ )
