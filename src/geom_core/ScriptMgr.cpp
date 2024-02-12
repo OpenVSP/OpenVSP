@@ -2806,20 +2806,50 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void InitGUI()", vspFUNCTION( vsp::InitGUI ), vspCALL_CDECL );
     assert( r >= 0 );
 
+
     r = se->RegisterGlobalFunction( "void StartGUI()", vspFUNCTION( vsp::StartGUI ), vspCALL_CDECL );
     assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void EnableReturnToAPI()", vspFUNCTION( vsp::EnableReturnToAPI ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void DisableReturnToAPI()", vspFUNCTION( vsp::DisableReturnToAPI ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void StopGUI()", vspFUNCTION( vsp::StopGUI ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void HideScreens()", vspFUNCTION( vsp::HideScreens ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void ShowScreens()", vspFUNCTION( vsp::ShowScreens ), vspCALL_CDECL );
+    assert( r >= 0 );
+
+
+    r = se->RegisterGlobalFunction( "void PopupMsg( const string & in msg )", vspFUNCTION( vsp::PopupMsg ), vspCALL_CDECL );
+    assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void UpdateGUI()", vspFUNCTION( vsp::UpdateGUI ), vspCALL_CDECL );
     assert( r >= 0 );
 
+
     r = se->RegisterGlobalFunction( "bool IsGUIBuild()", vspFUNCTION( vsp::IsGUIBuild ), vspCALL_CDECL );
     assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void Lock()", vspFUNCTION( vsp::Lock ), vspCALL_CDECL );
     assert( r >= 0 );
 
+
     r = se->RegisterGlobalFunction( "void Unlock()", vspFUNCTION( vsp::Unlock ), vspCALL_CDECL );
     assert( r >= 0 );
+
 
     r = se->RegisterGlobalFunction( "void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG, bool autocrop = false )", vspFUNCTION( vsp::ScreenGrab ), vspCALL_CDECL );
     assert( r >= 0 );
