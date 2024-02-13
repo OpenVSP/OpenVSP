@@ -2167,7 +2167,7 @@ string GetGeomTypeName( const string & geom_id )
 string GetParm( const string & container_id, const string & name, const string & group )
 {
     Vehicle* veh = GetVehicle();
-    
+
     if ( ParmMgr.GetDirtyFlag() )
     {
         LinkMgr.BuildLinkableParmData();        // Make Sure Name/Group Get Mapped To Parms
@@ -2679,7 +2679,7 @@ int AddFeaStruct( const string & geom_id, bool init_skin, int surfindex )
 }
 
 void SetFeaMeshStructIndex( int struct_index )
-{ 
+{
     FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_index );
 
     if ( feastruct )
@@ -3204,7 +3204,7 @@ string AddFeaMaterial()
 }
 
 /// Add an FeaProperty, return FeaProperty ID. The default is shell property type
-string AddFeaProperty( int property_type ) 
+string AddFeaProperty( int property_type )
 {
     FeaProperty* feaprop = NULL;
     feaprop = StructureMgr.AddFeaProperty( property_type );
@@ -4040,7 +4040,7 @@ void SetAirfoilPnts( const string& xsec_id, const std::vector< vec3d > & up_pnt_
 
 void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d> & ordered_airfoil_pnts )
 {
-    // Note, the input airfoil coordinate points must be ordered in the correct Selig format: Start at X = 1, proceed 
+    // Note, the input airfoil coordinate points must be ordered in the correct Selig format: Start at X = 1, proceed
     //  along the top of the airfoil to x = 0.0 at the leading edge, and return to X = 1 along the bottom surface
 
     //==== Open file ====//
@@ -4147,7 +4147,7 @@ std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &alpha, 
 {
     // Calculation of lift distribution for a Hershey Bar wing with unit chord length using Glauert's Method
     //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
-    //  symmetry is applied to the results. Input alpha must be in radians. 
+    //  symmetry is applied to the results. Input alpha must be in radians.
 
     LLT_Data llt_data = GetHersheyLLTData( npts, alpha, Vinf, span );
 
@@ -4186,7 +4186,7 @@ std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &alpha, 
 {
     // Calculation of drag distribution for a Hershey Bar wing with unit chord length using Glauert's Method.
     //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
-    //  symmetry is applied to the results. Input alpha must be in radians. 
+    //  symmetry is applied to the results. Input alpha must be in radians.
 
     LLT_Data llt_data = GetHersheyLLTData( npts, alpha, Vinf, span );
 
@@ -4380,7 +4380,7 @@ std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d &abc_r
     theta_vec.resize( u_npts );
     phi_vec.resize( w_npts );
 
-    theta_vec[0] = 0.0; // theta: [0,2PI] 
+    theta_vec[0] = 0.0; // theta: [0,2PI]
     phi_vec[0] = 0.0; // phi: [0,PI]
 
     const double theta_step = 2 * PI / ( u_npts - 1 );
@@ -4460,7 +4460,7 @@ std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
 std::vector <double> GetEllipsoidCpDist( const std::vector<vec3d> &surf_pnt_vec, const vec3d &abc_rad, const vec3d &V_inf )
 {
     // Generate Analytical Solution for Potential Flow at input ellipsoid surface points for input velocity vector (V).
-    //  Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally 
+    //  Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally
     //  Through a Perfect Fluid,' NACA TN-196, June 1924.
 
     double alpha = abc_rad.x() * abc_rad.y() * abc_rad.z() * IntegrateEllipsoidFlow( abc_rad, 0 );
@@ -4491,8 +4491,8 @@ std::vector <double> GetEllipsoidCpDist( const std::vector<vec3d> &surf_pnt_vec,
         pot_vec[i] = vec3d( ( Vmax_x * surf_pnt_vec[i].x() ), ( Vmax_y * surf_pnt_vec[i].y() ), ( Vmax_z * surf_pnt_vec[i].z() ) );
 
         // Normal vector
-        vec3d norm( ( 2.0 * surf_pnt_vec[i].x() / pow( abc_rad.x(), 2.0 ) ), 
-            ( 2.0 * surf_pnt_vec[i].y() / pow( abc_rad.y(), 2.0 ) ), 
+        vec3d norm( ( 2.0 * surf_pnt_vec[i].x() / pow( abc_rad.x(), 2.0 ) ),
+            ( 2.0 * surf_pnt_vec[i].y() / pow( abc_rad.y(), 2.0 ) ),
             ( 2.0 * surf_pnt_vec[i].z() / pow( abc_rad.z(), 2.0 ) ) );
 
         norm.normalize();
@@ -4522,7 +4522,7 @@ struct ellipsoid_flow_functor
 
 double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index )
 {
-    // Integration of Equations 6 and 7 for alpha, beta, and gamma in "Hydrodynamics" by Horace Lamb, Ch.5, Section 111, pg. 162. 
+    // Integration of Equations 6 and 7 for alpha, beta, and gamma in "Hydrodynamics" by Horace Lamb, Ch.5, Section 111, pg. 162.
     //  abc_index corresponds to a:0 for alpha, b:1 for beta, and c:2 for gamma
     ellipsoid_flow_functor fun;
     fun.abc_rad = abc_rad;
@@ -5895,7 +5895,7 @@ void EditXSecConvertTo( const std::string & xsec_id, const int & newtype )
     assert( edit_xs );
 
     ErrorMgr.NoError();
-    
+
     edit_xs->ConvertTo( newtype );
 }
 
@@ -6317,7 +6317,7 @@ void CopyPasteSet( int copy_index, int paste_index )
 
         veh->CopyPasteSet(copy_index, paste_index);
     }
-   
+
 }
 
 //================================================================//
@@ -8176,12 +8176,12 @@ void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double
     return;
 }
 
-void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta )
+void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta_out )
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
-    eta = u;
+    eta_out = u;
 
     if ( !geom )
     {
@@ -8199,7 +8199,7 @@ void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta )
 
     if ( wg )
     {
-        eta = wg->UtoEta( u );
+        eta_out = wg->UtoEta( u );
     }
 
     ErrorMgr.NoError();
@@ -8913,7 +8913,7 @@ string GetVSPExePath()
         return veh->GetExePath();
     }
     return string();
-}   
+}
 
 bool SetVSPAEROPath( const std::string & path )
 {

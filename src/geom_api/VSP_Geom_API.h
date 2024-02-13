@@ -15211,9 +15211,9 @@ extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const
     int surf_indx = 0;
 
     double u = 0.25;
-    double eta;
+    double eta_out;
 
-    ConvertUtoEta( geom_id, u, eta );
+    ConvertUtoEta( geom_id, u, eta_out );
 
     \endcode
     \endforcpponly
@@ -15226,17 +15226,17 @@ extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const
 
     u = 0.25
 
-    eta = ConvertUtoEta( geom_id, u )
+    eta_out = ConvertUtoEta( geom_id, u )
 
 
     \endcode
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] u U (0 - 1) surface coordinate
-    \param [out] eta Eta (0 - 1) wing spanwise coordinate
+    \param [out] eta_out Eta (0 - 1) wing spanwise coordinate
 */
 
-extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta );
+extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta_out );
 
 /*!
     \ingroup SurfaceQuery
