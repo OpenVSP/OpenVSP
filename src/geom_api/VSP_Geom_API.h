@@ -3010,7 +3010,6 @@ extern void InitGUI();
     \code{.cpp}
 
     InitGUI();
-    DisableExit();
     EnableReturnToAPI();
     StartGUI();
 
@@ -3020,7 +3019,6 @@ extern void InitGUI();
     \code{.py}
 
     InitGUI()
-    DisableExit()
     EnableReturnToAPI()
     StartGUI()
 
@@ -3044,7 +3042,6 @@ extern void EnableReturnToAPI();
     \code{.cpp}
 
     InitGUI();
-    DisableExit();
     EnableReturnToAPI();
     StartGUI();
 
@@ -3054,7 +3051,6 @@ extern void EnableReturnToAPI();
     \code{.py}
 
     InitGUI()
-    DisableExit()
     EnableReturnToAPI()
     DisableReturnToAPI()
     StartGUI()
