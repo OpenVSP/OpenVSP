@@ -15195,7 +15195,44 @@ extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const
 */
 
 extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r, double &s, double &t );
+/*!
+    \ingroup SurfaceQuery
+*/
+/*!
+    Convert L volumetric coordinate to R coordinate.
+    \forcpponly
+    \code{.cpp}
+    // Add Pod Geom
+    string geom_id = AddGeom( "POD", "" );
 
+    int surf_indx = 0;
+
+    double l = 0.12;
+    double r_out;
+
+    ConvertLtoR( geom_id, surf_indx, l, r_out );
+
+    \endcode
+    \endforcpponly
+    \beginPythonOnly
+    \code{.py}
+    # Add Pod Geom
+    geom_id = AddGeom( "POD", "" )
+
+    surf_indx = 0
+
+    l = 0.12
+
+    r_out = ConvertLtoR( geom_id, surf_indx, r )
+
+
+    \endcode
+    \endPythonOnly
+    \param [in] geom_id string Parent Geom ID
+    \param [in] surf_indx int Main surface index from the parent Geom
+    \param [in] l L (0 - 1) volume coordinate
+    \param [out] r_out R (0 - 1) linear volume coordinate
+*/
 extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r );
 
 /*!
