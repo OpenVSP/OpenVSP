@@ -4259,7 +4259,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertLtoR( const string & in geom_id, const int & in surf_indx, const double & in l, double & out r )", vspFUNCTION(vsp::ConvertLMNtoRST), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertLtoR( const string & in geom_id, const int & in surf_indx, const double & in l, double & out r )", vspFUNCTION(vsp::ConvertLtoR), vspCALL_CDECL );
     assert( r >= 0 );
 
 
