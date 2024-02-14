@@ -490,10 +490,10 @@ public:
     virtual bool CompRotCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &rotmat );
     virtual bool CompTransCoordSysLMN( const int &indx, const double &l, const double &m, const double &n, Matrix4d &transmat );
 
-    virtual void ConvertRSTtoLMN( const int &indx, const double &r, const double &s, const double &t, double &l, double &m, double &n );
-    virtual void ConvertRtoL( const int &indx, const double &r, double &l );
-    virtual void ConvertLMNtoRST( const int &indx, const double &l, const double &m, const double &n, double &r, double &s, double &t );
-    virtual void ConvertLtoR( const int &indx, const double &l, double &r );
+    virtual void ConvertRSTtoLMN( const int &indx, const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out );
+    virtual void ConvertRtoL( const int &indx, const double &r, double &l_out );
+    virtual void ConvertLMNtoRST( const int &indx, const double &l, const double &m, const double &n, double &r_out, double &s_out, double &t_out );
+    virtual void ConvertLtoR( const int &indx, const double &l, double &r_out );
 
     virtual double ProjPnt01I( const vec3d & pt, int &surf_indx, double &u, double &w );
     virtual double AxisProjPnt01I( const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out );

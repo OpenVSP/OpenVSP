@@ -4247,19 +4247,19 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertRSTtoLMN( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t, double & out l, double & out m, double & out n )", vspFUNCTION(vsp::ConvertRSTtoLMN), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertRSTtoLMN( const string & in geom_id, const int & in surf_indx, const double & in r, const double & in s, const double & in t, double & out l_out, double & out m_out, double & out n_out )", vspFUNCTION(vsp::ConvertRSTtoLMN), vspCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertRtoL( const string & in geom_id, const int & in surf_indx, const double & in r, double & out l )", vspFUNCTION(vsp::ConvertRtoL), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertRtoL( const string & in geom_id, const int & in surf_indx, const double & in r, double & out l_out )", vspFUNCTION(vsp::ConvertRtoL), vspCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertLMNtoRST( const string & in geom_id, const int & in surf_indx, const double & in l, const double & in m, const double & in n, double & out r, double & out s, double & out t )", vspFUNCTION(vsp::ConvertLMNtoRST), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertLMNtoRST( const string & in geom_id, const int & in surf_indx, const double & in l, const double & in m, const double & in n, double & out r_out, double & out s_out, double & out t_out )", vspFUNCTION(vsp::ConvertLMNtoRST), vspCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertLtoR( const string & in geom_id, const int & in surf_indx, const double & in l, double & out r )", vspFUNCTION(vsp::ConvertLtoR), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertLtoR( const string & in geom_id, const int & in surf_indx, const double & in l, double & out r_out )", vspFUNCTION(vsp::ConvertLtoR), vspCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -4267,7 +4267,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "vec3d ConvertEtatoU( const string & in geom_id, const double & in eta, double & out u )", vspFUNCTION(vsp::ConvertEtatoU), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "vec3d ConvertEtatoU( const string & in geom_id, const double & in eta, double & out u_out )", vspFUNCTION(vsp::ConvertEtatoU), vspCALL_CDECL );
     assert( r >= 0 );
 
 

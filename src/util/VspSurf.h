@@ -132,10 +132,10 @@ public:
     double FindRST( const vec3d & pt, double &r, double &s, double &t ) const;
     void FindRST( const vector < vec3d > & pt, vector < double > &r, vector < double > &s, vector < double > &t, vector < double > &d ) const;
 
-    void ConvertRSTtoLMN( const double &r, const double &s, const double &t, double &l, double &m, double &n ) const;
-    void ConvertRtoL( const double &r, double &l ) const;
-    void ConvertLMNtoRST( const double &l, const double &m, const double &n, double &r, double &s, double &t ) const;
-    void ConvertLtoR( const double &l, double &r ) const;
+    void ConvertRSTtoLMN( const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out ) const;
+    void ConvertRtoL( const double &r, double &l_out ) const;
+    void ConvertLMNtoRST( const double &l, const double &m, const double &n, double &r_out, double &s_out, double &t_out ) const;
+    void ConvertLtoR( const double &l, double &r_out ) const;
 
     double ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d & outpt ) const;
     double ProjectPt( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d & outpt ) const;

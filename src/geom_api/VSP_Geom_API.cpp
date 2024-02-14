@@ -8080,7 +8080,7 @@ double FindRSTGuess( const std::string &geom_id, const int &surf_indx, const vec
     return dist;
 }
 
-void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l, double &m, double &n )
+void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out )
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -8097,14 +8097,14 @@ void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const do
         return;
     }
 
-    geom->GetSurfPtr( surf_indx )->ConvertRSTtoLMN( r, s, t, l, m, n );
+    geom->GetSurfPtr( surf_indx )->ConvertRSTtoLMN( r, s, t, l_out, m_out, n_out );
 
     ErrorMgr.NoError();
 
     return;
 }
 
-void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double &r, double &l )
+void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double &r, double &l_out )
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -8121,14 +8121,14 @@ void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double
         return;
     }
 
-    geom->GetSurfPtr( surf_indx )->ConvertRtoL( r, l );
+    geom->GetSurfPtr( surf_indx )->ConvertRtoL( r, l_out );
 
     ErrorMgr.NoError();
 
     return;
 }
 
-void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r, double &s, double &t )
+void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r_out, double &s_out, double &t_out )
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -8145,14 +8145,14 @@ void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const do
         return;
     }
 
-    geom->GetSurfPtr( surf_indx )->ConvertLMNtoRST( l, m, n, r, s, t );
+    geom->GetSurfPtr( surf_indx )->ConvertLMNtoRST( l, m, n, r_out, s_out, t_out );
 
     ErrorMgr.NoError();
 
     return;
 }
 
-void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r )
+void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r_out )
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -8169,7 +8169,7 @@ void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double
         return;
     }
 
-    geom->GetSurfPtr( surf_indx )->ConvertLtoR( l, r );
+    geom->GetSurfPtr( surf_indx )->ConvertLtoR( l, r_out );
 
     ErrorMgr.NoError();
 
@@ -8207,12 +8207,12 @@ void ConvertUtoEta( const std::string &geom_id, const double &u, double &eta_out
     return;
 }
 
-void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u )
+void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u_out )
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
 
-    u = eta;
+    u_out = eta;
 
     if ( !geom )
     {
@@ -8230,7 +8230,7 @@ void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u )
 
     if ( wg )
     {
-        u = wg->EtatoU( eta );
+        u_out = wg->EtatoU( eta );
     }
 
     ErrorMgr.NoError();

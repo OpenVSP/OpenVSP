@@ -15072,9 +15072,9 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
     double r = 0.12;
     double s = 0.68;
     double t = 0.56;
-    double l, m, n;
+    double l_out, m_out, n_out;
 
-    ConvertRSTtoLMN( geom_id, surf_indx, r, s, t, l, m, n );
+    ConvertRSTtoLMN( geom_id, surf_indx, r, s, t, l_out, m_out, n_out );
 
     \endcode
     \endforcpponly
@@ -15089,7 +15089,7 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
     s = 0.68
     t = 0.56
 
-    l, m, n = ConvertRSTtoLMN( geom_id, surf_indx, r, s, t )
+    l_out, m_out, n_out = ConvertRSTtoLMN( geom_id, surf_indx, r, s, t )
 
 
     \endcode
@@ -15099,12 +15099,12 @@ extern double FindRSTGuess( const std::string &geom_id, const int &surf_indx, co
     \param [in] r R (0 - 1) volume coordinate
     \param [in] s S (0 - 1) volume coordinate
     \param [in] t T (0 - 1) volume coordinate
-    \param [out] l L (0 - 1) linear volume coordinate
-    \param [out] m M (0 - 1) linear volume coordinate
-    \param [out] n N (0 - 1) linear volume coordinate
+    \param [out] l_out L (0 - 1) linear volume coordinate
+    \param [out] m_out M (0 - 1) linear volume coordinate
+    \param [out] n_out N (0 - 1) linear volume coordinate
 */
 
-extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l, double &m, double &n );
+extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out );
 
 /*!
     \ingroup SurfaceQuery
@@ -15119,9 +15119,9 @@ extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, c
     int surf_indx = 0;
 
     double r = 0.12;
-    double l;
+    double l_out;
 
-    ConvertRtoL( geom_id, surf_indx, r, l );
+    ConvertRtoL( geom_id, surf_indx, r, l_out );
 
     \endcode
     \endforcpponly
@@ -15134,7 +15134,7 @@ extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, c
 
     r = 0.12
 
-    l = ConvertRtoL( geom_id, surf_indx, r )
+    l_out = ConvertRtoL( geom_id, surf_indx, r )
 
 
     \endcode
@@ -15142,10 +15142,10 @@ extern void ConvertRSTtoLMN( const std::string &geom_id, const int &surf_indx, c
     \param [in] geom_id string Parent Geom ID
     \param [in] surf_indx int Main surface index from the parent Geom
     \param [in] r R (0 - 1) volume coordinate
-    \param [out] l L (0 - 1) linear volume coordinate
+    \param [out] l_out L (0 - 1) linear volume coordinate
 */
 
-extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double &r, double &l );
+extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const double &r, double &l_out );
 
 /*!
     \ingroup SurfaceQuery
@@ -15162,9 +15162,9 @@ extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const
     double l = 0.12;
     double m = 0.34;
     double n = 0.56;
-    double r, s, t;
+    double r_out, s_out, t_out;
 
-    ConvertLMNtoRST( geom_id, surf_indx, l, m, n, r, s, t );
+    ConvertLMNtoRST( geom_id, surf_indx, l, m, n, r_out, s_out, t_out );
 
     \endcode
     \endforcpponly
@@ -15179,7 +15179,7 @@ extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const
     m = 0.34
     n = 0.56
 
-    r, s, t = ConvertLMNtoRST( geom_id, surf_indx, l, m, n )
+    r_out, s_out, t_out = ConvertLMNtoRST( geom_id, surf_indx, l, m, n )
 
 
     \endcode
@@ -15189,12 +15189,12 @@ extern void ConvertRtoL( const std::string &geom_id, const int &surf_indx, const
     \param [in] l L (0 - 1) linear volume coordinate
     \param [in] m M (0 - 1) linear volume coordinate
     \param [in] n N (0 - 1) linear volume coordinate
-    \param [out] r R (0 - 1) volume coordinate
-    \param [out] s S (0 - 1) volume coordinate
-    \param [out] t T (0 - 1) volume coordinate
+    \param [out] r_out R (0 - 1) volume coordinate
+    \param [out] s_out S (0 - 1) volume coordinate
+    \param [out] t_out T (0 - 1) volume coordinate
 */
 
-extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r, double &s, double &t );
+extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, const double &l, const double &m, const double &n, double &r_out, double &s_out, double &t_out );
 /*!
     \ingroup SurfaceQuery
 */
@@ -15223,7 +15223,7 @@ extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, c
 
     l = 0.12
 
-    r_out = ConvertLtoR( geom_id, surf_indx, r )
+    r_out = ConvertLtoR( geom_id, surf_indx, l )
 
 
     \endcode
@@ -15233,7 +15233,7 @@ extern void ConvertLMNtoRST( const std::string &geom_id, const int &surf_indx, c
     \param [in] l L (0 - 1) volume coordinate
     \param [out] r_out R (0 - 1) linear volume coordinate
 */
-extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r );
+extern void ConvertLtoR( const std::string &geom_id, const int &surf_indx, const double &l, double &r_out );
 
 /*!
     \ingroup SurfaceQuery
@@ -15288,9 +15288,9 @@ extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &
     int surf_indx = 0;
 
     double eta= 0.25;
-    double u;
+    double u_out;
 
-    ConvertEtatoU( geom_id, eta, u );
+    ConvertEtatoU( geom_id, eta, u_out );
 
     \endcode
     \endforcpponly
@@ -15310,10 +15310,10 @@ extern void ConvertUtoEta( const std::string &geom_id, const double &u, double &
     \endPythonOnly
     \param [in] geom_id string Parent Geom ID
     \param [in] eta Eta (0 - 1) wing spanwise coordinate
-    \param [out] u U (0 - 1) surface coordinate
+    \param [out] u_out U (0 - 1) surface coordinate
 */
 
-extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u );
+extern void ConvertEtatoU( const std::string &geom_id, const double &eta, double &u_out );
 
 
 /*!

@@ -25,7 +25,9 @@ namespace std {
 %apply std::vector<vec3d> &INPUT { std::vector<vec3d> & pnt_vec };
 %apply ( double& OUTPUT ) { double& u_out, double& w_out, double &k1_out, double &k2_out, double &ka_out, double &kg_out };
 %apply ( double& OUTPUT ) { double& r_out, double& s_out,  double& t_out };
+%apply ( double& OUTPUT ) { double& l_out, double& m_out,  double& n_out };
 %apply ( double& OUTPUT ) { double& eta_out };
+%apply ( double& OUTPUT ) { double& temp, double& pres, double& pres_ratio,  double& rho_ratio };
 %apply ( int& OUTPUT ) { int &surf_indx_out };
 %apply ( std::vector<double> &OUTPUT ) { std::vector < double > &k1_out_vec };
 %apply ( std::vector<double> &OUTPUT ) { std::vector < double > &k2_out_vec };

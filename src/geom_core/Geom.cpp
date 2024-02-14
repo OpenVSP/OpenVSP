@@ -2508,7 +2508,7 @@ vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, vec3d offset 
 {
     vector < vector < vec3d > > PathVec;
 
-    if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT ) 
+    if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT )
     {
         PathVec = m_GeomProjectVec3d[vsp::Y_DIR]; // Y axis projection
     }
@@ -4479,28 +4479,28 @@ bool Geom::CompTransCoordSysLMN( const int &indx, const double &l, const double 
     return false;
 }
 
-void Geom::ConvertRSTtoLMN( const int &indx, const double &r, const double &s, const double &t, double &l, double &m, double &n )
+void Geom::ConvertRSTtoLMN( const int &indx, const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out )
 {
     VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
-        surf_ptr->ConvertRSTtoLMN( r, s, t, l, m, n );
+        surf_ptr->ConvertRSTtoLMN( r, s, t, l_out, m_out, n_out );
         return;
     }
-    l = r;
-    m = s * 2.0;
-    n = t;
+    l_out = r;
+    m_out = s * 2.0;
+    n_out = t;
 }
 
-void Geom::ConvertRtoL( const int &indx, const double &r, double &l )
+void Geom::ConvertRtoL( const int &indx, const double &r, double &l_out )
 {
     VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
-        surf_ptr->ConvertRtoL( r, l );
+        surf_ptr->ConvertRtoL( r, l_out );
         return;
     }
-    l = r;
+    l_out = r;
 }
 
 void Geom::ConvertLMNtoRST( const int &indx, const double &l, const double &m, const double &n, double &r, double &s, double &t )
@@ -4516,12 +4516,12 @@ void Geom::ConvertLMNtoRST( const int &indx, const double &l, const double &m, c
     t = n;
 }
 
-void Geom::ConvertLtoR( const int &indx, const double &l, double &r )
+void Geom::ConvertLtoR( const int &indx, const double &l, double &r_out )
 {
     VspSurf* surf_ptr = GetSurfPtr( indx );
     if ( surf_ptr )
     {
-        surf_ptr->ConvertLtoR( l, r );
+        surf_ptr->ConvertLtoR( l, r_out );
         return;
     }
     r = l;
@@ -4598,7 +4598,7 @@ double Geom::AxisProjPnt01I( const int &iaxis, const vec3d &pt, int &surf_indx_o
 
 void Geom::WriteBezierAirfoil( const string & file_name, double foilsurf_u_location )
 {
-    // This function writes out the all Bezier segments (order, t0, tend, and control points) 
+    // This function writes out the all Bezier segments (order, t0, tend, and control points)
     //  for a single airfoil (constant u curve). Input foilsurf_u_location must be 0 <= u <= 1
 
     FILE* file_id = fopen( file_name.c_str(), "w" );
@@ -4665,7 +4665,7 @@ void Geom::WriteSeligAirfoil( const string & file_name, double foilsurf_u_locati
 
 vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
 {
-    // This function returns the coordinate points of a Foil Surf airfoil in Selig format. 
+    // This function returns the coordinate points of a Foil Surf airfoil in Selig format.
     //  Input foilsurf_u_location must be 0 <= u <= 1
 
     vector < vec3d > coord_vec, ordered_vec;
@@ -4709,7 +4709,7 @@ vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
 
     ordered_vec.resize( upper_pnts.size() + lower_pnts.size() + 3 );
 
-    // Identify TE/LE 
+    // Identify TE/LE
     vec3d TE_pnt = foil_curve.CompPnt01( 0.0 );
     vec3d LE_pnt = foil_curve.CompPnt01( 0.5 );
 

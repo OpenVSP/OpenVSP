@@ -352,32 +352,32 @@ void VspSurf::FindRST( const vector < vec3d > & pt, vector < double > &r, vector
     eli::geom::intersect::find_rst( r, s, t, d, m_Surface, pts, ret );
 }
 
-void VspSurf::ConvertRSTtoLMN( const double &r, const double &s, const double &t, double &l, double &m, double &n ) const
+void VspSurf::ConvertRSTtoLMN( const double &r, const double &s, const double &t, double &l_out, double &m_out, double &n_out ) const
 {
-    l = m_LCurve.CompPnt( r );
+    l_out = m_LCurve.CompPnt( r );
     Vsp1DCurve mcurve;
     BuildMCurve( r, mcurve );
-    m = mcurve.CompPnt( s );
-    n = t;
+    m_out = mcurve.CompPnt( s );
+    n_out = t;
 }
 
-void VspSurf::ConvertRtoL( const double &r, double &l ) const
+void VspSurf::ConvertRtoL( const double &r, double &l_out ) const
 {
-    l = m_LCurve.CompPnt( r );
+    l_out = m_LCurve.CompPnt( r );
 }
 
-void VspSurf::ConvertLMNtoRST( const double &l, const double &m, const double &n, double &r, double &s, double &t ) const
+void VspSurf::ConvertLMNtoRST( const double &l, const double &m, const double &n, double &r_out, double &s_out, double &t_out ) const
 {
-    r = m_LCurve.Invert( l );
+    r_out = m_LCurve.Invert( l );
     Vsp1DCurve mcurve;
-    BuildMCurve( r, mcurve );
-    s = mcurve.Invert( m );
-    t = n;
+    BuildMCurve( r_out, mcurve );
+    s_out = mcurve.Invert( m );
+    t_out = n;
 }
 
-void VspSurf::ConvertLtoR( const double &l, double &r ) const
+void VspSurf::ConvertLtoR( const double &l, double &r _out) const
 {
-    r = m_LCurve.Invert( l );
+    r_out = m_LCurve.Invert( l );
 }
 
 double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d &outpt ) const
@@ -2698,7 +2698,7 @@ void VspSurf::ScaleZ( double s )
 void VspSurf::MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &ptC, const vec3d &ptD, double expand )
 {
     // This function is used to construct a plane, using the four inputs as corner points
-    // If the inputs are not truly planar, the function will work, but the surface will be 
+    // If the inputs are not truly planar, the function will work, but the surface will be
     // constructed via bi-linear interpolation
 
     vec3d cen = 0.25 * ( ptA + ptB + ptC + ptD );
