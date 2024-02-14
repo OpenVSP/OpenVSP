@@ -15,7 +15,7 @@ from openvsp import *
 
 class TestOpenVSP(unittest.TestCase):
 	def setUp(self):
-		vsp.VSPRenew()
+		VSPRenew()
 '''
     with open(vsp_file, 'r') as vsp:
 
