@@ -14648,7 +14648,7 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
 
     idist, u_out, w_out = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt )
 
-    print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out )
+    print( f"iDist {idist} u_out {u_out} w_out {w_out}" )
     print( "3D Offset ", False)
 
     \endcode
@@ -14713,7 +14713,7 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
 
     idist, surf_indx_out, u_out, w_out = AxisProjPnt01I( geom_id, Y_DIR, pt )
 
-    print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out )
+    print( "iDist {idist} u_out {u_out} w_out {w_out} surf_index {surf_indx_out}" )
     print( "3D Offset ", False)
 
     \endcode
