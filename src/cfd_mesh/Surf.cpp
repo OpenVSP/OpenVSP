@@ -17,9 +17,28 @@
 #include "IntersectPatch.h"
 #include "VspUtil.h"
 #include <cfloat>  //For DBL_EPSILON
+#include "Vec3d.h"
 
 #ifdef DEBUG_CFD_MESH
 #include "WriteMatlab.h"
+#endif
+
+// Keep this after all other #includes.
+//
+// OpenABF declares a variable PI that conflicts with a preexisting #define PI.  This stores the current value,
+// undefines PI, includes OpenABF, and then restores the stored value.  At the current time, Surf.cpp does not
+// use PI, so this should all be un-necesacary.  If this becomes a problem in the future, the only use of
+// OpenABF is limited to Surf::BuildDistMap(), which could be moved to a separate *.cpp file for compilation.
+//
+#ifdef PI
+#define PI_SURF_CPP_TEMP
+#undef PI
+#endif
+
+#include "OpenABF/OpenABF.hpp"
+
+#ifdef PI_SURF_CPP_TEMP
+#define PI PI_SURF_CPP_TEMP
 #endif
 
 Surf::Surf()
@@ -1084,7 +1103,7 @@ void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw,
 void Surf::BuildDistMap()
 {
     int i, j;
-    const unsigned int nump = 101;
+    const unsigned int nump = 11;
 
     double VspMinU = m_SurfCore.GetMinU();
     double VspMinW = m_SurfCore.GetMinW();
@@ -1095,108 +1114,110 @@ void Surf::BuildDistMap()
     double VspdU = VspMaxU - VspMinU;
     double VspdW = VspMaxW - VspMinW;
 
+    using ABF = OpenABF::ABFPlusPlus < double >;
+    using LSCM = OpenABF::AngleBasedLSCM < double, ABF::Mesh >;
+
+    //auto mesh = vspMesh< double >::New();
+    auto mesh = ABF::Mesh::New();
+
     //==== Load Point Vec ====//
-    vector< vector< vec3d > > pvec;
-    pvec.resize( nump );
+
+    vector < double > uvec, wvec;
+
+    uvec.resize( nump );
     for ( i = 0 ; i < nump ; i++ )
     {
-        pvec[i].resize( nump );
-        double u = VspMinU + VspdU * ( double )i / ( double )( nump - 1 );
-        for ( j = 0 ; j < nump ; j++ )
-        {
-            double w = VspMinW + VspdW * ( double )j / ( double )( nump - 1 );
-            pvec[i][j] = m_SurfCore.CompPnt( u, w );
-        }
+        double u = VspMinU + VspdU * ( double ) i / ( double ) ( nump - 1 );
+        uvec[i] = u;
     }
 
-    //==== Find U Dists ====//
-    double maxUDist = 1.0e-9;
-    vector< double > uDistVec;
-    for ( i = 0 ; i < nump ; i++ )
-    {
-        double sum_d = 0.0;
-        for ( j = 1 ; j < nump ; j++  )
-        {
-            double du = dist( pvec[j - 1][i], pvec[j][i] );
-            sum_d += du;
-        }
-        uDistVec.push_back( sum_d );
-
-        if ( sum_d > maxUDist )
-        {
-            maxUDist = sum_d;
-        }
-    }
-
-    //==== Find W Dists ====//
-    double maxWDist = 1.0e-9;
-    vector< double > wDistVec;
-    for ( i = 0 ; i < nump ; i++ )
-    {
-        double sum_d = 0.0;
-        for ( j = 1 ; j < nump ; j++  )
-        {
-            double dw = dist( pvec[i][j - 1], pvec[i][j] );
-            sum_d += dw;
-        }
-        wDistVec.push_back( sum_d );
-
-        if ( sum_d > maxWDist )
-        {
-            maxWDist = sum_d;
-        }
-    }
-
-    // Build normalized arc-length distance map.
-
-    double lenscale = std::max( maxUDist, maxWDist );
-
-
-    vector < vector < double > > s;
-    vector < vector < double > > t;
-
-    s.resize( nump );
-    t.resize( nump );
-
-    i = 0;
-    s[i].resize( nump, 0.0 );
-    t[i].resize( nump, 0.0 );
-
-    for ( j = 1 ; j < nump ; j++ )
-    {
-        t[i][j] = t[i][j - 1] + dist( pvec[i][j - 1], pvec[i][j] ) / lenscale;
-    }
-
-    for ( i = 1 ; i < nump ; i++ )
-    {
-        s[i].resize( nump, 0.0 );
-        t[i].resize( nump, 0.0 );
-
-        j = 0;
-        s[i][j] = s[i - 1][j] + dist( pvec[i - 1][j], pvec[i][j] ) / lenscale;
-
-        for ( j = 1 ; j < nump ; j++ )
-        {
-            t[i][j] = t[i][j - 1] + dist( pvec[i][j - 1], pvec[i][j] ) / lenscale;
-            s[i][j] = s[i - 1][j] + dist( pvec[i - 1][j], pvec[i][j] ) / lenscale;
-        }
-    }
-
+    wvec.resize( nump );
     for ( j = 0 ; j < nump ; j++ )
     {
-        double s0 = 0.5 * ( maxUDist - uDistVec[j] ) / lenscale;
-        for ( i = 0 ; i < nump ; i++ )
+        double w = VspMinW + VspdW * ( double ) j / ( double ) ( nump - 1 );
+        wvec[j] = w;
+    }
+
+    vector < vec3d > pvec( nump * nump );
+    vector< vector< int > > ptindx( nump, vector< int > ( nump, 0 ) );
+    vector< int > ki( nump * nump );
+    vector< int > kj( nump * nump );
+    int k = 0;
+    for ( i = 0 ; i < nump ; i++ )
+    {
+        double u = uvec[i];
+        for ( j = 0 ; j < nump ; j++ )
         {
-            s[i][j] = s[i][j] + s0;
+            double w = wvec[j];
+            pvec[k] = m_SurfCore.CompPnt( u, w );
+            ki[k] = i;
+            kj[k] = j;
+            ptindx[i][j] = k;
+            k++;
         }
     }
 
-    for ( i = 0 ; i < nump ; i++ )
+    PntNodeCloud pnCloud;
+    //==== Build Map ====//
+    pnCloud.AddPntNodes( pvec );
+
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, 1e-6 );
+
+    //==== Load Used Points ====//
+    vector < vec3d > usedPts;
+    vector < int > kused;
+    for ( i = 0; i < (int)pvec.size(); i++ )
     {
-        double t0 = 0.5 * ( maxWDist - wDistVec[i] ) / lenscale;
-        for ( j = 0 ; j < nump ; j++ )
+        if ( pnCloud.UsedNode( i ) )
         {
-            t[i][j] = t[i][j] + t0;
+            mesh->insert_vertex( pvec[i].x(), pvec[i].y(), pvec[i].z() );
+            kused.push_back( i );
+        }
+    }
+
+    for ( i = 0 ; i < nump - 1; i++ )
+    {
+        for ( j = 0; j < nump - 1; j++ )
+        {
+            int i0, i1, i2, i3;
+
+            i0 = pnCloud.GetNodeUsedIndex( ptindx[ i ][ j ] );
+            i1 = pnCloud.GetNodeUsedIndex( ptindx[ i + 1 ][ j ] );
+            i2 = pnCloud.GetNodeUsedIndex( ptindx[ i ][ j + 1 ] );
+            i3 = pnCloud.GetNodeUsedIndex( ptindx[ i + 1 ][ j + 1 ] );
+
+            if ( (i0 != i1) && (i0 != i2) && (i1 != i2) )
+            {
+                mesh->insert_face( i0, i1, i2 );
+            }
+
+            if ( (i1 != i3) && (i1 != i2) && (i3 != i2) )
+            {
+                mesh->insert_face( i1, i3, i2 );
+            }
+        }
+    }
+
+
+    ABF::Compute( mesh );
+    LSCM::Compute( mesh );
+
+    vector< vector< double > > smat( nump, vector< double > ( nump, -1.0 ) );
+    vector< vector< double > > tmat( nump, vector< double > ( nump, -1.0 ) );
+
+    vector < ABF::Mesh::VertPtr > verts = mesh->vertices();
+    for ( i = 0; i < verts.size(); i++ )
+    {
+        double r = verts[ i ]->pos[ 0 ];
+        double t = verts[ i ]->pos[ 1 ];
+
+        vector < long long int > match = pnCloud.GetMatches( kused[ i ] );
+
+        for ( j = 0; j < match.size(); j++ )
+        {
+            smat[ ki[ match[ j ] ] ][ kj[ match[ j ] ] ] = r;
+            tmat[ ki[ match[ j ] ] ][ kj[ match[ j ] ] ] = t;
         }
     }
 
@@ -1207,7 +1228,7 @@ void Surf::BuildDistMap()
         m_STMap[i].resize( nump );
         for ( j = 0 ; j < nump ; j++ )
         {
-            m_STMap[i][j] = vec2d( s[i][j], t[i][j] );
+            m_STMap[i][j] = vec2d( smat[i][j], tmat[i][j] );
         }
     }
 
@@ -1220,51 +1241,18 @@ void Surf::BuildDistMap()
     if ( true )
     {
         char str[256];
-        snprintf( str, sizeof( str ), "uwscale_%d.m", cnt );
+        snprintf( str, sizeof( str ), "stmat_%d.m", cnt );
 
         FILE *fp = fopen( str, "w" );
 
-        fprintf( fp, "u01=[" );
-        for ( i = 0; i < ( int ) nump; i++ )
-        {
-            double u = ( double ) i / ( double ) ( nump - 1 );
-            fprintf( fp, "%f ", u );
-        }
-        fprintf( fp, "];\n" );
-
-        fprintf( fp, "u=[" );
-        for ( i = 0; i < ( int ) nump; i++ )
-        {
-            double u = VspMinU + VspdU * ( double ) i / ( double ) ( nump - 1 );
-            fprintf( fp, "%f ", u );
-        }
-        fprintf( fp, "];\n" );
-
-        fprintf( fp, "w01=[" );
-        for ( j = 0; j < ( int ) nump; j++ )
-        {
-            double w = ( double ) j / ( double ) ( nump - 1 );
-            fprintf( fp, "%f ", w );
-        }
-        fprintf( fp, "];\n" );
-
-        fprintf( fp, "w=[" );
-        for ( j = 0; j < ( int ) nump; j++ )
-        {
-            double w = VspMinW + VspdW * ( double ) j / ( double ) ( nump - 1 );
-            fprintf( fp, "%f ", w );
-        }
-        fprintf( fp, "];\n" );
-
         WriteMatDoubleM writeMatDouble;
 
-        writeMatDouble.write( fp, s, string( "s" ), nump, nump );
+        writeMatDouble.write( fp, smat, string( "smat" ), nump, nump );
 
-        writeMatDouble.write( fp, t, string( "t" ), nump, nump );
+        writeMatDouble.write( fp, tmat, string( "tmat" ), nump, nump );
 
-        fprintf( fp, "figure(1)\n" );
-        fprintf( fp, "plot( s, t, s', t' );\n" );
-        fprintf( fp, "ax=axis; ax(1)=0; ax(3)=0; axis(ax);\n" );
+        fprintf( fp, "figure(2)\n" );
+        fprintf( fp, "plot( smat, tmat, smat', tmat' );\n" );
 
         fclose( fp );
     }
@@ -1280,27 +1268,13 @@ void Surf::UtoIndexFrac( const double &u, int &indx, double &frac )
     double indd = u * (double) ( num - 1 );
 
     indx = ( int ) indd;
-    if ( indx < 0 )
-    {
-        indx = 0;
-    }
-    if ( indx > num - 2 )
-    {
-        indx = num - 2;
-    }
+    indx = clamp( indx, 0, num - 2 );
 
     frac = indd - ( double )indx;
-    if ( frac < 0.0 )
-    {
-        frac = 0.0;
-    }
-    if ( frac > 1.0 )
-    {
-        frac = 1.0;
-    }
+    frac = clamp( frac, 0.0, 1.0 );
 }
 
-vec2d Surf::GetUWPrime( vec2d uw )
+vec2d Surf::GetST( const vec2d &uw )
 {
     double VspMinU = m_SurfCore.GetMinU();
     double VspMinW = m_SurfCore.GetMinW();
@@ -1319,17 +1293,149 @@ vec2d Surf::GetUWPrime( vec2d uw )
     UtoIndexFrac( u, iu, fu );
     UtoIndexFrac( w, iw, fw );
 
-    vec2d uwprime;
-    bi_lin_interp( m_STMap[ iu ][ iw ], m_STMap[ iu + 1 ][ iw ], m_STMap[ iu ][ iw + 1 ], m_STMap[ iu + 1 ][ iw + 1 ], fu, fw, uwprime );
+    vec2d st;
+    bi_lin_interp( m_STMap[ iu ][ iw ], m_STMap[ iu + 1 ][ iw ], m_STMap[ iu ][ iw + 1 ], m_STMap[ iu + 1 ][ iw + 1 ], fu, fw, st );
 
-    return uwprime;
+    return st;
 }
 
-vec2d Surf::GetUW( vec2d uwprime )
+void Surf::FindSTBox( const vec2d &st, int &i_match, int &j_match )
+{
+    bool debugprint = false;
+
+    i_match = 0;
+    j_match = 0;
+
+    int res = m_UWMap.LookupPnt( st );
+
+    if ( res >= 0 )
+    {
+        i_match = m_UWMap.m_PntNodes[ res ].m_iU;
+        j_match = m_UWMap.m_PntNodes[ res ].m_iV;
+
+        int ni = m_STMap.size();
+        int nj = m_STMap[ 0 ].size();
+
+        // Clamp to two less than number of entries.
+        // This handles both zero indexing and also guarantees that i+1 and j+1 are valid indices.
+        i_match = clamp( i_match, 0, ni - 2 );
+        j_match = clamp( j_match, 0, nj - 2 );
+
+        if ( debugprint )
+        {
+            vector < vec2d > poly = { m_STMap[ i_match ][ j_match ], m_STMap[ i_match + 1 ][ j_match ], m_STMap[ i_match + 1 ][ j_match + 1 ], m_STMap[ i_match ][ j_match + 1 ], m_STMap[ i_match ][ j_match ] };
+
+            printf( "\n\nplot([" );
+            for ( int ipoly = 0; ipoly < poly.size(); ipoly++ )
+            {
+                printf( "%f ", poly[ ipoly ].x());
+            }
+            printf( "],[" );
+            for ( int ipoly = 0; ipoly < poly.size(); ipoly++ )
+            {
+                printf( "%f ", poly[ ipoly ].y());
+            }
+            printf( "],%f, %f,'x');\n", st.x(), st.y());
+
+            if ( PointInPolygon( st, poly ) )
+            {
+                printf( "%% In polygon.\n" );
+            }
+            else
+            {
+                printf( "%% Outside polygon.\n" );
+            }
+        }
+
+        bool stop = false;
+
+        int n = 0;
+        while ( !stop )
+        {
+            int di = 0;
+            int dj = 0;
+
+            int i_old = i_match;
+            int j_old = j_match;
+
+            if ( orient2d( m_STMap[ i_match ][ j_match ], m_STMap[ i_match + 1 ][ j_match ], st ) < 0 )
+            {
+                dj -= 1;
+            }
+
+            if ( orient2d( m_STMap[ i_match + 1 ][ j_match ], m_STMap[ i_match + 1 ][ j_match + 1 ], st ) < 0 )
+            {
+                di += 1;
+            }
+
+            if ( orient2d( m_STMap[ i_match + 1 ][ j_match + 1 ], m_STMap[ i_match ][ j_match + 1 ], st ) < 0 )
+            {
+                dj += 1;
+            }
+
+            if ( orient2d( m_STMap[ i_match ][ j_match + 1 ], m_STMap[ i_match ][ j_match ], st ) < 0 )
+            {
+                di -= 1;
+            }
+
+            i_match += di;
+            j_match += dj;
+
+            i_match = clamp( i_match, 0, ni - 2 );
+            j_match = clamp( j_match, 0, nj - 2 );
+
+            di = i_old - i_match;
+            dj = j_old - j_match;
+
+            n++;
+
+            // di and dj == 0 can result from either the point lying in the polygon, or from clamp enforcing boundaries.
+            if ( di == 0 && dj == 0 )
+            {
+                stop = true;
+            }
+            else if ( n > 10 ) // Abundance of caution.
+            {
+                stop = true;
+            }
+        }
+
+        if ( debugprint )
+        {
+            vector < vec2d > poly = { m_STMap[ i_match ][ j_match ], m_STMap[ i_match + 1 ][ j_match ], m_STMap[ i_match + 1 ][ j_match + 1 ], m_STMap[ i_match ][ j_match + 1 ], m_STMap[ i_match ][ j_match ] };
+
+            printf( "hold on; plot([" );
+            for ( int ipoly = 0; ipoly < poly.size(); ipoly++ )
+            {
+                printf( "%f ", poly[ ipoly ].x());
+            }
+            printf( "],[" );
+            for ( int ipoly = 0; ipoly < poly.size(); ipoly++ )
+            {
+                printf( "%f ", poly[ ipoly ].y());
+            }
+            printf( "],%f, %f,'x'); hold off;\n", st.x(), st.y());
+
+            if ( PointInPolygon( st, poly ) )
+            {
+
+                printf( "%% Success after one iteration.\n" );
+            }
+            else
+            {
+                printf( "%% Still failing.\n" );
+            }
+        }
+    }
+}
+
+vec2d Surf::GetUW( const vec2d &st )
 {
     int num = m_STMap.size();
 
-    int res = m_UWMap.LookupPnt( uwprime );
+    int i, j;
+
+    FindSTBox( st, i, j );
 
     double VspMinU = m_SurfCore.GetMinU();
     double VspMinW = m_SurfCore.GetMinW();
@@ -1340,50 +1446,19 @@ vec2d Surf::GetUW( vec2d uwprime )
     double VspdU = VspMaxU - VspMinU;
     double VspdW = VspMaxW - VspMinW;
 
-    vec2d retval;
+    double fu, fw, u2, w2;
+    inverse_bi_lin_interp( m_STMap[ i ][ j ], m_STMap[ i + 1 ][ j ], m_STMap[ i ][ j + 1 ], m_STMap[ i + 1 ][ j + 1 ], st, fu, fw, u2, w2 );
 
-    if ( res >= 0 )
-    {
-        int iu = m_UWMap.m_PntNodes[res].m_iU;
-        int iw = m_UWMap.m_PntNodes[res].m_iV;
-        vec2d nearest = m_UWMap.m_PntNodes[res].m_UV;
+    double iud = i + fu;
+    double iwd = j + fw;
 
-        if ( uwprime.x() < nearest.x() )
-        {
-            iu--;
-        }
+    double u01 = clamp( iud / ( double )( num - 1 ), 0.0, 1.0 );
+    double w01 = clamp( iwd / ( double )( num - 1 ), 0.0, 1.0 );
 
-        iu = clamp( iu, 0, num - 2 );
+    double u = VspMinU + u01 * VspdU;
+    double w = VspMinW + w01 * VspdW;
 
-        if ( uwprime.y() < nearest.y() )
-        {
-            iw--;
-        }
-
-        iw = clamp( iw, 0, num - 2 );
-
-        //retval = invBilinear( uwprime, m_STMap[ iu ][ iw ], m_STMap[ iu + 1 ][ iw ], m_STMap[ iu ][ iw + 1 ], m_STMap[ iu + 1 ][ iw + 1 ] );
-
-        double fu, fw, u2, w2;
-        inverse_bi_lin_interp( m_STMap[ iu ][ iw ], m_STMap[ iu + 1 ][ iw ], m_STMap[ iu ][ iw + 1 ], m_STMap[ iu + 1 ][ iw + 1 ], uwprime, fu, fw, u2, w2 );
-
-        double iud = iu + fu;
-        double iwd = iw + fw;
-
-        double u01 = clamp( iud / ( double )( num - 1 ), 0.0, 1.0 );
-        double w01 = clamp( iwd / ( double )( num - 1 ), 0.0, 1.0 );
-
-        double u = VspMinU + u01 * VspdU;
-        double w = VspMinW + w01 * VspdW;
-
-        retval = vec2d( u, w );
-    }
-    else
-    {
-        printf( "No result\n" );
-    }
-
-    return retval;
+    return vec2d( u, w );
 }
 
 void Surf::CleanupDistMap()

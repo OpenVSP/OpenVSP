@@ -1637,7 +1637,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
     vector< vec2d > uw_prime( uw_points.size() );
     for ( i = 0 ; i < ( int )uw_points.size() ; i++ )
     {
-        uw_prime[i] = m_Surf->GetUWPrime( uw_points[i] );
+        uw_prime[i] = m_Surf->GetST( uw_points[ i ] );
     }
 
 #ifdef DEBUG_CFD_MESH

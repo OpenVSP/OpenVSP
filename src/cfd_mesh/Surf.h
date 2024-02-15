@@ -177,11 +177,12 @@ public:
 
     void InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw, SurfaceIntersectionSingleton *MeshMgr );
 
+    void FindSTBox( const vec2d &st, int &i_match, int &j_match );
 
     void BuildDistMap();
     void CleanupDistMap();
-    vec2d GetUWPrime( vec2d uw );
-    vec2d GetUW( vec2d uwprime );
+    vec2d GetST( const vec2d &uw );
+    vec2d GetUW( const vec2d &st );
 
     bool ValidUW( vec2d & uw, double slop = 1.0e-4 ) const;
 
