@@ -375,36 +375,34 @@ void VspSurf::ConvertLMNtoRST( const double &l, const double &m, const double &n
     t_out = n;
 }
 
-void VspSurf::ConvertLtoR( const double &l, double &r _out) const
+void VspSurf::ConvertLtoR( const double &l, double &r_out) const
 {
     r_out = m_LCurve.Invert( l );
 }
 
-double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d &outpt ) const
+double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out ) const
 {
     surface_point_type p, p0;
     p0 << inpt.x(), inpt.y(), inpt.z();
 
     double idist = eli::geom::intersect::intersect( u_out, w_out, p, m_Surface, p0, idir );
 
-    outpt = p;
     return idist;
 }
 
-double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d &outpt ) const
+double VspSurf::ProjectPt( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out ) const
 {
     surface_point_type p, p0;
     p0 << inpt.x(), inpt.y(), inpt.z();
 
     double idist = eli::geom::intersect::intersect( u_out, w_out, p, m_Surface, p0, idir, u0, w0 );
 
-    outpt = p;
     return idist;
 }
 
-double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d &outpt) const
+double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, double &w_out) const
 {
-    double idist = ProjectPt( inpt, idir, u_out, w_out, outpt );
+    double idist = ProjectPt( inpt, idir, u_out, w_out );
 
     u_out = u_out / GetUMax();
     w_out = w_out / GetWMax();
@@ -412,9 +410,9 @@ double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, 
     return idist;
 }
 
-double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d & outpt ) const
+double VspSurf::ProjectPt01( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out ) const
 {
-    double idist = ProjectPt( inpt, idir, u0 * GetUMax(), w0 * GetWMax(), u_out, w_out, outpt );
+    double idist = ProjectPt( inpt, idir, u0 * GetUMax(), w0 * GetWMax(), u_out, w_out );
 
     u_out = u_out / GetUMax();
     w_out = w_out / GetWMax();

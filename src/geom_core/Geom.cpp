@@ -4524,7 +4524,7 @@ void Geom::ConvertLtoR( const int &indx, const double &l, double &r_out )
         surf_ptr->ConvertLtoR( l, r_out );
         return;
     }
-    r = l;
+    r_out = l;
 }
 
 double Geom::ProjPnt01I( const vec3d & pt, int &surf_indx, double &u, double &w )
@@ -4557,7 +4557,7 @@ double Geom::ProjPnt01I( const vec3d & pt, int &surf_indx, double &u, double &w 
     return dmin;
 }
 
-double Geom::AxisProjPnt01I( const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out )
+double Geom::AxisProjPnt01I( const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out )
 {
     double idmin = std::numeric_limits<double>::max();
 
@@ -4567,16 +4567,14 @@ double Geom::AxisProjPnt01I( const int &iaxis, const vec3d &pt, int &surf_indx_o
     for ( int i = 0; i < nsurf; i++ )
     {
         double utest, wtest;
-        vec3d ptest;
 
-        double id = GetSurfPtr( i )->ProjectPt01( pt, iaxis, utest, wtest, ptest );
+        double id = GetSurfPtr( i )->ProjectPt01( pt, iaxis, utest, wtest );
 
         if ( id >= 0 && id < idmin )
         {
             idmin = id;
             u_out = utest;
             w_out = wtest;
-            p_out = ptest;
             surf_indx_out = i;
             converged = true;
         }
@@ -4589,7 +4587,6 @@ double Geom::AxisProjPnt01I( const int &iaxis, const vec3d &pt, int &surf_indx_o
 
     u_out = -1;
     w_out = -1;
-    p_out = pt;
     surf_indx_out = -1;
     idmin = -1;
 

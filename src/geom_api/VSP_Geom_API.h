@@ -14624,13 +14624,11 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
     pt.offset_y( -5.0 );
 
     double u_out, w_out;
-    vec3d p_out;
 
-    double idist = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt, u_out, w_out, p_out);
+    double idist = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt, u_out, w_out);
 
     Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out );
     Print( "3D Offset ", false);
-    Print( surf_pt - p_out );
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14648,11 +14646,10 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
 
     pt.offset_y( -5.0 )
 
-    idist, u_out, w_out, p_out = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt )
+    idist, u_out, w_out = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt )
 
     print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out )
     print( "3D Offset ", False)
-    print( surf_pt - p_out )
 
     \endcode
     \endPythonOnly
@@ -14663,11 +14660,10 @@ extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, c
     \param [in] pt Input 3D coordinate point
     \param [out] u_out Output closest U (0 - 1) surface coordinate
     \param [out] w_out Output closest W (0 - 1) surface coordinate
-    \param [out] p_out Output 3D coordinate point
     \return Axis aligned distance between the 3D point and the projected point on the surface
 */
 
-extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, double &u_out, double &w_out, vec3d &p_out);
+extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, double &u_out, double &w_out);
 
 /*!
     \ingroup SurfaceQuery
@@ -14691,14 +14687,12 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
     pt.offset_y( -5.0 );
 
     double u_out, w_out;
-    vec3d p_out;
     int surf_indx_out;
 
-    double idist = AxisProjPnt01I( geom_id, Y_DIR, pt, surf_indx_out, u_out, w_out, p_out);
+    double idist = AxisProjPnt01I( geom_id, Y_DIR, pt, surf_indx_out, u_out, w_out);
 
     Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out );
     Print( "3D Offset ", false);
-    Print( surf_pt - p_out );
     \endcode
     \endforcpponly
     \beginPythonOnly
@@ -14717,11 +14711,10 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
     pt.offset_y( -5.0 )
 
 
-    idist, surf_indx_out, u_out, w_out, p_out = AxisProjPnt01I( geom_id, Y_DIR, pt )
+    idist, surf_indx_out, u_out, w_out = AxisProjPnt01I( geom_id, Y_DIR, pt )
 
     print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out )
     print( "3D Offset ", False)
-    print( surf_pt - p_out )
 
     \endcode
     \endPythonOnly
@@ -14732,11 +14725,10 @@ extern double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, co
     \param [out] surf_indx_out Output main surface index from the parent Geom
     \param [out] u_out Output closest U (0 - 1) surface coordinate
     \param [out] w_out Output closest W (0 - 1) surface coordinate
-    \param [out] p_out Output 3D coordinate point
     \return Axis aligned distance between the 3D point and the projected point on the surface
 */
 
-extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out);
+extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out);
 
 /*!
     \ingroup SurfaceQuery
@@ -14766,9 +14758,8 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     double w0 = w - 0.05678;
 
     double uout, wout;
-    vec3d p_out;
 
-    double d = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0, uout, wout, p_out);
+    double d = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0, uout, wout);
 
     Print( "Dist " + d + " u " + uout + " w " + wout );
     \endcode
@@ -14794,7 +14785,7 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     u0 = u + 0.01234
     w0 = w - 0.05678
 
-    d, uout, wout, p_out = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0 )
+    d, uout, wout = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0 )
 
     print( f"Dist {d} u {uout} w {wout}" )
 
@@ -14809,11 +14800,10 @@ extern double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const
     \param [in] w0 Input W (0 - 1) surface coordinate guess
     \param [out] u_out Output closest U (0 - 1) surface coordinate
     \param [out] w_out Output closest W (0 - 1) surface coordinate
-    \param [out] p_out Output 3D coordinate point
     \return Distance between the 3D point and the closest point of the surface
 */
 
-extern double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out, vec3d &p_out);
+extern double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out);
 
 /*!
     \ingroup SurfaceQuery
@@ -15705,9 +15695,8 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
     }
 
     array<double> uoutv, woutv, doutv;
-    array< vec3d > poutv;
 
-    AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, poutv, doutv );
+    AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, doutv );
 
     // Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
     // the pod from the originally computed point.  I.e. there were multiple solutions and the original point
@@ -15746,7 +15735,7 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
 
         ptvec[i].offset_y( -5.0 )
 
-    uoutv, woutv, poutv, doutv = AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec )
+    uoutv, woutv, doutv = AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec )
 
     # Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
     # the pod from the originally computed point.  I.e. there were multiple solutions and the original point
@@ -15769,11 +15758,10 @@ extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, 
     \param [in] pts vector<vec3d> Input vector of 3D coordinate points
     \param [out] u_out_vec vector<double> Output vector of the closest U (0 - 1) surface coordinate for each 3D input point
     \param [out] w_out_vec vector<double> Output vector of the closest W (0 - 1) surface coordinate for each 3D input point
-    \param [out] pt_out_vec vector<vec3d> Output array of 3D coordinate points
     \param [out] d_out_vec vector<double> Output vector of axis distances for each 3D point and the projected point of the surface
 */
 
-extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < vec3d > &pt_out_vec, std::vector < double > &d_out_vec );
+extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec );
 
 /*!
     \ingroup SurfaceQuery
@@ -15808,7 +15796,6 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
     }
 
     array<double> uoutv, woutv, doutv, u0v, w0v;
-    array< vec3d > poutv;
 
     u0v.resize( n );
     w0v.resize( n );
@@ -15819,7 +15806,7 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
         w0v[i] = wvec[i] - 0.05678;
     }
 
-    AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v,  uoutv, woutv, poutv, doutv );
+    AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v,  uoutv, woutv, doutv );
 
     for( int i = 0 ; i < n ; i++ )
     {
@@ -15863,7 +15850,7 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
         u0v[i] = uvec[i] + 0.01234
         w0v[i] = wvec[i] - 0.05678
 
-    uoutv, woutv, poutv, doutv = AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v )
+    uoutv, woutv, doutv = AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v )
 
     for i in range(n):
 
@@ -15885,11 +15872,10 @@ extern void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, c
     \param [in] w0s vector<double> Input vector of W (0 - 1) surface coordinate guesses
     \param [out] u_out_vec vector<double> Output vector of the closest U (0 - 1) surface coordinate for each 3D input point
     \param [out] w_out_vec vector<double> Output vector of the closest W (0 - 1) surface coordinate for each 3D input point
-    \param [out] pt_out_vec vector<vec3d> Output array of 3D coordinate points
     \param [out] d_out_vec vector<double> Output vector of axis distances for each 3D point and the projected point of the surface
 */
 
-extern void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, const std::vector < double > &u0s, const std::vector < double > &w0s, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < vec3d > &pt_out_vec, std::vector < double > &d_out_vec );
+extern void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, const std::vector < double > &u0s, const std::vector < double > &w0s, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec );
 
 /*!
     \ingroup SurfaceQuery

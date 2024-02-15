@@ -137,11 +137,11 @@ public:
     void ConvertLMNtoRST( const double &l, const double &m, const double &n, double &r_out, double &s_out, double &t_out ) const;
     void ConvertLtoR( const double &l, double &r_out ) const;
 
-    double ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d & outpt ) const;
-    double ProjectPt( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d & outpt ) const;
+    double ProjectPt( const vec3d &inpt, const int &idir, double &u_out, double &w_out ) const;
+    double ProjectPt( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out ) const;
 
-    double ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, double &w_out, vec3d & outpt ) const;
-    double ProjectPt01( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out, vec3d & outpt ) const;
+    double ProjectPt01( const vec3d &inpt, const int &idir, double &u_out, double &w_out ) const;
+    double ProjectPt01( const vec3d &inpt, const int &idir, const double &u0, const double &w0, double &u_out, double &w_out ) const;
 
     bool IsInside( const vec3d &pt );
 

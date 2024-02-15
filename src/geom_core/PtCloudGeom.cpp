@@ -460,7 +460,9 @@ void PtCloudGeom::ProjectPts( string geomid, int surfid, int idir )
             vec3d pout;
 
             double u, w;
-            surf->ProjectPt( pin, idir, u, w, pout );
+            surf->ProjectPt( pin, idir, u, w );
+
+            pout = surf->CompPnt01( u, w );
 
             m_Pts[i] = invMat.xform( pout );
         }

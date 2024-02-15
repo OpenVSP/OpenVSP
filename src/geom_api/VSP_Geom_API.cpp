@@ -7911,7 +7911,7 @@ double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const ve
     return dmin;
 }
 
-double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, double &u_out, double &w_out, vec3d &p_out)
+double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, double &u_out, double &w_out)
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -7930,14 +7930,14 @@ double AxisProjPnt01(const std::string &geom_id, const int &surf_indx, const int
         return idmin;
     }
 
-    idmin = geom->GetSurfPtr( surf_indx )->ProjectPt01( pt, iaxis, u_out, w_out, p_out );
+    idmin = geom->GetSurfPtr( surf_indx )->ProjectPt01( pt, iaxis, u_out, w_out );
 
     ErrorMgr.NoError();
 
     return idmin;
 }
 
-double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out, vec3d &p_out)
+double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out)
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -7950,14 +7950,14 @@ double AxisProjPnt01I(const std::string &geom_id, const int &iaxis, const vec3d 
         return idmin;
     }
 
-    idmin = geom->AxisProjPnt01I( iaxis, pt, surf_indx_out, u_out, w_out, p_out );
+    idmin = geom->AxisProjPnt01I( iaxis, pt, surf_indx_out, u_out, w_out );
 
     ErrorMgr.NoError();
 
     return idmin;
 }
 
-double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out, vec3d &p_out)
+double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out)
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -7976,7 +7976,7 @@ double AxisProjPnt01Guess(const std::string &geom_id, const int &surf_indx, cons
         return idmin;
     }
 
-    idmin = geom->GetSurfPtr( surf_indx )->ProjectPt01( pt, iaxis, clamp( u0, 0.0, 1.0 ), clamp( w0, 0.0, 1.0 ), u_out, w_out, p_out );
+    idmin = geom->GetSurfPtr( surf_indx )->ProjectPt01( pt, iaxis, clamp( u0, 0.0, 1.0 ), clamp( w0, 0.0, 1.0 ), u_out, w_out );
 
     ErrorMgr.NoError();
 
@@ -8463,7 +8463,7 @@ void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const 
     ErrorMgr.NoError();
 }
 
-void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < vec3d > &pt_out_vec, std::vector < double > &d_out_vec)
+void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec)
 {
     Vehicle* veh = GetVehicle();
 
@@ -8471,7 +8471,6 @@ void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const in
 
     u_out_vec.resize( 0 );
     w_out_vec.resize( 0 );
-    pt_out_vec.resize( 0 );
     d_out_vec.resize( 0 );
 
     if ( geom_ptr )
@@ -8482,12 +8481,11 @@ void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const in
         {
             u_out_vec.resize( pts.size() );
             w_out_vec.resize( pts.size() );
-            pt_out_vec.resize( pts.size() );
             d_out_vec.resize( pts.size() );
 
             for ( int i = 0; i < pts.size(); i++ )
             {
-                d_out_vec[i] = surf->ProjectPt01( pts[i], iaxis, u_out_vec[i], w_out_vec[i], pt_out_vec[i] );
+                d_out_vec[i] = surf->ProjectPt01( pts[i], iaxis, u_out_vec[i], w_out_vec[i] );
             }
         }
         else
@@ -8504,7 +8502,7 @@ void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const in
     ErrorMgr.NoError();
 }
 
-void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, const std::vector < double > &u0s, const std::vector < double > &w0s, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < vec3d > &pt_out_vec, std::vector < double > &d_out_vec )
+void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, const std::vector < double > &u0s, const std::vector < double > &w0s, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec )
 {
     Vehicle* veh = GetVehicle();
 
@@ -8512,7 +8510,6 @@ void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, con
 
     u_out_vec.resize( 0 );
     w_out_vec.resize( 0 );
-    pt_out_vec.resize( 0 );
     d_out_vec.resize( 0 );
 
     if ( geom_ptr )
@@ -8525,12 +8522,11 @@ void AxisProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, con
             {
                 u_out_vec.resize( pts.size() );
                 w_out_vec.resize( pts.size() );
-                pt_out_vec.resize( pts.size() );
                 d_out_vec.resize( pts.size() );
 
                 for ( int i = 0; i < pts.size(); i++ )
                 {
-                    d_out_vec[i] = surf->ProjectPt01( pts[i], iaxis, clamp( u0s[i], 0.0, 1.0 ), clamp( w0s[i], 0.0, 1.0 ), u_out_vec[i], w_out_vec[i], pt_out_vec[i] );
+                    d_out_vec[i] = surf->ProjectPt01( pts[i], iaxis, clamp( u0s[i], 0.0, 1.0 ), clamp( w0s[i], 0.0, 1.0 ), u_out_vec[i], w_out_vec[i] );
                 }
             }
             else

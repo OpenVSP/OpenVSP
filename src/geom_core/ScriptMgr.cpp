@@ -4215,15 +4215,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double AxisProjPnt01( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, double & out u_out, double & out w_out, vec3d & out p_out )", vspFUNCTION(vsp::AxisProjPnt01), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, double & out u_out, double & out w_out )", vspFUNCTION(vsp::AxisProjPnt01), vspCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double AxisProjPnt01I( const string & in geom_id, const int & in iaxis, const vec3d & in pt, int & out surf_indx_out, double & out u_out, double & out w_out, vec3d & out p_out )", vspFUNCTION(vsp::AxisProjPnt01I), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01I( const string & in geom_id, const int & in iaxis, const vec3d & in pt, int & out surf_indx_out, double & out u_out, double & out w_out )", vspFUNCTION(vsp::AxisProjPnt01I), vspCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "double AxisProjPnt01Guess( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, const double & in u0, const double & in w0, double & out u_out, double & out w_out, vec3d & out p_out )", vspFUNCTION(vsp::AxisProjPnt01Guess), vspCALL_CDECL );
+    r = se->RegisterGlobalFunction( "double AxisProjPnt01Guess( const string & in geom_id, const int & in surf_indx, const int & in iaxis, const vec3d & in pt, const double & in u0, const double & in w0, double & out u_out, double & out w_out )", vspFUNCTION(vsp::AxisProjPnt01Guess), vspCALL_CDECL );
     assert( r >= 0 );
 
 
@@ -4301,10 +4301,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void ProjVecPnt01Guess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, ProjVecPnt01Guess ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01(const string & in geom_id, const int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<vec3d>@ ps_out, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, AxisProjVecPnt01 ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01(const string & in geom_id, const int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, AxisProjVecPnt01 ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<vec3d>@ ps_out, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, AxisProjVecPnt01Guess ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", vspMETHOD( ScriptMgrSingleton, AxisProjVecPnt01Guess ), vspCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -5453,7 +5453,7 @@ void ScriptMgrSingleton::ProjVecPnt01Guess(const string &geom_id, const int &sur
     FillArray( out_ds, ds );
 }
 
-void ScriptMgrSingleton::AxisProjVecPnt01(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ps_out, CScriptArray* ds )
+void ScriptMgrSingleton::AxisProjVecPnt01(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
 {
     vector < vec3d > in_pts;
     FillArray( pts, in_pts );
@@ -5461,17 +5461,15 @@ void ScriptMgrSingleton::AxisProjVecPnt01(const string &geom_id, const int &surf
     vector < double > out_us;
     vector < double > out_ws;
     vector < double > out_ds;
-    vector < vec3d > out_pts;
 
-    vsp::AxisProjVecPnt01( geom_id, surf_indx, iaxis, in_pts, out_us, out_ws, out_pts, out_ds );
+    vsp::AxisProjVecPnt01( geom_id, surf_indx, iaxis, in_pts, out_us, out_ws, out_ds );
 
     FillArray( out_us, us );
     FillArray( out_ws, ws );
     FillArray( out_ds, ds );
-    FillArray( out_pts, ps_out );
 }
 
-void ScriptMgrSingleton::AxisProjVecPnt01Guess(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ps_out, CScriptArray* ds )
+void ScriptMgrSingleton::AxisProjVecPnt01Guess(const string &geom_id, const int &surf_indx, const int &iaxis, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
 {
     vector < vec3d > in_pts;
     FillArray( pts, in_pts );
@@ -5485,14 +5483,12 @@ void ScriptMgrSingleton::AxisProjVecPnt01Guess(const string &geom_id, const int 
     vector < double > out_us;
     vector < double > out_ws;
     vector < double > out_ds;
-    vector < vec3d > out_pts;
 
-    vsp::AxisProjVecPnt01Guess( geom_id, surf_indx, iaxis, in_pts, in_u0s, in_w0s, out_us, out_ws, out_pts,out_ds );
+    vsp::AxisProjVecPnt01Guess( geom_id, surf_indx, iaxis, in_pts, in_u0s, in_w0s, out_us, out_ws, out_ds );
 
     FillArray( out_us, us );
     FillArray( out_ws, ws );
     FillArray( out_ds, ds );
-    FillArray( out_pts, ps_out );
 }
 
 void ScriptMgrSingleton::FindRSTVec(const string &geom_id, const int &surf_indx, CScriptArray* pts, CScriptArray* rs, CScriptArray* ss, CScriptArray* ts, CScriptArray* ds )
