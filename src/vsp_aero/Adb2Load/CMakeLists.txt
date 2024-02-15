@@ -35,12 +35,16 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
 endif()
 
 INSTALL( TARGETS vsploads RUNTIME DESTINATION . )
-INSTALL( TARGETS vsploads RUNTIME DESTINATION python/openvsp/openvsp )
 
-add_custom_command(TARGET vsploads POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        $<TARGET_FILE:vsploads>
-        ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:vsploads>)
+
+IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
+  INSTALL( TARGETS vsploads RUNTIME DESTINATION python/openvsp/openvsp )
+
+  add_custom_command(TARGET vsploads POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy
+          $<TARGET_FILE:vsploads>
+          ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:vsploads>)
+ENDIF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
 
 get_property( is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG )

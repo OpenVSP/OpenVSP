@@ -56,7 +56,10 @@ else()
     )
 
     INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION . )
-    INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION python/openvsp/openvsp )
+
+    IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
+        INSTALL( PROGRAMS ${BINARY_DIR}/vspaero DESTINATION python/openvsp/openvsp )
+    ENDIF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
 # When built as an external project (typically using a secondary compiler for OpenMP compatibility to produce
 # production releases, there is no vspaero target in this context.  Consequently, add_custom_command(TARGET does
@@ -64,10 +67,12 @@ else()
 # are for the convenience of a local developer.  However,  if someone is doing a local build with an alternate
 # compiler, then they should do some work to make these commands function as intended.
 #
-#    add_custom_command(TARGET vspaero POST_BUILD
-#            COMMAND ${CMAKE_COMMAND} -E copy
-#            $<TARGET_FILE:vspaero>
-#            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vspaero )
+#    IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
+#        add_custom_command(TARGET vspaero POST_BUILD
+#                COMMAND ${CMAKE_COMMAND} -E copy
+#                $<TARGET_FILE:vspaero>
+#                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vspaero )
+#    ENDIF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 #
 #    add_custom_command(TARGET vspaero POST_BUILD
 #            COMMAND ${CMAKE_COMMAND} -E copy
@@ -302,12 +307,15 @@ if(BUILD_VSPAERO)
     endif()
 
     INSTALL( TARGETS ${SOLVER_TARGETS} RUNTIME DESTINATION . )
-    INSTALL( TARGETS vspaero RUNTIME DESTINATION python/openvsp/openvsp )
 
-    add_custom_command(TARGET vspaero POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy
-            $<TARGET_FILE:vspaero>
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:vspaero> )
+    IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
+        INSTALL( TARGETS vspaero RUNTIME DESTINATION python/openvsp/openvsp )
+
+        add_custom_command(TARGET vspaero POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy
+                $<TARGET_FILE:vspaero>
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:vspaero> )
+    ENDIF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
     get_property( is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG )
 

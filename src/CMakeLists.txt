@@ -149,10 +149,6 @@ SET( VSP_G_LIBRARIES_CORE_FIRST
 
 ADD_SUBDIRECTORY( vsp )
 
-IF( NOT VSP_NO_VSPAERO )
-    ADD_SUBDIRECTORY( vsp_aero )
-ENDIF()
-
 FIND_PACKAGE( SWIG )
 
 IF( SWIG_FOUND )
@@ -188,6 +184,10 @@ IF( SWIG_FOUND )
 	ENDIF()
 
 ENDIF( SWIG_FOUND )
+
+IF( NOT VSP_NO_VSPAERO )
+    ADD_SUBDIRECTORY( vsp_aero )
+ENDIF()
 
 INCLUDE( IdentifyLibs )  # Debugging to confirm which libraries are set.
 
