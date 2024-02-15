@@ -568,7 +568,7 @@ bool Vehicle::CheckForVSPAERO( const string & path )
 
     if( !CheckForFile( path, m_VSPAEROCmd ) )
     {
-        fprintf( stderr, "ERROR %d: VSPAERO Solver Not Found. \n"
+        fprintf( stderr, "WARNING %d: VSPAERO Solver Not Found. \n"
             "\tExpected here: %s\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
             ( path + string("/") + m_VSPAEROCmd ).c_str() );
@@ -582,7 +582,7 @@ bool Vehicle::CheckForVSPAERO( const string & path )
     if( !CheckForFile( path, m_VIEWERCmd ) )
     {
 #ifndef VSP_NO_GRAPHICS
-        fprintf( stderr, "ERROR %d: VSPAERO Viewer Not Found. \n"
+        fprintf( stderr, "WARNING %d: VSPAERO Viewer Not Found. \n"
             "\tExpected here: %s\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
             ( path + string("/") + m_VIEWERCmd ).c_str() );
@@ -596,7 +596,7 @@ bool Vehicle::CheckForVSPAERO( const string & path )
 
     if( !CheckForFile( path, m_LOADSCmd ) )
     {
-        fprintf( stderr, "ERROR %d: VSPAERO Loads Not Found. \n"
+        fprintf( stderr, "WARNING %d: VSPAERO Loads Not Found. \n"
             "\tExpected here: %s\n",
             vsp::VSP_FILE_DOES_NOT_EXIST,
             ( path + string("/") + m_LOADSCmd ).c_str() );
