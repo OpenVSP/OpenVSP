@@ -592,6 +592,25 @@ vec2d poly_centroid( const std::vector< vec2d > & pnt_vec )
     return centroid;
 }
 
+// Not robust, but very simple.
+double orient2d( const vec2d & p0, const vec2d & p1, const vec2d & p )
+{
+    double acx, bcx, acy, bcy;
+
+    // Line endpoints are coincident.
+    if ( ( p0[0] - p1[0] == 0 ) && ( p0[1] - p1[1] == 0 ) )
+    {
+        return 0.0;
+    }
+
+    acx = p0[0] - p[0];
+    bcx = p1[0] - p[0];
+    acy = p0[1] - p[1];
+    bcy = p1[1] - p[1];
+
+    return acx * bcy - acy * bcx;
+}
+
 bool in_range( double val, double range_min, double range_max, double tol )
 {
     return ( ( val + tol ) >= range_min ) && ( ( val - tol ) <= range_max );
