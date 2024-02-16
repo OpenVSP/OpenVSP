@@ -7809,16 +7809,16 @@ vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const double 
     return ret;
 }
 
-void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w, double &k1,
-                     double &k2, double &ka, double &kg)
+void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w, double &k1_out,
+                     double &k2_out, double &ka_out, double &kg_out )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
 
-    k1 = 0.0;
-    k2 = 0.0;
-    ka = 0.0;
-    kg = 0.0;
+    k1_out = 0.0;
+    k2_out = 0.0;
+    ka_out = 0.0;
+    kg_out = 0.0;
 
     if ( !geom_ptr )
     {
@@ -7833,12 +7833,12 @@ void CompCurvature01(const std::string &geom_id, const int &surf_indx, const dou
     }
 
     VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
-    surf->CompCurvature01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ), k1, k2, ka, kg );
+    surf->CompCurvature01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ), k1_out, k2_out, ka_out, kg_out );
 
     ErrorMgr.NoError();
 }
 
-double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u, double &w)
+double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u_out, double &w_out)
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -7857,7 +7857,7 @@ double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &
         return dmin;
     }
 
-    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u, w, pt );
+    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u_out, w_out, pt );
 
     ErrorMgr.NoError();
 
@@ -7865,7 +7865,7 @@ double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &
 }
 
 double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx,
-                  double &u, double &w)
+                  double &u_out, double &w_out)
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -7878,14 +7878,14 @@ double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx,
         return dmin;
     }
 
-    dmin = geom->ProjPnt01I( pt, surf_indx, u, w );
+    dmin = geom->ProjPnt01I( pt, surf_indx, u_out, w_out );
 
     ErrorMgr.NoError();
 
     return dmin;
 }
 
-double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u, double &w)
+double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out)
 {
     Vehicle* vPtr = VehicleMgr.GetVehicle();
     Geom * geom = vPtr->FindGeom( geom_id );
@@ -7904,7 +7904,7 @@ double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const ve
         return dmin;
     }
 
-    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u, w, pt, clamp( u0, 0.0, 1.0 ), clamp( w0, 0.0, 1.0 ) );
+    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u_out, w_out, pt, clamp( u0, 0.0, 1.0 ), clamp( w0, 0.0, 1.0 ) );
 
     ErrorMgr.NoError();
 
@@ -8328,16 +8328,16 @@ vector < vec3d > CompVecNorm01( const std::string &geom_id, const int &surf_indx
     return norms;
 }
 
-void CompVecCurvature01( const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws, vector < double > &k1s, vector < double > &k2s, vector < double > &kas, vector < double > &kgs )
+void CompVecCurvature01( const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws, vector < double > &k1_out_vec, vector < double > &k2_out_vec, vector < double > &ka_out_vec, vector < double > &kg_out_vec )
 {
     Vehicle* veh = GetVehicle();
 
     Geom* geom_ptr = veh->FindGeom( geom_id );
 
-    k1s.resize( 0 );
-    k2s.resize( 0 );
-    kas.resize( 0 );
-    kgs.resize( 0 );
+    k1_out_vec.resize( 0 );
+    k2_out_vec.resize( 0 );
+    ka_out_vec.resize( 0 );
+    kg_out_vec.resize( 0 );
 
     if ( geom_ptr )
     {
@@ -8347,14 +8347,14 @@ void CompVecCurvature01( const std::string &geom_id, const int &surf_indx, const
 
             if ( surf )
             {
-                k1s.resize( us.size() );
-                k2s.resize( us.size() );
-                kas.resize( us.size() );
-                kgs.resize( us.size() );
+                k1_out_vec.resize( us.size() );
+                k2_out_vec.resize( us.size() );
+                ka_out_vec.resize( us.size() );
+                kg_out_vec.resize( us.size() );
 
                 for ( int i = 0; i < us.size(); i++ )
                 {
-                    surf->CompCurvature01( clamp( us[i], 0.0, 1.0 ), clamp( ws[i], 0.0, 1.0 ), k1s[i], k2s[i], kas[i], kgs[i] );
+                    surf->CompCurvature01( clamp( us[i], 0.0, 1.0 ), clamp( ws[i], 0.0, 1.0 ), k1_out_vec[i], k2_out_vec[i], ka_out_vec[i], kg_out_vec[i] );
                 }
             }
             else
@@ -8377,15 +8377,15 @@ void CompVecCurvature01( const std::string &geom_id, const int &surf_indx, const
     ErrorMgr.NoError();
 }
 
-void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector < vec3d > &pts, vector < double > &us, vector < double > &ws, vector < double > &ds )
+void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector < vec3d > &pts, vector < double > &u_out_vec, vector < double > &w_out_vec, vector < double > &d_out_vec )
 {
     Vehicle* veh = GetVehicle();
 
     Geom* geom_ptr = veh->FindGeom( geom_id );
 
-    us.resize( 0 );
-    ws.resize( 0 );
-    ds.resize( 0 );
+    u_out_vec.resize( 0 );
+    w_out_vec.resize( 0 );
+    d_out_vec.resize( 0 );
 
     if ( geom_ptr )
     {
@@ -8393,13 +8393,13 @@ void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector
 
         if ( surf )
         {
-            us.resize( pts.size() );
-            ws.resize( pts.size() );
-            ds.resize( pts.size() );
+            u_out_vec.resize( pts.size() );
+            w_out_vec.resize( pts.size() );
+            d_out_vec.resize( pts.size() );
 
             for ( int i = 0; i < pts.size(); i++ )
             {
-                ds[i] = surf->FindNearest01( us[i], ws[i], pts[i] );
+                d_out_vec[i] = surf->FindNearest01( u_out_vec[i], w_out_vec[i], pts[i] );
             }
         }
         else
@@ -8416,15 +8416,15 @@ void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector
     ErrorMgr.NoError();
 }
 
-void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const vector < vec3d > &pts, const vector < double > &u0s, const vector < double > &w0s, vector < double > &us, vector < double > &ws, vector < double > &ds )
+void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const vector < vec3d > &pts, const vector < double > &u0s, const vector < double > &w0s, vector < double > &u_out_vec, vector < double > &w_out_vec, vector < double > &d_out_vec )
 {
     Vehicle* veh = GetVehicle();
 
     Geom* geom_ptr = veh->FindGeom( geom_id );
 
-    us.resize( 0 );
-    ws.resize( 0 );
-    ds.resize( 0 );
+    u_out_vec.resize( 0 );
+    w_out_vec.resize( 0 );
+    d_out_vec.resize( 0 );
 
     if ( geom_ptr )
     {
@@ -8434,13 +8434,13 @@ void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const 
 
             if ( surf )
             {
-                us.resize( pts.size() );
-                ws.resize( pts.size() );
-                ds.resize( pts.size() );
+                u_out_vec.resize( pts.size() );
+                w_out_vec.resize( pts.size() );
+                d_out_vec.resize( pts.size() );
 
                 for ( int i = 0; i < pts.size(); i++ )
                 {
-                    ds[i] = surf->FindNearest01( us[i], ws[i], pts[i], clamp( u0s[i], 0.0, 1.0 ), clamp( w0s[i], 0.0, 1.0 ) );
+                    d_out_vec[i] = surf->FindNearest01( u_out_vec[i], w_out_vec[i], pts[i], clamp( u0s[i], 0.0, 1.0 ), clamp( w0s[i], 0.0, 1.0 ) );
                 }
             }
             else
@@ -8463,7 +8463,7 @@ void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const 
     ErrorMgr.NoError();
 }
 
-void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec)
+void AxisProjVecPnt01(const std::string &geom_id, const int &surf_indx, const int &iaxis, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec )
 {
     Vehicle* veh = GetVehicle();
 
@@ -8631,16 +8631,16 @@ std::vector < vec3d > CompVecPntRST( const std::string &geom_id, const int &surf
     return pts;
 }
 
-void FindRSTVec( const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, std::vector < double > &rs, std::vector < double > &ss, std::vector < double > &ts, std::vector < double > &ds )
+void FindRSTVec( const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, std::vector < double > &r_out_vec, std::vector < double > &s_out_vec, std::vector < double > &t_out_vec, std::vector < double > &d_out_vec )
 {
     Vehicle* veh = GetVehicle();
 
     Geom* geom_ptr = veh->FindGeom( geom_id );
 
-    rs.resize( 0 );
-    ss.resize( 0 );
-    ts.resize( 0 );
-    ds.resize( 0 );
+    r_out_vec.resize( 0 );
+    s_out_vec.resize( 0 );
+    t_out_vec.resize( 0 );
+    d_out_vec.resize( 0 );
 
     if ( geom_ptr )
     {
@@ -8648,12 +8648,12 @@ void FindRSTVec( const std::string &geom_id, const int &surf_indx, const std::ve
 
         if ( surf )
         {
-            rs.resize( pts.size() );
-            ss.resize( pts.size() );
-            ts.resize( pts.size() );
-            ds.resize( pts.size() );
+            r_out_vec.resize( pts.size() );
+            s_out_vec.resize( pts.size() );
+            t_out_vec.resize( pts.size() );
+            d_out_vec.resize( pts.size() );
 
-            surf->FindRST( pts, rs, ss, ts, ds );
+            surf->FindRST( pts, r_out_vec, s_out_vec, t_out_vec, d_out_vec );
         }
         else
         {
@@ -8669,16 +8669,16 @@ void FindRSTVec( const std::string &geom_id, const int &surf_indx, const std::ve
     ErrorMgr.NoError();
 }
 
-void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, const std::vector < double > &r0s, const std::vector < double > &s0s, const std::vector < double > &t0s, std::vector < double > &rs, std::vector < double > &ss, std::vector < double > &ts, std::vector < double > &ds )
+void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, const std::vector < double > &r0s, const std::vector < double > &s0s, const std::vector < double > &t0s, std::vector < double > &r_out_vec, std::vector < double > &s_out_vec, std::vector < double > &t_out_vec, std::vector < double > &d_out_vec )
 {
     Vehicle* veh = GetVehicle();
 
     Geom* geom_ptr = veh->FindGeom( geom_id );
 
-    rs.resize( 0 );
-    ss.resize( 0 );
-    ts.resize( 0 );
-    ds.resize( 0 );
+    r_out_vec.resize( 0 );
+    s_out_vec.resize( 0 );
+    t_out_vec.resize( 0 );
+    d_out_vec.resize( 0 );
 
     if ( geom_ptr )
     {
@@ -8688,14 +8688,14 @@ void FindRSTVecGuess( const std::string &geom_id, const int &surf_indx, const st
 
             if ( surf )
             {
-                rs.resize( pts.size() );
-                ss.resize( pts.size() );
-                ts.resize( pts.size() );
-                ds.resize( pts.size() );
+                r_out_vec.resize( pts.size() );
+                s_out_vec.resize( pts.size() );
+                t_out_vec.resize( pts.size() );
+                d_out_vec.resize( pts.size() );
 
                 for ( int i = 0; i < pts.size(); i++ )
                 {
-                    ds[i] = surf->FindRST( pts[i], clamp( r0s[i], 0.0, 1.0 ), clamp( s0s[i], 0.0, 1.0 ), clamp( t0s[i], 0.0, 1.0 ), rs[i], ss[i], ts[i] );
+                    d_out_vec[i] = surf->FindRST( pts[i], clamp( r0s[i], 0.0, 1.0 ), clamp( s0s[i], 0.0, 1.0 ), clamp( t0s[i], 0.0, 1.0 ), r_out_vec[i], s_out_vec[i], t_out_vec[i] );
                 }
             }
             else
