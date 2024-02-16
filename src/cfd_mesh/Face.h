@@ -192,7 +192,7 @@ public:
 
     void LoadAdjFaces( int num_levels, set< Face* > & faceSet );
 
-    void AddBorderEdges( list< Edge* > &edgeList );
+    void AddBorderNodes( vector< Node* > &nodeVec );
     void BuildRemovalSet( set < Face* > &remFaces, set < Edge* > &remEdges, set < Node* > &remNodes );
     void EdgeForgetFace();
 

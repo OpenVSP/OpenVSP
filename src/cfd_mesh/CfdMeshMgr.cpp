@@ -12,6 +12,8 @@
 #include "main.h"
 #include "MeshAnalysis.h"
 
+#include <algorithm>
+
 #ifdef DEBUG_CFD_MESH
 // #include <direct.h>
 #include <sys/stat.h>
@@ -133,9 +135,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
         ConvertToQuads();
     }
 
-    addOutputText( "ConnectBorderEdges\n" );
-    ConnectBorderEdges( false );        // No Wakes
-    ConnectBorderEdges( true );         // Only Wakes
+    addOutputText( "ConnectBorderNodes\n" );
+    ConnectBorderNodes( false );        // No Wakes
+    ConnectBorderNodes( true );         // Only Wakes
 
     addOutputText( "Post Mesh\n" );
     PostMesh();
@@ -3094,184 +3096,58 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
 }
 
-void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
+void CfdMeshMgrSingleton::ConnectBorderNodes( bool wakeOnly )
 {
-    list< Edge* >::iterator e;
-    list< Edge* > edgeList;
-    list< Face* >::iterator f;
+    vector< Node* > nodeVec;
     for ( int s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
     {
         if ( m_SurfVec[s]->GetWakeFlag() == wakeOnly )
         {
             list <Face*> faceList = m_SurfVec[ s ]->GetMesh()->GetFaceList();
-            for ( f = faceList.begin() ; f != faceList.end(); ++f )
+            for ( list< Face* >::iterator f = faceList.begin() ; f != faceList.end(); ++f )
             {
-                ( *f )->AddBorderEdges( edgeList );
+                ( *f )->AddBorderNodes( nodeVec );
             }
         }
     }
 
-    int i, j, k;
-//  int num_grid = 10;
-    unsigned int num_grid = 1;  // jrg change back to 10????
+    std::sort( nodeVec.begin(), nodeVec.end() );
+    auto nvit = std::unique( nodeVec.begin(), nodeVec.end() );
+    nodeVec.erase( nvit, nodeVec.end() );
 
-    vector< vector< vector< list< Edge* > > > > edgeGrid;
-    edgeGrid.resize( num_grid );
-    for (  i = 0 ; i < num_grid ; i++ )
-    {
-        edgeGrid[i].resize( num_grid );
-    }
-    for (  i = 0 ; i < num_grid ; i++ )
-        for (  j = 0 ; j < num_grid ; j++ )
-        {
-            edgeGrid[i][j].resize( num_grid );
-        }
-
-    BndBox box;
-    for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
-    {
-        box.Update( ( *e )->n0->pnt );
-        box.Update( ( *e )->n1->pnt );
-    }
-
-    double slop = 1.0e-5;
-    double min_x = box.GetMin( 0 ) - slop;
-    double min_y = box.GetMin( 1 ) - slop;
-    double min_z = box.GetMin( 2 ) - slop;
-    double dx = 2 * slop + ( box.GetMax( 0 ) - box.GetMin( 0 ) ) / ( double )( num_grid );
-    double dy = 2 * slop + ( box.GetMax( 1 ) - box.GetMin( 1 ) ) / ( double )( num_grid );
-    double dz = 2 * slop + ( box.GetMax( 2 ) - box.GetMin( 2 ) ) / ( double )( num_grid );
-
-    for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
-    {
-        double mx = min( ( *e )->n0->pnt[0], ( *e )->n1->pnt[0] );
-        double my = min( ( *e )->n0->pnt[1], ( *e )->n1->pnt[1] );
-        double mz = min( ( *e )->n0->pnt[2], ( *e )->n1->pnt[2] );
-
-        int ix = ( int )( ( mx - min_x ) / dx );
-        int iy = ( int )( ( my - min_y ) / dy );
-        int iz = ( int )( ( mz - min_z ) / dz );
-        edgeGrid[ix][iy][iz].push_back( ( *e ) );
-    }
-
-    for ( i = 0 ; i < num_grid ; i++ )
-        for ( j = 0 ; j < num_grid ; j++ )
-            for ( k = 0 ; k < num_grid ; k++ )
-            {
-                if ( edgeGrid[i][j][k].size() > 0 )
-                {
-                    MatchBorderEdges( edgeGrid[i][j][k] );
-                }
-            }
-
+    MatchBorderNodes( nodeVec );
 }
 
-void CfdMeshMgrSingleton::MatchBorderEdges( list< Edge* > edgeList )
+void CfdMeshMgrSingleton::MatchBorderNodes( const vector< Node* > & nodeVec )
 {
-    list< Edge* >::iterator e;
-    list< Edge* >::iterator f;
+    vector < vec3d > ptVec( nodeVec.size() );
 
-    //==== Match Edges ====//
-    double dist_tol = 1e-5;
-    bool stopFlag = false;
-    if ( edgeList.size() <= 1  )
+    for ( int i = 0; i < nodeVec.size(); i++ )
     {
-        stopFlag = true;
+        ptVec[i] = nodeVec[i]->pnt;
     }
 
-    while( !stopFlag )
+    //==== Build Map ====//
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( ptVec );
+
+    double tol = 1e-5;
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol );
+
+    for ( int i = 0; i < ptVec.size(); i++ )
     {
-        double close_dist = 1.0e12;
-        Edge* close_e = NULL;
-        Edge* close_f = NULL;
-        for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
+        if ( pnCloud.UsedNode( i ) )
         {
-            for ( f = edgeList.begin() ; f != edgeList.end() ; ++f )
+            vector < long long > matches = pnCloud.GetMatches( i );
+
+            for ( int j = 1; j < matches.size(); j++ )
             {
-                if ( ( *e ) != ( *f ) )
-                {
-                    double d0011 = dist_squared( ( *e )->n0->pnt, ( *f )->n0->pnt ) +
-                                   dist_squared( ( *e )->n1->pnt, ( *f )->n1->pnt );
-                    double d0110 = dist_squared( ( *e )->n0->pnt, ( *f )->n1->pnt ) +
-                                   dist_squared( ( *e )->n1->pnt, ( *f )->n0->pnt );
-
-                    double d = min( d0011, d0110 );
-                    if ( d < close_dist )
-                    {
-                        close_dist = d;
-                        close_e = ( *e );
-                        close_f = ( *f );
-                    }
-                }
+                nodeVec[ matches[j] ]->pnt = nodeVec[ i ]->pnt;
             }
-            if ( close_dist < dist_tol )
-            {
-                break;
-            }
-        }
-
-        if ( close_e && close_f )
-        {
-            if ( close_dist < dist_tol )
-            {
-//printf("Match Edge %f %d \n",close_dist, edgeList.size()  );
-                //==== Merge the 2 Edges ====//
-                double d0011 = dist_squared( close_e->n0->pnt, close_f->n0->pnt ) +
-                               dist_squared( close_e->n1->pnt, close_f->n1->pnt );
-
-                double d0110 = dist_squared( close_e->n0->pnt, close_f->n1->pnt ) +
-                               dist_squared( close_e->n1->pnt, close_f->n0->pnt );
-
-                if ( d0011 < d0110 )
-                {
-                    //close_e->n0->pnt = (close_e->n0->pnt + close_f->n0->pnt)*0.5;
-                    //close_e->n1->pnt = (close_e->n1->pnt + close_f->n1->pnt)*0.5;
-                    close_f->n0->pnt = close_e->n0->pnt;
-                    close_f->n1->pnt = close_e->n1->pnt;
-                }
-                else
-                {
-                    //close_e->n0->pnt = (close_e->n0->pnt + close_f->n1->pnt)*0.5;
-                    //close_e->n1->pnt = (close_e->n1->pnt + close_f->n0->pnt)*0.5;
-                    close_f->n1->pnt = close_e->n0->pnt;
-                    close_f->n0->pnt = close_e->n1->pnt;
-                }
-                edgeList.remove( close_e );
-                edgeList.remove( close_f );
-            }
-            else
-            {
-                close_e->debugFlag = true;
-//              printf("Close Dist = %f\n", close_dist );
-                edgeList.remove( close_e );
-                edgeList.remove( close_f );
-
-            }
-        }
-
-        if ( edgeList.size() <= 1  )
-        {
-            stopFlag = true;
         }
     }
 
-#ifdef DEBUG_CFD_MESH
-    if ( edgeList.size() != 0 )
-    {
-        for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
-        {
-            ( *e )->debugFlag = true;
-        }
-
-        fprintf( m_DebugFile, "CfdMeshMgr::MatchBorderEdges Missing Edges %zu\n", edgeList.size() );
-        for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
-        {
-            fprintf( m_DebugFile, "      Missing Edge : %f %f %f   %f %f %f\n",
-                     ( *e )->n0->pnt.x(), ( *e )->n0->pnt.y(), ( *e )->n0->pnt.z(),
-                     ( *e )->n1->pnt.x(), ( *e )->n1->pnt.y(), ( *e )->n1->pnt.z() );
-        }
-    }
-#endif
 }
 
 void CfdMeshMgrSingleton::UpdateDrawObjs()

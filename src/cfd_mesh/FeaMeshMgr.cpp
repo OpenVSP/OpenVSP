@@ -564,9 +564,9 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
         ConvertToQuads();
     }
 
-    addOutputText( "ConnectBorderEdges\n" );
-    ConnectBorderEdges( false );        // No Wakes
-    ConnectBorderEdges( true );         // Only Wakes
+    addOutputText( "ConnectBorderNodes\n" );
+    ConnectBorderNodes( false );        // No Wakes
+    ConnectBorderNodes( true );         // Only Wakes
 
     addOutputText( "Post Mesh\n" );
     PostMesh();

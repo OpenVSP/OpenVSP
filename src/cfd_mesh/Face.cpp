@@ -1035,26 +1035,30 @@ void Face::LoadAdjFaces( int num_levels, set< Face* > & faceSet )
     }
 }
 
-void Face::AddBorderEdges( list< Edge* > &edgeList )
+void Face::AddBorderNodes( vector< Node* > &nodeVec )
 {
     if ( e0->OtherFace( this ) == NULL )
     {
-        edgeList.push_back( e0 );
+        nodeVec.push_back( e0->n0 );
+        nodeVec.push_back( e0->n1 );
     }
     if ( e1->OtherFace( this ) == NULL )
     {
-        edgeList.push_back( e1 );
+        nodeVec.push_back( e1->n0 );
+        nodeVec.push_back( e1->n1 );
     }
     if ( e2->OtherFace( this ) == NULL )
     {
-        edgeList.push_back( e2 );
+        nodeVec.push_back( e2->n0 );
+        nodeVec.push_back( e2->n1 );
     }
 
     if ( e3 )
     {
         if ( e3->OtherFace( this ) == NULL )
         {
-            edgeList.push_back( e3 );
+            nodeVec.push_back( e3->n0 );
+            nodeVec.push_back( e3->n1 );
         }
     }
 }
