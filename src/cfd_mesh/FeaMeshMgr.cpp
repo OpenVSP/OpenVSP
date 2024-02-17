@@ -1415,35 +1415,19 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         index_vec.push_back( pnCloud.GetNodeUsedIndex( i ) );
     }
 
-    for ( size_t i = 0; i < index_vec.size(); i++ )
+    for ( size_t j = 0; j < all_face_vec.size(); j++ )
     {
-        for ( size_t j = 0; j < all_face_vec.size(); j++ )
+        all_face_vec[j].ind0 = index_vec[ all_face_vec[j].ind0 ];
+        all_face_vec[j].ind1 = index_vec[ all_face_vec[j].ind1 ];
+        all_face_vec[j].ind2 = index_vec[ all_face_vec[j].ind2 ];
+
+        if ( all_face_vec[j].m_isQuad )
         {
-            if ( all_face_vec[j].ind0 == i && all_face_vec[j].ind0 != index_vec[i] )
-            {
-                all_face_vec[j].ind0 = index_vec[i];
-            }
-
-            if ( all_face_vec[j].ind1 == i && all_face_vec[j].ind1 != index_vec[i] )
-            {
-                all_face_vec[j].ind1 = index_vec[i];
-            }
-
-            if ( all_face_vec[j].ind2 == i && all_face_vec[j].ind2 != index_vec[i] )
-            {
-                all_face_vec[j].ind2 = index_vec[i];
-            }
-
-            if ( all_face_vec[j].m_isQuad )
-            {
-                if ( all_face_vec[j].ind3 == i && all_face_vec[j].ind3 != index_vec[i] )
-                {
-                    all_face_vec[j].ind3 = index_vec[i];
-                }
-            }
+            all_face_vec[j].ind3 = index_vec[ all_face_vec[j].ind3 ];
         }
     }
 
+    GetMeshPtr()->m_FeaElementVec.reserve( GetMeshPtr()->m_FeaElementVec.size() + all_face_vec.size() );
     // Build FeaTris
     for ( int i = 0; i < (int)all_face_vec.size(); i++ )
     {
