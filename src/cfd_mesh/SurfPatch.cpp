@@ -62,14 +62,27 @@ void SurfPatch::split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, 
 
     int n = m_Patch.degree_u();
     int m = m_Patch.degree_v();
-    surface_patch_type pvlow( n, m );
-    surface_patch_type pvhi( n, m );
-    m_Patch.simple_split_v_half( pvlow, pvhi );
 
-    surface_patch_type pulow, puhi;
-    pvlow.simple_split_u_half( *(bp00.getPatch()), *(bp10.getPatch()) );
+    if ( m >= n ) // Split v first.
+    {
+        surface_patch_type pvlow( n, m );
+        surface_patch_type pvhi( n, m );
+        m_Patch.simple_split_v_half( pvlow, pvhi );
 
-    pvhi.simple_split_u_half( *(bp01.getPatch()), *(bp11.getPatch()) );
+        pvlow.simple_split_u_half( *( bp00.getPatch()), *( bp10.getPatch()));
+
+        pvhi.simple_split_u_half( *( bp01.getPatch()), *( bp11.getPatch()));
+    }
+    else
+    {
+        surface_patch_type pulow( n, m );
+        surface_patch_type puhi( n, m );
+        m_Patch.simple_split_u_half( pulow, puhi );
+
+        pulow.simple_split_v_half( *( bp00.getPatch()), *( bp01.getPatch()));
+
+        puhi.simple_split_v_half( *( bp10.getPatch()), *( bp11.getPatch()));
+    }
 
     bp00.u_min = u_min;
     bp00.w_min = w_min;
