@@ -54,6 +54,10 @@
 //#define DEBUG_CFD_MESH
 //#endif
 
+#ifdef __JETBRAINS_IDE__
+#define DEBUG_CFD_MESH
+#endif
+
 #include "Surf.h"
 #include "Mesh.h"
 #include "SCurve.h"
