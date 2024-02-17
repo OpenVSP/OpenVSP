@@ -685,6 +685,8 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, dou
 
         surfPtr->SetSurfacePlateNum(xfersurfs[i].m_PlateNum);
 
+        surfPtr->SetPlanarUWAspect( xfersurfs[i].m_PlanarUWAspect );
+
         int cid = xfersurfs[i].m_CompIndx;
 
         if ( cid > maxcompid )

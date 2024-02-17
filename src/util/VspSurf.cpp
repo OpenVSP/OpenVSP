@@ -76,6 +76,8 @@ VspSurf::VspSurf()
     m_UMapMax = -1;
 
     m_Lmax = 0;
+
+    m_PlanarUWAspect = -1;
 }
 
 //===== Destructor  =====//
@@ -2528,6 +2530,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         xsurf.m_FeaOrientation = m_FeaOrientation;
         xsurf.m_ThickSurf = m_ThickSurf;
         xsurf.m_PlateNum = m_PlateNum;
+        xsurf.m_PlanarUWAspect = m_PlanarUWAspect;
         xsurf.m_CompIndx = comp_ind;
         xsurf.m_FeaPartSurfNum = part_surf_num;
         xfersurfs.push_back( xsurf );
@@ -2724,6 +2727,11 @@ void VspSurf::MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &pt
     patch.set_control_point( pt1, 1, 0 );
     patch.set_control_point( pt2, 0, 1 );
     patch.set_control_point( pt3, 1, 1 );
+
+    double du = dist( pA, pB ) + dist( pC, pD );
+    double dv = dist( pA, pC ) + dist( pB, pD );
+
+    m_PlanarUWAspect = du / dv;
 
     m_Surface.init_uv( 1, 1 );
     m_Surface.set( patch, 0, 0 );

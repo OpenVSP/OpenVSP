@@ -61,6 +61,7 @@ Surf::Surf()
     m_MainSurfID = 0;
     m_FeaPartIndex = -1;
     m_IgnoreSurfFlag = false;
+    m_PlanarUWAspect = -1;
 }
 
 Surf::~Surf()
@@ -998,6 +999,18 @@ void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw,
 
 void Surf::BuildDistMap()
 {
+#ifdef DEBUG_CFD_MESH
+    static int cnt = 0;
+#endif
+
+    if ( m_PlanarUWAspect > 0 )
+    {
+#ifdef DEBUG_CFD_MESH
+        cnt++;
+#endif
+        return;
+    }
+
     int i, j;
     const unsigned int nump = 11;
 
@@ -1132,7 +1145,6 @@ void Surf::BuildDistMap()
     m_UWMap.BuildIndex();
 
 #ifdef DEBUG_CFD_MESH
-    static int cnt = 0;
 
     if ( true )
     {
@@ -1172,6 +1184,13 @@ void Surf::UtoIndexFrac( const double &u, int &indx, double &frac )
 
 vec2d Surf::GetST( const vec2d &uw )
 {
+    if ( m_PlanarUWAspect > 0 )
+    {
+        vec2d st;
+        st.set_xy( m_PlanarUWAspect * uw.x(), uw.y() );
+        return st;
+    }
+
     double VspMinU = m_SurfCore.GetMinU();
     double VspMinW = m_SurfCore.GetMinW();
 
@@ -1327,6 +1346,13 @@ void Surf::FindSTBox( const vec2d &st, int &i_match, int &j_match )
 
 vec2d Surf::GetUW( const vec2d &st )
 {
+    if ( m_PlanarUWAspect > 0 )
+    {
+        vec2d uw;
+        uw.set_xy( st.x() / m_PlanarUWAspect, st.y() );
+        return uw;
+    }
+
     int num = m_STMap.size();
 
     int i, j;
@@ -1359,6 +1385,11 @@ vec2d Surf::GetUW( const vec2d &st )
 
 void Surf::CleanupDistMap()
 {
+    if ( m_PlanarUWAspect > 0 )
+    {
+        return;
+    }
+
     m_UWMap.Cleanup();
     m_STMap.clear();
 }

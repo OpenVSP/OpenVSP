@@ -35,6 +35,7 @@ public:
         m_FeaOrientation = vec3d();
         m_ThickSurf = true;
         m_PlateNum = -1;
+        m_PlanarUWAspect = -1;
     };
 
     ~XferSurf()
@@ -53,6 +54,7 @@ public:
     vec3d m_FeaOrientation;
     bool m_ThickSurf;
     int m_PlateNum;
+    double m_PlanarUWAspect;
 
     piecewise_surface_type m_Surface;
 };

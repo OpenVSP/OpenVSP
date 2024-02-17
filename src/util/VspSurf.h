@@ -330,6 +330,9 @@ public:
     void BuildMCurve( const double &r, Vsp1DCurve &c ) const;
     double GetLMax() const { return m_Lmax; };
 
+    void SetPlanarUWAspect( double uwAspect ) { m_PlanarUWAspect = uwAspect; };
+    double GetPlanarUWAspect() const { return m_PlanarUWAspect; };
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
@@ -375,6 +378,8 @@ protected:
     Matrix4d m_CloneMat;
 
     VspSurf *m_FoilSurf;
+
+    double m_PlanarUWAspect;
 
 private:
     mutable vector < bool > m_USkip;

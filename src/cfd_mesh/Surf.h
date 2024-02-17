@@ -317,6 +317,15 @@ public:
         return m_IgnoreSurfFlag;
     }
 
+    void SetPlanarUWAspect( double uwAspect )
+    {
+        m_PlanarUWAspect = uwAspect;
+    }
+    double GetPlanarUWAspect()
+    {
+        return m_PlanarUWAspect;
+    }
+
     void Subtag( bool tag_subs );
 
     friend double refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB );
@@ -346,6 +355,8 @@ protected:
     int m_SurfVspType;
     bool m_ThickSurf;
     int m_PlateNum;
+
+    double m_PlanarUWAspect;
 
     SurfCore m_SurfCore;
 
