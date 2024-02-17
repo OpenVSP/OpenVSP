@@ -69,7 +69,7 @@ public:
     void BuildWakeTECurve( const piecewise_curve_type& lecrv, double endx, double angle, double start_stretch_x, double scale );
     static curve_point_type ComputeWakeTrailEdgePnt( const curve_point_type &pnt, double endx, double angle );
 
-    void UWCurveToXYZCurve( const Surf *srf );
+    void UWCurveToXYZCurve( Surf *srf );
     void XYZCurveToUWCurve( const Surf *srf );
 
     int CountMatch( const Bezier_curve &ocrv, double tol ) const;

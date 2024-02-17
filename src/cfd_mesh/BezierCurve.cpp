@@ -134,29 +134,17 @@ vec3d Bezier_curve::LastPnt() const
     return p;
 }
 
-void Bezier_curve::UWCurveToXYZCurve( const Surf *srf )
+curve_point_type UWToXYZ( curve_point_type & cp, void* data )
 {
-    int nsect = m_Curve.number_segments();
+    piecewise_surface_type *surf = (piecewise_surface_type *) data;
+    return surf->f( cp.x(), cp.y() );
+}
 
-    piecewise_curve_type newcurve;
-    newcurve.set_t0( m_Curve.get_t0() );
+void Bezier_curve::UWCurveToXYZCurve( Surf *srf )
+{
+    piecewise_surface_type *surf = srf->GetSurfCore()->GetSurf();
 
-    for ( int i = 0; i < nsect; i++ )
-    {
-        curve_segment_type c;
-        double dt;
-        m_Curve.get( c, dt, i );
-
-        for ( int j = 0; j <= c.degree(); j++ )
-        {
-            curve_point_type cp = c.get_control_point( j );
-            vec3d newpt = srf->CompPnt( cp.x(), cp.y() );
-            cp << newpt.x(), newpt.y(), newpt.z();
-            c.set_control_point( cp, j );
-        }
-        newcurve.push_back( c, dt );
-    }
-    m_Curve = newcurve;
+    m_Curve.transmute( UWToXYZ, surf );
 }
 
 void Bezier_curve::XYZCurveToUWCurve( const Surf *srf )
