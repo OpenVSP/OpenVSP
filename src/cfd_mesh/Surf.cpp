@@ -927,32 +927,6 @@ void Surf::SetBBox( const vec3d &pmin, const vec3d &pmax )
 
 void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw, SurfaceIntersectionSingleton *MeshMgr )
 {
-
-//static int name_cnt = 0;
-//char str[256];
-//sprintf( str, "Surf_UW%d.dat", name_cnt );
-//name_cnt++;
-//FILE* fp = fopen( str, "w" );
-//int ccnt = 0;
-//for ( int i = 0 ; i < (int)chains.size() ; i++ )
-//{
-//  if ( ccnt%5 == 0 ) fprintf( fp, "COLOR RED\n" );
-//  else if ( ccnt % 5 == 1 ) fprintf( fp, "COLOR BLUE\n" );
-//  else if ( ccnt % 5 == 2 ) fprintf( fp, "COLOR GREEN\n" );
-//  else if ( ccnt % 5 == 3 ) fprintf( fp, "COLOR PURPLE\n" );
-//  else if ( ccnt % 5 == 4 ) fprintf( fp, "COLOR YELLOW\n" );
-//  fprintf( fp, "MOVE \n" );
-//  ccnt++;
-//      for ( int j = 1 ; j < (int)chains[i]->m_TessVec.size() ; j++ )
-//      {
-//          vec2d uw0 = chains[i]->m_TessVec[j-1]->GetPuw( this )->m_UW;
-//          vec2d uw1 = chains[i]->m_TessVec[j]->GetPuw( this )->m_UW;
-//          fprintf( fp, "%f %f\n", uw0[0], uw0[1] );
-//          fprintf( fp, "%f %f\n", uw1[0], uw1[1] );
-//      }
-//}
-//fclose(fp);
-
     //==== Store Only One Instance of each IPnt ====//
     set< IPnt* > ipntSet;
     for ( int i = 0 ; i < ( int )chains.size() ; i++ )
@@ -1013,84 +987,6 @@ void Surf::InitMesh( vector< ISegChain* > chains, const vector < vec2d > &adduw,
             isegVec.push_back( seg );
         }
     }
-
-//  ////jrg Check For Duplicate Segs
-//  vector< MeshSeg > dupMeshSegVec;
-//  for ( int i = 0 ; i < (int)isegVec.size() ; i++ )
-//  {
-//      int iind0 = isegVec[i].m_Index[0];
-//      int iind1 = isegVec[i].m_Index[1];
-//      bool dup = false;
-//      for ( int j = i+1 ; j < (int)isegVec.size() ; j++ )
-//      {
-//          int jind0 = isegVec[j].m_Index[0];
-//          int jind1 = isegVec[j].m_Index[1];
-//          if ( (iind0 == jind0 && iind1 == jind1) ||
-//               (iind0 == jind1 && iind1 == jind0) )
-//          {
-//              dup = true;
-//              //printf("Surf: Duplicate Seg \n" );
-//          }
-//      }
-//      if ( !dup )
-//          dupMeshSegVec.push_back( isegVec[i] );
-//  }
-//  isegVec = dupMeshSegVec;
-
-
-////jrg - Check For Point Close to Other Segs
-//vector< MeshSeg > newMeshSegVec;
-//for ( int i = 0 ; i < (int)isegVec.size() ; i++ )
-//{
-//  int iind0 = isegVec[i].m_Index[0];
-//  int iind1 = isegVec[i].m_Index[1];
-//
-//  for ( int j = 0 ; j < (int)uwPntVec.size() ; j++ )
-//  {
-//      if ( j != iind0 && j != iind1 )
-//      {
-//          vec2d proj = proj_pnt_on_line_seg(uwPntVec[iind0], uwPntVec[iind1], uwPntVec[j] );
-//          double d = dist( proj, uwPntVec[j] );
-//
-//          if ( d < 0.000001 )
-//          {
-//              MeshSeg addseg1, addseg2;
-//              addseg1.m_Index[0] = iind0;
-//              addseg1.m_Index[1] = j;
-//              addseg2.m_Index[0] = j;
-//              addseg2.m_Index[1] = iind1;
-//              newMeshSegVec.push_back( addseg1 );
-//              newMeshSegVec.push_back( addseg2 );
-//
-//              //printf("Surf: %d Proj Pnt Dist = %f\n", (int)this, d );
-//              //printf("  Seg = %f %f   %f %f\n",
-//              //  uwPntVec[iind0].x(),  uwPntVec[iind0].y(),
-//              //  uwPntVec[iind1].x(),  uwPntVec[iind1].y());
-//              //vec3d p = CompPnt( uwPntVec[j].x(), uwPntVec[j].y() );
-//              //printf("  Pnt uv = %f %f    %f %f %f\n", uwPntVec[j].x(), uwPntVec[j].y(), p.x(), p.y(), p.z() );
-//          }
-//          else
-//          {
-//              newMeshSegVec.push_back( isegVec[i] );
-//          }
-//      }
-//  }
-//}
-
-//vector< MeshSeg > smallMeshSegVec;
-//for ( int i = 0 ; i < (int)isegVec.size() ; i++ )
-//{
-//  int ind0 = isegVec[i].m_Index[0];
-//  int ind1 = isegVec[i].m_Index[1];
-//  double d = dist( uwPntVec[ind0], uwPntVec[ind1] );
-//  if ( d > 0.00000001 )
-//  {
-//      smallMeshSegVec.push_back( isegVec[i] );
-//  }
-//  else
-//      printf("Surf: %d Small Seg Dist = %12.12f\n", (int)this, d );
-//}
-//isegVec = smallMeshSegVec;
 
     BuildDistMap();
 
