@@ -262,6 +262,7 @@ public:
 
     virtual void WriteISegs();
     virtual void BuildChains();
+    virtual void RefineChains();
 
     void RefineISegChainSeg( ISegChain* c, IPnt* ipnt );
     void RefineISegChain( ISegChain* c );

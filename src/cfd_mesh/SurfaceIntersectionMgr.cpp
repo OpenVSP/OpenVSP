@@ -1723,6 +1723,10 @@ void SurfaceIntersectionSingleton::Intersect()
     BuildChains();
     // DebugWriteChains( "BuildChains", false );
 
+    addOutputText( "RefineChains\n" );
+    RefineChains();
+    // DebugWriteChains( "RefineChains", false );
+
     MergeFeaPartSSEdgeOverlap(); // Only applicable to FEA Mesh
 
     addOutputText( "LoadBorderCurves\n" );
@@ -1995,9 +1999,10 @@ void SurfaceIntersectionSingleton::BuildChains()
             }
         }
     }
+}
 
-    // DebugWriteChains( "BuildChains_Intermediate", false );
-
+void SurfaceIntersectionSingleton::RefineChains()
+{
     // After the intersection chains are formed, refine them so that the value returned by CompPnt
     // will be the same with respect to each parent surface of the intersection point. Note, this 
     // must be done before the border curves are spit at each intersection chain end point.
