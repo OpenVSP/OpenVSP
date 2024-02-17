@@ -100,19 +100,14 @@ void Bezier_curve::GetControlPoints( vector< vec3d > &pnts_out )
 {
     pnts_out.clear();
 
-    int num_sections = m_Curve.number_segments();
+    vector < curve_point_type > cp_vec;
+    m_Curve.get_control_point_vec( cp_vec );
 
-    for ( int i = 0; i < num_sections; i++ )
+    pnts_out.reserve( cp_vec.size() );
+
+    for ( int i = 0; i < cp_vec.size(); i++ )
     {
-        curve_segment_type c;
-
-        m_Curve.get( c, i );
-
-        for ( int j = 0; j < c.degree() + 1; j++ )
-        {
-            curve_point_type cp = c.get_control_point( j );
-            pnts_out.emplace_back( vec3d( cp ) );
-        }
+        pnts_out.emplace_back( vec3d( cp_vec[i] ) );
     }
 }
 
