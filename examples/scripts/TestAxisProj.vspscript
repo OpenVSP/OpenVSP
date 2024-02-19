@@ -14,9 +14,9 @@ void main()
     pt.offset_y( -5.0 );
 
     double u_out, w_out;
-    vec3d p_out;
 
-    double idist = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt, u_out, w_out, p_out);
+    double idist = AxisProjPnt01( geom_id, surf_indx, Y_DIR, pt, u_out, w_out);
+    vec3d p_out = CompPnt01( geom_id, surf_indx, u_out, w_out );
 
     Print( "AxisProjPnt01" );
 	Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out );
@@ -26,7 +26,8 @@ void main()
 
     int surf_indx_out;
 
-    idist = AxisProjPnt01I( geom_id, Y_DIR, pt, surf_indx_out, u_out, w_out, p_out);
+    idist = AxisProjPnt01I( geom_id, Y_DIR, pt, surf_indx_out, u_out, w_out );
+    p_out = CompPnt01( geom_id, surf_indx, u_out, w_out );
 
     Print( "AxisProjPnt01I" );
 	Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out );
@@ -38,7 +39,8 @@ void main()
     double w0 = w - 0.05678;
 
     Print( "AxisProjPnt01Guess" );
-    idist = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0, u_out, w_out, p_out);
+    idist = AxisProjPnt01Guess( geom_id, surf_indx, Y_DIR, pt, u0, w0, u_out, w_out );
+    p_out = CompPnt01( geom_id, surf_indx, u_out, w_out );
 
     Print( "iDist " + idist + " u_out " + u_out + " w_out " + w_out + " surf_index " + surf_indx_out );
     Print( "3D Offset ", false);
@@ -68,10 +70,10 @@ void main()
     }
 
     array<double> uoutv, woutv, doutv;
-    array< vec3d > poutv;
 
 
-    AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, poutv, doutv );
+    AxisProjVecPnt01( geom_id, surf_indx, Y_DIR, ptvec, uoutv, woutv, doutv );
+    array< vec3d > poutv = CompVecPnt01( geom_id, surf_indx, uoutv, woutv );
 
     // Some of these outputs are expected to be non-zero because the projected point is on the opposite side of
     // the pod from the originally computed point.  I.e. there were multiple solutions and the original point
@@ -98,7 +100,8 @@ void main()
         w0v[i] = wvec[i] - 0.05678;
     }
 
-    AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v,  w0v, uoutv, woutv, poutv, doutv );
+    AxisProjVecPnt01Guess( geom_id, surf_indx, Y_DIR, ptvec, u0v, w0v, uoutv, woutv, doutv );
+    poutv = CompVecPnt01( geom_id, surf_indx, uoutv, woutv );
 
     Print( "AxisProjVecPnt01Guess" );
     for( int i = 0 ; i < n ; i++ )
