@@ -85,8 +85,8 @@ public:
     CScriptArray* GetProxyDoubleArray();
     CScriptArray* GetProxyDoubleMatArray();
 
-    template < class T > static void FillArray( vector < T > & in, CScriptArray* out );
-    template < class T > static void FillArray( CScriptArray* in, vector < T > & out );
+    template < class T > static void FillASArray( vector < T > & in, CScriptArray* out );
+    template < class T > static void FillSTLVector( CScriptArray* in, vector < T > & out );
 
     //==== Common Types =====//
     asITypeInfo* m_IntArrayType;
