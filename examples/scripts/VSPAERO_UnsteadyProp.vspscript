@@ -54,8 +54,8 @@ void VSPAeroUnsteadyAnalysis()
     string parent_group_id = FindUnsteadyGroup( 1 );
     SetParmVal( FindParm( parent_group_id, "RPM", "UnsteadyGroup" ), 1000.0 );
 	
-	string copy_group_id = FindUnsteadyGroup( 2 );
-    SetParmVal( FindParm( copy_group_id, "RPM", "UnsteadyGroup" ), 1200.0 );
+//	string copy_group_id = FindUnsteadyGroup( 2 );
+//    SetParmVal( FindParm( copy_group_id, "RPM", "UnsteadyGroup" ), 1200.0 );
 
 	// RPM is not symmetric, should see yaw moment
 
