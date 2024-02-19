@@ -135,7 +135,7 @@ void VSPAeroDiskAndCSGroupAnalysis()
     array< double > alpha;
     alpha.push_back( 0.0 );
     SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha, 0 );
-    array<int> AlphaNpts(1, 1); SetIntAnalysisInput(m_VSPSweepAnalysis, "AlphaNpts", AlphaNpts, 0);
+    array<int> AlphaNpts(1, 1); SetIntAnalysisInput( analysis_name, "AlphaNpts", AlphaNpts, 0);
     array< double > mach;
     mach.push_back( 0.1 );
     SetDoubleAnalysisInput( analysis_name, "MachStart", mach, 0 );
