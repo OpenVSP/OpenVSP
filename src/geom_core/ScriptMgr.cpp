@@ -2655,7 +2655,7 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 {
     int r;
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkNames()", asMETHOD( ScriptMgrSingleton, GetAdvLinkNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAdvLinkNames()", asMETHOD( ScriptMgrSingleton, GetAdvLinkNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
@@ -2691,20 +2691,20 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkInputNames( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkInputNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAdvLinkInputNames( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkInputNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkInputParms( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkInputParms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAdvLinkInputParms( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkInputParms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkOutputNames( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkOutputNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAdvLinkOutputNames( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkOutputNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAdvLinkOutputParms( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkOutputParms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAdvLinkOutputParms( int index )", asMETHOD( ScriptMgrSingleton, GetAdvLinkOutputParms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
@@ -3025,11 +3025,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ ListAnalysis()", asMETHOD( ScriptMgrSingleton, ListAnalysis ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ ListAnalysis()", asMETHOD( ScriptMgrSingleton, ListAnalysis ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAnalysisInputNames(const string & in analysis )", asMETHOD( ScriptMgrSingleton, GetAnalysisInputNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAnalysisInputNames(const string & in analysis )", asMETHOD( ScriptMgrSingleton, GetAnalysisInputNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3053,19 +3053,19 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<int>@ GetIntAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetIntAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<int>@+ GetIntAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetIntAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetDoubleAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ GetDoubleAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetStringAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetStringAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetStringAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetStringAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetVec3dAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetVec3dAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetVec3dAnalysisInput( const string & in analysis, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetVec3dAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3081,19 +3081,19 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetIntAnalysisInput( const string & in analysis, const string & in name, array<int>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetIntAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetIntAnalysisInput( const string & in analysis, const string & in name, array<int>@+ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetIntAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetDoubleAnalysisInput( const string & in analysis, const string & in name, array<double>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetDoubleAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetDoubleAnalysisInput( const string & in analysis, const string & in name, array<double>@+ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetDoubleAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetStringAnalysisInput( const string & in analysis, const string & in name, array<string>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetStringAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetStringAnalysisInput( const string & in analysis, const string & in name, array<string>@+ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetStringAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetVec3dAnalysisInput( const string & in analysis, const string & in name, array<vec3d>@ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetVec3dAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetVec3dAnalysisInput( const string & in analysis, const string & in name, array<vec3d>@+ indata_arr, int index = 0 )", asMETHOD( ScriptMgrSingleton, SetVec3dAnalysisInput ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3134,31 +3134,31 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllResultsNames()", asMETHOD( ScriptMgrSingleton, GetAllResultsNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllResultsNames()", asMETHOD( ScriptMgrSingleton, GetAllResultsNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllDataNames(const string & in results_id )", asMETHOD( ScriptMgrSingleton, GetAllDataNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllDataNames(const string & in results_id )", asMETHOD( ScriptMgrSingleton, GetAllDataNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<int>@ GetIntResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetIntResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<int>@+ GetIntResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetIntResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetDoubleResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ GetDoubleResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<array<double>@>@ GetDoubleMatResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleMatResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<array<double>@>@+ GetDoubleMatResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleMatResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetStringResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetStringResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetStringResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetStringResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetVec3dResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetVec3dResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetVec3dResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetVec3dResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3192,7 +3192,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //==== Geom Functions ====//
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomTypes()", asMETHOD( ScriptMgrSingleton, GetGeomTypes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetGeomTypes()", asMETHOD( ScriptMgrSingleton, GetGeomTypes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3208,7 +3208,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DeleteGeomVec( array<string>@ del_arr )", asMETHOD( ScriptMgrSingleton, DeleteGeomVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void DeleteGeomVec( array<string>@+ del_arr )", asMETHOD( ScriptMgrSingleton, DeleteGeomVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3220,15 +3220,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ PasteGeomClipboard( const string & in parent_id = \"\" )", asMETHOD( ScriptMgrSingleton, PasteGeomClipboard ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ PasteGeomClipboard( const string & in parent_id = \"\" )", asMETHOD( ScriptMgrSingleton, PasteGeomClipboard ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindGeoms()", asMETHOD( ScriptMgrSingleton, FindGeoms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ FindGeoms()", asMETHOD( ScriptMgrSingleton, FindGeoms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindGeomsWithName(const string & in name)", asMETHOD( ScriptMgrSingleton, FindGeomsWithName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ FindGeomsWithName(const string & in name)", asMETHOD( ScriptMgrSingleton, FindGeomsWithName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3244,7 +3244,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomParmIDs(const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetGeomParmIDs(const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3280,7 +3280,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomChildren( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomChildren ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetGeomChildren( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetGeomChildren ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3305,7 +3305,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurf( const string & in geom_id, const string & in name )", asMETHOD( ScriptMgrSingleton, GetSubSurf ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetSubSurf( const string & in geom_id, const string & in name )", asMETHOD( ScriptMgrSingleton, GetSubSurf ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3329,11 +3329,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurfIDVec( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetSubSurfIDVec( const string & in geom_id )", asMETHOD( ScriptMgrSingleton, GetSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllSubSurfIDs()", asMETHOD( ScriptMgrSingleton, GetAllSubSurfIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllSubSurfIDs()", asMETHOD( ScriptMgrSingleton, GetAllSubSurfIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3345,7 +3345,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurfParmIDs(const string & in sub_id )", asMETHOD( ScriptMgrSingleton, GetSubSurfParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetSubSurfParmIDs(const string & in sub_id )", asMETHOD( ScriptMgrSingleton, GetSubSurfParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     //==== VSPAERO CS Group Functions ====//
@@ -3370,15 +3370,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert(r >= 0);
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetActiveCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetActiveCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetActiveCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetActiveCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetCompleteCSNameVec( )", asMETHOD( ScriptMgrSingleton, GetCompleteCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetCompleteCSNameVec( )", asMETHOD( ScriptMgrSingleton, GetCompleteCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAvailableCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetAvailableCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAvailableCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetAvailableCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3390,11 +3390,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void AddSelectedToCSGroup( array<int>@ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, AddSelectedToCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void AddSelectedToCSGroup( array<int>@+ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, AddSelectedToCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void RemoveSelectedFromCSGroup( array<int>@ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, RemoveSelectedFromCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void RemoveSelectedFromCSGroup( array<int>@+ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, RemoveSelectedFromCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // FIXME: RemoveSelectedFromCSGroup not working
 
     //==== VSPAERO Functions ====//
@@ -3424,11 +3424,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetUnsteadyGroupCompIDs( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupCompIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetUnsteadyGroupCompIDs( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupCompIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<int>@ GetUnsteadyGroupSurfIndexes( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupSurfIndexes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<int>@+ GetUnsteadyGroupSurfIndexes( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupSurfIndexes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3510,7 +3510,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetXSecParmIDs(const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetXSecParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetXSecParmIDs(const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetXSecParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3518,11 +3518,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ ReadFileXSec(const string& in xsec_id, const string& in file_name )", asMETHOD( ScriptMgrSingleton, ReadFileXSec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ ReadFileXSec(const string& in xsec_id, const string& in file_name )", asMETHOD( ScriptMgrSingleton, ReadFileXSec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetXSecPnts( const string& in xsec_id, array<vec3d>@ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetXSecPnts( const string& in xsec_id, array<vec3d>@+ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3562,59 +3562,59 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAirfoilUpperPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetAirfoilUpperPnts( const string& in xsec_id, array<vec3d>@+ up_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAirfoilLowerPnts( const string& in xsec_id, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetAirfoilLowerPnts( const string& in xsec_id, array<vec3d>@+ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetAirfoilPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetAirfoilPnts( const string& in xsec_id, array<vec3d>@+ up_pnt_vec, array<vec3d>@+ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetHersheyBarLiftDist( const int& in npts, const double& in alpha, const double& in Vinf, const double& in span, bool full_span_flag = false )", asMETHOD( ScriptMgrSingleton, GetHersheyBarLiftDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetHersheyBarLiftDist( const int& in npts, const double& in alpha, const double& in Vinf, const double& in span, bool full_span_flag = false )", asMETHOD( ScriptMgrSingleton, GetHersheyBarLiftDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetHersheyBarDragDist( const int& in npts, const double& in alpha, const double& in Vinf, const double& in span, bool full_span_flag = false )", asMETHOD( ScriptMgrSingleton, GetHersheyBarDragDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetHersheyBarDragDist( const int& in npts, const double& in alpha, const double& in Vinf, const double& in span, bool full_span_flag = false )", asMETHOD( ScriptMgrSingleton, GetHersheyBarDragDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetVKTAirfoilPnts( const int& in npts, const double& in alpha, const double& in epsilon, const double& in kappa, const double& in tau )", asMETHOD( ScriptMgrSingleton, GetVKTAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetVKTAirfoilPnts( const int& in npts, const double& in alpha, const double& in epsilon, const double& in kappa, const double& in tau )", asMETHOD( ScriptMgrSingleton, GetVKTAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetVKTAirfoilCpDist( const double& in alpha, const double& in epsilon, const double& in kappa, const double& in tau, array<vec3d>@ xydata )", asMETHOD( ScriptMgrSingleton, GetVKTAirfoilCpDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ GetVKTAirfoilCpDist( const double& in alpha, const double& in epsilon, const double& in kappa, const double& in tau, array<vec3d>@+ xydata )", asMETHOD( ScriptMgrSingleton, GetVKTAirfoilCpDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEllipsoidSurfPnts( const vec3d& in center, const vec3d& in abc_rad, int u_npts = 20, int w_npts = 20 )", asMETHOD( ScriptMgrSingleton, GetEllipsoidSurfPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetEllipsoidSurfPnts( const vec3d& in center, const vec3d& in abc_rad, int u_npts = 20, int w_npts = 20 )", asMETHOD( ScriptMgrSingleton, GetEllipsoidSurfPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetFeatureLinePnts( const string& in geom_id )", asMETHOD( ScriptMgrSingleton, GetFeatureLinePnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetFeatureLinePnts( const string& in geom_id )", asMETHOD( ScriptMgrSingleton, GetFeatureLinePnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetEllipsoidCpDist( array<vec3d>@ surf_pnt_arr, const vec3d& in abc_rad, const vec3d& in V_inf )", asMETHOD( ScriptMgrSingleton, GetEllipsoidCpDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ GetEllipsoidCpDist( array<vec3d>@+ surf_pnt_arr, const vec3d& in abc_rad, const vec3d& in V_inf )", asMETHOD( ScriptMgrSingleton, GetEllipsoidCpDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilUpperPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetAirfoilUpperPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilLowerPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetAirfoilLowerPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetUpperCSTCoefs( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetUpperCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ GetUpperCSTCoefs( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetUpperCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetLowerCSTCoefs( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetLowerCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ GetLowerCSTCoefs( const string & in xsec_id )", asMETHOD( ScriptMgrSingleton, GetLowerCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
@@ -3626,11 +3626,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void SetUpperCST( const string& in xsec_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetUpperCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetUpperCST( const string& in xsec_id, int deg, array<double>@+ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetUpperCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void SetLowerCST( const string& in xsec_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetLowerCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetLowerCST( const string& in xsec_id, int deg, array<double>@+ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetLowerCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
@@ -3662,7 +3662,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilCoordinates( const string& in geom_id, const double& in foilsurf_u )", asMETHOD( ScriptMgrSingleton, GetAirfoilCoordinates ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetAirfoilCoordinates( const string& in geom_id, const double& in foilsurf_u )", asMETHOD( ScriptMgrSingleton, GetAirfoilCoordinates ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     //==== Edit Curve XSec Functions ====//
@@ -3675,14 +3675,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetEditXSecUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ GetEditXSecUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEditXSecCtrlVec( const string& in xsec_id, const bool non_dimensional = true )", asMETHOD( ScriptMgrSingleton, GetEditXSecCtrlVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetEditXSecCtrlVec( const string& in xsec_id, const bool non_dimensional = true )", asMETHOD( ScriptMgrSingleton, GetEditXSecCtrlVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@ u_vec, array<vec3d>@ control_pts, array<double>@ r_vec )", asMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@+ u_vec, array<vec3d>@+ control_pts, array<double>@+ r_vec )", asMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3702,11 +3702,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<bool>@ GetEditXSecFixedUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecFixedUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<bool>@+ GetEditXSecFixedUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecFixedUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetEditXSecFixedUVec( const string& in xsec_id, array<bool>@ fixed_u_vec )", asMETHOD( ScriptMgrSingleton, SetEditXSecFixedUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetEditXSecFixedUVec( const string& in xsec_id, array<bool>@+ fixed_u_vec )", asMETHOD( ScriptMgrSingleton, SetEditXSecFixedUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3723,11 +3723,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ ReadBORFileXSec(const string& in bor_id, const string& in file_name )", asMETHOD( ScriptMgrSingleton, ReadBORFileXSec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ ReadBORFileXSec(const string& in bor_id, const string& in file_name )", asMETHOD( ScriptMgrSingleton, ReadBORFileXSec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetBORXSecPnts( const string& in bor_id, array<vec3d>@ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetBORXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORXSecPnts( const string& in bor_id, array<vec3d>@+ pnt_arr )", asMETHOD( ScriptMgrSingleton, SetBORXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3743,32 +3743,32 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetBORAirfoilUpperPnts( const string& in bor_id, array<vec3d>@ up_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORAirfoilUpperPnts( const string& in bor_id, array<vec3d>@+ up_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
 
-    r = se->RegisterGlobalFunction( "void SetBORAirfoilLowerPnts( const string& in bor_id, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORAirfoilLowerPnts( const string& in bor_id, array<vec3d>@+ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void SetBORAirfoilPnts( const string& in bor_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORAirfoilPnts( const string& in bor_id, array<vec3d>@+ up_pnt_vec, array<vec3d>@+ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetBORAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetBORAirfoilUpperPnts(const string& in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetBORAirfoilUpperPnts(const string& in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetBORAirfoilLowerPnts(const string& in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetBORAirfoilLowerPnts(const string& in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetBORUpperCSTCoefs( const string & in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORUpperCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ GetBORUpperCSTCoefs( const string & in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORUpperCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetBORLowerCSTCoefs( const string & in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORLowerCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ GetBORLowerCSTCoefs( const string & in bor_id )", asMETHOD( ScriptMgrSingleton, GetBORLowerCSTCoefs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
@@ -3780,11 +3780,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void SetBORUpperCST( const string& in bor_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetBORUpperCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORUpperCST( const string& in bor_id, int deg, array<double>@+ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetBORUpperCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "void SetBORLowerCST( const string& in bor_id, int deg, array<double>@ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetBORLowerCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetBORLowerCST( const string& in bor_id, int deg, array<double>@+ coeff_arr )", asMETHOD( ScriptMgrSingleton, SetBORLowerCST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );  // TODO: Example
 
 
@@ -3821,11 +3821,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomSetAtIndex( int index )", asMETHOD( ScriptMgrSingleton, GetGeomSetAtIndex ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetGeomSetAtIndex( int index )", asMETHOD( ScriptMgrSingleton, GetGeomSetAtIndex ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetGeomSet( const string & in name )", asMETHOD( ScriptMgrSingleton, GetGeomSet ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetGeomSet( const string & in name )", asMETHOD( ScriptMgrSingleton, GetGeomSet ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3962,11 +3962,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     //=== Parm Container Functions ===//
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindContainers()", asMETHOD( ScriptMgrSingleton, FindContainers ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ FindContainers()", asMETHOD( ScriptMgrSingleton, FindContainers ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindContainersWithName( const string & in name )", asMETHOD( ScriptMgrSingleton, FindContainersWithName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ FindContainersWithName( const string & in name )", asMETHOD( ScriptMgrSingleton, FindContainersWithName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
@@ -3978,11 +3978,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindContainerGroupNames( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerGroupNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ FindContainerGroupNames( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerGroupNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ FindContainerParmIDs( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ FindContainerParmIDs( const string & in parm_container_id )", asMETHOD( ScriptMgrSingleton, FindContainerParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -3999,7 +3999,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllUserParms()", asMETHOD( ScriptMgrSingleton, GetAllUserParms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllUserParms()", asMETHOD( ScriptMgrSingleton, GetAllUserParms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
@@ -4080,36 +4080,36 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetGroupNames()", asMETHOD( ScriptMgrSingleton, GetVarPresetGroupNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetVarPresetGroupNames()", asMETHOD( ScriptMgrSingleton, GetVarPresetGroupNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWName( const string & in group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetVarPresetSettingNamesWName( const string & in group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetSettingNamesWIndex( int group_index )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWIndex ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetVarPresetSettingNamesWIndex( int group_index )", asMETHOD( ScriptMgrSingleton, GetVarPresetSettingNamesWIndex ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmVals()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmVals ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<double>@+ GetVarPresetParmVals()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmVals ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ GetVarPresetParmValsWNames( const string & in group_name, const string & in setting_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmValsWNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<double>@+ GetVarPresetParmValsWNames( const string & in group_name, const string & in setting_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmValsWNames ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDs()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetVarPresetParmIDs()", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetVarPresetParmIDsWName( const string & in group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDsWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetVarPresetParmIDsWName( const string & in group_name )", asMETHOD( ScriptMgrSingleton, GetVarPresetParmIDsWName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
     //=== Register PCurve Functions ====//
 
-    r = se->RegisterGlobalFunction( "void SetPCurve( const string& in geom_id, const int & in pcurveid, array<double>@ tvec, array<double>@ valvec, const int & in newtype )", asMETHOD( ScriptMgrSingleton, SetPCurve ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void SetPCurve( const string& in geom_id, const int & in pcurveid, array<double>@+ tvec, array<double>@+ valvec, const int & in newtype )", asMETHOD( ScriptMgrSingleton, SetPCurve ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
@@ -4121,11 +4121,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ PCurveGetTVec( const string & in geom_id, const int & in pcurveid )", asMETHOD( ScriptMgrSingleton, PCurveGetTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ PCurveGetTVec( const string & in geom_id, const int & in pcurveid )", asMETHOD( ScriptMgrSingleton, PCurveGetTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
-    r = se->RegisterGlobalFunction( "array<double>@ PCurveGetValVec( const string & in geom_id, const int & in pcurveid )", asMETHOD( ScriptMgrSingleton, PCurveGetValVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<double>@+ PCurveGetValVec( const string & in geom_id, const int & in pcurveid )", asMETHOD( ScriptMgrSingleton, PCurveGetValVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 ); // TODO: Example
 
 
@@ -4243,7 +4243,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecPntRST(const string & in geom_id, const int & in surf_indx, array<double>@ rs, array<double>@ ss, array<double>@ ts )", asMETHOD( ScriptMgrSingleton, CompVecPntRST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ CompVecPntRST(const string & in geom_id, const int & in surf_indx, array<double>@+ rs, array<double>@+ ss, array<double>@+ ts )", asMETHOD( ScriptMgrSingleton, CompVecPntRST ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -4271,51 +4271,51 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ConvertRSTtoLMNVec(const string & in geom_id, const int & in surf_indx, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ls, array<double>@ ms, array<double>@ ns )", asMETHOD( ScriptMgrSingleton, ConvertRSTtoLMNVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void ConvertRSTtoLMNVec(const string & in geom_id, const int & in surf_indx, array<double>@+ rs, array<double>@+ ss, array<double>@+ ts, array<double>@+ ls, array<double>@+ ms, array<double>@+ ns )", asMETHOD( ScriptMgrSingleton, ConvertRSTtoLMNVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ConvertLMNtoRSTVec(const string & in geom_id, const int & in surf_indx, array<double>@ ls, array<double>@ ms, array<double>@ ns, array<double>@ rs, array<double>@ ss, array<double>@ ts )", asMETHOD( ScriptMgrSingleton, ConvertLMNtoRSTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void ConvertLMNtoRSTVec(const string & in geom_id, const int & in surf_indx, array<double>@+ ls, array<double>@+ ms, array<double>@+ ns, array<double>@+ rs, array<double>@+ ss, array<double>@+ ts )", asMETHOD( ScriptMgrSingleton, ConvertLMNtoRSTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void GetUWTess01(const string & in geom_id, int & in surf_indx, array<double>@ us, array<double>@ ws )", asMETHOD( ScriptMgrSingleton, GetUWTess01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void GetUWTess01(const string & in geom_id, int & in surf_indx, array<double>@+ us, array<double>@+ ws )", asMETHOD( ScriptMgrSingleton, GetUWTess01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecPnt01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ ws )", asMETHOD( ScriptMgrSingleton, CompVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ CompVecPnt01(const string & in geom_id, const int & in surf_indx, array<double>@+ us, array<double>@+ ws )", asMETHOD( ScriptMgrSingleton, CompVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecNorm01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ws )", asMETHOD( ScriptMgrSingleton, CompVecNorm01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ CompVecNorm01(const string & in geom_id, const int & in surf_indx, array<double>@+ us, array<double>@+ ws )", asMETHOD( ScriptMgrSingleton, CompVecNorm01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void CompVecCurvature01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ ws, array<double>@ k1s, array<double>@ k2s, array<double>@ kas, array<double>@ kgs)", asMETHOD( ScriptMgrSingleton, CompVecCurvature01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void CompVecCurvature01(const string & in geom_id, const int & in surf_indx, array<double>@+ us, array<double>@+ ws, array<double>@+ k1s, array<double>@+ k2s, array<double>@+ kas, array<double>@+ kgs)", asMETHOD( ScriptMgrSingleton, CompVecCurvature01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void ProjVecPnt01(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void ProjVecPnt01(const string & in geom_id, const int & in surf_indx, array<vec3d>@+ pts, array<double>@+ us, array<double>@+ ws, array<double>@+ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void ProjVecPnt01Guess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void ProjVecPnt01Guess(const string & in geom_id, const int & in surf_indx, array<vec3d>@+ pts, array<double>@+ u0s, array<double>@+ w0s, array<double>@+ us, array<double>@+ ws, array<double>@+ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01(const string & in geom_id, const int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01(const string & in geom_id, const int & in surf_indx, const int & in iaxis, array<vec3d>@+ pts, array<double>@+ us, array<double>@+ ws, array<double>@+ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, const int & in iaxis, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
-    assert( r >= 0 );
-
-
-    r = se->RegisterGlobalFunction( "array<bool>@  VecInsideSurf( const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts )", asFUNCTION(vsp::VecInsideSurf), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void AxisProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, const int & in iaxis, array<vec3d>@+ pts, array<double>@+ u0s, array<double>@+ w0s, array<double>@+ us, array<double>@+ ws, array<double>@+ ds )", asMETHOD( ScriptMgrSingleton, AxisProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void FindRSTVec(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, FindRSTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<bool>@+  VecInsideSurf( const string & in geom_id, const int & in surf_indx, array<vec3d>@+ pts )", asFUNCTION(vsp::VecInsideSurf), asCALL_CDECL );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "void FindRSTVecGuess(const string & in geom_id, const int & in surf_indx, array<vec3d>@ pts, array<double>@ r0s, array<double>@ s0s, array<double>@ t0s, array<double>@ rs, array<double>@ ss, array<double>@ ts, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, FindRSTVecGuess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+
+    r = se->RegisterGlobalFunction( "void FindRSTVec(const string & in geom_id, const int & in surf_indx, array<vec3d>@+ pts, array<double>@+ rs, array<double>@+ ss, array<double>@+ ts, array<double>@+ ds )", asMETHOD( ScriptMgrSingleton, FindRSTVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "void FindRSTVecGuess(const string & in geom_id, const int & in surf_indx, array<vec3d>@+ pts, array<double>@+ r0s, array<double>@+ s0s, array<double>@+ t0s, array<double>@+ rs, array<double>@+ ss, array<double>@+ ts, array<double>@+ ds )", asMETHOD( ScriptMgrSingleton, FindRSTVecGuess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     //=== Register Measure Functions ===//
@@ -4324,7 +4324,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllRulers()", asMETHOD( ScriptMgrSingleton, GetAllRulers ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllRulers()", asMETHOD( ScriptMgrSingleton, GetAllRulers ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
@@ -4340,7 +4340,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetAllProbes()", asMETHOD( ScriptMgrSingleton, GetAllProbes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
+    r = se->RegisterGlobalFunction( "array<string>@+ GetAllProbes()", asMETHOD( ScriptMgrSingleton, GetAllProbes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr);
     assert( r >= 0 );
 
 
@@ -4385,7 +4385,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetFeaStructIDVec()", asMETHOD( ScriptMgrSingleton, GetFeaStructIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFeaStructIDVec()", asMETHOD( ScriptMgrSingleton, GetFeaStructIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -4445,11 +4445,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetFeaPartIDVec(const string & in fea_struct_id)", asMETHOD( ScriptMgrSingleton, GetFeaPartIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFeaPartIDVec(const string & in fea_struct_id)", asMETHOD( ScriptMgrSingleton, GetFeaPartIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "array<string>@ GetFeaSubSurfIDVec(const string & in fea_struct_id)", asMETHOD( ScriptMgrSingleton, GetFeaSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<string>@+ GetFeaSubSurfIDVec(const string & in fea_struct_id)", asMETHOD( ScriptMgrSingleton, GetFeaSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 
@@ -4555,7 +4555,7 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
 
     //====  Register Proxy Utility Functions ====//
 
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetProxyVec3dArray()", asMETHOD( ScriptMgrSingleton, GetProxyVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "array<vec3d>@+ GetProxyVec3dArray()", asMETHOD( ScriptMgrSingleton, GetProxyVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
 }
