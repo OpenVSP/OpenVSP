@@ -135,6 +135,14 @@ jobs:
         cp html.zip $GITHUB_WORKSPACE/artifacts
         ls html.zip && (echo "DOC GEN SUCCESSFUL" && exit 0) || (echo "DOC GEN FAILED" && exit 1)
 
+    - name: Python Documentation
+      if: runner.os == 'macos'
+      shell: bash
+      run:    |
+        cd $GITHUB_WORKSPACE/build
+
+        cp pydoc.zip $GITHUB_WORKSPACE/artifacts
+
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:

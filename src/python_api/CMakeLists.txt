@@ -210,7 +210,14 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         set( POST_COPY_COMMANDS ${POST_COPY_COMMANDS}
             COMMAND sphinx-build
             ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc )
+            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc
+
+            COMMAND ${CMAKE_COMMAND} -E tar "cf"
+                "${CMAKE_BINARY_DIR}/pydoc.zip"
+                --format=zip
+                -- *
+                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc"
+        )
     ENDIF()
 
     # Copy vsp.py wrapper post SWIG generation and run post copy commands.
