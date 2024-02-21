@@ -20,6 +20,7 @@ Exec=/usr/local/bin/vsp %u
 Terminal=false
 Categories=Education;Science;Physics;Engineering;
 Keywords=airfoil;aircraft;model;design;
+StartupWMClass=FLTK
 EOL
 chmod +x /usr/share/applications/vsp.desktop;
 desktop-file-install /usr/share/applications/vsp.desktop;
