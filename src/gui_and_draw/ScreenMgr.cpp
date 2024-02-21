@@ -266,30 +266,24 @@ void ScreenMgr::SetRunGui( bool r )
     m_RunGUI = r;
 }
 
-void ScreenMgr::ShowReturnToAPI()
+void ScreenMgr::EnableStopGUIMenuItem()
 {
-    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowReturnToAPI();
+    (( MainVSPScreen * ) m_ScreenVec[ vsp::VSP_MAIN_SCREEN ] )->EnableStopGUIMenuItem();
 }
 
-void ScreenMgr::HideReturnToAPI()
+void ScreenMgr::DisableStopGUIMenuItem()
 {
-    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideReturnToAPI();
+    (( MainVSPScreen * ) m_ScreenVec[ vsp::VSP_MAIN_SCREEN ] )->DisableStopGUIMenuItem();
 }
 
-void ScreenMgr::ShowExit()
+void ScreenMgr::EnableExitMenuItem()
 {
-    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->ShowExit();
+    (( MainVSPScreen * ) m_ScreenVec[ vsp::VSP_MAIN_SCREEN ] )->EnableExitMenuItem();
 }
 
-void ScreenMgr::HideExit()
+void ScreenMgr::DisableExitMenuItem()
 {
-    ( ( MainVSPScreen* ) m_ScreenVec[vsp::VSP_MAIN_SCREEN] )->HideExit();
-}
-
-void ScreenMgr::ReturnToAPI()
-{
-    // ForceUpdate();
-    SetRunGui( false );
+    (( MainVSPScreen * ) m_ScreenVec[ vsp::VSP_MAIN_SCREEN ] )->DisableExitMenuItem();
 }
 
 void ScreenMgr::APIHideScreensImplementation()

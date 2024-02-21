@@ -37,8 +37,6 @@ public:
     void StartGUI( );
     void StartGUIAPI( );
     void StopGUI();
-    void HideScreens();
-    void ShowScreens();
     void PopupMsg( const std::string &message );
 
     void Lock();
@@ -49,8 +47,8 @@ public:
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
 
-    void EnableReturnToAPI();
-    void DisableReturnToAPI();
+    void EnableStopGUIMenuItem();
+    void DisableStopGUIMenuItem();
 
     void SetGUIElementDisable( int e, bool state );
     void SetGUIScreenDisable( int s, bool state );

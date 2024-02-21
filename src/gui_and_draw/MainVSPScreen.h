@@ -55,10 +55,10 @@ public:
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
 
-    void ShowReturnToAPI();
-    void HideReturnToAPI();
-    void ShowExit();
-    void HideExit();
+    void EnableStopGUIMenuItem();
+    void DisableStopGUIMenuItem();
+    void EnableExitMenuItem();
+    void DisableExitMenuItem();
 
 protected:
 
@@ -84,7 +84,7 @@ protected:
     ActionMenuItem m_RunScriptMenuItem;
     ScreenMenuItem m_PreferencesMenuItem;
     ActionMenuItem m_ExitMenuItem;
-    ActionMenuItem m_ReturnToAPIMenuItem;
+    ActionMenuItem m_StopGUIMenuItem;
 
     ActionMenuItem m_UndoMenuItem;
     ActionMenuItem m_CutMenuItem;

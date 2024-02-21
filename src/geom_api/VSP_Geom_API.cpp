@@ -1695,31 +1695,17 @@ extern void StopGUI( )
 #endif
 }
 
-extern void EnableReturnToAPI( )
+extern void EnableStopGUIMenuItem( )
 {
 #ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().EnableReturnToAPI( );
+    GuiInterface::getInstance().EnableStopGUIMenuItem();
 #endif
 }
 
-extern void DisableReturnToAPI( )
+extern void DisableStopGUIMenuItem( )
 {
 #ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().DisableReturnToAPI( );
-#endif
-}
-
-extern void HideScreens()
-{
-#ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().HideScreens();
-#endif
-}
-
-extern void ShowScreens()
-{
-#ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().ShowScreens();
+    GuiInterface::getInstance().DisableStopGUIMenuItem();
 #endif
 }
 

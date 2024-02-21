@@ -2811,23 +2811,15 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void EnableReturnToAPI()", asFUNCTION( vsp::EnableReturnToAPI ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void EnableStopGUIMenuItem()", asFUNCTION( vsp::EnableStopGUIMenuItem ), asCALL_CDECL );
     assert( r >= 0 );
 
 
-    r = se->RegisterGlobalFunction( "void DisableReturnToAPI()", asFUNCTION( vsp::DisableReturnToAPI ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void DisableStopGUIMenuItem()", asFUNCTION( vsp::DisableStopGUIMenuItem ), asCALL_CDECL );
     assert( r >= 0 );
 
 
     r = se->RegisterGlobalFunction( "void StopGUI()", asFUNCTION( vsp::StopGUI ), asCALL_CDECL );
-    assert( r >= 0 );
-
-
-    r = se->RegisterGlobalFunction( "void HideScreens()", asFUNCTION( vsp::HideScreens ), asCALL_CDECL );
-    assert( r >= 0 );
-
-
-    r = se->RegisterGlobalFunction( "void ShowScreens()", asFUNCTION( vsp::ShowScreens ), asCALL_CDECL );
     assert( r >= 0 );
 
 

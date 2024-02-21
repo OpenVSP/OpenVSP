@@ -59,12 +59,10 @@ public:
 
     bool CheckRunGui();
     void SetRunGui( bool r );
-    void ShowReturnToAPI();
-    void HideReturnToAPI();
-    void ShowExit();
-    void HideExit();
-
-    void ReturnToAPI();
+    void EnableStopGUIMenuItem();
+    void DisableStopGUIMenuItem();
+    void EnableExitMenuItem();
+    void DisableExitMenuItem();
 
     void APIHideScreensImplementation();
     void APIShowScreensImplementation();

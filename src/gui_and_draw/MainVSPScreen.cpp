@@ -90,8 +90,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_RunScriptMenuItem.Init( this, m_MenuBar, "File/Run Script..." );
     m_PreferencesMenuItem.Init( mgr, m_MenuBar, "File/Preferences...", vsp::VSP_PREFERENCES_SCREEN );
     m_ExitMenuItem.Init( this, m_MenuBar, "File/Exit" );
-    m_ReturnToAPIMenuItem.Init( this, m_MenuBar, "File/Return to API" );
-    m_ReturnToAPIMenuItem.Hide();
+    m_StopGUIMenuItem.Init( this, m_MenuBar, "File/Stop GUI" );
+    m_StopGUIMenuItem.Hide();
 
     m_UndoMenuItem.Init( this, m_MenuBar, "Edit/Undo Parameter Change", FL_COMMAND + 'z' );
     m_CutMenuItem.Init( this, m_MenuBar, "Edit/Cut", FL_COMMAND + 'x' );
@@ -278,9 +278,9 @@ void MainVSPScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void MainVSPScreen::CloseCallBack( Fl_Widget *w )
 {
-    if ( m_ReturnToAPIMenuItem.IsShown() )
+    if ( m_StopGUIMenuItem.IsShown() )
     {
-        m_ScreenMgr->ReturnToAPI();
+        m_ScreenMgr->SetRunGui( false );
     }
     else if ( m_ExitMenuItem.IsShown() )
     {
@@ -418,9 +418,9 @@ void MainVSPScreen::ActionCB( void * data )
     {
         ExitVSP();
     }
-    else if ( data == &m_ReturnToAPIMenuItem )
+    else if ( data == &m_StopGUIMenuItem )
     {
-        m_ScreenMgr->ReturnToAPI();
+        m_ScreenMgr->SetRunGui( false );
     }
     else if ( data == &m_UndoMenuItem )
     {
@@ -797,7 +797,7 @@ void MainVSPScreen::SetBackground( double r, double g, double b )
 
 void MainVSPScreen::ShowReturnToAPIImplementation()
 {
-    m_ReturnToAPIMenuItem.Show();
+    m_StopGUIMenuItem.Show();
 #if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304) // Before this version, update() was private.
     m_MenuBar->update();
 #endif
@@ -805,7 +805,7 @@ void MainVSPScreen::ShowReturnToAPIImplementation()
 
 void MainVSPScreen::HideReturnToAPIImplementation()
 {
-    m_ReturnToAPIMenuItem.Hide();
+    m_StopGUIMenuItem.Hide();
 #if FL_API_VERSION >= 10400 || (defined(FL_ABI_VERSION) && FL_ABI_VERSION >= 10304)
     m_MenuBar->update();
 #endif
@@ -863,22 +863,22 @@ void HideExitHandler( void * data )
     }
 }
 
-void MainVSPScreen::ShowReturnToAPI()
+void MainVSPScreen::EnableStopGUIMenuItem()
 {
     Fl::awake( ShowReturnToAPIHandler, ( void* )this );
 }
 
-void MainVSPScreen::HideReturnToAPI()
+void MainVSPScreen::DisableStopGUIMenuItem()
 {
     Fl::awake( HideReturnToAPIHandler, ( void* )this );
 }
 
-void MainVSPScreen::ShowExit()
+void MainVSPScreen::EnableExitMenuItem()
 {
     Fl::awake( ShowExitHandler, ( void* )this );
 }
 
-void MainVSPScreen::HideExit()
+void MainVSPScreen::DisableExitMenuItem()
 {
     Fl::awake( HideExitHandler, ( void* )this );
 }

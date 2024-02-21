@@ -2969,7 +2969,8 @@ extern void InitGUI();
 */
 /*!
     Launch the interactive OpenVSP GUI.  In a multi-threaded environment, this must be called from the main thread only.
-    This starts the GUI event loop.
+    This starts the GUI event loop.  It will also show the main screen and screens displayed when StopGUI() was
+    previously called.
     \forcpponly
     \code{.cpp}
 
@@ -2996,12 +2997,11 @@ extern void InitGUI();
     \ingroup Visualization
 */
 /*!
-    Enable Return to API functionality from the OpenVSP GUI.
+    Enable Stop GUI Menu Item from the OpenVSP GUI.
 
-    Typically used for the blocking-mode OpenVSP GUI from the API.  This should not be enabled for a non-blocking
-    use of the OpenVSP GUI.
+    Typically used for the blocking-mode OpenVSP GUI from the API.
 
-    This will add a "Return to API" option to the file pulldown menu and will also cause the exit button on the
+    This will add a "Stop GUI" option to the file pulldown menu and will also cause the exit button on the
     window frame to have the same effect.  When selected, these options will stop the OpenVSP GUI event loop,
     returning control to the API program.  OpenVSP will not terminate, the model will remain in memory and will
     be responsive to subsequent API calls.
@@ -3010,7 +3010,7 @@ extern void InitGUI();
     \code{.cpp}
 
     InitGUI();
-    EnableReturnToAPI();
+    EnableStopGUIMenuItem();
     StartGUI();
 
     \endcode
@@ -3019,30 +3019,30 @@ extern void InitGUI();
     \code{.py}
 
     InitGUI()
-    EnableReturnToAPI()
+    EnableStopGUIMenuItem()
     StartGUI()
 
     \endcode
     \endPythonOnly
 
-    \sa InitGUI, DisableReturnToAPI
+    \sa InitGUI, DisableStopGUIMenuItem
 */
 
-extern void EnableReturnToAPI();
+extern void EnableStopGUIMenuItem();
 
 /*!
     \ingroup Visualization
 */
 /*!
-    Disable Return to API functionality from the OpenVSP GUI.
+    Disable Stop GUI Menu Item from the OpenVSP GUI.
 
-    This reverses the operation of EnableReturnToAPI.
+    This reverses the operation of EnableStopGUIMenuItem.
 
     \forcpponly
     \code{.cpp}
 
     InitGUI();
-    EnableReturnToAPI();
+    EnableStopGUIMenuItem();
     StartGUI();
 
     \endcode
@@ -3051,23 +3051,23 @@ extern void EnableReturnToAPI();
     \code{.py}
 
     InitGUI()
-    EnableReturnToAPI()
-    DisableReturnToAPI()
+    EnableStopGUIMenuItem()
+    DisableStopGUIMenuItem()
     StartGUI()
 
     \endcode
     \endPythonOnly
 
-    \sa InitGUI, EnableReturnToAPI
+    \sa InitGUI, EnableStopGUIMenuItem
 */
 
-extern void DisableReturnToAPI();
+extern void DisableStopGUIMenuItem();
 
 /*!
     \ingroup Visualization
 */
 /*!
-    Stop OpenVSP GUI event loop.  Keep OpenVSP running and in memory.
+    Stop OpenVSP GUI event loop and hide screens.  Keep OpenVSP running and in memory.
     \forcpponly
     \code{.cpp}
 
@@ -3097,77 +3097,6 @@ extern void DisableReturnToAPI();
 */
 
 extern void StopGUI();
-
-/*!
-    \ingroup Visualization
-*/
-/*!
-    Hide OpenVSP screens.  Keep OpenVSP event loop running and in memory.
-    \forcpponly
-    \code{.cpp}
-
-    InitGUI();
-    StartGUI();
-
-    HideScreens();
-
-    ShowScreens();
-
-    \endcode
-    \endforcpponly
-    \beginPythonOnly
-    \code{.py}
-
-    InitGUI()
-    StartGUI()
-
-    HideScreens()
-
-    ShowScreens()
-
-    \endcode
-    \endPythonOnly
-
-    \sa InitGUI, StartGUI, ShowScreens
-*/
-
-extern void HideScreens();
-
-/*!
-    \ingroup Visualization
-*/
-/*!
-    Show OpenVSP screens.  Event loop must be running.
-    \forcpponly
-    \code{.cpp}
-
-    InitGUI();
-    StartGUI();
-
-    HideScreens();
-
-    ShowScreens();
-
-    \endcode
-    \endforcpponly
-    \beginPythonOnly
-    \code{.py}
-
-    InitGUI()
-    StartGUI()
-
-    HideScreens()
-
-    ShowScreens()
-
-    \endcode
-    \endPythonOnly
-
-    \sa InitGUI, StartGUI, HideScreens
-*/
-
-extern void ShowScreens();
-
 
 /*!
     \ingroup Visualization

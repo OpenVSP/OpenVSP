@@ -64,7 +64,8 @@ void GuiInterface::StartGUIAPI( )
     if ( m_ScreenMgr )
     {
         m_ScreenMgr->SetRunGui( true );
-        m_ScreenMgr->HideExit();
+        m_ScreenMgr->DisableExitMenuItem();
+        m_ScreenMgr->EnableStopGUIMenuItem();
         m_ScreenMgr->ShowScreen( vsp::VSP_MAIN_SCREEN );
         m_ScreenMgr->APIShowScreens();
         Fl::lock();
@@ -78,38 +79,18 @@ void GuiInterface::StartGUIAPI( )
 
 }
 
-// In a multi-threaded environment, this is safe to run from a secondary thread.
+// In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
 void GuiInterface::StopGUI()
 {
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        m_ScreenMgr->ReturnToAPI();
+        m_ScreenMgr->APIHideScreens();      // Uses Fl::awake()
+        m_ScreenMgr->SetRunGui( false ); // Safe from secondary thread.
     }
 #endif
 }
 
-// In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
-void GuiInterface::HideScreens()
-{
-#ifdef VSP_USE_FLTK
-    if (m_ScreenMgr)
-    {
-        m_ScreenMgr->APIHideScreens();
-    }
-#endif
-}
-
-// In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
-void GuiInterface::ShowScreens()
-{
-#ifdef VSP_USE_FLTK
-    if (m_ScreenMgr)
-    {
-        m_ScreenMgr->APIShowScreens();
-    }
-#endif
-}
 
 // In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
 void GuiInterface::PopupMsg( const std::string &message )
@@ -195,23 +176,23 @@ void GuiInterface::SetBackground( double r, double g, double b )
 }
 
 // In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
-void GuiInterface::EnableReturnToAPI()
+void GuiInterface::EnableStopGUIMenuItem()
 {
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        m_ScreenMgr->ShowReturnToAPI();
+        m_ScreenMgr->EnableStopGUIMenuItem();
     }
 #endif
 }
 
 // In a multi-threaded environment, this uses Fl::awake() to make it safe to run from a secondary thread.
-void GuiInterface::DisableReturnToAPI()
+void GuiInterface::DisableStopGUIMenuItem()
 {
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
     {
-        m_ScreenMgr->HideReturnToAPI();
+        m_ScreenMgr->DisableStopGUIMenuItem();
     }
 #endif
 }
