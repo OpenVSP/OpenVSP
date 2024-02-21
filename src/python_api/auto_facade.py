@@ -35,12 +35,13 @@ import subprocess
 import pickle
 from openvsp.facade_server import pack_data, unpack_data
 from traceback import format_exception
+import openvsp_config
 
 # Starting the server
 HOST = 'localhost'
 PORT = 6000
 server_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'facade_server.py')
-proc = subprocess.Popen([sys.executable, server_file])
+proc = subprocess.Popen([sys.executable, server_file, str(openvsp_config.LOAD_GRAPHICS)])
 
 sleep(1)
 
@@ -92,6 +93,8 @@ def _send_recieve(func_name, args, kwargs):
 
 def IsFacade():"""+IS_FACADE_DOC+r"""
     return True
+def IsGUIRunning():"""+IS_GUI_RUNNING_DOC+r"""
+    return _send_recieve('IsGUIRunning', [], {})
 """
 
 DECORATOR_CODE = """
@@ -177,7 +180,10 @@ import sys
 #special code that is not generalizable
 import openvsp_config
 openvsp_config._IGNORE_IMPORTS = True
-openvsp_config.LOAD_GRAPHICS = True
+try:
+    openvsp_config.LOAD_GRAPHICS = (sys.argv[1] == 'True')
+except IndexError:
+    pass
 import openvsp as module
 
 HOST = 'localhost'

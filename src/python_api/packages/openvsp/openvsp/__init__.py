@@ -11,14 +11,12 @@ except ModuleNotFoundError:
     load_multi_facade = False
     ignore_imports = False
 
-if load_graphics:
-    if load_facade:
-        from .facade import *
-    elif load_multi_facade:
-        print("multi facade not supported")
-        #from .vsp_g_facade_multi import *
-    else:
-        from .vsp_g import *
+if load_facade:
+    from .facade import *
+elif load_multi_facade:
+    print("multi facade not supporrted")
+elif load_graphics:
+    from .vsp_g import *
 else:
     from .vsp import *
 
