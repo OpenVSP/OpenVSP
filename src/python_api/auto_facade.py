@@ -19,10 +19,20 @@ IS_FACADE_DOC = """
 
     \"\"\"
 """
+IS_GUI_RUNNING_DOC = """
+    \"\"\"
+    Returns True if the GUI event loop is running.
 
 
-PLACEHOLDER_FUNCS = "# **Placeholder start**\n" + "def IsFacade():" + IS_FACADE_DOC + "\n    return False"
+    .. code-block:: python
 
+        is_gui_active = IsGUIRunning()
+
+    \"\"\"
+"""
+
+PLACEHOLDER_FUNCS = "# **Placeholder start**\n" + "def IsFacade():" + IS_FACADE_DOC + "\n    return False\n"
+PLACEHOLDER_FUNCS += "def IsGUIRunning():" + IS_GUI_RUNNING_DOC + "\n    return False\n"
 
 CLIENT = r"""
 # Facade Code
@@ -193,6 +203,7 @@ global gui_wait
 gui_wait = True
 global gui_active
 gui_active = False
+debug = False
 
 def pack_data(data, is_command_list=False):
     def sub_pack(sub_data):
@@ -203,7 +214,7 @@ def pack_data(data, is_command_list=False):
                 "y":sub_data.y(),
                 "z":sub_data.z(),
             }
-        elif isinstance(sub_data,list) or isinstance(sub_data, tuple):
+        elif isinstance(sub_data, list) or isinstance(sub_data, tuple):
             if len(sub_data) > 0:
                 if isinstance(sub_data[0], module.vec3d):
                     new_data = {
@@ -229,7 +240,7 @@ def pack_data(data, is_command_list=False):
         #                               [comp_name,     args,       dict]
         # vsp.compvecpnt01(uv_array) -> ["compvepnt01", [uv_array], {}  ]
         #
-        new_data = [data[0],[],{}]
+        new_data = [data[0], [], {}]
         for value in data[1]:
             new_data[1].append(sub_pack(value))
         for key, value in data[2].items():
@@ -245,16 +256,16 @@ def unpack_data(b_data, is_command_list=False):
         n_data = sub_data
         if isinstance(sub_data, dict):
             if sub_data['name'] == 'vec3d':
-                n_data = module.vec3d(sub_data['x'],sub_data['y'],sub_data['z'])
+                n_data = module.vec3d(sub_data['x'], sub_data['y'], sub_data['z'])
             elif sub_data['name'] == 'vec3d_list':
                 n_data = []
                 for r in sub_data['list']:
-                    n_data.append(module.vec3d(r['x'],r['y'],r['z']))
+                    n_data.append(module.vec3d(r['x'], r['y'], r['z']))
         return n_data
 
     data = pickle.loads(b"".join(b_data))
     if is_command_list:
-        new_data = [data[0],[],{}]
+        new_data = [data[0], [], {}]
         for value in data[1]:
             new_data[1].append(sub_unpack(value))
         for key, value in data[2].items():
@@ -269,7 +280,7 @@ def start_server():
     import socket
     global gui_active
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind((HOST,PORT))
+        s.bind((HOST, PORT))
         socket_open = True
         while socket_open:
             print("Server Socket Thread: listening...")
@@ -299,8 +310,9 @@ def start_server():
 
                     # Special functionality for StartGUI
                     if data[0] == 'StartGUI':
-                        print("Server Socket Thread: StartGUI called")
-                        if event.is_set():
+                        if debug:
+                            print("Server Socket Thread: StartGUI called")
+                        if debug and event.is_set():
                             print("Server Socket Thread: The OpenVSP GUI should already be running")
                         result = 0
                         b_result = pack_data(result)
@@ -308,13 +320,20 @@ def start_server():
 
                     # Special functionality for StopGUI
                     elif data[0] == 'StopGUI':
-                        if not event.is_set():
+                        if debug and not event.is_set():
                             print("Server Socket Thread: The OpenVSP GUI is not running")
-                        print("Server Socket Thread: About to call StopGUI()")
+                        if debug:
+                            print("Server Socket Thread: About to call StopGUI()")
                         module.StopGUI()
                         gui_active = False
-                        print("Server Socket Thread: After StopGUI() called")
+                        if debug:
+                            print("Server Socket Thread: After StopGUI() called")
                         result = 0
+                        b_result = pack_data(result)
+
+                    # Special functionality for IsGUIRunning
+                    elif data[0] == 'IsGUIRunning':
+                        result = gui_active
                         b_result = pack_data(result)
 
                     # Regular functionality
@@ -324,15 +343,19 @@ def start_server():
                         kwargs = data[2]
                         foo = getattr(module, func_name)
                         try:
-                            print("Server Socket Thread: A1 Waiting for Lock")
+                            if debug:
+                                print("Server Socket Thread: A1 Waiting for Lock")
                             if gui_active:
                                 module.Lock()
-                                print("Server Socket Thread: A2 Lock obtained")
+                                if debug:
+                                    print("Server Socket Thread: A2 Lock obtained")
                             result = foo(*args, **kwargs)
-                            print("Server Socket Thread: A3 VSP function called")
+                            if debug:
+                                print("Server Socket Thread: A3 VSP function called")
                             if gui_active:
                                 module.Unlock()
-                                print("Server Socket Thread: A4 Lock released")
+                                if debug:
+                                    print("Server Socket Thread: A4 Lock released")
                         except Exception as e:
                             exc_info = sys.exc_info()
                             result = ["error", ''.join(traceback.format_exception(*exc_info))]
@@ -340,7 +363,8 @@ def start_server():
 
                     # Try to send response back
                     try:
-                        print("Server Socket Thread: sending data back")
+                        if debug:
+                            print("Server Socket Thread: sending data back")
                         conn.sendall(b_result)
                     except ConnectionResetError:
                         print("Server Socket Thread: Unable to send data to socket, closing server.")
@@ -363,14 +387,16 @@ if __name__ == "__main__":
     module.Unlock()
     while gui_wait:
         event.wait()
-        print("Server GUI Thread: Starting GUI")
+        if debug:
+            print("Server GUI Thread: Starting GUI")
         if gui_wait: #makes sure this didnt change while waiting
             if not did_init:
                 module.InitGUI()
                 did_init = True
             gui_active = True
             module.StartGUI()
-        print("Server GUI Thread: GUI stopped")
+        if debug:
+            print("Server GUI Thread: GUI stopped")
         event.clear()
     print("Server GUI Thread: End of thread")
 
