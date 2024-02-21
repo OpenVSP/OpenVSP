@@ -99,16 +99,14 @@ class DemoFrame(wx.Frame):
         top_splitter.SetMinimumPaneSize(10)
 
         #create button panel
-        button_buffer = wx.Panel(bottom_splitter, -1, style=wx.DOUBLE_BORDER)
-        button_buffer_box = wx.BoxSizer(wx.VERTICAL)
-        self.add_buttons(button_buffer,button_buffer_box)
-        button_buffer.SetSizerAndFit(button_buffer_box)
+        button_notebook = wx.Notebook(bottom_splitter, -1, style=wx.DOUBLE_BORDER)
+        self.add_buttons(button_notebook)
 
         #create user param panel
         self.prop_panel = UserPropertyPanel(bottom_splitter, vsp, self)
 
         #adds button and param panels
-        bottom_splitter.SplitVertically(button_buffer, self.prop_panel)
+        bottom_splitter.SplitVertically(button_notebook, self.prop_panel)
         bottom_splitter.SetSashGravity(0.5)
         bottom_splitter.SetMinimumPaneSize(10)
 
@@ -144,15 +142,10 @@ class DemoFrame(wx.Frame):
         file_menu.Append(save_model)
         self.Bind(wx.EVT_TOOL, self.on_save_model, save_model)
 
-        close_model = wx.MenuItem(
-            file_menu, wx.ID_ANY, 'Close Model', wx.EmptyString, wx.ITEM_NORMAL)
-        file_menu.Append(close_model)
-        self.Bind(wx.EVT_TOOL, self.on_close_model, close_model)
-
         menu_bar.Append(file_menu, "&File")
         self.SetMenuBar(menu_bar)
 
-    def add_buttons(self, button_buffer, button_buffer_box):
+    def add_buttons(self, button_notebook):
         """
         Adds buttons to the button box
 
@@ -163,49 +156,59 @@ class DemoFrame(wx.Frame):
         button_buffer_box : wx.BoxSizer
             the boxsizer to contain the buttons
         """
-        edit_model = wx.Button(button_buffer, wx.ID_ANY, u"Edit Model", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Bind(wx.EVT_BUTTON, self.on_edit_model, edit_model)
-        button_buffer_box.Add(edit_model)
+        current_page = wx.Panel(button_notebook)
+        current_sizer = wx.BoxSizer(wx.VERTICAL)
+        button_notebook.AddPage(current_page, "GUI CMDs", True)
 
-        refresh_model = wx.Button(button_buffer, wx.ID_ANY, u"Refresh Model", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Bind(wx.EVT_BUTTON, self.on_refresh_model, refresh_model)
-        button_buffer_box.Add(refresh_model)
-
-        run_automated_script = wx.Button(button_buffer, wx.ID_ANY, u"Run Automated Script", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Bind(wx.EVT_BUTTON, self.on_run_automated_script, run_automated_script)
-        button_buffer_box.Add(run_automated_script)
-
-        start_gui = wx.Button(button_buffer, wx.ID_ANY, u"Start GUI", wx.DefaultPosition, wx.DefaultSize, 0)
+        start_gui = wx.Button(current_page, wx.ID_ANY, u"Start GUI", wx.DefaultPosition, wx.DefaultSize, 0)
         self.Bind(wx.EVT_BUTTON, self.on_start_gui, start_gui)
-        button_buffer_box.Add(start_gui)
+        current_sizer.Add(start_gui)
 
-        hide_gui = wx.Button(button_buffer, wx.ID_ANY, u"Hide GUI", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Bind(wx.EVT_BUTTON, self.on_hide_gui, hide_gui)
-        button_buffer_box.Add(hide_gui)
-
-        show_gui = wx.Button(button_buffer, wx.ID_ANY, u"Show GUI", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Bind(wx.EVT_BUTTON, self.on_show_gui, show_gui)
-        button_buffer_box.Add(show_gui)
-
-        popup_gui = wx.Button(button_buffer, wx.ID_ANY, u"Popup Message", wx.DefaultPosition, wx.DefaultSize, 0)
-        self.Bind(wx.EVT_BUTTON, self.on_popup_gui, popup_gui)
-        button_buffer_box.Add(popup_gui)
-
-        stop_gui = wx.Button(button_buffer, wx.ID_ANY, u"Stop GUI", wx.DefaultPosition, wx.DefaultSize, 0)
+        stop_gui = wx.Button(current_page, wx.ID_ANY, u"Stop GUI", wx.DefaultPosition, wx.DefaultSize, 0)
         self.Bind(wx.EVT_BUTTON, self.on_stop_gui, stop_gui)
-        button_buffer_box.Add(stop_gui)
+        current_sizer.Add(stop_gui)
 
-        screenshot = wx.Button(button_buffer, wx.ID_ANY, u"Take Screenshot", wx.DefaultPosition, wx.DefaultSize, 0)
+        popup_gui = wx.Button(current_page, wx.ID_ANY, u"Popup Message", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_popup_gui, popup_gui)
+        current_sizer.Add(popup_gui)
+
+        screenshot = wx.Button(current_page, wx.ID_ANY, u"Take Screenshot", wx.DefaultPosition, wx.DefaultSize, 0)
         self.Bind(wx.EVT_BUTTON, self.on_screenshot, screenshot)
-        button_buffer_box.Add(screenshot)
+        current_sizer.Add(screenshot)
 
-        self.update_count = wx.StaticText(button_buffer, wx.ID_ANY, '0')
+        current_page.SetSizerAndFit(current_sizer)
+
+        current_page = wx.Panel(button_notebook)
+        current_sizer = wx.BoxSizer(wx.VERTICAL)
+        button_notebook.AddPage(current_page, "Edit CMDs")
+
+        edit_model = wx.Button(current_page, wx.ID_ANY, u"Edit Model", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_edit_model, edit_model)
+        current_sizer.Add(edit_model)
+
+        refresh_model = wx.Button(current_page, wx.ID_ANY, u"Refresh Model", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_refresh_model, refresh_model)
+        current_sizer.Add(refresh_model)
+
+        run_automated_script = wx.Button(current_page, wx.ID_ANY, u"Run Automated Script", wx.DefaultPosition, wx.DefaultSize, 0)
+        self.Bind(wx.EVT_BUTTON, self.on_run_automated_script, run_automated_script)
+        current_sizer.Add(run_automated_script)
+
+        current_page.SetSizerAndFit(current_sizer)
+
+        current_page = wx.Panel(button_notebook)
+        current_sizer = wx.BoxSizer(wx.VERTICAL)
+        button_notebook.AddPage(current_page, "Tracker")
+
+        self.update_count = wx.StaticText(current_page, wx.ID_ANY, '0')
         self.update_count.SetFont(wx.Font(20,wx.FONTFAMILY_DEFAULT,wx.FONTSTYLE_NORMAL,wx.FONTWEIGHT_NORMAL))
-        button_buffer_box.Add(self.update_count)
+        current_sizer.Add(self.update_count)
 
         self.timer = wx.Timer(self)
         self.Bind( wx.EVT_TIMER, self.on_check_updates, self.timer )
         self.timer.Start(1000) # 1 Hz
+
+        current_page.SetSizerAndFit(current_sizer)
 
     def on_start_gui(self, event):
         """
@@ -220,34 +223,6 @@ class DemoFrame(wx.Frame):
         print("PyVSP, Attempting to open VSP GUI")
         vsp.StartGUI()
         print("PyVSP, VSP GUI Opened")
-
-    def on_hide_gui(self, event):
-        """
-        event called when user clicks the hide gui button
-        Hides the OpenVSP gui
-
-        Parameters
-        ----------
-        event : wx.Event
-            the button event
-        """
-        print("PyVSP, Attempting to hide VSP GUI")
-        vsp.HideScreens()
-        print("PyVSP, VSP GUI hide screens")
-
-    def on_show_gui(self, event):
-        """
-        event called when user clicks the show gui button
-        Shows the OpenVSP gui
-
-        Parameters
-        ----------
-        event : wx.Event
-            the button event
-        """
-        print("PyVSP, Attempting to show VSP GUI")
-        vsp.ShowScreens()
-        print("PyVSP, VSP GUI show screens")
 
     def on_popup_gui(self, event):
         """
@@ -317,9 +292,6 @@ class DemoFrame(wx.Frame):
             the button event
         """
         print("load model button clicked")
-        if self.is_file_loaded:
-            print("File already loaded")
-            return
         dlg = wx.FileDialog(self,
                     message="Select an vsp3 or csm file to Import...",
                     defaultFile="",
@@ -336,16 +308,6 @@ class DemoFrame(wx.Frame):
             self.is_open = True
             self.load_vsp(geom_file_path)
 
-    @property
-    def is_file_loaded(self):
-        """
-        bool indicating whether a vsp file is loaded
-        """
-        name = vsp.GetVSPFileName()
-        if name == 'Unnamed.vsp3':
-            return False
-        return True
-
     def on_save_model(self, event):
         """
         event called when the user clicks the save model button
@@ -360,9 +322,6 @@ class DemoFrame(wx.Frame):
         """
 
         print("save model button clicked")
-        if not self.is_file_loaded:
-            print("no file loaded")
-            return
 
         dlg = wx.FileDialog(self,
                             message="Save vsp3 file as...",
@@ -377,24 +336,6 @@ class DemoFrame(wx.Frame):
         vsp.WriteVSPFile(file_path, vsp.SET_ALL)
         print(f"model saved as {file_path}")
 
-    def on_close_model(self, event):
-        """
-        event called when the user clicks the close model button
-
-        model cleared from vsp api
-
-        Parameters
-        ----------
-        event : wx.Event
-            the button event
-        """
-
-        print("close model button clicked")
-        if not self.is_file_loaded:
-            print("no model loaded")
-            return
-        vsp.ClearVSPModel()
-
     def on_edit_model(self, event):
         """
         event called when the user clicks the edit model button
@@ -408,9 +349,6 @@ class DemoFrame(wx.Frame):
         """
 
         print("edit model button clicked")
-        if not self.is_file_loaded:
-            print("no model loaded")
-            return
 
         dlg = wx.TextEntryDialog(self, "Select new X location for component 1", "X Value", "10",)
         if dlg.ShowModal() == wx.ID_OK:
@@ -423,7 +361,6 @@ class DemoFrame(wx.Frame):
             new_x_value = float(new_x_value)
         except:
             print(f"could not convert {new_x_value} to float")
-
         geom_list = vsp.FindGeoms()
         vsp.SetParmVal(geom_list[0], 'X_Location', 'XForm', new_x_value)
         vsp.Update()
@@ -496,9 +433,6 @@ class DemoFrame(wx.Frame):
             event
         """
         print("Run Automated Script clicked")
-        if not self.is_file_loaded:
-            print("no model loaded")
-            return
         self.refresh_actors()
         wx.CallLater(1000, lambda: self.automation(0))
 
