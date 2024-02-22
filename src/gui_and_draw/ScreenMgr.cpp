@@ -301,22 +301,26 @@ void ScreenMgr::APIHideScreensImplementation()
         geomScreen->ShowHideGeomScreens();
     }
 
-    m_APIScreenOpenVec.clear();
-    m_APIScreenOpenVec.resize( vsp::VSP_NUM_SCREENS, false );
-
-    for ( int i = 0; i < vsp::VSP_NUM_SCREENS; i++ )
+    // Screens are not stored, so store them.  If this is called twice (without a Show), do not
+    // clear the stored list.
+    if ( m_APIScreenOpenVec.size() == 0 )
     {
-        if ( i == vsp::VSP_COR_SCREEN ) // Closing this causes crashes.
-        {
-            continue;
-        }
+        m_APIScreenOpenVec.resize( vsp::VSP_NUM_SCREENS, false );
 
-        if ( m_ScreenVec[ i ] )
+        for ( int i = 0; i < vsp::VSP_NUM_SCREENS; i++ )
         {
-            m_APIScreenOpenVec[ i ] = m_ScreenVec[ i ]->IsShown();
-            if ( m_APIScreenOpenVec[ i ] )
+            if ( i == vsp::VSP_COR_SCREEN ) // Closing this causes crashes.
             {
-                m_ScreenVec[ i ]->Hide();
+                continue;
+            }
+
+            if ( m_ScreenVec[ i ] )
+            {
+                m_APIScreenOpenVec[ i ] = m_ScreenVec[ i ]->IsShown();
+                if ( m_APIScreenOpenVec[ i ] )
+                {
+                    m_ScreenVec[ i ]->Hide();
+                }
             }
         }
     }
@@ -342,6 +346,9 @@ void ScreenMgr::APIShowScreensImplementation()
             }
         }
     }
+
+    // Clear stored state.
+    m_APIScreenOpenVec.clear();
 }
 
 void APIHideScreenHandler( void * data )
