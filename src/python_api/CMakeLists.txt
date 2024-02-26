@@ -198,28 +198,6 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         $<TARGET_FILE:pyvsp>
         ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/$<TARGET_FILE_NAME:pyvsp> )
 
-
-    # create post copy commands for vsp.py
-    # Always adds "placeholder" facade commands to vsp.py
-    # Builds facade using vsp.py
-    # If Sphinx, builds docs from vsp.py
-
-    set( POST_COPY_COMMANDS "" )
-
-    if ( SPHINX_FOUND )
-        set( POST_COPY_COMMANDS ${POST_COPY_COMMANDS}
-            COMMAND sphinx-build
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
-            ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc
-
-            COMMAND ${CMAKE_COMMAND} -E tar "cf"
-                "${CMAKE_BINARY_DIR}/pydoc.zip"
-                --format=zip
-                -- *
-                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc"
-        )
-    ENDIF()
-
     # Copy vsp.py wrapper post SWIG generation and run post copy commands.
     add_custom_command( TARGET pyvsp POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
@@ -228,8 +206,6 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
 
         COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/auto_facade.py
         ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp/vsp.py True
-
-        ${POST_COPY_COMMANDS}
     )
 
     add_custom_command( TARGET pyvsp POST_BUILD
@@ -237,6 +213,24 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
         ${CMAKE_CURRENT_SOURCE_DIR}/gen_unit_test.py
         ${CMAKE_BINARY_DIR}/python_pseudo/openvsp
     )
+
+    if ( SPHINX_FOUND )
+        add_custom_target( pydoc ALL
+                COMMAND sphinx-build
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/openvsp
+                ${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc
+                DEPENDS pyvsp
+        )
+
+        add_custom_command( TARGET pydoc POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E tar "cf"
+                "${CMAKE_BINARY_DIR}/pydoc.zip"
+                --format=zip
+                -- *
+                WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc"
+        )
+
+    ENDIF()
 
     # Configure files to pseudo install -- redundant to package configure above, but tracks dependencies best.
     # Unfortunately, it does not know if you delete the files from ${CMAKE_BINARY_DIR}.
