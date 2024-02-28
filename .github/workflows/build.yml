@@ -9,19 +9,32 @@ jobs:
     name: ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
-      BUILD_ARCH: ${{ matrix.arch }}
+      GCC_VER: gcc-${{ matrix.gcc-version }}
+      GPP_VER: g++-${{ matrix.gcc-version }}
+      GCC_VERNO: ${{ matrix.gcc-version }}
     strategy:
       fail-fast: false
       matrix:
         python-version: [3.9, 3.11]
-        arch: [x64]
-        python-arch: [x64]
-        os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, macos-11 ]
-        exclude: # Ubuntu builds ignore python-version value, this limits to a single build.
+        gcc-version: [10, 11]
+        os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, macos-11, macos-14 ]
+        exclude:
           - os: ubuntu-20.04
             python-version: 3.9
           - os: ubuntu-22.04
             python-version: 3.9
+          - os: ubuntu-20.04
+            gcc-version: 10
+          - os: ubuntu-22.04
+            gcc-version: 10
+          - os: macos-11
+            gcc-version: 11
+          - os: macos-14
+            python-version: 3.9
+          - os: macos-14
+            gcc-version: 10
+          - os: windows-2019
+            gcc-version: 10
 
     steps:
     - name: Checkout
@@ -32,7 +45,6 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-        architecture: ${{ matrix.python-arch }}
 
     - name:  Install Linux
       if: runner.os == 'Linux'
@@ -40,16 +52,21 @@ jobs:
       run:   |
         sudo apt-get update
         sudo apt-get install python3-dev libxml2-dev libfltk1.3-dev fluid libjpeg-dev libglm-dev libcminpack-dev libglew-dev swig doxygen graphviz texlive-latex-base zip
+        pip install sphinx
 
     - name:  Install Windows
       if: runner.os == 'Windows'
       shell: cmd
-      run:   choco install -y swig
+      run:   |
+        choco install -y swig
+        pip install sphinx
 
     - name:  Install MacOS
       if: runner.os == 'macos'
       shell: bash
-      run:   brew install swig gcc@10
+      run:   |
+        brew install swig gcc@${GCC_VERNO}
+        pip install sphinx
 
     - name:  Build Linux
       if: runner.os == 'Linux'
@@ -80,12 +97,12 @@ jobs:
       run:   |
         mkdir build buildlibs artifacts
         cd $GITHUB_WORKSPACE\\buildlibs
-        cmake -DCMAKE_BUILD_TYPE=Release -A $BUILD_ARCH ..\\Libraries
+        cmake -DCMAKE_BUILD_TYPE=Release -A x64 ..\\Libraries
 
         cmake --build . --config Release -j 2
         cd $GITHUB_WORKSPACE\\build
 
-        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A $BUILD_ARCH ..\\src
+        cmake -DCMAKE_BUILD_TYPE=Release -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE\\buildlibs -A x64 ..\\src
 
         cmake --build . --target package --config Release -j 2
 
@@ -105,16 +122,16 @@ jobs:
       run:   |
         mkdir build buildlibs artifacts
         cd $GITHUB_WORKSPACE/buildlibs
-        cmake -DCMAKE_BUILD_TYPE=Release ../Libraries -DADEPT_CXX_COMPILER=/usr/local/bin/g++-10 -DADEPT_C_COMPILER=/usr/local/bin/gcc-10
+        cmake -DCMAKE_BUILD_TYPE=Release ../Libraries -DADEPT_CXX_COMPILER=${GPP_VER} -DADEPT_C_COMPILER=${GCC_VER}
         make -j2
         
         cd $GITHUB_WORKSPACE/build
-        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCXX_OMP_COMPILER=/usr/local/bin/g++-10 -DC_OMP_COMPILER=/usr/local/bin/gcc-10 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
+        cmake -DVSP_LIBRARY_PATH=$GITHUB_WORKSPACE/buildlibs -DCXX_OMP_COMPILER=${GPP_VER} -DC_OMP_COMPILER=${GCC_VER} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
         make -j2 package
         
         ZIPFILE=${GITHUB_WORKSPACE}/build/OpenVSP-*-MacOS.zip
         VSPVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
-        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-MacOS-Python${{ matrix.python-version }}_${GITHUB_SHA}.zip
+        DEPLOY_FILE=${GITHUB_WORKSPACE}/build/OpenVSP-${VSPVER}-${{ matrix.os }}-${RUNNER_ARCH}-Python${{ matrix.python-version }}_${GITHUB_SHA}.zip
         
         cp $ZIPFILE $DEPLOY_FILE
         cp $DEPLOY_FILE $GITHUB_WORKSPACE/artifacts
@@ -136,17 +153,18 @@ jobs:
         ls html.zip && (echo "DOC GEN SUCCESSFUL" && exit 0) || (echo "DOC GEN FAILED" && exit 1)
 
     - name: Python Documentation
-      if: runner.os == 'macos'
+      if: matrix.os == 'ubuntu-22.04'
       shell: bash
       run:    |
         cd $GITHUB_WORKSPACE/build
 
         cp pydoc.zip $GITHUB_WORKSPACE/artifacts
+        ls pydoc.zip && (echo "PYDOC COPY SUCCESSFUL" ) || (echo "PYDOC COPY FAILED" )
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: artifact-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.python-version }}
+        name: artifact-${{ matrix.os }}-${{ matrix.python-version }}
         path: ${{ github.workspace }}/artifacts
 
   merge:
