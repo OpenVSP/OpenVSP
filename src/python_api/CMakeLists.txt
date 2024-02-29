@@ -226,7 +226,7 @@ IF( SWIG_FOUND AND PYTHONLIBS_FOUND )
                 COMMAND ${CMAKE_COMMAND} -E tar "cf"
                 "${CMAKE_BINARY_DIR}/pydoc.zip"
                 --format=zip
-                -- *
+                -- .
                 WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/python_pseudo/openvsp/doc"
         )
 
