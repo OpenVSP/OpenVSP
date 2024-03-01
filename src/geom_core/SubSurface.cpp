@@ -671,15 +671,18 @@ void SSLineSeg::Update( Geom *geom, const int &indx )
     double wmax = geom->GetWMax( indx );
 
     const VspSurf* surf = geom->GetMainSurfPtr( indx );
-    double u0 = surf->InvertUMapping( m_SP0[0] * umax );
-    double u1 = surf->InvertUMapping( m_SP1[0] * umax );
+    if ( surf )
+    {
+        double u0 = surf->InvertUMapping( m_SP0[ 0 ] * umax );
+        double u1 = surf->InvertUMapping( m_SP1[ 0 ] * umax );
 
-    // Update none scaled points
-    m_P0.set_xyz( u0, m_SP0[1]*wmax, 0 );
-    m_P1.set_xyz( u1, m_SP1[1]*wmax, 0 );
+        // Update none scaled points
+        m_P0.set_xyz( u0, m_SP0[ 1 ] * wmax, 0 );
+        m_P1.set_xyz( u1, m_SP1[ 1 ] * wmax, 0 );
 
-    // Update line
-    m_line = m_P1 - m_P0;
+        // Update line
+        m_line = m_P1 - m_P0;
+    }
 }
 
 int SSLineSeg::CompNumDrawPnts( const VspSurf* surf, const Geom* geom ) const
@@ -2383,11 +2386,19 @@ SSLine* SSLineArray::AddSSLine( double location, int ind )
         ssline->m_CreateBeamElements.Set( m_CreateBeamElements() );
         ssline->m_ConstType.Set( m_ConstType() );
         ssline->m_ConstVal.Set( location );
+        ssline->m_Val01.Set( true );
+        // ssline->m_ConstVal0N.Set(); // Will be set by Update().
         ssline->m_TestType.Set( m_TestType() );
+        ssline->m_MainSurfIndx.Set( m_MainSurfIndx() );
         ssline->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         ssline->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
         ssline->m_FeaPropertyID = m_FeaPropertyID;
         ssline->m_CapFeaPropertyID = m_CapFeaPropertyID;
+        ssline->m_IncludedElements.Set( m_IncludedElements() ); // Deprecated
+        ssline->m_CreateBeamElements.Set( m_CreateBeamElements() );
+        ssline->m_KeepDelShellElements.Set( m_KeepDelShellElements() );
+        ssline->m_DrawFeaPartFlag.Set( m_DrawFeaPartFlag() );
+        ssline->m_FeaOrientationType.Set( m_FeaOrientationType() );
 
         ssline->SetName( string( m_Name + "_SSLine_" + std::to_string( ind ) ) );
 

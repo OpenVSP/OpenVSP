@@ -4544,6 +4544,11 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
         fearib->m_FeaPropertyID = m_FeaPropertyID;
         fearib->m_CapFeaPropertyID = m_CapFeaPropertyID;
 
+        // Copied from FeaPart
+        fearib->m_MainSurfIndx = m_MainSurfIndx;
+        fearib->m_DrawFeaPartFlag.Set( m_DrawFeaPartFlag() );
+        fearib->m_OrientationType.Set( m_OrientationType() );
+
         fearib->SetName( string( m_Name + "_Rib" + std::to_string( ind ) ) );
 
         fearib->Update();
@@ -4886,6 +4891,11 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
         }
 
         slice->m_OrientationPlane.Set( m_OrientationPlane() );
+        slice->m_RotationAxis.Set( m_RotationAxis() );
+        slice->m_XRot.Set( m_XRot() );
+        slice->m_YRot.Set( m_YRot() );
+        slice->m_ZRot.Set( m_ZRot() );
+
         slice->m_AbsRelParmFlag.Set( m_AbsRelParmFlag() );
         slice->m_IncludedElements.Set( m_IncludedElements() );
         slice->m_CreateBeamElements.Set( m_CreateBeamElements() );
@@ -4894,6 +4904,11 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
         slice->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
         slice->m_FeaPropertyID = m_FeaPropertyID;
         slice->m_CapFeaPropertyID = m_CapFeaPropertyID;
+
+        // Copied from FeaPart
+        slice->m_MainSurfIndx = m_MainSurfIndx;
+        slice->m_DrawFeaPartFlag.Set( m_DrawFeaPartFlag() );
+        slice->m_OrientationType.Set( m_OrientationType() );
 
         slice->SetName( string( m_Name + "_Slice" + std::to_string( ind ) ) );
 
