@@ -2437,8 +2437,8 @@ int VspGlWindow::OnWheelScroll( int dx, int dy, int x, int y )
     if ( zoomChange != 1 )
     {
         Viewport* viewport = m_GEngine->getDisplay()->getViewport();
-        float width = viewport->width() * pixels_per_unit();
-        float height = viewport->height() * pixels_per_unit();
+        float width = viewport->width();
+        float height = viewport->height();
         int mx = x - viewport->x();
         int my = y - viewport->y();
 
