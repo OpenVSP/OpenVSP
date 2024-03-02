@@ -108,8 +108,11 @@ public:
     void InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes, SurfaceIntersectionSingleton *MeshMgr );
 
     void ReadSTL( const char* file_name );
+    void WriteSimpleSTL( const char* file_name );
+    void WriteSimpleSTL( FILE* file_id );
+
     void WriteSTL( const char* file_name );
-    void WriteSTL( FILE* fp );
+    void WriteSTL( FILE* file_id );
 
     void ConvertToQuads();
 

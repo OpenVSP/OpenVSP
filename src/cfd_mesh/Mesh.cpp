@@ -2329,14 +2329,14 @@ void Mesh::ReadSTL( const char* file_name )
 
 }
 
-void Mesh::WriteSTL( const char* file_name )
+void Mesh::WriteSimpleSTL( const char* file_name )
 {
     FILE* file_id = fopen( file_name, "w" );
     if ( file_id )
     {
         fprintf( file_id, "solid\n" );
 
-        WriteSTL( file_id );
+        WriteSimpleSTL( file_id );
 
         fprintf( file_id, "endsolid\n" );
         fclose( file_id );
@@ -2345,7 +2345,7 @@ void Mesh::WriteSTL( const char* file_name )
 
 
 
-void Mesh::WriteSTL( FILE* file_id )
+void Mesh::WriteSimpleSTL( FILE* file_id )
 {
     for ( int i = 0 ; i < ( int )simpFaceVec.size() ; i++ )
     {
@@ -2359,7 +2359,7 @@ void Mesh::WriteSTL( FILE* file_id )
         vec3d norm = cross( v01, v12 );
         norm.normalize();
 
-        fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+        fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n", norm.x(), norm.y(), norm.z() );
         fprintf( file_id, "   outer loop\n" );
 
         fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
@@ -2377,7 +2377,7 @@ void Mesh::WriteSTL( FILE* file_id )
             norm = cross( v23, v30 );
             norm.normalize();
 
-            fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+            fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n", norm.x(), norm.y(), norm.z() );
             fprintf( file_id, "   outer loop\n" );
 
             fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
@@ -2387,6 +2387,29 @@ void Mesh::WriteSTL( FILE* file_id )
             fprintf( file_id, "   endloop\n" );
             fprintf( file_id, " endfacet\n" );
         }
+    }
+}
+
+void Mesh::WriteSTL( const char* file_name )
+{
+    FILE* file_id = fopen( file_name, "w" );
+    if ( file_id )
+    {
+        fprintf( file_id, "solid\n" );
+
+        WriteSTL( file_id );
+
+        fprintf( file_id, "endsolid\n" );
+        fclose( file_id );
+    }
+}
+
+void Mesh::WriteSTL( FILE* file_id )
+{
+    list< Face* >::iterator f;
+    for ( f = faceList.begin() ; f != faceList.end(); ++f )
+    {
+        ( *f )->WriteSTL( file_id );
     }
 }
 
@@ -2444,6 +2467,20 @@ void Mesh::ConvertToQuads()
 
             // Node will be fixed if both endpoints are fixed (i.e. edge is a border edge).
             ns->fixed = n0->fixed && n1->fixed;
+
+
+            double len = dist( n0->pnt, n1->pnt );
+            double len2 = dist( n0->pnt, ns->pnt );
+            if ( len2 > len )
+            {
+                printf( "n0->pnt %f %f %f\n", n0->pnt.x(), n0->pnt.y(), n0->pnt.z() );
+                printf( "n1->pnt %f %f %f\n", n1->pnt.x(), n1->pnt.y(), n1->pnt.z() );
+                printf( "psplit %f %f %f\n", psplit.x(), psplit.y(), psplit.z() );
+                printf( "uwsplit %f %f\n", uwsplit.x(), uwsplit.y() );
+                printf( "uws %f %f\n", uws.x(), uws.y() );
+                printf( "ps %f %f %f\n", ps.x(), ps.y(), ps.z() );
+                printf( "\n\n" );
+            }
         }
 
         // Create split edges.

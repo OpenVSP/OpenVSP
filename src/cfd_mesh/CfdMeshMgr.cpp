@@ -1075,7 +1075,7 @@ void CfdMeshMgrSingleton::WriteSTL( const string &filename )
         {
             if ( !m_SurfVec[i]->GetWakeFlag() )
             {
-                m_SurfVec[i]->GetMesh()->WriteSTL( file_id );
+                m_SurfVec[ i ]->GetMesh()->WriteSimpleSTL( file_id );
             }
             else
             {
@@ -1091,7 +1091,7 @@ void CfdMeshMgrSingleton::WriteSTL( const string &filename )
             {
                 if ( m_SurfVec[i]->GetWakeFlag() )
                 {
-                    m_SurfVec[i]->GetMesh()->WriteSTL( file_id );
+                    m_SurfVec[ i ]->GetMesh()->WriteSimpleSTL( file_id );
                 }
             }
             fprintf( file_id, "endsolid wake\n" );

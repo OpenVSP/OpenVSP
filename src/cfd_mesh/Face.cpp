@@ -1142,3 +1142,43 @@ void Face::GetNodePts( vector <vec3d> &pts )
         pts.push_back( n3->pnt );
     }
 }
+
+void Face::WriteSTL( FILE* file_id )
+{
+    vec3d& p0 = n0->pnt;
+    vec3d& p1 = n1->pnt;
+    vec3d& p2 = n2->pnt;
+    vec3d v01 = p1 - p0;
+    vec3d v12 = p2 - p1;
+    vec3d norm = cross( v01, v12 );
+    norm.normalize();
+
+    fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n", norm.x(), norm.y(), norm.z() );
+    fprintf( file_id, "   outer loop\n" );
+
+    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p1.x(), p1.y(), p1.z() );
+    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+
+    fprintf( file_id, "   endloop\n" );
+    fprintf( file_id, " endfacet\n" );
+
+    if ( n3 ) // Split quad and write additional tri.
+    {
+        vec3d& p3 = n3->pnt;
+        vec3d v23 = p3 - p2;
+        vec3d v30 = p0 - p3;
+        norm = cross( v23, v30 );
+        norm.normalize();
+
+        fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n", norm.x(), norm.y(), norm.z() );
+        fprintf( file_id, "   outer loop\n" );
+
+        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p0.x(), p0.y(), p0.z() );
+        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p2.x(), p2.y(), p2.z() );
+        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", p3.x(), p3.y(), p3.z() );
+
+        fprintf( file_id, "   endloop\n" );
+        fprintf( file_id, " endfacet\n" );
+    }
+}

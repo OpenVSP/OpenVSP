@@ -746,7 +746,7 @@ void Surf::BuildGrid()
 
 void Surf::WriteSTL( const char* filename )
 {
-    m_Mesh.WriteSTL( filename );
+    m_Mesh.WriteSimpleSTL( filename );
 }
 
 void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )

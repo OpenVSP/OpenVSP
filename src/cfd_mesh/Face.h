@@ -201,6 +201,8 @@ public:
 
     void GetNodePts( vector <vec3d> &pts );
 
+    void WriteSTL( FILE* file_id );
+
     list< Face* >::iterator list_ptr;
     bool m_DeleteMeFlag;
 
