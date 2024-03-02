@@ -18,6 +18,7 @@ FeaMesh::FeaMesh( string & struct_id )
 
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
+    m_NumFeaTrimParts = 0;
     m_NumFeaFixPoints = 0;
 
     m_NumEls = 0;
@@ -68,6 +69,7 @@ void FeaMesh::Cleanup()
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
     m_NumFeaFixPoints = 0;
+    m_NumFeaTrimParts = 0;
 
     m_FeaPartNameVec.clear();
     m_FeaPartTypeVec.clear();

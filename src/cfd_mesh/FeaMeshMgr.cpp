@@ -1018,7 +1018,7 @@ void FeaMeshMgrSingleton::AddStructureTrimPlanes()
 
     if ( fea_struct && GetMeshPtr() )
     {
-        fea_struct->FetchAllTrimPlanes( GetMeshPtr()->m_TrimPt, GetMeshPtr()->m_TrimNorm );
+        GetMeshPtr()->m_NumFeaTrimParts = fea_struct->FetchAllTrimPlanes( GetMeshPtr()->m_TrimPt, GetMeshPtr()->m_TrimNorm );
     }
 }
 
@@ -1499,26 +1499,45 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         {
             // First index of m_Tags is the parent surface. Second index is subsurface index which begins 
             //  from the last FeaPart surface index (FeaFixPoints are not tagged; they are not surfaces)
-            int ssindex = all_face_vec[i].m_Tags[1] - ( GetMeshPtr()->m_NumFeaParts - GetMeshPtr()->m_NumFeaFixPoints ) - 1;
-            elem->SetFeaSSIndex( ssindex );
+            // Tag numbering offset is established in CfdMeshMgrSingleton::SetSimpSubSurfTags() which is called from
+            // CfdMeshMgrSingleton::SubTagTris().  The offset is based on the number of surfaces encountered, typically
+            // one per FeaPart.  However, FixPoints and Trim Parts don't have surfaces associated with them.
+            int ssindex = all_face_vec[i].m_Tags[1] - ( GetMeshPtr()->m_NumFeaParts - GetMeshPtr()->m_NumFeaFixPoints - GetMeshPtr()->m_NumFeaTrimParts ) - 1;
 
-            int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
-            vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
-            int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
-            vec3d defaultorientation = ovec[ surf_num ];
-            orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
+            if ( ssindex <= m_SimpleSubSurfaceVec.size() )
+            {
+                elem->SetFeaSSIndex( ssindex );
+
+                int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
+                vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
+                int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
+                vec3d defaultorientation = ovec[ surf_num ];
+                orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
+            }
+            if ( false ) // else
+            {
+                printf( "Error:  Failed to match subsurface for element properties.\n" );
+            }
         }
         else if ( all_face_vec[i].m_Tags.size() > 2 )
         {
-            //Give priority to first tagged subsurface in the event of overlap
-            int ssindex = all_face_vec[i].m_Tags[1] - ( GetMeshPtr()->m_NumFeaParts - GetMeshPtr()->m_NumFeaFixPoints ) - 1;
-            elem->SetFeaSSIndex( ssindex );
+            // Give priority to first tagged subsurface in the event of overlap.  Potential to do something more sophisticated later.
+            int ssindex = all_face_vec[i].m_Tags[1] - ( GetMeshPtr()->m_NumFeaParts - GetMeshPtr()->m_NumFeaFixPoints - GetMeshPtr()->m_NumFeaTrimParts ) - 1;
 
-            int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
-            vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
-            int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
-            vec3d defaultorientation = ovec[ surf_num ];
-            orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
+            if ( ssindex <= m_SimpleSubSurfaceVec.size() )
+            {
+                elem->SetFeaSSIndex( ssindex );
+
+                int type = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationType();
+                vector < vec3d > ovec = m_SimpleSubSurfaceVec[ssindex].GetFeaOrientationVec();
+                int surf_num = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartSurfNum();
+                vec3d defaultorientation = ovec[ surf_num ];
+                orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetFeaElementOrientation( closest_uw[0], closest_uw[1], type, defaultorientation );
+            }
+            if ( false ) // else
+            {
+                printf( "Error:  Failed to match subsurface for element properties.\n" );
+            }
         }
 
         // Project orientation vector into plane of element.  Will be trivial for u-direction orientation, but

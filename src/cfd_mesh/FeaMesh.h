@@ -125,6 +125,7 @@ public:
 
     unsigned long long int m_NumFeaParts;
     unsigned long long int m_NumFeaFixPoints;
+    unsigned long long int m_NumFeaTrimParts;
     unsigned long long int m_NumFeaSubSurfs;
 
     vector < string > m_FeaPartNameVec;
