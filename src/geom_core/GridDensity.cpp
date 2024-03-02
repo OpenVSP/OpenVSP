@@ -1139,7 +1139,7 @@ GridDensity::GridDensity() : ParmContainer()
     m_GroupName = "NONE";
 }
 
-void GridDensity::Update()
+void GridDensity::Update( const double & scale )
 {
     m_BaseLen.Activate();
     m_BaseFrac.Activate();
@@ -1152,8 +1152,8 @@ void GridDensity::Update()
     m_FarMaxGap.Activate();
     m_FarMaxGapFrac.Activate();
 
-    double modellen = GetModelLen();
-    double domainlen = GetDomainLen();
+    double modellen = GetModelLen() * scale;
+    double domainlen = GetDomainLen() * scale;
 
     if ( m_BaseAbsRel() == vsp::ABS ) // As fraction of model size.
     {

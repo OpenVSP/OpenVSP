@@ -64,7 +64,12 @@ void FeaStructure::Update()
     UpdateFeaParts();
     UpdateFeaSubSurfs();
     UpdateFeaBCs();
-    m_FeaGridDensity.Update();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        m_FeaGridDensity.Update( veh->ComputeStructuresScaleFactor() );
+    }
 }
 
 void FeaStructure::ParmChanged( Parm* parm_ptr, int type )

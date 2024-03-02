@@ -380,7 +380,7 @@ public:
     GridDensity();
     virtual ~GridDensity();
 
-    virtual void Update();
+    virtual void Update( const double & scale );
 
     virtual void InitParms();
 
