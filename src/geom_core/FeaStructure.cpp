@@ -3879,7 +3879,7 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
         }
     }
 
-    if ( samesize )
+    if ( samesize && nsymm > 0 )
     {
         pt.resize( nsymm );
         norm.resize( nsymm );
