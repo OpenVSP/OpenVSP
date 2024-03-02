@@ -882,7 +882,7 @@ void FeaMeshMgrSingleton::AddStructureFixPoints()
                 assert( fixpnt );
                 FixPoint fxpt;
 
-                fxpt.m_Pnt = fixpnt->GetPntVec();
+                fxpt.m_Pnt = fixpnt->GetPntVec( GetMeshPtr()->m_LenScale );
 
                 int npt = fxpt.m_Pnt.size();
 

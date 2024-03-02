@@ -3472,7 +3472,7 @@ bool FeaFixPoint::LessThanY( piecewise_surface_type & surface, double val ) cons
     return true;
 }
 
-vector < vec3d > FeaFixPoint::GetPntVec()
+vector < vec3d > FeaFixPoint::GetPntVec( const double & scale )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -3557,6 +3557,11 @@ vector < vec3d > FeaFixPoint::GetPntVec()
         }
     }
 
+    for ( int i = 0; i < pnt_vec.size(); i++ )
+    {
+        pnt_vec[i] = pnt_vec[i] * scale;
+    }
+
     return pnt_vec;
 }
 
@@ -3618,7 +3623,7 @@ xmlNodePtr FeaFixPoint::DecodeXml( xmlNodePtr & node )
 
 void FeaFixPoint::UpdateDrawObjs()
 {
-    vector < vec3d > pnt_vec = GetPntVec();
+    vector < vec3d > pnt_vec = GetPntVec( 1.0 );
 
     if ( pnt_vec.size() > 0 )
     {
@@ -6727,8 +6732,8 @@ void FeaConnection::UpdateDrawObjs()
 
     if ( start_pt && end_pt )
     {
-        vector <vec3d> sp = start_pt->GetPntVec();
-        vector <vec3d> ep = end_pt->GetPntVec();
+        vector <vec3d> sp = start_pt->GetPntVec( 1.0 );
+        vector <vec3d> ep = end_pt->GetPntVec( 1.0 );
 
         vector <vec3d> pv(2);
         pv[0] = sp[ m_StartFixPtSurfIndex() ];

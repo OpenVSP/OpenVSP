@@ -415,7 +415,7 @@ public:
     virtual ~FeaFixPoint()    {};
 
     virtual void UpdateSurface();
-    vector < vec3d > GetPntVec(); // Returns the FeaFixPoint 3D coordinate on each parent surface
+    vector < vec3d > GetPntVec( const double & scale ); // Returns the FeaFixPoint 3D coordinate on each parent surface
     vec2d GetUW(); // Returns the FeaFixPoint UW coordinate on main parent surface
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
