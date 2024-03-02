@@ -1208,46 +1208,32 @@ void Mesh::CollapseEdge( Edge* edge )
     {
         eca->border = true;
 
-        std::map< Edge *, Node * >::iterator it;
-        it = m_BorderEdgeSplitNode.find( ea0 );
-
-        if( it != m_BorderEdgeSplitNode.end() )
+        if( ea0->ns )
         {
-            Node* ns = it->second;
-            m_BorderEdgeSplitNode.erase( it );
-            m_BorderEdgeSplitNode[ eca ] = ns;
+            eca->ns = ea0->ns;
+            ea0->ns = NULL;
         }
 
-        it = m_BorderEdgeSplitNode.find( ea1 );
-
-        if( it != m_BorderEdgeSplitNode.end() )
+        if( ea1->ns )
         {
-            Node* ns = it->second;
-            m_BorderEdgeSplitNode.erase( it );
-            m_BorderEdgeSplitNode[ eca ] = ns;
+            eca->ns = ea1->ns;
+            ea1->ns = NULL;
         }
     }
     if ( eb0->border || eb1->border )
     {
         ecb->border = true;
 
-        std::map< Edge *, Node * >::iterator it;
-        it = m_BorderEdgeSplitNode.find( eb0 );
-
-        if( it != m_BorderEdgeSplitNode.end() )
+        if( eb0->ns )
         {
-            Node* ns = it->second;
-            m_BorderEdgeSplitNode.erase( it );
-            m_BorderEdgeSplitNode[ ecb ] = ns;
+            ecb->ns = eb0->ns;
+            eb0->ns = NULL;
         }
 
-        it = m_BorderEdgeSplitNode.find( eb1 );
-
-        if( it != m_BorderEdgeSplitNode.end() )
+        if( eb1->ns )
         {
-            Node* ns = it->second;
-            m_BorderEdgeSplitNode.erase( it );
-            m_BorderEdgeSplitNode[ ecb ] = ns;
+            ecb->ns = eb1->ns;
+            eb1->ns = NULL;
         }
     }
     if ( ea0->ridge  || ea1->ridge )
@@ -1901,7 +1887,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
                 Node* nsplit = AddNode( pnt, uw );
                 nsplit->fixed = true;
 
-                m_BorderEdgeSplitNode[ e ] = nsplit;
+                e->ns = nsplit;
             }
         }
     }
@@ -2444,12 +2430,9 @@ void Mesh::ConvertToQuads()
 
         Node* ns = NULL;
 
-        std::map< Edge *, Node * >::iterator it;
-        it = m_BorderEdgeSplitNode.find( *e );
-
-        if( it != m_BorderEdgeSplitNode.end() )
+        if( ( *e )->ns )
         {
-            ns = it->second;
+            ns = ( *e )->ns;
         }
         else
         {

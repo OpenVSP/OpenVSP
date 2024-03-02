@@ -84,6 +84,7 @@ public:
     {
         n0 = n1 = NULL;
         f0 = f1 = NULL;
+        ns = NULL;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
         target_len = 0;
         m_Length = 0;
@@ -92,6 +93,7 @@ public:
     {
         n0 = node0;
         n1 = node1;
+        ns = NULL;
         f0 = f1 = NULL;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
         target_len = 0;
@@ -105,6 +107,10 @@ public:
 
     Node* n0;
     Node* n1;
+
+    // Split node along border.  These points should lie on both surfaces along an intersection
+    // curve.  Created in Mesh::InitMesh.  Used in Mesh::ConvertToQuads().  Manipulated in Mesh::CollapseEdge.
+    Node* ns;
 
     Face* f0;
     Face* f1;

@@ -174,10 +174,6 @@ protected:
     list < Edge* > edgeList;
     list < Node* > nodeList;
 
-    // List of edge splitting nodes along borders.  These points should lie on both surfaces along an intersection
-    // curve.  Created in Mesh::InitMesh.  Used in Mesh::ConvertToQuads().
-    map< Edge*, Node* > m_BorderEdgeSplitNode;
-
     vector< Face* > garbageFaceVec;
     vector< Edge* > garbageEdgeVec;
     vector< Node* > garbageNodeVec;
