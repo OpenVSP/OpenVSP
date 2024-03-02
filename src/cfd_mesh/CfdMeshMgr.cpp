@@ -809,6 +809,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
                 addOutputText( str, output_type );
             }
         }
+        m_SurfVec[i]->GetMesh()->DumpGarbage();
     }
 
     WakeMgr.StretchWakes();
