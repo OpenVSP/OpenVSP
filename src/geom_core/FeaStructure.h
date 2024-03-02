@@ -79,7 +79,7 @@ public:
         return m_FeaPartVec.size();
     }
 
-    virtual int FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm );
+    virtual int FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale );
 
     vector< FeaPart* > GetFeaPartVecType( int type );
 
@@ -477,7 +477,7 @@ public:
     virtual void UpdateDrawObjs();
     virtual void SetDrawObjHighlight ( bool highlight );
 
-    virtual void FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm );
+    virtual void FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale );
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int surf_ind = 0 );
 

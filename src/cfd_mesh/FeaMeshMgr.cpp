@@ -1018,7 +1018,7 @@ void FeaMeshMgrSingleton::AddStructureTrimPlanes()
 
     if ( fea_struct && GetMeshPtr() )
     {
-        GetMeshPtr()->m_NumFeaTrimParts = fea_struct->FetchAllTrimPlanes( GetMeshPtr()->m_TrimPt, GetMeshPtr()->m_TrimNorm );
+        GetMeshPtr()->m_NumFeaTrimParts = fea_struct->FetchAllTrimPlanes( GetMeshPtr()->m_TrimPt, GetMeshPtr()->m_TrimNorm, GetMeshPtr()->m_LenScale );
     }
 }
 

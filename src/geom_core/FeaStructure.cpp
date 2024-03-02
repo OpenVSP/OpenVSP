@@ -550,7 +550,7 @@ string FeaStructure::GetFeaPartName( int ind )
     return name;
 }
 
-int FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm )
+int FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale )
 {
     pt.clear();
     norm.clear();
@@ -569,7 +569,7 @@ int FeaStructure::FetchAllTrimPlanes( vector < vector < vec3d > > &pt, vector < 
                 vector < vector < vec3d > > pti;
                 vector < vector < vec3d > > normi;
 
-                trim->FetchTrimPlanes( pti, normi );
+                trim->FetchTrimPlanes( pti, normi, scale );
 
                 int nadd = pti.size();
 
@@ -3847,7 +3847,7 @@ void FeaPartTrim::SetDrawObjHighlight( bool highlight )
     }
 }
 
-void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm )
+void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vector < vec3d > > &norm, const double & scale )
 {
     // This nested loop is most naturally accessed with ipart as the outer loop.  However, going forward we will
     // need pt and norm set up with ipart as the inner loop.  First we loop through to check that the referenced
@@ -3909,7 +3909,7 @@ void FeaPartTrim::FetchTrimPlanes( vector < vector < vec3d > > &pt, vector < vec
                         dir = -1.0 * dir;
                     }
 
-                    pt[isymm][ipart] = cen;
+                    pt[isymm][ipart] = cen * scale;
                     norm[isymm][ipart] = dir;
                 }
             }
