@@ -2501,7 +2501,7 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
     return true;
 }
 
-void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress ) const
+void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name, int surf_ind, int comp_ind, int part_surf_num, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress ) const
 {
     vector < piecewise_surface_type > surfvec;
     surfvec.push_back( m_Surface );
@@ -2509,6 +2509,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
 
     int num_sections = surfvec.size();
 
+    int ivalid = 0;
     for ( int isect = 0; isect < num_sections; isect++ )
     {
         piecewise_surface_type surf = surfvec[isect];
@@ -2521,8 +2522,10 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         // Made it through all checks, keep surface.
         XferSurf xsurf;
         xsurf.m_FlipNormal = m_FlipNormal;
-        xsurf.m_Surface = surfvec[isect];
+        xsurf.m_Surface = surf;
         xsurf.m_GeomID = geom_id;
+        xsurf.m_Name = name;
+        xsurf.m_SplitNum = ivalid;
         xsurf.m_SurfIndx = surf_ind;
         xsurf.m_SurfType = GetSurfType();
         xsurf.m_SurfCfdType = m_SurfCfdType;
@@ -2534,6 +2537,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         xsurf.m_CompIndx = comp_ind;
         xsurf.m_FeaPartSurfNum = part_surf_num;
         xfersurfs.push_back( xsurf );
+        ivalid++;
     }
 }
 

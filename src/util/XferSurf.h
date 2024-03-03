@@ -26,6 +26,7 @@ public:
     XferSurf()
     {
         m_FlipNormal = false;
+        m_SplitNum = 0;
         m_CompIndx = 0;
         m_SurfIndx = 0;
         m_FeaPartSurfNum = -1;
@@ -45,6 +46,8 @@ public:
     bool m_FlipNormal;
 
     string m_GeomID;
+    string m_Name;
+    int m_SplitNum;
     int m_CompIndx;
     int m_SurfIndx;
     int m_FeaPartSurfNum;

@@ -659,6 +659,10 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, dou
 
         surfPtr->SetGeomID( xfersurfs[i].m_GeomID );
 
+        surfPtr->SetName( xfersurfs[i].m_Name );
+
+        surfPtr->SetSplitNum( xfersurfs[i].m_SplitNum );
+
         surfPtr->SetMainSurfID( xfersurfs[i].m_SurfIndx );
 
         //Xfersurfs created each time and flips normal if geom is a negative volume
@@ -1710,7 +1714,7 @@ void SurfaceIntersectionSingleton::Intersect()
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
     for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
     {
-        snprintf( str, sizeof( str ), "Intersect %d/%d\n", i + 1, m_SurfVec.size() );
+        snprintf( str, sizeof( str ), "Intersect %3d/%3d %s\n", i + 1, m_SurfVec.size(), m_SurfVec[i]->GetDisplayName().c_str() );
         addOutputText( str );
 
         for ( int j = i + 1; j < (int) m_SurfVec.size(); j++ )

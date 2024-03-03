@@ -793,7 +793,8 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
             num_tris += m_SurfVec[ i ]->GetMesh()->GetNumFaces();
 
-            snprintf( str, sizeof( str ), "Surf %d/%d Iter %d/10 Num Tris = %d\n", i + 1, nsurf, iter + 1, num_tris );
+            snprintf( str, sizeof( str ), "Surf %3d/%3d Iter %2d/10 Num Tris = %8d %s\n", i + 1, nsurf, iter + 1, num_tris, m_SurfVec[i]->GetDisplayName().c_str() );
+
             if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
             {
                 addOutputText( str, output_type );
@@ -2794,7 +2795,7 @@ void CfdMeshMgrSingleton::BuildMesh()
         vector < vec2d > adduw;
         ForceSurfaceFixPoints( s, adduw );
 
-        snprintf( str, sizeof( str ), "InitMesh %d/%d\n", s+1, m_SurfVec.size() );
+        snprintf( str, sizeof( str ), "InitMesh %3d/%3d %s\n", s+1, m_SurfVec.size(), m_SurfVec[s]->GetDisplayName().c_str() );
         addOutputText( str );
         m_SurfVec[s]->InitMesh( surf_chains, adduw, this );
     }

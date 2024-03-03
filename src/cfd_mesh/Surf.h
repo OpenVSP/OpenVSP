@@ -108,6 +108,17 @@ public:
     {
         return m_GeomID;
     }
+    void SetName( const string &name )
+    {
+        m_Name = name;
+    }
+    string GetName()
+    {
+        return m_Name;
+    }
+
+    string GetDisplayName();
+
     void SetRefGeomID( const string &id )
     {
         m_RefGeomID = id;
@@ -131,6 +142,14 @@ public:
     int GetMainSurfID()
     {
         return m_MainSurfID;
+    }
+    void SetSplitNum( int id )
+    {
+        m_SplitNum = id;
+    }
+    int GetSplitNum()
+    {
+        return m_SplitNum;
     }
 
     void SetFeaPartIndex( int ind )
@@ -335,9 +354,11 @@ protected:
     int m_CompID;
     int m_UnmergedCompID; // Comp ID that does not change when open components are merged
     string m_GeomID;
+    string m_Name;
     string m_RefGeomID;   // Geom ID of the surface a wake attaches to
     int m_SurfID;
     int m_MainSurfID;
+    int m_SplitNum;
 
     int m_BaseTag; // Tag number that will be applied to all triangles of this surface
 

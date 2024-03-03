@@ -59,6 +59,7 @@ Surf::Surf()
     m_NumMap = 11;
     m_BaseTag = 1;
     m_MainSurfID = 0;
+    m_SplitNum = 0;
     m_FeaPartIndex = -1;
     m_IgnoreSurfFlag = false;
     m_PlanarUWAspect = -1;
@@ -700,6 +701,14 @@ void Surf::FindBorderCurves()
     {
         delete scrv;
     }
+}
+
+string Surf::GetDisplayName()
+{
+    char buf[255];
+    snprintf( buf, sizeof( buf ), "%4d %4d %s", m_FeaPartSurfNum, m_SplitNum, m_Name.c_str() );
+
+    return string( buf );
 }
 
 void Surf::LoadSCurves( vector< SCurve* > & scurve_vec )
