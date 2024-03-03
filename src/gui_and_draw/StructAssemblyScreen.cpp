@@ -344,7 +344,7 @@ void StructAssemblyScreen::CloseCallBack( Fl_Widget *w )
 void StructAssemblyScreen::Show()
 {
     TabScreen::Show();
-
+    MarkDOChanged();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -739,6 +739,7 @@ void StructAssemblyScreen::CallBack( Fl_Widget* w )
     if ( w == m_AssemblySelectBrowser )
     {
         StructureMgr.SetCurrAssemblyIndex( m_AssemblySelectBrowser->value() - 2 );
+        MarkDOChanged();
     }
     else if ( w == m_StructureSelectBrowser )
     {
@@ -849,6 +850,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         StructureMgr.AddFeaAssembly();
         StructureMgr.SetCurrAssemblyIndex( StructureMgr.NumFeaAssembly() - 1 );
+        MarkDOChanged();
     }
     else if ( device == &m_DelAssemblyButton )
     {
@@ -857,10 +859,12 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
             StructureMgr.DeleteFeaAssembly( StructureMgr.GetCurrAssemblyIndex() );
 
             StructureMgr.SetCurrAssemblyIndex( StructureMgr.GetCurrAssemblyIndex() - 1 );
+            MarkDOChanged();
         }
         else
         {
             StructureMgr.SetCurrAssemblyIndex( -1 );
+            MarkDOChanged();
         }
     }
     else if ( device == &m_AssemblyNameInput )
@@ -880,6 +884,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
         if ( curr_assy )
         {
             curr_assy->AddStructure( m_StructIDs[m_StructureChoiceIndex] );
+            MarkDOChanged();
         }
     }
     else if ( device == &m_AddAllFeaStructureButton )
@@ -897,6 +902,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
                 // Geom *g = veh->FindGeom( geomid );
                 // fea_struct->SetName( g->GetName() );
             }
+            MarkDOChanged();
         }
     }
     else if ( device == &m_DelFeaStructureButton )
@@ -1016,7 +1022,7 @@ void StructAssemblyScreen::GuiDeviceCallBack( GuiDevice* device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void StructAssemblyScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
+void StructAssemblyScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, bool always )
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -1078,7 +1084,7 @@ void StructAssemblyScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     }
                 }
 
-                if ( !drewmesh )
+                if ( always || !drewmesh )
                 {
                     FeaStructure *fea_struct = StructureMgr.GetFeaStruct( idvec[ iid ] );
 
@@ -1099,6 +1105,17 @@ void StructAssemblyScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
         }
+    }
+}
+
+void StructAssemblyScreen::MarkDOChanged()
+{
+    vector< DrawObj* > draw_obj_vec;
+    LoadDrawObjs( draw_obj_vec, true );
+
+    for ( int i = 0; i < draw_obj_vec.size(); i++ )
+    {
+        draw_obj_vec[i]->m_GeomChanged = true;
     }
 }
 

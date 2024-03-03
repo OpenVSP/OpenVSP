@@ -52,7 +52,8 @@ public:
     virtual void UpdateConnectionTab();
     virtual void UpdateDrawPartBrowser();
 
-    virtual void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
+    virtual void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec, bool always = false );
+    virtual void MarkDOChanged();
     virtual bool GetVisBndBox( BndBox &bbox );
 
     ProcessUtil* getFeaMeshProcess()

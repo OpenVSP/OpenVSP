@@ -2826,7 +2826,7 @@ void StructScreen::CloseCallBack( Fl_Widget *w )
 void StructScreen::Show()
 {
     TabScreen::Show();
-
+    MarkDOChanged();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -4053,6 +4053,7 @@ void StructScreen::CallBack( Fl_Widget* w )
             if ( StructureMgr.ValidTotalFeaStructInd( indx  ) )
             {
                 StructureMgr.m_CurrStructIndex.Set( indx );
+                MarkDOChanged();
                 FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
             }
         }
@@ -4189,6 +4190,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             FeaMeshMgr.GetMeshPtr()->SetAllDisplayFlags( false );
         }
+        MarkDOChanged();
     }
     else if ( device == &m_ResetMeshDisplayButton )
     {
@@ -4198,6 +4200,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             FeaMeshMgr.GetMeshPtr()->SetAllDisplayFlags( true );
         }
+        MarkDOChanged();
     }
     else if ( device == &m_WikiLinkButton )
     {
@@ -5247,6 +5250,17 @@ void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
         // Load Draw Objects for FeaMesh
         FeaMeshMgr.LoadDrawObjs( draw_obj_vec );
+    }
+}
+
+void StructScreen::MarkDOChanged()
+{
+    vector< DrawObj* > draw_obj_vec;
+    LoadDrawObjs( draw_obj_vec );
+
+    for ( int i = 0; i < draw_obj_vec.size(); i++ )
+    {
+        draw_obj_vec[i]->m_GeomChanged = true;
     }
 }
 
