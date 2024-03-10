@@ -4,6 +4,10 @@ SET(CFD_MESH_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to cfd_mes
 
 get_target_property( OpenABF_INCLUDE_DIR OpenABF::OpenABF INTERFACE_INCLUDE_DIRECTORIES )
 
+if ( MSVC )
+    add_compile_options( /Zc:__cplusplus )
+endif()
+
 INCLUDE_DIRECTORIES( 
     ${NANOFLANN_INCLUDE_DIR}
     ${UTIL_INCLUDE_DIR}
