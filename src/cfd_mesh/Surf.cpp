@@ -35,6 +35,8 @@
 #undef PI
 #endif
 
+// Include this file to ensure alternative operators are available on all platforms.
+#include <iso646.h>
 #include "OpenABF/OpenABF.hpp"
 
 #ifdef PI_SURF_CPP_TEMP
