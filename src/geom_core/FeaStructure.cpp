@@ -1394,11 +1394,27 @@ void FeaPart::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
 {
     for ( int i = 0; i < (int)m_FeaPartDO.size(); i++ )
     {
+        if ( m_DrawFeaPartFlag() )
+        {
+            m_FeaPartDO[i].m_Visible = true;
+        }
+        else
+        {
+            m_FeaPartDO[i].m_Visible = false;
+        }
         draw_obj_vec.push_back( &m_FeaPartDO[ i ] );
     }
 
     for ( int i = 0; i < (int)m_FeaHighlightDO.size(); i++ )
     {
+        if ( m_DrawFeaPartFlag() )
+        {
+            m_FeaHighlightDO[i].m_Visible = true;
+        }
+        else
+        {
+            m_FeaHighlightDO[i].m_Visible = false;
+        }
         draw_obj_vec.push_back( &m_FeaHighlightDO[i] );
     }
 }

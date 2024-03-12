@@ -5220,10 +5220,7 @@ void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
             for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
             {
-                if ( partvec[i]->m_DrawFeaPartFlag() )
-                {
-                    partvec[i]->LoadDrawObjs( draw_obj_vec );
-                }
+                partvec[i]->LoadDrawObjs( draw_obj_vec );
             }
 
             vector < SubSurface* > subsurf_vec = curr_struct->GetFeaSubSurfVec();
