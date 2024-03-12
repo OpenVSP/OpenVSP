@@ -1534,33 +1534,36 @@ bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, double minlen, int
 {
     double tol = minlen / 10.0;
 
-    VspSurf surf = m_FeaPartSurfVec[surf_ind];
-
-    double umax = surf.GetUMax();
-    double wmax = surf.GetWMax();
-
-    vec3d o = surf.CompPnt( umax * 0.5, wmax * 0.5 );
-    vec3d n = surf.CompNorm( umax * 0.5, wmax * 0.5 );
-
-    // Find point furthest from surface.
-    double dmax = 0.0;
-    for ( int i = 0; i < pnts.size(); i++ )
+    if ( m_FeaPartSurfVec.size() > 0 )
     {
-        double d;
+        VspSurf surf = m_FeaPartSurfVec[surf_ind];
 
-        vec3d p = pnts[i];
-        d = dist_pnt_2_plane( o, n, p );
+        double umax = surf.GetUMax();
+        double wmax = surf.GetWMax();
 
-        if ( d > dmax )
+        vec3d o = surf.CompPnt( umax * 0.5, wmax * 0.5 );
+        vec3d n = surf.CompNorm( umax * 0.5, wmax * 0.5 );
+
+        // Find point furthest from surface.
+        double dmax = 0.0;
+        for ( int i = 0; i < pnts.size(); i++ )
         {
-            dmax = d;
-        }
-    }
+            double d;
 
-    // If furthest point is within tolerance, all points are on surface.
-    if ( dmax < tol )
-    {
-        return true;
+            vec3d p = pnts[i];
+            d = dist_pnt_2_plane( o, n, p );
+
+            if ( d > dmax )
+            {
+                dmax = d;
+            }
+        }
+
+        // If furthest point is within tolerance, all points are on surface.
+        if ( dmax < tol )
+        {
+            return true;
+        }
     }
 
     return false;
@@ -6756,15 +6759,21 @@ void FeaConnection::UpdateDrawObjs()
         vector <vec3d> sp = start_pt->GetPntVec( 1.0 );
         vector <vec3d> ep = end_pt->GetPntVec( 1.0 );
 
-        vector <vec3d> pv(2);
-        pv[0] = sp[ m_StartFixPtSurfIndex() ];
-        pv[1] = ep[ m_EndFixPtSurfIndex() ];
+        if ( m_StartFixPtSurfIndex() >= 0 && m_StartFixPtSurfIndex() < sp.size() &&
+             m_EndFixPtSurfIndex() >= 0 && m_EndFixPtSurfIndex() < ep.size() )
+        {
+            vector < vec3d > pv( 2 );
+            pv[ 0 ] = sp[ m_StartFixPtSurfIndex() ];
+            pv[ 1 ] = ep[ m_EndFixPtSurfIndex() ];
 
-        m_ConnLineDO.m_GeomChanged = true;
-        m_ConnLineDO.m_PntVec = pv;
+            m_ConnLineDO.m_GeomChanged = true;
+            m_ConnLineDO.m_PntVec = pv;
+            m_ConnLineDO.m_Visible = true;
 
-        m_ConnPtsDO.m_GeomChanged = true;
-        m_ConnPtsDO.m_PntVec = pv;
+            m_ConnPtsDO.m_GeomChanged = true;
+            m_ConnPtsDO.m_PntVec = pv;
+            m_ConnPtsDO.m_Visible = true;
+        }
     }
 }
 

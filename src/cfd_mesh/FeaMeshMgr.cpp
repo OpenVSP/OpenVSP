@@ -3286,7 +3286,7 @@ void FeaMeshMgrSingleton::WriteNASTRANMaterials( FILE* bdf_fp )
 
 void FeaMeshMgrSingleton::ModifyConnDO( FeaConnection* conn, vector < DrawObj* > connDO )
 {
-    if ( conn && connDO.size() == 2 )
+    if ( conn && connDO.size() == 2 && connDO[0]->m_PntVec.size() == 2 && connDO[1]->m_PntVec.size() == 2 )
     {
         FeaMesh *startmesh = GetMeshPtr( conn->m_StartStructID );
 
@@ -3299,7 +3299,7 @@ void FeaMeshMgrSingleton::ModifyConnDO( FeaConnection* conn, vector < DrawObj* >
                 int npt = fxpt->m_Pnt.size();
                 int indx = conn->m_StartFixPtSurfIndex();
 
-                if ( indx >= 0 && indx < npt )
+                if ( indx >= 0 && indx < npt && npt > 0 )
                 {
                     connDO[ 0 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ];
                     connDO[ 1 ]->m_PntVec[ 0 ] = fxpt->m_Pnt[ indx ];
