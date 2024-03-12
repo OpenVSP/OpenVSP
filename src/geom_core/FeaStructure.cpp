@@ -6822,6 +6822,10 @@ void FeaAssembly::Update()
         {
             DelStructure( m_StructIDVec[i] );
         }
+        else
+        {
+            fea_struct->Update();
+        }
     }
 
     for ( int i = 0 ; i < ( int )m_ConnectionVec.size() ; i++ )
