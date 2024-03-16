@@ -103,12 +103,6 @@ IF( NOT VSP_NO_GRAPHICS )
   TARGET_LINK_LIBRARIES(vspviewer
     viewerscreens
     stb_image
-    fltk::z
-    fltk::png
-    fltk::jpeg
-    fltk::fltk
-    fltk::forms
-    fltk::images
     fltk::gl
     ${LINUX_LIBS}
     ${OPENGL_LIBRARIES}
