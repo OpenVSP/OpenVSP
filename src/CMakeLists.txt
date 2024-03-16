@@ -124,10 +124,7 @@ SET( VSP_LIBRARIES_CORE_FIRST
     ${VSP_COMMON_LIBRARIES}
 )
 
-SET( VSP_G_LIBRARIES_API_FIRST
-    geom_api_g
-    geom_core
-    ${VSP_COMMON_LIBRARIES}
+SET( VSP_JUST_G_LIBRARIES
     gui_interface_g
     gui_and_draw
     vsp_graphic
@@ -140,20 +137,18 @@ SET( VSP_G_LIBRARIES_API_FIRST
     ${OPENGL_LIBRARIES}
 )
 
+SET( VSP_G_LIBRARIES_API_FIRST
+    geom_api_g
+    geom_core
+    ${VSP_COMMON_LIBRARIES}
+    ${VSP_JUST_G_LIBRARIES}
+)
+
 SET( VSP_G_LIBRARIES_CORE_FIRST
     geom_core
     geom_api_g
     ${VSP_COMMON_LIBRARIES}
-    gui_interface_g
-    gui_and_draw
-    vsp_graphic
-    glfont2
-    stb_image
-    ${EXPRPARSE_LIBRARY}
-    cartesian
-    ${GLEW_LIBRARY}
-    ${FLTK_LIBRARIES}
-    ${OPENGL_LIBRARIES}
+    ${VSP_JUST_G_LIBRARIES}
 )
 
 ADD_SUBDIRECTORY( vsp )
