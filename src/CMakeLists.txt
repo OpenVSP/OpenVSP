@@ -133,7 +133,13 @@ SET( VSP_JUST_G_LIBRARIES
     ${EXPRPARSE_LIBRARY}
     cartesian
     ${GLEW_LIBRARY}
-    ${FLTK_LIBRARIES}
+    fltk::z
+    fltk::png
+    fltk::jpeg
+    fltk::fltk
+    fltk::forms
+    fltk::images
+    fltk::gl
     ${OPENGL_LIBRARIES}
 )
 
