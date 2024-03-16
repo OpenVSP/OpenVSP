@@ -1278,7 +1278,7 @@ void VSPAEROPlotScreen::UpdateConvergenceFlowConditionBrowser()
         wasSelected.push_back( m_ConvergenceFlowConditionBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_ConvergenceFlowConditionBrowser->position();
+    int scrollPos = m_ConvergenceFlowConditionBrowser->vposition();
     m_ConvergenceFlowConditionBrowser->clear();
     m_ConvergenceFlowConditionSelectedResultIDs.clear();
 
@@ -1310,7 +1310,7 @@ void VSPAEROPlotScreen::UpdateConvergenceFlowConditionBrowser()
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
-    m_ConvergenceFlowConditionBrowser->position( scrollPos );
+    m_ConvergenceFlowConditionBrowser->vposition( scrollPos );
 
 }
 
@@ -1323,7 +1323,7 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
         wasSelected.push_back( m_LoadDistFlowConditionBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_LoadDistFlowConditionBrowser->position();
+    int scrollPos = m_LoadDistFlowConditionBrowser->vposition();
     m_LoadDistFlowConditionBrowser->clear();
     m_LoadDistFlowConditionSelectedResultIDs.clear();
 
@@ -1360,7 +1360,7 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
-    m_LoadDistFlowConditionBrowser->position( scrollPos );
+    m_LoadDistFlowConditionBrowser->vposition( scrollPos );
 }
 
 void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
@@ -1372,7 +1372,7 @@ void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
         wasSelected.push_back( m_LoadDistSelectBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_LoadDistSelectBrowser->position();
+    int scrollPos = m_LoadDistSelectBrowser->vposition();
     m_LoadDistSelectBrowser->clear();
     m_LoadSelectedBladeVec.clear();
     int num_case = 0;
@@ -1432,7 +1432,7 @@ void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
-    m_LoadDistSelectBrowser->position( scrollPos );
+    m_LoadDistSelectBrowser->vposition( scrollPos );
 }
 
 void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
@@ -1444,7 +1444,7 @@ void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
         wasSelected.push_back( m_SweepFlowConditionBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_SweepFlowConditionBrowser->position();
+    int scrollPos = m_SweepFlowConditionBrowser->vposition();
     m_SweepFlowConditionBrowser->clear();
     m_SweepFlowConditionSelectedResultIDs.clear();
 
@@ -1475,7 +1475,7 @@ void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
-    m_SweepFlowConditionBrowser->position( scrollPos );
+    m_SweepFlowConditionBrowser->vposition( scrollPos );
 }
 
 void VSPAEROPlotScreen::UpdateCpSliceCaseBrowser()
@@ -1487,7 +1487,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCaseBrowser()
         wasSelected.push_back( m_CpSliceCaseBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_CpSliceCaseBrowser->position();
+    int scrollPos = m_CpSliceCaseBrowser->vposition();
     m_CpSliceCaseBrowser->clear();
     m_CpSliceCaseSelectedResultIDs.clear();
 
@@ -1537,7 +1537,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCaseBrowser()
         }
     }
 
-    m_CpSliceCaseBrowser->position( scrollPos );
+    m_CpSliceCaseBrowser->vposition( scrollPos );
 }
 
 void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
@@ -1549,7 +1549,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
         wasSelected.push_back( m_UnsteadyFlowConditionBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_UnsteadyFlowConditionBrowser->position();
+    int scrollPos = m_UnsteadyFlowConditionBrowser->vposition();
     m_UnsteadyFlowConditionBrowser->clear();
     m_UnsteadyFlowConditionSelectedResultIDs.clear();
 
@@ -1590,7 +1590,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
-    m_UnsteadyFlowConditionBrowser->position( scrollPos );
+    m_UnsteadyFlowConditionBrowser->vposition( scrollPos );
 
 }
 
@@ -1603,7 +1603,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
         wasSelected.push_back( m_UnsteadySelectBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_UnsteadySelectBrowser->position();
+    int scrollPos = m_UnsteadySelectBrowser->vposition();
     m_UnsteadySelectBrowser->clear();
     m_UnsteadySelectedTypeVec.clear();
     int num_case = 0;
@@ -1666,7 +1666,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
-    m_UnsteadySelectBrowser->position( scrollPos );
+    m_UnsteadySelectBrowser->vposition( scrollPos );
 }
 
 void VSPAEROPlotScreen::ConstructFlowConditionString( char *strbuf, size_t str_siz, Results *res, bool includeResultId, bool include_recref )
@@ -1776,7 +1776,7 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
         wasSelected.push_back( m_ConvergenceYDataBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_ConvergenceYDataBrowser->position();
+    int scrollPos = m_ConvergenceYDataBrowser->vposition();
     m_ConvergenceYDataBrowser->clear();
 
     string resultName = "VSPAERO_History";
@@ -1811,7 +1811,7 @@ void VSPAEROPlotScreen::UpdateConvergenceYDataBrowser()
         }
     }
 
-    m_ConvergenceYDataBrowser->position( scrollPos );
+    m_ConvergenceYDataBrowser->vposition( scrollPos );
 }
 
 void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
@@ -1823,7 +1823,7 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
         wasSelected.push_back( m_LoadDistYDataBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_LoadDistYDataBrowser->position();
+    int scrollPos = m_LoadDistYDataBrowser->vposition();
     m_LoadDistYDataBrowser->clear();
 
     Results* load_res = ResultsMgr.FindResultsPtr( ResultsMgr.FindLatestResultsID( "VSPAERO_Load" ) );
@@ -1880,7 +1880,7 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
         }
     }
 
-    m_LoadDistYDataBrowser->position( scrollPos );
+    m_LoadDistYDataBrowser->vposition( scrollPos );
 
 }
 
@@ -1898,10 +1898,10 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
         wasSelectedY.push_back( m_SweepYDataBrowser->selected( iCase ) );
     }
 
-    int scrollPosXData = m_SweepXDataBrowser->position();
+    int scrollPosXData = m_SweepXDataBrowser->vposition();
     m_SweepXDataBrowser->clear();
 
-    int scrollPosYData = m_SweepYDataBrowser->position();
+    int scrollPosYData = m_SweepYDataBrowser->vposition();
     m_SweepYDataBrowser->clear();
 
     string resultName = "VSPAERO_History";
@@ -1951,8 +1951,8 @@ void VSPAEROPlotScreen::UpdateSweepXYDataBrowser()
         }
     }
 
-    m_SweepXDataBrowser->position( scrollPosXData );
-    m_SweepYDataBrowser->position( scrollPosYData );
+    m_SweepXDataBrowser->vposition( scrollPosXData );
+    m_SweepYDataBrowser->vposition( scrollPosYData );
 }
 
 void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
@@ -1964,7 +1964,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
         wasSelected.push_back( m_CpSliceCutBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_CpSliceCutBrowser->position();
+    int scrollPos = m_CpSliceCutBrowser->vposition();
     m_CpSliceCutBrowser->clear();
     m_CpSliceCutSelectedResultIDs.clear();
     m_CpSliceCutResultIDMap.clear();
@@ -2085,7 +2085,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
         }
     }
 
-    m_CpSliceCutBrowser->position( scrollPos );
+    m_CpSliceCutBrowser->vposition( scrollPos );
 }
 
 void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
@@ -2097,7 +2097,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
         wasSelected.push_back( m_UnsteadyYDataBrowser->selected( iCase ) );
     }
 
-    int scrollPos = m_UnsteadyYDataBrowser->position();
+    int scrollPos = m_UnsteadyYDataBrowser->vposition();
     m_UnsteadyYDataBrowser->clear();
 
     string default_res;
@@ -2185,7 +2185,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
         }
     }
 
-    m_UnsteadyYDataBrowser->position( scrollPos );
+    m_UnsteadyYDataBrowser->vposition( scrollPos );
 }
 
 void VSPAEROPlotScreen::RedrawConvergencePlot()

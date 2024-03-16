@@ -1359,7 +1359,7 @@ bool GeomScreen::Update()
 
     //==== SubSurfBrowser ====//
     int h_pos = m_SubSurfBrowser->hposition();
-    int v_pos = m_SubSurfBrowser->position();
+    int v_pos = m_SubSurfBrowser->vposition();
     m_SubSurfBrowser->clear();
 
     m_SubSurfBrowser->column_char( ':' );
@@ -1417,7 +1417,7 @@ bool GeomScreen::Update()
     }
 
     m_SubSurfBrowser->hposition( h_pos );
-    m_SubSurfBrowser->position( v_pos );
+    m_SubSurfBrowser->vposition( v_pos );
 
     //================= Mass Prop Tab =======================//
     m_DensityInput.Update( geom_ptr->m_Density.GetID() );

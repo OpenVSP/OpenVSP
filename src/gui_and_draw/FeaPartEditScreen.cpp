@@ -2324,7 +2324,7 @@ void FeaPartEditScreen::UpdateTrimPartChoice()
 
 
         int h_pos = m_TrimPartBrowser->hposition();
-        int v_pos = m_TrimPartBrowser->position();
+        int v_pos = m_TrimPartBrowser->vposition();
 
         m_TrimPartBrowser->clear();
         m_TrimPartBrowser->column_char( ':' );
@@ -2382,7 +2382,7 @@ void FeaPartEditScreen::UpdateTrimPartChoice()
         }
 
         m_TrimPartBrowser->hposition( h_pos );
-        m_TrimPartBrowser->position( v_pos );
+        m_TrimPartBrowser->vposition( v_pos );
 
 
     }

@@ -116,8 +116,8 @@ bool SetEditorScreen::Update()
 
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
-    int setBrowserScrollPosition = m_SetBrowser->position();
-    int setSelectBrowserScrollPosition = m_SetSelectBrowser->position();
+    int setBrowserScrollPosition = m_SetBrowser->vposition();
+    int setSelectBrowserScrollPosition = m_SetSelectBrowser->vposition();
 
     //In case browsers has leftover items, clear them out
     m_SetBrowser->clear();
@@ -178,8 +178,8 @@ bool SetEditorScreen::Update()
         m_SetSelectBrowser->add( g_name.c_str(), flag );
     }
     //This helps scroll position to stay in place after user clicks on items
-    m_SetBrowser->position(setBrowserScrollPosition);
-    m_SetSelectBrowser->position(setSelectBrowserScrollPosition);
+    m_SetBrowser->vposition(setBrowserScrollPosition);
+    m_SetSelectBrowser->vposition(setSelectBrowserScrollPosition);
 
     m_FLTK_Window->redraw();
     return false;

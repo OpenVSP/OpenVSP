@@ -2173,7 +2173,7 @@ void StructScreen::LoadGeomChoice()
 void StructScreen::UpdateStructBrowser()
 {
     //==== Structure Browser ====//
-    int scroll_pos = m_StructureSelectBrowser->position();
+    int scroll_pos = m_StructureSelectBrowser->vposition();
     int h_pos = m_StructureSelectBrowser->hposition();
     m_StructureSelectBrowser->clear();
     m_CurrFeaMeshChoice.ClearItems();
@@ -2230,14 +2230,14 @@ void StructScreen::UpdateStructBrowser()
         FeaMeshMgr.SetFeaMeshStructID( m_StructIDs[ StructureMgr.m_CurrStructIndex() ] );
     }
 
-    m_StructureSelectBrowser->position( scroll_pos );
+    m_StructureSelectBrowser->vposition( scroll_pos );
     m_StructureSelectBrowser->hposition( h_pos );
 }
 
 void StructScreen::UpdateFeaPartBrowser()
 {
     //==== FeaPart Browser ====//
-    int scroll_pos = m_FeaPartSelectBrowser->position();
+    int scroll_pos = m_FeaPartSelectBrowser->vposition();
     int h_pos = m_FeaPartSelectBrowser->hposition();
     m_FeaPartSelectBrowser->clear();
 
@@ -2367,7 +2367,7 @@ void StructScreen::UpdateFeaPartBrowser()
         }
     }
 
-    m_FeaPartSelectBrowser->position( scroll_pos );
+    m_FeaPartSelectBrowser->vposition( scroll_pos );
     m_FeaPartSelectBrowser->hposition( h_pos );
 }
 
@@ -2379,7 +2379,7 @@ void StructScreen::UpdateDrawPartBrowser()
     }
 
     //==== Draw Part Browser ====//
-    int scroll_pos = m_DrawPartSelectBrowser->position();
+    int scroll_pos = m_DrawPartSelectBrowser->vposition();
     m_DrawPartSelectBrowser->clear();
 
     vector < int > draw_browser_index_vec = FeaMeshMgr.GetMeshPtr()->GetDrawBrowserIndexVec();
@@ -2399,7 +2399,7 @@ void StructScreen::UpdateDrawPartBrowser()
         }
     }
 
-    m_DrawPartSelectBrowser->position( scroll_pos );
+    m_DrawPartSelectBrowser->vposition( scroll_pos );
 }
 
 void StructScreen::UpdateMainSurfChoice()
@@ -2508,7 +2508,7 @@ void StructScreen::UpdateFeaPartChoice()
 void StructScreen::UpdateFeaPropertyBrowser()
 {
     //==== FeaPart Browser ====//
-    int scroll_pos = m_FeaPropertySelectBrowser->position();
+    int scroll_pos = m_FeaPropertySelectBrowser->vposition();
     int h_pos = m_FeaPropertySelectBrowser->hposition();
     m_FeaPropertySelectBrowser->clear();
 
@@ -2552,14 +2552,14 @@ void StructScreen::UpdateFeaPropertyBrowser()
         m_FeaPropertySelectBrowser->select( StructureMgr.GetCurrPropertyIndex() + 2 );
     }
 
-    m_FeaPropertySelectBrowser->position( scroll_pos );
+    m_FeaPropertySelectBrowser->vposition( scroll_pos );
     m_FeaPropertySelectBrowser->hposition( h_pos );
 }
 
 void StructScreen::UpdateFeaMaterialBrowser()
 {
     //==== FeaMaterial Browser ====//
-    int scroll_pos = m_FeaMaterialSelectBrowser->position();
+    int scroll_pos = m_FeaMaterialSelectBrowser->vposition();
     m_FeaMaterialSelectBrowser->clear();
 
     vector< FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
@@ -2582,7 +2582,7 @@ void StructScreen::UpdateFeaMaterialBrowser()
         m_MaterialEditSubGroup.Hide();
     }
 
-    m_FeaMaterialSelectBrowser->position( scroll_pos );
+    m_FeaMaterialSelectBrowser->vposition( scroll_pos );
 }
 
 void StructScreen::UpdateFeaMaterialChoice()
@@ -2658,7 +2658,7 @@ void StructScreen::UpdateFeaMaterialChoice()
 void StructScreen::UpdateFeaBCBrowser()
 {
     //==== FeaPart Browser ====//
-    int scroll_pos = m_FeaBCSelectBrowser->position();
+    int scroll_pos = m_FeaBCSelectBrowser->vposition();
     int h_pos = m_FeaBCSelectBrowser->hposition();
     m_FeaBCSelectBrowser->clear();
 
@@ -2689,7 +2689,7 @@ void StructScreen::UpdateFeaBCBrowser()
                 m_FeaBCCommonGroup.Hide();
             }
 
-            m_FeaBCSelectBrowser->position( scroll_pos );
+            m_FeaBCSelectBrowser->vposition( scroll_pos );
             m_FeaBCSelectBrowser->hposition( h_pos );
         }
     }
@@ -2747,7 +2747,7 @@ void StructScreen::UpdateBCSubSurfChoice()
 
 void StructScreen::UpdateLayerBrowser()
 {
-    int scroll_pos = m_FeaLayerSelectBrowser->position();
+    int scroll_pos = m_FeaLayerSelectBrowser->vposition();
     m_FeaLayerSelectBrowser->clear();
     m_FeaLayerSelectBrowser->column_char( ':' );         // use : as the column character
 
@@ -2788,7 +2788,7 @@ void StructScreen::UpdateLayerBrowser()
                 m_FeaLayerSelectBrowser->select( fea_mat->GetCurrLayerIndex() + 1 );
             }
 
-            m_FeaLayerSelectBrowser->position( scroll_pos );
+            m_FeaLayerSelectBrowser->vposition( scroll_pos );
         }
     }
 }

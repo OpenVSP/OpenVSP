@@ -431,7 +431,7 @@ bool StructAssemblyScreen::Update()
 
 void StructAssemblyScreen::UpdateAssemblyTab()
 {
-    int scroll_pos = m_AssemblySelectBrowser->position();
+    int scroll_pos = m_AssemblySelectBrowser->vposition();
     int h_pos = m_AssemblySelectBrowser->hposition();
 
     m_AssemblySelectBrowser->clear();
@@ -461,7 +461,7 @@ void StructAssemblyScreen::UpdateAssemblyTab()
         }
     }
 
-    m_AssemblySelectBrowser->position( scroll_pos );
+    m_AssemblySelectBrowser->vposition( scroll_pos );
     m_AssemblySelectBrowser->hposition( h_pos );
 
 
@@ -497,7 +497,7 @@ void StructAssemblyScreen::UpdateStructTab()
 
 
     //==== Structure Browser ====//
-    int scroll_pos = m_StructureSelectBrowser->position();
+    int scroll_pos = m_StructureSelectBrowser->vposition();
     int h_pos = m_StructureSelectBrowser->hposition();
     m_StructureSelectBrowser->clear();
 
@@ -544,13 +544,13 @@ void StructAssemblyScreen::UpdateStructTab()
 
     m_StructureSelectBrowser->select( m_StructureBrowserIndex + 2 );
 
-    m_StructureSelectBrowser->position( scroll_pos );
+    m_StructureSelectBrowser->vposition( scroll_pos );
     m_StructureSelectBrowser->hposition( h_pos );
 }
 
 void StructAssemblyScreen::UpdateConnectionTab()
 {
-    int scroll_pos = m_ConnectionSelectBrowser->position();
+    int scroll_pos = m_ConnectionSelectBrowser->vposition();
     int h_pos = m_ConnectionSelectBrowser->hposition();
 
     m_ConnectionSelectBrowser->clear();
@@ -663,14 +663,14 @@ void StructAssemblyScreen::UpdateConnectionTab()
 
     m_ConnectionSelectBrowser->select( m_ConnectionBrowserIndex + 2 );
 
-    m_ConnectionSelectBrowser->position( scroll_pos );
+    m_ConnectionSelectBrowser->vposition( scroll_pos );
     m_ConnectionSelectBrowser->hposition( h_pos );
 }
 
 void StructAssemblyScreen::UpdateDrawPartBrowser()
 {
     //==== Draw Part Browser ====//
-    int scroll_pos = m_DrawPartSelectBrowser->position();
+    int scroll_pos = m_DrawPartSelectBrowser->vposition();
     m_DrawPartSelectBrowser->clear();
 
     m_DrawBrowserMeshIDVec.clear();
@@ -714,7 +714,7 @@ void StructAssemblyScreen::UpdateDrawPartBrowser()
         }
     }
 
-    m_DrawPartSelectBrowser->position( scroll_pos );
+    m_DrawPartSelectBrowser->vposition( scroll_pos );
 }
 
 void StructAssemblyScreen::AddOutputText( const string &text )
