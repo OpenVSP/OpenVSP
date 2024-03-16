@@ -23,10 +23,3 @@ ADD_DEPENDENCIES(vsp_graphic
 stb_image
 glfont2
 )
-
-TARGET_LINK_LIBRARIES(vsp_graphic
-glfont2
-stb_image
-${GLEW_LIBRARY}
-${OPENGL_LIBRARIES}
-)

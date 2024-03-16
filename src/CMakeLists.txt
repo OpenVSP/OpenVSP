@@ -130,7 +130,12 @@ SET( VSP_G_LIBRARIES_API_FIRST
     ${VSP_COMMON_LIBRARIES}
     gui_interface_g
     gui_and_draw
+    vsp_graphic
+    glfont2
+    stb_image
+    ${EXPRPARSE_LIBRARY}
     cartesian
+    ${GLEW_LIBRARY}
     ${FLTK_LIBRARIES}
     ${OPENGL_LIBRARIES}
 )
@@ -141,7 +146,12 @@ SET( VSP_G_LIBRARIES_CORE_FIRST
     ${VSP_COMMON_LIBRARIES}
     gui_interface_g
     gui_and_draw
+    vsp_graphic
+    glfont2
+    stb_image
+    ${EXPRPARSE_LIBRARY}
     cartesian
+    ${GLEW_LIBRARY}
     ${FLTK_LIBRARIES}
     ${OPENGL_LIBRARIES}
 )

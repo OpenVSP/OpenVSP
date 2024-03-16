@@ -198,9 +198,3 @@ geom_core
 vsp_graphic
 util
 )
-
-TARGET_LINK_LIBRARIES(gui_and_draw
-${GLEW_LIBRARY}
-vsp_graphic
-${EXPRPARSE_LIBRARY}
-)
