@@ -3760,60 +3760,60 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     bool isactive = m_Vehicle->IsGeomActive( m_ID );
 
     // Load BoundingBox and Axes
-        m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
-        m_HighlightDrawObj.m_Visible = isactive;
-        m_HighlightDrawObj.m_LineWidth = 4.0;
-        m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
-        m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
-        draw_obj_vec.push_back( &m_HighlightDrawObj );
+    m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
+    m_HighlightDrawObj.m_Visible = isactive;
+    m_HighlightDrawObj.m_LineWidth = 4.0;
+    m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
+    m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
+    draw_obj_vec.push_back( &m_HighlightDrawObj );
 
-        m_PtMassCGDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_PtMassCGDrawObj.m_GeomID = m_ID + string( "PtMassCG" );
-        m_PtMassCGDrawObj.m_Visible = isactive && GetSetFlag( vsp::SET_SHOWN );
-        m_PtMassCGDrawObj.m_PointSize = 10.0;
-        m_PtMassCGDrawObj.m_PointColor = vec3d( 0, 0, 1 );
-        m_PtMassCGDrawObj.m_Type = DrawObj::VSP_POINTS;
-        draw_obj_vec.push_back( &m_PtMassCGDrawObj );
+    m_PtMassCGDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_PtMassCGDrawObj.m_GeomID = m_ID + string( "PtMassCG" );
+    m_PtMassCGDrawObj.m_Visible = isactive && GetSetFlag( vsp::SET_SHOWN );
+    m_PtMassCGDrawObj.m_PointSize = 10.0;
+    m_PtMassCGDrawObj.m_PointColor = vec3d( 0, 0, 1 );
+    m_PtMassCGDrawObj.m_Type = DrawObj::VSP_POINTS;
+    draw_obj_vec.push_back( &m_PtMassCGDrawObj );
 
-        for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
+    for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
+    {
+        m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        snprintf( str, sizeof( str ),  "_%d", i );
+        m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+        m_AxisDrawObj_vec[i].m_Visible = isactive;
+        m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
+        m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
+    }
+
+
+    // Load Feature Lines
+    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+    {
+        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        snprintf( str, sizeof( str ),  "_%d", i );
+        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+        m_FeatureDrawObj_vec[i].m_Visible = m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER && m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN );
+        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+    }
+
+    // Load Subsurfaces
+    RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
+    for ( int i = 0; i < (int)m_SubSurfVec.size(); i++ )
+    {
+        vector < DrawObj* > ssdo;
+
+        m_SubSurfVec[i]->LoadDrawObjs( ssdo );
+
+        for ( int j = 0; j < ssdo.size(); j++ )
         {
-            m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            snprintf( str, sizeof( str ),  "_%d", i );
-            m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
-            m_AxisDrawObj_vec[i].m_Visible = isactive;
-            m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
-            m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-            draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
+            ssdo[j]->m_Visible = DISPLAY_TYPE::DISPLAY_BEZIER && m_GuiDraw.GetDispSubSurfFlag() && GetSetFlag( vsp::SET_SHOWN );
+            draw_obj_vec.push_back( ssdo[j] );
         }
 
-
-        // Load Feature Lines
-            for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
-            {
-                m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-                snprintf( str, sizeof( str ),  "_%d", i );
-                m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
-                m_FeatureDrawObj_vec[i].m_Visible = m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER && m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN );
-                m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-                draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
-            }
-
-        // Load Subsurfaces
-        RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
-            for ( int i = 0; i < (int)m_SubSurfVec.size(); i++ )
-            {
-                vector < DrawObj* > ssdo;
-
-                m_SubSurfVec[i]->LoadDrawObjs( ssdo );
-
-                for ( int j = 0; j < ssdo.size(); j++ )
-                {
-                    ssdo[j]->m_Visible = DISPLAY_TYPE::DISPLAY_BEZIER && m_GuiDraw.GetDispSubSurfFlag() && GetSetFlag( vsp::SET_SHOWN );
-                    draw_obj_vec.push_back( ssdo[j] );
-                }
-
-            }
+    }
 
     if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_DEGEN_SURF )
     {
@@ -5875,34 +5875,36 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     bool isactive = m_Vehicle->IsGeomActive( m_ID );
     bool isshown = GetSetFlag( vsp::SET_SHOWN );
-        char str[256];
+    char str[256];
 
-        for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
-        {
-            snprintf( str, sizeof( str ),  "_%d", i );
+    for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
+    {
+        snprintf( str, sizeof( str ),  "_%d", i );
 
-            m_XSecDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            m_XSecDrawObj_vec[i].m_GeomID = XSECHEADER + m_ID + str;
-            m_XSecDrawObj_vec[i].m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
-            m_XSecDrawObj_vec[i].m_LineWidth = 2.0;
-            m_XSecDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-            m_XSecDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
-            draw_obj_vec.push_back( &m_XSecDrawObj_vec[i] );
-        }
+        m_XSecDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        m_XSecDrawObj_vec[i].m_GeomID = XSECHEADER + m_ID + str;
+        m_XSecDrawObj_vec[i].m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
+        m_XSecDrawObj_vec[i].m_LineWidth = 2.0;
+        m_XSecDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+        m_XSecDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
+        m_XSecDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        draw_obj_vec.push_back( &m_XSecDrawObj_vec[i] );
+    }
 
-        m_HighlightXSecDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_HighlightXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "ACTIVE";
-        m_HighlightXSecDrawObj.m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
-        m_HighlightXSecDrawObj.m_LineWidth = 4.0;
-        m_HighlightXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
-        m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
-        draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
+    m_HighlightXSecDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "ACTIVE";
+    m_HighlightXSecDrawObj.m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
+    m_HighlightXSecDrawObj.m_LineWidth = 4.0;
+    m_HighlightXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
+    m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
+    m_HighlightXSecDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
+    draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
 
-        m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
-        m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
-        m_CurrentXSecDrawObj.m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
-        m_CurrentXSecDrawObj.m_LineColor = m_Vehicle->GetXSecLineColor() / 255.; // normalize
-        draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
+    m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
+    m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
+    m_CurrentXSecDrawObj.m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
+    m_CurrentXSecDrawObj.m_LineColor = m_Vehicle->GetXSecLineColor() / 255.; // normalize
+    draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
 
 }
 

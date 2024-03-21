@@ -1119,35 +1119,35 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 
     // Load Feature Lines
-        for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
-        {
-            m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            snprintf( str, sizeof( str ),  "_%d", i );
-            m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
-            m_FeatureDrawObj_vec[i].m_Visible = m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) && m_ShowSkelFlag();
-            m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-            draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
-        }
+    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+    {
+        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        snprintf( str, sizeof( str ),  "_%d", i );
+        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+        m_FeatureDrawObj_vec[i].m_Visible = m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) && m_ShowSkelFlag();
+        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+    }
 
     // Load BoundingBox and Axes
-        m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
-        m_HighlightDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID );
-        m_HighlightDrawObj.m_LineWidth = 2.0;
-        m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
-        m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
-        draw_obj_vec.push_back( &m_HighlightDrawObj );
+    m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
+    m_HighlightDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID );
+    m_HighlightDrawObj.m_LineWidth = 2.0;
+    m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
+    m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
+    draw_obj_vec.push_back( &m_HighlightDrawObj );
 
-        for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
-        {
-            m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            snprintf( str, sizeof( str ),  "_%d", i );
-            m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
-            m_AxisDrawObj_vec[i].m_Visible = m_Vehicle->IsGeomActive( m_ID );
-            m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
-            m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-            draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
-        }
+    for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
+    {
+        m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        snprintf( str, sizeof( str ),  "_%d", i );
+        m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+        m_AxisDrawObj_vec[i].m_Visible = m_Vehicle->IsGeomActive( m_ID );
+        m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
+        m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
+    }
 
 }
 

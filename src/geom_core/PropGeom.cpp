@@ -618,30 +618,30 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_CurrentXSecDrawObj.m_Visible = false;
     }
 
-        m_ArrowHeadDO.m_GeomID = m_ID + "Arrows";
-        m_ArrowHeadDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-        m_ArrowHeadDO.m_LineWidth = 1.0;
-        m_ArrowHeadDO.m_Type = DrawObj::VSP_SHADED_TRIS;
-        m_ArrowHeadDO.m_NormVec = vector <vec3d> ( m_ArrowHeadDO.m_PntVec.size() );
+    m_ArrowHeadDO.m_GeomID = m_ID + "Arrows";
+    m_ArrowHeadDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+    m_ArrowHeadDO.m_LineWidth = 1.0;
+    m_ArrowHeadDO.m_Type = DrawObj::VSP_SHADED_TRIS;
+    m_ArrowHeadDO.m_NormVec = vector <vec3d> ( m_ArrowHeadDO.m_PntVec.size() );
 
-        for ( int i = 0; i < 4; i++ )
-        {
-            m_ArrowHeadDO.m_MaterialInfo.Ambient[i] = 0.2f;
-            m_ArrowHeadDO.m_MaterialInfo.Diffuse[i] = 0.1f;
-            m_ArrowHeadDO.m_MaterialInfo.Specular[i] = 0.7f;
-            m_ArrowHeadDO.m_MaterialInfo.Emission[i] = 0.0f;
-        }
-        m_ArrowHeadDO.m_MaterialInfo.Diffuse[3] = 0.5f;
-        m_ArrowHeadDO.m_MaterialInfo.Shininess = 5.0f;
+    for ( int i = 0; i < 4; i++ )
+    {
+        m_ArrowHeadDO.m_MaterialInfo.Ambient[i] = 0.2f;
+        m_ArrowHeadDO.m_MaterialInfo.Diffuse[i] = 0.1f;
+        m_ArrowHeadDO.m_MaterialInfo.Specular[i] = 0.7f;
+        m_ArrowHeadDO.m_MaterialInfo.Emission[i] = 0.0f;
+    }
+    m_ArrowHeadDO.m_MaterialInfo.Diffuse[3] = 0.5f;
+    m_ArrowHeadDO.m_MaterialInfo.Shininess = 5.0f;
 
-        m_ArrowLinesDO.m_GeomID = m_ID + "ALines";
-        m_ArrowLinesDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-        m_ArrowLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_ArrowLinesDO.m_LineWidth = 2.0;
-        m_ArrowLinesDO.m_Type = DrawObj::VSP_LINES;
+    m_ArrowLinesDO.m_GeomID = m_ID + "ALines";
+    m_ArrowLinesDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+    m_ArrowLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_ArrowLinesDO.m_LineWidth = 2.0;
+    m_ArrowLinesDO.m_Type = DrawObj::VSP_LINES;
 
-        draw_obj_vec.push_back( &m_ArrowLinesDO );
-        draw_obj_vec.push_back( &m_ArrowHeadDO );
+    draw_obj_vec.push_back( &m_ArrowLinesDO );
+    draw_obj_vec.push_back( &m_ArrowHeadDO );
 }
 
 void PropGeom::ChangeID( string id )

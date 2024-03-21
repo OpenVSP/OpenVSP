@@ -528,69 +528,69 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 
     bool isactive = m_Vehicle->IsGeomActive( m_ID );
 
-        snprintf( str, sizeof( str ), "%d",1);
-        m_HighlightDrawObj.m_GeomID = m_ID+string(str);
-        m_HighlightDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN ) && isactive;
+    snprintf( str, sizeof( str ), "%d",1);
+    m_HighlightDrawObj.m_GeomID = m_ID+string(str);
+    m_HighlightDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN ) && isactive;
 
-        // Set Render Destination to Main VSP Window.
-        m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_HighlightDrawObj.m_Type = DrawObj::VSP_POINTS;
-        draw_obj_vec.push_back( &m_HighlightDrawObj) ;
+    // Set Render Destination to Main VSP Window.
+    m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightDrawObj.m_Type = DrawObj::VSP_POINTS;
+    draw_obj_vec.push_back( &m_HighlightDrawObj) ;
 
-        for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
-        {
-            m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            snprintf( str, sizeof( str ),  "_%d", i );
-            m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
-            m_AxisDrawObj_vec[i].m_Visible = isactive;
-            m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
-            m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-            draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
-        }
+    for ( int i = 0; i < m_AxisDrawObj_vec.size(); i++ )
+    {
+        m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        snprintf( str, sizeof( str ),  "_%d", i );
+        m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+        m_AxisDrawObj_vec[i].m_Visible = isactive;
+        m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
+        m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
+    }
 
-        for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
-        {
-            m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            snprintf( str, sizeof( str ),  "_%d", i );
-            m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
-            m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-            m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
-            m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-            draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
-        }
+    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+    {
+        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        snprintf( str, sizeof( str ),  "_%d", i );
+        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+        m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+        m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
+        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+    }
 
-        m_MotionArrowsDO.m_GeomID = m_ID + "MArrows";
-        m_MotionArrowsDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-        m_MotionArrowsDO.m_LineWidth = 1.0;
-        m_MotionArrowsDO.m_Type = DrawObj::VSP_SHADED_TRIS;
-        m_MotionArrowsDO.m_NormVec = vector <vec3d> ( m_MotionArrowsDO.m_PntVec.size() );
+    m_MotionArrowsDO.m_GeomID = m_ID + "MArrows";
+    m_MotionArrowsDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+    m_MotionArrowsDO.m_LineWidth = 1.0;
+    m_MotionArrowsDO.m_Type = DrawObj::VSP_SHADED_TRIS;
+    m_MotionArrowsDO.m_NormVec = vector <vec3d> ( m_MotionArrowsDO.m_PntVec.size() );
 
-        for ( int i = 0; i < 4; i++ )
-        {
-            m_MotionArrowsDO.m_MaterialInfo.Ambient[i] = 0.2f;
-            m_MotionArrowsDO.m_MaterialInfo.Diffuse[i] = 0.1f;
-            m_MotionArrowsDO.m_MaterialInfo.Specular[i] = 0.7f;
-            m_MotionArrowsDO.m_MaterialInfo.Emission[i] = 0.0f;
-        }
-        m_MotionArrowsDO.m_MaterialInfo.Diffuse[3] = 0.5f;
-        m_MotionArrowsDO.m_MaterialInfo.Shininess = 5.0f;
+    for ( int i = 0; i < 4; i++ )
+    {
+        m_MotionArrowsDO.m_MaterialInfo.Ambient[i] = 0.2f;
+        m_MotionArrowsDO.m_MaterialInfo.Diffuse[i] = 0.1f;
+        m_MotionArrowsDO.m_MaterialInfo.Specular[i] = 0.7f;
+        m_MotionArrowsDO.m_MaterialInfo.Emission[i] = 0.0f;
+    }
+    m_MotionArrowsDO.m_MaterialInfo.Diffuse[3] = 0.5f;
+    m_MotionArrowsDO.m_MaterialInfo.Shininess = 5.0f;
 
 
-        m_MotionLinesDO.m_GeomID = m_ID + "MLines";
-        m_MotionLinesDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-        m_MotionLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_MotionLinesDO.m_LineWidth = 2.0;
-        m_MotionLinesDO.m_Type = DrawObj::VSP_LINES;
+    m_MotionLinesDO.m_GeomID = m_ID + "MLines";
+    m_MotionLinesDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+    m_MotionLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_MotionLinesDO.m_LineWidth = 2.0;
+    m_MotionLinesDO.m_Type = DrawObj::VSP_LINES;
 
-        m_PrimaryLineDO.m_GeomID = m_ID + "PrimLines";
-        m_PrimaryLineDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-        m_PrimaryLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_PrimaryLineDO.m_LineWidth = 2.0;
-        m_PrimaryLineDO.m_Type = DrawObj::VSP_LINES;
+    m_PrimaryLineDO.m_GeomID = m_ID + "PrimLines";
+    m_PrimaryLineDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+    m_PrimaryLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_PrimaryLineDO.m_LineWidth = 2.0;
+    m_PrimaryLineDO.m_Type = DrawObj::VSP_LINES;
 
-        draw_obj_vec.push_back( &m_MotionArrowsDO );
-        draw_obj_vec.push_back( &m_MotionLinesDO );
-        draw_obj_vec.push_back( &m_PrimaryLineDO );
+    draw_obj_vec.push_back( &m_MotionArrowsDO );
+    draw_obj_vec.push_back( &m_MotionLinesDO );
+    draw_obj_vec.push_back( &m_PrimaryLineDO );
 }
 
 Matrix4d HingeGeom::GetJointMatrix()

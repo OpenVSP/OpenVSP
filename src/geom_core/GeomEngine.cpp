@@ -632,12 +632,12 @@ void GeomEngine::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     GeomXSec::LoadDrawObjs( draw_obj_vec );
 
-            for ( int i = 0; i < m_EngineDrawObj_vec.size(); i++ )
-            {
-                if ( m_engine_spec[i] )
-                {
-                    m_EngineDrawObj_vec[i].m_Visible = ( m_EngineGeomIOType() != ENGINE_GEOM_NONE ) && m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN );
-                    draw_obj_vec.push_back( &m_EngineDrawObj_vec[i] );
-                }
-            }
+    for ( int i = 0; i < m_EngineDrawObj_vec.size(); i++ )
+    {
+        if ( m_engine_spec[i] )
+        {
+            m_EngineDrawObj_vec[i].m_Visible = ( m_EngineGeomIOType() != ENGINE_GEOM_NONE ) && m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN );
+            draw_obj_vec.push_back( &m_EngineDrawObj_vec[i] );
+        }
+    }
 }
