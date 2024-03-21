@@ -2453,15 +2453,13 @@ void WingGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     GeomXSec::LoadDrawObjs( draw_obj_vec );
 
-    if ( m_Vehicle->IsGeomActive( m_ID ) )
-    {
         m_HighlightWingSecDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_HighlightWingSecDrawObj.m_GeomID = BBOXHEADER + m_ID + "ACTIVE_SECT";
+        m_HighlightWingSecDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID );
         m_HighlightWingSecDrawObj.m_LineWidth = 4.0;
         m_HighlightWingSecDrawObj.m_LineColor = vec3d( 0.0, 1.0, 0.0 );
         m_HighlightWingSecDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightWingSecDrawObj );
-    }
 }
 
 

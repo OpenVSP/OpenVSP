@@ -114,11 +114,11 @@ void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 {
     char str[256];
 
-    if ( m_Vehicle->IsGeomActive( m_ID ) )
-    {
+    bool isactive = m_Vehicle->IsGeomActive( m_ID );
+
         snprintf( str, sizeof( str ), "%d",1);
         m_HighlightDrawObj.m_GeomID = m_ID+string(str);
-        m_HighlightDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        m_HighlightDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN ) && isactive;
 
         // Set Render Destination to Main VSP Window.
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -127,7 +127,7 @@ void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 
         m_PtMassCGDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_PtMassCGDrawObj.m_GeomID = m_ID + string( "PtMassCG" );
-        m_PtMassCGDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        m_PtMassCGDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN ) && isactive;
         m_PtMassCGDrawObj.m_PointSize = 10.0;
         m_PtMassCGDrawObj.m_PointColor = vec3d( 0, 0, 1 );
         m_PtMassCGDrawObj.m_Type = DrawObj::VSP_POINTS;
@@ -138,24 +138,23 @@ void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
             m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
             snprintf( str, sizeof( str ),  "_%d", i );
             m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+            m_AxisDrawObj_vec[i].m_Visible = isactive;
             m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
             m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
             draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
         }
-    }
 
-    if ( ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID ))
-    {
+
         for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
         {
             m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
             snprintf( str, sizeof( str ),  "_%d", i );
             m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+            m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
             m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
             m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
             draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
         }
-    }
 }
 
 // This is substantially similar to Geom::UpdateSymmAttach() and could probably be combined in a meaningful way.

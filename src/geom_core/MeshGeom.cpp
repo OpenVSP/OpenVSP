@@ -1501,6 +1501,7 @@ void MeshGeom::UpdateDrawObj()
         rgb.normalize();
 
         m_FeatureDrawObj_vec[i].m_PntVec.resize( m_PolyVec[i].size() );
+        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
         m_FeatureDrawObj_vec[i].m_LineWidth = 5;
         m_FeatureDrawObj_vec[i].m_LineColor = rgb;
         m_FeatureDrawObj_vec[i].m_GeomChanged = true;
@@ -1587,13 +1588,6 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             break;
         }
     }
-
-
-    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
-    {
-        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
-    }
-
 }
 
 //==== Create And Load Tris into Results Data Structures ====//

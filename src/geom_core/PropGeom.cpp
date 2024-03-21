@@ -602,20 +602,24 @@ void PropGeom::UpdateDrawObj()
 
 void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
+
+    // Get all geom DO's
+    Geom::LoadDrawObjs( draw_obj_vec );
+
+    // Bypass XSec drawing for disk
     if ( m_PropMode() == PROP_MODE::PROP_DISK )
     {
-        // Bypass XSec drawing for disk
-        Geom::LoadDrawObjs( draw_obj_vec );
-        // TODO: Don't draw subsurfaces for disk mode?
-    }
-    else
-    {
-        GeomXSec::LoadDrawObjs( draw_obj_vec );
+        // Force GeomXSec specific DO's to non-visible.
+        for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
+        {
+            m_XSecDrawObj_vec[ i ].m_Visible = false;
+        }
+        m_HighlightXSecDrawObj.m_Visible = false;
+        m_CurrentXSecDrawObj.m_Visible = false;
     }
 
-    if ( ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID ) )
-    {
         m_ArrowHeadDO.m_GeomID = m_ID + "Arrows";
+        m_ArrowHeadDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
         m_ArrowHeadDO.m_LineWidth = 1.0;
         m_ArrowHeadDO.m_Type = DrawObj::VSP_SHADED_TRIS;
         m_ArrowHeadDO.m_NormVec = vector <vec3d> ( m_ArrowHeadDO.m_PntVec.size() );
@@ -631,13 +635,13 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_ArrowHeadDO.m_MaterialInfo.Shininess = 5.0f;
 
         m_ArrowLinesDO.m_GeomID = m_ID + "ALines";
+        m_ArrowLinesDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
         m_ArrowLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_ArrowLinesDO.m_LineWidth = 2.0;
         m_ArrowLinesDO.m_Type = DrawObj::VSP_LINES;
 
         draw_obj_vec.push_back( &m_ArrowLinesDO );
         draw_obj_vec.push_back( &m_ArrowHeadDO );
-    }
 }
 
 void PropGeom::ChangeID( string id )

@@ -3662,7 +3662,7 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
         // at the end of m_ID.
         snprintf( str, sizeof( str ),  "_%d", i );
         m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
-        m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN ) && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
 
         // Set Render Destination to Main VSP Window.
         m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -3702,24 +3702,20 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
                 m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
                 m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_MESH;
-                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
             case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_HIDDEN_MESH;
-                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
             case DRAW_TYPE::GEOM_DRAW_SHADE:
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
-                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
             case DRAW_TYPE::GEOM_DRAW_NONE:
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
                 m_WireShadeDrawObj_vec[i].m_Visible = false;
-                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
             case DRAW_TYPE::GEOM_DRAW_TEXTURE:
@@ -3742,9 +3738,9 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
                     info.ID = texList[j]->GetID();
                     m_WireShadeDrawObj_vec[i].m_TextureInfos.push_back( info );
                 }
-                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
         }
+        draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
     }
 
 }
@@ -3754,20 +3750,19 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     char str[256];
 
-    if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
-    {
-        LoadMainDrawObjs( draw_obj_vec );
-    }
-    else
+    LoadMainDrawObjs( draw_obj_vec );
+
+    if ( m_GuiDraw.GetDisplayType() != DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         UpdateDegenDrawObj();
     }
 
+    bool isactive = m_Vehicle->IsGeomActive( m_ID );
+
     // Load BoundingBox and Axes
-    if ( m_Vehicle->IsGeomActive( m_ID ) )
-    {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
+        m_HighlightDrawObj.m_Visible = isactive;
         m_HighlightDrawObj.m_LineWidth = 4.0;
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
@@ -3775,7 +3770,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         m_PtMassCGDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_PtMassCGDrawObj.m_GeomID = m_ID + string( "PtMassCG" );
-        m_PtMassCGDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        m_PtMassCGDrawObj.m_Visible = isactive && GetSetFlag( vsp::SET_SHOWN );
         m_PtMassCGDrawObj.m_PointSize = 10.0;
         m_PtMassCGDrawObj.m_PointColor = vec3d( 0, 0, 1 );
         m_PtMassCGDrawObj.m_Type = DrawObj::VSP_POINTS;
@@ -3786,38 +3781,41 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_AxisDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
             snprintf( str, sizeof( str ),  "_%d", i );
             m_AxisDrawObj_vec[i].m_GeomID = m_ID + "Axis_" + str;
+            m_AxisDrawObj_vec[i].m_Visible = isactive;
             m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
             m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
             draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
         }
-    }
 
-    if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
-    {
+
         // Load Feature Lines
-        if ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) )
-        {
             for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
             {
                 m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
                 snprintf( str, sizeof( str ),  "_%d", i );
                 m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+                m_FeatureDrawObj_vec[i].m_Visible = m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER && m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN );
                 m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
                 draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
             }
-        }
 
         // Load Subsurfaces
         RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
-        if ( m_GuiDraw.GetDispSubSurfFlag() && GetSetFlag( vsp::SET_SHOWN ) )
-        {
             for ( int i = 0; i < (int)m_SubSurfVec.size(); i++ )
             {
-                m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
+                vector < DrawObj* > ssdo;
+
+                m_SubSurfVec[i]->LoadDrawObjs( ssdo );
+
+                for ( int j = 0; j < ssdo.size(); j++ )
+                {
+                    ssdo[j]->m_Visible = DISPLAY_TYPE::DISPLAY_BEZIER && m_GuiDraw.GetDispSubSurfFlag() && GetSetFlag( vsp::SET_SHOWN );
+                    draw_obj_vec.push_back( ssdo[j] );
+                }
+
             }
-        }
-    }
-    else if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_DEGEN_SURF )
+
+    if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_DEGEN_SURF )
     {
         // Load DegenGeom
         for ( int i = 0; i < m_DegenSurfDrawObj_vec.size(); i++ )
@@ -5875,9 +5873,8 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );
 
-
-    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
-    {
+    bool isactive = m_Vehicle->IsGeomActive( m_ID );
+    bool isshown = GetSetFlag( vsp::SET_SHOWN );
         char str[256];
 
         for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
@@ -5886,26 +5883,27 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             m_XSecDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
             m_XSecDrawObj_vec[i].m_GeomID = XSECHEADER + m_ID + str;
+            m_XSecDrawObj_vec[i].m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
             m_XSecDrawObj_vec[i].m_LineWidth = 2.0;
             m_XSecDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             m_XSecDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
-            m_XSecDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
             draw_obj_vec.push_back( &m_XSecDrawObj_vec[i] );
         }
 
         m_HighlightXSecDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_HighlightXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "ACTIVE";
+        m_HighlightXSecDrawObj.m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
         m_HighlightXSecDrawObj.m_LineWidth = 4.0;
         m_HighlightXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
         m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
-        m_HighlightXSecDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
         draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
 
         m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
         m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
+        m_CurrentXSecDrawObj.m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
         m_CurrentXSecDrawObj.m_LineColor = m_Vehicle->GetXSecLineColor() / 255.; // normalize
         draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
-    }
+
 }
 
 //==== Get XSec ====//

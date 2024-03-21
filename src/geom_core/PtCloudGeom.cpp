@@ -119,15 +119,14 @@ void PtCloudGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
     draw_obj_vec.push_back( &m_SelDrawObj );
     draw_obj_vec.push_back( &m_PickDrawObj );
 
-    if ( m_Vehicle->IsGeomActive( m_ID ) )
-    {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
+        m_HighlightDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID );
         m_HighlightDrawObj.m_LineWidth = 2.0;
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightDrawObj );
-    }
+
 }
 
 string PtCloudGeom::getFeedbackGroupName()
