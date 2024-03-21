@@ -129,17 +129,52 @@ vec3d Bezier_curve::LastPnt() const
     return p;
 }
 
+struct surfWlimits
+{
+    piecewise_surface_type * surf;
+    double umin;
+    double umax;
+    double wmin;
+    double wmax;
+};
+
 curve_point_type UWToXYZ( curve_point_type & cp, void* data )
 {
-    piecewise_surface_type *surf = (piecewise_surface_type *) data;
-    return surf->f( cp.x(), cp.y() );
+    surfWlimits *swlim = (surfWlimits *) data;
+    piecewise_surface_type *surf = swlim->surf;
+    double umn = swlim->umin;
+    double wmn = swlim->wmin;
+    double umx = swlim->umax;
+    double wmx = swlim->wmax;
+
+    double u = cp.x();
+    double w = cp.y();
+
+    double slop = 1e-3;
+    if( u < (umn - slop) || w < (wmn - slop) || u > (umx + slop) || w > (wmx + slop) )
+    {
+        printf("BAD parameter in Bezier_curve::UWToXYZ! %f %f\n", u, w );
+        assert(false);
+    }
+
+    u = clamp( u, umn, umx );
+    w = clamp( w, wmn, wmx );
+
+    return surf->f( u, w );
 }
 
 void Bezier_curve::UWCurveToXYZCurve( Surf *srf )
 {
     piecewise_surface_type *surf = srf->GetSurfCore()->GetSurf();
 
-    m_Curve.transmute( UWToXYZ, surf );
+    surfWlimits swlim;
+    swlim.surf = surf;
+    swlim.umin = surf->get_u0();
+    swlim.wmin = surf->get_v0();
+    swlim.umax = surf->get_umax();
+    swlim.wmax = surf->get_vmax();
+
+    m_Curve.transmute( UWToXYZ, &swlim );
 }
 
 void Bezier_curve::XYZCurveToUWCurve( const Surf *srf )
