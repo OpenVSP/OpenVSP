@@ -3732,7 +3732,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         for ( int j = 0; j < ssdo.size(); j++ )
         {
-            ssdo[j]->m_Visible = DISPLAY_TYPE::DISPLAY_BEZIER && m_GuiDraw.GetDispSubSurfFlag() && GetSetFlag( vsp::SET_SHOWN );
+            ssdo[j]->m_Visible = m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER && m_GuiDraw.GetDispSubSurfFlag() && GetSetFlag( vsp::SET_SHOWN );
             draw_obj_vec.push_back( ssdo[j] );
         }
 
