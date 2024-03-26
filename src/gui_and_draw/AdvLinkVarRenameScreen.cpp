@@ -101,13 +101,30 @@ void AdvLinkVarRenameScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( edit_link )
         {
-            if ( m_InputFlag )
+            string name = m_VarNameInput.GetString();;
+
+            bool cancel = false;
+            if ( edit_link->DuplicateVarName( name ) )
             {
-                edit_link->UpdateInputVarName( m_VarIndex, m_VarNameInput.GetString(), false );
+                string new_name = edit_link->MakeVarNameUnique( name );
+
+                if ( 0 == fl_choice( "%s is not unique, use %s instead?", "Cancel", "Use Suggestion",  0, name.c_str(), new_name.c_str() ) )
+                {
+                    cancel = true;
+                }
+                name = new_name;
             }
-            else
+
+            if ( !cancel )
             {
-                edit_link->UpdateOutputVarName( m_VarIndex, m_VarNameInput.GetString(), false );
+                if ( m_InputFlag )
+                {
+                    edit_link->UpdateInputVarName( m_VarIndex, name, false );
+                }
+                else
+                {
+                    edit_link->UpdateOutputVarName( m_VarIndex, name, false );
+                }
             }
         }
         Hide();
@@ -119,13 +136,30 @@ void AdvLinkVarRenameScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if ( edit_link )
         {
-            if ( m_InputFlag )
+            string name = m_VarNameInput.GetString();;
+
+            bool cancel = false;
+            if ( edit_link->DuplicateVarName( name ) )
             {
-                edit_link->UpdateInputVarName( m_VarIndex, m_VarNameInput.GetString(), true );
+                string new_name = edit_link->MakeVarNameUnique( name );
+
+                if ( 0 == fl_choice( "%s is not unique, use %s instead?", "Cancel", "Use Suggestion",  0, name.c_str(), new_name.c_str() ) )
+                {
+                    cancel = true;
+                }
+                name = new_name;
             }
-            else
+
+            if ( !cancel )
             {
-                edit_link->UpdateOutputVarName( m_VarIndex, m_VarNameInput.GetString(), true );
+                if ( m_InputFlag )
+                {
+                    edit_link->UpdateInputVarName( m_VarIndex, name, true );
+                }
+                else
+                {
+                    edit_link->UpdateOutputVarName( m_VarIndex, name, true );
+                }
             }
         }
         Hide();
