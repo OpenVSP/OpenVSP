@@ -240,7 +240,13 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
     }
     else if ( data.m_String == string( "Error" ) )
     {
-        const char* msg = data.m_StringVec[0].c_str();
+        string message;
+        for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
+        {
+            message.append( data.m_StringVec[i] );
+        }
+
+        const char* msg = message.c_str();
         fl_message( "%s", ( char* )msg );
     }
     else if ( data.m_String == string( "CheckCollisionKey" ) )

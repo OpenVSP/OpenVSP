@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "APIErrorMgr.h"
+#include "StringUtil.h"
 
 using namespace vsp;
 
@@ -142,6 +143,11 @@ void ErrorMgrSingleton::MessageCallback( const MessageBase* from, const MessageD
 {
     if ( data.m_String == string( "Error" ) )
     {
-        AddError( ( ERROR_CODE ) data.m_IntVec[0], data.m_StringVec[0] );
+        for ( int i = 0; i < data.m_IntVec.size(); i++ )
+        {
+            string msg = data.m_StringVec[i];
+            StringUtil::remove_trailing( msg, '\n' );
+            AddError( ( ERROR_CODE ) data.m_IntVec[i], msg );
+        }
     }
 }
