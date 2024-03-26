@@ -1322,6 +1322,8 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             ruler->m_Stage = STAGE_ONE;
             ruler->m_OriginGeomID = targetGeomId;
 
+            if ( geom->GetNumTotalSurfs() > 0 )
+            {
             int index;
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
@@ -1341,12 +1343,22 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             ruler->m_OriginU = uprm;
             ruler->m_OriginW = w;
             ruler->m_OriginIndx = index;
+            }
+            else
+            {
+                ruler->m_OriginU = 1; // Set to dummy value to trigger update.
+                ruler->m_OriginU = 0;
+                ruler->m_OriginW = 0;
+                ruler->m_OriginIndx = 0;
+            }
         }
         else if ( ruler->m_Stage == STAGE_ONE )
         {
             ruler->m_Stage = STAGE_TWO;
             ruler->m_EndGeomID = targetGeomId;
 
+            if ( geom->GetNumTotalSurfs() > 0 )
+            {
             int index;
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
@@ -1366,6 +1378,14 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             ruler->m_EndU = uprm;
             ruler->m_EndW = w;
             ruler->m_EndIndx = index;
+            }
+            else
+            {
+                ruler->m_EndU = 1; // Set to dummy value to trigger update.
+                ruler->m_EndU = 0;
+                ruler->m_EndW = 0;
+                ruler->m_EndIndx = 0;
+            }
         }
     }
 
@@ -1387,6 +1407,8 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             probe->m_Stage = STAGE_ONE;
             probe->m_OriginGeomID = targetGeomId;
 
+            if ( geom->GetNumTotalSurfs() > 0 )
+            {
             int index;
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
@@ -1406,6 +1428,14 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             probe->m_OriginU = uprm;
             probe->m_OriginW = w;
             probe->m_OriginIndx = index;
+            }
+            else
+            {
+                probe->m_OriginU = 1; // Set to dummy value to trigger update.
+                probe->m_OriginU = 0;
+                probe->m_OriginW = 0;
+                probe->m_OriginIndx = 0;
+            }
         }
     }
 
@@ -1427,6 +1457,8 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             RSTprobe->m_Stage = STAGE_ONE;
             RSTprobe->m_OriginGeomID = targetGeomId;
 
+            if ( geom->GetNumTotalSurfs() > 0 )
+            {
             int index;
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
@@ -1457,6 +1489,15 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             RSTprobe->m_OriginS = s;
             RSTprobe->m_OriginT = t;
             RSTprobe->m_OriginIndx = index;
+            }
+            else
+            {
+                RSTprobe->m_OriginR = 1; // Set to dummy value to trigger update.
+                RSTprobe->m_OriginR = 0;
+                RSTprobe->m_OriginS = 0;
+                RSTprobe->m_OriginT = 0;
+                RSTprobe->m_OriginIndx = 0;
+            }
         }
     }
 
@@ -1478,6 +1519,8 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             protractor->m_Stage = STAGE_ONE;
             protractor->m_OriginGeomID = targetGeomId;
 
+            if ( geom->GetNumTotalSurfs() > 0 )
+            {
             int index;
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
@@ -1497,12 +1540,22 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             protractor->m_OriginU = uprm;
             protractor->m_OriginW = w;
             protractor->m_OriginIndx = index;
+            }
+            else
+            {
+                protractor->m_OriginU = 1; // Set to dummy value to trigger update.
+                protractor->m_OriginU = 0;
+                protractor->m_OriginW = 0;
+                protractor->m_OriginIndx = 0;
+            }
         }
         else if ( protractor->m_Stage == STAGE_ONE )
         {
             protractor->m_Stage = STAGE_TWO;
             protractor->m_MidGeomID = targetGeomId;
 
+            if ( geom->GetNumTotalSurfs() > 0 )
+            {
             int index;
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
@@ -1522,12 +1575,22 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             protractor->m_MidU = uprm;
             protractor->m_MidW = w;
             protractor->m_MidIndx = index;
+            }
+            else
+            {
+                protractor->m_MidU = 1; // Set to dummy value to trigger update.
+                protractor->m_MidU = 0;
+                protractor->m_MidW = 0;
+                protractor->m_MidIndx = 0;
+            }
         }
         else if ( protractor->m_Stage == STAGE_TWO )
         {
             protractor->m_Stage = STAGE_THREE;
             protractor->m_EndGeomID = targetGeomId;
 
+            if ( geom->GetNumTotalSurfs() > 0 )
+            {
             int index;
             double u, w;
             geom->ProjPnt01I( placement, index, u, w );
@@ -1547,6 +1610,14 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
             protractor->m_EndU = uprm;
             protractor->m_EndW = w;
             protractor->m_EndIndx = index;
+            }
+            else
+            {
+                protractor->m_EndU = 1; // Set to dummy value to trigger update.
+                protractor->m_EndU = 0;
+                protractor->m_EndW = 0;
+                protractor->m_EndIndx = 0;
+            }
         }
     }
 }
