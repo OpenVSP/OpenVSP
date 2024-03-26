@@ -133,6 +133,10 @@ void Probe::Update()
                 norm = surf->CompNorm01( u, m_OriginW() );
                 surf->CompCurvature01( u, m_OriginW(), k1, k2, ka, kg );
             }
+            else
+            {
+                pt = geom->getModelMatrix().getTranslation();
+            }
         }
 
         m_X = pt.x();
@@ -328,6 +332,10 @@ void RSTProbe::Update()
                 pt = surf->CompPntRST( r, m_OriginS(), m_OriginT() );
                 norm = surf->CompNorm01( r, 0.5 * m_OriginS() );
             }
+            else
+            {
+                pt = geom->getModelMatrix().getTranslation();
+            }
         }
 
         m_X = pt.x();
@@ -471,6 +479,10 @@ void Ruler::Update()
                 }
                 origin = osurf->CompPnt01( u, m_OriginW() );
             }
+            else
+            {
+                origin = ogeom->getModelMatrix().getTranslation();
+            }
         }
 
         vec3d end;
@@ -488,6 +500,10 @@ void Ruler::Update()
                     u = m_EndU();
                 }
                 end = esurf->CompPnt01( u, m_EndW() );
+            }
+            else
+            {
+                end = egeom->getModelMatrix().getTranslation();
             }
         }
 
@@ -698,6 +714,10 @@ void Protractor::Update()
                 }
                 origin = osurf->CompPnt01( u, m_OriginW() );
             }
+            else
+            {
+                origin = ogeom->getModelMatrix().getTranslation();
+            }
         }
 
         vec3d mid = GetMidPt();
@@ -717,6 +737,10 @@ void Protractor::Update()
                     u = m_EndU();
                 }
                 end = esurf->CompPnt01( u, m_EndW() );
+            }
+            else
+            {
+                end = egeom->getModelMatrix().getTranslation();
             }
         }
 
@@ -807,6 +831,10 @@ vec3d Protractor::GetMidPt()
                     u = m_MidU();
                 }
                 mid = msurf->CompPnt01( u, m_MidW());
+            }
+            else
+            {
+                mid = mgeom->getModelMatrix().getTranslation();
             }
         }
     }
