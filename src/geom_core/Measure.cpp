@@ -179,7 +179,7 @@ bool Probe::Valid()
         {
             return false;
         }
-        if ( m_OriginIndx() < 0 || m_OriginIndx() >= geom->GetNumTotalSurfs() )
+        if ( m_OriginIndx() < 0 || ( geom->GetNumTotalSurfs() > 0 && m_OriginIndx() >= geom->GetNumTotalSurfs() ) )
         {
             return false;
         }
@@ -360,7 +360,7 @@ bool RSTProbe::Valid()
         {
             return false;
         }
-        if ( m_OriginIndx() < 0 || m_OriginIndx() >= geom->GetNumTotalSurfs() )
+        if ( m_OriginIndx() < 0 || ( geom->GetNumTotalSurfs() > 0 && m_OriginIndx() >= geom->GetNumTotalSurfs() ) )
         {
             return false;
         }
@@ -540,7 +540,7 @@ bool Ruler::Valid()
         {
             return false;
         }
-        if ( m_OriginIndx() < 0 || m_OriginIndx() >= geom->GetNumTotalSurfs() )
+        if ( m_OriginIndx() < 0 || ( geom->GetNumTotalSurfs() > 0 && m_OriginIndx() >= geom->GetNumTotalSurfs() ) )
         {
             return false;
         }
@@ -555,7 +555,7 @@ bool Ruler::Valid()
         {
             return false;
         }
-        if ( m_EndIndx() < 0 || m_EndIndx() >= geom->GetNumTotalSurfs() )
+        if ( m_EndIndx() < 0 || ( geom->GetNumTotalSurfs() > 0 && m_EndIndx() >= geom->GetNumTotalSurfs() ) )
         {
             return false;
         }
@@ -828,7 +828,7 @@ bool Protractor::Valid()
         {
             return false;
         }
-        if ( m_OriginIndx() < 0 || m_OriginIndx() >= geom->GetNumTotalSurfs() )
+        if ( m_OriginIndx() < 0 || ( geom->GetNumTotalSurfs() > 0 && m_OriginIndx() >= geom->GetNumTotalSurfs() ) )
         {
             return false;
         }
@@ -843,7 +843,7 @@ bool Protractor::Valid()
         {
             return false;
         }
-        if ( m_MidIndx() < 0 || m_MidIndx() >= geom->GetNumTotalSurfs() )
+        if ( m_MidIndx() < 0 || ( geom->GetNumTotalSurfs() > 0 && m_MidIndx() >= geom->GetNumTotalSurfs() ) )
         {
             return false;
         }
@@ -858,7 +858,7 @@ bool Protractor::Valid()
         {
             return false;
         }
-        if ( m_EndIndx() < 0 || m_EndIndx() >= geom->GetNumTotalSurfs() )
+        if ( m_EndIndx() < 0 || ( geom->GetNumTotalSurfs() > 0 && m_EndIndx() >= geom->GetNumTotalSurfs() ) )
         {
             return false;
         }
