@@ -1324,25 +1324,25 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             if ( geom->GetNumTotalSurfs() > 0 )
             {
-            int index;
-            double u, w;
-            geom->ProjPnt01I( placement, index, u, w );
+                int index;
+                double u, w;
+                geom->ProjPnt01I( placement, index, u, w );
 
-            const VspSurf * surf = geom->GetSurfPtr( index );
+                const VspSurf * surf = geom->GetSurfPtr( index );
 
-            double umapmax = surf->GetUMapMax();
-            double umax = surf->GetUMax();
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
 
-            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+                double uprm = surf->EvalUMapping( u * umax ) / umapmax;
 
-            if ( uprm < 0 )
-            {
-                uprm = u;
-            }
+                if ( uprm < 0 )
+                {
+                    uprm = u;
+                }
 
-            ruler->m_OriginU = uprm;
-            ruler->m_OriginW = w;
-            ruler->m_OriginIndx = index;
+                ruler->m_OriginU = uprm;
+                ruler->m_OriginW = w;
+                ruler->m_OriginIndx = index;
             }
             else
             {
@@ -1359,25 +1359,25 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             if ( geom->GetNumTotalSurfs() > 0 )
             {
-            int index;
-            double u, w;
-            geom->ProjPnt01I( placement, index, u, w );
+                int index;
+                double u, w;
+                geom->ProjPnt01I( placement, index, u, w );
 
-            const VspSurf * surf = geom->GetSurfPtr( index );
+                const VspSurf * surf = geom->GetSurfPtr( index );
 
-            double umapmax = surf->GetUMapMax();
-            double umax = surf->GetUMax();
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
 
-            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+                double uprm = surf->EvalUMapping( u * umax ) / umapmax;
 
-            if ( uprm < 0 )
-            {
-                uprm = u;
-            }
+                if ( uprm < 0 )
+                {
+                    uprm = u;
+                }
 
-            ruler->m_EndU = uprm;
-            ruler->m_EndW = w;
-            ruler->m_EndIndx = index;
+                ruler->m_EndU = uprm;
+                ruler->m_EndW = w;
+                ruler->m_EndIndx = index;
             }
             else
             {
@@ -1409,25 +1409,25 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             if ( geom->GetNumTotalSurfs() > 0 )
             {
-            int index;
-            double u, w;
-            geom->ProjPnt01I( placement, index, u, w );
+                int index;
+                double u, w;
+                geom->ProjPnt01I( placement, index, u, w );
 
-            const VspSurf * surf = geom->GetSurfPtr( index );
+                const VspSurf * surf = geom->GetSurfPtr( index );
 
-            double umapmax = surf->GetUMapMax();
-            double umax = surf->GetUMax();
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
 
-            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+                double uprm = surf->EvalUMapping( u * umax ) / umapmax;
 
-            if ( uprm < 0 )
-            {
-                uprm = u;
-            }
+                if ( uprm < 0 )
+                {
+                    uprm = u;
+                }
 
-            probe->m_OriginU = uprm;
-            probe->m_OriginW = w;
-            probe->m_OriginIndx = index;
+                probe->m_OriginU = uprm;
+                probe->m_OriginW = w;
+                probe->m_OriginIndx = index;
             }
             else
             {
@@ -1459,36 +1459,36 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             if ( geom->GetNumTotalSurfs() > 0 )
             {
-            int index;
-            double u, w;
-            geom->ProjPnt01I( placement, index, u, w );
+                int index;
+                double u, w;
+                geom->ProjPnt01I( placement, index, u, w );
 
-            const VspSurf * surf = geom->GetSurfPtr( index );
+                const VspSurf * surf = geom->GetSurfPtr( index );
 
-            double umapmax = surf->GetUMapMax();
-            double umax = surf->GetUMax();
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
 
-            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+                double uprm = surf->EvalUMapping( u * umax ) / umapmax;
 
-            if ( uprm < 0 )
-            {
-                uprm = u;
-            }
+                if ( uprm < 0 )
+                {
+                    uprm = u;
+                }
 
-            double r, s, t;
-            r = uprm;
-            s = 2.0 * w;
-            t = 0.0;
-            if ( w > 0.5 )
-            {
-                s = 2.0 * ( 1.0 - w );
-                t = 1.0;
-            }
+                double r, s, t;
+                r = uprm;
+                s = 2.0 * w;
+                t = 0.0;
+                if ( w > 0.5 )
+                {
+                    s = 2.0 * ( 1.0 - w );
+                    t = 1.0;
+                }
 
-            RSTprobe->m_OriginR = r;
-            RSTprobe->m_OriginS = s;
-            RSTprobe->m_OriginT = t;
-            RSTprobe->m_OriginIndx = index;
+                RSTprobe->m_OriginR = r;
+                RSTprobe->m_OriginS = s;
+                RSTprobe->m_OriginT = t;
+                RSTprobe->m_OriginIndx = index;
             }
             else
             {
@@ -1521,25 +1521,25 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             if ( geom->GetNumTotalSurfs() > 0 )
             {
-            int index;
-            double u, w;
-            geom->ProjPnt01I( placement, index, u, w );
+                int index;
+                double u, w;
+                geom->ProjPnt01I( placement, index, u, w );
 
-            const VspSurf * surf = geom->GetSurfPtr( index );
+                const VspSurf * surf = geom->GetSurfPtr( index );
 
-            double umapmax = surf->GetUMapMax();
-            double umax = surf->GetUMax();
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
 
-            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+                double uprm = surf->EvalUMapping( u * umax ) / umapmax;
 
-            if ( uprm < 0 )
-            {
-                uprm = u;
-            }
+                if ( uprm < 0 )
+                {
+                    uprm = u;
+                }
 
-            protractor->m_OriginU = uprm;
-            protractor->m_OriginW = w;
-            protractor->m_OriginIndx = index;
+                protractor->m_OriginU = uprm;
+                protractor->m_OriginW = w;
+                protractor->m_OriginIndx = index;
             }
             else
             {
@@ -1556,25 +1556,25 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             if ( geom->GetNumTotalSurfs() > 0 )
             {
-            int index;
-            double u, w;
-            geom->ProjPnt01I( placement, index, u, w );
+                int index;
+                double u, w;
+                geom->ProjPnt01I( placement, index, u, w );
 
-            const VspSurf * surf = geom->GetSurfPtr( index );
+                const VspSurf * surf = geom->GetSurfPtr( index );
 
-            double umapmax = surf->GetUMapMax();
-            double umax = surf->GetUMax();
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
 
-            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+                double uprm = surf->EvalUMapping( u * umax ) / umapmax;
 
-            if ( uprm < 0 )
-            {
-                uprm = u;
-            }
+                if ( uprm < 0 )
+                {
+                    uprm = u;
+                }
 
-            protractor->m_MidU = uprm;
-            protractor->m_MidW = w;
-            protractor->m_MidIndx = index;
+                protractor->m_MidU = uprm;
+                protractor->m_MidW = w;
+                protractor->m_MidIndx = index;
             }
             else
             {
@@ -1591,25 +1591,25 @@ void ManageMeasureScreen::Set( vec3d placement, std::string targetGeomId )
 
             if ( geom->GetNumTotalSurfs() > 0 )
             {
-            int index;
-            double u, w;
-            geom->ProjPnt01I( placement, index, u, w );
+                int index;
+                double u, w;
+                geom->ProjPnt01I( placement, index, u, w );
 
-            const VspSurf * surf = geom->GetSurfPtr( index );
+                const VspSurf * surf = geom->GetSurfPtr( index );
 
-            double umapmax = surf->GetUMapMax();
-            double umax = surf->GetUMax();
+                double umapmax = surf->GetUMapMax();
+                double umax = surf->GetUMax();
 
-            double uprm = surf->EvalUMapping( u * umax ) / umapmax;
+                double uprm = surf->EvalUMapping( u * umax ) / umapmax;
 
-            if ( uprm < 0 )
-            {
-                uprm = u;
-            }
+                if ( uprm < 0 )
+                {
+                    uprm = u;
+                }
 
-            protractor->m_EndU = uprm;
-            protractor->m_EndW = w;
-            protractor->m_EndIndx = index;
+                protractor->m_EndU = uprm;
+                protractor->m_EndW = w;
+                protractor->m_EndIndx = index;
             }
             else
             {
