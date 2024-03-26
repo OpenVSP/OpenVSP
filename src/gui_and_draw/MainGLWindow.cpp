@@ -2503,13 +2503,13 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
         SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
         if( pnt )
         {
-            VSPGraphic::Entity * e = dynamic_cast<VSPGraphic::Entity*>(pnt->getSource());
+            VSPGraphic::Renderable * e = dynamic_cast<VSPGraphic::Renderable*>(pnt->getSource());
             if(e)
             {
                 ID * id = _findID( e->getID() );
                 if( id )
                 {
-                    unsigned int index = id->geomID.find_last_of( '_' );
+                    unsigned int index = id->geomID.find_first_of( '_' );
                     std::string baseId = id->geomID.substr( 0, index );
                     glm::vec3 placement = e->getVertexVec(pnt->getIndex());
                     measureScreen->Set( vec3d( placement.x, placement.y, placement.z ), baseId );
