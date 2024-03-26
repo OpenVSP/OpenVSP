@@ -522,9 +522,30 @@ void HingeGeom::UpdateDrawObj()
     }
 }
 
+void HingeGeom::LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec)
+{
+    char str[256];
+
+    bool isactive = m_Vehicle->IsGeomActive( m_ID );
+
+    // Add just the first three m_FeatureDrawObj_vec
+    for ( int i = 0; i < 3; i++ )
+    {
+        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        snprintf( str, sizeof( str ),  "%d", i );
+        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "_Feature_" + str;
+        m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
+        m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
+        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+    }
+}
+
 void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 {
     char str[256];
+
+    LoadMainDrawObjs( draw_obj_vec );
 
     bool isactive = m_Vehicle->IsGeomActive( m_ID );
 
@@ -548,19 +569,20 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
         draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
     }
 
-    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+    // Add the remaining m_FeatureDrawObj_vec
+    for ( int i = 3; i < m_FeatureDrawObj_vec.size(); i++ )
     {
         m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        snprintf( str, sizeof( str ),  "_%d", i );
-        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
-        m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+        snprintf( str, sizeof( str ),  "%d", i );
+        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "_Feature_" + str;
+        m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
         m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
         m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
     }
 
     m_MotionArrowsDO.m_GeomID = m_ID + "MArrows";
-    m_MotionArrowsDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+    m_MotionArrowsDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
     m_MotionArrowsDO.m_LineWidth = 1.0;
     m_MotionArrowsDO.m_Type = DrawObj::VSP_SHADED_TRIS;
     m_MotionArrowsDO.m_NormVec = vector <vec3d> ( m_MotionArrowsDO.m_PntVec.size() );
@@ -577,13 +599,13 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 
 
     m_MotionLinesDO.m_GeomID = m_ID + "MLines";
-    m_MotionLinesDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+    m_MotionLinesDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
     m_MotionLinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_MotionLinesDO.m_LineWidth = 2.0;
     m_MotionLinesDO.m_Type = DrawObj::VSP_LINES;
 
     m_PrimaryLineDO.m_GeomID = m_ID + "PrimLines";
-    m_PrimaryLineDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
+    m_PrimaryLineDO.m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
     m_PrimaryLineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
     m_PrimaryLineDO.m_LineWidth = 2.0;
     m_PrimaryLineDO.m_Type = DrawObj::VSP_LINES;

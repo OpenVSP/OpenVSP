@@ -30,6 +30,7 @@ public:
     virtual void UpdateMotionFlagsLimits();
 
     virtual void UpdateDrawObj();
+    virtual void LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec);
     virtual void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);
 
     virtual Matrix4d GetJointMatrix();
