@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-AdvLinkVarRenameScreen::AdvLinkVarRenameScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 100, "Rename Variable" )
+AdvLinkVarRenameScreen::AdvLinkVarRenameScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 100, "Rename Variable" )
 {
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
@@ -25,8 +25,8 @@ AdvLinkVarRenameScreen::AdvLinkVarRenameScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_GenLayout.AddSubGroupLayout( m_BorderLayout, m_GenLayout.GetRemainX() - 5.0,
                                    m_GenLayout.GetRemainY() - 5.0);
 
-    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 5 );
-    int spaceX = m_BorderLayout.GetW() / 10;
+    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() / 3.5 );
+    int spaceX = ( m_BorderLayout.GetW() - ( 3 * m_BorderLayout.GetButtonWidth() ) ) / 4;
 
     m_BorderLayout.AddYGap();
 
@@ -38,9 +38,9 @@ AdvLinkVarRenameScreen::AdvLinkVarRenameScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_BorderLayout.SetFitWidthFlag( false );
 
     m_BorderLayout.AddX( spaceX );
-    m_BorderLayout.AddButton( m_OKPreserveCode, "Preserve Code" );
+    m_BorderLayout.AddButton( m_OKPreserveCode, "Rename" );
     m_BorderLayout.AddX( spaceX );
-    m_BorderLayout.AddButton( m_OKChangeCode, "Change Code" );
+    m_BorderLayout.AddButton( m_OKChangeCode, "Rename && Update Code" );
     m_BorderLayout.AddX( spaceX );
     m_BorderLayout.AddButton( m_Cancel, "Cancel" );
 
