@@ -5,7 +5,6 @@
 #include "DrawObj.h"
 #include "GuiDevice.h"
 
-class Ruler;
 class ScreenMgr;
 
 class ManageMeasureScreen : public TabScreen

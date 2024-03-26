@@ -1165,7 +1165,7 @@ void ManageMeasureScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_RemoveRSTProbeButton )
     {
-        MeasureMgr.DelProbe(MeasureMgr.GetCurrRSTProbeIndex() );
+        MeasureMgr.DelRSTProbe(MeasureMgr.GetCurrRSTProbeIndex() );
     }
     else if ( device == &m_RemoveAllRSTProbesButton )
     {
