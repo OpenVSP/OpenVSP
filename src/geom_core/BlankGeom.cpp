@@ -110,9 +110,29 @@ void BlankGeom::UpdateDrawObj()
     }
 }
 
+void BlankGeom::LoadMainDrawObjs(vector< DrawObj* > & draw_obj_vec)
+{
+    char str[256];
+
+    bool isactive = m_Vehicle->IsGeomActive( m_ID );
+
+    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+    {
+        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+        snprintf( str, sizeof( str ),  "%d", i );
+        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "_Feature_" + str;
+        m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || isactive;
+        m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
+        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+    }
+}
+
 void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
 {
     char str[256];
+
+    LoadMainDrawObjs( draw_obj_vec );
 
     bool isactive = m_Vehicle->IsGeomActive( m_ID );
 
@@ -142,18 +162,6 @@ void BlankGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
         m_AxisDrawObj_vec[i].m_LineWidth = 2.0;
         m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
-    }
-
-
-    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
-    {
-        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        snprintf( str, sizeof( str ),  "_%d", i );
-        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
-        m_FeatureDrawObj_vec[i].m_Visible = ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID );
-        m_FeatureDrawObj_vec[i].m_LineWidth = 2.0;
-        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-        draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
     }
 }
 
