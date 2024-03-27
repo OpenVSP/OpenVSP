@@ -12,6 +12,7 @@
 #define BNDBOX__INCLUDED_
 
 #include "Vec3d.h"
+#include "Matrix4d.h"
 
 #include <vector>
 
@@ -47,6 +48,7 @@ public:
     void Update( const std::vector < std::vector < vec3d> > &pntvecvec );
     void Update( const std::vector < std::vector < std::vector < vec3d> > > &pntvecvecvec );
     void Update( const BndBox& bb );
+    void Update( const std::vector < BndBox > &bbvec );
     double DiagDist() const;
     double GetLargestDist() const;
     double GetSmallestDist() const;
@@ -63,6 +65,9 @@ public:
     friend bool Compare( const BndBox& bb1, const BndBox& bb2, double tol );
 
     std::vector< vec3d > GetBBoxDrawLines() const;
+
+    void FlipNormal() {};
+    void Transform( Matrix4d & mat );
 
 protected:
 

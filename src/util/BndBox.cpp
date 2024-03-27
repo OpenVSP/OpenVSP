@@ -159,6 +159,14 @@ void BndBox::Update( const BndBox& bb )
     }
 }
 
+void BndBox::Update( const std::vector < BndBox > &bbvec )
+{
+    for ( int i = 0; i < bbvec.size(); i++ )
+    {
+        Update( bbvec[i] );
+    }
+}
+
 //==== Get Diagonal Dist ====//
 double BndBox::DiagDist() const
 {
@@ -373,3 +381,10 @@ std::vector< vec3d > BndBox::GetBBoxDrawLines() const
     return lines;
 }
 
+void BndBox::Transform( Matrix4d & mat )
+{
+    std::vector< vec3d > corners = GetCornerPnts();
+    mat.xformvec( corners );
+    Reset();
+    Update( corners );
+}
