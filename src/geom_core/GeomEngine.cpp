@@ -227,6 +227,39 @@ double GeomEngine::unroll_t( const double &t, const double &troll, const double 
     return torig;
 }
 
+void GeomEngine::Extend( VspSurf &surf, const double & u, bool extbefore )
+{
+    // Handle extension.
+    vector < VspCurve > extcrvs(2);
+    surf.GetUConstCurve( extcrvs[0], u );
+    extcrvs[1] = extcrvs[0];
+    if ( extbefore )
+    {
+        extcrvs[0].OffsetX( -m_ExtensionDistance() );
+    }
+    else
+    {
+        extcrvs[1].OffsetX( m_ExtensionDistance() );
+    }
+
+    vector < double > extparam = { 0, 1.0 };
+
+    VspSurf ext;
+    ext.SkinC0( extcrvs, extparam, false );
+    ext.InitUMapping( -2 );
+
+    VspSurf s;
+    if ( extbefore )
+    {
+        s.JoinU( ext, surf );
+    }
+    else
+    {
+        s.JoinU( surf, ext );
+    }
+    surf = s;
+}
+
 void GeomEngine::UpdateEngine()
 {
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
@@ -301,20 +334,7 @@ void GeomEngine::UpdateEngine()
                 if ( m_EngineOutModeType() == ENGINE_MODE_EXTEND )
                 {
                     // Handle extension.
-                    vector < VspCurve > extcrvs(2);
-                    surf.GetUConstCurve( extcrvs[0], outlipu );
-                    extcrvs[1] = extcrvs[0];
-                    extcrvs[1].OffsetX( m_ExtensionDistance() );
-
-                    vector < double > extparam = { 0, 1.0 };
-
-                    VspSurf ext;
-                    ext.SkinC0( extcrvs, extparam, false );
-                    ext.InitUMapping( -2 );
-
-                    VspSurf s;
-                    s.JoinU( surf, ext );
-                    surf = s;
+                    Extend( surf, outlipu, false );
                 }
 
                 // Cap Umax.
@@ -360,20 +380,7 @@ void GeomEngine::UpdateEngine()
                 if ( m_EngineInModeType() == ENGINE_MODE_EXTEND )
                 {
                     // Handle extension.
-                    vector < VspCurve > extcrvs(2);
-                    surf.GetUConstCurve( extcrvs[1], 0.0 );
-                    extcrvs[0] = extcrvs[1];
-                    extcrvs[0].OffsetX( -m_ExtensionDistance() );
-
-                    vector < double > extparam = { 0, 1.0 };
-
-                    VspSurf ext;
-                    ext.SkinC0( extcrvs, extparam, false );
-                    ext.InitUMapping( -2 );
-
-                    VspSurf s;
-                    s.JoinU( ext, surf );
-                    surf = s;
+                    Extend( surf, 0.0, true );
                 }
 
                 // Cap Umin.
@@ -418,20 +425,7 @@ void GeomEngine::UpdateEngine()
                     surf.TrimU( outlipu, true );
 
                     // Handle extension.
-                    vector < VspCurve > extcrvs(2);
-                    surf.GetUConstCurve( extcrvs[0], outlipu );
-                    extcrvs[1] = extcrvs[0];
-                    extcrvs[1].OffsetX( m_ExtensionDistance() );
-
-                    vector < double > extparam = { 0, 1.0 };
-
-                    VspSurf ext;
-                    ext.SkinC0( extcrvs, extparam, false );
-                    ext.InitUMapping( -2 );
-
-                    VspSurf s;
-                    s.JoinU( surf, ext );
-                    surf = s;
+                    Extend( surf, outlipu, false );
                 }
                 else if ( m_EngineOutModeType() == ENGINE_MODE_TO_LIP )
                 {
@@ -463,20 +457,7 @@ void GeomEngine::UpdateEngine()
                     surf.TrimU( inlipu, false );
 
                     // Handle extension.
-                    vector < VspCurve > extcrvs(2);
-                    surf.GetUConstCurve( extcrvs[1], 0.0 );
-                    extcrvs[0] = extcrvs[1];
-                    extcrvs[0].OffsetX( -m_ExtensionDistance() );
-
-                    vector < double > extparam = { 0, 1.0 };
-
-                    VspSurf ext;
-                    ext.SkinC0( extcrvs, extparam, false );
-                    ext.InitUMapping( -2 );
-
-                    VspSurf s;
-                    s.JoinU( ext, surf );
-                    surf = s;
+                    Extend( surf, 0.0, true );
                 }
                 else if ( m_EngineInModeType() == ENGINE_MODE_TO_LIP )
                 {
@@ -516,20 +497,7 @@ void GeomEngine::UpdateEngine()
                     surf.TrimU( outlipu, true );
 
                     // Handle extension.
-                    vector < VspCurve > extcrvs(2);
-                    surf.GetUConstCurve( extcrvs[0], outlipu );
-                    extcrvs[1] = extcrvs[0];
-                    extcrvs[1].OffsetX( m_ExtensionDistance() );
-
-                    vector < double > extparam = { 0, 1.0 };
-
-                    VspSurf ext;
-                    ext.SkinC0( extcrvs, extparam, false );
-                    ext.InitUMapping( -2 );
-
-                    VspSurf s;
-                    s.JoinU( surf, ext );
-                    surf = s;
+                    Extend( surf, outlipu, false );
 
                     surf.CapUMax( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
                 }
@@ -546,20 +514,7 @@ void GeomEngine::UpdateEngine()
                     surf.TrimU( inlipu, false );
 
                     // Handle extension.
-                    vector < VspCurve > extcrvs(2);
-                    surf.GetUConstCurve( extcrvs[1], 0.0 );
-                    extcrvs[0] = extcrvs[1];
-                    extcrvs[0].OffsetX( -m_ExtensionDistance() );
-
-                    vector < double > extparam = { 0, 1.0 };
-
-                    VspSurf ext;
-                    ext.SkinC0( extcrvs, extparam, false );
-                    ext.InitUMapping( -2 );
-
-                    VspSurf s;
-                    s.JoinU( ext, surf );
-                    surf = s;
+                    Extend( surf, 0.0, true );
 
                     surf.CapUMin( POINT_END_CAP, 1.0, 0.0, 0.5, zero, false );
                 }

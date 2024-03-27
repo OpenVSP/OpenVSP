@@ -54,6 +54,7 @@ protected:
     double unroll_t( const double &t, const double &troll, const double &tmin, const double &tmax );
 
     virtual void ValidateParms();
+    virtual void Extend( VspSurf &surf, const double & u, bool extbefore );
     virtual void UpdateEngine();
 
     virtual void UpdateHighlightDrawObj();
