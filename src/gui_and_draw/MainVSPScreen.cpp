@@ -181,7 +181,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
 
     m_FileNameBox = new Fl_Box(m_GenLayout.GetX(), m_GenLayout.GetY(), filew, 20, "File Name:");
     m_FileNameBox->box(FL_EMBOSSED_FRAME);
-    m_FileNameBox->labelsize(10);
+    m_FileNameBox->labelsize(15);
     m_FileNameBox->align( Fl_Align( FL_ALIGN_CLIP | FL_ALIGN_RIGHT | FL_ALIGN_INSIDE ) );
 
     SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
