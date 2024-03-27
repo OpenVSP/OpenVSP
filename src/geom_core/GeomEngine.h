@@ -56,6 +56,7 @@ protected:
     virtual void ValidateParms();
     virtual void Extend( VspSurf &surf, const double & u, bool extbefore );
     virtual void UpdateEngine();
+    virtual void UpdateBBox();
 
     virtual void UpdateHighlightDrawObj();
 
@@ -63,6 +64,9 @@ protected:
 
     VspSurf m_OrigSurf;
     vector<DrawObj> m_EngineDrawObj_vec;
+
+    BndBox m_OrigMainBBox;
+    BndBox m_OrigBBox;
 };
 
 #endif // !defined(VSPGEOMENGINE__INCLUDED_)

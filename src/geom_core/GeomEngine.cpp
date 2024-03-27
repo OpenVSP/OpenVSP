@@ -264,15 +264,29 @@ void GeomEngine::Extend( VspSurf &surf, const double & u, bool extbefore )
     surf = s;
 }
 
+void GeomEngine::UpdateBBox()
+{
+    Geom::UpdateBBox();
+
+    vector < BndBox > mainBBvec;
+    mainBBvec.push_back( m_OrigMainBBox );
+
+    vector < BndBox > bbvec;
+    ApplySymm( mainBBvec, bbvec );
+
+    m_OrigBBox.Reset();
+    m_OrigBBox.Update( bbvec );
+}
+
 void GeomEngine::UpdateEngine()
 {
+    m_OrigMainBBox.Reset();
+    m_MainSurfVec[0].GetBoundingBox( m_OrigMainBBox );
+
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
     {
         m_OrigSurf = m_MainSurfVec[0];
         m_OrigSurf.BuildFeatureLines( m_ForceXSecFlag );
-
-        BndBox bbox;
-        m_OrigSurf.GetBoundingBox( bbox );
 
         VspSurf surf = m_MainSurfVec[0];
         surf.SetSurfCfdType( vsp::CFD_NORMAL );
@@ -282,7 +296,7 @@ void GeomEngine::UpdateEngine()
         VspSurf surf3;
         bool usesurf3 = false;
 
-        vec3d ptoff( bbox.DiagDist() * 1.0e-4, 0, 0 );
+        vec3d ptoff( m_OrigMainBBox.DiagDist() * 1.0e-4, 0, 0 );
         vec3d zero( 0.0, 0.0, 0.0 );
 
         double umax = surf.GetUMax();
