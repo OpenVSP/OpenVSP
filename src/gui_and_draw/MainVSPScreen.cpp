@@ -28,6 +28,7 @@
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageViewScreen.h"
+#include "FileUtil.h"
 
 #include "CfdMeshScreen.h"
 #include "SurfaceIntersectionScreen.h"
@@ -184,7 +185,6 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_FileNameBox->labelsize(15);
     m_FileNameBox->align( Fl_Align( FL_ALIGN_CLIP | FL_ALIGN_RIGHT | FL_ALIGN_INSIDE ) );
 
-    SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
 
     m_GenLayout.AddX( filew );
 
@@ -195,7 +195,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_TitleBox->labelcolor(FL_DARK_BLUE);
     m_TitleBox->align(Fl_Align(FL_ALIGN_CLIP));
 
-    m_FLTK_Window->label( VSPVERSION2 );
+    SetFileLabel( VehicleMgr.GetVehicle()->GetVSP3FileName() );
 }
 
 MainVSPScreen::~MainVSPScreen()
@@ -293,6 +293,9 @@ void MainVSPScreen::SetFileLabel( string fname )
     string label = "File Name: ";
     label.append( fname );
     m_FileNameBox->copy_label( label.c_str() );
+
+    string title = string( VSPVERSION2 ) + "     " + GetFilename( fname );
+    m_FLTK_Window->copy_label( title.c_str() );
 }
 
 void MainVSPScreen::ExitVSP()
