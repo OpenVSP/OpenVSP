@@ -235,11 +235,15 @@ void GeomEngine::Extend( VspSurf &surf, const double & u, bool extbefore )
     extcrvs[1] = extcrvs[0];
     if ( extbefore )
     {
-        extcrvs[0].OffsetX( -m_ExtensionDistance() );
+        double minx, maxx;
+        extcrvs[0].FindMinMaxX( minx, maxx );
+        extcrvs[0].AssignX( minx - m_ExtensionDistance() );
     }
     else
     {
-        extcrvs[1].OffsetX( m_ExtensionDistance() );
+        double minx, maxx;
+        extcrvs[1].FindMinMaxX( minx, maxx );
+        extcrvs[1].AssignX( maxx + m_ExtensionDistance() );
     }
 
     vector < double > extparam = { 0, 1.0 };
