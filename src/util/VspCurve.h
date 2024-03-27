@@ -126,6 +126,9 @@ public:
     void TessAdapt( double umin, double umax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit );
     void TessAdapt( double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, vector< double > & uout, double tol, int Nlimit, int Nadapt = 0 );
 
+    void AssignX( double x );
+    void FindMinMaxX( double & minx, double & maxx );
+
     void Offset( const vec3d &offvec );
     void OffsetX( double x );
     void OffsetY( double y );

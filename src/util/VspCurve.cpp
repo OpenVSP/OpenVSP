@@ -12,6 +12,7 @@
 #include <cstdio>
 #include <cmath>
 #include <cfloat>
+#include <limits>
 
 #include "VspCurve.h"
 #include "APIDefines.h"
@@ -1384,6 +1385,39 @@ void VspCurve::TessAdapt( double umin, double umax, const vec3d & pmin, const ve
     }
 }
 
+curve_point_type setX( curve_point_type & cp, void* data )
+{
+    curve_point_type newcp;
+    double *x = (double*) data;
+    newcp << *x, cp.y(), cp.z();
+    return newcp;
+}
+
+void VspCurve::AssignX( double x )
+{
+    m_Curve.transmute( setX, &x );
+}
+
+void VspCurve::FindMinMaxX( double & minx, double & maxx )
+{
+    vector < curve_point_type > cp_vec;
+    m_Curve.get_control_point_vec( cp_vec );
+
+    maxx = -std::numeric_limits< double >::max();
+    minx = std::numeric_limits< double >::max();
+    for ( int i = 0; i < cp_vec.size(); i++ )
+    {
+        if ( cp_vec[i].x() > maxx )
+        {
+            maxx = cp_vec[i].x();
+        }
+
+        if ( cp_vec[i].x() < minx )
+        {
+            minx = cp_vec[i].x();
+        }
+    }
+}
 
 //===== Offset =====//
 void VspCurve::Offset( const vec3d &offvec )
