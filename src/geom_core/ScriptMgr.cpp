@@ -1825,6 +1825,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SET_TYPE", "SET_FIRST_USER", SET_FIRST_USER );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "SET_TYPE", "MIN_NUM_USER", MIN_NUM_USER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SET_TYPE", "MAX_NUM_SETS", MAX_NUM_SETS );
+    assert( r >= 0 );
 
 
     r = se->RegisterEnum( "STEP_REPRESENTATION" );

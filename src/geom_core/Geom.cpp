@@ -1499,14 +1499,14 @@ void Geom::UpdateSets()
 {
     vector< string > set_name_vec = m_Vehicle->GetSetNameVec();
 
+    if ( m_SetFlags.size() > set_name_vec.size() )
+    {
+        m_SetFlags.resize( set_name_vec.size() );
+    }
+
     while ( m_SetFlags.size() < set_name_vec.size() )
     {
         m_SetFlags.push_back( false );
-    }
-
-    if ( m_SetFlags.size() < SET_FIRST_USER )
-    {
-        return;
     }
 
     m_SetFlags[ SET_ALL ] = true;   // All

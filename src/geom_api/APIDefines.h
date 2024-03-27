@@ -1093,7 +1093,9 @@ enum SET_TYPE { SET_NONE = -1,	/*!< None set */
                 SET_ALL = 0,	/*!< All set */
                 SET_SHOWN = 1,	/*!< Shown set */
                 SET_NOT_SHOWN = 2,	/*!< Not shown set */
-                SET_FIRST_USER = 3	/*!< First user-defined set */
+                SET_FIRST_USER = 3,	/*!< First user-defined set */
+                MIN_NUM_USER = 20,  /*!< Minimum number of user sets */
+                MAX_NUM_SETS = 1000	/*!< Maximum possible number of sets */
 };
 
 /*!

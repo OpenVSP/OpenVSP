@@ -280,6 +280,9 @@ Vehicle::Vehicle()
     m_PlanarMeasureDuct.Init( "MeasureDuctFlag", "PSlice", this, false, false, true );
     m_PlanarMeasureDuct.SetDescript( "Flag to measure negative area inside positive areas" );
 
+    m_NumUserSets.Init( "NumUserSets", "Sets", this, MIN_NUM_USER, MIN_NUM_USER, MAX_NUM_SETS - SET_FIRST_USER );
+    m_NumUserSets.SetDescript( "Number of user sets in this model.\n" );
+
     SetupPaths();
     m_VehProjectVec3d.resize( 3 );
     m_ColorCount = 0;
@@ -302,6 +305,9 @@ Vehicle::~Vehicle()
 //=== Init ====//
 void Vehicle::Init()
 {
+    // Reset number of sets to default here so it can be used in this function.
+    m_NumUserSets.Set( 20 );
+
     //==== Init Custom Geom and Script Mgr ====//
     LightMgr.Init();
     CustomGeomMgr.Init();
@@ -314,11 +320,12 @@ void Vehicle::Init()
     SetVSP3FileName( "Unnamed.vsp3" );
     m_FileOpenVersion = -1;
 
+    m_SetNameVec.clear();
     //==== Load Default Set Names =====//
     m_SetNameVec.push_back( "All" );        // SET_ALL
     m_SetNameVec.push_back( "Shown" );      // SET_SHOWN
     m_SetNameVec.push_back( "Not_Shown" );  // SET_NOT_SHOWN
-    for ( int i = 0 ; i < NUM_SETS; i++ )
+    for ( int i = 0 ; i < m_NumUserSets(); i++ )
     {
         char str[256];
         snprintf( str, sizeof( str ),  "Set_%d", i );
@@ -643,6 +650,15 @@ void Vehicle::ParmChanged( Parm* parm_ptr, int type )
     if ( parm_ptr == &m_AxisLength )
     {
         ForceUpdate( GeomBase::XFORM );
+    }
+
+    if ( parm_ptr == & m_NumUserSets )
+    {
+        if ( m_SetNameVec.size() != m_NumUserSets() + SET_FIRST_USER )
+        {
+            SetNumUserSets( m_NumUserSets() );
+            Update();
+        }
     }
 
     UpdateGUI();
@@ -1410,7 +1426,7 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
                 if (m_CopySetsWithGeomsFlag.Get() == false)
                 {
                     // New geom is only in SET_SHOWN
-                    for ( int i = SET_FIRST_USER; i < NUM_SETS + 2; i++ )
+                    for ( int i = SET_FIRST_USER; i < m_NumUserSets() + SET_FIRST_USER; i++ )
                     {
                         toPtr->SetSetFlag( i, false );
                     }
@@ -1469,20 +1485,34 @@ void Vehicle::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-void Vehicle::SetSetName( int index, const string& name )
+void Vehicle::SetNumUserSets( int nuset )
 {
     char str[256];
 
-    if ( index < 0 || index > 511 )
+    // Just to ensure consistency.
+    m_NumUserSets.Set( nuset );
+
+    int ntotal = m_NumUserSets() + SET_FIRST_USER;
+
+    if ( m_SetNameVec.size() > ntotal )
+    {
+        m_SetNameVec.resize( ntotal );
+    }
+
+    while ( ( int )m_SetNameVec.size() < ntotal )
+    {
+        snprintf( str, sizeof( str ),  "Set_%d", ( int )m_SetNameVec.size() - SET_FIRST_USER );
+        m_SetNameVec.push_back( string( str ) );
+    }
+}
+
+void Vehicle::SetSetName( int index, const string& name )
+{
+    if ( index < 0 || index >= m_SetNameVec.size() )
     {
         return;
     }
 
-    while ( ( int )m_SetNameVec.size() <= index )
-    {
-        snprintf( str, sizeof( str ),  "Set_%d", ( int )m_SetNameVec.size() );
-        m_SetNameVec.push_back( string( str ) );
-    }
     m_SetNameVec[index] = name;
 }
 
@@ -1805,6 +1835,8 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     if ( setnamenode )
     {
         int num = XmlUtil::GetNumNames( setnamenode, "Set" );
+
+        SetNumUserSets( num - SET_FIRST_USER );
 
         for ( int i = 0; i < num; i++ )
         {

@@ -56,6 +56,8 @@ protected:
     //m_RightLayout is to be used to hold m_SetSelectBrowser
     GroupLayout m_RightLayout;
 
+    Counter m_NumUserSetCounter;
+
     //This gives user an input field to name a set
     StringInput m_SetNameInput;
 

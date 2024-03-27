@@ -9,7 +9,7 @@
 
 using namespace vsp;
 
-SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 370, "Set Editor" )
+SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 400, "Set Editor" )
 {
     //Variables to help get locations of widgets to look nice and clean
     int browserHeight = 200;
@@ -37,6 +37,11 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 370, 
 
     //Inserting the m_BorderLayout into m_MainLayout, using remains to get correct alignment
     m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - borderPaddingWidth, m_MainLayout.GetRemainY() - borderPaddingWidth);
+
+    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetW() - 100 );
+    m_BorderLayout.AddCounter( m_NumUserSetCounter, "Num User Sets" );
+    m_BorderLayout.AddYGap();
+
     //Length of button is half the width of the border layout
     m_BorderLayout.SetButtonWidth(( m_BorderLayout.GetW() / 2)- borderPaddingWidth );
     //Adding a input functionality needs a string object type, and a label name to set it
@@ -119,6 +124,8 @@ bool SetEditorScreen::Update()
     int setBrowserScrollPosition = m_SetBrowser->vposition();
     int setSelectBrowserScrollPosition = m_SetSelectBrowser->vposition();
 
+    m_NumUserSetCounter.Update( vehiclePtr->m_NumUserSets.GetID() );
+
     //In case browsers has leftover items, clear them out
     m_SetBrowser->clear();
     m_SetSelectBrowser->clear();
@@ -155,6 +162,11 @@ bool SetEditorScreen::Update()
     {
         //Adds the name to browser list after casting string to char* 
         m_SetBrowser->add( set_name_vec[i].c_str() );
+    }
+
+    if ( m_SelectedSetIndex >= set_name_vec.size() )
+    {
+        m_SelectedSetIndex = set_name_vec.size() - 1;
     }
 
     //Updates what should be selected by utilizing m_SelectedSetIndex

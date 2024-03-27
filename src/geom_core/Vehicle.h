@@ -49,7 +49,6 @@
 // 5 -- 3.17.1   Add support for scaling thickness of file-type airfoils.
 //
 
-#define NUM_SETS 20 // Number of sets
 #define DEFAULT_SET vsp::SET_TYPE::SET_SHOWN // Default set index
 
 //==== Vehicle ====//
@@ -112,6 +111,7 @@ public:
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     //==== Geom Sets ====//
+    void SetNumUserSets( int nuset );
     void SetSetName( int index, const string& name );
     vector< string > GetSetNameVec( bool includeNone = false );
     void ShowOnlySet( int index );
@@ -491,6 +491,8 @@ public:
     IntParm m_StructUnit;
 
     BoolParm m_CopySetsWithGeomsFlag;
+
+    IntParm m_NumUserSets;
 
 protected:
 
