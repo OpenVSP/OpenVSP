@@ -244,6 +244,8 @@ public:
 
     void SetDirtyFlag( int dflag );
 
+    virtual bool IsModelScaleSensitive() { return false; }
+
 protected:
 
     void SetDirtyFlags( Parm* parm_ptr );

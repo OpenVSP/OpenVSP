@@ -4427,13 +4427,14 @@ BndBox Vehicle::UpdateOrigBBox( int set )
 
 void Vehicle::UpdateBBox()
 {
-    BndBox new_box;
+    BndBox new_box, o_box;
     int ngeom;
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     ngeom = (int) geom_vec.size();
     for ( int i = 0 ; i < ngeom ; i++ )
     {
         new_box.Update( geom_vec[i]->GetBndBox() );
+        o_box.Update( geom_vec[i]->GetOrigBndBox() ); // Without scale-dependent stuff
     }
 
     if( ngeom > 0 && ( new_box != m_BBox ) )
@@ -4447,7 +4448,22 @@ void Vehicle::UpdateBBox()
         m_BbZMin = new_box.GetMin( 2 );
     }
 
+    if (ngeom > 0 && ( o_box != m_OrigBBox ) ) // Check if it has changed
+    {
+        for ( int i = 0 ; i < ngeom ; i++ )
+        {
+            // If so, loop through all Geoms, asking if they are sensitive to overall model scale.
+            if ( geom_vec[i]->IsModelScaleSensitive() )
+            {
+                // If yes, then set dirty surface flag & trigger update.
+                geom_vec[i]->SetDirtyFlag( GeomBase::SURF );
+                geom_vec[i]->Update();
+            }
+        }
+    }
+
     m_BBox = new_box;
+    m_OrigBBox = o_box;
 }
 
 bool Vehicle::GetVisibleBndBox( BndBox &b )

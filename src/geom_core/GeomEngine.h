@@ -25,6 +25,8 @@ public:
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    virtual bool IsModelScaleSensitive();
+
     IntParm m_EngineGeomIOType;
     IntParm m_EngineGeomInType;
     IntParm m_EngineGeomOutType;

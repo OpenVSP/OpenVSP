@@ -634,3 +634,10 @@ void GeomEngine::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         }
     }
 }
+
+bool GeomEngine::IsModelScaleSensitive()
+{
+    // If we're auto-calculating the extension distance, then this model is sensitive to the overall
+    // scale of the model.
+    return m_AutoExtensionFlag();
+}
