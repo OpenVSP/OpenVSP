@@ -454,8 +454,13 @@ protected:
     HWXSecCurveDriverGroup m_DefaultXSecDriverGroup;
     DXSecCurveDriverGroup m_CircleXSecDriverGroup;
 
-    GroupLayout m_EditCEDITGroup;
+    GroupLayout m_EditCEDITButtonGroup;
     TriggerButton m_EditCEDITButton;
+
+    GroupLayout m_EditCEDITGroup;
+    DriverGroupBank m_EditCEDITXSecDriverGroupBank;
+    SliderAdjRangeInput m_EditCEDITHeightSlider;
+    SliderAdjRangeInput m_EditCEDITWidthSlider;
 
     GroupLayout m_PointGroup;
 

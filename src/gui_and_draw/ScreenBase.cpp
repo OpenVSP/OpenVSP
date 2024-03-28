@@ -1643,30 +1643,6 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     int show_w = 50;
     int convert_w = 100;
 
-    m_XSecLayout.SetSameLineFlag( true );
-    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", (show_w + convert_w) );
-    m_XSecLayout.SetFitWidthFlag( false );
-    m_XSecLayout.SetButtonWidth( show_w );
-    m_XSecLayout.AddButton( m_ShowXSecButton, "Show" );
-
-    m_XSecLayout.AddSubGroupLayout( m_ConvertCEDITGroup, m_XSecLayout.GetW(), m_XSecLayout.GetStdHeight() );
-    m_ConvertCEDITGroup.SetButtonWidth( convert_w );
-    m_ConvertCEDITGroup.SetFitWidthFlag( false );
-    m_ConvertCEDITGroup.AddButton( m_ConvertCEDITButton, "Convert CEDIT" );
-
-    m_XSecLayout.AddSubGroupLayout( m_EditCEDITGroup, m_XSecLayout.GetW(), m_XSecLayout.GetStdHeight() );
-    m_EditCEDITGroup.SetFitWidthFlag( false );
-    m_EditCEDITGroup.SetButtonWidth( convert_w );
-    m_EditCEDITGroup.AddButton( m_EditCEDITButton, "Edit Curve" );
-
-    m_XSecLayout.ForceNewLine();
-
-    m_XSecLayout.InitWidthHeightVals();
-    m_XSecLayout.SetFitWidthFlag( true );
-    m_XSecLayout.SetSameLineFlag( false );
-
-    m_XSecLayout.AddYGap();
-
     vector < string > xsec_driver_labels;
     xsec_driver_labels.resize( vsp::NUM_XSEC_DRIVER );
     xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = "Width";
@@ -1678,6 +1654,43 @@ void XSecScreen::AddXSecLayout(bool include_point_type)
     circ_xsec_driver_labels.resize( vsp::CIRCLE_NUM_XSEC_DRIVER );
     circ_xsec_driver_labels[vsp::WIDTH_XSEC_DRIVER] = "Diameter";
     circ_xsec_driver_labels[vsp::AREA_XSEC_DRIVER] = "Area";
+
+    m_XSecLayout.SetSameLineFlag( true );
+    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", (show_w + convert_w) );
+    m_XSecLayout.SetFitWidthFlag( false );
+    m_XSecLayout.SetButtonWidth( show_w );
+    m_XSecLayout.AddButton( m_ShowXSecButton, "Show" );
+
+    m_XSecLayout.AddSubGroupLayout( m_ConvertCEDITGroup, m_XSecLayout.GetW(), m_XSecLayout.GetStdHeight() );
+    m_ConvertCEDITGroup.SetButtonWidth( convert_w );
+    m_ConvertCEDITGroup.SetFitWidthFlag( false );
+    m_ConvertCEDITGroup.AddButton( m_ConvertCEDITButton, "Convert CEDIT" );
+
+    m_XSecLayout.AddSubGroupLayout( m_EditCEDITButtonGroup, m_XSecLayout.GetW(), m_XSecLayout.GetStdHeight() );
+    m_EditCEDITButtonGroup.SetFitWidthFlag( false );
+    m_EditCEDITButtonGroup.SetButtonWidth( convert_w );
+    m_EditCEDITButtonGroup.AddButton( m_EditCEDITButton, "Edit Curve" );
+
+    m_XSecLayout.ForceNewLine();
+
+    m_XSecLayout.InitWidthHeightVals();
+    m_XSecLayout.SetFitWidthFlag( true );
+    m_XSecLayout.SetSameLineFlag( false );
+
+    m_XSecLayout.AddYGap();
+
+    m_XSecLayout.AddSubGroupLayout( m_EditCEDITGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
+
+    if (m_XSecDriversActive)
+    {
+        m_EditCEDITXSecDriverGroupBank.SetDriverGroup( &m_DefaultXSecDriverGroup );
+        m_EditCEDITGroup.AddDriverGroupBank( m_EditCEDITXSecDriverGroupBank, xsec_driver_labels, 10, "%6.5f" );
+    }
+    else
+    {
+        m_EditCEDITGroup.AddSlider( m_EditCEDITHeightSlider, "Height", 10, "%6.5f" );
+        m_EditCEDITGroup.AddSlider( m_EditCEDITWidthSlider, "Width", 10, "%6.5f" );
+    }
 
     //==== Super XSec ====//
     m_XSecLayout.AddSubGroupLayout( m_SuperGroup, m_XSecLayout.GetW(), m_XSecLayout.GetRemainY() );
@@ -2611,14 +2624,29 @@ bool XSecScreen::Update()
             }
             else if (xsc->GetType() == XS_EDIT_CURVE)
             {
-                m_EditCEDITGroup.Show();
+                m_EditCEDITButtonGroup.Show();
                 m_ConvertCEDITGroup.Hide();
-                DisplayGroup( NULL );
+
+                DisplayGroup( &m_EditCEDITGroup );
+
+                EditCurveXSec* edit_xsec = dynamic_cast<EditCurveXSec*>(xsc);
+
+                if (m_XSecDriversActive)
+                {
+                    m_EditCEDITXSecDriverGroupBank.SetDriverGroup( edit_xsec->m_DriverGroup );
+                    vector< string > parm_ids = edit_xsec->GetDriverParms();
+                    m_EditCEDITXSecDriverGroupBank.Update( parm_ids );
+                }
+                else
+                {
+                    m_EditCEDITHeightSlider.Update( edit_xsec->m_Height.GetID() );
+                    m_EditCEDITWidthSlider.Update( edit_xsec->m_Width.GetID() );
+                }
             }
 
             if (xsc->GetType() != XS_EDIT_CURVE)
             {
-                m_EditCEDITGroup.Hide();
+                m_EditCEDITButtonGroup.Hide();
                 m_ConvertCEDITGroup.Show();
             }
         }
@@ -2637,6 +2665,7 @@ void XSecScreen::DisplayGroup( GroupLayout* group )
         return;
     }
 
+    m_EditCEDITGroup.Hide();
     m_SuperGroup.Hide();
     m_CircleGroup.Hide();
     m_EllipseGroup.Hide();
