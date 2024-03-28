@@ -79,6 +79,8 @@ void GeomEngine::ValidateParms()
     m_EngineOutModeType.Deactivate();
 
     m_ExtensionDistance.Deactivate();
+    m_AutoExtensionSet.Deactivate();
+    m_AutoExtensionFlag.Deactivate();
 
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
     {
@@ -117,7 +119,16 @@ void GeomEngine::ValidateParms()
 
             if ( m_EngineInModeType() == ENGINE_MODE_EXTEND )
             {
-                m_ExtensionDistance.Activate();
+                m_AutoExtensionFlag.Activate();
+
+                if ( m_AutoExtensionFlag() )
+                {
+                    m_AutoExtensionSet.Activate();
+                }
+                else
+                {
+                    m_ExtensionDistance.Activate();
+                }
             }
         }
 
@@ -160,7 +171,16 @@ void GeomEngine::ValidateParms()
 
             if ( m_EngineOutModeType() == ENGINE_MODE_EXTEND )
             {
-                m_ExtensionDistance.Activate();
+                m_AutoExtensionFlag.Activate();
+
+                if ( m_AutoExtensionFlag() )
+                {
+                    m_AutoExtensionSet.Activate();
+                }
+                else
+                {
+                    m_ExtensionDistance.Activate();
+                }
             }
         }
     }

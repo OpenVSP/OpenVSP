@@ -773,6 +773,10 @@ protected:
     Choice m_EngineOutModeChoice;
 
     SliderAdjRangeInput m_EngineExtendDistanceSlider;
+    Choice m_EngineAutoExtensionSetChoice;
+    ToggleButton m_EngineAutoExtensionFlagButton;
+    int m_SelectedEngineExtensionSetChoiceIndex;
+
 };
 
 //==== Chevron Screen ====//

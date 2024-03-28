@@ -3465,10 +3465,20 @@ void EngineModelScreen::BuildEngineGUI( GroupLayout & layout )
 
     layout.AddYGap();
     layout.AddDividerBox( "Extension" );
-    layout.SetButtonWidth( button_w );
 
+    layout.SetFitWidthFlag( false );
+    layout.SetSameLineFlag( true );
+
+    layout.SetButtonWidth( layout.GetW() / 6 );
+    layout.SetChoiceButtonWidth( layout.GetButtonWidth() );
+    layout.SetSliderWidth( layout.GetButtonWidth() );
+
+    layout.AddButton( m_EngineAutoExtensionFlagButton, "Auto" );
+    layout.AddChoice( m_EngineAutoExtensionSetChoice, "Set:" );
+    layout.SetFitWidthFlag( true );
     layout.AddSlider( m_EngineExtendDistanceSlider, "Distance", 10.0, "%7.3f" );
 
+    m_SelectedEngineExtensionSetChoiceIndex = DEFAULT_SET;
 }
 
 bool EngineModelScreen::Update( )
@@ -3591,6 +3601,26 @@ bool EngineModelScreen::Update( )
 
     m_EngineExtendDistanceSlider.Update( geomengine_ptr->m_ExtensionDistance.GetID() );
 
+    m_EngineAutoExtensionFlagButton.Update( geomengine_ptr->m_AutoExtensionFlag.GetID() );
+    m_EngineAutoExtensionSetChoice.Update( geomengine_ptr->m_AutoExtensionSet.GetID() );
+
+
+
+
+
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    m_EngineAutoExtensionSetChoice.ClearItems();
+
+    vector< string > set_name_vec = veh->GetSetNameVec();
+    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
+    {
+        m_EngineAutoExtensionSetChoice.AddItem( set_name_vec[i].c_str(), i );
+    }
+    m_EngineAutoExtensionSetChoice.UpdateItems();
+    m_EngineAutoExtensionSetChoice.SetVal( geomengine_ptr->m_AutoExtensionSet() );
+
+
     return true;
 }
 
@@ -3602,6 +3632,21 @@ void EngineModelScreen::CallBack( Fl_Widget *w )
 void EngineModelScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     SkinScreen::GuiDeviceCallBack( device );
+
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+    if ( !geom_ptr )
+    {
+        return;
+    }
+
+    GeomEngine* geomengine_ptr = dynamic_cast< GeomEngine* >( geom_ptr );
+    assert( geomengine_ptr );
+
+    if ( device == &m_EngineAutoExtensionSetChoice )
+    {
+        geomengine_ptr->m_AutoExtensionSet = m_EngineAutoExtensionSetChoice.GetVal();
+    }
+
 }
 
 //=====================================================================//
