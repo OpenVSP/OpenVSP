@@ -405,6 +405,11 @@ void FuselageGeom::Scale()
         }
     }
 
+    if ( !m_AutoExtensionFlag() )
+    {
+        m_ExtensionDistance.Set( m_ExtensionDistance() * currentScale );
+    }
+
     m_LastScale = m_Scale();
 }
 
