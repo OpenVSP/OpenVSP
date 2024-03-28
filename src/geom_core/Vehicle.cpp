@@ -4404,6 +4404,27 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
     StructureMgr.AddLinkableContainers( linkable_container_vec );
 }
 
+// As m_BBox, but wihtout EngineGeom modifications applied.
+BndBox Vehicle::UpdateOrigBBox( int set )
+{
+    BndBox bbox;  // m_OrigBBox
+
+    vector<string> geom_vec = GetGeomVec();
+    for ( int i = 0 ; i < geom_vec.size() ; i++ )
+    {
+        Geom* g_ptr = FindGeom( geom_vec[i] );
+        if ( g_ptr )
+        {
+            if ( g_ptr->GetSetFlag( set ) )
+            {
+                bbox.Update( g_ptr->GetOrigBndBox() );
+            }
+        }
+    }
+
+    return bbox;
+}
+
 void Vehicle::UpdateBBox()
 {
     BndBox new_box;

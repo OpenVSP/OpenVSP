@@ -137,6 +137,7 @@ public:
 
     BndBox GetBndBox()                                        { return m_BBox; }
     void UpdateBBox();
+    BndBox UpdateOrigBBox( int set );
     bool GetVisibleBndBox( BndBox &b );
 
     xmlNodePtr EncodeXml( xmlNodePtr & node, int set );

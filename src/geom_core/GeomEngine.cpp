@@ -6,6 +6,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "GeomEngine.h"
+#include "Vehicle.h"
+#include "VehicleMgr.h"
 using namespace vsp;
 
 //===============================================================================//
@@ -38,6 +40,9 @@ GeomEngine::GeomEngine( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_EngineOutModeType.Init( "OutletModeType", "EngineModel", this, ENGINE_MODE_TO_LIP, ENGINE_MODE_TO_LIP, ENGINE_MODE_NUM_TYPES - 1 );
 
     m_ExtensionDistance.Init( "ExtensionDistance", "EngineModel", this, 10, 0, 1e12 );
+    m_AutoExtensionSet.Init( "AutoExtensionSet", "EngineModel", this, DEFAULT_SET, 0, vsp::MAX_NUM_SETS );
+    m_AutoExtensionFlag.Init( "AutoExtensionFlag", "EngineModel", this, false, false, true );
+
 }
 
 //==== Destructor ====//
@@ -285,6 +290,21 @@ void GeomEngine::UpdateEngine()
 
     if ( m_EngineGeomIOType() != ENGINE_GEOM_NONE )
     {
+
+        if ( m_AutoExtensionFlag() )
+        {
+            Vehicle *veh = VehicleMgr.GetVehicle();
+            if ( veh )
+            {
+                BndBox setBox = veh->UpdateOrigBBox( m_AutoExtensionSet() );
+                double dx = setBox.GetMax( 0 ) - setBox.GetMin( 0 );
+                if ( dx > 0 )
+                {
+                    m_ExtensionDistance = dx;
+                }
+            }
+        }
+
         m_OrigSurf = m_MainSurfVec[0];
         m_OrigSurf.BuildFeatureLines( m_ForceXSecFlag );
 

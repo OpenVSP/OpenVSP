@@ -46,6 +46,8 @@ public:
     IntParm m_EngineInModeType;
     IntParm m_EngineOutModeType;
 
+    IntParm m_AutoExtensionSet;
+    BoolParm m_AutoExtensionFlag;
     Parm m_ExtensionDistance;
 
 protected:
