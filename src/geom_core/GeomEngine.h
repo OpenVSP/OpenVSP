@@ -66,7 +66,6 @@ protected:
     vector<DrawObj> m_EngineDrawObj_vec;
 
     BndBox m_OrigMainBBox;
-    BndBox m_OrigBBox;
 };
 
 #endif // !defined(VSPGEOMENGINE__INCLUDED_)

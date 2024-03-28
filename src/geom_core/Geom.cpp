@@ -2098,6 +2098,7 @@ void Geom::UpdateBBox()
         m_BbZMin = new_box.GetMin( 2 );
 
         m_BBox = new_box;
+        m_OrigBBox = m_BBox;
     }
 }
 

@@ -533,6 +533,10 @@ public:
     {
         return m_BBox;
     }
+    virtual BndBox GetOrigBndBox()
+    {
+        return m_OrigBBox;
+    }
 
     virtual void WriteAirfoilFiles( FILE* meta_fid );
     virtual void WriteBezierAirfoil( const string & file_name, double foilsurf_u_location );
@@ -895,6 +899,10 @@ protected:
     vector< DegenGeom > m_DegenGeomPreviewVec;
 
     BndBox m_BBox;
+    // Identical to m_BBox except in case of EngineGeom.  In which case, it is the bbox of the un-modified
+    // engine surface with with all symmetric copies accounted for.  This may actually be more conservative
+    // than m_BBox because of the way that it is.
+    BndBox m_OrigBBox;
 
     vector< bool > m_SetFlags;
 
