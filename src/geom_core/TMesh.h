@@ -465,6 +465,8 @@ public:
     void MakeFromPGMesh( PGMesh *m );
     void SubMesh( int imesh, TMesh *tm );
 
+    void MakeUWTMesh( TMesh & tm );
+
     void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
     void SetIgnoreSubSurface();
     void SetIgnoreInsideAny();

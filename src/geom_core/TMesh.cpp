@@ -1106,6 +1106,53 @@ void TMesh::SubMesh( int imesh, TMesh *tm )
     }
 }
 
+void TMesh::MakeUWTMesh( TMesh & tm )
+{
+    tm.CopyAttributes( this );
+
+    int nnod = m_NVec.size();
+    tm.m_NVec.reserve( nnod );
+
+    for ( int i = 0; i < nnod; i++ )
+    {
+        TNode *n = new TNode();
+
+        m_NVec[i]->m_ID = i;
+        n->m_ID = i;
+
+        // Note swap of Pnt and UWPnt.
+        n->m_Pnt = m_NVec[i]->m_UWPnt;
+        n->m_UWPnt = m_NVec[i]->m_Pnt;
+
+        tm.m_NVec.push_back( n );
+    }
+
+    int ntri = m_TVec.size();
+    tm.m_TVec.reserve( ntri );
+
+    for ( int i = 0; i < ntri; i++ )
+    {
+        TTri *t = new TTri( &tm );
+        TTri *ti = m_TVec[ i ];
+
+        t->m_N0 = tm.m_NVec[ ti->m_N0->m_ID ];
+        t->m_N1 = tm.m_NVec[ ti->m_N1->m_ID ];
+        t->m_N2 = tm.m_NVec[ ti->m_N2->m_ID ];
+
+        // t->m_Norm = ti->m_Norm;
+        // t->CompNorm();
+        t->m_Norm = vec3d( 0, 0, 1.0 );
+        t->m_Density = ti->m_Density;
+        t->m_Tags = ti->m_Tags;
+        t->m_ID = ti->m_ID;
+        t->m_InvalidFlag = ti->m_InvalidFlag;
+        t->m_IgnoreTriFlag = ti->m_IgnoreTriFlag;
+        t->m_iQuad = ti->m_iQuad;
+
+        tm.m_TVec.push_back( t );
+    }
+}
+
 void TMesh::SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
