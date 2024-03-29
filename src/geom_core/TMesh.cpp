@@ -771,7 +771,7 @@ void TMesh::CheckIfClosed()
     {
         if ( !m_TVec[t]->m_E0 || !m_TVec[t]->m_E1 || !m_TVec[t]->m_E2 )
         {
-            m_TVec[t]->m_InvalidFlag = 1;
+            m_TVec[t]->m_InvalidFlag = true;
             m_NonClosedTriVec.push_back( m_TVec[t] );
         }
     }
@@ -828,12 +828,12 @@ void TMesh::MergeTMeshes( const TMesh* tm )
     {
         TTri* tri = tm->m_TVec[t];
         AddTri( tri );
-        m_TVec.back()->m_InvalidFlag = 0;
+        m_TVec.back()->m_InvalidFlag = false;
     }
 
     for ( int i = 0 ; i < ( int )m_NonClosedTriVec.size() ; i++ )
     {
-        m_NonClosedTriVec[i]->m_InvalidFlag = 0;
+        m_NonClosedTriVec[i]->m_InvalidFlag = false;
     }
     m_NonClosedTriVec.clear();
 }
@@ -1734,7 +1734,7 @@ TTri::TTri( TMesh* tmesh )
     m_E0 = m_E1 = m_E2 = 0;
     m_N0 = m_N1 = m_N2 = 0;
     m_IgnoreTriFlag = false;
-    m_InvalidFlag  = 0;
+    m_InvalidFlag  = false;
     m_Density = 1.0;
     m_TMesh = tmesh;
     m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = nullptr;
@@ -3999,7 +3999,7 @@ void TMesh::TagNeedles( double minTriAng, double minAspectRatio, int delFlag )
                 }
                 else
                 {
-                    m_TVec[t]->m_InvalidFlag = 1;
+                    m_TVec[t]->m_InvalidFlag = true;
                 }
             }
             else if ( a1 < minTriAng && d20 / ( d01 + d12 ) < minAspectRatio )
@@ -4010,7 +4010,7 @@ void TMesh::TagNeedles( double minTriAng, double minAspectRatio, int delFlag )
                 }
                 else
                 {
-                    m_TVec[t]->m_InvalidFlag = 1;
+                    m_TVec[t]->m_InvalidFlag = true;
                 }
             }
             else if ( a2 < minTriAng && d01 / ( d12 + d20 ) < minAspectRatio )
@@ -4021,7 +4021,7 @@ void TMesh::TagNeedles( double minTriAng, double minAspectRatio, int delFlag )
                 }
                 else
                 {
-                    m_TVec[t]->m_InvalidFlag = 1;
+                    m_TVec[t]->m_InvalidFlag = true;
                 }
             }
         }
@@ -4543,7 +4543,7 @@ void TMesh::CheckValid( FILE* fid )
     {
         if ( !m_TVec[t]->m_E0 || !m_TVec[t]->m_E1 || !m_TVec[t]->m_E2 )
         {
-            m_TVec[t]->m_InvalidFlag = 1;
+            m_TVec[t]->m_InvalidFlag = true;
             ivTriVec.push_back( m_TVec[t] );
         }
     }

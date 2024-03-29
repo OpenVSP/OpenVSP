@@ -359,7 +359,7 @@ public:
     string m_GeomID;  // Used by slice triangles for later use by Wave Drag and Mass Properties.
     vector<int> m_Tags;
     double m_Density;
-    int m_InvalidFlag;
+    bool m_InvalidFlag;
     int m_iQuad;
 
     TEdge* m_E0;
