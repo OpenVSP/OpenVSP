@@ -6,6 +6,7 @@ IF( NOT VSP_NO_GRAPHICS )
     ADD_SUBDIRECTORY( cartesian )
 ENDIF()
 
+ADD_SUBDIRECTORY( GeometricTools )
 ADD_SUBDIRECTORY( nanoflann )
 ADD_SUBDIRECTORY( robust )
 ADD_SUBDIRECTORY( sixseries )
