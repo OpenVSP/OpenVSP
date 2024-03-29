@@ -1263,7 +1263,7 @@ string Vehicle::AddGeom( Geom* add_geom )
     return add_id;
 }
 
-string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks )
+string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks, bool skipnegflipnormal )
 {
     ClearActiveGeom();
 
@@ -1296,7 +1296,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks )
         {
             if ( g_ptr->GetSetFlag( normal_set ) )
             {
-                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec();
+                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec( skipnegflipnormal );
                 for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
                 {
                     if ( suppressdisks && ( tMeshVec[j]->m_SurfType == vsp::DISK_SURF ) )
@@ -1325,7 +1325,7 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set, bool suppressdisks )
                         DegenGeomVec[j].setFlipNormal( ! DegenGeomVec[j].getFlipNormal() );
                         // Create MeshGeom from DegenGeom
                         // Camber surfaces for wings & props, plates for bodies.
-                        DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec );
+                        DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec, skipnegflipnormal );
                     }
 
                     // Do not combine these loops.  tMeshVec.size() != DegenGeomVec.size()
@@ -1363,7 +1363,7 @@ vector< TMesh* > Vehicle::CreateTMeshVec( int normal_set )
         {
             if ( g_ptr->GetSetFlag( normal_set ) )
             {
-                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec();
+                vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec( false );
                 for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
                 {
                     tmv.push_back( tMeshVec[j] );
@@ -1380,7 +1380,7 @@ vector< TMesh* > Vehicle::CreateTMeshVec( const string &geomid )
     Geom *g = FindGeom( geomid );
     if ( g )
     {
-        tmv = g->CreateTMeshVec();
+        tmv = g->CreateTMeshVec( false );
     }
     return tmv;
 }
@@ -4682,7 +4682,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set, bool useMod
             {
                 if ( geom_vec[i]->GetSetFlag( write_set ) )
                 {
-                    vector< TMesh* > tMeshVec = geom_vec[i]->CreateTMeshVec();
+                    vector< TMesh* > tMeshVec = geom_vec[i]->CreateTMeshVec( false );
                     for ( int j = 0; j < (int)tMeshVec.size(); j++ )
                     {
                         TotalProjectMeshVec.push_back( tMeshVec[j] );
@@ -4900,7 +4900,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set, bool useMod
         {
             if ( geom_vec[i]->GetSetFlag( write_set ) )
             {
-                vector< TMesh* > tMeshVec = geom_vec[i]->CreateTMeshVec();
+                vector< TMesh* > tMeshVec = geom_vec[i]->CreateTMeshVec( false );
                 for ( int j = 0; j < (int)tMeshVec.size(); j++ )
                 {
                     TotalProjectMeshVec.push_back( tMeshVec[j] );

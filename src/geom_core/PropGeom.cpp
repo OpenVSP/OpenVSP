@@ -2812,17 +2812,17 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     }
 }
 
-vector< TMesh* > PropGeom::CreateTMeshVec() const
+vector< TMesh* > PropGeom::CreateTMeshVec( bool skipnegflipnormal ) const
 {
     vector< TMesh* > TMeshVec;
 
     if ( m_ExportMainSurf )
     {
-        TMeshVec = Geom::CreateTMeshVec( m_MainSurfVec );
+        TMeshVec = Geom::CreateTMeshVec( m_MainSurfVec, skipnegflipnormal );
     }
     else
     {
-        TMeshVec = Geom::CreateTMeshVec();
+        TMeshVec = Geom::CreateTMeshVec( skipnegflipnormal );
     }
 
     return TMeshVec;

@@ -553,8 +553,8 @@ public:
 
     virtual int GetSymFlag() const;
 
-    virtual vector< TMesh* > CreateTMeshVec() const;
-    vector< TMesh* > CreateTMeshVec( const vector<VspSurf> &surf_vec ) const;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal ) const;
+    vector< TMesh* > CreateTMeshVec( const vector<VspSurf> &surf_vec, bool skipnegflipnormal ) const;
 
     virtual BndBox GetBndBox() const
     {

@@ -1702,7 +1702,7 @@ void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, c
     hinge_res->Add( new NameValData( "xEnd", degenHingeLine.xEnd, "Coordinate of end point." ) );
 }
 
-void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
+void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int skipnegflipnormal )
 {
     int surftype = getType();
     bool thicksurf = false;
@@ -1738,7 +1738,8 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
                                    getCfdSurfType(),
                                    thicksurf,
                                    getFlipNormal(),
-                                   4.0 );
+                                   4.0,
+                                   skipnegflipnormal );
         }
         else if ( surftype == DegenGeom::DISK_TYPE)
         {
@@ -1757,7 +1758,8 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
                                    getCfdSurfType(),
                                    thicksurf,
                                    getFlipNormal(),
-                                   4.0 );
+                                   4.0,
+                                   skipnegflipnormal );
         }
     }
 }

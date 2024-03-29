@@ -141,7 +141,7 @@ public:
 
     virtual void WriteAirfoilFiles( FILE* meta_fid );
 
-    virtual vector< TMesh* > CreateTMeshVec() const;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal ) const;
 
     virtual void SetExportMainSurf( bool b )         { m_ExportMainSurf = b; }
 

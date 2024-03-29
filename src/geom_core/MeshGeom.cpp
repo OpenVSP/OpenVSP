@@ -3957,7 +3957,7 @@ void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     }
 }
 
-vector<TMesh*> MeshGeom::CreateTMeshVec() const
+vector<TMesh*> MeshGeom::CreateTMeshVec( bool skipnegflipnormal ) const
 {
     vector<TMesh*> retTMeshVec;
     retTMeshVec.resize( m_TMeshVec.size() );

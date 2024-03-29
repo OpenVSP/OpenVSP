@@ -5575,12 +5575,12 @@ void Geom::WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma
 }
 
 //==== Create TMesh Vector ====//
-vector< TMesh* > Geom::CreateTMeshVec() const
+vector< TMesh* > Geom::CreateTMeshVec( bool skipnegflipnormal ) const
 {
-    return CreateTMeshVec( m_SurfVec );
+    return CreateTMeshVec( m_SurfVec, skipnegflipnormal );
 }
 
-vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec ) const
+vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec, bool skipnegflipnormal ) const
 {
     vector< TMesh* > TMeshVec;
     vector< vector<vec3d> > pnts;
@@ -5630,7 +5630,8 @@ vector< TMesh* > Geom::CreateTMeshVec( const vector<VspSurf> &surf_vec ) const
 
             bool thicksurf = true;
             CreateTMeshVecFromPts( this, TMeshVec, pnts, norms, uw_pnts,
-                                   i, -1, surf_vec[i].GetSurfType(), surf_vec[i].GetSurfCfdType(), thicksurf, surf_vec[i].GetFlipNormal(), surf_vec[i].GetWMax() );
+                                   i, -1, surf_vec[i].GetSurfType(), surf_vec[i].GetSurfCfdType(),
+                                   thicksurf, surf_vec[i].GetFlipNormal(), surf_vec[i].GetWMax(), skipnegflipnormal );
         }
     }
     return TMeshVec;

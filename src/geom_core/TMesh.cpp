@@ -5133,7 +5133,8 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & norms,
                             const vector< vector<vec3d> > & uw_pnts,
-                            int indx, int platenum, int surftype, int cfdsurftype, bool thicksurf, bool flipnormal, double wmax )
+                            int indx, int platenum, int surftype, int cfdsurftype,
+                            bool thicksurf, bool flipnormal, double wmax,bool skipnegflipnormal )
 {
     double tol=1.0e-12;
 
@@ -5149,7 +5150,7 @@ void CreateTMeshVecFromPts( const Geom * geom,
     TMeshVec[itmesh]->m_XYZPnts = pnts;
     TMeshVec[itmesh]->m_Wmin = uw_pnts[0][0].y();
 
-    if ( cfdsurftype == vsp::CFD_NEGATIVE )
+    if ( !skipnegflipnormal && cfdsurftype == vsp::CFD_NEGATIVE )
     {
         flipnormal = !flipnormal;
     }
@@ -5728,7 +5729,7 @@ bool CheckIntersect( Geom* geom_ptr, const vector<TMesh*> & other_tmesh_vec )
 {
     bool intsect_flag = false;
 
-    vector< TMesh* > tmesh_vec = geom_ptr->CreateTMeshVec();
+    vector< TMesh* > tmesh_vec = geom_ptr->CreateTMeshVec( false );
     for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
     {
         tmesh_vec[i]->LoadBndBox();

@@ -94,7 +94,7 @@ public:
     string CreateGeom( const GeomType & type );
     string AddGeom( const GeomType & type );
     string AddGeom( Geom* add_geom );
-    string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false );
+    string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE, bool suppressdisks = false, bool skipnegflipnormal = false );
 
     vector< TMesh* > CreateTMeshVec( int normal_set );
     vector< TMesh* > CreateTMeshVec( const string &geomid );

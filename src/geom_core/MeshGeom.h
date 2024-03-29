@@ -176,7 +176,7 @@ public:
 
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
 
-    virtual vector< TMesh* > CreateTMeshVec() const;
+    virtual vector< TMesh* > CreateTMeshVec( bool skipnegflipnormal ) const;
     virtual void FlattenTMeshVec();
     virtual void FlattenSliceVec();
     virtual Matrix4d GetTotalTransMat() const;

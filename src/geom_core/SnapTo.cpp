@@ -74,7 +74,7 @@ double SnapTo::FindMinDistance( const string & geom_id, const vector< TMesh* > &
     Geom* geom_ptr = VehicleMgr.GetVehicle()->FindGeom( geom_id );
     if ( !geom_ptr )    return -1.0e12;
 
-    vector< TMesh* > tmesh_vec = geom_ptr->CreateTMeshVec();        // Must Delete!!!
+    vector< TMesh* > tmesh_vec = geom_ptr->CreateTMeshVec( false );        // Must Delete!!!
 
     for ( int i = 0 ; i < (int)tmesh_vec.size() ; i++ )
     {
@@ -130,7 +130,7 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
         Geom* g_ptr = veh->FindGeom( other_geom_vec[i] );
         if ( g_ptr )
         {
-             vector< TMesh* > tvec = g_ptr->CreateTMeshVec();       /////////// MUST DELETE!!!
+             vector< TMesh* > tvec = g_ptr->CreateTMeshVec( false );       /////////// MUST DELETE!!!
              for ( int j = 0 ; j < (int)tvec.size() ; j++ )
              {
                 tvec[j]->LoadBndBox();
@@ -148,10 +148,10 @@ void SnapTo::AdjParmToMinDist( const string & parm_id, bool inc_flag )
 
     //==== Create Geom TMesh Vec. Adjust Parm And Create Again ====//
     double del_val = 0.01;
-    vector< TMesh* > tmesh_orig = geom_ptr->CreateTMeshVec();       // Must Delete
+    vector< TMesh* > tmesh_orig = geom_ptr->CreateTMeshVec( false );       // Must Delete
     parm_ptr->Set( orig_val + del_val );
     VehicleMgr.GetVehicle()->Update( false );
-    vector< TMesh* > tmesh_adj  = geom_ptr->CreateTMeshVec();       // Must Delete
+    vector< TMesh* > tmesh_adj  = geom_ptr->CreateTMeshVec( false );       // Must Delete
 
     double max_min = FindMaxMinDistance( tmesh_orig, tmesh_adj );   // Find Max Dist Change Of Mesh 
     max_min = max( max_min, 1.0e-06 );
@@ -393,7 +393,7 @@ void SnapTo::CheckClearance( )
         Geom* g_ptr = veh->FindGeom( other_geom_vec[i] );
         if ( g_ptr )
         {
-             vector< TMesh* > tvec = g_ptr->CreateTMeshVec();       /////////// MUST DELETE!!!
+             vector< TMesh* > tvec = g_ptr->CreateTMeshVec( false );       /////////// MUST DELETE!!!
              for ( int j = 0 ; j < (int)tvec.size() ; j++ )
              {
                 tvec[j]->LoadBndBox();

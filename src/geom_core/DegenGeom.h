@@ -331,7 +331,7 @@ public:
     static void write_degenSubSurfResultsManager( vector< string > &subsurf_ids, const DegenSubSurf &degenSubSurf );
     static void write_degenHingeLineResultsManager( vector< string > &hinge_ids, const DegenHingeLine &degenHingeLine );
 
-    void createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec );
+    void createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int skipnegflipnormal );
 
     bool GetFlipNormal() const { return flip_normal; }
     void FlipNormal() { flip_normal = !flip_normal; }
