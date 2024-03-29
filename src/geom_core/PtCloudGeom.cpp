@@ -206,6 +206,23 @@ int PtCloudGeom::ReadPTS( const char* file_name )
     return 1;
 }
 
+void PtCloudGeom::WritePTS( const char *file_name )
+{
+    FILE* file_id = fopen( file_name, "w" );
+
+    if ( !file_id )
+    {
+        return;
+    }
+
+    for ( int i = 0; i < m_Pts.size(); i++ )
+    {
+        fprintf( file_id, "%.*e %.*e %.*e\n", DBL_DIG + 3, m_Pts[i].x(), DBL_DIG + 3, m_Pts[i].y(), DBL_DIG + 3, m_Pts[i].z() );
+    }
+
+    fclose( file_id );
+}
+
 void PtCloudGeom::UniquePts()
 {
     //==== Build Map ====//

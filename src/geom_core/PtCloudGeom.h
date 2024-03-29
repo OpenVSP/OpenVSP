@@ -28,6 +28,7 @@ public:
     virtual Matrix4d GetTotalTransMat()const ;
 
     virtual int ReadPTS( const char* file_name );
+    virtual void WritePTS( const char* file_name );
 
     virtual void UniquePts();
     virtual void InitPts();
