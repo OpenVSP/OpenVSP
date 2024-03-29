@@ -201,6 +201,11 @@ void SubSurface::UpdateDrawObjs()
 
 void SubSurface::Update()
 {
+    if ( m_MainSurfIndx() < 0 )
+    {
+        return;
+    }
+
     // Attempt to update deprecated options to new versions with closest meaning.
     if ( m_IncludedElements() != vsp::FEA_DEPRECATED )
     {
@@ -667,6 +672,11 @@ bool SSLineSeg::Subtag( TTri* tri ) const
 
 void SSLineSeg::Update( Geom *geom, const int &indx )
 {
+    if ( indx < 0 )
+    {
+        return;
+    }
+
     double umax = geom->GetUMapMax( indx );
     double wmax = geom->GetWMax( indx );
 
@@ -840,7 +850,7 @@ SSLine::~SSLine()
 void SSLine::Update()
 {
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
-    if ( !geom )
+    if ( !geom || m_MainSurfIndx() < 0 )
     {
         return;
     }
@@ -945,7 +955,7 @@ SSRectangle::~SSRectangle()
 void SSRectangle::Update()
 {
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
-    if ( !geom )
+    if ( !geom || m_MainSurfIndx() < 0 )
     {
         return;
     }
@@ -1027,7 +1037,7 @@ SSEllipse::~SSEllipse()
 void SSEllipse::Update()
 {
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
-    if ( !geom )
+    if ( !geom || m_MainSurfIndx() < 0 )
     {
         return;
     }
@@ -1152,6 +1162,11 @@ SSControlSurf::~SSControlSurf()
 //==== Update Method ===//
 void SSControlSurf::Update()
 {
+    if ( m_MainSurfIndx() < 0 )
+    {
+        return;
+    }
+
     // Build Control Surface as a rectangle with the points counter clockwise
 
     vec3d c_uws_upper, c_uws_lower, c_uwe_upper, c_uwe_lower;
@@ -2285,6 +2300,11 @@ SSLineArray::~SSLineArray()
 
 void SSLineArray::Update()
 {
+    if ( m_MainSurfIndx() < 0 )
+    {
+        return;
+    }
+
     CalcNumLines();
 
     m_LVec.resize( m_NumLines );
@@ -2454,6 +2474,11 @@ SSFiniteLine::~SSFiniteLine()
 
 void SSFiniteLine::Update()
 {
+    if ( m_MainSurfIndx() < 0 )
+    {
+        return;
+    }
+
     // Using m_LVec[0] since SSLine should always only have one line segment
     // Update SSegLine points based on current values
     m_LVec[0].SetSP0( vec3d( m_UStart(), m_WStart(), 0 ) );
