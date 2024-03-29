@@ -46,6 +46,7 @@ class TTri;
 class TBndBox;
 class NBndBox;
 class TMesh;
+class PGMesh;
 
 struct dba_point
 {
@@ -460,6 +461,9 @@ public:
     double MaxDistanceRay( const vec3d &org, const vec3d &norm, double curr_min_dist, vec3d &p1, vec3d &p2 );
     double MinAngle( const vec3d &org, const vec3d &norm, const vec3d& ptaxis, const vec3d& axis, double curr_min_angle, int ccw, vec3d &p1, vec3d &p2 );
     void Split();
+
+    void MakeFromPGMesh( PGMesh *m );
+    void SubMesh( int imesh, TMesh *tm );
 
     void SetIgnoreTriFlag( const vector < int > & bTypes, const vector < bool > & thicksurf );
     void SetIgnoreSubSurface();

@@ -21,6 +21,7 @@
 #endif
 
 #include "TMesh.h"
+#include "PGMesh.h"
 
 #include "tri_tri_intersect.h"
 #include "predicates.h"
@@ -957,6 +958,150 @@ void TMesh::Split()
         if ( !erf )
         {
 //            printf( "Fail in triangle %d\n", t );
+        }
+    }
+}
+
+void TMesh::MakeFromPGMesh( PGMesh *m )
+{
+    printf( "TMesh::MakeFromPGMesh()\n" );
+
+    m->ResetNodeNumbers(); // Starts at 1.
+
+    int nvert = m->m_NodeList.size();
+
+    m_NVec.reserve( nvert );
+
+    list< PGNode* >::iterator n;
+    for ( n = m->m_NodeList.begin() ; n != m->m_NodeList.end(); ++n )
+    {
+        ( *n )->m_Pnt;
+
+        TNode *nod = new TNode();
+        nod->m_Pnt = ( *n )->m_Pnt;
+        nod->m_ID = ( *n )->m_ID - 1; // Start at zero.
+        if ( ! ( *n )->m_TagUWMap.empty() )
+        {
+            vec2d uw = ( *n )->m_TagUWMap.begin()->second;
+            nod->m_UWPnt = vec3d( uw.x(), uw.y(), 0.0 );
+        }
+
+        m_NVec.push_back( nod );
+    }
+
+    list< PGFace* >::iterator f;
+    for ( f = m->m_FaceList.begin() ; f != m->m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodesAsTris( nodVec );
+
+        int npt = nodVec.size();
+        int ntri = npt/3;
+
+        int inod = 0;
+        for ( int i = 0; i < ntri; i++ )
+        {
+            TTri *t = new TTri( this );
+
+            t->m_N0 = m_NVec[ nodVec[ inod ]->m_ID ];
+            inod++;
+            t->m_N1 = m_NVec[ nodVec[ inod ]->m_ID ];
+            inod++;
+            t->m_N2 = m_NVec[ nodVec[ inod ]->m_ID ];
+            inod++;
+
+            t->m_Norm = ( *f )->m_Nvec;
+            //t->m_Density = torig->m_Density;
+            t->m_Tags = m->GetTagVec( ( *f )->m_Tag );
+            //t->m_GeomID = torig->m_GeomID;
+            //t->m_InvalidFlag = torig->m_InvalidFlag;
+            //t->m_IgnoreTriFlag = torig->m_IgnoreTriFlag;
+            t->m_iQuad = ( *f )->m_iQuad;
+            t->m_ID = ( *f )->m_ID;
+            //t->m_ID = m_ID;
+
+            m_TVec.push_back( t );
+
+        }
+    }
+}
+
+void TMesh::SubMesh( int imesh, TMesh *tm )
+{
+    int nvert = tm->m_NVec.size();
+
+    vector < bool > copyvert( nvert, false );
+    int ntri_inmesh = 0;
+    int nvert_inmesh = 0;
+
+    for ( int ivert = 0; ivert < nvert; ivert++ )
+    {
+        tm->m_NVec[ivert]->m_ID = ivert;
+    }
+
+    for ( int itri = 0; itri < tm->m_TVec.size(); itri++ )
+    {
+        TTri *torig = tm->m_TVec[ itri ];
+
+        if ( torig->m_ID == imesh && torig->m_iQuad >= 0 )
+        {
+            copyvert[ torig->m_N0->m_ID ] = true;
+            copyvert[ torig->m_N1->m_ID ] = true;
+            copyvert[ torig->m_N2->m_ID ] = true;
+            ntri_inmesh++;
+        }
+    }
+
+    for ( int ivert = 0; ivert < nvert; ivert++ )
+    {
+        if ( copyvert[ ivert ] )
+        {
+            nvert_inmesh++;
+        }
+    }
+
+    vector < int > vertxref( nvert, -1 );
+
+    m_NVec.resize( nvert_inmesh );
+
+    // Copy needed verts.
+    int ivert = 0;
+    for ( int i = 0; i < nvert; i++ )
+    {
+        if ( copyvert[i] )
+        {
+            m_NVec[ ivert ] = new TNode();
+            m_NVec[ ivert ]->CopyFrom( tm->m_NVec[i] );
+            vertxref[i] = ivert;
+            ivert++;
+        }
+    }
+
+    // Copy desired tris.
+    m_TVec.reserve( ntri_inmesh );
+
+    for ( int itri = 0; itri < tm->m_TVec.size(); itri++ )
+    {
+        TTri *torig = tm->m_TVec[ itri ];
+
+        if ( torig->m_ID == imesh && torig->m_iQuad >= 0 )
+        {
+            TTri *t = new TTri( this );
+
+            t->m_N0 = m_NVec[ vertxref[ torig->m_N0->m_ID ] ];
+            t->m_N1 = m_NVec[ vertxref[ torig->m_N1->m_ID ] ];
+            t->m_N2 = m_NVec[ vertxref[ torig->m_N2->m_ID ] ];
+
+            t->m_Norm = torig->m_Norm;
+            t->m_Density = torig->m_Density;
+            t->m_Tags = torig->m_Tags;
+            t->m_GeomID = torig->m_GeomID;
+            t->m_InvalidFlag = torig->m_InvalidFlag;
+            t->m_IgnoreTriFlag = torig->m_IgnoreTriFlag;
+            t->m_iQuad = torig->m_iQuad;
+            t->m_ID = torig->m_ID;
+
+            m_TVec.push_back( t );
         }
     }
 }
