@@ -492,6 +492,7 @@ void TMesh::copy( TMesh* m )
         tri->m_Norm    = m->m_TVec[i]->m_Norm;
 
         tri->m_iQuad    = m->m_TVec[i]->m_iQuad;
+        tri->m_ID    = m->m_TVec[i]->m_ID;
 
         tri->m_N0->m_Pnt = m->m_TVec[i]->m_N0->m_Pnt;
         tri->m_N1->m_Pnt = m->m_TVec[i]->m_N1->m_Pnt;
@@ -527,6 +528,7 @@ void TMesh::CopyFlatten( TMesh* m )
                 {
                     AddTri( s_tri->m_N0, s_tri->m_N1, s_tri->m_N2, s_tri->m_Norm, orig_tri->m_iQuad );
                     m_TVec.back()->m_Tags = s_tri->m_Tags;
+                    m_TVec.back()->m_ID = s_tri->m_ID;
                 }
             }
         }
@@ -536,6 +538,7 @@ void TMesh::CopyFlatten( TMesh* m )
             {
                 AddTri( orig_tri->m_N0, orig_tri->m_N1, orig_tri->m_N2, orig_tri->m_Norm, orig_tri->m_iQuad );
                 m_TVec.back()->m_Tags = orig_tri->m_Tags;
+                m_TVec.back()->m_ID = orig_tri->m_ID;
             }
         }
     }
@@ -1756,6 +1759,7 @@ TTri::TTri( TMesh* tmesh )
     m_TMesh = tmesh;
     m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = nullptr;
     m_iQuad = -1;
+    m_ID = -1;
 }
 
 TTri::~TTri()
@@ -1828,6 +1832,7 @@ void TTri::CopyFrom( const TTri* tri )
     m_InvalidFlag = tri->m_InvalidFlag;
     m_IgnoreTriFlag = tri->m_IgnoreTriFlag;
     m_iQuad = tri->m_iQuad;
+    m_ID = tri->m_ID;
 }
 
 void TTri::BuildPermEdges()
@@ -2608,6 +2613,7 @@ bool TTri::TriangulateSplit( int flattenAxis, const vector < vec3d > &ptvec, boo
         t->m_Tags = m_Tags; // Set split tri to have same tags as original triangle
         t->m_Norm = m_Norm;
         t->m_iQuad = m_iQuad;
+        t->m_ID = m_ID;
         m_SplitVec.push_back( t );
     }
 
@@ -3125,6 +3131,7 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_N2 = n20;
         tri->m_Norm = m_Norm;
         tri->m_iQuad = m_iQuad;
+        tri->m_ID = m_ID;
         m_SplitVec.push_back( tri );
 
         tri = new TTri( m_TMesh );
@@ -3133,6 +3140,7 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_N2 = n01;
         tri->m_Norm = m_Norm;
         tri->m_iQuad = m_iQuad;
+        tri->m_ID = m_ID;
         m_SplitVec.push_back( tri );
 
         tri = new TTri( m_TMesh );
@@ -3141,6 +3149,7 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_N2 = n12;
         tri->m_Norm = m_Norm;
         tri->m_iQuad = m_iQuad;
+        tri->m_ID = m_ID;
         m_SplitVec.push_back( tri );
 
         tri = new TTri( m_TMesh );
@@ -3149,6 +3158,7 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
         tri->m_N2 = n20;
         tri->m_Norm = m_Norm;
         tri->m_iQuad = m_iQuad;
+        tri->m_ID = m_ID;
         m_SplitVec.push_back( tri );
 
     }

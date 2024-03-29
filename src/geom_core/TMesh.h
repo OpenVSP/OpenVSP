@@ -366,6 +366,7 @@ public:
     double m_Density;
     bool m_InvalidFlag;
     int m_iQuad;
+    int m_ID;
 
     TEdge* m_E0;
     TEdge* m_E1;
