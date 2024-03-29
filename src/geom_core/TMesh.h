@@ -319,6 +319,20 @@ public:
         return nullptr;
     }
 
+    virtual void SetTriNode( int i, TNode * n )
+    {
+        if ( i == 0 )
+            m_N0 = n;
+        if ( i == 1 )
+            m_N1 = n;
+        if ( i == 2 )
+            m_N2 = n;
+    }
+
+    static double ComputeTriQual( TNode* n0, TNode* n1, TNode* n2 );
+    virtual double ComputeTriQual();
+
+    static void ComputeCosAngles( TNode* n0, TNode* n1, TNode* n2, double* ang0, double* ang1, double* ang2 );
     virtual void ComputeCosAngles( double* ang0, double* ang1, double* ang2 );
 
     virtual void SplitEdges( TNode* n01, TNode* n12, TNode* n20 );

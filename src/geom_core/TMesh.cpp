@@ -3146,11 +3146,36 @@ int TTri::DupEdge( TEdge* e0, TEdge* e1, double tol )
     return 0;
 }
 
-void TTri::ComputeCosAngles( double* ang0, double* ang1, double* ang2 )
+double TTri::ComputeTriQual()
 {
-    double dsqr01 = dist_squared( m_N0->m_Pnt, m_N1->m_Pnt );
-    double dsqr12 = dist_squared( m_N1->m_Pnt, m_N2->m_Pnt );
-    double dsqr20 = dist_squared( m_N2->m_Pnt, m_N0->m_Pnt );
+    return ComputeTriQual( m_N0, m_N1, m_N2 );
+}
+
+double TTri::ComputeTriQual( TNode* n0, TNode* n1, TNode* n2 )
+{
+    double ang0, ang1, ang2;
+
+    ComputeCosAngles( n0, n1, n2, &ang0, &ang1, &ang2 );
+
+    double minang = max( ang0, max( ang1, ang2 ) );
+
+    if ( minang > 1.0 )
+    {
+        return 0.0;
+    }
+    else if ( minang < -1.0 )
+    {
+        return M_PI;
+    }
+
+    return acos( minang );
+}
+
+void TTri::ComputeCosAngles( TNode* n0, TNode* n1, TNode* n2, double* ang0, double* ang1, double* ang2 )
+{
+    double dsqr01 = dist_squared( n0->m_Pnt, n1->m_Pnt );
+    double dsqr12 = dist_squared( n1->m_Pnt, n2->m_Pnt );
+    double dsqr20 = dist_squared( n2->m_Pnt, n0->m_Pnt );
 
     double d01 = sqrt( dsqr01 );
     double d12 = sqrt( dsqr12 );
@@ -3161,6 +3186,11 @@ void TTri::ComputeCosAngles( double* ang0, double* ang1, double* ang2 )
     *ang1 = ( -dsqr20 + dsqr01 + dsqr12 ) / ( 2.0 * d01 * d12 );
 
     *ang2 = ( -dsqr01 + dsqr12 + dsqr20 ) / ( 2.0 * d12 * d20 );
+}
+
+void TTri::ComputeCosAngles( double* ang0, double* ang1, double* ang2 )
+{
+    ComputeCosAngles( m_N0, m_N1, m_N2, ang0, ang1, ang2 );
 }
 
 
