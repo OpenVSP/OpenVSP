@@ -156,6 +156,8 @@ public:
     int m_iQuad;
     int m_Tag;
 
+    int m_ID;
+
     vector< PGEdge* > m_EdgeVec;
     vector < PGNode* > m_TriNodeVec;
 
