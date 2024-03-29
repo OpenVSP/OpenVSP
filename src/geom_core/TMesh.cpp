@@ -509,6 +509,38 @@ void TMesh::copy( TMesh* m )
     }
 }
 
+void TMesh::copyFewerNodes( TMesh* m )
+{
+    CopyAttributes( m );
+    m_TVec.clear();
+    m_NVec.clear();
+
+    m_NVec.reserve( m->m_NVec.size() );
+    for ( int i = 0 ; i < ( int )m->m_NVec.size() ; i++ )
+    {
+        m->m_NVec[i]->m_ID = i;
+        m_NVec.push_back( new TNode() );
+        m_NVec[i]->m_Pnt = m->m_NVec[i]->m_Pnt;
+        m_NVec[i]->m_UWPnt = m->m_NVec[i]->m_UWPnt;
+        m_NVec[i]->m_ID = m->m_NVec[i]->m_ID;
+    }
+
+    m_TVec.reserve( m->m_TVec.size() );
+    for ( int i = 0 ; i < ( int )m->m_TVec.size() ; i++ )
+    {
+        TTri* tri = new TTri( this );
+        tri->m_N0 = m_NVec[ m->m_TVec[i]->m_N0->m_ID ];
+        tri->m_N1 = m_NVec[ m->m_TVec[i]->m_N1->m_ID ];
+        tri->m_N2 = m_NVec[ m->m_TVec[i]->m_N2->m_ID ];
+
+        tri->m_Norm = m->m_TVec[i]->m_Norm;
+        tri->m_iQuad = m->m_TVec[i]->m_iQuad;
+        tri->m_ID = m->m_TVec[i]->m_ID;
+
+        m_TVec.push_back( tri );
+    }
+}
+
 void TMesh::CopyFlatten( TMesh* m )
 {
     CopyAttributes( m );

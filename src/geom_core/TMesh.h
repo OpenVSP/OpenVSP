@@ -421,6 +421,7 @@ public:
     virtual void Wype();
 
     void copy( TMesh* m );
+    void copyFewerNodes( TMesh* m );
     void CopyFlatten( TMesh* m );
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual void DecodeXml( xmlNodePtr & node );
