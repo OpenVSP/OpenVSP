@@ -319,16 +319,15 @@ void VSPAEROMgrSingleton::Renew()
     for(size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i)
     {
         delete m_ControlSurfaceGroupVec[i];
-        m_ControlSurfaceGroupVec.erase( m_ControlSurfaceGroupVec.begin() + i );
     }
     m_ControlSurfaceGroupVec.clear();
+
     m_CompleteControlSurfaceVec.clear();
     m_ActiveControlSurfaceVec.clear();
 
     for(size_t i = 0; i < m_RotorDiskVec.size(); ++i)
     {
         delete m_RotorDiskVec[i];
-        m_RotorDiskVec.erase( m_RotorDiskVec.begin() + i );
     }
     m_RotorDiskVec.clear();
 
@@ -4175,7 +4174,6 @@ void VSPAEROMgrSingleton::ClearUnsteadyGroupVec()
     for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
     {
         delete m_UnsteadyGroupVec[i];
-        m_UnsteadyGroupVec.erase( m_UnsteadyGroupVec.begin() + i );
     }
     m_UnsteadyGroupVec.clear();
 }
