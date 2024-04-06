@@ -948,7 +948,7 @@ void MeshGeom::WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &p
     }
 
     // Remove indexes of tri_offset that contain no tris
-    for ( unsigned int j = 0; j < tri_offset.size(); j++ )
+    for ( int j = tri_offset.size() - 1; j >= 0; j-- )  // Iterate in reverse as vector is changing size.
     {
         if ( tri_offset[j] == 0 ) // This indicates no tris for the tag index. 
         {

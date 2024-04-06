@@ -921,7 +921,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
         }
 
         // Check for and delete any disks that no longer exist
-        for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
+        for ( int i = m_RotorDiskVec.size() - 1; i >= 0; i-- ) // Iterate in reverse as vector is changing size.
         {
             bool delete_flag = true;
             for ( size_t j = 0; j < temp.size(); ++j )
@@ -985,18 +985,16 @@ void VSPAEROMgrSingleton::CleanCompleteControlSurfVec()
     if ( veh )
     {
         // Clean Out No Longer Existing Control Surfaces (Due to Geom Changes)
-        for ( size_t i = 0; i < m_CompleteControlSurfaceVec.size(); ++i )
+        for ( int i = m_CompleteControlSurfaceVec.size() - 1; i >= 0; i-- ) // Iterate in reverse as vector is changing size.
         {
             Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[i].parentGeomId );
             if ( !geom )
             {
                 m_CompleteControlSurfaceVec.erase( m_CompleteControlSurfaceVec.begin() + i );
-                --i;
             }
             else if ( !geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID ) )
             {
                 m_CompleteControlSurfaceVec.erase( m_CompleteControlSurfaceVec.begin() + i );
-                --i;
             }
         }
     }
@@ -5698,7 +5696,7 @@ void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
 
 void ControlSurfaceGroup::RemoveSubSurface( const string & ssid, int reflec_num )
 {
-    for ( size_t i = 0; i < m_ControlSurfVec.size(); ++i )
+    for ( int i = m_ControlSurfVec.size() - 1; i >= 0; i-- ) // Iterate in reverse as vector is changing size.
     {
         if ( m_ControlSurfVec[i].SSID.compare( ssid ) == 0 && m_ControlSurfVec[i].iReflect == reflec_num )
         {
