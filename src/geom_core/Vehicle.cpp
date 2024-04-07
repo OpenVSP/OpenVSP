@@ -68,6 +68,8 @@ Vehicle::Vehicle()
     m_STEPLabelID.Init( "LabelID", "STEPSettings", this, true, 0, 1 );
     m_STEPLabelName.Init( "LabelName", "STEPSettings", this, true, 0, 1 );
     m_STEPLabelSurfNo.Init( "LabelSurfNo", "STEPSettings", this, true, 0, 1 );
+    m_STEPLabelSplitNo.Init( "LabelSplitNo", "STEPSettings", this, true, 0, 1 );
+    m_STEPLabelAirfoilPart.Init( "LabelAirfoilPart", "STEPSettings", this, true, 0, 1 );
     m_STEPLabelDelim.Init( "LabelDelim", "STEPSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
 
     m_STEPStructureExportIndex.Init( "StructureExportIndex", "STEPSettings", this, 0, 0, 1000 );
@@ -82,6 +84,8 @@ Vehicle::Vehicle()
     m_STEPStructureLabelID.Init( "StructureLabelID", "STEPSettings", this, true, 0, 1 );
     m_STEPStructureLabelName.Init( "StructureLabelName", "STEPSettings", this, true, 0, 1 );
     m_STEPStructureLabelSurfNo.Init( "StructureLabelSurfNo", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureLabelSplitNo.Init( "StructureLabelSplitNo", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureLabelAirfoilPart.Init( "StructureLabelAirfoilPart", "STEPSettings", this, true, 0, 1 );
     m_STEPStructureLabelDelim.Init( "StructureLabelDelim", "STEPSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
 
     m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
@@ -98,6 +102,7 @@ Vehicle::Vehicle()
     m_IGESLabelName.Init( "LabelName", "IGESSettings", this, true, 0, 1 );
     m_IGESLabelSurfNo.Init( "LabelSurfNo", "IGESSettings", this, true, 0, 1 );
     m_IGESLabelSplitNo.Init( "LabelSplitNo", "IGESSettings", this, true, 0, 1 );
+    m_IGESLabelAirfoilPart.Init( "LabelAirfoilPart", "IGESSettings", this, true, 0, 1 );
     m_IGESLabelDelim.Init( "LabelDelim", "IGESSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
 
     m_IGESStructureExportIndex.Init( "StructureExportIndex", "IGESSettings", this, 0, 0, 1000 );
@@ -111,6 +116,7 @@ Vehicle::Vehicle()
     m_IGESStructureLabelName.Init( "StructureLabelName", "IGESSettings", this, true, 0, 1 );
     m_IGESStructureLabelSurfNo.Init( "StructureLabelSurfNo", "IGESSettings", this, true, 0, 1 );
     m_IGESStructureLabelSplitNo.Init( "StructureLabelSplitNo", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureLabelAirfoilPart.Init( "StructureLabelAirfoilPart", "IGESSettings", this, true, 0, 1 );
     m_IGESStructureLabelDelim.Init( "StructureLabelDelim", "IGESSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
 
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );

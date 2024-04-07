@@ -339,6 +339,8 @@ public:
     BoolParm m_STEPLabelID;
     BoolParm m_STEPLabelName;
     BoolParm m_STEPLabelSurfNo;
+    BoolParm m_STEPLabelSplitNo;
+    BoolParm m_STEPLabelAirfoilPart;
     IntParm m_STEPLabelDelim;
 
     IntParm m_STEPStructureExportIndex;
@@ -351,6 +353,8 @@ public:
     BoolParm m_STEPStructureLabelID;
     BoolParm m_STEPStructureLabelName;
     BoolParm m_STEPStructureLabelSurfNo;
+    BoolParm m_STEPStructureLabelSplitNo;
+    BoolParm m_STEPStructureLabelAirfoilPart;
     IntParm m_STEPStructureLabelDelim;
 
     IntParm m_IGESLenUnit;
@@ -365,6 +369,7 @@ public:
     BoolParm m_IGESLabelName;
     BoolParm m_IGESLabelSurfNo;
     BoolParm m_IGESLabelSplitNo;
+    BoolParm m_IGESLabelAirfoilPart;
     IntParm m_IGESLabelDelim;
 
     IntParm m_IGESStructureExportIndex;
@@ -376,6 +381,7 @@ public:
     BoolParm m_IGESStructureLabelName;
     BoolParm m_IGESStructureLabelSurfNo;
     BoolParm m_IGESStructureLabelSplitNo;
+    BoolParm m_IGESStructureLabelAirfoilPart;
     IntParm m_IGESStructureLabelDelim;
 
     //==== DXF Export ====//

@@ -50,6 +50,7 @@ protected:
     ToggleButton m_LabelNameToggle;
     ToggleButton m_LabelSurfNoToggle;
     ToggleButton m_LabelSplitNoToggle;
+    ToggleButton m_LabelAirfoilPartToggle;
     Choice m_LabelDelimChoice;
 
     int m_PrevUnit;
@@ -64,6 +65,7 @@ protected:
     bool m_PrevLabelName;
     bool m_PrevLabelSurfNo;
     bool m_PrevLabelSplitNo;
+    bool m_PrevLabelAirfoilPart;
     int m_PrevLabelDelim;
 
     TriggerButton m_OkButton;
