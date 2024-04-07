@@ -56,10 +56,10 @@ STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : Basic
     m_GenLayout.AddButton( m_LabelNameToggle, "Geom Name" );
     m_GenLayout.AddButton( m_LabelSurfNoToggle, "Surface Number" );
 
-    m_LabelDelimChoice.AddItem( "Comma" );
-    m_LabelDelimChoice.AddItem( "Underscore" );
-    m_LabelDelimChoice.AddItem( "Space" );
-    m_LabelDelimChoice.AddItem( "None" );
+    m_LabelDelimChoice.AddItem( "Comma", vsp::DELIM_COMMA );
+    m_LabelDelimChoice.AddItem( "Underscore", vsp::DELIM_USCORE );
+    m_LabelDelimChoice.AddItem( "Space", vsp::DELIM_SPACE );
+    m_LabelDelimChoice.AddItem( "None", vsp::DELIM_NONE );
     m_GenLayout.AddChoice( m_LabelDelimChoice, "Delimiter" );
 
     m_GenLayout.AddY( 25 );
