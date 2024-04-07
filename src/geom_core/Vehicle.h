@@ -198,16 +198,16 @@ public:
     void WritePovRayFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set, bool labelID,
-                        bool labelName, bool labelSurfNo, int delimType );
+                        bool labelName, bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType );
     void WriteStructureSTEPFile( const string & file_name );
     void WriteIGESFile( const string & file_name, int write_set );
     void WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs,
                         bool toCubic, double toCubicTol, bool trimTE, bool labelID, bool labelName,
-                        bool labelSurfNo, bool labelSplitNo, int delimType );
+                        bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType );
     void WriteStructureIGESFile( const string & file_name );
     void WriteStructureIGESFile( const string & file_name, int feaMeshStructIndex, bool splitSurfs,
                         bool toCubic, double toCubicTol, bool labelID, bool labelName,
-                        bool labelSurfNo, bool labelSplitNo, int delimType );
+                        bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType );
 
     void WriteBEMFile( const string & file_name, int write_set );
     void WriteAirfoilFile( const string & file_name, int write_set );
