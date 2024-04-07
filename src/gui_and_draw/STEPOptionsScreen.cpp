@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 370, "Untrimmed STEP Options" )
+STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 370 + 50, "Untrimmed STEP Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -29,6 +29,8 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_PrevLabelID = true;
     m_PrevLabelName = true;
     m_PrevLabelSurfNo = true;
+    m_PrevLabelSplitNo = true;
+    m_PrevLabelAirfoilPart = true;
     m_PrevLabelDelim = vsp::DELIM_COMMA;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -65,6 +67,8 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddButton( m_LabelIDToggle, "Geom ID" );
     m_GenLayout.AddButton( m_LabelNameToggle, "Geom Name" );
     m_GenLayout.AddButton( m_LabelSurfNoToggle, "Surface Number" );
+    m_GenLayout.AddButton( m_LabelSplitNoToggle, "Split Number" );
+    m_GenLayout.AddButton( m_LabelAirfoilPartToggle, "Airfoil Part" );
 
     m_LabelDelimChoice.AddItem( "Comma", vsp::DELIM_COMMA );
     m_LabelDelimChoice.AddItem( "Underscore", vsp::DELIM_USCORE );
@@ -109,11 +113,19 @@ bool STEPOptionsScreen::Update()
         m_LabelIDToggle.Update( veh->m_STEPLabelID.GetID() );
         m_LabelNameToggle.Update( veh->m_STEPLabelName.GetID() );
         m_LabelSurfNoToggle.Update( veh->m_STEPLabelSurfNo.GetID() );
+        m_LabelSplitNoToggle.Update( veh->m_STEPLabelSplitNo.GetID() );
+        m_LabelAirfoilPartToggle.Update( veh->m_STEPLabelAirfoilPart.GetID() );
         m_LabelDelimChoice.Update( veh->m_STEPLabelDelim.GetID() );
 
         if ( !veh->m_STEPToCubic() )
         {
             m_ToCubicTolSlider.Deactivate();
+        }
+
+        if ( !veh->m_STEPSplitSurfs() )
+        {
+            m_LabelSplitNoToggle.Deactivate();
+            m_LabelAirfoilPartToggle.Deactivate();
         }
     }
 
@@ -162,6 +174,8 @@ void STEPOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_STEPLabelID.Set( m_PrevLabelID );
             veh->m_STEPLabelName.Set( m_PrevLabelName );
             veh->m_STEPLabelSurfNo.Set( m_PrevLabelSurfNo );
+            veh->m_STEPLabelSplitNo.Set( m_PrevLabelSplitNo );
+            veh->m_STEPLabelAirfoilPart.Set( m_PrevLabelAirfoilPart );
             veh->m_STEPLabelDelim.Set( m_PrevLabelDelim );
 
         }
@@ -194,6 +208,8 @@ bool STEPOptionsScreen::ShowSTEPOptionsScreen()
         m_PrevLabelID = veh->m_STEPLabelID();
         m_PrevLabelName = veh->m_STEPLabelName();
         m_PrevLabelSurfNo = veh->m_STEPLabelSurfNo();
+        m_PrevLabelSplitNo = veh->m_STEPLabelSplitNo();
+        m_PrevLabelAirfoilPart = veh->m_STEPLabelAirfoilPart();
         m_PrevLabelDelim = veh->m_STEPLabelDelim();
     }
 
@@ -226,6 +242,8 @@ void STEPOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_STEPLabelID.Set( m_PrevLabelID );
         veh->m_STEPLabelName.Set( m_PrevLabelName );
         veh->m_STEPLabelSurfNo.Set( m_PrevLabelSurfNo );
+        veh->m_STEPLabelSplitNo.Set( m_PrevLabelSplitNo );
+        veh->m_STEPLabelAirfoilPart.Set( m_PrevLabelAirfoilPart );
         veh->m_STEPLabelDelim.Set( m_PrevLabelDelim );
     }
 

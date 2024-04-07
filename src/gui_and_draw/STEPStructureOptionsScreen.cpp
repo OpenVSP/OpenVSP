@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 320, "Untrimmed STEP Struct Options" )
+STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 320 + 50, "Untrimmed STEP Struct Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -55,6 +55,8 @@ STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : Basic
     m_GenLayout.AddButton( m_LabelIDToggle, "Geom ID" );
     m_GenLayout.AddButton( m_LabelNameToggle, "Geom Name" );
     m_GenLayout.AddButton( m_LabelSurfNoToggle, "Surface Number" );
+    m_GenLayout.AddButton( m_LabelSplitNoToggle, "Split Number" );
+    m_GenLayout.AddButton( m_LabelAirfoilPartToggle, "Airfoil Part" );
 
     m_LabelDelimChoice.AddItem( "Comma", vsp::DELIM_COMMA );
     m_LabelDelimChoice.AddItem( "Underscore", vsp::DELIM_USCORE );
@@ -109,7 +111,15 @@ bool STEPStructureOptionsScreen::Update()
         m_LabelIDToggle.Update( veh->m_STEPStructureLabelID.GetID() );
         m_LabelNameToggle.Update( veh->m_STEPStructureLabelName.GetID() );
         m_LabelSurfNoToggle.Update( veh->m_STEPStructureLabelSurfNo.GetID() );
+        m_LabelSplitNoToggle.Update( veh->m_STEPStructureLabelSplitNo.GetID() );
+        m_LabelAirfoilPartToggle.Update( veh->m_STEPStructureLabelAirfoilPart.GetID() );
         m_LabelDelimChoice.Update( veh->m_STEPStructureLabelDelim.GetID() );
+
+        if ( !veh->m_STEPStructureSplitSurfs() )
+        {
+            m_LabelSplitNoToggle.Deactivate();
+            m_LabelAirfoilPartToggle.Deactivate();
+        }
     }
 
     m_FLTK_Window->redraw();
@@ -153,6 +163,8 @@ void STEPStructureOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_STEPStructureLabelID.Set( m_PrevLabelID );
             veh->m_STEPStructureLabelName.Set( m_PrevLabelName );
             veh->m_STEPStructureLabelSurfNo.Set( m_PrevLabelSurfNo );
+            veh->m_STEPStructureLabelSplitNo.Set( m_PrevLabelSplitNo );
+            veh->m_STEPStructureLabelAirfoilPart.Set( m_PrevLabelAirfoilPart );
             veh->m_STEPStructureLabelDelim.Set( m_PrevLabelDelim );
         }
         Hide();
@@ -190,6 +202,8 @@ bool STEPStructureOptionsScreen::ShowSTEPOptionsScreen()
         m_PrevLabelID = veh->m_STEPStructureLabelID();
         m_PrevLabelName = veh->m_STEPStructureLabelName();
         m_PrevLabelSurfNo = veh->m_STEPStructureLabelSurfNo();
+        m_PrevLabelSplitNo = veh->m_STEPStructureLabelSplitNo();
+        m_PrevLabelAirfoilPart = veh->m_STEPStructureLabelAirfoilPart();
         m_PrevLabelDelim = veh->m_STEPStructureLabelDelim();
     }
 
@@ -219,6 +233,8 @@ void STEPStructureOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_STEPStructureLabelID.Set( m_PrevLabelID );
         veh->m_STEPStructureLabelName.Set( m_PrevLabelName );
         veh->m_STEPStructureLabelSurfNo.Set( m_PrevLabelSurfNo );
+        veh->m_STEPStructureLabelSplitNo.Set( m_PrevLabelSplitNo );
+        veh->m_STEPStructureLabelAirfoilPart.Set( m_PrevLabelAirfoilPart );
         veh->m_STEPStructureLabelDelim.Set( m_PrevLabelDelim );
     }
 

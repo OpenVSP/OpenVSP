@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174 + 50 + 120 + 26, "Untrimmed IGES Options" )
+IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174 + 50 + 120 + 26 + 25, "Untrimmed IGES Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -29,6 +29,7 @@ IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_PrevLabelName = true;
     m_PrevLabelSurfNo = true;
     m_PrevLabelSplitNo = true;
+    m_PrevLabelAirfoilPart = true;
     m_PrevLabelDelim = vsp::DELIM_COMMA;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -61,6 +62,7 @@ IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddButton( m_LabelNameToggle, "Geom Name" );
     m_GenLayout.AddButton( m_LabelSurfNoToggle, "Surface Number" );
     m_GenLayout.AddButton( m_LabelSplitNoToggle, "Split Number" );
+    m_GenLayout.AddButton( m_LabelAirfoilPartToggle, "Airfoil Part" );
 
     m_LabelDelimChoice.AddItem( "Comma", vsp::DELIM_COMMA );
     m_LabelDelimChoice.AddItem( "Underscore", vsp::DELIM_USCORE );
@@ -104,11 +106,18 @@ bool IGESOptionsScreen::Update()
         m_LabelNameToggle.Update( veh->m_IGESLabelName.GetID() );
         m_LabelSurfNoToggle.Update( veh->m_IGESLabelSurfNo.GetID() );
         m_LabelSplitNoToggle.Update( veh->m_IGESLabelSplitNo.GetID() );
+        m_LabelAirfoilPartToggle.Update( veh->m_IGESLabelAirfoilPart.GetID() );
         m_LabelDelimChoice.Update( veh->m_IGESLabelDelim.GetID() );
 
         if ( !veh->m_IGESToCubic() )
         {
             m_ToCubicTolSlider.Deactivate();
+        }
+
+        if ( !veh->m_IGESSplitSurfs() )
+        {
+            m_LabelSplitNoToggle.Deactivate();
+            m_LabelAirfoilPartToggle.Deactivate();
         }
     }
 
@@ -156,6 +165,7 @@ void IGESOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_IGESLabelName.Set( m_PrevLabelName );
             veh->m_IGESLabelSurfNo.Set( m_PrevLabelSurfNo );
             veh->m_IGESLabelSplitNo.Set( m_PrevLabelSplitNo );
+            veh->m_IGESLabelAirfoilPart.Set( m_PrevLabelAirfoilPart );
             veh->m_IGESLabelDelim.Set( m_PrevLabelDelim );
 
         }
@@ -187,6 +197,7 @@ bool IGESOptionsScreen::ShowIGESOptionsScreen()
         m_PrevLabelName = veh->m_IGESLabelName();
         m_PrevLabelSurfNo = veh->m_IGESLabelSurfNo();
         m_PrevLabelSplitNo = veh->m_IGESLabelSplitNo();
+        m_PrevLabelAirfoilPart = veh->m_IGESLabelAirfoilPart();
         m_PrevLabelDelim = veh->m_IGESLabelDelim();
     }
 
@@ -218,6 +229,7 @@ void IGESOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_IGESLabelName.Set( m_PrevLabelName );
         veh->m_IGESLabelSurfNo.Set( m_PrevLabelSurfNo );
         veh->m_IGESLabelSplitNo.Set( m_PrevLabelSplitNo );
+        veh->m_IGESLabelAirfoilPart.Set( m_PrevLabelAirfoilPart );
         veh->m_IGESLabelDelim.Set( m_PrevLabelDelim );
     }
 
