@@ -200,8 +200,8 @@ public:
                         bool labelName, bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType );
     void WriteStructureSTEPFile( const string & file_name );
     void WriteIGESFile( const string & file_name, int write_set );
-    void WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs,
-                        bool toCubic, double toCubicTol, bool trimTE, bool labelID, bool labelName,
+    void WriteIGESFile( const string &file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs,
+                        bool toCubic, double toCubicTol, bool trimTE, bool mergeLETE, bool labelID, bool labelName,
                         bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType );
     void WriteStructureIGESFile( const string & file_name );
     void WriteStructureIGESFile( const string & file_name, int feaMeshStructIndex, bool splitSurfs,
@@ -333,6 +333,7 @@ public:
     BoolParm m_STEPToCubic;
     Parm m_STEPToCubicTol;
     BoolParm m_STEPTrimTE;
+    BoolParm m_STEPMergeLETE;
     BoolParm m_STEPExportPropMainSurf;
 
     BoolParm m_STEPLabelID;
@@ -362,6 +363,7 @@ public:
     BoolParm m_IGESToCubic;
     Parm m_IGESToCubicTol;
     BoolParm m_IGESTrimTE;
+    BoolParm m_IGESMergeLETE;
     BoolParm m_IGESExportPropMainSurf;
 
     BoolParm m_IGESLabelID;
