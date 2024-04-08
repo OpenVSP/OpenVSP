@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 370 + 50, "Untrimmed STEP Options" )
+STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 370 + 50 + 25, "Untrimmed STEP Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -25,7 +25,10 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     //m_PrevMerge = true;
     m_PrevCubic = false;
     m_PrevToCubicTol = 1e-6;
+    m_PrevTrimTE = false;
+    m_PrevMergeLETE = false;
     m_PrevPropExportOrigin = false;
+
     m_PrevLabelID = true;
     m_PrevLabelName = true;
     m_PrevLabelSurfNo = true;
@@ -53,6 +56,8 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddButton( m_SplitSubSurfsToggle, "Split U/W-Const Sub-Surfaces" );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_TrimTEToggle, "Omit TE Surfaces" );
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddButton( m_MergeLETEToggle, "Merge TE && LE Surfaces" );
     ////m_GenLayout.AddYGap();
     //m_GenLayout.AddButton( m_MergePointsToggle, "Merge Points" );
     m_GenLayout.AddYGap();
@@ -108,6 +113,7 @@ bool STEPOptionsScreen::Update()
         m_ToCubicToggle.Update( veh->m_STEPToCubic.GetID() );
         m_ToCubicTolSlider.Update( veh->m_STEPToCubicTol.GetID() );
         m_TrimTEToggle.Update( veh->m_STEPTrimTE.GetID() );
+        m_MergeLETEToggle.Update( veh->m_STEPMergeLETE.GetID() );
         m_PropExportOriginToggle.Update( veh->m_STEPExportPropMainSurf.GetID() );
 
         m_LabelIDToggle.Update( veh->m_STEPLabelID.GetID() );
@@ -127,6 +133,17 @@ bool STEPOptionsScreen::Update()
             m_LabelSplitNoToggle.Deactivate();
             m_LabelAirfoilPartToggle.Deactivate();
         }
+
+        if ( veh->m_STEPTrimTE() )
+        {
+            m_MergeLETEToggle.Deactivate();
+        }
+
+        if ( veh->m_STEPMergeLETE() )
+        {
+            m_TrimTEToggle.Deactivate();
+        }
+
     }
 
     m_FLTK_Window->redraw();
@@ -169,6 +186,7 @@ void STEPOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_STEPToCubic.Set( m_PrevCubic );
             veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );
             veh->m_STEPTrimTE.Set( m_PrevTrimTE );
+            veh->m_STEPMergeLETE.Set( m_PrevMergeLETE );
             veh->m_STEPExportPropMainSurf.Set( m_PrevPropExportOrigin );
 
             veh->m_STEPLabelID.Set( m_PrevLabelID );
@@ -203,6 +221,7 @@ bool STEPOptionsScreen::ShowSTEPOptionsScreen()
         m_PrevCubic = veh->m_STEPToCubic();
         m_PrevToCubicTol = veh->m_STEPToCubicTol();
         m_PrevTrimTE = veh->m_STEPTrimTE();
+        m_PrevMergeLETE = veh->m_STEPMergeLETE();
         m_PrevPropExportOrigin = veh->m_STEPExportPropMainSurf();
 
         m_PrevLabelID = veh->m_STEPLabelID();
@@ -237,6 +256,7 @@ void STEPOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_STEPToCubic.Set( m_PrevCubic );
         veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );
         veh->m_STEPTrimTE.Set( m_PrevTrimTE );
+        veh->m_STEPMergeLETE.Set( m_PrevMergeLETE );
         veh->m_STEPExportPropMainSurf.Set( m_PrevPropExportOrigin );
 
         veh->m_STEPLabelID.Set( m_PrevLabelID );

@@ -46,6 +46,7 @@ protected:
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;
     ToggleButton m_TrimTEToggle;
+    ToggleButton m_MergeLETEToggle;
     ToggleButton m_PropExportOriginToggle;
 
     ToggleButton m_LabelIDToggle;
@@ -63,6 +64,7 @@ protected:
     bool m_PrevCubic;
     double m_PrevToCubicTol;
     bool m_PrevTrimTE;
+    bool m_PrevMergeLETE;
     bool m_PrevPropExportOrigin;
 
     bool m_PrevLabelID;
