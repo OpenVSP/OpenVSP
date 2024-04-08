@@ -2706,16 +2706,47 @@ void VspSurf::ToIGES( IGESutil* iges, bool splitsurf, bool tocubic, double tol, 
     }
 }
 
-vector < piecewise_surface_type > VspSurf::PrepCADSurfs( bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double >& USplit, const vector < double >& WSplit ) const
+vector < piecewise_surface_type >
+VspSurf::PrepCADSurfs( bool splitsurf, bool tocubic, double tol, bool trimTE, bool mergeLETE,
+                       const vector < double > &USplit, const vector < double > &WSplit ) const
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
 
-    if ( trimTE && m_MagicVParm )
+    vector < double > usuppress;
+    vector < double > wsuppress;
+
+    if ( GetSurfType() == vsp::WING_SURF )
     {
-        piecewise_surface_type s1, s2;
-        s.split_v( s1, s2, s.get_v0() + TMAGIC );
-        s2.split_v( s, s1, s.get_vmax() - TMAGIC );
+        if ( trimTE )
+        {
+            piecewise_surface_type s1, s2;
+            s.split_v( s1, s2, s.get_v0() + TMAGIC );
+            s2.split_v( s, s1, s.get_vmax() - TMAGIC );
+        }
+        else if ( mergeLETE )
+        {
+            // V parameter of lower TE corner.
+            double v = s.get_v0() + TMAGIC;
+
+            // Equivalent to RollV(v)
+            s.split_v( v);
+
+            vector < double > pmap;
+            s.get_pmap_v( pmap );
+            int iv = vector_find_val( pmap, v );
+
+            s.roll_v( iv );
+            // End of equivalent code.
+
+            // roll_v() sets v0 = 0.0.  Re-set v0 back to original value.
+            s.set_v0( v );
+
+            // Suppress splitting along these feature lines.
+            wsuppress.push_back( 0.0 ); // TE center line from bottom (should not exist, v0 = TMAGIC now)
+            wsuppress.push_back( 2.0 ); // LE center line
+            wsuppress.push_back( 4.0 ); // TE center line from top
+        }
     }
 
     if ( tocubic )
@@ -2740,7 +2771,7 @@ vector < piecewise_surface_type > VspSurf::PrepCADSurfs( bool splitsurf, bool to
     surfvec.push_back( s );
     if ( splitsurf )
     {
-        SplitSurfs( surfvec );
+        SplitSurfs( surfvec, usuppress, wsuppress );
     }
 
     SplitSurfsU( surfvec, USplit );
