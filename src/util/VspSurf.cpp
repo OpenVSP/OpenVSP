@@ -2541,9 +2541,13 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, const std::string &name
     }
 }
 
-void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, const string& labelprefix, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit, bool labelSplitNo, bool labelAirfoilPart, const string &delim ) const
+void VspSurf::ToSTEP_BSpline_Quilt( STEPutil *step, vector < SdaiB_spline_surface_with_knots * > &surfs,
+                                    const string &labelprefix, bool splitsurf, bool mergepts, bool tocubic, double tol,
+                                    bool trimte, bool mergeLETE, const vector < double > &USplit,
+                                    const vector < double > &WSplit, bool labelSplitNo, bool labelAirfoilPart,
+                                    const string &delim ) const
 {
-    vector < piecewise_surface_type > surfvec = PrepCADSurfs( splitsurf, tocubic, tol, trimte, USplit, WSplit );
+    vector < piecewise_surface_type > surfvec = PrepCADSurfs( splitsurf, tocubic, tol, trimte, mergeLETE, USplit, WSplit );
 
     //==== Compute Tol ====//
     BndBox bbox;
@@ -2591,29 +2595,51 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
             double vave = 0.5 * ( s.get_v0() + s.get_vmax() );
 
             string af_label;
-            if ( vave < TMAGIC )
+            if ( mergeLETE )
             {
-                af_label = "telower";
-            }
-            else if ( vave < vmid - TMAGIC )
-            {
-                af_label = "lower";
-            }
-            else if ( vave < vmid )
-            {
-                af_label = "lelower";
-            }
-            else if ( vave < vmid + TMAGIC )
-            {
-                af_label = "leupper";
-            }
-            else if ( vave < vmax - TMAGIC )
-            {
-                af_label = "upper";
+                if ( vave < vmid - TMAGIC )
+                {
+                    af_label = "lower";
+                }
+                else if ( vave < vmid + TMAGIC )
+                {
+                    af_label = "le";
+                }
+                else if ( vave < vmax - TMAGIC )
+                {
+                    af_label = "upper";
+                }
+                else
+                {
+                    af_label = "te";
+                }
             }
             else
             {
-                af_label = "teupper";
+                if ( vave < TMAGIC )
+                {
+                    af_label = "telower";
+                }
+                else if ( vave < vmid - TMAGIC )
+                {
+                    af_label = "lower";
+                }
+                else if ( vave < vmid )
+                {
+                    af_label = "lelower";
+                }
+                else if ( vave < vmid + TMAGIC )
+                {
+                    af_label = "leupper";
+                }
+                else if ( vave < vmax - TMAGIC )
+                {
+                    af_label = "upper";
+                }
+                else
+                {
+                    af_label = "teupper";
+                }
             }
 
             if ( label.size() > 0 )
@@ -2630,9 +2656,11 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     }
 }
 
-void VspSurf::ToIGES( IGESutil* iges, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string &labelprefix, bool labelSplitNo, bool labelAirfoilPart, const string &delim ) const
+void VspSurf::ToIGES( IGESutil *iges, bool splitsurf, bool tocubic, double tol, bool trimTE, bool mergeLETE,
+                      const vector < double > &USplit, const vector < double > &WSplit, const string &labelprefix,
+                      bool labelSplitNo, bool labelAirfoilPart, const string &delim ) const
 {
-    vector < piecewise_surface_type > surfvec = PrepCADSurfs( splitsurf, tocubic, tol, trimTE, USplit, WSplit );
+    vector < piecewise_surface_type > surfvec = PrepCADSurfs( splitsurf, tocubic, tol, trimTE, mergeLETE, USplit, WSplit );
 
     for ( int is = 0; is < surfvec.size(); is++ )
     {
@@ -2670,29 +2698,51 @@ void VspSurf::ToIGES( IGESutil* iges, bool splitsurf, bool tocubic, double tol, 
             double vave = 0.5 * ( s.get_v0() + s.get_vmax() );
 
             string af_label;
-            if ( vave < TMAGIC )
+            if ( mergeLETE )
             {
-                af_label = "telower";
-            }
-            else if ( vave < vmid - TMAGIC )
-            {
-                af_label = "lower";
-            }
-            else if ( vave < vmid )
-            {
-                af_label = "lelower";
-            }
-            else if ( vave < vmid + TMAGIC )
-            {
-                af_label = "leupper";
-            }
-            else if ( vave < vmax - TMAGIC )
-            {
-                af_label = "upper";
+                if ( vave < vmid - TMAGIC )
+                {
+                    af_label = "lower";
+                }
+                else if ( vave < vmid + TMAGIC )
+                {
+                    af_label = "le";
+                }
+                else if ( vave < vmax - TMAGIC )
+                {
+                    af_label = "upper";
+                }
+                else
+                {
+                    af_label = "te";
+                }
             }
             else
             {
-                af_label = "teupper";
+                if ( vave < TMAGIC )
+                {
+                    af_label = "telower";
+                }
+                else if ( vave < vmid - TMAGIC )
+                {
+                    af_label = "lower";
+                }
+                else if ( vave < vmid )
+                {
+                    af_label = "lelower";
+                }
+                else if ( vave < vmid + TMAGIC )
+                {
+                    af_label = "leupper";
+                }
+                else if ( vave < vmax - TMAGIC )
+                {
+                    af_label = "upper";
+                }
+                else
+                {
+                    af_label = "teupper";
+                }
             }
 
             if ( label.size() > 0 )

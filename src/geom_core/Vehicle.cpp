@@ -63,6 +63,7 @@ Vehicle::Vehicle()
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPToCubicTol.SetDescript( "Tolerance Used When Demoting Higher Order Surfaces to Cubic" );
     m_STEPTrimTE.Init( "TrimTE", "STEPSettings", this, false, 0, 1 );
+    m_STEPMergeLETE.Init( "MergeLETE", "STEPSettings", this, false, 0, 1 );
     m_STEPExportPropMainSurf.Init( "ExportPropMainSurf", "STEPSettings", this, false, 0, 1 );
 
     m_STEPLabelID.Init( "LabelID", "STEPSettings", this, true, 0, 1 );
@@ -96,6 +97,7 @@ Vehicle::Vehicle()
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
     m_IGESToCubicTol.SetDescript( "Tolerance Used When Demoting Higher Order Surfaces to Cubic" );
     m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
+    m_IGESMergeLETE.Init( "MergeLETE", "IGESSettings", this, false, 0, 1 );
     m_IGESExportPropMainSurf.Init( "ExportPropMainSurf", "IGESSettings", this, false, 0, 1 );
 
     m_IGESLabelID.Init( "LabelID", "IGESSettings", this, true, 0, 1 );
@@ -3320,7 +3322,9 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
                 }
 
                 vector < SdaiB_spline_surface_with_knots* > surfs;
-                surf->ToSTEP_BSpline_Quilt( &step, surfs, prefix, m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit, labelSplitNo, labelAirfoilPart, delim );
+                surf->ToSTEP_BSpline_Quilt( &step, surfs, prefix, m_STEPSplitSurfs(), m_STEPMergePoints(),
+                                            m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), m_STEPMergeLETE(), usplit, wsplit,
+                                            labelSplitNo, labelAirfoilPart, delim );
 
                 step.RepresentUntrimmedSurfs( surfs, prefix );
             }
@@ -3406,7 +3410,11 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
             }
 
             vector < SdaiB_spline_surface_with_knots* > surfs;
-            surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, prefix, m_STEPStructureSplitSurfs(), m_STEPStructureMergePoints(), m_STEPStructureToCubic(), m_STEPStructureToCubicTol(), false, usplit, wsplit, m_STEPStructureLabelSplitNo(), m_STEPStructureLabelAirfoilPart(), delim );
+            surf_vec[ j ].ToSTEP_BSpline_Quilt( &step, surfs, prefix, m_STEPStructureSplitSurfs(),
+                                                m_STEPStructureMergePoints(), m_STEPStructureToCubic(),
+                                                m_STEPStructureToCubicTol(), false, false, usplit, wsplit,
+                                                m_STEPStructureLabelSplitNo(), m_STEPStructureLabelAirfoilPart(),
+                                                delim );
 
             step.RepresentUntrimmedSurfs( surfs );
         }
@@ -3418,13 +3426,13 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
 void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 {
     WriteIGESFile( file_name, write_set, m_IGESLenUnit(), m_IGESSplitSubSurfs(), m_IGESSplitSurfs(), m_IGESToCubic(),
-                   m_IGESToCubicTol(), m_IGESTrimTE(), m_IGESLabelID(), m_IGESLabelName(), m_IGESLabelSurfNo(),
-                   m_IGESLabelSplitNo(), m_IGESLabelAirfoilPart(), m_IGESLabelDelim() );
+                   m_IGESToCubicTol(), m_IGESTrimTE(), m_IGESMergeLETE(), m_IGESLabelID(), m_IGESLabelName(), m_IGESLabelSurfNo(),
+                   m_IGESLabelSplitNo(), m_IGESLabelAirfoilPart(), m_IGESLabelDelim());
 }
 
-void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs,
-                             bool splitSurfs, bool toCubic, double toCubicTol, bool trimTE, bool labelID,
-                             bool labelName, bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType )
+void Vehicle::WriteIGESFile( const string &file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs,
+                             bool toCubic, double toCubicTol, bool trimTE, bool mergeLETE, bool labelID, bool labelName,
+                             bool labelSurfNo, bool labelSplitNo, bool labelAirfoilPart, int delimType )
 {
     string delim = StringUtil::get_delim( delimType );
 
@@ -3499,7 +3507,8 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
                     prefix.append( to_string( j ) );
                 }
 
-                surf->ToIGES( &iges, splitSurfs, toCubic, toCubicTol, trimTE, usplit, wsplit, prefix, labelSplitNo, labelAirfoilPart, delim );
+                surf->ToIGES( &iges, splitSurfs, toCubic, toCubicTol, trimTE, mergeLETE, usplit, wsplit, prefix,
+                              labelSplitNo, labelAirfoilPart, delim );
             }
         }
     }
@@ -3567,7 +3576,8 @@ void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStruc
                 prefix.append( to_string( j ) );
             }
 
-            surf_vec[j].ToIGES( &iges, splitSurfs, toCubic, toCubicTol, false, usplit, wsplit, prefix, labelSplitNo, labelAirfoilPart, delim );
+            surf_vec[ j ].ToIGES( &iges, splitSurfs, toCubic, toCubicTol, false, false, usplit, wsplit, prefix,
+                                  labelSplitNo, labelAirfoilPart, delim );
         }
     }
 
