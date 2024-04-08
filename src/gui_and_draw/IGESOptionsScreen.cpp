@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174 + 50 + 120 + 26 + 25, "Untrimmed IGES Options" )
+IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174 + 50 + 120 + 26 + 25 + 25, "Untrimmed IGES Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -23,6 +23,8 @@ IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_PrevSplitSub = false;
     m_PrevCubic = false;
     m_PrevToCubicTol = 1e-6;
+    m_PrevTrimTE = false;
+    m_PrevMergeLETE = false;
     m_PrevPropExportOrigin = false;
 
     m_PrevLabelID = true;
@@ -50,6 +52,8 @@ IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddButton( m_SplitSubSurfsToggle, "Split U/W-Const Sub-Surfaces" );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_TrimTEToggle, "Omit TE Surfaces" );
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddButton( m_MergeLETEToggle, "Merge TE && LE Surfaces" );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
     m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
@@ -100,6 +104,7 @@ bool IGESOptionsScreen::Update()
         m_ToCubicToggle.Update( veh->m_IGESToCubic.GetID() );
         m_ToCubicTolSlider.Update( veh->m_IGESToCubicTol.GetID() );
         m_TrimTEToggle.Update( veh->m_IGESTrimTE.GetID() );
+        m_MergeLETEToggle.Update( veh->m_IGESMergeLETE.GetID() );
         m_PropExportOriginToggle.Update( veh->m_IGESExportPropMainSurf.GetID() );
 
         m_LabelIDToggle.Update( veh->m_IGESLabelID.GetID() );
@@ -119,6 +124,17 @@ bool IGESOptionsScreen::Update()
             m_LabelSplitNoToggle.Deactivate();
             m_LabelAirfoilPartToggle.Deactivate();
         }
+
+        if ( veh->m_IGESTrimTE() )
+        {
+            m_MergeLETEToggle.Deactivate();
+        }
+
+        if ( veh->m_IGESMergeLETE() )
+        {
+            m_TrimTEToggle.Deactivate();
+        }
+
     }
 
     m_FLTK_Window->redraw();
@@ -159,6 +175,7 @@ void IGESOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_IGESToCubic.Set( m_PrevCubic );
             veh->m_IGESToCubicTol.Set( m_PrevToCubicTol );
             veh->m_IGESTrimTE.Set( m_PrevTrimTE );
+            veh->m_IGESMergeLETE.Set( m_PrevMergeLETE );
             veh->m_IGESExportPropMainSurf.Set( m_PrevPropExportOrigin );
 
             veh->m_IGESLabelID.Set( m_PrevLabelID );
@@ -191,6 +208,7 @@ bool IGESOptionsScreen::ShowIGESOptionsScreen()
         m_PrevCubic = veh->m_IGESToCubic();
         m_PrevToCubicTol = veh->m_IGESToCubicTol();
         m_PrevTrimTE = veh->m_IGESTrimTE();
+        m_PrevMergeLETE = veh->m_IGESMergeLETE();
         m_PrevPropExportOrigin = veh->m_IGESExportPropMainSurf();
 
         m_PrevLabelID = veh->m_IGESLabelID();
@@ -223,6 +241,7 @@ void IGESOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_IGESToCubic.Set( m_PrevCubic );
         veh->m_IGESToCubicTol.Set( m_PrevToCubicTol );
         veh->m_IGESTrimTE.Set( m_PrevTrimTE );
+        veh->m_IGESMergeLETE.Set( m_PrevMergeLETE );
         veh->m_IGESExportPropMainSurf.Set( m_PrevPropExportOrigin );
 
         veh->m_IGESLabelID.Set( m_PrevLabelID );
