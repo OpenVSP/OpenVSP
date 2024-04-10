@@ -2076,8 +2076,12 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     if ( halfFlag )
     {
         IgnoreYLessThan( 1e-5 );
-        GetMeshByID( "NEGATIVE_HALF" )->IgnoreAll();
-        GetMeshByID( "NEGATIVE_HALF" )->m_DeleteMeFlag = true;
+        TMesh *tm = GetMeshByID( "NEGATIVE_HALF" );
+        if ( tm )
+        {
+            tm->IgnoreAll();
+            tm->m_DeleteMeFlag = true;
+        }
         DeleteMarkedMeshes();
 
         RefreshTagMaps();
