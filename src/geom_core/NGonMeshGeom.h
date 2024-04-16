@@ -56,6 +56,7 @@ public:
     DrawObj m_BadEdgeTooFewDO;
     DrawObj m_BadEdgeTooManyDO;
 
+    DrawObj m_CoLinearLoopDO;
 
 
     PGMesh m_PGMesh;

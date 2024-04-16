@@ -415,6 +415,25 @@ void NGonMeshGeom::UpdateDrawObj()
     m_BadEdgeTooFewDO.m_GeomChanged = true;
     m_BadEdgeTooManyDO.m_GeomChanged = true;
 
+    m_CoLinearLoopDO.m_PntVec.clear();
+    m_CoLinearLoopDO.m_LineWidth = 8;
+    m_CoLinearLoopDO.m_LineColor = DrawObj::Color( DrawObj::ORANGE );
+    m_CoLinearLoopDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_CoLinearLoopDO.m_GeomID = GetID() + "Colinear";
+    m_CoLinearLoopDO.m_Type = DrawObj::VSP_LINES;
+
+    for ( int i = 0; i < m_PGMesh.m_EdgeLoopVec.size(); i++ )
+    {
+        vector < PGEdge * > eloop = m_PGMesh.m_EdgeLoopVec[ i ];
+
+        for ( int j = 0; j < eloop.size(); j++ )
+        {
+            PGEdge *e = eloop[ j ];
+            m_CoLinearLoopDO.m_PntVec.push_back( trans.xform( e->m_N0->m_Pnt ) );
+            m_CoLinearLoopDO.m_PntVec.push_back( trans.xform( e->m_N1->m_Pnt ) );
+        }
+    }
+    m_CoLinearLoopDO.m_GeomChanged = true;
 }
 
 void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -518,6 +537,9 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     m_BadEdgeTooManyDO.m_Visible = true;
     draw_obj_vec.push_back( &m_BadEdgeTooFewDO );
     draw_obj_vec.push_back( &m_BadEdgeTooManyDO );
+
+    m_CoLinearLoopDO.m_Visible = true;
+    draw_obj_vec.push_back( &m_CoLinearLoopDO );
 }
 
 vector<TMesh*> NGonMeshGeom::CreateTMeshVec() const
