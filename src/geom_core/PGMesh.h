@@ -55,6 +55,8 @@ public:
     void GetConnectNodes( vector< PGNode* > & cnVec ) const;
     void GetConnectFaces( vector< PGFace* > & cfVec ) const;
 
+    void GetTags( vector < int > & tags ) const;
+
     PGEdge *FindEdge( const PGNode* n ) const;
 
     void AddConnectEdge( PGEdge* e );
