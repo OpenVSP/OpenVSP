@@ -244,7 +244,7 @@ public:
 
     void StartMatlab();
 
-    void SplitEdge( PGEdge *e, PGNode *n );
+    PGEdge * SplitEdge( PGEdge *e, PGNode *n );
 
     void SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n );
 

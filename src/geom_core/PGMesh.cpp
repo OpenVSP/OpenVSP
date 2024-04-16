@@ -1705,7 +1705,7 @@ void PGMesh::StartMatlab()
     printf( "format compact;\n" );
 }
 
-void PGMesh::SplitEdge( PGEdge *e0, PGNode *n )
+PGEdge * PGMesh::SplitEdge( PGEdge *e0, PGNode *n )
 {
     PGNode *n0 = e0->m_N0;
     PGNode *n1 = e0->m_N1;
@@ -1731,6 +1731,8 @@ void PGMesh::SplitEdge( PGEdge *e0, PGNode *n )
         f->SplitEdge( e0, e1 );
         //f->DumpMatlab();
     }
+
+    return e1;
 }
 
 void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n )
