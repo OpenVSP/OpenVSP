@@ -199,6 +199,7 @@ void NGonMeshGeom::CleanColinearVerts()
     // Make vector copy of list so nodes can be removed from list without invalidating active list iterator.
     vector< PGNode* > nVec( m_PGMesh.m_NodeList.begin(), m_PGMesh.m_NodeList.end() );
 
+    int ncolinear = 0;
     for ( int i = 0; i < nVec.size(); i++ )
     {
         PGNode *n = nVec[ i ];
@@ -206,8 +207,11 @@ void NGonMeshGeom::CleanColinearVerts()
         if ( n->ColinearNode( tol ) )
         {
             m_PGMesh.RemoveNodeMergeEdges( n );
+            ncolinear++;
         }
     }
+
+    printf( "%d colinear verts removed\n", ncolinear );
 
     m_PGMesh.DumpGarbage();
 }
