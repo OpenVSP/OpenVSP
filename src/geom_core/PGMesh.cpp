@@ -1894,7 +1894,10 @@ void PGMesh::SplitFace( PGFace *f0, PGEdge *e )
     for ( int i = isplit; i < nev; i++ )
     {
         ev1.push_back( ev[i] );
-        ev[i]->RemoveFace( f0 );
+        if ( !vector_contains_val( ev0, ev[i] ) )
+        {
+            ev[i]->RemoveFace( f0 );
+        }
         ev[i]->AddConnectFace( f1 );
     }
     ev1.push_back( e );
