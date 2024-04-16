@@ -368,7 +368,10 @@ void NGonMeshGeom::UpdateDrawObj()
 
         for ( int i = 0; i < nodVec.size(); i++ )
         {
-            m_FeatureDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pnt );
+            if ( nodVec[i] )
+            {
+                m_FeatureDrawObj_vec[iwake].m_PntVec[i] = trans.xform( nodVec[i]->m_Pnt );
+            }
         }
     }
 
