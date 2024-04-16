@@ -173,6 +173,35 @@ void PGNode::DumpMatlab()
     printf( "hold on\n" );
 }
 
+
+void PGNode::Diagnostics()
+{
+    printf( "Node %d\n", m_ID );
+    printf( "Edges: " );
+
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        printf( "%3d ", m_EdgeVec[i]->m_ID );
+    }
+    printf( "\n" );
+}
+
+bool PGNode::Validate()
+{
+    bool valid = true;
+
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        if ( !m_EdgeVec[i]->ContainsNode( this ) )
+        {
+            printf( "Edge %d does not contain node %d\n", m_EdgeVec[i]->m_ID, m_ID );
+            valid = false;
+        }
+    }
+
+    return valid;
+}
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -180,6 +209,7 @@ PGEdge::PGEdge()
 {
     m_N0 = m_N1 = nullptr;
     m_DeleteMeFlag = false;
+    m_ID = -1;
 }
 
 PGEdge::PGEdge( PGNode* PGNode0, PGNode* PGNode1 )
@@ -360,12 +390,57 @@ void PGEdge::DumpMatlab()
     printf( "hold on\n" );
 }
 
+void PGEdge::Diagnostics()
+{
+    printf( "Edge %d\n", m_ID );
+    printf( "Nodes: %3d %3d\n", m_N0->m_ID, m_N1->m_ID );
+    printf( "Faces: " );
+
+    for ( int i = 0; i < m_FaceVec.size(); i++ )
+    {
+        printf( "%3d ", m_FaceVec[i]->m_ID );
+    }
+    printf( "\n" );
+
+    m_N0->Diagnostics();
+    m_N1->Diagnostics();
+}
+
+bool PGEdge::Validate()
+{
+    bool valid = true;
+
+    for ( int i = 0; i < m_FaceVec.size(); i++ )
+    {
+        if ( !m_FaceVec[i]->Contains( this ) )
+        {
+            printf( "Face %d does not contain edge %d\n", m_FaceVec[i]->m_ID, m_ID );
+            valid = false;
+        }
+    }
+
+    if ( !m_N0->UsedBy( this ) )
+    {
+        printf( "Node %d is unaware it is used by edge %d\n", m_N0->m_ID, m_ID );
+        valid = false;
+    }
+
+    if ( !m_N1->UsedBy( this ) )
+    {
+        printf( "Node %d is unaware it is used by edge %d\n", m_N1->m_ID, m_ID );
+        valid = false;
+    }
+
+    return valid;
+}
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
 PGFace::PGFace()
 {
     m_DeleteMeFlag = false;
+    m_ID = -1;
 }
 
 PGFace::~PGFace()
@@ -893,6 +968,37 @@ void PGFace::DumpMatlab()
     printf( "plot3( x, y, z, 'kx-' );\n" );
     printf( "hold on\n" );
 
+}
+
+void PGFace::Diagnostics()
+{
+    printf( "Face %d\n", m_ID );
+    printf( "Edges: " );
+
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        printf( "%3d ", m_EdgeVec[i]->m_ID );
+    }
+    printf( "\n" );
+
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        m_EdgeVec[i]->Diagnostics();
+    }
+}
+
+bool PGFace::Validate()
+{
+    bool valid = true;
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        if ( !m_EdgeVec[i]->UsedBy( this ) )
+        {
+            printf( "Edge %d is unaware it is used by face %d\n", m_EdgeVec[i]->m_ID, m_ID );
+            valid = false;
+        }
+    }
+    return valid;
 }
 
 PGNode * PGFace::FindDoubleBackNode( PGEdge* & edouble )
@@ -2016,6 +2122,89 @@ void PGMesh::ResetNodeNumbers()
         ( *n )->m_ID = inode;
         inode++;
     }
+}
+
+void PGMesh::ResetEdgeNumbers()
+{
+    int iedge = 1; // Start numbering at 1
+    list< PGEdge* >::iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+        // Assign ID number.
+        ( *e )->m_ID = iedge;
+        iedge++;
+    }
+}
+
+void PGMesh::ResetFaceNumbers()
+{
+    int iface = 1; // Start numbering at 1
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        // Assign ID number.
+        ( *f )->m_ID = iface;
+        iface++;
+    }
+}
+
+bool PGMesh::Validate()
+{
+    bool valid = true;
+    for ( list< PGNode* >::iterator n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
+    {
+        if ( !(*n)->Validate() )
+        {
+            valid = false;
+        }
+    }
+
+    if ( valid )
+    {
+        printf( "Nodes are valid.\n" );
+    }
+    else
+    {
+        printf( "Nodes are not valid.\n" );
+    }
+
+    valid = true;
+    for ( list< PGEdge* >::iterator e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+        if ( !(*e)->Validate() )
+        {
+            valid = false;
+        }
+    }
+
+    if ( valid )
+    {
+        printf( "Edges are valid.\n" );
+    }
+    else
+    {
+        printf( "Edges are not valid.\n" );
+    }
+
+    valid = true;
+    for ( list< PGFace* >::iterator f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        if ( !(*f)->Validate() )
+        {
+            valid = false;
+        }
+    }
+
+    if ( valid )
+    {
+        printf( "Faces are valid.\n" );
+    }
+    else
+    {
+        printf( "Faces are not valid.\n" );
+    }
+
+    return valid;
 }
 
 void PGMesh::DumpGarbage()

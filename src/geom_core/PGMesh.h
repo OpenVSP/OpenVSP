@@ -69,7 +69,9 @@ public:
     bool Check();
 
     void DumpMatlab();
+    void Diagnostics();
 
+    bool Validate();
 };
 
 
@@ -87,6 +89,8 @@ public:
 
     PGNode* m_N0;
     PGNode* m_N1;
+
+    int m_ID;
 
     vector< PGFace* > m_FaceVec;
 
@@ -111,7 +115,9 @@ public:
     bool Check();
 
     void DumpMatlab();
+    void Diagnostics();
 
+    bool Validate();
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -144,6 +150,9 @@ public:
     bool Check();
 
     void DumpMatlab();
+    void Diagnostics();
+
+    bool Validate();
 
     PGNode * FindDoubleBackNode( PGEdge* & edouble );
 
@@ -255,6 +264,11 @@ public:
 
     void Report();
     void ResetNodeNumbers();
+    void ResetEdgeNumbers();
+    void ResetFaceNumbers();
+
+    bool Validate();
+
     void WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomPnts( FILE* file_id, const Matrix4d & XFormMat );
     void WriteVSPGeomFaces( FILE* file_id );
