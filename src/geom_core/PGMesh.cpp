@@ -1830,6 +1830,87 @@ PGNode * PGMesh::StartLoop( const vector < PGEdge * > & eloop )
     return NULL;
 }
 
+void PGMesh::PrintColinearEdgeStrip( list < PGEdge * > &eloop )
+{
+    if ( !eloop.empty() )
+    {
+        double stot = 0;
+
+        list< PGEdge* >::iterator e;
+
+        for ( e = eloop.begin(); e != eloop.end(); e++ )
+        {
+            PGEdge *ei = *e;
+            stot += dist( ei->m_N0->m_Pnt, ei->m_N1->m_Pnt );
+        }
+
+        double s = 0;
+
+        printf( "stot: %f\n", stot );
+        int ie = 0;
+        for ( e = eloop.begin(); e != eloop.end(); e++ )
+        {
+            PGEdge *ei = *e;
+
+            s += dist( ei->m_N0->m_Pnt, ei->m_N1->m_Pnt );
+            printf( "%3d  %f  %f\n", ie, s/stot, s );
+            ie++;
+        }
+        printf( "\n" );
+    }
+}
+
+
+void PGMesh::PrintColinearEdgeStrip( const vector < PGEdge * > &eloop, PGNode * ni )
+{
+    if ( !eloop.empty() )
+    {
+        printf( "n %3d: %3d ", eloop.size(), ni->m_ID );
+        for ( int ie = 0; ie < eloop.size(); ie++ )
+        {
+            PGEdge *ei = eloop[ ie ];
+            // Advance ni to end of edge ei.
+            ni = ei->OtherNode( ni );
+
+            if ( ni )
+            {
+                printf( "%3d ", ni->m_ID );
+            }
+            else
+            {
+                printf( "XXX " );
+            }
+
+        }
+        printf( "\n" );
+
+    }
+}
+
+void PGMesh::PrintColinearEdgeLoop( const vector < PGEdge * > &eloop )
+{
+    if ( !eloop.empty() )
+    {
+        PGNode *ni = StartLoop( eloop );
+
+        if ( ni )
+        {
+            PrintColinearEdgeStrip( eloop, ni );
+        }
+    }
+}
+
+void PGMesh::PrintColinearEdgeLoops()
+{
+    printf( "%d loops\n", m_EdgeLoopVec.size() );
+    for ( int iloop = 0; iloop < m_EdgeLoopVec.size(); iloop++ )
+    {
+        vector < PGEdge * > eloop = m_EdgeLoopVec[ iloop ];
+        printf( "loop %3d ", iloop );
+        PrintColinearEdgeLoop( eloop );
+    }
+}
+
 vector < PGNode * > PGMesh::MakeNodeVec( list < PGEdge * > elist )
 {
     // Initialize ni at start of loop

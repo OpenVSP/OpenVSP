@@ -259,6 +259,11 @@ public:
 
     PGNode * StartList( const list < PGEdge * > & elist );
     PGNode * StartLoop( const vector < PGEdge * > & eloop );
+
+    void PrintColinearEdgeStrip( list < PGEdge * > &eloop );
+    void PrintColinearEdgeStrip( const vector < PGEdge * > &eloop, PGNode * ni );
+    void PrintColinearEdgeLoop( const vector < PGEdge * > &eloop );
+    void PrintColinearEdgeLoops();
     vector < PGNode * > MakeNodeVec( list < PGEdge * > elist );
     vector < PGNode * > MakeNodeVec( vector < PGEdge * > eloop );
     std::pair < int, int > CheckLoopForDuplciateNodes( vector < PGEdge * > eloop, bool print = false );
