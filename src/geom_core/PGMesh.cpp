@@ -1841,6 +1841,38 @@ PGEdge * PGMesh::SplitEdge( PGEdge *e0, PGNode *n )
     return e1;
 }
 
+PGEdge * PGMesh::SplitEdge( PGEdge *e, double t, PGNode *n0 )
+{
+    PGNode *n1 = e->OtherNode( n0 );
+
+    vec3d p = ( 1.0 - t ) * n0->m_Pnt + t * n1->m_Pnt;
+
+    PGNode * newnode = AddNode( p );
+
+    // Loop over all uw's in n0's map.
+    for ( map < int, vec2d >::iterator it0 = n0->m_TagUWMap.begin(); it0 != n0->m_TagUWMap.end(); ++it0 )
+    {
+        int tag = it0->first;
+        vec2d uw0 = it0->second;
+
+        // Try to find uw with matching tag in n1's map.
+        map < int, vec2d >::iterator it1 = n1->m_TagUWMap.find( tag );
+
+        // If there is a match
+        if ( it1 != n1->m_TagUWMap.end() )
+        {
+            // Interpolate uw and add to newnode's map.
+            vec2d uw1 = it1->second;
+            vec2d uw = ( 1.0 - t ) * uw0 + t * uw1;
+
+            newnode->m_TagUWMap[ tag ] = uw;
+        }
+    }
+
+    return SplitEdge( e, newnode );
+}
+
+
 void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n )
 {
     vector < PGEdge* > ehull;
@@ -1890,35 +1922,11 @@ void PGMesh::SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n )
     if ( imindist >= 0 )
     {
         PGEdge * e2split = ehull[imindist];
+        PGNode * n2 = e2split->m_N1;
 
-        PGNode *n0 = e2split->m_N0;
-        PGNode *n1 = e2split->m_N1;
+        PGEdge * enew0 = SplitEdge( e2split, tmindist, e2split->m_N0 );
 
-        vec3d p = ( 1.0 - tmindist ) * n0->m_Pnt + tmindist * n1->m_Pnt;
-
-        PGNode * newnode = AddNode( p );
-
-        // Loop over all uw's in n0's map.
-        for ( map < int, vec2d >::iterator it0 = n0->m_TagUWMap.begin(); it0 != n0->m_TagUWMap.end(); ++it0 )
-        {
-            int tag = it0->first;
-            vec2d uw0 = it0->second;
-
-            // Try to find uw with matching tag in n1's map.
-            map < int, vec2d >::iterator it1 = n1->m_TagUWMap.find( tag );
-
-            // If there is a match
-            if ( it1 != n1->m_TagUWMap.end() )
-            {
-                // Interpolate uw and add to newnode's map.
-                vec2d uw1 = it1->second;
-                vec2d uw = ( 1.0 - tmindist ) * uw0 + tmindist * uw1;
-
-                newnode->m_TagUWMap[ tag ] = uw;
-            }
-        }
-
-        SplitEdge( e2split, newnode );
+        PGNode * newnode = enew0->OtherNode( n2 );
 
         PGEdge * enew = AddEdge( n, newnode );
 
