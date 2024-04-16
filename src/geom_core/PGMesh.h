@@ -59,6 +59,8 @@ public:
 
     PGEdge *FindEdge( const PGNode* n ) const;
 
+    bool UsedBy( PGEdge* e ) const;
+
     void AddConnectEdge( PGEdge* e );
     void RemoveConnectEdge( PGEdge* e );
     void EdgeForgetNode( PGEdge* e );

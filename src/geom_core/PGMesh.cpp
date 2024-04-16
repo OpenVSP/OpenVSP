@@ -97,6 +97,11 @@ PGEdge * PGNode::FindEdge( const PGNode* n ) const
     return nullptr;
 }
 
+bool PGNode::UsedBy( PGEdge* e ) const
+{
+    return vector_contains_val( m_EdgeVec, e );
+}
+
 void PGNode::AddConnectEdge( PGEdge* e )
 {
     if ( vector_contains_val( m_EdgeVec, e ) )
