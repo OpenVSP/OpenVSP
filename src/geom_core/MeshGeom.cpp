@@ -1827,15 +1827,28 @@ string MeshGeom::CreateNGonMeshGeom()
         Matrix4d XFormMat = GetTotalTransMat();
 
         new_geom->BuildFromTMesh( m_IndexedNodeVec, m_IndexedTriVec, m_Wakes );
+
+        new_geom->m_PGMesh.MergeCoincidentNodes();
+        new_geom->m_PGMesh.MergeDuplicateEdges();
+
+        new_geom->m_PGMesh.FindAllColinearEdgeLoops();
+        new_geom->m_PGMesh.ResetNodeNumbers();
+        new_geom->m_PGMesh.SimplifyColinearEdgeLoops();
+
+        new_geom->m_PGMesh.SealColinearEdgeLoops();
+
         new_geom->PolygonizeMesh();
         new_geom->CleanColinearVerts();
 
         new_geom->SplitLEGeom();
 
-        new_geom->m_PGMesh.MergeCoincidentNodes();
-        new_geom->m_PGMesh.MergeDuplicateEdges();
-        new_geom->m_PGMesh.RemoveDegenEdges();
-        new_geom->m_PGMesh.RemoveDegenFaces();
+
+
+        //new_geom->m_PGMesh.MergeCoincidentNodes();
+        //new_geom->m_PGMesh.MergeDuplicateEdges();
+        //new_geom->m_PGMesh.RemoveDegenEdges();
+        //new_geom->m_PGMesh.RemoveDegenFaces();
+
 
 
         new_geom->m_SurfDirty = true;
