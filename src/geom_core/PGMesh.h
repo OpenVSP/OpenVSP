@@ -86,6 +86,8 @@ public:
     list< PGEdge* >::iterator m_List_it;
 
     bool m_DeleteMeFlag;
+    bool m_InLoopFlag;
+    bool m_InCurrentLoopFlag;
 
     PGNode* m_N0;
     PGNode* m_N1;
@@ -98,12 +100,16 @@ public:
     bool ContainsNode( const PGNode* in ) const;
     bool UsedBy( PGFace* f ) const;
 
+    void BuildColinearLoop( vector < PGEdge * > eloop );
+
     bool SetNode( PGNode* n );
     void AddConnectFace( PGFace* f );
 
     void RemoveFace( PGFace* f );
 
     void ReplaceNode( PGNode* curr_PGNode, PGNode* replace_PGNode );
+
+    PGNode* Split( const vec3d & pt );
 
     PGNode* OtherNode( const PGNode* n ) const;
     PGNode* SharedNode( const PGEdge* e ) const;
@@ -250,6 +256,21 @@ public:
 
     std::vector< std::vector<int> > m_TagKeys;
     std::map< std::vector<int>, int > m_SingleTagMap;
+
+    PGNode * StartList( const list < PGEdge * > & elist );
+    PGNode * StartLoop( const vector < PGEdge * > & eloop );
+    vector < PGNode * > MakeNodeVec( list < PGEdge * > elist );
+    vector < PGNode * > MakeNodeVec( vector < PGEdge * > eloop );
+    std::pair < int, int > CheckLoopForDuplciateNodes( vector < PGEdge * > eloop, bool print = false );
+    void SimplifyColinearEdgeLoops( bool print = false );
+
+    vector < int > BuildLoopDirectionVec( const vector < PGEdge * > &eloop, bool print = false );
+    int RotateLoopToDirectionChange( vector < PGEdge * > &eloop, bool print = false );
+
+    void SealColinearEdgeLoop( vector < PGEdge * > &eloop );
+    void SealColinearEdgeLoops();
+    void FindAllColinearEdgeLoops();
+    vector < vector < PGEdge * > > m_EdgeLoopVec;
 
     void StartMatlab();
 
