@@ -635,22 +635,6 @@ void ManageGeomScreen::EditName( string name )
 }
 
 
-//void GeomScreen::s_select_none(int src) {
-//  aircraftPtr->setActiveGeom(NULL);
-//
-//  if (src != ScriptMgr::SCRIPT)
-//  {
-//      deselectGeomBrowser();          // select none
-//      screenMgrPtr->hideGeomScreens();
-//      screenMgrPtr->getGroupScreen()->hide();
-//      loadActiveGeomOutput();
-//      aircraftPtr->flagActiveGeom();
-//      aircraftPtr->triggerDraw();
-//      geomUI->geomBrowser->value(1);
-//  }
-//  if (src == ScriptMgr::GUI) scriptMgr->addLine("select none");
-//}
-
 //==== Create Screens ====//
 void ManageGeomScreen::CreateScreens()
 {
