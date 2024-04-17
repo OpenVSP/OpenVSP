@@ -29,7 +29,7 @@ BaseSource::BaseSource() : ParmContainer()
     m_Rad.Init( "SrcRad", m_GroupName, this, 1.0, 1.0e-8, 1.0e12 );
     m_Rad.SetDescript( "Source influence radius" );
 
-    m_MainSurfIndx.Init( "MainSurfIndx", m_GroupName, this, -1, -1, 1e12 );
+    m_MainSurfIndx.Init( "MainSurfIndx", m_GroupName, this, 0, 0, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface index for source" );
 }
 

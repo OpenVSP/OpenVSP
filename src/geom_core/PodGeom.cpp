@@ -122,6 +122,7 @@ void PodGeom::AddDefaultSources( double base_len )
     lsource->m_WLoc1 = 0.0;
     lsource->m_ULoc2 = 1.0;
     lsource->m_WLoc2 = 0.0;
+    lsource->m_MainSurfIndx = 0;
     AddCfdMeshSource( lsource );
 }
 

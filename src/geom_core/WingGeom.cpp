@@ -1476,6 +1476,7 @@ void WingGeom::AddDefaultSources( double base_len )
             lsource->m_WLoc1 = 0.0;
             lsource->m_ULoc2 = (i+ustart)/nseg;
             lsource->m_WLoc2 = 0.0;
+            lsource->m_MainSurfIndx = 0;
             AddCfdMeshSource( lsource );
 
             lsource = new LineSource();
@@ -1489,6 +1490,7 @@ void WingGeom::AddDefaultSources( double base_len )
             lsource->m_WLoc1 = 0.5;
             lsource->m_ULoc2 = (i+ustart)/nseg;
             lsource->m_WLoc2 = 0.5;
+            lsource->m_MainSurfIndx = 0;
             AddCfdMeshSource( lsource );
 
             if ( i == ( ( int ) ws_vec.size() - 1 ) )
@@ -1503,6 +1505,7 @@ void WingGeom::AddDefaultSources( double base_len )
                 lsource->m_WLoc1 = 0.0;
                 lsource->m_ULoc2 = (i+ustart)/nseg;
                 lsource->m_WLoc2 = 0.5;
+                lsource->m_MainSurfIndx = 0;
                 AddCfdMeshSource( lsource );
             }
         }

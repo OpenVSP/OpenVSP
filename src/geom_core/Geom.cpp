@@ -5886,6 +5886,7 @@ void GeomXSec::AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec
                     lsource->m_WLoc1 = w0;
                     lsource->m_ULoc2 = u;
                     lsource->m_WLoc2 = w1;
+                    lsource->m_MainSurfIndx = 0;
                     AddCfdMeshSource( lsource );
                 }
             }
