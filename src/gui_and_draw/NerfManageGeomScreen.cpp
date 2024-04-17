@@ -409,18 +409,7 @@ void NerfManageGeomScreen::GeomBrowserCallback()
 //==== Show/NoShow Active Geoms and Children ====//
 void NerfManageGeomScreen::NoShowActiveGeoms( bool flag )
 {
-
-    //==== Load Active Geom IDs And Children ====//
-    vector<string> geom_id_vec;
-    vector<string> active_geom_vec = m_VehiclePtr->GetActiveGeomVec();
-    for ( int i = 0 ; i < ( int )active_geom_vec.size() ; i++ )
-    {
-        Geom* gPtr = m_VehiclePtr->FindGeom( active_geom_vec[i] );
-        if ( gPtr )
-        {
-            gPtr->LoadIDAndChildren( geom_id_vec );
-        }
-    }
+    vector<string> geom_id_vec = GetActiveGeoms();
 
     //==== Set No Show Flag ====//
     vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
