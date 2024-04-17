@@ -103,7 +103,7 @@ IF( NOT VSP_NO_GRAPHICS )
   TARGET_LINK_LIBRARIES(vspviewer
     viewerscreens
     stb_image
-    fltk::gl
+    ${FLTK_LIBRARIES}    # Should be: fltk::gl    this way for legacy Ubuntu
     ${LINUX_LIBS}
     ${OPENGL_LIBRARIES}
   )
