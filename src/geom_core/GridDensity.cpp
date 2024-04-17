@@ -403,7 +403,7 @@ double PointSimpleSource::GetTargetLen( double base_len, vec3d &  pos, const str
 
 void PointSimpleSource::Update( Geom* geomPtr )
 {
-    const VspSurf* surf = geomPtr->GetMainSurfPtr( m_SurfIndx );
+    const VspSurf* surf = geomPtr->GetSurfPtr( m_SurfIndx );
     double u = surf->InvertUMapping( m_ULoc * geomPtr->GetUMapMax( m_SurfIndx ) ) / geomPtr->GetUMax( m_SurfIndx );
 
     m_Loc = geomPtr->CompPnt01( m_SurfIndx, u, m_WLoc );
@@ -580,7 +580,7 @@ double LineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const strin
 
 void LineSimpleSource::Update( Geom* geomPtr )
 {
-    const VspSurf* surf = geomPtr->GetMainSurfPtr( m_SurfIndx );
+    const VspSurf* surf = geomPtr->GetSurfPtr( m_SurfIndx );
 
     double umapmax = geomPtr->GetUMapMax( m_SurfIndx );
     double umax = geomPtr->GetUMax( m_SurfIndx );
@@ -766,7 +766,7 @@ double BoxSimpleSource::GetTargetLen( double base_len, vec3d & pos, const string
 
 void BoxSimpleSource::Update( Geom* geomPtr )
 {
-    const VspSurf* surf = geomPtr->GetMainSurfPtr( m_SurfIndx );
+    const VspSurf* surf = geomPtr->GetSurfPtr( m_SurfIndx );
     double umapmax = geomPtr->GetUMapMax( m_SurfIndx );
     double umax = geomPtr->GetUMax( m_SurfIndx );
     double u1 = surf->InvertUMapping( m_ULoc1 * umapmax ) / umax;
@@ -1080,7 +1080,7 @@ void ConstLineSimpleSource::Highlight( bool flag )
 
 void ULineSimpleSource::Update( Geom* geomPtr )
 {
-    const VspSurf* surf = geomPtr->GetMainSurfPtr( m_SurfIndx );
+    const VspSurf* surf = geomPtr->GetSurfPtr( m_SurfIndx );
     double u = surf->InvertUMapping( m_Val * geomPtr->GetUMapMax( m_SurfIndx ) ) / geomPtr->GetUMax( m_SurfIndx );
 
     const unsigned int N = 10;
