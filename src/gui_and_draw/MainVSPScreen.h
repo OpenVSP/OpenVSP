@@ -99,6 +99,7 @@ protected:
     ActionMenuItem m_TwoHMenuItem;
     ActionMenuItem m_TwoVMenuItem;
     ScreenMenuItem m_BackgroundMenuItem;
+    ScreenMenuItem m_Background3DMenuItem;
     ScreenMenuItem m_ScreenshotMenuItem;
     VSPCheckMenuItem m_AxisMenuItem;
     VSPCheckMenuItem m_BorderMenuItem;

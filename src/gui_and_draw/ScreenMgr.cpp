@@ -33,6 +33,7 @@
 #include "IGESStructureOptionsScreen.h"
 #include "ImportScreen.h"
 #include "ManageBackgroundScreen.h"
+#include "ManageBackground3DScreen.h"
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageMeasureScreen.h"
@@ -512,6 +513,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_AIRFOIL_CURVES_EXPORT_SCREEN] = new BezierAirfoilExportScreen( this );
     m_ScreenVec[vsp::VSP_AIRFOIL_POINTS_EXPORT_SCREEN] = new SeligAirfoilExportScreen( this );
     m_ScreenVec[vsp::VSP_BACKGROUND_SCREEN] = new ManageBackgroundScreen( this );
+    m_ScreenVec[vsp::VSP_BACKGROUND3D_SCREEN] = new ManageBackground3DScreen( this );
     m_ScreenVec[vsp::VSP_BEM_OPTIONS_SCREEN] = new BEMOptionsScreen( this );
     m_ScreenVec[vsp::VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
     m_ScreenVec[vsp::VSP_CLIPPING_SCREEN] = new ClippingScreen( this );

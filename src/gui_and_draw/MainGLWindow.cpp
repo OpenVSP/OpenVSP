@@ -10,6 +10,7 @@
 
 #include "MainGLWindow.h"
 
+#include "Background3DMgr.h"
 #include "BORGeom.h"
 #include "Camera.h"
 #include "CfdMeshScreen.h"
@@ -24,6 +25,7 @@
 #include "Image.h"
 #include "LayoutMgr.h"
 #include "Lighting.h"
+#include "ManageBackground3DScreen.h"
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageLightingScreen.h"
@@ -341,6 +343,15 @@ void VspGlWindow::LoadAllDrawObjs( vector< DrawObj* > & drawObjs )
         if( measureScreen )
         {
             measureScreen->LoadDrawObjs( drawObjs );
+        }
+
+        Background3DMgr.Update();
+        // Load Render Objects from measureScreen.
+        ManageBackground3DScreen * bg3dScreen = dynamic_cast< ManageBackground3DScreen* >
+        ( m_ScreenMgr->GetScreen( vsp::VSP_BACKGROUND3D_SCREEN ) );
+        if( bg3dScreen )
+        {
+            bg3dScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Render Objects from FeaStructScreen.

@@ -15,6 +15,7 @@
 #include "AdvLinkMgr.h"
 #include "AeroStructMgr.h"
 #include "AnalysisMgr.h"
+#include "Background3DMgr.h"
 #include "BlankGeom.h"
 #include "BORGeom.h"
 #include "ConformalGeom.h"
@@ -526,6 +527,7 @@ void Vehicle::Wype()
     ParasiteDragMgr.Renew();
     VSPAEROMgr.Renew();
     MeasureMgr.Renew();
+    Background3DMgr.Renew();
     StructureMgr.Renew();
 
     ResultsMgr.DeleteAllResults();
@@ -697,6 +699,7 @@ void Vehicle::Update( bool fullupdate )
     }
 
     MeasureMgr.Update();
+    Background3DMgr.Update();
 }
 
 // Update managers that are normally only updated by their
@@ -1799,6 +1802,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     WaveDragMgr.EncodeXml( node );
     ParasiteDragMgr.EncodeXml( node );
     AeroStructMgr.EncodeXml( node );
+    Background3DMgr.EncodeXml( node );
 
     xmlNodePtr setnamenode = xmlNewChild( node, NULL, BAD_CAST"SetNames", NULL );
     if ( setnamenode )
@@ -1836,6 +1840,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     WaveDragMgr.DecodeXml( node );
     ParasiteDragMgr.DecodeXml( node );
     AeroStructMgr.DecodeXml( node );
+    Background3DMgr.DecodeXml( node );
 
     ParasiteDragMgr.CorrectTurbEquation();
 
@@ -1911,6 +1916,7 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
     AdvLinkMgr.DecodeXml( node );
     VarPresetMgr.DecodeXml( node );
     StructureMgr.DecodeXml( node );
+    Background3DMgr.EncodeXml( node );
 
     return vehicle_node;
 }
