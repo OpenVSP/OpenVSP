@@ -32,6 +32,20 @@ enum AIRFOIL_EXPORT_TYPE { SELIG_AF_EXPORT,	/*!< Selig airfoil file format */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for specifying alignment. */
+enum ALIGN_TYPE { ALIGN_LEFT,	/*!< Align to left */
+                  ALIGN_CENTER,	/*!< Align to center */
+                  ALIGN_RIGHT,	/*!< Align to right */
+                  ALIGN_PIXEL,	/*!< Align to specified pixel */
+                  ALIGN_TOP,	/*!< Align to top */
+                  ALIGN_MIDDLE,	/*!< Align to middle */
+                  ALIGN_BOTTOM,	/*!< Align to bottom */
+                  NUM_ALIGN_TYPE,	/*!< Number of alignment types */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum for specifying angular units. */
 enum ANG_UNITS { ANG_RAD,	/*!< Radians */
                  ANG_DEG	/*!< Degrees */
@@ -292,6 +306,17 @@ enum DELIM_TYPE { DELIM_COMMA,	/*!< Comma delimiter */
                   DELIM_NONE,	/*!< No delimiter */
                   DELIM_NUM_TYPES	/*!< Number of delimiter types */
 };
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum for 3D background depth location settings. */
+enum DEPTH_TYPE { DEPTH_FRONT,	/*!< Set 3D background before model */
+                  DEPTH_REAR,	/*!< Set 3D background behind model */
+                  DEPTH_FREE,	/*!< Set 3D background at specified location */
+                  NUM_DEPTH_TYPE	/*!< Number of depth types */
+};
+
 
 /*!
 	\ingroup Enumerations
@@ -1084,6 +1109,16 @@ enum RHO_UNITS { RHO_UNIT_SLUG_FT3 = 0,	/*!< Slug per cubic foot */
                  RHO_UNIT_LBFSEC2_IN4,	/*!< Pound-force-second squared per inch to the fourth */
                  RHO_UNIT_LBM_IN3,	/*!< Pound-mass per cubic inch */
                  NUM_RHO_UNIT	/*!< Number of density unit options */
+};
+
+/*!
+	\ingroup Enumerations
+*/
+/*! Enum representing the possible ways to scale a 3D background image. */
+enum SCALE_TYPE { SCALE_WIDTH,	/*!< Scale image to match desired width */
+                  SCALE_HEIGHT,	/*!< Scale image to match desired height */
+                  SCALE_RESOLUTION,	/*!< Scale image to specified resolution */
+                  NUM_SCALE_TYPES,	/*!< Number of ways to scale 3D background image. */
 };
 
 /*!

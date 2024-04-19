@@ -224,7 +224,7 @@ DrawObj::DrawObj()
     m_Visible = true;
     m_VisibleDirFlag = false;
     m_VisibleDir = vec3d( 0, 0, 0 );
-    m_VisTol = 1e-6;
+    m_VisTol = 1.0;
 
     m_GeomChanged = true;
 
