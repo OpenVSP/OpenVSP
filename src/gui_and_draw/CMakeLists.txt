@@ -59,6 +59,7 @@ MainGLWindow.cpp
 MainGLWindow.cpp
 MainVSPScreen.cpp
 ManageBackgroundScreen.cpp
+ManageBackground3DScreen.cpp
 ManageCORScreen.cpp
 ManageGeomScreen.cpp
 ManageLightingScreen.cpp
@@ -138,6 +139,7 @@ MainGLWindow.h
 MainGLWindow.h
 MainVSPScreen.h
 ManageBackgroundScreen.h
+ManageBackground3DScreen.h
 ManageCORScreen.h
 ManageGeomScreen.h
 ManageLightingScreen.h
