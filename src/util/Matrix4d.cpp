@@ -288,6 +288,17 @@ void Matrix4d::xformvec( std::vector < vec3d > & in ) const
     }
 }
 
+void Matrix4d::xformmat( std::vector < std::vector < vec3d > > & in ) const
+{
+    for ( int i = 0; i < in.size(); i++ )
+    {
+        for ( int j = 0; j < in[i].size(); j++ )
+        {
+            in[i][j] = xform( in[i][j] );
+        }
+    }
+}
+
 // Transform for normal vectors -- rotations only, no translations
 vec3d Matrix4d::xformnorm( const vec3d & in ) const
 {
@@ -303,6 +314,17 @@ void Matrix4d::xformnormvec( std::vector < vec3d > & in ) const
     for ( int i = 0; i < in.size(); i++ )
     {
         in[i] = xformnorm( in[i] );
+    }
+}
+
+void Matrix4d::xformnormmat( std::vector < std::vector < vec3d > > & in ) const
+{
+    for ( int i = 0; i < in.size(); i++ )
+    {
+        for ( int j = 0; j < in[i].size(); j++ )
+        {
+            in[i][j] = xformnorm( in[i][j] );
+        }
     }
 }
 

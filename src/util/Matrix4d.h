@@ -394,8 +394,11 @@ public:
     vec3d xform( const vec3d & in ) const;
 
     void xformvec( std::vector < vec3d > & in ) const;
+    void xformmat( std::vector < std::vector < vec3d > > & in ) const;
     vec3d xformnorm( const vec3d & in ) const;
     void xformnormvec( std::vector < vec3d > & in ) const;
+    void xformnormmat( std::vector < std::vector < vec3d > > & in ) const;
+
 /*!
     Calculate the Matrix4d's angles between the X, Y and Z axes
     \forcpponly
