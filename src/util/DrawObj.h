@@ -620,6 +620,8 @@ protected:
 
 };
 
+void MakePlane( DrawObj &dobj );
+
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts );
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &dobj );
 

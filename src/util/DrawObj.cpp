@@ -13,6 +13,32 @@
 #include "Matrix4d.h"
 #include "APIDefines.h"
 
+void MakePlane( DrawObj &dobj )
+{
+    double w = 0.5;
+    double h = 0.5;
+    vec3d n = vec3d( -1, 0, 0 );
+
+    // Initialize DrawObj space.
+    dobj.m_PntMesh.clear();
+    dobj.m_PntMesh.resize( 1 );
+    dobj.m_PntMesh[0] = {{{0,-w,-h},{0,w,-h}},{{0,-w,h},{0,w,h}}};
+
+    dobj.m_NormMesh.clear();
+    dobj.m_NormMesh.resize( 1 );
+    dobj.m_NormMesh[0] = {{n,n},{n,n}};
+
+    dobj.m_uTexMesh.clear();
+    dobj.m_uTexMesh.resize( 1 );
+
+    dobj.m_uTexMesh[0] = {{0,1},{0,1}};
+
+    dobj.m_vTexMesh = dobj.m_uTexMesh;
+    dobj.m_vTexMesh[0] = {{0,0},{1,1}};
+
+    dobj.m_GeomChanged = true;
+}
+
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts )
 {
     double fr = 0.2;
