@@ -266,6 +266,21 @@ void Matrix4d::scale( const double &scale )
     mat[10] *= scale;
 }
 
+void Matrix4d::scalex( const double &scalex )
+{
+    mat[0] *= scalex;
+}
+
+void Matrix4d::scaley( const double &scaley )
+{
+    mat[5] *= scaley;
+}
+
+void Matrix4d::scalez( const double &scalez )
+{
+    mat[10] *= scalez;
+}
+
 void Matrix4d::flipx()
 {
     mat[0] *= -1.0;

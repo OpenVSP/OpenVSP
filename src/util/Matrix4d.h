@@ -265,6 +265,9 @@ public:
 
     void scale( const double &scale );
 
+    void scalex( const double &scalex );
+    void scaley( const double &scaley );
+    void scalez( const double &scalez );
 
     void flipx();
 
