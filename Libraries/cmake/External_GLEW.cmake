@@ -1,24 +1,10 @@
-# An external project for GLEW, The OpenGL Extension Wrangler Library
-# http://glew.sourceforge.net/
-
-set( glew_version "2.1.0" )
-
-set( glew_file glew-${glew_version}.tgz )
-
-# Only thing that gets configured is the version number.
-configure_file(
-	"${CMAKE_SOURCE_DIR}/cmake/glew.CMakeLists.txt.in"
-	"${CMAKE_CURRENT_BINARY_DIR}/glew.CMakeLists.txt"
-	@ONLY
-)
+# An external project for GLEW, The OpenGL Extension Wrangler Library http://glew.sourceforge.net/
 
 ExternalProject_Add( GLEW
-	URL ${CMAKE_SOURCE_DIR}/${glew_file}
+	URL ${CMAKE_SOURCE_DIR}/glew-2.1.0.tgz
 	DOWNLOAD_EXTRACT_TIMESTAMP TRUE
-	PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		"${CMAKE_CURRENT_BINARY_DIR}/glew.CMakeLists.txt"
-		"<SOURCE_DIR>/CMakeLists.txt"
-    CMAKE_ARGS
+	SOURCE_SUBDIR "build/cmake"
+	CMAKE_ARGS
 		-DBUILD_SHARED_LIBS:BOOL=OFF
 		-DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
 		-DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
