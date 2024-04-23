@@ -97,6 +97,7 @@ SET( VSP_COMMON_LIBRARIES
     util
     tritri
     wavedragEL
+    stb_image
     ${LINUX_LIBS}
     ${ANGELSCRIPT_LIBRARIES}
     ${CPPTEST_LIBRARIES}
@@ -129,7 +130,6 @@ SET( VSP_JUST_G_LIBRARIES
     gui_and_draw
     vsp_graphic
     glfont2
-    stb_image
     ${EXPRPARSE_LIBRARY}
     cartesian
     ${GLEW_LIBRARY}
