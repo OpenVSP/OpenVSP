@@ -102,8 +102,10 @@ void TextureMgr::flipCoord( unsigned int id, bool flipU, bool flipW )
     }
 }
 
-void TextureMgr::transparentize( unsigned int id, float alpha )
+void TextureMgr::transparentize( unsigned int id, float alpha, bool blendalpha )
 {
+    _blendAlpha = blendalpha;
+
     for( int i = 0; i < ( int )_coordList.size(); i++ )
     {
         if( _coordList[i].id == id )
@@ -169,6 +171,9 @@ void TextureMgr::bind()
 
                 // Set Alpha value.
                 shader->setUniform1fv( "u_TexAlphas", alphas.size(), &alphas[0] );
+
+                // Set Alpha blend flag value.
+                shader->setUniform1i( "u_BlendAlpha", _blendAlpha );
 
                 shader->bind();
             }
@@ -311,6 +316,9 @@ void TextureMgr::bind()
 
                 // Set Alpha value.
                 shader->setUniform1fv( "u_TexAlphas", alphas.size(), &alphas[0] );
+
+                // Set Alpha blend flag value.
+                shader->setUniform1i( "u_BlendAlpha", _blendAlpha );
 
                 shader->bind();
             }

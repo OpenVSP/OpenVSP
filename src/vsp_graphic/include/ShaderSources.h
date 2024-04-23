@@ -29,6 +29,7 @@ static const char * const fShader_Texture01_No_Lighting =
     "uniform vec2 u_Scales[1];"
     "uniform vec2 u_FlipFlags[1];"
     "uniform float u_TexAlphas[1];"
+    "uniform bool u_BlendAlpha;"
 
     "void main()"
     "{"
@@ -78,7 +79,10 @@ static const char * const fShader_Texture01_No_Lighting =
     // Blend texture to geometry with appropriate alpha value.
     // Alpha value is calculate base on current location of texture. If texture
     // is on border(alpha equals 0), use alpha 0, else use alpha value from u_TexAlphas.
-    "	resultColor = mix(gl_Color, resultColor, min(resultColor.a, u_TexAlphas[0]));"
+    "	if(u_BlendAlpha)"
+    "	{"
+    "		resultColor = mix(gl_Color, resultColor, min(resultColor.a, u_TexAlphas[0]));"
+    "	}"
 
     "	gl_FragColor = resultColor;"
     "}";
@@ -246,6 +250,7 @@ static const char * const fShader_Texture01 =
     "uniform vec2 u_Scales[1];"
     "uniform vec2 u_FlipFlags[1];"
     "uniform float u_TexAlphas[1];"
+    "uniform bool u_BlendAlpha;"
 
     "void main()"
     "{"
@@ -295,7 +300,10 @@ static const char * const fShader_Texture01 =
     // Blend texture to geometry with appropriate alpha value.
     // Alpha value is calculate base on current location of texture. If texture
     // is on border(alpha equals 0), use alpha 0, else use alpha value from u_TexAlphas.
-    "	resultColor = mix(gl_Color, resultColor, min(resultColor.a, u_TexAlphas[0]));"
+    "	if(u_BlendAlpha)"
+    "	{"
+    "		resultColor = mix(gl_Color, resultColor, min(resultColor.a, u_TexAlphas[0]));"
+    "	}"
 
     "	gl_FragColor = resultColor * v_LightColor;"
     "}";

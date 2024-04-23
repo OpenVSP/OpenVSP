@@ -413,6 +413,7 @@ public:
         float WScale;
 
         float Transparency;
+        bool BlendTransparency;
 
         bool UFlip;
         bool WFlip;

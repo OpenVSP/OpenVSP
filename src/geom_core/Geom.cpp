@@ -3656,6 +3656,7 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
                     info.U = (float)texList[j]->m_U.Get();
                     info.W = (float)texList[j]->m_W.Get();
                     info.Transparency = (float)texList[j]->m_Transparency.Get();
+                    info.BlendTransparency = true;
                     info.UFlip = texList[j]->m_FlipU.Get();
                     info.WFlip = texList[j]->m_FlipW.Get();
                     info.ID = texList[j]->GetID();

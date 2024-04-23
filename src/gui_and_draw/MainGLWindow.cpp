@@ -1727,7 +1727,7 @@ void VspGlWindow::_updateTextures( DrawObj * drawObj )
                 // Update Texture Properties.
                 entity->getTextureMgr()->translate( texBufferID, U, W );
                 entity->getTextureMgr()->scale( texBufferID, UScale, WScale );
-                entity->getTextureMgr()->transparentize( texBufferID, drawObjTexList[i].Transparency );
+                entity->getTextureMgr()->transparentize( texBufferID, drawObjTexList[ i ].Transparency, drawObjTexList[ i ].BlendTransparency );
                 entity->getTextureMgr()->flipCoord( texBufferID, drawObjTexList[i].UFlip, drawObjTexList[i].WFlip );
             }
         }

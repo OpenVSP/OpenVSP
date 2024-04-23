@@ -96,7 +96,7 @@ public:
     * id - texture id.
     * alpha - alpha value.
     */
-    virtual void transparentize( unsigned int id, float alpha );
+    virtual void transparentize( unsigned int id, float alpha, bool blendalpha );
     /*!
     * Get ids of all textures that are added to this manager.
     */
@@ -186,6 +186,8 @@ protected:
     * List of attached textures and their transformation info.
     */
     std::vector<TexInfo> _coordList;
+
+    bool _blendAlpha;
 
 private:
     static glm::vec2 _flipToVector( bool flipU, bool flipW );
