@@ -39,28 +39,37 @@ public:
     /*
     * Render Type Enum.
     *
-    * VSP_POINTS - Render to points.
+    * VSP_CLIP - Add clipping plane.
     * VSP_LINES - Render to lines.
-    * VSP_LINE_STRIP - Render to line strip. 
     * VSP_LINE_LOOP - Render to line loop.
-    * VSP_WIRE_MESH - Render to wire frame.
-    * VSP_HIDDEN_MESH - Render to solid wire frame.
-    * VSP_SHADED_MESH - Render to mesh with lighting.
-    * VSP_TEXTURED_MESH - Render to texture mapped mesh with lighting.
-    * VSP_WIRE_TRIS - Render Triangles to wire frame.
-    * VSP_HIDDEN_TRIS - Render Triangles to solid wire frame.
-    * VSP_SHADED_TRIS - Render Triangles to mesh with lighting.
-    * VSP_WIRE_SHADED_TRIS - Render Triangles to wire frame mesh with lighting
-    * VSP_SETTING - This drawObj provides Global Setting Info(lighting, etc...).  Does not render anything.
+    * VSP_LINE_STRIP - Render to line strip.
+    * VSP_POINTS - Render to points.
+    * VSP_PROBE
     * VSP_RULER - Render Ruler.
-    * VSP_PICK_VERTEX - This type drawObj enables vertex picking for a specific geometry.
+    * VSP_PROTRACTOR
+    * VSP_SETTING - This drawObj provides Global Setting Info(lighting, etc...).  Does not render anything.
     * VSP_PICK_GEOM - This type drawObj enables geometry picking.
     * VSP_PICK_LOCATION - This type drawObj enables location picking.
-    * VSP_CLIP - Add clipping plane.
-    * VSP_HIDDEN_QUADS - Render Quads to solid wire frame.
+    * VSP_PICK_VERTEX - This type drawObj enables vertex picking for a specific geometry.
+    * VSP_WIRE_HIDDEN_MESH - Render to solid wire frame.
+    * VSP_SHADED_MESH - Render to mesh with lighting.
+    * VSP_TEXTURED_MESH - Render to texture mapped mesh with lighting.
+    * VSP_WIRE_MESH - Render to wire frame.
+    * VSP_CFD_HIDDEN_QUADS
+    * VSP_WIRE_HIDDEN_QUADS - Render Quads to solid wire frame.
+    * VSP_MAPPED_QUADS
+    * VSP_WIRE_MAPPED_QUADS
+    * VSP_WIRE_SHADED_QUADS - Render Quads to wire frame mesh with lighting
     * VSP_SHADED_QUADS - Render Quads to mesh with lighting.
     * VSP_WIRE_QUADS - Render Quads to wire frame.
-    * VSP_WIRE_SHADED_QUADS - Render Quads to wire frame mesh with lighting
+    * VSP_CFD_HIDDEN_TRIS
+    * VSP_WIRE_HIDDEN_TRIS
+    * VSP_HIDDEN_TRIS - Render Triangles to solid wire frame.
+    * VSP_MAPPED_TRIS
+    * VSP_WIRE_MAPPED_TRIS
+    * VSP_WIRE_SHADED_TRIS - Render Triangles to wire frame mesh with lighting
+    * VSP_SHADED_TRIS - Render Triangles to mesh with lighting.
+    * VSP_WIRE_TRIS - Render Triangles to wire frame.
     */
 
     static vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
