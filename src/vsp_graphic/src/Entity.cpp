@@ -145,6 +145,10 @@ void Entity::_draw()
         _draw_Textured();
         break;
 
+    case Common::VSP_DRAW_TEXTURED_TRANSPARENT_BACK:
+        _draw_Textured_Transparent_Back();
+        break;
+
     default:
         break;
     }
@@ -194,6 +198,28 @@ void Entity::_draw_Textured()
     _textureMgr.unbind();
 
     glDisable( GL_POLYGON_OFFSET_FILL );
+
+    glDisable( GL_LIGHTING );
+}
+
+void Entity::_draw_Textured_Transparent_Back()
+{
+    if( _lighting )
+    {
+        glEnable( GL_LIGHTING );
+        _material.bind();
+    }
+
+    glEnable( GL_CULL_FACE );
+    glEnable( GL_POLYGON_OFFSET_FILL );
+    glPolygonOffset( 1.f, 1.f );
+
+    _textureMgr.bind();
+    _draw_Mesh();
+    _textureMgr.unbind();
+
+    glDisable( GL_POLYGON_OFFSET_FILL );
+    glDisable( GL_CULL_FACE );
 
     glDisable( GL_LIGHTING );
 }

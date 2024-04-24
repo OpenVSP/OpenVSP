@@ -90,6 +90,7 @@ protected:
     * Draw textured mesh.
     */
     virtual void _draw_Textured();
+    virtual void _draw_Textured_Transparent_Back();
     /*!
     * Draw wire frame.
     */
