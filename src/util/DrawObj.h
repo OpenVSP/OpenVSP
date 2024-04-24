@@ -492,6 +492,10 @@ public:
     */
     bool m_Visible;
 
+    bool m_VisibleDirFlag;
+    vec3d m_VisibleDir;
+    double m_VisTol;
+
     /*
     * Geometry changed flag.  
     * This flag is used for optimization.  Flag true if geometry data are changed and require 

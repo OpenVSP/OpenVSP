@@ -448,6 +448,21 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
     // Check for changes in DrawObjs and adjust accordingly.
     _updateBuffer( objects );
 
+    // Get view Z vector.
+    glm::mat4 mvm = m_GEngine->getDisplay()->getCamera()->getModelViewMatrix();
+    vec3d v( mvm[0][2], mvm[1][2], mvm[2][2] );
+
+    for( int i = 0; i < (int)objects.size(); i++ )
+    {
+        if ( objects[i]->m_VisibleDirFlag )
+        {
+            if ( std::abs( dot( objects[ i ]->m_VisibleDir, v ) ) <= ( 1.0 - objects[ i ]->m_VisTol ) )
+            {
+                objects[ i ]->m_Visible = false;
+            }
+        }
+    }
+
     // Process all geometry renderable first, then all labels, pickables, lastly the markers.  Order matters.
     for( int i = 0; i < (int)objects.size(); i++ )
     {
