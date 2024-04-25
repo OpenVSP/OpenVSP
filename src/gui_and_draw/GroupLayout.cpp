@@ -478,12 +478,12 @@ void GroupLayout::AddButton( CheckButton& cbutton, const char* label )
 }
 
 //==== Create & Init Gui ToggleButton  ====//
-void GroupLayout::AddButton( ToggleButton& tbutton, const char* label )
+void GroupLayout::AddButton( ToggleButton& tbutton, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
     //==== Add Check Button ====//
-    int bw = FitWidth( 0, m_ButtonWidth );
+    int bw = FitWidth( used_w, m_ButtonWidth );
     Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight );
     flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
