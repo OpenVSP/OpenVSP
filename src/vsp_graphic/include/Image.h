@@ -67,6 +67,8 @@ public:
 
     void alphabounds( unsigned int &x0, unsigned int &y0, unsigned int &xf, unsigned int &yf );
 
+    void autotransparent();
+
 protected:
     /*!
     * Load image from file.

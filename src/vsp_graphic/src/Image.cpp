@@ -228,6 +228,37 @@ void Image::alphabounds( unsigned int &x0, unsigned int &y0, unsigned int &xf, u
 
 }
 
+void Image::autotransparent()
+{
+    unsigned int w = _image.width;
+    unsigned int h = _image.height;
+
+    unsigned int bpp = getBPP();
+    unsigned int scanLen = bpp * w;
+
+    for ( unsigned int i = 0 ; i < h; i++ )
+    {
+        for ( unsigned int j = 0; j < w; j++ )
+        {
+            unsigned int k = i * scanLen + j * bpp;
+
+            int r = _image.data[ k + 0 ];
+            int g = _image.data[ k + 1 ];
+            int b = _image.data[ k + 2 ];
+            int a = _image.data[ k + 3 ];
+
+            if ( a == 255 ) // Only apply to fully opaque pixels.
+            {
+                a = ( 765 - ( r + b + g ) ) / 3;
+                _image.data[ k + 0 ] = 0;
+                _image.data[ k + 1 ] = 0;
+                _image.data[ k + 2 ] = 0;
+                _image.data[ k + 3 ] = a;
+            }
+        }
+    }
+}
+
 void Image::_loadImage( std::string fileName )
 {
     bool succeed;
