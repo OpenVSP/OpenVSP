@@ -90,21 +90,25 @@ unsigned char * Image::getImageData()
 
 void Image::flipud()
 {
+    unsigned int w = _image.width;
+    unsigned int h = _image.height;
+
     unsigned int bpp = getBPP();
+    unsigned int scanLen = bpp * w;
 
-    // Flip data top to bottom.
-    unsigned int scanLen = bpp * _image.width;
-    unsigned int siz = _image.height * scanLen;
-    unsigned char *data = new unsigned char[ siz ];
-
-    for ( unsigned int i = 0 ; i < _image.height; i++ )
+    for ( unsigned int i = 0 ; i < h / 2; i++ )
     {
-        unsigned char* srcLine = &_image.data[ i * scanLen ];
-        unsigned char* dstLine = &data[ (_image.height - i - 1) * scanLen ];
-        memcpy( dstLine, srcLine, scanLen );
+        for ( unsigned int j = 0; j < w; j++ )
+        {
+            unsigned int k1 = i * scanLen + j * bpp;
+            unsigned int k2 = (h - 1 - i) * scanLen + j * bpp;
+
+            for ( unsigned int k = 0; k < bpp; k++ )
+            {
+                std::swap( _image.data[ k1 + k ], _image.data[ k2 + k ] );
+            }
+        }
     }
-    memcpy( _image.data, data, siz );
-    delete[] data;
 }
 
 void Image::crop( unsigned int x0, unsigned int y0, unsigned int w, unsigned int h )
