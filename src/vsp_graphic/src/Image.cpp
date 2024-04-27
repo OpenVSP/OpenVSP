@@ -331,6 +331,8 @@ void Image::addtransparentchannel()
 
 void Image::autotransparent()
 {
+    addtransparentchannel();
+
     unsigned int w = _image.width;
     unsigned int h = _image.height;
 
