@@ -88,6 +88,38 @@ unsigned char * Image::getImageData()
     return _image.data;
 }
 
+void Image::transpose()
+{
+    unsigned int w = _image.width;
+    unsigned int h = _image.height;
+
+    unsigned int bpp = getBPP();
+    unsigned int scanLen = bpp * w;
+    unsigned int scanLen2 = bpp * h;
+
+    unsigned char *data = new unsigned char[ _image.width * _image.height * bpp ];
+
+    for ( unsigned int i = 0 ; i < h; i++ )
+    {
+        for ( unsigned int j = 0; j < w; j++ )
+        {
+            unsigned int k1 = i * scanLen + j * bpp;
+            unsigned int k2 = j * scanLen2 + i * bpp;
+
+            for ( unsigned int k = 0; k < bpp; k++ )
+            {
+                data[ k2 + k ] = _image.data[ k1 + k ];
+            }
+        }
+    }
+
+    delete[] _image.data;
+    _image.data = data;
+
+    _image.width = h;
+    _image.height = w;
+}
+
 void Image::flipud()
 {
     unsigned int w = _image.width;
@@ -102,6 +134,29 @@ void Image::flipud()
         {
             unsigned int k1 = i * scanLen + j * bpp;
             unsigned int k2 = (h - 1 - i) * scanLen + j * bpp;
+
+            for ( unsigned int k = 0; k < bpp; k++ )
+            {
+                std::swap( _image.data[ k1 + k ], _image.data[ k2 + k ] );
+            }
+        }
+    }
+}
+
+void Image::fliplr()
+{
+    unsigned int w = _image.width;
+    unsigned int h = _image.height;
+
+    unsigned int bpp = getBPP();
+    unsigned int scanLen = bpp * w;
+
+    for ( unsigned int i = 0 ; i < h; i++ )
+    {
+        for ( unsigned int j = 0; j < w / 2; j++ )
+        {
+            unsigned int k1 = i * scanLen + j * bpp;
+            unsigned int k2 = i * scanLen + ( w - 1 - j ) * bpp;
 
             for ( unsigned int k = 0; k < bpp; k++ )
             {
@@ -230,6 +285,48 @@ void Image::alphabounds( unsigned int &x0, unsigned int &y0, unsigned int &xf, u
         x0 = 0;
     }
 
+}
+
+void Image::addtransparentchannel()
+{
+    unsigned int bpp = getBPP();
+    if ( bpp < 4 )
+    {
+        unsigned int w = _image.width;
+        unsigned int h = _image.height;
+
+        unsigned int scanLen = bpp * w;
+
+        unsigned int bpp2 = 4;
+        unsigned int scanLen2 = bpp2 * w;
+
+        unsigned char *data = new unsigned char[ _image.width * _image.height * bpp2 ];
+
+        for ( unsigned int i = 0 ; i < h; i++ )
+        {
+            for ( unsigned int j = 0; j < w; j++ )
+            {
+                unsigned int k1 = i * scanLen + j * bpp;
+                unsigned int k2 = i * scanLen2 + j * bpp2;
+
+                unsigned int k;
+                for ( k = 0; k < bpp; k++ )
+                {
+                    data[ k2 + k ] = _image.data[ k1 + k ];
+                }
+                for ( ; k < bpp2; k++ )
+                {
+                    data[ k2 + k ] = 255;
+                }
+
+            }
+        }
+
+        _image.type = GL_RGBA;
+
+        delete[] _image.data;
+        _image.data = data;
+    }
 }
 
 void Image::autotransparent()
