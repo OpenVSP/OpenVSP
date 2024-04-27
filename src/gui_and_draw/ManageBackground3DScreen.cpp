@@ -85,6 +85,32 @@ ManageBackground3DScreen::ManageBackground3DScreen( ScreenMgr * mgr ) : BasicScr
     m_BorderLayout.AddOutput( m_ImageHOutput, "Height", "%5.0f" );
     m_BorderLayout.ForceNewLine();
 
+    m_BorderLayout.SetSameLineFlag( false );
+    m_BorderLayout.SetFitWidthFlag( true );
+
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddDividerBox( "Modify Image" );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetFitWidthFlag( false );
+
+    m_BorderLayout.SetSliderWidth( 50 );
+    m_BorderLayout.SetButtonWidth( ( m_BorderLayout.GetW() - m_BorderLayout.GetSliderWidth() ) / 4 );
+    m_BorderLayout.SetChoiceButtonWidth( m_BorderLayout.GetButtonWidth() );
+
+    m_BorderLayout.AddChoice( m_ImageRotChoice, "Rotate (CW)" );
+    m_ImageRotChoice.AddItem( "0", vsp::ANG_0 );
+    m_ImageRotChoice.AddItem( "90", vsp::ANG_90 );
+    m_ImageRotChoice.AddItem( "180", vsp::ANG_180 );
+    m_ImageRotChoice.AddItem( "270", vsp::ANG_270 );
+    m_ImageRotChoice.UpdateItems();
+
+    m_BorderLayout.AddButton( m_ImageAutoTransparentToggleButton, "Auto Trans." );
+
+    m_BorderLayout.AddButton( m_ImageFlipLRToggleButton, "Flip LR" );
+    m_BorderLayout.AddButton( m_ImageFlipUDToggleButton, "Flip UD" );
+    m_BorderLayout.ForceNewLine();
 
     m_BorderLayout.SetSameLineFlag( false );
     m_BorderLayout.SetFitWidthFlag( true );
@@ -324,6 +350,11 @@ bool ManageBackground3DScreen::Update()
         m_ImageWOutput.Update( bg3D->m_ImageW.GetID() );
         m_ImageHOutput.Update( bg3D->m_ImageH.GetID() );
 
+        m_ImageFlipLRToggleButton.Update( bg3D->m_ImageFlipLR.GetID() );
+        m_ImageFlipUDToggleButton.Update( bg3D->m_ImageFlipUD.GetID() );
+        m_ImageAutoTransparentToggleButton.Update( bg3D->m_ImageAutoTransparent.GetID() );
+        m_ImageRotChoice.Update( bg3D->m_ImageRot.GetID() );
+
         m_HAlignChoice.Update( bg3D->m_HAlign.GetID() );
         m_VAlignChoice.Update( bg3D->m_VAlign.GetID() );
 
@@ -476,6 +507,11 @@ bool ManageBackground3DScreen::Update()
 
         m_ImageWOutput.Deactivate();
         m_ImageHOutput.Deactivate();
+
+        m_ImageFlipLRToggleButton.Deactivate();
+        m_ImageFlipUDToggleButton.Deactivate();
+        m_ImageAutoTransparentToggleButton.Deactivate();
+        m_ImageRotChoice.Deactivate();
 
         m_XSlider.Deactivate();
         m_YSlider.Deactivate();

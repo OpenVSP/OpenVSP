@@ -49,6 +49,12 @@ Background3D::Background3D() : ParmContainer()
     m_ImageW.Init( "ImageW", "Background3D", this, 0.0, 0, 1.0e6 );
     m_ImageH.Init( "ImageH", "Background3D", this, 0.0, 0, 1.0e6 );
 
+    m_ImageFlipLR.Init( "ImageFlipLR", "Background3D", this, false, false, true );
+    m_ImageFlipUD.Init( "ImageFlipUD", "Background3D", this, false, false, true );
+    m_ImageAutoTransparent.Init( "ImageAutoTransparent", "Background3D", this, false, false, true );
+
+    m_ImageRot.Init( "ImageRot", "Background3D", this, vsp::ANG_0, vsp::ANG_0, vsp::NUM_ANG - 1 );
+
     m_X.Init( "X", "Background3D", this, 0.0, -1.0e12, 1.0e12 );
     m_Y.Init( "Y", "Background3D", this, 0.0, -1.0e12, 1.0e12 );
     m_Z.Init( "Z", "Background3D", this, 0.0, -1.0e12, 1.0e12 );

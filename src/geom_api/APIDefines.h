@@ -54,6 +54,17 @@ enum ANG_UNITS { ANG_RAD,	/*!< Radians */
 /*!
 	\ingroup Enumerations
 */
+/*! Enum for specifying image rotation angles (CW). */
+enum ANGLE { ANG_0,	/*!< Zero deg */
+             ANG_90,	/*!< 90 deg */
+             ANG_180,	/*!< 180 deg */
+             ANG_270,	/*!< 270 deg */
+             NUM_ANG,	/*!< Number of angle choices */
+};
+
+/*!
+	\ingroup Enumerations
+*/
 /*! Enum that identifies the atmospheric model used in the Parasite Drag tool. */
 enum ATMOS_TYPE { ATMOS_TYPE_US_STANDARD_1976 = 0,	/*!< US Standard Atmosphere 1976 (default) */
                   ATMOS_TYPE_HERRINGTON_1966,	/*!< USAF 1966 */

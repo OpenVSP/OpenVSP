@@ -62,6 +62,12 @@ public:
     IntParm m_ImageW;
     IntParm m_ImageH;
 
+    BoolParm m_ImageFlipLR;
+    BoolParm m_ImageFlipUD;
+    BoolParm m_ImageAutoTransparent;
+
+    IntParm m_ImageRot;
+
 protected:
 
     bool m_ImageReady;

@@ -80,6 +80,12 @@ protected:
     Output m_ImageWOutput;
     Output m_ImageHOutput;
 
+    ToggleButton m_ImageFlipLRToggleButton;
+    ToggleButton m_ImageFlipUDToggleButton;
+    ToggleButton m_ImageAutoTransparentToggleButton;
+
+    Choice m_ImageRotChoice;
+
     SliderAdjRangeInput m_XSlider;
     SliderAdjRangeInput m_YSlider;
     SliderAdjRangeInput m_ZSlider;
