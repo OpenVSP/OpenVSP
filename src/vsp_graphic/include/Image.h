@@ -67,6 +67,12 @@ public:
 
     void fliplr();
 
+    void rot90();
+
+    void rot180();
+
+    void rot270();
+
     void crop( unsigned int x0, unsigned int y0, unsigned int w, unsigned int h );
 
     void alphabounds( unsigned int &x0, unsigned int &y0, unsigned int &xf, unsigned int &yf );

@@ -166,6 +166,24 @@ void Image::fliplr()
     }
 }
 
+void Image::rot90()
+{
+    transpose();
+    flipud();
+}
+
+void Image::rot180()
+{
+    fliplr();
+    flipud();
+}
+
+void Image::rot270()
+{
+    transpose();
+    fliplr();
+}
+
 void Image::crop( unsigned int x0, unsigned int y0, unsigned int w, unsigned int h )
 {
     unsigned int bpp = getBPP();
