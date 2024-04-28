@@ -354,6 +354,18 @@ void Background3D::Update()
     m_BackgroundDO.m_TextureInfos[0].BlendTransparency = false;
     m_BackgroundDO.m_TextureInfos[0].UFlip = true;
     m_BackgroundDO.m_TextureInfos[0].WFlip = false;
+
+    m_BackgroundDO.m_TextureInfos[0].Rot = m_ImageRot();
+    m_BackgroundDO.m_TextureInfos[0].FlipLR = m_ImageFlipLR();
+    m_BackgroundDO.m_TextureInfos[0].FlipUD = m_ImageFlipUD();
+    m_BackgroundDO.m_TextureInfos[0].AutoTrans = m_ImageAutoTransparent();
+
+    m_BackgroundDO.m_TextureInfos[0].ModificationKey =
+              m_ImageRot() +
+            ( m_ImageFlipLR() << 2 ) +
+            ( m_ImageFlipUD() << 3 ) +
+            ( m_ImageAutoTransparent() << 4 );
+
     m_BackgroundDO.m_TextureInfos[0].ID = "TEX_" + to_string( m_ImageRev ) + "_" + GetID();
 }
 
@@ -370,6 +382,13 @@ void Background3D::UpdateImageInfo()
 
     m_ImageW = w;
     m_ImageH = h;
+
+    if ( m_ImageRot() == vsp::ANG_90 || m_ImageRot() == vsp::ANG_270 )
+    {
+        m_ImageW = h;
+        m_ImageH = w;
+    }
+
     m_ImageReady = true;
     m_ImageRev++;
 

@@ -405,6 +405,7 @@ public:
     {
         string FileName;
         std::string ID;
+        int ModificationKey;
 
         float U;
         float W;
@@ -417,6 +418,11 @@ public:
 
         bool UFlip;
         bool WFlip;
+
+        int Rot;
+        bool FlipLR;
+        bool FlipUD;
+        bool AutoTrans;
     };
 
     /*

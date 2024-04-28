@@ -3659,6 +3659,15 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
                     info.BlendTransparency = true;
                     info.UFlip = texList[j]->m_FlipU.Get();
                     info.WFlip = texList[j]->m_FlipW.Get();
+
+                    // Modifications in 3D background, but not for general Texture's yet.  These may be enabled
+                    // if Texture is enhanced, but there is no need now.
+                    info.Rot = 0;
+                    info.FlipLR = false;
+                    info.FlipUD = false;
+                    info.AutoTrans = false;
+                    info.ModificationKey = 0;
+
                     info.ID = texList[j]->GetID();
                     m_WireShadeDrawObj_vec[i].m_TextureInfos.push_back( info );
                 }

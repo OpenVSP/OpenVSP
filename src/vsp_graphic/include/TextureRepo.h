@@ -29,14 +29,15 @@ public:
     *
     * fileName - file path + name of the texture file.
     */
-    Texture2D * get2DTexture( const char * fileName );
+    Texture2D * get2DTexture( const char * fileName, int key = 0, int rot = 0, bool fliplr = false, bool flipud = false, bool autotrans = false );
 
-    unsigned int getTextureID( const char * fileName );
+    unsigned int getTextureID( const char * fileName, int key = 0 );
 
 private:
     struct TextureInfo
     {
         std::string fileName;
+        int modKey;
         Texture2D * texture;
     };
     std::vector<TextureInfo> _textureRepo;

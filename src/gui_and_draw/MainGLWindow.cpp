@@ -1723,8 +1723,14 @@ void VspGlWindow::_updateTextures( DrawObj * drawObj )
                     // New texture.
                     TextureID newTex;
                     newTex.geomTexID = drawObjTexList[i].ID;
-                    newTex.bufferTexID = entity->getTextureMgr()
-                        ->add( VSPGraphic::GlobalTextureRepo()->get2DTexture(drawObjTexList[i].FileName.c_str() ) );
+                    newTex.bufferTexID = entity->getTextureMgr()->add(
+                            VSPGraphic::GlobalTextureRepo()->get2DTexture(
+                                    drawObjTexList[i].FileName.c_str(),
+                                    drawObjTexList[i].ModificationKey,
+                                    drawObjTexList[i].Rot,
+                                    drawObjTexList[i].FlipLR,
+                                    drawObjTexList[i].FlipUD,
+                                    drawObjTexList[i].AutoTrans ) );
                     id->textureIDs.push_back( newTex );
 
                     texBufferID = newTex.bufferTexID;

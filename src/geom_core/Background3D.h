@@ -15,6 +15,8 @@ public:
     Background3D();
     virtual ~Background3D();
 
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
