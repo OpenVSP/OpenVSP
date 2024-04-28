@@ -1649,11 +1649,7 @@ void VspGlWindow::_updateTextures( DrawObj * drawObj )
                 entity->getTextureMgr()->remove( texToRemove[i].bufferTexID );
             }
 
-            id->textureIDs.clear();
-            for( int i = 0; i < ( int )texToKeep.size(); i++ )
-            {
-                id->textureIDs.push_back( texToKeep[i] );
-            }
+            id->textureIDs = texToKeep;
 
             // Update / add textures.
 
