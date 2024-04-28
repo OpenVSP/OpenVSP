@@ -72,6 +72,26 @@ Background3D::~Background3D()
     LinkMgr.UnRegisterContainer( GetID() );
 }
 
+void Background3D::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( parm_ptr )
+    {
+        if ( parm_ptr == &m_ImageFlipLR ||
+             parm_ptr == &m_ImageFlipUD ||
+             parm_ptr == &m_ImageAutoTransparent ||
+             parm_ptr == &m_ImageRot )
+        {
+            m_ImageReady = false;
+        }
+    }
+
+    // Not needed because of call to Update in VspGlWindow::LoadAllDrawObjs().  The Update() in LADO() is needed
+    // because Background3D positions might depend on a global bounding box.
+    // Update();
+
+    ParmContainer::ParmChanged( parm_ptr, type );
+}
+
 xmlNodePtr Background3D::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr parmcontain_node = ParmContainer::EncodeXml( node );

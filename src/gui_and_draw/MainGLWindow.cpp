@@ -345,8 +345,9 @@ void VspGlWindow::LoadAllDrawObjs( vector< DrawObj* > & drawObjs )
             measureScreen->LoadDrawObjs( drawObjs );
         }
 
+        // Needed here because Background position can depend on bounding box size.
         Background3DMgr.Update();
-        // Load Render Objects from measureScreen.
+        // Load Render Objects from ManageBackground3DScreen.
         ManageBackground3DScreen * bg3dScreen = dynamic_cast< ManageBackground3DScreen* >
         ( m_ScreenMgr->GetScreen( vsp::VSP_BACKGROUND3D_SCREEN ) );
         if( bg3dScreen )
