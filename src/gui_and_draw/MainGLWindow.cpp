@@ -287,7 +287,10 @@ void VspGlWindow::update()
 
         for( int i = 0; i < (int)drawObjs.size(); i++ )
         {
-            drawObjs[i]->m_GeomChanged = false;
+            if( drawObjs[i]->m_Screen == m_LinkedScreen )
+            {
+                drawObjs[i]->m_GeomChanged = false;
+            }
         }
     }
 }
