@@ -86,6 +86,8 @@ protected:
 
     Choice m_ImageRotChoice;
 
+    TriggerButton m_ImagePreviewButton;
+
     SliderAdjRangeInput m_XSlider;
     SliderAdjRangeInput m_YSlider;
     SliderAdjRangeInput m_ZSlider;

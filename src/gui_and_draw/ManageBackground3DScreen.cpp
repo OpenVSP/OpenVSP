@@ -79,10 +79,11 @@ ManageBackground3DScreen::ManageBackground3DScreen( ScreenMgr * mgr ) : BasicScr
     m_BorderLayout.ForceNewLine();
 
 
-    m_BorderLayout.SetInputWidth( 0.5 * m_BorderLayout.GetW() - m_BorderLayout.GetButtonWidth() );
+    m_BorderLayout.SetInputWidth( 0.5 * ( m_BorderLayout.GetW() - 3 * m_BorderLayout.GetButtonWidth() ) );
 
     m_BorderLayout.AddOutput( m_ImageWOutput, "Width", "%5.0f" );
     m_BorderLayout.AddOutput( m_ImageHOutput, "Height", "%5.0f" );
+    m_BorderLayout.AddButton( m_ImagePreviewButton, "Preview" );
     m_BorderLayout.ForceNewLine();
 
     m_BorderLayout.SetSameLineFlag( false );
@@ -343,6 +344,7 @@ bool ManageBackground3DScreen::Update()
     {
         m_FileOutput.Activate();
         m_FileSelect.Activate();
+        m_ImagePreviewButton.Activate();
 
         m_Background3DNameInput.Update( bg3D->GetName() );
         m_FileOutput.Update( StringUtil::truncateFileName( bg3D->m_BGFile, 35 ).c_str() );
@@ -507,6 +509,7 @@ bool ManageBackground3DScreen::Update()
 
         m_ImageWOutput.Deactivate();
         m_ImageHOutput.Deactivate();
+        m_ImagePreviewButton.Deactivate();
 
         m_ImageFlipLRToggleButton.Deactivate();
         m_ImageFlipUDToggleButton.Deactivate();
@@ -570,6 +573,10 @@ void ManageBackground3DScreen::GuiDeviceCallBack( GuiDevice* device )
             }
 
         }
+    }
+    else if ( device == &m_ImagePreviewButton )
+    {
+        m_ScreenMgr->ShowScreen( vsp::VSP_BACKGROUND3D_PREVIEW_SCREEN );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
