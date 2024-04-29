@@ -12,11 +12,15 @@
 #include "VehicleMgr.h"
 #include "Vehicle.h"
 #include "GraphicEngine.h"
+#include "GraphicSingletons.h"
 #include "Display.h"
 #include "Scene.h"
 #include "Viewport.h"
 #include "Camera.h"
 #include "Renderable.h"
+#include "Entity.h"
+#include "ManageLightingScreen.h"
+#include "Lighting.h"
 
 using namespace VSPGraphic;
 
@@ -88,19 +92,23 @@ void VspSubGlWindow::update()
             vector<DrawObj*> drawObjs;
             vPtr->LoadDrawObjs( drawObjs );
             _update( drawObjs );
+
+            for( int i = 0; i < (int)drawObjs.size(); i++ )
+            {
+                if( drawObjs[i]->m_Screen == m_LinkedScreen )
+                {
+                    drawObjs[i]->m_GeomChanged = false;
+                }
+            }
+
         }
     }
 }
 
 void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
 {
-    // Remove all Scene Objects.
-    std::vector<unsigned int> currIds;
-    currIds = m_GEngine->getScene()->getIds();
-    for( int i = 0; i < ( int )currIds.size(); i++ )
-    {
-        m_GEngine->getScene()->removeObject( currIds[i] );
-    }
+    // Check for changes in DrawObjs and adjust accordingly.
+    _updateBuffer( objects );
 
     // Update Scene Objects.
     for( int i = 0; i < ( int )objects.size(); i++ )
@@ -114,13 +122,36 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
         // Load Settings.
         float red, green, blue, size;
 
-        Renderable * rObj;
         unsigned int id;
+        ID * idPtr = _findID( objects[i]->m_GeomID );
+        if( idPtr )
+        {
+            id = idPtr->bufferID;
+        }
+        else
+        {
+            id = 0xFFFFFFFF;
+        }
+
+        VSPGraphic::Renderable * rObj;
+        VSPGraphic::Entity * eObj;
         switch( objects[i]->m_Type )
         {
-        case DrawObj::VSP_POINTS:
-            m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
+        case DrawObj::VSP_SETTING:
+            _setLighting( objects[i] );
+            break;
 
+        case DrawObj::VSP_POINTS:
+            // Create new scene object if needed.
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
             // Update scene object.
             red = ( float )objects[i]->m_PointColor.x();
             green = ( float )objects[i]->m_PointColor.y();
@@ -128,7 +159,7 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
 
             size = ( float )objects[i]->m_PointSize;
 
-            rObj = dynamic_cast<Renderable*>( m_GEngine->getScene()->getObject(id) );
+            rObj = dynamic_cast<VSPGraphic::Renderable*>( m_GEngine->getScene()->getObject(id) );
             if( rObj )
             {
                 rObj->setVisibility( objects[i]->m_Visible );
@@ -136,12 +167,23 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
                 rObj->setPointColor( red, green, blue );
                 rObj->setPointSize( size );
 
-                _loadPointData( rObj, objects[i] );
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadPointData( rObj, objects[ i ] );
+                }
             }
             break;
 
         case DrawObj::VSP_LINES:
-            m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_MARKER, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
 
             // Update scene object.
             red = ( float )objects[i]->m_LineColor.x();
@@ -150,7 +192,7 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
 
             size = ( float )objects[i]->m_LineWidth;
 
-            rObj = dynamic_cast<Renderable*>( m_GEngine->getScene()->getObject( id ) );
+            rObj = dynamic_cast<VSPGraphic::Renderable*>( m_GEngine->getScene()->getObject( id ) );
             if( rObj )
             {
                 rObj->setVisibility( objects[i]->m_Visible );
@@ -158,7 +200,41 @@ void VspSubGlWindow::_update( std::vector<DrawObj *> objects )
                 rObj->setLineColor( red, green, blue );
                 rObj->setLineWidth( size );
 
-                _loadLineData( rObj, objects[i] );
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadLineData( rObj, objects[ i ] );
+                }
+            }
+            break;
+
+        case DrawObj::VSP_TEXTURED_MESH:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_ENTITY, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+
+            eObj = dynamic_cast<VSPGraphic::Entity*> ( m_GEngine->getScene()->getObject( id ) );
+            if( eObj )
+            {
+                eObj->setVisibility( objects[i]->m_Visible );
+                eObj->setPrimType( Common::VSP_QUADS );
+                eObj->setRenderStyle( Common::VSP_DRAW_TEXTURED );
+
+                eObj->setMaterial( objects[i]->m_MaterialInfo.Ambient, objects[i]->m_MaterialInfo.Diffuse,
+                                   objects[i]->m_MaterialInfo.Specular, objects[i]->m_MaterialInfo.Emission,
+                                   objects[i]->m_MaterialInfo.Shininess );
+
+
+                if( objects[i]->m_GeomChanged )
+                {
+                    _loadXSecData( eObj, objects[i] );
+                }
+                _updateTextures( objects[i] );
             }
             break;
 
@@ -234,4 +310,297 @@ void VspSubGlWindow::_loadLineData( Renderable * destObj, DrawObj * drawObj )
     destObj->emptyVBuffer();
     destObj->appendVBuffer( vdata.data(), sizeof( float ) * vdata.size() );
 }
+
+void VspSubGlWindow::_updateTextures( DrawObj * drawObj )
+{
+    VspSubGlWindow::ID * id = _findID( drawObj->m_GeomID );
+    if( !id )
+    {
+        // Can't find Object that is linked to this drawObj
+        assert( false );
+        return;
+    }
+
+    Renderable * renderable = dynamic_cast<Renderable*>( m_GEngine->getScene()->getObject( id->bufferID ) );
+    if( renderable )
+    {
+        VSPGraphic::Entity * entity = dynamic_cast<VSPGraphic::Entity *>( renderable );
+        if( entity )
+        {
+            // Check if any textureID no long exists in drawObj.
+            // Remove Deleted Textures.
+
+            std::vector<TextureID> texToRemove;
+            std::vector<TextureID> texToKeep;
+
+            for( int i = 0; i < ( int )id->textureIDs.size(); i++ )
+            {
+                bool exist = false;
+                for( int j = 0; j < ( int )drawObj->m_TextureInfos.size(); j++ )
+                {
+                    if( id->textureIDs[i].geomTexID == drawObj->m_TextureInfos[j].ID )
+                    {
+                        texToKeep.push_back( id->textureIDs[i] );
+                        exist = true;
+                        break;
+                    }
+                }
+                if( !exist )
+                {
+                    texToRemove.push_back( id->textureIDs[i] );
+                }
+            }
+
+            for(int i = 0; i < ( int )texToRemove.size(); i++)
+            {
+                entity->getTextureMgr()->remove( texToRemove[i].bufferTexID );
+            }
+
+            id->textureIDs = texToKeep;
+
+            // Update / add textures.
+
+            std::vector<DrawObj::TextureInfo> drawObjTexList = drawObj->m_TextureInfos;
+            for( int i = 0; i < ( int )drawObjTexList.size(); i++ )
+            {
+                unsigned int texBufferID;
+
+                TextureID * texID = id->find( drawObjTexList[i].ID );
+                if( texID )
+                {
+                    texBufferID = texID->bufferTexID;
+                }
+                else
+                {
+                    // New texture.
+                    TextureID newTex;
+                    newTex.geomTexID = drawObjTexList[i].ID;
+                    newTex.bufferTexID = entity->getTextureMgr()->add(
+                            VSPGraphic::GlobalTextureRepo()->get2DTexture(
+                                    drawObjTexList[i].FileName.c_str(),
+                                    drawObjTexList[i].ModificationKey,
+                                    drawObjTexList[i].Rot,
+                                    drawObjTexList[i].FlipLR,
+                                    drawObjTexList[i].FlipUD,
+                                    drawObjTexList[i].AutoTrans ) );
+                    id->textureIDs.push_back( newTex );
+
+                    texBufferID = newTex.bufferTexID;
+                }
+
+                float UScale = ( float )( 1 / drawObjTexList[i].UScale );
+                float WScale = ( float )( 1 / drawObjTexList[i].WScale );
+                float U = ( float )( drawObjTexList[i].U * -1.f * UScale );
+                float W = ( float )( drawObjTexList[i].W * WScale );
+
+                // Update Texture Properties.
+                entity->getTextureMgr()->translate( texBufferID, U, W );
+                entity->getTextureMgr()->scale( texBufferID, UScale, WScale );
+                entity->getTextureMgr()->transparentize( texBufferID, drawObjTexList[ i ].Transparency, drawObjTexList[ i ].BlendTransparency );
+                entity->getTextureMgr()->flipCoord( texBufferID, drawObjTexList[i].UFlip, drawObjTexList[i].WFlip );
+            }
+        }
+        else
+        {
+            // Render Object is not type of Textureable Entity.
+            assert( false );
+        }
+    }
+    else
+    {
+        // Can't find Render Object.
+        assert( false );
+    }
+}
+
+void VspSubGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
+{
+    std::vector<float> vdata;
+    std::vector<unsigned int> edata;
+
+    // Generate Texture Coordinate.
+//    std::vector<std::vector<vec3d>> textureCoords = _generateTexCoordFromXSec( drawObj );
+
+    int num_mesh = drawObj->m_PntMesh.size();
+
+    if ( drawObj->m_NormMesh.size() != num_mesh || drawObj->m_uTexMesh.size() != num_mesh || drawObj->m_vTexMesh.size() != num_mesh )
+    {
+        destObj->emptyVBuffer();
+        destObj->emptyEBuffer();
+        destObj->enableEBuffer( false );
+        return;
+    }
+
+    unsigned int vtotal = 0;
+    unsigned int etotal = 0;
+
+    for ( int k = 0; k < num_mesh; k++ )
+    {
+        int num_pnts = drawObj->m_PntMesh[k].size();
+        int num_xsecs = 0;
+        if ( num_pnts )
+            num_xsecs = drawObj->m_PntMesh[k][0].size();
+
+        vtotal += num_xsecs * num_pnts;
+
+        etotal += (num_pnts - 1) * (num_xsecs - 1);
+    }
+
+    vdata.reserve( vtotal * 8 );
+    edata.reserve( etotal * 4 );
+
+    unsigned int offset = 0;
+
+    for ( int k = 0; k < num_mesh; k++ )
+    {
+        int increment = 0;
+
+        int num_pnts = drawObj->m_PntMesh[k].size();
+        int num_xsecs = 0;
+        if ( num_pnts )
+            num_xsecs = drawObj->m_PntMesh[k][0].size();
+
+        // Vertex Buffer.
+        for ( int i = 0 ; i < num_pnts ; i++ )
+        {
+            for ( int j = 0 ; j < num_xsecs ; j++ )
+            {
+                vdata.push_back( (float)drawObj->m_PntMesh[k][i][j].x() );
+                vdata.push_back( (float)drawObj->m_PntMesh[k][i][j].y() );
+                vdata.push_back( (float)drawObj->m_PntMesh[k][i][j].z() );
+
+                vdata.push_back( (float)drawObj->m_NormMesh[k][i][j].x() );
+                vdata.push_back( (float)drawObj->m_NormMesh[k][i][j].y() );
+                vdata.push_back( (float)drawObj->m_NormMesh[k][i][j].z() );
+
+                vdata.push_back( (float)drawObj->m_uTexMesh[k][i][j] );
+                vdata.push_back( (float)drawObj->m_vTexMesh[k][i][j] );
+                increment++;
+            }
+        }
+
+
+        // Element Buffer.
+        for( int i = 0; i < num_pnts - 1; i++ )
+        {
+            for( int j = 0; j < num_xsecs - 1; j++ )
+            {
+                edata.push_back( offset + i * num_xsecs + j );
+                edata.push_back( offset + ( i + 1 ) * num_xsecs + j );
+                edata.push_back( offset + ( i + 1 ) * num_xsecs + j + 1 );
+                edata.push_back( offset + i * num_xsecs + j + 1 );
+            }
+        }
+
+        offset += increment;
+
+    }
+
+    destObj->setFacingCW( drawObj->m_FlipNormals );
+
+    destObj->emptyVBuffer();
+    destObj->appendVBuffer( vdata.data(), sizeof(float) * vdata.size() );
+
+    destObj->emptyEBuffer();
+    destObj->appendEBuffer( edata.data(), sizeof( unsigned int ) * edata.size() );
+    destObj->enableEBuffer( true );
+
+}
+
+void VspSubGlWindow::_setLighting( DrawObj * drawObj )
+{
+    if( drawObj->m_Type != DrawObj::VSP_SETTING )
+        return;
+
+    // Currently only support up to eight light sources.
+    assert( drawObj->m_LightingInfos.size() <= 8 );
+    if( drawObj->m_LightingInfos.size() > 8 )
+        return;
+
+    DrawObj::LightSourceInfo lInfo;
+
+    LightSource * lSource;
+
+    Lighting * lights = m_GEngine->getScene()->getLights();
+
+    for( unsigned int i = 0; i < (int)drawObj->m_LightingInfos.size(); i++ )
+    {
+        lInfo = drawObj->m_LightingInfos[i];
+
+        lSource = lights->getLightSource( i );
+
+        lSource->position( lInfo.X, lInfo.Y, lInfo.Z, 0.0f );
+        lSource->ambient( lInfo.Amb, lInfo.Amb, lInfo.Amb, 1.0f );
+        lSource->diffuse( lInfo.Diff, lInfo.Diff, lInfo.Diff, 1.0f );
+        lSource->specular( lInfo.Spec, lInfo.Spec, lInfo.Spec, 1.0f );
+
+        if( lInfo.Active )
+            lSource->enable();
+        else
+            lSource->disable();
+    }
+}
+
+VspSubGlWindow::ID * VspSubGlWindow::_findID( std::string geomID )
+{
+    for( int i = 0; i < ( int )m_ids.size(); i++ )
+    {
+        if( m_ids[i].geomID == geomID )
+        {
+            return &m_ids[i];
+        }
+    }
+    return NULL;
+}
+
+VspSubGlWindow::ID * VspSubGlWindow::_findID( unsigned int bufferID )
+{
+    for( int i = 0; i < ( int )m_ids.size(); i++ )
+    {
+        if( m_ids[i].bufferID == bufferID )
+        {
+            return &m_ids[i];
+        }
+    }
+    return NULL;
+}
+
+void VspSubGlWindow::_updateBuffer( std::vector<DrawObj *> objects )
+{
+    std::vector<ID> idsToRemove;
+    std::vector<ID> idsToKeep;
+
+    // Figure out if any buffer object no longer exists in DrawObjs.
+    for( int i = 0; i < ( int )m_ids.size(); i++ )
+    {
+        bool exist = false;
+        for( int j = 0; j < ( int )objects.size(); j++ )
+        {
+            if( m_ids[i].geomID == objects[j]->m_GeomID && m_ids[i].geomID != std::string( "Default" ) )
+            {
+                idsToKeep.push_back( m_ids[i] );
+                exist = true;
+                break;
+            }
+        }
+        if( !exist )
+        {
+            idsToRemove.push_back( m_ids[i] );
+        }
+    }
+
+    // Remove unnecessary buffers.
+    for( int i = 0; i < ( int )idsToRemove.size(); i++ )
+    {
+        m_GEngine->getScene()->removeObject( idsToRemove[i].bufferID );
+    }
+
+    // Update m_ids.
+    m_ids.clear();
+    for( int i = 0; i < ( int )idsToKeep.size(); i++ )
+    {
+        m_ids.push_back( idsToKeep[i] );
+    }
+}
+
 }

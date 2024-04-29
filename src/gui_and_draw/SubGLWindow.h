@@ -75,6 +75,16 @@ protected:
 private:
     static void _loadPointData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
     static void _loadLineData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
+    void _updateTextures( DrawObj * drawObj );
+    static void _loadXSecData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
+    void _setLighting( DrawObj * drawObj );
+
+    struct ID;
+
+    ID * _findID( std::string geomID );
+    ID * _findID( unsigned int bufferID );
+
+    void _updateBuffer( std::vector<DrawObj *> objects );
 
 protected:
     /*
@@ -86,6 +96,34 @@ protected:
 private:
     DrawObj::ScreenEnum m_LinkedScreen;
     bool m_Initialized;
+
+    struct TextureID
+    {
+        unsigned int bufferTexID;
+        std::string geomTexID;
+    };
+
+    struct ID
+    {
+        unsigned int bufferID;
+
+        std::string geomID;
+        std::vector<TextureID> textureIDs;
+
+        TextureID * find( std::string geomTexID )
+        {
+            for( int i = 0; i < ( int )textureIDs.size(); i++ )
+            {
+                if( textureIDs[i].geomTexID == geomTexID )
+                {
+                    return &textureIDs[i];
+                }
+            }
+            return NULL;
+        }
+    };
+    std::vector<ID> m_ids;
+
 };
 }
 #endif
