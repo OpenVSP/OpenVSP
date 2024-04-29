@@ -277,7 +277,8 @@ public:
         VSP_XSEC_SCREEN,
         VSP_TEX_PREVIEW,
         VSP_FEA_XSEC_SCREEN,
-        VSP_EDIT_CURVE_SCREEN
+        VSP_EDIT_CURVE_SCREEN,
+        VSP_3DBG_PREVIEW,
     };
 
     /*

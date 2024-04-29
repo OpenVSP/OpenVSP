@@ -811,6 +811,7 @@ enum GUI_VSP_SCREEN { VSP_ADV_LINK_SCREEN,	/*!< Advanced linking screen */
                       VSP_AIRFOIL_POINTS_EXPORT_SCREEN,	/*!< Airfoil points screen */
                       VSP_BACKGROUND_SCREEN,	/*!< Background control screen */
                       VSP_BACKGROUND3D_SCREEN,	/*!< Background3D control screen */
+                      VSP_BACKGROUND3D_PREVIEW_SCREEN,	/*!< Background3D preview screen */
                       VSP_BEM_OPTIONS_SCREEN,	/*!< Blade element method options screen */
                       VSP_CFD_MESH_SCREEN,	/*!< CFD Mesh screen */
                       VSP_CLIPPING_SCREEN,	/*!< Clipping screen */

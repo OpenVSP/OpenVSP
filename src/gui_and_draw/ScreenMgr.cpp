@@ -514,6 +514,7 @@ void ScreenMgr::Init()
     m_ScreenVec[vsp::VSP_AIRFOIL_POINTS_EXPORT_SCREEN] = new SeligAirfoilExportScreen( this );
     m_ScreenVec[vsp::VSP_BACKGROUND_SCREEN] = new ManageBackgroundScreen( this );
     m_ScreenVec[vsp::VSP_BACKGROUND3D_SCREEN] = new ManageBackground3DScreen( this );
+    m_ScreenVec[vsp::VSP_BACKGROUND3D_PREVIEW_SCREEN] = new Background3DPreviewScreen( this );
     m_ScreenVec[vsp::VSP_BEM_OPTIONS_SCREEN] = new BEMOptionsScreen( this );
     m_ScreenVec[vsp::VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
     m_ScreenVec[vsp::VSP_CLIPPING_SCREEN] = new ClippingScreen( this );
