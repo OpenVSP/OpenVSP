@@ -81,6 +81,8 @@ void VspSubGlWindow::update()
 
     if ( vPtr )
     {
+        make_current();
+
         if( this->context_valid() )
         {
             vector<DrawObj*> drawObjs;
