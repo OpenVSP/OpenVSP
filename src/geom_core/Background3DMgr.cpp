@@ -5,6 +5,19 @@ Background3DMgrSingleton::Background3DMgrSingleton()
 {
     m_CurrBackground3DIndex = 0;
 
+    m_LightingDO.m_Type = DrawObj::VSP_SETTING;
+    m_LightingDO.m_Screen = DrawObj::VSP_3DBG_PREVIEW;
+
+    m_LightingDO.m_LightingInfos.resize( 1 );
+
+    m_LightingDO.m_LightingInfos[0].Active = true;
+    m_LightingDO.m_LightingInfos[0].X = 0;
+    m_LightingDO.m_LightingInfos[0].Y = 0;
+    m_LightingDO.m_LightingInfos[0].Z = 0;
+    m_LightingDO.m_LightingInfos[0].Amb = 1;
+    m_LightingDO.m_LightingInfos[0].Diff = 0;
+    m_LightingDO.m_LightingInfos[0].Spec = 0;
+
     Init();
 }
 
@@ -203,6 +216,8 @@ void Background3DMgrSingleton::DelBackground3D( const string &id )
 void Background3DMgrSingleton::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     UpdateDrawObjs();
+
+    draw_obj_vec.push_back( & m_LightingDO );
 
     for( int i = 0; i < ( int )m_Background3Ds.size(); i++ )
     {

@@ -56,6 +56,9 @@ private:
 
     static void Init();
     void Wype();
+
+
+    DrawObj m_LightingDO;
 };
 
 #define Background3DMgr Background3DMgrSingleton::getInstance()
