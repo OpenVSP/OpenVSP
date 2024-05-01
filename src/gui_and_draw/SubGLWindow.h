@@ -126,5 +126,15 @@ private:
     std::vector<ID> m_ids;
 
 };
+
+class BG3DSubGlWindow : public VspSubGlWindow
+{
+public:
+
+    BG3DSubGlWindow( int x, int y, int w, int h, DrawObj::ScreenEnum drawObjScreen );
+
+    virtual void LoadAllDrawObjs( vector< DrawObj* > & draw_obj_vec );
+};
+
 }
 #endif

@@ -19,6 +19,7 @@
 #include "Camera.h"
 #include "Renderable.h"
 #include "Entity.h"
+#include "Background3DMgr.h"
 #include "ManageLightingScreen.h"
 #include "Lighting.h"
 
@@ -608,6 +609,17 @@ void VspSubGlWindow::_updateBuffer( std::vector<DrawObj *> objects )
     {
         m_ids.push_back( idsToKeep[i] );
     }
+}
+
+BG3DSubGlWindow::BG3DSubGlWindow( int x, int y, int w , int h, DrawObj::ScreenEnum drawObjScreen )
+    : VspSubGlWindow( x, y, w, h, drawObjScreen )
+{
+}
+
+void BG3DSubGlWindow::LoadAllDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    Background3DMgr.Update();
+    Background3DMgr.LoadDrawObjs( draw_obj_vec );
 }
 
 }
