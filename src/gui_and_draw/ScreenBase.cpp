@@ -26,6 +26,7 @@
 #include "WingGeom.h"
 #include "BORGeom.h"
 #include "ParmMgr.h"
+#include "Background3DMgr.h"
 
 using namespace vsp;
 
@@ -4749,4 +4750,85 @@ void FeaXSecScreen::Show()
     h = m_GlWin->pixel_h();
     float oz = 1.5f * ( w < h ? 1.f / w : 1.f / h );
     m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( oz );
+}
+
+//=====================================================================//
+//=====================================================================//
+//=====================================================================//
+
+
+Background3DPreviewScreen::Background3DPreviewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 500, "3D Background" )
+{
+    int x = m_FLTK_Window->x();
+    int y = m_FLTK_Window->y();
+    int w = m_FLTK_Window->w();
+    int h = m_FLTK_Window->h();
+
+    m_FLTK_Window->begin();
+    m_GlWin = new VSPGUI::BG3DSubGlWindow( x, y, w, h, DrawObj::VSP_3DBG_PREVIEW );
+    m_FLTK_Window->end();
+
+    ((VSP_Window*)m_FLTK_Window)->SetResizeCallback( staticResizeCB, this );
+
+    m_GlWin->getGraphicEngine()->getDisplay()->getViewport()->showGridOverlay( false );
+}
+
+bool Background3DPreviewScreen::Update()
+{
+    BasicScreen::Update();
+
+    SetZoom();
+
+    m_GlWin->update();
+    m_GlWin->redraw();
+
+    return true;
+}
+
+void Background3DPreviewScreen::Show()
+{
+    VspScreen::Show();
+
+    SetZoom();
+
+    if ( m_GlWin )
+    {
+        m_GlWin->show();
+    }
+
+}
+
+void Background3DPreviewScreen::SetZoom()
+{
+    Background3D *bg3d = Background3DMgr.GetCurrentBackground3D();
+
+    if ( bg3d )
+    {
+        double whi = ( 1.0 * bg3d->m_ImageW() ) / ( 1.0 * bg3d->m_ImageH() );
+
+        double px_w, px_h;
+
+        px_w = m_GlWin->pixel_w() - 10;
+        px_h = m_GlWin->pixel_h() - 10;
+
+        double whs = px_w / px_h;
+
+        double oz;
+        if ( whi > whs )
+        {
+            oz = 1.0 / px_w;
+        }
+        else
+        {
+            oz = 1.0 / ( px_h * whi );
+        }
+
+        m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( oz );
+    }
+}
+
+void Background3DPreviewScreen::ResizeCallBack( Fl_Widget *w )
+{
+    SetZoom();
+    m_ScreenMgr->SetUpdateFlag( true );
 }

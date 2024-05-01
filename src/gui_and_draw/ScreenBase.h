@@ -942,4 +942,26 @@ class FeaXSecScreen : public BasicScreen
     VSPGUI::VspSubGlWindow * m_GlWin;
 };
 
+class Background3DPreviewScreen : public BasicScreen
+{
+public:
+    Background3DPreviewScreen( ScreenMgr* mgr );
+    virtual ~Background3DPreviewScreen()
+    {
+    }
+    virtual bool Update();
+    virtual void Show();
+    virtual void SetZoom();
+
+    virtual void ResizeCallBack( Fl_Widget *w );
+    static void staticResizeCB( Fl_Widget *w, void* data )
+    {
+        static_cast< Background3DPreviewScreen* >( data )->ResizeCallBack( w );
+    }
+
+protected:
+
+    VSPGUI::BG3DSubGlWindow * m_GlWin;
+};
+
 #endif // !defined(SCREENBASE__INCLUDED_)
