@@ -5823,7 +5823,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
     m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
-    m_CurrentXSecDrawObj.m_Visible = isshown && isactive && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER;
+    m_CurrentXSecDrawObj.m_Visible = isactive;
     m_CurrentXSecDrawObj.m_LineColor = m_Vehicle->GetXSecLineColor() / 255.; // normalize
     draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
 

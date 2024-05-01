@@ -277,7 +277,7 @@ void BORGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
     m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
-    m_CurrentXSecDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == vsp::DISPLAY_TYPE::DISPLAY_BEZIER;
+    m_CurrentXSecDrawObj.m_Visible = m_Vehicle->IsGeomActive( m_ID );
     draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
 }
 
