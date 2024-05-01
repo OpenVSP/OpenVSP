@@ -119,10 +119,14 @@ xmlNodePtr Background3D::DecodeXml( xmlNodePtr & node )
 void Background3D::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     draw_obj_vec.push_back( &m_BackgroundDO );
+    draw_obj_vec.push_back( &m_BackgroundPreviewDO );
+    draw_obj_vec.push_back( &m_RefPtDO );
 }
 
 void Background3D::Update()
 {
+    bool isactive = Background3DMgr.GetCurrentBackground3D() == this;
+
     if ( !m_BGFile.empty() && !m_ImageReady )
     {
         UpdateImageInfo();
@@ -338,6 +342,22 @@ void Background3D::Update()
     mat.xformmat( m_BackgroundDO.m_PntMesh[0] );
     mat.xformnormmat( m_BackgroundDO.m_NormMesh[0] );
 
+
+    Matrix4d preview_mat;
+
+    preview_mat.scalez( ( 1.0 * m_ImageH() ) / (1.0 * m_ImageW() ) );
+
+    MakePlane( m_BackgroundPreviewDO );
+    m_BackgroundPreviewDO.m_GeomID = "BG3D_PRE_" + GetID();
+    m_BackgroundPreviewDO.m_Screen = DrawObj::VSP_3DBG_PREVIEW;
+    m_BackgroundPreviewDO.m_Type = DrawObj::VSP_TEXTURED_MESH;
+    m_BackgroundPreviewDO.m_Visible = isactive;
+    m_BackgroundPreviewDO.m_VisibleDirFlag = false;
+
+    preview_mat.xformmat( m_BackgroundPreviewDO.m_PntMesh[0] );
+    preview_mat.xformnormmat( m_BackgroundPreviewDO.m_NormMesh[0] );
+
+
     if ( m_RearVisible() )
     {
         m_BackgroundDO.m_Type = DrawObj::VSP_TEXTURED_MESH;
@@ -387,6 +407,66 @@ void Background3D::Update()
             ( m_ImageAutoTransparent() << 4 );
 
     m_BackgroundDO.m_TextureInfos[0].ID = "TEX_" + to_string( m_ImageRev ) + "_" + GetID();
+
+
+
+    m_BackgroundPreviewDO.m_TextureInfos.resize( 1 );
+
+    m_BackgroundPreviewDO.m_TextureInfos[0].FileName = m_BGFile;
+    m_BackgroundPreviewDO.m_TextureInfos[0].UScale = 1.0;
+    m_BackgroundPreviewDO.m_TextureInfos[0].WScale = 1.0;
+    m_BackgroundPreviewDO.m_TextureInfos[0].U = 0.0;
+    m_BackgroundPreviewDO.m_TextureInfos[0].W = 0.0;
+    m_BackgroundPreviewDO.m_TextureInfos[0].Transparency = 1.0;
+    m_BackgroundPreviewDO.m_TextureInfos[0].BlendTransparency = false;
+    m_BackgroundPreviewDO.m_TextureInfos[0].UFlip = true;
+    m_BackgroundPreviewDO.m_TextureInfos[0].WFlip = false;
+
+    m_BackgroundPreviewDO.m_TextureInfos[0].Rot = m_ImageRot();
+    m_BackgroundPreviewDO.m_TextureInfos[0].FlipLR = m_ImageFlipLR();
+    m_BackgroundPreviewDO.m_TextureInfos[0].FlipUD = m_ImageFlipUD();
+    m_BackgroundPreviewDO.m_TextureInfos[0].AutoTrans = m_ImageAutoTransparent();
+
+    m_BackgroundPreviewDO.m_TextureInfos[0].ModificationKey =
+            m_ImageRot() +
+            ( m_ImageFlipLR() << 2 ) +
+            ( m_ImageFlipUD() << 3 ) +
+            ( m_ImageAutoTransparent() << 4 );
+
+    m_BackgroundPreviewDO.m_TextureInfos[0].ID = "BG_PREVIEW_" + to_string( m_ImageRev ) + "_" + GetID();
+
+
+
+    double xcen = -( 1.0 * m_ImageX() - 0.5 * m_ImageW() ) / ( 1.0 * m_ImageW() );
+    double ycen = -( 1.0 * m_ImageY() - 0.5 * m_ImageH() ) / ( 1.0 * m_ImageW() );
+    double r = .03;
+    vec3d norm( -1, 0, 0 );
+
+    m_RefPtDO.m_PntVec.clear();
+    m_RefPtDO.m_NormVec.clear();
+    MakeCircle( vec3d( 0, xcen, ycen ),
+                norm, 0.02, m_RefPtDO );
+
+    vector<vec3d> crosshairpt( { vec3d(0, xcen, ycen ),
+                                 vec3d(0, xcen - r, ycen ),
+                                 vec3d(0, xcen + r, ycen ),
+                                 vec3d(0, xcen, ycen ),
+                                 vec3d(0, xcen, ycen - r ),
+                                 vec3d(0, xcen, ycen + r ) } );
+
+    for ( int i = 0; i < crosshairpt.size(); i++ )
+    {
+        m_RefPtDO.m_PntVec.push_back( crosshairpt[i] );
+        m_RefPtDO.m_NormVec.push_back( norm );
+    }
+
+    m_RefPtDO.m_LineColor = vec3d( 0, 0, 1 );
+    m_RefPtDO.m_LineWidth = 1.0;
+    m_RefPtDO.m_GeomID = "BG3D_REFPT_" + GetID();
+    m_RefPtDO.m_Screen = DrawObj::VSP_3DBG_PREVIEW;
+    m_RefPtDO.m_Visible = isactive;
+    m_RefPtDO.m_VisibleDirFlag = false;
+
 }
 
 void Background3D::UpdateImageInfo()

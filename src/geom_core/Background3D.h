@@ -76,6 +76,9 @@ protected:
     int m_ImageRev;
 
     DrawObj m_BackgroundDO;
+    DrawObj m_BackgroundPreviewDO;
+
+    DrawObj m_RefPtDO;
 };
 
 #endif
