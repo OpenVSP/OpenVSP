@@ -1764,7 +1764,7 @@ ColResizeBrowser* GroupLayout::AddColResizeBrowser( int* width_array_ptr, size_t
     }
 
     ColResizeBrowser* browser = new ColResizeBrowser( m_X, m_Y, m_W, height );
-    browser->type( FL_MULTI_BROWSER );
+    browser->type( FL_HOLD_BROWSER );
     browser->textsize( 12 );
     browser->labelfont( 13 );
     browser->labelsize( 12 );

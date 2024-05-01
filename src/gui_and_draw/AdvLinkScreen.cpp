@@ -126,6 +126,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
 
     m_InputBrowser = m_InputBrowserLayout.AddColResizeBrowser( in_col_widths, 4, browser_h );
     m_InputBrowser->callback( staticScreenCB, this );
+    m_InputBrowser->type( FL_MULTI_BROWSER );
 
     m_InputGroup.SetX( start_x );
 
@@ -180,6 +181,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
 
     m_OutputBrowser = m_OutputBrowserLayout.AddColResizeBrowser( out_col_widths, 4, browser_h );
     m_OutputBrowser->callback( staticScreenCB, this );
+    m_OutputBrowser->type( FL_MULTI_BROWSER );
 
     m_OutputGroup.SetX( start_x );
 

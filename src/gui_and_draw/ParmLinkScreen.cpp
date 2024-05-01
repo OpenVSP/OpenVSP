@@ -128,6 +128,7 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
 
     m_LinkBrowser = m_GenLayout.AddColResizeBrowser( col_widths, 7, 310 );
     m_LinkBrowser->callback( staticScreenCB, this );
+    m_LinkBrowser->type( FL_MULTI_BROWSER );
 }
 
 ParmLinkScreen::~ParmLinkScreen()

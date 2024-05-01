@@ -251,6 +251,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 550, 750, "FEA St
 
     m_FeaPartSelectBrowser = m_FeaPartBrowserLayout.AddColResizeBrowser( part_col_widths, 6, browser_h );
     m_FeaPartSelectBrowser->callback( staticScreenCB, this );
+    m_FeaPartSelectBrowser->type( FL_MULTI_BROWSER );
 
     m_PartTabLayout.SetX( start_x );
 

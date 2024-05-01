@@ -56,6 +56,7 @@ SelectFileScreen::SelectFileScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 440, 34
 
     m_FileBrowser = new Fl_File_Browser(5, 60, 430, 225);
     m_FileBrowser->labelsize(12);
+    m_FileBrowser->type( FL_HOLD_BROWSER );
 
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -83,8 +84,6 @@ SelectFileScreen::SelectFileScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 440, 34
     m_BorderLayout.AddX( m_BorderLayout.GetW() / 3);
     m_BorderLayout.AddButton( m_CancelButton , "Cancel");
 
-    //Need to give it a type or browser does not work as intended
-    m_FileBrowser->type( FL_SELECT_BROWSER );
 
     //Need the callbacks for these objects
     m_FileBrowser->callback( staticScreenCB, this );

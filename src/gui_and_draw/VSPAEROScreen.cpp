@@ -526,7 +526,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CSGroupBrowser = m_CSGroupingLayout.AddFlBrowser( 0 );
     m_CSGroupBrowser->resize( m_CSGroupingLayout.GetX(), m_CSGroupingLayout.GetY(), main_browser_w, browser_h + browser_h_augment );
-    m_CSGroupBrowser->type( FL_SELECT_BROWSER );
     m_CSGroupBrowser->labelfont( 13 );
     m_CSGroupBrowser->textsize( 12 );
     m_CSGroupBrowser->callback( staticScreenCB, this );
