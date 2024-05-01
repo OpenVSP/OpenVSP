@@ -20,7 +20,8 @@ VSP_Window::VSP_Window(int w, int h, const char* title) : Fl_Double_Window( w, h
     m_Parent = NULL;
     m_AttachType = WIN_ATT_NONE;
     m_AlignType = WIN_ALN_NONE;
-
+    m_ResizeCB = NULL;
+    m_ResizeData = NULL;
 }
 
 VSP_Window::VSP_Window(int x, int y, int w, int h, const char* l) : Fl_Double_Window(x , y, w, h, l)
@@ -29,6 +30,8 @@ VSP_Window::VSP_Window(int x, int y, int w, int h, const char* l) : Fl_Double_Wi
     m_Parent = NULL;
     m_AttachType = WIN_ATT_NONE;
     m_AlignType = WIN_ALN_NONE;
+    m_ResizeCB = NULL;
+    m_ResizeData = NULL;
 }
 
 void VSP_Window::SetAlignType( int t )
@@ -112,6 +115,11 @@ void VSP_Window::resize( int x_in, int y_in, int w_in, int h_in )
     }
 
     UpdateChildren();
+
+    if ( m_ResizeCB )
+    {
+        m_ResizeCB( this, m_ResizeData );
+    }
 }
 
 void VSP_Window::resizeFromParent(int x_in, int y_in, int w_in, int h_in)
@@ -269,6 +277,8 @@ int VSP_Window::handle( int fl_event )
     return Fl_Double_Window::handle( fl_event );
 }
 
-
-
-
+void VSP_Window::SetResizeCallback( Fl_Callback* cb, void* p )
+{
+    m_ResizeCB = cb;
+    m_ResizeData = p;
+}

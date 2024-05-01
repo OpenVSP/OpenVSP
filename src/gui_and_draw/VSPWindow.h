@@ -64,6 +64,8 @@ public:
         m_y = Y;
     }
 
+    void SetResizeCallback( Fl_Callback* cb, void* p );
+
 protected:
 
     bool m_GeomScreen;
@@ -74,6 +76,9 @@ protected:
 
     int m_AttachType;
     int m_AlignType;
+
+    Fl_Callback* m_ResizeCB;
+    void* m_ResizeData;
 
 };
 
