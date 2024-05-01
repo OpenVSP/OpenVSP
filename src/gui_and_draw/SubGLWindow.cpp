@@ -81,27 +81,34 @@ void VspSubGlWindow::draw()
 
 void VspSubGlWindow::update()
 {
+    make_current();
+
+    if( this->context_valid() )
+    {
+        vector<DrawObj*> drawObjs;
+
+        LoadAllDrawObjs( drawObjs );
+
+        _update( drawObjs );
+
+        for( int i = 0; i < (int)drawObjs.size(); i++ )
+        {
+            if( drawObjs[i]->m_Screen == m_LinkedScreen )
+            {
+                drawObjs[i]->m_GeomChanged = false;
+            }
+        }
+
+    }
+}
+
+void VspSubGlWindow::LoadAllDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
     Vehicle* vPtr = VehicleMgr.GetVehicle();
 
     if ( vPtr )
     {
-        make_current();
-
-        if( this->context_valid() )
-        {
-            vector<DrawObj*> drawObjs;
-            vPtr->LoadDrawObjs( drawObjs );
-            _update( drawObjs );
-
-            for( int i = 0; i < (int)drawObjs.size(); i++ )
-            {
-                if( drawObjs[i]->m_Screen == m_LinkedScreen )
-                {
-                    drawObjs[i]->m_GeomChanged = false;
-                }
-            }
-
-        }
+        vPtr->LoadDrawObjs( draw_obj_vec );
     }
 }
 

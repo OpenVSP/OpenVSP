@@ -52,6 +52,7 @@ public:
     * Update window.
     */
     virtual void update();
+    virtual void LoadAllDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
 public:
     /*!
