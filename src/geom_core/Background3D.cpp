@@ -98,6 +98,12 @@ xmlNodePtr Background3D::EncodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            veh->MakeRelativePath( m_BGFile );
+        }
+
         XmlUtil::AddStringNode( parmcontain_node, "BGFile", m_BGFile );
     }
 
@@ -111,6 +117,12 @@ xmlNodePtr Background3D::DecodeXml( xmlNodePtr & node )
     if ( parmcontain_node )
     {
         m_BGFile = XmlUtil::FindString( parmcontain_node, "BGFile", m_BGFile );
+
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            veh->MakeAbsolutePath( m_BGFile );
+        }
     }
 
     return parmcontain_node;
