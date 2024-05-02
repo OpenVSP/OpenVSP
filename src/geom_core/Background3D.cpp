@@ -110,7 +110,7 @@ xmlNodePtr Background3D::DecodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
-        m_BGFile = ParmMgr.RemapID( XmlUtil::FindString( parmcontain_node, "BGFile", m_BGFile ) );
+        m_BGFile = XmlUtil::FindString( parmcontain_node, "BGFile", m_BGFile );
     }
 
     return parmcontain_node;
