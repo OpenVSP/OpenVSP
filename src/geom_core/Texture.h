@@ -24,6 +24,7 @@ public:
     * Override ParmContainer.
     */
     xmlNodePtr EncodeXml( xmlNodePtr &node );
+    xmlNodePtr DecodeXml( xmlNodePtr & node );
 
 public:
     /*!
