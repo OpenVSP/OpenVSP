@@ -50,7 +50,10 @@ Texture::~Texture()
 xmlNodePtr Texture::EncodeXml( xmlNodePtr &node )
 {
     xmlNodePtr container_node = ParmContainer::EncodeXml( node );
-    XmlUtil::AddStringNode( container_node, "File_Name", m_FileName );
+    if ( container_node )
+    {
+        XmlUtil::AddStringNode( container_node, "File_Name", m_FileName );
+    }
     return container_node;
 }
 
