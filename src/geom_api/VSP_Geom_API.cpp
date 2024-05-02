@@ -202,12 +202,12 @@ void ReadVSPFile( const string & file_name )
 void WriteVSPFile( const string & file_name, int set )
 {
     Vehicle* veh = GetVehicle();
+    veh->SetVSP3FileName( file_name );
     if( !veh->WriteXMLFile( file_name, set ) )
     {
         ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteVSPFile::Failure Writing File " + file_name );
         return;
     }
-    veh->SetVSP3FileName( file_name );
     ErrorMgr.NoError();
 }
 

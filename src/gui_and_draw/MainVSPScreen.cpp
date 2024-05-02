@@ -391,7 +391,10 @@ void MainVSPScreen::ActionCB( void * data )
             string savefile = m_ScreenMgr->FileChooser( "Save VSP Set File As", "*.vsp3", vsp::SAVE );
             if ( savefile.compare( "" ) != 0 )
             {
+                string oldfile = VehicleMgr.GetVehicle()->GetVSP3FileName();
+                VehicleMgr.GetVehicle()->SetVSP3FileName( savefile );
                 VehicleMgr.GetVehicle()->WriteXMLFile( savefile, set );
+                VehicleMgr.GetVehicle()->SetVSP3FileName( oldfile );
             }
         }
     }
