@@ -155,6 +155,8 @@ public:
     void SetVSP3FileName( const string & f_name );
     string GetVSP3FileName()                                { return m_VSP3FileName; }
     int GetFileVersion()                                    { return m_FileOpenVersion; }
+    void MakeRelativePath( string & fname );
+    void MakeAbsolutePath( string & fname );
 
     void SetupPaths();
 

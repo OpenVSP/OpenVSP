@@ -10,6 +10,8 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#include <filesystem>
+
 #include "Vehicle.h"
 
 #include "AdvLinkMgr.h"
@@ -545,6 +547,33 @@ void Vehicle::SetVSP3FileName( const string & f_name )
     m_ISectSettings.ResetExportFileNames( m_VSP3FileName );
     StructureMgr.ResetAllExportFileNames();
     resetExportFileNames();
+}
+
+// Make fname into a path relative to m_VSP3ileName.
+void Vehicle::MakeRelativePath( string & fname )
+{
+    if ( m_VSP3FileName.compare( "Unnamed.vsp3" ) != 0 )
+    {
+        std::filesystem::path vsppath( m_VSP3FileName );
+        vsppath.remove_filename();
+        const std::filesystem::path inpath( fname );
+
+        fname = std::filesystem::relative( inpath, vsppath ).generic_string();
+    }
+}
+
+// Make relative path fname into absolute path.
+void Vehicle::MakeAbsolutePath( string & fname )
+{
+    if ( m_VSP3FileName.compare( "Unnamed.vsp3" ) != 0 )
+    {
+        std::filesystem::path vsppath( m_VSP3FileName );
+        vsppath.remove_filename();
+
+        vsppath /= fname; // Append with appropriate path separator.
+
+        fname = vsppath.generic_string();
+    }
 }
 
 void Vehicle::SetupPaths()
