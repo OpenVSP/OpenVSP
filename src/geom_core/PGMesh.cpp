@@ -1022,6 +1022,24 @@ bool PGFace::Validate()
     return valid;
 }
 
+void PGFace::WalkRegion()
+{
+    for ( int i = 0; i < m_EdgeVec.size(); i++ )
+    {
+        PGEdge *e = m_EdgeVec[i];
+        PGFace* f = e->OtherManifoldFace( this );
+
+        if ( f )
+        {
+            if ( f->m_Region == -1 && f->m_Tag == m_Tag )
+            {
+                f->m_Region = m_Region;
+                f->WalkRegion();
+            }
+        }
+    }
+}
+
 PGNode * PGFace::FindDoubleBackNode( PGEdge* & edouble )
 {
     edouble = NULL;
@@ -2586,6 +2604,30 @@ void PGMesh::SplitFace( PGFace *f0, PGEdge *e )
 
     e->AddConnectFace( f0 );
     e->AddConnectFace( f1 );
+}
+
+void PGMesh::MakeRegions()
+{
+    m_Regions.clear();
+
+    // Initialize faces as members of no region.
+    list< PGFace* >::iterator f;
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        ( *f )->m_Region = -1;
+    }
+
+    for ( f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
+    {
+        // Start new region with un-classified face.
+        if ( ( *f )->m_Region == -1 )
+        {
+            int reg = m_Regions.size();
+            m_Regions.push_back( *f );
+            (*f)->m_Region = reg;
+            (*f)->WalkRegion();
+        }
+    }
 }
 
 void PGMesh::Triangulate()

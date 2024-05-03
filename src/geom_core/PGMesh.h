@@ -162,6 +162,8 @@ public:
 
     bool Validate();
 
+    void WalkRegion();
+
     PGNode * FindDoubleBackNode( PGEdge* & edouble );
 
     void SplitEdge( PGEdge *e0, PGEdge *e1 );
@@ -178,6 +180,8 @@ public:
     int m_Tag;
 
     int m_ID;
+
+    int m_Region;
 
     vector< PGEdge* > m_EdgeVec;
     vector < PGNode* > m_TriNodeVec;
@@ -259,6 +263,8 @@ public:
     std::vector< std::vector<int> > m_TagKeys;
     std::map< std::vector<int>, int > m_SingleTagMap;
 
+    vector < PGFace* > m_Regions;
+
     PGNode * StartList( const list < PGEdge * > & elist );
     PGNode * StartLoop( const vector < PGEdge * > & eloop );
 
@@ -287,6 +293,8 @@ public:
     void SplitFaceFromDoubleBackNode( PGFace *f, PGEdge *e, PGNode *n );
 
     void SplitFace( PGFace *f0, PGEdge *e );
+
+    void MakeRegions();
 
     void Triangulate();
     void ClearTris();
