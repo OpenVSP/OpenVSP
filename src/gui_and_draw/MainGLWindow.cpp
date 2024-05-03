@@ -8,6 +8,9 @@
 #define _HAS_STD_BYTE 0
 #endif
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "MainGLWindow.h"
 
 #include "Background3DMgr.h"
