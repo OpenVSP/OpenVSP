@@ -3544,6 +3544,38 @@ string PGMesh::GetTagIDs( int indx )
     return string( "Error_Tag" );
 }
 
+string PGMesh::GetGID( const int& tag )
+{
+    string id_list = GetTagIDs( tag - 1 );
+
+    // Find position of token _Surf
+    int spos = id_list.find( "_Surf" );
+    string gid = id_list.substr( 0, spos );
+    string gid_bare = gid.substr( 0, 10 );
+
+    return gid_bare;
+}
+
+int PGMesh::GetThickThin( const int &tag )
+{
+    return GetThickThin( GetGID( tag ) );
+}
+
+int PGMesh::GetThickThin( const string & gid )
+{
+    int thickthin = -1;
+    map < string, int >::iterator it;
+    it = m_ThickMap.find( gid );
+    if ( it != m_ThickMap.end() )
+    {
+        thickthin = m_ThickMap[ gid ];
+    }
+    else
+    {
+        printf( "gid %s not in m_ThickMap.\n", gid.c_str() );
+    }
+    return thickthin;
+}
 
 bool PGMesh::MatchPartAndTag( const vector < int > & tags, int part, int tag )
 {

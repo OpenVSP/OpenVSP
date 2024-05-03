@@ -329,6 +329,10 @@ public:
     std::string GetTagIDs( const std::vector<int>& tags );
     std::string GetTagIDs( int indx );
 
+    string GetGID( const int& tag );
+    int GetThickThin( const int &tag );
+    int GetThickThin( const string & gid );
+
     bool MatchPartAndTag( const vector < int > & tags, int part, int tag );
     bool MatchPartAndTag( int singletag, int part, int tag );
     bool ExistPartAndTag( int part, int tag );
