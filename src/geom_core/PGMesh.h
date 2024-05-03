@@ -297,6 +297,7 @@ public:
     void SplitFace( PGFace *f0, PGEdge *e );
 
     void MakeRegions();
+    void CullOrphanThinRegions( double tol );
 
     void Triangulate();
     void ClearTris();

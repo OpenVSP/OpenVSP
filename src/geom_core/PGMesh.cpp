@@ -2650,6 +2650,57 @@ void PGMesh::MakeRegions()
     }
 }
 
+void PGMesh::CullOrphanThinRegions( double tol )
+{
+    int nreg = m_Regions.size();
+    vector < double > region_area( nreg, 0.0 );
+
+    list< PGFace* >::iterator fit;
+    for ( fit = m_FaceList.begin() ; fit != m_FaceList.end(); ++fit )
+    {
+        region_area[ ( *fit )->m_Region ] += (*fit)->ComputeArea();
+    }
+
+    vector < int > region_thick( nreg );
+    vector < int > region_tag( nreg );
+
+    map < int, double > tag_area;
+    for ( int i = 0; i < nreg; i++ )
+    {
+        // Representative face.
+        PGFace* f = m_Regions[i];
+
+        string geomid = GetGID( f->m_Tag );
+        region_thick[ i ] = GetThickThin( f->m_Tag );
+        region_tag[ i ] = f->m_Tag;
+        tag_area[ region_tag[ i ] ] += region_area[ i ];
+    }
+
+    vector < bool > region_cull( nreg, false );
+    for ( int i = 0; i < nreg; i++ )
+    {
+        if ( !region_thick[i] && region_area[i] < tol * tag_area[ region_tag[i] ] )
+        {
+            region_cull[i] = true;
+        }
+    }
+
+    // Copy list to vector because removal from list will corrupt list in-use.
+    vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
+    for ( int i = 0; i < fVec.size(); i++ )
+    {
+        PGFace *f = fVec[ i ];
+        if ( region_cull[ f->m_Region ] )
+        {
+            RemoveFace( f );
+        }
+    }
+
+    CleanUnused();
+
+    DumpGarbage();
+}
+
 void PGMesh::Triangulate()
 {
     vector< PGFace* > fVec( m_FaceList.begin(), m_FaceList.end() );
