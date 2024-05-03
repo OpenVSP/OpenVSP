@@ -1843,6 +1843,9 @@ string MeshGeom::CreateNGonMeshGeom()
         new_geom->SplitLEGeom();
 
 
+        new_geom->m_PGMesh.MakeRegions();
+        new_geom->m_PGMesh.CullOrphanThinRegions( 0.05 );
+
 
         //new_geom->m_PGMesh.MergeCoincidentNodes();
         //new_geom->m_PGMesh.MergeDuplicateEdges();
