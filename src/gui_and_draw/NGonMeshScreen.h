@@ -26,6 +26,8 @@ public:
 
     TriggerButton m_WriteVSPGEOMButton;
 
+    ToggleButton m_ShowNonManifoldEdgesButton;
+
 protected:
 
 };

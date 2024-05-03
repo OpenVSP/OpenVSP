@@ -30,6 +30,8 @@ NGonMeshScreen::NGonMeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "N
     m_OtherLayout.AddButton( m_WriteVSPGEOMButton, "Write VSPGEOM" );
     m_OtherLayout.AddYGap();
 
+    m_OtherLayout.AddButton( m_ShowNonManifoldEdgesButton, "Show Non Manifold Edges" );
+
 }
 
 
@@ -60,6 +62,8 @@ bool NGonMeshScreen::Update()
     //==== Update NGonMesh Specific Parms ====//
     NGonMeshGeom* ngon_mesh_geom_ptr = dynamic_cast< NGonMeshGeom* >( geom_ptr );
     assert( ngon_mesh_geom_ptr );
+
+    m_ShowNonManifoldEdgesButton.Update( ngon_mesh_geom_ptr->m_ShowNonManifoldEdges.GetID() );
 
     return true;
 }
