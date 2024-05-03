@@ -321,6 +321,25 @@ PGNode* PGEdge::SharedNode( const PGEdge* e ) const
     return NULL;
 }
 
+PGFace* PGEdge::OtherManifoldFace( PGFace* f )
+{
+    if ( m_FaceVec.size() != 2 )
+    {
+        return NULL;
+    }
+
+    if ( m_FaceVec[0] == f )
+    {
+        return m_FaceVec[1];
+    }
+
+    if ( m_FaceVec[1] == f )
+    {
+        return m_FaceVec[0];
+    }
+    return NULL;
+}
+
 void PGEdge::ReplaceNode( PGNode* curr_PGNode, PGNode* replace_PGNode )
 {
     if ( m_N0 == curr_PGNode )

@@ -114,6 +114,8 @@ public:
     PGNode* OtherNode( const PGNode* n ) const;
     PGNode* SharedNode( const PGEdge* e ) const;
 
+    PGFace* OtherManifoldFace( PGFace* );
+
     void NodesForgetEdge();
 
     void SortFaces();
