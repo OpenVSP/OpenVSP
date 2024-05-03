@@ -53,6 +53,8 @@ public:
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;
 
+    BoolParm m_ShowNonManifoldEdges;
+
     DrawObj m_BadEdgeTooFewDO;
     DrawObj m_BadEdgeTooManyDO;
 

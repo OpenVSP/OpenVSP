@@ -29,6 +29,8 @@ NGonMeshGeom::NGonMeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
 
+    m_ShowNonManifoldEdges.Init( "ShowNonManifoldEdges", "Draw", this, false, false, true );
+
     Update();
 }
 
@@ -445,6 +447,7 @@ void NGonMeshGeom::UpdateDrawObj()
 
 void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
+    bool visible = GetSetFlag( vsp::SET_SHOWN );
     unsigned int num_uniq_tags = m_PGMesh.GetNumTags();
 
     // Calculate constants for color sequence.
@@ -499,10 +502,10 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         // Outline.
         m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-        m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        m_WireShadeDrawObj_vec[i].m_Visible = visible;
         // Faces.
         int k = i + num_uniq_tags;
-        m_WireShadeDrawObj_vec[k].m_Visible = GetSetFlag( vsp::SET_SHOWN );
+        m_WireShadeDrawObj_vec[k].m_Visible = visible;
 
         switch( m_GuiDraw.GetDrawType() )
         {
@@ -540,12 +543,12 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
     }
 
-    m_BadEdgeTooFewDO.m_Visible = true;
-    m_BadEdgeTooManyDO.m_Visible = true;
+    m_BadEdgeTooFewDO.m_Visible = m_ShowNonManifoldEdges() && visible;
+    m_BadEdgeTooManyDO.m_Visible = m_ShowNonManifoldEdges() && visible;
     draw_obj_vec.push_back( &m_BadEdgeTooFewDO );
     draw_obj_vec.push_back( &m_BadEdgeTooManyDO );
 
-    m_CoLinearLoopDO.m_Visible = true;
+    m_CoLinearLoopDO.m_Visible = m_ShowNonManifoldEdges() && visible;
     draw_obj_vec.push_back( &m_CoLinearLoopDO );
 }
 
