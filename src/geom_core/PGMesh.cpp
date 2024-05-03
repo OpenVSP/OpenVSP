@@ -1022,6 +1022,26 @@ bool PGFace::Validate()
     return valid;
 }
 
+double PGFace::ComputeArea()
+{
+    vector < PGNode* > nodVec;
+    GetNodesAsTris( nodVec );
+
+    int ntri = nodVec.size() / 3;
+
+    double a = 0;
+    for ( int i = 0; i < ntri; i++ )
+    {
+        int inod = 3 * i;
+        vec3d v0 = nodVec[ inod ]->m_Pnt;
+        vec3d v1 = nodVec[ inod + 1 ]->m_Pnt;
+        vec3d v2 = nodVec[ inod + 2 ]->m_Pnt;
+
+        a += area( v0, v1, v2 );
+    }
+    return a;
+}
+
 void PGFace::WalkRegion()
 {
     for ( int i = 0; i < m_EdgeVec.size(); i++ )

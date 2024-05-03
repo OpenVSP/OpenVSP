@@ -162,6 +162,8 @@ public:
 
     bool Validate();
 
+    double ComputeArea();
+
     void WalkRegion();
 
     PGNode * FindDoubleBackNode( PGEdge* & edouble );
