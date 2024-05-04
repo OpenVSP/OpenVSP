@@ -610,7 +610,6 @@ protected:
 void CreateTMeshVecFromPts( const Geom * geom,
                             vector < TMesh* > & TMeshVec,
                             const vector< vector<vec3d> > & pnts,
-                            const vector< vector<vec3d> > & norms,
                             const vector< vector<vec3d> > & uw_pnts,
                             int indx, int platenum, int surftype, int cfdsurftype,
                             bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal );
