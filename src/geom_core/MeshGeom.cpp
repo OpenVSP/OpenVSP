@@ -1887,16 +1887,6 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     // Temporary variable -- likely pass up to top levels and make an option.
     bool deleteopen = false;
 
-    //==== Check For Open Meshes and Merge or Delete Them ====//
-    MeshInfo info;
-
-    // This call is made later (after subsurface intersection) for the !degen case.
-    // Perhaps this can be moved down there to match.
-    if ( degen )
-    {
-        MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
-    }
-
     //==== Scale To 10 Units ====//
     UpdateBBox();
     m_LastScale = 1.0;
@@ -2010,8 +2000,11 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         // Tag meshes before regular intersection
         SubTagTris( (bool)intSubsFlag );
 
-        MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
     }
+
+    //==== Check For Open Meshes and Merge or Delete Them ====//
+    MeshInfo info;
+    MergeRemoveOpenMeshes( m_TMeshVec, &info, deleteopen );
 
     if ( halfFlag )
     {
