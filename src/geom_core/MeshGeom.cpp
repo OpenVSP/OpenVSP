@@ -1936,7 +1936,8 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         res->Add( new NameValData( "Total_Num_Tris", numTris, "Number of starting tris." ) );
         res->Add( new NameValData( "Mesh_GeomID", this->GetID(), "GeomID of MeshGeom created." ) );
     }
-
+    // These blocks could be merged.  However, they are kept separate to emphasize the limited scope of the variables
+    // created in the above block (numTris and compIdVec).
     if ( !degen )
     {
         //==== Intersect Subsurfaces to make clean lines ====//
