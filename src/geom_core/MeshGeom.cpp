@@ -2088,11 +2088,11 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
         RefreshTagMaps();
     }
 
-    PreIntersectTrim( degenGeom, degen, intSubsFlag, info, res );
+    PreIntersectTrim( degenGeom, intSubsFlag, info, res );
     PostIntersectTrim( degenGeom, degen, intSubsFlag, info, res );
 }
 
-void MeshGeom::PreIntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int intSubsFlag, MeshInfo &info, Results *res )
+void MeshGeom::PreIntersectTrim( vector< DegenGeom > &degenGeom, int intSubsFlag, MeshInfo &info, Results *res )
 {
     int i, j;
 
