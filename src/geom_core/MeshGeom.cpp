@@ -1504,6 +1504,12 @@ void MeshGeom::UpdateDrawObj()
         m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
         m_FeatureDrawObj_vec[i].m_LineWidth = 5;
         m_FeatureDrawObj_vec[i].m_LineColor = rgb;
+        m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        char str[255];
+        snprintf( str, sizeof( str ),  "_%d", i );
+        m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+
         m_FeatureDrawObj_vec[i].m_GeomChanged = true;
 
         for ( int j = 0; j < m_PolyVec[i].size(); j++ )
