@@ -1727,18 +1727,18 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
 
         if ( surftype == DegenGeom::SURFACE_TYPE )
         {
-            CreateTMeshVecFromPts( geom,
-                                   tMeshVec,
-                                   degenPlates[i].xCamber,
-                                   uw_pnts,
-                                   getSurfNum(),
-                                   i,
-                                   vsp::WING_SURF,
-                                   getCfdSurfType(),
-                                   thicksurf,
-                                   getFlipNormal(),
-                                   4.0,
-                                   skipnegflipnormal );
+            CreateTMeshVecFromPtsCheckFlat( geom,
+                                            tMeshVec,
+                                            degenPlates[i].xCamber,
+                                            uw_pnts,
+                                            getSurfNum(),
+                                            i,
+                                            vsp::WING_SURF,
+                                            getCfdSurfType(),
+                                            thicksurf,
+                                            getFlipNormal(),
+                                            4.0,
+                                            skipnegflipnormal );
         }
         else if ( surftype == DegenGeom::DISK_TYPE)
         {
@@ -1746,18 +1746,18 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec, int ski
         }
         else
         {
-            CreateTMeshVecFromPts( geom,
-                                   tMeshVec,
-                                   degenPlates[i].x,
-                                   uw_pnts,
-                                   getSurfNum(),
-                                   i,
-                                   vsp::NORMAL_SURF,
-                                   getCfdSurfType(),
-                                   thicksurf,
-                                   getFlipNormal(),
-                                   4.0,
-                                   skipnegflipnormal );
+            CreateTMeshVecFromPtsCheckFlat( geom,
+                                            tMeshVec,
+                                            degenPlates[i].x,
+                                            uw_pnts,
+                                            getSurfNum(),
+                                            i,
+                                            vsp::NORMAL_SURF,
+                                            getCfdSurfType(),
+                                            thicksurf,
+                                            getFlipNormal(),
+                                            4.0,
+                                            skipnegflipnormal );
         }
     }
 }
