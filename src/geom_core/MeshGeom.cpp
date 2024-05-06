@@ -1894,6 +1894,8 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int in
     // m_Scale = 1.0;
     ApplyScale();
 
+    TrimCoplanarPatches();
+
     // Before/after subtagtris matters.
     MergeSplitPatches();
 
