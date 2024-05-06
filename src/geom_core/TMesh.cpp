@@ -5779,6 +5779,11 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                                        iustart, iuend,
                                        flatpatch );
 
+                // Over-ride some variable copies to full range rather than patch subset.
+                TMeshVec.back()->m_UWPnts = uw_pnts;
+                TMeshVec.back()->m_XYZPnts = pnts;
+                TMeshVec.back()->m_Wmin = uw_pnts[0][0].y();
+
                 iustart = iuend;
             }
         }
