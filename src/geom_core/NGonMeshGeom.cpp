@@ -363,15 +363,21 @@ void NGonMeshGeom::UpdateDrawObj()
         vec3d rgb = m_FeatureDrawObj_vec[iwake].ColorWheel( deg );
         rgb.normalize();
 
+        m_FeatureDrawObj_vec[iwake].m_Type = DrawObj::VSP_LINE_STRIP;
         m_FeatureDrawObj_vec[iwake].m_LineWidth = 5;
         m_FeatureDrawObj_vec[iwake].m_LineColor = rgb;
+        m_FeatureDrawObj_vec[iwake].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
+        char str[255];
+        snprintf( str, sizeof( str ),  "_%d", iwake );
+        m_FeatureDrawObj_vec[iwake].m_GeomID = m_ID + "Feature_" + str;
+
+        m_FeatureDrawObj_vec[iwake].m_GeomChanged = true;
 
         vector< PGNode* > nodVec;
         GetNodes( m_PGMesh.m_WakeVec[iwake], nodVec );
 
         m_FeatureDrawObj_vec[iwake].m_PntVec.resize( nodVec.size() );
-
         for ( int i = 0; i < nodVec.size(); i++ )
         {
             if ( nodVec[i] )
@@ -535,12 +541,6 @@ void NGonMeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
                 m_WireShadeDrawObj_vec[i].m_Visible = false;
                 break;
         }
-    }
-
-
-    for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
-    {
-        m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
     }
 
     m_BadEdgeTooFewDO.m_Visible = m_ShowNonManifoldEdges() && visible;

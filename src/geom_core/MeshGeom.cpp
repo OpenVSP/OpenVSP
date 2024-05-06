@@ -1596,7 +1596,6 @@ void MeshGeom::UpdateDrawObj()
         vec3d rgb = m_FeatureDrawObj_vec[i].ColorWheel( deg );
         rgb.normalize();
 
-        m_FeatureDrawObj_vec[i].m_PntVec.resize( m_PolyVec[i].size() );
         m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
         m_FeatureDrawObj_vec[i].m_LineWidth = 5;
         m_FeatureDrawObj_vec[i].m_LineColor = rgb;
@@ -1608,6 +1607,7 @@ void MeshGeom::UpdateDrawObj()
 
         m_FeatureDrawObj_vec[i].m_GeomChanged = true;
 
+        m_FeatureDrawObj_vec[i].m_PntVec.resize( m_PolyVec[i].size() );
         for ( int j = 0; j < m_PolyVec[i].size(); j++ )
         {
             m_FeatureDrawObj_vec[i].m_PntVec[j] = trans.xform( m_PolyVec[i][j] );
