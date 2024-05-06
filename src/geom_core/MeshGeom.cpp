@@ -3891,6 +3891,34 @@ void MeshGeom::FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm )
     FitPlane( pts, cen, norm );
 }
 
+// Prioritize TMeshes by:
+// 1 Wing surface type.  Wings dominate all other types.
+// 2 Mass priority.  User can manually change priority.
+// 3 GeomID alphabetically.  Arbitrary, but repeatable within one file.
+// 4 Surface number.  Break ties repeatably from symmetry.
+bool CutterTMeshCompare( TMesh* a, TMesh* b )
+{
+    if ( a->m_SurfType == vsp::WING_SURF && b->m_SurfType != vsp::WING_SURF )
+        return a;
+
+    if ( b->m_SurfType == vsp::WING_SURF && a->m_SurfType != vsp::WING_SURF )
+        return b;
+
+    if ( a->m_MassPrior > b->m_MassPrior )
+        return a;
+
+    if ( b->m_MassPrior > a->m_MassPrior )
+        return b;
+
+    if ( a->m_OriginGeomID < b->m_OriginGeomID )
+        return a;
+
+    if ( b->m_OriginGeomID < b->m_OriginGeomID )
+        return b;
+
+    return ( a->m_SurfNum < b->m_SurfNum );
+}
+
 void MeshGeom::TrimCoplanarPatches()
 {
     double tol = 1e-6;
