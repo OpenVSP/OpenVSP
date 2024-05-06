@@ -444,6 +444,7 @@ public:
     void copy( TMesh* m );
     void copyFewerNodes( TMesh* m );
     void CopyFlatten( TMesh* m );
+    void FlattenInPlace();
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual void DecodeXml( xmlNodePtr & node );
     virtual xmlNodePtr EncodeTriList( xmlNodePtr & node );

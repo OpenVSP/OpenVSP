@@ -589,6 +589,49 @@ void TMesh::CopyFlatten( TMesh* m )
     }
 }
 
+void TMesh::FlattenInPlace()
+{
+    vector< TTri* > origTVec = m_TVec;
+    m_TVec.clear();
+    vector< TNode* > origNVec = m_NVec;
+    m_NVec.clear();
+
+    for ( int i = 0 ; i < ( int )origTVec.size() ; i++ )
+    {
+        TTri* orig_tri = origTVec[i];
+
+        if ( orig_tri->m_SplitVec.size() )
+        {
+            for ( int s = 0 ; s < ( int )orig_tri->m_SplitVec.size() ; s++ )
+            {
+                TTri* s_tri = orig_tri->m_SplitVec[s];
+                if ( !s_tri->m_IgnoreTriFlag )
+                {
+                    AddTri( s_tri->m_N0, s_tri->m_N1, s_tri->m_N2, s_tri->m_Norm, orig_tri->m_iQuad );
+                    m_TVec.back()->m_Tags = s_tri->m_Tags;
+                    m_TVec.back()->m_ID = s_tri->m_ID;
+                }
+            }
+        }
+        else
+        {
+            if ( !orig_tri->m_IgnoreTriFlag )
+            {
+                AddTri( orig_tri->m_N0, orig_tri->m_N1, orig_tri->m_N2, orig_tri->m_Norm, orig_tri->m_iQuad );
+                m_TVec.back()->m_Tags = orig_tri->m_Tags;
+                m_TVec.back()->m_ID = orig_tri->m_ID;
+            }
+        }
+
+        delete orig_tri;
+    }
+
+    for ( int i = 0 ; i < ( int )origNVec.size() ; i++ )
+    {
+        delete origNVec[i];
+    }
+}
+
 void TMesh::CopyAttributes( TMesh* m )
 {
     m_OriginGeomID     = m->m_OriginGeomID;
