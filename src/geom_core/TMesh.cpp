@@ -422,6 +422,7 @@ void TMesh::Init()
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_SurfType = vsp::NORMAL_SURF;
     m_ThickSurf = true;
+    m_FlatPatch = false;
     m_MassPrior = 0;
     m_Density = 0;
     m_ShellMassArea = 0;
@@ -641,6 +642,7 @@ void TMesh::CopyAttributes( TMesh* m )
     m_MaterialID = m->m_MaterialID;
     m_SurfCfdType = m->m_SurfCfdType;
     m_ThickSurf = m->m_ThickSurf;
+    m_FlatPatch = m->m_FlatPatch;
 
     m_TheoArea   = m->m_TheoArea;
     m_WetArea    = m->m_WetArea;
@@ -5641,15 +5643,15 @@ void CreateTMeshVecFromPts( const Geom * geom,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & uw_pnts,
                             int indx, int platenum, int surftype, int cfdsurftype,
-                            bool thicksurf, bool flipnormal, double wmax,bool skipnegflipnormal )
+                            bool thicksurf, bool flipnormal, double wmax,bool skipnegflipnormal,
+                            bool flatpatch )
 {
-    double tol=1.0e-12;
-
     TMeshVec.push_back( new TMesh() );
     int itmesh = TMeshVec.size() - 1;
     TMeshVec[itmesh]->LoadGeomAttributes( geom );
     TMeshVec[itmesh]->m_SurfCfdType = cfdsurftype;
     TMeshVec[itmesh]->m_ThickSurf = thicksurf;
+    TMeshVec[itmesh]->m_FlatPatch = flatpatch;
     TMeshVec[itmesh]->m_SurfType = surftype;
     TMeshVec[itmesh]->m_SurfNum = indx;
     TMeshVec[itmesh]->m_PlateNum = platenum;
@@ -5665,6 +5667,144 @@ void CreateTMeshVecFromPts( const Geom * geom,
     BuildTMeshTris( TMeshVec[itmesh], flipnormal, wmax, platenum );
 
 }
+
+void CreateTMeshVecFromPts( const Geom * geom,
+                            vector < TMesh* > & TMeshVec,
+                            const vector< vector<vec3d> > & pnts,
+                            const vector< vector<vec3d> > & uw_pnts,
+                            int indx, int platenum, int surftype, int cfdsurftype,
+                            bool thicksurf, bool flipnormal, double wmax,bool skipnegflipnormal,
+                            int iustart, int iuend,
+                            bool flatpatch )
+{
+    vector< vector < vec3d > > pnts_subset;
+    vector< vector < vec3d > > uw_pnts_subset;
+
+    int n = iuend - iustart + 1;
+
+    pnts_subset.reserve( n );
+    uw_pnts_subset.reserve( n );
+
+    for ( int iu = iustart; iu <= iuend; iu++ )
+    {
+        pnts_subset.push_back( pnts[iu] );
+        uw_pnts_subset.push_back( uw_pnts[iu] );
+    }
+
+    CreateTMeshVecFromPts( geom,
+                           TMeshVec,
+                           pnts_subset, uw_pnts_subset,
+                           indx, platenum, surftype, cfdsurftype,
+                           thicksurf, flipnormal, wmax, skipnegflipnormal,
+                           flatpatch );
+}
+
+void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
+                                     vector < TMesh* > & TMeshVec,
+                                     const vector< vector<vec3d> > & pnts,
+                                     const vector< vector<vec3d> > & uw_pnts,
+                                     int indx, int platenum, int surftype, int cfdsurftype,
+                                     bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal )
+{
+    // Comparing on distance squared between two normal vectors.
+    double tol = 1e-12;
+
+    int nu = pnts.size();
+    if ( nu > 1 )
+    {
+        int nv = pnts[0].size();
+        if ( nv > 1 )
+        {
+            // Build normal vectors.
+            vector < vector < vec3d > > nvec;
+            nvec.resize( nu - 1 );
+            for ( int i = 0; i < nu - 1; i++ )
+            {
+                nvec[i].resize( nv - 1 );
+                for ( int j = 0; j < nv - 1; j++ )
+                {
+                    vec3d u = pnts[ i + 1 ][ j + 1 ] - pnts[ i ][ j ];
+                    vec3d v = pnts[ i + 1 ][ j ] - pnts[ i ][ j + 1 ];
+                    vec3d n = cross( u, v );
+                    n.normalize();
+
+                    nvec[i][j] = n;
+                }
+            }
+
+            // Check for planar strips.
+            vector < bool > chordwise_flat( nu - 1, true );
+            for ( int i = 0; i < nu - 1; i++ )
+            {
+                for ( int j = 1; j < nv - 1; j++ )
+                {
+                    if ( dist_squared( nvec[ i ][ 0 ],  nvec[ i ][ j ] ) > tol )
+                    {
+                        chordwise_flat[ i ] = false;
+                        break;
+                    }
+                }
+            }
+
+            // Build spanwise extent of planar strips.
+            vector < bool > spanwise_flat_match( nu - 1, false );
+            spanwise_flat_match[ 0 ] = 0;
+            for ( int i = 1; i < nu - 1; i++ )
+            {
+                if ( chordwise_flat[ i ] && chordwise_flat[ i - 1 ] &&
+                     dist_squared( nvec[ i ][ 0 ], nvec[ i - 1 ][ 0 ] ) < tol )
+                {
+                    spanwise_flat_match[ i ] = true;
+                }
+            }
+
+
+            int iustart = 0;
+            while ( iustart < nu - 1 )
+            {
+                bool flatpatch = chordwise_flat[ iustart ];
+
+                int iuend = iustart + 1;
+                while ( spanwise_flat_match[ iuend ] == flatpatch && iuend < nu - 1 )
+                {
+                    iuend++;
+                }
+
+                CreateTMeshVecFromPts( geom,
+                                       TMeshVec,
+                                       pnts,
+                                       uw_pnts,
+                                       indx, platenum, surftype, cfdsurftype,
+                                       thicksurf, flipnormal, wmax, skipnegflipnormal,
+                                       iustart, iuend,
+                                       flatpatch );
+
+                iustart = iuend;
+            }
+        }
+        else
+        {
+            CreateTMeshVecFromPts( geom,
+                                   TMeshVec,
+                                   pnts,
+                                   uw_pnts,
+                                   indx, platenum, surftype, cfdsurftype,
+                                   thicksurf, flipnormal, wmax, skipnegflipnormal,
+                                   false );
+        }
+    }
+    else
+    {
+        CreateTMeshVecFromPts( geom,
+                               TMeshVec,
+                               pnts,
+                               uw_pnts,
+                               indx, platenum, surftype, cfdsurftype,
+                               thicksurf, flipnormal, wmax, skipnegflipnormal,
+                               false );
+    }
+}
+
 
 void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax, int platenum )
 {

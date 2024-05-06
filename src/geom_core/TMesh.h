@@ -569,6 +569,7 @@ public:
     int m_MaterialID;
     int m_SurfCfdType;
     int m_ThickSurf;
+    bool m_FlatPatch;
     int m_MassPrior;
     double m_Density;
     double m_ShellMassArea;
@@ -609,6 +610,23 @@ protected:
 };
 
 void CreateTMeshVecFromPts( const Geom * geom,
+                            vector < TMesh* > & TMeshVec,
+                            const vector< vector<vec3d> > & pnts,
+                            const vector< vector<vec3d> > & uw_pnts,
+                            int indx, int platenum, int surftype, int cfdsurftype,
+                            bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal,
+                            bool flatpatch = false );
+
+void CreateTMeshVecFromPts( const Geom * geom,
+                            vector < TMesh* > & TMeshVec,
+                            const vector< vector<vec3d> > & pnts,
+                            const vector< vector<vec3d> > & uw_pnts,
+                            int indx, int platenum, int surftype, int cfdsurftype,
+                            bool thicksurf, bool flipnormal, double wmax, bool skipnegflipnormal,
+                            int iustart, int iuend,
+                            bool flatpatch );
+
+void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                             vector < TMesh* > & TMeshVec,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & uw_pnts,
