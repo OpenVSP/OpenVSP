@@ -3878,6 +3878,28 @@ void MeshGeom::WaterTightCheck( FILE* fid )
     m_TMeshVec.push_back( oneMesh );
 }
 
+double MeshGeom::CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm )
+{
+    Matrix4d mat;
+    mat.rotatealongX( norm );
+    mat.translatev( -cen );
+
+    int n = tm->m_NVec.size();
+    double maxx = -1.0;
+    for ( int i = 0; i < n; i++ )
+    {
+        vec3d pt = mat.xform( tm->m_NVec[i]->m_Pnt );
+
+        double ax = std::abs( pt.x() );
+        if ( ax > maxx )
+        {
+            maxx = ax;
+        }
+    }
+
+    return maxx;
+}
+
 void MeshGeom::FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm )
 {
     int n = tm->m_NVec.size();

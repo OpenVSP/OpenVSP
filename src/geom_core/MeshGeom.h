@@ -156,6 +156,8 @@ public:
     virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,
                              const vector <string> & Flow_vec, bool Symm = false );
 
+    virtual double CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm );
+
     virtual void FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm );
 
     virtual void TrimCoplanarPatches();
