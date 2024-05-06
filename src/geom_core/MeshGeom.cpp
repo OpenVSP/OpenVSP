@@ -3878,6 +3878,19 @@ void MeshGeom::WaterTightCheck( FILE* fid )
     m_TMeshVec.push_back( oneMesh );
 }
 
+void MeshGeom::FitPlaneToMesh( TMesh *tm, vec3d &cen, vec3d &norm )
+{
+    int n = tm->m_NVec.size();
+    vector < vec3d > pts;
+    pts.reserve( n );
+    for ( int i = 0; i < n; i++ )
+    {
+        pts.push_back( tm->m_NVec[i]->m_Pnt );
+    }
+
+    FitPlane( pts, cen, norm );
+}
+
 void MeshGeom::TrimCoplanarPatches()
 {
     double tol = 1e-6;
