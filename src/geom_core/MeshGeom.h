@@ -156,6 +156,8 @@ public:
     virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,
                              const vector <string> & Flow_vec, bool Symm = false );
 
+    virtual void TrimCoplanarPatches();
+
     virtual void MergeSplitPatches();
 
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len, int idir );

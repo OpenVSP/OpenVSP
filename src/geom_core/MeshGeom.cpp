@@ -3878,6 +3878,68 @@ void MeshGeom::WaterTightCheck( FILE* fid )
     m_TMeshVec.push_back( oneMesh );
 }
 
+void MeshGeom::TrimCoplanarPatches()
+{
+    double tol = 1e-6;
+
+    int nMesh = m_TMeshVec.size();
+    vector < int > root_coplanar( nMesh, -1 );
+
+    for ( int i = 0 ; i < nMesh - 1; i++ )
+    {
+        TMesh *tmi = m_TMeshVec[ i ];
+
+        if ( tmi->m_FlatPatch )
+        {
+            vec3d cen, norm;
+            FitPlaneToMesh( tmi, cen, norm );
+
+            for ( int j = i + 1; j < nMesh; j++ )
+            {
+                TMesh *tmj = m_TMeshVec[ j ];
+
+                if ( tmj->m_FlatPatch &&
+                     ( root_coplanar[j] == -1 ) &&
+                     !( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
+                        tmi->m_SurfNum == tmj->m_SurfNum &&
+                        tmi->m_PlateNum == tmj->m_PlateNum )
+                   )
+                {
+                    if ( CalcMeshDeviation( tmj, cen, norm ) < tol )
+                    {
+                        root_coplanar[i] = i;
+                        root_coplanar[j] = i;
+                    }
+                }
+            }
+        }
+    }
+
+    for ( int i = 0 ; i < nMesh - 1; i++ )
+    {
+        vector < TMesh* > tmgroup;
+        if ( root_coplanar[i] == i )
+        {
+            tmgroup.push_back( m_TMeshVec[ i ] );
+            for ( int j = i + 1; j < nMesh; j++ )
+            {
+                if ( root_coplanar[j] == i )
+                {
+                    tmgroup.push_back( m_TMeshVec[ j ] );
+                }
+            }
+        }
+
+        // Sort in order of priority.  First should cut all later etc.
+        std::sort( tmgroup.begin(), tmgroup.end(), CutterTMeshCompare );
+
+        TrimTMeshSequence( tmgroup );
+
+    }
+
+
+}
+
 // When Degen plate and camber surfaces are made into TMeshs, they can be split into patches if some areas
 // are planar.  This stitches those back together.
 void MeshGeom::MergeSplitPatches()
