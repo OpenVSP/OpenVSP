@@ -575,6 +575,8 @@ void TMesh::CopyFlatten( TMesh* m )
                     AddTri( s_tri->m_N0, s_tri->m_N1, s_tri->m_N2, s_tri->m_Norm, orig_tri->m_iQuad );
                     m_TVec.back()->m_Tags = s_tri->m_Tags;
                     m_TVec.back()->m_ID = s_tri->m_ID;
+                    m_TVec.back()->m_GeomID = s_tri->m_GeomID;
+                    m_TVec.back()->m_Density = s_tri->m_Density;
                 }
             }
         }
@@ -585,6 +587,8 @@ void TMesh::CopyFlatten( TMesh* m )
                 AddTri( orig_tri->m_N0, orig_tri->m_N1, orig_tri->m_N2, orig_tri->m_Norm, orig_tri->m_iQuad );
                 m_TVec.back()->m_Tags = orig_tri->m_Tags;
                 m_TVec.back()->m_ID = orig_tri->m_ID;
+                m_TVec.back()->m_GeomID = orig_tri->m_GeomID;
+                m_TVec.back()->m_Density = orig_tri->m_Density;
             }
         }
     }
