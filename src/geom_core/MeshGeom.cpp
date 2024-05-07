@@ -4058,6 +4058,47 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
     return tm_cutter;
 }
 
+void MeshGeom::TrimTMeshSequence( vector < TMesh* > tmvec )
+{
+    static int iprint = 0;
+
+    int nMesh = tmvec.size();
+
+    // Count all points in all TMeshes.
+    int npt = 0;
+    for ( int i = 0 ; i < nMesh; i++ )
+    {
+        npt += tmvec[ i ]->m_NVec.size();
+    }
+
+    // Gather all points.
+    vector < vec3d > pts;
+    pts.reserve( npt );
+    for ( int i = 0 ; i < nMesh; i++ )
+    {
+        for ( int j = 0; j < tmvec[ i ]->m_NVec.size(); j++ )
+        {
+            pts.push_back( tmvec[ i ]->m_NVec[ j ]->m_Pnt );
+        }
+    }
+
+    // Best fit plane to all points across all meshes.
+    vec3d cen, norm;
+    FitPlane( pts, cen, norm );
+
+    for ( int i = nMesh - 2 ; i >= 0; i-- ) // Iterate over cutters backwards.
+    {
+        TMesh *cutter_tm = MakeCutter( tmvec[i], norm );
+        cutter_tm->LoadBndBox();
+        for ( int j = i + 1 ; j < nMesh; j++ ) // Apply to all later meshes.
+        {
+            CutMesh( tmvec[j], cutter_tm );
+            tmvec[j]->FlattenInPlace();
+        }
+        delete cutter_tm;
+    }
+}
+
 void MeshGeom::TrimCoplanarPatches()
 {
     double tol = 1e-6;
