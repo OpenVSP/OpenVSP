@@ -158,6 +158,8 @@ public:
 
     virtual TMesh * MakeCutter( TMesh * tm, const vec3d &norm );
 
+    virtual void CutMesh( TMesh *target_tm, TMesh *cutter_tm );
+
     virtual void TrimTMeshSequence( vector < TMesh* > tmvec );
 
     virtual double CalcMeshDeviation( TMesh *tm, const vec3d &cen, const vec3d &norm );

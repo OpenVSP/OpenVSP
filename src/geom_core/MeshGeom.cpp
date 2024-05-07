@@ -4058,6 +4058,30 @@ TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
     return tm_cutter;
 }
 
+void MeshGeom::CutMesh( TMesh *target_tm, TMesh *cutter_tm )
+{
+    // Make bounding boxes and other prep work.
+    target_tm->LoadBndBox();
+
+    // Intersect meshes
+    target_tm->Intersect( cutter_tm );
+    cutter_tm->RemoveIsectEdges();
+    target_tm->Split();
+
+    // Determine interior exterior
+    vector < TMesh* > cutter_tmvec;
+    cutter_tmvec.push_back( cutter_tm );
+    target_tm->DeterIntExt( cutter_tmvec );
+
+    // Delete interior tris
+    vector < int > bTypes;
+    bTypes.push_back( vsp::CFD_NORMAL );
+    vector < bool > thicksurf;
+    thicksurf.push_back( true );
+
+    target_tm->SetIgnoreTriFlag( bTypes, thicksurf );
+}
+
 void MeshGeom::TrimTMeshSequence( vector < TMesh* > tmvec )
 {
     static int iprint = 0;
