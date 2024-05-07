@@ -504,9 +504,11 @@ void TMesh::copy( TMesh* m )
         tri->m_N2   = new TNode();
 
         tri->m_Norm    = m->m_TVec[i]->m_Norm;
-
         tri->m_iQuad    = m->m_TVec[i]->m_iQuad;
         tri->m_ID    = m->m_TVec[i]->m_ID;
+        tri->m_Tags = m->m_TVec[i]->m_Tags;
+        tri->m_GeomID = m->m_TVec[i]->m_GeomID;
+        tri->m_Density = m->m_TVec[i]->m_Density;
 
         tri->m_N0->m_Pnt = m->m_TVec[i]->m_N0->m_Pnt;
         tri->m_N1->m_Pnt = m->m_TVec[i]->m_N1->m_Pnt;
@@ -550,6 +552,9 @@ void TMesh::copyFewerNodes( TMesh* m )
         tri->m_Norm = m->m_TVec[i]->m_Norm;
         tri->m_iQuad = m->m_TVec[i]->m_iQuad;
         tri->m_ID = m->m_TVec[i]->m_ID;
+        tri->m_Tags = m->m_TVec[i]->m_Tags;
+        tri->m_GeomID = m->m_TVec[i]->m_GeomID;
+        tri->m_Density = m->m_TVec[i]->m_Density;
 
         m_TVec.push_back( tri );
     }
