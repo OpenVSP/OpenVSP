@@ -3941,6 +3941,123 @@ bool CutterTMeshCompare( TMesh* a, TMesh* b )
     return ( a->m_SurfNum < b->m_SurfNum );
 }
 
+TMesh * MeshGeom::MakeCutter( TMesh * tm, const vec3d &norm )
+{
+    // Convert input TMesh into PGMesh to make isolating the boundary easier.
+    PGMesh pgm;
+    vector < PGNode* > nod( tm->m_NVec.size() );
+    for ( int i = 0; i < tm->m_NVec.size(); i++ )
+    {
+        tm->m_NVec[i]->m_ID = i;
+        nod[i] = pgm.AddNode( tm->m_NVec[i]->m_Pnt );
+    }
+
+    for ( int i = 0; i < tm->m_TVec.size(); i++ )
+    {
+        TTri *t = tm->m_TVec[i];
+        pgm.AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
+                     t->m_N0->m_UWPnt.as_vec2d_xy(), t->m_N1->m_UWPnt.as_vec2d_xy(), t->m_N2->m_UWPnt.as_vec2d_xy(),
+                     t->m_Norm, t->m_iQuad, 0 );
+    }
+
+    // Merge Nodes and Edges to make topologically correct.
+    pgm.MergeCoincidentNodes();
+    pgm.MergeDuplicateEdges();
+
+    // Build vector of boundary edges.
+    vector < PGEdge* > boundary_edges;
+    list< PGEdge* >::iterator e;
+    for ( e = pgm.m_EdgeList.begin(); e != pgm.m_EdgeList.end(); ++e )
+    {
+        if ( ( *e )->m_FaceVec.size() < 2 )
+        {
+            boundary_edges.push_back( (*e) );
+        }
+    }
+
+    // Construct new TMesh cutter volume from surfaces.
+    TMesh *tm_cutter = new TMesh();
+
+    int numnode = pgm.m_NodeList.size();
+    tm_cutter->m_NVec.resize( numnode * 2 );
+
+    int inode = 0; // Start numbering at 0
+    list< PGNode* >::iterator n;
+    for ( n = pgm.m_NodeList.begin() ; n != pgm.m_NodeList.end(); ++n )
+    {
+        // Assign ID number.
+        ( *n )->m_ID = inode;
+
+        TNode *n1 = new TNode();
+        n1->m_Pnt = ( *n )->m_Pnt - 10 * norm;
+        n1->m_ID = inode;
+        tm_cutter->m_NVec[ inode ] = n1;
+
+        TNode *n2 = new TNode();
+        n2->m_Pnt = ( *n )->m_Pnt + 10 * norm;
+        n2->m_ID = inode + numnode;
+        tm_cutter->m_NVec[ inode + numnode ] = n2;
+
+        inode++;
+    }
+
+    list< PGFace* >::iterator f;
+    for ( f = pgm.m_FaceList.begin() ; f != pgm.m_FaceList.end(); ++f )
+    {
+        vector < PGNode* > nodVec;
+        ( *f )->GetNodesAsTris( nodVec );
+
+        int npt = nodVec.size();
+        int ntri = npt / 3;
+
+        for ( int i = 0; i < ntri; i++ )
+        {
+            TTri *t = new TTri( tm_cutter );
+
+            t->m_N0 = tm_cutter->m_NVec[ nodVec[ i * 3 + 0 ]->m_ID ];
+            t->m_N1 = tm_cutter->m_NVec[ nodVec[ i * 3 + 1 ]->m_ID ];
+            t->m_N2 = tm_cutter->m_NVec[ nodVec[ i * 3 + 2 ]->m_ID ];
+
+            t->CompNorm();
+            tm_cutter->m_TVec.push_back( t );
+
+            t = new TTri( tm_cutter );
+
+            t->m_N0 = tm_cutter->m_NVec[ nodVec[ i * 3 + 0 ]->m_ID + numnode ];
+            t->m_N2 = tm_cutter->m_NVec[ nodVec[ i * 3 + 1 ]->m_ID + numnode ];
+            t->m_N1 = tm_cutter->m_NVec[ nodVec[ i * 3 + 2 ]->m_ID + numnode ];
+
+            t->CompNorm();
+            tm_cutter->m_TVec.push_back( t );
+        }
+    }
+
+    // Boundary faces are not guaranteed to be consistently oriented.  However,
+    // it doesn't matter for use as a cutting volume.
+    for ( int i = 0; i < boundary_edges.size(); i++ )
+    {
+        PGEdge* e = boundary_edges[i];
+
+        TTri *t = new TTri( tm_cutter );
+
+        t->m_N0 = tm_cutter->m_NVec[ e->m_N0->m_ID ];
+        t->m_N1 = tm_cutter->m_NVec[ e->m_N0->m_ID + numnode ];
+        t->m_N2 = tm_cutter->m_NVec[ e->m_N1->m_ID ];
+        t->CompNorm();
+        tm_cutter->m_TVec.push_back( t );
+
+        t = new TTri( tm_cutter );
+
+        t->m_N0 = tm_cutter->m_NVec[ e->m_N0->m_ID + numnode ];
+        t->m_N1 = tm_cutter->m_NVec[ e->m_N1->m_ID + numnode ];
+        t->m_N2 = tm_cutter->m_NVec[ e->m_N1->m_ID ];
+        t->CompNorm();
+        tm_cutter->m_TVec.push_back( t );
+    }
+
+    return tm_cutter;
+}
+
 void MeshGeom::TrimCoplanarPatches()
 {
     double tol = 1e-6;
