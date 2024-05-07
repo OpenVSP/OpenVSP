@@ -710,13 +710,7 @@ void GeomXForm::UpdateAttachParms()
 
     if ( parent )
     {
-        if ( parent->GetType().m_Type == MESH_GEOM_TYPE ||
-             parent->GetType().m_Type == WIRE_FRAME_GEOM_TYPE ||
-             parent->GetType().m_Type == BLANK_GEOM_TYPE ||
-             parent->GetType().m_Type == HINGE_GEOM_TYPE ||
-             parent->GetType().m_Type == HUMAN_GEOM_TYPE ||
-             parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE ||
-             parent->GetNumMainSurfs() == 0 )
+        if ( parent->isNonSurfaceType() )
         {
             return;
         }
@@ -2369,9 +2363,7 @@ void Geom::UpdateBBox( int istart, const BndBox & start_box )
 //Sets cfd surf types to negative if or normal depending on the state of the GUI negative button
 void Geom::UpdateFlags( )
 {
-    if ( GetType().m_Type == MESH_GEOM_TYPE || GetType().m_Type == BLANK_GEOM_TYPE ||
-         GetType().m_Type == PT_CLOUD_GEOM_TYPE || GetType().m_Type == HUMAN_GEOM_TYPE ||
-         GetType().m_Type == HINGE_GEOM_TYPE || GetType().m_Type == NGON_GEOM_TYPE )
+    if ( isNonSurfaceType() )
     {
         // m_MainSurfVec.size() == 0
         return;
@@ -4420,6 +4412,25 @@ const VspSurf* Geom::GetMainSurfPtr( int indx ) const
     return nullptr;
 }
 
+// This is a massive layering violation.  It requires knowledge of the numeric values of the different enums.
+// This could instead be a pure virtual method that is required to be implemented by each concrete Geom type.
+// Or an optional method implemented by only non-surface types.
+bool Geom::isNonSurfaceType()
+{
+    if ( m_Type.m_Type == BLANK_GEOM_TYPE ||
+         m_Type.m_Type == HINGE_GEOM_TYPE ||
+         m_Type.m_Type == HUMAN_GEOM_TYPE ||
+         m_Type.m_Type == MESH_GEOM_TYPE ||
+         m_Type.m_Type == NGON_GEOM_TYPE ||
+         m_Type.m_Type == PT_CLOUD_GEOM_TYPE ||
+         m_Type.m_Type == WIRE_FRAME_GEOM_TYPE ||
+         GetNumMainSurfs() == 0 )
+    {
+        return true;
+    }
+    return false;
+}
+
 //==== Count Number of Sym Surfaces ====//
 int Geom::GetNumTotalSurfs() const
 {
@@ -5811,9 +5822,7 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
         return feastruct;
     }
 
-    if ( GetType().m_Type != BLANK_GEOM_TYPE && GetType().m_Type != PT_CLOUD_GEOM_TYPE &&
-         GetType().m_Type != HINGE_GEOM_TYPE && GetType().m_Type != MESH_GEOM_TYPE &&
-         GetType().m_Type != HUMAN_GEOM_TYPE && GetType().m_Type != NGON_GEOM_TYPE )
+    if ( isSurfaceType() )
     {
         feastruct = new FeaStructure( GetID(), surf_index );
 

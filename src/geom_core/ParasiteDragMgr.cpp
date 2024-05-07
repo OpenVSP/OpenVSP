@@ -2115,10 +2115,7 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
             Geom* geom = veh->FindGeom( geomVec[i] );
             if ( geom )
             {
-                if ( geom->GetType().m_Type != HINGE_GEOM_TYPE &&
-                     geom->GetType().m_Type != BLANK_GEOM_TYPE &&
-                     geom->GetType().m_Type != MESH_GEOM_TYPE &&
-                     geom->GetType().m_Type != HUMAN_GEOM_TYPE )          // NOT SURE
+                if ( geom->isSurfaceType() )
                 {
                     if ( geom->GetSurfType(0) != vsp::DISK_SURF )
                     {
@@ -3744,10 +3741,7 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
         Geom* geom = veh->FindGeom( newIDVec[i] );
         if ( geom )
         {
-            if ( geom->GetType().m_Type != MESH_GEOM_TYPE &&
-                    geom->GetType().m_Type != HUMAN_GEOM_TYPE &&
-                    geom->GetType().m_Type != BLANK_GEOM_TYPE &&
-                    geom->GetType().m_Type != HINGE_GEOM_TYPE )
+            if ( geom->isSurfaceType() )
             {
                 if ( geom->GetSurfType(0) != vsp::DISK_SURF )
                 {

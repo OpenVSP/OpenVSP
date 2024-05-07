@@ -430,6 +430,10 @@ public:
     {
         return m_MainSurfVec.size();
     }
+
+    virtual bool isNonSurfaceType();
+    virtual bool isSurfaceType() { return !isNonSurfaceType(); };
+
     // Avoid using this method as it makes a complete copy of m_MainSurfVec, which can be expensive.  Particularly
     // for propellers with a large number of blades.  It should only be used if the caller needs a copy of all surfaces
     // that will be modified.  Currently the only caller is ConformalGeom.

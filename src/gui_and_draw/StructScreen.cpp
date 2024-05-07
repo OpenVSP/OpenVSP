@@ -2138,16 +2138,9 @@ void StructScreen::LoadGeomChoice()
         int icomp = 0;
         for ( int i = 0; i < (int)geom_vec.size(); ++i )
         {
-            string disp_geom_name = std::to_string( icomp + 1 ) + ". " + geom_vec[i]->GetName();
-            int geom_type = geom_vec[i]->GetType().m_Type;
-
-            if ( geom_type != BLANK_GEOM_TYPE &&
-                 geom_type != PT_CLOUD_GEOM_TYPE &&
-                 geom_type != HINGE_GEOM_TYPE &&
-                 geom_type != MESH_GEOM_TYPE &&
-                 geom_type != HUMAN_GEOM_TYPE &&
-                 geom_type != NGON_GEOM_TYPE )
+            if ( geom_vec[i]->isSurfaceType() )
             {
+                string disp_geom_name = std::to_string( icomp + 1 ) + ". " + geom_vec[i]->GetName();
                 m_GeomChoice.AddItem( disp_geom_name );
                 CompIDMap[geom_vec[i]->GetID()] = icomp;
                 m_GeomIDVec.push_back( geom_vec[i]->GetID() );

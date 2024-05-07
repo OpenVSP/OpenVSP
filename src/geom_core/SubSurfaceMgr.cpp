@@ -56,8 +56,7 @@ vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( const string& comp_id,
         return ret_vec;
     }
 
-    if ( geom->GetType().m_Type == MESH_GEOM_TYPE ||
-         geom->GetType().m_Type == HUMAN_GEOM_TYPE )
+    if ( geom->isNonSurfaceType() )
     {
         return ret_vec;
     }
