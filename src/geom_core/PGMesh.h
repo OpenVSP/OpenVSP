@@ -57,6 +57,8 @@ public:
 
     void GetTags( vector < int > & tags ) const;
 
+    bool GetUW( int tag, vec2d & uw ) const;
+
     PGEdge *FindEdge( const PGNode* n ) const;
 
     bool UsedBy( PGEdge* e ) const;

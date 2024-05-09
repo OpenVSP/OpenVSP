@@ -85,6 +85,23 @@ void PGNode::GetTags( vector < int > & tags ) const
     }
 }
 
+bool PGNode::GetUW( int tag, vec2d &uw ) const
+{
+    // Try to find uw with matching tag.
+    map < int, vec2d >::const_iterator it = m_TagUWMap.find( tag );
+
+    // If there is a match
+    if ( it != m_TagUWMap.end() )
+    {
+        uw = it->second;
+        return true;
+    }
+
+    // No match.
+    uw = vec2d();
+    return false;
+}
+
 PGEdge * PGNode::FindEdge( const PGNode* n ) const
 {
     for ( int k = 0; k < (int)m_EdgeVec.size(); k++ )
