@@ -2759,6 +2759,73 @@ void PGMesh::Report()
 {
     ResetNodeNumbers();
 
+    printf( "m_TagNames %d entries\n", m_TagNames.size() );
+    for ( auto it = m_TagNames.begin(); it != m_TagNames.end(); it++ )
+    {
+        printf( "%d %s\n", it->first, it->second.c_str() );
+    }
+    printf( "\n" );
+
+    printf( "m_TagIDs %d entries\n", m_TagIDs.size() );
+    for ( auto it = m_TagIDs.begin(); it != m_TagIDs.end(); it++ )
+    {
+        printf( "%d %s\n", it->first, it->second.c_str() );
+    }
+    printf( "\n" );
+
+    printf( "m_ThickMap %d entries\n", m_ThickMap.size() );
+    for ( auto it = m_ThickMap.begin(); it != m_ThickMap.end(); it++ )
+    {
+        printf( "%s %d\n", it->first.c_str(), it->second );
+    }
+    printf( "\n" );
+
+    printf( "m_TypeVec %d entries\n", m_TypeVec.size() );
+    for ( int i = 0; i < m_TypeVec.size(); i++ )
+    {
+        printf( "%d %d\n", i, m_TypeVec[i] );
+    }
+    printf( "\n" );
+
+    printf( "m_TagKeys %d entries\n", m_TagKeys.size() );
+    for ( int i = 0; i < m_TagKeys.size(); i++ )
+    {
+        printf( "%d     ", i + 1 );
+        for ( int j = 0; j < m_TagKeys[i].size(); j++ )
+        {
+            printf( "%d ", m_TagKeys[i][j] );
+        }
+        printf( "\n" );
+    }
+    printf( "\n" );
+
+    printf( "m_SingleTagMap %d entries\n", m_SingleTagMap.size() );
+    for ( auto it = m_SingleTagMap.begin(); it != m_SingleTagMap.end(); it++ )
+    {
+        printf( "%d     ", it->second );
+        for ( int j = 0; j < (it->first).size(); j++ )
+        {
+            printf( "%d ", (it->first)[j] );
+        }
+        printf( "\n" );
+    }
+    printf( "\n" );
+
+    printf( "GetGID( tag )\n" );
+    for ( int i = 0; i < m_TagKeys.size(); i++ )
+    {
+        printf( "%d %s\n", i + 1, GetGID( i + 1 ).c_str() );
+    }
+    printf( "\n" );
+
+    printf( "GetPart( tag )\n" );
+    for ( int i = 0; i < m_TagKeys.size(); i++ )
+    {
+        printf( "%d %d\n", i + 1, GetPart( i + 1 ) );
+    }
+    printf( "\n" );
+
+
     printf( "%10d   Nodes\n", m_NodeList.size() );
     printf( "%10d   Edges\n", m_EdgeList.size() );
     printf( "%10d   Faces\n", m_FaceList.size() );
@@ -2770,6 +2837,8 @@ void PGMesh::Report()
         inode++;
     }
 
+
+    printf( "Non-manifold edges\n" );
     int iedge = 1;
     list< PGEdge* >::iterator e;
     for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
