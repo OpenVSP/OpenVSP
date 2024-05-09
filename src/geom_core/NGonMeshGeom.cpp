@@ -105,7 +105,7 @@ xmlNodePtr NGonMeshGeom::DecodeXml( xmlNodePtr & node )
     return ngon_node;
 }
 
-void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec, const vector < deque < TEdge > > &wakes )
+void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec )
 {
     // Archive tag data at time of NGonMeshGeom creation.
     m_PGMesh.m_TagNames = SubSurfaceMgr.m_TagNames;
@@ -129,33 +129,6 @@ void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector<
         PGFace *f = m_PGMesh.AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
                                       t->m_N0->m_UWPnt.as_vec2d_xy(), t->m_N1->m_UWPnt.as_vec2d_xy(), t->m_N2->m_UWPnt.as_vec2d_xy(),
                                       t->m_Norm, t->m_iQuad, tag );
-    }
-
-    int nwake = wakes.size();
-
-    m_PGMesh.m_WakeVec.clear();
-    m_PGMesh.m_WakeVec.resize( nwake );
-
-    for ( int iwake = 0; iwake < nwake; iwake++ )
-    {
-        int nwe = wakes[iwake].size();
-
-        m_PGMesh.m_WakeVec[iwake].resize( nwe );
-
-        for ( int iwe = 0; iwe < nwe; iwe++ )
-        {
-            PGNode* n0 = nod[ wakes[iwake][iwe].m_N0->m_ID ];
-            PGNode* n1 = nod[ wakes[iwake][iwe].m_N1->m_ID ];
-
-            // Actually attempts FindEdge first and reverts to creating new edge if needed.  Should always find
-            // existing edge.
-            PGEdge* we = m_PGMesh.AddEdge( n0, n1 );
-
-            if ( we )
-            {
-                m_PGMesh.m_WakeVec[iwake][iwe] = we;
-            }
-        }
     }
 }
 
