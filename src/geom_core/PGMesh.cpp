@@ -476,7 +476,9 @@ bool PGEdge::WakeEdge( PGMesh *m )
 {
     const double tol = 1e-12;
 
-    for ( int i = 0; i < m_FaceVec.size(); i++ )
+    int nface = m_FaceVec.size();
+
+    for ( int i = 0; i < nface; i++ )
     {
         PGFace *f = m_FaceVec[i];
 
@@ -485,10 +487,15 @@ bool PGEdge::WakeEdge( PGMesh *m )
         int type = m->GetType( part );
         double wmin = m->GetWmin( part );
 
-        // int thickthin = m->GetThickThin( part );
+        int thick = m->GetThickThin( part );
 
         if ( type == vsp::WING_SURF )
         {
+            if ( !thick && nface != 1 )
+            {
+                return false;
+            }
+
             vec2d uw0, uw1;
             if ( m_N0->GetUW( tag, uw0 ) && m_N1->GetUW( tag, uw1 ) )  // Both nodes have needed tags.
             {
