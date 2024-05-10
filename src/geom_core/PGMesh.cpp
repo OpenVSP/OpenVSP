@@ -2246,6 +2246,17 @@ void PGMesh::FindAllColinearEdgeLoops()
             }
         }
     }
+    ResetEdgeLoopFlags();
+}
+
+void PGMesh::ResetEdgeLoopFlags()
+{
+    list< PGEdge* >::iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+        ( *e )->m_InLoopFlag = false;
+        ( *e )->m_InCurrentLoopFlag = false;
+    }
 }
 
 vector < int > PGMesh::BuildLoopDirectionVec( const vector < PGEdge * > &eloop, bool print )

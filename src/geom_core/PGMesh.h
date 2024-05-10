@@ -292,6 +292,8 @@ public:
     bool ExtendCoLinearLoop( vector < PGEdge * > & eloop, PGNode * n0, PGEdge *e, PGNode *n );
     void FindAllColinearEdgeLoops();
 
+    void ResetEdgeLoopFlags();
+
     void StartMatlab();
 
     PGEdge * SplitEdge( PGEdge *e, PGNode *n );
