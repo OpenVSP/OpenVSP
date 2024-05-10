@@ -474,7 +474,6 @@ bool PGEdge::Validate()
 
 bool PGEdge::WakeEdge( PGMesh *m )
 {
-    const double wmin = 0.0; // Needs to be dynamic, depends on blunt / sharp TE.
     const double tol = 1e-12;
 
     for ( int i = 0; i < m_FaceVec.size(); i++ )
@@ -484,6 +483,7 @@ bool PGEdge::WakeEdge( PGMesh *m )
         int tag = f->m_Tag;
         int part = m->GetPart( tag );
         int type = m->GetType( part );
+        double wmin = m->GetWmin( part );
 
         // int thickthin = m->GetThickThin( part );
 
