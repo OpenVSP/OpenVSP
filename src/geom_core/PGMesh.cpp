@@ -472,6 +472,38 @@ bool PGEdge::Validate()
     return valid;
 }
 
+bool PGEdge::WakeEdge( PGMesh *m )
+{
+    const double wmin = 0.0; // Needs to be dynamic, depends on blunt / sharp TE.
+    const double tol = 1e-12;
+
+    for ( int i = 0; i < m_FaceVec.size(); i++ )
+    {
+        PGFace *f = m_FaceVec[i];
+
+        int tag = f->m_Tag;
+        int part = m->GetPart( tag );
+        int type = m->GetType( part );
+
+        // int thickthin = m->GetThickThin( tag );
+
+        if ( type == vsp::WING_SURF )
+        {
+            vec2d uw0, uw1;
+            if ( m_N0->GetUW( tag, uw0 ) && m_N1->GetUW( tag, uw1 ) )  // Both nodes have needed tags.
+            {
+                if ( uw0.y() <= ( wmin + tol ) &&
+                     uw1.y() <= ( wmin + tol ) )
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -2257,6 +2289,65 @@ void PGMesh::ResetEdgeLoopFlags()
         ( *e )->m_InLoopFlag = false;
         ( *e )->m_InCurrentLoopFlag = false;
     }
+}
+
+
+void PGMesh::ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n )
+{
+    e->m_InCurrentLoopFlag = true;
+
+    int nedg = n->m_EdgeVec.size();
+
+    for ( int i = 0; i < nedg; i++ )
+    {
+        PGEdge * ei = n->m_EdgeVec[ i ];
+        if ( ei && ei != e && !ei->m_InLoopFlag && !ei->m_InCurrentLoopFlag )
+        {
+            if ( ei->WakeEdge( this ) )
+            {
+                PGNode * ni = ei->OtherNode( n );
+
+                wake.push_back( ei );
+                ei->m_InLoopFlag = true;
+
+                ExtendWake( wake, ei, ni );
+                return;
+            }
+        }
+    }
+
+    e->m_InCurrentLoopFlag = false;
+}
+
+
+void PGMesh::IdentifyWakes()
+{
+    m_WakeVec.clear();
+
+    list< PGEdge* >::iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+        if ( !( ( *e )->m_InLoopFlag ) && ( *e )->WakeEdge( this ) )
+        {
+            (*e)->m_InLoopFlag = true;
+
+            vector < PGEdge * > wake;
+            wake.push_back( *e );
+
+            ExtendWake( wake, (*e), (*e)->m_N0 );
+
+            std::reverse( wake.begin(), wake.end() );
+
+            ExtendWake( wake, (*e), (*e)->m_N1 );
+
+
+            m_WakeVec.push_back( wake );
+        }
+    }
+
+    printf( "IdentifyWakes() %d wakes found.\n", m_WakeVec.size() );
+
+    ResetEdgeLoopFlags();
 }
 
 vector < int > PGMesh::BuildLoopDirectionVec( const vector < PGEdge * > &eloop, bool print )

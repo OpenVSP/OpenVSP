@@ -32,6 +32,7 @@
 #include <algorithm>
 using namespace std;
 
+class PGMesh;
 class PGFace;
 class PGEdge;
 
@@ -128,6 +129,8 @@ public:
     void Diagnostics();
 
     bool Validate();
+
+    bool WakeEdge( PGMesh *m );
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -293,6 +296,9 @@ public:
     void FindAllColinearEdgeLoops();
 
     void ResetEdgeLoopFlags();
+
+    void ExtendWake( vector < PGEdge * > & wake, PGEdge *e, PGNode *n );
+    void IdentifyWakes();
 
     void StartMatlab();
 
