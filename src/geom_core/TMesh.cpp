@@ -5672,6 +5672,8 @@ void CreateTMeshVecFromPts( const Geom * geom,
     TMeshVec[itmesh]->m_XYZPnts = pnts;
     TMeshVec[itmesh]->m_Wmin = uw_pnts[0][0].y();
 
+    printf( "Wmin %g\n", TMeshVec[itmesh]->m_Wmin );
+
     if ( !skipnegflipnormal && cfdsurftype == vsp::CFD_NEGATIVE )
     {
         flipnormal = !flipnormal;
@@ -5796,6 +5798,7 @@ void CreateTMeshVecFromPtsCheckFlat( const Geom * geom,
                 TMeshVec.back()->m_UWPnts = uw_pnts;
                 TMeshVec.back()->m_XYZPnts = pnts;
                 TMeshVec.back()->m_Wmin = uw_pnts[0][0].y();
+                printf( "Overwriting Wmin %g\n", TMeshVec.back()->m_Wmin );
 
                 iustart = iuend;
             }
