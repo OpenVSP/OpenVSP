@@ -258,6 +258,7 @@ public:
     list < PGEdge* > m_EdgeList;
     list < PGNode* > m_NodeList;
 
+    vector < vector < PGEdge * > > m_EdgeLoopVec;
     vector < vector < PGEdge* > > m_WakeVec;
 
     std::map< int, std::string > m_TagNames;
@@ -287,8 +288,9 @@ public:
 
     void SealColinearEdgeLoop( vector < PGEdge * > &eloop );
     void SealColinearEdgeLoops();
+
+    bool ExtendCoLinearLoop( vector < PGEdge * > & eloop, PGNode * n0, PGEdge *e, PGNode *n );
     void FindAllColinearEdgeLoops();
-    vector < vector < PGEdge * > > m_EdgeLoopVec;
 
     void StartMatlab();
 

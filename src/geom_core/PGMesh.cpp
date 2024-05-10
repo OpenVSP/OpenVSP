@@ -2185,7 +2185,7 @@ bool ColinearEdges( PGEdge *e1, PGEdge *e2 )
     return false;
 }
 
-bool ExtendCoLinearLoop( vector < PGEdge * > & eloop, PGNode * n0, PGEdge *e, PGNode *n )
+bool PGMesh::ExtendCoLinearLoop( vector < PGEdge * > & eloop, PGNode * n0, PGEdge *e, PGNode *n )
 {
     e->m_InCurrentLoopFlag = true;
 
