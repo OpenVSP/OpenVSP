@@ -2476,13 +2476,9 @@ PGEdge * PGMesh::SplitEdge( PGEdge *e, double t, PGNode *n0 )
         vec2d uw0 = it0->second;
 
         // Try to find uw with matching tag in n1's map.
-        map < int, vec2d >::iterator it1 = n1->m_TagUWMap.find( tag );
-
-        // If there is a match
-        if ( it1 != n1->m_TagUWMap.end() )
+        vec2d uw1;
+        if ( n1->GetUW( tag, uw1 ) )
         {
-            // Interpolate uw and add to newnode's map.
-            vec2d uw1 = it1->second;
             vec2d uw = ( 1.0 - t ) * uw0 + t * uw1;
 
             newnode->m_TagUWMap[ tag ] = uw;
@@ -3075,15 +3071,8 @@ void PGMesh::WriteVSPGeomParts( FILE* file_id )
 
         for ( int i = 0; i < npt; i++ )
         {
-            // Try to find uw with matching tag.
-            map < int, vec2d >::iterator it1 = nodVec[i]->m_TagUWMap.find( tag );
-
             vec2d uw;
-            // If there is a match
-            if ( it1 != nodVec[i]->m_TagUWMap.end() )
-            {
-                uw = it1->second;
-            }
+            nodVec[i]->GetUW( tag, uw );
 
             fprintf( file_id, " %16.10g %16.10g", uw.x(), uw.y() );
         }
@@ -3167,15 +3156,8 @@ void PGMesh::WriteVSPGeomAlternateParts( FILE* file_id )
 
         for ( int i = 0; i < npt; i++ )
         {
-            // Try to find uw with matching tag.
-            map < int, vec2d >::iterator it1 = nodVec[i]->m_TagUWMap.find( tag );
-
             vec2d uw;
-            // If there is a match
-            if ( it1 != nodVec[i]->m_TagUWMap.end() )
-            {
-                uw = it1->second;
-            }
+            nodVec[i]->GetUW( tag, uw );
 
             fprintf( file_id, " %16.10g %16.10g", uw.x(), uw.y() );
         }
