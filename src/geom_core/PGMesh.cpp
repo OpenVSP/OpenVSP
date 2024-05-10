@@ -4012,6 +4012,7 @@ void GetNodes( const vector < PGEdge* > & eVec, vector< PGNode* > & nodVec )
 
     if ( !nprev )
     {
+        printf( "No prev node.\n" );
         return;
     }
 
@@ -4029,8 +4030,16 @@ void GetNodes( const vector < PGEdge* > & eVec, vector< PGNode* > & nodVec )
             {
                 nodVec.push_back( nnext );
             }
+            else
+            {
+                printf( "No next node.\n" );
+            }
 
             nprev = nnext;
+        }
+        else
+        {
+            printf( "Invalid node.\n" );
         }
     }
 }
