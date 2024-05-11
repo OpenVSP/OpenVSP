@@ -3156,7 +3156,7 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
 {
     SurfaceIntersectionSingleton::UpdateDrawObjs();
 
-    unsigned int num_reason = vsp::NUM_MESH_REASON;
+    unsigned int num_reason = vsp::NUM_MESH_REASON + 1;
     m_ReasonDO.resize( num_reason * 2 );
 
     char str[256];
@@ -3180,7 +3180,7 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
         {
             SimpFace* sface = &fVec[f];
 
-            if ( sface->m_reason >= 0 && sface->m_reason < vsp::NUM_MESH_REASON )
+            if ( sface->m_reason >= 0 && sface->m_reason < num_reason )
             {
                 int ido = sface->m_reason;
                 if ( sface->m_isQuad )
@@ -3202,7 +3202,8 @@ void CfdMeshMgrSingleton::UpdateDrawObjs()
                     m_ReasonDO[ ido ].m_NormVec.push_back( norm );
                 }
             }
-            else
+
+            if ( sface->m_reason < 0 || sface->m_reason >= vsp::NUM_MESH_REASON )
             {
                 printf( "Invalid reason %d\n", sface->m_reason );
             }
@@ -3395,7 +3396,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_BBoxLineSymSplit.m_Visible = m_BBoxLineStripSymSplit.m_Visible;
     draw_obj_vec.push_back( &m_BBoxLineSymSplit );
 
-    unsigned int num_reason = vsp::NUM_MESH_REASON;
+    unsigned int num_reason = vsp::NUM_MESH_REASON + 1;
 
     if ( m_ReasonDO.size() == 2 * num_reason )
     {
