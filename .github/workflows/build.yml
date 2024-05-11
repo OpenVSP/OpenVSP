@@ -16,25 +16,15 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [3.9, 3.11]
-        gcc-version: [10, 11]
-        os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, macos-11, macos-14 ]
+        gcc-version: [11]
+        os: [ windows-2019, ubuntu-20.04, ubuntu-22.04, macos-12, macos-14 ]
         exclude:
-          - os: ubuntu-20.04
-            python-version: 3.9
           - os: ubuntu-22.04
             python-version: 3.9
           - os: ubuntu-20.04
-            gcc-version: 10
-          - os: ubuntu-22.04
-            gcc-version: 10
-          - os: macos-11
-            gcc-version: 11
-          - os: macos-14
             python-version: 3.9
           - os: macos-14
-            gcc-version: 10
-          - os: windows-2019
-            gcc-version: 10
+            python-version: 3.9
 
     steps:
     - name: Checkout
@@ -65,7 +55,7 @@ jobs:
       if: runner.os == 'macos'
       shell: bash
       run:   |
-        brew install swig gcc@${GCC_VERNO}
+        brew install swig gcc@${GCC_VERNO} doxygen graphviz
         pip install sphinx
 
     - name:  Build Linux
@@ -139,7 +129,7 @@ jobs:
         ls $DEPLOY_FILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1)
 
     - name: Generate Documentation
-      if: matrix.os == 'ubuntu-22.04'
+      if: matrix.os == 'macos-14'
       shell: bash
       run:    |
         cd $GITHUB_WORKSPACE/build
@@ -153,7 +143,7 @@ jobs:
         ls html.zip && (echo "DOC GEN SUCCESSFUL" && exit 0) || (echo "DOC GEN FAILED" && exit 1)
 
     - name: Python Documentation
-      if: matrix.os == 'ubuntu-22.04'
+      if: matrix.os == 'macos-14'
       shell: bash
       run:    |
         cd $GITHUB_WORKSPACE/build
