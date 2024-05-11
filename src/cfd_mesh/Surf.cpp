@@ -239,7 +239,6 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
             double grid_len = m_GridDensityPtr->GetTargetLen( p, limitFlag, m_GeomID, m_MainSurfID, u, w );
             if ( grid_len < len )
             {
-                printf("%g %g\n", grid_len, len );
                 reason = vsp::SOURCES;
             }
             len = min( len, grid_len );
