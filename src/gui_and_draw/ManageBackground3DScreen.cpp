@@ -6,7 +6,6 @@
 
 ManageBackground3DScreen::ManageBackground3DScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 400, 800, "Background3D" )
 {
-    int tw = 15;
     int bw = 75;
 
     m_FLTK_Window->callback( staticCloseCB, this );
@@ -220,51 +219,16 @@ ManageBackground3DScreen::ManageBackground3DScreen( ScreenMgr * mgr ) : BasicScr
 
     m_BorderLayout.AddDividerBox( "Scale" );
 
-    m_BorderLayout.SetButtonWidth( tw );
-    m_BorderLayout.SetSameLineFlag( true );
-    m_BorderLayout.SetFitWidthFlag( false );
-
-    m_BorderLayout.AddButton( m_WScaleToggleButton, "" );
-
-    m_BorderLayout.SetFitWidthFlag( true );
-    m_BorderLayout.SetButtonWidth( bw - tw );
+    m_BorderLayout.AddChoice( m_ImageScaleChoice, "Driver" );
+    m_ImageScaleChoice.AddItem( "Width", vsp::SCALE_WIDTH );
+    m_ImageScaleChoice.AddItem( "Height", vsp::SCALE_HEIGHT );
+    m_ImageScaleChoice.AddItem( "Width && Height", vsp::SCALE_WIDTH_HEIGHT );
+    m_ImageScaleChoice.AddItem( "Resolution", vsp::SCALE_RESOLUTION );
+    m_ImageScaleChoice.UpdateItems();
 
     m_BorderLayout.AddSlider( m_WSlider, "Width", 1.0, "%5.4f" );
-    m_BorderLayout.ForceNewLine();
-
-
-    m_BorderLayout.SetButtonWidth( tw );
-    m_BorderLayout.SetSameLineFlag( true );
-    m_BorderLayout.SetFitWidthFlag( false );
-
-    m_BorderLayout.AddButton( m_HScaleToggleButton, "" );
-
-    m_BorderLayout.SetFitWidthFlag( true );
-    m_BorderLayout.SetButtonWidth( bw - tw );
-
     m_BorderLayout.AddSlider( m_HSlider, "Height", 1.0, "%5.4f" );
-    m_BorderLayout.ForceNewLine();
-
-
-    m_BorderLayout.SetButtonWidth( tw );
-    m_BorderLayout.SetSameLineFlag( true );
-    m_BorderLayout.SetFitWidthFlag( false );
-
-    m_BorderLayout.AddButton( m_ResolutionScaleToggleButton, "" );
-
-    m_BorderLayout.SetFitWidthFlag( true );
-    m_BorderLayout.SetButtonWidth( bw - tw );
-
     m_BorderLayout.AddSlider( m_ResolutionSlider, "Res.", 1.0, "%5.4f" );
-    m_BorderLayout.ForceNewLine();
-
-    m_ScaleGroup.Init( this );
-    m_ScaleGroup.AddButton( m_WScaleToggleButton.GetFlButton() );
-    m_ScaleGroup.AddButton( m_HScaleToggleButton.GetFlButton() );
-    m_ScaleGroup.AddButton( m_ResolutionScaleToggleButton.GetFlButton() );
-
-    m_BorderLayout.SetSameLineFlag( false );
-    m_BorderLayout.SetFitWidthFlag( true );
 
     m_BorderLayout.AddYGap();
 
@@ -378,7 +342,7 @@ bool ManageBackground3DScreen::Update()
         m_UpYSlider.Update( bg3D->m_UpY.GetID() );
         m_UpZSlider.Update( bg3D->m_UpZ.GetID() );
 
-        m_ScaleGroup.Update( bg3D->m_ScaleType.GetID() );
+        m_ImageScaleChoice.Update( bg3D->m_ScaleType.GetID() );
         m_WSlider.Update( bg3D->m_BackgroundWidth.GetID() );
         m_HSlider.Update( bg3D->m_BackgroundHeight.GetID() );
         m_ResolutionSlider.Update( bg3D->m_Resolution.GetID() );
@@ -425,9 +389,6 @@ bool ManageBackground3DScreen::Update()
         m_WSlider.Activate();
         m_HSlider.Activate();
         m_ResolutionSlider.Activate();
-        m_WScaleToggleButton.Activate();
-        m_HScaleToggleButton.Activate();
-        m_ResolutionScaleToggleButton.Activate();
         if ( bg3D->m_ScaleType() == vsp::SCALE_WIDTH )
         {
             m_HSlider.Deactivate();
@@ -436,6 +397,10 @@ bool ManageBackground3DScreen::Update()
         else if ( bg3D->m_ScaleType() == vsp::SCALE_HEIGHT )
         {
             m_WSlider.Deactivate();
+            m_ResolutionSlider.Deactivate();
+        }
+        else if ( bg3D->m_ScaleType() == vsp::SCALE_WIDTH_HEIGHT )
+        {
             m_ResolutionSlider.Deactivate();
         }
         else // vsp::SCALE_RESOLUTION
@@ -494,10 +459,7 @@ bool ManageBackground3DScreen::Update()
         m_UpYSlider.Deactivate();
         m_UpZSlider.Deactivate();
 
-        m_WScaleToggleButton.Deactivate();
-        m_HScaleToggleButton.Deactivate();
-        m_ResolutionScaleToggleButton.Deactivate();
-
+        m_ImageScaleChoice.Deactivate();
         m_WSlider.Deactivate();
         m_HSlider.Deactivate();
         m_ResolutionSlider.Deactivate();

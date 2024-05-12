@@ -50,6 +50,7 @@ public:
     Parm m_BackgroundWidth;
     Parm m_BackgroundHeight;
     Parm m_Resolution;
+    BoolParm m_ResEqual;
 
     IntParm m_HAlign;
     IntParm m_VAlign;

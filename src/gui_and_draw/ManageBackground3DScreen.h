@@ -62,11 +62,7 @@ protected:
     SliderAdjRangeInput m_UpYSlider;
     SliderAdjRangeInput m_UpZSlider;
 
-    ToggleRadioGroup m_ScaleGroup;
-
-    ToggleButton m_WScaleToggleButton;
-    ToggleButton m_HScaleToggleButton;
-    ToggleButton m_ResolutionScaleToggleButton;
+    Choice m_ImageScaleChoice;
 
     SliderAdjRangeInput m_WSlider;
     SliderAdjRangeInput m_HSlider;

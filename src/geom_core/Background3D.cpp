@@ -39,6 +39,7 @@ Background3D::Background3D() : ParmContainer()
     m_BackgroundWidth.Init( "W", "Background3D", this, 1.0, 0, 1.0e12 );
     m_BackgroundHeight.Init( "H", "Background3D", this, 1.0, 0, 1.0e12 );
     m_Resolution.Init( "Resolution", "Background3D", this, 1.0, 0, 1e12 );
+    m_ResEqual.Init( "ResEqual", "Background3D", this, true, false, true );
 
     m_HAlign.Init( "HAlign", "Background3D", this, vsp::ALIGN_CENTER, vsp::ALIGN_LEFT, vsp::ALIGN_PIXEL );
     m_VAlign.Init( "VAlign", "Background3D", this, vsp::ALIGN_MIDDLE, vsp::ALIGN_PIXEL, vsp::ALIGN_BOTTOM );
@@ -161,6 +162,10 @@ void Background3D::Update()
         {
             m_BackgroundWidth = w;
         }
+    }
+    else if ( m_ScaleType() == vsp::SCALE_WIDTH_HEIGHT )
+    {
+        m_Resolution = sqrt( ( 1.0 * m_ImageH() * m_ImageW()  ) / ( m_BackgroundHeight() * m_BackgroundWidth() ) );
     }
     else // vsp::SCALE_RESOLUTION
     {
