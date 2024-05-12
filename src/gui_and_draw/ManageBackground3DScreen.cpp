@@ -75,7 +75,7 @@ ManageBackground3DScreen::ManageBackground3DScreen( ScreenMgr * mgr ) : BasicScr
     m_BorderLayout.SetInputWidth( m_BorderLayout.GetRemainX() - 150 );
     m_BorderLayout.SetButtonWidth( bw );
     m_BorderLayout.AddOutput( m_FileOutput, "File:");
-    m_BorderLayout.AddButton( m_FileSelect, "..." );
+    m_BorderLayout.AddButton( m_FileSelect, "Browse" );
     m_BorderLayout.ForceNewLine();
 
 
