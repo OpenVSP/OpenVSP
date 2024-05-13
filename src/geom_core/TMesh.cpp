@@ -1895,6 +1895,74 @@ void TMesh::UpdateBBox( BndBox &bbox, const Matrix4d &transMat )
 }
 
 //==== Write STL Tris =====//
+void TMesh::WriteIgnoredSTLTris( FILE* file_id, Matrix4d XFormMat )
+{
+    int t, s;
+    vec3d norm;
+    vec3d v0, v1, v2;
+    vec3d d30, d21;
+
+    for ( t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        if ( tri->m_SplitVec.size() )
+        {
+            for ( s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                if ( tri->m_SplitVec[s]->m_IgnoreTriFlag )
+                {
+                    v0 = XFormMat.xform( tri->m_SplitVec[s]->m_N0->m_Pnt );
+                    v1 = XFormMat.xform( tri->m_SplitVec[s]->m_N1->m_Pnt );
+                    v2 = XFormMat.xform( tri->m_SplitVec[s]->m_N2->m_Pnt );
+
+                    d21 = v2 - v1;
+
+                    if ( d21.mag() > 0.000001 )
+                    {
+                        norm = cross( d21, v0 - v1 );
+                        norm.normalize();
+
+                        fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+                        fprintf( file_id, "   outer loop\n" );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v0.x(), v0.y(), v0.z() );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v1.x(), v1.y(), v1.z() );
+                        fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v2.x(), v2.y(), v2.z() );
+                        fprintf( file_id, "   endloop\n" );
+                        fprintf( file_id, " endfacet\n" );
+                    }
+                }
+            }
+        }
+        else
+        {
+            if ( tri->m_IgnoreTriFlag )
+            {
+                v0 = XFormMat.xform( tri->m_N0->m_Pnt );
+                v1 = XFormMat.xform( tri->m_N1->m_Pnt );
+                v2 = XFormMat.xform( tri->m_N2->m_Pnt );
+
+                d21 = v2 - v1;
+
+                if ( d21.mag() > 0.000001 )
+                {
+                    norm = cross( d21, v0 - v1 );
+                    norm.normalize();
+
+                    fprintf( file_id, " facet normal  %2.10le %2.10le %2.10le\n",  norm.x(), norm.y(), norm.z() );
+                    fprintf( file_id, "   outer loop\n" );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v0.x(), v0.y(), v0.z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v1.x(), v1.y(), v1.z() );
+                    fprintf( file_id, "     vertex %2.10le %2.10le %2.10le\n", v2.x(), v2.y(), v2.z() );
+                    fprintf( file_id, "   endloop\n" );
+                    fprintf( file_id, " endfacet\n" );
+                }
+            }
+        }
+    }
+}
+
+//==== Write STL Tris =====//
 void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
 {
     int t, s;
@@ -1960,6 +2028,23 @@ void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
             }
         }
     }
+}
+
+void TMesh::WriteIgnoredSTL( string fname, double scale )
+{
+    FILE* fp = fopen( fname.c_str(), "w" );
+
+    if ( !fp )
+    {
+        return;
+    }
+
+    fprintf( fp, "solid\n" );
+    Matrix4d mScale;
+    mScale.scale( scale );
+    WriteIgnoredSTLTris( fp, mScale );
+    fprintf( fp, "endsolid\n" );
+    fclose( fp );
 }
 
 void TMesh::WriteSTL( string fname, double scale )

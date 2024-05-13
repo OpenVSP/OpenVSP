@@ -503,8 +503,10 @@ public:
     virtual void AddTri( const TTri* tri );
     virtual void AddUWTri( const vec3d & uw0, const vec3d & uw1, const vec3d & uw2, const vec3d & norm, const int & iQuad );
 
+    virtual void WriteIgnoredSTLTris( FILE* file_id, Matrix4d XFormMat );
     virtual void WriteSTLTris( FILE* file_id, Matrix4d XFormMat );
 
+    virtual void WriteIgnoredSTL( string fname, double scale = 1.0 );
     virtual void WriteSTL( string fname, double scale = 1.0 );
     virtual void WriteOBJ( string fname, double scale = 1.0 );
     virtual void WriteTRI( string fname, double scale = 1.0 );
