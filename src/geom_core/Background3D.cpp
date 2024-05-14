@@ -99,13 +99,14 @@ xmlNodePtr Background3D::EncodeXml( xmlNodePtr & node )
 
     if ( parmcontain_node )
     {
+        string filetowrite = m_BGFile;
         Vehicle *veh = VehicleMgr.GetVehicle();
         if ( veh )
         {
-            veh->MakeRelativePath( m_BGFile );
+            veh->MakeRelativePath( filetowrite );
         }
 
-        XmlUtil::AddStringNode( parmcontain_node, "BGFile", m_BGFile );
+        XmlUtil::AddStringNode( parmcontain_node, "BGFile", filetowrite );
     }
 
     return parmcontain_node;
