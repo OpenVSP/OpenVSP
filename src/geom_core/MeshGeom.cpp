@@ -4211,7 +4211,8 @@ void MeshGeom::MergeCoplanarSplitPatches()
                 TMesh *tmj = m_TMeshVec[ j ];
                 if ( tmi->m_OriginGeomID == tmj->m_OriginGeomID &&
                      tmi->m_SurfNum == tmj->m_SurfNum &&
-                     tmi->m_PlateNum == tmj->m_PlateNum )
+                     tmi->m_PlateNum == tmj->m_PlateNum &&
+                     tmj->m_DeleteMeFlag == false )
                 {
                     tmi->MergeTMeshes( tmj );
                     tmj->m_DeleteMeFlag = true;
