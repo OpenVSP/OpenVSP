@@ -666,6 +666,15 @@ void PGFace::Triangulate_triangle()
     // index to size-1 because first/last point is repeated.
     int npt = nodVec.size() - 1;
 
+    for ( int i = 0; i < npt; i++ )
+    {
+        if ( !nodVec[i] )
+        {
+            printf( "PGFace Invalid in Triangulate_triangle\n" );
+            return;
+        }
+    }
+
     if ( npt < 3 )
     {
         return;
@@ -673,9 +682,16 @@ void PGFace::Triangulate_triangle()
 
     if ( npt == 3 )
     {
-        m_TriNodeVec.push_back( nodVec[ 0 ] );
-        m_TriNodeVec.push_back( nodVec[ 1 ] );
-        m_TriNodeVec.push_back( nodVec[ 2 ] );
+        if ( nodVec[ 0 ] && nodVec[ 1 ] && nodVec[ 2 ] )
+        {
+            m_TriNodeVec.push_back( nodVec[ 0 ] );
+            m_TriNodeVec.push_back( nodVec[ 1 ] );
+            m_TriNodeVec.push_back( nodVec[ 2 ] );
+        }
+        else
+        {
+            printf( "At least one of three nodes invalid in PGFace::Triangulate_triangle\n" );
+        }
         return;
     }
 
@@ -774,6 +790,14 @@ void PGFace::Triangulate_triangle()
         }
     }
 
+    for ( int i = 0; i < m_TriNodeVec.size(); i++ )
+    {
+        if ( !m_TriNodeVec[i] )
+        {
+            printf( "m_TriNodeVec Invalid in Triangulate_triangle\n" );
+        }
+    }
+
     //==== Free Local Memory ====//
     if ( in.pointlist )
     {
@@ -819,6 +843,15 @@ void PGFace::Triangulate_DBA()
     // index to size-1 because first/last point is repeated.
     int npt = nodVec.size() - 1;
 
+    for ( int i = 0; i < npt; i++ )
+    {
+        if ( !nodVec[i] )
+        {
+            printf( "PGFace Invalid in Triangulate_DBA\n" );
+            return;
+        }
+    }
+
     if ( npt < 3 )
     {
         return;
@@ -826,9 +859,16 @@ void PGFace::Triangulate_DBA()
 
     if ( npt == 3 )
     {
-        m_TriNodeVec.push_back( nodVec[ 0 ] );
-        m_TriNodeVec.push_back( nodVec[ 1 ] );
-        m_TriNodeVec.push_back( nodVec[ 2 ] );
+        if ( nodVec[ 0 ] && nodVec[ 1 ] && nodVec[ 2 ] )
+        {
+            m_TriNodeVec.push_back( nodVec[ 0 ] );
+            m_TriNodeVec.push_back( nodVec[ 1 ] );
+            m_TriNodeVec.push_back( nodVec[ 2 ] );
+        }
+        else
+        {
+            printf( "At least one of three nodes invalid in PGFace::Triangulate_DBA\n" );
+        }
         return;
     }
 
@@ -923,6 +963,13 @@ void PGFace::Triangulate_DBA()
         printf( "DLB Error! %d\n", verts );
     }
 
+    for ( int i = 0; i < m_TriNodeVec.size(); i++ )
+    {
+        if ( !m_TriNodeVec[i] )
+        {
+            printf( "m_TriNodeVec Invalid in Triangulate_DBA\n" );
+        }
+    }
 
     delete[] cloud;
     delete[] bounds;
