@@ -1858,7 +1858,7 @@ string MeshGeom::CreateNGonMeshGeom()
         new_geom->m_PGMesh.SealColinearEdgeLoops();
 
         new_geom->m_PGMesh.PolygonizeMesh();
-        new_geom->CleanColinearVerts();
+        new_geom->m_PGMesh.CleanColinearVerts();
 
         new_geom->SplitLEGeom();
 

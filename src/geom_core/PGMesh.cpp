@@ -3214,6 +3214,37 @@ void PGMesh::PolygonizeMesh()
 
 }
 
+void PGMesh::CleanColinearVerts()
+{
+    // Node colinearity tolerance.
+    double tol = 1.0e-12;
+
+    list< PGEdge* >::iterator e;
+    for ( e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
+    {
+        ( *e )->SortFaces();
+    }
+
+    // Make vector copy of list so nodes can be removed from list without invalidating active list iterator.
+    vector< PGNode* > nVec( m_NodeList.begin(), m_NodeList.end() );
+
+    int ncolinear = 0;
+    for ( int i = 0; i < nVec.size(); i++ )
+    {
+        PGNode *n = nVec[ i ];
+
+        if ( n->ColinearNode( tol ) )
+        {
+            RemoveNodeMergeEdges( n );
+            ncolinear++;
+        }
+    }
+
+    printf( "%d colinear verts removed\n", ncolinear );
+
+    DumpGarbage();
+}
+
 void PGMesh::WriteVSPGeom( FILE* file_id, const Matrix4d & XFormMat  )
 {
     fprintf( file_id, "# vspgeom v2\n" );
