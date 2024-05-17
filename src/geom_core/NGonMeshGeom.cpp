@@ -107,30 +107,7 @@ xmlNodePtr NGonMeshGeom::DecodeXml( xmlNodePtr & node )
 
 void NGonMeshGeom::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec )
 {
-    // Archive tag data at time of NGonMeshGeom creation.
-    m_PGMesh.m_TagNames = SubSurfaceMgr.m_TagNames;
-    m_PGMesh.m_TagIDs = SubSurfaceMgr.m_TagIDs;
-    m_PGMesh.m_ThickVec = SubSurfaceMgr.m_CompThick;
-    m_PGMesh.m_TypeVec = SubSurfaceMgr.m_CompTypes;
-    m_PGMesh.m_WminVec = SubSurfaceMgr.m_CompWmin;
-    m_PGMesh.m_TagKeys = SubSurfaceMgr.GetTagKeys();
-    m_PGMesh.m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
-
-    vector < PGNode* > nod( nodeVec.size() );
-    for ( int i = 0; i < nodeVec.size(); i++ )
-    {
-        nodeVec[i]->m_ID = i;
-        nod[i] = m_PGMesh.AddNode( nodeVec[i]->m_Pnt );
-    }
-
-    for ( int i = 0; i < triVec.size(); i++ )
-    {
-        TTri *t = triVec[i];
-        int tag = m_PGMesh.GetTag( t->m_Tags );
-        PGFace *f = m_PGMesh.AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
-                                      t->m_N0->m_UWPnt.as_vec2d_xy(), t->m_N1->m_UWPnt.as_vec2d_xy(), t->m_N2->m_UWPnt.as_vec2d_xy(),
-                                      t->m_Norm, t->m_iQuad, tag );
-    }
+    m_PGMesh.BuildFromTMesh( nodeVec, triVec );
 }
 
 void NGonMeshGeom::PolygonizeMesh()

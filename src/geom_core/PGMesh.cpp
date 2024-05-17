@@ -4011,6 +4011,34 @@ void PGMesh::GetPartData( vector < string > &gidvec, vector < int > &partvec, ve
     }
 }
 
+void PGMesh::BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec )
+{
+    // Archive tag data at time of NGonMeshGeom creation.
+    m_TagNames = SubSurfaceMgr.m_TagNames;
+    m_TagIDs = SubSurfaceMgr.m_TagIDs;
+    m_ThickVec = SubSurfaceMgr.m_CompThick;
+    m_TypeVec = SubSurfaceMgr.m_CompTypes;
+    m_WminVec = SubSurfaceMgr.m_CompWmin;
+    m_TagKeys = SubSurfaceMgr.GetTagKeys();
+    m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
+
+    vector < PGNode* > nod( nodeVec.size() );
+    for ( int i = 0; i < nodeVec.size(); i++ )
+    {
+        nodeVec[i]->m_ID = i;
+        nod[i] = AddNode( nodeVec[i]->m_Pnt );
+    }
+
+    for ( int i = 0; i < triVec.size(); i++ )
+    {
+        TTri *t = triVec[i];
+        int tag = GetTag( t->m_Tags );
+        PGFace *f = AddFace( nod[t->m_N0->m_ID], nod[t->m_N1->m_ID], nod[t->m_N2->m_ID],
+                                      t->m_N0->m_UWPnt.as_vec2d_xy(), t->m_N1->m_UWPnt.as_vec2d_xy(), t->m_N2->m_UWPnt.as_vec2d_xy(),
+                                      t->m_Norm, t->m_iQuad, tag );
+    }
+}
+
 PGNode* FindEndNode( const vector < PGEdge* > & eVec )
 {
     if ( eVec.size() == 0 )

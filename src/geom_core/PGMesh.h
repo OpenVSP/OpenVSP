@@ -32,6 +32,9 @@
 #include <algorithm>
 using namespace std;
 
+class TNode;
+class TTri;
+
 class PGMesh;
 class PGFace;
 class PGEdge;
@@ -360,6 +363,8 @@ public:
     int GetPart( const std::vector<int> & tags );
     int GetPart( int tag );
     void GetPartData( vector < string > &gidvec, vector < int > &partvec, vector < int > &surfvec );
+
+    void BuildFromTMesh( const vector< TNode* > nodeVec, const vector< TTri* > &triVec );
 
     std::map< std::vector<int>, int > GetSingleTagMap() { return m_SingleTagMap; }
     unsigned int GetNumTags() { return m_SingleTagMap.size(); }
