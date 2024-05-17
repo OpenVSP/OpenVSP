@@ -4069,6 +4069,70 @@ void PGMesh::GetPartData( vector < string > &gidvec, vector < int > &partvec, ve
     }
 }
 
+void PGMesh::BuildFromTMesh( TMesh* tmi )
+{
+    // Archive tag data at time of NGonMeshGeom creation.
+    m_TagNames = SubSurfaceMgr.m_TagNames;
+    m_TagIDs = SubSurfaceMgr.m_TagIDs;
+    m_ThickVec = SubSurfaceMgr.m_CompThick;
+    m_TypeVec = SubSurfaceMgr.m_CompTypes;
+    m_WminVec = SubSurfaceMgr.m_CompWmin;
+    m_TagKeys = SubSurfaceMgr.GetTagKeys();
+    m_SingleTagMap = SubSurfaceMgr.GetSingleTagMap();
+
+    vector < PGNode* > nod;
+
+    for ( int j = 0; j < tmi->m_NVec.size(); j++ )
+    {
+        TNode *nj = tmi->m_NVec[j];
+        nj->m_ID = nod.size();
+        nod.push_back( AddNode( nj->m_Pnt ) );
+    }
+
+    for ( int j = 0; j < tmi->m_TVec.size(); j++ )
+    {
+        TTri *tj = tmi->m_TVec[j];
+
+        if ( tj->m_SplitVec.size() )
+        {
+            for ( int s = 0; s < ( int ) tj->m_SplitVec.size(); s++ )
+            {
+                TTri *ts = tj->m_SplitVec[ s ];
+                if ( !ts->m_IgnoreTriFlag )
+                {
+                    int tag = GetTag( ts->m_Tags );
+                    AddFace( nod[ ts->m_N0->m_ID ],
+                             nod[ ts->m_N1->m_ID ],
+                             nod[ ts->m_N2->m_ID ],
+                             ts->m_N0->m_UWPnt.as_vec2d_xy(),
+                             ts->m_N1->m_UWPnt.as_vec2d_xy(),
+                             ts->m_N2->m_UWPnt.as_vec2d_xy(),
+                             ts->m_Norm,
+                             ts->m_iQuad,
+                             tag );
+                }
+            }
+        }
+        else
+        {
+            if ( !tj->m_IgnoreTriFlag )
+            {
+                int tag = GetTag( tj->m_Tags );
+                AddFace( nod[ tj->m_N0->m_ID ],
+                         nod[ tj->m_N1->m_ID ],
+                         nod[ tj->m_N2->m_ID ],
+                         tj->m_N0->m_UWPnt.as_vec2d_xy(),
+                         tj->m_N1->m_UWPnt.as_vec2d_xy(),
+                         tj->m_N2->m_UWPnt.as_vec2d_xy(),
+                         tj->m_Norm,
+                         tj->m_iQuad,
+                         tag );
+            }
+        }
+    }
+
+}
+
 void PGMesh::BuildFromTMeshVec( const vector< TMesh* > tmv )
 {
     // Archive tag data at time of NGonMeshGeom creation.
