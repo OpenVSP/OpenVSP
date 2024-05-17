@@ -674,10 +674,12 @@ void MeshGeom::IndexTriVec( vector < TTri* > &trivec, vector < TNode* > &nodvec 
         trivec[t]->m_N2->m_ID = ( int )allNodeVec.size();
         allNodeVec.push_back( trivec[t]->m_N2 );
     }
+    BndBox bb;
     vector< vec3d > allPntVec( allNodeVec.size() );
     for ( int i = 0 ; i < ( int )allNodeVec.size() ; i++ )
     {
         allPntVec[i] = allNodeVec[i]->m_Pnt;
+        bb.Update( allPntVec[i] );
     }
 
     if ( allPntVec.size() == 0 )
@@ -690,7 +692,6 @@ void MeshGeom::IndexTriVec( vector < TTri* > &trivec, vector < TNode* > &nodvec 
     pnCloud.AddPntNodes( allPntVec );
 
     //==== Compute Tol ====//
-    BndBox bb = m_Vehicle->GetBndBox();
     double tol = bb.GetLargestDist() * 1.0e-10;
 
     //==== Use NanoFlann to Find Close Points and Group ====//
