@@ -745,6 +745,12 @@ void MeshGeom::IgnoreDegenTris( vector < TTri* > &trivec )
 //==== Build Indexed Mesh ====//
 void MeshGeom::BuildIndexedMesh()
 {
+    // Note that these vectors still point into the base m_TMeshVec.  Those tris and nodes
+    // are not changed (beyond assignment of m_ID values).
+    // The TNode::m_ID values are set such that spatially coincident nodes have equal m_ID,
+    // but those nodes are not otherwise merged.
+    // m_IndexedNodeVec contains only the unique TNode's, but m_IndexedTriVec still contains
+    // pointers to TNode's not in m_IndexedNodeVec.
     m_IndexedTriVec.clear();
     m_IndexedNodeVec.clear();
 
