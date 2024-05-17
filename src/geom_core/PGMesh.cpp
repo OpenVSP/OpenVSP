@@ -209,6 +209,13 @@ bool PGNode::Validate()
 
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
+        if ( !m_EdgeVec[i] )
+        {
+            printf( "Node %d has invalid edge pointer %d\n", m_ID, i );
+            valid = false;
+            continue;
+        }
+
         if ( !m_EdgeVec[i]->ContainsNode( this ) )
         {
             printf( "Edge %d does not contain node %d\n", m_EdgeVec[i]->m_ID, m_ID );
@@ -450,6 +457,13 @@ bool PGEdge::Validate()
 
     for ( int i = 0; i < m_FaceVec.size(); i++ )
     {
+        if ( !m_FaceVec[i] )
+        {
+            printf( "Edge %d has invalid face pointer %d\n", m_ID, i );
+            valid = false;
+            continue;
+        }
+
         if ( !m_FaceVec[i]->Contains( this ) )
         {
             printf( "Face %d does not contain edge %d\n", m_FaceVec[i]->m_ID, m_ID );
@@ -457,13 +471,23 @@ bool PGEdge::Validate()
         }
     }
 
-    if ( !m_N0->UsedBy( this ) )
+    if ( !m_N0 )
+    {
+        printf( "Node 0 is invalid in edge %d\n", m_ID );
+        valid = false;
+    }
+    else if ( !m_N0->UsedBy( this ) )
     {
         printf( "Node %d is unaware it is used by edge %d\n", m_N0->m_ID, m_ID );
         valid = false;
     }
 
-    if ( !m_N1->UsedBy( this ) )
+    if ( !m_N1 )
+    {
+        printf( "Node 1 is invalid in edge %d\n", m_ID );
+        valid = false;
+    }
+    else if ( !m_N1->UsedBy( this ) )
     {
         printf( "Node %d is unaware it is used by edge %d\n", m_N1->m_ID, m_ID );
         valid = false;
@@ -1116,6 +1140,12 @@ bool PGFace::Validate()
     bool valid = true;
     for ( int i = 0; i < m_EdgeVec.size(); i++ )
     {
+        if ( !m_EdgeVec[i] )
+        {
+            printf( "Face %d has invalid edge pointer %d\n", m_ID, i );
+            valid = false;
+            continue;
+        }
         if ( !m_EdgeVec[i]->UsedBy( this ) )
         {
             printf( "Edge %d is unaware it is used by face %d\n", m_EdgeVec[i]->m_ID, m_ID );
@@ -3078,7 +3108,7 @@ bool PGMesh::Validate()
     bool valid = true;
     for ( list< PGNode* >::iterator n = m_NodeList.begin() ; n != m_NodeList.end(); ++n )
     {
-        if ( !(*n)->Validate() )
+        if ( (*n) &&  !(*n)->Validate() )
         {
             valid = false;
         }
@@ -3096,7 +3126,7 @@ bool PGMesh::Validate()
     valid = true;
     for ( list< PGEdge* >::iterator e = m_EdgeList.begin() ; e != m_EdgeList.end(); ++e )
     {
-        if ( !(*e)->Validate() )
+        if ( (*e) &&  !(*e)->Validate() )
         {
             valid = false;
         }
@@ -3114,7 +3144,7 @@ bool PGMesh::Validate()
     valid = true;
     for ( list< PGFace* >::iterator f = m_FaceList.begin() ; f != m_FaceList.end(); ++f )
     {
-        if ( !(*f)->Validate() )
+        if ( (*f) &&  !(*f)->Validate() )
         {
             valid = false;
         }
