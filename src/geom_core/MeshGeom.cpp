@@ -693,6 +693,10 @@ void MeshGeom::IndexTriVec( vector < TTri* > &trivec, vector < TNode* > &nodvec 
 
     //==== Compute Tol ====//
     double tol = bb.GetLargestDist() * 1.0e-10;
+    if ( tol < DBL_EPSILON )
+    {
+        tol = DBL_EPSILON;
+    }
 
     //==== Use NanoFlann to Find Close Points and Group ====//
     IndexPntNodes( pnCloud, tol );
